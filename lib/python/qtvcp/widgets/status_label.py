@@ -45,6 +45,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self._tool_dia = 0
         self._tool_offset = 0
         self._state_label_list = ['Estopped','Running','Stopped','Paused','Waiting','Reading']
+        self._motion_label_list = ['None','Rapid','Feed','Arc','Tool Change','Probe','Rotaty Index']
         self._halpin_name = 'remapStat.tool'
 
         self.feed_override = False
@@ -71,6 +72,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self.filename = False
         self.filepath = False
         self.machine_state = False
+        self.motion_type = False
         self.time_stamp = False
         self.tool_offset = False
         self.gcode_selected = False
@@ -145,6 +147,8 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
             STATUS.connect('interp-paused', lambda w: self._machine_state(self._state_label_list[3]))
             STATUS.connect('interp-waiting', lambda w: self._machine_state(self._state_label_list[4]))
             STATUS.connect('interp-reading', lambda w: self._machine_state(self._state_label_list[5]))
+        elif self.motion_type:
+            STATUS.connect('motion-type-changed', lambda w, data: self._set_motion_type(data))
         elif self.time_stamp:
             STATUS.connect('periodic', self._set_timestamp)
         elif self.tool_offset:
@@ -339,6 +343,10 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
             self._set_alt_text(rate)
         else:
             self._set_text(rate)
+
+    def _set_motion_type(self, data):
+        self._set_text(self._motion_label_list[data])
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -354,7 +362,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
                 'requested_spindle_speed', 'actual_spindle_speed',
                 'user_system', 'gcodes', 'mcodes', 'tool_diameter',
                 'tool_comment',  'actual_surface_speed', 'filename', 'filepath',
-                'machine_state', 'time_stamp', 'max_velocity_override', 'tool_offset',
+                'machine_state', 'motion_type', 'time_stamp', 'max_velocity_override', 'tool_offset',
                 'gcode_selected', 'fcode', 'blendcode', 'halpin')
 
         for i in data:
@@ -650,6 +658,16 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def reset_machine_state(self):
         self.machine_state = False
 
+    # motion_type status
+    def set_motion_type(self, data):
+        self.motion_type = data
+        if data:
+            self._toggle_properties('motion_type')
+    def get_motion_type(self):
+        return self.motion_type
+    def reset_motion_type(self):
+        self.motion_type = False
+
     # time_stamp status
     def set_time_stamp(self, data):
         self.time_stamp = data
@@ -676,6 +694,13 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         return self._state_label_list
     def reset_state_label_l(self):
         self._state_label_list = ['Estopped','Running','Stopped','Paused','Waiting','Reading']
+
+    def set_motion_label_l(self, data):
+        self._motion_label_list = data
+    def get_motion_label_l(self):
+        return self._motion_label_list
+    def reset_motion_label_l(self):
+        self._motion_label_list = ['None','Rapid','Feed','Arc','Tool Change','Probe','Rotaty Index']
 
     # gcode line selected
     def set_gcode_selected(self, data):
@@ -742,10 +767,13 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
                                                       reset_filepath)
     machine_state_status = QtCore.pyqtProperty(bool, get_machine_state, set_machine_state,
                                                       reset_machine_state)
+    motion_type_status = QtCore.pyqtProperty(bool, get_motion_type, set_motion_type,
+                                                      reset_motion_type)
     time_stamp_status = QtCore.pyqtProperty(bool, get_time_stamp, set_time_stamp,
                                                       reset_time_stamp)
     halpin_status = QtCore.pyqtProperty(bool, get_halpin, set_halpin, reset_halpin)
     state_label_list = QtCore.pyqtProperty(QtCore.QVariant.typeToName(QtCore.QVariant.StringList), get_state_label_l, set_state_label_l, reset_state_label_l)
+    motion_type_list = QtCore.pyqtProperty(QtCore.QVariant.typeToName(QtCore.QVariant.StringList), get_motion_label_l, set_motion_label_l, reset_motion_label_l)
     halpin_name = QtCore.pyqtProperty(str, get_halpin_name, set_halpin_name, reset_halpin_name)
     # boilder code
     def __getitem__(self, item):
@@ -754,10 +782,15 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         return setattr(self, item, value)
 
 if __name__ == "__main__":
+    from PyQt5.QtWidgets import *
+    from PyQt5.QtCore import *
+    from PyQt5.QtGui import *
 
     import sys
 
     app = QApplication(sys.argv)
-    label = Lcnc_State_Label()
+    label = StatusLabel()
+    label.setProperty('motion_type_status',True)
+    label._hal_init()
     label.show()
     sys.exit(app.exec_())
