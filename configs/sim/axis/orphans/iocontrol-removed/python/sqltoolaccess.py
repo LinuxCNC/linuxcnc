@@ -73,7 +73,7 @@ class SqlToolAccess(object):
                 t.offset.v = row.v_offset
                 t.offset.w = row.w_offset
 
-        except pyodbc.Error, e:
+        except pyodbc.Error as e:
             traceback.print_exc(file=sys.stdout)
         else:
             start = 0 if self.random_toolchanger else 1
@@ -98,7 +98,7 @@ class SqlToolAccess(object):
                                         (t.toolno, p, t.diameter, t.backangle,t.frontangle,t.orientation,
                                          comment[p],t.offset.x,t.offset.y,t.offset.z,t.offset.a,t.offset.b,
                                          t.offset.c,t.offset.u,t.offset.v,t.offset.w))
-        except pyodbc.Error, msg:
+        except pyodbc.Error as msg:
             print("saving tooltable failed:")
             traceback.print_exc(file=sys.stdout)
         finally:
@@ -117,7 +117,7 @@ class SqlToolAccess(object):
             cursor.execute("insert into state (tool_in_spindle,pocket_prepped) values(?,?)", e.io.tool.toolInSpindle,e.io.tool.pocketPrepped)
             print("done")
 
-        except pyodbc.Error, msg:
+        except pyodbc.Error as msg:
             print("save_state() failed:")
             traceback.print_exc(file=sys.stdout)
         finally:
@@ -144,7 +144,7 @@ class SqlToolAccess(object):
             else:
                 print("no saved state record found")
 
-        except pyodbc.Error, msg:
+        except pyodbc.Error as msg:
             print("restore_state() failed:")
             traceback.print_exc(file=sys.stdout)
         finally:
