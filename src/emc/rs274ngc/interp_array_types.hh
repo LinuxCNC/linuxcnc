@@ -25,6 +25,7 @@
 
 namespace pp = pyplusplus::containers::static_sized;
 
+typedef pp::array_1_t<double, EMCMOT_MAX_SPINDLES> spindle_speed_array, (*spindle_speed_w)(Interp &);
 typedef pp::array_1_t< int, ACTIVE_G_CODES> active_g_codes_array, (*active_g_codes_w)( Interp & );
 typedef pp::array_1_t< int, ACTIVE_M_CODES> active_m_codes_array, (*active_m_codes_w)( Interp & );
 typedef pp::array_1_t< double, ACTIVE_SETTINGS> active_settings_array, (*active_settings_w)( Interp & );

@@ -55,6 +55,10 @@ namespace pp = pyplusplus::containers::static_sized;
 #define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
 
+static  spindle_speed_array spindle_speed_wrapper (Interp & inst) {
+    return spindle_speed_array(inst._setup.speed);
+}
+
 static  active_g_codes_array active_g_codes_wrapper ( Interp & inst) {
     return active_g_codes_array(inst._setup.active_g_codes);
 }
@@ -510,12 +514,6 @@ static inline double get_rotation_xy (Interp &interp)  {
 static inline void set_rotation_xy(Interp &interp, double value)  {
     interp._setup.rotation_xy = value;
 }
-static inline double get_speed (Interp &interp, int spindle)  {
-    return interp._setup.speed[spindle];
-}
-static inline void set_speed(Interp &interp, int spindle, double value)  {
-    interp._setup.speed[spindle] = value;
-}
 static inline double get_traverse_rate (Interp &interp)  {
     return interp._setup.traverse_rate;
 }
@@ -920,7 +918,6 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("program_z", &get_program_z, &set_program_z)
 	.add_property("return_value", &get_return_value, &set_return_value)
 	.add_property("rotation_xy", &get_rotation_xy, &set_rotation_xy)
-	.add_property("speed", &get_speed, &set_speed)
 	.add_property("traverse_rate", &get_traverse_rate, &set_traverse_rate)
 	.add_property("u_axis_offset", &get_u_axis_offset, &set_u_axis_offset)
 	.add_property("u_origin_offset", &get_u_origin_offset, &set_u_origin_offset)
@@ -974,6 +971,14 @@ BOOST_PYTHON_MODULE(interpreter) {
 
 
 	// _setup arrays
+        .add_property(
+            "speed",
+            bp::make_function(
+                spindle_speed_w(&spindle_speed_wrapper),
+                bp::with_custodian_and_ward_postcall<0, 1>()
+            )
+        )
+
 	.add_property( "active_g_codes",
 		       bp::make_function( active_g_codes_w(&active_g_codes_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))

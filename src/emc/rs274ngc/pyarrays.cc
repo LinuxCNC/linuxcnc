@@ -39,6 +39,7 @@ void export_Arrays()
     using namespace boost::python;
     using namespace boost;
 
+    pp::register_array_1<double, EMCMOT_MAX_SPINDLES>("SpindleSpeedArray");
     pp::register_array_1< int, ACTIVE_G_CODES> ("ActiveGcodesArray" );
     pp::register_array_1< int, ACTIVE_M_CODES> ("ActiveMcodesArray" );
     pp::register_array_1< double, ACTIVE_SETTINGS> ("ActiveSettingsArray");
