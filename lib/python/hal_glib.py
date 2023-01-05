@@ -146,6 +146,7 @@ class _GStat(GObject.GObject):
         'current-tool-offset': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
 
         'motion-mode-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'motion-type-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
         'spindle-control-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE,
              (GObject.TYPE_INT, GObject.TYPE_BOOLEAN, GObject.TYPE_INT, GObject.TYPE_BOOLEAN)),
         'current-feed-rate': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
@@ -292,6 +293,7 @@ class _GStat(GObject.GObject):
         except RuntimeError:
              self.old['tool-prep-number'] = -1
         self.old['motion-mode'] = self.stat.motion_mode
+        self.old['motion-type'] = self.stat.motion_type
         self.old['spindle-or'] = self.stat.spindle[0]['override']
         self.old['feed-or'] = self.stat.feedrate
         self.old['rapid-or'] = self.stat.rapidrate
@@ -504,6 +506,11 @@ class _GStat(GObject.GObject):
         motion_mode_new = self.old['motion-mode']
         if motion_mode_new != motion_mode_old:
             self.emit('motion-mode-changed', motion_mode_new)
+
+        motion_type_old = old.get('motion-type', None)
+        motion_type_new = self.old['motion-type']
+        if motion_type_new != motion_type_old:
+            self.emit('motion-type-changed', motion_type_new)
 
         # if the homed status has changed
         # check number of homed joints against number of available joints
@@ -845,6 +852,10 @@ class _GStat(GObject.GObject):
         # Trajectory Motion mode
         motion_mode_new = self.old['motion-mode']
         self.emit('motion-mode-changed', motion_mode_new)
+
+        # Trajectory Motion type
+        motion_type_new = self.old['motion-type']
+        self.emit('motion-type-changed', motion_type_new)
 
         # Spindle requested speed
         spindle_spd_new = self.old['spindle-speed']
