@@ -142,7 +142,7 @@ class _PStat(object):
                     print(('{}'.format(i)))
                 print('')
                 return True # error
-        self.XMLDIR = os.path.dirname(self.HANDLER)
+
         if not self.HANDLER is None:
             self.XMLDIR = os.path.dirname(self.HANDLER)
         else:
