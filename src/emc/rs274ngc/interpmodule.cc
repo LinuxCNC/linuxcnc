@@ -370,6 +370,14 @@ static inline double get_CC_origin_offset (Interp &interp)  {
 static inline void set_CC_origin_offset(Interp &interp, double value)  {
     interp._setup.CC_origin_offset = value;
 }
+
+static inline int get_active_spindle (Interp const & interp)  {
+    return interp._setup.active_spindle;
+}
+static inline void set_active_spindle(Interp & interp, int value)  {
+    interp._setup.active_spindle = value;
+}
+
 static inline double get_axis_offset_x (Interp &interp)  {
     return interp._setup.axis_offset_x;
 }
@@ -894,6 +902,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("CC_axis_offset", &get_CC_axis_offset, &set_CC_axis_offset)
 	.add_property("CC_current", &get_CC_current, &set_CC_current)
 	.add_property("CC_origin_offset", &get_CC_origin_offset, &set_CC_origin_offset)
+        .add_property("active_spindle", &get_active_spindle, &set_active_spindle)
 	.add_property("axis_offset_x", &get_axis_offset_x, &set_axis_offset_x)
 	.add_property("axis_offset_y", &get_axis_offset_y, &set_axis_offset_y)
 	.add_property("axis_offset_z", &get_axis_offset_z, &set_axis_offset_z)
