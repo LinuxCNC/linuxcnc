@@ -78,7 +78,9 @@ G53 G0 Z[#<_ini[CHANGE_POSITION]Z>]
 
 #<touch_result> = #5063
 
-(DEBUG, #<touch_result> #<_hal[qtversaprobe.probeheight]>  #<_hal[qtversaprobe.blockheight>)
+(DEBUG, %fProbe Height: #<_hal[qtversaprobe.probeheight]>)
+(DEBUG, %fBlock Height: #<_hal[qtversaprobe.blockheight]>)
+(DEBUG, %fProbe Result: #<touch_result>)
 
 G10 L1 P#<tool> Z[#<touch_result> - #<_hal[qtversaprobe.probeheight]> + #<_hal[qtversaprobe.blockheight]>]
 G43
