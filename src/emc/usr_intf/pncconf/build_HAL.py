@@ -1638,7 +1638,7 @@ class HAL:
                 print(file=file)
                 port = 0
                 for channel in range (0,self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._MAXSSERIALCHANNELS]):
-                    if channel >4: break # TODO only have 5 channels worth of glade widgets
+                    if channel > _PD._NUM_CHANNELS: break
                     for pin in range (0,_PD._SSCOMBOLEN):
                         pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
                         p = self.d['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
@@ -1798,7 +1798,7 @@ class HAL:
                 print(file=file)
                 port = 0
                 for channel in range (0,self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._MAXSSERIALCHANNELS]):
-                    if channel >4: break # TODO only have 5 channels worth of glade widgets
+                    if channel > _PD._NUM_CHANNELS: break
                     for pin in range (0,_PD._SSCOMBOLEN):
                         pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
                         p = self.d['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
