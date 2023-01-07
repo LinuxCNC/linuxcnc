@@ -615,7 +615,7 @@ The syntax is the same as 'number' except the name which is <u32>.
 
 .Bar
 A bar widget displays the value of a FLOAT signal both graphically using a bar display and numerically.
-The color of the bar can be set as one color throughout its range (default using fillcolor) orlset to change color,
+The color of the bar can be set as one color throughout its range (default using fillcolor) or set to change color,
 dependent upon the value of the halpin (range1, range2 range3 must all be set, if you only want 2 ranges, set 2 of them to the same color).
 
 * `<halpin>"my-bar"</halpin>` (text), derives and sets the pin name: `pyvcp.my-bar`.

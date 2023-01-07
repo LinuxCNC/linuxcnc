@@ -320,10 +320,10 @@ class GlNavBase:
         self.recordMouse(x, y)
 
 
-    def set_viewangle(self, lat, lon):
+    def set_viewangle(self, lat, lon, forcerotate=0):
         self.lat = lat
         self.lon = lon
-        if self.perspective:
+        if forcerotate or self.perspective:
             glRotateScene(self, 0.5, self.xcenter, self.ycenter, self.zcenter, 0, 0, 0, 0)
         self._redraw()
 

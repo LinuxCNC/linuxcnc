@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>124</width>
+    <height>184</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>124</width>
+    <height>184</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>124</width>
+    <height>184</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="StatusLabel" name="statuslabel">
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;None&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="scaledContents">
+       <bool>false</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="scaleText" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="textSpaceSample" stdset="0">
+       <string/>
+      </property>
+      <property name="textTemplate" stdset="0">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="alt_textTemplate" stdset="0">
+       <string>%s</string>
+      </property>
+      <property name="index_number" stdset="0">
+       <number>0</number>
+      </property>
+      <property name="feed_override_status" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="machine_state_status" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="motion_type_status" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="halpin_name" stdset="0">
+       <string>remapStat.tool</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="PushButton" name="pushbutton">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>100</height>
+       </size>
+      </property>
+      <property name="indicator_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="indicator_HAL_pin_option" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="checked_state_text_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="on_color" stdset="0">
+       <color>
+        <red>0</red>
+        <green>255</green>
+        <blue>0</blue>
+       </color>
+      </property>
+      <property name="off_color" stdset="0">
+       <color>
+        <red>255</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </property>
+      <property name="true_state_string" stdset="0">
+       <string>Probe 
+True</string>
+      </property>
+      <property name="false_state_string" stdset="0">
+       <string>Probe
+False</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>124</width>
+     <height>24</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>IndicatedPushButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>IndicatedPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>StatusLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.status_label</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>pushbutton</sender>
+   <signal>pressed()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>buttonPressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>54</x>
+     <y>142</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>115</x>
+     <y>30</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>buttonReleased()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>40</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>8</x>
+     <y>32</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>buttonPressed()</slot>
+  <slot>buttonReleased()</slot>
+ </slots>
+</ui>

@@ -10,12 +10,12 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-Libraries are *prebuilt Python modules that give added features to QtVCP*. +
-In this way you can select what features you want - yet don't have to build common ones yourself. +
+Libraries are *prebuilt Python modules that give added features to QtVCP*.
+In this way you can select what features you want - yet don't have to build common ones yourself.
 
 == `Status`
 
-*`Status`* is a library that *sends GObject messages based on LinuxCNC's current state*. +
+*`Status`* is a library that *sends GObject messages based on LinuxCNC's current state*.
 It is an _extension of GladeVCP's <<cha:gstat,GStat>> object_.
 
 It also has some functions to report status on such things as internal jog rate.
@@ -54,8 +54,8 @@ STATUS = Status()
 For example, you can catch machine on and off messages.
 
 [NOTE]
-The example below shows the _two common ways of connecting signals_, one of them _using lambda_. +
-*`lambda`* is _used to strip off or manipulate arguments_ from the status message before calling the function. +
+The example below shows the _two common ways of connecting signals_, one of them _using lambda_.
+*`lambda`* is _used to strip off or manipulate arguments_ from the status message before calling the function.
 You can see the difference in the called function signature:
 The one that uses lambda does not accept the status object - lambda did not pass it to the function.
 
@@ -205,7 +205,7 @@ There are some _helper functions_ - mostly used for widget support:
 from qtvcp.core import Info
 ----
 
-* *Instantiate `Info` module* +
+* *Instantiate `Info` module*. +
   Add this Python code to your instantiate section:
 +
 [source,python]
@@ -569,8 +569,7 @@ WIDGETS = VCPWindow()
 == `Aux_program_loader`
 
 //FIXME Aux_program_loader: load (into QtVCP) or launch ?
-*`Aux_program_loader`* module allows an easy way to
-*load auxiliary programs LinuxCNC often uses*.
+*`Aux_program_loader`* module allows an easy way to *load auxiliary programs LinuxCNC often uses*.
 
 === Helpers
 
@@ -690,8 +689,7 @@ from qtvcp.lib.keybindings import Keylookup
 
 .Instantiate `Keylookup` module
 
-To instantiate `Keylookup` module* so you can use it, add this
-Python code to your instantiate section:
+To instantiate `Keylookup` module* so you can use it, add this Python code to your instantiate section:
 
 [source,python]
 ----
@@ -705,10 +703,9 @@ KEYBIND = Keylookup()
 .Add Key Bindings
 
 NOTE: `Keylookup` requires code under the `processed_key_event` function to call `KEYBIND.call()`. +
-  Most handler files already have this code.
+Most handler files already have this code.
 
-In the handler file, under the _initialized function_ use this general
-syntax to *create keybindings*:
+In the handler file, under the _initialized function_ use this general syntax to *create keybindings*:
 
 [source,python]
 ----
@@ -761,38 +758,32 @@ These messages are:
 
 === Properties
 
-*`_BOLDTEXT`*::
-  Generally is a title.
-*`_TEXT`*::
-  Text below title, and usually longer.
-*`_DETAIL`*::
-  Text hidden unless clicked on.
-*`_PINNAME`*::
-  Basename of the HAL pin(s).
-*`_TYPE`*::
-  Specifies whether it is a:
+*`_BOLDTEXT`*:: Generally is a title.
+*`_TEXT`*:: Text below title, and usually longer.
+*`_DETAIL`*:: Text hidden unless clicked on.
+*`_PINNAME`*:: Basename of the HAL pin(s).
+*`_TYPE`*:: Specifies whether it is a:
   * *Status message* - shown in the _status bar and the notify dialog_. +
-    Requires no user intervention.
+Requires no user intervention.
   * *OK message* - _requiring the user to click OK to close the dialog_. +
-    OK messages have _two HAL pins_:
+OK messages have _two HAL pins_:
   ** One HAL pin to launch the dialog, and
   ** One to signify it's waiting for response.
   * *Yes/No message* - _requiring the user to select yes or no buttons to close the dialog_. +
-    Yes/No messages have _three HAL pins_:
+Yes/No messages have _three HAL pins_:
   ** One to show the dialog,
   ** One for waiting, and
   ** one for the answer.
 
 //FIXME Messages: means STATUS messages will be generated each
 //  time a focus_overlay is called or an alert sound emitted ?
-By default it will send `STATUS` messages for `focus_overlay` and alert sound. +
+By default it will send `STATUS` messages for `focus_overlay` and alert sound.
 
 //FIXME Messages: Usage
 
 === Examples
 
-Here are sample INI message definition code blocks that would be found
-under the `[DISPLAY]` heading:
+Here are sample INI message definition code blocks that would be found under the `[DISPLAY]` heading:
 
 * Status bar and desktop notify pop up message:
 +
@@ -1125,27 +1116,19 @@ qtvcp vismach_5axis_gantry
 
 Provides the *basic building blocks of a simulated machine*.
 
-*`Collection`*::
-  A `collection` is an *object of individual machine parts*.
+*`Collection`*:: A `collection` is an *object of individual machine parts*.
 +
-This holds a *hierarchical list* of primitive shapes or _STL objects_
-that operations can be applied to.
+This holds a *hierarchical list* of primitive shapes or _STL objects_ that operations can be applied to.
 //TODO Can't a collection hold other collections ?
 
-*`Translate`*::
-  This object will perform an *OpenGL translation* calculation
-  _on a Collection object_.
+*`Translate`*:: This object will perform an *OpenGL translation* calculation _on a Collection object_.
 //TODO Not on primitives ?
 +
-Translation refers to _moving an object in straight line_ to a different
-position on screen.
+Translation refers to _moving an object in straight line_ to a different position on screen.
 
-*`Scale`*::
-  This object will perform an *OpenGL scale* function _on a collection object_.
+*`Scale`*:: This object will perform an *OpenGL scale* function _on a collection object_.
 
-*`HalTranslate`*::
-  This object will perform an *OpenGL translation* calculation
-  _on a Collection object_, *offset by the HAL pin value*.
+*`HalTranslate`*:: This object will perform an *OpenGL translation* calculation _on a Collection object_, *offset by the HAL pin value*.
 +
 Translation refers to moving an object in straight line to a different position on screen.
 +
@@ -1154,20 +1137,15 @@ You can either:
 * _read a pin from a component owned by the Vismach object_, or
 * _read a HAL system pin directly_ if the component argument is set to `None`.
 
-*`Rotate`*::
-  This object will perform an *OpenGL rotation* calculation
-  _on a Collection object_.
-
-*`HalRotate`*::
-  This object will perform an *OpenGL rotation* calculation _on a Collection object_, *offset by the HAL pin value*.
+*`Rotate`*:: This object will perform an *OpenGL rotation* calculation _on a Collection object_.
+*`HalRotate`*:: This object will perform an *OpenGL rotation* calculation _on a Collection object_, *offset by the HAL pin value*.
 +
 You can either:
 +
 * _read a pin from a component owned by the vismach_ object, or
 * _read a HAL system pin directly_ if the component argument is set to `None`.
 
-*`HalToolCylinder`*::
-  This object will build a _CylinderZ object_ that will *change size and length based on loaded tool dimensition* (from the tool table) +
+*`HalToolCylinder`*:: This object will build a _CylinderZ object_ that will *change size and length based on loaded tool dimensition* (from the tool table) +
 +
 It reads the `halui.tool.diameter` and `motion.tooloffset.z` _HAL pins_.
 +
@@ -1188,11 +1166,9 @@ tool = Collection([
 +
 Base object to _hold coordinates for primitive shapes_.
 
-*`CylinderX`, `CylinderY`, `CylinderZ`*::
-  *Build a cylinder on the X, Y or Z axis* by giving _endpoint_ (X, Y, or Z) and _radii_ coordinates.
+*`CylinderX`, `CylinderY`, `CylinderZ`*:: *Build a cylinder on the X, Y or Z axis* by giving _endpoint_ (X, Y, or Z) and _radii_ coordinates.
 
-*`Sphere`*::
-  *Build a sphere* from _center_ and _radius_ coordinates.
+*`Sphere`*:: *Build a sphere* from _center_ and _radius_ coordinates.
 
 //FIXME Vismach: Triangle: Don't coordinates need 2 axes and not be limited to Z !?
 *`TriangleXY`, `TriangleXZ`, `TriangleYZ`*::
@@ -1209,8 +1185,7 @@ Base object to _hold coordinates for primitive shapes_.
   *Build a box centered on origin* by specifying the _width in X and Y_, and the _height in Z_.
 
 *`BoxCenteredXY`*::
-  *Build a box centered in X and Y, and running from Z=0*,
-  by specifying the _width in X and Y_, and running up or down to the specified _height in Z_.
+  *Build a box centered in X and Y, and running from Z=0*, by specifying the _width in X and Y_, and running up or down to the specified _height in Z_.
 
 *`Capture`*::
   *Capture current transformation matrix of a collection*.
@@ -1252,16 +1227,16 @@ Instantiate the simulation widget and add it to the screen's main layout:
 
 [source,python]
 ----
-    ##########################################
-    # Special Functions called from QtVCP
-    ##########################################
+##########################################
+# Special Functions called from QtVCP
+##########################################
 
-    # At this point:
-    #   * the widgets are instantiated,
-    #   * the HAL pins are built but HAL is not set ready.
-    def initialized__(self):
-        machine = MILL.Window()
-        self.w.mainLayout.addWidget(machine)
+# At this point:
+#   * the widgets are instantiated,
+#   * the HAL pins are built but HAL is not set ready.
+def initialized__(self):
+    machine = MILL.Window()
+    self.w.mainLayout.addWidget(machine)
 ----
 
 === More Information

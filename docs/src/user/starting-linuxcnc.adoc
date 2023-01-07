@@ -12,7 +12,7 @@ LinuxCNC is started with the script file 'linuxcnc'.
 linuxcnc [options] [<INI-file>]
 ----
 
-.linuxcnc script options
+.`linuxcnc` script options
 ----
 linuxcnc: Run LINUXCNC
 
@@ -21,10 +21,10 @@ Usage:
     This help
 
   $ linuxcnc [Options]
-    Choose the configuration inifile graphically
+    Choose the configuration INI file graphically
 
   $ linuxcnc [Options] path/to/your_ini_file
-    Name the configuration inifile using its path
+    Name the configuration INI file using its path
 
   $ linuxcnc [Options] -l
     Use the previously used configuration inifile
@@ -32,15 +32,15 @@ Usage:
 Options:
     -d: Turn on "debug" mode
     -v: Turn on "verbose" mode
-    -k: Continue in the presence of errors in .hal files
+    -k: Continue in the presence of errors in HAL files
     -t "tpmodulename [parameters]"
             specify custom trajectory_planning_module
-            overrides optional ini setting [TRAJ]TPMOD
+            overrides optional INI setting [TRAJ]TPMOD
     -m "homemodulename [parameters]"
             specify custom homing_module
-            overrides optional ini setting [EMCMOT]HOMEMOD
-    -H "dirname": search dirname for Halfiles before searching
-                  ini directory and system library:
+            overrides optional INI setting [EMCMOT]HOMEMOD
+    -H "dirname": search dirname for HAL files before searching
+                  INI directory and system library:
                   /home/git/linuxcnc-dev/lib/hallib
 Note:
     The -H "dirname" option may be specified multiple times

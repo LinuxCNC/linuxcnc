@@ -13,8 +13,6 @@ loadusr -Wn z_level_compensation z_level_compensation
 setp z_level_compensation.fade-height 0.0
 setp z_level_compensation.method 1
 
-loadusr simulate_probe
-
 # connect signals
 ########################################################################
 

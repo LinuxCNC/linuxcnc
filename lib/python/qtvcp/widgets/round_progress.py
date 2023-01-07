@@ -232,7 +232,7 @@ class RoundProgressBar(QWidget):
         # !!! to revise
         f = self.font()
         # f.setPixelSize(innerRadius * max(0.05, (0.35 - self.decimals * 0.08)))
-        f.setPixelSize(innerRadius * 1.8 / len(text))
+        f.setPixelSize(int(innerRadius * 1.8 / len(text)))
         p.setFont(f)
 
         textRect = innerRect

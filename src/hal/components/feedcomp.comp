@@ -14,13 +14,13 @@
 //   along with this program; if not, write to the Free Software
 //   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-component feedcomp "Multiply the input by the ratio of current velocity to the feed rate";
+component feedcomp "Multiply the input by the ratio of current velocity to the feed rate.";
 pin out float out "Proportionate output value";
 pin in float in "Reference value";
-pin in bit enable "Turn compensation on or off";
+pin in bit enable "Turn compensation on or off.";
 pin in float vel "Current velocity";
 param rw float feed "Feed rate reference value";
-notes "Note that if enable is false, out = in";
+notes "Note that if enable is false, out = in.";
 
 function _;
 license "GPL";

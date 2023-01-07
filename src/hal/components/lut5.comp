@@ -9,15 +9,13 @@ param rw u32 function;
 function _ nofp;
 description """
 .B lut5
-constructs a logic function with up to 5 inputs using a
-\\fBl\\fRook-\\fBu\\fRp \\fBt\\fRable. The value for \\fBfunction\\fR can be
-determined by writing the truth table, and computing the sum of \\fBall\\fR
-the \\fBweights\\fR for which the output value would be \\fRTRUE\\fR.
-The weights are hexadecimal not decimal so hexadecimal math must be used to
-sum the weights. A wiki page has a calculator to assist in computing the proper
-value for function.
+constructs a logic function with up to 5 inputs using a \\fBl\\fRook-\\fBu\\fRp \\fBt\\fRable.
+The value for \\fBfunction\\fR can be determined by writing the truth table,
+and computing the sum of \\fBall\\fR the \\fBweights\\fR for which the output value would be \\fRTRUE\\fR.
+The weights are hexadecimal not decimal so hexadecimal math must be used to sum the weights.
+A wiki page has a calculator to assist in computing the proper value for function.
 .PP
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Lut5
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Lut5
 .PP
 Note that LUT5 will generate any of the 4,294,967,296
 logical functions of 5 inputs so \\fBAND\\fR, \\fBOR\\fR, \\fBNAND\\fR,

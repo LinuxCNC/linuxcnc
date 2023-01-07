@@ -935,9 +935,8 @@ error. A timer could be used to stop the machine if timed out, etc.
 == Debugging modbus problems
 
 A good reference for the protocol:
-https://www.modbus.org/docs/Modbus_Application_Protocol_V1_1b.pdf
-If you run linuxcnc/classocladder from a terminal, it will print
-the Modbus commands and slave responses.
+https://www.modbus.org/docs/Modbus_Application_Protocol_V1_1b.pdf.
+If you run linuxcnc/classicladder from a terminal, it will print the Modbus commands and slave responses.
 
 Here we set ClassicLadder to request slave 1,
 to read holding registers (function code 3) starting at address 8448 (0x2100).

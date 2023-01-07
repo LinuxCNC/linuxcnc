@@ -107,8 +107,8 @@ A 1 pulse on this pin changes the stepsize to the next lower stepsize in the ste
 (float in) \fIxhc\-hb04.[xyza].pos\-absolute\fR
 Absolute position display.
 The LCD display for pos\-absolute is fixed format with a sign, 4 number digits and 3 fraction digits (+XXXX.XXX),
-require: \-9999.999 <= value <= 9999.999.
-(typically connect to: halui.axis.N.pos\-feedback)
+require: \-9999.999 <= value <= 9999.999
+(typically connect to: halui.axis.N.pos\-feedback).
 .TP
 (float in) \fIxhc\-hb04.[xyza].pos\-relative\fR
 Relative position display
@@ -120,25 +120,26 @@ require: \-9999.999 <= value <= 9999.999.
 (float in) \fIxhc\-hb04.feed\-override\fR
 Feed\-override value.
 The float value is converted to a 16 bit integer and multiplied by 100 in order to display as percent, require: 0 <= pinvalue <= 655
-(typically connect to: halui.feed\-override.value)
+(typically connect to: halui.feed\-override.value).
 .TP
 (float in) \fIxhc\-hb04.feed\-value\fR
 Current Feed-value (units/sec).
 The float value is converted to a 16 bit integer and multiplied by 60 in order to display as units-per-minute, require: 0 <= pinvalue <= 1092
-(65520 units-per-minute) (typically connect to: motion.current\-vel)
+(65520 units-per-minute) (typically connect to: motion.current\-vel).
 
 .TP
 (float in) \fIxhc\-hb04.spindle\-override\fR
 Spindle\-override value.
 The float value is converted to a 16 bit integer and multiplied by 100 in order to display as percent, require: 0 <= pinvalue <= 655)
-(typically connect to: halui.spindle\-override.value)
+(typically connect to: halui.spindle\-override.value).
 .TP
 (float in) \fIxhc\-hb04.spindle\-rps\fR
 Spindle speed in RPS  (revolutions per second).
 The float value is converted to a 16 bit integer and multiplied by 60 in order to display as RPMs, require: 0 <= pinvalue <= 1092 (65520 RPM)
-(typically connect to: spindle.N.speed\-out\-rps\-abs)
+(typically connect to: spindle.N.speed\-out\-rps\-abs).
 .TP
-(bit in) \fIxhc\-hb04.inch\-icon\fR Use inch icon (default is mm)
+(bit in) \fIxhc\-hb04.inch\-icon\fR
+Use inch icon (default is mm):
 
 .SH Output Pins (Status)
 .TP
@@ -170,7 +171,7 @@ Current stepsize in the stepsize sequence as controlled by the stepsize\-up and/
 
 .SH Output Pins (for jogging using axis.N.jog\-counts)
 .TP
-(s32 out) \fIxhc\-hb04.jog.counts\fR 
+(s32 out) \fIxhc\-hb04.jog.counts\fR
 Number of counts of the wheel since start\-up (50 counts per wheel revolution)
 (typically connect to axis.N.jog\-counts (lowpass filtering may be helpful)).
 .TP
@@ -178,26 +179,25 @@ Number of counts of the wheel since start\-up (50 counts per wheel revolution)
 The value of the xhc\-hb04.jog.counts multiplied by \-1.
 .TP
 (float out) \fIxhc\-hb04.jog.scale\fR
-Value is the current stepsize multiplied by 0.001
-(typically connect to axis.N.jog\-scale).
+Value is the current stepsize multiplied by 0.001 (typically connect to axis.N.jog\-scale).
 
-.SH Experimental: Pins for halui plus/minus jogging
+.SH Experimental: Pins for halui plus/minus jogging.
 These pins provide some support for non\-trivkins, world mode jogging.
 .TP
 (float in) \fIxhc\-hb04.jog.max\-velocity\fR
-Connect to halui.max\-velocity.value
+Connect to halui.max\-velocity.value.
 .TP
 (float out) \fIxhc\-hb04.jog.velocity\fR
-Connect to halui.jog\-speed
+Connect to halui.jog\-speed.
 .TP
 (bit out) \fIxhc\-hb04.jog.plus\-[xyza]\fR
-Connect to halui.jog.N.plus
+Connect to halui.jog.N.plus.
 .TP
 (bit out) \fIxhc\-hb04.jog.minus\-[xyza]\fR
-Connect to halui.jog.N.minus
+Connect to halui.jog.N.minus.
 .TP
 (float out) \fIxhc\-hb04.jog.increment\fR
-Debug pin -- abs(delta_pos)
+Debug pin -- abs(delta_pos).
 
 .SH Button output pins (for the 18 button, layout2 pendant)
 The output bit type pins are TRUE when the button is pressed.

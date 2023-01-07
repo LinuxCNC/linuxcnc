@@ -19,12 +19,12 @@ updates. If you don't have an internet connection to your PC see
 
 == Upgrade to the new version
 
-This section describes how to upgrade LinuxCNC from version 2.7 to the
-new 2.8.0 version.  It assumes that you have an existing 2.7 install that you
+This section describes how to upgrade LinuxCNC from version 2.8 to the
+new 2.9.0 version.  It assumes that you have an existing 2.8 install that you
 want to update.
 
-To upgrade LinuxCNC from a version older than 2.7, you have to first
-https://linuxcnc.org/docs/2.7/html/getting-started/updating-linuxcnc.html[upgrade your old install to 2.7],
+To upgrade LinuxCNC from a version older than 2.8, you have to first
+https://linuxcnc.org/docs/2.8/html/getting-started/updating-linuxcnc.html[upgrade your old install to 2.8],
 then follow these instructions to upgrade to the new version.
 
 If you do not have an old version of LinuxCNC to upgrade, then you're
@@ -39,9 +39,9 @@ as these releases were EOL in 2017 and 2018 respectively.
 If you are running on Ubuntu Lucid then you will have to do this, as
 Lucid is no longer supported by LinuxCNC (it was EOL in 2013).
 
-To upgrade major versions like 2.7 to 2.8 when you have a network connection at
-the machine you need to disable the old linuxcnc.org apt sources in the file /etc/apt/sources.list  and add a new
-linuxcnc.org apt source for 2.7, then upgrade LinuxCNC.
+To upgrade major versions like 2.8 to 2.9 when you have a network connection at
+the machine you need to disable the old linuxcnc.org apt sources in the file /etc/apt/sources.list and add a new
+linuxcnc.org apt source for 2.9, then upgrade LinuxCNC.
 
 The details will depend on which platform you're running on.  Open a
 <<faq:terminal,terminal>> then type `lsb_release -ic` to find this information
@@ -182,6 +182,39 @@ package manager with this command:
 ----
 sudo dpkg -i linuxcnc_2.8.0.deb
 ----
+
+
+== Updating Configuration Files for 2.9
+
+=== Stricter handling of pluggable interpreters
+
+If you just run regular G-code and you don't know what a pluggable
+interpreter is, then this section does not affect you.
+
+A seldom-used feature of LinuxCNC is support for pluggable interpreters,
+controlled by the undocumented `[TASK]INTERPRETER` INI setting.
+
+Versions of LinuxCNC before 2.9.0 used to handle an incorrect
+`[TASK]INTERPRETER` setting by automatically falling back to using the
+default G-code interpreter.
+
+As of 2.9.0, an incorrect `[TASK]INTERPRETER` value will cause
+LinuxCNC to refuse to start up.  Fix this condition by deleting the
+`[TASK]INTERPRETER` setting from your INI file, so that LinuxCNC will
+use the default G-code interpreter.
+
+
+=== Canterp
+
+If you just run regular G-code and you don't use the `canterp` pluggable
+interpreter, then this section does not affect you.
+
+In the extremely unlikely event that you are using `canterp`,
+know that the module has moved from `/usr/lib/libcanterp.so` to
+`/usr/lib/linuxcnc/canterp.so`, and the `[TASK]INTERPRETER` setting
+correspondingly needs to change from `libcanterp.so` to `canterp.so`.
+
+
 
 == Updating Configuration Files (for 2.8.x)
 
