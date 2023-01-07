@@ -164,6 +164,7 @@ man9/userkins.9
 man9/wcomp.9
 man9/xhc_hb04_util.9
 man9/xor2.9
+man9/xyzab_tdr_kins.9
 # Ignore po4a-generated files for other languages
 cs/*
 da/*

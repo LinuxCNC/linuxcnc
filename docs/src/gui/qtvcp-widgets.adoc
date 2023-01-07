@@ -1086,12 +1086,8 @@ It is based on PyQt's _QLabel_.
 
 //TODO StatusLabel widget capture/example
 
-This will *display a label based on variable status of the machine controller*.
-
-//FIXME Clarify "substituting": what ? where ?
-You can change how the state will be displayed by substituting.
-
-You can use rich text for different fonts/colors etc.
+This will display a label based on selectable status of the machine controller. +
+You can change how the status will be displayed by substituting python formatting code in the text template. You can also use rich text for different fonts/colors etc.
 
 .Selectable States
 These states are selectable:
@@ -1133,7 +1129,7 @@ These states are selectable:
 *`jogincr_angular_status`*::
   Shows the current QtVCP based Angular Jog increment.
 *`machine_state_status`*::
-  Shows the current _machine interpreter state_ using the text described from the state_list. +
+  Shows the current _machine interpreter state_ using the text described from the machine_state_list. +
   The interpreter states are:
   * `Estopped`
   * `Running`
@@ -1145,6 +1141,15 @@ These states are selectable:
   Shows the current max axis velocity override setting.
 *`mcode_status`*::
   Shows _all active M-codes_.
+*'motion_type_status'*::
+  Shows current type of machine motion using the text described from the motion_type_list. +
+  * 'None'
+  * 'Rapid'
+  * 'Feed'
+  * 'Arc'
+  * 'Tool Change'
+  * 'Probe'
+  * 'Rotary Index'
 *`requested_spindle_speed_status`*::
   Shows the requested spindle speed - actual may be different.
 *`rapid_override_status`*::
@@ -1171,10 +1176,11 @@ These states are selectable:
 *`index_number`*::
   Integer that specifies the tool status index to display.
 *`state_label_list`*::
-  List of labels used for different machine states.
+  List of labels used to describe different machine states.
+*'motion_label_list'*::
+  List of labels used to describe different motion types.
 *`halpin_names`*::
-//FIXME Single or several ?
-  Name of the halpin to monitor (including HAL component basename).
+  Name of a halpin to monitor (must be the complete name, including the HAL component basename).
 *`textTemplate`*::
   This is usually used for *imperial (`G20`) or angular numerical settings*,
   though not every option has imperial/metric conversion. +
@@ -1282,9 +1288,8 @@ These include:
   If left empty QtVCP will use the screen's name as the HAL component's basename. +
   If set, QtVCP will use this string as the HAL component's basename. +
   If the `-c` command line option is used when loading QtVCP, it will use the name specified on the command line - it overrides all above options. +
-//FIXME Does handler set basename also overrides CLI option ? Else, it's better be placed the line above it
   If you programmatically set the basename in the `handlerfile` - it will override all above options. +
-  This option cannot be set in stylesheets.
+  This property cannot be set in stylesheets.
 *`notify_option`*::
   Hooking into the desktop notification bubbles for error and messages.
 *`notify_max_messages`*::
@@ -1668,8 +1673,7 @@ It is based on PyQt's _QProgressBar_.
 
 //TODO SystemToolButton widget capture/example
 
-//FIXME what/which "user system" ?
-This widget allows you to *manually select a user system by pressing and holding*.
+This widget allows you to *manually select a G5x user system by pressing and holding*.
 
 If you don't set the button text it will automatically update to the current system.
 
@@ -1877,9 +1881,9 @@ To use `MDITouchy`:
 * Then press `Next` and `Back` to navigate between fields.
 * `Calc` will pop up a calculator dialog.
 * `Clear` clears the ecurrent entry.
-* `Set Tool` FIXME
-* `Set Origin` FIXME
-* `Macro` FIXME
+* `Set Tool` will call for a tool change.
+* `Set Origin` will allow setting the origin of the current G6x systen.
+* `Macro` will call any available macro ngc programs.
 
 The widget _requires an explicit call to MDITouchy Python code_ to _actually run the MDI command_:
 
@@ -2509,21 +2513,23 @@ self.w.joypadname.set_highlight(self.w.joypadname.LEFT)
 
 .Useful Override-able Functions
 
-As coded they _issue signals for the button pressed or released_.
-
-//FIXME Is this really clear ?
-On signal outputs a string code for the button, one signal outputs a bool value.
-
 [source,python]
 ----
 def _pressedOutput(self, btncode):
     self.joy_btn_pressed.emit(btncode)
-    self['joy_{}_pressed'.format(btncode.lower())].emit(True)
+    self[''.format(btncode.lower())].emit(True)
 
 def _releasedOutput(self, btncode):
     self.joy_btn_released.emit(btncode)
     self['joy_{}_pressed'.format(btncode.lower())].emit(False)
 ----
+
+As coded they these function _issue (emit) PyQt5 signals (joy_btn_pressed and joy_<letter>_pressed) for the any button pressed or released_.
+
+Signal 'joy_btn_pressed' outputs a string code for the button. +
+Signal 'joy_<letter>_pressed' outputs a bool value.
+
+You could override the functions to do something else if making a custom widget,
 
 .Callable Functions
 *`reset_highlight()`*::

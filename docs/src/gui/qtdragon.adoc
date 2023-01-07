@@ -49,7 +49,7 @@ QtDragon_hd has a resolution of 1920x1056 and is not resizeable.
 It will work in window mode on any monitor with higher resolution but not on
 monitors with lower resolution.
 
-== Getting Started
+== Getting Started - The INI file
 
 If your configuration is not currently set up to use QtDragon,
 you can change it by editing the INI file [DISPLAY] section.
@@ -285,6 +285,33 @@ The label is set after the comma. The symbols '\n' adds a line break.
 # for macro buttons
 MDI_COMMAND = G0 Z25;X0 Y0;Z0, Goto\nUser\nZero
 MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0,Goto\nMachn\nZero
+----
+
+=== Post GUI HAL File
+
+These HAL files will be called after QtDragon has loaded everything else. +
+You can add multiple line for multiple file. Each one will be called in the order they appear. +
+Calling HAL files after QtDragon is already loaded assures that QtDragon's HAL pins are available.
+
+[source,{ini}]
+----
+[HAL]
+POSTGUI_HALFILE = qtdragon_hd_postgui.hal
+POSTGUI_HALFILE = qtdragon_hd_debugging.hal
+----
+
+=== Post GUI HAL Command
+
+These HAL commands will be run after QtDragon has loaded everything else. +
+You can add multiple line. Each one will be called in the order they appear. +
+Any HAL command can be used.
+
+[source,{ini}]
+----
+[HAL]
+POSTGUI_HALCMD = loadusr qtvcp test_probe
+POSTGUI_HALCMD = loadusr qtvcp test_led
+POSTGUI_HALCMD = loadusr halmeter
 ----
 
 === Builtin Sample Configurations
@@ -1011,13 +1038,21 @@ With qtdragon_hd, this is where you can load 'Gcode Ripper'
 === Offsets Tab
 
 You can monitor/modify system offsets from this tab.
-there are convenience buttons for zeroing the rotation.G92 and current G5x user
-offset.
+There are convenience buttons for zeroing the rotation.G92 and current G5x user offset.
 
 === Tool Tab
 
-You can monitor/modify tool offsets from this tab. +
-Adding and deleting tools from the tool file can also be done from this tab.
+You can monitor/modify tool offsets from this tab.
+Adding and deleting tools from the tool file can also be done from this tab. +
+When this tab is selected the individual home buttons in the DRO area will change to tool offset setting buttons. +
+They will return to home buttons when you select another tab. +
+Pressing this tool button will drop down a when menu of options:
+
+* Set Current Tool Position
+* Adjust Current Tool Position
+* Zero Current Tool Position
+* Set Tool Offset Directly
+* Reset To Last
 
 === Status Tab
 
@@ -1050,12 +1085,10 @@ if you click on a line, a description of the code will be displayed.
 It's possible to load HTML or PDF file (.html / .pdf ending) with setup
 notes. 
 HTML/PDF docs will be displayed in the setup tab.
-Some program, such as Fusion 360 and Aspire will create these files for
-you.
-If you load a G-code program and there is an HTML/PDF file of the same
-name, it will load automatically.
-You can also write your own HTML docs with the included SetUp Writer
-button.
+Some program, such as Fusion 360 and Aspire will create these files for you.
+If you load a G-code program and there is an HTML/PDF file of the same name, it will load automatically.
+You can also write your own HTML docs with the included SetUp Writer button. +
+Custom QtVCP panels can be displayed here by setting the EMBED_TAB_LOCATION option to 'tabWidget_setup'
 
 .QtDragon - Setup Tab Sample
 image::images/silverdragon_setup.png["QtDragon Setup Tab",scale="25%"]
@@ -1074,6 +1107,8 @@ This tabs will display another stab election of G-code utility programs. +
 * 'Hole Circle': allows quick setting of a program to drill a bolt circle of
   definable diameter and number of holes.
 * 'NGCGUI': is a QtVCP version of the popular G-code subroutine builder/selector.
+
+Custom QtVCP panels can be displayed here by setting the EMBED_TAB_LOCATION option to 'tabWidget_utilities'
 
 == Styles
 

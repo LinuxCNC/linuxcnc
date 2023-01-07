@@ -89,8 +89,7 @@ details to be selected rather then be coded in the handler file.
 
 === INI Settings
 
-//FIXME unclear
-If you are using QtVCP to make a CNC control screen, in the INI file,
+If you are using QtVCP to make a CNC motion control screen (rather then a HAL based panel), in the INI file,
 in the `[DISPLAY]` section, add a line with the following pattern:
 
 [source,{ini}]
@@ -197,12 +196,11 @@ QtVCP can also be customized with _Qt stylesheets (QSS)_ using CSS.
 
 === Local Files
 
-//FIXME Does that applies to .ui files only or handler.py and qss too ?
-//FIXME How does overriding/inheritance actually works ?
+If present, local UI/QSS/python files in the configuration folder will be loaded
+instead of the stock UI files.
 
-If present, local UI files in the configuration folder will be loaded instead of the stock UI files.
-
-Local UI files allow you to use your customized designs rather than the default screens.
+Local UI/QSS/python files allow you to use your customized designs rather than the
+default screens.
 
 QtVCP will look for a folder named _<screen_name>_ (in the launched configuration folder that holds the INI file).
 
@@ -286,8 +284,6 @@ qtvcp copy_dialog
 [[sec:qtvcp:vcp-panels]]
 == VCP Panels
 
-//FIXME Duplicate with qtvcp-vcp-panels.adoc content
-//  @silopolis thinks: remove from here as this file should be split anyway
 QtVCP can be used to create control panels that interface with *HAL*.
 
 === Builtin Panels
@@ -321,11 +317,19 @@ image::images/qtvcp_sim_panel.png["QtVCP Sim Builtin Panel",align="center"]
 .QtVismach - 3-Axis Mill Builtin Panel
 image::images/qtvismach.png["QtVismach - 3-Axis Mill Builtin Panel",align="center"]
 
-//FIXME to be added to HAL config file ? Where in there ?
+You can load these from the terminal or from a HAL file with this basic command:
+
 [source,{hal}]
 ----
 loadusr qtvcp test_panel
 ----
+
+But more typically like this:
+[source,{hal}]
+----
+loadusr -Wn test_panel qtvcp test_panel
+----
+In this way HAL will wait till the HAL pins are made before continuing on.
 
 === Custom Panels
 
@@ -472,12 +476,13 @@ A _`MainWindow` widget_ is displayed.
 WARNING: *Do not rename this window !* +
   QtVCP requires the name to be `MainWindow`.
 
+We are going to make this window a specific non resizeable size:
+ 
 .Set `MainWindow` Minimum and Maximum Size
 * Grab the corner of the window and resize to an appropriate size, say 1000x600. +
 * Right click on the window and click set _minimum size_.
 * Do it again and set _maximum size_.
 
-//FIXME Is that mandatory ?
 Our sample widget will now not be resizable.
 
 .Add the `ScreenOptions` Widget
@@ -888,9 +893,12 @@ If QtVCP finds these it will call them, if not it will silently ignore them.
   If present, this function *overrides the normal function called for total system shutdown*. +
   It could be used to do _pre-shutdown housekeeping_. +
 //TODO Example(s) of good practice cleaning
-//FIXME The following two sentences feel contradictory ?!
-  The _system will not shutdown if using this function_, you will have to do that yourself. +
-  QtVCP/LinuxCNC will shutdown without a prompt after this function returns.
+
+  The Linux _system will not shutdown if using this function_, you will have
+  to do that yourself. +
+  QtVCP/LinuxCNC will shutdown without a prompt after/if this function
+  returns.
+
 *`closing_cleanup__(self):`*::
   This function is _called just before the screen closes_.
   It can be used to do cleanup before closing.
