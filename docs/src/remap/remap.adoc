@@ -567,7 +567,7 @@ def involute(self, **words):
     if equal(self.feed_rate,0.0):
         return "feedrate > 0 required"
 
-    if equal(self.speed,0.0):
+    if equal(self.speed[0], 0.0):
         return "spindle speed > 0 required"
 
     plunge = 0.1 # if Z word was given, plunge - with reduced feed
