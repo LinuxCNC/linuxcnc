@@ -147,14 +147,13 @@ The function
 
 * creates a Python `dict` with:
 ** *`NAME`* - needs to be set to the _dialogs unique launch name_. +
-  `NAME` sets which dialog to request. +
-  `ENTRY` or `CALCULATOR` allows entering numbers.
+`NAME` sets which dialog to request. +
+`ENTRY` or `CALCULATOR` allows entering numbers.
 //FIXME Is that a user defined unique name or a dialog type ?
-** *`ID`* - needs to be set to a _unique name that the function supplies_. +
-  `ID` should be a unique key.
+** *`ID`* - needs to be set to a _unique name that the function supplies_.
+`ID` should be a unique key.
 ** *`TITLE`* sets the dialog title.
-** *Arbitrary data* can be added to the `dict`. +
-  The dialog will ignore them but send them back to the return code.
+** *Arbitrary data* can be added to the `dict`. The dialog will ignore them but send them back to the return code.
 * Sends the `dict` as a *`dialog-request`* `STATUS` message
 
 .Add message data processing function in the `CALLBACKS FROM STATUS SECTION`
@@ -564,8 +563,8 @@ For this we _register_ with `STATUS` to:
 ########################
 # **** INITIALIZE **** #
 ########################
-# widgets allows access to  widgets from the QtVCP files
-# at this point the widgets and hal pins are not instantiated
+# Widgets allow access to widgets from the QtVCP files.
+# At this point the widgets and HAL pins are not instantiated.
 def __init__(self,halcomp,widgets,paths):
     self.hal = halcomp
     self.w = widgets
@@ -731,8 +730,7 @@ def update_periodic(self):
 
 == External Control With ZMQ
 
-_QtVCP can automatically set up_ *ZMQ messaging* _to send and/or receive
-remote messages from external programs_.
+_QtVCP can automatically set up_ *ZMQ messaging* _to send and/or receive remote messages from external programs_.
 
 It uses ZMQ's *publish/subscribe messaging pattern*.
 
@@ -743,8 +741,7 @@ As always, consider *security* before letting programs interface though messagin
 Sometimes you want to *control the screen with a separate program*.
 
 .Enable reception of ZMQ messages
-In the `ScreenOptions` widget, you can select the property
-*`use_receive_zmq_option`*. +
+In the `ScreenOptions` widget, you can select the property *`use_receive_zmq_option`*. +
 You can also set this property directly _in the handler file_, as in this sample.
 
 We assume the `ScreenOptions` widget is called `screen_options` in Qt Designer:
@@ -800,7 +797,7 @@ x = {                               # <1>
   "FUNCTION": "test_zmq_function",
   "ARGS": [True,200]
 }
-# convert to json object
+# convert to JSON object
 m1 = json.dumps(x)
 
 # prebuild message 2
@@ -808,7 +805,7 @@ x = {                               # <1>
   "FUNCTION": "test_zmq_function",
   "ARGS": [False,0],
 }
-# convert to json object
+# convert to JSON object
 m2 = json.dumps(x)
 
 if __name__ == '__main__':
@@ -824,19 +821,19 @@ if __name__ == '__main__':
 
 <1> Set the *function to call* and the *arguments to send* to that function.
 
-You will need to know the _signature_ of the function you wish to call. +
-Also note that the _message is converted to a json object_. +
-This is because ZMQ sends byte messages not Python objects. +
+You will need to know the _signature_ of the function you wish to call.
+Also note that the _message is converted to a JSON object_.
+This is because ZMQ sends byte messages not Python objects.
 `json` converts Python objects to bytes and will be converted back when received.
 
 === ZMQ Messages Writing
 
 You may also want to *communicate with an external program from the screen*.
 
-In the `ScreenOptions` widget, you can select the property *`use_send_zmq_message`*. +
+In the `ScreenOptions` widget, you can select the property *`use_send_zmq_message`*.
 You can also set this property directly _in the handler file_, as in this sample.
 
-We assume the `ScreenOptions` widget is called `screen_options` in Qt Designer: +
+We assume the `ScreenOptions` widget is called `screen_options` in Qt Designer:
 
 .Enable sending of ZMQ messages
 [source,python]
@@ -865,7 +862,7 @@ Also, something needs to be added to call this function, such as a button click.
 # general functions #
 #####################
 def send_zmq_message(self):
-    # This could be any Python object json can convert
+    # This could be any Python object JSON can convert
     message = {"name": "John", "age": 30}
     self.w.screen_options.send_zmq_message(message)
 ----
@@ -915,7 +912,7 @@ You can also use the `Status` library to send a message to the `notify`
 library if it is enabled (usually set in `ScreenOptions` widget):
 this will send the message to the statusbar and the *desktop notify dialog*.
 
-The messages are also recorded until the user erases them using controls. +
+The messages are also recorded until the user erases them using controls.
 The users can recall any recorded messages.
 
 There are several options:
@@ -934,8 +931,8 @@ There are several options:
 STATUS.emit('error', STATUS.OPERATOR_ERROR, 'message')
 ----
 
-You can send messages thru LinuxCNC's operator message functions. +
-These are usually caught by the notify system, so are equal to above. +
+You can send messages thru LinuxCNC's operator message functions.
+These are usually caught by the notify system, so are equal to above.
 They would be printed to the terminal as well.
 
 [source,python]
@@ -984,7 +981,7 @@ This is because _some QtVCP widgets are built from multiple_ *_sub-widgets_*
 and the latter actually get the focus; so we need to *check the parent* of those sub-widgets.
 
 Other times the main widget is what gets the focus,
-e.g. the G-code display widget can be set to accept the focus,
+e.g., the G-code display widget can be set to accept the focus.
 In that case there are no sub-widgets in it,
 so comparing to the `widget.parent()` would get you the container that holds the G-code widget.
 

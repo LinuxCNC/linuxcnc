@@ -57,10 +57,10 @@ pin in  bit     cutting_start               "start a new cut, connect to spindle
 pin in  bit     debug_print                 "if true will print state changes as a debug aid";
 pin in  bit     external_estop              "external E-stop input";
 pin in  float   feed_override               "feed override value from GUI (connect to halui.feed-override.value)";
-pin in  float   feed_reduction              "Reduces adaptive feed to this percentage (connect to motion.analog-out-03).";
-pin in  bit     float_switch                "Float switch input (can also act as breakaway if it actuates when torch breaks away).";
+pin in  float   feed_reduction              "reduce adaptive feed to this percentage (connect to motion.analog-out-03)";
+pin in  bit     float_switch                "float switch input (can also act as breakaway if it actuates when torch breaks away)";
 pin in  float   float_switch_travel         "float switch travel (machine units)";
-pin in  float   gcode_scale = 1             "current g-code scale";
+pin in  float   gcode_scale = 1             "current G-code scale";
 pin in  float   height_override             "height override adjustment (volts)";
 pin in  float   height_per_volt             "torch height change per volt (machine units)";
 pin in  bit     homed                       "machine is homed";
@@ -80,7 +80,7 @@ pin in  bit     mesh_arc_ok = FALSE         "don't require arc ok for mesh mode"
 pin in  bit     mesh_enable                 "enable mesh cutting mode";
 pin in  s32     mode                        "operating mode";
 pin in  s32     motion_type                 "motion type, connect to motion.motion-type";
-pin in  bit     move_down                   "external thc down switch [mode 2])";
+pin in  bit     move_down                   "external thc down switch [mode 2]";
 pin in  bit     move_up                     "external thc up switch [mode 2]";
 pin in  bit     multi_tool = 1              "allows the use of multiple tools";
 pin in  float   offset_probe_delay          "wait for probe to deploy (seconds)";
@@ -115,7 +115,7 @@ pin in  float   puddle_jump_delay           "Delay move from pierce height to cu
 pin in  float   puddle_jump_height          "Puddle jump height (percentage of pierce height), leave disconnected if not required.";
 /* requested_velocity is deprecated in favour of feed_upm, the pin is kept so as not to break existing configs */
 pin in  float   requested_velocity          "deprecated";
-pin in  float   feed_upm                    "Requested feed_rate, connect to motion.feed-upm to use as the default (G-code units per minute).";
+pin in  float   feed_upm                    "requested feed_rate, connect to motion.feed-upm to use as the default (G-code units per minute)";
 pin in  s32     resolution = 100            "multiplier for resolution of the offset counts";
 pin in  float   restart_delay               "time from arc failure till next restart attempt";
 pin in  float   safe_height                 "requested safe traverse height (machine units)";

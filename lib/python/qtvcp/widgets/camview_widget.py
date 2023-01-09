@@ -40,9 +40,11 @@ LOG = logger.getLogger(__name__)
 LIB_GOOD = True
 try:
     import cv2 as CV
+    DEFAULT_API = CV.CAP_ANY
 except:
     LOG.error('Qtvcp Error with camview - is python3-opencv installed?')
     LIB_GOOD = False
+    DEFAULT_API = 0 # CV.CAP_ANY
 
 import numpy as np
 
@@ -403,7 +405,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     camera_number = QtCore.pyqtProperty(int, get_camnum, set_camnum, reset_camnum)
 
 class WebcamVideoStream:
-    def __init__(self, src=0, api=CV.CAP_ANY):
+    def __init__(self, src=0, api=DEFAULT_API):
         # initialize the video camera stream and read the first frame
         # from the stream
         try:

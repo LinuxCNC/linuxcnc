@@ -118,7 +118,7 @@ rcs_sem_t *rcs_sem_open(key_t name, int oflag, /* int mode */ ...)
     }
 
     if ((semid = (rcs_sem_t) semget((key_t) key, 1, semflg)) == -1) {
-	rcs_print_error("semget");
+	rcs_print_error("semget: ");
 	rcs_puts((char *) strerror(errno));
 	return NULL;
     }

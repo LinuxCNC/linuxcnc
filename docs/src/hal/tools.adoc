@@ -371,9 +371,8 @@ Questionable functions are tagged with a question mark "?".
 Component pins that cannot be associated with a known thread
 function report the function as "Unknown".
 
-`halreport` generates a connections report (without pin types,
-and current values) for a running HAL application to aid in
-designing and verifying connections.
+`halreport` generates a connections report (without pin types, and current values)
+for a running HAL application to aid in designing and verifying connections.
 This helps with the understanding what the source of a pin value is.
 Use this information with applications like `halshow`, `halmeter`,
 `halscope` or the  `halcmd  show` command in a terminal.

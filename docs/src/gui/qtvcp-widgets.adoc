@@ -206,11 +206,9 @@ self.w.halpadname.set_highlight(self.w.halpadname.LEFTRIGHT)
 
 .`HALPad` Properties
 *`pin_name`*::
-  Optional name to use for the _HAL pins basename_. +
-  If left blank, the Qt Designer widget name will be used.
+  Optional name to use for the _HAL pins basename_. If left blank, the Qt Designer widget name will be used.
 *`pin_type`*::
-  Select the _HAL output pin type_.
-  This property is only used at startup.
+  Select the _HAL output pin type_. This property is only used at startup.
   Selection can be set in Qt Designer:
 +
 ** `NONE`
@@ -226,7 +224,7 @@ self.w.halpadname.set_highlight(self.w.halpadname.LEFTRIGHT)
 *`top_image_path`*::
 *`bottom_image_path`*::
   File or resource path to an image to display in the described button location. +
-  If the reset button is pressed in the Qt Designer editor property, the image will not be displayed. (allowing optional text)
+  If the reset button is pressed in the Qt Designer editor property, the image will not be displayed (allowing optional text).
 *`left_text`*::
 *`right_text`*::
 *`center_text`*::
@@ -450,8 +448,8 @@ These buttons are used for *control actions on the machine controller*.
 They are built on top of `IndicatedPushButton` so can have LEDs overlaid.
 
 [NOTE]
-If you left double click on this widget you can launch a dialog to set any of these actions. +
-The dialogs will help to set the right related data to the selected action. +
+If you left double click on this widget you can launch a dialog to set any of these actions.
+The dialogs will help to set the right related data to the selected action.
 You can also change these properties directly in the property editor.
 
 .Actions
@@ -562,7 +560,7 @@ MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0, Goto\nMachn\nZero
 
 //FIXME add link to Indicated_PushButton section
 Action buttons are subclassed from
-<<sub:qtvcp:widgets:indicatedpushbutton>>[`IndicatedPushButton`]. +
+<<sub:qtvcp:widgets:indicatedpushbutton>>[`IndicatedPushButton`].
 See the following sections for more information about:
 
 * <<sub:qtvcp:widgets:indicatedpushbutton:led,LED Indicator option>>
@@ -665,11 +663,11 @@ This will *display the current position of an axis*.
   Format of display, e.g. `%10.3f`.
 *`imperial_template`*::
   format of display, e.g. `%9.4f`.
-*`angular_template `*::
+*`angular_template`*::
   Format of display, e.g. `%Rotational: 10.1f`.
 
-The `DROLabel` widget holds a property *`isHomed`* that can be used with a stylesheet
-to change the _color of the `DRO_Label` based on homing state of the joint_ number in LinuxCNC.
+The `DROLabel` widget holds a property *`isHomed`* that can be used with a stylesheet to change the _color of the `DRO_Label`
+based on homing state of the joint_ number in LinuxCNC.
 
 Here is a sample stylesheet entry that:
 
@@ -695,7 +693,7 @@ DROLabel[isHomed=true] {
 }
 ----
 
-Here is how you specify a particular widget by it's `objectName` in Qt Designer.
+Here is how you specify a particular widget by it's `objectName` in Qt Designer:
 
 [source,{css}]
 ----
@@ -726,7 +724,8 @@ It has a _signal_ *`percentDone(int)`* that can be connected to a slot (such as 
 *`auto_show_manual_status`*::
   Set true to have the widget switch to machine log when in Manual mode.
 
-The `GcodeDisplay` properties can be set in a stylesheet with the following code added to the .qss file (the following color choices are random).
+The `GcodeDisplay` properties can be set in a stylesheet with the following code added to the .qss file
+(the following color choices are random).
 
 [source,{css}]
 ----
@@ -1187,11 +1186,11 @@ These states are selectable:
   This uses _Python formatting rules_ to set the text output. +
   One can use `%s` for no conversion, `%d` for integer conversion, `%f` for float conversion, etc. +
   You can also use _Qt rich text_ code. +
-  Typical template used for formatting imperial float numbers to text would be `%9.4f` or `%9.4f inch`.
+  Typical template used for formatting imperial float numbers to text would be `%9.4f` or `%9.4f inch`.
 *`alt_textTemplate`*::
   This is usually used for *metric (`G21`) numerical settings*. +
   This uses _Python formatting rules_ to set the text output. +
-  Typical template used for formatting metric float to text would be `%10.3f` or `%10.3f mm`.
+  Typical template used for formatting metric float to text would be `%10.3f` or `%10.3f mm`.
 
 It is based on PyQt's _QLabel_.
 
@@ -1227,11 +1226,11 @@ Selecting image paths can be done by selecting the `pixmap` property and selecti
 
 NOTE: The `pixmap` setting is for test display only and will be ignored outside of Qt Designer.
 
-* Right click the image name and you should see 'Copy path'
-* Click 'Copy path'
+* Right click the image name and you should see 'Copy path'.
+* Click 'Copy path'.
 * Now double click the 'image list' property so the dialog shows.
-* Click the 'New' button
-* Paste the image path in the entry box
+* Click the 'New' button.
+* Paste the image path in the entry box.
 
 Do that again for the next image. +
 _Use a clear image to represent a hidden icon._
@@ -2348,7 +2347,7 @@ It is based on PyQt's _QMessagebox_.
 === `OriginOffsetDialog` - Origin Offset Setting Dialog Widget
 
 .QtVCP `OriginOffsetDialog`: Origin Offset Setting Widget
-image::images/qtvcp_offsetpage.png["QtVCP `OriginOffsetDialog``: Origin Offset Setting Widget",scale="25%"]
+image::images/qtvcp_offsetpage.png["QtVCP `OriginOffsetDialog`: Origin Offset Setting Widget",scale="25%"]
 
 This widget allows one to *modify User System origin offsets directly* in a dialog form.
 

@@ -27,16 +27,16 @@ link:../man/[directory listing].
 ==== Machine Control
 [{tab_options}]
 |===
-| link:../man/man1/axis.1.html[axis]               |AXIS LinuxCNC (The Enhanced Machine Controller) GUI ||
-| link:../man/man1/axis-remote.1.html[axis-remote] |AXIS Remote Interface                               ||
-| link:../man/man1/gmoccapy.1.html[gmoccapy]       |Touchy LinuxCNC Graphical User Interface            ||
-| link:../man/man1/gscreen.1.html[gscreen]   |Touchy LinuxCNC Graphical User Interface                  ||
-| link:../man/man1/halui.1.html[halui]       |Observe HAL pins and command LinuxCNC through NML         ||
-| link:../man/man1/mdro.1.html[mdro]         |manual only Digital Read Out (DRO)                        ||
-| link:../man/man1/ngcgui.1.html[ngcgui]     |Framework for conversational G-code generation on the controller ||
-| link:../man/man1/panelui.1.html[panelui]   |Short description                                         ||
-| link:../man/man1/pyngcgui.1.html[pyngcgui] |Python implementation of NGCGUI                           ||
-| link:../man/man1/touchy.1.html[touchy]     |AXIS - TOUCHY LinuxCNC Graphical User Interface           ||
+| link:../man/man1/axis.1.html[axis]               |AXIS LinuxCNC (The Enhanced Machine Controller) GUI       ||
+| link:../man/man1/axis-remote.1.html[axis-remote] |AXIS Remote Interface                                     ||
+| link:../man/man1/gmoccapy.1.html[gmoccapy]       |Touchy LinuxCNC Graphical User Interface                  ||
+| link:../man/man1/gscreen.1.html[gscreen]         |Touchy LinuxCNC Graphical User Interface                  ||
+| link:../man/man1/halui.1.html[halui]             |Observe HAL pins and command LinuxCNC through NML         ||
+| link:../man/man1/mdro.1.html[mdro]               |manual only Digital Read Out (DRO)                        ||
+| link:../man/man1/ngcgui.1.html[ngcgui]           |Framework for conversational G-code generation on the controller ||
+| link:../man/man1/panelui.1.html[panelui]         |Short description                                         ||
+| link:../man/man1/pyngcgui.1.html[pyngcgui]       |Python implementation of NGCGUI                           ||
+| link:../man/man1/touchy.1.html[touchy]           |AXIS - TOUCHY LinuxCNC Graphical User Interface           ||
 |===
 
 ==== Virtual Control Panels (VCP)
@@ -55,29 +55,29 @@ link:../man/[directory listing].
 ==== Vismach Virtual Machines
 [{tab_options}]
 |===
-| link:../man/man1/5axisgui.1.html[5axisgui] |Vismach Virtual Machine GUI           ||
-| link:../man/man1/hbmgui.1.html[hbmgui] |Vismach Virtual Machine GUI               ||
-| link:../man/man1/hexagui.1.html[hexagui] |Vismach Virtual Machine GUI             ||
-| link:../man/man1/lineardelta.1.html[lineardelta] |Vismach Virtual Machine GUI     ||
-| link:../man/man1/maho600gui.1.html[maho600gui] |hexagui - Vismach Virtual Machine GUI     ||
-| link:../man/man1/max5gui.1.html[max5gui] |hexagui - Vismach Virtual Machine GUI   ||
-| link:../man/man1/puma560gui.1.html[puma560gui] |puma560agui - Vismach Virtual Machine GUI ||
-| link:../man/man1/pumagui.1.html[pumagui] |Vismach Virtual Machine GUI             ||
-| link:../man/man1/rotarydelta.1.html[rotarydelta] |Vismach Virtual Machine GUI     ||
-| link:../man/man1/scaragui.1.html[scaragui] |Vismach Virtual Machine GUI           ||
-| link:../man/man1/xyzac-trt-gui.1.html[xyzac-trt-gui] |Vismach Virtual Machine GUI ||
-| link:../man/man1/xyzbc-trt-gui.1.html[xyzbc-trt-gui] |Vismach Virtual Machine GUI ||
+| link:../man/man1/5axisgui.1.html[5axisgui]           |Vismach Virtual Machine GUI               ||
+| link:../man/man1/hbmgui.1.html[hbmgui]               |Vismach Virtual Machine GUI               ||
+| link:../man/man1/hexagui.1.html[hexagui]             |Vismach Virtual Machine GUI               ||
+| link:../man/man1/lineardelta.1.html[lineardelta]     |Vismach Virtual Machine GUI               ||
+| link:../man/man1/maho600gui.1.html[maho600gui]       |hexagui - Vismach Virtual Machine GUI     ||
+| link:../man/man1/max5gui.1.html[max5gui]             |hexagui - Vismach Virtual Machine GUI     ||
+| link:../man/man1/puma560gui.1.html[puma560gui]       |puma560agui - Vismach Virtual Machine GUI ||
+| link:../man/man1/pumagui.1.html[pumagui]             |Vismach Virtual Machine GUI               ||
+| link:../man/man1/rotarydelta.1.html[rotarydelta]     |Vismach Virtual Machine GUI               ||
+| link:../man/man1/scaragui.1.html[scaragui]           |Vismach Virtual Machine GUI               ||
+| link:../man/man1/xyzac-trt-gui.1.html[xyzac-trt-gui] |Vismach Virtual Machine GUI               ||
+| link:../man/man1/xyzbc-trt-gui.1.html[xyzbc-trt-gui] |Vismach Virtual Machine GUI               ||
 |===
 
 === Motion (Userspace)
 [{tab_options}]
 |===
-| link:../man/man1/io.1.html[io]               |iocontrol - interacts with HAL or G-code in userspace ||
-| link:../man/man1/iocontrol.1.html[iocontrol] |Interacts with HAL or G-code in userspace ||
-| link:../man/man1/iov2.1.html[iov2]           |Interacts with HAL or G-code in userspace ||
-| link:../man/man1/mdi.1.html[mdi] |Send G-code commands from the terminal to the running LinuxCNC instance ||
-| link:../man/man1/milltask.1.html[milltask]   |Userspace task controller for LinuxCNC ||
-| link:../man/man9/motion.9.html[motion]       |Accepts NML motion commands, interacts with HAL in realtime ||
+| link:../man/man1/io.1.html[io]               |iocontrol - interacts with HAL or G-code in userspace                   ||
+| link:../man/man1/iocontrol.1.html[iocontrol] |Interacts with HAL or G-code in userspace                               ||
+| link:../man/man1/iov2.1.html[iov2]           |Interacts with HAL or G-code in userspace                               ||
+| link:../man/man1/mdi.1.html[mdi]             |Send G-code commands from the terminal to the running LinuxCNC instance ||
+| link:../man/man1/milltask.1.html[milltask]   |Userspace task controller for LinuxCNC                                  ||
+| link:../man/man9/motion.9.html[motion]       |Accepts NML motion commands, interacts with HAL in realtime             ||
 |===
 
 === Hardware Drivers
@@ -110,15 +110,15 @@ link:../man/[directory listing].
 |===
 | hal_ppmc | Pico Systems <<cha:pico-drivers,driver>> for analog servo, PWM and Stepper controller ||
 | link:../man/man9/hal_bb_gpio.9.html[hal_bb_gpio] |Driver for beaglebone GPIO pins ||
-| link:../man/man9/hm2_7i43.9.html[hm2_7i43] |Mesa Electronics driver for the 7i43 EPP Anything IO board with HostMot2. (See the man page for more information) ||
-| link:../man/man9/hm2_7i90.9.html[hm2_7i90] |LinuxCNC HAL driver for the Mesa Electronics 7i90 EPP Anything IO board with HostMot2 firmware ||
+| link:../man/man9/hm2_7i43.9.html[hm2_7i43] |Mesa Electronics driver for the 7I43 EPP Anything IO board with HostMot2. (See the man page for more information) ||
+| link:../man/man9/hm2_7i90.9.html[hm2_7i90] |LinuxCNC HAL driver for the Mesa Electronics 7I90 EPP Anything IO board with HostMot2 firmware ||
 | link:../man/man9/hm2_eth.9.html[hm2_eth] |LinuxCNC HAL driver for the Mesa Electronics Ethernet Anything IO boards, with HostMot2 firmware ||
-| link:../man/man9/hm2_pci.9.html[hm2_pci] | Mesa Electronics driver for the 5i20, 5i22, 5i23, 4i65, and 4i68 Anything I/O boards, with HostMot2 firmware. (See the man page for more information) ||
+| link:../man/man9/hm2_pci.9.html[hm2_pci] | Mesa Electronics driver for the 5I20, 5I22, 5I23, 4I65, and 4I68 Anything I/O boards, with HostMot2 firmware. (See the man page for more information) ||
 | link:../man/man9/hm2_rpspi.9.html[hm2_rpspi] |LinuxCNC HAL driver for the Mesa Electronics SPI Anything IO boards, with HostMot2 firmware ||
 | link:../man/man9/hm2_spi.9.html[hm2_spi] |LinuxCNC HAL driver for the Mesa Electronics SPI Anything IO boards, with HostMot2 firmware ||
 | link:../man/man9/hostmot2.9.html[hostmot2] |Mesa Electronics <<cha:mesa-hostmot2-driver,driver>> for the HostMot2 firmware. ||
 | link:../man/man9/max31855.9.html[max31855] |Support for the MAX31855 Thermocouple-to-Digital converter using bitbanged SPI ||
-| link:../man/man9/mesa_7i65.9.html[mesa_7i65] |Mesa Electronics driver for the 7i65 eight-axis servo card. (See the man page for more information) ||
+| link:../man/man9/mesa_7i65.9.html[mesa_7i65] |Mesa Electronics driver for the 7I65 eight-axis servo card. (See the man page for more information) ||
 | link:../man/man9/mesa_pktgyro_test.9.html[mesa_pktgyro_test] |PktUART simple test with Microstrain 3DM-GX3-15 gyro ||
 | link:../man/man9/opto_ac5.9.html[opto_ac5] |Realtime driver for opto22 PCI-AC5 cards ||
 | pluto_servo |Pluto-P <<cha:pluto-p-driver,driver>> and firmware for the parallel port FPGA, for servos ||
@@ -163,7 +163,7 @@ Smart-serial remote parameters can now be set in the HAL file in the normal way.
 | link:../man/man9/and2.9.html[and2]    |Two-input AND gate. For out to be true both inputs must be true. (link:../man/man9/and2.9.html[and2]) ||
 | link:../man/man9/bitwise.9.html[bitwise] |Computes various bitwise operations on the two input values ||
 | link:../man/man9/dbounce.9.html[dbounce] |Filter noisy digital inputs link:../man/man9/dbounce.9.html[Details]  ||
-| link:../man/man9/debounce.9.html[debounce] |Filter noisy digital inputs link:../man/man9/debounce.9.html[Details] <<sec:debounce, Description>>  ||
+| link:../man/man9/debounce.9.html[debounce] |Filter noisy digital inputs link:../man/man9/debounce.9.html[Details] <<sec:debounce,Description>>  ||
 | link:../man/man9/demux.9.html[demux]             |Select one of several output pins by integer and/or or individual bits ||
 | link:../man/man9/edge.9.html[edge]               |Edge detector ||
 | link:../man/man9/estop_latch.9.html[estop_latch] |E-stop latch ||
@@ -197,7 +197,7 @@ Smart-serial remote parameters can now be set in the HAL file in the normal way.
 | link:../man/man9/blend.9.html[blend]       |Perform linear interpolation between two values ||
 | link:../man/man9/comp.9.html[comp]         |Two input comparator with hysteresis ||
 | link:../man/man9/constant.9.html[constant] |Uses parameter to set the value of a pin ||
-| link:../man/man9/counter.9.html[counter]   |Counts input pulses (deprecated). Use the <<sec:encoder, encoder>> component. | |
+| link:../man/man9/counter.9.html[counter]   |Counts input pulses (deprecated). Use the <<sec:encoder,encoder>> component. | |
 | link:../man/man9/ddt.9.html[ddt]           |Computes the derivative of the input function. ||
 | link:../man/man9/deadzone.9.html[deadzone] |Returns the center if within the threshold. ||
 | link:../man/man9/hypot.9.html[hypot]       |Three-input hypotenuse (Euclidean distance) calculator. ||
@@ -298,9 +298,9 @@ the input is a position, this means that the 'position', 'velocity', and 'accele
 | link:../man/man9/classicladder.9.html[classicladder] | Realtime software PLC based on ladder logic. See <<cha:classicladder,ClassicLadder>> chapter for more information. ||
 | link:../man/man9/threads.9.html[threads] | Creates hard realtime HAL threads. ||
 | link:../man/man9/charge_pump.9.html[charge_pump] | Creates a square-wave for the 'charge pump' input of some controller boards.
-The 'Charge Pump' should be added to the base thread function. When enabled the output is on for one period and off for one period. 
-To calculate the frequency of the output 1/(period time in seconds x 2) = Hz. For example if you have a base period of 100,000 ns that 
-is 0.0001 seconds and the formula would be 1/(0.0001 x 2) = 5,000 Hz or 5 kHz. ||
+The 'Charge Pump' should be added to the base thread function. When enabled the output is on for one period and off for one period.
+To calculate the frequency of the output 1/(period time in seconds x 2) = Hz.
+For example, if you have a base period of 100,000 ns that is 0.0001 seconds and the formula would be 1/(0.0001 x 2) = 5,000 Hz or 5 kHz. ||
 | link:../man/man9/encoder_ratio.9.html[encoder_ratio] | Electronic gear to synchronize two axes. ||
 | link:../man/man9/feedcomp.9.html[feedcomp] | Multiply the input by the ratio of current velocity to the feed rate. ||
 | link:../man/man9/gladevcp.9.html[gladevcp (Realtime)] |displays Virtual control Panels built with GTK / GLADE||

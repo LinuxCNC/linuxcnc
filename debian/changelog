@@ -14,7 +14,7 @@ linuxcnc (1:2.9.0~pre1) UNRELEASED; urgency=medium
   * qtvcp -versaprobe: improve help dialog layout/use
   * qtvcp -panels: fix details of cam_align controls
   * qtvcp -docs: cam_align controls, loading options
-  * qtvcp -axis embeded cam_align: add size and rotation increment
+  * qtvcp -axis embedded cam_align: add size and rotation increment
   * qtvcp -cam_align panel: add ability to set rotation increment
   * qtvcp -camview_widget: add the rotation increment display
   * qtvcp -cam_align panel: add window size setting option

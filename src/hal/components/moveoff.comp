@@ -2,86 +2,60 @@ component moveoff "Component for HAL-only offsets";
 
 description
 """
-The moveoff component is used to offset joint positions using custom HAL
-connections.  Implementing an offset-while-program-is-paused functionality is
-supported with appropriate connections for the input pins.  Nine joints are
-supported.
+The moveoff component is used to offset joint positions using custom HAL connections.
+Implementing an offset-while-program-is-paused functionality is supported with appropriate connections for the input pins.
+Nine joints are supported.
 
-The axis offset pin values (offset-in-M) are continuously applied (respecting
-limits on value, velocity, and acceleration) to the output pins
-(offset-current-M, pos-plusoffset-M, fb-minusoffset-M) when both enabling input
-pins (apply-offsets and move-enable) are TRUE.  The two enabling inputs are
-anded internally.   A \\fBwarning\\fR pin is set and a message issued if the
-apply-offsets pin is deasserted while offsets are applied.  The warning pin
-remains TRUE until the offsets are removed or the apply-offsets pin is set.
+The axis offset pin values (offset-in-M) are continuously applied (respecting limits on value, velocity, and acceleration)
+to the output pins (offset-current-M, pos-plusoffset-M, fb-minusoffset-M) when both enabling input pins (apply-offsets and move-enable) are TRUE.
+The two enabling inputs are anded internally.
+A \\fBwarning\\fR pin is set and a message issued if the apply-offsets pin is deasserted while offsets are applied.
+The warning pin remains TRUE until the offsets are removed or the apply-offsets pin is set.
 
-Typically, the move-enable pin is connected to external controls and the
-apply-offsets pin is connected to halui.program.is-paused (for offsets only
-while paused) or set to TRUE (for continuously applied offsets).
+Typically, the move-enable pin is connected to external controls and the apply-offsets pin is connected to halui.program.is-paused (for offsets only while paused) or set to TRUE (for continuously applied offsets).
 
-Applied offsets are \\fBautomatically returned\\fR to zero (respecting limits)
-when either of the enabling inputs is deactivated.  The zero value
-tolerance is specified by the epsilon input pin value.
+Applied offsets are \\fBautomatically returned\\fR to zero (respecting limits) when either of the enabling inputs is deactivated.
+The zero value tolerance is specified by the epsilon input pin value.
 
-Waypoints are recorded when the moveoff componenent is enabled.  Waypoints are
-managed with the waypoint-sample-secs and waypoint-threshold pins.  When the
-backtrack-enable pin is TRUE, the auto-return path follows the recorded
-waypoints.  When the memory available for waypoints is exhausted, offsets are
-frozen and the waypoint-limit pin is asserted.  This restriction applies
-regardless of the state of the backtrack-enable pin.  An enabling pin must be
-deasserted to allow a return to the original (non-offset position).
+Waypoints are recorded when the moveoff componenent is enabled.
+Waypoints are managed with the waypoint-sample-secs and waypoint-threshold pins.
+When the backtrack-enable pin is TRUE, the auto-return path follows the recorded waypoints.
+When the memory available for waypoints is exhausted, offsets are frozen and the waypoint-limit pin is asserted.
+This restriction applies regardless of the state of the backtrack-enable pin.
+An enabling pin must be deasserted to allow a return to the original (non-offset position).
 
-Backtracking through waypoints results in \\fBslower\\fR movement rates as the
-moves are point-to-point respecting velocity and acceleration settings.  The
-velocity and acceleration limit pins can be managed dynamically to control
-offsets at all times.
+Backtracking through waypoints results in \\fBslower\\fR movement rates as the moves are point-to-point respecting velocity and acceleration settings.
+The velocity and acceleration limit pins can be managed dynamically to control offsets at all times.
 
-When backtrack-enable is FALSE, the auto-return move is \\fBNOT\\fR
-coordinated, each axis returns to zero at its own rate.  If a controlled path
-is wanted in this condition, each axis should be manually returned to zero
-before deasserting an enabling pin.
+When backtrack-enable is FALSE, the auto-return move is \\fBNOT\\fR coordinated, each axis returns to zero at its own rate.
+If a controlled path is wanted in this condition, each axis should be manually returned to zero before deasserting an enabling pin.
 
-The waypoint-sample-secs, waypoint-threshold, and epsilon pins are evaluated
-only when the component is idle.
+The waypoint-sample-secs, waypoint-threshold, and epsilon pins are evaluated only when the component is idle.
 
-The offsets-applied output pin is provided to indicate the current state to a
-GUI so that program resumption can be managed.  If the offset(s) are non-zero
-when the apply-offsets pin is deasserted (for example when resuming a program
-when offsetting during a pause), offsets are returned to zero (respecting
-limits) and an \\fBError\\fR message is issued.
+The offsets-applied output pin is provided to indicate the current state to a GUI so that program resumption can be managed.
+If the offset(s) are non-zero when the apply-offsets pin is deasserted (for example when resuming a program when offsetting during a pause),
+offsets are returned to zero (respecting limits) and an \\fBError\\fR message is issued.
 
-\\fBCaution:\\fR If offsets are enabled and applied and the machine is turned off
-for any reason, any \\fBexternal\\fR HAL logic that manages the enabling pins
-and the offset-in-M inputs is responsible for their state when the
-machine is subsequently turned on again.
+\\fBCaution:\\fR If offsets are enabled and applied and the machine is turned off for any reason,
+any \\fBexternal\\fR HAL logic that manages the enabling pins and the offset-in-M inputs is responsible for their state when the machine is subsequently turned on again.
 
-This HAL-only means of offsetting is typically not known to LinuxCNC
-nor available in GUI preview displays.  \\fBNo protection is provided\\fR for
-offset moves that exceed soft limits managed by LinuxCNC.  Since soft limits
-are not honored, an offset move may encounter hard limits (or \\fBCRASH\\fR if
-there are no limit switches).  Use of the offset-min-M and offset-max-M inputs
-to limit travel is recommended.  Triggering a hard limit will turn off
-the machine -- see \\fBCaution\\fR above.
+This HAL-only means of offsetting is typically not known to LinuxCNC nor available in GUI preview displays.
+\\fBNo protection is provided\\fR for offset moves that exceed soft limits managed by LinuxCNC.
+Since soft limits are not honored, an offset move may encounter hard limits (or \\fBCRASH\\fR if there are no limit switches).
+Use of the offset-min-M and offset-max-M inputs to limit travel is recommended.
+Triggering a hard limit will turn off the machine -- see \\fBCaution\\fR above.
 
-The offset-in-M values may be set with inifile settings, controlled by a GUI,
-or managed by other HAL components and connections.  Fixed values may be
-appropriate in simple cases where the direction and amount of offset is
-well-defined but a control method is required to deactivate an enabling
-pin in order to return offsets to zero.  GUIs may provide means for users to
-set, increment, decrement, and accumulate offset values for each axis and may
-set offset-in-M values to zero before deasserting an enabling pin.
+The offset-in-M values may be set with inifile settings, controlled by a GUI, or managed by other HAL components and connections.
+Fixed values may be appropriate in simple cases where the direction and amount of offset is well-defined but a control method is required to deactivate an enabling pin in order to return offsets to zero.
+GUIs may provide means for users to set, increment, decrement, and accumulate offset values for each axis and may set offset-in-M values to zero before deasserting an enabling pin.
 
-The default values for accel, vel, min, max, epsilon, waypoint-sample-secs, and
-waypoint-threshold may not be suitable for any particular application.  This
-HAL component is unaware of limits enforced elsewhere by LinuxCNC.
-Users should test usage in a simulator application and understand all
-hazards \\fBbefore\\fR use on hardware.
+The default values for accel, vel, min, max, epsilon, waypoint-sample-secs, and waypoint-threshold may not be suitable for any particular application.
+This HAL component is unaware of limits enforced elsewhere by LinuxCNC.
+Users should test usage in a simulator application and understand all hazards \\fBbefore\\fR use on hardware.
 
-The module personality item sets the number of joints supported (default==3,
-maximum is 9).
+The module personality item sets the number of joints supported (default==3, maximum is 9).
 
-Use of the names= option for naming is \\fBrequired\\fR for compatibility
-with the gui provided as scripts/moveoff_gui:
+Use of the names= option for naming is \\fBrequired\\fR for compatibility with the gui provided as scripts/moveoff_gui:
   loadrt moveoff names=\\fBmv\\fR personality=number_of_joints
 
 """;
@@ -124,13 +98,13 @@ pin in  bit move_enable   "Enable offsets (Enabling requires apply-offset TRUE a
 pin in  bit apply_offsets "Enable offsets (Enabling requires move-enable TRUE also)";
 pin in  bit backtrack-enable = 1 "Enable backtrack on auto-return";
 
-pin in  float epsilon=0.0005 "When enabling pins are deactivated, return to un-offsetted position within epsilon units.  Warning: values that are too small in value may cause overshoot,  A minimum value of 0.0001 is \\fBsilently enforced\\fR";
+pin in  float epsilon=0.0005 "When enabling pins are deactivated, return to un-offsetted position within epsilon units.  Warning: values that are too small in value may cause overshoot.  A minimum value of 0.0001 is \\fBsilently enforced\\fR.";
 pin in float waypoint-threshold = 0.02 "Minimum distance (in a single axis) for a new waypoint";
 pin in float waypoint-sample-secs = 0.02 "Minimum sample interval (in seconds) for a new waypoint";
 
-pin out bit warning "Set TRUE if apply-offsets is deasserted while offset-applied is TRUE";
-pin out bit offset_applied "TRUE if one or more offsets are applied";
-pin out bit waypoint-limit = 0 "Indicates waypoint limit reached (motion ceases), an enabling pin must be deasserted to initiate return to original position";
+pin out bit warning "Set TRUE if apply-offsets is deasserted while offset-applied is TRUE.";
+pin out bit offset_applied "TRUE if one or more offsets are applied.";
+pin out bit waypoint-limit = 0 "Indicates waypoint limit reached (motion ceases), an enabling pin must be deasserted to initiate return to original position.";
 pin out s32 waypoint-ct "Waypoint count (for debugging)";
 pin out s32 waypoint-percent-used "Percent of available waypoints used";
 
@@ -140,7 +114,7 @@ pin in  float fb-#[9 : personality] "Joint feedback (typ from encoder and input 
 
 pin out float offset-current-#[9 : personality]"Joint offset current value";
 pin out float pos-plusoffset-#[9 : personality] "Computed joint position plus offset (typically connect to pid command input)";
-pin out float fb-minusoffset-#[9 : personality] "Computed Joint feedback minus offset (typically connected to axis.0.motor-pos-fb";
+pin out float fb-minusoffset-#[9 : personality] "Computed Joint feedback minus offset (typically connected to axis.0.motor-pos-fb)";
 
 pin in  float offset-vel-#[9 : personality]=10 "Joint offset velocity limit";
 pin in  float offset-accel-#[9 : personality]=100 "Joint offset acceleration limit";
@@ -156,7 +130,7 @@ pin out s32   dbg_state "Debug output for current state of state machine";
 option personality;
 option extra_setup;
 function read_inputs "Read all inputs";
-function write_outputs "Write computed offset outputs\n(offset-current-M, pos-plusoffset-M, fb-minusoffset-M).\nAll other outputs are updated by read-inputs()";
+function write_outputs "Write computed offset outputs\n(offset-current-M, pos-plusoffset-M, fb-minusoffset-M).\nAll other outputs are updated by read-inputs().";
 
 license "GPL";
 author "Dewey Garrett and Andy Pugh";

@@ -125,8 +125,8 @@ Possible scan directions are:
 
 === Depth (units)
 
-The top of material is always at 'Z = 0'. The deepest cut into the
-material is _Z = -depth_.
+The top of material is always at 'Z = 0'.
+The deepest cut into the material is at _Z = -depth_.
 
 === Step Over (pixels)
 

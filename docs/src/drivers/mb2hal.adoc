@@ -12,31 +12,23 @@
 
 == Introduction
 
-MB2HAL is a generic userspace HAL component to communicate with one or more 
-Modbus devices. So far, there are two options to communicate with a Modbus 
-device:
+MB2HAL is a generic userspace HAL component to communicate with one or more Modbus devices.
+So far, there are two options to communicate with a Modbus device:
 
-. One option is to create a HAL component as a driver see
-  https://wiki.linuxcnc.org/cgi-bin/wiki.pl?VFD_Modbus[VFD Modbus].
-. Another option is to use Classic Ladder which has Modbus built in
-  see <<cha:classicladder,ClassicLadder>>.
-. Now there is a third option that consists of a "generic" driver
-  configured by text file, this is called MB2HAL.
+. One option is to create a HAL component as a driver see https://wiki.linuxcnc.org/cgi-bin/wiki.pl?VFD_Modbus[VFD Modbus].
+. Another option is to use Classic Ladder which has Modbus built in, see <<cha:classicladder,ClassicLadder>>.
+. Now there is a third option that consists of a "generic" driver configured by text file, this is called MB2HAL.
 
 Why MB2HAL?
 Consider using MB2HAL if:
 
-* You have to write a new driver and you don't know anything about
-  programming.
+* You have to write a new driver and you don't know anything about programming.
 * You need to use Classic Ladder "only" to manage the Modbus connections.
 * You have to discover and configure first time the Modbus transactions.
   MB2HAL have debug levels to facilitate the low level protocol debug.
-* You have more than one device to connect. MB2HAL is very efficient
-  managing multiple devices, transactions and links.
-  Currently I am monitoring two axis drivers using a Rs232 port, a VFD
-  driver using another Rs232 port, and a remote I/O using TCP/IP.
-* You want a protocol to connect your Arduino to HAL. Look the included
-  sample configuration file, sketch and library for Arduino Modbus. 
+* You have more than one device to connect. MB2HAL is very efficiently managing multiple devices, transactions and links.
+  Currently I am monitoring two axis drivers using a Rs232 port, a VFD driver using another Rs232 port, and a remote I/O using TCP/IP.
+* You want a protocol to connect your Arduino to HAL. Look the included sample configuration file, sketch and library for Arduino Modbus. 
 
 == Usage
 
@@ -77,52 +69,30 @@ m|TOTAL_TRANSACTIONS | Integer | Yes | The number of total Modbus transactions. 
 
 === Transaction Sections
 
-One transaction section is required per transaction, starting at
-`[TRANSACTION_00]` and counting up sequentially.
-If there is a new link (not transaction), you must provide the REQUIRED
-parameters 1st time.
-Warning: Any OPTIONAL parameter not specified are copied from the
-previous transaction.
+One transaction section is required per transaction, starting at `[TRANSACTION_00]` and counting up sequentially.
+If there is a new link (not transaction), you must provide the REQUIRED parameters 1st time.
+Warning: Any OPTIONAL parameter not specified are copied from the previous transaction.
 
 [options="header",cols="14,8,13,67"]
 |===
-|Value            | Type | Required | Description
-m|LINK_TYPE       | String | Yes | You must specify either a "serial" or
-"tcp" link for the first transaction.
-Later transactions will use the previous transaction link if not
-specified.
-m|TCP_IP          | IP address | If `LINK_TYPE=tcp` | The Modbus slave
-device IP address. Ignored if `LINK_TYPE=serial`.
-m|TCP_PORT        | Integer | No | The Modbus slave device TCP port.
-Defaults to 502.  Ignored if `LINK_TYPE=serial`.
-m|SERIAL_PORT     | String | If `LINK_TYPE=serial` | The serial port.
-For example "/dev/ttyS0". Ignored if `LINK_TYPE=tcp`.
-m|SERIAL_BAUD     | Integer | If `LINK_TYPE=serial` | The baud rate.
-Ignored if `LINK_TYPE=tcp`.
-m|SERIAL_BITS     | Integer | If `LINK_TYPE=serial` | Data bits.
-One of 5, 6, 7, 8. Ignored if `LINK_TYPE=tcp`.
-m|SERIAL_PARITY   | String | If `LINK_TYPE=serial` | Data parity.
-One of: even, odd, none. Ignored if `LINK_TYPE=tcp`.
-m|SERIAL_STOP     | Integer | If `LINK_TYPE=serial` | Stop bits.
-One of 1, 2. Ignored if `LINK_TYPE=tcp`.
-m|SERIAL_DELAY_MS | Integer | If `LINK_TYPE=serial` | Serial port delay
-between transactions of this section only.
-In ms. Defaults to 0. Ignored if `LINK_TYPE=tcp`.
-m|MB_SLAVE_ID     | Integer | Yes | Modbus slave number.
-m|FIRST_ELEMENT   | Integer | Yes | The first element address.
-m|NELEMENTS       | Integer | Unless `PIN_NAMES` is specified | The
-number of elements. It is an error to specify both `NELEMENTS` and
-`PIN_NAMES`. The pin names will be sequential numbers
-e.g. `mb2hal.plcin.01`
-m|PIN_NAMES       | List | Unless `NELEMENTS` is specified | A list of
-element names.
-These names will be used for the pin names, e.g.
-mb2hal.plcin.cycle_start. +
-*NOTE:* There must be no white space characters in the list. Example:
-`PIN_NAMES=cycle_start,stop,feed_hold`
-m|MB_TX_CODE      | String | Yes | 
-
-Modbus transaction function code (see link:https://modbus.org/specs.php[specifications]):
+|Value            | Type       | Required              | Description
+m|LINK_TYPE       | String     | Yes                   | You must specify either a "serial" or "tcp" link for the first transaction.
+Later transactions will use the previous transaction link if not specified.
+m|TCP_IP          | IP address | If `LINK_TYPE=tcp`    | The Modbus slave device IP address. Ignored if `LINK_TYPE=serial`.
+m|TCP_PORT        | Integer    | No                    | The Modbus slave device TCP port.  Defaults to 502.  Ignored if `LINK_TYPE=serial`.
+m|SERIAL_PORT     | String     | If `LINK_TYPE=serial` | The serial port.  For example "/dev/ttyS0". Ignored if `LINK_TYPE=tcp`.
+m|SERIAL_BAUD     | Integer    | If `LINK_TYPE=serial` | The baud rate.  Ignored if `LINK_TYPE=tcp`.
+m|SERIAL_BITS     | Integer    | If `LINK_TYPE=serial` | Data bits.  One of 5, 6, 7, 8. Ignored if `LINK_TYPE=tcp`.
+m|SERIAL_PARITY   | String     | If `LINK_TYPE=serial` | Data parity.  One of: even, odd, none. Ignored if `LINK_TYPE=tcp`.
+m|SERIAL_STOP     | Integer    | If `LINK_TYPE=serial` | Stop bits.  One of 1, 2. Ignored if `LINK_TYPE=tcp`.
+m|SERIAL_DELAY_MS | Integer    | If `LINK_TYPE=serial` | Serial port delay between transactions of this section only.  In ms. Defaults to 0. Ignored if `LINK_TYPE=tcp`.
+m|MB_SLAVE_ID     | Integer    | Yes                   | Modbus slave number.
+m|FIRST_ELEMENT   | Integer    | Yes                   | The first element address.
+m|NELEMENTS       | Integer    | Unless `PIN_NAMES` is specified | The number of elements.
+It is an error to specify both `NELEMENTS` and `PIN_NAMES`. The pin names will be sequential numbers, e.g. `mb2hal.plcin.01`.
+m|PIN_NAMES       | List       | Unless `NELEMENTS` is specified | A list of element names.  These names will be used for the pin names, e.g.  mb2hal.plcin.cycle_start. +
+*NOTE:* There must be no white space characters in the list. Example: `PIN_NAMES=cycle_start,stop,feed_hold`
+m|MB_TX_CODE      | String     | Yes                   | Modbus transaction function code (see link:https://modbus.org/specs.php[specifications]):
 
 • fnct_01_read_coils +
 • fnct_02_read_discrete_inputs +
@@ -134,30 +104,22 @@ Modbus transaction function code (see link:https://modbus.org/specs.php[specific
 • fnct_16_write_multiple_registers +
 
 m|MB_RESPONSE_TIMEOUT_MS | Integer | No | 
-Response timeout for this transaction. In ms. Defaults to 500 ms. This
-is how much to wait for 1st byte before raise an error.
-m|MB_BYTE_TIMEOUT_MS     | Integer | No | Byte timeout for this
-transaction. In ms. Defaults to 500 ms. This is how much to wait from
-byte to byte before raise an error.
-m|HAL_TX_NAME            | String | No | Instead of giving the transaction
-number, use a name. Example: `mb2hal.00.01`
+Response timeout for this transaction. In ms. Defaults to 500 ms.
+This is how much to wait for 1st byte before raise an error.
+m|MB_BYTE_TIMEOUT_MS     | Integer | No | Byte timeout for this transaction.
+In ms. Defaults to 500 ms. This is how much to wait from byte to byte before raise an error.
+m|HAL_TX_NAME            | String  | No | Instead of giving the transaction number, use a name. Example: `mb2hal.00.01`
 could become `mb2hal.plcin.01`. The name must not exceed 28 characters.
-*NOTE:* when using names be careful that
-you don't end up with two transactions using the same name.
-m|MAX_UPDATE_RATE        | Float | No | Maximum update rate in Hz. Defaults to
-0.0 (0.0 = as soon as available = infinite).
-*NOTE:* This is a maximum rate and the actual rate may be lower. If you
-want to calculate it in ms use (1000 / required_ms).
-Example: 100 ms = `MAX_UPDATE_RATE=10.0`,
-because 1000.0 ms / 100.0 ms = 10.0 Hz.
-m|DEBUG                  | String | No | Debug level for this transaction only.
-See `INIT_DEBUG` parameter above.
+*NOTE:* when using names be careful that you don't end up with two transactions using the same name.
+m|MAX_UPDATE_RATE        | Float   | No | Maximum update rate in Hz. Defaults to 0.0 (0.0 = as soon as available = infinite).
+*NOTE:* This is a maximum rate and the actual rate may be lower. If you want to calculate it in ms use (1000 / required_ms).
+Example: 100 ms = `MAX_UPDATE_RATE=10.0`, because 1000.0 ms / 100.0 ms = 10.0 Hz.
+m|DEBUG                  | String  | No | Debug level for this transaction only.  See `INIT_DEBUG` parameter above.
 |===
 
 === Error codes
 
-While debugging transactions, note the returned "`ret[]`" value
-correspond to:
+While debugging transactions, note the returned "`ret[]`" value correspond to:
 
 Modbus protocol exceptions:
 
@@ -197,10 +159,10 @@ include::mb2hal_HOWTO.ini[]
 [NOTE]
 ====
 [yellow yellow-background]#Yellow# = New in MB2HAL 1.1 (LinuxCNC 2.9)
-To use these new features you have to set `VERSION = 1.1`
+To use these new features you have to set `VERSION = 1.1`.
 
-m = Value of `HAL_TX_NAME` if set or transaction number +
-n = element number (`NELEMENTS`) or name from `PIN_NAMES`
+_m_ = Value of `HAL_TX_NAME` if set or transaction number +
+_n_ = element number (`NELEMENTS`) or name from `PIN_NAMES`
 
 Example:
 
@@ -210,49 +172,49 @@ Example:
 
 === [yellow-background]#fnct_01_read_coils#
 
-* [yellow-background]#mb2hal.m.n.bit# _bit out_
-* [yellow-background]#mb2hal.m.n.bit-inv# _bit out_
+* [yellow-background]#mb2hal.__m__.__n__.bit# _bit out_
+* [yellow-background]#mb2hal.__m__.__n__.bit-inv# _bit out_
 
 === fnct_02_read_discrete_inputs
 
-* mb2hal.m.n.[yellow-background]#bit# _bit out_
-* [yellow-background]#mb2hal.m.n.bit-inv# _bit out_
+* mb2hal.__m__.__n__.[yellow-background]#bit# _bit out_
+* [yellow-background]#mb2hal.__m__.__n__.bit-inv# _bit out_
 
 === fnct_03_read_holding_registers
 
-* mb2hal.m.n.float _float out_
-* mb2hal.m.n.int _s32 out_
+* mb2hal.__m__.__n__.float _float out_
+* mb2hal.__m__.__n__.int _s32 out_
 
 === fnct_04_read_input_registers
 
-* mb2hal.m.n.float _float out_
-* mb2hal.m.n.int _s32 out_
+* mb2hal.__m__.__n__.float _float out_
+* mb2hal.__m__.__n__.int _s32 out_
 
 === [yellow-background]#fnct_05_write_single_coil#
 
-* [yellow-background]#mb2hal.m.n.bit# _bit in_
+* [yellow-background]#mb2hal.__m__.__n__.bit# _bit in_
 
 `NELEMENTS` needs to be 1 or `PIN_NAMES` must contain just one name.
 
 === fnct_06_write_single_register
 
-* mb2hal.m.n.[yellow-background]#float# _float in_
-* [yellow-background]#mb2hal.m.n.int# _s32 in_
+* mb2hal.__m__.__n__.[yellow-background]#float# _float in_
+* [yellow-background]#mb2hal.__m__.__n__.int# _s32 in_
 
 `NELEMENTS` needs to be 1 or `PIN_NAMES` must contain just one name.
-Both pin values are added and limited to 65535 (UINT16_MAX). Use one and
-let the other open (read as 0).
+Both pin values are added and limited to 65535 (UINT16_MAX).
+Use one and let the other open (read as 0).
 
 === fnct_15_write_multiple_coils
 
-* mb2hal.m.n.[yellow-background]#bit# _bit in_
+* mb2hal.__m__.__n__.[yellow-background]#bit# _bit in_
 
 === fnct_16_write_multiple_registers
 
-* mb2hal.m.n.[yellow-background]#float# _float in_
-* [yellow-background]#mb2hal.m.n.int# _s32 in_
+* mb2hal.__m__.__n__.[yellow-background]#float# _float in_
+* [yellow-background]#mb2hal.__m__.__n__.int# _s32 in_
 
-Both pin values are added and limited to 65535 (UINT16_MAX). Use one and
-let the other open (read as 0).
+Both pin values are added and limited to 65535 (UINT16_MAX).
+Use one and let the other open (read as 0).
 
 // vim: set syntax=asciidoc:

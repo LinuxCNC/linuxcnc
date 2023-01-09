@@ -196,11 +196,12 @@ QtVCP can also be customized with _Qt stylesheets (QSS)_ using CSS.
 
 === Local Files
 
-If present, local UI/QSS/python files in the configuration folder will be loaded
-instead of the stock UI files.
+//FIXME Does that applies to .ui files only or handler.py and qss too ?
+//FIXME How does overriding/inheritance actually works ?
 
-Local UI/QSS/python files allow you to use your customized designs rather than the
-default screens.
+If present, local UI files in the configuration folder will be loaded instead of the stock UI files.
+
+Local UI files allow you to use your customized designs rather than the default screens.
 
 QtVCP will look for a folder named _<screen_name>_ (in the launched configuration folder that holds the INI file).
 

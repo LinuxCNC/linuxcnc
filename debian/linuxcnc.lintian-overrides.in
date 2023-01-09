@@ -9,7 +9,7 @@ linuxcnc-uspace: elevated-privileges 4755 root/root [usr/bin/linuxcnc_module_hel
 linuxcnc-uspace: elevated-privileges 4755 root/root [usr/bin/rtapi_app]
 
 # that is intentional - for now
-linuxcnc-uspace: package-name-doesnt-match-sonames libcanterp0 liblinuxcnchal0 liblinuxcncini0 libnml0 libposemath0 libpyplugin0 librs274-0 libtooldata0
+linuxcnc-uspace: package-name-doesnt-match-sonames liblinuxcnchal0 liblinuxcncini0 libnml0 libposemath0 libpyplugin0 librs274-0 libtooldata0
 
 # The man pages / documentation is likely to see an overhaul in a not too far future, prefer no to distract ourselves with these
 linuxcnc-uspace: groff-message 19: can't open '../man/images/toggle.ps': No such file or directory [usr/share/man/man9/toggle.9.gz:1]

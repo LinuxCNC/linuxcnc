@@ -20,7 +20,7 @@ don't connect the extra pin.
 
 *******************************************************************************/
 
-component multiswitch           """This component toggles between a specified number of output bits""";
+component multiswitch           """This component toggles between a specified number of output bits.""";
 
 pin in bit up = false           "Receives signal to toggle up";
 pin in bit down = false         "Receives signal to toggle down";
@@ -30,9 +30,8 @@ param rw signed position      "Current state (may be set in the HAL)";
 
 pin out bit bit-##[32:personality] = false       "Output bits";
 
-modparam dummy cfg              """cfg should be a comma-separated list of sizes
-for example cfg=2,4,6 would create 3 instances of 2, 4 and 6 bits respectively.
-Ignore the "personality" parameter, that is auto-generated""";
+modparam dummy cfg              """cfg should be a comma-separated list of sizes, for example cfg=2,4,6 would create 3 instances of 2, 4 and 6 bits respectively.
+Ignore the "personality" parameter, that is auto-generated.""";
 
 function _ ;
 option extra_setup yes;

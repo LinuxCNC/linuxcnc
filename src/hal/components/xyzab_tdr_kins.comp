@@ -1,0 +1,257 @@
+component  xyzab_tdr_kins "Switchable kinematics for 5 axis machine with rotary table A and B";
+
+description
+"""
+
+This is a switchable kinematics module for a 5-axis milling configuration
+using 3 cartesian linear joints (XYZ) and 2 rotary table joints (AB).
+
+The module contains two kinematic models:
+
+type0 (default) is a trivial XYZAB configuration with joints 0..4 mapped to
+axes XYZAB respectively.
+
+type1 is a XYZAB configuration with tool center point (TCP) compensation.
+
+For an example configuration, run the sim config: '/configs/sim/axis/vismach/5axis/table-dual-rotary/xyzab-tdr.ini'.
+
+Further explanations can be found in the README in '/configs/sim/axis/vismach/5axis/table-dual-rotary/'.
+
+xyzab_tdr_kins.comp was constructed by modifying the template file:
+userkins.comp.
+
+For more information on how to modify userkins.comp run: $ man
+userkins.   Also, see additional information inside: 'userkins.comp'.
+
+For information on kinematics in general see the kinematics
+document chapter (docs/src/motion/kinematics.txt) and for
+switchable kinematics in particular see the switchkins document
+chapter (docs/src/motion/switchkins.txt)
+
+.if \\n[.g] .mso www.tmac
+""";
+
+pin out s32 dummy=0"one pin needed to satisfy halcompile requirement";
+
+license "GPL";
+author "David Mueller";
+;;
+
+#include "rtapi_math.h"
+#include "kinematics.h"
+
+static struct haldata {
+
+  // Declare hal pin pointers used for xyzab_tdr kinematics:
+  hal_float_t *tool_offset_z;
+  hal_float_t *x_offset;
+  hal_float_t *z_offset;
+  hal_float_t *x_rot_point;
+  hal_float_t *y_rot_point;
+  hal_float_t *z_rot_point;
+
+  //Declare hal pin pointers used for switchable kinematics
+  hal_bit_t   *kinstype_is_0;
+  hal_bit_t   *kinstype_is_1;
+} *haldata;
+
+static int xyzab_tdr_setup(void) {
+#define HAL_PREFIX "xyzab_tdr_kins"
+    int res=0;
+    // inherit comp_id from rtapi_main()
+    if (comp_id < 0) goto error;
+    // set unready to allow creation of pins
+    if (hal_set_unready(comp_id)) goto error;
+
+    haldata = hal_malloc(sizeof(struct haldata));
+    if (!haldata) goto error;
+
+    // hal pins required for xyzab_tdr kinematics:
+    res += hal_pin_float_newf(HAL_IN ,&(haldata->tool_offset_z) ,comp_id,"%s.tool-offset-z" ,HAL_PREFIX);
+    res += hal_pin_float_newf(HAL_IN ,&(haldata->x_offset) ,comp_id,"%s.x-offset" ,HAL_PREFIX);
+    res += hal_pin_float_newf(HAL_IN ,&(haldata->z_offset) ,comp_id,"%s.z-offset" ,HAL_PREFIX);
+    res += hal_pin_float_newf(HAL_IN ,&haldata->x_rot_point ,comp_id,"%s.x-rot-point" ,HAL_PREFIX);
+    res += hal_pin_float_newf(HAL_IN ,&haldata->y_rot_point ,comp_id,"%s.y-rot-point" ,HAL_PREFIX);
+    res += hal_pin_float_newf(HAL_IN ,&haldata->z_rot_point ,comp_id,"%s.z-rot-point" ,HAL_PREFIX);
+
+    // hal pins required for switchable kinematics:
+    res += hal_pin_bit_new("kinstype.is-0", HAL_OUT, &(haldata->kinstype_is_0), comp_id);
+    res += hal_pin_bit_new("kinstype.is-1", HAL_OUT, &(haldata->kinstype_is_1), comp_id);
+
+    // define default kinematics at startup for switchable kinematics
+    *haldata->kinstype_is_0 = 1; //default at startup -> identity kinematics
+    *haldata->kinstype_is_1 = 0; //-> XYZAB TCP
+
+    if (res) goto error;
+    hal_ready(comp_id);
+    rtapi_print("*** %s setup ok\n",__FILE__);
+    return 0;
+error:
+    rtapi_print("\n!!! %s setup failed res=%d\n\n",__FILE__,res);
+    return -1;
+#undef HAL_PREFIX
+}
+
+EXPORT_SYMBOL(kinematicsType);
+EXPORT_SYMBOL(kinematicsSwitchable);
+EXPORT_SYMBOL(kinematicsSwitch);
+EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsForward);
+
+static hal_u32_t switchkins_type;
+
+int kinematicsSwitchable() {return 1;}
+
+int kinematicsSwitch(int new_switchkins_type)
+{
+    switchkins_type = new_switchkins_type;
+    rtapi_print("kinematicsSwitch(): type=%d\n",switchkins_type);
+    // create case structure for switchable kinematics
+    switch (switchkins_type) {
+        case 0: rtapi_print_msg(RTAPI_MSG_INFO,
+                "kinematicsSwitch:TYPE0\n");
+                *haldata->kinstype_is_0 = 1;
+                *haldata->kinstype_is_1 = 0;
+                break;
+        case 1: rtapi_print_msg(RTAPI_MSG_INFO,
+                "kinematicsSwitch:TYPE1\n");
+                *haldata->kinstype_is_0 = 0;
+                *haldata->kinstype_is_1 = 1;
+                break;
+       default: rtapi_print_msg(RTAPI_MSG_ERR,
+                "kinematicsSwitch:BAD VALUE <%d>\n",
+                switchkins_type);
+                *haldata->kinstype_is_1 = 0;
+                *haldata->kinstype_is_0 = 0;
+                return -1; // FAIL
+    }
+    return 0; // ok
+}
+
+KINEMATICS_TYPE kinematicsType()
+{
+static bool is_setup=0;
+    if (!is_setup)  xyzab_tdr_setup();
+    return KINEMATICS_BOTH; // set as required
+           // Note: If kinematics are identity, using KINEMATICS_BOTH
+           //       may be used in order to allow a gui to display
+           //       joint values in preview prior to homing
+} // kinematicsType()
+
+int kinematicsForward(const double *j,
+                      EmcPose * pos,
+                      const KINEMATICS_FORWARD_FLAGS * fflags,
+                      KINEMATICS_INVERSE_FLAGS * iflags)
+
+{
+    double x_rot_point = *(haldata->x_rot_point);
+    double y_rot_point = *(haldata->y_rot_point);
+    double z_rot_point = *(haldata->z_rot_point);
+
+    double dz = *(haldata->z_offset);
+    double dt = *(haldata->tool_offset_z);
+
+    // substitutions as used in mathematical documentation
+    // including degree -> radians angle conversion
+    double       sa = sin(j[3]*TO_RAD);
+    double       ca = cos(j[3]*TO_RAD);
+    double       sb = sin(j[4]*TO_RAD);
+    double       cb = cos(j[4]*TO_RAD);
+
+    // used to be consistent with math in the documentation
+    double       px = 0;
+    double       py = 0;
+    double       pz = 0;
+
+    // define forward kinematic models using case structure for
+    // for switchable kinematics
+    switch (switchkins_type) {
+        case 0: // ====================== IDENTITIY kinematics FORWARD ===================
+            pos->tran.x = j[0];
+            pos->tran.y = j[1];
+            pos->tran.z = j[2];
+            pos->a      = j[3];
+            pos->b      = j[4];
+            break;
+        case 1: // ========================= TCP kinematics FORWARD ======================
+            px          = j[0] - x_rot_point;
+            py          = j[1] - y_rot_point;
+            pz          = j[2] - z_rot_point - dt;
+
+            pos->tran.x =   cb*px + sb*pz
+                          + x_rot_point;
+
+            pos->tran.y =   sa*sb*px + ca*py - cb*sa*pz - sa*dz
+                          + y_rot_point;
+
+            pos->tran.z = - ca*sb*px + sa*py + ca*cb*pz - ca*dz
+                          + z_rot_point + dz + dt;
+
+            pos->a      = j[3];
+            pos->b      = j[4];
+            pos->c      = j[5];
+            break;
+    }
+    // unused coordinates:
+    pos->c = 0;
+    pos->u = 0;
+    pos->v = 0;
+    pos->w = 0;
+
+    return 0;
+} // kinematicsForward()
+
+int kinematicsInverse(const EmcPose * pos,
+                      double *j,
+                      const KINEMATICS_INVERSE_FLAGS * iflags,
+                      KINEMATICS_FORWARD_FLAGS * fflags)
+{
+    double x_rot_point = *(haldata->x_rot_point);
+    double y_rot_point = *(haldata->y_rot_point);
+    double z_rot_point = *(haldata->z_rot_point);
+
+    double dx = *(haldata->x_offset);
+    double dz = *(haldata->z_offset);
+    double dt = *(haldata->tool_offset_z);
+
+    // substitutions as used in mathematical documentation
+    // including degree -> radians angle conversion
+    double       sa = sin(pos->a*TO_RAD);
+    double       ca = cos(pos->a*TO_RAD);
+    double       sb = sin(pos->b*TO_RAD);
+    double       cb = cos(pos->b*TO_RAD);
+
+    // used to be consistent with math in the documentation
+    double       qx = 0;
+    double       qy = 0;
+    double       qz = 0;
+
+    switch (switchkins_type) {
+        case 0:// ====================== IDENTITIY kinematics INVERSE ===================
+            j[0] = pos->tran.x;
+            j[1] = pos->tran.y;
+            j[2] = pos->tran.z;
+            j[3] = pos->a;
+            j[4] = pos->b;
+            break;
+        case 1: // ========================= TCP kinematics INVERSE ======================
+            qx   = pos->tran.x - x_rot_point - dx;
+            qy   = pos->tran.y - y_rot_point;
+            qz   = pos->tran.z - z_rot_point - dz - dt;
+
+            j[0] =   cb*qx + sa*sb*qy - ca*sb*qz + cb*dx - sb*dz
+                   + x_rot_point;
+
+            j[1] =   ca*qy + sa*qz
+                   + y_rot_point;
+
+            j[2] =   sb*qx - sa*cb*qy + ca*cb*qz + sb*dx + cb*dz
+                   + z_rot_point + dt;
+
+            j[3] = pos->a;
+            j[4] = pos->b;
+            break;
+    }
+
+    return 0;
+} // kinematicsInverse()
