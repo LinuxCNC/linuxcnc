@@ -197,9 +197,14 @@ zassembly = HalTranslate([zassembly], None, "joint.2.pos-fb", 0, 0, MODEL_SCALIN
 # we can now move it to Z home position.
 zassembly = Translate([zassembly], 0, 0, 400)
 
-# show a title to prove the HUD
-myhud = Hud()
-myhud.show("Mill_XYZ")
+# show a title and DRO to prove the HUD
+myhud = HalHud()
+myhud.show_top("Mill)XYZ")
+myhud.show_top("------------")
+myhud.add_pin('axis-x: ',"{:10.4f}","axis.x.pos-cmd")
+myhud.add_pin('axis-y: ',"{:10.4f}","axis.y.pos-cmd")
+myhud.add_pin('axis-z: ',"{:10.4f}","axis.z.pos-cmd")
+myhud.show("-------------")
 
 # ------------------------------------------------------------------------------------
 # Getting it all together and finishing model
