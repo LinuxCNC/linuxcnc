@@ -817,6 +817,110 @@ class Hud(object):
         GL.glPopMatrix()
         GL.glMatrixMode(GL.GL_MODELVIEW)
 
+class HalHud(object):
+        '''head up display - draws a semi-transparent text box.
+        use HUD.strs for things that must be updated constantly,
+        and HUD.show("stuff") for one-shot things like error messages'''
+        def __init__(self):
+                self.showme = 0
+                self._font = 'monospace bold 16'
+                self.strs = []
+                self.messages = []
+                self.messages_top = []
+                self.fontbase = []
+                self.strings = []
+                self.formats = []
+                self.pinnames = []
+
+        def add_pin(self, text,form,pinname):
+            self.strings.append(str(text))
+            self.formats.append(form)
+            self.pinnames.append(pinname)
+
+        def show_top(self, string):
+                self.showme = 1
+                self.messages_top += [str(string)]
+
+        def show(self, string):
+                self.showme = 1
+                self.messages += [str(string)]
+        
+        def hide(self):
+                self.showme = 0
+                
+        def clear(self):
+                self.messages = []
+                
+        def draw(self):
+                self.strs = []
+                # create the strings with the updated values using the corresponding list elements
+                for n in range(len(self.strings)):
+                    self.strs += [self.strings[n] +
+                                  str(self.formats[n].format(hal.get_value( self.pinnames[n])))]
+
+                drawtext = self.messages_top + self.strs + self.messages
+                self.lines = len(drawtext)
+
+                # draw head-up-display
+                if ((self.showme == 0) or (self.lines == 0)):
+                        return
+                
+                GL.glMatrixMode(GL.GL_PROJECTION)
+                GL.glPushMatrix()
+                GL.glLoadIdentity()
+                
+                if not self.fontbase:
+                    self.fontbase, self._width, linespace = use_pango_font(self._font, 0, 128)
+                char_width, char_height = 9, 15
+                xmargin,ymargin = 5,5
+                ypos = float(self.app.winfo_height())
+                
+                GL.glOrtho(0.0, self.app.winfo_width(), 0.0, ypos, -1.0, 1.0)
+                GL.glMatrixMode(GL.GL_MODELVIEW)
+                GL.glPushMatrix()
+                GL.glLoadIdentity()
+                
+                #draw the text box
+                maxlen = max([len(p) for p in drawtext])
+                box_width = maxlen * char_width
+                GL.glDepthFunc(GL.GL_ALWAYS)
+                GL.glDepthMask(GL.GL_FALSE)
+                GL.glDisable(GL.GL_LIGHTING)
+                GL.glEnable(GL.GL_BLEND)
+                GL.glEnable(GL.GL_NORMALIZE)
+                GL.glBlendFunc(GL.GL_ONE, GL.GL_CONSTANT_ALPHA)
+                GL.glColor3f(0,0.2,0) # sets the color of the hud overlay
+                GL.glBlendColor(0,0,0,0.5) #rgba, sets the transparency of the overlay using the 'a' value
+                GL.glBegin(GL.GL_QUADS)
+                GL.glVertex3f(0, ypos, 1) #upper left
+                GL.glVertex3f(0, ypos - 2*ymargin - char_height*len(drawtext), 1) #lower left
+                GL.glVertex3f(box_width+2*xmargin, ypos - 2*ymargin - char_height*len(drawtext), 1) #lower right
+                GL.glVertex3f(box_width+2*xmargin,  ypos , 1) #upper right
+                GL.glEnd()
+                GL.glDisable(GL.GL_BLEND)
+                GL.glEnable(GL.GL_LIGHTING)
+                
+                #fill the box with text
+                maxlen = 0
+                ypos -= char_height+ymargin
+                i=0
+                GL.glDisable(GL.GL_LIGHTING)
+                GL.glColor3f(0.9,0.9,0.0) # sets the color of the text in the hud
+                for string in drawtext:
+                        maxlen = max(maxlen, len(string))
+                        GL.glRasterPos2i(xmargin, int(ypos))
+                        for char in string:
+                                GL.glCallList(self.fontbase + ord(char))
+                        ypos -= char_height
+                        i = i + 1
+                GL.glDepthFunc(GL.GL_LESS)
+                GL.glDepthMask(GL.GL_TRUE)
+                GL.glEnable(GL.GL_LIGHTING)
+        
+                GL.glPopMatrix()
+                GL.glMatrixMode(GL.GL_PROJECTION)
+                GL.glPopMatrix()
+                GL.glMatrixMode(GL.GL_MODELVIEW)
 
 class Color(Collection):
     def __init__(self, color, parts):
