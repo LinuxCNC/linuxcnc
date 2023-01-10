@@ -1620,15 +1620,16 @@ Discovery option requires the advanced options checked on this page."""%self._p.
         self._p.MESA_BOARDNAMES.append(boardname)
         # add discovery address to entry
         self.widgets["mesa%s_card_addrs"%bdnum].set_text(self.widgets.discovery_address_entry.get_text())
+
         # add firmname to combo box if it's not there
-        model = self.widgets["mesa%s_firmware"%bdnum].get_model()
+        combo = self.widgets["mesa%s_firmware"%bdnum]
         flag = True
-        for search,item in enumerate(model):
+        for search,item in enumerate(combo):
             if model[search][0]  == firmname:
                 flag = False
                 break
         if flag:
-            model.append((firmname,))
+            combo.append_text(firmname)
             search = 0
             model = self.widgets["mesa%s_firmware"%bdnum].get_model()
             for search,item in enumerate(model):
