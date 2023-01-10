@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/env python3
 #
 # Qtvcp widget
 # Copyright (c) 2017 Chris Morley
@@ -14,23 +14,23 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-from PyQt5.QtWidgets import QLabel
 
 import hal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from PyQt5.QtCore import pyqtSignal, pyqtProperty, pyqtSlot
+from PyQt5.QtCore import pyqtProperty, pyqtSlot
+from qtvcp.widgets.simple_widgets import ScaledLabel
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
 # LOG is for running code logging
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
 ################################################################
-class HALLabel(QLabel, _HalWidgetBase):
+class HALLabel(ScaledLabel, _HalWidgetBase):
     def __init__(self, parent=None):
         super(HALLabel, self).__init__(parent)
         self._textTemplate = '%f'
@@ -41,6 +41,7 @@ class HALLabel(QLabel, _HalWidgetBase):
         self._float_pin_type = False
 
     def _hal_init(self):
+        super()._hal_init()
         if self._pin_name == '':
             pname = self.HAL_NAME_
         else:
@@ -60,7 +61,7 @@ class HALLabel(QLabel, _HalWidgetBase):
         self.setText(tmpl(data))
 
     # one can connect signals to this widget to
-    # feed an input that gets scaled by this widget. 
+    # feed an input that gets scaled by this widget.
     @pyqtSlot(float)
     @pyqtSlot(int)
     @pyqtSlot(bool)

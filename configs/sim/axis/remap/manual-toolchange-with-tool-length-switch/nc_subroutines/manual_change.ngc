@@ -64,7 +64,7 @@ O300    return [-2] ; indicate probe contact failure to epilog
 O300 endif
 
 
-; see wether this was the reference tool:
+; see whether this was the reference tool:
 M66 P #<_ini[pins]reftool> L0
 
 O400 if [#5399 EQ 1]

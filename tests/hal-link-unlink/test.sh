@@ -1,8 +1,6 @@
 #!/bin/bash
 
-realtime start
-python hallink.py
+$REALTIME start
+python3 hallink.py
 
-realtime stop
-
-exit $?
+exec $REALTIME stop

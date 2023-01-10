@@ -16,24 +16,23 @@ class HandlerClass:
             self.mark.set_visible(True)
         else:
             self.textbuffer.move_mark(self.mark, line)
-        self.sourceview.scroll_to_mark(self.mark, 0, True, 0, 0.5)       
+        self.sourceview.scroll_to_mark(self.mark, 0, True, 0, 0.5)
 
     def file_set(self,widget,data=None):
         filename = widget.get_filename()
-        print "file_set",filename
+        print("file_set",filename)
         self.textbuffer.set_text(open(filename).read())
         self.line = 1
-        self._set_line(self.line)    
+        self._set_line(self.line)
 
     def on_down(self,widget,data=None):
         self.line += 1
         self._set_line(self.line)
 
-        
     def on_up(self,widget,data=None):
         self.line -= 1
         self._set_line(self.line)
-   
+
     def __init__(self, halcomp,builder,useropts):
         self.halcomp = halcomp
         self.builder = builder
@@ -50,7 +49,6 @@ class HandlerClass:
         self.sourceview.set_mark_category_background('highlight', gtk.gdk.Color('yellow'))
         self.mark = None
 
-        
 def get_handlers(halcomp,builder,useropts):
 
     return [HandlerClass(halcomp,builder,useropts)]

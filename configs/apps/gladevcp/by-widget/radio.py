@@ -5,9 +5,12 @@
     Michael Haberler 12/2010
 '''
 
-import pygtk
-import gtk
-import pango
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
+from gi.repository import Pango
 
 debug = 0
 
@@ -23,22 +26,22 @@ class HandlerClass:
 
         else:
             state = 'inactive'
-        print '   %s button toggled - now %s ' % ( widget.get_label(), state)
+        print('   %s button toggled - now %s ' % ( widget.get_label(), state))
 
     def on_red_rbtn_toggled(self, widget, data=None):
-        print 'on_red_rbtn_toggled'
+        print('on_red_rbtn_toggled')
         self.print_radiobutton_state(widget)
 
     def on_blue_rbtn_toggled(self, widget, data=None):
-        print 'on_blue_rbtn_toggled'
+        print('on_blue_rbtn_toggled')
         self.print_radiobutton_state(widget)
 
     def on_green_rbtn_toggled(self, widget, data=None):
-        print 'on_green_rbtn_toggled'
+        print('on_green_rbtn_toggled')
         self.print_radiobutton_state(widget)
 
     def on_yellow_rbtn_toggled(self, widget, data=None):
-        print 'on_yellow_rbtn_toggled'
+        print('on_yellow_rbtn_toggled')
         self.print_radiobutton_state(widget)
 
     def on_showoutput_btn_toggled(self, widget, data=None):
@@ -50,12 +53,12 @@ class HandlerClass:
     def set_color_label(self, color):
         self.color_lbl.set_label(color)
         mycolor = self.color_lookup[color.lower()]
-        self.color_lbl.modify_fg(gtk.STATE_NORMAL, mycolor)
+        self.color_lbl.modify_fg(Gtk.StateFlags.NORMAL, mycolor)
 
     def on_destroy(self,obj,data=None):
-        print "on_destroy"
+        print("on_destroy")
         self.halcomp.exit() # avoid lingering HAL component
-        gtk.main_quit()
+        Gtk.main_quit()
 
     def __init__(self, halcomp,builder,useropts):
         self.halcomp = halcomp
@@ -65,14 +68,14 @@ class HandlerClass:
         self.window = self.builder.get_object('window1')
         self.color_lbl = self.builder.get_object('color_lbl')
 
-        fontdesc = pango.FontDescription("Sans 20")
+        fontdesc = Pango.FontDescription("Sans 20")
         self.color_lbl.modify_font(fontdesc)
 
         self.color_lookup = {
-                                'red':       gtk.gdk.Color(red=65535),
-                                'blue':     gtk.gdk.Color(blue=65535),
-                                'green':    gtk.gdk.Color(green=65535),
-                                'yellow':    gtk.gdk.color_parse('yellow')
+                                'red':       Gdk.color_parse('red'),
+                                'blue':     Gdk.color_parse('blue'),
+                                'green':    Gdk.color_parse('green'),
+                                'yellow':    Gdk.color_parse('yellow')
                                 }
         self.on_showoutput_btn_toggled(self.builder.get_object('showoutput_btn'))
 
@@ -80,7 +83,7 @@ def get_handlers(halcomp,builder,useropts):
 
     global debug
     for cmd in useropts:
-        exec cmd in globals()
+        exec(cmd, globals())
 
     return [HandlerClass(halcomp,builder,useropts)]
 

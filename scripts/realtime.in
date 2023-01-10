@@ -1,4 +1,17 @@
 #!/bin/bash
+### BEGIN INIT INFO
+# Provides:          realtime
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:
+# Default-Stop:      0 1 6
+# Short-Description: enable realtime capabilities when needed
+# Description:       The rtai module is loaded when needed and
+#  removed when the job has ended and is used throughout the LinuxCNC
+#  infrastructure. The script has no effect for the PREEMPT realtime kernel.
+#  The script is not meant to be started a boot time - it could be, though.
+# X-Interactive:     false
+### END INIT INFO
 #
 # @configure_input@ 
 # on @DATE@
@@ -90,17 +103,20 @@ CheckConfig(){
         MODULES_UNLOAD="$MOD $MODULES_UNLOAD"
     done
     case $RTPREFIX in
-    *rtai*)
+    (*rtai*)
         MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
         MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
         SHM_DEV=/dev/rtai_shm
+	;;
+    (*)
+        MODULES_UNLOAD=
     esac
 }
 
 CheckStatus(){
     case $RTPREFIX in
     uspace)
-        if [ -z "$($PS -o comm= -C rtapi_app | $GREP -v '<defunct>')" ]; then
+        if [ -z "$($PS -o stat= -o comm= -C rtapi_app | $GREP -v '^Z')" ]; then
             exit 1
         else
             exit 0
@@ -109,7 +125,7 @@ CheckStatus(){
         # check loaded/unloaded status of modules
         unset NOTLOADED
         for MOD in $MODULES_UNLOAD ; do
-            if @LSMOD@ | awk '{print $1}' | $GREP -x $MOD >/dev/null ; then
+            if "$LSMOD" | awk '{print $1}' | $GREP -x $MOD >/dev/null ; then
                 echo "$MOD is loaded"
             else
                 echo "$MOD is not loaded"
@@ -148,7 +164,9 @@ CheckMem(){
 Load(){
     CheckKernel
     for MOD in $MODULES_LOAD ; do
-        $INSMOD $MOD || return $?
+	if ! [ -d /sys/module/`basename $MOD .ko` ]; then
+		$INSMOD $MOD || return $?
+	fi
     done
     if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
         echo "$DEBUG" > /proc/rtapi/debug
@@ -179,13 +197,13 @@ Unload(){
         START=$SECONDS
         local NPROCS
         while [ 5 -gt $((SECONDS-START)) ]; do
-            NPROCS=$(ps -C rtapi_app -o comm= | $GREP -v '<defunct>' | wc -l)
+            NPROCS=$(ps -C rtapi_app -o stat= -o comm= | $GREP -v '^Z' | wc -l)
             if [ $NPROCS -eq 0 ]; then
                 break
             fi
             sleep 0.1
         done
-        NPROCS=$(ps -C rtapi_app -o comm= | $GREP -v '<defunct>' | wc -l)
+        NPROCS=$(ps -C rtapi_app -o stat= -o comm= | $GREP -v '^Z' | wc -l)
         if [ $NPROCS -gt 0 ]; then
             echo "ERROR: rtapi_app failed to die" 1>&2
         fi
@@ -204,7 +222,7 @@ CheckUnloaded(){
     STATUS=
     for module in $MODULES_UNLOAD ; do
 	# check to see if the module is installed
-	if @LSMOD@ | awk '{print $1}' | $GREP -x $module >/dev/null ; then
+	if "$LSMOD" | awk '{print $1}' | $GREP -x $module >/dev/null ; then
 	    echo "ERROR: Could not unload '$module'"
 	    STATUS=error
 	fi

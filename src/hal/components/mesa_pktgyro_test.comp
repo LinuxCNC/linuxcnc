@@ -164,7 +164,7 @@ EXTRA_SETUP(){ // the names parameters are passed in 'prefix'.
 
 	/*
 	  We expect the max frame length to be 58 byte if the gyro is
-	  streaming data from the beggining,
+	  streaming data from the beginning,
 	  but in case the InterFrame delay is not appropriate,
 	  the frame size can be longer.
 	  Anyway as long as the array size we pass to hm2_pktuart_read

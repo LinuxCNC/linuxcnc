@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/env python3
 # QTVcp Widget
 #
 # Copyright (c) 2017 Chris Morley
@@ -14,9 +14,8 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-import os
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore
 
 from qtvcp.widgets.simple_widgets import ScaledLabel
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -29,7 +28,7 @@ from qtvcp import logger
 STATUS = Status()
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 

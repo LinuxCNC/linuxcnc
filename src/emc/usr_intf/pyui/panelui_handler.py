@@ -20,14 +20,14 @@ class HandlerClass:
     # def some_name(self, widget_instance, arguments from widget):
     # widget_instance gives access to the calling widget's function/data
     # arguments can be a list of arguments, a single argument, or None
-    # depending on what was given in the confuration file.
+    # depending on what was given in the configuration file.
     def hello_world(self, wname, m):
         # print to terminal so we know it worked
-        print '\nHello world\n'
+        print('\nHello world\n')
         # print the argument(s)
-        print m
+        print(m)
         # Print the calling widgets internal metadata (from config file)
-        print wname.metadata
+        print(wname.metadata)
         # call a mdi command to print a msg in linuxcnc
         # parent commands expect a widget_instance - None is substituted
         self.parent.mdi(None,'(MSG, Hello Linuxcnc World!)')
@@ -42,7 +42,7 @@ class HandlerClass:
         else:
             self.current_mode = 0
             self.parent.set_manual_mode()
-        print self.current_mode
+        print(self.current_mode)
 
     # Boiler code, often required
     def __getitem__(self, item):

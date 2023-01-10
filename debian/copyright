@@ -11,24 +11,430 @@ Comment:
  (L)GPL must locate the original EMC1 code - they may NOT use LinuxCNC.
 
 Files: *
-Copyright: the LinuxCNC developers
+Copyright: 2004-2022 The LinuxCNC Developers and notably
+ .
+ EMC: Derived from a work by Fred Proctor & Will Shackleford
+           1996-2002 Ben Bederson
+           1996-2002 Brian Paul <brian@mesa3d.org>
+           2004-2014 Jeff Epler <jepler@unpythonic.net>
+           2004-2019 Robert W. Ellenberg <rwe24g@gmail.com>
+                2004 Kenneth Lerman
+                2005 proctor
+                2006 Alex Joni <alex_joni AT users DOT sourceforge DOT net>
+           2006-2009 Eric H. Johnson
+           2006-2015 Chris Radek <chris@timeguy.com>
+           2005-2007 Peter G. Vavaroutsos <pete AT vavaroutsos DOT com>
+                2008 Chris Radek <chris@timeguy.com>
+                2009 Manfredi Leto (Xemet)
+           2009-2012 Pavel Shramov <psha@kamba.psha.org.ru>,
+           2009-2014 Chris Morley <chrisinnanaimo@hotmail.com>
+           2010-2013 Michael Haberler <git@mah.priv.at>
+           2011-2016 Sebastian Kuzminsky <seb@highlab.com>
+           2012-2017 Norbert Schechner <nieson@web.de>
+           2013-2021 Dewey Garrett <dgarrett@panix.com>
+                2015 John Thornton <jt@gnipsel.com>
+                2015 Moses McKnight
+                2016 Andrew Kyrychenko with derivative work from R. Brian Register on the Hexapod
+                2016 Rudy du Preez <rudy@asmsa.co.za>
+           2019-2021 Phillip A Carter
+           2020-2021 Gregory D Carl
+ .
+       and work derived from
+                2001 Joris Robijn
+                2003 Sagar Behere
+                2003 Rene Wagner
+                2004 Thomas Kramer
+ .
+ HAL:
+           1991-2006 Altera Corporation # for firmware description
+                1996 Servo To Go, Inc.
+           2001-2005 Stéphane Raimbault <stephane.raimbault@free.fr>
+           2001-2008 Marc Le Douarain <nmarc . le - douarain /At\\ laposte \\DoT/ net>
+           2003-2007 John Kasunich <jmkasunich at fastmail dot fm>
+                2003 Martin Kuhnle
+                2004 Matt Shaver
+           2004-2005 Alex Joni 
+           2005-2015 Jeff Epler <jepler@unpythonic.net>
+                2005 Jon Elson
+           2005-2008 Stephen Wille Padnos
+                2007 Peter G. Vavaroutsos <pete@vavaroutsos.com>
+           2006-2008 Eric H. Johnson
+           2007-2018 Sebastian Kuzminsky
+           2008-2009 Chris Morley
+                2008 Paul Willutzki <paul[at]willutzki[dot]de>
+           2009-2012 Les Newell <les at sheetcam dot com>
+                2009 scotta at CNCZone.com
+                2009 alan_3301 at CNCZone.com
+           2010-2019 Andy Pugh
+                2011 ArcEye <schooner30@tiscali.co.uk>
+           2011-2014 Kim Kirwan
+                2011 Mike McCauley <mikem do-not-contact-except-for-commercial-interests open.com.au> 
+                2012 Ben Croston - cpuinfo.*
+                2012 Curtis Dutton, OK Computers LLC
+                2012 Victor Rocco <victor_rocco AT hotmail DOT com>
+           2012-2015 Peter C. Wallace <pcw@mesanet.com>
+                2013 Ian McMahon <imcmahon@prototechnical.com>
+           2013-2016 Matsche <tinker@play-pla.net>
+           2013-2014 Michael Geszkiewicz <micges@wp.pl>
+                2013 Rene Hopf <renehopf@mac.com>
+                2013 Yishin Li
+                2014 Charles Steinkuehler <charles AT steinkuehler DOT net>
+                2014 Chris Morley <chrisinnanaimo@hotmail.com>
+                2014 Marius Alksnys <marius.alksnys@gmail.com>
+                2016 Boris Skegin
+                2017 Bertho Stultiens <lcnc@vagrearg.org>
+                2018 Raoul Rubien (github.com/rubienr) 
+                2020 Tinic Uro
+                2020 Damian Wrobel <dwrobel@ertelnet.rybnik.pl>
+                2021 Chad Woitas (aka satiowadahc)
+                2021 Ernesto Lo Valvo <ernesto.lovalvo@unipa.it>
+                2021 Jan Roters
+                     Bence Kovacs
+                     Benn Lipkowitz <fenn AT users DOT sourceforge DOT net>
+                     Boris Skegin
+                     Cliff Blackburn
+                     Gregory D Carl
+                     itaib
+                     John Thornton
+                     Joseph Calderon
+                     Michael Haberler <git@mah.priv.at>
+                     Moses McKnight
+                     Phillip A Carter
+                     Rod Webster
+ .
+ configs
+                2009 Alex Joni
+           2010-2011 Michael Haberler <git@mah.priv.at>
+           2011-2014 Dewey Garrett <dgarrett@panix.com>,
+                2013 Andy Pugh
+                2013 Frederic Rible <frible@teaser.fr>
+           2013-2014 Norbert Schechner <nieson@web.de>
+                2020 Chris Morley
+ .
+ nc_files
+                2013 Alan Battersby <alan.battersby@virginmedia.com>
+                2013 Bertho Stultiens <bertho@vagrearg.org>
+                2003 Chester.Rose@sun.com (implementation erwann.chenede@sun.com) and Sun Microsystems, Inc.
+ .
+ UI: Derived from a work by Fred Proctor & Will Shackleford
+           1998-2002 Bryan Oakley
+           2006-2009 Jeff Epler <jepler@unpythonic.net>
+           2006-2009 Raymond E. Henry
+           2009-2012 Dewey Garrett <dgarrett@panix.com>
+           2007-2021 Chris Morley <chrisinnanaimo@hotmail.com>
+                2012 Norbert Schechner <nieson@web.de>
+                2015 Moses McKnight
+                2015 Serguei Glavatski < verser  from cnc-club.ru >
+           2017-2018 Kurt Jacobson <kurtcjacobson@gmail.com>
+                2021 Jim Sloot <persei802@gmail.com>
+     with external input like a tutorial by
+                1994 X Consortium 
+           1996-1997 Stewart Allen
+                2005 Lawrence Oluyede <l.oluyede@gmail.com>
+ .
+ share:
+           1992-1993 The Regents of the University of California
+           1994-1997 Sun Microsystems, Inc.
+                2009 Nick Drobchenko <nick@cnc-club.ru>
+                2013 Sudhanshu Yadav
+ .
+ tests:
+                2004 Paul Corner <paul_c@users.sourceforge.net> - Derived from a file by Fred Proctor.
+           2011-2013 Michael Haberler <git@mah.priv.at>
+           2013-2016 Jeff Epler <jepler@unpythonic.net>
+                2014 Robert W. Ellenberg
+                2020 Rab Gordon, Gary Drew, and Paul Corner
+ .
+ rtapi:
+           2009-2013 Michael Büsch <m AT bues DOT CH>
+ .
+ Please inspect the logs of the git repository to learn about the >230 (11/2021) committers.
+License: GPL-2+
+ 
+Files: docs/*
+Copyright:
+ A list of authors that worked on the project Ordered alphabetically
+ by the SF/Github username:
+ .
+      alex_joni      Alex Joni 
+      andypugh       Andy Pugh 
+      awallin        Anders Wallin 
+      baslaarhoven   Bas Laarhoven 
+      bigjohnt       John Thornton 
+      cradek         Chris Radek 
+      fenn           Ben Lipkowitz 
+      flo-h          Florian Hahn 
+      jepler         Jeff Epler 
+      jmelson        Jon Elson 
+      ?              J.M. Garcia 
+      jmkasunich     John Kasunich 
+      lerman         Kenneth Lerman 
+      mhaberler      Michael Haberler 
+      mkuhnle        Martin Kuhnle 
+      mshaver        Matt Shaver 
+      paul_c         Paul Corner 
+      phillc54       Phillip Carter 
+      petev          Pete Vavaroutsos
+      petterreinholdtsen Petter Reinholdtsen
+      proctor        Fred Proctor 
+      rayhenry       Ray Henry 
+      rubienr        Raoul Rubien (github.com/rubienr) 
+      seb_kuzminsky  Sebastian Kuzminsky 
+      silopolis      Jérémie Tarot
+      snowgoer540    Gregory D Carl 
+      swpadnos       Stephen Wille Padnos 
+      tissf          Francis Tisserant 
+      victor_rocco   Victor Rocco
+      yabosukz       Yabo Sukz 
+      zwisk          J. Stark 
+                     B. Stultiens
+                     W. Martinjak
+                     Trần Ngọc Quân
+License: GFDL-1.1+
+ Permission is granted to copy, distribute and/or modify this document
+ under the terms of the GNU Free Documentation License, Version 1.1
+ or any later version published by the Free Software Foundation;
+ with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+ A copy of the license is included in the section entitled "GNU
+ Free Documentation License".
+ .
+ The complete license is an integral part of the documentation.
+ On Debian systems, the later versions of the GFDL can be found in
+ "/usr/share/common-licenses/GFDL-1.2" and
+ "/usr/share/common-licenses/GFDL-1.3".
+
+Files:
+ docs/src/hal/images/stepgen-type5-10.svg
+ docs/src/hal/images/stepgen-type2-4.svg
+ docs/src/hal/images/stepgen-type0.svg
+ docs/src/hal/images/stepgen-type11-14.svg
+Copyright: 2011 LinuxCNC.org
+License: GPL-3+
+
+Files:
+ src/emc/nml_intf/*
+ src/emc/kinematics/*
+ src/emc/motion/*
+ src/emc/canterp/canterp.cc
+ src/emc/sai/driver.cc
+ src/emc/sai/saicanon.cc
+ src/emc/usr_intf/*
+ src/emc/tp/*
+ src/emc/ini/*
+ src/emc/task/*
+ src/emc/rs274ngc/*
+ src/emc/iotask/ioControl.cc
+ src/emc/iotask/ioControl_v2.cc
+ src/rtapi/rtapi_list.h
+ src/rtapi/rtai_rtapi.c
+ src/rtapi/rtapi.h
+ src/rtapi/rtapi_vsnprintf.h
+ src/rtapi/rtapi_proc.h
+ src/rtapi/rtapi_common.h
+ src/rtapi/rtai_ulapi.c
+ src/hal/classicladder/README.txt
+ src/hal/hal.h
+ src/hal/utils/bitfile.c
+ src/hal/utils/bitfile.h
+ src/hal/utils/halcmd.c
+ src/hal/utils/halcmd_commands.cc
+ src/hal/utils/halcmd_commands.h
+ src/hal/utils/halcmd_completion.c
+ src/hal/utils/halcmd_completion.h
+ src/hal/utils/halcmd.h
+ src/hal/utils/halcmd_main.c
+ src/hal/utils/halrmt.c
+ src/hal/utils/meter.c
+ src/hal/utils/miscgtk.c
+ src/hal/utils/miscgtk.h
+ src/hal/utils/pci_read.c
+ src/hal/utils/pci_write.c
+ src/hal/utils/scope.c
+ src/hal/utils/scope_disp.c
+ src/hal/utils/scope_files.c
+ src/hal/utils/scope_horiz.c
+ src/hal/utils/scope_rt.c
+ src/hal/utils/scope_rt.h
+ src/hal/utils/scope_shm.h
+ src/hal/utils/scope_trig.c
+ src/hal/utils/scope_usr.h
+ src/hal/utils/scope_vert.c
+ src/hal/utils/upci.c
+ src/hal/utils/upci.h
+ src/hal/drivers/bcm2835.h
+ src/hal/drivers/hal_ax5214h.c
+ src/hal/drivers/hal_bb_gpio.c
+ src/hal/drivers/hal_evoreg.c
+ src/hal/drivers/hal_motenc.c
+ src/hal/drivers/hal_pi_gpio.c
+ src/hal/drivers/hal_ppmc.c
+ src/hal/drivers/hal_skeleton.c
+ src/hal/drivers/hal_speaker.c
+ src/hal/drivers/hal_stg.c
+ src/hal/drivers/hal_stg.h
+ src/hal/drivers/hal_tiro.c
+ src/hal/drivers/hal_vti.c
+ src/hal/drivers/hal_vti.h
+ src/hal/drivers/motenc.h
+ src/hal/user_comps/vfs11_vfd/vfs11_vfd.c
+ src/hal/user_comps/wj200_vfd/wj200_vfd.comp
+ src/hal/user_comps/gs2_vfd.c
+ src/hal/user_comps/pi500_vfd/pi500_vfd.comp
+ src/hal/user_comps/svd-ps_vfd.c
+ src/hal/user_comps/hy_gt_vfd.c
+ src/hal/user_comps/vfdb_vfd/vfdb_vfd.c
+Copyright: same flock of LinuxCNC devs as above
+License: GPL-2
+
+Files: src/m4/ax_python_devel.m4
+Copyright: 2009 Sebastian Huber <sebastian-huber@web.de>
+           2009 Alan W. Irwin
+           2009 Rafael Laboissiere <rafael@laboissiere.net>
+           2009 Andrew Collier
+           2009 Matteo Settenvini <matteo@member.fsf.org>
+           2009 Horst Knorr <hk_classes@knoda.org>
+           2013 Daniel Mullner <muellner@math.stanford.edu>
+License: GPL-3+
+
+Files: nc_files/gcmc_lib/involute-gear.gcmc
+       nc_files/gcmc_lib/trochoid-path.gcmc
+       nc_files/gcmc_lib/cpocket.gcmc
+Copyright: 2014  B. Stultiens
+License: GPL-3+
+
+Files: tests/trajectory-planner/circular-arcs/octave/make_peak_img.m
+Copyright: 2014 Robert W. Ellenberg <rob@carbidelabs.com>
+License: GPL-3+
+
+Files: share/qtvcp/images/qtplasmac/numpad.svg
+       share/qtvcp/images/qtplasmac/keyboard.svg
+Copyright: 2013,2016 Francesco Fumanti <francesco.fumanti@gmx.net>
+           2011-2014 marmuta <marmvta@gmail.com>
+           Onboard Devel Team
+License: GPL-3+
+
+Files: src/m4/ax_boost_python.m4
+Copyright: 2008 Michael Tindal
+           2013 Daniel Müllner <daniel@danifold.net>
 License: GPL-2+
 
-Files: src/hal/classicladder/*
-Copyright: the LinuxCNC developers
-License: LGPL-2.1+
 
-Files: src/libnml/*
-Copyright: the LinuxCNC developers
+Files: src/m4/ax_boost_base.m4
+       src/m4/ax_cxx_compile_stdcxx_11.m4
+Copyright: 2008 Thomas Porschberg <thomas@randspringer.de>
+           2009 Peter Adolphs
+           2008 Benjamin Kosnik <bkoz@redhat.com>
+           2012 Zack Weinberg <zackw@panix.com>
+           2013 Roy Stogner <roystgnr@ices.utexas.edu>
+License: GNU-All-Permissive
+ Copying and distribution of this file, with or without modification, are
+ permitted in any medium without royalty provided the copyright notice
+ and this notice are preserved. This file is offered as-is, without any
+ warranty.
+
+
+Files: src/hal/hal_lib.c
+       src/hal/hal_priv.h
+Copyright: 2003 John Kasunich
 License: LGPL-2
 
-Files: src/libnml/inifile*
-Copyright: the LinuxCNC developers
+Files: src/emc/linuxcnc.h
+Copyright: 2021 Petter Reinholdtsen
+License: LGPL-2
+
+Files: src/hal/classicladder/*
+Copyright: 2001-2007 Marc Le Douarain <marc.le-douarain@laposte.net>
+License: LGPL-2.1+
+Comment: The origin of this subtree is the Classic Ladder Project
+ http://membres.lycos.fr/mavati/classicladder/ 
+ http://www.sourceforge.net/projects/classicladder
+
+Files: share/qtvcp/screens/woodpecker/images/QTvcp?Widgets_files/asciidoc.js
+Copyright:      2002 Mihai Bazon
+ modified by
+                2006 Troy D. Hanson
+           2006,2009 Stuart Rackham
 License: GPL-2
+
+Files: src/libnml/*
+       src/libnml/linklist/*
+       src/libnml/posemath/*
+       src/libnml/rcs/*
+       src/libnml/cms/*
+       src/libnml/buffer/*
+       src/libnml/nml/*
+       src/libnml/os_intf/*
+Copyright: The LinuxCNC developers derived this work from
+           2004 Fred Proctor & Will Shackleford
+License: LGPL-2
+
+Files: src/libnml/inifile/*
+       src/libnml/nml/nml_mod.cc
+       src/libnml/nml/nml_mod.hh
+       src/libnml/nml/nml_type.hh
+       src/libnml/buffer/tcpmem.cc
+       src/libnml/buffer/tcpmem.hh
+       src/libnml/buffer/shmem.cc
+       src/libnml/buffer/shmem.hh
+Copyright: The LinuxCNC developers derived this work from
+           2004 Fred Proctor & Will Shackleford
+License: GPL-2
+
+Files: 
+ lib/python/gladevcp/iconview.py
+Copyright: 2012 Norbert Schechner <nieson@web.de>
+Comment: based on a tutorial from ZetCode PyGTK tutorial
+ the original code is under the BSD license
+ by jan bodnar on zetcode.com 
+License: GPL-2
+
+Files:
+ lib/python/rs274/OpenGLTk.py
+Copyright:      Mike Hartshorn
+                Department of Chemistry, University of York, UK
+License: BSD-3-Clause
+
+Files:
+ lib/python/qtvcp/widgets/stylesheeteditor.py
+ lib/python/qtvcp/widgets/nurbs_editor.py
+Copyright: 2010 Hans-Peter Jansen <hpj@urpla.net>.
+                Nokia Corporation and/or its subsidiary(-ies).
+License: BSD-3-Clause
 
 Files: src/rtapi/*
 Copyright: the LinuxCNC developers
 License: LGPL-2.1+
+
+Files: share/qtvcp/images/widgets/writer/icons/*
+Copyright: 2013 Yusuke Kamiyamane
+License: CC-BY-3.0
+
+Files: unit_tests/catch.hpp
+Copyright: 2019 Two Blue Cubes Ltd. All rights reserved.
+License: Boost-1.0
+
+Files: src/emc/rs274ngc/array1.hh
+Copyright: 2004 Roman Yakovenko.
+License: Boost-1.0
+
+Files: debian/linuxcnc-uspace.metainfo.xml
+Copyright: 2021 Petter Reinholdtsen <pere@debian.org>
+License: MIT
+
+Files: unit_tests/greatest.h
+Copyright: 2011-2019 Scott Vokes <vokes.s@gmail.com>
+License: ISC
+ Permission to use, copy, modify, and/or distribute this software for any
+ purpose with or without fee is hereby granted, provided that the above
+ copyright notice and this permission notice appear in all copies.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 License: GPL-2
  This package is free software; you can redistribute it and/or modify
@@ -65,19 +471,19 @@ License: GPL-2+
 
 License: LGPL-2
  This program is free software; you can redistribute it and/or modify
- it under the terms of the GNU Lesser General Public License as published by
- the Free Software Foundation; version 2.0 of the license.
+ it under the terms of the GNU Library General Public License as published by
+ the Free Software Foundation; version 2 of the license.
  .
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU Lesser General Public License for more details.
  .
- You should have received a copy of the GNU Lesser General Public License along
+ You should have received a copy of the GNU Library General Public License along
  with this program. If not, see <https://www.gnu.org/licenses/>
  .
- On Debian systems, the complete text of the GNU Lesser General Public
- License version 2.1 can be found in ‘/usr/share/common-licenses/LGPL-2’.
+ On Debian systems, the complete text of the GNU Library General Public
+ License version 2 can be found in '/usr/share/common-licenses/LGPL-2'.
 
 License: LGPL-2.1+
  This program is free software; you can redistribute it and/or modify
@@ -94,4 +500,386 @@ License: LGPL-2.1+
  with this program. If not, see <https://www.gnu.org/licenses/>
  .
  On Debian systems, the complete text of the GNU Lesser General Public
- License version 2.1 can be found in ‘/usr/share/common-licenses/LGPL-2.1’.
+ License version 2.1 can be found in '/usr/share/common-licenses/LGPL-2.1'.
+
+License: GPL-3+
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 3 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <https://www.gnu.org/licenses/>
+ .
+ On Debian systems, the complete text of the GNU General
+ Public License version 3 can be found in "/usr/share/common-licenses/GPL-3".
+
+License: MIT
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ .
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+
+License: Boost-1.0
+ Boost Software License - Version 1.0 - August 17th, 2003
+ .
+ Permission is hereby granted, free of charge, to any person or organization
+ obtaining a copy of the software and accompanying documentation covered by
+ this license (the "Software") to use, reproduce, display, distribute,
+ execute, and transmit the Software, and to prepare derivative works of the
+ Software, and to permit third-parties to whom the Software is furnished to
+ do so, all subject to the following:
+ .
+ The copyright notices in the Software and this entire statement, including
+ the above license grant, this restriction and the following disclaimer,
+ must be included in all copies of the Software, in whole or in part, and
+ all derivative works of the Software, unless such copies or derivative
+ works are solely in the form of machine-executable object code generated by
+ a source language processor.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT
+ SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE
+ FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
+ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.
+
+License: BSD-3-Clause
+ Copyright (c) The Regents of the University of California.
+ All rights reserved.
+ .
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ .
+ 1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+ 2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+ 3. Neither the name of the University nor the names of its contributors
+    may be used to endorse or promote products derived from this software
+    without specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+ FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ SUCH DAMAGE.
+
+License: CC-BY-3.0
+ CREATIVE COMMONS CORPORATION IS NOT A LAW FIRM AND DOES NOT PROVIDE LEGAL
+ SERVICES. DISTRIBUTION OF THIS LICENSE DOES NOT CREATE AN ATTORNEY-CLIENT
+ RELATIONSHIP. CREATIVE COMMONS PROVIDES THIS INFORMATION ON AN "AS-IS"
+ BASIS. CREATIVE COMMONS MAKES NO WARRANTIES REGARDING THE INFORMATION
+ PROVIDED, AND DISCLAIMS LIABILITY FOR DAMAGES RESULTING FROM ITS USE.
+ .
+ License
+ .
+ THE WORK (AS DEFINED BELOW) IS PROVIDED UNDER THE TERMS OF THIS CREATIVE
+ COMMONS PUBLIC LICENSE ("CCPL" OR "LICENSE"). THE WORK IS PROTECTED BY
+ COPYRIGHT AND/OR OTHER APPLICABLE LAW. ANY USE OF THE WORK OTHER THAN
+ AS AUTHORIZED UNDER THIS LICENSE OR COPYRIGHT LAW IS PROHIBITED.
+ .
+ BY EXERCISING ANY RIGHTS TO THE WORK PROVIDED HERE, YOU ACCEPT AND
+ AGREE TO BE BOUND BY THE TERMS OF THIS LICENSE. TO THE EXTENT THIS
+ LICENSE MAY BE CONSIDERED TO BE A CONTRACT, THE LICENSOR GRANTS YOU
+ THE RIGHTS CONTAINED HERE IN CONSIDERATION OF YOUR ACCEPTANCE OF SUCH
+ TERMS AND CONDITIONS.
+ .
+ 1. Definitions
+ .
+ a. "Adaptation" means a work based upon the Work, or upon the Work
+    and other pre-existing works, such as a translation, adaptation,
+    derivative work, arrangement of music or other alterations of a
+    literary or artistic work, or phonogram or performance and includes
+    cinematographic adaptations or any other form in which the Work may
+    be recast, transformed, or adapted including in any form recognizably
+    derived from the original, except that a work that constitutes a
+    Collection will not be considered an Adaptation for the purpose of
+    this License. For the avoidance of doubt, where the Work is a musical
+    work, performance or phonogram, the synchronization of the Work in
+    timed-relation with a moving image ("synching") will be considered
+    an Adaptation for the purpose of this License.
+ b. "Collection" means a collection of literary or artistic works,
+    such as encyclopedias and anthologies, or performances, phonograms
+    or broadcasts, or other works or subject matter other than works
+    listed in Section 1(f) below, which, by reason of the selection and
+    arrangement of their contents, constitute intellectual creations, in
+    which the Work is included in its entirety in unmodified form along
+    with one or more other contributions, each constituting separate
+    and independent works in themselves, which together are assembled
+    into a collective whole. A work that constitutes a Collection will
+    not be considered an Adaptation (as defined above) for the purposes
+    of this License.
+ c. "Distribute" means to make available to the public the original and
+    copies of the Work or Adaptation, as appropriate, through sale or
+    other transfer of ownership.
+ d. "Licensor" means the individual, individuals, entity or entities
+    that offer(s) the Work under the terms of this License.
+ e. "Original Author" means, in the case of a literary or artistic work,
+    the individual, individuals, entity or entities who created the
+    Work or if no individual or entity can be identified, the publisher;
+    and in addition (i) in the case of a performance the actors, singers,
+    musicians, dancers, and other persons who act, sing, deliver, declaim,
+    play in, interpret or otherwise perform literary or artistic works or
+    expressions of folklore; (ii) in the case of a phonogram the producer
+    being the person or legal entity who first fixes the sounds of a
+    performance or other sounds; and, (iii) in the case of broadcasts,
+    the organization that transmits the broadcast.
+ f. "Work" means the literary and/or artistic work offered under the
+    terms of this License including without limitation any production
+    in the literary, scientific and artistic domain, whatever may be
+    the mode or form of its expression including digital form, such
+    as a book, pamphlet and other writing; a lecture, address, sermon
+    or other work of the same nature; a dramatic or dramatico-musical
+    work; a choreographic work or entertainment in dumb show; a musical
+    composition with or without words; a cinematographic work to which are
+    assimilated works expressed by a process analogous to cinematography;
+    a work of drawing, painting, architecture, sculpture, engraving
+    or lithography; a photographic work to which are assimilated works
+    expressed by a process analogous to photography; a work of applied
+    art; an illustration, map, plan, sketch or three-dimensional work
+    relative to geography, topography, architecture or science; a
+    performance; a broadcast; a phonogram; a compilation of data to the
+    extent it is protected as a copyrightable work; or a work performed
+    by a variety or circus performer to the extent it is not otherwise
+    considered a literary or artistic work.
+ g. "You" means an individual or entity exercising rights under this
+    License who has not previously violated the terms of this License
+    with respect to the Work, or who has received express permission
+    from the Licensor to exercise rights under this License despite a
+    previous violation.
+ h. "Publicly Perform" means to perform public recitations of the Work and
+    to communicate to the public those public recitations, by any means
+    or process, including by wire or wireless means or public digital
+    performances; to make available to the public Works in such a way that
+    members of the public may access these Works from a place and at a
+    place individually chosen by them; to perform the Work to the public
+    by any means or process and the communication to the public of the
+    performances of the Work, including by public digital performance;
+    to broadcast and rebroadcast the Work by any means including signs,
+    sounds or images.
+ i. "Reproduce" means to make copies of the Work by any means including
+    without limitation by sound or visual recordings and the right of
+    fixation and reproducing fixations of the Work, including storage
+    of a protected performance or phonogram in digital form or other
+    electronic medium.
+ .
+ 2. Fair Dealing Rights. Nothing in this License is intended to reduce,
+    limit, or restrict any uses free from copyright or rights arising from
+    limitations or exceptions that are provided for in connection with the
+    copyright protection under copyright law or other applicable laws.
+ .
+ 3. License Grant. Subject to the terms and conditions of this License,
+    Licensor hereby grants You a worldwide, royalty-free, non-exclusive,
+    perpetual (for the duration of the applicable copyright) license to
+    exercise the rights in the Work as stated below:
+ .
+ a. to Reproduce the Work, to incorporate the Work into one or
+    more Collections, and to Reproduce the Work as incorporated in the
+    Collections;
+ b. to create and Reproduce Adaptations provided that any such Adaptation,
+    including any translation in any medium, takes reasonable steps to
+    clearly label, demarcate or otherwise identify that changes were made
+    to the original Work. For example, a translation could be marked "The
+    original work was translated from English to Spanish," or a modification
+    could indicate "The original work has been modified.";
+ c. to Distribute and Publicly Perform the Work including as incorporated
+ in Collections; and,
+ d. to Distribute and Publicly Perform Adaptations.
+ e. For the avoidance of doubt:
+    i   Non-waivable Compulsory License Schemes. In those jurisdictions
+        in which the right to collect royalties through any statutory or
+        compulsory licensing scheme cannot be waived, the Licensor reserves
+        the exclusive right to collect such royalties for any exercise by
+        You of the rights granted under this License;
+    ii  Waivable Compulsory License Schemes. In those jurisdictions
+        in which the right to collect royalties through any statutory or
+        compulsory licensing scheme can be waived, the Licensor waives the
+        exclusive right to collect such royalties for any exercise by You
+        of the rights granted under this License; and,
+    iii Voluntary License Schemes. The Licensor waives the right to
+        collect royalties, whether individually or, in the event that
+        the Licensor is a member of a collecting society that administers
+        voluntary licensing schemes, via that society, from any exercise by
+        You of the rights granted under this License.
+ .
+ The above rights may be exercised in all media and formats whether now
+ known or hereafter devised. The above rights include the right to make
+ such modifications as are technically necessary to exercise the rights
+ in other media and formats. Subject to Section 8(f), all rights not
+ expressly granted by Licensor are hereby reserved.
+ .
+ 4. Restrictions. The license granted in Section 3 above is expressly
+ made subject to and limited by the following restrictions:
+ .
+    You may Distribute or Publicly Perform the Work only under the terms
+    of this License. You must include a copy of, or the Uniform Resource
+    Identifier (URI) for, this License with every copy of the Work You
+    Distribute or Publicly Perform. You may not offer or impose any terms
+    on the Work that restrict the terms of this License or the ability
+    of the recipient of the Work to exercise the rights granted to that
+    recipient under the terms of the License. You may not sublicense the
+    Work. You must keep intact all notices that refer to this License
+    and to the disclaimer of warranties with every copy of the Work You
+    Distribute or Publicly Perform. When You Distribute or Publicly
+    Perform the Work, You may not impose any effective technological
+    measures on the Work that restrict the ability of a recipient of
+    the Work from You to exercise the rights granted to that recipient
+    under the terms of the License. This Section 4(a) applies to the
+    Work as incorporated in a Collection, but this does not require
+    the Collection apart from the Work itself to be made subject to the
+    terms of this License. If You create a Collection, upon notice from
+    any Licensor You must, to the extent practicable, remove from the
+    Collection any credit as required by Section 4(b), as requested. If
+    You create an Adaptation, upon notice from any Licensor You must,
+    to the extent practicable, remove from the Adaptation any credit as
+    required by Section 4(b), as requested.
+ .
+    If You Distribute, or Publicly Perform the Work or any Adaptations
+    or Collections, You must, unless a request has been made pursuant
+    to Section 4(a), keep intact all copyright notices for the Work and
+    provide, reasonable to the medium or means You are utilizing: (i) the
+    name of the Original Author (or pseudonym, if applicable) if supplied,
+    and/or if the Original Author and/or Licensor designate another party
+    or parties (e.g., a sponsor institute, publishing entity, journal)
+    for attribution ("Attribution Parties") in Licensor's copyright
+    notice, terms of service or by other reasonable means, the name of
+    such party or parties; (ii) the title of the Work if supplied; (iii)
+    to the extent reasonably practicable, the URI, if any, that Licensor
+    specifies to be associated with the Work, unless such URI does not
+    refer to the copyright notice or licensing information for the Work;
+    and (iv) , consistent with Section 3(b), in the case of an Adaptation,
+    a credit identifying the use of the Work in the Adaptation (e.g.,
+    "French translation of the Work by Original Author," or "Screenplay
+    based on original Work by Original Author"). The credit required
+    by this Section 4 (b) may be implemented in any reasonable manner;
+    provided, however, that in the case of a Adaptation or Collection, at
+    a minimum such credit will appear, if a credit for all contributing
+    authors of the Adaptation or Collection appears, then as part of
+    these credits and in a manner at least as prominent as the credits
+    for the other contributing authors. For the avoidance of doubt,
+    You may only use the credit required by this Section for the purpose
+    of attribution in the manner set out above and, by exercising Your
+    rights under this License, You may not implicitly or explicitly
+    assert or imply any connection with, sponsorship or endorsement
+    by the Original Author, Licensor and/or Attribution Parties, as
+    appropriate, of You or Your use of the Work, without the separate,
+    express prior written permission of the Original Author, Licensor
+    and/or Attribution Parties.
+ .
+    Except as otherwise agreed in writing by the Licensor or as may be
+    otherwise permitted by applicable law, if You Reproduce, Distribute
+    or Publicly Perform the Work either by itself or as part of any
+    Adaptations or Collections, You must not distort, mutilate, modify
+    or take other derogatory action in relation to the Work which would
+    be prejudicial to the Original Author's honor or reputation. Licensor
+    agrees that in those jurisdictions (e.g. Japan), in which any exercise
+    of the right granted in Section 3(b) of this License (the right to
+    make Adaptations) would be deemed to be a distortion, mutilation,
+    modification or other derogatory action prejudicial to the Original
+    Author's honor and reputation, the Licensor will waive or not assert,
+    as appropriate, this Section, to the fullest extent permitted by the
+    applicable national law, to enable You to reasonably exercise Your
+    right under Section 3(b) of this License (right to make Adaptations)
+    but not otherwise.
+ .
+ 5. Representations, Warranties and Disclaimer
+ .
+ UNLESS OTHERWISE MUTUALLY AGREED TO BY THE PARTIES IN WRITING, LICENSOR
+ OFFERS THE WORK AS-IS AND MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY
+ KIND CONCERNING THE WORK, EXPRESS, IMPLIED, STATUTORY OR OTHERWISE,
+ INCLUDING, WITHOUT LIMITATION, WARRANTIES OF TITLE, MERCHANTIBILITY,
+ FITNESS FOR A PARTICULAR PURPOSE, NONINFRINGEMENT, OR THE ABSENCE
+ OF LATENT OR OTHER DEFECTS, ACCURACY, OR THE PRESENCE OF ABSENCE OF
+ ERRORS, WHETHER OR NOT DISCOVERABLE. SOME JURISDICTIONS DO NOT ALLOW THE
+ EXCLUSION OF IMPLIED WARRANTIES, SO SUCH EXCLUSION MAY NOT APPLY TO YOU.
+ .
+ 6. Limitation on Liability. EXCEPT TO THE EXTENT REQUIRED BY APPLICABLE
+ LAW, IN NO EVENT WILL LICENSOR BE LIABLE TO YOU ON ANY LEGAL THEORY FOR
+ ANY SPECIAL, INCIDENTAL, CONSEQUENTIAL, PUNITIVE OR EXEMPLARY DAMAGES
+ ARISING OUT OF THIS LICENSE OR THE USE OF THE WORK, EVEN IF LICENSOR
+ HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+ .
+ 7. Termination
+ .
+ a. This License and the rights granted hereunder will terminate
+    automatically upon any breach by You of the terms of this
+    License. Individuals or entities who have received Adaptations or
+    Collections from You under this License, however, will not have their
+    licenses terminated provided such individuals or entities remain in
+    full compliance with those licenses. Sections 1, 2, 5, 6, 7, and 8 will
+    survive any termination of this License.
+ .
+ b. Subject to the above terms and conditions, the license granted here
+    is perpetual (for the duration of the applicable copyright in the
+    Work). Notwithstanding the above, Licensor reserves the right to release
+    the Work under different license terms or to stop distributing the Work
+    at any time; provided, however that any such election will not serve to
+    withdraw this License (or any other license that has been, or is required
+    to be, granted under the terms of this License), and this License will
+    continue in full force and effect unless terminated as stated above.
+ .
+ 8. Miscellaneous
+ .
+ a  Each time You Distribute or Publicly Perform the Work or a Collection,
+    the Licensor offers to the recipient a license to the Work on the same
+    terms and conditions as the license granted to You under this License.
+ b. Each time You Distribute or Publicly Perform an Adaptation, Licensor
+    offers to the recipient a license to the original Work on the same
+    terms and conditions as the license granted to You under this License.
+ c. If any provision of this License is invalid or unenforceable under
+    applicable law, it shall not affect the validity or enforceability of
+    the remainder of the terms of this License, and without further action
+    by the parties to this agreement, such provision shall be reformed to the
+    minimum extent necessary to make such provision valid and enforceable.
+    No term or provision of this License shall be deemed waived and no
+    breach consented to unless such waiver or consent shall be in writing
+    and signed by the party to be charged with such waiver or consent.
+ d. This License constitutes the entire agreement between the parties
+    with respect to the Work licensed here. There are no understandings,
+    agreements or representations with respect to the Work not specified
+    here. Licensor shall not be bound by any additional provisions that
+    may appear in any communication from You. This License may not be
+    modified without the mutual written agreement of the Licensor and You.
+ e. The rights granted under, and the subject matter referenced, in
+    this License were drafted utilizing the terminology of the Berne
+    Convention for the Protection of Literary and Artistic Works (as
+    amended on September 28, 1979), the Rome Convention of 1961, the WIPO
+    Copyright Treaty of 1996, the WIPO Performances and Phonograms Treaty
+    of 1996 and the Universal Copyright Convention (as revised on July 24,
+    1971). These rights and subject matter take effect in the relevant
+    jurisdiction in which the License terms are sought to be enforced
+    according to the corresponding provisions of the implementation
+    of those treaty provisions in the applicable national law. If
+    the standard suite of rights granted under applicable copyright
+    law includes additional rights not granted under this License,
+    such additional rights are deemed to be included in the License;
+    this License is not intended to restrict the license of any rights
+    under applicable law.

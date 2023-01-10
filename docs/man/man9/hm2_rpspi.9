@@ -21,11 +21,6 @@
 .\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 .\" USA.
 .TH HM2_RPSPI "9" "2017-06-05" "LinuxCNC Documentation" "HAL Component"
-.de TQ
-.br
-.ns
-.TP \\$1
-..
 
 .SH NAME
 
@@ -86,11 +81,11 @@ combinations of SPI and CE should be probed:
 
 The probe is performed exactly in above order. Any boards found will be
 numbered 0...4 in the order found. See also
-.BR INTERFACE\ CONFGURATION
+.BR INTERFACE\ CONFIGURATION
 below.
 
 It is an error if a probe fails and the driver will abort.  The SPI0/SPI1
-peripherals are located at gpio pins (with 40-pin I/O header pin\-number in
+peripherals are located at GPIO pins (with 40-pin I/O header pin\-number in
 parentheses):
  \- SPI0: MOSI=10(19), MISO=9(21), SCLK=11(23), CE0=8(24), CE1=7(26)
  \- SPI1: MOSI=20(38), MISO=19(35), SCLK=21(40), CE0=18(12), CE1=17(11), CE2=16(36)
@@ -126,7 +121,7 @@ the board by the
 .BR mesaflash (1)
 program.
 
-hm2_rpspi is only available when linuxcnc is configured with "uspace" realtime.
+hm2_rpspi is only available when LinuxCNC is configured with "uspace" realtime.
 It works with Raspian and PREEMPT_RT kernel.
 
 .SH INTERFACE CONFIGURATION
@@ -141,7 +136,7 @@ search for the board(s).
 
 TBD.
 .\"As of kernel 3.8, most or all kernel SPI drivers do not achieve the high"
-.\"realtime response rate required for a typical linuxcnc configuration.  The"
+.\"realtime response rate required for a typical LinuxCNC configuration.  The"
 .\"driver was tested with ..."
 
 .SH SPI CLOCK RATES

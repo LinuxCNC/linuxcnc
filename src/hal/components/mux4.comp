@@ -26,6 +26,7 @@ pin in float in2;
 pin in float in3;
 function _;
 license "GPL";
+author "Jeff Epler";
 ;;
 FUNCTION(_) {
     if(sel1) {

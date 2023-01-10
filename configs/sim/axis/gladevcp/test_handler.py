@@ -1,5 +1,11 @@
 import hal
 
+# Import core libraries
+from gladevcp.core import Info, Action
+
+# Instantiate libraries
+INFO = Info()
+ACTION = Action()
 
 def get_handlers(halcomp,builder,useropts):
     return [HandlerClass(halcomp,builder,useropts)]
@@ -9,9 +15,12 @@ class HandlerClass:
     class with gladevcp callback handlers
     '''
 
+    # general button callback function with some sample code
     def on_button_press(self, widget, data=None):
-        print widget, data
-        
+        print(widget, data)
+        print('Max Feed Override INI setting:',INFO.MAX_FEED_OVERRIDE)
+        ACTION.SET_DISPLAY_MESSAGE('Handler defined button Pressed')
+
     def __init__(self, halcomp,builder,useropts):
         '''
         Handler classes are instantiated in the following state:

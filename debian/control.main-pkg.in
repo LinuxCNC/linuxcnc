@@ -1,0 +1,87 @@
+Package: @MAIN_PACKAGE_NAME@
+Conflicts:
+    linuxcnc-sim,
+    @OTHER_MAIN_PACKAGE_NAME@
+Breaks:
+    linuxcnc-doc-en (<= 2.9.0~pre0+git20220402.2500863908-4),
+    linuxcnc-doc-es (<= 2.9.0~pre0+git20220402.2500863908-4),
+    linuxcnc-doc-fr (<= 2.9.0~pre0+git20220402.2500863908-4)
+Architecture: any
+Depends:
+    ${misc:Depends},
+    ${python3:Depends},
+    ${shlibs:Depends},
+    @KERNEL_DEPENDS@,
+    @MODUTILS_DEPENDS@,
+    blt,
+    mesa-utils,
+    python3-tk,
+    python3-numpy,
+    python3-cairo,
+    python3-gi-cairo,
+    python3-opengl,
+    python3-configobj,
+    python3-xlib,
+    libgtksourceview-3.0-dev,
+    tcl@TCLTK_VERSION@,
+    tk@TCLTK_VERSION@,
+    bwidget (>= 1.7),
+    tclreadline,
+    tclx,
+    procps, psmisc,
+    udev
+Recommends:
+    linuxcnc-doc-en | linuxcnc-doc,
+    librsvg2-dev,
+    @EXTRA_RECOMMENDS@,
+    @PYTHON_IMAGING@,
+    @PYTHON_IMAGING_TK@,
+    @QTVCP_DEPENDS@
+Suggests: mesaflash
+Description: motion controller for CNC machines and robots
+ LinuxCNC is a fully-realised CNC machine controller that can interpret
+ machine-control programs (such as G-code), plan trajectories and finally
+ output low-level signals to machine control hardware
+ .
+ LinuxCNC is modular and in principle the HAL (hardware abstraction layer),
+ pluggable interpreters and variety of hardware drivers mean that it can
+ control almost any software-defined physical system.
+ .
+ LinuxCNC relies on a realtime kernel to support real-time motion control,
+ typically updating the position waypoints every 1mS and reacting to
+ input within tens of microseconds.
+ .
+ Modules exist to use the low-level parts of LinuxCNC as a motion-control
+ client for OpenPnP. Interfaces exist for ROS (the Robot Operating System)
+ with which LinuxCNC has considerable overlap.
+ .
+ LinuxCNC supports arbitrary kinematics (the mapping between coordinate
+ space and actuator space) and can control both parallel (eg Stewart
+ platform) and serial (eg robot arm) systems in addition to conventional
+ cartesian machine tools.
+ .
+ LinuxCNC supports 9 cartesian axes and 16 "Joints" (individual actuators)
+ though the joint limit is build-time configurable.
+ .
+ A variety of interface hardware is supported including Modbus, EtherCAT,
+ analogue +/-10V velocity control and Step/Dir. Step/Dir is supported by
+ several hardware interfaces, including, but not limited to, the legacy
+ Parallel Port.
+ .
+ A Hardware Abstraction Layer allows for great flexibility in signal
+ mapping between the controller and the driver hardware. An extensive
+ library of modules allow for complex signal processing within the HAL
+ layer. For specialised tasks custom HAL components can be created using
+ a C-like syntax and installed with the supplied tools.
+ .
+ By default LinuxCNC supports RS274 G-code but is extendable to parse
+ other grammars such as STEP-NC or Gerber through support for pluggable
+ interpreters.
+ .
+ If you want a computer to control things in the real world
+ then LinuxCNC can do it. It is especially applicable to systems that
+ are required to follow accurate paths described in cartesian space but
+ has been used for numerous other applications.
+ .
+ This package provides the main package for LinuxCNC.
+

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is from PyOpenGL-2.0.1.07.  That distribution's license is
 # """License :: OSI Approved :: BSD License""",
@@ -9,13 +9,16 @@
 # University of York, UK
 # 
 
-from minigl import *
-from Tkinter import _default_root
-from Tkinter import *
+from OpenGL.GL import *
+from OpenGL.GLU import *
 import math
-import os,sys
+import os
 import _togl
 import glnav
+import itertools
+
+from tkinter import _default_root
+from tkinter import *
 
 # Keith Junius <junius@chem.rug.nl> provided many changes to Togl
 TOGL_NORMAL = 1
@@ -120,7 +123,7 @@ class RawOpengl(Togl, Misc):
         # will call redraw recursively. 
         self.update_idletasks()
         self.tk.call(self._w, 'makecurrent')
-        _mode = glGetDoublev(GL_MATRIX_MODE)
+        _mode = glGetInteger(GL_MATRIX_MODE)
         try:
             glMatrixMode(GL_PROJECTION)
             glPushMatrix()
@@ -161,7 +164,7 @@ http://www.yorvic.york.ac.uk/~mjh/
         it changes size."""
 
         #Widget.__init__(self, master, 'togl', cnf, kw)
-        apply(RawOpengl.__init__, (self, master, cnf), kw)
+        RawOpengl.__init__(*(self, master, cnf), **kw)
         glnav.GlNavBase.__init__(self)
 
         # Basic bindings for the virtual trackball
@@ -203,8 +206,8 @@ http://www.yorvic.york.ac.uk/~mjh/
     def help(self):
         """Help for the widget."""
 
-        import Dialog
-        d = Dialog.Dialog(None, {'title': 'Viewer help',
+        import tkinter.dialog
+        d = tkinter.dialog.Dialog(None, {'title': 'Viewer help',
                      'text': 'Button-1: Translate\n'
                          'Button-2: Rotate\n'
                          'Button-3: Zoom\n'

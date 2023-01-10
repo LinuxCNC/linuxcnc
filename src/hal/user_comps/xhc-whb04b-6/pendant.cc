@@ -227,38 +227,38 @@ MetaButtonsCodes::MetaButtonsCodes(const ButtonsCode& buttons) :
     macro16(buttons.step, buttons.function),
     undefined(buttons.undefined, buttons.undefined),
     buttons{
-        {&reset},
-        {&macro11},
-        {&stop},
-        {&macro12},
-        {&start},
-        {&macro13},
-        {&feed_plus},
-        {&macro1},
-        {&feed_minus},
-        {&macro2},
-        {&spindle_plus},
-        {&macro3},
-        {&spindle_minus},
-        {&macro4},
-        {&machine_home},
-        {&macro5},
-        {&safe_z},
-        {&macro6},
-        {&workpiece_home},
-        {&macro7},
-        {&spindle_on_off},
-        {&macro8},
-        {&function},
-        {&probe_z},
-        {&macro9},
-        {&macro10},
-        {&macro14},
-        {&continuous},
-        {&macro15},
-        {&step},
-        {&macro16},
-        {&undefined}
+        &reset,
+        &macro11,
+        &stop,
+        &macro12,
+        &start,
+        &macro13,
+        &feed_plus,
+        &macro1,
+        &feed_minus,
+        &macro2,
+        &spindle_plus,
+        &macro3,
+        &spindle_minus,
+        &macro4,
+        &machine_home,
+        &macro5,
+        &safe_z,
+        &macro6,
+        &workpiece_home,
+        &macro7,
+        &spindle_on_off,
+        &macro8,
+        &function,
+        &probe_z,
+        &macro9,
+        &macro10,
+        &macro14,
+        &continuous,
+        &macro15,
+        &step,
+        &macro16,
+        &undefined
     }
 {
 }
@@ -1056,7 +1056,7 @@ bool Pendant::onButtonPressedEvent(const MetaButtonCodes& metaButton)
     }
     else if (metaButton == KeyCodes::Meta.macro10)
     {
-        mHal.setMacro10(true);                         // Hardcoded Absolue/relative Dro
+        mHal.setMacro10(true);                         // Hardcoded Absolute/relative Dro
         isHandled = true;
     }
     else if (metaButton == KeyCodes::Meta.continuous)
@@ -1228,7 +1228,7 @@ bool Pendant::onButtonReleasedEvent(const MetaButtonCodes& metaButton)
     }
     else if (metaButton == KeyCodes::Meta.macro10)
     {
-        mHal.setMacro10(false);                        // Hardcoded Absolue/relative Dro
+        mHal.setMacro10(false);                        // Hardcoded Absolute/relative Dro
         isHandled = true;
     }
     else if (metaButton == KeyCodes::Meta.continuous)

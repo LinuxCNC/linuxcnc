@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # vim: sts=4 sw=4 et
 # GladeVcp FileChooser related widgets
 #
@@ -17,15 +17,19 @@
 import os, sys, time, select, re
 import tempfile, atexit, shutil
 
-import gtk, gobject
+import gi
+gi.require_version("Gtk","3.0")
+gi.require_version("Gdk","3.0")
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
 
-from hal_widgets import _HalWidgetBase
+from .hal_widgets import _HalWidgetBase
 import linuxcnc
 from hal_glib import GStat
 
 _ = lambda x: x
 
-from hal_actions import _EMC_ActionBase, _EMC_Action
+from .hal_actions import _EMC_ActionBase, _EMC_Action
 
 progress_re = re.compile("^FILTER_PROGRESS=(\\d*)$")
 class FilterProgram:
@@ -80,7 +84,8 @@ class FilterProgram:
             self.callback(r)
 
     def error(self, exitcode, stderr):
-        dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_ERROR, gtk.BUTTONS_CLOSE,
+        dialog = gtk.MessageDialog(None, 0, gtk.MessageType.ERROR,
+                                        gtk.ButtonsType.CLOSE,
                 _("The program %(program)r exited with code %(code)d.  "
                 "Any error messages it produced are shown below:")
                     % {'program': self.program_filter, 'code': exitcode})
@@ -145,7 +150,8 @@ class _EMC_FileChooser(_EMC_ActionBase):
             #print "New filter %s: %s" % (n, el)
             p = gtk.FileFilter()
             p.set_name(n)
-            map(lambda s: p.add_pattern('*' + s), el)
+            for s in el:
+                p.add_pattern('*' + s)
             #print p
             return p
         all_extensions = [".ngc"]
@@ -197,14 +203,14 @@ class EMC_Action_Open(_EMC_Action, _EMC_FileChooser):
         if self.fixed_file:
             self.load_file(self.fixed_file)
             return
-        dialog = EMC_FileChooserDialog(title="Open File",action=gtk.FILE_CHOOSER_ACTION_OPEN, 
-                buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN,gtk.RESPONSE_OK))
+        dialog = EMC_FileChooserDialog(title="Open File",action=gtk.FileChooserAction.OPEN, 
+                buttons=(gtk.STOCK_CANCEL,gtk.ResponseType.CANCEL,gtk.STOCK_OPEN,gtk.ResponseType.OK))
         dialog.set_current_folder(self.currentfolder)
         dialog.show()
         r = dialog.run()
         fn = dialog.get_filename()
         dialog.hide()
-        if r == gtk.RESPONSE_OK:
+        if r == gtk.ResponseType.OK:
             dialog.load_file(fn)
             self.currentfolder = os.path.dirname(fn)
         dialog.destroy()

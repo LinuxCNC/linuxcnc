@@ -59,7 +59,7 @@ def involute(self, **words):
     old_z = self.current_z
 
     if self.debugmask & 0x10000000:   # USER1 debug flag
-        print "x0=%f y0=%f a=%f old_z=%f" % (x0,y0,a,old_z)
+        print("x0=%f y0=%f a=%f old_z=%f" % (x0,y0,a,old_z))
 
     try:
         #self.execute("G3456")  # would raise InterpreterException
@@ -81,7 +81,7 @@ def involute(self, **words):
         if c.z_flag: # retract to starting height
             self.execute("G0 Z%f" % (old_z),lineno())
 
-    except InterpreterException,e:
+    except InterpreterException as e:
         msg = "%d: '%s' - %s" % (e.line_number,e.line_text, e.error_message)
         self.set_errormsg(msg) # replace builtin error message
         return INTERP_ERROR

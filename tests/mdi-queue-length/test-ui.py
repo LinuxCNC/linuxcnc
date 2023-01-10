@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import linuxcnc
 import hal
@@ -23,7 +23,6 @@ def wait_for_linuxcnc_startup(status, timeout=10.0):
     while time.time() - start_time < timeout:
         status.poll()
         if (status.angular_units == 0.0) \
-            or (status.axes == 0) \
             or (status.axis_mask == 0) \
             or (status.cycle_time == 0.0) \
             or (status.exec_state != linuxcnc.EXEC_DONE) \
@@ -52,7 +51,7 @@ def wait_for_mdi_queue(queue_len, timeout=10):
         if s.queued_mdi_commands == queue_len:
             return
         time.sleep(0.1)
-    print "queued_mdi_commands at %d after %.3f seconds" % (s.queued_mdi_commands, timeout)
+    print("queued_mdi_commands at %d after %.3f seconds" % (s.queued_mdi_commands, timeout))
     sys.exit(1)
 
 

@@ -5,7 +5,7 @@ source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
 source [file join $::env(HALLIB_DIR) util_lib.tcl]
 
 # Usage:
-# In ini file, include:
+# In INI file, include:
 #   [HAL]
 #   HALFILE = existing halfiles
 #   ...
@@ -16,6 +16,7 @@ source [file join $::env(HALLIB_DIR) util_lib.tcl]
 #   coords = x y z a (up to 4 unique letters from x y z a b c u v w)
 #   coefs  = 1 1 1 1 (optional, filter coefs, 0 < coef < 1, not usually reqd)
 #   scales = 1 1 1 1 (optional)
+#   mpg_accels = 50 75 30 75 (optional, less than axis max accel)
 #   threadname = servo-thread (optional)
 #   sequence = 1     (optional: 1|2)
 #   jogmode = normal (optional: normal|vnormal)
@@ -28,7 +29,7 @@ source [file join $::env(HALLIB_DIR) util_lib.tcl]
 #   special cases:
 #   start-pause = std_start_pause  (for usual behavior)
 #   step = xhc-hb04.stepsize-up    (for usual behavior)
-#   (see ini files for more exanples)
+#   (see INI files for more exanples)
 
 # Notes:
 #    1) the 'start-pause' pin can be set to "std_start_pause" to
@@ -102,7 +103,7 @@ proc connect_pins {} {
       puts stderr "$::progname: using std_start_pause_button"
       continue
     }
-    # these are warnings in the ini file examples but aren't real pins
+    # these are warnings in the INI file examples but aren't real pins
     if {[string tolower "$thepin"] == "caution"} {
       puts stderr "$::progname: skipping button $bname marked <$thepin>"
       continue
@@ -124,9 +125,7 @@ proc connect_pins {} {
 } ;# connect_pins
 
 proc wheel_setup {jogmode} {
-  for {set idx 0} {$idx < 4} {incr idx} {
-    set ::XHC_HB04_CONFIG(accel,$idx) 1.0 ;# default if unspecified
-  }
+
   if [info exists ::XHC_HB04_CONFIG(mpg_accels)] {
     set idx 0
     foreach g $::XHC_HB04_CONFIG(mpg_accels) {
@@ -140,7 +139,7 @@ proc wheel_setup {jogmode} {
     }
   }
 
-  # defaults if not in inifile:
+  # defaults if not in INI file:
   set ::XHC_HB04_CONFIG(coef,0) 1.0
   set ::XHC_HB04_CONFIG(coef,1) 1.0
   set ::XHC_HB04_CONFIG(coef,2) 1.0
@@ -161,7 +160,7 @@ proc wheel_setup {jogmode} {
       incr idx
     }
   }
-  # defaults if not in inifile:
+  # defaults if not in INI file:
   set ::XHC_HB04_CONFIG(scale,0) 1.0
   set ::XHC_HB04_CONFIG(scale,1) 1.0
   set ::XHC_HB04_CONFIG(scale,2) 1.0
@@ -272,11 +271,14 @@ proc wheel_setup {jogmode} {
     }
 
     set afraction 1.0 ;# default
-    if [catch {
-      set afraction [expr  $::XHC_HB04_CONFIG(accel,$idx)\
+    # Only calculate an afraction IF we have specified mpg_accels in the INI file
+    if [info exists ::XHC_HB04_CONFIG(mpg_accels)] {
+      if [catch {
+        set afraction [expr  $::XHC_HB04_CONFIG(accel,$idx)\
                           /[set ::AXIS_[set COORD](MAX_ACCELERATION)] ]
               } msg] {
-      err_exit "<$msg>\n\nMissing ini setting: \[AXIS_$COORD\]MAX_ACCELERATION"
+        err_exit "<$msg>\n\nMissing INI setting: \[AXIS_$COORD\]MAX_ACCELERATION"
+      }
     }
     setp axis.$coord.jog-accel-fraction $afraction
 
@@ -300,11 +302,13 @@ proc wheel_setup {jogmode} {
       makenet pendant:jog-$coord => joint.$jnum.jog-enable
 
       set jfraction 1.0 ;# default
-      if [catch {
-        set jfraction [expr  $::XHC_HB04_CONFIG(accel,$idx)\
+      if [info exists ::XHC_HB04_CONFIG(mpg_accels)] {
+        if [catch {
+          set jfraction [expr  $::XHC_HB04_CONFIG(accel,$idx)\
                             /[set ::JOINT_[set jnum](MAX_ACCELERATION)] ]
                 } msg] {
-        err_exit "<$msg>\n\nMissing ini setting: \[JOINT_$jnum\]MAX_ACCELERATION"
+          err_exit "<$msg>\n\nMissing INI setting: \[JOINT_$jnum\]MAX_ACCELERATION"
+        }
       }
       setp joint.$jnum.jog-accel-fraction $jfraction
 
@@ -479,6 +483,35 @@ if ![file exists $cfg] {
   return ;# not an exit
 }
 
+# handle keywords with either upper or lower case
+foreach name [array names ::XHC_HB04_CONFIG] {
+  set lname [string tolower $name]
+  set uname [string toupper $name]
+  if ![info exists ::XHC_HB04_CONFIG($uname)] {
+    continue
+  } else {
+    if {   [info exists ::XHC_HB04_CONFIG($lname)]
+        && "$::XHC_HB04_CONFIG($lname)" != "$::XHC_HB04_CONFIG($uname)"} {
+      puts "duplicated item: \[XHC_HB04_CONFIG\]$uname = $::XHC_HB04_CONFIG($uname)"
+      puts "superseded with: \[XHC_HB04_CONFIG\]$lname = $::XHC_HB04_CONFIG($lname)"
+      unset ::XHC_HB04_CONFIG($uname)
+    }
+  }
+}
+foreach name [array names ::XHC_HB04_BUTTONS] {
+  set lname [string tolower $name]
+  set uname [string toupper $name]
+  if ![info exists ::XHC_HB04_BUTTONS($uname)] {
+    continue
+  } else {
+    if {   [info exists ::XHC_HB04_BUTTONS($lname)]
+        && "$::XHC_HB04_BUTTONS($lname)" != "$::XHC_HB04_BUTTONS($uname)"} {
+      puts "duplicated item: \[XHC_HB04_BUTTONS\]$uname = $::XHC_HB04_BUTTONS($uname)"
+      puts "superseded with: \[XHC_HB04_BUTTONS\]$lname = $::XHC_HB04_BUTTONS($lname)"
+      unset ::XHC_HB04_BUTTONS($uname)
+    }
+  }
+}
 # require_pendant==yes: use -x, dont create pins unless connected
 # require_pendant==no:          create pins if not connected
 if ![info exists ::XHC_HB04_CONFIG(require_pendant)] {
@@ -550,9 +583,9 @@ addf   pendant_util $::XHC_HB04_CONFIG(threadname)
 # If twopass, do not call procs in pass0 that test pin
 # connections since components not yet loaded
 if { ![namespace exists ::tp] || ([::tp::passnumber] != 0) } {
-  connect_pins    ;# per ini file items: [XHC_HB04_BUTTONS]buttonname=pin
+  connect_pins    ;# per INI file items: [XHC_HB04_BUTTONS]buttonname=pin
   wheel_setup  $::XHC_HB04_CONFIG(jogmode)
-                   # jog wheel per ini file items:
+                   # jog wheel per INI file items:
                    #     [XHC_HB04_CONFIG]coords,coefs,scales
 }
 if [info exists ::makenet_msg] {

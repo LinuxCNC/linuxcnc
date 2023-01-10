@@ -82,7 +82,7 @@ o<probe_ridge_x> sub
 
   #<x_minus_probed> = #5061
 
-  (probed center calulation)
+  (probed center calculation)
   #<x_center_probed> = [[#<x_plus_probed> + #<x_minus_probed>] / 2]
 
   (calculate X Width Probed)

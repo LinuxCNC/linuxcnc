@@ -7,10 +7,10 @@
 * Author:
 * License: LGPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 
 #define __STDC_FORMAT_MACROS
@@ -116,7 +116,7 @@ void *NML::operator new(size_t size)
 	cptr += sizeof(int) - (((size_t) cptr) % sizeof(int));
 	*((int *) cptr) = dynamic_list_id;
     }
-    rcs_print_debug(PRINT_NML_CONSTRUCTORS, "%p = NML::operater new(%zd)\n",
+    rcs_print_debug(PRINT_NML_CONSTRUCTORS, "%p = NML::operator new(%zd)\n",
 	nml_space, size);
     return nml_space;
 }
@@ -126,7 +126,7 @@ void NML::operator delete(void *nml_space)
     int dynamic_list_id = 0;
     char *cptr = (char *) NULL;
 
-    rcs_print_debug(PRINT_NML_DESTRUCTORS, "NML::operater delete(%p)\n",
+    rcs_print_debug(PRINT_NML_DESTRUCTORS, "NML::operator delete(%p)\n",
 	nml_space);
 
     if (NULL == nml_space) {
@@ -281,7 +281,7 @@ void NML::reconstruct(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc,
 	register_with_server();
     }
     add_to_channel_list();
-    // FAST MODE is a combination of options which allow certian checks
+    // FAST MODE is a combination of options which allow certain checks
     // during
     // a read or write operation to be avoided and therefore reduce the
     // NML/CMS
@@ -707,7 +707,7 @@ int NML::reset()
 	}
 	register_with_server();
 	add_to_channel_list();
-	// FAST MODE is a combination of options which allow certian checks
+	// FAST MODE is a combination of options which allow certain checks
 	// during
 	// a read or write operation to be avoided and therefore reduce the
 	// NML/CMS
@@ -889,7 +889,7 @@ int NML::clear()
 /************************************************************
 * NML Member Function: clean_buffers()
 *  Tells cms to set buffers to zero so that we eliminate strange
-* history effects. -- Should only be used by progams testing CMS/NML.
+* history effects. -- Should only be used by programs testing CMS/NML.
 ************************************************************/
 void NML::clean_buffers()
 {
@@ -976,7 +976,7 @@ int NML::get_space_available()
 * NML Member Function: valid()
 * Purpose:
 * Provides a check which can be used after an NML object is
-* constructed to determine if everthing is in order.
+* constructed to determine if everything is in order.
 * Returns: 1 if everything is O.K. 0 otherwise.
 *************************************************************/
 int NML::valid()
@@ -1390,7 +1390,7 @@ NMLTYPE NML::peek()
 * NML Member Function: format_output()
 * Purpose: Formats the data read from a CMS buffer as required
 * by the process that created this NML. The formatting converts
-* messages from some platform indepent format to a platform
+* messages from some platform independent format to a platform
 * specific format or vice versa. (Performing byte-swapping etc.)
 * Returns:
 *  0  The format was successful.
@@ -1400,9 +1400,9 @@ NMLTYPE NML::peek()
 * called.
 *     i. The data is being read out as is. (cms->mode == CMS_RAW_OUT).
 *    ii. A user needs the data in the local platform-specific or raw format
-*        but the buffer has been encoded in a platform-independant or
+*        but the buffer has been encoded in a platform-independent or
 *         neutral format.   (cms->mode == CMS_DECODE).
-*   iii. An NML_SERVER needs the data encoded in a platform-independant
+*   iii. An NML_SERVER needs the data encoded in a platform-independent
 *        or neutral format to send it out over the network but the buffer
 *        is in a local platform-specific or raw format.
 *         (cms->mode == CMS_ENCODE)
@@ -1628,7 +1628,7 @@ int NML::write(NMLmsg * nml_msg, int *serial_number)
     /* Set CMS to a write mode. */
     cms->set_mode(CMS_WRITE);
 
-    /* Format the message if neccessary. */
+    /* Format the message if necessary. */
     if (-1 == format_input(nml_msg)) {
 	error_type = NML_FORMAT_ERROR;
 	return -1;
@@ -1808,9 +1808,9 @@ int NML::write_if_read(NMLmsg * nml_msg, int *serial_number)
 
 /*******************************************************************
 * NML Member Function: format_input()
-* Purpose: Formats the in an NML message to be writen to a CMS buffer
+* Purpose: Formats the in an NML message to be written to a CMS buffer
 *  as required by the configuration file. The formatting converts
-*  messages from some platform indepent format to a platform
+*  messages from some platform independent format to a platform
 *  specific format or vice versa. (Performing byte-swapping etc.)
 * Parameters:
 * NMLmsg *nml_msg - The address of the NML message.

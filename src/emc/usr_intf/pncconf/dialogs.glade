@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.2 -->
 <interface>
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.0"/>
   <object class="GtkAdjustment" id="atep_pull_l_adjust">
     <property name="lower">1</property>
     <property name="upper">500</property>
@@ -50,11 +50,54 @@
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="type_hint">normal</property>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox11">
+      <object class="GtkBox" id="dialog-vbox11">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="dialog-action_area11">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="button4">
+                <property name="label">gtk-cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="button3">
+                <property name="label">gtk-ok</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
         <child>
           <object class="GtkFrame" id="frame2_1">
             <property name="visible">True</property>
@@ -133,8 +176,6 @@ Field power should be connected to detect all pins.
                     <property name="text" translatable="yes">192.168.1.121</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="secondary_icon_sensitive">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -159,11 +200,8 @@ Field power should be connected to detect all pins.
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="invisible_char">●</property>
-                    <property name="invisible_char_set">True</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="secondary_icon_sensitive">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -192,7 +230,7 @@ Field power should be connected to detect all pins.
               <object class="GtkLabel" id="cardname_label1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Mesa Board Disvovery&lt;</property>
+                <property name="label" translatable="yes">Mesa Board Discovery&lt;</property>
                 <attributes>
                   <attribute name="weight" value="bold"/>
                 </attributes>
@@ -203,46 +241,6 @@ Field power should be connected to detect all pins.
             <property name="expand">True</property>
             <property name="fill">True</property>
             <property name="position">0</property>
-          </packing>
-        </child>
-        <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area11">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="button4">
-                <property name="label">gtk-cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="button3">
-                <property name="label">gtk-ok</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
           </packing>
         </child>
       </object>
@@ -379,13 +377,16 @@ Field power should be connected to detect all pins.
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="type_hint">dialog</property>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox8">
+      <object class="GtkBox" id="dialog-vbox8">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area8">
+          <object class="GtkButtonBox" id="dialog-action_area8">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -432,8 +433,6 @@ Field power should be connected to detect all pins.
                     <property name="invisible_char">●</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="secondary_icon_sensitive">True</property>
                     <property name="adjustment">num_cnts_adjustment</property>
                     <property name="snap_to_ticks">True</property>
                   </object>
@@ -559,13 +558,16 @@ Please set the data and press ok</property>
     <property name="resizable">False</property>
     <property name="window_position">center-on-parent</property>
     <property name="type_hint">dialog</property>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox10">
+      <object class="GtkBox" id="dialog-vbox10">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area10">
+          <object class="GtkButtonBox" id="dialog-action_area10">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">spread</property>
@@ -637,7 +639,7 @@ Please set the data and press ok</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="stock">gtk-dialog-question</property>
-                        <property name="icon-size">6</property>
+                        <property name="icon_size">6</property>
                       </object>
                     </child>
                   </object>
@@ -651,9 +653,9 @@ Please set the data and press ok</property>
                   <object class="GtkLabel" id="label_message">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="yalign">0.50999999046325684</property>
                     <property name="label" translatable="yes">Save entered data and quit
 or discard changes and quit?</property>
+                    <property name="yalign">0.50999999046325684</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -690,12 +692,15 @@ or discard changes and quit?</property>
     <property name="modal">True</property>
     <property name="window_position">center-on-parent</property>
     <property name="type_hint">dialog</property>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox5">
+      <object class="GtkBox" id="dialog-vbox5">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area5">
+          <object class="GtkButtonBox" id="dialog-action_area5">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -794,8 +799,6 @@ or discard changes and quit?</property>
                 <property name="invisible_char">●</property>
                 <property name="primary_icon_activatable">False</property>
                 <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
                 <property name="adjustment">slow_dac_adjust</property>
                 <property name="digits">2</property>
                 <signal name="value-changed" handler="update_oloop_params" swapped="no"/>
@@ -814,8 +817,6 @@ or discard changes and quit?</property>
                 <property name="invisible_char">●</property>
                 <property name="primary_icon_activatable">False</property>
                 <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
                 <property name="adjustment">fast_dac_adjust</property>
                 <property name="digits">2</property>
                 <signal name="value-changed" handler="update_oloop_params" swapped="no"/>
@@ -860,8 +861,8 @@ or discard changes and quit?</property>
               <object class="GtkLabel" id="label482">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="xalign">0</property>
                 <property name="label" translatable="yes">Jog:</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
                 <property name="x_options">GTK_FILL</property>
@@ -875,17 +876,21 @@ or discard changes and quit?</property>
                 <property name="can_focus">False</property>
                 <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkButton" id="jogplus">
+                  <object class="GtkButton" id="jogminus">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <signal name="pressed" handler="on_oloop_jogplus_pressed" swapped="no"/>
-                    <signal name="released" handler="on_oloop_jogplus_released" swapped="no"/>
+                    <signal name="pressed" handler="on_oloop_jogminus_pressed" swapped="no"/>
+                    <signal name="released" handler="on_oloop_jogminus_released" swapped="no"/>
                     <child>
-                      <object class="GtkImage" id="image4">
+                      <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="stock">gtk-add</property>
+                        <property name="label" translatable="yes">-</property>
+                        <attributes>
+                          <attribute name="weight" value="ultraheavy"/>
+                          <attribute name="scale" value="2"/>
+                        </attributes>
                       </object>
                     </child>
                   </object>
@@ -897,18 +902,14 @@ or discard changes and quit?</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="jogminus">
+                  <object class="GtkButton" id="jogplus">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <signal name="pressed" handler="on_oloop_jogminus_pressed" swapped="no"/>
-                    <signal name="released" handler="on_oloop_jogminus_released" swapped="no"/>
+                    <signal name="pressed" handler="on_oloop_jogplus_pressed" swapped="no"/>
+                    <signal name="released" handler="on_oloop_jogplus_released" swapped="no"/>
                     <child>
-                      <object class="GtkImage" id="image10">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="stock">gtk-remove</property>
-                      </object>
+                      <placeholder/>
                     </child>
                   </object>
                   <packing>
@@ -934,8 +935,6 @@ or discard changes and quit?</property>
                 <property name="invisible_char">●</property>
                 <property name="primary_icon_activatable">False</property>
                 <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
                 <property name="adjustment">dac_offset_adjust</property>
                 <property name="climb_rate">0.01</property>
                 <property name="digits">4</property>
@@ -952,8 +951,8 @@ or discard changes and quit?</property>
               <object class="GtkLabel" id="label483">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="xalign">0.60000002384185791</property>
                 <property name="label" translatable="yes">Dac Offset:</property>
+                <property name="xalign">0.60000002384185791</property>
               </object>
               <packing>
                 <property name="top_attach">3</property>
@@ -978,8 +977,6 @@ or discard changes and quit?</property>
                 <property name="invisible_char">●</property>
                 <property name="primary_icon_activatable">False</property>
                 <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
                 <property name="adjustment">openloop_encoder_adjust</property>
                 <property name="digits">3</property>
                 <signal name="value-changed" handler="update_oloop_params" swapped="no"/>
@@ -1124,13 +1121,16 @@ or discard changes and quit?</property>
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="type_hint">normal</property>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox4">
+      <object class="GtkBox" id="dialog-vbox4">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area4">
+          <object class="GtkButtonBox" id="dialog-action_area4">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -1230,8 +1230,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">microstep_adjust</property>
                       </object>
                       <packing>
@@ -1250,10 +1248,9 @@ or discard changes and quit?</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">●</property>
+                            <property name="width_chars">4</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">spindle_gear1_i_adjust</property>
                           </object>
                           <packing>
@@ -1281,10 +1278,9 @@ or discard changes and quit?</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">●</property>
+                            <property name="width_chars">4</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">spindle_gear1_o_adjust</property>
                             <property name="snap_to_ticks">True</property>
                           </object>
@@ -1313,10 +1309,9 @@ or discard changes and quit?</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">●</property>
+                            <property name="width_chars">4</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">spindle_pull_m_adjust</property>
                             <property name="snap_to_ticks">True</property>
                           </object>
@@ -1345,10 +1340,9 @@ or discard changes and quit?</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">●</property>
+                            <property name="width_chars">4</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">spindle_pull_g_adjust</property>
                             <property name="snap_to_ticks">True</property>
                           </object>
@@ -1405,9 +1399,9 @@ or discard changes and quit?</property>
                       <object class="GtkLabel" id="label_steps_per_rev">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0.34999999403953552</property>
                         <property name="label" translatable="yes">Motor steps per revolution:</property>
                         <property name="use_underline">True</property>
+                        <property name="xalign">0.34999999403953552</property>
                       </object>
                       <packing>
                         <property name="top_attach">8</property>
@@ -1423,8 +1417,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">step_revs_adjust</property>
                       </object>
                       <packing>
@@ -1481,8 +1473,8 @@ or discard changes and quit?</property>
                       <object class="GtkLabel" id="label_volt_at_max_rpm">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">      Voltage for Max RPM:</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="top_attach">5</property>
@@ -1524,10 +1516,9 @@ or discard changes and quit?</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">●</property>
+                            <property name="width_chars">4</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">spindle_gear2_i_adjust</property>
                           </object>
                           <packing>
@@ -1555,10 +1546,9 @@ or discard changes and quit?</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">●</property>
+                            <property name="width_chars">4</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">spindle_gear2_o_adjust</property>
                             <property name="snap_to_ticks">True</property>
                           </object>
@@ -1582,9 +1572,9 @@ or discard changes and quit?</property>
                       <object class="GtkLabel" id="label_motor_at_max_volt">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">      &lt;b&gt;MOTOR&lt;/b&gt; RPM at Max Voltage</property>
                         <property name="use_markup">True</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="top_attach">4</property>
@@ -1598,8 +1588,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">spindle_max_motor_adjust</property>
                       </object>
                       <packing>
@@ -1644,8 +1632,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">spindle_enc_lines_adjust</property>
                       </object>
                       <packing>
@@ -1668,8 +1654,8 @@ or discard changes and quit?</property>
                       <object class="GtkLabel" id="encoderlabel2">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0.37000000476837158</property>
                         <property name="label" translatable="yes">Encoder lines per revolution:</property>
+                        <property name="xalign">0.37000000476837158</property>
                       </object>
                     </child>
                   </object>
@@ -1873,13 +1859,16 @@ or discard changes and quit?</property>
     <property name="border_width">5</property>
     <property name="window_position">center-on-parent</property>
     <property name="type_hint">dialog</property>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox9">
+      <object class="GtkBox" id="dialog-vbox9">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area9">
+          <object class="GtkButtonBox" id="dialog-action_area9">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -1959,8 +1948,8 @@ or discard changes and quit?</property>
                         <property name="width_request">100</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">TPI </property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="left_attach">2</property>
@@ -1979,8 +1968,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">step_tpi_adjust</property>
                         <property name="digits">4</property>
                       </object>
@@ -2018,8 +2005,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">microstep_adjust</property>
                       </object>
                       <packing>
@@ -2039,10 +2024,9 @@ or discard changes and quit?</property>
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">●</property>
+                            <property name="width_chars">4</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">step_worm_i_adjust</property>
                           </object>
                           <packing>
@@ -2071,10 +2055,9 @@ or discard changes and quit?</property>
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">●</property>
+                            <property name="width_chars">4</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">step_worm_o_adjust</property>
                             <property name="snap_to_ticks">True</property>
                           </object>
@@ -2104,10 +2087,9 @@ or discard changes and quit?</property>
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">●</property>
+                            <property name="width_chars">4</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">step_pull_m_adjust</property>
                             <property name="snap_to_ticks">True</property>
                           </object>
@@ -2137,10 +2119,9 @@ or discard changes and quit?</property>
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">●</property>
+                            <property name="width_chars">4</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">atep_pull_l_adjust</property>
                             <property name="snap_to_ticks">True</property>
                           </object>
@@ -2220,8 +2201,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">step pitch_adjust</property>
                         <property name="digits">4</property>
                       </object>
@@ -2237,8 +2216,8 @@ or discard changes and quit?</property>
                         <property name="width_request">100</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">mm / rev</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="left_attach">2</property>
@@ -2256,9 +2235,9 @@ or discard changes and quit?</property>
                       <object class="GtkLabel" id="label600">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0.34999999403953552</property>
                         <property name="label" translatable="yes">Motor steps per revolution:</property>
                         <property name="use_underline">True</property>
+                        <property name="xalign">0.34999999403953552</property>
                       </object>
                       <packing>
                         <property name="top_attach">6</property>
@@ -2274,8 +2253,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">step_revs_adjust</property>
                       </object>
                       <packing>
@@ -2340,8 +2317,8 @@ or discard changes and quit?</property>
                         <property name="width_request">100</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">TPI</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="left_attach">2</property>
@@ -2360,8 +2337,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">enc_tpi_adjust</property>
                         <property name="digits">4</property>
                       </object>
@@ -2398,8 +2373,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">enc_lines_adjust</property>
                       </object>
                       <packing>
@@ -2419,10 +2392,9 @@ or discard changes and quit?</property>
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">●</property>
+                            <property name="width_chars">4</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">enc_wom_i_adjust</property>
                           </object>
                           <packing>
@@ -2451,10 +2423,9 @@ or discard changes and quit?</property>
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">●</property>
+                            <property name="width_chars">4</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">enc_worm_o_adjust</property>
                             <property name="snap_to_ticks">True</property>
                           </object>
@@ -2491,8 +2462,8 @@ or discard changes and quit?</property>
                       <object class="GtkLabel" id="encoderlabel1">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0.37000000476837158</property>
                         <property name="label" translatable="yes">Encoder lines per revolution:</property>
+                        <property name="xalign">0.37000000476837158</property>
                       </object>
                       <packing>
                         <property name="top_attach">4</property>
@@ -2509,10 +2480,9 @@ or discard changes and quit?</property>
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">●</property>
+                            <property name="width_chars">4</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">enc_pull_e_adjust</property>
                             <property name="snap_to_ticks">True</property>
                           </object>
@@ -2542,10 +2512,9 @@ or discard changes and quit?</property>
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">●</property>
+                            <property name="width_chars">4</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">enc_pulll_l_adjust</property>
                             <property name="snap_to_ticks">True</property>
                           </object>
@@ -2612,8 +2581,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">enc_pitch_adjust</property>
                         <property name="digits">4</property>
                       </object>
@@ -2629,8 +2596,8 @@ or discard changes and quit?</property>
                         <property name="width_request">100</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">mm / rev</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="left_attach">2</property>
@@ -2709,8 +2676,6 @@ or discard changes and quit?</property>
                             <property name="invisible_char">●</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -2727,8 +2692,6 @@ or discard changes and quit?</property>
                             <property name="invisible_char">●</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -2739,8 +2702,8 @@ or discard changes and quit?</property>
                           <object class="GtkLabel" id="label935">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
                             <property name="label" translatable="yes">encoder pulses per unit:</property>
+                            <property name="xalign">0</property>
                           </object>
                           <packing>
                             <property name="top_attach">1</property>
@@ -2752,8 +2715,8 @@ or discard changes and quit?</property>
                           <object class="GtkLabel" id="label602">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
                             <property name="label" translatable="yes">motor steps per unit:</property>
+                            <property name="xalign">0</property>
                           </object>
                           <packing>
                             <property name="y_options"/>
@@ -2835,8 +2798,8 @@ or discard changes and quit?</property>
                           <object class="GtkLabel" id="resolutionunits1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
                             <property name="label" translatable="yes">mm / encoder pulse</property>
+                            <property name="xalign">0</property>
                           </object>
                           <packing>
                             <property name="left_attach">2</property>
@@ -2852,8 +2815,8 @@ or discard changes and quit?</property>
                             <property name="width_request">100</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">1</property>
                             <property name="label" translatable="yes">0</property>
+                            <property name="xalign">1</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -2867,8 +2830,8 @@ or discard changes and quit?</property>
                           <object class="GtkLabel" id="label354">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
                             <property name="label" translatable="yes">Resolution:</property>
+                            <property name="xalign">0</property>
                           </object>
                           <packing>
                             <property name="top_attach">4</property>
@@ -2881,9 +2844,9 @@ or discard changes and quit?</property>
                           <object class="GtkLabel" id="label355">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
                             <property name="label" translatable="yes">Time to accelerate to max speed:</property>
                             <property name="use_underline">True</property>
+                            <property name="xalign">0</property>
                           </object>
                           <packing>
                             <property name="top_attach">5</property>
@@ -2896,9 +2859,9 @@ or discard changes and quit?</property>
                           <object class="GtkLabel" id="label356">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
                             <property name="label" translatable="yes">Distance to acheave max speed:</property>
                             <property name="use_underline">True</property>
+                            <property name="xalign">0</property>
                           </object>
                           <packing>
                             <property name="top_attach">6</property>
@@ -2911,8 +2874,8 @@ or discard changes and quit?</property>
                           <object class="GtkLabel" id="label357">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
                             <property name="label" translatable="yes">Pulse rate at max speed:</property>
+                            <property name="xalign">0</property>
                           </object>
                           <packing>
                             <property name="top_attach">7</property>
@@ -2925,10 +2888,10 @@ or discard changes and quit?</property>
                           <object class="GtkLabel" id="acctime">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="xalign">1</property>
                             <property name="label">xacctime</property>
                             <property name="justify">right</property>
                             <property name="selectable">True</property>
+                            <property name="xalign">1</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -2944,10 +2907,10 @@ or discard changes and quit?</property>
                           <object class="GtkLabel" id="accdist">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="xalign">1</property>
                             <property name="label">xaccdist</property>
                             <property name="justify">right</property>
                             <property name="selectable">True</property>
+                            <property name="xalign">1</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -2963,10 +2926,10 @@ or discard changes and quit?</property>
                           <object class="GtkLabel" id="khz">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="xalign">1</property>
                             <property name="label">xkhz</property>
                             <property name="justify">right</property>
                             <property name="selectable">True</property>
+                            <property name="xalign">1</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -2982,8 +2945,8 @@ or discard changes and quit?</property>
                           <object class="GtkLabel" id="accdistunits">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
                             <property name="label">mm</property>
+                            <property name="xalign">0</property>
                           </object>
                           <packing>
                             <property name="left_attach">2</property>
@@ -2998,8 +2961,8 @@ or discard changes and quit?</property>
                           <object class="GtkLabel" id="label358">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
                             <property name="label" translatable="yes">sec</property>
+                            <property name="xalign">0</property>
                           </object>
                           <packing>
                             <property name="left_attach">2</property>
@@ -3014,8 +2977,8 @@ or discard changes and quit?</property>
                           <object class="GtkLabel" id="label359">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
                             <property name="label" translatable="yes">Khz</property>
+                            <property name="xalign">0</property>
                           </object>
                           <packing>
                             <property name="left_attach">2</property>
@@ -3030,8 +2993,8 @@ or discard changes and quit?</property>
                           <object class="GtkLabel" id="label367">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
                             <property name="label" translatable="yes">Calculated Axis SCALE:</property>
+                            <property name="xalign">0</property>
                           </object>
                           <packing>
                             <property name="top_attach">3</property>
@@ -3044,9 +3007,9 @@ or discard changes and quit?</property>
                           <object class="GtkLabel" id="calscale">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="xalign">1</property>
                             <property name="label">xcalscale</property>
                             <property name="selectable">True</property>
+                            <property name="xalign">1</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -3062,8 +3025,8 @@ or discard changes and quit?</property>
                           <object class="GtkLabel" id="scaleunits">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
                             <property name="label" translatable="yes">Steps / mm</property>
+                            <property name="xalign">0</property>
                           </object>
                           <packing>
                             <property name="left_attach">2</property>
@@ -3081,8 +3044,8 @@ or discard changes and quit?</property>
                           <object class="GtkLabel" id="label368">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
                             <property name="label" translatable="yes">Motor RPM at max speed:</property>
+                            <property name="xalign">0</property>
                           </object>
                           <packing>
                             <property name="top_attach">8</property>
@@ -3093,8 +3056,8 @@ or discard changes and quit?</property>
                           <object class="GtkLabel" id="label369">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
                             <property name="label" translatable="yes">RPM</property>
+                            <property name="xalign">0</property>
                           </object>
                           <packing>
                             <property name="left_attach">2</property>
@@ -3102,6 +3065,18 @@ or discard changes and quit?</property>
                             <property name="top_attach">8</property>
                             <property name="bottom_attach">9</property>
                           </packing>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
                         </child>
                         <child>
                           <placeholder/>
@@ -3143,8 +3118,8 @@ or discard changes and quit?</property>
                           <object class="GtkLabel" id="maxrpm">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">1</property>
                             <property name="label" translatable="yes">xmaxrpm</property>
+                            <property name="xalign">1</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -3155,6 +3130,18 @@ or discard changes and quit?</property>
                             <property name="y_options"/>
                             <property name="x_padding">4</property>
                           </packing>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
                         </child>
                         <child>
                           <placeholder/>
@@ -3351,12 +3338,15 @@ or discard changes and quit?</property>
     <property name="modal">True</property>
     <property name="window_position">center-on-parent</property>
     <property name="type_hint">dialog</property>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox7">
+      <object class="GtkBox" id="dialog-vbox7">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area7">
+          <object class="GtkButtonBox" id="dialog-action_area7">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -3450,10 +3440,15 @@ or discard changes and quit?</property>
                         <signal name="pressed" handler="on_tune_jogminus_pressed" swapped="no"/>
                         <signal name="released" handler="on_tune_jogminus_released" swapped="no"/>
                         <child>
-                          <object class="GtkImage" id="image6">
+                          <object class="GtkLabel">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="stock">gtk-remove</property>
+                            <property name="margin_bottom">2</property>
+                            <property name="label" translatable="yes">-</property>
+                            <attributes>
+                              <attribute name="weight" value="ultraheavy"/>
+                              <attribute name="scale" value="2"/>
+                            </attributes>
                           </object>
                         </child>
                       </object>
@@ -3473,10 +3468,14 @@ or discard changes and quit?</property>
                         <signal name="pressed" handler="on_tune_jogplus_pressed" swapped="no"/>
                         <signal name="released" handler="on_tune_jogplus_released" swapped="no"/>
                         <child>
-                          <object class="GtkImage" id="image7">
+                          <object class="GtkLabel">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="stock">gtk-add</property>
+                            <property name="label" translatable="yes">+</property>
+                            <attributes>
+                              <attribute name="weight" value="ultraheavy"/>
+                              <attribute name="scale" value="2"/>
+                            </attributes>
                           </object>
                         </child>
                       </object>
@@ -3502,8 +3501,8 @@ or discard changes and quit?</property>
                   <object class="GtkLabel" id="label492">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Jog:</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="top_attach">5</property>
@@ -3517,8 +3516,8 @@ or discard changes and quit?</property>
                   <object class="GtkLabel" id="label491">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Test Area:</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="top_attach">6</property>
@@ -3558,8 +3557,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">tune_length_adjust</property>
                         <property name="climb_rate">1</property>
                         <signal name="value-changed" handler="on_update_tune_params" swapped="no"/>
@@ -3617,8 +3614,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">tune_pause_adjust</property>
                         <signal name="value-changed" handler="on_update_tune_params" swapped="no"/>
                       </object>
@@ -3632,8 +3627,8 @@ or discard changes and quit?</property>
                       <object class="GtkLabel" id="label489">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Seconds</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -3653,8 +3648,8 @@ or discard changes and quit?</property>
                   <object class="GtkLabel" id="label488">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Pause</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="top_attach">7</property>
@@ -3758,8 +3753,8 @@ or discard changes and quit?</property>
                   <object class="GtkLabel" id="label485">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Velocity:</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="x_options">GTK_FILL</property>
@@ -3771,8 +3766,8 @@ or discard changes and quit?</property>
                   <object class="GtkLabel" id="label484">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Acceleration:</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="top_attach">1</property>
@@ -3793,8 +3788,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">tune_accl_adjust</property>
                         <property name="climb_rate">1</property>
                         <signal name="value-changed" handler="on_update_tune_params" swapped="no"/>
@@ -3809,8 +3802,8 @@ or discard changes and quit?</property>
                       <object class="GtkLabel" id="xtuneaccunits">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">mm/minute^2</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -3840,8 +3833,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">tune_vel_adjust</property>
                         <property name="climb_rate">1</property>
                         <signal name="value-changed" handler="on_update_tune_params" swapped="no"/>
@@ -3856,8 +3847,8 @@ or discard changes and quit?</property>
                       <object class="GtkLabel" id="xtunevelunits">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">mm/minute</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -4115,8 +4106,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">tune_p_adjust</property>
                         <property name="digits">4</property>
                         <signal name="value-changed" handler="on_update_tune_params" swapped="no"/>
@@ -4135,8 +4124,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">tune_i_adjust</property>
                         <property name="digits">4</property>
                         <signal name="value-changed" handler="on_update_tune_params" swapped="no"/>
@@ -4155,8 +4142,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">tune_d_adjust</property>
                         <property name="digits">4</property>
                         <signal name="value-changed" handler="on_update_tune_params" swapped="no"/>
@@ -4175,8 +4160,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">tune_ff0_adjust</property>
                         <property name="digits">4</property>
                         <signal name="value-changed" handler="on_update_tune_params" swapped="no"/>
@@ -4195,8 +4178,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">tune_ff1_adjust</property>
                         <property name="digits">4</property>
                         <signal name="value-changed" handler="on_update_tune_params" swapped="no"/>
@@ -4215,8 +4196,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">tune_ff2_adjust</property>
                         <property name="digits">4</property>
                         <signal name="value-changed" handler="on_update_tune_params" swapped="no"/>
@@ -4283,8 +4262,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">tune_bias_adjust</property>
                         <property name="digits">4</property>
                         <signal name="value-changed" handler="on_update_tune_params" swapped="no"/>
@@ -4303,8 +4280,6 @@ or discard changes and quit?</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">tune_deadband_adjust</property>
                         <property name="digits">4</property>
                         <signal name="value-changed" handler="on_update_tune_params" swapped="no"/>
@@ -4334,6 +4309,102 @@ or discard changes and quit?</property>
                     <property name="can_focus">False</property>
                     <property name="n_rows">9</property>
                     <property name="n_columns">4</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
                     <child>
                       <placeholder/>
                     </child>
@@ -4736,10 +4807,9 @@ or discard changes and quit?</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">●</property>
+                        <property name="width_chars">8</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">step_time_adjust</property>
                         <signal name="value-changed" handler="on_update_tune_params" swapped="no"/>
                       </object>
@@ -4755,10 +4825,9 @@ or discard changes and quit?</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">●</property>
+                        <property name="width_chars">8</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">step_space_adjust</property>
                         <signal name="value-changed" handler="on_update_tune_params" swapped="no"/>
                       </object>
@@ -4774,10 +4843,9 @@ or discard changes and quit?</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">●</property>
+                        <property name="width_chars">8</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">dir_hold_adjust</property>
                         <signal name="value-changed" handler="on_update_tune_params" swapped="no"/>
                       </object>
@@ -4793,10 +4861,9 @@ or discard changes and quit?</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">●</property>
+                        <property name="width_chars">8</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">dir_setup_adjust</property>
                         <signal name="value-changed" handler="on_update_tune_params" swapped="no"/>
                       </object>

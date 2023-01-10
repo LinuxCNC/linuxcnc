@@ -1,6 +1,6 @@
 # connections for gladevcp panel, example embed command:
 # EMBED_TAB_COMMAND=halcmd loadusr -Wn gladevcp8 gladevcp -c gladevcp8  -x {XID} ./moveoff_gladevcp_8.ui
-# note the expecte name prefix is 'gladevcp8' (specified with -Wn arg and -c arg)
+# note the expected name prefix is 'gladevcp8' (specified with -Wn arg and -c arg)
 
 # connect to signals created by moveoff_external.hal
 # to inputs from gladevcp panel:

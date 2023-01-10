@@ -84,7 +84,7 @@ o<probe_round_boss> sub
 
   #<x_minus_probed> = #5061
 
-  (probed center calulation)
+  (probed center calculation)
   #<x_center_probed> = [[#<x_minus_probed> + #<x_plus_probed>] / 2]
 
   M68 E10 Q[#<x_center_probed>]

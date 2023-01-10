@@ -8,6 +8,7 @@ pin in float maxv=1e20;
 option data limit2_data;
 function _;
 license "GPL";
+author "Jeff Epler";
 ;;
 
 typedef struct { double old_out; } limit2_data;

@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/env python3
 #
 # Qtvcp widget
 # Copyright (c) 2017 Chris Morley
@@ -15,7 +15,6 @@
 ###############################################################################
 
 import os
-import time
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 import linuxcnc
@@ -27,7 +26,7 @@ from qtvcp.lib.notify import Notify
 from qtvcp.lib.audio_player import Player
 from qtvcp.lib.preferences import Access
 from qtvcp.lib.machine_log import MachineLogger
-from qtvcp.core import Status, Info, Tool, Path
+from qtvcp.core import Status, Info, Tool, Path, Action
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
@@ -46,11 +45,12 @@ TOOL = Tool()
 PATH = Path()
 MLOG = MachineLogger()
 LOG = logger.getLogger(__name__)
+ACTION = Action()
 
 try:
     SOUND = Player()
-except:
-    LOG.warning('Sound Player did not load')
+except Exception as e:
+    LOG.warning('Sound Player did not load: {}'.format(e))
 
 # Force the log level for this module
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -60,7 +60,7 @@ def import_ZMQ():
     try:
         import zmq
     except:
-        LOG.warning('Problem importing zmq - Is python-zmg installed?')
+        LOG.warning('Problem importing zmq - Is python3-zmq installed?')
         # nope no messaging for you
         return False
     else:
@@ -75,25 +75,27 @@ def import_ZMQ():
 class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(ScreenOptions, self).__init__(parent)
-        self.error = linuxcnc.error_channel()
         self.catch_errors = True
         self.desktop_notify = True
+        self.notify_max_msgs = 10
         self.close_event = True
         self.play_sounds = True
         self.mchnMsg_play_sound = True
-        self.mchnMsg_speak_errors = True
+        self.mchnMsg_speak_errors = False
+        self.mchnMsg_speak_text = True
         self.mchnMsg_sound_type  = 'ERROR'
         self.usrMsg_play_sound = True
-        self.usrMsg_sound_type = 'RING'
+        self.usrMsg_sound_type = 'ATTENTION'
         self.usrMsg_use_FocusOverlay = True
         self.shutdown_play_sound = True
         self.shutdown_alert_sound_type = 'READY'
         self.shutdown_exit_sound_type = 'LOGOUT'
-        self.notify_start_greeting = True
+        self.notify_start_greeting = False
         self.notify_start_title = 'Welcome'
         self.notify_start_detail = 'This option can be changed in the preference file'
         self.notify_start_timeout = 5
         self.shutdown_msg_title = 'Do you want to Shutdown now?'
+        self.shutdown_msg_focus_text = ''
         self.shutdown_msg_detail = ''
         self.user_messages = True
         self.use_pref_file = True
@@ -104,6 +106,10 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.add_tool_dialog = False
         self.add_file_dialog = False
         self.add_focus_overlay = False
+        self.add_focus_effect = False
+        self.use_focus_tint = False
+        self.use_focus_blur = False
+        self.add_keyboard_dialog = False
         self.add_versaprobe_dialog = False
         self.add_macrotab_dialog = False
         self.add_camview_dialog = False
@@ -119,22 +125,25 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._default_tab_name = ''
         self._close_color = QtGui.QColor(100, 0, 0, 150)
         self._messageDialogColor = QtGui.QColor(0, 0, 0, 150)
-        self._closeDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._entryDialogSoftkey = True
         self._entryDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._toolDialogColor = QtGui.QColor(100, 0, 0, 150)
         self._fileDialogColor = QtGui.QColor(0, 0, 100, 150)
+        self._keyboardDialogColor = QtGui.QColor(0, 0, 100, 150)
         self._versaProbeDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._macroTabDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._camViewDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._originOffsetDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._toolOffsetDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._toolUseDesktopNotify = False
+        self._toolFrameless = False
         self._calculatorDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._machineLogDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._runFromLineDialogColor = QtGui.QColor(0, 0, 0, 150)
-        self._zmq_sub_subscribe_name = ""
+        self._zmq_sub_subscribe_name = b""
         self._zmq_sub_socket_address = "tcp://127.0.0.1:5690"
         self._zmq_pub_socket_address = "tcp://127.0.0.1:5690"
+        self._halBaseName = ''
 
     # self.QTVCP_INSTANCE_
     # self.HAL_GCOMP_
@@ -158,6 +167,12 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
         if self.add_focus_overlay:
             self.init_focus_overlay()
+
+        if self.add_focus_effect:
+            self.init_focus_effect()
+
+        if self.add_keyboard_dialog:
+            self.init_keyboard_dialog()
 
         if self.add_versaprobe_dialog:
             self.init_versaprobe_dialog()
@@ -187,10 +202,12 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         if self.PREFS_:
             self.catch_errors = self.PREFS_.getpref('catch_errors', self.catch_errors, bool, 'SCREEN_OPTIONS')
             self.desktop_notify = self.PREFS_.getpref('desktop_notify', self.desktop_notify, bool, 'SCREEN_OPTIONS')
+            self.notify_max_msgs = self.PREFS_.getpref('notify_max_msgs', self.notify_max_msgs, int, 'SCREEN_OPTIONS')
             self.close_event = self.PREFS_.getpref('shutdown_check', self.close_event, bool, 'SCREEN_OPTIONS')
             self.play_sounds = self.PREFS_.getpref('sound_player_on', self.play_sounds, bool, 'SCREEN_OPTIONS')
             self.mchnMsg_play_sound = self.PREFS_.getpref('mchnMsg_play_sound', self.mchnMsg_play_sound, bool, 'MCH_MSG_OPTIONS')
             self.mchnMsg_speak_errors = self.PREFS_.getpref('mchnMsg_speak_errors', self.mchnMsg_speak_errors, bool, 'MCH_MSG_OPTIONS')
+            self.mchnMsg_speak_text = self.PREFS_.getpref('mchnMsg_speak_text', self.mchnMsg_speak_text, bool, 'MCH_MSG_OPTIONS')
             self.mchnMsg_sound_type = self.PREFS_.getpref('mchnMsg_sound_type', self.usrMsg_sound_type, str, 'MCH_MSG_OPTIONS')
             self.usrMsg_play_sound = self.PREFS_.getpref('usermsg_play_sound', self.usrMsg_play_sound, bool, 'USR_MSG_OPTIONS')
             self.usrMsg_sound_type = self.PREFS_.getpref('userMsg_sound_type', self.usrMsg_sound_type, str, 'USR_MSG_OPTIONS')
@@ -202,6 +219,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             self.shutdown_exit_sound_type = self.PREFS_.getpref('shutdown_exit_sound_type', self.shutdown_exit_sound_type,
                                                                 str, 'SHUTDOWN_OPTIONS')
             self.shutdown_msg_title = self.PREFS_.getpref('shutdown_msg_title', self.shutdown_msg_title,
+                                                          str, 'SHUTDOWN_OPTIONS')
+            self.shutdown_msg_focus_text = self.PREFS_.getpref('shutdown_msg_focus_text', self.shutdown_msg_focus_text,
                                                           str, 'SHUTDOWN_OPTIONS')
             self.shutdown_msg_detail = self.PREFS_.getpref('shutdown_msg_detail',
                                                             self.shutdown_msg_detail,
@@ -216,6 +235,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         if self.catch_errors:
             STATUS.connect('periodic', self.on_periodic)
             STATUS.connect('error', self.process_error)
+            STATUS.connect('graphics-gcode-error', lambda w, data: self.process_error(None, linuxcnc.OPERATOR_ERROR, data))
 
         if self.close_event:
             self.QTVCP_INSTANCE_.closeEvent = self.closeEvent
@@ -228,7 +248,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 LOG.warning('Sound Option turned off due to error registering')
 
         if self.user_messages:
-            MSG.message_setup(self.HAL_GCOMP_)
+            self._msg = MSG.message_setup(self.HAL_GCOMP_, self.QTVCP_INSTANCE_)
             MSG.message_option('NOTIFY', NOTICE)
             if self.play_sounds:
                 MSG.message_option('play_sounds', self.usrMsg_play_sound)
@@ -240,13 +260,14 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         # If there is a widget named statusBar give a reference to desktop notify
         try:
             NOTICE.statusbar = self.QTVCP_INSTANCE_.statusbar
-        except Exception as e:
-            LOG.info('Exception adding status to notify:', exc_info=e)
+        except:
+            LOG.debug('cannot add notifications to statusbar - no statusbar?:')
 
         # critical messages don't timeout, the greeting does
         if self.desktop_notify:
             self.notify_critical = NOTICE.new_critical()
             self.notify_normal = NOTICE.new_normal()
+            self.notify_hard_limits = NOTICE.new_hard_limits(callback = self._override_limits)
             if self.notify_start_greeting:
                 NOTICE.notify(self.notify_start_title, self.notify_start_detail, None,
                         self.notify_start_timeout, self. notify_start_timeout)
@@ -255,19 +276,19 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         if self.process_tabs:
             self.add_xembed_tabs()
 
-        # clear and add an intial machine log message
+        # clear and add an initial machine log message
         STATUS.emit('update-machine-log', '', 'DELETE')
         STATUS.emit('update-machine-log', '', 'INITIAL')
         STATUS.connect('tool-info-changed', lambda w, data: self._tool_file_info(data, TOOL.COMMENTS))
 
         # install remote control
         if self.add_send_zmq:
-            self.init_zmg_subscribe()
-        if self.add_receive_zmq:
             self.init_zmq_publish()
+        if self.add_receive_zmq:
+            self.init_zmg_subscribe()
 
     # This is called early by qt_makegui.py for access to
-    # be able to pass the preference object to ther widgets
+    # be able to pass the preference object to the widgets
     def _pref_init(self):
         if self.use_pref_file:
             # we prefer INI settings
@@ -292,32 +313,58 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             vcpObject._NOTICE = NOTICE # Guve reference
 
     def on_periodic(self, w):
-        e = self.error.poll()
-        if e:
-            kind, text = e
-            STATUS.emit('error',kind,text)
+        try:
+            e = STATUS.poll_error()
+            #if not e is None:print ('error stat',e)
+            if e:
+                kind, text = e
+                STATUS.emit('error',kind,text)
+        except Exception as e:
+                LOG.error('Error channel reading error: {}'.format(e))
 
     def process_error(self, w, kind, text):
-            if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
+            if 'on limit switch error' in text:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='ERROR:', message=text)
-            elif kind in (linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT):
+                    NOTICE.update(self.notify_hard_limits, title='Machine Error:', message=text, msgs=self.notify_max_msgs)
+            elif kind == linuxcnc.OPERATOR_ERROR:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='OPERATOR TEXT:', message=text)
-            elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
+                    NOTICE.update(self.notify_critical, title='Operator Error:', message=text, msgs=self.notify_max_msgs)
+            elif kind == linuxcnc.OPERATOR_TEXT:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='OPERATOR DISPLAY:', message=text)
-            elif kind == 255: # temparary info
+                    NOTICE.update(self.notify_critical, title='Operator Text:', message=text, msgs=self.notify_max_msgs)
+            elif kind == linuxcnc.OPERATOR_DISPLAY:
+                if self.desktop_notify:
+                    NOTICE.update(self.notify_critical, title='Operator Display:', message=text, msgs=self.notify_max_msgs)
+
+            elif kind == linuxcnc.NML_ERROR:
+                if self.desktop_notify:
+                    NOTICE.update(self.notify_critical, title='Internal NML Error:', message=text, msgs=self.notify_max_msgs)
+            elif kind == linuxcnc.NML_TEXT:
+                if self.desktop_notify:
+                    NOTICE.update(self.notify_critical, title='Internal NML Text:', message=text, msgs=self.notify_max_msgs)
+            elif kind == linuxcnc.NML_DISPLAY:
+                if self.desktop_notify:
+                    NOTICE.update(self.notify_critical, title='Internal NML Display:', message=text, msgs=self.notify_max_msgs)
+
+            elif kind == STATUS.TEMPARARY_MESSAGE: # temporary info
                 if self.desktop_notify:
                     NOTICE.update(self.notify_normal,
-                                    title='Low Priority:',
-                                     message=text,
+                                    title='Operator Info:',
+                                    message=text,
                                     status_timeout=0,
-                                    timeout=2)
+                                    timeout=2,
+                                    msgs=self.notify_max_msgs)
+
             if self.play_sounds and self.mchnMsg_play_sound:
                 STATUS.emit('play-sound', '%s' % self.mchnMsg_sound_type)
                 if self.mchnMsg_speak_errors:
-                    STATUS.emit('play-sound', 'SPEAK %s ' % text)
+                    if kind in (linuxcnc.OPERATOR_ERROR, linuxcnc.NML_ERROR):
+                        STATUS.emit('play-sound', 'SPEAK %s ' % text)
+                if self.mchnMsg_speak_text:
+                    if kind in (linuxcnc.OPERATOR_TEXT, linuxcnc.NML_TEXT,
+                                linuxcnc.OPERATOR_DISPLAY, STATUS.TEMPARARY_MESSAGE):
+                        STATUS.emit('play-sound', 'SPEAK %s ' % text)
+
             STATUS.emit('update-machine-log', text, 'TIME')
 
 
@@ -326,18 +373,28 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             sound = None
             if self.PREFS_ and self.play_sounds and self.shutdown_play_sound:
                 sound = self.shutdown_alert_sound_type
-            answer = self.QTVCP_INSTANCE_.closeDialog_.showdialog(self.shutdown_msg_title,
+            try:
+                if self.shutdown_msg_detail == '': details = None
+                else: details = self.shutdown_msg_detail
+                answer = self.QTVCP_INSTANCE_.closeDialog_.showdialog(self.shutdown_msg_title,
                                                                  None,
-                                                                 details=None,
+                                                                 details=details,
                                                                  icon=MSG.CRITICAL,
                                                                  display_type='YESNO',
-                                                                 focus_text='Close Linuxcnc?',
+                                                                 focus_text=self.shutdown_msg_focus_text,
                                                                  focus_color=self._close_color,
-                                                                 play_alert=sound)
+                                                                 play_alert=sound, use_exec=True)
+            except:
+                answer = True
             # system shutdown
-            if answer == -1:
-                if 'system_shutdown_request__' in dir(self.QTVCP_INSTANCE_):
-                    self.QTVCP_INSTANCE_.system_shutdown_request__()
+            HANDLER = self.QTVCP_INSTANCE_.handler_instance
+            if answer == QtWidgets.QMessageBox.DestructiveRole:
+                self.QTVCP_INSTANCE_.settings.sync()
+                self.QTVCP_INSTANCE_.shutdown()
+                self.QTVCP_INSTANCE_.panel_.shutdown()
+                STATUS.shutdown()
+                if 'system_shutdown_request__' in dir(HANDLER):
+                    HANDLER.system_shutdown_request__()
                 else:
                     from qtvcp.core import Action
                     ACTION = Action()
@@ -347,6 +404,10 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             elif answer:
                 if self.PREFS_ and self.play_sounds and self.shutdown_play_sound:
                     STATUS.emit('play-sound', self.shutdown_exit_sound_type)
+                self.QTVCP_INSTANCE_.settings.sync()
+                self.QTVCP_INSTANCE_.shutdown()
+                self.QTVCP_INSTANCE_.panel_.shutdown()
+                STATUS.shutdown()
                 event.accept()
             # cancel
             elif answer == False:
@@ -392,23 +453,34 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             os.environ['QTVCP_FORWARD_EVENTS_TO'] = str(wid)
 
             for name, loc, cmd in INFO.ZIPPED_TABS:
-                LOG.debug('Processing Embedded tab:{}, {}, {}'.format(name,loc,cmd))
+                LOG.info('green<Installing Embedded tab:{}, {}, {}>'.format(name,loc,cmd))
                 if loc == 'default':
                     loc = 'rightTab'
+
                 try:
-                    if isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QTabWidget):
-                        tw = QtWidgets.QWidget()
-                        self.QTVCP_INSTANCE_[loc].addTab(tw, name)
-                    elif isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QStackedWidget):
-                        tw = QtWidgets.QWidget()
-                        self.QTVCP_INSTANCE_[loc].addWidget(tw)
-                    else:
-                        LOG.warning('tab location {} is not a Tab or stacked Widget - skipping'.format(loc))
+                    if 'qtvcp' in cmd.split()[0].lower():
+                        rtn = ACTION.ADD_WIDGET_TO_TAB(self.QTVCP_INSTANCE_[loc],
+                                self.QTVCP_INSTANCE_[name.replace(' ','_')],name)
+                        if not rtn:
+                            raise Exception
                         continue
+
+                    else:
+                        if isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QTabWidget):
+                            tw = QtWidgets.QWidget()
+                            self.QTVCP_INSTANCE_[loc].addTab(tw, name)
+                        elif isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QStackedWidget):
+                            tw = QtWidgets.QWidget()
+                            self.QTVCP_INSTANCE_[loc].addWidget(tw)
+                        else:
+                            LOG.warning('tab location {} is not a Tab or stacked Widget - skipping'.format(loc))
+                            continue
+                    self._embed(cmd,loc,tw)
                 except Exception as e:
                     LOG.warning("problem inserting VCP '{}' to location: {} :\n {}".format(name, loc, e))
-                    return
-                self._embed(cmd,loc,tw)
+                    continue
+
+
 
     def _embed(self, cmd,loc,twidget):
             if twidget is None:
@@ -418,7 +490,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             try:
                 temp = XEmbeddable()
                 temp.embed(cmd)
-            except Exception, e:
+            except Exception as e:
                 LOG.error('Embedded tab loading failed: {} {}'.format(cmd,e))
             else:
                 if twidget is not None:
@@ -428,7 +500,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                             self.QTVCP_INSTANCE_[loc].setMinimumSize(400,0)
                         layout = QtWidgets.QGridLayout(twidget)
                         layout.addWidget(temp, 0, 0)
-                    except Exception, e:
+                    except Exception as e:
                         LOG.error('Embedded tab adding widget into {} failed.'.format(loc))
                 else:
                     layout = QtWidgets.QGridLayout(tw)
@@ -441,6 +513,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w.toolDialog_.setObjectName('toolDialog_')
         w.toolDialog_.hal_init(HAL_NAME='')
         w.toolDialog_.overlay_color = self._toolDialogColor
+        w.toolDialog_.setProperty('useDesktopNotify', self._toolUseDesktopNotify)
+        w.toolDialog_.setProperty('frameless', self._toolFrameless)
 
     def init_message_dialog(self):
         from qtvcp.widgets.dialog_widget import LcncDialog
@@ -482,6 +556,18 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w.focusOverlay_.setObjectName('focusOverlay_')
         w.focusOverlay_.hal_init(HAL_NAME='')
 
+    def init_focus_effect(self):
+        STATUS.connect('focus-overlay-changed', lambda w, data, text, color:
+                        self.effect(data, text, color))
+
+    def init_keyboard_dialog(self):
+        from qtvcp.widgets.dialog_widget import KeyboardDialog
+        w = self.QTVCP_INSTANCE_
+        w.keyboardDialog_ = KeyboardDialog(w)
+        w.keyboardDialog_.setObjectName('keyboardDialog_')
+        w.keyboardDialog_.hal_init(HAL_NAME='')
+        w.keyboardDialog_.overlay_color = self._keyboardDialogColor
+
     def init_versaprobe_dialog(self):
         from qtvcp.widgets.dialog_widget import VersaProbeDialog
         w = self.QTVCP_INSTANCE_
@@ -519,6 +605,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         from qtvcp.widgets.dialog_widget import OriginOffsetDialog
         w = self.QTVCP_INSTANCE_
         w.originOffsetDialog_ = OriginOffsetDialog(w)
+        w.registerHalWidget(w.originOffsetDialog_)
         w.originOffsetDialog_.setObjectName('originOffsetDialog_')
         w.originOffsetDialog_.hal_init(HAL_NAME='')
         w.originOffsetDialog_.overlay_color = self._originOffsetDialogColor
@@ -549,14 +636,18 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     def init_zmg_subscribe(self):
         if import_ZMQ():
-            self._zmq_sub_context = zmq.Context()
-            self._zmq_sub_sock = self._zmq_sub_context.socket(zmq.SUB)
-            self._zmq_sub_sock.connect(self._zmq_sub_socket_address)
-            self._zmq_sub_sock.setsockopt(zmq.SUBSCRIBE, self._zmq_sub_subscribe_name)
+            try:
+                self._zmq_sub_context = zmq.Context()
+                self._zmq_sub_sock = self._zmq_sub_context.socket(zmq.SUB)
+                self._zmq_sub_sock.connect(self._zmq_sub_socket_address)
+                self._zmq_sub_sock.setsockopt(zmq.SUBSCRIBE, self._zmq_sub_subscribe_name)
 
-            self.read_noti = QtCore.QSocketNotifier(self._zmq_sub_sock.getsockopt(zmq.FD),
-                                                 QtCore.QSocketNotifier.Read, None)
-            self.read_noti.activated.connect(self.on_read_msg)
+                self.read_noti = QtCore.QSocketNotifier(
+                                    self._zmq_sub_sock.getsockopt(zmq.FD),
+                                    QtCore.QSocketNotifier.Read, None)
+                self.read_noti.activated.connect(self.on_read_msg)
+            except Exception as e:
+                LOG.error('zmq subscribe to message setup error: {}'.format(e))
 
     def on_read_msg(self):
         self.read_noti.setEnabled(False)
@@ -574,9 +665,10 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
                 # call handler function with arguments
                 try:
-                     self.QTVCP_INSTANCE_[function](*arguments)
+                     self.QTVCP_INSTANCE_[function](arguments)
                 except Exception as e:
                     LOG.error('zmq message parcing error: {}'.format(e))
+                    LOG.error('{} {}'.format(function, arguments))
         elif self._zmq_sub_sock.getsockopt(zmq.EVENTS) & zmq.POLLOUT:
             print("[Socket] zmq.POLLOUT")
         elif self._zmq_sub_sock.getsockopt(zmq.EVENTS) & zmq.POLLERR:
@@ -585,9 +677,12 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     def init_zmq_publish(self):
         if import_ZMQ():
-            self._zmq_pub_context = zmq.Context()
-            self._zmq_pub_socket = self._zmq_pub_context.socket(zmq.PUB)
-            self._zmq_pub_socket.bind(self._zmq_pub_socket_address)
+            try:
+                self._zmq_pub_context = zmq.Context()
+                self._zmq_pub_socket = self._zmq_pub_context.socket(zmq.PUB)
+                self._zmq_pub_socket.bind(self._zmq_pub_socket_address)
+            except Exception as e:
+                LOG.error('zmq publish message setup error: {}'.format(e))
 
     def zmq_write_message(self, args,topic = 'QtVCP'):
         if self.add_send_zmq:
@@ -595,11 +690,37 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 message = json.dumps(args)
                 LOG.debug('Sending ZMQ Message:{} {}'.format(topic,message))
                 self._zmq_pub_socket.send_multipart(
-                    [topic, bytes((message).encode('utf-8'))])
+                    [bytes(topic.encode('utf-8')),
+                        bytes((message).encode('utf-8'))])
             except Exception as e:
                 LOG.error('zmq message sending error: {}'.format(e))
         else:
             LOG.info('ZMQ Message not enabled. message:{} {}'.format(topic,args))
+
+    def _override_limits(self, n, signal_text):
+        if not STATUS.is_limits_override_set():
+            ACTION.TOGGLE_LIMITS_OVERRIDE()
+        ACTION.SET_MACHINE_STATE(True)
+
+    def effect(self, data, text, color):
+        if self.use_focus_blur:
+            ACTION.SET_BLUR(self.QTVCP_INSTANCE_,data)
+        elif self.use_focus_tint:
+            ACTION.SET_TINT(self.QTVCP_INSTANCE_, data, color)
+
+    #########################################################################
+    # This is how designer can interact with our widget properties.
+    # designer will show the pyqtProperty properties in the editor
+    # it will use the get set and reset calls to do those actions
+    #
+    # _toggle_properties makes it so we can only select one option
+    ########################################################################
+
+    def _toggle_properties(self, picked):
+        data = ('focusBlur','focusTint')
+        for i in data:
+            if not i == picked:
+                self[i+'_option'] = False
 
     ########################################################################
     # This is how designer can interact with our widget properties.
@@ -613,6 +734,13 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.desktop_notify
     def reset_notify(self):
         self.desktop_notify = True
+
+    def set_max_messages(self, data):
+        self.notify_max_msgs = data
+    def get_max_messages(self):
+        return self.notify_max_msgs
+    def reset_max_messages(self):
+        self.notify_max_msgs = 10
 
     def set_close(self, data):
         self.close_event = data
@@ -653,7 +781,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self._close_color
     def setColor(self, value):
         self._close_color = value
-    def resetState(self):
+    def resetColor(self):
         self._close_color = QtGui.QColor(100, 0, 0, 150)
 
     def set_send_zmg(self, data):
@@ -668,9 +796,10 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     # designer will show these properties in this order:
     notify_option = QtCore.pyqtProperty(bool, get_notify, set_notify, reset_notify)
+    notify_max_messages = QtCore.pyqtProperty(int, get_max_messages, set_max_messages, reset_max_messages)
 
     catch_close_option = QtCore.pyqtProperty(bool, get_close, set_close, reset_close)
-    close_overlay_color = QtCore.pyqtProperty(QtGui.QColor, getColor, setColor)
+    close_overlay_color = QtCore.pyqtProperty(QtGui.QColor, getColor, setColor, resetColor)
 
     catch_errors_option = QtCore.pyqtProperty(bool, get_errors, set_errors, reset_errors)
     play_sounds_option = QtCore.pyqtProperty(bool, get_play_sounds, set_play_sounds, reset_play_sounds)
@@ -705,6 +834,34 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.add_focus_overlay = False
     focusOverlay_option = QtCore.pyqtProperty(bool, get_focusOverlay, set_focusOverlay, reset_focusOverlay)
 
+    def set_focusEffect(self, data):
+        self.add_focus_effect = data
+    def get_focusEffect(self):
+        return self.add_focus_effect
+    def reset_focusEffect(self):
+        self.add_focus_effect = False
+    focusEffect_option = QtCore.pyqtProperty(bool, get_focusEffect, set_focusEffect, reset_focusEffect)
+
+    def set_focusBlur(self, data):
+        self.use_focus_blur = data
+        if data:
+            self._toggle_properties('focusBlur')
+    def get_focusBlur(self):
+        return self.use_focus_blur
+    def reset_focusBlur(self):
+        self.use_focus_blur = False
+    focusBlur_option = QtCore.pyqtProperty(bool, get_focusBlur, set_focusBlur, reset_focusBlur)
+
+    def set_focusTint(self, data):
+        self.use_focus_tint = data
+        if data:
+            self._toggle_properties('focusTint')
+    def get_focusTint(self):
+        return self.use_focus_tint
+    def reset_focusTint(self):
+        self.use_focus_tint = False
+    focusTint_option = QtCore.pyqtProperty(bool, get_focusTint, set_focusTint, reset_focusTint)
+
     # Dialogs ##########################################
 
     def set_messageDialog(self, data):
@@ -727,11 +884,6 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def reset_closeDialog(self):
         self.add_close_dialog = False
     closeDialog_option = QtCore.pyqtProperty(bool, get_closeDialog, set_closeDialog, reset_closeDialog)
-    def get_closeDialogColor(self):
-        return self._closeDialogColor
-    def set_closeDialogColor(self, value):
-        self._closeDialogColor = value
-    close_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_closeDialogColor, set_closeDialogColor)
 
     def set_entryDialog(self, data):
         self.add_entry_dialog = data
@@ -765,6 +917,20 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def set_toolDialogColor(self, value):
         self._toolDialogColor = value
     tool_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_toolDialogColor, set_toolDialogColor)
+    def setUseDesktopNotify(self, value):
+        self._toolUseDesktopNotify = value
+    def getUseDesktopNotify(self):
+        return self._toolUseDesktopNotify
+    def resetUseDesktopNotify(self):
+        self._toolUseDesktopNotify = False
+    ToolUseDesktopNotify = QtCore.pyqtProperty(bool, getUseDesktopNotify, setUseDesktopNotify, resetUseDesktopNotify)
+    def setFrameless(self, value):
+        self._toolFrameless = value
+    def getFrameless(self):
+        return self._toolFrameless
+    def resetFrameless(self):
+        self._toolFrameless = False
+    ToolFrameless = QtCore.pyqtProperty(bool, getFrameless, setFrameless, resetFrameless)
 
     def set_fileDialog(self, data):
         self.add_file_dialog = data
@@ -778,6 +944,19 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def set_fileDialogColor(self, value):
         self._fileDialogColor = value
     file_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_fileDialogColor, set_fileDialogColor)
+
+    def set_keyboardDialog(self, data):
+        self.add_keyboard_dialog = data
+    def get_keyboardDialog(self):
+        return self.add_keyboard_dialog
+    def reset_keyboardDialog(self):
+        self.add_keyboard_dialog = False
+    keyboardDialog_option = QtCore.pyqtProperty(bool, get_keyboardDialog, set_keyboardDialog, reset_keyboardDialog)
+    def get_keyboardDialogColor(self):
+        return self._keyboardDialogColor
+    def set_keyboardDialogColor(self, value):
+        self._keyboardDialogColor = value
+    keyboard_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_keyboardDialogColor, set_keyboardDialogColor)
 
     def set_versaProbeDialog(self, data):
         self.add_versaprobe_dialog = data
@@ -882,6 +1061,14 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def set_runFromLineDialogColor(self, value):
         self._runFromLineDialogColor = value
     runFromLine_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_runFromLineDialogColor, set_runFromLineDialogColor)
+
+    def getHalCompName(self):
+        return self._halBaseName
+    def setHalCompName(self, value):
+        self._halBaseName = value
+    def resetHalCompName(self):
+        self._halBaseName = ''
+    halCompBaseName = QtCore.pyqtProperty(str, getHalCompName, setHalCompName, resetHalCompName)
 
     ##############################
     # required boiler code #

@@ -11,6 +11,7 @@ For example, if \\fBvelocity-cmd\\fP is in revolutions/minute, \\fBscale\\fP sho
 """;
 
 license "GPL";
+author "Michael Haberler";
 
 function _;
 

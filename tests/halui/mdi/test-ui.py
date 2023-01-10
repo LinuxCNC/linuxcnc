@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import linuxcnc
 import hal
@@ -7,16 +7,11 @@ import sys
 import os
 import math
 
-
-# this is how long we wait for linuxcnc to do our bidding
-timeout = 1.0
-
-
 program_start = time.time()
 
 def log(msg):
     delta_t = time.time() - program_start;
-    print "%.3f: %s" % (delta_t, msg)
+    print("%.3f: %s" % (delta_t, msg))
     sys.stdout.flush()
 
 
@@ -47,7 +42,7 @@ def wait_for_joint_to_stop_at(joint, target):
 
 
 def wait_for_task_mode(target):
-    timeout = 5.0
+    timeout = 10.0
     start = time.time()
 
     while ((time.time() - start) < timeout):
@@ -61,16 +56,16 @@ def wait_for_task_mode(target):
 
 
 def wait_for_halui_mode(pin_name):
-    timeout = 5.0
+    timeout = 10.0
 
     start = time.time()
 
     while ((time.time() - start) < timeout):
         if h[pin_name]:
-            print "halui reports mode", pin_name
+            print("halui reports mode {}".format(pin_name))
             return
         time.sleep(0.1)
-    print "timeout waiting for halui to report mode", pin_name
+    print("timeout waiting for halui to report mode {}".format(pin_name))
     sys.exit(1)
 
 

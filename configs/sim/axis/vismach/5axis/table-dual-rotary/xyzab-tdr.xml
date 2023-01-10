@@ -1,0 +1,325 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+
+  <vbox>
+    <relief>"ridge"</relief>
+    <bd>5</bd>
+    <multilabel>
+      <legends>["0:IDENTITY", "1: XYZAB  ", "2: USERK  "]</legends>
+      <font>("Helvetica",16)</font>
+      <bg>"black"</bg>
+      <fg>"yellow"</fg>
+    </multilabel>
+    <button>
+      <halpin>"type0-button"</halpin>
+      <text>"IDENTITY"</text>
+      <bd>3</bd>
+    </button>
+    <button>
+      <halpin>"type1-button"</halpin>
+      <text>"TCP:XYZAB"</text>
+      <bd>3</bd>
+    </button>
+  </vbox>
+
+<!-- create a space to the next element -->
+  <vbox>
+    <hbox>
+    <label>
+       <text>" "</text>
+       <font>("Helvetica",4)</font>
+    </label>
+    </hbox>
+  </vbox>
+
+  <vbox>
+  <labelframe text="Joint position">
+    <font>("Helvetica",14)</font>
+    <hbox>
+        <vbox>
+            <hbox>
+            <label>
+               <text>"0: "</text>
+               <font>("Helvetica",10)</font>
+            </label>
+            <number>
+               <halpin>"joint0"</halpin>
+               <font>("Helvetica",10)</font>
+               <format>"4.4f"</format>
+              </number>
+           </hbox>
+           <hbox>
+            <label>
+               <text>"1: "</text>
+               <font>("Helvetica",10)</font>
+            </label>
+            <number>
+               <halpin>"joint1"</halpin>
+               <font>("Helvetica",10)</font>
+               <format>"4.4f"</format>
+              </number>
+           </hbox>
+           <hbox>
+            <label>
+               <text>"2: "</text>
+               <font>("Helvetica",10)</font>
+            </label>
+            <number>
+               <halpin>"joint2"</halpin>
+               <font>("Helvetica",10)</font>
+               <format>"4.4f"</format>
+              </number>
+            </hbox>
+        </vbox>
+        <vbox>
+            <label>
+               <text>"              "</text>
+               <font>("Helvetica",10)</font>
+            </label>
+        </vbox>
+        <vbox>
+            <hbox>
+            <label>
+               <text>"3: "</text>
+               <font>("Helvetica",10)</font>
+            </label>
+            <number>
+               <halpin>"joint3"</halpin>
+               <font>("Helvetica",10)</font>
+               <format>"4.4f"</format>
+              </number>
+           </hbox>
+           <hbox>
+            <label>
+               <text>"4: "</text>
+               <font>("Helvetica",10)</font>
+            </label>
+            <number>
+               <halpin>"joint4"</halpin>
+               <font>("Helvetica",10)</font>
+               <format>"4.4f"</format>
+              </number>
+           </hbox>
+           <hbox>
+            <label>
+               <text>"5: "</text>
+               <font>("Helvetica",10)</font>
+            </label>
+            <number>
+               <halpin>"joint5"</halpin>
+               <font>("Helvetica",10)</font>
+               <format>"4.4f"</format>
+              </number>
+            </hbox>
+        </vbox>
+     </hbox>
+  </labelframe>
+  </vbox>
+<!-- create a space to the next element -->
+  <vbox>
+    <hbox>
+    <label>
+       <text>" "</text>
+       <font>("Helvetica",4)</font>
+    </label>
+    </hbox>
+  </vbox>
+
+  <vbox>
+    <relief>"ridge"</relief>
+    <bd>5</bd>
+    <button>
+      <halpin>"vismach-clear"</halpin>
+      <text>"vismach-clear"</text>
+      <bd>3</bd>
+    </button>
+  </vbox>
+<!-- create a space to the next element -->
+  <vbox>
+    <hbox>
+    <label>
+       <text>" "</text>
+       <font>("Helvetica",4)</font>
+    </label>
+    </hbox>
+  </vbox>
+
+  <vbox>
+  <labelframe text="Rotary Assembly Offset">
+    <font>("Helvetica",14)</font>
+    <hbox>
+    <label>
+       <text>"x-offset:   "</text>
+       <font>("Helvetica",10)</font>
+    </label>
+    <scale>
+        <font>("Helvetica",10)</font>
+        <width>"15"</width>
+        <halpin>"x-offset"</halpin>
+        <resolution>1</resolution>
+        <orient>HORIZONTAL</orient>
+        <initval>-20</initval>
+        <min_>-50</min_>
+        <max_>50</max_>
+    </scale>
+    </hbox>
+    <hbox>
+    <label>
+       <text>"z-offset:   "</text>
+       <font>("Helvetica",10)</font>
+    </label>
+    <scale>
+        <font>("Helvetica",10)</font>
+        <width>"15"</width>
+        <halpin>"z-offset"</halpin>
+        <resolution>1</resolution>
+        <orient>HORIZONTAL</orient>
+        <initval>-10</initval>
+        <min_>-50</min_>
+        <max_>50</max_>
+    </scale>
+    </hbox>
+    <hbox>
+    <label>
+       <font>("Helvetica",8)</font>
+       <text>" "</text>
+    </label>
+    </hbox>
+    <hbox>
+    <label>
+       <text>"Use hover + mouse wheel to change values"</text>
+       <font>("Helvetica",6)</font>
+    </label>
+    </hbox>
+  </labelframe>
+  </vbox>
+<!-- create a space to the next element -->
+  <vbox>
+    <hbox>
+    <label>
+       <text>" "</text>
+       <font>("Helvetica",4)</font>
+    </label>
+    </hbox>
+  </vbox>
+
+  <vbox>
+  <labelframe text="Rotation Point Offset">
+    <font>("Helvetica",14)</font>
+    <hbox>
+    <label>
+       <text>" This should demonstrate that TCP kinematics\n require the 'rot-point' settings (yellow)\n to match the physical location\n of the rotation-point (red)."</text>
+       <font>("Helvetica",8)</font>
+    </label>
+    </hbox>
+    <hbox>
+    <label>
+       <font>("Helvetica",8)</font>
+       <text>" "</text>
+    </label>
+    </hbox>
+    <hbox>
+    <label>
+       <font>("Helvetica",8)</font>
+       <text>"Physical location of rotation-point in the model\n in absolute machine coordinates:"</text>
+    </label>
+    </hbox>
+    <hbox>
+    <label>
+       <font>("Helvetica",8)</font>
+       <text>" x:  -50\n y:  -50\n z: -100"</text>
+    </label>
+    </hbox>
+    <hbox>
+    <label>
+       <font>("Helvetica",8)</font>
+       <text>" "</text>
+    </label>
+    </hbox>
+    <hbox>
+    <label>
+       <font>("Helvetica",8)</font>
+       <text>"these are also the correct 'rot-point' settings\n for this model"</text>
+    </label>
+    </hbox>
+    <hbox>
+    <label>
+       <text>"x-rot-point:   "</text>
+       <font>("Helvetica",10)</font>
+    </label>
+    <scale>
+        <font>("Helvetica",10)</font>
+        <width>"15"</width>
+        <halpin>"x-rot-point"</halpin>
+        <resolution>1</resolution>
+        <orient>HORIZONTAL</orient>
+        <initval>-50</initval>
+        <min_>-55</min_>
+        <max_>-45</max_>
+    </scale>
+    </hbox>
+    <hbox>
+    <label>
+       <text>"y-rot-point:   "</text>
+       <font>("Helvetica",10)</font>
+    </label>
+    <scale>
+        <font>("Helvetica",10)</font>
+        <width>"15"</width>
+        <halpin>"y-rot-point"</halpin>
+        <resolution>1</resolution>
+        <orient>HORIZONTAL</orient>
+        <initval>-50</initval>
+        <min_>-55</min_>
+        <max_>-45</max_>
+    </scale>
+    </hbox>
+    <hbox>
+    <label>
+       <text>"z-rot-point:   "</text>
+       <font>("Helvetica",10)</font>
+    </label>
+    <scale>
+        <font>("Helvetica",10)</font>
+        <width>"15"</width>
+        <halpin>"z-rot-point"</halpin>
+        <resolution>1</resolution>
+        <orient>HORIZONTAL</orient>
+        <initval>-100</initval>
+        <min_>-105</min_>
+        <max_>-95</max_>
+    </scale>
+    </hbox>
+    <hbox>
+    <label>
+       <font>("Helvetica",8)</font>
+       <text>" "</text>
+    </label>
+    </hbox>
+    <hbox>
+    <label>
+       <text>"Use hover + mouse wheel to change values"</text>
+       <font>("Helvetica",6)</font>
+    </label>
+    </hbox>
+  </labelframe>
+  </vbox>
+<!-- create a space to the next element -->
+  <vbox>
+    <hbox>
+    <label>
+       <text>" "</text>
+       <font>("Helvetica",4)</font>
+    </label>
+    </hbox>
+  </vbox>
+  <vbox>
+    <hbox>
+    <label>
+       <text>" FOR PROPER TOOL-PATH PREVIEW \n RELOAD AND RESTART THE\n GCODE AFTER STARTUP AND\n AFTER CHANGING OFFSETS!"</text>
+       <font>("Helvetica",9)</font>
+    </label>
+    </hbox>
+  </vbox>
+
+</pyvcp>

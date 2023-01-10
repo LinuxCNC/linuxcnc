@@ -16,7 +16,9 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from rs274 import Translated, ArcsToSegmentsMixin, OpenGLTk
-from minigl import *
+from OpenGL.GL import *
+from OpenGL.GLU import *
+import itertools
 import math
 import glnav
 import hershey
@@ -25,6 +27,8 @@ import array
 import gcode
 import os
 import re
+import sys
+from functools import reduce
 
 def minmax(*args):
     return min(*args), max(*args)
@@ -79,23 +83,35 @@ limiticon = array.array('B',
 class GLCanon(Translated, ArcsToSegmentsMixin):
     lineno = -1
     def __init__(self, colors, geometry, is_foam=0):
-        # traverse list - [line number, [start position], [end position], [tlo x, tlo y, tlo z]]
+        # traverse list of tuples - [(line number, (start position), (end position), (tlo x, tlo y, tlo z))]
         self.traverse = []; self.traverse_append = self.traverse.append
-        # feed list - [line number, [start position], [end position], feedrate, [tlo x, tlo y, tlo z]]
+        # feed list of tuples - [(line number, (start position), (end position), feedrate, (tlo x, tlo y, tlo z))]
         self.feed = []; self.feed_append = self.feed.append
-        # arcfeed list - [line number, [start position], [end position], feedrate, [tlo x, tlo y, tlo z]]
+        # arcfeed list of tuples - [(line number, (start position), (end position), feedrate, (tlo x, tlo y, tlo z))]
         self.arcfeed = []; self.arcfeed_append = self.arcfeed.append
         # dwell list - [line number, color, pos x, pos y, pos z, plane]
         self.dwells = []; self.dwells_append = self.dwells.append
+        # preview list - combines the unrotated points of the lists: self.traverse, self.feed, self.arcfeed
+        self.preview_zero_rxy = []
         self.choice = None
         self.feedrate = 1
         self.lo = (0,) * 9
         self.first_move = True
         self.geometry = geometry
+        # min and max extents - the largest bounding box around the currently displayed preview
+        # bounding box is parallel to the machine axes
         self.min_extents = [9e99,9e99,9e99]
         self.max_extents = [-9e99,-9e99,-9e99]
         self.min_extents_notool = [9e99,9e99,9e99]
         self.max_extents_notool = [-9e99,-9e99,-9e99]
+        # min and max extents at zero rotation - the largest bounding box around the preview
+        # after unrotating it by the amount of current g5x offset XY rotation
+        # bounding box is parallel to the machine axes. If the box is rotated by the g5x offset XY rotation amount
+        # it can be used to give a more accurate visual of where the cut will occur
+        self.min_extents_zero_rxy = [9e99,9e99,9e99]
+        self.max_extents_zero_rxy = [-9e99,-9e99,-9e99]
+        self.min_extents_notool_zero_rxy = [9e99,9e99,9e99]
+        self.max_extents_notool_zero_rxy = [-9e99,-9e99,-9e99]
         self.colors = colors
         self.in_arc = 0
         self.xo = self.yo = self.zo = self.ao = self.bo = self.co = self.uo = self.vo = self.wo = 0
@@ -128,13 +144,13 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.highlight_line = None
 
     def comment(self, arg):
-        if arg.startswith("AXIS,"):
+        if arg.startswith("AXIS,") or arg.startswith("PREVIEW,"):
             parts = arg.split(",")
             command = parts[1]
             if command == "stop": raise KeyboardInterrupt
             if command == "hide": self.suppress += 1
             if command == "show": self.suppress -= 1
-            if command == "XY_Z_POS": 
+            if command == "XY_Z_POS":
                 if len(parts) > 2 :
                     try:
                         self.foam_z = float(parts[2])
@@ -142,7 +158,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
                             self.foam_z = self.foam_z / 25.4
                     except:
                         self.foam_z = 5.0/25.4
-            if command == "UV_Z_POS": 
+            if command == "UV_Z_POS":
                 if len(parts) > 2 :
                     try:
                         self.foam_w = float(parts[2])
@@ -191,6 +207,8 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
 
     def calc_extents(self):
         self.min_extents, self.max_extents, self.min_extents_notool, self.max_extents_notool = gcode.calc_extents(self.arcfeed, self.feed, self.traverse)
+        self.unrotate_preview()
+        self.min_extents_zero_rxy, self.max_extents_zero_rxy, self.min_extents_notool_zero_rxy, self.max_extents_notool_zero_rxy = gcode.calc_extents(self.preview_zero_rxy)
         if self.is_foam:
             min_z = min(self.foam_z, self.foam_w)
             max_z = max(self.foam_z, self.foam_w)
@@ -200,6 +218,38 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
                 self.min_extents_notool[0], self.min_extents_notool[1], min_z
             self.max_extents_notool = \
                 self.max_extents_notool[0], self.max_extents_notool[1], max_z
+
+    # unrotates the current preview points defined by self.feed, self.arcfeed, self.traverse
+    # and populates self.preview_zero_rxy. Because this is only used to calculate the extents
+    # and not to draw to the screen, this can all be contained in the same list.
+    def unrotate_preview(self):
+        angle = math.radians(-self.rotation_xy)
+        cos = math.cos(angle)
+        sin = math.sin(angle)
+        g5x_x = self.g5x_offset_x
+        g5x_y = self.g5x_offset_y
+        for list in self.feed, self.arcfeed:
+            for linenum, start, end, feed, tooloffset in list:
+                tsx = start[0] - g5x_x
+                tsy = start[1] - g5x_y
+                tex = end[0] - g5x_x
+                tey = end[1] - g5x_y
+                rsx = (tsx * cos) - (tsy * sin) + g5x_x
+                rsy = (tsx * sin) + (tsy * cos) + g5x_y
+                rex = (tex * cos) - (tey * sin) + g5x_x
+                rey = (tex * sin) + (tey * cos) + g5x_y
+                self.preview_zero_rxy.append((linenum, (rsx, rsy) + start[2:], (rex, rey) + end[2:], feed, tooloffset))
+        for linenum, start, end, tooloffset in self.traverse:
+            tsx = start[0] - g5x_x
+            tsy = start[1] - g5x_y
+            tex = end[0] - g5x_x
+            tey = end[1] - g5x_y
+            rsx = (tsx * cos) - (tsy * sin) + g5x_x
+            rsy = (tsx * sin) + (tsy * cos) + g5x_y
+            rex = (tex * cos) - (tey * sin) + g5x_x
+            rey = (tex * sin) + (tey * cos) + g5x_y
+            self.preview_zero_rxy.append((linenum, (rsx, rsy) + start[2:], (rex, rey) + end[2:], tooloffset))
+
     def tool_offset(self, xo, yo, zo, ao, bo, co, uo, vo, wo):
         self.first_move = True
         x, y, z, a, b, c, u, v, w = self.lo
@@ -222,11 +272,11 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     def change_tool(self, arg):
         self.first_move = True
 
-    def straight_traverse(self, x,y,z, a,b,c, u, v, w):
+    def straight_traverse(self, x,y,z, a,b,c, u,v,w):
         if self.suppress > 0: return
         l = self.rotate_and_translate(x,y,z,a,b,c,u,v,w)
         if not self.first_move:
-                self.traverse_append((self.lineno, self.lo, l, [self.xo, self.yo, self.zo]))
+                self.traverse_append((self.lineno, self.lo, l, (self.xo, self.yo, self.zo)))
         self.lo = l
 
     def rigid_tap(self, x, y, z):
@@ -235,9 +285,9 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         l = self.rotate_and_translate(x,y,z,0,0,0,0,0,0)[:3]
         l += [self.lo[3], self.lo[4], self.lo[5],
                self.lo[6], self.lo[7], self.lo[8]]
-        self.feed_append((self.lineno, self.lo, l, self.feedrate, [self.xo, self.yo, self.zo]))
+        self.feed_append((self.lineno, self.lo, l, self.feedrate, (self.xo, self.yo, self.zo)))
 #        self.dwells_append((self.lineno, self.colors['dwell'], x + self.offset_x, y + self.offset_y, z + self.offset_z, 0))
-        self.feed_append((self.lineno, l, self.lo, self.feedrate, [self.xo, self.yo, self.zo]))
+        self.feed_append((self.lineno, l, self.lo, self.feedrate, (self.xo, self.yo, self.zo)))
 
     def arc_feed(self, *args):
         if self.suppress > 0: return
@@ -253,32 +303,31 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         lo = self.lo
         lineno = self.lineno
         feedrate = self.feedrate
-        to = [self.xo, self.yo, self.zo]
+        to = (self.xo, self.yo, self.zo)
         append = self.arcfeed_append
         for l in segs:
             append((lineno, lo, l, feedrate, to))
             lo = l
         self.lo = lo
 
-    def straight_feed(self, x,y,z, a,b,c, u, v, w):
+    def straight_feed(self, x,y,z, a,b,c, u,v,w):
         if self.suppress > 0: return
         self.first_move = False
         l = self.rotate_and_translate(x,y,z,a,b,c,u,v,w)
-        self.feed_append((self.lineno, self.lo, l, self.feedrate, [self.xo, self.yo, self.zo]))
+        self.feed_append((self.lineno, self.lo, l, self.feedrate, (self.xo, self.yo, self.zo)))
         self.lo = l
     straight_probe = straight_feed
 
     def user_defined_function(self, i, p, q):
         if self.suppress > 0: return
         color = self.colors['m1xx']
-        self.dwells_append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], self.state.plane/10-17))
+        self.dwells_append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], int(self.state.plane/10-17)))
 
     def dwell(self, arg):
         if self.suppress > 0: return
         self.dwell_time += arg
         color = self.colors['dwell']
-        self.dwells_append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], self.state.plane/10-17))
-
+        self.dwells_append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], int(self.state.plane/10-17)))
 
     def highlight(self, lineno, geometry):
         glLineWidth(3)
@@ -333,7 +382,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             self.colored_lines('arc_feed', self.arcfeed, for_selection, len(self.traverse) + len(self.feed))
 
             glLineWidth(2)
-            self.draw_dwells(self.dwells, self.colors.get('dwell_alpha', 1/3.), for_selection, len(self.traverse) + len(self.feed) + len(self.arcfeed))
+            self.draw_dwells(self.dwells, int(self.colors.get('dwell_alpha', 1/3.)), for_selection, len(self.traverse) + len(self.feed) + len(self.arcfeed))
             glLineWidth(1)
 
 def with_context(f):
@@ -411,7 +460,7 @@ class GlCanonDraw:
         'axis_y': (1.00, 0.20, 0.20),
         'grid': (0.15, 0.15, 0.15),
     }
-    def __init__(self, s, lp, g=None):
+    def __init__(self, s=None, lp=None, g=None):
         self.stat = s
         self.lp = lp
         self.canon = g
@@ -425,7 +474,9 @@ class GlCanonDraw:
         self.dro_in = "% 9.4f"
         self.dro_mm = "% 9.3f"
         self.show_overlay = True
+        self.enable_dro = True
         self.cone_basesize = .5
+        self.show_small_origin = True
         try:
             if os.environ["INI_FILE_NAME"]:
                 self.inifile = linuxcnc.ini(os.environ["INI_FILE_NAME"])
@@ -434,7 +485,7 @@ class GlCanonDraw:
                     try:
                         test = temp % 1.234
                     except:
-                        print "Error: invalid [DISPLAY] DRO_FORMAT_IN in INI file"
+                        print ("Error: invalid [DISPLAY] DRO_FORMAT_IN in INI file")
                     else:
                         self.dro_in = temp
                 if self.inifile.find("DISPLAY", "DRO_FORMAT_MM"):
@@ -442,7 +493,7 @@ class GlCanonDraw:
                     try:
                         test = temp % 1.234
                     except:
-                        print "Error: invalid [DISPLAY] DRO_FORMAT_MM in INI file"
+                        print ("Error: invalid [DISPLAY] DRO_FORMAT_MM in INI file")
                     else:
                         self.dro_mm = temp
                         self.dro_in = temp
@@ -463,8 +514,21 @@ class GlCanonDraw:
         self.kinsmodule = kinsmodule
         self.no_joint_display = self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
         if (msg != ""):
-            print "init_glcanondraw %s coords=%s kinsmodule=%s no_joint_display=%d"%(
-                   msg,self.trajcoordinates,self.kinsmodule,self.no_joint_display)
+            print("init_glcanondraw %s coords=%s kinsmodule=%s no_joint_display=%d"%(
+                   msg,self.trajcoordinates,self.kinsmodule,self.no_joint_display))
+
+        g = self.get_geometry().upper()
+        linuxcnc.gui_respect_offsets(self.trajcoordinates,int('!' in g))
+
+        geometry_chars = "XYZABCUVW-!;"
+        dupchars = []; badchars = []
+        for ch in g:
+            if g.count(ch) >1: dupchars.append(ch)
+            if not ch in geometry_chars: badchars.append(ch)
+        if dupchars:
+            print("Warning: duplicate chars %s in geometry: %s"%(dupchars,g))
+        if badchars:
+            print("Warning: unknown chars %s in geometry: %s"%(badchars,g))
 
     def realize(self):
         self.hershey = hershey.Hershey()
@@ -510,14 +574,17 @@ class GlCanonDraw:
             glCallList(self.dlist('select_norapids', gen=self.make_selection_list))
 
             try:
-                buffer = list(glRenderMode(GL_RENDER))
+                buffer = glRenderMode(GL_RENDER)
             except OverflowError:
                 self.select_buffer_size *= 2
                 continue
             break
 
         if buffer:
-            min_depth, max_depth, names = min(buffer)
+            min_depth, max_depth, names = (buffer[0].near, buffer[0].far, buffer[0].names)
+            for x in buffer:
+                if min_depth < x.near:
+                    min_depth, max_depth, names = (x.near, x.far, x.names)
             self.set_highlight_line(names[0])
         else:
             self.set_highlight_line(None)
@@ -539,7 +606,7 @@ class GlCanonDraw:
         glDeleteLists(base, count)
 
     def __del__(self):
-        for base, count in self._dlists.values():
+        for base, count in list(self._dlists.values()):
             glDeleteLists(base, count)
 
     def update_highlight_variable(self,line):
@@ -554,7 +621,7 @@ class GlCanonDraw:
         if line is not None and self.canon is not None:
             if self.is_foam():
                 glPushMatrix()
-                glTranslatef(0, 0, self.get_foam_z()) 
+                glTranslatef(0, 0, self.get_foam_z())
                 x, y, z = self.canon.highlight(line, "XY")
                 glTranslatef(0, 0, self.get_foam_w()-self.get_foam_z())
                 u, v, w = self.canon.highlight(line, "UV")
@@ -667,30 +734,34 @@ class GlCanonDraw:
         else:
             z_pos = g.min_extents[z] - pullback
             zdashwidth = dashwidth
-        # x dimension
 
+        #draw dimension lines
         self.color_limit(0)
         glBegin(GL_LINES)
+
+        # x dimension
         if view != x and g.max_extents[x] > g.min_extents[x]:
             y_pos = g.min_extents[y] - pullback
+            #dimension line
             glVertex3f(g.min_extents[x], y_pos, z_pos)
             glVertex3f(g.max_extents[x], y_pos, z_pos)
-
+            #line perpendicular to dimension line at min extent
             glVertex3f(g.min_extents[x], y_pos - dashwidth, z_pos - zdashwidth)
             glVertex3f(g.min_extents[x], y_pos + dashwidth, z_pos + zdashwidth)
-
+            #line perpendicular to dimension line at max extent
             glVertex3f(g.max_extents[x], y_pos - dashwidth, z_pos - zdashwidth)
             glVertex3f(g.max_extents[x], y_pos + dashwidth, z_pos + zdashwidth)
 
         # y dimension
         if view != y and g.max_extents[y] > g.min_extents[y]:
             x_pos = g.min_extents[x] - pullback
+            #dimension line
             glVertex3f(x_pos, g.min_extents[y], z_pos)
             glVertex3f(x_pos, g.max_extents[y], z_pos)
-
+            #line perpendicular to dimension line at min extent
             glVertex3f(x_pos - dashwidth, g.min_extents[y], z_pos - zdashwidth)
             glVertex3f(x_pos + dashwidth, g.min_extents[y], z_pos + zdashwidth)
-
+            #line perpendicular to dimension line at max extent
             glVertex3f(x_pos - dashwidth, g.max_extents[y], z_pos - zdashwidth)
             glVertex3f(x_pos + dashwidth, g.max_extents[y], z_pos + zdashwidth)
 
@@ -698,22 +769,26 @@ class GlCanonDraw:
         if view != z and g.max_extents[z] > g.min_extents[z]:
             x_pos = g.min_extents[x] - pullback
             y_pos = g.min_extents[y] - pullback
+            #dimension line
             glVertex3f(x_pos, y_pos, g.min_extents[z])
             glVertex3f(x_pos, y_pos, g.max_extents[z])
-
+            #line perpendicular to dimension line at min extent
             glVertex3f(x_pos - dashwidth, y_pos - zdashwidth, g.min_extents[z])
             glVertex3f(x_pos + dashwidth, y_pos + zdashwidth, g.min_extents[z])
-
+            #line perpendicular to dimension line at max extent
             glVertex3f(x_pos - dashwidth, y_pos - zdashwidth, g.max_extents[z])
             glVertex3f(x_pos + dashwidth, y_pos + zdashwidth, g.max_extents[z])
 
         glEnd()
 
         # Labels
+        # get_show_relative == True calculates extents from the local origin
+        # get_show_relative == False calculates extents from the machine origin
         if self.get_show_relative():
             offset = self.to_internal_units(s.g5x_offset + s.g92_offset)
         else:
             offset = 0, 0, 0
+        #Z extent labels
         if view != z and g.max_extents[z] > g.min_extents[z]:
             if view == x:
                 x_pos = g.min_extents[x] - pullback
@@ -721,7 +796,7 @@ class GlCanonDraw:
             else:
                 x_pos = g.min_extents[x] - 6.0*dashwidth
                 y_pos = g.min_extents[y] - pullback
-
+            #Z MIN extent
             bbox = self.color_limit(g.min_extents_notool[z] < machine_limit_min[z])
             glPushMatrix()
             f = fmt % ((g.min_extents[z]-offset[z]) * dimscale)
@@ -733,7 +808,7 @@ class GlCanonDraw:
                 glRotatef(-90, 0, 1, 0)
             self.hershey.plot_string(f, 0, bbox)
             glPopMatrix()
-
+            #Z MAX extent
             bbox = self.color_limit(g.max_extents_notool[z] > machine_limit_max[z])
             glPushMatrix()
             f = fmt % ((g.max_extents[z]-offset[z]) * dimscale)
@@ -745,9 +820,9 @@ class GlCanonDraw:
                 glRotatef(-90, 0, 1, 0)
             self.hershey.plot_string(f, 0, bbox)
             glPopMatrix()
-
             self.color_limit(0)
             glPushMatrix()
+            #Z Midpoint
             f = fmt % ((g.max_extents[z] - g.min_extents[z]) * dimscale)
             glTranslatef(x_pos, y_pos, (g.max_extents[z] + g.min_extents[z])/2)
             glScalef(charsize, charsize, charsize)
@@ -756,10 +831,10 @@ class GlCanonDraw:
             glRotatef(-90, 0, 1, 0)
             self.hershey.plot_string(f, .5, bbox)
             glPopMatrix()
-
+        #Y extent labels
         if view != y and g.max_extents[y] > g.min_extents[y]:
             x_pos = g.min_extents[x] - 6.0*dashwidth
-
+            #Y MIN extent
             bbox = self.color_limit(g.min_extents_notool[y] < machine_limit_min[y])
             glPushMatrix()
             f = fmt % ((g.min_extents[y] - offset[y]) * dimscale)
@@ -772,7 +847,7 @@ class GlCanonDraw:
             glScalef(charsize, charsize, charsize)
             self.hershey.plot_string(f, 0, bbox)
             glPopMatrix()
-
+            #Y MAX extent
             bbox = self.color_limit(g.max_extents_notool[y] > machine_limit_max[y])
             glPushMatrix()
             f = fmt % ((g.max_extents[y] - offset[y]) * dimscale)
@@ -788,8 +863,8 @@ class GlCanonDraw:
 
             self.color_limit(0)
             glPushMatrix()
+            #Y midpoint
             f = fmt % ((g.max_extents[y] - g.min_extents[y]) * dimscale)
-
             glTranslatef(x_pos, (g.max_extents[y] + g.min_extents[y])/2,
                         z_pos)
             glRotatef(-90, 0, 0, 1)
@@ -799,10 +874,10 @@ class GlCanonDraw:
             glScalef(charsize, charsize, charsize)
             self.hershey.plot_string(f, .5)
             glPopMatrix()
-
+        #X extent labels
         if view != x and g.max_extents[x] > g.min_extents[x]:
             y_pos = g.min_extents[y] - 6.0*dashwidth
-
+            #X MIN extent
             bbox = self.color_limit(g.min_extents_notool[x] < machine_limit_min[x])
             glPushMatrix()
             f = fmt % ((g.min_extents[x] - offset[x]) * dimscale)
@@ -814,7 +889,7 @@ class GlCanonDraw:
             glScalef(charsize, charsize, charsize)
             self.hershey.plot_string(f, 0, bbox)
             glPopMatrix()
-
+            #X MAX extent
             bbox = self.color_limit(g.max_extents_notool[x] > machine_limit_max[x])
             glPushMatrix()
             f = fmt % ((g.max_extents[x] - offset[x]) * dimscale)
@@ -829,8 +904,8 @@ class GlCanonDraw:
 
             self.color_limit(0)
             glPushMatrix()
+            #X midpoint
             f = fmt % ((g.max_extents[x] - g.min_extents[x]) * dimscale)
-
             glTranslatef((g.max_extents[x] + g.min_extents[x])/2, y_pos,
                         z_pos)
             if view == y:
@@ -879,20 +954,28 @@ class GlCanonDraw:
         if self.canon and self.canon.grid: return self.canon.grid
         return 5./25.4
 
-    def comp(self, (sx, sy), (cx, cy)):
+    def comp(self, sx_sy, cx_cy):
+        (sx, sy) = sx_sy
+        (cx, cy) = cx_cy
         return -(sx*cx + sy*cy) / (sx*sx + sy*sy)
 
-    def param(self, (x1, y1), (dx1, dy1), (x3, y3), (dx3, dy3)):
+    def param(self, x1_y1, dx1_dy1, x3_y3, dx3_dy3):
+        (x1, y1) = x1_y1
+        (dx1, dy1) = dx1_dy1
+        (x3, y3) = x3_y3
+        (dx3, dy3) = dx3_dy3
         den = (dy3)*(dx1) - (dx3)*(dy1)
         if den == 0: return 0
         num = (dx3)*(y1-y3) - (dy3)*(x1-x3)
         return num * 1. / den
 
-    def draw_grid_lines(self, space, (ox, oy), (dx, dy), lim_min, lim_max,
+    def draw_grid_lines(self, space, ox_oy, dx_dy, lim_min, lim_max,
             inverse_permutation):
         # draw a series of line segments of the form
         #   dx(x-ox) + dy(y-oy) + k*space = 0
         # for integers k that intersect the AABB [lim_min, lim_max]
+        (ox, oy) = ox_oy
+        (dx, dy) = dx_dy
         lim_pts = [
                 (lim_min[0], lim_min[1]),
                 (lim_max[0], lim_min[1]),
@@ -993,14 +1076,14 @@ class GlCanonDraw:
         rotation = math.radians(self.stat.rotation_xy % 90)
         if rotation != 0 and view != z and self.get_show_relative(): return
         permutations = [
-                lambda (x, y, z): (z, y, x),  # YZ X
-                lambda (x, y, z): (z, x, y),  # ZX Y
-                lambda (x, y, z): (x, y, z),  # XY Z
+                lambda x_y_z: (x_y_z[2], x_y_z[1], x_y_z[0]),  # YZ X
+                lambda x_y_z1: (x_y_z1[2], x_y_z1[0], x_y_z1[1]),  # ZX Y
+                lambda x_y_z2: (x_y_z2[0], x_y_z2[1], x_y_z2[2]),  # XY Z
         ]
         inverse_permutations = [
-                lambda (z, y, x): (x, y, z),  # YZ X
-                lambda (z, x, y): (x, y, z),  # ZX Y
-                lambda (x, y, z): (x, y, z),  # XY Z
+                lambda z_y_x: (z_y_x[2], z_y_x[1], z_y_x[0]),  # YZ X
+                lambda z_x_y: (z_x_y[1], z_x_y[2], z_x_y[0]),  # ZX Y
+                lambda x_y_z3: (x_y_z3[0], x_y_z3[1], x_y_z3[2]),  # XY Z
         ]
         self.draw_grid_permuted(rotation, permutations[view],
                 inverse_permutations[view])
@@ -1017,6 +1100,20 @@ class GlCanonDraw:
 
     def idx_for_home_or_limit_icon(self,string):
         # parse posstr and return encoded idx
+
+        # Note: for non-identity kinematics after homing,
+        # axis coordinate letters are displayed and home
+        # or limit conditions are displayed using
+        # allhomedicon and somelimiticon
+
+        # special case for extra joints after homing:
+        # allow display of individual joint limit icons
+        if  (    (not self.get_joints_mode())
+             and ("EJ" in string)
+            ):
+            # parse extra joint number:
+            return int(string.replace(" ","").split(":")[0].split("EJ")[1])
+
         if  (    self.get_joints_mode()
              and (self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY)
             ):
@@ -1061,24 +1158,24 @@ class GlCanonDraw:
         self.show_icon_home_list  = []
         self.show_icon_limit_list = []
 
-    def show_icon(self,idx,width,height,xorig,yorig,xmove,ymove,iconname):
-        # only show icon once for idx
-        # accomodate hal_gremlin override format_dro()
-        # and prevent display for both Rad and Dia
-        if iconname is "home":
+    def show_icon(self,idx,icon):
+        # only show icon once for idx for home,limit icons
+        #   accommodates hal_gremlin override format_dro()
+        #   and prevents display for both Rad and Dia
+        if icon is homeicon:
             if idx in self.show_icon_home_list: return
             self.show_icon_home_list.append(idx)
-            glBitmap(width,height,xorig,yorig,xmove,ymove,homeicon)
-            return
-        if iconname is "limit":
+        if icon is limiticon:
             if idx in self.show_icon_limit_list: return
             self.show_icon_limit_list.append(idx)
-            glBitmap(width,height,xorig,yorig,xmove,ymove,limiticon)
-            return
+        glBitmap(13, 16, 0, 3, 17, 0, icon.tobytes())
 
     def redraw(self):
         s = self.stat
         s.poll()
+        linuxcnc.gui_rot_offsets(s.g5x_offset[0] + s.g92_offset[0],
+                                 s.g5x_offset[1] + s.g92_offset[1],
+                                 s.g5x_offset[2] + s.g92_offset[2])
 
         machine_limit_min, machine_limit_max = self.soft_limits()
 
@@ -1107,7 +1204,7 @@ class GlCanonDraw:
         except:
             pass
         if self.get_show_live_plot() or self.get_show_program():
-    
+
             alist = self.dlist(('axes', self.get_view()), gen=self.draw_axes)
             glPushMatrix()
             if self.get_show_relative() and (s.g5x_offset[0] or s.g5x_offset[1] or s.g5x_offset[2] or
@@ -1115,7 +1212,8 @@ class GlCanonDraw:
                                              s.rotation_xy):
                 olist = self.dlist('draw_small_origin',
                                         gen=self.draw_small_origin)
-                glCallList(olist)
+                if self.show_small_origin:
+                    glCallList(olist)
                 g5x_offset = self.to_internal_units(s.g5x_offset)[:3]
                 g92_offset = self.to_internal_units(s.g92_offset)[:3]
 
@@ -1147,7 +1245,7 @@ class GlCanonDraw:
                 glTranslatef(*g5x_offset)
                 glRotatef(s.rotation_xy, 0, 0, 1)
 
-                
+
                 if  self.get_show_offsets() and (g92_offset[0] or g92_offset[1] or g92_offset[2]):
                     glBegin(GL_LINES)
                     glVertex3f(0,0,0)
@@ -1280,7 +1378,7 @@ class GlCanonDraw:
                 g = re.split(" *(-?[XYZABCUVW])", self.get_geometry())
                 g = "".join(reversed(g))
 
-                for ch in g: # Apply in orignal non-reversed GEOMETRY order
+                for ch in g: # Apply in original non-reversed GEOMETRY order
                     if ch == '-':
                         sign = -1
                     elif ch == 'A':
@@ -1311,6 +1409,9 @@ class GlCanonDraw:
                         cone_scale = 1
                     if self.is_lathe():
                         glRotatef(90, 0, 1, 0)
+                        # if Rotation = 180 - back tool
+                        if self.stat.rotation_xy == 180:
+                            glRotatef(180, 1, 0, 0)
                     cone = self.dlist("cone", gen=self.make_cone)
                     glScalef(cone_scale, cone_scale, cone_scale)
                     glColor3f(*self.colors['cone'])
@@ -1361,8 +1462,12 @@ class GlCanonDraw:
         self.show_icon_init()
         stringstart_xpos = 15
         #-----------------------------------------------------------------------
-        if not self.get_show_offsets():
-            for string in posstrs:
+        if   self.get_show_offsets(): thestring = droposstrs
+        else:                         thestring =    posstrs
+
+        # allows showing/hiding overlay DRO readout
+        if self.enable_dro:
+            for string in thestring:
                 maxlen = max(maxlen, len(string))
                 glRasterPos2i(stringstart_xpos, ypos)
                 for char in string:
@@ -1374,58 +1479,29 @@ class GlCanonDraw:
                     continue
 
                 glRasterPos2i(0, ypos)
-                if (idx == -2 or idx == -6): # use allhomed icon display
-                    glBitmap(13, 16, 0, 3, 17, 0, allhomedicon)
-                if (idx == -4 or idx == -6): # use atleastonelimit display
-                    glBitmap(13, 16, 0, 3, 17, 0, somelimiticon)
+                if (idx == -2 or idx == -6): # use allhomedicon
+                    self.show_icon(idx,allhomedicon)
+                if (idx == -4 or idx == -6): # use somelimiticon
+                    self.show_icon(idx,somelimiticon)
                 if (idx <= -2):
                     ypos -= linespace
                     continue
 
-                if  (    self.get_joints_mode()
+                if  (   self.get_joints_mode()
                      or (self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
                     ):
                     if homed[idx]:
-                        self.show_icon(idx,13, 16, 0, 3, 17, 0, "home")
+                        self.show_icon(idx,homeicon)
                     if limit[idx]:
-                        self.show_icon(idx,13, 16, 0, 1, 17, 0, "limit")
-                else:
-                    # icons not shown for teleop and non-identity
-                    pass
-
-                ypos -= linespace
-        #-----------------------------------------------------------------------
-        if self.get_show_offsets():
-            for string in droposstrs:
-                maxlen = max(maxlen, len(string))
-                glRasterPos2i(stringstart_xpos, ypos)
-                for char in string:
-                    glCallList(base + ord(char))
-
-                idx = self.idx_for_home_or_limit_icon(string)
-                if (idx == -1): # skip icon display
-                    if (len(string) != 0): ypos -= linespace
-                    continue
-
-                glRasterPos2i(0, ypos)
-                if (idx == -2 or idx == -6): # use allhomed icon display
-                    glBitmap(13, 16, 0, 3, 17, 0, allhomedicon)
-                if (idx == -4 or idx == -6): # use atleastonelimit display
-                    glBitmap(13, 16, 0, 3, 17, 0, somelimiticon)
-                if (idx <= -2):
+                        self.show_icon(idx,limiticon)
                     ypos -= linespace
                     continue
 
-                if  (     self.get_joints_mode()
-                     or (self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
-                    ):
-                    if homed[idx]:
-                        self.show_icon(idx,13, 16, 0, 3, 17, 0, "home")
+                # extra joint after homing, world mode
+                if  ((self.stat.num_extrajoints>0) and (not self.get_joints_mode())):
+                    self.show_icon(idx,homeicon)
                     if limit[idx]:
-                        self.show_icon(idx,13, 16, 0, 3, 17, 0, "limit")
-                else:
-                    # icons not shown for teleop and non-identity
-                    pass
+                        self.show_icon(idx,limiticon)
 
                 ypos -= linespace
 
@@ -1487,6 +1563,7 @@ class GlCanonDraw:
         s = self.stat
         limit = list(s.limit[:])
         homed = list(s.homed[:])
+        spd = self.to_internal_linear_unit(s.current_vel)
 
         if not self.get_joints_mode() or self.no_joint_display:
             if self.get_show_commanded():
@@ -1526,7 +1603,6 @@ class GlCanonDraw:
             g92_offset = self.to_internal_units(s.g92_offset)
             tlo_offset = self.to_internal_units(s.tool_offset)
             dtg = self.to_internal_linear_unit(s.distance_to_go)
-            spd = self.to_internal_linear_unit(s.current_vel)
 
             if self.get_show_metric():
                 positions = self.from_internal_units(positions, 1)
@@ -1537,17 +1613,21 @@ class GlCanonDraw:
                 dtg *= 25.4
                 spd = spd * 25.4
             spd = spd * 60
-
-            # Note: hal_gremlin overrides dro_format() for different dro behavior
-            limit, homed, posstrs, droposstrs = self.dro_format(self.stat,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset)
+            return self.dro_format(self.stat,spd,dtg,limit,homed,positions,
+                    axisdtg,g5x_offset,g92_offset,tlo_offset)
         else:
-            # N.B. no conversion here because joint positions are unitless
-            #      joint_mode and display_joint
-            posstrs = ["  %s:% 9.4f" % i for i in
-                zip(range(self.get_num_joints()), s.joint_actual_position)]
-            droposstrs = posstrs
+            return self.joint_dro_format(s,spd,self.get_num_joints(),limit, homed)
+
+    # N.B. no conversion here because joint positions are unitless
+    #      joint_mode and display_joint
+    # Note: this is overridden in other guis (then AXIS) for different dro behavior
+    def joint_dro_format(self,s,spd,num_of_joints,limit, homed):
+        posstrs = ["  %s:% 9.4f" % i for i in
+            zip(list(range(num_of_joints)), s.joint_actual_position)]
+        droposstrs = posstrs
         return limit, homed, posstrs, droposstrs
 
+    # Note: this is overridden in other guis (then AXIS) for different dro behavior
     def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
             if self.get_show_metric():
                 format = "% 6s:" + self.dro_mm
@@ -1603,6 +1683,16 @@ class GlCanonDraw:
             if self.get_show_distance_to_go():
                 posstrs.append(format % ("DTG", dtg))
 
+            # show extrajoints (if not showing offsets)
+            if (self.stat.num_extrajoints >0 and (not self.get_show_offsets())):
+                posstrs.append("Extra Joints:")
+                for jno in range(self.get_num_joints() - self.stat.num_extrajoints,
+                                 self.get_num_joints()):
+                    jval  = self.stat.joint_actual_position[jno]
+                    jstr  =     "   EJ%d:% 9.4f" % (jno,jval)
+                    if jno >= 10:
+                        jstr  = "  EJ%2d:% 9.4f" % (jno,jval)
+                    posstrs.append(jstr)
             return limit, homed, posstrs, droposstrs
 
     def draw_small_origin(self, n):
@@ -1718,6 +1808,7 @@ class GlCanonDraw:
     def make_cone(self, n):
         q = gluNewQuadric()
         glNewList(n, GL_COMPILE)
+        glBlendColor(0,0,0,self.colors['tool_alpha'])
         glEnable(GL_LIGHTING)
         gluCylinder(q, 0, .1, .25, 32, 1)
         glPushMatrix()
@@ -1739,7 +1830,7 @@ class GlCanonDraw:
         glDepthFunc(GL_ALWAYS)
         diameter, frontangle, backangle, orientation = current_tool[-4:]
         w = 3/8.
-        glDisable(GL_CULL_FACE)#lathe tool needs to be visable form both sides
+        glDisable(GL_CULL_FACE)#lathe tool needs to be visible form both sides
         radius = self.to_internal_linear_unit(diameter) / 2.
         glColor3f(*self.colors['lathetool'])
         glBegin(GL_LINES)

@@ -6,7 +6,7 @@ These show the native look of Gscreen.
 
 gscreen.ini
   -Imperial milling screen,
-  -includes optionnal gladevcp panels
+  -includes optional gladevcp panels
 
 gscreen_lathe.ini
   -Imperial basic lathe

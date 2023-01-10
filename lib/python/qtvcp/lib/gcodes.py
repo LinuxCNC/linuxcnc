@@ -1,9 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import mdi_text as mdiText
+from . import mdi_text as mdiText
 from qtvcp.qt_makegui import VCPWindow
 
 WIDGETS = VCPWindow()
+
 
 class GCodes:
     def __init__(self, widgets=None):
@@ -12,12 +13,13 @@ class GCodes:
     def setup_list(self):
         self.w.gcode_list.currentRowChanged.connect(self.list_row_changed)
         titles = mdiText.gcode_titles()
-        for key in sorted(titles.iterkeys()):
+        for key in sorted(titles.keys()):
             self.w.gcode_list.addItem(key + ' ' + titles[key])
         self.w.gcode_description.setReadOnly(True)
 
     def list_row_changed(self, row):
-        line = self.w.gcode_list.currentItem().text().encode('utf-8')
+        line = self.w.gcode_list.currentItem().text()
+        print(line)
         text = line.split(' ')[0]
         desc = mdiText.gcode_descriptions(text) or 'No Match'
         self.w.gcode_description.clear()
@@ -32,10 +34,3 @@ class GCodes:
                 self.w.gcode_parameters.setText(parm)
             else:
                 self.w.gcode_parameters.setText('')
-
-    def mdiClear(self):
-        for index in range(1,8):
-            getattr(parent, 'gcodeParameter_' + str(index)).setText('')
-        self.w.gcode_description.setText('')
-        self.w.gcodeHelpLabel.setText('')
-

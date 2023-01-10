@@ -23,6 +23,7 @@
 #define REM_MSG_HH
 
 
+class NML;
 class CMS_DIAGNOSTICS_INFO;
 struct CMS_HEADER;
 
@@ -82,7 +83,7 @@ struct REMOTE_BLOCKING_READ_REQUEST:public REMOTE_CMS_REQUEST {
     /* to this client */
     long timeout_millis;	/* Milliseconds for blocking_timeout or -1 to 
 				   wait forever */
-    void *_nml;
+    NML *_nml;
     void *_data;
     void *_reply;
 };
@@ -137,7 +138,7 @@ struct REMOTE_WRITE_REQUEST:public REMOTE_CMS_REQUEST {
 /* Structure returned by server to client after a write. */
 struct REMOTE_WRITE_REPLY:public REMOTE_CMS_REPLY {
     long write_id;		/* Id from the buffer. */
-    long was_read;		/* Was the message to be overwriten ever
+    long was_read;		/* Was the message to be overwritten ever
 				   read? */
     int confirm_write;
 };

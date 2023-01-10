@@ -1,12 +1,12 @@
 # language HAL (EMC Hardware Abstraction Layer)
 # as documented by halcmd(1)
 # Michael Haberler 3/2011
-# a bit unsure wether 'function' and 'label' are the appropriate styles
+# a bit unsure whether 'function' and 'label' are the appropriate styles
 
 keyword = "loadrt|unloadrt|loadusr|waitusr|unloadusr|unlinkp",
   "unload|newsig|delsig|sets|stype|gets|linkps|linksp",
   "linkpp|net|unlinkp|setp|ptype|getp|addf|delf",
-  "start|stop|show|item|save|source"
+  "start|stop|show|item|save|source|alias|unalias|list|lock|unlock|status|help"
 
 symbol = "=>","<=","="
 

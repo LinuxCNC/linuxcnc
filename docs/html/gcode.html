@@ -1,5 +1,6 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
-   "http://www.w3.org/TR/html4/strict.dtd">
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!-- 
 Copyright (C) 2006, 2007 Jeff Epler
 
@@ -17,10 +18,12 @@ Copyright (C) 2006, 2007 Jeff Epler
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -->
-<HTML>
-<HEAD>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<STYLE type="text/css"><!--
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>LinuxCNC "G-code" Quick Reference</title>
+
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<style type="text/css"><!--
 table { border: 1px solid black; border-collapse: collapse; }
 table #titlerow th { border-bottom: 2px solid black; border-left: 2px solid black; text-align: center; }
 table #titlerow th:first-child { border-bottom: 2px solid black; border-left: 0px; text-align: center; }
@@ -38,138 +41,146 @@ table { width: 100%; }
 td { background: white; color: black; }
 tr.odd td { background: #d9d9d9; }
 tr.head td, tr.head th { background: black; color: white; }
---></STYLE>
-<TITLE>LinuxCNC "G-Code" Quick Reference</TITLE>
-</HEAD>
+--></style>
+</head>
 
-<BODY>
-<TABLE ID=ref1>
-<CAPTION> LinuxCNC "G-Code" Quick Reference </CAPTION>
-<COL id="group"> <COL id="code"> <COL id="params"> <COL id="description">
-<TR id="titlerow"> <TH>Code <TH>Parameters <TH>Description </TR>
-<TR><TH>Motion<TD COLSPAN=2 STYLE="border-bottom: 1px solid black">(X Y Z A B C U V W apply to all motions)</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g0">G0</A><TD><TD>Rapid Move</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g1">G1</A><TD><TD>Linear Move</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g2-g3">G2, G3</A><TD>I J K or R, P<TD>Arc Move</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g4">G4</A><TD>P<TD>Dwell</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g5">G5</A><TD>I J P Q<TD>Cubic Spline</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g5.1">G5.1</A><TD>I J<TD>Quadratic Spline</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g5.2-g5.3">G5.2</A><TD>P L<TD>NURBS</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g38">G38.2 - G38.5</A><TD><TD>Straight Probe</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g33">G33</A><TD>K ($)<TD>Spindle Synchronized Motion</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g33.1">G33.1</A><TD>K ($)<TD>Rigid Tapping</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g80">G80</A> <TD><TD>Cancel Canned Cycle</TR>
+<body>
+<table id="ref1">
+  <caption> LinuxCNC "G-code" Quick Reference </caption>
+  <colgroup>
+    <col id="group"/> <col id="code"/> <col id="params"/> <col id="description"/>
+  </colgroup>
+  <tbody>
+    <tr id="titlerow"> <th>Code </th><th>Parameters </th><th>Description </th></tr>
 
-<TR><TH>Canned cycles<TD COLSPAN=2>(X Y Z or U V W apply to canned cycles, depending on active plane)</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g81">G81</A><TD>R L (P)<TD>Drilling Cycle</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g82">G82</A><TD>R L (P)<TD>Drilling Cycle, Dwell</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g83">G83</A><TD>R L Q<TD>Drilling Cycle, Peck</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g84">G84</A><TD>R L (P) ($)<TD>Right-hand Tapping Cycle, Dwell</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g73">G73</A><TD>R L Q<TD>Drilling Cycle, Chip Breaking</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g74">G74</A><TD>R L (P) ($)<TD>Left-hand Tapping Cycle, Dwell</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g85">G85</A><TD>R L (P)<TD>Boring Cycle, Feed Out</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g89">G89</A><TD>R L (P)<TD>Boring Cycle, Dwell, Feed Out</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g76">G76</A><TD>P Z I J R K Q H L E ($)<TD>Threading Cycle</TR>
+    <tr><th>Motion</th><td colspan="2" style="border-bottom: 1px solid black">(X Y Z A B C U V W apply to all motions)</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g0">G0</a></td><td/><td>Rapid Move</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g1">G1</a></td><td/><td>Linear Move</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g2-g3">G2, G3</a></td><td>I J K or R P</td><td>Arc Move</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g4">G4</a></td><td>P</td><td>Dwell</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g5">G5</a></td><td>I J P Q</td><td>Cubic Spline</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g5.1">G5.1</a></td><td>I J</td><td>Quadratic Spline</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g5.2-g5.3">G5.2</a></td><td>P L</td><td>NURBS</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g38">G38.2 - G38.5</a></td><td/><td>Straight Probe</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g33">G33</a></td><td>K ($)</td><td>Spindle Synchronized Motion</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g33.1">G33.1</a></td><td>K ($)</td><td>Rigid Tapping</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g80">G80</a> </td><td/><td>Cancel Canned Cycle</td></tr>
 
-<TR><TH COLSPAN=3>Distance Mode</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g90-g91">G90, G91</A><TD><TD>Distance Mode</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g90.1-g91.1">G90.1, G91.1</A><TD><TD>Arc Distance Mode</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g7">G7</A><TD><TD>Lathe Diameter Mode</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g8">G8</A><TD><TD>Lathe Radius Mode</TR>
+    <tr><th>Canned cycles</th><td colspan="2">(X Y Z or U V W apply to canned cycles, depending on active plane)</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g81">G81</a></td><td>R L (P)</td><td>Drilling Cycle</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g82">G82</a></td><td>R L (P)</td><td>Drilling Cycle, Dwell</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g83">G83</a></td><td>R L Q</td><td>Drilling Cycle, Peck</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g84">G84</a></td><td>R L (P) ($)</td><td>Right-hand Tapping Cycle, Dwell</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g73">G73</a></td><td>R L Q</td><td>Drilling Cycle, Chip Breaking</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g74">G74</a></td><td>R L (P) ($)</td><td>Left-hand Tapping Cycle, Dwell</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g85">G85</a></td><td>R L (P)</td><td>Boring Cycle, Feed Out</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g89">G89</a></td><td>R L (P)</td><td>Boring Cycle, Dwell, Feed Out</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g76">G76</a></td><td>P Z I J R K Q H L E ($)</td><td>Threading Cycle</td></tr>
 
-<TR><TH COLSPAN=3>Feed Rate Mode </TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g93-g94-g95">G93, G94, G95</A><TD>S ($)<TD>Feed Rate Mode</TR>
+    <tr><th colspan="3">Distance Mode</th></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g90-g91">G90, G91</a></td><td/><td>Distance Mode</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g90.1-g91.1">G90.1, G91.1</a></td><td/><td>Arc Distance Mode</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g7">G7</a></td><td/><td>Lathe Diameter Mode</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g8">G8</a></td><td/><td>Lathe Radius Mode</td></tr>
 
-<TR><TH COLSPAN=3>Spindle Control </TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m3-m4-m5">M3, M4, M5</A><TD>S ($)<TD>Spindle Control</TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m19">M19</A><TD>R Q (P) ($)<TD>Orient Spindle</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g96-g97">G96, G97</A><TD> S D ($)<TD>Spindle Control Mode</TR>
+    <tr><th colspan="3">Feed Rate Mode </th></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g93-g94-g95">G93, G94, G95</a></td><td>S ($)</td><td>Feed Rate Mode</td></tr>
 
-<TR><TH COLSPAN=3>Coolant </TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m7-m8-m9">M7, M8, M9</A><TD><TD>Coolant Control</TR>
+    <tr><th colspan="3">Spindle Control </th></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m3-m4-m5">M3, M4, M5</a></td><td>S ($)</td><td>Spindle Control</td></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m19">M19</a></td><td>R Q (P) ($)</td><td>Orient Spindle</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g96-g97">G96, G97</a></td><td> S D ($)</td><td>Spindle Control Mode</td></tr>
 
-<TR><TH COLSPAN=3>Tool Length Offset </TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g43">G43</A> <TD> H <TD>Tool Length Offset</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g43.1">G43.1</A> <TD> <TD>Dynamic Tool Length Offset</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g43.2">G43.2</A> <TD> H <TD>Apply additional Tool Length Offset</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g49">G49</A> <TD> <TD>Cancel Tool Length Compensation</TR>
+    <tr><th colspan="3">Coolant </th></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m7-m8-m9">M7, M8, M9</a></td><td/><td>Coolant Control</td></tr>
 
-<TR><TH COLSPAN=3>Stopping </TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m0-m1">M0, M1</A><TD><TD>Program Pause</TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m2-m30">M2, M30</A><TD> <TD>Program End</TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m60">M60</A><TD><TD>Pallet Change Pause</TR>
+    <tr><th colspan="3">Tool Length Offset </th></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g43">G43</a> </td><td> H </td><td>Tool Length Offset</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g43.1">G43.1</a> </td><td> </td><td>Dynamic Tool Length Offset</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g43.2">G43.2</a> </td><td> H </td><td>Apply additional Tool Length Offset</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g49">G49</a> </td><td> </td><td>Cancel Tool Length Compensation</td></tr>
 
-<TR><TH COLSPAN=3>Units </TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g20-g21">G20, G21</A><TD> <TD>Units (inch, mm)</TR>
+    <tr><th colspan="3">Stopping </th></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m0-m1">M0, M1</a></td><td/><td>Program Pause</td></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m2-m30">M2, M30</a></td><td> </td><td>Program End</td></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m60">M60</a></td><td/><td>Pallet Change Pause</td></tr>
 
-<TR><TH>Plane Selection <TD COLSPAN=2>(affects G2, G3, G81&hellip;G89, G40&hellip;G42) </TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g17-g19.1">G17 - G19.1</A><TD><TD>Plane Select</TR>
+    <tr><th colspan="3">Units </th></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g20-g21">G20, G21</a></td><td> </td><td>Units (inch, mm)</td></tr>
 
-<TR><TH COLSPAN=3>Cutter Radius Compensation </TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g40">G40</A><TD><TD>Compensation Off</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g41-g42">G41,G42</A><TD>D<TD>Cutter Compensation</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g41.1-g42.1">G41.1, G42.1</A><TD>D L<TD>Dynamic Cutter Compensation</TR>
+    <tr><th>Plane Selection </th><td colspan="2">(affects G2, G3, G81…G89, G40…G42) </td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g17-g19.1">G17 - G19.1</a></td><td/><td>Plane Select</td></tr>
 
-<TR><TH COLSPAN=3>Path Control Mode </TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g61">G61 G61.1</A><TD><TD>Exact Path Mode</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g61.1">G61.1</A><TD><TD>Exact Stop Mode</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g64">G64</A><TD>P Q<TD>Path Blending</TR>
+    <tr><th colspan="3">Cutter Radius Compensation </th></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g40">G40</a></td><td/><td>Compensation Off</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g41-g42">G41,G42</a></td><td>D</td><td>Cutter Compensation</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g41.1-g42.1">G41.1, G42.1</a></td><td>D L</td><td>Dynamic Cutter Compensation</td></tr>
 
-<TR><TH COLSPAN=3>Return Mode in Canned Cycles </TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g98-g99">G98, G99</A><TD><TD>Canned Cycle Return Level</TR>
+    <tr><th colspan="3">Path Control Mode </th></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g61">G61 G61.1</a></td><td/><td>Exact Path Mode</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g61.1">G61.1</a></td><td/><td>Exact Stop Mode</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g64">G64</a></td><td>P Q</td><td>Path Blending</td></tr>
 
-<TR><TH COLSPAN=3>Other Modal Codes </TR>
-<TR><TD><A HREF="gcode/other-code.html#sec:set-feed-rate">F</A><TD><TD>Set Feed Rate</TR>
-<TR><TD><A HREF="gcode/other-code.html#sec:set-spindle-speed">S</A><TD>($)<TD>Set Spindle Speed</TR>
-<TR><TD><A HREF="gcode/other-code.html#sec:select-tool">T</A><TD><TD>Select Tool</a>)</TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m48-m49">M48, M49</A><TD><TD>Speed and Feed Override Control</TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m50">M50</A><TD>P0 (off) or P1 (on)<TD>Feed Override Control</TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m51">M51</A><TD>P0 (off) or P1 (on) ($)<TD>Spindle Speed Override Control</TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m52">M52</A><TD>P0 (off) or P1 (on)<TD>Adaptive Feed Control</TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m53">M53</A><TD>P0 (off) or P1 (on)<TD>Feed Stop Control</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g54-g59.3">G54-G59.3</A><TD><TD>Select Coordinate System</TR>
+    <tr><th colspan="3">Return Mode in Canned Cycles </th></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g98-g99">G98, G99</a></td><td/><td>Canned Cycle Return Level</td></tr>
 
-<TR><TH COLSPAN=3>Flow-control Codes </TR>
-<TR><TD><A HREF="gcode/o-code.html#ocode:subroutines">o sub</A><TD><TD>Subroutines, sub/endsub call</TR>
-<TR><TD><A HREF="gcode/o-code.html#ocode:looping">o while</A><TD><TD>Looping, while/endwhile do/while</TR>
-<TR><TD><A HREF="gcode/o-code.html#ocode:conditional">o if</A><TD><TD>Conditional, if/else/endif</TR>
-<TR><TD><A HREF="gcode/o-code.html#ocode:repeat">o repeat</A><TD><TD>Repeat a loop of code</TR>
-<TR><TD><A HREF="gcode/o-code.html#ocode:indirection">[]</A><TD><TD>Indirection</TR>
-<TR><TD><A HREF="gcode/o-code.html#ocode:calling-files">o call</A><TD><TD>Call named file</TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m70">M70</A><TD><TD>Save modal state</TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m71">M71</A><TD><TD>Invalidate stored state</TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m72">M72</A><TD><TD>Restore modal state</TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m73">M73</A><TD><TD>Save and Auto-restore modal state</TR>
+    <tr><th colspan="3">Other Modal Codes </th></tr>
+    <tr><td><a href="gcode/other-code.html#sec:set-feed-rate">F</a></td><td/><td>Set Feed Rate</td></tr>
+    <tr><td><a href="gcode/other-code.html#sec:set-spindle-speed">S</a></td><td>($)</td><td>Set Spindle Speed</td></tr>
+    <tr><td><a href="gcode/other-code.html#sec:select-tool">T</a></td><td/><td>Select Tool</td></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m48-m49">M48, M49</a></td><td/><td>Speed and Feed Override Control</td></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m50">M50</a></td><td>P0 (off) or P1 (on)</td><td>Feed Override Control</td></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m51">M51</a></td><td>P0 (off) or P1 (on) ($)</td><td>Spindle Speed Override Control</td></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m52">M52</a></td><td>P0 (off) or P1 (on)</td><td>Adaptive Feed Control</td></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m53">M53</a></td><td>P0 (off) or P1 (on)</td><td>Feed Stop Control</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g54-g59.3">G54-G59.3</a></td><td/><td>Select Coordinate System</td></tr>
 
-<TR><TH COLSPAN=3>Input/Output Codes </TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m62-m65">M62 - M65</A><TD>P<TD>Digital Output Control</TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m66">M66</A><TD>P E L Q<TD>Wait on Input</TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m67">M67</A><TD>T<TD>Analog Output,Synchronized</TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m68">M68</A><TD>T<TD>Analog Output, Immediate</TR>
+    <tr><th colspan="3">Flow-control Codes </th></tr>
+    <tr><td><a href="gcode/o-code.html#ocode:subroutines">o sub</a></td><td/><td>Subroutines, sub/endsub call</td></tr>
+    <tr><td><a href="gcode/o-code.html#ocode:looping">o while</a></td><td/><td>Looping, while/endwhile do/while</td></tr>
+    <tr><td><a href="gcode/o-code.html#ocode:conditional">o if</a></td><td/><td>Conditional, if/else/endif</td></tr>
+    <tr><td><a href="gcode/o-code.html#ocode:repeat">o repeat</a></td><td/><td>Repeat a loop of code</td></tr>
+    <tr><td><a href="gcode/o-code.html#ocode:indirection">[]</a></td><td/><td>Indirection</td></tr>
+    <tr><td><a href="gcode/o-code.html#ocode:calling-files">o call</a></td><td/><td>Call named file</td></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m70">M70</a></td><td/><td>Save modal state</td></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m71">M71</a></td><td/><td>Invalidate stored state</td></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m72">M72</a></td><td/><td>Restore modal state</td></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m73">M73</a></td><td/><td>Save and Auto-restore modal state</td></tr>
 
-<TR><TH COLSPAN=3>Non-modal Codes </TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m6">M6</A><TD>T<TD>Tool Change</TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m61">M61</A><TD>Q<TD>Set Current Tool</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g10-l1">G10 L1</A><TD>P Q R<TD>Set Tool Table</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g10-l10">G10 L10</A><TD>P<TD>Set Tool Table</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g10-l11">G10 L11</A><TD>P<TD>Set Tool Table</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g10-l2">G10 L2</A><TD>P R<TD>Set Coordinate System</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g10-l20">G10 L20</A><TD>P<TD>Set Coordinate System</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g28-g28.1">G28, G28.1</A><TD><TD>Go/Set Predefined Position</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g30-g30.1">G30, G30.1</A><TD><TD>Go/Set Predefined Position</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g53">G53</A><TD><TD>Move in Machine Coordinates</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g92">G52, G92</A><TD><TD>Coordinate System Offset</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g92.1-g92.2">G92.1, G92.2</A><TD><TD>Reset G92 Offsets</TR>
-<TR><TD><A HREF="gcode/g-code.html#gcode:g92.3">G92.3</A><TD><TD>Restore G92 Offsets</TR>
-<TR><TD><A HREF="gcode/m-code.html#mcode:m100-m199">M101 - M199</A><TD>P Q<TD>User Defined Commands</TR>
+    <tr><th colspan="3">Input/Output Codes </th></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m62-m65">M62 - M65</a></td><td>P</td><td>Digital Output Control</td></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m66">M66</a></td><td>P E L Q</td><td>Wait on Input</td></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m67">M67</a></td><td>T</td><td>Analog Output, Synchronized</td></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m68">M68</a></td><td>T</td><td>Analog Output, Immediate</td></tr>
 
-<TR><TH COLSPAN=3>Comments &amp; Messages</TR>
-<TR><TD><A HREF="gcode/overview.html#gcode:comments">; (&hellip;)</A><TD><TD>Comments</TR>
-<TR><TD><A HREF="gcode/overview.html#gcode:messages">(MSG,&hellip;)</A><TD><TD>Messages</TR>
-<TR><TD><A HREF="gcode/overview.html#gcode:debug">(DEBUG,&hellip;)</A><TD><TD>Debug Messages</TR>
-<TR><TD><A HREF="gcode/overview.html#gcode:print">(PRINT,&hellip;)</A><TD><TD>Print Messages</TR>
-</TABLE>
-<SCRIPT type="text/javascript"><!--
+    <tr><th colspan="3">Non-modal Codes </th></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m6">M6</a></td><td>T</td><td>Tool Change</td></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m61">M61</a></td><td>Q</td><td>Set Current Tool</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g10-l0">G10 L0</a></td><td/><td>Reload Tool Table Data</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g10-l1">G10 L1</a></td><td>P Q R</td><td>Set Tool Table</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g10-l10">G10 L10</a></td><td>P</td><td>Set Tool Table</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g10-l11">G10 L11</a></td><td>P</td><td>Set Tool Table</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g10-l2">G10 L2</a></td><td>P R</td><td>Set Coordinate System</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g10-l20">G10 L20</a></td><td>P</td><td>Set Coordinate System</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g28-g28.1">G28, G28.1</a></td><td/><td>Go/Set Predefined Position</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g30-g30.1">G30, G30.1</a></td><td/><td>Go/Set Predefined Position</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g53">G53</a></td><td/><td>Move in Machine Coordinates</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g92">G52, G92</a></td><td/><td>Coordinate System Offset</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g92.1-g92.2">G92.1, G92.2</a></td><td/><td>Reset G92 Offsets</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g92.3">G92.3</a></td><td/><td>Restore G92 Offsets</td></tr>
+    <tr><td><a href="gcode/m-code.html#mcode:m100-m199">M101 - M199</a></td><td>P Q</td><td>User Defined Commands</td></tr>
+
+    <tr><th colspan="3">Comments &amp; Messages</th></tr>
+    <tr><td><a href="gcode/overview.html#gcode:comments">; (…)</a></td><td/><td>Comments</td></tr>
+    <tr><td><a href="gcode/overview.html#gcode:messages">(MSG,…)</a></td><td/><td>Messages</td></tr>
+    <tr><td><a href="gcode/overview.html#gcode:debug">(DEBUG,…)</a></td><td/><td>Debug Messages</td></tr>
+    <tr><td><a href="gcode/overview.html#gcode:print">(PRINT,…)</a></td><td/><td>Print Messages</td></tr>
+
+  </tbody>
+</table>
+
+<script type="text/javascript"><!--
+
 var rows=document.evaluate('//tr', document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 var j=0;
 for(var i=0; i<rows.snapshotLength; i++) {
@@ -205,5 +216,7 @@ if(document.location.protocol == "file:") {
         fixup_urls();
     }
 }
-// --></SCRIPT>
-</BODY>
+
+// --></script>
+
+</body></html>

@@ -1,10 +1,12 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.adjustment_bar import StatusAdjustmentBar
 from qtvcp.widgets.qtvcp_icons import Icon
+
 ICON = Icon()
+
 
 class StatusAdjustmentBarPlugin(QPyDesignerCustomWidgetPlugin):
 
@@ -52,5 +54,3 @@ class StatusAdjustmentBarPlugin(QPyDesignerCustomWidgetPlugin):
 
     def includeFile(self):
         return "qtvcp.widgets.adjustment_bar"
-
-

@@ -13,20 +13,27 @@
 #ifndef EMCMOTCFG_H
 #define EMCMOTCFG_H
 
-/* default name of EMCMOT ini file */
+/* default name of EMCMOT INI file */
 #define DEFAULT_EMCMOT_INIFILE "emc.ini"	/* same as for EMC-- we're in 
 						   touch */
 
 /* number of joints supported
    Note: this is not a global variable but a compile-time parameter
    since it sets array sizes, etc. */
-#define EMCMOT_MAX_JOINTS 9
+
+// total number of joints available (kinematics_joints + extra_joints)
+#define EMCMOT_MAX_JOINTS 16
+
+// number of extra joints (NOT used in kinematics calculations):
+#define EMCMOT_MAX_EXTRAJOINTS EMCMOT_MAX_JOINTS
+
 /* number of axes defined by the interp */ //FIXME: shouldn't be here..
 #define EMCMOT_MAX_AXIS 9
 
 #define EMCMOT_MAX_SPINDLES 8
 #define EMCMOT_MAX_DIO 64
 #define EMCMOT_MAX_AIO 64
+#define EMCMOT_MAX_MISC_ERROR 64
 
 #if (EMCMOT_MAX_DIO > 64) || (EMCMOT_MAX_AIO > 64)
 #error A 64 bit bitmask is used in the planner.  Don't increase these until that's fixed.
@@ -55,6 +62,7 @@
 /* default number of motion io pins */
 #define DEFAULT_DIO 4
 #define DEFAULT_AIO 4
+#define DEFAULT_MISC_ERROR 0
 
 /* size of motion queue
  * a TC_STRUCT is about 512 bytes so this queue is

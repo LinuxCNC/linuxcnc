@@ -1,6 +1,6 @@
 This configuration drives a 3-axis stepper machine using a Mesa Anything IO board with the HostMot2 firmware.  No limit switches are used, so this should work with very basic hardware. The config will only run if you have the card installed and have installed the firmware.
 
-See the HostMot2 section of the Integrators manual for more information.
+See LinuxCNC_Documentation.pdf - 11.4 Mesa HostMot2 Driver section for more information.
 
 These configs have 0 Encoders, 0 PWMs, and 3 StepGens
 

@@ -4,7 +4,7 @@
 /* http://www.sourceforge.net/projects/classicladder */
 /* December 2004 */
 /* -------------------------------------- */
-/* Socket server used for modbus protocol */
+/* Socket server used for Modbus protocol */
 /* -------------------------------------- */
 /* This library is free software; you can redistribute it and/or */
 /* modify it under the terms of the GNU Lesser General Public */
@@ -190,7 +190,7 @@ void SocketServerTcpMainLoop( void )
 	SOCK_FD client_s;             // Client socket descriptor
 	struct sockaddr_in client_addr;          // Client Internet address
 	unsigned int addr_len;             // Internet address length
-	unsigned char in_buf[BUF_SIZE];     // Input buffer for resquest
+	unsigned char in_buf[BUF_SIZE];     // Input buffer for request
 	unsigned char out_buf[BUF_SIZE];    // Output buffer for response
 
 	int retcode;

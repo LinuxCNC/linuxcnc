@@ -1153,6 +1153,9 @@ p, li { white-space: pre-wrap; }
       <blue>255</blue>
      </color>
     </property>
+    <property name="keyboardDialog_option" stdset="0">
+     <bool>true</bool>
+    </property>
     <property name="versaProbeDialog_option" stdset="0">
      <bool>true</bool>
     </property>
@@ -1700,7 +1703,7 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="text">
         <string>Go to
-Origion Zero</string>
+Origin Zero</string>
        </property>
        <property name="mdi_command_action" stdset="0">
         <bool>true</bool>
@@ -2073,10 +2076,10 @@ file</string>
         <number>0</number>
        </property>
        <property name="image_path" stdset="0">
-        <pixmap>../../../gmoccapy/images/zoom-in.png</pixmap>
+        <pixmap>../../images/zoom-in.png</pixmap>
        </property>
        <property name="false_image_path" stdset="0">
-        <pixmap>../../../gmoccapy/images/zoom-in.png</pixmap>
+        <pixmap>../../images/zoom-in.png</pixmap>
        </property>
       </widget>
       <widget class="RoundButton" name="Roundbutton_2">
@@ -2125,10 +2128,10 @@ file</string>
         <number>0</number>
        </property>
        <property name="image_path" stdset="0">
-        <pixmap>../../../gmoccapy/images/zoom-out.png</pixmap>
+        <pixmap>../../images/zoom-out.png</pixmap>
        </property>
        <property name="false_image_path" stdset="0">
-        <pixmap>../../../gmoccapy/images/zoom-out.png</pixmap>
+        <pixmap>../../images/zoom-out.png</pixmap>
        </property>
       </widget>
       <widget class="ActionButton" name="actionbutton_17">
@@ -2557,7 +2560,7 @@ file</string>
      <property name="is_limits_overridden_status" stdset="0">
       <bool>true</bool>
      </property>
-     <property name="is_limits_overriden_status" stdset="0">
+     <property name="is_limits_overridden_status" stdset="0">
       <bool>true</bool>
      </property>
     </widget>

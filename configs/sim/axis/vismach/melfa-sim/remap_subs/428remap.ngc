@@ -1,0 +1,28 @@
+;M428 by remap: select genserkins
+o<428remap>sub
+  #<SWITCHKINS_PIN> = 3  ; set N as required: motion.analog-out-0N
+  #<kinstype> = 0        ; genserkins
+
+o1 if [exists [#<_hal[motion.switchkins-type]>]]
+o1 else
+     (debug,M428:Missing [RS274NGC]FEATURE==8)
+     (debug,STOP)
+     M2
+o1 endif
+
+   M66  E0 L0                           ; force synch
+   M68  E#<SWITCHKINS_PIN> Q#<kinstype> ; set kinstype value
+   G10 L2 P7 X0 Y0 Z0 A-180 B0 C0
+   G59.1
+   M66  E0 L0                           ; force synch
+;   (debug, M428:genserkins)
+
+o2 if [[#<_task> EQ 1] AND [#<_hal[motion.switchkins-type]> NE 0]]
+     (debug,M428: Wrong motion.switchkins-type)
+     (debug,or missing hal net to analog-out-0x)
+     (debug,STOP)
+     M2
+o2 else
+o2 endif
+
+o<428remap>endsub

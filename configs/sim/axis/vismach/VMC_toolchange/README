@@ -29,7 +29,7 @@ spindle-vel - the simulated spindle speed out
 
 Toolchanger arm
 arm-act - actuate the arm
-arm-in - arm in limit swith
+arm-in - arm in limit switch
 arm-out - arm out limit switch
 
 Carousel lock

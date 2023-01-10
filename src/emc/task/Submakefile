@@ -5,7 +5,7 @@ USERSRCS += $(EMCSVRSRCS)
 
 ../bin/linuxcncsvr: $(call TOOBJS, $(EMCSVRSRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $^
+	$(Q)$(CXX) -o $@ $^ $(LDFLAGS)
 TARGETS += ../bin/linuxcncsvr
 
 # disabled:	emc/task/iotaskintf.cc
@@ -19,18 +19,22 @@ MILLTASKSRCS := \
 	emc/task/taskintf.cc \
 	emc/motion/dbuf.c \
 	emc/motion/stashf.c \
-	emc/rs274ngc/tool_parse.cc \
 	emc/task/taskmodule.cc \
 	emc/task/taskclass.cc \
 	emc/task/backtrace.cc \
+
+$(call TOOBJSDEPS, emc/task/taskmodule.cc): EXTRAFLAGS += $(SILENCE_BOOST_INTERNAL_DIAGNOSTICS_FLAGS)
 
 USERSRCS += $(MILLTASKSRCS)
 
 #LDFLAGS +=
 
-../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0 ../lib/libposemath.so.0 ../lib/liblinuxcnchal.so.0 ../lib/libpyplugin.so.0
+../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so.0 ../lib/liblinuxcnc.a \
+                 ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0 ../lib/libposemath.so.0 \
+                 ../lib/liblinuxcnchal.so.0 ../lib/libpyplugin.so.0 \
+                 ../lib/libtooldata.so.0
 
 
 	$(ECHO) Linking $(notdir $@)
-	$(CXX) -o $@ $^ $(LDFLAGS) $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON)
+	$(CXX) -o $@ $^ $(LDFLAGS) $(PYTHON_EXTRA_LDFLAGS) $(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(PYTHON_EXTRA_LIBS)
 TARGETS += ../bin/milltask

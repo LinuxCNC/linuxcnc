@@ -30,7 +30,7 @@
  * codes, and the authors of this software can not, and do not, take
  * any responsibility for such compliance.
  *
- * This code was written as part of the EMC HAL project.  For more
+ * This code was written as part of the LinuxCNC HAL project.  For more
  * information, go to www.linuxcnc.org.
  *
 *************************************************************************/
@@ -74,6 +74,7 @@ option extra_setup yes;
  
 function _ nofp "Display a message";
 license "GPL v2";
+author "Les Newell";
 ;;
  
 char *messages[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};

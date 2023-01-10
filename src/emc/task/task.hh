@@ -31,6 +31,7 @@ bool jogging_is_active(void);
 
 int emcTaskInit();
 int emcTaskHalt();
+int emcTaskStateRestore();
 int emcTaskAbort();
 int emcTaskSetMode(int mode);
 int emcTaskSetState(int state);

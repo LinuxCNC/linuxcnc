@@ -26,7 +26,7 @@ class HandlerClass:
         self.w = widgets
 
         self.timer = QTimer()
-        self.timer.timeout.connect(self.announceTime)
+        self.timer.timeout.connect(self.announceLEDText)
 
         self.lastLED_1 = 0
         self.lastLED_2 = 0
@@ -50,6 +50,12 @@ class HandlerClass:
         self.w.dial_3.valueChanged.emit(self.w.dial_3.value())
         self.w.dial_4.valueChanged.emit(self.w.dial_4.value())
 
+        # speak text when return pressed
+        self.w.lineEdit_led_1.returnPressed.connect(lambda : self.announceText(self.w.lineEdit_led_1))
+        self.w.lineEdit_led_2.returnPressed.connect(lambda : self.announceText(self.w.lineEdit_led_2))
+        self.w.lineEdit_led_3.returnPressed.connect(lambda : self.announceText(self.w.lineEdit_led_3))
+        self.w.lineEdit_led_4.returnPressed.connect(lambda : self.announceText(self.w.lineEdit_led_4))
+
         if find_executable('urxvt') is not None:
             term = embterminal()
             self.w.dockWidget.setWidget(term)
@@ -70,28 +76,53 @@ Try sudo apt install rxvt-unicode-256color'''))
             self.w.dial_1.setMinimum(-50)
             self.w.dial_1.setMaximum(50)
             self.w.dockWidget_2.setWindowTitle('Dial 1 (+-50)')
-        elif data == self.w.actionSetD1_0_1000:
-            self.w.dial_1.setMinimum(0)
+        elif data == self.w.actionSetD1_100_100:
+            self.w.dial_1.setMinimum(-100)
+            self.w.dial_1.setMaximum(100)
+            self.w.dockWidget_2.setWindowTitle('Dial 1 (+-100)')
+        elif data == self.w.actionSetD1_1000_1000:
+            self.w.dial_1.setMinimum(-1000)
             self.w.dial_1.setMaximum(1000)
-            self.w.dockWidget_2.setWindowTitle('Dial 1 (0-1000)')
+            self.w.dockWidget_2.setWindowTitle('Dial 1 (+-1000)')
         elif data == self.w.actionSetD1_0_100:
             self.w.dial_1.setMinimum(0)
             self.w.dial_1.setMaximum(100)
             self.w.dockWidget_2.setWindowTitle('Dial 1 (0-100)')
+        elif data == self.w.actionSetD1_0_360:
+            self.w.dial_1.setMinimum(0)
+            self.w.dial_1.setMaximum(360)
+            self.w.dockWidget_2.setWindowTitle('Dial 1 (0-360)')
+        elif data == self.w.actionSetD1_0_1000:
+            self.w.dial_1.setMinimum(0)
+            self.w.dial_1.setMaximum(1000)
+            self.w.dockWidget_2.setWindowTitle('Dial 1 (0-1000)')
+
         elif data == self.w.actionSetD2_50_50:
             self.w.dial_2.setMinimum(-50)
             self.w.dial_2.setMaximum(50)
             self.w.dockWidget_3.setWindowTitle('Dial 2 (+-50)')
-        elif data == self.w.actionSetD2_0_1000:
-            self.w.dial_2.setMinimum(0)
+        elif data == self.w.actionSetD2_100_100:
+            self.w.dial_2.setMinimum(-100)
+            self.w.dial_2.setMaximum(100)
+            self.w.dockWidget_3.setWindowTitle('Dial 1 (+-100)')
+        elif data == self.w.actionSetD2_1000_1000:
+            self.w.dial_2.setMinimum(-1000)
             self.w.dial_2.setMaximum(1000)
-            self.w.dockWidget_3.setWindowTitle('Dial 2 (0-1000)')
+            self.w.dockWidget_3.setWindowTitle('Dial 1 (+-1000)')
         elif data == self.w.actionSetD2_0_100:
             self.w.dial_2.setMinimum(0)
             self.w.dial_2.setMaximum(100)
             self.w.dockWidget_3.setWindowTitle('Dial 2 (0-100)')
+        elif data == self.w.actionSetD2_0_360:
+            self.w.dial_2.setMinimum(0)
+            self.w.dial_2.setMaximum(360)
+            self.w.dockWidget_3.setWindowTitle('Dial 2 (0-360)')
+        elif data == self.w.actionSetD2_0_1000:
+            self.w.dial_2.setMinimum(0)
+            self.w.dial_2.setMaximum(1000)
+            self.w.dockWidget_3.setWindowTitle('Dial 2 (0-1000)')
 
-    def announceTime(self):
+    def announceLEDText(self):
         # speak led label contents on state change, if checked
         for i in range(1,5):
             if self.w['actionLED_{}'.format(i)].isChecked():
@@ -100,6 +131,9 @@ Try sudo apt install rxvt-unicode-256color'''))
                     name = self.w['lineEdit_led_{}'.format(i)].text()
                     STATUS.emit('play-sound', 'SPEAK {} {}'.format(name,data))
                     self['lastLED_{}'.format(i)] = data
+
+    def announceText(self, widget):
+        STATUS.emit('play-sound', 'SPEAK {}'.format(widget.text()))
 
     #####################
     # general functions #

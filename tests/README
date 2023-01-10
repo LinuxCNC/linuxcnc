@@ -29,6 +29,12 @@ can be run by executing (from the top emc2 directory)
 	scripts/runtests tests
 A subset of the tests can also be run:
 	scripts/runtests tests/xyz tests/a*
+
+To only run the tests that do not require root or sudo access, use the
+-u option:
+
+	scripts/runtests -u tests
+
 The directories named on the commandline are searched recursively for
 'test.hal' or 'test.sh' files, and a directory with such a file is
 assumed to contain a regression test or a functional test.
@@ -93,3 +99,11 @@ and see if it indicates success.
 
 The test passes if the command "checkresult actual" returns a shell
 success value (exit code 0).  Otherwise, the test fails.
+
+Tests requiring root or sudo access are flagged by creating a file
+named control in the test directory, with the 'sudo' flag in the
+Restrictions field:
+
+  Restrictions: sudo
+
+Other restrictions might be added in the future

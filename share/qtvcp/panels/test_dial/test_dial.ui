@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>221</width>
+    <height>100</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>221</width>
+    <height>100</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="1">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QLCDNumber" name="lcdNumber_1">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="lineWidth">
+           <number>1</number>
+          </property>
+          <property name="midLineWidth">
+           <number>1</number>
+          </property>
+          <property name="smallDecimalPoint">
+           <bool>false</bool>
+          </property>
+          <property name="digitCount">
+           <number>4</number>
+          </property>
+          <property name="segmentStyle">
+           <enum>QLCDNumber::Flat</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="HALLabel" name="hallabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>test</string>
+          </property>
+          <property name="textFormat">
+           <enum>Qt::PlainText</enum>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="scaleText" stdset="0">
+           <bool>true</bool>
+          </property>
+          <property name="textSpaceSample" stdset="0">
+           <string> -10000.0000</string>
+          </property>
+          <property name="bit_pin_type" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="s32_pin_type" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="float_pin_type" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="textTemplate" stdset="0">
+           <string>%0.4f</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="0">
+       <widget class="Dial" name="dial_1">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>44</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>200</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="minimum">
+         <number>-50</number>
+        </property>
+        <property name="maximum">
+         <number>50</number>
+        </property>
+        <property name="invertedAppearance">
+         <bool>false</bool>
+        </property>
+        <property name="invertedControls">
+         <bool>false</bool>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+        <property name="pin_name" stdset="0">
+         <string>unscaled</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>221</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuScale">
+    <property name="title">
+     <string>Range</string>
+    </property>
+    <addaction name="actionSet_50_50"/>
+    <addaction name="actionSet_100_100"/>
+    <addaction name="actionSet_1000_1000"/>
+    <addaction name="actionSet_0_100"/>
+    <addaction name="actionSet_0_360"/>
+    <addaction name="actionSet_0_1000"/>
+   </widget>
+   <addaction name="menuScale"/>
+  </widget>
+  <action name="actionSet_50_50">
+   <property name="text">
+    <string>+- 50</string>
+   </property>
+  </action>
+  <action name="actionSet_100_100">
+   <property name="text">
+    <string>+-100</string>
+   </property>
+  </action>
+  <action name="actionSet_0_100">
+   <property name="text">
+    <string>0-100</string>
+   </property>
+  </action>
+  <action name="actionSet_0_1000">
+   <property name="text">
+    <string>0-1000</string>
+   </property>
+  </action>
+  <action name="actionSet_1000_1000">
+   <property name="text">
+    <string>+- 1000</string>
+   </property>
+  </action>
+  <action name="actionSet_0_360">
+   <property name="text">
+    <string>0-360</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Dial</class>
+   <extends>QDial</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>HALLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.hal_label</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>menubar</sender>
+   <signal>triggered(QAction*)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>actionTriggered()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>38</x>
+     <y>12</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>148</x>
+     <y>153</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dial_1</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>lcdNumber_1</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>75</x>
+     <y>74</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>99</x>
+     <y>39</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dial_1</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>valueChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>75</x>
+     <y>114</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>153</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>actionTriggered()</slot>
+  <slot>valueChanged()</slot>
+ </slots>
+</ui>

@@ -40,8 +40,21 @@ oprofile*
 position.txt
 # *.9
 *.glade.h
-# Temporary
-!docs/LinuxCNC_Getting_Started_cn.pdf
-!docs/LinuxCNC_Documentation_ja.pdf
-!docs/LinuxCNC_Manual_Pages_ja.pdf
-
+# Ignore test results
+*.result
+# Ignore temp files
+*.swp
+# Ignore po4a temp files
+*.failed.po
+*-new_??.po
+# Ignore stamp files
+*.*-stamp
+# Ignore VSCode settings
+.vscode/settings.json
+# Ignore po4a-generated files for other languages
+docs/help/es/*
+docs/help/fr/*
+docs/help/hu/*
+docs/help/nb/*
+docs/help/vi/*
+docs/help/zh_CN/*

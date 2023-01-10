@@ -29,7 +29,7 @@ unfortunately, many systems that have working EPP parports are not detected as
 such by Linux.
 .SH DESCRIPTION
 \fBhal_parport_get\fR allocates a parallel port for exclusive use of the
-named hal component.  The port must be released with \fBhal_parport_release\fR
+named HAL component.  The port must be released with \fBhal_parport_release\fR
 before the component exits with \fBhal_exit\fR.
 .SH HIGH ADDRESS PROBING
 If the port is a parallel port known to Linux, and Linux detected a high

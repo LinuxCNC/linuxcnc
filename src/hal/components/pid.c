@@ -1,17 +1,18 @@
 /********************************************************************
 * Description:  pid.c
-*               This file, 'pid.c', is a HAL component that provides 
-*               Proportional/Integeral/Derivative control loops.
+*               This file, 'pid.c', is a HAL component that provides
+*               Proportional/Integral/Derivative control loops.
 *
-* Author: John Kasunich
+* Author: John Kasunich, Peter G. Vavaroutsos, Petter Reinholdtsen
 * License: GPL Version 2
 *    
-* Copyright (c) 2003 All rights reserved.
+* Copyright (c) 2003, 2007, 2022 All rights reserved.
+* Copyright (C) 2007 Peter G. Vavaroutsos <pete AT vavaroutsos DOT com>
 *
 * Last change: 
 ********************************************************************/
 /** This file, 'pid.c', is a HAL component that provides Proportional/
-    Integeral/Derivative control loops.  It is a realtime component.
+    Integral/Derivative control loops.  It is a realtime component.
 
     It supports a maximum of 16 PID loops.
 
@@ -31,7 +32,7 @@
     The three most important pins are 'command', 'feedback', and
     'output'.  For a position loop, 'command' and 'feedback' are
     in position units.  For a linear axis, this could be inches,
-    mm, metres, or whatever is relavent.  Likewise, for a angular
+    mm, metres, or whatever is relevant.  Likewise, for a angular
     axis, it could be degrees, radians, etc.  The units of the
     'output' pin represent the change needed to make the feedback
     match the command.  As such, for a position loop 'Output' is
@@ -139,7 +140,7 @@
 
 /* module information */
 MODULE_AUTHOR("John Kasunich");
-MODULE_DESCRIPTION("PID Loop Component for EMC HAL");
+MODULE_DESCRIPTION("PID Loop Component for EMC HAL with auto tune support");
 MODULE_LICENSE("GPL");
 static int num_chan;		/* number of channels */
 static int default_num_chan = 3;
@@ -152,6 +153,29 @@ RTAPI_MP_ARRAY_STRING(names, MAX_CHAN,"pid names");
 
 static int debug = 0;		/* flag to export optional params */
 RTAPI_MP_INT(debug, "enables optional params");
+
+#define NAME "PID"
+
+#define AUTO_TUNER 1
+#ifdef AUTO_TUNER
+#include "rtapi_math.h"
+#define PI                              3.141592653589
+
+typedef enum {
+    STATE_PID,
+    STATE_TUNE_IDLE,
+    STATE_TUNE_START,
+    STATE_TUNE_POS,
+    STATE_TUNE_NEG,
+    STATE_TUNE_ABORT,
+} State;
+
+// Values for tune-type parameter.
+typedef enum {
+    TYPE_PID,
+    TYPE_PI_FF1,
+} Mode;
+#endif /* AUTO_TUNER */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -208,6 +232,27 @@ typedef struct {
                                        otherwise screw up FF */
     hal_bit_t *error_previous_target; /* pin: measure error as new position vs previous command, to match motion's ideas */
     char prev_ie;
+
+#ifdef AUTO_TUNER
+    /* Autotune related */
+    hal_float_t *tuneEffort;     /* pin: Control effort for limit cycle. */
+    hal_u32_t *tuneCycles;
+    hal_u32_t *tuneType;
+    hal_bit_t *pTuneMode;       /* pin: 0=PID, 1=tune.*/
+    hal_bit_t *pTuneStart;      /* pin: Set to 1 to start an auto-tune
+				   cycle.  Clears automatically when
+				   the cycle has finished. */
+    hal_float_t *ultimateGain;   /* Calc by auto-tune from limit cycle. */
+    hal_float_t *ultimatePeriod; /* Calc by auto-tune from limit cycle. */
+
+    /* Private data */
+    State state;
+    hal_u32_t  cycleCount;
+    hal_u32_t  cyclePeriod;
+    hal_float_t cycleAmplitude;
+    hal_float_t totalTime;
+    hal_float_t avgAmplitude;
+#endif /* AUTO_TUNER */
 } hal_pid_t;
 
 /* pointer to array of pid_t structs in shared memory, 1 per loop */
@@ -253,19 +298,19 @@ int rtapi_app_main(void)
     /* test for number of channels */
     if ((howmany <= 0) || (howmany > MAX_CHAN)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PID: ERROR: invalid number of channels: %d\n", howmany);
+	    NAME ": ERROR: invalid number of channels: %d\n", howmany);
 	return -1;
     }
     /* have good config info, connect to the HAL */
     comp_id = hal_init("pid");
     if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "PID: ERROR: hal_init() failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, NAME ": ERROR: hal_init() failed\n");
 	return -1;
     }
     /* allocate shared memory for pid loop data */
     pid_array = hal_malloc(howmany * sizeof(hal_pid_t));
     if (pid_array == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "PID: ERROR: hal_malloc() failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, NAME ": ERROR: hal_malloc() failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
@@ -283,12 +328,12 @@ int rtapi_app_main(void)
 
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"PID: ERROR: loop %d var export failed\n", n);
+		NAME ": ERROR: loop %d var export failed\n", n);
 	    hal_exit(comp_id);
 	    return -1;
 	}
     }
-    rtapi_print_msg(RTAPI_MSG_INFO, "PID: installed %d PID loops\n",
+    rtapi_print_msg(RTAPI_MSG_INFO, NAME ": installed %d PID loops\n",
 	howmany);
     hal_ready(comp_id);
     return 0;
@@ -298,6 +343,144 @@ void rtapi_app_exit(void)
 {
     hal_exit(comp_id);
 }
+
+#ifdef AUTO_TUNER
+/***********************************************************************
+*                   Auto tuning CALCULATIONS                           *
+************************************************************************/
+
+static void
+Pid_CycleEnd(hal_pid_t *pid)
+{
+    pid->cycleCount++;
+    pid->avgAmplitude += pid->cycleAmplitude / *(pid->tuneCycles);
+    pid->cycleAmplitude = 0;
+    pid->totalTime += pid->cyclePeriod * 0.000000001;
+    pid->cyclePeriod = 0;
+}
+
+/*
+ * Perform an auto-tune operation. Sets up a limit cycle using the specified
+ * tune effort. Averages the amplitude and period over the specified number of
+ * cycles. This characterizes the process and determines the ultimate gain
+ * and period, which are then used to calculate PID.
+ *
+ * CO(t) = P * [ e(t) + 1/Ti * (f e(t)dt) - Td * (d/dt PV(t)) ]
+ *
+ * Pu = 4/PI * tuneEffort / responseAmplitude
+ * Ti = 0.5 * responsePeriod
+ * Td = 0.125 * responsePeriod
+ *
+ * P = 0.6 * Pu
+ * I = P * 1/Ti
+ * D = P * Td
+ */
+static void
+Pid_AutoTune(hal_pid_t *pid, long period)
+{
+    hal_float_t                 error;
+
+    // Calculate the error.
+    error = *pid->command - *pid->feedback;
+    *pid->error = error;
+
+    // Check if enabled and if still in tune mode.
+    if(!*pid->enable || !*pid->pTuneMode){
+        pid->state = STATE_TUNE_ABORT;
+    }
+
+    switch(pid->state){
+    case STATE_TUNE_IDLE:
+        // Wait for tune start command.
+        if(*pid->pTuneStart)
+            pid->state = STATE_TUNE_START;
+        break;
+
+    case STATE_TUNE_START:
+        // Initialize tuning variables and start limit cycle.
+        pid->state = STATE_TUNE_POS;
+        pid->cycleCount = 0;
+        pid->cyclePeriod = 0;
+        pid->cycleAmplitude = 0;
+        pid->totalTime = 0;
+        pid->avgAmplitude = 0;
+        *(pid->ultimateGain) = 0;
+        *(pid->ultimatePeriod) = 0;
+        *pid->output = *(pid->bias) + fabs(*(pid->tuneEffort));
+        break;
+
+    case STATE_TUNE_POS:
+    case STATE_TUNE_NEG:
+        pid->cyclePeriod += period;
+
+        if(error < 0.0){
+            // Check amplitude.
+            if(-error > pid->cycleAmplitude)
+                pid->cycleAmplitude = -error;
+
+            // Check for end of cycle.
+            if(pid->state == STATE_TUNE_POS){
+                pid->state = STATE_TUNE_NEG;
+                Pid_CycleEnd(pid);
+            }
+
+            // Update output so user can ramp effort until movement occurs.
+            *pid->output = *(pid->bias) - fabs(*(pid->tuneEffort));
+        }else{
+            // Check amplitude.
+            if(error > pid->cycleAmplitude)
+                pid->cycleAmplitude = error;
+
+            // Check for end of cycle.
+            if(pid->state == STATE_TUNE_NEG){
+                pid->state = STATE_TUNE_POS;
+                Pid_CycleEnd(pid);
+            }
+
+            // Update output so user can ramp effort until movement occurs.
+            *pid->output = *(pid->bias) + fabs(*(pid->tuneEffort));
+        }
+
+        // Check if the last cycle just ended. This is really the number
+        // of half cycles.
+        if(pid->cycleCount < *(pid->tuneCycles))
+            break;
+
+        // Calculate PID using Relay (Åström-Hägglund) method
+        *(pid->ultimateGain) = (4.0 * fabs(*(pid->tuneEffort)))/(PI * pid->avgAmplitude);
+        *(pid->ultimatePeriod) = 2.0 * pid->totalTime / *(pid->tuneCycles);
+        *(pid->ff0gain) = 0;
+        *(pid->ff2gain) = 0;
+
+        if(*(pid->tuneType) == TYPE_PID){
+            // insert ultimate gain and period in Ziegler-Nichols PID method
+            *(pid->pgain) = 0.6 * *(pid->ultimateGain);
+            *(pid->igain) = 1.2 * *(pid->ultimateGain) / (*(pid->ultimatePeriod));
+            *(pid->dgain) = (3.0/40.0) * *(pid->ultimateGain) * *(pid->ultimatePeriod);
+            *(pid->ff1gain) = 0;
+        }else{
+            // insert ultimate gain and period in Ziegler-Nichols PI method
+            *(pid->pgain) = 0.45 * *(pid->ultimateGain);
+            *(pid->igain) = 0.54 * *(pid->ultimateGain) / (*(pid->ultimatePeriod));
+            *(pid->dgain) = 0;
+
+            // Scaling must be set so PID output is in user units per second.
+            *(pid->ff1gain) = 1;
+        }
+
+        // Fall through.
+
+    case STATE_TUNE_ABORT:
+    default:
+        // Force output to bias.
+        *pid->output = *(pid->bias);
+
+        // Abort any tuning cycle in progress.
+        *pid->pTuneStart = 0;
+        pid->state = (*pid->pTuneMode)? STATE_TUNE_IDLE: STATE_PID;
+    }
+}
+#endif /* AUTO_TUNER */
 
 /***********************************************************************
 *                   REALTIME PID LOOP CALCULATIONS                     *
@@ -312,6 +495,13 @@ static void calc_pid(void *arg, long period)
 
     /* point to the data for this PID loop */
     pid = arg;
+
+#ifdef AUTO_TUNER
+    if(pid->state != STATE_PID){
+        Pid_AutoTune(pid, period);
+        return;
+    }
+#endif
     /* precalculate some timing constants */
     periodfp = period * 0.000000001;
     periodrecip = 1.0 / periodfp;
@@ -335,6 +525,28 @@ static void calc_pid(void *arg, long period)
     }
     /* store error to error pin */
     *(pid->error) = tmp1;
+
+#ifdef AUTO_TUNER
+    /* Check for auto tuning mode request. */
+    if(*pid->pTuneMode){
+        *(pid->error_i) = 0;
+        pid->prev_error = 0;
+        *(pid->error_d) = 0;
+        pid->prev_cmd = 0;
+        pid->limit_state = 0;
+        *(pid->cmd_d) = 0;
+        *(pid->cmd_dd) = 0;
+
+        // Force output to zero.
+        *(pid->output) = 0;
+
+        // Switch to tuning mode.
+        pid->state = STATE_TUNE_IDLE;
+
+        return;
+    }
+#endif /* AUTO_TUNER */
+
     /* apply error limits */
     if (*(pid->maxerror) != 0.0) {
 	if (tmp1 > *(pid->maxerror)) {
@@ -632,6 +844,34 @@ static int export_pid(hal_pid_t * addr, char * prefix)
     if (retval != 0) {
 	return retval;
     }
+#ifdef AUTO_TUNER
+    /* Auto tune related */
+    retval = hal_pin_float_newf(HAL_IO, &(addr->tuneEffort), comp_id, "%s.tune-effort", prefix);
+    if(retval != 0){
+        return retval;
+    }
+
+    retval = hal_pin_u32_newf(HAL_IO, &(addr->tuneCycles), comp_id, "%s.tune-cycles", prefix);
+    if(retval != 0){
+        return retval;
+    }
+
+    retval = hal_pin_u32_newf(HAL_IO, &(addr->tuneType), comp_id, "%s.tune-type", prefix);
+    if(retval != 0){
+        return retval;
+    }
+
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->pTuneMode), comp_id, "%s.tune-mode", prefix);
+    if(retval != 0){
+        return retval;
+    }
+
+    retval = hal_pin_bit_newf(HAL_IO, &(addr->pTuneStart), comp_id, "%s.tune-start", prefix);
+    if(retval != 0){
+        return retval;
+    }
+#endif /* AUTO_TUNER */
+
     /* export optional parameters */
     if (debug > 0) {
 	retval = hal_pin_float_newf(HAL_OUT, &(addr->error_i), comp_id,
@@ -659,12 +899,27 @@ static int export_pid(hal_pid_t * addr, char * prefix)
     if (retval != 0) {
         return retval;
     }
+
+#ifdef AUTO_TUNER
+	retval = hal_pin_float_newf(HAL_OUT, &(addr->ultimateGain), comp_id, "%s.ultimate-gain", prefix);
+	if (retval != 0) {
+	    return retval;
+	}
+	retval = hal_pin_float_newf(HAL_OUT, &(addr->ultimatePeriod), comp_id, "%s.ultimate-period", prefix);
+	if (retval != 0) {
+	    return retval;
+        }
+#endif /* AUTO_TUNER */
     } else {
 	addr->error_i = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
 	addr->error_d = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
 	addr->cmd_d = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
 	addr->cmd_dd = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
 	addr->cmd_ddd = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
+#ifdef AUTO_TUNER
+	addr->ultimateGain = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
+	addr->ultimatePeriod = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
+#endif /* AUTO_TUNER */
     }
 
     *(addr->error_i) = 0.0;
@@ -698,13 +953,22 @@ static int export_pid(hal_pid_t * addr, char * prefix)
     *(addr->ff2gain) = 0.0;
     *(addr->ff3gain) = 0.0;
     *(addr->maxoutput) = 0.0;
+#ifdef AUTO_TUNER
+    /* Initialize auto tune related values */
+    addr->state = STATE_PID;
+    *(addr->tuneCycles) = 50;
+    *(addr->tuneEffort) = 0.5;
+    *(addr->tuneType) = TYPE_PID;
+    *(addr->pTuneMode) = 0;
+    *(addr->pTuneStart) = 0;
+#endif /* AUTO_TUNER */
     /* export function for this loop */
     rtapi_snprintf(buf, sizeof(buf), "%s.do-pid-calcs", prefix);
     retval =
 	hal_export_funct(buf, calc_pid, addr, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PID: ERROR: do_pid_calcs funct export failed\n");
+	    NAME ": ERROR: do_pid_calcs funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }

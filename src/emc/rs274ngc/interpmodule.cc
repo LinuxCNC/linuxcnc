@@ -1,3 +1,9 @@
+/* misnomer: _setup.current_pocket,selected_pocket
+** These variables are actually indexes to sequential tool
+** data structs (not real pockets).
+** Future renaming will affect current usage in python remaps.
+*/
+
 /*    This is a component of LinuxCNC
  *    Copyright 2011, 2012, 2013 Michael Haberler <git@mah.priv.at>,
  *    Sebastian Kuzminsky <seb@highlab.com>
@@ -282,6 +288,12 @@ static inline bool get_mist (Interp &interp)  {
 static inline void set_mist(Interp &interp, bool value)  {
     interp._setup.mist = value;
 }
+static inline bool get_flood (Interp &interp)  {
+    return interp._setup.flood;
+}
+static inline void set_flood(Interp &interp, bool value)  {
+    interp._setup.flood = value;
+}
 static inline bool get_percent_flag (Interp &interp)  {
     return interp._setup.percent_flag;
 }
@@ -294,8 +306,8 @@ static inline bool get_probe_flag (Interp &interp)  {
 static inline void set_probe_flag(Interp &interp, bool value)  {
     interp._setup.probe_flag = value;
 }
-static inline bool get_speed_override (Interp &interp)  {
-    return interp._setup.speed_override;
+static inline bool get_speed_override (Interp &interp, int spindle)  {
+    return interp._setup.speed_override[spindle];
 }
 static inline void set_speed_override(Interp &interp, int spindle, bool value)  {
     interp._setup.speed_override[spindle] = value;
@@ -702,12 +714,6 @@ static inline int get_plane (Interp &interp)  {
 static inline void set_plane(Interp &interp, int value)  {
     interp._setup.plane = static_cast<CANON_PLANE>(value);
 }
-static inline int get_pockets_max (Interp &interp)  {
-    return interp._setup.pockets_max;
-}
-static inline void set_pockets_max(Interp &interp, int value)  {
-    interp._setup.pockets_max = value;
-}
 static inline int get_random_toolchanger (Interp &interp)  {
     return interp._setup.random_toolchanger;
 }
@@ -756,6 +762,12 @@ static inline int get_spindle_mode (Interp &interp, int spindle)  {
 static inline void set_spindle_mode(Interp &interp, int spindle, SPINDLE_MODE value)  {
     interp._setup.spindle_mode[spindle] = value;
 }
+static inline int get_num_spindles (Interp &interp)  {
+    return interp._setup.num_spindles;
+}
+static inline void set_num_spindles(Interp &interp, int value)  {
+    interp._setup.num_spindles = value;
+}
 static inline int get_spindle_turning (Interp &interp, int spindle)  {
     return interp._setup.spindle_turning[spindle];
 }
@@ -780,10 +792,27 @@ static inline int get_current_tool(Interp &interp)  {
 static inline void set_current_tool(Interp &interp, int value)  {
     interp._setup.tool_table[0].toolno = value;
 }
+static inline int get_tool_change_at_g30 (Interp &interp)  {
+    return interp._setup.tool_change_at_g30;
+}
+static inline void set_tool_change_at_g30(Interp &interp, int value)  {
+    interp._setup.tool_change_at_g30 = value;
+}
+static inline int get_tool_change_quill_up (Interp &interp)  {
+    return interp._setup.tool_change_quill_up;
+}
+static inline void set_tool_change_quill_up(Interp &interp, int value)  {
+    interp._setup.tool_change_quill_up = value;
+}
+static inline int get_tool_change_with_spindle_on (Interp &interp)  {
+    return interp._setup.tool_change_with_spindle_on;
+}
+static inline void set_tool_change_with_spindle_on(Interp &interp, int value)  {
+    interp._setup.tool_change_with_spindle_on = value;
+}
 
 BOOST_PYTHON_MODULE(interpreter) {
     using namespace boost::python;
-    using namespace boost;
 
     scope().attr("__doc__") =
         "Interpreter introspection\n"
@@ -837,7 +866,7 @@ BOOST_PYTHON_MODULE(interpreter) {
     export_ParamClass();
     export_Internals();
     export_Block();
-    class_<InterpreterException>InterpreterExceptionClass("InterpreterException",							bp::init<std::string, int, std::string>());
+    bp::class_<InterpreterException>InterpreterExceptionClass("InterpreterException",	bp::init<std::string, int, std::string>());
     InterpreterExceptionClass
 	.add_property("error_message", &InterpreterException::get_error_message)
 	.add_property("line_number", &InterpreterException::get_line_number)
@@ -849,7 +878,7 @@ BOOST_PYTHON_MODULE(interpreter) {
     bp::register_exception_translator<InterpreterException>
 	(&translateInterpreterException);
 
-    class_< Interp, noncopyable >("Interp",no_init) 
+    bp::class_< Interp, boost::noncopyable >("Interp",bp::no_init)
 
 	.def("find_tool_pocket", &wrap_find_tool_pocket)
 	.def("load_tool_table", &Interp::load_tool_table)
@@ -882,6 +911,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("input_flag", &get_input_flag, &set_input_flag)
 	.add_property("mdi_interrupt", &get_mdi_interrupt, &set_mdi_interrupt)
 	.add_property("mist", &get_mist, &set_mist)
+	.add_property("flood", &get_flood, &set_flood)
 	.add_property("percent_flag", &get_percent_flag, &set_percent_flag)
 	.add_property("probe_flag", &get_probe_flag, &set_probe_flag)
 	.add_property("speed_override", &get_speed_override, &set_speed_override)
@@ -953,7 +983,6 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("motion_mode", &get_motion_mode, &set_motion_mode)
 	.add_property("origin_index", &get_origin_index, &set_origin_index)
 	.add_property("plane", &get_plane, &set_plane)
-	.add_property("pockets_max", &get_pockets_max, &set_pockets_max)
 	.add_property("random_toolchanger", &get_random_toolchanger, &set_random_toolchanger)
 	.add_property("remap_level", &get_remap_level, &set_remap_level)
 	.add_property("retract_mode", &get_retract_mode, &set_retract_mode)
@@ -962,11 +991,16 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("sequence_number", &get_sequence_number, &set_sequence_number)
 	.add_property("speed_feed_mode", &get_speed_feed_mode, &set_speed_feed_mode)
 	.add_property("spindle_mode", &get_spindle_mode, &set_spindle_mode)
+	.add_property("num_spindles", &get_num_spindles, &set_num_spindles)
 	.add_property("spindle_turning", &get_spindle_turning, &set_spindle_turning)
 	.add_property("stack_index", &get_stack_index, &set_stack_index)
 	.add_property("value_returned", &get_value_returned, &set_value_returned)
 
 	.add_property("current_tool", &get_current_tool, &set_current_tool)
+	.add_property("tool_change_at_g30", &get_tool_change_at_g30, &set_tool_change_at_g30)
+	.add_property("tool_change_quill_up", &get_tool_change_quill_up, &set_tool_change_quill_up)
+	.add_property("tool_change_with_spindle_on", &get_tool_change_with_spindle_on,
+             &set_tool_change_with_spindle_on)
 
 	.add_property( "params",
 		       bp::make_function( &param_wrapper,

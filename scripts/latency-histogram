@@ -23,6 +23,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #-----------------------------------------------------------------------
 
+# Mu sign is Unicode 00b5
+set ::MICROSEC \u00b5s
 
 proc set_defaults {} {
   set ::LH(start) [clock seconds]
@@ -79,13 +81,24 @@ proc set_defaults {} {
   set ::LH(after,repeat) ''
 } ;# set_defaults
 
+
+proc which_exe {name} {
+  # replaces /usr/bin/which deprecated in debian/unstable
+  foreach dir [split $::env(PATH) :] {
+    set f [file join $dir $name]
+    if [file executable $f] { return $f }
+  }
+  return -code error "$name: executable not found"
+} ;# which_exe
+
 proc program_check {plist} {
   foreach prog $plist {
     if [catch {
-      set ::LH(prog,$prog) [exec which $prog]
-     } msg] {
+      set ::LH(prog,$prog) [which_exe $prog]
+     } chkmsg] {
        set msg  "Cannot find required program named:   <$prog>"
        set msg  "$msg\n\nIf Run-in-Place, source rip-environment first"
+       set msg  "$msg\n\n$chkmsg"
        popup  $msg
        exit 1
      }
@@ -171,11 +184,11 @@ proc config {} {
     if {$ms > 1} {
       set ::LH($thd,dly,ms) $ms
     } else {
-      set ::LH($thd,dly,ms) 1 ;# minimum interval (mS) for after cmd
+      set ::LH($thd,dly,ms) 1 ;# minimum interval (ms) for after cmd
     }
 
     if {[expr $::LH($thd,binsize,ns) % 10] != 0} {
-      puts "$::argv0: \[sb\]binsize must be multiple of 10 nS"
+      puts "$::argv0: \[sb\]binsize must be multiple of 10 ns"
       exit 1
     }
 
@@ -273,11 +286,6 @@ proc load_packages {} {
      {8 8}
      {0xe3,0xf1,0xf8,0x7c, 0x3e,0x1f,0x8f,0xc7}
     }
-    if [catch {package require Img} msg] {
-      puts $msg
-      puts "To install: sudo apt-get install libtk-img"
-      exit 1
-    }
   }
 
   if {   [catch {exec pgrep linuxcnc} msg] \
@@ -290,12 +298,6 @@ proc load_packages {} {
   }
 
   if [info exists ::LH(rtai)] {
-    if [catch {exec lsmod | grep rtai} msg] {
-      # puts ok_to_start_rtai
-    } else {
-      popup "RTAI is already running, (try: \$ halrun -U)"
-      exit 1
-    }
     exec $::LH(realtime) start &
     progress "Delay for realtime startup"
     after 1000 ;# wait to load Hal package
@@ -350,8 +352,7 @@ proc make_gui { {w .} } {
     blt::barchart $::LH(w,$thd) \
         -plotbackground honeydew1 \
         -cursor arrow \
-        -title "Latency (uS) $thd thread ($per uSec period\
-, binsize=$::LH($thd,binsize,us) uS)" \
+        -title "Latency ($::MICROSEC) $thd thread ($per $::MICROSEC period, binsize=$::LH($thd,binsize,us) $::MICROSEC)" \
         -width 480 -height 384
     pack $::LH(w,$thd) -side left
 
@@ -361,13 +362,13 @@ proc make_gui { {w .} } {
     set f [frame $f1.extra12]
     pack $f -side top -anchor w -fill x -expand 1
 
-    pack [label $f.min -text "min (us)"] \
+    pack [label $f.min -text "min ($::MICROSEC)"] \
          -side left -anchor e
     set e [entry $f.emin -textvariable ::LH($thd,latency_min,us) \
          -state readonly -justify right -width 9]
     pack $e -side left -anchor e
 
-    pack [label $f.sdev -text "      sdev (us):"] \
+    pack [label $f.sdev -text "   sdev ($::MICROSEC)"] \
          -side left
     set e [entry $f.esdev  -textvariable ::LH($thd,latency_sdev,us) \
          -state readonly -justify right -width 9]
@@ -376,7 +377,7 @@ proc make_gui { {w .} } {
     set e [entry $f.emax  -textvariable ::LH($thd,latency_max,us) \
          -state readonly -justify right -width 9]
     pack $e -side right -anchor e
-    pack [label $f.max -text "max(us)"] \
+    pack [label $f.max -text "   max ($::MICROSEC)"] \
          -side right -anchor e
 
     if $::LH(opt,show) {
@@ -682,7 +683,7 @@ proc update_bin_data {thd} {
   set variance [hal getp $::LH($thd,name).variance]
   if [catch {
     set ::LH($thd,latency_sdev,us) [format %.1f \
-               [expr 1e-3 * sqrt($variance)]]
+               [expr 1e-3 * sqrt(abs($variance))]]
     } msg] {
     puts "msg=$msg (variance=$variance)"
   }
@@ -693,7 +694,7 @@ proc update_bin_data {thd} {
   set ::LH($thd,nextra) [hal getp $::LH($thd,name).nextra]
   set ::LH($thd,n,more) [expr $nmore + $::LH($thd,nextra)]
   if !$::LH(use_x) {
-    puts [format "%5d secs %6s min:%8.3f uS max:%8.3f uS sdev:%8.3f uS" \
+    puts [format "%5d s %6s min:%8.3f us max:%8.3f us sdev:%8.3f us" \
          $::LH(elapsed) \
          $thd \
          $::LH($thd,latency_min,us) \
@@ -762,6 +763,7 @@ proc update_bin_data {thd} {
 } ;# update_bin_data
 
 proc popup {msg} { \
+  package require Tk
   set answer [tk_messageBox \
      -parent . \
      -icon error \
@@ -786,11 +788,11 @@ proc usage {} {
   puts "   $prog \[Options\]"
   puts ""
   puts "Options:"
-  puts "  --base      nS   (base  thread interval, default:   $::LH(base,period,ns), min:  $::LH(base,period,ns,min))"
-  puts "  --servo     nS   (servo thread interval, default: $::LH(servo,period,ns), min: $::LH(servo,period,ns,min))"
+  puts "  --base      ns   (base  thread interval, default:   $::LH(base,period,ns), min:  $::LH(base,period,ns,min))"
+  puts "  --servo     ns   (servo thread interval, default: $::LH(servo,period,ns), min: $::LH(servo,period,ns,min))"
 
-  puts "  --bbinsize  nS   (base  bin size,  default: $::LH(base,binsize,ns))"
-  puts "  --sbinsize  nS   (servo bin size, default: $::LH(servo,binsize,ns))"
+  puts "  --bbinsize  ns   (base  bin size,  default: $::LH(base,binsize,ns))"
+  puts "  --sbinsize  ns   (servo bin size, default: $::LH(servo,binsize,ns))"
 
   puts "  --bbins     n    (base  bins, default: $::LH(base,maxbins))"
   puts "  --sbins     n    (servo bins, default: $::LH(servo,maxbins))"

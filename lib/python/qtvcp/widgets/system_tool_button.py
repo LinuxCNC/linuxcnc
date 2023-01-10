@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # QTVcp Widget
 # Copyright (c) 2018 Chris Morley
@@ -14,11 +14,8 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-import os
-import hal
 
-from PyQt5.QtWidgets import QWidget, QToolButton, QMenu, QAction
-from PyQt5.QtCore import Qt, QEvent, pyqtProperty, QBasicTimer, pyqtSignal
+from PyQt5.QtWidgets import QToolButton, QMenu, QAction
 from PyQt5.QtGui import QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -36,7 +33,7 @@ STATUS = Status()
 INFO = Info()
 ACTION = Action()
 LOG = logger.getLogger(__name__)
-# Set the log level for this module
+# Force the log level for this module
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class SystemToolButton(QToolButton, _HalWidgetBase):
@@ -70,7 +67,7 @@ class SystemToolButton(QToolButton, _HalWidgetBase):
         STATUS.connect('interp-run', lambda w: self.setEnabled(False))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
         STATUS.connect('not-all-homed', lambda w, data: self.setEnabled(False))
-        STATUS.connect('interp-paused', lambda w: self.setEnabled(True))
+        STATUS.connect('interp-paused', lambda w: self.setEnabled(False))
         STATUS.connect('user-system-changed', self._set_user_system_text)
 
     def G54(self):
@@ -101,7 +98,7 @@ class SystemToolButton(QToolButton, _HalWidgetBase):
         ACTION.SET_USER_SYSTEM('G59.3')
 
     def _set_user_system_text(self, w, data):
-        convert = { 1:"G54", 2:"G55", 3:"G56", 4:"G57", 5:"G58", 6:"G59", 7:"G59.1", 8:"G59.2", 9:"G59.3"}
+        convert = { 0:'None',1:"G54", 2:"G55", 3:"G56", 4:"G57", 5:"G58", 6:"G59", 7:"G59.1", 8:"G59.2", 9:"G59.3"}
         if self._auto_label_flag:
             self.setText(convert[int(data)])
 

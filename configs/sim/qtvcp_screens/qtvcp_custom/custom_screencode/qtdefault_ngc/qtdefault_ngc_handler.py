@@ -62,7 +62,7 @@ class HandlerClass:
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
         if self.w.PREFS_:
-            print 'Using preference file:',self.w.PREFS_.fn
+            print('Using preference file:',self.w.PREFS_.fn)
         STATUS.emit('play-sound','SPEAK This is a test screen for Qt V C P')
         # set custom theme
         self.STYLE.dark_style()
@@ -89,15 +89,15 @@ class HandlerClass:
                     event.accept()
                 return True
             elif isinstance(receiver,QtWidgets.QDialog):
-                print 'dialog'
+                print('dialog')
                 return True
         try:
             KEYBIND.call(self,event,is_pressed,shift,cntrl)
             return True
         except Exception as e:
             LOG.info('Exception loading Macros:', exc_info=e)
-            print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
-            print 'from %s'% receiver
+            print('Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key))
+            print('from %s'% receiver)
             return False
 
     ########################
@@ -117,11 +117,11 @@ class HandlerClass:
     #####################
     def on_keycall_ABORT(self,event,state,shift,cntrl):
         if state:
-            print 'abort'
+            print('abort')
             if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
                 self.w.close()
             else:
-                print 'abort'
+                print('abort')
                 self.cmnd.abort()
             self.w.button_home.click()
 
@@ -459,7 +459,7 @@ background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1
         bgpath = self.IMAGE_PATH+'/frame_bg_blue.png'
         self.w.frame.setStyleSheet("#frame { border-image: url(%s) 0 0 0 0 stretch stretch; }"%bgpath)
         #bgpath = self.IMAGE_PATH+'/Grey.jpg'
-        
+
         style ='''QFrame { border: 3px solid gray;border-radius: 15px;
 background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529);
  } '''

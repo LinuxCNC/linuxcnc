@@ -88,7 +88,7 @@
    programs don't match, that's bad.  So we have revision checking.
    Whenever a module or program is loaded, the rev_code is checked
    against the code in the shared memory area.  If they don't match,
-   the rtapi_init() call will faill.
+   the rtapi_init() call will fail.
 */
 static unsigned int rev_code = 1;  // increment this whenever you change the data structures
 

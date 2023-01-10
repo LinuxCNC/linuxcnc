@@ -73,7 +73,7 @@ typedef enum {
 } tp_err_t;
 
 /**
- * Persistant data for spindle status within tpRunCycle.
+ * Persistent data for spindle status within tpRunCycle.
  * This structure encapsulates some static variables to simplify refactoring of
  * synchronized motion code.
  */
@@ -87,7 +87,7 @@ typedef struct {
 
 /**
  * Trajectory planner state structure.
- * Stores persistant data for the trajectory planner that should be accessible
+ * Stores persistent data for the trajectory planner that should be accessible
  * by outside functions.
  */
 typedef struct {
@@ -102,7 +102,7 @@ typedef struct {
 
     double vMax;		/* vel for subsequent moves */
     double ini_maxvel;          /* max velocity allowed by machine
-                                   constraints (ini file) for
+                                   constraints (INI file) for
                                    subsequent moves */
     double vLimit;		/* absolute upper limit on all vels */
 
@@ -112,9 +112,10 @@ typedef struct {
     double aLimit;        /* max accel (unused) */
 
     double wMax;		/* rotational velocity max */
-    double wDotMax;		/* rotational accelleration max */
+    double wDotMax;		/* rotational acceleration max */
     int nextId;
     int execId;
+    struct state_tag_t execTag; /* state tag corresponding to running motion */
     int termCond;
     int done;
     int depth;			/* number of total queued motions */

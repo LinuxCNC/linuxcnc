@@ -36,7 +36,7 @@
 	The format consists of a character string that sets the
 	direction of each group of pins. Each character or character pair
 	of the direction string is one of "I", "O", "ii", "io", "oi" or "oo". 
-	The individual and character pair formats may be used interchangably in 
+	The individual and character pair formats may be used interchangeably in 
 	the same string, however the lower case format must always appear in 
 	pairs. The representatiom of each character or character pair is as follows:
 
@@ -200,7 +200,7 @@ typedef struct {
 
 /* dio data */
     io_pin port[MAX_IO_PORTS][PINS_PER_PORT];	/* Holds MAX_IO_PORTS X PINS_PER_PORT
-						   number of discreet I/O points */
+						   number of discrete I/O points */
     unsigned char dir_bits[MAX_IO_PORTS * 2];	/* remembers config (which port is input which is output) */
 
     unsigned char model;
@@ -638,7 +638,7 @@ static int vti_dac_init(int channels)
 {
     int retval, i;
     
-    encoder->DAC = DAC_IND_MODE;  // Enable DACs for output indpendent of watchdog
+    encoder->DAC = DAC_IND_MODE;  // Enable DACs for output independent of watchdog
     for (i = 0; i < channels; i++) {
 	retval = export_dac(i, vti_driver);
 	if (retval != 0) {

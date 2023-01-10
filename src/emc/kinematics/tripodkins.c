@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
   char buffer[BUFFERLEN];
   char cmd[BUFFERLEN];
   EmcPose pos, vel;
-  double joints[3], jointvels[3];
+  double joints[3]={0.0,0.0,0.0}, jointvels[3]={0.0,0.0,0.0};
   char inverse;
   char flags;
   KINEMATICS_FORWARD_FLAGS fflags;
@@ -348,6 +348,7 @@ int main(int argc, char *argv[])
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"
 
+KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);

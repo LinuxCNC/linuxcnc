@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/env python3
 # qtvcp
 #
 # Copyright (c) 2018  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -15,7 +15,6 @@
 #
 #################################################################################
 
-import sys
 
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QStackedWidget, QLayout
@@ -29,7 +28,7 @@ from qtvcp import logger
 # LOG is for running code logging
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
@@ -70,7 +69,7 @@ class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
             if i.indexOf(widget) > -1:
                 #print i.layout(), widget.objectName(), i.objectName()
                 return i.layout(), i.indexOf(widget)
-        print widget.parent()
+        print(widget.parent())
         LOG.error('No layout found for {}'.format(widget))
         return widget.parent(),None
 
@@ -78,7 +77,7 @@ class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
     # -1 will return to default layout
     def show_id_widget(self, number):
         #print 'requested:',number
-        if number is 0:
+        if number == 0:
             self.show_default()
             return
         for n, i in enumerate(self._widgetNames):
@@ -119,8 +118,8 @@ class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
                     obj[0].setParent(obj[1])
                 obj[0].show()
 
-    # show the stacked widget as orignally layed out (hopefully)
-    # This will set the stacked widget to diplay the first page
+    # show the stacked widget as originally laid out (hopefully)
+    # This will set the stacked widget to display the first page
     # which is index 0
     def show_default(self):
         for i in self._widgetNames:

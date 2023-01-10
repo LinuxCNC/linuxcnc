@@ -106,83 +106,83 @@ GtkWidget * CreateGeneralParametersPage( void )
 		switch( NumObj )
 		{ 
 			case 0:
-				snprintf(BuffLabel, sizeof(BuffLabel), _("Rung Refresh Rate (milliseconds)") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "    %s", _("Rung Refresh Rate (milliseconds)") );
 				snprintf(BuffValue, sizeof(BuffValue), "%d", InfosGene->GeneralParams.PeriodicRefreshMilliSecs );
 				break;
 			case 1:
 				InfoUsed = GetNbrRungsDefined( )*100/InfosGene->GeneralParams.SizesInfos.nbr_rungs;
-				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of rungs (%d%c used      "), InfoUsed,'%' );
+				snprintf(BuffLabel, sizeof(BuffLabel), "    %s (%d%% %s)", _("Number of rungs"), InfoUsed, _("used") );
 				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_rungs );
 				break;
 			case 2:
-				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Bits                  ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "    %s", _("Number of Bits                  ") );
 				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_bits );
 				break;
                         case 3:
-				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Error Bits                  ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "    %s", _("Number of Error Bits                  ") );
 				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_error_bits );
 				break;
 			case 4:
-				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Words                 ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "    %s", _("Number of Words                 ") );
 				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_words );
 				break;
 			case 5:
-				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Counters              ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "    %s", _("Number of Counters              ") );
 				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_counters );
 				break;
 			case 6:
-				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Timers IEC            ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "    %s", _("Number of Timers IEC            ") );
 				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_timers_iec );
 				break;
 			case 7:
-				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Arithmetic Expressions ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "    %s", _("Number of Arithmetic Expressions ") );
 				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_arithm_expr );
 				break;
 			case 8:
 				InfoUsed = NbrSectionsDefined( )*100/InfosGene->GeneralParams.SizesInfos.nbr_sections;
-				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Sections (%d%c used)   "), InfoUsed,'%' );
+				snprintf(BuffLabel, sizeof(BuffLabel), "    %s (%d%% %s)", _("Number of Sections"), InfoUsed, _("used") );
 				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_sections );
 				break;
 			case 9:
-				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Symbols                ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "    %s", _("Number of Symbols                ") );
 				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_symbols );
 				break;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 			case 10:
-				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Timers                 ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "    %s", _("Number of Timers                 ") );
 				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_timers );
 				break;
 			case 11:
-				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Monostables            ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "    %s", _("Number of Monostables            ") );
 				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_monostables );
 				break;
 #endif
                         case 12:
-				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of BIT Inputs HAL pins           ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "    %s", _("Number of BIT Inputs HAL pins           ") );
 				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_inputs );
 				break;
 			case 13:
-				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of BIT Outputs HAL pins          ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "    %s", _("Number of BIT Outputs HAL pins          ") );
 				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_outputs );
 				break;
 			case 14:
-				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of S32in HAL pins             ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "    %s", _("Number of S32in HAL pins             ") );
 				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_words_inputs );
 				break;
 			case 15:
-				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of S32out HAL pins            ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "    %s", _("Number of S32out HAL pins            ") );
 				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_words_outputs );
 				break;
                         case 16:
-				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of floatin HAL pins             ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "    %s", _("Number of floatin HAL pins             ") );
 				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_float_inputs );
 				break;
 			case 17:
-				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of floatout HAL pins            ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "    %s", _("Number of floatout HAL pins            ") );
 				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_float_outputs );
 				break;
                         case 18:
-				snprintf(BuffLabel, sizeof(BuffLabel), _("Current path/filename") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "    %s", _("Current path/filename") );
 				size_t ret = snprintf(BuffValue, sizeof(BuffValue), "%s",InfosGene->CurrentProjectFileName);
 				if (ret >= sizeof(BuffLabel)) snprintf(BuffValue, sizeof(BuffValue), "<path too long>");
                                 //snprintf(BuffValue, sizeof(BuffValue), "Not available yet" );
@@ -194,6 +194,7 @@ GtkWidget * CreateGeneralParametersPage( void )
 		}
 
 		LabelParam[NumObj] = gtk_label_new(BuffLabel);
+		gtk_misc_set_alignment(GTK_MISC(LabelParam[NumObj]), 0.0f, 0.0f);
 		gtk_widget_set_usize((GtkWidget *)LabelParam[NumObj],300,0);
 		gtk_box_pack_start (GTK_BOX (hbox[NumObj]), LabelParam[NumObj], FALSE, FALSE, 0);
 		gtk_widget_show (LabelParam[NumObj]);
@@ -290,7 +291,7 @@ char* ConvNumToString( int num, char ** list )
 #ifdef MODBUS_IO_MASTER
 GtkWidget * CreateModbusModulesIO( void )
 {
-	static char * Labels[] = { "Slave Address", "Request Type", "1st Modbus Ele.", "# of Ele", "Logic", "1st Variable mapped" };
+	const char * Labels[] = { _("Slave Address"), _("Request Type"), _("1st Modbus Ele."), _("# of Ele"), _("Logic"), _("1st Variable mapped") };
 	GtkWidget *vbox;
 	GtkWidget *hbox[ NBR_MODBUS_MASTER_REQ+2 ];
 	int NumObj;

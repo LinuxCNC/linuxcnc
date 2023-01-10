@@ -6,10 +6,10 @@
 * Author:
 * License: LGPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 
 #ifndef NMLMSG_HH
@@ -44,7 +44,7 @@ class NMLmsg {
       NMLmsg(NMLTYPE t, size_t s);
 
     /* This second constructor never clears the message regardless of what is
-       in nmlmsg. The value of noclear is irrelevent but adding it changes
+       in nmlmsg. The value of noclear is irrelevant but adding it changes
        which constructor is called. */
       NMLmsg(NMLTYPE t, long s, int noclear);
 
@@ -55,7 +55,7 @@ class NMLmsg {
 					   to zero in the constructor. */
     NMLTYPE type;		/* Each derived type should have a unique id */
     long size;			/* The size is used so that the entire buffer 
-				   is not copied unneccesarily. */
+				   is not copied unnecessarily. */
 
     void update(CMS *);
 };

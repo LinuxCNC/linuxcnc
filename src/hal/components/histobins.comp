@@ -82,6 +82,7 @@ variable hal_float_t sq_sum;
 variable hal_float_t m2;
 
 license "GPL";
+author "Dewey Garrett";
 ;;
 
 hal_float_t invalue;

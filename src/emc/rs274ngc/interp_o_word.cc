@@ -225,7 +225,7 @@ int Interp::execute_call(setup_pointer settings,
 
 	// Set up return to next block (may be overridden by M98)
 	if (settings->file_pointer == NULL)
-	    // if the previous file was NULL, mark positon as -1 so as not to
+	    // if the previous file was NULL, mark position as -1 so as not to
 	    // reopen it on return.
 	    previous_frame->position = -1;
 	else
@@ -292,7 +292,7 @@ int Interp::execute_call(setup_pointer settings,
 	    previous_frame->filename = strstore(settings->filename);
 	    plist.append(*settings->pythis); // self
 	    for(int i = 0; i < eblock->param_cnt; i++)
-		plist.append(eblock->params[i]); // positonal args
+		plist.append(eblock->params[i]); // positional args
 	    current_frame->pystuff.impl->tupleargs = bp::tuple(plist);
 	    current_frame->pystuff.impl->kwargs = bp::dict();
 
@@ -545,10 +545,10 @@ int Interp::control_back_to( block_pointer block, // pointer to block
     FILE *newFP;
     offset_map_iterator it;
     offset_pointer op;
+    logOword("Entered:%s %s", name,basename(block->o_name));
+    it = settings->offset_map.find(basename(block->o_name));
 
-    logOword("Entered:%s %s", name,block->o_name);
-
-    it = settings->offset_map.find(block->o_name);
+    // #1 already defined
     if (it != settings->offset_map.end()) {
 	op = &it->second;
 	if ((settings->filename[0] != 0) &
@@ -585,6 +585,8 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 	settings->sequence_number = op->sequence_number;
 	return INTERP_OK;
     }
+
+    // #2 open the File
     newFP = find_ngc_file(settings, block->o_name, newFileName);
 
     if (newFP) {
@@ -607,8 +609,8 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 	free(dirname);
     }
 
-    settings->skipping_o = block->o_name; // start skipping
-    settings->skipping_to_sub = block->o_name; // start skipping
+    settings->skipping_o = basename(block->o_name); // start skipping
+    settings->skipping_to_sub = basename(block->o_name); // start skipping
     settings->skipping_start = settings->sequence_number;
     return INTERP_OK;
 }

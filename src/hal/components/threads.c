@@ -14,7 +14,7 @@
 /** This file, 'threads.c', is a HAL component that provides a way to 
     create realtime threads but contains no other functionality.
     It will mostly be used for testing - when EMC is run normally,
-    the motion module creates all the neccessary threads.
+    the motion module creates all the necessary threads.
     
     The module has three pairs of parameters, "name1, period1", etc.
 */
@@ -72,7 +72,7 @@ RTAPI_MP_LONG(period2, "thread2 period (nsecs)");
 static char *name3 = NULL;	/* name of thread */
 RTAPI_MP_STRING(name3, "name of thread 3");
 static int fp3 = 1;		/* use floating point? default = yes */
-RTAPI_MP_INT(fp3, "thread1 uses floating point");
+RTAPI_MP_INT(fp3, "thread3 uses floating point");
 static long period3 = 0;	/* thread period - default = no thread */
 RTAPI_MP_LONG(period3, "thread3 period (nsecs)");
 

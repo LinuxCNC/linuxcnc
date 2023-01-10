@@ -2,7 +2,7 @@
  * Copyright (C) 2003 John Kasunich
  *                     <jmkasunich AT users DOT sourceforge DOT net>
  *
- *  Other contributers:
+ *  Other contributors:
  *                     Martin Kuhnle
  *                     <mkuhnle AT users DOT sourceforge DOT net>
  *                     Alex Joni
@@ -43,6 +43,8 @@
 #include "hal.h"		/* HAL public API decls */
 #include "../hal_priv.h"	/* private HAL decls */
 #include <rtapi_mutex.h>
+#include <string.h>
+#include <ctype.h>
 
 static int argno;
 
@@ -343,7 +345,7 @@ static char *usrcomp_generator(const char *text, int state) {
     while(next) {
         hal_comp_t *comp = SHMPTR(next);
         next = comp->next_ptr;
-        if(comp->type) continue;
+        if(comp->type != COMPONENT_TYPE_USER) continue;
 	if(strncmp(text, comp->name, len) == 0)
             return strdup(comp->name);
     }
@@ -387,7 +389,7 @@ static char *rtcomp_generator(const char *text, int state) {
     while(next) {
         hal_comp_t *comp = SHMPTR(next);
         next = comp->next_ptr;
-        if(!comp->type) continue;
+        if(comp->type == COMPONENT_TYPE_USER) continue;
 	if ( strncmp(text, comp->name, len) == 0 )
             return strdup(comp->name);
     }

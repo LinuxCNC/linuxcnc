@@ -1,0 +1,46 @@
+2extrajoints demo
+
+Demo of the motmod num_extrajoints= parameter
+
+a) XYYZ correspond one-to-one to
+   joints 0123
+b) joint.4 and joint.5 are 'extra'
+   joints not related to any axis
+   letter but managed independently by
+   limit3 components.
+c) The configuration uses basic_sim.tcl
+   and simulates home switches for all
+   joints.
+d) Using extra joints requires
+   NON-identity kinematics and all
+   joints (including joint4) must be
+   homed before switching to world
+   mode.
+e) A halshow app is opened to display
+   key pin values
+f) A sim_pin app is opened to set key
+   pin values
+
+Usage:
+1) F1        (Estop Off)
+2) F2        (Machine On)
+3) optionally jog joint.4 and joint.5
+   prior to homing to observe motor
+   offset
+4) Ctrl-HOME (Home all)
+5) demonstrate joint.[45] movement
+   using the provided M144 mdi
+   command:
+   M144 P4 Q1.23 move joint.4 to 1.23
+   M144 P4 Q4.56 move joint.4 to 4.56
+   M144 P5 Q3.21 move joint.5 to 3.21
+   M144 P5 Q2.22 move joint.5 to 2.22
+   etc.
+6) Alternately, demonstrate joint.[45]
+   movement using sim_pin settings:
+     j4.limit3.min  min value
+     j4.limit3.max  max value
+     j4.limit3.maxv max velocity
+     j4.limit3.maxa max acceleration
+     j4.limit3.in   requested value
+     similar for j5

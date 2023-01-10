@@ -1,0 +1,92 @@
+component tpcomp"Trajectory Planning (tp) module skeleton";
+// NOTE: component name must agree with filename
+
+description """
+Example of a trajectory planning (tp) module buildable with
+halcompile.
+
+The tpcomp.comp file (src/hal/components/tpcomp.comp)
+illustrates a method to use halcompile to build a
+trajectory planning module based on the files used for the
+default trajectory planner (\\fBtpmod\\fR).
+
+The example tpcomp.comp is not usable until modified
+for the user environment.  To create a runnable tpcomp
+module, the tpcomp.comp file must be edited to supply 1) a
+valid '#define TOPDIR' and 2) references to valid source
+code file names for all files used.
+
+To avoid updates that overwrite tpcomp.comp, best practice is
+to rename the file and its component name (example:
+\\fBuser_tpcomp.comp\\fR creates module: \\fBuser_tpcomp\\fR).
+
+The (renamed) component can be built and installed with
+halcompile and then substituted for the default tp module
+(\\fBtpmod\\fR) using:\n
+  $ linuxcnc \\fB-t user_tpcomp\\fR someconfig.ini\n
+or by inifile setting: \\fB[TRAJ]TPMOD=user_tpcomp\\fR
+
+\\fBNote:\\fRIf using a deb install:\n
+1) halcompile is provided by the deb package linuxcnc-dev\n
+2) This source file for BRANCHNAME (master,2.9,etc) is downloadable from github:\n
+https://github.com/LinuxCNC/linuxcnc/blob/BRANCHNAME/src/hal/components/tpcomp.comp
+""";
+
+pin out bit is_module=1; //one pin is required to use halcompile)
+
+license "GPL";
+author "Dewey Garrett";
+option  tpmod;
+option  extra_setup;
+;;
+
+//=====================================================================
+/* To use trajectory planner (tp) files from a local git src tree:
+** set TOPDIR to the git src tree top directory
+** (Edit 'myname' as required)
+*/
+
+//#define TOPDIR /home/myname/linuxcnc-dev
+
+#ifdef TOPDIR  // {
+/* To use a modified file from the src tree substitute as reqd.
+** Example (comment out standard file, add new one):
+**         // #include USE_TOPDIR(src/emc/tp/tp.c)
+**         #include "somepath/mymodified_tp.c
+*/
+
+#define STR(s)        #s
+#define XSTR(s)       STR(s)
+#define USE_TOPDIR(b) XSTR(TOPDIR/b)
+
+#include USE_TOPDIR(src/emc/tp/tp.c)
+#include USE_TOPDIR(src/emc/tp/tc.c)
+#include USE_TOPDIR(src/emc/tp/tcq.c)
+#include USE_TOPDIR(src/emc/tp/spherical_arc.c)
+#include USE_TOPDIR(src/emc/tp/blendmath.c)
+#include USE_TOPDIR(src/emc/nml_intf/emcpose.c)
+#include USE_TOPDIR(src/libnml/posemath/_posemath.c)
+#include USE_TOPDIR(src/libnml/posemath/sincos.c)
+
+#else
+#error No TOPDIR defined, skeleton component provides no trajectory planning functions.
+#endif // }
+//=====================================================================
+
+// Example module parameters (RTAPI_MP_STRING,RTAPI_MP_INT,...)
+// that can be passed to custom tp files
+static char *tp_parms;
+RTAPI_MP_STRING(tp_parms,"Example tp parms");
+
+// rtapi_app_main() supplied by halcompile
+// EXTRA_SETUP is executed before rtapi_app_main()
+EXTRA_SETUP() {
+    if (!tp_parms) {tp_parms="no_tp_parms";}
+    rtapi_print("@@@%s:%s: tp_parms=%s\n",__FILE__,__FUNCTION__,tp_parms);
+    rtapi_print("\n@@@%s: TOPDIR=%s\n",__FILE__,XSTR(TOPDIR));
+    return 0;
+}
+#undef USE_TOPDIR
+#undef XSTR
+#undef STR
+#undef TOPDIR

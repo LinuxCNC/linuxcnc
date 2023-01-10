@@ -55,26 +55,17 @@ namespace bp = boost::python;
 
 static const char *strstore(const char *s);
 
-// boost python versions from 1.58 to 1.61 (the latest at the time of
-// writing) all have a bug in boost::python::execfile that results in a
-// double free.  Work around it by using the Python implementation of
-// execfile instead.
-// The bug was introduced at https://github.com/boostorg/python/commit/fe24ab9dd5440562e27422cd38f7de03356bfd16
-bp::object working_execfile(const char *filename, bp::object globals, bp::object locals) {
-    return bp::import("__builtin__").attr("execfile")(filename, globals, locals);
-}
-
 int PythonPlugin::run_string(const char *cmd, bp::object &retval, bool as_file)
 {
     reload();
     try {
 	if (as_file)
-	    retval = working_execfile(cmd, main_namespace, main_namespace);
+	    retval = bp::exec_file(cmd, main_namespace, main_namespace);
 	else
 	    retval = bp::exec(cmd, main_namespace, main_namespace);
 	status = PLUGIN_OK;
     }
-    catch (const bp::error_already_set&) {
+    catch (bp::error_already_set &) {
 	if (PyErr_Occurred()) {
 	    exception_msg = handle_pyerror();
 	} else
@@ -101,7 +92,7 @@ int PythonPlugin::call_method(bp::object method, bp::object &retval)
 	retval = method(); 
 	status = PLUGIN_OK;
     }
-    catch (const bp::error_already_set&) {
+    catch (bp::error_already_set &) {
 	if (PyErr_Occurred()) {
 	   exception_msg = handle_pyerror();
 	} else
@@ -151,7 +142,7 @@ int PythonPlugin::call(const char *module, const char *callable,
 	    retval = bp::object();
 	status = PLUGIN_OK;
     }
-    catch (const bp::error_already_set&) {
+    catch (bp::error_already_set &) {
 	if (PyErr_Occurred()) {
 	   exception_msg = handle_pyerror();
 	} else
@@ -191,7 +182,7 @@ bool PythonPlugin::is_callable(const char *module,
 	}
 	result = PyCallable_Check(function.ptr());
     }
-    catch (const bp::error_already_set&) {
+    catch (bp::error_already_set &) {
 	// KeyError expected if not callable
 	if (!PyErr_ExceptionMatches(PyExc_KeyError)) {
 	    // something else, strange
@@ -244,6 +235,8 @@ std::string handle_pyerror()
     bp::object formatted_list, formatted;
 
     PyErr_Fetch(&exc, &val, &tb);
+    PyErr_NormalizeException(&exc, &val, &tb);
+
     bp::handle<> hexc(exc), hval(bp::allow_null(val)), htb(bp::allow_null(tb));
     bp::object traceback(bp::import("traceback"));
     if (!tb) {
@@ -269,12 +262,10 @@ int PythonPlugin::initialize()
 		main_namespace[inittab_entries[i]] = bp::import(inittab_entries[i].c_str());
 	    }
 	    if (toplevel) // only execute a file if there's one configured.
-		bp::object result = working_execfile(abs_path,
-						  main_namespace,
-						  main_namespace);
+		bp::object result = bp::exec_file(abs_path, main_namespace, main_namespace);
 	    status = PLUGIN_OK;
 	}
-	catch (const bp::error_already_set&) {
+	catch (bp::error_already_set &) {
 	    if (PyErr_Occurred()) {
 		exception_msg = handle_pyerror();
 	    } else
@@ -302,16 +293,39 @@ PythonPlugin::PythonPlugin(struct _inittab *inittab) :
     abs_path(0),
     log_level(0)
 {
-    Py_SetProgramName((char *) abs_path);
+  if (abs_path) {
+    wchar_t *program = Py_DecodeLocale(abs_path, NULL);
+    Py_SetProgramName(program);
+  }
+    if (inittab != NULL) {
+      if (!Py_IsInitialized()) {
+        if (PyImport_ExtendInittab(inittab) != 0) {
+          logPP(-1, "cannot extend inittab");
+          status = PLUGIN_INITTAB_FAILED;
+          return;
+        }
+      }
+      else {
+        PyObject *sys_modules = PyImport_GetModuleDict(); // borrowed
 
-    if ((inittab != NULL) &&
-	PyImport_ExtendInittab(inittab)) {
-	logPP(-1, "cant extend inittab");
-	status = PLUGIN_INITTAB_FAILED;
-	return;
-    }
-    Py_Initialize();
-    initialize();
+        for (int i = 0; inittab[i].name != NULL; i++) {
+          struct _inittab tab = inittab[i];
+          PyObject *module = tab.initfunc();
+          if (module == NULL) {
+            logPP(-1, "failed to initialize built-in module '%s'", tab.name);
+            status = PLUGIN_INITTAB_FAILED;
+            return;
+          }
+
+          PyImport_AddModule(tab.name); // borrowed
+          PyDict_SetItemString(sys_modules, tab.name, module);
+          Py_DECREF(module);
+        }
+      }
+  }
+  Py_UnbufferedStdioFlag = 1;
+  Py_Initialize();
+  initialize();
 }
 
 
@@ -346,7 +360,7 @@ int PythonPlugin::configure(const char *iniFilename,
 	    reload_on_change = (atoi(inistring) > 0);
 
 	if (realpath(toplevel, real_path) == NULL) {
-	    logPP(-1, "cant resolve path to '%s'", toplevel);
+	    logPP(-1, "can\'t resolve path to '%s'", toplevel);
 	    status = PLUGIN_BAD_PATH;
 	    return status;
 	}

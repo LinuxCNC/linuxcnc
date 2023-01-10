@@ -205,7 +205,7 @@ BOARD</string>
       </property>
       <property name="icon">
        <iconset>
-        <normalon>../../../gmoccapy/images/exit_application.png</normalon>
+        <normalon>../../images/logout.png</normalon>
        </iconset>
       </property>
       <property name="iconSize">
@@ -849,7 +849,7 @@ VIEW</string>
        </rect>
       </property>
       <property name="text">
-       <string>ORGIN
+       <string>ORIGIN
 OFFSETS</string>
       </property>
       <property name="checkable">
@@ -6977,7 +6977,7 @@ DEC</string>
               </property>
               <property name="text">
                <string>Go to
-Origion Zero</string>
+Origin Zero</string>
               </property>
               <property name="checkable">
                <bool>false</bool>

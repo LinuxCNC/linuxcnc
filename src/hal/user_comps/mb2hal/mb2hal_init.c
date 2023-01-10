@@ -89,6 +89,15 @@ retCode parse_common_section()
     iniFindInt(gbl.ini_file_ptr, tag, section, &gbl.init_dbg);
     DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, gbl.init_dbg);
 
+    tag     = "VERSION"; //optional
+    tmpstr = iniFind(gbl.ini_file_ptr, tag, section);
+    if (tmpstr != NULL) {
+        int major, minor;
+        sscanf(tmpstr, "%d.%d", &major, &minor);
+        gbl.version = major*1000 + minor;
+    }
+    DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, gbl.version);
+
     tag    = "HAL_MODULE_NAME"; //optional
     tmpstr = iniFind(gbl.ini_file_ptr, tag, section);
     if (tmpstr != NULL) {
@@ -163,7 +172,7 @@ retCode parse_pin_names(const char * names_string, mb_tx_t *this_mb_tx)
 retCode parse_transaction_section(const int mb_tx_num)
 {
     char *fnct_name = "parse_transaction_section";
-    char section[20];
+    char section[40];
     char *tag;
     const char *tmpstr;
     mb_tx_t *this_mb_tx;
@@ -290,7 +299,7 @@ retCode parse_transaction_section(const int mb_tx_num)
     DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, this_mb_tx->mb_tx_nelem);
 
     tag = "MAX_UPDATE_RATE"; //optional
-    this_mb_tx->cfg_update_rate = 0; //default: 0=infinit
+    this_mb_tx->cfg_update_rate = 0; //default: 0=infinite
     if (iniFindDouble(gbl.ini_file_ptr, tag, section, &this_mb_tx->cfg_update_rate) != 0) { //not found
         if (mb_tx_num > 0) { //previous value?
             if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
@@ -344,7 +353,8 @@ retCode parse_transaction_section(const int mb_tx_num)
                 break;
             }
         }
-        if (this_mb_tx->mb_tx_fnct <= mbtxERR || this_mb_tx->mb_tx_fnct >= mbtxMAX) {
+        int max = gbl.version<1001?mbtx_01_READ_COILS:mbtxMAX;
+        if (this_mb_tx->mb_tx_fnct <= mbtxERR || this_mb_tx->mb_tx_fnct >= max) {
             ERR(gbl.init_dbg, "[%s] [%s] [%s] out of range", section, tag, tmpstr);
             return retERR;
         }

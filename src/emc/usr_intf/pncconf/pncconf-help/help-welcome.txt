@@ -10,7 +10,7 @@ using Mesa I/O cards with the Hostmot2 driver, and optionally
 extra simple I/O with parallel ports.
 
 Pncconf require the mesa firmwares to be installed and a realtime 
-kernal for tests.
+kernel for tests.
 
 
 

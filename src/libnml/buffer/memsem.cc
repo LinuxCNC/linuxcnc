@@ -44,7 +44,7 @@ extern "C" {
 * Take the mutual exclusion semaphore.
 *
 * Parameters:
-* data should point to an area of memory accesable to all processes that
+* data should point to an area of memory accessible to all processes that
 *   is at least "total_connections" bytes long,
 * connection_number is a unique identifier for this process it should
 *  be between 0 and ("total_connections"-1)
@@ -246,7 +246,7 @@ int mem_get_access(void *data, long connection_number,
 * Give up the mutual exclusion semaphore.
 *
 * Parameters:
-* data should point to an area of memory accesable to all processes that
+* data should point to an area of memory accessible to all processes that
 *   is at least "total_connections" bytes long,
 * connection_number is a unique identifier for this process it should
 *  be between 0 and ("total_connections"-1)

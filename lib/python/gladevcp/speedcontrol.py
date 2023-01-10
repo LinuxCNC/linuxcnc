@@ -1,10 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding:UTF-8 -*-
 
 # GladeVcp Widget 
 # SpeedControl is a widget specially made to control an adjustment 
 # with a touch screen. It is a replacement to the normal scale widget
-# witch is difficult to slide on a touch screen.
+# which is difficult to slide on a touch screen.
 #
 # Copyright (c) 2016 Norbert Schechner
 # 
@@ -19,16 +19,23 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import gtk
-import gobject
+import gi
+gi.require_version("Gtk","3.0")
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
+from gi.repository import GLib
 from math import pi
 import hal
 
 # This is needed to make the hal pin, making them directly with hal, will
-# not allow to use them in glade without linuxcnc beeing started
-from hal_widgets import _HalSpeedControlBase
+# not allow to use them in glade without linuxcnc being started
+if __name__ == "__main__":
+    from hal_widgets import _HalSpeedControlBase
+else:
+    from .hal_widgets import _HalSpeedControlBase
 
-class SpeedControl(gtk.VBox, _HalSpeedControlBase):
+class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
     '''
     The SpeedControl Widget serves as a slider with button to increment od decrease
     the value and a progress bar showing the value with or without units
@@ -49,7 +56,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
                             allowed values are 0.001, 99999.0
                             default is 100.0
     increment   = float   : sets the applied increment per mouse click,
-                            -1 means 100 increments fom min to max
+                            -1 means 100 increments from min to max
     inc_speed   = integer : Sets the timer delay for the increment speed holding pressed the buttons
                             allowed values are 20 to 300
                             default is 100
@@ -70,36 +77,36 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
 
     __gtype_name__ = 'SpeedControl'
     __gproperties__ = {
-        'height'  : ( gobject.TYPE_INT, 'The height of the widget in pixel', 'Set the height of the widget',
-                    24, 96, 36, gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-        'value' : (gobject.TYPE_FLOAT, 'Value', 'The  value to set',
-                    0.001, 99999.0, 10.0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'min' : (gobject.TYPE_FLOAT, 'Min Value', 'The min allowed value to apply',
-                    0.0, 99999.0, 0.0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'max' : (gobject.TYPE_FLOAT, 'Max Value', 'The max allowed value to apply',
-                    0.001, 99999.0, 100.0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'increment' : (gobject.TYPE_FLOAT, 'Increment Value', 'The increment value to apply, -1 means 100 steps from max to min',
-                    -1.0, 99999.0, -1.0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'inc_speed'  : ( gobject.TYPE_INT, 'The speed of the increments', 'Set the timer delay for the increment speed',
-                    20, 300, 100, gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-        'unit' : ( gobject.TYPE_STRING, 'unit', 'Sets the unit to be shown in the bar after the value',
-                    "", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'color' : (gtk.gdk.Color.__gtype__, 'color', 'Sets the color of the bar',
-                        gobject.PARAM_READWRITE),
-        'template' : (gobject.TYPE_STRING, 'Text template for bar value',
+        'height'  : ( GObject.TYPE_INT, 'The height of the widget in pixel', 'Set the height of the widget',
+                    24, 96, 36, GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
+        'value' : (GObject.TYPE_FLOAT, 'Value', 'The  value to set',
+                    0.001, 99999.0, 10.0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'min' : (GObject.TYPE_FLOAT, 'Min Value', 'The min allowed value to apply',
+                    0.0, 99999.0, 0.0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'max' : (GObject.TYPE_FLOAT, 'Max Value', 'The max allowed value to apply',
+                    0.001, 99999.0, 100.0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'increment' : (GObject.TYPE_FLOAT, 'Increment Value', 'The increment value to apply, -1 means 100 steps from max to min',
+                    -1.0, 99999.0, -1.0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'inc_speed'  : ( GObject.TYPE_INT, 'The speed of the increments', 'Set the timer delay for the increment speed',
+                    20, 300, 100, GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
+        'unit' : ( GObject.TYPE_STRING, 'unit', 'Sets the unit to be shown in the bar after the value',
+                    "", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'color' : (Gdk.RGBA, 'color', 'Sets the color of the bar',
+                        GObject.ParamFlags.READWRITE),
+        'template' : (GObject.TYPE_STRING, 'Text template for bar value',
                 'Text template to display. Python formatting may be used for one variable',
-                "%.1f", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'do_hide_button' : ( gobject.TYPE_BOOLEAN, 'Hide the button', 'Display the button + and - to alter the values',
-                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+                "%.1f", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'do_hide_button' : ( GObject.TYPE_BOOLEAN, 'Hide the button', 'Display the button + and - to alter the values',
+                    False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
                       }
     __gproperties = __gproperties__
 
     __gsignals__ = {
-                    'value_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
-                    'scale_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
-                    'min_reached': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
-                    'max_reached': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
-                    'exit': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+                    'value_changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+                    'scale_changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+                    'min_reached': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+                    'max_reached': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+                    'exit': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
                    }
 
     def __init__(self, size = 36, value = 0, min = 0, max = 100, inc_speed = 100, unit = "", color = "#FF8116", template = "%.1f"):
@@ -110,33 +117,36 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
         self._value = value
         self._min = min
         self._max = max
-        self.color = gtk.gdk.Color(color)
+        self.color = Gdk.RGBA() 
+        self.color.parse(color)
         self._unit = unit
         self._increment = (self._max - self._min) / 100.0
         self._template = template
         self._speed = inc_speed
 
-        self.adjustment = gtk.Adjustment(self._value, self._min, self._max, self._increment, 0)
+        self.adjustment = Gtk.Adjustment(value = self._value, lower = self._min, upper = self._max, step_increment = self._increment, page_increment = 0)
         self.adjustment.connect("value_changed", self._on_value_changed)
+        self.adjustment.connect("changed", self._on_value_changed)
 
-        self.btn_plus = gtk.Button("+")
+        self.btn_plus = Gtk.Button(label = "+")
         self.btn_plus.connect("pressed", self.on_btn_plus_pressed)
         self.btn_plus.connect("released", self.on_btn_plus_released)
-        self.btn_minus = gtk.Button("-")
+        self.btn_minus = Gtk.Button(label = "-")
         self.btn_minus.connect("pressed", self.on_btn_minus_pressed)
         self.btn_minus.connect("released", self.on_btn_minus_released)
         
-        self.draw = gtk.DrawingArea()
-        self.draw.connect("expose-event", self.expose)
+        self.draw = Gtk.DrawingArea()
+        self.draw.connect("draw", self.expose)
 
-        self.table = gtk.Table(rows=2,columns=5)
-        self.table.attach( self.btn_minus, 0, 1, 0, 1, gtk.SHRINK, gtk.SHRINK )
-        self.table.attach( self.draw, 1, 4, 0, 1, gtk.FILL|gtk.EXPAND, gtk.EXPAND )
-        self.table.attach( self.btn_plus, 4, 5, 0, 1, gtk.SHRINK, gtk.SHRINK )
+        self.table = Gtk.Table(n_rows=2,n_columns=5)
+        self.table.attach( self.btn_minus, 0, 1, 0, 1, Gtk.AttachOptions.SHRINK, Gtk.AttachOptions.SHRINK )
+        self.table.attach( self.draw, 1, 4, 0, 1, Gtk.AttachOptions.FILL|Gtk.AttachOptions.EXPAND, Gtk.AttachOptions.EXPAND )
+        self.table.attach( self.btn_plus, 4, 5, 0, 1, Gtk.AttachOptions.SHRINK, Gtk.AttachOptions.SHRINK )
 
         self.add(self.table)
         self.show_all()
-        self.connect("destroy", gtk.main_quit)
+        self.connect("destroy", Gtk.main_quit)
+
 
         self._update_widget()
 
@@ -165,14 +175,14 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
     def expose(self, widget, event):
         # create the cairo window
         # I do not know why this works without importing cairo
-        self.cr = widget.window.cairo_create()
+        self.cr = widget.get_property('window').cairo_create()
 
         # call to paint the widget
         self._draw_widget()
 
     # draws the frame, meaning the background
     def _draw_widget(self):
-        w = self.draw.allocation.width
+        w = self.draw.get_allocated_width()
 
         # draw a rectangle with rounded edges and a black frame
         linewith = self._size / 24
@@ -230,7 +240,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
 
         w,h = self.cr.text_extents(label)[2:4]
         self.draw.set_size_request(int(w) + int(h), self._size)
-        left = self.draw.allocation.width /2
+        left = self.draw.get_allocated_width() /2
         top = self._size / 2
         self.cr.move_to(left - w / 2 , top + h / 2)
         self.cr.show_text(label)
@@ -268,7 +278,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
 
     # we create a timer and repeat the increment command as long as the button is pressed
     def on_btn_plus_pressed(self, widget):
-        self.timer_id = gobject.timeout_add(self._speed, self.increase)
+        self.timer_id = GLib.timeout_add(self._speed, self.increase)
 
     # destroy the timer to finish increasing the value
     def on_btn_plus_released(self, widget):
@@ -276,7 +286,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
         # also on creation of the hal pin, but the default is False, but we do not have
         # a self.timer_id at this state.
         try:
-            gobject.source_remove(self.timer_id)
+            GLib.source_remove(self.timer_id)
         except:
             pass
     
@@ -296,7 +306,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
 
     # we create a timer and repeat the decrease command as long as the button is pressed
     def on_btn_minus_pressed(self, widget):
-        self.timer_id = gobject.timeout_add(self._speed, self.decrease)
+        self.timer_id = GLib.timeout_add(self._speed, self.decrease)
 
     # destroy the timer to finish increasing the value
     def on_btn_minus_released(self, widget):
@@ -304,7 +314,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
         # also on creation of the hal pin, but the default is False, but we do not have
         # a self.timer_id at this state.
         try:
-            gobject.source_remove(self.timer_id)
+            GLib.source_remove(self.timer_id)
         except:
             pass
 
@@ -345,9 +355,9 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
         b = temp[8:]
         return (int(r, 16), int(g, 16), int(b, 16))
 
-    # returns separate values for red, green and blue of a gtk_color
-    def get_color_tuple(gtk_color,c):
-        return (c.red_float, c.green_float, c.blue_float)
+    # returns separate values for red, green and blue of a Gtk_color
+    def get_color_tuple(Gtk_color,c):
+        return (c.red, c.green, c.blue)
 
     # set the digits of the shown value
     def set_digits(self, digits):
@@ -400,8 +410,6 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
             if name == 'color':
                 col = getattr(self, name)
                 colorstring = col.to_string()
-                print("col = ",col)
-                print("colorstring = ",colorstring)
                 return getattr(self, name)
             return getattr(self, name)
         else:
@@ -420,11 +428,11 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
                     self.set_value(value)
                 if name == "min":
                     self._min = value
-                    self.adjustment.lower = value
+                    self.adjustment.set_lower(value)
                     self._increment = (self._max - self._min) / 100.0
                 if name == "max":
                     self._max = value
-                    self.adjustment.upper = value
+                    self.adjustment.set_upper(value)
                     self._increment = (self._max - self._min) / 100.0
                 if name == "increment":
                     if value < 0:
@@ -450,16 +458,18 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
 # for testing without glade editor:
 # to show some behavior and setting options  
 def main():
-    window = gtk.Window()
+    window = Gtk.Window()
     #speedcontrol = SpeedControl(size = 48, value = 10000, min = 0, max = 15000, inc_speed = 100, unit = "mm/min", color = "#FF8116", template = "%.3f")
     speedcontrol = SpeedControl()
     window.add(speedcontrol)
     window.set_title("Button Speed Control")
-    window.set_position(gtk.WIN_POS_CENTER)
+    window.set_position(Gtk.WindowPosition.CENTER)
     window.show_all()
     speedcontrol.set_property("height", 48)
     speedcontrol.set_property("unit", "mm/min")
-    speedcontrol.set_property("color", gtk.gdk.Color("#FF8116"))
+    color = Gdk.RGBA()
+    color.parse("#FF8116")
+    speedcontrol.set_property("color", color)
     speedcontrol.set_property("min", 0)
     speedcontrol.set_property("max", 15000)
     speedcontrol.set_property("increment", 250.123)
@@ -469,7 +479,7 @@ def main():
     #speedcontrol.set_digits(1)
     #speedcontrol.hide_button(True)
 
-    gtk.main()
+    Gtk.main()
 
 if __name__ == "__main__":
     main()

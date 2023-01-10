@@ -1,0 +1,49 @@
+; -- RELOAD GCODE FOR PROPER TOOL-PATH PREVIEW --
+g21 g90 g49 g54
+; switch to identity mode
+m429
+; clear g54
+g10 l2 p0 x0 y0 z0 a0 b0
+; go to machine origin
+g53 g0 x0 y0 z0 a0 b0
+; set g54 for face center of rotary
+g10 l20 p0 x-[#<_hal[xyzab_tdr_kins.x-rot-point]>+#<_hal[xyzab_tdr_kins.x-offset]>] y-#<_hal[xyzab_tdr_kins.x-rot-point]> z-[#<_hal[xyzab_tdr_kins.z-rot-point]>+#<_hal[xyzab_tdr_kins.z-offset]>] a0 b0
+; load a tool
+M61 Q2 G43 H2
+; switch to tcp mode
+m428
+g0 b30
+; go to face center of rotary a
+g0 x0 y0 z0
+; show basic tcp functionality
+g0 x30 a180
+g0 x0 a0
+g0 b100
+g0 y-50
+g0 a90
+g0 b120
+g0 y0
+g0 a0 b30
+g0 x1
+; start with square
+f1000
+g0 y-30 z-30
+g1 z30
+g1 a45
+g1 y30
+g1 a90 b45
+g1 z-30
+g1 a180 b100
+g1 y30
+g1 a90 b120
+g1 y-30
+g1 a0 b30
+g0 x5
+g1 y-30 z-30 a90
+g1 z30 a45 b60
+g1 y30 a90 b90
+g1 z-30 a135 b120
+g1 y-30 a0 b30
+; go to machine origin
+g53 g0 x0 y0 z0 a0 b0
+m2

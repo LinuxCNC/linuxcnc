@@ -1,9 +1,3 @@
-The puma configuration is a set of files that makes up a very basic LinuxCNC scara simulation using ini, tbl, var. It is very similar to the sim config template, yet with 4 joints defined.
+scara robot (switchkins)
 
 scara.ini
--------------
-Config file for a SCARA type robot.
-
-You need to specify what kinematics should get used (loadrt scarakins in your hal file)
-
-If you change the HOME location in TRAJ, make sure you change the appropiate HOME locations of the AXES aswell, and make sure the position match (when run through the kinematics).

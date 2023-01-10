@@ -1,5 +1,5 @@
 
-# a HAL table must be explicitely enabled from 'outside'
+# a HAL table must be explicitly enabled from 'outside'
 # by setting its hal pin to 1
 # otherwise, all contained widgets are disabled ('greyed out')
 

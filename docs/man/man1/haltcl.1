@@ -29,44 +29,44 @@
 .if \n[.g] .mso www.tmac
 .TH HALTCL "1"  "2012-01-31" "LinuxCNC Documentation" "HAL User's Manual"
 .SH NAME
-haltcl \- manipulate the LinuxCNC HAL from the command line using a tcl
+haltcl \- manipulate the LinuxCNC HAL from the command line using a Tcl
 interpreter.
 
 .SH SYNOPSIS
-.B haltcl [\fI\-i inifile\fR] [\fIfilename\fR\]
+.B haltcl [\fI\-i <INI file>\fR] [\fIfilename\fR\]
 .PP
 
 .SH DESCRIPTION
 \fBhaltcl\fR is used to manipulate the HAL (Hardware Abstraction
-Layer) from the command line using a tcl interpreter.  \fBhaltcl\fR
+Layer) from the command line using a Tcl interpreter.  \fBhaltcl\fR
 can optionally read commands from a file (filename), allowing
 complex HAL configurations to be set up with a single command.
 
 .SH OPTIONS
 .TP
-\fB\-i\fR \fIinifile\fR
-If specified, the inifile is read and used to create tcl global variable
-arrays.  An array is created for each SECTION of the inifile with
+\fB\-i\fR \fI<INI file>\fR
+If specified, the INI file is read and used to create Tcl global variable
+arrays.  An array is created for each SECTION of the INI file with
 elements for each ITEM in the section.
 .P
-       For example, if the inifile contains:
+       For example, if the INI file contains:
        [SECTION_A]ITEM_1 =  1
        [SECTION_A]ITEM_2 =  2
        [SECTION_B]ITEM_1 = 10
 
-       The corresponding tcl variables are:
+       The corresponding Tcl variables are:
        SECTION_A(ITEM_1) =  1
        SECTION_A(ITEM_2) =  2
        SECTION_B(ITEM_1) = 10
 .TP
-\fB\-ini\fR \fIinifile\fR -- declining usage, use \fB\-i\fR \fIinifile\fR
+\fB\-ini\fR \fI<INI file>\fR -- declining usage, use \fB\-i\fR \fI<INI file>\fR
 .TP
 \fBfilename\fR
-If specified, the tcl commands of \fBfilename\fR are executed.  If no filename
+If specified, the Tcl commands of \fBfilename\fR are executed.  If no filename
 is specified, haltcl opens an interactive session.
 
 .SH COMMANDS
-\fBhaltcl\fR includes the commands of a tcl interpreter augmented with
+\fBhaltcl\fR includes the commands of a Tcl interpreter augmented with
 commands for the hal language as described for \fBhalcmd\fR(1).  The augmented
 commands can be listed with the command:
 
@@ -75,7 +75,7 @@ commands can be listed with the command:
    addf alias delf delsig getp gets ptype stype help linkpp linkps linksp list loadrt loadusr lock net newsig save setexact_for_test_suite_only setp sets show source start status stop unalias unlinkp unload unloadrt unloadusr unlock waitusr
 
 Two of the augmented commands, 'list' and 'gets', require special treatment to
-avoid conflict with tcl built-in commands having the same names.  To use these
+avoid conflict with Tcl built-in commands having the same names.  To use these
 commands, precede them with the keyword 'hal':
 
    hal list

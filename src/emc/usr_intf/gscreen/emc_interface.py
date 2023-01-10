@@ -29,7 +29,7 @@ class emc_control:
                 self.emccommand.wait_complete()
                 self.emcstat.poll()
                 if self.emcstat.kinematics_type != emc.KINEMATICS_IDENTITY:
-                    raise SystemExit, "\n*** emc_control: Only KINEMATICS_IDENTITY is supported\n"
+                    raise SystemExit("\n*** emc_control: Only KINEMATICS_IDENTITY is supported\n")
 
         def mask(self):
                 # updating toggle button active states dumbly causes spurious events
@@ -239,7 +239,7 @@ class emc_control:
         # if Linuxcnc is paused then pushing cycle start will step the program
         # else the program starts from restart_line_number
         # after restarting it resets the restart_line_number to 0.
-        # You must explicitily set a different restart line each time
+        # You must explicitly set a different restart line each time
         def cycle_start(self):
                 if self.emcstat.task_mode != self.emc.MODE_AUTO:
                     self.emccommand.mode(self.emc.MODE_AUTO)
@@ -249,7 +249,7 @@ class emc_control:
                     self.emccommand.auto(self.emc.AUTO_STEP)
                     return
                 if self.emcstat.interp_state == self.emc.INTERP_IDLE:
-                        print self.restart_line_number
+                        print(self.restart_line_number)
                         self.emccommand.auto(self.emc.AUTO_RUN, self.restart_line_number)
                 self.restart_line_number = self.restart_reset_line
 
@@ -339,7 +339,7 @@ class emc_status:
         # angular axes are always 1 - They are not converted.
         def convert_units_list(self,v):
                 c = self.unit_convert
-                return map(lambda x,y: x*y, v, c)
+                return list(map(lambda x,y: x*y, v, c))
 
         # This converts the given data units if the current display mode (self.mm)
         # is not the same as the machine's basic units.
@@ -423,7 +423,7 @@ class emc_status:
                 self.data["%s_abs"% letter] = p[count]
                 self.data["%s_rel"% letter] = relp[count]
                 self.data["%s_dtg"% letter] = dtg[count]
-            # active G codes
+            # active G-codes
             temp = []; active_codes = []
             for i in sorted(self.emcstat.gcodes[1:]):
                 if i == -1: continue
@@ -438,7 +438,7 @@ class emc_status:
                 if i == '95': ipr = True
             self.data.IPR_mode = ipr
             self.data.active_gcodes = active_codes
-            # M codes
+            # M-codes
             temp = []; active_codes = []
             for i in sorted(self.emcstat.mcodes[1:]):
                 if i == -1: continue
@@ -471,7 +471,7 @@ class emc_status:
             self.data.last_line = self.data.motion_line
             self.data.motion_line = self.emcstat.motion_line
             self.data.line =  self.emcstat.current_line
-            self.data.id =  self.emcstat.id
+            self.data.id =  self.emcstat.motion_id
             self.data.dtg = self.emcstat.distance_to_go
             self.data.velocity = self.convert_units(self.emcstat.current_vel) * 60.0
             self.data.delay = self.emcstat.delay_left

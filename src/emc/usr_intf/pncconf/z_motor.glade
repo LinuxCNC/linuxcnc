@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.2 -->
 <interface>
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.0"/>
   <object class="GtkListStore" id="driverstore">
     <columns>
       <!-- column-name gchararray1 -->
@@ -17,6 +17,113 @@
     <property name="upper">100</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="zaccl_adjust">
+    <property name="upper">10000</property>
+    <property name="value">1</property>
+    <property name="step_increment">0.5</property>
+  </object>
+  <object class="GtkAdjustment" id="zanalog_max_adjust">
+    <property name="upper">10000</property>
+    <property name="value">10</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="zanalog_min_adjust">
+    <property name="lower">-10000</property>
+    <property name="upper">10000</property>
+    <property name="value">-10</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="zanalog_scale_adjust">
+    <property name="upper">10000</property>
+    <property name="value">10</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="zbias_adjust">
+    <property name="upper">10000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="zd_adjust">
+    <property name="upper">10000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="zdeadb_adjust">
+    <property name="upper">10000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="zdirhold_adjust">
+    <property name="lower">100</property>
+    <property name="upper">50000</property>
+    <property name="value">5000</property>
+    <property name="step_increment">100</property>
+  </object>
+  <object class="GtkAdjustment" id="zdirsetup_adjust">
+    <property name="lower">100</property>
+    <property name="upper">50000</property>
+    <property name="value">5000</property>
+    <property name="step_increment">100</property>
+  </object>
+  <object class="GtkAdjustment" id="zencoder_adjust">
+    <property name="upper">5000000</property>
+    <property name="value">1</property>
+    <property name="step_increment">100</property>
+  </object>
+  <object class="GtkAdjustment" id="zfeed_adjust">
+    <property name="upper">10</property>
+    <property name="value">0.10000000000000001</property>
+    <property name="step_increment">0.001</property>
+  </object>
+  <object class="GtkAdjustment" id="zff0_adjust">
+    <property name="upper">10000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="zff1_adjust">
+    <property name="upper">10000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="zff2_adjust">
+    <property name="upper">10000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="zi_adjust">
+    <property name="upper">10000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="zmaxout_adjust">
+    <property name="upper">10000</property>
+    <property name="value">10</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="zp_adjust">
+    <property name="upper">10000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="zrapid_adjust">
+    <property name="upper">10</property>
+    <property name="value">0.5</property>
+    <property name="step_increment">0.001</property>
+  </object>
+  <object class="GtkAdjustment" id="zstepper_adjust">
+    <property name="upper">5000000</property>
+    <property name="value">1</property>
+    <property name="step_increment">100</property>
+  </object>
+  <object class="GtkAdjustment" id="zstepspace_adjust">
+    <property name="lower">100</property>
+    <property name="upper">50000</property>
+    <property name="value">5000</property>
+    <property name="step_increment">100</property>
+  </object>
+  <object class="GtkAdjustment" id="zsteptime_adjust">
+    <property name="lower">100</property>
+    <property name="upper">50000</property>
+    <property name="value">5000</property>
+    <property name="step_increment">100</property>
+  </object>
+  <object class="GtkAdjustment" id="zvelocity_adjust">
+    <property name="upper">1000000</property>
+    <property name="value">1</property>
+    <property name="step_increment">1</property>
   </object>
   <object class="GtkVBox" id="z_motor">
     <property name="visible">True</property>
@@ -46,14 +153,18 @@
                     <property name="n_rows">10</property>
                     <property name="n_columns">2</property>
                     <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
                       <object class="GtkSpinButton" id="zmaxoutput">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">zmaxout_adjust</property>
                         <property name="digits">2</property>
                       </object>
@@ -70,8 +181,8 @@
                       <object class="GtkLabel" id="zmaxoutputlabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Max Output</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="top_attach">8</property>
@@ -88,8 +199,6 @@
                         <property name="xalign">0.5</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">zff2_adjust</property>
                         <property name="digits">4</property>
                       </object>
@@ -110,8 +219,6 @@
                         <property name="xalign">0.5</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">zff1_adjust</property>
                         <property name="digits">4</property>
                         <property name="update_policy">if-valid</property>
@@ -133,8 +240,6 @@
                         <property name="xalign">0.5</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">zff0_adjust</property>
                         <property name="digits">4</property>
                       </object>
@@ -151,8 +256,8 @@
                       <object class="GtkLabel" id="label306">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">FF2</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="top_attach">5</property>
@@ -165,8 +270,8 @@
                       <object class="GtkLabel" id="label305">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">FF1</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="top_attach">4</property>
@@ -179,8 +284,8 @@
                       <object class="GtkLabel" id="label304">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">FF0</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="top_attach">3</property>
@@ -197,8 +302,6 @@
                         <property name="xalign">0.5</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">zdeadb_adjust</property>
                         <property name="digits">4</property>
                       </object>
@@ -219,8 +322,6 @@
                         <property name="xalign">0.5</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">zbias_adjust</property>
                         <property name="digits">4</property>
                       </object>
@@ -237,8 +338,8 @@
                       <object class="GtkLabel" id="label303">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Deadband</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="top_attach">7</property>
@@ -251,8 +352,8 @@
                       <object class="GtkLabel" id="label302">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Bias</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="top_attach">6</property>
@@ -265,8 +366,8 @@
                       <object class="GtkLabel" id="label301">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">P</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="x_options">GTK_FILL</property>
@@ -277,8 +378,8 @@
                       <object class="GtkLabel" id="label300">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">I</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="top_attach">1</property>
@@ -291,8 +392,8 @@
                       <object class="GtkLabel" id="label299">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">D</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="top_attach">2</property>
@@ -309,8 +410,6 @@
                         <property name="xalign">0.5</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">zp_adjust</property>
                         <property name="digits">4</property>
                       </object>
@@ -329,8 +428,6 @@
                         <property name="xalign">0.5</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">zi_adjust</property>
                         <property name="digits">4</property>
                       </object>
@@ -351,8 +448,6 @@
                         <property name="xalign">0.5</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">zd_adjust</property>
                         <property name="digits">4</property>
                       </object>
@@ -364,12 +459,6 @@
                         <property name="x_options"/>
                         <property name="y_options"/>
                       </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
                     </child>
                   </object>
                 </child>
@@ -408,11 +497,59 @@
                     <property name="n_rows">10</property>
                     <property name="n_columns">3</property>
                     <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
                       <object class="GtkLabel" id="z3pwmscalelabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">3pwm Scale:</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="x_options">GTK_FILL</property>
@@ -423,8 +560,8 @@
                       <object class="GtkLabel" id="z3pwmdeadtimelabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">3pwm Deadtime:</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="top_attach">1</property>
@@ -437,8 +574,8 @@
                       <object class="GtkLabel" id="label298">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Quad Pulses / Rev:</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="top_attach">7</property>
@@ -453,9 +590,9 @@
                         <property name="width_request">100</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0.25</property>
                         <property name="xpad">1</property>
                         <property name="label" translatable="yes">label</property>
+                        <property name="xalign">0.25</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -473,8 +610,6 @@
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">z3pwm_deadtime_adjust</property>
                       </object>
                       <packing>
@@ -493,8 +628,6 @@
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">z3pwm_scale_adjust</property>
                         <property name="digits">2</property>
                       </object>
@@ -507,12 +640,12 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="zaxistest">
+                        <property name="use_action_appearance">False</property>
                         <property name="width_request">120</property>
                         <property name="height_request">50</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_zaxistest_clicked" swapped="no"/>
                         <child>
                           <object class="GtkHBox" id="hbox12">
@@ -559,9 +692,9 @@
                       <object class="GtkLabel" id="zoutputminlimitlabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="xpad">4</property>
                         <property name="label" translatable="yes">Analog Min Limit:</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="top_attach">4</property>
@@ -574,9 +707,9 @@
                       <object class="GtkLabel" id="zoutputmaxlimitlabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="xpad">4</property>
                         <property name="label" translatable="yes">Analog Max limit:</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="top_attach">5</property>
@@ -589,9 +722,9 @@
                       <object class="GtkLabel" id="zoutputscalelabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="xpad">4</property>
                         <property name="label" translatable="yes">Analog Max Scale:</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="top_attach">6</property>
@@ -607,8 +740,6 @@
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">zanalog_min_adjust</property>
                         <property name="digits">2</property>
                       </object>
@@ -628,8 +759,6 @@
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">zanalog_max_adjust</property>
                         <property name="digits">2</property>
                       </object>
@@ -649,8 +778,6 @@
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">zanalog_scale_adjust</property>
                         <property name="digits">2</property>
                       </object>
@@ -662,54 +789,6 @@
                         <property name="x_options"/>
                         <property name="y_options"/>
                       </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
                     </child>
                   </object>
                 </child>
@@ -748,11 +827,23 @@
                     <property name="n_rows">8</property>
                     <property name="n_columns">2</property>
                     <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
                       <object class="GtkLabel" id="label316">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Step On-Time</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="top_attach">1</property>
@@ -765,8 +856,8 @@
                       <object class="GtkLabel" id="label315">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Step Space</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="top_attach">2</property>
@@ -780,10 +871,9 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">●</property>
+                        <property name="width_chars">8</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">zsteptime_adjust</property>
                       </object>
                       <packing>
@@ -800,10 +890,9 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">●</property>
+                        <property name="width_chars">8</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">zstepspace_adjust</property>
                       </object>
                       <packing>
@@ -819,8 +908,8 @@
                       <object class="GtkLabel" id="label314">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Direction Hold</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="top_attach">3</property>
@@ -833,8 +922,8 @@
                       <object class="GtkLabel" id="label313">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Direction Setup</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="top_attach">4</property>
@@ -848,10 +937,9 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">●</property>
+                        <property name="width_chars">8</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">zdirhold_adjust</property>
                       </object>
                       <packing>
@@ -868,10 +956,9 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">●</property>
+                        <property name="width_chars">8</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">zdirsetup_adjust</property>
                       </object>
                       <packing>
@@ -887,9 +974,9 @@
                       <object class="GtkLabel" id="label312">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Driver Type:</property>
                         <property name="use_underline">True</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="top_attach">5</property>
@@ -899,18 +986,11 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkComboBox" id="zdrivertype">
+                      <object class="GtkComboBoxText" id="zdrivertype">
                         <property name="width_request">120</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="model">driverstore</property>
                         <signal name="changed" handler="on_zdrivertype_changed" swapped="no"/>
-                        <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext1"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
-                        </child>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -920,6 +1000,18 @@
                         <property name="x_options">GTK_FILL</property>
                         <property name="y_options"/>
                       </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
                     </child>
                     <child>
                       <placeholder/>
@@ -1001,10 +1093,10 @@
                                 <child>
                                   <object class="GtkRadioButton" id="zbldc_no_feedback">
                                     <property name="label" translatable="yes">No feedback</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
@@ -1017,10 +1109,10 @@
                                 <child>
                                   <object class="GtkRadioButton" id="zbldc_absolute_feedback">
                                     <property name="label" translatable="yes">Absolute Feedback</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1032,10 +1124,10 @@
                                 <child>
                                   <object class="GtkRadioButton" id="zbldc_incremental_feedback">
                                     <property name="label" translatable="yes">Incremental Feedback</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1047,10 +1139,10 @@
                                 <child>
                                   <object class="GtkCheckButton" id="zbldc_use_encoder">
                                     <property name="label" translatable="yes">Incremental Encoder</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1062,10 +1154,10 @@
                                 <child>
                                   <object class="GtkCheckButton" id="zbldc_use_hall">
                                     <property name="label" translatable="yes">Hall sensors</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1077,10 +1169,10 @@
                                 <child>
                                   <object class="GtkCheckButton" id="zbldc_fanuc_alignment">
                                     <property name="label" translatable="yes">Fanuc Red Cap </property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1092,10 +1184,10 @@
                                 <child>
                                   <object class="GtkCheckButton" id="zbldc_use_index">
                                     <property name="label" translatable="yes">Use encoder Index</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1162,10 +1254,10 @@
                                 <child>
                                   <object class="GtkCheckButton" id="zbldc_digital_output">
                                     <property name="label" translatable="yes">Digital instead of PWM outputs</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1177,10 +1269,10 @@
                                 <child>
                                   <object class="GtkCheckButton" id="zbldc_six_outputs">
                                     <property name="label" translatable="yes">6 outputs instead of 3 </property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1192,10 +1284,10 @@
                                 <child>
                                   <object class="GtkCheckButton" id="zbldc_force_trapz">
                                     <property name="label" translatable="yes">Force Trapezoid Mode</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1207,10 +1299,10 @@
                                 <child>
                                   <object class="GtkCheckButton" id="zbldc_emulated_feedback">
                                     <property name="label" translatable="yes">Emulate feedback </property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1222,10 +1314,10 @@
                                 <child>
                                   <object class="GtkRadioButton" id="zbldc_output_hall">
                                     <property name="label" translatable="yes">Emulated Hall sensors</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
@@ -1238,10 +1330,10 @@
                                 <child>
                                   <object class="GtkRadioButton" id="zbldc_output_fanuc">
                                     <property name="label" translatable="yes">Emulated Fanuc Red Cap</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1261,8 +1353,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="digits">1</property>
                                       </object>
                                       <packing>
@@ -1354,8 +1444,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -1371,8 +1459,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                     <property name="digits">2</property>
                                   </object>
                                   <packing>
@@ -1406,10 +1492,10 @@
                                 </child>
                                 <child>
                                   <object class="GtkCheckButton" id="zbldc_reverse">
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1426,8 +1512,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -1443,8 +1527,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -1460,8 +1542,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -1477,8 +1557,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -1494,8 +1572,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -1511,8 +1587,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -1624,10 +1698,10 @@
             </child>
             <child type="label">
               <object class="GtkCheckButton" id="zbldc_option">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_action_appearance">False</property>
                 <property name="draw_indicator">True</property>
                 <signal name="toggled" handler="on_zbldc_toggled" swapped="no"/>
                 <child>
@@ -1694,8 +1768,6 @@
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -1748,8 +1820,6 @@
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -1776,10 +1846,10 @@
             </child>
             <child type="label">
               <object class="GtkCheckButton" id="zuseatspeed">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_action_appearance">False</property>
                 <property name="draw_indicator">True</property>
                 <child>
                   <object class="GtkLabel" id="label320">
@@ -1831,8 +1901,6 @@
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="digits">3</property>
                       </object>
                       <packing>
@@ -1896,12 +1964,30 @@
                 <property name="n_rows">5</property>
                 <property name="n_columns">3</property>
                 <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
                   <object class="GtkLabel" id="zmaxfollowunits">
                     <property name="width_request">50</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">mm</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
@@ -1914,8 +2000,8 @@
                   <object class="GtkLabel" id="label321">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Rapid Speed Following Error:</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="x_options">GTK_FILL</property>
@@ -1927,8 +2013,8 @@
                   <object class="GtkLabel" id="label353">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Feed Speed Following Error:</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="top_attach">1</property>
@@ -1941,10 +2027,10 @@
                 <child>
                   <object class="GtkCheckButton" id="zinvertmotor">
                     <property name="label" translatable="yes">Invert Motor Direction</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="draw_indicator">True</property>
                   </object>
                   <packing>
@@ -1957,10 +2043,10 @@
                 <child>
                   <object class="GtkCheckButton" id="zinvertencoder">
                     <property name="label" translatable="yes">Invert Encoder Direction </property>
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="draw_indicator">True</property>
                   </object>
                   <packing>
@@ -1974,8 +2060,8 @@
                   <object class="GtkLabel" id="zminfollowunits">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">mm</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
@@ -1993,8 +2079,6 @@
                     <property name="invisible_char">●</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="secondary_icon_sensitive">True</property>
                     <property name="adjustment">zrapid_adjust</property>
                     <property name="digits">4</property>
                   </object>
@@ -2010,8 +2094,6 @@
                     <property name="invisible_char">●</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="secondary_icon_sensitive">True</property>
                     <property name="adjustment">zfeed_adjust</property>
                     <property name="digits">4</property>
                   </object>
@@ -2025,33 +2107,15 @@
                 <child>
                   <object class="GtkCheckButton" id="zsingleinputencoder">
                     <property name="label" translatable="yes">Single Input Encoder</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="draw_indicator">True</property>
                   </object>
                   <packing>
                     <property name="top_attach">4</property>
                     <property name="bottom_attach">5</property>
                   </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
                 </child>
               </object>
             </child>
@@ -2072,9 +2136,9 @@
               <object class="GtkLabel" id="label318">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="xalign">0</property>
                 <property name="label" translatable="yes">Maximum _Velocity:</property>
                 <property name="use_underline">True</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
                 <property name="top_attach">2</property>
@@ -2087,9 +2151,9 @@
               <object class="GtkLabel" id="label319">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="xalign">0</property>
                 <property name="label" translatable="yes">Maximum _Acceleration:</property>
                 <property name="use_underline">True</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
                 <property name="top_attach">3</property>
@@ -2102,8 +2166,8 @@
               <object class="GtkLabel" id="zvelunits">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="xalign">0</property>
                 <property name="label" translatable="yes">mm / s</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
                 <property name="left_attach">2</property>
@@ -2118,8 +2182,8 @@
               <object class="GtkLabel" id="zaccunits">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="xalign">0</property>
                 <property name="label" translatable="yes">mm / s²</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
                 <property name="left_attach">2</property>
@@ -2137,8 +2201,6 @@
                 <property name="invisible_char">●</property>
                 <property name="primary_icon_activatable">False</property>
                 <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
                 <property name="adjustment">zvelocity_adjust</property>
               </object>
               <packing>
@@ -2155,8 +2217,6 @@
                 <property name="invisible_char">●</property>
                 <property name="primary_icon_activatable">False</property>
                 <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
                 <property name="adjustment">zaccl_adjust</property>
                 <property name="digits">1</property>
               </object>
@@ -2171,9 +2231,9 @@
               <object class="GtkLabel" id="zencoderscale_label">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="xalign">0</property>
                 <property name="label" translatable="yes">encoder Scale:</property>
                 <property name="use_underline">True</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
                 <property name="x_options">GTK_FILL</property>
@@ -2187,8 +2247,6 @@
                 <property name="invisible_char">●</property>
                 <property name="primary_icon_activatable">False</property>
                 <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
                 <property name="adjustment">zencoder_adjust</property>
                 <property name="digits">3</property>
               </object>
@@ -2201,9 +2259,9 @@
               <object class="GtkLabel" id="label598">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="xalign">0</property>
                 <property name="label" translatable="yes">Stepper Scale:</property>
                 <property name="use_underline">True</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
                 <property name="top_attach">1</property>
@@ -2219,8 +2277,6 @@
                 <property name="invisible_char">●</property>
                 <property name="primary_icon_activatable">False</property>
                 <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
                 <property name="adjustment">zstepper_adjust</property>
                 <property name="digits">3</property>
               </object>
@@ -2235,10 +2291,10 @@
               <object class="GtkButton" id="zcalculatescale">
                 <property name="label" translatable="yes">Calculate
 Scale</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
                 <signal name="clicked" handler="on_zcalculatescale_clicked" swapped="no"/>
               </object>
               <packing>
@@ -2283,10 +2339,10 @@ Scale</property>
         </child>
         <child>
           <object class="GtkButton" id="zaxistune">
+            <property name="use_action_appearance">False</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
-            <property name="use_action_appearance">False</property>
             <signal name="clicked" handler="on_zaxistune_clicked" swapped="no"/>
             <child>
               <object class="GtkAlignment" id="alignment29">
@@ -2346,112 +2402,5 @@ Scale</property>
     <child>
       <placeholder/>
     </child>
-  </object>
-  <object class="GtkAdjustment" id="zaccl_adjust">
-    <property name="upper">10000</property>
-    <property name="value">1</property>
-    <property name="step_increment">0.5</property>
-  </object>
-  <object class="GtkAdjustment" id="zanalog_max_adjust">
-    <property name="upper">10000</property>
-    <property name="value">10</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="zanalog_min_adjust">
-    <property name="lower">-10000</property>
-    <property name="upper">10000</property>
-    <property name="value">-10</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="zanalog_scale_adjust">
-    <property name="upper">10000</property>
-    <property name="value">10</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="zbias_adjust">
-    <property name="upper">10000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="zd_adjust">
-    <property name="upper">10000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="zdeadb_adjust">
-    <property name="upper">10000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="zdirhold_adjust">
-    <property name="lower">100</property>
-    <property name="upper">50000</property>
-    <property name="value">5000</property>
-    <property name="step_increment">100</property>
-  </object>
-  <object class="GtkAdjustment" id="zdirsetup_adjust">
-    <property name="lower">100</property>
-    <property name="upper">50000</property>
-    <property name="value">5000</property>
-    <property name="step_increment">100</property>
-  </object>
-  <object class="GtkAdjustment" id="zencoder_adjust">
-    <property name="upper">5000000</property>
-    <property name="value">1</property>
-    <property name="step_increment">100</property>
-  </object>
-  <object class="GtkAdjustment" id="zfeed_adjust">
-    <property name="upper">10</property>
-    <property name="value">0.10000000000000001</property>
-    <property name="step_increment">0.001</property>
-  </object>
-  <object class="GtkAdjustment" id="zff0_adjust">
-    <property name="upper">10000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="zff1_adjust">
-    <property name="upper">10000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="zff2_adjust">
-    <property name="upper">10000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="zi_adjust">
-    <property name="upper">10000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="zmaxout_adjust">
-    <property name="upper">10000</property>
-    <property name="value">10</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="zp_adjust">
-    <property name="upper">10000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="zrapid_adjust">
-    <property name="upper">10</property>
-    <property name="value">0.5</property>
-    <property name="step_increment">0.001</property>
-  </object>
-  <object class="GtkAdjustment" id="zstepper_adjust">
-    <property name="upper">5000000</property>
-    <property name="value">1</property>
-    <property name="step_increment">100</property>
-  </object>
-  <object class="GtkAdjustment" id="zstepspace_adjust">
-    <property name="lower">100</property>
-    <property name="upper">50000</property>
-    <property name="value">5000</property>
-    <property name="step_increment">100</property>
-  </object>
-  <object class="GtkAdjustment" id="zsteptime_adjust">
-    <property name="lower">100</property>
-    <property name="upper">50000</property>
-    <property name="value">5000</property>
-    <property name="step_increment">100</property>
-  </object>
-  <object class="GtkAdjustment" id="zvelocity_adjust">
-    <property name="upper">1000000</property>
-    <property name="value">1</property>
-    <property name="step_increment">1</property>
   </object>
 </interface>

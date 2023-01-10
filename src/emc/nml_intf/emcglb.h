@@ -15,7 +15,7 @@
 #ifndef EMCGLB_H
 #define EMCGLB_H
 
-#include "config.h"             /* LINELEN */
+#include "linuxcnc.h"           /* LINELEN */
 #include "math.h"		/* M_PI */
 #include "emcmotcfg.h"          /* EMCMOT_MAX_DIO */
 #include "debugflags.h"
@@ -48,13 +48,11 @@ extern "C" {
 
     extern int emc_task_interp_max_len;
 
-    extern char tool_table_file[LINELEN];
-
     extern struct EmcPose tool_change_position;
     extern unsigned char have_tool_change_position;
 
 
-/*just used to keep track of unneccessary debug printing. */
+/*just used to keep track of unnecessary debug printing. */
     extern int taskplanopen;
 
     extern int emcGetArgs(int argc, char *argv[]);
@@ -79,13 +77,22 @@ typedef struct AxisConfig_t {
     double MaxLimit;
 } AxisConfig_t;
 
+typedef struct SpindleConfig_t {
+    int Inited;
+    double max_pos_speed;
+    double max_neg_speed;
+    double min_pos_speed;
+    double min_neg_speed;
+    int home_sequence;
+    double home_search_velocity;
+} SpindleConfig_t;
+
 typedef struct TrajConfig_t {
     int Inited;	// non-zero means traj called init
     int Joints;
     int Spindles;
     double MaxAccel;
     double MaxVel;
-    int DeprecatedAxes;
     int AxisMask;
     double LinearUnits;
     double AngularUnits;

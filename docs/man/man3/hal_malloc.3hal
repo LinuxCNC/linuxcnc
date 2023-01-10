@@ -9,7 +9,7 @@ hal_malloc \- Allocate space in the HAL shared memory area
 
 .SH  ARGUMENTS
 .IP \fIsize\fR
-Gives the size, in bytes, of the block
+Gives the size, in bytes, of the block.
 
 .SH DESCRIPTION
 \fBhal_malloc\fR allocates a block of memory from the main HAL shared memory area.

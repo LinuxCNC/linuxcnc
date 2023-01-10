@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # qtVcp tab widgets with adjustable tab height
 #
 # Copyright (c) 2019  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -13,7 +13,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-from PyQt5.QtWidgets import (QTabWidget, QTabBar, QPushButton)
+from PyQt5.QtWidgets import (QTabWidget, QTabBar)
 from PyQt5.QtCore import pyqtProperty, QSize
 
 class TabWidget(QTabWidget):

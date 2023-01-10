@@ -18,7 +18,7 @@ Usage:
      panel On/Off buttons
   6) Select parameters:
        Astart ----- starting angle
-       fmult ------ frequency multipler
+       fmult ------ frequency multiplier
        rfraction -- amplitude (radius fraction)
        func ------- function
                     0  polygon (inside)

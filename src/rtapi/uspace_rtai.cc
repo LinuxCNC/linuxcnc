@@ -57,6 +57,9 @@ struct RtaiApp : RtapiApp {
         memset(&param, 0, sizeof(param));
         param.sched_priority = task->prio;
 
+        // PLL functions not supported
+        task->pll_correction_limit = 0;
+        task->pll_correction = 0;
 
         pthread_attr_t attr;
         if(pthread_attr_init(&attr) < 0)
@@ -106,6 +109,16 @@ struct RtaiApp : RtapiApp {
         return rt_task_resume(task->rt_task);
     }
 
+    long long task_pll_get_reference(void) {
+        // PLL functions not supported
+        return 0;
+    }
+
+    int task_pll_set_correction(long value) {
+        // PLL functions not supported
+        return -EINVAL;
+    }
+
     void wait() {
         int task_id = task_self();
         auto task = ::get_task<RtaiTask>(task_id);
@@ -151,6 +164,14 @@ struct RtaiApp : RtapiApp {
 
     void do_delay(long ns) {
         rt_sleep(nano2count(ns));
+    }
+
+    int prio_highest() const {
+        return RT_SCHED_HIGHEST_PRIORITY;
+    }
+
+    int prio_lowest() const {
+        return RT_SCHED_LOWEST_PRIORITY;
     }
 };
 

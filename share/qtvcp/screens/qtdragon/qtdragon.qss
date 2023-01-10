@@ -34,7 +34,7 @@ ActionButton#action_machine_on {
     color: #FF0000;
 }
 
-ActionButton#action_machine_on:checked {
+ActionButton#action_machine_on[isStateOn=true] {
     color: #00FF00;
 }
 
@@ -82,7 +82,7 @@ DROLabel {
     color: #00FF00;
 }
 
-DROLabel[homed=false] {
+DROLabel[isHomed=false] {
     color: red;
 }
 
@@ -240,7 +240,35 @@ ToolDialog QPushButton{
     width: 100px;
     height: 40px;
 }
-EntryDialog QPushButton, CloseDialog QPushButton{
+RunFromLineDialog QPushButton,
+EntryDialog QPushButton,
+ CloseDialog QPushButton{
     width: 80px;
     height: 40px;
+}
+
+QSpinBox {
+    padding-right: 15px; /* make room for the arrows */
+    border-width: 3px;
+    height: 40px;
+}
+
+QSpinBox::down-button {
+    width: 20px;
+    height: 20px;
+}
+
+QSpinBox::down-arrow {
+    width: 20px;
+    height: 20px;
+}
+
+QSpinBox::up-button {
+    width: 20px;
+    height: 20px;
+}
+
+QSpinBox::up-arrow {
+    width: 20px;
+    height: 20px;
 }

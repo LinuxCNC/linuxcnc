@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import linuxcnc
 import linuxcnc_util
@@ -13,6 +13,10 @@ import signal
 import glob
 import re
 
+xtool   = 0.111 # [EMCIO]TOOL_CHANGE_POSITION x
+ytool   = 0.222 # [EMCIO]TOOL_CHANGE_POSITION y
+ztool   = 0.333 # [EMCIO]TOOL_CHANGE_POSITION z
+EPSILON = 1e-10
 
 def wait_for_hal_pin(name, value, timeout=10):
     start_time = time.time()
@@ -46,6 +50,7 @@ h["tool-prepared"] = False
 h.newpin("tool-number", hal.HAL_S32, hal.HAL_IN)
 h.newpin("tool-prep-number", hal.HAL_S32, hal.HAL_IN)
 h.newpin("tool-prep-pocket", hal.HAL_S32, hal.HAL_IN)
+h.newpin("tool-from-pocket", hal.HAL_S32, hal.HAL_IN)
 
 h.ready()
 
@@ -74,9 +79,11 @@ assert(h['tool-prepare'] == False)
 assert(h['tool-number'] == 3)
 assert(h['tool-prep-number'] == 0)
 assert(h['tool-prep-pocket'] == 0)
+assert(h['tool-from-pocket'] == 0)
 
 s.poll()
 assert(s.tool_in_spindle == 3)
+assert(s.tool_from_pocket == 0)
 assert(s.pocket_prepped == -1)
 
 
@@ -92,9 +99,11 @@ assert(h['tool-prepare'] == True)
 assert(h['tool-number'] == 3)
 assert(h['tool-prep-number'] == 2)
 assert(h['tool-prep-pocket'] == 46)
+assert(h['tool-from-pocket'] == 0)
 
 s.poll()
 assert(s.tool_in_spindle == 3)
+assert(s.tool_from_pocket == 0)
 assert(s.pocket_prepped == -1)
 
 h['tool-prepared'] = True
@@ -106,10 +115,12 @@ assert(h['tool-prepare'] == False)
 assert(h['tool-number'] == 3)
 assert(h['tool-prep-number'] == 2)
 assert(h['tool-prep-pocket'] == 46)
+assert(h['tool-from-pocket'] == 0)
 
 time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 3)
+assert(s.tool_from_pocket == 0)
 assert(s.pocket_prepped == 46)  # random tc gives you pocket, which is the same as tool-table-array index
 
 
@@ -125,11 +136,17 @@ assert(h['tool-prepare'] == False)
 assert(h['tool-number'] == 3)
 assert(h['tool-prep-number'] == 2)
 assert(h['tool-prep-pocket'] == 46)
+assert(h['tool-from-pocket'] == 0)
 
 time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 3)
+assert(s.tool_from_pocket == 0)
 assert(s.pocket_prepped == 46)
+
+assert(abs(s.joint_position[0] -xtool) < EPSILON)
+assert(abs(s.joint_position[1] -ytool) < EPSILON)
+assert(abs(s.joint_position[2] -ztool) < EPSILON)
 
 h['tool-changed'] = True
 wait_for_hal_pin('tool-change', False)
@@ -140,10 +157,12 @@ assert(h['tool-prepare'] == False)
 assert(h['tool-number'] == 2)
 assert(h['tool-prep-number'] == 0)
 assert(h['tool-prep-pocket'] == 0)
+assert(h['tool-from-pocket'] == 46)
 
 time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 2)
+assert(s.tool_from_pocket == 46)
 assert(s.pocket_prepped == -1)
 
 
@@ -159,10 +178,12 @@ assert(h['tool-prepare'] == True)
 assert(h['tool-number'] == 2)
 assert(h['tool-prep-number'] == 12)
 assert(h['tool-prep-pocket'] == 9)
+assert(h['tool-from-pocket'] == 46)
 
 time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 2)
+assert(s.tool_from_pocket == 46)
 assert(s.pocket_prepped == -1)
 
 h['tool-prepared'] = True
@@ -174,10 +195,12 @@ assert(h['tool-prepare'] == False)
 assert(h['tool-number'] == 2)
 assert(h['tool-prep-number'] == 12)
 assert(h['tool-prep-pocket'] == 9)
+assert(h['tool-from-pocket'] == 46)
 
 time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 2)
+assert(s.tool_from_pocket == 46)
 assert(s.pocket_prepped == 9)
 
 
@@ -199,10 +222,12 @@ assert(h['tool-prepare'] == False)
 assert(h['tool-number'] == 2)
 assert(h['tool-prep-number'] == 2)
 assert(h['tool-prep-pocket'] == 0)
+assert(h['tool-from-pocket'] == 46)
 
 time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 2)
+assert(s.tool_from_pocket == 46)
 assert(s.pocket_prepped == 0)
 
 
@@ -223,12 +248,87 @@ assert(h['tool-prepare'] == False)
 assert(h['tool-number'] == 2)
 assert(h['tool-prep-number'] == 2)
 assert(h['tool-prep-pocket'] == 0)
+assert(h['tool-from-pocket'] == 46)
 
 time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 2)
+assert(s.tool_from_pocket == 46)
 assert(s.pocket_prepped == 0)
 
+#
+# Prepare T0
+#
+
+c.mdi('t0')
+wait_for_hal_pin('tool-prepare', True)
+
+assert(h['tool-change'] == False)
+assert(h['tool-prepare'] == True)
+assert(h['tool-number'] == 2)
+assert(h['tool-prep-number'] == 0)
+assert(h['tool-prep-pocket'] == 2)
+assert(h['tool-from-pocket'] == 46)
+
+s.poll()
+assert(s.tool_in_spindle == 2)
+assert(s.tool_from_pocket == 46)
+assert(s.pocket_prepped == 0)
+
+h['tool-prepared'] = True
+wait_for_hal_pin('tool-prepare', False)
+h['tool-prepared'] = False
+
+assert(h['tool-change'] == False)
+assert(h['tool-prepare'] == False)
+assert(h['tool-number'] == 2)
+assert(h['tool-prep-number'] == 0)
+assert(h['tool-prep-pocket'] == 2)
+assert(h['tool-from-pocket'] == 46)
+
+time.sleep(stat_poll_wait)
+s.poll()
+assert(s.tool_in_spindle == 2)
+assert(s.tool_from_pocket == 46)
+assert(s.pocket_prepped == 2)  # random tc gives you pocket, which is the same as tool-table-array index
+
+
+#
+# Change to T0
+#
+
+c.mdi('m6')
+wait_for_hal_pin('tool-change', True)
+
+assert(h['tool-change'] == True)
+assert(h['tool-prepare'] == False)
+assert(h['tool-number'] == 2)
+assert(h['tool-prep-number'] == 0)
+assert(h['tool-prep-pocket'] == 2)
+assert(h['tool-from-pocket'] == 46)
+
+time.sleep(stat_poll_wait)
+s.poll()
+assert(s.tool_in_spindle == 2)
+assert(s.tool_from_pocket == 46)
+assert(s.pocket_prepped == 2)
+
+h['tool-changed'] = True
+wait_for_hal_pin('tool-change', False)
+h['tool-changed'] = False
+
+assert(h['tool-change'] == False)
+assert(h['tool-prepare'] == False)
+assert(h['tool-number'] == 0)
+assert(h['tool-prep-number'] == 0)
+assert(h['tool-prep-pocket'] == 0)
+assert(h['tool-from-pocket'] == 0)
+
+time.sleep(stat_poll_wait)
+s.poll()
+assert(s.tool_in_spindle == 0)
+assert(s.tool_from_pocket == 0)
+assert(s.pocket_prepped == -1)
 
 sys.exit(0)
 

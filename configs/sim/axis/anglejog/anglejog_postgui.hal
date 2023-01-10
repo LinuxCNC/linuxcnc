@@ -1,0 +1,90 @@
+loadrt anglejog names=anglejog
+addf   anglejog servo-thread
+
+#--------------------------------------------------------------
+# Connections TO anglejog component
+
+net :ajog_enable <= pyvcp.enable
+net :ajog_enable => anglejog.enable-in
+net :ajog_enable => pyvcp.enabled
+
+net :ajog_counts <= pyvcp.mpg-i
+net :ajog_counts => anglejog.counts-in
+
+net :ajog_accel-fraction-in <=    pyvcp.accel-fraction
+net :ajog_accel-fraction-in => anglejog.accel-fraction-in
+
+net :ajog-angle-degrees  <=    pyvcp.angle-degrees
+net :ajog-angle-degrees  => anglejog.angle-degrees-in
+
+net :ajog-scale-in <=    pyvcp.scale-in
+net :ajog-scale-in => anglejog.scale-in
+
+net :ajog_max-vel <=    pyvcp.max-vel
+net :ajog_max-vel => anglejog.max-vel
+
+net :ajog_max-accel <=    pyvcp.max-accel
+net :ajog_max-accel => anglejog.max-accel
+
+#--------------------------------------------------------------
+# Connections FROM anglejog component
+
+net :ajog_enable-out <= anglejog.enable-out
+net :ajog_enable-out =>  axis.x.jog-enable
+net :ajog_enable-out =>  axis.z.jog-enable
+net :ajog_enable-out => joint.0.jog-enable
+net :ajog_enable-out => joint.1.jog-enable
+
+net :ajog_scale-out <= anglejog.current-scale-out
+net :ajog_scale-out =>  axis.x.jog-scale
+net :ajog_scale-out =>  axis.z.jog-scale
+net :ajog_scale-out => joint.0.jog-scale
+net :ajog_scale-out => joint.1.jog-scale
+net :ajog_scale-out => pyvcp.current-scale-out
+
+net :ajog_x <= anglejog.coscounts
+net :ajog_x =>  axis.x.jog-counts
+net :ajog_x => joint.0.jog-counts
+
+net :ajog_z <= anglejog.sincounts
+net :ajog_z =>  axis.z.jog-counts
+net :ajog_z => joint.1.jog-counts
+
+net :ajog_xfraction <=  anglejog.cos-accel-fraction
+net :ajog_xfraction =>    axis.x.jog-accel-fraction
+net :ajog_xfraction =>   joint.0.jog-accel-fraction
+
+net :ajog_zfraction <=  anglejog.sin-accel-fraction
+net :ajog_zfraction =>    axis.z.jog-accel-fraction
+net :ajog_zfraction =>   joint.1.jog-accel-fraction
+
+#--------------------------------------------------------------
+# panel info-only items from anglejog component:
+
+net :vcp_active <= anglejog.active
+net :vcp_active => pyvcp.active
+
+net :vcp-current-scale <= anglejog.current-scale
+net :vcp-current-scale =>    pyvcp.current-scale
+
+net :vcp_current-angle-degrees <= anglejog.current-angle-degrees
+net :vcp_current-angle-degrees =>    pyvcp.current-angle-degrees
+
+#--------------------------------------------------------------
+# MPG simulation items
+
+loadrt mux_generic config=ff2
+addf   mux-gen.00  servo-thread
+
+# for reset, set >0 and < Scale widget resolution:
+setp mux-gen.00.in-float-00 .1
+net :vcp_scale-val <= mux-gen.00.out-float
+net :vcp_scale-val => pyvcp.scale.0.param_pin
+
+net :vcp_scale-reset <= pyvcp.mpgreset
+net :vcp_scale-reset => mux-gen.00.sel-bit-00
+
+#--------------------------------------------------------------
+# halshow
+
+loadusr halshow --noprefs --fformat %8.5f ./anglejog.halshow

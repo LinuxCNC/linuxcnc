@@ -340,7 +340,7 @@ typedef struct StrInfosGene
 	char AskToConfHard;
 }StrInfosGene;
 
-/* Differents states of Ladder */
+/* Different states of Ladder */
 #define STATE_LOADING 0
 #define STATE_STOP 1
 #define STATE_RUN 2

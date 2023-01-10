@@ -1,20 +1,24 @@
+#!/usr/bin/env python3
 import sys, time
 import os
 import subprocess
 
-from PyQt5.QtCore import QSize, QEvent, pyqtProperty
+from PyQt5.QtCore import QEvent, pyqtProperty
 from PyQt5.QtGui import QWindow, QResizeEvent, QMoveEvent
 from PyQt5.QtWidgets import QWidget
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.lib import xembed
+try:
+    from qtvcp.lib import xembed
+except:
+    pass
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
 # LOG is for running code logging
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class XEmbeddable(QWidget, _HalWidgetBase):
@@ -46,8 +50,8 @@ class XEmbeddable(QWidget, _HalWidgetBase):
         # there seems to be a race - sometimes the foreign window doesn't embed
         time.sleep(.2)
 
-    # we embed foreign program into our window 
-    def embed_program(self, command): 
+    # we embed foreign program into our window
+    def embed_program(self, command):
         try:
             self.external_id = self.launch_xid(command)
             window = QWindow.fromWinId(self.external_id)
@@ -56,7 +60,7 @@ class XEmbeddable(QWidget, _HalWidgetBase):
             # there seems to be a race - sometimes the foreign window doesn't embed
             time.sleep(.2)
             return True
-        except  Exception, e:
+        except  Exception as e:
             LOG.warning('Exception:{}'.format(command))
             LOG.warning('Exception:{}'.format( e))
             raise Exception(e)
@@ -94,11 +98,11 @@ class XEmbeddable(QWidget, _HalWidgetBase):
         LOG.debug( 'XID: {}'.format(sid))
         return int(sid)
 
-    def closing_cleanup__(self):
+    def _hal_cleanup(self):
         try:
             self.ob.terminate()
-        except Exception, e:
-            print e
+        except Exception as e:
+            print(e)
 
 class XEmbed(XEmbeddable, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -108,7 +112,7 @@ class XEmbed(XEmbeddable, _HalWidgetBase):
     def _hal_init(self):
         # send embedded program our X window id so it can forward events to us.
         wid = int(self.QTVCP_INSTANCE_.winId())
-        print 'parent wind id', wid
+        print('parent wind id', wid)
         os.environ['QTVCP_FORWARD_EVENTS_TO'] = str(wid)
         LOG.debug( 'Emed command: {}'.format(self.command))
         result = self.embed(self.command)

@@ -54,13 +54,27 @@ class HandlerClass:
                     except Exception as e:
                         print('Error with cam_align size setting:',self.w.USEROPTIONS_[num])
 
+                elif 'rotincr=' in self.w.USEROPTIONS_[num]:
+                    try:
+                        strg = self.w.USEROPTIONS_[num].strip('rotincr=')
+                        self.w.camview.rotationIncrement = float(strg)
+                    except Exception as e:
+                        print('Error with cam_align rotation increment setting:',self.w.USEROPTIONS_[num])
+
                 # camera number to use
-                else:
-                    if len(self.w.USEROPTIONS_[num]) == 1 and self.w.USEROPTIONS_[num].isdigit():
-                        try:
-                            number = int(self.w.USEROPTIONS_[num])
-                        except:
-                            print('Error with cam_align camera selection - not a number - using 0')
+                elif 'camnumber=' in self.w.USEROPTIONS_[num]:
+                    try:
+                        number = int(self.w.USEROPTIONS_[num])
+                    except:
+                        print('Error with cam_align camera selection - not a number - using 0')
+
+
+                # camera number to use (legacy)
+                elif len(self.w.USEROPTIONS_[num]) == 1 and self.w.USEROPTIONS_[num].isdigit():
+                    try:
+                        number = int(self.w.USEROPTIONS_[num])
+                    except:
+                        print('Error with cam_align camera selection - not a number - using 0')
         self.w.camview._camNum = number
 
     ########################

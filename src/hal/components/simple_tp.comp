@@ -18,7 +18,7 @@
 //   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 component simple_tp """\
-This component is a single axis simple trajectory planner, same as used for jogging in linuxcnc.
+This component is a single axis simple trajectory planner, same as used for jogging in LinuxCNC.
 Used by PNCconf to allow testing of acceleration and velocity values for an axis.""";
 
 pin in float target-pos "target position to plan for.";
@@ -31,6 +31,7 @@ pin out float current-vel "velocity commanded at this moment in time.";
 pin out bit active "if active is true, the planner is requesting movement.";
 function update;
 license "GPL";
+author "Chris S Morley";
 ;;
 #include "rtapi_math.h"
 FUNCTION(update) {

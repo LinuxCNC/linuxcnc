@@ -70,7 +70,7 @@ NML_SERVER::NML_SERVER(NML * _nml, int _set_to_master):CMS_SERVER()
 	    } else {
 		rcs_print_error
 		    ("NML_SERVER:(ERROR) ProcessType was REMOTE.\n");
-		_nml = (NML *) NULL;
+		_nml = NULL;
 	    }
 	} else {
 	    rcs_print_error("NML_SERVER:(ERROR) cms was NULL.\n");
@@ -127,7 +127,7 @@ NML_SERVER_LOCAL_PORT::~NML_SERVER_LOCAL_PORT()
     if (NULL != nml && !local_channel_reused) {
 	delete nml;
     }
-    nml = (NML *) NULL;
+    nml = NULL;
     cms = (CMS *) NULL;
 }
 
@@ -194,7 +194,7 @@ REMOTE_READ_REPLY *NML_SERVER_LOCAL_PORT::blocking_read(REMOTE_READ_REQUEST *
 	(REMOTE_BLOCKING_READ_REQUEST *) _req;
     breq->_nml = new NML(nml, 1, -1);
 
-    NML *nmlcopy = (NML *) breq->_nml;
+    NML *nmlcopy = breq->_nml;
     if (NULL == nmlcopy) {
 	rcs_print_error("NMLserver:blocking_read: NML object is NULL.\n");
 	return ((REMOTE_READ_REPLY *) NULL);
@@ -252,8 +252,8 @@ REMOTE_READ_REPLY *NML_SERVER_LOCAL_PORT::blocking_read(REMOTE_READ_REQUEST *
 	    orig_bytes_moved);
 	nml->cms->first_diag_store = cmscopy->first_diag_store;
     }
-    breq->_nml = NULL;
-    delete nmlcopy;
+    delete breq->_nml;
+    breq->_nml=nmlcopy=NULL;
 
     /* Reply structure contains the latest shared memory info-- now return it 
        to cms_dispatch for return to caller */

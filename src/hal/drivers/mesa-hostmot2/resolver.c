@@ -351,7 +351,7 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
 
         scale = res->hal.param.scale;
         
-        if (res->hal.param.use_abs){ // pseudo-absolute behviour enabled but not initialised
+        if (res->hal.param.use_abs){ // pseudo-absolute behaviour enabled but not initialised
             double new_pos;
             int turns;
 
@@ -452,7 +452,7 @@ void hm2_resolver_write(hostmot2_t *hm2, long period){
                 return;
             }
             break;
-        case 10: // wait for comand register clear before setting params
+        case 10: // wait for command register clear before setting params
             hm2->llio->read(hm2->llio,hm2->resolver.command_addr, 
                             &buff, sizeof(rtapi_u32));
             if (buff){

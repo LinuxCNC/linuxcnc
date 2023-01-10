@@ -14,6 +14,7 @@ and it is wise to always set \\fBhyst\\fR if you intend to use equal """;
 
 function _ fp "Update the comparator";
 license "GPL";
+author "Jeff Epler";
 ;;
 FUNCTION(_) {
     double tmp = in1 - in0;

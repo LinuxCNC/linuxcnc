@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>530</width>
-    <height>274</height>
+    <width>519</width>
+    <height>265</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -33,6 +39,9 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <property name="spacing">
       <number>3</number>
+     </property>
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
      </property>
      <item>
       <widget class="QPushButton" name="pushButton_20">
@@ -250,6 +259,15 @@
        <property name="text">
         <string>Clear</string>
        </property>
+       <property name="icon">
+        <iconset theme="clear"/>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>32</width>
+         <height>32</height>
+        </size>
+       </property>
       </widget>
      </item>
      <item row="5" column="4">
@@ -275,6 +293,12 @@
        </property>
        <property name="text">
         <string>T</string>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
        </property>
       </widget>
      </item>
@@ -311,6 +335,12 @@
        </property>
        <item>
         <widget class="QLabel" name="label_0">
+         <property name="minimumSize">
+          <size>
+           <width>75</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -431,7 +461,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="mditouchy.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>pushButton_gx</sender>

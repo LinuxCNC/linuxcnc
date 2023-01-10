@@ -2,6 +2,4 @@
 
 cp -f ../simpockets.tbl.original simpockets.tbl
 
-linuxcnc -r m61-test.ini
-exit $?
-
+exec linuxcnc -r m61-test.ini

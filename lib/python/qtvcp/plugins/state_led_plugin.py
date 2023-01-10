@@ -1,10 +1,13 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.state_led import StateLED
 from qtvcp.widgets.qtvcp_icons import Icon
+
 ICON = Icon()
+
+
 class StateLEDPlugin(QPyDesignerCustomWidgetPlugin):
 
     def __init__(self, parent=None):

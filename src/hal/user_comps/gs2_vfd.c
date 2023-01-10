@@ -78,7 +78,7 @@
 #define GS2_REG_OVER_VOLTAGE_STALL_PREVENTION__DISABLE  1
 
 
-/* modbus slave data struct */
+/* Modbus slave data struct */
 typedef struct {
 	int slave;		/* slave address */
 	int read_reg_start;	/* starting read register number */
@@ -94,7 +94,7 @@ typedef struct {
   hal_float_t	*freq_cmd;	// frequency command
   hal_float_t	*freq_out;	// actual output frequency
   hal_float_t	*curr_out;	// output current
-  hal_float_t	*DCBusV;	// 
+  hal_float_t	*DCBusV;	//
   hal_float_t	*outV;
   hal_float_t	*RPM;
   hal_float_t	*scale_freq;
@@ -346,7 +346,7 @@ int write_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *haldata) {
 //  int write_data[MAX_WRITE_REGS];
     int retval;
     hal_float_t hzcalc;
-        
+
     if (haldata->motor_hz<10)
         haldata->motor_hz = 60;
     if ((haldata->motor_RPM < 600) || (haldata->motor_RPM > 5000))
@@ -363,7 +363,7 @@ int write_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *haldata) {
         if (*haldata->spindle_on){
             modbus_write_register(mb_ctx, slavedata->write_reg_start+1, 1);
             comm_delay=0;
-        }    
+        }
         else
             modbus_write_register(mb_ctx, slavedata->write_reg_start+1, 0);
         haldata->old_run = *(haldata->spindle_on);
@@ -376,9 +376,9 @@ int write_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *haldata) {
         haldata->old_dir = *(haldata->spindle_fwd);
     }
     if (*(haldata->spindle_fwd) || !(*(haldata->spindle_on)))  // JET turn on and off rev based on the status of fwd
-    	*(haldata->spindle_rev) = 0;
+        *(haldata->spindle_rev) = 0;
     if (!(*haldata->spindle_fwd) && *(haldata->spindle_on))
-    	*(haldata->spindle_rev) = 1;	
+        *(haldata->spindle_rev) = 1;
     if (*(haldata->err_reset) != haldata->old_err_reset) {
         if (*(haldata->err_reset))
             modbus_write_register(mb_ctx, slavedata->write_reg_start+4, 1);
@@ -387,14 +387,14 @@ int write_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *haldata) {
         haldata->old_err_reset = *(haldata->err_reset);
     }
     if (comm_delay < haldata->ack_delay){ // JET allow time for communications between drive and EMC
-    	comm_delay++;
+        comm_delay++;
     }
     if ((*haldata->spindle_on) && comm_delay == haldata->ack_delay){ // JET test for up to speed
-    	if ((*(haldata->freq_cmd))==(*(haldata->freq_out)))
-    		*(haldata->at_speed) = 1;
-    } 
+        if ((*(haldata->freq_cmd))==(*(haldata->freq_out)))
+            *(haldata->at_speed) = 1;
+    }
     if (*(haldata->spindle_on)==0){ // JET reset at-speed
-    	*(haldata->at_speed) = 0;
+        *(haldata->at_speed) = 0;
     }
     haldata->retval = retval;
     return retval;
@@ -415,7 +415,7 @@ void usage(int argc, char **argv) {
     "-v or --verbose\n"
     "    Turn on verbose mode.\n"
     "-g or --debug\n"
-    "    Turn on debug mode.  This will cause all modbus messages to be\n"
+    "    Turn on debug mode.  This will cause all Modbus messages to be\n"
     "    printed in hex on the terminal.\n"
     "-n or --name <string> (default gs2_vfd)\n"
     "    Set the name of the HAL module.  The HAL comp name will be set to <string>, and all pin\n"
@@ -438,7 +438,7 @@ void usage(int argc, char **argv) {
     "-R, --braking-resistor\n"
     "    This argument should be used when a braking resistor is installed on the\n"
     "    GS2 VFD (see Appendix A of the GS2 manual).  It disables deceleration\n"
-    "    over-voltage stall prevention (see GS2 modbus Parameter 6.05), allowing\n"
+    "    over-voltage stall prevention (see GS2 Modbus Parameter 6.05), allowing\n"
     "    the VFD to keep braking even in situations where the motor is regenerating\n"
     "    high voltage.  The regenerated voltage gets safely dumped into the\n"
     "    braking resistor.\n"
@@ -463,16 +463,15 @@ int read_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *hal_data_bloc
     if (retval==slavedata->read_reg_count) {
         retval = 0;
         hal_data_block->retval = retval;
-        if (retval==0) {
         *(hal_data_block->stat1) = receive_data[0];
         *(hal_data_block->stat2) = receive_data[1];
         *(hal_data_block->freq_cmd) = receive_data[2] * 0.1;
         *(hal_data_block->freq_out) = receive_data[3] * 0.1;
-        if (receive_data[3]==0){	// JET if freq out is 0 then the drive is stopped
-        *(hal_data_block->is_stopped) = 1;	
-        } else {	
-        *(hal_data_block->is_stopped) = 0; 
-        }	
+        if (receive_data[3]==0) {	// JET if freq out is 0 then the drive is stopped
+            *(hal_data_block->is_stopped) = 1;
+        } else {
+            *(hal_data_block->is_stopped) = 0;
+        }
         *(hal_data_block->curr_out) = receive_data[4] * 0.1;
         *(hal_data_block->DCBusV) = receive_data[5] * 0.1;
         *(hal_data_block->outV) = receive_data[6] * 0.1;
@@ -481,8 +480,6 @@ int read_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *hal_data_bloc
         *(hal_data_block->power_factor) = receive_data[10];
         *(hal_data_block->load_pct) = receive_data[11] * 0.1;
         *(hal_data_block->FW_Rev) = receive_data[12];
-        retval = 0;
-        }
     } else {
         hal_data_block->retval = retval;
         hal_data_block->errorcount++;
@@ -643,7 +640,7 @@ int main(int argc, char **argv)
     /* Assume 38.4k O-8-1 serial settings, device 1 */
     mb_ctx = modbus_new_rtu(device, baud, parity, bits, stopbits);
     if (mb_ctx == NULL) {
-        printf("%s: ERROR: couldn't open modbus serial device: %s\n", modname, modbus_strerror(errno));
+        printf("%s: ERROR: couldn't open Modbus serial device: %s\n", modname, modbus_strerror(errno));
         goto out_noclose;
     }
 
@@ -711,7 +708,7 @@ int main(int argc, char **argv)
     retval = hal_pin_bit_newf(HAL_OUT, &(haldata->at_speed), hal_comp_id, "%s.at-speed", modname);
     if (retval!=0) goto out_closeHAL;
     retval = hal_pin_bit_newf(HAL_OUT, &(haldata->is_stopped), hal_comp_id, "%s.is-stopped", modname); // JET
-    if (retval!=0) goto out_closeHAL; 
+    if (retval!=0) goto out_closeHAL;
     retval = hal_pin_float_newf(HAL_IN, &(haldata->speed_command), hal_comp_id, "%s.speed-command", modname);
     if (retval!=0) goto out_closeHAL;
     retval = hal_pin_bit_newf(HAL_IN, &(haldata->spindle_on), hal_comp_id, "%s.spindle-on", modname);
@@ -732,10 +729,10 @@ int main(int argc, char **argv)
     if (retval!=0) goto out_closeHAL;
     /* define run (enable) pin and isInitialized */
     retval = hal_pin_bit_newf(HAL_IN, &(haldata->ena_gs2comp), hal_comp_id, "%s.enable", modname);
-    if (retval!=0) goto out_closeHAL; 
+    if (retval!=0) goto out_closeHAL;
     retval = hal_pin_bit_newf(HAL_OUT, &(haldata->isInitialized), hal_comp_id, "%s.initialized", modname);
-    if (retval!=0) goto out_closeHAL; 
-    
+    if (retval!=0) goto out_closeHAL;
+
     /* make default data match what we expect to use */
     *(haldata->stat1) = 0;
     *(haldata->stat2) = 0;
@@ -763,8 +760,8 @@ int main(int argc, char **argv)
     haldata->old_dir = -1;
     haldata->old_err_reset = -1;
     *(haldata->ena_gs2comp) = enabled;  // command line override, defaults to "enabled" for compatibility
-    *(haldata->isInitialized) = 0; 
-    
+    *(haldata->isInitialized) = 0;
+
     // Activate HAL component
     hal_ready(hal_comp_id);
 
@@ -805,10 +802,10 @@ int main(int argc, char **argv)
         } else {
             // Enabled and initialized, so do read/write of Modbus
             read_data(mb_ctx, &slavedata, haldata);
-            write_data(mb_ctx, &slavedata, haldata);   
+            write_data(mb_ctx, &slavedata, haldata);
         }
     }
-    
+
     retval = 0;	/* if we get here, then everything is fine, so just clean up and exit */
 out_closeHAL:
     hal_exit(hal_comp_id);

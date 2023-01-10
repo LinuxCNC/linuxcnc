@@ -11,9 +11,9 @@ invisible - see the coloredlabel.ui file.
 To help with this, the colorize() method tries to detect this
 situation and give a warning if the widget is a GtkLabel and the
 parent widget is not an GtkEventBox. It can be used to set the colors
-of arbitray widgets, not just GtkLabel.
+of arbitrary widgets, not just GtkLabel.
 
-Also, this example shows how to set a custon text and color label
+Also, this example shows how to set a custom text and color label
 depending on the HAL pin's value.
 
 ------------------------------------------

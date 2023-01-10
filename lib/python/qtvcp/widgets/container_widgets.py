@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Qtvcp
 #
 # Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -17,7 +17,7 @@
 import os
 import linuxcnc
 
-from PyQt5.QtWidgets import QWidget, QGridLayout
+from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import pyqtProperty
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase

@@ -98,7 +98,7 @@ if {$::numjoints == 0} {
 
 set ::coordnames [ emc_ini "COORDINATES" "TRAJ" ]
 if {[string first " " $::coordnames] < 0 } {
-  # split to acommodate "XYZ" style (as well as {X Y Z} style)
+  # split to accommodate "XYZ" style (as well as {X Y Z} style)
   set ::coordnames [split $::coordnames ""]
 }
 
@@ -2202,8 +2202,6 @@ proc updateStatus {} {
     set teleop_mode [emc_teleop_enable]
     if {$::jointworld == "joint" && $teleop_mode} {
       set ::jointworld "world" ;# radiobutton var
-    } elseif {$::jointworld == "world" && !$teleop_mode} {
-      set ::jointworld "joint"
     }
 
     # format the numbers with 4 digits-dot-4 digits

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # QTVcp Widget
 # Copyright (c) 2018 Chris Morley
@@ -14,11 +14,9 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-import os
-
-from PyQt5.QtWidgets import QWidget, QProgressBar, QToolButton, QHBoxLayout,QLabel, QMenu, QAction, QSizePolicy
-from PyQt5.QtCore import Qt, QEvent, pyqtProperty, QBasicTimer, pyqtSignal
-from PyQt5.QtGui import QColor, QPainter, QFont, QIcon
+from PyQt5.QtWidgets import QWidget, QProgressBar, QToolButton, QHBoxLayout, QMenu, QAction
+from PyQt5.QtCore import Qt, pyqtProperty, QBasicTimer, pyqtSignal
+from PyQt5.QtGui import QPainter, QFont, QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
@@ -26,17 +24,17 @@ from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp import logger
 
 # Instiniate the libraries with global reference
-# STATUS gives us status messages from linuxcnc
+# STATUS gives us status messages from LinuxCNC
 # AUX_PRGM holds helper program loader
-# INI holds ini details
-# ACTION gives commands to linuxcnc
+# INI holds INI details
+# ACTION gives commands to LinuxCNC
 # LOG is for running code logging
 STATUS = Status()
 AUX_PRGM = Aux_program_loader()
 INFO = Info()
 ACTION = Action()
 LOG = logger.getLogger(__name__)
-# Set the log level for this module
+# Force the log level for this module
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
@@ -215,6 +213,7 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
         # set options
         if self.rapid:
             STATUS.connect('rapid-override-changed', lambda w, data: self.setValue(data))
+            self.setMaximum(100)
         elif self.feed:
             STATUS.connect('feed-override-changed', lambda w, data: self.setValue(data))
             self.setMaximum(int(INFO.MAX_FEED_OVERRIDE))
@@ -227,7 +226,7 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
             self.setMaximum(int(INFO.MAX_LINEAR_JOG_VEL))
         elif self.jograte_angular:
             STATUS.connect('jograte-angular-changed', lambda w, data: self.setValue(data))
-            print int(INFO.MAX_ANGULAR_JOG_VEL)
+            print(int(INFO.MAX_ANGULAR_JOG_VEL))
             self.setMaximum(int(INFO.MAX_ANGULAR_JOG_VEL))
         elif self.maxv:
             STATUS.connect('max-velocity-override-changed', lambda w, data: self.setValue(data))
@@ -244,7 +243,7 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
         self.valueChanged.connect(self._action)
 
     # when qtvcp closes this gets called
-    def closing_cleanup__(self):
+    def _hal_cleanup(self):
         if self.PREFS_:
             LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
             self.PREFS_.putpref(self.HAL_NAME_+'-hi-value', self.hi_value, int, 'SCREEN_CONTROL_LAST_SETTING')

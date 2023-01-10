@@ -25,7 +25,7 @@ addf classicladder.0.refresh        servo-thread 1
 # later we will need to add the clp file mentioned below
 # to the ini file so that we do not need to hardcode it here.
 loadusr -w classicladder --nogui demo_step_cl.clp
-# load the GUI aswell
+# load the GUI as well
 loadusr classicladder
 
 # begin to connect physical pins to signals
@@ -49,7 +49,7 @@ net user-request-enable iocontrol.0.user-request-enable  classicladder.0.in-02
 # this bit is an external estop button connected to parport pin 11 and ground
 net ext-estop parport.0.pin-10-in
 net ext-estop classicladder.0.in-01
-# This bit signal is comand to estop from CL to EMC
+# This bit signal is command to estop from CL to EMC
 net emc-enable-in iocontrol.0.emc-enable-in classicladder.0.out-00 
 
 # lube signals

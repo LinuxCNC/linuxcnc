@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding:UTF-8 -*-
 """
     This file will control some options of the gmoccapy plasma screen
-    and demonstrats at the same time the possibilities you have introducing
+    and demonstrates at the same time the possibilities you have introducing
     your own handler files and functions to that screen, showing the
     possibilities to modify the layout and behavior
 
@@ -202,7 +202,7 @@ class PlasmaClass:
     def _on_destroy(self, obj, data = None):
         self.ini.save_state(self)
 
-    # What to do on button pres events?
+    # What to do on button press events?
     def on_btn_THC_speed_pressed(self, widget, dir):
         increment = self.thcspeedincr * dir
         self.thcspeedval = self.adj_THC_speed.get_value() + increment

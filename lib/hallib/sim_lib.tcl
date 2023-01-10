@@ -59,18 +59,32 @@ proc check_ini_items {} {
      }
   }
 
+  set n_extrajoints 0
+  if [info exists ::EMCMOT(EMCMOT)] {
+    set mot [split [lindex $::EMCMOT(EMCMOT) 0]]
+    if {[string first motmod $mot] >= 0} {
+      foreach item $mot {
+        if {[string first num_extrajoints= $item] < 0} continue
+          set n_extrajoints [lindex [split $item =] end]
+      } ;# foreach
+    }
+  }
+
   set kins [split [lindex $::KINS(KINEMATICS) 0]]
   if {[string first trivkins $kins] >= 0} {
     foreach item $kins {
       if {[string first coordinates= $item] < 0} continue
-        set     tcoords [lindex [split $item =] end]
-        set len_tcoords [string len $tcoords]
-        if {$len_tcoords != $::KINS(JOINTS)} {
+      set     tcoords [lindex [split $item =] end]
+      set len_tcoords [string len $tcoords]
+      set expected_joints [expr $len_tcoords + $n_extrajoints]
+      if {$expected_joints != $::KINS(JOINTS)} {
           set m "\ncheck_ini_items: WARNING:\n"
           set m "$m  trivkins coordinates=$tcoords specifies $len_tcoords joints\n"
-          set m "$m  but \[KINS\]JOINTS is $::KINS(JOINTS)\n"
+          set m "$m  trivkins extrajoints=$n_extrajoints\n"
+          set m "$m  trivkins totaljoints=$expected_joints\n"
+          set m "$m  !!! but \[KINS\]JOINTS=$::KINS(JOINTS)\n"
           puts stderr $m
-        }
+      }
     } ;# foreach
   }
   return
@@ -88,15 +102,13 @@ proc setup_kins {axes} {
 
   puts stderr "setup_kins: cmd=$cmd"
   if [catch {eval $cmd} msg] {
-    puts stderr "msg=$msg"
-    # if fail, try without coordinates parameters
-    $cmd
+    puts stderr "\nmsg=$msg\n"
   }
 
   # set up axis indices for known kins
   switch $kins_module {
-    trivkins   {indices_for_trivkins $axes}
-    default    {
+    trivkins {indices_for_trivkins $axes}
+    default  {
       puts stderr "setup_kins: unknown \[KINS\]KINEMATICS=<$::KINS(KINEMATICS)>"
     }
   }
@@ -115,13 +127,21 @@ proc core_sim {axes
   setup_kins $axes
 
   if {"$emcmot" == "motmod"} {
-    loadrt $emcmot \
-      base_period_nsec=$base_period \
-      servo_period_nsec=$servo_period \
-      num_joints=$number_of_joints
+    if [catch {loadrt $emcmot \
+                      base_period_nsec=$base_period \
+                      servo_period_nsec=$servo_period \
+                      num_joints=$number_of_joints} msg
+       ] {
+       # typ: too many joints attempted
+       puts stderr "\n"
+       puts stderr "core_sim: loadrt $emcmot FAIL"
+       puts stderr "     msg=$msg\n"
+       exit 1
+    }
   } else {
      # known special case with additional parameter:
      #       unlock_joint_mask=0xNN
+     #       num_extrajoints=n
      set module  [split [lindex $emcmot 0]]
      set modname [lindex $module 0]
      set modparm [lreplace $module 0 0]
@@ -319,6 +339,13 @@ proc simulated_home {number_of_joints} {
         }
       }
     } ;# type
+    if [info exists ::JOINT_[set jno](HOME_USE_INDEX)] {
+      if [set ::JOINT_[set jno](HOME_USE_INDEX)] {
+        # Note: use default for joint.${jno}.index-delay-ms
+        net J${jno}:index-enable <= joint.${jno}.index-enable
+        net J${jno}:index-enable => J${jno}_switch.index-enable
+      }
+    }
   } ;# for
 } ;# simulated_home
 
@@ -335,7 +362,7 @@ proc sim_spindle {} {
 
   setp rpm_rps.gain .0167
 
-  # this limit doesnt make any sense to me:
+  # this limit doesn't make any sense to me:
   do_setp limit_speed.maxv 5000.0 ;# rpm/second
 
   # encoder reset control
@@ -372,6 +399,9 @@ proc sim_spindle {} {
   net spindle-at-speed <= near_speed.out
   net spindle-at-speed => spindle.0.at-speed
 
+  net spindle-orient <= spindle.0.orient
+  net spindle-orient <= spindle.0.is-oriented
+
   addf limit_speed  servo-thread
   addf spindle_mass servo-thread
   addf rpm_rps servo-thread
@@ -383,6 +413,11 @@ proc save_hal_cmds {savefilename {options ""} } {
   set tmpfile /tmp/save_hal_cmds_tmp
   set date [clock format [clock seconds]]
   set script [info script]
+  set save_arg all  ;# suffices if only basic_sim in use
+  if {[llength $::HAL(HALFILE)] > 1} {
+    set save_arg allu ;# do *all* unconnected pins including
+                      ;# pins from other HALFILEs
+  }
   set fd [open $savefilename w] ;# overwrite any existing file
   puts $fd "# $date
 #
@@ -390,10 +425,11 @@ proc save_hal_cmds {savefilename {options ""} } {
 # Created by:   $script
 # With options: $::argv
 # From inifile: $::env(INI_FILE_NAME)
+# Halfiles:     $::HAL(HALFILE)
 #
 # This file contains the hal commands produced by [file tail $script]
 # (and any hal commands executed prior to its execution).
-#
+# ------------------------------------------------------------------
 # To use $savefilename in the original inifile (or a copy of it),
 # edit to change:
 #     \[HAL\]
@@ -402,9 +438,13 @@ proc save_hal_cmds {savefilename {options ""} } {
 #     \[HAL\]
 #     HALFILE = $savefilename
 #
-# Note: Inifile Variables substitutions specified in the inifile
-#       and interpreted by halcmd are automatically substituted
-#       in the created halfile ($savefilename).
+# Notes:
+#  1) Inifile Variables substitutions specified in the inifile
+#     and interpreted by halcmd are automatically substituted
+#     in the created halfile ($savefilename).
+#  2) Input pins connected to a signal with no writer are
+#     not included in the setp listings herein so must be added
+#     manually
 #
 "
   if {[lsearch $options use_hal_manualtoolchange] >= 0} {
@@ -412,22 +452,41 @@ proc save_hal_cmds {savefilename {options ""} } {
     puts $fd "loadusr -W hal_manualtoolchange"
     puts $fd ""
   }
-  close $fd
 
-  hal save all $tmpfile
+  hal save $save_arg $tmpfile
 
-  set fd [open $savefilename a]
   set ftmp [open $tmpfile r]
+  set gave_msg 0
+  set setp_fmt   "%-3s %-30s %s"
   while {![eof $ftmp]} {
     gets $ftmp line
-    puts $fd $line
+    if {([string first "unconnected pin values" $line] >0) && !$gave_msg} {
+      set gave_msg 1
+      puts $fd "# Note: ALL unconnected pins follow"
+      puts $fd "#       (includes pins using default with no explicit setp command)"
+    } else {
+      scan $line "%s %s %s" cmd arg1 remainder
+      switch $cmd {
+        setp    {puts $fd [format $setp_fmt $cmd $arg1 $remainder]}
+        loadrt  {
+                 if {   [string first tpmod   [list $line]] >= 0
+                     || [string first homemod [list $line]] >= 0
+                    } {
+                    puts $fd "#preloaded module: $line"
+                 } else {
+                    puts $fd $line
+                 }
+                }
+        default {puts $fd $line}
+      }
+    }
   } ;# while
   close $ftmp
   file delete $tmpfile
-  if [info exists ::SIM_LIB(setp_list)] {
+  if {("$save_arg" != "allu") && [info exists ::SIM_LIB(setp_list)]} {
     puts $fd "# setp commands for unconnected input pins"
     foreach {pname value} $::SIM_LIB(setp_list) {
-       puts $fd "setp $pname $value"
+       puts $fd [format $setp_fmt setp $pname $value]
     }
   }
   close $fd

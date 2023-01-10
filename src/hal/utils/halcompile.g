@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #    This is 'halcompile', a tool to write HAL boilerplate
 #    Copyright 2006 Jeff Epler <jepler@unpythonic.net>
 #
@@ -15,7 +14,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from __future__ import print_function
 
 %%
 parser Hal:
@@ -34,7 +32,7 @@ parser Hal:
     token NUMBER: "0x[0-9a-fA-F]+|[+-]?[0-9]+"
     token STRING: "\"(\\.|[^\\\"])*\""
     token HEADER: "<.*?>"
-    token POP: "[-()+*/]|&&|\\|\\||personality|==|&|!=|<<|<|<=|>>|>|>="
+    token POP: "[-()+*/:?]|&&|\\|\\||personality|==|&|!=|<<|<|<=|>>|>|>="
     token TSTRING: "r?\"\"\"(\\.|\\\n|[^\\\"]|\"(?!\"\")|\n)*\"\"\""
 
     rule File: ComponentDeclaration Declaration* "$" {{ return True }}
@@ -49,6 +47,7 @@ parser Hal:
       | "see_also" String ";"   {{ see_also(String) }}
       | "notes" String ";"   {{ notes(String) }}
       | "description" String ";"   {{ description(String) }}
+      | "examples" String ";"   {{ examples(String) }}
       | "license" String ";"   {{ license(String) }}
       | "author" String ";"   {{ author(String) }}
       | "include" Header ";"   {{ include(Header) }}
@@ -100,6 +99,7 @@ parser Hal:
 
 import os, sys, tempfile, shutil, getopt, time
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+BINDIR = os.getenv('USER_MODULE_DIR', None) or os.path.join(BASE, "bin")
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
 MAX_USERSPACE_NAMES = 16 # for userspace (loadusr) components
@@ -178,6 +178,9 @@ def comp(name, doc):
 
 def description(doc):
     docs.append(('descr', doc));
+
+def examples(doc):
+    docs.append(('examples', doc));
 
 def license(doc):
     docs.append(('license', doc));
@@ -513,7 +516,7 @@ static int comp_id;
             print("RTAPI_MP_ARRAY_INT(personality, %d, \"personality of each %s\");" %(MAX_PERSONALITIES,comp_name), file=f)
 
             # Return personality value.
-            # If requested index excedes MAX_PERSONALITIES, use modulo indexing and give message
+            # If requested index exceeds MAX_PERSONALITIES, use modulo indexing and give message
             print("""
             static int p_value(char* cname, char *name, int idx) {
                 int ans = personality[idx%%%d];
@@ -596,25 +599,28 @@ static int comp_id;
                 print("       }", file=f)
                 print("    }", file=f)
             else:
-                print("        int j,idx;", file=f)
-                print("        char *ptr;", file=f)
+                print("        size_t i, j;", file=f)
+                print("        int idx;", file=f)
                 print("        char buf[HAL_NAME_LEN+1];", file=f)
-                print("        ptr = names;", file=f)
-                print("        idx = 0;", file=f)
-                print("        for (i=0,j=0; i <= strlen(names); i++) {", file=f)
-                print("            buf[j] = *(ptr+i);", file=f)
-                print("            if ( (*(ptr+i) == ',') || (*(ptr+i) == 0) ) {", file=f)
-                print("                buf[j] = 0;", file=f)
+                print("        const size_t length = strlen(names);", file=f)
+                print("        for (i = j = idx = 0; i <= length; i++) {", file=f)
+                print("            const char c = buf[j] = names[i];", file=f)
+                print("            if ((c == ',') || (c == '\\0')) {", file=f)
+                print("                buf[j] = '\\0';", file=f)
                 if has_personality:
                     print("                r = export(buf, idx, p_value(\"%s\", buf, idx) );"%comp_name, file=f)
                 else:
                     print("                r = export(buf, idx);", file=f)
-                print("                if (*(ptr+i+1) == 0) {break;}", file=f)
-                print("                idx++;", file=f)
                 print("                if(r != 0) {break;}", file=f)
-                print("                j=0;", file=f)
+                print("                idx++;", file=f)
+                print("                j = 0;", file=f)
                 print("            } else {", file=f)
-                print("                j++;", file=f)
+                print("                if (++j == (sizeof(buf) / sizeof(buf[0]))) {", file=f)
+                print("                    buf[j - 1] = '\\0';", file=f)
+                print("                    rtapi_print_msg(RTAPI_MSG_ERR,\"names: \\\"%s\\\" too long\\n\", buf);", file=f)
+                print("                    r = -EINVAL;", file=f)
+                print("                    break;", file=f)
+                print("                }", file=f)
                 print("            }", file=f)
                 print("        }", file=f)
                 print("    }", file=f)
@@ -789,7 +795,9 @@ def build_usr(tempdir, filename, mode, origfilename):
     makefile = os.path.join(tempdir, "Makefile")
     f = open(makefile, "w")
     print("%s: %s" % (binname, filename), file=f)
-    print("\t$(CC) -I$(EMC2_HOME)/include -I/usr/include/linuxcnc -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal %s" % (
+    print("\t$(CC) -I%s -I$(EMC2_HOME)/include -I/usr/include/linuxcnc -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal %s" % (
+
+        os.path.abspath(os.path.dirname(origfilename)),
         options.get("extra_compile_args", ""),
         options.get("extra_link_args", "")), file=f)
     print("include %s" % find_modinc(), file=f)
@@ -799,7 +807,7 @@ def build_usr(tempdir, filename, mode, origfilename):
         raise SystemExit(os.WEXITSTATUS(result) or 1)
     output = os.path.join(tempdir, binname)
     if mode == INSTALL:
-        shutil.copy(output, os.path.join(BASE, "bin", binname))
+        shutil.copy(output, os.path.join(BINDIR, binname))
     elif mode == COMPILE:
         shutil.copy(output, os.path.join(os.path.dirname(origfilename),binname))
 
@@ -878,10 +886,18 @@ def document(filename, outfilename):
         if personality: has_personality = True
         if isinstance(array, tuple): has_personality = True
 
+    print("""
+.\\"*******************************************************************
+.\\"
+.\\" This file was extracted from %s using halcompile.g.
+.\\" Modify the source file.
+.\\"
+.\\"*******************************************************************
+""" % filename, file=f)
+
     print(".TH %s \"%s\" \"%s\" \"LinuxCNC Documentation\" \"HAL Component\"" % (
         comp_name.upper(), "1" if options.get("userspace") else "9",
         time.strftime("%F")), file=f)
-    print(".de TQ\n.br\n.ns\n.TP \\\\$1\n..\n", file=f)
 
     print(".SH NAME\n", file=f)
     doc = finddoc('component')    
@@ -905,7 +921,11 @@ def document(filename, outfilename):
             print(rest, file=f)
         else:
             print(".HP", file=f)
-            if options.get("singleton") or options.get("count_function"):
+            if options.get("homemod"):
+                print("Custom Homing module loaded with \\fB[EMCMOT]HOMEMOD=%s\\fR"%comp_name, file=f)
+            elif options.get("tpmod"):
+                print("Custom Trajectory Planning module loaded with \\fB[TRAJ]TPMOD=%s\\fR"%comp_name, file=f)
+            elif options.get("singleton") or options.get("count_function"):
                 if has_personality:
                     print(".B loadrt %s personality=\\fIP\\fB" % comp_name, end='', file=f)
                 else:
@@ -976,7 +996,7 @@ def document(filename, outfilename):
             print(doc, file=f)
             lead = ".TP"
         else:
-            lead = ".TQ"
+            lead = ".br\n.ns\n.TP"
 
     lead = ".TP"
     if params:
@@ -1001,7 +1021,12 @@ def document(filename, outfilename):
                 print(doc, file=f)
                 lead = ".TP"
             else:
-                lead = ".TQ"
+                lead = ".br\n.ns\n.TP"
+
+    doc = finddoc('examples')
+    if doc and doc[1]:
+        print(".SH EXAMPLES\n", file=f)
+        print("%s" % doc[1], file=f)
 
     doc = finddoc('see_also')    
     if doc and doc[1]:
@@ -1039,6 +1064,9 @@ def process(filename, mode, outfilename):
             raise SystemExit("Component name (%s) does not match filename (%s)" % (comp_name, base_name))
 
         f = open(outfilename, "w")
+
+        if options.get("homemod"): options["singleton"] = 1
+        if options.get("tpmod"):   options["singleton"] = 1
 
         if options.get("userinit") and not options.get("userspace"):
             print("Warning: comp '%s' sets 'userinit' without 'userspace', ignoring" % filename, file=sys.stderr)
@@ -1195,7 +1223,7 @@ def main():
                 lines = open(f).readlines()
                 if lines[0].startswith("#!"): del lines[0]
                 lines[0] = "#!%s\n" % sys.executable
-                outfile = os.path.join(BASE, "bin", basename)
+                outfile = os.path.join(BINDIR, basename)
                 try: os.unlink(outfile)
                 except os.error: pass
                 open(outfile, "w").writelines(lines)

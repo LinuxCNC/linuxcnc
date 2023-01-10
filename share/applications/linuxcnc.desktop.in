@@ -1,11 +1,13 @@
 [Desktop Entry]
-Version=
+Version=1.0
+Name=LinuxCNC@EMC2_SUFFIX@
+Comment=Linuxcnc Machine Controller
 Type=Application
 Exec=@EMC2_SCRIPT@
 Icon=@EMC2_ICON@
 X-GNOME-DocPath=
 Terminal=false
-Name=LinuxCNC@EMC2_SUFFIX@
-Comment=Linuxcnc Machine Controller
 StartupNotify=false
-Categories=Science;X-CNC;
+X-AppStream-Ignore=true
+Categories=Science;Utility;Engineering;X-CNC;
+Keywords=cnc;linuxcnc;cncprog;

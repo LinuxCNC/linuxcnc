@@ -1,7 +1,7 @@
 component pcl720 """Driver for the Advantech PCL 720 card.""";
 description """This driver supports the Advantech PCL720 ISA card. It might
 work with the PCI version too, but this is untested. 
- It creates hal pins corresonding to the digital inputs and outputs, but does
+ It creates hal pins corresponding to the digital inputs and outputs, but does
 not support the the counters/timers.""";
 
 pin in bit pin-##-out[32] "Output pins";

@@ -11,6 +11,7 @@ param rw float threshold;
 
 function _;
 license "gpl v2 or higher";
+author "Sebastian Kuzminsky";
 
 ;;
 

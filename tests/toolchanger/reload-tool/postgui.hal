@@ -20,3 +20,5 @@ net tool-prep-number => test-ui.tool-prep-number
 net tool-prep-pocket <= iocontrol.0.tool-prep-pocket
 net tool-prep-pocket => test-ui.tool-prep-pocket
 
+net tool-from-pocket <= iocontrol.0.tool-from-pocket
+net tool-from-pocket => test-ui.tool-from-pocket

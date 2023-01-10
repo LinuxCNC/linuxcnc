@@ -10,190 +10,103 @@
 # When used to produce a debian package, this file is a script "used to
 # control compilation and installation of the executable"
 
+set -e
+
 usage () {
     P=${0##*/}
     cat <<EOF
 $P: Set up debian/ files to build for a particular kernel
 
 Usage:
-    $P uspace [noauto | rtai | rtai=packagename | xenomai] ...
-        Build for a userspace realtime systems or simulator
+  $P [no-docs]
 
-    $P sim
-        Deprecated synonym for '$P uspace'
-
-    $P [kernel-version]
-        Build for the installed RTAI realtime kernel specified by
-        [kernel-version], for example "3.4.9-rtai-686-pae"
-
-    $P -r
-        Build for the currently running kernel for RTAI realtime only
-
-    $P -a
-        If the currently running kernel has realtime extensions, use it.
-        Otherwise use any available realtime kernel it can find.
+  Extra options:
+    no-docs
+        Skip building documentation
 EOF
 }
 
 cd "${0%/*}"
 
-if [ $# -eq 0 -o "$1" == "-h" -o "$1" == "-help" -o "$1" == "--help" ]; then
+if [ "$1" == "-h" -o "$1" == "-help" -o "$1" == "--help" ]; then
     usage
-    if [ $# -ne 1 ]; then
-        exit 1
-    fi
     exit 0
 fi
 
-if [ $1 = "-r" ]; then
-    set -- `uname -r`
-elif [ $1 = "-a" ]; then
-    KERNEL="$(uname -r)"
-    if [ ! -d "/usr/realtime-$KERNEL" ]; then
-        KERNEL=$(ls -1d /usr/realtime-* 2> /dev/null | cut -d - -f 2- | head -1)
-        if [ -z "$KERNEL" ]; then
-            echo "no realtime kernels found!"
-            exit 1
-        fi
-    fi
-    set -- $KERNEL
-fi
-
-TARGET=$1; shift
-
-# for example: "3.16.0-9"
-KERNEL_VERSION_ABI=${TARGET%-rtai-*}
-
-MODULE_PATH=usr/realtime-$TARGET/modules/linuxcnc
-MODULE_EXT=.ko
-KERNEL_DEPENDS="linux-image-$TARGET,rtai-modules-$TARGET|rtai-modules-$KERNEL_VERSION_ABI"
-KERNEL_HEADERS=linux-headers-$TARGET
-EXTRA_FILES=
 EXTRA_BUILD=
-KERNEL_VERSION=$TARGET
-DRIVERS=drivers.files.in
-PYTHON_VERSION=$(python -c 'import sys; print sys.version[:3]')
-PYTHON_VERSION_NEXT=$(python -c 'import sys; print sys.version[:2] + str(1+int(sys.version[2]))')
-LIBREADLINE_DEV=libreadline-gplv2-dev
+PYTHON_VERSION_NEXT=$(python3 -c 'import sys; print (sys.version[:2] + str(1+int(sys.version[2])))')
+LIBREADLINE_DEV="libreadline-gplv2-dev | libreadline-dev"
 
-BUILD_RTAI=false
-BUILD_XENOMAI=false
-BUILD_AUTO=true
+ENABLE_BUILD_DOCUMENTATION=--enable-build-documentation=pdf
 
 # Specialize these based on DISTRIB_NAME as needed
 # These do not run-time depend on a specific package because
 # the whole point is to allow a range of kernels to work, and we don't know
 # of any common thing that all such kernels would provide.
 
-# rtai-modules typically doesn't properly declare the architectures where
-# it works, so hardcode it...
-RTAI_DEV="$(apt-cache search -n rtai-modules | head -1 | awk '{print $1}')"
-RTAI_ARCHITECTURE="i386 amd64"
-if [ ! -z "$RTAI_DEV" ]; then
-    RTAI_DEV="$RTAI_DEV [i386], $RTAI_DEV [amd64]"
-fi
-# libxenomai-dev does encode the architectures, but we have to resort to awful
-# shell juju to transform it into a proper dependency list
-XENOMAI_DEV="$(apt-cache search -n libxenomai-dev | head -1 | awk '{print $1}')"
-if [ ! -z "$XENOMAI_DEV" ]; then
-    if [ `apt-cache showsrc libxenomai-dev 2>/dev/null | wc -l` -eq 0 ]; then
-        cat 1>&2 <<-EOF
-	Package libxenomai-dev exists, but information about its source package
-	is not available.  This most likely means that you do not have the
-	right deb-src lines in /etc/apt, or that you need to "apt-get update".
-	EOF
-	exit 99
-    fi
-    XENOMAI_ARCHITECTURE="$(apt-cache showsrc libxenomai-dev \
-        | grep ^Architecture: \
-        | head -1 \
-        | tr '[:space:]' '\n' \
-        | tail -n +2 \
-        | grep -vw all \
-        | tr '\n' ' ')"
-    XENOMAI_DEV="$(apt-cache showsrc libxenomai-dev \
-        | grep ^Architecture: \
-        | head -1 \
-        | tr '[:space:]' '\n' \
-        | tail -n +2 \
-        | grep -vw all \
-        | sed "s/.*/$XENOMAI_DEV [&],/" \
-        | tr '\n' ' ')"
-fi
-
 while test $# -ne 0; do
     case "$1" in
-    noauto) BUILD_AUTO=false ;;
-    rtai) BUILD_RTAI=true ;;
-    rtai=*) BUILD_RTAI=true; RTAI_DEV=${1#rtai=} ;;
-    xenomai) BUILD_XENOMAI=true ;;
-    *) echo 1>&2 "Unknown feature: $1"; exit 99 ;;
+    sim|uspace|noauto) echo "$1 is accepted for compatibility, but ignored";;
+    no-docs) unset ENABLE_BUILD_DOCUMENTATION ;;
+    *) echo 1>&2 "Unknown option: $1"; exit 99 ;;
     esac
     shift
 done
 
 DISTRIB_NAME=
-if [ "$(which lsb_release)" != "" ]; then
-    DISTRIB_NAME="$(lsb_release -s -i)-$(lsb_release -s -r)"
+if [ "$(command -v lsb_release)" != "" ] || [ "$(which lsb_release)" != "" ]; then
+    ID="$(lsb_release --short --id)"
+    RELEASE="$(lsb_release --short --release)"
+    # Workaround for broken lsb_release, <URL: https://bugs.debian.org/1008735 >
+    case "$RELEASE" in
+      n/a)
+        RELEASE=unstable
+        ;;
+    esac
+    DISTRIB_NAME="$ID-$RELEASE"
 elif [ -f /etc/lsb-release ]; then
     source /etc/lsb-release
     DISTRIB_NAME=$DISTRIB_ID-$DISTRIB_RELEASE
 fi
 
-if [ -d extras-$DISTRIB_NAME/linuxcnc.files ]; then
-	EXTRAS=extras-$DISTRIB_NAME/linuxcnc.files
-else
-	EXTRAS=extras
-fi
+if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
+    DOC_DEPENDS="dblatex (>= 0.2.12),\n    dvipng,\n    fonts-dejavu,\n    graphviz,\n    groff,\n    inkscape,\n    python3-lxml,\n    source-highlight,\n    texlive-extra-utils,\n    texlive-font-utils,\n    texlive-fonts-recommended,\n    texlive-lang-cyrillic,\n    texlive-lang-european,\n    texlive-lang-french,\n    texlive-lang-german,\n    texlive-lang-polish,\n    texlive-lang-spanish,\n    texlive-latex-recommended,\n    w3c-linkchecker,\n    xsltproc"
+    
 
-DOC_DEPENDS='asciidoc (>= 8.5), dblatex (>= 0.2.12), docbook-xsl, \
-        dvipng, ghostscript, graphviz, groff, imagemagick, inkscape, \
-        python-lxml, source-highlight, w3c-linkchecker, xsltproc, \
-        texlive-extra-utils, texlive-font-utils, texlive-fonts-recommended, \
-        texlive-lang-cyrillic, texlive-lang-french, texlive-lang-german, \
-        texlive-lang-polish, texlive-lang-spanish, texlive-latex-recommended'
+    case $DISTRIB_NAME in
+	Debian-9)
+	    ;; # No xetex in Debian 9 Stretch
+	*)
+	    # Not quite sure which packages is needed for xetex, but
+	    # texlive-xetex seem like a safe choice.  Need xetex to be
+	    # able to build Chinese PDF.
+	    DOC_DEPENDS="$DOC_DEPENDS,\n    texlive-xetex"
+	    ;;
+    esac
+else
+    DOC_DEPENDS=''
+fi
 
 MODUTILS_DEPENDS=kmod
 PYTHON_PACKAGING_DEPENDS=dh-python
-PYTHON_PACKAGING=dh_python2
-PYTHON_GST=python-gst0.10,gstreamer0.10-plugins-base
+PYTHON_GST=python3-gst-1.0,gstreamer1.0-plugins-base
 TCLTK_VERSION=8.6
-PYTHON_IMAGING="python${PYTHON_VERSION}-imaging | python-imaging | python-pil"
-PYTHON_IMAGING_TK="python${PYTHON_VERSION}-imaging-tk | python-imaging-tk | python-pil.imagetk"
-YAPPS_RUNTIME="yapps2-runtime"
-STANDARDS_VERSION="3.9.3"
+PYTHON_IMAGING=python3-pil
+PYTHON_IMAGING_TK=python3-pil.imagetk
+QTVCP_DEPENDS="python3-pyqt5,\n    python3-pyqt5.qsci,\n    python3-pyqt5.qtsvg,\n    python3-pyqt5.qtopengl,\n    python3-opencv,\n    python3-dbus,\n    python3-espeak,\n    python3-dbus.mainloop.pyqt5,\n    python3-pyqt5.qtwebkit,\n    espeak-ng,\n    pyqt5-dev-tools,\n    gstreamer1.0-tools,espeak,\n    sound-theme-freedesktop,\n    python3-poppler-qt5"
+YAPPS_RUNTIME="python3-yapps"
+DEBHELPER="debhelper (>= 12)"
+COMPAT="12"
 
 case $DISTRIB_NAME in
+    Ubuntu-21.*|Debian-11|Debian-11.*|Debian-testing|Debian-unstable)
+        LIBREADLINE_DEV=libeditreadline-dev
+        COMPAT=""
+        DEBHELPER="debhelper-compat (= 13)"
+        ;;
+    Ubuntu-20.*)
+        ;;
     Debian-10|Debian-10.*|Raspbian-10|Raspbian-10.*)
-        DOC_DEPENDS="$DOC_DEPENDS, asciidoc-dblatex"
-        PYTHON_GST=python-gst-1.0,gstreamer1.0-plugins-base
-        EXTRA_BUILD=python-yapps
-        YAPPS_RUNTIME="python-yapps"
-        STANDARDS_VERSION="3.9.8"
-        ;;
-    Debian-9.*|Raspbian-9.*|LinuxMint-19.*|Ubuntu-18.*)
-        DOC_DEPENDS="$DOC_DEPENDS, asciidoc-dblatex"
-        PYTHON_GST=python-gst-1.0,gstreamer1.0-plugins-base
-        STANDARDS_VERSION="3.9.8"
-        ;;
-    Debian-8.*|Raspbian-8.*) # Jessie
-        STANDARDS_VERSION="3.9.6"
-        ;;
-    Debian-7.*|Raspbian-7) # Wheezy
-        EXTRA_BUILD=libgnomeprintui2.2-dev
-        PYTHON_PACKAGING_DEPENDS=python-support
-        PYTHON_PACKAGING=dh_pysupport
-        TCLTK_VERSION=8.5
-        STANDARDS_VERSION="3.9.4"
-        ;;
-    Ubuntu-1[456].*|LinuxMint-1[78]*) # Trusty through Xenial, LinuxMint 17 and 18
-        ;;
-    Ubuntu-1[12].*) # Natty Narwhal, Precise Pangolin (LTS), Quantal Quetzal
-        EXTRA_BUILD=libgnomeprintui2.2-dev
-        MODUTILS_DEPENDS=module-init-tools
-        PYTHON_PACKAGING_DEPENDS=python-support
-        PYTHON_PACKAGING=dh_pysupport
-        TCLTK_VERSION=8.5
         ;;
     *)
         echo "unknown distribution: $DISTRIB_NAME"
@@ -202,59 +115,34 @@ case $DISTRIB_NAME in
         ;;
 esac
 
-TARGET_EXTRA=
+TARGET=uspace
 MAIN_PACKAGE_NAME=linuxcnc
 OTHER_MAIN_PACKAGE_NAME=linuxcnc-uspace
 EXTRA_RECOMMENDS=hostmot2-firmware-all
-case $TARGET in
-    uspace|sim)
-        if $BUILD_AUTO; then
-            if test ! -z "$XENOMAI_DEV" > /dev/null; then
-                BUILD_XENOMAI=true
-            fi
-            if test ! -z "$RTAI_DEV"; then
-                BUILD_RTAI=true
-            fi
-        fi
+MODULE_PATH=usr/lib/linuxcnc/modules
+MODULE_EXT=.so
+KERNEL_DEPENDS=libudev-dev,iptables
+KERNEL_DEPENDS_BUILD=libudev-dev
+KERNEL_HEADERS=
+KERNEL_VERSION=uspace
+MODUTILS_DEPENDS=
+DISTRIB_NAME=uspace-$DISTRIB_NAME
+MAIN_PACKAGE_NAME=linuxcnc-uspace
+OTHER_MAIN_PACKAGE_NAME=linuxcnc
 
-        if $BUILD_RTAI; then
-            EXTRA_BUILD="$EXTRA_BUILD,$RTAI_DEV"
-            TARGET_EXTRA="$TARGET_EXTRA+rtai"
-        fi
-
-        if $BUILD_XENOMAI; then
-            EXTRA_BUILD="$EXTRA_BUILD,$XENOMAI_DEV"
-            TARGET_EXTRA="$TARGET_EXTRA+xenomai"
-        fi
-
-	TARGET=uspace
-        MODULE_PATH=usr/lib/linuxcnc/modules
-	MODULE_EXT=.so
-	KERNEL_DEPENDS=libudev-dev,iptables
-	KERNEL_HEADERS=
-	KERNEL_VERSION=uspace
-	DRIVERS=
-        EXTRA_FILES="usr/bin/rtapi_app"
-	DISTRIB_NAME=uspace-$DISTRIB_NAME
-	MAIN_PACKAGE_NAME=linuxcnc-uspace
-        OTHER_MAIN_PACKAGE_NAME=linuxcnc
-
-        EXTRA_RECOMMENDS="$EXTRA_RECOMMENDS, linux-image-rt-amd64 [linux-amd64], linux-image-rt-686-pae [linux-i386]"
-    ;;
-    2.6.32-122-rtai|3.4-9-rtai-686-pae|3.16.0-9-rtai-*) ;;
-    *)
-	echo "your kernel '$TARGET' is not known. There might be needed dependencies which won't get set automatically."
-esac
+EXTRA_RECOMMENDS="$EXTRA_RECOMMENDS, linux-image-rt-amd64 [linux-amd64], linux-image-rt-686-pae [linux-i386]"
+CONFIGURE_REALTIME_ARG=--with-realtime=uspace
 
 subst () {
 sed \
+    -e "s#@COMPAT@#$COMPAT#g" \
+    -e "s#@DEBHELPER@#$DEBHELPER#g" \
     -e "s#@DISTRIB_NAME@#$DISTRIB_NAME#g" \
     -e "s#@DOC_DEPENDS@#$DOC_DEPENDS#g" \
     -e "s#@EXTRA_BUILD@#$EXTRA_BUILD#g" \
-    -e "s#@EXTRA_FILES@#$EXTRA_FILES#g" \
     -e "s#@EXTRA_RECOMMENDS@#$EXTRA_RECOMMENDS#g" \
-    -e "s#@EXTRAS@#$EXTRAS#g" \
     -e "s#@KERNEL_DEPENDS@#$KERNEL_DEPENDS#g" \
+    -e "s#@KERNEL_DEPENDS_BUILD@#$KERNEL_DEPENDS_BUILD#g" \
     -e "s#@KERNEL_HEADERS@#$KERNEL_HEADERS#g" \
     -e "s#@KERNEL_VERSION@#$KERNEL_VERSION#g" \
     -e "s#@LIBREADLINE_DEV@#$LIBREADLINE_DEV#g" \
@@ -267,59 +155,40 @@ sed \
     -e "s#@PYTHON_IMAGING@#$PYTHON_IMAGING#g" \
     -e "s#@PYTHON_IMAGING_TK@#$PYTHON_IMAGING_TK#g" \
     -e "s#@PYTHON_PACKAGING_DEPENDS@#$PYTHON_PACKAGING_DEPENDS#g" \
-    -e "s#@PYTHON_PACKAGING@#$PYTHON_PACKAGING#g" \
     -e "s#@PYTHON_VERSION_NEXT@#$PYTHON_VERSION_NEXT#g" \
-    -e "s#@PYTHON_VERSION@#$PYTHON_VERSION#g" \
+    -e "s#@QTVCP_DEPENDS@#$QTVCP_DEPENDS#g" \
     -e "s#@RTAI_ARCHITECTURE@#$RTAI_ARCHITECTURE#g" \
     -e "s#@TARGET@#$TARGET#g" \
+    -e "s#@CONFIGURE_REALTIME_ARG@#$CONFIGURE_REALTIME_ARG#g" \
     -e "s#@TCLTK_VERSION@#$TCLTK_VERSION#g" \
     -e "s#@XENOMAI_ARCHITECTURE@#$XENOMAI_ARCHITECTURE#g" \
     -e "s|@YAPPS_RUNTIME@|$YAPPS_RUNTIME|g" \
-    -e "s#@STANDARDS_VERSION@#$STANDARDS_VERSION#g" \
+    -e "s#@ENABLE_BUILD_DOCUMENTATION@#$ENABLE_BUILD_DOCUMENTATION#g" \
+    -e '/^\s*,\s*$/d' \
     $*
 }
 
+if [[ -z "${COMPAT}" ]]; then
+    rm -f compat
+else
+    subst compat.in > compat
+fi
+
 subst control.top.in > control
 
-if [ "$TARGET" == "uspace" ]; then
-    if $BUILD_RTAI; then
-        echo >> control
-        subst control.uspace-rtai.in >> control
-        subst linuxcnc-uspace-rtai.files.in > linuxcnc-uspace-rtai.files
-    fi
-    if $BUILD_XENOMAI; then
-        echo >> control
-        subst control.uspace-xenomai.in >> control
-        subst linuxcnc-uspace-xenomai.files.in > linuxcnc-uspace-xenomai.files
-    fi
-fi
-
 echo >> control
-subst control.bottom.in >> control
+subst control.main-pkg.in >> control
 
-if [ "$TARGET" == "uspace" ]; then
-    cp linuxcnc-dev.files.in linuxcnc-uspace-dev.files
-else
-    cp linuxcnc-dev.files.in linuxcnc-dev.files
-    echo "$MODULE_PATH/Module.symvers" >> linuxcnc-dev.files
+subst linuxcnc.install.in > ${MAIN_PACKAGE_NAME}.install
+subst linuxcnc.lintian-overrides.in > ${MAIN_PACKAGE_NAME}.lintian-overrides
+
+subst rules.in > rules
+chmod +x rules
+
+if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
+    subst control.docs.in >> control
 fi
 
-subst rules.in > rules; chmod +x rules
-
-if [ -f $EXTRAS/linuxcnc.files ]; then
-    subst linuxcnc.files.in $DRIVERS $EXTRAS/linuxcnc.files > $MAIN_PACKAGE_NAME.files
-else
-    subst linuxcnc.files.in $DRIVERS > $MAIN_PACKAGE_NAME.files
-fi
-
-DOCS_PACKAGES=$(echo linuxcnc-doc-{en,fr,es,cn,ja})
-for P in $DOCS_PACKAGES; do
-    if [ -f $EXTRAS/$P.files ]; then
-        cat $P.files.in $EXTRAS/$P.files > $P.files
-    else
-        cat $P.files.in > $P.files
-    fi
-done
 
 rm -f ../build-stamp
-echo "successfully configured for '$DISTRIB_NAME'-'$TARGET$TARGET_EXTRA'.."
+echo "successfully configured for '$DISTRIB_NAME'.."

@@ -15,11 +15,11 @@
 #ifndef EMC_HH
 #define EMC_HH
 
-#include "config.h"
 #include "emcmotcfg.h"		// EMC_JOINT_MAX, EMC_AXIS_MAX
 #include "nml_type.hh"
 #include "motion_types.h"
 #include <stdint.h>
+#include "modal_state.hh"
 
 // Forward class declarations
 class EMC_JOINT_STAT;
@@ -359,7 +359,7 @@ extern int emcJointSetFerror(int joint, double ferror);
 extern int emcJointSetMinFerror(int joint, double ferror);
 extern int emcJointSetHomingParams(int joint, double home, double offset, double home_vel,
 				  double search_vel, double latch_vel,
-				  int use_index, int ignore_limits,
+				  int use_index, int encoder_does_not_reset, int ignore_limits,
 				  int is_shared, int home_sequence, int volatile_home, int locking_indexer,
                   int absolute_encoder);
 extern int emcJointUpdateHomingParams(int joint, double home, double offset, int sequence);
@@ -384,9 +384,16 @@ extern int emcJogAbs(int nr, double pos, double vel, int jjogmode);
 
 extern int emcJointUpdate(EMC_JOINT_STAT stat[], int numJoints);
 
+
+// implementation functions for EMC_SPINDLE types
+
+extern int emcSpindleSetParams(int spindle, double max_pos, double min_pos, double max_neg,
+            double min_neg, double search_vel, double home_angle, int sequence, double increment);
+
 // implementation functions for EMC_TRAJ types
 
 extern int emcTrajSetJoints(int joints);
+extern int emcTrajUpdateTag(StateTag const &tag);
 extern int emcTrajSetAxes(int axismask);
 extern int emcTrajSetSpindles(int spindles);
 extern int emcTrajSetUnits(double linearUnits, double angularUnits);
@@ -419,7 +426,7 @@ extern int emcTrajStep();
 extern int emcTrajResume();
 extern int emcTrajDelay(double delay);
 extern int emcTrajLinearMove(EmcPose end, int type, double vel,
-                             double ini_maxvel, double acc, int indexrotary);
+                             double ini_maxvel, double acc, int indexer_jnum);
 extern int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center, PM_CARTESIAN
         normal, int turn, int type, double vel, double ini_maxvel, double acc);
 extern int emcTrajSetTermCond(int cond, double tolerance);

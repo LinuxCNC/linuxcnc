@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (c) 2015 Serguei Glavatski ( verser  from cnc-club.ru )
 #
@@ -12,17 +12,18 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
+from gi.repository import Pango as pango
+
 import hal                  # base hal class to react to hal signals
-import os                   # needed to get the paths and directorys
+import os                   # needed to get the paths and directories
 import hal_glib             # needed to make our own hal pins
-import gtk                  # base for pygtk widgets and constants
 import gtk.glade
 import sys                  # handle system calls
-import linuxcnc             # to get our own error sytsem
-import gobject              # needed to add the timer for periodic
-import pygtk
+import linuxcnc             # to get our own error system
 import gladevcp
-import pango
 import time
 import math
 from linuxcnc import ini
@@ -54,8 +55,8 @@ class ps_preferences(cp1):
         m = self.types.get(type)
         try:
             o = m(self, "DEFAULT", option)
-        except Exception, detail:
-            print detail
+        except Exception as detail:
+            print(detail)
             self.set("DEFAULT", option, default)
             self.write(open(self.fn, "w"))
             if type in(bool, float, int):
@@ -70,7 +71,7 @@ class ps_preferences(cp1):
 
 
 class ProbeScreenClass:
-    
+
     def get_preference_file_path(self):
         # we get the preference file, if there is none given in the INI
         # we use toolchange2.pref in the config dir
@@ -94,28 +95,28 @@ class ProbeScreenClass:
 
     def add_history(self,tool_tip_text,s="",xm=0.,xc=0.,xp=0.,lx=0.,ym=0.,yc=0.,yp=0.,ly=0.,z=0.,d=0.,a=0.):
 #        c = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        c = datetime.now().strftime('%H:%M:%S  ') + '{0: <10}'.format(tool_tip_text)  
-        if "Xm" in s : 
+        c = datetime.now().strftime('%H:%M:%S  ') + '{0: <10}'.format(tool_tip_text)
+        if "Xm" in s :
             c += "X-=%.4f "%xm
-        if "Xc" in s : 
+        if "Xc" in s :
             c += "Xc=%.4f "%xc
-        if "Xp" in s : 
+        if "Xp" in s :
             c += "X+=%.4f "%xp
-        if "Lx" in s : 
+        if "Lx" in s :
             c += "Lx=%.4f "%lx
-        if "Ym" in s : 
+        if "Ym" in s :
             c += "Y-=%.4f "%ym
-        if "Yc" in s : 
+        if "Yc" in s :
             c += "Yc=%.4f "%yc
-        if "Yp" in s : 
+        if "Yp" in s :
             c += "Y+=%.4f "%yp
-        if "Ly" in s : 
+        if "Ly" in s :
             c += "Ly=%.4f "%ly
-        if "Z" in s : 
+        if "Z" in s :
             c += "Z=%.4f "%z
-        if "D" in s : 
+        if "D" in s :
             c += "D=%.4f"%d
-        if "A" in s : 
+        if "A" in s :
             c += "Angle=%.3f"%a
         i=self.buffer.get_end_iter()
         if i.get_line() > 1000 :
@@ -132,22 +133,22 @@ class ProbeScreenClass:
             error_pin= Popen('halcmd getp gmoccapy.error ', shell=True, stdout=PIPE).stdout.read()
         if error:
             kind, text = error
-            self.add_history("Error: %s" % text,"",0,0,0,0,0,0,0,0,0,0,0)            
+            self.add_history("Error: %s" % text,"",0,0,0,0,0,0,0,0,0,0,0)
             if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
 
                 typus = "error"
-                print typus, text
+                print(typus, text)
                 return -1
             else:
                 typus = "info"
-                print typus, text
+                print(typus, text)
                 return -1
         else:
             if "TRUE" in error_pin:
                 text = "User probe error"
-                self.add_history("Error: %s" % text,"",0,0,0,0,0,0,0,0,0,0,0)            
+                self.add_history("Error: %s" % text,"",0,0,0,0,0,0,0,0,0,0,0)
                 typus = "error"
-                print typus, text
+                print(typus, text)
                 return -1
         return 0
 
@@ -167,8 +168,8 @@ class ProbeScreenClass:
         coord = [x1,y1]
         if a1 != 0:
             if self.chk_set_zero.get_active() :
-                xc=self.spbtn_offs_x.get_value() 
-                yc=self.spbtn_offs_y.get_value() 
+                xc=self.spbtn_offs_x.get_value()
+                yc=self.spbtn_offs_y.get_value()
             else :
                 self.stat.poll()
                 xc=self.stat.position[0]-self.stat.g5x_offset[0] - self.stat.g92_offset[0] - self.stat.tool_offset[0]
@@ -194,14 +195,14 @@ class ProbeScreenClass:
         g5x_offset=list(self.stat.g5x_offset)
         g92_offset=list(self.stat.g92_offset)
         tool_offset=list(self.stat.tool_offset)
-#        print "g5x_offset=",g5x_offset
-#        print "g92_offset=",g92_offset
-#        print "tool_offset=",tool_offset
-#        print "actual position=",self.stat.actual_position
-#        print "position=",self.stat.position
-#        print "joint_actual position=",self.stat.joint_actual_position
-#        print "joint_position=",self.stat.joint_position
-#        print "probed position=",self.stat.probed_position
+#        print("g5x_offset=",g5x_offset)
+#        print("g92_offset=",g92_offset)
+#        print("tool_offset=",tool_offset)
+#        print("actual position=",self.stat.actual_position)
+#        print("position=",self.stat.position)
+#        print("joint_actual position=",self.stat.joint_actual_position)
+#        print("joint_position=",self.stat.joint_position)
+#        print("probed position=",self.stat.probed_position)
         for i in range(0, len(probed_position)-1):
              coord[i] = probed_position[i] - g5x_offset[i] - g92_offset[i] - tool_offset[i]
         angl=self.stat.rotation_xy
@@ -232,13 +233,13 @@ class ProbeScreenClass:
             c = "G10 L20 P0"
             s=s.upper()
             if "X" in s :
-                x+=self.spbtn_offs_x.get_value() 
+                x+=self.spbtn_offs_x.get_value()
                 c += " X%s"%x
-            if "Y" in s : 
-                y+=self.spbtn_offs_y.get_value() 
+            if "Y" in s :
+                y+=self.spbtn_offs_y.get_value()
                 c += " Y%s"%y
             if "Z" in s :
-                tmpz=tmpz-z+self.spbtn_offs_z.get_value() 
+                tmpz=tmpz-z+self.spbtn_offs_z.get_value()
                 c += " Z%s"%tmpz
             self.gcode(c)
             time.sleep(1)
@@ -249,101 +250,101 @@ class ProbeScreenClass:
             self.lb_probe_a.set_text( "%.3f" % a)
             s="G10 L2 P0"
             if self.chk_set_zero.get_active() :
-                s +=  " X%s"%self.spbtn_offs_x.get_value()      
-                s +=  " Y%s"%self.spbtn_offs_y.get_value()      
+                s +=  " X%s"%self.spbtn_offs_x.get_value()
+                s +=  " Y%s"%self.spbtn_offs_y.get_value()
             else :
                 self.stat.poll()
                 x=self.stat.position[0]
                 y=self.stat.position[1]
-                s +=  " X%s"%x      
-                s +=  " Y%s"%y      
-            s +=  " R%s"%a                      
+                s +=  " X%s"%x
+                s +=  " Y%s"%y
+            s +=  " R%s"%a
             self.gcode(s)
             time.sleep(1)
-                
+
 
     # Spin  buttons
 
     def on_spbtn1_search_vel_key_press_event( self, gtkspinbutton, data = None ):
-        keyname = gtk.gdk.keyval_name(data.keyval)
-#        print "Key %s (%d) was pressed" % (keyname, data.keyval)
+        keyname = gdk.keyval_name(data.keyval)
+#        print("Key %s (%d) was pressed" % (keyname, data.keyval))
         if keyname == "Return" :
             gtkspinbutton.modify_font(pango.FontDescription('normal'))
         else :
             gtkspinbutton.modify_font(pango.FontDescription('italic'))
 
     def on_spbtn1_probe_vel_key_press_event( self, gtkspinbutton, data = None ):
-        keyname = gtk.gdk.keyval_name(data.keyval)
+        keyname = gdk.keyval_name(data.keyval)
         if keyname == "Return" :
             gtkspinbutton.modify_font(pango.FontDescription('normal'))
         else :
             gtkspinbutton.modify_font(pango.FontDescription('italic'))
 
     def on_spbtn1_probe_max_key_press_event( self, gtkspinbutton, data = None ):
-        keyname = gtk.gdk.keyval_name(data.keyval)
+        keyname = gdk.keyval_name(data.keyval)
         if keyname == "Return" :
             gtkspinbutton.modify_font(pango.FontDescription('normal'))
         else :
             gtkspinbutton.modify_font(pango.FontDescription('italic'))
 
     def on_spbtn1_probe_latch_key_press_event( self, gtkspinbutton, data = None ):
-        keyname = gtk.gdk.keyval_name(data.keyval)
+        keyname = gdk.keyval_name(data.keyval)
         if keyname == "Return" :
             gtkspinbutton.modify_font(pango.FontDescription('normal'))
         else :
             gtkspinbutton.modify_font(pango.FontDescription('italic'))
 
     def on_spbtn1_probe_diam_key_press_event( self, gtkspinbutton, data = None ):
-        keyname = gtk.gdk.keyval_name(data.keyval)
+        keyname = gdk.keyval_name(data.keyval)
         if keyname == "Return" :
             gtkspinbutton.modify_font(pango.FontDescription('normal'))
         else :
             gtkspinbutton.modify_font(pango.FontDescription('italic'))
 
     def on_spbtn1_xy_clearance_key_press_event( self, gtkspinbutton, data = None ):
-        keyname = gtk.gdk.keyval_name(data.keyval)
+        keyname = gdk.keyval_name(data.keyval)
         if keyname == "Return" :
             gtkspinbutton.modify_font(pango.FontDescription('normal'))
         else :
             gtkspinbutton.modify_font(pango.FontDescription('italic'))
 
     def on_spbtn1_edge_lenght_key_press_event( self, gtkspinbutton, data = None ):
-        keyname = gtk.gdk.keyval_name(data.keyval)
+        keyname = gdk.keyval_name(data.keyval)
         if keyname == "Return" :
             gtkspinbutton.modify_font(pango.FontDescription('normal'))
         else :
             gtkspinbutton.modify_font(pango.FontDescription('italic'))
 
     def on_spbtn1_z_clearance_key_press_event( self, gtkspinbutton, data = None ):
-        keyname = gtk.gdk.keyval_name(data.keyval)
+        keyname = gdk.keyval_name(data.keyval)
         if keyname == "Return" :
             gtkspinbutton.modify_font(pango.FontDescription('normal'))
         else :
             gtkspinbutton.modify_font(pango.FontDescription('italic'))
 
     def on_spbtn_offs_x_key_press_event( self, gtkspinbutton, data = None ):
-        keyname = gtk.gdk.keyval_name(data.keyval)
+        keyname = gdk.keyval_name(data.keyval)
         if keyname == "Return" :
             gtkspinbutton.modify_font(pango.FontDescription('normal'))
         else :
             gtkspinbutton.modify_font(pango.FontDescription('italic'))
 
     def on_spbtn_offs_y_key_press_event( self, gtkspinbutton, data = None ):
-        keyname = gtk.gdk.keyval_name(data.keyval)
+        keyname = gdk.keyval_name(data.keyval)
         if keyname == "Return" :
             gtkspinbutton.modify_font(pango.FontDescription('normal'))
         else :
             gtkspinbutton.modify_font(pango.FontDescription('italic'))
 
     def on_spbtn_offs_z_key_press_event( self, gtkspinbutton, data = None ):
-        keyname = gtk.gdk.keyval_name(data.keyval)
+        keyname = gdk.keyval_name(data.keyval)
         if keyname == "Return" :
             gtkspinbutton.modify_font(pango.FontDescription('normal'))
         else :
             gtkspinbutton.modify_font(pango.FontDescription('italic'))
 
     def on_spbtn_offs_angle_key_press_event( self, gtkspinbutton, data = None ):
-        keyname = gtk.gdk.keyval_name(data.keyval)
+        keyname = gdk.keyval_name(data.keyval)
         if keyname == "Return" :
             gtkspinbutton.modify_font(pango.FontDescription('normal'))
         else :
@@ -368,7 +369,7 @@ class ProbeScreenClass:
         gtkspinbutton.modify_font(pango.FontDescription('normal'))
         self.halcomp["ps_probe_latch"] = gtkspinbutton.get_value()
         self.prefs.putpref( "ps_probe_latch", gtkspinbutton.get_value(), float )
-        print "on_spbtn1_probe_latch_value_changed"
+        print("on_spbtn1_probe_latch_value_changed")
 
     def on_spbtn1_probe_diam_value_changed( self, gtkspinbutton, data = None ):
         gtkspinbutton.modify_font(pango.FontDescription('normal'))
@@ -410,7 +411,7 @@ class ProbeScreenClass:
         self.halcomp["ps_offs_angle"] = gtkspinbutton.get_value()
         self.prefs.putpref( "ps_offs_angle", gtkspinbutton.get_value(), float )
 
-    def gcode(self,s, data = None): 
+    def gcode(self,s, data = None):
         for l in s.split("\n"):
             if "G1" in l :
                 l+= " F#<_ini[TOOLSENSOR]RAPID_SPEED>"
@@ -420,7 +421,7 @@ class ProbeScreenClass:
                 return -1
         return 0
 
-    def ocode(self,s, data = None):	
+    def ocode(self,s, data = None):
         self.command.mdi(s)
         self.stat.poll()
         while self.stat.exec_state == 7 or self.stat.exec_state == 3 :
@@ -437,7 +438,7 @@ class ProbeScreenClass:
         # move Z - z_clearance
         s="""G91
         G1 Z-%f
-        G90""" % (self.spbtn1_z_clearance.get_value() )        
+        G90""" % (self.spbtn1_z_clearance.get_value() )
         if self.gcode(s) == -1:
             return -1
         return 0
@@ -446,7 +447,7 @@ class ProbeScreenClass:
         # move Z + z_clearance
         s="""G91
         G1 Z%f
-        G90""" % (self.spbtn1_z_clearance.get_value() )        
+        G90""" % (self.spbtn1_z_clearance.get_value() )
         if self.gcode(s) == -1:
             return -1
         return 0
@@ -507,21 +508,21 @@ class ProbeScreenClass:
         self.command.wait_complete()
         s="G10 L2 P0"
         if self.chk_set_zero.get_active() :
-            s +=  " X%.4f"%self.spbtn_offs_x.get_value()      
-            s +=  " Y%.4f"%self.spbtn_offs_y.get_value()      
+            s +=  " X%.4f"%self.spbtn_offs_x.get_value()
+            s +=  " Y%.4f"%self.spbtn_offs_y.get_value()
         else :
             self.stat.poll()
             x=self.stat.position[0]
             y=self.stat.position[1]
-            s +=  " X%.4f"%x      
-            s +=  " Y%.4f"%y      
+            s +=  " X%.4f"%x
+            s +=  " Y%.4f"%y
         s +=  " R%.4f"%self.spbtn_offs_angle.get_value()
-        print "s=",s                     
+        print("s=",s)
         self.gcode(s)
         time.sleep(1)
 
 
-       
+
     # --------------  Command buttons -----------------
     #               Measurement outside
     # -------------------------------------------------
@@ -543,7 +544,7 @@ class ProbeScreenClass:
          # move X - xy_clearance
         s="""G91
         G1 X-%f
-        G90""" % (self.spbtn1_xy_clearance.get_value() )        
+        G90""" % (self.spbtn1_xy_clearance.get_value() )
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -559,7 +560,7 @@ class ProbeScreenClass:
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 X%f" % xres
         if self.gcode(s) == -1:
             return
@@ -572,7 +573,7 @@ class ProbeScreenClass:
          # move Y - xy_clearance
         s="""G91
         G1 Y-%f
-        G90""" % (self.spbtn1_xy_clearance.get_value() )        
+        G90""" % (self.spbtn1_xy_clearance.get_value() )
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -588,7 +589,7 @@ class ProbeScreenClass:
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 Y%f" % yres
         if self.gcode(s) == -1:
             return
@@ -601,7 +602,7 @@ class ProbeScreenClass:
          # move X + xy_clearance
         s="""G91
         G1 X%f
-        G90""" % (self.spbtn1_xy_clearance.get_value() )        
+        G90""" % (self.spbtn1_xy_clearance.get_value() )
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -617,7 +618,7 @@ class ProbeScreenClass:
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 X%f" % xres
         if self.gcode(s) == -1:
             return
@@ -630,7 +631,7 @@ class ProbeScreenClass:
          # move Y + xy_clearance
         s="""G91
         G1 Y%f
-        G90""" % (self.spbtn1_xy_clearance.get_value() )        
+        G90""" % (self.spbtn1_xy_clearance.get_value() )
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -646,7 +647,7 @@ class ProbeScreenClass:
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 Y%f" % yres
         if self.gcode(s) == -1:
             return
@@ -654,14 +655,14 @@ class ProbeScreenClass:
 
     # Corners
     # Move Probe manual under corner 2-3 mm
-    # X+Y+ 
+    # X+Y+
     def on_xpyp_released(self, gtkbutton, data = None):
         self.command.mode( linuxcnc.MODE_MDI )
         self.command.wait_complete()
         # move X - xy_clearance Y + edge_lenght
         s="""G91
         G1 X-%f Y%f
-        G90""" % (self.spbtn1_xy_clearance.get_value(), self.spbtn1_edge_lenght.get_value() )        
+        G90""" % (self.spbtn1_xy_clearance.get_value(), self.spbtn1_edge_lenght.get_value() )
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -682,7 +683,7 @@ class ProbeScreenClass:
         a=self.spbtn1_edge_lenght.get_value()+self.spbtn1_xy_clearance.get_value()
         s="""G91
         G1 X%f Y-%f
-        G90""" % (a,a)        
+        G90""" % (a,a)
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -699,7 +700,7 @@ class ProbeScreenClass:
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 X%f Y%f" % (xres,yres)
         if self.gcode(s) == -1:
             return
@@ -712,7 +713,7 @@ class ProbeScreenClass:
         # move X - xy_clearance Y + edge_lenght
         s="""G91
         G1 X-%f Y-%f
-        G90""" % (self.spbtn1_xy_clearance.get_value(),self.spbtn1_edge_lenght.get_value() )        
+        G90""" % (self.spbtn1_xy_clearance.get_value(),self.spbtn1_edge_lenght.get_value() )
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -733,7 +734,7 @@ class ProbeScreenClass:
         a=self.spbtn1_edge_lenght.get_value()+self.spbtn1_xy_clearance.get_value()
         s="""G91
         G1 X%f Y%f
-        G90""" % (a,a)        
+        G90""" % (a,a)
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -749,7 +750,7 @@ class ProbeScreenClass:
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 X%f Y%f" % (xres,yres)
         if self.gcode(s) == -1:
             return
@@ -762,7 +763,7 @@ class ProbeScreenClass:
         # move X + xy_clearance Y + edge_lenght
         s="""G91
         G1 X%f Y%f
-        G90""" % (self.spbtn1_xy_clearance.get_value(),self.spbtn1_edge_lenght.get_value() )        
+        G90""" % (self.spbtn1_xy_clearance.get_value(),self.spbtn1_edge_lenght.get_value() )
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -783,7 +784,7 @@ class ProbeScreenClass:
         a=self.spbtn1_edge_lenght.get_value()+self.spbtn1_xy_clearance.get_value()
         s="""G91
         G1 X-%f Y-%f
-        G90""" % (a,a)        
+        G90""" % (a,a)
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -800,7 +801,7 @@ class ProbeScreenClass:
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 X%f Y%f" % (xres,yres)
         if self.gcode(s) == -1:
             return
@@ -813,7 +814,7 @@ class ProbeScreenClass:
         # move X + xy_clearance Y - edge_lenght
         s="""G91
         G1 X%f Y-%f
-        G90""" % (self.spbtn1_xy_clearance.get_value(), self.spbtn1_edge_lenght.get_value() )        
+        G90""" % (self.spbtn1_xy_clearance.get_value(), self.spbtn1_edge_lenght.get_value() )
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -834,7 +835,7 @@ class ProbeScreenClass:
         a=self.spbtn1_edge_lenght.get_value()+self.spbtn1_xy_clearance.get_value()
         s="""G91
         G1 X-%f Y%f
-        G90""" % (a,a)        
+        G90""" % (a,a)
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -851,7 +852,7 @@ class ProbeScreenClass:
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 X%f Y%f" % (xres,yres)
         if self.gcode(s) == -1:
             return
@@ -864,7 +865,7 @@ class ProbeScreenClass:
         # move X - edge_lenght- xy_clearance
         s="""G91
         G1 X-%f
-        G90""" % (self.spbtn1_edge_lenght.get_value() + self.spbtn1_xy_clearance.get_value() )        
+        G90""" % (self.spbtn1_edge_lenght.get_value() + self.spbtn1_xy_clearance.get_value() )
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -884,7 +885,7 @@ class ProbeScreenClass:
         aa=2*(self.spbtn1_edge_lenght.get_value()+self.spbtn1_xy_clearance.get_value())
         s="""G91
         G1 X%f
-        G90""" % (aa)        
+        G90""" % (aa)
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -911,7 +912,7 @@ class ProbeScreenClass:
             return
 
 
-        # move Y - edge_lenght- xy_clearance 
+        # move Y - edge_lenght- xy_clearance
         a=self.spbtn1_edge_lenght.get_value()+self.spbtn1_xy_clearance.get_value()
         s="""G91
         G1 Y-%f
@@ -935,7 +936,7 @@ class ProbeScreenClass:
         aa=2*(self.spbtn1_edge_lenght.get_value()+self.spbtn1_xy_clearance.get_value())
         s="""G91
         G1 Y%f
-        G90""" % (aa)        
+        G90""" % (aa)
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -948,7 +949,7 @@ class ProbeScreenClass:
         ymres=float(a[1])-0.5*self.spbtn1_probe_diam.get_value()
         self.lb_probe_ym.set_text( "%.4f" % ymres )
         self.lenght_y()
-        # find, show and move to finded  point
+        # find, show and move to found point
         ycres=0.5*(ypres+ymres)
         self.lb_probe_yc.set_text( "%.4f" % ycres )
         diam=0.5*((xmres-xpres)+(ymres-ypres))
@@ -957,7 +958,7 @@ class ProbeScreenClass:
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 Y%f" % ycres
         if self.gcode(s) == -1:
             return
@@ -969,14 +970,14 @@ class ProbeScreenClass:
 
     # Corners
     # Move Probe manual under corner 2-3 mm
-    # X+Y+ 
+    # X+Y+
     def on_xpyp1_released(self, gtkbutton, data = None):
         self.command.mode( linuxcnc.MODE_MDI )
         self.command.wait_complete()
         # move Y - edge_lenght X - xy_clearance
         s="""G91
         G1 X-%f Y-%f
-        G90""" % (self.spbtn1_xy_clearance.get_value(),self.spbtn1_edge_lenght.get_value() )        
+        G90""" % (self.spbtn1_xy_clearance.get_value(),self.spbtn1_edge_lenght.get_value() )
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -994,7 +995,7 @@ class ProbeScreenClass:
         tmpxy=self.spbtn1_edge_lenght.get_value()-self.spbtn1_xy_clearance.get_value()
         s="""G91
         G1 X-%f Y%f
-        G90""" % (tmpxy,tmpxy)        
+        G90""" % (tmpxy,tmpxy)
         if self.gcode(s) == -1:
             return
         # Start yplus.ngc
@@ -1009,7 +1010,7 @@ class ProbeScreenClass:
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 X%f Y%f" % (xres,yres)
         if self.gcode(s) == -1:
             return
@@ -1022,7 +1023,7 @@ class ProbeScreenClass:
         # move Y + edge_lenght X - xy_clearance
         s="""G91
         G1 X-%f Y%f
-        G90""" % (self.spbtn1_xy_clearance.get_value(),self.spbtn1_edge_lenght.get_value() )        
+        G90""" % (self.spbtn1_xy_clearance.get_value(),self.spbtn1_edge_lenght.get_value() )
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -1040,7 +1041,7 @@ class ProbeScreenClass:
         tmpxy=self.spbtn1_edge_lenght.get_value()-self.spbtn1_xy_clearance.get_value()
         s="""G91
         G1 X-%f Y-%f
-        G90""" % (tmpxy,tmpxy)        
+        G90""" % (tmpxy,tmpxy)
         if self.gcode(s) == -1:
             return
         # Start yminus.ngc
@@ -1055,7 +1056,7 @@ class ProbeScreenClass:
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 X%f Y%f" % (xres,yres)
         if self.gcode(s) == -1:
             return
@@ -1068,7 +1069,7 @@ class ProbeScreenClass:
         # move Y - edge_lenght X + xy_clearance
         s="""G91
         G1 X%f Y-%f
-        G90""" % (self.spbtn1_xy_clearance.get_value(),self.spbtn1_edge_lenght.get_value() )        
+        G90""" % (self.spbtn1_xy_clearance.get_value(),self.spbtn1_edge_lenght.get_value() )
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -1086,7 +1087,7 @@ class ProbeScreenClass:
         tmpxy=self.spbtn1_edge_lenght.get_value()-self.spbtn1_xy_clearance.get_value()
         s="""G91
         G1 X%f Y%f
-        G90""" % (tmpxy,tmpxy)        
+        G90""" % (tmpxy,tmpxy)
         if self.gcode(s) == -1:
             return
         # Start yplus.ngc
@@ -1102,7 +1103,7 @@ class ProbeScreenClass:
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 X%f Y%f" % (xres,yres)
         if self.gcode(s) == -1:
             return
@@ -1115,7 +1116,7 @@ class ProbeScreenClass:
         # move Y + edge_lenght X + xy_clearance
         s="""G91
         G1 X%f Y%f
-        G90""" % (self.spbtn1_xy_clearance.get_value(),self.spbtn1_edge_lenght.get_value() )        
+        G90""" % (self.spbtn1_xy_clearance.get_value(),self.spbtn1_edge_lenght.get_value() )
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -1133,7 +1134,7 @@ class ProbeScreenClass:
         tmpxy=self.spbtn1_edge_lenght.get_value()-self.spbtn1_xy_clearance.get_value()
         s="""G91
         G1 X%f Y-%f
-        G90""" % (tmpxy,tmpxy)        
+        G90""" % (tmpxy,tmpxy)
         if self.gcode(s) == -1:
             return
         # Start yminus.ngc
@@ -1148,7 +1149,7 @@ class ProbeScreenClass:
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 X%f Y%f" % (xres,yres)
         if self.gcode(s) == -1:
             return
@@ -1164,7 +1165,7 @@ class ProbeScreenClass:
         tmpx=self.spbtn1_edge_lenght.get_value()-self.spbtn1_xy_clearance.get_value()
         s="""G91
         G1 X-%f
-        G90""" % (tmpx)        
+        G90""" % (tmpx)
         if self.gcode(s) == -1:
             return
         # Start xminus.ngc
@@ -1179,7 +1180,7 @@ class ProbeScreenClass:
         tmpx=2*(self.spbtn1_edge_lenght.get_value()-self.spbtn1_xy_clearance.get_value())
         s="""G91
         G1 X%f
-        G90""" % (tmpx)        
+        G90""" % (tmpx)
         if self.gcode(s) == -1:
             return
         # Start xplus.ngc
@@ -1194,7 +1195,7 @@ class ProbeScreenClass:
         self.lb_probe_xc.set_text( "%.4f" % xcres )
 
         # move X to new center
-        s="""G1 X%f""" % (xcres)        
+        s="""G1 X%f""" % (xcres)
         if self.gcode(s) == -1:
             return
 
@@ -1202,7 +1203,7 @@ class ProbeScreenClass:
         tmpy=self.spbtn1_edge_lenght.get_value()-self.spbtn1_xy_clearance.get_value()
         s="""G91
         G1 Y-%f
-        G90""" % (tmpy)        
+        G90""" % (tmpy)
         if self.gcode(s) == -1:
             return
         # Start yminus.ngc
@@ -1217,7 +1218,7 @@ class ProbeScreenClass:
         tmpy=2*(self.spbtn1_edge_lenght.get_value()-self.spbtn1_xy_clearance.get_value())
         s="""G91
         G1 Y%f
-        G90""" % (tmpy)        
+        G90""" % (tmpy)
         if self.gcode(s) == -1:
             return
         # Start yplus.ngc
@@ -1228,7 +1229,7 @@ class ProbeScreenClass:
         ypres=float(a[1])+0.5*self.spbtn1_probe_diam.get_value()
         self.lb_probe_yp.set_text( "%.4f" % ypres )
         self.lenght_y()
-        # find, show and move to finded  point
+        # find, show and move to found point
         ycres=0.5*(ymres+ypres)
         self.lb_probe_yc.set_text( "%.4f" % ycres )
         diam=0.5*((xpres-xmres)+(ypres-ymres))
@@ -1248,7 +1249,7 @@ class ProbeScreenClass:
 
     # Angle
     # Move Probe manual under corner 2-3 mm
-    # Y+Y+ 
+    # Y+Y+
     def on_angle_yp_released(self, gtkbutton, data = None):
         self.stat.poll()
         xstart=self.stat.position[0]-self.stat.g5x_offset[0] - self.stat.g92_offset[0] - self.stat.tool_offset[0]
@@ -1257,7 +1258,7 @@ class ProbeScreenClass:
         # move Y - xy_clearance
         s="""G91
         G1 Y-%f
-        G90""" % (self.spbtn1_xy_clearance.get_value() )        
+        G90""" % (self.spbtn1_xy_clearance.get_value() )
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -1273,7 +1274,7 @@ class ProbeScreenClass:
         # move X + edge_lenght
         s="""G91
         G1 X%f
-        G90""" % (self.spbtn1_edge_lenght.get_value())        
+        G90""" % (self.spbtn1_edge_lenght.get_value())
         if self.gcode(s) == -1:
             return
         # Start yplus.ngc
@@ -1295,7 +1296,7 @@ class ProbeScreenClass:
             return
         self.rotate_coord_system(alfa)
 
-    # Y-Y- 
+    # Y-Y-
     def on_angle_ym_released(self, gtkbutton, data = None):
         self.stat.poll()
         xstart=self.stat.position[0]-self.stat.g5x_offset[0] - self.stat.g92_offset[0] - self.stat.tool_offset[0]
@@ -1304,7 +1305,7 @@ class ProbeScreenClass:
         # move Y + xy_clearance
         s="""G91
         G1 Y%f
-        G90""" % (self.spbtn1_xy_clearance.get_value() )        
+        G90""" % (self.spbtn1_xy_clearance.get_value() )
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -1320,7 +1321,7 @@ class ProbeScreenClass:
         # move X - edge_lenght
         s="""G91
         G1 X-%f
-        G90""" % (self.spbtn1_edge_lenght.get_value())        
+        G90""" % (self.spbtn1_edge_lenght.get_value())
         if self.gcode(s) == -1:
             return
         # Start yminus.ngc
@@ -1341,7 +1342,7 @@ class ProbeScreenClass:
             return
         self.rotate_coord_system(alfa)
 
-    # X+X+ 
+    # X+X+
     def on_angle_xp_released(self, gtkbutton, data = None):
         self.stat.poll()
         ystart=self.stat.position[1]-self.stat.g5x_offset[1] - self.stat.g92_offset[1] - self.stat.tool_offset[1]
@@ -1350,7 +1351,7 @@ class ProbeScreenClass:
         # move X - xy_clearance
         s="""G91
         G1 X-%f
-        G90""" % (self.spbtn1_xy_clearance.get_value() )        
+        G90""" % (self.spbtn1_xy_clearance.get_value() )
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -1366,7 +1367,7 @@ class ProbeScreenClass:
         # move Y - edge_lenght
         s="""G91
         G1 Y-%f
-        G90""" % (self.spbtn1_edge_lenght.get_value())        
+        G90""" % (self.spbtn1_edge_lenght.get_value())
         if self.gcode(s) == -1:
             return
         # Start xplus.ngc
@@ -1387,7 +1388,7 @@ class ProbeScreenClass:
             return
         self.rotate_coord_system(alfa)
 
-    # X-X- 
+    # X-X-
     def on_angle_xm_released(self, gtkbutton, data = None):
         self.stat.poll()
         ystart=self.stat.position[1]-self.stat.g5x_offset[1] - self.stat.g92_offset[1] - self.stat.tool_offset[1]
@@ -1396,7 +1397,7 @@ class ProbeScreenClass:
         # move X + xy_clearance
         s="""G91
         G1 X%f
-        G90""" % (self.spbtn1_xy_clearance.get_value() )        
+        G90""" % (self.spbtn1_xy_clearance.get_value() )
         if self.gcode(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -1412,7 +1413,7 @@ class ProbeScreenClass:
         # move Y + edge_lenght
         s="""G91
         G1 Y%f
-        G90""" % (self.spbtn1_edge_lenght.get_value())        
+        G90""" % (self.spbtn1_edge_lenght.get_value())
         if self.gcode(s) == -1:
             return
         # Start xminus.ngc

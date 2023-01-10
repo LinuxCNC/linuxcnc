@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Qtvcp versa probe
 #
 # Copyright (c) 2018  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -15,13 +15,9 @@
 #
 # touchy style MDI based heavily from Touchy code
 
-import sys
 import os
-import math
-import time
-import hal
 
-from PyQt5 import QtGui, QtCore, QtWidgets, uic
+from PyQt5 import QtCore, QtWidgets, uic
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
@@ -88,7 +84,7 @@ class mdi:
             'G42.1' : ['Radius compensation right, immediate', 'D', 'L'],
             'G43' : ['Tool length offset', 'H'],
             'G43.1' : ['Tool length offset immediate', 'A'],
-            'G43.2' : ['Tool length offset additional', 'H'],
+            'G43.2' : ['Tool length offset additional', 'H', 'A'],
             'G53' : ['Motion in unoffset coordinates', 'G', 'A', 'F'],
             'G64' : ['Continuous mode', 'P', 'Q'],
             'G76' : ['Thread', 'Z', 'P', 'I', 'J', 'K', 'R', 'Q', 'H', 'E', 'L'],
@@ -113,7 +109,7 @@ class mdi:
 
     def get_description(self, gcode):
         return self.codes[gcode][0]
-    
+
     def get_words(self, gcode):
         self.gcode = gcode
         try:
@@ -121,7 +117,7 @@ class mdi:
                 return ['P', 'Q']
         except IndexError:
             return []
-        if not self.codes.has_key(gcode):
+        if gcode not in self.codes:
             return []
         # strip description
         words = self.codes[gcode][1:]
@@ -162,11 +158,19 @@ class mdi:
                 if len(self.words.get(i)) > 0:
                     m += i + self.words.get(i)
         ACTION.CALL_MDI(m)
+        try:
+            fp = os.path.expanduser(INFO.MDI_HISTORY_PATH)
+            fp = open(fp, 'a')
+            fp.write(m + "\n")
+            fp.close()
+        except:
+            pass
+        STATUS.emit('mdi-history-changed')
 
 class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(MDITouchy, self).__init__(parent)
-        self.setMinimumSize(600, 420)
+        self.setMinimumSize(265, 325)
         # Load the widgets UI file:
         self.filename = os.path.join(INFO.LIB_PATH,'widgets_ui', 'mdi_touchy.ui')
         try:
@@ -237,7 +241,7 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
     def clearClicked(self):
         t = self.get_text()
         self.set_text(t.rstrip("0123456789.-"))
-        
+
     def backClicked(self):
         t = self.get_text()
         if t[-1:] in "0123456789.-":
@@ -340,7 +344,7 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
         else:
             j = 0
         self.update(ocodes[j])
-        self.nextClicked()            
+        self.nextClicked()
 
     def set_tool(self, tool, g10l11):
         self.update()
@@ -389,6 +393,7 @@ if __name__ == "__main__":
     from PyQt5.QtWidgets import *
     from PyQt5.QtCore import *
     from PyQt5.QtGui import *
+    import sys
 
     app = QtWidgets.QApplication(sys.argv)
     w = MDITouchy()

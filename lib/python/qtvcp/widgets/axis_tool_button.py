@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # QTVcp Widget
 # Copyright (c) 2018 Chris Morley
@@ -14,11 +14,10 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-import os
 import hal
 
-from PyQt5.QtWidgets import QWidget, QToolButton, QMenu, QAction
-from PyQt5.QtCore import Qt, QEvent, pyqtProperty, QBasicTimer, pyqtSignal
+from PyQt5.QtWidgets import QToolButton, QMenu, QAction
+from PyQt5.QtCore import pyqtProperty
 from PyQt5.QtGui import QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -35,8 +34,8 @@ STATUS = Status()
 INFO = Info()
 ACTION = Action()
 LOG = logger.getLogger(__name__)
-# Set the log level for this module
-LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# Force the log level for this module
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class AxisToolButton(QToolButton, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -94,7 +93,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         STATUS.connect('interp-run', lambda w: self._enableGroup(False))
         STATUS.connect('all-homed', lambda w: self._enableGroup(homed_on_test()))
         STATUS.connect('not-all-homed', lambda w, data: self._enableGroup(False))
-        STATUS.connect('interp-paused', lambda w: self._enableGroup(homed_on_test()))
+        STATUS.connect('interp-paused', lambda w: self._enableGroup(False))
         STATUS.connect('motion-mode-changed', lambda w,data: self.modeChanged(data))
         STATUS.connect('joint-selection-changed', lambda w,data: self.ChangeState(joint = data, axis= STATUS.get_selected_axis()))
         STATUS.connect('axis-selection-changed', lambda w,data: self.ChangeState(joint = STATUS.get_selected_joint(), axis = data))
@@ -107,6 +106,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         for i in(self.zeroButton, self.setButton,self.divideButton,
                 self.lastButton, ):
             i.setEnabled(state)
+        self.setEnabled(state)
 
     def Zero(self):
         axis, now = self._a_from_j(self._axis)
@@ -195,7 +195,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
                     self.hal_pin_joint.set(self.isChecked())
             else:
                 ACTION.SET_SELECTED_AXIS(self._axis)
-                # set this whithout causing a STATUS message output
+                # set this without causing a STATUS message output
                 # in case we are selecting an axis to un/home
                 STATUS.selected_joint = self._joint
                 if self._halpin_option:
@@ -205,7 +205,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
                 ACTION.SET_SELECTED_JOINT(-1)
             else:
                 ACTION.SET_SELECTED_AXIS('None')
-                # set this whithout causing a STATUS message output
+                # set this without causing a STATUS message output
                 # in case we are selecting an axis to un/home
                 STATUS.selected_joint = -1
             if self._halpin_option:

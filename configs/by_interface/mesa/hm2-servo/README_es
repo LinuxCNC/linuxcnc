@@ -1,7 +1,7 @@
 Esta configuración controla 3 servomotores en 3 ejes utilizando una placa Mesa AnythingIO con el firmware HostMot2.
 La configuración solo se ejecutará si tiene la tarjeta y el firmware instalados.
 
-Vea la sección HostMot2 del Manual de Integrador para más información.
+Vea la sección LinuxCNC_Documentación.pdf - 11.4 Driver Mesa HostMot2 para más información.
 
 Los 3 ejes utilizan interruptor home. Todos los interruptores home están conectados a un solo pin de entrada compartido. home X e Z sin índice en codificador, home Y con índice en codificador.
 

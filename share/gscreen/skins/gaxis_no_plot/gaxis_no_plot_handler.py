@@ -21,7 +21,7 @@ _X = 0;_Y = 1;_Z = 2;_A = 3;_B = 4;_C = 5;_U = 6;_V = 7;_W = 8
 # to load a completely custom glade screen
 # The only things that really matters is that it's saved as a GTK builder project,
 # the toplevel window is caller window1 (The default name) and you connect a destroy
-# window signal else you can't close down linuxcnc 
+# window signal else you can't close down linuxcnc
 class HandlerClass:
 
     # This will be pretty standard to gain access to everything
@@ -65,7 +65,7 @@ class HandlerClass:
 
     # erase the ready-to-home message on statusbar
     def on_hal_status_all_homed(self,widget):
-        print "all-homed"
+        print("all-homed")
         self.data.all_homed = True
         self.widgets.statusbar1.remove_message(self.gscreen.statusbar_id,self.gscreen.homed_status_message)
 
@@ -119,7 +119,7 @@ class HandlerClass:
     # We don't add much to this function, but we do want to be able to change the theme so:
     # We change the GTK theme to what's in gscreen's preference file.
     # gscreen.change_theme() is a method in gscreen that changes the GTK theme of window1
-    # gscreen.data.theme_name is the name of the theme from the preference file 
+    # gscreen.data.theme_name is the name of the theme from the preference file
     # To truely be friendly, we should add a way to change the theme directly in the custom screen.
     # we also set up the statusbar and add a ready-to-home message
     def initialize_widgets(self):
@@ -130,7 +130,7 @@ class HandlerClass:
         self.gscreen.statusbar_id = self.widgets.statusbar1.get_context_id("Statusbar1")
         self.gscreen.homed_status_message = self.widgets.statusbar1.push(1,"Ready For Homing")
         for num,i in enumerate(self.data.jog_increments):
-            print i
+            print(i)
             self.widgets.jog_speed.append_text(i)
             if i == "continuous":
                 self.data.current_jogincr_index = num
@@ -152,7 +152,7 @@ class HandlerClass:
     # add it's default jog pins
     def initialize_pins(self):
         self.gscreen.init_jog_pins()
- 
+
     # checks the current operating mode according to the UI
     def check_mode(self):
         string = []
@@ -161,7 +161,7 @@ class HandlerClass:
             string.append(self.data._JOG)
         return string
 
-    # keybinding calls 
+    # keybinding calls
     def on_keycall_ESTOP(self,state,SHIFT,CNTRL,ALT):
         if state:
             self.widgets.emc_toggle_estop.emit('activate')
@@ -172,7 +172,7 @@ class HandlerClass:
             return True
     def on_keycall_INCREMENTS(self,state,SHIFT,CNTRL,ALT):
         if state and self.data._MAN in self.check_mode(): # manual mode required
-            print 'hi'
+            print('hi')
             if SHIFT:
                 self.gscreen.set_jog_increments(index_dir = -1)
             else:
@@ -186,7 +186,7 @@ class HandlerClass:
 
     def on_offset_origin_entry_return(self,widget,result,calc,axis,userdata2):
         value = calc.get_value()
-        if result == gtk.RESPONSE_ACCEPT:
+        if result == gtk.ResponseType.ACCEPT:
             if value == None:
                 return
             if not axis == "s":

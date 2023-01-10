@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #    This is a component of AXIS, a front-end for emc
 #    Copyright 2004, 2005, 2006 Jeff Epler <jepler@unpythonic.net>
 #
@@ -164,7 +164,7 @@ option add *Togl.lathetool #cccccc startupFile
 option add *Togl.lathetool_alpha .1 startupFile
 '''
 
-import commands, sys
+import subprocess, sys
 
 def install(root = None):
     if root is None: root = Tkinter._default_root

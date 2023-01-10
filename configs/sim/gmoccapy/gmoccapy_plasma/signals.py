@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding:UTF-8 -*-
 """
     This file will control some options of the gmoccapy plasma screen
-    and demonstrats at the same time the possibilities you have introducing
+    and demonstrates at the same time the possibilities you have introducing
     your own handler files and functions to that screen, showing the
     possibilities to modify the layout and behavior
 

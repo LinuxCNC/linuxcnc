@@ -3,7 +3,7 @@
 *   prints to stdout the INI file result of a variable-in-section
 *   search, useful for scripts that want to pick things out of INI files.
 *
-*   syntax:  inivar -var <variable> {-sec <section>} {<-ini inifile>}
+*   syntax:  inivar -var <variable> {-sec <section>} {-ini <INI file>}
 *
 *   Uses emc.ini as default. <variable> needs to be supplied. If <section>
 *   is omitted, first instance of <variable> will be looked for in any
@@ -27,6 +27,7 @@
 #include <limits.h>
 
 #include "config.h"
+#include "emc/linuxcnc.h"
 #include "inifile.hh"
 
 
@@ -34,11 +35,9 @@ int main(int argc, char *argv[])
 {
     int t;
     int num = 1;
-    char _variable[LINELEN] = "";
-    char *variable = 0;
-    char _section[LINELEN] = "";
-    char *section = 0;
-    char path[LINELEN] = "emc.ini";
+    const char *variable = 0;
+    const char *section = 0;
+    const char *path = "emc.ini";
     const char *inistring;
     int retval;
     bool tildeexpand=false;
@@ -49,10 +48,10 @@ int main(int argc, char *argv[])
 	    if (t == argc - 1) {
 		/* no arg following -ini, so abort */
 		fprintf(stderr,
-		    "%s: ini file not specified after -ini\n", argv[0]);
+		    "%s: INI file not specified after -ini\n", argv[0]);
 		exit(1);
 	    } else {
-		strncpy(path, argv[t + 1], LINELEN);
+		path = argv[t+1];
 		t++;		/* step over following arg */
 	    }
 	} else if (!strcmp(argv[t], "-var")) {
@@ -62,8 +61,7 @@ int main(int argc, char *argv[])
 		    "%s: variable name not specified after -var\n", argv[0]);
 		exit(1);
 	    } else {
-		strncpy(_variable, argv[t + 1], LINELEN);
-		variable = _variable;
+		variable = argv[t+1];
 		t++;		/* step over following arg */
 	    }
 	} else if (!strcmp(argv[t], "-sec")) {
@@ -73,8 +71,7 @@ int main(int argc, char *argv[])
 		    "%s: section name not specified after -sec\n", argv[0]);
 		exit(1);
 	    } else {
-		strncpy(_section, argv[t + 1], LINELEN);
-		section = _section;
+		section = argv[t+1];
 		t++;		/* step over following arg */
 	    }
 	} else if (!strcmp(argv[t], "-num")) {
@@ -96,7 +93,7 @@ int main(int argc, char *argv[])
 	} else{
 	    /* invalid argument */
 	    fprintf(stderr,
-		"%s: -var <variable> {-sec <section>} {<-ini inifile>} [-num <nth item>]\n",
+		"%s: -var <variable> {-tildeexpand} {-sec <section>} {-ini <INI file>} [-num <nth item>]\n",
 		argv[0]);
 	    exit(1);
 	}
@@ -109,7 +106,7 @@ int main(int argc, char *argv[])
     }
 
     IniFile inifile;
-    /* open the inifile */
+    /* open the INI file */
     inifile.Open(path);
     if (inifile.IsOpen() == false) {
 	fprintf(stderr, "%s: can't open %s\n", argv[0], path);

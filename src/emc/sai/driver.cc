@@ -24,7 +24,6 @@
 #include "inifile.hh"		// INIFILE
 #include "canon.hh"		// _parameter_file_name
 #include "config.h"		// LINELEN
-#include "tool_parse.h"
 #include <stdio.h>    /* gets, etc. */
 #include <stdlib.h>   /* exit       */
 #include <string.h>   /* strcpy     */
@@ -39,11 +38,12 @@
 #include <rtapi_string.h>
 
 #include <saicanon.hh>
+#include "tooldata.hh"
 
 InterpBase *pinterp;
 #define interp_new (*pinterp)
 const char *prompt = "READ => ";
-const char *history = "~/.rs274";
+const char *histfile = "~/.rs274";
 #define RS274_HISTORY "RS274_HISTORY"
 
 #define active_settings  interp_new.active_settings
@@ -137,15 +137,15 @@ void initialize_readline ()
     rl_readline_name = "rs274";
  
     if ((s = getenv(RS274_HISTORY)))
-	history = s;
+	histfile = s;
     // tilde-expand 
-    if (wordexp(history, &p, WRDE_SHOWERR|WRDE_UNDEF )) {
+    if (wordexp(histfile, &p, WRDE_SHOWERR|WRDE_UNDEF )) {
 	perror("wordexp");
     } else {
-	history = strdup(p.we_wordv[0]);
+	histfile = strdup(p.we_wordv[0]);
     }
-    if (history)
-	read_history(history);
+    if (histfile)
+	read_history(histfile);
 }
 
 /***********************************************************************/
@@ -186,8 +186,8 @@ int interpret_from_keyboard(  /* ARGUMENTS                 */
 	{
 	    line = readline ( prompt);
 	    if (!line || strcmp (line, "quit") == 0) {
-		if (history)
-		    write_history(history);
+		if (histfile)
+		    write_history(histfile);
 		return 0;
 	    }
 	    if (*line)
@@ -315,7 +315,7 @@ int interpret_from_file( /* ARGUMENTS                  */
 Returned Value: int
   Returns 0 for success, nonzero for failure.  Failures can be caused by:
   1. The file named by the user cannot be opened.
-  2. Any error detected by loadToolTable()
+  2. Any error detected by tooldata_load()
 
 Side Effects:
   Values in the tool table of the machine setup are changed,
@@ -337,7 +337,8 @@ int read_tool_file(  /* ARGUMENTS         */
       tool_file_name = buffer;
     }
 
-  return loadToolTable(tool_file_name, _sai._tools, 0, 0);
+  // no toolTable[] param used
+  return tooldata_load(tool_file_name, 0);
 }
 
 /************************************************************************/
@@ -551,6 +552,9 @@ int main (int argc, char ** argv)
   int log_level = -1;
   std::string interp;
 
+  setvbuf(stdout, NULL, _IONBF, 0);
+  setvbuf(stderr, NULL, _IONBF, 0);
+
   do_next = 2;  /* 2=stop */
   block_delete = OFF;
   print_stack = OFF;
@@ -558,6 +562,17 @@ int main (int argc, char ** argv)
   SET_PARAMETER_FILE_NAME(default_name);
   _outfile = stdout; /* may be reset below */
   go_flag = 0;
+
+#ifdef TOOL_NML //{
+  tool_nml_register((CANON_TOOL_TABLE*)& _sai._tools);
+#else //}{
+  const int random_toolchanger = 0;
+  tool_mmap_creator((EMC_TOOL_STAT*)NULL,random_toolchanger);
+  /* Notes:
+  **   1) sai does not use toolInSpindle,pocketPrepped
+  **   2) sai does not distinguish changer type
+  */
+#endif //}
 
   while(1) {
       int c = getopt(argc, argv, "p:t:v:bsn:gi:l:T");
@@ -595,7 +610,7 @@ usage:
             "    -b: Toggle the 'block delete' flag (default: OFF)\n"
             "    -s: Toggle the 'print stack' flag (default: OFF)\n"
             "    -g: Toggle the 'go (batch mode)' flag (default: OFF)\n"
-            "    -i: specify the .ini file (default: no ini file)\n"
+            "    -i: specify the INI file (default: no INI file)\n"
             "    -T: call task_init()\n"
             "    -l: specify the log_level (default: -1)\n"
             , argv[0]);

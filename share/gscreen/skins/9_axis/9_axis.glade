@@ -108,7 +108,7 @@
                             <child type="tab">
                               <object class="GtkLabel" id="gcode_tab">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">G code</property>
+                                <property name="label" translatable="yes">G-code</property>
                               </object>
                               <packing>
                                 <property name="tab_fill">False</property>
@@ -202,7 +202,7 @@
                                 <child type="label">
                                   <object class="GtkLabel" id="active_gcodes_title">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">&lt;b&gt;G Codes Active&lt;/b&gt;</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;G-Codes Active&lt;/b&gt;</property>
                                     <property name="use_markup">True</property>
                                   </object>
                                 </child>

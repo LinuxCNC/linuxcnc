@@ -96,7 +96,7 @@ int kinematicsForward(
     j2_vector.tran.z = L1_LENGTH * sin(TO_RAD * joints[1]);
     // rtapi_print("fwd: j2=(%f, %f, %f)\n", j2_vector.tran.x, j2_vector.tran.y, j2_vector.tran.z);
 
-    // Link 2 connectes j2 (elbow) to j3 (wrist).
+    // Link 2 connects j2 (elbow) to j3 (wrist).
     // J3 is the controlled point.
     r = L2_LENGTH * cos(TO_RAD * joints[2]);
     j3_vector.tran.x = r * cos(TO_RAD * joints[0]);
@@ -297,6 +297,7 @@ KINEMATICS_TYPE kinematicsType(void) {
 #include "rtapi_app.h"
 #include "hal.h"
 
+KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);

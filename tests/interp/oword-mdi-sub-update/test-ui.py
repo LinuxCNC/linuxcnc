@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import linuxcnc
 import hal
@@ -19,7 +19,6 @@ def wait_for_linuxcnc_startup(status, timeout=10.0):
     while time.time() - start_time < timeout:
         status.poll()
         if (status.angular_units == 0.0) \
-            or (status.axes == 0) \
             or (status.axis_mask == 0) \
             or (status.cycle_time == 0.0) \
             or (status.exec_state != linuxcnc.EXEC_DONE) \

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # vim: sts=4 sw=4 et
 # GladeVcp actions
 #
@@ -14,15 +14,23 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import gobject
-import gtk
+import gi
+gi.require_version("Gtk","3.0")
+from gi.repository import Gtk
+from gi.repository import GObject
+from gi.repository import GLib
 import os
 import time
 import re, string
 
-from hal_widgets import _HalWidgetBase
+from .hal_widgets import _HalWidgetBase
 import linuxcnc
 from hal_glib import GStat
+import hal
+
+from gladevcp.core import Info, Action
+INFO = Info()
+ACTION = Action()
 
 _ = lambda x: x
 
@@ -46,8 +54,8 @@ class _EMCStatic:
         return self.holder.get()
 
 class _EMC_ActionBase(_HalWidgetBase):
-    _gproperties = {'name': (gobject.TYPE_STRING, 'Name', 'Action name', "",
-                             gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT)
+    _gproperties = {'name': (GObject.TYPE_STRING, 'Name', 'Action name', "",
+                             GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT)
                    }
 
     linuxcnc_static = _EMCStatic()
@@ -66,12 +74,12 @@ class _EMC_ActionBase(_HalWidgetBase):
 
     def is_auto_mode(self):
         self.stat.poll()
-        print self.stat.task_mode, linuxcnc.MODE_AUTO
+        print(self.stat.task_mode, linuxcnc.MODE_AUTO)
         return self.stat.task_mode == linuxcnc.MODE_AUTO
 
     def is_file_loaded(self):
         self.stat.poll()
-        print "file name:",self.stat.file
+        print("file name:",self.stat.file)
         if self.stat.file:
             return True
         else:
@@ -132,10 +140,10 @@ class _EMC_ActionBase(_HalWidgetBase):
             raise AttributeError("Unknown property: %s" % property.name)
         return True
 
-class _EMC_Action(gtk.Action, _EMC_ActionBase):
+class _EMC_Action(Gtk.Action, _EMC_ActionBase):
     __gproperties__ = _EMC_ActionBase._gproperties
     def __init__(self, name=None):
-        gtk.Action.__init__(self, None, None, None, None)
+        Gtk.Action.__init__(self, None, None, None, None)
         self._stop_emission = False
         self.connect('activate', self.safe_handler(self.on_activate))
 
@@ -144,10 +152,10 @@ class _EMC_Action(gtk.Action, _EMC_ActionBase):
     def on_activate(self, w):
         return True
 
-class _EMC_ToggleAction(gtk.ToggleAction, _EMC_ActionBase):
+class _EMC_ToggleAction(Gtk.ToggleAction, _EMC_ActionBase):
     __gproperties__ = _EMC_ActionBase._gproperties
     def __init__(self, name=None):
-        gtk.ToggleAction.__init__(self, None, None, None, None)
+        Gtk.ToggleAction.__init__(self, None, None, None, None)
         self._stop_emission = False
         self.connect('toggled', self.safe_handler(self.on_toggled))
 
@@ -157,10 +165,10 @@ class _EMC_ToggleAction(gtk.ToggleAction, _EMC_ActionBase):
     def on_toggled(self, w):
         return True
 
-class _EMC_RadioAction(gtk.RadioAction, _EMC_ToggleAction):
+class _EMC_RadioAction(Gtk.RadioAction, _EMC_ToggleAction):
     __gproperties__ = _EMC_ToggleAction._gproperties
     def __init__(self, name=None):
-        gtk.RadioAction.__init__(self, None, None, None, None, 0)
+        Gtk.RadioAction.__init__(self, None, None, None, None, 0)
         self._stop_emission = False
         self.connect('toggled', self.safe_handler(self.on_toggled))
 
@@ -182,7 +190,7 @@ def _action(klass, f, *a, **kw):
     class _C(_EMC_Action):
         __gtype_name__ = klass
         def on_activate(self, w):
-            print klass
+            print(klass)
             f(self, *a, **kw)
     return _C
 
@@ -203,10 +211,10 @@ class EMC_ToggleAction_ESTOP(_EMC_ToggleAction):
 
     def on_toggled(self, w):
         if self.get_active():
-            print 'Issuing ESTOP'
+            print('Issuing ESTOP')
             self.linuxcnc.state(linuxcnc.STATE_ESTOP)
         else:
-            print 'Issuing ESTOP RESET'
+            print('Issuing ESTOP RESET')
             self.linuxcnc.state(linuxcnc.STATE_ESTOP_RESET)
 
 class EMC_ToggleAction_Power(_EMC_ToggleAction):
@@ -224,10 +232,10 @@ class EMC_ToggleAction_Power(_EMC_ToggleAction):
 
     def on_toggled(self, w):
         if self.get_active():
-            print 'Issuing ON'
+            print('Issuing ON')
             self.linuxcnc.state(linuxcnc.STATE_ON)
         else:
-            print 'Issuing OFF'
+            print('Issuing OFF')
             self.linuxcnc.state(linuxcnc.STATE_OFF)
 
 class EMC_RadioAction_ESTOP(_EMC_RadioAction):
@@ -297,18 +305,18 @@ def ensure_mode(s, c, *modes):
 
 class EMC_Action_Python(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Python'
-    command = gobject.property(type=str, default='', nick='Python Command')
-    is_homed = gobject.property(type=bool, default=True, nick='Must Be Homed',
+    command = GObject.property(type=str, default='', nick='Python Command')
+    is_homed = GObject.property(type=bool, default=True, nick='Must Be Homed',
                                     blurb='Machine Must be homed for widgets to be sensitive to input')
-    is_on = gobject.property(type=bool, default=True, nick='Must Be On',
+    is_on = GObject.property(type=bool, default=True, nick='Must Be On',
                                     blurb='Machine Must be On for widgets to be sensitive to input')
-    is_idle = gobject.property(type=bool, default=True, nick='Must Be Idle',
+    is_idle = GObject.property(type=bool, default=True, nick='Must Be Idle',
                                     blurb='Machine Must be Idle for widgets to be sensitive to input')
-    requires_manual = gobject.property(type=bool, default=False, nick='Preset Manual Mode',
+    requires_manual = GObject.property(type=bool, default=False, nick='Preset Manual Mode',
                                     blurb='Preset Manual Mode before command')
-    requires_mdi = gobject.property(type=bool, default=False, nick='Preset MDI Mode',
+    requires_mdi = GObject.property(type=bool, default=False, nick='Preset MDI Mode',
                                     blurb='Preset MDI Mode before command')
-    requires_auto = gobject.property(type=bool, default=False, nick='Preset Auto Mode',
+    requires_auto = GObject.property(type=bool, default=False, nick='Preset Auto Mode',
                                     blurb='Preset Auto Mode before command')
 
     def _hal_init(self):
@@ -328,7 +336,8 @@ class EMC_Action_Python(_EMC_Action):
 
     def on_activate(self, w):
         self._globalParameter = { 'EXT':self._panel_instance.get_handler_obj(),
-                                  'GSTAT':self.gstat,'CMD':self.linuxcnc,'STAT':self.stat}
+                                  'GSTAT':self.gstat,'CMD':self.linuxcnc,'STAT':self.stat,
+                                   'ACTION':ACTION, 'HAL':hal, 'INFO':INFO}
         self._localsParameter = {'dir': dir, 'self': self,'linuxcnc':linuxcnc}
         if self.requires_manual:
             ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MAN)
@@ -340,9 +349,9 @@ class EMC_Action_Python(_EMC_Action):
 
 class EMC_Action_Run(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Run'
-    program_start_line = gobject.property(type=int, default=0, minimum=0, nick='Restart line',
+    program_start_line = GObject.property(type=int, default=0, minimum=0, nick='Restart line',
                                     blurb='Restart line number-Usually 0 - program start')
-    reset_line = gobject.property(type=int, default=0, minimum=0, nick='Restart line after restarting once',
+    reset_line = GObject.property(type=int, default=0, minimum=0, nick='Restart line after restarting once',
                                     blurb='Line number that will be set afterthe next restart. -usually 0 - program start')
 
     def set_restart_line(self,line,resetline=0):
@@ -380,7 +389,7 @@ class EMC_Action_Pause(_EMC_Action):
 class EMC_Action_Resume(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Resume'
     def on_activate(self, w):
-        print "RESUME"
+        print("RESUME")
         self.stat.poll()
         if not self.stat.paused:
             return
@@ -397,9 +406,9 @@ class EMC_Action_Stop(_EMC_Action):
 
 class EMC_ToggleAction_Run(_EMC_ToggleAction, EMC_Action_Run):
     __gtype_name__ = 'EMC_ToggleAction_Run'
-    program_start_line = gobject.property(type=int, default=0, minimum=0, nick='Restart line',
+    program_start_line = GObject.property(type=int, default=0, minimum=0, nick='Restart line',
                                     blurb='Restart line number-Usually 0 - program start')
-    reset_line = gobject.property(type=int, default=0, minimum=0, nick='Restart line after restarting once',
+    reset_line = GObject.property(type=int, default=0, minimum=0, nick='Restart line after restarting once',
                                     blurb='Line number that will be set afterthe next restart. -usually 0 - program start')
     def _hal_init(self):
         _EMC_ToggleAction._hal_init(self)
@@ -487,7 +496,7 @@ class FloatComp:
 
 class EMC_Action_MDI(_EMC_Action):
     __gtype_name__ = 'EMC_Action_MDI'
-    command = gobject.property(type=str, default='', nick='MDI Command')
+    command = GObject.property(type=str, default='', nick='MDI Command')
 
     def _hal_init(self):
         _EMC_Action._hal_init(self)
@@ -507,10 +516,10 @@ class EMC_Action_MDI(_EMC_Action):
 class EMC_ToggleAction_MDI(_EMC_ToggleAction, EMC_Action_MDI):
     __gtype_name__ = 'EMC_ToggleAction_MDI'
     __gsignals__ = {
-        'mdi-command-start': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
-        'mdi-command-stop':  (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'mdi-command-start': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'mdi-command-stop':  (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
     }
-    command = gobject.property(type=str, default='', nick='MDI Command')
+    command = GObject.property(type=str, default='', nick='MDI Command')
 
     def _hal_init(self):
         _EMC_ToggleAction._hal_init(self)
@@ -522,7 +531,7 @@ class EMC_ToggleAction_MDI(_EMC_ToggleAction, EMC_Action_MDI):
         self.set_sensitive(False)
         self.emit('mdi-command-start')
         self.on_activate(w)
-        gobject.timeout_add(100, self.wait_complete)
+        GLib.timeout_add(100, self.wait_complete)
 
     def wait_complete(self):
         if self.linuxcnc.wait_complete(0) in [-1, linuxcnc.RCS_EXEC]:
@@ -534,7 +543,7 @@ class EMC_ToggleAction_MDI(_EMC_ToggleAction, EMC_Action_MDI):
 
 class EMC_Action_UnHome(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Unhome'
-    axis = gobject.property(type=int, default=-1, minimum=-1, nick='Axis',
+    axis = GObject.property(type=int, default=-1, minimum=-1, nick='Axis',
                                     blurb='Axis to unhome. -1 to unhome all')
     def _hal_init(self):
         _EMC_Action._hal_init(self)
@@ -550,18 +559,18 @@ class EMC_Action_UnHome(_EMC_Action):
         self.linuxcnc.unhome(self.axis)
 
 def prompt_areyousure(type, message, secondary=None):
-    dialog = gtk.MessageDialog(None, 0, type, gtk.BUTTONS_YES_NO, message)
+    dialog = Gtk.MessageDialog(None, 0, type, Gtk.BUTTONS_YES_NO, message)
     if secondary:
         dialog.format_secondary_text(secondary)
     r = dialog.run()
     dialog.destroy()
-    return r == gtk.RESPONSE_YES
+    return r == Gtk.RESPONSE_YES
 
 class EMC_Action_Home(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Home'
-    axis = gobject.property(type=int, default=-1, minimum=-1, nick='Axis',
+    axis = GObject.property(type=int, default=-1, minimum=-1, nick='Axis',
                                     blurb='Axis to home. -1 to home all')
-    confirm_homed = gobject.property(type=bool, default=False, nick='Confirm rehoming',
+    confirm_homed = GObject.property(type=bool, default=False, nick='Confirm rehoming',
                                      blurb='Ask user if axis is already homed')
     def _hal_init(self):
         _EMC_Action._hal_init(self)
@@ -582,20 +591,20 @@ class EMC_Action_Home(_EMC_Action):
         #if not manual_ok(): return
         ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MANUAL)
         if self.confirm_homed and self.homed():
-            if not prompt_areyousure(gtk.MESSAGE_WARNING,
+            if not prompt_areyousure(Gtk.MESSAGE_WARNING,
                             _("Axis is already homed, are you sure you want to re-home?")):
                 return
         self.linuxcnc.teleop_enable(False)
         self.linuxcnc.home(self.axis)
 
 
-class State_Sensitive_Table(gtk.Table, _EMC_ActionBase):
+class State_Sensitive_Table(Gtk.Table, _EMC_ActionBase):
     __gtype_name__ = "State_Sensitive_Table"
-    is_homed = gobject.property(type=bool, default=True, nick='Must Be Homed',
+    is_homed = GObject.property(type=bool, default=True, nick='Must Be Homed',
                                     blurb='Machine Must be homed for widgets to be sensitive to input')
-    is_on = gobject.property(type=bool, default=True, nick='Must Be On',
+    is_on = GObject.property(type=bool, default=True, nick='Must Be On',
                                     blurb='Machine Must be On for widgets to be sensitive to input')
-    is_idle = gobject.property(type=bool, default=True, nick='Must Be Idle',
+    is_idle = GObject.property(type=bool, default=True, nick='Must Be Idle',
                                     blurb='Machine Must be Idle for widgets to be sensitive to input')
 
     def _hal_init(self):

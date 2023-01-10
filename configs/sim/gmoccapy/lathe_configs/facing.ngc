@@ -8,6 +8,10 @@ G90 ; Absolute Distance
 
 M6 T#7 G43
 
+O90 IF [#8 GT 0.5]
+	M8
+O90 ENDIF
+
 O10 IF [#6 NE 0]
    (MSG, Angled facing isn't supported yet)
 O10 ENDIF
@@ -15,7 +19,7 @@ O10 ENDIF
 #14 = [#<_x> * 2] (starting X)
 #13 = #<_z> (starting Z)
 
-G96 D2400 S#2 ; Constant Surface Speed Mode
+G96 D2500 S#2 ; Constant Surface Speed Mode
 M3
 g95 F#4 ; Feed-Per-Rev Mode
 
@@ -36,6 +40,6 @@ g4p1 ; Wait to reach speed
 	G0 Z[#13+#3]
 	G0 X[#14+#3]
 	G0 Z#5 ; For touch-off
-    M5
+    M5 M9
 O<facing> endsub
 M2

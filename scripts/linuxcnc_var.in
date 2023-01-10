@@ -34,6 +34,7 @@ Varnames supported:
          REALTIME
          RTS
          HALLIB_DIR
+         PYTHON
 
 Option 'all' returns varname=value for all supported varnames
 EOF
@@ -46,7 +47,8 @@ LINUXCNC_AUX_GLADEVCP=@LINUXCNC_AUX_GLADEVCP@
 LINUXCNC_AUX_EXAMPLES=@LINUXCNC_AUX_EXAMPLES@
 REALTIME=@REALTIME@
 RTS=@RTS@
-HALLIB_DIR=@HALLIB_DIR@"
+HALLIB_DIR=@HALLIB_DIR@
+PYTHON=@PYTHON@"
 }
 
 function show_item () {
@@ -57,6 +59,7 @@ function show_item () {
     REALTIME) echo @REALTIME@;;
     RTS) echo @RTS@;;
     HALLIB_DIR) echo @HALLIB_DIR@;;
+    PYTHON) echo @PYTHON@;;
     all) show_all;;
     *) echo UNKNOWN; exit 1;;
   esac

@@ -1,0 +1,10 @@
+A Qtvcp GUI for PlasmaC based on a theme by pinder on the LinuxCNC forum
+
+This GUI is in development and is not yet fully functional but can be opened as a LinuxCNC sim to get an idea of how it looks and feels. 
+
+Three versions available in both metric and imperial units:
+1. qtplasmac_l - 16:9 format, minimum resolution 1366x768
+2. qtplasmac_p  - 9:16 format,minimum resolution 768x1366
+3. qtplasmac_s - 4:3 minimum resolution 1024x768
+
+If you switch between unit types you will need to remove the .prefs file before opening a different version.

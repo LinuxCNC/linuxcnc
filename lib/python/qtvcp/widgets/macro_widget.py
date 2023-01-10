@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/env python3
 #
 # Qtvcp Widgets
 # Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -20,9 +20,10 @@ import os
 from PyQt5 import QtWidgets, QtCore, QtGui
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.widgets.entry_widget import TouchInputWidget
+from qtvcp.widgets.entry_widget import TouchInterface
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
+from qtvcp.widgets.touchEntry import TouchDoubleSpinBox,TouchSpinBox
 
 # Instantiate the libraries with global reference
 # INFO holds INI file details
@@ -36,12 +37,12 @@ LOG = logger.getLogger(__name__)
 
 # Set the log level for this module
 if not INFO.LINUXCNC_IS_RUNNING:
-    LOG.setLevel(logger.ERROR) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+    LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 try:
     from PyQt5 import QtSvg
 except:
-    LOG.critical("Qtvcp error with macro_widget - is package python-pyqt5.qtsvg installed?")
+    LOG.critical("Qtvcp error with macro_widget - is package python3-pyqt5.qtsvg installed?")
 
 ###############################################################
 # helper widget for SVG display on Button
@@ -98,6 +99,9 @@ class CustomSVG(QtSvg.QSvgWidget):
         else:
             LOG.error("MacrosTab SVG-No Layer Found: {}".format(temp))
 
+    def sizeHint(self):
+        return QtCore.QSize(200, 200)
+
     def paintEvent(self, event):
         qp = QtGui.QPainter()
         qp.begin(self)
@@ -110,7 +114,7 @@ class CustomSVG(QtSvg.QSvgWidget):
 # Macro tab widget
 #
 # macro tab widget parses the subroutine path for /lathe
-# It then opens the .ngc files ther eand searches for keynames
+# It then opens the .ngc files there and searches for keynames
 # using these key names it puts together a tab widget with svg file pics
 # the svg file should be in the same folder
 ###############################################################################
@@ -155,10 +159,14 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         vbox.addLayout(hbox)
         # add all that stuff above to me
         self.setLayout(vbox)
-        # add everything else
-        self.buildStack()
+
+    def sizeHint(self):
+        return QtCore.QSize(200, 200)
 
     def _hal_init(self):
+        # add The macros to the stacked wodget
+        self.buildStack(INFO.SUB_PATH_LIST)
+
         self.runButton.setEnabled(False)
         STATUS.connect('state-off', lambda w: self.runButton.setEnabled(False))
         STATUS.connect('state-estop', lambda w: self.runButton.setEnabled(False))
@@ -176,10 +184,14 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
     # first find macros
     # then build a menu page
     # then build the stack
-    # anything goes wrong display an eror page
-    def buildStack(self):
+    # anything goes wrong display an error page
+    def buildStack(self, pathlist):
+        def checkIfFloat(val):
+            return all([ [any([i.isnumeric(), i in ['.','e']]) for i in val],  len(val.split('.')) == 2] )
+
         macroFlag = False
-        for path in INFO.SUB_PATH_LIST:
+        for path in pathlist:
+            print(path)
             if 'macro' in path:
                 path = os.path.expanduser(path)
                 tabName = self._findMacros(path)
@@ -196,57 +208,97 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                 # of these arrays
                 for i, tName in enumerate(tabName):
                     # make a widget that is added to the stack
-                    w = TouchInputWidget()
-                    w.touch_interface.callDialog = self.getNumbers
+                    # TouchInterface can pop an entry dialog on focus
+                    w = TouchInterface(self)
+                    w.setObjectName(tName)
+                    w.keyboard_enable = True
+                    # redirect Touchinterface call to our function
+                    w.callDialog = self.getNumbers
+
+                    # main layout of this tab
                     hbox = QtWidgets.QHBoxLayout(w)
                     #hbox.addStretch(1)
+
+                    # vertical layout for labels and entries
                     vbox = QtWidgets.QVBoxLayout()
-                    w.setObjectName(tName)
+
                     # add labels and edits
                     # self[tName][0] is the list of name text and defaults pairs
                     for n, name in enumerate(self[tName][0]):
                         # if no list of names then continue looking
                         if name[0]=='':continue
+
+                        # layout holds label and entry for one line
+                        hbox2 = QtWidgets.QHBoxLayout()
+                        # make a label 
                         l = QtWidgets.QLabel(name[0])
+
+                        # make appropriate entries:
+                        # radio buttons?
                         if name[1].lower() in('false', 'true'):
                             self['%s%d' % (tName, n)] = QtWidgets.QRadioButton()
                             if name[1].lower() == 'true':
                                 self['%s%d' % (tName, n)].setChecked(True)
+                        # line edits that will pop an entry dialog:
                         else:
-                            self['%s%d' % (tName, n)] = QtWidgets.QLineEdit()
+                            print(name[1], checkIfFloat(name[1]))
+                            if checkIfFloat(name[1]):
+                                #self['%s%d' % (tName, n)] = QtWidgets.QLineEdit()
+                                #self['%s%d' % (tName, n)].setText(name[1])
+                                self['%s%d' % (tName, n)] = TouchDoubleSpinBox()
+                                self['%s%d' % (tName, n)].callDialog = self.getNumbers
+                                self['%s%d' % (tName, n)].setValue(float(name[1]))
+                            else:
+                                self['%s%d' % (tName, n)] =  TouchSpinBox()
+                                self['%s%d' % (tName, n)].callDialog = self.getNumbers
+                                self['%s%d' % (tName, n)].setValue(int(name[1]))
+                            self['%s%d' % (tName, n)]._label = name[0]
+                            self['%s%d' % (tName, n)]._tabName = tName
+                            self.set_style(self['%s%d' % (tName, n)])
                             self['%s%d' % (tName, n)].keyboard_type = 'numeric'
-                            self['%s%d' % (tName, n)].setText(name[1])
-                        vbox.addWidget(l)
-                        vbox.addWidget(self['%s%d' % (tName, n)])
-                    #add the SVG pic layer
+
+                        hbox2.addWidget(l)
+                        hbox2.addWidget(self['%s%d' % (tName, n)])
+
+                        # add label/entry layout to vertical layout fr this tab 
+                        vbox.addLayout(hbox2)
+
+                    #add the SVG/image pic layer
                     img_info = self[tName][1]
                     #print path+svg_info[0], svg_info[1]
+                    # SVG?
                     if img_info[0].endswith('.svg'):
                         svgpath = os.path.join(path, img_info[0])
                         self['sw%d' % i] = CustomSVG(svgpath,  int(img_info[1]))
+                        self['sw%d' % i].setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding,
+                                    QtWidgets.QSizePolicy.MinimumExpanding)
+                    # some other supported image file?
                     else:
+                        # get image path
                         try:
-                            print self[tName][1][1]
+                            #print(self[tName][1][1])
                             imgpath = os.path.join(path, self[tName][1][1])
                         except:
                             imgpath = os.path.join(path, img_info[0])
-                        #self['sw%d' % i] = QtWidgets.QPushButton()
-                        #self['sw%d' % i].setIcon(QtGui.QIcon(imgpath))
+
+                        # use a qlabel to display image
                         self['sw%d' % i] = QtWidgets.QLabel()
                         self['sw%d' % i].setPixmap(QtGui.QPixmap(imgpath))
-                        self['sw%d' % i]. setScaledContents(True)
-                        #self['sw%d' % i].setSizeHint(300, 300)
-                        self['sw%d' % i].setSizePolicy(QtWidgets.QSizePolicy.Expanding,QtWidgets.QSizePolicy.Expanding)
+                        self['sw%d' % i].setScaledContents(True)
+                        self['sw%d' % i].setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding,
+                                    QtWidgets.QSizePolicy.MinimumExpanding)
+
+                    # add image to the main layout for this tab
                     hbox.addWidget(self['sw%d' % i])
-                    vbox.addStretch(1)
+                    # add label/entry stack to the main layout for this tab
                     hbox.addLayout(vbox)
-                    # add the widget to the stack
+                    # add this tab to the stack
                     self.stack.addWidget(w)
         # No macros found in any path
         # show a message
         if macroFlag == False:
             self._buildErrorTab()
-
+        print(self.stack.count())
     # Menu page has icon buttons to select the macro
     # it finds the icon info from the macro file
     # using the magic comments parsed before this
@@ -257,8 +309,8 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         vbox = QtWidgets.QVBoxLayout()
         grid = QtWidgets.QGridLayout()
         grid.setSpacing(10)
-        # we grid them in columns of (arbritrarily) 5
-        # hopefully we don;t have too many macros...
+        # we grid them in columns of (arbitrarily) 5
+        # hopefully we don't have too many macros...
         for i, tName in enumerate(tabNames):
             svg_name = self[tName][1][0]
             if svg_name.endswith('.svg'):
@@ -278,7 +330,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
             btn.setWhatsThis('This button will select The entry page for the {} macro'.format(tName))
             btn.clicked.connect(self.menuButtonPress(i))
             btn.setSizePolicy(QtWidgets.QSizePolicy.Preferred,
-                              QtWidgets.QSizePolicy.Expanding)
+                              QtWidgets.QSizePolicy.Preferred)
             grid.addWidget(btn, row, col, 1, 1)
             row += 1
             if row > 4:
@@ -297,7 +349,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         w = QtWidgets.QWidget()
         vbox = QtWidgets.QVBoxLayout(w)
         vbox.addStretch(1)
-        mess = QtWidgets.QLabel('No Usable Macros Found.\nLooked in path(s) specified in INI file under heading [RS274NGC],\nSUBROUTINE_PATH=')
+        mess = QtWidgets.QLabel('No Usable Macros Found.\nLooked in path(s) specified in INI file under heading:\n[RS274NGC],\nSUBROUTINE_PATH=')
         vbox.addWidget(mess)
         mess = QtWidgets.QLabel( '\n'.join(map(str, INFO.SUB_PATH_LIST)))
         vbox.addWidget(mess)
@@ -309,7 +361,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
     # self['macroname'] = [ [DEFAULT DATA],[SVG FILE,LAYER,ICON LAYER],{OPTION DICT NAME:OPTION DICT DATA,}]
     # returns a list on the macro names that it finds valid
 
-    def _findMacros(self,path):
+    def _findMacros(self, path):
         tName = []
         macros = []
         defaults = []
@@ -457,7 +509,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         self.getSaveFileName()
 
     def openReturn(self, path):
-        LOG.debug("Open return filename choosen: {}".format(path))
+        LOG.debug("Open return filename chosen: {}".format(path))
         file = QtCore.QFile(path)
         file.open(QtCore.QFile.ReadOnly)
         name = str(self.stack.currentWidget().objectName())
@@ -465,7 +517,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
             readLine = file.readLine()
             try:
                 # Python v2.
-                readLine = unicode(readLine, encoding='utf8')
+                readLine = str(readLine, encoding='utf8')
             except NameError:
                 # Python v3.
                 readLine = str(readLine, encoding='utf8')
@@ -483,7 +535,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
     # save the current screen data to file picked by the user.
     # it's a plain text file
     def saveReturn(self, path):
-        LOG.debug("Save return filename choosen: {}".format(path))
+        LOG.debug("Save return filename chosen: {}".format(path))
         name = str(self.stack.currentWidget().objectName())
         if name == '': return
         file = QtCore.QFile(path)
@@ -503,19 +555,19 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                     file.errorString())
 
     # we do this instead of directly so the dialog version's title changes
-    # when it's overriden
+    # when it's overridden
     def setTitle(self, string):
         self.setWindowTitle(string)
 
     # get numeric data
-    def getNumbers(self,widget,ktype):
+    def getNumbers(self,widget,ktype=None):
         mess = {'NAME':self._request_name,'ID':'%s__macro',
                 'PRELOAD':float(widget.text()),
-            'TITLE':'Macro Entry Calculator','WIDGET':widget}
+            'TITLE':'{} Macro Entry For {}'.format(widget._tabName,widget._label),'WIDGET':widget}
         STATUS.emit('dialog-request', mess)
 
     # request the system to pop a load path picker dialog
-    # do this so the system is consistant and things like dialog
+    # do this so the system is consistent and things like dialog
     # placement are done.
     def getFileName(self):
         mess = {'NAME':self.load_dialog_code,'ID':'%s__' % self.objectName(),
@@ -526,7 +578,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         STATUS.emit('dialog-request', mess)
 
     # request the system to pop a save path picker dialog
-    # do this so the system is consistant and things like dialog
+    # do this so the system is consistent and things like dialog
     # placement are done.
     def getSaveFileName(self):
         mess = {'NAME':self.save_dialog_code,'ID':'%s__' % self.objectName(),
@@ -552,7 +604,53 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
             widget = message.get('WIDGET')
             if code and widget is not None:
                 if num is not None:
-                    widget.setText(str(num))
+                    widget.setValue(num)
+
+    def set_style(self, widget):
+        widget.setStyleSheet(
+"""
+QDoubleSpinBox,
+QSpinBox {
+    	padding-right: 15px; /* make room for the arrows */
+    	border-image: url(:/images/frame.png) 4;
+    	border-width: 3;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	font-size:20px;
+	border: 1px solid black;
+	min-width: 100px;
+	max-height: 30;
+}
+
+QDoubleSpinBox::up-button,
+QSpinBox::up-button {
+    	subcontrol-origin: border;
+ 	subcontrol-origin: padding;
+          	subcontrol-position: right; width: 30px; height: 28px;
+	image: url(:/widget/images/arrow_up1.png);
+           	border: 1px solid black;
+}
+QDoubleSpinBox::up-button:pressed,
+QSpinBox::up-button:pressed {
+    	image: url(:/widget/images/arrow_up2.png);
+}
+
+QDoubleSpinBox::down-button,
+QSpinBox::down-button {
+    	subcontrol-origin: border;
+ 	subcontrol-origin: padding;
+	subcontrol-position: left; width: 30px; height: 28px;
+	image: url(:/widget/images/arrow_down1.png);
+	border: 1px solid black;
+}
+QDoubleSpinBox::down-button:pressed,
+QSpinBox::down-button:pressed {
+   	 image: url(:/widget/images/arrow_down2.png) 1;
+}
+
+""")
 
     # usual boiler code
     # (used so we can use code such as self[SomeDataName]
@@ -567,6 +665,7 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     #sw = QtSvg.QSvgWidget('LatheMacro.svg')
     sw = MacroTab()
+    sw.buildStack(['~/linuxcnc/nc_files/examples/macros/lathe'])
     sw.setGeometry(50, 50, 759, 668)
     sw.show()
     sys.exit(app.exec_())

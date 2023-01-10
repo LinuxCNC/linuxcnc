@@ -139,6 +139,25 @@ proc validate_identity_kins_limits {} {
   return $emsg
 } ;# validate_identity_kins_limits
 
+proc check_extrajoints {} {
+  if ![info exists ::EMCMOT(EMCMOT)] return
+  if {[string first motmod $::EMCMOT(EMCMOT)] <= 0} return
+  set mot [split [lindex $::EMCMOT(EMCMOT) 0]]
+  foreach item $mot {
+    set pair [split $item =]
+    set parm [lindex $pair 0]
+    set val  [lindex $pair 1]
+    if {"$parm" == "num_extrajoints"} {
+      set ::num_extrajoints $val
+    }
+  }
+  if [info exists ::num_extrajoints] {
+     lappend ::wmsg [format "Extra joints specified=%d\n \
+\[KINS\]JOINTS=%d must accommodate kinematic joints *plus* extra joints " \
+                     $::num_extrajoints $::KINS(JOINTS)]
+  }
+} ;#check_extrajoints
+
 proc warn_for_multiple_ini_values {} {
   set sections [info globals]
   set sections_to_check {JOINT_ AXIS_}
@@ -209,6 +228,7 @@ switch $::kins(module) {
     exit 0
   }
 }
+check_extrajoints
 
 warn_for_multiple_ini_values
 #parray ::kins

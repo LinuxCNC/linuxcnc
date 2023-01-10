@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 #    This is pncconf, a graphical configuration editor for LinuxCNC
 #    Chris Morley copyright 2009
@@ -19,10 +19,10 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 import os
-import errno
 import hashlib
-import commands
 import xml.dom.minidom
+import textwrap
+import subprocess
 
 def md5sum(filename):
     try:
@@ -108,7 +108,7 @@ class Data:
         # basic machine data
         self.help = "help-welcome.txt"
         self.machinename = _("my_LinuxCNC_machine")
-        self.frontend = _PD._AXIS 
+        self.frontend = _PD._AXIS
         self.axes = 0 # XYZ
         self.include_spindle = True
         self.available_axes = []
@@ -151,7 +151,7 @@ class Data:
         self.jograpidrate = 1.0
 
         self.externalmpg = False
-        self.guimpg = True    
+        self.guimpg = True
         self.multimpg = False
         self.sharedmpg = False
         self.incrselect = False
@@ -279,7 +279,7 @@ class Data:
         self.min_spindle_override = .5
         self.max_spindle_override = 1.0
         # These are for AXIS gui only
-        # linear jog defaults are set with: set_axis_unit_defaults() 
+        # linear jog defaults are set with: set_axis_unit_defaults()
         self.default_angular_velocity = 12
         self.min_angular_velocity = 3
         self.max_angular_velocity = 180
@@ -303,6 +303,29 @@ class Data:
         self.touchyrelcolor = "default"
         self.touchydtgcolor = "default"
         self.touchyerrcolor = "default"
+
+        # QtPlasmaC
+        self.qtplasmacmode = 0
+        self.qtplasmacscreen = 0
+        self.qtplasmacestop = 0
+        self.qtplasmacdro = 0
+        self.qtplasmacerror = 0
+        self.qtplasmacstart = 0
+        self.qtplasmacpause = 0
+        self.qtplasmacstop = 0
+        self.qtplasmacpmx = ""
+        self.increments_metric_qtplasmac = "10mm 1mm .1mm .01mm .001mm"
+        self.increments_imperial_qtplasmac= "1in .1in .01in .001in .0001in"
+        self.qtplasmac_bnames = ["OHMIC\TEST","PROBE\TEST","SINGLE\CUT","NORMAL\CUT","TORCH\PULSE","FRAMING", \
+                                 "","","","","","","","","","","","","",""]
+        self.qtplasmac_bcodes = ["ohmic-test","probe-test 10","single-cut","cut-type","torch-pulse 0.5","framing", \
+                                 "","","","","","","","","","","","","",""]
+        self._arcvpin = None
+        self.voltsmodel = "10"
+        self.voltsfjumper = "32"
+        self.voltszerof = 100.0
+        self.voltsfullf = 999.
+        self.voltsrdiv = 20
 
         # LinuxCNC assorted defaults and options
         self.toolchangeprompt = True
@@ -388,12 +411,12 @@ class Data:
         self.drivertype = "other"
         self.steptime = 5000
         self.stepspace = 5000
-        self.dirhold = 20000 
+        self.dirhold = 20000
         self.dirsetup = 20000
         self.latency = 15000
         self.period = 25000
 
-        # For parallel port 
+        # For parallel port
         self.pp1_direction = 1 # output
         self.ioaddr1 = "0"
         self.ioaddr2 = "1"
@@ -419,8 +442,8 @@ class Data:
         self.number_mesa = 1 # number of cards
         # for first mesa card
         self.mesa0_currentfirmwaredata = None
-        self.mesa0_boardtitle = "5i25-Internal Data"        
-        self.mesa0_firmware = _PD.MESA_INTERNAL_FIRMWAREDATA[0][2]  
+        self.mesa0_boardtitle = "5i25-Internal Data"
+        self.mesa0_firmware = _PD.MESA_INTERNAL_FIRMWAREDATA[0][2]
         self.mesa0_parportaddrs = "0x378"
         self.mesa0_card_addrs = "192.168.1.121"
         self.mesa0_isawatchdog = 1
@@ -764,7 +787,7 @@ class Data:
             conv = converters[n.getAttribute('type')]
             text = n.getAttribute('value')
             setattr(self, name, conv(text))
-        
+
         # this loads custom signal names created by the user
         # adds endings to the custom signal name when put in
         # hal signal name arrays
@@ -854,29 +877,29 @@ If you have a REALLY large config that you wish to convert to this newer version
             m1 = md5sum(f)
             if m1 and m != m1:
                 warnings2.append(_("File %r was modified since it was written by PNCconf") % f)
+
+        # no warnings ? return to pncconf APP
         if not warnings and not warnings2: return
+
         if warnings2:
             warnings.append("")
             warnings.append(_("Saving this configuration file will discard configuration changes made outside PNCconf."))
         if warnings:
             warnings = warnings + warnings2
         self.pncconf_loaded_version = self._pncconf_version
-        if app:
-            dialog = gtk.MessageDialog(app.widgets.window1,
-                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,
-                     "\n".join(warnings))
-            dialog.show_all()
-            dialog.run()
-            dialog.destroy()
+
+        # if we have a GUI running, pop a dialog
+        # else print to terminal
+        if not app is None:
+            _APP.warning_dialog("\n".join(warnings),  True)
         else:
             for para in warnings:
-                for line in textwrap.wrap(para, 78): print line
-                print
-            print
+                for line in textwrap.wrap(para, 78): print(line)
+                print()
+            print()
             if force: return
-            response = raw_input(_("Continue? "))
-            if response[0] not in _("yY"): raise SystemExit, 1
+            response = input(_("Continue? (y/n)"))
+            if response[0] not in _("yY"): raise SystemExit(1)
 
     def add_md5sum(self, filename, mode="r"):
         self.md5sums.append((filename, md5sum(filename)))
@@ -898,10 +921,10 @@ If you have a REALLY large config that you wish to convert to this newer version
 
         filename = os.path.join(base, "tool.tbl")
         file = open(filename, "w")
-        print >>file, "T0 P0 ;"
-        print >>file, "T1 P1 ;"
-        print >>file, "T2 P2 ;"
-        print >>file, "T3 P3 ;"
+        print("T0 P0 ;", file=file)
+        print("T1 P1 ;", file=file)
+        print("T2 P2 ;", file=file)
+        print("T3 P3 ;", file=file)
         file.close()
 
         filename = "%s.pncconf" % base
@@ -910,7 +933,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                             None, "pncconf", None)
         e = d.documentElement
 
-        for k, v in sorted(self.__dict__.iteritems()):
+        for k, v in sorted(self.__dict__.items()):
             if k.startswith("_"): continue
             n = d.createElement('property')
             e.appendChild(n)
@@ -923,13 +946,13 @@ If you have a REALLY large config that you wish to convert to this newer version
 
             n.setAttribute('name', k)
             n.setAttribute('value', str(v))
-        
-        d.writexml(open(filename, "wb"), addindent="  ", newl="\n")
-        print "%s" % base
+
+        d.writexml(open(filename, "wt"), addindent="  ", newl="\n")
+        print("%s" % base)
 
         # write pncconf hidden preference file
         filename = os.path.expanduser("~/.pncconf-preferences")
-        print filename
+        print(filename)
         d2 = xml.dom.minidom.getDOMImplementation().createDocument(
                             None, "int-pncconf", None)
         e2 = d2.documentElement
@@ -988,15 +1011,15 @@ If you have a REALLY large config that you wish to convert to this newer version
         n2.setAttribute('name', "customfirmwarefilename")
         n2.setAttribute('value', str("%s"% self._customfirmwarefilename))
 
-        d2.writexml(open(filename, "wb"), addindent="  ", newl="\n")
+        d2.writexml(open(filename, "wt"), addindent="  ", newl="\n")
 
         # write to Touchy preference file directly
         if self.frontend == _PD._TOUCHY:
-            #print "Setting TOUCHY preferences"
+            #print("Setting TOUCHY preferences")
             templist = {"touchyabscolor":"abs_textcolor","touchyrelcolor":"rel_textcolor",
                         "touchydtgcolor":"dtg_textcolor","touchyerrcolor":"err_textcolor"}
-            for key,value in templist.iteritems():
-                prefs.putpref(value, self[key], str)
+            for key,value in templist.items():
+                _APP.set_touchy_preference(value, self[key], str)
             if self.touchyposition[0] or self.touchysize[0]:
                     pos = size = ""
                     if self.touchyposition[0]:
@@ -1005,9 +1028,9 @@ If you have a REALLY large config that you wish to convert to this newer version
                         size = "%dx%d"% (self.touchysize[1],self.touchysize[2])
                     geo = "%s%s"%(size,pos)
             else: geo = "default"
-            prefs.putpref('window_geometry',geo, str)
-            prefs.putpref('gtk_theme',self.touchytheme, str)
-            prefs.putpref('window_force_max', self.touchyforcemax, bool)
+            _APP.set_touchy_preference('window_geometry',geo, str)
+            _APP.set_touchy_preference('gtk_theme',self.touchytheme, str)
+            _APP.set_touchy_preference('window_force_max', self.touchyforcemax, bool)
 
         # write AXIS rc file for geometry
         if self.frontend == _PD._AXIS and (self.axisposition[0] or self.axissize[0] or self.axisforcemax):
@@ -1015,29 +1038,29 @@ If you have a REALLY large config that you wish to convert to this newer version
             if _APP.warning_dialog(_PD.MESS_REPLACE_RC_FILE, False):
                 f1 = open(filename, "w")
                 if self.axisposition[0] or self.axissize[0]:
-                    #print "Setting AXIS geometry option"
+                    #print("Setting AXIS geometry option)
                     pos = size = ""
                     if self.axisposition[0]:
                         pos = "+%d+%d"% (self.axisposition[1],self.axisposition[2])
                     if self.axissize[0]:
                         size = "%dx%d"% (self.axissize[1],self.axissize[2])
                     geo = "%s%s"%(size,pos)
-                    print >>f1,"""root_window.tk.call("wm","geometry",".","%s")"""%(geo)
+                    print("""root_window.tk.call("wm","geometry",".","%s")"""%(geo), file=f1)
                 if self.axisforcemax:
-                    #print "Setting AXIS forcemax option"
-                    print >>f1,"""# Find the largest size possible and set AXIS to it"""
-                    print >>f1,"""maxgeo=root_window.tk.call("wm","maxsize",".")"""
-                    print >>f1,"""try:"""
-                    print >>f1,"""   fullsize=maxgeo.split(' ')[0] + 'x' + maxgeo.split(' ')[1]"""
-                    print >>f1,"""except:"""
-                    print >>f1,"""   fullsize=str(maxgeo[0]) + 'x' + str(maxgeo[1])"""
-                    print >>f1,"""root_window.tk.call("wm","geometry",".",fullsize)"""
-                    print >>f1,"""# Uncomment for fullscreen"""
-                    print >>f1,"""#root_window.attributes('-fullscreen', True)"""
+                    #print("Setting AXIS forcemax option")
+                    print("""# Find the largest size possible and set AXIS to it""", file=f1)
+                    print("""maxgeo=root_window.tk.call("wm","maxsize",".")""", file=f1)
+                    print("""try:""", file=f1)
+                    print("""   fullsize=maxgeo.split(' ')[0] + 'x' + maxgeo.split(' ')[1]""", file=f1)
+                    print("""except:""", file=f1)
+                    print("""   fullsize=str(maxgeo[0]) + 'x' + str(maxgeo[1])""", file=f1)
+                    print("""root_window.tk.call("wm","geometry",".",fullsize)""", file=f1)
+                    print("""# Uncomment for fullscreen""", file=f1)
+                    print("""#root_window.attributes('-fullscreen', True)""", file=f1)
 
         # make system link and shortcut to pncconf files
         # see http://freedesktop.org/wiki/Software/xdg-user-dirs
-        desktop = commands.getoutput("""
+        desktop = subprocess.getoutput("""
             test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
             echo ${XDG_DESKTOP_DIR:-$HOME/Desktop}""")
         if self.createsymlink:
@@ -1053,18 +1076,18 @@ If you have a REALLY large config that you wish to convert to this newer version
 
             filename = os.path.join(desktop, "%s.desktop" % self.machinename)
             file = open(filename, "w")
-            print >>file,"[Desktop Entry]"
-            print >>file,"Version=1.0"
-            print >>file,"Terminal=false"
-            print >>file,"Name=" + _("launch %s") % self.machinename
-            print >>file,"Exec=%s %s/%s.ini" \
-                         % ( scriptspath, base, self.machinename )
-            print >>file,"Type=Application"
-            print >>file,"Comment=" + _("Desktop Launcher for LinuxCNC config made by PNCconf")
-            print >>file,"Icon=%s"% _PD.LINUXCNCICON
+            print("[Desktop Entry]", file=file)
+            print("Version=1.0", file=file)
+            print("Terminal=false", file=file)
+            print("Name=" + _("launch %s") % self.machinename, file=file)
+            print("Exec=%s %s/%s.ini" \
+                         % ( scriptspath, base, self.machinename ), file=file)
+            print("Type=Application", file=file)
+            print("Comment=" + _("Desktop Launcher for LinuxCNC config made by PNCconf"), file=file)
+            print("Icon=%s"% _PD.LINUXCNCICON, file=file)
             file.close()
             # Ubuntu 10.04 require launcher to have execute permissions
-            os.chmod(filename,0775)
+            os.chmod(filename,0o775)
 
     def __getitem__(self, item):
         return getattr(self, item)

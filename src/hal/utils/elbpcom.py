@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #    Copyright 2012-2015
 #    Peter C. Wallace <pcw@mesanet.com> and Jeff Epler <jepler@unpythonic.net>

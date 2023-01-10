@@ -750,10 +750,10 @@ void Hal::setStart(bool enabled)
     if (requestAutoMode(enabled))
     {
         if (enabled)
-        {
-            toggleStartResumeProgram();
-        }
-        setPin(enabled, KeyCodes::Buttons.start.text);
+    {
+        toggleStartResumeProgram();
+    }
+    setPin(enabled, KeyCodes::Buttons.start.text);
     }
 
     if (!enabled)
@@ -1292,7 +1292,7 @@ void Hal::setMacro9(bool enabled)
 // ----------------------------------------------------------------------
 void Hal::setMacro10(bool enabled)
 {
-    setPin(enabled, KeyCodes::Buttons.macro10.text);                        // Hardcoded Absolue/relative Dro
+    setPin(enabled, KeyCodes::Buttons.macro10.text);                        // Hardcoded Absolute/relative Dro
 }
 // ----------------------------------------------------------------------
 void Hal::setMacro11(bool enabled)
@@ -1358,8 +1358,8 @@ void Hal::setJogCounts(const HandWheelCounters& counters)
     *memory->out.axisAJogCounts = counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_A);
     *memory->out.axisBJogCounts = counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_B);
     *memory->out.axisCJogCounts = counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_C);
-    requestManualMode(false);
-    requestTeleopMode(false);
+        requestManualMode(false);
+        requestTeleopMode(false);
 }
 // ----------------------------------------------------------------------
 void Hal::setFunction(bool enabled)
@@ -1412,9 +1412,9 @@ bool Hal::requestMode(bool isRisingEdge, hal_bit_t *requestPin, hal_bit_t * mode
     }
     else
     {
-        // on button released always clear request
-        *requestPin = false;
-        return false;
+      // on button released always clear request
+      *requestPin = false;
+      return false;
     }
     return false;
 }

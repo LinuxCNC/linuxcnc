@@ -228,11 +228,6 @@ proc load_packages {} {
     puts "To install: sudo apt-get install blt"
     exit 1
   }
-  if [catch {package require Img} msg] {
-    puts $msg
-    puts "To install: sudo apt-get install libtk-img"
-    exit 1
-  }
 
   # augment ::auto_path for special case:
   # 1) RIP build (no install)

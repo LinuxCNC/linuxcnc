@@ -42,8 +42,8 @@ net requested-vel thcud.requested-vel <= motion.requested-vel
 .br
 net current-vel thcud.current-vel <= motion.current-vel
 
-Pyvcp Connections
-In the xml file you need something like:
+PyVCP Connections
+In the XML file you need something like:
 
   <pyvcp>
   <checkbutton>
@@ -52,7 +52,7 @@ In the xml file you need something like:
   </checkbutton>
   </pyvcp>
 
-Connect the Pyvcp pins in the postgui.hal file like this:
+Connect the PyVCP pins in the postgui.hal file like this:
 
 net thc-enable thcud.enable <= pyvcp.thc-enable
 

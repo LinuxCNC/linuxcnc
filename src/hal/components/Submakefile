@@ -1,5 +1,5 @@
 ifneq ($(KERNELRELEASE),)
-COMPS := $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp $(BASEPWD)/hal/drivers/*.comp))
+COMPS := $(filter-out %/tpcomp.comp, $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp $(BASEPWD)/hal/drivers/*.comp)))
 include $(patsubst %.comp, $(BASEPWD)/objects/%.mak, $(COMPS))
 else
 CONVERTERS :=  \
@@ -7,11 +7,12 @@ CONVERTERS :=  \
     conv_bit_s32.comp conv_bit_u32.comp conv_bit_float.comp \
     conv_s32_float.comp conv_s32_bit.comp conv_s32_u32.comp \
     conv_u32_float.comp conv_u32_bit.comp conv_u32_s32.comp
-COMPS := $(sort $(wildcard hal/components/*.comp) $(addprefix hal/components/, $(CONVERTERS)))
-COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/man/man9/%.9, $(COMPS))
+COMPS := $(filter-out hal/components/tpcomp.comp, $(sort $(wildcard hal/components/*.comp) $(addprefix hal/components/, $(CONVERTERS))))
+COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/man/man9/%.9, $(COMPS)) ../docs/man/man9/tpcomp.9
 ifeq ($(BUILD_SYS),uspace)
 COMP_DRIVERS += hal/drivers/serport.comp
 COMP_DRIVERS += hal/drivers/mesa_7i65.comp
+COMP_DRIVERS += hal/drivers/mesa_uart.comp
 else
 COMP_DRIVERS := $(wildcard hal/drivers/*.comp)
 endif
@@ -73,7 +74,7 @@ TARGETS += ../bin/halsampler
 
 PYSAMPLERSRCS := hal/components/panelui.c
 USERSRCS += $(PYSAMPLERSRCS)
-PYFLAGS := -L$(SITEPY) -lpthread $(LIBDL) -lutil -lm -l$(LIBPYTHON) -Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions -lrt
+PYFLAGS := $(PYTHON_EXTRA_LDFLAGS) $(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(PYTHON_EXTRA_LIBS) -lrt
 
 ../bin/panelui: $(call TOOBJS, $(PYSAMPLERSRCS)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)

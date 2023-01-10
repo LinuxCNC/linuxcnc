@@ -1,6 +1,71 @@
-- fixed sensitizing of user tab button on toggling "edit offsets" (#2111)
-- fix error on creating new G-code file when RS274NGC_STARTUP_CODE is not set
-  (#2057)
+ver 3.4.1
+ 
+  New features:
+  - added possibility for sourcing an user defined file (rcfile)
+  - added option to use external CSS file
+
+  Fixes:
+  - some optical fixes (button properties, left align text in notification)
+  - fixed sensitizing of user tab button on toggling "edit offsets" (#2111)
+  - fix error on creating new G-code file when RS274NGC_STARTUP_CODE is not set
+    (#2057)
+
+ver 3.4.0
+
+  New features:
+  - Icon Themes:
+    * Implement icon theme switch logic (Peter Müller)
+    * Add material and material-light icon themes (Peter Müller)
+    * Optimized classic icons (Hans Unzner)
+  - added setting for height of on-screen keyboard (Hans Unzner)
+  - added some EMBED_TAB locations (Hans Unzner)
+  - Added Gtk.Paned for upper main area (hbox2) (Hans Unzner)
+
+  Optical fixes:
+  - don't expand DRO (Hans Unzner)
+  - center labels of multi-line buttons (Hans Unzner)
+  - Fixed several typos (luz paz, Petter Reinholdtsen)
+  - Added and fixed several tooltips (zz912)
+  - fix translation strings of some tooltips and dialogs (Hans Unzner)
+
+  Functional fixes:
+  - fix "spindle speed override wasn't applied in reverse direction" (Hans Unzner)
+  - fix attribute errors in tooltip (TRothfelder, Hans unzner)
+  - fixed iconview/full screen bug (#1543) (Hans Unzner)
+  - restore user tab when leaving settings page (Hans Unzner)
+  - restore mode when leaving settings page (Hans Unzner)
+  - prevent mode buttons from sensitizing when toggling on/off when in settings page (Hans Unzner)
+  - fix button states when on settings page (Hans Unzner)
+  - fix button states when entering settings from MDI or Auto mode (Hans Unzner)
+  - fixed DRO unit switching (G20/G21) (Hans Unzner)
+  - fixed got lost "touchoff tool z" button (Hans Unzner)
+  - stop all jogging on focus-out-event (#1511) (Hans Unzner)
+  - fix error when pressing "R" or "r" (Hans Unzner)
+  - added confirm pins for toolchange and general warning dialogs, close toolchanger window on abort command (Hans Unzner)
+  - sensitize save button after 'save as' (Hans Unzner)
+  - fix detection of file change (Hans Unzner)
+  - refresh limit override check box immediately (Hans Unzner)
+  - enable limit override when limit tripped in machine off state (Hans Unzner)
+  - enable limit override only when limit active (Hans Unzner)
+  - enable limit override when machine is started with limit switch active (#1000) (Hans Unzner)
+  - Error message when not existing tool is selected (Hans Unzner)
+  - Fix jogging with max velocity (SHIFT + jog key) (Hans Unzner)
+
+  GTK 3/Python 3 related fixes:
+  - fixed DRO switching on G7/G8 + fixed active gcodes list (Hans Unzner)
+  - wrong arguments in Button() causes gmoccapy to fail if 4_axis are used (Hans Unzner)
+  - use python3 in all #!python lines (Jeff Epler)
+  - fix various gtk3 deprecated warnings (Rene Hopf, Hans Unzner)
+  - fixed setting "mouse button mode" (Hans Unzner)
+
+ver 3.1.3.10
+- fix behavior in MDI mode running macro keyboard image
+  This fixes issue #1180
+
+ver 3.1.3.9
+- added missing hal status signals to glade file to set
+  button sensitive states in AUTO mode correct
+  This fixes issue #1177
 
 ver 3.1.3.8 (LinuxCNC 2.8.4 release)
 - jogging with max speed (with shift-key pressed) was reduced by halui setting
@@ -36,6 +101,42 @@ ver 3.1.3.7
 
   Thanks Jasen for reporting
 
+ver 3.3.3.4.2
+- fixed some RGBA color bugs
+- closing onboard keyboard
+- dobble code line in gettext localisation
+- deprecated warning in timer.add
+
+ver 3.3.3.4.1
+- exceptions dialog used deprecated format
+
+ver 3.3.3.4
+- hide cursor now working
+- minor code corrections after fixing onboard
+
+ver 3.3.3.3.1
+- onboard closing without error
+
+ver 3.3.3.3
+- onboard did not close on closing gmoccapy
+
+ver 3.3.3.2
+- edit button error corrected
+
+ver 3.3.3.1
+- ** conversion to Gtk3/Python3 **
+- changes release number to distinguish better
+- DRO now do react on changes from settings page
+- first changes to use RGBA not RGB
+- DRO Size can be adjusted
+- for preferences we use HEX colors, all other colors should be RGBA
+- introduced helper function to convert colors, IMHO should be in an own module
+- label for loaded file was not working
+- Key Control Mask corrected
+- pixbuf corrected to get icons on button
+- iconview corrected
+- Jog increment button corrected
+
 ver 3.1.3.6
 - get rid o some "ERROR" strings in translation file
   as the error type is displayed as ICON in self._show_error
@@ -43,7 +144,7 @@ ver 3.1.3.6
   Thanks to hansu for reporting
 
 ver 3.1.3.5
-- wrong translation of "Follow System Theme" leaded to a wrong 
+- wrong translation of "Follow System Theme" led to a wrong 
   theme when loading the GUI.
   Will correct the translation files with a different commit
 
@@ -62,7 +163,7 @@ ver 3.1.3.3
   Thanks to hansu for reporting
 
 ver 3.1.3.2
-- change og gmoccapy hal pin gmoccapy.jog.jog-inc-N leaded to an
+- change og gmoccapy hal pin gmoccapy.jog.jog-inc-N led to an
   aboart() command, so changing that pin i.e. in AUTO mode stops
   Spindle and program execution. That is not the expected behavior.
 
@@ -81,7 +182,7 @@ ver 3.1.3.1
 
 ver 3.1.3
 - added a dialog asking the user to save changes
-- when in min screen resolution the editing page was wrong formated
+- when in min screen resolution the editing page was wrong formatted
   while using German language, because of too long strings
   Thanks to Hans470 for reporting this bugs
 
@@ -99,8 +200,8 @@ ver 3.1.2.2
 ver 3.1.2.1
 - still a bug in handling ignore limits solved
   issue #1000 reported by Hans470
-  solved by using new hal staus signal and deleted 
-  some unneded code
+  solved by using new hal status signal and deleted 
+  some unneeded code
 
 ver 3.1.2
 - connecting macro button to physical button did send
@@ -108,20 +209,20 @@ ver 3.1.2
   This bug has been reported from ulistermclame
 
 ver 3.1.1
-- setting analog-enable hal pins signal allways resetted
+- setting analog-enable hal pins signal always reset
   the jog vel of the slider. This has been reported from hans23
   solved with this update
 
 ver 3.1.0
 - added the ability to hide the tooltips to
-  make the use with touch monitors more usefull
+  make the use with touch monitors more useful
   Thanks to neilwhelcher for the code and pointing this out
 
 ver 3.0.10
 - bug in handling ignore limits solved
   issue #1000 reported by Hans470
-  solved by using new hal staus signal and deleted 
-  some unneded code
+  solved by using new hal status signal and deleted 
+  some unneeded code
 
 ver 3.0.9.1
 - bug in handling back tool lathe solved
@@ -137,7 +238,7 @@ ver 3.0.8.3
   that hold available axes to be in the same order as defined.
   in python 2.7 that is not the default behavior of dicts.
   So the function (with a XYZAB machine for example) gave two
-  sets of row/coloumn numbers for four buttons, leading to two
+  sets of row/column numbers for four buttons, leading to two
   buttons not being available.
   Thanks to Chris Morley for fixing this
 
@@ -179,7 +280,7 @@ ver 3.0.6
   leading to the need of less resources and a quicker start of the GUI
 - gmoccapy now supports 9 axis and 9 joints
 - configuration of joint axis relation are now applied as given in the
-  ini file, allowing also strange configs like XZCW lathe configs or
+  INI file, allowing also strange configs like XZCW lathe configs or
   scara or 6 axis robot arms
 - Display of cutting speed is now correct, even on a lathe with
   constant surface speed
@@ -210,7 +311,7 @@ ver 3.0.2
 - get rid of the screen2 stuff, as screens can be displayed using hal commands
 
 ver 3.0.1
-- bug being in full-size preview in auto mode and loading a file leaded to
+- bug being in full-size preview in auto mode and loading a file led to
   normal view as expected, but the full-size button stayed activated
 
 ver 3.0.0
@@ -259,7 +360,7 @@ ver 2.3.3.4
   Thanks to COlger81 and Chris Morley for reporting the bug
 
 ver 2.3.3.3
-- editing offsets, leaded to a error output in the console, due to missing
+- editing offsets, led to a error output in the console, due to missing
   widget btn_zero_x
 
 ver 2.3.3.2
@@ -290,12 +391,12 @@ ver 2.3.2.2
 - ongoing reformatting the code to new .format style
 
 ver 2.3.2.1
-- formating bug in Vc, when over 100, float can not be formated as int
+- formatting bug in Vc, when over 100, float can not be formatted as int
 
 ver 2.3.2
 - added a new label to toolinfo box, showing the cutting speed Vc
   it uses the tool diameter on mill and the x-relative value for lathe
-- first code updates to the new string formating (not % but .format),
+- first code updates to the new string formatting (not % but .format),
   as this will be needed to switch over to python 3
 
 ver 2.3.1.9
@@ -325,7 +426,7 @@ ver 2.3.1.6
 ver 2.3.1.5
 - some code clearance, as the tooleditor stuff was reparted on several places
   Now it is together in _init_tooleditor.
-  This is the begining of finding the bug of decimal separator handling
+  This is the beginning of finding the bug of decimal separator handling
   Push reload will replace the German "," with the "." Why = ?????
 
 ver 2.3.1.4
@@ -354,12 +455,12 @@ ver 2.3.0
   gmoccapy. I have passed a lot of code over to get_ini_info.
 - all config files have been changed to support the new behavior. I tried to make
   all the code compatible with older configs. Some might need the not used axis
-  to be included in homing entries in the ini files.
+  to be included in homing entries in the INI files.
 
 ver 2.2.5.2
 - if the GUI tries to reload a tool on restart and that tool was not found in 
   the tool table, the GUI remained in MDI mode, while it was showing the manual 
-  view. This leaded to the problem, that jogging was not possible, but users 
+  view. This led to the problem, that jogging was not possible, but users 
   thought they where in MANUAL mode, where jogging should be allowed.
 
 ver 2.2.5.1
@@ -397,7 +498,7 @@ ver 2.2.3.1
   homed the second time, unfortunately we will then
   not get out of MDI mode any more
   That happen, because the tool in spindle did not change, so the 
-  tool info is not updated and we self.change_tool will not be reseted
+  tool info is not updated and we self.change_tool will not be reset
   Thanks to timmert for reporting
 
 ver. 2.2.3
@@ -415,7 +516,7 @@ ver. 2.2.2
 
 ver. 2.2.1
 - if linuxcnc is restarted without shutting down gmoccapy, it was not possible
-  to close gmoccapy (except from comandline with killall -9 gmoccapy
+  to close gmoccapy (except from commandline with killall -9 gmoccapy
   I added a check to status.poll and now a raise SystemExit will be called.
   as this also applies to CombiDRO a added that there too.
   I added gmoccapy to the linuxcnc script to be killed on restart
@@ -477,7 +578,7 @@ ver. 2.1.5
 ver. 2.1.4
 - lathe wear offsets has been displayed by default, IMHO that
   disturbs most users, as the wear offsets do only work with
-  remaped code. That part is only weak documented.
+  remapped code. That part is only weak documented.
 - If the user wants to use wear offsets, he will have to include
   in [DISPLAY] LATHE_WEAR_OFFSETS = 1, otherwise the additional tabs
   will be hidden.
@@ -498,7 +599,7 @@ ver. 2.1.1
   possible to JOG_STOP with machine in OFF state
 
 ver. 2.1.0
-- reworked Combi_DRO to fit the needs of JA requierements
+- reworked Combi_DRO to fit the needs of JA requirements
 - some configs must be adapted to the new hal pin names, as they are
   put together in groups, so all stuff with jog is in that group
 - Hiding the jog button in world mode is possible with a command line argument
@@ -592,7 +693,7 @@ ver. 2.0.15
 - added a togglebutton to switch from joint to teleop, this button 
   will be hidden on identity kinematics machines
 - small bug in spc_spinlde handling 
-  (to many get and set leaded to jumping values)
+  (to many get and set led to jumping values)
 
 ver. 2.0.14
 - deleted adj_spinlde and changes the code to use directly the settings
@@ -605,7 +706,7 @@ ver. 2.0.13
 
 ver. 2.0.12
 - bug in touchscreen slider if machine units and display units not equal
-- corrected some strange entries in ini files
+- corrected some strange entries in INI files
 
 ver. 2.0.11
 - some small changes in INI configs
@@ -652,7 +753,7 @@ ver. 2.0.2
 - added logo as command line argument
 
 ver. 2.0.1
-- when using hardware button to jog the axis, the 5th axis wath not 
+- when using hardware button to jog the axis, the 5th axis was not 
   recognized, resulting in a jog of the 4th axis. I solved this bug
   and introduced a new config to test this.
   Thanks to Ludwig for reporting the bug
@@ -714,10 +815,10 @@ ver. 1.5.6.8
   INI file a default value of 150 will be used.
 
 ver. 1.5.6.7
-- reading of subroutine paths did not take care of ":" separeted paths
+- reading of subroutine paths did not take care of ":" separated paths
   so it was not possible to use NativeCAM together with gmoccapy macros
   I corrected that misbehavior of gmoccapy. That change was used to
-  clear some macro code and I transfered some checking to get_ini_info
+  clear some macro code and I transferred some checking to get_ini_info
 
 ver. 1.5.6.6
 - check at start if there is a INI entry for DEFAULT_SPINDLE_SPEED
@@ -752,7 +853,7 @@ ver. 1.5.6.2.1
 - bug in initialize optional stops
 
 ver. 1.5.6.2
-- bugfix: run from line was trying to set an entry in the alarm page, whitch
+- bugfix: run from line was trying to set an entry in the alarm page, which
   I dropped in 1.5.6 
   I cleared the code from unneeded imports and comments
 
@@ -814,7 +915,7 @@ ver. 1.5.4.1
   to be the same place in auto and manual mode.
 
 ver. 1.5.4
-- changing in auto mode, being in full-size preview to edit page leaded
+- changing in auto mode, being in full-size preview to edit page led
   to blank screen, I corrected that bug.
 
 ver. 1.5.3.1
@@ -840,7 +941,7 @@ ver. 1.5.2
 - Some code clearance 
 
 ver. 1.5.1.4
-- Two missing self. leaded to errors if logging was active, 
+- Two missing self. led to errors if logging was active, 
   Thanks to Frans (franstrein) for reporting
 
 ver. 1.5.1.3
@@ -893,7 +994,7 @@ ver. 1.5.0
 
 - gmoccapy will now react to some halui pin as counts or direct value
   Be aware, that some of this may have side affects, it is strongly 
-  recomended to use the corresponding gmoccapy hal pin. 
+  recommended to use the corresponding gmoccapy hal pin. 
 
   * halui.spindle-override.counts
   * halui.feed-override.counts
@@ -929,7 +1030,7 @@ ver. 1.5.0
 ver. 1.4.2
 - removed the save and run button from the edit page, 
   because of security reasons
-- removed the integrated terminal, as it was not real usefull
+- removed the integrated terminal, as it was not real useful
   and all terminal work can be done from normal terminal
 - translations for German and Spanish has been updated
 
@@ -971,7 +1072,7 @@ ver. 1.3.5
 ver. 1.3.4
 - if no virtual keyboard was installed (nor onboard or matchbox),
   the checkboxes on the settings page has not been sensitized and the
-  settings has not been reseted correctly from the preference file
+  settings has not been reset correctly from the preference file
   Thanks to Roland (concierge) for finding this one
 
 ver. 1.3.3
@@ -1052,12 +1153,12 @@ ver. 1.1.5.8
 
 ver. 1.1.5.7
 - init dynamic tab now in try except to avoid python exception
-  on user typos in ini file
-- loading a tool using remap, leaded to an error if no file has been 
+  on user typos in INI file
+- loading a tool using remap, led to an error if no file has been 
   loaded before the change, we do check for that now to avoid the error
 
 ver. 1.1.5.6
-- introduced three new hal-pin to signal program progress informations
+- introduced three new hal-pin to signal program progress information
   gmoccapy.program.length = S32, OUT (total number of program lines)
   gmoccapy.program.current-line =S32, OUT (current executed line)
   gmoccapy.program.progress = FLOAT, OUT (progress in %)
@@ -1089,7 +1190,7 @@ ver. 1.1.5.2
   previous mode.
 
 ver. 1.1.5.1
-- solved a bug related to the gmoccapy error pin. This pin has not been reseted
+- solved a bug related to the gmoccapy error pin. This pin has not been reset
   if the user used the mouse or touch screen and erased the message by clicking
   the message button. It was only done right if the delete-message pin was used.
   I modified notification.py to emit a signal if a message has been deleted and 
@@ -1194,7 +1295,7 @@ ver. 1.0.7.1
   and the GUI changed state making several widgets sensitive, that behavior
   was wrong, solved that.
 - If you feed override has been changed and the machine went into estop, 
-  a estop reset also reseted feed override to 100 % , now it will remain with 
+  a estop reset also reset feed override to 100 % , now it will remain with 
   the value it had before estop.
 - If a user activate logging actions, the logging was lost after shutting
   down the GUI, now the content of alarm_history will be written to a 
@@ -1289,7 +1390,7 @@ ver. 0.9.9.9.16
 ver. 0.9.9.9.15
 - new hal pin gscreen.error as bit out, to show an error to the
   hardware, so a light can lit or even stop the machine. It will
-  reseted with the pin gscreen.delete-message. This command will
+  reset with the pin gscreen.delete-message. This command will
   delete the first error and reset the gscreen.error pin to False 
   after the last error has been cleared. Messages or user infos
   will not affect this pin!  
@@ -1368,7 +1469,7 @@ ver. 0.9.9.9.1
 
 ver. 0.9.9.9
 - gmoccapy is now able to do auto tool measurement after an manual tool change
-- introduced a ini config to simulate that
+- introduced a INI config to simulate that
 - still to do: If user click on abort while the tool change message window is still open
   or he closes the window with the small X on the right upper corner, the hal pin will
   not be rested properly
@@ -1535,7 +1636,7 @@ ver. 0.9.8.4
 - tool info only with three digits in imperial mode, now 4 digits
 - active feed and active vel label not in machine units, if in imperial mode, fixed
 - cosmetic changes to gmoccapy_lathe.ini
-- introduced a imperial lathe ini
+- introduced an imperial lathe INI
 
 ver 0.9.8.3
 - BUG: forget to update the coordinate system after changing the error system,
@@ -1639,7 +1740,7 @@ ver. 0.9.7
 - corrected some align values in glade file
 - removed units from max_vel_label (glade file)
 - corrected hardware button behavior
-- added again a sim hardware ini file
+- added again a sim hardware INI file
 - uniform usage of "" instead of sometime '' (just to clear python style)
 - user can select on settings page, if he want the offsettab or the preview tab 
   to be displayed as default, the ntb_tabs are shown, so changing is possible at any time
@@ -1662,7 +1763,7 @@ ver. 0.9.6
 ver. 0.9.5.1
 - bug in spindle switching while in LOG Mode
 - ESC and F1 keys will work now, even if use Keyboard shortcuts is not activated
-- solved a bug in run_from_line, the start line was not reseted after program stop, 
+- solved a bug in run_from_line, the start line was not reset after program stop, 
   and I missed to reset self.data.restart_dialog to None
 
 ver. 0.9.5
@@ -1676,7 +1777,7 @@ ver. 0.9.5
 - fixed a bug in tooledit, trying to touch of a tool not in spindle, I must check if this should be allowed
   or if it better only allowing touch off with the tool in spindle
 - changed gmoccapy keyboard to "onboard", if the layout is not correct, the following command will correct it
-  setxkbmap -layout <your contry letters>       
+  setxkbmap -layout <your country letters>       
   gb for Great Britan, de for germany, etc.
 - changes in gscreen broke gmoccapy cycle start seems that hal_action run is not any longer permitted,
   now hal toggle action is needed, corrected this
@@ -1685,7 +1786,7 @@ ver. 0.9.5
 - cleared the code a lot
 - settings page, it is possible to select if you want to use the onbord keyboard also in tooledit page 
   and in offset page editing
-- deleted the hardware button simulation ini, because it will not work as it should and I was not able
+- deleted the hardware button simulation INI, because it will not work as it should and I was not able
   to find a solution. 
 
 ver. 0.9.4
@@ -1696,7 +1797,7 @@ ver. 0.9.4
 - there was still an error in key handling with incremental jogging, hope I solved it now for final
 - changed the dialog "run_from_line" to use gscreens default, resulting in the need to rename
   "hal_sourceview" to "gcode_view"
-- renamed all pins and definitions from "overide" to "override" because of typo
+- renamed all pins and definitions from "override" to "override" because of typo
 - avoid getting to the touch off button, while the machine is not homed
 - hide Y touch off buttons in lathe mode
 - solved a bug executing a command constantly related with feed and periodic
@@ -1704,14 +1805,14 @@ ver. 0.9.4
 - the tool in spindle will be checked if you enter the tool editor.
 
 ver. 0.9.3.2
-- alligned the jog_button and jog_rates frame on the top (just cosmetic)
+- aligned the jog_button and jog_rates frame on the top (just cosmetic)
 - The Page-up and Page_Down keyboard keys moved the Z axis in opposite directions
 - Feed values will only be shown with digit if G95 is active
 - added classicladder button to the list of buttons to be able to handle it with hardware button
 - changed hardware button handling to fit also to lathe mode
 - included a test to avoid speeding the spindle over its limit using the spindle speed override
   i.e. max = 6000 but S = 5500 and override = 120 % would result in 6600, but only 6000 is possible
-- also check spindle speed if the commands are given trough MDI and override is to high will reduce
+- also check spindle speed if the commands are given through MDI and override is to high will reduce
   the override value to max allowed
 
 ver. 0.9.3.1
@@ -1744,7 +1845,7 @@ ver. 0.9.1.2
 
 ver. 0.9.1
 - show offsets and show dtg for gremlin are only sensitive if show gremlin DRO 
-  is actice, other behavior makes no sense
+  is active, other behavior makes no sense
 - settings page can be reached now also in estop state
 - desktop notify can be disabled in settings page, makes the gui faster
 - file to load on start up can be selected on settings page
@@ -1778,7 +1879,7 @@ ver. 0.9.0
 - I forgot an letter in hal pin feed-override-counts
 - The button Rel/Abs changes its label according to the active coordinate system
   and its background color does change if G54 is not active
-- solved the estop error not showing the correct sate on start up
+- solved the estop error not showing the correct state on start up
 - solved a bug giving value 0 to macro, the entry widget checked this value as False
 - merged with new master and also with gscreen with new widget names
 - gscreen fired a error when there is no keyhandling in gmoccapy, 
@@ -1806,7 +1907,7 @@ ver. 0.8.9
 - entering the edit mode sets the focus in the hal_sourceview widget, so working with keyboard
   is possible without any cklick
 - After editing the tool offsets in table, the button "Apply" will not only apply the changes to
-  tool table, but also to the tool in spindle, but only if G43 is in active g-codes
+  tool table, but also to the tool in spindle, but only if G43 is in active G-codes
 - speeded up the tool change screen refresh, by adding self.on_hal_status_interp_idle(self)
   in the button press event
 - added hal pins for jogging the axis with hardware buttons for each axis in self.data.axis_list
@@ -1830,7 +1931,7 @@ ver. 0.8.8
   I fixed this, if you reduce max-vel lower than jog_vel, jog vel will be reduced too
 - spindle bar won't grow with negative values (spindle reverse); I know it worked already, why
   did I have to fix this again?
-- entering the MDI Mode sets the focus directly to the enty of hal_mdihistory
+- entering the MDI Mode sets the focus directly to the entty of hal_mdihistory
  
 ver. 0.8.7
 - changed the button to delete status bar messages from text to icon
@@ -1939,7 +2040,7 @@ ver. 0.7.08
  
 ver. 0.7.07
 - solved a problem switching main button list, wait on tool change has not
-  been reseted properly
+  been reset properly
 - now I hide the hbuttonbox of tooledit widget instead of every button,
   this saved 6 lines of code :-)
 
@@ -1968,7 +2069,7 @@ ver. 0.7.04
 
 ver. 0.7.03
 - added Release Number to title bar,
-  so it is easer for users to see if they got
+  so it is easier for users to see if they got
   the latest release
 
 ver. 0.7.02
@@ -2020,7 +2121,7 @@ ver. 0.6.06
   include cursor keys
 
 ver. 0.6.05
-- begin to include the edit mode for g-code programs
+- begin to include the edit mode for G-code programs
   not working jet, still work to do
   The graphics part is finished, just the icon are not very nice
 

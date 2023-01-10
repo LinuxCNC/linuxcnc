@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 '''
     This class is used to handle sound messages from gmoccapy,
-    it is just a coppy of a class from gscreen and has been slighly modified
+    it is just a copy of a class from gscreen and has been slightly modified
 
     Copyright 2014 Norbert Schechner
     nieson@web.de
@@ -23,7 +23,9 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 '''
-import gobject
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
 import gst
 
 # the player class does the work of playing the audio hints
@@ -55,7 +57,7 @@ class Player:
             self.player.set_state(gst.STATE_NULL)
             self.loop.quit()
         elif t == gst.MESSAGE_ERROR:
-            # Error ocurred, print and stop
+            # Error occurred, print and stop
             self.player.set_state(gst.STATE_NULL)
             err, debug = message.parse_error()
             print ("Error: %s" % err, debug)

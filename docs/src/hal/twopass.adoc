@@ -1,0 +1,237 @@
+:lang: en
+:toc:
+
+[[cha:hal-twopass]]
+= HAL TWOPASS
+
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
+== TWOPASS
+
+LinuxCNC 2.5 supports TWOPASS processing of LinuxCNC configuration files
+that can help in the modularization and readability of LinuxCNC files.
+(LinuxCNC files are specified in an LinuxCNC INI file in the LinuxCNC stanza
+as [LinuxCNC]HALFILE=filename).
+
+Normally, a set of one or more LinuxCNC configuration files must use a single,
+unique loadrt line to load a kernel module that may handle multiple
+instances of a component.  For example, if you use a two input AND
+gate component (and2) in three different places in your setup, you
+would need to have a single line somewhere to specify:
+
+[source,{hal}]
+----
+loadrt and2 count=3
+----
+
+resulting in components and2.0, and2.1, and2.2.
+
+Configurations are more readable if you specify with the
+names=option for components where it is supported, e.g.,:
+
+[source,{hal}]
+----
+loadrt and2 names=aa,ab,ac
+----
+
+resulting in components aa,ab,ac.
+
+It can be a maintenance problem to keep track of the components
+and their names since when you add (or remove) a component, you
+must find and update the single loadrt directive applicable to
+the component.
+
+TWOPASS processing is enabled by including an INI file parameter in
+the [HAL] section:
+
+[source,{ini}]
+----
+[HAL]
+
+TWOPASS = anystring
+----
+
+Where "anystring" can be any non-null string.
+With this setting, you can have multiple specifications like:
+
+[source,{hal}]
+----
+loadrt and2 names=aa
+...
+loadrt and2 names=ab,ac
+...
+loadrt and2 names=ad
+----
+
+These commands can appear in different HAL files. The HAL files
+are processed in the order of their appearance in the INI file,
+in multiple HALFILE assignments.
+
+The TWOPASS option can be specified with options to add output for
+debugging (verbose) and to prevent deletion of temporary files (nodelete).
+The options are separated with commas.
+
+.Example
+[source,{ini}]
+----
+[HAL]
+TWOPASS = on,verbose,nodelete
+----
+
+With TWOPASS processing, all [HAL]HALFILES are first read and
+multiple appearances of loadrt directives for each module are
+accumulated.  User components (loadusr) are loaded in order
+but no other LinuxCNC commands are executed in the initial pass.
+
+[NOTE]
+User components should use the wait (-W) option to ensure
+the component is ready before other commands are executed.
+
+After the initial pass, the realtime modules are loaded (loadrt)
+automatically with a number equal to the total number when using
+the 'count=' option or with all of the individual names specified
+when using the 'names=' option.
+
+A second pass is then made to execute all of the other LinuxCNC
+instructions specified in the HALFILES.  The addf commands that
+associate a component's functions with thread execution are
+executed in the order of appearance with other commands during
+this second pass.
+
+While you can use either the 'count=' or 'names=' options, they are
+mutually exclusive -- only one type can be specified for a given module.
+
+TWOPASS processing is most effective when using the 'names=' option.
+This option allows you to provide unique names that
+are mnemonic or otherwise relevant to the configuration.
+For example, if you use a derivative component to estimate the
+velocities and accelerations on each (x,y,z) coordinate, using
+the 'count=' method will give arcane component names like ddt.0, ddt.1, ddt.2, etc.
+
+Alternatively, using the 'names=' option like:
+
+[source,{hal}]
+----
+loadrt ddt names=xvel,yvel,zvel
+...
+loadrt ddt names=xaccel,yaccel,zaccel
+----
+
+results in components sensibly named xvel, yvel, zvel, xaccel, yaccel, zaccel.
+
+Many comps supplied with the distribution are created with the
+halcompile utility and support the 'names=' option. These include the
+common logic components that are the glue of many LinuxCNC configurations.
+
+User-created comps that use the halcompile utility automatically
+support the names= option as well.  In addition to comps generated
+with the halcompile utility, numerous other comps support the names=option.
+Comps that support names= option include: at_pid, encoder,
+encoder_ratio, pid, siggen, and sim_encoder.
+
+Two-step processing occurs before the GUI is loaded. When using a
+[HAL]POSTGUI_HALFILE, it is convenient to place all the [HAL]POSTGUI_HALFILE
+loadrt declarations for the necessary components in a preloaded HAL file.
+
+.Example of a HAL section when using a POSTGUI_HALFILE
+[source,{ini}]
+----
+[HAL]
+
+TWOPASS = on
+HALFILE = core_sim.hal
+HALFILE = sim_spindle_encoder.hal
+HALFILE = axis_manualtoolchange.hal
+HALFILE = simulated_home.hal
+HALFILE = load_for_postgui.hal <- loadrt lines for components in postgui.hal
+
+POSTGUI_HALFILE = postgui.hal
+HALUI = halui
+----
+
+== Post GUI
+
+Some GUIs support HAL files that are processed after the GUI is started in order
+to connect LinuxCNC pins that are created by the GUI.  When using a postgui HAL file with
+TWOPASS processing, include all loadrt items for components added by postgui HAL files
+in a separate HAL file that is processed before the GUI.  The addf commands can also
+be included in the file.
+
+.Example
+[source,{ini}]
+----
+[HAL]
+TWOPASS = on
+HALFILE = file_1.hal
+...
+HALFILE = file_n.hal
+HALFILE = file_with_all_loads_for_postgui.hal
+...
+POSTGUI_HALFILE = the_postgui_file.hal
+----
+
+== Excluding .hal files
+
+TWOPASS processing converts '.hal' files to equivalent '.tcl' files and uses
+haltcl to find loadrt and addf commands in order to accumulate and consolidate
+their usage.  Loadrt parameters that conform to the simple 'names=' (or
+'count=') parameters accepted by the HAL Component Generator ('halcompile') are
+expected.  More complex parameter items included in specialized LinuxCNC components
+may not be handled properly.
+
+A '.hal' file may be excluded from TWOPASS processing by including a magic
+comment line anywhere in the '.hal' file.   The magic comment line must begin
+with the string: '#NOTWOPASS'.  Files specified with this magic comment are
+sourced by halcmd using the '-k' (keep going if failure) and '-v' (verbose)
+options.
+
+This exclusion provision can be used to isolate problems or for loading any
+special LinuxCNC component that does not require or benefit from TWOPASS processing.
+
+Ordinarily, the loadrt ordering of realtime components is not critical,
+but loadrt ordering for special components can be enforced by placing the
+such loadrt directives in an excluded file.
+
+[NOTE]
+While the order of loadrt directives is not usually critical,
+ordering of addf directives is often very important for proper
+operation of servo loop components.
+
+.Excluded '.hal' file example
+----
+$ cat twopass_excluded.hal
+# The following magic comment causes this file to
+# be excluded from twopass processing:
+# NOTWOPASS
+
+# debugging component with complex options:
+loadrt mycomponent parm1="abc def" parm2=ghi
+show pin mycomponent
+
+# ordering special components
+loadrt component_1
+loadrt component_2
+----
+
+[NOTE]
+Case and whitespace within the magic comment are ignored.  The loading of
+components that use 'names=' or 'count=' parameters (typically built by
+halcompile) should not be used in excluded files as that would eliminate
+the benefits of TWOPASS processing.  The LinuxCNC commands that create signals
+(net) and commands that establish execution order (addf) should not be
+placed in excluded files.  This is especially true for addf commands since
+their ordering may be important.
+
+
+== Examples
+
+Examples of TWOPASS usage for a simulator are included in the directories:
+
+  configs/sim/axis/twopass/
+  configs/sim/axis/simtcl/
+
+// vim: set syntax=asciidoc:

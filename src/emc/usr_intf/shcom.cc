@@ -26,6 +26,7 @@
 #include <sys/types.h>
 #include <inttypes.h>
 
+#include "emc/linuxcnc.h"
 #include "rcs.hh"
 #include "posemath.h"		// PM_POSE, TO_RAD
 #include "emc.hh"		// EMC NML
@@ -418,7 +419,7 @@ double convertAngularUnits(double u)
     return u;
 }
 
-// polarities for joint jogging, from ini file
+// polarities for joint jogging, from INI file
 static int jogPol[EMCMOT_MAX_JOINTS];
 
 int sendDebug(int level)

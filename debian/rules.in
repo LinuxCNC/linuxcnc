@@ -1,7 +1,4 @@
 #!/usr/bin/make -f
-# Simple set of debian/rules that uses debhelper.
-# Based on an example by Joey Hess. 
-# extended by Paul Corner, Alex Joni, Chris Radek, Jeff Epler (in cronological order)
 
 # Copyright (C) 2006 Jeff Epler
 #
@@ -14,117 +11,132 @@
 # control compilation and installation of the executable"
 
 # Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
+export DH_VERBOSE=1
+
+include /usr/share/dpkg/pkg-info.mk
+
+# Support more robust code and makes code modifications more difficult
+# Compare https://wiki.debian.org/Hardening
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+# Trigger other tools to use the timestamp from debian/changelog
+# Compare https://reproducible-builds.org/docs/source-date-epoch/
+export SOURCE_DATE_EPOCH ?= $(shell dpkg-parsechangelog -STimestamp)
+
+# Set time & date to the most recent release, for repeatable builds.
+TIMESTAMP=$(shell dpkg-parsechangelog -S timestamp)
+export DATE=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%d\ %b\ %Y')
+export TIME=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%T')
 
 kernel_version = @KERNEL_VERSION@
+configure_realtime_arg = @CONFIGURE_REALTIME_ARG@
+enable_build_documentation = @ENABLE_BUILD_DOCUMENTATION@
+DESTDIR=$(CURDIR)/debian/tmp
+DEV_PACKAGE_NAME=@MAIN_PACKAGE_NAME@-dev
 
-ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
-    NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
-    MAKEFLAGS += -j$(NUMJOBS)
-endif
+%:
+	dh $@
 
-
-build: build-arch build-indep
-build-arch: build-stamp
-build-indep: build-stamp
-build-stamp:
-	dh_testdir
-
-# Add here commands to compile the package.
+override_dh_auto_configure:
 	cd src && ./autogen.sh
-ifeq "$(kernel_version)" "uspace"
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=uspace --enable-build-documentation=pdf --disable-check-runtime-deps
-else
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version) --enable-build-documentation=pdf --disable-check-runtime-deps
-endif
-	(cd src; $(MAKE) $(MAKEFLAGS) && $(MAKE) $(MAKEFLAGS) docs)
-	touch build-stamp
+	cd src && PYTHON=/usr/bin/python3 ./configure \
+	    --prefix=/usr --sysconfdir=/etc \
+	    --mandir=/usr/share/man \
+	    $(configure_realtime_arg) \
+	    $(enable_build_documentation) \
+	    --disable-check-runtime-deps
 
-clean: debian/control
-	dh_testdir
-	dh_testroot
-	rm -f build-stamp
+override_dh_auto_build-arch:
+	$(MAKE) PYTHON=/usr/bin/python3 -C src build-software
 
-	cd src && ./autogen.sh
-ifeq "$(kernel_version)" "uspace"
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=uspace --enable-build-documentation=pdf --disable-check-runtime-deps
-else
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version) --enable-build-documentation=pdf --disable-check-runtime-deps
+override_dh_auto_build-indep:
+ifneq "$(enable_build_documentation)" ""
+	$(MAKE) PYTHON=/usr/bin/python3 -C src manpages
+	$(MAKE) PYTHON=/usr/bin/python3 -C src translateddocs
+	$(MAKE) PYTHON=/usr/bin/python3 -C src docs
 endif
-	cd src && $(MAKE) clean -s
+
+override_dh_auto_clean:
+	dh_auto_clean
+	py3clean .
+	if [ -r src/Makefile.inc -a -r src/config.status ]; then $(MAKE) -C src clean -s; fi
 	rm -f Makefile.inc
 	rm -f src/config.log src/config.status
-
+	rm -f $(for i in $(find . -name "*.in"); do basename $i .in; done)
 	dh_clean
 
-install: build
-	dh_testdir
-	dh_testroot
-	dh_prep
-	dh_installdirs
-# start the install
-	mkdir -p debian/tmp
 
-	# Version 0.22 and newer of the desktop-file-validate program
-	# (in Jessie and newer) can deal with multiple files specified
-	# on the command line.	Version 0.20 (in Wheezy) says it can,
-	# but can't.  So feed it the files one by one.
-	for F in $(shell find debian/extras/ -name *.desktop); do \
-		desktop-file-validate $$F; \
-	done
+override_dh_auto_install-arch:
+	# Install all architecture-dependent libraries and executables
+	# in DESTDIR (the staging dir for the main package).
+	DESTDIR=$(DESTDIR) $(MAKE) -C src install-software
+	py3clean .
 
-	-(cd debian/@EXTRAS@ && cp -a * ../tmp)
-	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
-	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
-	cp lib/*.a debian/tmp/usr/lib
-	mkdir -p debian/tmp/usr/share/doc/linuxcnc-dev
-	mv debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Developer_Manual.pdf \
-		debian/tmp/usr/share/doc/linuxcnc-dev/
-	mv debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Developer_Manual_es.pdf \
-		debian/tmp/usr/share/doc/linuxcnc-dev/
-	cp docs/html/gcode*.html debian/tmp/usr/share/doc/linuxcnc/
-	# Until we can actually build LinuxCNC_Getting_Started_cn.pdf
-	cp docs/LinuxCNC_Getting_Started_cn.pdf debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Getting_Started_cn.pdf
-	rm -rf debian/tmp/usr/share/doc/linuxcnc/html
-	-rm debian/tmp/linuxcnc*.files
-	-rm -f debian/tmp/usr/share/doc/linuxcnc/examples/sample-configs/*/*position*.txt
-	(cd debian/tmp/usr/share/doc/linuxcnc/examples; \
-	    ln -sf ../../../linuxcnc/ncfiles ./nc_files)
-	dh_movefiles
-	if [ `find debian/tmp -type f | wc -c` != 0 ]; then \
-		echo "Files exist in debian/tmp, but should not:"; \
-		find debian/tmp -type f; \
-		exit 1; \
-	fi
+	desktop-file-validate $(shell find debian/extras/ share/applications/ -name *.desktop);
+	
+	# some clean-up
+	rm -f $(DESTDIR)/usr/share/doc/@MAIN_PACKAGE_NAME@/examples/sample-configs/*/*position*.txt
 
-# Build architecture-independent files here.
-binary-indep: build install
-# We have nothing to do by default.
+override_dh_installdocs-arch:
+	# Sample configs go in `usr/share/doc/linuxcnc` (not
+	# `.../doc/@MAIN_PACKAGE_NAME@`) because that's where the
+	# `linuxcnc` launcher script looks for them, and that's
+	# inconvenient to change.
+	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=@MAIN_PACKAGE_NAME@
+	mkdir -p debian/@MAIN_PACKAGE_NAME@/usr/share/doc/linuxcnc
+	mv debian/@MAIN_PACKAGE_NAME@/usr/share/doc/@MAIN_PACKAGE_NAME@/examples debian/@MAIN_PACKAGE_NAME@/usr/share/doc/linuxcnc
+	
+	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=@MAIN_PACKAGE_NAME@-dev
 
-# Build architecture-dependent files here.
-binary-arch: build install
-	dh_testdir
-	dh_testroot
-	dh_installchangelogs
-	dh_installdocs
-	dh_installexamples
-	dh_installman
-	dh_installmime
-	dh_link
-	dh_strip
+
+override_dh_auto_install-indep:
+	DESTDIR=$(DESTDIR) $(MAKE) -C src install-docs install-doc
+	# Remove the docs we just built that we don't have debs for yet...
+	rm -f $(DESTDIR)/usr/share/doc/linuxcnc/*_nb.pdf
+
+override_dh_installdocs-indep:
+	# The G-code quick reference html docs are built as
+	# `docs/html/${LANG}/gcode.html`.  We install them
+	# into `/usr/share/doc/@MAIN_PACKAGE_NAME@/` in each
+	# linuxcnc-doc-${LANG} package, then rename them there (except
+	# for the English one) to include the language in the filename,
+	# so they don't collide when we install all the doc debs.
+	#
+	# Rename the "main" doc directories from
+	# `usr/share/doc/@MAIN_PACKAGE_NAME@` to `usr/share/doc/linuxcnc`,
+	# because that's where the `.desktop` files look for the docs.
+	dh_installdocs --doc-main-package=linuxcnc-uspace --package=linuxcnc-doc-de
+	mv debian/linuxcnc-doc-de/usr/share/doc/linuxcnc-uspace/gcode.html debian/linuxcnc-doc-de/usr/share/doc/linuxcnc-uspace/gcode_de.html
+	mv debian/linuxcnc-doc-de/usr/share/doc/linuxcnc-uspace debian/linuxcnc-doc-de/usr/share/doc/linuxcnc
+	
+	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-en
+	mv debian/linuxcnc-doc-en/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-en/usr/share/doc/linuxcnc
+	
+	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-es
+	mv debian/linuxcnc-doc-es/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode.html debian/linuxcnc-doc-es/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode_es.html
+	mv debian/linuxcnc-doc-es/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-es/usr/share/doc/linuxcnc
+	
+	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-fr
+	mv debian/linuxcnc-doc-fr/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode.html debian/linuxcnc-doc-fr/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode_fr.html
+	mv debian/linuxcnc-doc-fr/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-fr/usr/share/doc/linuxcnc
+	
+	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-zh-cn
+	mv debian/linuxcnc-doc-zh-cn/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode.html debian/linuxcnc-doc-zh-cn/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode_zh_CN.html
+	mv debian/linuxcnc-doc-zh-cn/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-zh-cn/usr/share/doc/linuxcnc
+
+
+override_dh_compress:
 	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml -X.tbl -X.xml -Xsample-configs
+
+override_dh_fixperms:
 	dh_fixperms -X/linuxcnc_module_helper -X/rtapi_app
-	@PYTHON_PACKAGING@
-	dh_makeshlibs
-	dh_installdeb
+	# In case that only the indep packages are built
+	if [ -r  "$(DESTDIR)/usr/lib/tcltk/linuxcnc/linuxcnc.tcl" ]; then \
+		chmod -x $(DESTDIR)/usr/lib/tcltk/linuxcnc/linuxcnc.tcl; \
+	fi
+	# override_dh_python3: # not executed, so we attach it to fixperms
+	DEB_HOST_ARCH=`dpkg-architecture -qDEB_HOST_ARCH` dh_python3
+
+override_dh_shlibdeps:
 	cat debian/@MAIN_PACKAGE_NAME@/DEBIAN/shlibs debian/shlibs.pre > debian/shlibs.local
 	dh_shlibdeps -u--warnings=0 -l debian/@MAIN_PACKAGE_NAME@/usr/lib
-	dh_gencontrol
-	dh_md5sums
-	dh_builddeb
-
-binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install
-
-debian/rules: debian/configure debian/*.in
-	debian/configure @TARGET@

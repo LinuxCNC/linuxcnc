@@ -51,14 +51,13 @@ Before tearing down the realtime environment, run an interactive halcmd.
 \fBhalrun\fR only.  If \fB\-I\fR is used, it must precede all other
 commandline arguments.
 .TP
-\fB\-f\fR [\fIfile\fR]
-Ignore commands on command line, take input from \fIfile\fR
-instead.  If \fIfile\fR is not specified, take input from
-\fIstdin\fR.
+\fB\-f\fR [\fI<file>\fR]
+Ignore commands on command line, take input from \fIfile\fR instead.
+If \fIfile\fR is not specified, take input from \fIstdin\fR.
 .TP
-\fB\-i \fIinifile\fR
-Use variables from \fIinifile\fR for substitutions.  See \fBSUBSTITUTION\fR
-below.
+\fB\-i \fI<INI file>\fR
+Use variables from the specified \fIINI file\fR for substitutions.
+See \fBSUBSTITUTION\fR below.
 .TP
 \fB\-k\fR
 Keep going after failed command(s).  The default is to stop
@@ -88,7 +87,7 @@ display results of each command
 \fB\-V\fR
 display lots of debugging junk
 .TP
-\fB\-h\fR [\fIcommand\fR]
+\fB\-h\fR [\fI<command>\fR]
 display a help screen and exit, displays extended help on \fIcommand\fR if specified
 .SH COMMANDS
 Commands tell \fBhalcmd\fR what to do.  Normally \fBhalcmd\fR
@@ -102,7 +101,7 @@ Anything following '\fB#\fR' on a line is a comment.
 module called \fImodname\fR.  \fBhalcmd\fR looks for the module
 in a directory specified at compile time.
 
-In systems with realtime, \fBhalcmd\fR calls the
+In systems with realtime-support, \fBhalcmd\fR calls the
 \fBlinuxcnc_module_helper\fR to load realtime modules.
 \fBlinuxcnc_module_helper\fR is a setuid program and is compiled with
 a whitelist of modules it is allowed to load.  This is currently
@@ -113,7 +112,7 @@ restrict which users can load these \fBLinuxCNC\fR-related kernel
 modules can do this by setting the permissions and group on
 \fBlinuxcnc_module_helper\fR appropriately.
 
-In systems without realtime \fBhalcmd\fR calls the
+In systems without realtime-support \fBhalcmd\fR calls the
 \fBrtapi_app\fR which creates the simulated realtime environment
 if it did not yet exist, and then loads the requested component
 with a call to \fBdlopen(3)\fR.
@@ -188,7 +187,7 @@ if \fIsigname\fR does not exist.
 .TP
 \fBlinkps\fR \fIpinname\fR [\fIarrow\fR] \fIsigname\fR
 (OBSOLETE - use \fBnet\fR instead) (\fIlink\fR \fIp\fRin to \fIs\fRignal)
-Establishs a link between a HAL component pin \fIpinname\fR and
+Establishes a link between a HAL component pin \fIpinname\fR and
 a HAL signal \fIsigname\fR.  Any previous link to \fIpinname\fR will be
 broken.  \fIarrow\fR can be "\fB=>\fR", "\fB<=\fR", "\fB<=>\fR",
 or omitted.  \fBhalcmd\fR ignores arrows, but they can be useful
@@ -208,7 +207,7 @@ you prefer.
 Shortcut for \fBlinkps\fR that creates the signal (named like the
 first pin), then links them both to that signal.  \fBhalcmd\fR treats
 this just as if it were:
-   \fBhalcmd\fR \fBnewsig\fR pinname1 
+   \fBhalcmd\fR \fBnewsig\fR pinname1
    \fBhalcmd\fR \fBlinksp\fR pinname1 pinname1
    \fBhalcmd\fR \fBlinksp\fR pinname1 pinname2
 .TP
@@ -281,9 +280,6 @@ Prints HAL items to \fIstdout\fR in human readable format.
 (functions), "\fBthread\fR", or "\fBalias\fR".  The type "\fBall\fR"
 can be used to show matching items of all the preceding types.
 If \fIitem\fR is omitted, \fBshow\fR will print everything.
-.TP
-\fBitem\fR
-This is equivalent to \fBshow all [item]\fR.
 
 .TP
 \fBsave\fR [\fIitem\fR]
@@ -303,27 +299,21 @@ generates a \fBnewsig\fR command for each signal, and "\fBsigu\fR" generates a
 \fBnewsig\fR command for each unlinked signal (for use with \fBnetl\fR and
 \fBnetla\fR).
 
-"\fBlink\fR" and "\fBlinka\fR" both generate \fBlinkps\fR
-commands for each link. (\fBlinka\fR includes arrows, while \fBlink\fR does
-not.)
+"\fBlink\fR" and "\fBlinka\fR" both generate \fBlinkps\fR commands for each link.
+(\fBlinka\fR includes arrows, while \fBlink\fR does not.)
 
- "\fBnet\fR" and "\fBneta\fR" both generate one \fBnewsig\fR command for
-each signal, followed by \fBlinksp\fR commands for each pin linked to that
-signal.  (\fBneta\fR includes arrows.)
+ "\fBnet\fR" and "\fBneta\fR" both generate one \fBnewsig\fR command for each signal,
+followed by \fBlinksp\fR commands for each pin linked to that signal.
+(\fBneta\fR includes arrows.)
 
-"\fBnetl\fR" generates one \fBnet\fR
-command for each linked signal, and "\fBnetla\fR" (or "\fBnetal\fR")
-generates a similar command
-using arrows.
+"\fBnetl\fR" generates one \fBnet\fR command for each linked signal,
+and "\fBnetla\fR" (or "\fBnetal\fR") generates a similar command using arrows.
 
-"\fBparam\fR" (or "\fBparameter\fR) "generates one \fBsetp\fR command for each
-parameter.
+"\fBparam\fR" (or "\fBparameter\fR) "generates one \fBsetp\fR command for each parameter.
 
-"\fBthread\fR" generates one \fBaddf\fR command for each function
-in each realtime thread.
+"\fBthread\fR" generates one \fBaddf\fR command for each function in each realtime thread.
 
-"\fBunconnectedinpins\fR generates a setp command for each unconnected
-hal input pin.
+"\fBunconnectedinpins\fR" generates a setp command for each unconnected HAL input pin.
 
 If \fIitem\fR is \fBallu\fR), \fBsave\fR does the
 equivalent of \fBcomp\fR, \fBalias\fR, \fBsigu\fR, \fBnetla\fR, \fBparam\fR,
@@ -366,6 +356,10 @@ Removes any alias from the pin or parameter alias.
   are restricted to the given data type
   Names are printed on a single line, space separated.
 .TP
+\fBprint\fR [\fImessage\fR]
+  Prints the filename, linenumber and an optional message.
+  wrap the message in quotes if it has spaces.
+.TP
 \fBlock\fR [\fIall\fR|\fItune\fR|\fInone\fR]
   Locks HAL to some degree.
   none - no locking done.
@@ -383,11 +377,11 @@ Removes any alias from the pin or parameter alias.
   If 'type' is omitted, it assumes '\fBall\fR'.
 .TP
 \fBdebug\fR [\fIlevel\fR]
-  Sets the rtapi messaging level (see man3 rtapi_set_msg_level)
+  Sets the rtapi messaging level (see man3 rtapi_set_msg_level).
 .TP
 \fBhelp\fR [\fIcommand\fR]
   Give help information for command.
-  If 'command' is omitted, list command and brief description
+  If 'command' is omitted, list command and brief description.
 .SH SUBSTITUTION
 After a command is read but before it is executed, several types of variable
 substitution take place.
@@ -397,8 +391,8 @@ Environment variables have the following formats:
 \fB$ENVVAR\fR followed by end-of-line or whitespace
 .IP
 \fB$(ENVVAR)\fR
-.SS Inifile Variables
-Inifile variables are available only when an inifile was specified with the
+.SS INI file variables
+INI file variables are available only when an INI file was specified with the
 halcmd \fB\-i\fR flag.  They have the following formats:
 .IP
 \fB[SECTION]VAR\fR followed by end-of-line or whitespace
@@ -408,8 +402,6 @@ halcmd \fB\-i\fR flag.  They have the following formats:
 The backslash character (\fB\\\fR) may be used to indicate the line
 is extended to the next line.  The backslash character must be the
 last character before the newline.
-.SH EXAMPLES
-.SH HISTORY
 .SH BUGS
 None known at this time.
 .SH AUTHOR
@@ -425,5 +417,5 @@ This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 .SH "SEE ALSO"
 \fBhalrun(1)\fR -- a convenience script to start a realtime environment,
-process a .hal or a .tcl file, and optionally start an interactive command
+process a HAL or a .tcl file, and optionally start an interactive command
 session using \fBhalcmd\fR (described here) or \fBhaltcl\fR(1).

@@ -473,7 +473,7 @@ proc bye {} {
       return
     }
       set txt "Are you Sure?\n
-You probaly should resume in the main GUI"
+You probably should resume in the main GUI"
       set ans [tk_messageBox -type okcancel \
                     -title "Close $::MV(prog)" \
                     -icon question \
@@ -691,7 +691,7 @@ proc get_parms {} {
               set ::argv [lreplace $::argv 0 0]
              }
 
-      default {usage "Unkown option <$opt>"}
+      default {usage "Unknown option <$opt>"}
     }
   }
   set debug_get_parms 0

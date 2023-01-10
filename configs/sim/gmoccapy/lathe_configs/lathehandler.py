@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # vim: sts=4 sw=4 et
 #    This is a component of EMC
 #    savestate.py copyright 2013 Andy Pugh
@@ -24,15 +24,23 @@ import os,sys
 from gladevcp.persistence import IniFile,widget_defaults,set_debug,select_widgets
 import hal
 import hal_glib
-import gtk
 import glib
 import linuxcnc
-import rsvg
 import cairo
 import signal
-import pango
-
+import re
+import gi
+gi.require_version('Rsvg', '2.0')
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
+from gi.repository import Pango
+from gi.repository import Rsvg
+from gi.repository import GdkPixbuf
 debug = 0
+notouch = 0
+norun = 0
 
 class HandlerClass:
     active = False
@@ -41,28 +49,33 @@ class HandlerClass:
     def on_expose(self,nb,data=None):
         tab_num = nb.get_current_page()
         tab = nb.get_nth_page(tab_num)
-        cr = tab.window.cairo_create()
-        cr.set_operator(cairo.OPERATOR_OVER)
-        x, y, w, h = tab.allocation
-        sx, sy, sw, sh =  self.svg.get_dimension_data()
-        cr.translate(0, y)
-        cr.scale(1.0 *w / sw, 1.0*h/sh)
-        self.svg.render_cairo(cr = cr, id = '#layer%i' % tab_num)
+        alloc = tab.get_allocation()
+        x, y, w, h = (alloc.x, alloc.y, alloc.width, alloc.height)
+        pixbuf = self.svg.get_pixbuf_sub(f'#layer{tab_num}').scale_simple(w-10, h-10, GdkPixbuf.InterpType.BILINEAR)
+        im = self.builder.get_object(f'Image{tab_num}')
+        im.set_from_pixbuf(pixbuf)
+        for c in im.get_parent().get_children():
+            if c.get_has_tooltip():
+                m = re.findall(r'<!--(\d+),(\d+)-->', c.get_tooltip_markup())
+                if len(m) > 0:
+                    x1 = int(m[0][0]); y1 = int(m[0][1])
+                    c.set_margin_left(max(0, w * x1/1500))
+                    c.set_margin_top(max(0, h * y1/1000))
+                
 
-    # This catches our messages from another program
+    # decide if our window is active to mask the cycle-start hardware button
+    # FIXME: This is probably not as reliable as one might wish. 
     def event(self,w,event):
-        print event.message_type,event.data
-        if event.message_type == 'Gladevcp':
-            if event.data[:7] == 'Visible':
+        if w.is_active():
+            if w.has_toplevel_focus() :
                 self.active = True
             else:
                 self.active = False
 
-    # We connect to client-events from the new toplevel widget
+    # Capture notify events
     def on_map_event(self, widget, data=None):
         top = widget.get_toplevel()
-        print "map event"
-        top.connect('client-event', self.event)
+        top.connect('notify', self.event)
 
     def on_destroy(self,obj,data=None):
         self.ini.save_state(self)
@@ -80,7 +93,8 @@ class HandlerClass:
         self.builder = builder
         self.ini_filename = 'savestate.sav'
         self.defaults = {  IniFile.vars: dict(),
-                           IniFile.widgets : widget_defaults(select_widgets(self.builder.get_objects(), hal_only=False,output_only = True))
+                           IniFile.widgets : widget_defaults(select_widgets(self.builder.get_objects(),
+                           hal_only=False,output_only = True))
                         }
         self.ini = IniFile(self.ini_filename,self.defaults,self.builder)
         self.ini.restore_state(self)
@@ -90,26 +104,36 @@ class HandlerClass:
         self.cycle_start.connect('value-changed', self.cycle_pin)
 
         # This catches the signal from Touchy to say that the tab is exposed 
-        t = self.builder.get_object('eventbox1')
+        t = self.builder.get_object('macrobox')
         t.connect('map-event',self.on_map_event)
-        t.add_events(gtk.gdk.STRUCTURE_MASK)
+        t.add_events(Gdk.EventMask.STRUCTURE_MASK)
+        
         self.cmd = linuxcnc.command()
 
-        # This conects the expose event to re-draw and scale the SVG frames
+        # This connects the expose event to re-draw and scale the SVG frames
         t = self.builder.get_object('tabs1')
-        t.connect_after("expose_event", self.on_expose)
-        t.connect("destroy", gtk.main_quit)
-        t.add_events(gtk.gdk.STRUCTURE_MASK)
-        self.svg = rsvg.Handle(file='LatheMacro.svg', )
-        
+        t.connect_after("draw", self.on_expose)
+        t.connect("destroy", Gtk.main_quit)
+        t.add_events(Gdk.EventMask.STRUCTURE_MASK)
+        self.svg = Rsvg.Handle().new_from_file('LatheMacro.svg')
         self.active = True
+        
+        # handle Useropts
+        if norun:
+            for c in range(0,6):
+                print(c)
+                print( f'tab{c}.action')
+                self.builder.get_object(f'tab{c}.action').set_visible(False)
 
     def show_keyb(self, obj, data=None):
+        if notouch: return False
         self.active_ctrl = obj
         self.keyb = self.builder.get_object('keyboard')
         self.entry = self.builder.get_object('entry1')
-        self.entry.modify_font(pango.FontDescription("courier 42"))
+        self.entry.modify_font(Pango.FontDescription("courier 42"))
+        self.entry.set_text("")
         resp = self.keyb.run()
+        return True
 
     def keyb_prev_click(self, obj, data=None):
         self.entry.set_text(self.active_ctrl.get_text())
@@ -117,18 +141,9 @@ class HandlerClass:
     def keyb_number_click(self, obj, data=None):
         data = self.entry.get_text()
         data = data + obj.get_label()
-        if data[-2:] in [ '/2', '/4', '/8']:
-            v = data[:-2].split('.')
-            if len(v) == 2:
-                data = '%6.3f'%(float(v[0]) + float(v[1]) / float(data[-1:]))
-            elif len(v) == 1:
-                data = '%6.3f'%(float(v[0]) / float(data[-1:]))
-        elif data[-3:] in [ '/16', '/32', '/64']:
-            v = data[:-3].split('.')
-            if len(v) == 2:
-                data = '%6.3f'%(float(v[0]) + float(v[1]) / float(data[-2:]))
-            elif len(v) == 1:
-                data = '%6.3f'%(float(v[0]) / float(data[-2:]))
+        if any( x in data for x in [ '/2', '/4', '/8', '/16', '/32', '/64', '/128']):
+            v = [0] + [float(x) for x in data.replace('/','.').split('.')]
+            data = f'{v[-3] + v[-2]/v[-1]:6.7}'
         self.entry.set_text(data)
 
     def keyb_pm_click(self, obj, data=None):
@@ -143,14 +158,13 @@ class HandlerClass:
         v = float(self.entry.get_text())
         op = obj.get_label()
         if op == 'in->mm':
-            v = v * 25.4
+            self.entry.set_text(f'{v * 25.4:6.4}')
         elif op == 'mm->in':
-            v = v / 25.4
+            self.entry.set_text(f'{v / 25.4:6.4}')
         elif op == 'tpi->pitch':
-            v = 25.4 / v
+            self.entry.set_text(f'{25.4 / v:6.4}')
         elif op == 'pitch->tpi':
-            v = 25.4 / v
-        self.entry.set_text('%6.4f'%v)
+            self.entry.set_text(f'{25.4 / v:6.4}')
 
     def keyb_del_click(self, obj, data=None):
         data = self.entry.get_text()
@@ -169,32 +183,32 @@ class HandlerClass:
         self.keyb.hide()
 
     def set_alpha(self, obj, data = None):
-        cr = obj.window.cairo_create()
+        cr = obj.get_property('window').cairo_create()
         cr.set_source_rgba(1.0, 1.0, 1.0, 0.0)
 
     def cycle_pin(self, pin, data = None):
         if pin.get() == 0:
             return
-        print 'cycle pin'
         if self.active:
             nb = self.builder.get_object('tabs1')
-            print 'current tab', nb.get_current_page()
-            tab = nb.get_nth_page(nb.get_current_page())
-            for c in tab.get_children():
-                if c.name.partition('.')[2] == 'action':
-                    self.cmd.abort()
-                    self.cmd.mode(linuxcnc.MODE_MDI)
-                    self.cmd.wait_complete()
-                    c.emit('clicked')
+            print('current tab', nb.get_current_page())
+            c = self.builder.get_object(f"tab{nb.get_current_page()}.action")
+            if c is not None:
+                self.cmd.abort()
+                self.cmd.mode(linuxcnc.MODE_MDI)
+                self.cmd.wait_complete()
+                c.emit('clicked')
+                print(c.get_name(), "clicked")
 
-    def gash(self, obj, data = None):
-        print 'event', data
+    def testing(self, obj, data = None):
+        print('event', data)
 
 def get_handlers(halcomp,builder,useropts):
 
     global debug
     for cmd in useropts:
-        exec cmd in globals()
+        print(cmd)
+        exec(cmd, globals())
 
     set_debug(debug)
     return [HandlerClass(halcomp,builder,useropts)]

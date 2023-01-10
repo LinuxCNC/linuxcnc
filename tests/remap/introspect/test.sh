@@ -1,3 +1,3 @@
 #!/bin/bash
-rs274 -i test.ini -n 0 -g test.ngc 2>&1
-exit $?
+export PYTHONUNBUFFERED=1
+exec rs274 -i test.ini -n 0 -g test.ngc 2>&1

@@ -3,7 +3,7 @@
  * Arduino sketch to connect to HAL's LinuxCNC using mb2hal component.
  * Tested 2012-10-12 with Arduino Mega 2560 R3.
  *
- * Victor Rocco, adapted from Stéphane Raimbault's source code wich is
+ * Victor Rocco, adapted from Stéphane Raimbault's source code which is
  * Copyright © 2011-2012 Stéphane Raimbault <stephane.raimbault@gmail.com>
  * License ISC, see LICENSE for more details.
  */

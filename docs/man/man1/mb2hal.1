@@ -37,7 +37,6 @@ loadusr -W mb2hal config=config_file.ini
 Custom component name: 
 loadusr -Wn mymodule mb2hal config=config_file.ini
 
-
 .br
 .SH DESCRIPTION
 MB2HAL is a generic userspace HAL component to communicate with one or more
@@ -51,25 +50,46 @@ for more information.
 
 .SH PINS
 
+.SS fnct_01_read_coils:
+.TP
+.B mb2hal.m.n.bit\fR bit out
+.TQ
+.B mb2hal.m.n.bit-inv\fR bit out
 .SS fnct_02_read_discrete_inputs:
 .TP
-.B mb2hal.m.n\fR bit out
+.B mb2hal.m.n.bit\fR bit out
+.TQ
+.B mb2hal.m.n.bit-inv\fR bit out
 .SS fnct_03_read_holding_registers:
+.TP
+.B mb2hal.m.n.float\fR float out
+.TQ
+.B mb2hal.m.n.int\fR s32 out
 .SS fnct_04_read_input_registers:
 .TP
 .B mb2hal.m.n.float\fR float out
 .TQ
 .B mb2hal.m.n.int\fR s32 out
+.SS fnct_05_write_single_coil:
+.TP
+.B mb2hal.m.n.bit\fR bit in
+ NELEMENTS needs to be 1 or PIN_NAMES must contain just one name.
 .SS fnct_06_write_single_register:
 .TP
-.B mb2hal.m.n\fR float in
+.B mb2hal.m.n.float\fR float in
+.TQ
+.B mb2hal.m.n.int\fR s32 in
 NELEMENTS needs to be 1 or PIN_NAMES must contain just one name.
+Both pin values are added and limited to 65535 (UINT16_MAX). Use one and let the other open (read as 0).
 .SS fnct_15_write_multiple_coils:
 .TP
-.B mb2hal.m.n\fR bit in
+.B mb2hal.m.n.bit\fR bit in
 .SS fnct_16_write_multiple_registers:
 .TP
-.B mb2hal.m.n\fR float in
+.B mb2hal.m.n.float\fR float in
+.TQ
+.B mb2hal.m.n.int\fR s32 in
+Both pin values are added and limited to 65535 (UINT16_MAX). Use one and let the other open (read as 0).
 .RE
 
 .SS Each transaction
@@ -83,9 +103,9 @@ m = HAL_TX_NAME or transaction number if not set, n = element number (NELEMENTS)
 .br
 Example: 
 .br
-mb2hal.00.01.<type> (transaction=00, second register=01 (00 is the first one))
+mb2hal.00.01.int (TRANSACTION_00, second register)
 .br
-mb2hal.TxName.01.<type> (HAL_TX_NAME=TxName, second register=01 (00 is the first one))
+mb2hal.readStatus.01.bit (HAL_TX_NAME=readStatus, first bit)
 
 .SH AUTHOR
 Victor Rocco

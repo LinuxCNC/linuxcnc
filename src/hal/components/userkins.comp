@@ -18,7 +18,7 @@ kinematics for an xyz machine employing 3 joints
      directory (\\fBmydir\\fR).
 
      Note: The userkins.comp file can be downloaded from:
-.URL https://github.com/LinuxCNC/linuxcnc/raw/2.8/src/hal/components/userkins.comp 
+.URL https://github.com/LinuxCNC/linuxcnc/raw/2.8/src/hal/components/userkins.comp
      where '2.8' is the branch name (use 'master' for
      the master branch)
 
@@ -49,34 +49,69 @@ kinematics for an xyz machine employing 3 joints
      (example mykins.comp) and change all instances of
      'userkins' to 'mykins'
 
+\\fBNOTES:\\fR
+  1  The \\fBfpin\\fR pin is included to satisfy the requirements of
+     the halcompile utility but it is not accessible to kinematics
+     functions.
+
+  2  Hal pins and parameters needed in kinematics functions
+     (kinematicsForward(), kinematicsInverse()) must
+     be setup in a function (\\fBuserkins_setup()\\fR) invoked
+     by the initial motion module call to kinematicsType().
 """;
-pin out bit dummy=1; // halcompile requires at least one pin
+// The fpin pin is not accessible in kinematics functions.
+// Use the *_setup() function for pins and params used by kinematics.
+pin out s32 fpin=0"pin to demonstrate use of a conventional (non-kinematics) function fdemo";
+function fdemo;
 license "GPL";
+author "Dewey Garrett";
 ;;
 
+#include "rtapi_math.h"
+#include "kinematics.h"
 
 static struct haldata {
+  // Example pin pointers
   hal_u32_t *in;
   hal_u32_t *out;
+  // Example parameters
+  hal_float_t param_rw;
+  hal_float_t param_ro;
 } *haldata;
-// hal pin types:
+// hal pin/param types:
 // hal_bit_t   bit
 // hal_u32_t   unsigned 32bit integer
 // hal_s32_t   signed 32bit integer
 // hal_float_t float (double precision)
 
+FUNCTION(fdemo) {
+   // This function can be added to a thread (addf) for
+   // purposes not related to the kinematics functions.
+   if (fpin == 0) {
+       rtapi_print("fdemo function added to thread\n");
+   }
+   fpin++;
+}
+
 static int userkins_setup(void) {
+#define HAL_PREFIX "userkins"
     int res=0;
-    int comp_id;
-    // this name must be different than the comp name:
-    comp_id = hal_init("userkinsdata");
+
+    // inherit comp_id from rtapi_main()
     if (comp_id < 0) goto error;
+    // set unready to allow creation of pins
+    if (hal_set_unready(comp_id)) goto error;
+
     haldata = hal_malloc(sizeof(struct haldata));
     if (!haldata) goto error;
 
     // hal pin examples:
-    res += hal_pin_u32_newf(HAL_IN ,&(haldata->in) ,comp_id,"%s.in" ,"userkins");
-    res += hal_pin_u32_newf(HAL_OUT,&(haldata->out),comp_id,"%s.out","userkins");
+    res += hal_pin_u32_newf(HAL_IN ,&(haldata->in) ,comp_id,"%s.in" ,HAL_PREFIX);
+    res += hal_pin_u32_newf(HAL_OUT,&(haldata->out),comp_id,"%s.out",HAL_PREFIX);
+
+    // hal parameter examples:
+    res += hal_param_float_newf(HAL_RW, &haldata->param_rw,comp_id,"%s.param-rw",HAL_PREFIX);
+    res += hal_param_float_newf(HAL_RO, &haldata->param_ro,comp_id,"%s.param-ro",HAL_PREFIX);
 
     if (res) goto error;
     hal_ready(comp_id);
@@ -85,9 +120,12 @@ static int userkins_setup(void) {
 error:
     rtapi_print("\n!!! %s setup failed res=%d\n\n",__FILE__,res);
     return -1;
+#undef HAL_PREFIX
 }
 
-#include "kinematics.h"
+KINS_NOT_SWITCHABLE
+// see millturn.comp for example of switchable kinematics
+
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsForward);
@@ -96,10 +134,13 @@ KINEMATICS_TYPE kinematicsType()
 {
 static bool is_setup=0;
     if (!is_setup) userkins_setup();
-    return KINEMATICS_IDENTITY;
+    return KINEMATICS_IDENTITY; // set as required
+           // Note: If kinematics are identity, using KINEMATICS_BOTH
+           //       may be used in order to allow a gui to display
+           //       joint values in preview prior to homing
 } // kinematicsType()
 
-static bool is_homed=0;
+static bool is_ready=0;
 int kinematicsForward(const double *j,
                       EmcPose * pos,
                       const KINEMATICS_FORWARD_FLAGS * fflags,
@@ -118,9 +159,9 @@ int kinematicsForward(const double *j,
     pos->v = 0;
     pos->w = 0;
 
-    if (*haldata->in && !is_homed && !gave_msg) {
+    if (*haldata->in && !is_ready && !gave_msg) {
        rtapi_print_msg(RTAPI_MSG_ERR,
-                       "%s in pin not echoed until homed\n",
+                       "%s The 'in' pin not echoed until Inverse called\n",
                       __FILE__);
        gave_msg=1;
     }
@@ -132,18 +173,22 @@ int kinematicsInverse(const EmcPose * pos,
                       const KINEMATICS_INVERSE_FLAGS * iflags,
                       KINEMATICS_FORWARD_FLAGS * fflags)
 {
-    is_homed = 1; // Inverse is not called until homed
+    is_ready = 1; // Inverse is not called until homed for KINEMATICS_BOTH
 
     // Update the kinematic joints specified by the
     // [KINS]JOINTS setting (3 required for this template).
     // Maximum number of joints is defined in include file:
-    //         emcmotcfg:EMCMOT_MAX_JOINTS (typ 9)
+    //         emcmotcfg:EMCMOT_MAX_JOINTS (typ 16)
+    // Some joints may be claimed as 'extrajoints' and
+    // do not participate in kinematics calculations --
+    // $ man motion for more info
     j[0] = pos->tran.x; // joint 0
     j[1] = pos->tran.y; // joint 1
     j[2] = pos->tran.z; // joint 2
 
     //example hal pin update (homing reqd before kinematicsInverse)
-    *haldata->out = *haldata->in;
+    *haldata->out = *haldata->in; //dereference
+    //read from param example: *haldata->out = haldata->param_rw;
 
     return 0;
 } // kinematicsInverse()

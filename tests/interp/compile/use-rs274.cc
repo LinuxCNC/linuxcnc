@@ -15,13 +15,14 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <Python.h> // must be first header
+#include "linuxcnc.h"              // LINELEN
 #include "rs274ngc.hh"
 #include "canon.hh"
 
 static void read_execute(InterpBase *b, const char *line) {
     fprintf(stderr, "> %s\n", line);
-    int r = b->read(line);
-    r = b->execute();
+    b->read(line);
+    b->execute();
 }
 
 int main() {
@@ -45,12 +46,14 @@ int main() {
 // (and it needs Python.h for the definition of struct inttab)
 int _task = 0;
 char _parameter_file_name[LINELEN];
-extern "C" void initinterpreter();
-extern "C" void initemccanon();
+
+extern "C" PyObject* PyInit_emctask(void);
+extern "C" PyObject* PyInit_interpreter(void);
+extern "C" PyObject* PyInit_emccanon(void);
 extern "C" struct _inittab builtin_modules[];
 struct _inittab builtin_modules[] = {
-    { (char *) "interpreter", initinterpreter },
-    { (char *) "emccanon", initemccanon },
+    { "interpreter", PyInit_interpreter },
+    { "emccanon", PyInit_emccanon },
     { NULL, NULL }
 };
 
@@ -140,6 +143,7 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset) {}
 void CHANGE_TOOL(int slot) {}	
 void SELECT_TOOL(int tool) {}	
 void CHANGE_TOOL_NUMBER(int number) {}
+void RELOAD_TOOLDATA() {}
 void START_CHANGE(void) {}
 void CLAMP_AXIS(CANON_AXIS axis) {}
 void COMMENT(const char *s) { puts(s); }
@@ -197,6 +201,7 @@ CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() {}
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() {}
 
 extern void SET_PARAMETER_FILE_NAME(const char *name) {}
+double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE() {}
 void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size) {
     snprintf(filename, max_size, "%s", "rs274ngc.var");
 }
@@ -233,7 +238,6 @@ double GET_EXTERNAL_TOOL_LENGTH_COFFSET() {}
 double GET_EXTERNAL_TOOL_LENGTH_UOFFSET() {}
 double GET_EXTERNAL_TOOL_LENGTH_VOFFSET() {}
 double GET_EXTERNAL_TOOL_LENGTH_WOFFSET() {}
-int GET_EXTERNAL_POCKETS_MAX() {}
 int GET_EXTERNAL_TOOL_SLOT() {}
 int GET_EXTERNAL_SELECTED_TOOL_SLOT() {}
 CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {}
@@ -252,6 +256,7 @@ void ON_RESET(void) {}
 void CANON_ERROR(const char *fmt, ...) {}
 void PLUGIN_CALL(int len, const char *call) {}
 void IO_PLUGIN_CALL(int len, const char *call) {}
+void UPDATE_TAG(StateTag tag) {}
 USER_DEFINED_FUNCTION_TYPE
     USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM];
 int GET_EXTERNAL_OFFSET_APPLIED() {};

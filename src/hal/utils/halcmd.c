@@ -6,7 +6,7 @@
 /** Copyright (C) 2003 John Kasunich
                        <jmkasunich AT users DOT sourceforge DOT net>
 
-    Other contributers:
+    Other contributors:
                        Martin Kuhnle
                        <mkuhnle AT users DOT sourceforge DOT net>
                        Alex Joni
@@ -43,6 +43,7 @@
 */
 
 #include "config.h"
+#include "emc/linuxcnc.h"
 
 #ifndef NO_INI
 #include "inifile.h"		/* iniFind() from libnml */
@@ -142,6 +143,7 @@ struct halcmd_command halcmd_commands[] = {
     {"echo",    FUNCT(do_echo_cmd),    A_ZERO },
     {"getp",    FUNCT(do_getp_cmd),    A_ONE },
     {"gets",    FUNCT(do_gets_cmd),    A_ONE },
+    {"print",   FUNCT(do_print_cmd),   A_ONE | A_OPTIONAL},
     {"ptype",   FUNCT(do_ptype_cmd),   A_ONE },
     {"stype",   FUNCT(do_stype_cmd),   A_ONE },
     {"help",    FUNCT(do_help_cmd),    A_ONE | A_OPTIONAL },
@@ -186,7 +188,7 @@ static int compare_command(const void *namep, const void *commandp) {
 }
 
 
-pid_t hal_systemv_nowait(char *const argv[]) {
+pid_t hal_systemv_nowait(const char *const argv[]) {
     pid_t pid;
     int n;
 
@@ -221,7 +223,7 @@ pid_t hal_systemv_nowait(char *const argv[]) {
         }
 	rtapi_print_msg(RTAPI_MSG_DBG, "\n" );
         /* call execv() to invoke command */
-	execvp(argv[0], argv);
+	execvp(argv[0], (char * const *)argv);
 	/* should never get here */
 	halcmd_error("execv(%s): %s\n", argv[0], strerror(errno) );
 	exit(1);
@@ -233,7 +235,7 @@ pid_t hal_systemv_nowait(char *const argv[]) {
     return pid;
 }
 
-int hal_systemv(char *const argv[]) {
+int hal_systemv(const char *const argv[]) {
     pid_t pid;
     int status;
     int retval;
@@ -676,10 +678,10 @@ static int strip_comments ( char *buf )
 
 */
 static int strlimcpy(char **dest, char *src, int srclen, int *destspace) {
-    if (*destspace < srclen) {
+    if (*destspace < srclen+1) {
 	return -1;
     } else {
-	strncpy(*dest, src, srclen);
+	strncpy(*dest, src, *destspace);
 	(*dest)[srclen] = '\0';
 	srclen = strlen(*dest);		/* use the actual number of bytes copied */
 	*destspace -= srclen;
@@ -689,7 +691,7 @@ static int strlimcpy(char **dest, char *src, int srclen, int *destspace) {
 }
 
 /* replace_vars:
-   replaces environment and ini var references in source_str.
+   replaces environment and INI var references in source_str.
    This routine does string replacement only
    return value is 0 on success (ie, no variable lookups failed)
    The source string is not modified
@@ -702,17 +704,17 @@ static int strlimcpy(char **dest, char *src, int srclen, int *destspace) {
    $envvar<whitespace>
    $(envvar)<any char>
 
-   ini vars are in the following formats:
+   INI vars are in the following formats:
    [SECTION]VAR<whitespace>
    [SECTION](VAR)<any char>
    
    return values:
    0	success
    -1	missing close parenthesis
-   -2	null variable name (either environment or ini varname)
+   -2	null variable name (either environment or INI varname)
    -3	missing close square bracket
    -4	environment variable not found
-   -5	ini variable not found
+   -5	INI variable not found
    -6	replacement would overflow output buffer
    -7	var name exceeds limit
 */
@@ -789,7 +791,7 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars, char **
 		strncpy(var, varP, next_delim);
 		var[next_delim]='\0';
 		if ( strlen(sec) > 0 ) {
-		/* get value from ini file */
+		/* get value from INI file */
 		/* cast to char ptr, we are discarding the 'const' */
 		    replacement = (char *) iniFind(halcmd_inifile, var, sec);
 		} else {

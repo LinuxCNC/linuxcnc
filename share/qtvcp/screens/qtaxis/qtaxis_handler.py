@@ -9,13 +9,13 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QColor
 
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
-from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
+from qtvcp.widgets.geditor import GEditor as GCODE
 from qtvcp.widgets.status_label import StatusLabel as TOOLSTAT
 from qtvcp.widgets.state_led import StateLED as LED
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.toolbar_actions import ToolBarActions
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
-from qtvcp.core import Status, Action, Info
+from qtvcp.core import Status, Action, Info, Qhal
 
 # Set up logging
 from qtvcp import logger
@@ -34,6 +34,7 @@ ACTION = Action()
 INFO = Info()
 TOOLBAR = ToolBarActions()
 STYLEEDITOR  = SSE()
+QHAL = Qhal()
 ###################################
 # **** HANDLER CLASS SECTION **** #
 ###################################
@@ -49,11 +50,14 @@ class HandlerClass:
         self.hal = halcomp
         self.w = widgets
         self.PATHS = paths
-
+        self._last_count = 0
+        self.init_pins()
         STATUS.connect('general',self.return_value)
         STATUS.connect('motion-mode-changed',self.motion_mode)
         STATUS.connect('user-system-changed', self._set_user_system_text)
         STATUS.connect('actual-spindle-speed-changed',self.update_spindle)
+        STATUS.connect('joint-selection-changed', lambda w, d: self.update_jog_pins(d))
+        STATUS.connect('axis-selection-changed', lambda w, d: self.update_jog_pins(d))
 
     ##########################################
     # Special Functions called from QTSCREEN
@@ -67,6 +71,7 @@ class HandlerClass:
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
         KEYBIND.add_call('Key_F12','on_keycall_F12')
+        KEYBIND.add_call('Key_Dollar','on_keycall_dollar')
         KEYBIND.add_call('Key_QuoteLeft','on_keycall_feedoverride',0)
         KEYBIND.add_call('Key_1','on_keycall_feedoverride',10)
         KEYBIND.add_call('Key_2','on_keycall_feedoverride',20)
@@ -142,8 +147,9 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionAlphaMode, 'alpha_mode')
         TOOLBAR.configure_action(self.w.actionInhibitSelection, 'inhibit_selection')
         TOOLBAR.configure_action(self.w.actionShow_G53_in_DRO,'', self.g53_in_dro_changed)
-        TOOLBAR.configure_statusbar(self.w.statusbar,'message_controls')
         TOOLBAR.configure_action(self.w.actionVersaProbe,'', self.launch_versa_probe)
+        TOOLBAR.configure_action(self.w.actionShowMessages, 'message_recall')
+        TOOLBAR.configure_action(self.w.actionClearMessages, 'message_close')
         self.w.actionQuickRef.triggered.connect(self.quick_reference)
         self.w.actionMachineLog.triggered.connect(self.launch_log_dialog)
         if not INFO.HOME_ALL_FLAG:
@@ -153,8 +159,10 @@ class HandlerClass:
         self.make_progressbar()
 
         if INFO.MACHINE_IS_LATHE:
-            self.w.dro_relative_y.setVisible(False)
-            self.w.dro_absolute_y.setVisible(False)
+            self.w.dro_label_g5x_y.setVisible(False)
+            self.w.dro_label_g53_y.setVisible(False)
+        self.restoreSettings()
+        #QtWidgets.QApplication.instance().event_filter.focusIn.connect(self.focusInChanged)
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -171,13 +179,20 @@ class HandlerClass:
                 if isinstance(receiver2, QtWidgets.QDialog):
                     flag = True
                     break
+                if isinstance(receiver2, QtWidgets.QListView):
+                    flag = True
+                    break
                 if isinstance(receiver2, MDI_WIDGET):
                     flag = True
                     break
                 if isinstance(receiver2, GCODE):
                     flag = True
                     break
+                if isinstance(receiver2, QtWidgets.QLineEdit):
+                    flag = True
+                    break
                 receiver2 = receiver2.parent()
+
             if flag:
                 if isinstance(receiver2, GCODE):
                     # send events to gcode widget if in edit mode
@@ -201,9 +216,6 @@ class HandlerClass:
         # KEYBINDING will call functions from handler file as
         # registered by KEYBIND.add_call(KEY,FUNCTION) above
         return KEYBIND.manage_function_calls(self,event,is_pressed,key,shift,cntrl)
-
-    def closing_cleanup__(self):
-        TOOLBAR.saveRecentPaths()
 
     ########################
     # callbacks from STATUS #
@@ -238,6 +250,21 @@ class HandlerClass:
         self.w.rpm_bar.setFormat('{0:d} RPM'.format(int(data)))
         self.w.rpm_bar.setValue(abs(data))
 
+    def update_jog_pins(self, data):
+        if type(data) == str:
+            for i in INFO.AVAILABLE_AXES:
+                if i == data:
+                    self['jog_axis_{}_pin'.format(i)].set(True)
+                else:
+                    self['jog_axis_{}_pin'.format(i)].set(False)
+
+        else:
+            for i in INFO.AVAILABLE_JOINTS:
+                if i == data:
+                    self['jog_joint_{}_pin'.format(i)].set(True)
+                else:
+                    self['jog_joint_{}_pin'.format(i)].set(False)
+
     #######################
     # callbacks from form #
     #######################
@@ -266,6 +293,57 @@ class HandlerClass:
     # general functions #
     #####################
 
+    def focusInChanged(self, widget):
+        print ('parent:',widget.parent())
+        print (widget, widget.__class__ )
+        print (self.w.gcode_editor, self.w.gcode_editor.__class__,'\n')
+        if isinstance(widget,type(self.w.gcode_editor.editor)):
+            print('Scroll Editor')
+        if isinstance(widget,type(self.w.gcodegraphics)):
+            print('Scroll Gcode Display')
+        if isinstance(widget.parent(),type(self.w.mdihistory) ):
+            print('Scroll MDI')
+        fwidget = QtWidgets.QApplication.focusWidget()
+        if fwidget is not None:
+            print("focus widget name ", fwidget, fwidget.objectName())
+
+
+
+    def init_pins(self):
+        # external jogging control pins
+        for  i in INFO.AVAILABLE_JOINTS:
+            self['jog_joint_{}_pin'.format(i)] = \
+                    QHAL.newpin("joint-{}-selected".format(i), QHAL.HAL_BIT, QHAL.HAL_OUT)
+        for i in INFO.AVAILABLE_AXES:
+            self['jog_axis_{}_pin'.format(i)] = \
+                    QHAL.newpin("axis-{}-selected".format(i.lower()), QHAL.HAL_BIT, QHAL.HAL_OUT)
+        # screen MPG controls
+        self.pin_mpg_in = QHAL.newpin('mpg-in',QHAL.HAL_S32, QHAL.HAL_IN)
+        self.pin_mpg_in.value_changed.connect(lambda s: self.external_mpg(s))
+        self.pin_mpg_enabled = QHAL.newpin('mpg-enable',QHAL.HAL_BIT, QHAL.HAL_IN)
+
+    def saveSettings(self):
+        # Record the toolbar settings
+        win = self.w
+        self.w.settings.beginGroup("MainWindow-{}".format(win.objectName()))
+        self.w.settings.setValue('state', QtCore.QVariant(win.saveState().data()))
+        self.w.settings.endGroup()
+
+    def restoreSettings(self):
+        # set recorded toolbar settings
+        win = self.w
+        self.w.settings.beginGroup("MainWindow-{}".format(win.objectName()))
+        state = self.w.settings.value('state')
+        self.w.settings.endGroup()
+        if not state is None:
+            try:
+                win.restoreState(QtCore.QByteArray(state))
+            except Exception as e:
+                print(e)
+            else:
+                return True
+        return False
+
     def show_joints(self):
         for i in range(0,9):
             j = INFO.GET_NAME_FROM_JOINT.get(i)
@@ -273,7 +351,6 @@ class HandlerClass:
                 self.w['ras_label_%s'%i].show()
                 self.w['ras_%s'%i].show()
                 self.w['ras_label_%s'%i].setText('J%d'%i)
-                print 'joint',i,j
                 self.w['ras_%s'%i].setProperty('axis_selection',j)
                 self.w['ras_%s'%i].setProperty('joint_selection',i)
                 try:
@@ -292,7 +369,6 @@ class HandlerClass:
                 self.w['ras_%s'%i].show()
                 self.w['ras_label_%s'%i].setText('%s'%j)
                 # lathes need adjustment
-                print 'axis',i,j
                 self.w['ras_%s'%i].setProperty('axis_selection',j)
                 self.w['ras_%s'%i].setProperty('joint_selection',i)
                 try:
@@ -306,21 +382,16 @@ class HandlerClass:
     def _set_user_system_text(self, w, data):
         convert = { 1:"G54 ", 2:"G55 ", 3:"G56 ", 4:"G57 ", 5:"G58 ", 6:"G59 ", 7:"G59.1 ", 8:"G59.2 ", 9:"G59.3 "}
         unit = convert[int(data)]
-        for i in ('x','y','z'):
-            self.w['dro_label_g5x_%s'%i].imperial_template = unit + i.upper() + '%9.4f'
-            self.w['dro_label_g5x_%s'%i].metric_template = unit + i.upper() + '%10.3f'
-            self.w['dro_label_g5x_%s'%i].update_units()
-            self.w['dro_label_g53_%s'%i].imperial_template = i.upper() + '%9.4f'
-            self.w['dro_label_g53_%s'%i].metric_template = i.upper() + '%10.3f'
-            self.w['dro_label_g53_%s'%i].update_units()
-        self.w.dro_label_g5x_r.angular_template = unit + 'R      %3.2f'
+        rtext = '''<html><head/><body><p><span style=" color:gray;">{} </span> %3.2f<span style=" color:gray;"> R</span></p></body></html>'''.format(unit)
+        self.w.dro_label_g5x_r.angular_template = rtext
         self.w.dro_label_g5x_r.update_units()
         self.w.dro_label_g5x_r.update_rotation(None, STATUS.stat.rotation_xy)
 
     def editor_exit(self):
-        self.w.gcode_editor.exit()
-        self.w.actionEdit.setChecked(False)
-        self.edit(None,False)
+        r = self.w.gcode_editor.exit()
+        if r:
+            self.w.actionEdit.setChecked(False)
+            self.edit(None,False)
 
     def edit(self, widget, state):
         if state:
@@ -336,79 +407,79 @@ class HandlerClass:
 
     def quick_reference(self):
         help1 = [
-    ("F1", _("Emergency stop")),
-    ("F2", _("Turn machine on")),
+    ("F1",("Emergency stop")),
+    ("F2",("Turn machine on")),
     ("", ""),
-    ("X", _("Activate first axis")),
-    ("Y", _("Activate second axis")),
-    ("Z", _("Activate third axis")),
-    ("A", _("Activate fourth axis")),
-    ("` or 0,1..8", _("Activate first through ninth joint <br>if joints radiobuttons visible")),
-    ("", _("")),
-    ("`,1..9,0", _("Set Feed Override from 0% to 100%")),
-    ("", _("if axes radiobuttons visible")),
-    (_(", and ."), _("Select jog speed")),
-    (_("< and >"), _("Select angular jog speed")),
-    (_("I, Shift-I"), _("Select jog increment")),
-    ("C", _("Continuous jog")),
-    (_("Home"), _("Send active joint home")),
-    (_("Ctrl-Home"), _("Home all joints")),
-    (_("Shift-Home"), _("Zero G54 offset for active axis")),
-    (_("End"), _("Set G54 offset for active axis")),
-    (_("Ctrl-End"), _("Set tool offset for loaded tool")),
-    ("-, =", _("Jog active axis or joint")),
-    (";, '", _("Select Max velocity")),
+    ("X",("Activate first axis")),
+    ("Y",("Activate second axis")),
+    ("Z",("Activate third axis")),
+    ("A",("Activate fourth axis")),
+    ("` or 0,1..8",("Activate first through ninth joint <br>if joints radiobuttons visible")),
+    ("",("")),
+    ("`,1..9,0",("Set Feed Override from 0% to 100%")),
+    ("",("if axes radiobuttons visible")),
+    ((", and ."),("Select jog speed")),
+    (("< and >"),("Select angular jog speed")),
+    (("I, Shift-I"),("Select jog increment")),
+    ("C",("Continuous jog")),
+    (("Home"),("Send active joint home")),
+    (("Ctrl-Home"),("Home all joints")),
+    (("Shift-Home"),("Zero G54 offset for active axis")),
+    (("End"),("Set G54 offset for active axis")),
+    (("Ctrl-End"),("Set tool offset for loaded tool")),
+    ("-, =",("Jog active axis or joint")),
+    (";, '",("Select Max velocity")),
 
     ("", ""),
-    (_("Left, Right"), _("Jog first axis or joint")),
-    (_("Up, Down"), _("Jog second axis or joint")),
-    (_("Pg Up, Pg Dn"), _("Jog third axis or joint")),
-    (_("Shift+above jogs"), _("Jog at traverse speed")),
-    ("[, ]", _("Jog fourth axis or joint")),
+    (("Left, Right"),("Jog first axis or joint")),
+    (("Up, Down"),("Jog second axis or joint")),
+    (("Pg Up, Pg Dn"),("Jog third axis or joint")),
+    (("Shift+above jogs"),("Jog at traverse speed")),
+    ("[, ]",("Jog fourth axis or joint")),
 
     ("", ""),
-    ("D", _("Toggle between Drag and Rotate mode")),
-    (_("Left Button"), _("Pan, rotate or select line")),
-    (_("Shift+Left Button"), _("Rotate or pan")),
-    (_("Right Button"), _("Zoom view")),
-    (_("Wheel Button"), _("Rotate view")),
-    (_("Rotate Wheel"), _("Zoom view")),
-    (_("Control+Left Button"), _("Zoom view")),
+    ("D",("Toggle between Drag and Rotate mode")),
+    (("Left Button"),("Pan, rotate or select line")),
+    (("Shift+Left Button"),("Rotate or pan")),
+    (("Right Button"),("Zoom view")),
+    (("Wheel Button"),("Rotate view")),
+    (("Rotate Wheel"),("Zoom view")),
+    (("Control+Left Button"),("Zoom view")),
 ]
         help2 = [
-    ("F3", _("Manual control")),
-    ("F5", _("Code entry (MDI)")),
-    (_("Control-M"), _("Clear MDI history")),
-    (_("Control-H"), _("Copy selected MDI history elements")),
-    ("",          _("to clipboard")),
-    (_("Control-Shift-H"), _("Paste clipboard to MDI history")),
-    ("L", _("Override Limits")),
+    ("F3",("Manual control")),
+    ("F5",("Code entry (MDI)")),
+    (("Control-M"),("Clear MDI history")),
+    (("Control-H"),("Copy selected MDI history elements")),
+    ("",("to clipboard")),
+    (("Control-Shift-H"),("Paste clipboard to MDI history")),
+    ("L",("Override Limits")),
     ("", ""),
-    ("O", _("Open program")),
-    (_("Control-R"), _("Reload program")),
-    (_("Control-S"), _("Save g-code as")),
-    ("R", _("Run program")),
-    ("T", _("Step program")),
-    ("P", _("Pause program")),
-    ("S", _("Resume program")),
-    ("ESC", _("Stop running program, or")),
-    ("", _("stop loading program preview")),
+    ("O",("Open program")),
+    (("Control-R"),("Reload program")),
+    (("Control-S"),("Save G-code as")),
+    ("R",("Run program")),
+    ("T",("Step program")),
+    ("P",("Pause program")),
+    ("S",("Resume program")),
+    ("ESC",("Stop running program, or")),
+    ("",("stop loading program preview")),
     ("", ""),
-    ("F7", _("Toggle mist")),
-    ("F8", _("Toggle flood")),
-    ("B", _("Spindle brake off")),
-    (_("Shift-B"), _("Spindle brake on")),
-    ("F9", _("Turn spindle clockwise")),
-    ("F10", _("Turn spindle counterclockwise")),
-    ("F11", _("Turn spindle more slowly")),
-    ("F12", _("Turn spindle more quickly")),
-    (_("Control-K"), _("Clear live plot")),
-    ("V", _("Cycle among preset views")),
-    ("F4", _("Cycle among preview, DRO, and user tabs")),
-    ("@", _("toggle Actual/Commanded")),
-    ("#", _("toggle Relative/Machine")),
-    (_("Ctrl-Space"), _("Clear notifications")),
-    (_("Alt-F, M, V"), _("Open a Menu")),
+    ("F7",("Toggle mist")),
+    ("F8",("Toggle flood")),
+    ("B",("Spindle brake off")),
+    (("Shift-B"),("Spindle brake on")),
+    ("F9",("Turn spindle clockwise")),
+    ("F10",("Turn spindle counterclockwise")),
+    ("F11",("Turn spindle more slowly")),
+    ("F12",("Turn spindle more quickly")),
+    (("Control-K"),("Clear live plot")),
+    ("V",("Cycle among preset views")),
+    ("F4",("Cycle among preview, DRO, and user tabs")),
+    ("@",("toggle Actual/Commanded")),
+    ("#",("toggle Relative/Machine")),
+    (("Ctrl-Space"),("Clear notifications")),
+    (("Alt-F, M, V"),("Open a Menu")),
 ]
         help =  list(zip(help1,help2))
         msg = QtWidgets.QDialog()
@@ -472,10 +543,10 @@ class HandlerClass:
 
         # containers
         w = QtWidgets.QWidget()
-        w.setContentsMargins(0,0,0,6)
-        w.setMinimumHeight(40)
+        w.setContentsMargins(0,0,0,0)
 
         hbox = QtWidgets.QHBoxLayout()
+        hbox.setContentsMargins(0,0,0,0)
         hbox.addWidget(self.w.rpm_bar)
         hbox.addWidget(self.w.led)
         w.setLayout(hbox)
@@ -505,6 +576,29 @@ class HandlerClass:
 
     def launch_versa_probe(self, w):
         STATUS.emit('dialog-request',{'NAME':'VERSAPROBE'})
+
+    # MPG scrolling of program or MDI history
+    def external_mpg(self, count):
+        widget = QtWidgets.QApplication.focusWidget()
+        if self.pin_mpg_enabled.get() and not widget is None:
+            diff = count - self._last_count
+
+            if isinstance(widget,type(self.w.gcodegraphics)):
+                if diff <0:
+                    ACTION.SET_GRAPHICS_VIEW('zoom-in')
+                else:
+                    ACTION.SET_GRAPHICS_VIEW('zoom-OUT')
+
+            elif isinstance(widget.parent(),type(self.w.mdihistory) ):
+                if diff <0:
+                    self.w.mdihistory.line_up()
+                else:
+                    self.w.mdihistory.line_down()
+
+            else:
+            #if isinstance(widget.parent(),type(self.w.gcode_editor)):
+                self.w.gcode_editor.jump_line(diff)
+        self._last_count = count
 
     #####################
     # KEY BINDING CALLS #
@@ -587,9 +681,20 @@ class HandlerClass:
         if state:
             ACTION.SET_SPINDLE_RATE(value)
 
+    def on_keycall_dollar(self,event,state,shift,cntrl):
+        if state:
+            print('Toggle joint mode before:',STATUS.get_jjogmode())
+            ACTION.SET_MOTION_TELEOP(not STATUS.get_jjogmode())
+            print('Toggle joint mode after:',STATUS.get_jjogmode())
+
     ###########################
     # **** closing event **** #
     ###########################
+    def _hal_cleanup(self):
+        self.saveSettings()
+
+    def closing_cleanup__(self):
+        TOOLBAR.saveRecentPaths()
 
     ##############################
     # required class boiler code #

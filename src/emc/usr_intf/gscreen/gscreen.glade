@@ -71,6 +71,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">REL</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -83,6 +84,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">DTG</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -97,6 +99,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">ABS</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -199,6 +202,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">REL</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -211,6 +215,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">DTG</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -225,6 +230,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">ABS</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -341,6 +347,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">DTG</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -469,6 +476,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">DTG</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -483,6 +491,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">ABS</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -585,6 +594,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">REL</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -597,6 +607,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">DTG</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -713,6 +724,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">REL</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -725,6 +737,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">DTG</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -739,6 +752,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">ABS</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -841,6 +855,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">REL</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -853,6 +868,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">DTG</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -867,6 +883,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">ABS</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -969,6 +986,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">REL</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -981,6 +999,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">DTG</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -995,6 +1014,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">ABS</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -1097,6 +1117,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">REL</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -1109,6 +1130,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">DTG</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -1123,6 +1145,7 @@
                                         <property name="visible">True</property>
                                         <property name="xpad">5</property>
                                         <property name="label" translatable="yes">ABS</property>
+                                        <property name="xalign">0.5</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -1295,7 +1318,7 @@
                             <child type="tab">
                               <object class="GtkLabel" id="gcode_tab">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">G code</property>
+                                <property name="label" translatable="yes">G-code</property>
                               </object>
                               <packing>
                                 <property name="tab_fill">False</property>
@@ -1389,7 +1412,7 @@
                                 <child type="label">
                                   <object class="GtkLabel" id="active_gcodes_title">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">&lt;b&gt;G Codes Active&lt;/b&gt;</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;G-Codes Active&lt;/b&gt;</property>
                                     <property name="use_markup">True</property>
                                   </object>
                                 </child>
@@ -1467,7 +1490,7 @@
                                                 <property name="visible">True</property>
                                                 <property name="xalign">0</property>
                                                 <property name="xpad">5</property>
-                                                <property name="label" translatable="yes"> Mist</property>
+                                                <property name="label" translatable="yes">Mist</property>
                                               </object>
                                               <packing>
                                                 <property name="y_options">GTK_FILL</property>
@@ -1478,7 +1501,7 @@
                                                 <property name="visible">True</property>
                                                 <property name="xalign">0</property>
                                                 <property name="xpad">5</property>
-                                                <property name="label" translatable="yes"> Flood </property>
+                                                <property name="label" translatable="yes">Flood </property>
                                               </object>
                                               <packing>
                                                 <property name="top_attach">1</property>
@@ -1530,7 +1553,7 @@
                                                 <property name="visible">True</property>
                                                 <property name="xalign">0</property>
                                                 <property name="xpad">5</property>
-                                                <property name="label" translatable="yes"> At Speed </property>
+                                                <property name="label" translatable="yes">At Speed </property>
                                               </object>
                                               <packing>
                                                 <property name="top_attach">3</property>
@@ -1543,7 +1566,7 @@
                                                 <property name="visible">True</property>
                                                 <property name="xalign">0</property>
                                                 <property name="xpad">5</property>
-                                                <property name="label" translatable="yes"> Jog mode</property>
+                                                <property name="label" translatable="yes">Jog mode</property>
                                               </object>
                                               <packing>
                                                 <property name="top_attach">2</property>
@@ -1713,7 +1736,8 @@
                                 <property name="visible">True</property>
                                 <property name="xalign">0.49000000953674316</property>
                                 <property name="label" translatable="yes">Search
-  Text:</property>
+Text:</property>
+                                <property name="xalign">0.5</property>
                               </object>
                               <packing>
                                 <property name="position">0</property>
@@ -1741,7 +1765,8 @@
                               <object class="GtkLabel" id="label47">
                                 <property name="visible">True</property>
                                 <property name="label" translatable="yes">Replace
-  Text:</property>
+Text:</property>
+                                <property name="xalign">0.5</property>
                               </object>
                               <packing>
                                 <property name="position">3</property>
@@ -1760,7 +1785,8 @@
                             <child>
                               <object class="GtkCheckButton" id="replaceall_checkbutton">
                                 <property name="label" translatable="yes">Replace
-   All</property>
+All</property>
+                                <property name="xalign">0.5</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
@@ -1773,7 +1799,8 @@
                             <child>
                               <object class="GtkCheckButton" id="ignorecase_checkbutton">
                                 <property name="label" translatable="yes">Ignore
- Case</property>
+Case</property>
+                                <property name="xalign">0.5</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
@@ -2047,8 +2074,7 @@
                         <property name="homogeneous">True</property>
                         <child>
                           <object class="GtkToggleButton" id="dro_units">
-                            <property name="label" translatable="yes">Metric
-</property>
+                            <property name="label" translatable="yes">Metric</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -2062,8 +2088,9 @@
                         </child>
                         <child>
                           <object class="GtkToggleButton" id="use_screen2">
-                            <property name="label" translatable="yes">   Display
+                            <property name="label" translatable="yes">Display
 Aux Screen</property>
+                            <property name="xalign">0.5</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -2078,7 +2105,8 @@ Aux Screen</property>
                         <child>
                           <object class="GtkToggleButton" id="diameter_mode">
                             <property name="label" translatable="yes">Diameter
-   Mode</property>
+Mode</property>
+                            <property name="xalign">0.5</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -2094,8 +2122,9 @@ Aux Screen</property>
                         </child>
                         <child>
                           <object class="GtkToggleButton" id="show_offsets">
-                            <property name="label" translatable="yes"> Show
+                            <property name="label" translatable="yes">Show
 Offsets</property>
+                            <property name="xalign">0.5</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -2113,6 +2142,7 @@ Offsets</property>
                           <object class="GtkToggleButton" id="show_dtg">
                             <property name="label" translatable="yes">Show
 DTG</property>
+                            <property name="xalign">0.5</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -2128,8 +2158,9 @@ DTG</property>
                         </child>
                         <child>
                           <object class="GtkToggleButton" id="fullscreen1">
-                            <property name="label" translatable="yes"> Gscreen
+                            <property name="label" translatable="yes">Gscreen
 Fullscreen</property>
+                            <property name="xalign">0.5</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -2150,8 +2181,9 @@ Fullscreen</property>
                         </child>
                         <child>
                           <object class="GtkToggleButton" id="aux_coolant_m7">
-                            <property name="label" translatable="yes"> On M7 Use
+                            <property name="label" translatable="yes">On M7 Use
 Aux Coolant</property>
+                            <property name="xalign">0.5</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -2163,8 +2195,9 @@ Aux Coolant</property>
                         </child>
                         <child>
                           <object class="GtkToggleButton" id="aux_coolant_m8">
-                            <property name="label" translatable="yes"> On M8 Use
+                            <property name="label" translatable="yes">On M8 Use
 Aux Coolant</property>
+                            <property name="xalign">0.5</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -2188,8 +2221,9 @@ Aux Coolant</property>
                         </child>
                         <child>
                           <object class="GtkToggleButton" id="desktop_notify">
-                            <property name="label" translatable="yes">  Desktop
+                            <property name="label" translatable="yes">Desktop
 Notification</property>
+                            <property name="xalign">0.5</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -2313,8 +2347,9 @@ Notification</property>
                     <property name="homogeneous">True</property>
                     <child>
                       <object class="GtkButton" id="run_halshow">
-                        <property name="label" translatable="yes"> Launch
+                        <property name="label" translatable="yes">Launch
 Halshow</property>
+                        <property name="xalign">0.5</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -2347,8 +2382,9 @@ Halshow</property>
                     </child>
                     <child>
                       <object class="GtkButton" id="run_status">
-                        <property name="label" translatable="yes">linuxcnc
-  Status</property>
+                        <property name="label" translatable="yes">LinuxCNC
+Status</property>
+                        <property name="xalign">0.5</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -2437,7 +2473,8 @@ Halshow</property>
               <object class="GtkLabel" id="Offsetp">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">Offset
- Page</property>
+Page</property>
+                <property name="xalign">0.5</property>
               </object>
               <packing>
                 <property name="position">2</property>
@@ -2604,8 +2641,7 @@ Halshow</property>
                         </child>
                         <child>
                           <object class="GtkButton" id="button_move_to">
-                            <property name="label" translatable="yes">
-</property>
+                            <property name="label" translatable="yes"></property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -2681,7 +2717,8 @@ Halshow</property>
                         <child>
                           <object class="GtkButton" id="button_single_step">
                             <property name="label" translatable="yes">Single
- Step</property>
+Step</property>
+                            <property name="xalign">0.5</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -2694,7 +2731,8 @@ Halshow</property>
                         <child>
                           <object class="GtkButton" id="button_restart">
                             <property name="label" translatable="yes">Run At
-  Line</property>
+Line</property>
+                            <property name="xalign">0.5</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -2706,7 +2744,8 @@ Halshow</property>
                         <child>
                           <object class="GtkButton" id="button_change_view2">
                             <property name="label" translatable="yes">Change 
-  View</property>
+View</property>
+                            <property name="xalign">0.5</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -2792,8 +2831,7 @@ Halshow</property>
                         </child>
                         <child>
                           <object class="GtkToggleButton" id="button_homing">
-                            <property name="label" translatable="yes">Homing
-</property>
+                            <property name="label" translatable="yes">Homing</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -2815,6 +2853,7 @@ Halshow</property>
                                     <property name="visible">True</property>
                                     <property name="label" translatable="yes">Ignore
 Limits</property>
+                                    <property name="xalign">0.5</property>
                                   </object>
                                   <packing>
                                     <property name="position">0</property>
@@ -2842,8 +2881,9 @@ Limits</property>
                         </child>
                         <child>
                           <object class="GtkToggleButton" id="button_override">
-                            <property name="label" translatable="yes">    Set
+                            <property name="label" translatable="yes">Set
 Override</property>
+                            <property name="xalign">0.5</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -2856,8 +2896,7 @@ Override</property>
                         </child>
                         <child>
                           <object class="GtkToggleButton" id="button_graphics">
-                            <property name="label" translatable="yes">Graphics
-</property>
+                            <property name="label" translatable="yes">Graphics</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -2872,6 +2911,7 @@ Override</property>
                           <object class="GtkButton" id="button_menu">
                             <property name="label" translatable="yes">Menu
 Level</property>
+                            <property name="xalign">0.5</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                           </object>
@@ -2883,8 +2923,9 @@ Level</property>
                         </child>
                         <child>
                           <object class="GtkButton" id="toggle_keyboard">
-                            <property name="label" translatable="yes">  Launch
+                            <property name="label" translatable="yes">Launch
 Keyboard</property>
+                            <property name="xalign">0.5</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -2988,7 +3029,8 @@ Keyboard</property>
                 <child>
                   <object class="GtkButton" id="button_unhome_all">
                     <property name="label" translatable="yes">Unhome 
-    All</property>
+All</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3000,7 +3042,8 @@ Keyboard</property>
                 <child>
                   <object class="GtkButton" id="button_unhome_axis">
                     <property name="label" translatable="yes">Unhome
-   Axis</property>
+Axis</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3013,6 +3056,7 @@ Keyboard</property>
                   <object class="GtkButton" id="button_toggle_readout">
                     <property name="label" translatable="yes">Toggle
 Readout</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3037,7 +3081,8 @@ Readout</property>
                 <child>
                   <object class="HAL_ToggleButton" id="button_jog_mode">
                     <property name="label" translatable="yes">Jogging
-  Mode</property>
+Mode</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3049,7 +3094,8 @@ Readout</property>
                 <child>
                   <object class="GtkToggleButton" id="button_select_system">
                     <property name="label" translatable="yes">coordinate
-  System</property>
+System</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3093,7 +3139,8 @@ Readout</property>
                 <child>
                   <object class="GtkButton" id="button_index_tool">
                     <property name="label" translatable="yes">Index
- Tool</property>
+Tool</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3106,6 +3153,7 @@ Readout</property>
                   <object class="GtkButton" id="button_spindle_controls">
                     <property name="label" translatable="yes">Spindle
 Controls</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3118,6 +3166,7 @@ Controls</property>
                   <object class="GtkButton" id="button_toggle_readout2">
                     <property name="label" translatable="yes">Toggle
 Readout</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3128,8 +3177,9 @@ Readout</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="button_show_offsets">
-                    <property name="label" translatable="yes"> Show
+                    <property name="label" translatable="yes">Show
 Offsets</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3237,8 +3287,9 @@ Offsets</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="button_block_delete">
-                    <property name="label" translatable="yes"> Block
+                    <property name="label" translatable="yes">Block
 Delete</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3250,7 +3301,8 @@ Delete</property>
                 <child>
                   <object class="GtkToggleButton" id="button_option_stop">
                     <property name="label" translatable="yes">Optional
-   Stop</property>
+Stop</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3261,8 +3313,9 @@ Delete</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="button_full_view">
-                    <property name="label" translatable="yes"> Full
+                    <property name="label" translatable="yes">Full
 View</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3298,7 +3351,8 @@ View</property>
                 <child>
                   <object class="GtkButton" id="button_next_tab">
                     <property name="label" translatable="yes">Next
- Tab</property>
+Tab</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3317,8 +3371,9 @@ View</property>
                 <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkToggleButton" id="button_feed_override">
-                    <property name="label" translatable="yes">   Feed
+                    <property name="label" translatable="yes">Feed
 Override</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3332,6 +3387,7 @@ Override</property>
                   <object class="GtkToggleButton" id="button_spindle_override">
                     <property name="label" translatable="yes">Spindle
 Override</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3343,8 +3399,9 @@ Override</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="button_rapid_override">
-                    <property name="label" translatable="yes">  Rapid
+                    <property name="label" translatable="yes">Rapid
 Override</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3364,8 +3421,9 @@ Override</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="button_jog_speed">
-                    <property name="label" translatable="yes">   Jog
+                    <property name="label" translatable="yes">Jog
 Speed</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3377,8 +3435,9 @@ Speed</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="button_jog_increments">
-                    <property name="label" translatable="yes">      Jog
+                    <property name="label" translatable="yes">Jog
 Increments</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3395,6 +3454,7 @@ Increments</property>
                   <object class="GtkToggleButton" id="button_select_rotary_adjust">
                     <property name="label" translatable="yes">Adjust
 Rotary</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3417,6 +3477,7 @@ Rotary</property>
                   <object class="GtkButton" id="button_change_view">
                     <property name="label" translatable="yes">Change
   View</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3463,8 +3524,9 @@ Rotary</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="button_pan_v">
-                    <property name="label" translatable="yes">   Pan
+                    <property name="label" translatable="yes">Pan
 Vertical</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3476,8 +3538,9 @@ Vertical</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="button_pan_h">
-                    <property name="label" translatable="yes">     Pan
+                    <property name="label" translatable="yes">Pan
 Horizontal</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3489,8 +3552,9 @@ Horizontal</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="button_rotate_h">
-                    <property name="label" translatable="yes">  Rotate
+                    <property name="label" translatable="yes">Rotate
 Horiontal</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3502,8 +3566,9 @@ Horiontal</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="button_rotate_v">
-                    <property name="label" translatable="yes"> Rotate
+                    <property name="label" translatable="yes">Rotate
 Vertical</property>
+                    <property name="xalign">0.5</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                   </object>
@@ -3524,7 +3589,8 @@ Vertical</property>
                 <child>
                   <object class="GtkButton" id="button_search_bwd">
                     <property name="label" translatable="yes">Search
-  Bwd</property>
+Bwd</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3536,7 +3602,8 @@ Vertical</property>
                 <child>
                   <object class="GtkButton" id="button_search_fwd">
                     <property name="label" translatable="yes">Search
-  Fwd</property>
+Fwd</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3593,8 +3660,9 @@ Vertical</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="button_reload">
-                    <property name="label" translatable="yes"> Reload
+                    <property name="label" translatable="yes">Reload
 Program</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3607,7 +3675,8 @@ Program</property>
                 <child>
                   <object class="GtkButton" id="button_replace_text">
                     <property name="label" translatable="yes">Replace
-  Text</property>
+Text</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3637,7 +3706,6 @@ Program</property>
               <object class="GtkStatusbar" id="statusbar1">
                 <property name="visible">True</property>
                 <property name="spacing">1</property>
-                <property name="has_resize_grip">False</property>
               </object>
               <packing>
                 <property name="position">0</property>
@@ -3645,8 +3713,9 @@ Program</property>
             </child>
             <child>
               <object class="GtkButton" id="pop_statusbar">
-                <property name="label" translatable="yes"> Clear
+                <property name="label" translatable="yes">Clear
 status</property>
+                <property name="xalign">0.5</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -3826,7 +3895,6 @@ status</property>
     <property name="urgency_hint">True</property>
     <property name="decorated">False</property>
     <property name="deletable">False</property>
-    <property name="has_separator">False</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
@@ -3939,7 +4007,6 @@ status</property>
     <property name="window_position">center-on-parent</property>
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
-    <property name="has_separator">False</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox3">
         <property name="visible">True</property>
@@ -3965,7 +4032,8 @@ directly.</property>
                 <child>
                   <object class="GtkButton" id="restart_line_up">
                     <property name="label" translatable="yes">Line
- Up</property>
+Up</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3987,8 +4055,9 @@ directly.</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="restart_line_down">
-                    <property name="label" translatable="yes"> Line
+                    <property name="label" translatable="yes">Line
 Down</property>
+                    <property name="xalign">0.5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -4139,7 +4208,7 @@ Down</property>
                 <child>
                   <object class="GtkLabel" id="label23">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes"> FWD</property>
+                    <property name="label" translatable="yes">FWD</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -4174,7 +4243,7 @@ Down</property>
                 <child>
                   <object class="GtkLabel" id="label46">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes"> REV</property>
+                    <property name="label" translatable="yes">REV</property>
                   </object>
                   <packing>
                     <property name="position">1</property>

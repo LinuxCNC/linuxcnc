@@ -16,6 +16,7 @@
  */
 
 #include "config.h"
+#include "linuxcnc.h"
 
 #ifdef __linux__
 #include <sys/fsuid.h>
@@ -52,14 +53,11 @@
 #include <pthread_np.h>
 #endif
 
-#include "config.h"
-
 #include "rtapi.h"
 #include "hal.h"
 #include "hal/hal_priv.h"
 #include "rtapi_uspace.hh"
 
-#include <string.h>
 #include <boost/lockfree/queue.hpp>
 
 std::atomic<int> WithRoot::level;
@@ -83,9 +81,6 @@ WithRoot::~WithRoot() {
     }
 }
 
-extern "C"
-int rtapi_is_realtime();
-
 namespace
 {
 RtapiApp &App();
@@ -98,8 +93,26 @@ struct message_t {
 boost::lockfree::queue<message_t, boost::lockfree::capacity<128>>
 rtapi_msg_queue;
 
+static void set_namef(const char *fmt, ...) {
+    char *buf = NULL;
+    va_list ap;
+
+    va_start(ap, fmt);
+    if (vasprintf(&buf, fmt, ap) < 0) {
+        return;
+    }
+    va_end(ap);
+
+    int res = pthread_setname_np(pthread_self(), buf);
+    if (res) {
+        fprintf(stderr, "pthread_setname_np() failed for %s: %d\n", buf, res);
+    }
+    free(buf);
+}
+
 pthread_t queue_thread;
 void *queue_function(void *arg) {
+    set_namef("rtapi_app:mesg");
     // note: can't use anything in this function that requires App() to exist
     // but it's OK to use functions that aren't safe for realtime (that's the
     // point of running this in a thread)
@@ -444,7 +457,8 @@ static int master(int fd, vector<string> args) {
         perror("pthread_create (queue function)");
         return -1;
     }
-    do_load_cmd("hal_lib", vector<string>()); instance_count = 0;
+    do_load_cmd("hal_lib", vector<string>());
+    instance_count = 0;
     App(); // force rtapi_app to be created
     int result=0;
     if(args.size()) {
@@ -493,7 +507,7 @@ static int
 get_fifo_path(char *buf, size_t bufsize) {
     const char *s = get_fifo_path();
     if(!s) return -1;
-    strncpy(buf, s, bufsize);
+    snprintf(buf, bufsize, "%s", s);
     return 0;
 }
 
@@ -509,14 +523,14 @@ int main(int argc, char **argv) {
                 "    sudo env RTAPI_UID=`id -u` RTAPI_FIFO_PATH=$HOME/.rtapi_fifo gdb " EMC2_BIN_DIR "/rtapi_app\n");
             exit(1);
         }
-        setreuid(fallback_uid, 0);
+        if (setreuid(fallback_uid, 0) != 0) { perror("setreuid"); abort(); }
         fprintf(stderr,
             "Running with fallback_uid.  getuid()=%d geteuid()=%d\n",
             getuid(), geteuid());
     }
     ruid = getuid();
     euid = geteuid();
-    setresuid(euid, euid, ruid);
+    if (setresuid(euid, euid, ruid) != 0) { perror("setresuid"); abort(); }
 #ifdef __linux__
     setfsuid(ruid);
 #endif
@@ -600,14 +614,17 @@ struct Posix : RtapiApp
 {
     Posix(int policy = SCHED_FIFO) : RtapiApp(policy), do_thread_lock(policy != SCHED_FIFO) {
         pthread_once(&key_once, init_key);
-        if(do_thread_lock)
-            pthread_mutex_init(&thread_lock, 0);
+        if(do_thread_lock) {
+            pthread_once(&lock_once, init_lock);
+        }
     }
     int task_delete(int id);
     int task_start(int task_id, unsigned long period_nsec);
     int task_pause(int task_id);
     int task_resume(int task_id);
     int task_self();
+    long long task_pll_get_reference(void);
+    int task_pll_set_correction(long value);
     void wait();
     struct rtapi_task *do_task_new() {
         return new PosixTask;
@@ -617,12 +634,17 @@ struct Posix : RtapiApp
     int run_threads(int fd, int (*callback)(int fd));
     static void *wrapper(void *arg);
     bool do_thread_lock;
-    pthread_mutex_t thread_lock;
 
     static pthread_once_t key_once;
     static pthread_key_t key;
     static void init_key(void) {
         pthread_key_create(&key, NULL);
+    }
+
+    static pthread_once_t lock_once;
+    static pthread_mutex_t thread_lock;
+    static void init_lock(void) {
+        pthread_mutex_init(&thread_lock, NULL);
     }
 
     long long do_get_time(void) {
@@ -707,9 +729,11 @@ static int harden_rt()
 #if defined(__linux__) && (defined(__x86_64__) || defined(__i386__))
     if (iopl(3) < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
+                        "iopl() failed: %s\n"
                         "cannot gain I/O privileges - "
                         "forgot 'sudo make setuid' or using secure boot? -"
-                        "parallel port access is not allow\n");
+                        "parallel port access is not allowed\n",
+                        strerror(errno));
     }
 #endif
 
@@ -727,7 +751,7 @@ static int harden_rt()
     // enable core dumps
     if (setrlimit(RLIMIT_CORE, &unlimited) < 0)
 	rtapi_print_msg(RTAPI_MSG_WARN,
-		  "setrlimit: %s - core dumps may be truncated or non-existant\n",
+		  "setrlimit: %s - core dumps may be truncated or non-existent\n",
 		  strerror(errno));
 
     // even when setuid root
@@ -812,37 +836,52 @@ struct rtapi_task *task_array[MAX_TASKS];
 
 /* Priority functions.  Uspace uses POSIX task priorities. */
 
-int RtapiApp::prio_highest()
+int RtapiApp::prio_highest() const
 {
     return sched_get_priority_max(policy);
 }
 
-int RtapiApp::prio_lowest()
+int RtapiApp::prio_lowest() const
 {
   return sched_get_priority_min(policy);
 }
 
-int RtapiApp::prio_next_higher(int prio)
-{
-  /* return a valid priority for out of range arg */
-  if (prio >= rtapi_prio_highest())
-    return rtapi_prio_highest();
-  if (prio < rtapi_prio_lowest())
-    return rtapi_prio_lowest();
-
-  /* return next higher priority for in-range arg */
-  return prio + 1;
+int RtapiApp::prio_higher_delta() const {
+    if(rtapi_prio_highest() > rtapi_prio_lowest()) {
+        return 1;
+    }
+    return -1;
 }
 
-int RtapiApp::prio_next_lower(int prio)
+int RtapiApp::prio_bound(int prio) const {
+    if(rtapi_prio_highest() > rtapi_prio_lowest()) {
+        if (prio >= rtapi_prio_highest())
+            return rtapi_prio_highest();
+        if (prio < rtapi_prio_lowest())
+            return rtapi_prio_lowest();
+    } else {
+        if (prio <= rtapi_prio_highest())
+            return rtapi_prio_highest();
+        if (prio > rtapi_prio_lowest())
+            return rtapi_prio_lowest();
+    }
+    return prio;
+}
+
+int RtapiApp::prio_next_higher(int prio) const
 {
-  /* return a valid priority for out of range arg */
-  if (prio <= rtapi_prio_lowest())
-    return rtapi_prio_lowest();
-  if (prio > rtapi_prio_highest())
-    return rtapi_prio_highest();
-  /* return next lower priority for in-range arg */
-  return prio - 1;
+    prio = prio_bound(prio);
+    if(prio != rtapi_prio_highest())
+        return prio + prio_higher_delta();
+    return prio;
+}
+
+int RtapiApp::prio_next_lower(int prio) const
+{
+    prio = prio_bound(prio);
+    if(prio != rtapi_prio_lowest())
+        return prio - prio_higher_delta();
+    return prio;
 }
 
 int RtapiApp::allocate_task_id()
@@ -870,7 +909,6 @@ int RtapiApp::task_new(void (*taskcode) (void*), void *arg,
 
   struct rtapi_task *task = do_task_new();
   if(stacksize < (1024*1024)) stacksize = (1024*1024);
-  memset((char*)task, 0, sizeof(*task));
   task->id = n;
   task->owner = owner;
   task->uses_fp = uses_fp;
@@ -983,6 +1021,10 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
   memset(&param, 0, sizeof(param));
   param.sched_priority = task->prio;
 
+  // limit PLL correction values to +/-1% of cycle time
+  task->pll_correction_limit = period_nsec / 100;
+  task->pll_correction = 0;
+
   int nprocs = sysconf( _SC_NPROCESSORS_ONLN );
 
   pthread_attr_t attr;
@@ -1019,7 +1061,9 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
 #define RTAPI_CLOCK (CLOCK_MONOTONIC)
 
 pthread_once_t Posix::key_once = PTHREAD_ONCE_INIT;
+pthread_once_t Posix::lock_once = PTHREAD_ONCE_INIT;
 pthread_key_t Posix::key;
+pthread_mutex_t Posix::thread_lock;
 
 void *Posix::wrapper(void *arg)
 {
@@ -1035,6 +1079,7 @@ void *Posix::wrapper(void *arg)
 	  task, task->period, task->ratio);
 
   pthread_setspecific(key, arg);
+  set_namef("rtapi_app:T#%d", task->id);
 
   Posix &papp = reinterpret_cast<Posix&>(App());
   if(papp.do_thread_lock)
@@ -1042,13 +1087,28 @@ void *Posix::wrapper(void *arg)
 
   struct timespec now;
   clock_gettime(RTAPI_CLOCK, &now);
-  rtapi_timespec_advance(task->nextstart, now, task->period);
+  rtapi_timespec_advance(task->nextstart, now, task->period + task->pll_correction);
 
   /* call the task function with the task argument */
   (task->taskcode) (task->arg);
 
   rtapi_print("ERROR: reached end of wrapper for task %d\n", task->id);
   return NULL;
+}
+
+long long Posix::task_pll_get_reference(void) {
+    struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
+    if(!task) return 0;
+    return task->nextstart.tv_sec * 1000000000LL + task->nextstart.tv_nsec;
+}
+
+int Posix::task_pll_set_correction(long value) {
+    struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
+    if(!task) return -EINVAL;
+    if (value > task->pll_correction_limit) value = task->pll_correction_limit;
+    if (value < -(task->pll_correction_limit)) value = -(task->pll_correction_limit);
+    task->pll_correction = value;
+    return 0;
 }
 
 int Posix::task_pause(int) {
@@ -1070,7 +1130,7 @@ void Posix::wait() {
         pthread_mutex_unlock(&thread_lock);
     pthread_testcancel();
     struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
-    rtapi_timespec_advance(task->nextstart, task->nextstart, task->period);
+    rtapi_timespec_advance(task->nextstart, task->nextstart, task->period + task->pll_correction);
     struct timespec now;
     clock_gettime(RTAPI_CLOCK, &now);
     if(rtapi_timespec_less(task->nextstart, now))
@@ -1171,6 +1231,16 @@ int rtapi_task_resume(int task_id)
 int rtapi_task_self()
 {
     return App().task_self();
+}
+
+long long rtapi_task_pll_get_reference(void)
+{
+    return App().task_pll_get_reference();
+}
+
+int rtapi_task_pll_set_correction(long value)
+{
+    return App().task_pll_set_correction(value);
 }
 
 void rtapi_wait(void)

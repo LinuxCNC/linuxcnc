@@ -17,13 +17,13 @@
 #ifndef SHCOM_HH
 #define SHCOM_HH
 
+#include "linuxcnc.h"           // INCH_PER_MM
 #include "emc_nml.hh"
 #include "nml_oi.hh"            // NML_ERROR_LEN
 
 #define CLOSE(a,b,eps) ((a)-(b) < +(eps) && (a)-(b) > -(eps))
 #define LINEAR_CLOSENESS 0.0001
 #define ANGULAR_CLOSENESS 0.0001
-#define INCH_PER_MM (1.0/25.4)
 #define CM_PER_MM 0.1
 #define GRAD_PER_DEG (100.0/90.0)
 #define RAD_PER_DEG TO_RAD	// from posemath.h

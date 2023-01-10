@@ -23,7 +23,7 @@
 *		optional DAC or digital outs installed.
 *               timestamp works the same way, for UPC boards of rev 4
 *               or higher that have the timestamp feature.
-*               enc_clock specifes a 3-digit hex value, where the 1st is a
+*               enc_clock specifies a 3-digit hex value, where the 1st is a
 *               code of 1,2, 5 or 10 to indicate an encoder clock rate of 1, 2.5, 5 or 10 MHz.
 *               The following 2 digits work as above, bus and board address.
 *               Only rev 4 and above PPMC encoder boards have this clock select feature.
@@ -140,7 +140,7 @@ RTAPI_MP_ARRAY_INT(epp_dir, MAX_BUS, "EPP is commanded port direction");
                                 /* only available with rev 2 and above FPGA config */
 #define ENCLOAD     0x00	/* EPP address to write into first byte of preset */
 				/* register for channels 0 - 3 */
-// following regs for new UPC with encoder count timesamp feature
+// following regs for new UPC with encoder count timestamp feature
 #define ENCTS       0x10        /* timestamp low byte for axis 0 */
 #define ENCTS1      0x11        /* timestamp high byte for axis 0 */
 #define ENCTB       0x18        /* timebase low byte */
@@ -196,7 +196,7 @@ RTAPI_MP_ARRAY_INT(epp_dir, MAX_BUS, "EPP is commanded port direction");
    unless the physical "estop" input is also on.  All physical outputs
    will not come on unless the physical "estop" output is on. */
    
-/* The ESTOP function is completely implementd in FPGA hardware.  To get
+/* The ESTOP function is completely implemented in FPGA hardware.  To get
 out of ESTOP, the safety chain must be a closed circuit (Green LED lit on
 board), you then must satisfy the watchdog (if watchdog jumper is in ON
 position) by writing to two adjacent velocity output channels (step, PWM or
@@ -842,7 +842,7 @@ static void read_all(void *arg, long period)
     /* loop thru all slots */
     for ( slotnum = 0 ; slotnum < NUM_SLOTS ; slotnum++ ) {
       currentbus = bus->busnum;  /* make bus in use available for epp_dir logic */
-	/* check for anthing in slot */
+	/* check for anything in slot */
 	if ( bus->slot_valid[slotnum] ) {
 	    /* point at slot data */
 	    slot = &(bus->slot_data[slotnum]);
@@ -907,7 +907,7 @@ static void write_all(void *arg, long period)
     }
     /* loop thru all slots */
     for ( slotnum = 0 ; slotnum < NUM_SLOTS ; slotnum++ ) {
-	/* check for anthing in slot */
+	/* check for anything in slot */
 	if ( bus->slot_valid[slotnum] ) {
 	  currentbus = bus->busnum;  /* make bus in use available for epp_dir logic */
 	    /* point at slot data */
@@ -1399,7 +1399,7 @@ static void write_pwmgens(slot_data_t *slot)
 	    freq = 500000.0;
 	}
 	/* calculate divisor */
-	if (slot->ver >= 3)  // accomodate 3.1 and newer boards with 40MHz clk
+	if (slot->ver >= 3)  // accommodate 3.1 and newer boards with 40MHz clk
 	  period = (40000000.0 / freq) + 0.5;  // 40 MHz clock on ver 3 and up
 	else
 	  period = (10000000.0 / freq) + 0.5;  // 10 MHz on lower version

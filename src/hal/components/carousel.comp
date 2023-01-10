@@ -11,7 +11,7 @@ component carousel """Orient a toolchanger carousel using various encoding schem
 Use up to 8 numbers separated by commas to create multiple carousel components.
 .TP
 \\fBencoding\\fR The position encoding.
-gray, binary, bcd, index, edge or single. Default = 'gray'
+gray, binary, bcd, index, edge, counts or single. Default = 'gray'
 .TP
 \\fBnum_sense\\fR The number of position sense pins.
 Default = 4.
@@ -25,9 +25,16 @@ Default = 0 (even)
 
 description """This component is intended to help operate various types of
 carousel-type toolchangers. 
+
 The component can be configured to operate with binary, binary-coded decimal (BCD)
-or gray-coded position feedback, with an individual sensor for each tool position
-or with a sensor at each tool position and a separate index.
+or gray-coded position feedback ('binary;, 'bcd' and 'gray' modes)
+It can alternatively work with an individual sensor for each tool position
+('single' mode) or with a sensor at each tool position and a separate index
+('index' mode). Systems using a stepper motor or quadrature encoder are
+also supported ('counts' mode).
+\\fBedge\\fR is a special case of index mode for tool
+changers with pockets on both the rising and falling edges of the position sensor.
+(Seen on at least one Denford Orac.)
 
 Both unidirectional and bidirectional systems are supported and those that reverse
 against a stop when in position. 
@@ -52,20 +59,41 @@ The component will monitor the carousel position and, when the correct position
 is reached, set the motor-control pins to 0, set "active" to 0 and set "ready"
 to 1.
 
-In index mode the behaviour is slightly different. The first time that the "enable"
-pin is set; the carousel will rotate forwards until
-both the index and pulse inputs are true. If there is no pulse line at the
-index position then a HAL "or2" function can be used to allow the index sensor
-to toggle both inputs. Setting "enable" low does not halt the homing move, so if
+In 'index', 'edge' or 'counts'mode there is a need to find the initial
+home position of the carousel.
+The first time that the "enable" pin is set; the carousel will rotate forwards
+searching for a home signal. In 'index' and 'edge' mode this is when
+both the index and pulse inputs are true. In 'counts' mode only the index
+input needs to be set to set home. Additionally in 'counts' mode the usual index-enable
+logic of the encoder counters is supported.
+
+With some carousel designs the carousel will not stop immediately. To allow for
+this set the \\fBlign-dc\\fR pin to a low velocity to be used for a final latching move, and
+set the\\fBdecel-time\\fR to a suitable value.
+Once the decel-time has expired the carousel will, if it was moving forwards, reverse back on
+to the position marker, off of the arker and then bak on to the FWD edge. If moving in reverse
+it will continue off the marker and then reverse slowly on to the FWD edge.
+This algnment is only possible with a motor-vel controlled bidirectional carousel,
+Other combinations will be acepted but probably won't have the desired behaviour. 
+Some tuning will be needed of align-dc and decel-time to achieve reliable operation.
+
+In the unusual case that the index and pulse signals do not align it is
+possible to use HAL logic to achieve the desired pin switching during homing.
+
+Setting "enable" low does not halt the homing move, so if
 homing on first tool change is not needed then the enable pin can be toggled by
-an axis homing pin or a script. \\fBedge\\fR is a special case of index mode for tool
-changers with pockets on both the rising and falling edges of the position sensor.
-(Seen on at least one Denford Orac.)
+an axis homing pin or a script and the homing process will continue even if that
+driving signal resets during the carousel homing move.
+
+To operate the component with an encoder or stepgen use mode "C". The \\fBscale\\fR
+pin should be the number of steps or encoder counts between pocket centres. The
+\\fBwidth\\fR pin can be used to stop the motor some distance before the centre of
+the pocket to allow the motor time to decelerate.
 
 For tool changers which lock the carousel against a stop the \\fBrev-pulse\\fR pin can
 be set to a non-zero value. The motor-rev pin will then be set for this many seconds
 at the completion of the tool search and at the same time the reverse duty/cycle
-velocity value will be sent to the motor-vel pin. 
+velocity value will be sent to the motor-vel pin.
 """;
 
 pin in  signed pocket-number """The pocket to move to when the .enable pin goes high. If the value
@@ -84,8 +112,16 @@ will be only 2 pins. sense-0 is the index and sense-1 is the pocket sensor.""";
 pin in float rev-pulse """The duration in seconds for which a ratchet changer (Boxford, Emco)
 should pulse the reverse pin to lock the holder""";
 pin in float fwd-dc "Velocity or duty cycle when forwards rotation is desired";
-pin in float rev-dc " Velocity or duty cycle when reverse rotation is desired";
+pin in float rev-dc "Velocity or duty cycle when reverse rotation is desired";
 pin in float hold-dc "Duty cycle when carousel is in-position (to hold against stop)";
+pin in float align-dc """Use this pin to set the speed of a slower alignment move once the changer is in position. Such a system almost
+certainly needs decel-time setting too""";
+pin in float decel-time "Time to wait for carousel to stop before final alignment";
+pin in signed counts "Connect to the rawcounts of an encoder or a stepgen in 'counts' mode";
+pin in signed scale = 100 "The number of stepgen or encoder counts between successive pockets";
+pin in signed width = 0   "How far each side of the exact scale to signal a new pocket";
+pin in signed home-offset = 0 "The offset (in counts) between the index and pocket 1";
+pin io bit index-enable "Used to home to an encoder index";
 pin in  bit    jog-fwd "Jog the carousel forwards one tool position";
 pin in  bit    jog-rev """Jog the carousel in reverse (only if dir = 2).
 It is very important that these pins should be debounced and should probably
@@ -94,18 +130,20 @@ pin out bit    motor-fwd "Indicates the motor should run forwards (bigger number
 pin out bit    motor-rev "Indicates the motor should run reverse.";
 pin out bit    parity-error "Indicates a parity error";
 pin out signed current-position "This pin indicates the current position feedback";
-pin out float  motor_vel "The duty-cycle or velocity to drive a DC motor or stepgen";
+pin out float  motor-vel "The duty-cycle or velocity to drive a DC motor or stepgen";
+pin out bit    homed = 0 "Shows that homing is complete. Only used in index and edge modes";
+pin in  bit    unhome = 0 "Should only really be necessary for testing";
 
 param r  signed state = 0 "Current component state";
 param r  bit    homing  = 0 "Shows that homing is in progress. Only used for index mode";
-param r  bit    homed = 0 "Shows that homing is complete. Only used in index and edge modes";
 param r  float  timer "Shows the value of the internal timer";
+param r signed motor-dir "Internal tag for search direction";
 
 option count_function;
 option extra_setup;
 
 license "GPL";
-author "andy pugh";
+author "Andy Pugh";
 
 variable int inst_sense;
 variable int inst_dir;
@@ -113,8 +151,12 @@ variable int inst_pockets;
 variable int inst_code;
 variable int inst_parity;
 variable int old_index = 0;
+variable int base_counts = 0;
 variable int target;
+variable int old_unhome = 0;
 function _ ;
+
+include "rtapi_math.h";
 
 ;;
 
@@ -144,26 +186,30 @@ FUNCTION(_){
     int i, d, pow;
     int pcalc = 0;
     int mod_pocket = 0;
-    int p = 0;
+    int new_pos = 0;
     unsigned int mask;
+    int align_pin = 0; // used for slow align move, input depends on mode for historical reasons
 
     switch inst_code{
     case 'G': // Gray Code
+        align_pin = strobe;
         for (i = 0; i < inst_sense ; i++) {
-            p += sense(i) << i;
+            new_pos += sense(i) << i;
         pcalc ^= sense(i);
         }
-        for(mask = p >> 1 ; mask != 0 ; mask = mask >> 1){
-            p ^= mask;
+        for(mask = new_pos >> 1 ; mask != 0 ; mask = mask >> 1){
+            new_pos ^= mask;
         }
         break;
     case 'B': // Straight Binary
+        align_pin = strobe;
         for (i = 0; i < inst_sense ; i++) {
-            p += sense(i) << i;
+            new_pos += sense(i) << i;
         pcalc ^= sense(i);
         }
         break;
     case 'D': // BCD
+        align_pin = strobe;
         i = 0;
         pow = 1;
         while (i < inst_sense){
@@ -173,62 +219,83 @@ FUNCTION(_){
                 d += sense(i) << (i % 4);
                 pcalc ^= sense(i);
             }
-            p += d * pow;
+            new_pos += d * pow;
             pow *= 10;
         }
         break;
     case 'S': // individual sensors
         for (i = inst_sense - 1; sense(i) == 0 && i > 0 ; i--) {}
-        if (sense(i)) 
-            p = i + 1;
+        if (sense(i)) {
+            new_pos = i + 1;
+        }
+        align_pin = sense(current_position - 1);
         break;
     case 'I': // index + position.
-        p = current_position;
-        if (homed){
+        align_pin = sense(1);
+        new_pos = current_position;
+        if (homed && (state == 2 || state == 20)){ // Ignore transitions during home, align etc
             if ( !old_index && sense(1) ){
                 if (motor_fwd){
-                    p += 1;
-                    if (p > inst_pockets) p -= inst_pockets;
+                    new_pos += 1;
+                    if (new_pos > inst_pockets) new_pos -= inst_pockets;
                 }
                 if (motor_rev) {
-                    p -= 1;
-                    if (p < 1) p += inst_pockets;
+                    new_pos -= 1;
+                    if (new_pos < 1) new_pos += inst_pockets;
                 }
             }
             old_index = sense(1);
         }
         break;
     case 'E': // index + position, both edges.
-        p = current_position;
+        align_pin = ! align_pin; // Not supported, but wiggle the pin to escape
+        new_pos = current_position;
         if (homed){
             if ( old_index != sense(1) ){
                 if (motor_fwd){
-                    p += 1;
-                    if (p > inst_pockets) p -= inst_pockets;
+                    new_pos += 1;
+                    if (new_pos > inst_pockets) new_pos -= inst_pockets;
                 }
                 if (motor_rev) {
-                    p -= 1;
-                    if (p < 1) p += inst_pockets;
+                    new_pos -= 1;
+                    if (new_pos < 1) new_pos += inst_pockets;
                 }
             }
             old_index = sense(1);
         }
         break;
-    
+    case 'C': // encoder or stepgen counts.
+        new_pos = current_position;
+        if (homed){
+            int c;
+            int t;
+            int w = width / 2;
+            c = (counts - base_counts);
+            t = floor(((float)c + w) / scale);
+            if (c >= (t * scale - w)  && c <= (t * scale + w)) {
+                new_pos = 1 + t - inst_pockets * floor((float)t / inst_pockets);
+            }
+            align_pin = (c % scale <= 2 && c % scale >= -2); // don't try to align to an exact count.
+        }
     }
 
     if (strobe) {
-        current_position = p;
+        current_position = new_pos;
         parity_error = (pcalc != (inst_parity ^ parity_));
     }
     mod_pocket = ((pocket_number - 1) % inst_pockets) + 1;
     // mod is odd with negatives, so just in case
     if (mod_pocket < 1) mod_pocket = 1;
     if (mod_pocket > inst_pockets) mod_pocket = inst_pockets;
+
+    if (unhome && ! old_unhome) homed = 0;
+    old_unhome = unhome;
+
     switch (state){
     case 0: // waiting at start
+        motor_dir = 0;
         if (jog_fwd || (jog_rev && inst_dir == 2))  {
-            if ((inst_code == 'I' || inst_code == 'E') && ! homed){
+            if ((inst_code == 'I' || inst_code == 'E' || inst_code == 'C') && ! homed){
                 state = 10;
                 break;
             }
@@ -239,20 +306,22 @@ FUNCTION(_){
                 motor_fwd = 1;
                 motor_rev = 0;
                 motor_vel = fwd_dc;
+                motor_dir = 1;
             }
             if (jog_rev){
                 motor_fwd = 0;
                 motor_rev = 1;
                 motor_vel = rev_dc;
+                motor_dir = -1;
             }
             active = 1;
-            state = 5;
+            state = 20;
             break;
         }
         motor_vel = hold_dc;
         if (! enable) return ;
         active = 1;
-        if ((inst_code == 'I' || inst_code == 'E') && ! homed){
+        if ((inst_code == 'I' || inst_code == 'E' || inst_code == 'C') && ! homed){
             state = 10;
             break;
         }
@@ -269,65 +338,95 @@ FUNCTION(_){
                     motor_fwd = 0;
                     motor_rev = 1;
                     motor_vel = rev_dc;
+                    motor_dir = -1;
                 } else {
                     motor_fwd = 1;
                     motor_rev = 0;
                     motor_vel = fwd_dc;
+                    motor_dir = 1;
                 }
             } else {
                 if (current_position - mod_pocket > (inst_pockets / 2)) {
                     motor_fwd = 1;
                     motor_rev = 0;
                     motor_vel = fwd_dc;
+                    motor_dir = 1;
                 } else {
                     motor_fwd = 0;
                     motor_rev = 1;
                     motor_vel = rev_dc;
+                    motor_dir = -1;
                 }
             }
         } else {
             motor_fwd = 1;
             motor_rev = 0;
             motor_vel = fwd_dc;
+            motor_dir = 1;
         }
         state = 2;
     case 2: // moving
         if ((current_position != mod_pocket) && enable) return;
         if (rev_pulse > 0){
-	    motor_fwd = 0;
+            motor_fwd = 0;
             motor_rev = 1;
             motor_vel = rev_dc;
             timer = rev_pulse;        
-	    state = 3;
+            state = 3;
+        } else if (align_dc != 0) {
+            // stop and prepare for alignment
+            motor_vel = 0;
+            timer = decel_time;
+            state = 5;
         } else {
             motor_fwd = 0;
             motor_rev = 0;
             motor_vel = hold_dc;
             active = 0;
             if (enable) ready = 1;
-            state = 4;
-            break;
+            state = 9;
         }
-    case 3:
-	timer -= fperiod;
-        if (timer > 0) break;
-        state = 4;
+        break;
+    case 3: // timed reverse pulse
+        timer -= fperiod;
+        if (timer > 0) return;
+        state = 9;
         motor_fwd = 0;
         motor_rev = 0;
         motor_vel = hold_dc;
         active = 0;
         if (enable) ready = 1;
-    case 4: //waiting for enable to go false
-        if (enable) return;
-        state = 0;
         break;
-    case 5: //jogging fwd/rev
-        if (current_position != target) return;
+    case 5: //Waiting for carousel to stop
+        timer -= fperiod;
+        if (timer > 0) return;
+        motor_vel = -align_dc;
+        if (motor_dir == 1) {
+            state = 6;
+        } else {
+            state = 7;
+        }
+        break;
+    case 6: //backing up to index
+        if ( align_pin == 0 ) return;
+        state = 7;
+        break;
+    case 7: //backing back off of index
+        if ( align_pin != 0 ) return;
+        motor_vel = align_dc;
+        state = 8;
+        break;
+    case 8: // final move back to index
+        if ( align_pin == 0 ) return;
         motor_fwd = 0;
         motor_rev = 0;
         motor_vel = hold_dc;
         active = 0;
-        if (jog_fwd || jog_rev) return; // require button release to jog again
+        if (enable) ready = 1;
+        state = 9;
+        break;
+    case 9: //waiting for enable to go false
+        if (enable) return;
         state = 0;
         break;
     case 10: // start of homing
@@ -336,9 +435,17 @@ FUNCTION(_){
         motor_fwd = 1;
         motor_rev = 0;
         motor_vel = fwd_dc;
+        motor_dir = 1;
+        index_enable = 1;
         state = 11;
-    case 11: // waiting for index & pulse
-        if  ( (! old_index) && (sense(0) && sense(1)) ){ // index found
+    case 11: ;// waiting for index & pulse
+        int ind = 0;
+        if (inst_code == 'C'){
+            ind = sense(0);
+        } else {
+            ind = (sense(0) && sense(1));
+        }
+        if  ( ! index_enable || ((! old_index) && ind)){ // index found
             current_position = 1;
             homed = 1;
             homing = 0;
@@ -346,10 +453,32 @@ FUNCTION(_){
             motor_fwd = 0;
             motor_rev = 0;
             motor_vel = 0;
-            state = 0;
+            base_counts = counts - home_offset;
+            if ( align_dc == 0) {
+                state = 0;
+            } else { 
+                timer = decel_time;
+                state = 5;
+            }
         }
         old_index = (sense(0) && sense(1));
         break; // So that we don't see the tool1 pulse twice
+    case 20: //jogging fwd/rev
+        if (current_position != target) return;
+        if (align_dc != 0 && ! align_pin) return;
+        motor_fwd = 0;
+        motor_rev = 0;
+        motor_vel = hold_dc;
+        active = 0;
+        if (jog_fwd || jog_rev) return; // require button release to jog again
+        if (align_dc != 0) {
+            motor_vel = -align_dc;
+            timer = decel_time;
+            state = 5;
+        } else {
+            state = 0;
+        }
+        break;
     }
 }
 
@@ -367,6 +496,8 @@ EXTRA_SETUP(){
         default_code = 'I';
     } else if (strncmp(encoding[extra_arg], "edge", 4) == 0) {
         default_code = 'E';
+    } else if (strncmp(encoding[extra_arg], "counts", 6) == 0) {
+        default_code = 'C';
     }
 
     if (dir[extra_arg] > 0)  default_dir = (dir[extra_arg] > 1)? 2:1;

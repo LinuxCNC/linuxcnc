@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/env python3
 #
 # Qtvcp widget
 # Copyright (c) 2017 Chris Morley
@@ -18,14 +18,14 @@ from PyQt5.QtWidgets import QWidget
 
 import hal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, pyqtProperty
+from PyQt5.QtCore import pyqtSlot, pyqtProperty
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
 # LOG is for running code logging
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 

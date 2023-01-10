@@ -1,5 +1,5 @@
-HALCMDSRCS := hal/utils/halcmd.c hal/utils/halcmd_commands.c hal/utils/halcmd_main.c
-HALSHSRCS := hal/utils/halcmd.c hal/utils/halcmd_commands.c hal/utils/halsh.c
+HALCMDSRCS := hal/utils/halcmd.c hal/utils/halcmd_commands.cc hal/utils/halcmd_main.c
+HALSHSRCS := hal/utils/halcmd.c hal/utils/halcmd_commands.cc hal/utils/halsh.c
 
 ifneq ($(READLINE_LIBS),)
 HALCMDSRCS += hal/utils/halcmd_completion.c
@@ -10,12 +10,12 @@ $(call TOOBJSDEPS, $(HALSHSRCS)) : EXTRAFLAGS = -fPIC
 $(call TOOBJSDEPS, hal/utils/halsh.c) : EXTRAFLAGS += $(TCL_CFLAGS)
 ../tcl/hal.so: $(call TOOBJS, $(HALSHSRCS)) ../lib/liblinuxcncini.so.0 ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -shared $^  $(TCL_LIBS) -o $@
+	$(Q)$(CXX) $(LDFLAGS) -shared $^  $(TCL_LIBS) -o $@
 TARGETS += ../tcl/hal.so
 
 ../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS)) ../lib/liblinuxcncini.so.0 ../lib/liblinuxcnchal.so.0 
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(READLINE_LIBS)
+	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ $(READLINE_LIBS)
 TARGETS += ../bin/halcmd
 
 HALRMTSRCS := hal/utils/halrmt.c
@@ -86,13 +86,13 @@ endif
 
 ../bin/halcompile: ../bin/%: objects/hal/utils/%.py
 	@$(ECHO) Syntax checking python script $(notdir $@)
-	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
+	$(Q)$(PYTHON) -m py_compile $<
 	$(ECHO) Copying python script $(notdir $@)
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 
 ../bin/elbpcom: ../bin/%: hal/utils/%.py
 	@$(ECHO) Syntax checking python script $(notdir $@)
-	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
+	$(Q)$(PYTHON) -m py_compile $<
 	$(ECHO) Copying python script $(notdir $@)
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 

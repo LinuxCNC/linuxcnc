@@ -50,7 +50,7 @@
 
   schedrmt {-- --port <port number> --name <server name> --connectpw <password>
              --enablepw <password> --sessions <max sessions> --path <path>
-             -ini<inifile>}
+             -ini <INI file>}
 
   With -- --port Waits for socket connections (Telnet) on specified socket, without port
             uses default port 5007.
@@ -61,7 +61,7 @@
             to max sessions. Default is no limit (-1).
   With -- --path Sets the base path to program (G-Code) files, default is "../../nc_files/".
             Make sure to include the final slash (/).
-  With -- -ini <inifile>, uses inifile instead of emc.ini. 
+  With -- -ini <INI file>, uses specified INI file instead of default emc.ini. 
 
   There are six commands supported, Where the commands set and get contain EMC
   specific sub-commands based on the commands supported by emcsh, but where the "emc_"
@@ -110,7 +110,7 @@
   connection. If no parameters are specified, it will itemize the available commands.
   If a command is specified, it will provide usage information for the specified
   command. Help will respond regardless of whether a "Hello" has been
-  successsfully negotiated.
+  successfully negotiated.
   
   
   EMC sub-commands:
@@ -147,7 +147,7 @@
   supported by the server implementation.
 
   INIFILE
-  Returns the path and file name of the current configuration inifile.
+  Returns the path and file name of the current configuration INI file.
 
   plat
   Returns the platform for which this was compiled, e.g., linux_2_0_36
@@ -159,7 +159,7 @@
   With get, returns the integer value of EMC_DEBUG, in the EMC. Note that
   it may not be true that the local EMC_DEBUG variable here (in emcsh and
   the GUIs that use it) is the same as the EMC_DEBUG value in the EMC. This
-  can happen if the EMC is started from one .ini file, and the GUI is started
+  can happen if the EMC is started from one INI file, and the GUI is started
   with another that has a different value for DEBUG.
   With set, sends a command to the EMC to set the new debug level,
   and sets the EMC_DEBUG global here to the same value. This will make
@@ -683,7 +683,7 @@ int commandSet(connectionRecType *context)
     case rtCustomError: // Custom error response entered in buffer
       return write(context->cliSock, context->outBuf, strlen(context->outBuf));
       break;
-    case rtCustomHandledError: ;// Custom error respose handled, take no action
+    case rtCustomHandledError: ;// Custom error response handled, take no action
     }
   return 0;
 }
@@ -926,7 +926,7 @@ int commandGet(connectionRecType *context)
     case rtCustomError: // Custom error response entered in buffer
       sockWrite(context);
       break;
-    case rtCustomHandledError: ;// Custom error respose handled, take no action
+    case rtCustomHandledError: ;// Custom error response handled, take no action
     }
   return 0;
 }
@@ -1254,12 +1254,12 @@ int main(int argc, char *argv[])
     // process local command line args
     while((opt = getopt_long(argc, argv, "e:n:p:s:w:", longopts, NULL)) != -1) {
       switch(opt) {
-        case 'e': strncpy(enablePWD, optarg, strlen(optarg) + 1); break;
-        case 'n': strncpy(serverName, optarg, strlen(optarg) + 1); break;
+        case 'e': snprintf(enablePWD, sizeof(enablePWD), "%s", optarg); break;
+        case 'n': snprintf(serverName, sizeof(serverName), "%s", optarg); break;
         case 'p': sscanf(optarg, "%d", &port); break;
         case 's': sscanf(optarg, "%d", &maxSessions); break;
-        case 'w': strncpy(pwd, optarg, strlen(optarg) + 1); break;
-        case 'd': strncpy(defaultPath, optarg, strlen(optarg) + 1);
+        case 'w': snprintf(pwd, sizeof(pwd), "%s", optarg); break;
+        case 'd': snprintf(defaultPath, sizeof(defaultPath), "%s", optarg); break;
         }
       }
 

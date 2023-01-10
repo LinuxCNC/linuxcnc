@@ -1,0 +1,838 @@
+.\" an-old.tmac
+.\"
+.\" Copyright (C) 1989-2020 Free Software Foundation, Inc.
+.\"      Written by James Clark (jjc@jclark.com)
+.\"
+.\" This file is part of groff.
+.\"
+.\" groff is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation, either version 3 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" groff is distributed in the hope that it will be useful, but WITHOUT
+.\" ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+.\" License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see
+.\" <http://www.gnu.org/licenses/>.
+.
+.
+.\" The file man.local is loaded at the end.  Put local additions there.
+.\" If you need to add things to TH, use '.am1 TH'.
+.
+.if !\n(.g \
+.  ab groff man macros require groff extensions; aborting
+.
+.do if d RI .nx
+.
+.do mso devtag.tmac
+.
+.do nr *groff_an-old_tmac_C \n[.cp]
+.cp 0
+.
+.\" Define a string for use in diagnostic messages.
+.ds an-old an-old.tmac\"
+.
+.if (\n[.x]\n[.y] < 118) \{\
+.  ds an-msg \*[an-old]: groff man macros require groff 1.18 or later,\"
+.  as an-msg " but found groff \n[.x].\n[.y]; aborting\"
+.  ab \*[an-msg]
+.\}
+.
+.de an-warn
+.  tm \*[an-old]:\\n[.F]:\\n[.c]: warning: \\$*
+..
+.
+.de an-style-warn
+.  if \\n[CHECKSTYLE] \
+.    tm \*[an-old]:\\n[.F]:\\n[.c]: style: \\$*
+..
+.
+.nr need_eo_h 0
+.nr need_col2 0
+.
+.nr an-first 1
+.
+.nr an-html 0
+.if '\*[.T]'html' .nr an-html 1
+.
+.\" Define alternate requests to handle continuous rendering.
+.\"
+.\" This .ne replacement avoids page breaks; instead, the page length is
+.\" increased to the necessary amount (this is needed for tables).
+.de an-ne
+.  ie \\n[.$] \
+.    nr an-need (v;\\$*)
+.  el \
+.    nr an-need 1v
+.  if (\\n[an-need] >= \\n[.t]) \
+.    pl +(\\n[an-need]u - \\n[.t]u + 1v)
+..
+.
+.\" This .bp replacement adjusts the page length to the current position
+.\" so that no empty lines are inserted.
+.de an-bp
+.  br
+.  pl \\n[nl]u
+.  an-real-bp \\$*
+..
+.
+.\" We need an end macro for continuous rendering as well, to flush any
+.\" pending output line and write the footer for the final man page
+.\" rendered.
+.de1 an-end
+.  nr % 1
+.  pl +4v
+.  fl
+.  sp 3
+.  an-p-footer
+.  pl \\n[nl]u
+..
+.
+.\" Move macros into place for continuous rendering.
+.de an-set-up-continuous-rendering
+.  rn ne an-real-ne
+.  rn bp an-real-bp
+.  rn an-ne ne
+.  rn an-bp bp
+.  em an-end
+..
+.
+.de an-set-margin
+.  nr an-level 1
+.  nr an-margin \\n[IN]
+.  nr an-saved-margin1 \\n[IN]
+.  nr an-prevailing-indent \\n[IN]
+.  nr an-saved-prevailing-indent1 \\n[IN]
+..
+.
+.ds an-extra1 \" empty
+.ds an-extra2 \" empty
+.ds an-extra3 \" empty
+.
+.\" .TH title section extra1 extra2 extra3
+.de1 TH
+.  if ((\\n[.$] < 2) : (\\n[.$] > 5)) \
+.    an-style-warn .\\$0 expects 2 to 5 arguments, got \\n[.$]
+.  if \\n[an-html] \{\
+.    DEVTAG-TL
+.    nop \\$1
+.    DEVTAG-EO-TL
+.  \}
+.
+.  DT
+.
+.  nr PS    10z \" default point size
+.  nr PS-SS 10z
+.  nr PS-SH 10.95z
+.  nr VS    12p
+.
+.  \" use sizes similar to LaTeX
+.  if t \{\
+.    ie (\\n[S] == 11) \{\
+.      nr PS    10.95z
+.      nr PS-SS 10.95z
+.      nr PS-SH 12z
+.      nr VS    13.6p
+.    \}
+.    el \{\
+.      if (\\n[S] == 12) \{\
+.        nr PS    12z
+.        nr PS-SS 12z
+.        nr PS-SH 14.4z
+.        nr VS    14.5p
+.      \}
+.    \}
+.  \}
+.
+.  ps \\n[PS]u
+.  vs \\n[VS]u
+.
+.  \" Restore parameters that a previous man page might have messed up.
+.  ad \\*[AD]
+.  hy \\n[HY]
+.  ll \\n[LL]u
+.  ss 12
+.
+.  PD
+.  an-set-margin
+.
+.  nr an-tag-sep 1n
+.  nr an-no-space-flag 0
+.  nr an-break-flag 0
+.  nr an-div? 0
+.
+.  ds an-title "\\$1\"
+.  if \\n[CT] .stringup an-title
+.  ds an-section "\\$2\"
+.  ie (\\n[.$] > 4)    .ds an-extra3 "\\$5\"
+.  el \{ .ie '\\$2'1'  .ds an-extra3 General Commands Manual\"
+.  el \{ .ie '\\$2'2'  .ds an-extra3 System Calls Manual\"
+.  el \{ .ie '\\$2'3'  .ds an-extra3 Library Functions Manual\"
+.  el \{ .ie '\\$2'3p' .ds an-extra3 Perl Programmer's Reference Guide\"
+.  el \{ .ie '\\$2'4'  .ds an-extra3 Kernel Interfaces Manual\"
+.  el \{ .ie '\\$2'5'  .ds an-extra3 File Formats Manual\"
+.  el \{ .ie '\\$2'6'  .ds an-extra3 Games Manual\"
+.  el \{ .ie '\\$2'7'  .ds an-extra3 Miscellaneous Information Manual\"
+.  el \{ .ie '\\$2'8'  .ds an-extra3 System Manager's Manual\"
+.  el \{ .ie '\\$2'9'  .ds an-extra3 Kernel Developer's Manual\"
+.  el                  .ds an-extra3 \" empty
+.  \}\}\}\}\}\}\}\}\}\}
+.
+.  ie \\n[cR] \
+.    an-header
+.  el \{\
+.    wh 0 an-header
+.    wh -1i an-footer
+.    wh \\n[FT]u an-p-footer
+.
+.    if \\n[nl] \{\
+.      ie \\n[C] .bp (\\n[%] + 1)
+.      el        .bp 1
+.    \}
+.  \}
+.
+.  ds an-extra1 "\\$3\"
+.  ie (\\n[.$] > 3)    .ds an-extra2 "\\$4\"
+.  el                  .ds an-extra2 \" empty
+..
+.
+.\" BSD compatibility macros: .AT and .UC
+.
+.de1 AT
+.  ds an-extra2 "7th Edition\"
+.  if "\\$1"3" .ds an-extra2 "7th Edition\"
+.  if "\\$1"4" .ds an-extra2 "System III\"
+.  if "\\$1"5" \{\
+.    ie "\\$2"" .ds an-extra2 "System V\"
+.    el .ds an-extra2 "System V Release \\$2\"
+.  \}
+..
+.
+.de1 UC
+.  ds an-extra2 "3rd Berkeley Distribution\"
+.  if "\\$1"3" .ds an-extra2 "3rd Berkeley Distribution\"
+.  if "\\$1"4" .ds an-extra2 "4th Berkeley Distribution\"
+.  if "\\$1"5" .ds an-extra2 "4.2 Berkeley Distribution\"
+.  if "\\$1"6" .ds an-extra2 "4.3 Berkeley Distribution\"
+.  if "\\$1"7" .ds an-extra2 "4.4 Berkeley Distribution\"
+..
+.
+.de1 DT
+.  ta T .5i \" This sets tabs every .5 inches
+..
+.
+.de1 PD
+.  ie \\n[.$] .nr PD (v;\\$1)
+.  el         .nr PD (.4v >? \n[.V])
+..
+.
+.\" Redefine these to customize the header & footer
+.
+.de1 PT
+.  tl '\\*[an-title](\\*[an-section])'\\*[an-extra3]'\
+\\*[an-title](\\*[an-section])'
+..
+.
+.de1 BT
+.  if r ps4html \
+.    return
+.  ie \\n[D] \{\
+.    if o .tl '\\*[an-extra2]'\\*[an-extra1]'\\*[an-page-string]'
+.    if e .tl '\\*[an-page-string]'\\*[an-extra1]'\\*[an-extra2]'
+.  \}
+.  el \
+.    tl '\\*[an-extra2]'\\*[an-extra1]'\\*[an-page-string]'
+..
+.
+.de1 an-header
+.  if \\n[cR] \{\
+.    ie \\n[an-first] \
+.      nr an-first 0
+.    el \
+.      sp .5i
+.  \}
+.  ev an-1
+.  ps \\n[PS]u
+.  vs \\n[VS]u
+.  lt \\n[LT]u
+.  ie \\n[an-html] \
+.    tl ''''
+.  el \{\
+.    if !\\n[cR] \
+.      sp .5i
+.    PT
+.    ie !\\n[cR] \
+.      sp |1i
+.    el \
+.      sp .5i
+.  \}
+.  ev
+.  ns
+..
+.
+.de1 an-footer
+'  bp
+..
+.
+.af an-page-letter a
+.
+.de1 an-p-footer
+.  ev an-1
+.  ps \\n[PS]u
+.  vs \\n[VS]u
+.  lt \\n[LT]u
+.  ie \\n[an-html] \{\
+.    ds an-page-string \" empty
+.    ds an-extra1 \" empty
+.    ds an-extra2 \" empty
+.  \}
+.  el \{\
+.    ie r X \{\
+.      ie (\\n[%] > \\n[X]) \{\
+.        nr an-page-letter (\\n[%] - \\n[X])
+.        ds an-page-string \\n[X]\\n[an-page-letter]\"
+.      \}
+.      el \
+.        ds an-page-string \\n[%]\"
+.    \}
+.    el \{\
+.      ie \\n[cR] \
+.        ds an-page-string "\\*[an-title](\\*[an-section])\"
+.      el \
+.        ds an-page-string \\n[%]\"
+.    \}
+.  \}
+.  BT
+.  ev
+..
+.
+.de1 SH
+.  sp \\n[PD]u
+.  an-set-margin
+.  fi
+.  in \\n[an-margin]u
+.  ti 0
+.  nr need_eo_h 1
+.  DEVTAG-SH 1
+.  itc 1 an-trap
+.  nr an-no-space-flag 1
+.  nr an-break-flag 1
+.  ps \\n[PS-SH]u
+.  ft \\*[HF]
+.  ne (2v + 1u)
+.  if \\n[.$] \{\
+.    ds an-section-heading \\$*\"
+.    if \\n[CS] .stringup an-section-heading
+\&\\*[an-section-heading]
+.  \}
+..
+.
+.de1 SS
+.  sp \\n[PD]u
+.  an-set-margin
+.  fi
+.  in \\n[IN]u
+.  ti \\n[SN]u
+.  nr need_eo_h 1
+.  DEVTAG-SH 2
+.  itc 1 an-trap
+.  nr an-no-space-flag 1
+.  nr an-break-flag 1
+.  ps \\n[PS-SS]u
+.  ft \\*[HF]
+.  ne (2v + 1u)
+.  if \\n[.$] \&\\$*
+..
+.
+.de1 B
+.  itc 1 an-trap
+.  ft B
+.  if \\n[.$] \&\\$*
+..
+.
+.de1 I
+.  itc 1 an-trap
+.  ft I
+.  if \\n[.$] \,\\$*\/
+..
+.
+.de1 SM
+.  itc 1 an-trap
+.  ps -1
+.  if \\n[.$] \&\\$*
+..
+.
+.de1 SB
+.  itc 1 an-trap
+.  ps -1
+.  ft B
+.  if \\n[.$] \&\\$*
+..
+.
+.de1 TP
+.  sp \\n[PD]u
+.  if \\n[.$] .nr an-prevailing-indent (n;\\$1)
+.  itc 1 an-trap
+.  in 0
+.  if !\\n[an-div?] \{\
+.    ll -\\n[an-margin]u
+.    di an-div
+.  \}
+.  nr an-div? 1
+..
+.
+.de1 an-trap
+.  if \\n[need_eo_h]>0 .DEVTAG-EO-H
+.  nr need_eo_h 0
+.  if \\n[need_col2]>0 .DEVTAG-COL 2
+.  nr need_col2 0
+.  ft R
+.  ps \\n[PS]u
+.  vs \\n[VS]u
+.  if \\n[an-break-flag] \{\
+.    br
+.    nr an-break-flag 0
+.  \}
+.  if \\n[an-no-space-flag] \{\
+.    ns
+.    nr an-no-space-flag 0
+.  \}
+.  if \\n[an-div?] .an-do-tag
+..
+.
+.de an-do-tag
+.  br
+.  di
+.  nr an-div? 0
+.  ll
+.  \" We must emit the diversion in a separate environment to assure
+.  \" that a possible margin character is printed correctly.
+.  ev an-2
+.  evc 0
+.  mc
+.  nf
+.  in \\n[an-margin]u
+.  ie (\\n[dl] + \\n[an-tag-sep] > \\n[an-prevailing-indent]) \{\
+.    ne (2v + 1u)
+.    an-div
+.    ev
+.    in (\\n[an-margin]u + \\n[an-prevailing-indent]u)
+.  \}
+.  el \{\
+.    \" In nroff mode, the indentation value should be an integer
+.    \" multiple of the character cell, to avoid different results
+.    \" compared to the .ie part above.
+.    ne (1v + 1u)
+.    DEVTAG-COL 1
+.    an-div
+.    sp -1
+.    ev
+.    in (\\n[an-margin]u + \\n[an-prevailing-indent]u)
+.    DEVTAG-COL-NEXT 2
+.  \}
+..
+.
+.de1 LP
+.  sp \\n[PD]u
+.  ps \\n[PS]u
+.  vs \\n[VS]u
+.  ft R
+.  in \\n[an-margin]u
+.  nr an-prevailing-indent \\n[IN]
+.  ns
+..
+.
+.als PP LP
+.als P LP
+.
+.de1 IP
+.  ie !\\n[.$] \{\
+.    ps \\n[PS]u
+.    vs \\n[VS]u
+.    ft R
+.    sp \\n[PD]u
+.    ne (1v + 1u)
+.    in (\\n[an-margin]u + \\n[an-prevailing-indent]u)
+.    ns
+.  \}
+.  el \{\
+.    ie (\\n[.$] - 1) .TP "\\$2"
+.    el               .TP
+\&\\$1
+.  \}
+..
+.
+.de1 HP
+.  ps \\n[PS]u
+.  vs \\n[VS]u
+.  ft R
+.  sp \\n[PD]u
+.  ne (1v + 1u)
+.  if \\n[.$] .nr an-prevailing-indent (n;\\$1)
+.  in (\\n[an-margin]u + \\n[an-prevailing-indent]u)
+.  ti \\n[an-margin]u
+.  DEVTAG-COL 1
+.  nr need_col2 1
+.  ns
+..
+.
+.de1 RI
+.  if (\\n[.$] < 2) \
+.    an-style-warn .\\$0 expects at least 2 arguments, got \\n[.$]
+.  if \\n[.$] \{\
+.    ds an-result \&\f[R]\\$1\"
+.    shift
+.    while (\\n[.$] >= 2) \{\
+.      as an-result \,\f[I]\\$1\f[R]\/\\$2\"
+.      shift 2
+.    \}
+.    if \\n[.$] .as an-result \,\f[I]\\$1\"
+\\*[an-result]
+.    ft R
+.  \}
+..
+.
+.de1 IR
+.  if (\\n[.$] < 2) \
+.    an-style-warn .\\$0 expects at least 2 arguments, got \\n[.$]
+.  if \\n[.$] \{\
+.    ds an-result \&\f[I]\,\\$1\f[R]\"
+.    shift
+.    while (\\n[.$] >= 2) \{\
+.      as an-result \/\\$1\f[I]\,\\$2\f[R]\"
+.      shift 2
+.    \}
+.    if \\n[.$] .as an-result \/\\$1\"
+\\*[an-result]
+.    ft R
+.  \}
+..
+.
+.de1 IB
+.  if (\\n[.$] < 2) \
+.    an-style-warn .\\$0 expects at least 2 arguments, got \\n[.$]
+.  if \\n[.$] \{\
+.    ds an-result \&\f[I]\,\\$1\"
+.    shift
+.    while (\\n[.$] >= 2) \{\
+.      as an-result \/\f[B]\\$1\f[I]\,\\$2\"
+.      shift 2
+.    \}
+.    if \\n[.$] .as an-result \/\f[B]\\$1\"
+\\*[an-result]
+.    ft R
+.  \}
+..
+.
+.de1 BI
+.  if (\\n[.$] < 2) \
+.    an-style-warn .\\$0 expects at least 2 arguments, got \\n[.$]
+.  if \\n[.$] \{\
+.    ds an-result \&\f[B]\\$1\"
+.    shift
+.    while (\\n[.$] >= 2) \{\
+.      as an-result \,\f[I]\\$1\f[B]\/\\$2\"
+.      shift 2
+.    \}
+.    if \\n[.$] .as an-result \,\f[I]\\$1\"
+\\*[an-result]
+.    ft R
+.  \}
+..
+.
+.de1 RB
+.  if (\\n[.$] < 2) \
+.    an-style-warn .\\$0 expects at least 2 arguments, got \\n[.$]
+.  ds an-result \&\"
+.  while (\\n[.$] >= 2) \{\
+.    as an-result \f[R]\\$1\f[B]\\$2\"
+.    shift 2
+.  \}
+.  if \\n[.$] .as an-result \f[R]\\$1\"
+\\*[an-result]
+.  ft R
+..
+.
+.de1 BR
+.  if (\\n[.$] < 2) \
+.    an-style-warn .\\$0 expects at least 2 arguments, got \\n[.$]
+.  ds an-result \&\"
+.  while (\\n[.$] >= 2) \{\
+.    as an-result \f[B]\\$1\f[R]\\$2\"
+.    shift 2
+.  \}
+.  if \\n[.$] .as an-result \f[B]\\$1\"
+\\*[an-result]
+.  ft R
+..
+.
+.de1 RS
+.  nr an-saved-margin\\n[an-level] \\n[an-margin]
+.  nr an-saved-prevailing-indent\\n[an-level] \\n[an-prevailing-indent]
+.  ie \\n[.$] .nr an-margin +(n;\\$1)
+.  el         .nr an-margin +\\n[an-prevailing-indent]
+.  in \\n[an-margin]u
+.  nr an-prevailing-indent \\n[IN]
+.  nr an-level +1
+..
+.
+.de1 RE
+.  ie \\n[.$] .nr an-RE-requested-level \\$1
+.  el         .nr an-RE-requested-level (\\n[an-level] - 1)
+.  ie \\n[.$] \{\
+.    if (\\n[an-RE-requested-level] = \\n[an-level]) \
+.      ds an-RE-problem redundant; already at level \\n[an-level]\"
+.    if (\\n[an-RE-requested-level] > \\n[an-level]) \
+.      ds an-RE-problem too large\"
+.    if (\\n[an-RE-requested-level] < 1) \
+.      ds an-RE-problem too small\"
+.    if d an-RE-problem \
+.      an-style-warn argument """\\$1""" to .\\$0 \\*[an-RE-problem]
+.    rm an-RE-problem
+.  \}
+.  el .if !(\\n[an-RE-requested-level]) .an-style-warn unbalanced .\\$0
+.  rr an-RE-requested-level
+.  ie \\n[.$] .nr an-level ((;\\$1) <? \\n[an-level])
+.  el         .nr an-level -1
+.  nr an-level (1 >? \\n[an-level])
+.  nr an-margin \\n[an-saved-margin\\n[an-level]]
+.  nr an-prevailing-indent \\n[an-saved-prevailing-indent\\n[an-level]]
+.  in \\n[an-margin]u
+..
+.
+.\" table support
+.
+.de1 TS
+.  \" If continuous rendering, tell tbl not to use keeps.
+.  ie \\n[cR] \
+.    nr 3usekeeps 0
+.  el \
+.    nr 3usekeeps 1
+.  sp \\n[PD]u
+.  if \\n[an-html] \{\
+.    nr an-TS-ll \\n[.l]
+.    ll 1000n
+.  \}
+.  HTML-IMAGE
+..
+.
+.de1 T&
+..
+.
+.de1 TE
+.  HTML-IMAGE-END
+.  if \\n[an-html] \
+.    ll \\n[an-TS-ll]u
+..
+.
+.\" dummy equation delimiters
+.de1 EQ
+.  if \\n[an-html] \{\
+.    nr an-EQ-ll \\n[.l]
+.    ll 1000n
+.  \}
+.  HTML-IMAGE
+..
+.de1 EN
+.  HTML-IMAGE-END
+.  if \\n[an-html] \
+.    ll \\n[an-EQ-ll]u
+..
+.
+.de1 R
+\c
+.  ie \\n[.$] \{\
+.    ds an-msg 'R' is a string (producing the registered sign),\"
+.    as an-msg " not a macro\"
+.    an-warn \\*[an-msg]
+.    rm an-msg
+.    nop \\$*
+.  \}
+.  el \{\
+.    ie c\[rg] \
+.      nop \[rg]\c
+.    el \
+.      nop (Reg.)\c
+.  \}
+..
+.
+.\" These strings must work in compatibility mode also.
+.
+.ds S \s'\\n(PSu'\"
+.ie c\[tm] .ds Tm \(tm\"
+.el        .ds Tm (TM)\"
+.ie c\[lq] .ds lq \(lq\"
+.el        .ds lq ""\"
+.ie c\[rq] .ds rq \(rq\"
+.el        .ds rq ""\"
+.
+.\" For UTF-8, map the hyphen-minus to itself to facilitate copy and
+.\" paste of code examples, file names, and URLs embedding it.
+.
+.if '\*[.T]'utf8' \{\
+.  char \- \N'45'
+.  char  - \N'45'
+.\}
+.
+.\" Load man macro extensions.
+.mso an-ext.tmac
+.
+.\" Load local modifications.
+.mso man.local
+.
+.\" Set each rendering parameter only if its -[dr] option or man.local
+.\" did not.
+.
+.\" continous rendering (one long page)
+.if !r cR \{\
+.  ie n \
+.    nr cR 1
+.  el \
+.    nr cR 0
+.\}
+.
+.\" continuous page numbering over multiple documents
+.\"
+.\" We must use consecutive page numbers when using PostScript to
+.\" generate HTML images; we must not reset the page number at the
+.\" beginning of each document (the 'ps4html' register is automatically
+.\" added to the command line by the pre-HTML preprocessor).
+.\"
+.\" \n[C] may get set to 1 redundantly in the below; we could replace
+.\" that with a complex conditional, but it doesn't seem to be worth the
+.\" trouble given AT&T-compatible restrictions on '!' placement.
+.ie !r C \
+.  nr C 0
+.el \
+.  if !\n[C] \
+.    if \n[an-html] \{\
+.       tm \*[an-old]: ignoring continuous page numbering in HTML output
+.       nr C 1
+.    \}
+.if \n[an-html] \
+.  nr C 1
+.if r ps4html \
+.  nr C 1
+.
+.\" emit diagnostics for man page style problems
+.if !r CHECKSTYLE \
+.  nr CHECKSTYLE 0
+.
+.\" full capitalization of section headings
+.if !r CS \
+.  nr CS 0
+.
+.\" full capitalization of page title
+.if !r CT \
+.  nr CT 0
+.
+.\" double-sided layout
+.ie !r D \
+.  nr D 0
+.el \
+.  if \n[D] \
+.    if \n[an-html] \{\
+.       tm \*[an-old]: ignoring double-sided layout in HTML output
+.       nr D 0
+.    \}
+.
+.\" footer distance
+.if !r FT \
+.  nr FT (-.5i)
+.
+.\" hyphenation mode
+.if !r HY \{\
+.  \" No page breaks occur in continuous rendering.
+.  ie \n[cR] \
+.    nr HY 4
+.  el \
+.    nr HY 6
+.\}
+.
+.\" standard indentation
+.if !r IN \{\
+.  \" We must select an integer indentation value for nroff; see comment
+.  \" in an-do-tag.
+.  ie t \
+.    nr IN 7.2n
+.  el \
+.    nr IN 7n
+.\}
+.
+.\" line length
+.if !r LL \{\
+.  \" If in troff mode, respect device default.
+.  ie t \
+.    nr LL \n[.l]
+.  \" Otherwise, override nroff mode default of 65n.
+.  el \
+.    nr LL 78n
+.\}
+.
+.\" title (header, footer) length
+.if !r LT \
+.  nr LT \n[LL]u
+.
+.\" starting page number
+.\"
+.\" Unlike most of these parameters, we do not set a default for P;
+.\" groff supplies a default starting page number (1).  Also, when
+.\" rendering for the HTML output device, page numbers are concealed and
+.\" used for internal purposes like image embedding.
+.\"
+.if r P \
+.  if \n[an-html] \
+.    if !(\n[P] = 1) \{\
+.       tm \*[an-old]: ignoring starting page number in HTML output
+.       rr P
+.    \}
+.
+.if !r ps4html \
+.  if r P \
+.    pn 0\n[P]
+.
+.\" point size
+.if !r S \{\
+.  nr S 10
+.  if '\*[.T]'X75-12' \
+.    nr S 12
+.  if '\*[.T]'X100-12' \
+.    nr S 12
+.\}
+.
+.\" subsection indentation
+.if !r SN \
+.  nr SN 3n
+.
+.\" page number after which to apply letter suffixes
+.\"
+.\" Unlike most of these parameters, we do not set a default for X; only
+.\" the macro an-p-footer uses it.
+.if r X \
+.  if \n[an-html] \{\
+.     tm \*[an-old]: ignoring page letter suffixing in HTML output
+.     rr X
+.  \}
+.
+.\" adjustment mode
+.if !d AD \
+.  ds AD b\"
+.
+.\" (sub)section heading font
+.if !d HF \
+.  ds HF B\"
+.
+.if \n[cR] \
+.  an-set-up-continuous-rendering
+.
+.cp \n[*groff_an-old_tmac_C]
+.
+.\" Local Variables:
+.\" mode: nroff
+.\" fill-column: 72
+.\" End:
+.\" vim: set filetype=groff textwidth=72:

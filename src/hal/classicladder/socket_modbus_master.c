@@ -4,7 +4,7 @@
 /* http://www.sourceforge.net/projects/classicladder */
 /* August 2005 */
 /* ------------------------------------------- */
-/* Socket for modbus master (Distributed I/O)  */
+/* Socket for Modbus master (Distributed I/O)  */
 /* + making call to low-level serial functions */
 /* if this is the mode used                    */
 /* ------------------------------------------- */
@@ -108,7 +108,7 @@ void InitSocketModbusMaster( )
 	if (Error)
 #endif
 	{
-		printf(_("ERROR CLASSICLADDER-   Failed to create thread I/O modbus master...\n"));
+		printf(_("ERROR CLASSICLADDER-   Failed to create thread I/O Modbus master...\n"));
 		CloseSocketModbusMaster( );
 	}
 	else
@@ -118,10 +118,10 @@ void InitSocketModbusMaster( )
 		{
 			if ( !SerialOpen( ModbusSerialPortNameUsed, ModbusSerialSpeed ) )
 				Error = -1;
-                        printf(_("INFO CLASSICLADDER---I/O modbus master Data bits %i Stop bits %i Parity %i\n"),ModbusSerialDataBits,ModbusSerialStopBits,ModbusSerialParity);
+                        printf(_("INFO CLASSICLADDER---I/O Modbus master Data bits %i Stop bits %i Parity %i\n"),ModbusSerialDataBits,ModbusSerialStopBits,ModbusSerialParity);
 		}
 		if ( Error!=-1 )
-		printf(_("INFO CLASSICLADDER---I/O modbus master (%s) init ok !\n"), ModbusSerialPortNameUsed[ 0 ]!='\0'?_("Serial"):_("Ethernet"));
+		printf(_("INFO CLASSICLADDER---I/O Modbus master (%s) init ok !\n"), ModbusSerialPortNameUsed[ 0 ]!='\0'?_("Serial"):_("Ethernet"));
 	}
 }
 
@@ -173,7 +173,7 @@ char VerifyTcpConnection( char * SlaveAdr )
 			}
 			else
 			{
-				int NumPort = 502; // default modbus port
+				int NumPort = 502; // default Modbus port
 				char * PosiSep;
 				memset(&io_module_addr, 0, sizeof(io_module_addr));     /* Zero out structure */
 				io_module_addr.sin_family = AF_INET;             /* Internet address family */
@@ -217,7 +217,7 @@ char VerifyTcpConnection( char * SlaveAdr )
 					}
 					else
 					{
-						printf(_("Not able to retrieve IP address in modbus table, huhh?!!!\n"));
+						printf(_("Not able to retrieve IP address in Modbus table, huhh?!!!\n"));
 					}
 				}
 				else
@@ -246,7 +246,7 @@ int SendSocketModbusMaster( char * SlaveAdr, int NumPort, char * Frame, int LgtF
 	{
 		if( ModbusDebugLevel>=2 )
 			printf(_("INFO CLASSICLADDER-   Sending frame to I/O module...\n"));
-		/* Send the modbus frame */
+		/* Send the Modbus frame */
 		LgtSend = send(client_s, Frame, LgtFrame, 0);
 		if ( LgtSend==LgtFrame )
 			Status = 0;
@@ -304,7 +304,7 @@ void CloseSocketModbusMaster( void )
 	}
 	if ( ModbusSerialPortNameUsed[ 0 ]!='\0' )
 		SerialClose( );
-	printf(_("INFO CLASSICLADDER---I/O modbus master closed!\n"));
+	printf(_("INFO CLASSICLADDER---I/O Modbus master closed!\n"));
 }
 
 void SocketModbusMasterLoop( void )

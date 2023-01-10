@@ -15,7 +15,8 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import os
-import Tkinter
+import sys
+import tkinter
 
 __all__ = 'makecommand makevar makebool makewidget start'.split()
 
@@ -26,15 +27,15 @@ def newinstance(klass):
     value.__class__ = klass
     return value
 
-# Tkinter.py rev 65400 introduces a change which makes Menu.delete blow
+# tkinter.py rev 65400 introduces a change which makes Menu.delete blow
 # chunks.  Until this is resolved, monkeypatch it
 def delete(self, index1, index2=None):
     self.tk.call(self._w, 'delete', index1, index2)
-Tkinter.Menu.delete = delete
+tkinter.Menu.delete = delete
 
 class TclCommands:
     def __init__(self, master):
-        for k, v in self.__class__.__dict__.items():
+        for k, v in list(self.__class__.__dict__.items()):
             if k.startswith("__") and k.endswith("__"): continue
             makecommand(master, v.__name__, v)
             setattr(self, k, v)
@@ -50,7 +51,7 @@ class Widgets:
             setattr(self, name, makewidget(master, klass, path))
 
 def makecommand(master, name, func, subst=None, needcleanup=0):
-    f = Tkinter.CallWrapper(func, subst, master).__call__
+    f = tkinter.CallWrapper(func, subst, master).__call__
     master.tk.createcommand(name, f)
     if needcleanup:
         if master._tclCommands is None:
@@ -70,13 +71,13 @@ def makevar(master, name, klass, *default):
     return self
 
 def makebool(master, name, *default):
-    return makevar(master, name, Tkinter.BooleanVar, *default)
+    return makevar(master, name, tkinter.BooleanVar, *default)
 def makeint(master, name, *default):
-    return makevar(master, name, Tkinter.IntVar, *default)
+    return makevar(master, name, tkinter.IntVar, *default)
 def makefloat(master, name, *default):
-    return makevar(master, name, Tkinter.DoubleVar, *default)
+    return makevar(master, name, tkinter.DoubleVar, *default)
 def makestring(master, name, *default):
-    return makevar(master, name, Tkinter.StringVar, *default)
+    return makevar(master, name, tkinter.StringVar, *default)
 
 def makewidget(master, klass, path):
     path = str(path)
@@ -100,7 +101,7 @@ def makewidget(master, klass, path):
 def find_prefix(f):
     s = os.path.join(f, "share")
     if os.path.exists(s): return f
-    if f == "/" or f == '': raise RuntimeError, "Share directory not found"
+    if f == "/" or f == '': raise RuntimeError("Share directory not found")
     return find_prefix(os.path.dirname(f))
 
 PREFIX = "@prefix@"

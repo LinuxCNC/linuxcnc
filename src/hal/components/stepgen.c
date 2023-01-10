@@ -64,7 +64,7 @@
     No step type uses all five, and only those which will be used are
     exported to HAL.  The values of these parameters are in nano-seconds,
     so no recalculation is needed when changing thread periods.  In
-    the timing diagrams that follow, they are identfied by the
+    the timing diagrams that follow, they are identified by the
     following numbers:
 
     (1): 'stepgen.n.steplen' = length of the step pulse
@@ -752,7 +752,7 @@ static void update_pos(void *arg, long period)
     /* done */
 }
 
-/* helper function - computes integeral multiple of increment that is greater
+/* helper function - computes integral multiple of increment that is greater
    or equal to value */
 static unsigned long ulceil(unsigned long value, unsigned long increment)
 {
@@ -1203,7 +1203,7 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
 static int setup_user_step_type(void) {
     int used_phases = 0;
     int i = 0;
-    for(i=0; i<10 && user_step_type[i] != -1; i++) {
+    for(i=0; i < MAX_CYCLE && user_step_type[i] != -1; i++) {
         master_lut[USER_STEP_TYPE][i] = user_step_type[i];
 	used_phases |= user_step_type[i];
     }

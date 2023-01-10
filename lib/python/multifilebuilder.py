@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import gtk
+from gi.repository import Gtk
 
 __all__ = ['MultiFileBuilder']
 
@@ -30,14 +30,14 @@ class MultiFileBuilder:
         for b in self.builders: b.connect_signals(obj)
 
     def add_from_file(self, fn):
-        builder = gtk.Builder()
+        builder = Gtk.Builder()
         if self.domain is not None: builder.set_translation_domain(self.domain)
 
         self.builders.append(builder)
         builder.add_from_file(fn)
 
     def add_from_string(self, strg):
-        builder = gtk.Builder()
+        builder = Gtk.Builder()
         if self.domain is not None: builder.set_translation_domain(self.domain)
 
         self.builders.append(builder)
@@ -47,7 +47,7 @@ class MultiFileBuilder:
         objects = [builder.get_object(obj) for builder in self.builders]
         objects = [o for o in objects if o]
         if not objects: return None
-        if len(objects) > 1: raise ValueError, """Use of object with duplicate ID -> '%s'"""% obj
+        if len(objects) > 1: raise ValueError("""Use of object with duplicate ID -> '%s'"""% obj)
         return objects[0]
 
 

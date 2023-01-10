@@ -60,6 +60,8 @@ struct rtapi_task {
   long period;
   struct timespec nextstart;
   unsigned ratio;
+  long pll_correction;
+  long pll_correction_limit;
   void *arg;
   void (*taskcode) (void*);	/* pointer to task function */
 };
@@ -69,10 +71,12 @@ struct RtapiApp
 
     RtapiApp(int policy = SCHED_OTHER) : policy(policy), period(0) {}
 
-    int prio_highest();
-    int prio_lowest();
-    int prio_next_higher(int prio);
-    int prio_next_lower(int prio);
+    virtual int prio_highest() const;
+    virtual int prio_lowest() const;
+    int prio_higher_delta() const;
+    int prio_bound(int prio) const;
+    int prio_next_higher(int prio) const;
+    int prio_next_lower(int prio) const;
     long clock_set_period(long int period_nsec);
     int task_new(void (*taskcode)(void*), void *arg,
             int prio, int owner, unsigned long int stacksize, int uses_fp);
@@ -85,6 +89,8 @@ struct RtapiApp
     virtual int task_pause(int task_id) = 0;
     virtual int task_resume(int task_id) = 0;
     virtual int task_self() = 0;
+    virtual long long task_pll_get_reference(void) = 0;
+    virtual int task_pll_set_correction(long value) = 0;
     virtual void wait() = 0;
     virtual unsigned char do_inb(unsigned int port) = 0;
     virtual void do_outb(unsigned char value, unsigned int port) = 0;

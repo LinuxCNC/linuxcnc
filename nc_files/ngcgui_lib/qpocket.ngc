@@ -27,7 +27,7 @@
 ;   1234 == CCW           2 == CW  == Conventional  point1 --> point4
 ;   1234 == CCW           3 == CCW == Climb         point1 --> point2
 
-; To accomodate the widest range of tool diameters, order the point sequence
+; To accommodate the widest range of tool diameters, order the point sequence
 ; (1234) so that the entry move is not directed towards an acute angle.
 
 ; Scaling, rotations, and offsets are supported.
@@ -253,7 +253,7 @@ o<line>  call [#<x4i>][#<y4i>][#<x1i>][#<y1i>]
          #<cos41> = #<_line:cos>
          #<sin41> = #<_line:sin>
 
-         ;compute angles at line interesctions:
+         ;compute angles at line intersections:
 o<dot>   call [#<x1i>][#<y1i>][#<x2i>][#<y2i>][#<x3i>][#<y3i>]
          #<ang123> = #<_dot:ang>
 o<dot>   call [#<x2i>][#<y2i>][#<x3i>][#<y3i>][#<x4i>][#<y4i>]
