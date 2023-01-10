@@ -1620,15 +1620,16 @@ Discovery option requires the advanced options checked on this page."""%self._p.
         self._p.MESA_BOARDNAMES.append(boardname)
         # add discovery address to entry
         self.widgets["mesa%s_card_addrs"%bdnum].set_text(self.widgets.discovery_address_entry.get_text())
+
         # add firmname to combo box if it's not there
-        model = self.widgets["mesa%s_firmware"%bdnum].get_model()
+        combo = self.widgets["mesa%s_firmware"%bdnum]
         flag = True
-        for search,item in enumerate(model):
+        for search,item in enumerate(combo):
             if model[search][0]  == firmname:
                 flag = False
                 break
         if flag:
-            model.append((firmname,))
+            combo.append_text(firmname)
             search = 0
             model = self.widgets["mesa%s_firmware"%bdnum].get_model()
             for search,item in enumerate(model):
@@ -2985,7 +2986,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                                         _PD.SS7I77M0,_PD.SS7I77M1,_PD.SS7I77M3,_PD.SS7I77M4):
                         CONTROL = True
 
-                    # if too many changnels, don't error, just can't configure
+                    # if too many channels, don't error, just can't configure
                     if channelnum > _PD._NUM_CHANNELS:
                         self.widgets[p].hide()
                         self.widgets[pinv].hide()
@@ -3052,7 +3053,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                                     self.widgets[p].set_sensitive(0)
                                 self.d[ptype] = firmptype
                             else:
-                                print('found a sserial channel')
+                                print('found a sserial port# {} channel# {}'.format(compnum, channelnum))
                                 ssdevice = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._SSDEVICES]
                                 for port,channel,device in (ssdevice):
                                     print(port,channel,device,channelnum)
@@ -3064,9 +3065,20 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                                         elif '7I73' in device:
                                             if not '7i73' in self.d[p]:
                                                 self.d[p] = _PD.I7I73_M1_T
+
                         else:
                             self.widgets[complabel].set_text("")
                             self.widgets[p].set_sensitive(0)
+
+                        # TODO more then one port
+                        # can't configure ports above 0 so make it un sensitive to input
+                        # compnum is the port number from firmware
+                        if compnum > 0:
+                            print(p)
+                            self.widgets[ptype].set_sensitive(0)
+                            self.widgets[p].set_sensitive(0)
+                            return
+
                     else:
                         firmptype = _PD.GPIOI
                         compnum = 0
@@ -4956,7 +4968,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             #print("board # %d sserial keeplist"%(boardnum),keeplist)
             # ok clear the sserial pins unless they are in the keeplist
             port = 0# TODO hard code at only 1 sserial port
-            for channel in range(0,_PD._NUM_CHANNELS): #TODO hardcoded at 5 sserial channels instead of 8
+            for channel in range(0,_PD._NUM_CHANNELS):
                 if channel in keeplist: continue
                 # This initializes pins
                 for i in range(0,self._p._SSCOMBOLEN):
