@@ -272,15 +272,25 @@ parameters, and functions for `prefix`.
   Its return type is 'void'; it may call 'exit()' if it wishes to terminate rather than create a HAL component
   (e.g., because the commandline arguments were invalid).
 
-* 'option extra_link_args "..."' - (default: "") +
-  This option is ignored if the option 'userspace' (see above) is set to 'no'.
-  When linking a userspace component, the arguments given are inserted in the link line.
-  Note that because compilation takes place in a temporary directory,
-  "-L." refers to the temporary directory and not the directory where the .comp source file resides.
+* 'option extra_link_args "..."' - (default: "")
+   This option is ignored if the option 'userspace' (see above) is set to
+   'no'.  When linking a userspace component, the arguments given are inserted
+   in the link line.  Note that because compilation takes place in a temporary
+   directory, "-L." refers to the temporary directory and not the directory where
+   the .comp source file resides.
+   This option can be set in the halcompile command-line with
+   --extra-link-args="-L.....". This alternative provides a way to set
+   extra flags in cases where the input file is a .c rather than a
+   .comp.
 
-* 'option extra_compile_args "..."' - (default: "") +
-  This option is ignored if the option 'userspace' (see above) is set to 'no'.
-  When compiling a userspace component, the arguments given are inserted in the compiler command line.
+* 'option extra_compile_args "..."' - (default: "")
+   This option is ignored if the option 'userspace' (see above) is set to
+   'no'.  When compiling a userspace component, the arguments given are inserted
+   in the compiler command line.
+   If the input file is a .c file this option can be set in the halcompile
+   command-line with --extra-compile-args="-I.....". This alternative
+   provides a way to set extra flags in cases where the input file is a
+   .c rather than a .comp.
 
 * 'option homemod yes' - (default: no) +
   Module is a custom Homing module loaded using [EMCMOT]HOMEMOD=modulename
@@ -488,7 +498,18 @@ halcompile --compile usrexample.comp
 halcompile --document usrexample.comp
 ----
 
-This only works for '.comp' files, not for '.c' files.
+For some libraries (for example modbus) it might be necessary to add extra
+compiler and linker arguments to enable the compiler to find and link the
+libraries. In the case of .comp files this can be done via "option"
+statements in the .comp file. For .c files this is not possible so the
+--extra-compile-args and --extra-link-args parameters can be used instead.
+As an example, this command line can be used to compile the vfdb_vfd.c
+component out-of-tree.
+----
+halcompile --userspace --install --extra-compile-args="-I/usr/include/modbus" --extra-link-args="-lm -lmodbus -llinuxcncini" vfdb_vfd.c
+----
+NOTE: The effect of using both command-line and in-file extra-args is
+undefined.
 
 == Examples
 
