@@ -61,6 +61,10 @@ namespace pp = pyplusplus::containers::static_sized;
 #define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
 
+static  spindle_speed_array spindle_speed_wrapper (Interp & inst) {
+    return spindle_speed_array(inst._setup.speed);
+}
+
 static  active_g_codes_array active_g_codes_wrapper ( Interp & inst) {
     return active_g_codes_array(inst._setup.active_g_codes);
 }
@@ -378,6 +382,14 @@ static inline double get_CC_origin_offset (Interp &interp)  {
 static inline void set_CC_origin_offset(Interp &interp, double value)  {
     interp._setup.CC_origin_offset = value;
 }
+
+static inline int get_active_spindle (Interp const & interp)  {
+    return interp._setup.active_spindle;
+}
+static inline void set_active_spindle(Interp & interp, int value)  {
+    interp._setup.active_spindle = value;
+}
+
 static inline double get_axis_offset_x (Interp &interp)  {
     return interp._setup.axis_offset_x;
 }
@@ -521,12 +533,6 @@ static inline double get_rotation_xy (Interp &interp)  {
 }
 static inline void set_rotation_xy(Interp &interp, double value)  {
     interp._setup.rotation_xy = value;
-}
-static inline double get_speed (Interp &interp, int spindle)  {
-    return interp._setup.speed[spindle];
-}
-static inline void set_speed(Interp &interp, int spindle, double value)  {
-    interp._setup.speed[spindle] = value;
 }
 static inline double get_traverse_rate (Interp &interp)  {
     return interp._setup.traverse_rate;
@@ -926,6 +932,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("CC_axis_offset", &get_CC_axis_offset, &set_CC_axis_offset)
 	.add_property("CC_current", &get_CC_current, &set_CC_current)
 	.add_property("CC_origin_offset", &get_CC_origin_offset, &set_CC_origin_offset)
+        .add_property("active_spindle", &get_active_spindle, &set_active_spindle)
 	.add_property("axis_offset_x", &get_axis_offset_x, &set_axis_offset_x)
 	.add_property("axis_offset_y", &get_axis_offset_y, &set_axis_offset_y)
 	.add_property("axis_offset_z", &get_axis_offset_z, &set_axis_offset_z)
@@ -950,7 +957,6 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("program_z", &get_program_z, &set_program_z)
 	.add_property("return_value", &get_return_value, &set_return_value)
 	.add_property("rotation_xy", &get_rotation_xy, &set_rotation_xy)
-	.add_property("speed", &get_speed, &set_speed)
 	.add_property("traverse_rate", &get_traverse_rate, &set_traverse_rate)
 	.add_property("u_axis_offset", &get_u_axis_offset, &set_u_axis_offset)
 	.add_property("u_origin_offset", &get_u_origin_offset, &set_u_origin_offset)
@@ -1008,6 +1014,14 @@ BOOST_PYTHON_MODULE(interpreter) {
 
 
 	// _setup arrays
+        .add_property(
+            "speed",
+            bp::make_function(
+                spindle_speed_w(&spindle_speed_wrapper),
+                bp::with_custodian_and_ward_postcall<0, 1>()
+            )
+        )
+
 	.add_property( "active_g_codes",
 		       bp::make_function( active_g_codes_w(&active_g_codes_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
