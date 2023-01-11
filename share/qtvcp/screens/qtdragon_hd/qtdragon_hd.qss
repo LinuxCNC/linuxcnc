@@ -1,14 +1,15 @@
 QMainWindow {
-/*    background: url(images/brushed_metal.png);*/
     background: #404040;
 }
 
 QStatusBar {
-    background-color: red;
+    background: #606060;
     font: 10pt "Lato Heavy";
-    color: black;
+    color: #FFFFD0;
 }
 
+/** Pushbuttons **/
+QToolButton,
 QPushButton,
 ActionButton,
 SystemToolButton,
@@ -41,9 +42,7 @@ AxisToolButton:hover {
 }
 
 QPushButton:disabled,
-ActionButton:disabled,
-AxisToolButton:disabled,
-SystemToolButton:disabled {
+ActionButton:disabled {
     color: gray;
 }
 
@@ -114,12 +113,8 @@ CalculatorDialog QLineEdit {
 }
 
 QLineEdit#mdiline{
-    background:  white;
+    background: rgb(250, 250, 250);
     color: black;
-}
-QLineEdit#lineEdit_statusbar{
-    background:  #404040;
-    color:  #00FF00;
 }
 
 QTextEdit {
@@ -414,11 +409,13 @@ QSpinBox::up-arrow {
     width: 20px;
     height: 20px;
 }
+
 /** Tab Widget **/
 QTabWidget::pane {
   border: 1px solid gray;
-  top:-1px; 
-      background: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #606060, stop:1 #202020);
+  top:-1px;
+background-color: #505050;
+     
 }
 
 /* Style the tab using the tab sub-control. Note that

@@ -45,7 +45,7 @@ def involute(self, **words):
         self.set_errormsg("feedrate > 0 required")
         return INTERP_ERROR
 
-    if equal(self.speed,0.0):
+    if equal(self.speed[0], 0.0):
         self.set_errormsg("spindle speed > 0 required")
         return INTERP_ERROR
 
