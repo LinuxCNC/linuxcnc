@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Emc2-axis cvs-head to 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-07 07:16+0100\n"
+"POT-Creation-Date: 2023-01-12 08:55+0100\n"
 "PO-Revision-Date: 2022-08-15 16:24+0000\n"
 "Last-Translator: Bruno Lualdi <blibr68@gmail.com>\n"
 "Language-Team: Portuguese/Brazil <none>\n"
@@ -152,35 +152,35 @@ msgstr ""
 #: src/emc/rs274ngc/interp_check.cc:269
 #, fuzzy
 msgid ""
-"$ (spindle selection) word with no G41, G41.1, G42, G42.1, G76 G95 or G96 to "
-"use it"
+"$ (spindle selection) word with no M3, M4, M5, M19, M51, G33, G33.1, G76, "
+"G95, G96 or G97 to use it"
 msgstr "Parâmetro D sem G41, G41.1, G42, G42.2 ou G96 para usá-lo"
 
-#: src/emc/rs274ngc/interp_check.cc:277
+#: src/emc/rs274ngc/interp_check.cc:276
 #, fuzzy
-msgid "E word with no G76, M3, M4, M5, M19, M51, M66, M67 or M68 to use it"
+msgid "E word with no G70, G76, M66, M67 or M68 to use it"
 msgstr "Parâmetro E sem G76, M66, M67 ou M68 para usá-lo"
 
-#: src/emc/rs274ngc/interp_check.cc:282
+#: src/emc/rs274ngc/interp_check.cc:281
 msgid "H word with no G43 or G76 to use it"
 msgstr "Parâmetro H sem G43 ou G76 para usá-lo"
 
-#: src/emc/rs274ngc/interp_check.cc:290
+#: src/emc/rs274ngc/interp_check.cc:289
 #, fuzzy
 msgid "I word with no G2, G3, G5, G5.1, G10, G33.1, G76, or G87 to use it"
 msgstr "Parâmetro J sem G2, G3, G5, G5.1, G10, G76 ou G87 para usá-lo"
 
-#: src/emc/rs274ngc/interp_check.cc:296
+#: src/emc/rs274ngc/interp_check.cc:295
 msgid "J word with no G2, G3, G5, G5.1, G10, G76 or G87 to use it"
 msgstr "Parâmetro J sem G2, G3, G5, G5.1, G10, G76 ou G87 para usá-lo"
 
-#: src/emc/rs274ngc/interp_check.cc:302
+#: src/emc/rs274ngc/interp_check.cc:301
 #, fuzzy
 msgid "K word with no G2, G3, G33, G33.1, G76, or G87 to use it"
 msgstr ""
 "Parâmetro K sem comando G2, G3, G33, G33.1, G76, G87 ou G43.1 para usá-la"
 
-#: src/emc/rs274ngc/interp_check.cc:314
+#: src/emc/rs274ngc/interp_check.cc:313
 #, fuzzy
 msgid ""
 "L word with no G10, cutter compensation, canned cycle, digital/analog input, "
@@ -189,7 +189,7 @@ msgstr ""
 "Parâmetro L sem comando G10, compensação de corte, ciclo pré-formado, "
 "entrada digital/analógica ou código NURBS"
 
-#: src/emc/rs274ngc/interp_check.cc:330
+#: src/emc/rs274ngc/interp_check.cc:329
 #, fuzzy
 msgid ""
 "P word with no G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 or M50 M51 M52 "
@@ -199,22 +199,22 @@ msgstr ""
 "M50, M51, M52, M53, M62, M63, M64, M65, M66 ou código M de usuário para usá-"
 "lo."
 
-#: src/emc/rs274ngc/interp_check.cc:336
+#: src/emc/rs274ngc/interp_check.cc:335
 #, fuzzy
 msgid "P value not an integer with M19 G2 or G3"
 msgstr "Parâmetro P não é um inteiro com G10 L2"
 
-#: src/emc/rs274ngc/interp_check.cc:338
+#: src/emc/rs274ngc/interp_check.cc:337
 #, fuzzy
 msgid "P value must be 0,1,or 2 with M19"
 msgstr "Parâmetro P fora dos limites com G10 L2"
 
-#: src/emc/rs274ngc/interp_check.cc:340
+#: src/emc/rs274ngc/interp_check.cc:339
 #, fuzzy
 msgid "P value should be 1 or greater with G2 or G3"
 msgstr "Parâmetro P fora dos limites com G10 L2"
 
-#: src/emc/rs274ngc/interp_check.cc:351
+#: src/emc/rs274ngc/interp_check.cc:350
 #, fuzzy
 msgid ""
 "Q word with no G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 or user M "
@@ -223,7 +223,7 @@ msgstr ""
 "Parâmetro Q sem comando G5, G10, G64, G73, G76, G83, M66, M67, M68 ou código "
 "M de usuário para usá-lo"
 
-#: src/emc/rs274ngc/interp_check.cc:364
+#: src/emc/rs274ngc/interp_check.cc:363
 #, fuzzy
 msgid "R value must be within 0..360 with M19"
 msgstr "Parâmetro P fora dos limites com G10 L2"
@@ -2286,9 +2286,9 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/base.glade:169
 #: src/emc/usr_intf/stepconf/base.glade:197
 #: src/emc/usr_intf/stepconf/base.glade:415
-#: src/emc/usr_intf/pncconf/mesa0.glade:471
-#: src/emc/usr_intf/pncconf/mesa1.glade:471
-#: src/emc/usr_intf/pncconf/base.glade:384
+#: src/emc/usr_intf/pncconf/mesa0.glade:470
+#: src/emc/usr_intf/pncconf/mesa1.glade:470
+#: src/emc/usr_intf/pncconf/base.glade:385
 msgid "ns"
 msgstr ""
 
@@ -2317,11 +2317,11 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisv.glade:359
 #: src/emc/usr_intf/stepconf/axisa.glade:357
 #: src/emc/usr_intf/pncconf/mesa0.glade:275
-#: src/emc/usr_intf/pncconf/mesa0.glade:444
-#: src/emc/usr_intf/pncconf/mesa0.glade:457
+#: src/emc/usr_intf/pncconf/mesa0.glade:443
+#: src/emc/usr_intf/pncconf/mesa0.glade:456
 #: src/emc/usr_intf/pncconf/mesa1.glade:275
-#: src/emc/usr_intf/pncconf/mesa1.glade:444
-#: src/emc/usr_intf/pncconf/mesa1.glade:457
+#: src/emc/usr_intf/pncconf/mesa1.glade:443
+#: src/emc/usr_intf/pncconf/mesa1.glade:456
 msgid "Hz"
 msgstr ""
 
@@ -3043,7 +3043,7 @@ msgstr "Interruptor de home inativo antes do início do movimento de latch"
 msgid "hit limit in home state j=%d"
 msgstr "limite encontrado durante estado de home %d"
 
-#: src/emc/motion/homing.c:1361
+#: src/emc/motion/homing.c:1362
 #, fuzzy, c-format
 msgid "unknown state '%d' during homing j=%d"
 msgstr "Estado desconhecido durante sequência de homing: %d"
@@ -4030,7 +4030,7 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:618
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:631
 #: src/emc/usr_intf/touchy/emc_interface.py:442
-#: src/emc/usr_intf/pncconf/base.glade:504
+#: src/emc/usr_intf/pncconf/base.glade:505
 msgid "None"
 msgstr "Nenhuma"
 
@@ -5557,7 +5557,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:2063
 #: src/emc/usr_intf/pncconf/a_motor.glade:1906
 #: src/emc/usr_intf/pncconf/a_motor.glade:1978
-#: src/emc/usr_intf/pncconf/dialogs.glade:3554
+#: src/emc/usr_intf/pncconf/dialogs.glade:3574
 msgid "mm"
 msgstr ""
 
@@ -5791,12 +5791,12 @@ msgid "  -  Status: "
 msgstr ""
 
 #: tcl/tklinuxcnc.tcl:1547 src/emc/usr_intf/stepconf/main_page.glade:292
-#: src/emc/usr_intf/pncconf/dialogs.glade:3714
+#: src/emc/usr_intf/pncconf/dialogs.glade:3734
 #: src/emc/usr_intf/gscreen/gscreen.glade:2696
 msgid "Run"
 msgstr ""
 
-#: tcl/tklinuxcnc.tcl:1548 src/emc/usr_intf/pncconf/dialogs.glade:3631
+#: tcl/tklinuxcnc.tcl:1548 src/emc/usr_intf/pncconf/dialogs.glade:3651
 #: src/emc/usr_intf/gscreen/gscreen.glade:2709
 #, fuzzy
 msgid "Pause"
@@ -6516,9 +6516,9 @@ msgstr ""
 msgid "move"
 msgstr ""
 
-#: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:4025
-#: src/emc/usr_intf/pncconf/pncconf.py:4131
-#: src/emc/usr_intf/pncconf/pncconf.py:4295
+#: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:4066
+#: src/emc/usr_intf/pncconf/pncconf.py:4172
+#: src/emc/usr_intf/pncconf/pncconf.py:4336
 msgid "Custom"
 msgstr ""
 
@@ -8595,16 +8595,16 @@ msgstr "Fuso:"
 #: src/emc/usr_intf/stepconf/main_page.glade:29
 #: src/emc/usr_intf/pncconf/main_page.glade:41
 #: src/emc/usr_intf/pncconf/dialogs.glade:889
-#: src/emc/usr_intf/pncconf/dialogs.glade:3259
-#: src/emc/usr_intf/pncconf/dialogs.glade:3427
+#: src/emc/usr_intf/pncconf/dialogs.glade:3279
+#: src/emc/usr_intf/pncconf/dialogs.glade:3447
 #: src/emc/usr_intf/gscreen/gscreen.glade:4180
 msgid "-"
 msgstr "-"
 
 #: share/axis/tcl/axis.tcl:1082 src/emc/usr_intf/stepconf/main_page.glade:26
 #: src/emc/usr_intf/pncconf/main_page.glade:38
-#: src/emc/usr_intf/pncconf/dialogs.glade:3256
-#: src/emc/usr_intf/pncconf/dialogs.glade:3454
+#: src/emc/usr_intf/pncconf/dialogs.glade:3276
+#: src/emc/usr_intf/pncconf/dialogs.glade:3474
 #: src/emc/usr_intf/gscreen/gscreen.glade:4169
 msgid "+"
 msgstr "+"
@@ -8885,8 +8885,8 @@ msgid "Temporarily allow jogging outside machine limits [L]"
 msgstr "Permite temporariamente Jog além do limite da máquina [L]"
 
 #: src/emc/usr_intf/touchy/touchy.py:144
-#: src/emc/usr_intf/pncconf/pncconf.py:1820
-#: src/emc/usr_intf/pncconf/pncconf.py:1823
+#: src/emc/usr_intf/pncconf/pncconf.py:1825
+#: src/emc/usr_intf/pncconf/pncconf.py:1828
 #: src/emc/usr_intf/gscreen/gscreen.py:1339
 msgid "Follow System Theme"
 msgstr ""
@@ -9255,15 +9255,15 @@ msgstr ""
 #: src/emc/usr_intf/touchy/touchy.glade:966
 #: src/emc/usr_intf/stepconf/options.glade:248
 #: src/emc/usr_intf/pncconf/screen.glade:3417
-#: src/emc/usr_intf/pncconf/dialogs.glade:2804
-#: src/emc/usr_intf/pncconf/dialogs.glade:4008
-#: src/emc/usr_intf/pncconf/dialogs.glade:4021
-#: src/emc/usr_intf/pncconf/dialogs.glade:4034
-#: src/emc/usr_intf/pncconf/dialogs.glade:4047
-#: src/emc/usr_intf/pncconf/dialogs.glade:4060
-#: src/emc/usr_intf/pncconf/dialogs.glade:4073
-#: src/emc/usr_intf/pncconf/dialogs.glade:4216
-#: src/emc/usr_intf/pncconf/dialogs.glade:4229
+#: src/emc/usr_intf/pncconf/dialogs.glade:2818
+#: src/emc/usr_intf/pncconf/dialogs.glade:4028
+#: src/emc/usr_intf/pncconf/dialogs.glade:4041
+#: src/emc/usr_intf/pncconf/dialogs.glade:4054
+#: src/emc/usr_intf/pncconf/dialogs.glade:4067
+#: src/emc/usr_intf/pncconf/dialogs.glade:4080
+#: src/emc/usr_intf/pncconf/dialogs.glade:4093
+#: src/emc/usr_intf/pncconf/dialogs.glade:4236
+#: src/emc/usr_intf/pncconf/dialogs.glade:4249
 msgid "0"
 msgstr "0"
 
@@ -9288,7 +9288,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/screen.glade:3427
 #: src/emc/usr_intf/pncconf/ubuttons.glade:67
 #: src/emc/usr_intf/pncconf/thcad.glade:12
-#: src/emc/usr_intf/pncconf/thcad.glade:171
+#: src/emc/usr_intf/pncconf/thcad.glade:179
 msgid "1"
 msgstr ""
 
@@ -9300,11 +9300,11 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:1051
 #: src/emc/usr_intf/stepconf/ubuttons.glade:117
-#: src/emc/usr_intf/stepconf/thcad.glade:56
+#: src/emc/usr_intf/stepconf/thcad.glade:62
 #: src/emc/usr_intf/pncconf/ubuttons.glade:119
-#: src/emc/usr_intf/pncconf/thcad.glade:39
-#: src/emc/usr_intf/pncconf/thcad.glade:156
-#: src/emc/usr_intf/pncconf/dialogs.glade:1446
+#: src/emc/usr_intf/pncconf/thcad.glade:45
+#: src/emc/usr_intf/pncconf/thcad.glade:164
+#: src/emc/usr_intf/pncconf/dialogs.glade:1450
 msgid "5"
 msgstr ""
 
@@ -9441,7 +9441,7 @@ msgstr "Distância em trabalho:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2499
 #: src/emc/usr_intf/stepconf/main_page.glade:324
-#: src/emc/usr_intf/pncconf/dialogs.glade:3736
+#: src/emc/usr_intf/pncconf/dialogs.glade:3756
 msgid "Velocity:"
 msgstr ""
 
@@ -9764,7 +9764,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/stepconf.py:263
 #: src/emc/usr_intf/stepconf/main_page.glade:581
 #: src/emc/usr_intf/pncconf/private_data.py:39
-#: src/emc/usr_intf/pncconf/private_data.py:1179
+#: src/emc/usr_intf/pncconf/private_data.py:1201
 #: src/emc/usr_intf/pncconf/main_page.glade:229
 #: src/emc/usr_intf/gscreen/gscreen.py:4479
 #: src/emc/usr_intf/gscreen/gscreen.py:4480
@@ -9851,78 +9851,78 @@ msgid "Almost Done"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:155
-#: src/emc/usr_intf/pncconf/private_data.py:1140
+#: src/emc/usr_intf/pncconf/private_data.py:1162
 msgid "Gecko 201"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:156
-#: src/emc/usr_intf/pncconf/private_data.py:1141
+#: src/emc/usr_intf/pncconf/private_data.py:1163
 msgid "Gecko 202"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:157
-#: src/emc/usr_intf/pncconf/private_data.py:1142
+#: src/emc/usr_intf/pncconf/private_data.py:1164
 msgid "Gecko 203v"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:158
-#: src/emc/usr_intf/pncconf/private_data.py:1143
+#: src/emc/usr_intf/pncconf/private_data.py:1165
 msgid "Gecko 210"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:159
-#: src/emc/usr_intf/pncconf/private_data.py:1144
+#: src/emc/usr_intf/pncconf/private_data.py:1166
 msgid "Gecko 212"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:160
-#: src/emc/usr_intf/pncconf/private_data.py:1145
+#: src/emc/usr_intf/pncconf/private_data.py:1167
 msgid "Gecko 320"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:161
-#: src/emc/usr_intf/pncconf/private_data.py:1146
+#: src/emc/usr_intf/pncconf/private_data.py:1168
 msgid "Gecko 540"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:162
-#: src/emc/usr_intf/pncconf/private_data.py:1147
+#: src/emc/usr_intf/pncconf/private_data.py:1169
 msgid "L297"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:163
-#: src/emc/usr_intf/pncconf/private_data.py:1148
+#: src/emc/usr_intf/pncconf/private_data.py:1170
 msgid "PMDX-150"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:164
 #: src/emc/usr_intf/stepconf/pport1.glade:43
-#: src/emc/usr_intf/pncconf/private_data.py:1149
+#: src/emc/usr_intf/pncconf/private_data.py:1171
 msgid "Sherline"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:165
-#: src/emc/usr_intf/pncconf/private_data.py:1150
+#: src/emc/usr_intf/pncconf/private_data.py:1172
 msgid "Xylotex 8S-3"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:166
-#: src/emc/usr_intf/pncconf/private_data.py:1151
+#: src/emc/usr_intf/pncconf/private_data.py:1173
 msgid "Parker-Compumotor oem750"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:167
-#: src/emc/usr_intf/pncconf/private_data.py:1152
+#: src/emc/usr_intf/pncconf/private_data.py:1174
 msgid "JVL-SMD41 or 42"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:168
-#: src/emc/usr_intf/pncconf/private_data.py:1153
+#: src/emc/usr_intf/pncconf/private_data.py:1175
 msgid "Hobbycnc Pro Chopper"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:169
-#: src/emc/usr_intf/pncconf/private_data.py:1154
+#: src/emc/usr_intf/pncconf/private_data.py:1176
 msgid "Keling 4030"
 msgstr ""
 
@@ -10425,18 +10425,18 @@ msgid "Plasma Move Down"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:264
-#: src/emc/usr_intf/pncconf/private_data.py:1180
+#: src/emc/usr_intf/pncconf/private_data.py:1202
 #, fuzzy
 msgid "Forward"
 msgstr "Freio do spindle ativado"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:265
-#: src/emc/usr_intf/pncconf/private_data.py:1181
+#: src/emc/usr_intf/pncconf/private_data.py:1203
 msgid "Done"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:266
-#: src/emc/usr_intf/pncconf/private_data.py:1182
+#: src/emc/usr_intf/pncconf/private_data.py:1204
 msgid ""
 "OK to replace existing custom ladder program?\n"
 "Existing Custom.clp will be renamed custom_backup.clp.\n"
@@ -10445,7 +10445,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:267
 #: src/emc/usr_intf/pncconf/pages.py:1537
-#: src/emc/usr_intf/pncconf/private_data.py:1183
+#: src/emc/usr_intf/pncconf/private_data.py:1205
 msgid ""
 "You edited a ladder program and have selected a different program to copy to "
 "your configuration file.\n"
@@ -10455,7 +10455,7 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:268
-#: src/emc/usr_intf/pncconf/private_data.py:1184
+#: src/emc/usr_intf/pncconf/private_data.py:1206
 msgid ""
 "You need to designate an E-stop input pin in the Parallel Port Setup page "
 "for this program."
@@ -10473,21 +10473,21 @@ msgid "Quit Stepconf and discard changes?"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:271
-#: src/emc/usr_intf/pncconf/private_data.py:1188
+#: src/emc/usr_intf/pncconf/private_data.py:1210
 msgid ""
 "The configuration has been built and saved.\n"
 "Do you want to quit?"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:272
-#: src/emc/usr_intf/pncconf/private_data.py:1189
+#: src/emc/usr_intf/pncconf/private_data.py:1211
 msgid ""
 "You are using a simulated-realtime version of LinuxCNC, so testing / tuning "
 "of hardware is unavailable."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:273
-#: src/emc/usr_intf/pncconf/private_data.py:1190
+#: src/emc/usr_intf/pncconf/private_data.py:1212
 msgid ""
 "You are using a realtime version of LinuxCNC but didn't load a realtime "
 "kernel so testing / tuning of hardware is                 unavailable.\n"
@@ -10614,7 +10614,7 @@ msgid "LinuxCNC 'stepconf' configuration files"
 msgstr "Mostrar _Configuração Hal"
 
 #: src/emc/usr_intf/stepconf/pages.py:230
-#: src/emc/usr_intf/pncconf/pncconf.py:904
+#: src/emc/usr_intf/pncconf/pncconf.py:908
 #, fuzzy
 msgid "Modify Existing Configuration"
 msgstr "Mostrar _Configuração Hal"
@@ -10634,8 +10634,8 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisu.glade:292
 #: src/emc/usr_intf/stepconf/axisv.glade:291
 #: src/emc/usr_intf/stepconf/axisa.glade:289
-#: src/emc/usr_intf/pncconf/dialogs.glade:2209
-#: src/emc/usr_intf/pncconf/dialogs.glade:2585
+#: src/emc/usr_intf/pncconf/dialogs.glade:2219
+#: src/emc/usr_intf/pncconf/dialogs.glade:2599
 msgid "mm / rev"
 msgstr ""
 
@@ -10646,7 +10646,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisu.glade:29
 #: src/emc/usr_intf/stepconf/axisv.glade:28
 #: src/emc/usr_intf/stepconf/axisa.glade:28
-#: src/emc/usr_intf/pncconf/dialogs.glade:3014
+#: src/emc/usr_intf/pncconf/dialogs.glade:3028
 msgid "Steps / mm"
 msgstr ""
 
@@ -10776,12 +10776,12 @@ msgid "# This is a generated file do not edit."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:723
-#: src/emc/usr_intf/pncconf/build_HAL.py:1888
+#: src/emc/usr_intf/pncconf/build_HAL.py:1895
 msgid "# Include your custom HAL commands here"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:741
-#: src/emc/usr_intf/pncconf/build_HAL.py:1904
+#: src/emc/usr_intf/pncconf/build_HAL.py:1911
 msgid ""
 "\n"
 "\n"
@@ -10790,94 +10790,94 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:742
-#: src/emc/usr_intf/pncconf/build_HAL.py:1905
+#: src/emc/usr_intf/pncconf/build_HAL.py:1912
 msgid ""
 "# The following variables are available for fine tuning some parameters."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:743
-#: src/emc/usr_intf/pncconf/build_HAL.py:1906
+#: src/emc/usr_intf/pncconf/build_HAL.py:1913
 msgid ""
 "# To use any of these, uncomment the required setp line and set an "
 "appropriate value.\n"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:744
-#: src/emc/usr_intf/pncconf/build_HAL.py:1907
+#: src/emc/usr_intf/pncconf/build_HAL.py:1914
 msgid "# Dampen excessive noise on the arc voltage input"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:745
 #: src/emc/usr_intf/stepconf/build_HAL.py:757
-#: src/emc/usr_intf/pncconf/build_HAL.py:1908
-#: src/emc/usr_intf/pncconf/build_HAL.py:1920
+#: src/emc/usr_intf/pncconf/build_HAL.py:1915
+#: src/emc/usr_intf/pncconf/build_HAL.py:1927
 msgid "# default = 0 (volts)"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:747
-#: src/emc/usr_intf/pncconf/build_HAL.py:1910
+#: src/emc/usr_intf/pncconf/build_HAL.py:1917
 msgid ""
 "# The time delay from losing the arc ok signal until QtPlasmaC reacts to the "
 "arc loss."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:748
-#: src/emc/usr_intf/pncconf/build_HAL.py:1911
+#: src/emc/usr_intf/pncconf/build_HAL.py:1918
 msgid "# default = 0.0 (seconds)"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:750
-#: src/emc/usr_intf/pncconf/build_HAL.py:1913
+#: src/emc/usr_intf/pncconf/build_HAL.py:1920
 msgid ""
 "# For mode 0 Arc-OK only, the number of consecutive readings within the "
 "threshold that are required to set the Arc-OK signal."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:751
-#: src/emc/usr_intf/pncconf/build_HAL.py:1914
+#: src/emc/usr_intf/pncconf/build_HAL.py:1921
 msgid "# default = 6"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:753
-#: src/emc/usr_intf/pncconf/build_HAL.py:1916
+#: src/emc/usr_intf/pncconf/build_HAL.py:1923
 msgid ""
 "# For mode 0 Arc-OK only, the maximum voltage deviation that is allowed for "
 "a valid voltage to set the Arc OK signal."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:754
-#: src/emc/usr_intf/pncconf/build_HAL.py:1917
+#: src/emc/usr_intf/pncconf/build_HAL.py:1924
 msgid "# default = 10 (volts)"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:756
-#: src/emc/usr_intf/pncconf/build_HAL.py:1919
+#: src/emc/usr_intf/pncconf/build_HAL.py:1926
 msgid ""
 "# The voltage above and below 0V that will display as 0V. Prevents small "
 "fluctuations from flickering the voltage display."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:759
-#: src/emc/usr_intf/pncconf/build_HAL.py:1922
+#: src/emc/usr_intf/pncconf/build_HAL.py:1929
 msgid ""
 "# The distance (in millimeters) away from the Z MAX_LIMIT that QtPlasmaC "
 "will allow the Z axis to travel while under machine control."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:760
-#: src/emc/usr_intf/pncconf/build_HAL.py:1923
+#: src/emc/usr_intf/pncconf/build_HAL.py:1930
 msgid "# default = 5 (mm)"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:762
-#: src/emc/usr_intf/pncconf/build_HAL.py:1925
+#: src/emc/usr_intf/pncconf/build_HAL.py:1932
 msgid ""
 "# The required number of consecutive times that the threshold has been "
 "exceeded before applying the void lock to the THC."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:763
-#: src/emc/usr_intf/pncconf/build_HAL.py:1926
+#: src/emc/usr_intf/pncconf/build_HAL.py:1933
 msgid "# default = 2"
 msgstr ""
 
@@ -10892,7 +10892,7 @@ msgstr "Mostrar _Configuração Hal"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:23
 #: src/emc/usr_intf/pncconf/main_page.glade:35
-#: src/emc/usr_intf/pncconf/dialogs.glade:3253
+#: src/emc/usr_intf/pncconf/dialogs.glade:3273
 msgid "±"
 msgstr ""
 
@@ -10902,12 +10902,12 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/main_page.glade:337
 #: src/emc/usr_intf/pncconf/dialogs.glade:864
-#: src/emc/usr_intf/pncconf/dialogs.glade:3484
+#: src/emc/usr_intf/pncconf/dialogs.glade:3504
 msgid "Jog:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/main_page.glade:349
-#: src/emc/usr_intf/pncconf/dialogs.glade:3499
+#: src/emc/usr_intf/pncconf/dialogs.glade:3519
 msgid "Test Area:"
 msgstr ""
 
@@ -10916,7 +10916,7 @@ msgid "mm/s^2"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/main_page.glade:400
-#: src/emc/usr_intf/pncconf/dialogs.glade:3749
+#: src/emc/usr_intf/pncconf/dialogs.glade:3769
 #, fuzzy
 msgid "Acceleration:"
 msgstr "Alternada"
@@ -10928,8 +10928,8 @@ msgstr "Mostrar _Configuração Hal"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:519
 #: src/emc/usr_intf/pncconf/main_page.glade:143
-#: src/emc/usr_intf/pncconf/mesa0.glade:379
-#: src/emc/usr_intf/pncconf/mesa1.glade:379
+#: src/emc/usr_intf/pncconf/mesa0.glade:378
+#: src/emc/usr_intf/pncconf/mesa1.glade:378
 #: src/emc/usr_intf/pncconf/external.glade:1808
 #: src/emc/usr_intf/pncconf/external.glade:1822
 #: src/emc/usr_intf/pncconf/external.glade:1836
@@ -10948,10 +10948,10 @@ msgstr "Mostrar _Configuração Hal"
 #: src/emc/usr_intf/pncconf/y_motor.glade:594
 #: src/emc/usr_intf/pncconf/z_motor.glade:594
 #: src/emc/usr_intf/pncconf/a_motor.glade:570
-#: src/emc/usr_intf/pncconf/dialogs.glade:4837
-#: src/emc/usr_intf/pncconf/dialogs.glade:4850
-#: src/emc/usr_intf/pncconf/dialogs.glade:4863
-#: src/emc/usr_intf/pncconf/dialogs.glade:4876
+#: src/emc/usr_intf/pncconf/dialogs.glade:4881
+#: src/emc/usr_intf/pncconf/dialogs.glade:4894
+#: src/emc/usr_intf/pncconf/dialogs.glade:4907
+#: src/emc/usr_intf/pncconf/dialogs.glade:4920
 #: src/emc/usr_intf/gscreen/gscreen.glade:1365
 #: src/emc/usr_intf/gscreen/gscreen.glade:1383
 #: src/emc/usr_intf/gscreen/gscreen.glade:1401
@@ -11038,17 +11038,17 @@ msgid "D_river type:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/base.glade:429
-#: src/emc/usr_intf/pncconf/base.glade:520
+#: src/emc/usr_intf/pncconf/base.glade:521
 msgid "One Parport"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/base.glade:446
-#: src/emc/usr_intf/pncconf/base.glade:535
+#: src/emc/usr_intf/pncconf/base.glade:536
 msgid "Two Parports"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/base.glade:464
-#: src/emc/usr_intf/pncconf/base.glade:550
+#: src/emc/usr_intf/pncconf/base.glade:551
 msgid "Three Parports"
 msgstr ""
 
@@ -11638,11 +11638,11 @@ msgid "CODE"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:177
-#: src/emc/usr_intf/stepconf/thcad.glade:59
+#: src/emc/usr_intf/stepconf/thcad.glade:65
 #: src/emc/usr_intf/pncconf/ubuttons.glade:184
-#: src/emc/usr_intf/pncconf/thcad.glade:42
-#: src/emc/usr_intf/pncconf/thcad.glade:157
-#: src/emc/usr_intf/pncconf/dialogs.glade:1431
+#: src/emc/usr_intf/pncconf/thcad.glade:48
+#: src/emc/usr_intf/pncconf/thcad.glade:165
+#: src/emc/usr_intf/pncconf/dialogs.glade:1435
 #, fuzzy
 msgid "10"
 msgstr "0"
@@ -11713,54 +11713,66 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/thcad.glade:32
 #: src/emc/usr_intf/pncconf/thcad.glade:15
-#: src/emc/usr_intf/pncconf/thcad.glade:172
+#: src/emc/usr_intf/pncconf/thcad.glade:180
 msgid "32"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/thcad.glade:35
 #: src/emc/usr_intf/pncconf/thcad.glade:18
-#: src/emc/usr_intf/pncconf/thcad.glade:173
+#: src/emc/usr_intf/pncconf/thcad.glade:181
 msgid "64"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/thcad.glade:38
 #: src/emc/usr_intf/pncconf/thcad.glade:21
-#: src/emc/usr_intf/pncconf/thcad.glade:174
+#: src/emc/usr_intf/pncconf/thcad.glade:182
 msgid "128"
 msgstr ""
 
-#: src/emc/usr_intf/stepconf/thcad.glade:62
-#: src/emc/usr_intf/pncconf/thcad.glade:45
-#: src/emc/usr_intf/pncconf/thcad.glade:158
+#: src/emc/usr_intf/stepconf/thcad.glade:56
+#: src/emc/usr_intf/pncconf/thcad.glade:39
+#: src/emc/usr_intf/pncconf/thcad.glade:162
+msgid "2 (W1 down)"
+msgstr ""
+
+#: src/emc/usr_intf/stepconf/thcad.glade:59
+#: src/emc/usr_intf/pncconf/thcad.glade:42
+#: src/emc/usr_intf/pncconf/thcad.glade:163
+msgid "2 (W1 up)"
+msgstr ""
+
+#: src/emc/usr_intf/stepconf/thcad.glade:68
+#: src/emc/usr_intf/pncconf/thcad.glade:51
+#: src/emc/usr_intf/pncconf/thcad.glade:166
 msgid "300"
 msgstr ""
 
-#: src/emc/usr_intf/stepconf/thcad.glade:111
+#: src/emc/usr_intf/stepconf/thcad.glade:117
 msgid "Full Scale Freq (kHz)"
 msgstr ""
 
-#: src/emc/usr_intf/stepconf/thcad.glade:125
-#: src/emc/usr_intf/pncconf/thcad.glade:110
+#: src/emc/usr_intf/stepconf/thcad.glade:131
+#: src/emc/usr_intf/pncconf/thcad.glade:116
 msgid "F Jumper"
 msgstr ""
 
-#: src/emc/usr_intf/stepconf/thcad.glade:137
-#: src/emc/usr_intf/pncconf/thcad.glade:122
+#: src/emc/usr_intf/stepconf/thcad.glade:143
+#: src/emc/usr_intf/pncconf/thcad.glade:128
 msgid "Divider Ratio or Series Resistance"
 msgstr ""
 
-#: src/emc/usr_intf/stepconf/thcad.glade:150
+#: src/emc/usr_intf/stepconf/thcad.glade:156
 msgid "0V Freq (kHz)"
 msgstr ""
 
-#: src/emc/usr_intf/stepconf/thcad.glade:162
-#: src/emc/usr_intf/pncconf/thcad.glade:147
+#: src/emc/usr_intf/stepconf/thcad.glade:168
+#: src/emc/usr_intf/pncconf/thcad.glade:153
 #, fuzzy
 msgid "Model"
 msgstr "Modo execução"
 
-#: src/emc/usr_intf/stepconf/thcad.glade:261
-#: src/emc/usr_intf/pncconf/thcad.glade:243
+#: src/emc/usr_intf/stepconf/thcad.glade:267
+#: src/emc/usr_intf/pncconf/thcad.glade:251
 msgid "THCAD For Arc Voltage"
 msgstr ""
 
@@ -11797,13 +11809,13 @@ msgstr "Positivo"
 #: src/emc/usr_intf/stepconf/axisu.glade:167
 #: src/emc/usr_intf/stepconf/axisv.glade:166
 #: src/emc/usr_intf/stepconf/axisa.glade:166
-#: src/emc/usr_intf/pncconf/dialogs.glade:1265
-#: src/emc/usr_intf/pncconf/dialogs.glade:1325
-#: src/emc/usr_intf/pncconf/dialogs.glade:1529
-#: src/emc/usr_intf/pncconf/dialogs.glade:2035
-#: src/emc/usr_intf/pncconf/dialogs.glade:2097
-#: src/emc/usr_intf/pncconf/dialogs.glade:2399
-#: src/emc/usr_intf/pncconf/dialogs.glade:2486
+#: src/emc/usr_intf/pncconf/dialogs.glade:1266
+#: src/emc/usr_intf/pncconf/dialogs.glade:1328
+#: src/emc/usr_intf/pncconf/dialogs.glade:1534
+#: src/emc/usr_intf/pncconf/dialogs.glade:2042
+#: src/emc/usr_intf/pncconf/dialogs.glade:2106
+#: src/emc/usr_intf/pncconf/dialogs.glade:2410
+#: src/emc/usr_intf/pncconf/dialogs.glade:2499
 msgid "_:"
 msgstr ""
 
@@ -11941,7 +11953,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisu.glade:620
 #: src/emc/usr_intf/stepconf/axisv.glade:629
 #: src/emc/usr_intf/stepconf/axisa.glade:609
-#: src/emc/usr_intf/pncconf/dialogs.glade:2833
+#: src/emc/usr_intf/pncconf/dialogs.glade:2847
 msgid "Time to accelerate to max speed:"
 msgstr ""
 
@@ -11960,7 +11972,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisu.glade:648
 #: src/emc/usr_intf/stepconf/axisv.glade:657
 #: src/emc/usr_intf/stepconf/axisa.glade:635
-#: src/emc/usr_intf/pncconf/dialogs.glade:2863
+#: src/emc/usr_intf/pncconf/dialogs.glade:2877
 msgid "Pulse rate at max speed:"
 msgstr ""
 
@@ -12052,61 +12064,65 @@ msgstr "Profundidade das imagens"
 #: src/emc/usr_intf/pncconf/pncconf.py:580
 #, python-format
 msgid ""
+"Some older cards require firmware.\n"
 "You have no hostmot2 firmware downloaded in folder:\n"
 "%s\n"
-"PNCconf will use internal firmware data"
+"PNCconf will use It's internal firmware data samples so you can continue.\n"
+"You could also try the discovery option if your card is connected and "
+"doesn't require firmware to be loaded at run time.\n"
+"Discovery option requires the advanced options checked on this page."
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:902
+#: src/emc/usr_intf/pncconf/pncconf.py:906
 #, fuzzy
 msgid "LinuxCNC 'PNCconf' configuration files"
 msgstr "Mostrar _Configuração Hal"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:935
+#: src/emc/usr_intf/pncconf/pncconf.py:939
 msgid ""
 "It seems data in this file is from too old of a version of PNCConf to "
 "continue."
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1296
+#: src/emc/usr_intf/pncconf/pncconf.py:1300
 msgid "PIN file is empty:\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1297
+#: src/emc/usr_intf/pncconf/pncconf.py:1301
 msgid "To use PIN file discovery mode, the contents of the"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1298
+#: src/emc/usr_intf/pncconf/pncconf.py:1302
 msgid "cards PIN file needs to be pasted into the Input tab"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1299
+#: src/emc/usr_intf/pncconf/pncconf.py:1303
 msgid "of the Help window before clicking Board Discovery"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1308
+#: src/emc/usr_intf/pncconf/pncconf.py:1312
 msgid "Address is required for ethernet card"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1316
+#: src/emc/usr_intf/pncconf/pncconf.py:1320
 #, python-format
 msgid "%s board was not found"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1318
+#: src/emc/usr_intf/pncconf/pncconf.py:1322
 msgid "Is the address correct?"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1322
+#: src/emc/usr_intf/pncconf/pncconf.py:1326
 #, python-format
 msgid "%s is an unsupported device"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1335
+#: src/emc/usr_intf/pncconf/pncconf.py:1339
 msgid "Unspecified Error with Discovery option"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1377
+#: src/emc/usr_intf/pncconf/pncconf.py:1381
 #, python-format
 msgid ""
 "Discovery has an error,\n"
@@ -12116,40 +12132,40 @@ msgid ""
 " %s"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1391
+#: src/emc/usr_intf/pncconf/pncconf.py:1395
 msgid "Discovery is  unavailable\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1606
+#: src/emc/usr_intf/pncconf/pncconf.py:1610
 msgid "The pasted PIN file may be an invalid format"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1608
+#: src/emc/usr_intf/pncconf/pncconf.py:1612
 msgid "The data returned from discovery is invalid"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1681
+#: src/emc/usr_intf/pncconf/pncconf.py:1686
 msgid "USB device Info Search"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1695
+#: src/emc/usr_intf/pncconf/pncconf.py:1700
 msgid "USB device  page is unavailable\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1768
+#: src/emc/usr_intf/pncconf/pncconf.py:1773
 #: src/emc/usr_intf/pncconf/tests.py:90
 msgid "Pin names are unavailable\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1791
+#: src/emc/usr_intf/pncconf/pncconf.py:1796
 msgid "Device names are unavailable\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1794
+#: src/emc/usr_intf/pncconf/pncconf.py:1799
 msgid "No Pncconf made device rules were found\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1842
+#: src/emc/usr_intf/pncconf/pncconf.py:1847
 msgid ""
 "OK to replace existing glade panel ?\n"
 "It will be renamed and added to 'backups' folder.\n"
@@ -12158,180 +12174,180 @@ msgid ""
 "will not update"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1849
+#: src/emc/usr_intf/pncconf/pncconf.py:1854
 msgid ""
 "OK to replace existing custom pyvcp panel?\n"
 "Existing pyvcp-panel.xml will be renamed and added to 'backups' folder\n"
 "Clicking 'existing custom program' will avoid this warning. "
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3650
+#: src/emc/usr_intf/pncconf/pncconf.py:3691
 #: src/emc/usr_intf/pncconf/private_data.py:555
 #, fuzzy
 msgid "Unused Channel"
 msgstr "Canal Selecionado"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3925
+#: src/emc/usr_intf/pncconf/pncconf.py:3966
 msgid "You can not have both steppers and pwm signals for spindle control\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3929
+#: src/emc/usr_intf/pncconf/pncconf.py:3970
 #, python-format
 msgid "You forgot to designate a stepper or pwm signal for axis %s\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3932
+#: src/emc/usr_intf/pncconf/pncconf.py:3973
 #, python-format
 msgid "You forgot to designate an encoder /resolver signal for axis %s servo\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3935
+#: src/emc/usr_intf/pncconf/pncconf.py:3976
 #, python-format
 msgid "You forgot to designate a pwm signal or stepper signal for axis %s\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3938
+#: src/emc/usr_intf/pncconf/pncconf.py:3979
 #, python-format
 msgid "You can not have both steppers and pwm signals for axis %s\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3941
+#: src/emc/usr_intf/pncconf/pncconf.py:3982
 #, python-format
 msgid ""
 "If using a tandem axis stepper, you must select a master stepgen for axis "
 "%s\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3949
+#: src/emc/usr_intf/pncconf/pncconf.py:3990
 msgid "Touchy require an external cycle start signal\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3952
+#: src/emc/usr_intf/pncconf/pncconf.py:3993
 msgid "Touchy require an external abort signal\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3955
+#: src/emc/usr_intf/pncconf/pncconf.py:3996
 msgid "Touchy require an external single-step signal\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3958
+#: src/emc/usr_intf/pncconf/pncconf.py:3999
 msgid ""
 "Touchy require an external multi handwheel MPG encoder signal on the mesa "
 "page\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3961
+#: src/emc/usr_intf/pncconf/pncconf.py:4002
 msgid ""
 "Touchy require 'external mpg jogging' to be selected on the external control "
 "page\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3964
+#: src/emc/usr_intf/pncconf/pncconf.py:4005
 msgid ""
 "Touchy require the external mpg to be in 'shared mpg' mode on the external "
 "controls page\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3967
+#: src/emc/usr_intf/pncconf/pncconf.py:4008
 msgid ""
 "Touchy require selectable increments to be unchecked on the external "
 "controls page\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3980
+#: src/emc/usr_intf/pncconf/pncconf.py:4021
 msgid ""
 "The 7i29 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3983
+#: src/emc/usr_intf/pncconf/pncconf.py:4024
 msgid ""
 "The 7i30 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3986
+#: src/emc/usr_intf/pncconf/pncconf.py:4027
 msgid ""
 "The 7i33 daughter board requires PDM type generators and a PDM base "
 "frequency of 6 Mhz\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3989
+#: src/emc/usr_intf/pncconf/pncconf.py:4030
 msgid ""
 "The 7i40 daughter board requires PWM type generators and a PWM base "
 "frequency of 50 khz\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3992
+#: src/emc/usr_intf/pncconf/pncconf.py:4033
 msgid ""
 "The 7i48 daughter board requires UDM type generators and a PWM base "
 "frequency of 24 khz\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4140
+#: src/emc/usr_intf/pncconf/pncconf.py:4181
 msgid "Gearbox Reduction Ratio"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4143
+#: src/emc/usr_intf/pncconf/pncconf.py:4184
 msgid "Reduction Ratio"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4146
+#: src/emc/usr_intf/pncconf/pncconf.py:4187
 msgid "Leadscrew Pitch"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4149
-#: src/emc/usr_intf/pncconf/dialogs.glade:1985
-#: src/emc/usr_intf/pncconf/dialogs.glade:2350
+#: src/emc/usr_intf/pncconf/pncconf.py:4190
+#: src/emc/usr_intf/pncconf/dialogs.glade:1991
+#: src/emc/usr_intf/pncconf/dialogs.glade:2360
 msgid "Leadscrew TPI"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4153
-#: src/emc/usr_intf/pncconf/pncconf.py:4154
+#: src/emc/usr_intf/pncconf/pncconf.py:4194
+#: src/emc/usr_intf/pncconf/pncconf.py:4195
 msgid "("
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4155
-#: src/emc/usr_intf/pncconf/pncconf.py:4165
-#: src/emc/usr_intf/pncconf/pncconf.py:4166
-#: src/emc/usr_intf/pncconf/pncconf.py:4167
+#: src/emc/usr_intf/pncconf/pncconf.py:4196
+#: src/emc/usr_intf/pncconf/pncconf.py:4206
+#: src/emc/usr_intf/pncconf/pncconf.py:4207
+#: src/emc/usr_intf/pncconf/pncconf.py:4208
 msgid " / min"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4156
+#: src/emc/usr_intf/pncconf/pncconf.py:4197
 #, fuzzy
 msgid " / sec²"
 msgstr "Jog no segundo eixo"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4159
+#: src/emc/usr_intf/pncconf/pncconf.py:4200
 #, fuzzy
 msgid " / Step"
 msgstr "_Passo"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4160
+#: src/emc/usr_intf/pncconf/pncconf.py:4201
 #, fuzzy
 msgid "Steps / "
 msgstr "_Passo"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4162
+#: src/emc/usr_intf/pncconf/pncconf.py:4203
 msgid " / encoder pulse"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4163
+#: src/emc/usr_intf/pncconf/pncconf.py:4204
 msgid "Encoder pulses / "
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4171
+#: src/emc/usr_intf/pncconf/pncconf.py:4212
 #, fuzzy
 msgid "Resolver Scale:"
 msgstr "Roda uma linha do programa"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4509
+#: src/emc/usr_intf/pncconf/pncconf.py:4550
 #, fuzzy
 msgid "Spindle Scale Calculation"
 msgstr "Mostrar _Configuração Hal"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4621
+#: src/emc/usr_intf/pncconf/pncconf.py:4662
 msgid "Axis Scale Calculation"
 msgstr ""
 
@@ -12642,7 +12658,7 @@ msgid "# **** Setup of spindle speed display using pyvcp -END ****"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:965
-#: src/emc/usr_intf/pncconf/build_HAL.py:1889
+#: src/emc/usr_intf/pncconf/build_HAL.py:1896
 msgid "# This file will not be overwritten when you run PNCconf again"
 msgstr ""
 
@@ -12876,38 +12892,38 @@ msgid ""
 "# ---PLASMA OUTPUTS---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1872
+#: src/emc/usr_intf/pncconf/build_HAL.py:1879
 msgid ""
 "\n"
 "# ---ARC VOLTAGE ENCODER---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1882
+#: src/emc/usr_intf/pncconf/build_HAL.py:1889
 msgid ""
 "\n"
 "# ---OHMIC SENSE LINK---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1890
+#: src/emc/usr_intf/pncconf/build_HAL.py:1897
 msgid ""
 "\n"
 "# ---COMMON PLASMAC DEBOUNCE---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1891
+#: src/emc/usr_intf/pncconf/build_HAL.py:1898
 msgid "# for the float and ohmic inputs each increment in delay is"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1892
+#: src/emc/usr_intf/pncconf/build_HAL.py:1899
 msgid "# is a 0.001mm (0.00004\") increase in any probed height result"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1895
-#: src/emc/usr_intf/pncconf/build_HAL.py:1940
+#: src/emc/usr_intf/pncconf/build_HAL.py:1902
+#: src/emc/usr_intf/pncconf/build_HAL.py:1947
 msgid "# set to zero if using internal ohmic sensing"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1973
+#: src/emc/usr_intf/pncconf/build_HAL.py:1980
 msgid ""
 "\n"
 "# ---OHMIC SENSE CONTACT DEBOUNCE---"
@@ -13130,20 +13146,24 @@ msgid "Dir Gen-B"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
-msgid "Step/Dir Gen-C"
-msgstr ""
+#, fuzzy
+msgid "StepGen Phase-C"
+msgstr "Roda uma linha do programa"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
-msgid "Step/Dir Gen-D"
-msgstr ""
+#, fuzzy
+msgid "StepGen Phase-D"
+msgstr "Roda uma linha do programa"
 
 #: src/emc/usr_intf/pncconf/private_data.py:136
-msgid "Step/Dir Gen-E"
-msgstr ""
+#, fuzzy
+msgid "StepGen Phase-E"
+msgstr "Roda uma linha do programa"
 
 #: src/emc/usr_intf/pncconf/private_data.py:136
-msgid "Step/dir Gen-F"
-msgstr ""
+#, fuzzy
+msgid "StepGen Phase-F"
+msgstr "Roda uma linha do programa"
 
 #: src/emc/usr_intf/pncconf/private_data.py:138
 msgid "PWM Gen-P"
@@ -14018,7 +14038,7 @@ msgid "Digital"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:470
-#: src/emc/usr_intf/pncconf/private_data.py:987
+#: src/emc/usr_intf/pncconf/private_data.py:1009
 #, fuzzy
 msgid "Axis Selection"
 msgstr "Eixo:"
@@ -14479,124 +14499,124 @@ msgstr ""
 msgid "Unused Analog In"
 msgstr "Canal Selecionado"
 
-#: src/emc/usr_intf/pncconf/private_data.py:995
+#: src/emc/usr_intf/pncconf/private_data.py:1017
 msgid ""
 "7i64-Input\n"
 "P3 and P4"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:995
+#: src/emc/usr_intf/pncconf/private_data.py:1017
 msgid ""
 "7i64-Output\n"
 "P2 and P5"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:995
+#: src/emc/usr_intf/pncconf/private_data.py:1017
 msgid "7i64-Analog In"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1008
+#: src/emc/usr_intf/pncconf/private_data.py:1030
 msgid ""
 "7i69\n"
 "P2"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1008
+#: src/emc/usr_intf/pncconf/private_data.py:1030
 msgid ""
 "7i69\n"
 "P3"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1020
+#: src/emc/usr_intf/pncconf/private_data.py:1042
 msgid ""
 "7i70-Input\n"
 "TB3"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1020
+#: src/emc/usr_intf/pncconf/private_data.py:1042
 msgid ""
 "7i70-Input\n"
 "TB2"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1032
+#: src/emc/usr_intf/pncconf/private_data.py:1054
 msgid ""
 "7i71-Output\n"
 "TB3"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1032
+#: src/emc/usr_intf/pncconf/private_data.py:1054
 msgid ""
 "7i71-Output\n"
 "TB2"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1044
-#: src/emc/usr_intf/pncconf/private_data.py:1056
+#: src/emc/usr_intf/pncconf/private_data.py:1066
+#: src/emc/usr_intf/pncconf/private_data.py:1078
 msgid ""
 "7i76-I/O\n"
 "TB6"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1044
-#: src/emc/usr_intf/pncconf/private_data.py:1056
+#: src/emc/usr_intf/pncconf/private_data.py:1066
+#: src/emc/usr_intf/pncconf/private_data.py:1078
 msgid ""
 "7i76-I/O\n"
 "TB5"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1044
-#: src/emc/usr_intf/pncconf/private_data.py:1056
+#: src/emc/usr_intf/pncconf/private_data.py:1066
+#: src/emc/usr_intf/pncconf/private_data.py:1078
 msgid ""
 "7i76-Analog Output\n"
 "TB4"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1068
-#: src/emc/usr_intf/pncconf/private_data.py:1080
+#: src/emc/usr_intf/pncconf/private_data.py:1090
+#: src/emc/usr_intf/pncconf/private_data.py:1102
 msgid ""
 "7i77-I/O\n"
 "TB8"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1068
-#: src/emc/usr_intf/pncconf/private_data.py:1080
+#: src/emc/usr_intf/pncconf/private_data.py:1090
+#: src/emc/usr_intf/pncconf/private_data.py:1102
 msgid ""
 "7i77-I/O\n"
 "TB7"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1068
-#: src/emc/usr_intf/pncconf/private_data.py:1080
+#: src/emc/usr_intf/pncconf/private_data.py:1090
+#: src/emc/usr_intf/pncconf/private_data.py:1102
 msgid ""
 "7i77-Analog Output\n"
 "TB5"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1092
+#: src/emc/usr_intf/pncconf/private_data.py:1114
 msgid "7i73-I/O\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1105
+#: src/emc/usr_intf/pncconf/private_data.py:1127
 msgid ""
 "7i84-I/O\n"
 "TB3"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1105
-#: src/emc/usr_intf/pncconf/private_data.py:1120
+#: src/emc/usr_intf/pncconf/private_data.py:1127
+#: src/emc/usr_intf/pncconf/private_data.py:1142
 msgid ""
 "7i84-I/O\n"
 "TB2"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1120
+#: src/emc/usr_intf/pncconf/private_data.py:1142
 msgid ""
 "7i84-I/O-MPG\n"
 "TB3"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1185
+#: src/emc/usr_intf/pncconf/private_data.py:1207
 msgid ""
 "OK to replace existing custom pyvcp panel and custom_postgui.hal file ?\n"
 "Existing custompanel.xml and custom_postgui.hal will be renamed "
@@ -14605,15 +14625,15 @@ msgid ""
 "be lost. "
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1186
+#: src/emc/usr_intf/pncconf/private_data.py:1208
 msgid "Quit PNCconf and discard changes?"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1187
+#: src/emc/usr_intf/pncconf/private_data.py:1209
 msgid "Do you want to quit?"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1193
+#: src/emc/usr_intf/pncconf/private_data.py:1215
 msgid ""
 "Ok to replace AXIS's .axisrc file?\n"
 " If you haven't added custom commands to this hidden file, outside of "
@@ -14779,18 +14799,22 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/main_page.glade:315
-#: src/emc/usr_intf/pncconf/mesa0.glade:20244
-#: src/emc/usr_intf/pncconf/mesa0.glade:25426
-#: src/emc/usr_intf/pncconf/mesa0.glade:30608
-#: src/emc/usr_intf/pncconf/mesa0.glade:35790
-#: src/emc/usr_intf/pncconf/mesa0.glade:40972
-#: src/emc/usr_intf/pncconf/mesa0.glade:46154
-#: src/emc/usr_intf/pncconf/mesa1.glade:20246
-#: src/emc/usr_intf/pncconf/mesa1.glade:25428
-#: src/emc/usr_intf/pncconf/mesa1.glade:30610
-#: src/emc/usr_intf/pncconf/mesa1.glade:35792
-#: src/emc/usr_intf/pncconf/mesa1.glade:40974
-#: src/emc/usr_intf/pncconf/mesa1.glade:46156
+#: src/emc/usr_intf/pncconf/mesa0.glade:20243
+#: src/emc/usr_intf/pncconf/mesa0.glade:25449
+#: src/emc/usr_intf/pncconf/mesa0.glade:30655
+#: src/emc/usr_intf/pncconf/mesa0.glade:35861
+#: src/emc/usr_intf/pncconf/mesa0.glade:41067
+#: src/emc/usr_intf/pncconf/mesa0.glade:46273
+#: src/emc/usr_intf/pncconf/mesa0.glade:51479
+#: src/emc/usr_intf/pncconf/mesa0.glade:56631
+#: src/emc/usr_intf/pncconf/mesa1.glade:20243
+#: src/emc/usr_intf/pncconf/mesa1.glade:25449
+#: src/emc/usr_intf/pncconf/mesa1.glade:30655
+#: src/emc/usr_intf/pncconf/mesa1.glade:35861
+#: src/emc/usr_intf/pncconf/mesa1.glade:41067
+#: src/emc/usr_intf/pncconf/mesa1.glade:46273
+#: src/emc/usr_intf/pncconf/mesa1.glade:51479
+#: src/emc/usr_intf/pncconf/mesa1.glade:56631
 msgid "page 1"
 msgstr ""
 
@@ -15002,1232 +15026,1366 @@ msgstr ""
 msgid "Firmware:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:339
-#: src/emc/usr_intf/pncconf/mesa1.glade:339
+#: src/emc/usr_intf/pncconf/mesa0.glade:338
+#: src/emc/usr_intf/pncconf/mesa1.glade:338
 msgid "Num of 3 pwm generators: "
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:367
-#: src/emc/usr_intf/pncconf/mesa1.glade:367
+#: src/emc/usr_intf/pncconf/mesa0.glade:366
+#: src/emc/usr_intf/pncconf/mesa1.glade:366
 msgid "Total number of pins:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:391
-#: src/emc/usr_intf/pncconf/mesa1.glade:391
+#: src/emc/usr_intf/pncconf/mesa0.glade:390
+#: src/emc/usr_intf/pncconf/mesa1.glade:390
 msgid ""
 "Accept  components\n"
 "          Changes"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:408
-#: src/emc/usr_intf/pncconf/mesa1.glade:408
+#: src/emc/usr_intf/pncconf/mesa0.glade:407
+#: src/emc/usr_intf/pncconf/mesa1.glade:407
 msgid "PWM base frequency:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:420
-#: src/emc/usr_intf/pncconf/mesa1.glade:420
+#: src/emc/usr_intf/pncconf/mesa0.glade:419
+#: src/emc/usr_intf/pncconf/mesa1.glade:419
 msgid "PDM base frequency:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:432
-#: src/emc/usr_intf/pncconf/mesa1.glade:432
+#: src/emc/usr_intf/pncconf/mesa0.glade:431
+#: src/emc/usr_intf/pncconf/mesa1.glade:431
 msgid "Watchdog timeout:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:565
-#: src/emc/usr_intf/pncconf/mesa1.glade:565
+#: src/emc/usr_intf/pncconf/mesa0.glade:564
+#: src/emc/usr_intf/pncconf/mesa1.glade:564
 msgid "Num of encoders:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:577
-#: src/emc/usr_intf/pncconf/mesa1.glade:577
+#: src/emc/usr_intf/pncconf/mesa0.glade:576
+#: src/emc/usr_intf/pncconf/mesa1.glade:576
 msgid "Num of pwm generators:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:589
-#: src/emc/usr_intf/pncconf/mesa1.glade:589
+#: src/emc/usr_intf/pncconf/mesa0.glade:588
+#: src/emc/usr_intf/pncconf/mesa1.glade:588
 msgid "Num of step generators: "
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:601
-#: src/emc/usr_intf/pncconf/mesa1.glade:601
+#: src/emc/usr_intf/pncconf/mesa0.glade:600
+#: src/emc/usr_intf/pncconf/mesa1.glade:600
 #, fuzzy
 msgid "Board name"
 msgstr "Modo World"
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:608
-#: src/emc/usr_intf/pncconf/mesa1.glade:608
+#: src/emc/usr_intf/pncconf/mesa0.glade:607
+#: src/emc/usr_intf/pncconf/mesa1.glade:607
 msgid "Num of Smart Serial Ports:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:663
-#: src/emc/usr_intf/pncconf/mesa1.glade:663
+#: src/emc/usr_intf/pncconf/mesa0.glade:662
+#: src/emc/usr_intf/pncconf/mesa1.glade:662
 msgid "7i29 daughter board"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:676
-#: src/emc/usr_intf/pncconf/mesa1.glade:676
+#: src/emc/usr_intf/pncconf/mesa0.glade:675
+#: src/emc/usr_intf/pncconf/mesa1.glade:675
 msgid "7i30 daughter board"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:689
-#: src/emc/usr_intf/pncconf/mesa1.glade:689
+#: src/emc/usr_intf/pncconf/mesa0.glade:688
+#: src/emc/usr_intf/pncconf/mesa1.glade:688
 msgid "7i33 daughter board"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:702
-#: src/emc/usr_intf/pncconf/mesa1.glade:702
+#: src/emc/usr_intf/pncconf/mesa0.glade:701
+#: src/emc/usr_intf/pncconf/mesa1.glade:701
 msgid "7i40 daughter board"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:715
-#: src/emc/usr_intf/pncconf/mesa1.glade:715
+#: src/emc/usr_intf/pncconf/mesa0.glade:714
+#: src/emc/usr_intf/pncconf/mesa1.glade:714
 msgid "7i48 daughter board"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:734
-#: src/emc/usr_intf/pncconf/mesa1.glade:734
+#: src/emc/usr_intf/pncconf/mesa0.glade:733
+#: src/emc/usr_intf/pncconf/mesa1.glade:733
 msgid "<b>Sanity Checks</b>"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:766
-#: src/emc/usr_intf/pncconf/mesa1.glade:766
+#: src/emc/usr_intf/pncconf/mesa0.glade:765
+#: src/emc/usr_intf/pncconf/mesa1.glade:765
 #, fuzzy
 msgid "Num of channels: "
 msgstr "Número de canais insuficiente"
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:778
-#: src/emc/usr_intf/pncconf/mesa1.glade:778
+#: src/emc/usr_intf/pncconf/mesa0.glade:777
+#: src/emc/usr_intf/pncconf/mesa1.glade:777
 #, fuzzy
 msgid "Num of resolvers:"
 msgstr "Número de canais insuficiente"
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:813
-#: src/emc/usr_intf/pncconf/mesa1.glade:813
+#: src/emc/usr_intf/pncconf/mesa0.glade:812
+#: src/emc/usr_intf/pncconf/mesa1.glade:812
 msgid ""
 "   Board\n"
 "Discovery"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:887
-#: src/emc/usr_intf/pncconf/mesa1.glade:887
+#: src/emc/usr_intf/pncconf/mesa0.glade:886
+#: src/emc/usr_intf/pncconf/mesa1.glade:886
 #, fuzzy
 msgid ""
 "Configuration\n"
 "     Page"
 msgstr "Mostrar _Configuração Hal"
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1125
-#: src/emc/usr_intf/pncconf/mesa0.glade:1390
-#: src/emc/usr_intf/pncconf/mesa0.glade:3131
-#: src/emc/usr_intf/pncconf/mesa0.glade:3396
-#: src/emc/usr_intf/pncconf/mesa0.glade:6540
-#: src/emc/usr_intf/pncconf/mesa0.glade:6806
-#: src/emc/usr_intf/pncconf/mesa0.glade:8454
-#: src/emc/usr_intf/pncconf/mesa0.glade:8711
-#: src/emc/usr_intf/pncconf/mesa0.glade:10372
-#: src/emc/usr_intf/pncconf/mesa0.glade:10638
-#: src/emc/usr_intf/pncconf/mesa0.glade:12297
-#: src/emc/usr_intf/pncconf/mesa0.glade:12563
-#: src/emc/usr_intf/pncconf/mesa0.glade:12694
-#: src/emc/usr_intf/pncconf/mesa0.glade:12959
-#: src/emc/usr_intf/pncconf/mesa0.glade:14619
-#: src/emc/usr_intf/pncconf/mesa0.glade:14884
-#: src/emc/usr_intf/pncconf/mesa0.glade:16544
-#: src/emc/usr_intf/pncconf/mesa0.glade:16809
-#: src/emc/usr_intf/pncconf/mesa0.glade:18485
-#: src/emc/usr_intf/pncconf/mesa0.glade:18741
-#: src/emc/usr_intf/pncconf/mesa0.glade:21863
-#: src/emc/usr_intf/pncconf/mesa0.glade:22120
-#: src/emc/usr_intf/pncconf/mesa0.glade:22413
-#: src/emc/usr_intf/pncconf/mesa0.glade:23667
-#: src/emc/usr_intf/pncconf/mesa0.glade:23923
-#: src/emc/usr_intf/pncconf/mesa0.glade:27045
-#: src/emc/usr_intf/pncconf/mesa0.glade:27302
-#: src/emc/usr_intf/pncconf/mesa0.glade:27595
-#: src/emc/usr_intf/pncconf/mesa0.glade:28849
-#: src/emc/usr_intf/pncconf/mesa0.glade:29105
-#: src/emc/usr_intf/pncconf/mesa0.glade:32227
-#: src/emc/usr_intf/pncconf/mesa0.glade:32484
-#: src/emc/usr_intf/pncconf/mesa0.glade:32777
-#: src/emc/usr_intf/pncconf/mesa0.glade:34031
-#: src/emc/usr_intf/pncconf/mesa0.glade:34287
-#: src/emc/usr_intf/pncconf/mesa0.glade:37409
-#: src/emc/usr_intf/pncconf/mesa0.glade:37666
-#: src/emc/usr_intf/pncconf/mesa0.glade:37959
-#: src/emc/usr_intf/pncconf/mesa0.glade:39213
-#: src/emc/usr_intf/pncconf/mesa0.glade:39469
-#: src/emc/usr_intf/pncconf/mesa0.glade:42591
-#: src/emc/usr_intf/pncconf/mesa0.glade:42848
-#: src/emc/usr_intf/pncconf/mesa0.glade:43141
-#: src/emc/usr_intf/pncconf/mesa0.glade:44395
-#: src/emc/usr_intf/pncconf/mesa0.glade:44651
-#: src/emc/usr_intf/pncconf/mesa0.glade:47773
-#: src/emc/usr_intf/pncconf/mesa0.glade:48030
-#: src/emc/usr_intf/pncconf/mesa0.glade:48323
-#: src/emc/usr_intf/pncconf/mesa1.glade:1125
-#: src/emc/usr_intf/pncconf/mesa1.glade:1390
-#: src/emc/usr_intf/pncconf/mesa1.glade:3131
-#: src/emc/usr_intf/pncconf/mesa1.glade:3396
-#: src/emc/usr_intf/pncconf/mesa1.glade:6541
-#: src/emc/usr_intf/pncconf/mesa1.glade:6807
-#: src/emc/usr_intf/pncconf/mesa1.glade:8455
-#: src/emc/usr_intf/pncconf/mesa1.glade:8712
-#: src/emc/usr_intf/pncconf/mesa1.glade:10373
-#: src/emc/usr_intf/pncconf/mesa1.glade:10639
-#: src/emc/usr_intf/pncconf/mesa1.glade:12298
-#: src/emc/usr_intf/pncconf/mesa1.glade:12564
-#: src/emc/usr_intf/pncconf/mesa1.glade:12695
-#: src/emc/usr_intf/pncconf/mesa1.glade:12960
-#: src/emc/usr_intf/pncconf/mesa1.glade:14620
-#: src/emc/usr_intf/pncconf/mesa1.glade:14885
-#: src/emc/usr_intf/pncconf/mesa1.glade:16546
-#: src/emc/usr_intf/pncconf/mesa1.glade:16811
-#: src/emc/usr_intf/pncconf/mesa1.glade:18487
-#: src/emc/usr_intf/pncconf/mesa1.glade:18743
-#: src/emc/usr_intf/pncconf/mesa1.glade:21865
-#: src/emc/usr_intf/pncconf/mesa1.glade:22122
-#: src/emc/usr_intf/pncconf/mesa1.glade:22415
-#: src/emc/usr_intf/pncconf/mesa1.glade:23669
-#: src/emc/usr_intf/pncconf/mesa1.glade:23925
-#: src/emc/usr_intf/pncconf/mesa1.glade:27047
-#: src/emc/usr_intf/pncconf/mesa1.glade:27304
-#: src/emc/usr_intf/pncconf/mesa1.glade:27597
-#: src/emc/usr_intf/pncconf/mesa1.glade:28851
-#: src/emc/usr_intf/pncconf/mesa1.glade:29107
-#: src/emc/usr_intf/pncconf/mesa1.glade:32229
-#: src/emc/usr_intf/pncconf/mesa1.glade:32486
-#: src/emc/usr_intf/pncconf/mesa1.glade:32779
-#: src/emc/usr_intf/pncconf/mesa1.glade:34033
-#: src/emc/usr_intf/pncconf/mesa1.glade:34289
-#: src/emc/usr_intf/pncconf/mesa1.glade:37411
-#: src/emc/usr_intf/pncconf/mesa1.glade:37668
-#: src/emc/usr_intf/pncconf/mesa1.glade:37961
-#: src/emc/usr_intf/pncconf/mesa1.glade:39215
-#: src/emc/usr_intf/pncconf/mesa1.glade:39471
-#: src/emc/usr_intf/pncconf/mesa1.glade:42593
-#: src/emc/usr_intf/pncconf/mesa1.glade:42850
-#: src/emc/usr_intf/pncconf/mesa1.glade:43143
-#: src/emc/usr_intf/pncconf/mesa1.glade:44397
-#: src/emc/usr_intf/pncconf/mesa1.glade:44653
-#: src/emc/usr_intf/pncconf/mesa1.glade:47775
-#: src/emc/usr_intf/pncconf/mesa1.glade:48032
-#: src/emc/usr_intf/pncconf/mesa1.glade:48325
+#: src/emc/usr_intf/pncconf/mesa0.glade:1124
+#: src/emc/usr_intf/pncconf/mesa0.glade:1389
+#: src/emc/usr_intf/pncconf/mesa0.glade:3130
+#: src/emc/usr_intf/pncconf/mesa0.glade:3395
+#: src/emc/usr_intf/pncconf/mesa0.glade:6539
+#: src/emc/usr_intf/pncconf/mesa0.glade:6805
+#: src/emc/usr_intf/pncconf/mesa0.glade:8453
+#: src/emc/usr_intf/pncconf/mesa0.glade:8710
+#: src/emc/usr_intf/pncconf/mesa0.glade:10371
+#: src/emc/usr_intf/pncconf/mesa0.glade:10637
+#: src/emc/usr_intf/pncconf/mesa0.glade:12296
+#: src/emc/usr_intf/pncconf/mesa0.glade:12562
+#: src/emc/usr_intf/pncconf/mesa0.glade:12693
+#: src/emc/usr_intf/pncconf/mesa0.glade:12958
+#: src/emc/usr_intf/pncconf/mesa0.glade:14618
+#: src/emc/usr_intf/pncconf/mesa0.glade:14883
+#: src/emc/usr_intf/pncconf/mesa0.glade:16543
+#: src/emc/usr_intf/pncconf/mesa0.glade:16808
+#: src/emc/usr_intf/pncconf/mesa0.glade:18484
+#: src/emc/usr_intf/pncconf/mesa0.glade:18740
+#: src/emc/usr_intf/pncconf/mesa0.glade:21862
+#: src/emc/usr_intf/pncconf/mesa0.glade:22119
+#: src/emc/usr_intf/pncconf/mesa0.glade:22436
+#: src/emc/usr_intf/pncconf/mesa0.glade:23690
+#: src/emc/usr_intf/pncconf/mesa0.glade:23946
+#: src/emc/usr_intf/pncconf/mesa0.glade:27068
+#: src/emc/usr_intf/pncconf/mesa0.glade:27325
+#: src/emc/usr_intf/pncconf/mesa0.glade:27642
+#: src/emc/usr_intf/pncconf/mesa0.glade:28896
+#: src/emc/usr_intf/pncconf/mesa0.glade:29152
+#: src/emc/usr_intf/pncconf/mesa0.glade:32274
+#: src/emc/usr_intf/pncconf/mesa0.glade:32531
+#: src/emc/usr_intf/pncconf/mesa0.glade:32848
+#: src/emc/usr_intf/pncconf/mesa0.glade:34102
+#: src/emc/usr_intf/pncconf/mesa0.glade:34358
+#: src/emc/usr_intf/pncconf/mesa0.glade:37480
+#: src/emc/usr_intf/pncconf/mesa0.glade:37737
+#: src/emc/usr_intf/pncconf/mesa0.glade:38054
+#: src/emc/usr_intf/pncconf/mesa0.glade:39308
+#: src/emc/usr_intf/pncconf/mesa0.glade:39564
+#: src/emc/usr_intf/pncconf/mesa0.glade:42686
+#: src/emc/usr_intf/pncconf/mesa0.glade:42943
+#: src/emc/usr_intf/pncconf/mesa0.glade:43260
+#: src/emc/usr_intf/pncconf/mesa0.glade:44514
+#: src/emc/usr_intf/pncconf/mesa0.glade:44770
+#: src/emc/usr_intf/pncconf/mesa0.glade:47892
+#: src/emc/usr_intf/pncconf/mesa0.glade:48149
+#: src/emc/usr_intf/pncconf/mesa0.glade:48466
+#: src/emc/usr_intf/pncconf/mesa0.glade:49720
+#: src/emc/usr_intf/pncconf/mesa0.glade:49976
+#: src/emc/usr_intf/pncconf/mesa0.glade:53098
+#: src/emc/usr_intf/pncconf/mesa0.glade:53355
+#: src/emc/usr_intf/pncconf/mesa0.glade:53618
+#: src/emc/usr_intf/pncconf/mesa0.glade:54872
+#: src/emc/usr_intf/pncconf/mesa0.glade:55128
+#: src/emc/usr_intf/pncconf/mesa0.glade:58250
+#: src/emc/usr_intf/pncconf/mesa0.glade:58507
+#: src/emc/usr_intf/pncconf/mesa0.glade:58782
+#: src/emc/usr_intf/pncconf/mesa1.glade:1124
+#: src/emc/usr_intf/pncconf/mesa1.glade:1389
+#: src/emc/usr_intf/pncconf/mesa1.glade:3130
+#: src/emc/usr_intf/pncconf/mesa1.glade:3395
+#: src/emc/usr_intf/pncconf/mesa1.glade:6539
+#: src/emc/usr_intf/pncconf/mesa1.glade:6805
+#: src/emc/usr_intf/pncconf/mesa1.glade:8453
+#: src/emc/usr_intf/pncconf/mesa1.glade:8710
+#: src/emc/usr_intf/pncconf/mesa1.glade:10371
+#: src/emc/usr_intf/pncconf/mesa1.glade:10637
+#: src/emc/usr_intf/pncconf/mesa1.glade:12296
+#: src/emc/usr_intf/pncconf/mesa1.glade:12562
+#: src/emc/usr_intf/pncconf/mesa1.glade:12693
+#: src/emc/usr_intf/pncconf/mesa1.glade:12958
+#: src/emc/usr_intf/pncconf/mesa1.glade:14618
+#: src/emc/usr_intf/pncconf/mesa1.glade:14883
+#: src/emc/usr_intf/pncconf/mesa1.glade:16543
+#: src/emc/usr_intf/pncconf/mesa1.glade:16808
+#: src/emc/usr_intf/pncconf/mesa1.glade:18484
+#: src/emc/usr_intf/pncconf/mesa1.glade:18740
+#: src/emc/usr_intf/pncconf/mesa1.glade:21862
+#: src/emc/usr_intf/pncconf/mesa1.glade:22119
+#: src/emc/usr_intf/pncconf/mesa1.glade:22436
+#: src/emc/usr_intf/pncconf/mesa1.glade:23690
+#: src/emc/usr_intf/pncconf/mesa1.glade:23946
+#: src/emc/usr_intf/pncconf/mesa1.glade:27068
+#: src/emc/usr_intf/pncconf/mesa1.glade:27325
+#: src/emc/usr_intf/pncconf/mesa1.glade:27642
+#: src/emc/usr_intf/pncconf/mesa1.glade:28896
+#: src/emc/usr_intf/pncconf/mesa1.glade:29152
+#: src/emc/usr_intf/pncconf/mesa1.glade:32274
+#: src/emc/usr_intf/pncconf/mesa1.glade:32531
+#: src/emc/usr_intf/pncconf/mesa1.glade:32848
+#: src/emc/usr_intf/pncconf/mesa1.glade:34102
+#: src/emc/usr_intf/pncconf/mesa1.glade:34358
+#: src/emc/usr_intf/pncconf/mesa1.glade:37480
+#: src/emc/usr_intf/pncconf/mesa1.glade:37737
+#: src/emc/usr_intf/pncconf/mesa1.glade:38054
+#: src/emc/usr_intf/pncconf/mesa1.glade:39308
+#: src/emc/usr_intf/pncconf/mesa1.glade:39564
+#: src/emc/usr_intf/pncconf/mesa1.glade:42686
+#: src/emc/usr_intf/pncconf/mesa1.glade:42943
+#: src/emc/usr_intf/pncconf/mesa1.glade:43260
+#: src/emc/usr_intf/pncconf/mesa1.glade:44514
+#: src/emc/usr_intf/pncconf/mesa1.glade:44770
+#: src/emc/usr_intf/pncconf/mesa1.glade:47892
+#: src/emc/usr_intf/pncconf/mesa1.glade:48149
+#: src/emc/usr_intf/pncconf/mesa1.glade:48466
+#: src/emc/usr_intf/pncconf/mesa1.glade:49720
+#: src/emc/usr_intf/pncconf/mesa1.glade:49976
+#: src/emc/usr_intf/pncconf/mesa1.glade:53098
+#: src/emc/usr_intf/pncconf/mesa1.glade:53355
+#: src/emc/usr_intf/pncconf/mesa1.glade:53618
+#: src/emc/usr_intf/pncconf/mesa1.glade:54872
+#: src/emc/usr_intf/pncconf/mesa1.glade:55128
+#: src/emc/usr_intf/pncconf/mesa1.glade:58250
+#: src/emc/usr_intf/pncconf/mesa1.glade:58507
+#: src/emc/usr_intf/pncconf/mesa1.glade:58782
 msgid "Pin Type"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1138
-#: src/emc/usr_intf/pncconf/mesa0.glade:1197
-#: src/emc/usr_intf/pncconf/mesa0.glade:3144
-#: src/emc/usr_intf/pncconf/mesa0.glade:3203
-#: src/emc/usr_intf/pncconf/mesa0.glade:6734
-#: src/emc/usr_intf/pncconf/mesa0.glade:6792
-#: src/emc/usr_intf/pncconf/mesa0.glade:8639
-#: src/emc/usr_intf/pncconf/mesa0.glade:8697
-#: src/emc/usr_intf/pncconf/mesa0.glade:10566
-#: src/emc/usr_intf/pncconf/mesa0.glade:10624
-#: src/emc/usr_intf/pncconf/mesa0.glade:12491
-#: src/emc/usr_intf/pncconf/mesa0.glade:12549
-#: src/emc/usr_intf/pncconf/mesa0.glade:12707
-#: src/emc/usr_intf/pncconf/mesa0.glade:12766
-#: src/emc/usr_intf/pncconf/mesa0.glade:14632
-#: src/emc/usr_intf/pncconf/mesa0.glade:14691
-#: src/emc/usr_intf/pncconf/mesa0.glade:16557
-#: src/emc/usr_intf/pncconf/mesa0.glade:16616
-#: src/emc/usr_intf/pncconf/mesa0.glade:18498
-#: src/emc/usr_intf/pncconf/mesa0.glade:18557
-#: src/emc/usr_intf/pncconf/mesa0.glade:22048
-#: src/emc/usr_intf/pncconf/mesa0.glade:22106
-#: src/emc/usr_intf/pncconf/mesa0.glade:22426
-#: src/emc/usr_intf/pncconf/mesa0.glade:23680
-#: src/emc/usr_intf/pncconf/mesa0.glade:23739
-#: src/emc/usr_intf/pncconf/mesa0.glade:27230
-#: src/emc/usr_intf/pncconf/mesa0.glade:27288
-#: src/emc/usr_intf/pncconf/mesa0.glade:27608
-#: src/emc/usr_intf/pncconf/mesa0.glade:28862
-#: src/emc/usr_intf/pncconf/mesa0.glade:28921
-#: src/emc/usr_intf/pncconf/mesa0.glade:32412
-#: src/emc/usr_intf/pncconf/mesa0.glade:32470
-#: src/emc/usr_intf/pncconf/mesa0.glade:32790
-#: src/emc/usr_intf/pncconf/mesa0.glade:34044
-#: src/emc/usr_intf/pncconf/mesa0.glade:34103
-#: src/emc/usr_intf/pncconf/mesa0.glade:37594
-#: src/emc/usr_intf/pncconf/mesa0.glade:37652
-#: src/emc/usr_intf/pncconf/mesa0.glade:37972
-#: src/emc/usr_intf/pncconf/mesa0.glade:39226
-#: src/emc/usr_intf/pncconf/mesa0.glade:39285
-#: src/emc/usr_intf/pncconf/mesa0.glade:42776
-#: src/emc/usr_intf/pncconf/mesa0.glade:42834
-#: src/emc/usr_intf/pncconf/mesa0.glade:43154
-#: src/emc/usr_intf/pncconf/mesa0.glade:44408
-#: src/emc/usr_intf/pncconf/mesa0.glade:44467
-#: src/emc/usr_intf/pncconf/mesa0.glade:47958
-#: src/emc/usr_intf/pncconf/mesa0.glade:48016
-#: src/emc/usr_intf/pncconf/mesa0.glade:48336
-#: src/emc/usr_intf/pncconf/mesa1.glade:1138
-#: src/emc/usr_intf/pncconf/mesa1.glade:1197
-#: src/emc/usr_intf/pncconf/mesa1.glade:3144
-#: src/emc/usr_intf/pncconf/mesa1.glade:3203
-#: src/emc/usr_intf/pncconf/mesa1.glade:6735
-#: src/emc/usr_intf/pncconf/mesa1.glade:6793
-#: src/emc/usr_intf/pncconf/mesa1.glade:8640
-#: src/emc/usr_intf/pncconf/mesa1.glade:8698
-#: src/emc/usr_intf/pncconf/mesa1.glade:10567
-#: src/emc/usr_intf/pncconf/mesa1.glade:10625
-#: src/emc/usr_intf/pncconf/mesa1.glade:12492
-#: src/emc/usr_intf/pncconf/mesa1.glade:12550
-#: src/emc/usr_intf/pncconf/mesa1.glade:12708
-#: src/emc/usr_intf/pncconf/mesa1.glade:12767
-#: src/emc/usr_intf/pncconf/mesa1.glade:14633
-#: src/emc/usr_intf/pncconf/mesa1.glade:14692
-#: src/emc/usr_intf/pncconf/mesa1.glade:16559
-#: src/emc/usr_intf/pncconf/mesa1.glade:16618
-#: src/emc/usr_intf/pncconf/mesa1.glade:18500
-#: src/emc/usr_intf/pncconf/mesa1.glade:18559
-#: src/emc/usr_intf/pncconf/mesa1.glade:22050
-#: src/emc/usr_intf/pncconf/mesa1.glade:22108
-#: src/emc/usr_intf/pncconf/mesa1.glade:22428
-#: src/emc/usr_intf/pncconf/mesa1.glade:23682
-#: src/emc/usr_intf/pncconf/mesa1.glade:23741
-#: src/emc/usr_intf/pncconf/mesa1.glade:27232
-#: src/emc/usr_intf/pncconf/mesa1.glade:27290
-#: src/emc/usr_intf/pncconf/mesa1.glade:27610
-#: src/emc/usr_intf/pncconf/mesa1.glade:28864
-#: src/emc/usr_intf/pncconf/mesa1.glade:28923
-#: src/emc/usr_intf/pncconf/mesa1.glade:32414
-#: src/emc/usr_intf/pncconf/mesa1.glade:32472
-#: src/emc/usr_intf/pncconf/mesa1.glade:32792
-#: src/emc/usr_intf/pncconf/mesa1.glade:34046
-#: src/emc/usr_intf/pncconf/mesa1.glade:34105
-#: src/emc/usr_intf/pncconf/mesa1.glade:37596
-#: src/emc/usr_intf/pncconf/mesa1.glade:37654
-#: src/emc/usr_intf/pncconf/mesa1.glade:37974
-#: src/emc/usr_intf/pncconf/mesa1.glade:39228
-#: src/emc/usr_intf/pncconf/mesa1.glade:39287
-#: src/emc/usr_intf/pncconf/mesa1.glade:42778
-#: src/emc/usr_intf/pncconf/mesa1.glade:42836
-#: src/emc/usr_intf/pncconf/mesa1.glade:43156
-#: src/emc/usr_intf/pncconf/mesa1.glade:44410
-#: src/emc/usr_intf/pncconf/mesa1.glade:44469
-#: src/emc/usr_intf/pncconf/mesa1.glade:47960
-#: src/emc/usr_intf/pncconf/mesa1.glade:48018
-#: src/emc/usr_intf/pncconf/mesa1.glade:48338
+#: src/emc/usr_intf/pncconf/mesa0.glade:1137
+#: src/emc/usr_intf/pncconf/mesa0.glade:1196
+#: src/emc/usr_intf/pncconf/mesa0.glade:3143
+#: src/emc/usr_intf/pncconf/mesa0.glade:3202
+#: src/emc/usr_intf/pncconf/mesa0.glade:6733
+#: src/emc/usr_intf/pncconf/mesa0.glade:6791
+#: src/emc/usr_intf/pncconf/mesa0.glade:8638
+#: src/emc/usr_intf/pncconf/mesa0.glade:8696
+#: src/emc/usr_intf/pncconf/mesa0.glade:10565
+#: src/emc/usr_intf/pncconf/mesa0.glade:10623
+#: src/emc/usr_intf/pncconf/mesa0.glade:12490
+#: src/emc/usr_intf/pncconf/mesa0.glade:12548
+#: src/emc/usr_intf/pncconf/mesa0.glade:12706
+#: src/emc/usr_intf/pncconf/mesa0.glade:12765
+#: src/emc/usr_intf/pncconf/mesa0.glade:14631
+#: src/emc/usr_intf/pncconf/mesa0.glade:14690
+#: src/emc/usr_intf/pncconf/mesa0.glade:16556
+#: src/emc/usr_intf/pncconf/mesa0.glade:16615
+#: src/emc/usr_intf/pncconf/mesa0.glade:18497
+#: src/emc/usr_intf/pncconf/mesa0.glade:18556
+#: src/emc/usr_intf/pncconf/mesa0.glade:22047
+#: src/emc/usr_intf/pncconf/mesa0.glade:22105
+#: src/emc/usr_intf/pncconf/mesa0.glade:22449
+#: src/emc/usr_intf/pncconf/mesa0.glade:23703
+#: src/emc/usr_intf/pncconf/mesa0.glade:23762
+#: src/emc/usr_intf/pncconf/mesa0.glade:27253
+#: src/emc/usr_intf/pncconf/mesa0.glade:27311
+#: src/emc/usr_intf/pncconf/mesa0.glade:27655
+#: src/emc/usr_intf/pncconf/mesa0.glade:28909
+#: src/emc/usr_intf/pncconf/mesa0.glade:28968
+#: src/emc/usr_intf/pncconf/mesa0.glade:32459
+#: src/emc/usr_intf/pncconf/mesa0.glade:32517
+#: src/emc/usr_intf/pncconf/mesa0.glade:32861
+#: src/emc/usr_intf/pncconf/mesa0.glade:34115
+#: src/emc/usr_intf/pncconf/mesa0.glade:34174
+#: src/emc/usr_intf/pncconf/mesa0.glade:37665
+#: src/emc/usr_intf/pncconf/mesa0.glade:37723
+#: src/emc/usr_intf/pncconf/mesa0.glade:38067
+#: src/emc/usr_intf/pncconf/mesa0.glade:39321
+#: src/emc/usr_intf/pncconf/mesa0.glade:39380
+#: src/emc/usr_intf/pncconf/mesa0.glade:42871
+#: src/emc/usr_intf/pncconf/mesa0.glade:42929
+#: src/emc/usr_intf/pncconf/mesa0.glade:43273
+#: src/emc/usr_intf/pncconf/mesa0.glade:44527
+#: src/emc/usr_intf/pncconf/mesa0.glade:44586
+#: src/emc/usr_intf/pncconf/mesa0.glade:48077
+#: src/emc/usr_intf/pncconf/mesa0.glade:48135
+#: src/emc/usr_intf/pncconf/mesa0.glade:48479
+#: src/emc/usr_intf/pncconf/mesa0.glade:49733
+#: src/emc/usr_intf/pncconf/mesa0.glade:49792
+#: src/emc/usr_intf/pncconf/mesa0.glade:53283
+#: src/emc/usr_intf/pncconf/mesa0.glade:53341
+#: src/emc/usr_intf/pncconf/mesa0.glade:53631
+#: src/emc/usr_intf/pncconf/mesa0.glade:54885
+#: src/emc/usr_intf/pncconf/mesa0.glade:54944
+#: src/emc/usr_intf/pncconf/mesa0.glade:58435
+#: src/emc/usr_intf/pncconf/mesa0.glade:58493
+#: src/emc/usr_intf/pncconf/mesa0.glade:58795
+#: src/emc/usr_intf/pncconf/mesa1.glade:1137
+#: src/emc/usr_intf/pncconf/mesa1.glade:1196
+#: src/emc/usr_intf/pncconf/mesa1.glade:3143
+#: src/emc/usr_intf/pncconf/mesa1.glade:3202
+#: src/emc/usr_intf/pncconf/mesa1.glade:6733
+#: src/emc/usr_intf/pncconf/mesa1.glade:6791
+#: src/emc/usr_intf/pncconf/mesa1.glade:8638
+#: src/emc/usr_intf/pncconf/mesa1.glade:8696
+#: src/emc/usr_intf/pncconf/mesa1.glade:10565
+#: src/emc/usr_intf/pncconf/mesa1.glade:10623
+#: src/emc/usr_intf/pncconf/mesa1.glade:12490
+#: src/emc/usr_intf/pncconf/mesa1.glade:12548
+#: src/emc/usr_intf/pncconf/mesa1.glade:12706
+#: src/emc/usr_intf/pncconf/mesa1.glade:12765
+#: src/emc/usr_intf/pncconf/mesa1.glade:14631
+#: src/emc/usr_intf/pncconf/mesa1.glade:14690
+#: src/emc/usr_intf/pncconf/mesa1.glade:16556
+#: src/emc/usr_intf/pncconf/mesa1.glade:16615
+#: src/emc/usr_intf/pncconf/mesa1.glade:18497
+#: src/emc/usr_intf/pncconf/mesa1.glade:18556
+#: src/emc/usr_intf/pncconf/mesa1.glade:22047
+#: src/emc/usr_intf/pncconf/mesa1.glade:22105
+#: src/emc/usr_intf/pncconf/mesa1.glade:22449
+#: src/emc/usr_intf/pncconf/mesa1.glade:23703
+#: src/emc/usr_intf/pncconf/mesa1.glade:23762
+#: src/emc/usr_intf/pncconf/mesa1.glade:27253
+#: src/emc/usr_intf/pncconf/mesa1.glade:27311
+#: src/emc/usr_intf/pncconf/mesa1.glade:27655
+#: src/emc/usr_intf/pncconf/mesa1.glade:28909
+#: src/emc/usr_intf/pncconf/mesa1.glade:28968
+#: src/emc/usr_intf/pncconf/mesa1.glade:32459
+#: src/emc/usr_intf/pncconf/mesa1.glade:32517
+#: src/emc/usr_intf/pncconf/mesa1.glade:32861
+#: src/emc/usr_intf/pncconf/mesa1.glade:34115
+#: src/emc/usr_intf/pncconf/mesa1.glade:34174
+#: src/emc/usr_intf/pncconf/mesa1.glade:37665
+#: src/emc/usr_intf/pncconf/mesa1.glade:37723
+#: src/emc/usr_intf/pncconf/mesa1.glade:38067
+#: src/emc/usr_intf/pncconf/mesa1.glade:39321
+#: src/emc/usr_intf/pncconf/mesa1.glade:39380
+#: src/emc/usr_intf/pncconf/mesa1.glade:42871
+#: src/emc/usr_intf/pncconf/mesa1.glade:42929
+#: src/emc/usr_intf/pncconf/mesa1.glade:43273
+#: src/emc/usr_intf/pncconf/mesa1.glade:44527
+#: src/emc/usr_intf/pncconf/mesa1.glade:44586
+#: src/emc/usr_intf/pncconf/mesa1.glade:48077
+#: src/emc/usr_intf/pncconf/mesa1.glade:48135
+#: src/emc/usr_intf/pncconf/mesa1.glade:48479
+#: src/emc/usr_intf/pncconf/mesa1.glade:49733
+#: src/emc/usr_intf/pncconf/mesa1.glade:49792
+#: src/emc/usr_intf/pncconf/mesa1.glade:53283
+#: src/emc/usr_intf/pncconf/mesa1.glade:53341
+#: src/emc/usr_intf/pncconf/mesa1.glade:53631
+#: src/emc/usr_intf/pncconf/mesa1.glade:54885
+#: src/emc/usr_intf/pncconf/mesa1.glade:54944
+#: src/emc/usr_intf/pncconf/mesa1.glade:58435
+#: src/emc/usr_intf/pncconf/mesa1.glade:58493
+#: src/emc/usr_intf/pncconf/mesa1.glade:58795
 msgid "Inv"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1210
-#: src/emc/usr_intf/pncconf/mesa0.glade:3216
-#: src/emc/usr_intf/pncconf/mesa0.glade:6719
-#: src/emc/usr_intf/pncconf/mesa0.glade:10551
-#: src/emc/usr_intf/pncconf/mesa0.glade:12476
-#: src/emc/usr_intf/pncconf/mesa0.glade:12779
-#: src/emc/usr_intf/pncconf/mesa0.glade:14704
-#: src/emc/usr_intf/pncconf/mesa0.glade:16629
-#: src/emc/usr_intf/pncconf/mesa1.glade:1210
-#: src/emc/usr_intf/pncconf/mesa1.glade:3216
-#: src/emc/usr_intf/pncconf/mesa1.glade:6720
-#: src/emc/usr_intf/pncconf/mesa1.glade:10552
-#: src/emc/usr_intf/pncconf/mesa1.glade:12477
-#: src/emc/usr_intf/pncconf/mesa1.glade:12780
-#: src/emc/usr_intf/pncconf/mesa1.glade:14705
-#: src/emc/usr_intf/pncconf/mesa1.glade:16631
+#: src/emc/usr_intf/pncconf/mesa0.glade:1209
+#: src/emc/usr_intf/pncconf/mesa0.glade:3215
+#: src/emc/usr_intf/pncconf/mesa0.glade:6718
+#: src/emc/usr_intf/pncconf/mesa0.glade:10550
+#: src/emc/usr_intf/pncconf/mesa0.glade:12475
+#: src/emc/usr_intf/pncconf/mesa0.glade:12778
+#: src/emc/usr_intf/pncconf/mesa0.glade:14703
+#: src/emc/usr_intf/pncconf/mesa0.glade:16628
+#: src/emc/usr_intf/pncconf/mesa1.glade:1209
+#: src/emc/usr_intf/pncconf/mesa1.glade:3215
+#: src/emc/usr_intf/pncconf/mesa1.glade:6718
+#: src/emc/usr_intf/pncconf/mesa1.glade:10550
+#: src/emc/usr_intf/pncconf/mesa1.glade:12475
+#: src/emc/usr_intf/pncconf/mesa1.glade:12778
+#: src/emc/usr_intf/pncconf/mesa1.glade:14703
+#: src/emc/usr_intf/pncconf/mesa1.glade:16628
 msgid "  1:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1225
-#: src/emc/usr_intf/pncconf/mesa0.glade:3231
-#: src/emc/usr_intf/pncconf/mesa0.glade:6704
-#: src/emc/usr_intf/pncconf/mesa0.glade:10536
-#: src/emc/usr_intf/pncconf/mesa0.glade:12461
-#: src/emc/usr_intf/pncconf/mesa0.glade:12794
-#: src/emc/usr_intf/pncconf/mesa0.glade:14719
-#: src/emc/usr_intf/pncconf/mesa0.glade:16644
-#: src/emc/usr_intf/pncconf/mesa1.glade:1225
-#: src/emc/usr_intf/pncconf/mesa1.glade:3231
-#: src/emc/usr_intf/pncconf/mesa1.glade:6705
-#: src/emc/usr_intf/pncconf/mesa1.glade:10537
-#: src/emc/usr_intf/pncconf/mesa1.glade:12462
-#: src/emc/usr_intf/pncconf/mesa1.glade:12795
-#: src/emc/usr_intf/pncconf/mesa1.glade:14720
-#: src/emc/usr_intf/pncconf/mesa1.glade:16646
+#: src/emc/usr_intf/pncconf/mesa0.glade:1224
+#: src/emc/usr_intf/pncconf/mesa0.glade:3230
+#: src/emc/usr_intf/pncconf/mesa0.glade:6703
+#: src/emc/usr_intf/pncconf/mesa0.glade:10535
+#: src/emc/usr_intf/pncconf/mesa0.glade:12460
+#: src/emc/usr_intf/pncconf/mesa0.glade:12793
+#: src/emc/usr_intf/pncconf/mesa0.glade:14718
+#: src/emc/usr_intf/pncconf/mesa0.glade:16643
+#: src/emc/usr_intf/pncconf/mesa1.glade:1224
+#: src/emc/usr_intf/pncconf/mesa1.glade:3230
+#: src/emc/usr_intf/pncconf/mesa1.glade:6703
+#: src/emc/usr_intf/pncconf/mesa1.glade:10535
+#: src/emc/usr_intf/pncconf/mesa1.glade:12460
+#: src/emc/usr_intf/pncconf/mesa1.glade:12793
+#: src/emc/usr_intf/pncconf/mesa1.glade:14718
+#: src/emc/usr_intf/pncconf/mesa1.glade:16643
 msgid "  3:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1240
-#: src/emc/usr_intf/pncconf/mesa0.glade:3246
-#: src/emc/usr_intf/pncconf/mesa0.glade:6689
-#: src/emc/usr_intf/pncconf/mesa0.glade:10521
-#: src/emc/usr_intf/pncconf/mesa0.glade:12446
-#: src/emc/usr_intf/pncconf/mesa0.glade:12809
-#: src/emc/usr_intf/pncconf/mesa0.glade:14734
-#: src/emc/usr_intf/pncconf/mesa0.glade:16659
-#: src/emc/usr_intf/pncconf/mesa1.glade:1240
-#: src/emc/usr_intf/pncconf/mesa1.glade:3246
-#: src/emc/usr_intf/pncconf/mesa1.glade:6690
-#: src/emc/usr_intf/pncconf/mesa1.glade:10522
-#: src/emc/usr_intf/pncconf/mesa1.glade:12447
-#: src/emc/usr_intf/pncconf/mesa1.glade:12810
-#: src/emc/usr_intf/pncconf/mesa1.glade:14735
-#: src/emc/usr_intf/pncconf/mesa1.glade:16661
+#: src/emc/usr_intf/pncconf/mesa0.glade:1239
+#: src/emc/usr_intf/pncconf/mesa0.glade:3245
+#: src/emc/usr_intf/pncconf/mesa0.glade:6688
+#: src/emc/usr_intf/pncconf/mesa0.glade:10520
+#: src/emc/usr_intf/pncconf/mesa0.glade:12445
+#: src/emc/usr_intf/pncconf/mesa0.glade:12808
+#: src/emc/usr_intf/pncconf/mesa0.glade:14733
+#: src/emc/usr_intf/pncconf/mesa0.glade:16658
+#: src/emc/usr_intf/pncconf/mesa1.glade:1239
+#: src/emc/usr_intf/pncconf/mesa1.glade:3245
+#: src/emc/usr_intf/pncconf/mesa1.glade:6688
+#: src/emc/usr_intf/pncconf/mesa1.glade:10520
+#: src/emc/usr_intf/pncconf/mesa1.glade:12445
+#: src/emc/usr_intf/pncconf/mesa1.glade:12808
+#: src/emc/usr_intf/pncconf/mesa1.glade:14733
+#: src/emc/usr_intf/pncconf/mesa1.glade:16658
 msgid "  5:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1255
-#: src/emc/usr_intf/pncconf/mesa0.glade:3261
-#: src/emc/usr_intf/pncconf/mesa0.glade:6674
-#: src/emc/usr_intf/pncconf/mesa0.glade:10506
-#: src/emc/usr_intf/pncconf/mesa0.glade:12431
-#: src/emc/usr_intf/pncconf/mesa0.glade:12824
-#: src/emc/usr_intf/pncconf/mesa0.glade:14749
-#: src/emc/usr_intf/pncconf/mesa0.glade:16674
-#: src/emc/usr_intf/pncconf/mesa1.glade:1255
-#: src/emc/usr_intf/pncconf/mesa1.glade:3261
-#: src/emc/usr_intf/pncconf/mesa1.glade:6675
-#: src/emc/usr_intf/pncconf/mesa1.glade:10507
-#: src/emc/usr_intf/pncconf/mesa1.glade:12432
-#: src/emc/usr_intf/pncconf/mesa1.glade:12825
-#: src/emc/usr_intf/pncconf/mesa1.glade:14750
-#: src/emc/usr_intf/pncconf/mesa1.glade:16676
+#: src/emc/usr_intf/pncconf/mesa0.glade:1254
+#: src/emc/usr_intf/pncconf/mesa0.glade:3260
+#: src/emc/usr_intf/pncconf/mesa0.glade:6673
+#: src/emc/usr_intf/pncconf/mesa0.glade:10505
+#: src/emc/usr_intf/pncconf/mesa0.glade:12430
+#: src/emc/usr_intf/pncconf/mesa0.glade:12823
+#: src/emc/usr_intf/pncconf/mesa0.glade:14748
+#: src/emc/usr_intf/pncconf/mesa0.glade:16673
+#: src/emc/usr_intf/pncconf/mesa1.glade:1254
+#: src/emc/usr_intf/pncconf/mesa1.glade:3260
+#: src/emc/usr_intf/pncconf/mesa1.glade:6673
+#: src/emc/usr_intf/pncconf/mesa1.glade:10505
+#: src/emc/usr_intf/pncconf/mesa1.glade:12430
+#: src/emc/usr_intf/pncconf/mesa1.glade:12823
+#: src/emc/usr_intf/pncconf/mesa1.glade:14748
+#: src/emc/usr_intf/pncconf/mesa1.glade:16673
 msgid "  7:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1270
-#: src/emc/usr_intf/pncconf/mesa0.glade:3276
-#: src/emc/usr_intf/pncconf/mesa0.glade:6659
-#: src/emc/usr_intf/pncconf/mesa0.glade:10491
-#: src/emc/usr_intf/pncconf/mesa0.glade:12416
-#: src/emc/usr_intf/pncconf/mesa0.glade:12839
-#: src/emc/usr_intf/pncconf/mesa0.glade:14764
-#: src/emc/usr_intf/pncconf/mesa0.glade:16689
-#: src/emc/usr_intf/pncconf/mesa1.glade:1270
-#: src/emc/usr_intf/pncconf/mesa1.glade:3276
-#: src/emc/usr_intf/pncconf/mesa1.glade:6660
-#: src/emc/usr_intf/pncconf/mesa1.glade:10492
-#: src/emc/usr_intf/pncconf/mesa1.glade:12417
-#: src/emc/usr_intf/pncconf/mesa1.glade:12840
-#: src/emc/usr_intf/pncconf/mesa1.glade:14765
-#: src/emc/usr_intf/pncconf/mesa1.glade:16691
+#: src/emc/usr_intf/pncconf/mesa0.glade:1269
+#: src/emc/usr_intf/pncconf/mesa0.glade:3275
+#: src/emc/usr_intf/pncconf/mesa0.glade:6658
+#: src/emc/usr_intf/pncconf/mesa0.glade:10490
+#: src/emc/usr_intf/pncconf/mesa0.glade:12415
+#: src/emc/usr_intf/pncconf/mesa0.glade:12838
+#: src/emc/usr_intf/pncconf/mesa0.glade:14763
+#: src/emc/usr_intf/pncconf/mesa0.glade:16688
+#: src/emc/usr_intf/pncconf/mesa1.glade:1269
+#: src/emc/usr_intf/pncconf/mesa1.glade:3275
+#: src/emc/usr_intf/pncconf/mesa1.glade:6658
+#: src/emc/usr_intf/pncconf/mesa1.glade:10490
+#: src/emc/usr_intf/pncconf/mesa1.glade:12415
+#: src/emc/usr_intf/pncconf/mesa1.glade:12838
+#: src/emc/usr_intf/pncconf/mesa1.glade:14763
+#: src/emc/usr_intf/pncconf/mesa1.glade:16688
 msgid "  9:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1285
-#: src/emc/usr_intf/pncconf/mesa0.glade:3291
-#: src/emc/usr_intf/pncconf/mesa0.glade:6644
-#: src/emc/usr_intf/pncconf/mesa0.glade:10476
-#: src/emc/usr_intf/pncconf/mesa0.glade:12401
-#: src/emc/usr_intf/pncconf/mesa0.glade:12854
-#: src/emc/usr_intf/pncconf/mesa0.glade:14779
-#: src/emc/usr_intf/pncconf/mesa0.glade:16704
-#: src/emc/usr_intf/pncconf/mesa1.glade:1285
-#: src/emc/usr_intf/pncconf/mesa1.glade:3291
-#: src/emc/usr_intf/pncconf/mesa1.glade:6645
-#: src/emc/usr_intf/pncconf/mesa1.glade:10477
-#: src/emc/usr_intf/pncconf/mesa1.glade:12402
-#: src/emc/usr_intf/pncconf/mesa1.glade:12855
-#: src/emc/usr_intf/pncconf/mesa1.glade:14780
-#: src/emc/usr_intf/pncconf/mesa1.glade:16706
+#: src/emc/usr_intf/pncconf/mesa0.glade:1284
+#: src/emc/usr_intf/pncconf/mesa0.glade:3290
+#: src/emc/usr_intf/pncconf/mesa0.glade:6643
+#: src/emc/usr_intf/pncconf/mesa0.glade:10475
+#: src/emc/usr_intf/pncconf/mesa0.glade:12400
+#: src/emc/usr_intf/pncconf/mesa0.glade:12853
+#: src/emc/usr_intf/pncconf/mesa0.glade:14778
+#: src/emc/usr_intf/pncconf/mesa0.glade:16703
+#: src/emc/usr_intf/pncconf/mesa1.glade:1284
+#: src/emc/usr_intf/pncconf/mesa1.glade:3290
+#: src/emc/usr_intf/pncconf/mesa1.glade:6643
+#: src/emc/usr_intf/pncconf/mesa1.glade:10475
+#: src/emc/usr_intf/pncconf/mesa1.glade:12400
+#: src/emc/usr_intf/pncconf/mesa1.glade:12853
+#: src/emc/usr_intf/pncconf/mesa1.glade:14778
+#: src/emc/usr_intf/pncconf/mesa1.glade:16703
 msgid "11:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1300
-#: src/emc/usr_intf/pncconf/mesa0.glade:3306
-#: src/emc/usr_intf/pncconf/mesa0.glade:6629
-#: src/emc/usr_intf/pncconf/mesa0.glade:10461
-#: src/emc/usr_intf/pncconf/mesa0.glade:12386
-#: src/emc/usr_intf/pncconf/mesa0.glade:12869
-#: src/emc/usr_intf/pncconf/mesa0.glade:14794
-#: src/emc/usr_intf/pncconf/mesa0.glade:16719
-#: src/emc/usr_intf/pncconf/mesa1.glade:1300
-#: src/emc/usr_intf/pncconf/mesa1.glade:3306
-#: src/emc/usr_intf/pncconf/mesa1.glade:6630
-#: src/emc/usr_intf/pncconf/mesa1.glade:10462
-#: src/emc/usr_intf/pncconf/mesa1.glade:12387
-#: src/emc/usr_intf/pncconf/mesa1.glade:12870
-#: src/emc/usr_intf/pncconf/mesa1.glade:14795
-#: src/emc/usr_intf/pncconf/mesa1.glade:16721
+#: src/emc/usr_intf/pncconf/mesa0.glade:1299
+#: src/emc/usr_intf/pncconf/mesa0.glade:3305
+#: src/emc/usr_intf/pncconf/mesa0.glade:6628
+#: src/emc/usr_intf/pncconf/mesa0.glade:10460
+#: src/emc/usr_intf/pncconf/mesa0.glade:12385
+#: src/emc/usr_intf/pncconf/mesa0.glade:12868
+#: src/emc/usr_intf/pncconf/mesa0.glade:14793
+#: src/emc/usr_intf/pncconf/mesa0.glade:16718
+#: src/emc/usr_intf/pncconf/mesa1.glade:1299
+#: src/emc/usr_intf/pncconf/mesa1.glade:3305
+#: src/emc/usr_intf/pncconf/mesa1.glade:6628
+#: src/emc/usr_intf/pncconf/mesa1.glade:10460
+#: src/emc/usr_intf/pncconf/mesa1.glade:12385
+#: src/emc/usr_intf/pncconf/mesa1.glade:12868
+#: src/emc/usr_intf/pncconf/mesa1.glade:14793
+#: src/emc/usr_intf/pncconf/mesa1.glade:16718
 msgid "13:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1315
-#: src/emc/usr_intf/pncconf/mesa0.glade:3321
-#: src/emc/usr_intf/pncconf/mesa0.glade:6614
-#: src/emc/usr_intf/pncconf/mesa0.glade:10446
-#: src/emc/usr_intf/pncconf/mesa0.glade:12371
-#: src/emc/usr_intf/pncconf/mesa0.glade:12884
-#: src/emc/usr_intf/pncconf/mesa0.glade:14809
-#: src/emc/usr_intf/pncconf/mesa0.glade:16734
-#: src/emc/usr_intf/pncconf/mesa1.glade:1315
-#: src/emc/usr_intf/pncconf/mesa1.glade:3321
-#: src/emc/usr_intf/pncconf/mesa1.glade:6615
-#: src/emc/usr_intf/pncconf/mesa1.glade:10447
-#: src/emc/usr_intf/pncconf/mesa1.glade:12372
-#: src/emc/usr_intf/pncconf/mesa1.glade:12885
-#: src/emc/usr_intf/pncconf/mesa1.glade:14810
-#: src/emc/usr_intf/pncconf/mesa1.glade:16736
+#: src/emc/usr_intf/pncconf/mesa0.glade:1314
+#: src/emc/usr_intf/pncconf/mesa0.glade:3320
+#: src/emc/usr_intf/pncconf/mesa0.glade:6613
+#: src/emc/usr_intf/pncconf/mesa0.glade:10445
+#: src/emc/usr_intf/pncconf/mesa0.glade:12370
+#: src/emc/usr_intf/pncconf/mesa0.glade:12883
+#: src/emc/usr_intf/pncconf/mesa0.glade:14808
+#: src/emc/usr_intf/pncconf/mesa0.glade:16733
+#: src/emc/usr_intf/pncconf/mesa1.glade:1314
+#: src/emc/usr_intf/pncconf/mesa1.glade:3320
+#: src/emc/usr_intf/pncconf/mesa1.glade:6613
+#: src/emc/usr_intf/pncconf/mesa1.glade:10445
+#: src/emc/usr_intf/pncconf/mesa1.glade:12370
+#: src/emc/usr_intf/pncconf/mesa1.glade:12883
+#: src/emc/usr_intf/pncconf/mesa1.glade:14808
+#: src/emc/usr_intf/pncconf/mesa1.glade:16733
 msgid "15:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1330
-#: src/emc/usr_intf/pncconf/mesa0.glade:3336
-#: src/emc/usr_intf/pncconf/mesa0.glade:6599
-#: src/emc/usr_intf/pncconf/mesa0.glade:10431
-#: src/emc/usr_intf/pncconf/mesa0.glade:12356
-#: src/emc/usr_intf/pncconf/mesa0.glade:12899
-#: src/emc/usr_intf/pncconf/mesa0.glade:14824
-#: src/emc/usr_intf/pncconf/mesa0.glade:16749
-#: src/emc/usr_intf/pncconf/mesa1.glade:1330
-#: src/emc/usr_intf/pncconf/mesa1.glade:3336
-#: src/emc/usr_intf/pncconf/mesa1.glade:6600
-#: src/emc/usr_intf/pncconf/mesa1.glade:10432
-#: src/emc/usr_intf/pncconf/mesa1.glade:12357
-#: src/emc/usr_intf/pncconf/mesa1.glade:12900
-#: src/emc/usr_intf/pncconf/mesa1.glade:14825
-#: src/emc/usr_intf/pncconf/mesa1.glade:16751
+#: src/emc/usr_intf/pncconf/mesa0.glade:1329
+#: src/emc/usr_intf/pncconf/mesa0.glade:3335
+#: src/emc/usr_intf/pncconf/mesa0.glade:6598
+#: src/emc/usr_intf/pncconf/mesa0.glade:10430
+#: src/emc/usr_intf/pncconf/mesa0.glade:12355
+#: src/emc/usr_intf/pncconf/mesa0.glade:12898
+#: src/emc/usr_intf/pncconf/mesa0.glade:14823
+#: src/emc/usr_intf/pncconf/mesa0.glade:16748
+#: src/emc/usr_intf/pncconf/mesa1.glade:1329
+#: src/emc/usr_intf/pncconf/mesa1.glade:3335
+#: src/emc/usr_intf/pncconf/mesa1.glade:6598
+#: src/emc/usr_intf/pncconf/mesa1.glade:10430
+#: src/emc/usr_intf/pncconf/mesa1.glade:12355
+#: src/emc/usr_intf/pncconf/mesa1.glade:12898
+#: src/emc/usr_intf/pncconf/mesa1.glade:14823
+#: src/emc/usr_intf/pncconf/mesa1.glade:16748
 msgid "17:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1345
-#: src/emc/usr_intf/pncconf/mesa0.glade:3351
-#: src/emc/usr_intf/pncconf/mesa0.glade:6584
-#: src/emc/usr_intf/pncconf/mesa0.glade:10416
-#: src/emc/usr_intf/pncconf/mesa0.glade:12341
-#: src/emc/usr_intf/pncconf/mesa0.glade:12914
-#: src/emc/usr_intf/pncconf/mesa0.glade:14839
-#: src/emc/usr_intf/pncconf/mesa0.glade:16764
-#: src/emc/usr_intf/pncconf/mesa1.glade:1345
-#: src/emc/usr_intf/pncconf/mesa1.glade:3351
-#: src/emc/usr_intf/pncconf/mesa1.glade:6585
-#: src/emc/usr_intf/pncconf/mesa1.glade:10417
-#: src/emc/usr_intf/pncconf/mesa1.glade:12342
-#: src/emc/usr_intf/pncconf/mesa1.glade:12915
-#: src/emc/usr_intf/pncconf/mesa1.glade:14840
-#: src/emc/usr_intf/pncconf/mesa1.glade:16766
+#: src/emc/usr_intf/pncconf/mesa0.glade:1344
+#: src/emc/usr_intf/pncconf/mesa0.glade:3350
+#: src/emc/usr_intf/pncconf/mesa0.glade:6583
+#: src/emc/usr_intf/pncconf/mesa0.glade:10415
+#: src/emc/usr_intf/pncconf/mesa0.glade:12340
+#: src/emc/usr_intf/pncconf/mesa0.glade:12913
+#: src/emc/usr_intf/pncconf/mesa0.glade:14838
+#: src/emc/usr_intf/pncconf/mesa0.glade:16763
+#: src/emc/usr_intf/pncconf/mesa1.glade:1344
+#: src/emc/usr_intf/pncconf/mesa1.glade:3350
+#: src/emc/usr_intf/pncconf/mesa1.glade:6583
+#: src/emc/usr_intf/pncconf/mesa1.glade:10415
+#: src/emc/usr_intf/pncconf/mesa1.glade:12340
+#: src/emc/usr_intf/pncconf/mesa1.glade:12913
+#: src/emc/usr_intf/pncconf/mesa1.glade:14838
+#: src/emc/usr_intf/pncconf/mesa1.glade:16763
 msgid "19:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1360
-#: src/emc/usr_intf/pncconf/mesa0.glade:3366
-#: src/emc/usr_intf/pncconf/mesa0.glade:6569
-#: src/emc/usr_intf/pncconf/mesa0.glade:10401
-#: src/emc/usr_intf/pncconf/mesa0.glade:12326
-#: src/emc/usr_intf/pncconf/mesa0.glade:12929
-#: src/emc/usr_intf/pncconf/mesa0.glade:14854
-#: src/emc/usr_intf/pncconf/mesa0.glade:16779
-#: src/emc/usr_intf/pncconf/mesa1.glade:1360
-#: src/emc/usr_intf/pncconf/mesa1.glade:3366
-#: src/emc/usr_intf/pncconf/mesa1.glade:6570
-#: src/emc/usr_intf/pncconf/mesa1.glade:10402
-#: src/emc/usr_intf/pncconf/mesa1.glade:12327
-#: src/emc/usr_intf/pncconf/mesa1.glade:12930
-#: src/emc/usr_intf/pncconf/mesa1.glade:14855
-#: src/emc/usr_intf/pncconf/mesa1.glade:16781
+#: src/emc/usr_intf/pncconf/mesa0.glade:1359
+#: src/emc/usr_intf/pncconf/mesa0.glade:3365
+#: src/emc/usr_intf/pncconf/mesa0.glade:6568
+#: src/emc/usr_intf/pncconf/mesa0.glade:10400
+#: src/emc/usr_intf/pncconf/mesa0.glade:12325
+#: src/emc/usr_intf/pncconf/mesa0.glade:12928
+#: src/emc/usr_intf/pncconf/mesa0.glade:14853
+#: src/emc/usr_intf/pncconf/mesa0.glade:16778
+#: src/emc/usr_intf/pncconf/mesa1.glade:1359
+#: src/emc/usr_intf/pncconf/mesa1.glade:3365
+#: src/emc/usr_intf/pncconf/mesa1.glade:6568
+#: src/emc/usr_intf/pncconf/mesa1.glade:10400
+#: src/emc/usr_intf/pncconf/mesa1.glade:12325
+#: src/emc/usr_intf/pncconf/mesa1.glade:12928
+#: src/emc/usr_intf/pncconf/mesa1.glade:14853
+#: src/emc/usr_intf/pncconf/mesa1.glade:16778
 msgid "21:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1375
-#: src/emc/usr_intf/pncconf/mesa0.glade:3381
-#: src/emc/usr_intf/pncconf/mesa0.glade:6554
-#: src/emc/usr_intf/pncconf/mesa0.glade:10386
-#: src/emc/usr_intf/pncconf/mesa0.glade:12311
-#: src/emc/usr_intf/pncconf/mesa0.glade:12944
-#: src/emc/usr_intf/pncconf/mesa0.glade:14869
-#: src/emc/usr_intf/pncconf/mesa0.glade:16794
-#: src/emc/usr_intf/pncconf/mesa1.glade:1375
-#: src/emc/usr_intf/pncconf/mesa1.glade:3381
-#: src/emc/usr_intf/pncconf/mesa1.glade:6555
-#: src/emc/usr_intf/pncconf/mesa1.glade:10387
-#: src/emc/usr_intf/pncconf/mesa1.glade:12312
-#: src/emc/usr_intf/pncconf/mesa1.glade:12945
-#: src/emc/usr_intf/pncconf/mesa1.glade:14870
-#: src/emc/usr_intf/pncconf/mesa1.glade:16796
+#: src/emc/usr_intf/pncconf/mesa0.glade:1374
+#: src/emc/usr_intf/pncconf/mesa0.glade:3380
+#: src/emc/usr_intf/pncconf/mesa0.glade:6553
+#: src/emc/usr_intf/pncconf/mesa0.glade:10385
+#: src/emc/usr_intf/pncconf/mesa0.glade:12310
+#: src/emc/usr_intf/pncconf/mesa0.glade:12943
+#: src/emc/usr_intf/pncconf/mesa0.glade:14868
+#: src/emc/usr_intf/pncconf/mesa0.glade:16793
+#: src/emc/usr_intf/pncconf/mesa1.glade:1374
+#: src/emc/usr_intf/pncconf/mesa1.glade:3380
+#: src/emc/usr_intf/pncconf/mesa1.glade:6553
+#: src/emc/usr_intf/pncconf/mesa1.glade:10385
+#: src/emc/usr_intf/pncconf/mesa1.glade:12310
+#: src/emc/usr_intf/pncconf/mesa1.glade:12943
+#: src/emc/usr_intf/pncconf/mesa1.glade:14868
+#: src/emc/usr_intf/pncconf/mesa1.glade:16793
 msgid "23:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1811
-#: src/emc/usr_intf/pncconf/mesa0.glade:3817
-#: src/emc/usr_intf/pncconf/mesa0.glade:6116
-#: src/emc/usr_intf/pncconf/mesa0.glade:9926
-#: src/emc/usr_intf/pncconf/mesa0.glade:11851
-#: src/emc/usr_intf/pncconf/mesa0.glade:13402
-#: src/emc/usr_intf/pncconf/mesa0.glade:15327
-#: src/emc/usr_intf/pncconf/mesa0.glade:17252
-#: src/emc/usr_intf/pncconf/mesa1.glade:1811
-#: src/emc/usr_intf/pncconf/mesa1.glade:3817
-#: src/emc/usr_intf/pncconf/mesa1.glade:6117
-#: src/emc/usr_intf/pncconf/mesa1.glade:9927
-#: src/emc/usr_intf/pncconf/mesa1.glade:11852
-#: src/emc/usr_intf/pncconf/mesa1.glade:13403
-#: src/emc/usr_intf/pncconf/mesa1.glade:15328
-#: src/emc/usr_intf/pncconf/mesa1.glade:17254
+#: src/emc/usr_intf/pncconf/mesa0.glade:1810
+#: src/emc/usr_intf/pncconf/mesa0.glade:3816
+#: src/emc/usr_intf/pncconf/mesa0.glade:6115
+#: src/emc/usr_intf/pncconf/mesa0.glade:9925
+#: src/emc/usr_intf/pncconf/mesa0.glade:11850
+#: src/emc/usr_intf/pncconf/mesa0.glade:13401
+#: src/emc/usr_intf/pncconf/mesa0.glade:15326
+#: src/emc/usr_intf/pncconf/mesa0.glade:17251
+#: src/emc/usr_intf/pncconf/mesa1.glade:1810
+#: src/emc/usr_intf/pncconf/mesa1.glade:3816
+#: src/emc/usr_intf/pncconf/mesa1.glade:6115
+#: src/emc/usr_intf/pncconf/mesa1.glade:9925
+#: src/emc/usr_intf/pncconf/mesa1.glade:11850
+#: src/emc/usr_intf/pncconf/mesa1.glade:13401
+#: src/emc/usr_intf/pncconf/mesa1.glade:15326
+#: src/emc/usr_intf/pncconf/mesa1.glade:17251
 msgid "47:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1867
-#: src/emc/usr_intf/pncconf/mesa0.glade:3873
-#: src/emc/usr_intf/pncconf/mesa0.glade:6060
-#: src/emc/usr_intf/pncconf/mesa0.glade:9870
-#: src/emc/usr_intf/pncconf/mesa0.glade:11795
-#: src/emc/usr_intf/pncconf/mesa0.glade:13458
-#: src/emc/usr_intf/pncconf/mesa0.glade:15383
-#: src/emc/usr_intf/pncconf/mesa0.glade:17308
-#: src/emc/usr_intf/pncconf/mesa1.glade:1867
-#: src/emc/usr_intf/pncconf/mesa1.glade:3873
-#: src/emc/usr_intf/pncconf/mesa1.glade:6061
-#: src/emc/usr_intf/pncconf/mesa1.glade:9871
-#: src/emc/usr_intf/pncconf/mesa1.glade:11796
-#: src/emc/usr_intf/pncconf/mesa1.glade:13459
-#: src/emc/usr_intf/pncconf/mesa1.glade:15384
-#: src/emc/usr_intf/pncconf/mesa1.glade:17310
+#: src/emc/usr_intf/pncconf/mesa0.glade:1866
+#: src/emc/usr_intf/pncconf/mesa0.glade:3872
+#: src/emc/usr_intf/pncconf/mesa0.glade:6059
+#: src/emc/usr_intf/pncconf/mesa0.glade:9869
+#: src/emc/usr_intf/pncconf/mesa0.glade:11794
+#: src/emc/usr_intf/pncconf/mesa0.glade:13457
+#: src/emc/usr_intf/pncconf/mesa0.glade:15382
+#: src/emc/usr_intf/pncconf/mesa0.glade:17307
+#: src/emc/usr_intf/pncconf/mesa1.glade:1866
+#: src/emc/usr_intf/pncconf/mesa1.glade:3872
+#: src/emc/usr_intf/pncconf/mesa1.glade:6059
+#: src/emc/usr_intf/pncconf/mesa1.glade:9869
+#: src/emc/usr_intf/pncconf/mesa1.glade:11794
+#: src/emc/usr_intf/pncconf/mesa1.glade:13457
+#: src/emc/usr_intf/pncconf/mesa1.glade:15382
+#: src/emc/usr_intf/pncconf/mesa1.glade:17307
 msgid "45:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1884
-#: src/emc/usr_intf/pncconf/mesa0.glade:3890
-#: src/emc/usr_intf/pncconf/mesa0.glade:6043
-#: src/emc/usr_intf/pncconf/mesa0.glade:9853
-#: src/emc/usr_intf/pncconf/mesa0.glade:11778
-#: src/emc/usr_intf/pncconf/mesa0.glade:13475
-#: src/emc/usr_intf/pncconf/mesa0.glade:15400
-#: src/emc/usr_intf/pncconf/mesa0.glade:17325
-#: src/emc/usr_intf/pncconf/mesa1.glade:1884
-#: src/emc/usr_intf/pncconf/mesa1.glade:3890
-#: src/emc/usr_intf/pncconf/mesa1.glade:6044
-#: src/emc/usr_intf/pncconf/mesa1.glade:9854
-#: src/emc/usr_intf/pncconf/mesa1.glade:11779
-#: src/emc/usr_intf/pncconf/mesa1.glade:13476
-#: src/emc/usr_intf/pncconf/mesa1.glade:15401
-#: src/emc/usr_intf/pncconf/mesa1.glade:17327
+#: src/emc/usr_intf/pncconf/mesa0.glade:1883
+#: src/emc/usr_intf/pncconf/mesa0.glade:3889
+#: src/emc/usr_intf/pncconf/mesa0.glade:6042
+#: src/emc/usr_intf/pncconf/mesa0.glade:9852
+#: src/emc/usr_intf/pncconf/mesa0.glade:11777
+#: src/emc/usr_intf/pncconf/mesa0.glade:13474
+#: src/emc/usr_intf/pncconf/mesa0.glade:15399
+#: src/emc/usr_intf/pncconf/mesa0.glade:17324
+#: src/emc/usr_intf/pncconf/mesa1.glade:1883
+#: src/emc/usr_intf/pncconf/mesa1.glade:3889
+#: src/emc/usr_intf/pncconf/mesa1.glade:6042
+#: src/emc/usr_intf/pncconf/mesa1.glade:9852
+#: src/emc/usr_intf/pncconf/mesa1.glade:11777
+#: src/emc/usr_intf/pncconf/mesa1.glade:13474
+#: src/emc/usr_intf/pncconf/mesa1.glade:15399
+#: src/emc/usr_intf/pncconf/mesa1.glade:17324
 msgid "43:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1901
-#: src/emc/usr_intf/pncconf/mesa0.glade:3907
-#: src/emc/usr_intf/pncconf/mesa0.glade:6026
-#: src/emc/usr_intf/pncconf/mesa0.glade:9836
-#: src/emc/usr_intf/pncconf/mesa0.glade:11761
-#: src/emc/usr_intf/pncconf/mesa0.glade:13492
-#: src/emc/usr_intf/pncconf/mesa0.glade:15417
-#: src/emc/usr_intf/pncconf/mesa0.glade:17342
-#: src/emc/usr_intf/pncconf/mesa1.glade:1901
-#: src/emc/usr_intf/pncconf/mesa1.glade:3907
-#: src/emc/usr_intf/pncconf/mesa1.glade:6027
-#: src/emc/usr_intf/pncconf/mesa1.glade:9837
-#: src/emc/usr_intf/pncconf/mesa1.glade:11762
-#: src/emc/usr_intf/pncconf/mesa1.glade:13493
-#: src/emc/usr_intf/pncconf/mesa1.glade:15418
-#: src/emc/usr_intf/pncconf/mesa1.glade:17344
+#: src/emc/usr_intf/pncconf/mesa0.glade:1900
+#: src/emc/usr_intf/pncconf/mesa0.glade:3906
+#: src/emc/usr_intf/pncconf/mesa0.glade:6025
+#: src/emc/usr_intf/pncconf/mesa0.glade:9835
+#: src/emc/usr_intf/pncconf/mesa0.glade:11760
+#: src/emc/usr_intf/pncconf/mesa0.glade:13491
+#: src/emc/usr_intf/pncconf/mesa0.glade:15416
+#: src/emc/usr_intf/pncconf/mesa0.glade:17341
+#: src/emc/usr_intf/pncconf/mesa1.glade:1900
+#: src/emc/usr_intf/pncconf/mesa1.glade:3906
+#: src/emc/usr_intf/pncconf/mesa1.glade:6025
+#: src/emc/usr_intf/pncconf/mesa1.glade:9835
+#: src/emc/usr_intf/pncconf/mesa1.glade:11760
+#: src/emc/usr_intf/pncconf/mesa1.glade:13491
+#: src/emc/usr_intf/pncconf/mesa1.glade:15416
+#: src/emc/usr_intf/pncconf/mesa1.glade:17341
 msgid "41:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1918
-#: src/emc/usr_intf/pncconf/mesa0.glade:3924
-#: src/emc/usr_intf/pncconf/mesa0.glade:6009
-#: src/emc/usr_intf/pncconf/mesa0.glade:9819
-#: src/emc/usr_intf/pncconf/mesa0.glade:11744
-#: src/emc/usr_intf/pncconf/mesa0.glade:13509
-#: src/emc/usr_intf/pncconf/mesa0.glade:15434
-#: src/emc/usr_intf/pncconf/mesa0.glade:17359
-#: src/emc/usr_intf/pncconf/mesa1.glade:1918
-#: src/emc/usr_intf/pncconf/mesa1.glade:3924
-#: src/emc/usr_intf/pncconf/mesa1.glade:6010
-#: src/emc/usr_intf/pncconf/mesa1.glade:9820
-#: src/emc/usr_intf/pncconf/mesa1.glade:11745
-#: src/emc/usr_intf/pncconf/mesa1.glade:13510
-#: src/emc/usr_intf/pncconf/mesa1.glade:15435
-#: src/emc/usr_intf/pncconf/mesa1.glade:17361
+#: src/emc/usr_intf/pncconf/mesa0.glade:1917
+#: src/emc/usr_intf/pncconf/mesa0.glade:3923
+#: src/emc/usr_intf/pncconf/mesa0.glade:6008
+#: src/emc/usr_intf/pncconf/mesa0.glade:9818
+#: src/emc/usr_intf/pncconf/mesa0.glade:11743
+#: src/emc/usr_intf/pncconf/mesa0.glade:13508
+#: src/emc/usr_intf/pncconf/mesa0.glade:15433
+#: src/emc/usr_intf/pncconf/mesa0.glade:17358
+#: src/emc/usr_intf/pncconf/mesa1.glade:1917
+#: src/emc/usr_intf/pncconf/mesa1.glade:3923
+#: src/emc/usr_intf/pncconf/mesa1.glade:6008
+#: src/emc/usr_intf/pncconf/mesa1.glade:9818
+#: src/emc/usr_intf/pncconf/mesa1.glade:11743
+#: src/emc/usr_intf/pncconf/mesa1.glade:13508
+#: src/emc/usr_intf/pncconf/mesa1.glade:15433
+#: src/emc/usr_intf/pncconf/mesa1.glade:17358
 msgid "39:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1935
-#: src/emc/usr_intf/pncconf/mesa0.glade:3941
-#: src/emc/usr_intf/pncconf/mesa0.glade:5992
-#: src/emc/usr_intf/pncconf/mesa0.glade:9802
-#: src/emc/usr_intf/pncconf/mesa0.glade:11727
-#: src/emc/usr_intf/pncconf/mesa0.glade:13526
-#: src/emc/usr_intf/pncconf/mesa0.glade:15451
-#: src/emc/usr_intf/pncconf/mesa0.glade:17376
-#: src/emc/usr_intf/pncconf/mesa1.glade:1935
-#: src/emc/usr_intf/pncconf/mesa1.glade:3941
-#: src/emc/usr_intf/pncconf/mesa1.glade:5993
-#: src/emc/usr_intf/pncconf/mesa1.glade:9803
-#: src/emc/usr_intf/pncconf/mesa1.glade:11728
-#: src/emc/usr_intf/pncconf/mesa1.glade:13527
-#: src/emc/usr_intf/pncconf/mesa1.glade:15452
-#: src/emc/usr_intf/pncconf/mesa1.glade:17378
+#: src/emc/usr_intf/pncconf/mesa0.glade:1934
+#: src/emc/usr_intf/pncconf/mesa0.glade:3940
+#: src/emc/usr_intf/pncconf/mesa0.glade:5991
+#: src/emc/usr_intf/pncconf/mesa0.glade:9801
+#: src/emc/usr_intf/pncconf/mesa0.glade:11726
+#: src/emc/usr_intf/pncconf/mesa0.glade:13525
+#: src/emc/usr_intf/pncconf/mesa0.glade:15450
+#: src/emc/usr_intf/pncconf/mesa0.glade:17375
+#: src/emc/usr_intf/pncconf/mesa1.glade:1934
+#: src/emc/usr_intf/pncconf/mesa1.glade:3940
+#: src/emc/usr_intf/pncconf/mesa1.glade:5991
+#: src/emc/usr_intf/pncconf/mesa1.glade:9801
+#: src/emc/usr_intf/pncconf/mesa1.glade:11726
+#: src/emc/usr_intf/pncconf/mesa1.glade:13525
+#: src/emc/usr_intf/pncconf/mesa1.glade:15450
+#: src/emc/usr_intf/pncconf/mesa1.glade:17375
 msgid "37:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1952
-#: src/emc/usr_intf/pncconf/mesa0.glade:3958
-#: src/emc/usr_intf/pncconf/mesa0.glade:5975
-#: src/emc/usr_intf/pncconf/mesa0.glade:9785
-#: src/emc/usr_intf/pncconf/mesa0.glade:11710
-#: src/emc/usr_intf/pncconf/mesa0.glade:13543
-#: src/emc/usr_intf/pncconf/mesa0.glade:15468
-#: src/emc/usr_intf/pncconf/mesa0.glade:17393
-#: src/emc/usr_intf/pncconf/mesa1.glade:1952
-#: src/emc/usr_intf/pncconf/mesa1.glade:3958
-#: src/emc/usr_intf/pncconf/mesa1.glade:5976
-#: src/emc/usr_intf/pncconf/mesa1.glade:9786
-#: src/emc/usr_intf/pncconf/mesa1.glade:11711
-#: src/emc/usr_intf/pncconf/mesa1.glade:13544
-#: src/emc/usr_intf/pncconf/mesa1.glade:15469
-#: src/emc/usr_intf/pncconf/mesa1.glade:17395
+#: src/emc/usr_intf/pncconf/mesa0.glade:1951
+#: src/emc/usr_intf/pncconf/mesa0.glade:3957
+#: src/emc/usr_intf/pncconf/mesa0.glade:5974
+#: src/emc/usr_intf/pncconf/mesa0.glade:9784
+#: src/emc/usr_intf/pncconf/mesa0.glade:11709
+#: src/emc/usr_intf/pncconf/mesa0.glade:13542
+#: src/emc/usr_intf/pncconf/mesa0.glade:15467
+#: src/emc/usr_intf/pncconf/mesa0.glade:17392
+#: src/emc/usr_intf/pncconf/mesa1.glade:1951
+#: src/emc/usr_intf/pncconf/mesa1.glade:3957
+#: src/emc/usr_intf/pncconf/mesa1.glade:5974
+#: src/emc/usr_intf/pncconf/mesa1.glade:9784
+#: src/emc/usr_intf/pncconf/mesa1.glade:11709
+#: src/emc/usr_intf/pncconf/mesa1.glade:13542
+#: src/emc/usr_intf/pncconf/mesa1.glade:15467
+#: src/emc/usr_intf/pncconf/mesa1.glade:17392
 msgid "35:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:1969
-#: src/emc/usr_intf/pncconf/mesa0.glade:3975
-#: src/emc/usr_intf/pncconf/mesa0.glade:5958
-#: src/emc/usr_intf/pncconf/mesa0.glade:9768
-#: src/emc/usr_intf/pncconf/mesa0.glade:11693
-#: src/emc/usr_intf/pncconf/mesa0.glade:13560
-#: src/emc/usr_intf/pncconf/mesa0.glade:15485
-#: src/emc/usr_intf/pncconf/mesa0.glade:17410
-#: src/emc/usr_intf/pncconf/mesa1.glade:1969
-#: src/emc/usr_intf/pncconf/mesa1.glade:3975
-#: src/emc/usr_intf/pncconf/mesa1.glade:5959
-#: src/emc/usr_intf/pncconf/mesa1.glade:9769
-#: src/emc/usr_intf/pncconf/mesa1.glade:11694
-#: src/emc/usr_intf/pncconf/mesa1.glade:13561
-#: src/emc/usr_intf/pncconf/mesa1.glade:15486
-#: src/emc/usr_intf/pncconf/mesa1.glade:17412
+#: src/emc/usr_intf/pncconf/mesa0.glade:1968
+#: src/emc/usr_intf/pncconf/mesa0.glade:3974
+#: src/emc/usr_intf/pncconf/mesa0.glade:5957
+#: src/emc/usr_intf/pncconf/mesa0.glade:9767
+#: src/emc/usr_intf/pncconf/mesa0.glade:11692
+#: src/emc/usr_intf/pncconf/mesa0.glade:13559
+#: src/emc/usr_intf/pncconf/mesa0.glade:15484
+#: src/emc/usr_intf/pncconf/mesa0.glade:17409
+#: src/emc/usr_intf/pncconf/mesa1.glade:1968
+#: src/emc/usr_intf/pncconf/mesa1.glade:3974
+#: src/emc/usr_intf/pncconf/mesa1.glade:5957
+#: src/emc/usr_intf/pncconf/mesa1.glade:9767
+#: src/emc/usr_intf/pncconf/mesa1.glade:11692
+#: src/emc/usr_intf/pncconf/mesa1.glade:13559
+#: src/emc/usr_intf/pncconf/mesa1.glade:15484
+#: src/emc/usr_intf/pncconf/mesa1.glade:17409
 msgid "33:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:2259
-#: src/emc/usr_intf/pncconf/mesa0.glade:4265
-#: src/emc/usr_intf/pncconf/mesa0.glade:5668
-#: src/emc/usr_intf/pncconf/mesa0.glade:9478
-#: src/emc/usr_intf/pncconf/mesa0.glade:11403
-#: src/emc/usr_intf/pncconf/mesa0.glade:13850
-#: src/emc/usr_intf/pncconf/mesa0.glade:15775
-#: src/emc/usr_intf/pncconf/mesa0.glade:17700
-#: src/emc/usr_intf/pncconf/mesa1.glade:2259
-#: src/emc/usr_intf/pncconf/mesa1.glade:4265
-#: src/emc/usr_intf/pncconf/mesa1.glade:5669
-#: src/emc/usr_intf/pncconf/mesa1.glade:9479
-#: src/emc/usr_intf/pncconf/mesa1.glade:11404
-#: src/emc/usr_intf/pncconf/mesa1.glade:13851
-#: src/emc/usr_intf/pncconf/mesa1.glade:15776
-#: src/emc/usr_intf/pncconf/mesa1.glade:17702
+#: src/emc/usr_intf/pncconf/mesa0.glade:2258
+#: src/emc/usr_intf/pncconf/mesa0.glade:4264
+#: src/emc/usr_intf/pncconf/mesa0.glade:5667
+#: src/emc/usr_intf/pncconf/mesa0.glade:9477
+#: src/emc/usr_intf/pncconf/mesa0.glade:11402
+#: src/emc/usr_intf/pncconf/mesa0.glade:13849
+#: src/emc/usr_intf/pncconf/mesa0.glade:15774
+#: src/emc/usr_intf/pncconf/mesa0.glade:17699
+#: src/emc/usr_intf/pncconf/mesa1.glade:2258
+#: src/emc/usr_intf/pncconf/mesa1.glade:4264
+#: src/emc/usr_intf/pncconf/mesa1.glade:5667
+#: src/emc/usr_intf/pncconf/mesa1.glade:9477
+#: src/emc/usr_intf/pncconf/mesa1.glade:11402
+#: src/emc/usr_intf/pncconf/mesa1.glade:13849
+#: src/emc/usr_intf/pncconf/mesa1.glade:15774
+#: src/emc/usr_intf/pncconf/mesa1.glade:17699
 msgid "25:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:2276
-#: src/emc/usr_intf/pncconf/mesa0.glade:4282
-#: src/emc/usr_intf/pncconf/mesa0.glade:5651
-#: src/emc/usr_intf/pncconf/mesa0.glade:9461
-#: src/emc/usr_intf/pncconf/mesa0.glade:11386
-#: src/emc/usr_intf/pncconf/mesa0.glade:13867
-#: src/emc/usr_intf/pncconf/mesa0.glade:15792
-#: src/emc/usr_intf/pncconf/mesa0.glade:17717
-#: src/emc/usr_intf/pncconf/mesa1.glade:2276
-#: src/emc/usr_intf/pncconf/mesa1.glade:4282
-#: src/emc/usr_intf/pncconf/mesa1.glade:5652
-#: src/emc/usr_intf/pncconf/mesa1.glade:9462
-#: src/emc/usr_intf/pncconf/mesa1.glade:11387
-#: src/emc/usr_intf/pncconf/mesa1.glade:13868
-#: src/emc/usr_intf/pncconf/mesa1.glade:15793
-#: src/emc/usr_intf/pncconf/mesa1.glade:17719
+#: src/emc/usr_intf/pncconf/mesa0.glade:2275
+#: src/emc/usr_intf/pncconf/mesa0.glade:4281
+#: src/emc/usr_intf/pncconf/mesa0.glade:5650
+#: src/emc/usr_intf/pncconf/mesa0.glade:9460
+#: src/emc/usr_intf/pncconf/mesa0.glade:11385
+#: src/emc/usr_intf/pncconf/mesa0.glade:13866
+#: src/emc/usr_intf/pncconf/mesa0.glade:15791
+#: src/emc/usr_intf/pncconf/mesa0.glade:17716
+#: src/emc/usr_intf/pncconf/mesa1.glade:2275
+#: src/emc/usr_intf/pncconf/mesa1.glade:4281
+#: src/emc/usr_intf/pncconf/mesa1.glade:5650
+#: src/emc/usr_intf/pncconf/mesa1.glade:9460
+#: src/emc/usr_intf/pncconf/mesa1.glade:11385
+#: src/emc/usr_intf/pncconf/mesa1.glade:13866
+#: src/emc/usr_intf/pncconf/mesa1.glade:15791
+#: src/emc/usr_intf/pncconf/mesa1.glade:17716
 msgid "27:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:2293
-#: src/emc/usr_intf/pncconf/mesa0.glade:4299
-#: src/emc/usr_intf/pncconf/mesa0.glade:5634
-#: src/emc/usr_intf/pncconf/mesa0.glade:9444
-#: src/emc/usr_intf/pncconf/mesa0.glade:11369
-#: src/emc/usr_intf/pncconf/mesa0.glade:13884
-#: src/emc/usr_intf/pncconf/mesa0.glade:15809
-#: src/emc/usr_intf/pncconf/mesa0.glade:17734
-#: src/emc/usr_intf/pncconf/mesa1.glade:2293
-#: src/emc/usr_intf/pncconf/mesa1.glade:4299
-#: src/emc/usr_intf/pncconf/mesa1.glade:5635
-#: src/emc/usr_intf/pncconf/mesa1.glade:9445
-#: src/emc/usr_intf/pncconf/mesa1.glade:11370
-#: src/emc/usr_intf/pncconf/mesa1.glade:13885
-#: src/emc/usr_intf/pncconf/mesa1.glade:15810
-#: src/emc/usr_intf/pncconf/mesa1.glade:17736
+#: src/emc/usr_intf/pncconf/mesa0.glade:2292
+#: src/emc/usr_intf/pncconf/mesa0.glade:4298
+#: src/emc/usr_intf/pncconf/mesa0.glade:5633
+#: src/emc/usr_intf/pncconf/mesa0.glade:9443
+#: src/emc/usr_intf/pncconf/mesa0.glade:11368
+#: src/emc/usr_intf/pncconf/mesa0.glade:13883
+#: src/emc/usr_intf/pncconf/mesa0.glade:15808
+#: src/emc/usr_intf/pncconf/mesa0.glade:17733
+#: src/emc/usr_intf/pncconf/mesa1.glade:2292
+#: src/emc/usr_intf/pncconf/mesa1.glade:4298
+#: src/emc/usr_intf/pncconf/mesa1.glade:5633
+#: src/emc/usr_intf/pncconf/mesa1.glade:9443
+#: src/emc/usr_intf/pncconf/mesa1.glade:11368
+#: src/emc/usr_intf/pncconf/mesa1.glade:13883
+#: src/emc/usr_intf/pncconf/mesa1.glade:15808
+#: src/emc/usr_intf/pncconf/mesa1.glade:17733
 msgid "29:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:2310
-#: src/emc/usr_intf/pncconf/mesa0.glade:4316
-#: src/emc/usr_intf/pncconf/mesa0.glade:5617
-#: src/emc/usr_intf/pncconf/mesa0.glade:9427
-#: src/emc/usr_intf/pncconf/mesa0.glade:11352
-#: src/emc/usr_intf/pncconf/mesa0.glade:13901
-#: src/emc/usr_intf/pncconf/mesa0.glade:15826
-#: src/emc/usr_intf/pncconf/mesa0.glade:17751
-#: src/emc/usr_intf/pncconf/mesa1.glade:2310
-#: src/emc/usr_intf/pncconf/mesa1.glade:4316
-#: src/emc/usr_intf/pncconf/mesa1.glade:5618
-#: src/emc/usr_intf/pncconf/mesa1.glade:9428
-#: src/emc/usr_intf/pncconf/mesa1.glade:11353
-#: src/emc/usr_intf/pncconf/mesa1.glade:13902
-#: src/emc/usr_intf/pncconf/mesa1.glade:15827
-#: src/emc/usr_intf/pncconf/mesa1.glade:17753
+#: src/emc/usr_intf/pncconf/mesa0.glade:2309
+#: src/emc/usr_intf/pncconf/mesa0.glade:4315
+#: src/emc/usr_intf/pncconf/mesa0.glade:5616
+#: src/emc/usr_intf/pncconf/mesa0.glade:9426
+#: src/emc/usr_intf/pncconf/mesa0.glade:11351
+#: src/emc/usr_intf/pncconf/mesa0.glade:13900
+#: src/emc/usr_intf/pncconf/mesa0.glade:15825
+#: src/emc/usr_intf/pncconf/mesa0.glade:17750
+#: src/emc/usr_intf/pncconf/mesa1.glade:2309
+#: src/emc/usr_intf/pncconf/mesa1.glade:4315
+#: src/emc/usr_intf/pncconf/mesa1.glade:5616
+#: src/emc/usr_intf/pncconf/mesa1.glade:9426
+#: src/emc/usr_intf/pncconf/mesa1.glade:11351
+#: src/emc/usr_intf/pncconf/mesa1.glade:13900
+#: src/emc/usr_intf/pncconf/mesa1.glade:15825
+#: src/emc/usr_intf/pncconf/mesa1.glade:17750
 msgid "31:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:2483
-#: src/emc/usr_intf/pncconf/mesa0.glade:2496
-#: src/emc/usr_intf/pncconf/mesa0.glade:4489
-#: src/emc/usr_intf/pncconf/mesa0.glade:4502
-#: src/emc/usr_intf/pncconf/mesa0.glade:5435
-#: src/emc/usr_intf/pncconf/mesa0.glade:5448
-#: src/emc/usr_intf/pncconf/mesa0.glade:7317
-#: src/emc/usr_intf/pncconf/mesa0.glade:7330
-#: src/emc/usr_intf/pncconf/mesa0.glade:9267
-#: src/emc/usr_intf/pncconf/mesa0.glade:9280
-#: src/emc/usr_intf/pncconf/mesa0.glade:11192
-#: src/emc/usr_intf/pncconf/mesa0.glade:11205
-#: src/emc/usr_intf/pncconf/mesa0.glade:14052
-#: src/emc/usr_intf/pncconf/mesa0.glade:14065
-#: src/emc/usr_intf/pncconf/mesa0.glade:15977
-#: src/emc/usr_intf/pncconf/mesa0.glade:15990
-#: src/emc/usr_intf/pncconf/mesa0.glade:17902
-#: src/emc/usr_intf/pncconf/mesa0.glade:17915
-#: src/emc/usr_intf/pncconf/mesa0.glade:19866
-#: src/emc/usr_intf/pncconf/mesa0.glade:19879
-#: src/emc/usr_intf/pncconf/mesa0.glade:20726
-#: src/emc/usr_intf/pncconf/mesa0.glade:20739
-#: src/emc/usr_intf/pncconf/mesa0.glade:23324
-#: src/emc/usr_intf/pncconf/mesa0.glade:25048
-#: src/emc/usr_intf/pncconf/mesa0.glade:25061
-#: src/emc/usr_intf/pncconf/mesa0.glade:25908
-#: src/emc/usr_intf/pncconf/mesa0.glade:25921
-#: src/emc/usr_intf/pncconf/mesa0.glade:28506
-#: src/emc/usr_intf/pncconf/mesa0.glade:30230
-#: src/emc/usr_intf/pncconf/mesa0.glade:30243
-#: src/emc/usr_intf/pncconf/mesa0.glade:31090
-#: src/emc/usr_intf/pncconf/mesa0.glade:31103
-#: src/emc/usr_intf/pncconf/mesa0.glade:33688
-#: src/emc/usr_intf/pncconf/mesa0.glade:35412
-#: src/emc/usr_intf/pncconf/mesa0.glade:35425
-#: src/emc/usr_intf/pncconf/mesa0.glade:36272
-#: src/emc/usr_intf/pncconf/mesa0.glade:36285
-#: src/emc/usr_intf/pncconf/mesa0.glade:38870
-#: src/emc/usr_intf/pncconf/mesa0.glade:40594
-#: src/emc/usr_intf/pncconf/mesa0.glade:40607
-#: src/emc/usr_intf/pncconf/mesa0.glade:41454
-#: src/emc/usr_intf/pncconf/mesa0.glade:41467
-#: src/emc/usr_intf/pncconf/mesa0.glade:44052
-#: src/emc/usr_intf/pncconf/mesa0.glade:45776
-#: src/emc/usr_intf/pncconf/mesa0.glade:45789
-#: src/emc/usr_intf/pncconf/mesa0.glade:46636
-#: src/emc/usr_intf/pncconf/mesa0.glade:46649
-#: src/emc/usr_intf/pncconf/mesa0.glade:49234
-#: src/emc/usr_intf/pncconf/mesa1.glade:2483
-#: src/emc/usr_intf/pncconf/mesa1.glade:2496
-#: src/emc/usr_intf/pncconf/mesa1.glade:4489
-#: src/emc/usr_intf/pncconf/mesa1.glade:4502
-#: src/emc/usr_intf/pncconf/mesa1.glade:5436
-#: src/emc/usr_intf/pncconf/mesa1.glade:5449
-#: src/emc/usr_intf/pncconf/mesa1.glade:7318
-#: src/emc/usr_intf/pncconf/mesa1.glade:7331
-#: src/emc/usr_intf/pncconf/mesa1.glade:9268
-#: src/emc/usr_intf/pncconf/mesa1.glade:9281
-#: src/emc/usr_intf/pncconf/mesa1.glade:11193
-#: src/emc/usr_intf/pncconf/mesa1.glade:11206
-#: src/emc/usr_intf/pncconf/mesa1.glade:14053
-#: src/emc/usr_intf/pncconf/mesa1.glade:14066
-#: src/emc/usr_intf/pncconf/mesa1.glade:15978
-#: src/emc/usr_intf/pncconf/mesa1.glade:15991
-#: src/emc/usr_intf/pncconf/mesa1.glade:17904
-#: src/emc/usr_intf/pncconf/mesa1.glade:17917
-#: src/emc/usr_intf/pncconf/mesa1.glade:19868
-#: src/emc/usr_intf/pncconf/mesa1.glade:19881
-#: src/emc/usr_intf/pncconf/mesa1.glade:20728
-#: src/emc/usr_intf/pncconf/mesa1.glade:20741
-#: src/emc/usr_intf/pncconf/mesa1.glade:23326
-#: src/emc/usr_intf/pncconf/mesa1.glade:25050
-#: src/emc/usr_intf/pncconf/mesa1.glade:25063
-#: src/emc/usr_intf/pncconf/mesa1.glade:25910
-#: src/emc/usr_intf/pncconf/mesa1.glade:25923
-#: src/emc/usr_intf/pncconf/mesa1.glade:28508
-#: src/emc/usr_intf/pncconf/mesa1.glade:30232
-#: src/emc/usr_intf/pncconf/mesa1.glade:30245
-#: src/emc/usr_intf/pncconf/mesa1.glade:31092
-#: src/emc/usr_intf/pncconf/mesa1.glade:31105
-#: src/emc/usr_intf/pncconf/mesa1.glade:33690
-#: src/emc/usr_intf/pncconf/mesa1.glade:35414
-#: src/emc/usr_intf/pncconf/mesa1.glade:35427
-#: src/emc/usr_intf/pncconf/mesa1.glade:36274
-#: src/emc/usr_intf/pncconf/mesa1.glade:36287
-#: src/emc/usr_intf/pncconf/mesa1.glade:38872
-#: src/emc/usr_intf/pncconf/mesa1.glade:40596
-#: src/emc/usr_intf/pncconf/mesa1.glade:40609
-#: src/emc/usr_intf/pncconf/mesa1.glade:41456
-#: src/emc/usr_intf/pncconf/mesa1.glade:41469
-#: src/emc/usr_intf/pncconf/mesa1.glade:44054
-#: src/emc/usr_intf/pncconf/mesa1.glade:45778
-#: src/emc/usr_intf/pncconf/mesa1.glade:45791
-#: src/emc/usr_intf/pncconf/mesa1.glade:46638
-#: src/emc/usr_intf/pncconf/mesa1.glade:46651
-#: src/emc/usr_intf/pncconf/mesa1.glade:49236
+#: src/emc/usr_intf/pncconf/mesa0.glade:2482
+#: src/emc/usr_intf/pncconf/mesa0.glade:2495
+#: src/emc/usr_intf/pncconf/mesa0.glade:4488
+#: src/emc/usr_intf/pncconf/mesa0.glade:4501
+#: src/emc/usr_intf/pncconf/mesa0.glade:5434
+#: src/emc/usr_intf/pncconf/mesa0.glade:5447
+#: src/emc/usr_intf/pncconf/mesa0.glade:7316
+#: src/emc/usr_intf/pncconf/mesa0.glade:7329
+#: src/emc/usr_intf/pncconf/mesa0.glade:9266
+#: src/emc/usr_intf/pncconf/mesa0.glade:9279
+#: src/emc/usr_intf/pncconf/mesa0.glade:11191
+#: src/emc/usr_intf/pncconf/mesa0.glade:11204
+#: src/emc/usr_intf/pncconf/mesa0.glade:14051
+#: src/emc/usr_intf/pncconf/mesa0.glade:14064
+#: src/emc/usr_intf/pncconf/mesa0.glade:15976
+#: src/emc/usr_intf/pncconf/mesa0.glade:15989
+#: src/emc/usr_intf/pncconf/mesa0.glade:17901
+#: src/emc/usr_intf/pncconf/mesa0.glade:17914
+#: src/emc/usr_intf/pncconf/mesa0.glade:19865
+#: src/emc/usr_intf/pncconf/mesa0.glade:19878
+#: src/emc/usr_intf/pncconf/mesa0.glade:20725
+#: src/emc/usr_intf/pncconf/mesa0.glade:20738
+#: src/emc/usr_intf/pncconf/mesa0.glade:23347
+#: src/emc/usr_intf/pncconf/mesa0.glade:25071
+#: src/emc/usr_intf/pncconf/mesa0.glade:25084
+#: src/emc/usr_intf/pncconf/mesa0.glade:25931
+#: src/emc/usr_intf/pncconf/mesa0.glade:25944
+#: src/emc/usr_intf/pncconf/mesa0.glade:28553
+#: src/emc/usr_intf/pncconf/mesa0.glade:30277
+#: src/emc/usr_intf/pncconf/mesa0.glade:30290
+#: src/emc/usr_intf/pncconf/mesa0.glade:31137
+#: src/emc/usr_intf/pncconf/mesa0.glade:31150
+#: src/emc/usr_intf/pncconf/mesa0.glade:33759
+#: src/emc/usr_intf/pncconf/mesa0.glade:35483
+#: src/emc/usr_intf/pncconf/mesa0.glade:35496
+#: src/emc/usr_intf/pncconf/mesa0.glade:36343
+#: src/emc/usr_intf/pncconf/mesa0.glade:36356
+#: src/emc/usr_intf/pncconf/mesa0.glade:38965
+#: src/emc/usr_intf/pncconf/mesa0.glade:40689
+#: src/emc/usr_intf/pncconf/mesa0.glade:40702
+#: src/emc/usr_intf/pncconf/mesa0.glade:41549
+#: src/emc/usr_intf/pncconf/mesa0.glade:41562
+#: src/emc/usr_intf/pncconf/mesa0.glade:44171
+#: src/emc/usr_intf/pncconf/mesa0.glade:45895
+#: src/emc/usr_intf/pncconf/mesa0.glade:45908
+#: src/emc/usr_intf/pncconf/mesa0.glade:46755
+#: src/emc/usr_intf/pncconf/mesa0.glade:46768
+#: src/emc/usr_intf/pncconf/mesa0.glade:49377
+#: src/emc/usr_intf/pncconf/mesa0.glade:51101
+#: src/emc/usr_intf/pncconf/mesa0.glade:51114
+#: src/emc/usr_intf/pncconf/mesa0.glade:51961
+#: src/emc/usr_intf/pncconf/mesa0.glade:51974
+#: src/emc/usr_intf/pncconf/mesa0.glade:54529
+#: src/emc/usr_intf/pncconf/mesa0.glade:56253
+#: src/emc/usr_intf/pncconf/mesa0.glade:56266
+#: src/emc/usr_intf/pncconf/mesa0.glade:57113
+#: src/emc/usr_intf/pncconf/mesa0.glade:57126
+#: src/emc/usr_intf/pncconf/mesa0.glade:59693
+#: src/emc/usr_intf/pncconf/mesa1.glade:2482
+#: src/emc/usr_intf/pncconf/mesa1.glade:2495
+#: src/emc/usr_intf/pncconf/mesa1.glade:4488
+#: src/emc/usr_intf/pncconf/mesa1.glade:4501
+#: src/emc/usr_intf/pncconf/mesa1.glade:5434
+#: src/emc/usr_intf/pncconf/mesa1.glade:5447
+#: src/emc/usr_intf/pncconf/mesa1.glade:7316
+#: src/emc/usr_intf/pncconf/mesa1.glade:7329
+#: src/emc/usr_intf/pncconf/mesa1.glade:9266
+#: src/emc/usr_intf/pncconf/mesa1.glade:9279
+#: src/emc/usr_intf/pncconf/mesa1.glade:11191
+#: src/emc/usr_intf/pncconf/mesa1.glade:11204
+#: src/emc/usr_intf/pncconf/mesa1.glade:14051
+#: src/emc/usr_intf/pncconf/mesa1.glade:14064
+#: src/emc/usr_intf/pncconf/mesa1.glade:15976
+#: src/emc/usr_intf/pncconf/mesa1.glade:15989
+#: src/emc/usr_intf/pncconf/mesa1.glade:17901
+#: src/emc/usr_intf/pncconf/mesa1.glade:17914
+#: src/emc/usr_intf/pncconf/mesa1.glade:19865
+#: src/emc/usr_intf/pncconf/mesa1.glade:19878
+#: src/emc/usr_intf/pncconf/mesa1.glade:20725
+#: src/emc/usr_intf/pncconf/mesa1.glade:20738
+#: src/emc/usr_intf/pncconf/mesa1.glade:23347
+#: src/emc/usr_intf/pncconf/mesa1.glade:25071
+#: src/emc/usr_intf/pncconf/mesa1.glade:25084
+#: src/emc/usr_intf/pncconf/mesa1.glade:25931
+#: src/emc/usr_intf/pncconf/mesa1.glade:25944
+#: src/emc/usr_intf/pncconf/mesa1.glade:28553
+#: src/emc/usr_intf/pncconf/mesa1.glade:30277
+#: src/emc/usr_intf/pncconf/mesa1.glade:30290
+#: src/emc/usr_intf/pncconf/mesa1.glade:31137
+#: src/emc/usr_intf/pncconf/mesa1.glade:31150
+#: src/emc/usr_intf/pncconf/mesa1.glade:33759
+#: src/emc/usr_intf/pncconf/mesa1.glade:35483
+#: src/emc/usr_intf/pncconf/mesa1.glade:35496
+#: src/emc/usr_intf/pncconf/mesa1.glade:36343
+#: src/emc/usr_intf/pncconf/mesa1.glade:36356
+#: src/emc/usr_intf/pncconf/mesa1.glade:38965
+#: src/emc/usr_intf/pncconf/mesa1.glade:40689
+#: src/emc/usr_intf/pncconf/mesa1.glade:40702
+#: src/emc/usr_intf/pncconf/mesa1.glade:41549
+#: src/emc/usr_intf/pncconf/mesa1.glade:41562
+#: src/emc/usr_intf/pncconf/mesa1.glade:44171
+#: src/emc/usr_intf/pncconf/mesa1.glade:45895
+#: src/emc/usr_intf/pncconf/mesa1.glade:45908
+#: src/emc/usr_intf/pncconf/mesa1.glade:46755
+#: src/emc/usr_intf/pncconf/mesa1.glade:46768
+#: src/emc/usr_intf/pncconf/mesa1.glade:49377
+#: src/emc/usr_intf/pncconf/mesa1.glade:51101
+#: src/emc/usr_intf/pncconf/mesa1.glade:51114
+#: src/emc/usr_intf/pncconf/mesa1.glade:51961
+#: src/emc/usr_intf/pncconf/mesa1.glade:51974
+#: src/emc/usr_intf/pncconf/mesa1.glade:54529
+#: src/emc/usr_intf/pncconf/mesa1.glade:56253
+#: src/emc/usr_intf/pncconf/mesa1.glade:56266
+#: src/emc/usr_intf/pncconf/mesa1.glade:57113
+#: src/emc/usr_intf/pncconf/mesa1.glade:57126
+#: src/emc/usr_intf/pncconf/mesa1.glade:59693
 msgid "function"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:2507
-#: src/emc/usr_intf/pncconf/mesa0.glade:4513
-#: src/emc/usr_intf/pncconf/mesa0.glade:5418
-#: src/emc/usr_intf/pncconf/mesa0.glade:7300
-#: src/emc/usr_intf/pncconf/mesa0.glade:9249
-#: src/emc/usr_intf/pncconf/mesa0.glade:11175
-#: src/emc/usr_intf/pncconf/mesa0.glade:14076
-#: src/emc/usr_intf/pncconf/mesa0.glade:16001
-#: src/emc/usr_intf/pncconf/mesa0.glade:17926
-#: src/emc/usr_intf/pncconf/mesa1.glade:2507
-#: src/emc/usr_intf/pncconf/mesa1.glade:4513
-#: src/emc/usr_intf/pncconf/mesa1.glade:5419
-#: src/emc/usr_intf/pncconf/mesa1.glade:7301
-#: src/emc/usr_intf/pncconf/mesa1.glade:9250
-#: src/emc/usr_intf/pncconf/mesa1.glade:11176
-#: src/emc/usr_intf/pncconf/mesa1.glade:14077
-#: src/emc/usr_intf/pncconf/mesa1.glade:16002
-#: src/emc/usr_intf/pncconf/mesa1.glade:17928
+#: src/emc/usr_intf/pncconf/mesa0.glade:2506
+#: src/emc/usr_intf/pncconf/mesa0.glade:4512
+#: src/emc/usr_intf/pncconf/mesa0.glade:5417
+#: src/emc/usr_intf/pncconf/mesa0.glade:7299
+#: src/emc/usr_intf/pncconf/mesa0.glade:9248
+#: src/emc/usr_intf/pncconf/mesa0.glade:11174
+#: src/emc/usr_intf/pncconf/mesa0.glade:14075
+#: src/emc/usr_intf/pncconf/mesa0.glade:16000
+#: src/emc/usr_intf/pncconf/mesa0.glade:17925
+#: src/emc/usr_intf/pncconf/mesa1.glade:2506
+#: src/emc/usr_intf/pncconf/mesa1.glade:4512
+#: src/emc/usr_intf/pncconf/mesa1.glade:5417
+#: src/emc/usr_intf/pncconf/mesa1.glade:7299
+#: src/emc/usr_intf/pncconf/mesa1.glade:9248
+#: src/emc/usr_intf/pncconf/mesa1.glade:11174
+#: src/emc/usr_intf/pncconf/mesa1.glade:14075
+#: src/emc/usr_intf/pncconf/mesa1.glade:16000
+#: src/emc/usr_intf/pncconf/mesa1.glade:17925
 msgid "Launch test panel"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:2859
-#: src/emc/usr_intf/pncconf/mesa0.glade:2872
-#: src/emc/usr_intf/pncconf/mesa0.glade:4865
-#: src/emc/usr_intf/pncconf/mesa0.glade:4878
-#: src/emc/usr_intf/pncconf/mesa0.glade:5056
-#: src/emc/usr_intf/pncconf/mesa0.glade:5071
-#: src/emc/usr_intf/pncconf/mesa0.glade:6938
-#: src/emc/usr_intf/pncconf/mesa0.glade:6953
-#: src/emc/usr_intf/pncconf/mesa0.glade:8887
-#: src/emc/usr_intf/pncconf/mesa0.glade:8902
-#: src/emc/usr_intf/pncconf/mesa0.glade:10813
-#: src/emc/usr_intf/pncconf/mesa0.glade:10828
-#: src/emc/usr_intf/pncconf/mesa0.glade:14429
-#: src/emc/usr_intf/pncconf/mesa0.glade:14442
-#: src/emc/usr_intf/pncconf/mesa0.glade:16354
-#: src/emc/usr_intf/pncconf/mesa0.glade:16367
-#: src/emc/usr_intf/pncconf/mesa0.glade:18279
-#: src/emc/usr_intf/pncconf/mesa0.glade:18292
-#: src/emc/usr_intf/pncconf/mesa0.glade:20214
-#: src/emc/usr_intf/pncconf/mesa0.glade:20227
-#: src/emc/usr_intf/pncconf/mesa0.glade:20362
-#: src/emc/usr_intf/pncconf/mesa0.glade:20377
-#: src/emc/usr_intf/pncconf/mesa0.glade:23491
-#: src/emc/usr_intf/pncconf/mesa0.glade:25396
-#: src/emc/usr_intf/pncconf/mesa0.glade:25409
-#: src/emc/usr_intf/pncconf/mesa0.glade:25544
-#: src/emc/usr_intf/pncconf/mesa0.glade:25559
-#: src/emc/usr_intf/pncconf/mesa0.glade:28673
-#: src/emc/usr_intf/pncconf/mesa0.glade:30578
-#: src/emc/usr_intf/pncconf/mesa0.glade:30591
-#: src/emc/usr_intf/pncconf/mesa0.glade:30726
-#: src/emc/usr_intf/pncconf/mesa0.glade:30741
-#: src/emc/usr_intf/pncconf/mesa0.glade:33855
-#: src/emc/usr_intf/pncconf/mesa0.glade:35760
-#: src/emc/usr_intf/pncconf/mesa0.glade:35773
-#: src/emc/usr_intf/pncconf/mesa0.glade:35908
-#: src/emc/usr_intf/pncconf/mesa0.glade:35923
-#: src/emc/usr_intf/pncconf/mesa0.glade:39037
-#: src/emc/usr_intf/pncconf/mesa0.glade:40942
-#: src/emc/usr_intf/pncconf/mesa0.glade:40955
-#: src/emc/usr_intf/pncconf/mesa0.glade:41090
-#: src/emc/usr_intf/pncconf/mesa0.glade:41105
-#: src/emc/usr_intf/pncconf/mesa0.glade:44219
-#: src/emc/usr_intf/pncconf/mesa0.glade:46124
-#: src/emc/usr_intf/pncconf/mesa0.glade:46137
-#: src/emc/usr_intf/pncconf/mesa0.glade:46272
-#: src/emc/usr_intf/pncconf/mesa0.glade:46287
-#: src/emc/usr_intf/pncconf/mesa0.glade:49401
-#: src/emc/usr_intf/pncconf/mesa1.glade:2859
-#: src/emc/usr_intf/pncconf/mesa1.glade:2872
-#: src/emc/usr_intf/pncconf/mesa1.glade:4866
-#: src/emc/usr_intf/pncconf/mesa1.glade:4879
-#: src/emc/usr_intf/pncconf/mesa1.glade:5057
-#: src/emc/usr_intf/pncconf/mesa1.glade:5072
-#: src/emc/usr_intf/pncconf/mesa1.glade:6939
-#: src/emc/usr_intf/pncconf/mesa1.glade:6954
-#: src/emc/usr_intf/pncconf/mesa1.glade:8888
-#: src/emc/usr_intf/pncconf/mesa1.glade:8903
-#: src/emc/usr_intf/pncconf/mesa1.glade:10814
-#: src/emc/usr_intf/pncconf/mesa1.glade:10829
-#: src/emc/usr_intf/pncconf/mesa1.glade:14430
-#: src/emc/usr_intf/pncconf/mesa1.glade:14443
-#: src/emc/usr_intf/pncconf/mesa1.glade:16356
-#: src/emc/usr_intf/pncconf/mesa1.glade:16369
-#: src/emc/usr_intf/pncconf/mesa1.glade:18281
-#: src/emc/usr_intf/pncconf/mesa1.glade:18294
-#: src/emc/usr_intf/pncconf/mesa1.glade:20216
-#: src/emc/usr_intf/pncconf/mesa1.glade:20229
-#: src/emc/usr_intf/pncconf/mesa1.glade:20364
-#: src/emc/usr_intf/pncconf/mesa1.glade:20379
-#: src/emc/usr_intf/pncconf/mesa1.glade:23493
-#: src/emc/usr_intf/pncconf/mesa1.glade:25398
-#: src/emc/usr_intf/pncconf/mesa1.glade:25411
-#: src/emc/usr_intf/pncconf/mesa1.glade:25546
-#: src/emc/usr_intf/pncconf/mesa1.glade:25561
-#: src/emc/usr_intf/pncconf/mesa1.glade:28675
-#: src/emc/usr_intf/pncconf/mesa1.glade:30580
-#: src/emc/usr_intf/pncconf/mesa1.glade:30593
-#: src/emc/usr_intf/pncconf/mesa1.glade:30728
-#: src/emc/usr_intf/pncconf/mesa1.glade:30743
-#: src/emc/usr_intf/pncconf/mesa1.glade:33857
-#: src/emc/usr_intf/pncconf/mesa1.glade:35762
-#: src/emc/usr_intf/pncconf/mesa1.glade:35775
-#: src/emc/usr_intf/pncconf/mesa1.glade:35910
-#: src/emc/usr_intf/pncconf/mesa1.glade:35925
-#: src/emc/usr_intf/pncconf/mesa1.glade:39039
-#: src/emc/usr_intf/pncconf/mesa1.glade:40944
-#: src/emc/usr_intf/pncconf/mesa1.glade:40957
-#: src/emc/usr_intf/pncconf/mesa1.glade:41092
-#: src/emc/usr_intf/pncconf/mesa1.glade:41107
-#: src/emc/usr_intf/pncconf/mesa1.glade:44221
-#: src/emc/usr_intf/pncconf/mesa1.glade:46126
-#: src/emc/usr_intf/pncconf/mesa1.glade:46139
-#: src/emc/usr_intf/pncconf/mesa1.glade:46274
-#: src/emc/usr_intf/pncconf/mesa1.glade:46289
-#: src/emc/usr_intf/pncconf/mesa1.glade:49403
+#: src/emc/usr_intf/pncconf/mesa0.glade:2858
+#: src/emc/usr_intf/pncconf/mesa0.glade:2871
+#: src/emc/usr_intf/pncconf/mesa0.glade:4864
+#: src/emc/usr_intf/pncconf/mesa0.glade:4877
+#: src/emc/usr_intf/pncconf/mesa0.glade:5055
+#: src/emc/usr_intf/pncconf/mesa0.glade:5070
+#: src/emc/usr_intf/pncconf/mesa0.glade:6937
+#: src/emc/usr_intf/pncconf/mesa0.glade:6952
+#: src/emc/usr_intf/pncconf/mesa0.glade:8886
+#: src/emc/usr_intf/pncconf/mesa0.glade:8901
+#: src/emc/usr_intf/pncconf/mesa0.glade:10812
+#: src/emc/usr_intf/pncconf/mesa0.glade:10827
+#: src/emc/usr_intf/pncconf/mesa0.glade:14428
+#: src/emc/usr_intf/pncconf/mesa0.glade:14441
+#: src/emc/usr_intf/pncconf/mesa0.glade:16353
+#: src/emc/usr_intf/pncconf/mesa0.glade:16366
+#: src/emc/usr_intf/pncconf/mesa0.glade:18278
+#: src/emc/usr_intf/pncconf/mesa0.glade:18291
+#: src/emc/usr_intf/pncconf/mesa0.glade:20213
+#: src/emc/usr_intf/pncconf/mesa0.glade:20226
+#: src/emc/usr_intf/pncconf/mesa0.glade:20361
+#: src/emc/usr_intf/pncconf/mesa0.glade:20376
+#: src/emc/usr_intf/pncconf/mesa0.glade:23514
+#: src/emc/usr_intf/pncconf/mesa0.glade:25419
+#: src/emc/usr_intf/pncconf/mesa0.glade:25432
+#: src/emc/usr_intf/pncconf/mesa0.glade:25567
+#: src/emc/usr_intf/pncconf/mesa0.glade:25582
+#: src/emc/usr_intf/pncconf/mesa0.glade:28720
+#: src/emc/usr_intf/pncconf/mesa0.glade:30625
+#: src/emc/usr_intf/pncconf/mesa0.glade:30638
+#: src/emc/usr_intf/pncconf/mesa0.glade:30773
+#: src/emc/usr_intf/pncconf/mesa0.glade:30788
+#: src/emc/usr_intf/pncconf/mesa0.glade:33926
+#: src/emc/usr_intf/pncconf/mesa0.glade:35831
+#: src/emc/usr_intf/pncconf/mesa0.glade:35844
+#: src/emc/usr_intf/pncconf/mesa0.glade:35979
+#: src/emc/usr_intf/pncconf/mesa0.glade:35994
+#: src/emc/usr_intf/pncconf/mesa0.glade:39132
+#: src/emc/usr_intf/pncconf/mesa0.glade:41037
+#: src/emc/usr_intf/pncconf/mesa0.glade:41050
+#: src/emc/usr_intf/pncconf/mesa0.glade:41185
+#: src/emc/usr_intf/pncconf/mesa0.glade:41200
+#: src/emc/usr_intf/pncconf/mesa0.glade:44338
+#: src/emc/usr_intf/pncconf/mesa0.glade:46243
+#: src/emc/usr_intf/pncconf/mesa0.glade:46256
+#: src/emc/usr_intf/pncconf/mesa0.glade:46391
+#: src/emc/usr_intf/pncconf/mesa0.glade:46406
+#: src/emc/usr_intf/pncconf/mesa0.glade:49544
+#: src/emc/usr_intf/pncconf/mesa0.glade:51449
+#: src/emc/usr_intf/pncconf/mesa0.glade:51462
+#: src/emc/usr_intf/pncconf/mesa0.glade:51597
+#: src/emc/usr_intf/pncconf/mesa0.glade:51612
+#: src/emc/usr_intf/pncconf/mesa0.glade:54696
+#: src/emc/usr_intf/pncconf/mesa0.glade:56601
+#: src/emc/usr_intf/pncconf/mesa0.glade:56614
+#: src/emc/usr_intf/pncconf/mesa0.glade:56749
+#: src/emc/usr_intf/pncconf/mesa0.glade:56764
+#: src/emc/usr_intf/pncconf/mesa0.glade:59860
+#: src/emc/usr_intf/pncconf/mesa1.glade:2858
+#: src/emc/usr_intf/pncconf/mesa1.glade:2871
+#: src/emc/usr_intf/pncconf/mesa1.glade:4864
+#: src/emc/usr_intf/pncconf/mesa1.glade:4877
+#: src/emc/usr_intf/pncconf/mesa1.glade:5055
+#: src/emc/usr_intf/pncconf/mesa1.glade:5070
+#: src/emc/usr_intf/pncconf/mesa1.glade:6937
+#: src/emc/usr_intf/pncconf/mesa1.glade:6952
+#: src/emc/usr_intf/pncconf/mesa1.glade:8886
+#: src/emc/usr_intf/pncconf/mesa1.glade:8901
+#: src/emc/usr_intf/pncconf/mesa1.glade:10812
+#: src/emc/usr_intf/pncconf/mesa1.glade:10827
+#: src/emc/usr_intf/pncconf/mesa1.glade:14428
+#: src/emc/usr_intf/pncconf/mesa1.glade:14441
+#: src/emc/usr_intf/pncconf/mesa1.glade:16353
+#: src/emc/usr_intf/pncconf/mesa1.glade:16366
+#: src/emc/usr_intf/pncconf/mesa1.glade:18278
+#: src/emc/usr_intf/pncconf/mesa1.glade:18291
+#: src/emc/usr_intf/pncconf/mesa1.glade:20213
+#: src/emc/usr_intf/pncconf/mesa1.glade:20226
+#: src/emc/usr_intf/pncconf/mesa1.glade:20361
+#: src/emc/usr_intf/pncconf/mesa1.glade:20376
+#: src/emc/usr_intf/pncconf/mesa1.glade:23514
+#: src/emc/usr_intf/pncconf/mesa1.glade:25419
+#: src/emc/usr_intf/pncconf/mesa1.glade:25432
+#: src/emc/usr_intf/pncconf/mesa1.glade:25567
+#: src/emc/usr_intf/pncconf/mesa1.glade:25582
+#: src/emc/usr_intf/pncconf/mesa1.glade:28720
+#: src/emc/usr_intf/pncconf/mesa1.glade:30625
+#: src/emc/usr_intf/pncconf/mesa1.glade:30638
+#: src/emc/usr_intf/pncconf/mesa1.glade:30773
+#: src/emc/usr_intf/pncconf/mesa1.glade:30788
+#: src/emc/usr_intf/pncconf/mesa1.glade:33926
+#: src/emc/usr_intf/pncconf/mesa1.glade:35831
+#: src/emc/usr_intf/pncconf/mesa1.glade:35844
+#: src/emc/usr_intf/pncconf/mesa1.glade:35979
+#: src/emc/usr_intf/pncconf/mesa1.glade:35994
+#: src/emc/usr_intf/pncconf/mesa1.glade:39132
+#: src/emc/usr_intf/pncconf/mesa1.glade:41037
+#: src/emc/usr_intf/pncconf/mesa1.glade:41050
+#: src/emc/usr_intf/pncconf/mesa1.glade:41185
+#: src/emc/usr_intf/pncconf/mesa1.glade:41200
+#: src/emc/usr_intf/pncconf/mesa1.glade:44338
+#: src/emc/usr_intf/pncconf/mesa1.glade:46243
+#: src/emc/usr_intf/pncconf/mesa1.glade:46256
+#: src/emc/usr_intf/pncconf/mesa1.glade:46391
+#: src/emc/usr_intf/pncconf/mesa1.glade:46406
+#: src/emc/usr_intf/pncconf/mesa1.glade:49544
+#: src/emc/usr_intf/pncconf/mesa1.glade:51449
+#: src/emc/usr_intf/pncconf/mesa1.glade:51462
+#: src/emc/usr_intf/pncconf/mesa1.glade:51597
+#: src/emc/usr_intf/pncconf/mesa1.glade:51612
+#: src/emc/usr_intf/pncconf/mesa1.glade:54696
+#: src/emc/usr_intf/pncconf/mesa1.glade:56601
+#: src/emc/usr_intf/pncconf/mesa1.glade:56614
+#: src/emc/usr_intf/pncconf/mesa1.glade:56749
+#: src/emc/usr_intf/pncconf/mesa1.glade:56764
+#: src/emc/usr_intf/pncconf/mesa1.glade:59860
 msgid "Num"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:2892
-#: src/emc/usr_intf/pncconf/mesa1.glade:2892
+#: src/emc/usr_intf/pncconf/mesa0.glade:2891
+#: src/emc/usr_intf/pncconf/mesa1.glade:2891
 msgid ""
 "      I/O\n"
 "Connector 1"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:4898
-#: src/emc/usr_intf/pncconf/mesa1.glade:4899
+#: src/emc/usr_intf/pncconf/mesa0.glade:4897
+#: src/emc/usr_intf/pncconf/mesa1.glade:4897
 msgid ""
 "      I/O\n"
 "Connector 2"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:6824
-#: src/emc/usr_intf/pncconf/mesa1.glade:6825
+#: src/emc/usr_intf/pncconf/mesa0.glade:6823
+#: src/emc/usr_intf/pncconf/mesa1.glade:6823
 msgid ""
 "       I/O\n"
 " Connector 3"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:8580
-#: src/emc/usr_intf/pncconf/mesa0.glade:8595
-#: src/emc/usr_intf/pncconf/mesa0.glade:8624
-#: src/emc/usr_intf/pncconf/mesa0.glade:18570
-#: src/emc/usr_intf/pncconf/mesa0.glade:18599
-#: src/emc/usr_intf/pncconf/mesa0.glade:18614
-#: src/emc/usr_intf/pncconf/mesa0.glade:21989
-#: src/emc/usr_intf/pncconf/mesa0.glade:22004
-#: src/emc/usr_intf/pncconf/mesa0.glade:22033
-#: src/emc/usr_intf/pncconf/mesa0.glade:22497
-#: src/emc/usr_intf/pncconf/mesa0.glade:22526
-#: src/emc/usr_intf/pncconf/mesa0.glade:22541
-#: src/emc/usr_intf/pncconf/mesa0.glade:23752
-#: src/emc/usr_intf/pncconf/mesa0.glade:23781
-#: src/emc/usr_intf/pncconf/mesa0.glade:23796
-#: src/emc/usr_intf/pncconf/mesa0.glade:27171
-#: src/emc/usr_intf/pncconf/mesa0.glade:27186
-#: src/emc/usr_intf/pncconf/mesa0.glade:27215
-#: src/emc/usr_intf/pncconf/mesa0.glade:27679
-#: src/emc/usr_intf/pncconf/mesa0.glade:27708
-#: src/emc/usr_intf/pncconf/mesa0.glade:27723
-#: src/emc/usr_intf/pncconf/mesa0.glade:28934
-#: src/emc/usr_intf/pncconf/mesa0.glade:28963
-#: src/emc/usr_intf/pncconf/mesa0.glade:28978
-#: src/emc/usr_intf/pncconf/mesa0.glade:32353
-#: src/emc/usr_intf/pncconf/mesa0.glade:32368
-#: src/emc/usr_intf/pncconf/mesa0.glade:32397
-#: src/emc/usr_intf/pncconf/mesa0.glade:32861
-#: src/emc/usr_intf/pncconf/mesa0.glade:32890
-#: src/emc/usr_intf/pncconf/mesa0.glade:32905
-#: src/emc/usr_intf/pncconf/mesa0.glade:34116
-#: src/emc/usr_intf/pncconf/mesa0.glade:34145
-#: src/emc/usr_intf/pncconf/mesa0.glade:34160
-#: src/emc/usr_intf/pncconf/mesa0.glade:37535
-#: src/emc/usr_intf/pncconf/mesa0.glade:37550
-#: src/emc/usr_intf/pncconf/mesa0.glade:37579
-#: src/emc/usr_intf/pncconf/mesa0.glade:38043
-#: src/emc/usr_intf/pncconf/mesa0.glade:38072
-#: src/emc/usr_intf/pncconf/mesa0.glade:38087
-#: src/emc/usr_intf/pncconf/mesa0.glade:39298
-#: src/emc/usr_intf/pncconf/mesa0.glade:39327
-#: src/emc/usr_intf/pncconf/mesa0.glade:39342
-#: src/emc/usr_intf/pncconf/mesa0.glade:42717
-#: src/emc/usr_intf/pncconf/mesa0.glade:42732
-#: src/emc/usr_intf/pncconf/mesa0.glade:42761
-#: src/emc/usr_intf/pncconf/mesa0.glade:43225
-#: src/emc/usr_intf/pncconf/mesa0.glade:43254
-#: src/emc/usr_intf/pncconf/mesa0.glade:43269
-#: src/emc/usr_intf/pncconf/mesa0.glade:44480
-#: src/emc/usr_intf/pncconf/mesa0.glade:44509
-#: src/emc/usr_intf/pncconf/mesa0.glade:44524
-#: src/emc/usr_intf/pncconf/mesa0.glade:47899
-#: src/emc/usr_intf/pncconf/mesa0.glade:47914
-#: src/emc/usr_intf/pncconf/mesa0.glade:47943
-#: src/emc/usr_intf/pncconf/mesa0.glade:48407
-#: src/emc/usr_intf/pncconf/mesa0.glade:48436
-#: src/emc/usr_intf/pncconf/mesa0.glade:48451
-#: src/emc/usr_intf/pncconf/mesa1.glade:8581
-#: src/emc/usr_intf/pncconf/mesa1.glade:8596
-#: src/emc/usr_intf/pncconf/mesa1.glade:8625
-#: src/emc/usr_intf/pncconf/mesa1.glade:18572
-#: src/emc/usr_intf/pncconf/mesa1.glade:18601
-#: src/emc/usr_intf/pncconf/mesa1.glade:18616
-#: src/emc/usr_intf/pncconf/mesa1.glade:21991
-#: src/emc/usr_intf/pncconf/mesa1.glade:22006
-#: src/emc/usr_intf/pncconf/mesa1.glade:22035
-#: src/emc/usr_intf/pncconf/mesa1.glade:22499
-#: src/emc/usr_intf/pncconf/mesa1.glade:22528
-#: src/emc/usr_intf/pncconf/mesa1.glade:22543
-#: src/emc/usr_intf/pncconf/mesa1.glade:23754
-#: src/emc/usr_intf/pncconf/mesa1.glade:23783
-#: src/emc/usr_intf/pncconf/mesa1.glade:23798
-#: src/emc/usr_intf/pncconf/mesa1.glade:27173
-#: src/emc/usr_intf/pncconf/mesa1.glade:27188
-#: src/emc/usr_intf/pncconf/mesa1.glade:27217
-#: src/emc/usr_intf/pncconf/mesa1.glade:27681
-#: src/emc/usr_intf/pncconf/mesa1.glade:27710
-#: src/emc/usr_intf/pncconf/mesa1.glade:27725
-#: src/emc/usr_intf/pncconf/mesa1.glade:28936
-#: src/emc/usr_intf/pncconf/mesa1.glade:28965
-#: src/emc/usr_intf/pncconf/mesa1.glade:28980
-#: src/emc/usr_intf/pncconf/mesa1.glade:32355
-#: src/emc/usr_intf/pncconf/mesa1.glade:32370
-#: src/emc/usr_intf/pncconf/mesa1.glade:32399
-#: src/emc/usr_intf/pncconf/mesa1.glade:32863
-#: src/emc/usr_intf/pncconf/mesa1.glade:32892
-#: src/emc/usr_intf/pncconf/mesa1.glade:32907
-#: src/emc/usr_intf/pncconf/mesa1.glade:34118
-#: src/emc/usr_intf/pncconf/mesa1.glade:34147
-#: src/emc/usr_intf/pncconf/mesa1.glade:34162
-#: src/emc/usr_intf/pncconf/mesa1.glade:37537
-#: src/emc/usr_intf/pncconf/mesa1.glade:37552
-#: src/emc/usr_intf/pncconf/mesa1.glade:37581
-#: src/emc/usr_intf/pncconf/mesa1.glade:38045
-#: src/emc/usr_intf/pncconf/mesa1.glade:38074
-#: src/emc/usr_intf/pncconf/mesa1.glade:38089
-#: src/emc/usr_intf/pncconf/mesa1.glade:39300
-#: src/emc/usr_intf/pncconf/mesa1.glade:39329
-#: src/emc/usr_intf/pncconf/mesa1.glade:39344
-#: src/emc/usr_intf/pncconf/mesa1.glade:42719
-#: src/emc/usr_intf/pncconf/mesa1.glade:42734
-#: src/emc/usr_intf/pncconf/mesa1.glade:42763
-#: src/emc/usr_intf/pncconf/mesa1.glade:43227
-#: src/emc/usr_intf/pncconf/mesa1.glade:43256
-#: src/emc/usr_intf/pncconf/mesa1.glade:43271
-#: src/emc/usr_intf/pncconf/mesa1.glade:44482
-#: src/emc/usr_intf/pncconf/mesa1.glade:44511
-#: src/emc/usr_intf/pncconf/mesa1.glade:44526
-#: src/emc/usr_intf/pncconf/mesa1.glade:47901
-#: src/emc/usr_intf/pncconf/mesa1.glade:47916
-#: src/emc/usr_intf/pncconf/mesa1.glade:47945
-#: src/emc/usr_intf/pncconf/mesa1.glade:48409
-#: src/emc/usr_intf/pncconf/mesa1.glade:48438
-#: src/emc/usr_intf/pncconf/mesa1.glade:48453
+#: src/emc/usr_intf/pncconf/mesa0.glade:8579
+#: src/emc/usr_intf/pncconf/mesa0.glade:8594
+#: src/emc/usr_intf/pncconf/mesa0.glade:8623
+#: src/emc/usr_intf/pncconf/mesa0.glade:18569
+#: src/emc/usr_intf/pncconf/mesa0.glade:18598
+#: src/emc/usr_intf/pncconf/mesa0.glade:18613
+#: src/emc/usr_intf/pncconf/mesa0.glade:21988
+#: src/emc/usr_intf/pncconf/mesa0.glade:22003
+#: src/emc/usr_intf/pncconf/mesa0.glade:22032
+#: src/emc/usr_intf/pncconf/mesa0.glade:22520
+#: src/emc/usr_intf/pncconf/mesa0.glade:22549
+#: src/emc/usr_intf/pncconf/mesa0.glade:22564
+#: src/emc/usr_intf/pncconf/mesa0.glade:23775
+#: src/emc/usr_intf/pncconf/mesa0.glade:23804
+#: src/emc/usr_intf/pncconf/mesa0.glade:23819
+#: src/emc/usr_intf/pncconf/mesa0.glade:27194
+#: src/emc/usr_intf/pncconf/mesa0.glade:27209
+#: src/emc/usr_intf/pncconf/mesa0.glade:27238
+#: src/emc/usr_intf/pncconf/mesa0.glade:27726
+#: src/emc/usr_intf/pncconf/mesa0.glade:27755
+#: src/emc/usr_intf/pncconf/mesa0.glade:27770
+#: src/emc/usr_intf/pncconf/mesa0.glade:28981
+#: src/emc/usr_intf/pncconf/mesa0.glade:29010
+#: src/emc/usr_intf/pncconf/mesa0.glade:29025
+#: src/emc/usr_intf/pncconf/mesa0.glade:32400
+#: src/emc/usr_intf/pncconf/mesa0.glade:32415
+#: src/emc/usr_intf/pncconf/mesa0.glade:32444
+#: src/emc/usr_intf/pncconf/mesa0.glade:32932
+#: src/emc/usr_intf/pncconf/mesa0.glade:32961
+#: src/emc/usr_intf/pncconf/mesa0.glade:32976
+#: src/emc/usr_intf/pncconf/mesa0.glade:34187
+#: src/emc/usr_intf/pncconf/mesa0.glade:34216
+#: src/emc/usr_intf/pncconf/mesa0.glade:34231
+#: src/emc/usr_intf/pncconf/mesa0.glade:37606
+#: src/emc/usr_intf/pncconf/mesa0.glade:37621
+#: src/emc/usr_intf/pncconf/mesa0.glade:37650
+#: src/emc/usr_intf/pncconf/mesa0.glade:38138
+#: src/emc/usr_intf/pncconf/mesa0.glade:38167
+#: src/emc/usr_intf/pncconf/mesa0.glade:38182
+#: src/emc/usr_intf/pncconf/mesa0.glade:39393
+#: src/emc/usr_intf/pncconf/mesa0.glade:39422
+#: src/emc/usr_intf/pncconf/mesa0.glade:39437
+#: src/emc/usr_intf/pncconf/mesa0.glade:42812
+#: src/emc/usr_intf/pncconf/mesa0.glade:42827
+#: src/emc/usr_intf/pncconf/mesa0.glade:42856
+#: src/emc/usr_intf/pncconf/mesa0.glade:43344
+#: src/emc/usr_intf/pncconf/mesa0.glade:43373
+#: src/emc/usr_intf/pncconf/mesa0.glade:43388
+#: src/emc/usr_intf/pncconf/mesa0.glade:44599
+#: src/emc/usr_intf/pncconf/mesa0.glade:44628
+#: src/emc/usr_intf/pncconf/mesa0.glade:44643
+#: src/emc/usr_intf/pncconf/mesa0.glade:48018
+#: src/emc/usr_intf/pncconf/mesa0.glade:48033
+#: src/emc/usr_intf/pncconf/mesa0.glade:48062
+#: src/emc/usr_intf/pncconf/mesa0.glade:48550
+#: src/emc/usr_intf/pncconf/mesa0.glade:48579
+#: src/emc/usr_intf/pncconf/mesa0.glade:48594
+#: src/emc/usr_intf/pncconf/mesa0.glade:49805
+#: src/emc/usr_intf/pncconf/mesa0.glade:49834
+#: src/emc/usr_intf/pncconf/mesa0.glade:49849
+#: src/emc/usr_intf/pncconf/mesa0.glade:53224
+#: src/emc/usr_intf/pncconf/mesa0.glade:53239
+#: src/emc/usr_intf/pncconf/mesa0.glade:53268
+#: src/emc/usr_intf/pncconf/mesa0.glade:53702
+#: src/emc/usr_intf/pncconf/mesa0.glade:53731
+#: src/emc/usr_intf/pncconf/mesa0.glade:53746
+#: src/emc/usr_intf/pncconf/mesa0.glade:54957
+#: src/emc/usr_intf/pncconf/mesa0.glade:54986
+#: src/emc/usr_intf/pncconf/mesa0.glade:55001
+#: src/emc/usr_intf/pncconf/mesa0.glade:58376
+#: src/emc/usr_intf/pncconf/mesa0.glade:58391
+#: src/emc/usr_intf/pncconf/mesa0.glade:58420
+#: src/emc/usr_intf/pncconf/mesa0.glade:58866
+#: src/emc/usr_intf/pncconf/mesa0.glade:58895
+#: src/emc/usr_intf/pncconf/mesa0.glade:58910
+#: src/emc/usr_intf/pncconf/mesa1.glade:8579
+#: src/emc/usr_intf/pncconf/mesa1.glade:8594
+#: src/emc/usr_intf/pncconf/mesa1.glade:8623
+#: src/emc/usr_intf/pncconf/mesa1.glade:18569
+#: src/emc/usr_intf/pncconf/mesa1.glade:18598
+#: src/emc/usr_intf/pncconf/mesa1.glade:18613
+#: src/emc/usr_intf/pncconf/mesa1.glade:21988
+#: src/emc/usr_intf/pncconf/mesa1.glade:22003
+#: src/emc/usr_intf/pncconf/mesa1.glade:22032
+#: src/emc/usr_intf/pncconf/mesa1.glade:22520
+#: src/emc/usr_intf/pncconf/mesa1.glade:22549
+#: src/emc/usr_intf/pncconf/mesa1.glade:22564
+#: src/emc/usr_intf/pncconf/mesa1.glade:23775
+#: src/emc/usr_intf/pncconf/mesa1.glade:23804
+#: src/emc/usr_intf/pncconf/mesa1.glade:23819
+#: src/emc/usr_intf/pncconf/mesa1.glade:27194
+#: src/emc/usr_intf/pncconf/mesa1.glade:27209
+#: src/emc/usr_intf/pncconf/mesa1.glade:27238
+#: src/emc/usr_intf/pncconf/mesa1.glade:27726
+#: src/emc/usr_intf/pncconf/mesa1.glade:27755
+#: src/emc/usr_intf/pncconf/mesa1.glade:27770
+#: src/emc/usr_intf/pncconf/mesa1.glade:28981
+#: src/emc/usr_intf/pncconf/mesa1.glade:29010
+#: src/emc/usr_intf/pncconf/mesa1.glade:29025
+#: src/emc/usr_intf/pncconf/mesa1.glade:32400
+#: src/emc/usr_intf/pncconf/mesa1.glade:32415
+#: src/emc/usr_intf/pncconf/mesa1.glade:32444
+#: src/emc/usr_intf/pncconf/mesa1.glade:32932
+#: src/emc/usr_intf/pncconf/mesa1.glade:32961
+#: src/emc/usr_intf/pncconf/mesa1.glade:32976
+#: src/emc/usr_intf/pncconf/mesa1.glade:34187
+#: src/emc/usr_intf/pncconf/mesa1.glade:34216
+#: src/emc/usr_intf/pncconf/mesa1.glade:34231
+#: src/emc/usr_intf/pncconf/mesa1.glade:37606
+#: src/emc/usr_intf/pncconf/mesa1.glade:37621
+#: src/emc/usr_intf/pncconf/mesa1.glade:37650
+#: src/emc/usr_intf/pncconf/mesa1.glade:38138
+#: src/emc/usr_intf/pncconf/mesa1.glade:38167
+#: src/emc/usr_intf/pncconf/mesa1.glade:38182
+#: src/emc/usr_intf/pncconf/mesa1.glade:39393
+#: src/emc/usr_intf/pncconf/mesa1.glade:39422
+#: src/emc/usr_intf/pncconf/mesa1.glade:39437
+#: src/emc/usr_intf/pncconf/mesa1.glade:42812
+#: src/emc/usr_intf/pncconf/mesa1.glade:42827
+#: src/emc/usr_intf/pncconf/mesa1.glade:42856
+#: src/emc/usr_intf/pncconf/mesa1.glade:43344
+#: src/emc/usr_intf/pncconf/mesa1.glade:43373
+#: src/emc/usr_intf/pncconf/mesa1.glade:43388
+#: src/emc/usr_intf/pncconf/mesa1.glade:44599
+#: src/emc/usr_intf/pncconf/mesa1.glade:44628
+#: src/emc/usr_intf/pncconf/mesa1.glade:44643
+#: src/emc/usr_intf/pncconf/mesa1.glade:48018
+#: src/emc/usr_intf/pncconf/mesa1.glade:48033
+#: src/emc/usr_intf/pncconf/mesa1.glade:48062
+#: src/emc/usr_intf/pncconf/mesa1.glade:48550
+#: src/emc/usr_intf/pncconf/mesa1.glade:48579
+#: src/emc/usr_intf/pncconf/mesa1.glade:48594
+#: src/emc/usr_intf/pncconf/mesa1.glade:49805
+#: src/emc/usr_intf/pncconf/mesa1.glade:49834
+#: src/emc/usr_intf/pncconf/mesa1.glade:49849
+#: src/emc/usr_intf/pncconf/mesa1.glade:53224
+#: src/emc/usr_intf/pncconf/mesa1.glade:53239
+#: src/emc/usr_intf/pncconf/mesa1.glade:53268
+#: src/emc/usr_intf/pncconf/mesa1.glade:53702
+#: src/emc/usr_intf/pncconf/mesa1.glade:53731
+#: src/emc/usr_intf/pncconf/mesa1.glade:53746
+#: src/emc/usr_intf/pncconf/mesa1.glade:54957
+#: src/emc/usr_intf/pncconf/mesa1.glade:54986
+#: src/emc/usr_intf/pncconf/mesa1.glade:55001
+#: src/emc/usr_intf/pncconf/mesa1.glade:58376
+#: src/emc/usr_intf/pncconf/mesa1.glade:58391
+#: src/emc/usr_intf/pncconf/mesa1.glade:58420
+#: src/emc/usr_intf/pncconf/mesa1.glade:58866
+#: src/emc/usr_intf/pncconf/mesa1.glade:58895
+#: src/emc/usr_intf/pncconf/mesa1.glade:58910
 msgid " "
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:8729
-#: src/emc/usr_intf/pncconf/mesa1.glade:8730
+#: src/emc/usr_intf/pncconf/mesa0.glade:8728
+#: src/emc/usr_intf/pncconf/mesa1.glade:8728
 msgid ""
 "       I/O\n"
 " Connector 4"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:10656
-#: src/emc/usr_intf/pncconf/mesa1.glade:10657
+#: src/emc/usr_intf/pncconf/mesa0.glade:10655
+#: src/emc/usr_intf/pncconf/mesa1.glade:10655
 msgid ""
 "       I/O\n"
 " Connector 5"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:12581
-#: src/emc/usr_intf/pncconf/mesa1.glade:12582
+#: src/emc/usr_intf/pncconf/mesa0.glade:12580
+#: src/emc/usr_intf/pncconf/mesa1.glade:12580
 msgid ""
 "      I/O\n"
 "Connector 6"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:14506
-#: src/emc/usr_intf/pncconf/mesa1.glade:14507
+#: src/emc/usr_intf/pncconf/mesa0.glade:14505
+#: src/emc/usr_intf/pncconf/mesa1.glade:14505
 msgid ""
 "      I/O\n"
 "Connector 7"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:16431
-#: src/emc/usr_intf/pncconf/mesa1.glade:16433
+#: src/emc/usr_intf/pncconf/mesa0.glade:16430
+#: src/emc/usr_intf/pncconf/mesa1.glade:16430
 msgid ""
 "      I/O\n"
 "Connector 8"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:18356
-#: src/emc/usr_intf/pncconf/mesa1.glade:18358
+#: src/emc/usr_intf/pncconf/mesa0.glade:18355
+#: src/emc/usr_intf/pncconf/mesa1.glade:18355
 msgid ""
 "      I/O\n"
 " Connector 9"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:22138
-#: src/emc/usr_intf/pncconf/mesa0.glade:27320
-#: src/emc/usr_intf/pncconf/mesa0.glade:32502
-#: src/emc/usr_intf/pncconf/mesa0.glade:37684
-#: src/emc/usr_intf/pncconf/mesa0.glade:42866
-#: src/emc/usr_intf/pncconf/mesa0.glade:48048
-#: src/emc/usr_intf/pncconf/mesa1.glade:22140
-#: src/emc/usr_intf/pncconf/mesa1.glade:27322
-#: src/emc/usr_intf/pncconf/mesa1.glade:32504
-#: src/emc/usr_intf/pncconf/mesa1.glade:37686
-#: src/emc/usr_intf/pncconf/mesa1.glade:42868
-#: src/emc/usr_intf/pncconf/mesa1.glade:48050
+#: src/emc/usr_intf/pncconf/mesa0.glade:22137
+#: src/emc/usr_intf/pncconf/mesa0.glade:27343
+#: src/emc/usr_intf/pncconf/mesa0.glade:32549
+#: src/emc/usr_intf/pncconf/mesa0.glade:37755
+#: src/emc/usr_intf/pncconf/mesa0.glade:42961
+#: src/emc/usr_intf/pncconf/mesa0.glade:48167
+#: src/emc/usr_intf/pncconf/mesa0.glade:53373
+#: src/emc/usr_intf/pncconf/mesa0.glade:58525
+#: src/emc/usr_intf/pncconf/mesa1.glade:22137
+#: src/emc/usr_intf/pncconf/mesa1.glade:27343
+#: src/emc/usr_intf/pncconf/mesa1.glade:32549
+#: src/emc/usr_intf/pncconf/mesa1.glade:37755
+#: src/emc/usr_intf/pncconf/mesa1.glade:42961
+#: src/emc/usr_intf/pncconf/mesa1.glade:48167
+#: src/emc/usr_intf/pncconf/mesa1.glade:53373
+#: src/emc/usr_intf/pncconf/mesa1.glade:58525
 msgid "page 2"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:23523
-#: src/emc/usr_intf/pncconf/mesa0.glade:28705
-#: src/emc/usr_intf/pncconf/mesa0.glade:33887
-#: src/emc/usr_intf/pncconf/mesa0.glade:39069
-#: src/emc/usr_intf/pncconf/mesa0.glade:44251
-#: src/emc/usr_intf/pncconf/mesa0.glade:49433
-#: src/emc/usr_intf/pncconf/mesa1.glade:23525
-#: src/emc/usr_intf/pncconf/mesa1.glade:28707
-#: src/emc/usr_intf/pncconf/mesa1.glade:33889
-#: src/emc/usr_intf/pncconf/mesa1.glade:39071
-#: src/emc/usr_intf/pncconf/mesa1.glade:44253
-#: src/emc/usr_intf/pncconf/mesa1.glade:49435
+#: src/emc/usr_intf/pncconf/mesa0.glade:23546
+#: src/emc/usr_intf/pncconf/mesa0.glade:28752
+#: src/emc/usr_intf/pncconf/mesa0.glade:33958
+#: src/emc/usr_intf/pncconf/mesa0.glade:39164
+#: src/emc/usr_intf/pncconf/mesa0.glade:44370
+#: src/emc/usr_intf/pncconf/mesa0.glade:49576
+#: src/emc/usr_intf/pncconf/mesa0.glade:54728
+#: src/emc/usr_intf/pncconf/mesa0.glade:59892
+#: src/emc/usr_intf/pncconf/mesa1.glade:23546
+#: src/emc/usr_intf/pncconf/mesa1.glade:28752
+#: src/emc/usr_intf/pncconf/mesa1.glade:33958
+#: src/emc/usr_intf/pncconf/mesa1.glade:39164
+#: src/emc/usr_intf/pncconf/mesa1.glade:44370
+#: src/emc/usr_intf/pncconf/mesa1.glade:49576
+#: src/emc/usr_intf/pncconf/mesa1.glade:54728
+#: src/emc/usr_intf/pncconf/mesa1.glade:59892
 msgid "page 3"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:23539
-#: src/emc/usr_intf/pncconf/mesa1.glade:23541
+#: src/emc/usr_intf/pncconf/mesa0.glade:23562
+#: src/emc/usr_intf/pncconf/mesa1.glade:23562
 msgid "Smart Serial 0"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:28721
-#: src/emc/usr_intf/pncconf/mesa1.glade:28723
+#: src/emc/usr_intf/pncconf/mesa0.glade:28768
+#: src/emc/usr_intf/pncconf/mesa1.glade:28768
 msgid "Smart Serial 1"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:33903
-#: src/emc/usr_intf/pncconf/mesa1.glade:33905
+#: src/emc/usr_intf/pncconf/mesa0.glade:33974
+#: src/emc/usr_intf/pncconf/mesa1.glade:33974
 msgid "Smart Serial 2"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:39085
-#: src/emc/usr_intf/pncconf/mesa1.glade:39087
+#: src/emc/usr_intf/pncconf/mesa0.glade:39180
+#: src/emc/usr_intf/pncconf/mesa1.glade:39180
 msgid "Smart Serial 3"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:44267
-#: src/emc/usr_intf/pncconf/mesa1.glade:44269
+#: src/emc/usr_intf/pncconf/mesa0.glade:44386
+#: src/emc/usr_intf/pncconf/mesa1.glade:44386
 msgid "Smart Serial 4"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/mesa0.glade:49449
-#: src/emc/usr_intf/pncconf/mesa1.glade:49451
+#: src/emc/usr_intf/pncconf/mesa0.glade:49592
+#: src/emc/usr_intf/pncconf/mesa1.glade:49592
 msgid "Smart Serial 5"
+msgstr ""
+
+#: src/emc/usr_intf/pncconf/mesa0.glade:54744
+#: src/emc/usr_intf/pncconf/mesa1.glade:54744
+msgid "Smart Serial 6"
+msgstr ""
+
+#: src/emc/usr_intf/pncconf/mesa0.glade:59908
+#: src/emc/usr_intf/pncconf/mesa1.glade:59908
+msgid "Smart Serial 7"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/start.glade:27
@@ -16722,61 +16880,61 @@ msgstr ""
 msgid "Actual Servo Period:             "
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/base.glade:403
+#: src/emc/usr_intf/pncconf/base.glade:404
 msgid "Recommend servo period:    1000000"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/base.glade:413
+#: src/emc/usr_intf/pncconf/base.glade:414
 msgid ""
 " Test Base\n"
 "Period Jitter "
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/base.glade:444
+#: src/emc/usr_intf/pncconf/base.glade:445
 msgid "<b>Computer Response Time</b>"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/base.glade:490
+#: src/emc/usr_intf/pncconf/base.glade:491
 msgid "Mesa0 PCI/ Etho/ Parport Card:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/base.glade:575
+#: src/emc/usr_intf/pncconf/base.glade:576
 msgid "Mesa1 PCI/ Etho/ Parport Card:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/base.glade:593
+#: src/emc/usr_intf/pncconf/base.glade:594
 msgid "<b>I/O Control Ports/ Boards</b>"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/base.glade:645
+#: src/emc/usr_intf/pncconf/base.glade:646
 msgid "Force individual manual homing"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/base.glade:659
+#: src/emc/usr_intf/pncconf/base.glade:660
 msgid "Random position toolchanger "
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/base.glade:675
+#: src/emc/usr_intf/pncconf/base.glade:676
 msgid "Require homing before MDI / Running"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/base.glade:687
+#: src/emc/usr_intf/pncconf/base.glade:688
 msgid "Popup Manual Toolchange Prompt"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/base.glade:702
+#: src/emc/usr_intf/pncconf/base.glade:703
 msgid "Leave spindle on during tool change"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/base.glade:716
+#: src/emc/usr_intf/pncconf/base.glade:717
 msgid "Move spindle up before tool change"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/base.glade:730
+#: src/emc/usr_intf/pncconf/base.glade:731
 msgid "Restore joint position after shutdown"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/base.glade:750
+#: src/emc/usr_intf/pncconf/base.glade:751
 msgid "<b>Defaults and Options</b>"
 msgstr ""
 
@@ -17075,11 +17233,11 @@ msgstr ""
 msgid "Include custom GladeVCP GUI panel"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/thcad.glade:96
+#: src/emc/usr_intf/pncconf/thcad.glade:102
 msgid "Full Scale Frequency (kHz)"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/thcad.glade:135
+#: src/emc/usr_intf/pncconf/thcad.glade:141
 msgid "0V Frequency (kHz)"
 msgstr ""
 
@@ -17224,7 +17382,7 @@ msgstr "Spindle:"
 #: src/emc/usr_intf/pncconf/z_motor.glade:259
 #: src/emc/usr_intf/pncconf/a_motor.glade:245
 #: src/emc/usr_intf/pncconf/s_motor.glade:288
-#: src/emc/usr_intf/pncconf/dialogs.glade:3976
+#: src/emc/usr_intf/pncconf/dialogs.glade:3996
 #, fuzzy
 msgid "FF2"
 msgstr "OFF"
@@ -17234,7 +17392,7 @@ msgstr "OFF"
 #: src/emc/usr_intf/pncconf/z_motor.glade:273
 #: src/emc/usr_intf/pncconf/a_motor.glade:259
 #: src/emc/usr_intf/pncconf/s_motor.glade:302
-#: src/emc/usr_intf/pncconf/dialogs.glade:3965
+#: src/emc/usr_intf/pncconf/dialogs.glade:3985
 #, fuzzy
 msgid "FF1"
 msgstr "OFF"
@@ -17244,7 +17402,7 @@ msgstr "OFF"
 #: src/emc/usr_intf/pncconf/z_motor.glade:287
 #: src/emc/usr_intf/pncconf/a_motor.glade:273
 #: src/emc/usr_intf/pncconf/s_motor.glade:316
-#: src/emc/usr_intf/pncconf/dialogs.glade:3954
+#: src/emc/usr_intf/pncconf/dialogs.glade:3974
 #, fuzzy
 msgid "FF0"
 msgstr "OFF"
@@ -17262,7 +17420,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:355
 #: src/emc/usr_intf/pncconf/a_motor.glade:337
 #: src/emc/usr_intf/pncconf/s_motor.glade:384
-#: src/emc/usr_intf/pncconf/dialogs.glade:4194
+#: src/emc/usr_intf/pncconf/dialogs.glade:4214
 msgid "Bias"
 msgstr ""
 
@@ -17661,9 +17819,9 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:1835
 #: src/emc/usr_intf/pncconf/a_motor.glade:1755
 #: src/emc/usr_intf/pncconf/s_motor.glade:2329
-#: src/emc/usr_intf/pncconf/dialogs.glade:1771
-#: src/emc/usr_intf/pncconf/dialogs.glade:1782
-#: src/emc/usr_intf/pncconf/dialogs.glade:3045
+#: src/emc/usr_intf/pncconf/dialogs.glade:1777
+#: src/emc/usr_intf/pncconf/dialogs.glade:1788
+#: src/emc/usr_intf/pncconf/dialogs.glade:3059
 msgid "RPM"
 msgstr ""
 
@@ -18222,231 +18380,231 @@ msgstr "Inverter imagem"
 msgid "Invert Motor"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1361
+#: src/emc/usr_intf/pncconf/dialogs.glade:1365
 msgid "Pulley teeth (motor:gearbox):"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1370
+#: src/emc/usr_intf/pncconf/dialogs.glade:1374
 msgid "Gear ratio 1 (Input:Output)"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1383
-#: src/emc/usr_intf/pncconf/dialogs.glade:2156
+#: src/emc/usr_intf/pncconf/dialogs.glade:1387
+#: src/emc/usr_intf/pncconf/dialogs.glade:2166
 msgid "Microstep Multiplication Factor:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1398
-#: src/emc/usr_intf/pncconf/dialogs.glade:2228
+#: src/emc/usr_intf/pncconf/dialogs.glade:1402
+#: src/emc/usr_intf/pncconf/dialogs.glade:2238
 msgid "Motor steps per revolution:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1472
+#: src/emc/usr_intf/pncconf/dialogs.glade:1476
 msgid "      Voltage for Max RPM:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1482
+#: src/emc/usr_intf/pncconf/dialogs.glade:1486
 #, fuzzy
 msgid "Use Negative voltage for reverse:"
 msgstr "Parâmetro L negativo usado"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1495
+#: src/emc/usr_intf/pncconf/dialogs.glade:1499
 msgid "Gear ratio 2 (Input:Output)"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1569
+#: src/emc/usr_intf/pncconf/dialogs.glade:1575
 msgid "      <b>MOTOR</b> RPM at Max Voltage"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1600
+#: src/emc/usr_intf/pncconf/dialogs.glade:1606
 #, fuzzy
 msgid "<b>Spindle Drive Motor</b>"
 msgstr "Spindle:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1640
-#: src/emc/usr_intf/pncconf/dialogs.glade:2440
+#: src/emc/usr_intf/pncconf/dialogs.glade:1646
+#: src/emc/usr_intf/pncconf/dialogs.glade:2452
 msgid "X 4 = Pulses/Rev"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1651
-#: src/emc/usr_intf/pncconf/dialogs.glade:2453
+#: src/emc/usr_intf/pncconf/dialogs.glade:1657
+#: src/emc/usr_intf/pncconf/dialogs.glade:2465
 msgid "Encoder lines per revolution:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1661
-#: src/emc/usr_intf/pncconf/dialogs.glade:2606
+#: src/emc/usr_intf/pncconf/dialogs.glade:1667
+#: src/emc/usr_intf/pncconf/dialogs.glade:2620
 #, fuzzy
 msgid "<b>Encoder Scale</b>"
 msgstr "Spindle:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1729
+#: src/emc/usr_intf/pncconf/dialogs.glade:1735
 msgid "Spindle RPM at Max Motor Speed -gear 1:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1736
+#: src/emc/usr_intf/pncconf/dialogs.glade:1742
 msgid "Spindle RPM at Max Motor Speed -gear 2:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1747
+#: src/emc/usr_intf/pncconf/dialogs.glade:1753
 msgid "500"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1758
+#: src/emc/usr_intf/pncconf/dialogs.glade:1764
 msgid "1000"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1799
-#: src/emc/usr_intf/pncconf/dialogs.glade:3221
+#: src/emc/usr_intf/pncconf/dialogs.glade:1805
+#: src/emc/usr_intf/pncconf/dialogs.glade:3241
 #, fuzzy
 msgid "<b>Motion Data</b>"
 msgstr "Refrigeração:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1945
+#: src/emc/usr_intf/pncconf/dialogs.glade:1951
 msgid "TPI "
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2134
+#: src/emc/usr_intf/pncconf/dialogs.glade:2144
 msgid "Pulley teeth (motor:Leadscrew):"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2143
-#: src/emc/usr_intf/pncconf/dialogs.glade:2523
+#: src/emc/usr_intf/pncconf/dialogs.glade:2153
+#: src/emc/usr_intf/pncconf/dialogs.glade:2537
 msgid "Worm turn ratio (Input:Outputl)"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2177
-#: src/emc/usr_intf/pncconf/dialogs.glade:2553
+#: src/emc/usr_intf/pncconf/dialogs.glade:2187
+#: src/emc/usr_intf/pncconf/dialogs.glade:2567
 msgid "Leadscrew Metric Pitch"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2261
+#: src/emc/usr_intf/pncconf/dialogs.glade:2271
 msgid "<b>Step Motor Scale</b>"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2310
+#: src/emc/usr_intf/pncconf/dialogs.glade:2320
 msgid "TPI"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2536
+#: src/emc/usr_intf/pncconf/dialogs.glade:2550
 msgid "Pulley teeth (encoder:Leadscrew):"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2650
+#: src/emc/usr_intf/pncconf/dialogs.glade:2664
 msgid "                    "
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2691
+#: src/emc/usr_intf/pncconf/dialogs.glade:2705
 msgid "encoder pulses per unit:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2704
+#: src/emc/usr_intf/pncconf/dialogs.glade:2718
 msgid "motor steps per unit:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2719
+#: src/emc/usr_intf/pncconf/dialogs.glade:2733
 msgid "<b>Calculated Scale</b>"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2787
+#: src/emc/usr_intf/pncconf/dialogs.glade:2801
 msgid "mm / encoder pulse"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2819
+#: src/emc/usr_intf/pncconf/dialogs.glade:2833
 #, fuzzy
 msgid "Resolution:"
 msgstr "Posição:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2848
+#: src/emc/usr_intf/pncconf/dialogs.glade:2862
 msgid "Distance to acheave max speed:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2950
+#: src/emc/usr_intf/pncconf/dialogs.glade:2964
 msgid "sec"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2966
+#: src/emc/usr_intf/pncconf/dialogs.glade:2980
 msgid "Khz"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2982
+#: src/emc/usr_intf/pncconf/dialogs.glade:2996
 #, fuzzy
 msgid "Calculated Axis SCALE:"
 msgstr "Eixo:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3033
+#: src/emc/usr_intf/pncconf/dialogs.glade:3047
 msgid "Motor RPM at max speed:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3104
+#: src/emc/usr_intf/pncconf/dialogs.glade:3121
 msgid "xmaxrpm"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3610
+#: src/emc/usr_intf/pncconf/dialogs.glade:3630
 #, fuzzy
 msgid "Seconds"
 msgstr "Secundária"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3666
+#: src/emc/usr_intf/pncconf/dialogs.glade:3686
 #, fuzzy
 msgid "Enable"
 msgstr "Nome:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3785
+#: src/emc/usr_intf/pncconf/dialogs.glade:3805
 msgid "mm/minute^2"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3830
+#: src/emc/usr_intf/pncconf/dialogs.glade:3850
 msgid "mm/minute"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3910
-#: src/emc/usr_intf/pncconf/dialogs.glade:4728
+#: src/emc/usr_intf/pncconf/dialogs.glade:3930
+#: src/emc/usr_intf/pncconf/dialogs.glade:4772
 msgid "Current"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3921
+#: src/emc/usr_intf/pncconf/dialogs.glade:3941
 msgid "P:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3932
+#: src/emc/usr_intf/pncconf/dialogs.glade:3952
 msgid "I:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3943
+#: src/emc/usr_intf/pncconf/dialogs.glade:3963
 msgid "D:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3997
-#: src/emc/usr_intf/pncconf/dialogs.glade:4741
+#: src/emc/usr_intf/pncconf/dialogs.glade:4017
+#: src/emc/usr_intf/pncconf/dialogs.glade:4785
 msgid "Original"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4205
+#: src/emc/usr_intf/pncconf/dialogs.glade:4225
 msgid "DeadBand"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4280
+#: src/emc/usr_intf/pncconf/dialogs.glade:4300
 msgid "PID Tuning"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4695
+#: src/emc/usr_intf/pncconf/dialogs.glade:4739
 #, fuzzy
 msgid "Step Time:"
 msgstr "Roda uma linha do programa"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4706
+#: src/emc/usr_intf/pncconf/dialogs.glade:4750
 #, fuzzy
 msgid "Step Space:"
 msgstr "Roda uma linha do programa"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4717
+#: src/emc/usr_intf/pncconf/dialogs.glade:4761
 msgid "Direction Hold:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4754
+#: src/emc/usr_intf/pncconf/dialogs.glade:4798
 msgid "Direction Setup:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4963
+#: src/emc/usr_intf/pncconf/dialogs.glade:5007
 msgid "Step Timing"
 msgstr ""
 
