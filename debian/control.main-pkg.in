@@ -37,7 +37,8 @@ Recommends:
     @PYTHON_IMAGING@,
     @PYTHON_IMAGING_TK@,
     @QTVCP_DEPENDS@
-Suggests: mesaflash
+Suggests: mesaflash,
+    onboard
 Description: motion controller for CNC machines and robots
  LinuxCNC is a fully-realised CNC machine controller that can interpret
  machine-control programs (such as G-code), plan trajectories and finally
