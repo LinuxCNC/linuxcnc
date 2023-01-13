@@ -40,9 +40,10 @@ class HandlerClass:
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
         if self.w.PREFS_:
-            print('Using preference file:',self.w.PREFS_.fn)
+            LOG.debug('Using preference file:',self.w.PREFS_.fn)
         number = 0
         if self.w.USEROPTIONS_ is not None:
+            LOG.debug('cam_align user options: {}'.format(self.w.USEROPTIONS_))
             for num, i in enumerate(self.w.USEROPTIONS_):
 
                 # override the default width and height of the window
@@ -64,8 +65,8 @@ class HandlerClass:
                 # camera number to use
                 elif 'camnumber=' in self.w.USEROPTIONS_[num]:
                     try:
-                        number = int(self.w.USEROPTIONS_[num])
-                    except:
+                        number = int(self.w.USEROPTIONS_[num].strip('camnumber='))
+                    except Exception as e:
                         print('Error with cam_align camera selection - not a number - using 0')
 
 
