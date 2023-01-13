@@ -35,6 +35,9 @@ if __name__ != '__main__':  # This avoids segfault when testing directly in pyth
     INFO = Info()
 LOG = logger.getLogger(__name__)
 
+# Surpress cryptic messages when chacking for useable ports
+os.environ["OPENCV_LOG_LEVEL"]="FATAL"
+
 # If the library is missing don't crash the GUI
 # send an error and just make a blank widget.
 LIB_GOOD = True
@@ -288,7 +291,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         if LIB_GOOD:
             try:
                 self.video = WebcamVideoStream(src=self._camNum)
-                if not self.video.isOpened:
+                if not self.video.isOpened():
                     p = self.video.list_ports()[1]
                     self.text = 'Error with video {}\nAvailable ports:\n{}'.format(self._camNum, p)
                 else:
@@ -406,22 +409,41 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
 
 class WebcamVideoStream:
     def __init__(self, src=0, api=DEFAULT_API):
+
         # initialize the video camera stream and read the first frame
         # from the stream
-        try:
-            self.stream = CV.VideoCapture(src, api)
-        except:
-            # try using an older function signature
-            self.stream = CV.VideoCapture(src)
+        self.stream = self.openStream(src, api)
+
+        if not (self.stream.isOpened()):
+            LOG.error('Could not open video device {}'.format(src))
+            plist = self.list_ports()[1]
+            if src not in plist:
+                LOG.error('port number {}, is not a working port- trying: {}'.format(src,plist[0]))
+            # try again with a hopefully functioning port
+            if plist != []:
+                self.stream = self.openStream(plist[0], api)
 
         # initialize the variable used to indicate if the thread should
         # be stopped
         self.stopped = False
         self.grabbed = None
         self.frame = None
-        self.isOpened = self.stream.isOpened()
-        if not (self.stream.isOpened()):
-            print('Could not open video device {}'.format(src))
+
+    def isOpened(self):
+        try:
+           return self.stream.isOpened()
+        except:
+            return False
+
+    def openStream(self, src, api):
+        # initialize the video camera stream and read the first frame
+        # from the stream
+        try:
+            stream = CV.VideoCapture(src, api)
+        except:
+            # try using an older function signature
+            stream = CV.VideoCapture(src)
+        return stream
 
     def start(self):
         # start the thread to read frames from the video stream
@@ -463,16 +485,16 @@ class WebcamVideoStream:
             camera = CV.VideoCapture(dev_port)
             if not camera.isOpened():
                 non_working_ports.append(dev_port)
-                print("Port %s is not working." %dev_port)
+                LOG.debug("Port %s is not working." %dev_port)
             else:
                 is_reading, img = camera.read()
                 w = camera.get(3)
                 h = camera.get(4)
                 if is_reading:
-                    print("Port %s is working and reads images (%s x %s)" %(dev_port,h,w))
+                    LOG.debug("Port %s is working and reads images (%s x %s)" %(dev_port,h,w))
                     working_ports.append(dev_port)
                 else:
-                    print("Port %s for camera ( %s x %s) is present but does not read." %(dev_port,h,w))
+                    LOG.debug("Port %s for camera ( %s x %s) is present but does not read." %(dev_port,h,w))
                     available_ports.append(dev_port)
             dev_port +=1
         return available_ports,working_ports,non_working_ports
