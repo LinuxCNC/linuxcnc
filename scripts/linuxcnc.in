@@ -22,6 +22,12 @@ if test "xyes" = "x@RUN_IN_PLACE@"; then
     fi
 fi
 
+# This works around a compatibility problem between Bookworm's PyOpenGL
+# and Wayland (https://github.com/LinuxCNC/linuxcnc/issues/2264).
+if [[ -z "${PYOPENGL_PLATFORM}" ]]; then
+    export PYOPENGL_PLATFORM="x11"
+fi
+
 ################################################################################
 # 0. Values that come from configure
 ################################################################################
