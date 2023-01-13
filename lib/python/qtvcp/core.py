@@ -245,8 +245,11 @@ class Status(GStat):
         GObject.Object.__init__(self)
         self.__class__._instanceNum += 1
         super(GStat, self).__init__()
+
+        # set the default jog speeds before the forced update
         self.current_jog_rate = INI.DEFAULT_LINEAR_JOG_VEL
-        self.angular_jog_velocity = INI.DEFAULT_ANGULAR_JOG_VEL
+        self.current_angular_jog_rate = INI.DEFAULT_ANGULAR_JOG_VEL
+
         # can only have ONE error channel instance in qtvcp
         self.ERROR = linuxcnc.error_channel()
         self._block_polling = False

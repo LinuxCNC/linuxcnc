@@ -6,8 +6,8 @@ import tempfile
 import atexit
 import shutil
 
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtCore import QFile
+from PyQt5 import QtGui, QtWidgets, uic
+from PyQt5.QtCore import QFile, QRegExp
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
 from linuxcnc import OPERATOR_ERROR, NML_ERROR
@@ -55,18 +55,14 @@ class Facing(QtWidgets.QWidget):
         self.valid = True
         self.units_text = ''
 
-        # set valid input formats for lineEdits
-        self.lineEdit_tool.setValidator(QtGui.QDoubleValidator(0, 999, 3))
+        self.units_changed()
+
+        # set defaults
         self.lineEdit_tool.setText(str(self.tool_dia))
-        self.lineEdit_spindle.setValidator(QtGui.QDoubleValidator(0, 99999, 0))
         self.lineEdit_spindle.setText(str(self.rpm))
-        self.lineEdit_feedrate.setValidator(QtGui.QDoubleValidator(0, 9999, 1))
         self.lineEdit_feedrate.setText(str(self.feedrate))
-        self.lineEdit_stepover.setValidator(QtGui.QDoubleValidator(0, 99, 1))
         self.lineEdit_stepover.setText(str(self.stepover))
-        self.lineEdit_size_x.setValidator(QtGui.QDoubleValidator(0, 9999, 3))
         self.lineEdit_size_x.setText(str(self.size_x))
-        self.lineEdit_size_y.setValidator(QtGui.QDoubleValidator(0, 9999, 3))
         self.lineEdit_size_y.setText(str(self.size_y))
         self.lineEdit_comment.setText('Face slabbing Program')
 
@@ -85,7 +81,6 @@ class Facing(QtWidgets.QWidget):
         self.rbtn_raster_90.clicked.connect(self.raster_changed)
         self.btn_help.clicked.connect(lambda obj: self.mb.show())
 
-        self.units_changed()
         self.validate()
         self.raster_changed()
 
@@ -103,6 +98,24 @@ class Facing(QtWidgets.QWidget):
         self.lbl_stepover_unit.setText(text)
         self.lbl_size_unit.setText(text)
         self.units_text = ("**NOTE - All units are in {}".format(text))
+        self.set_validator()
+
+    def set_validator(self):
+        # set valid input formats for lineEdits
+        if self.rbtn_inch.isChecked():
+            valid_size = QtGui.QRegExpValidator(QRegExp('[0-9]{0,6}[.][0-9]{0,4}'))
+            valid_step = QtGui.QRegExpValidator(QRegExp('[0-9]{0,6}[.][0-9]{0,2}'))
+            valid_feed = QtGui.QRegExpValidator(QRegExp('[0-9]{0,6}[.][0-9]{0,3}'))
+        else:
+            valid_size = QtGui.QRegExpValidator(QRegExp('[0-9]{0,6}[.][0-9]{0,3}'))
+            valid_step = QtGui.QRegExpValidator(QRegExp('[0-9]{0,5}[.][0-9]{0,1}'))
+            valid_feed = QtGui.QRegExpValidator(QRegExp('[0-9]{0,5}[.][0-9]{0,1}'))
+        self.lineEdit_tool.setValidator(valid_size)
+        self.lineEdit_spindle.setValidator(QtGui.QDoubleValidator(0, 99999, 0))
+        self.lineEdit_feedrate.setValidator(valid_feed)
+        self.lineEdit_stepover.setValidator(valid_step)
+        self.lineEdit_size_x.setValidator(valid_size)
+        self.lineEdit_size_y.setValidator(valid_size)
 
     def raster_changed(self):
         if self.rbtn_raster_0.isChecked():

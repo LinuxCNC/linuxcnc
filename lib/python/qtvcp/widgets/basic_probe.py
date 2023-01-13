@@ -18,7 +18,7 @@
 import sys
 import os
 import json
-from PyQt5.QtCore import QProcess
+from PyQt5.QtCore import QProcess, QRegExp
 from PyQt5 import QtGui, QtWidgets, uic
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Action, Status, Info
@@ -40,9 +40,9 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         super(BasicProbe, self).__init__(parent)
         self.proc = None
         if INFO.MACHINE_IS_METRIC:
-            self.valid = QtGui.QDoubleValidator(-999.999, 999.999, 3)
+            self.valid = QtGui.QRegExpValidator(QRegExp('-?[0-9]{0,6}[.][0-9]{0,3}'))
         else:
-            self.valid = QtGui.QDoubleValidator(-999.9999, 999.9999, 4)
+            self.valid = QtGui.QRegExpValidator(QRegExp('-?[0-9]{0,6}[.][0-9]{0,4}'))
         self.setMinimumSize(600, 420)
         # load the widgets ui file
         self.filename = os.path.join(INFO.LIB_PATH, 'widgets_ui', 'basic_probe.ui')
