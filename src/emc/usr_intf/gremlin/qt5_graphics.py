@@ -266,6 +266,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.enable_dro = False
         self.use_default_controls = True
         self.mouse_btn_mode = 0
+        self._mousemoved = False
         self.cancel_rotate = False
         self.use_gradient_background = False
         self.gradient_color1 = (0.0, 0.0, 1)
@@ -998,9 +999,9 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def select_prime(self, x, y):
         self.select_primed = x, y
 
-    # TODO This return statement breaks segment picking on the screen but
-    # Also stop the display from pausing plotting update while searching
-    # probably needs a thread - strange that Tkinter and GTK don't suffer...
+    # If the hcode program is large the display pauses plotting update 
+    # while searching. probably needs a thread or compiled code.
+    # the actual opengl search is in glcanon.py, GlCanonDraw: select()
     def select_fire(self):
         if self.inhibit_selection: return
         if not self.select_primed: return
@@ -1021,6 +1022,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         _event.accept()
 
     def mousePressEvent(self, event):
+        self._mousemoved = False
         if (event.buttons() & self._buttonList[0]):
             self.select_prime(event.pos().x(), event.pos().y())
             #print self.winfo_width()/2 - event.pos().x(), self.winfo_height()/2 - event.pos().y()
@@ -1031,13 +1033,18 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     # event_button  = event causing button
     def mouseReleaseEvent(self, event):
         if event.button() & self._buttonList[0]:
-            self.select_fire()
+            if self._mousemoved == False:
+                # only search for the line if we 'clicked'
+                # rather then pressed and scrolled
+                # select fire starts the search through the gcode
+                self.select_fire()
 
     def mouseDoubleClickEvent(self, event):
         if event.button() & self._buttonList[2]:
             self.logger.clear()
 
     def mouseMoveEvent(self, event):
+        self._mousemoved = True
         # move
         if event.buttons() & self._buttonList[0]:
             self.translateOrRotate(event.pos().x(), event.pos().y())
