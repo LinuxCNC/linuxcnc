@@ -394,12 +394,28 @@ class ToolBarActions():
         STATUS.emit('reload-display')
 
     def actOnProperties(self, widget, state=None):
+        # substitute nice looking text:
+        property_names = {
+            'name': "Name:", 'size': "Size:",
+    '       tools': "Tool order:", 'g0': "Rapid distance:",
+            'g1': "Feed distance:", 'g': "Total distance:",
+            'run': "Run time:",'machine_unit_sys':"Machine Unit System:",
+            'x': "X bounds:",'x_zero_rxy':'X @ Zero Rotation:',
+            'y': "Y bounds:",'y_zero_rxy':'Y @ Zero Rotation:',
+            'z': "Z bounds:",'z_zero_rxy':'Z @ Zero Rotation:',
+            'a': "A bounds:", 'b': "B bounds:",
+            'c': "C bounds:",'toollist':'Tool Change List:',
+            'gcode_units':"Gcode Units:"
+        }
+
         mess = ''
         if self.gcode_properties:
             for i in self.gcode_properties:
-                mess += '<b>%s</b>: %s<br>' % (i, self.gcode_properties[i])
-        else:
-            mess = 'No properties to display'
+                mess += '<span style=" font-size:16pt; font-weight:600; color:black;">%s </span>\
+<span style=" font-size:12pt; font-weight:600; color:#aa0000;">%s</span>\
+<br>'% (property_names.get(i), self.gcode_properties[i])
+
+        # pop a dialog of the properties
         msg = QtWidgets.QMessageBox()
         msg.setIcon(QtWidgets.QMessageBox.Information)
         msg.setText(mess)

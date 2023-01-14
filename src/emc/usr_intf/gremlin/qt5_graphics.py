@@ -460,10 +460,12 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 conv = 1
                 units = "mm"
                 fmt = "%.3f"
+                mach = 'Metric'
             else:
                 conv = 1/25.4
                 units = "in"
                 fmt = "%.4f"
+                mach = 'Imperial'
 
             mf = max_speed
             #print canon.traverse[0]
@@ -477,37 +479,33 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 canon.dwell_time
                 )
 
-            props['G0'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g0, conv), units)
-            props['G1'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g1, conv), units)
+            props['g0'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g0, conv), units)
+            props['g1'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g1, conv), units)
             if gt > 120:
-                props['Run'] = "%.1f Minutes" % (gt/60)
+                props['run'] = "%.1f Minutes" % (gt/60)
             else:
-                props['Run'] = "%d Seconds" % (int(gt))
+                props['run'] = "%d Seconds" % (int(gt))
+
+            props['toollist'] = canon.tool_list
 
             min_extents = from_internal_units(canon.min_extents, conv)
             max_extents = from_internal_units(canon.max_extents, conv)
             min_extents_zero_rxy = from_internal_units(canon.min_extents_zero_rxy, conv)
             max_extents_zero_rxy = from_internal_units(canon.max_extents_zero_rxy, conv)
-            for (i, c) in enumerate("XYZ"):
+            for (i, c) in enumerate("xyz"):
                 a = min_extents[i]
                 b = max_extents[i]
                 d = min_extents_zero_rxy[i]
                 e = max_extents_zero_rxy[i]
-                props[c] = "%(a)f to %(b)f = %(diff)f %(units)s".replace("%f", fmt) % {'a': a, 'b': b, 'diff': b-a, 'units': units}
-                props[c + '_zero_rxy'] = "%(d)f to %(e)f = %(diff)f %(units)s".replace("%f", fmt) % {'d': d, 'e': e, 'diff': e-d, 'units': units}
-            props['Units'] = units
+                props[c] = "%f to %f = %f %s".replace("%f", fmt) % (a, b, b-a, units)
+                props[c + '_zero_rxy'] = "%f to %f = %f %s".replace("%f", fmt) % ( d, e, e-d, units)
+            props['machine_unit_sys'] = mach
 
-            if self.metric_units:
-                if 200 in canon.state.gcodes:
-                    gcode_units = "in"
-                else:
-                    gcode_units = "mm"
+            if 200 in canon.state.gcodes:
+                gcode_units = "in"
             else:
-                if 210 in canon.state.gcodes:
-                    gcode_units = "mm"
-                else:
-                    gcode_units = "in"
-            props['GCode Units'] = gcode_units
+                gcode_units = "mm"
+            props['gcode_units'] = gcode_units
 
         self.gcode_properties = props
 
