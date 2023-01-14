@@ -91,6 +91,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.arcfeed = []; self.arcfeed_append = self.arcfeed.append
         # dwell list - [line number, color, pos x, pos y, pos z, plane]
         self.dwells = []; self.dwells_append = self.dwells.append
+        self.tool_list = []
         # preview list - combines the unrotated points of the lists: self.traverse, self.feed, self.arcfeed
         self.preview_zero_rxy = []
         self.choice = None
@@ -271,6 +272,10 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
 
     def change_tool(self, arg):
         self.first_move = True
+        try:
+            self.tool_list.append(arg)
+        except Exception as e:
+            print(e)
 
     def straight_traverse(self, x,y,z, a,b,c, u,v,w):
         if self.suppress > 0: return
