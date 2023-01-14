@@ -22,6 +22,7 @@ import hashlib
 import datetime
 import shutil
 from PyQt5 import QtGui, QtWidgets, QtCore, uic
+from PyQt5.QtCore import QRegExp
 from PyQt5.QtWidgets import QFileDialog, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QLineEdit, QMessageBox
 from qtvcp.core import Action, Info, Path
 from qtvcp import logger
@@ -149,12 +150,14 @@ class OnePg(QWidget):
         return lbl
 
     def new_lineedit(self, key, data):
+        # QRegExp('^[+-]?((\d+(\.\d{,4})?)|(\.\d{,4}))$' allows max 4 digits after the decimal
+        valid = QtGui.QRegExpValidator(QRegExp('^[+-]?((\d+(\.\d{,4})?)|(\.\d{,4}))$'))
         lineedit = QLineEdit(str(data))
         lineedit.parm_no = key
-        lineedit.setMaxLength(8)
-        lineedit.setFixedWidth(60)
+        lineedit.setMaxLength(10)
+        lineedit.setFixedWidth(70)
         lineedit.setFixedHeight(30)
-        lineedit.setValidator(QtGui.QDoubleValidator(-99999, 99999, 2))
+        lineedit.setValidator(valid)
         if data is None or data == '':
             lineedit.setStyleSheet("border: 2px solid red;")
         lineedit.editingFinished.connect(self.parm_edited)
