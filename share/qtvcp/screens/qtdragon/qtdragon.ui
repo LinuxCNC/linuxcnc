@@ -4999,19 +4999,19 @@ GCODE</string>
                           <property name="cornerButtonEnabled">
                            <bool>false</bool>
                           </property>
-                          <attribute name="horizontalHeaderDefaultSectionSize">
+                          <attribute name="horizontalHeaderMinimumSectionSize">
                            <number>80</number>
                           </attribute>
-                          <attribute name="horizontalHeaderMinimumSectionSize">
+                          <attribute name="horizontalHeaderDefaultSectionSize">
                            <number>80</number>
                           </attribute>
                           <attribute name="verticalHeaderCascadingSectionResizes">
                            <bool>false</bool>
                           </attribute>
-                          <attribute name="verticalHeaderDefaultSectionSize">
+                          <attribute name="verticalHeaderMinimumSectionSize">
                            <number>30</number>
                           </attribute>
-                          <attribute name="verticalHeaderMinimumSectionSize">
+                          <attribute name="verticalHeaderDefaultSectionSize">
                            <number>30</number>
                           </attribute>
                          </widget>
@@ -5947,6 +5947,31 @@ TO FILE</string>
                            <property name="bottomMargin">
                             <number>0</number>
                            </property>
+                          </layout>
+                         </widget>
+                         <widget class="QWidget" name="tabProperties">
+                          <attribute name="title">
+                           <string>PROPERTIES</string>
+                          </attribute>
+                          <layout class="QVBoxLayout" name="layout_properties">
+                           <property name="spacing">
+                            <number>0</number>
+                           </property>
+                           <property name="leftMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="topMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="rightMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="bottomMargin">
+                            <number>0</number>
+                           </property>
+                           <item>
+                            <widget class="QTextEdit" name="textedit_properties"/>
+                           </item>
                           </layout>
                          </widget>
                         </widget>
@@ -15994,7 +16019,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>12:43:18 </string>
+            <string>06:49:32 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -16169,14 +16194,14 @@ ZERO</string>
    <header>qtvcp.widgets.system_tool_button</header>
   </customwidget>
   <customwidget>
-   <class>VirtualKeyboard</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.virtualkeyboard</header>
-  </customwidget>
-  <customwidget>
    <class>ActionToolButton</class>
    <extends>QToolButton</extends>
    <header>qtvcp.widgets.action_tool_button</header>
+  </customwidget>
+  <customwidget>
+   <class>VirtualKeyboard</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.virtualkeyboard</header>
   </customwidget>
  </customwidgets>
  <resources>
@@ -16952,4 +16977,3 @@ ZERO</string>
   <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
-

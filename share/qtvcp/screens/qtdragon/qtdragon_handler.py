@@ -112,6 +112,7 @@ class HandlerClass:
         STATUS.connect('command-stopped', lambda w: self.stop_timer())
         STATUS.connect('progress', lambda w,p,t: self.updateProgress(p,t))
         STATUS.connect('override-limits-changed', lambda w, state, data: self._check_override_limits(state, data))
+        STATUS.connect('graphics-gcode-properties', lambda w, d: self.update_properties(d))
 
         self.html = """<html>
 <head>
@@ -121,12 +122,13 @@ class HandlerClass:
 <h1>Setup Tab</h1>
 <p>If you select a file with .html as a file ending, it will be shown here..</p>
 <li><a href="http://linuxcnc.org/docs/devel/html/">Documents online</a></li>
-<li><a href="file://">Local files</a></li>
+<li><a href="file://%s">Local files</a></li>
 <img src="file://%s" alt="lcnc_swoop" />
 <hr />
 </body>
 </html>
-""" %(os.path.join(paths.IMAGEDIR,'lcnc_swoop.png'))
+""" %(  os.path.expanduser('~/linuxcnc'),
+        os.path.join(paths.IMAGEDIR,'lcnc_swoop.png'))
 
 
     def class_patch__(self):
@@ -915,6 +917,27 @@ class HandlerClass:
             if os.path.exists(fname):
                 self.PDFView.loadView(fname)
                 self.add_status("Loaded PDF file : {}".format(fname))
+
+    def update_properties(self, props ):
+        smallmess = mess = ''
+        if props:
+            for i in props:
+                smallmess += '<b>%s</b>: %s<br>' % (i, props[i])
+                mess += '<span style=" font-size:18pt; font-weight:600; color:black;">%s: </span>\
+<span style=" font-size:18pt; font-weight:600; color:#aa0000;">%s</span>\
+<br>'% (i, props[i])
+
+        # put the details into the properties page
+        self.w.textedit_properties.setText(mess)
+        return
+        # pop a dialog of th eproperties
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setText(smallmess)
+        msg.setWindowTitle("Gcode Properties")
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.show()
+        retval = msg.exec_()
 
     def disable_spindle_pause(self):
         self.h['eoffset-count'] = 0

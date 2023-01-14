@@ -322,7 +322,9 @@ class App:
 
     def copy(self, base, filename):
         dest = os.path.join(base, filename)
+        print (base,'\ncopy:',dest,os.path.exists(dest))
         if not os.path.exists(dest):
+            print('copied')
             shutil.copy(os.path.join(self._p.DISTDIR, filename), dest)
 
     def buid_config(self):
@@ -340,12 +342,52 @@ class App:
                 m190Path = os.path.join(BASE, 'configs/sim/qtplasmac/M190')
             shutil.copy(m190Path, os.path.join(base, 'M190'))
             # different looking tool table for qtplasmac
-            filename = os.path.join(base, "tool.tbl")
-            file = open(filename, "w")
-            print("T0 P1 X0 Y0 ;torch", file=file)
-            print("T1 P2 X0 Y0 ;scribe", file=file)
-            file.close()
-        self.copy(base, "tool.tbl")
+
+            dest = os.path.join(base, "tool.tbl")
+            if not os.path.exists(dest):
+                file = open(dest, "w")
+                print("T0 P1 X0 Y0 ;torch", file=file)
+                print("T1 P2 X0 Y0 ;scribe", file=file)
+                file.close()
+
+        # _not_ qtplasmac
+        else:
+            dest = os.path.join(base, "tool.tbl")
+            print (base,'\ncopy:',dest,os.path.exists(dest))
+            if not os.path.exists(dest):
+                print('copied')
+                # different looking tool table for qtplasmac
+                file = open(dest, "w")
+                if self.d.axes == 2:# lathe
+                    if self.d.units == _PD._METRIC:
+                        print("T1 P1 D3 Z+3 I+95.000000 J+155.000000 Q1 ; Sample Tool", file=file)
+                        print("T2 P2 D3 I+85.000000 J+25.000000 Q2 ; Sample Tool", file=file)
+                        print("T3 P3 D3 I+275.000000 J+335.000000 Q3 ; Sample Tool", file=file)
+                        print("T4 P4 D3 I+265.000000 J+205.000000 Q4 ; Sample Tool", file=file)
+                    else:
+                        print("T1 P1 D0.100000 Z+0.100000 I+95.000000 J+155.000000 Q1 ; Sample Tool", file=file)
+                        print("T2 P2 D0.100000 I+85.000000 J+25.000000 Q2 ; Sample Tool", file=file)
+                        print("T3 P3 D0.100000 I+275.000000 J+335.000000 Q3 ; Sample Tool", file=file)
+                        print("T4 P4 D0.100000 I+265.000000 J+205.000000 Q4 ; Sample Tool", file=file)
+                        print("T5 P5 D0.100000 I+210.000000 J+150.000000 Q5 ; Sample Tool", file=file)
+                        print("T6 P6 D0.100000 X+0.500000 Z+0.500000 I+120.000000 J+60.000000 Q6 ; Sample Tool", file=file)
+                        print("T7 P7 D0.100000 I-30.000000 J+30.000000 Q7 ; Sample Tool", file=file)
+                        print("T8 P8 D0.100000 I+240.000000 J+300.000000 Q8 ; Sample Tool", file=file)
+                else:
+                    if self.d.units == _PD._METRIC:
+                        print("T1 P1 Z0.511 D3 ;3mm end mill Sample Tool", file=file)
+                        print("T2 P4 Z0.1 D1.5 ;1.5mm  end mill Sample Tool", file=file)
+                        print("T3 P3 Z1.273 D5 ;5mm tap drill Sample Tool", file=file)
+                        print("T4 P2 Z10 D16 ;16 mm Sample Tool", file=file)
+                        print("T5 P5 Z25 D25 ;25mm er Sample Tool", file=file)
+                    else:
+                        print("T1 P1 Z0.511 D0.125 ;1/8 end mill Sample Tool", file=file)
+                        print("T2 P2 Z0.1 D0.0625 ;1/16 end mill Sample Tool", file=file)
+                        print("T3 P3 Z1.273 D0.201 ;#7 tap drill Sample Tool", file=file)
+                        print("T4 P4 Z0 D2 ; 2 inch mill Sample Tool", file=file)
+
+                file.close()
+
         if self.warning_dialog(self._p.MESS_QUIT,False):
             Gtk.main_quit()
 

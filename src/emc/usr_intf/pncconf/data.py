@@ -919,14 +919,6 @@ If you have a REALLY large config that you wish to convert to this newer version
 
         self.md5sums = []
 
-        filename = os.path.join(base, "tool.tbl")
-        file = open(filename, "w")
-        print("T0 P0 ;", file=file)
-        print("T1 P1 ;", file=file)
-        print("T2 P2 ;", file=file)
-        print("T3 P3 ;", file=file)
-        file.close()
-
         filename = "%s.pncconf" % base
 
         d = xml.dom.minidom.getDOMImplementation().createDocument(

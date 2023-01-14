@@ -4060,7 +4060,7 @@ TO FILE</string>
                        </sizepolicy>
                       </property>
                       <property name="currentIndex">
-                       <number>1</number>
+                       <number>0</number>
                       </property>
                       <widget class="QWidget" name="tabHTML">
                        <attribute name="title">
@@ -4098,6 +4098,31 @@ TO FILE</string>
                         <property name="bottomMargin">
                          <number>0</number>
                         </property>
+                       </layout>
+                      </widget>
+                      <widget class="QWidget" name="tab_properties">
+                       <attribute name="title">
+                        <string>PROPERTIES</string>
+                       </attribute>
+                       <layout class="QVBoxLayout" name="layout_properties">
+                        <property name="spacing">
+                         <number>0</number>
+                        </property>
+                        <property name="leftMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>0</number>
+                        </property>
+                        <item>
+                         <widget class="QTextEdit" name="textedit_properties"/>
+                        </item>
                        </layout>
                       </widget>
                      </widget>
@@ -15561,7 +15586,7 @@ ANGULAR</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>11:45:21 AM</string>
+               <string>07:35:08 PM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
