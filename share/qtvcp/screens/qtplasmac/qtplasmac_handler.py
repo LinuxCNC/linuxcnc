@@ -1,4 +1,4 @@
-VERSION = '1.234.260'
+VERSION = '1.234.261'
 
 '''
 qtplasmac_handler.py
@@ -1652,7 +1652,7 @@ class HandlerClass:
                 self.set_blank_gcodeprops()
             else:
                 self.gcodeProps = props
-            if props['gcode_unit'] == 'in':
+            if props['gcode_units'] == 'in':
                 STATUS.emit('metric-mode-changed', False)
             else:
                 STATUS.emit('metric-mode-changed', True)
