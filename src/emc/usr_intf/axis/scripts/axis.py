@@ -1817,10 +1817,10 @@ property_names = [
     ('name', _("Name:")), ('size', _("Size:")),
     ('tools', _("Tool order:")), ('g0', _("Rapid distance:")),
     ('g1', _("Feed distance:")), ('g', _("Total distance:")),
-    ('run', _("Run time:")), ('x', _("X bounds:")),
-    ('y', _("Y bounds:")), ('z', _("Z bounds:")),
-    ('a', _("A bounds:")), ('b', _("B bounds:")),
-    ('c', _("C bounds:"))
+    ('run', _("Run time:")),('toollist',_('Tool Change List:')),
+    ('x', _("X bounds:")),('y', _("Y bounds:")),
+    ('z', _("Z bounds:")),('a', _("A bounds:")),
+    ('b', _("B bounds:")),('c', _("C bounds:"))
 ]
 
 def dist(xxx_todo_changeme, xxx_todo_changeme1):
@@ -2076,6 +2076,7 @@ class TclCommands(nf.TclCommands):
                 b = max_extents[i]
                 if a != b:
                     props[c] = _("%(a)f to %(b)f = %(diff)f %(units)s").replace("%f", fmt) % {'a': a, 'b': b, 'diff': b-a, 'units': units}
+            props['toollist'] = o.canon.tool_list
         properties(root_window, _("G-Code Properties"), property_names, props)
 
     def launch_website(event=None):

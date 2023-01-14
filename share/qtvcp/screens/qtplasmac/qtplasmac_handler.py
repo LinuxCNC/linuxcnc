@@ -1652,7 +1652,7 @@ class HandlerClass:
                 self.set_blank_gcodeprops()
             else:
                 self.gcodeProps = props
-            if props['GCode Units'] == 'in':
+            if props['gcode_unit'] == 'in':
                 STATUS.emit('metric-mode-changed', False)
             else:
                 STATUS.emit('metric-mode-changed', True)
@@ -1948,14 +1948,14 @@ class HandlerClass:
         mid, size = GlCanonDraw.extents_info(self.w.gcodegraphics)
         if self.gcodeProps:
             mult = 1
-            if self.units == 'in' and self.gcodeProps['Units'] == 'mm':
+            if self.units == 'in' and self.gcodeProps['machine_unit_sys'] == 'Metric':
                 mult = 0.03937
-            elif self.units == 'mm' and self.gcodeProps['Units'] == 'in':
+            elif self.units == 'mm' and self.gcodeProps['machine_unit_sys'] == 'Imperial':
                 mult = 25.4
-            x = (round(float(self.gcodeProps['X'].split()[0]) * mult, 4))
-            y = (round(float(self.gcodeProps['Y'].split()[0]) * mult, 4))
-            xl = (round(float(self.gcodeProps['X'].split('=')[1].split()[0]) * mult, 4))
-            yl = (round(float(self.gcodeProps['Y'].split('=')[1].split()[0]) * mult, 4))
+            x = (round(float(self.gcodeProps['x'].split()[0]) * mult, 4))
+            y = (round(float(self.gcodeProps['y'].split()[0]) * mult, 4))
+            xl = (round(float(self.gcodeProps['x'].split('=')[1].split()[0]) * mult, 4))
+            yl = (round(float(self.gcodeProps['y'].split('=')[1].split()[0]) * mult, 4))
         else:
             x = y = xl = yl = 0
         if (mid[0] == 0 and mid[1] == 0) or mid[0] > self.xLen or mid[1] > self.yLen or \
@@ -2364,17 +2364,21 @@ class HandlerClass:
         self.gcodeProps = {}
         self.gcodeProps['name'] = 'generated from qtplasmac_program_clear.ngc'
         self.gcodeProps['size'] = '35 bytes\n2 gcode lines'
-        self.gcodeProps['G0'] = '0.0 {}'.format(self.units)
-        self.gcodeProps['G1'] = '0.0 {}'.format(self.units)
-        self.gcodeProps['Run'] = '0 Seconds'
-        self.gcodeProps['X'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
-        self.gcodeProps['Y'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
-        self.gcodeProps['Z'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
-        self.gcodeProps['X_zero_rxy'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
-        self.gcodeProps['Y_zero_rxy'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
-        self.gcodeProps['Z_zero_rxy'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
-        self.gcodeProps['Units'] = '{}'.format(self.units)
-        self.gcodeProps['GCode Units'] = '{}'.format(self.units)
+        self.gcodeProps['g0'] = '0.0 {}'.format(self.units)
+        self.gcodeProps['g1'] = '0.0 {}'.format(self.units)
+        self.gcodeProps['run'] = '0 Seconds'
+        self.gcodeProps['x'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
+        self.gcodeProps['y'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
+        self.gcodeProps['z'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
+        self.gcodeProps['x_zero_rxy'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
+        self.gcodeProps['y_zero_rxy'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
+        self.gcodeProps['z_zero_rxy'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
+        if self.units:
+            mach = 'Metric'
+        else:
+            mach = 'Imperial'
+        self.gcodeProps['machine_unit_sys'] = '{}'.format(mach)
+        self.gcodeProps['gcode_units'] = '{}'.format(self.units)
 
     def wcs_rotation(self, wcs):
         if wcs == 'get':
@@ -2428,24 +2432,24 @@ class HandlerClass:
         self.boundsError[boundsType] = False
         msgList = []
         boundsMultiplier = 1
-        if self.units == 'in' and self.gcodeProps['Units'] == 'mm':
+        if self.units == 'in' and self.gcodeProps['machine_unit_sys'] == 'Metric':
             boundsMultiplier = 0.03937
-        elif self.units == 'mm' and self.gcodeProps['Units'] == 'in':
+        elif self.units == 'mm' and self.gcodeProps['machine_unit_sys'] == 'Imperial':
             boundsMultiplier = 25.4
         if framing:
             xStart = STATUS.stat.g5x_offset[0] + xOffset
             yStart = STATUS.stat.g5x_offset[1] + yOffset
-            xMin = round(float(self.gcodeProps['X_zero_rxy'].split()[0]) * boundsMultiplier + xOffset, 5)
-            xMax = round(float(self.gcodeProps['X_zero_rxy'].split()[2]) * boundsMultiplier + xOffset, 5)
-            yMin = round(float(self.gcodeProps['Y_zero_rxy'].split()[0]) * boundsMultiplier + yOffset, 5)
-            yMax = round(float(self.gcodeProps['Y_zero_rxy'].split()[2]) * boundsMultiplier + yOffset, 5)
+            xMin = round(float(self.gcodeProps['x_zero_rxy'].split()[0]) * boundsMultiplier + xOffset, 5)
+            xMax = round(float(self.gcodeProps['x_zero_rxy'].split()[2]) * boundsMultiplier + xOffset, 5)
+            yMin = round(float(self.gcodeProps['y_zero_rxy'].split()[0]) * boundsMultiplier + yOffset, 5)
+            yMax = round(float(self.gcodeProps['y_zero_rxy'].split()[2]) * boundsMultiplier + yOffset, 5)
             coordinates = [[xStart, yStart], [xMin, yMin], [xMin, yMax], [xMax, yMax], [xMax, yMin]]
             frame_points, xMin, yMin, xMax, yMax = self.rotate_frame(coordinates)
         else:
-            xMin = round(float(self.gcodeProps['X'].split()[0]) * boundsMultiplier + xOffset, 5)
-            xMax = round(float(self.gcodeProps['X'].split()[2]) * boundsMultiplier + xOffset, 5)
-            yMin = round(float(self.gcodeProps['Y'].split()[0]) * boundsMultiplier + yOffset, 5)
-            yMax = round(float(self.gcodeProps['Y'].split()[2]) * boundsMultiplier + yOffset, 5)
+            xMin = round(float(self.gcodeProps['x'].split()[0]) * boundsMultiplier + xOffset, 5)
+            xMax = round(float(self.gcodeProps['x'].split()[2]) * boundsMultiplier + xOffset, 5)
+            yMin = round(float(self.gcodeProps['y'].split()[0]) * boundsMultiplier + yOffset, 5)
+            yMax = round(float(self.gcodeProps['y'].split()[2]) * boundsMultiplier + yOffset, 5)
         if xMin < self.xMin:
             amount = float(self.xMin - xMin)
             msgList.append('X')

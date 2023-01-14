@@ -112,7 +112,7 @@ class HandlerClass:
         STATUS.connect('command-stopped', lambda w: self.stop_timer())
         STATUS.connect('progress', lambda w,p,t: self.updateProgress(p,t))
         STATUS.connect('override-limits-changed', lambda w, state, data: self._check_override_limits(state, data))
-        STATUS.connect('graphics-gcode-properties', lambda w, d: self.update_properties(d))
+        STATUS.connect('graphics-gcode-properties', lambda w, d: self.update_gcode_properties(d))
 
         self.html = """<html>
 <head>
@@ -918,19 +918,33 @@ class HandlerClass:
                 self.PDFView.loadView(fname)
                 self.add_status("Loaded PDF file : {}".format(fname))
 
-    def update_properties(self, props ):
+    def update_gcode_properties(self, props ):
+        # substitute nice looking text:
+        property_names = {
+            'name': "Name:", 'size': "Size:",
+    '       tools': "Tool order:", 'g0': "Rapid distance:",
+            'g1': "Feed distance:", 'g': "Total distance:",
+            'run': "Run time:",'machine_unit_sys':"Machine Unit System:",
+            'x': "X bounds:",'x_zero_rxy':'X @ Zero Rotation:',
+            'y': "Y bounds:",'y_zero_rxy':'Y @ Zero Rotation:',
+            'z': "Z bounds:",'z_zero_rxy':'Z @ Zero Rotation:',
+            'a': "A bounds:", 'b': "B bounds:",
+            'c': "C bounds:",'toollist':'Tool Change List:',
+            'gcode_units':"Gcode Units:"
+        }
+
         smallmess = mess = ''
         if props:
             for i in props:
-                smallmess += '<b>%s</b>: %s<br>' % (i, props[i])
-                mess += '<span style=" font-size:18pt; font-weight:600; color:black;">%s: </span>\
+                smallmess += '<b>%s</b>: %s<br>' % (property_names.get(i), props[i])
+                mess += '<span style=" font-size:18pt; font-weight:600; color:black;">%s </span>\
 <span style=" font-size:18pt; font-weight:600; color:#aa0000;">%s</span>\
-<br>'% (i, props[i])
+<br>'% (property_names.get(i), props[i])
 
         # put the details into the properties page
         self.w.textedit_properties.setText(mess)
         return
-        # pop a dialog of th eproperties
+        # pop a dialog of the properties
         msg = QtWidgets.QMessageBox()
         msg.setIcon(QtWidgets.QMessageBox.Information)
         msg.setText(smallmess)

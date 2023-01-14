@@ -266,6 +266,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.enable_dro = False
         self.use_default_controls = True
         self.mouse_btn_mode = 0
+        self._mousemoved = False
         self.cancel_rotate = False
         self.use_gradient_background = False
         self.gradient_color1 = (0.0, 0.0, 1)
@@ -459,10 +460,12 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 conv = 1
                 units = "mm"
                 fmt = "%.3f"
+                mach = 'Metric'
             else:
                 conv = 1/25.4
                 units = "in"
                 fmt = "%.4f"
+                mach = 'Imperial'
 
             mf = max_speed
             #print canon.traverse[0]
@@ -476,37 +479,33 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 canon.dwell_time
                 )
 
-            props['G0'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g0, conv), units)
-            props['G1'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g1, conv), units)
+            props['g0'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g0, conv), units)
+            props['g1'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g1, conv), units)
             if gt > 120:
-                props['Run'] = "%.1f Minutes" % (gt/60)
+                props['run'] = "%.1f Minutes" % (gt/60)
             else:
-                props['Run'] = "%d Seconds" % (int(gt))
+                props['run'] = "%d Seconds" % (int(gt))
+
+            props['toollist'] = canon.tool_list
 
             min_extents = from_internal_units(canon.min_extents, conv)
             max_extents = from_internal_units(canon.max_extents, conv)
             min_extents_zero_rxy = from_internal_units(canon.min_extents_zero_rxy, conv)
             max_extents_zero_rxy = from_internal_units(canon.max_extents_zero_rxy, conv)
-            for (i, c) in enumerate("XYZ"):
+            for (i, c) in enumerate("xyz"):
                 a = min_extents[i]
                 b = max_extents[i]
                 d = min_extents_zero_rxy[i]
                 e = max_extents_zero_rxy[i]
-                props[c] = "%(a)f to %(b)f = %(diff)f %(units)s".replace("%f", fmt) % {'a': a, 'b': b, 'diff': b-a, 'units': units}
-                props[c + '_zero_rxy'] = "%(d)f to %(e)f = %(diff)f %(units)s".replace("%f", fmt) % {'d': d, 'e': e, 'diff': e-d, 'units': units}
-            props['Units'] = units
+                props[c] = "%f to %f = %f %s".replace("%f", fmt) % (a, b, b-a, units)
+                props[c + '_zero_rxy'] = "%f to %f = %f %s".replace("%f", fmt) % ( d, e, e-d, units)
+            props['machine_unit_sys'] = mach
 
-            if self.metric_units:
-                if 200 in canon.state.gcodes:
-                    gcode_units = "in"
-                else:
-                    gcode_units = "mm"
+            if 200 in canon.state.gcodes:
+                gcode_units = "in"
             else:
-                if 210 in canon.state.gcodes:
-                    gcode_units = "mm"
-                else:
-                    gcode_units = "in"
-            props['GCode Units'] = gcode_units
+                gcode_units = "mm"
+            props['gcode_units'] = gcode_units
 
         self.gcode_properties = props
 
@@ -998,9 +997,9 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def select_prime(self, x, y):
         self.select_primed = x, y
 
-    # TODO This return statement breaks segment picking on the screen but
-    # Also stop the display from pausing plotting update while searching
-    # probably needs a thread - strange that Tkinter and GTK don't suffer...
+    # If the hcode program is large the display pauses plotting update 
+    # while searching. probably needs a thread or compiled code.
+    # the actual opengl search is in glcanon.py, GlCanonDraw: select()
     def select_fire(self):
         if self.inhibit_selection: return
         if not self.select_primed: return
@@ -1021,6 +1020,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         _event.accept()
 
     def mousePressEvent(self, event):
+        self._mousemoved = False
         if (event.buttons() & self._buttonList[0]):
             self.select_prime(event.pos().x(), event.pos().y())
             #print self.winfo_width()/2 - event.pos().x(), self.winfo_height()/2 - event.pos().y()
@@ -1031,13 +1031,18 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     # event_button  = event causing button
     def mouseReleaseEvent(self, event):
         if event.button() & self._buttonList[0]:
-            self.select_fire()
+            if self._mousemoved == False:
+                # only search for the line if we 'clicked'
+                # rather then pressed and scrolled
+                # select fire starts the search through the gcode
+                self.select_fire()
 
     def mouseDoubleClickEvent(self, event):
         if event.button() & self._buttonList[2]:
             self.logger.clear()
 
     def mouseMoveEvent(self, event):
+        self._mousemoved = True
         # move
         if event.buttons() & self._buttonList[0]:
             self.translateOrRotate(event.pos().x(), event.pos().y())
