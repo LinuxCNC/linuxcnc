@@ -111,7 +111,7 @@ class Facing(QtWidgets.QWidget):
             valid_step = QtGui.QRegExpValidator(QRegExp('[0-9]{0,5}[.][0-9]{0,1}'))
             valid_feed = QtGui.QRegExpValidator(QRegExp('[0-9]{0,5}[.][0-9]{0,1}'))
         self.lineEdit_tool.setValidator(valid_size)
-        self.lineEdit_spindle.setValidator(QtGui.QDoubleValidator(0, 99999, 0))
+        self.lineEdit_spindle.setValidator(QtGui.QRegExpValidator(QRegExp('[0-9]{0,5}')))
         self.lineEdit_feedrate.setValidator(valid_feed)
         self.lineEdit_stepover.setValidator(valid_step)
         self.lineEdit_size_x.setValidator(valid_size)
