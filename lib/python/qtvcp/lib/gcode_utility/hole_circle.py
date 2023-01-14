@@ -7,8 +7,8 @@ import tempfile
 import atexit
 import shutil
 
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtCore import QPoint, QPointF, QLine, QRect, QFile, Qt, QEvent
+from PyQt5 import QtGui, QtWidgets, uic
+from PyQt5.QtCore import QPoint, QPointF, QLine, QRect, QFile, Qt, QEvent, QRegExp
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtGui import QPainter, QBrush, QPen, QColor
 
@@ -125,22 +125,17 @@ class Hole_Circle(QtWidgets.QWidget):
         self.drill_feed = 1.0
         self.units_text = ''
 
+        self.units_changed()
+
         # set valid input formats for lineEdits
-        self.lineEdit_spindle.setValidator(QtGui.QDoubleValidator(0, 99999, 0))
+
         self.lineEdit_spindle.setText(str(self.rpm))
-        self.lineEdit_num_holes.setValidator(QtGui.QDoubleValidator(0, 99, 0))
         self.lineEdit_num_holes.setText(str(self.num_holes))
-        self.lineEdit_radius.setValidator(QtGui.QDoubleValidator(0, 999, 2))
         self.lineEdit_radius.setText(str(self.radius))
-        self.lineEdit_first.setValidator(QtGui.QDoubleValidator(-999, 999, 2))
         self.lineEdit_first.setText(str(self.first))
-        self.lineEdit_safe_z.setValidator(QtGui.QDoubleValidator(0, 99, 2))
         self.lineEdit_safe_z.setText(str(self.safe_z))
-        self.lineEdit_start_height.setValidator(QtGui.QDoubleValidator(0, 99, 2))
         self.lineEdit_start_height.setText(str(self.start))
-        self.lineEdit_depth.setValidator(QtGui.QDoubleValidator(0, 99, 2))
         self.lineEdit_depth.setText(str(self.depth))
-        self.lineEdit_drill_feed.setValidator(QtGui.QDoubleValidator(0, 999, 2))
         self.lineEdit_drill_feed.setText(str(self.drill_feed))
         self.lineEdit_comment.setText('Hole Circle Program')
 
@@ -167,6 +162,27 @@ class Hole_Circle(QtWidgets.QWidget):
             unit = "METRIC"
             self.unit_code = "G21"
         self.units_text = "**NOTE - All units are in {}".format(unit)
+        self.set_validator()
+
+    def set_validator(self):
+        # set valid input formats for lineEdits
+        if self.btn_inch.isChecked():
+            valid_size = QtGui.QRegExpValidator(QRegExp('^((\d+(\.\d{,4})?)|(\.\d{,4}))$'))
+            valid_radius = QtGui.QRegExpValidator(QRegExp('^((\d{1,3}(\.\d{1,4})?)|(\.\d{1,4}))$'))
+            valid_feed = QtGui.QRegExpValidator(QRegExp('[0-9]{0,6}[.][0-9]{0,3}'))
+        else:
+            valid_size = QtGui.QRegExpValidator(QRegExp('^((\d+(\.\d{,3})?)|(\.\d{,3}))$'))
+            valid_radius = QtGui.QRegExpValidator(QRegExp('^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$'))
+            valid_feed = QtGui.QRegExpValidator(QRegExp('\d{0,5}[.]\d{0,1}'))
+
+        self.lineEdit_spindle.setValidator(QtGui.QRegExpValidator(QRegExp('\d{0,5}')))
+        self.lineEdit_num_holes.setValidator(QtGui.QDoubleValidator(0, 99, 0))
+        self.lineEdit_radius.setValidator(valid_radius)
+        self.lineEdit_first.setValidator(QtGui.QRegExpValidator(QRegExp('\d{0,3}[.]\d{0,2}')))
+        self.lineEdit_safe_z.setValidator(valid_size)
+        self.lineEdit_start_height.setValidator(valid_size)
+        self.lineEdit_depth.setValidator(valid_size)
+        self.lineEdit_drill_feed.setValidator(valid_feed)
 
     def clear_all(self):
         self.lbl_spindle_ok.setPixmap(self.unchecked)
