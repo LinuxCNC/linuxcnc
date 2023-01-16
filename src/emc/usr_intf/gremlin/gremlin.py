@@ -137,6 +137,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
 #        glconfig = gtk.gdkgl.Config(mode=display_mode)
 
 #        gtk.gtkgl.widget.DrawingArea.__init__(self, glconfig)
+        Gtk.DrawingArea.__init__(self)
         glnav.GlNavBase.__init__(self)
         def C(s):
             a = self.colors[s + "_alpha"]
