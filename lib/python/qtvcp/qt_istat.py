@@ -413,9 +413,9 @@ class _IStat(object):
         self.TAB_LOCATIONS = (self.INI.findall("DISPLAY", "EMBED_TAB_LOCATION")) or []
         self.TAB_CMDS = (self.INI.findall("DISPLAY", "EMBED_TAB_COMMAND")) or None
         if self.TAB_NAMES is not None and len(self.TAB_NAMES) != len(self.TAB_CMDS):
-            log.critical('Embeded tab configuration -invalaid number of TAB_NAMES vrs TAB_CMDs')
+            log.critical('Embeded tab configuration -invalid number of TAB_NAMES vs TAB_CMDs')
         if self.TAB_NAMES is not None and len(self.TAB_LOCATIONS) != len(self.TAB_NAMES):
-            log.warning('Embeded tab configuration -invalaid number of TAB_NAMES vrs TAB_LOCATION - guessng default.')
+            log.warning('Embeded tab configuration -invalid number of TAB_NAMES vs TAB_LOCATION - guessing default.')
             for num, i in enumerate(self.TAB_NAMES):
                 try:
                     if self.TAB_LOCATIONS[num]:
