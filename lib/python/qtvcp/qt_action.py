@@ -400,11 +400,61 @@ class _Lcnc_Action(object):
     def SET_SPINDLE_RATE(self, rate, number=0):
         self.cmd.spindleoverride(rate / 100.0, number)
 
+    # machine units per minute
     def SET_JOG_RATE(self, rate):
         STATUS.set_jograte(float(rate))
 
+    # set the job rate faster by one aproximate division of the min/max range
+    # cur off at the upper and lower job rates as per the INI
+    # keyboard shortcut uses it
+    def SET_JOG_RATE_FASTER(self, divs=10):
+        one = (INFO.MAX_LINEAR_JOG_VEL - INFO.MIN_LINEAR_JOG_VEL)/divs
+        rate = STATUS.get_jograte()
+        now = rate/one
+        nrate = int((now +1) * one)
+        if nrate > int(INFO.MAX_LINEAR_JOG_VEL):
+            nrate = int(INFO.MAX_LINEAR_JOG_VEL)
+        STATUS.set_jograte(float(nrate))
+
+    # set the job rate lower by one aproximate division of the min/max range
+    # cur off at the upper and lower job rates as per the INI
+    # keyboard shortcut uses it
+    def SET_JOG_RATE_SLOWER(self, divs=10):
+        one = (INFO.MAX_LINEAR_JOG_VEL - INFO.MIN_LINEAR_JOG_VEL)/divs
+        rate = STATUS.get_jograte()
+        now = rate/one
+        nrate = int((now -1) * one)
+        if nrate < int(INFO.MIN_LINEAR_JOG_VEL):
+            nrate = int(INFO.MIN_LINEAR_JOG_VEL)
+        STATUS.set_jograte(float(nrate))
+
+    # degrees per minute
     def SET_JOG_RATE_ANGULAR(self, rate):
         STATUS.set_jograte_angular(float(rate))
+
+    # set the job rate faster by one aproximate division of the min/max range
+    # cur off at the upper and lower job rates as per the INI
+    # keyboard shortcut uses it
+    def SET_JOG_RATE_ANGULAR_FASTER(self, divs=10):
+        one = (INFO.MAX_ANGULAR_JOG_VEL - INFO.MIN_ANGULAR_JOG_VEL)/divs
+        rate = STATUS.get_jograte_angular()
+        now = rate/one
+        nrate = int((now +1) * one)
+        if nrate > int(INFO.MAX_ANGULAR_JOG_VEL):
+            nrate = int(INFO.MAX_ANGULAR_JOG_VEL)
+        STATUS.set_jograte_angular(float(nrate))
+
+    # set the job rate lower by one aproximate division of the min/max range
+    # cur off at the upper and lower job rates as per the INI
+    # keyboard shortcut uses it
+    def SET_JOG_RATE_ANGULAR_SLOWER(self, divs=10):
+        one = (INFO.MAX_ANGULAR_JOG_VEL - INFO.MIN_ANGULAR_JOG_VEL)/divs
+        rate = STATUS.get_jograte_angular()
+        now = rate/one
+        nrate = int((now -1) * one)
+        if nrate < int(INFO.MIN_ANGULAR_JOG_VEL):
+            nrate = int(INFO.MIN_ANGULAR_JOG_VEL)
+        STATUS.set_jograte_angular(float(nrate))
 
     def SET_JOG_INCR(self, incr, text):
         STATUS.set_jog_increments(incr, text)
