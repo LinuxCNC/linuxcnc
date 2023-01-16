@@ -504,6 +504,8 @@ class NgcGui(QtWidgets.QWidget):
            mindex = self.tabWidget.currentIndex()
            mpage.update_onepage('sub', curr_fname)
            self.tabWidget.setTabText(mindex, curr_ngcfile)    
+        index = self.tabWidget.currentIndex()
+        self.tab_changed(index)
 
     def add_page(self):
         page = OnePg(self, '', '', '') # create new blank page
@@ -914,7 +916,7 @@ def get_file_open(caption):
     options = QFileDialog.Options()
     options |= QFileDialog.DontUseNativeDialog
     _filter = "GCode Files (*.ngc *.nc)"
-    _dir = INFO.SUB_PATH
+    _dir = os.path.abspath(INFO.NGC_SUB_PATH)
     fname, _ =  dialog.getOpenFileName(None, caption, _dir, _filter, options=options)
     return fname
 
@@ -923,7 +925,7 @@ def get_file_save(caption):
     options = QFileDialog.Options()
     options |= QFileDialog.DontUseNativeDialog
     _filter = "GCode Files (*.ngc)"
-    _dir = INFO.SUB_PATH
+    _dir = os.path.abspath(INFO.NGC_SUB_PATH)
     fname, _ =  dialog.getSaveFileName(None, caption, _dir, _filter, options=options)
     return fname
 

@@ -55,7 +55,7 @@ FILE_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 # Get logger for module based on module.__name__
 def getLogger(name):
     if BASE_LOGGER_NAME is None:
-        initBaseLogger('QtDesigner')
+        initBaseLogger('DEFAULT')
     name = '{0}.{1}'.format(BASE_LOGGER_NAME, name.upper())
     return logging.getLogger(name)
 

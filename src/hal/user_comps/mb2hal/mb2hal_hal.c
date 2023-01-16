@@ -177,13 +177,13 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
         case mbtx_06_WRITE_SINGLE_REGISTER:
         case mbtx_16_WRITE_MULTIPLE_REGISTERS:
             if (gbl.version < 1001) {
-                if (0 != hal_pin_s32_newf(HAL_IN, mb_tx->int_value + pin_counter, gbl.hal_mod_id,
+                if (0 != hal_pin_float_newf(HAL_IN, mb_tx->float_value + pin_counter, gbl.hal_mod_id,
                                         "%s", hal_pin_name)) {
-                    ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_s32_newf failed",
+                    ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_float_newf failed",
                         mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                     return retERR;
                 }
-                *mb_tx->int_value[pin_counter] = 0;
+                *mb_tx->float_value[pin_counter] = 0;
             } else {
                 if (0 != hal_pin_float_newf(HAL_IN, mb_tx->float_value + pin_counter, gbl.hal_mod_id,
                                             "%s.float", hal_pin_name)) {
