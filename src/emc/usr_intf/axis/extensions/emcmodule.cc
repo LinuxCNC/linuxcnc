@@ -299,8 +299,7 @@ static PyObject *poll(pyStatChannel *s, PyObject *o) {
         initialized=1;
         if (tool_mmap_user()) {
           mmap_available = 0;
-          fprintf(stderr,"mmap tool data not available, continuing %s\n",
-                  __FILE__);
+          fprintf(stderr,"poll(): continuing without tool mmap data\n");
         }
     }
 #endif //}
