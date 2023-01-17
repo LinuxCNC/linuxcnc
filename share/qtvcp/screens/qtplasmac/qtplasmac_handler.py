@@ -1,10 +1,10 @@
-VERSION = '1.234.261'
+VERSION = '1.234.262'
 
 '''
 qtplasmac_handler.py
 
-Copyright (C) 2020, 2021, 2022  Phillip A Carter
-Copyright (C) 2020, 2021, 2022  Gregory D Carl
+Copyright (C) 2020, 2021, 2022, 2023  Phillip A Carter
+Copyright (C) 2020, 2021, 2022, 2023  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -2326,7 +2326,7 @@ class HandlerClass:
         if 'metric_startup' in startupCode or 'imperial_startup' in startupCode:
             self.updateIni.append(207)
         # remove the qtplasmac link from the config directory (pre V1.225.208 2022/06/29)
-        if os.path.exists(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
+        if os.path.lexists(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
             # stage 1: set up for unlinking on the next run of qtplasmac
             if 'code.py' in self.iniFile.find('FILTER', 'ngc'):
                 self.updateIni.append(208)
@@ -2334,6 +2334,8 @@ class HandlerClass:
             else:
                 if os.path.islink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
                     os.unlink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
+                else:
+                    os.rmdir(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
         # move qtplasmac options from INI file to prefs file pre V1.227.219 2022/07/14)
         if not self.PREFS.has_section('BUTTONS'):
             UPDATER.move_options_to_prefs_file(self.iniFile, self.PREFS)
