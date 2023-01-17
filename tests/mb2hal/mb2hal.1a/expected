@@ -1,4 +1,5 @@
 mb2hal parse_common_section DEBUG: [MB2HAL_INIT] [INIT_DEBUG] [3]
+mb2hal parse_common_section DEBUG: [MB2HAL_INIT] [VERSION] [1000]
 mb2hal parse_common_section DEBUG: [MB2HAL_INIT] [HAL_MODULE_NAME] [mb2hal]
 mb2hal parse_common_section DEBUG: [MB2HAL_INIT] [SLOWDOWN] [0.000]
 mb2hal parse_common_section DEBUG: [MB2HAL_INIT] [TOTAL_TRANSACTIONS] [5]
