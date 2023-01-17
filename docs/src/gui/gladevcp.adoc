@@ -1044,16 +1044,16 @@ Insensitized children will not respond to input.
 
 *HAL_HideTable*:: Has one HAL BIT input pin which controls if it's child widgets are hidden or not.
 +
-*Pin*::
 --
+*Pin:*::
 `<Panel_basename>.<widgetname>`:: in bit pin +
 If the pin is low then child widgets are visible which is the default state.
 --
 *HAL_Table* and *HAL_Hbox*::
-Have one HAL BIT input pin which controls if their child widgets are sensitive or not. +
+Have one HAL BIT input pin which controls if their child widgets are sensitive or not.
 +
 --
-*Pin*::
+*Pin:*::
 `<Panel_basename>.<widgetname>`:: in bit pin +
 If the pin is low then child widgets are inactive which is the default state.
 --
