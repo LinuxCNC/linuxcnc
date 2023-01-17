@@ -48,6 +48,7 @@ If a spindle encoder is available it is used to tailor the acceleration and dece
 If not the spindle speed is simulated. The component allows for gearboxes with up to 16 gears.
 Each gear has individual control of speeds, acceleration, driver gain and direction.""";
 
+see_also "\\fBmotion\\fR(9)";
 
 pin in unsigned select-gear
 """Select a gear. Must be in the range 0 -> number of available gears -1. If you use this, do not use the select.x input pins.""";
