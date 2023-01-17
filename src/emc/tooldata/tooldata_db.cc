@@ -89,7 +89,7 @@ static void handle_sigchild(int s)
 #endif
 }
 
-static int fork_create(int myargc,char**myargv)
+static int fork_create(int myargc,char *const myargv[])
 {
     // O_DIRECT:packet mode
     if (pipe2(pipes[PARENT_READ_PIPE],O_DIRECT)) {
@@ -241,7 +241,7 @@ int tooldata_db_init(char progname_plus_args[],int random_toolchanger)
     if (getenv( (char*)"DB_DEBUG") ) {db_debug = 1;}
     if (getenv( (char*)"DB_SHOW") )  {db_show  = 1;}
     int   child_argc = 0;
-    char* child_argv[MAX_DB_PROGRAM_ARGS];
+    char* child_argv[MAX_DB_PROGRAM_ARGS] = {0};
     char* token = strtok(progname_plus_args, " ");
     while (token != NULL) {
         child_argv[child_argc] = token;
