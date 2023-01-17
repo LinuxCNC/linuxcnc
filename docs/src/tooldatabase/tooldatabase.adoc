@@ -112,7 +112,7 @@ s = linuxcnc.stat()
 s.poll()
 if s.interp_state == linuxcnc.INTERP_IDLE:
     linuxcnc.command().load_tool_table()
-else: # defer until interp not idle
+else: # defer loading until interp is idle
    ...
 ----
 
