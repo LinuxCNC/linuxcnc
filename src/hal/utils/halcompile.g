@@ -24,7 +24,7 @@ parser Hal:
     token END: ";;"
     token PARAMDIRECTION: "rw|r"
     token PINDIRECTION: "in|out|io"
-    token TYPE: "float|bit|signed|unsigned|u32|s32|port"
+    token TYPE: "float|bit|signed|unsigned|u32|s32|u64|s64|port"
     token NAME: "[a-zA-Z_][a-zA-Z0-9_]*"
     token STARREDNAME: "[*]*[a-zA-Z_][a-zA-Z0-9_]*"
     token HALNAME: "[#a-zA-Z_][-#a-zA-Z0-9_.]*"

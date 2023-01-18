@@ -1,5 +1,7 @@
-//   This is a component for LinuxCNC HAL
+//   This is a component for Machinekit
 //   Copyright 2011 Sebastian Kuzminsky <seb@highlab.com>
+//
+//   Adapted for 64 bit ArcEye <arceyeATmgwareDOTcoDOTuk>
 //
 //   This program is free software; you can redistribute it and/or
 //   modify it under the terms of version 2 of the GNU General
@@ -12,26 +14,27 @@
 //
 //   You should have received a copy of the GNU General Public License
 //   along with this program; if not, write to the Free Software
-//   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-component abs_s32 "Compute the absolute value and sign of the input signal";
+//   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+component abs_s64 "Compute the absolute value and sign of the input signal";
 
-pin in s32 in "input value" ;
-pin out s32 out "output value, always non-negative";
+pin in s64 in "input value" ;
+pin out s64 out "output value, always non-negative";
 pin out bit sign "Sign of input, false for positive, true for negative" ;
-pin out bit is_positive "TRUE if input is positive, FALSE if input is 0 or negative";
-pin out bit is_negative "TRUE if input is negative, FALSE if input is 0 or positive";
+pin out bit is_positive "true if input is positive, false if input is 0 or negative";
+pin out bit is_negative "true if input is negative, false if input is 0 or positive";
 
 function _ nofp;
 license "GPL";
-author "Sebastian Kuzminsky";
+author "ArcEye based on code from Sebastian Kuzminsky";
 ;;
-FUNCTION(_) {
+FUNCTION(_)
+{
     if ( in >= 0 ) {
-	sign = false;
-	out = in;
+        sign = false;
+        out = in;
     } else {
-	sign = true;
-	out = -in;
+        sign = true;
+        out = -in;
     }
 
     if (in > 0)
