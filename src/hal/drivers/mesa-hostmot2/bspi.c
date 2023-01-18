@@ -140,15 +140,18 @@ int hm2_tram_add_bspi_frame(char *name, int chan, rtapi_u32 **wbuff, rtapi_u32 *
     } else {
         HM2_ERR("SPI frame must have a write entry for channel (%i) on %s.\n", chan, name);
         return -1;
-    }    
+    }
+    bool will_echo = !(hm2->bspi.instance[i].cd[chan] & 0x80000000);
+    bool has_rbuff = rbuff != NULL;
+    if (will_echo != has_rbuff) {
+        HM2_ERR("SPI frame must have a read entry for channel (%i) on %s.\n", chan, name);
+        return -1;
+    }
     if (rbuff != NULL){
-        // Don't add a read entry for a no-echo channel
-        if(!(hm2->bspi.instance[i].cd[chan] & 0x80000000)) {
-            r = hm2_register_tram_read_region(hm2,hm2->bspi.instance[i].addr[0], sizeof(rtapi_u32),rbuff);
-            if (r < 0) {
-                HM2_ERR( "Failed to add TRAM read entry for %s\n", name);
-                return -1;
-            }
+        r = hm2_register_tram_read_region(hm2,hm2->bspi.instance[i].addr[0], sizeof(rtapi_u32),rbuff);
+        if (r < 0) {
+            HM2_ERR( "Failed to add TRAM read entry for %s\n", name);
+            return -1;
         }
     }
     
