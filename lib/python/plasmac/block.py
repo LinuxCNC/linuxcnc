@@ -46,7 +46,7 @@ def preview(Conv, fNgc, fTmp, columns, rows, cOffset, \
             convMirrorToggle, convFlipToggle, g5xIndex, convUnits):
     error = ''
     msg1 = _('entry is invalid')
-    valid, columns = Conv.conv_is_float(columns)
+    valid, columns = Conv.conv_is_int(columns)
     if not valid:
         msg0 = _('COLUMNS NUMBER')
         error += '{} {}\n\n'.format(msg0, msg1)
@@ -54,7 +54,7 @@ def preview(Conv, fNgc, fTmp, columns, rows, cOffset, \
     if not valid and cOffset:
         msg0 = _('COLUMNS OFFSET')
         error += '{} {}\n\n'.format(msg0, msg1)
-    valid, rows = Conv.conv_is_float(rows)
+    valid, rows = Conv.conv_is_int(rows)
     if not valid:
         msg0 = _('ROWS NUMBER')
         error += '{} {}\n\n'.format(msg0, msg1)
@@ -163,18 +163,19 @@ def preview(Conv, fNgc, fTmp, columns, rows, cOffset, \
         outNgc.write(';calculations\n')
         outNgc.write('#<this_col> = 0\n')
         outNgc.write('#<this_row> = 0\n')
+        outNgc.write('#<array_rot> = [#<array_angle> + #<ucs_r_offset>]\n')
         outNgc.write('#<blk_x_offset> = [#<origin_x_offset> + [#<ucs_x_offset> * {}]]\n'.format(convUnits[0]))
         outNgc.write('#<blk_y_offset> = [#<origin_y_offset> + [#<ucs_y_offset> * {}]]\n'.format(convUnits[0]))
-        outNgc.write('#<x_sin> = [[#<array_x_offset> * #<blk_scale>] * SIN[#<array_angle>]]\n')
-        outNgc.write('#<x_cos> = [[#<array_x_offset> * #<blk_scale>] * COS[#<array_angle>]]\n')
-        outNgc.write('#<y_sin> = [[#<array_y_offset> * #<blk_scale>] * SIN[#<array_angle>]]\n')
-        outNgc.write('#<y_cos> = [[#<array_y_offset> * #<blk_scale>] * COS[#<array_angle>]]\n\n')
+        outNgc.write('#<x_sin> = [[#<array_x_offset> * #<blk_scale>] * SIN[#<array_rot>]]\n')
+        outNgc.write('#<x_cos> = [[#<array_x_offset> * #<blk_scale>] * COS[#<array_rot>]]\n')
+        outNgc.write('#<y_sin> = [[#<array_y_offset> * #<blk_scale>] * SIN[#<array_rot>]]\n')
+        outNgc.write('#<y_cos> = [[#<array_y_offset> * #<blk_scale>] * COS[#<array_rot>]]\n\n')
         # main loop
         outNgc.write(';main loop\n')
         outNgc.write('o<loop> while [#<this_row> LT #<array_rows>]\n')
         outNgc.write('    #<shape_x_start> = [[#<this_col> * #<x_cos>] - [#<this_row> * #<y_sin>] + #<blk_x_offset>]\n')
         outNgc.write('    #<shape_y_start> = [[#<this_row> * #<y_cos>] + [#<this_col> * #<x_sin>] + #<blk_y_offset>]\n')
-        outNgc.write('    #<blk_angle> = [#<shape_angle> + #<array_angle> + #<ucs_r_offset>]\n')
+        outNgc.write('    #<blk_angle> = [#<shape_angle> + #<array_rot>]\n')
         if convUnits[1]:
             outNgc.write('    {}\n'.format(convUnits[1]))
         outNgc.write('    G10 L2 P0 X#<shape_x_start> Y#<shape_y_start> R#<blk_angle>\n\n')

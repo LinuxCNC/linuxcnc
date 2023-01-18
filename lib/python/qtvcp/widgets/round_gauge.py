@@ -9,7 +9,7 @@ from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
 class Gauge(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(Gauge, self).__init__(parent)
-        self._threshold = 0.0
+        self._threshold = 0
         self._setpoint = QPointF(0, 0)
         self._num_ticks = 11
         self._max_value = 100
@@ -47,7 +47,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
             self.qpa[i] = QPointF(x, y)
 
     def paintEvent(self, event):
-        w = min(event.rect().width(), event.rect().height())
+        w = int(min(event.rect().width(), event.rect().height()))
         painter = QPainter(self)
         painter.setRenderHint(painter.Antialiasing)
         self.draw_background(painter, event, w)
@@ -77,11 +77,12 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
 
     def draw_zones(self, qp, event, w):
         segment1 = -45
-        span1 = ((self._max_value - self._threshold) * 270) / self._max_value
+        span1 = int(((self._max_value - self._threshold) * 270) / self._max_value)
         segment2 = span1 - 45
         span2 = 270 - span1
         rect = QRect()
-        rect.setSize(QSize(w/2, w/2))
+        w = int(w/2)
+        rect.setSize(QSize(w, w))
         rect.moveCenter(event.rect().center())
         qp.setPen(QPen(self._zone1_color, self.arc_width, cap = Qt.FlatCap))
         qp.drawArc(rect, segment1*16, span1*16)
@@ -90,6 +91,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
 
     def draw_gauge(self, qp, event, w):
         w *= 0.6
+        w =int(w)
         rect = QRect()
         rect.setSize(QSize(w, w))
         rect.moveCenter(event.rect().center())
@@ -127,6 +129,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
 
     def draw_center(self, qp, event, w):
         w *= 0.2
+        w = int(w)
         rect = QRect()
         rect.setSize(QSize(w, w))
         rect.moveCenter(event.rect().center())
@@ -162,13 +165,13 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
     def draw_readout(self, qp, event, w):
         center = event.rect().center()
         rect = QRect()
-        rect.setSize(QSize(w/4, w/8))
-        rect.moveCenter(QPoint(center.x(), center.y() + w/4))
+        rect.setSize(QSize(int(w/4), int(w/8)))
+        rect.moveCenter(QPoint(center.x(), center.y() + int(w/4)))
         text = "{}".format(self.value)
         qp.setPen(QPen(Qt.white, 4))
         qp.setFont(QFont('Lato Heavy', self._value_font_size))
         qp.drawText(rect, Qt.AlignCenter, text)
-        rect.moveCenter(QPoint(center.x(), center.y() + w/3))
+        rect.moveCenter(QPoint(center.x(), center.y() + int(w/3)))
         text = self._gauge_label
         qp.setFont(QFont('Lato Heavy', self._label_font_size))
         qp.drawText(rect, Qt.AlignCenter, text)

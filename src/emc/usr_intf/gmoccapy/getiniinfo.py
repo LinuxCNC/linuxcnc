@@ -396,7 +396,7 @@ class GetIniInfo:
         return xpos, ypos, zpos, maxprobe
 
     def get_macros(self):
-        # lets look in the ini File, if there are any entries
+        # lets look in the INI file, if there are any entries
         macros = self.inifile.findall("MACROS", "MACRO")
         # If there are no entries we will return False
         if not macros:
@@ -429,7 +429,7 @@ class GetIniInfo:
         subroutines_paths = self.inifile.find("RS274NGC", "SUBROUTINE_PATH")
         if not subroutines_paths:
             message = _( "**** GMOCCAPY GETINIINFO ****\n" )
-            message += _( "**** No subroutine folder or program prefix is given in the ini file **** \n" )
+            message += _( "**** No subroutine folder or program prefix is given in the INI file **** \n" )
             print( message )
             subroutines_paths = self.get_program_prefix()
         if not subroutines_paths:
@@ -446,7 +446,7 @@ class GetIniInfo:
     def get_RS274_start_code(self):
         temp = self.inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE")
         if not temp:
-            return False
+            temp = ""
         return  temp
 
     def get_user_messages(self):
@@ -472,3 +472,15 @@ class GetIniInfo:
             print("**** GMOCCAPY GETINIINFO **** \nERROR getting machine units \n"
                   "please check [TRAJ] LINEAR_UNITS for a valid entry, found {0}".format(units))
             return None
+
+    def get_user_command_file(self):
+        temp = self.inifile.find("DISPLAY", "USER_COMMAND_FILE")
+        if temp:
+            print("**** USER_COMMAND_FILE = " + temp)
+        return temp
+
+    def get_user_css_file(self):
+        temp = self.inifile.find("DISPLAY", "USER_CSS_FILE")
+        if temp:
+            print("**** USER_CSS_FILE = " + temp)
+        return temp

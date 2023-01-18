@@ -24,6 +24,8 @@ class Aux_program_loader:
     def load_ladder(self, *args):
         if hal.component_exists('classicladder_rt'):
             p = os.popen("classicladder  &", "w")
+        else:
+            ACTION.SET_ERROR_MESSAGE("Classiclader's realtime component is not present\n So the user component will not  be loaded.")
 
     def load_gcode_ripper(self,*args):
         if args:
@@ -66,7 +68,6 @@ class Aux_program_loader:
 
     def load_test_button(self, *args):
         if args:
-            self.load_haltool_args('halscope', args)
             p = os.popen("qtvcp {} test_button".format(args), "w")
         else:
             p = os.popen("qtvcp test_button", "w")
@@ -76,6 +77,12 @@ class Aux_program_loader:
             p = os.popen("qtvcp {} test_led".format(args), "w")
         else:
             p = os.popen("qtvcp test_led", "w")
+
+    def load_test_dial(self, *args):
+        if args:
+            p = os.popen("qtvcp {} test_dial".format(args), "w")
+        else:
+            p = os.popen("qtvcp test_dial", "w")
 
     def keyboard_onboard(self, args="", width="", height=""):
         try:

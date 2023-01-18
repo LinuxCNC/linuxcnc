@@ -10,7 +10,7 @@
 #
 #   Test for the Boost C++ libraries of a particular version (or newer)
 #
-#   If no path to the installed boost library is given the macro searchs
+#   If no path to the installed boost library is given the macro searches
 #   under /usr, /usr/local, /opt, /opt/local and /opt/homebrew and evaluates
 #   the $BOOST_ROOT environment variable. Further documentation is available
 #   at <http://randspringer.de/boost/index.html>.
@@ -123,7 +123,8 @@ AC_DEFUN([_AX_BOOST_BASE_RUNDETECT],[
     dnl are almost assuredly the ones desired.
     AS_CASE([${host_cpu}],
       [i?86],[multiarch_libsubdir="lib/i386-${host_os}"],
-      [armv7l],[multiarch_libsubdir="lib/arm-${host_os}"],
+      [armv?l],[multiarch_libsubdir="lib/arm-${host_os}"],
+      [hppa1.1|hppa64],[multiarch_libsubdir="lib/hppa-${host_os}"],
       [multiarch_libsubdir="lib/${host_cpu}-${host_os}"]
     )
 

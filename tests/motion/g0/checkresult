@@ -6,7 +6,7 @@ from subprocess import *
 
 
 #
-# read some stuff out of the ini file
+# read some stuff out of the INI file
 #
 
 # servo period in nanoseconds

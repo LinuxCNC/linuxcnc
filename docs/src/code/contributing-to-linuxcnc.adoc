@@ -29,16 +29,16 @@ The two main ways that project developers communicate with each other are:
 == The LinuxCNC Source Forge project
 
 We use Source Forge for
-http://sourceforge.net/p/emc/mailman/[mailing lists].
+https://sourceforge.net/p/emc/mailman/[mailing lists].
 
 == The Git Revision Control System
 
 All of the LinuxCNC source is maintained in the
-http://git-scm.com/[Git revision control system].
+https://git-scm.com/[Git revision control system].
 
 === LinuxCNC official Git repo
 
-The official LinuxCNC git repo is at http://github.com/linuxcnc/linuxcnc/
+The official LinuxCNC git repo is at https://github.com/linuxcnc/linuxcnc/
 
 Anyone can get a read-only copy of the LinuxCNC source tree via git:
 
@@ -99,7 +99,7 @@ follow-on documentation are also available online here:
   https://www.kernel.org/pub/software/scm/git/docs/user-manual.html
 
 For a more thorough documentation of git see the "Pro Git" book:
-http://git-scm.com/book
+https://git-scm.com/book
 
 Another online tutorial that has been recommended is "Git for the Lazy":
 https://wiki.spheredev.org/index.php/Git_for_the_lazy
@@ -114,9 +114,10 @@ like this:
 * Clone the git repo
 * Make your changes in a local branch, making sure you "sign off" your commits
   according to our signed-off-by policy (see below).
-* Adding documentation and tests is an important part of adding a new
-  feature.  Otherwise, others won't know how to use your feature, and
-  if other changes break your feature it can go unnoticed without a test.
+* Adding documentation and <<cha:writing-tests,writing tests>> is
+  an important part of adding a new feature.  Otherwise, others won't
+  know how to use your feature, and if other changes break your
+  feature it can go unnoticed without a test.
 * Share your changes with the other project developers in one of these ways:
 ** Push your branch to github and create a github pull request to
    https://github.com/linuxcnc/linuxcnc (this requires a github account)
@@ -193,8 +194,7 @@ done, do it as a commit separate from any semantic changes.
 
 The test "retval < 0" should feel familiar; it's the same kind of
 test you use in userspace (returns -1 for error) and in kernel space
-(returns -ERRNO for error)
-
+(returns -ERRNO for error).
 
 === Simplify complicated history before sharing with fellow developers
 
@@ -233,7 +233,7 @@ sure your branch builds, it is important to assure every single commit
 builds as well.
 
 There's an automatic way to check a branch for each commit being
-buildable - see http://dustin.sallings.org/2010/03/28/git-test-sequence.html
+buildable - see https://dustin.sallings.org/2010/03/28/git-test-sequence.html
 and the code at https://github.com/dustin/bindir/blob/master/git-test-sequence.
 Use as follows (in this case testing every commit from origin/master to
 HEAD, including running regression tests):

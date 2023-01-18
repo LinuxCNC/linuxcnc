@@ -1,4 +1,4 @@
-import os
+import os, time
 from PyQt5 import QtCore, QtWidgets, QtGui
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
@@ -54,10 +54,17 @@ class HandlerClass:
         self.h = halcomp
         self.w = widgets
         self.gcodes = GCodes(widgets)
-        self.valid = QtGui.QDoubleValidator(-999.999, 999.999, 3)
+        # This validator precludes using comma as a decimal
+        self.valid = QtGui.QRegExpValidator(QtCore.QRegExp('-?[0-9]{0,6}[.][0-9]{0,3}'))
         KEYBIND.add_call('Key_F11','on_keycall_F11')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_Pause', 'on_keycall_pause')
+        KEYBIND.add_call('Key_Any', 'on_keycall_pause')
+
+        KEYBIND.add_call('Key_Period','on_keycall_jograte',1)
+        KEYBIND.add_call('Key_Comma','on_keycall_jograte',0)
+        KEYBIND.add_call('Key_Greater','on_keycall_angular_jograte',1)
+        KEYBIND.add_call('Key_Less','on_keycall_angular_jograte',0)
 
         # some global variables
         self.probe = None
@@ -81,7 +88,7 @@ class HandlerClass:
         self.onoff_list = ["frame_program", "frame_tool", "frame_dro", "frame_override", "frame_status"]
         self.auto_list = ["chk_eoffsets", "cmb_gcode_history"]
         self.axis_a_list = ["label_axis_a", "dro_axis_a", "action_zero_a", "axistoolbutton_a",
-                            "action_home_a", "widget_jog_angular", "widget_increments_angular",
+                            "dro_button_stack_a", "widget_jog_angular", "widget_increments_angular",
                             "a_plus_jogbutton", "a_minus_jogbutton"]
         self.button_response_list = ["btn_start", "btn_home_all", "btn_home_x", "btn_home_y",
                             "btn_home_z", "action_home_a", "btn_reload_file", "macrobutton0", "macrobutton1",
@@ -110,6 +117,7 @@ class HandlerClass:
         STATUS.connect('command-stopped', lambda w: self.stop_timer())
         STATUS.connect('progress', lambda w,p,t: self.updateProgress(p,t))
         STATUS.connect('override-limits-changed', lambda w, state, data: self._check_override_limits(state, data))
+        STATUS.connect('graphics-gcode-properties', lambda w, d: self.update_gcode_properties(d))
 
         self.html = """<html>
 <head>
@@ -119,12 +127,13 @@ class HandlerClass:
 <h1>Setup Tab</h1>
 <p>If you select a file with .html as a file ending, it will be shown here..</p>
 <li><a href="http://linuxcnc.org/docs/devel/html/">Documents online</a></li>
-<li><a href="file://">Local files</a></li>
+<li><a href="file://%s">Local files</a></li>
 <img src="file://%s" alt="lcnc_swoop" />
 <hr />
 </body>
 </html>
-""" %(os.path.join(paths.IMAGEDIR,'lcnc_swoop.png'))
+""" %(  os.path.expanduser('~/linuxcnc'),
+        os.path.join(paths.IMAGEDIR,'lcnc_swoop.png'))
 
 
     def class_patch__(self):
@@ -162,20 +171,22 @@ class HandlerClass:
 
                 self.backBtn = QtWidgets.QPushButton(self.w)
                 self.backBtn.setEnabled(True)
-                self.backBtn.setIconSize(QtCore.QSize(48, 38))
+                self.backBtn.setMinimumSize(64, 40)
+                self.backBtn.setIconSize(QtCore.QSize(38, 38))
                 self.backBtn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/left-32.png'))
                 self.backBtn.clicked.connect(self.back)
                 self.toolBar.addWidget(self.backBtn)
 
                 self.forBtn = QtWidgets.QPushButton(self.w)
                 self.forBtn.setEnabled(True)
-                self.forBtn.setIconSize(QtCore.QSize(48, 38))
+                self.forBtn.setMinimumSize(64, 40)
+                self.forBtn.setIconSize(QtCore.QSize(38, 38))
                 self.forBtn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/right-32.png'))
                 self.forBtn.clicked.connect(self.forward)
                 self.toolBar.addWidget(self.forBtn)
 
                 self.writeBtn = QtWidgets.QPushButton('SetUp\n Writer',self.w)
-                self.writeBtn.setMinimumSize(58,42)
+                self.writeBtn.setMinimumSize(64, 40)
                 self.writeBtn.setEnabled(True)
                 self.writeBtn.clicked.connect(self.writer)
                 self.toolBar.addWidget(self.writeBtn)
@@ -600,8 +611,6 @@ class HandlerClass:
         if STATUS.is_auto_running():
             self.add_status("Program is already running", WARNING)
             return
-        self.run_time = 0
-        self.w.lbl_runtime.setText("00:00:00")
         if self.start_line <= 1:
             ACTION.RUN(self.start_line)
         else:
@@ -609,8 +618,9 @@ class HandlerClass:
             info = '<b>Running From Line: {} <\b>'.format(self.start_line)
             mess = {'NAME':'RUNFROMLINE', 'TITLE':'Preset Dialog', 'ID':'_RUNFROMLINE', 'MESSAGE':info, 'LINE':self.start_line}
             ACTION.CALL_DIALOG(mess)
+
+        self.start_timer()
         self.add_status("Started program from line {}".format(self.start_line))
-        self.timer_on = True
 
     def btn_reload_file_clicked(self):
         if self.last_loaded_program:
@@ -913,6 +923,41 @@ class HandlerClass:
                 self.PDFView.loadView(fname)
                 self.add_status("Loaded PDF file : {}".format(fname))
 
+    def update_gcode_properties(self, props ):
+        # substitute nice looking text:
+        property_names = {
+            'name': "Name:", 'size': "Size:",
+    '       tools': "Tool order:", 'g0': "Rapid distance:",
+            'g1': "Feed distance:", 'g': "Total distance:",
+            'run': "Run time:",'machine_unit_sys':"Machine Unit System:",
+            'x': "X bounds:",'x_zero_rxy':'X @ Zero Rotation:',
+            'y': "Y bounds:",'y_zero_rxy':'Y @ Zero Rotation:',
+            'z': "Z bounds:",'z_zero_rxy':'Z @ Zero Rotation:',
+            'a': "A bounds:", 'b': "B bounds:",
+            'c': "C bounds:",'toollist':'Tool Change List:',
+            'gcode_units':"Gcode Units:"
+        }
+
+        smallmess = mess = ''
+        if props:
+            for i in props:
+                smallmess += '<b>%s</b>: %s<br>' % (property_names.get(i), props[i])
+                mess += '<span style=" font-size:18pt; font-weight:600; color:black;">%s </span>\
+<span style=" font-size:18pt; font-weight:600; color:#aa0000;">%s</span>\
+<br>'% (property_names.get(i), props[i])
+
+        # put the details into the properties page
+        self.w.textedit_properties.setText(mess)
+        return
+        # pop a dialog of the properties
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setText(smallmess)
+        msg.setWindowTitle("Gcode Properties")
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.show()
+        retval = msg.exec_()
+
     def disable_spindle_pause(self):
         self.h['eoffset-count'] = 0
         self.h['spindle-inhibit'] = False
@@ -939,6 +984,7 @@ class HandlerClass:
             self.add_status("Touchoff routine is already running", CRITICAL)
 
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
+        ACTION.SET_MANUAL_MODE()
         if not STATUS.is_man_mode() or not STATUS.machine_is_on():
             self.add_status('Machine must be ON and in Manual mode to jog', CRITICAL)
             return
@@ -948,6 +994,7 @@ class HandlerClass:
         else:
             distance = STATUS.get_jog_increment_angular()
             rate = STATUS.get_jograte_angular()/60
+        print(rate)
         if state:
             if fast:
                 rate = rate * 2
@@ -1022,14 +1069,22 @@ class HandlerClass:
             self.w.lbl_spindle_set.style().polish(self.w.lbl_spindle_set)
 
     def update_runtimer(self):
-        if self.timer_on is False or STATUS.is_auto_paused(): return
-        self.time_tenths += 1
-        if self.time_tenths == 10:
-            self.time_tenths = 0
-            self.run_time += 1
-            hours, remainder = divmod(self.run_time, 3600)
-            minutes, seconds = divmod(remainder, 60)
-            self.w.lbl_runtime.setText("{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds))
+        if not self.timer_on or STATUS.is_auto_paused():
+            return
+
+        tick = time.time()
+        elapsed_time = tick - self.timer_tick
+        self.run_time += elapsed_time
+        self.timer_tick = tick
+
+        hours, remainder = divmod(int(self.run_time), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        self.w.lbl_runtime.setText("{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds))
+
+    def start_timer(self):
+        self.run_time = 0
+        self.timer_on = True
+        self.timer_tick = time.time()
 
     def stop_timer(self):
         self.timer_on = False
@@ -1117,10 +1172,18 @@ class HandlerClass:
         if stacked_index > PAGE_UNCHANGED:
             self.w.stackedWidget.setCurrentIndex(stacked_index)
 
+        # toggle home/tool offsets buttons in DRO section
+        if main_index == TAB_TOOL:
+            num = 1
+        else:
+            num = 0
+        for i in INFO.AVAILABLE_AXES:
+            self.w['dro_button_stack_%s'%i.lower()].setCurrentIndex(num)
+
         # set main tab to adjusted index
         self.w.main_tab_widget.setCurrentIndex(main_index)
 
-        # if indexes don't match then request is dusallowed
+        # if indexes don't match then request is disallowed
         # give a warning and reset the button check
         if main_index != requestedIndex and not main_index in(TAB_CAMERA,TAB_GCODES,TAB_SETUP):
             self.add_status("Cannot switch pages while in AUTO mode", WARNING)
@@ -1150,6 +1213,20 @@ class HandlerClass:
     def on_keycall_pause(self,event,state,shift,cntrl):
         if state and STATUS.is_auto_mode() and self.use_keyboard():
             ACTION.PAUSE()
+
+    def on_keycall_jograte(self,event,state,shift,cntrl,value):
+        if state and self.use_keyboard():
+            if value == 1:
+                ACTION.SET_JOG_RATE_FASTER()
+            else:
+                ACTION.SET_JOG_RATE_SLOWER()
+
+    def on_keycall_angular_jograte(self,event,state,shift,cntrl,value):
+        if state and self.use_keyboard():
+            if value == 1:
+                ACTION.SET_JOG_RATE_ANGULAR_FASTER()
+            else:
+                ACTION.SET_JOG_RATE_ANGULAR_SLOWER()
 
     def on_keycall_XPOS(self,event,state,shift,cntrl):
         if self.use_keyboard():

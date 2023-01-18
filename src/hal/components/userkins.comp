@@ -4,32 +4,25 @@ description
 """
 .if \\n[.g] .mso www.tmac
 
-The userkins.comp file is a template for creating
-kinematics that can be user-built using halcompile.
+The userkins.comp file is a template for creating kinematics that can be user-built using halcompile.
 
-The unmodified userkins component can be used
-as a kinematics file for a machine with identity
-kinematics for an xyz machine employing 3 joints
-(motors).
+The unmodified userkins component can be used as a kinematics file
+for a machine with identity kinematics for an xyz machine employing 3 joints (motors).
 
 \\fBUSAGE:\\fR
 
-  1) Copy the userkins.comp file to a user-owned
-     directory (\\fBmydir\\fR).
+  1) Copy the userkins.comp file to a user-owned directory (\\fBmydir\\fR).
 
      Note: The userkins.comp file can be downloaded from:
 .URL https://github.com/LinuxCNC/linuxcnc/raw/2.8/src/hal/components/userkins.comp
-     where '2.8' is the branch name (use 'master' for
-     the master branch)
+     where '2.8' is the branch name (use 'master' for the master branch)
 
      For a RIP (run-in-place) build, the file is located in
      the git tree as:
        src/hal/components/userkins.comp
 
-  2) Edit the functions kinematicsForward() and
-     kinematicsInverse() as required
-  3) If required, add hal pins following examples in
-     the template code
+  2) Edit the functions kinematicsForward() and kinematicsInverse() as required.
+  3) If required, add HAL pins following examples in the template code.
   4) Build and install the component using halcompile:
      $ cd \\fBmydir\\fR
      $ [sudo] halcompile --install userkins.comp
@@ -43,26 +36,22 @@ kinematics for an xyz machine employing 3 joints
      \\fBJOINTS=3\\fR
      # the number of JOINTS must agree with the
      # number of joints used in your modified userkins.comp
-  6) Note: the manpage for userkins is not updated by
-     halcompile --install
-  7) To use a different component name, rename the file
-     (example mykins.comp) and change all instances of
-     'userkins' to 'mykins'
+  6) Note: the manpage for userkins is not updated by halcompile --install
+  7) To use a different component name, rename the file (example mykins.comp)
+     and change all instances of 'userkins' to 'mykins'.
 
 \\fBNOTES:\\fR
-  1  A 'dummy' pin is required to satisfy the requirements of
-     the halcompile utility but it is not accessible to
-     kinematics functions.
+  1  The \\fBfpin\\fR pin is included to satisfy the requirements of the
+     halcompile utility but it is not accessible to kinematics functions.
 
-  2  Hal pins and parameters needed in kinematics functions
-     (kinematicsForward(), kinematicsInverse()) must
-     be setup in a function (userkins_setup()) invoked
-     by the initial motion module call to kinematicsType().
+  2  HAL pins and parameters needed in kinematics functions (kinematicsForward(),
+     kinematicsInverse()) must be setup in a function (\\fBuserkins_setup()\\fR)
+     invoked by the initial motion module call to kinematicsType().
 """;
-// The halcompile utility requires a pin definition but
-// the dummy pin is not accessible in kinematics functions.
-// Use the *_setup() function for actual pins and params.
-pin out bit dummy=1;
+// The fpin pin is not accessible in kinematics functions.
+// Use the *_setup() function for pins and params used by kinematics.
+pin out s32 fpin=0"pin to demonstrate use of a conventional (non-kinematics) function fdemo";
+function fdemo;
 license "GPL";
 author "Dewey Garrett";
 ;;
@@ -84,13 +73,24 @@ static struct haldata {
 // hal_s32_t   signed 32bit integer
 // hal_float_t float (double precision)
 
+FUNCTION(fdemo) {
+   // This function can be added to a thread (addf) for
+   // purposes not related to the kinematics functions.
+   if (fpin == 0) {
+       rtapi_print("fdemo function added to thread\n");
+   }
+   fpin++;
+}
+
 static int userkins_setup(void) {
 #define HAL_PREFIX "userkins"
     int res=0;
-    int comp_id;
-    // this name must be different than the component name:
-    comp_id = hal_init("userkinsdata");
+
+    // inherit comp_id from rtapi_main()
     if (comp_id < 0) goto error;
+    // set unready to allow creation of pins
+    if (hal_set_unready(comp_id)) goto error;
+
     haldata = hal_malloc(sizeof(struct haldata));
     if (!haldata) goto error;
 
@@ -129,7 +129,7 @@ static bool is_setup=0;
            //       joint values in preview prior to homing
 } // kinematicsType()
 
-static bool is_homed=0;
+static bool is_ready=0;
 int kinematicsForward(const double *j,
                       EmcPose * pos,
                       const KINEMATICS_FORWARD_FLAGS * fflags,
@@ -148,9 +148,9 @@ int kinematicsForward(const double *j,
     pos->v = 0;
     pos->w = 0;
 
-    if (*haldata->in && !is_homed && !gave_msg) {
+    if (*haldata->in && !is_ready && !gave_msg) {
        rtapi_print_msg(RTAPI_MSG_ERR,
-                       "%s in pin not echoed until homed\n",
+                       "%s The 'in' pin not echoed until Inverse called\n",
                       __FILE__);
        gave_msg=1;
     }
@@ -162,7 +162,7 @@ int kinematicsInverse(const EmcPose * pos,
                       const KINEMATICS_INVERSE_FLAGS * iflags,
                       KINEMATICS_FORWARD_FLAGS * fflags)
 {
-    is_homed = 1; // Inverse is not called until homed
+    is_ready = 1; // Inverse is not called until homed for KINEMATICS_BOTH
 
     // Update the kinematic joints specified by the
     // [KINS]JOINTS setting (3 required for this template).

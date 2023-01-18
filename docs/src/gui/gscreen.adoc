@@ -152,7 +152,7 @@ require you to install Glade 3.8.0 - 3.8.6 (you may need to compile it yourself)
 
 .RIP compiled commands
 Using a compiled from source version of
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Installing_LinuxCNC[LinuxCNC] open
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Installing_LinuxCNC[LinuxCNC] open
 a terminal and <<faq:cd,cd>> to the top of the LinuxCNC folder. Set up the
 environment by entering '. ./scripts/rip-environment' now enter 'glade', you
 see a bunch of warnings in the terminal that you can ignore and the editor
@@ -514,7 +514,7 @@ MESSAGE_TYPE:: specifies whether its a yes/no, ok, or status message
     - have one HAL pin to launch the dialog and one to signify it's waiting for response.
   * yes/no messages
     - require the user to select yes or no buttons to close the dialog.
-    - have three HAL pins
+    - have three HAL pins:
       . one to show the dialog,
       . one for waiting, and
       . one for the answer.

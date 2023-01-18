@@ -456,19 +456,30 @@ JoyPad {
 
 /** GCode Display **/
 EditorBase {
-    qproperty-styleColorMarginBackground: #303030;
-    qproperty-styleColorMarginText: #00aaff; /* margin line numbers */
-    qproperty-styleFontMargin: "Lato Heavy, 10 ";
     qproperty-styleColorBackground: #202020;
-    qproperty-styleColor0: #e0e0e0; /* digit characters */
-    qproperty-styleColor1: #00eeee; /* comments */
-    qproperty-styleColor2: #e0e0e0; /* alphabetic characters */
-    qproperty-styleColor3: #e0e0e0; /* assignment characters */
-    qproperty-styleColor4: #e0e0e0; /* value characters */
-    qproperty-styleFont0: "Lato Heavy, 10";
-    qproperty-styleFont2: "Lato Heavy, 10";
-    qproperty-styleColorSelectionBackground: #00aaff; /* selection background */
-} 
+    qproperty-styleColorMarginBackground: #303030;
+    qproperty-styleColorMarginText: #00aaff;
+    qproperty-styleColorMarkerBackground: #505050;
+    qproperty-styleColorSelectionBackground: #006aff;
+    qproperty-styleColorSelectionText: #ffffff;
+    qproperty-styleFont: "DejaVu Sans Mono,10,-1,5,50,0,0,0,1,0";
+    qproperty-styleFont1: "DejaVu Sans Mono,9,-1,5,50,0,0,0,1,0";
+    qproperty-styleFont2: "DejaVu Sans Mono,10,-1,5,90,0,0,0,1,0";
+    qproperty-styleFont3: "DejaVu Sans Mono,10,-1,5,90,0,0,0,1,0";
+    qproperty-styleFont4: "DejaVu Sans Mono,10,-1,5,90,0,0,0,1,0";
+    qproperty-styleFont5: "DejaVu Sans Mono,10,-1,5,90,0,0,0,1,0";
+    qproperty-styleFont6: "DejaVu Sans Mono,10,-1,5,90,0,0,0,1,0";
+    qproperty-styleFont7: "DejaVu Sans Mono,10,-1,5,90,0,0,0,1,0";
+    qproperty-styleFontMargin: "DejaVu Sans Mono,8,-1,5,50,0,0,0,1,0";    
+    qproperty-styleColor0: #efefef;	/* default */
+    qproperty-styleColor1: #655d5d; 	/* LineNo & Comments */
+    qproperty-styleColor2: #cf4949;  	/* Gcodes */     
+    qproperty-styleColor3: #f06e3b;	/* Mcodes */
+    qproperty-styleColor4: #7272ca;	/* Axes */
+    qproperty-styleColor5: #fd5187;	/* Other (feed, spindle, radius, etc) */
+    qproperty-styleColor6: #8282aa;	/* Axes Values */
+    qproperty-styleColor7: #cd6197;	/* Other Values */
+}
 
 /* warning colors for SPINDLE overrides if out of normal range*/
 

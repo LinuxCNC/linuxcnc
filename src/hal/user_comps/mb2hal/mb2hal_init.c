@@ -89,6 +89,15 @@ retCode parse_common_section()
     iniFindInt(gbl.ini_file_ptr, tag, section, &gbl.init_dbg);
     DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, gbl.init_dbg);
 
+    tag     = "VERSION"; //optional
+    tmpstr = iniFind(gbl.ini_file_ptr, tag, section);
+    if (tmpstr != NULL) {
+        int major, minor;
+        sscanf(tmpstr, "%d.%d", &major, &minor);
+        gbl.version = major*1000 + minor;
+    }
+    DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, gbl.version);
+
     tag    = "HAL_MODULE_NAME"; //optional
     tmpstr = iniFind(gbl.ini_file_ptr, tag, section);
     if (tmpstr != NULL) {
@@ -139,7 +148,7 @@ retCode parse_pin_names(const char * names_string, mb_tx_t *this_mb_tx)
         }
         if(name_count >= name_buf_size)
         {
-            name_count += NAME_ALLOC_SIZE;
+            name_buf_size += NAME_ALLOC_SIZE;
             name_ptrs = realloc(name_ptrs, sizeof(char *) * name_buf_size);
             if(name_ptrs == NULL)
             {
@@ -344,7 +353,8 @@ retCode parse_transaction_section(const int mb_tx_num)
                 break;
             }
         }
-        if (this_mb_tx->mb_tx_fnct <= mbtxERR || this_mb_tx->mb_tx_fnct >= mbtxMAX) {
+        int max = gbl.version<1001?mbtx_01_READ_COILS:mbtxMAX;
+        if (this_mb_tx->mb_tx_fnct <= mbtxERR || this_mb_tx->mb_tx_fnct >= max) {
             ERR(gbl.init_dbg, "[%s] [%s] [%s] out of range", section, tag, tmpstr);
             return retERR;
         }

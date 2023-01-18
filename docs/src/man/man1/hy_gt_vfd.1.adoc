@@ -107,7 +107,7 @@ PC.02 = 0::
 
 PC.03 = 1::
 
-    Set Communication Delay Time to 1&thinsp;ms.  This is expected by the
+    Set Communication Delay Time to 1 ms.  This is expected by the
     hy_gt_vfd driver.
 
 
@@ -259,8 +259,15 @@ PC.03 = 1::
 
 *hy_gt_vfd.fault-info* (float, out)::
 
-        The VFD's fault info register.
+        The VFD's fault info register in floating point
+        representation.  This is kept for backwards compatibility with
+        existing setups and will be removed in the future.
 
+*hy_gt_vfd.fault-info-code* (u32, out)::
+
+        The VFD's fault code register value.  Introduced in LinuxCNC
+        version 2.10.  0x00 if no fault is detected, see GT Series
+        Inverter Manual page 87 for list of fault codes.
 
 == ISSUES
 
@@ -277,3 +284,11 @@ arguments all agree with the info on the motor's name plate.  If you
 still aren't getting the speed you expect, zero the VFD's frequency
 offset by starting the motor running, then pressing the Up/Down buttons
 to zero the offset.
+
+== AUTHOR
+
+Sebastian Kuzminsky
+
+== LICENSE
+
+GPL-2.0+

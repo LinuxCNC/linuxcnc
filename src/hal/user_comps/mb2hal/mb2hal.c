@@ -400,10 +400,11 @@ retCode get_tx_connection(const int this_mb_tx_num, int *ret_connected)
 
 void set_init_gbl_params()
 {
-    gbl.hal_mod_name = "mb2hal"; //until readed in config file
+    gbl.hal_mod_name = "mb2hal"; //until read in config file
     gbl.hal_mod_id   = -1;
-    gbl.init_dbg     = debugERR; //until readed in config file
-    gbl.slowdown     = 0;        //until readed in config file
+    gbl.init_dbg     = debugERR; //until read in config file
+    gbl.version      = 1000;     //defaults to 1000 (= 1.000) if not set
+    gbl.slowdown     = 0;        //until read in config file
     gbl.mb_tx_fncts[mbtxERR]                         = "";
     gbl.mb_tx_fncts[mbtx_01_READ_COILS]              = "fnct_01_read_coils";
     gbl.mb_tx_fncts[mbtx_02_READ_DISCRETE_INPUTS]    = "fnct_02_read_discrete_inputs";

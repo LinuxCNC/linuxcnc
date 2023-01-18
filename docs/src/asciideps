@@ -9,6 +9,12 @@ includes () {
 	DIR=`dirname "$1"`
 
 	for f in `sed -ne "s|^include::\(.*\)\[\]$|$DIR/\1|p" "$1"`; do
+		# components_gen.adoc will contain only generated content
+		case "$f" in
+			*/components_gen.adoc)
+			touch "$f"
+			;;
+		esac
 		echo "$f"
 		includes "$f"
 	done

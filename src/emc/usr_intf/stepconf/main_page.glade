@@ -639,7 +639,7 @@
                     <property name="halign">center</property>
                     <property name="margin_left">20</property>
                     <property name="margin_right">20</property>
-                    <property name="label" translatable="yes">This program creates configuration files (.ini and .hal) for "step and direction" milling machines and lathes connected to the PC parallel port.
+                    <property name="label" translatable="yes">This program creates configuration files (INI and HAL) for "step and direction" milling machines and lathes connected to the PC parallel port.
 
 Stepconf requires a minimum 800 X 600 display resolution.</property>
                     <property name="wrap">True</property>

@@ -115,7 +115,7 @@ class QTVCP:
             if sys.argv[i] =='-ini':
                 # delete -ini
                 del sys.argv[i]
-                # pop out the ini path
+                # pop out the INI path
                 INIPATH = sys.argv.pop(i)
                 break
         (opts, args) = parser.parse_args()

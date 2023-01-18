@@ -188,7 +188,7 @@ FUNCTION(_){
     int mod_pocket = 0;
     int new_pos = 0;
     unsigned int mask;
-    int align_pin; // used for slow align move, input depends on mode for historical reasons
+    int align_pin = 0; // used for slow align move, input depends on mode for historical reasons
 
     switch inst_code{
     case 'G': // Gray Code
@@ -378,7 +378,6 @@ FUNCTION(_){
             motor_vel = 0;
             timer = decel_time;
             state = 5;
-            break;
         } else {
             motor_fwd = 0;
             motor_rev = 0;
@@ -386,8 +385,8 @@ FUNCTION(_){
             active = 0;
             if (enable) ready = 1;
             state = 9;
-            break;
         }
+        break;
     case 3: // timed reverse pulse
         timer -= fperiod;
         if (timer > 0) return;
@@ -397,6 +396,7 @@ FUNCTION(_){
         motor_vel = hold_dc;
         active = 0;
         if (enable) ready = 1;
+        break;
     case 5: //Waiting for carousel to stop
         timer -= fperiod;
         if (timer > 0) return;

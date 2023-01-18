@@ -6,18 +6,33 @@
 
 # Example [EMCIO]DB_PROGRAM:
 # Demonstrate LinuxCNC interface for a database of tools
-# with tool time usage monitoriing
+# with tool time usage monitoring
+# ini file examples:
+#   [EMCIO]DB_PROGRAM=./db_nonran.py [nonran_filename]
+#   [EMCIO]DB_PROGRAM=./db_ran.py    [ran_filename]
 
-#-----------------------------------------------------------
-import sys
-import time
+# defaults for *_filename:
 db_ran_savefile    = "/tmp/db_ran_file"     # db flatfile
 db_nonran_savefile = "/tmp/db_nonran_file"  # db flatfile
 
 #-----------------------------------------------------------
+import os
+import sys
+import time
+import signal
+import threading
+import getopt
+import linuxcnc
+#-----------------------------------------------------------
+# LinuxCNC tooldb module for low-level interface:
+from tooldb import tooldb_callbacks # functions (g,p,l,u)
+from tooldb import tooldb_tools     # list of tool numbers
+from tooldb import tooldb_loop      # main loop
+
+#-----------------------------------------------------------
 # Notes
 #  1) Uses the LinuxCNC provided tooldb module: so all
-#     writes to stdout are piped to host.
+#     writes to stdout are piped to LinuxCNC host.
 #     Use stderr for debug prints in this file.
 #  2) tool usage time is computed based on
 #     loads/unloads.  Tool must be unloaded
@@ -45,13 +60,23 @@ db_nonran_savefile = "/tmp/db_nonran_file"  # db flatfile
 #     to the primary task that executes tooldb_loop().
 #     to illustrate methods for db_program guis that
 #     update and synchronize tooldata with LinuxCNC.
-#  7) Monitor tool data updates by using shell watch
+#  7) The periodic_task updates tool time usage.
+#  8) A single mutex is used to protect all activity
+#     than can read/write tools[] and db_*_savefile
+#     The mutex is acquired and held by
+#        a) each tooldb interface routine specified
+#           by the call to tooldb_callbacks()
+#        b) the periodic_task
+#        c) each worker demonstration task:
+#           tool_modify_task()
+#           tool_update_task()
+#  9) Monitor tool data updates by using shell watch
 #     command in a terminal. Examples:
 #     $ watch -d -n 1 cat /tmp/db_ran_file
 #     $ watch -d -n 1 cat /tmp/db_nonran_file
-#  8) export environmental variables DB_SHOW, DB_DEBUG
+# 10) export environmental variables DB_SHOW, DB_DEBUG
 #     to print operational details from LinuxCNC
-#  9) If LinuxCNC is not running, use is limited to basic
+# 11) If LinuxCNC is not running, use is limited to basic
 #     command line testing for commands g,p,l,u.
 #     Use Ctrl-C to exit
 #     Example (simple non random toolchanger):
@@ -66,32 +91,30 @@ db_nonran_savefile = "/tmp/db_nonran_file"  # db flatfile
 #     $ g             (g: get all tools)
 #     $ u t0  p114    (u: first  of pair to load t14)
 #     $ l t14 p0      (l: second of pair to load t14)
-# 10) problem: unexpected termination (like a power
+# 12) problem: unexpected termination (like a power
 #     failure) is not detected by LinuxCNC so tool
 #     time data and tool-in-spindle status may be
 #     corrupted for such events.  A database application
 #     may be able to detect and notify for some anomalies.
 
 #-----------------------------------------------------------
-# LinuxCNC tooldb module for low-level interface:
-from tooldb import tooldb_callbacks # functions (g,p,l,u)
-from tooldb import tooldb_tools     # list of tool numbers
-from tooldb import tooldb_loop      # main loop
-
-#-----------------------------------------------------------
-# globals
+# globals init
 prog = sys.argv[0]         # this program
-tools = dict()             # tools[tno]: dict of text toollines
 toollist = []              # list of tool numbers
+tools = dict()             # tools[tno]: dict of text toollines
+spindle_tool = -1          # no tool in spindle is indicated by:
+                           # nonran:-1, ran:-1|0
 nonran_from_pocket = dict()# use to restore pocket in db
-p0tool = -1                # nonran:-1, ran:-1|0 ==> no tool in spindle
-start_time = 0             # 0 ==> indeterminate
+start_time = -1            # neg means timer not active
 elapsed_time = 0           # tool time usage
 mfmt = "%.3f"              # format for M letter usage time
 sync_fail_reason = ""      # why sync failed
 cmdline_only = 0           # 1: for cmdline debugging
 history = [];              # history logging
 history_max_ct = 10        # history logging
+period_minutes = 1         # default for periodic_task
+mutex = threading.Lock()           # lock for all threads
+disconnect_evt = threading.Event() # set at disconnect
 
 # tletters: interface to LinuxCNC
 tletters = ['T','P', 'D','X','Y','Z','A','B','C','U','V','W','I','J','Q']
@@ -107,9 +130,12 @@ alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 def  msg(txt): sys.stderr.write("%s: %s\n"%(prog,txt))
 def umsg(txt): msg("UNEXPECTED: %s"%txt) # debug usage
 
+try: # environ override default period_minutes for testing:
+    period_minutes = float(os.environ['DB_PERIOD_MINUTES'])
+    msg("period_minutes=%f"%period_minutes)
+except Exception as e: pass
 #-----------------------------------------------------------
 # LinuxCNC interface for status & syncing
-import linuxcnc
 linuxcnc_stat      = linuxcnc.stat()
 linuxcnc_tool_sync = linuxcnc.command().load_tool_table
 try: linuxcnc_stat.poll() # test if LinuxCNC running
@@ -119,7 +145,6 @@ except Exception as e:
     cmdline_only = 1
 
 #-----------------------------------------------------------
-import signal
 def ctrlc_handler(signo, frame):
     sys.stderr.write(" Caught signo=%d Ctrl-C bye\n"%signo)
     sys.exit(0)
@@ -144,17 +169,48 @@ available_pockets  =  []
 for i in range(n_pockets): available_pockets.append(pockets_base + i)
 
 #-----------------------------------------------------------
-# Default: support random_toolchanger
-# Use symbolic link with "nonran" in its name to implement
-# a nonrandom_toolchanger
-if sys.argv[0].find("nonran")>=0:
-    msg("starting(nonrandom_toolchanger)")
-    random_toolchanger = 0
-    db_savefile = db_nonran_savefile
-else:
-    msg("starting(random_toolchanger) n_pockets = %d"%n_pockets)
-    random_toolchanger = 1
-    db_savefile = db_ran_savefile
+def start_db_program():
+    global db_savefile, period_minutes, random_toolchanger
+    # Default: support random_toolchanger
+    # Use symbolic link with "nonran" in its name to implement
+    # a nonrandom_toolchanger
+    if sys.argv[0].find("nonran")>=0:
+        msg("starting(nonrandom_toolchanger)")
+        random_toolchanger = 0
+        db_savefile = db_nonran_savefile # default file
+    else:
+        msg("starting(random_toolchanger) n_pockets = %d"%n_pockets)
+        random_toolchanger = 1
+        db_savefile = db_ran_savefile # default file
+    
+    # handle options and args:
+    try: opts,remainder = getopt.getopt(sys.argv[1:]
+                                      ,shortopts='hp:'
+                                      ,longopts=['help','period_minutes=']
+                                      )
+    except getopt.GetoptError as emsg:
+        msg("GetoptError:%s"%emsg)
+        sys.exit(1)
+    for opt,arg in opts:
+        if opt in ('-p','--period_minutes'):
+            period_minutes=float(arg)
+            msg("period_minutes=%f"%period_minutes)
+        if opt in ('-h','--help'):
+            msg("""
+        Usage: %s [Options] [flat_filename]
+        Default flat_filename = %s
+        Options:
+            -h|--help (and exit)
+            -p|--period_minutes value (default=%f)
+         
+        bye!"""%(prog,db_savefile,period_minutes))
+            sys.exit(1)
+    if remainder:
+        db_savefile = remainder[0] # superseded default
+        msg("db_savefile = %s"%db_savefile)
+    if len(remainder) >1:
+        msg("Unknown arguments %s"%remainder[1:])
+        sys.exit(1)
 
 #-----------------------------------------------------------
 # functions
@@ -190,7 +246,7 @@ def save_tools_to_file(fname,comment=""):
     for i in sorted(tools,key=tools.get): f.write(tools[i]+"\n")
 
     global history
-    history.append(comment)
+    if comment: history.append(comment)
     if len(history) > history_max_ct: history=history[1:]
     if len(history):
         f.write("\n; Recent (last %d) db history:\n"%history_max_ct)
@@ -203,11 +259,11 @@ def nonran_pno(tno): # simulation rule:
                              # to avoid assumptions about tno and pno
 
 def nonran_restore_pocket(tno):
+    if not tno in nonran_from_pocket:
+        umsg("nonran_restore_pocket tno=%d not in dict: %s"%(tno,nonran_from_pocket))
     D = toolline_to_dict(tools[tno],all_letters)
     D['P'] = nonran_from_pocket[tno]
     tools[tno] = dict_to_toolline(D,all_letters)
-    if not tno in nonran_from_pocket:
-        umsg("nonran_restore_pocket tno=%d not in dict: %s"%(tno,nonran_from_pocket))
     #msg("Restore pocket tno:%d pno %s"%(tno,int(D['P'])))
     del nonran_from_pocket[tno]
 
@@ -255,7 +311,7 @@ def init_tools(tfirst,tlast):
     return
 
 def make_tools(tfirst,tlast):
-    global tools,p0tool
+    global tools,spindle_tool
     try:   f = open(db_savefile,"r")
     except IOError:
         init_tools(tfirst,tlast)
@@ -288,8 +344,8 @@ def make_tools(tfirst,tlast):
         tools[tno] = dict_to_toolline(D,all_letters)
         if debug: msg("@@tno=%d line=%s"%(tno,line))
         if random_toolchanger and D['P'] == "0":
-            p0tool = tno
-            start_tool_timer(p0tool)
+            spindle_tool = tno
+            start_tool_timer(spindle_tool)
     f.close()
     save_tools_to_file(db_savefile
                       ,"Using preexisting db file: %s (make_tools)"%db_savefile)
@@ -342,7 +398,7 @@ def rm_dbtool(tno):
     if not tno in toollist:
         msg(" rm_dbtool: ERR tno=%d not in toollist"%tno)
         return 0 # fail
-    if tno == p0tool:
+    if tno == spindle_tool:
         msg(" rm_dbtool: ERR tno=%d is loaded to   spindle"%tno)
         return 0 # fail
 
@@ -362,48 +418,59 @@ def rm_dbtool(tno):
 
 def handle_disconnect(fname):
     global disconnect_evt
-    if p0tool > 0:
-        stop_tool_timer(p0tool)
-        msg("!!!Stopped with loaded tool: %d"%p0tool)
+    if spindle_tool > 0:
+        stop_tool_timer(spindle_tool)
+        msg("!!!Stopped with loaded tool: %d"%spindle_tool)
         if not random_toolchanger:
-            nonran_restore_pocket(p0tool)
-        save_tools_to_file(fname,"tno:%3d in spindle at termination"%p0tool)
+            nonran_restore_pocket(spindle_tool)
+        save_tools_to_file(fname,"tno:%3d in spindle at termination"%spindle_tool)
     msg("disconnected")
     disconnect_evt.set()
 
 def start_tool_timer(tno):
-    global start_time, elapsed_time, p0tool
-    if tno != p0tool:
-        umsg("start_tool_timer tno %d != p0tool %d"%(tno,p0tool))
-    #msg("START TIMER LOAD tno=%d"%tno)
+    global start_time, elapsed_time, spindle_tool
+    if tno != spindle_tool:
+        umsg("start_tool_timer tno %d != spindle_tool %d"%(tno,spindle_tool))
+    if start_time >= 0:
+        umsg("start_tool_timer: tno:%d spindle_tool:%d start_time=%f"%(tno,spindle_tool,start_time))
     start_time = time.time()
 
-def stop_tool_timer(tno):
-    global start_time, elapsed_time, p0tool
-    if start_time == 0 and random_toolchanger and tno != 0:
-        # ran_tc and starting with tool in spindle
-        msg("NOTE: Tool %d was not unloaded in prior run"%tno)
+def update_tool_time(tno):
+    global start_time, elapsed_time
+    now = time.time()
+    if tno == 0: umsg("update_tool_time with no tool")
+    if start_time < 0 and spindle_tool > 0:
+        umsg("update_tool_time spindle_tool=%d start_time=%f"%(spindle_tool,start_time))
+        start_time = now
         return
-
-    if p0tool == -1: umsg("stop_tool_timer with no loaded tool")
-    elapsed_time = time.time() - start_time
+    elapsed_time = now - start_time
+    start_time = now
     D = toolline_to_dict(tools[tno],all_letters)
     if not 'M' in D:
         D['M'] = mfmt%(elapsed_time/60.0)
     else:
         tot_time_m = float(D['M'].strip('M')) + elapsed_time/60.0
         D['M'] = mfmt%(tot_time_m)
-    #msg("TIME T%d incr: %s total: %s (minutes)"%(
-    #       tno, mfmt%(elapsed_time/60.0), D['M']))
-    if tno == 0: del D['M']
     tools[tno] = dict_to_toolline(D,all_letters)
+    save_tools_to_file(db_savefile)
 
-def update_tool(tno,update_line):
+def stop_tool_timer(tno):
+    global start_time, elapsed_time, spindle_tool
+    if start_time < 0 and random_toolchanger and tno != 0:
+        # ran_tc and starting with tool in spindle
+        msg("NOTE: Tool %d was not unloaded in prior run"%tno)
+        return
+    if spindle_tool <= 0: umsg("stop_tool_timer with no loaded tool")
+
+    update_tool_time(spindle_tool)
+    start_time = -1 #  negative means timer not active
+
+def update_tool_params(tno,update_line):
     D = toolline_to_dict(tools[tno],all_letters)
     for item in toolline_to_list(update_line):
         for l in tletters:
             if l in item: D[l]=item.lstrip(l) #supersede by update_line
-    if not random_toolchanger and p0tool == tno:
+    if not random_toolchanger and spindle_tool == tno:
         D['P'] = '0' # unload uses nonran_from_pocket[]
     tools[tno] = dict_to_toolline(D,all_letters)
 
@@ -425,8 +492,8 @@ def apply_db_rules():
 
     #msg("APPLY_DB_RULES================================")
     diameter_epsilon = 0.001
-    if p0tool > 0: # not allowed with G10L0 but gui may attempt
-        msg("DISALLOW: apply_db_rules with tool %d loaded"%p0tool)
+    if spindle_tool > 0: # not allowed with G10L0 but gui may attempt
+        msg("DISALLOW: apply_db_rules with tool %d loaded"%spindle_tool)
         return
     for tno in toollist:
         if tno == 0: continue
@@ -463,28 +530,42 @@ def check_params(tno,params):
 #-----------------------------------------------------------
 # Interface (callback) functions
 
-#   user_get_tool: host requests tool data
+#   'g' interface command (ran or nonran)
 def user_get_tool(tno):
+    mutex.acquire() # blocking
     # detect tool data reload (gui or with G10L0) and apply db rules:
     if tno == toollist[0]: apply_db_rules()
     if debug: msg("@@user_get_tool: %s"%tools[tno])
-    ans = ""
+    ans = "" # line formatted for LinuxCNC db interface
     for item in toolline_to_list(tools[tno]):
         for l in tletters:
             if l in item: ans = ans + " " + item
+    mutex.release()
     return ans.strip()
 
-#   user_put_tool: host updates tool data:
+#   'p' interface command (ran or nonran toolchanger)
 def user_put_tool(tno,params):
+    mutex.acquire() # blocking
     check_params(tno,params)
-    update_tool(tno,params.upper() )
+    update_tool_params(tno,params.upper() )
     save_tools_to_file(db_savefile,"tno:%3d updated (user_put_tool)"%tno)
+    mutex.release()
 
+#   'l' interface command (nonran toolchanger)
 def user_load_spindle_nonran_tc(tno,params):
-    global p0tool
+    mutex.acquire() # blocking
+    global spindle_tool
     #msg("user_load_spindle_nonran_tc 'l %s'"%params)
     check_params(tno,params)
-
+    if tno == spindle_tool:
+        # a tool reload may be requested (gui, worker task, etc.) using:
+        # emcmodule.cc:load_tool_table()
+        #              --> EMC_TOOL_LOAD_TOOL_TABLE
+        #                  --> ioControl.cc:reload_tool_number()
+        # Note: the redundant reload is done for nonrandom toolchanger only
+        #msg("user_load_spindle_nonran_tc: redundant load for tno=%d"%tno)
+        mutex.release()
+        return
     TMP = toolline_to_dict(params,['T','P'])
     if TMP['P'] != "0": umsg("user_load_spindle_nonran_tc P=%s"%TMP['P'])
     if tno      ==  0:  umsg("user_load_spindle_nonran_tc tno=%d"%tno)
@@ -492,52 +573,58 @@ def user_load_spindle_nonran_tc(tno,params):
     D = toolline_to_dict(tools[tno],all_letters)
 
     # save nonran_from_pocket as pocket may have been altered by apply_db_rules()
-    if tno != p0tool: nonran_from_pocket[tno] = D['P'] # avoid reset if redundant load
+    nonran_from_pocket[tno] = D['P']
 
-    if p0tool != -1:  # accrue time for prior tool:
-        stop_tool_timer(p0tool)
-        nonran_restore_pocket(p0tool)
+    if spindle_tool > 0 and spindle_tool != tno:  # accrue time for prior tool:
+        stop_tool_timer(spindle_tool)
+        nonran_restore_pocket(spindle_tool)
 
-    p0tool = tno
+    spindle_tool = tno
     D['T'] = str(tno)
     D['P'] = "0"
-    start_tool_timer(p0tool)
+    start_tool_timer(spindle_tool)
     tools[tno] = dict_to_toolline(D,all_letters)
     save_tools_to_file(db_savefile,"tno:%3d (  load to   spindle)"%tno)
+    mutex.release()
 
+#   'u' interface command (nonran toolchanger)
 def user_unload_spindle_nonran_tc(tno,params):
-    global p0tool
-    #msg("user_unload_spindle_nonran_tc p0tool=%d restore=%s'u %s'"%
-    #    (p0tool,nonran_from_pocket,params))
+    mutex.acquire() # blocking
+    global spindle_tool
+    #msg("user_unload_spindle_nonran_tc spindle_tool=%d restore=%s'u %s'"%
+    #    (spindle_tool,nonran_from_pocket,params))
     check_params(tno,params)
 
-    if p0tool == -1: return # ignore
-    TMP = toolline_to_dict(params,['T','P'])
-    if tno       !=  0:  umsg("user_unload_spindle_nonran_tc tno=%d"%tno)
-    if TMP['P']  != "0": umsg("user_unload_spindle_nonran_tc P=%s"%TMP['P'])
+    if spindle_tool == -1: # no tool in spindle
+        pass # ignore
+    else:
+        TMP = toolline_to_dict(params,['T','P'])
+        if tno       !=  0:  umsg("user_unload_spindle_nonran_tc tno=%d"%tno)
+        if TMP['P']  != "0": umsg("user_unload_spindle_nonran_tc P=%s"%TMP['P'])
 
-    stop_tool_timer(p0tool)
-    nonran_restore_pocket(p0tool)
-    p0tool = -1
+        stop_tool_timer(spindle_tool)
+        nonran_restore_pocket(spindle_tool)
+        spindle_tool = -1 # indicate no tool in spindle
 
-    save_tools_to_file(db_savefile,"tno:%3d (unload from spindle)(empty)"%tno)
+        save_tools_to_file(db_savefile,"tno:%3d (unload from spindle)(empty)"%tno)
+    mutex.release()
 
+#   'l' interface command (ran toolchanger)
 def user_load_spindle_ran_tc(tno,params):
-    global p0tool
-    #msg("user_load_spindle_ran_tc   'l %s' (p0tool=%d)"%(params,p0tool))
+    mutex.acquire() # blocking
+    global spindle_tool
+    #msg("user_load_spindle_ran_tc   'l %s' (spindle_tool=%d)"%(params,spindle_tool))
     check_params(tno,params)
-
     D   = toolline_to_dict(tools[tno],all_letters)
-
     TMP = toolline_to_dict(params,['T','P'])
     D['T'] = TMP['T']
     D['P'] = TMP['P']
 
-    if p0tool != -1:
-        stop_tool_timer(p0tool)
-        umsg("user_load_spindle_ran_tc p0tool=%d"%p0tool)
-    p0tool = tno
-    if tno != 0: start_tool_timer(p0tool)
+    if spindle_tool != -1: # unexpected: no tool in spindle
+        stop_tool_timer(spindle_tool)
+        umsg("user_load_spindle_ran_tc spindle_tool=%d"%spindle_tool)
+    spindle_tool = tno
+    if tno != 0: start_tool_timer(spindle_tool)
     tools[tno] = dict_to_toolline(D,all_letters)
 
     pno = int(D['P'])
@@ -545,34 +632,40 @@ def user_load_spindle_ran_tc(tno,params):
     if tno==0 and pno==0:
         txt = "tno:%3d --> pno:%3d (  load t0   spindle)(empty)"%(tno,pno)
     save_tools_to_file(db_savefile,txt)
+    mutex.release()
 
+#   'u' interface command (ran toolchanger)
 def user_unload_spindle_ran_tc(tno,params):
-    global p0tool
-    #msg("user_unload_spindle_ran_tc 'u %s' (p0tool=%d)"%(params,p0tool))
+    mutex.acquire() # blocking
+    global spindle_tool
+    #msg("user_unload_spindle_ran_tc 'u %s' (spindle_tool=%d)"%(params,spindle_tool))
     check_params(tno,params)
     TMP = toolline_to_dict(params,['T','P'])
-    if p0tool == -1:
+    if spindle_tool == -1: # no tool in spindle
         if tno != 0:
-            umsg("user_unload_spindle_ran_tc p0tool=%d tno=%d"%(p0tool,tno))
+            umsg("user_unload_spindle_ran_tc spindle_tool=%d tno=%d"%(spindle_tool,tno))
         D = dict()
         D['T'] = TMP['T']
         D['P'] = TMP['P']
         tools[0] = dict_to_toolline(D,['T','P'])
     else:
-        stop_tool_timer(p0tool)
-        D = toolline_to_dict(tools[p0tool],all_letters)
+        if spindle_tool != 0: stop_tool_timer(spindle_tool)
+        D = toolline_to_dict(tools[spindle_tool],all_letters)
         D['T'] = TMP['T']
         D['P'] = TMP['P']
         tools[tno] = dict_to_toolline(D,all_letters)
-        p0tool = -1
+        spindle_tool = -1 # indicate no tool in spindle
 
     pno = int(D['P'])
     txt="tno:%3d --> pno:%3d (unload from spindle)"%(tno,pno)
     if tno==0:
         txt="tno:%3d --> pno:%3d (unload from spindle)(notool)"%(tno,pno)
     save_tools_to_file(db_savefile,txt)
+    mutex.release()
 
 #-----------------------------------------------------------
+start_db_program() # handle random/nonrandom toolchanger, args 
+
 # begin interface to LinuxCNC
 debug = 0 # debug var for command line testing
 if (len(sys.argv) > 1 and sys.argv[1] == 'debug'): debug = 1
@@ -591,9 +684,8 @@ else: tooldb_callbacks(user_get_tool,
 tooldb_tools(toollist)
 
 #-----------------------------------------------------------
-# begin start task threads
-import threading
-disconnect_evt = threading.Event()
+# start task threads
+
 active_threads=[]
 def start_thread(tname):
     name = tname.__name__
@@ -618,9 +710,19 @@ def cmd_loop(*args):
         else: pass # avoid messages at termination
 
 # start cmd_loop thread (primary interface to LinuxCNC):
-thd0 = threading.Thread(target=cmd_loop,args=(disconnect_evt,),daemon=1)
-thd0.start()
+threading.Thread(target=cmd_loop,args=(disconnect_evt,),daemon=1).start()
 
+# task to demonstrate periodic updates to database
+def periodic_task(fini):
+    if fini.is_set(): return # end task
+    global start_time, elapsed_time, spindle_tool
+    while 1:
+        time.sleep(period_minutes*60)
+        mutex.acquire() # blocking
+        if spindle_tool > 0: update_tool_time(spindle_tool)
+        mutex.release()
+
+threading.Thread(target=periodic_task,args=(disconnect_evt,),daemon=1).start()
 #-----------------------------------------------------------
 # begin worker demo tasks
 
@@ -651,7 +753,11 @@ def tool_update_task(fini):
         if fini.is_set(): return # end task
         time.sleep(delta_secs); waited += delta_secs
         if waited < wait_secs: continue
+        if not mutex.acquire(timeout=1):
+            msg("tool_update_task ct=%d waiting for mutex"%ct)
+            continue
         demo_add_or_rm_dbtool(tno)
+        mutex.release()
         ct += 1; waited = 0
         tno = begin_tno + ct%n_extra_pockets
     active_threads.remove('tool_update_task')
@@ -660,7 +766,7 @@ def tool_update_task(fini):
 # tool_modify_task: demonstrate changing a tool parameter
 def tool_modify_task(fini):
     ct_max = 2
-    wait_secs = 5 # interval between adds/removes
+    wait_secs = 5 # interval between tool modifications
     letter = 'A'
     modify_tnos = [15,16]
 
@@ -679,8 +785,11 @@ def tool_modify_task(fini):
         if not sync_allowed():
             msg("tool_modify_task: DISALLOWED tno=%d (%s)"%(tno,sync_fail_reason))
             continue
+        if not mutex.acquire(timeout=1):
+            msg("tool_modify_task ct=%d waiting for mutex"%ct)
+            continue
         D = toolline_to_dict(tools[tno],all_letters)
-        if p0tool != tno:
+        if spindle_tool != tno:
             D[letter] = "0.1%02d"%ct # modify letter parameter
             tools[tno] = dict_to_toolline(D,all_letters)
             save_tools_to_file(db_savefile,"tno:%3d modified param %s=%s"%(tno,letter,D[letter]))
@@ -689,9 +798,9 @@ def tool_modify_task(fini):
             ct += 1
         else:
             msg("tool_modify_task: DISALLOWED tno=%d (%s)"%(tno,"tool is loaded"))
+        mutex.release()
     active_threads.remove('tool_modify_task')
     msg("**End tool_modify_task ct=%d"%ct)
-
 
 #-----------------------------------------------------------
 # start worker tasks

@@ -1019,7 +1019,7 @@ def main(model, tool, work, size=10, hud=0, rotation_vectors=None, lat=0, lon=0)
     # we want to be able to see the model from all angles
     t.set_latitudelimits(-180, 180)
     # set starting viewpoint if desired
-    t.after(100, lambda: t.set_viewangle(lat, lon))
+    t.after(100, lambda: t.set_viewangle(lat, lon, forcerotate=1))
 
     vcomp = hal.component("vismach")
     vcomp.newpin("plotclear",hal.HAL_BIT,hal.HAL_IN)

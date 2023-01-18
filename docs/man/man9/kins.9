@@ -22,6 +22,8 @@ For additional information, see the Documents 'Advanced Topics':
 .PP
 .B loadrt lineardeltakins (see separate manpage)
 .PP
+.B loadrt matrixkins
+.PP
 .B loadrt maxkins
 .PP
 .B loadrt pentakins
@@ -37,6 +39,8 @@ For additional information, see the Documents 'Advanced Topics':
 .B loadrt scarakins
 .PP
 .B loadrt tripodkins
+.PP
+.B loadrt xyzab_tdr_kins
 .PP
 .B loadrt xyzac\-trt\-kins
 .PP
@@ -94,9 +98,9 @@ Assigns: x==joint0, y0==joint1, z==joint2, y1==joint3
 
 
 .PP
-The default kinematics type is \fBKINEMATICS_IDENTITY\fR.  Guis may provide
+The default kinematics type is \fBKINEMATICS_IDENTITY\fR.  GUIs may provide
 special features for configurations using this default kinematics type.  For
-instance, the axis gui automatically handles joint and world mode operations so
+instance, the AXIS GUI automatically handles joint and world mode operations so
 that the distinctions between joints and axes are not visible to the operator.
 This is feasible since there is an exact correspondence between a joint number
 and its matching axis letter.
@@ -321,6 +325,10 @@ https://w.wiki/NcY
 .B genserkins.D\-\fIN
 Parameters describing the \fIN\fRth joint's geometry.
 
+.SS matrixkins \- Calibrated kinematics for 3-axis cartesian machines
+Similar to trivkins, but allows calibrating out small imperfections in axis
+alignment. See matrixkins(9) man page for detailed instructions.
+
 .SS maxkins \- 5-axis kinematics example
 Kinematics for Chris Radek's tabletop 5 axis mill named 'max' with tilting
 head (B axis) and horizintal rotary mounted to the table (C axis).  Provides
@@ -499,5 +507,5 @@ agree with the default ordering expected by it (XYZBCW
 The HAL component \fBuserkins.comp\fR is a template for making
 kinematic modules using the halcompile tool.  The unmodified
 template supports an identity xyz configuration that uses
-3 joints.  See the \fBuserkins\fR man page for more info.
+3 joints.  See \fBuserkins\fR(9) for more info.
 

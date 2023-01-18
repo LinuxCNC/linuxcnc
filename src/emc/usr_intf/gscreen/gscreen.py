@@ -581,7 +581,7 @@ class Gscreen:
             if i in self.data.axis_list:
                 self.data.rotary_joints = True
                 break
-        # check the ini file if UNITS are set to mm"
+        # check the INI file if UNITS are set to mm"
         # first check the global settings
         units=self.inifile.find("TRAJ","LINEAR_UNITS")
         if units==None:
@@ -801,7 +801,7 @@ class Gscreen:
         else:
             self.initialize_widgets()
 
-        # see if there are user messages in the ini file 
+        # see if there are user messages in the INI file 
         self.message_setup()
 
         # ok everything that might make HAL pins should be done now - let HAL know that
@@ -1189,7 +1189,7 @@ class Gscreen:
                 self.show_try_errors()
 
     def init_dynamic_tabs(self):
-        """ add external programs to tabs as per ini file settings
+        """ add external programs to tabs as per INI file settings
         """
         # dynamic tabs setup
         self._dynamic_childs = {}
@@ -2805,7 +2805,7 @@ class Gscreen:
         print("all-homed")
         self.data.all_homed = True
         self.widgets.button_homing.set_active(False)
-        self.widgets.statusbar1.remove_message(self.statusbar_id,self.homed_status_message)
+        self.widgets.statusbar1.remove(self.statusbar_id,self.homed_status_message)
         self.add_alarm_entry(_("All the axes have been homed"))
 
     def on_hal_status_not_all_homed(self,widget,data):
@@ -3763,7 +3763,7 @@ class Gscreen:
             self.halcomp["tool-changed"] = True
             widget.destroy()
             try:
-                self.widgets.statusbar1.remove_message(self.statusbar_id,self.data.tool_message)
+                self.widgets.statusbar1.remove(self.statusbar_id,self.data.tool_message)
             except:
                 self.show_try_errors()
             return

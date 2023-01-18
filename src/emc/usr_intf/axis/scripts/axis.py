@@ -272,6 +272,7 @@ def joints_mode():
     return s.motion_mode == linuxcnc.TRAJ_MODE_FREE
 
 def set_motion_teleop(value):
+    if running(): return
     # 1:teleop, 0: joint
     vars.teleop_mode.set(value)
     c.teleop_enable(value)
@@ -962,7 +963,9 @@ class LivePlotter:
 
 def running(do_poll=True):
     if do_poll: s.poll()
-    return s.task_mode == linuxcnc.MODE_AUTO and s.interp_state != linuxcnc.INTERP_IDLE
+    return ( (s.task_mode == linuxcnc.MODE_AUTO or s.task_mode == linuxcnc.MODE_MDI)
+             and s.interp_state != linuxcnc.INTERP_IDLE)
+
 
 def manual_tab_visible():
     page = root_window.tk.call(widgets.tabs, "raise")
@@ -977,6 +980,7 @@ initiated action (whether an MDI command or a jog) is acceptable.
 This means this function returns True when the mdi tab is visible."""
     if do_poll: s.poll()
     if s.task_state != linuxcnc.STATE_ON: return False
+    if running(): return 0
     return s.interp_state == linuxcnc.INTERP_IDLE or (s.task_mode == linuxcnc.MODE_MDI and s.queued_mdi_commands < vars.max_queued_mdi_commands.get())
 
 # If LinuxCNC is not already in one of the modes given, switch it to the
@@ -1813,10 +1817,10 @@ property_names = [
     ('name', _("Name:")), ('size', _("Size:")),
     ('tools', _("Tool order:")), ('g0', _("Rapid distance:")),
     ('g1', _("Feed distance:")), ('g', _("Total distance:")),
-    ('run', _("Run time:")), ('x', _("X bounds:")),
-    ('y', _("Y bounds:")), ('z', _("Z bounds:")),
-    ('a', _("A bounds:")), ('b', _("B bounds:")),
-    ('c', _("C bounds:"))
+    ('run', _("Run time:")),('toollist',_('Tool Change List:')),
+    ('x', _("X bounds:")),('y', _("Y bounds:")),
+    ('z', _("Z bounds:")),('a', _("A bounds:")),
+    ('b', _("B bounds:")),('c', _("C bounds:"))
 ]
 
 def dist(xxx_todo_changeme, xxx_todo_changeme1):
@@ -2072,6 +2076,7 @@ class TclCommands(nf.TclCommands):
                 b = max_extents[i]
                 if a != b:
                     props[c] = _("%(a)f to %(b)f = %(diff)f %(units)s").replace("%f", fmt) % {'a': a, 'b': b, 'diff': b-a, 'units': units}
+            props['toollist'] = o.canon.tool_list
         properties(root_window, _("G-Code Properties"), property_names, props)
 
     def launch_website(event=None):
@@ -3356,7 +3361,7 @@ for j in range(jointcount):
 
 axis_type = [None] * linuxcnc.MAX_AXIS
 for a in range(linuxcnc.MAX_AXIS):
-    # supply defaults, supersede with ini [AXIS_*]TYPE
+    # supply defaults, supersede with INI [AXIS_*]TYPE
     letter = "xyzabcuvw"[a]
     if not (letter in trajcoordinates): continue
     if letter in "abc":
@@ -3492,7 +3497,7 @@ if db_program is not None: default_tooleditor = None
 tooleditor = inifile.find("DISPLAY","TOOL_EDITOR") or default_tooleditor
 
 if inifile.find("RS274NGC", "PARAMETER_FILE") is None:
-    raise SystemExit("Missing ini file setting for [RS274NGC]PARAMETER_FILE")
+    raise SystemExit("Missing INI file setting for [RS274NGC]PARAMETER_FILE")
 try:
     lu = units(inifile.find("TRAJ", "LINEAR_UNITS"))
 except TypeError:
@@ -4027,17 +4032,32 @@ def _dynamic_tabs(inifile):
     # may forward keyboard events to it
     rxid = root_window.winfo_id()
     os.environ['AXIS_FORWARD_EVENTS_TO'] = str(rxid)
-
     for i,t,c in zip(list(range(len(tab_cmd))), tab_names, tab_cmd):
         w = _dynamic_tab("user_" + str(i), t)
-        f = Tkinter.Frame(w, container=1, borderwidth=0, highlightthickness=0)
-        f.pack(fill="both", expand=1)
-        xid = f.winfo_id()
-        cmd = c.replace('{XID}', str(xid)).split()
-        child = Popen(cmd)
-        wait = cmd[:2] == ['halcmd', 'loadusr']
+        if c.split()[0] == 'pyvcp': # this is a pycvp panel
+            import vcpparse
+            f = Tkinter.Frame(w, borderwidth=0, highlightthickness=0)
+            pyvcp = c.split()
+            if len(pyvcp) != 2:
+                print("Invalid PyVCP tab configuration: EMBED_TAB COMMAND =", c)
+                print("Incorrect number of parameters")
+                continue
+            try:
+                f.pack(fill="y", expand=0)
+                vcpparse.filename = pyvcp[1]
+                vcpparse.create_vcp(f, comp=None, compname=t.lower().replace(' ','_'))
+            except Exception as e:
+                print("Invalid PyVCP tab configuration: EMBED_TAB COMMAND =", c)
+                print(e)
+        else: # this is a gladevcp panel
+            f = Tkinter.Frame(w, container=1, borderwidth=0, highlightthickness=0)
+            f.pack(fill="both", expand=1)
+            xid = f.winfo_id()
+            cmd = c.replace('{XID}', str(xid)).split()
+            child = Popen(cmd)
+            wait = cmd[:2] == ['halcmd', 'loadusr']
 
-        _dynamic_childs[str(w)] = (child, cmd, wait)
+            _dynamic_childs[str(w)] = (child, cmd, wait)
 
 @atexit.register
 def kill_dynamic_childs():

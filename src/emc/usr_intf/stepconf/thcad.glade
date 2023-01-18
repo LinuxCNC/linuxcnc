@@ -41,7 +41,7 @@
   </object>
   <object class="GtkAdjustment" id="voltsfullfadj">
     <property name="lower">800</property>
-    <property name="upper">1000</property>
+    <property name="upper">1100</property>
     <property name="value">999</property>
     <property name="step_increment">0.10000000000000001</property>
     <property name="page_increment">1</property>
@@ -52,6 +52,12 @@
       <column type="gchararray"/>
     </columns>
     <data>
+      <row>
+        <col id="0" translatable="yes">2 (W1 down)</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">2 (W1 up)</col>
+      </row>
       <row>
         <col id="0" translatable="yes">5</col>
       </row>
@@ -69,7 +75,7 @@
     <property name="page_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="voltszerofadj">
-    <property name="lower">100</property>
+    <property name="lower">90</property>
     <property name="upper">200</property>
     <property name="value">100</property>
     <property name="step_increment">0.10000000000000001</property>

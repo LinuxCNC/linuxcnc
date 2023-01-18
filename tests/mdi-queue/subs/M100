@@ -3,7 +3,7 @@
 # This script (M100) is called to append an integer to a log file,
 # for testing purposes
 #
-# Put this in your .ini to use:
+# Put this in your INI to use:
 #
 #     [RS274NGC]USER_M_PATH = ./subs
 #

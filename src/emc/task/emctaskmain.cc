@@ -108,7 +108,7 @@ EMC_STAT *emcStatus = 0;
 // timer stuff
 static RCS_TIMER *timer = 0;
 
-// flag signifying that ini file [TASK] CYCLE_TIME is <= 0.0, so
+// flag signifying that INI file [TASK] CYCLE_TIME is <= 0.0, so
 // we should not delay at all between cycles. This means also that
 // the EMC_TASK_CYCLE_TIME global will be set to the measured cycle
 // time each cycle, in case other code references this.
@@ -3279,7 +3279,7 @@ static int iniLoad(const char *filename)
 }
 
 /*
-  syntax: a.out {-d -ini <inifile>} {-nml <nmlfile>} {-shm <key>}
+  syntax: a.out {-d -ini <INI file>} {-nml <nml file>} {-shm <key>}
   */
 int main(int argc, char *argv[])
 {
@@ -3572,7 +3572,7 @@ int main(int argc, char *argv[])
 	emcStatusBuffer->write(emcStatus);
 
 	// wait on timer cycle, if specified, or calculate actual
-	// interval if ini file says to run full out via
+	// interval if INI file says to run full out via
 	// [TASK] CYCLE_TIME <= 0.0d
 	// emcTaskEager = 0;
         endTime = etime();

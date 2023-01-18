@@ -10,6 +10,9 @@ on:
   check_suite:
     types: [rerequested]
 
+permissions:
+  contents: read #  to fetch code (actions/checkout)
+
 jobs:
 
   rip-and-test:
@@ -26,16 +29,44 @@ jobs:
     - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
     - name: Build RIP & test
       run: |
-        ./scripts/travis-install-build-deps.sh
+        set -x
         sudo apt-get install -y eatmydata
-        curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
-        sudo apt install ./po4a_0.67-2_all.deb
+        eatmydata ./scripts/travis-install-build-deps.sh
+        eatmydata curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
+        sudo eatmydata apt install ./po4a_0.67-2_all.deb
         cd src
         eatmydata ./autogen.sh
         eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps
         eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
         # Note that the package build covers html docs
-        ../scripts/rip-environment runtests -p
+        eatmydata ../scripts/rip-environment runtests -p
+
+  rip-and-test-clang:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+        fetch-depth: 0
+    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
+    - name: Clang build RIP & test
+      run: |
+        set -x
+        sudo apt-get install -y eatmydata
+        eatmydata ./scripts/travis-install-build-deps.sh
+        sudo eatmydata apt-get install -y clang
+        eatmydata curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
+        sudo eatmydata apt install ./po4a_0.67-2_all.deb
+        cd src
+        eatmydata ./autogen.sh
+        CC=clang CXX=clang++ eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps
+        eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
+        # Note that the package build covers html docs
+        eatmydata ../scripts/rip-environment runtests -p
 
   htmldocs:
     runs-on: ubuntu-20.04
@@ -85,8 +116,9 @@ jobs:
         set -e
         set -x
         apt-get --quiet update
+        apt-get --yes --quiet install eatmydata
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
-        apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
+        eatmydata apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
 
     - uses: actions/checkout@v3
       with:
@@ -98,13 +130,20 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
+        case "${{matrix.image}}" in
+            debian:sid|debian:bookworm)
+                exit 0
+                ;;
+            *)
+                ;;
+        esac
         set -e
         set -x
-        apt-get --yes --quiet install --no-install-recommends gpg software-properties-common
-        gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
+        eatmydata apt-get --yes --quiet install --no-install-recommends gpg software-properties-common
+        eatmydata gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
         DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
-        add-apt-repository "deb http://linuxcnc.org $DIST base"
-        apt-get --quiet update
+        eatmydata add-apt-repository "deb http://linuxcnc.org $DIST base"
+        eatmydata apt-get --quiet update
 
     - name: Build architecture-specific Debian packages
       env:
@@ -114,13 +153,12 @@ jobs:
       run: |
         set -e
         set -x
-        git config --global --add safe.directory "${PWD}"
-        debian/configure
-        debian/update-dch-from-git
-        scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
-        git diff
-        apt-get --yes --quiet build-dep --arch-only .
-        apt-get --yes --quiet install eatmydata
+        eatmydata git config --global --add safe.directory "${PWD}"
+        eatmydata debian/configure
+        eatmydata debian/update-dch-from-git
+        eatmydata scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
+        eatmydata git diff
+        eatmydata apt-get --yes --quiet build-dep --arch-only .
         eatmydata debuild -us -uc --build=any
     - name: Test debian packages
       env:
@@ -128,25 +166,13 @@ jobs:
       run: |
         set -e
         set -x
-        apt-get --yes --quiet install ../*.deb
-        apt-get --yes --quiet install sudo # some tests run sudo...
-        adduser --disabled-password --gecos "" testrunner
-        passwd -d testrunner
-        adduser testrunner sudo
+        eatmydata apt-get --yes --quiet install ../*.deb
+        eatmydata apt-get --yes --quiet install sudo # some tests run sudo...
+        eatmydata adduser --disabled-password --gecos "" testrunner
+        eatmydata passwd -d testrunner
+        eatmydata adduser testrunner sudo
         chmod 0777 $(find tests/ -type d) # make test dirs world-writable for the testrunner
-        su -c "./scripts/runtests -p ./tests" testrunner
-    - name: Stage debs for archiving
-      run: |
-        set -e
-        set -x
-        mkdir -p built-debs/$(lsb_release -cs)
-        cp ../linuxcnc*_* built-debs/$(lsb_release -cs)
-    - name: Archive generated Debian packages
-      uses: actions/upload-artifact@v3
-      with:
-        name: debs
-        retention-days: 7
-        path: built-debs/*
+        su -c "eatmydata ./scripts/runtests -p ./tests" testrunner
 
   package-indep:
     runs-on: ubuntu-latest
@@ -171,8 +197,9 @@ jobs:
         set -e
         set -x
         apt-get --quiet update
+        apt-get --yes --quiet install eatmydata
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
-        apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
+        eatmydata apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
 
     - uses: actions/checkout@v3
       with:
@@ -184,13 +211,20 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
+        case "${{matrix.image}}" in
+            debian:sid|debian:bookworm)
+                exit 0
+                ;;
+            *)
+                ;;
+        esac
         set -e
         set -x
-        apt-get --yes --quiet install gpg software-properties-common
-        gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
+        eatmydata apt-get --yes --quiet install gpg software-properties-common
+        eatmydata gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
         DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
-        add-apt-repository "deb http://linuxcnc.org $DIST base"
-        apt-get --quiet update
+        eatmydata add-apt-repository "deb http://linuxcnc.org $DIST base"
+        eatmydata apt-get --quiet update
 
     - name: Build architecture-independent Debian packages
       env:
@@ -200,13 +234,12 @@ jobs:
       run: |
         set -e
         set -x
-        git config --global --add safe.directory "${PWD}"
-        debian/configure
-        debian/update-dch-from-git
-        scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
-        git diff
-        apt-get --yes --quiet build-dep --indep-only .
-        apt-get --yes --quiet install eatmydata
+        eatmydata git config --global --add safe.directory "${PWD}"
+        eatmydata debian/configure
+        eatmydata debian/update-dch-from-git
+        eatmydata scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
+        eatmydata git diff
+        eatmydata apt-get --yes --quiet build-dep --indep-only .
         eatmydata debuild -us -uc --build=all
     - name: Test install debian packages
       env:
@@ -214,22 +247,4 @@ jobs:
       run: |
         set -e
         set -x
-        apt-get --yes --quiet install ../*.deb
-    - name: Stage debs for archiving
-      run: |
-        set -e
-        set -x
-        mkdir -p built-debs/$(lsb_release -cs)
-        cp ../linuxcnc*_* built-debs/$(lsb_release -cs)
-    - name: Archive generated PDF files
-      uses: actions/upload-artifact@v3
-      with:
-        name: PDFs
-        retention-days: 7
-        path: docs/*.pdf
-    - name: Archive generated Debian packages
-      uses: actions/upload-artifact@v3
-      with:
-        name: debs
-        retention-days: 7
-        path: built-debs/*
+        eatmydata apt-get --yes --quiet install ../*.deb

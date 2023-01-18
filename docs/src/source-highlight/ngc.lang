@@ -9,6 +9,7 @@
 #  Version		: 0.3
 #  Last Edit	: 10Th Nov 2007, by Jan Van Gilsen
 #  Comment 	: Added probing and rigid tapping G-codes (new in 2.2)
+#  This file is used for the syntax highlighting in the HTML output of the documentation.
 
 
 environment comment delim '\([dD][eE][bB][uU][gG],' ")" begin
@@ -67,13 +68,14 @@ keyword = $GCODE + '[0-5|7-8]'
 
 # M-Codes
 vardef MCODE = '[m|M]([ \t]*[0])*[ \t]*'
-keyword = $MCODE + '5[ \t]*[0-3]'
+keyword = $MCODE + '1[ \t]*[0-9][ \t]*[1-9]'
+keyword = $MCODE + '1[ \t]*[1-9][ \t]*0'
 keyword = $MCODE + '3[ \t]*0'
+keyword = $MCODE + '5[ \t]*[0-3]'
 keyword = $MCODE + '6[ \t]*0'
 keyword = $MCODE + '6[ \t]*[0-9]'
 keyword = $MCODE + '7[ \t]*[0-3]'
-keyword = $MCODE + '1[ \t]*[0-9][ \t]*[1-9]'
-keyword = $MCODE + '1[ \t]*[1-9][ \t]*0'
+keyword = $MCODE + '9[ \t]*[8-9]'
 keyword = $MCODE + '[0-9]'
 
 # Feeds & speeds

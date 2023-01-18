@@ -27,7 +27,7 @@ function githelper() {
 
     case $GIT_BRANCH in
         master)
-            GIT_TAG_GLOB="v2.9.*"
+            GIT_TAG_GLOB="v2.10.*"
             DEB_COMPONENT="master"
             ;;
         # release branches have names matching "number.number", which is awkward to express as a glob

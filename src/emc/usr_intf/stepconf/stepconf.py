@@ -866,9 +866,9 @@ class StepconfApp:
         if self.d.select_qtplasmac:
             # copy M190 file
             if BASE == "/usr":
-                m190Path = os.path.join(BASE, 'share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/M190')
+                m190Path = os.path.join(BASE, 'share/doc/linuxcnc/examples/sample-configs/sim/qtplasmac/M190')
             else:
-                m190Path = os.path.join(BASE, 'configs/by_machine/qtplasmac/M190')
+                m190Path = os.path.join(BASE, 'configs/sim/qtplasmac/M190')
             shutil.copy(m190Path, os.path.join(base, 'M190'))
             # different tool table for qtplasmac
             filename = os.path.join(base, "tool.tbl")
@@ -1029,7 +1029,7 @@ class StepconfApp:
                     # read base-addr file
                     try:
                         for line in in_file:
-                            # get init_address (Not used)
+                            # get init_address
                             lline=line.split()
                             dec_address=lline[0].strip()
                             init_address=hex(int(dec_address))

@@ -618,39 +618,39 @@ The most frequently used keyboard shortcuts are shown in the following table:
 [[tab:common-keyboard-shortcuts]]
 .Most Common Keyboard Shortcuts(((AXIS,Keyboard Shortcuts)))
 [width="80%",options="header",cols="^,<,^"]
-|====================================================================
-|Keystroke        | Action Taken                              | Mode
-|F1               | Toggle Emergency Stop                     | Any
-|F2               | Turn machine on/off                       | Any
-|`, 1 .. 9, 0     | Set feed override from 0% to 100%         | Varies
-|X, `             | Activate first axis                       | Manual
-|Y, 1             | Activate second axis                      | Manual
-|Z, 2             | Activate third axis                       | Manual
-|A, 3             | Activate fourth axis                      | Manual
-|I                | Select jog increment                      | Manual
-|C                | Continuous jog                            | Manual
-|Control-Home     | Perform homing sequence                   | Manual
-|End              | Touch off: Set G5x offset for active axis | Manual
-|Left, Right      | Jog first axis                            | Manual
-|Up, Down         | Jog second axis                           | Manual
-|Pg Up, Pg Dn     | Jog third axis                            | Manual
-|[, ]             | Jog fourth axis                           | Manual
-|O                | Open File                                 | Manual
-|Control-R        | Reload File                               | Manual
-|R                | Run file                                  | Manual
-|P                | Pause execution                           | Auto
-|S                | Resume Execution                          | Auto
-|ESC              | Stop execution                            | Auto
-|Control-K        | Clear backplot                            | Auto/Manual
-|V                | Cycle among preset views                  | Auto/Manual
-|Shift-Left,Right | Rapid X Axis                              | Manual
-|Shift-Up,Down    | Rapid Y Axis                              | Manual
-|Shift-PgUp, PgDn | Rapid Z Axis                              | Manual
-|@                | toggle Actual/Commanded                   | Any
-|#                | toggle Relative/Machine                   | Any
-|====================================================================
+|===
+|Keystroke        |Action Taken                              |Mode
+|F1               |Toggle Emergency Stop                     |Any
+|F2               |Turn machine on/off                       |Any
+|`, 1 .. 9, 0     |Set feed override from 0% to 100%         |Varies
+|X, `             |Activate first axis                       |Manual
+|Y, 1             |Activate second axis                      |Manual
+|Z, 2             |Activate third axis                       |Manual
+|A, 3             |Activate fourth axis                      |Manual
+|I                |Select jog increment                      |Manual
+|C                |Continuous jog                            |Manual
+|Control-Home     |Perform homing sequence                   |Manual
+|End              |Touch off: Set G5x offset for active axis |Manual
+|Left, Right      |Jog first axis                            |Manual
+|Up, Down         |Jog second axis                           |Manual
+|Pg Up, Pg Dn     |Jog third axis                            |Manual
+|[, ]             |Jog fourth axis                           |Manual
+|O                |Open File                                 |Manual
+|Control-R        |Reload File                               |Manual
+|R                |Run file                                  |Manual
+|P                |Pause execution                           |Auto
+|S                |Resume Execution                          |Auto
+|ESC              |Stop execution                            |Auto
+|Control-K        |Clear backplot                            |Auto/Manual
+|V                |Cycle among preset views                  |Auto/Manual
+|Shift-Left,Right |Rapid X Axis                              |Manual
+|Shift-Up,Down    |Rapid Y Axis                              |Manual
+|Shift-PgUp, PgDn |Rapid Z Axis                              |Manual
+|@                |Toggle Actual/Commanded                   |Any
+|#                |Toggle Relative/Machine                   |Any
+|===
 
-== Show LinuxCNC Status (linuxcnctop)
+== Show LinuxCNC Status (`linuxcnctop`)
 
 AXIS includes a program called 'linuxcnctop' which shows some of the
 details of LinuxCNC's state. You can run this program by invoking Machine >
@@ -799,7 +799,7 @@ You can have multiple line of 'POSTGUI_HALFILE=<filename>' in the INI.
 Each will be run one after the other in the order they appear.
 
 For more information on the INI file settings that can change the way AXIS
-works, see the << sub:ini:sec:display,Display Section>> of the INI configuration chapter.
+works, see the <<sub:ini:sec:display,Display Section>> of the INI configuration chapter.
 
 === Program Filters
 
@@ -924,7 +924,7 @@ root_window.tk.call("wm","protocol",".","WM_DELETE_WINDOW","destroy .")
 
 === USER_COMMAND_FILE
 
-A configuration-specific python file may be specified with an INI file
+A configuration-specific Python file may be specified with an INI file
 setting '[DISPLAY]USER_COMMAND_FILE=filename.py'.  Like a `~/.axisrc` file,
 this file is sourced just before the AXIS GUI is displayed.  This file
 is specific to an INI file configuration not the user's home directory.
@@ -934,8 +934,8 @@ is specific to an INI file configuration not the user's home directory.
 The AXIS GUI includes a no-op (placeholder) function named
 'user_live_update()' that is executed at the conclusion of the update()
 function of its LivePlotter class.  This function may be implemented
-within a `~/.axisrc` python script or a '[DISPLAY]USER_COMMAND_FILE'
-python script to make custom, periodic actions.  The details of what may
+within a `~/.axisrc` Python script or a '[DISPLAY]USER_COMMAND_FILE'
+Python script to make custom, periodic actions.  The details of what may
 be accomplished in this function are dependent on the AXIS GUI
 implementation and subject to change during the development cycle.
 
@@ -946,8 +946,8 @@ The AXIS GUI includes a no-op (placeholder) function named
 It is executed just after the .axisrc file is called and
 just before any GladeVCP panels / embedded tabs are initialized. +
 This function may be implemented
-within a `~/.axisrc` python script or a '[DISPLAY]USER_COMMAND_FILE'
-python script to make custom HAL pins that use the 'axisui.' prefix. +
+within a `~/.axisrc` Python script or a '[DISPLAY]USER_COMMAND_FILE'
+Python script to make custom HAL pins that use the 'axisui.' prefix. +
 Use 'comp' as the HAL component instance reference. +
 HAL comp.ready() is called just after this function returns.
 
@@ -961,8 +961,10 @@ of the INI Configuration Chapter.
 
 === Virtual Control Panel(((AXIS: Virtual Control Panel)))
 
-AXIS can display a custom virtual control panel in the right-hand
-pane. You can program buttons, indicators, data displays and more. For
+AXIS can display a custom virtual control panel in either the right
+side column or the bottom row.
+Additionally one or more panels may be displayed as embedded tabs.
+You can program buttons, indicators, data displays and more. For
 more information, see the <<cha:pyvcp,PyVCP>> and the <<cha:glade-vcp,GladeVCP>> chapters.
 
 [[axis:preview-control]]
@@ -1147,11 +1149,11 @@ machine = inifile.find('EMC','MACHINE')
 print('machine name =',machine)
 ----
 
-=== Read linuxcnc Status
+=== Read LinuxCNC Status
 
 [source,python]
 ----
-# linuxcnc status can be read from s.
+# LinuxCNC status can be read from s.
 print(s.actual_position)
 print(s.paused)
 ----

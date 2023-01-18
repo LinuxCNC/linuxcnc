@@ -2,6 +2,9 @@ QMainWindow {
    background-image: url(:/images/images/brushed_metal.png);
 }
 
+
+/** Pushbuttons **/
+QToolButton,
 QPushButton,
 ActionButton,
 SystemToolButton,

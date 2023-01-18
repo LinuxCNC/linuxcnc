@@ -980,6 +980,7 @@ void EMC_JOG_ABS::update(CMS * cms)
     EMC_JOG_CMD_MSG::update(cms);
     cms->update(pos);
     cms->update(vel);
+    cms->update(jjogmode);
 
 }
 
@@ -990,6 +991,7 @@ void EMC_JOG_STOP::update(CMS * cms)
 {
 
     EMC_JOG_CMD_MSG::update(cms);
+    cms->update(jjogmode);
 
 }
 
@@ -1314,6 +1316,7 @@ void EMC_JOG_CONT::update(CMS * cms)
 
     EMC_JOG_CMD_MSG::update(cms);
     cms->update(vel);
+    cms->update(jjogmode);
 
 }
 
@@ -2117,6 +2120,7 @@ void EMC_JOG_INCR::update(CMS * cms)
     EMC_JOG_CMD_MSG::update(cms);
     cms->update(incr);
     cms->update(vel);
+    cms->update(jjogmode);
 
 }
 

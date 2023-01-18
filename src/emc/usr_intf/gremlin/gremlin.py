@@ -198,6 +198,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         self.use_commanded = True
         self.show_limits = True
         self.show_extents_option = True
+        self.gcode_properties = None
         self.show_live_plot = True
         self.show_velocity = True
         self.metric_units = True
@@ -354,11 +355,112 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
             result, seq = self.load_preview(filename, canon, unitcode, initcode)
             if result > gcode.MIN_ERROR:
                 self.report_gcode_error(result, seq, filename)
+            self.calculate_gcode_properties(canon)
+        except Exception as e:
+            print (e)
+            self.gcode_properties = None
 
         finally:
             shutil.rmtree(td)
 
         self.set_current_view()
+
+    def from_internal_linear_unit(self, v, unit=None):
+        if unit is None:
+            unit = self.stat.linear_units
+        lu = (unit or 1) * 25.4
+        return v*lu
+
+    def calculate_gcode_properties(self, canon):
+        def dist(xxx_todo_changeme, xxx_todo_changeme1):
+            (x,y,z) = xxx_todo_changeme
+            (p,q,r) = xxx_todo_changeme1
+            return ((x-p)**2 + (y-q)**2 + (z-r)**2) ** .5
+        def from_internal_units(pos, unit=None):
+            if unit is None:
+                unit = self.stat.linear_units
+            lu = (unit or 1) * 25.4
+
+            lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
+            return [a*b for a, b in zip(pos, lus)]
+
+        props = {}
+        loaded_file = self._current_file
+        max_speed = float(
+            self.inifile.find("DISPLAY","MAX_LINEAR_VELOCITY")
+            or self.inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
+            or self.inifile.find("AXIS_X","MAX_VELOCITY")
+            or 1)
+
+        if not loaded_file:
+            props['name'] = "No file loaded"
+        else:
+            ext = os.path.splitext(loaded_file)[1]
+            program_filter = None
+            if ext:
+                program_filter = self.inifile.find("FILTER", ext[1:])
+            name = os.path.basename(loaded_file)
+            if program_filter:
+                props['name'] = "generated from %s" % name
+            else:
+                props['name'] = name
+
+            size = os.stat(loaded_file).st_size
+            lines = sum(1 for line in open(loaded_file))
+            props['size'] = "%(size)s bytes\n%(lines)s gcode lines" % {'size': size, 'lines': lines}
+
+            if self.metric_units:
+                conv = 1
+                units = "mm"
+                fmt = "%.3f"
+                mach = 'Metric'
+            else:
+                conv = 1/25.4
+                units = "in"
+                fmt = "%.4f"
+                mach = 'Imperial'
+
+            mf = max_speed
+            #print canon.traverse[0]
+
+            g0 = sum(dist(l[1][:3], l[2][:3]) for l in canon.traverse)
+            g1 = (sum(dist(l[1][:3], l[2][:3]) for l in canon.feed) +
+                sum(dist(l[1][:3], l[2][:3]) for l in canon.arcfeed))
+            gt = (sum(dist(l[1][:3], l[2][:3])/min(mf, l[3]) for l in canon.feed) +
+                sum(dist(l[1][:3], l[2][:3])/min(mf, l[3])  for l in canon.arcfeed) +
+                sum(dist(l[1][:3], l[2][:3])/mf  for l in canon.traverse) +
+                canon.dwell_time
+                )
+
+            props['g0'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g0, conv), units)
+            props['g1'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g1, conv), units)
+            if gt > 120:
+                props['run'] = "%.1f Minutes" % (gt/60)
+            else:
+                props['run'] = "%d Seconds" % (int(gt))
+
+            props['toollist'] = canon.tool_list
+
+            min_extents = from_internal_units(canon.min_extents, conv)
+            max_extents = from_internal_units(canon.max_extents, conv)
+            min_extents_zero_rxy = from_internal_units(canon.min_extents_zero_rxy, conv)
+            max_extents_zero_rxy = from_internal_units(canon.max_extents_zero_rxy, conv)
+            for (i, c) in enumerate("xyz"):
+                a = min_extents[i]
+                b = max_extents[i]
+                d = min_extents_zero_rxy[i]
+                e = max_extents_zero_rxy[i]
+                props[c] = "%f to %f = %f %s".replace("%f", fmt) % (a, b, b-a, units)
+                props[c + '_zero_rxy'] = "%f to %f = %f %s".replace("%f", fmt) % ( d, e, e-d, units)
+            props['machine_unit_sys'] = mach
+
+            if 200 in canon.state.gcodes:
+                gcode_units = "in"
+            else:
+                gcode_units = "mm"
+            props['gcode_units'] = gcode_units
+
+        self.gcode_properties = props
 
     def get_program_alpha(self): return self.program_alpha
     def get_num_joints(self): return self.num_joints
@@ -374,6 +476,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
     def get_joints_mode(self): return self.use_joints_mode
     def get_show_commanded(self): return self.use_commanded
     def get_show_extents(self): return self.show_extents_option
+    def get_gcode_properties(self): return self.gcode_properties
     def get_show_limits(self): return self.show_limits
     def get_show_live_plot(self): return self.show_live_plot
     def get_show_machine_speed(self): return self.show_velocity

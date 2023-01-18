@@ -22,6 +22,7 @@ number zero as the first character in the number like O100 or o100.
 Numbered O codes must have a unique number for each subroutine,
 
 .Numbering Example
+[source,{ngc}]
 ----
 (the start of o100)
 o100 sub
@@ -61,6 +62,7 @@ Subroutines starts at 'Onnn sub' and ends at 'Onnn endsub'. The lines between
 with 'Onnn call'. Each subroutine must use a unique number.
 
 .Subroutine Example
+[source,{ngc}]
 ----
 o100 sub
   G53 G0 X0 Y0 Z0 (rapid move to machine home)
@@ -78,6 +80,7 @@ Inside a subroutine, 'O- return' can be executed. This immediately
 returns to the calling code, just as though 'O- endsub' was encountered.
 
 .O- Return Example
+[source,{ngc}]
 ----
 o100 sub
   (test if parameter #2 is greater than 5)
@@ -105,6 +108,7 @@ Because '1 2 3' is parsed as the number 123, the parameters must be
 enclosed in square brackets. The following calls a subroutine with 3 arguments:
 
 .O- Call Example
+[source,{ngc}]
 ----
 o100 sub
   (test if parameter #2 is greater than 5)
@@ -248,6 +252,7 @@ loop runs the code in the loop then checks the test condition. The
 'while/endwhile' loop does the test first.
 
 .While Endwhile Example
+[source,{ngc}]
 ----
 (draw a sawtooth shape)
 G0 X1 Y0 (move to start position)
@@ -262,6 +267,7 @@ M2 (end program)
 ----
 
 .Do While Example
+[source,{ngc}]
 ----
 #1 = 0 (assign parameter #1 the value of 0)
 o100 do
@@ -301,6 +307,7 @@ then the statements following the 'else' are executed. When a condition is
 evaluated to true no more conditions are evaluated in the group.
 
 .If Endif Example
+[source,{ngc}]
 ----
 (if parameter #31 is equal to 3 set S2000)
 o101 if [#31 EQ 3]
@@ -309,6 +316,7 @@ o101 endif
 ----
 
 .If ElseIf Else EndIf Example
+[source,{ngc}]
 ----
 (if parameter #2 is greater than 5 set F100)
 o102 if [#2 GT 5]
@@ -326,6 +334,7 @@ Several conditions may be tested for by 'elseif' statements until the
 'else' path is finally executed if all preceding conditions are false:
 
 .If Elseif Else Endif Example
+[source,{ngc}]
 ----
 (if parameter #2 is greater than 5 set F100)
 O102 if [#2 GT 5]
@@ -348,6 +357,7 @@ you might mill a diagonal series of shapes starting at the present
 position.
 
 .Example with 'repeat'
+[source,{ngc}]
 ----
 (Mill 5 diagonal shapes)
 G91 (Incremental mode)
@@ -364,6 +374,7 @@ G90 (Absolute mode)
 The O-number may be given by a parameter and/or calculation.
 
 .Indirection Example
+[source,{ngc}]
 ----
 o[#101+2] call
 ----
@@ -386,11 +397,13 @@ The file name can include *lowercase* letters, numbers, dash, and underscore
 only. A named subroutine file can contain only a single subroutine definition.
 
 .Named File Example
+[source,{ngc}]
 ----
 o<myfile> call
 ----
 
 .Numbered File Example
+[source,{ngc}]
 ----
 o123 call
 ----
@@ -399,6 +412,7 @@ In the called file you must include the oxxx sub and endsub and the
 file must be a valid file.
 
 .Called File Example
+[source,{ngc}]
 ----
 (filename myfile.ngc)
 o<myfile> sub
@@ -418,6 +432,7 @@ Subroutines may optionally return a value by an optional expression at
 an 'endsub' or 'return' statement.
 
 .Return value example
+[source,{ngc}]
 ----
 o123 return [#2 *5]
 ...

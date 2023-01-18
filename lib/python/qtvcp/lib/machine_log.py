@@ -33,7 +33,7 @@ class MachineLogger():
 
     def initial_greeting(self):
         try:
-            timestamp = time.strftime("%a, %b %d %Y %X ---\n")
+            timestamp = time.strftime("%a, %b %d %Y %X ---")
             fp = open(self.mlp, 'a')
 
             # fp.write(""" $$$$$$\  $$$$$$$$\ """)
@@ -54,14 +54,14 @@ class MachineLogger():
             # fp.write('\n')
             # fp.write('     \___|        ')
 
-            fp.write('--- Qtvcp Screen Started on: ' + timestamp)
+            fp.write('--- QtVCP Screen Started on: ' + timestamp + "\n")
             fp.close()
         except:
             log.warning('machine log history: path valid?')
 
     def log_message_time(self, message):
         try:
-            timestamp = time.strftime("%a%d %H:%M ")
+            timestamp = time.strftime("%a%d %H:%M: ")
             fp = open(self.mlp, 'a')
             fp.write(timestamp + message + "\n")
             fp.close()
@@ -71,9 +71,9 @@ class MachineLogger():
 
     def log_message_date(self, message):
         try:
-            timestamp = time.strftime("%a, %b %d %Y %X ---\n")
+            timestamp = time.strftime("%a, %b %d %Y %X: ")
             fp = open(self.mlp, 'a')
-            fp.write(timestamp + message)
+            fp.write(timestamp + message + "\n")
             fp.close()
         except:
             log.warning('machine log history: path valid?')
@@ -82,7 +82,7 @@ class MachineLogger():
     def log_message(self, message):
         try:
             fp = open(self.mlp, 'a')
-            fp.write(message)
+            fp.write(message + "\n")
             fp.close()
         except:
             log.warning('machine log history: path valid?')

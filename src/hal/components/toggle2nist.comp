@@ -11,7 +11,21 @@ and an is-on output.
 \[bu] On a rising edge on pin \\fIin\\fR when \\fIis-on\\fR is high: It sets \\fIoff\\fR until \\fIis-on\\fR becomes low.
 
 
-.PSPIC -L ../man/images/toggle2nist.ps
+       ┐     ┏─────xxxxxxxxxxxx┐           ┏─────xxxxxxxxxxxx┐     
+.br
+in   : └─────┛     xxxxxxxxxxxx└───────────┛     xxxxxxxxxxxx└─────
+.br
+       ┐     ┌───────────┐                                         
+.br
+on   : └─────┘           └─────────────────────────────────────────
+       ┐                                   ┌───────────┐           
+.br
+off  : └───────────────────────────────────┘           └───────────
+.br
+       ┐                 ┌─────────────────────────────┐           
+.br
+is-on: └─────────────────┘                             └───────────
+
 """;
 
 pin in  bit in;

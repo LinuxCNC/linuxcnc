@@ -21,6 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc
 '''
 
 import os
+import sys
 import hal
 from subprocess import run as RUN
 from PyQt5 import QtCore
@@ -48,8 +49,10 @@ class HandlerClass:
 
     def initialized__(self):
         self.w.setWindowTitle('QtPlasmaC Sim')
-        self.images = os.path.join(self.paths.IMAGEDIR, 'qtplasmac/images/')
-        self.w.setWindowIcon(QIcon(os.path.join(self.images, 'Chips_Plasma.png')))
+        self.iconPath = 'share/icons/hicolor/scalable/apps/linuxcnc_alt/linuxcncicon_plasma.svg'
+        appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
+        self.iconBase = '/usr' if appPath == '/usr/bin' else appPath.replace('/bin', '/debian/extras/usr')
+        self.w.setWindowIcon(QIcon(os.path.join(self.iconBase, self.iconPath)))
         self.breakPin = self.hal.newpin('sensor_breakaway', hal.HAL_BIT, hal.HAL_OUT)
         self.floatPin = self.hal.newpin('sensor_float', hal.HAL_BIT, hal.HAL_OUT)
         self.ohmicPin = self.hal.newpin('sensor_ohmic', hal.HAL_BIT, hal.HAL_OUT)
@@ -99,6 +102,9 @@ class HandlerClass:
         self.height = 5 if hal.get_value('halui.machine.units-per-mm') == 1 else 0.2
         self.materialPin.set(self.height)
         self.w.estop.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.estopColor))
+        self.floatLatched = False
+        self.ohmicLatched = False
+
 
     def set_estop(self):
         if self.prefs.getpref('Estop type', 0, int, 'GUI_OPTIONS') == 2:
@@ -170,14 +176,20 @@ class HandlerClass:
             self.w.arc_ok.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
 
     def float_timer_done(self):
-        if not self.w.sensor_flt.isDown():
-            self.floatPin.set(0)
-            self.w.sensor_flt.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
+        if self.below_material():
+            return
+        if self.w.sensor_flt.isDown():
+            self.floatLatched = True
+            return
+        self.float_reset()
 
     def ohmic_timer_done(self):
-        if not self.w.sensor_ohm.isDown():
-            self.ohmicPin.set(0)
-            self.w.sensor_ohm.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
+        if self.below_material():
+            return
+        if self.w.sensor_ohm.isDown():
+            self.ohmicLatched = True
+            return
+        self.ohmic_reset()
 
     def break_timer_done(self):
         if not self.w.sensor_brk.isDown():
@@ -187,32 +199,44 @@ class HandlerClass:
     def float_pressed(self):
         if self.fTimer.isActive():
             self.fTimer.stop()   # stop timer so next click can start it again
-            self.floatPin.set(1)
-            self.w.sensor_flt.setStyleSheet('color: {}; background: {}'.format(self.backColor, self.foreColor))
+            self.float_set()
         else:
             if self.floatPin.get():
                 self.fTimer.stop()
-                self.floatPin.set(0)
-                self.w.sensor_flt.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
+                self.float_reset()
+                self.floatLatched = False
             else:
-                self.floatPin.set(1)
-                self.w.sensor_flt.setStyleSheet('color: {}; background: {}'.format(self.backColor, self.foreColor))
+                self.float_set()
                 self.fTimer.start()
 
     def ohmic_pressed(self):
         if self.oTimer.isActive():
             self.oTimer.stop()   # stop timer so next click can start it again
-            self.ohmicPin.set(1)
-            self.w.sensor_ohm.setStyleSheet('color: {}; background: {}'.format(self.backColor, self.foreColor))
+            self.ohmic_set()
         else:
             if self.ohmicPin.get():
                 self.oTimer.stop()
-                self.ohmicPin.set(0)
-                self.w.sensor_ohm.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
+                self.ohmic_reset()
+                self.ohmicLatched = False
             else:
-                self.ohmicPin.set(1)
-                self.w.sensor_ohm.setStyleSheet('color: {}; background: {}'.format(self.backColor, self.foreColor))
+                self.ohmic_set()
                 self.oTimer.start()
+
+    def float_set(self):
+        self.floatPin.set(1)
+        self.w.sensor_flt.setStyleSheet('color: {}; background: {}'.format(self.backColor, self.foreColor))
+
+    def float_reset(self):
+        self.floatPin.set(0)
+        self.w.sensor_flt.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
+
+    def ohmic_set(self):
+        self.ohmicPin.set(1)
+        self.w.sensor_ohm.setStyleSheet('color: {}; background: {}'.format(self.backColor, self.foreColor))
+
+    def ohmic_reset(self):
+        self.ohmicPin.set(0)
+        self.w.sensor_ohm.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
 
     def auto_float_pressed(self):
         if self.w.auto_ohm.isChecked:
@@ -285,18 +309,24 @@ class HandlerClass:
             self.w.arc_voltage_offset.setValue(0)
 
     def z_position_changed(self, height):
-        mThick = self.materialPin.get() if self.materialPin.get() >= 0 else 0
-        mTop = hal.get_value('ini.z.min_limit') + self.height + mThick if mThick else 0
         if self.w.auto_flt.isChecked():
-            if height < mTop and not self.floatPin.get() and (self.statePin.get() == 1 or self.statePin.get() == 2):
+            if self.below_material() and not self.floatPin.get():
                 self.float_pressed()
-            elif (height > mTop) and self.floatPin.get() and self.statePin.get() == 3:
+            elif not self.below_material() and self.floatPin.get() and not self.floatLatched:
                 self.float_pressed()
         elif self.w.auto_ohm.isChecked():
-            if height < mTop and not self.ohmicPin.get() and (self.statePin.get() == 1 or self.statePin.get() == 2):
-                self.ohmic_pressed()
-            elif (height > mTop) and self.ohmicPin.get() and self.statePin.get() == 3:
-                self.ohmic_pressed()
+            if self.below_material() and not self.ohmicPin.get():
+                self.ohmic_set()
+            elif not self.below_material() and self.ohmicPin.get() and not self.ohmicLatched:
+                self.ohmic_reset()
+
+    def below_material(self):
+        mThick = self.materialPin.get() if self.materialPin.get() >= 0 else 0
+        mTop = hal.get_value('ini.z.min_limit') + self.height + mThick if mThick else 0
+        if self.zPosPin.get() < mTop:
+            return True
+        else:
+            return False
 
     def help_pressed(self):
         msg = QMessageBox(self.w)

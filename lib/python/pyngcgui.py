@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Notes:
-#   1) ini file items:
+#   1) INI file items:
 #      NGCGUI_PREAMBLE
 #      NGCGUI_SUBFILE
 #      NGCGUI_POSTAMBLE
@@ -37,7 +37,7 @@
 #------------------------------------------------------------------------------
 """ python classes to implement an ngcgui-like application
 
-These ini file items are compatible with ngcgui.tcl:
+These INI file items are compatible with ngcgui.tcl:
   [DISPLAY]NGCGUI_PREAMBLE    single specifier
   [DISPLAY]NGCGUI_POSTAMBLE   single specifier
   [DISPLAY]NGCGUI_SUBFILE     multiples allowed, use "" for Custom tab
@@ -565,10 +565,10 @@ def mpath_from_inifile(fname):
     return None
 
 def spath_from_files(pre_file,sub_files,pst_file):
-    # when there is no ini file for path because
+    # when there is no INI file for path because
     #   linuxcnc not running
     # and
-    #   no ini specified on cmd line
+    #   no INI specified on cmd line
     l = []
 
     slist = []
@@ -971,7 +971,7 @@ class CandidateFiles():
 
 
 class LinuxcncInterface():
-    """LinuxcncInterface: ini file and running linuxcnc data"""
+    """LinuxcncInterface: INI file and running linuxcnc data"""
     def __init__(self,cmdline_ini_file=''):
         self.lrunning = False
         self.ini_data = None
@@ -1024,7 +1024,7 @@ class LinuxcncInterface():
             spath    = cmdline_spath
             #print('OK cmdline only')
         if cmdline_ini_file and l_ini_file:
-            #print("BOTH ini file on both cmdline and running linuxcnc")
+            #print("INI file on both cmdline and running linuxcnc")
             msg = ""
             if os.path.abspath(cmdline_ini_file) != l_ini_file:
                 ini_file = l_ini_file
@@ -1038,11 +1038,11 @@ class LinuxcncInterface():
             if cmdline_spath == l_spath:
                 ini_file = cmdline_ini_file
                 spath    = cmdline_spath
-                msg = msg + _('Using cmd line ini file (same paths)')
+                msg = msg + _('Using cmd line INI file (same paths)')
             else:
                 ini_file = l_ini_file
                 spath    = l_spath
-                msg = msg + _('Ignoring cmd line ini file (different paths)')
+                msg = msg + _('Ignoring cmd line INI file (different paths)')
 
             user_message(mtype=Gtk.MessageType.WARNING
                         ,title=_('Warning')
@@ -1088,7 +1088,7 @@ class LinuxcncInterface():
     def find_file_in_path(self,fname):
         # return tuple:
         #               '', 'NULLFILE' if fname None or ''
-        #            fname, 'NOPATH'   no path defined (eg no inifile)
+        #            fname, 'NOPATH'   no path defined (eg no INI file)
         #    foundfilename, 'FOUND'    found in path
         #            fname, 'NOTFOUND' not in path (may exist)
         if not fname:
@@ -1149,6 +1149,7 @@ class LinuxcncInterface():
     def get_program_prefix(self):
         if self.ini_data:
             dir = self.ini_data.find('DISPLAY','PROGRAM_PREFIX')
+            if not dir: return(None)
             dir = os.path.expanduser(dir)
             if not os.path.isabs(dir):
                 # relative, base on inidir
@@ -3096,7 +3097,7 @@ class NgcGui():
                     )
 
         nogo_l = []
-        # multiple pages can be specified with an ini_file
+        # multiple pages can be specified with an INI file
         sublist  = self.intfc.get_subfiles()  #returns list
         pre_file = self.intfc.get_preamble()
         pst_file = self.intfc.get_postamble()
@@ -3148,7 +3149,7 @@ class NgcGui():
                     print(_('CONTINUING without %s') % sub_file)
         else:
             if not sub_files:
-                vprint('NgcGui: no ini_file with sublist '
+                vprint('NgcGui: no INI file with sublist '
                        'and no cmdline sub_file:'
                        'making Custom page')
                 self.add_page('','','')
@@ -3397,9 +3398,9 @@ Notes:
       A set of files is comprised of a preamble, subfile, postamble.
       The preamble and postamble are optional.
       One set of files can be specified from cmdline.
-      Multiple sets of files can be specified from an inifile.
+      Multiple sets of files can be specified from an INI file.
       If --ini is NOT specified:
-         search for a running linuxcnc and use its inifile
+         search for a running linuxcnc and use its INI file
     """ % g_progname)
 #-----------------------------------------------------------------------------
 # Standalone (and demo) usage:

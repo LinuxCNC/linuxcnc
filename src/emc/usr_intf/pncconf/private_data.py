@@ -132,8 +132,8 @@ class Private_Data:
 
         (   self.STEPA,self.STEPB,self.STEPC,self.STEPD,self.STEPE,self.STEPF
         ) = self.pintype_stepper = [
-            _("Step Gen-A"),_("Dir Gen-B"),_("Step/Dir Gen-C"), _("Step/Dir Gen-D"),
-            _("Step/Dir Gen-E"),_("Step/dir Gen-F") ]
+            _("Step Gen-A"),_("Dir Gen-B"),_("StepGen Phase-C"), _("StepGen Phase-D"),
+            _("StepGen Phase-E"),_("StepGen Phase-F") ]
 
         (   self.PWMP,self.PWMD,self.PWME ) = self.pintype_pwm = [ _("PWM Gen-P"),_("PWM Gen-D"),_("PWM Gen-E") ]
         (   self.PDMP,self.PDMD,self.PDME ) = self.pintype_pdm = [ _("PDM Gen-P"),_("PDM Gen-D"),_("PDM Gen-E") ]
@@ -907,6 +907,29 @@ class Private_Data:
         [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
+    ['7i96-Internal Data', '7i96', '7i96d_1pwm', '7i96', 'hm2_eth',
+        1,3, 0,0, 1,2, 0,0, 4,2, 1,1, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [1, 2, 3],
+        # TAB 1
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.SSR0, 100],[S.SSR0, 101],[S.SSR0, 102],[S.SSR0, 103],[S.SSR0, 104],[S.SSR0, 105],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.PWMP,0],[S.PWMD,0],
+        [S.ENCA,0],[S.ENCB,0],[S.ENCI,0],[S.RXDATA0,0],[S.TXDATA0,0],[S.TXEN0,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 3
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+        ['7i96-Internal Data', '7i96', '7i96_7i74d', '7i96', 'hm2_eth', 1,3, 0,0, 0,3, 0,0, 5,2, 1,8, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [1, 2, 3],
+         # TAB 1
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0], [S.GPIOI, 0],[S.SSR0, 100],[S.SSR0, 101],[S.SSR0, 102],[S.SSR0, 103],[S.SSR0, 104],[S.SSR0, 105], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+         # TAB 2
+        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4], [S.ENCA,0],[S.ENCB,0],[S.ENCI,0],[S.RXDATA0,0],[S.TXDATA0,0],[S.TXEN0,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+         # TAB 3 
+        [S.RXDATA1, 0],[S.RXDATA2, 0],[S.RXDATA3, 0],[S.RXDATA4, 0],[S.TXDATA1, 0],[S.TXDATA2, 0],[S.TXDATA3, 0],[S.TXDATA4, 0],[S.RXDATA5, 0],[S.RXDATA6, 0], [S.RXDATA7, 0],[S.NUSED, 0],[S.TXDATA5, 0],[S.TXDATA6, 0],[S.TXDATA7, 0],[S.NUSED, 0],[S.NUSED, 0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
     # 7i96s ####################
     ['7i96s-Internal Data', '7i96s', '7i96s_d', '7i96s', 'hm2_eth',
         1,3, 0,0, 1,3, 0,0, 5,2, 1,1, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [1, 2, 3],
@@ -961,12 +984,26 @@ class Private_Data:
         [S.STEPB,9],[S.STEPA,10],[S.STEPB,10],[S.STEPA,11],[S.STEPB,1],[S.GPIOI, 0],[S.ENCA,2],[S.ENCB,2],
         [S.ENCI,2],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
+    ['7i96s-Internal Data', '7i96s', '7i96s_7i74', '7i96s', 'hm2_eth',
+         1, 3, 0, 10, 1, 3, 0, 0, 5, 2, 2, 9, [], 0, 0, 0, 0, 0, 0, 0, 1, 51, 100.0, 200.0, [1, 2, 3],
+    [S.INM0, 100], [S.INM0, 101], [S.INM0, 102], [S.INM0, 103],[S.INM0, 104], [S.INM0, 105], [S.INM0, 106], [S.INM0, 107],
+    [S.INM0, 108], [S.INM0, 109], [S.INM0, 110], [S.SSR0, 100],[S.SSR0, 101], [S.SSR0, 102], [S.SSR0, 103], [S.OUTM0, 104],
+    [S.OUTM0, 105], (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0),(S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0),
+ [S.STEPA, 0], [S.STEPB, 0], [S.STEPA, 1], [S.STEPB, 1], [S.STEPA, 2], [S.STEPB, 2], [S.STEPA, 3], [S.STEPB, 3], [S.STEPA, 4],
+ [S.STEPB, 4], [S.ENCA, 0], [S.ENCB, 0], [S.ENCI, 0], [S.RXDATA0, 0], [S.TXDATA0, 0], [S.TXEN0, 0], [S.PWMP, 0],
+ (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), [S.RXDATA0, 1],
+
+ [S.RXDATA1, 1], [S.RXDATA3, 1], [S.RXDATA3, 1], [S.TXDATA0, 1], [S.TXDATA1, 1], [S.TXDATA2, 1], [S.TXDATA3, 1],
+ [S.RXDATA4, 1], [S.RXDATA5, 1], [S.RXDATA6, 1], [S.RXDATA7, 1], [S.TXDATA4, 1], [S.TXDATA5, 1],
+ [S.TXDATA6, 1], [S.TXDATA7, 1], [S.TXEN7, 1],
+ (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0)]
+
     ]
 
         #**************************
         # mesa daughter board data
         #**************************
-        self._NUM_CHANNELS = 6
+        self._NUM_CHANNELS = 8
         self._SUBBOARDNAME = 0; self._SUBFIRMNAME = 1; self._SUBMODE = 2;self._SUBCONLIST = 3;self._SUBSTARTOFDATA = 12 # 4-10 spare for now.
 
         self.MESA_DAUGHTERDATA = [ ["8i20", "8i20", 0,[_("Axis Selection"),"Not Used","Not Used"], 0,0,0,0,0,0,0,0,

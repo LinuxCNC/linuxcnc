@@ -817,9 +817,9 @@ static int createMenus()
 
   sockSendStr(sockfd, "menu_add_item setup language menu {Set Language}\n");
   sockSendStr(sockfd, "menu_add_item language english action {English}\n");
-  sockSendStr(sockfd, "menu_add_item language spanish action {Espanol}\n");
-  sockSendStr(sockfd, "menu_add_item language french action {Francais}\n");
-  sockSendStr(sockfd, "menu_add_item language german action {Deutch}\n");
+  sockSendStr(sockfd, "menu_add_item language spanish action {Español}\n");
+  sockSendStr(sockfd, "menu_add_item language french action {Français}\n");
+  sockSendStr(sockfd, "menu_add_item language german action {Deutsch}\n");
   sockSendStr(sockfd, "menu_add_item language italian action {Italiano}\n");
 
   sockSendStr(sockfd, "menu_add_item {} utility menu {Utilities}\n");

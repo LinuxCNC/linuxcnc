@@ -1,3 +1,63 @@
+ver 3.4.1
+ 
+  New features:
+  - added possibility for sourcing an user defined file (rcfile)
+  - added option to use external CSS file
+
+  Fixes:
+  - some optical fixes (button properties, left align text in notification)
+  - fixed sensitizing of user tab button on toggling "edit offsets" (#2111)
+  - fix error on creating new G-code file when RS274NGC_STARTUP_CODE is not set
+    (#2057)
+
+ver 3.4.0
+
+  New features:
+  - Icon Themes:
+    * Implement icon theme switch logic (Peter Müller)
+    * Add material and material-light icon themes (Peter Müller)
+    * Optimized classic icons (Hans Unzner)
+  - added setting for height of on-screen keyboard (Hans Unzner)
+  - added some EMBED_TAB locations (Hans Unzner)
+  - Added Gtk.Paned for upper main area (hbox2) (Hans Unzner)
+
+  Optical fixes:
+  - don't expand DRO (Hans Unzner)
+  - center labels of multi-line buttons (Hans Unzner)
+  - Fixed several typos (luz paz, Petter Reinholdtsen)
+  - Added and fixed several tooltips (zz912)
+  - fix translation strings of some tooltips and dialogs (Hans Unzner)
+
+  Functional fixes:
+  - fix "spindle speed override wasn't applied in reverse direction" (Hans Unzner)
+  - fix attribute errors in tooltip (TRothfelder, Hans unzner)
+  - fixed iconview/full screen bug (#1543) (Hans Unzner)
+  - restore user tab when leaving settings page (Hans Unzner)
+  - restore mode when leaving settings page (Hans Unzner)
+  - prevent mode buttons from sensitizing when toggling on/off when in settings page (Hans Unzner)
+  - fix button states when on settings page (Hans Unzner)
+  - fix button states when entering settings from MDI or Auto mode (Hans Unzner)
+  - fixed DRO unit switching (G20/G21) (Hans Unzner)
+  - fixed got lost "touchoff tool z" button (Hans Unzner)
+  - stop all jogging on focus-out-event (#1511) (Hans Unzner)
+  - fix error when pressing "R" or "r" (Hans Unzner)
+  - added confirm pins for toolchange and general warning dialogs, close toolchanger window on abort command (Hans Unzner)
+  - sensitize save button after 'save as' (Hans Unzner)
+  - fix detection of file change (Hans Unzner)
+  - refresh limit override check box immediately (Hans Unzner)
+  - enable limit override when limit tripped in machine off state (Hans Unzner)
+  - enable limit override only when limit active (Hans Unzner)
+  - enable limit override when machine is started with limit switch active (#1000) (Hans Unzner)
+  - Error message when not existing tool is selected (Hans Unzner)
+  - Fix jogging with max velocity (SHIFT + jog key) (Hans Unzner)
+
+  GTK 3/Python 3 related fixes:
+  - fixed DRO switching on G7/G8 + fixed active gcodes list (Hans Unzner)
+  - wrong arguments in Button() causes gmoccapy to fail if 4_axis are used (Hans Unzner)
+  - use python3 in all #!python lines (Jeff Epler)
+  - fix various gtk3 deprecated warnings (Rene Hopf, Hans Unzner)
+  - fixed setting "mouse button mode" (Hans Unzner)
+
 ver 3.1.3.10
 - fix behavior in MDI mode running macro keyboard image
   This fixes issue #1180
@@ -7,7 +67,12 @@ ver 3.1.3.9
   button sensitive states in AUTO mode correct
   This fixes issue #1177
 
-ver 3.1.3.8 (LinuxCNC 2.8.4 (not yet released))
+ver 3.1.3.8 (LinuxCNC 2.8.4 release)
+- jogging with max speed (with shift-key pressed) was reduced by halui setting
+
+- fixed bug in tooltip text for non-trivial or gantry configuration
+
+  Thanks to chili023/TRothfelder for reporting/fixing
 
 - bug in spindle speed override: The override value wasn't applied
   when spindle turning in reverse direction
@@ -35,6 +100,42 @@ ver 3.1.3.7
   corresponding widget will be hidden, without replacing the content.
 
   Thanks Jasen for reporting
+
+ver 3.3.3.4.2
+- fixed some RGBA color bugs
+- closing onboard keyboard
+- dobble code line in gettext localisation
+- deprecated warning in timer.add
+
+ver 3.3.3.4.1
+- exceptions dialog used deprecated format
+
+ver 3.3.3.4
+- hide cursor now working
+- minor code corrections after fixing onboard
+
+ver 3.3.3.3.1
+- onboard closing without error
+
+ver 3.3.3.3
+- onboard did not close on closing gmoccapy
+
+ver 3.3.3.2
+- edit button error corrected
+
+ver 3.3.3.1
+- ** conversion to Gtk3/Python3 **
+- changes release number to distinguish better
+- DRO now do react on changes from settings page
+- first changes to use RGBA not RGB
+- DRO Size can be adjusted
+- for preferences we use HEX colors, all other colors should be RGBA
+- introduced helper function to convert colors, IMHO should be in an own module
+- label for loaded file was not working
+- Key Control Mask corrected
+- pixbuf corrected to get icons on button
+- iconview corrected
+- Jog increment button corrected
 
 ver 3.1.3.6
 - get rid o some "ERROR" strings in translation file
@@ -179,7 +280,7 @@ ver 3.0.6
   leading to the need of less resources and a quicker start of the GUI
 - gmoccapy now supports 9 axis and 9 joints
 - configuration of joint axis relation are now applied as given in the
-  ini file, allowing also strange configs like XZCW lathe configs or
+  INI file, allowing also strange configs like XZCW lathe configs or
   scara or 6 axis robot arms
 - Display of cutting speed is now correct, even on a lathe with
   constant surface speed
@@ -354,7 +455,7 @@ ver 2.3.0
   gmoccapy. I have passed a lot of code over to get_ini_info.
 - all config files have been changed to support the new behavior. I tried to make
   all the code compatible with older configs. Some might need the not used axis
-  to be included in homing entries in the ini files.
+  to be included in homing entries in the INI files.
 
 ver 2.2.5.2
 - if the GUI tries to reload a tool on restart and that tool was not found in 
@@ -415,7 +516,7 @@ ver. 2.2.2
 
 ver. 2.2.1
 - if linuxcnc is restarted without shutting down gmoccapy, it was not possible
-  to close gmoccapy (except from comandline with killall -9 gmoccapy
+  to close gmoccapy (except from commandline with killall -9 gmoccapy
   I added a check to status.poll and now a raise SystemExit will be called.
   as this also applies to CombiDRO a added that there too.
   I added gmoccapy to the linuxcnc script to be killed on restart
@@ -477,7 +578,7 @@ ver. 2.1.5
 ver. 2.1.4
 - lathe wear offsets has been displayed by default, IMHO that
   disturbs most users, as the wear offsets do only work with
-  remaped code. That part is only weak documented.
+  remapped code. That part is only weak documented.
 - If the user wants to use wear offsets, he will have to include
   in [DISPLAY] LATHE_WEAR_OFFSETS = 1, otherwise the additional tabs
   will be hidden.
@@ -605,7 +706,7 @@ ver. 2.0.13
 
 ver. 2.0.12
 - bug in touchscreen slider if machine units and display units not equal
-- corrected some strange entries in ini files
+- corrected some strange entries in INI files
 
 ver. 2.0.11
 - some small changes in INI configs
@@ -1052,7 +1153,7 @@ ver. 1.1.5.8
 
 ver. 1.1.5.7
 - init dynamic tab now in try except to avoid python exception
-  on user typos in ini file
+  on user typos in INI file
 - loading a tool using remap, led to an error if no file has been 
   loaded before the change, we do check for that now to avoid the error
 
@@ -1368,7 +1469,7 @@ ver. 0.9.9.9.1
 
 ver. 0.9.9.9
 - gmoccapy is now able to do auto tool measurement after an manual tool change
-- introduced a ini config to simulate that
+- introduced a INI config to simulate that
 - still to do: If user click on abort while the tool change message window is still open
   or he closes the window with the small X on the right upper corner, the hal pin will
   not be rested properly
@@ -1535,7 +1636,7 @@ ver. 0.9.8.4
 - tool info only with three digits in imperial mode, now 4 digits
 - active feed and active vel label not in machine units, if in imperial mode, fixed
 - cosmetic changes to gmoccapy_lathe.ini
-- introduced a imperial lathe ini
+- introduced an imperial lathe INI
 
 ver 0.9.8.3
 - BUG: forget to update the coordinate system after changing the error system,
@@ -1639,7 +1740,7 @@ ver. 0.9.7
 - corrected some align values in glade file
 - removed units from max_vel_label (glade file)
 - corrected hardware button behavior
-- added again a sim hardware ini file
+- added again a sim hardware INI file
 - uniform usage of "" instead of sometime '' (just to clear python style)
 - user can select on settings page, if he want the offsettab or the preview tab 
   to be displayed as default, the ntb_tabs are shown, so changing is possible at any time
@@ -1685,7 +1786,7 @@ ver. 0.9.5
 - cleared the code a lot
 - settings page, it is possible to select if you want to use the onbord keyboard also in tooledit page 
   and in offset page editing
-- deleted the hardware button simulation ini, because it will not work as it should and I was not able
+- deleted the hardware button simulation INI, because it will not work as it should and I was not able
   to find a solution. 
 
 ver. 0.9.4
@@ -1744,7 +1845,7 @@ ver. 0.9.1.2
 
 ver. 0.9.1
 - show offsets and show dtg for gremlin are only sensitive if show gremlin DRO 
-  is actice, other behavior makes no sense
+  is active, other behavior makes no sense
 - settings page can be reached now also in estop state
 - desktop notify can be disabled in settings page, makes the gui faster
 - file to load on start up can be selected on settings page

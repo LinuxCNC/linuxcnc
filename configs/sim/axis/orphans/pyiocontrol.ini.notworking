@@ -88,7 +88,7 @@ PROGRAM_PREFIX = ../../nc_files/
 # Introductory graphic
 #INTRO_GRAPHIC = emc2.gif
 INTRO_TIME = 0
-#EDITOR = gedit
+#EDITOR = geany
 INCREMENTS = 1 mm, .01 in, .1mm, 1 mil, .1 mil, 1/8000 in
 
 [FILTER]

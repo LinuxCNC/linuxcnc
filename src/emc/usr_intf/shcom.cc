@@ -419,7 +419,7 @@ double convertAngularUnits(double u)
     return u;
 }
 
-// polarities for joint jogging, from ini file
+// polarities for joint jogging, from INI file
 static int jogPol[EMCMOT_MAX_JOINTS];
 
 int sendDebug(int level)

@@ -67,7 +67,7 @@ class StateLED(LED):
         self._follow_halpin = False
 
         self.joint_number = 0
-        self._halpin_name = 'None'
+        self._halpin_name = ''
 
         self._override = 1
         self._at_speed_percent = .1
@@ -79,7 +79,11 @@ class StateLED(LED):
             self._flip_state(False)
         # optional output HAL pin reflecting state
         if self._halpin_option:
-            self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_BIT, hal.HAL_OUT)
+            if self._halpin_name == '':
+                pname = self.HAL_NAME_
+            else:
+                pname = self._halpin_name
+            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_BIT, hal.HAL_OUT)
         if self.is_estopped:
             STATUS.connect('state-estop', lambda w: self._flip_state(True))
             STATUS.connect('state-estop-reset', lambda w: self._flip_state(False))
@@ -190,6 +194,7 @@ class StateLED(LED):
         if not STATUS.is_spindle_on():
             if self._halpin_option:
                 self.hal_pin.set(False)
+                self.setFlashing(False)
             return
         flash = self.spindle_near_check()
         self.setFlashing(flash)
@@ -201,6 +206,7 @@ class StateLED(LED):
         upper = abs(req * (1+self._at_speed_percent))
         lower = abs(req * (1-self._at_speed_percent))
         value = abs(self._actual)
+        #print(req,lower,value,upper,lower <= value <= upper)
         if lower <= value <= upper:
             return False
         return True
@@ -493,6 +499,15 @@ class StateLED(LED):
     def reset_joint_number(self):
         self.joint_number = 0
 
+    def set_spindle_near_percent(self, data):
+        if data < 0: data = 0
+        if data> 100: data = 100
+        self._at_speed_percent = data/100.0
+    def get_spindle_near_percent(self):
+        return int(self._at_speed_percent * 100)
+    def reset_spindle_near_percent(self):
+        self._at_speed_percen = 0.10
+
     def set_halpin_name(self, data):
         self._halpin_name = data
     def get_halpin_name(self):
@@ -529,6 +544,7 @@ class StateLED(LED):
 
     # NON BOOL
     joint_number_status = pyqtProperty(int, get_joint_number, set_joint_number, reset_joint_number)
+    spindle_near_percent_status = pyqtProperty(int, get_spindle_near_percent, set_spindle_near_percent, reset_spindle_near_percent)
     halpin_name = pyqtProperty(str, get_halpin_name, set_halpin_name, reset_halpin_name)
 
     # boilder code

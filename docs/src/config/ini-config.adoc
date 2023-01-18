@@ -117,6 +117,10 @@ ini.1.max_velocity \
 ini.2.max_velocity
 ----
 
+.Boolean Variables
+
+Boolean values can be on one of `TRUE`, `YES` or `1` for true/enabled and one of `FALSE`, `NO` or `0` for false/disabled. The case is ignored.
+
 The following sections detail each section of the configuration file,
 using sample values for the configuration lines.
 
@@ -237,15 +241,17 @@ is .inc.  Do not use a file extension of .ini for included files.
 
 Different user interface programs use different options, and not every
 option is supported by every user interface. There are several interfaces,
-like Axis, Gmoccapy, Touchy, QtVCP's QtDragon and Gscreen.
+like AXIS, GMOCCAPY, Touchy, QtVCP's QtDragon and Gscreen.
 Axis is an interface for use with normal
-computer and monitor, Touchy is for use with touch screens. Gmoccapy
+computer and monitor, Touchy is for use with touch screens. GMOCCAPY
 can be used both ways and offers also many connections for hardware controls.
 Descriptions of the interfaces are in the Interfaces section of the
 User Manual.
 
-* 'DISPLAY = axis' - The name of the user interface to use. Valid options
-  may include: 'axis', 'touchy', 'gmoccapy', 'gscreen', 'tklinuxcnc', 'qtvcp'
+* 'DISPLAY = axis' - The file name of the executable providing the user
+  interface to use. Prominent valid options are (all in lower case):
+  'axis', 'touchy', 'gmoccapy', 'gscreen', 'tklinuxcnc', 'qtvcp',
+  'qtvcp-qtdragon' or 'qtvcp-qtplasmac'.
 * 'POSITION_OFFSET = RELATIVE' - The coordinate system (RELATIVE or MACHINE)
   to show on the DRO when the user interface starts. The RELATIVE coordinate
   system reflects the G92 and G5x coordinate offsets currently in effect.
@@ -312,11 +318,12 @@ User Manual.
 * 'PREVIEW_TIMEOUT = 5' - Timeout (in seconds) for loading graphical preview of G-code. Currently AXIS only.
 
 [NOTE]
-The following [DISPLAY] items are used by GladeVCP, see the
-<<gladevcp:embedding-tab,embedding a tab>> section of the GladeVCP Chapter.
+The following [DISPLAY] items are used by GladeVCP and PyVCP, see the
+<<gladevcp:embedding-tab,embedding a tab>> section of the GladeVCP Chapter
+or the <<cha:pyvcp,PyVCP Chapter>> for more information.
 
-* 'EMBED_TAB_NAME=GladeVCP demo'
-* 'EMBED_TAB_COMMAND=halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x \{XID\} -u ./gladevcp/hitcounter.py ./gladevcp/manual-example.ui'
+* 'EMBED_TAB_NAME = GladeVCP demo'
+* 'EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x \{XID\} -u ./gladevcp/hitcounter.py ./gladevcp/manual-example.ui'
 +
 [NOTE]
 ====
@@ -362,7 +369,7 @@ See <<cha:gmoccapy,gmoccapy>> document for Gmoccapy details.
 * 'BACK_TOOL_LATHE = 1' - Any non-empty value (including "0") causes axis to use "back tool lathe mode" with inverted X axis.
 * 'FOAM = 1' - Any non-empty value (including "0") causes axis to change the display for foam-cutter mode.
 * 'GEOMETRY = XYZABCUVW' - Controls the *preview* and *backplot* of motion.
-  This item consists of a sequence of axis letters and control characters, optionally preceeded with a "-" sign:
+  This item consists of a sequence of axis letters and control characters, optionally preceded with a "-" sign:
 
 . The letters X, Y, Z specify translation along the named coordinate.
 . The letters A, B, C specify rotation about the corresponding axes X, Y, Z.
@@ -424,7 +431,7 @@ left/right: joint0,
 up/down: joint1, page up/page down: joint2, left/right bracket: joint3
 
 * 'USER_COMMAND_FILE = mycommands.py' - The name of an optional, configuration-specific
-  python file sourced by the axis GUI instead of the user-specific file `~/.axisrc`.
+  Python file sourced by the axis GUI instead of the user-specific file `~/.axisrc`.
 
 [NOTE]
 The following [DISPLAY] item is used by the TKLinuxCNC interface only.
@@ -491,7 +498,7 @@ treated as G-code. One such example script is available at
 nc_files/holecircle.py. This script creates G-code for drilling a
 series of holes along the circumference of a circle. Many more G-code
 generators are on the LinuxCNC Wiki site
-http://wiki.linuxcnc.org/[http://wiki.linuxcnc.org/].
+https://wiki.linuxcnc.org/[https://wiki.linuxcnc.org/].
 
 Python filters should use the print function to output the result to Axis.
 
@@ -691,9 +698,9 @@ HALFILES are found using a search.
 If the named file is found in the directory containing the INI file, it is used.
 If the named file is not found in this INI file directory, a search is made using a system library of HAL files.
 
-If LinuxCNC is started with the linuxcnc script using the "-H dirname" option,
+If LinuxCNC is started with the `linuxcnc` script using the "`-H dirname`" option,
 the specified dirname is prepended to the search described above so that
-"dirname" is searched first.  The "-H dirname" option may be specified more
+"dirname" is searched first.  The "`-H dirname`" option may be specified more
 than once, directories are prepended in order.
 
 A HALFILE may also be specified as an absolute path (when the name starts with
@@ -788,7 +795,7 @@ GUI-dependent actions (like creating GUI-specific HAL pins).
 APP = sim_pin motion.probe-input halui.abort motion.analog-in-00
 ----
 ** Invoke halshow with a previuosly saved watchlist.
-   Since linuxcnc sets the working directory to the directory for the INI file,
+   Since LinuxCNC sets the working directory to the directory for the INI file,
    you can refer to files in that directory (example: my.halshow):
 +
 [source,{ini}]
@@ -846,8 +853,8 @@ config:
 # t_c = servo period (seconds)
 ----
 +
-So, a machine with a maximum axis velocity of 10&thinsp;IPS, a max acceleration
-of 100&thinsp;IPS^2^, and a servo period of 0.001&thinsp;s would need:
+So, a machine with a maximum axis velocity of 10 IPS, a max acceleration
+of 100 IPS^2^, and a servo period of 0.001 s would need:
 +
 10 / (2.0 * 100 * 0.001) = 50 segments to always reach maximum velocity
 along the fastest axis.
@@ -914,14 +921,14 @@ velocity that a trapezoidal profile reaches vs. the ramp:
 # f = cutoff frequency from INI
 ----
 +
-For the aforementioned machine, the ripple for a 20&thinsp;Hz cutoff frequency
-is 100 / (4 * 20) = 1.25&thinsp;IPS. This seems high, but keep in mind that it
+For the aforementioned machine, the ripple for a 20 Hz cutoff frequency
+is 100 / (4 * 20) = 1.25 IPS. This seems high, but keep in mind that it
 is only a worst-case estimate. In reality , the trapezoidal motion
 profile is limited by other factors, such as normal acceleration or
 requested velocity, and so the actual performance loss should be much
 smaller. Increasing the cutoff frequency can squeeze out more
 performance, but make the motion rougher due to acceleration
-discontinuities. A value in the range 20&thinsp;Hz to 200&thinsp;Hz should be reasonable
+discontinuities. A value in the range 20 Hz to 200 Hz should be reasonable
 to start.
 
 Finally, no amount of tweaking will speed up a tool path with lots of
@@ -943,7 +950,7 @@ small, tight corners, since you're limited by cornering acceleration.
   This does not affect the linear units in NC code (the G20 and G21 words do this).
 * 'ANGULAR_UNITS = <units>' - (((ANGULAR UNITS))) Specifies the 'machine units' for rotational axes.
   Possible choices are 'deg', 'degree' (360 per circle), 'rad', 'radian'
-  (2*&pi; per circle), 'grad', or 'gon' (400 per circle).
+  (2*π per circle), 'grad', or 'gon' (400 per circle).
   This does not affect the angular units of NC code. In RS274NGC, A-, B- and C- words are always expressed in degrees.
 * 'DEFAULT_LINEAR_VELOCITY = 0.0167' - The initial rate for jogs of linear axes, in
   machine units per second. The value shown in 'Axis' equals machine units per minute.
@@ -1215,7 +1222,7 @@ These parameters are Homing related, for a better explanation read the
   If the encoder used for this joint has an index pulse, and the motion
   card has provision for this signal you may set it to yes.
   When it is yes, it will affect the kind of home pattern used.
-  Currently, you can't home to index with steppers unless you're using stepgen in velocity mode and PID.
+  Currently, you can't home to index with steppers unless you're using StepGen in velocity mode and PID.
 * 'HOME_INDEX_NO_ENCODER_RESET = NO' -
   Use YES if the encoder used for this joint does not reset its counter when
   an index pulse is detected after assertion of the joint index_enable HAL pin.
@@ -1341,7 +1348,7 @@ This scaling looks like: image:images/output-offset.png[]
 The value for scale can be obtained analytically by doing a unit
 analysis, i.e., units are [output SI units]/[actuator units]. For
 example, on a machine with a velocity mode amplifier such that
-1&thinsp;V results in 250&thinsp;mm/s velocity.
+1 V results in 250 mm/s velocity.
 
 image::images/scale-math.png[align="center"]
 
@@ -1376,7 +1383,7 @@ See the following table for an example of voltage measurements.
 
 .Output Voltage Measurements
 [width="50%",cols="2*^",options="header"]
-|==============
+|===
 |Raw | Measured
 |-10 | -9.93
 | -9 | -8.83
@@ -1384,7 +1391,7 @@ See the following table for an example of voltage measurements.
 |  1 |  0.96
 |  9 |  9.87
 | 10 | 10.87
-|==============
+|===
 --
 
 * 'MAX_OUTPUT = 10' - The maximum value for the output of the PID compensation that is written to the motor amplifier, in volts.
@@ -1416,7 +1423,7 @@ or a wizard generated file. These are not used by the LinuxCNC software. They
 are only there to put all the settings in one place. For more information on
 custom INI file entries see the <<sub:ini:custom,Custom Sections and Variables>> subsection.
 
-The following items might be used by a stepgen component.
+The following items might be used by a StepGen component.
 
 * 'SCALE = 4000' - in Sample configs
 * 'STEP_SCALE = 4000' - in PnCconf built configs
@@ -1459,14 +1466,14 @@ image::images/encoder-scale.png[align="center"]
 * 'STEPGEN_MAXACCEL = 21.0' -  Acceleration limit for the step generator.
   This should be 1% to 10%
   larger than the joint MAX_ACCELERATION. This value improves the tuning
-  of stepgen's "position loop". If you have added backlash compensation
+  of StepGen's "position loop". If you have added backlash compensation
   to an joint then this should be 1.5 to 2 times greater than
   MAX_ACCELERATION.
 * 'STEPGEN_MAXVEL = 1.4' - Older configuration files have a velocity limit for
   the step
   generator as well. If specified, it should also be 1% to 10% larger
   than the joint MAX_VELOCITY. Subsequent testing has shown that use of
-  STEPGEN_MAXVEL does not improve the tuning of stepgen's position loop.
+  STEPGEN_MAXVEL does not improve the tuning of StepGen's position loop.
 
 [[sub:ini:sec:spindle-num]]
 === [SPINDLE_<num>] Section(s)(((INI File,Sections,[SPINDLE_<num>] Section(s))))

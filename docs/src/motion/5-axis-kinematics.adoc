@@ -294,7 +294,7 @@ in the Sample Configurations ('configs/sim/axis/vismach/5axis/table-rotary-tilti
 directory.
 
 The example configurations include the required INI files and an examples subdirectory
-with gode (.ngc) files. These sim configurations invoke a realistic 3-dimensional model
+with G-code (NGC) files. These sim configurations invoke a realistic 3-dimensional model
 using the LinuxCNC vismach facility.
 
 === Vismach Simulation Models

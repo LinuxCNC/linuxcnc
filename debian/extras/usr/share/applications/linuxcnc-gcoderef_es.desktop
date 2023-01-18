@@ -8,6 +8,6 @@ Icon=linuxcnc_es
 X-GNOME-DocPath=
 Terminal=false
 StartupNotify=false
+X-AppStream-Ignore=true
 Categories=Science;Engineering;X-CNC-REF;
 Keywords=cnc;linuxcnc;cncdoc;
-X-AppStream-Ignore=true

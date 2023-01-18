@@ -11,37 +11,29 @@ The connection is made through the PU connector.
 
 .B loadrt mitsub_vfd [--baud 4800] [--port /dev/ttyUSB0] name1=number1[,name2=numer2...]
 .br
-\fBname1\fR is user selectable (usually a description of the 
-controlled device).
+\fBname1\fR is user selectable (usually a description of the controlled device).
 .br
-\fBnumber1\fR is the slave number that was set on the VFD. 
-must be two digits (Parameter 117)
+\fBnumber1\fR is the slave number that was set on the VFD. Must be two digits (Parameter 117).
 .br
-\fBname=number\fR can be repeated for multiple VFD's 
-connected together
+\fBname=number\fR can be repeated for multiple VFD's connected together.
 .br
-\fB--baud\fR is optional as it defaults to 9600
-  all networked vfds must be set to the same baudrate
+\fB--baud\fR is optional as it defaults to 9600, all networked vfds must be set to the same baudrate.
 .br
-\fB--port\fR is optional as it defaults to ttyS0
+\fB--port\fR is optional as it defaults to ttyS0.
 
 .SH DESCRIPTION
 
-The mitsub_vfd component interfaces a Mitsubishi VFD to 
-LinuxCNC. The VFD is connected via RS-485 serial to the 
-computer's USB or serial port using a RS-232/RS-485 converter
+The mitsub_vfd component interfaces a Mitsubishi VFD to LinuxCNC.
+The VFD is connected via RS-485 serial to the computer's USB or serial port using a RS-232/RS-485 converter.
 
 
 .SH HARDWARE SETUP
-reference manual 'communication option reference manual' 
-and A500 technical manual for 500 series.
-Fr-A700 F700 E700 D700 technical manual for the 700 series
+reference manual 'communication option reference manual' and A500 technical manual for 500 series.
+Fr-A700 F700 E700 D700 technical manual for the 700 series.
 .br
-The inverter must be set manually for communication
+The inverter must be set manually for communication (you may have to set PR 77 to 1 to unlock PR modification).
 .br
-( you may have to set PR 77 to 1 to unlock PR modification )
-.br
-You must power cycle the inverter for some of these. (eg 79)
+You must power cycle the inverter for some of these, e.g. 79.
 
 .TP
 \fBVFD INTERNAL PARAMETERS: \fR
@@ -66,16 +58,15 @@ You must power cycle the inverter for some of these. (eg 79)
 
 \fBPARAMETER 121\fR COM tries - 10
 .br
-(if maximuim 10 COM errors then inverter faults- can change)
+(if maximuim 10 COM errors then inverter faults- can change.)
 
 \fBPARAMETER 122\fR COM check time interval 9999
 .br
-(never check - if communication is lost inverter will 
-not know (can change)
+(never check - if communication is lost inverter will not know (can change))
 
 \fBPARAMETER 123\fR wait time - 9999
 .br
-no wait time is added to the serial data frame (don't change)
+No wait time is added to the serial data frame (don't change).
 
 \fBPARAMETER 124\fR CR selection - 0
 .br
@@ -88,7 +79,7 @@ computer link protocol - don't change - (not all VFDs have this)
 .SH
 
 This driver assumes certain other VFD settings:
--That the motor frequency status is set to show herts. 
+-That the motor frequency status is set to show Hertz. 
 .br
 -That the status bit 3 is up to speed
 .br
@@ -115,15 +106,12 @@ amps, alarm and status bits are not useful.
 .br
 \fB[VFD NAME].monitor\fR (bit, in)::
       set monitor mode pin
-      If false request-status command will not be sent to VFD.
-      Status, amps, power, motor-feedback, and alarm would then not 
-        be useful.
+      If false request-status command will not be sent to VFD. Status, amps, power, motor-feedback, and alarm would then not be useful.
 .br
 \fB[VFD NAME].estop\fR (bit, in)::
       set E-stop mode pin
 .br
-      This will stop the VFD. 
-      Restarting requires the run pin to cycle.
+      This will stop the VFD. Restarting requires the run pin to cycle.
 
 \fB[VFD NAME].fwd\fR (bit, out)::
       up-to-speed status pin

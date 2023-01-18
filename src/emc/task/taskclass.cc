@@ -351,8 +351,8 @@ int emcTaskOnce(const char *filename)
     return 0;
 }
 
-// if using a Python-based HAL module in task, normal HAL_FILE's are run too early.
-// execute those here if specified via POSTTASK_HALFILE in ini ,
+// If using a Python-based HAL module in task, normal HAL_FILE's are run too early.
+// Execute those here if specified via POSTTASK_HALFILE in INI.
 int emcRunHalFiles(const char *filename)
 {
     IniFile inifile;

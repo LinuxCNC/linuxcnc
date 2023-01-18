@@ -5,7 +5,7 @@
 = Origin(((History)))
 
 EMC (the Enhanced Machine Controller) was created by
-http://www.nist.gov/index.html[NIST] , the National Institute of Standards
+https://www.nist.gov/index.html[NIST] , the National Institute of Standards
 and Technology, which is an agency of the Commerce Department of the United
 States government.
 
@@ -69,7 +69,7 @@ BDI (brain dead install) which was a CD from which a complete working system
 (Linux, patches, and EMC) could be installed.  The BDI approach opened the
 world of EMC to a much larger user community. As this community continued
 to grow, the EMC mailing list and code archives were moved to
-http://www.sourceforge.net/projects/emc/[SourceForge] and the LinuxCNC web
+https://sourceforge.net/projects/emc/[SourceForge] and the LinuxCNC web
 site was established.
 
 With a larger community of users participating, EMC became a major focus of
@@ -115,10 +115,10 @@ channels, and versions of the software and documentation since version
 NIST published a paper describing the
 https://www.nist.gov/node/704046[RS274NGC] language and the abstract
 machining center it controls, as well as an early implementation of EMC.
-The paper is also available at http://linuxcnc.org/files/RS274NGCv3.pdf .
+The paper is also available at https://linuxcnc.org/files/RS274NGCv3.pdf .
 
 NIST also published a paper on the history of EMC and its
 transition to https://www.nist.gov/node/702276[open source]. The paper is also available at
-http://linuxcnc.org/files/Use-of-Open-Source-Distribution-for-a-Machine-Tool-Controller.pdf
+https://linuxcnc.org/files/Use-of-Open-Source-Distribution-for-a-Machine-Tool-Controller.pdf
 
 // vim: set syntax=asciidoc:

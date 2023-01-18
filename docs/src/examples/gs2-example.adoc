@@ -4,6 +4,12 @@
 [[cha:gs2-spindle]]
 = GS2 Spindle
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Example
 
 This example shows the connections needed to use an Automation Direct
@@ -19,6 +25,7 @@ In the custom.hal file we place the following to connect LinuxCNC to the
 GS2 and have LinuxCNC control the drive.
 
 .GS2 Example
+[source,{hal}]
 ----
 # load the user space component for the Automation Direct GS2 VFD's 
 loadusr -Wn spindle-vfd gs2_vfd -r 9600 -p none -s 2 -n spindle-vfd

@@ -13,11 +13,6 @@ METRIC = 1
 IMPERIAL = 25.4
 MODEL_SCALING = IMPERIAL
 
-# Used for tool cylinder
-# it will be updated in shape and length by function below.
-toolshape = CylinderZ(0)
-toolshape = Color([1, .5, .5, .5], [toolshape])
-
 # -----------------------------------------------------------------------------------------------------------
 # Concept of machine design
 
@@ -171,7 +166,7 @@ tooltip = Capture()
 # it creates cylinder then translates tooltip to end of it.
 tool = Collection([
     Translate([HalTranslate([tooltip], None, "motion.tooloffset.z", 0, 0, -MODEL_SCALING)], 0, 0, 0),
-    HalToolCylinder(toolshape)
+    Color([1, .5, .5, .5], [HalToolCylinder()])
 ])
 
 # Since tool is defined, lets attach it to cat30
@@ -202,9 +197,14 @@ zassembly = HalTranslate([zassembly], None, "joint.2.pos-fb", 0, 0, MODEL_SCALIN
 # we can now move it to Z home position.
 zassembly = Translate([zassembly], 0, 0, 400)
 
-# show a title to prove the HUD
-myhud = Hud()
-myhud.show("Mill_XYZ")
+# show a title and DRO to prove the HUD
+myhud = HalHud()
+myhud.show_top("Mill)XYZ")
+myhud.show_top("------------")
+myhud.add_pin('axis-x: ',"{:10.4f}","axis.x.pos-cmd")
+myhud.add_pin('axis-y: ',"{:10.4f}","axis.y.pos-cmd")
+myhud.add_pin('axis-z: ',"{:10.4f}","axis.z.pos-cmd")
+myhud.show("-------------")
 
 # ------------------------------------------------------------------------------------
 # Getting it all together and finishing model
@@ -213,6 +213,15 @@ myhud.show("Mill_XYZ")
 # xassembly is already included into yassembly so don't need to include it.
 model = Collection([frame, yassembly, zassembly])
 
+
+# build axes origin markers
+X = CylinderX(-500,1,500,1)
+X = Color([1, 0, 0, 1], [X])
+Y = CylinderY(-500,1,500,1)
+Y = Color([0, 1, 0, 1], [Y])
+Z = CylinderZ(-100,1,100,1)
+Z = Color([0, 0, 1, 1], [Z])
+origin = Collection([X,Y,Z])
 
 # we want to embed with qtvcp so build a window to display
 # the model
@@ -230,7 +239,10 @@ class Window(QWidget):
 
         world = Capture()
 
+        # uncomment and re comment the nect line to se origin markers
+        #v.model = Collection([origin, model, world])
         v.model = Collection([model, world])
+
         size = 600
         v.distance = size * 3
         v.near = size * 0.01
@@ -249,7 +261,7 @@ class Window(QWidget):
 # It just makes a qtvcp5 window that is defined in qt_vismach.py
 # parameter list:
 # final model name must include all parts you want to use
-# tooltip (special for tool tip inclusuion)
+# tooltip (special for tool tip inclusion)
 # work (special for work part inclusion)
 # size of screen (bigger means more zoomed out to show more of machine)
 # hud None if no hud

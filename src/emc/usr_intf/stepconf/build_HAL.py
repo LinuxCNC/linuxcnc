@@ -329,7 +329,7 @@ class HAL:
         if self.d.classicladder:
             print(file=file)
             if self.d.modbus:
-                print(_("# Load Classicladder with modbus master included (GUI must run for Modbus)"), file=file)
+                print(_("# Load Classicladder with Modbus master included (GUI must run for Modbus)"), file=file)
                 print("loadusr classicladder --modmaster custom.clp", file=file)
             else:
                 print(_("# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI"), file=file)
@@ -779,7 +779,14 @@ class HAL:
                 dratio = self.d.voltsrdiv
             else:
                 dratio = (self.d.voltsrdiv + 100000) / 100000
-            self.d.qtplasmacvscale = dratio / (((self.d.voltsfullf - self.d.voltszerof) * 1000) / int(self.d.voltsfjumper) / int(self.d.voltsmodel))
+            if self.d.voltsmodel.startswith("2"):
+                if "(W1 down)" in self.d.voltsmodel:
+                    thcadvolts = 5
+                else:
+                    thcadvolts = 10
+            else:
+                thcadvolts = int(self.d.voltsmodel)
+            self.d.qtplasmacvscale = dratio / (((self.d.voltsfullf - self.d.voltszerof) * 1000) / int(self.d.voltsfjumper) / thcadvolts)
             self.d.qtplasmacvoffset = self.d.voltszerof * 1000 / int(self.d.voltsfjumper)
         # qtplasmac has a shutdown.hal
         sdfilename = os.path.join(base, "shutdown.hal")

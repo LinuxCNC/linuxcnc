@@ -41,6 +41,7 @@ DOC_SRCS_EN := \
 	code/adding-configs.adoc \
 	code/contributing-to-linuxcnc.adoc \
 	code/building-linuxcnc.adoc \
+	code/writing-tests.adoc \
 	common/emc-history.adoc \
 	common/glossary.adoc \
 	common/gpld-copyright.adoc \
@@ -350,13 +351,15 @@ pdfdocs: svgs_made_from_dots $(PDF_TARGETS)
 
 htmldocs: svgs_made_from_dots .htmldoc-stamp checkref_en
 
-.htmldoc-stamp: copy_asciidoc_files $(HTML_TARGETS) .images-stamp .include-stamp
+.htmldoc-stamp: copy_asciidoc_files gen_complist $(HTML_TARGETS) .images-stamp .include-stamp
 	touch $@
 
-.PHONY: copy_asciidoc_files
-copy_asciidoc_files:
-	cp -f /etc/asciidoc/stylesheets/*.css $(DOC_DIR)/html
-	cp -f /etc/asciidoc/javascripts/*.js $(DOC_DIR)/html
+copy_asciidoc_files: $(wildcard /etc/asciidoc/stylesheets/*.css) $(wildcard /etc/asciidoc/javascripts/*.js)
+	cp -f $^ $(DOC_DIR)/html
+
+gen_complist: $(DOC_SRCDIR)/gen_complist.py $(DOC_SRCDIR)/hal/components.adoc $(MAN_HTML_TARGETS)
+	mkdir -p $(DOC_DIR)/html/hal
+	python3 $(DOC_SRCDIR)/gen_complist.py $(DOC_SRCDIR)/hal/components.adoc
 
 checkref: checkref_en checkref_de checkref_es checkref_fr checkref_hu checkref_nb checkref_vi checkref_zh_CN
 
@@ -587,16 +590,23 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 # Hack to avoid ../../../src/ style include which do not work with
 # translated documents.  Copy the ini file where the documentation
 # build can find it without ../.. paths.
-.include-stamp: hal/user_comps/mb2hal/mb2hal_HOWTO.ini
+.include-stamp: hal/user_comps/mb2hal/mb2hal_HOWTO.ini emc/usr_intf/gmoccapy/release_notes.txt
 	(set -x; set -e; \
 	cp -f hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/src/drivers/;\
 	mkdir -p $(DOC_DIR)/html/drivers/; \
 	cp -f hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/html/drivers/;\
+	cp -f emc/usr_intf/gmoccapy/release_notes.txt $(DOC_DIR)/src/gui/gmoccapy_release_notes.txt;\
+	mkdir -p $(DOC_DIR)/html/gui/; \
+	cp -f emc/usr_intf/gmoccapy/release_notes.txt $(DOC_DIR)/html/gui/gmoccapy_release_notes.txt;\
 	for lang in $(LANGUAGES); do \
 		mkdir -p $(DOC_DIR)/src/$$lang/drivers/; \
 		mkdir -p $(DOC_DIR)/html/$$lang/drivers/; \
 		cp -f hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/src/$$lang/drivers/ ; \
 		cp -f hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/html/$$lang/drivers/ ; \
+		mkdir -p $(DOC_DIR)/src/$$lang/gui/; \
+		mkdir -p $(DOC_DIR)/html/$$lang/gui/; \
+		cp -f emc/usr_intf/gmoccapy/release_notes.txt $(DOC_DIR)/src/$$lang/gui/gmoccapy_release_notes.txt ; \
+		cp -f emc/usr_intf/gmoccapy/release_notes.txt $(DOC_DIR)/html/$$lang/gui/gmoccapy_release_notes.txt ; \
 	done) > $@.new && mv $@.new $@
 
 # Copy all images used by translated adoc files into the directories
@@ -769,6 +779,13 @@ docclean:
 	-rm -f $(DOC_SRCDIR)/*/*.html
 	-rm -f $(DOC_SRCDIR)/index_*.tmpl
 	-rm -f $(DOC_SRCDIR)/drivers/mb2hal_HOWTO.ini
+	-rm -f $(DOC_SRCDIR)/*/drivers/mb2hal_HOWTO.ini
+	-rm -f $(DOC_SRCDIR)/gui/gmoccapy_release_notes.txt
+	-rm -f $(DOC_SRCDIR)/*/gui/gmoccapy_release_notes.txt
+	-rm -f $(DOC_DIR)/html/*/drivers/mb2hal_HOWTO.ini
+	-rm -f $(DOC_DIR)/html/drivers/mb2hal_HOWTO.ini
+	-rm -f $(DOC_DIR)/html/gui/gmoccapy_release_notes.txt
+	-rm -f $(DOC_DIR)/html/*/gui/gmoccapy_release_notes.txt
 	-rm -f $(DOC_DIR)/html/code/*.*
 	-rm -f $(DOC_DIR)/html/common/images/*.*
 	-rm -f $(DOC_DIR)/html/config/images/*.*

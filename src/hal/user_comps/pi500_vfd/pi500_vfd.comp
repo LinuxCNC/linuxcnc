@@ -1,4 +1,4 @@
-component pi500_vfd "Powtran PI500 modbus driver";
+component pi500_vfd "Powtran PI500 Modbus driver";
 param rw unsigned mbslaveaddr     "Modbus slave address";
 pin in float commanded_frequency  "Frequency of vfd";
 pin in bit run                    "run the vfd";
@@ -67,7 +67,7 @@ bool pi500_setFrequency(modbus_t* ctx, uint16_t frequency) {
 bool pi500_reset(modbus_t* ctx)
 {
         /*after the reset, the pi500 vfd seem to need a second
-        before it will reply to more modbus commands*/
+        before it will reply to more Modbus commands*/
         int rc = modbus_write_register(ctx, 0x2000, 7);
 
         sleep(1);
@@ -142,7 +142,7 @@ void print_modbus_error(struct __comp_state *__comp_inst, const char* msg)
 }
 
 
-/* modbus connection settings*/
+/* Modbus connection settings*/
 char *device = "/dev/ttyS0";
 int baud = 9600;
 char parity = 'N';

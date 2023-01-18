@@ -48,9 +48,9 @@ class Converter(QMainWindow, object):
             self.mode = ''
             self.iniIn = ''
         if 'usr' in self.appPath:
-            self.simPath = '/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac'
+            self.simPath = '/usr/share/doc/linuxcnc/examples/sample-configs/sim/qtplasmac'
         else:
-            self.simPath = self.appPath.replace('bin', 'configs/by_machine/qtplasmac')
+            self.simPath = self.appPath.replace('bin', 'configs/sim/qtplasmac')
         self.setFixedWidth(600)
         self.setFixedHeight(400)
         wid = QWidget(self)
@@ -61,9 +61,9 @@ class Converter(QMainWindow, object):
         self.setCentralWidget(wid)
         layout = QHBoxLayout()
         wid.setLayout(layout)
-        iconPath = 'share/qtvcp/images/qtplasmac/images/Chips_Plasma.png'
+        iconPath = 'share/icons/hicolor/scalable/apps/linuxcnc_alt/linuxcncicon_plasma.svg'
         appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
-        iconBase = '/usr' if appPath == '/bin' else appPath.replace('/bin', '')
+        iconBase = '/usr' if appPath == '/usr/bin' else appPath.replace('/bin', '/debian/extras/usr')
         self.setWindowIcon(QIcon(os.path.join(iconBase, iconPath)))
         self.setWindowTitle('PlasmaC2Qt')
         vBox = QVBoxLayout()
@@ -205,7 +205,7 @@ class Converter(QMainWindow, object):
         options |= QFileDialog.DontUseNativeDialog
         name, _ = QFileDialog.getOpenFileName(
                     parent=self,
-                    caption=self.tr("Select a ini file"),
+                    caption=self.tr("Select an INI file"),
                     filter=self.tr('INI files (*.ini);;INI files (*.[iI][nN][iI])'),
                     directory=self.DIR,
                     options=options
@@ -290,14 +290,14 @@ class Converter(QMainWindow, object):
             while(1):
                 line = inFile.readline()
                 if not line:
-                    print('cannot find [EMC] section in ini file')
+                    print('cannot find [EMC] section in INI file')
                     return
                 if line.startswith('[EMC]'):
                     break
             while(1):
                 line = inFile.readline()
                 if not line:
-                    print('cannot find MACHINE variable in ini file')
+                    print('cannot find MACHINE variable in INI file')
                     return
                 if line.startswith('MACHINE'):
                     machineName = line.split('=')[1].strip().lower()
@@ -320,7 +320,7 @@ class Converter(QMainWindow, object):
                 if line.startswith('[HAL]'):
                     break
                 if not line:
-                    msg  = 'Could not get [HAL] section of ini file\n'
+                    msg  = 'Could not get [HAL] section of INI file\n'
                     msg += '\nConversion cannot continue'
                     self.dialog_ok('INI File Error', msg)
                     self.fromFile.setFocus()
@@ -494,9 +494,9 @@ class Converter(QMainWindow, object):
     # WE GOT THIS FAR SO IT MAY HAVE WORKED
         msg  = 'Conversion appears successful.\n'
         if self.mode == 'automatic':
-            msg += '\nRestart LinuxCNC using the following ini file:\n'
+            msg += '\nRestart LinuxCNC using the following INI file:\n'
         else:
-            msg += '\nStart LinuxCNC using the following ini file:\n'
+            msg += '\nStart LinuxCNC using the following INI file:\n'
         msg += '\n{}/{}.ini\n'.format(newDir, machineName)
         self.dialog_ok('Success', msg)
         print(msg)

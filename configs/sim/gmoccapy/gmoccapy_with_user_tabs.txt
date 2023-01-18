@@ -1,0 +1,2 @@
+GMOCCAPY configuration demonstrating the capabilities of using user tabs.
+

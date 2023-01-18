@@ -12,9 +12,9 @@
 
 LinuxCNC can control up to 8 spindles. The number is set in the INI file.
 The examples below all refer to a single-spindle config with spindle
-control pins with names like spindle.0...
+control pins with names like 'spindle.0..'.
 In the case of a multiple spindle machine all that changes is that
-additional pins exist with names such as spindle.6...
+additional pins exist with names such as 'spindle.6..'.
 
 == 0-10 Volt Spindle Speed(((0-10 Volt Spindle Speed Example)))
 
@@ -28,7 +28,7 @@ For this example the spindle top speed of 5000 RPM is equal to 10 Volts.
 image::images/spindle-math.png[align="center"]
 
 We have to add a scale component to the HAL file to scale the
-spindle._N_.speed-out to the 0 to 10 needed by the VFD if your DAC
+_spindle.N.speed-out_ to the 0 to 10 needed by the VFD if your DAC
 card does not do scaling.
 
 [source,{hal}]
@@ -43,7 +43,7 @@ net spindle-speed-DAC scale.0.out => <your DAC pin name>
 == PWM Spindle Speed(((PWM Spindle Speed Example)))
 
 If your spindle can be controlled by a PWM signal,
-use the `pwmgen` component to create the signal:
+use the 'pwmgen' component to create the signal:
 
 [source,{hal}]
 ----
@@ -65,7 +65,7 @@ nist-lathe sample configuration to use a scale component.
 == Spindle Enable(((Spindle Enable Example)))
 
 If you need a spindle enable signal,
-link your output pin to spindle.0.on.
+link your output pin to _spindle.0.on_.
 To link these pins to a parallel port pin put something like
 the following in your .hal file, making sure you pick the
 pin that is connected to your control device.
@@ -96,9 +96,9 @@ net spindle-rev spindle.0.reverse => parport.0.pin-17-out
 
 If you need to ramp your spindle speed command and your control does
 not have that feature it can be done in HAL. Basically you need to
-hijack the output of spindle._N_.speed-out and run it through a
-limit2 component with the scale set so it will ramp the rpm from
-spindle._N_.speed-out to your device that receives the rpm.
+hijack the output of 'spindle._N_.speed-out' and run it through a
+'limit2' component with the scale set so it will ramp the rpm from
+'spindle._N_.speed-out' to your device that receives the rpm.
 The second part is to let LinuxCNC know when the spindle is at speed so
 motion can begin.
 
@@ -111,16 +111,16 @@ net spindle-speed-scale spindle.0.speed-out => scale.0.in
 
 is changed as shown in the following example:
 
-=== Intro to HAL components limit2 and near
+.Intro to HAL components limit2 and near
 
 In case you have not run across them before, here's a quick introduction
 to the two HAL components used in the following example.
 
-* A "limit2" is a HAL component (floating point) that accepts an
+* A 'limit2' is a HAL component (floating point) that accepts an
   input value and provides an output that has been limited to a
   max/min range, and also limited to not exceed a specified
   rate of change.
-* A "near" is a HAL component (floating point) with a binary output
+* A 'near' is a HAL component (floating point) with a binary output
   that says whether two inputs are approximately equal.
 
 More info is available in the documentation for HAL components, or from

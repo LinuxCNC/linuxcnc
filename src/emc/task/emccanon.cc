@@ -699,9 +699,9 @@ static AccelData getStraightAcceleration(double x, double y, double z,
                     ta, tb, tc,
                     tu, tv, tw);
 
-    if(debug_velacc)
-        printf("getStraightAcceleration t^2 tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n", 
-               tx, ty, tz, ta, tb, tc, tu, tv, tw);
+        if(debug_velacc)
+            printf("getStraightAcceleration t^2 tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n",
+                   tx, ty, tz, ta, tb, tc, tu, tv, tw);
 /*  According to NIST IR6556 Section 2.1.2.5 Paragraph A
     a combnation move is handled like a linear move, except
     that the angular axes are allowed sufficient time to
@@ -2584,7 +2584,7 @@ void INIT_CANON()
 
     /* 
        to set the units, note that GET_EXTERNAL_LENGTH_UNITS() returns
-       traj->linearUnits, which is already set from the .ini file in
+       traj->linearUnits, which is already set from the INI file in
        iniTraj(). This is a floating point number, in user units per mm. We
        can compare this against known values and set the symbolic values
        accordingly. If it doesn't match, we have an error. */
@@ -3017,8 +3017,6 @@ int GET_EXTERNAL_QUEUE_EMPTY(void)
 int GET_EXTERNAL_TOOL_SLOT()
 {
     int toolno = emcStatus->io.tool.toolInSpindle;
-
-    if (toolno == -1) {return -1;} // detect request for invalid tool
 
     return tooldata_find_index_for_tool(toolno);
 }

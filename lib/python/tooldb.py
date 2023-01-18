@@ -8,7 +8,7 @@ import traceback
 #  2) all writes to stdout go to host
 #     (caller: use stderr for debug prints)
 #-----------------------------------------------------------
-DB_VERSION = 'v2.0'
+DB_VERSION = 'v2.1'
 
 #-----------------------------------------------------------
 # functions for import by user

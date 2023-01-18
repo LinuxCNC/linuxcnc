@@ -6,7 +6,7 @@
 
 == Introduction
 
-LinuxCNC is capable of controlling a wide range of machinery 
+LinuxCNC is capable of controlling a wide range of machinery
 using many different hardware interfaces.
 
 StepConf is a program that generates configuration files for LinuxCNC
@@ -75,7 +75,7 @@ image::images/stepconf-base_en.png["Basic Information Page",align="center"]
 +
 A list of some popular drives, along with their timing values, is on the
 LinuxCNC.org Wiki under
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing[Stepper Drive Timing].
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing[Stepper Drive Timing].
 +
 Additional signal conditioning or isolation such as optocouplers and RC filters
 on break out boards can impose timing constraints of their own, in addition
@@ -131,30 +131,29 @@ pulses. The lower the latency, the faster you can run the heartbeat,
 and the faster and smoother the step pulses will be.
 
 Latency is far more important than CPU speed. The CPU isn't the only
-factor in determining latency. Motherboards, video cards, USB ports, 
+factor in determining latency. Motherboards, video cards, USB ports,
 SMI issues, and a number of other things can hurt the latency.
 
 .Troubleshooting SMI Issues (LinuxCNC.org Wiki)
 ************************************************************
 Fixing Realtime problems caused by SMI on Ubuntu
 
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues
 ************************************************************
 
 The important numbers are the 'max jitter'. In the example above 9075
-nanoseconds, or 9.075 microseconds, is the highest jitter. 
-Record this number, and enter it in
-the Base Period Maximum Jitter box.
+nanoseconds (ns), or 9.075 microseconds (µs), is the highest jitter.
+Record this number, and enter it in the Base Period Maximum Jitter box.
 
-If your Max Jitter number is less than about 15-20 microseconds
-(15000-20000 nanoseconds), the computer should give very nice results
-with software stepping. If the max latency is more like 30-50
-microseconds, you can still get good results, but your maximum step
+If your Max Jitter number is less than about 15-20 µs
+(15000-20000 ns), the computer should give very nice results
+with software stepping. If the max latency is more like 30-50 µs,
+you can still get good results, but your maximum step
 rate might be a little disappointing, especially if you use
 microstepping or have very fine pitch leadscrews. If the numbers are
-100 µs  or more (100,000 nanoseconds), then the PC is not a good
-candidate for software stepping. Numbers over 1 millisecond (1,000,000
-nanoseconds) mean the PC is not a good candidate for LinuxCNC, regardless of
+100 µs or more (100,000 ns), then the PC is not a good
+candidate for software stepping. Numbers over 1 millisecond (1,000,000 ns)
+mean the PC is not a good candidate for LinuxCNC, regardless of
 whether you use software stepping or not.
 
 == Parallel Port Setup
@@ -164,15 +163,15 @@ image::images/stepconf-parallel-1_en.png["Parallel Port 1 Setup Page",align="cen
 
 You may specify the address as a hexadecimal (often 0x378) or as linux's default port number (probably 0)
 
-For each pin, choose the signal which matches your parallel port pinout. 
+For each pin, choose the signal which matches your parallel port pinout.
 Turn on the 'invert' check box if the signal is inverted (0V for true/active, 5V for false/inactive).
 
 * 'Output pinout presets' - Automatically set pins 2 through 9 according to
   the Sherline standard (Direction on pins 2, 4, 6, 8) or the Xylotex standard
   (Direction on pins 3, 5, 7, 9).
 * 'Inputs and Outputs' - If the input or output is not used set the option to 'Unused'.
-* 'External E Stop' - This can be selected from an input pin drop down box.
-  A typical E Stop chain uses all normally closed contacts.
+* 'External E-Stop' - This can be selected from an input pin drop down box.
+  A typical E-Stop chain uses all normally closed contacts.
 * 'Homing & Limit Switches' -
   These can be selected from an input pin drop down box for most configurations.
 * 'Charge Pump' - If your driver board requires a charge pump signal select Charge Pump from
@@ -325,7 +324,7 @@ If 'Spindle PWM' appears on the pinout, the following information should be ente
 
 === Spindle-synchronized motion(((Spindle-synchronized motion)))
 
-When the appropriate signals from a spindle encoder are connected to 
+When the appropriate signals from a spindle encoder are connected to
 LinuxCNC via HAL, LinuxCNC supports lathe threading.
 These signals are:
 
@@ -336,7 +335,7 @@ These signals are:
   an offset from Spindle Phase A. The advantages to using both A and B are
   direction sensing, increased noise immunity, and increased resolution.
 
-If 'Spindle Phase A' and 'Spindle Index' appear 
+If 'Spindle Phase A' and 'Spindle Index' appear
 on the pinout, the following information should be entered:
 
 * 'Use Spindle-At-Speed' - With encoder feedback one can choose to have LinuxCNC
@@ -355,11 +354,11 @@ on the pinout, the following information should be entered:
 
 Enter the following values in the Spindle Configuration page:
 
-[width="80%",options="header",cols="^,^,^,^"]
-|============================
-|Speed 1: | 0    | PWM 1: | 0
-|Speed 2: | 1000 | PWM 2: | 1
-|============================
+[width="80%",cols="^,^,^,^"]
+|===
+h|Speed 1: | 0    h| PWM 1: | 0
+h|Speed 2: | 1000 h| PWM 2: | 1
+|===
 
 Finish the remaining steps of the configuration process,
 then launch LinuxCNC with your configuration.
@@ -393,14 +392,14 @@ image::images/stepconf-options_en.png["Advanced Options Configuration",align="ce
   to work on. See the <<cha:pyvcp,PyVCP Chapter>> for more information.
 * 'Include ClassicLadder PLC' - This option will add the ClassicLadder PLC
   (Programmable Logic Controller). See the
-  <<cha:classicladder,Classicladder Chapter>> for more information.
+  <<cha:classicladder,ClassicLadder Chapter>> for more information.
 * 'Onscreen Prompt For Tool Change' - If this box is checked, LinuxCNC will
   pause and prompt you to change the tool when 'M6' is encountered. This feature
   is usually only useful if you have presettable tools.
 
 == Complete Machine Configuration(((Complete Machine Configuration)))
 
-Click 'Apply' to write the configuration files. 
+Click 'Apply' to write the configuration files.
 Later, you can re-run this program and tweak the settings you entered before.
 
 == Axis Travels and Homes
@@ -427,14 +426,14 @@ If a MDI command or G-code program would pass the soft limit, it is not executed
 If a jog would pass the soft limit, it is terminated at the soft limit.
 
 The 'home switch' can be placed anywhere within the travel (between hard stops).
-As long as external hardware does not deactivate the motor amplifiers 
+As long as external hardware does not deactivate the motor amplifiers
 when the limit switch is reached, one of the limit switches
 can be used as a home switch.
 
 The 'zero position' is the location on the axis that is 0 in
 the machine coordinate system.
 Usually the 'zero position' will be within the 'soft limits'.
-On lathes, constant surface speed mode requires that machine 'X=0' 
+On lathes, constant surface speed mode requires that machine 'X=0'
 correspond to the center of spindle rotation when no tool offset is in effect.
 
 The 'home position' is the location within travel that the axis will
@@ -454,7 +453,7 @@ Soft limits only operate after the machine has been homed.
 A machine can be operated without home switches.
 If the machine has limit switches, but no home switches,
 it is best to use a limit switch as the home switch
-(e.g., choose 'Minimum Limit + Home X'  in the pinout).
+(e.g., choose 'Minimum Limit + Home X' in the pinout).
 If the machine has no switches at all, or the limit
 switches cannot be used as home switches for another reason, then the
 machine must be homed 'by eye' or by using match marks. Homing by eye
@@ -469,17 +468,14 @@ while there are as many as 9 switches on a 3-axis machine.
 Instead, multiple switches are wired together in various
 ways so that a smaller number of inputs are required.
 
-The figures below show the general idea of wiring multiple switches 
-to a single input pin.
-In each case, when one switch is actuated,
-the value seen on INPUT goes from logic HIGH to LOW.
-However, LinuxCNC expects a TRUE value when a switch is closed,
-so the corresponding 'Invert' box
+The figures below show the general idea of wiring multiple switches to a single input pin.
+In each case, when one switch is actuated, the value seen on INPUT goes from logic HIGH to LOW.
+However, LinuxCNC expects a TRUE value when a switch is closed, so the corresponding 'Invert' box
 must be checked on the pinout configuration page.
 The pull up resistor show in the diagrams pulls the input high
 until the connection to ground is made and then the input goes low.
 Otherwise the input might float between on and off when the circuit is open.
-Typically for a parallel port you might use 47k.
+Typically for a parallel port you might use 47 kΩ;.
 
 .Normally Closed Switches (N/C) wiring in series (simplified diagram)
 image::images/switch-nc-series_en.svg["Normally Closed Switches",align="center"]

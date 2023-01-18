@@ -58,7 +58,7 @@ class HAL_Offset(Gtk.Label):
         # The update time: every 500 milliseconds
         GLib.timeout_add(500, self.periodic)
 
-        # check the ini file if UNITS are set to mm
+        # check the INI file if UNITS are set to mm
         # first check the global settings
         # else then the X axis units
         try:

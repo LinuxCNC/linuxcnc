@@ -83,7 +83,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.1.3.10"
+_RELEASE = " 3.4.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -101,7 +101,7 @@ _BB_LOAD_FILE = 8
 #_BB_HOME_JOINTS will not be used, we will reorder the notebooks to get the correct page shown
 
 # Default button size for bottom buttons
-_DEFAULT_BB_SIZE = (85, 56)
+_DEFAULT_BB_SIZE = (90, 56)
 
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usually /tmp
 
@@ -116,6 +116,7 @@ from gmoccapy import notification  # this is the module we use for our error han
 from gmoccapy import preferences   # this handles the preferences
 from gmoccapy import getiniinfo    # this handles the INI File reading so checking is done in that module
 from gmoccapy import dialogs       # this takes the code of all our dialogs
+from gmoccapy import icon_theme_helper
 
 _AUDIO_AVAILABLE = False
 try:
@@ -134,30 +135,16 @@ USERTHEMEDIR = os.path.join(os.path.expanduser("~"), ".themes")
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 ICON_THEME_DIR = os.path.join(DATADIR, "icons")
 USER_ICON_THEME_DIR = os.path.join(os.path.expanduser("~"), ".icons")
+DEFAULT_ICON_THEME = "classic"
 
 # path to TCL for external programs eg. halshow
 TCLPATH = os.environ['LINUXCNC_TCL_DIR']
 
-# the ICONS should must be in share/gmoccapy/images
-ALERT_ICON = os.path.join(IMAGEDIR, "applet-critical.png")
-INFO_ICON = os.path.join(IMAGEDIR, "std_info.gif")
+# the ICONS should must exist in the icon theme
+ALERT_ICON = "dialog_warning"
+INFO_ICON = "dialog_information"
 
 
-def _find_valid_icon_themes():
-    valid_icon_themes = [
-        # path, name
-        (None, "none")
-    ]
-    for base_dir in [e for e in [USER_ICON_THEME_DIR, ICON_THEME_DIR] if os.path.exists(e)]:
-        for theme_name in os.listdir(base_dir):
-            theme_dir = os.path.join(base_dir, theme_name)
-            if os.path.exists(os.path.join(theme_dir, "index.theme")):
-                valid_icon_themes.append((theme_dir, theme_name))
-    return valid_icon_themes
-
-def find_handler_id_by_signal(obj, signal_name):
-    signal_id, detail = GObject.signal_parse_name(signal_name, obj, True)
-    return GObject.signal_handler_find(obj, GObject.SignalMatchType.ID, signal_id, detail, None, None, None)
 
 class gmoccapy(object):
     def __init__(self, argv):
@@ -168,10 +155,6 @@ class gmoccapy(object):
         gettext.install("gmoccapy", localedir=LOCALEDIR)
 
         # CSS styling
-        screen = Gdk.Screen.get_default()
-        provider = Gtk.CssProvider()
-        style_context = Gtk.StyleContext()
-        style_context.add_provider_for_screen(screen, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         css = b"""
             button {
                 padding: 0;
@@ -180,11 +163,12 @@ class gmoccapy(object):
                 padding: 3px;
                 margin: 1px;
             }
-            #notification_close {
-                padding: 8px;
-            }
         """
+        screen = Gdk.Screen.get_default()
+        provider = Gtk.CssProvider()
         provider.load_from_data(css)
+        style_context = Gtk.StyleContext()
+        style_context.add_provider_for_screen(screen, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
         # needed components to communicate with hal and linuxcnc
         self.halcomp = hal.component("gmoccapy")
@@ -304,7 +288,7 @@ class gmoccapy(object):
             page1 = self.widgets.ntb_jog_JA.get_nth_page(1)
             self.widgets.ntb_jog_JA.reorder_child(page1, -1)
 
-        # Our own class to get information from ini the file we use this way, to be sure
+        # Our own class to get information from INI the file we use this way, to be sure
         # to get a valid result, as the checks are done in that module
         self._get_ini_data()
 
@@ -501,9 +485,6 @@ class gmoccapy(object):
         self.widgets.gcode_view.set_sensitive(False)
         self.widgets.ntb_user_tabs.remove_page(0)
 
-        if not self.get_ini_info.get_embedded_tabs()[2]:
-            self.widgets.tbtn_user_tabs.set_sensitive(False)
-
         # call the function to change the button status
         # so every thing is ready to start
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
@@ -532,6 +513,44 @@ class gmoccapy(object):
         cycle_time = self.get_ini_info.get_cycle_time()
         GLib.timeout_add( cycle_time, self._periodic )  # time between calls to the function, in milliseconds
 
+        # This allows sourcing an user defined file
+        rcfile = "~/.gmoccapyrc"
+        user_command_file = self.get_ini_info.get_user_command_file()
+        if user_command_file:
+            rcfile = user_command_file
+        rcfile = os.path.expanduser(rcfile)
+        if os.path.exists(rcfile):
+            try:
+                exec(compile(open(rcfile, "rb").read(), rcfile, 'exec'))
+            except:
+                tb = traceback.format_exc()
+                print(tb, file=sys.stderr)
+                self.notification.add_message(_("Error in ") + rcfile + "\n" \
+                    + _("Please check the console output."), ALERT_ICON)
+
+        # Custom css file, e.g.:
+        #     button:checked {
+        #         background: rgba(230,230,50,0.8);
+        #     }
+
+        css_file = "~/.gmoccapy_css"
+        user_css_file = self.get_ini_info.get_user_css_file()
+        if user_css_file:
+            css_file = user_css_file
+        css_file = os.path.expanduser(css_file)
+        if os.path.exists(css_file):
+            provider_custom = Gtk.CssProvider()
+            try:
+                provider_custom.load_from_path(css_file)
+                style_context.add_provider_for_screen(screen, provider_custom, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+            except:
+                tb = traceback.format_exc()
+                print(tb, file=sys.stderr)
+                self.notification.add_message(_("Error in ") + css_file + "\n" \
+                    + _("Please check the console output."), ALERT_ICON)
+
+
+
     def _get_ini_data(self):
         self.get_ini_info = getiniinfo.GetIniInfo()
         # get the axis list from INI
@@ -548,7 +567,7 @@ class gmoccapy(object):
         self.dro_actual = self.get_ini_info.get_position_feedback_actual()
         # the given Jog Increments
         self.jog_increments = self.get_ini_info.get_increments()
-        # check if NO_FORCE_HOMING is used in ini
+        # check if NO_FORCE_HOMING is used in INI
         self.no_force_homing = self.get_ini_info.get_no_force_homing()
         # do we use a identity kinematics or do we have to distinguish
         # JOINT and Axis modes?
@@ -784,6 +803,8 @@ class gmoccapy(object):
     def _new_button_with_predefined_image(self, name, size, image = None, image_name = None):
         btn = Gtk.Button()
         btn.set_size_request(*size)
+        btn.set_halign(Gtk.Align.CENTER)
+        btn.set_valign(Gtk.Align.CENTER)
         btn.set_property("name", name)
         try:
             if image:
@@ -807,6 +828,8 @@ class gmoccapy(object):
         image.set_size_request(72,48)
         btn = Gtk.Button.new()
         btn.set_size_request(*_DEFAULT_BB_SIZE)
+        btn.set_halign(Gtk.Align.CENTER)
+        btn.set_valign(Gtk.Align.CENTER)
         btn.set_property("name", name)
         try:
             if filepath:
@@ -820,7 +843,7 @@ class gmoccapy(object):
             message = _("**** GMOCCAPY ERROR ****\n")
             message += _("**** could not resolv the image path '{0}' given for button '{1}' ****".format(filepath, name))
             print(message)
-            image.set_from_icon_name("gtk-missing-image", Gtk.IconSize.DIALOG)
+            image.set_from_icon_name("image-missing", Gtk.IconSize.DIALOG)
             btn.add(image)
 
         btn.show_all()
@@ -978,6 +1001,9 @@ class gmoccapy(object):
         lbl.set_visible(True)
         lbl.set_justify(Gtk.Justification.CENTER)
         btn = Gtk.ToggleButton.new()
+        btn.set_size_request(*_DEFAULT_BB_SIZE)
+        btn.set_halign(Gtk.Align.CENTER)
+        btn.set_valign(Gtk.Align.CENTER)
         btn.add(lbl)
         btn.connect("toggled", self.on_tbtn_edit_offsets_toggled)
         btn.set_property("tooltip-text", _("Press to edit the offsets"))
@@ -1036,6 +1062,9 @@ class gmoccapy(object):
             lbl.show()
 
         btn = self.widgets.offsetpage1.wTree.get_object("zero_g92_button")
+        btn.set_size_request(*_DEFAULT_BB_SIZE)
+        btn.set_halign(Gtk.Align.CENTER)
+        btn.set_valign(Gtk.Align.CENTER)
         self.widgets.offsetpage1.buttonbox.remove(btn)
         btn.connect("clicked", self.on_btn_zero_g92_clicked)
         btn.set_property("tooltip-text", _("Press to reset all G92 offsets"))
@@ -1045,6 +1074,9 @@ class gmoccapy(object):
 
         if self.tool_measure_OK:
             btn = Gtk.Button.new_with_label(_(" Block\nHeight"))
+            btn.set_size_request(*_DEFAULT_BB_SIZE)
+            btn.set_halign(Gtk.Align.CENTER)
+            btn.set_valign(Gtk.Align.CENTER)
             btn.connect("clicked", self.on_btn_block_height_clicked)
             btn.set_property("tooltip-text", _("Press to enter new value for block height"))
             btn.set_property("name", "block_height")
@@ -1055,6 +1087,9 @@ class gmoccapy(object):
         lbl.set_visible(True)
         lbl.set_justify(Gtk.Justification.CENTER)
         btn = Gtk.Button.new()
+        btn.set_size_request(*_DEFAULT_BB_SIZE)
+        btn.set_halign(Gtk.Align.CENTER)
+        btn.set_valign(Gtk.Align.CENTER)
         btn.add(lbl)
         btn.connect("clicked", self._on_btn_set_selected_clicked)
         btn.set_property("tooltip-text", _("Press to set the selected coordinate system to be the active one"))
@@ -1269,6 +1304,8 @@ class gmoccapy(object):
             for direction in ["+","-"]:
                 name = "{0}{1}".format(str(axis), direction)
                 btn = Gtk.Button.new_with_label(name.upper())
+                btn.set_halign(Gtk.Align.CENTER)
+                btn.set_valign(Gtk.Align.CENTER)
                 btn.set_property("name", name)
                 btn.connect("pressed", self._on_btn_jog_pressed, name)
                 btn.connect("released", self._on_btn_jog_released, name)
@@ -1288,6 +1325,8 @@ class gmoccapy(object):
             for direction in ["+","-"]:
                 name = "{0}{1}".format(str(joint), direction)
                 btn = Gtk.Button.new_with_label(name.upper())
+                btn.set_halign(Gtk.Align.CENTER)
+                btn.set_valign(Gtk.Align.CENTER)
                 btn.set_property("name", name)
                 btn.connect("pressed", self._on_btn_jog_pressed, name)
                 btn.connect("released", self._on_btn_jog_released, name)
@@ -1344,6 +1383,9 @@ class gmoccapy(object):
                 if len(lbl) > 11:
                     lbl = lbl[0:10] + "\n" + lbl[11:20]
                 btn = Gtk.Button.new_with_label(lbl)
+                btn.set_size_request(*_DEFAULT_BB_SIZE)
+                btn.set_halign(Gtk.Align.CENTER)
+                btn.set_valign(Gtk.Align.CENTER)
                 btn.set_property("name","macro_{0}".format(pos))
             btn.set_property("tooltip-text", _("Press to run macro {0}".format(name)))
             btn.connect("clicked", self._on_btn_macro_pressed, name)
@@ -1752,7 +1794,7 @@ class gmoccapy(object):
         self.widgets.tbl_jog_btn_joints.show_all()
 
     def _init_preferences(self):
-        # check if NO_FORCE_HOMING is used in ini
+        # check if NO_FORCE_HOMING is used in INI
         # disable reload tool on start up, if True
         if self.no_force_homing:
             self.widgets.chk_reload_tool.set_sensitive(False)
@@ -1823,6 +1865,8 @@ class gmoccapy(object):
 
         tab_names, tab_locations, tab_cmd = self.get_ini_info.get_embedded_tabs()
         if not tab_names:
+            self.widgets.tbtn_user_tabs.set_sensitive( False )
+            self.user_tabs_enabled = False
             print (_("**** GMOCCAPY INFO ****"))
             print (_("**** Invalid embedded tab configuration ****"))
             print (_("**** No tabs will be added! ****"))
@@ -1877,8 +1921,10 @@ class gmoccapy(object):
             # if no ntb_user_tabs in location is given
             if "ntb_user_tabs" in tab_locations:
                 self.widgets.tbtn_user_tabs.set_sensitive( True )
+                self.user_tabs_enabled = True
             else:
                 self.widgets.tbtn_user_tabs.set_sensitive( False )
+                self.user_tabs_enabled = False
 
             if "ntb_preview" in tab_locations:
                 self.widgets.ntb_preview.set_property( "show-tabs", True )
@@ -2007,16 +2053,16 @@ class gmoccapy(object):
         #    settings.set_string_property("Gtk-theme-name", theme_name, "")
 
     def _init_icon_themes(self):
-        valid_icon_themes = _find_valid_icon_themes()
+        valid_icon_themes = icon_theme_helper.find_valid_icon_themes([USER_ICON_THEME_DIR, ICON_THEME_DIR])
 
         model = self.widgets.icon_theme_choice.get_model()
         model.clear()
         for icon_theme in valid_icon_themes:
             model.append(icon_theme)
 
-        icon_theme_preference = self.prefs.getpref("icon_theme", None, str)
+        icon_theme_preference = self.prefs.getpref("icon_theme", DEFAULT_ICON_THEME, str)
         icon_theme_choice = self.widgets.icon_theme_choice
-        with(icon_theme_choice.handler_block(find_handler_id_by_signal(icon_theme_choice, "changed"))):
+        with(icon_theme_choice.handler_block(icon_theme_helper.find_handler_id_by_signal(icon_theme_choice, "changed"))):
             try:
                 selected_index = [icon_theme[1] for icon_theme in valid_icon_themes].index(icon_theme_preference)
                 icon_theme_choice.set_active(selected_index)
@@ -2024,9 +2070,8 @@ class gmoccapy(object):
                 print(f"Warning: preferred icon-theme '{icon_theme_preference}' not found; switching to 'default'.")
                 icon_theme_choice.set_active(0)
 
-        # switch theme if not default
-        if icon_theme_choice.get_active():
-            self._set_icon_theme(model[icon_theme_choice.get_active_iter()][1])
+        # load icon theme
+        self._set_icon_theme(model[icon_theme_choice.get_active_iter()][1])
 
 
     def _init_audio(self):
@@ -2439,7 +2484,7 @@ class gmoccapy(object):
 
     def _show_error(self, error):
         kind, text = error
-        # print kind,text
+        # print(kind,text)
         if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
             icon = ALERT_ICON
             self.halcomp["error"] = True
@@ -3224,6 +3269,13 @@ class gmoccapy(object):
         # tooledit page is active, so keys must go through
         if self.widgets.ntb_preview.get_current_page() == 2:
             return
+            
+        if (self.widgets.ntb_preview.get_current_page() == 4 and
+            keyname in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            'comma', 'period', 'BackSpace', 'Return']):
+            #user Tab, pass numbers through
+            return False
+            
 
         # take care of different key handling for lathe operation
         if self.lathe_mode:
@@ -3330,8 +3382,11 @@ class gmoccapy(object):
             self.notification.set_property('max_messages', self.widgets.adj_max_messages.get_value())
         self.notification.set_property('use_frames', self.widgets.chk_use_frames.get_active())
         self.notification.set_property('font', self.widgets.fontbutton_popup.get_font_name())
-        self.notification.set_property('icon_size', Gtk.IconSize.LARGE_TOOLBAR)
+        self.notification.set_property('icon_size', 24)
         self.notification.set_property('top_to_bottom', True)
+        # Append these two directories to the icon theme search path
+        self.notification.set_property('icon_theme_path', ICON_THEME_DIR)
+        self.notification.set_property('icon_theme_path', USER_ICON_THEME_DIR)
 
     def _from_internal_linear_unit(self, v, unit=None):
         if unit is None:
@@ -3915,7 +3970,7 @@ class gmoccapy(object):
         # "synchronize" all fullscreen toggle buttons
         for tbtn_fullscreen, num in [(self.widgets[f"tbtn_fullsize_preview{n}"], n) for n in range(2)]:
             if tbtn_fullscreen.get_active() is not state:
-                with(tbtn_fullscreen.handler_block(find_handler_id_by_signal(tbtn_fullscreen, "toggled"))):
+                with(tbtn_fullscreen.handler_block(icon_theme_helper.find_handler_id_by_signal(tbtn_fullscreen, "toggled"))):
                     tbtn_fullscreen.set_active(state)
             tbtn_fullscreen.set_image(self.widgets[f"img_fullsize_preview{num}_" + ("close" if state else "open")])
 
@@ -4280,7 +4335,7 @@ class gmoccapy(object):
 
         widgetlist = ["ntb_jog", "rbt_mdi","rbt_auto","tbtn_setup"]
 
-        if self.widgets.tbtn_user_tabs.get_sensitive():
+        if self.user_tabs_enabled:
             widgetlist.append("tbtn_user_tabs")
         self._sensitize_widgets( widgetlist, not state )
 
@@ -4453,7 +4508,7 @@ class gmoccapy(object):
             self.dialogs.warning_dialog(self, _("Just to warn you"), message)
         else:
             self.icon_theme.set_custom_theme(name)
-
+            self.notification.set_property('icon_theme_name', name)
             icon_configs = [
                 # widget, named_icon, size
                 ("img_emergency", "main_switch_on", 48),
@@ -4593,7 +4648,7 @@ class gmoccapy(object):
                     #  image is assigned at a time) and the default_style is maybe to inaccurate in terms of overridden
                     #  style attributes used by the icon loading mechanism (fg, succcss, warning and error colors)
                     # style = image.get_parent().get_style_context() if image.get_parent() else default_style
-                    pixbuf = self._load_symbolic_from_icon_theme(icon_name, size, default_style)
+                    pixbuf = icon_theme_helper.load_symbolic_from_icon_theme(self.icon_theme, icon_name, size, default_style)
                     image.set_from_pixbuf(pixbuf)
                     image.set_size_request(size, size)
                 except BaseException as err:
@@ -4602,41 +4657,6 @@ class gmoccapy(object):
 
             if failed_icons > 0:
                 print(f"Warning: {failed_icons} icons failed to load! (Maybe the icon theme is incomplete?)")
-
-
-    def _load_symbolic_from_icon_theme(self, icon_name, size, style = None ):
-        """Load a symbolic icon from the current icon theme.
-        If style is given, the symolic icon will be recolored based on colors derive from the stylecontext:
-         foreground color from Gtk.StateFlags.NORMAL, success_color, warning_color and error_color by calling
-         the corresponding lookup_color method.
-        If style is None, the icon is loaded via the Gtk.IconInfo.load_icon method without recoloring.
-
-        :param icon_name: The icon name
-        :type icon_name: str
-        :param size: Icon size to load
-        :type size: int
-        :param style: The style context to derive the colors from
-        :type style: Gtk.StyleContext
-        :return: GdkPixbuf.Pixbuf
-        :raises: ValueError: if icon lookup fails (usually if the theme does not contain a icon with this name)
-        """
-        lookup_flags = Gtk.IconLookupFlags.USE_BUILTIN | Gtk.IconLookupFlags.FORCE_SYMBOLIC | Gtk.IconLookupFlags.FORCE_SIZE
-        icon_info = self.icon_theme.lookup_icon(icon_name, size, lookup_flags)
-        if icon_info is None:
-            raise ValueError(f"Lookup icon '{icon_name}' failed")
-
-        pixbuf = None
-        if style is not None:
-            fg = style.get_color(Gtk.StateFlags.NORMAL)
-            __, success_color = style.lookup_color("success_color")
-            __, warning_color = style.lookup_color("warning_color")
-            __, error_color = style.lookup_color("error_color")
-
-            pixbuf, _ = icon_info.load_symbolic(fg, success_color, warning_color, error_color)
-        else:
-            pixbuf = icon_info.load_icon()
-
-        return pixbuf
 
     def on_icon_theme_choice_changed(self, widget):
         active = widget.get_active_iter()
@@ -5186,6 +5206,7 @@ class gmoccapy(object):
 
     # edit a program or make a new one
     def on_btn_edit_clicked(self, widget, data=None):
+        self.hbox2_position = self.widgets.hbox2.get_position()
         self.widgets.ntb_button.set_current_page(_BB_EDIT)
         self.widgets.ntb_preview.hide()
         self.widgets.tbl_DRO.hide()
@@ -5271,6 +5292,7 @@ class gmoccapy(object):
             self.widgets.ntb_preview.show()
             self.widgets.tbl_DRO.show()
             self.widgets.vbx_jog.set_size_request(360, -1)
+            self.widgets.hbox2.set_position(self.hbox2_position)
             self.widgets.gcode_view.set_sensitive(False)
             self.widgets.btn_save.set_sensitive(True)
             self.widgets.hal_action_reload.emit("activate")
@@ -5283,8 +5305,6 @@ class gmoccapy(object):
     def on_btn_new_clicked(self, widget, data=None):
         tempfilename = os.path.join(_TEMPDIR, "temp.ngc")
         content = self.get_ini_info.get_RS274_start_code()
-        if content == None:
-            content = " "
         content += "\n\n\n\nM2"
         gcodefile = open(tempfilename, "w")
         gcodefile.write(content)
@@ -5544,7 +5564,7 @@ class gmoccapy(object):
         else:
             self._on_btn_jog_released(None, button_name)
 
-    def _reset_overide(self, pin, type):
+    def _reset_override(self, pin, type):
         if pin.get():
             if type == "rapid":
                 self.command.rapidrate(1.0)
@@ -5744,15 +5764,15 @@ class gmoccapy(object):
 
         # make a pin to reset feed override to 100 %
         pin = self.halcomp.newpin("feed.reset-feed-override", hal.HAL_BIT, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self._reset_overide, "feed")
+        hal_glib.GPin(pin).connect("value_changed", self._reset_override, "feed")
 
         # make a pin to reset rapid override to 100 %
         pin = self.halcomp.newpin("rapid.reset-rapid-override", hal.HAL_BIT, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self._reset_overide, "rapid")
+        hal_glib.GPin(pin).connect("value_changed", self._reset_override, "rapid")
 
         # make a pin to reset spindle override to 100 %
         pin = self.halcomp.newpin("spindle.reset-spindle-override", hal.HAL_BIT, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self._reset_overide, "spindle")
+        hal_glib.GPin(pin).connect("value_changed", self._reset_override, "spindle")
 
         # make an error pin to indicate a error to hardware
         self.halcomp.newpin("error", hal.HAL_BIT, hal.HAL_OUT)

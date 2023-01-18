@@ -6,7 +6,7 @@ if the three phases don't sum to zero).\n.P\n\\fBclarke3\\fR implements
 the general case of the transform, using all three phases.  If the
 three phases are known to sum to zero, see \\fBclarke2\\fR for a
 simpler version.""";
-see_also """\\fBclarke2\\fR for the 'a+b+c=0' case, \\fBclarkeinv\\fR for
+see_also """\\fBclarke2\\fR(9) for the 'a+b+c=0' case, \\fBclarkeinv\\fR(9) for
 the inverse transform.""";
 pin in float a;
 pin in float b;

@@ -298,12 +298,6 @@ proc load_packages {} {
   }
 
   if [info exists ::LH(rtai)] {
-    if [catch {exec lsmod | grep rtai} msg] {
-      # puts ok_to_start_rtai
-    } else {
-      popup "RTAI is already running, (try: \$ halrun -U)"
-      exit 1
-    }
     exec $::LH(realtime) start &
     progress "Delay for realtime startup"
     after 1000 ;# wait to load Hal package

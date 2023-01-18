@@ -102,7 +102,7 @@ typedef struct {
 
     double vMax;		/* vel for subsequent moves */
     double ini_maxvel;          /* max velocity allowed by machine
-                                   constraints (ini file) for
+                                   constraints (INI file) for
                                    subsequent moves */
     double vLimit;		/* absolute upper limit on all vels */
 

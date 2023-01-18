@@ -1,0 +1,14 @@
+anglejog -- demonstrate jogging at an
+angle for a lathe (xz) configuration.
+
+Usage:
+
+1) F1        (Estop Off)
+2) F2        (Machine On)
+3) Ctrl-HOME (Home All)
+4) pyvcp panel: Set to Enable 
+5) pyvcp panel: change MPG counts
+   and note jogging at current angle
+6) pyvcp panel: Set to Disable
+7) pyvcp panel: alter Angle or Scale
+8) repeat from 4)

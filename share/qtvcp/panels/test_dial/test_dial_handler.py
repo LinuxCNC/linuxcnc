@@ -67,6 +67,7 @@ class HandlerClass:
         # make sure scalewidgets get proper starting values
         self.w.dial_1.valueChanged.emit(self.w.dial_1.value())
 
+        self.w.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.w.setWindowTitle('{}'.format(self.h.comp.getprefix()))
 
     ########################

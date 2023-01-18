@@ -40,6 +40,8 @@ h.newpin('start', hal.HAL_BIT, hal.HAL_IN)
 h.newpin('voltage-in', hal.HAL_FLOAT, hal.HAL_IN)
 h.newpin('close', hal.HAL_BIT, hal.HAL_IN)
 h.newpin('voltage-out', hal.HAL_FLOAT, hal.HAL_OUT)
+h.newpin('void', hal.HAL_BIT, hal.HAL_IN)
+h.newpin('void_ramp', hal.HAL_S32, hal.HAL_IN)
 # setdefaults for input pins
 h['cut-noise-in'] = 0.75
 h['cycles-in'] = 200     #"the number of cycles that the arc voltage overshoots the cut voltage (cycles)"
@@ -54,6 +56,8 @@ h.ready()
 # working variables
 angle = 0.0             # current ramp angle
 current_cycle = 0       # current cycle
+void_cycle = 0          # counter for void cycles
+#void_ramp = 50          # voltage rise per cycle
 dn_cycles = 0           # overshoot ramp down cycles
 init = False            # initialized flag
 initial_ramp = 10       # initial ramp up cycles
@@ -136,7 +140,13 @@ try:
                     h['voltage-out'] = voltage + overshoot_max - (current_cycle - up_cycles) * math.tan(angle) + random_noise(current_cycle, ramp_noise)
             else:
             # cut voltage voltage
-                h['voltage-out'] = voltage + offset + random_noise(current_cycle, cut_noise)
+                if h['void']:
+                    void_cycle += 1
+                    v = voltage + (h['void_ramp'] * void_cycle)
+                    h['voltage-out'] = v if v < 300 else 300
+                else:
+                    h['voltage-out'] = voltage + offset + random_noise(current_cycle, cut_noise)
+                    void_cycle = 0
             current_cycle += 1
         else:
             # stop the arc

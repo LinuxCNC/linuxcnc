@@ -103,9 +103,9 @@ m = HAL_TX_NAME or transaction number if not set, n = element number (NELEMENTS)
 .br
 Example: 
 .br
-mb2hal.00.01.<type> (transaction=00, second register=01 (00 is the first one))
+mb2hal.00.01.int (TRANSACTION_00, second register)
 .br
-mb2hal.TxName.01.<type> (HAL_TX_NAME=TxName, second register=01 (00 is the first one))
+mb2hal.readStatus.01.bit (HAL_TX_NAME=readStatus, first bit)
 
 .SH AUTHOR
 Victor Rocco

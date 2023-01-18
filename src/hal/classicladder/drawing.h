@@ -17,13 +17,17 @@
 #define DRAW_FOR_TOOLBAR 1
 #define DRAW_FOR_PRINT 2
 
-char * DisplayArithmExpr(char * Expr,int NumCarMax);
-void DrawTextWithOffsetGTK2( GdkPixmap * DrawPixmap, GdkGC * GcRef, int BaseX, int BaseY, int Width, int Height, char * Text, int BorderOffset );
-void DrawTextGTK2( GdkPixmap * DrawPixmap, GdkGC * GcRef, int BaseX, int BaseY, int Width, int Height, char * Text );
-void DrawCommonElementForToolbar(GdkPixmap * DrawPixmap,int x,int y,int Size,int NumElement);
-void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElement Element,char DrawingOption);
-void GetTheSizesForRung();
-void DrawRung(GdkPixmap * DrawPixmap, StrRung * Rung, int PosiY, int BlockWidth, int BlockHeight, char DrawingOption);
-void DrawRungs();
-void DrawCurrentSection( void );
+void CreateVarNameForElement( char * pBuffToWrite, StrElement * pElem, char SymbolsVarsNamesIfAvail );
+char * DisplayArithmExpr(char * Expr, char SymbolsVarsNamesIfAvail);
+void CreateFontPangoLayout( cairo_t *cr, int BlockPxHeight, char DrawingOption );
+int DrawPangoText( cairo_t * cr, int BaseX, int BaseY, int Width, int Height, char * Text );
+void DrawCommonElementForToolbar( cairo_t * cr,int x,int y,int Size,int NumElement );
+void my_cairo_draw_line( cairo_t *cr, double x1, double y1, double x2, double y2 );
+void my_cairo_draw_color_line( cairo_t *cr, char cColor, double x1, double y1, double x2, double y2 );
+void my_cairo_draw_black_rectangle( cairo_t *cr, double x, double y, double w, double h );
+void DrawElement( cairo_t * cr,int x,int y,int Width,int Height,StrElement Element,char DrawingOption );
+void DrawLeftRightBars( cairo_t * cr, int OffX, int PosiY, int BlockWidth, int BlockHeight, int HeaderLabelAndCommentHeight, int LeftRightBarsWidth, int IsTheCurrentRung );
+void DrawRung( cairo_t * cr, StrRung * Rung, int OffX, int PosiY, int BlockWidth, int BlockHeight, int HeaderLabelAndCommentHeight, char DrawingOption );
+void DrawRungs( cairo_t * cr );
+void DrawCurrentSection( cairo_t * cr );
 

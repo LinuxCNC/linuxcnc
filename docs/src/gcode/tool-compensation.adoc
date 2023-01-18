@@ -71,12 +71,13 @@ table in the GUI.
 
 .Tool Table Format
 [width="100%",options="header"]
-|====
-|;T#   |P#  |X  |Y  |Z  |A  |B  |C  |U  |V  |W  |Dia |FA |BA |Ori |Rem
+|===
+|T#   |P#  |X  |Y  |Z  |A  |B  |C  |U  |V  |W  |Dia |FA |BA |Ori |Rem
+|; 15+^|(no data after opening semicolon)
 |T1    |P17 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
 |T2    |P5  |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
 |T3    |P12 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
-|====
+|===
 
 In general, the tool table line format is:
 
@@ -98,6 +99,7 @@ You will probably want to keep the tool entries in ascending order,
 especially if you are going to be using a randomizing tool changer.
 Although the tool table does allow for tool numbers in any order.
 
+One line may contain as many as 16 entries, but will likely contain much fewer.
 The entries for T (tool number) and P (pocket number) are required.
 The last entry (a remark or comment, preceded by a semicolon) is
 optional. It makes reading easier if the entries are arranged in
@@ -197,7 +199,7 @@ type of toolchanger specified by *[EMCIO]RANDOM_TOOLCHANGER=type*.
   toolchanger) idx is a number indicating the sequence in which tooldata was
   loaded.
 . For *RANDOM_TOOLCHANGER = 1*, idx is the *current* pocket number
-  for the toolnumber specified by the G-code select tool command *T__n__*.
+  for the tool number specified by the G-code select tool command *T__n__*.
 
 The io program provides HAL output pins to facilitate toolchanger management:
 
@@ -208,13 +210,13 @@ The io program provides HAL output pins to facilitate toolchanger management:
 
 ==== IO for non-random toolchanger
 
-. Tool number _n_==0 indicates no tool
+. Tool number _n_==0 indicates no tool.
 . The pocket number for a tool is set when tooldata is loaded/reloaded
   from its data source ([EMCIO]TOOL_TABLE or [EMCIO]DB_PROGRAM).
 . At G-code *T__n__* (_n_ != 0) command:
-.. *iocontrol.0.tool-prep-index*  = idx (index based on tooldata load sequence)
+.. *iocontrol.0.tool-prep-index*  = _idx_ (index based on tooldata load sequence)
 .. *iocontrol.0.tool-prep-number* = _n_
-.. *iocontrol.0.tool-prep-pocket* = the pocketno for _n_
+.. *iocontrol.0.tool-prep-pocket* = the pocket number for _n_
 . At G-code *T0* (_n_ == 0 remove) command:
 .. *iocontrol.0.tool-prep-index*  = 0
 .. *iocontrol.0.tool-prep-number* = 0
@@ -226,7 +228,7 @@ The io program provides HAL output pins to facilitate toolchanger management:
 
 . Tool number _n_==0 is *not special*.
 . Pocket number 0 is *special* as it indicates the *spindle*.
-. The *current* pocket number for tool __N__ is the tooldata index (idx) for tool __n__.
+. The *current* pocket number for tool _n_ is the tooldata index (_idx_) for tool _n_.
 . At G-code command *T__n__*:
 .. *iocontrol.0.tool-prep-index*  = tooldata index (idx) for tool _n_
 .. *iocontrol.0.tool-prep-number* = _n_
@@ -236,8 +238,8 @@ The io program provides HAL output pins to facilitate toolchanger management:
 
 [NOTE]
 At startup, *iocontrol.0.tool-from-pocket* = 0.
-An M61Qn (_n_!=0) command does not change the *iocontrol.0.tool-from-pocket*.
-An M61Qn (_n_==0) command sets *iocontrol.0.tool-from-pocket* to 0.
+An M61Q__n__ (_n_!=0) command does not change the *iocontrol.0.tool-from-pocket*.
+An M61Q0 (_n_==0) command sets *iocontrol.0.tool-from-pocket* to 0.
 
 [[sub:tool-changers]]
 === Tool Changers(((Tool Changers)))
@@ -272,11 +274,11 @@ When using [EMCIO]RANDOM_TOOLCHANGER = 0 (the default), the 'P'
 pocket number is a parameter of the tooldata that is retrieved from
 the tooldata source ([EMCIO]TOOL_TABLE or [EMCIO]DB_PROGRAM).  In many
 applications it is fixed but it may be changed by edits to the
-[EMCIO]TOOL_TABLE or programatically when the [EMCIO]DB_PROGRAM is
+[EMCIO]TOOL_TABLE or programmatically when the [EMCIO]DB_PROGRAM is
 used.  LinuxCNC pushes updates to the data source ([EMCIO]TOOL_TABLE
 or [EMCIO]DB_PROGRAM) for gcodes G10L1,G10L10,G10L11,M61.  LinuxCNC
 can pull tooldata updates from the data source by UI (user-interface)
-commands (python example: linuxcnc.command().load_tool_table()) or by
+commands (Python example: linuxcnc.command().load_tool_table()) or by
 the gcode: G10L0.
 
 .Random Location Tool Changers

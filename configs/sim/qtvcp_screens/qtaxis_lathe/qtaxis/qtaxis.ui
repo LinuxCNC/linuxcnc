@@ -2413,7 +2413,7 @@
   <action name="actionToolOffsetDialog">
    <property name="icon">
     <iconset>
-     <normaloff>../../../gmoccapy/images/editor.png</normaloff>../../../gmoccapy/images/editor.png</iconset>
+     <normaloff>../../images/editor.png</normaloff>images/editor.png</iconset>
    </property>
    <property name="text">
     <string>Edit tooltable</string>
@@ -2422,7 +2422,7 @@
   <action name="actionOriginOffsetDialog">
    <property name="icon">
     <iconset>
-     <normaloff>../../../gmoccapy/images/editor.png</normaloff>../../../gmoccapy/images/editor.png</iconset>
+     <normaloff>../../images/editor.png</normaloff>images/editor.png</iconset>
    </property>
    <property name="text">
     <string>View Origintable</string>

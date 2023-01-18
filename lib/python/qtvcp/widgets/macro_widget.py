@@ -23,6 +23,7 @@ from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.entry_widget import TouchInterface
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
+from qtvcp.widgets.touchEntry import TouchDoubleSpinBox,TouchSpinBox
 
 # Instantiate the libraries with global reference
 # INFO holds INI file details
@@ -36,7 +37,7 @@ LOG = logger.getLogger(__name__)
 
 # Set the log level for this module
 if not INFO.LINUXCNC_IS_RUNNING:
-    LOG.setLevel(logger.ERROR) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+    LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 try:
     from PyQt5 import QtSvg
@@ -158,13 +159,14 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         vbox.addLayout(hbox)
         # add all that stuff above to me
         self.setLayout(vbox)
-        # add everything else
-        self.buildStack()
 
     def sizeHint(self):
         return QtCore.QSize(200, 200)
 
     def _hal_init(self):
+        # add The macros to the stacked wodget
+        self.buildStack(INFO.SUB_PATH_LIST)
+
         self.runButton.setEnabled(False)
         STATUS.connect('state-off', lambda w: self.runButton.setEnabled(False))
         STATUS.connect('state-estop', lambda w: self.runButton.setEnabled(False))
@@ -183,9 +185,13 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
     # then build a menu page
     # then build the stack
     # anything goes wrong display an error page
-    def buildStack(self):
+    def buildStack(self, pathlist):
+        def checkIfFloat(val):
+            return all([ [any([i.isnumeric(), i in ['.','e']]) for i in val],  len(val.split('.')) == 2] )
+
         macroFlag = False
-        for path in INFO.SUB_PATH_LIST:
+        for path in pathlist:
+            print(path)
             if 'macro' in path:
                 path = os.path.expanduser(path)
                 tabName = self._findMacros(path)
@@ -224,7 +230,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
 
                         # layout holds label and entry for one line
                         hbox2 = QtWidgets.QHBoxLayout()
-                        # make a label
+                        # make a label 
                         l = QtWidgets.QLabel(name[0])
 
                         # make appropriate entries:
@@ -235,13 +241,26 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                                 self['%s%d' % (tName, n)].setChecked(True)
                         # line edits that will pop an entry dialog:
                         else:
-                            self['%s%d' % (tName, n)] = QtWidgets.QLineEdit()
+                            print(name[1], checkIfFloat(name[1]))
+                            if checkIfFloat(name[1]):
+                                #self['%s%d' % (tName, n)] = QtWidgets.QLineEdit()
+                                #self['%s%d' % (tName, n)].setText(name[1])
+                                self['%s%d' % (tName, n)] = TouchDoubleSpinBox()
+                                self['%s%d' % (tName, n)].callDialog = self.getNumbers
+                                self['%s%d' % (tName, n)].setValue(float(name[1]))
+                            else:
+                                self['%s%d' % (tName, n)] =  TouchSpinBox()
+                                self['%s%d' % (tName, n)].callDialog = self.getNumbers
+                                self['%s%d' % (tName, n)].setValue(int(name[1]))
+                            self['%s%d' % (tName, n)]._label = name[0]
+                            self['%s%d' % (tName, n)]._tabName = tName
+                            self.set_style(self['%s%d' % (tName, n)])
                             self['%s%d' % (tName, n)].keyboard_type = 'numeric'
-                            self['%s%d' % (tName, n)].setText(name[1])
+
                         hbox2.addWidget(l)
                         hbox2.addWidget(self['%s%d' % (tName, n)])
 
-                        # add label/entry layout to vertical layout fr this tab
+                        # add label/entry layout to vertical layout fr this tab 
                         vbox.addLayout(hbox2)
 
                     #add the SVG/image pic layer
@@ -279,7 +298,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         # show a message
         if macroFlag == False:
             self._buildErrorTab()
-
+        print(self.stack.count())
     # Menu page has icon buttons to select the macro
     # it finds the icon info from the macro file
     # using the magic comments parsed before this
@@ -342,7 +361,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
     # self['macroname'] = [ [DEFAULT DATA],[SVG FILE,LAYER,ICON LAYER],{OPTION DICT NAME:OPTION DICT DATA,}]
     # returns a list on the macro names that it finds valid
 
-    def _findMacros(self,path):
+    def _findMacros(self, path):
         tName = []
         macros = []
         defaults = []
@@ -362,7 +381,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                         # check if they have the magic comments
                         if 'MACROCOMMAND' in first_line and \
                                 'MACRODEFAULT' in second_line and \
-                                ('MACROSVG' in third_line or
+                                ('MACROSVG' in third_line or 
                                     'MACROIMAGE' in third_line):
                             name = os.path.splitext(f)[0]
                             # yes, now keep everything after '='
@@ -532,7 +551,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                 line =  '%s,%s,    %s\n'%( widgetname, str(data), i[0])
                 QtCore.QTextStream(file) << line
         else:
-            QtWidgets.QMessageBox.information(self, "Unable to open file",
+            QMessageBox.information(self, "Unable to open file",
                     file.errorString())
 
     # we do this instead of directly so the dialog version's title changes
@@ -541,10 +560,10 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         self.setWindowTitle(string)
 
     # get numeric data
-    def getNumbers(self,widget,ktype):
+    def getNumbers(self,widget,ktype=None):
         mess = {'NAME':self._request_name,'ID':'%s__macro',
                 'PRELOAD':float(widget.text()),
-            'TITLE':'Macro Entry Calculator','WIDGET':widget}
+            'TITLE':'{} Macro Entry For {}'.format(widget._tabName,widget._label),'WIDGET':widget}
         STATUS.emit('dialog-request', mess)
 
     # request the system to pop a load path picker dialog
@@ -585,7 +604,53 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
             widget = message.get('WIDGET')
             if code and widget is not None:
                 if num is not None:
-                    widget.setText(str(num))
+                    widget.setValue(num)
+
+    def set_style(self, widget):
+        widget.setStyleSheet(
+"""
+QDoubleSpinBox,
+QSpinBox {
+    	padding-right: 15px; /* make room for the arrows */
+    	border-image: url(:/images/frame.png) 4;
+    	border-width: 3;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	font-size:20px;
+	border: 1px solid black;
+	min-width: 100px;
+	max-height: 30;
+}
+
+QDoubleSpinBox::up-button,
+QSpinBox::up-button {
+    	subcontrol-origin: border;
+ 	subcontrol-origin: padding;
+          	subcontrol-position: right; width: 30px; height: 28px;
+	image: url(:/widget/images/arrow_up1.png);
+           	border: 1px solid black;
+}
+QDoubleSpinBox::up-button:pressed,
+QSpinBox::up-button:pressed {
+    	image: url(:/widget/images/arrow_up2.png);
+}
+
+QDoubleSpinBox::down-button,
+QSpinBox::down-button {
+    	subcontrol-origin: border;
+ 	subcontrol-origin: padding;
+	subcontrol-position: left; width: 30px; height: 28px;
+	image: url(:/widget/images/arrow_down1.png);
+	border: 1px solid black;
+}
+QDoubleSpinBox::down-button:pressed,
+QSpinBox::down-button:pressed {
+   	 image: url(:/widget/images/arrow_down2.png) 1;
+}
+
+""")
 
     # usual boiler code
     # (used so we can use code such as self[SomeDataName]
@@ -600,6 +665,7 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     #sw = QtSvg.QSvgWidget('LatheMacro.svg')
     sw = MacroTab()
+    sw.buildStack(['~/linuxcnc/nc_files/examples/macros/lathe'])
     sw.setGeometry(50, 50, 759, 668)
     sw.show()
     sys.exit(app.exec_())

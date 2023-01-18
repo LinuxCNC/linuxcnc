@@ -3,7 +3,7 @@
 *   prints to stdout the INI file result of a variable-in-section
 *   search, useful for scripts that want to pick things out of INI files.
 *
-*   syntax:  inivar -var <variable> {-sec <section>} {<-ini inifile>}
+*   syntax:  inivar -var <variable> {-sec <section>} {-ini <INI file>}
 *
 *   Uses emc.ini as default. <variable> needs to be supplied. If <section>
 *   is omitted, first instance of <variable> will be looked for in any
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 	    if (t == argc - 1) {
 		/* no arg following -ini, so abort */
 		fprintf(stderr,
-		    "%s: ini file not specified after -ini\n", argv[0]);
+		    "%s: INI file not specified after -ini\n", argv[0]);
 		exit(1);
 	    } else {
 		path = argv[t+1];
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 	} else{
 	    /* invalid argument */
 	    fprintf(stderr,
-		"%s: -var <variable> {-tildeexpand} {-sec <section>} {<-ini inifile>} [-num <nth item>]\n",
+		"%s: -var <variable> {-tildeexpand} {-sec <section>} {-ini <INI file>} [-num <nth item>]\n",
 		argv[0]);
 	    exit(1);
 	}
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
     }
 
     IniFile inifile;
-    /* open the inifile */
+    /* open the INI file */
     inifile.Open(path);
     if (inifile.IsOpen() == false) {
 	fprintf(stderr, "%s: can't open %s\n", argv[0], path);

@@ -29,7 +29,7 @@ def exception_format(e):
 	#used like this
 	#try:
 	#	......
-	#except Exception, e:
+	#except Exception as e:
 	#	easygui.msgbox(exception_format(e), title="Exception")
     
 #ttyS0 = COM1
@@ -49,7 +49,7 @@ def start_spindle_ccw():
 			ComPort1.write(chr(2) + chr(3) + chr(1) + chr(17) + chr(48) + chr(0))
 			globals.ops_message('Spindle started CCW....')
 			#globals.ops_message('Spindle started CW....')
-	except Exception,  e:
+	except Exception as e:
 		#easygui.msgbox(exception_format(e), title="VFD Exception")
 		pass
 
@@ -62,7 +62,7 @@ def start_spindle_cw():
 			ComPort1.write(chr(2) + chr(3) + chr(1) + chr(1) + chr(49) + chr(204)) 
 			globals.ops_message('Spindle started CW....')
 			#globals.ops_message('Spindle started CCW....')    
-	except Exception,  e:
+	except Exception as  e:
 		#easygui.msgbox('Unable to start spindle - ccw', title="VFD Error") 
 		pass
 	
@@ -75,7 +75,7 @@ def set_spindle_speed(speed):
 			ComPort1.write(chr(int(SerialByte[0], 16)) + chr(int(SerialByte[1], 16)) + chr(int(SerialByte[2], 16)) + chr(int(SerialByte[3], 16)) + chr(int(SerialByte[4], 16)) +  chr(int(SerialByte[5], 16)) + chr(int(SerialByte[6], 16)) + chr(int(SerialByte[7], 16)))
 			time.sleep(0.1)
 			globals.ops_message('Spindle speed set at ' + '%.0f' % (float(speed)) + ' RPM')
-	except Exception,  e:
+	except Exception as e:
 		#easygui.msgbox(exception_format(e), title="VFD Exception") #'Unable to set spindle speed', title="VFD Error") 
 		pass
 	
@@ -88,7 +88,7 @@ def stop_spindle():
 					globals.ops_message('Spindle stopped....')
 			except: pass
 				
-	except Exception,  e:
+	except Exception as e:
 		#easygui.msgbox('Unable to stop spindle', title="VFD Error") 
 		pass	
 		
@@ -115,7 +115,7 @@ def prepare_speed(speed):
 		SerialByte[5]  = '00'
 
 		calc_crch(SerialByte[0] + SerialByte[1] + SerialByte[2] + SerialByte[3] + SerialByte[4] + SerialByte[5], DecString)
-	except Exception,  e:
+	except Exception as e:
 		#easygui.msgbox(exception_format(e), title="VFD Error") 
 		pass
 		

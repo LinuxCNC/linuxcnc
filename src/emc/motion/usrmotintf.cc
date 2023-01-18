@@ -46,14 +46,14 @@ static emcmot_error_t *emcmotError = 0;
 static emcmot_struct_t *emcmotStruct = 0;
 
 /* usrmotIniLoad() loads params (SHMEM_KEY, COMM_TIMEOUT)
-   from named ini file */
+   from named INI file */
 int usrmotIniLoad(const char *filename)
 {
     IniFile inifile(IniFile::ERR_CONVERSION);   // Enable exception.
     
     /* open it */
     if (!inifile.Open(filename)) {
-	rtapi_print("can't find emcmot ini file %s\n", filename);
+	rtapi_print("can't find emcmot INI file %s\n", filename);
 	return -1;
     }
 

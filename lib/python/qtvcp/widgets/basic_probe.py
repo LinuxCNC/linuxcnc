@@ -18,7 +18,7 @@
 import sys
 import os
 import json
-from PyQt5.QtCore import QProcess
+from PyQt5.QtCore import QProcess, QRegExp
 from PyQt5 import QtGui, QtWidgets, uic
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Action, Status, Info
@@ -40,9 +40,9 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         super(BasicProbe, self).__init__(parent)
         self.proc = None
         if INFO.MACHINE_IS_METRIC:
-            self.valid = QtGui.QDoubleValidator(-999.999, 999.999, 3)
+            self.valid = QtGui.QRegExpValidator(QRegExp('^[+-]?((\d+(\.\d{,4})?)|(\.\d{,4}))$'))
         else:
-            self.valid = QtGui.QDoubleValidator(-999.9999, 999.9999, 4)
+            self.valid = QtGui.QRegExpValidator(QRegExp('^[+-]?((\d+(\.\d{,3})?)|(\.\d{,3}))$'))
         self.setMinimumSize(600, 420)
         # load the widgets ui file
         self.filename = os.path.join(INFO.LIB_PATH, 'widgets_ui', 'basic_probe.ui')
@@ -102,6 +102,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.cmb_probe_select.addItems(self.probe_list)
         self.stackedWidget_probe_buttons.setCurrentIndex(0)
         # define validators for all lineEdit widgets
+        self.lineEdit_probe_tool.setValidator(QtGui.QRegExpValidator(QRegExp('[0-9]{0,5}')))
         for i in self.parm_list:
             self['lineEdit_' + i].setValidator(self.valid)
 
@@ -193,6 +194,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
     def process_finished(self, exitCode, exitStatus):
         LOG.info(("Probe Process finished - exitCode {} exitStatus {}".format(exitCode, exitStatus)))
         self.proc = None
+        STATUS.unblock_error_polling()
 
     def parse_input(self, line):
         line = line.decode("utf-8")

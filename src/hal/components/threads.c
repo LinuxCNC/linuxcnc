@@ -72,7 +72,7 @@ RTAPI_MP_LONG(period2, "thread2 period (nsecs)");
 static char *name3 = NULL;	/* name of thread */
 RTAPI_MP_STRING(name3, "name of thread 3");
 static int fp3 = 1;		/* use floating point? default = yes */
-RTAPI_MP_INT(fp3, "thread1 uses floating point");
+RTAPI_MP_INT(fp3, "thread3 uses floating point");
 static long period3 = 0;	/* thread period - default = no thread */
 RTAPI_MP_LONG(period3, "thread3 period (nsecs)");
 

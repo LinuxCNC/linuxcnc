@@ -55,14 +55,23 @@ done
 
 DISTRIB_NAME=
 if [ "$(command -v lsb_release)" != "" ] || [ "$(which lsb_release)" != "" ]; then
-    DISTRIB_NAME="$(lsb_release -s -i)-$(lsb_release -s -r)"
+    ID="$(lsb_release --short --id)"
+    RELEASE="$(lsb_release --short --release)"
+    # Workaround for broken lsb_release, <URL: https://bugs.debian.org/1008735 >
+    case "$RELEASE" in
+      n/a)
+        RELEASE=unstable
+        ;;
+    esac
+    DISTRIB_NAME="$ID-$RELEASE"
 elif [ -f /etc/lsb-release ]; then
     source /etc/lsb-release
     DISTRIB_NAME=$DISTRIB_ID-$DISTRIB_RELEASE
 fi
 
 if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
-    DOC_DEPENDS="dblatex (>= 0.2.12),\n    dvipng,\n    graphviz,\n    groff,\n    inkscape,\n    python3-lxml,\n    w3c-linkchecker,\n    xsltproc,\n    texlive-extra-utils,\n    texlive-font-utils,\n    texlive-fonts-recommended,\n    texlive-lang-cyrillic,\n    texlive-lang-european,\n    texlive-lang-french,\n    texlive-lang-german,\n    texlive-lang-polish,\n    texlive-lang-spanish,\n    texlive-latex-recommended,\n    fonts-dejavu"
+    DOC_DEPENDS="dblatex (>= 0.2.12),\n    dvipng,\n    fonts-dejavu,\n    graphviz,\n    groff,\n    inkscape,\n    python3-lxml,\n    source-highlight,\n    texlive-extra-utils,\n    texlive-font-utils,\n    texlive-fonts-recommended,\n    texlive-lang-cyrillic,\n    texlive-lang-european,\n    texlive-lang-french,\n    texlive-lang-german,\n    texlive-lang-polish,\n    texlive-lang-spanish,\n    texlive-latex-recommended,\n    w3c-linkchecker,\n    xsltproc"
+    
 
     case $DISTRIB_NAME in
 	Debian-9)
@@ -84,7 +93,7 @@ PYTHON_GST=python3-gst-1.0,gstreamer1.0-plugins-base
 TCLTK_VERSION=8.6
 PYTHON_IMAGING=python3-pil
 PYTHON_IMAGING_TK=python3-pil.imagetk
-QTVCP_DEPENDS="python3-pyqt5,\n    python3-pyqt5.qsci,\n    python3-pyqt5.qtsvg,\n    python3-pyqt5.qtopengl,\n    python3-opencv,\n    python3-dbus,python3-espeak,\n    python3-dbus.mainloop.pyqt5,\n    python3-pyqt5.qtwebkit,\n    espeak-ng,\n    pyqt5-dev-tools,\n    gstreamer1.0-tools,espeak,\n    sound-theme-freedesktop"
+QTVCP_DEPENDS="python3-pyqt5,\n    python3-pyqt5.qsci,\n    python3-pyqt5.qtsvg,\n    python3-pyqt5.qtopengl,\n    python3-opencv,\n    python3-dbus,\n    python3-espeak,\n    python3-dbus.mainloop.pyqt5,\n    python3-pyqt5.qtwebkit,\n    espeak-ng,\n    pyqt5-dev-tools,\n    gstreamer1.0-tools,espeak,\n    sound-theme-freedesktop,\n    python3-poppler-qt5"
 YAPPS_RUNTIME="python3-yapps"
 DEBHELPER="debhelper (>= 12)"
 COMPAT="12"

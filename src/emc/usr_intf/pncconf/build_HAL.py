@@ -1638,7 +1638,7 @@ class HAL:
                 print(file=file)
                 port = 0
                 for channel in range (0,self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._MAXSSERIALCHANNELS]):
-                    if channel >4: break # TODO only have 5 channels worth of glade widgets
+                    if channel > _PD._NUM_CHANNELS: break
                     for pin in range (0,_PD._SSCOMBOLEN):
                         pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
                         p = self.d['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
@@ -1798,7 +1798,7 @@ class HAL:
                 print(file=file)
                 port = 0
                 for channel in range (0,self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._MAXSSERIALCHANNELS]):
-                    if channel >4: break # TODO only have 5 channels worth of glade widgets
+                    if channel > _PD._NUM_CHANNELS: break
                     for pin in range (0,_PD._SSCOMBOLEN):
                         pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
                         p = self.d['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
@@ -1866,7 +1866,14 @@ class HAL:
                 dratio = self.d.voltsrdiv
             else:
                 dratio = (self.d.voltsrdiv + 100000) / 100000
-            self.d.qtplasmacvscale = dratio / (((self.d.voltsfullf - self.d.voltszerof) * 1000) / int(self.d.voltsfjumper) / int(self.d.voltsmodel))
+            if self.d.voltsmodel.startswith("2"):
+                if "(W1 down)" in self.d.voltsmodel:
+                    thcadvolts = 5
+                else:
+                    thcadvolts = 10
+            else:
+                thcadvolts = int(self.d.voltsmodel)
+            self.d.qtplasmacvscale = dratio / (((self.d.voltsfullf - self.d.voltszerof) * 1000) / int(self.d.voltsfjumper) / thcadvolts)
             self.d.qtplasmacvoffset = self.d.voltszerof * 1000 / int(self.d.voltsfjumper)
             # arc voltage in hal file
             print(_("\n# ---ARC VOLTAGE ENCODER---"), file=file)

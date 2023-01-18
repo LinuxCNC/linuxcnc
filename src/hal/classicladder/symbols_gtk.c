@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* Copyright (C) 2001-2010 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* October 2006 */
@@ -20,12 +20,11 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-#include <locale.h>
-#include <libintl.h>
-#define _(x) gettext(x)
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>
+#include <libintl.h> // i18n
+#include <locale.h> // i18n
 #include "classicladder.h"
 #include "global.h"
 #include "edit.h"
@@ -33,9 +32,10 @@
 #include "vars_names.h"
 #include "symbols_gtk.h"
 #include <rtapi_string.h>
+#include "menu_and_toolbar_gtk.h"
 
 GtkWidget *SymbolsWindow;
-GtkListStore *ListStore;
+static GtkListStore *ListStore;
 
 // NUM_ARRAY is a hidden column (=number in the symbols array)
 enum
@@ -80,8 +80,10 @@ void DisplaySymbols( void )
 		break;
 						}
 
-	// fill the element
+		// Acquire an iterator
 		gtk_list_store_append( ListStore, &iter );
+
+		// fill the element
 		gtk_list_store_set( ListStore, &iter,
 					NUM_ARRAY, ScanSymb,
                     VAR_NAME, SymbolArray[ ScanSymb ].VarName,
@@ -89,12 +91,11 @@ void DisplaySymbols( void )
                     COMMENT, Tempbuf,
                     -1);
 	}
-
 }
 
 /* The callback for the editing of text in our GtkTreeView */
 /* data=column number */
-// added a call to DisplaySymbols() so window updates right away
+// EMC: added a call to DisplaySymbols() so window updates right away
 void Callback_TextEdited(GtkCellRendererText *cell, gchar *path_string,
 		      gchar *new_text, gpointer data) {
 
@@ -117,9 +118,18 @@ void Callback_TextEdited(GtkCellRendererText *cell, gchar *path_string,
 	switch( (long)data )
 	{
 		case VAR_NAME:
-			if ( new_text[ 0 ]!='%' )
+			if ( new_text[ 0 ]=='\0' )
 			{
-				ShowMessageBox(_("Error"),_("A variable name always start with '%' character !"),_("Ok"));
+				// delete symbol line
+				pSymbol->VarName[ 0 ] = '\0';
+				pSymbol->Symbol[ 0 ] = '\0';
+				pSymbol->Comment[ 0 ] = '\0';
+				gtk_list_store_set( ListStore, &iter, VAR_NAME, "", SYMBOL, "", COMMENT, "", -1);
+				InfosGene->AskConfirmationToQuit = TRUE;
+			}
+			else if ( new_text[ 0 ]!='%' )
+			{
+				ShowMessageBoxError( _("A variable name always start with '%' character !") );
 			}
 			else
 			{
@@ -131,13 +141,14 @@ void Callback_TextEdited(GtkCellRendererText *cell, gchar *path_string,
 					if ( pSymbol->Symbol[0]=='\0' )
 						rtapi_strxcpy( pSymbol->Symbol, "***" );
 					InfosGene->AskConfirmationToQuit = TRUE;
+					InfosGene->HasBeenModifiedForExitCode = TRUE;
 				}
 				else
 				{
 					if (ErrorMessageVarParser)
-						ShowMessageBox( _("Error"), ErrorMessageVarParser, _("Ok") );
+						ShowMessageBoxError( ErrorMessageVarParser );
 					else
-						ShowMessageBox( _("Error"), _("Unknown variable..."), _("Ok") );
+						ShowMessageBoxError( _("Unknown variable...") );
 				}
 			}
 			break;
@@ -146,12 +157,14 @@ void Callback_TextEdited(GtkCellRendererText *cell, gchar *path_string,
 			pSymbol->Symbol[ LGT_SYMBOL_STRING-1 ] = '\0';
 			gtk_list_store_set( ListStore, &iter, data, pSymbol->Symbol, -1);
 			InfosGene->AskConfirmationToQuit = TRUE;
+			InfosGene->HasBeenModifiedForExitCode = TRUE;
 			break; 
 		case COMMENT:
 			strncpy( pSymbol->Comment, new_text, LGT_SYMBOL_COMMENT-1 );
 			pSymbol->Comment[ LGT_SYMBOL_COMMENT-1 ] = '\0';
 			gtk_list_store_set( ListStore, &iter, data, pSymbol->Comment, -1);
 			InfosGene->AskConfirmationToQuit = TRUE;
+			InfosGene->HasBeenModifiedForExitCode = TRUE;
 			break;
 	}
 DisplaySymbols();
@@ -161,19 +174,22 @@ DisplaySymbols();
 gint SymbolsWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
 {
 	gtk_widget_hide( SymbolsWindow );
+	SetToggleMenuForSymbolsWindow( FALSE/*OpenedWin*/ );
 	// we do not want that the window be destroyed.
 	return TRUE;
 }
 
-void OpenSymbolsWindow( void )
+// called per toggle action menu, or at startup (if window saved open or not)...
+void OpenSymbolsWindow( GtkAction * ActionOpen, gboolean OpenIt )
 {
-	if ( !GTK_WIDGET_VISIBLE( SymbolsWindow ) )
-	{ DisplaySymbols();
+	if ( ActionOpen!=NULL )
+		OpenIt = gtk_toggle_action_get_active( GTK_TOGGLE_ACTION(ActionOpen) );
+	if ( OpenIt )
+	{
+		DisplaySymbols();
 		gtk_widget_show (SymbolsWindow);
 		MessageInStatusBar(_("opened SYMBOLS window. Press again to close"));
-#ifdef GTK2
 		gtk_window_present( GTK_WINDOW(SymbolsWindow) );
-#endif
 	}
 	else
 	{
@@ -188,12 +204,12 @@ void SymbolsInitGtk()
 	GtkWidget *ListView;
 	GtkCellRenderer   *renderer;
 	long ScanCol;
-	char * ColName[] = { _("HiddenColNbr!"), _("Variable"), _("Symbol name"), _("HAL signal/Comment") };
+	char * ColName[] = { "HiddenColNbr!", N_("Variable"), N_("Symbol name"), N_("HAL signal/Comment") };
 
 	SymbolsWindow = gtk_window_new( GTK_WINDOW_TOPLEVEL );
 	gtk_window_set_title( GTK_WINDOW( SymbolsWindow ), _("Symbols names") );
 	gtk_signal_connect( GTK_OBJECT( SymbolsWindow ), "delete_event",
-		(GtkSignalFunc)SymbolsWindowDeleteEvent, 0 );
+		GTK_SIGNAL_FUNC(SymbolsWindowDeleteEvent), 0 );
 
 	vbox = gtk_vbox_new(FALSE,0);
 
@@ -209,7 +225,7 @@ void SymbolsInitGtk()
 		g_object_set(renderer, "editable", TRUE, NULL);
 //TODO? gtk_entry_set_max_length(GTK_ENTRY(  ),9);
 		g_signal_connect( G_OBJECT(renderer), "edited", G_CALLBACK(Callback_TextEdited), (gpointer)ScanCol );
-		column = gtk_tree_view_column_new_with_attributes( ColName[ ScanCol ], renderer, "text", ScanCol, NULL );
+		column = gtk_tree_view_column_new_with_attributes( gettext(ColName[ ScanCol ]), renderer, "text", ScanCol, NULL );
 		gtk_tree_view_append_column( GTK_TREE_VIEW(ListView), column );
 		gtk_tree_view_column_set_resizable( column, TRUE );
 		gtk_tree_view_column_set_sort_column_id( column, ScanCol );

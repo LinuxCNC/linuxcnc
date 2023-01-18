@@ -17,42 +17,15 @@
 #ifndef _PROTOCOL_MODBUS_MASTER_H
 #define _PROTOCOL_MODBUS_MASTER_H
 
-/* To set/reset single coil with function 5 */
-#define MODBUS_BIT_OFF 0x0000
-#define MODBUS_BIT_ON 0xFF00
-
-#define LGT_MODBUS_IP_HEADER 7
-
-/* Function codes list */
-#define MODBUS_FC_READ_COILS 1
-#define MODBUS_FC_READ_INPUTS 2
-#define MODBUS_FC_READ_HOLD_REGS 3
-#define MODBUS_FC_READ_INPUT_REGS 4
-#define MODBUS_FC_FORCE_COIL 5
-#define MODBUS_FC_WRITE_REG 6
-#define MODBUS_FC_FORCE_COILS 15
-#define MODBUS_FC_WRITE_REGS 16
-#define MODBUS_FC_DIAGNOSTICS 8
-#define MODBUS_FC_EXCEPTION_BIT 0x80
-
-/* Exceptions list */
-#define MODBUS_ILLEGAL_FUNCTION 0x01 
-#define MODBUS_ILLEGAL_DATA_ADDRESS 0x02 
-#define MODBUS_ILLEGAL_DATA_VALUE 0x03 
-#define MODBUS_SLAVE_DEVICE_FAILURE 0x04 
-#define MODBUS_SLAVE_DEVICE_BUSY 0x06 
-#define MODBUS_NEGATIVE_ACKNOWLEDGE 0x07 
-#define MODBUS_MEMORY_PARITY_ERROR 0x08 
-
-
-// Request type
+/* Modbus requests list available for the user */
 #define MODBUS_REQ_INPUTS_READ 0
 #define MODBUS_REQ_COILS_WRITE 1
-#define MODBUS_REQ_REGISTERS_READ 2
-#define MODBUS_REQ_REGISTERS_WRITE 3
+#define MODBUS_REQ_INPUT_REGS_READ 2
+#define MODBUS_REQ_HOLD_REGS_WRITE 3
 #define MODBUS_REQ_COILS_READ 4
-#define MODBUS_REQ_HOLD_READ 5
-#define MODBUS_REQ_DIAGNOSTICS 6
+#define MODBUS_REQ_HOLD_REGS_READ 5
+#define MODBUS_REQ_READ_STATUS 6
+#define MODBUS_REQ_DIAGNOSTICS 7
 
 // mapping variable type
 #define B_VAR   0
@@ -64,20 +37,44 @@
 
 #define LGT_SLAVE_ADR 25
 
-#define NBR_MODBUS_MASTER_REQ 16/*50: problem with GTK config window: adding vertical scroll else required*/
+#define NBR_MODBUS_MASTER_REQ 20 /*50: problem with GTK config window: adding vertical scroll else required*/
 
 typedef struct StrModbusMasterReq
 {
 	/* IP address or IP:port or slave number for serial */
 	/* if '\0' => req not defined */
-	char SlaveAdr[ LGT_SLAVE_ADR ]; 
+	char SlaveAdr[ LGT_SLAVE_ADR ];
 	char TypeReq; /* see MODBUS_REQ_ list */
 	int FirstModbusElement;
 	int NbrModbusElements;
 	char LogicInverted;
 	int OffsetVarMapped;
 }StrModbusMasterReq;
- 
+
+typedef struct StrModbusConfig
+{
+	// if '\0' => IP mode used for I/O Modbus modules
+	char ModbusSerialPortNameUsed[ 30 ];
+	int ModbusSerialSpeed;
+	int ModbusSerialDataBits;   // Number of data bits (5, 6, 7, 8)
+	int ModbusSerialParity;     // Parity (00 = None, 01 = Odd, 02 = Even, 03 = Mark, 04 = Space)
+	int ModbusSerialStopBits;   // Number of stop bits (1 or 2)
+	int ModbusSerialUseRtsToSend;
+	int ModbusTimeInterFrame;
+	int ModbusTimeOutReceipt;
+	int ModbusTimeAfterTransmit;
+	// classic Modbus offset (0 in frames = 1 in doc, or 0 everywhere: often too much simple to be used...)
+	int ModbusEleOffset; 
+	int ModbusDebugLevel;
+	// types of vars to map for each Modbus request
+	int MapTypeForReadInputs;
+	int MapTypeForReadCoils;
+	int MapTypeForWriteCoils;
+	int MapTypeForReadInputRegs;
+	int MapTypeForReadHoldRegs;
+	int MapTypeForWriteHoldRegs;
+}StrModbusConfig;
+
 void InitModbusMasterBeforeReadConf( void );
 void PrepareModbusMaster( void );
 void InitModbusMasterParams( void );

@@ -19,12 +19,12 @@ updates. If you don't have an internet connection to your PC see
 
 == Upgrade to the new version
 
-This section describes how to upgrade LinuxCNC from version 2.7 to the
-new 2.8.0 version.  It assumes that you have an existing 2.7 install that you
+This section describes how to upgrade LinuxCNC from version 2.8 to the
+new 2.9.0 version.  It assumes that you have an existing 2.8 install that you
 want to update.
 
-To upgrade LinuxCNC from a version older than 2.7, you have to first
-http://linuxcnc.org/docs/2.7/html/getting-started/updating-linuxcnc.html[upgrade your old install to 2.7],
+To upgrade LinuxCNC from a version older than 2.8, you have to first
+https://linuxcnc.org/docs/2.8/html/getting-started/updating-linuxcnc.html[upgrade your old install to 2.8],
 then follow these instructions to upgrade to the new version.
 
 If you do not have an old version of LinuxCNC to upgrade, then you're
@@ -39,9 +39,9 @@ as these releases were EOL in 2017 and 2018 respectively.
 If you are running on Ubuntu Lucid then you will have to do this, as
 Lucid is no longer supported by LinuxCNC (it was EOL in 2013).
 
-To upgrade major versions like 2.7 to 2.8 when you have a network connection at
-the machine you need to disable the old linuxcnc.org apt sources in the file /etc/apt/sources.list  and add a new
-linuxcnc.org apt source for 2.7, then upgrade LinuxCNC.
+To upgrade major versions like 2.8 to 2.9 when you have a network connection at
+the machine you need to disable the old linuxcnc.org apt sources in the file /etc/apt/sources.list and add a new
+linuxcnc.org apt source for 2.9, then upgrade LinuxCNC.
 
 The details will depend on which platform you're running on.  Open a
 <<faq:terminal,terminal>> then type `lsb_release -ic` to find this information
@@ -100,16 +100,16 @@ realtime. See below for the LinuxCNC version to install.
   slightly different on the different platforms:
 
 [options="header"]
-|====
+|===
 | Platform                | apt source line
-| Debian Stretch          | `deb http://linuxcnc.org stretch base 2.8-rtpreempt`
-| Debian Wheezy           | `deb http://linuxcnc.org wheezy base 2.8-rt`
-| Ubuntu Precise          | `deb http://linuxcnc.org precise base 2.8-rt`
-| Debian Jessie - preempt | `deb http://linuxcnc.org jessie base 2.8-rtpreempt`
-| Debian Jessie - RTAI    | `deb http://linuxcnc.org jessie base 2.8-rt`
-| Debian Buster - preempt | `deb http://linuxcnc.org buster base 2.8-rtpreempt`
-| Debian Buster - RTAI    | `deb http://linuxcnc.org buster base 2.8-rt`
-|====
+| Debian Stretch          | `deb https://linuxcnc.org stretch base 2.8-rtpreempt`
+| Debian Wheezy           | `deb https://linuxcnc.org wheezy base 2.8-rt`
+| Ubuntu Precise          | `deb https://linuxcnc.org precise base 2.8-rt`
+| Debian Jessie - preempt | `deb https://linuxcnc.org jessie base 2.8-rtpreempt`
+| Debian Jessie - RTAI    | `deb https://linuxcnc.org jessie base 2.8-rt`
+| Debian Buster - preempt | `deb https://linuxcnc.org buster base 2.8-rtpreempt`
+| Debian Buster - RTAI    | `deb https://linuxcnc.org buster base 2.8-rt`
+|===
 
 image::images/upgrading-to-2.8.png["Setting apt sources",align="center"]
 
@@ -154,7 +154,7 @@ Debian Wheezy and Stretch both use the Synaptic Package Manager.
 == Updating without Network
 
 To update without a network connection you need to download the .deb then install
-it with dpkg. The .debs can be found in http://linuxcnc.org/dists/ .
+it with dpkg. The .debs can be found in https://linuxcnc.org/dists/ .
 
 You have to drill down from the above link to find the correct deb for your
 installation. Open a <<faq:terminal,terminal>> and type in 'lsb_release -ic'
@@ -182,6 +182,39 @@ package manager with this command:
 ----
 sudo dpkg -i linuxcnc_2.8.0.deb
 ----
+
+
+== Updating Configuration Files for 2.9
+
+=== Stricter handling of pluggable interpreters
+
+If you just run regular G-code and you don't know what a pluggable
+interpreter is, then this section does not affect you.
+
+A seldom-used feature of LinuxCNC is support for pluggable interpreters,
+controlled by the undocumented `[TASK]INTERPRETER` INI setting.
+
+Versions of LinuxCNC before 2.9.0 used to handle an incorrect
+`[TASK]INTERPRETER` setting by automatically falling back to using the
+default G-code interpreter.
+
+As of 2.9.0, an incorrect `[TASK]INTERPRETER` value will cause
+LinuxCNC to refuse to start up.  Fix this condition by deleting the
+`[TASK]INTERPRETER` setting from your INI file, so that LinuxCNC will
+use the default G-code interpreter.
+
+
+=== Canterp
+
+If you just run regular G-code and you don't use the `canterp` pluggable
+interpreter, then this section does not affect you.
+
+In the extremely unlikely event that you are using `canterp`,
+know that the module has moved from `/usr/lib/libcanterp.so` to
+`/usr/lib/linuxcnc/canterp.so`, and the `[TASK]INTERPRETER` setting
+correspondingly needs to change from `libcanterp.so` to `canterp.so`.
+
+
 
 == Updating Configuration Files (for 2.8.x)
 
@@ -466,7 +499,7 @@ With joints_axes, an indexer is a joint that can be homed (joint mode)
 but must also be unlocked from G-code.  This requires a one-to-one
 correspondence between a single joint and an axis.
 
-Specify the joint number that corresponds to a rotary axis (L = A,B, or C)
+Specify the joint number that corresponds to a rotary axis (_L_ = A,B, or C)
 with an INI file setting for the axis:
 
 [source,{ini}]
@@ -475,7 +508,7 @@ with an INI file setting for the axis:
 ----
 
 Specify that the joint is a locking indexer with an INI file setting
-for the joint (N is the joint_number_for_indexer):
+for the joint (_N_ is the joint_number_for_indexer):
 
 [source,{ini}]
 ----
@@ -628,7 +661,7 @@ s32   IN  axis.L.jog-counts
 bit   IN  axis.L.jog-vel-mode
 ----
 
-where 'N' is a joint number and 'L' is an axis letter.
+where _N_ is a joint number and _L_ is an axis letter.
 
 To use an MPG in identity kins configurations where there is a one-to-one
 correspondence of a joint number and an axis letter, it may be convenient to
@@ -655,7 +688,7 @@ both joint and teleop (world) jogging.
 
 HAL pins are created for INI file items for both joints ([JOINT_N]) and axes ([AXIS_L]):
 
-For N = 0 ... [KINS](JOINTS-1):
+For _N_ = 0 ... [KINS](JOINTS-1):
 
 [source,{ini}]
 ----
@@ -671,7 +704,7 @@ INI file item              HAL pin name
 [JOINT_N]HOME_OFFSET       ini.N.home_offset
 ----
 
-For L = x y z a b c u v w:
+For _L_ = x y z a b c u v w:
 
 [source,{ini}]
 ----
@@ -684,7 +717,7 @@ INI file item              HAL pin name
 
 [NOTE]
 In prior versions of LinuxCNC (before joints_axes updates), the
-HAL pin names 'ini.N.*' referred to axes with 0==>x, 1==>y, etc. (pins
+HAL pin names `ini._N_.*` referred to axes with 0==>x, 1==>y, etc. (pins
 were created for all 9 axes). See the man page of 'milltask' for
 more information.
 
@@ -829,9 +862,9 @@ new: halui.axis.L.minus
       ... etc.
 ----
 
-where 'L' is a letter corresponding to one of the axis letters specified by
+where _L_ is a letter corresponding to one of the axis letters specified by
 [TRAJ]COORDINATES or 'selected' for the axis selected by the
-halui.axis.L.select pins.
+halui.axis._L_.select pins.
 
 ==== Joint jogging
 
@@ -846,8 +879,8 @@ was: halui.jog.N.minus        is: halui.joint.N.minus
       ...  etc.                    ... etc.
 ----
 
-where 'N' is a joint number (0 ... num_noints-1) or 'selected'
-for the joint selected by the halui.joint.N.select pins.
+where _N_ is a joint number (0 ... _num_noints_-1) or 'selected'
+for the joint selected by the halui.joint._N_.select pins.
 
 ====  Additional pin renames
 
@@ -966,21 +999,21 @@ Commands now using a coordinate letter argument are:
 . emc_tool_offset
 . emc_probed_pos
 
-=== touchy
+=== Touchy
 
-The touchy GUI continues to support the identity kinematics configurations
+The Touchy GUI continues to support the identity kinematics configurations
 that it supported prior to joints_axes incorporation.  Jogging is done in
 teleop mode.
 
-=== gscreen
+=== Gscreen
 
-The gscreen GUI continues to support the identity kinematics configurations
+The Gscreen GUI continues to support the identity kinematics configurations
 that it supported prior to joints_axes incorporation.  Jogging is done in
 teleop mode.
 
-=== gmoccapy
+=== GMOCCAPY
 
-The gmoccapy GUI continues to support the identity kinematics configurations
+The GMOCCAPY GUI continues to support the identity kinematics configurations
 that it supported prior to joints_axes incorporation.  Jogging is done in
 teleop mode.
 
@@ -997,7 +1030,7 @@ ShuttleXpress, so the old driver name is no longer accurate.
 === linuxcncrsh
 
 "Home All" is now supported with the set home subcommand
-by using -1 for the joint number
+by using -1 for the joint number.
 
 The jogging commands have been altered to accommodate both joint (free)
 and teleop (world) jogging.
@@ -1034,9 +1067,9 @@ The calibration/tuning tool now supports stanzas:
 
   [JOINT_N], [AXIS_L], [SPINDLE_S], [TUNE]
 
-where N is a joint number (0 .. ([KINS]JOINTS-1) ),
-L is an axis coordinate letter (X,Y,Z,A,B,C,U,V,W),
-and S is a spindle number (0 .. 9).
+where _N_ is a joint number (0 .. ([KINS]JOINTS-1) ),
+_L_ is an axis coordinate letter (X,Y,Z,A,B,C,U,V,W),
+and _S_ is a spindle number (0 .. 9).
 
 [NOTE]
 The number of allowed spindles is 8 but legacy configurations
@@ -1241,7 +1274,7 @@ respectively.
 Remove signal pendant:jogenable-off for removed pin 'pendant_util.jogenable-off'.
 
 Support new motion pins for reduced accelerations
-(axis.L.jog-accel-fraction, joint.N.jog-accel-fraction) for wheel jogging.
+(axis._L_.jog-accel-fraction, joint._N_.jog-accel-fraction) for wheel jogging.
 The use of [APPLICATIONS]APP=xhc-hb04-accels is no longer supported.
 Reduced accels are applied for wheel jogging only (not for nml commands
 issued by GUIs).
@@ -1348,7 +1381,7 @@ to 16.  The AXIS GUI now supports display of up to 16 joints.
 
 A new motmod parameter (num_extrajoints) specifies joints that are
 homed by conventional joint homing methods but controlled by new HAL
-pins (joint.N.posthome-cmd) after homing.  Such joints may be
+pins (joint._N_.posthome-cmd) after homing.  Such joints may be
 managed by independent motion planner/controllers in HAL and manipulated
 from G-code using custom M-codes.  See the motion man page for
 more info.
@@ -1414,8 +1447,8 @@ creating a module using halcompile.
 
 ==== Homing
 
-Homing functions are now implemented by a loadable module
-(default:homemod).  An alternate (user-built) planner can be loaded using
+Homing functions are now implemented by a loadable module (default:homemod).
+An alternate (user-built) planner can be loaded using
 INI setting [EMCMOT]HOMEMOD=modulename or the 'linuxcnc -m modulename' option.
 The example file src/hal/components/homecomp.comp is a minimal example
 of a homing module that can be built with halcompile.

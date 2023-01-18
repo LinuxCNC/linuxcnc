@@ -69,8 +69,8 @@ def setspeed_epilog(self,**words):
             pass
             #print "---------- S builtin recursion, nothing to do"
         else:
-            self.speed = self.params["speed"]
-            emccanon.enqueue_SET_SPINDLE_SPEED(self.speed)
+            self.speed[0] = self.params["speed"]
+            emccanon.enqueue_SET_SPINDLE_SPEED(self.speed[0])
         return INTERP_OK
     except Exception as e:
         self.set_errormsg("S/setspeed_epilog: %s)" % (e))

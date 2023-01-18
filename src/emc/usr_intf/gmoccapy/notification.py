@@ -34,6 +34,11 @@ from gi.repository import Gtk
 from gi.repository import GObject
 from gi.repository import Pango
 
+try:
+    from gmoccapy import icon_theme_helper
+except:
+    import icon_theme_helper    # only for testing purpose, otherwise the main method in this file would fail
+
 class Notification(Gtk.Window):
     '''Notification(Gtk.Window)
        will show popup windows with messages and icon
@@ -57,6 +62,10 @@ class Notification(Gtk.Window):
                     True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
            'use_frames' : (GObject.TYPE_BOOLEAN, 'Use Frames for messages', 'You can separate the messages using frames, but you will need more space',
                     True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+            'icon_theme_path' : (GObject.TYPE_STRING, 'Icon theme lookup path', 'Pathes where to look for icon themes',
+                      "sans 10", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+            'icon_theme_name' : (GObject.TYPE_STRING, 'Icon theme name', 'Name set in gmoccapy preferences',
+                      "sans 10", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
                       }
     __gproperties = __gproperties__
 
@@ -73,7 +82,7 @@ class Notification(Gtk.Window):
         self.popup = Gtk.Window(type = Gtk.WindowType.POPUP)
         self.vbox = Gtk.VBox()
         self.popup.add(self.vbox)
-        self.icon_size = Gtk.IconSize.LARGE_TOOLBAR
+        self.icon_size = 24
         self.message_width = 200
         self.x_pos = 20
         self.y_pos = 20
@@ -82,13 +91,12 @@ class Notification(Gtk.Window):
         self.top_to_bottom = True
         self.use_frames = False
         self.height = 0
+        self.icon_theme = Gtk.IconTheme()
 
     # this will fill the main gui with the frames, containing the messages or errors
     def _show_message(self, message):
         number = message[0]
         text = message[1]
-        if message[2]:
-            icon_file_name = message[2]
         if self.use_frames:
             frame = Gtk.Frame()
             frame.set_label("")
@@ -100,10 +108,13 @@ class Notification(Gtk.Window):
         hbox.pack_start(labelnumber, False, False, 0)
         icon = Gtk.Image()
         if message[2]:
-            icon.set_from_file(icon_file_name)
+            icon_name = message[2]
         else:
-            icon.set_from_icon_name("dialog-warning", self.icon_size)
-        hbox.pack_start(icon, False, False, 0)
+            icon_name = "dialog_warning"
+        default_style = Gtk.Button().get_style_context()
+        pixbuf = icon_theme_helper.load_symbolic_from_icon_theme(self.icon_theme, icon_name, self.icon_size, default_style)
+        icon.set_from_pixbuf(pixbuf)
+        hbox.pack_start(icon, False, False, 3)
         label = Gtk.Label()
         label.set_line_wrap(True)
         label.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR)
@@ -121,16 +132,21 @@ class Notification(Gtk.Window):
             label.set_markup(text)
         else:
             label.set_text(text)
+        label.set_xalign(0)
         hbox.pack_start(label, False, False, 0)
         btn_close = Gtk.Button()
         btn_close.set_name("notification_close")
         image = Gtk.Image()
-        pixbuf = Gtk.IconTheme.get_default().load_icon("window-close", self.icon_size, 0)
+        pixbuf = icon_theme_helper.load_symbolic_from_icon_theme(self.icon_theme ,"window_close", self.icon_size, default_style)
         image.set_from_pixbuf(pixbuf)
         btn_close.set_image(image)
         btn_close.set_border_width(2)
         btn_close.connect('clicked', self._on_btn_close_clicked, labelnumber.get_text())
-        hbox.pack_end(btn_close, False, False, 0)
+        btn_close.set_size_request(48, 48)
+        btn_box = Gtk.Box.new(Gtk.Orientation.VERTICAL,0)
+        btn_box.set_center_widget(btn_close)
+        btn_box.show()
+        hbox.pack_end(btn_box, False, False, 0)
         if self.use_frames:
             widget = frame
         else:
@@ -151,7 +167,7 @@ class Notification(Gtk.Window):
 
     # add a message, the message is a string, it will be line wrapped
     # if to long for the frame
-    def add_message(self, message, icon_file_name=None):
+    def add_message(self, message, icon_name=None):
         '''Notification.add_message(messagetext, icon_file_name)
 
            messagetext = a string to display
@@ -163,7 +179,7 @@ class Notification(Gtk.Window):
         if number_of_messages == self.max_messages:
             self.del_first()
             number_of_messages = len(self.messages)
-        self.messages.append([number_of_messages, message, icon_file_name])
+        self.messages.append([number_of_messages, message, icon_name])
         self._show_message(self.messages[number_of_messages])
         if not self.top_to_bottom:
             self.height = self.popup.get_size()[1]
@@ -275,6 +291,10 @@ class Notification(Gtk.Window):
                     self.top_to_bottom = value
                 if name == 'use_frames':
                     self.use_frames = value
+                if name == 'icon_theme_path':
+                    self.icon_theme.append_search_path(value)
+                if name == 'icon_theme_name':
+                    self.icon_theme.set_custom_theme(value)
             else:
                 raise AttributeError('unknown notification set_property %s' % property.name)
         except:
@@ -285,8 +305,14 @@ class Notification(Gtk.Window):
 def main():
 
     notification = Notification()
-    notification.add_message('Halo World out there', '/usr/share/gmoccapy/images/applet-critical.png')
-    notification.add_message('Hallo World this is a long string that have a linebreak ', '/usr/share/gmoccapy/images/std_info.gif')
+    notification.icon_theme.append_search_path("../../../../share/gmoccapy/icons/") # relative from this file location
+    notification.icon_theme.append_search_path("../share/gmoccapy/icons/")
+    notification.icon_theme.append_search_path("/usr/share/gmoccapy/icons/")
+    notification.icon_theme.set_custom_theme("classic")
+    # notification.icon_theme.set_custom_theme("material")
+    # notification.icon_theme.set_custom_theme("material-light")
+    notification.add_message('This is a warning', 'dialog_warning')
+    notification.add_message('Hallo World this is a long string that have a linebreak ', 'dialog_information')
     notification.add_message('This has a default icon')
     notification.show()
     #def debug(self, text):

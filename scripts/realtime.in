@@ -105,7 +105,7 @@ CheckConfig(){
     case $RTPREFIX in
     (*rtai*)
         MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
-        MODULES_UNLOAD="hal_lib rtapi"
+        MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
         SHM_DEV=/dev/rtai_shm
 	;;
     (*)
@@ -116,7 +116,7 @@ CheckConfig(){
 CheckStatus(){
     case $RTPREFIX in
     uspace)
-        if [ -z "$($PS -o comm= -C rtapi_app | $GREP -v '<defunct>')" ]; then
+        if [ -z "$($PS -o stat= -o comm= -C rtapi_app | $GREP -v '^Z')" ]; then
             exit 1
         else
             exit 0
@@ -197,13 +197,13 @@ Unload(){
         START=$SECONDS
         local NPROCS
         while [ 5 -gt $((SECONDS-START)) ]; do
-            NPROCS=$(ps -C rtapi_app -o comm= | $GREP -v '<defunct>' | wc -l)
+            NPROCS=$(ps -C rtapi_app -o stat= -o comm= | $GREP -v '^Z' | wc -l)
             if [ $NPROCS -eq 0 ]; then
                 break
             fi
             sleep 0.1
         done
-        NPROCS=$(ps -C rtapi_app -o comm= | $GREP -v '<defunct>' | wc -l)
+        NPROCS=$(ps -C rtapi_app -o stat= -o comm= | $GREP -v '^Z' | wc -l)
         if [ $NPROCS -gt 0 ]; then
             echo "ERROR: rtapi_app failed to die" 1>&2
         fi

@@ -16,7 +16,7 @@
 
 #include "emc.hh"		// EMC_AXIS_STAT
 
-/* initializes spindle modules from ini file */
+/* initializes spindle modules from INI file */
 extern int iniSpindle(int spindle, const char *filename);
 
 #endif

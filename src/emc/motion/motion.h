@@ -220,7 +220,7 @@ extern "C" {
 	int turn;		/* turns for circle or joint number for a locking indexer*/
 	double vel;		/* max velocity */
         double ini_maxvel;      /* max velocity allowed by machine
-                                   constraints (the ini file) */
+                                   constraints (the INI file) */
         int motion_type;        /* this move is because of traverse, feed, arc, or toolchange */
         double spindlesync;     /* user units per spindle revolution, 0 = no sync */
 	double acc;		/* max acceleration */
@@ -244,7 +244,7 @@ extern "C" {
 	double minFerror;	/* min following error */
 	double maxFerror;	/* max following error */
 	int wdWait;		/* cycle to wait before toggling wd */
-	int debug;		/* debug level, from DEBUG in .ini file */
+	int debug;		/* debug level, from DEBUG in INI file */
 	unsigned char now, out, start, end;	/* these are related to synched AOUT/DOUT. now=whether now or synched, out = which gets set, start=start value, end=end value */
 	unsigned char mode;	/* used for turning overrides etc. on/off */
 	double comp_nominal, comp_forward, comp_reverse; /* compensation triplet, nominal, forward, reverse */
@@ -717,7 +717,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 				   approx line 50 */
 
 	double limitVel;	/* scalar upper limit on vel */
-	int debug;		/* copy of DEBUG, from .ini file */
+	int debug;		/* copy of DEBUG, from INI file */
 	unsigned char tail;	/* flag count for mutex detect */
         int arcBlendOptDepth;
         int arcBlendEnable;

@@ -11,11 +11,11 @@
 *
 ********************************************************************/
 /** This file, 'sampler_usr.c', is the user part of a HAL component
-    that allows values to be sampled from HAL pins at a uniform 
+    that allows values to be sampled from HAL pins at a uniform
     realtime sample rate, and writes them to a stdout (from which
     they can be redirected to a file).  When the realtime module
     is loaded, it creates a stream in shared memory and begins capturing
-    samples to the stream.  Then, the user space program 'hal_ssampler'
+    samples to the stream.  Then, the user space program 'hal_sampler'
     is invoked to read from the stream and print to stdout.
 
     Invoking:
@@ -160,7 +160,7 @@ int main(int argc, char **argv)
 	    exit(1);
 	}
 	// make stdout be the named file
-	fd = open(argv[n], O_WRONLY | O_CREAT, 0666);
+	fd = open(argv[n], O_WRONLY | O_CREAT | O_TRUNC, 0666);
 	close(1);
 	dup2(fd, 1);
     }

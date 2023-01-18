@@ -59,9 +59,9 @@ class App(QWidget):
             response.setText(msg)
             response.exec_()
             raise SystemExit
-        self.iconPath = 'share/qtvcp/images/qtplasmac/images/Chips_Plasma.png'
+        self.iconPath = 'share/icons/hicolor/scalable/apps/linuxcnc_alt/linuxcncicon_plasma.svg'
         appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
-        self.iconBase = '/usr' if appPath == '/bin' else appPath.replace('/bin', '')
+        self.iconBase = '/usr' if appPath == '/usr/bin' else appPath.replace('/bin', '/debian/extras/usr')
         self.setWindowIcon(QIcon(os.path.join(self.iconBase, self.iconPath)))
         self.setWindowTitle('Powermax Communicator')
         qtRectangle = self.frameGeometry()

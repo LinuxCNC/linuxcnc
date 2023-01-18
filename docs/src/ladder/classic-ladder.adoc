@@ -97,25 +97,25 @@ default values.
 .Default Variable Count
 
 [width="90%",options="header",cols="<8,<4,<2"]
-|========================================
-|Object Name                      | Variable Name   | Default Value
-|Number of rungs                  | (numRungs)      | 100
-|Number of bits                   | (numBits)       | 20
-|Number of word variables         | (numWords)      | 20
-|Number of timers                 | (numTimers)     | 10
-|Number of timers IEC             | (numTimersIec)  | 10
-|Number of monostables            | (numMonostables)| 10
-|Number of counters               | (numCounters)   | 10
-|Number of HAL inputs bit pins    | (numPhysInputs) | 15
-|Number of HAL output bit pins    | (numPhysOutputs)| 15
-|Number of arithmetic expressions | (numArithmExpr) | 50
-|Number of Sections               | (numSections)   | 10
-|Number of Symbols                | (numSymbols)    | Auto
-|Number of S32 inputs             | (numS32in)      | 10
-|Number of S32 outputs            | (numS32out)     | 10
-|Number of Float inputs           | (numFloatIn)    | 10
-|Number of Float outputs          | (numFloatOut)   | 10
-|========================================
+|===
+|Object Name                      | Variable Name    | Default Value
+|Number of rungs                  | (numRungs)       | 100
+|Number of bits                   | (numBits)        | 20
+|Number of word variables         | (numWords)       | 20
+|Number of timers                 | (numTimers)      | 10
+|Number of timers IEC             | (numTimersIec)   | 10
+|Number of monostables            | (numMonostables) | 10
+|Number of counters               | (numCounters)    | 10
+|Number of HAL inputs bit pins    | (numPhysInputs)  | 15
+|Number of HAL output bit pins    | (numPhysOutputs) | 15
+|Number of arithmetic expressions | (numArithmExpr)  | 50
+|Number of Sections               | (numSections)    | 10
+|Number of Symbols                | (numSymbols)     | Auto
+|Number of S32 inputs             | (numS32in)       | 10
+|Number of S32 outputs            | (numS32out)      | 10
+|Number of Float inputs           | (numFloatIn)     | 10
+|Number of Float outputs          | (numFloatOut)    | 10
+|===
 
 Objects of most interest are numPhysInputs, numPhysOutputs, numS32in,
 and numS32out.
@@ -384,11 +384,11 @@ three digit number eg. %I2, %Q3, or %B123. Variable I is controlled by
 a HAL input pin with a corresponding number. Variable B is for
 internal contacts, controlled by a B coil with a corresponding number.
 Variable Q is controlled by a Q coil with a corresponding number. (like
-a relay with multiple contacts). E.g. if HAL pin classicladder.0.in-00
+a relay with multiple contacts). E.g. if HAL pin `classicladder.0.in-00`
 is true then %I0 N.O. contact would be on (closed, true, whatever you
 like to call it). If %B7 coil is 'energized' (on, true, etc) then %B7
 N.O. contact would be on. If %Q1 coil is 'energized' then %Q1 N.O.
-contact would be on (and HAL pin classicladder.0.out-01 would be true.)
+contact would be on (and HAL pin `classicladder.0.out-01` would be true).
 
 * 'N.O. Contact' -  image:images/ladder_action_load.png["Normally Open Contact"] (Normally Open)
   When the variable is false the switch is off.
@@ -482,15 +482,12 @@ Represent up/down counters.
 There are 7 contacts:
 
 * 'R' - reset (input) will reset the count to 0.
-* 'P' - preset (input) will set the count to the preset number assigned
-  from the edit menu.
+* 'P' - preset (input) will set the count to the preset number assigned from the edit menu.
 * 'U' - up count (input) will add one to the count.
 * 'D' - down count (input) will subtract one from the count.
-* 'E' - under flow (output) will be true when the count rolls over from 0
-  to 9999.
+* 'E' - under flow (output) will be true when the count rolls over from 0 to 9999.
 * 'D' - done (output) will be true when the count equals the preset.
-* 'F' - overflow (output) will be true when the count rolls over from 9999
-  to 0.
+* 'F' - overflow (output) will be true when the count rolls over from 9999 to 0.
 
 The up and down count contacts are edge sensitive meaning they only
 count when the contact changes from false to true (or off to on if you
@@ -601,7 +598,7 @@ Coils represent relay coils. They are controlled by the variable
 letter and number assigned to them.
 
 The variable letter can be B or Q and the number can be up to a three
-digit number eg. %Q3, or %B123. Q coils control HAL out pins, e.g. if
+digit number, e.g., %Q3, or %B123. Q coils control HAL out pins, e.g. if
 %Q15 is energized then HAL pin classicladder.0.out-15 will be true. B
 coils are internal coils used to control program flow.
 
@@ -611,18 +608,18 @@ coils are internal coils used to control program flow.
 * 'N.C. COIL' - A relay coil that inverses its contacts: When coil is
   energized, then its contact that is normally closed (short: N.C.) will be opened
   (turned off, false, etc) and the current flow is interrupted.
-* 'SET COIL' - A relay coil with latching contacts: When coil is energized
-  then its N.O. contact will be latched closed.
-* 'RESET COIL' - A relay coil with latching contacts: When coil is
-  energized then its N.O. contact will be latched open.
-* 'JUMP COIL' - A 'goto' coil: When coil is energized then the
-  ladder program jumps
-  to a rung (in the CURRENT section) - jump points are designated by a
-  rung label. (Add rung labels in the section display, top left label box.)
-* 'CALL COIL' - A 'gosub' coil: When coil is energized then the program
-  jumps to a
+* 'SET COIL' - A relay coil with latching contacts:
+  When coil is energized then its N.O. contact will be latched closed.
+* 'RESET COIL' - A relay coil with latching contacts:
+  When coil is energized then its N.O. contact will be latched open.
+* 'JUMP COIL' - A 'goto' coil:
+  When coil is energized then the ladder program jumps to a rung
+  (in the CURRENT section) - jump points are designated by a rung label.
+  (Add rung labels in the section display, top left label box.)
+* 'CALL COIL' - A 'gosub' coil:
+  When coil is energized then the program jumps to a
   subroutine section designated by a subroutine number - subroutines are
-  designated SR0 to SR9 (designate them in the section manager)
+  designated SR0 to SR9 (designate them in the section manager).
 
 [WARNING]
 If you use a N.C. contact with a N.C. coil the logic
@@ -699,9 +696,9 @@ List of variables :
 * '%Xxxx' - Activity of step xxx (sequential language)
 * '%Xxxx.V' - Time of activity in seconds of step xxx (sequential language)
 * '%Exx' - Errors (Boolean, read write(will be overwritten))
-* 'Indexed or vectored variables' - These are variables indexed by another
-  variable. Some might call this vectored variables. Example: %W0[%W4] =>
-  if %W4 equals 23 it corresponds to %W23
+* 'Indexed or vectored variables' - These are variables indexed by another variable.
+  Some might call this vectored variables.
+  Example: %W0[%W4] => if %W4 equals 23 it corresponds to %W23
 
 == GRAFCET (State Machine) Programming
 
@@ -744,8 +741,8 @@ Link, Comment Box +
 image::images/sequence-editor.png["Sequence Editor Window",align="center"]
 
 * 'ORDINARY STEP' - has a unique number for each one
-* 'STARTING STEP' - a sequential program must have one. This is where the
-  program will start.
+* 'STARTING STEP' - a sequential program must have one.
+  This is where the program will start.
 * 'TRANSITION' - This shows the variable that must be true for control to
   pass through to the next step.
 * 'STEP AND TRANSITION' - Combined for convenience
@@ -754,8 +751,7 @@ image::images/sequence-editor.png["Sequence Editor Window",align="center"]
 * 'TRANSITION LINK=UPSIDE' - combines two (OR) logic lines back in to one
 * 'PASS-THROUGH LINK-DOWNSIDE' - splits the logic flow to two lines that
   BOTH must be true to continue (Think AND logic)
-* 'PASS-THROUGH LINK-UPSIDE' - combines two concurrent (AND logic) logic
-  lines back together
+* 'PASS-THROUGH LINK-UPSIDE' - combines two concurrent (AND logic) logic lines back together
 * 'JUMP LINK' - connects steps that are not underneath each other such as
   connecting the last step to the first
 * 'COMMENT BOX' - used to add comments
@@ -912,10 +908,10 @@ Serial:
 * The IP address can be followed per the port number to use
   (xx.xx.xx.xx:pppp) else the port 9502 will be used per default.
 * 2 products have been used for tests: a Modbus/TCP one (Adam-6051,
-  http://www.advantech.com) and a serial Modbus/RTU one
+  https://www.advantech.com) and a serial Modbus/RTU one
   (http://www.ipac.ws).
 * See examples: adam-6051 and modbus_rtu_serial.
-* Web links: http://www.modbus.org and this interesting one:
+* Web links: https://www.modbus.org and this interesting one:
   http://www.iatips.com/modbus.html
 * MODBUS TCP SERVER INCLUDED
 * ClassicLadder has a Modbus/TCP server integrated. Default port is 9502.
@@ -927,7 +923,7 @@ Serial:
 
 More information on modbus protocol is available on the internet.
 
-http://www.modbus.org/[http://www.modbus.org/]
+https://www.modbus.org/[https://www.modbus.org/]
 
 === Communication Errors
 
@@ -939,9 +935,8 @@ error. A timer could be used to stop the machine if timed out, etc.
 == Debugging modbus problems
 
 A good reference for the protocol:
-http://www.modbus.org/docs/Modbus_Application_Protocol_V1_1b.pdf
-If you run linuxcnc/classocladder from a terminal, it will print
-the Modbus commands and slave responses.
+https://www.modbus.org/docs/Modbus_Application_Protocol_V1_1b.pdf.
+If you run linuxcnc/classicladder from a terminal, it will print the Modbus commands and slave responses.
 
 Here we set ClassicLadder to request slave 1,
 to read holding registers (function code 3) starting at address 8448 (0x2100).

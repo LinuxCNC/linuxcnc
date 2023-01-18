@@ -154,7 +154,7 @@ class ToolEdit(Gtk.VBox):
         # If the toolfile was specified when tooledit was created load it
         if toolfile:
             self.reload(None)
-        # check the ini file if display-type: LATHE is set
+        # check the INI file if display-type: LATHE is set
         try:
             self.inifile = linuxcnc.ini(INIPATH)
             test = self.inifile.find("DISPLAY", "LATHE")
@@ -226,7 +226,7 @@ class ToolEdit(Gtk.VBox):
         except:
             print(_("tooledit_widget error: cannot select tool number"),toolnumber)
 
-    def add(self,widget,data=[1,0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0',"comment"]):
+    def add(self,widget,data=[1,0,0,'0','0','0','0','0','0','0','0','0','0','0','0',0,"comment"]):
         self.model.append(data)
         self.num_of_col +=1
 
@@ -234,6 +234,17 @@ class ToolEdit(Gtk.VBox):
     def set_filename(self,filename):
         self.toolfile = filename
         self.reload(None)
+
+    def warning_dialog(self, line_number):
+        message = _("Error in tool table line {0} in column ").format(line_number) + _("Orientation") + \
+            _(".\nValid range is 0 - 9.")
+        dialog = Gtk.MessageDialog(self.wTree.get_object("window1"),
+            Gtk.DialogFlags.DESTROY_WITH_PARENT,
+            Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
+            message)
+        dialog.show()
+        dialog.run()
+        dialog.destroy()
 
         # Reload the tool file into display
     def reload(self,widget):
@@ -247,10 +258,14 @@ class ToolEdit(Gtk.VBox):
             return
         logfile = open(self.toolfile, "r").readlines()
         self.toolinfo = []
+        line_number = 0
         for rawline in logfile:
             # strip the comments from line and add directly to array
             # if index = -1 the delimiter ; is missing - clear comments
             index = rawline.find(";")
+            # skip lines beginning with a semicolon
+            if index == 0:
+                continue
             comment =''
             if not index == -1:
                 comment = (rawline[index+1:])
@@ -258,7 +273,8 @@ class ToolEdit(Gtk.VBox):
                 line = rawline.rstrip(comment)
             else:
                 line = rawline
-            array = [0,0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0',comment]
+            line_number += 1
+            array = [0,0,0,'0','0','0','0','0','0','0','0','0','0','0','0',0,comment]
             toolinfo_flag = False
             # search beginning of each word for keyword letters
             # offset 0 is the checkbutton so ignore it
@@ -278,11 +294,21 @@ class ToolEdit(Gtk.VBox):
                                 array[offset]= int(word.lstrip(i))
                             except:
                                 print(_("Tooledit widget int error"))
+                        elif offset == 15:
+                            try:
+                                # Accept also float for 'orientation' for backward compatibility
+                                value = int(float(word.lstrip(i)))
+                                array[offset] = value
+                                if value not in range(10):
+                                    self.warning_dialog(line_number)
+                                    break
+                            except:
+                                print(_("Tooledit widget float error"))
                         else:
                             try:
                                 array[offset]= locale.format("%10.4f", float(word.lstrip(i)))
                             except:
-                                print(_("Tooledit_widget float error"))
+                                print(_("Tooledit widget float error"))
                         break
             if toolinfo_flag:
                 self.toolinfo = array
@@ -292,16 +318,26 @@ class ToolEdit(Gtk.VBox):
         # Note we have to save the float info with a decimal even if the locale uses a comma
     def save(self,widget):
         if self.toolfile == None:return
+        liststore = self.model
+        # pre check before saving the file
+        # if not done before, the file will be saved only until the erroneous line and the rest will be lost
+        line_number = 0
+        for row in liststore:
+            values = [ value for value in row ]
+            line_number += 1
+            if values[15] > 9:
+                self.warning_dialog(line_number)
+                return
+
         file = open(self.toolfile, "w")
         #print self.toolfile
-        liststore = self.model
         for row in liststore:
             values = [ value for value in row ]
             #print values
             line = ""
             for num,i in enumerate(values):
                 if num == 0: continue
-                elif num in (1,2): # tool# pocket#
+                elif num in (1,2,15): # tool#, pocket#, orientation
                     line = line + "%s%d "%(KEYWORDS[num], i)
                 elif num == 16: # comments
                     test = i.strip()
@@ -421,15 +457,24 @@ class ToolEdit(Gtk.VBox):
         elif filter == 'tool':
             (store_path,) = self.tool_filter.convert_path_to_child_path(path)
             path = store_path
-        
+
         if col in(1,2):
             try:
                 self.model[path][col] = int(new_text)
             except:
                 pass
-        elif col in range(3,16):
+        # validate input for float columns
+        elif col in range(3,15):
             try:
                 self.model[path][col] = locale.format("%10.4f",locale.atof(new_text))
+            except:
+                pass
+        # validate input for orientation: check if int and valid range
+        elif col == 15:
+            try:
+                value = int(new_text)
+                if value in range(10):
+                    self.model[path][col] = value
             except:
                 pass
         elif col == 16:
@@ -561,7 +606,7 @@ class ToolEdit(Gtk.VBox):
                 i += 1
                 if colnum + i < len(columns):
                     if columns[colnum + i].props.visible:
-                        renderer = columns[colnum + i].get_cell_renderers()
+                        renderer = columns[colnum + i].get_cells()
                         if renderer[0].props.editable:
                             next_column = columns[colnum + i]
                             cont = False
@@ -569,7 +614,7 @@ class ToolEdit(Gtk.VBox):
                 else:
                     i = 1
                     while cont2:
-                        renderer = columns[i].get_cell_renderers()
+                        renderer = columns[i].get_cells()
                         if renderer[0].props.editable:
                             next_column = columns[i]
                             cont2 = False
@@ -578,7 +623,7 @@ class ToolEdit(Gtk.VBox):
                     cont = False
 
             if keyname == 'Right':
-                renderer = columns[colnum].get_cell_renderers()
+                renderer = columns[colnum].get_cells()
                 if type(focuschild) is Gtk.Entry:
                     self.col_editted(renderer[0], path, treeview.get_focus_child().props.text, colnum, filter)
             GLib.timeout_add(50,
@@ -594,7 +639,7 @@ class ToolEdit(Gtk.VBox):
                 i -= 1
                 if colnum + i > 0:
                     if columns[colnum + i].props.visible:
-                        renderer = columns[colnum + i].get_cell_renderers()
+                        renderer = columns[colnum + i].get_cells()
                         if renderer[0].props.editable:
                             next_column = columns[colnum + i]
                             cont = False
@@ -602,7 +647,7 @@ class ToolEdit(Gtk.VBox):
                 else:
                     i = -1
                     while cont2:
-                        renderer = columns[i].get_cell_renderers()
+                        renderer = columns[i].get_cells()
                         if renderer[0].props.editable:
                             next_column = columns[i]
                             cont2 = False
@@ -610,7 +655,7 @@ class ToolEdit(Gtk.VBox):
                             i -= 1
                     cont = False
 
-            renderer = columns[colnum].get_cell_renderers()
+            renderer = columns[colnum].get_cells()
             if type(focuschild) is Gtk.Entry:
                 self.col_editted(renderer[0], path, treeview.get_focus_child().props.text, colnum, filter)
             GLib.timeout_add(50,

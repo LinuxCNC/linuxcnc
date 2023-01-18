@@ -448,7 +448,6 @@ static char *hm2_8cSS_pin_names[] = {
 
 };
 
-
 #define UDP_PORT 27181
 #define SEND_TIMEOUT_US 10
 #define RECV_TIMEOUT_US 10
@@ -746,19 +745,23 @@ static int init_board(hm2_eth_t *board, const char *board_ip) {
 }
 
 static int close_board(hm2_eth_t *board) {
-
+    int ret;
     board->llio.reset(&board->llio);
 
     if(use_iptables()) clear_iptables();
 
     if(board->req.arp_flags & ATF_PERM) {
-        int ret = ioctl_siocdarp(board);
+        ret = ioctl_siocdarp(board);
         if(ret < 0) perror("ioctl SIOCDARP");
     }
-    int ret = shutdown(board->sockfd, SHUT_RDWR);
-    if (ret < 0)
+    ret = shutdown(board->sockfd, SHUT_RDWR);
+    if (ret == -1)
+        LL_PRINT("ERROR: can't shutdown socket: %s\n", strerror(errno));
+    
+    ret = close(board->sockfd);
+    if (ret == -1)
         LL_PRINT("ERROR: can't close socket: %s\n", strerror(errno));
-
+    
     return ret < 0 ? -errno : 0;
 }
 
@@ -869,6 +872,7 @@ static bool record_soft_error(hm2_eth_t *board) {
     if(!board->hal) return 1; // still early in hm2_eth_probe
     board->llio.needs_soft_reset = 1;
     *board->hal->packet_error = 1;
+    *board->hal->packet_error_total += 1;
     int32_t increment = board->hal->packet_error_increment;
     if(increment < 1) increment = 1;
     board->comm_error_counter += increment;
@@ -1302,7 +1306,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.fpga_part_number = "6slx9tqg144";
         board->llio.num_leds = 4;
 
-   
+
     } else if (strncmp(board_name, "MC04", 4) == 0) {
         strncpy(llio_name, board_name, 4);
         llio_name[1] = tolower(llio_name[1]);
@@ -1317,7 +1321,6 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.ioport_connector_name[1] = "P2";
 
 
-
      } else if (strncmp(board_name, "8CSS", 4) == 0) {
         strncpy(llio_name, board_name, 4);
         llio_name[1] = tolower(llio_name[1]);
@@ -1330,11 +1333,6 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.io_connector_pin_names = hm2_8cSS_pin_names;
         board->llio.ioport_connector_name[0] = "P1";
         board->llio.ioport_connector_name[1] = "P2";
-
-
-
-
-
 
     } else {
         LL_PRINT("Unrecognized ethernet board found: %.16s -- port names will be wrong\n", board_name);
@@ -1431,6 +1429,14 @@ static int hm2_eth_items(hm2_eth_t *board) {
             board->llio.name)) < 0)
         return r;
     *board->hal->packet_error = 0;
+
+    if((r = hal_pin_u32_newf(HAL_IO,
+            &board->hal->packet_error_total,
+            board->llio.comp_id,
+            "%s.packet-error-total",
+            board->llio.name)) < 0)
+        return r;
+    *board->hal->packet_error_total = 0;
 
     if((r = hal_pin_s32_newf(HAL_OUT,
             &board->hal->packet_error_level,

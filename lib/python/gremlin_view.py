@@ -99,8 +99,8 @@ gettext.install("linuxcnc", localedir=LOCALEDIR)
 def ini_check ():
     """set environmental variable and change directory"""
     # Note:
-    #   hal_gremlin gets inifile from os.environ (only)
-    #   hal_gremlin expects cwd to be same as ini file
+    #   hal_gremlin gets INI file from os.environ (only)
+    #   hal_gremlin expects cwd to be same as INI file
     ini_filename = get_linuxcnc_ini_file()
     if ini_filename is not None:
         os.putenv('INI_FILE_NAME',ini_filename)    # ineffective
@@ -110,11 +110,11 @@ def ini_check ():
             print(('ini_check: INI_FILENAME= %s' % ini_filename))
             print(('ini_check:       curdir= %s' % os.path.curdir))
         return True # success
-    print((_('%s:linuxcnc ini file  not available') % g_progname))
+    print((_('%s: LinuxCNC INI file not available') % g_progname))
     return False # exit here crashes glade-gtk2
 
 def get_linuxcnc_ini_file():
-    """find linuxcnc ini file with pgrep"""
+    """find LinuxCNC INI file with pgrep"""
     ps   = subprocess.Popen('ps -C linuxcncsvr --no-header -o args'.split(),
                              stdout=subprocess.PIPE
                            )
@@ -202,7 +202,7 @@ class GremlinView():
                     print('%s: Optional object omitted <%s>'
                           % (__file__,objname))
 
-        # show_metric: use ini file
+        # show_metric: use INI file
 #FIXME  show_metric,lunits s/b mandatory?
         try:
             objname = 'show_metric'

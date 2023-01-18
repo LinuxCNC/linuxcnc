@@ -92,7 +92,6 @@ override_dh_installdocs-arch:
 override_dh_auto_install-indep:
 	DESTDIR=$(DESTDIR) $(MAKE) -C src install-docs install-doc
 	# Remove the docs we just built that we don't have debs for yet...
-	rm -f $(DESTDIR)/usr/share/doc/linuxcnc/*_de.pdf
 	rm -f $(DESTDIR)/usr/share/doc/linuxcnc/*_nb.pdf
 
 override_dh_installdocs-indep:
@@ -106,6 +105,10 @@ override_dh_installdocs-indep:
 	# Rename the "main" doc directories from
 	# `usr/share/doc/@MAIN_PACKAGE_NAME@` to `usr/share/doc/linuxcnc`,
 	# because that's where the `.desktop` files look for the docs.
+	dh_installdocs --doc-main-package=linuxcnc-uspace --package=linuxcnc-doc-de
+	mv debian/linuxcnc-doc-de/usr/share/doc/linuxcnc-uspace/gcode.html debian/linuxcnc-doc-de/usr/share/doc/linuxcnc-uspace/gcode_de.html
+	mv debian/linuxcnc-doc-de/usr/share/doc/linuxcnc-uspace debian/linuxcnc-doc-de/usr/share/doc/linuxcnc
+	
 	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-en
 	mv debian/linuxcnc-doc-en/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-en/usr/share/doc/linuxcnc
 	

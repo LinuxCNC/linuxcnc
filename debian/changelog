@@ -1,8 +1,61 @@
+linuxcnc (1:2.10.0~pre0) UNRELEASED; urgency=medium
+
+  * Master branch open for new features.
+
+ -- Andy Pugh <bodgesoc@gmail.com>  Mon, 7 Nov 2022 23:31:00 +0000
+
+linuxcnc (1:2.9.0~pre1) UNRELEASED; urgency=medium
+
+  * githelper.sh: New master glob
+  * qtplasmac: add event logging
+  * qtplasmac: update sim configs
+  * qtvcp -docs: add update versaprobe details
+  * qtdragon -docs: update versaprobe image
+  * qtvcp -versaprobe: improve help dialog layout/use
+  * qtvcp -panels: fix details of cam_align controls
+  * qtvcp -docs: cam_align controls, loading options
+  * qtvcp -axis embedded cam_align: add size and rotation increment
+  * qtvcp -cam_align panel: add ability to set rotation increment
+  * qtvcp -camview_widget: add the rotation increment display
+  * qtvcp -cam_align panel: add window size setting option
+  * docs: qtplasmac fix image, add deprication notice
+  * docs: add div2 to .gitignore
+  * Merge pull request #2119 from Roguish000/component-div2
+
+ -- andypugh <andy@bodgesoc.org>  Sun, 13 Nov 2022 17:36:52 +0000
+
+linuxcnc (1:2.9.0~pre1) UNRELEASED; urgency=medium
+
+  * First 2.9 pre-release preparatory to release.
+  * Bugfixes welcome, new features by negotiation
+
+ -- Andy Pugh <bodgesoc@gmail.com>  Mon, 7 Nov 2022 23:31:00 +0000
+
 linuxcnc (1:2.9.0~pre0) UNRELEASED; urgency=medium
 
   * Master branch open for new features.
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 12 Aug 2022 20:56:25 +0200
+
+linuxcnc (2.9.0~pre0+git20221023.7a5beabae0-1) unstable; urgency=medium
+
+  * New upstream version 2.9.0_pre0+git20221023.7a5beabae0
+  * Add deb package with German translated docs.
+  * Fix autopkgtest.
+  * Fix build on armhf.
+  * Fix a divide-by-zero bug in the software encoder counter component.
+  * Fix some bugs in carousel component.
+  * Fix exception handling bug in python plugin/sai.
+  * Improve AppStream metadata.
+  * Bump language standards to gnu11 & gnu++17.
+  * Add hm2 oneshot support.
+  * Lots of improvements to the docs & translations.
+  * Improvements to several GUIs.
+  * Add scaled sum component.
+  * Add anglejog component.
+  * Update debian/ files
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 23 Oct 2022 22:26:38 -0400
 
 linuxcnc (2.9.0~pre0+git20220906.02744cdef6-1) unstable; urgency=medium
 
@@ -78,6 +131,19 @@ linuxcnc (2.9.0~pre0+git20220224.3ba0951743-1) unstable; urgency=medium
   * Initial upload that was checked by FTPmasters
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 25 Feb 2022 18:40:12 +0100
+
+linuxcnc (1:2.8.4) buster; urgency=medium
+
+  * Add driver support for Mesa 7i96S
+  * Add pncconf support fo Mesa 7i96S
+  * calculatorwidget: increased buttons to be more touch-friendly
+  * gmoccapy: Fix jogging with max velocity (SHIFT + jog key)
+  * Czech translation for Gmoccapy
+  * gmoccapy: fix attribute error in tooltip text
+  * gmoccapy: fix "spindle speed override wasn't applied in reverse direction"
+  * docs: add note to obsolete property 'FEATURES'
+
+ -- andypugh <andy@bodgesoc.org>  Sun, 18 Sep 2022 20:33:29 +0100
 
 linuxcnc (1:2.8.3) buster; urgency=low
 
@@ -795,7 +861,7 @@ linuxcnc (1:2.7.8) unstable; urgency=medium
 
 linuxcnc (1:2.7.7) unstable; urgency=medium
 
-  * docs: fix example scrips so they work when copied and pasted
+  * docs: fix example scripts so they work when copied and pasted
   * docs: fix minor mux_generic(9) manpage quibbles
 
   * Axis GUI: work around python-tk "True" bug

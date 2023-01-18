@@ -9,7 +9,7 @@ loadrt [KINS]KINEMATICS
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 
 # PID module, for four PID loops
-loadrt at_pid num_chan=4
+loadrt pid num_chan=4
 
 # Install motenc driver.
 loadrt hal_motenc
