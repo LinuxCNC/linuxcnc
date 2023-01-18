@@ -179,6 +179,26 @@ int hm2_allocate_bspi_tram(char* name)
     return 0;
 }
 
+EXPORT_SYMBOL_GPL(hm2_bspi_clear_fifo);
+int hm2_bspi_clear_fifo(char * name)
+{
+    hostmot2_t * hm2;
+    int i, r;
+
+    i = hm2_get_bspi(&hm2, name);
+    if (i < 0){
+        HM2_ERR_NO_LL("Can not find BSPI instance %s.\n", name);
+        return -1;
+    }
+    rtapi_u32 zero = 0;
+    r = hm2->llio->write(hm2->llio, hm2->bspi.instance[i].count_addr, &zero, sizeof(rtapi_u32));
+    if (r < 0) {
+        HM2_ERR("BSPI: hm2->llio->write failure %s\n", name);
+    }
+    
+    return r;
+}
+
 EXPORT_SYMBOL_GPL(hm2_bspi_write_chan);
 int hm2_bspi_write_chan(char* name, int chan, rtapi_u32 val)
 {
