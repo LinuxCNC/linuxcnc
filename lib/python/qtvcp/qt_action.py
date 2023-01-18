@@ -1,4 +1,5 @@
 import os
+import math
 import subprocess
 from time import sleep
 from PyQt5.QtWidgets import (QApplication, QTabWidget, QStackedWidget,
@@ -405,56 +406,32 @@ class _Lcnc_Action(object):
     def SET_JOG_RATE(self, rate):
         STATUS.set_jograte(float(rate))
 
-    # set the job rate faster by one aproximate division of the min/max range
-    # cur off at the upper and lower job rates as per the INI
     # keyboard shortcut uses it
-    def SET_JOG_RATE_FASTER(self, divs=10):
-        one = (INFO.MAX_LINEAR_JOG_VEL - INFO.MIN_LINEAR_JOG_VEL)/divs
-        rate = STATUS.get_jograte()
-        now = rate/one
-        nrate = int((now +1) * one)
-        if nrate > int(INFO.MAX_LINEAR_JOG_VEL):
-            nrate = int(INFO.MAX_LINEAR_JOG_VEL)
-        STATUS.set_jograte(float(nrate))
+    def SET_JOG_RATE_FASTER(self, divs=30):
+        nrate = self._step_jograte(STATUS.get_jograte(),
+            INFO.MIN_LINEAR_JOG_VEL, INFO.MAX_LINEAR_JOG_VEL, 1, divs)
+        STATUS.set_jograte(nrate)
 
-    # set the job rate lower by one aproximate division of the min/max range
-    # cur off at the upper and lower job rates as per the INI
     # keyboard shortcut uses it
-    def SET_JOG_RATE_SLOWER(self, divs=10):
-        one = (INFO.MAX_LINEAR_JOG_VEL - INFO.MIN_LINEAR_JOG_VEL)/divs
-        rate = STATUS.get_jograte()
-        now = rate/one
-        nrate = int((now -1) * one)
-        if nrate < int(INFO.MIN_LINEAR_JOG_VEL):
-            nrate = int(INFO.MIN_LINEAR_JOG_VEL)
-        STATUS.set_jograte(float(nrate))
+    def SET_JOG_RATE_SLOWER(self, divs=30):
+        nrate = self._step_jograte(STATUS.get_jograte(),
+            INFO.MIN_LINEAR_JOG_VEL, INFO.MAX_LINEAR_JOG_VEL, -1, divs)
+        STATUS.set_jograte(nrate)
 
     # degrees per minute
     def SET_JOG_RATE_ANGULAR(self, rate):
         STATUS.set_jograte_angular(float(rate))
 
-    # set the job rate faster by one aproximate division of the min/max range
-    # cur off at the upper and lower job rates as per the INI
     # keyboard shortcut uses it
-    def SET_JOG_RATE_ANGULAR_FASTER(self, divs=10):
-        one = (INFO.MAX_ANGULAR_JOG_VEL - INFO.MIN_ANGULAR_JOG_VEL)/divs
-        rate = STATUS.get_jograte_angular()
-        now = rate/one
-        nrate = int((now +1) * one)
-        if nrate > int(INFO.MAX_ANGULAR_JOG_VEL):
-            nrate = int(INFO.MAX_ANGULAR_JOG_VEL)
+    def SET_JOG_RATE_ANGULAR_FASTER(self, divs=30):
+        nrate = self._step_jograte(STATUS.get_jograte_angular(),
+            INFO.MIN_ANGULAR_JOG_VEL, INFO.MAX_ANGULAR_JOG_VEL, 1, divs)
         STATUS.set_jograte_angular(float(nrate))
 
-    # set the job rate lower by one aproximate division of the min/max range
-    # cur off at the upper and lower job rates as per the INI
     # keyboard shortcut uses it
-    def SET_JOG_RATE_ANGULAR_SLOWER(self, divs=10):
-        one = (INFO.MAX_ANGULAR_JOG_VEL - INFO.MIN_ANGULAR_JOG_VEL)/divs
-        rate = STATUS.get_jograte_angular()
-        now = rate/one
-        nrate = int((now -1) * one)
-        if nrate < int(INFO.MIN_ANGULAR_JOG_VEL):
-            nrate = int(INFO.MIN_ANGULAR_JOG_VEL)
+    def SET_JOG_RATE_ANGULAR_SLOWER(self, divs=30):
+        nrate = self._step_jograte(STATUS.get_jograte_angular(),
+            INFO.MIN_ANGULAR_JOG_VEL, INFO.MAX_ANGULAR_JOG_VEL, -1, divs)
         STATUS.set_jograte_angular(float(nrate))
 
     def SET_JOG_INCR(self, incr, text):
@@ -868,6 +845,23 @@ class _Lcnc_Action(object):
     ######################################
     # Action Helper functions
     ######################################
+
+    # adjust the jog rate by one aproximate division of the
+    # min/max range on an exponential scale.
+    # cut off at the upper and lower jog rates as per the INI
+    def _step_jograte(self, jograte, minrate, maxrate, inc, divs):
+        rate = jograte - minrate
+        if rate < 0:
+            rate = 0
+        rate = math.log(rate + 1)
+        one = math.log(maxrate - minrate + 1) / divs
+        now = round(rate/one)
+        nrate = int(math.exp((now + inc) * one)) + minrate + 1
+        if nrate > int(maxrate):
+            nrate = int(maxrate)
+        if nrate < int(minrate):
+            nrate = int(minrate)
+        return float(nrate)
 
     # In free (joint) mode we use the plain joint number.
     # In axis mode we convert the joint number to the equivalent
