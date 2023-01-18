@@ -1719,6 +1719,7 @@ int hm2_sserial_read_configs(hostmot2_t *hm2, hm2_sserial_remote_t *chan);
 int  hm2_bspi_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_bspi_print_module(hostmot2_t *hm2);
 void hm2_bspi_cleanup(hostmot2_t *hm2);
+int hm2_bspi_clear_fifo(char * name);
 void hm2_bspi_write(hostmot2_t *hm2);
 void hm2_bspi_force_write(hostmot2_t *hm2);
 void hm2_bspi_prepare_tram_write(hostmot2_t *hm2, long period);
