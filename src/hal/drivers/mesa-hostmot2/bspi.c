@@ -148,6 +148,8 @@ int hm2_tram_add_bspi_frame(char *name, int chan, rtapi_u32 **wbuff, rtapi_u32 *
         return -1;
     }
     if (rbuff != NULL){
+        // Reading from addr[0] instead of addr[chan] is intentional
+        // here - all the channels share one receive FIFO.
         r = hm2_register_tram_read_region(hm2,hm2->bspi.instance[i].addr[0], sizeof(rtapi_u32),rbuff);
         if (r < 0) {
             HM2_ERR( "Failed to add TRAM read entry for %s\n", name);
