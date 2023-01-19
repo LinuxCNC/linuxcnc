@@ -105,8 +105,10 @@ retCode fnct_03_read_holding_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_l
         float val = data[counter];
         //val *= this_mb_tx->scale[counter];
         //val += this_mb_tx->offset[counter];
-        *(this_mb_tx->float_value[counter]) = val;
-        *(this_mb_tx->int_value[counter]) = data[counter];
+        if (this_mb_tx->float_value[counter] != NULL)
+            *(this_mb_tx->float_value[counter]) = val;
+        if (this_mb_tx->int_value[counter] != NULL)
+            *(this_mb_tx->int_value[counter]) = data[counter];
     }
 
     return retOK;
@@ -144,8 +146,10 @@ retCode fnct_04_read_input_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
         float val = data[counter];
         //val += this_mb_tx->offset[counter];
         //val *= this_mb_tx->scale[counter];
-        *(this_mb_tx->float_value[counter]) = val;
-        *(this_mb_tx->int_value[counter]) = data[counter];
+        if (this_mb_tx->float_value[counter] != NULL)
+            *(this_mb_tx->float_value[counter]) = val;
+        if (this_mb_tx->int_value[counter] != NULL)
+            *(this_mb_tx->int_value[counter]) = data[counter];
     }
 
     return retOK;
@@ -195,8 +199,11 @@ retCode fnct_06_write_single_register(mb_tx_t *this_mb_tx, mb_link_t *this_mb_li
         return retERR;
     }
 
-    float float_val = *(this_mb_tx->float_value[0]);
-    data = (int) float_val + *(this_mb_tx->int_value[0]);
+    data = 0;
+    if (this_mb_tx->float_value[0] != NULL)
+        data += (int) *(this_mb_tx->float_value[0]);
+    if (this_mb_tx->int_value[0] != NULL)
+        data += *(this_mb_tx->int_value[0]);
     if(data > UINT16_MAX) { // prevent wrap on overflow
         data = UINT16_MAX;
     }
@@ -270,8 +277,12 @@ retCode fnct_16_write_multiple_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb
     for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
         //float val = *(this_mb_tx->float_value[counter]) / this_mb_tx->scale[counter];
         //val -= this_mb_tx->offset[counter];
-        float float_val = *(this_mb_tx->float_value[counter]);
-        int data32 = (uint16_t) float_val + *(this_mb_tx->int_value[counter]);
+	int data32 = 0;
+
+        if (this_mb_tx->float_value[counter] != NULL)
+            data32 += (uint16_t)*(this_mb_tx->float_value[counter]);
+        if (this_mb_tx->int_value[counter] != NULL)
+            data32 += *(this_mb_tx->int_value[counter]);
         if(data32 > UINT16_MAX) { // prevent wrap on overflow
             data[counter] = UINT16_MAX;
         }

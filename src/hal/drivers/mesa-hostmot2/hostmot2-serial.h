@@ -39,6 +39,7 @@ int hm2_bspi_set_write_function(char *name, int (*func)(void *subdata), void *su
 int hm2_bspi_write_chan(char* name, int chan, rtapi_u32 val);
 int hm2_allocate_bspi_tram(char* name);
 int hm2_tram_add_bspi_frame(char *name, int chan, rtapi_u32 **wbuff, rtapi_u32 **rbuff);
+int hm2_bspi_clear_fifo(char * name);
 
 RTAPI_END_DECLS
 
