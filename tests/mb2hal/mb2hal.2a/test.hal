@@ -1,0 +1,2 @@
+# Load MB2HAL
+loadusr -W mb2hal config=mb2hal.ini
