@@ -413,9 +413,9 @@ And have a function to be called:
 [source,python]
 ----
     def _on_example_trigger_change(self,pin,userdata=None):
-        print("pin value changed to:" % (pin.get()))
-        print("pin name= %s" % (pin.get_name()))
-        print("pin type= %d" % (pin.get_type()))
+        print("pin value changed to: {}".format(pin.get()))
+        print("pin name= {}".format(pin.get_name()))
+        print("pin type= {}".format(pin.get_type()))
 
         # this can be called outside the function
         self.example_trigger.get()
