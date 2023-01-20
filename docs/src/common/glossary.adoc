@@ -20,7 +20,7 @@ Axis::
     linear axes relative to the tool are called U, V, and W
     respectively.
 
-Axis(GUI)::
+AXIS(GUI)::
      (((GUI))) One of the Graphical User Interfaces available to users of
     LinuxCNC. It features the modern use of menus and mouse buttons while
     automating and hiding some of the more traditional LinuxCNC controls. It is
@@ -192,7 +192,7 @@ Home::
     that is used to make sure the computer and the actual machine both
     agree on the tool position.
 
-ini file::
+INI file::
      (((INI))) A text file that contains most of the information
     that configures LinuxCNC for a particular machine.
 
@@ -232,7 +232,7 @@ Lead-screw::
 
 Machine units::
      (((machine units))) The linear and angular units used for machine
-    configuration. These units are specified and used in the ini file.
+    configuration. These units are specified and used in the INI file.
     HAL pins and parameters are also generally in machine units.
 
 MDI::

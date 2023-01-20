@@ -307,7 +307,7 @@ MDI_COMMAND=(debug,macro16)
  For toggling E-stop use whb.halui.estop .active and .reset.
 `whb.button.stop` (bit,out)::
  see `whb.halui.program.stop`. True on Stop button down, false otherwise.
- For stopping a program use whb.halui.program.stop.
+ For stopping a program use `whb.halui.program.stop`.
 `whb.button.start-pause` (bit,out)::
  see `whb.halui.program.`{`run`, `pause`, `resume`}`.
  True on Start-Pause button down, false otherwise.
