@@ -150,6 +150,9 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     # self.PREFS_
     # come from base class
     def _hal_init(self):
+
+        self.init_about_dialog()
+
         if self.add_message_dialog:
             self.init_message_dialog()
 
@@ -505,6 +508,15 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 else:
                     layout = QtWidgets.QGridLayout(tw)
                     layout.addWidget(temp, 0, 0)
+
+    def init_about_dialog(self):
+        from qtvcp.widgets.dialog_widget import AboutDialog
+        w = self.QTVCP_INSTANCE_
+        w.aboutDialog_ = AboutDialog(w)
+        w.aboutDialog_.setObjectName('aboutDialog_')
+        info = ACTION.GET_ABOUT_INFO()
+        w.aboutDialog_.setText(info)
+        w.aboutDialog_.hal_init(HAL_NAME='aboutDialog')
 
     def init_tool_dialog(self):
         from qtvcp.widgets.dialog_widget import ToolDialog
