@@ -17,6 +17,9 @@ from . import logger
 log = logger.getLogger(__name__)
 # log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL, VERBOSE
 
+# The order of these classes is importanr, otherwise - cirular imports.
+# the some of the later classes reference the earlier classes
+
 ################################################################
 # IStat class
 ################################################################
@@ -278,6 +281,20 @@ class Status(GStat):
         self._block_polling = False
 
 ################################################################
+# PStat class
+################################################################
+from qtvcp.qt_pstat import _PStat as _PStatParent
+
+
+class Path(_PStatParent):
+    _instance = None
+    _instanceNum = 0
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = _PStatParent.__new__(cls, *args, **kwargs)
+        return cls._instance
+################################################################
 # Lcnc_Action class
 ################################################################
 from qtvcp.qt_action import _Lcnc_Action as _ActionParent
@@ -309,17 +326,4 @@ class Tool(_TStatParent):
         return cls._instance
 
 
-################################################################
-# PStat class
-################################################################
-from qtvcp.qt_pstat import _PStat as _PStatParent
 
-
-class Path(_PStatParent):
-    _instance = None
-    _instanceNum = 0
-
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = _PStatParent.__new__(cls, *args, **kwargs)
-        return cls._instance
