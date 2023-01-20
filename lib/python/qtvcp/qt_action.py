@@ -14,10 +14,11 @@ from . import logger
 LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-from qtvcp.core import Status, Info
+from qtvcp.core import Status, Info, Path
 
 INFO = Info()
 STATUS = Status()
+PATH = Path()
 TOUCHPLATE_SUBPROGRAM = os.path.abspath(os.path.join(
             os.path.dirname(__file__), 'lib/touchoff_subprogram.py'))
 
@@ -769,6 +770,9 @@ class _Lcnc_Action(object):
     def SET_ERROR_MESSAGE(self, msg):
         self.cmd.error_msg(msg)
 
+    def SET_TEMPARARY_MESSAGE(self, msg):
+        STATUS.emit('error', STATUS.TEMPARARY_MESSAGE, msg)
+
     def TOUCHPLATE_TOUCHOFF(self, search_vel, probe_vel, max_probe,
             z_offset, retract_distance, z_safe_travel):
         if self.proc is not None:
@@ -847,6 +851,19 @@ class _Lcnc_Action(object):
             widget.show()
         else:
             widget.setGraphicsEffect(None)
+
+    # search for INFO or README file
+    def GET_ABOUT_INFO(self):
+        mess = ''
+        path = PATH.ABOUT
+        if not os.path.exists(path):
+            path = os.path.join(PATH.CONFIGPATH, 'README')
+            if not os.path.exists(path):
+                return "This is a Pyqt5/QtVCP based screen for Linuxcnc\n No ABOUT or README found."
+
+        for line in open(path):
+            mess += line
+        return mess
 
     ######################################
     # Action Helper functions
