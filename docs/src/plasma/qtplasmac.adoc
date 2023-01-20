@@ -11,6 +11,7 @@
 :ngc: {basebackend@docbook:'':ngc}
 
 == Preamble
+
 *Except where noted, this guide assumes the user is using the latest version of QtPlasmaC.*
 *Version history can be seen by visiting this https://htmlpreview.github.io/?https://github.com/LinuxCNC/linuxcnc/blob/master/share/qtvcp/screens/qtplasmac/versions.html[link] which will show the latest available version.*
 *The installed QtPlasmaC version is displayed in the title bar.*
@@ -1482,9 +1483,11 @@ GAS_PRESSURE        = value (only used for PowerMax communications)
 CUT_MODE            = value (only used for PowerMax communications)
 ----
 
-It is possible to add new material, delete material, or edit existing material from the <<qt_parameters-tab,PARAMETERS tab.>> It is also possible to achieve this by using <<qt_magic-comments,magic comments>> in a g-Code file.
+It is possible to add new material, delete material, or edit existing material from the <<qt_parameters-tab,PARAMETERS tab.>>.
+It is also possible to achieve this by using <<qt_magic-comments,magic comments>> in a G-code file.
 
-The material file may be edited with a text editor while LinuxCNC is running. After any changes have been saved, press *Reload* in the MATERIAL section of the <<qt_parameters-tab,PARAMETERS Tab>> to reload the material file.
+The material file may be edited with a text editor while LinuxCNC is running.
+After any changes have been saved, press *Reload* in the MATERIAL section of the <<qt_parameters-tab,PARAMETERS Tab>> to reload the material file.
 
 === Manual Material Handling
 
@@ -2361,15 +2364,19 @@ If the user has the Run From Line option enabled in the GUI SETTINGS section of 
 . Clicking any line in the Preview Window
 . Clicking any line in the G-code Window
 
-Note that the Run From Line function will run from the beginning of the selected line.
+Note that the "Run From Line"-function will run from the beginning of the selected line.
 
-It is important to note that G-code programs can be run from any selected line using this method, however a leadin may not be possible depending on the line selected. In this case, an error message will be displayed to let the user know the leadin calculation was not possible.
+It is important to note that G-code programs can be run from any selected line using this method, however a leadin may not be possible depending on the line selected.
+In this case, an error message will be displayed to let the user know the leadin calculation was not possible.
 
-Once the user has selected the starting place, the *CYCLE START* button will blink *"SELECTED nn"* where nn is the corresponding line number selected. Clicking this button will bring up the following Run From Line dialog box:
+Once the user has selected the starting place, the *CYCLE START* button will blink *"SELECTED __nn__"* where _nn_ is the corresponding line number selected.
+Clicking this button will bring up the following Run From Line dialog box:
 
-It is not possible to use Run From Line from within a subroutine. If the user selects a line within a subroutine and clicks *"SELECTED nn"* then an error message will be displayed that includes the O-Code name of the subroutine.
+It is not possible to use Run From Line from within a subroutine.
+If the user selects a line within a subroutine and clicks *"SELECTED __nn__"* then an error message will be displayed that includes the O-code name of the subroutine.
 
-It is not possible to use Run From Line if previous G-code has set cutter compensation active. If the user selects a line while cutter compensation is active and clicks *"SELECTED nn"* then an error message will be displayed.
+It is not possible to use Run From Line if previous G-code has set cutter compensation active.
+If the user selects a line while cutter compensation is active and clicks *"SELECTED __nn__"* then an error message will be displayed.
 
 It is possible to select a new line while Run From Line is active.
 
@@ -2393,7 +2400,8 @@ If the leadin cannot be calculated for the selected line, the following error me
 Program will run from selected line with no leadin applied"
 |===
 
-After pressing *LOAD*, the blinking "SELECTED nn" button will change to *RUN FROM LINE CYCLE START* button. Click this button to start the program from the beginning of the selected line.
+After pressing *LOAD*, the blinking "SELECTED nn" button will change to *RUN FROM LINE CYCLE START* button.
+Click this button to start the program from the beginning of the selected line.
 
 *Run From Line selections may be canceled in the following ways:*
 

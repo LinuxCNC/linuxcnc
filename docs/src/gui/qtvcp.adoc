@@ -234,9 +234,8 @@ Another Python file can be used to *add commands* to the screen, after the handl
 
 In the _INI file_ under the `[DISPLAY]` heading add *`USER_COMMAND_FILE = _PATH_`* +
 
-_PATH_ can be any valid path. It can use `~` for home directory or
-`WORKINGDIRECTORY` or `CONFIGDIRECTORY` to represent QtVCP's idea of
-those directories, e.g.:
+_PATH_ can be any valid path.
+It can use `~` for home directory or `WORKINGDIRECTORY` or `CONFIGDIRECTORY` to represent QtVCP's idea of those directories, e.g.:
 
 [source,{ini}]
 ----
@@ -251,8 +250,7 @@ using the screen basename and rc, i.e. *`CONFIGDIRECTORY/.<screen_name>rc`*.
 This file will be read and executed as Python code in the *handler file context*.
 
 *Only local functions and local attributes* can be referenced. +
-Global libraries can not be referenced. (usually seen as all capital
-words with no preceding self.) +
+Global libraries can not be referenced. (usually seen as all capital words with no preceding self.) +
 
 What can be used can vary by screen and development cycle.
 
@@ -276,11 +274,9 @@ qtvcp copy_dialog
 ----
 
 * Select the screen and destination folder in the dialog
-* If you wish to *name your screen* differently than the builtin screen's
-  default name, change the _basename_ in the edit box.
+* If you wish to *name your screen* differently than the builtin screen's default name, change the _basename_ in the edit box.
 * Validate to copy all the files
-* Delete the files you don't wish to modifyso that the original files
-  will be used.
+* Delete the files you don't wish to modifyso that the original files will be used.
 
 [[sec:qtvcp:vcp-panels]]
 == VCP Panels
@@ -493,8 +489,7 @@ This widget doesn't add anything visually but sets up some *common options*.
 
 It's recommended to always _add this widget before any other_.
 
-Right click on the main window, not the `ScreenOptions` widget,
-and set the _layout_ as vertical to make the `ScreenOptions` fullsized.
+Right click on the main window, not the `ScreenOptions` widget, and set the _layout_ as vertical to make the `ScreenOptions` fullsized.
 
 .Add Panel Content
 On the right hand side there is a panel with tabs for a _Property editor_ and an _Object inspector_.
@@ -562,14 +557,13 @@ It allows customizations to be written in Python.
 For instance, _keyboard controls_ are usually written in the handler file.
 
 In this example, the built in file `tester_handler.py` is automatically used:
-it does the minimum required to display the `tester.ui` defined screen and do basic keyboard jogging.
+It does the minimum required to display the `tester.ui` defined screen and do basic keyboard jogging.
 
 === INI Configuration
 
 .[DISPLAY] Section
 
-If you are using QtVCP to make a CNC control screen,
-under the _INI file_ `[DISPLAY]` heading, set:
+If you are using QtVCP to make a CNC control screen, under the _INI file_ `[DISPLAY]` heading, set:
 
 [source,{ini}]
 ----
@@ -578,13 +572,11 @@ DISPLAY = qtvcp <screen_name>
 
 `<screen_name>` is the _base name_ of the `.ui` and `_handler.py` files.
 
-In our example there is already a sim configuration called tester,
-that we will use to display our test screen.
+In our example there is already a sim configuration called tester, that we will use to display our test screen.
 
 .[HAL] Section
 
-If your screen used _widgets with HAL pins_, then you must
-*connect them in a HAL file*.
+If your screen used _widgets with HAL pins_, then you must *connect them in a HAL file*.
 
 QtVCP looks in the _INI file_, under the `[HAL]` heading for the entries below:
 
@@ -595,8 +587,7 @@ QtVCP looks in the _INI file_, under the `[HAL]` heading for the entries below:
 
 *`POSTGUI_HALCMD=<command>`*::
   `<command>` would be _any valid HAL command_. +
-  You can have _multiple `POSTGUI_HALCMD` lines_ in the INI: each will
-  be run one after the other in the order they appear. +
+  You can have _multiple `POSTGUI_HALCMD` lines_ in the INI: each will be run one after the other in the order they appear. +
   To guaranty the widget HAL pins are available, these commands are executed:
   * _after the screen is built_,
   * _after all the POSTGUI_HALFILEs are run_.
@@ -847,16 +838,13 @@ This is the definitions of the handler class.
 
 === INITIALIZE Section
 
-Like all Python libraries the *`+__init__+` function* is called when the
-library is _first instantiated_.
+Like all Python libraries the *`+__init__+` function* is called when the library is _first instantiated_.
 
-This is where you would set up _defaults_, as well as _reference variables_
-and _global variables_.
+This is where you would set up _defaults_, as well as _reference variables_ and _global variables_.
 
 The widget references are not available at this point.
 
-The variables `halcomp`, `widgets` and `paths` give access to QtVCP's
-HAL component, widgets, and path info respectively.
+The variables `halcomp`, `widgets` and `paths` give access to QtVCP's HAL component, widgets, and path info respectively.
 
 === SPECIAL FUNCTIONS Section
 
@@ -872,15 +860,14 @@ If QtVCP finds these it will call them, if not it will silently ignore them.
   * status of LinuxCNC connected to functions.
   * keybindings would be added.
 *`class_patch__(self):`*::
-  _Class patching_, also known as _monkey patching_, allows to
-  *override function calls in an imported module*. +
-  Class patching must be done _before the module is instantiated_, and it
-  _modifies all instances_ made after that. +
-  An example might be patching button calls from the G-code editor to
-  call functions in the handler file instead.
+  _Class patching_, also known as _monkey patching_, allows to *override function calls in an imported module*. +
+  Class patching must be done _before the module is instantiated_, and it _modifies all instances_ made after that. +
+  An example might be patching button calls from the G-code editor to call functions in the handler file instead. +
+
 *`processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):`*::
   This function is called to facilitate _keyboard jogging_ etc. +
   By using the _`keybinding` library_ this can be used to easily add functions bound to keypresses.
+
 *`keypress_event__(self,receiver, event):`*::
   This function gives *raw key press events*. +
   It takes _precedence over_ the `processed_key_event`.
@@ -893,12 +880,9 @@ If QtVCP finds these it will call them, if not it will silently ignore them.
 *`system_shutdown_request__(self):`*::
   If present, this function *overrides the normal function called for total system shutdown*. +
   It could be used to do _pre-shutdown housekeeping_. +
-//TODO Example(s) of good practice cleaning
-
-  The Linux _system will not shutdown if using this function_, you will have
-  to do that yourself. +
-  QtVCP/LinuxCNC will shutdown without a prompt after/if this function
-  returns.
+  +
+  The Linux _system will not shutdown if using this function_, you will have to do that yourself. +
+  QtVCP/LinuxCNC will terminate without a prompt once this function returns.
 
 *`closing_cleanup__(self):`*::
   This function is _called just before the screen closes_.
@@ -908,14 +892,11 @@ If QtVCP finds these it will call them, if not it will silently ignore them.
 
 === STATUS CALLBACKS Section
 
-By convention this is where you would put functions that are
-*callbacks from STATUS definitions*.
+By convention this is where you would put functions that are *callbacks from STATUS definitions*.
 
 === CALLBACKS FROM FORM Section
 
-By convention this is where you would put functions that are
-*callbacks from the widgets connected to the MainWindow* in the Qt
-Designer editor.
+By convention this is where you would put functions that are *callbacks from the widgets connected to the MainWindow* in the Qt Designer editor.
 
 === GENERAL FUNCTIONS Section
 
@@ -923,8 +904,7 @@ By convention this is where you put your *general functions*.
 
 === KEY BINDING Section
 
-If you are _using the `keybinding` library_ this is where you place your
-*custom key call routines*.
+If you are _using the `keybinding` library_ this is where you place your *custom key call routines*.
 
 The function signature is:
 
@@ -975,16 +955,13 @@ In this way you can:
 [[sub:qtvcp:designer-slots]]
 === Using Qt Designer to add Slots
 
-When you have loaded your screen into Qt Designer, add a plain
-`PushButton` to the screen. +
-You could change the name of the button to something interesting like
-'test_button'.
+When you have loaded your screen into Qt Designer, add a plain `PushButton` to the screen. +
+You could change the name of the button to something interesting like 'test_button'.
 
 There are two ways to edit connections - This is the graphical way.
 
 * There is a button in the top tool bar of Qt Designer for editing signals.
-  After pushing it, if you click-and-hold on the button it will show an
-  arrow (looks like a ground signal from electrical schematic).
+  After pushing it, if you click-and-hold on the button it will show an arrow (looks like a ground signal from electrical schematic).
 * Slide this arrow to a part of the main window that does not have widgets on it.
 * A 'Configure Connections' dialog will pop up.
 ** The list on the left are the available signals from the widget.
@@ -1027,13 +1004,11 @@ Add this code under the section named:
 #######################
 ----
 
-In fact it doesn't matter where in the handler class you put the commands
-but by convention this is where to put it.
+In fact it doesn't matter where in the handler class you put the commands but by convention this is where to put it.
 
 Save the handler file.
 
-Now when you load your screen and press the button it should print the
-name of the button in the terminal.
+Now when you load your screen and press the button it should print the name of the button in the terminal.
 
 == More Information
 

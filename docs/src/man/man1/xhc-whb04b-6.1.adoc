@@ -206,7 +206,8 @@ The feed rotary button can serve in
 
 * Continuous move x% from max velocity
 * Step move x mm
-* MPG override feed/spindle the special position Lead. +
+* MPG override feed/spindle
+* The special position Lead. +
 *Continuous:* In this mode jogging is performed at the selected feed rate. As long the jogwheel turns, the selected axis moves. +
 *Step:* In this mode the machine moves steps * wheel_counts at the currently selected step size and the current set feed rate in machine units.
 If the commanded position is not reached the machine keeps moving even the jogwheel is not turning. +
@@ -228,7 +229,6 @@ In MPG/CON the feed rate will change to 100%, 60%, ... and so forth. In Step mod
  connect to `halui.feed-override.scale`. Pin for setting the scale on changing the feed override.
 `whb.halui.max-velocity.value` (float,out)::
  connect to `halui.max-velocity.value`.
-
 
 ==== Program
 
@@ -274,8 +274,7 @@ For flexibility reasons each button provides an output pin even if no functional
 The Fn button can be combined with each other push-button.
 This includes also RESET, Stop, Start/Pause, Macro-10, and Step|Continuous.
 By default the more frequent used orange buttons are executed,
-whereas blue ones (``whb.button.macro-``_<M>_) by combining them with Fn
-(press Fn first then button).
+whereas blue ones (`whb.button.macro-`__<M>__) by combining them with Fn (press Fn first then button).
 
 Button macro needs to be added to your INI and needs to be edited for your own use:
 
@@ -308,7 +307,7 @@ MDI_COMMAND=(debug,macro16)
  For toggling E-stop use whb.halui.estop .active and .reset.
 `whb.button.stop` (bit,out)::
  see `whb.halui.program.stop`. True on Stop button down, false otherwise.
- For stopping a program use whb.halui.program.stop.
+ For stopping a program use `whb.halui.program.stop`.
 `whb.button.start-pause` (bit,out)::
  see `whb.halui.program.`{`run`, `pause`, `resume`}`.
  True on Start-Pause button down, false otherwise.
@@ -391,7 +390,6 @@ MDI_COMMAND=(debug,macro16)
  True on Continuous mode button down, false otherwise.
 `whb.button.mode-step` (bit,out)::
  True on Step mode button down, false otherwise.
-
 
 ==== Pendant
 
@@ -575,7 +573,6 @@ net pdnt.axis.z.pos-relative              halui.axis.z.pos-relative             
 
 ----
 
-
 == SEE ALSO
 https://github.com/linuxcnc/linuxcnc/tree/master/src/hal/user_comps/xhc-whb04b-6/[xhc-whb04b-6 developer documentation on GitHub]
 
@@ -595,5 +592,5 @@ The development started with the xhc-whb04 (4-axis wireless pendant) implementat
 
 == COPYRIGHT
 Copyright (C) 2018 Raoul Rubien (github.com/rubienr) Updated for Linuxcnc 2020 by alkabal_free.fr.
-This is free software; see the source for copying conditions. There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+This is free software; see the source for copying conditions.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
