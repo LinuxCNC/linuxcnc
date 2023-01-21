@@ -113,6 +113,7 @@ lineNumOrg = 0
 distMode = 90 # absolute
 arcDistMode = 91.1 # incremental
 holeVelocity = 60
+minSpottingDiameter = 0
 material = [0, False]
 overCut = False
 holeActive = False
@@ -1051,6 +1052,14 @@ with open(inPath, 'r') as inCode:
                 codeWarn = True
                 warnUnitsDep.append(lineNum)
                 errorLines.append(lineNumOrg)
+            continue
+        # if minimal diameter spotting command
+        if line.startswith('#<spotting_min_diameter>') :
+            if '(' in line:
+                minSpottingDiameter = float(line.split('=')[1].split('(')[0])
+            else:
+                minSpottingDiameter = float(line.split('=')[1])
+            gcodeList.append(line)
             continue
         # if hole velocity command
         if line.startswith('#<h_velocity>'):
