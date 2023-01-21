@@ -795,7 +795,7 @@ effect on 'G10 L2'.
 
 Important Concepts:
 
-* G10 L2 Pn does not change from the current coordinate system to the
+* `G10 L2 Pn` does not change from the current coordinate system to the
   one specified by P, you have to use G54-59.3 to select a coordinate
   system.
 * When a rotation is in effect jogging an axis will only move that axis
@@ -2535,10 +2535,10 @@ G0 X2.5 (rapid move 2.5 from current position along the X axis)
 [[gcode:g90.1-g91.1]]
 == G90.1, G91.1 Arc Distance Mode(((Arc Distance Mode)))
 
-* _`G90.1`_ - absolute distance mode for I, J & K offsets.
+* 'G90.1' - absolute distance mode for I, J & K offsets.
   When G90.1 is in effect I and J both must be specified with G2/3
   for the XY plane or J and K for the XZ plane or it is an error.
-* _`G91.1`_ - incremental distance mode for I, J & K offsets.
+* 'G91.1' - incremental distance mode for I, J & K offsets.
   `G91.1` Returns I, J & K to their default behavior.
 
 [[gcode:g92]]
@@ -2596,18 +2596,18 @@ See the <<cha:coordinate-system,Coordinate System>> section for an overview of c
 See the <<sec:overview-parameters,Parameters>> section for more information.
 
 [[gcode:g92.1-g92.2]]
-== `G92.1`, `G92.2` Reset `G92` Offsets(((G92.1, G92.2 Reset G92 Offsets)))
+== G92.1, G92.2 Reset G92 Offsets(((G92.1, G92.2 Reset G92 Offsets)))
 
-* _`G92.1`_ - turn off G92 offsets and reset <<sub:numbered-parameters,parameters>> 5211 - 5219 to zero.
-* _`G92.2`_ - turn off G92 offsets but keep <<sub:numbered-parameters,parameters>> 5211 - 5219 available.
+* 'G92.1' - turn off G92 offsets and reset <<sub:numbered-parameters,parameters>> 5211 - 5219 to zero.
+* 'G92.2' - turn off G92 offsets but keep <<sub:numbered-parameters,parameters>> 5211 - 5219 available.
 
 [NOTE]
 G92.1 only clears G92 offsets, to change G53-G59.3 coordinate system offsets in G-code use either <<gcode:g10-l2,G10 L2>> or <<gcode:g10-l20,G10 L20>>.
 
 [[gcode:g92.3]]
-== `G92.3` Restore `G92` Offsets(((`G92.3` Restore `G92` Offsets)))
+== G92.3 Restore G92 Offsets(((G92.3 Restore G92 Offsets)))
 
-* `G92.3` - set the `G92` offset to the values saved in parameters 5211 to 5219
+* 'G92.3' - set the `G92` offset to the values saved in parameters 5211 to 5219
 
 You can set axis offsets in one program and use the same offsets in another program.
 Program `G92` in the first program.
@@ -2620,7 +2620,7 @@ That will restore the offsets saved in the first program.
 [[gcode:g93-g94-g95]]
 == G93, G94, G95 Feed Rate Mode(((G93, G94, G95 Feed Rate Mode)))
 
-* `G93` - is Inverse Time Mode.
+* 'G93' - is Inverse Time Mode.
   In inverse time feed rate mode, an F word means the move should be
   completed in [one divided by the F number] minutes.
   For example, if the F number is 2.0, the move should be completed in
