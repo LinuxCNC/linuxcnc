@@ -80,6 +80,7 @@ class StyleSheetEditor(QDialog):
             path =  WIDGETS.PREFS_.getpref('style_QSS_Path', 'DEFAULT' , str, 'BOOK_KEEPING')
             self.preferencePath = path
             self.loadedItem.setData( path, role = QtCore.Qt.UserRole + 1)
+            self.lineEdit_path.setText(path)
             self.styleSheetCombo.setToolTip('<b>{}</b>'.format(path))
         self.origStyleSheet = self.parent.styleSheet()
         self.styleTextView.setPlainText(self.origStyleSheet)
@@ -159,6 +160,8 @@ class StyleSheetEditor(QDialog):
             DIR = PATH.SCREENDIR
         else:
             DIR = PATH.PANELDIR
+        if os.path.exists(self.preferencePath):
+            DIR = os.path.dirname(self.preferencePath)
 
         dialog = QFileDialog(self)
         options = QFileDialog.Options()
@@ -198,6 +201,8 @@ class StyleSheetEditor(QDialog):
             DIR = PATH.SCREENDIR
         else:
             DIR = PATH.PANELDIR
+        if os.path.exists(self.preferencePath):
+            DIR = os.path.dirname(self.preferencePath)
 
         dialog = QFileDialog(self)
         options = QFileDialog.Options()
@@ -258,6 +263,7 @@ class StyleSheetEditor(QDialog):
                 DIR =PATH.PANELDIR
                 BNAME = PATH.BASENAME
             qssname = os.path.join(DIR, BNAME, sheetName)
+            self.lineEdit_path.setText(qssname)
             file = QFile(qssname)
             file.open(QFile.ReadOnly)
             styleSheet = file.readAll()
