@@ -1464,32 +1464,33 @@ FUNCTION(_) {
                 /* wait for arc ok
                  * if timeout occurs turn torch off then return to TORCH_ON for another attempt */
                 feed_hold = TRUE;
-                if(tool == SPOTTING){
-                    if(!spotting){
-                        if(arc_voltage_out >= spotting_threshold){
-                            spotting = TRUE;
-                            spotting_timer = spotting_time * 0.001;
-                        }
-                    }else{
-                        spotting_timer -= fperiod;
-                        if(spotting_timer <= 0){
-                            spotting = FALSE;
-                            spotting_timer = 0;
-                            torch_on = FALSE;
-                            stop_type = WAIT;
-                            state = SAFE_HEIGHT;
-                        }
-                    }
-                }
                 arc_fail_timer -= fperiod;
                 if(arc_fail_timer <= 0){
                     torch_on = FALSE;
                     restart_timer = restart_delay;
                     arc_starts += 1;
                     state = TORCH_ON;
-                }else if((arc_ok_out || ignore_arc_ok_0 || ignore_arc_ok_1) && tool != SPOTTING){
+                }else if(arc_ok_out || ignore_arc_ok_0 || ignore_arc_ok_1) {
+                    if(tool == SPOTTING){
+                        if(!spotting){
+                            if(arc_voltage_out >= spotting_threshold){
+                                spotting = TRUE;
+                                spotting_timer = spotting_time * 0.001;
+                            }
+                        }else{
+                            spotting_timer -= fperiod;
+                            if(spotting_timer <= 0){
+                                spotting = FALSE;
+                                spotting_timer = 0;
+                                torch_on = FALSE;
+                                stop_type = WAIT;
+                                state = SAFE_HEIGHT;
+                            }
+                        }
+                    }else{
                         pierce_timer = pierce_delay;
                         state = PIERCE_DELAY;
+                    }                           
                 }
                 break;
             case PIERCE_DELAY:
