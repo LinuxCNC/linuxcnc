@@ -118,9 +118,12 @@ hal/components/conv_float_s64.comp: hal/components/conv.comp.in hal/components/m
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/components/mkconv.sh float s64 "" -9223372036854775807u-1 9223372036854775807u < $< > $@
 
+# Clang error out when using 18446744073709551616u, reduce range by
+# one as a workaround:
+#  error: integer literal is too large to be represented in any integer type
 hal/components/conv_float_u64.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
 	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh float u64 "" 0 18446744073709551616u < $< > $@
+	$(Q)sh hal/components/mkconv.sh float u64 "" 0 18446744073709551615u < $< > $@
 
 hal/components/conv_bit_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
 	$(ECHO) converting conv for $(notdir $@)
