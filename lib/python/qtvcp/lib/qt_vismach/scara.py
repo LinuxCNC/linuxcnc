@@ -19,10 +19,14 @@ from qtvcp.lib.qt_vismach.qt_vismach import *
 import hal
 import math
 
-c = None
+# no component made here - reads the pins directly
+comp = None
+
+# set mesurement system
 METRIC = 1
 IMPERIAL = 25.4
-MODEL_SCALING = IMPERIAL
+MODEL_SCALING = METRIC
+
 # parameters that define the geometry see scarakins.c for definitions these
 # numbers match the defaults there, and will need to be changed or specified on
 # the commandline if you are not using the defaults.
@@ -33,12 +37,12 @@ MODEL_SCALING = IMPERIAL
 ##setp scarakins.D5 200.0
 #setp scarakins.D6 0.0
 
-d1 =  400.0
-d2 =  350.0
-d3 =   175.0
-d4 =  350.0
-d5 =   200.0
-d6 =   0.0
+d1 =  490.0
+d2 =  340.0
+d3 =   50.0
+d4 =  250.0
+d5 =   50.0
+d6 =   50.0
 j3min =  40.0
 j3max = 270.0
 
@@ -99,13 +103,13 @@ tool = Rotate([tool],tool_angle,0.0,-1.0,0.0)
 # make joint 3 rotate
 
 
-tool = HalRotate([tool],c,"joint.3.pos-fb", 1, 0, 0, 1)
+tool = HalRotate([tool],comp,"joint.3.pos-fb", 1, 0, 0, 1)
 
 link3 = CylinderZ(0.0, l3_rad, l3_len, l3_rad)
 # attach tool to end
 link3 = Collection([tool,link3])
 # make joint 2 go up and down
-link3 = HalTranslate([link3], c, "joint.2.pos-fb", 0, 0, MODEL_SCALING)
+link3 = HalTranslate([link3], comp, "joint.2.pos-fb", 0, 0, -MODEL_SCALING)
 
 # outer arm
 # start with link3 and the cylinder it slides in
@@ -130,7 +134,7 @@ link2 = Collection([
     Box(1.15*j1_rad, -0.9*j1_rad, -0.4*d3, 0.0, 0.9*j1_rad, flip*j1_hi2),
     CylinderZ(-0.4*d3, j1_rad, flip*1.2*j1_hi2, j1_rad)])
 # make the joint work
-link2 = HalRotate([link2],c,"joint.1.pos-fb", 1, 0, 0, 1)
+link2 = HalRotate([link2],comp,"joint.1.pos-fb", 1, 0, 0, 1)
 
 # inner arm
 # the outer arm and the joint
@@ -149,7 +153,7 @@ link1 = Collection([
     Box(1.5*j0_rad, -0.9*j0_rad, -j0_hi, 0.0, 0.9*j0_rad, j0_hi),
     CylinderZ(-1.2*j0_hi, j0_rad, 1.2*j0_hi, j0_rad)])
 # make the joint work
-link1 = HalRotate([link1],c,"joint.0.pos-fb", 1, 0, 0, 1)
+link1 = HalRotate([link1],comp,"joint.0.pos-fb", 1, 0, 0, 1)
 link1 = Color([1, .5, .5, .5],[link1])
 #stationary base
 link0 = Collection([
@@ -174,8 +178,8 @@ table = Collection([
 
 # make the table moveable (tilting)
 
-#table = HalRotate([table],c,"joint.4.pos-fb", 1, 0, 1, 0)
-#table = HalRotate([table],c,"joint.5.pos-fb", 1, 1, 0, 0)
+table = HalRotate([table],comp,"joint.4.pos-fb", 1, 0, 1, 0)
+table = HalRotate([table],comp,"joint.5.pos-fb", 1, 1, 0, 0)
 
 # put the table into its proper place
 table = Translate([table],0.5*reach,0.0,table_height)
