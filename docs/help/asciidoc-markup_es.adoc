@@ -163,11 +163,11 @@ NOTE TIP IMPORTANT WARNING CAUTION
 = Tablas
 
 [options="header,width="80%"]
-|=======
+|===
 |1 |2 |A
 |3 |4 |B
 |5 |6 |C
-|=======
+|===
 
 = Escapar un caracter
 

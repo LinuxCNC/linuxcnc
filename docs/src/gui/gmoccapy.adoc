@@ -1147,7 +1147,6 @@ This gives the option whether to show the preview tab or the offset page tab whe
 * _show offsets_
 
 .DRO Options
-
 You have the option to select the background colors of the different DRO states.
 So users suffering from protanopia (red/green weakness) are able to select proper colors.
 
@@ -1183,10 +1182,9 @@ toggle DRO mode::
   By default this checkbox is active, so every click on any DRO will toggle the DRO readout from actual to relative to DTG (distance to go). +
   Neverthereless a click on the axis letter will open the popup dialog to set the axis value.
 
-
 .Preview
-
-- _Grid Size_ -  Sets the grid size of the preview window.
+- _Grid Size_ -
+  Sets the grid size of the preview window.
   Unfortunately the size *has to be set in inches*, even if your machine units are metric.
   We do hope to fix that in a future release.
 
@@ -1195,7 +1193,6 @@ NOTE: The grid will not be shown in perspective view.
 - _Show DRO_ - Will show the a DRO also in the preview pane, it will be always shown in fullsize preview.
 - _Show DTG_ -  Will show the DTG (direct distance to end point) in the preview pane if Show DRO is active. Otherwise only in full size preview.
 - _Show Offsets_ -  Will show the offsets in the preview pane when Show DRO is active. Otherwise only in full size preview.
-
 - _Mouse Button Mode_ -  This combobox allows you to select the button behavior of the mouse to rotate, move or zoom within the preview:
 +
 * left rotate, middle move, right zoom
