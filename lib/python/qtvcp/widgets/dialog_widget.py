@@ -71,6 +71,11 @@ class GeometryMixin(_HalWidgetBase):
     def __init__(self, ):
         super(GeometryMixin, self).__init__()
         self._geometry_string = 'default'
+        self._default_geometry = None
+
+    def get_default_geometry(self):
+        a,b,c,d = self._default_geometry
+        return '%s %s %s %s'% (a,b,c,d)
 
     def set_default_geometry(self):
         geom = self.frameGeometry()
@@ -78,70 +83,104 @@ class GeometryMixin(_HalWidgetBase):
         self.setGeometry(geom)
         x = self.geometry().x()
         y = self.geometry().y()
-        w = self.geometry().width()
-        h = self.geometry().height()
+        w = 300 #w = self.geometry().width()
+        h = 150 #h = self.geometry().height()
         self._default_geometry=[x,y,w,h]
         return x,y,w,h
+
+    # only valid is dialog has been shown
+    def get_current_geometry(self):
+        x = self.geometry().x()
+        y = self.geometry().y()
+        w = self.geometry().width()
+        h = self.geometry().height()
+        return '%s %s %s %s'% (x,y,w,h)
 
     def read_preference_geometry(self,name):
         self._geoName = name
         if self.PREFS_:
             self._geometry_string = self.PREFS_.getpref(name,
-                                        self.get_default_geometry(),
+                                        self._geometry_string,
                                         str, 'DIALOG_GEOMETRY')
-        else:
-            self._geometry_string = 'default'
-
-    def get_default_geometry(self):
-        a,b,c,d = self._default_geometry
-        return '%s %s %s %s'% (a,b,c,d)
 
     def set_geometry(self):
-        def go(x,y,w,h):
-            self.setGeometry(x,y,w,h)
         try:
             if self._geometry_string.replace(' ','').isdigit():
+                # If there is a preference file object use it to load the geometry
                 self._geometry_string = self.PREFS_.getpref(self._geoName, '', str, 'DIALOG_GEOMETRY')
-            # If there is a preference file object use it to load the geometry
+            print(self._geometry_string)
+            # use the previously calculated default.
             if self._geometry_string in('default',''):
                 x,y,w,h = self._default_geometry
-                go(x,y,w,h)
+                self.setGeometry(x,y,w,h)
+
+            # center of desktop
+            # add 'always' or the user can reset the dialog
             elif 'center' in self._geometry_string.lower():
                 geom = self.frameGeometry()
                 geom.moveCenter(QDesktopWidget().availableGeometry().center())
                 self.setGeometry(geom)
-                return
+                if not 'always' in self._geometry_string.lower():
+                    self._geometry_string = self.get_current_geometry()
+
+            # bottom left of desktop
+            # add 'always' or the user can reset the dialog
             elif 'bottomleft' in self._geometry_string.lower():
                 # move to bottom left of parent
-                ph = self.topParent.geometry().height()
-                px = self.topParent.geometry().x()
-                py = self.topParent.geometry().y()
+                ph = QDesktopWidget().geometry().height()
+                px = QDesktopWidget().geometry().x()
+                py = QDesktopWidget().geometry().y()
                 dw = self.geometry().width()
                 dh = self.geometry().height()
-                go(px, py+ph-dh, dw, dh)
+                self.setGeometry(px, py+ph-dh, dw, dh)
+                if not 'always' in self._geometry_string.lower():
+                    self._geometry_string = self.get_current_geometry()
+
+            # to be always on (relative to) parent but as assigned size
+            # ie: Dialog-geometry = onwindow 100 100 280 118
+            # add 'always' or the user can reset the dialog
             elif 'onwindow' in self._geometry_string.lower():
                 # move relative to parent position
-                px = self.topParent.geometry().x()
-                py = self.topParent.geometry().y()
+                px = self.QTVCP_INSTANCE_.geometry().x()
+                py = self.QTVCP_INSTANCE_.geometry().y()
                 # remove everything except digits and spaces
-                temp =  [x for x in self._geometry_string if (x.isdigit() or x == ' ')]
-                # remove lead and trailing spaces and then slit on spaces
+                temp=''
+                for x in self._geometry_string:
+                    if (x.isdigit() or x == ' '):
+                        temp = temp+x
+                # remove lead and trailing spaces and then split on spaces
                 temp = temp.strip(' ').split(' ')
-                go(px+int(temp[0]), py+int(temp[1]), int(temp[2]), int(temp[3]))
+                self.setGeometry(px+int(temp[0]), py+int(temp[1]), int(temp[2]), int(temp[3]))
+                if not 'always' in self._geometry_string.lower():
+                    self._geometry_string = self.get_current_geometry()
+
+            # half the main window height/width
+            # add 'always' or the user can reset the dialog
+            elif 'half' in self._geometry_string.lower():
+                h = self.QTVCP_INSTANCE_.geometry().height() /2
+                w = self.QTVCP_INSTANCE_.geometry().width() /2
+
+                x = self.geometry().x()
+                y = self.geometry().y()
+                print( x,y,w,h)
+                self.setGeometry( w/2,h/2,w,h)
+                if not 'always' in self._geometry_string.lower():
+                    self._geometry_string = self.get_current_geometry()
+
             else:
+                # assuming geometry is actual size/positon
                 temp = self._geometry_string.split(' ')
-                go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
+                self.setGeometry(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
         except Exception as e:
             try:
-                LOG.error('Calculating geometry of {}. Will use natural placement.'.format(self.HAL_NAME_))
+                LOG.error('Calculating geometry of {} widget using: {}. Will use default placement.'.format(self.HAL_NAME_, self._geometry_string))
             except AttributeError:
                 pass
             LOG.debug('Dialog geometry python error: {}'.format(e))
             x = self.geometry().x()
             y = self.geometry().y()
-            w = self.geometry().width()
-            h = self.geometry().height()
-            go( x,y,w,h)
+            self.setGeometry( x,y,300,150)
+            self._geometry_string = 'default'
 
     def record_geometry(self):
         try:
@@ -158,6 +197,7 @@ class GeometryMixin(_HalWidgetBase):
                     self.PREFS_.putpref(self._geoName, geo, str, 'DIALOG_GEOMETRY')
         except:
             pass
+
 ################################################################################
 # Generic messagebox Dialog
 ################################################################################
@@ -1915,6 +1955,101 @@ class RunFromLineDialog(QDialog, GeometryMixin):
         speed  = self.spinBox_rpm.value()
         ACTION.CALL_MDI_WAIT('s{} {}'.format(speed,direction), mode_return=True)
 
+################################################################################
+# About Dialog
+################################################################################
+class AboutDialog(QDialog, GeometryMixin):
+    def __init__(self, parent=None):
+        super(AboutDialog, self).__init__(parent)
+        self._geometry_string = 'half'
+        self._color = QColor(0, 0, 0, 150)
+        self._request_name = 'ABOUT'
+        self._title = 'QtVCP About'
+        self.play_sound = False
+        self.text  = QTextEdit('This is an ABOUT dialog')
+        self.text.setReadOnly(True)
+        self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.Dialog | Qt.WindowStaysOnTopHint |
+                            Qt.WindowSystemMenuHint)
+
+    def _hal_init(self):
+        self.buildWidget()
+        self.set_default_geometry()
+        self.read_preference_geometry('AboutDialog-geometry')
+        STATUS.connect('dialog-request', self._external_request)
+
+    def buildWidget(self):
+        # add a vertical layout to dialog
+        l = QVBoxLayout()
+        self.setLayout(l)
+        l.addWidget(self.text)
+        # build dialog buttons
+        self.bBox = QDialogButtonBox()
+        self.bBox.addButton('Ok', QDialogButtonBox.AcceptRole)
+        self.bBox.accepted.connect(self.accept)
+        # add buttons to layout
+        l.addWidget(self.bBox)
+
+    def setText(self, txt):
+        self.text.setText(txt)
+        self.adjustSize()
+
+    # this processes STATUS called dialog requests
+    # We check the cmd to see if it was for us
+    # then we check for a id string
+    # if all good show the dialog
+    # and then send back the dialog response via a general message
+    def _external_request(self, w, message):
+        if message.get('NAME') == self._request_name:
+            geo = message.get('GEONAME') or 'AboutDialog-geometry'
+            self.read_preference_geometry(geo)
+            t = message.get('TITLE')
+            if t:
+                self._title = t
+            else:
+                self._title = 'About'
+            nonblock = message.get('NONBLOCKING')
+            num = self.showdialog(nonblock)
+            message['RETURN'] = num
+            STATUS.emit('general', message)
+
+    def showdialog(self, nonblock=None):
+        if nonblock is not None:
+            STATUS.emit('focus-overlay-changed', True, 'Machine Log', self._color)
+        self.setWindowTitle(self._title);
+        if self.play_sound:
+            STATUS.emit('play-sound', self.sound_type)
+        self.set_geometry()
+        if nonblock is not None:
+            self.exec_()
+            STATUS.emit('focus-overlay-changed', False, None, None)
+            self.record_geometry()
+            return False
+        else:
+            self.show()
+
+    def accept(self):
+        self.record_geometry()
+        super(AboutDialog, self).accept()
+
+    def getColor(self):
+        return self._color
+    def setColor(self, value):
+        self._color = value
+    def resetState(self):
+        self._color = QColor(0, 0, 0, 150)
+
+    def getIdName(self):
+        return self._request_name
+    def setIdName(self, name):
+        self._request_name = name
+    def resetIdName(self):
+        self._request_name = 'ABOUT'
+
+    # designer will show these properties in this order:
+    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
+    overlay_color = pyqtProperty(QColor, getColor, setColor)
+
 ################################
 # for testing without editor:
 ################################
@@ -1923,7 +2058,9 @@ def main():
     from PyQt5.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
-    widget = KeyboardDialog()
+    widget = AboutDialog()
+    widget.setText('</b>This is new text<\b>')
+   # widget = KeyboardDialog()
     #widget = CalculatorDialog()
     #widget = RunFromLineDialog()
     #widget = MachineLogDialog()
@@ -1940,7 +2077,7 @@ def main():
     widget.HAL_NAME_ = 'test'
     widget.PREFS_ = None
     widget._hal_init()
-    t = widget.showdialog()
+    t = widget.showdialog(1)
     print (t)
     sys.exit()
 if __name__ == '__main__':

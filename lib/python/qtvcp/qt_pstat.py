@@ -236,6 +236,28 @@ class _PStat(object):
                 LOG.info("Using no translations, default system locale is: yellow<{}>".format(lang))
                 self.LOCALEDIR = None
 
+        # look for ABOUT files:
+        about_fn = "{}_ABOUT".format(self.BASEPATH)
+        if self.IS_SCREEN:
+            default_about_path = os.path.join(self.SCREENDIR, self.BASEPATH, about_fn)
+            local_about_path = os.path.join(self.CONFIGPATH, 'qtvcp/screens',self.BASEPATH, about_fn)
+        else:
+            local_about_path = os.path.join(self.WORKINGDIR, 'qtvcp/screens', about_fn)
+            default_about_path = os.path.join(self.PANELDIR, self.BASEPATH, about_fn)
+        LOG.debug("Checking for LOCAL about file in: yellow<{}>".format(local_about_path))
+
+        if os.path.exists(local_about_path):
+            self.ABOUT = local_about_path
+            LOG.info("Using LOCAL about file path: yellow<{}>".format(self.ABOUT))
+        else:
+            LOG.debug("Checking for DEFAULT about file in: yellow<{}>".format(default_about_path))
+            if os.path.exists(default_about_path):
+                self.ABOUT = default_about_path
+                LOG.info("Using DEFAULT about file path: yellow<{}>".format(self.ABOUT))
+            else:
+                self.ABOUT = ""
+                LOG.info("No about file found.")
+
     def find_screen_dirs(self):
         dirs = next(os.walk(self.SCREENDIR))[1]
         return dirs

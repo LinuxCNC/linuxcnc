@@ -7396,7 +7396,26 @@ TO FILE</string>
                          <number>4</number>
                         </property>
                         <item>
-                         <spacer name="verticalSpacer_6">
+                         <widget class="QToolButton" name="pushbutton_3">
+                          <property name="minimumSize">
+                           <size>
+                            <width>96</width>
+                            <height>50</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>96</width>
+                            <height>50</height>
+                           </size>
+                          </property>
+                          <property name="text">
+                           <string>ABOUT</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <spacer name="verticalSpacer_31">
                           <property name="orientation">
                            <enum>Qt::Vertical</enum>
                           </property>
@@ -16019,7 +16038,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>06:49:32 PM</string>
+            <string>03:26:07 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -16072,6 +16091,11 @@ ZERO</string>
    </property>
    <property name="shortcut">
     <string>F11</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
    </property>
   </action>
  </widget>
@@ -16217,8 +16241,8 @@ ZERO</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>81</x>
-     <y>53</y>
+     <x>152</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>322</x>
@@ -16250,7 +16274,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>267</x>
-     <y>549</y>
+     <y>408</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -16266,7 +16290,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>355</x>
-     <y>549</y>
+     <y>408</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -16281,8 +16305,8 @@ ZERO</string>
    <slot>btn_goto_sensor_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>53</y>
+     <x>73</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -16346,7 +16370,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>96</x>
-     <y>897</y>
+     <y>707</y>
     </hint>
     <hint type="destinationlabel">
      <x>168</x>
@@ -16361,8 +16385,8 @@ ZERO</string>
    <slot>disable_spindle_pause()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>76</x>
-     <y>730</y>
+     <x>85</x>
+     <y>553</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -16378,7 +16402,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>189</x>
-     <y>674</y>
+     <y>502</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -16394,7 +16418,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>189</x>
-     <y>730</y>
+     <y>553</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -16410,7 +16434,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>189</x>
-     <y>897</y>
+     <y>707</y>
     </hint>
     <hint type="destinationlabel">
      <x>358</x>
@@ -16426,11 +16450,11 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>189</x>
-     <y>674</y>
+     <y>502</y>
     </hint>
     <hint type="destinationlabel">
      <x>190</x>
-     <y>926</y>
+     <y>736</y>
     </hint>
    </hints>
   </connection>
@@ -16441,8 +16465,8 @@ ZERO</string>
    <slot>btn_start_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>674</y>
+     <x>61</x>
+     <y>502</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -16457,8 +16481,8 @@ ZERO</string>
    <slot>btn_home_all_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>858</x>
-     <y>671</y>
+     <x>747</x>
+     <y>500</y>
     </hint>
     <hint type="destinationlabel">
      <x>761</x>
@@ -16473,8 +16497,8 @@ ZERO</string>
    <slot>btn_maxv_50_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>914</x>
-     <y>683</y>
+     <x>803</x>
+     <y>516</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -16489,8 +16513,8 @@ ZERO</string>
    <slot>slider_maxv_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1091</x>
-     <y>683</y>
+     <x>894</x>
+     <y>516</y>
     </hint>
     <hint type="destinationlabel">
      <x>878</x>
@@ -16505,8 +16529,8 @@ ZERO</string>
    <slot>slider_rapid_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1091</x>
-     <y>763</y>
+     <x>894</x>
+     <y>588</y>
     </hint>
     <hint type="destinationlabel">
      <x>935</x>
@@ -16521,8 +16545,8 @@ ZERO</string>
    <slot>btn_maxv_100_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1137</x>
-     <y>683</y>
+     <x>940</x>
+     <y>516</y>
     </hint>
     <hint type="destinationlabel">
      <x>1064</x>
@@ -16537,8 +16561,8 @@ ZERO</string>
    <slot>slow_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1459</x>
-     <y>415</y>
+     <x>1262</x>
+     <y>335</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -16570,7 +16594,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>429</x>
-     <y>410</y>
+     <y>313</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -16585,8 +16609,8 @@ ZERO</string>
    <slot>cam_zoom_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>404</x>
-     <y>134</y>
+     <x>984</x>
+     <y>163</y>
     </hint>
     <hint type="destinationlabel">
      <x>1105</x>
@@ -16601,8 +16625,8 @@ ZERO</string>
    <slot>chk_use_sensor_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
+     <x>614</x>
+     <y>399</y>
     </hint>
     <hint type="destinationlabel">
      <x>508</x>
@@ -16617,8 +16641,8 @@ ZERO</string>
    <slot>btn_gcode_edit_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>454</x>
-     <y>104</y>
+     <x>459</x>
+     <y>433</y>
     </hint>
     <hint type="destinationlabel">
      <x>515</x>
@@ -16633,8 +16657,8 @@ ZERO</string>
    <slot>cam_dia_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>404</x>
-     <y>134</y>
+     <x>984</x>
+     <y>275</y>
     </hint>
     <hint type="destinationlabel">
      <x>1124</x>
@@ -16649,8 +16673,8 @@ ZERO</string>
    <slot>chk_use_virtual_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
+     <x>614</x>
+     <y>379</y>
     </hint>
     <hint type="destinationlabel">
      <x>565</x>
@@ -16665,8 +16689,8 @@ ZERO</string>
    <slot>chk_alpha_mode_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
+     <x>614</x>
+     <y>238</y>
     </hint>
     <hint type="destinationlabel">
      <x>645</x>
@@ -16681,8 +16705,8 @@ ZERO</string>
    <slot>btn_save_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>454</x>
-     <y>104</y>
+     <x>1006</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
      <x>1098</x>
@@ -16697,8 +16721,8 @@ ZERO</string>
    <slot>chk_override_limits_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
+     <x>614</x>
+     <y>439</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -16713,8 +16737,8 @@ ZERO</string>
    <slot>cam_rot_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>404</x>
-     <y>134</y>
+     <x>984</x>
+     <y>388</y>
     </hint>
     <hint type="destinationlabel">
      <x>1156</x>
@@ -16729,8 +16753,8 @@ ZERO</string>
    <slot>chk_use_camera_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
+     <x>614</x>
+     <y>419</y>
     </hint>
     <hint type="destinationlabel">
      <x>656</x>
@@ -16745,8 +16769,8 @@ ZERO</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>454</x>
-     <y>114</y>
+     <x>459</x>
+     <y>312</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
@@ -16761,8 +16785,8 @@ ZERO</string>
    <slot>chk_run_from_line_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
+     <x>614</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
      <x>554</x>
@@ -16793,8 +16817,8 @@ ZERO</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>454</x>
-     <y>114</y>
+     <x>459</x>
+     <y>246</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -16809,8 +16833,8 @@ ZERO</string>
    <slot>btn_clear_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>454</x>
-     <y>104</y>
+     <x>1006</x>
+     <y>160</y>
     </hint>
     <hint type="destinationlabel">
      <x>1039</x>
@@ -16825,8 +16849,8 @@ ZERO</string>
    <slot>chk_inhibit_selection_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
+     <x>614</x>
+     <y>258</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -16841,8 +16865,8 @@ ZERO</string>
    <slot>slow_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1286</x>
-     <y>570</y>
+     <x>1089</x>
+     <y>437</y>
     </hint>
     <hint type="destinationlabel">
      <x>1478</x>
@@ -16857,8 +16881,8 @@ ZERO</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>814</x>
-     <y>818</y>
+     <x>771</x>
+     <y>637</y>
     </hint>
     <hint type="destinationlabel">
      <x>809</x>
@@ -16873,8 +16897,8 @@ ZERO</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>842</x>
-     <y>751</y>
+     <x>771</x>
+     <y>590</y>
     </hint>
     <hint type="destinationlabel">
      <x>855</x>
@@ -16889,12 +16913,28 @@ ZERO</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>822</x>
-     <y>707</y>
+     <x>771</x>
+     <y>544</y>
     </hint>
     <hint type="destinationlabel">
      <x>858</x>
      <y>1040</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton_3</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_about_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>968</x>
+     <y>94</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>988</x>
+     <y>-20</y>
     </hint>
    </hints>
   </connection>
@@ -16971,9 +17011,10 @@ ZERO</string>
   <slot>chk_use_basicprobe_changed()</slot>
   <slot>chk_use_versaprobe_changed()</slot>
   <slot>tab_utilities_changed()</slot>
+  <slot>btn_about_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>

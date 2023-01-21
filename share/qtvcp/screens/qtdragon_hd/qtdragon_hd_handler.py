@@ -148,8 +148,7 @@ class HandlerClass:
         self.w.btn_pause_spindle.setEnabled(False)
         self.w.btn_dimensions.setChecked(True)
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
-        self.w.filemanager.onUserClicked()    
-        self.w.filemanager_usb.onMediaClicked()
+        self.w.filemanager_usb.showMediaDir(quiet = True)
 
     # hide widgets for A axis if not present
         if "A" not in INFO.AVAILABLE_AXES:
@@ -474,7 +473,7 @@ class HandlerClass:
         # that the current reported by the VFD is total current for all 3 phases
         # and that the synchronous motor spindle has a power factor of 0.9
         try:
-            power = float(self.h['spindle-volts'] * self.h['spindle-amps'] * 0.9) # V x I x PF
+            power = float(self.h['spindle-volts'] * self.h['spindle-amps'] * 0.9) # Watts = V x I x PF
             pc_power = (power / float(self.max_spindle_power)) * 100
             if pc_power > 100:
                 pc_power = 100
@@ -949,6 +948,10 @@ class HandlerClass:
     def btn_gripper_clicked(self):
         AUX_PRGM.load_gcode_ripper()
 
+    def btn_about_clicked(self):
+        info = ACTION.GET_ABOUT_INFO()
+        self.w.aboutDialog_.showdialog()
+
     #####################
     # GENERAL FUNCTIONS #
     #####################
@@ -1060,6 +1063,7 @@ class HandlerClass:
             self.add_status("Touchoff routine is already running", WARNING)
 
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
+        ACTION.SET_MANUAL_MODE()
         if not STATUS.is_man_mode() or not STATUS.machine_is_on():
             self.add_status('Machine must be ON and in Manual mode to jog', WARNING)
             return

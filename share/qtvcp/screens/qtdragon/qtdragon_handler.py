@@ -446,7 +446,7 @@ class HandlerClass:
     def spindle_pwr_changed(self, data):
         # this calculation assumes the voltage is line to neutral
         # and that the synchronous motor spindle has a power factor of 0.9
-        power = self.h['spindle-volts'] * self.h['spindle-amps'] * 2.7 # 3 x V x I x PF
+        power = self.h['spindle-volts'] * self.h['spindle-amps'] * 0.9 # Watts = V x I x PF
         amps = "{:1.1f}".format(self.h['spindle-amps'])
         pwr = "{:1.1f}".format(power)
         self.w.lbl_spindle_amps.setText(amps)
@@ -865,6 +865,10 @@ class HandlerClass:
             self.w.stackedWidget.setCurrentIndex(PAGE_NGCGUI)
         else:
             self.w.stackedWidget.setCurrentIndex(PAGE_GCODE)
+
+    def btn_about_clicked(self):
+        info = ACTION.GET_ABOUT_INFO()
+        self.w.aboutDialog_.showdialog()
 
     #####################
     # GENERAL FUNCTIONS #

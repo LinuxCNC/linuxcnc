@@ -518,8 +518,16 @@ class ToolBarActions():
             ACTION.SHUT_SYSTEM_DOWN_PROMPT()
 
     def actOnAbout(self, widget, state=None):
-        msg = QtWidgets.QMessageBox()
+        # there should be a default dialog loaded from screenoptions
+        try:
+            info = ACTION.GET_ABOUT_INFO()
+            WIDGETS.aboutDialog_.showdialog()
+            return
+        except:
+            pass
 
+        # ok we will build one then
+        msg = QtWidgets.QMessageBox()
         mess = ''
         path = os.path.join(CONFIGDIR, 'README')
         if os.path.exists(path):
@@ -529,8 +537,8 @@ class ToolBarActions():
         else:
             msg.setWindowTitle("About")
             mess = 'This is a QtVCP based screen for Linuxcnc'
-        msg.setText(mess)
 
+        msg.setText(mess)
         msg.setIcon(QtWidgets.QMessageBox.Information)
         msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
         msg.show()

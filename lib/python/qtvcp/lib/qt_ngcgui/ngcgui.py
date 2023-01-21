@@ -31,7 +31,7 @@ ACTION = Action()
 INFO = Info()
 PATH = Path()
 LOG = logger.getLogger(__name__)
-LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 INTERP_SUB_PARAMS = 30
@@ -498,7 +498,7 @@ class NgcGui(QtWidgets.QWidget):
         # sort through sub list and add the pages.
         for curr_ngcfile in INFO.NGC_SUB:
            curr_fname = os.path.join(abs_ngc_sub_path,curr_ngcfile)
-           LOG.debug("Adding NGCGUI:[]".format(curr_fname))
+           LOG.debug("Adding NGCGUI:{}".format(curr_fname))
            self.add_page()
            mpage = self.tabWidget.currentWidget()
            mindex = self.tabWidget.currentIndex()

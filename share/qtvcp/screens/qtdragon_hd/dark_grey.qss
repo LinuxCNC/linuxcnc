@@ -439,7 +439,7 @@ QDialog {
     background-color: gray;
 }
 
-QDialog QPushButton {
+QDialog QPushButton, AboutDialog QPushButton {
     width: 100px;
     height: 40px;
 }
