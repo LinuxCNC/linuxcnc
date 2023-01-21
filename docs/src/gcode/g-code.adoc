@@ -795,7 +795,7 @@ effect on 'G10 L2'.
 
 Important Concepts:
 
-* G10 L2 Pn does not change from the current coordinate system to the
+* `G10 L2 Pn` does not change from the current coordinate system to the
   one specified by P, you have to use G54-59.3 to select a coordinate
   system.
 * When a rotation is in effect jogging an axis will only move that axis
@@ -2539,7 +2539,7 @@ G0 X2.5 (rapid move 2.5 from current position along the X axis)
   When G90.1 is in effect I and J both must be specified with G2/3
   for the XY plane or J and K for the XZ plane or it is an error.
 * 'G91.1' - incremental distance mode for I, J & K offsets.
-  G91.1 Returns I, J & K to their default behavior.
+  `G91.1` Returns I, J & K to their default behavior.
 
 [[gcode:g92]]
 == G92 Coordinate System Offset(((G92 Coordinate System Offset)))
@@ -2550,14 +2550,12 @@ G92 axes
 ----
 
 [WARNING]
-Only use 'G92' after your machine has been positioned to the desired
-point.
+Only use 'G92' after your machine has been positioned to the desired point.
 
-'G92' makes the current point have the coordinates you want (without
-motion), where the axis words contain the axis numbers you want.
+'G92' makes the current point have the coordinates you want (without motion),
+where the axis words contain the axis numbers you want.
 All axis words are optional, except that at least one must be used.
-If an axis word is not used for a given axis, the offset for that axis
-will be zero.
+If an axis word is not used for a given axis, the offset for that axis will be zero.
 
 When 'G92' is executed, the <<sec:machine-coordinate-system,origins>>
 of all coordinate systems move. They move such that the value of the
@@ -2567,67 +2565,57 @@ becomes the specified value. All of the coordinate system's origins
 
 'G92' uses the values stored in <<sub:numbered-parameters,parameters>>
 5211-5219 as the X Y Z A B C U V W offset values for each axis.
-The parameter values are 'absolute' machine coordinates
-in the native machine 'units' as specified in the INI file.
+The parameter values are 'absolute' machine coordinates in the native machine 'units' as specified in the INI file.
 All axes defined in the INI file will be offset when G92 is active.
-If an axis was not entered following the G92, that axis' offset
-will be zero.
+If an axis was not entered following the G92, that axis' offset will be zero.
 
 For example, suppose the current point is at X=4 and there is
-currently no 'G92' offset active. Then 'G92 X7' is programmed. This
-moves all origins -3 in X, which causes the
-current point to become X=7. This -3 is saved in parameter 5211.
+currently no 'G92' offset active. Then 'G92 X7' is programmed.
+This moves all origins -3 in X, which causes the current point to become X=7.
+This -3 is saved in parameter 5211.
 
 Being in incremental distance mode (G91 instead of G90) has no effect
-on the action of 'G92'.
+on the action of `G92`.
 
-'G92' offsets may be already be in effect when the 'G92' is called.
+'G92' offsets may be already be in effect when the `G92` is called.
 If this is the case, the offset is replaced with a new
 offset that makes the current point become the specified value.
 
 It is an error if all axis words are omitted.
 
 LinuxCNC stores the G92 offsets and reuses them on the next run of a
-program. To prevent this, one can program a G92.1 (to erase them), or
-program a G92.2 (to remove them - they are still stored).
+program. To prevent this, one can program a `G92.1` (to erase them), or
+program a `G92.2` (to remove them - they are still stored).
 
 [NOTE]
-The 'G52' command can also be used to change this offset; see the
-<<sec:g52-and-g92-offsets,Offsets>> section for more details about
-'G92' and 'G52' and how they interact.
+The 'G52' command can also be used to change this offset;
+see the <<sec:g52-and-g92-offsets,Offsets>> section for more details about `G92` and `G52` and how they interact.
 
-See the <<cha:coordinate-system,Coordinate System>> section for an
-overview of coordinate systems.
+See the <<cha:coordinate-system,Coordinate System>> section for an overview of coordinate systems.
 
-See the <<sec:overview-parameters,Parameters>> section for more
-information.
+See the <<sec:overview-parameters,Parameters>> section for more information.
 
 [[gcode:g92.1-g92.2]]
 == G92.1, G92.2 Reset G92 Offsets(((G92.1, G92.2 Reset G92 Offsets)))
 
-* 'G92.1' - turn off G92 offsets and reset
-  <<sub:numbered-parameters,parameters>> 5211 - 5219 to zero.
-* 'G92.2' - turn off G92 offsets but keep
-  <<sub:numbered-parameters,parameters>> 5211 - 5219 available.
+* 'G92.1' - turn off G92 offsets and reset <<sub:numbered-parameters,parameters>> 5211 - 5219 to zero.
+* 'G92.2' - turn off G92 offsets but keep <<sub:numbered-parameters,parameters>> 5211 - 5219 available.
 
 [NOTE]
-G92.1 only clears G92 offsets, to change G53-G59.3 coordinate system
-offsets in G-code use either <<gcode:g10-l2,G10 L2>> or
-<<gcode:g10-l20,G10 L20>>.
+G92.1 only clears G92 offsets, to change G53-G59.3 coordinate system offsets in G-code use either <<gcode:g10-l2,G10 L2>> or <<gcode:g10-l20,G10 L20>>.
 
 [[gcode:g92.3]]
 == G92.3 Restore G92 Offsets(((G92.3 Restore G92 Offsets)))
 
-* 'G92.3' - set the G92 offset to the values saved in parameters 5211 to
-  5219
+* 'G92.3' - set the `G92` offset to the values saved in parameters 5211 to 5219
 
-You can set axis offsets in one program and use the same offsets in
-another program. Program 'G92' in the first program. This will set
-parameters 5211 to 5219. Do not use 'G92.1' in the remainder of the
-first program. The parameter values will be saved when the first
-program exits and restored when the second one starts up.
-Use 'G92.3' near the beginning of the second program. That will restore
-the offsets saved in the first program.
+You can set axis offsets in one program and use the same offsets in another program.
+Program `G92` in the first program.
+This will set parameters 5211 to 5219.
+Do not use `G92.1` in the remainder of the first program.
+The parameter values will be saved when the first program exits and restored when the second one starts up.
+Use `G92.3` near the beginning of the second program.
+That will restore the offsets saved in the first program.
 
 [[gcode:g93-g94-g95]]
 == G93, G94, G95 Feed Rate Mode(((G93, G94, G95 Feed Rate Mode)))
@@ -2639,30 +2627,28 @@ the offsets saved in the first program.
   half a minute.
 +
 When the inverse time feed rate mode is active, an F word must appear
-on every line which has a G1, G2, or G3 motion, and an F word on a line
-that does not have G1, G2, or G3 is ignored. Being in inverse time feed
-rate mode does not affect G0 (<<gcode:g0,rapid move>>) motions.
+on every line which has a `G1`, `G2`, or `G3` motion, and an F-word on a line
+that does not have `G1`, `G2`, or `G3` is ignored. Being in inverse time feed
+rate mode does not affect `G0` (<<gcode:g0,rapid move>>) motions.
 
 * 'G94' - is Units per Minute Mode.
-  In units per minute feed mode, an F word is interpreted to mean the
-  controlled point should move at a certain number of inches per minute,
-  millimeters per minute, or degrees per minute, depending upon what
-  length units are being used and which axis or axes are moving.
+  In units per minute feed mode,
+  an F word is interpreted to mean the controlled point should move at a certain number of inches per minute,
+  millimeters per minute, or degrees per minute,
+  depending upon what length units are being used and which axis or axes are moving.
 
 * 'G95' - is Units per Revolution Mode
-  In units per revolution mode, an F word is interpreted to mean the
-  controlled point should move a certain number of inches per revolution
-  of the spindle, depending on what length units are being used and which
-  axis or axes are moving. G95 is not suitable for threading, for
-  threading use G33 or G76.
-  G95 requires that spindle.N.speed-in to be connected. The actual
-  spindle to which the feed is synchronised is chosen by the $ parameter.
+  In units per revolution mode,
+  an F-word is interpreted to mean the controlled point should move a certain number of inches per revolution of the spindle,
+  depending on what length units are being used and which axis or axes are moving.
+  `G95` is not suitable for threading, for threading use `G33` or `G76`.
+  `G95` requires that `spindle.N.speed-in` to be connected.
+  The actual spindle to which the feed is synchronised is chosen by the `$` parameter.
 
 It is an error if:
 
-* Inverse time feed mode is active and a line with G1, G2, or G3
-  (explicitly or implicitly) does not have an F word.
-* A new feed rate is not specified after switching to G94 or G95.
+* Inverse time feed mode is active and a line with `G1`, `G2`, or `G3`  (explicitly or implicitly) does not have an F-word.
+* A new feed rate is not specified after switching to `G94` or `G95`
 
 [[gcode:g96-g97]]
 == G96, G97 Spindle Control Mode(((G96, G97 Spindle Control Mode)))
@@ -2678,8 +2664,8 @@ G97 S- <$-> (RPM Mode)
 . '$' - the spindle of which the speed will be varied, optional.
 
 * 'G96 S- <D->' - selects constant surface speed of 'S':
-** In feet per minute if G20 is in effect,
-** or meters per minute if G21 is in effect.
+** In feet per minute if `G20` is in effect,
+** or meters per minute if `G21` is in effect.
 
 When using G96, ensure that X0 in
 the current coordinate system (including offsets and tool lengths) is
