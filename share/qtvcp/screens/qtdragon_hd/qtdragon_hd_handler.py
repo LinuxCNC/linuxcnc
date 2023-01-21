@@ -473,7 +473,7 @@ class HandlerClass:
         # that the current reported by the VFD is total current for all 3 phases
         # and that the synchronous motor spindle has a power factor of 0.9
         try:
-            power = float(self.h['spindle-volts'] * self.h['spindle-amps'] * 0.9) # V x I x PF
+            power = float(self.h['spindle-volts'] * self.h['spindle-amps'] * 0.9) # Watts = V x I x PF
             pc_power = (power / float(self.max_spindle_power)) * 100
             if pc_power > 100:
                 pc_power = 100
