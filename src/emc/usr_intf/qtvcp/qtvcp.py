@@ -11,33 +11,15 @@ import subprocess
 from optparse import Option, OptionParser
 from PyQt5 import QtWidgets, QtCore, QtGui
 
-# Set up the base logger
-#   We have do do this before importing other modules because on import
-#   they set up their own loggers as children of the base logger.
-from qtvcp import logger
-LOG = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.WARNING)
-
-
-from qtvcp.core import Status, Info, Qhal, Path
-
 try:
     from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView
 except:
     try:
         from PyQt5.QtWebKitWidgets import QWebView
     except:
-        LOG.error('Qtvcp Error with loading webView - is python3-pyqt5.qtwebengine installed?')
+        print('Qtvcp Error with loading webView - is python3-pyqt5.qtwebengine installed?')
 
-# If log_file is none, logger.py will attempt to find the log file specified in
-# INI [DISPLAY] LOG_FILE, failing that it will log to $HOME/<base_log_name>.log
-
-# Note: In all other modules it is best to use the `__name__` attribute
-#   to ensure we get a logger with the correct hierarchy.
-#   Ex: LOG = logger.getLogger(__name__)
-
-STATUS = Status()
-INFO = Info()
-PATH = Path()
+# keep track of the number of traceback errors
 ERROR_COUNT = 0
 
 options = [ Option( '-c', dest='component', metavar='NAME'
@@ -48,6 +30,8 @@ options = [ Option( '-c', dest='component', metavar='NAME'
                   , help="Enable debug output")
           , Option( '-v', action='store_true', dest='verbose', default=False
                   , help="Enable verbose debug output")
+          , Option( '-q', action='store_true', dest='quiet', default=False
+                  , help="Enable only error debug output")
           , Option( '-g', dest='geometry', default="", help="""Set geometry WIDTHxHEIGHT+XOFFSET+YOFFSET.
 example: -g 200x400+0+100. Values are in pixel units, XOFFSET/YOFFSET is referenced from top left of screen
 use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position.""")
@@ -67,11 +51,7 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
                   , help='pass USEROPTS strings to handler under self.w.USEROPTIONS_ list varible')
           ]
 
-
-
 from PyQt5.QtCore import QObject, QEvent, pyqtSignal
-
-APP = None
 
 class inputFocusFilter(QObject):
     focusIn = pyqtSignal(object)
@@ -131,18 +111,6 @@ class QTVCP:
         # the Notify library is loaded because it uses DBusQtMainLoop
         # DBusQtMainLoop must be initialized after to work properly
         from qtvcp import qt_makepins, qt_makegui
-
-        # ToDo: pass specific log levels as an argument, or use an INI setting
-        if opts.debug:
-            # Log level defaults to INFO, so set lower if in debug mode
-            logger.setGlobalLevel(logger.DEBUG)
-        if opts.verbose:
-            # Log level defaults to INFO, so set lowest if in verbose mode
-            logger.setGlobalLevel(logger.VERBOSE)
-            LOG.verbose('VERBOSE DEBUGGING ON')
-        if opts.info:
-            logger.setGlobalLevel(logger.INFO)
-
 
         # a specific path has been set to load from or...
         # no path set but -ini is present: default qtvcp screen...or
@@ -508,5 +476,41 @@ Pressing cancel will close linuxcnc.""" % target)
 
 # starts Qtvcp
 if __name__ == "__main__":
-        APP = QTVCP()
+
+        # Set up the base logger
+        #   We have do do this before importing other modules because on import
+        #   they set up their own loggers as children of the base logger.
+
+        # If log_file is none, logger.py will attempt to find the log file specified in
+        # INI [DISPLAY] LOG_FILE, failing that it will log to $HOME/<base_log_name>.log
+
+        # Note: In all other modules it is best to use the `__name__` attribute
+        #   to ensure we get a logger with the correct hierarchy.
+        #   Ex: LOG = logger.getLogger(__name__)
+
+        from qtvcp import logger
+        LOG = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.INFO)
+
+        # we set the log level early so the imported modules get the right level
+        # ToDo: pass specific log levels as an argument, or use an INI setting
+        if '-d' in sys.argv:
+            # Log level defaults to INFO, so set lower if in debug mode
+            logger.setGlobalLevel(logger.DEBUG)
+            LOG.debug('DEBUGGING ON')
+        elif '-v' in sys.argv:
+            # Log level defaults to INFO, so set lowest if in verbose mode
+            logger.setGlobalLevel(logger.VERBOSE)
+            LOG.verbose('VERBOSE DEBUGGING ON')
+        elif '-q' in sys.argv:
+            logger.setGlobalLevel(logger.ERROR)
+
+        # these libraries log when imported so logging level must already be set. 
+        from qtvcp.core import Status, Info, Qhal, Path
+
+        # global reference
+        STATUS = Status()
+        INFO = Info()
+        PATH = Path()
+
+        _p = QTVCP()
         sys.exit(0)

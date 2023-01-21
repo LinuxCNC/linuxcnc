@@ -855,8 +855,12 @@ class HalHud(object):
                 self.strs = []
                 # create the strings with the updated values using the corresponding list elements
                 for n in range(len(self.strings)):
+                    try:
+                        value = hal.get_value( self.pinnames[n])
+                    except:
+                        value = 0.0
                     self.strs += [self.strings[n] +
-                                  str(self.formats[n].format(hal.get_value( self.pinnames[n])))]
+                                  str(self.formats[n].format(value))]
 
                 drawtext = self.messages_top + self.strs + self.messages
                 self.lines = len(drawtext)

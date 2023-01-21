@@ -173,6 +173,6 @@ DROLabel[isHomed=false],
 }
 
 QDialog QPushButton {
-    width: 188px;
+    width: 100px;
     height: 40px;
 }

@@ -1049,7 +1049,7 @@
                          <double>0.300000000000000</double>
                         </property>
                         <property name="circle_diameter" stdset="0">
-                         <double>10.000000000000000</double>
+                         <number>10</number>
                         </property>
                         <property name="right_edge_offset" stdset="0">
                          <number>0</number>
@@ -1272,7 +1272,7 @@
                          <double>0.300000000000000</double>
                         </property>
                         <property name="circle_diameter" stdset="0">
-                         <double>10.000000000000000</double>
+                         <number>10</number>
                         </property>
                         <property name="right_edge_offset" stdset="0">
                          <number>0</number>
@@ -1743,6 +1743,94 @@
                    </widget>
                   </item>
                  </layout>
+                </item>
+                <item>
+                 <widget class="QWidget" name="widget_angular_jog" native="true">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <layout class="QVBoxLayout" name="verticalLayout_10">
+                   <property name="spacing">
+                    <number>0</number>
+                   </property>
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_jograte_angular">
+                     <item>
+                      <widget class="QLabel" name="label_14">
+                       <property name="text">
+                        <string>AngularJog Rate:</string>
+                       </property>
+                       <property name="margin">
+                        <number>-10</number>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="StatusLabel" name="statuslabel_9">
+                       <property name="maximumSize">
+                        <size>
+                         <width>50</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string>100.0</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                       </property>
+                       <property name="margin">
+                        <number>-7</number>
+                       </property>
+                       <property name="textTemplate" stdset="0">
+                        <string>%s</string>
+                       </property>
+                       <property name="jograte_status" stdset="0">
+                        <bool>false</bool>
+                       </property>
+                       <property name="jograte_angular_status" stdset="0">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="StatusSlider" name="statusslider_6">
+                       <property name="maximumSize">
+                        <size>
+                         <width>125</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="rapid_rate" stdset="0">
+                        <bool>false</bool>
+                       </property>
+                       <property name="jograte_rate" stdset="0">
+                        <bool>false</bool>
+                       </property>
+                       <property name="jograte_angular_rate" stdset="0">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </widget>
                 </item>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_maxVelocity">
@@ -2318,6 +2406,13 @@
       <string>Zero Coordinate System</string>
      </property>
     </widget>
+    <widget class="QMenu" name="menuControlMode">
+     <property name="title">
+      <string>Control Mode</string>
+     </property>
+     <addaction name="actionJointMode"/>
+     <addaction name="actionAxisMode"/>
+    </widget>
     <addaction name="actionClear_MDI_History"/>
     <addaction name="actionCalibration"/>
     <addaction name="actionHalshow"/>
@@ -2326,6 +2421,7 @@
     <addaction name="actionStatus"/>
     <addaction name="menuHoming"/>
     <addaction name="menuUnhome"/>
+    <addaction name="menuControlMode"/>
     <addaction name="separator"/>
     <addaction name="actionVersaProbe"/>
     <addaction name="separator"/>
@@ -2854,6 +2950,28 @@
    </property>
    <property name="toolTip">
     <string>Show messages</string>
+   </property>
+  </action>
+  <action name="actionJointMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Joint Mpde</string>
+   </property>
+   <property name="toolTip">
+    <string>Mode to Control Joints</string>
+   </property>
+  </action>
+  <action name="actionAxisMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Axis Mode</string>
+   </property>
+   <property name="toolTip">
+    <string>Mpde to Control Axes</string>
    </property>
   </action>
  </widget>

@@ -108,7 +108,7 @@ class GeometryMixin(_HalWidgetBase):
             if self._geometry_string.replace(' ','').isdigit():
                 # If there is a preference file object use it to load the geometry
                 self._geometry_string = self.PREFS_.getpref(self._geoName, '', str, 'DIALOG_GEOMETRY')
-            print(self._geometry_string)
+
             # use the previously calculated default.
             if self._geometry_string in('default',''):
                 x,y,w,h = self._default_geometry

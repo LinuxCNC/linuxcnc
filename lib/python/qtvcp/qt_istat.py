@@ -322,6 +322,9 @@ class _IStat(object):
             self.TRAJ_COORDINATES = None
         self.JOINT_COUNT = int(self.INI.find("KINS", "JOINTS") or 0)
 
+        # check for weird kinematics like robots
+        self.IS_TRIVIAL_MACHINE = bool('trivkins' in self.get_error_safe_setting("KINS", "KINEMATICS",'trivial'))
+
         safe = 25 if self.MACHINE_IS_METRIC else 1
         self.DEFAULT_LINEAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY", "DEFAULT_LINEAR_VELOCITY", safe)) * 60
         self.MIN_LINEAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY", "MIN_LINEAR_VELOCITY", 0)) * 60
