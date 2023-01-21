@@ -148,8 +148,7 @@ class HandlerClass:
         self.w.btn_pause_spindle.setEnabled(False)
         self.w.btn_dimensions.setChecked(True)
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
-        self.w.filemanager.onUserClicked()    
-        self.w.filemanager_usb.onMediaClicked()
+        self.w.filemanager_usb.showMediaDir(quiet = True)
 
     # hide widgets for A axis if not present
         if "A" not in INFO.AVAILABLE_AXES:
