@@ -217,7 +217,7 @@ QSlider::handle:vertical {
     border-radius: 2px;
 }
 
-ToolDialog QPushButton{
+ToolDialog QPushButton, AboutDialog QPushButton{
     width: 100px;
     height: 40px;
 }

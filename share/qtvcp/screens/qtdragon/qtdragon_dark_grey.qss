@@ -418,7 +418,7 @@ QListView::item:selected {
 ToolDialog,CloseDialog,EntryDialog, CalculatorDialog{
 background-color: gray;
 }
-ToolDialog QPushButton{
+ToolDialog QPushButton,AboutDialog QPushButton{
     width: 100px;
     height: 40px;
 }

@@ -236,7 +236,7 @@ QSlider::handle:vertical {
 ToolDialog, EntryDialog, CloseDialog {
     background: darkgray;
 }
-ToolDialog QPushButton{
+ToolDialog QPushButton, AboutDialog QPushButton{
     width: 100px;
     height: 40px;
 }

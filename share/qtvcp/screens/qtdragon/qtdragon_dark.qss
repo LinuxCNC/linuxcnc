@@ -354,7 +354,8 @@ background-color: gray;
 }
 
 LcncDialog QPushButton,
-ToolDialog QPushButton {
+ToolDialog QPushButton,
+AboutDialog QPushButton {
     width: 100px;
     height: 40px;
 }

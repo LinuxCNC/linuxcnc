@@ -327,7 +327,7 @@ QSlider::handle:vertical {
 QDialog{
 background-image: url(:/images/images/brushed_metal.png);
 }
-ToolDialog QPushButton{
+ToolDialog QPushButton, AboutDialog QPushButton{
     width: 100px;
     height: 40px;
 }
