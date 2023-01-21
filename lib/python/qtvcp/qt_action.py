@@ -60,6 +60,9 @@ class _Lcnc_Action(object):
         elif state in (state,linuxcnc.STATE_ON,linuxcnc.STATE_ESTOP_OFF):
             self.cmd.state(state)
 
+    def TOGGLE_TELEOP_MODE(self):
+        self.SET_MOTION_TELEOP(not (STATUS.is_world_mode()))
+
     def SET_MOTION_TELEOP(self, value):
         # 1:teleop, 0: joint
         #if value:
