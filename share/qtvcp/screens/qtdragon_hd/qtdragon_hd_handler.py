@@ -949,6 +949,10 @@ class HandlerClass:
     def btn_gripper_clicked(self):
         AUX_PRGM.load_gcode_ripper()
 
+    def btn_about_clicked(self):
+        info = ACTION.GET_ABOUT_INFO()
+        self.w.aboutDialog_.showdialog()
+
     #####################
     # GENERAL FUNCTIONS #
     #####################

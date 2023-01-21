@@ -6167,6 +6167,25 @@ TO FILE</string>
                       </widget>
                      </item>
                      <item>
+                      <widget class="QToolButton" name="pushbutton_3">
+                       <property name="minimumSize">
+                        <size>
+                         <width>96</width>
+                         <height>50</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>96</width>
+                         <height>50</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string>ABOUT</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
                       <spacer name="verticalSpacer_6">
                        <property name="orientation">
                         <enum>Qt::Vertical</enum>
@@ -15586,7 +15605,7 @@ ANGULAR</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>07:35:08 PM</string>
+               <string>03:26:18 PM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -15819,8 +15838,8 @@ ANGULAR</string>
    <slot>btn_load_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>106</y>
+     <x>1035</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
      <x>1059</x>
@@ -15835,8 +15854,8 @@ ANGULAR</string>
    <slot>btn_gcode_edit_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>106</y>
+     <x>1035</x>
+     <y>586</y>
     </hint>
     <hint type="destinationlabel">
      <x>1088</x>
@@ -15851,8 +15870,8 @@ ANGULAR</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>116</y>
+     <x>1035</x>
+     <y>309</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -15867,8 +15886,8 @@ ANGULAR</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>116</y>
+     <x>1035</x>
+     <y>375</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
@@ -15883,8 +15902,8 @@ ANGULAR</string>
    <slot>btn_clear_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>106</y>
+     <x>1772</x>
+     <y>162</y>
     </hint>
     <hint type="destinationlabel">
      <x>1039</x>
@@ -15899,8 +15918,8 @@ ANGULAR</string>
    <slot>btn_save_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>106</y>
+     <x>1772</x>
+     <y>218</y>
     </hint>
     <hint type="destinationlabel">
      <x>1098</x>
@@ -15915,8 +15934,8 @@ ANGULAR</string>
    <slot>chk_override_limits_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>614</x>
-     <y>86</y>
+     <x>764</x>
+     <y>630</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -15947,8 +15966,8 @@ ANGULAR</string>
    <slot>chk_use_virtual_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>614</x>
-     <y>86</y>
+     <x>764</x>
+     <y>526</y>
     </hint>
     <hint type="destinationlabel">
      <x>565</x>
@@ -15963,8 +15982,8 @@ ANGULAR</string>
    <slot>chk_alpha_mode_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>614</x>
-     <y>86</y>
+     <x>764</x>
+     <y>344</y>
     </hint>
     <hint type="destinationlabel">
      <x>708</x>
@@ -15979,8 +15998,8 @@ ANGULAR</string>
    <slot>btn_m61_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>106</y>
+     <x>1772</x>
+     <y>218</y>
     </hint>
     <hint type="destinationlabel">
      <x>1770</x>
@@ -15995,8 +16014,8 @@ ANGULAR</string>
    <slot>disable_spindle_pause()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>614</x>
-     <y>86</y>
+     <x>764</x>
+     <y>396</y>
     </hint>
     <hint type="destinationlabel">
      <x>678</x>
@@ -16011,8 +16030,8 @@ ANGULAR</string>
    <slot>chk_use_sensor_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>614</x>
-     <y>86</y>
+     <x>764</x>
+     <y>552</y>
     </hint>
     <hint type="destinationlabel">
      <x>563</x>
@@ -16027,8 +16046,8 @@ ANGULAR</string>
    <slot>chk_use_camera_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>614</x>
-     <y>86</y>
+     <x>764</x>
+     <y>604</y>
     </hint>
     <hint type="destinationlabel">
      <x>623</x>
@@ -16043,8 +16062,8 @@ ANGULAR</string>
    <slot>cam_zoom_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>544</x>
-     <y>176</y>
+     <x>1751</x>
+     <y>204</y>
     </hint>
     <hint type="destinationlabel">
      <x>1784</x>
@@ -16059,8 +16078,8 @@ ANGULAR</string>
    <slot>cam_dia_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>544</x>
-     <y>176</y>
+     <x>1751</x>
+     <y>392</y>
     </hint>
     <hint type="destinationlabel">
      <x>1703</x>
@@ -16075,8 +16094,8 @@ ANGULAR</string>
    <slot>cam_rot_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>544</x>
-     <y>176</y>
+     <x>1751</x>
+     <y>580</y>
     </hint>
     <hint type="destinationlabel">
      <x>1737</x>
@@ -16123,8 +16142,8 @@ ANGULAR</string>
    <slot>chk_run_from_line_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>614</x>
-     <y>86</y>
+     <x>764</x>
+     <y>500</y>
     </hint>
     <hint type="destinationlabel">
      <x>-17</x>
@@ -16203,8 +16222,8 @@ ANGULAR</string>
    <slot>chk_use_touchplate_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>614</x>
-     <y>86</y>
+     <x>764</x>
+     <y>578</y>
     </hint>
     <hint type="destinationlabel">
      <x>635</x>
@@ -16427,8 +16446,8 @@ ANGULAR</string>
    <slot>chk_inhibit_selection_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>614</x>
-     <y>86</y>
+     <x>764</x>
+     <y>370</y>
     </hint>
     <hint type="destinationlabel">
      <x>959</x>
@@ -16459,8 +16478,8 @@ ANGULAR</string>
    <slot>btn_gripper_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>106</y>
+     <x>1035</x>
+     <y>586</y>
     </hint>
     <hint type="destinationlabel">
      <x>1463</x>
@@ -16475,8 +16494,8 @@ ANGULAR</string>
    <slot>btn_gripper_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>106</y>
+     <x>1035</x>
+     <y>530</y>
     </hint>
     <hint type="destinationlabel">
      <x>1420</x>
@@ -16564,6 +16583,22 @@ ANGULAR</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushbutton_3</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_about_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1736</x>
+     <y>119</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1788</x>
+     <y>-2</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <designerdata>
   <property name="gridDeltaX">
@@ -16639,6 +16674,7 @@ ANGULAR</string>
   <slot>tab_utilities_changed()</slot>
   <slot>btn_gripper_clicked()</slot>
   <slot>btn_enable_comp_clicked()</slot>
+  <slot>btn_about_clicked()</slot>
  </slots>
  <buttongroups>
   <buttongroup name="mode_buttonGroup"/>

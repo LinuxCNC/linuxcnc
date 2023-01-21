@@ -866,6 +866,10 @@ class HandlerClass:
         else:
             self.w.stackedWidget.setCurrentIndex(PAGE_GCODE)
 
+    def btn_about_clicked(self):
+        info = ACTION.GET_ABOUT_INFO()
+        self.w.aboutDialog_.showdialog()
+
     #####################
     # GENERAL FUNCTIONS #
     #####################
