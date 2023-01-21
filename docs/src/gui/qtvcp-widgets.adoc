@@ -693,7 +693,7 @@ DROLabel[isHomed=true] {
 }
 ----
 
-Here is how you specify a particular widget by it's `objectName` in Qt Designer:
+Here is how you specify a particular widget by its `objectName` in Qt Designer:
 
 [source,{css}]
 ----

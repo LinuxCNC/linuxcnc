@@ -551,7 +551,7 @@ For a three axes XYZ machine the HAL pins will react as shown in the following t
 [[table:a]]
 .Functional assignment of horizontal buttons (1)
 [cols="10,10,10,10",  options="header"]
-|====
+|===
 | Pin                         | Manual Mode                                   | MDI Mode                                    | Auto Mode
 m| gmoccapy.h-button.button-0 | open homing button                            | macro_0 or nothing                          | open file
 m| gmoccapy.h-button.button-1 | open touch off stuff                          | macro_1 or nothing                          | reload program
@@ -563,12 +563,12 @@ m| gmoccapy.h-button.button-6 |                                               | 
 m| gmoccapy.h-button.button-7 |                                               | macro_7 or nothing                          | optional blocks
 m| gmoccapy.h-button.button-8 | full-size preview                             | macro_8 or switch page to additional macros | full-size preview
 m| gmoccapy.h-button.button-9 | exit if machine is off, otherwise no reaction | open keyboard or abort if macro is running  | edit code
-|====
+|===
 
 [[table:b]]
 .Functional assignment of horizontal buttons (2)
 [cols="10,10,10,10", options="header"]
-|====
+|===
 | Pin                        | Settings Mode         | Homing Mode | Touch off Mode
 m|gmoccapy.h-button.button-0 | delete MDI history    |             | edit offsets
 m|gmoccapy.h-button.button-1 |                       | home all    | touch X
@@ -580,12 +580,12 @@ m|gmoccapy.h-button.button-6 | open HAL status       |             | zero G92
 m|gmoccapy.h-button.button-7 | open HAL meter        |             |
 m|gmoccapy.h-button.button-8 | open HAL calibration  | unhome all  | set selected
 m|gmoccapy.h-button.button-9 | open HAL show         | back        | back
-|====
+|===
 
 [[table:c]]
 .Functional assignment of horizontal buttons (3)
 [cols="10,10,10,10", options="header"]
-|====
+|===
 | Pin                        | Tool Mode                                | Edit Mode     | Select File
 m|gmoccapy.h-button.button-0 | delete tool(s)                           |               | go to home directory
 m|gmoccapy.h-button.button-1 | new tool                                 | reload file   | one directory level up
@@ -597,7 +597,7 @@ m|gmoccapy.h-button.button-6 | change tool to the selected one          | new fi
 m|gmoccapy.h-button.button-7 |                                          |               | select / ENTER
 m|gmoccapy.h-button.button-8 | touch of tool in Z                       | show keyboard |
 m|gmoccapy.h-button.button-9 | back                                     | back          | back
-|====
+|===
 
 So we have 67 reactions with only 10 HAL pins!
 
@@ -938,8 +938,8 @@ The advantage of the GMOCCAPY way is, that you do not need a reference tool.
 
 [NOTE]
 ====
-Your program must contain a tool change at the beginning! The tool will be measured,
-even it has been used before, so there is no danger, if the block height has changed.
+Your program must contain a tool change at the beginning!
+The tool will be measured, even it has been used before, so there is no danger, if the block height has changed.
 There are several videos showing the way to do that on YouTube.
 ====
 
@@ -1147,7 +1147,6 @@ This gives the option whether to show the preview tab or the offset page tab whe
 * _show offsets_
 
 .DRO Options
-
 You have the option to select the background colors of the different DRO states.
 So users suffering from protanopia (red/green weakness) are able to select proper colors.
 
@@ -1183,10 +1182,9 @@ toggle DRO mode::
   By default this checkbox is active, so every click on any DRO will toggle the DRO readout from actual to relative to DTG (distance to go). +
   Neverthereless a click on the axis letter will open the popup dialog to set the axis value.
 
-
 .Preview
-
-- _Grid Size_ -  Sets the grid size of the preview window.
+- _Grid Size_ -
+  Sets the grid size of the preview window.
   Unfortunately the size *has to be set in inches*, even if your machine units are metric.
   We do hope to fix that in a future release.
 
@@ -1195,7 +1193,6 @@ NOTE: The grid will not be shown in perspective view.
 - _Show DRO_ - Will show the a DRO also in the preview pane, it will be always shown in fullsize preview.
 - _Show DTG_ -  Will show the DTG (direct distance to end point) in the preview pane if Show DRO is active. Otherwise only in full size preview.
 - _Show Offsets_ -  Will show the offsets in the preview pane when Show DRO is active. Otherwise only in full size preview.
-
 - _Mouse Button Mode_ -  This combobox allows you to select the button behavior of the mouse to rotate, move or zoom within the preview:
 +
 * left rotate, middle move, right zoom
@@ -1309,11 +1306,11 @@ Message handling (see <<gmoccapy:message-behavior,Message behavior and appearanc
 
 There are three options to unlock the settings page:
 
-* _Use unlock code_ -  The user must give a code to get in
-* _Do not use unlock code_ - There will be no security check
+* _Use unlock code_ -  The user must give a code to get in.
+* _Do not use unlock code_ - There will be no security check.
 * _Use HAL pin to unlock_ - Hardware pin must be high to unlock the settings, see <<gmoccapy:hardware-unlock, hardware unlock pin>>.
 
-Default is _use unlock code_ (default = *123*)
+Default is _use unlock code_ (default = *123*).
 
 .Spindle
 * _Starting RPM_ - Sets the rpm to be used if the spindle is started and no S value has been set.

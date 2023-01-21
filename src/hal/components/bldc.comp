@@ -116,7 +116,8 @@ param rw unsigned output-pattern=25 if personality & 0x400
 
 param rw unsigned pattern=25 if personality & 0x01
 """Commutation pattern to use, from 0 to 47. Default is type 25.
-Every plausible combination is included. The table shows the excitation pattern along the top, and the pattern code on the left hand side.
+Every plausible combination is included.
+The table shows the excitation pattern along the top, and the pattern code on the left hand side.
 The table entries are the hall patterns in H1, H2, H3 order.
 Common patterns are:
 0 (30 degree commutation) and 26, its reverse.

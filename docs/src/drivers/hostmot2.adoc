@@ -13,43 +13,41 @@
 == Introduction
 
 HostMot2 is an FPGA configuration developed by Mesa Electronics for
-their line of 'Anything I/O' motion control cards. The firmware is open
-source, portable and flexible. It can be configured (at compile-time)
-with zero or more instances (an object created at runtime) of each of
-several Modules: encoders (quadrature counters), PWM generators, and
-step/dir generators. The firmware can be configured (at run-time) to
-connect each of these instances to pins on the I/O headers. I/O pins
-not driven by a Module instance revert to general-purpose
-bi-directional digital I/O.
+their line of 'Anything I/O' motion control cards.
+The firmware is open source, portable and flexible.
+It can be configured (at compile-time)
+with zero or more instances (an object created at runtime) of each of several Modules:
+encoders (quadrature counters), PWM generators, and step/dir generators.
+The firmware can be configured (at run-time) to connect each of these instances to pins on the I/O headers.
+I/O pins not driven by a Module instance revert to general-purpose bi-directional digital I/O.
 
 == Firmware Binaries
 
 .50 Pin Header FPGA cards
 
-Several pre-compiled HostMot2 firmware binaries are available for the
-different Anything I/O boards. (This list is incomplete, check the
-hostmot2-firmware distribution for up-to-date firmware lists.)
+Several pre-compiled HostMot2 firmware binaries are available for the different Anything I/O boards.
+This list is incomplete, check the hostmot2-firmware distribution for up-to-date firmware lists.
 
 * 3x20 (144 I/O pins): using hm2_pci module
 ** 24-channel servo
 ** 16-channel servo plus 24 step/dir generators
 
-* 5i22 (96 I/O pins): using hm2_pci module
+* 5I22 (96 I/O pins): using hm2_pci module
 ** 16-channel servo
 ** 8-channel servo plus 24 step/dir generators
 
-* 5i20, 5i23, 4i65, 4i68 (72 I/O pins): using hm2_pci module
+* 5I20, 5I23, 4I65, 4I68 (72 I/O pins): using hm2_pci module
 ** 12-channel servo
 ** 8-channel servo plus 4 step/dir generators
 ** 4-channel servo plus 8 step/dir generators
 
-* 7i43 (48 I/O pins): using hm2_7i43 module
+* 7I43 (48 I/O pins): using hm2_7i43 module
 ** 8-channel servo (8 PWM generators & 8 encoders)
 ** 4-channel servo plus 4 step/dir generators
 
 .DB25 FPGA cards
 
-The 5i25 Superport FPGA card is preprogrammed when purchased and does not
+The 5I25 Superport FPGA card is preprogrammed when purchased and does not
 need a firmware binary.
 
 == Installing Firmware
@@ -130,10 +128,10 @@ exported:
  * 'hm2_<BoardType>.<BoardNum>.write' - Write all outputs.
 
  * 'hm2_<BoardType>.<BoardNum>.read_gpio' - Read the GPIO input pins only.
-   (This function is not available on the 7i43 due to limitations of the EPP bus.)
+   (This function is not available on the 7I43 due to limitations of the EPP bus.)
 
  * 'hm2_<BoardType>.<BoardNum>.write_gpio' - Write the GPIO control registers and output pins only.
-   (This function is not available on the 7i43 due to limitations of the EPP bus.)
+   (This function is not available on the 7I43 due to limitations of the EPP bus.)
 
 [NOTE]
 ====
@@ -180,7 +178,7 @@ the I/O Pin number, the connector and pin, and the usage. From this
 printout you will know the physical connections to your card based on
 your configuration.
 
-An example of a 5i20 configuration:
+An example of a 5I20 configuration:
 
 [source,{ini}]
 ----
@@ -249,7 +247,7 @@ firmware and configuration in the 'Configurations' section.
 
 The HAL pins for each configuration can be seen by opening up 'Show
 HAL Configuration' from the Machine menu. All the HAL pins and
-parameters can be found there. The following figure is of the 5i20
+parameters can be found there. The following figure is of the 5I20
 configuration used above.
 
 [[cap:5i20-HAL-Pins]]
@@ -263,19 +261,19 @@ what you are trying to accomplish. You can get a reminder of what a
 particular firmware is for by looking at the name. Let's look at a
 couple of examples.
 
-In the 7i43 (two ports), SV8 ('Servo 8') would be for having 8 servos
-or fewer, using the 'classic' 7i33 4-axis (per port) servo board.
+In the 7I43 (two ports), SV8 ('Servo 8') would be for having 8 servos
+or fewer, using the 'classic' 7I33 4-axis (per port) servo board.
 So 8 servos would use up all 48 signals in the two ports. But if
 you only needed 3 servos, you could say 'num_encoders=3' and 'num_pwmgens=3'
 and recover 5 servos at 6 signals each, thus gaining 30 bits of GPIO.
 
-Or, in the 5i22 (four ports), SVST8_24 ('Servo 8, Stepper 24') would be
-for having 8 servos or fewer (7i33 x2 again), and 24 steppers or fewer
-(7i47 x2). This would use up all four ports.
+Or, in the 5I22 (four ports), SVST8_24 ('Servo 8, Stepper 24') would be
+for having 8 servos or fewer (7I33 x2 again), and 24 steppers or fewer
+(7I47 x2). This would use up all four ports.
 If you only needed 4 servos you could say 'num_encoders=4' and
-'num_pwmgens=4' and recover 1 port (and save a 7i33).
+'num_pwmgens=4' and recover 1 port (and save a 7I33).
 And if you only needed 12 steppers you could say 'num_stepgens=12' and
-free up one port (and save a 7i47).
+free up one port (and save a 7I47).
 So in this way we can save two ports (48 bits) for GPIO.
 
 Here are tables of the firmwares available in the official packages.
@@ -294,7 +292,7 @@ So far, all firmware is available in all gate sizes.)
 |SVST16_24  | 16      | 16     | 24      | 0
 |===
 
-5i22 (4-port PCI) Default Configurations (The 5i22 comes in 1M and 1.5M
+5I22 (4-port PCI) Default Configurations (The 5I22 comes in 1M and 1.5M
 gate versions.
 So far, all firmware is available in all gate sizes.)
 
@@ -307,7 +305,7 @@ So far, all firmware is available in all gate sizes.)
 |SVST8_24     | 8       | 8   | 24      | 0
 |===
 
-5i23 (3-port PCI) Default Configurations (The 5i23 has 400k gates.)
+5I23 (3-port PCI) Default Configurations (The 5I23 has 400k gates.)
 
 [width="90%",options="header"]
 |===
@@ -324,7 +322,7 @@ So far, all firmware is available in all gate sizes.)
 |SVTP6_7I39       | 6        | 0 (6 BLDC) | 0        | 0
 |===
 
-5i20 (3-port PCI) Default Configurations (The 5i20 has 200k gates.)
+5I20 (3-port PCI) Default Configurations (The 5I20 has 200k gates.)
 
 [width="90%",options="header"]
 |===
@@ -338,7 +336,7 @@ So far, all firmware is available in all gate sizes.)
 |SVST8_4IM2       | 8 (+IM)  | 8          | 4        | 8
 |===
 
-4i68 (3-port PC/104) Default Configurations (The 4i68 has 400k gates.)
+4I68 (3-port PC/104) Default Configurations (The 4I68 has 400k gates.)
 
 [width="90%",options="header"]
 |===
@@ -352,7 +350,7 @@ So far, all firmware is available in all gate sizes.)
 |===
 
 
-4i65 (3-port PC/104) Default Configurations (The 4i65 has 200k gates.)
+4I65 (3-port PC/104) Default Configurations (The 4I65 has 200k gates.)
 
 [width="90%",options="header"]
 |===
@@ -362,7 +360,7 @@ So far, all firmware is available in all gate sizes.)
 |SVST8_4IM2 | 8 (+IM)  | 8          | 4        | 8
 |===
 
-7i43 (2-port parallel) 400k gate versions, Default Configurations
+7I43 (2-port parallel) 400k gate versions, Default Configurations
 
 [width="90%",options="header"]
 |===
@@ -374,7 +372,7 @@ So far, all firmware is available in all gate sizes.)
 |SVST2_4_7I47 | 4        | 2          | 4        | 24
 |===
 
-7i43 (2-port parallel) 200k gate versions, Default Configurations
+7I43 (2-port parallel) 200k gate versions, Default Configurations
 
 [width="90%",options="header"]
 |===
@@ -591,77 +589,54 @@ component. Each pwmgen instance has the following pins and parameters:
 
 === Parameters
 
-* 'output-type' - (s32, RW) This emulates the output_type load-time
-  argument to the software pwmgen component.
-  This parameter may be changed at runtime,
-  but most of the time you probably want to set it at startup and then
-  leave it alone. Accepted values are 1 (PWM on Out0 and Direction on
-  Out1), 2 (Up on Out0 and Down on Out1), 3 (PDM mode, PDM on Out0 and
-  Dir on Out1), and 4 (Direction on Out0 and PWM on Out1, 'for locked
-  antiphase').
-
-* 'scale' - (Float, RW) Scaling factor to convert 'value' from arbitrary
-  units to duty cycle: dc = value / scale.
-  Duty cycle has an effective range of -1.0 to +1.0 inclusive, anything
-  outside that range gets clipped.
-
+* 'output-type' - (s32, RW) This emulates the output_type load-time argument to the software pwmgen component.
+  This parameter may be changed at runtime, but most of the time you probably want to set it at startup and then leave it alone.
+  Accepted values are 1 (PWM on Out0 and Direction on Out1), 2 (Up on Out0 and Down on Out1),
+  3 (PDM mode, PDM on Out0 and Dir on Out1), and 4 (Direction on Out0 and PWM on Out1, 'for locked antiphase').
+* 'scale' - (Float, RW) Scaling factor to convert 'value' from arbitrary units to duty cycle: dc = value / scale.
+  Duty cycle has an effective range of -1.0 to +1.0 inclusive, anything outside that range gets clipped.
 * 'pdm_frequency' - (u32, RW) This specifies the PDM frequency, in Hz,
   of all the pwmgen instances running in PDM mode (mode 3).
   This is the 'pulse slot frequency'; the frequency at which the pdm
-  generator in the Anything I/O board chooses whether to emit a pulse or
-  a space.
-  Each pulse (and space) in the PDM pulse train has a duration of
-  1/pdm_frequency seconds.
-  For example, setting the pdm_frequency to 2*10^6^ Hz (2 MHz) and the duty
-  cycle to 50% results in a 1 MHz square wave, identical to a 1 MHz
-  PWM signal with 50% duty cycle. The effective range of this parameter
-  is from about 1525 Hz up to just under 100 MHz. Note that the max
-  frequency is determined by the ClockHigh frequency of the Anything I/O
-  board; the 5I20 and 7I43 both have a 100 MHz clock, resulting in a
-  100 MHz max PDM frequency. Other boards may have different clocks,
-  resulting in different max PDM frequencies. If the user attempts to
-  set the frequency too high, it will be clipped to the max supported
-  frequency of the board.
-
+  generator in the Anything I/O board chooses whether to emit a pulse or a space.
+  Each pulse (and space) in the PDM pulse train has a duration of 1/pdm_frequency seconds.
+  For example, setting the pdm_frequency to 2*10^6^ Hz (2 MHz) and the duty cycle to 50% results in a 1 MHz square wave,
+  identical to a 1 MHz PWM signal with 50% duty cycle.
+  The effective range of this parameter is from about 1525 Hz up to just under 100 MHz.
+  Note that the max frequency is determined by the ClockHigh frequency of the Anything I/O board;
+  the 5I20 and 7I43 both have a 100 MHz clock, resulting in a 100 MHz max PDM frequency.
+  Other boards may have different clocks, resulting in different max PDM frequencies.
+  If the user attempts to set the frequency too high, then it will be clipped to the max supported frequency of the board.
 * 'pwm_frequency' - (u32, RW) This specifies the PWM frequency, in Hz,
   of all the pwmgen instances running in the PWM modes (modes 1 and 2).
-  This is the
-  frequency of the variable-duty-cycle wave. Its effective range is from
-  1 Hz up to 193 kHz. Note that the max frequency is determined by the
-  ClockHigh frequency of the Anything I/O board; the 5i20 and 7i43 both
-  have a 100 MHz clock, resulting in a 193 kHz max PWM frequency. Other
-  boards may have different clocks, resulting in different max PWM
-  frequencies. If the user attempts to set the frequency too high, it
-  will be clipped to the max supported frequency of the board.
-  Frequencies below about 5 Hz are not terribly accurate,
-  but above 5 Hz they are pretty close.
+  This is the frequency of the variable-duty-cycle wave.
+  Its effective range is fromc1 Hz up to 193 kHz.
+  Note that the max frequency is determined by the ClockHigh frequency of the Anything I/O board;
+  the 5i20 and 7i43 both have a 100 MHz clock, resulting in a 193 kHz max PWM frequency.
+  Other boards may have different clocks, resulting in different max PWM frequencies.
+  If the user attempts to set the frequency too high,
+  then it will be clipped to the max supported frequency of the board.
+  Frequencies below about 5 Hz are not terribly accurate, but above 5 Hz they are pretty close.
 
 === Output Parameters
 
 The output pins of each PWMGen have two additional parameters. To find
 which I/O pin belongs to which output run `dmesg` as described above.
 
-* `invert_output` - (Bit, RW) This parameter only has an effect if the
-  `is_output` parameter is true. If this parameter is true, the output
-  value of the GPIO will be the inverse of the value on the `out` HAL pin.
-
-* `is_opendrain` - (Bit, RW) If this parameter is false, the GPIO behaves
-  as a normal output pin: the I/O pin on the connector is driven to the
-  value specified by the `out` HAL pin (possibly inverted).
+* `invert_output` - (Bit, RW) This parameter only has an effect if the `is_output` parameter is true.
+  If this parameter is true, the output value of the GPIO will be the inverse of the value on the `out` HAL pin.
+* `is_opendrain` - (Bit, RW) If this parameter is false, the GPIO behaves as a normal output pin:
+  The I/O pin on the connector is driven to the value specified by the `out` HAL pin (possibly inverted).
   If this parameter is true, the GPIO behaves as an open-drain pin.
-  Writing 0 to the `out` HAL pin drives the I/O pin low, writing 1 to
-  the `out` HAL pin puts the I/O pin in a high-impedance state. In this
-  high-impedance state the I/O pin floats (weakly pulled high), and other
-  devices can drive the value; the resulting value on the I/O pin is
-  available on the `in` and `in_not` pins.
-  Only full GPIO pins and I/O pins used as outputs by active module
-  instances have this parameter.
+  Writing 0 to the `out` HAL pin drives the I/O pin low, writing 1 to the `out` HAL pin puts the I/O pin in a high-impedance state.
+  In this high-impedance state the I/O pin floats (weakly pulled high),
+  and other devices can drive the value; the resulting value on the I/O pin is available on the `in` and `in_not` pins.
+  Only full GPIO pins and I/O pins used as outputs by active module instances have this parameter.
 
 [[sec:hm2-encoder]]
 == Encoder
 
-Encoders have names like
-`hm2_<BoardType>.<BoardNum>.encoder.<Instance>.`.
+Encoders have names like `hm2_<BoardType>.<BoardNum>.encoder.<Instance>.`.
 `Instance` is a two-digit number that corresponds to the HostMot2 encoder instance number.
 There are _num_encoders_ instances, starting with 00.
 
@@ -669,9 +644,8 @@ Each encoder uses three or four input I/O pins, depending on how the firmware wa
 Three-pin encoders use A, B, and Index (sometimes also known as Z).
 Four-pin encoders use A, B, Index, and Index-mask.
 
-The hm2 encoder representation is similar to the one described by the
-Canonical Device Interface (in the HAL General Reference document), and
-to the software encoder component.
+The hm2 encoder representation is similar to the one described by the Canonical Device Interface
+(in the HAL General Reference document), and to the software encoder component.
 Each encoder instance has the following pins and parameters:
 
 === Pins
@@ -803,13 +777,12 @@ maxfullscale: 6000 +
 
 Several example configurations for Mesa hardware are included with LinuxCNC.
 The configurations are located in the hm2-servo and hm2-stepper sections of
-the <<sub:configuration-selector,Configuration Selector>>. Typically you
-will need the board installed for the configuration you pick to
-load. The examples are a good place to start and will save you time.
+the <<sub:configuration-selector,Configuration Selector>>.
+Typically you will need the board installed for the configuration you pick to load.
+The examples are a good place to start and will save you time.
 Just pick the proper example from the LinuxCNC Configuration Selector and
-save a copy to your computer so you can edit it. To see the exact pins
-and parameters that your configuration gave you, open the Show HAL
-Configuration window from the Machine menu, or do `dmesg` as outlined
-above.
+save a copy to your computer so you can edit it.
+To see the exact pins and parameters that your configuration gave you, open the Show HAL
+Configuration window from the Machine menu, or do `dmesg` as outlined above.
 
 // vim: set syntax=asciidoc:
