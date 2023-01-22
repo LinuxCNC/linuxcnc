@@ -1404,6 +1404,16 @@ class HandlerClass:
         if hal.get_value('plasmac.paused-motion') or hal.get_value('plasmac.cut-recovering'):
             if state:
                 self.w.wcs_button.setEnabled(False)
+            if hal.get_value('plasmac.program-is-paused'):
+                if self.tpButton and self.w.torch_enable.isChecked():
+                    self.w[self.tpButton].setEnabled(True)
+                if self.otButton and self.w.ohmic_probe_enable.isChecked():
+                    self.w[self.otButton].setEnabled(True)
+            elif not hal.get_value('plasmac.program-is-paused') and not hal.get_value('plasmac.paused-motion'):
+                if self.tpButton:
+                    self.w[self.tpButton].setEnabled(False)
+                if self.otButton:
+                    self.w[self.otButton].setEnabled(False)
             return
         if state:
             # time delay workaround to ensure userspace pins/variables have time to set
