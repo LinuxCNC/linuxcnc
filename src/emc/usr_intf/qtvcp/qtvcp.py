@@ -489,18 +489,21 @@ if __name__ == "__main__":
         #   Ex: LOG = logger.getLogger(__name__)
 
         from qtvcp import logger
-        LOG = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.INFO)
+        LOG = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.WARNING)
 
         # we set the log level early so the imported modules get the right level
-        # ToDo: pass specific log levels as an argument, or use an INI setting
         if '-d' in sys.argv:
             # Log level defaults to INFO, so set lower if in debug mode
             logger.setGlobalLevel(logger.DEBUG)
-            LOG.debug('DEBUGGING ON')
+            LOG.debug('DEBUGGING logging on')
+        elif '-i' in sys.argv:
+            # Log level defaults to INFO, so set lower if in debug mode
+            logger.setGlobalLevel(logger.INFO)
+            LOG.info('INFO logging on')
         elif '-v' in sys.argv:
             # Log level defaults to INFO, so set lowest if in verbose mode
             logger.setGlobalLevel(logger.VERBOSE)
-            LOG.verbose('VERBOSE DEBUGGING ON')
+            LOG.verbose('VERBOSE logging on')
         elif '-q' in sys.argv:
             logger.setGlobalLevel(logger.ERROR)
 
