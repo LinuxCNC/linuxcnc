@@ -27,11 +27,70 @@
 qtvcp \- Qt-based virtual control panels
 .SH SYNOPSIS
 .B qtvcp
+[\fIOPTIONS\fR] myfile.ui
 
 .SH DESCRIPTION
 \fBqtvcp\fR is a system for creating user interfaces for LinuxCNC. 
 
 Full documentation at http://linuxcnc.org/docs/html/gui/qtvcp.html
+
+.SH OPTIONS
+.TP
+\fB\-h, --help\fR
+Show this help message and exit.
+.TP
+\fB\-c\fR [\fI<NAME>\fR]
+Set component name to NAME. Default is basename of UI file.
+.TP
+\fB\-a\fR
+Set the window to always be on top.
+.TP
+\fB\-d\fR
+Enable debug output.
+.TP
+\fB\-v\fR
+Enable verbose debug output
+.TP
+\fB\-q\fR
+Enable only error debug output.
+.TP
+\fB\-g\fR [\fI<GEOMETRY>\fR]
+Set geometry WIDTHxHEIGHT+XOFFSET+YOFFSET.
+Values are in pixel units, XOFFSET/YOFFSET is referenced from top left of screen.
+Use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position.
+
+Example: -g 200x400+0+100.
+.TP
+\fB\-H\fR [\fI<FILE>\fR]
+Execute HAL statements from FILE with halcmd after the
+component is set up and ready.
+.TP
+\fB\-i\fR
+Enable info output.
+.TP
+\fB\-m\fR
+Force panel window to maximize.
+.TP
+\fB\-f\fR
+Force panel window to fullscreen.
+.TP
+\fB\-t\fR [\fI<THEME>\fR]
+Set QT style. Default is system theme.
+.TP
+\fB\-x\fR [\fI<XID>\fR]
+Reparent Qtvcp into an existing window XID instead of creating
+a new top level window.
+.TP
+\fB\--push_xid\fR
+Reparent window into a plug add push the plug xid number to
+standardout.
+.TP
+\fB\-u\fR [\fI<USERMOD>\fR]
+File path of user defined handler file.
+.TP
+\fB\-o\fR [\fI<USEROPTS>\fR]
+Pass USEROPTS strings to handler under self.w.USEROPTIONS_ list
+variable.
 
 .SH "SEE ALSO"
 \fBLinuxCNC(1)\fR
