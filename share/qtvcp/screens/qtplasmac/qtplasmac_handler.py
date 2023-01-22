@@ -1,4 +1,4 @@
-VERSION = '1.234.262'
+VERSION = '1.235.263'
 
 '''
 qtplasmac_handler.py
@@ -1404,6 +1404,16 @@ class HandlerClass:
         if hal.get_value('plasmac.paused-motion') or hal.get_value('plasmac.cut-recovering'):
             if state:
                 self.w.wcs_button.setEnabled(False)
+            if hal.get_value('plasmac.program-is-paused'):
+                if self.tpButton and self.w.torch_enable.isChecked():
+                    self.w[self.tpButton].setEnabled(True)
+                if self.otButton and self.w.ohmic_probe_enable.isChecked():
+                    self.w[self.otButton].setEnabled(True)
+            elif not hal.get_value('plasmac.program-is-paused') and not hal.get_value('plasmac.paused-motion'):
+                if self.tpButton:
+                    self.w[self.tpButton].setEnabled(False)
+                if self.otButton:
+                    self.w[self.otButton].setEnabled(False)
             return
         if state:
             # time delay workaround to ensure userspace pins/variables have time to set
@@ -2557,7 +2567,7 @@ class HandlerClass:
         self.w.scribe_arm_delay.setValue(self.PREFS.getpref('Scribe Arming Delay', 0, float, 'PLASMA_PARAMETERS'))
         self.w.scribe_on_delay.setValue(self.PREFS.getpref('Scribe On Delay', 0, float, 'PLASMA_PARAMETERS'))
         self.w.skip_ihs_distance.setValue(self.PREFS.getpref('Skip IHS Distance', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.spotting_threshold.setValue(self.PREFS.getpref('Spotting Threshold', 0, float, 'PLASMA_PARAMETERS'))
+        self.w.spotting_threshold.setValue(self.PREFS.getpref('Spotting Threshold', 1, float, 'PLASMA_PARAMETERS'))
         self.w.spotting_time.setValue(self.PREFS.getpref('Spotting Time', 0, float, 'PLASMA_PARAMETERS'))
         self.w.thc_delay.setValue(self.PREFS.getpref('THC Delay', 0.5, float, 'PLASMA_PARAMETERS'))
         self.w.thc_sample_counts.setValue(self.PREFS.getpref('THC Sample Counts', 50, int, 'PLASMA_PARAMETERS'))
@@ -3222,11 +3232,40 @@ class HandlerClass:
                 for n in range(self.w.main_tab_widget.count()):
                     if n != 0 and (not self.probeTest or n != self.w.main_tab_widget.currentIndex()):
                          self.w.main_tab_widget.setTabEnabled(n, state)
+            # disable jog controls on MAIN tab (for manual cut)
             self.w.jog_slider.setEnabled(state)
             self.w.jogs_label.setEnabled(state)
             self.w.jog_slow.setEnabled(state)
             self.w.jogincrements.setEnabled(state)
+            # disable material selector on MAIN tab
+            self.w.material_label.setEnabled(state)
             self.w.material_selector.setEnabled(state)
+            # disable materials items on PARAMETERS tab
+            self.w.materials_box.setEnabled(state)
+            self.w.save_material.setEnabled(state)
+            self.w.new_material.setEnabled(state)
+            self.w.delete_material.setEnabled(state)
+            self.w.reload_material.setEnabled(state)
+            self.w.cut_amps.setEnabled(state)
+            self.w.cut_feed_rate.setEnabled(state)
+            self.w.cut_height.setEnabled(state)
+            self.w.cut_mode.setEnabled(state)
+            self.w.cut_mode_label.setEnabled(state)
+            self.w.cut_volts.setEnabled(state)
+            self.w.gas_pressure.setEnabled(state)
+            self.w.kerf_width.setEnabled(state)
+            self.w.pause_at_end.setEnabled(state)
+            self.w.pierce_delay.setEnabled(state)
+            self.w.pierce_height.setEnabled(state)
+            self.w.puddle_jump_delay.setEnabled(state)
+            self.w.puddle_jump_height.setEnabled(state)
+            # disable user button items on SETTINGS tab
+            self.w.ub_save.setEnabled(state)
+            self.w.ub_reload.setEnabled(state)
+            for bNum in range(1,21):
+                self.w['ub_name_{}'.format(bNum)].setEnabled(state)
+                self.w['ub_code_{}'.format(bNum)].setEnabled(state)
+            # disable Jog Frame during probe test or torch pulse
             if self.probeTest or self.torchPulse:
                 self.w.jog_frame.setEnabled(state)
 

@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.234
+1.235
 
 .I SUMMARY:
 .br
@@ -1084,7 +1084,7 @@ FUNCTION(_) {
                         }
                         stop_type = NONE;
                     /* if torch pulse requested */
-                  }else if(torch_pulse_start && torch_enable && !breakaway && !float_switch && !ohmic_probe){
+                    }else if(torch_pulse_start && torch_enable && !breakaway && !float_switch && !ohmic_probe){
                         feed_hold = TRUE;
                         state = TORCHPULSE;
                     /* if ohmic probe shorted test requested */
@@ -1960,7 +1960,11 @@ FUNCTION(_) {
                     }else{
                         torch_on = FALSE;
                         if(!torch_pulse_start){
-                            state = IDLE;
+                            if(cut_recovering){
+                                state = CUT_RECOVERY_ON;
+                            }else{
+                                state = IDLE;
+                            }
                         }
                     }
                 }
@@ -1984,7 +1988,11 @@ FUNCTION(_) {
                 /* wait here until ohmic_test input released */
                 if (!ohmic_test){
                     ohmic_enable = FALSE;
-                    state = IDLE;
+                    if(cut_recovering){
+                        state = CUT_RECOVERY_ON;
+                    }else{
+                        state = IDLE;
+                        }
                 }
                 break;
             case PROBE_TEST:
@@ -2172,6 +2180,15 @@ FUNCTION(_) {
                     if(puddle_jump_delay || puddle_jump_percent != 100){
                         rtapi_print_msg(RTAPI_MSG_ERR, "Puddle Jump is disabled during Cut Recovery.\n");
                     }
+                }
+                if(torch_pulse_start && torch_enable && !breakaway && !float_switch && !ohmic_probe){
+                    feed_hold = TRUE;
+                    state = TORCHPULSE;
+                }
+                if(ohmic_test && ohmic_probe_enable){
+                    feed_hold = TRUE;
+                    ohmic_enable = TRUE;
+                    state = OHMIC_TEST;
                 }
                 /* offset for laser recovery if required */
                 if(laser_recovery_start && laser_recovery_state == OFF){
