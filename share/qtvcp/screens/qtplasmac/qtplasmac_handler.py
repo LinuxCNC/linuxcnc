@@ -1,4 +1,4 @@
-VERSION = '1.234.262'
+VERSION = '1.235.263'
 
 '''
 qtplasmac_handler.py
@@ -2567,7 +2567,7 @@ class HandlerClass:
         self.w.scribe_arm_delay.setValue(self.PREFS.getpref('Scribe Arming Delay', 0, float, 'PLASMA_PARAMETERS'))
         self.w.scribe_on_delay.setValue(self.PREFS.getpref('Scribe On Delay', 0, float, 'PLASMA_PARAMETERS'))
         self.w.skip_ihs_distance.setValue(self.PREFS.getpref('Skip IHS Distance', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.spotting_threshold.setValue(self.PREFS.getpref('Spotting Threshold', 0, float, 'PLASMA_PARAMETERS'))
+        self.w.spotting_threshold.setValue(self.PREFS.getpref('Spotting Threshold', 1, float, 'PLASMA_PARAMETERS'))
         self.w.spotting_time.setValue(self.PREFS.getpref('Spotting Time', 0, float, 'PLASMA_PARAMETERS'))
         self.w.thc_delay.setValue(self.PREFS.getpref('THC Delay', 0.5, float, 'PLASMA_PARAMETERS'))
         self.w.thc_sample_counts.setValue(self.PREFS.getpref('THC Sample Counts', 50, int, 'PLASMA_PARAMETERS'))
