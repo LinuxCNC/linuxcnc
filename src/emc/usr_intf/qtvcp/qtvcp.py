@@ -82,9 +82,13 @@ class MyApplication(QtWidgets.QApplication):
 class QTVCP:
     def __init__(self):
         sys.excepthook = self.excepthook
+        self.STATUS = Status()
+        self.INFO = Info()
+        self.PATH = Path()
+
         INIPATH = None
-        INITITLE = INFO.TITLE
-        INIICON = INFO.ICON
+        INITITLE = self.INFO.TITLE
+        INIICON = self.INFO.ICON
         usage = "usage: %prog [options] myfile.ui"
         parser = OptionParser(usage=usage)
         parser.disable_interspersed_args()
@@ -123,7 +127,7 @@ class QTVCP:
             print(parser.print_help())
             sys.exit(0)
         # set paths using basename
-        error = PATH.set_paths(basepath, bool(INIPATH))
+        error = self.PATH.set_paths(basepath, bool(INIPATH))
         if error:
             sys.exit(0)
 
@@ -143,9 +147,9 @@ class QTVCP:
             # if no handler file specified, use stock test one
             if not opts.usermod:
                 LOG.info('No handler file specified on command line.')
-                target =  os.path.join(PATH.CONFIGPATH, '%s_handler.py' % PATH.BASENAME)
-                source =  os.path.join(PATH.SCREENDIR, 'tester/tester_handler.py')
-                if PATH.HANDLER is None:
+                target =  os.path.join(self.PATH.CONFIGPATH, '%s_handler.py' % self.PATH.BASENAME)
+                source =  os.path.join(self.PATH.SCREENDIR, 'tester/tester_handler.py')
+                if self.PATH.HANDLER is None:
                     message = ("""
 Qtvcp encountered an error; No handler file was found.
 Would you like to copy a basic handler file into your config folder?
@@ -165,16 +169,16 @@ Pressing cancel will close linuxcnc.""" % target)
                         except:
                             LOG.critical("Unexpected error copying handler file:", sys.exc_info())
                             sys.exit(0)
-                        opts.usermod = PATH.HANDLER = target
+                        opts.usermod = self.PATH.HANDLER = target
                     else:
                         LOG.critical('No handler file found or specified. User requested stopping.')
                 else:
-                    opts.usermod = PATH.HANDLER
+                    opts.usermod = self.PATH.HANDLER
 
             # specify the HAL component name if missing
             if opts.component is None:
-                LOG.info('No HAL component base name specified on command line using: yellow<{}>'.format(PATH.BASENAME))
-                opts.component = PATH.BASENAME
+                LOG.info('No HAL component base name specified on command line using: yellow<{}>'.format(self.PATH.BASENAME))
+                opts.component = self.PATH.BASENAME
 
         #################
         # VCP specific
@@ -183,20 +187,20 @@ Pressing cancel will close linuxcnc.""" % target)
             LOG.info('green<Building A VCP Panel with: {}>'.format(ver))
             # if no handler file specified, use stock test one
             if not opts.usermod:
-                LOG.info('No handler file specified - using: yellow<{}>'.format(PATH.HANDLER))
-                opts.usermod = PATH.HANDLER
+                LOG.info('No handler file specified - using: yellow<{}>'.format(self.PATH.HANDLER))
+                opts.usermod = self.PATH.HANDLER
 
             # specify the HAL component name if missing
             if opts.component is None:
-                LOG.info('No HAL component base name specified - using: yellow<{}>'.format(PATH.BASENAME))
-                opts.component = PATH.BASENAME
+                LOG.info('No HAL component base name specified - using: yellow<{}>'.format(self.PATH.BASENAME))
+                opts.component = self.PATH.BASENAME
 
         ############################
         # International translation
         ############################
-        if PATH.LOCALEDIR is not None:
+        if self.PATH.LOCALEDIR is not None:
             translator = QtCore.QTranslator()
-            translator.load(PATH.LOCALEDIR)
+            translator.load(self.PATH.LOCALEDIR)
             APP.installTranslator(translator)
             #QtCore.QCoreApplication.installTranslator(translator)
             #print(self.app.translate("MainWindow", 'Machine Log'))
@@ -207,7 +211,7 @@ Pressing cancel will close linuxcnc.""" % target)
 
         #if there was no component name specified use the xml file name
         if opts.component is None:
-            opts.component = PATH.BASENAME
+            opts.component = self.PATH.BASENAME
 
         # initialize HAL
         # if component fails (already exists) -> create a new name
@@ -230,8 +234,10 @@ Pressing cancel will close linuxcnc.""" % target)
             LOG.critical("Asking for a HAL component using a name that already exists?")
             raise Exception('"Asking for a HAL component using a name that already exists?')
 
+        global HAL
+        HAL = self.halcomp
         # initialize the window
-        window = qt_makegui.VCPWindow(self.hal, PATH)
+        window = qt_makegui.VCPWindow(self.hal, self.PATH)
 
         # give reference to user command line options
         if opts.useropts:
@@ -256,10 +262,10 @@ Pressing cancel will close linuxcnc.""" % target)
             APP.installEventFilter(myFilter)
 
         # actually build the widgets
-        window.instance(filename=PATH.XML)
+        window.instance(filename=self.PATH.XML)
 
         # add a default program icon - this might be overridden later
-        window.setWindowIcon(QtGui.QIcon(os.path.join(PATH.IMAGEDIR, 'linuxcncicon.png')))
+        window.setWindowIcon(QtGui.QIcon(os.path.join(self.PATH.IMAGEDIR, 'linuxcncicon.png')))
 
         # title
         if INIPATH:
@@ -269,7 +275,7 @@ Pressing cancel will close linuxcnc.""" % target)
         window.setWindowTitle(title)
 
         # make QT widget HAL pins
-        self.panel = qt_makepins.QTPanel(self.hal, PATH, window, opts.debug)
+        self.panel = qt_makepins.QTPanel(self.hal, self.PATH, window, opts.debug)
 
         # call handler file's initialized function
         if opts.usermod:
@@ -277,15 +283,15 @@ Pressing cancel will close linuxcnc.""" % target)
                 LOG.debug('''Calling the handler file's initialized__ function''')
                 window.handler_instance.initialized__()
             # add any external handler override user commands
-            if INFO.USER_COMMAND_FILE is None:
-                INFO.USER_COMMAND_FILE = os.path.join(PATH.CONFIGPATH,'.{}rc'.format(PATH.BASEPATH))
-            INFO.USER_COMMAND_FILE = INFO.USER_COMMAND_FILE.replace('CONFIGFOLDER',PATH.CONFIGPATH)
-            INFO.USER_COMMAND_FILE = INFO.USER_COMMAND_FILE.replace('WORKINGFOLDER',PATH.WORKINGDIR)
+            if self.INFO.USER_COMMAND_FILE is None:
+                self.INFO.USER_COMMAND_FILE = os.path.join(self.PATH.CONFIGPATH,'.{}rc'.format(self.PATH.BASEPATH))
+            self.INFO.USER_COMMAND_FILE = self.INFO.USER_COMMAND_FILE.replace('CONFIGFOLDER',self.PATH.CONFIGPATH)
+            self.INFO.USER_COMMAND_FILE = self.INFO.USER_COMMAND_FILE.replace('WORKINGFOLDER',self.PATH.WORKINGDIR)
 
-            window.handler_instance.call_user_command_(window.handler_instance, INFO.USER_COMMAND_FILE)
+            window.handler_instance.call_user_command_(window.handler_instance, self.INFO.USER_COMMAND_FILE)
 
         # All Widgets should be added now - synch them to linuxcnc
-        STATUS.forced_update()
+        self.STATUS.forced_update()
 
         # call a HAL file after widgets built
         if opts.halfile:
@@ -371,8 +377,8 @@ Pressing cancel will close linuxcnc.""" % target)
             self.postgui()
             self.postgui_cmd()
             # if there is a valid INI based icon path, override the default icon.
-            if INIICON !='' and os.path.exists(os.path.join(PATH.CONFIGPATH, INIICON)):
-                window.setWindowIcon(QtGui.QIcon(os.path.join(PATH.CONFIGPATH, INIICON)))
+            if INIICON !='' and os.path.exists(os.path.join(self.PATH.CONFIGPATH, INIICON)):
+                window.setWindowIcon(QtGui.QIcon(os.path.join(self.PATH.CONFIGPATH, INIICON)))
             if (INITITLE !=''):
                 window.setWindowTitle(INITITLE)
 
@@ -386,13 +392,15 @@ Pressing cancel will close linuxcnc.""" % target)
             LOG.debug('''Calling the handler file's before_loop__ function''')
             window.handler_instance.before_loop__()
 
-        LOG.info('Preference path: yellow<{}>'.format(PATH.PREFS_FILENAME))
+        LOG.info('Preference path: yellow<{}>'.format(self.PATH.PREFS_FILENAME))
         # start loop
-        APP.exec()
+        global _app
+        _app = APP.exec()
+        self.shutdown()
 
     # finds the postgui file name and INI file path
     def postgui(self):
-        postgui_halfile = INFO.POSTGUI_HALFILE_PATH
+        postgui_halfile = self.INFO.POSTGUI_HALFILE_PATH
         LOG.info("Postgui filename: yellow<{}>".format(postgui_halfile))
         if postgui_halfile is not None:
             for f in postgui_halfile:
@@ -404,7 +412,7 @@ Pressing cancel will close linuxcnc.""" % target)
                 if res: raise SystemExit(res)
 
     def postgui_cmd(self):
-        postgui_commands = INFO.POSTGUI_HAL_COMMANDS
+        postgui_commands = self.INFO.POSTGUI_HAL_COMMANDS
         LOG.info("Postgui commands: yellow<{}>".format(postgui_commands))
         if postgui_commands is not None:
             for f in postgui_commands:
@@ -412,27 +420,10 @@ Pressing cancel will close linuxcnc.""" % target)
                 res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd"] + f.split())
                 if res: raise SystemExit(res)
 
-    # This can be called normally or by control c
-    # call optional handlerfile cleanup function
-    # call optional widget cleanup functions
-    # shut down STATUS so no error is called
+    # This can be called by control c or an early error.
     # close out HAL pins
-    # there is similar code in screen_options
     def shutdown(self,signum=None,stack_frame=None):
-        try:
-            self.panel.window.shutdown()
-        except Exception as e:
-            print (e)
-        try:
-            self.panel.shutdown()
-        except Exception as e:
-            print (e)
-        self.panel.window.sync_qsettings()
-        STATUS.shutdown()
-        try:
-            self.halcomp.exit()
-        except:
-            pass
+        HAL.exit()
 
         # Throws up a dialog with debug info when an error is encountered
     def excepthook(self, exc_type, exc_obj, exc_tb):
@@ -445,7 +436,7 @@ Pressing cancel will close linuxcnc.""" % target)
             lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
             self._message = ("Qtvcp encountered an error.  The following "
                     + "information may be useful in troubleshooting:\n"
-                    + 'LinuxCNC Version  : %s\n'% INFO.LINUXCNC_VERSION)
+                    + 'LinuxCNC Version  : %s\n'% self.INFO.LINUXCNC_VERSION)
 
             msg = QtWidgets.QMessageBox()
             msg.setIcon(QtWidgets.QMessageBox.Critical)
@@ -476,7 +467,9 @@ Pressing cancel will close linuxcnc.""" % target)
 
 # starts Qtvcp
 if __name__ == "__main__":
-
+        HAL = None
+        _qtvcp = None
+        _app = None
         # Set up the base logger
         #   We have do do this before importing other modules because on import
         #   they set up their own loggers as children of the base logger.
@@ -489,28 +482,27 @@ if __name__ == "__main__":
         #   Ex: LOG = logger.getLogger(__name__)
 
         from qtvcp import logger
-        LOG = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.INFO)
+        LOG = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.WARNING)
 
         # we set the log level early so the imported modules get the right level
-        # ToDo: pass specific log levels as an argument, or use an INI setting
         if '-d' in sys.argv:
             # Log level defaults to INFO, so set lower if in debug mode
             logger.setGlobalLevel(logger.DEBUG)
-            LOG.debug('DEBUGGING ON')
+            LOG.debug('DEBUGGING logging on')
+        elif '-i' in sys.argv:
+            # Log level defaults to INFO, so set lower if in debug mode
+            logger.setGlobalLevel(logger.INFO)
+            LOG.info('INFO logging on')
         elif '-v' in sys.argv:
             # Log level defaults to INFO, so set lowest if in verbose mode
             logger.setGlobalLevel(logger.VERBOSE)
-            LOG.verbose('VERBOSE DEBUGGING ON')
+            LOG.verbose('VERBOSE logging on')
         elif '-q' in sys.argv:
             logger.setGlobalLevel(logger.ERROR)
 
         # these libraries log when imported so logging level must already be set. 
         from qtvcp.core import Status, Info, Qhal, Path
 
-        # global reference
-        STATUS = Status()
-        INFO = Info()
-        PATH = Path()
+        _qtvcp = QTVCP()
 
-        _p = QTVCP()
-        sys.exit(0)
+        sys.exit(_qtvcp)

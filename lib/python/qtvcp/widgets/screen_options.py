@@ -390,18 +390,22 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             except:
                 answer = True
             # system shutdown
-            HANDLER = self.QTVCP_INSTANCE_.handler_instance
             if answer == QtWidgets.QMessageBox.DestructiveRole:
                 self.QTVCP_INSTANCE_.settings.sync()
                 self.QTVCP_INSTANCE_.shutdown()
                 self.QTVCP_INSTANCE_.panel_.shutdown()
                 STATUS.shutdown()
-                if 'system_shutdown_request__' in dir(HANDLER):
-                    HANDLER.system_shutdown_request__()
-                else:
-                    from qtvcp.core import Action
-                    ACTION = Action()
-                    ACTION.SHUT_SYSTEM_DOWN_PROMPT()
+                try:
+                    HANDLER = self.QTVCP_INSTANCE_.handler_instance
+                    if 'system_shutdown_request__' in dir(HANDLER):
+                        HANDLER.system_shutdown_request__()
+                        event.accept()
+                        return
+                except:
+                    pass
+                from qtvcp.core import Action
+                ACTION = Action()
+                ACTION.SHUT_SYSTEM_DOWN_PROMPT()
                 event.accept()
             # close linuxcnc
             elif answer:
@@ -517,6 +521,12 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         info = ACTION.GET_ABOUT_INFO()
         w.aboutDialog_.setText(info)
         w.aboutDialog_.hal_init(HAL_NAME='aboutDialog')
+
+    @QtCore.pyqtSlot(bool)
+    @QtCore.pyqtSlot(int)
+    def showAboutDialog(self, value):
+        print(value)
+        self.QTVCP_INSTANCE_.aboutDialog_.showdialog()
 
     def init_tool_dialog(self):
         from qtvcp.widgets.dialog_widget import ToolDialog
