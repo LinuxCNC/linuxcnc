@@ -361,7 +361,7 @@ int Interp::_execute(const char *command)
 
   for (n = 0; n < _setup.parameter_occurrence; n++)
   {  // copy parameter settings from parameter buffer into parameter table
-    _setup.parameters[_setup.parameter_numbers[n]]
+    _setup.parameters[_setup.parameter_numbers[n]] 
           = _setup.parameter_values[n];
   }
 
@@ -372,7 +372,7 @@ int Interp::_execute(const char *command)
 
       logDebug("storing param:|%s|", _setup.named_parameters[n]);
       CHP(store_named_param(&_setup, _setup.named_parameters[n],
-                          _setup.named_parameter_values[n]));
+			_setup.named_parameter_values[n]));
   }
   _setup.named_parameter_occurrence = 0;
 
@@ -519,7 +519,7 @@ int Interp::_execute(const char *command)
 		      _setup.sub_context[1].filename);
 	  }
       }
-    if ((status != INTERP_OK) &&
+    if ((status != INTERP_OK) && 
         (status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT))
       ERP(status);
   } else                        /* blank line is OK */
@@ -1401,6 +1401,9 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
   CHKS((strlen(filename) > (LINELEN - 1)), NCE_FILE_NAME_TOO_LONG);
   _setup.file_pointer = fopen(filename, "r");
   CHKS((_setup.file_pointer == NULL), NCE_UNABLE_TO_OPEN_FILE, filename);
+
+	Interp::nurbs_reset_global_variables();	// jf 
+
   line = _setup.linetext;
   for (index = -1; index == -1;) {      /* skip blank lines */
     CHKS((fgets(line, LINELEN, _setup.file_pointer) ==

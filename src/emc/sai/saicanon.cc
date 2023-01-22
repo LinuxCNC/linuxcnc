@@ -317,13 +317,22 @@ void STOP_SPEED_FEED_SYNCH()
 
 /* Machining Functions */
 
-void NURBS_FEED(int lineno,
-std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k)
-{
+/* Machining Functions G_5_2 */
+void NURBS_G5_FEED(int lineno, std::vector<NURBS_CONTROL_POINT> nurbs_control_points, unsigned int nurbs_order, int plane) {
   ECHO_WITH_ARGS("%lu, ...", (unsigned long)nurbs_control_points.size());
 
-  _sai._program_position_x = nurbs_control_points[nurbs_control_points.size()].X;
-  _sai._program_position_y = nurbs_control_points[nurbs_control_points.size()].Y;
+  _sai._program_position_x = nurbs_control_points[nurbs_control_points.size()].NURBS_X;
+  _sai._program_position_y = nurbs_control_points[nurbs_control_points.size()].NURBS_Y;
+}
+
+/* Machining Functions G_6_2 */
+void NURBS_G6_FEED(int lineno, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, unsigned int k, double feedrate, int l, int plane) {
+  //fprintf(_outfile, "%5d ", _line_number++);
+  print_nc_line_number();
+  fprintf(_outfile, "saicanon NURBS_G6_FEED_(%lu, ...)\n", (unsigned long)nurbs_control_points.size());
+
+  _sai._program_position_x = nurbs_control_points[nurbs_control_points.size()].NURBS_X;
+  _sai._program_position_y = nurbs_control_points[nurbs_control_points.size()].NURBS_Y;
 }
 
 void ARC_FEED(int line_number,

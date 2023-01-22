@@ -1,0 +1,38 @@
+
+;XY -> YZ
+
+
+
+G21 G40 G54 G90 G94
+G0 X10
+Y0Z0
+
+G0 X10 (movimento per avvicinarsi alla posizione di taglio)
+
+#10=290
+
+(Curva acquisita Nr=16)
+G0 Y-96.6264 Z62.3541
+G0 X1
+G1 X-1 F100
+
+G19 (Plane YZ)
+
+F#10
+G6.2 Y-96.6264 Z62.3541 R1 K0 P4 Q1
+    Y-97.4527 Z67.2421 R1 K0
+    Y-99.0487 Z76.6838 R1 K0
+    Y-91.3490 Z58.1042 R1 K0
+    Y-91.3512 Z77.9016 R1 K1
+    Y-88.6822 Z69.1298 R1 K2
+    Y-87.3324 Z64.6938 R1 K3
+G6.2 K4
+G6.2 K4
+G6.2 K4
+G6.2 K4
+
+G1 Y-87.3324 Z64.6938 X1
+G0 Y-87.3324 Z64.6938 X10
+M5
+M2
+

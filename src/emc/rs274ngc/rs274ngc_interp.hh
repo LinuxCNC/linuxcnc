@@ -225,6 +225,7 @@ public:
  int check_m_codes(block_pointer block);
  int check_other_codes(block_pointer block);
  int close_and_downcase(char *line);
+ void nurbs_reset_global_variables(void);
  int convert_nurbs(int move, block_pointer block, setup_pointer settings);
  int convert_spline(int move, block_pointer block, setup_pointer settings);
  int convert_g7x(int move, block_pointer block, setup_pointer settings);

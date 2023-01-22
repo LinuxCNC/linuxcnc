@@ -31,6 +31,7 @@ int main() {
     read_execute(b, "(this is a comment)");
     read_execute(b, "G0X0Y0");
     read_execute(b, "F100");
+    read_execute(b, "G17"); // (Plane XY)
     read_execute(b, "G5.2 X3.53   Y-1.50   P2");
     read_execute(b, "     X5.33   Y-11.01  P1");
     read_execute(b, "     X3.52   Y-24.00  P1");
@@ -88,6 +89,7 @@ void START_CUTTER_RADIUS_COMPENSATION(int direction) {}
 void STOP_CUTTER_RADIUS_COMPENSATION() {}
 void START_SPEED_FEED_SYNCH(int spindle, double feed_per_revolution, bool velocity_mode) {}
 void STOP_SPEED_FEED_SYNCH() {}
+
 void ARC_FEED(int lineno,
                      double first_end, double second_end,
 		     double first_axis, double second_axis, int rotation,
@@ -100,23 +102,28 @@ void STRAIGHT_FEED(int lineno,
                           double u, double v, double w) {
     printf("-> %.1f %.1f\n", x, y);
 }
-void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
+
+void NURBS_G5_FEED(int lineno, std::vector<NURBS_CONTROL_POINT> nurbs_control_points, unsigned int k, int plane) {
     double u = 0.0;
     unsigned int n = nurbs_control_points.size() - 1;
     double umax = n - k + 2;
     unsigned int div = nurbs_control_points.size()*3;
-    std::vector<unsigned int> knot_vector = knot_vector_creator(n, k);
-    PLANE_POINT P1;
+    std::vector<unsigned int> knot_vector = nurbs_G5_knot_vector_creator(n, k);
+    NURBS_PLANE_POINT P1;
     while (u+umax/div < umax) {
-        PLANE_POINT P1 = nurbs_point(u+umax/div,k,nurbs_control_points,knot_vector);
-        STRAIGHT_FEED(lineno, P1.X,P1.Y, 0., 0.,0.,0.,  0.,0.,0.);
+        NURBS_PLANE_POINT P1 = nurbs_G5_point(u+umax/div,k,nurbs_control_points,knot_vector);
+        STRAIGHT_FEED(lineno, P1.NURBS_X,P1.NURBS_Y, 0., 0.,0.,0.,  0.,0.,0.);
         u = u + umax/div;
     }
-    P1.X = nurbs_control_points[n].X;
-    P1.Y = nurbs_control_points[n].Y;
-    STRAIGHT_FEED(lineno, P1.X,P1.Y, 0., 0.,0.,0.,  0.,0.,0.);
+    P1.NURBS_X = nurbs_control_points[n].NURBS_X;
+    P1.NURBS_Y = nurbs_control_points[n].NURBS_Y;
+    STRAIGHT_FEED(lineno, P1.NURBS_X,P1.NURBS_Y, 0., 0.,0.,0.,  0.,0.,0.);
     knot_vector.clear();
 }
+
+void NURBS_G6_FEED(int lineno, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, unsigned int k, double feedrate, int L_option, int plane) { // (L_option: NICU, NICL, NICC see publication from Lo Valvo and Drago) 
+	}
+
 void RIGID_TAP(int lineno,
                       double x, double y, double z, double scale) {}
 void STRAIGHT_PROBE(int lineno,
