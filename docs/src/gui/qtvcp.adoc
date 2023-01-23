@@ -109,20 +109,27 @@ All `<options>` must appear before `<screen_name>`.
 
 .Options
 
-* `-d` Debugging on
-* `-a` Set window always on top
-* `-c` HAL component name. Default is to use the UI file name.
-* `-g` Geometry: WIDTHxHEIGHT+XOFFSET+YOFFSET. Example:
-  `-g 200x400+0+100`
-* `-m` Maximize window
-* `-f` Fullscreen the window
-* `-t` Theme. Default is system theme
-* `-x` Embed into a X11 window that doesn't support embedding.
+* `-d` Debugging on.
+* `-i` Enable info output.
+* `-v` Enable verbose debug output.
+* `-q` Enable only error debug output.
+* `-a` Set window always on top.
+* `-c NAME` HAL component name. Default is to use the UI file name.
+* `-g GEOMETRY` Set geometry WIDTHxHEIGHT+XOFFSET+YOFFSET. Values are in pixel units,
+XOFFSET/YOFFSET is referenced from top left of screen.
+Use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position.
+Example: `-g 200x400+0+100`
+* `-H FILE` Execute hal statements from FILE with halcmd after the
+ component is set up and ready.
+* `-m` Maximize window.
+* `-f` Fullscreen the window.
+* `-t THEME` Default is system theme
+* `-x XID` Embed into a X11 window that doesn't support embedding.
 * `--push_xid` Send QtVCP's X11 window id number to standard output; for
   embedding.
-* `-u` File path of a substitute handler file
-* `-o` Pass a string to QtVCP's handler file under `self.w.USEROPTIONS_`
-  list variable. can be multiple -o
+* `-u USERMOD` File path of a substitute handler file.
+* `-o USEROPTS` Pass a string to QtVCP's handler file under `self.w.USEROPTIONS_`
+  list variable. Can be multiple -o.
 
 .<screen_name>
 `<screen_name>` is the _base name of the .ui and _handler.py files_. +
