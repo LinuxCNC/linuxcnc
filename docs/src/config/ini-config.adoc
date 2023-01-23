@@ -1046,6 +1046,7 @@ The jointmask bits are: (LSB)0:joint0, 1:joint1, 2:joint2, ...
 +
 Example: `loadrt motmod ... unlock_joints_mask=0x38`
 creates unlock  pins for joints 3,4,5
+
 * 'OFFSET_AV_RATIO = 0.1' - If nonzero, this item enables the use of HAL input pins for external axis offsets:
 +
 [source,{ini}]
