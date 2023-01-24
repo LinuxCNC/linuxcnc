@@ -1,4 +1,4 @@
-VERSION = '1.235.263'
+VERSION = '1.235.264'
 
 '''
 qtplasmac_handler.py
@@ -359,6 +359,7 @@ class HandlerClass:
         STATUS.connect('tool-in-spindle-changed', self.tool_changed)
         STATUS.connect('periodic', lambda w: self.update_periodic())
         STATUS.connect('metric-mode-changed', self.metric_mode_changed)
+        STATUS.connect('motion-type-changed', lambda w, data: self.motion_type_changed(data))
         self.startupTimer = QTimer()
         self.startupTimer.timeout.connect(self.startup_timeout)
         self.startupTimer.setSingleShot(True)
@@ -713,7 +714,6 @@ class HandlerClass:
         self.materialChangeTimeoutPin = self.h.newpin('material_change_timeout', hal.HAL_BIT, hal.HAL_IN)
         self.materialReloadPin = self.h.newpin('material_reload', hal.HAL_BIT, hal.HAL_IN)
         self.materialTempPin = self.h.newpin('material_temp', hal.HAL_S32, hal.HAL_IN)
-        self.motionTypePin = self.h.newpin('motion_type', hal.HAL_S32, hal.HAL_IN)
         self.offsetsActivePin = self.h.newpin('offsets_active', hal.HAL_BIT, hal.HAL_IN)
         self.ohmicLedInPin = self.h.newpin('ohmic_led_in', hal.HAL_BIT, hal.HAL_IN)
         self.paramTabDisable = self.h.newpin('param_disable', hal.HAL_BIT, hal.HAL_IN)
@@ -831,7 +831,6 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:jog-inhibit', 'qtplasmac.jog_inhibited'])
         CALL(['halcmd', 'net', 'plasmac:laser-on', 'qtplasmac.laser_on'])
         CALL(['halcmd', 'net', 'plasmac:laser-recovery-state', 'plasmac.laser-recovery-state', 'qtplasmac.laser_recovery_state'])
-        CALL(['halcmd', 'net', 'plasmac:motion-type', 'qtplasmac.motion_type'])
         CALL(['halcmd', 'net', 'plasmac:probe-test-error', 'plasmac.probe-test-error', 'qtplasmac.probe_test_error'])
         CALL(['halcmd', 'net', 'plasmac:sensor_active', 'plasmac.sensor-active', 'qtplasmac.sensor_active'])
         CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.plasmac_state'])
@@ -2740,7 +2739,6 @@ class HandlerClass:
         self.paramTabDisable.value_changed.connect(lambda v:self.param_tab_changed(v))
         self.settingsTabDisable.value_changed.connect(lambda v:self.settings_tab_changed(v))
         self.convTabDisable.value_changed.connect(lambda v:self.conv_tab_changed(v))
-        self.motionTypePin.value_changed.connect(lambda v:self.motion_type_changed(v))
         self.w.cut_time_reset.pressed.connect(lambda:self.statistic_reset('cut_time', 'Cut time'))
         self.w.probe_time_reset.pressed.connect(lambda:self.statistic_reset('probe_time', 'Probe time'))
         self.w.paused_time_reset.pressed.connect(lambda:self.statistic_reset('paused_time', 'Paused time'))
@@ -3464,6 +3462,9 @@ class HandlerClass:
             self.laserOnPin.set(0)
             self.laserButtonState = 'reset'
             self.w.laser.setText(_translate('HandlerClass', 'LASER'))
+            self.button_normal('laser')
+            self.w.touch_xy.setEnabled(True)
+            self.w.camera.setEnabled(True)
 
     def ohmic_led_timeout(self):
         if not self.ohmicLedInPin.get():
@@ -4965,10 +4966,14 @@ class HandlerClass:
         if self.w.preview_stack.currentIndex() != 3:
             self.w.preview_stack.setCurrentIndex(3)
             self.button_active('camera')
+            self.w.touch_xy.setEnabled(False)
+            self.w.laser.setEnabled(False)
             self.cameraOn = True
         else:
             self.w.preview_stack.setCurrentIndex(0)
             self.button_normal('camera')
+            self.w.touch_xy.setEnabled(True)
+            self.w.laser.setEnabled(True)
             self.cameraOn = False
             ACTION.SET_MANUAL_MODE()
             self.vkb_hide()
@@ -4981,6 +4986,9 @@ class HandlerClass:
             return
         if self.laserButtonState == 'reset':
             self.laserButtonState = 'laser'
+            self.button_normal('laser')
+            self.w.touch_xy.setEnabled(True)
+            self.w.camera.setEnabled(True)
             return
         xPos = STATUS.get_position()[0][0] - self.laserOffsetX
         yPos = STATUS.get_position()[0][1] - self.laserOffsetY
@@ -4992,9 +5000,15 @@ class HandlerClass:
         if self.laserButtonState == 'laser':
             self.w.laser.setText(_translate('HandlerClass', 'MARK\nEDGE'))
             self.laserButtonState = 'markedge'
+            self.button_active('laser')
+            self.w.touch_xy.setEnabled(False)
+            self.w.camera.setEnabled(False)
             self.laserOnPin.set(1)
             return
         elif self.laserButtonState == 'setorigin':
+            self.button_normal('laser')
+            self.w.touch_xy.setEnabled(True)
+            self.w.camera.setEnabled(True)
             self.laserOnPin.set(0)
         self.laserButtonState = self.sheet_align(self.laserButtonState, self.w.laser, self.laserOffsetX, self.laserOffsetY)
 
