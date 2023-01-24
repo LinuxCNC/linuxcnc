@@ -1,4 +1,4 @@
-VERSION = '1.235.263'
+VERSION = '1.235.264'
 
 '''
 qtplasmac_handler.py
@@ -3462,6 +3462,9 @@ class HandlerClass:
             self.laserOnPin.set(0)
             self.laserButtonState = 'reset'
             self.w.laser.setText(_translate('HandlerClass', 'LASER'))
+            self.button_normal('laser')
+            self.w.touch_xy.setEnabled(True)
+            self.w.camera.setEnabled(True)
 
     def ohmic_led_timeout(self):
         if not self.ohmicLedInPin.get():
@@ -4963,10 +4966,14 @@ class HandlerClass:
         if self.w.preview_stack.currentIndex() != 3:
             self.w.preview_stack.setCurrentIndex(3)
             self.button_active('camera')
+            self.w.touch_xy.setEnabled(False)
+            self.w.laser.setEnabled(False)
             self.cameraOn = True
         else:
             self.w.preview_stack.setCurrentIndex(0)
             self.button_normal('camera')
+            self.w.touch_xy.setEnabled(True)
+            self.w.laser.setEnabled(True)
             self.cameraOn = False
             ACTION.SET_MANUAL_MODE()
             self.vkb_hide()
@@ -4979,6 +4986,9 @@ class HandlerClass:
             return
         if self.laserButtonState == 'reset':
             self.laserButtonState = 'laser'
+            self.button_normal('laser')
+            self.w.touch_xy.setEnabled(True)
+            self.w.camera.setEnabled(True)
             return
         xPos = STATUS.get_position()[0][0] - self.laserOffsetX
         yPos = STATUS.get_position()[0][1] - self.laserOffsetY
@@ -4990,9 +5000,15 @@ class HandlerClass:
         if self.laserButtonState == 'laser':
             self.w.laser.setText(_translate('HandlerClass', 'MARK\nEDGE'))
             self.laserButtonState = 'markedge'
+            self.button_active('laser')
+            self.w.touch_xy.setEnabled(False)
+            self.w.camera.setEnabled(False)
             self.laserOnPin.set(1)
             return
         elif self.laserButtonState == 'setorigin':
+            self.button_normal('laser')
+            self.w.touch_xy.setEnabled(True)
+            self.w.camera.setEnabled(True)
             self.laserOnPin.set(0)
         self.laserButtonState = self.sheet_align(self.laserButtonState, self.w.laser, self.laserOffsetX, self.laserOffsetY)
 
