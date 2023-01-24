@@ -125,6 +125,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
         self.allow_auto_skew.hal_init()
         self.allow_auto_zero.hal_init()
+        self.statuslabel_motiontype.hal_init()
 
         # connect to STATUS
         STATUS.connect('state-off', lambda w: self.setEnabled(False))

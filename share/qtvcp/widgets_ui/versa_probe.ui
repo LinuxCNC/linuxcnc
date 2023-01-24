@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>706</width>
-    <height>491</height>
+    <height>388</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -152,6 +152,82 @@
                <property name="verticalSpacing">
                 <number>2</number>
                </property>
+               <item row="5" column="0" colspan="2">
+                <widget class="QLabel" name="lbl_results_2">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>INPUT</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="11" column="1">
+                <widget class="QLineEdit" name="input_xy_clearance">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>70</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
+                 <property name="cursor">
+                  <cursorShape>IBeamCursor</cursorShape>
+                 </property>
+                 <property name="toolTip">
+                  <string>Distance to move before starting search</string>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="maxLength">
+                  <number>7</number>
+                 </property>
+                 <property name="frame">
+                  <bool>true</bool>
+                 </property>
+                 <property name="cursorPosition">
+                  <number>0</number>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
                <item row="12" column="0">
                 <widget class="QLabel" name="lab_z_2">
                  <property name="text">
@@ -162,96 +238,6 @@
                  </property>
                  <property name="margin">
                   <number>4</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="12" column="1">
-                <widget class="QLineEdit" name="input_z_clearance">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>70</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>80</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <pointsize>10</pointsize>
-                  </font>
-                 </property>
-                 <property name="cursor">
-                  <cursorShape>IBeamCursor</cursorShape>
-                 </property>
-                 <property name="toolTip">
-                  <string>Distance to move Z up or down during search</string>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="maxLength">
-                  <number>7</number>
-                 </property>
-                 <property name="frame">
-                  <bool>true</bool>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="15" column="1">
-                <widget class="QLineEdit" name="input_latch_return_dist">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>70</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>80</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <pointsize>10</pointsize>
-                  </font>
-                 </property>
-                 <property name="cursor">
-                  <cursorShape>IBeamCursor</cursorShape>
-                 </property>
-                 <property name="toolTip">
-                  <string>Latch return distance</string>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="maxLength">
-                  <number>7</number>
-                 </property>
-                 <property name="frame">
-                  <bool>true</bool>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
                  </property>
                 </widget>
                </item>
@@ -300,8 +286,21 @@
                  </property>
                 </widget>
                </item>
-               <item row="14" column="1">
-                <widget class="QLineEdit" name="input_max_travel">
+               <item row="20" column="0">
+                <widget class="QLabel" name="label_tool_block_height_2">
+                 <property name="text">
+                  <string>BLOCK HT</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                 <property name="margin">
+                  <number>4</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="15" column="1">
+                <widget class="QLineEdit" name="input_latch_return_dist">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                    <horstretch>0</horstretch>
@@ -329,7 +328,7 @@
                   <cursorShape>IBeamCursor</cursorShape>
                  </property>
                  <property name="toolTip">
-                  <string>Maximum travel during search</string>
+                  <string>Latch return distance</string>
                  </property>
                  <property name="text">
                   <string/>
@@ -339,34 +338,6 @@
                  </property>
                  <property name="frame">
                   <bool>true</bool>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="0" colspan="2">
-                <widget class="QLabel" name="lbl_results_2">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>INPUT</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -418,8 +389,22 @@
                  </property>
                 </widget>
                </item>
-               <item row="10" column="1">
-                <widget class="QLineEdit" name="input_probe_vel">
+               <item row="22" column="1">
+                <widget class="LED" name="led_probe_function_chk">
+                 <property name="diameter">
+                  <number>19</number>
+                 </property>
+                 <property name="color">
+                  <color>
+                   <red>0</red>
+                   <green>255</green>
+                   <blue>0</blue>
+                  </color>
+                 </property>
+                </widget>
+               </item>
+               <item row="12" column="1">
+                <widget class="QLineEdit" name="input_z_clearance">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                    <horstretch>0</horstretch>
@@ -447,7 +432,7 @@
                   <cursorShape>IBeamCursor</cursorShape>
                  </property>
                  <property name="toolTip">
-                  <string>Probe velocity</string>
+                  <string>Distance to move Z up or down during search</string>
                  </property>
                  <property name="text">
                   <string/>
@@ -460,6 +445,58 @@
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="11" column="0">
+                <widget class="QLabel" name="lab_xy">
+                 <property name="text">
+                  <string>XY</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                 <property name="margin">
+                  <number>4</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="0">
+                <widget class="QLabel" name="lab_search_vel">
+                 <property name="text">
+                  <string>SEARCH</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                 <property name="margin">
+                  <number>4</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="15" column="0">
+                <widget class="QLabel" name="lab_latch_rtrn_dist">
+                 <property name="text">
+                  <string>LATCH RTN</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                 <property name="margin">
+                  <number>4</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="0">
+                <widget class="QLabel" name="lab_probe_vel">
+                 <property name="text">
+                  <string>PROBE</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                 <property name="margin">
+                  <number>4</number>
                  </property>
                 </widget>
                </item>
@@ -530,21 +567,8 @@
                  </property>
                 </widget>
                </item>
-               <item row="20" column="0">
-                <widget class="QLabel" name="label_tool_block_height_2">
-                 <property name="text">
-                  <string>BLOCK HT</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                 <property name="margin">
-                  <number>4</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="20" column="1">
-                <widget class="QLineEdit" name="input_tool_block_height">
+               <item row="14" column="1">
+                <widget class="QLineEdit" name="input_max_travel">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                    <horstretch>0</horstretch>
@@ -572,7 +596,7 @@
                   <cursorShape>IBeamCursor</cursorShape>
                  </property>
                  <property name="toolTip">
-                  <string>Tool block height</string>
+                  <string>Maximum travel during search</string>
                  </property>
                  <property name="text">
                   <string/>
@@ -582,107 +606,6 @@
                  </property>
                  <property name="frame">
                   <bool>true</bool>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="14" column="0">
-                <widget class="QLabel" name="lab_max_travel">
-                 <property name="text">
-                  <string>TRAVEL</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                 <property name="margin">
-                  <number>4</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="21" column="1">
-                <widget class="LED" name="led_probe_function_chk">
-                 <property name="diameter">
-                  <number>19</number>
-                 </property>
-                 <property name="color">
-                  <color>
-                   <red>0</red>
-                   <green>255</green>
-                   <blue>0</blue>
-                  </color>
-                 </property>
-                </widget>
-               </item>
-               <item row="13" column="0">
-                <widget class="QLabel" name="lab_length">
-                 <property name="text">
-                  <string>LENGTH</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                 <property name="margin">
-                  <number>4</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="15" column="0">
-                <widget class="QLabel" name="lab_latch_rtrn_dist">
-                 <property name="text">
-                  <string>LATCH RTN</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                 <property name="margin">
-                  <number>4</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="9" column="0">
-                <widget class="QLabel" name="lab_search_vel">
-                 <property name="text">
-                  <string>SEARCH</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                 <property name="margin">
-                  <number>4</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="21" column="0">
-                <widget class="QLabel" name="lab_probe">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <pointsize>10</pointsize>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="frameShape">
-                  <enum>QFrame::NoFrame</enum>
-                 </property>
-                 <property name="frameShadow">
-                  <enum>QFrame::Plain</enum>
-                 </property>
-                 <property name="text">
-                  <string>PROBE</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -702,8 +625,47 @@
                  </property>
                 </widget>
                </item>
-               <item row="11" column="1">
-                <widget class="QLineEdit" name="input_xy_clearance">
+               <item row="6" column="0">
+                <widget class="QLabel" name="lab_ball_diam">
+                 <property name="text">
+                  <string>DIAMETER</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                 <property name="margin">
+                  <number>4</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="13" column="0">
+                <widget class="QLabel" name="lab_length">
+                 <property name="text">
+                  <string>LENGTH</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                 <property name="margin">
+                  <number>4</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="14" column="0">
+                <widget class="QLabel" name="lab_max_travel">
+                 <property name="text">
+                  <string>TRAVEL</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                 <property name="margin">
+                  <number>4</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="1">
+                <widget class="QLineEdit" name="input_probe_vel">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                    <horstretch>0</horstretch>
@@ -731,7 +693,7 @@
                   <cursorShape>IBeamCursor</cursorShape>
                  </property>
                  <property name="toolTip">
-                  <string>Distance to move before starting search</string>
+                  <string>Probe velocity</string>
                  </property>
                  <property name="text">
                   <string/>
@@ -741,9 +703,6 @@
                  </property>
                  <property name="frame">
                   <bool>true</bool>
-                 </property>
-                 <property name="cursorPosition">
-                  <number>0</number>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -795,32 +754,6 @@
                  </property>
                 </widget>
                </item>
-               <item row="10" column="0">
-                <widget class="QLabel" name="lab_probe_vel">
-                 <property name="text">
-                  <string>PROBE</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                 <property name="margin">
-                  <number>4</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="6" column="0">
-                <widget class="QLabel" name="lab_ball_diam">
-                 <property name="text">
-                  <string>DIAMETER</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                 <property name="margin">
-                  <number>4</number>
-                 </property>
-                </widget>
-               </item>
                <item row="8" column="1">
                 <widget class="QLineEdit" name="input_rapid_vel">
                  <property name="sizePolicy">
@@ -866,10 +799,118 @@
                  </property>
                 </widget>
                </item>
-               <item row="11" column="0">
-                <widget class="QLabel" name="lab_xy">
+               <item row="20" column="1">
+                <widget class="QLineEdit" name="input_tool_block_height">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>70</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
+                 <property name="cursor">
+                  <cursorShape>IBeamCursor</cursorShape>
+                 </property>
+                 <property name="toolTip">
+                  <string>Tool block height</string>
+                 </property>
                  <property name="text">
-                  <string>XY</string>
+                  <string/>
+                 </property>
+                 <property name="maxLength">
+                  <number>7</number>
+                 </property>
+                 <property name="frame">
+                  <bool>true</bool>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="22" column="0">
+                <widget class="QLabel" name="lab_probe">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::NoFrame</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Plain</enum>
+                 </property>
+                 <property name="text">
+                  <string>PROBE</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="21" column="1">
+                <widget class="StatusLabel" name="statuslabel_motiontype">
+                 <property name="minimumSize">
+                  <size>
+                   <width>70</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;200.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                 <property name="scaleText" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="motion_type_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="21" column="0">
+                <widget class="QLabel" name="label_tool_block_height_3">
+                 <property name="text">
+                  <string>MOTION</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -5197,6 +5238,11 @@ ZERO</string>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.led_widget</header>
   </customwidget>
+  <customwidget>
+   <class>StatusLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.status_label</header>
+  </customwidget>
  </customwidgets>
  <resources/>
  <connections>
@@ -5287,11 +5333,6 @@ ZERO</string>
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="inside_buttonGroup">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
   <buttongroup name="length_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
@@ -5302,6 +5343,10 @@ ZERO</string>
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="inside_buttonGroup">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
  </buttongroups>
 </ui>
-

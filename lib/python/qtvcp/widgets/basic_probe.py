@@ -114,6 +114,9 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
 
+        # must directly initialize
+        self.statuslabel_motiontype.hal_init()
+
         if self.PREFS_:
             self.lineEdit_probe_tool.setText(self.PREFS_.getpref('Probe tool', '0', str, 'PROBE OPTIONS'))
             self.lineEdit_probe_diam.setText(self.PREFS_.getpref('Probe diameter', '4', str, 'PROBE OPTIONS'))
