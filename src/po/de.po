@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-12 08:55+0100\n"
+"POT-Creation-Date: 2023-01-26 22:23+0100\n"
 "PO-Revision-Date: 2022-12-26 08:37+0000\n"
 "Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
@@ -2131,8 +2131,8 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/axis.py:1195
 #: src/emc/usr_intf/axis/scripts/axis.py:1300
 #: src/emc/usr_intf/axis/scripts/axis.py:1660
-#: src/emc/usr_intf/axis/scripts/axis.py:2959
-#: src/emc/usr_intf/axis/scripts/axis.py:4215
+#: src/emc/usr_intf/axis/scripts/axis.py:2960
+#: src/emc/usr_intf/axis/scripts/axis.py:4216
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:725
 #: lib/python/propertywindow.py:35 share/axis/tcl/axis.tcl:1580
 #: share/axis/tcl/axis.tcl:1617
@@ -3377,7 +3377,7 @@ msgstr "Laden"
 
 #: src/hal/classicladder/classicladder_gtk.c:1069 tcl/bin/emccalib.tcl:123
 #: tcl/bin/genedit.tcl:82 tcl/bin/halconfig.tcl:155
-#: src/emc/usr_intf/axis/scripts/axis.py:2308
+#: src/emc/usr_intf/axis/scripts/axis.py:2309
 msgid "Save"
 msgstr "Speichern"
 
@@ -3855,7 +3855,7 @@ msgstr "Ändern"
 #: tcl/tklinuxcnc.tcl:1978 src/emc/usr_intf/axis/scripts/axis.py:1605
 #: src/emc/usr_intf/axis/scripts/axis.py:1661
 #: src/emc/usr_intf/axis/scripts/axis.py:1891
-#: src/emc/usr_intf/axis/scripts/axis.py:2309
+#: src/emc/usr_intf/axis/scripts/axis.py:2310
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:727
 #: src/emc/usr_intf/stepconf/main_page.glade:475
 #: src/emc/usr_intf/pncconf/main_page.glade:101
@@ -5567,7 +5567,7 @@ msgstr "Werkzeugkorrektur"
 msgid "Tool:"
 msgstr "Werkzeug:"
 
-#: tcl/tklinuxcnc.tcl:466 src/emc/usr_intf/axis/scripts/axis.py:2229
+#: tcl/tklinuxcnc.tcl:466 src/emc/usr_intf/axis/scripts/axis.py:2230
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:763
 msgid "All files"
 msgstr "Alle Dateien"
@@ -5640,7 +5640,7 @@ msgstr "Zoll"
 
 #: tcl/tklinuxcnc.tcl:786 src/emc/usr_intf/axis/scripts/axis.py:1760
 #: src/emc/usr_intf/axis/scripts/axis.py:2046
-#: src/emc/usr_intf/axis/scripts/axis.py:2623
+#: src/emc/usr_intf/axis/scripts/axis.py:2624
 #: src/emc/usr_intf/touchy/touchy.glade:3272
 #: src/emc/usr_intf/stepconf/stepconf.py:1567
 #: src/emc/usr_intf/stepconf/pages.py:961
@@ -6006,7 +6006,7 @@ msgid "Coordinate System Control Window"
 msgstr "Koordinatensystem Kontroll-Fenster"
 
 #: tcl/scripts/Set_Coordinates.tcl:83
-#: src/emc/usr_intf/axis/scripts/axis.py:3642
+#: src/emc/usr_intf/axis/scripts/axis.py:3643
 msgid "Axis "
 msgstr "Achse "
 
@@ -6560,9 +6560,9 @@ msgstr "entfernen"
 msgid "move"
 msgstr "bewege"
 
-#: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:4066
-#: src/emc/usr_intf/pncconf/pncconf.py:4172
-#: src/emc/usr_intf/pncconf/pncconf.py:4336
+#: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:4108
+#: src/emc/usr_intf/pncconf/pncconf.py:4214
+#: src/emc/usr_intf/pncconf/pncconf.py:4378
 msgid "Custom"
 msgstr "Benutzerdefiniert"
 
@@ -6582,8 +6582,8 @@ msgstr "Mehrere Übereinstimmungen gefunden für"
 msgid "using path"
 msgstr "nutze Pfad"
 
-#: tcl/ngcgui.tcl:3811 src/emc/usr_intf/axis/scripts/axis.py:2684
-#: src/emc/usr_intf/axis/scripts/axis.py:2710
+#: tcl/ngcgui.tcl:3811 src/emc/usr_intf/axis/scripts/axis.py:2685
+#: src/emc/usr_intf/axis/scripts/axis.py:2711
 msgid "Warning"
 msgstr "Warnung"
 
@@ -7525,7 +7525,7 @@ msgstr ""
 "%(error_str)s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1488
-#: src/emc/usr_intf/axis/scripts/axis.py:3245 share/axis/tcl/axis.tcl:922
+#: src/emc/usr_intf/axis/scripts/axis.py:3246 share/axis/tcl/axis.tcl:922
 #: share/axis/tcl/axis.tcl:924 share/axis/tcl/axis.tcl:2051
 msgid "Continuous"
 msgstr "Durchgehend"
@@ -7536,7 +7536,7 @@ msgstr "T   Werkzeugtabelle"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1761
 #: src/emc/usr_intf/axis/scripts/axis.py:2050
-#: src/emc/usr_intf/axis/scripts/axis.py:2624
+#: src/emc/usr_intf/axis/scripts/axis.py:2625
 #: src/emc/usr_intf/stepconf/stepconf.py:1581
 #: src/emc/usr_intf/stepconf/pages.py:967
 msgid "in"
@@ -7595,6 +7595,11 @@ msgid "Run time:"
 msgstr "Laufzeit:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1820
+#, fuzzy
+msgid "Tool Change List:"
+msgstr "Werkzeugwechsel"
+
+#: src/emc/usr_intf/axis/scripts/axis.py:1821
 msgid "X bounds:"
 msgstr "X-Bereich:"
 
@@ -7602,7 +7607,7 @@ msgstr "X-Bereich:"
 msgid "Y bounds:"
 msgstr "Y-Bereich:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1821
+#: src/emc/usr_intf/axis/scripts/axis.py:1822
 msgid "Z bounds:"
 msgstr "Z-Bereich:"
 
@@ -7610,7 +7615,7 @@ msgstr "Z-Bereich:"
 msgid "A bounds:"
 msgstr "A-Bereich:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1822
+#: src/emc/usr_intf/axis/scripts/axis.py:1823
 msgid "B bounds:"
 msgstr "B-Bereich:"
 
@@ -7669,29 +7674,29 @@ msgstr "%d s"
 msgid "%(a)f to %(b)f = %(diff)f %(units)s"
 msgstr "%(a)f bis %(b)f = %(diff)f %(units)s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2079
+#: src/emc/usr_intf/axis/scripts/axis.py:2080
 msgid "G-Code Properties"
 msgstr "G-Code Eigenschaften"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2227
+#: src/emc/usr_intf/axis/scripts/axis.py:2228
 msgid "All machinable files"
 msgstr "Alle einlesbaren Dateien"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2228
-#: src/emc/usr_intf/axis/scripts/axis.py:2946
+#: src/emc/usr_intf/axis/scripts/axis.py:2229
+#: src/emc/usr_intf/axis/scripts/axis.py:2947
 msgid "rs274ngc files"
 msgstr "NC Dateien"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2244
+#: src/emc/usr_intf/axis/scripts/axis.py:2245
 msgid "axis cannot accept remote command while running"
 msgstr ""
 "Achse kann keinen entfernten (remote) Befehl während des Laufs entgegennehmen"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2299
+#: src/emc/usr_intf/axis/scripts/axis.py:2300
 msgid "File not Writable:"
 msgstr "Datei nicht schreibbar:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2300
+#: src/emc/usr_intf/axis/scripts/axis.py:2301
 msgid ""
 "This file is not writable\n"
 "You can Edit-readonly\n"
@@ -7709,30 +7714,30 @@ msgstr ""
 "speichern Sie sie in einem eigenen Verzeichnis \n"
 "und öffnen dann diese gespeicherte, beschreibbare Kopie"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2307
+#: src/emc/usr_intf/axis/scripts/axis.py:2308
 msgid "Edit-readonly"
 msgstr "Schreibgeschützt bearbeiten"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2625
+#: src/emc/usr_intf/axis/scripts/axis.py:2626
 msgid "Custom Grid"
 msgstr "Benutzerdefiniertes Raster"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2625
+#: src/emc/usr_intf/axis/scripts/axis.py:2626
 msgid "Enter grid size"
 msgstr "Eingabe Gitter-Größe"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2684
+#: src/emc/usr_intf/axis/scripts/axis.py:2685
 msgid "Joint is already homed, are you sure you want to re-home?"
 msgstr ""
 "Gelenk ist bereits an Referenzpunkt, möchten Sie wirklich die Referenzfahrt "
 "erneut ausführen?"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2698
+#: src/emc/usr_intf/axis/scripts/axis.py:2699
 #, python-format
 msgid "home_joint <%s> Use joint mode for homing"
 msgstr "home_joint <%s> Nutze Gelenk-Modus für Referenzfahrt"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2701
+#: src/emc/usr_intf/axis/scripts/axis.py:2702
 #, python-format
 msgid ""
 "\n"
@@ -7742,32 +7747,32 @@ msgstr ""
 "Referenzfahrt für einzelne Achsen nicht gestattet wegen duplizierten "
 "Buchstaben:<%s> "
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2710
+#: src/emc/usr_intf/axis/scripts/axis.py:2711
 msgid "This joint is already homed, are you sure you want to re-home?"
 msgstr ""
 "Das Gelenk ist bereits an Referenzpunkt, möchten Sie die Referenzfahrt "
 "erneut ausführen?"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2748
+#: src/emc/usr_intf/axis/scripts/axis.py:2749
 msgid "Touch Off (system)"
 msgstr "Antasten (System)"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2749
-#: src/emc/usr_intf/axis/scripts/axis.py:2790
+#: src/emc/usr_intf/axis/scripts/axis.py:2750
+#: src/emc/usr_intf/axis/scripts/axis.py:2791
 #, python-format
 msgid "Enter %s coordinate relative to %%s:"
 msgstr "%s-Koordinate relativ zu %%s:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2789
+#: src/emc/usr_intf/axis/scripts/axis.py:2790
 #, python-format
 msgid "Tool %s TouchOff"
 msgstr "Werkzeug %s antasten"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2958
+#: src/emc/usr_intf/axis/scripts/axis.py:2959
 msgid "Error saving file"
 msgstr "Fehler beim Speichern der Datei"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3414
+#: src/emc/usr_intf/axis/scripts/axis.py:3415
 #, python-format
 msgid ""
 "\n"
@@ -7780,7 +7785,7 @@ msgstr ""
 "%s\n"
 "Siehe Dokumentation zur 'INI Konfiguration'\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3427
+#: src/emc/usr_intf/axis/scripts/axis.py:3428
 #, python-format
 msgid ""
 "\n"
@@ -7793,7 +7798,7 @@ msgstr ""
 "%s\n"
 "Siehe Dokumentation zur 'INI Configuration'\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3440
+#: src/emc/usr_intf/axis/scripts/axis.py:3441
 #, python-format
 msgid ""
 "\n"
@@ -7806,49 +7811,49 @@ msgstr ""
 "%s\n"
 "See Dokumentation zur 'INI Konfiguration'\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3559
+#: src/emc/usr_intf/axis/scripts/axis.py:3560
 msgid "Axes"
 msgstr "Achsen"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3561
+#: src/emc/usr_intf/axis/scripts/axis.py:3562
 msgid "Joints"
 msgstr "Gelenke"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3563
+#: src/emc/usr_intf/axis/scripts/axis.py:3564
 #: src/emc/usr_intf/touchy/touchy.glade:584
 #: src/emc/usr_intf/gscreen/gscreen.glade:3009
 msgid "Home All"
 msgstr "Referenzfahrt aller Achsen"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3565
+#: src/emc/usr_intf/axis/scripts/axis.py:3566
 #, python-format
 msgid "Home all %s [Ctrl-Home]"
 msgstr "Referenzfahrt mit allen %s Achsen [Strg-Pos1]"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3568
+#: src/emc/usr_intf/axis/scripts/axis.py:3569
 #, python-format
 msgid "Home All %s"
 msgstr "Referenzfahrt Alle %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3570
+#: src/emc/usr_intf/axis/scripts/axis.py:3571
 #, python-format
 msgid "Unhome All %s"
 msgstr "Referenzfahrt aufheben bei allen %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3611
+#: src/emc/usr_intf/axis/scripts/axis.py:3612
 #, python-format
 msgid "Warning: Forward kinematics must handle duplicate coordinate letters:%s"
 msgstr ""
 "Warnung: Die Vorwärtskinematik muss mit doppelten Koordinatenbuchstaben "
 "umgehen:%s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3614
+#: src/emc/usr_intf/axis/scripts/axis.py:3615
 #, python-format
 msgid "Note: number of [TRAJ]COORDINATES=%(t)s exceeds [KINS]JOINTS=%(l)d"
 msgstr ""
 "Bemerke: Anzahl [TRAJ]COORDINATES=%(t)s überschreitet [KINS]JOINTS=%(l)d"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3646
+#: src/emc/usr_intf/axis/scripts/axis.py:3647
 msgid ""
 "\n"
 "Note:\n"
@@ -7858,42 +7863,42 @@ msgstr ""
 "Bemerke:\n"
 "Referenzfahrten einzelner Achsen werden derzeit nicht unterstützt"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3647
+#: src/emc/usr_intf/axis/scripts/axis.py:3648
 #, python-format
 msgid "KINEMATICS_IDENTITY with duplicate axis letter <%s>\n"
 msgstr "KINEMATICS_IDENTITY mit dupliziertem Achsen-Bezeichner <%s>\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3659
+#: src/emc/usr_intf/axis/scripts/axis.py:3660
 msgid "Joint"
 msgstr "Gelenk"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3661
+#: src/emc/usr_intf/axis/scripts/axis.py:3662
 msgid "Home Joint"
 msgstr "Referenzpunkt"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3669
+#: src/emc/usr_intf/axis/scripts/axis.py:3670
 #, python-format
 msgid "Home %(name)s _%(id)s"
 msgstr "Referenzfahrt %(name)s _%(id)s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3671
+#: src/emc/usr_intf/axis/scripts/axis.py:3672
 #, python-format
 msgid "Unhome %(name)s _%(id)s"
 msgstr "Referenzfahrt aufheben bei %(name)s _%(id)s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3865
+#: src/emc/usr_intf/axis/scripts/axis.py:3866
 msgid "Run from here"
 msgstr "Ab hier ausführen"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3926
+#: src/emc/usr_intf/axis/scripts/axis.py:3927
 msgid "toggle PYVCP panel visibility"
 msgstr "Wechsel PyVCP Panel Sichtbarkeit"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3928 share/axis/tcl/axis.tcl:387
+#: src/emc/usr_intf/axis/scripts/axis.py:3929 share/axis/tcl/axis.tcl:387
 msgid "Show PyVCP pan_el"
 msgstr "Zeige PyVCP pan_el"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:4214
+#: src/emc/usr_intf/axis/scripts/axis.py:4215
 msgid "Error in ~/.axisrc"
 msgstr "Fehler in »~/.axisrc«"
 
@@ -8860,8 +8865,8 @@ msgid "Temporarily allow jogging outside machine limits [L]"
 msgstr "Erlaubt über die Endschalter zu verfahren [L]"
 
 #: src/emc/usr_intf/touchy/touchy.py:144
-#: src/emc/usr_intf/pncconf/pncconf.py:1825
-#: src/emc/usr_intf/pncconf/pncconf.py:1828
+#: src/emc/usr_intf/pncconf/pncconf.py:1867
+#: src/emc/usr_intf/pncconf/pncconf.py:1870
 #: src/emc/usr_intf/gscreen/gscreen.py:1339
 msgid "Follow System Theme"
 msgstr "Systemthema folgen"
@@ -10439,7 +10444,7 @@ msgid "yY"
 msgstr "jJ"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:748
-#: src/emc/usr_intf/pncconf/data.py:1082
+#: src/emc/usr_intf/pncconf/data.py:1074
 #, python-format
 msgid "launch %s"
 msgstr "%s starten"
@@ -10533,7 +10538,7 @@ msgid "LinuxCNC 'stepconf' configuration files"
 msgstr "LinuxCNC »stepconf«-Konfigurationsdateien"
 
 #: src/emc/usr_intf/stepconf/pages.py:230
-#: src/emc/usr_intf/pncconf/pncconf.py:908
+#: src/emc/usr_intf/pncconf/pncconf.py:950
 msgid "Modify Existing Configuration"
 msgstr "Bestehende Konfiguration bearbeiten"
 
@@ -11999,20 +12004,20 @@ msgstr ""
 msgid "**** PNCCONF INFO:    Found extra firmware in file"
 msgstr "**** PNCCONF INFO:    Zusätzliche firmware in Datei gefunden"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:359
+#: src/emc/usr_intf/pncconf/pncconf.py:401
 msgid "Discovery metadata update"
 msgstr "Aktualisierung der Metadaten für die Suche"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:403
+#: src/emc/usr_intf/pncconf/pncconf.py:445
 #, python-format
 msgid "%s metadata update"
 msgstr "%s Metadaten-update"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:423
+#: src/emc/usr_intf/pncconf/pncconf.py:465
 msgid "PnCconf setup"
 msgstr "PnCconf Einrichtung"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:443
+#: src/emc/usr_intf/pncconf/pncconf.py:485
 msgid ""
 "\n"
 "**** Debug Pause! ****"
@@ -12020,15 +12025,15 @@ msgstr ""
 "\n"
 "**** Debug Pause! ****"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:527
+#: src/emc/usr_intf/pncconf/pncconf.py:569
 msgid "Specific Help page is unavailable\n"
 msgstr "Hilfeseite ist nicht verfügbar\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:529
+#: src/emc/usr_intf/pncconf/pncconf.py:571
 msgid "Help Pages"
 msgstr "Hilfeseiten"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:580
+#: src/emc/usr_intf/pncconf/pncconf.py:622
 #, python-format
 msgid ""
 "Some older cards require firmware.\n"
@@ -12040,11 +12045,11 @@ msgid ""
 "Discovery option requires the advanced options checked on this page."
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:906
+#: src/emc/usr_intf/pncconf/pncconf.py:948
 msgid "LinuxCNC 'PNCconf' configuration files"
 msgstr "LinuxCNC »PNCconf«-Konfigurationsdateien"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:939
+#: src/emc/usr_intf/pncconf/pncconf.py:981
 msgid ""
 "It seems data in this file is from too old of a version of PNCConf to "
 "continue."
@@ -12052,45 +12057,45 @@ msgstr ""
 "Die Daten in dieser Datei scheinen von einer zu alten Version PNCConf zu "
 "sein um fortzufahren."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1300
+#: src/emc/usr_intf/pncconf/pncconf.py:1342
 msgid "PIN file is empty:\n"
 msgstr "PIN-Datei ist leer:\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1301
+#: src/emc/usr_intf/pncconf/pncconf.py:1343
 msgid "To use PIN file discovery mode, the contents of the"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1302
+#: src/emc/usr_intf/pncconf/pncconf.py:1344
 msgid "cards PIN file needs to be pasted into the Input tab"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1303
+#: src/emc/usr_intf/pncconf/pncconf.py:1345
 msgid "of the Help window before clicking Board Discovery"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1312
+#: src/emc/usr_intf/pncconf/pncconf.py:1354
 msgid "Address is required for ethernet card"
 msgstr "Adresse wird für Ethernet-Karte benötigt"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1320
+#: src/emc/usr_intf/pncconf/pncconf.py:1362
 #, python-format
 msgid "%s board was not found"
 msgstr "%s Board wurde nicht gefunden"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1322
+#: src/emc/usr_intf/pncconf/pncconf.py:1364
 msgid "Is the address correct?"
 msgstr "Ist die Adresse korrekt?"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1326
+#: src/emc/usr_intf/pncconf/pncconf.py:1368
 #, python-format
 msgid "%s is an unsupported device"
 msgstr "%s ist ein nicht unterstütztes Gerät"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1339
+#: src/emc/usr_intf/pncconf/pncconf.py:1381
 msgid "Unspecified Error with Discovery option"
 msgstr "Nicht spezifizierter Fehler mit Erkennungs-Option"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1381
+#: src/emc/usr_intf/pncconf/pncconf.py:1423
 #, python-format
 msgid ""
 "Discovery has an error,\n"
@@ -12105,40 +12110,40 @@ msgstr ""
 "\n"
 " %s"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1395
+#: src/emc/usr_intf/pncconf/pncconf.py:1437
 msgid "Discovery is  unavailable\n"
 msgstr "Erkennung (Discovery) ist nicht verfügbar\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1610
+#: src/emc/usr_intf/pncconf/pncconf.py:1652
 msgid "The pasted PIN file may be an invalid format"
 msgstr "Die eingefügte PIN-Datei hat möglicherweise ein ungültiges Format"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1612
+#: src/emc/usr_intf/pncconf/pncconf.py:1654
 msgid "The data returned from discovery is invalid"
 msgstr "Die von der Erkennung zurückgegebenen Daten sind ungültig"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1686
+#: src/emc/usr_intf/pncconf/pncconf.py:1728
 msgid "USB device Info Search"
 msgstr "USB Device Info Suche"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1700
+#: src/emc/usr_intf/pncconf/pncconf.py:1742
 msgid "USB device  page is unavailable\n"
 msgstr "USB-Gerät-Seite ist nicht verfügbar\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1773
+#: src/emc/usr_intf/pncconf/pncconf.py:1815
 #: src/emc/usr_intf/pncconf/tests.py:90
 msgid "Pin names are unavailable\n"
 msgstr "Pin-Namen sind nicht verfügbar\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1796
+#: src/emc/usr_intf/pncconf/pncconf.py:1838
 msgid "Device names are unavailable\n"
 msgstr "Gerätenamen sind nicht verfügbar\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1799
+#: src/emc/usr_intf/pncconf/pncconf.py:1841
 msgid "No Pncconf made device rules were found\n"
 msgstr "Es wurden keine von Pncconf erstellten Geräteregeln gefunden\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1847
+#: src/emc/usr_intf/pncconf/pncconf.py:1889
 msgid ""
 "OK to replace existing glade panel ?\n"
 "It will be renamed and added to 'backups' folder.\n"
@@ -12150,7 +12155,7 @@ msgstr ""
 "Eine bestehende »Custom.clp«-Datei wird in custom_backup.clp« umbenannt.\n"
 "Eine bestehende »custom_backup.clp«-Dateien geht somit verloren"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1854
+#: src/emc/usr_intf/pncconf/pncconf.py:1896
 msgid ""
 "OK to replace existing custom pyvcp panel?\n"
 "Existing pyvcp-panel.xml will be renamed and added to 'backups' folder\n"
@@ -12161,45 +12166,45 @@ msgstr ""
 "Ordner hinzugefügt.\n"
 "Die Auswahl von 'existing custom program' vermeidet diese Warnung. "
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3691
+#: src/emc/usr_intf/pncconf/pncconf.py:3733
 #: src/emc/usr_intf/pncconf/private_data.py:555
 msgid "Unused Channel"
 msgstr "Unbenutzter Kanal"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3966
+#: src/emc/usr_intf/pncconf/pncconf.py:4008
 msgid "You can not have both steppers and pwm signals for spindle control\n"
 msgstr ""
 "Sie können nicht sowohl Schrittmotoren als auch PWM-Signale für die "
 "Spindelsteuerung verwenden.\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3970
+#: src/emc/usr_intf/pncconf/pncconf.py:4012
 #, python-format
 msgid "You forgot to designate a stepper or pwm signal for axis %s\n"
 msgstr ""
 "Sie haben vergessen, ein Stepper- oder PWM-Signal für die Achse %s zu "
 "bestimmen.\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3973
+#: src/emc/usr_intf/pncconf/pncconf.py:4015
 #, python-format
 msgid "You forgot to designate an encoder /resolver signal for axis %s servo\n"
 msgstr ""
 "Sie haben vergessen, ein Encoder-/Resolver-Signale für die Achse %s Servo zu "
 "bestimmen\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3976
+#: src/emc/usr_intf/pncconf/pncconf.py:4018
 #, python-format
 msgid "You forgot to designate a pwm signal or stepper signal for axis %s\n"
 msgstr ""
 "Sie haben vergessen, ein PWM-Signal oder ein Steppersignal für Achse %s zu "
 "bestimmen\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3979
+#: src/emc/usr_intf/pncconf/pncconf.py:4021
 #, python-format
 msgid "You can not have both steppers and pwm signals for axis %s\n"
 msgstr ""
 "Für Achse %s kann man nicht sowohl Stepper als auch PWM-Signale verwenden.\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3982
+#: src/emc/usr_intf/pncconf/pncconf.py:4024
 #, python-format
 msgid ""
 "If using a tandem axis stepper, you must select a master stepgen for axis "
@@ -12208,19 +12213,19 @@ msgstr ""
 "Wenn Sie einen Tandem-Achsen-Stepper verwenden, müssen Sie ein Master-"
 "Stepgen für die Achse %s auswählen.\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3990
+#: src/emc/usr_intf/pncconf/pncconf.py:4032
 msgid "Touchy require an external cycle start signal\n"
 msgstr "Touchy benötigt ein externes Zyklus-Start-Signal\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3993
+#: src/emc/usr_intf/pncconf/pncconf.py:4035
 msgid "Touchy require an external abort signal\n"
 msgstr "Touchy benötigt ein externes Abbruch-Signal\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3996
+#: src/emc/usr_intf/pncconf/pncconf.py:4038
 msgid "Touchy require an external single-step signal\n"
 msgstr "Touchy benötigt ein externes Einzelschritt-Signal\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3999
+#: src/emc/usr_intf/pncconf/pncconf.py:4041
 msgid ""
 "Touchy require an external multi handwheel MPG encoder signal on the mesa "
 "page\n"
@@ -12228,7 +12233,7 @@ msgstr ""
 "Touchy benötigt ein exterrnes multi-Handgerät MPG Encoder Signal auf der "
 "Mesa-Seite\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4002
+#: src/emc/usr_intf/pncconf/pncconf.py:4044
 msgid ""
 "Touchy require 'external mpg jogging' to be selected on the external control "
 "page\n"
@@ -12236,7 +12241,7 @@ msgstr ""
 "Für Touchy muss auf der externen Steuerungs-Seite 'external mpg "
 "jogging' (Steuerung durch Handgerät) ausgewählt sein\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4005
+#: src/emc/usr_intf/pncconf/pncconf.py:4047
 msgid ""
 "Touchy require the external mpg to be in 'shared mpg' mode on the external "
 "controls page\n"
@@ -12244,7 +12249,7 @@ msgstr ""
 "Für Touchy muss auf der externen Steuerungs-Seite das externe Handgerät im "
 "'shared mpg' Modus eingestellt sein\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4008
+#: src/emc/usr_intf/pncconf/pncconf.py:4050
 msgid ""
 "Touchy require selectable increments to be unchecked on the external "
 "controls page\n"
@@ -12252,7 +12257,7 @@ msgstr ""
 "Für Touchy darf selectable increments auf der externen Steuerungs-Seite "
 "nicht ausgewählt sein\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4021
+#: src/emc/usr_intf/pncconf/pncconf.py:4063
 msgid ""
 "The 7i29 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
@@ -12260,7 +12265,7 @@ msgstr ""
 "Das 7i29 daughter board benötigt PWM Typ Generatoren and eine PWM "
 "Grundfrequenz von 20 kHz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4024
+#: src/emc/usr_intf/pncconf/pncconf.py:4066
 msgid ""
 "The 7i30 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
@@ -12268,7 +12273,7 @@ msgstr ""
 "Das 7i30 daughter board benötigt PWM Typ Generatoren and eine PWM "
 "Grundfrequenz von 20 kHz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4027
+#: src/emc/usr_intf/pncconf/pncconf.py:4069
 msgid ""
 "The 7i33 daughter board requires PDM type generators and a PDM base "
 "frequency of 6 Mhz\n"
@@ -12276,7 +12281,7 @@ msgstr ""
 "Das 7i33 daughter board benötigt PDM Typ Generatoren und eine PDM "
 "Grundfrequenz von 6 Mhz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4030
+#: src/emc/usr_intf/pncconf/pncconf.py:4072
 msgid ""
 "The 7i40 daughter board requires PWM type generators and a PWM base "
 "frequency of 50 khz\n"
@@ -12284,7 +12289,7 @@ msgstr ""
 "Das 7i40 daughter board benötigt PWM Typ Generatoren and eine PWM "
 "Grundfrequenz von 50 kHz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4033
+#: src/emc/usr_intf/pncconf/pncconf.py:4075
 msgid ""
 "The 7i48 daughter board requires UDM type generators and a PWM base "
 "frequency of 24 khz\n"
@@ -12292,65 +12297,65 @@ msgstr ""
 "Das 7i48 daughter board benötigt UDM Typ Generatoren and ein PWM "
 "Grundfrequenz von 24 kHz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4181
+#: src/emc/usr_intf/pncconf/pncconf.py:4223
 msgid "Gearbox Reduction Ratio"
 msgstr "Getriebe Untersetzungsverhältnis"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4184
+#: src/emc/usr_intf/pncconf/pncconf.py:4226
 msgid "Reduction Ratio"
 msgstr "Untersetzungsverhältnis"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4187
+#: src/emc/usr_intf/pncconf/pncconf.py:4229
 msgid "Leadscrew Pitch"
 msgstr "Spindelsteigung"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4190
+#: src/emc/usr_intf/pncconf/pncconf.py:4232
 #: src/emc/usr_intf/pncconf/dialogs.glade:1991
 #: src/emc/usr_intf/pncconf/dialogs.glade:2360
 msgid "Leadscrew TPI"
 msgstr "Spindelsteigung TPI"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4194
-#: src/emc/usr_intf/pncconf/pncconf.py:4195
+#: src/emc/usr_intf/pncconf/pncconf.py:4236
+#: src/emc/usr_intf/pncconf/pncconf.py:4237
 msgid "("
 msgstr "("
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4196
-#: src/emc/usr_intf/pncconf/pncconf.py:4206
-#: src/emc/usr_intf/pncconf/pncconf.py:4207
-#: src/emc/usr_intf/pncconf/pncconf.py:4208
+#: src/emc/usr_intf/pncconf/pncconf.py:4238
+#: src/emc/usr_intf/pncconf/pncconf.py:4248
+#: src/emc/usr_intf/pncconf/pncconf.py:4249
+#: src/emc/usr_intf/pncconf/pncconf.py:4250
 msgid " / min"
 msgstr " / min"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4197
+#: src/emc/usr_intf/pncconf/pncconf.py:4239
 msgid " / sec²"
 msgstr " / s²"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4200
+#: src/emc/usr_intf/pncconf/pncconf.py:4242
 msgid " / Step"
 msgstr " / Schritt"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4201
+#: src/emc/usr_intf/pncconf/pncconf.py:4243
 msgid "Steps / "
 msgstr "Schritte / "
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4203
+#: src/emc/usr_intf/pncconf/pncconf.py:4245
 msgid " / encoder pulse"
 msgstr " / Encoder-Impuls"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4204
+#: src/emc/usr_intf/pncconf/pncconf.py:4246
 msgid "Encoder pulses / "
 msgstr "Encoder-Impulse / "
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4212
+#: src/emc/usr_intf/pncconf/pncconf.py:4254
 msgid "Resolver Scale:"
 msgstr "Resolver Skalierung:"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4550
+#: src/emc/usr_intf/pncconf/pncconf.py:4592
 msgid "Spindle Scale Calculation"
 msgstr "Berechnung der Spindel-Skalierung"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4662
+#: src/emc/usr_intf/pncconf/pncconf.py:4704
 msgid "Axis Scale Calculation"
 msgstr "Berechnung der Achsenskalierung"
 
@@ -14807,7 +14812,7 @@ msgstr ""
 msgid "Continue? (y/n)"
 msgstr "Fortsetzen? (y/n)"
 
-#: src/emc/usr_intf/pncconf/data.py:1086
+#: src/emc/usr_intf/pncconf/data.py:1078
 msgid "Desktop Launcher for LinuxCNC config made by PNCconf"
 msgstr ""
 "Verknüpfung zum starten von LinuxCNC mit einer festgelegten Konfiguration, "

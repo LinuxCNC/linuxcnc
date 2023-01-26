@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC EMC2.8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-12 08:55+0100\n"
+"POT-Creation-Date: 2023-01-26 22:23+0100\n"
 "PO-Revision-Date: 2022-07-20 00:40+0000\n"
 "Last-Translator: whatawhiz <pink0floyd@vip.qq.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
@@ -1980,8 +1980,8 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/axis.py:1195
 #: src/emc/usr_intf/axis/scripts/axis.py:1300
 #: src/emc/usr_intf/axis/scripts/axis.py:1660
-#: src/emc/usr_intf/axis/scripts/axis.py:2959
-#: src/emc/usr_intf/axis/scripts/axis.py:4215
+#: src/emc/usr_intf/axis/scripts/axis.py:2960
+#: src/emc/usr_intf/axis/scripts/axis.py:4216
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:725
 #: lib/python/propertywindow.py:35 share/axis/tcl/axis.tcl:1580
 #: share/axis/tcl/axis.tcl:1617
@@ -3176,7 +3176,7 @@ msgstr "载入"
 
 #: src/hal/classicladder/classicladder_gtk.c:1069 tcl/bin/emccalib.tcl:123
 #: tcl/bin/genedit.tcl:82 tcl/bin/halconfig.tcl:155
-#: src/emc/usr_intf/axis/scripts/axis.py:2308
+#: src/emc/usr_intf/axis/scripts/axis.py:2309
 msgid "Save"
 msgstr "保存"
 
@@ -3650,7 +3650,7 @@ msgstr "修改"
 #: tcl/tklinuxcnc.tcl:1978 src/emc/usr_intf/axis/scripts/axis.py:1605
 #: src/emc/usr_intf/axis/scripts/axis.py:1661
 #: src/emc/usr_intf/axis/scripts/axis.py:1891
-#: src/emc/usr_intf/axis/scripts/axis.py:2309
+#: src/emc/usr_intf/axis/scripts/axis.py:2310
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:727
 #: src/emc/usr_intf/stepconf/main_page.glade:475
 #: src/emc/usr_intf/pncconf/main_page.glade:101
@@ -5319,7 +5319,7 @@ msgstr "设置刀具偏移"
 msgid "Tool:"
 msgstr "刀具:"
 
-#: tcl/tklinuxcnc.tcl:466 src/emc/usr_intf/axis/scripts/axis.py:2229
+#: tcl/tklinuxcnc.tcl:466 src/emc/usr_intf/axis/scripts/axis.py:2230
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:763
 msgid "All files"
 msgstr "所有文件"
@@ -5392,7 +5392,7 @@ msgstr "英寸"
 
 #: tcl/tklinuxcnc.tcl:786 src/emc/usr_intf/axis/scripts/axis.py:1760
 #: src/emc/usr_intf/axis/scripts/axis.py:2046
-#: src/emc/usr_intf/axis/scripts/axis.py:2623
+#: src/emc/usr_intf/axis/scripts/axis.py:2624
 #: src/emc/usr_intf/touchy/touchy.glade:3272
 #: src/emc/usr_intf/stepconf/stepconf.py:1567
 #: src/emc/usr_intf/stepconf/pages.py:961
@@ -5758,7 +5758,7 @@ msgid "Coordinate System Control Window"
 msgstr "坐标系统控制窗口"
 
 #: tcl/scripts/Set_Coordinates.tcl:83
-#: src/emc/usr_intf/axis/scripts/axis.py:3642
+#: src/emc/usr_intf/axis/scripts/axis.py:3643
 msgid "Axis "
 msgstr "轴 "
 
@@ -6312,9 +6312,9 @@ msgstr "删除"
 msgid "move"
 msgstr "移动"
 
-#: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:4066
-#: src/emc/usr_intf/pncconf/pncconf.py:4172
-#: src/emc/usr_intf/pncconf/pncconf.py:4336
+#: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:4108
+#: src/emc/usr_intf/pncconf/pncconf.py:4214
+#: src/emc/usr_intf/pncconf/pncconf.py:4378
 msgid "Custom"
 msgstr "自定义"
 
@@ -6334,8 +6334,8 @@ msgstr "找到多个匹配"
 msgid "using path"
 msgstr "使用路径"
 
-#: tcl/ngcgui.tcl:3811 src/emc/usr_intf/axis/scripts/axis.py:2684
-#: src/emc/usr_intf/axis/scripts/axis.py:2710
+#: tcl/ngcgui.tcl:3811 src/emc/usr_intf/axis/scripts/axis.py:2685
+#: src/emc/usr_intf/axis/scripts/axis.py:2711
 msgid "Warning"
 msgstr "警告"
 
@@ -7272,7 +7272,7 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1488
-#: src/emc/usr_intf/axis/scripts/axis.py:3245 share/axis/tcl/axis.tcl:922
+#: src/emc/usr_intf/axis/scripts/axis.py:3246 share/axis/tcl/axis.tcl:922
 #: share/axis/tcl/axis.tcl:924 share/axis/tcl/axis.tcl:2051
 msgid "Continuous"
 msgstr "连续"
@@ -7283,7 +7283,7 @@ msgstr "T   刀具表"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1761
 #: src/emc/usr_intf/axis/scripts/axis.py:2050
-#: src/emc/usr_intf/axis/scripts/axis.py:2624
+#: src/emc/usr_intf/axis/scripts/axis.py:2625
 #: src/emc/usr_intf/stepconf/stepconf.py:1581
 #: src/emc/usr_intf/stepconf/pages.py:967
 msgid "in"
@@ -7342,6 +7342,11 @@ msgid "Run time:"
 msgstr "运行时间:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1820
+#, fuzzy
+msgid "Tool Change List:"
+msgstr "换刀"
+
+#: src/emc/usr_intf/axis/scripts/axis.py:1821
 msgid "X bounds:"
 msgstr "X 极限:"
 
@@ -7349,7 +7354,7 @@ msgstr "X 极限:"
 msgid "Y bounds:"
 msgstr "Y 极限:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1821
+#: src/emc/usr_intf/axis/scripts/axis.py:1822
 msgid "Z bounds:"
 msgstr "Z 极限:"
 
@@ -7357,7 +7362,7 @@ msgstr "Z 极限:"
 msgid "A bounds:"
 msgstr "A 极限:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1822
+#: src/emc/usr_intf/axis/scripts/axis.py:1823
 msgid "B bounds:"
 msgstr "B 极限:"
 
@@ -7416,28 +7421,28 @@ msgstr "%d 秒"
 msgid "%(a)f to %(b)f = %(diff)f %(units)s"
 msgstr "%(a)f 到 %(b)f = %(diff)f %(units)s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2079
+#: src/emc/usr_intf/axis/scripts/axis.py:2080
 msgid "G-Code Properties"
 msgstr "G-代码属性"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2227
+#: src/emc/usr_intf/axis/scripts/axis.py:2228
 msgid "All machinable files"
 msgstr "所有可加工的文件"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2228
-#: src/emc/usr_intf/axis/scripts/axis.py:2946
+#: src/emc/usr_intf/axis/scripts/axis.py:2229
+#: src/emc/usr_intf/axis/scripts/axis.py:2947
 msgid "rs274ngc files"
 msgstr "rs274ngc 文件"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2244
+#: src/emc/usr_intf/axis/scripts/axis.py:2245
 msgid "axis cannot accept remote command while running"
 msgstr "轴运行时不能接受远程指令"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2299
+#: src/emc/usr_intf/axis/scripts/axis.py:2300
 msgid "File not Writable:"
 msgstr "文件不可写:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2300
+#: src/emc/usr_intf/axis/scripts/axis.py:2301
 msgid ""
 "This file is not writable\n"
 "You can Edit-readonly\n"
@@ -7455,28 +7460,28 @@ msgstr ""
 "在自己的文件夹内保存它\n"
 "然后再打开该保存的文件进行编辑"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2307
+#: src/emc/usr_intf/axis/scripts/axis.py:2308
 msgid "Edit-readonly"
 msgstr "阅读"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2625
+#: src/emc/usr_intf/axis/scripts/axis.py:2626
 msgid "Custom Grid"
 msgstr "自定义网格"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2625
+#: src/emc/usr_intf/axis/scripts/axis.py:2626
 msgid "Enter grid size"
 msgstr "输入网格大小"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2684
+#: src/emc/usr_intf/axis/scripts/axis.py:2685
 msgid "Joint is already homed, are you sure you want to re-home?"
 msgstr "关节已经回零了，你确定要重新回零吗?"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2698
+#: src/emc/usr_intf/axis/scripts/axis.py:2699
 #, python-format
 msgid "home_joint <%s> Use joint mode for homing"
 msgstr "home_joint <%s> 使用关节模式进行回零"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2701
+#: src/emc/usr_intf/axis/scripts/axis.py:2702
 #, python-format
 msgid ""
 "\n"
@@ -7485,30 +7490,30 @@ msgstr ""
 "\n"
 "单个轴回零不允许重复的字母:<%s> "
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2710
+#: src/emc/usr_intf/axis/scripts/axis.py:2711
 msgid "This joint is already homed, are you sure you want to re-home?"
 msgstr "这个关节已经回零了，你确定要重新回零吗?"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2748
+#: src/emc/usr_intf/axis/scripts/axis.py:2749
 msgid "Touch Off (system)"
 msgstr "对刀(系统)"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2749
-#: src/emc/usr_intf/axis/scripts/axis.py:2790
+#: src/emc/usr_intf/axis/scripts/axis.py:2750
+#: src/emc/usr_intf/axis/scripts/axis.py:2791
 #, python-format
 msgid "Enter %s coordinate relative to %%s:"
 msgstr "输入相对于%%s的%s 坐标:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2789
+#: src/emc/usr_intf/axis/scripts/axis.py:2790
 #, python-format
 msgid "Tool %s TouchOff"
 msgstr "刀具%s对刀"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2958
+#: src/emc/usr_intf/axis/scripts/axis.py:2959
 msgid "Error saving file"
 msgstr "保存文件时发生错误"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3414
+#: src/emc/usr_intf/axis/scripts/axis.py:3415
 #, python-format
 msgid ""
 "\n"
@@ -7521,7 +7526,7 @@ msgstr ""
 "%s\n"
 "请参阅“INI配置”文档\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3427
+#: src/emc/usr_intf/axis/scripts/axis.py:3428
 #, python-format
 msgid ""
 "\n"
@@ -7534,7 +7539,7 @@ msgstr ""
 "%s\n"
 "请参阅“INI配置”文档\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3440
+#: src/emc/usr_intf/axis/scripts/axis.py:3441
 #, python-format
 msgid ""
 "\n"
@@ -7547,46 +7552,46 @@ msgstr ""
 "%s\n"
 "请参阅“INI配置”文档\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3559
+#: src/emc/usr_intf/axis/scripts/axis.py:3560
 msgid "Axes"
 msgstr "轴"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3561
+#: src/emc/usr_intf/axis/scripts/axis.py:3562
 msgid "Joints"
 msgstr "关节"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3563
+#: src/emc/usr_intf/axis/scripts/axis.py:3564
 #: src/emc/usr_intf/touchy/touchy.glade:584
 #: src/emc/usr_intf/gscreen/gscreen.glade:3009
 msgid "Home All"
 msgstr "全部回零"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3565
+#: src/emc/usr_intf/axis/scripts/axis.py:3566
 #, python-format
 msgid "Home all %s [Ctrl-Home]"
 msgstr "回零全部%s [Ctrl+Home]"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3568
+#: src/emc/usr_intf/axis/scripts/axis.py:3569
 #, python-format
 msgid "Home All %s"
 msgstr "全部%s回零"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3570
+#: src/emc/usr_intf/axis/scripts/axis.py:3571
 #, python-format
 msgid "Unhome All %s"
 msgstr "全部%s消零"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3611
+#: src/emc/usr_intf/axis/scripts/axis.py:3612
 #, python-format
 msgid "Warning: Forward kinematics must handle duplicate coordinate letters:%s"
 msgstr "警告：正向运动学必须处理重复的坐标字母:%s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3614
+#: src/emc/usr_intf/axis/scripts/axis.py:3615
 #, python-format
 msgid "Note: number of [TRAJ]COORDINATES=%(t)s exceeds [KINS]JOINTS=%(l)d"
 msgstr "注意: [TRAJ]COORDINATES=%(t)s 的数量超过了 [KINS]JOINTS=%(l)d"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3646
+#: src/emc/usr_intf/axis/scripts/axis.py:3647
 msgid ""
 "\n"
 "Note:\n"
@@ -7596,43 +7601,43 @@ msgstr ""
 "注意:\n"
 "目前不支持单轴回原点"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3647
+#: src/emc/usr_intf/axis/scripts/axis.py:3648
 #, python-format
 msgid "KINEMATICS_IDENTITY with duplicate axis letter <%s>\n"
 msgstr "KINEMATICS_IDENTITY 带有重复轴字母 <%s>\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3659
+#: src/emc/usr_intf/axis/scripts/axis.py:3660
 msgid "Joint"
 msgstr "关节"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3661
+#: src/emc/usr_intf/axis/scripts/axis.py:3662
 msgid "Home Joint"
 msgstr "回零关节"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3669
+#: src/emc/usr_intf/axis/scripts/axis.py:3670
 #, python-format
 msgid "Home %(name)s _%(id)s"
 msgstr "回零 %(name)s _%(id)s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3671
+#: src/emc/usr_intf/axis/scripts/axis.py:3672
 #, python-format
 msgid "Unhome %(name)s _%(id)s"
 msgstr "消零 %(name)s _%(id)s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3865
+#: src/emc/usr_intf/axis/scripts/axis.py:3866
 msgid "Run from here"
 msgstr "从这里运行"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3926
+#: src/emc/usr_intf/axis/scripts/axis.py:3927
 msgid "toggle PYVCP panel visibility"
 msgstr "显示/隐藏PYVCP面板"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3928 share/axis/tcl/axis.tcl:387
+#: src/emc/usr_intf/axis/scripts/axis.py:3929 share/axis/tcl/axis.tcl:387
 #, fuzzy
 msgid "Show PyVCP pan_el"
 msgstr "显示pyVCP面板"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:4214
+#: src/emc/usr_intf/axis/scripts/axis.py:4215
 msgid "Error in ~/.axisrc"
 msgstr "~/.axisrc 错误"
 
@@ -8597,8 +8602,8 @@ msgid "Temporarily allow jogging outside machine limits [L]"
 msgstr "临时允许机床在极限外点动[L]"
 
 #: src/emc/usr_intf/touchy/touchy.py:144
-#: src/emc/usr_intf/pncconf/pncconf.py:1825
-#: src/emc/usr_intf/pncconf/pncconf.py:1828
+#: src/emc/usr_intf/pncconf/pncconf.py:1867
+#: src/emc/usr_intf/pncconf/pncconf.py:1870
 #: src/emc/usr_intf/gscreen/gscreen.py:1339
 msgid "Follow System Theme"
 msgstr "跟随系统主题"
@@ -10160,7 +10165,7 @@ msgid "yY"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:748
-#: src/emc/usr_intf/pncconf/data.py:1082
+#: src/emc/usr_intf/pncconf/data.py:1074
 #, python-format
 msgid "launch %s"
 msgstr "启动 %s"
@@ -10252,7 +10257,7 @@ msgid "LinuxCNC 'stepconf' configuration files"
 msgstr "LinuxCNC'stepconf'配置文件"
 
 #: src/emc/usr_intf/stepconf/pages.py:230
-#: src/emc/usr_intf/pncconf/pncconf.py:908
+#: src/emc/usr_intf/pncconf/pncconf.py:950
 msgid "Modify Existing Configuration"
 msgstr "修改现有配置"
 
@@ -11669,20 +11674,20 @@ msgstr "**** PNCCONF 错误:    自定义固件加载错误"
 msgid "**** PNCCONF INFO:    Found extra firmware in file"
 msgstr "**** PNCCONF 信息:    在文件中找到额外的固件"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:359
+#: src/emc/usr_intf/pncconf/pncconf.py:401
 msgid "Discovery metadata update"
 msgstr "发现元数据更新"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:403
+#: src/emc/usr_intf/pncconf/pncconf.py:445
 #, python-format
 msgid "%s metadata update"
 msgstr "%s 元数据更新"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:423
+#: src/emc/usr_intf/pncconf/pncconf.py:465
 msgid "PnCconf setup"
 msgstr "PnCconf 设置"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:443
+#: src/emc/usr_intf/pncconf/pncconf.py:485
 msgid ""
 "\n"
 "**** Debug Pause! ****"
@@ -11690,15 +11695,15 @@ msgstr ""
 "\n"
 "**** 调试暂停! ****"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:527
+#: src/emc/usr_intf/pncconf/pncconf.py:569
 msgid "Specific Help page is unavailable\n"
 msgstr "特定帮助页面不可用\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:529
+#: src/emc/usr_intf/pncconf/pncconf.py:571
 msgid "Help Pages"
 msgstr "帮助"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:580
+#: src/emc/usr_intf/pncconf/pncconf.py:622
 #, python-format
 msgid ""
 "Some older cards require firmware.\n"
@@ -11710,55 +11715,55 @@ msgid ""
 "Discovery option requires the advanced options checked on this page."
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:906
+#: src/emc/usr_intf/pncconf/pncconf.py:948
 msgid "LinuxCNC 'PNCconf' configuration files"
 msgstr "LinuxCNC 'PNCconf' 配置文件"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:939
+#: src/emc/usr_intf/pncconf/pncconf.py:981
 msgid ""
 "It seems data in this file is from too old of a version of PNCConf to "
 "continue."
 msgstr "看来这个文件中的数据是从太旧版的PNCConf继承。"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1300
+#: src/emc/usr_intf/pncconf/pncconf.py:1342
 msgid "PIN file is empty:\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1301
+#: src/emc/usr_intf/pncconf/pncconf.py:1343
 msgid "To use PIN file discovery mode, the contents of the"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1302
+#: src/emc/usr_intf/pncconf/pncconf.py:1344
 msgid "cards PIN file needs to be pasted into the Input tab"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1303
+#: src/emc/usr_intf/pncconf/pncconf.py:1345
 msgid "of the Help window before clicking Board Discovery"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1312
+#: src/emc/usr_intf/pncconf/pncconf.py:1354
 msgid "Address is required for ethernet card"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1320
+#: src/emc/usr_intf/pncconf/pncconf.py:1362
 #, fuzzy, python-format
 msgid "%s board was not found"
 msgstr "没有找到板\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1322
+#: src/emc/usr_intf/pncconf/pncconf.py:1364
 msgid "Is the address correct?"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1326
+#: src/emc/usr_intf/pncconf/pncconf.py:1368
 #, python-format
 msgid "%s is an unsupported device"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1339
+#: src/emc/usr_intf/pncconf/pncconf.py:1381
 msgid "Unspecified Error with Discovery option"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1381
+#: src/emc/usr_intf/pncconf/pncconf.py:1423
 #, python-format
 msgid ""
 "Discovery has an error,\n"
@@ -11773,40 +11778,40 @@ msgstr ""
 "\n"
 " %s"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1395
+#: src/emc/usr_intf/pncconf/pncconf.py:1437
 msgid "Discovery is  unavailable\n"
 msgstr "发现不可用\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1610
+#: src/emc/usr_intf/pncconf/pncconf.py:1652
 msgid "The pasted PIN file may be an invalid format"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1612
+#: src/emc/usr_intf/pncconf/pncconf.py:1654
 msgid "The data returned from discovery is invalid"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1686
+#: src/emc/usr_intf/pncconf/pncconf.py:1728
 msgid "USB device Info Search"
 msgstr "USB设备信息搜索"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1700
+#: src/emc/usr_intf/pncconf/pncconf.py:1742
 msgid "USB device  page is unavailable\n"
 msgstr "USB设备页面不可用\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1773
+#: src/emc/usr_intf/pncconf/pncconf.py:1815
 #: src/emc/usr_intf/pncconf/tests.py:90
 msgid "Pin names are unavailable\n"
 msgstr "引脚名称不可用\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1796
+#: src/emc/usr_intf/pncconf/pncconf.py:1838
 msgid "Device names are unavailable\n"
 msgstr "设备名称不可用\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1799
+#: src/emc/usr_intf/pncconf/pncconf.py:1841
 msgid "No Pncconf made device rules were found\n"
 msgstr "没有找到Pncconf的设备规则\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1847
+#: src/emc/usr_intf/pncconf/pncconf.py:1889
 msgid ""
 "OK to replace existing glade panel ?\n"
 "It will be renamed and added to 'backups' folder.\n"
@@ -11818,7 +11823,7 @@ msgstr ""
 "并添加到”备份“文件夹中，点击”现有的自定义程序“将避免此警告，\n"
 " 但是如果稍后更改相关选项，如主轴反馈，则HAL连接将不会更新"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1854
+#: src/emc/usr_intf/pncconf/pncconf.py:1896
 msgid ""
 "OK to replace existing custom pyvcp panel?\n"
 "Existing pyvcp-panel.xml will be renamed and added to 'backups' folder\n"
@@ -11828,167 +11833,167 @@ msgstr ""
 "现有的pyvcp-panel.xml将被重命名并添加到”备份“文件夹中\n"
 "单击”现有的自定义程序“将会避免此警告。 "
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3691
+#: src/emc/usr_intf/pncconf/pncconf.py:3733
 #: src/emc/usr_intf/pncconf/private_data.py:555
 msgid "Unused Channel"
 msgstr "选择通道"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3966
+#: src/emc/usr_intf/pncconf/pncconf.py:4008
 msgid "You can not have both steppers and pwm signals for spindle control\n"
 msgstr "您不能同时使用步进和pwm信号进行主轴控制\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3970
+#: src/emc/usr_intf/pncconf/pncconf.py:4012
 #, python-format
 msgid "You forgot to designate a stepper or pwm signal for axis %s\n"
 msgstr "您没有为轴%s指定步进或pwm信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3973
+#: src/emc/usr_intf/pncconf/pncconf.py:4015
 #, python-format
 msgid "You forgot to designate an encoder /resolver signal for axis %s servo\n"
 msgstr "您没有为%s轴伺服器指定编码器/旋转变压器信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3976
+#: src/emc/usr_intf/pncconf/pncconf.py:4018
 #, python-format
 msgid "You forgot to designate a pwm signal or stepper signal for axis %s\n"
 msgstr "您没有为%s轴指定pwm信号或步进信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3979
+#: src/emc/usr_intf/pncconf/pncconf.py:4021
 #, python-format
 msgid "You can not have both steppers and pwm signals for axis %s\n"
 msgstr "您不能同时使用步进和pwm信号控制%s轴。\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3982
+#: src/emc/usr_intf/pncconf/pncconf.py:4024
 #, python-format
 msgid ""
 "If using a tandem axis stepper, you must select a master stepgen for axis "
 "%s\n"
 msgstr "如果使用串联式步进电机，则必须为%s轴选择主步进电机\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3990
+#: src/emc/usr_intf/pncconf/pncconf.py:4032
 msgid "Touchy require an external cycle start signal\n"
 msgstr "Touchy需要一个外部循环启动信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3993
+#: src/emc/usr_intf/pncconf/pncconf.py:4035
 msgid "Touchy require an external abort signal\n"
 msgstr "Touchy需要一个外部中断信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3996
+#: src/emc/usr_intf/pncconf/pncconf.py:4038
 msgid "Touchy require an external single-step signal\n"
 msgstr "Touchy需要一个外部的单步信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3999
+#: src/emc/usr_intf/pncconf/pncconf.py:4041
 msgid ""
 "Touchy require an external multi handwheel MPG encoder signal on the mesa "
 "page\n"
 msgstr "Touchy在Mesa页面上需要一个外部多手轮MPG编码器信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4002
+#: src/emc/usr_intf/pncconf/pncconf.py:4044
 msgid ""
 "Touchy require 'external mpg jogging' to be selected on the external control "
 "page\n"
 msgstr "Touchy需要在外部控制页面上选择“外部手轮点动”\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4005
+#: src/emc/usr_intf/pncconf/pncconf.py:4047
 msgid ""
 "Touchy require the external mpg to be in 'shared mpg' mode on the external "
 "controls page\n"
 msgstr "Touchy要求外部控制页面上的外部手轮处于“共享手轮”模式\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4008
+#: src/emc/usr_intf/pncconf/pncconf.py:4050
 msgid ""
 "Touchy require selectable increments to be unchecked on the external "
 "controls page\n"
 msgstr "Touchy需要可选的增量在外部控制页面上取消选中\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4021
+#: src/emc/usr_intf/pncconf/pncconf.py:4063
 msgid ""
 "The 7i29 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
 msgstr "7i29子板需要PWM型发生器，PWM基频为20 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4024
+#: src/emc/usr_intf/pncconf/pncconf.py:4066
 msgid ""
 "The 7i30 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
 msgstr "7i30子板需要PWM型发生器，PWM基频为20 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4027
+#: src/emc/usr_intf/pncconf/pncconf.py:4069
 msgid ""
 "The 7i33 daughter board requires PDM type generators and a PDM base "
 "frequency of 6 Mhz\n"
 msgstr "7i33子板需要PDM型发生器，PDM基频为6 Mhz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4030
+#: src/emc/usr_intf/pncconf/pncconf.py:4072
 msgid ""
 "The 7i40 daughter board requires PWM type generators and a PWM base "
 "frequency of 50 khz\n"
 msgstr "7i40子板需要PWM型发生器，PWM基频为50 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4033
+#: src/emc/usr_intf/pncconf/pncconf.py:4075
 msgid ""
 "The 7i48 daughter board requires UDM type generators and a PWM base "
 "frequency of 24 khz\n"
 msgstr "7i48子板需要UDM型发生器，PWM基频为24 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4181
+#: src/emc/usr_intf/pncconf/pncconf.py:4223
 msgid "Gearbox Reduction Ratio"
 msgstr "减速机减速比"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4184
+#: src/emc/usr_intf/pncconf/pncconf.py:4226
 msgid "Reduction Ratio"
 msgstr "减速比"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4187
+#: src/emc/usr_intf/pncconf/pncconf.py:4229
 msgid "Leadscrew Pitch"
 msgstr "丝杆螺距"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4190
+#: src/emc/usr_intf/pncconf/pncconf.py:4232
 #: src/emc/usr_intf/pncconf/dialogs.glade:1991
 #: src/emc/usr_intf/pncconf/dialogs.glade:2360
 msgid "Leadscrew TPI"
 msgstr "丝杆TPI"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4194
-#: src/emc/usr_intf/pncconf/pncconf.py:4195
+#: src/emc/usr_intf/pncconf/pncconf.py:4236
+#: src/emc/usr_intf/pncconf/pncconf.py:4237
 msgid "("
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4196
-#: src/emc/usr_intf/pncconf/pncconf.py:4206
-#: src/emc/usr_intf/pncconf/pncconf.py:4207
-#: src/emc/usr_intf/pncconf/pncconf.py:4208
+#: src/emc/usr_intf/pncconf/pncconf.py:4238
+#: src/emc/usr_intf/pncconf/pncconf.py:4248
+#: src/emc/usr_intf/pncconf/pncconf.py:4249
+#: src/emc/usr_intf/pncconf/pncconf.py:4250
 msgid " / min"
 msgstr "/分钟"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4197
+#: src/emc/usr_intf/pncconf/pncconf.py:4239
 msgid " / sec²"
 msgstr "/秒²"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4200
+#: src/emc/usr_intf/pncconf/pncconf.py:4242
 msgid " / Step"
 msgstr "/步"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4201
+#: src/emc/usr_intf/pncconf/pncconf.py:4243
 msgid "Steps / "
 msgstr "步 / "
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4203
+#: src/emc/usr_intf/pncconf/pncconf.py:4245
 msgid " / encoder pulse"
 msgstr "/编码器脉冲"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4204
+#: src/emc/usr_intf/pncconf/pncconf.py:4246
 msgid "Encoder pulses / "
 msgstr "编码器脉冲/"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4212
+#: src/emc/usr_intf/pncconf/pncconf.py:4254
 msgid "Resolver Scale:"
 msgstr "解析器比例:"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4550
+#: src/emc/usr_intf/pncconf/pncconf.py:4592
 msgid "Spindle Scale Calculation"
 msgstr "主轴比例计算"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4662
+#: src/emc/usr_intf/pncconf/pncconf.py:4704
 msgid "Axis Scale Calculation"
 msgstr "轴比例计算"
 
@@ -14368,7 +14373,7 @@ msgstr "保存此配置文件将丢弃PNCconf以外的配置更改。"
 msgid "Continue? (y/n)"
 msgstr "继续? "
 
-#: src/emc/usr_intf/pncconf/data.py:1086
+#: src/emc/usr_intf/pncconf/data.py:1078
 msgid "Desktop Launcher for LinuxCNC config made by PNCconf"
 msgstr "由PNCconf制作的LinuxCNC配置桌面启动器"
 
