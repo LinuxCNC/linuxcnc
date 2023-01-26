@@ -789,7 +789,8 @@ class HAL:
                 if not self.d.frontend in (_PD._QTDRAGON,_PD._GMOCCAPY):
                     print(_("#  ---Use external manual tool change dialog---"), file=file)
                     print(file=file)
-                    print("loadusr -W hal_manualtoolchange", file=file)
+                    inifilepath = os.path.join(base, self.d.machinename + ".ini")
+                    print("loadusr -W hal_manualtoolchange {0}".format(inifilepath) , file=file)
                     print("net tool-change-request    =>  hal_manualtoolchange.change", file=file)
                     print("net tool-change-confirmed  <=  hal_manualtoolchange.changed", file=file)
                     print("net tool-number            =>  hal_manualtoolchange.number", file=file)

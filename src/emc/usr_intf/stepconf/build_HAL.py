@@ -307,7 +307,8 @@ class HAL:
         print(file=file)
         if self.d.manualtoolchange:
             if not self.d.select_qtdragon:
-                print("loadusr -W hal_manualtoolchange", file=file)
+                inifilepath = os.path.join(base, self.d.machinename + ".ini")
+                print("loadusr -W hal_manualtoolchange {0}".format(inifilepath) , file=file)
                 print("net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change", file=file)
                 print("net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed", file=file)
                 print("net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number", file=file)
