@@ -135,7 +135,7 @@ STATUS.connect('general',self.return_value)
 This registers `STATUS` to call the function `self.return_value` when a
 general message is sent.
 
-.Add entry dialog request function in the `GENERAL FUNCTIONS SECTION`
+.Add entry dialog request function in the `GENERAL FUNCTIONS` section
 [source,python]
 ----
 def request_number(self):
@@ -156,7 +156,7 @@ The function
 ** *Arbitrary data* can be added to the `dict`. The dialog will ignore them but send them back to the return code.
 * Sends the `dict` as a *`dialog-request`* `STATUS` message
 
-.Add message data processing function in the `CALLBACKS FROM STATUS SECTION`
+.Add message data processing function in the `CALLBACKS FROM STATUS` section.
 [source,python]
 ----
 # Process the STATUS return message from set-tool-offset
@@ -169,17 +169,14 @@ def return_value(self, w, message):
 ----
 
 This catches all general messages so it must _check the dialog type and id code_ to confirm it's our dialog.
-
-In this case we had requested an `ENTRY` dialog and our unique id was `FORM_NUMBER`,
-so now we know the message is for us.
-
+In this case we had requested an `ENTRY` dialog and our unique id was `FORM_NUMBER`, so now we know the message is for us.
 `ENTRY` or `CALCULATOR` dialogs return a float number.
 
 == Speak a Startup Greeting
 
 This requires the `espeak` library installed on the system.
 
-.Import and Instantiate the `Status` in the `IMPORT SECTION`
+.Import and instantiate the `Status` in the `IMPORT` section
 [source,python]
 ----
 from qtvcp.core import Status
@@ -199,7 +196,6 @@ STATUS.emit('play-alert','SPEAK Please remember to oil the ways.')
 == ToolBar Functions
 
 Toolbar buttons and submenus are added in Qt Designer but the code to make them do something is added in the handler file.
-
 To *add a submenus* in Qt Designer:
 
 * Add a `Qaction` by typing in the toolbar column then clicking the '+' icon on the right.
@@ -320,15 +316,13 @@ This is simplified - _checking state and error trapping might be helpful_.
 == Add A Special Max Velocity Slider Based On Percent
 
 Some times you want to *build a widget to do something not built in*.
-
 The built in Max velocity slider acts on units per minute, here we show how to do on percent.
 
 The *`STATUS`* command makes sure the slider adjusts if LinuxCNC changes the current max velocity.
 
 *`valueChanged.connect()`* _calls a function when the slider is moved_.
 
-In Qt Designer add a *`QSlider`* widget called `mvPercent`,
-then add the following code to the handler file:
+In Qt Designer add a *`QSlider`* widget called `mvPercent`, then add the following code to the handler file:
 
 [source,python]
 ----
@@ -428,7 +422,6 @@ The File manager widget is designed to load a selected program in LinuxCNC.
 But maybe you want to print the file name first.
 
 We can "class patch" the library to _redirect the function call_.
-
 In the `IMPORT SECTION` add:
 
 [source,python]
@@ -471,7 +464,7 @@ def our_load(self,fname):
     self.old_load(self.w.filemanager,fname)
 ----
 
-Now our custom function will print the file path to the terminal before loading the file. +
+Now our custom function will print the file path to the terminal before loading the file.
 Obviously boring but shows the principle.
 
 [NOTE]
@@ -507,12 +500,11 @@ def our_load(self,fname):
 
 == Adding Widgets Programmatically
 
-In some situation it is only possible to *add widgets with Python code*
-rather then using the Qt Designer editor.
+In some situation it is only possible to *add widgets with Python code* rather then using the Qt Designer editor.
 
 When adding QtVCP widgets programmatically, sometimes there are _extra steps_ to be taken.
 
-Here we are going to add a spindle speed indicator bar and up-to-speed LED to a tab widget corner. +
+Here we are going to add a spindle speed indicator bar and up-to-speed LED to a tab widget corner.
 Qt Designer does not support adding corner widgets to tabs but PyQt does.
 
 This is a cut down example from QtAxis screen's handler file.
@@ -552,7 +544,7 @@ INFO = Info()
 ----
 
 .Register `STATUS` monitoring function
-For the spindle speed indicator we need to know the current spindle speed. +
+For the spindle speed indicator we need to know the current spindle speed.
 For this we _register_ with `STATUS` to:
 
 * _Catch_ the `actual-spindle-speed-changed` _signal_
@@ -575,9 +567,8 @@ def __init__(self,halcomp,widgets,paths):
 ----
 
 .Add the widgets to the tab
-We need to _make sure the Qt Designer widgets are already built_ before we try to add to them. +
-For this, we add a call to `self.make_corner_widgets()` function to build our extra widgets at the right time,
-i.e. under the `initialized__()` function:
+We need to _make sure the Qt Designer widgets are already built_ before we try to add to them.
+For this, we add a call to `self.make_corner_widgets()` function to build our extra widgets at the right time, i.e. under the `initialized__()` function:
 
 [source,python]
 ----
@@ -593,7 +584,7 @@ def initialized__(self):
 ----
 
 .Create the widgets building functions
-Ok let's code the function to build the widgets and add them in the tab widget. +
+Ok let's code the function to build the widgets and add them in the tab widget.
 We are assuming there is a tab widget built with Designer called 'rightTab'.
 
 We are assuming there is a tab widget built with Qt Designer called `rightTab`.
@@ -761,7 +752,7 @@ def __init__(self,halcomp,widgets,paths):
 This *allows an external program to call functions in the handler file*.
 
 .Add a function to be called on ZMQ message reception
-Let's add a specific function for testing. +
+Let's add a specific function for testing.
 You will need to run LinuxCNC from a terminal to see the printed text.
 
 [source,python]
@@ -774,8 +765,8 @@ def test_zmq_function(self, arg1, arg2):
 ----
 
 .Create an external program sending ZMQ messages that will trigger function call
-Here is a sample external program to call a function. +
-It alternates between two data sets every second. +
+Here is a sample external program to call a function.
+It alternates between two data sets every second.
 Run this in a separate terminal from LinuxCNC to see the sent messages.
 
 [source,python]
@@ -896,7 +887,7 @@ while True:
 
 There are several ways to *report information to the user*.
 
-A *status bar* is used for _short information_ to show the user. +
+A *status bar* is used for _short information_ to show the user.
 
 NOTE: Not all screens have a status bar.
 
@@ -908,9 +899,8 @@ self.w.statusbar.showMessage(message, timeout * 1000)
 
 `timeout` is in seconds and we assume `statusbar` is the Qt Designer set name of the widget.
 
-You can also use the `Status` library to send a message to the `notify`
-library if it is enabled (usually set in `ScreenOptions` widget):
-this will send the message to the statusbar and the *desktop notify dialog*.
+You can also use the `Status` library to send a message to the `notify` library if it is enabled (usually set in `ScreenOptions` widget):
+This will send the message to the statusbar and the *desktop notify dialog*.
 
 The messages are also recorded until the user erases them using controls.
 The users can recall any recorded messages.
@@ -977,13 +967,10 @@ def focusInChanged(self, widget):
 
 Notice we sometimes compare to `widget`, sometimes to `widget.parent()`.
 
-This is because _some QtVCP widgets are built from multiple_ *_sub-widgets_*
-and the latter actually get the focus; so we need to *check the parent* of those sub-widgets.
+This is because _some QtVCP widgets are built from multiple_ *_sub-widgets_* and the latter actually get the focus; so we need to *check the parent* of those sub-widgets.
 
-Other times the main widget is what gets the focus,
-e.g., the G-code display widget can be set to accept the focus.
-In that case there are no sub-widgets in it,
-so comparing to the `widget.parent()` would get you the container that holds the G-code widget.
+Other times the main widget is what gets the focus, e.g., the G-code display widget can be set to accept the focus.
+In that case there are no sub-widgets in it, so comparing to the `widget.parent()` would get you the container that holds the G-code widget.
 
 == Read Command Line Load Time Options
 

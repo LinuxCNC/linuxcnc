@@ -713,8 +713,8 @@ Notes on global named parameters and NGCGUI:
 As in many programming languages, use of globals is powerful but can often lead to unexpected consequences.
 In LinuxCNC, existing global named parameters will be valid at subroutine execution and subroutines can modify or create global named parameters.
 
-Passing information to subroutines using global named parameters is discourage
- since such usage requires the establishment and maintenance of a well-defined global context that is difficult to maintain.
+Passing information to subroutines using global named parameters is discouraged
+since such usage requires the establishment and maintenance of a well-defined global context that is difficult to maintain.
 Using numbered parameters #1 thru #30 as subroutine inputs should be sufficient to satisfy a wide range of design requirements.
 
 //FIXME are input global named parameters supported or not ?

@@ -610,7 +610,7 @@ component. Each pwmgen instance has the following pins and parameters:
 * 'pwm_frequency' - (u32, RW) This specifies the PWM frequency, in Hz,
   of all the pwmgen instances running in the PWM modes (modes 1 and 2).
   This is the frequency of the variable-duty-cycle wave.
-  Its effective range is fromc1 Hz up to 193 kHz.
+  Its effective range is from 1 Hz up to 193 kHz.
   Note that the max frequency is determined by the ClockHigh frequency of the Anything I/O board;
   the 5i20 and 7i43 both have a 100 MHz clock, resulting in a 193 kHz max PWM frequency.
   Other boards may have different clocks, resulting in different max PWM frequencies.
