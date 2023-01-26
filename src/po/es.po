@@ -3,13 +3,13 @@
 #
 # J.M. Garcia <jmgardeto@gmail.com>, 2020.
 # Billy Soto <cromatronix@gmail.com>, 2022.
-# Ulices <dev.n47os@aleeas.com>, 2022.
+# Ulices <dev.n47os@aleeas.com>, 2022, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-01-12 08:55+0100\n"
-"PO-Revision-Date: 2022-10-27 16:28+0000\n"
+"PO-Revision-Date: 2023-01-24 04:08+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.14.2-dev\n"
+"X-Generator: Weblate 4.16-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -140,20 +140,16 @@ msgstr ""
 "Palabra D sin código G41, G41.1, G42, G42.1 ó G96 con el cual ser usado"
 
 #: src/emc/rs274ngc/interp_check.cc:269
-#, fuzzy
 msgid ""
 "$ (spindle selection) word with no M3, M4, M5, M19, M51, G33, G33.1, G76, "
 "G95, G96 or G97 to use it"
 msgstr ""
-"Palabra $ (selección de husillo) sin código G41, G41.1, G42, G42.1, G76 G95 "
-"o G96 con el cual ser usado"
+"Palabra $ (selección de husillo) sin código M3, M4, M5, M19, M51, G33, "
+"G33.1, G76, G95, G96 or G97 con el cual ser usado"
 
 #: src/emc/rs274ngc/interp_check.cc:276
-#, fuzzy
 msgid "E word with no G70, G76, M66, M67 or M68 to use it"
-msgstr ""
-"Palabra E sin código G76, M3, M4, M5, M19, M51, M66, M67 o M68 con el cual "
-"ser usado"
+msgstr "Palabra E sin código G70, G76, M66, M67 o M68 con el cual ser usado"
 
 #: src/emc/rs274ngc/interp_check.cc:281
 msgid "H word with no G43 or G76 to use it"
@@ -1014,16 +1010,16 @@ msgid "Named parameter #<%s> not defined"
 msgstr "Parámetro con nombre #<%s> no definido"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:215
-#, fuzzy, c-format
+#, c-format
 msgid "can't open INI file '%s'"
-msgstr "no se puede abrir el archivo ini '%s'"
+msgstr "no se puede abrir el archivo INI '%s'"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:232
-#, fuzzy, c-format
+#, c-format
 msgid "Named INI parameter #<%s> not found in INI file '%s': error=0x%x"
 msgstr ""
-"El parámetro ini nombrado #<%s> no se encuentra en el archivo '%s': error=0x"
-"%x"
+"El parámetro INI nombrado #<%s> no se encuentra en el archivo INI '%s': "
+"error=0x%x"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:257
 #, c-format
@@ -3054,16 +3050,12 @@ msgstr ""
 "classicladder.\n"
 
 #: src/hal/classicladder/classicladder.c:221
-#, fuzzy
 msgid "Stopped program - press run button to continue."
-msgstr ""
-"Programa de escalera detenido - presione el botón de ejecución para "
-"continuar."
+msgstr "Programa detenido - presione el botón de ejecución para continuar."
 
 #: src/hal/classicladder/classicladder.c:231
-#, fuzzy
 msgid "Started program - press stop to pause."
-msgstr "Programa de escalera iniciado - presione detener para pausar."
+msgstr "Programa iniciado - presione detener para pausar."
 
 #: src/hal/classicladder/classicladder.c:286
 msgid ""
@@ -3199,27 +3191,23 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:651
 msgid "Reset logic data - Now running."
-msgstr ""
+msgstr "Restablecer datos lógicos - Ahora en marcha."
 
 #: src/hal/classicladder/classicladder_gtk.c:651
-#, fuzzy
 msgid "Reset logic data done."
-msgstr "Reiniciar datos de escalera"
+msgstr "Restablecer datos lógicos hecho."
 
 #: src/hal/classicladder/classicladder_gtk.c:709
-#, fuzzy
 msgid "About ClassicLadder"
-msgstr "Abrir classicladder"
+msgstr "Abrir ClassicLadder"
 
 #: src/hal/classicladder/classicladder_gtk.c:766
-#, fuzzy
 msgid "Save SVG File"
-msgstr "Guardar en archivo"
+msgstr "Guardar archivo SVG"
 
 #: src/hal/classicladder/classicladder_gtk.c:766
-#, fuzzy
 msgid "Save PNG File"
-msgstr "Guardar en archivo"
+msgstr "Guardar archivo PNG"
 
 #: src/hal/classicladder/classicladder_gtk.c:839
 #: src/hal/classicladder/classicladder_gtk.c:1294
@@ -3288,18 +3276,18 @@ msgstr ""
 "¿Realmente quiere salir?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:943
-#, fuzzy
 msgid "ClassicLadder Section Display"
-msgstr "Proyectos de ClassicLadder"
+msgstr "Visualización de la sección ClassicLadder"
 
 #: src/hal/classicladder/classicladder_gtk.c:971
 msgid "Label of the current selected rung"
 msgstr "Etiqueta del escalon seleccionado actual"
 
 #: src/hal/classicladder/classicladder_gtk.c:980
-#, fuzzy
 msgid "Comment of the current selected ladder rung or sequential page"
-msgstr "Comentario del escalon seleccionado actual"
+msgstr ""
+"Comentario del peldaño de escalera seleccionado actualmente o página "
+"secuencial"
 
 #: src/hal/classicladder/classicladder_gtk.c:983
 msgid "Display symbols"
@@ -3383,104 +3371,102 @@ msgid "Rung Refresh Rate (milliseconds)"
 msgstr "Frecuencia de actualización del escalon (milisegundos)"
 
 #: src/hal/classicladder/config_gtk.c:127
-#, fuzzy, c-format
+#, c-format
 msgid "Number of rungs (%d%c used)"
-msgstr "Número de escalones (%d%c usado      "
+msgstr "Número de escalones (%d%c usado)"
 
 #: src/hal/classicladder/config_gtk.c:131
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Bits"
-msgstr "Número de conectores"
+msgstr "Número de bits"
 
 #: src/hal/classicladder/config_gtk.c:135
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Words"
-msgstr "Número de conectores"
+msgstr "Número de palabras"
 
 #: src/hal/classicladder/config_gtk.c:139
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Counters"
-msgstr "Número de conectores"
+msgstr "Número de contadores"
 
 #: src/hal/classicladder/config_gtk.c:143
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Timers IEC"
-msgstr "Número de Temporizadores IEC            "
+msgstr "Número de temporizadores IEC"
 
 #: src/hal/classicladder/config_gtk.c:147
-#, fuzzy, c-format
+#, c-format
 msgid "Number of BIT Inputs HAL pins"
-msgstr "Número pines HAL de entradas BIT            "
+msgstr "Número pines HAL de entradas BIT"
 
 #: src/hal/classicladder/config_gtk.c:151
-#, fuzzy, c-format
+#, c-format
 msgid "Number of BIT Outputs HAL pins"
-msgstr "Número de pines HAL de salidas BIT          "
+msgstr "Número de pines HAL de salidas BIT"
 
 #: src/hal/classicladder/config_gtk.c:155
-#, fuzzy, c-format
+#, c-format
 msgid "Number of S32in HAL pins"
-msgstr "Número de pines HAL S32in             "
+msgstr "Número de pines HAL S32in"
 
 #: src/hal/classicladder/config_gtk.c:159
-#, fuzzy, c-format
+#, c-format
 msgid "Number of S32out HAL pins"
 msgstr "Número de pines HAL S32out"
 
 #: src/hal/classicladder/config_gtk.c:164
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Arithmetic Expressions"
-msgstr "Número de Expresiones Aritméticas"
+msgstr "Número de expresiones aritméticas"
 
 #: src/hal/classicladder/config_gtk.c:169
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Sections (%d%c used)"
-msgstr "Número de Secciones (%d%c usado)   "
+msgstr "Número de secciones (%d%c usado)"
 
 #: src/hal/classicladder/config_gtk.c:174
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Symbols"
-msgstr "Número de Secciones"
+msgstr "Número de símbolos"
 
 #: src/hal/classicladder/config_gtk.c:179
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Timers"
-msgstr "Número de conectores"
+msgstr "Número de temporizadores"
 
 #: src/hal/classicladder/config_gtk.c:183
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Monostables"
-msgstr "Número de Monoestables            "
+msgstr "Número de monoestables"
 
 #: src/hal/classicladder/config_gtk.c:188
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Error Bits"
-msgstr "Número de Bits de Error                  "
+msgstr "Número de bits de error"
 
 #: src/hal/classicladder/config_gtk.c:192
-#, fuzzy, c-format
+#, c-format
 msgid "Number of floatin HAL pins"
-msgstr "Número de pines HAL floatin             "
+msgstr "Número de pines HAL floatin"
 
 #: src/hal/classicladder/config_gtk.c:196
-#, fuzzy, c-format
+#, c-format
 msgid "Number of floatout HAL pins"
-msgstr "Número de pines HAL floatout            "
+msgstr "Número de pines HAL floatout"
 
 #: src/hal/classicladder/config_gtk.c:200
-#, fuzzy, c-format
+#, c-format
 msgid "Current path/filename:"
-msgstr "path/nombre de archivo actual"
+msgstr "Ruta/nombre de archivo actual:"
 
 #: src/hal/classicladder/config_gtk.c:327
-#, fuzzy
 msgid "1st %I mapped"
-msgstr "1ra Variable mapeada"
+msgstr "1er %l mapeada"
 
 #: src/hal/classicladder/config_gtk.c:327
-#, fuzzy
 msgid "1st %Q mapped"
-msgstr "1ra Variable mapeada"
+msgstr "1er %Q mapeada"
 
 #: src/hal/classicladder/config_gtk.c:367
 #: src/hal/classicladder/config_gtk.c:566
@@ -3488,18 +3474,17 @@ msgid "Inverted"
 msgstr "Invertido"
 
 #: src/hal/classicladder/config_gtk.c:662
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Error in I/O modbus conf: overflow for I,Q,B,IQ, or WQ mapping detected..."
 "ASKED=%i,MAX=%i\n"
 msgstr ""
-"Error en la configuración de E/S modbus: desbordamiento I, B, Q, IQ o "
-"WQdetectado... PREGUNTADO=%i, MAX =%i\n"
+"Error en la configuración de E/S modbus: desbordamiento para mapeo I, B, Q, "
+"IQ o WQ detectado... PREGUNTADO=%i, MAX =%i\n"
 
 #: src/hal/classicladder/config_gtk.c:664
-#, fuzzy
 msgid "Overflow error for I,Q,B,IQ,WQ or W mapping detected..."
-msgstr "Error de desbordamiento detectado para el mapeo I, B, Q, IQ o WQ..."
+msgstr "Error de desbordamiento para el mapeo I, B, Q, IQ o WQ detectado..."
 
 #: src/hal/classicladder/config_gtk.c:745
 #, c-format
@@ -3512,19 +3497,19 @@ msgid "Serial baud rate"
 msgstr "Velocidad de transmisión serie"
 
 #: src/hal/classicladder/config_gtk.c:753
-#, fuzzy, c-format
+#, c-format
 msgid "Serial data bits"
-msgstr "Velocidad de transmisión serie"
+msgstr "Bits de datos en serie"
 
 #: src/hal/classicladder/config_gtk.c:757
-#, fuzzy, c-format
+#, c-format
 msgid "Serial parity"
-msgstr "Velocidad de transmisión serie"
+msgstr "Paridad serial"
 
 #: src/hal/classicladder/config_gtk.c:761
 #, c-format
 msgid "Serial stop bits"
-msgstr ""
+msgstr "Bits de parada en serie"
 
 #: src/hal/classicladder/config_gtk.c:765
 #, c-format
@@ -3561,13 +3546,12 @@ msgid "QUIET"
 msgstr "SILENCIOSO"
 
 #: src/hal/classicladder/config_gtk.c:786
-#, fuzzy
 msgid "LEVEL"
-msgstr "NIVEL 1"
+msgstr "NIVEL"
 
 #: src/hal/classicladder/config_gtk.c:786
 msgid "VERBOSE"
-msgstr ""
+msgstr "VERBOSO"
 
 #: src/hal/classicladder/config_gtk.c:789
 #, fuzzy, c-format
@@ -3713,13 +3697,12 @@ msgid "Expression too long"
 msgstr "Expresión demasiado larga"
 
 #: src/hal/classicladder/edit.c:479
-#, fuzzy
 msgid "Incompatible type of variable for index (must be an integer!)"
-msgstr "Tipo de variable incompatible (¡debe ser un entero!)"
+msgstr "Tipo de variable incompatible para índice (¡debe ser un entero!)"
 
 #: src/hal/classicladder/edit.c:485
 msgid "Parser error for indexed variable !"
-msgstr ""
+msgstr "¡Error del analizador para la variable indexada!"
 
 #: src/hal/classicladder/edit.c:491
 msgid "You must select a boolean variable !"
@@ -11695,7 +11678,9 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
