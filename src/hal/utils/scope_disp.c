@@ -233,12 +233,13 @@ void refresh_display(void)
 	    draw_baseline(n + 1, FALSE);
 	}
     }
-    if (vert->chan_enabled[vert->selected - 1]) {
+    if (vert->selected > 0 && vert->chan_enabled[vert->selected - 1]) {
         draw_baseline(vert->selected, TRUE);
     }
 
     /* Draw trigger line */
-    if (vert->chan_enabled[ctrl_shm->trig_chan - 1]) {
+    int trig_chan = ctrl_shm->trig_chan - 1 ;
+    if (trig_chan >= 0 && trig_chan < 16 && vert->chan_enabled[trig_chan]) {
         draw_triggerline(ctrl_shm->trig_chan,
                 ctrl_shm->trig_chan == vert->selected);
     }
@@ -252,8 +253,8 @@ void refresh_display(void)
 	    draw_waveform(n + 1, FALSE);
 	}
     }
-    /* draw highlighted waveform last */
-    if ((vert->chan_enabled[vert->selected - 1])
+    /* draw highlighted waveform (if any) last */
+    if (vert->selected > 0 && (vert->chan_enabled[vert->selected - 1])
 	&& (vert->data_offset[vert->selected - 1] >= 0)) {
 	draw_waveform(vert->selected, TRUE);
     }
@@ -556,11 +557,11 @@ static double snap(int y) {
 }
 
 static void left_drag(int dy, int y, GdkModifierType state) {
-    scope_disp_t *disp = &(ctrl_usr->disp);
     scope_vert_t *vert = &(ctrl_usr->vert);
-    scope_chan_t *chan = &(ctrl_usr->chan[vert->selected - 1]);
+    if(vert->selected <= 0) return;
 
-    if(vert->selected == -1) return;
+    scope_disp_t *disp = &(ctrl_usr->disp);
+    scope_chan_t *chan = &(ctrl_usr->chan[vert->selected - 1]);
 
     if(disp->selected_part == 2 || (state & GDK_CONTROL_MASK)) {
         double new_position = snap(y);
@@ -607,7 +608,7 @@ void update_readout(void) {
     scope_horiz_t *horiz = &(ctrl_usr->horiz);
     char tip[512];
 
-    if(vert->selected != -1) {
+    if(vert->selected > 0) {
         double t=0, p=0, v=0;
         int result = get_cursor_info(&t, &p, &v);
         if(result > 0) {
