@@ -59,11 +59,17 @@ def get_tool_change_message(n):
         inidir = os.path.dirname(inipath)
         inifile = linuxcnc.ini(inipath)
         tooltable_file = inifile.find("EMCIO", "TOOL_TABLE")
+        tooltable_dbline = inifile.find("EMCIO", "DB_PROGRAM")
         machine_units = inifile.find("TRAJ", "LINEAR_UNITS")
+
+        # check if a db_program is in use for tool changes
+        if tooltable_dbline:
+            return _("Insert tool %d and click continue when ready") % n
+
         # make sure we get an absolute path to the tool table
-        if (tooltable_file != ""):
-            if (not os.path.isabs(tooltable_file)):
-                tooltable_file = os.path.join(inidir, tooltable_file)
+        if not os.path.isabs(tooltable_file):
+            tooltable_file = os.path.join(inidir, tooltable_file)
+
         # load the tool table file
         tool_info = get_tool_info(tooltable_file, n)
         diameter = ("%f" % tool_info["diameter"]).rstrip("0").rstrip(".")
@@ -75,8 +81,8 @@ def get_tool_change_message(n):
         })
     except Exception as error:
         # old style message with just tool number and the error message
-        return "".join((_("Insert tool %d and click continue when ready") % n,
-                        _("\n\nError: %s") % error))
+        return "".join(_("Insert tool %d and click continue when ready") % n,
+                        _("\n\nError: %s") % error)
 
 def get_tool_info(file, n):
     with open(file, "r") as f:
@@ -91,9 +97,9 @@ def parse_line(line):
     parts = line.partition(";")
     data["comment"] = parts[2]
     for token in parts[0].upper().split(" "):
-        if (token.startswith("T")):
+        if token.startswith("T"):
             data["number"] = int(token[1:])
-        if (token.startswith("D")):
+        if token.startswith("D"):
             data["diameter"] = float(token[1:])
     return data
 
