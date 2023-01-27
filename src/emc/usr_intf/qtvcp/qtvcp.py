@@ -396,6 +396,7 @@ Pressing cancel will close linuxcnc.""" % target)
         # start loop
         global _app
         _app = APP.exec()
+
         self.shutdown()
 
     # finds the postgui file name and INI file path
@@ -423,6 +424,7 @@ Pressing cancel will close linuxcnc.""" % target)
     # This can be called by control c or an early error.
     # close out HAL pins
     def shutdown(self,signum=None,stack_frame=None):
+        LOG.debug('Exiting HAL')
         HAL.exit()
 
         # Throws up a dialog with debug info when an error is encountered
@@ -504,5 +506,4 @@ if __name__ == "__main__":
         from qtvcp.core import Status, Info, Qhal, Path
 
         _qtvcp = QTVCP()
-
-        sys.exit(_qtvcp)
+        sys.exit(_app)
