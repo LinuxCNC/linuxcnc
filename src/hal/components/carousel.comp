@@ -138,6 +138,12 @@ param r  signed state = 0 "Current component state";
 param r  bit    homing  = 0 "Shows that homing is in progress. Only used for index mode";
 param r  float  timer "Shows the value of the internal timer";
 param r signed motor-dir "Internal tag for search direction";
+param r  float  timer-cycle "Shows the cycle time";
+param rw float read-time = 0 """Time in seconds for reading Gray, Straight Binary or BCD code after some position is founded. 
+Value for encoder with trigger signal can be 0. Recomended value for encoder without trigger signal can be 0.02""";
+param rw float check-time = 0 """Time in seconds to wait to stop mechanical oscilation of toolchanger in a position.
+Recomended value for unreliable ATC positioning can be 1. Only used in Gray, Straight Binary or BCD code.""";
+param rw float error-time = 3600 "Time in seconds to stop motor in error case";
 
 option count_function;
 option extra_setup;
@@ -291,6 +297,18 @@ FUNCTION(_){
     if (unhome && ! old_unhome) homed = 0;
     old_unhome = unhome;
 
+    // measuring cycle time
+    if (state > 0){
+    timer_cycle += fperiod;}
+    if (state == 9){
+    timer_cycle = 0;}
+
+    // stop motor in error case    
+    if (timer_cycle > error_time){    
+    motor_fwd = 0;
+    motor_rev = 0;
+	}
+
     switch (state){
     case 0: // waiting at start
         motor_dir = 0;
@@ -364,7 +382,39 @@ FUNCTION(_){
             motor_vel = fwd_dc;
             motor_dir = 1;
         }
-        state = 2;
+ 
+        if ((inst_code == 'G' || inst_code == 'B' || inst_code == 'D') ){
+		state = 102;
+		} else {
+		state = 2;
+		}
+   case 102: // leaving position    
+        if ((current_position != 0) && enable) return;
+        state = 103;
+        break;
+   case 103: // finded middle position (0 position)    
+        if ((current_position == 0) && enable) return;
+        state = 104;
+        timer = read_time;
+        break;
+   case 104: // finded some position  
+        if ((current_position != mod_pocket) && enable) return;
+        timer -= fperiod;
+        if (timer > 0) return;
+        motor_fwd = 0;
+        motor_rev = 0;
+        state = 105;
+        timer = check_time;
+        break;
+   case 105: // pause for check correction position
+		timer -= fperiod;
+        if (timer > 0) return;
+        if ((current_position != mod_pocket) && enable){
+		state = 0;
+		} else {
+		state = 2;
+		}	 
+        break;                      
     case 2: // moving
         if ((current_position != mod_pocket) && enable) return;
         if (rev_pulse > 0){
