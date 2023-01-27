@@ -10238,6 +10238,9 @@ PAUSED</string>
                     <string>PAUSE
 SPINDLE</string>
                    </property>
+                   <property name="isAutoPauseSensitive" stdset="0">
+                    <bool>true</bool>
+                   </property>
                   </widget>
                  </item>
                 </layout>
@@ -16038,7 +16041,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>03:26:07 PM</string>
+            <string>08:37:45 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -17014,7 +17017,7 @@ ZERO</string>
   <slot>btn_about_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
