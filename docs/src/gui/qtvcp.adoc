@@ -109,11 +109,11 @@ All `<options>` must appear before `<screen_name>`.
 * `-a` Set window always on top.
 * `-c NAME` HAL component name. Default is to use the UI file name.
 * `-g GEOMETRY` Set geometry WIDTHxHEIGHT+XOFFSET+YOFFSET. Values are in pixel units,
-XOFFSET/YOFFSET is referenced from top left of screen.
-Use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position.
-Example: `-g 200x400+0+100`
-* `-H FILE` Execute hal statements from FILE with halcmd after the
- component is set up and ready.
+  XOFFSET/YOFFSET is referenced from top left of screen.
+  Use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position.
+  Example: `-g 200x400+0+100`
+* `-H FILE` Execute hal statements from FILE with halcmd after the component
+  is set up and ready.
 * `-m` Maximize window.
 * `-f` Fullscreen the window.
 * `-t THEME` Default is system theme

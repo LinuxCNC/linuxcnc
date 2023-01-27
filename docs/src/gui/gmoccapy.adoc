@@ -126,8 +126,8 @@ PROGRAM_PREFIX = ../../nc_files/
 - _DISPLAY = gmoccapy_ - This tells LinuxCNC to use GMOCCAPY.
 
 - _PREFERENCE_FILE_PATH_ - Gives the location and name of the preferences file to be used.
-In most cases this line will not be needed, it is used by GMOCCAPY to store your settings of the GUI,
-like themes, DRO units, colors, and keyboard settings, etc., see <<gmoccapy:settings-page,settings page>> for more details.
+  In most cases this line will not be needed, it is used by GMOCCAPY to store your settings of the GUI,
+  like themes, DRO units, colors, and keyboard settings, etc., see <<gmoccapy:settings-page,settings page>> for more details.
 +
 [NOTE]
 If no path or file is given, GMOCCAPY will use as default
@@ -149,8 +149,8 @@ If no values are given, MIN will be set to 0.1 and MAX to 1.0.
 
 - _LATHE = 1_ - Set the screen layout to control a lathe.
 - _BACK_TOOL_LATHE = 1_ - Is optional and will switch the X axis in a way you need for a back tool lathe.
-Also the keyboard shortcuts will react in a different way.
-It is allowed with GMOCCAPY to configure a lathe also with additional axes, so you may use also a XZCW config for a lathe.
+  Also the keyboard shortcuts will react in a different way.
+  It is allowed with GMOCCAPY to configure a lathe also with additional axes, so you may use also a XZCW config for a lathe.
 +
 [TIP]
 See also the <<gmoccapy:lathe-section,Lathe Specific Section>>.
@@ -770,7 +770,7 @@ To be able to use a key switch to unlock the settings page, the following
 pin is exported:
 
 - *gmoccapy.unlock-settings* _(bit IN)_ - The settings page is unlocked if the pin is high.
-To use this pin, you need to activate it on the settings page.
+  To use this pin, you need to activate it on the settings page.
 
 === Error/Warning Pins
 
@@ -1487,11 +1487,11 @@ Directories=16x16/actions,24x24/actions,32x32/actions,48x48/actions,scalable/act
 * Comment: A description of your icon theme.
 * Inherits: A icon theme can derive from another icon theme, the default is hicolor.
 * Directories: A comma separated list of all the directories of your icon theme. +
-Each directory usually contains all the icons of the theme in a specific size, for example 16x16/actions should contain all icons with the category "actions" in the size 16x16 pixels as pixel-graphics (e.g. png files).
-A special case is the directory called "scalable/actions", this contains scalable icons not tied to a specific size (e.g. svg files). +
-By supplying different sized versions of the icons,
-we can guarantee a nice looking icon if different sizes and we also have the ability to change the icon according to its size,
-for example a 64x64 px sized icon may contain more details than its 16x16 px version.
+  Each directory usually contains all the icons of the theme in a specific size, for example 16x16/actions should contain all icons with the category "actions" in the size 16x16 pixels as pixel-graphics (e.g. png files).
+  A special case is the directory called "scalable/actions", this contains scalable icons not tied to a specific size (e.g. svg files). +
+  By supplying different sized versions of the icons,
+  we can guarantee a nice looking icon if different sizes and we also have the ability to change the icon according to its size,
+  for example a 64x64 px sized icon may contain more details than its 16x16 px version.
 --
 - For each directory we also have to write a section in the index.theme file:
 +

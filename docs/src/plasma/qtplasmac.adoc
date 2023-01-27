@@ -2608,8 +2608,8 @@ All leadins and leadouts are arcs except for *Circles* and *Stars*:
 - If the circle is external then any leadin or leadout will be an arc.
 - If the circle is internal and a *small hole* then any leadin will be perpendicular and there will be no lead out.
 - If the circle is internal and not a *small hole* then any leadin and leadout will be an arc.
-If the leadin has a length greater than half the radius then the leadin will revert to perpendicular and there will be no leadout.
-If the leadout has a length greater than half the radius then there will be no leadout.
+  If the leadin has a length greater than half the radius then the leadin will revert to perpendicular and there will be no leadout.
+  If the leadout has a length greater than half the radius then there will be no leadout.
 
 *Stars:*
 

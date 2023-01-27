@@ -521,9 +521,9 @@ This is only available in the QtDragon_hd version.
 * There should now be a file in the nc_files folder called {something}-probe-only.ngc. Set the file filter to G-Code Files, navigate to the nc_files directory and load this file.
 * Without changing the offsets, run this program. Make sure the probe tool is installed. When complete, there will be a file in the config directory called 'probe_points.txt'.
 * In Qtdragon_hd press the 'Enable Z Comp' button to enable compensation.
-Look at the status line for indication of success or failure.
-Active compensation will be displayed beside the label: 'Z Level Comp'
-While jogging that display should change based on the compensation component.
+  Look at the status line for indication of success or failure.
+  Active compensation will be displayed beside the label: 'Z Level Comp'
+  While jogging that display should change based on the compensation component.
 
 [NOTE]
 If you use auto raise Z to lift the spindle on pause, you must combine the two

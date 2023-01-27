@@ -208,11 +208,11 @@ The feed rotary button can serve in
 * Step move x mm
 * MPG override feed/spindle
 * The special position Lead. +
-*Continuous:* In this mode jogging is performed at the selected feed rate. As long the jogwheel turns, the selected axis moves. +
-*Step:* In this mode the machine moves steps * wheel_counts at the currently selected step size and the current set feed rate in machine units.
-If the commanded position is not reached the machine keeps moving even the jogwheel is not turning. +
-*Lead:* Manipulates the spindle override. +
-*MPG:* Manipulates the feedrate override.
+  *Continuous:* In this mode jogging is performed at the selected feed rate. As long the jogwheel turns, the selected axis moves. +
+  *Step:* In this mode the machine moves steps * wheel_counts at the currently selected step size and the current set feed rate in machine units.
+  If the commanded position is not reached the machine keeps moving even the jogwheel is not turning. +
+  *Lead:* Manipulates the spindle override. +
+  *MPG:* Manipulates the feedrate override.
 
 Note:
 As a consequence of 3 modes from manufacturer, switching the feed rotary button back from Lead revert to MPG mode, MPG mode is default mode at startup.
