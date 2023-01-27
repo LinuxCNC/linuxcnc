@@ -3845,6 +3845,9 @@ F1 S1</property>
             <property name="visible">True</property>
             <property name="xalign">0</property>
             <property name="xpad">5</property>
+            <property name="single-line-mode">True</property>
+            <property name="max-width-chars">80</property>
+            <property name="width-chars">80</property>
           </object>
           <packing>
             <property name="expand">False</property>

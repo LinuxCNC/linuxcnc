@@ -516,6 +516,6 @@ class emc_status:
                 e = self.emcerror.poll()
                 if e:
                         kind, text = e
-                        set_text(self.error, text)
+                        set_text(self.error, text[:80])
 
                 
