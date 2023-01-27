@@ -160,7 +160,7 @@ part = AsciiOBJ(data="v 0.123 0.234 0.345 1.0 ...")
 ----
 
 - STL model parts are added to the Vismach space in the _same locations as they were created in the STL or OBJ space_,
-ie ideally with a rotational point at their origin.
+  ie ideally with a rotational point at their origin.
 
 [NOTE]
 It is much easier to move while building if the origin of the model is at 
