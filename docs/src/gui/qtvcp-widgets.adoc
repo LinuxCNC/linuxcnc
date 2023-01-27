@@ -1505,7 +1505,7 @@ These Sound options require `python3-gst1.0` installed.
 ** `BEEP_START`
 
 * *Text-To-Speech* +
-If the _Espeak_ module (`python3-espeak`) is installed, you can use the `SPEAK` entry to pronounce text:
+  If the _Espeak_ module (`python3-espeak`) is installed, you can use the `SPEAK` entry to pronounce text:
 
 * *`SPEAK '_my message_'`*
 

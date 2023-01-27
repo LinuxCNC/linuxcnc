@@ -480,7 +480,7 @@ General message should be used a sparsely as reasonable because all object conne
 It uses a Python dict for communication. +
 The dict should include and be checked for a unique id  keyname pair: +
 * ID: 'UNIQUE_ID_CODE' +
-The dict usually has more keyname pair - it depends on implementation.
+  The dict usually has more keyname pair - it depends on implementation.
 
 *forced-update* :: '(returns None)' -
 intended to be sent when one wishes to initialize or arbitrarily update an object. +
