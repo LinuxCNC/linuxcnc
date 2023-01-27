@@ -90,17 +90,23 @@ class _PStat(object):
 
         # look for custom handler files:
         handler_fn = "{}_handler.py".format(self.BASEPATH)
+        local = []
         if self.IS_SCREEN:
             default_handler_path = os.path.join(self.SCREENDIR, self.BASEPATH, handler_fn)
-            local_handler_path = os.path.join(self.CONFIGPATH,self.BASEPATH, handler_fn)
+            local.append( os.path.join(self.CONFIGPATH, 'qtvcp/screens',self.BASEPATH, handler_fn))
+            local.append( os.path.join(self.CONFIGPATH,self.BASEPATH, handler_fn))
         else:
-            local_handler_path = os.path.join(self.WORKINGDIR, handler_fn)
+            local.append( os.path.join(self.WORKINGPATH, 'qtvcp/panels',self.BASEPATH, handler_fn))
+            local.append( os.path.join(self.WORKINGDIR, handler_fn))
             default_handler_path = os.path.join(self.PANELDIR, self.BASEPATH, handler_fn)
-        LOG.debug("Checking for handler file in: yellow<{}>".format(local_handler_path))
 
-        if os.path.exists(local_handler_path):
-            self.HANDLER = local_handler_path
-            LOG.info("Using LOCAL handler file path: yellow<{}>".format(self.HANDLER))
+        for local_handler_path in local:
+            LOG.debug("Checking for handler file in: yellow<{}>".format(local_handler_path))
+            if os.path.exists(local_handler_path):
+                self.HANDLER = local_handler_path
+                LOG.info("Using LOCAL handler file path: yellow<{}>".format(self.HANDLER))
+                break
+        # if no break
         else:
             LOG.debug("Checking for default handler file in: yellow<{}>".format(default_handler_path))
             if os.path.exists(default_handler_path):
@@ -116,17 +122,23 @@ class _PStat(object):
 
         # look for custom ui file
         ui_fn = "{}.ui".format(self.BASEPATH)
+        local = []
         if self.IS_SCREEN:
             defaultui = os.path.join(self.SCREENDIR, self.BASEPATH, ui_fn)
-            localui = os.path.join(self.CONFIGPATH,self.BASEPATH, ui_fn)
-
+            local.append( os.path.join(self.CONFIGPATH, 'qtvcp/screens',self.BASEPATH, ui_fn))
+            local.append( os.path.join(self.CONFIGPATH,self.BASEPATH, ui_fn))
         else:
-            localui = os.path.join(self.WORKINGDIR, ui_fn)
+            local.append( os.path.join(self.WORKINGPATH, 'qtvcp/panels',self.BASEPATH, ui_fn))
+            local.append( os.path.join(self.WORKINGDIR, ui_fn))
             defaultui = os.path.join(self.PANELDIR, self.BASEPATH, ui_fn)
-        LOG.debug("Checking for .ui in: yellow<{}>".format(localui))
-        if os.path.exists(localui):
-            LOG.info("Using LOCAL ui file from: yellow<{}>".format(localui))
-            self.XML = localui
+
+        for localui in local:
+            LOG.debug("Checking for .ui in: yellow<{}>".format(localui))
+            if os.path.exists(localui):
+                LOG.info("Using LOCAL ui file from: yellow<{}>".format(localui))
+                self.XML = localui
+                break
+        # if no break
         else:
             LOG.debug("Checking for .ui in: yellow<{}>".format(defaultui))
             if os.path.exists(defaultui):
@@ -153,17 +165,23 @@ class _PStat(object):
 
         # check for qss file
         qss_fn = "{}.qss".format(self.BASEPATH)
+        local = []
         if self.IS_SCREEN:
             defaultqss = os.path.join(self.SCREENDIR, self.BASEPATH, qss_fn)
-            localqss = os.path.join(self.CONFIGPATH, self.BASEPATH, qss_fn)
+            local.append( os.path.join(self.CONFIGPATH, 'qtvcp/screens',self.BASEPATH, qss_fn))
+            local.append( os.path.join(self.CONFIGPATH, self.BASEPATH, qss_fn))
         else:
-            localqss = os.path.join(self.WORKINGDIR, qss_fn)
+            local.append( os.path.join(self.WORKINGPATH, 'qtvcp/panels',self.BASEPATH, qss_fn))
+            local.append( os.path.join(self.WORKINGDIR, qss_fn))
             defaultqss = os.path.join(self.PANELDIR, self.BASEPATH, qss_fn)
 
-        LOG.debug("Checking for .qss in: yellow<{}>".format(localqss))
-        if os.path.exists(localqss):
-            LOG.info("Using LOCAL qss file from: yellow<{}>".format(localqss))
-            self.QSS = localqss
+        for localqss in local:
+            LOG.debug("Checking for .qss in: yellow<{}>".format(localqss))
+            if os.path.exists(localqss):
+                LOG.info("Using LOCAL qss file from: yellow<{}>".format(localqss))
+                self.QSS = localqss
+                break
+        # if no break
         else:
             LOG.debug("Checking for .qss in: yellow<{}>".format(defaultqss))
             if os.path.exists(defaultqss):
@@ -175,18 +193,24 @@ class _PStat(object):
 
         # check for qrc file
         qrc_fn = "{}.qrc".format(self.BASEPATH)
+        local = []
         if self.IS_SCREEN:
             defaultqrc = os.path.join(self.SCREENDIR, self.BASEPATH, qrc_fn)
-            localqrc = os.path.join(self.CONFIGPATH, self.BASEPATH, qrc_fn)
+            local.append( os.path.join(self.CONFIGPATH, 'qtvcp/screens',self.BASEPATH, qrc_fn))
+            local.append(os.path.join(self.CONFIGPATH, self.BASEPATH, qrc_fn))
         else:
-            localqrc = os.path.join(self.WORKINGDIR, qrc_fn)
+            local.append( os.path.join(self.WORKINGPATH, 'qtvcp/panels',self.BASEPATH, qrc_fn))
+            local.append( os.path.join(self.WORKINGDIR, qrc_fn))
             defaultqrc = os.path.join(self.PANELDIR, self.BASEPATH, qrc_fn)
 
-        LOG.debug("Checking for .qrc in: yellow<{}>".format(localqrc))
-        if os.path.exists(localqrc):
-            LOG.info("Using LOCAL qrc file from: yellow<{}>".format(localqrc))
-            self.QRC = localqrc
-            self.QRC_IS_LOCAL = True
+        for localqrc in local:
+            LOG.debug("Checking for .qrc in: yellow<{}>".format(localqrc))
+            if os.path.exists(localqrc):
+                LOG.info("Using LOCAL qrc file from: yellow<{}>".format(localqrc))
+                self.QRC = localqrc
+                self.QRC_IS_LOCAL = True
+                break
+        # if no break
         else:
             LOG.debug("Checking for .qrc in: yellow<{}>".format(defaultqrc))
             if os.path.exists(defaultqrc):
@@ -222,11 +246,17 @@ class _PStat(object):
         lang = QtCore.QLocale.system().name().split('_')[0]
         qm_fn = "languages/{}_{}.qm".format(self.BASEPATH,lang)
         defaultqm = os.path.join(self.SCREENDIR, self.BASEPATH, qm_fn)
-        localqm = os.path.join(self.CONFIGPATH, self.BASEPATH, qm_fn)
-        LOG.debug("Checking for translation file in: yellow<{}>".format(localqm))
-        if os.path.exists(localqm):
-            LOG.info("Using LOCAL translation file from: yellow<{}>".format(localqm))
-            self.LOCALEDIR = localqm
+        local = []
+        local.append( os.path.join(self.CONFIGPATH, 'qtvcp/screens',self.BASEPATH, qrc_fn))
+        local.append( os.path.join(self.CONFIGPATH, self.BASEPATH, qm_fn))
+
+        for localqm in local:
+            LOG.debug("Checking for translation file in: yellow<{}>".format(localqm))
+            if os.path.exists(localqm):
+                LOG.info("Using LOCAL translation file from: yellow<{}>".format(localqm))
+                self.LOCALEDIR = localqm
+                break
+        # if no break
         else:
             LOG.debug("Checking for translation file in: yellow<{}>".format(defaultqm))
             if os.path.exists(defaultqm):
