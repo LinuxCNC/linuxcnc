@@ -636,7 +636,7 @@
                  <bool>true</bool>
                 </property>
                 <property name="index" stdset="0">
-                 <number>10</number>
+                 <number>-1</number>
                 </property>
                 <attribute name="buttonGroup">
                  <string notr="true">page_buttonGroup</string>
@@ -814,6 +814,40 @@
                </widget>
               </item>
               <item>
+               <widget class="QPushButton" name="btn_user">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>80</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>80</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>USER</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+                <property name="index" stdset="0">
+                 <number>10</number>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">page_buttonGroup</string>
+                </attribute>
+               </widget>
+              </item>
+              <item>
                <spacer name="horizontalSpacer">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
@@ -951,7 +985,7 @@
                <number>2</number>
               </property>
               <item>
-               <widget class="QStackedWidget" name="main_tab_widget">
+               <widget class="QStackedWidget" name="stackedWidget_mainTab">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                   <horstretch>0</horstretch>
@@ -979,7 +1013,7 @@
                 <property name="currentIndex">
                  <number>0</number>
                 </property>
-                <widget class="QWidget" name="main_tab_widgetPage1">
+                <widget class="QWidget" name="stackedWidget_mainTabPage1">
                  <layout class="QHBoxLayout" name="horizontalLayout_3">
                   <property name="spacing">
                    <number>4</number>
@@ -2706,7 +2740,7 @@ View</string>
                   </item>
                  </layout>
                 </widget>
-                <widget class="QWidget" name="main_tab_widgetPage2">
+                <widget class="QWidget" name="stackedWidget_mainTabPage2">
                  <layout class="QHBoxLayout" name="horizontalLayout_6">
                   <property name="spacing">
                    <number>4</number>
@@ -3010,7 +3044,7 @@ GCODE</string>
                   </item>
                  </layout>
                 </widget>
-                <widget class="QWidget" name="main_tab_widgetPage3">
+                <widget class="QWidget" name="stackedWidget_mainTabPage3">
                  <layout class="QHBoxLayout" name="horizontalLayout_7">
                   <property name="spacing">
                    <number>4</number>
@@ -3245,7 +3279,7 @@ ROTATION</string>
                   </item>
                  </layout>
                 </widget>
-                <widget class="QWidget" name="main_tab_widgetPage4">
+                <widget class="QWidget" name="stackedWidget_mainTabPage4">
                  <layout class="QHBoxLayout" name="horizontalLayout">
                   <property name="spacing">
                    <number>4</number>
@@ -3428,7 +3462,7 @@ ROTATION</string>
                   </item>
                  </layout>
                 </widget>
-                <widget class="QWidget" name="main_tab_widgetPage5">
+                <widget class="QWidget" name="stackedWidget_mainTabPage5">
                  <layout class="QHBoxLayout" name="horizontalLayout_4">
                   <property name="spacing">
                    <number>4</number>
@@ -3695,7 +3729,7 @@ TO FILE</string>
                   </item>
                  </layout>
                 </widget>
-                <widget class="QWidget" name="main_tab_widgetPage6">
+                <widget class="QWidget" name="stackedWidget_mainTabPage6">
                  <layout class="QHBoxLayout" name="horizontalLayout_67">
                   <property name="spacing">
                    <number>4</number>
@@ -3939,7 +3973,7 @@ TO FILE</string>
                   </item>
                  </layout>
                 </widget>
-                <widget class="QWidget" name="main_tab_widgetPage7">
+                <widget class="QWidget" name="stackedWidget_mainTabPage7">
                  <layout class="QHBoxLayout" name="horizontalLayout_15">
                   <property name="spacing">
                    <number>4</number>
@@ -4029,7 +4063,7 @@ TO FILE</string>
                   </item>
                  </layout>
                 </widget>
-                <widget class="QWidget" name="main_tab_widgetPage8">
+                <widget class="QWidget" name="stackedWidget_mainTabPage8">
                  <layout class="QHBoxLayout" name="horizontalLayout_41">
                   <property name="spacing">
                    <number>4</number>
@@ -4131,7 +4165,7 @@ TO FILE</string>
                   </item>
                  </layout>
                 </widget>
-                <widget class="QWidget" name="main_tab_widgetPage9">
+                <widget class="QWidget" name="stackedWidget_mainTabPage9">
                  <layout class="QHBoxLayout" name="horizontalLayout_5">
                   <property name="spacing">
                    <number>4</number>
@@ -15605,7 +15639,7 @@ ANGULAR</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>03:26:18 PM</string>
+               <string>11:13:29 PM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -15829,6 +15863,7 @@ ANGULAR</string>
  <resources>
   <include location="qtdragon_hd.qrc"/>
   <include location="../qtdragon/qtdragon.qrc"/>
+  <include location="qtdragon.qrc"/>
  </resources>
  <connections>
   <connection>

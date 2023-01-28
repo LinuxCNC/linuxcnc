@@ -29,17 +29,20 @@ WRITER = writer.Main()
 QHAL = Qhal()
 
 # constants for tab pages
+# probe is not actually a separate tab now
+# but there is a button for showing it in stack
+TAB_PROBE = -1
 TAB_MAIN = 0
 TAB_FILE = 1
 TAB_OFFSETS = 2
 TAB_TOOL = 3
 TAB_STATUS = 4
-TAB_PROBE = 10 # probe is not actually a separate tab now
 TAB_CAMVIEW = 5
 TAB_GCODES = 6
 TAB_SETUP = 7
 TAB_SETTINGS = 8
 TAB_UTILS = 9
+TAB_USER = 10
 
 # constants for (left side) stacked widget
 PAGE_UNCHANGED = -1
@@ -286,7 +289,7 @@ class HandlerClass:
         self.w.PREFS_.putpref('Inhibit display mouse selection', self.w.chk_inhibit_selection.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
 
     def init_widgets(self):
-        self.w.main_tab_widget.setCurrentIndex(0)
+        self.w.stackedWidget_mainTab.setCurrentIndex(0)
         self.w.chk_override_limits.setChecked(False)
         self.w.chk_override_limits.setEnabled(False)
         self.w.lbl_maxv_percent.setText("100 %")
@@ -353,7 +356,11 @@ class HandlerClass:
         self.w.gauge_spindle.set_max_reading(self.max_spindle_rpm / 1000)
         self.w.gauge_spindle.set_threshold(self.min_spindle_rpm)
         self.w.gauge_spindle.set_label("RPM")
-        
+
+        # hide user tab button if no user tabs
+        if self.w.stackedWidget_mainTab.count() == 10:
+            self.w.btn_user.hide()
+
     def init_probe(self):
         probe = INFO.get_error_safe_setting('PROBE', 'USE_PROBE', 'none').lower()
         if probe == 'versaprobe':
@@ -607,9 +614,14 @@ class HandlerClass:
     # main button bar
     def main_tab_changed(self, btn):
         index = btn.property("index")
-        if index == self.w.main_tab_widget.currentIndex():
+
+        if index == TAB_USER:
+            pass
+        elif index == self.w.stackedWidget_mainTab.currentIndex():
             self.w.stackedWidget_dro.setCurrentIndex(0)
+
         if index is None: return
+
         # adjust the stack widgets depending on modes
         self.adjust_stacked_widgets(index)
 
@@ -624,7 +636,7 @@ class HandlerClass:
 
     # program frame
     def btn_start_clicked(self, obj):
-        if self.w.main_tab_widget.currentIndex() != 0:
+        if self.w.stackedWidget_mainTab.currentIndex() != 0:
             return
         if not STATUS.is_auto_mode():
             self.add_status("Must be in AUTO mode to run a program", CRITICAL)
@@ -967,7 +979,7 @@ class HandlerClass:
             self.w.cmb_gcode_history.setToolTip(fname)
             ACTION.OPEN_PROGRAM(fname)
             self.add_status("Loaded program file : {}".format(fname))
-            self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
+            self.w.stackedWidget_mainTab.setCurrentIndex(TAB_MAIN)
             self.w.filemanager.recordBookKeeping()
 
             # adjust ending to check for related HTML setup files
@@ -991,7 +1003,7 @@ class HandlerClass:
             try:
                 self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
                 self.add_status("Loaded HTML file : {}".format(fname))
-                self.w.main_tab_widget.setCurrentIndex(TAB_SETUP)
+                self.w.stackedWidget_mainTab.setCurrentIndex(TAB_SETUP)
                 self.w.stackedWidget.setCurrentIndex(0)
                 self.w.btn_setup.setChecked(True)
             except Exception as e:
@@ -1093,7 +1105,7 @@ class HandlerClass:
     def enable_auto(self, state):
         if state is True:
             self.w.btn_main.setChecked(True)
-            self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
+            self.w.stackedWidget_mainTab.setCurrentIndex(TAB_MAIN)
             if self.probe is not None:
                 self.probe.hide()
             self.w.stackedWidget_dro.setCurrentIndex(0)
@@ -1192,7 +1204,8 @@ class HandlerClass:
                     TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,SHOW_DRO),
                     TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,SHOW_DRO),
                     TAB_SETTINGS: (TAB_MAIN,PAGE_GCODE,SHOW_DRO),
-                    TAB_UTILS: (TAB_MAIN,PAGE_GCODE,SHOW_DRO) }
+                    TAB_UTILS: (TAB_MAIN,PAGE_GCODE,SHOW_DRO),
+                    TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE) }
         else:
             seq = {TAB_MAIN: (requestedIndex,PAGE_GCODE,SHOW_DRO),
                     TAB_FILE: (requestedIndex,PAGE_GCODE,IGNORE),
@@ -1204,9 +1217,11 @@ class HandlerClass:
                     TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,SHOW_DRO),
                     TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,IGNORE),
                     TAB_SETTINGS: (requestedIndex,PAGE_UNCHANGED,SHOW_DRO),
-                    TAB_UTILS: (requestedIndex,PAGE_UNCHANGED,SHOW_DRO) }
+                    TAB_UTILS: (requestedIndex,PAGE_UNCHANGED,SHOW_DRO),
+                    TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE) }
 
         rtn =  seq.get(requestedIndex)
+
         # if not found (None) use defaults
         if rtn is None:
             main_index = requestedIndex
@@ -1252,14 +1267,22 @@ class HandlerClass:
             self.w.btn_gcode_edit.setChecked(False)
             self.w.btn_gcode_edit_clicked(False)
 
-        # set main tab to adjusted index
-        self.w.main_tab_widget.setCurrentIndex(main_index)
+        # user tabs cycle between all user tabs
+        main_current = self.w.stackedWidget_mainTab.currentIndex()
+        if main_index == TAB_USER and main_current >= TAB_USER:
+                next = main_current +1
+                if next == self.w.stackedWidget_mainTab.count():
+                    next = TAB_USER
+                self.w.stackedWidget_mainTab.setCurrentIndex(next)
+        else:
+            # set main tab to adjusted index
+            self.w.stackedWidget_mainTab.setCurrentIndex(main_index)
 
         # if indexes don't match then request is disallowed
         # give a warning and reset the button check
         if main_index != requestedIndex and not main_index in(TAB_CAMVIEW,TAB_GCODES,TAB_SETUP):
             self.add_status("Cannot switch pages while in AUTO mode", WARNING)
-            self.w.main_tab_widget.setCurrentIndex(0)
+            self.w.stackedWidget_mainTab.setCurrentIndex(0)
             self.w.btn_main.setChecked(True)
     
     # calc wait time for mdi move based on dist and rapid speed, return seconds to wait
