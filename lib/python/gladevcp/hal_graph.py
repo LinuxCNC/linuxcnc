@@ -191,7 +191,7 @@ class HAL_Graph(Gtk.DrawingArea, _HalWidgetBase):
         ymin, ymax = self.min, self.max
         yticks = self.yticks
         if self.autoscale:
-            tv = map(lambda x: x[1], self.ticks_saved + list(self.ticks))
+            tv = [x[1] for x in self.ticks_saved + list(self.ticks)]
             if tv:
                 ymin, ymax = min(tv), max(tv)
                 ymin -= abs(ymin) * 0.1
