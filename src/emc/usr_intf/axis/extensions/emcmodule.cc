@@ -312,8 +312,93 @@ static PyObject *poll(pyStatChannel *s, PyObject *o) {
     return Py_None;
 }
 
+static void dict_add(PyObject *d, const char *name, unsigned char v) {
+    PyObject *o;
+    PyDict_SetItemString(d, name, o = PyLong_FromLong(v));
+    Py_XDECREF(o);
+}
+static void dict_add(PyObject *d, const char *name, double v) {
+    PyObject *o;
+    PyDict_SetItemString(d, name, o = PyFloat_FromDouble(v));
+    Py_XDECREF(o);
+}
+static void dict_add(PyObject *d, const char *name, bool v) {
+    PyObject *o;
+    PyDict_SetItemString(d, name, o = PyBool_FromLong((long)v));
+    Py_XDECREF(o);
+}
+static void dict_add(PyObject *d, const char *name, int v) {
+    PyObject *o;
+    PyDict_SetItemString(d, name, o = PyLong_FromLong((long)v));
+    Py_XDECREF(o);
+}
+
+static PyObject *toolinfo(pyStatChannel *s, PyObject *o) {
+    /*Note: this method uses the tooldata interface and is included
+    **      as a Stat method for convenience.
+    **      pyStatChannel is not used but an initial stat poll()
+    **      is required for initialization of mmap
+    */
+    PyObject *res = PyDict_New();
+    CANON_TOOL_TABLE tdata = tooldata_entry_init();
+    int toolno;
+    if (!initialized) {
+        PyErr_Format(PyExc_ValueError,"toolinfo: NOT READY (initial poll reqd)\n");
+        return NULL;
+    }
+    if(!PyArg_ParseTuple(o, "i", &toolno)) return NULL;
+
+#define TOOL_0_EXCEPTION
+#ifdef  TOOL_0_EXCEPTION
+    /* toolno == 0 is not supported here because it would likely be too confusing
+    ** (ref docs/code/code-notes.adoc):
+    **   nonrandom toolchanger: tool 0 means "no tool"
+    **      random toolchanger: tool 0 is like any other *but* conventionally means "no tool"
+    **
+    ** tool_in_spindle data is available using idx=0 with
+    **     linuxcnc.stat.tool_table[idx]
+    */
+    if (toolno == 0) {
+        PyErr_Format(PyExc_ValueError,"toolinfo: for tool in spindle: use linuxnc.stat.tool_table[0]");
+        return NULL;
+    }
+#endif
+
+    int idx  = tooldata_find_index_for_tool(toolno);
+
+    if (tooldata_get(&tdata,idx) != IDX_OK) {
+        PyErr_Format(PyExc_ValueError,"toolinfo: NO tooldata for toolno=%d",toolno);
+        return NULL;
+    }
+    dict_add(res,     "toolno", tdata.toolno);
+    dict_add(res,   "pocketno", tdata.pocketno);
+    dict_add(res,   "diameter", tdata.diameter);
+    dict_add(res, "frontangle", tdata.frontangle);
+    dict_add(res,  "backangle", tdata.backangle);
+    dict_add(res,"orientation", tdata.orientation);
+    dict_add(res,    "xoffset", tdata.offset.tran.x);
+    dict_add(res,    "yoffset", tdata.offset.tran.y);
+    dict_add(res,    "zoffset", tdata.offset.tran.z);
+    dict_add(res,    "aoffset", tdata.offset.a);
+    dict_add(res,    "boffset", tdata.offset.b);
+    dict_add(res,    "coffset", tdata.offset.c);
+    dict_add(res,    "uoffset", tdata.offset.u);
+    dict_add(res,    "voffset", tdata.offset.v);
+    dict_add(res,    "woffset", tdata.offset.w);
+
+    PyDict_SetItemString(res, "comment", o= PyUnicode_FromString(tdata.comment));
+    Py_DECREF(o);
+
+    return res;
+}
+
 static PyMethodDef Stat_methods[] = {
     {"poll", (PyCFunction)poll, METH_NOARGS, "Update current machine state"},
+    {"toolinfo", (PyCFunction)toolinfo, METH_VARARGS,
+         "toolinfo(toolnumber):\n"
+         "   returns dict for toolnumber parameters (pocket,offsets,etc)\n"
+         "   ValueError Exception if toolnumber not available"
+    },
     {NULL}
 };
 
@@ -352,7 +437,6 @@ static PyMemberDef Stat_members[] = {
     {(char*)"delay_left", T_DOUBLE, O(task.delayLeft), READONLY},
     {(char*)"queued_mdi_commands", T_INT, O(task.queuedMDIcommands), READONLY, (char*)"Number of MDI commands queued waiting to run." },
 
-// motion
 //   EMC_TRAJ_STAT traj
     {(char*)"linear_units", T_DOUBLE, O(motion.traj.linearUnits), READONLY},
     {(char*)"angular_units", T_DOUBLE, O(motion.traj.angularUnits), READONLY},
@@ -558,26 +642,6 @@ static PyObject *Stat_misc_error(pyStatChannel *s){
   return int_array(s->status.motion.misc_error, EMCMOT_MAX_MISC_ERROR);
 }
 
-static void dict_add(PyObject *d, const char *name, unsigned char v) {
-    PyObject *o;
-    PyDict_SetItemString(d, name, o = PyLong_FromLong(v));
-    Py_XDECREF(o);
-}
-static void dict_add(PyObject *d, const char *name, double v) {
-    PyObject *o;
-    PyDict_SetItemString(d, name, o = PyFloat_FromDouble(v));
-    Py_XDECREF(o);
-}
-static void dict_add(PyObject *d, const char *name, bool v) {
-    PyObject *o;
-    PyDict_SetItemString(d, name, o = PyBool_FromLong((long)v));
-    Py_XDECREF(o);
-}
-static void dict_add(PyObject *d, const char *name, int v) {
-    PyObject *o;
-    PyDict_SetItemString(d, name, o = PyLong_FromLong((long)v));
-    Py_XDECREF(o);
-}
 #define F(x) F2(#x, x)
 #define F2(y,x) dict_add(res, y, s->status.motion.joint[jointno].x)
 static PyObject *Stat_joint_one(pyStatChannel *s, int jointno) {
@@ -730,9 +794,6 @@ static PyObject *Stat_tool_table(pyStatChannel *s) {
     _PyTuple_Resize(&res, j);
     return res;
 }
-
-// XXX io.tool.toolTable
-// XXX EMC_JOINT_STAT motion.joint[]
 
 static PyGetSetDef Stat_getsetlist[] = {
     {(char*)"actual_position", (getter)Stat_actual},

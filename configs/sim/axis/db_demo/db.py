@@ -243,7 +243,8 @@ def save_tools_to_file(fname,comment=""):
            if l == "T" or     l == "P": continue # always include
            if l in D   and D[l] == "0": del D[l] # drop zero entries
         tools[tno] = dict_to_toolline(D,all_letters)
-    for i in sorted(tools,key=tools.get): f.write(tools[i]+"\n")
+    for i in sorted(tools,key=tools.get):
+        f.write(tools[i] + " ;" + tool_comment(i) + "\n")
 
     global history
     if comment: history.append(comment)
@@ -527,6 +528,10 @@ def check_params(tno,params):
     for l in params.upper():
         if l in alphabet and not l in tletters:
             umsg("unknown param letter:%s in %s"%(l,params))
+
+def tool_comment(tno):
+    from datetime import datetime as dt
+    return "Tool_%2d %s"%(tno,dt.today().strftime("%d%b%y:%H.%M.%S"))
 #-----------------------------------------------------------
 # Interface (callback) functions
 
@@ -541,6 +546,7 @@ def user_get_tool(tno):
         for l in tletters:
             if l in item: ans = ans + " " + item
     mutex.release()
+    ans = ans + " ;" + tool_comment(tno)
     return ans.strip()
 
 #   'p' interface command (ran or nonran toolchanger)

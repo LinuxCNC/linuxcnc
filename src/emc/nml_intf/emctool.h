@@ -24,6 +24,7 @@
 */
 #define CANON_POCKETS_MAX 1001	// max size of carousel handled
 #define CANON_TOOL_ENTRY_LEN 256	// how long each file line can be
+#define CANON_TOOL_COMMENT_SIZE 40 // max comment string (include trailing null)
 
 struct CANON_TOOL_TABLE {
     int toolno;
@@ -33,6 +34,7 @@ struct CANON_TOOL_TABLE {
     double frontangle;
     double backangle;
     int orientation;
+    char comment[CANON_TOOL_COMMENT_SIZE];
 };
 
 #endif
