@@ -7,9 +7,13 @@ ${SUDO} halcompile --personalities=2 --install bitslice_test.comp
 
 # This tells us the expected filename extension ${MODULE_EXT} of realtime
 # modules.
-source "${EMC2_HOME}/scripts/rtapi.conf"
+if [[ -f "${EMC2_HOME}/scripts/rtapi.conf" ]]; then
+    source "${EMC2_HOME}/scripts/rtapi.conf"
+else
+    source "/etc/linuxcnc/rtapi.conf"
+fi
 
-for INSTALLED_FILE in "${EMC2_HOME}"/rtlib/{lincurve,logic,bitslice}"${MODULE_EXT}"; do
+for INSTALLED_FILE in "${RTLIB_DIR}"/{lincurve_test,logic_test,bitslice_test}"${MODULE_EXT}"; do
     if [[ ! -f "${INSTALLED_FILE}" ]]; then
         echo "'halcompile --install' did not install '${INSTALLED_FILE}'"
         exit 1
