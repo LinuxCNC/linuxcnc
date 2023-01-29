@@ -97,7 +97,6 @@ class emc_control:
                 self.emccommand.home(joint)
 
         def unhome_selected(self, axis):
-                print(axis)
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
                 self.emccommand.teleop_enable(0)
@@ -517,6 +516,6 @@ class emc_status:
                 e = self.emcerror.poll()
                 if e:
                         kind, text = e
-                        set_text(self.error, text)
+                        set_text(self.error, text[:80])
 
                 

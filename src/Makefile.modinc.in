@@ -121,6 +121,7 @@ $(foreach mod,$(patsubst %.o,%,$(obj-m)),\
 	$(Q)objcopy -j .rtapi_export -O binary $*.tmp $*.sym
 	$(Q)(echo '{ global : '; tr -s '\0' < $*.sym | xargs -r0 printf '%s;\n' | grep .; echo 'local : * ; };') > $*.ver
 	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -Wl,--version-script,$*.ver -o $@ $^ -lm
+	$(Q)chmod -x $@
 endif
 
 ifeq ($(BUILDSYS),normal)

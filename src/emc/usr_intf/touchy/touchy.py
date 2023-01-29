@@ -253,7 +253,6 @@ class touchy:
                                                        floods, mists, spindles, prefs,
                                                        opstop, blockdel)
 
-                self.current_file = self.status.emcstat.file
                 # check the INI file if UNITS are set to mm"
                 # first check the global settings
                 units=self.ini.find("TRAJ","LINEAR_UNITS")
@@ -296,6 +295,7 @@ class touchy:
                         self.linuxcnc.opstop_off(0)                        
 
                 self.linuxcnc.emccommand.program_open(empty_program.name)
+                self.current_file = empty_program.name
 
                 self.linuxcnc.max_velocity(self.mv_val)
                                 
