@@ -46,7 +46,6 @@ from gi.repository import GLib
 import sys
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from OpenGL.GLUT import *
 from OpenGL import GLX
 from OpenGL.raw.GLX._types import struct__XDisplay
 from OpenGL import GL
