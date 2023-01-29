@@ -115,12 +115,6 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
     
         self.xwindow_id = None
 
-        #self.set_has_alpha(True)
-        #'set_has_stencil_buffer',
-        glutInit()
-        glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH )
-
-
         self.add_attribute(GLX.GLX_RGBA, True)
         self.add_attribute(GLX.GLX_RED_SIZE, 1)
         self.add_attribute(GLX.GLX_GREEN_SIZE, 1)
