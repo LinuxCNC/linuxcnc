@@ -323,7 +323,7 @@ Python Error:\n {}'''.format(str(e))
                         if method.startswith('_'):
                             continue
                         if callable(f):
-                            log.debug("Register callback '{}'".format(method))
+                            log.verbose("Register callback '{}'".format(method))
                             add_handler(method, f)
 
             except Exception as e:

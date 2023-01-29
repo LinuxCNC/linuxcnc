@@ -21,12 +21,13 @@ import json
 from PyQt5.QtCore import QProcess, QRegExp
 from PyQt5 import QtGui, QtWidgets, uic
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.core import Action, Status, Info
+from qtvcp.core import Action, Status, Info, Path
 from qtvcp import logger
 
 ACTION = Action()
 STATUS = Status()
 INFO = Info()
+PATH = Path()
 LOG = logger.getLogger(__name__)
 # Force the log level for this module
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -45,13 +46,13 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.valid = QtGui.QRegExpValidator(QRegExp('^[+-]?((\d+(\.\d{,3})?)|(\.\d{,3}))$'))
         self.setMinimumSize(600, 420)
         # load the widgets ui file
-        self.filename = os.path.join(INFO.LIB_PATH, 'widgets_ui', 'basic_probe.ui')
+        self.filename = PATH.find_widget_path('basic_probe.ui')
         try:
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
             LOG.critical(e)
         # load the probe help file
-        self.filename = os.path.join(INFO.LIB_PATH, 'widgets_ui', 'basic_probe_help.ui')
+        self.filename = PATH.find_widget_path('basic_probe_help.ui')
         try:
             self.dialog = uic.loadUi(self.filename)
         except AttributeError as e:
@@ -113,6 +114,9 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         STATUS.connect('state_estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+
+        # must directly initialize
+        self.statuslabel_motiontype.hal_init()
 
         if self.PREFS_:
             self.lineEdit_probe_tool.setText(self.PREFS_.getpref('Probe tool', '0', str, 'PROBE OPTIONS'))

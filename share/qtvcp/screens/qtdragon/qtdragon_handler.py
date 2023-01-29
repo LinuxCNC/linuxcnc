@@ -36,6 +36,7 @@ TAB_GCODES = 7
 TAB_SETUP = 8
 TAB_SETTINGS = 9
 TAB_UTILITIES = 10
+TAB_USER = 11
 
 # constants for (left side) stacked widget
 PAGE_UNCHANGED = -1
@@ -56,6 +57,7 @@ class HandlerClass:
         self.gcodes = GCodes(widgets)
         # This validator precludes using comma as a decimal
         self.valid = QtGui.QRegExpValidator(QtCore.QRegExp('-?[0-9]{0,6}[.][0-9]{0,3}'))
+        self.KEYBIND = KEYBIND
         KEYBIND.add_call('Key_F11','on_keycall_F11')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_Pause', 'on_keycall_pause')
@@ -350,6 +352,10 @@ class HandlerClass:
         #set up gcode list
         self.gcodes.setup_list()
 
+        # hide user tab button if no user tabs
+        if self.w.stackedWidget_mainTab.count() == 11:
+            self.w.btn_user.hide()
+
     def init_probe(self):
         probe = INFO.get_error_safe_setting('PROBE', 'USE_PROBE', 'none').lower()
         if probe == 'versaprobe':
@@ -578,10 +584,15 @@ class HandlerClass:
     # main button bar
     def main_tab_changed(self, btn):
         index = btn.property("index")
+
+        if index == TAB_USER:
+            pass
         # if you select the tab showing, force the DRO to show
-        if index == self.w.main_tab_widget.currentIndex():
+        elif index == self.w.stackedWidget_mainTab.currentIndex():
             self.w.stackedWidget_dro.setCurrentIndex(0)
+
         if index is None: return
+
         # adjust the stack widgets depending on modes
         self.adjust_stacked_widgets(index)
 
@@ -605,7 +616,7 @@ class HandlerClass:
         if not STATUS.is_auto_mode():
             self.add_status("Must be in AUTO mode to run a program", WARNING)
             return
-        if self.w.main_tab_widget.currentIndex() != 0:
+        if self.w.stackedWidget_mainTab.currentIndex() != 0:
             self.add_status("Switch view mode to MAIN", WARNING)
             return
         if STATUS.is_auto_running():
@@ -916,7 +927,7 @@ class HandlerClass:
             try:
                 self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
                 self.add_status("Loaded HTML file : {}".format(fname))
-                self.w.main_tab_widget.setCurrentIndex(TAB_SETUP)
+                self.w.stackedWidget_mainTab.setCurrentIndex(TAB_SETUP)
                 self.w.stackedWidget.setCurrentIndex(0)
                 self.w.btn_setup.setChecked(True)
                 self.w.jogging_frame.hide()
@@ -1020,10 +1031,10 @@ class HandlerClass:
         for widget in self.auto_list:
             self.w[widget].setEnabled(state)
         if state is True:
-            if self.w.main_tab_widget.currentIndex() != TAB_SETUP:
+            if self.w.stackedWidget_mainTab.currentIndex() != TAB_SETUP:
                 self.w.jogging_frame.show()
         else:
-            if self.w.main_tab_widget.currentIndex() != TAB_PROBE:
+            if self.w.stackedWidget_mainTab.currentIndex() != TAB_PROBE:
                 self.w.jogging_frame.hide()
                 self.w.btn_main.setChecked(True)
                 self.adjust_stacked_widgets(TAB_MAIN)
@@ -1132,7 +1143,8 @@ class HandlerClass:
                     TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
                     TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
                     TAB_SETTINGS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_UTILITIES: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO) }
+                    TAB_UTILITIES: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
+                    TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE) }
         else:
             seq = {TAB_MAIN: (requestedIndex,PAGE_GCODE,True,SHOW_DRO),
                     TAB_FILE: (requestedIndex,PAGE_FILE,True,IGNORE),
@@ -1144,9 +1156,11 @@ class HandlerClass:
                     TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
                     TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,IGNORE),
                     TAB_SETTINGS: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
-                    TAB_UTILITIES: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO) }
+                    TAB_UTILITIES: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO),
+                    TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE) }
 
         rtn =  seq.get(requestedIndex)
+
         # if not found (None) use defaults
         if rtn is None:
             main_index = requestedIndex
@@ -1156,7 +1170,10 @@ class HandlerClass:
         else:
             main_index,stacked_index,show_JogControls,show_dro = rtn
 
-        if show_JogControls:
+        # ignore, show or hide jog controls
+        if show_JogControls == IGNORE:
+            pass
+        elif show_JogControls:
             self.w.jogging_frame.show()
         else:
             self.w.jogging_frame.hide()
@@ -1172,7 +1189,8 @@ class HandlerClass:
                 self.w.stackedWidget.setCurrentIndex(PAGE_NGCGUI)
             else:
                 self.w.stackedWidget.setCurrentIndex(PAGE_GCODE)
-        # adjust the stacked widget
+
+        # adjust the stacked widget (left side MDI/Gcode stack)
         if stacked_index > PAGE_UNCHANGED:
             self.w.stackedWidget.setCurrentIndex(stacked_index)
 
@@ -1184,14 +1202,22 @@ class HandlerClass:
         for i in INFO.AVAILABLE_AXES:
             self.w['dro_button_stack_%s'%i.lower()].setCurrentIndex(num)
 
-        # set main tab to adjusted index
-        self.w.main_tab_widget.setCurrentIndex(main_index)
+        # user tabs cycle between all user tabs
+        main_current = self.w.stackedWidget_mainTab.currentIndex()
+        if main_index == TAB_USER and main_current >= TAB_USER:
+                next = main_current +1
+                if next == self.w.stackedWidget_mainTab.count():
+                    next = TAB_USER
+                self.w.stackedWidget_mainTab.setCurrentIndex(next)
+        else:
+            # set main tab to adjusted index
+            self.w.stackedWidget_mainTab.setCurrentIndex(main_index)
 
         # if indexes don't match then request is disallowed
         # give a warning and reset the button check
         if main_index != requestedIndex and not main_index in(TAB_CAMERA,TAB_GCODES,TAB_SETUP):
             self.add_status("Cannot switch pages while in AUTO mode", WARNING)
-            self.w.main_tab_widget.setCurrentIndex(0)
+            self.w.stackedWidget_mainTab.setCurrentIndex(0)
             self.w.btn_main.setChecked(True)
 
     #####################

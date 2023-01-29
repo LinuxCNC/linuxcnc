@@ -46,7 +46,13 @@ class FileManager(QWidget, _HalWidgetBase):
         else:
             self.user_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files'))
         user = os.path.split(os.path.expanduser('~') )[-1]
-        self.media_path = (os.path.join('/media', user))
+
+        # check for Ubuntu/Mint path first
+        media = os.path.join('/media', user)
+        if os.path.exists(media):
+            self.media_path = media
+        else:
+            self.media_path = '/media'
         temp = [('User', self.user_path), ('Media', self.media_path)]
         self._jumpList = OrderedDict(temp)
         self.currentPath = None

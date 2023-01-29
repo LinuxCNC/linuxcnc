@@ -660,7 +660,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.last_line = line
 
     def highlight_line(self, w, line):
-        LOG.debug('editor: highlight line {}'.format(line))
+        LOG.verbose('editor: highlight line {}'.format(line))
         if STATUS.is_auto_running():
             if not STATUS.old['file'] == self._last_filename:
                 LOG.debug('should reload the display')
@@ -682,7 +682,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         STATUS.emit('gcode-line-selected', line+1)
 
     def line_changed(self, line, index):
-        LOG.debug('Line changed: {}'.format(line))
+        LOG.verbose('Line changed: {}'.format(line))
         if STATUS.is_auto_running() is False:
             if STATUS.is_mdi_mode():
                 line_text = str(self.text(line)).strip()

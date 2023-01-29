@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-12 08:55+0100\n"
-"PO-Revision-Date: 2022-11-02 16:17+0000\n"
+"POT-Creation-Date: 2023-01-26 22:23+0100\n"
+"PO-Revision-Date: 2023-01-20 19:22+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "gmocappy/es/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.14.2-dev\n"
+"X-Generator: Weblate 4.15.1\n"
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -54,12 +54,12 @@ msgstr "La ruta del archivo no debe contener espacios"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:528
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:549
 msgid "Error in "
-msgstr ""
+msgstr "Error en "
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:529
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:550
 msgid "Please check the console output."
-msgstr ""
+msgstr "Por favor, compruebe la salida de la consola."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:692
 msgid "axis"
@@ -1727,11 +1727,12 @@ msgid "delete MDI history"
 msgstr "Eliminar Historial de MDI"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:212
-#, fuzzy
 msgid ""
 "Delete\n"
 "MDI history"
-msgstr "Eliminar Historial de MDI"
+msgstr ""
+"Eliminar\n"
+"Historial de MDI"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:214
 msgid "Cl.-ladder"

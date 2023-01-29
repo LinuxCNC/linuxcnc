@@ -25,7 +25,7 @@ from PyQt5.QtCore import QProcess, QEvent
 from PyQt5.QtWidgets import QDialogButtonBox
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.core import Status, Action, Info
+from qtvcp.core import Status, Action, Info, Path
 from qtvcp import logger
 # Instantiate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
@@ -33,14 +33,17 @@ from qtvcp import logger
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
+PATH = Path()
 LOG = logger.getLogger(__name__)
 # Force the log level for this module
 LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 current_dir = os.path.dirname(__file__)
 SUBPROGRAM = os.path.abspath(os.path.join(current_dir, 'probe_subprog.py'))
-HELP = os.path.join(INFO.LIB_PATH,'widgets_ui')
-ICONPATH = os.path.join(INFO.IMAGE_PATH, 'probe_icons')
+
+# can use/favours local image and help files
+HELP = PATH.find_widget_path()
+ICONPATH = os.path.join(PATH.find_image_path(), 'probe_icons')
 
 class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -51,8 +54,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         else:
             self.valid = QtGui.QDoubleValidator(0.0, 99.9999, 4)
         self.setMinimumSize(600, 420)
-        # Load the widgets UI file:
-        self.filename = os.path.join(INFO.LIB_PATH,'widgets_ui', 'versa_probe.ui')
+        # Load the widgets UI file will use local file if available:
+        self.filename = PATH.find_widget_path('versa_probe.ui')
         try:
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
@@ -125,6 +128,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
         self.allow_auto_skew.hal_init()
         self.allow_auto_zero.hal_init()
+        self.statuslabel_motiontype.hal_init()
 
         # connect to STATUS
         STATUS.connect('state-off', lambda w: self.setEnabled(False))

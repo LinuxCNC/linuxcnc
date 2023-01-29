@@ -219,8 +219,8 @@ BIOS tuning guide is not practical.  In general, some things to try
 tuning in the BIOS are:
 
 * Disable ACPI, APM, and any other power-saving features.  This includes
-anything related to power saving, suspending, CPU sleep states, CPU
-frequency scaling, etc.
+  anything related to power saving, suspending, CPU sleep states, CPU
+  frequency scaling, etc.
 
 * Disable CPU "turbo" mode.
 

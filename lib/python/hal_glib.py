@@ -1097,6 +1097,13 @@ class _GStat(GObject.GObject):
             return None
         return bool(self.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE)
 
+    def is_world_mode(self):
+        try:
+            self.stat.poll()
+        except:
+            return None
+        return bool(self.stat.motion_mode == linuxcnc.TRAJ_MODE_TELEOP)
+
     def is_status_valid(self):
         return self._status_active
 

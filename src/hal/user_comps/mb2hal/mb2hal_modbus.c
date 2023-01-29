@@ -67,7 +67,8 @@ retCode fnct_02_read_discrete_inputs(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
 
     for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
         *(this_mb_tx->bit[counter]) = bits[counter];
-        *(this_mb_tx->bit_inv[counter]) = !bits[counter];
+        if (gbl.version > 1000)
+            *(this_mb_tx->bit_inv[counter]) = !bits[counter];
     }
 
     return retOK;
@@ -105,10 +106,8 @@ retCode fnct_03_read_holding_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_l
         float val = data[counter];
         //val *= this_mb_tx->scale[counter];
         //val += this_mb_tx->offset[counter];
-        if (this_mb_tx->float_value[counter] != NULL)
-            *(this_mb_tx->float_value[counter]) = val;
-        if (this_mb_tx->int_value[counter] != NULL)
-            *(this_mb_tx->int_value[counter]) = data[counter];
+        *(this_mb_tx->float_value[counter]) = val;
+        *(this_mb_tx->int_value[counter]) = data[counter];
     }
 
     return retOK;
@@ -146,10 +145,8 @@ retCode fnct_04_read_input_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
         float val = data[counter];
         //val += this_mb_tx->offset[counter];
         //val *= this_mb_tx->scale[counter];
-        if (this_mb_tx->float_value[counter] != NULL)
-            *(this_mb_tx->float_value[counter]) = val;
-        if (this_mb_tx->int_value[counter] != NULL)
-            *(this_mb_tx->int_value[counter]) = data[counter];
+        *(this_mb_tx->float_value[counter]) = val;
+        *(this_mb_tx->int_value[counter]) = data[counter];
     }
 
     return retOK;
@@ -199,10 +196,8 @@ retCode fnct_06_write_single_register(mb_tx_t *this_mb_tx, mb_link_t *this_mb_li
         return retERR;
     }
 
-    data = 0;
-    if (this_mb_tx->float_value[0] != NULL)
-        data += (int) *(this_mb_tx->float_value[0]);
-    if (this_mb_tx->int_value[0] != NULL)
+    data = *(this_mb_tx->float_value[0]);
+    if (gbl.version > 1000)
         data += *(this_mb_tx->int_value[0]);
     if(data > UINT16_MAX) { // prevent wrap on overflow
         data = UINT16_MAX;
@@ -277,11 +272,8 @@ retCode fnct_16_write_multiple_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb
     for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
         //float val = *(this_mb_tx->float_value[counter]) / this_mb_tx->scale[counter];
         //val -= this_mb_tx->offset[counter];
-	int data32 = 0;
-
-        if (this_mb_tx->float_value[counter] != NULL)
-            data32 += (uint16_t)*(this_mb_tx->float_value[counter]);
-        if (this_mb_tx->int_value[counter] != NULL)
+        int data32 = (uint16_t) *(this_mb_tx->float_value[counter]);
+        if (gbl.version > 1000)
             data32 += *(this_mb_tx->int_value[counter]);
         if(data32 > UINT16_MAX) { // prevent wrap on overflow
             data[counter] = UINT16_MAX;

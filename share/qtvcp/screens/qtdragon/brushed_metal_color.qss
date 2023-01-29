@@ -1,21 +1,24 @@
-/* brushed_metal_color stylesheet designed for qtdragon */
+/* brushed_metal_color stylesheet designed for qtdragon/hd */
 
 QMainWindow {
    background-image: url(:/images/images/brushed_metal.png);
 }
 
+/* Uncomment to stop blur effect with dialogs */
 #screen_options {qproperty-focusBlur_option: false;}
 
 QPushButton,
 ActionButton,
 SystemToolButton,
 OffsetToolButton,
-AxisToolButton {
+AxisToolButton, 
+QToolButton {
+background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1.6, stop:0 rgba(180, 180, 180, 225),  stop:0.6 rgba(130, 130, 130, 180));
     border: 2px solid black;
     border-radius: 4px;
     font: 10pt "Lato Heavy";
-    background: rgb(140, 140, 140,140);
 }
+
 
 
 QPushButton:checked,
@@ -34,8 +37,9 @@ AxisToolButton:hover {
 }
 
 QPushButton:disabled,
-ActionButton:disabled {
-    color: gray;
+ActionButton:disabled,
+AxisToolButton:disabled {
+    color:  #c8c8c8;
 }
 
 ActionButton#action_machine_on {
@@ -45,31 +49,30 @@ ActionButton#action_machine_on {
 ActionButton#x_plus_jogbutton,
 ActionButton#x_minus_jogbutton {
     border-radius: 4px;
-   background: rgb(80, 255, 80,120);
+    background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(180, 255, 180,120),  stop:0.6 rgba(80, 255, 80,120));
     
 }
 
 ActionButton#y_plus_jogbutton,
 ActionButton#y_minus_jogbutton {
     border-radius: 4px;
-   background: rgb(255, 80, 80,120);
+   background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(255, 180, 180,120),  stop:0.6 rgba(255, 80, 80,120));
     
 }
-
 ActionButton#z_plus_jogbutton,
 ActionButton#z_minus_jogbutton {
     border-radius: 4px;
    background: rgb(80, 80, 255,120);
+  background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(180, 180, 255,120),  stop:0.6 rgba(80, 80, 255,120));
     
 }
-
 ActionButton#a_plus_jogbutton,
 ActionButton#a_minus_jogbutton {
     border-radius: 4px;
     background: rgb(60, 60, 60,120);
+   background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(160, 160, 160,120),  stop:0.6 rgba(60, 60, 60,120));
     
 }
-
 ActionButton#action_machine_on[isStateOn=true] {
     color: #00FF00;
 }
@@ -79,9 +82,11 @@ ActionButton#action_estop {
     background: rgb(255, 80, 80,160);
 }
 
+
 ActionButton#action_estop:checked {
     color: #000000;
 }
+
 
 QComboBox {
      border-radius: 4px;
@@ -102,7 +107,7 @@ QLabel#label_axis_x {
     border-radius: 4px;
     font: 20pt "Lato Heavy";
     color: rgb(80, 255, 80);
-    background: rgb(150, 150, 150,120);
+    background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(180, 180, 180, 225),  stop:0.6 rgba(130, 130, 130, 180));
 }
 
 QLabel#label_axis_y {
@@ -110,7 +115,7 @@ QLabel#label_axis_y {
     border-radius: 4px;
     font: 20pt "Lato Heavy";
     color: rgb(255, 80, 80);
-    background: rgb(150, 150, 150,120);
+    background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(180, 180, 180, 225),  stop:0.6 rgba(130, 130, 130, 180));
 }
 
 QLabel#label_axis_z {
@@ -118,7 +123,7 @@ QLabel#label_axis_z {
     border-radius: 4px;
     font: 20pt "Lato Heavy";
     color:  rgb(80, 80, 255);
-    background: rgb(150, 150, 150,120);
+    background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(180, 180, 180, 225),  stop:0.6 rgba(130, 130, 130, 180));
 }
 
 QLabel#label_axis_a {
@@ -126,8 +131,9 @@ QLabel#label_axis_a {
     border-radius: 4px;
     font: 20pt "Lato Heavy";
     color: rgb(60, 60, 60);
-    background: rgb(150, 150, 150,120);
+    background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(180, 180, 180, 225),  stop:0.6 rgba(130, 130, 130, 180));
 }
+
 
 QLabel#lbl_cycle_start,
 QLabel#lbl_home_all {
@@ -149,20 +155,25 @@ StateLabel {
 
 StatusLabel#status_rpm,
 Label {
-    background: rgb(250, 250, 250);
-    border: 1px solid;
+    background: #303030;
+    border: 1px solid black;
     border-left-color: black;
     border-top-color: black;
     border-right-color: white;
     border-bottom-color: white;
+    border-radius: 4px;
     font: 20pt "Lato Heavy";
-    color: black;
+    color: #00FF00;
     border-radius: 3px;
 }
 
 DROLabel {
-    background: #202020;
+    background: #303030;
     border: 1px solid black;
+    border-left-color: black;
+    border-top-color: black;
+    border-right-color: white;
+    border-bottom-color: white;
     border-radius: 4px;
     font: 20pt "Lato Heavy";
     color: #00FF00;
@@ -174,6 +185,8 @@ DROLabel {
 DROLabel[isHomed=false] {
     color: red;
 }
+
+
 
 QLineEdit {
     background: rgb(250, 250, 250);
@@ -381,3 +394,5 @@ OriginOffsetView {
    qproperty-imperial_template: '%9.4f'; 
    qproperty-metric_template: '%10.2f'; 
 }
+
+

@@ -298,6 +298,24 @@ class ToolBarActions():
             self._machineModeActiongroup.addAction(widget)
             self._machineModeActiongroup.setExclusive(True)
             function = (self.actOnAutoMode)
+        elif action == 'joint_mode':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
+            STATUS.connect('mode-auto', lambda w: widget.setChecked(True))
+            STATUS.connect('motion-mode-changed', lambda w,data: \
+                widget.setChecked(STATUS.is_joint_mode()))
+            function = (self.actOnJointMode)
+        elif action == 'axis_mode':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
+            STATUS.connect('mode-auto', lambda w: widget.setChecked(True))
+            STATUS.connect('motion-mode-changed', lambda w,data: \
+                widget.setChecked(STATUS.is_world_mode()))
+            function = (self.actOnAxisMode)
         elif not extFunction:
             LOG.warning('Unrecogzied action command: {}'.format(action))
 
@@ -623,6 +641,12 @@ class ToolBarActions():
 
     def actOnAutoMode(self, widget, state=None):
         ACTION.SET_AUTO_MODE()
+
+    def actOnJointMode(self, widget, state=None):
+        ACTION.SET_MOTION_TELEOP(0)
+
+    def actOnAxisMode(self, widget, state=None):
+        ACTION.SET_MOTION_TELEOP(1)
 
     #########################################################
     # Sub menus

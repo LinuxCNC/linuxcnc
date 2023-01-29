@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-12 08:55+0100\n"
-"PO-Revision-Date: 2022-11-05 22:28+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"POT-Creation-Date: 2023-01-26 22:23+0100\n"
+"PO-Revision-Date: 2023-01-14 05:16+0000\n"
+"Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
 "Language: de\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.14.2\n"
+"X-Generator: Weblate 4.15.1-dev\n"
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -52,12 +52,12 @@ msgstr "Der Dateipfad sollte keine Leerzeichen enthalten"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:528
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:549
 msgid "Error in "
-msgstr ""
+msgstr "Fehler in "
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:529
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:550
 msgid "Please check the console output."
-msgstr ""
+msgstr "Bitte prüfen Sie die Konsolenausgabe."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:692
 msgid "axis"
@@ -1725,14 +1725,15 @@ msgstr "Geladenes Programm editieren"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:211
 msgid "delete MDI history"
-msgstr "Lösche MDI Historie"
+msgstr "MDI-Historie löschen"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:212
-#, fuzzy
 msgid ""
 "Delete\n"
 "MDI history"
-msgstr "Lösche MDI Historie"
+msgstr ""
+"MDI-Historie\n"
+"löschen"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:214
 msgid "Cl.-ladder"

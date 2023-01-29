@@ -147,11 +147,11 @@ The function
 
 * creates a Python `dict` with:
 ** *`NAME`* - needs to be set to the _dialogs unique launch name_. +
-`NAME` sets which dialog to request. +
-`ENTRY` or `CALCULATOR` allows entering numbers.
+   `NAME` sets which dialog to request. +
+   `ENTRY` or `CALCULATOR` allows entering numbers.
 //FIXME Is that a user defined unique name or a dialog type ?
 ** *`ID`* - needs to be set to a _unique name that the function supplies_.
-`ID` should be a unique key.
+   `ID` should be a unique key.
 ** *`TITLE`* sets the dialog title.
 ** *Arbitrary data* can be added to the `dict`. The dialog will ignore them but send them back to the return code.
 * Sends the `dict` as a *`dialog-request`* `STATUS` message

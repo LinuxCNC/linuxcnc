@@ -2601,6 +2601,40 @@ PLATE</string>
                </widget>
               </item>
               <item>
+               <widget class="QPushButton" name="btn_user">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>74</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>USER</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+                <property name="index" stdset="0">
+                 <number>11</number>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">page_buttonGroup</string>
+                </attribute>
+               </widget>
+              </item>
+              <item>
                <widget class="ActionButton" name="action_machine_on">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -2989,7 +3023,7 @@ RESET</string>
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="QStackedWidget" name="main_tab_widget">
+                  <widget class="QStackedWidget" name="stackedWidget_mainTab">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                      <horstretch>0</horstretch>
@@ -3017,7 +3051,7 @@ RESET</string>
                    <property name="currentIndex">
                     <number>0</number>
                    </property>
-                   <widget class="QWidget" name="main_tab_widgetPage1">
+                   <widget class="QWidget" name="stackedWidget_mainTabPage1">
                     <layout class="QHBoxLayout" name="horizontalLayout_3">
                      <property name="spacing">
                       <number>4</number>
@@ -4718,7 +4752,7 @@ View</string>
                      </item>
                     </layout>
                    </widget>
-                   <widget class="QWidget" name="main_tab_widgetPage2">
+                   <widget class="QWidget" name="stackedWidget_mainTabPage2">
                     <layout class="QHBoxLayout" name="horizontalLayout_6">
                      <property name="spacing">
                       <number>4</number>
@@ -4944,7 +4978,7 @@ GCODE</string>
                      </item>
                     </layout>
                    </widget>
-                   <widget class="QWidget" name="main_tab_widgetPage3">
+                   <widget class="QWidget" name="stackedWidget_mainTabPage3">
                     <layout class="QHBoxLayout" name="horizontalLayout_7">
                      <property name="spacing">
                       <number>4</number>
@@ -5179,7 +5213,7 @@ ROTATION</string>
                      </item>
                     </layout>
                    </widget>
-                   <widget class="QWidget" name="main_tab_widgetPage4">
+                   <widget class="QWidget" name="stackedWidget_mainTabPage4">
                     <layout class="QHBoxLayout" name="horizontalLayout">
                      <property name="spacing">
                       <number>4</number>
@@ -5232,7 +5266,7 @@ ROTATION</string>
                      </item>
                     </layout>
                    </widget>
-                   <widget class="QWidget" name="main_tab_widgetPage5">
+                   <widget class="QWidget" name="stackedWidget_mainTabPage5">
                     <layout class="QHBoxLayout" name="horizontalLayout_4">
                      <property name="spacing">
                       <number>4</number>
@@ -5499,7 +5533,7 @@ TO FILE</string>
                      </item>
                     </layout>
                    </widget>
-                   <widget class="QWidget" name="main_tab_widgetPage6">
+                   <widget class="QWidget" name="stackedWidget_mainTabPage6">
                     <layout class="QVBoxLayout" name="verticalLayout_47">
                      <property name="spacing">
                       <number>0</number>
@@ -5525,7 +5559,7 @@ TO FILE</string>
                      </item>
                     </layout>
                    </widget>
-                   <widget class="QWidget" name="main_tab_widgetPage7">
+                   <widget class="QWidget" name="stackedWidget_mainTabPage7">
                     <layout class="QHBoxLayout" name="horizontalLayout_11">
                      <property name="spacing">
                       <number>0</number>
@@ -5785,7 +5819,7 @@ TO FILE</string>
                      </item>
                     </layout>
                    </widget>
-                   <widget class="QWidget" name="main_tab_widgetPage8">
+                   <widget class="QWidget" name="stackedWidget_mainTabPage8">
                     <layout class="QHBoxLayout" name="horizontalLayout_15">
                      <property name="spacing">
                       <number>4</number>
@@ -5875,7 +5909,7 @@ TO FILE</string>
                      </item>
                     </layout>
                    </widget>
-                   <widget class="QWidget" name="main_tab_widgetPage9">
+                   <widget class="QWidget" name="stackedWidget_mainTabPage9">
                     <layout class="QHBoxLayout" name="horizontalLayout_41">
                      <property name="spacing">
                       <number>4</number>
@@ -5980,7 +6014,7 @@ TO FILE</string>
                      </item>
                     </layout>
                    </widget>
-                   <widget class="QWidget" name="main_tab_widgetPage10">
+                   <widget class="QWidget" name="stackedWidget_mainTabPage10">
                     <layout class="QHBoxLayout" name="horizontalLayout_5">
                      <property name="spacing">
                       <number>4</number>
@@ -10237,6 +10271,9 @@ PAUSED</string>
                    <property name="false_state_string" stdset="0">
                     <string>PAUSE
 SPINDLE</string>
+                   </property>
+                   <property name="isAutoPauseSensitive" stdset="0">
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>
@@ -16038,7 +16075,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>03:26:07 PM</string>
+            <string>08:59:39 AM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -16609,8 +16646,8 @@ ZERO</string>
    <slot>cam_zoom_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>984</x>
-     <y>163</y>
+     <x>446</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
      <x>1105</x>
@@ -16626,7 +16663,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>614</x>
-     <y>399</y>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
      <x>508</x>
@@ -16642,7 +16679,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>459</x>
-     <y>433</y>
+     <y>122</y>
     </hint>
     <hint type="destinationlabel">
      <x>515</x>
@@ -16657,8 +16694,8 @@ ZERO</string>
    <slot>cam_dia_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>984</x>
-     <y>275</y>
+     <x>446</x>
+     <y>151</y>
     </hint>
     <hint type="destinationlabel">
      <x>1124</x>
@@ -16674,7 +16711,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>614</x>
-     <y>379</y>
+     <y>81</y>
     </hint>
     <hint type="destinationlabel">
      <x>565</x>
@@ -16690,7 +16727,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>614</x>
-     <y>238</y>
+     <y>71</y>
     </hint>
     <hint type="destinationlabel">
      <x>645</x>
@@ -16705,8 +16742,8 @@ ZERO</string>
    <slot>btn_save_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1006</x>
-     <y>216</y>
+     <x>508</x>
+     <y>124</y>
     </hint>
     <hint type="destinationlabel">
      <x>1098</x>
@@ -16722,7 +16759,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>614</x>
-     <y>439</y>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -16737,8 +16774,8 @@ ZERO</string>
    <slot>cam_rot_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>984</x>
-     <y>388</y>
+     <x>446</x>
+     <y>157</y>
     </hint>
     <hint type="destinationlabel">
      <x>1156</x>
@@ -16754,7 +16791,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>614</x>
-     <y>419</y>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>656</x>
@@ -16770,7 +16807,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>459</x>
-     <y>312</y>
+     <y>131</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
@@ -16786,7 +16823,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>614</x>
-     <y>359</y>
+     <y>80</y>
     </hint>
     <hint type="destinationlabel">
      <x>554</x>
@@ -16818,7 +16855,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>459</x>
-     <y>246</y>
+     <y>129</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -16833,8 +16870,8 @@ ZERO</string>
    <slot>btn_clear_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1006</x>
-     <y>160</y>
+     <x>508</x>
+     <y>114</y>
     </hint>
     <hint type="destinationlabel">
      <x>1039</x>
@@ -16850,7 +16887,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>614</x>
-     <y>258</y>
+     <y>73</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -16929,8 +16966,8 @@ ZERO</string>
    <slot>btn_about_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>968</x>
-     <y>94</y>
+     <x>545</x>
+     <y>108</y>
     </hint>
     <hint type="destinationlabel">
      <x>988</x>

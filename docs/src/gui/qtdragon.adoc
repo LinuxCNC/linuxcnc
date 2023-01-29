@@ -160,11 +160,11 @@ MESSAGE_PINNAME = oktest
 
 You can embed QtVCP Virtual Control Panels into the QtDragon or QtDragon_hd screen. +
 These panels can be either user built or builtin <<cha:qtvcp:panels,QtVCP Panels>>. +
-The `TAB_NAME` entry will used as the title for the new tab. +
-Tab `TAB_LOCATION` options include: `tabWidget_utilities` and `tabWidget_setup`.
-See QtVCP/VCP panels for other available builtin panels.
-
-This sample adds a builtin panel; a graphical animated machine using the vismach library.
+See QtVCP/VCP panels for other available builtin panels. +
+The `EMBED_TAB_NAME` entry will used as the title for the new tab.(must be unique) +
+Tab `EMBED_TAB_LOCATION` options include: `tabWidget_utilities`, `tabWidget_setup` and 'stackedWidget_mainTab'. +
+Tab `EMBED_TAB_COMMAND' specifies what embed-able program to run, including any of it's command line options. + 
+This sample adds a builtin panel, a graphical animated machine using the vismach library, to the utilities tab.
 
 [source,{ini}]
 ----
@@ -173,6 +173,10 @@ EMBED_TAB_NAME = Vismach demo
 EMBED_TAB_COMMAND = qtvcp vismach_mill_xyz
 EMBED_TAB_LOCATION = tabWidget_utilities
 ----
+
+If using the `tabWidget_utilities` or `tabWidget_setup` locations, an extra tab will appear with the panel. +
+If using 'stackedWidget_mainTab', a button labelled 'User" will appear. Pressing this button will cycle 
+through displaying all available panels (specified for this location) on the main tab area.
 
 === Preview Control
 
@@ -521,9 +525,9 @@ This is only available in the QtDragon_hd version.
 * There should now be a file in the nc_files folder called {something}-probe-only.ngc. Set the file filter to G-Code Files, navigate to the nc_files directory and load this file.
 * Without changing the offsets, run this program. Make sure the probe tool is installed. When complete, there will be a file in the config directory called 'probe_points.txt'.
 * In Qtdragon_hd press the 'Enable Z Comp' button to enable compensation.
-Look at the status line for indication of success or failure.
-Active compensation will be displayed beside the label: 'Z Level Comp'
-While jogging that display should change based on the compensation component.
+  Look at the status line for indication of success or failure.
+  Active compensation will be displayed beside the label: 'Z Level Comp'
+  While jogging that display should change based on the compensation component.
 
 [NOTE]
 If you use auto raise Z to lift the spindle on pause, you must combine the two

@@ -3,13 +3,13 @@
 #
 # J.M. Garcia <jmgardeto@gmail.com>, 2020.
 # Billy Soto <cromatronix@gmail.com>, 2022.
-# Ulices <dev.n47os@aleeas.com>, 2022.
+# Ulices <dev.n47os@aleeas.com>, 2022, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-12 08:55+0100\n"
-"PO-Revision-Date: 2022-10-27 16:28+0000\n"
+"POT-Creation-Date: 2023-01-26 22:23+0100\n"
+"PO-Revision-Date: 2023-01-24 04:08+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.14.2-dev\n"
+"X-Generator: Weblate 4.16-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -140,20 +140,16 @@ msgstr ""
 "Palabra D sin código G41, G41.1, G42, G42.1 ó G96 con el cual ser usado"
 
 #: src/emc/rs274ngc/interp_check.cc:269
-#, fuzzy
 msgid ""
 "$ (spindle selection) word with no M3, M4, M5, M19, M51, G33, G33.1, G76, "
 "G95, G96 or G97 to use it"
 msgstr ""
-"Palabra $ (selección de husillo) sin código G41, G41.1, G42, G42.1, G76 G95 "
-"o G96 con el cual ser usado"
+"Palabra $ (selección de husillo) sin código M3, M4, M5, M19, M51, G33, "
+"G33.1, G76, G95, G96 or G97 con el cual ser usado"
 
 #: src/emc/rs274ngc/interp_check.cc:276
-#, fuzzy
 msgid "E word with no G70, G76, M66, M67 or M68 to use it"
-msgstr ""
-"Palabra E sin código G76, M3, M4, M5, M19, M51, M66, M67 o M68 con el cual "
-"ser usado"
+msgstr "Palabra E sin código G70, G76, M66, M67 o M68 con el cual ser usado"
 
 #: src/emc/rs274ngc/interp_check.cc:281
 msgid "H word with no G43 or G76 to use it"
@@ -1014,16 +1010,16 @@ msgid "Named parameter #<%s> not defined"
 msgstr "Parámetro con nombre #<%s> no definido"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:215
-#, fuzzy, c-format
+#, c-format
 msgid "can't open INI file '%s'"
-msgstr "no se puede abrir el archivo ini '%s'"
+msgstr "no se puede abrir el archivo INI '%s'"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:232
-#, fuzzy, c-format
+#, c-format
 msgid "Named INI parameter #<%s> not found in INI file '%s': error=0x%x"
 msgstr ""
-"El parámetro ini nombrado #<%s> no se encuentra en el archivo '%s': error=0x"
-"%x"
+"El parámetro INI nombrado #<%s> no se encuentra en el archivo INI '%s': "
+"error=0x%x"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:257
 #, c-format
@@ -2078,8 +2074,8 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/axis.py:1195
 #: src/emc/usr_intf/axis/scripts/axis.py:1300
 #: src/emc/usr_intf/axis/scripts/axis.py:1660
-#: src/emc/usr_intf/axis/scripts/axis.py:2959
-#: src/emc/usr_intf/axis/scripts/axis.py:4215
+#: src/emc/usr_intf/axis/scripts/axis.py:2960
+#: src/emc/usr_intf/axis/scripts/axis.py:4216
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:725
 #: lib/python/propertywindow.py:35 share/axis/tcl/axis.tcl:1580
 #: share/axis/tcl/axis.tcl:1617
@@ -3054,16 +3050,12 @@ msgstr ""
 "classicladder.\n"
 
 #: src/hal/classicladder/classicladder.c:221
-#, fuzzy
 msgid "Stopped program - press run button to continue."
-msgstr ""
-"Programa de escalera detenido - presione el botón de ejecución para "
-"continuar."
+msgstr "Programa detenido - presione el botón de ejecución para continuar."
 
 #: src/hal/classicladder/classicladder.c:231
-#, fuzzy
 msgid "Started program - press stop to pause."
-msgstr "Programa de escalera iniciado - presione detener para pausar."
+msgstr "Programa iniciado - presione detener para pausar."
 
 #: src/hal/classicladder/classicladder.c:286
 msgid ""
@@ -3199,27 +3191,23 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:651
 msgid "Reset logic data - Now running."
-msgstr ""
+msgstr "Restablecer datos lógicos - Ahora en marcha."
 
 #: src/hal/classicladder/classicladder_gtk.c:651
-#, fuzzy
 msgid "Reset logic data done."
-msgstr "Reiniciar datos de escalera"
+msgstr "Restablecer datos lógicos hecho."
 
 #: src/hal/classicladder/classicladder_gtk.c:709
-#, fuzzy
 msgid "About ClassicLadder"
-msgstr "Abrir classicladder"
+msgstr "Abrir ClassicLadder"
 
 #: src/hal/classicladder/classicladder_gtk.c:766
-#, fuzzy
 msgid "Save SVG File"
-msgstr "Guardar en archivo"
+msgstr "Guardar archivo SVG"
 
 #: src/hal/classicladder/classicladder_gtk.c:766
-#, fuzzy
 msgid "Save PNG File"
-msgstr "Guardar en archivo"
+msgstr "Guardar archivo PNG"
 
 #: src/hal/classicladder/classicladder_gtk.c:839
 #: src/hal/classicladder/classicladder_gtk.c:1294
@@ -3288,18 +3276,18 @@ msgstr ""
 "¿Realmente quiere salir?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:943
-#, fuzzy
 msgid "ClassicLadder Section Display"
-msgstr "Proyectos de ClassicLadder"
+msgstr "Visualización de la sección ClassicLadder"
 
 #: src/hal/classicladder/classicladder_gtk.c:971
 msgid "Label of the current selected rung"
 msgstr "Etiqueta del escalon seleccionado actual"
 
 #: src/hal/classicladder/classicladder_gtk.c:980
-#, fuzzy
 msgid "Comment of the current selected ladder rung or sequential page"
-msgstr "Comentario del escalon seleccionado actual"
+msgstr ""
+"Comentario del peldaño de escalera seleccionado actualmente o página "
+"secuencial"
 
 #: src/hal/classicladder/classicladder_gtk.c:983
 msgid "Display symbols"
@@ -3315,7 +3303,7 @@ msgstr "Cargar"
 
 #: src/hal/classicladder/classicladder_gtk.c:1069 tcl/bin/emccalib.tcl:123
 #: tcl/bin/genedit.tcl:82 tcl/bin/halconfig.tcl:155
-#: src/emc/usr_intf/axis/scripts/axis.py:2308
+#: src/emc/usr_intf/axis/scripts/axis.py:2309
 msgid "Save"
 msgstr "Guardar"
 
@@ -3383,104 +3371,102 @@ msgid "Rung Refresh Rate (milliseconds)"
 msgstr "Frecuencia de actualización del escalon (milisegundos)"
 
 #: src/hal/classicladder/config_gtk.c:127
-#, fuzzy, c-format
+#, c-format
 msgid "Number of rungs (%d%c used)"
-msgstr "Número de escalones (%d%c usado      "
+msgstr "Número de escalones (%d%c usado)"
 
 #: src/hal/classicladder/config_gtk.c:131
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Bits"
-msgstr "Número de conectores"
+msgstr "Número de bits"
 
 #: src/hal/classicladder/config_gtk.c:135
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Words"
-msgstr "Número de conectores"
+msgstr "Número de palabras"
 
 #: src/hal/classicladder/config_gtk.c:139
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Counters"
-msgstr "Número de conectores"
+msgstr "Número de contadores"
 
 #: src/hal/classicladder/config_gtk.c:143
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Timers IEC"
-msgstr "Número de Temporizadores IEC            "
+msgstr "Número de temporizadores IEC"
 
 #: src/hal/classicladder/config_gtk.c:147
-#, fuzzy, c-format
+#, c-format
 msgid "Number of BIT Inputs HAL pins"
-msgstr "Número pines HAL de entradas BIT            "
+msgstr "Número pines HAL de entradas BIT"
 
 #: src/hal/classicladder/config_gtk.c:151
-#, fuzzy, c-format
+#, c-format
 msgid "Number of BIT Outputs HAL pins"
-msgstr "Número de pines HAL de salidas BIT          "
+msgstr "Número de pines HAL de salidas BIT"
 
 #: src/hal/classicladder/config_gtk.c:155
-#, fuzzy, c-format
+#, c-format
 msgid "Number of S32in HAL pins"
-msgstr "Número de pines HAL S32in             "
+msgstr "Número de pines HAL S32in"
 
 #: src/hal/classicladder/config_gtk.c:159
-#, fuzzy, c-format
+#, c-format
 msgid "Number of S32out HAL pins"
 msgstr "Número de pines HAL S32out"
 
 #: src/hal/classicladder/config_gtk.c:164
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Arithmetic Expressions"
-msgstr "Número de Expresiones Aritméticas"
+msgstr "Número de expresiones aritméticas"
 
 #: src/hal/classicladder/config_gtk.c:169
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Sections (%d%c used)"
-msgstr "Número de Secciones (%d%c usado)   "
+msgstr "Número de secciones (%d%c usado)"
 
 #: src/hal/classicladder/config_gtk.c:174
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Symbols"
-msgstr "Número de Secciones"
+msgstr "Número de símbolos"
 
 #: src/hal/classicladder/config_gtk.c:179
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Timers"
-msgstr "Número de conectores"
+msgstr "Número de temporizadores"
 
 #: src/hal/classicladder/config_gtk.c:183
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Monostables"
-msgstr "Número de Monoestables            "
+msgstr "Número de monoestables"
 
 #: src/hal/classicladder/config_gtk.c:188
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Error Bits"
-msgstr "Número de Bits de Error                  "
+msgstr "Número de bits de error"
 
 #: src/hal/classicladder/config_gtk.c:192
-#, fuzzy, c-format
+#, c-format
 msgid "Number of floatin HAL pins"
-msgstr "Número de pines HAL floatin             "
+msgstr "Número de pines HAL floatin"
 
 #: src/hal/classicladder/config_gtk.c:196
-#, fuzzy, c-format
+#, c-format
 msgid "Number of floatout HAL pins"
-msgstr "Número de pines HAL floatout            "
+msgstr "Número de pines HAL floatout"
 
 #: src/hal/classicladder/config_gtk.c:200
-#, fuzzy, c-format
+#, c-format
 msgid "Current path/filename:"
-msgstr "path/nombre de archivo actual"
+msgstr "Ruta/nombre de archivo actual:"
 
 #: src/hal/classicladder/config_gtk.c:327
-#, fuzzy
 msgid "1st %I mapped"
-msgstr "1ra Variable mapeada"
+msgstr "1er %l mapeada"
 
 #: src/hal/classicladder/config_gtk.c:327
-#, fuzzy
 msgid "1st %Q mapped"
-msgstr "1ra Variable mapeada"
+msgstr "1er %Q mapeada"
 
 #: src/hal/classicladder/config_gtk.c:367
 #: src/hal/classicladder/config_gtk.c:566
@@ -3488,18 +3474,17 @@ msgid "Inverted"
 msgstr "Invertido"
 
 #: src/hal/classicladder/config_gtk.c:662
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Error in I/O modbus conf: overflow for I,Q,B,IQ, or WQ mapping detected..."
 "ASKED=%i,MAX=%i\n"
 msgstr ""
-"Error en la configuración de E/S modbus: desbordamiento I, B, Q, IQ o "
-"WQdetectado... PREGUNTADO=%i, MAX =%i\n"
+"Error en la configuración de E/S modbus: desbordamiento para mapeo I, B, Q, "
+"IQ o WQ detectado... PREGUNTADO=%i, MAX =%i\n"
 
 #: src/hal/classicladder/config_gtk.c:664
-#, fuzzy
 msgid "Overflow error for I,Q,B,IQ,WQ or W mapping detected..."
-msgstr "Error de desbordamiento detectado para el mapeo I, B, Q, IQ o WQ..."
+msgstr "Error de desbordamiento para el mapeo I, B, Q, IQ o WQ detectado..."
 
 #: src/hal/classicladder/config_gtk.c:745
 #, c-format
@@ -3512,19 +3497,19 @@ msgid "Serial baud rate"
 msgstr "Velocidad de transmisión serie"
 
 #: src/hal/classicladder/config_gtk.c:753
-#, fuzzy, c-format
+#, c-format
 msgid "Serial data bits"
-msgstr "Velocidad de transmisión serie"
+msgstr "Bits de datos en serie"
 
 #: src/hal/classicladder/config_gtk.c:757
-#, fuzzy, c-format
+#, c-format
 msgid "Serial parity"
-msgstr "Velocidad de transmisión serie"
+msgstr "Paridad serial"
 
 #: src/hal/classicladder/config_gtk.c:761
 #, c-format
 msgid "Serial stop bits"
-msgstr ""
+msgstr "Bits de parada en serie"
 
 #: src/hal/classicladder/config_gtk.c:765
 #, c-format
@@ -3561,13 +3546,12 @@ msgid "QUIET"
 msgstr "SILENCIOSO"
 
 #: src/hal/classicladder/config_gtk.c:786
-#, fuzzy
 msgid "LEVEL"
-msgstr "NIVEL 1"
+msgstr "NIVEL"
 
 #: src/hal/classicladder/config_gtk.c:786
 msgid "VERBOSE"
-msgstr ""
+msgstr "VERBOSO"
 
 #: src/hal/classicladder/config_gtk.c:789
 #, fuzzy, c-format
@@ -3713,13 +3697,12 @@ msgid "Expression too long"
 msgstr "Expresión demasiado larga"
 
 #: src/hal/classicladder/edit.c:479
-#, fuzzy
 msgid "Incompatible type of variable for index (must be an integer!)"
-msgstr "Tipo de variable incompatible (¡debe ser un entero!)"
+msgstr "Tipo de variable incompatible para índice (¡debe ser un entero!)"
 
 #: src/hal/classicladder/edit.c:485
 msgid "Parser error for indexed variable !"
-msgstr ""
+msgstr "¡Error del analizador para la variable indexada!"
 
 #: src/hal/classicladder/edit.c:491
 msgid "You must select a boolean variable !"
@@ -3793,7 +3776,7 @@ msgstr "Modificar"
 #: tcl/tklinuxcnc.tcl:1978 src/emc/usr_intf/axis/scripts/axis.py:1605
 #: src/emc/usr_intf/axis/scripts/axis.py:1661
 #: src/emc/usr_intf/axis/scripts/axis.py:1891
-#: src/emc/usr_intf/axis/scripts/axis.py:2309
+#: src/emc/usr_intf/axis/scripts/axis.py:2310
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:727
 #: src/emc/usr_intf/stepconf/main_page.glade:475
 #: src/emc/usr_intf/pncconf/main_page.glade:101
@@ -5504,7 +5487,7 @@ msgstr "Establecer offset de herramienta"
 msgid "Tool:"
 msgstr "Herramienta:"
 
-#: tcl/tklinuxcnc.tcl:466 src/emc/usr_intf/axis/scripts/axis.py:2229
+#: tcl/tklinuxcnc.tcl:466 src/emc/usr_intf/axis/scripts/axis.py:2230
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:763
 msgid "All files"
 msgstr "Todos los archivos"
@@ -5577,7 +5560,7 @@ msgstr "pulgadas"
 
 #: tcl/tklinuxcnc.tcl:786 src/emc/usr_intf/axis/scripts/axis.py:1760
 #: src/emc/usr_intf/axis/scripts/axis.py:2046
-#: src/emc/usr_intf/axis/scripts/axis.py:2623
+#: src/emc/usr_intf/axis/scripts/axis.py:2624
 #: src/emc/usr_intf/touchy/touchy.glade:3272
 #: src/emc/usr_intf/stepconf/stepconf.py:1567
 #: src/emc/usr_intf/stepconf/pages.py:961
@@ -5943,7 +5926,7 @@ msgid "Coordinate System Control Window"
 msgstr "Ventana de control del sistema de coordenadas"
 
 #: tcl/scripts/Set_Coordinates.tcl:83
-#: src/emc/usr_intf/axis/scripts/axis.py:3642
+#: src/emc/usr_intf/axis/scripts/axis.py:3643
 msgid "Axis "
 msgstr "Eje"
 
@@ -6497,9 +6480,9 @@ msgstr "eliminar"
 msgid "move"
 msgstr "mover"
 
-#: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:4066
-#: src/emc/usr_intf/pncconf/pncconf.py:4172
-#: src/emc/usr_intf/pncconf/pncconf.py:4336
+#: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:4108
+#: src/emc/usr_intf/pncconf/pncconf.py:4214
+#: src/emc/usr_intf/pncconf/pncconf.py:4378
 msgid "Custom"
 msgstr "Personalizado"
 
@@ -6519,8 +6502,8 @@ msgstr "Se encontraron múltiples coincidencias para"
 msgid "using path"
 msgstr "usando la ruta"
 
-#: tcl/ngcgui.tcl:3811 src/emc/usr_intf/axis/scripts/axis.py:2684
-#: src/emc/usr_intf/axis/scripts/axis.py:2710
+#: tcl/ngcgui.tcl:3811 src/emc/usr_intf/axis/scripts/axis.py:2685
+#: src/emc/usr_intf/axis/scripts/axis.py:2711
 msgid "Warning"
 msgstr "Advertencia"
 
@@ -7472,7 +7455,7 @@ msgstr ""
 "%(error_str)s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1488
-#: src/emc/usr_intf/axis/scripts/axis.py:3245 share/axis/tcl/axis.tcl:922
+#: src/emc/usr_intf/axis/scripts/axis.py:3246 share/axis/tcl/axis.tcl:922
 #: share/axis/tcl/axis.tcl:924 share/axis/tcl/axis.tcl:2051
 msgid "Continuous"
 msgstr "Continuo"
@@ -7483,7 +7466,7 @@ msgstr "Tabla de herramientas T"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1761
 #: src/emc/usr_intf/axis/scripts/axis.py:2050
-#: src/emc/usr_intf/axis/scripts/axis.py:2624
+#: src/emc/usr_intf/axis/scripts/axis.py:2625
 #: src/emc/usr_intf/stepconf/stepconf.py:1581
 #: src/emc/usr_intf/stepconf/pages.py:967
 msgid "in"
@@ -7542,6 +7525,11 @@ msgid "Run time:"
 msgstr "Tiempo de ejecución:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1820
+#, fuzzy
+msgid "Tool Change List:"
+msgstr "Cambio de herramienta"
+
+#: src/emc/usr_intf/axis/scripts/axis.py:1821
 msgid "X bounds:"
 msgstr "Límites X:"
 
@@ -7549,7 +7537,7 @@ msgstr "Límites X:"
 msgid "Y bounds:"
 msgstr "Límites Y:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1821
+#: src/emc/usr_intf/axis/scripts/axis.py:1822
 msgid "Z bounds:"
 msgstr "Límites Z:"
 
@@ -7557,7 +7545,7 @@ msgstr "Límites Z:"
 msgid "A bounds:"
 msgstr "Límites A:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1822
+#: src/emc/usr_intf/axis/scripts/axis.py:1823
 msgid "B bounds:"
 msgstr "Límites B:"
 
@@ -7616,28 +7604,28 @@ msgstr "%d segundos"
 msgid "%(a)f to %(b)f = %(diff)f %(units)s"
 msgstr "%(a)f a %(b)f = %(diff)f %(units)s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2079
+#: src/emc/usr_intf/axis/scripts/axis.py:2080
 msgid "G-Code Properties"
 msgstr "Propiedades del código G"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2227
+#: src/emc/usr_intf/axis/scripts/axis.py:2228
 msgid "All machinable files"
 msgstr "Todos los archivos de mecanizado"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2228
-#: src/emc/usr_intf/axis/scripts/axis.py:2946
+#: src/emc/usr_intf/axis/scripts/axis.py:2229
+#: src/emc/usr_intf/axis/scripts/axis.py:2947
 msgid "rs274ngc files"
 msgstr "Archivos rs274ngc"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2244
+#: src/emc/usr_intf/axis/scripts/axis.py:2245
 msgid "axis cannot accept remote command while running"
 msgstr "el eje no puede aceptar el comando remoto mientras se ejecuta"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2299
+#: src/emc/usr_intf/axis/scripts/axis.py:2300
 msgid "File not Writable:"
 msgstr "Archivo no escribible:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2300
+#: src/emc/usr_intf/axis/scripts/axis.py:2301
 msgid ""
 "This file is not writable\n"
 "You can Edit-readonly\n"
@@ -7655,29 +7643,29 @@ msgstr ""
 "Guárdelo en su propio directorio\n"
 "luego abra ese archivo guardado y ya se puede escribir en él"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2307
+#: src/emc/usr_intf/axis/scripts/axis.py:2308
 msgid "Edit-readonly"
 msgstr "Editar-solo lectura"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2625
+#: src/emc/usr_intf/axis/scripts/axis.py:2626
 msgid "Custom Grid"
 msgstr "Cuadrícula personalizada"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2625
+#: src/emc/usr_intf/axis/scripts/axis.py:2626
 msgid "Enter grid size"
 msgstr "Ingrese el tamaño de la cuadrícula"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2684
+#: src/emc/usr_intf/axis/scripts/axis.py:2685
 msgid "Joint is already homed, are you sure you want to re-home?"
 msgstr "las articulaciones ya tienen home, ¿estás seguro que quiere rehoming?"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2698
+#: src/emc/usr_intf/axis/scripts/axis.py:2699
 #, python-format
 msgid "home_joint <%s> Use joint mode for homing"
 msgstr ""
 "home_joint <%s> Usar el modo articulacion para el recorrido de referencia"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2701
+#: src/emc/usr_intf/axis/scripts/axis.py:2702
 #, python-format
 msgid ""
 "\n"
@@ -7686,32 +7674,32 @@ msgstr ""
 "\n"
 "Referencia de eje individual no permitida para letra duplicada: <%s>"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2710
+#: src/emc/usr_intf/axis/scripts/axis.py:2711
 msgid "This joint is already homed, are you sure you want to re-home?"
 msgstr ""
 "Esta articulación ya está alojada, ¿estás seguro de que quieres volver a "
 "casa?"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2748
+#: src/emc/usr_intf/axis/scripts/axis.py:2749
 msgid "Touch Off (system)"
 msgstr "Touch Off (sistema)"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2749
-#: src/emc/usr_intf/axis/scripts/axis.py:2790
+#: src/emc/usr_intf/axis/scripts/axis.py:2750
+#: src/emc/usr_intf/axis/scripts/axis.py:2791
 #, python-format
 msgid "Enter %s coordinate relative to %%s:"
 msgstr "Ingrese la coordenada %s relativa a %%s:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2789
+#: src/emc/usr_intf/axis/scripts/axis.py:2790
 #, python-format
 msgid "Tool %s TouchOff"
 msgstr "Herramienta %s TouchOff"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2958
+#: src/emc/usr_intf/axis/scripts/axis.py:2959
 msgid "Error saving file"
 msgstr "Error al guardar el archivo"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3414
+#: src/emc/usr_intf/axis/scripts/axis.py:3415
 #, python-format
 msgid ""
 "\n"
@@ -7724,7 +7712,7 @@ msgstr ""
 "%s\n"
 "Consulte los documentos de 'Configuración INI'\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3427
+#: src/emc/usr_intf/axis/scripts/axis.py:3428
 #, python-format
 msgid ""
 "\n"
@@ -7737,7 +7725,7 @@ msgstr ""
 "%s\n"
 "Consulte los documentos de 'Configuración INI'\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3440
+#: src/emc/usr_intf/axis/scripts/axis.py:3441
 #, python-format
 msgid ""
 "\n"
@@ -7751,48 +7739,48 @@ msgstr ""
 "%s\n"
 "Consulte los documentos de 'Configuración INI'\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3559
+#: src/emc/usr_intf/axis/scripts/axis.py:3560
 msgid "Axes"
 msgstr "Ejes"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3561
+#: src/emc/usr_intf/axis/scripts/axis.py:3562
 msgid "Joints"
 msgstr "Articulaciones"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3563
+#: src/emc/usr_intf/axis/scripts/axis.py:3564
 #: src/emc/usr_intf/touchy/touchy.glade:584
 #: src/emc/usr_intf/gscreen/gscreen.glade:3009
 msgid "Home All"
 msgstr "Home Todos"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3565
+#: src/emc/usr_intf/axis/scripts/axis.py:3566
 #, python-format
 msgid "Home all %s [Ctrl-Home]"
 msgstr "Home todos los %s [Ctrl-Inicio]"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3568
+#: src/emc/usr_intf/axis/scripts/axis.py:3569
 #, python-format
 msgid "Home All %s"
 msgstr "Home todos los %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3570
+#: src/emc/usr_intf/axis/scripts/axis.py:3571
 #, python-format
 msgid "Unhome All %s"
 msgstr "Unhome todos los %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3611
+#: src/emc/usr_intf/axis/scripts/axis.py:3612
 #, python-format
 msgid "Warning: Forward kinematics must handle duplicate coordinate letters:%s"
 msgstr ""
 "Advertencia: la cinemática directa debe manejar letras de coordenadas "
 "duplicadas:%s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3614
+#: src/emc/usr_intf/axis/scripts/axis.py:3615
 #, python-format
 msgid "Note: number of [TRAJ]COORDINATES=%(t)s exceeds [KINS]JOINTS=%(l)d"
 msgstr "Nota: el número de [TRAJ]COORDINATES=%(t)s excede [KINS]JOINTS=%(l)d"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3646
+#: src/emc/usr_intf/axis/scripts/axis.py:3647
 msgid ""
 "\n"
 "Note:\n"
@@ -7802,42 +7790,42 @@ msgstr ""
 "Nota:\n"
 "Actualmente no se admite el homing de ejes individuales para"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3647
+#: src/emc/usr_intf/axis/scripts/axis.py:3648
 #, python-format
 msgid "KINEMATICS_IDENTITY with duplicate axis letter <%s>\n"
 msgstr "KINEMATICS_IDENTITY con letra de eje duplicada <%s>\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3659
+#: src/emc/usr_intf/axis/scripts/axis.py:3660
 msgid "Joint"
 msgstr "articulacion"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3661
+#: src/emc/usr_intf/axis/scripts/axis.py:3662
 msgid "Home Joint"
 msgstr "Inicio articulacion"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3669
+#: src/emc/usr_intf/axis/scripts/axis.py:3670
 #, python-format
 msgid "Home %(name)s _%(id)s"
 msgstr "Home %(name)s _%(id)s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3671
+#: src/emc/usr_intf/axis/scripts/axis.py:3672
 #, python-format
 msgid "Unhome %(name)s _%(id)s"
 msgstr "Unhome %(name)s _%(id)s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3865
+#: src/emc/usr_intf/axis/scripts/axis.py:3866
 msgid "Run from here"
 msgstr "Ejecutar desde aquí"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3926
+#: src/emc/usr_intf/axis/scripts/axis.py:3927
 msgid "toggle PYVCP panel visibility"
 msgstr "alternar la visibilidad del panel PYVCP"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3928 share/axis/tcl/axis.tcl:387
+#: src/emc/usr_intf/axis/scripts/axis.py:3929 share/axis/tcl/axis.tcl:387
 msgid "Show PyVCP pan_el"
 msgstr "Mostrar PyVCP pan_el"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:4214
+#: src/emc/usr_intf/axis/scripts/axis.py:4215
 msgid "Error in ~/.axisrc"
 msgstr "Error en ~ / .axisrc"
 
@@ -8800,8 +8788,8 @@ msgid "Temporarily allow jogging outside machine limits [L]"
 msgstr "Permitir temporalmente correr fuera de los límites de la máquina [L]"
 
 #: src/emc/usr_intf/touchy/touchy.py:144
-#: src/emc/usr_intf/pncconf/pncconf.py:1825
-#: src/emc/usr_intf/pncconf/pncconf.py:1828
+#: src/emc/usr_intf/pncconf/pncconf.py:1867
+#: src/emc/usr_intf/pncconf/pncconf.py:1870
 #: src/emc/usr_intf/gscreen/gscreen.py:1339
 msgid "Follow System Theme"
 msgstr "Seguir el tema del sistema"
@@ -10378,7 +10366,7 @@ msgid "yY"
 msgstr "yY"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:748
-#: src/emc/usr_intf/pncconf/data.py:1082
+#: src/emc/usr_intf/pncconf/data.py:1074
 #, python-format
 msgid "launch %s"
 msgstr "lanzamiento %s"
@@ -10470,7 +10458,7 @@ msgid "LinuxCNC 'stepconf' configuration files"
 msgstr "Archivos de configuración LinuxCNC 'stepconf'"
 
 #: src/emc/usr_intf/stepconf/pages.py:230
-#: src/emc/usr_intf/pncconf/pncconf.py:908
+#: src/emc/usr_intf/pncconf/pncconf.py:950
 msgid "Modify Existing Configuration"
 msgstr "Modificar la configuración existente"
 
@@ -11934,20 +11922,20 @@ msgstr "**** ERROR PNCCONF: error de carga de firmware personalizado"
 msgid "**** PNCCONF INFO:    Found extra firmware in file"
 msgstr "**** INFORMACIÓN PNCCONF: Se encontró firmware adicional en el archivo"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:359
+#: src/emc/usr_intf/pncconf/pncconf.py:401
 msgid "Discovery metadata update"
 msgstr "Actualización de metadatos de descubrimiento"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:403
+#: src/emc/usr_intf/pncconf/pncconf.py:445
 #, python-format
 msgid "%s metadata update"
 msgstr "%s actualización de metadatos"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:423
+#: src/emc/usr_intf/pncconf/pncconf.py:465
 msgid "PnCconf setup"
 msgstr "Configuración de PnCconf"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:443
+#: src/emc/usr_intf/pncconf/pncconf.py:485
 msgid ""
 "\n"
 "**** Debug Pause! ****"
@@ -11955,15 +11943,15 @@ msgstr ""
 "\n"
 "**** Pausa de depuración! ****"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:527
+#: src/emc/usr_intf/pncconf/pncconf.py:569
 msgid "Specific Help page is unavailable\n"
 msgstr "La página de ayuda específica no está disponible\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:529
+#: src/emc/usr_intf/pncconf/pncconf.py:571
 msgid "Help Pages"
 msgstr "Páginas de ayuda"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:580
+#: src/emc/usr_intf/pncconf/pncconf.py:622
 #, python-format
 msgid ""
 "Some older cards require firmware.\n"
@@ -11975,11 +11963,11 @@ msgid ""
 "Discovery option requires the advanced options checked on this page."
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:906
+#: src/emc/usr_intf/pncconf/pncconf.py:948
 msgid "LinuxCNC 'PNCconf' configuration files"
 msgstr "Archivos de configuración LinuxCNC 'PNCconf'"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:939
+#: src/emc/usr_intf/pncconf/pncconf.py:981
 msgid ""
 "It seems data in this file is from too old of a version of PNCConf to "
 "continue."
@@ -11987,46 +11975,46 @@ msgstr ""
 "Parece que los datos en este archivo son demasiado antiguos de una versión "
 "de PNCConf como para continuar."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1300
+#: src/emc/usr_intf/pncconf/pncconf.py:1342
 msgid "PIN file is empty:\n"
 msgstr "El archivo PIN está vacío:\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1301
+#: src/emc/usr_intf/pncconf/pncconf.py:1343
 msgid "To use PIN file discovery mode, the contents of the"
 msgstr ""
 "Para utilizar el modo de detección de archivos PIN, el contenido de las"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1302
+#: src/emc/usr_intf/pncconf/pncconf.py:1344
 msgid "cards PIN file needs to be pasted into the Input tab"
 msgstr "tarjetas PIN el archivo necesita ser pegado en la ficha Input"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1303
+#: src/emc/usr_intf/pncconf/pncconf.py:1345
 msgid "of the Help window before clicking Board Discovery"
 msgstr "de la ventana de ayuda antes de hacer clic en Board Discovery"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1312
+#: src/emc/usr_intf/pncconf/pncconf.py:1354
 msgid "Address is required for ethernet card"
 msgstr "La dirección es necesaria para la tarjeta Ethernet"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1320
+#: src/emc/usr_intf/pncconf/pncconf.py:1362
 #, python-format
 msgid "%s board was not found"
 msgstr "No se encontró la placa %s"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1322
+#: src/emc/usr_intf/pncconf/pncconf.py:1364
 msgid "Is the address correct?"
 msgstr "¿Es correcta la dirección?"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1326
+#: src/emc/usr_intf/pncconf/pncconf.py:1368
 #, python-format
 msgid "%s is an unsupported device"
 msgstr "%s es un dispositivo no compatible"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1339
+#: src/emc/usr_intf/pncconf/pncconf.py:1381
 msgid "Unspecified Error with Discovery option"
 msgstr "Error no especificado con la opción Discovery"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1381
+#: src/emc/usr_intf/pncconf/pncconf.py:1423
 #, python-format
 msgid ""
 "Discovery has an error,\n"
@@ -12041,40 +12029,40 @@ msgstr ""
 "\n"
 " %s"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1395
+#: src/emc/usr_intf/pncconf/pncconf.py:1437
 msgid "Discovery is  unavailable\n"
 msgstr "El descubrimiento no está disponible\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1610
+#: src/emc/usr_intf/pncconf/pncconf.py:1652
 msgid "The pasted PIN file may be an invalid format"
 msgstr "El archivo PIN pegado puede tener un formato no válido"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1612
+#: src/emc/usr_intf/pncconf/pncconf.py:1654
 msgid "The data returned from discovery is invalid"
 msgstr "Los datos devueltos por la detección no son válidos"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1686
+#: src/emc/usr_intf/pncconf/pncconf.py:1728
 msgid "USB device Info Search"
 msgstr "Búsqueda de información del dispositivo USB"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1700
+#: src/emc/usr_intf/pncconf/pncconf.py:1742
 msgid "USB device  page is unavailable\n"
 msgstr "La página del dispositivo USB no está disponible\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1773
+#: src/emc/usr_intf/pncconf/pncconf.py:1815
 #: src/emc/usr_intf/pncconf/tests.py:90
 msgid "Pin names are unavailable\n"
 msgstr "Los nombres de los pines no están disponibles\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1796
+#: src/emc/usr_intf/pncconf/pncconf.py:1838
 msgid "Device names are unavailable\n"
 msgstr "Los nombres de los dispositivos no están disponibles\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1799
+#: src/emc/usr_intf/pncconf/pncconf.py:1841
 msgid "No Pncconf made device rules were found\n"
 msgstr "No se encontraron reglas de dispositivo hechas por Pncconf\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1847
+#: src/emc/usr_intf/pncconf/pncconf.py:1889
 msgid ""
 "OK to replace existing glade panel ?\n"
 "It will be renamed and added to 'backups' folder.\n"
@@ -12088,7 +12076,7 @@ msgstr ""
 "pero si usted cambia las opciones relacionadas más tarde, como la "
 "retroalimentación del husillo, la conexión HAL no se actualizará"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1854
+#: src/emc/usr_intf/pncconf/pncconf.py:1896
 msgid ""
 "OK to replace existing custom pyvcp panel?\n"
 "Existing pyvcp-panel.xml will be renamed and added to 'backups' folder\n"
@@ -12100,37 +12088,37 @@ msgstr ""
 "Al hacer clic en 'programa personalizado existente' evitará esta "
 "advertencia. "
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3691
+#: src/emc/usr_intf/pncconf/pncconf.py:3733
 #: src/emc/usr_intf/pncconf/private_data.py:555
 msgid "Unused Channel"
 msgstr "Canal no utilizado"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3966
+#: src/emc/usr_intf/pncconf/pncconf.py:4008
 msgid "You can not have both steppers and pwm signals for spindle control\n"
 msgstr "No puede tener señales paso a paso y pwm para el control del cabezal\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3970
+#: src/emc/usr_intf/pncconf/pncconf.py:4012
 #, python-format
 msgid "You forgot to designate a stepper or pwm signal for axis %s\n"
 msgstr "Olvidó designar una señal paso a paso o pwm para el eje %s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3973
+#: src/emc/usr_intf/pncconf/pncconf.py:4015
 #, python-format
 msgid "You forgot to designate an encoder /resolver signal for axis %s servo\n"
 msgstr ""
 "Olvidó designar una señal de codificador / resolutor para el eje %s servo\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3976
+#: src/emc/usr_intf/pncconf/pncconf.py:4018
 #, python-format
 msgid "You forgot to designate a pwm signal or stepper signal for axis %s\n"
 msgstr "Olvidó designar una señal pwm o una señal paso a paso para el eje %s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3979
+#: src/emc/usr_intf/pncconf/pncconf.py:4021
 #, python-format
 msgid "You can not have both steppers and pwm signals for axis %s\n"
 msgstr "No puede tener señales paso a paso y pwm para el eje %s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3982
+#: src/emc/usr_intf/pncconf/pncconf.py:4024
 #, python-format
 msgid ""
 "If using a tandem axis stepper, you must select a master stepgen for axis "
@@ -12139,19 +12127,19 @@ msgstr ""
 "Si utiliza un stepper de eje en tándem, debe seleccionar un stepgen maestro "
 "para el eje%s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3990
+#: src/emc/usr_intf/pncconf/pncconf.py:4032
 msgid "Touchy require an external cycle start signal\n"
 msgstr "Touchy requiere una señal externa de inicio de ciclo\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3993
+#: src/emc/usr_intf/pncconf/pncconf.py:4035
 msgid "Touchy require an external abort signal\n"
 msgstr "Touchy requiere una señal externa de cancelación\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3996
+#: src/emc/usr_intf/pncconf/pncconf.py:4038
 msgid "Touchy require an external single-step signal\n"
 msgstr "Touchy requiere una señal externa de paso-sencillo\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3999
+#: src/emc/usr_intf/pncconf/pncconf.py:4041
 msgid ""
 "Touchy require an external multi handwheel MPG encoder signal on the mesa "
 "page\n"
@@ -12159,7 +12147,7 @@ msgstr ""
 "Touchy requiere una señal externa de codificador MPG con volante manual "
 "múltiple en la mesa página\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4002
+#: src/emc/usr_intf/pncconf/pncconf.py:4044
 msgid ""
 "Touchy require 'external mpg jogging' to be selected on the external control "
 "page\n"
@@ -12167,7 +12155,7 @@ msgstr ""
 "Touchy requiere 'jogging externo mpg' para ser seleccionado en la pagina "
 "externa del control\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4005
+#: src/emc/usr_intf/pncconf/pncconf.py:4047
 msgid ""
 "Touchy require the external mpg to be in 'shared mpg' mode on the external "
 "controls page\n"
@@ -12175,7 +12163,7 @@ msgstr ""
 "Touchy requiere que el mpg externo esté en modo 'mpg compartido' en la "
 "página externa del control\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4008
+#: src/emc/usr_intf/pncconf/pncconf.py:4050
 msgid ""
 "Touchy require selectable increments to be unchecked on the external "
 "controls page\n"
@@ -12183,7 +12171,7 @@ msgstr ""
 "Touchy requiere que los incrementos seleccionables no estén marcados en la "
 "página externa del contro\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4021
+#: src/emc/usr_intf/pncconf/pncconf.py:4063
 msgid ""
 "The 7i29 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
@@ -12191,7 +12179,7 @@ msgstr ""
 "La placa secundaria 7i29 requiere generadores de tipo PWM y una base "
 "PWMfrecuencia de 20 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4024
+#: src/emc/usr_intf/pncconf/pncconf.py:4066
 msgid ""
 "The 7i30 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
@@ -12199,7 +12187,7 @@ msgstr ""
 "La placa secundaria 7i30 requiere generadores tipo PWM y una base "
 "PWMfrecuencia de 20 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4027
+#: src/emc/usr_intf/pncconf/pncconf.py:4069
 msgid ""
 "The 7i33 daughter board requires PDM type generators and a PDM base "
 "frequency of 6 Mhz\n"
@@ -12207,7 +12195,7 @@ msgstr ""
 "La placa secundaria 7i33 requiere generadores de tipo PDM y una base "
 "PDMfrecuencia de 6 Mhz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4030
+#: src/emc/usr_intf/pncconf/pncconf.py:4072
 msgid ""
 "The 7i40 daughter board requires PWM type generators and a PWM base "
 "frequency of 50 khz\n"
@@ -12215,7 +12203,7 @@ msgstr ""
 "La placa secundaria 7i40 requiere generadores de tipo PWM y una base "
 "PWMfrecuencia de 50 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4033
+#: src/emc/usr_intf/pncconf/pncconf.py:4075
 msgid ""
 "The 7i48 daughter board requires UDM type generators and a PWM base "
 "frequency of 24 khz\n"
@@ -12223,65 +12211,65 @@ msgstr ""
 "La placa secundaria 7i48 requiere generadores de tipo UDM y una base "
 "PWMfrecuencia de 24 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4181
+#: src/emc/usr_intf/pncconf/pncconf.py:4223
 msgid "Gearbox Reduction Ratio"
 msgstr "Relación de reducción de la caja de cambios"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4184
+#: src/emc/usr_intf/pncconf/pncconf.py:4226
 msgid "Reduction Ratio"
 msgstr "Relación de reducción"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4187
+#: src/emc/usr_intf/pncconf/pncconf.py:4229
 msgid "Leadscrew Pitch"
 msgstr "Paso de husillo"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4190
+#: src/emc/usr_intf/pncconf/pncconf.py:4232
 #: src/emc/usr_intf/pncconf/dialogs.glade:1991
 #: src/emc/usr_intf/pncconf/dialogs.glade:2360
 msgid "Leadscrew TPI"
 msgstr "Leadscrew TPI"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4194
-#: src/emc/usr_intf/pncconf/pncconf.py:4195
+#: src/emc/usr_intf/pncconf/pncconf.py:4236
+#: src/emc/usr_intf/pncconf/pncconf.py:4237
 msgid "("
 msgstr "("
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4196
-#: src/emc/usr_intf/pncconf/pncconf.py:4206
-#: src/emc/usr_intf/pncconf/pncconf.py:4207
-#: src/emc/usr_intf/pncconf/pncconf.py:4208
+#: src/emc/usr_intf/pncconf/pncconf.py:4238
+#: src/emc/usr_intf/pncconf/pncconf.py:4248
+#: src/emc/usr_intf/pncconf/pncconf.py:4249
+#: src/emc/usr_intf/pncconf/pncconf.py:4250
 msgid " / min"
 msgstr "/ min"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4197
+#: src/emc/usr_intf/pncconf/pncconf.py:4239
 msgid " / sec²"
 msgstr "/ sec²"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4200
+#: src/emc/usr_intf/pncconf/pncconf.py:4242
 msgid " / Step"
 msgstr "/ Paso"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4201
+#: src/emc/usr_intf/pncconf/pncconf.py:4243
 msgid "Steps / "
 msgstr "Pasos /"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4203
+#: src/emc/usr_intf/pncconf/pncconf.py:4245
 msgid " / encoder pulse"
 msgstr "/ pulso codificador"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4204
+#: src/emc/usr_intf/pncconf/pncconf.py:4246
 msgid "Encoder pulses / "
 msgstr "Pulsos de codificador /"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4212
+#: src/emc/usr_intf/pncconf/pncconf.py:4254
 msgid "Resolver Scale:"
 msgstr "Escala de resolución:"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4550
+#: src/emc/usr_intf/pncconf/pncconf.py:4592
 msgid "Spindle Scale Calculation"
 msgstr "Cálculo de escala de husillo"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4662
+#: src/emc/usr_intf/pncconf/pncconf.py:4704
 msgid "Axis Scale Calculation"
 msgstr "Cálculo de escala de eje"
 
@@ -14731,7 +14719,7 @@ msgstr ""
 msgid "Continue? (y/n)"
 msgstr "¿Continuar? (s/n)"
 
-#: src/emc/usr_intf/pncconf/data.py:1086
+#: src/emc/usr_intf/pncconf/data.py:1078
 msgid "Desktop Launcher for LinuxCNC config made by PNCconf"
 msgstr ""
 "Iniciador de escritorio para la configuración LinuxCNC realizada por PNCconf"
