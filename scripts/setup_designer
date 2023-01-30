@@ -1,0 +1,115 @@
+#!/bin/bash
+
+# install base packages for displaying qtvcp screens and sounds
+echo -e '\ninstalling common base packages'
+sudo apt-get install -y gstreamer1.0-tools espeak espeak-ng sound-theme-freedesktop
+
+echo -e '\ninstalling base packages for python3'
+sudo apt-get install -y python3-opengl python3-pyqt5 python3-pyqt5.qsci python3-pyqt5.qtsvg python3-pyqt5.qtopengl python3-opencv python3-dbus python3-dbus.mainloop.pyqt5 python3-espeak python3-pyqt5.qtwebkit python3-xlib python3-numpy python3-cairo python3-gi-cairo python3-poppler-qt5
+
+echo -e '\ninstalling python3 tools'
+sudo apt-get install -y pyqt5-dev-tools
+
+# prompt to install designer
+while true; do
+#    clear
+    echo -e '\nDo you wish to install Qt Designer for creating or modifying a GUI'
+    echo ' 1 = No, exit'
+    echo ' 2 = Yes, for a Run In Place installation'
+    echo ' 3 = Yes, for a package installation'
+    read -p $'\nSelection? ' response
+    case $response in
+        [1]* )  echo -e '\nInstallation complete, QtVCP screens are now available.\n'
+                exit;;
+        [2]* )  break;;
+        [3]* )  break;;
+           * )  echo -e '\nInstallation complete, QtVCP screens are now available.\n'
+                exit;;
+    esac
+done
+
+# install tools
+#clear
+echo -e '\ninstalling common tools'
+sudo apt-get install -y qttools5-dev qttools5-dev-tools
+
+echo -e '\ninstalling python3 tools'
+sudo apt-get install -y libpython3-dev
+
+# get the correct plugin file to copy
+# for run in place LinuxCNC installation
+if [ $response -eq 2 ]; then
+    if [ -f ~/linuxcnc-dev/lib/python/qtvcp/plugins/qtvcp_plugin.py ]; then
+        pifile=~/linuxcnc-dev/lib/python/qtvcp/plugins/qtvcp_plugin.py
+    else
+        while true; do
+#            clear
+            echo -e '\nrun in place installation not found'
+            echo 'Enter base directory name e.g. linuxcnc-2.9'
+            echo 'X to exit'
+            read -p $'\nDirectory? ' basedir
+            case $basedir in
+                [Xx]* ) clear
+                        exit;;
+                    * ) if [  -f ~/$basedir/lib/python/qtvcp/plugins/qtvcp_plugin.py ]; then
+                            pifile=~/$basedir/lib/python/qtvcp/plugins/qtvcp_plugin.py
+                            break
+                        fi
+                        ;;
+            esac
+        done
+    fi
+# for full LinuxCNC installation
+elif [ $response -eq 3 ]; then
+    # check for valid plugin file
+    if [ -f /usr/lib/python3/dist-packages/qtvcp/plugins/qtvcp_plugin.py ]; then
+        pifile=/usr/lib/python3/dist-packages/qtvcp/plugins/qtvcp_plugin.py
+    else
+#        clear
+        echo -e '\n'$pifile 'not found in /usr/lib/python3/dist-packages/qtvcp/plugins/'
+        echo -e '\ncannot continue designer installation\n'
+        exit
+    fi
+fi
+
+# create users plugin directory
+mkdir -p ~/.designer/plugins/python
+
+# link to plugins
+if [ -f ~/.designer/plugins/python/qtvcp_plugin.py ]; then
+    sudo rm ~/.designer/plugins/python/qtvcp_plugin.py
+fi
+echo -e '\ncreate plugin link at:\n~/.designer/plugins/python/\n'
+ln -s $pifile ~/.designer/plugins/python/
+
+sopath=/usr/lib/x86_64-linux-gnu/qt5/plugins/designer/
+p2sofile=libpyqt5_py2.so
+p3sofile=libpyqt5.so
+
+# ensure we have a python3 .so file
+if [ ! -f $sopath/$p3sofile ]; then
+    # check if we have a python3 .so backup file from a python2 installation
+    if [ -f $sopath/$p3sofile.old ]; then
+        echo -e '\nrename libpyqt5.so.old file to libpyqt5.so'
+        sudo mv $sopath/$p3sofile.old $sopath/$p3sofile
+    # otherwise report an error
+    else
+        echo -e '\nlibpyqt5.so is missing from:'
+        echo -e '/usr/lib/x86_64-linux-gnu/qt5/plugins/designer/'
+        echo -e '\ndesigner installation aborted...\n'
+        exit
+    fi
+fi
+
+# remove python2 .so file if it exists
+if [ -f $sopath/$p2sofile ]; then
+    echo -e '\nremove python2 .so file'
+    sudo rm $sopath/$p2sofile
+fi
+
+#clear
+echo -e '\nInstallation complete, designer can be started with:'
+echo -e '\ndesigner -qt=5\n'
+if [ $response -eq 2 ]; then
+    echo -e 'After setting the rip-environment\n'
+fi

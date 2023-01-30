@@ -85,6 +85,7 @@ usr/bin/scaragui
 usr/bin/schedrmt
 usr/bin/scorbot-er-3
 usr/bin/sendkeys
+usr/bin/setup_designer
 usr/bin/shuttle
 usr/bin/sim-torch
 usr/bin/sim_pin
