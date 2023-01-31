@@ -438,7 +438,8 @@ Z = Color([0, 0, 1, 1], [Z])
 origin = Collection([X,Y,Z])
 ----
 
- Add it to the Window class Collection so it is never moved from the origin.
+Add it to the Window class Collection so it is never moved from the origin.
+
 [source,python]
 ----
 v.model = Collection([origin, model, world])
