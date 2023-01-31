@@ -55,7 +55,7 @@ pin in bit trigger =FALSE "signal that triggers the message";
 pin in bit force =FALSE """A FALSE->TRUE transition forces the message to be
 displayed again if the trigger is active""";
  
-param rw bit edge =TRUE """Selects the desired edge: TRUE means falling, FALSE
+param rw bit edge =TRUE """Selects the desired edge: FALSE means falling, TRUE
 means rising""";
 
 modparam dummy messages """The messages to display. These should be listed,
