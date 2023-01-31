@@ -46,7 +46,6 @@ from gi.repository import GLib
 import sys
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from OpenGL.GLUT import *
 from OpenGL import GLX
 from OpenGL.raw.GLX._types import struct__XDisplay
 from OpenGL import GL
@@ -93,6 +92,10 @@ class StatCanon(rs274.glcanon.GLCanon, rs274.interpret.StatMixin):
 
 
 
+# Gtk is not capable of creating a "legacy" or "compatibility" context, which necessitates
+# descending to the GLX API layer to create the required context. This can only be removed
+# someday when the core drawing routines of Gremlin/AXIS are upgraded to modern OpenGL style,
+# a large undertaking.
 
 class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
     xlib = cdll.LoadLibrary('libX11.so')
@@ -115,12 +118,6 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
     
         self.xwindow_id = None
 
-        #self.set_has_alpha(True)
-        #'set_has_stencil_buffer',
-        glutInit()
-        glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH )
-
-
         self.add_attribute(GLX.GLX_RGBA, True)
         self.add_attribute(GLX.GLX_RED_SIZE, 1)
         self.add_attribute(GLX.GLX_GREEN_SIZE, 1)
@@ -131,18 +128,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         configs = GLX.glXChooseFBConfig(self.xdisplay, 0, None, byref(c_int()))
         self.context = GLX.glXCreateContext(self.xdisplay, xvinfo, None, True)
 
-
-#class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
-#              rs274.glcanon.GlCanonDraw):
-#    rotation_vectors = [(1.,0.,0.), (0., 0., 1.)]
-
-#    def __init__(self, inifile):
-#
-#        display_mode = ( gtk.gdkgl.MODE_RGB | gtk.gdkgl.MODE_DEPTH |
-#                         gtk.gdkgl.MODE_DOUBLE )
-#        glconfig = gtk.gdkgl.Config(mode=display_mode)
-
-#        gtk.gtkgl.widget.DrawingArea.__init__(self, glconfig)
+        Gtk.DrawingArea.__init__(self)
         glnav.GlNavBase.__init__(self)
         def C(s):
             a = self.colors[s + "_alpha"]
@@ -237,24 +223,14 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         """make cairo context current for drawing"""
         if(not GLX.glXMakeCurrent(self.xdisplay, self.xwindow_id, self.context)):
             print("failed binding opengl context")
-        #glcontext = gtk.gtkgl.widget_get_gl_context(self)
-        #gldrawable = gtk.gtkgl.widget_get_gl_drawable(self)
-
-        #return gldrawable and glcontext and gldrawable.gl_begin(glcontext)
         return True
 
     def swapbuffers(self):
         GLX.glXSwapBuffers(self.xdisplay, self.xwindow_id)
-        #gldrawable = gtk.gtkgl.widget_get_gl_drawable(self)
-        #gldrawable.swap_buffers()
         return
 
     def deactivate(self):
-        #yolo (actually @makecurrent the previous context should be cached + rebound and buffers maybe should be swapped, but yolo)
         return
-        #TODO
-        #gldrawable = Gtk.gtkgl.widget_get_gl_drawable(self)
-        #gldrawable.gl_end()
 
     def winfo_width(self):
         return  self.get_allocated_width()
