@@ -184,7 +184,8 @@ static int parity[MAX_CHAN] = {-1};
 RTAPI_MP_ARRAY_INT(parity, MAX_CHAN, "0 for even parity, 1 for odd")
 
 FUNCTION(_){
-    int i, d, pow, deb;
+    int i, d, pow;
+    int deb = 0;
     int pcalc = 0;
     int mod_pocket = 0;
     int new_pos = 0;
