@@ -251,6 +251,7 @@ class _GStat(GObject.GObject):
         self._status_active = False
         self.old = {}
         self.old['tool-prep-number'] = 0
+        self.previous_mode = self.MANUAL
         try:
             self.stat.poll()
             self.merge()
@@ -445,6 +446,7 @@ class _GStat(GObject.GObject):
         mode_old = old.get('mode', 0)
         mode_new = self.old['mode']
         if mode_new != mode_old:
+            self.previous_mode = mode_old
             self.emit(self.MODES[mode_new])
 
         interp_old = old.get('interp', 0)
@@ -949,6 +951,9 @@ class _GStat(GObject.GObject):
 
     def get_current_mode(self):
         return self.old['mode']
+
+    def get_previous_mode(self):
+        return self.previous_mode
 
     # linear - in machine units
     def set_jograte(self, upm):
