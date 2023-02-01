@@ -140,6 +140,8 @@ param r  float  timer "Shows the value of the internal timer";
 param r signed motor-dir "Internal tag for search direction";
 param r unsigned debounce "How many thread cycles to wait for the position to stabilise";
 
+param rw signed deb "debugging only";
+
 option count_function;
 option extra_setup;
 
@@ -185,7 +187,7 @@ RTAPI_MP_ARRAY_INT(parity, MAX_CHAN, "0 for even parity, 1 for odd")
 
 FUNCTION(_){
     int i, d, pow;
-    int deb = 0;
+//    int deb = 0;
     int pcalc = 0;
     int mod_pocket = 0;
     int new_pos = 0;
