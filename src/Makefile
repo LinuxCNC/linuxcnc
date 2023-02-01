@@ -371,6 +371,7 @@ SRCHEADERS := \
     emc/motion/simple_tp.h \
     emc/motion/state_tag.h \
     emc/motion/usrmotintf.h \
+    emc/motion/axis.h \
     emc/nml_intf/canon.hh \
     emc/nml_intf/canon_position.hh \
     emc/nml_intf/emctool.h \
