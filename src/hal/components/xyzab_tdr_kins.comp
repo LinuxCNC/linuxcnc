@@ -181,7 +181,7 @@ int kinematicsForward(const double *j,
             pos->tran.x =   cb*px + sb*pz
                           + x_rot_point;
 
-            pos->tran.y =   sa*sb*px + ca*py - cb*sa*pz - sa*dz
+            pos->tran.y =   sa*sb*px + ca*py - cb*sa*pz + sa*dz
                           + y_rot_point;
 
             pos->tran.z = - ca*sb*px + sa*py + ca*cb*pz - ca*dz
