@@ -415,7 +415,7 @@ class _IStat(object):
         # AXIS panel style:
         self.GLADEVCP = (self.INI.find("DISPLAY", "GLADEVCP")) or None
 
-        # tab style for qtvcp tab style is used everty where
+        # tab style for qtvcp tab. style is used everywhere
         self.TAB_NAMES = (self.INI.findall("DISPLAY", "EMBED_TAB_NAME")) or None
         self.TAB_LOCATIONS = (self.INI.findall("DISPLAY", "EMBED_TAB_LOCATION")) or []
         self.TAB_CMDS = (self.INI.findall("DISPLAY", "EMBED_TAB_COMMAND")) or None
@@ -430,17 +430,16 @@ class _IStat(object):
                 except:
                     self.TAB_LOCATIONS.append("default")
 
-        # check for dublicate names if qtvcp panels
+        # check for duplicate names if qtvcp panels
         if self.TAB_CMDS is not None:
             nameList=[]
             for num,i in enumerate(self.TAB_CMDS):
                 if 'qtvcp' in i:
                     nameList.append( self.TAB_NAMES[num])
-            print(nameList)
+            # code to check for duplicate names
             dup = {x for x in nameList if nameList.count(x) > 1}
-            print(dup)
-            if not dup == {}:
-                log.warning('Embedded Qtvcp panel tab -Duplicate TAB_NAMES:{}.'.format(dup))
+            if not dup == set():
+                log.error('Embedded Qtvcp panel tab: Duplicate TAB_NAMES:{} in INI.'.format(dup))
 
         try:
             self.ZIPPED_TABS = list(zip(self.TAB_NAMES, self.TAB_LOCATIONS, self.TAB_CMDS))
