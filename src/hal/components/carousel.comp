@@ -138,6 +138,7 @@ param r  signed state = 0 "Current component state";
 param r  bit    homing  = 0 "Shows that homing is in progress. Only used for index mode";
 param r  float  timer "Shows the value of the internal timer";
 param r signed motor-dir "Internal tag for search direction";
+param r unsigned debounce "How many thread cycles to wait for the position to stabilise";
 
 option count_function;
 option extra_setup;
@@ -184,6 +185,7 @@ RTAPI_MP_ARRAY_INT(parity, MAX_CHAN, "0 for even parity, 1 for odd")
 
 FUNCTION(_){
     int i, d, pow;
+    static int deb = 0;
     int pcalc = 0;
     int mod_pocket = 0;
     int new_pos = 0;
@@ -366,7 +368,12 @@ FUNCTION(_){
         }
         state = 2;
     case 2: // moving
-        if ((current_position != mod_pocket) && enable) return;
+        if ((current_position != mod_pocket) && enable){
+            deb = debounce;
+            return;
+        } else if (deb-- > 0) {
+            return;
+        }
         if (rev_pulse > 0){
             motor_fwd = 0;
             motor_rev = 1;
