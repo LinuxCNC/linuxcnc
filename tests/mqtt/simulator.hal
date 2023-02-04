@@ -1,0 +1,17 @@
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+
+# create HAL signals for position commands from motion module
+# loop position commands back to motion module feedback
+net Xpos joint.0.motor-pos-cmd => joint.0.motor-pos-fb
+net Ypos joint.1.motor-pos-cmd => joint.1.motor-pos-fb
+net Zpos joint.2.motor-pos-cmd => joint.2.motor-pos-fb
+
+# estop loopback
+net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+# Set up MQTT publisher
+loadusr -W mqtt-publisher [MQTT]DRYRUN --mqtt-broker=[MQTT]BROKER --mqtt-user=[MQTT]USERNAME --mqtt-password=[MQTT]PASSWORD keys=Xpos,Ypos,Zpos,halui.axis.a.pos-feedback,halui.axis.b.pos-feedback,halui.axis.c.pos-feedback,halui.axis.u.pos-feedback,halui.axis.v.pos-feedback,halui.axis.w.pos-feedback,halui.axis.x.pos-feedback,halui.axis.y.pos-feedback,halui.axis.z.pos-feedback,halui.estop.is-activated,halui.joint.0.is-homed,halui.joint.1.is-homed,halui.joint.2.is-homed,halui.joint.3.is-homed,halui.joint.4.is-homed,halui.joint.5.is-homed,halui.joint.6.is-homed,halui.joint.7.is-homed,halui.joint.8.is-homed,halui.machine.is-on,halui.max-velocity.value,halui.mode.is-auto,halui.mode.is-manual,halui.mode.is-mdi,halui.mode.is-teleop,halui.program.is-running
