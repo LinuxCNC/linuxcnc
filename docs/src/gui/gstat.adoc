@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:gstat]]
-= GStat
+= GStat Python Module
 
 == Intro
 

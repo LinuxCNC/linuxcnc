@@ -53,6 +53,7 @@ DOC_SRCS_EN := \
 	config/lathe-config.adoc \
 	config/moveoff.adoc \
 	config/pncconf.adoc \
+	config/python-hal-interface.adoc \
 	config/python-interface.adoc \
 	config/stepconf.adoc \
 	config/stepper-diagnostics.adoc \

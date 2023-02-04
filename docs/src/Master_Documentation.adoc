@@ -79,6 +79,7 @@ include::config/stepper.adoc[]
 
 include::config/stepper-diagnostics.adoc[]
 
+include::gui/filter-programs.adoc[]
 
 :leveloffset: 1
 = HAL (Hardware Abstraction Layer)
@@ -103,6 +104,10 @@ include::hal/rtcomps.adoc[]
 include::hal/comp.adoc[]
 
 include::hal/haltcl.adoc[]
+
+include::gui/halui.adoc[]
+
+include::hal/halui-examples.adoc[]
 
 include::hal/halmodule.adoc[]
 
@@ -284,13 +289,9 @@ include::gui/qtvcp-development.adoc[]
 :leveloffset: 2
 include::gui/panelui.adoc[]
 
-include::gui/filter-programs.adoc[]
-
-include::gui/halui.adoc[]
-
-include::hal/halui-examples.adoc[]
-
 include::config/python-interface.adoc[]
+
+include::config/python-hal-interface.adoc[]
 
 include::gui/gstat.adoc[]
 
