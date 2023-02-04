@@ -87,7 +87,7 @@ class GEditor(QMainWindow, _HalWidgetBase):
         self.createActions()
 
         # Create toolbar and add action
-        self.toolBar = QToolBar('File')
+        self.toolBar = QToolBar(self)
         self.toolBar.setObjectName('{}_toolbarfile'.format( self.objectName()))
         self.toolBar.addAction(self.newAction)
         self.toolBar.addAction(self.openAction)
