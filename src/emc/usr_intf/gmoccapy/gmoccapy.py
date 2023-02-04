@@ -451,7 +451,7 @@ class gmoccapy(object):
         LANGDIR = os.path.join(BASE, "share", "Gtksourceview-2.0", "language-specs")
         file_path = os.path.join(LANGDIR, "gcode.lang")
         if os.path.isfile(file_path):
-            LOG.info("GMOCCAPY INFO: Gcode.lang found")
+            LOG.info("Gcode.lang found")
             self.widgets.gcode_view.set_language("gcode", LANGDIR)
 
         # set the user colors and digits of the DRO
@@ -1639,7 +1639,7 @@ class gmoccapy(object):
             message = _("this is not a usual config\n")
             message += _("we miss one of X , Y or Z axis\n")
             message += _("We will use by axisletter ordered jog button")
-            LOG.error(message)
+            LOG.warning(message)
             self._arrange_jog_button_by_axis()
             return
 
@@ -2029,7 +2029,7 @@ class gmoccapy(object):
                 selected_index = [icon_theme[1] for icon_theme in valid_icon_themes].index(icon_theme_preference)
                 icon_theme_choice.set_active(selected_index)
             except ValueError:
-                LOG.warning(f"Warning: preferred icon-theme '{icon_theme_preference}' not found; switching to 'default'.")
+                LOG.warning(f"Preferred icon-theme '{icon_theme_preference}' not found; switching to 'default'.")
                 icon_theme_choice.set_active(0)
 
         # load icon theme
@@ -2124,7 +2124,7 @@ class gmoccapy(object):
                                                    stdin=subprocess.PIPE,
                                                    stdout=subprocess.PIPE,
                                                    close_fds=True)
-                LOG.debug(_("virtual keyboard program found : <onboard>"))
+                LOG.info(_("virtual keyboard program found : <onboard>"))
             else:
                 LOG.warning(_("No virtual keyboard installed, we checked for <onboard> ."))
                 LOG.warning(_("try sudo apt-get install onboard"))
@@ -2307,7 +2307,7 @@ class gmoccapy(object):
                 pin = hal_glib.GPin(
                     self.halcomp.newpin("messages." + message[2] + "-response", hal.HAL_BIT, hal.HAL_OUT))
             else:
-                LOG.error(_("GMOCCAPY ERROR /n Message type {0} not supported").format(message[1]))
+                LOG.error(_("Message type {0} not supported").format(message[1]))
 
     def _show_user_message(self, pin, message):
         if message[1] == "status":
@@ -2331,7 +2331,7 @@ class gmoccapy(object):
             else:
                 self.halcomp["messages." + message[2] + "-waiting"] = 0
         else:
-            LOG.error(_("GMOCCAPY ERROR /n Message type {0} not supported").format(message[1]))
+            LOG.error(_("Message type {0} not supported").format(message[1]))
 
     def _show_offset_tab(self, state):
         page = self.widgets.ntb_preview.get_nth_page(1)
@@ -5750,6 +5750,8 @@ if __name__ == "__main__":
     LOG = logger.initBaseLogger('Gmoccapy', log_file=None, log_level=logger.WARNING)
 
     # we set the log level early so the imported modules get the right level
+    # The order is: VERBOSE, DEBUG, INFO, WARNING, ERROR, CRITICAL.
+
     if '-d' in sys.argv:
         # Log level defaults to WARNING, so set lower if in debug mode
         logger.setGlobalLevel(logger.DEBUG)

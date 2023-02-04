@@ -104,7 +104,7 @@ class GetIniInfo:
         if len(axis_list) > 9:
             message = _("**** gmoccapy can only handle 9 axis, ****\n**** but you have given {0} through your INI file ****\n").format(len(axis_list))
             message += _("**** gmoccapy will not start ****\n\n")
-            LOG.warning(message)
+            LOG.critical(message)
             #dialogs.warning_dialog(self, _("Very critical situation"), message, sound = False)
             sys.exit()
 
@@ -130,8 +130,7 @@ class GetIniInfo:
                 LOG.debug("found the following coordinates {0}".format(coordinates))
 
         if not coordinates:
-            LOG.warning("no coordinates found in [KINS] KINEMATICS, we will use order from")
-            LOG.warning("[TRAJ] COORDINATES")
+            LOG.warning("no coordinates found in [KINS] KINEMATICS, we will use order from\n[TRAJ] COORDINATES")
             coordinates = self.get_coordinates()
 
         # at this point we should have the coordinates of the config, we will check if the amount of
