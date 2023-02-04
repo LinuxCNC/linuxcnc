@@ -10,8 +10,7 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-This chapter covers important user concepts that should be understood
-before attempting to run a CNC machine with G-code.
+This chapter covers important user concepts that should be understood before attempting to run a CNC machine with G-code.
 
 [[sec:trajectory-control]]
 == Trajectory Control(((Trajectory Control)))
@@ -19,9 +18,7 @@ before attempting to run a CNC machine with G-code.
 [[sub:trajectory-planning]]
 === Trajectory Planning(((Trajectory Planning,TP)))
 
-Trajectory planning, in general,
-is the means by which LinuxCNC follows the path specified by your G-code program,
-while still operating within the limits of your machinery.
+Trajectory planning, in general, is the means by which LinuxCNC follows the path specified by your G-code program, while still operating within the limits of your machinery.
 
 A G-code program can never be fully obeyed.
 For example, imagine you specify as a single-line program the following move:
@@ -31,20 +28,14 @@ For example, imagine you specify as a single-line program the following move:
 G1 X1 F10 (G1 is linear move, X1 is the destination, F10 is the speed)
 ----
 
-In reality, the whole move can't be made at F10,
-since the machine must accelerate from a stop, move toward X=1,
-and then decelerate to stop again.
-Sometimes part of the move is done at F10, but for many moves,
-especially short ones, the specified feed rate is never reached at all.
-Having short moves in your G-code can cause your machine to slow down
-and speed up for the longer moves if the 'naive cam detector' is not employed with G64 P__n__.
+In reality, the whole move can't be made at F10, since the machine must accelerate from a stop, move toward X=1, and then decelerate to stop again.
+Sometimes part of the move is done at F10, but for many moves, especially short ones, the specified feed rate is never reached at all.
+Having short moves in your G-code can cause your machine to slow down and speed up for the longer moves if the 'naive cam detector' is not employed with G64 P__n__.
 
 The basic acceleration and deceleration described above is not complex and there is no compromise to be made.
-In the INI file the specified machine constraints, such as maximum axis velocity and axis acceleration,
-must be obeyed by the trajectory planner.
+In the INI file the specified machine constraints, such as maximum axis velocity and axis acceleration, must be obeyed by the trajectory planner.
 
-For more information on the Trajectory Planner INI options see the
-<<sub:ini:sec:traj,Trajectory Section>> in the INI chapter.
+For more information on the Trajectory Planner INI options see the <<sub:ini:sec:traj,Trajectory Section>> in the INI chapter.
 
 [[sub:path-following]]
 === Path Following(((Trajectory Planning:Path Following)))
@@ -53,19 +44,15 @@ A less straightforward problem is that of path following.
 When you program a corner in G-code, the trajectory planner can do several things,
 all of which are right in some cases:
 
-* It can decelerate to a stop exactly at the coordinates of the corner,
-  and then accelerate in the new direction.
-* It can also do what is called blending,
-  which is to keep the feed rate up while going through the corner,
+* It can decelerate to a stop exactly at the coordinates of the corner, and then accelerate in the new direction.
+* It can also do what is called blending, which is to keep the feed rate up while going through the corner,
   making it necessary to round the corner off in order to obey machine constraints.
 
-You can see that there is a trade off here: you can slow down to get better path following,
-or keep the speed up and have worse path following.
+You can see that there is a trade off here: you can slow down to get better path following, or keep the speed up and have worse path following.
 Depending on the particular cut, the material, the tooling, etc., the programmer may want to compromise differently.
 
 Rapid moves also obey the current trajectory control.
-With moves long enough to reach maximum velocity on a machine with low acceleration and no path tolerance specified,
-you can get a fairly round corner.
+With moves long enough to reach maximum velocity on a machine with low acceleration and no path tolerance specified, you can get a fairly round corner.
 
 [[sub:programming-the-planner]]
 === Programming the Planner(((Trajectory Planning:Programming the Planner)))
@@ -131,24 +118,20 @@ image::images/naive-cam.png["Naive CAM Detector",align="center"]
 === Planning Moves(((Trajectory Planning:Planning Moves)))
 
 Make sure moves are 'long enough' to suit your machine/material.
-Principally because of the rule that the machine will never move at such a speed
-that it cannot come to a complete stop at the end of the current movement,
+Principally because of the rule that the machine will never move at such a speed that it cannot come to a complete stop at the end of the current movement,
 there is a minimum movement length that will allow the machine to keep up a requested feed rate with a given acceleration setting.
 
 The acceleration and deceleration phase each use half the INI file MAX_ACCELERATION.
 In a blend that is an exact reversal, this causes the total axis acceleration to equal the INI file MAX_ACCELERATION.
-In other cases, the actual machine acceleration is somewhat less than the INI file acceleration
+In other cases, the actual machine acceleration is somewhat less than the INI file acceleration.
 
 //NOTE This is a duplicate paragraph to the one below without latexmath.
 
-To keep up the feed rate,
-the move must be longer than the distance it takes to accelerate from 0 to the desired feed rate and then stop again.
-Using A as *1/2* the INI file MAX_ACCELERATION and F as the feed rate *in units per second*,
-the acceleration time is *t~a~ = F/A* and the acceleration distance is *d~a~ = F*t~a~/2*.
+To keep up the feed rate, the move must be longer than the distance it takes to accelerate from 0 to the desired feed rate and then stop again.
+Using A as *1/2* the INI file MAX_ACCELERATION and F as the feed rate *in units per second*, the acceleration time is *t~a~ = F/A* and the acceleration distance is *d~a~ = F*t~a~/2*.
 The deceleration time and distance are the same, making the critical distance *d = d~a~ + d~d~ = 2 * d~a~ = F^2^/A*.
 
-For example, for a feed rate of 1 inch per second and an acceleration of *10 inches/sec^2^*,
-the critical distance is *1^2^/10 = 1/10 = 0.1 inches*.
+For example, for a feed rate of 1 inch per second and an acceleration of *10 inches/sec^2^*, the critical distance is *1^2^/10 = 1/10 = 0.1 inches*.
 
 For a feed rate of 0.5 inch per second, the critical distance is *5^2^/100 = 25/100 = 0.025* inches.
 
@@ -233,8 +216,7 @@ Normally you are in the G54 coordinate system.
 Normally you use the G54 Coordinate System.
 When an offset is applied to a current user coordinate system a small blue ball with lines
 will be at the <<sec:machine-coordinate-system, machine origin>> when your DRO is displaying 'Position: Relative Actual' in AXIS.
-If your offsets are temporary use the Zero Coordinate System from the Machine menu or program 'G10 L2 P1 X0 Y0 Z0'
-at the end of your G-code file.
+If your offsets are temporary use the Zero Coordinate System from the Machine menu or program 'G10 L2 P1 X0 Y0 Z0' at the end of your G-code file.
 Change the 'P' number to suit the coordinate system you wish to clear the offset in.
 
 * Offsets stored in a user coordinate system are retained when LinuxCNC is shut down.
@@ -271,8 +253,7 @@ This inversion does not change anything from the point of view of the direction 
 .Typical Mill Configuration
 image::images/mill-diagram_en.svg["Typical Mill Configuration",align="center"]
 
-The following diagram shows a typical lathe showing direction of travel
-of the tool and limit switches.
+The following diagram shows a typical lathe showing direction of travel of the tool and limit switches.
 
 .Typical Lathe Configuration
 image::images/lathe-diagram_en.svg["Typical Lathe Configuration",align="center"]

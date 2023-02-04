@@ -403,7 +403,7 @@ M2
 
 - Executing `M400` will fail with the message `user-defined M400: missing: P`.
 - Executing `M400 P123` will display `P word=123.000000`.
-- Executing `M400 P123 Q456` will display `P word=123.000000` and `Q word set: 456.000000`
+- Executing `M400 P123 Q456` will display `P word=123.000000` and `Q word set: 456.000000`.
 
 .Example for positional parameter passing to NGC procedures
 
@@ -852,8 +852,8 @@ If you're confident with the  <<remap:interpreter-action-on-t,default implementa
 But remapping is also a way to work around deficiencies in the current implementation, for instance to not block until the "tool-prepared" pin is set.
 
 What you could do, for instance, is:
-- In a remapped T, just set the equivalent of the "tool-prepare" pin, but *not* wait for "tool-prepared" here.
-- In the corresponding remapped M6, wait for the "tool-prepared" at the very beginning of the O-word procedure.
+- In a remapped T, just set the equivalent of the `tool-prepare` pin, but *not* wait for `tool-prepared` here.
+- In the corresponding remapped M6, wait for the `tool-prepared` at the very beginning of the O-word procedure.
 
 Again, the `iocontrol` tool-prepare/tool-prepared pins would be unused and replaced by `motion.*` pins, so those would pins must be looped:
 

@@ -4333,7 +4333,7 @@ image::images/qtplasmac_reed_arc_ok.png[width=600,align="center"]
 
 image::images/qtplasmac_relay_contact.png[width=600,align="center"]
 
-A full description is at <<plasma:qt-contact-load,Contact Load>>
+A full description is at <<plasma:qt-contact-load,Contact Load>>.
 
 == Known Issues
 
