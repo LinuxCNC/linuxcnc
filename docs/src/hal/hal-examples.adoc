@@ -56,7 +56,7 @@ net button-2 or2.0.in1 <= pyvcp.button-2
 net led-1 pyvcp.led-1 <= or2.0.out
 ----
 
-When you run this example in an Axis simulator created with the Stepconf
+When you run this example in an axis simulator created with the StepConf
 Wizard you can open a terminal and see the pins created with 'loadrt or2' by
 typing in 'halcmd show pin or2' in the terminal
 
@@ -119,7 +119,7 @@ man pages or the HAL Components List (<<sec:hal-components>>).
 The first thing is to check your configuration to make sure you are
 not using any of the real time components all ready. You can do this by
 opening up the HAL Configuration window and look for the components in
-the pin section. If you are then find the .hal file that they are being
+the pin section. If you are then find the HAL file that they are being
 loaded in and increase the counts and adjust the instance to the
 correct value. Add the following to your custom.hal file.
 
@@ -153,7 +153,7 @@ net X-IPM abs.0.out
 ----
 
 In this last section we are setting the mult2.0.in1 to 60 to convert
-the inch per second to inch per minute that we get from the ddt.0.out.
+the inch per second to inch per minute (IPM) that we get from the ddt.0.out.
 
 The xpos-cmd sends the commanded position to the ddt.0.in. The ddt
 computes the derivative of the change of the input.

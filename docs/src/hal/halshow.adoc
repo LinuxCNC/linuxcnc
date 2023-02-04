@@ -10,16 +10,17 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-The script halshow can help you find your way around a running HAL.
-It displays chosen HAL values and update them continously. +
+<<<<<<< HEAD
+The script `halshow` can help you find your way around a running HAL.
+It displays chosen HAL values and updates them continously.
+
 This is a very specialized system and it must connect to a working HAL.
 It cannot run standalone because it relies on the ability of HAL to
 report what it knows of itself through the halcmd interface library.
 Each time halshow runs with a different LinuxCNC
 configuration it will be different.
 
-As we will soon see, this ability of HAL to document itself is one key
-to establish an effective CNC system.
+As we will soon see, this ability of HAL to document itself (introspection) is one key to establish an effective CNC system.
 
 == Starting Halshow
 
@@ -357,12 +358,12 @@ float 0.00000e+00 Xpos-cmd
 ==> stepgen.0.position-cmd
 ----
 
-We see that this signal comes from joint.o.motor-pos-cmd and goes to
-both ddt.0.in and stepgen.0.position-cmd. By connecting our block to
+We see that this signal comes from `joint.o.motor-pos-cmd` and goes to
+both `ddt.0.in` and `stepgen.0.position-cmd`. By connecting our block to
 the signal we have avoided any complications with the normal flow of
 this motion command.
 
-The HAL Show Area uses halcmd to discover what is happening in a
+The HAL Show Area uses `halcmd` to discover what is happening in a
 running HAL. It gives you complete information about what it has
 discovered. It also updates as you issue commands from the little
 editor panel to modify that HAL. There are times when you want a

@@ -85,12 +85,12 @@ pin or parameter name, as follows:
 
 The individual fields are:
 
-<device-name>::
+_<device-name>_::
   The device that the driver is intended to work with. This is most
   often an interface board of some type, but there are other
   possibilities.
 
-<device-num>::
+_<device-num>_::
   It is possible to install more than one servo board, parallel port,
   or other hardware device in a computer. The device number identifies a
   specific device. Device numbers start at 0 and increment. footnote:[Some
@@ -103,7 +103,7 @@ The individual fields are:
   disappear in version 2.1.]
 //FIXME Has this indeed been fixed and footnote should be removed
 
-<io-type>::
+_<io-type>_::
   Most devices provide more than one type of I/O. Even the simple
   parallel port has both digital inputs and digital outputs. More complex
   boards can have digital inputs and outputs, encoder counters, pwm or
@@ -116,7 +116,7 @@ The individual fields are:
   should behave the same when seen from inside the HAL, regardless of the
   device.
 
-<chan-num>::
+_<chan-num>_::
   Virtually every I/O device has multiple channels, and the channel
   number identifies one of them. Like device numbers, channel numbers
   start at zero and increment.footnote:[One exception to the
@@ -136,7 +136,7 @@ The individual fields are:
   limitations). The frequency parameter should use "0-3" as the channel
   number.
 
-<specific-name>::
+_<specific-name>_::
   An individual I/O channel might have just a single HAL pin associated
   with it, but most have more than one. For example, a digital input has
   two pins, one is the state of the physical pin, the other is the same

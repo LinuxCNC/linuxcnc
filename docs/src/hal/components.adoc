@@ -15,7 +15,7 @@ and you can use 'man name' to get additional information.
 To view the information in the man page, in a terminal window type: 
 
 ----
-man axis (or perhaps 'man <n> axis' if your system requires it. n = 1 for userspace and 9 for realtime components)
+man axis (or perhaps 'man _<n>_ axis' if your system requires it. _n_ = 1 for userspace and 9 for realtime components)
 ----
 
 [NOTE]
@@ -298,9 +298,10 @@ the input is a position, this means that the 'position', 'velocity', and 'accele
 | link:../man/man9/classicladder.9.html[classicladder] | Realtime software PLC based on ladder logic. See <<cha:classicladder,ClassicLadder>> chapter for more information. ||
 | link:../man/man9/threads.9.html[threads] | Creates hard realtime HAL threads. ||
 | link:../man/man9/charge_pump.9.html[charge_pump] | Creates a square-wave for the 'charge pump' input of some controller boards.
-The 'Charge Pump' should be added to the base thread function. When enabled the output is on for one period and off for one period.
-To calculate the frequency of the output 1/(period time in seconds x 2) = Hz.
-For example, if you have a base period of 100,000 ns that is 0.0001 seconds and the formula would be 1/(0.0001 x 2) = 5,000 Hz or 5 kHz. ||
+The 'Charge Pump' should be added to the base thread function.
+When enabled, the output is on for one period and off for one period.
+To calculate the frequency [Hz] of the output: 1/(period time in seconds x 2).
+For example, if you have a base period of 100,000&thinsp;ns that is 0.0001 seconds and the formula would be 1/(0.0001 x 2) = 5,000&thinsp;Hz or 5&thinsp;kHz. ||
 | link:../man/man9/encoder_ratio.9.html[encoder_ratio] | Electronic gear to synchronize two axes. ||
 | link:../man/man9/feedcomp.9.html[feedcomp] | Multiply the input by the ratio of current velocity to the feed rate. ||
 | link:../man/man9/gladevcp.9.html[gladevcp (Realtime)] |displays Virtual control Panels built with GTK / GLADE||

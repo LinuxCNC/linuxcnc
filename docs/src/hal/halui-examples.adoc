@@ -60,10 +60,10 @@ rotary axis on a signal from an external machine.
 The coordination between the two systems will be
 provided by two Halui components:
 
-- halui.program.is-paused
-- halui.program.resume
+- `halui.program.is-paused`
+- `halui.program.resume`
 
-In your customized hal file, add the following
+In your customized HAL file, add the following
 two lines that will be connected to your I/O to turn
 on the program pause or to resume when the external
 system wants LinuxCNC to continue.

@@ -695,9 +695,9 @@ loadrt logic count=3 personality=0x102,0x305,0x503
 
 which creates the following pins:
 
-- A 2-input AND gate: logic.0.and, logic.0.in-00, logic.0.in-01
-- 5-input AND and OR gates: logic.1.and, logic.1.or, logic.1.in-00, logic.1.in-01, logic.1.in-02, logic.1.in-03, logic.1.in-04,
-- 3-input AND and XOR gates: logic.2.and, logic.2.xor, logic.2.in-00, logic.2.in-01, logic.2.in-02
+- A 2-input AND gate: `logic.0.and`, `logic.0.in-00`, `logic.0.in-01`
+- 5-input AND and OR gates: `logic.1.and`, `logic.1.or`, `logic.1.in-00`, `logic.1.in-01`, `logic.1.in-02`, `logic.1.in-03`, `logic.1.in-04`,
+- 3-input AND and XOR gates: `logic.2.and`, `logic.2.xor`, `logic.2.in-00`, `logic.2.in-01`, `logic.2.in-02`
 
 === General Functions
 
@@ -744,7 +744,7 @@ This component uses two general function to manipulate a HAL bit pin referenced 
 
 == Command Line Usage
 
-The halcompile man page gives details for invoking halcompile.
+The halcompile man page gives details for invoking `halcompile`.
 
 ----
 $ man halcompile

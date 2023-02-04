@@ -12,8 +12,8 @@
 
 == TWOPASS
 
-LinuxCNC 2.5 supports TWOPASS processing of LinuxCNC configuration files
-that can help in the modularization and readability of LinuxCNC files.
+LinuxCNC since version 2.5 supports TWOPASS processing of LinuxCNC configuration files
+that can help with their modularization and readability.
 (LinuxCNC files are specified in an LinuxCNC INI file in the LinuxCNC stanza
 as [LinuxCNC]HALFILE=filename).
 
@@ -201,7 +201,7 @@ While the order of loadrt directives is not usually critical,
 ordering of addf directives is often very important for proper
 operation of servo loop components.
 
-.Excluded '.hal' file example
+.Excluded HAL file example
 ----
 $ cat twopass_excluded.hal
 # The following magic comment causes this file to

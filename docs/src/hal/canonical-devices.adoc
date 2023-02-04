@@ -10,9 +10,9 @@ The following sections show the pins, parameters, and functions that
 are supplied by "canonical devices". All HAL device drivers should
 supply the same pins and parameters, and implement the same behavior.
 
-Note that only the `<io-type>` and `<specific-name>` fields are
-defined for a canonical device. The `<device-name>`, `<device-num>`,
-and `<chan-num>` fields are set based on the characteristics of the
+Note that only the `_<io-type>_` and `_<specific-name>_` fields are
+defined for a canonical device. The `_<device-name>`, `_<device-num>_`,
+and `_<chan-num>_` fields are set based on the characteristics of the
 real device.
 
 [[sec:hal-cdi:digital-in]]
@@ -80,7 +80,7 @@ continuous range of values.
   voltage (or current) after the scale multiplier has been applied.
 (float) *bit_weight*:: The value of one least significant bit (LSB).
   This is effectively the granularity of the input reading.
-(float) *hw_offset*:: The value present on the input when 0 volts is
+(float) *hw_offset*:: The value present on the input when 0 Volts is
   applied to the input pin(s).
 
 [[sub:hal-cdi:ai:functions]]

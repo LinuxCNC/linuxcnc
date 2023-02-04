@@ -26,7 +26,7 @@ image::images/HAL_Configuration.png["The HAL Configuration Window",align="center
 [[sub:hal-loart]]
 === loadrt(((HAL loadrt,loadrt)))
 
-The command 'loadrt' loads a real time HAL component.
+The command `loadrt` loads a real time HAL component.
 Real time component functions need to be added to a thread to be updated at the rate of the thread.
 You cannot load a user space component into the real time space.
 
@@ -43,15 +43,15 @@ loadrt mux4 count=1
 The `addf` command adds a function to a real-time thread.
 If the StepConf wizard was used to create the configuration, two threads have been created (``base-thread`` and ``servo-thread``).
 
-`addf` adds function 'functname' to thread 'threadname'.
+`addf` adds function _functname_ to thread _threadname_.
 Default is to add the function in the order they are in the file.
-If 'position' is specified, adds the function to that spot in the thread.
-Negative 'position' means position with respect to the end of the thread.
+If _position_ is specified, adds the function to that spot in the thread.
+A negative _position_ indicates the position with respect to the end of the thread.
 For example '1' is start of thread, '-1' is the end of the thread, '-3' is third from the end.
 
 For some functions it is important to load them in a certain order, like the parport read and write functions.
 The function name is usually the component name plus a number.
-In the following example the component 'or2' is loaded and 'show function' shows the name of the or2 function.
+In the following example the component 'or2' is loaded and `show function` shows the name of the or2 function.
 
 ----
 $ halrun
@@ -65,7 +65,7 @@ Owner   CodeAddr  Arg       FP   Users  Name
 You have to add a function from a HAL real time component to a thread to get the function to update at the rate of the thread.
 Usually there are two threads as shown in this example.
 Some components use floating point math and must be added to a thread that supports floating point math.
-The 'FP' indicates if floating point math is supported in that thread.
+The `FP` indicates if floating point math is supported in that thread.
 
 ----
 $ halrun
@@ -96,7 +96,8 @@ If the component requires a floating point thread that is usually the slower ser
 [[sub:hal-loadusr]]
 === loadusr(((HAL loadusr,loadusr)))
 
-The command 'loadusr' loads a user space HAL component. User space programs are their own separate processes, which optionally talk to.other HAL components via pins and parameters.
+The command `loadusr` loads a user space HAL component.
+User space programs are their own separate processes, which optionally talk to.other HAL components via pins and parameters.
 You cannot load real time components into user space.
 
 Flags may be one or more of the following:
@@ -172,7 +173,7 @@ net xStep => parport.0.pin-06-out
 ----
 
 .I/O pins
-An I/O pin like encoder.N.index-enable can be read or set as allowed by the component.
+An I/O pin like encoder._N_.index-enable can be read or set as allowed by the component.
 
 [[sub:hal-setp]]
 === setp(((HAL setp,setp)))
@@ -228,10 +229,10 @@ unlinkp parport.0.pin-02-out
 === Obsolete Commands
 
 The following commands are depreciated and may be removed from future versions.
-Any new configuration should use the <<sub:hal-net,'net'>> command.
+Any new configuration should use the <<sub:hal-net,`net`>> command.
 These commands are included so older configurations will still work.
 
-==== linksp
+==== linksp (deprecated)
 
 The command 'linksp' creates a 'connection' between a signal and one pin.
 
@@ -242,11 +243,11 @@ linksp <signal-name> <pin-name>
 linksp X-step parport.0.pin-02-out
 ----
 
-The 'linksp' command has been superseded by the 'net' command.
+*The 'linksp' command has been superseded by the 'net' command.*
 
-==== linkps
+==== linkps (deprecated)
 
-The command 'linkps' creates a 'connection' between one pin and one signal.
+The command `linkps` creates a 'connection' between one pin and one signal.
 It is the same as linksp but the arguments are reversed.
 
 .linkps Syntax and Example
@@ -256,12 +257,12 @@ linkps <pin-name> <signal-name>
 linkps parport.0.pin-02-out X-Step
 ----
 
-The 'linkps' command has been superseded by the 'net' command.
+*The `linkps` command has been superseded by the `net` command.*
 
 ==== newsig
 
-the command 'newsig' creates a new HAL signal by the name <signame> and the data type of <type>.
-Type must be 'bit', 's32', 'u32' or 'float'. Error if <signame> all ready exists.
+the command `newsig` creates a new HAL signal by the name _<signame>_ and the data type of _<type>_.
+Type must be 'bit', 's32', 'u32' or 'float'. Error if _<signame>_ already exists.
 
 .newsig Syntax and Example
 [source,{hal}]
@@ -344,7 +345,7 @@ For further components see <<sec:hal-components,HAL Components List>> or the man
 [[sub:hal-and2]]
 === and2(((HAL and2,and2)))
 
-The 'and2' component is a two input 'and' gate.
+The `and2` component is a two input and-gate.
 The truth table below shows the output based on each combination of input.
 
 .Syntax
@@ -377,7 +378,7 @@ and2.N.out (bit, out)
 [[sub:hal-not]]
 === not(((HAL not,not)))
 
-The 'not' component is a bit inverter.
+The `not` component is a bit inverter.
 
 .Syntax
 ----
@@ -407,7 +408,7 @@ not.n.out (bit, out)
 [[sub:hal-or2]]
 === or2(((HAL or2,or2)))
 
-The 'or2' component is a two input OR gate.
+The `or2` component is a two input or-gate.
 
 .Syntax
 ----
@@ -439,7 +440,7 @@ or2.n.out (bit, out)
 [[sub:hal-xor2]]
 === xor2(((HAL xor2,xor2)))
 
-The 'xor2' component is a two input XOR (exclusive OR) gate.
+The `xor2` component is a two input xor (exclusive or)-gate.
 
 .Syntax
 ----
