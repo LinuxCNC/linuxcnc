@@ -1,6 +1,8 @@
 :lang: en
 :toc:
 
+[[cha:hal-introduction]]
+
 = HAL Introduction(((HAL Introduction)))
 
 // Custom lang highlight
