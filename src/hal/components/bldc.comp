@@ -34,7 +34,7 @@ This is only used indicate to the bldc control component that an index has been 
 
 pin in bit init if (personality & 0x05) == 4
 """A rising edge on this pin starts the motor alignment sequence.
-This pinshould be connected in such a way that the motors re-align any time that encoder monitoring has been interrupted.
+This pin should be connected in such a way that the motors re-align any time that encoder monitoring has been interrupted.
 Typically this will only be at machine power-off.
 The alignment process involves powering the motor phases in such a way as to put the motor in a known position.
 The encoder counts are then stored in the \\fBoffset\\fP parameter.
