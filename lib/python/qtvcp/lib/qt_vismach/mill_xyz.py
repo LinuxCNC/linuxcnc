@@ -199,7 +199,8 @@ zassembly = Translate([zassembly], 0, 0, 400)
 
 # show a title and DRO to prove the HUD
 myhud = HalHud()
-myhud.show_top("Mill)XYZ")
+myhud.set_background_color(0,.1,.2,0)
+myhud.show_top("Mill_XYZ")
 myhud.show_top("------------")
 myhud.add_pin('axis-x: ',"{:10.4f}","axis.x.pos-cmd")
 myhud.add_pin('axis-y: ',"{:10.4f}","axis.y.pos-cmd")
