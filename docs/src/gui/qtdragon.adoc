@@ -57,7 +57,7 @@ In the section '[DISPLAY]' change the 'DISPLAY' line to read:
 * `qtdragon` for a small version
 * `qtdradon_hd` for the large version.
 
-You can add `-d` or `-v` for debug output to the terminal.
+You can add `-v`, `-d`, '-i', or '-q' for verbose, debug, info or quiet (respectably) output to the terminal.
 
 [source,{ini}]
 ----
@@ -130,7 +130,7 @@ ANGULAR_INCREMENTS = 1, 5, 10, 30, 45, 90, 180, 360
 
 === Jog speed
 
-Set jog speed controls (in units per minute)
+Set jog speed controls (in units per second)
 
 [source,{ini}]
 ----
@@ -138,6 +138,9 @@ Set jog speed controls (in units per minute)
 MIN_LINEAR_VELOCITY     = 0
 MAX_LINEAR_VELOCITY     = 60.00
 DEFAULT_LINEAR_VELOCITY = 50.0
+DEFAULT_ANGULAR_VELOCITY = 10
+MIN_ANGULAR_VELOCITY = 1
+MAX_ANGULAR_VELOCITY = 360
 ----
 
 === User message dialog system
@@ -162,7 +165,7 @@ You can embed QtVCP Virtual Control Panels into the QtDragon or QtDragon_hd scre
 These panels can be either user built or builtin <<cha:qtvcp:panels,QtVCP Panels>>. +
 See QtVCP/VCP panels for other available builtin panels. +
 The `EMBED_TAB_NAME` entry will used as the title for the new tab.(must be unique) +
-Tab `EMBED_TAB_LOCATION` options include: `tabWidget_utilities`, `tabWidget_setup` and 'stackedWidget_mainTab'. +
+Tab `EMBED_TAB_LOCATION` options include: `tabWidget_utilities`, `tabWidget_setup` and `stackedWidget_mainTab`. +
 Tab `EMBED_TAB_COMMAND' specifies what embed-able program to run, including any of it's command line options. + 
 This sample adds a builtin panel, a graphical animated machine using the vismach library, to the utilities tab.
 
@@ -237,7 +240,7 @@ Comment/uncomment which ever you prefer.
 * 'Versa probe' is a QtVCP ported version of a popular GladeVCP probing panel.
 * 'Basic Probe' is a QtVCP ported version based on the third party basic probe screen.
 
-Both perform similar probing routines.
+Both perform similar probing routines, though Versa probe optionally handles auto tool measurement.
 
 [source,{ini}]
 ----
@@ -293,8 +296,8 @@ POSTGUI_HALCMD = loadusr halmeter
 
 === Builtin Sample Configurations
 
-The sample configurations 'sim/qtvcp_screens/qtdragon/qtdragon_xyza.ini' is already configured to use QtDragon as its front-end. +
-There are several others, to demonstrate different machine configurations.
+The sample configurations 'sim/qtdragon/' or `sim/qtdragon_hd` are already configured to use QtDragon as the screen. +
+There are several examples, to demonstrate different machine configurations.
 
 == Key Bindings
 
@@ -873,7 +876,7 @@ PATH_PREPEND = python
 TOPLEVEL = python/toplevel.py
 ----
 
-=== Needed Files
+=== Required Files
 
 You must copy the following files to your config directory:
 
@@ -949,8 +952,10 @@ which then sets the X and Y offsets to the values indicated by the LASER OFFSET 
 
 Tabs allow the user to select the most appropriate info/control on the top three panels. +
 If the on screen keyboard is showing and the user wishes to hide it but keep the current tab, +
-they can do that by pressing the current show tab.
-
+they can do that by pressing the current show tab. +
+In QtDragon, there is a splitter handle between the gcode text display and the gcode graphical display. +
+One can use this to split the size between the two areas. This can be set differently in each tab and in each mode.
+ 
 === Main tab
 
 This tab displays the graphical representation of the current program. +
@@ -1040,6 +1045,11 @@ This tabs will display another stab election of G-code utility programs:
 
 Custom QtVCP panels can be displayed here by setting the EMBED_TAB_LOCATION option to 'tabWidget_utilities'
 
+=== User Tab
+
+This tab will only be displayed if an embedded panel has been designated for the location `stackedWidget_mainTab`. +
+If more then one embedded tab has been designated, then pressing the user tab will cycle through them.
+
 == Styles
 
 Nearly all aspects of the GUI appearance are configurable via the QtDragon.qss stylesheet file.
@@ -1059,7 +1069,7 @@ A general overview of <<cha:qtvcp:modifying-screens,Customizing Stock Screens>>
 Stylesheets can be leveraged to do a fair amount of customization,
 but you usually need to know a bit about the widget names.
 Pressing F12 will display a stylesheet editor dialog to load/test/save modification.
-Some times these lines will be present and you can change them sometimes yo need to add them.
+Sometimes these lines will be present and you can change them, otherwise you will need to add them.
 
 For instance, to change the DRO font (look for this entry and change the font name):
 
@@ -1119,6 +1129,35 @@ To stop the blur effect with dialogs:
 ----
 #screen_options {
     qproperty-focusBlur_option: false;
+}
+----
+
+Change the gcode text display colors/fonts:
+
+[source,{ini}]
+----
+}
+EditorBase{
+ background:black;
+qproperty-styleColorBackground:grey;
+qproperty-styleColor0: black;
+qproperty-styleColor1: darkblue;
+qproperty-styleColor2: blue;
+qproperty-styleColor3: red;
+qproperty-styleColor4: lightblue;
+qproperty-styleColor5: white;
+qproperty-styleColor6: lightGreen;
+qproperty-styleColor7: yellow ;
+qproperty-styleColorSelectionText: white;
+qproperty-styleColorSelectionBackground: blue;
+qproperty-styleFont0: "Times,15,-1,5,90,0,0,1,1,0";
+qproperty-styleFont1: "Times,15,-1,5,90,1,0,1,0,0";
+qproperty-styleFont2: "Times,15,-1,5,90,0,0,1,1,0";
+qproperty-styleFont3: "Times,15,-1,5,90,0,0,1,1,0";
+qproperty-styleFont4: "Times,15,-1,5,90,0,0,1,1,0";
+qproperty-styleFont5: "Times,15,-1,5,90,0,0,1,1,0";
+qproperty-styleFont6: "Times,15,-1,5,90,0,0,1,1,0";
+qproperty-styleFont7: "Times,15,-1,5,90,0,0,1,1,0";
 }
 ----
 
