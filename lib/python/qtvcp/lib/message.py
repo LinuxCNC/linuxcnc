@@ -50,7 +50,7 @@ class Message:
                 if not name == None:
                     D = self['dialog-{}'.format(name)] = LcncDialog(window)
                     D._request_name = 'INI_MESSAGE_{}'.format(name)
-                    D.hal_init()
+                    D.hal_init(HAL_NAME=name)
                     D.pinname = name
 
                     # this is how we make a pin that can be connected to a callback
