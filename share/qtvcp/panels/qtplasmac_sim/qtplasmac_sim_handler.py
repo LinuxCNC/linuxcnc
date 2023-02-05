@@ -309,6 +309,8 @@ class HandlerClass:
             self.w.arc_voltage_offset.setValue(0)
 
     def z_position_changed(self, height):
+        if self.statePin.get() == 0:
+            return
         if self.w.auto_flt.isChecked():
             if self.below_material() and not self.floatPin.get():
                 self.float_pressed()
