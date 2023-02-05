@@ -881,6 +881,11 @@ class HandlerClass:
         info = ACTION.GET_ABOUT_INFO()
         self.w.aboutDialog_.showdialog()
 
+    def btn_zoomin_clicked(self):
+        self.w.gcode_viewer.editor.zoomIn()
+    def btn_zoomout_clicked(self):
+        self.w.gcode_viewer.editor.zoomOut()
+
     #####################
     # GENERAL FUNCTIONS #
     #####################
@@ -1009,7 +1014,6 @@ class HandlerClass:
         else:
             distance = STATUS.get_jog_increment_angular()
             rate = STATUS.get_jograte_angular()/60
-        print(rate)
         if state:
             if fast:
                 rate = rate * 2
@@ -1032,14 +1036,11 @@ class HandlerClass:
             self.w[widget].setEnabled(state)
         if state is True:
             if self.w.stackedWidget_mainTab.currentIndex() != TAB_SETUP:
-                self.w.jogging_frame.show()
+                self.adjust_stacked_widgets(self.w.stackedWidget_mainTab.currentIndex())
         else:
             if self.w.stackedWidget_mainTab.currentIndex() != TAB_PROBE:
-                self.w.jogging_frame.hide()
                 self.w.btn_main.setChecked(True)
                 self.adjust_stacked_widgets(TAB_MAIN)
-                self.w.stackedWidget.setCurrentIndex(0)
-                self.w.stackedWidget_dro.setCurrentIndex(0)
 
     def enable_onoff(self, state):
         if state:
@@ -1111,11 +1112,9 @@ class HandlerClass:
             self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.default_setup))
         else:
             self.w.web_view.setHtml(self.html)
-        #self.w.web_view.page().triggerAction(QWebEnginePage.Back)
 
     def forward(self):
         self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.docs))
-        #self.w.web_view.page().triggerAction(QWebEnginePage.Forward)
 
     def writer(self):
         WRITER.show()
@@ -1131,8 +1130,13 @@ class HandlerClass:
     def adjust_stacked_widgets(self,requestedIndex):
         IGNORE = -1
         SHOW_DRO = 0
-        mode = STATUS.get_current_mode()
-        if mode == STATUS.AUTO:
+        premode = ['','','Auto','MDI'][STATUS.get_previous_mode()]
+        mode = ['','','Auto','MDI'][STATUS.get_current_mode()]
+        currentIndex = self.w.stackedWidget_mainTab.currentIndex()
+        indexList = ['main','file','offsets','tool','status','probe','cam',
+                    'gcode','setup','settings','util','user']
+
+        if mode == 'Auto':
             seq = {TAB_MAIN: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
                     TAB_FILE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
                     TAB_OFFSETS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
@@ -1170,6 +1174,19 @@ class HandlerClass:
         else:
             main_index,stacked_index,show_JogControls,show_dro = rtn
 
+        # user tab button covers multiple tabs so adjust name
+        # for extra user tabs
+        if currentIndex >= len(indexList):
+            tabId = 'user{}'.format(currentIndex - len(indexList))
+        else:
+            tabId = indexList[currentIndex]
+        name = 'splitterSettings-{}{}'.format(tabId,premode)
+        #print ('CURRENT:',name)
+        # record current qsplitter settings
+        self.w.settings.beginGroup("qtdragon-{}".format(self.w.splitter_h.objectName()))
+        self.w.settings.setValue(name, QtCore.QVariant(self.w.splitter_h.saveState().data()))
+        self.w.settings.endGroup()
+
         # ignore, show or hide jog controls
         if show_JogControls == IGNORE:
             pass
@@ -1202,7 +1219,7 @@ class HandlerClass:
         for i in INFO.AVAILABLE_AXES:
             self.w['dro_button_stack_%s'%i.lower()].setCurrentIndex(num)
 
-        # user tabs cycle between all user tabs
+        # user tabs button cycles between all user tabs
         main_current = self.w.stackedWidget_mainTab.currentIndex()
         if main_index == TAB_USER and main_current >= TAB_USER:
                 next = main_current +1
@@ -1219,6 +1236,25 @@ class HandlerClass:
             self.add_status("Cannot switch pages while in AUTO mode", WARNING)
             self.w.stackedWidget_mainTab.setCurrentIndex(0)
             self.w.btn_main.setChecked(True)
+
+        # user tab button covers multiple tabs
+        # adjust name depending in what user tab is showing
+        cur = self.w.stackedWidget_mainTab.currentIndex()
+        if cur >= len(indexList):
+            tabId = 'user{}'.format(cur - len(indexList))
+        else:
+            tabId = indexList[cur]
+        name = 'splitterSettings-{}{}'.format(tabId,mode)
+        #print ('NOW:',name)
+        # restore new qsplitter setting
+        self.w.settings.beginGroup("qtdragon-{}".format(self.w.splitter_h.objectName()))
+        splitterSetting = self.w.settings.value(name)
+        self.w.settings.endGroup()
+        if not splitterSetting is None:
+            try:
+                self.w.splitter_h.restoreState(QtCore.QByteArray(splitterSetting))
+            except Exception as e:
+                print(e)
 
     #####################
     # KEY BINDING CALLS #
