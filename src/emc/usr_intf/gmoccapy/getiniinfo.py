@@ -51,8 +51,7 @@ class GetIniInfo:
         try:
             return int(temp)
         except:
-            message = ("")
-            message += ("Wrong entry [DISPLAY] CYCLE_TIME in INI File!\n")            
+            message = ("Wrong entry [DISPLAY] CYCLE_TIME in INI File! ")
             message += ("Will use gmoccapy default 150")
             LOG.warning(message)
             return 150
@@ -102,8 +101,8 @@ class GetIniInfo:
 
         # to much axes given, can only handle 9
         if len(axis_list) > 9:
-            message = _("**** gmoccapy can only handle 9 axis, ****\n**** but you have given {0} through your INI file ****\n").format(len(axis_list))
-            message += _("**** gmoccapy will not start ****\n\n")
+            message = _("**** gmoccapy can only handle 9 axis, but you have given {0} through your INI file. ").format(len(axis_list))
+            message += _("gmoccapy will not start ****\n")
             LOG.critical(message)
             #dialogs.warning_dialog(self, _("Very critical situation"), message, sound = False)
             sys.exit()
@@ -130,7 +129,7 @@ class GetIniInfo:
                 LOG.debug("found the following coordinates {0}".format(coordinates))
 
         if not coordinates:
-            LOG.warning("no coordinates found in [KINS] KINEMATICS, we will use order from\n[TRAJ] COORDINATES")
+            LOG.warning("No coordinates found in [KINS] KINEMATICS, we will use order from [TRAJ] COORDINATES.")
             coordinates = self.get_coordinates()
 
         # at this point we should have the coordinates of the config, we will check if the amount of
@@ -159,14 +158,13 @@ class GetIniInfo:
                 joint_axis_dic[joint] = axisletter
                 LOG.debug("joint {0} = axis {1}".format(joint, joint_axis_dic[joint]))
         else:
-            LOG.warning("Amount of joints from [KINS]JOINTS= is not identical with axisletters")
-            LOG.warning("given in [TRAJ]COORDINATES or [KINS]KINEMATICS")
-            LOG.warning("will use the old style used prior to joint axis branch merge,")
-            LOG.warning("see man trivkins for details")
-            LOG.warning("It is strongly recommended to update your config\n")
-            LOG.warning("\nFor all unused joints an entry like [JOINT_3]HOME_SEQUENCE = 0 in your")
-            LOG.warning("INI File is needed to get the <<all homed>> signal and be able")
-            LOG.warning("to switch to MDI or AUTO Mode\n")
+            LOG.warning("Amount of joints from [KINS]JOINTS= is not identical with axisletters "
+            "given in [TRAJ]COORDINATES or [KINS]KINEMATICS.\n"
+            "Will use the old style used prior to joint axis branch merge, see man trivkins for details.\n"
+            "It is strongly recommended to update your config.\n"
+            "For all unused joints an entry like [JOINT_3]HOME_SEQUENCE = 0 in your "
+            "INI File is needed to get the <<all homed>> signal and be able "
+            "to switch to MDI or AUTO Mode.")
             for joint, axisletter in enumerate(["x", "y", "z", "a", "b", "c", "u", "v", "w"]):
                 if axisletter in coordinates:
                     joint_axis_dic[joint] = axisletter
@@ -181,10 +179,10 @@ class GetIniInfo:
         if temp[0].lower() == "trivkins":
             for element in temp:
                 if "BOTH" in element.upper():
-                    LOG.warning("Found kinstype=BOTH but using trivkins")
-                    LOG.warning("It is not recommended to do so!")
-                    LOG.warning("Will use mode to switch between Joints and World mode")
-                    LOG.warning("hopefully supported by the used <<{0}>> module\n".format(temp[0]))
+                    LOG.warning("Found kinstype=BOTH but using trivkins. "
+                    "It is not recommended to do so! "
+                    "Will use mode to switch between Joints and World mode, "
+                    "hopefully supported by the used <<{0}>> module.".format(temp[0]))
                     return False
             return True
         else:
@@ -237,10 +235,10 @@ class GetIniInfo:
             temp = self.inifile.find("TRAJ", "MAX_LINEAR_VELOCITY" )
             if temp:
                 temp = float(temp) / 2
-                LOG.warning("No DEFAULT_LINEAR_VELOCITY entry found in [TRAJ] of INI file\nUsing half on MAX_LINEAR_VELOCITY")
+                LOG.warning("No DEFAULT_LINEAR_VELOCITY entry found in [TRAJ] of INI file. Using half on MAX_LINEAR_VELOCITY.")
             else:
                 temp = 3.0
-                LOG.warning("No DEFAULT_LINEAR_VELOCITY entry found in [TRAJ] of INI file\nUsing default value of 180 units / min")
+                LOG.warning("No DEFAULT_LINEAR_VELOCITY entry found in [TRAJ] of INI file. Using default value of 180 units / min.")
         return float(temp) * 60
 
     def get_max_jog_vel(self):
@@ -249,7 +247,7 @@ class GetIniInfo:
         temp = self.inifile.find("TRAJ", "MAX_LINEAR_VELOCITY")
         if not temp:
             temp = 10.0
-            LOG.warning("No MAX_LINEAR_VELOCITY entry found in [TRAJ] of INI file\nUsing default value of 600 units / min")
+            LOG.warning("No MAX_LINEAR_VELOCITY entry found in [TRAJ] of INI file. Using default value of 600 units / min.")
         return float(temp) * 60
 
     def get_default_ang_jog_vel(self):
@@ -257,7 +255,7 @@ class GetIniInfo:
         temp = self.inifile.find("DISPLAY", "DEFAULT_ANGULAR_VELOCITY")
         if not temp:
             temp = 360.0
-            LOG.warning("No DEFAULT_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file\nUsing default value of 360 degree / min")
+            LOG.warning("No DEFAULT_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file. Using default value of 360 degree / min.")
         return float(temp)
 
     def get_max_ang_jog_vel(self):
@@ -265,7 +263,7 @@ class GetIniInfo:
         temp = self.inifile.find("DISPLAY", "MAX_ANGULAR_VELOCITY")
         if not temp:
             temp = 3600.0
-            LOG.warning("No MAX_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file\nUsing default value of 3600 degree / min")
+            LOG.warning("No MAX_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file. Using default value of 3600 degree / min.")
         return float(temp)
 
     def get_min_ang_jog_vel(self):
@@ -273,7 +271,7 @@ class GetIniInfo:
         temp = self.inifile.find("DISPLAY", "MIN_ANGULAR_VELOCITY")
         if not temp:
             temp = 0.1
-            LOG.warning("No MIN_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file\nUsing default value of 0.1 degree / min")
+            LOG.warning("No MIN_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file. Using default value of 0.1 degree / min.")
         return float(temp)
 
     def get_default_spindle_speed(self):
@@ -281,7 +279,7 @@ class GetIniInfo:
         temp = self.inifile.find("DISPLAY", "DEFAULT_SPINDLE_SPEED")
         if not temp:
             temp = 300
-            LOG.warning(" No DEFAULT_SPINDLE_SPEED entry found in [DISPLAY] of INI file")
+            LOG.warning("No DEFAULT_SPINDLE_SPEED entry found in [DISPLAY] of INI file")
         return float(temp)
 
     def get_max_spindle_override(self):
@@ -310,7 +308,7 @@ class GetIniInfo:
         temp = self.inifile.find("DISPLAY", "MAX_RAPID_OVERRIDE")
         if not temp:
             temp = 1.0
-            LOG.warning("No MAX_RAPID_OVERRIDE entry found in [DISPLAY] of INI file \n Default settings 100 % applied!")
+            LOG.warning("No MAX_RAPID_OVERRIDE entry found in [DISPLAY] of INI file. Default settings 100 % applied!")
         return float(temp)
 
     def get_embedded_tabs(self):
@@ -345,12 +343,11 @@ class GetIniInfo:
         # and we want to set the default path
         default_path = self.inifile.find("DISPLAY", "PROGRAM_PREFIX")
         if not default_path:
-            LOG.warning("Path %s from DISPLAY , PROGRAM_PREFIX does not exist" % default_path)
-            LOG.warning("Trying default path...")
+            LOG.warning("Path {0} from DISPLAY , PROGRAM_PREFIX does not exist, ".format(default_path)\
+            + "trying default path...")
             default_path = "~/linuxcnc/nc_files/"
             if not os.path.exists(os.path.expanduser(default_path)):
-                LOG.warning("Default path to ~/linuxcnc/nc_files does not exist")
-                LOG.warning("setting now home as path")
+                LOG.warning("Default path to ~/linuxcnc/nc_files does not exist, setting now home as path.")
                 default_path = os.path.expanduser("~/")
         return default_path
 
@@ -364,8 +361,8 @@ class GetIniInfo:
                     ext = extension.split()
                     ext_list.append(ext[0].replace(".", "*."))
         else:
-            LOG.warning("Error converting the file extensions from INI File 'FILTER','PROGRAMM_PREFIX")
-            LOG.warning("using as default '*.ngc'")
+            LOG.warning("Error converting the file extensions from INI file [FILTER]PROGRAM_PREFIX, "
+            "using as default '*.ngc'")
             ext_list = ["*.ngc"]
         return ext_list
 
@@ -381,7 +378,7 @@ class GetIniInfo:
             jog_increments.insert(0, 0)
         else:
             jog_increments = [0, "1.000", "0.100", "0.010", "0.001"]
-            LOG.warning("No default jog increments entry found in [DISPLAY] of INI file\nUsing default values")
+            LOG.warning("No default jog increments entry found in [DISPLAY] of INI file. Using default values.")
         return jog_increments
 
     def get_toolfile(self):
@@ -420,18 +417,17 @@ class GetIniInfo:
                     found = True
                     break
             if not found: # report error!
-                message = ( "\n**** GMOCCAPY INFO ****\n" )
-                message += ( "File %s of the macro %s could not be found ****\n" %((str(macro.split()[0]) + ".ngc"),[macro])  )
-                message += ("we searched in subdirectories: %s" %subroutine_paths.split(":"))
-                print (message)
+                message = ("File %s of the macro %s could not be found. " %((str(macro.split()[0]) + ".ngc"),[macro]) )
+                message += ("We searched in subdirectories: %s" %subroutine_paths.split(":"))
+                LOG.info(message)
 
         return checked_macros
 
     def get_subroutine_paths(self):
         subroutines_paths = self.inifile.find("RS274NGC", "SUBROUTINE_PATH")
         if not subroutines_paths:
-            message = _( "**** No subroutine folder or program prefix is given in the INI file **** \n" )
-            LOG.warning( message )
+            message = _("No subroutine folder or program prefix is given in the INI file!")
+            LOG.warning(message)
             subroutines_paths = self.get_program_prefix()
         if not subroutines_paths:
             return False
@@ -460,7 +456,7 @@ class GetIniInfo:
         else:
             for element in message_pinname:
                 if " " in element:
-                    LOG.warning("ERROR in user message setup \nPinname should not contain spaces")
+                    LOG.warning("ERROR in user message setup. Pin name should not contain spaces.")
                     return None
             messages = list(zip(message_text, message_type, message_pinname))
             return messages
@@ -470,18 +466,18 @@ class GetIniInfo:
         if units == "mm" or units == "cm" or units == "inch":
             return units
         else:
-            LOG.warning("ERROR getting machine units \n"
-                  "please check [TRAJ] LINEAR_UNITS for a valid entry, found {0}".format(units))
+            LOG.warning("ERROR getting machine units. "
+            "Please check [TRAJ] LINEAR_UNITS for a valid entry, found {0}.".format(units))
             return None
 
     def get_user_command_file(self):
         temp = self.inifile.find("DISPLAY", "USER_COMMAND_FILE")
         if temp:
-            LOG.info("**** USER_COMMAND_FILE = " + temp)
+            LOG.info("USER_COMMAND_FILE = " + temp)
         return temp
 
     def get_user_css_file(self):
         temp = self.inifile.find("DISPLAY", "USER_CSS_FILE")
         if temp:
-            LOG.info("**** USER_CSS_FILE = " + temp)
+            LOG.info("USER_CSS_FILE = " + temp)
         return temp

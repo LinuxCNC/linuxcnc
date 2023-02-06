@@ -1098,8 +1098,7 @@ class gmoccapy(object):
         xpos, ypos, zpos, maxprobe = self.get_ini_info.get_tool_sensor_data()
         if not xpos or not ypos or not zpos or not maxprobe:
             self.widgets.lbl_tool_measurement.show()
-            LOG.info(_("no valid probe config in INI File"))
-            LOG.info(_("disabled tool measurement"))
+            LOG.info(_("No valid probe config in INI File. Tool measurement disabled."))
             self.widgets.chk_use_tool_measurement.set_active(False)
             self.widgets.chk_use_tool_measurement.set_sensitive(False)
             return False
@@ -1113,8 +1112,7 @@ class gmoccapy(object):
             self.widgets.lbl_y_probe.set_label(str(ypos))
             self.widgets.lbl_z_probe.set_label(str(zpos))
             self.widgets.lbl_maxprobe.set_label(str(maxprobe))
-            LOG.info(_("found valid probe config in INI File"))
-            LOG.info(_("will use auto tool measurement"))
+            LOG.info(_("Found valid probe config in INI file. Will use auto tool measurement."))
             return True
 
     def _make_jog_increments(self):
@@ -1128,8 +1126,8 @@ class gmoccapy(object):
 
         # We get the increments from INI File
         if len(self.jog_increments) > 10:
-            LOG.warning(_("To many increments given in INI File for this screen"))
-            LOG.warning(_("Only the first 10 will be reachable through this screen"))
+            LOG.warning(_("To many increments given in INI File for this screen. "
+            "Only the first 10 will be reachable through this screen."))
             # we shorten the increment list to 10 (first is default = 0)
             self.jog_increments = self.jog_increments[0:11]
 
@@ -1831,8 +1829,7 @@ class gmoccapy(object):
         if not tab_names:
             self.widgets.tbtn_user_tabs.set_sensitive( False )
             self.user_tabs_enabled = False
-            LOG.warning(_("Invalid embedded tab configuration"))
-            LOG.warning(_("No tabs will be added!"))
+            LOG.info(_("No embedded tabs configured or invalid configuration. No tabs will be added!"))
             return
 
         try:
@@ -2029,7 +2026,7 @@ class gmoccapy(object):
                 selected_index = [icon_theme[1] for icon_theme in valid_icon_themes].index(icon_theme_preference)
                 icon_theme_choice.set_active(selected_index)
             except ValueError:
-                LOG.warning(f"Preferred icon-theme '{icon_theme_preference}' not found; switching to 'default'.")
+                LOG.warning(f"Preferred icon-theme '{icon_theme_preference}' not found. Switching to '{DEFAULT_ICON_THEME}'.")
                 icon_theme_choice.set_active(0)
 
         # load icon theme
@@ -2051,9 +2048,8 @@ class gmoccapy(object):
             self.widgets.audio_alert_chooser.set_filename(self.alert_sound)
             self.widgets.audio_error_chooser.set_filename(self.error_sound)
         else:
-            LOG.warning(_("no audio available!"))
-            LOG.warning(_("PYGST library not installed?"))
-            LOG.warning(_("is python-gstX.XX installed?"))
+            LOG.warning(_("No audio available! PYGST library not installed? "
+            "Is python-gstX.XX installed?"))
 
             self.widgets.audio_alert_chooser.set_sensitive(False)
             self.widgets.audio_error_chooser.set_sensitive(False)
@@ -2124,10 +2120,10 @@ class gmoccapy(object):
                                                    stdin=subprocess.PIPE,
                                                    stdout=subprocess.PIPE,
                                                    close_fds=True)
-                LOG.info(_("virtual keyboard program found : <onboard>"))
+                LOG.info(_("Virtual keyboard program found : <onboard>"))
             else:
-                LOG.warning(_("No virtual keyboard installed, we checked for <onboard> ."))
-                LOG.warning(_("try sudo apt-get install onboard"))
+                LOG.warning(_("No virtual keyboard installed, we checked for <onboard>. "
+                "Try 'sudo apt-get install onboard'."))
                 self._no_virt_keyboard()
                 return
             sid = self.onboard_kb.stdout.readline()
@@ -2139,9 +2135,8 @@ class gmoccapy(object):
             self._dynamic_childs[int(sid)] = self.socket
             self.onboard = True
         except Exception as e:
-            LOG.error(_("Error with launching virtual keyboard,"))
-            LOG.error(_("is onboard installed?"))
-            LOG.error(_("try sudo apt-get install onboard"))
+            LOG.error(_("Error with launching virtual keyboard. Is onboard installed?"
+            "Try sudo apt-get install onboard"))
             traceback.print_exc()
             self._no_virt_keyboard()
 
