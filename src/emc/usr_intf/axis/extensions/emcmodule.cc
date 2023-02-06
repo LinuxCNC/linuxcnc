@@ -1839,10 +1839,12 @@ static PyObject *pygui_respect_offsets (PyObject *s, PyObject *o) {
     if(!PyArg_ParseTuple(o, "si",&coords, &roffsets.respect_offsets)) {
         return NULL;
     }
-    // GEOMETRY rotations only if letters (ABC) included in [TRAJ]COORDINATES
-    if (strchr(coords,'A')) roffsets.axis_mask |= AXIS_MASK_A;
-    if (strchr(coords,'B')) roffsets.axis_mask |= AXIS_MASK_B;
-    if (strchr(coords,'C')) roffsets.axis_mask |= AXIS_MASK_C;
+    if (roffsets.respect_offsets) {
+        // GEOMETRY rotations only if letters (ABC) included in [TRAJ]COORDINATES
+        if (strchr(coords,'A')) roffsets.axis_mask |= AXIS_MASK_A;
+        if (strchr(coords,'B')) roffsets.axis_mask |= AXIS_MASK_B;
+        if (strchr(coords,'C')) roffsets.axis_mask |= AXIS_MASK_C;
+    }
 
     Py_INCREF(Py_None);
     return Py_None;
