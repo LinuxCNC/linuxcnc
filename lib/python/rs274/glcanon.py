@@ -1179,9 +1179,9 @@ class GlCanonDraw:
         s = self.stat
         s.poll()
 
-        linuxcnc.gui_rot_offsets(self.to_internal_linear_unit(s.g5x_offset[0] + s.g92_offset[0]),
-                                 self.to_internal_linear_unit(s.g5x_offset[1] + s.g92_offset[1]),
-                                 self.to_internal_linear_unit(s.g5x_offset[2] + s.g92_offset[2]))
+        linuxcnc.gui_rot_offsets(s.g5x_offset[0] + s.g92_offset[0],
+                                 s.g5x_offset[1] + s.g92_offset[1],
+                                 s.g5x_offset[2] + s.g92_offset[2])
 
         machine_limit_min, machine_limit_max = self.soft_limits()
 

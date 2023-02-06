@@ -398,8 +398,11 @@ See <<cha:gmoccapy,gmoccapy>> document for Gmoccapy details.
 . Experimental: If the "*!*' character is included in the GEOMETRY string,
   display points for A, B, C rotations respect the X, Y, Z offsets set by
   G5x, G92 codes.  Example:  using GEOMETRY = !CXZ for a machine with
-  [TRAJ]COORDINATES=XZC,   Additional work is needed to generalize this
-  provision.
+  [TRAJ]COORDINATES=XZC.  This provision applies for liveplots only --
+  Gcode previews should be done with zero G5x, G92 offsets. This can be
+  facilitated by setting offsets in programs only when task is running
+  as indicated by #<_task> == 1.  If nonzero offsets exist at startup
+  due to persistence,  offsets should be zeroed and preview reloaded.
 
 +
 [NOTE]
