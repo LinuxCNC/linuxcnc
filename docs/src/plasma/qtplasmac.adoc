@@ -1675,12 +1675,13 @@ QtPlasmaC has the ability to use a USB camera to set the origin with or without 
 
 To use this feature, the user must set the camera's offset from the torch center by following the procedure described in <<peripheral-offsets,Peripheral Offsets>>.
 
-To modify the offsets manually, the user could edit either or both the following lines in the *[CAMERA_OFFSET]* section of the _<machine_name>_.prefs file:
+To modify the offsets manually, the user could edit either or both the following axes lines in the *[CAMERA_OFFSET]* section of the _<machine_name>_.prefs file:
 
 [source,{ini}]
 ----
 X axis = n.n
 Y axis = n.n
+Camera port = 0
 ----
 
 where _n.n_ is distance from the center line of the torch to the camera's cross hairs.
@@ -3545,26 +3546,40 @@ n Code = latest-file /home/me/linuxcnc/nc_files/qtplasmac-test
 [[peripheral-offsets]]
 === Peripheral Offsets (Laser, Camera, Scribe, Offset Probe)
 
-image::images/qtplasmac_peripheral_offsets.png[width=400,align="center"]
-
 Use the following sequence to set the offsets for a laser, camera, scribe, or offset probe:
 
 . Place a piece of scrap material under the torch.
 . The machine must be homed and idle before proceeding.
-. Open the <<plasma:parameters-tab,PARAMETERS Tab>> (or <<plasma:settings-tab,SETTINGS tab>> for 4x3 GUI).
+. Open the <<plasma:settings-tab,SETTINGS tab>>.
 . Click the SET OFFSETS button which opens the Set Peripheral Offsets dialog.
++
+image::images/qtplasmac_peripheral_offsets_set.png[width=400,align="left"]
 . Click the X0Y0 button to set the torch position to zero.
 . Make a mark on the material by one of:
 .. Jog the torch down to pierce height then pulse the torch on to make a dimple in the material.
 .. Place marking dye on the torch shield then jog the torch down to mark the material.
-. Raise the Z axis so the torch and peripheral are clear of the material.
-. Jog the X/Y axes so that the peripheral is close to the mark from the torch.
 . Click the appropriate button to activate the peripheral.
+. The Get Peripheral Offsets dialog will now be showing.
++
+image::images/qtplasmac_peripheral_offsets_get.png[width=400,align="left"]
+. Raise the Z axis so the torch and peripheral are clear of the material.
 . Jog the X/Y axes so that the peripheral is centered in the mark from the torch.
 . Click the GET OFFSETS button to get the offsets and a confirmation dialog will open.
++
+image::images/qtplasmac_peripheral_offsets_confirm.png[width=300,align="left"]
 . Click SET OFFSETS and the offsets will now be saved.
 
 Canceling may be done at any stage by pressing the CANCEL button which will close the dialog and no changes will be saved.
+
+If CAMERA was selected at item 7 above and more than one camera exists then a camera selection dialog will show.
+The appropriate camera needs to be selected before the Get Peripheral Offsets dialog will appear.
+
+image::images/qtplasmac_peripheral_offsets_cam.png[width=200,align="left"]
+
+If PROBE was selected at item 7 above then a delay dialog will show prior to the confirmation dialog at item 11.
+This is for the delay required for the probe to deploy to its working position.
+
+image::images/qtplasmac_peripheral_offsets_delay.png[width=200,align="left"]
 
 [NOTE]
 It may be necessary to click the preview window to enable jogging.
