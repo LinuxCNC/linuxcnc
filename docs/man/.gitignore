@@ -9,6 +9,7 @@ cat9/
 man1/halstreamer.1
 man1/hy_gt_vfd.1
 man1/linuxcnc.1
+man1/mqtt-publisher.1
 man1/pi500_vfd.1
 man1/sendkeys.1
 man1/svd-ps_vfd.1
