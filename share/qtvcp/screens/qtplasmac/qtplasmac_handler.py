@@ -1000,6 +1000,7 @@ class HandlerClass:
         self.overlayProgress.setInvertedAppearance(True)
         self.overlayProgress.setFormat('')
         self.overlayProgress.hide()
+        self.camNum = self.PREFS.getpref('Camera port', 0, int, 'CAMERA_OFFSET')
 
     def get_overlay_text(self):
         text = ['']
@@ -1059,6 +1060,7 @@ class HandlerClass:
             msg0 = _translate('HandlerClass', 'Invalid entry for camera offset')
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
         if self.camOffsetX or self.camOffsetY:
+            self.w.camview.set_camnum(self.camNum)
             self.idleHomedList.append('camera')
             self.w.camera.setEnabled(False)
         else:
@@ -3873,7 +3875,9 @@ class HandlerClass:
                     if char == '{':
                         subCommand = ':'
                     elif char == '}':
+                        print(f'subCommand={subCommand}<')
                         f1, f2 = subCommand.replace(':','').split()
+                        print(f'f1={f1}<   f2={f2}<')
                         newCommand += self.iniFile.find(f1,f2)
                         subCommand = ''
                     elif subCommand.startswith(':'):

@@ -21,66 +21,59 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import os
 from shutil import copy as COPY
+from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtWidgets import QDialog, QMessageBox, QPushButton, QGridLayout, QLabel
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QDialog, QMessageBox, QPushButton, QGridLayout, QLabel, QComboBox#, QSplashScreen
+from PyQt5.QtGui import QIcon, QCursor, QPixmap
 
 _translate = QCoreApplication.translate
 
 def dialog_show(P, W, prefs, iniPath, STATUS, ACTION, TOOL):
     dlg = QDialog(W)
     dlg.setWindowIcon(QIcon(os.path.join(P.iconBase, P.iconPath)))
-    dlg.setWindowTitle(_translate('Offsets', 'Set Peripheral Offsets'))
     dlg.setModal(False)
     grid = QGridLayout()
-    label = QLabel()
-    btn0 = QPushButton('CANCEL', dlg)
-    btn1 = QPushButton('LASER', dlg)
-    btn2 = QPushButton('CAMERA', dlg)
-    btn3 = QPushButton('SCRIBE', dlg)
-    btn4 = QPushButton('PROBE', dlg)
-    grid.addWidget(label, 0, 0, 1, 5)
+    lbl = QLabel()
+    btn0 = QPushButton('CANCEL')
+    btn1 = QPushButton()
+    btn2 = QPushButton()
+    btn3 = QPushButton()
+    btn4 = QPushButton()
+    dlg_set_text(True, dlg, lbl, btn1, btn2, btn3, btn4)
+    grid.addWidget(lbl, 0, 0, 1, 5)
     grid.addWidget(btn0, 1, 0)
     grid.addWidget(btn1, 1, 1)
     grid.addWidget(btn2, 1, 2)
     grid.addWidget(btn3, 1, 3)
     grid.addWidget(btn4, 1, 4)
     dlg.setLayout(grid)
-    msg0 = _translate('Offsets', 'Usage is as follows')
-    msg1 = _translate('Offsets', 'Touchoff the torch to X0 Y0')
-    msg2 = _translate('Offsets', 'Mark the material with a torch pulse')
-    msg3 = _translate('Offsets', 'Jog until the peripheral is close to the mark')
-    msg4 = _translate('Offsets', 'Click the appropriate button to activate the peripheral')
-    msg5 = _translate('Offsets', 'Jog until the peripheral is centered on the mark')
-    msg6 = _translate('Offsets', 'Click the GET OFFSETS button to get the offsets')
-    msg7 = _translate('Offsets', 'Confirm the setting of the offsets')
-    msg8 = _translate('Offsets', 'Note: It may be necessary to click the preview window to enable jogging')
-    label.setText('{}:\n\n1. {}.\n2. {}.\n3. {}.\n4. {}.\n5. {}.\n6. {}.\n7. {}.\n\n{}.\n'.format(msg0, msg1, msg2, msg3, msg4, msg5, msg6, msg7, msg8))
-    btn0.clicked.connect(lambda w: dlg_cancel_clicked(P, W, dlg))
-    btn1.clicked.connect(lambda w: dlg_laser_clicked(P, W, prefs, STATUS, dlg, btn1, btn2, btn3, btn4))
-    btn2.clicked.connect(lambda w: dlg_camera_clicked(P, W, prefs, STATUS, dlg, btn1, btn2, btn3, btn4))
-    btn3.clicked.connect(lambda w: dlg_scribe_clicked(P, W, iniPath, STATUS, ACTION, TOOL, dlg, btn1, btn2, btn3, btn4))
-    btn4.clicked.connect(lambda w: dlg_probe_clicked(P, prefs, STATUS, dlg, btn1, btn2, btn3, btn4))
+    btn0.clicked.connect(lambda w: dlg_cancel_clicked(P, W, prefs, dlg, lbl, btn1, btn2, btn3, btn4))
+    btn1.clicked.connect(lambda w: dlg_laser_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn1, btn2, btn3, btn4))
+    btn2.clicked.connect(lambda w: dlg_camera_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn1, btn2, btn3, btn4))
+    btn3.clicked.connect(lambda w: dlg_scribe_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn1, btn2, btn3, btn4))
+    btn4.clicked.connect(lambda w: dlg_probe_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn1, btn2, btn3, btn4))
+    dlg.setGeometry(dlg.parent().geometry().x(), dlg.parent().geometry().y(), dlg.width(), dlg.height())
+    dlg.show()
     dlg.setStyleSheet( '* {{ color: {0}; background: {1}; margin: 4px }} \
                         QPushButton {{ background: {1}; height: 40px; font: 12pt; border: 1px solid {0}; border-radius: 4px }} \
                         QPushButton:disabled {{color: {2}; border: 1px solid {2} }} \
                         QPushButton:pressed {{ color: {1} ; background: {0} }}'.format(P.foreColor, P.backColor, P.disabledColor))
-    dlg.setGeometry(dlg.parent().geometry().x(), dlg.parent().geometry().y(), dlg.width(), dlg.height())
-    dlg.show()
 
-def dlg_cancel_clicked(P, W, dlg):
+def dlg_cancel_clicked(P, W, prefs, dlg, lbl, btn1, btn2, btn3, btn4):
     P.laserOnPin.set(0)
     P.offsetSetProbePin.set(0)
     P.offsetSetScribePin.set(0)
     W.preview_stack.setCurrentIndex(0)
-    dlg.reject()
+    P.camNum = prefs.getpref('Camera port', 0, int, 'CAMERA_OFFSET')
+    W.camview.set_camnum(P.camNum)
+    if 'OFFSETS' in btn1.text() or 'OFFSETS' in btn2.text() or 'OFFSETS' in btn3.text() or 'OFFSETS' in btn4.text():
+        dlg_set_text(True, dlg, lbl, btn1, btn2, btn3, btn4)
+    else:
+        dlg.reject()
 
-def dlg_laser_clicked(P, W, prefs, STATUS, dlg, btn1, btn2, btn3, btn4):
-    if btn2.isVisible():
-        btn1.setText("GET\nOFFSETS")
-        btn2.hide()
-        btn3.hide()
-        btn4.hide()
+def dlg_laser_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn1, btn2, btn3, btn4):
+    if 'LASER' in btn1.text():
+        dlg_set_text(False, dlg, lbl, btn1, btn2, btn3, btn4)
         P.laserOnPin.set(1)
         return
     if get_reply(P, STATUS, P.laserOffsetX, P.laserOffsetY):
@@ -98,51 +91,57 @@ def dlg_laser_clicked(P, W, prefs, STATUS, dlg, btn1, btn2, btn3, btn4):
         P.dialog_show_ok(QMessageBox.Information, '{}'.format(head), '\n{}\n'.format(msg0))
         dlg.close()
     else:
-        btn1.setText("LASER")
-        btn2.show()
-        btn3.show()
-        btn4.show()
+        dlg_set_text(True, dlg, lbl, btn1, btn2, btn3, btn4)
         P.laserOnPin.set(0)
 
-def dlg_camera_clicked(P, W, prefs, STATUS, dlg, btn1, btn2, btn3, btn4):
-    if btn1.isVisible():
-        btn2.setText("GET\nOFFSETS")
-        btn1.hide()
-        btn3.hide()
-        btn4.hide()
-        W.camview.rotation = STATUS.stat.rotation_xy
+def dlg_camera_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn1, btn2, btn3, btn4):
+    if 'CAMERA' in btn2.text():
+        dlg.hide()
+        W.setCursor(QtCore.Qt.WaitCursor)
+        cameras = camera_search(P, W, dlg)
+        if not cameras:
+            W.unsetCursor()
+            dlg.show()
+            return
         W.preview_stack.setCurrentIndex(3)
-        P.cameraOn = True
+        if len(cameras) > 1:
+            camera_select(P, W, STATUS, cameras)
+        else:
+            P.camNum = cameras[0]
+            W.camview.set_camnum(cameras[0])
+            W.unsetCursor()
+        dlg.show()
+        if P.camNum == -1: # cancelled from camera selection
+            W.preview_stack.setCurrentIndex(0)
+            P.camNum = prefs.getpref('Camera port', 0, int, 'CAMERA_OFFSET')
+            W.camview.set_camnum(P.camNum)
+            return
+        dlg_set_text(False, dlg, lbl, btn2, btn1, btn3, btn4)
         return
     if get_reply(P, STATUS, P.camOffsetX, P.camOffsetY):
         P.camOffsetX = round(STATUS.get_position()[1][0], 4) + 0
         P.camOffsetY = round(STATUS.get_position()[1][1], 4) + 0
         prefs.putpref('X axis', P.camOffsetX, float, 'CAMERA_OFFSET')
         prefs.putpref('Y axis', P.camOffsetY, float, 'CAMERA_OFFSET')
+        prefs.putpref('Camera port', P.camNum, int, 'CAMERA_OFFSET')
         if P.camOffsetX or P.camOffsetY:
             W.camera.show()
         else:
             W.camera.hide()
         W.preview_stack.setCurrentIndex(0)
-        P.cameraOn = False
         head = _translate('HandlerClass', 'Camera Offsets')
         msg0 = _translate('HandlerClass', 'Camera offsets have been saved')
         P.dialog_show_ok(QMessageBox.Information, '{}'.format(head), '\n{}\n'.format(msg0))
         dlg.close()
     else:
-        btn2.setText("CAMERA")
-        btn1.show()
-        btn3.show()
-        btn4.show()
+        dlg_set_text(True, dlg, lbl, btn1, btn2, btn3, btn4)
         W.preview_stack.setCurrentIndex(0)
-        P.cameraOn = False
+        P.camNum = prefs.getpref('Camera port', 0, int, 'CAMERA_OFFSET')
+        W.camview.set_camnum(P.camNum)
 
-def dlg_scribe_clicked(P, W, iniPath, STATUS, ACTION, TOOL, dlg, btn1, btn2, btn3, btn4):
-    if btn1.isVisible():
-        btn3.setText("GET\nOFFSETS")
-        btn1.hide()
-        btn2.hide()
-        btn4.hide()
+def dlg_scribe_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn1, btn2, btn3, btn4):
+    if 'SCRIBE' in btn3.text():
+        dlg_set_text(False, dlg, lbl, btn3, btn1, btn2, btn4)
         P.offsetSetScribePin.set(1)
         return
     xOffset = yOffset = 0.000
@@ -171,18 +170,12 @@ def dlg_scribe_clicked(P, W, iniPath, STATUS, ACTION, TOOL, dlg, btn1, btn2, btn
         P.dialog_show_ok(QMessageBox.Information, '{}'.format(head), '\n{}\n'.format(msg0))
         dlg.close()
     else:
-        btn3.setText("SCRIBE")
-        btn1.show()
-        btn2.show()
-        btn4.show()
+        dlg_set_text(True, dlg, lbl, btn1, btn2, btn3, btn4)
         P.offsetSetScribePin.set(0)
 
-def dlg_probe_clicked(P, prefs, STATUS, dlg, btn1, btn2, btn3, btn4):
-    if btn1.isVisible():
-        btn4.setText("GET\nOFFSETS")
-        btn1.hide()
-        btn2.hide()
-        btn3.hide()
+def dlg_probe_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn1, btn2, btn3, btn4):
+    if 'PROBE' in btn4.text():
+        dlg_set_text(False, dlg, lbl, btn4, btn1, btn2, btn3)
         P.offsetSetProbePin.set(1)
         return
     new = 0.0
@@ -201,10 +194,7 @@ def dlg_probe_clicked(P, prefs, STATUS, dlg, btn1, btn2, btn3, btn4):
             P.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '\'{}\' {}\n'.format(value, msg0))
             return
     else:
-        btn4.setText("PROBE")
-        btn1.show()
-        btn2.show()
-        btn3.show()
+        dlg_set_text(True, dlg, lbl, btn1, btn2, btn3, btn4)
         P.offsetSetProbePin.set(0)
         return
     if get_reply(P, STATUS, P.probeOffsetX, P.probeOffsetY, True, P.probeDelay, new):
@@ -221,11 +211,35 @@ def dlg_probe_clicked(P, prefs, STATUS, dlg, btn1, btn2, btn3, btn4):
         P.dialog_show_ok(QMessageBox.Information, '{}'.format(head), '\n{}\n'.format(msg0))
         dlg.close()
     else:
-        btn4.setText("PROBE")
-        btn1.show()
-        btn2.show()
-        btn3.show()
+        dlg_set_text(True, dlg, lbl, btn1, btn2, btn3, btn4)
         P.offsetSetProbePin.set(0)
+
+def dlg_set_text(main, dlg, lbl, btnA, btnB, btnC, btnD):
+    if main:
+        dlg.setWindowTitle(_translate('Offsets', 'Set Peripheral Offsets'))
+        msg1 = _translate('Offsets', 'Touchoff the torch to X0 Y0')
+        msg2 = _translate('Offsets', 'Mark the material with a torch pulse')
+        msg3 = _translate('Offsets', 'Click the appropriate button to activate the peripheral')
+        btnA.setText('LASER')
+        btnB.setText('CAMERA')
+        btnC.setText('SCRIBE')
+        btnD.setText('PROBE')
+        btnA.show()
+        btnB.show()
+        btnC.show()
+        btnD.show()
+    else:
+        dlg.setWindowTitle(_translate('Offsets', 'Get Peripheral Offsets'))
+        msg1 = _translate('Offsets', 'Jog until the peripheral is centered on the mark')
+        msg2 = _translate('Offsets', 'Click the GET OFFSETS button to get the offsets')
+        msg3 = _translate('Offsets', 'Confirm the setting of the offsets')
+        btnA.setText('GET\nOFFSETS')
+        btnB.hide()
+        btnC.hide()
+        btnD.hide()
+    msg0 = _translate('Offsets', 'Usage is as follows')
+    msg4 = _translate('Offsets', 'Note: It may be necessary to click the preview window to enable jogging')
+    lbl.setText('{}:\n\n1. {}.\n2. {}.\n3. {}.\n\n{}.\n'.format(msg0, msg1, msg2, msg3, msg4))
 
 def get_reply(P, STATUS, xOffset, yOffset, probe=False, delay=0.0, new=0.0):
     head = _translate('HandlerClass', 'Offset Change')
@@ -237,22 +251,88 @@ def get_reply(P, STATUS, xOffset, yOffset, probe=False, delay=0.0, new=0.0):
     else:
         msg0 += ':\nX:{:0.4f}   Y:{:0.4f}\n\n'.format(xOffset, yOffset)
     msg0 += _translate('HandlerClass', 'To')
+    xP = round(STATUS.get_position()[1][0], 4) + 0
+    yP = round(STATUS.get_position()[1][1], 4) + 0
     if probe:
-        msg0 += ':\nX:{:0.4f}   Y:{:0.4f}   Delay:{:0.2f}\n' \
-                .format(round(STATUS.get_position()[1][0], 4) + 0,
-                        round(STATUS.get_position()[1][1], 4) + 0,
-                        new)
+        msg0 += ':\nX:{:0.4f}   Y:{:0.4f}   Delay:{:0.2f}\n' .format(xP, yP, new)
     else:
-        msg0 += ':\nX:{:0.4f}   Y:{:0.4f}\n'.format(round(STATUS.get_position()[1][0], 4) + 0,
-                                                    round(STATUS.get_position()[1][1], 4) + 0)
-    if P.dialog_show_yesno(QMessageBox.Warning,
-                              '{}'.format(head),
-                              '\n{}'.format(msg0),
-                              '{}'.format(btn1),
-                              '{}'.format(btn2)):
+        msg0 += ':\nX:{:0.4f}   Y:{:0.4f}\n'.format(xP, yP)
+    if P.dialog_show_yesno(QMessageBox.Warning, '{}'.format(head), '\n{}'.format(msg0), '{}'.format(btn1), '{}'.format(btn2)):
         return True
     else:
         return False
+
+def camera_search(P, W, dlg):
+    head = _translate('Offsets', 'Camera Search')
+    devices = 0
+    cameras = []
+    try:
+        import cv2
+    except:
+        msg0 = _translate('Offsets', 'Could not load the cv2 module')
+        msg1 = _translate('Offsets', 'Try installing by entering the following in a terminal')
+        msg2 = _translate('Offsets', 'sudo apt install python3-opencv')
+        W.unsetCursor()
+        P.dialog_show_ok(QMessageBox.Critical, '{}'.format(head), '\n{}.\n\n{}:\n\n{}\n'.format(msg0, msg1, msg2))
+        return
+    for file in os.listdir('/dev'):
+        if file.startswith('video'):
+            cap = cv2.VideoCapture(int(file.replace('video', '')))
+            if cap is None or not cap.isOpened():
+                pass
+            else:
+                cameras.append(int(file.replace('video', '')))
+                cap.release()
+    if not cameras:
+        msg0 = _translate('HandlerClass', 'No cameras have been found')
+        P.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '\n{}\n'.format(msg0))
+    return cameras
+
+def camera_select(P, W, STATUS, cameras):
+    dlg = QDialog(W)
+    dlg.setWindowIcon(QIcon(os.path.join(P.iconBase, P.iconPath)))
+    dlg.setWindowTitle(_translate('Offsets', 'Select Camera'))
+    dlg.setModal(True)
+    grid = QGridLayout()
+    label = QLabel()
+    combo = QComboBox()
+    for camera in cameras:
+        combo.addItem('Camera_{}'.format(camera))
+    cam = P.camNum if P.camNum in cameras else cameras[0]
+    combo.setCurrentIndex(cameras.index(cam))
+    btn0 = QPushButton('CANCEL', dlg)
+    btn1 = QPushButton('OK', dlg)
+    grid.addWidget(label, 0, 0, 1, 2)
+    grid.addWidget(combo, 1, 0, 1, 2)
+    grid.addWidget(btn0, 2, 0)
+    grid.addWidget(btn1, 2, 1)
+    dlg.setLayout(grid)
+    msg0 = _translate('Offsets', 'Select the camera to use')
+    label.setText('{}.\n'.format(msg0))
+    combo.currentIndexChanged.connect(lambda w: camera_changed(P, W, STATUS, dlg, int(combo.currentText()[-1:])))
+    btn0.clicked.connect(lambda w: camera_btn_clicked(P, W, dlg, -1))
+    btn1.clicked.connect(lambda w: camera_btn_clicked(P, W, dlg, int(combo.currentText()[-1:])))
+    dlg.setStyleSheet( '* {{ color: {0}; background: {1}; margin: 4px }} \
+                        QPushButton {{ background: {1}; height: 40px; font: 12pt; border: 1px solid {0}; border-radius: 4px }} \
+                        QPushButton:disabled {{color: {2}; border: 1px solid {2} }} \
+                        QPushButton:pressed {{ color: {1} ; background: {0} }}'.format(P.foreColor, P.backColor, P.disabledColor))
+    dlg.setGeometry(dlg.parent().geometry().x(), dlg.parent().geometry().y(), dlg.width(), dlg.height())
+    W.camview.set_camnum(int(combo.currentText()[-1:]))
+    W.unsetCursor()
+    dlg.exec()
+
+def camera_changed(P, W, STATUS, dlg, camnum):
+    dlg.setCursor(QtCore.Qt.WaitCursor)
+    W.setCursor(QtCore.Qt.WaitCursor)
+    W.camview.hideEvent(None)
+    W.camview.set_camnum(camnum)
+    W.camview.showEvent(None)
+    dlg.unsetCursor()
+    W.unsetCursor()
+
+def camera_btn_clicked(P, W, dlg, camnum):
+    P.camNum = int(camnum)
+    dlg.reject()
 
 def do_tool_file(P, W, toolFile, xOffset, yOffset):
     written = False
@@ -270,4 +350,3 @@ def do_tool_file(P, W, toolFile, xOffset, yOffset):
     inFile.close()
     outFile.close()
     os.remove('{}~'.format(toolFile))
-
