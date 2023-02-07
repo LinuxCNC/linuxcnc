@@ -22,6 +22,12 @@ if test "xyes" = "x@RUN_IN_PLACE@"; then
     fi
 fi
 
+# Force pyopengl (python3-opengl) to use its GLX backend, even
+# if we're running on Wayland where it would normally use EGL.
+if [[ ! -v LINUXCNC_OPENGL_PLATFORM || "${LINUXCNC_OPENGL_PLATFORM}" == "glx" ]]; then
+    export PYOPENGL_PLATFORM="x11"
+fi
+
 ################################################################################
 # 0. Values that come from configure
 ################################################################################
