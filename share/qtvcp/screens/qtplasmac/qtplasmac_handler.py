@@ -1,4 +1,4 @@
-VERSION = '1.235.264'
+VERSION = '1.235.265'
 
 '''
 qtplasmac_handler.py
@@ -1918,7 +1918,7 @@ class HandlerClass:
             os.remove(tmpFile)
         except:
             log = _translate('HandlerClass', 'Unknown error removing')
-            STATUS.emit('update-machine-log', '{} config_info.txt'.format(log, file), 'TIME')
+            STATUS.emit('update-machine-log', '{} {}'.format(log, tmpFile), 'TIME')
         head = _translate('HandlerClass', 'Backup Complete')
         msg0 = _translate('HandlerClass', 'A compressed backup of the machine configuration including the machine logs has been saved in your home directory as')
         msg1 = _translate('HandlerClass', 'It is safe to delete this file at any time')
@@ -3875,9 +3875,7 @@ class HandlerClass:
                     if char == '{':
                         subCommand = ':'
                     elif char == '}':
-                        print(f'subCommand={subCommand}<')
                         f1, f2 = subCommand.replace(':','').split()
-                        print(f'f1={f1}<   f2={f2}<')
                         newCommand += self.iniFile.find(f1,f2)
                         subCommand = ''
                     elif subCommand.startswith(':'):
@@ -5230,7 +5228,7 @@ class HandlerClass:
                     return False
             else:
                 if not periodic:
-                    msg0 = _('cannot be found')
+                    msg0 = _translate('cannot be found')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {}\n{}'.format(head, port, msg0, msg1))
                 return False
         except:
