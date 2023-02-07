@@ -469,7 +469,7 @@ Contact bounce from mechanical relays, switches, or external interference may ca
 
 Due to the fact that the software is capable of sampling rates faster than the contact bounce period, it is possible that the software may see contact bounce as several changes in input states occurring in a very small time period, and incorrectly interpret this as a very quick on-off of the input. One method of mitigating contact bounce is to "debounce" the input. To summarize debounce, it requires the input state to be stable at the opposite state of the output state for consecutive delay periods before changing the state of the output.
 
-Debounce delay periods can be changed by editing the appropriate debounce value in the custom.hal file in the <machine_name> config directory.
+Debounce delay periods can be changed by editing the appropriate debounce value in the custom.hal file in the _<machine_name>_ config directory.
 
 Each increment of delay adds one servo thread cycle to the debounce time.
 For example: given a servo thread period of 1000000 (measured in nano seconds), a debounce delay of 5 would equate to 5000000 ns, or 5 ms.
@@ -506,11 +506,7 @@ More information on contact switching load can be seen on page III of link:https
 
 [[plasma:calculations]]
 .*Calculations:*
-If using a Mesa card, the input resistance of a 7i96 is 4700 Ω (symbol R)(always consult the product manual associated with the revision being used as these values sometimes vary between revisions), giving a contact current of 5.1 mA (symbol I) assuming a supply voltage (symbol U) of 24 V (I = U/R)footnote:[In the US, the letter V is commonly used as a symbol (Voltage) and as a unit (Volt).].
-
-If using a Mesa card, the input resistance of a 7I96 is 4700 Ω
-(always consult the product manual associated with the revision being used as these values sometimes vary between revisions),
-giving a contact current of 5.1 mA assuming a supply voltage of 24 V (I = V/R).
+If using a Mesa card, the input resistance of a 7I96 is 4700 Ω (symbol R)(always consult the product manual associated with the revision being used as these values sometimes vary between revisions), giving a contact current of 5.1 mA (symbol I) assuming a supply voltage (symbol U) of 24 V (I = U/R)footnote:[In the US, the letter V is commonly used as a symbol (Voltage) and as a unit (Volt).].
 
 As an example, the typical relay used in a Hypertherm Powermax 65 plasma cutter (link:https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7F1308242_T77%7F1011%7Fpdf%7FEnglish%7FENG_DS_1308242_T77_1011.pdf%7F1-1393194-0[TE T77S1D10-24]) requires a minimum contact load of 100 mA @ 5 VDC which will dissipate 0.5 W (P = I * V).
 If using a 24 VDC power supply this would then equate to a minimum current of 20.8 mA.
@@ -962,7 +958,7 @@ The torch (T0) will be selected if it was not the active tool.
 //[frame=ends,grid=none]
 |===
 |Name |Description
-|HOME ALL |This button will home all of the axes in the order set by HOME_SEQUENCE in the <machine_name>.ini file.
+|HOME ALL |This button will home all of the axes in the order set by HOME_SEQUENCE in the _<machine_name>_.ini file.
 |WCS G54 |This drop down button will change the current work offset.
 |CAMERA |This button will display a CAMVIEW panel on top of the PREVIEW WINDOW and will allow the user to set an origin with or without rotation. See the <<plasma:camera,CAMERA section>> for detailed instructions.
 |LASER |This button will allow the user to use a laser to set an origin with or without rotation. See the <<plasma:laser,LASER section>> for detailed instructions.
@@ -1164,9 +1160,9 @@ This is a visual indicator to the operator only, unless PowerMax communications 
 |Cut Volts |This sets the cut voltage for the currently selected material.
 |Puddle Height |Expressed as a percentage of Pierce Height, this sets the Puddle Jump height for the currently selected material. +
 Typically used for thicker materials, Puddle Jump allows the torch to have an intermediate step between Pierce Height and Cut Height. +
-If set, the torch will proceed from Pierce Height to P-Jump Height for a period of time (P-Jump Delay) before proceeding to Cut Height to effectively "jump" over the molten puddle. Refer to the <<plasma:initial-setup, Heights Diagram>> diagram for a visual representation.
+If set, the torch will proceed from Pierce Height to P-Jump Height for a period of time (P-Jump Delay) before proceeding to Cut Height to effectively "jump" over the molten puddle. Refer to the <<plasma:initial-setup,Heights Diagram>> diagram for a visual representation.
 |Puddle Delay |This sets the amount of time (in seconds) the torch will stay at the P-Jump Height before proceeding to Cut Height.
-|Pause At End |This sets the amount of time (in seconds) the torch will stay on at the end of the cut before proceeding with the M5 command to turn off and raise the torch. For more information see <<plasma:pause-at-end, Pause At End Of Cut>>.
+|Pause At End |This sets the amount of time (in seconds) the torch will stay on at the end of the cut before proceeding with the M5 command to turn off and raise the torch. For more information see <<plasma:pause-at-end,Pause At End Of Cut>>.
 |Gas Pressure |This sets the gas pressure for the currently selected material. +
 This setting is only valid if PowerMax communications are being used. +
 0 = Use the PowerMax's automatic pressure mode.
@@ -2044,7 +2040,7 @@ QtPlasmaC can utilize G-code commands usually set by a CAM Post Processor (PP) t
 There are three methods available for improving the quality of small holes:
 
 . *Velocity Reduction* - <<plasma:hole-cutting-velocity-reduction,Reducing the velocity>> to approximately 60% of the *CutFeedRate*.
-. *Arc Dwell (<<plasma:pause-at-end, Pause At End>>)* - Keeping the torch on for a short time at the end of the hole while motion is stopped to allow the arc to catch up.
+. *Arc Dwell (<<plasma:pause-at-end,Pause At End>>)* - Keeping the torch on for a short time at the end of the hole while motion is stopped to allow the arc to catch up.
 . *Over cut* - Turning the torch off at the end of the hole then continue along the path.
 
 [NOTE]
@@ -2237,8 +2233,7 @@ If the user is using a custom user button then substitute *F9* with *User Button
 . The Z height will remain locked at the cut height for the duration of the manual cut, regardless of the Torch Height Controller *ENABLE* status.
 . When the cut is complete press *F9* or *Esc* or the *CYCLE STOP* button.
 . The torch will turn off and the Z axis will return to the starting position.
-. The jog speed will automatically be returned to the value it was prior to initiating the manual cut process, the label will stop blinking and the jog speed manipulation will be enabled.
-  *MANUAL CUT* will stop blinking and revert to *CYCLE START*.
+. The jog speed will automatically be returned to the value it was prior to initiating the manual cut process, the label will stop blinking and the jog speed manipulation will be enabled. *MANUAL CUT* will stop blinking and revert to *CYCLE START*.
 
 [NOTE]
 If the torch flames out during cutting, the user must still press *F9* or *Esc* or the *CYCLE STOP* button to end the cut.
@@ -2832,7 +2827,7 @@ In addition, QtPlasmaC will alert the user that an error has been sent to the ma
 
 The user may opt to disable the Operator Error popup window,
 and view the error messages by going to the <<plasma:statistics-tab,STATISTICS Tab>>
-by changing the following preference to *False* in the *[SCREEN_OPTIONS]* of the _<machine_name>_.prefs file in the <machine_name> directory:
+by changing the following preference to *False* in the *[SCREEN_OPTIONS]* of the _<machine_name>_.prefs file in the _<machine_name>_ directory:
 
 ----
 desktop_notify

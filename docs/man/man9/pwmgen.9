@@ -15,8 +15,7 @@ The number of channels actually loaded depends on the number of \fItype\fR value
 The value of each \fItype\fR determines the outputs for that channel.
 .P
 .TP
-type 0: single output A single output pin, \fBpwm\fR, whose duty cycle is determined by the input value for positive inputs,
-and which is off (or at \fBmin\-dc\fR) for negative inputs.
+type 0: single output A single output pin, \fBpwm\fR, whose duty cycle is determined by the input value for positive inputs, and which is off (or at \fBmin\-dc\fR) for negative inputs.
 Suitable for single ended circuits.
 .TP
 type 1: pwm/direction
@@ -47,9 +46,7 @@ Operates on all channels at once.
 Enables PWM generator \fIN\fR - when false, all \fBpwmgen.\fIN\fR output pins are low.
 .TP
 \fBpwmgen.\fIN\fB.value\fR float in
-Commanded value.  When \fBvalue\fR = 0.0, duty cycle is 0%,
-and when \fBvalue\fR = \(+-\fBscale\fR, duty cycle is \(+- 100%
-(subject to \fBmin\-dc\fR and \fBmax\-dc\fR limitations).
+Commanded value.  When \fBvalue\fR = 0.0, duty cycle is 0%, and when \fBvalue\fR = \(+-\fBscale\fR, duty cycle is \(+- 100% (subject to \fBmin\-dc\fR and \fBmax\-dc\fR limitations).
 .TP
 \fBpwmgen.\fIN\fB.pwm\fR bit out (output types 0 and 1 only)
 PWM/PDM waveform.
@@ -69,8 +66,7 @@ Range is from \-1.0 to +1.0.
 .TP
 \fBpwmgen.\fIN\fB.max\-dc\fR float in/out
 The maximum duty cycle.  A value of 1.0 corresponds to 100%.
-This can be useful when using transistor drivers with bootstrapped power supplies,
-since the supply requires some low time to recharge.
+This can be useful when using transistor drivers with bootstrapped power supplies, since the supply requires some low time to recharge.
 .TP
 \fBpwmgen.\fIN\fB.min\-dc\fR float in/out
 The minimum duty cycle.  A value of 1.0 corresponds to 100%.
@@ -95,6 +91,5 @@ Because software-generated PWM uses a fairly slow timebase (several to many micr
 For example, if \fBmake\-pulses\fR is called at a 20 kHz rate, and \fBpwm\-freq\fR is 2 kHz, there are only 10 possible duty cycles.
 If \fBdither\-pwm\fR is false, the commanded duty cycle will be rounded to the nearest of those values.
 Assuming \fBvalue\fR remains constant, the same output will repeat every PWM cycle.
-If \fBdither\-pwm\fR is true, the output duty cycle will be dithered between the two closest values,
-so that the long-term average is closer to the desired level.
+If \fBdither\-pwm\fR is true, the output duty cycle will be dithered between the two closest values, so that the long-term average is closer to the desired level.
 \fBdither\-pwm\fR has no effect if \fBpwm\-freq\fR is zero (PDM mode), since PDM is an inherently dithered process.

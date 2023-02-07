@@ -2549,7 +2549,7 @@ def _releasedOutput(self, btncode):
     self['joy_{}_pressed'.format(btncode.lower())].emit(False)
 ----
 
-As coded they these function _issue (emit) PyQt5 signals (joy_btn_pressed and joy_<letter>_pressed) for the any button pressed or released_.
+As coded these function _issue (emit) PyQt5 signals (joy_btn_pressed and joy_<letter>_pressed) for the any button pressed or released_.
 
 Signal 'joy_btn_pressed' outputs a string code for the button. +
 Signal 'joy_<letter>_pressed' outputs a bool value.
