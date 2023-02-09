@@ -485,6 +485,44 @@ button:checked {
 ----
 
 
+=== Logging
+
+GMOCCAPY supports specifying the level of information (log level) that will be printed to the console and to the log file.
+
+The order is _VERBOSE_, _DEBUG_, _INFO_, _WARNING_, _ERROR_, _CRITICAL_.
+Default is _WARNING_, that means _WARNING_, _ERROR_ and _CRITICAL_ are printed.
+
+You can specify the log level in the INI file like this:
+[source,{ini}]
+----
+[DISPLAY]
+DISPLAY = gmoccapy <log_level_param>
+----
+using this parameters:
+----
+Log level   <log_level_param>
+DEBUG       -d
+INFO        -i
+VERBOSE     -v
+ERROR       -q
+----
+
+.Example: Configure logging to print only errors
+[source,{ini}]
+----
+[DISPLAY]
+DISPLAY = gmoccapy -q
+----
+
+You can specify where to save the log file:
+[source,{ini}]
+----
+[DISPLAY]
+LOG_FILE = gmoccapy.log
+----
+If `LOG_FILE` is not set, logging happens to `$HOME/<base_log_name>.log`
+
+
 == HAL Pins
 
 GMOCCAPY exports several HAL pins to be able to react to hardware devices.
@@ -939,7 +977,7 @@ There are several videos showing the way to do that on YouTube.
 ====
 
 
-=== Tool Measurement Pins
+=== Provided Pins
 
 GMOCCAPY offers five pins for tool measurement purposes.
 These pins are mostly used to be read from a G-code subroutine, so the code can react to different values.
@@ -950,7 +988,7 @@ These pins are mostly used to be read from a G-code subroutine, so the code can 
 - *gmoccapy.searchvel* _(float OUT)_ - The velocity to search for the tool probe switch
 - *gmoccapy.probevel* _(float OUT)_ - The velocity to probe tool length
 
-=== Tool Measurement INI File Modifications
+=== INI File Modifications
 
 Modify your INI file to include the following sections.
 
