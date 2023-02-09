@@ -2825,6 +2825,8 @@
                             <property name="label" translatable="yes">G1 G2 G3
 M1 M2 M3
 F1 S1</property>
+			    <property name="max-width-chars">40</property>
+			    <property name="width-chars">40</property>
                             <property name="wrap">True</property>
                           </object>
                           <packing>
