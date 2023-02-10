@@ -360,7 +360,7 @@ class gmoccapy(object):
         self.widgets.adj_y_pos_popup.set_value(self.prefs.getpref("y_pos_popup", 55, float))
         self.widgets.adj_width_popup.set_value(self.prefs.getpref("width_popup", 250, float))
         self.widgets.adj_max_messages.set_value(self.prefs.getpref("max_messages", 10, float))
-        self.widgets.fontbutton_popup.set_font_name(self.prefs.getpref("message_font", "sans 10", str))
+        self.widgets.fontbutton_popup.set_font(self.prefs.getpref("message_font", "sans 10", str))
         self.widgets.chk_use_frames.set_active(self.prefs.getpref("use_frames", True, bool))
 
         # this sets the background colors of several buttons
@@ -455,11 +455,11 @@ class gmoccapy(object):
             self.widgets.gcode_view.set_language("gcode", LANGDIR)
 
         # set the user colors and digits of the DRO
-        self.widgets.abs_colorbutton.set_color(Gdk.color_parse(self.abs_color))
-        self.widgets.rel_colorbutton.set_color(Gdk.color_parse(self.rel_color))
-        self.widgets.dtg_colorbutton.set_color(Gdk.color_parse(self.dtg_color))
-        self.widgets.homed_colorbtn.set_color(Gdk.color_parse(self.homed_color))
-        self.widgets.unhomed_colorbtn.set_color(Gdk.color_parse(self.unhomed_color))
+        self.widgets.abs_colorbutton.set_rgba(self._get_RGBA_color(self.abs_color))
+        self.widgets.rel_colorbutton.set_rgba(self._get_RGBA_color(self.rel_color))
+        self.widgets.dtg_colorbutton.set_rgba(self._get_RGBA_color(self.dtg_color))
+        self.widgets.homed_colorbtn.set_rgba(self._get_RGBA_color(self.homed_color))
+        self.widgets.unhomed_colorbtn.set_rgba(self._get_RGBA_color(self.unhomed_color))
 
         self.widgets.adj_dro_digits.set_value(self.dro_digits)
         # the adjustment change signal will set the dro_digits correct, so no extra need here.
@@ -3324,7 +3324,7 @@ class gmoccapy(object):
         if int(self.widgets.adj_max_messages.get_value()) != 0:
             self.notification.set_property('max_messages', self.widgets.adj_max_messages.get_value())
         self.notification.set_property('use_frames', self.widgets.chk_use_frames.get_active())
-        self.notification.set_property('font', self.widgets.fontbutton_popup.get_font_name())
+        self.notification.set_property('font', self.widgets.fontbutton_popup.get_font())
         self.notification.set_property('icon_size', 24)
         self.notification.set_property('top_to_bottom', True)
         # Append these two directories to the icon theme search path
@@ -3677,7 +3677,7 @@ class gmoccapy(object):
         self._init_notification()
 
     def on_fontbutton_popup_font_set(self, font):
-        self.prefs.putpref("message_font", self.widgets.fontbutton_popup.get_font_name())
+        self.prefs.putpref("message_font", self.widgets.fontbutton_popup.get_font())
         self._init_notification()
 
     def on_btn_launch_test_message_pressed(self, widget=None, data=None):
