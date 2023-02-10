@@ -235,6 +235,14 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         self.follow_m7m8_mode = True
     display_as_per_m7m8 = QtCore.pyqtProperty(bool, get_follow_m7m8_mode, set_follow_m7m8_mode, reset_follow_m7m8_mode)
 
+    def set_follow_reference(self, data):
+        self.allow_reference_change_requests = data
+    def get_follow_reference(self):
+        return self.allow_reference_change_requests
+    def reset_follow_reference(self):
+        self.allow_reference_change_requests = True
+    follow_reference_changes = QtCore.pyqtProperty(bool, get_follow_reference, set_follow_reference, reset_follow_reference)
+
     # JOINT Number
     def setjoint_number(self, data):
         if data >10: data = 10
