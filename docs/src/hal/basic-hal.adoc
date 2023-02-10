@@ -15,13 +15,10 @@ This document provides a reference to the basics of HAL.
 [[sec:hal-commands]]
 == HAL Commands(((HAL Commands)))
 
-More detailed information can be found in the man page for halcmd: run
-'man halcmd' in a terminal window.
+More detailed information can be found in the man page for halcmd: run 'man halcmd' in a terminal window.
 
-To see the HAL configuration and check the status of pins and parameters
-use the HAL Configuration window on the Machine menu in AXIS. To watch
-a pin status open the Watch tab and click on each pin you wish to watch
-and it will be added to the watch window.
+To see the HAL configuration and check the status of pins and parameters use the HAL Configuration window on the Machine menu in AXIS.
+To watch a pin status open the Watch tab and click on each pin you wish to watch and it will be added to the watch window.
 
 .HAL Configuration Window
 image::images/HAL_Configuration.png["The HAL Configuration Window",align="center"]
@@ -29,10 +26,9 @@ image::images/HAL_Configuration.png["The HAL Configuration Window",align="center
 [[sub:hal-loart]]
 === loadrt(((HAL loadrt,loadrt)))
 
-The command 'loadrt' loads a real time HAL component. Real time
-component functions need to be added to a thread to be updated at the
-rate of the thread. You cannot load a user space component into the
-real time space.
+The command 'loadrt' loads a real time HAL component.
+Real time component functions need to be added to a thread to be updated at the rate of the thread.
+You cannot load a user space component into the real time space.
 
 .loadrt Syntax and Example
 [source,{hal}]
@@ -44,20 +40,18 @@ loadrt mux4 count=1
 [[sub:hal-addf]]
 === addf(((HAL addf,addf)))
 
-The `addf` command adds a function to a real-time thread. If
-the StepConf wizard was used to create the configuration, two
-threads have been created (``base-thread`` and ``servo-thread``).
+The `addf` command adds a function to a real-time thread.
+If the StepConf wizard was used to create the configuration, two threads have been created (``base-thread`` and ``servo-thread``).
 
-`addf` adds function 'functname' to thread 'threadname'. Default is to add the function
-in the order they are in the file. If 'position' is specified, adds the function
-to that spot in the thread. Negative 'position' means position with respect to
-the end of the thread. For example '1' is start of thread, '-1' is the end of
-the thread, '-3' is third from the end.
+`addf` adds function 'functname' to thread 'threadname'.
+Default is to add the function in the order they are in the file.
+If 'position' is specified, adds the function to that spot in the thread.
+Negative 'position' means position with respect to the end of the thread.
+For example '1' is start of thread, '-1' is the end of the thread, '-3' is third from the end.
 
-For some functions it is important to load them in a certain order, like the parport
-read and write functions. The function name is usually the component name
-plus a number. In the following example the component 'or2' is loaded and 'show
-function' shows the name of the or2 function
+For some functions it is important to load them in a certain order, like the parport read and write functions.
+The function name is usually the component name plus a number.
+In the following example the component 'or2' is loaded and 'show function' shows the name of the or2 function.
 
 ----
 $ halrun
@@ -68,12 +62,10 @@ Owner   CodeAddr  Arg       FP   Users  Name
  00004  f8bc5000  f8f950c8  NO       0   or2.0
 ----
 
-You have to add a function from a HAL real time component to a thread
-to get the function to update at the rate of the thread.
-
-Usually there are two threads as shown in this example. Some components use
-floating point math and must be added to a thread that supports floating point
-math. The 'FP' indicates if floating point math is supported in that thread.
+You have to add a function from a HAL real time component to a thread to get the function to update at the rate of the thread.
+Usually there are two threads as shown in this example.
+Some components use floating point math and must be added to a thread that supports floating point math.
+The 'FP' indicates if floating point math is supported in that thread.
 
 ----
 $ halrun
@@ -85,12 +77,11 @@ Realtime Threads:
       55332  NO            base-thread (        0,        0 )
 ----
 
-- base-thread (the high-speed thread): this thread handles items that
-  need a fast response, like making step pulses, and reading and writing
-  the parallel port. Does not support floating point math.
-- servo-thread (the slow-speed thread): this thread handles items that
-  can tolerate a slower response, like the motion controller, ClassicLadder,
-  and the motion command handler and supports floating point math.
+- base-thread (the high-speed thread):
+  This thread handles items that need a fast response, like making step pulses, and reading and writing the parallel port.
+  Does not support floating point math.
+- servo-thread (the slow-speed thread):
+  This thread handles items that can tolerate a slower response, like the motion controller, ClassicLadder, and the motion command handler and supports floating point math.
 
 .addf Syntax and Example
 [source,{hal}]
@@ -105,19 +96,15 @@ If the component requires a floating point thread that is usually the slower ser
 [[sub:hal-loadusr]]
 === loadusr(((HAL loadusr,loadusr)))
 
-The command 'loadusr' loads a user space HAL component. User space
-programs are their own separate processes, which optionally talk to
-other HAL components via pins and parameters. You cannot load real time
-components into user space.
+The command 'loadusr' loads a user space HAL component. User space programs are their own separate processes, which optionally talk to.other HAL components via pins and parameters.
+You cannot load real time components into user space.
 
 Flags may be one or more of the following:
 
 [horizontal]
--W:: to wait for the component to become ready. The component is assumed to
-     have the same name as the first argument of the command.
+-W:: to wait for the component to become ready. The component is assumed to have the same name as the first argument of the command.
 
--Wn <name>:: to wait for the component, which will have the given <name>.
-             This only applies if the component has a name option.
+-Wn <name>:: to wait for the component, which will have the given <name>.  This only applies if the component has a name option.
 
 -w:: to wait for the program to exit
 
@@ -138,12 +125,11 @@ In English it means 'loadusr wait for name spindle component gs2_vfd name spindl
 [[sub:hal-net]]
 === net(((HAL net,net)))
 
-The command 'net' creates a 'connection' between a signal and one
-or more pins. If the signal does not exist net creates the new signal.
-This replaces the need to use the command newsig. The optional direction
-arrows '<=', '=>' and '<=>' make it easier to follow the logic when reading
-a 'net' command line and are not used by the net command. The direction arrows
-must be separated by a space from the pin names.
+The command 'net' creates a 'connection' between a signal and one or more pins.
+If the signal does not exist net creates the new signal.
+This replaces the need to use the command newsig.
+The optional direction arrows '<=', '=>' and '<=>' make it easier to follow the logic when reading a 'net' command line and are not used by the net command.
+The direction arrows must be separated by a space from the pin names.
 
 .net Syntax and Example
 [source,{hal}]
@@ -152,31 +138,23 @@ net signal-name pin-name <optional arrow> <optional second pin-name>
 net home-x joint.0.home-sw-in <= parport.0.pin-11-in
 ----
 
-In the above example 'home-x' is the signal name, 'joint.0.home-sw-in' is a
-'Direction IN' pin, '<=' is the optional direction arrow, and
-'parport.0.pin-11-in' is a 'Direction OUT' pin. This may seem confusing but
-the in and out labels for a parallel port pin indicates the physical way the
-pin works not how it is handled in HAL.
+In the above example 'home-x' is the signal name, 'joint.0.home-sw-in' is a 'Direction IN' pin, '<=' is the optional direction arrow, and 'parport.0.pin-11-in' is a 'Direction OUT' pin. 
+This may seem confusing but the in and out labels for a parallel port pin indicates the physical way the pin works not how it is handled in HAL.
 
 A pin can be connected to a signal if it obeys the following rules:
 
 * An IN pin can always be connected to a signal.
 * An IO pin can be connected unless there's an OUT pin on the signal.
-* An OUT pin can be connected only if there are no other OUT or IO pins
-  on the signal.
+* An OUT pin can be connected only if there are no other OUT or IO pins on the signal.
 
-The same 'signal-name' can be used in multiple net commands to connect
-additional pins, as long as the rules above are obeyed.
+The same 'signal-name' can be used in multiple net commands to connect additional pins, as long as the rules above are obeyed.
 
 [[cap:signal-direction]]
 .Signal Direction
 image::images/signal-direction.png["Signal Direction",align="center"]
 
-This example shows the signal xStep with the source being
-stepgen.0.out and with two readers, parport.0.pin-02-out and
-parport.0.pin-08-out. Basically the value of stepgen.0.out is sent to
-the signal xStep and that value is then sent to parport.0.pin-02-out
-and parport.0.pin-08-out.
+This example shows the signal xStep with the source being `stepgen.0.out` and with two readers, `parport.0.pin-02-out` and `parport.0.pin-08-out`.
+Basically the value of `stepgen.0.out` is sent to the signal xStep and that value is then sent to `parport.0.pin-02-out` and `parport.0.pin-08-out`.
 
 [source,{hal}]
 ----
@@ -184,10 +162,8 @@ and parport.0.pin-08-out.
 net xStep stepgen.0.out => parport.0.pin-02-out parport.0.pin-08-out
 ----
 
-Since the signal xStep contains the value of stepgen.0.out (the
-source) you can use the same signal again to send the value to another
-reader. To do this just use the signal with the readers on another
-line.
+Since the signal xStep contains the value of `stepgen.0.out` (the source) you can use the same signal again to send the value to another reader.
+To do this just use the signal with the readers on another line.
 
 [source,{hal}]
 ----
@@ -201,13 +177,13 @@ An I/O pin like encoder.N.index-enable can be read or set as allowed by the comp
 [[sub:hal-setp]]
 === setp(((HAL setp,setp)))
 
-The command 'setp' sets the value of a pin or parameter. The valid
-values will depend on the type of the pin or parameter. It is an error
-if the data types do not match.
+The command 'setp' sets the value of a pin or parameter.
+The valid values will depend on the type of the pin or parameter.
+It is an error if the data types do not match.
 
 Some components have parameters that need to be set before use.
-Parameters can be set before use or while running as needed. You cannot
-use setp on a pin that is connected to a signal.
+Parameters can be set before use or while running as needed.
+You cannot use setp on a pin that is connected to a signal.
 
 .setp Syntax and Example
 [source,{hal}]
@@ -238,9 +214,9 @@ It is an error if:
 [[sub:hal-inlinkp]]
 === unlinkp(((HAL unlinkp,unlinkp)))
 
-The command 'unlinkp' unlinks a pin from the connected signal. If no
-signal was connected to the pin prior running the command, nothing
-happens. The 'unlinkp' command is useful for trouble shooting.
+The command 'unlinkp' unlinks a pin from the connected signal.
+If no signal was connected to the pin prior running the command, nothing happens.
+The 'unlinkp' command is useful for trouble shooting.
 
 .unlinkp syntax and Example
 [source,{hal}]
@@ -251,14 +227,13 @@ unlinkp parport.0.pin-02-out
 
 === Obsolete Commands
 
-The following commands are depreciated and may be removed from future
-versions. Any new configuration should use the <<sub:hal-net,'net'>> command.
+The following commands are depreciated and may be removed from future versions.
+Any new configuration should use the <<sub:hal-net,'net'>> command.
 These commands are included so older configurations will still work.
 
 ==== linksp
 
-The command 'linksp' creates a 'connection' between a signal and one
-pin.
+The command 'linksp' creates a 'connection' between a signal and one pin.
 
 .linksp Syntax and Example
 [source,{hal}]
@@ -271,8 +246,8 @@ The 'linksp' command has been superseded by the 'net' command.
 
 ==== linkps
 
-The command 'linkps' creates a 'connection' between one pin and one
-signal. It is the same as linksp but the arguments are reversed.
+The command 'linkps' creates a 'connection' between one pin and one signal.
+It is the same as linksp but the arguments are reversed.
 
 .linkps Syntax and Example
 [source,{hal}]
@@ -285,9 +260,8 @@ The 'linkps' command has been superseded by the 'net' command.
 
 ==== newsig
 
-the command 'newsig' creates a new HAL signal by the name <signame>
-and the data type of <type>. Type must be 'bit', 's32', 'u32' or
-'float'. Error if <signame> all ready exists.
+the command 'newsig' creates a new HAL signal by the name <signame> and the data type of <type>.
+Type must be 'bit', 's32', 'u32' or 'float'. Error if <signame> all ready exists.
 
 .newsig Syntax and Example
 [source,{hal}]
@@ -296,8 +270,7 @@ newsig <signame> <type>
 newsig Xstep bit
 ----
 
-More information can be found in the HAL manual or the man pages for
-`halrun`.
+More information can be found in the HAL manual or the man pages for `halrun`.
 
 [[sec:hal-data]]
 == HAL Data(((HAL Data)))
@@ -312,11 +285,10 @@ A bit value is an on or off.
 [[sub:hal-float]]
 === Float(((HAL Float,float)))
 
-A 'float' is a floating point number. In other words the decimal point
-can move as needed.
+A 'float' is a floating point number.
+In other words the decimal point can move as needed.
 
-- float values = a 64 bit floating point value, with approximately 53 bits of
-  resolution and over 2^10^ (~ 1000) bits of dynamic range.
+- float values = a 64 bit floating point value, with approximately 53 bits of resolution and over 2^10^ (~ 1000) bits of dynamic range.
 
 For more information on floating point numbers see:
 
@@ -325,8 +297,7 @@ https://en.wikipedia.org/wiki/Floating_point[https://en.wikipedia.org/wiki/Float
 [[sub:hal-s32]]
 === s32(((HAL s32,s32)))
 
-An 's32' number is a whole number that can have a negative or positive
-value.
+An 's32' number is a whole number that can have a negative or positive value.
 
 - s32 values = integer numbers from -2147483648 to 2147483647
 
@@ -340,51 +311,41 @@ A 'u32' number is a whole number that is positive only.
 [[sec:hal-files]]
 == HAL Files(((HAL Files)))
 
-If you used the Stepper Config Wizard to generate your config you will
-have up to three HAL files in your config directory.
+If you used the Stepper Config Wizard to generate your config you will have up to three HAL files in your config directory.
 
-- 'my-mill.hal' (if your config is named 'my-mill') This file is loaded
-  first and should not be changed if you used the Stepper Config Wizard.
-- 'custom.hal' This file is loaded next and before the GUI loads. This is
-  where you put your custom HAL commands that you want loaded before the
-  GUI is loaded.
-- 'custom_postgui.hal' This file is loaded after the GUI loads. This is
-  where you put your custom HAL commands that you want loaded after the
-  GUI is loaded. Any HAL commands that use PyVCP widgets need to be
-  placed here.
+- 'my-mill.hal' (if your config is named 'my-mill') This file is loaded first and should not be changed if you used the Stepper Config Wizard.
+- 'custom.hal' This file is loaded next and before the GUI loads.
+  This is where you put your custom HAL commands that you want loaded before the GUI is loaded.
+- 'custom_postgui.hal' This file is loaded after the GUI loads.
+  This is where you put your custom HAL commands that you want loaded after the GUI is loaded.
+  Any HAL commands that use PyVCP widgets need to be placed here.
 
 [[sec:hal-parameters]]
 == HAL Parameter(((HAL Parameters)))
 
-Two parameters are automatically added to each HAL component when it
-is created. These parameters allow you to scope the execution time of a
-component.
+Two parameters are automatically added to each HAL component when it is created.
+These parameters allow you to scope the execution time of a component.
 
 [horizontal]
 `.time`(((HAL time))):: Time is the number of CPU cycles it took to execute the function.
-`.tmax`(((HAL tmax))):: Tmax is the maximum number of CPU cycles it took to execute the
-  function.
+`.tmax`(((HAL tmax))):: Tmax is the maximum number of CPU cycles it took to execute the function.
 
-`tmax` is a read/write parameter so the user can set it to 0 to
-get rid of the first time initialization on the function's execution
-time.
+`tmax` is a read/write parameter so the user can set it to 0 to get rid of the first time initialization on the function's execution time.
 
 [[sec:hal-logic-components]]
 == Basic Logic Components(((HAL Logic Components)))
 
-HAL contains several real time logic components. Logic components
-follow a 'Truth Table' that states what the output is for any given
-input. Typically these are bit manipulators and follow electrical logic
-gate truth tables.
+HAL contains several real time logic components.
+Logic components follow a 'Truth Table' that states what the output is for any given input.
+Typically these are bit manipulators and follow electrical logic gate truth tables.
 
-For further components see <<sec:hal-components,HAL Components List>>
-or the man pages.
+For further components see <<sec:hal-components,HAL Components List>> or the man pages.
 
 [[sub:hal-and2]]
 === and2(((HAL and2,and2)))
 
-The 'and2' component is a two input 'and' gate. The truth table below
-shows the output based on each combination of input.
+The 'and2' component is a two input 'and' gate.
+The truth table below shows the output based on each combination of input.
 
 .Syntax
 ----
@@ -520,12 +481,11 @@ net my-sigin2 and2.0.in1 <= parport.0.pin-12-in
 net both-on parport.0.pin-14-out <= and2.0.out
 ----
 
-In the above example one copy of `and2` is loaded into real time space
-and added to the servo thread. Next `pin-11` of the parallel port is
-connected to the `in0` bit of the and gate. Next `pin-12` is connected to
-the `in1` bit of the and gate. Last we connect the `and2` out bit to the
-parallel port `pin-14`. So following the truth table for `and2` if pin 11
-and pin 12 are on then the output pin 14 will be on.
+In the above example one copy of `and2` is loaded into real time space and added to the servo thread.
+Next `pin-11` of the parallel port is connected to the `in0` bit of the and gate.
+Next `pin-12` is connected to the `in1` bit of the and gate.
+Last we connect the `and2` out bit to the parallel port `pin-14`.
+So following the truth table for `and2` if pin 11 and pin 12 are on then the output pin 14 will be on.
 
 [[sec:hal-conversion-components]]
 == Conversion Components(((HAL Conversion Components)))
@@ -533,10 +493,10 @@ and pin 12 are on then the output pin 14 will be on.
 [[sub:hal-weighted-sum]]
 === weighted_sum(((HAL weighted_sum,weighted_sum)))
 
-The weighted sum converts a group of bits into an integer. The conversion is the
-sum of the 'weights' of the bits present plus any offset. It's similar
-to 'binary coded decimal' but with more options. The 'hold' bit interrupts the
-input processing, so that the 'sum' value no longer changes.
+The weighted sum converts a group of bits into an integer.
+The conversion is the sum of the 'weights' of the bits present plus any offset.
+It's similar to 'binary coded decimal' but with more options.
+The 'hold' bit interrupts the input processing, so that the 'sum' value no longer changes.
 
 .weighted_sum component loading syntax
 [source,{hal}]
@@ -544,7 +504,7 @@ input processing, so that the 'sum' value no longer changes.
 loadrt weighted_sum wsum_sizes=size[,size,...]
 ----
 
-Creates groups of `weighted_sum`s, each with the given number of input bits (size).
+Creates groups of ``weighted_sum``s, each with the given number of input bits (size).
 
 To update the `weighted_sum`, the `process_wsums` must be attached to a thread.
 
@@ -556,25 +516,24 @@ addf process_wsums servo-thread
 
 Which updates the `weighted_sum` component.
 
-In the following example, a copy of the AXIS HAL configuration window,
-bits '0' and '2' are TRUE, they have no offset. The weight ('weight') of bit 0
-is 1, that of bit 2 is 4, so the sum is 5.
+In the following example, a copy of the AXIS HAL configuration window, bits '0' and '2' are TRUE, they have no offset.
+The weight ('weight') of bit 0 is 1, that of bit 2 is 4, so the sum is 5.
 
-.`weighted_sum` Example
-----
-Component Pins:
-Owner   Type  Dir         Value  Name
-    10  bit   In           TRUE  wsum.0.bit.0.in
-    10  s32   I/O             1  wsum.0.bit.0.weight
-    10  bit   In          FALSE  wsum.0.bit.1.in
-    10  s32   I/O             2  wsum.0.bit.1.weight
-    10  bit   In           TRUE  wsum.0.bit.2.in
-    10  s32   I/O             4  wsum.0.bit.2.weight
-    10  bit   In          FALSE  wsum.0.bit.3.in
-    10  s32   I/O             8  wsum.0.bit.3.weight
-    10  bit   In          FALSE  wsum.0.hold
-    10  s32   I/O             0  wsum.0.offset
-    10  s32   Out             5  wsum.0.sum
-----
+.`weighted_sum` Example component Pin for weighted sum.s
+[width="90%",options="header"]
+|===
+|Owner|Type |Dir  |Value |Name
+|10   |bit  |In   |TRUE  |wsum.0.bit.0.in
+|10   |s32  |I/O  |1     |wsum.0.bit.0.weight
+|10   |bit  |In   |FALSE |wsum.0.bit.1.in
+|10   |s32  |I/O  |2     |wsum.0.bit.1.weight
+|10   |bit  |In   |TRUE  |wsum.0.bit.2.in
+|10   |s32  |I/O  |4     |wsum.0.bit.2.weight
+|10   |bit  |In   |FALSE |wsum.0.bit.3.in
+|10   |s32  |I/O  |8     |wsum.0.bit.3.weight
+|10   |bit  |In   |FALSE |wsum.0.hold
+|10   |s32  |I/O  |0     |wsum.0.offset
+|10   |s32  |Out  |5     |wsum.0.sum
+|===
 
 // vim: set syntax=asciidoc:
