@@ -443,7 +443,7 @@ If this file is specified, this file is sourced just after the AXIS GUI is displ
 *instead* of `~/.gmoccapyrc`.
 
 
-The following example changes the size of the vertical buttons and changes the order of buttons:
+The following example changes the size of the vertical buttons:
 .Example of .axisrc file
 -----
 self.widgets.vbtb_main.set_size_request(85,-1)
@@ -456,11 +456,6 @@ self.widgets.rbt_auto.set_size_request(*BB_SIZE)
 self.widgets.tbtn_setup.set_size_request(*BB_SIZE)
 self.widgets.tbtn_user_tabs.set_size_request(*BB_SIZE)
 self.widgets.btn_exit.set_size_request(*BB_SIZE)
-
-self.widgets.vbtb_main.remove(self.widgets.tbtn_setup)
-self.widgets.vbtb_main.remove(self.widgets.lbl_time)
-self.widgets.vbtb_main.add(self.widgets.tbtn_setup)
-self.widgets.vbtb_main.add(self.widgets.lbl_time)
 -----
 
 The widget names can the looked up in the /usr/share/gmoccapy.glade file
@@ -488,6 +483,44 @@ button:checked {
     background: rgba(250,230,0,0.8);
 }
 ----
+
+
+=== Logging
+
+GMOCCAPY supports specifying the level of information (log level) that will be printed to the console and to the log file.
+
+The order is _VERBOSE_, _DEBUG_, _INFO_, _WARNING_, _ERROR_, _CRITICAL_.
+Default is _WARNING_, that means _WARNING_, _ERROR_ and _CRITICAL_ are printed.
+
+You can specify the log level in the INI file like this:
+[source,{ini}]
+----
+[DISPLAY]
+DISPLAY = gmoccapy <log_level_param>
+----
+using this parameters:
+----
+Log level   <log_level_param>
+DEBUG       -d
+INFO        -i
+VERBOSE     -v
+ERROR       -q
+----
+
+.Example: Configure logging to print only errors
+[source,{ini}]
+----
+[DISPLAY]
+DISPLAY = gmoccapy -q
+----
+
+You can specify where to save the log file:
+[source,{ini}]
+----
+[DISPLAY]
+LOG_FILE = gmoccapy.log
+----
+If `LOG_FILE` is not set, logging happens to `$HOME/<base_log_name>.log`
 
 
 == HAL Pins
@@ -944,7 +977,7 @@ There are several videos showing the way to do that on YouTube.
 ====
 
 
-=== Tool Measurement Pins
+=== Provided Pins
 
 GMOCCAPY offers five pins for tool measurement purposes.
 These pins are mostly used to be read from a G-code subroutine, so the code can react to different values.
@@ -955,7 +988,7 @@ These pins are mostly used to be read from a G-code subroutine, so the code can 
 - *gmoccapy.searchvel* _(float OUT)_ - The velocity to search for the tool probe switch
 - *gmoccapy.probevel* _(float OUT)_ - The velocity to probe tool length
 
-=== Tool Measurement INI File Modifications
+=== INI File Modifications
 
 Modify your INI file to include the following sections.
 

@@ -1336,7 +1336,7 @@ class ScaledLabel(QtWidgets.QLabel):
         dh = event.size().height() - event.oldSize().height() # height change
         fs = max(f.pointSizeF(), .5)
         while True:
-            f.setPointSize(fs)
+            f.setPointSize(int(fs))
             #gives bigger text
             #br =  QtGui.QFontMetrics(f).tightBoundingRect(self.textSample())
             # then this
