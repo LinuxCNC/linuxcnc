@@ -7,10 +7,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-02-11 19:57+0100\n"
-"PO-Revision-Date: 2023-01-14 05:16+0000\n"
-"Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
+"PO-Revision-Date: 2023-02-11 20:16+0000\n"
+"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
 "Language: de\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.15.1-dev\n"
+"X-Generator: Weblate 4.16-dev\n"
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -97,12 +97,9 @@ msgid "Press to return to main button list"
 msgstr "Gehe zurück zur Hauptknopfleiste"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:826
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "**** could not resolv the image path '{0}' given for button '{1}' ****"
+#, python-brace-format
 msgid "could not resolv the image path '{0}' given for button '{1}'"
-msgstr ""
-"**** Konnte den Pfad für das Bild '{0}' des Makros '{1}' nicht auflösen ****"
+msgstr "Konnte den Bild-Pfad '{0}' für Button '{1}' nicht auflösen"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:981
 msgid ""
@@ -150,25 +147,24 @@ msgid "Press to set the selected coordinate system to be the active one"
 msgstr "Aktiviere das gewählte Koordinatensystem"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1101
-#, fuzzy
-#| msgid "**** no valid probe config in INI File ****"
 msgid "No valid probe config in INI File. Tool measurement disabled."
 msgstr ""
-"**** Keine gültige Werkzeugvermessungskonfiguration in der INI Datei ****"
+"Keine gültige Konfiguration für die Werkzeugvermessung in der INI-Datei. "
+"Werkzeugvermessung ist deaktiviert."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1115
-#, fuzzy
-#| msgid "**** found valid probe config in INI File ****"
 msgid "Found valid probe config in INI file. Will use auto tool measurement."
-msgstr "**** Gültige Tasterkonfiguration in der INI Datei gefunden****"
+msgstr ""
+"Gültige Konfiguration für die Werkzeugvermessung in der INI-Datei gefunden. "
+"Automatische Werkzeugvermessung wird verwendet."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1129
-#, fuzzy
-#| msgid "**** Only the first 10 will be reachable through this screen ****"
 msgid ""
 "To many increments given in INI File for this screen. Only the first 10 will "
 "be reachable through this screen."
-msgstr "**** Nur die ersten 10 werden erreichbar sein. ****"
+msgstr ""
+"Zu viele Jog-Schritte in der INI-Datei angegeben für diesen Bildschirm. Nur "
+"die ersten 10 werden erreichbar."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1139
 msgid "Continuous"
@@ -190,18 +186,14 @@ msgid "Press to jog joint {0}"
 msgstr "Drücken um Gelenk {0} zu verfahren"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1327
-#, fuzzy
-#| msgid "**** GMOCCAPY INFO ****\n"
 msgid "GMOCCAPY INFO\n"
-msgstr "**** GMOCCAPY INFO ****\n"
+msgstr "GMOCCAPY INFO\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1328
-#, fuzzy
-#| msgid "**** found more than 16 macros, will use only the first 16 ****"
 msgid "found more than 16 macros, will use only the first 16"
 msgstr ""
-"**** Mehr als 16 Makros sind nicht erlaubt, nur die ersten 16 werden "
-"berücksichtigt ****"
+"Mehr als 16 Makros sind nicht erlaubt, nur die ersten 16 werden "
+"berücksichtigt"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1339
 msgid "Press to display previous macro button"
@@ -221,10 +213,8 @@ msgid "Press to display the virtual keyboard"
 msgstr "Bildschirmtastatur anzeigen"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1488
-#, fuzzy
-#| msgid "**** GMOCCAPY ERROR ****"
 msgid "* GMOCCAPY ERROR *"
-msgstr "**** GMOCCAPY FEHLER ****"
+msgstr "GMOCCAPY FEHLER"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1489
 msgid "this is not a lathe, as a lathe must have at least\n"
@@ -270,6 +260,8 @@ msgstr "Zoll/min"
 msgid ""
 "No embedded tabs configured or invalid configuration. No tabs will be added!"
 msgstr ""
+"Keine eingebetteten Tabs konfiguriert oder ungültige Konfiguration. Es "
+"werden keine Tabs hinzugefügt!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1849
 msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
@@ -278,29 +270,25 @@ msgstr ""
 "Bitte auf mögliche Tippfehler kontrollieren"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1955
-#, fuzzy
-#| msgid "**** Did not find a toolfile file in [EMCIO] TOOL_TABLE ****"
 msgid "Did not find a toolfile file in [EMCIO] TOOL_TABLE"
 msgstr ""
-"**** Keine Datei zur Werkzeugverwaltung in der INI Datei [EMCIO] TOOL_TABLE "
-"angegeben ****"
+"Keine Datei zur Werkzeugverwaltung in der INI-Datei unter [EMCIO] TOOL_TABLE "
+"angegeben"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2039
-#, fuzzy
-#| msgid "**** audio available! ****"
 msgid "audio available!"
-msgstr "**** Audio Meldungen verfügbar ****"
+msgstr "Audio verfügbar!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2051
 msgid ""
 "No audio available! PYGST library not installed? Is python-gstX.XX installed?"
 msgstr ""
+"Kein Audio verfügbar! PYGST-Bibliothek nicht installiert? Ist python-gstX.XX "
+"installiert?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2059
-#, fuzzy
-#| msgid "**** Entering init gremlin ****"
 msgid "Entering init gremlin"
-msgstr "**** Gremlin Einrichtung gestartet ****"
+msgstr "Gremlin Init gestartet"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2079
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5313
@@ -312,31 +300,24 @@ msgstr ""
 "Modus"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2123
-#, fuzzy
-#| msgid "**** virtual keyboard program found : <onboard>"
 msgid "Virtual keyboard program found : <onboard>"
-msgstr "**** Virtuelle Tastatur gefunden : <onboard>"
+msgstr "Virtuelle Tastatur gefunden : <onboard>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2125
-#, fuzzy
-#| msgid "**** No virtual keyboard installed, we checked for <onboard> ."
 msgid ""
 "No virtual keyboard installed, we checked for <onboard>. Try 'sudo apt-get "
 "install onboard'."
 msgstr ""
-"**** Keine virtuelle Tastatur installiert, geprüft wurde nach <onboard>."
+"Keine virtuelle Tastatur installiert, unüberprüft auf <onboard>. Versuche "
+"'sudo apt-get install onboard'."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2138
-#, fuzzy
-#| msgid ""
-#| "Error with launching 'Onboard' on-screen keyboard program, is onboard "
-#| "installed?"
 msgid ""
 "Error with launching virtual keyboard. Is onboard installed?Try sudo apt-get "
 "install onboard"
 msgstr ""
-"Fehler beim Aktivieren der virtuellen Bildschirmtastatur, ist das Paket "
-"\"Onboard\" installiert? "
+"Fehler beim starten der virtuellen Bildschirmtastatur. Ist das Paket "
+"\"onboard\" installiert? Versuche 'sudo apt-get install onboard'"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2171
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3046
@@ -344,11 +325,8 @@ msgid "interrupt running macro"
 msgstr "Makro unterbrechen"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2201
-#, fuzzy
-#| msgid "**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****"
 msgid "Did not find a parameter file in [RS274NGC] PARAMETER_FILE"
-msgstr ""
-"**** Keine Parameter Datei unter [RS274NGC] PARAMETER_FILE gefunden ****"
+msgstr "Keine Parameter-Datei unter [RS274NGC] PARAMETER_FILE gefunden"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2271
 msgid "Select the file you want to be loaded at program start"
@@ -356,10 +334,9 @@ msgstr "Bitte die Datei auswählen, die zum Start geladen werden soll"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2305
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2329
-#, fuzzy, python-brace-format
-#| msgid "**** GMOCCAPY ERROR **** /n Message type {0} not supported"
+#, python-brace-format
 msgid "Message type {0} not supported"
-msgstr "**** GMOCCAPY FEHLER **** /n Meldungstyp {0} wird nicht unterstützt"
+msgstr "Meldungstyp {0} wird nicht unterstützt"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2448
 msgid "Unknown error type and no error text given"
@@ -419,13 +396,12 @@ msgstr "Moduswechsel ist nur bei inaktivem Interpreter möglich!"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3377
 #, python-brace-format
 msgid "{0}"
-msgstr ""
+msgstr "{0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3386
-#, fuzzy, python-brace-format
-#| msgid "**** No widget named: {0} to sensitize ****"
+#, python-brace-format
 msgid "No widget named: {0} to sensitize"
-msgstr "**** Keine Widget mit Namen {0} zum Aktivieren ****"
+msgstr "Keine Widget mit Namen {0} zum Aktivieren"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3552
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
@@ -816,36 +792,23 @@ msgid "_Jump to"
 msgstr "_Gehe zu"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:104
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "**** gmoccapy can only handle 9 axis, ****\n"
-#| "**** but you have given {0} through your INI file ****\n"
+#, python-brace-format
 msgid ""
 "**** gmoccapy can only handle 9 axis, but you have given {0} through your "
 "INI file. "
 msgstr ""
-"**** gmoccapy kann nur 9 Achsen verwalten, ****\n"
-"**** es wurden aber {0} in der INI Datei gefunden. ****\n"
+"**** gmoccapy kann nur 9 Achsen verwalten, es wurden aber {0} in der INI-"
+"Datei angegeben. "
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:105
-#, fuzzy
-#| msgid ""
-#| "**** gmoccapy will not start ****\n"
-#| "\n"
 msgid "gmoccapy will not start ****\n"
-msgstr ""
-"**** gmoccapy wird nicht starten ****\n"
-"\n"
+msgstr "gmoccapy wird nicht starten ****\n"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:429
-#, fuzzy
-#| msgid ""
-#| "**** No subroutine folder or program prefix is given in the INI file "
-#| "**** \n"
 msgid "No subroutine folder or program prefix is given in the INI file!"
 msgstr ""
-"**** Kein Eintrag für Subroutine-Ordner oder Programm-Prefix in der INI-"
-"Datei gefunden ****\n"
+"Kein Eintrag für Subroutine-Ordner oder Programm-Prefix in der INI-Datei "
+"angegeben!"
 
 #: src/emc/usr_intf/gmoccapy/notification.py:225
 #, python-brace-format
