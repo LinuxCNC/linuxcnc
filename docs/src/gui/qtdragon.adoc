@@ -840,7 +840,7 @@ All values are in machine native units.
 
 [source,{ini}]
 ----
-[TOOLSENSOR]
+[VERSA_TOOLSETTER]
 X = 10
 Y = 10
 Z = -20
