@@ -144,7 +144,7 @@ class GetIniInfo:
                 # OK we have a special case here, we need to take care off
                 # i.e. a Gantry XYYZ config
                 double_axis_letter.append(axisletter)
-                LOG.debug("Found double letter ", double_axis_letter)
+                LOG.debug("Found double letter {0}".format(double_axis_letter))
 
         if self.get_joints() == len(coordinates):
             prev_double_axis_leter = ""

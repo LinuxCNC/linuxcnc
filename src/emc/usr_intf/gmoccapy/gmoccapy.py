@@ -246,7 +246,7 @@ class gmoccapy(object):
         self.user_mode = False
         self.logofile = None
         for index, arg in enumerate(argv):
-            LOG.debug(index, " = ", arg)
+            LOG.debug("{0} = {1}".format(index, arg))
             if arg == "-user_mode":
                 self.user_mode = True
                 self.widgets.tbtn_setup.set_sensitive(False)
@@ -509,7 +509,7 @@ class gmoccapy(object):
                 exec(compile(open(rcfile, "rb").read(), rcfile, 'exec'))
             except:
                 tb = traceback.format_exc()
-                LOG.error(tb, file=sys.stderr)
+                LOG.error(tb)
                 self.notification.add_message(_("Error in ") + rcfile + "\n" \
                     + _("Please check the console output."), ALERT_ICON)
 
@@ -530,7 +530,7 @@ class gmoccapy(object):
                 style_context.add_provider_for_screen(screen, provider_custom, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
             except:
                 tb = traceback.format_exc()
-                LOG.error(tb, file=sys.stderr)
+                LOG.error(tb)
                 self.notification.add_message(_("Error in ") + css_file + "\n" \
                     + _("Please check the console output."), ALERT_ICON)
 
@@ -1836,7 +1836,7 @@ class gmoccapy(object):
             for t, c, name in zip(tab_names, tab_cmd, tab_locations):
                 nb = self.widgets[name]
                 if c == "hide":
-                    LOG.debug("hide widget : ", name, type(self.widgets[name]))
+                    LOG.debug("hide widget: {0}, type: {1}".format(name, type(self.widgets[name])))
                     nb.hide()
                     continue
                 xid = self._dynamic_tab(nb, t)
@@ -2549,7 +2549,7 @@ class gmoccapy(object):
             self.command.mode(linuxcnc.MODE_MANUAL)
 
     def on_hal_status_not_all_homed(self, widget, joints):
-        LOG.debug("Hal Status not all homed", joints)
+        LOG.debug("Hal Status not all homed {0}".format(joints))
         self.all_homed = False
         if self.no_force_homing:
             return
@@ -2768,7 +2768,7 @@ class gmoccapy(object):
         self.last_key_event = None, 0
 
     def on_hal_status_mode_mdi(self, widget):
-        LOG.debug("MDI Mode", self.tool_change)
+        LOG.debug("MDI Mode {0}".format(self.tool_change))
 
         # if the edit offsets button is active, we do not want to change
         # pages, as the user may want to edit several axis values
@@ -3057,7 +3057,7 @@ class gmoccapy(object):
 
     def _switch_to_g7(self, state):
         # we do this only if we have a lathe, the check for lathe is done in gmoccapy
-        LOG.debug("switch to G7:", state)
+        LOG.debug("Switch to G7: {0}".format(state))
         if state:
             self.dro_dic["Combi_DRO_0"].set_property("abs_color", self._get_RGBA_color("#F2F1F0"))
             self.dro_dic["Combi_DRO_0"].set_property("rel_color", self._get_RGBA_color("#F2F1F0"))
@@ -3309,7 +3309,7 @@ class gmoccapy(object):
                 self._jog_increment_changed(self.incr_rbt_dic["rbt_{0}".format(rbt)])
         else:
             LOG.info("This key has not been implemented yet")
-            LOG.info("Key {0} ({1:d}) was pressed".format(keyname, event.keyval), signal, self.last_key_event)
+            LOG.info("Key {0} ({1:d}) was pressed {2} {3}".format(keyname, event.keyval, signal, self.last_key_event))
         self.last_key_event = keyname, signal
         return True
 
@@ -3497,7 +3497,7 @@ class gmoccapy(object):
 
     def _change_dro_color(self, property, color):
         LOG.debug(property)
-        LOG.debug(color.red, color.green, color.blue, color.alpha)
+        LOG.debug("RGBA: {0} {1} {2} {3}".format(color.red, color.green, color.blue, color.alpha))
         for dro in self.dro_dic:
             self.dro_dic[dro].set_property(property, color)
 
@@ -3561,7 +3561,7 @@ class gmoccapy(object):
             self.command.wait_complete()
 
     def _set_enable_tooltips(self, value):
-        LOG.debug("_set_enable_tooltips = ", value)
+        LOG.debug("_set_enable_tooltips = {0}".format(value))
         # this will hide the tooltips from the glade file widgets,
         # but not from the ones we created dynamically
         for widget in self.widgets_with_tooltips:
@@ -3871,7 +3871,7 @@ class gmoccapy(object):
 
     def _on_btn_home_clicked(self, widget):
         # home axis or joint?
-        LOG.debug("on button home clicked = ", widget.get_property("name"))
+        LOG.debug("on button home clicked = {0}".format(widget.get_property("name")))
         if "axis" in widget.get_property("name"):
             value = widget.get_property("name")[-1]
             # now get the joint from directory by the value
@@ -4066,7 +4066,7 @@ class gmoccapy(object):
         elif command == "reverse":
             self.command.spindle(-1, rpm_out)
         else:
-            LOG.debug(_("Something went wrong, we have an unknown spindle widget {0}").format(command))
+            LOG.debug("Something went wrong, we have an unknown spindle widget {0}".format(command))
 
     def _check_spindle_range(self):
         rpm = (self.stat.settings[2])
@@ -4316,7 +4316,7 @@ class gmoccapy(object):
         else:
             axis = data
 
-        LOG.debug("touch button clicked ",axis.upper())
+        LOG.debug("touch button clicked {0}".format(axis.upper()))
 
         if self.lathe_mode and axis =="x":
             if self.diameter_mode:
@@ -4872,7 +4872,7 @@ class gmoccapy(object):
             if result:
                 self.halcomp["toolchange-changed"] = True
             else:
-                LOG.debug("toolchange abort", self.stat.tool_in_spindle, self.halcomp['toolchange-number'])
+                LOG.debug("toolchange abort {0} {1}".format(self.stat.tool_in_spindle, self.halcomp['toolchange-number']))
                 self.command.abort()
                 self.halcomp['toolchange-number'] = self.stat.tool_in_spindle
                 self.halcomp['toolchange-change'] = False
@@ -5446,7 +5446,7 @@ class gmoccapy(object):
         self.widgets.tbtn_setup.set_sensitive(pin.get())
 
     def _on_play_sound(self, widget, sound = None):
-        LOG.debug(self,widget,sound)
+        LOG.debug("_on_play_sound {0} {1} {2}".format(self,widget,sound))
         if _AUDIO_AVAILABLE and sound:
             if sound == "error":
                 self.audio.set_sound(self.error_sound)
