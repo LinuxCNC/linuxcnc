@@ -63,9 +63,9 @@ class Notification(Gtk.Window):
            'use_frames' : (GObject.TYPE_BOOLEAN, 'Use Frames for messages', 'You can separate the messages using frames, but you will need more space',
                     True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
             'icon_theme_path' : (GObject.TYPE_STRING, 'Icon theme lookup path', 'Pathes where to look for icon themes',
-                      "sans 10", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+                      "", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
             'icon_theme_name' : (GObject.TYPE_STRING, 'Icon theme name', 'Name set in gmoccapy preferences',
-                      "sans 10", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+                      "classic", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
                       }
     __gproperties = __gproperties__
 
@@ -76,8 +76,6 @@ class Notification(Gtk.Window):
 
     # build the main gui
     def __init__(self):
-        Gtk.Window.__init__(self)
-        self.connect('destroy', lambda*w:Gtk.main_quit())
         self.messages = []
         self.popup = Gtk.Window(type = Gtk.WindowType.POPUP)
         self.vbox = Gtk.VBox()
@@ -92,6 +90,13 @@ class Notification(Gtk.Window):
         self.use_frames = False
         self.height = 0
         self.icon_theme = Gtk.IconTheme()
+
+        # Gtk.Window.__init__() sets all __gproperties__ to their default values.
+        # Therefore it calls do_set_property()
+        # So the Gtk.IconTheme has to ne defined before. The initialization of the
+        # primitive data types above are meaningless (and can be removed?).
+        super().__init__()
+        self.connect('destroy', lambda*w:Gtk.main_quit())
 
     # this will fill the main gui with the frames, containing the messages or errors
     def _show_message(self, message):
@@ -273,6 +278,7 @@ class Notification(Gtk.Window):
         try:
             name = property.name.replace('-', '_')
             if name in list(self.__gproperties.keys()):
+                # print("Set property", property, "to", value)
                 setattr(self, name, value)
                 self.queue_draw()
                 if name == 'icon_size':
@@ -297,8 +303,9 @@ class Notification(Gtk.Window):
                     self.icon_theme.set_custom_theme(value)
             else:
                 raise AttributeError('unknown notification set_property %s' % property.name)
-        except:
-            print('Attribute error', property, "and", type(value) , value)
+        except AttributeError as e:
+            print('Attribute error in property:', property, "type:", type(value) , "value:", value)
+            print("{0} exception occurred {1}".format(type(e).__name__, e.args))
             pass
 
 # for testing without glade editor:
