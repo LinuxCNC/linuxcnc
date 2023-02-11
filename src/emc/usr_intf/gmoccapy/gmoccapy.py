@@ -2036,7 +2036,7 @@ class gmoccapy(object):
     def _init_audio(self):
         # try to add ability for audio feedback to user.
         if _AUDIO_AVAILABLE:
-            LOG.debug(_("audio available!"))
+            LOG.info(_("Audio available!"))
 
             # the sounds to play if an error or message rises
             self.alert_sound = "/usr/share/sounds/freedesktop/stereo/dialog-warning.oga"
@@ -2056,7 +2056,7 @@ class gmoccapy(object):
 
     # init the preview
     def _init_gremlin( self ):
-        LOG.debug(_("Entering init gremlin"))
+        LOG.debug("Entering init gremlin")
 
         grid_size = self.prefs.getpref( 'grid_size', 1.0, float )
         self.widgets.grid_size.set_value( grid_size )
@@ -3011,7 +3011,7 @@ class gmoccapy(object):
             parameter = self.dialogs.entry_dialog(self, data=None, header=_("Enter value:"),
                                                   label=_("Set parameter {0} to:").format(code), integer=False)
             if parameter == "ERROR":
-                LOG.debug(_("conversion error"))
+                LOG.debug("conversion error")
                 self.dialogs.warning_dialog(self, _("Conversion error !"),
                                             ("Please enter only numerical values\nValues have not been applied"))
                 return
@@ -3376,7 +3376,7 @@ class gmoccapy(object):
             try:
                 self.widgets[name].set_sensitive(value)
             except Exception as e:
-                LOG.debug(_("No widget named: {0} to sensitize").format(name))
+                LOG.debug("No widget named {0} to sensitize".format(name))
                 traceback.print_exc()
 
     def _update_active_gcodes(self):
@@ -4334,7 +4334,7 @@ class gmoccapy(object):
         if offset == "CANCEL":
             return
         elif offset == "ERROR":
-            LOG.debug(_("Conversion error in btn_set_value"))
+            LOG.debug("Conversion error in btn_set_value")
             self.dialogs.warning_dialog(self, _("Conversion error in btn_set_value!"),
                                    _("Please enter only numerical values. Values have not been applied"))
         else:
@@ -5530,32 +5530,32 @@ class gmoccapy(object):
         elif "v-button" in pin.name:
             location = "right"
         else:
-            LOG.debug(_("Received a not classified signal from pin {0}".format(pin.name)))
+            LOG.debug("Received a not classified signal from pin {0}".format(pin.name))
             return
 
         number = int(pin.name[-1])
         if number is not number:
-            LOG.debug(_("Could not translate {0} to number".format(pin.name)))
+            LOG.debug("Could not translate {0} to number".format(pin.name))
             return
 
         button = self._get_child_button(location, number)
         if not button:
-            LOG.debug(_("no button here"))
+            LOG.debug("no button here")
             return
         elif button == -1:
-            LOG.debug(_("the button is not sensitive"))
+            LOG.debug("the button is not sensitive")
             return
 
         if type(button[0]) == Gtk.ToggleButton:
             button[0].set_active(not button[0].get_active())
-            LOG.debug(_("Button {0} has been toggled".format(button[1])))
+            LOG.debug("Button {0} has been toggled".format(button[1]))
         elif type(button[0]) == Gtk.RadioButton:
             button[0].set_active(True)
             button[0].emit("pressed")
-            LOG.debug(_("Button {0} has been pressed".format(button[1])))
+            LOG.debug("Button {0} has been pressed".format(button[1]))
         else:
             button[0].emit("clicked")
-            LOG.debug(_("Button {0} has been clicked".format(button[1])))
+            LOG.debug("Button {0} has been clicked".format(button[1]))
 
     # this handles the relation between hardware button and the software button
     def _get_child_button(self, location, number = None):
@@ -5568,7 +5568,7 @@ class gmoccapy(object):
         elif location == "right":
             container = self.widgets.vbtb_main
         else:
-            LOG.debug(_("got wrong location to locate the childs"))
+            LOG.debug("got wrong location to locate the childs")
 
         children = container.get_children()
         hidden = 0
