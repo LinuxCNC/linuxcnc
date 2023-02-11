@@ -8,6 +8,10 @@ import hal
 import signal
 import subprocess
 
+# workaround for transparent preview on Wayland
+# can be removed when opengl code is changed to run on both X and Wayland
+os.environ['QT_QPA_PLATFORM'] = 'xcb'
+
 from optparse import Option, OptionParser
 from PyQt5 import QtWidgets, QtCore, QtGui
 
