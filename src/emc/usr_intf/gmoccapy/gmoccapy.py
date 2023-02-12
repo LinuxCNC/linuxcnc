@@ -246,7 +246,7 @@ class gmoccapy(object):
         self.user_mode = False
         self.logofile = None
         for index, arg in enumerate(argv):
-            LOG.debug(index, " = ", arg)
+            LOG.debug("{0} = {1}".format(index, arg))
             if arg == "-user_mode":
                 self.user_mode = True
                 self.widgets.tbtn_setup.set_sensitive(False)
@@ -509,7 +509,7 @@ class gmoccapy(object):
                 exec(compile(open(rcfile, "rb").read(), rcfile, 'exec'))
             except:
                 tb = traceback.format_exc()
-                LOG.error(tb, file=sys.stderr)
+                LOG.error(tb)
                 self.notification.add_message(_("Error in ") + rcfile + "\n" \
                     + _("Please check the console output."), ALERT_ICON)
 
@@ -530,7 +530,7 @@ class gmoccapy(object):
                 style_context.add_provider_for_screen(screen, provider_custom, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
             except:
                 tb = traceback.format_exc()
-                LOG.error(tb, file=sys.stderr)
+                LOG.error(tb)
                 self.notification.add_message(_("Error in ") + css_file + "\n" \
                     + _("Please check the console output."), ALERT_ICON)
 
@@ -1836,7 +1836,7 @@ class gmoccapy(object):
             for t, c, name in zip(tab_names, tab_cmd, tab_locations):
                 nb = self.widgets[name]
                 if c == "hide":
-                    LOG.debug("hide widget : ", name, type(self.widgets[name]))
+                    LOG.debug("hide widget: {0}, type: {1}".format(name, type(self.widgets[name])))
                     nb.hide()
                     continue
                 xid = self._dynamic_tab(nb, t)
@@ -2036,7 +2036,7 @@ class gmoccapy(object):
     def _init_audio(self):
         # try to add ability for audio feedback to user.
         if _AUDIO_AVAILABLE:
-            LOG.debug(_("audio available!"))
+            LOG.info(_("Audio available!"))
 
             # the sounds to play if an error or message rises
             self.alert_sound = "/usr/share/sounds/freedesktop/stereo/dialog-warning.oga"
@@ -2056,7 +2056,7 @@ class gmoccapy(object):
 
     # init the preview
     def _init_gremlin( self ):
-        LOG.debug(_("Entering init gremlin"))
+        LOG.debug("Entering init gremlin")
 
         grid_size = self.prefs.getpref( 'grid_size', 1.0, float )
         self.widgets.grid_size.set_value( grid_size )
@@ -2549,7 +2549,7 @@ class gmoccapy(object):
             self.command.mode(linuxcnc.MODE_MANUAL)
 
     def on_hal_status_not_all_homed(self, widget, joints):
-        LOG.debug("Hal Status not all homed", joints)
+        LOG.debug("Hal Status not all homed {0}".format(joints))
         self.all_homed = False
         if self.no_force_homing:
             return
@@ -2768,7 +2768,7 @@ class gmoccapy(object):
         self.last_key_event = None, 0
 
     def on_hal_status_mode_mdi(self, widget):
-        LOG.debug("MDI Mode", self.tool_change)
+        LOG.debug("MDI Mode {0}".format(self.tool_change))
 
         # if the edit offsets button is active, we do not want to change
         # pages, as the user may want to edit several axis values
@@ -3011,7 +3011,7 @@ class gmoccapy(object):
             parameter = self.dialogs.entry_dialog(self, data=None, header=_("Enter value:"),
                                                   label=_("Set parameter {0} to:").format(code), integer=False)
             if parameter == "ERROR":
-                LOG.debug(_("conversion error"))
+                LOG.debug("conversion error")
                 self.dialogs.warning_dialog(self, _("Conversion error !"),
                                             ("Please enter only numerical values\nValues have not been applied"))
                 return
@@ -3057,7 +3057,7 @@ class gmoccapy(object):
 
     def _switch_to_g7(self, state):
         # we do this only if we have a lathe, the check for lathe is done in gmoccapy
-        LOG.debug("switch to G7:", state)
+        LOG.debug("Switch to G7: {0}".format(state))
         if state:
             self.dro_dic["Combi_DRO_0"].set_property("abs_color", self._get_RGBA_color("#F2F1F0"))
             self.dro_dic["Combi_DRO_0"].set_property("rel_color", self._get_RGBA_color("#F2F1F0"))
@@ -3316,7 +3316,7 @@ class gmoccapy(object):
                 self._jog_increment_changed(self.incr_rbt_dic["rbt_{0}".format(rbt)])
         else:
             LOG.info("This key has not been implemented yet")
-            LOG.info("Key {0} ({1:d}) was pressed".format(keyname, event.keyval), signal, self.last_key_event)
+            LOG.info("Key {0} ({1:d}) was pressed {2} {3}".format(keyname, event.keyval, signal, self.last_key_event))
         self.last_key_event = keyname, signal
         return True
 
@@ -3383,7 +3383,7 @@ class gmoccapy(object):
             try:
                 self.widgets[name].set_sensitive(value)
             except Exception as e:
-                LOG.debug(_("No widget named: {0} to sensitize").format(name))
+                LOG.debug("No widget named {0} to sensitize".format(name))
                 traceback.print_exc()
 
     def _update_active_gcodes(self):
@@ -3504,7 +3504,7 @@ class gmoccapy(object):
 
     def _change_dro_color(self, property, color):
         LOG.debug(property)
-        LOG.debug(color.red, color.green, color.blue, color.alpha)
+        LOG.debug("RGBA: {0} {1} {2} {3}".format(color.red, color.green, color.blue, color.alpha))
         for dro in self.dro_dic:
             self.dro_dic[dro].set_property(property, color)
 
@@ -3568,7 +3568,7 @@ class gmoccapy(object):
             self.command.wait_complete()
 
     def _set_enable_tooltips(self, value):
-        LOG.debug("_set_enable_tooltips = ", value)
+        LOG.debug("_set_enable_tooltips = {0}".format(value))
         # this will hide the tooltips from the glade file widgets,
         # but not from the ones we created dynamically
         for widget in self.widgets_with_tooltips:
@@ -3878,7 +3878,7 @@ class gmoccapy(object):
 
     def _on_btn_home_clicked(self, widget):
         # home axis or joint?
-        LOG.debug("on button home clicked = ", widget.get_property("name"))
+        LOG.debug("on button home clicked = {0}".format(widget.get_property("name")))
         if "axis" in widget.get_property("name"):
             value = widget.get_property("name")[-1]
             # now get the joint from directory by the value
@@ -4073,7 +4073,7 @@ class gmoccapy(object):
         elif command == "reverse":
             self.command.spindle(-1, rpm_out)
         else:
-            LOG.debug(_("Something went wrong, we have an unknown spindle widget {0}").format(command))
+            LOG.debug("Something went wrong, we have an unknown spindle widget {0}".format(command))
 
     def _check_spindle_range(self):
         rpm = (self.stat.settings[2])
@@ -4323,7 +4323,7 @@ class gmoccapy(object):
         else:
             axis = data
 
-        LOG.debug("touch button clicked ",axis.upper())
+        LOG.debug("touch button clicked {0}".format(axis.upper()))
 
         if self.lathe_mode and axis =="x":
             if self.diameter_mode:
@@ -4341,7 +4341,7 @@ class gmoccapy(object):
         if offset == "CANCEL":
             return
         elif offset == "ERROR":
-            LOG.debug(_("Conversion error in btn_set_value"))
+            LOG.debug("Conversion error in btn_set_value")
             self.dialogs.warning_dialog(self, _("Conversion error in btn_set_value!"),
                                    _("Please enter only numerical values. Values have not been applied"))
         else:
@@ -4879,7 +4879,7 @@ class gmoccapy(object):
             if result:
                 self.halcomp["toolchange-changed"] = True
             else:
-                LOG.debug("toolchange abort", self.stat.tool_in_spindle, self.halcomp['toolchange-number'])
+                LOG.debug("toolchange abort {0} {1}".format(self.stat.tool_in_spindle, self.halcomp['toolchange-number']))
                 self.command.abort()
                 self.halcomp['toolchange-number'] = self.stat.tool_in_spindle
                 self.halcomp['toolchange-change'] = False
@@ -5453,7 +5453,7 @@ class gmoccapy(object):
         self.widgets.tbtn_setup.set_sensitive(pin.get())
 
     def _on_play_sound(self, widget, sound = None):
-        LOG.debug(self,widget,sound)
+        LOG.debug("_on_play_sound {0} {1} {2}".format(self,widget,sound))
         if _AUDIO_AVAILABLE and sound:
             if sound == "error":
                 self.audio.set_sound(self.error_sound)
@@ -5537,32 +5537,32 @@ class gmoccapy(object):
         elif "v-button" in pin.name:
             location = "right"
         else:
-            LOG.debug(_("Received a not classified signal from pin {0}".format(pin.name)))
+            LOG.debug("Received a not classified signal from pin {0}".format(pin.name))
             return
 
         number = int(pin.name[-1])
         if number is not number:
-            LOG.debug(_("Could not translate {0} to number".format(pin.name)))
+            LOG.debug("Could not translate {0} to number".format(pin.name))
             return
 
         button = self._get_child_button(location, number)
         if not button:
-            LOG.debug(_("no button here"))
+            LOG.debug("no button here")
             return
         elif button == -1:
-            LOG.debug(_("the button is not sensitive"))
+            LOG.debug("the button is not sensitive")
             return
 
         if type(button[0]) == Gtk.ToggleButton:
             button[0].set_active(not button[0].get_active())
-            LOG.debug(_("Button {0} has been toggled".format(button[1])))
+            LOG.debug("Button {0} has been toggled".format(button[1]))
         elif type(button[0]) == Gtk.RadioButton:
             button[0].set_active(True)
             button[0].emit("pressed")
-            LOG.debug(_("Button {0} has been pressed".format(button[1])))
+            LOG.debug("Button {0} has been pressed".format(button[1]))
         else:
             button[0].emit("clicked")
-            LOG.debug(_("Button {0} has been clicked".format(button[1])))
+            LOG.debug("Button {0} has been clicked".format(button[1]))
 
     # this handles the relation between hardware button and the software button
     def _get_child_button(self, location, number = None):
@@ -5575,7 +5575,7 @@ class gmoccapy(object):
         elif location == "right":
             container = self.widgets.vbtb_main
         else:
-            LOG.debug(_("got wrong location to locate the childs"))
+            LOG.debug("got wrong location to locate the childs")
 
         children = container.get_children()
         hidden = 0
