@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-01-26 22:23+0100\n"
-"PO-Revision-Date: 2023-01-28 01:11+0000\n"
+"PO-Revision-Date: 2023-02-11 14:37+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -3956,17 +3956,15 @@ msgstr "Ahora seleccione la transición."
 
 #: src/hal/classicladder/edit_sequential.c:844
 msgid "Now select the step that will be deactivated by this transition."
-msgstr ""
+msgstr "Ahora seleccione el paso que será desactivado por esta transición."
 
 #: src/hal/classicladder/edit_sequential.c:844
 msgid "Now select the step that will be activated by this transition."
-msgstr ""
+msgstr "Ahora seleccione el paso que será activado por esta transición."
 
 #: src/hal/classicladder/edit_sequential.c:846
-#, fuzzy
 msgid "You haven't selected a step or a transition to link!!!"
-msgstr ""
-"¡¡¡No se seleccionaron las primeras y últimas transiciones para unirse !! ??"
+msgstr "¡¡¡No has seleccionado un paso o una transición para enlazar!!!"
 
 #: src/hal/classicladder/edit_sequential.c:850
 #, c-format
@@ -3975,7 +3973,7 @@ msgstr "nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:856
 msgid "You haven't selected a transition and then the step to link!!!"
-msgstr ""
+msgstr "¡¡¡No ha seleccionado una transición y luego el paso para vincular!!!"
 
 #: src/hal/classicladder/edit_sequential.c:891
 msgid "Sequential memory full for comments"
@@ -4013,9 +4011,8 @@ msgid "Error blank symbol name"
 msgstr "Error Nombre del símbolo en blanco"
 
 #: src/hal/classicladder/emc_mods.c:64
-#, fuzzy
 msgid "Error unknown symbol name"
-msgstr "Error Nombre del símbolo en blanco"
+msgstr "Error nombre de símbolo desconocido"
 
 #: src/hal/classicladder/emc_mods.c:75 src/hal/classicladder/emc_mods.c:81
 #: src/hal/classicladder/emc_mods.c:89 src/hal/classicladder/emc_mods.c:97
@@ -4207,9 +4204,8 @@ msgid "Ladder"
 msgstr "Escalera"
 
 #: src/hal/classicladder/manager_gtk.c:183
-#, fuzzy
 msgid "This section name already exists or is incorrect !!!"
-msgstr "¡Este nombre de sección ya existe o es incorrecto!"
+msgstr "¡¡¡Este nombre de sección ya existe o es incorrecto !!!"
 
 #: src/hal/classicladder/manager_gtk.c:212
 msgid "This sub-routine number for calls is already defined !!!"
@@ -4222,17 +4218,15 @@ msgstr "Error al agregar una nueva sección. ¿Lleno?"
 #: src/hal/classicladder/manager_gtk.c:236
 #: src/hal/classicladder/manager_gtk.c:306
 msgid "Not possible when program running..."
-msgstr ""
+msgstr "No es posible cuando el programa se ejecuta..."
 
 #: src/hal/classicladder/manager_gtk.c:247
-#, fuzzy
 msgid "Add a new section..."
-msgstr "Agregar una sección..."
+msgstr "Añadir una nueva sección..."
 
 #: src/hal/classicladder/manager_gtk.c:278
-#, fuzzy
 msgid "Modify current section"
-msgstr "en el subfile actual"
+msgstr "Modificar sección actual"
 
 #: src/hal/classicladder/manager_gtk.c:315
 msgid "Do you really want to delete the section ?"
@@ -4247,9 +4241,8 @@ msgid "This section is already executed the first !"
 msgstr "¡Esta sección ya se ejecutó la primera!"
 
 #: src/hal/classicladder/manager_gtk.c:349
-#, fuzzy
 msgid "This section is already executed the latest !"
-msgstr "¡Esta sección ya se ejecutó la primera!"
+msgstr "¡Esta sección ya se ejecutó la última!"
 
 #: src/hal/classicladder/manager_gtk.c:421
 msgid "Language"
@@ -11686,6 +11679,7 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
 msgid ""
 "_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
