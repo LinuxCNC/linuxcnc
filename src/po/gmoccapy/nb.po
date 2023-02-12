@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-11 19:57+0100\n"
+"POT-Creation-Date: 2023-02-12 11:32+0100\n"
 "PO-Revision-Date: 2023-01-26 21:48+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
@@ -94,8 +94,6 @@ msgstr "Trykk for å gå tilbake til hovedknappelisten"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:826
 #, fuzzy, python-brace-format
-#| msgid ""
-#| "**** could not resolv the image path '{0}' given for button '{1}' ****"
 msgid "could not resolv the image path '{0}' given for button '{1}'"
 msgstr "**** klarte ikke forstå bildestien '{0}' oppgitt for knapp '{1}' ****"
 
@@ -154,7 +152,6 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1129
 #, fuzzy
-#| msgid "**** Only the first 10 will be reachable through this screen ****"
 msgid ""
 "To many increments given in INI File for this screen. Only the first 10 will "
 "be reachable through this screen."
@@ -181,13 +178,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1327
 #, fuzzy
-#| msgid "**** GMOCCAPY INFO ****\n"
 msgid "GMOCCAPY INFO\n"
 msgstr "**** GMOCCAPY INFO ****\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1328
 #, fuzzy
-#| msgid "**** found more than 16 macros, will use only the first 16 ****"
 msgid "found more than 16 macros, will use only the first 16"
 msgstr "**** fant mer enn 16 makroer, vil kun bruke de 16 første ****"
 
@@ -210,7 +205,6 @@ msgstr "Trykk for å vise skjermtastaturet"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1488
 #, fuzzy
-#| msgid "**** GMOCCAPY ERROR ****"
 msgid "* GMOCCAPY ERROR *"
 msgstr "**** GMOCCAPY-FEIL ****"
 
@@ -266,23 +260,17 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1955
 #, fuzzy
-#| msgid "**** Did not find a toolfile file in [EMCIO] TOOL_TABLE ****"
 msgid "Did not find a toolfile file in [EMCIO] TOOL_TABLE"
 msgstr "**** Fant ikke en verktøyfil i [EMCIO] TOOL_TABLE ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2039
 #, fuzzy
-#| msgid "**** audio available! ****"
-msgid "audio available!"
+msgid "Audio available!"
 msgstr "**** lyd tilgjengelig. ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2051
 msgid ""
 "No audio available! PYGST library not installed? Is python-gstX.XX installed?"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2059
-msgid "Entering init gremlin"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2079
@@ -294,13 +282,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2123
 #, fuzzy
-#| msgid "**** virtual keyboard program found : <onboard>"
 msgid "Virtual keyboard program found : <onboard>"
 msgstr "**** fant virtuelt tastaturprogram : <onboard>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2125
 #, fuzzy
-#| msgid "**** No virtual keyboard installed, we checked for <onboard> ."
 msgid ""
 "No virtual keyboard installed, we checked for <onboard>. Try 'sudo apt-get "
 "install onboard'."
@@ -319,7 +305,6 @@ msgstr "bryt av kjørende makro"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2201
 #, fuzzy
-#| msgid "**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****"
 msgid "Did not find a parameter file in [RS274NGC] PARAMETER_FILE"
 msgstr "**** Fant ikke parameterfil i [RS274NGC] PARAMETER_FILE ****"
 
@@ -330,7 +315,6 @@ msgstr "Velg filen du ønsker å laste ved oppstart av program"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2305
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2329
 #, fuzzy, python-brace-format
-#| msgid "**** GMOCCAPY ERROR **** /n Message type {0} not supported"
 msgid "Message type {0} not supported"
 msgstr "**** GMOCCAPY-FEIL **** /n Ikke støtte for meldingstype {0}"
 
@@ -371,10 +355,6 @@ msgstr ""
 msgid "Set parameter {0} to:"
 msgstr "Sett parameter {0} til:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3014
-msgid "conversion error"
-msgstr "konverteringsfeil"
-
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3015
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4952
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4975
@@ -392,11 +372,6 @@ msgstr "Modusendring er kun tillat når kommandotolken ikke er aktiv!"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3377
 #, python-brace-format
 msgid "{0}"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3386
-#, python-brace-format
-msgid "No widget named: {0} to sensitize"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3552
@@ -428,11 +403,6 @@ msgstr "INFO:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3961
 msgid "Classicladder real-time component not detected"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4076
-#, python-brace-format
-msgid "Something went wrong, we have an unknown spindle widget {0}"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4189
@@ -486,10 +456,6 @@ msgstr "Skriv inn verdi for {0}-aksen"
 #, python-brace-format
 msgid "Set axis {0} to:"
 msgstr "Sett {0}-aksen til:"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4344
-msgid "Conversion error in btn_set_value"
-msgstr "Konverteringsfeil i btn_set-verdi"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4345
 msgid "Conversion error in btn_set_value!"
@@ -688,43 +654,6 @@ msgstr ""
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5540
-#, python-brace-format
-msgid "Received a not classified signal from pin {0}"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5545
-#, python-brace-format
-msgid "Could not translate {0} to number"
-msgstr "Kunne ikke oversette {0} til et nummer"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5550
-msgid "no button here"
-msgstr "ingen knapper her"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5553
-msgid "the button is not sensitive"
-msgstr "knappen er ikke sensitiv"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5558
-#, python-brace-format
-msgid "Button {0} has been toggled"
-msgstr "{0}-knappen har endret stilling"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5562
-#, python-brace-format
-msgid "Button {0} has been pressed"
-msgstr "{0}-knappen har blitt trykket"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5565
-#, python-brace-format
-msgid "Button {0} has been clicked"
-msgstr "{0}-knappen har blitt trykket på"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5578
-msgid "got wrong location to locate the childs"
-msgstr ""
-
 #: src/emc/usr_intf/gmoccapy/dialogs.py:47
 #: src/emc/usr_intf/gmoccapy/dialogs.py:50
 msgid "Enter System Unlock Code"
@@ -775,9 +704,6 @@ msgstr "Hopp ti_l"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:104
 #, fuzzy, python-brace-format
-#| msgid ""
-#| "**** gmoccapy can only handle 9 axis, ****\n"
-#| "**** but you have given {0} through your INI file ****\n"
 msgid ""
 "**** gmoccapy can only handle 9 axis, but you have given {0} through your "
 "INI file. "
@@ -787,9 +713,6 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:105
 #, fuzzy
-#| msgid ""
-#| "**** gmoccapy will not start ****\n"
-#| "\n"
 msgid "gmoccapy will not start ****\n"
 msgstr ""
 "**** gmoccapy kan ikke starte ****\n"
@@ -1786,6 +1709,34 @@ msgstr "Last inn fil"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:255
 msgid "home joints"
 msgstr ""
+
+#~ msgid "conversion error"
+#~ msgstr "konverteringsfeil"
+
+#~ msgid "Conversion error in btn_set_value"
+#~ msgstr "Konverteringsfeil i btn_set-verdi"
+
+#, python-brace-format
+#~ msgid "Could not translate {0} to number"
+#~ msgstr "Kunne ikke oversette {0} til et nummer"
+
+#~ msgid "no button here"
+#~ msgstr "ingen knapper her"
+
+#~ msgid "the button is not sensitive"
+#~ msgstr "knappen er ikke sensitiv"
+
+#, python-brace-format
+#~ msgid "Button {0} has been toggled"
+#~ msgstr "{0}-knappen har endret stilling"
+
+#, python-brace-format
+#~ msgid "Button {0} has been pressed"
+#~ msgstr "{0}-knappen har blitt trykket"
+
+#, python-brace-format
+#~ msgid "Button {0} has been clicked"
+#~ msgstr "{0}-knappen har blitt trykket på"
 
 #~ msgid "**** GMOCCAPY INI Entry ****"
 #~ msgstr "**** GMOCCAPY INI-oppføring ****"

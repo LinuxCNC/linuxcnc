@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
-"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
-"POT-Creation-Date: 2023-02-11 19:57+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-02-12 11:32+0100\n"
 "PO-Revision-Date: 2023-02-11 20:16+0000\n"
 "Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
@@ -276,7 +276,8 @@ msgstr ""
 "angegeben"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2039
-msgid "audio available!"
+#, fuzzy
+msgid "Audio available!"
 msgstr "Audio verfügbar!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2051
@@ -285,10 +286,6 @@ msgid ""
 msgstr ""
 "Kein Audio verfügbar! PYGST-Bibliothek nicht installiert? Ist python-gstX.XX "
 "installiert?"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2059
-msgid "Entering init gremlin"
-msgstr "Gremlin Init gestartet"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2079
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5313
@@ -375,10 +372,6 @@ msgstr "Wert eingeben:"
 msgid "Set parameter {0} to:"
 msgstr "Setze Parameter {0} zu:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3014
-msgid "conversion error"
-msgstr "Umwandlungsfehler"
-
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3015
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4952
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4975
@@ -397,11 +390,6 @@ msgstr "Moduswechsel ist nur bei inaktivem Interpreter möglich!"
 #, python-brace-format
 msgid "{0}"
 msgstr "{0}"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3386
-#, python-brace-format
-msgid "No widget named: {0} to sensitize"
-msgstr "Keine Widget mit Namen {0} zum Aktivieren"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3552
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
@@ -433,11 +421,6 @@ msgstr "INFO:"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3961
 msgid "Classicladder real-time component not detected"
 msgstr "Die Echtzeitkomponente Classicladder wurde nicht gefunden"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4076
-#, python-brace-format
-msgid "Something went wrong, we have an unknown spindle widget {0}"
-msgstr "Irgendwas lief falsch, es wurde ein unbekanntes Widget {0} übergeben"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4189
 msgid "Do you really want to delete the MDI history?\n"
@@ -488,10 +471,6 @@ msgstr "Wert für {0}-Achse eingeben"
 #, python-brace-format
 msgid "Set axis {0} to:"
 msgstr "Setze {0}-Achse auf:"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4344
-msgid "Conversion error in btn_set_value"
-msgstr "Umwandlungsfehler in btn_set_value"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4345
 msgid "Conversion error in btn_set_value!"
@@ -705,43 +684,6 @@ msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
 msgstr ""
 "Das Verfahren von Achsen ist nur im Koordinatenmodus erlaubt, doch Sie sind "
 "im Joint-Modus!"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5540
-#, python-brace-format
-msgid "Received a not classified signal from pin {0}"
-msgstr "Nicht registriertes Signal von Pin {0} erhalten"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5545
-#, python-brace-format
-msgid "Could not translate {0} to number"
-msgstr "Konnte {0} nicht zu einer Nummer konvertieren"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5550
-msgid "no button here"
-msgstr "Kein Knopf hier"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5553
-msgid "the button is not sensitive"
-msgstr "Dieser Knopf ist nicht aktiv"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5558
-#, python-brace-format
-msgid "Button {0} has been toggled"
-msgstr "Knopf {0} wurde gewechselt"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5562
-#, python-brace-format
-msgid "Button {0} has been pressed"
-msgstr "Knopf {0} wurde gedrückt"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5565
-#, python-brace-format
-msgid "Button {0} has been clicked"
-msgstr "Knopf {0} wurde geklickt"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5578
-msgid "got wrong location to locate the childs"
-msgstr "Habe falschen Ort für das Finden der Kinderelemente erhalten"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:47
 #: src/emc/usr_intf/gmoccapy/dialogs.py:50
@@ -1835,6 +1777,53 @@ msgstr "Lade Datei"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:255
 msgid "home joints"
 msgstr "Referenziere Achsen"
+
+#~ msgid "Entering init gremlin"
+#~ msgstr "Gremlin Init gestartet"
+
+#~ msgid "conversion error"
+#~ msgstr "Umwandlungsfehler"
+
+#, python-brace-format
+#~ msgid "No widget named: {0} to sensitize"
+#~ msgstr "Keine Widget mit Namen {0} zum Aktivieren"
+
+#, python-brace-format
+#~ msgid "Something went wrong, we have an unknown spindle widget {0}"
+#~ msgstr ""
+#~ "Irgendwas lief falsch, es wurde ein unbekanntes Widget {0} übergeben"
+
+#~ msgid "Conversion error in btn_set_value"
+#~ msgstr "Umwandlungsfehler in btn_set_value"
+
+#, python-brace-format
+#~ msgid "Received a not classified signal from pin {0}"
+#~ msgstr "Nicht registriertes Signal von Pin {0} erhalten"
+
+#, python-brace-format
+#~ msgid "Could not translate {0} to number"
+#~ msgstr "Konnte {0} nicht zu einer Nummer konvertieren"
+
+#~ msgid "no button here"
+#~ msgstr "Kein Knopf hier"
+
+#~ msgid "the button is not sensitive"
+#~ msgstr "Dieser Knopf ist nicht aktiv"
+
+#, python-brace-format
+#~ msgid "Button {0} has been toggled"
+#~ msgstr "Knopf {0} wurde gewechselt"
+
+#, python-brace-format
+#~ msgid "Button {0} has been pressed"
+#~ msgstr "Knopf {0} wurde gedrückt"
+
+#, python-brace-format
+#~ msgid "Button {0} has been clicked"
+#~ msgstr "Knopf {0} wurde geklickt"
+
+#~ msgid "got wrong location to locate the childs"
+#~ msgstr "Habe falschen Ort für das Finden der Kinderelemente erhalten"
 
 #~ msgid "**** GMOCCAPY INI Entry ****"
 #~ msgstr "**** GMOCCAPY INI Eintrag **** "

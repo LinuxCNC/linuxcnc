@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-11 19:57+0100\n"
+"POT-Creation-Date: 2023-02-12 11:32+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -250,16 +250,12 @@ msgid "Did not find a toolfile file in [EMCIO] TOOL_TABLE"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2039
-msgid "audio available!"
+msgid "Audio available!"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2051
 msgid ""
 "No audio available! PYGST library not installed? Is python-gstX.XX installed?"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2059
-msgid "Entering init gremlin"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2079
@@ -341,10 +337,6 @@ msgstr ""
 msgid "Set parameter {0} to:"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3014
-msgid "conversion error"
-msgstr ""
-
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3015
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4952
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4975
@@ -362,11 +354,6 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3377
 #, python-brace-format
 msgid "{0}"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3386
-#, python-brace-format
-msgid "No widget named: {0} to sensitize"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3552
@@ -398,11 +385,6 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3961
 msgid "Classicladder real-time component not detected"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4076
-#, python-brace-format
-msgid "Something went wrong, we have an unknown spindle widget {0}"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4189
@@ -453,10 +435,6 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4340
 #, python-brace-format
 msgid "Set axis {0} to:"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4344
-msgid "Conversion error in btn_set_value"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4345
@@ -639,43 +617,6 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5504
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5540
-#, python-brace-format
-msgid "Received a not classified signal from pin {0}"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5545
-#, python-brace-format
-msgid "Could not translate {0} to number"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5550
-msgid "no button here"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5553
-msgid "the button is not sensitive"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5558
-#, python-brace-format
-msgid "Button {0} has been toggled"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5562
-#, python-brace-format
-msgid "Button {0} has been pressed"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5565
-#, python-brace-format
-msgid "Button {0} has been clicked"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5578
-msgid "got wrong location to locate the childs"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:47

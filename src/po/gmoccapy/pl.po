@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-11 19:57+0100\n"
+"POT-Creation-Date: 2023-02-12 11:32+0100\n"
 "PO-Revision-Date: 2021-12-09 03:53+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
@@ -155,7 +155,6 @@ msgstr "ustaw wybrany system współrzędnych jako aktywny"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1101
 #, fuzzy
-#| msgid "**** no valid probe config in INI File ****"
 msgid "No valid probe config in INI File. Tool measurement disabled."
 msgstr "**** Brak poprawnej konfiguracji czujnika narzędzia w pliku INI ****"
 
@@ -166,7 +165,6 @@ msgstr "**** Brak poprawnej konfiguracji czujnika narzędzia w pliku INI ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1129
 #, fuzzy
-#| msgid "**** Only the first 10 will be reachable through this screen ****"
 msgid ""
 "To many increments given in INI File for this screen. Only the first 10 will "
 "be reachable through this screen."
@@ -198,7 +196,6 @@ msgstr "**** GMOCCAPY INFO ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1328
 #, fuzzy
-#| msgid "**** found more than 16 macros, will use only the first 16 ****"
 msgid "found more than 16 macros, will use only the first 16"
 msgstr ""
 "**** znaleziono ponad zbyt wiele makr, tylko pierwsze 9 będzie użyte ****"
@@ -223,7 +220,6 @@ msgstr "Pokaż/ukryj klawiaturę"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1488
 #, fuzzy
-#| msgid "**** GMOCCAPY ERROR ****"
 msgid "* GMOCCAPY ERROR *"
 msgstr "**** GMOCCAPY ERROR ****"
 
@@ -279,23 +275,17 @@ msgstr "Błąd uruchomienia paneli użytkownika, sprawdź czy nie ma literówek"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1955
 #, fuzzy
-#| msgid "**** Did not find a toolfile file in [EMCIO] TOOL_TABLE ****"
 msgid "Did not find a toolfile file in [EMCIO] TOOL_TABLE"
 msgstr "**** Nie znaleziono pliku tabeli narzędzi z [EMCIO] TOOL_TABLE ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2039
 #, fuzzy
-#| msgid "**** audio available! ****"
-msgid "audio available!"
+msgid "Audio available!"
 msgstr "**** dźwięk jest dostępny ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2051
 msgid ""
 "No audio available! PYGST library not installed? Is python-gstX.XX installed?"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2059
-msgid "Entering init gremlin"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2079
@@ -307,7 +297,6 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2123
 #, fuzzy
-#| msgid "**** virtual keyboard program found : <onboard>"
 msgid "Virtual keyboard program found : <onboard>"
 msgstr "****Znaleziono  klawiaturę ekranową : <onboard> "
 
@@ -322,9 +311,6 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2138
 #, fuzzy
-#| msgid ""
-#| "Error with launching 'Onboard' on-screen keyboard program, is onboard "
-#| "installed?"
 msgid ""
 "Error with launching virtual keyboard. Is onboard installed?Try sudo apt-get "
 "install onboard"
@@ -339,7 +325,6 @@ msgstr "Przerwanie uruchomionego makra"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2201
 #, fuzzy
-#| msgid "**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****"
 msgid "Did not find a parameter file in [RS274NGC] PARAMETER_FILE"
 msgstr ""
 "**** Nie znaleziono pliku parametrów podanego w [RS274NGC] PARAMETER_FILE "
@@ -395,10 +380,6 @@ msgstr "Wprowadź wartość:"
 msgid "Set parameter {0} to:"
 msgstr "Parametr {0} ustawiono na:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3014
-msgid "conversion error"
-msgstr "Błąd przekształcenia"
-
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3015
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4952
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4975
@@ -417,12 +398,6 @@ msgstr ""
 #, python-brace-format
 msgid "{0}"
 msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3386
-#, fuzzy, python-brace-format
-#| msgid "**** No widget named: {0} to sensitize ****"
-msgid "No widget named: {0} to sensitize"
-msgstr "****Żadnego widgetu {0} do aktywacji ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3552
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
@@ -454,11 +429,6 @@ msgstr "INFO:"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3961
 msgid "Classicladder real-time component not detected"
 msgstr "Nie znaleziono real-time component Classicladder."
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4076
-#, fuzzy, python-brace-format
-msgid "Something went wrong, we have an unknown spindle widget {0}"
-msgstr "Coś poszło źle — mamy niezidentyfikowany widget {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4189
 msgid "Do you really want to delete the MDI history?\n"
@@ -516,10 +486,6 @@ msgstr "Wprowadź wartość dla osi {0}"
 #, fuzzy, python-brace-format
 msgid "Set axis {0} to:"
 msgstr "Oś {0} ustawiona na :"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4344
-msgid "Conversion error in btn_set_value"
-msgstr "Błąd przekształcenia w btn_set_value"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4345
 msgid "Conversion error in btn_set_value!"
@@ -720,44 +686,6 @@ msgstr ""
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5540
-#, python-brace-format
-msgid "Received a not classified signal from pin {0}"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5545
-#, python-brace-format
-msgid "Could not translate {0} to number"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5550
-#, fuzzy
-msgid "no button here"
-msgstr "Auto Knopfleiste"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5553
-msgid "the button is not sensitive"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5558
-#, python-brace-format
-msgid "Button {0} has been toggled"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5562
-#, python-brace-format
-msgid "Button {0} has been pressed"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5565
-#, python-brace-format
-msgid "Button {0} has been clicked"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5578
-msgid "got wrong location to locate the childs"
-msgstr ""
-
 #: src/emc/usr_intf/gmoccapy/dialogs.py:47
 #: src/emc/usr_intf/gmoccapy/dialogs.py:50
 msgid "Enter System Unlock Code"
@@ -818,9 +746,6 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:105
 #, fuzzy
-#| msgid ""
-#| "**** gmoccapy will not start ****\n"
-#| "\n"
 msgid "gmoccapy will not start ****\n"
 msgstr ""
 "**** gmoccapy nie uruchomi się ****\n"
@@ -1845,6 +1770,25 @@ msgstr "Załaduj plik"
 #, fuzzy
 msgid "home joints"
 msgstr "Bazuj oś X"
+
+#~ msgid "conversion error"
+#~ msgstr "Błąd przekształcenia"
+
+#, fuzzy, python-brace-format
+#~| msgid "**** No widget named: {0} to sensitize ****"
+#~ msgid "No widget named: {0} to sensitize"
+#~ msgstr "****Żadnego widgetu {0} do aktywacji ****"
+
+#, fuzzy, python-brace-format
+#~ msgid "Something went wrong, we have an unknown spindle widget {0}"
+#~ msgstr "Coś poszło źle — mamy niezidentyfikowany widget {0}"
+
+#~ msgid "Conversion error in btn_set_value"
+#~ msgstr "Błąd przekształcenia w btn_set_value"
+
+#, fuzzy
+#~ msgid "no button here"
+#~ msgstr "Auto Knopfleiste"
 
 #, fuzzy
 #~ msgid "**** GMOCCAPY INI Entry ****"

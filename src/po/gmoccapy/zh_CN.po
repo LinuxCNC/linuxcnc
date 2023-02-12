@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Gmoccapy 2.2.3.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-11 19:57+0100\n"
+"POT-Creation-Date: 2023-02-12 11:32+0100\n"
 "PO-Revision-Date: 2022-06-29 05:24+0000\n"
 "Last-Translator: whatawhiz <pink0floyd@vip.qq.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
@@ -100,8 +100,6 @@ msgstr "按下返回主按钮列表"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:826
 #, fuzzy, python-brace-format
-#| msgid ""
-#| "**** could not resolv the image path '{0}' given for button '{1}' ****"
 msgid "could not resolv the image path '{0}' given for button '{1}'"
 msgstr "**** 无法解析按钮'{1}' 的图片地址 '{0}' ****"
 
@@ -152,19 +150,16 @@ msgstr "按下将选定的坐标系设置为活动坐标系"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1101
 #, fuzzy
-#| msgid "**** no valid probe config in INI File ****"
 msgid "No valid probe config in INI File. Tool measurement disabled."
 msgstr "**** INI文件中没有有效的探针配置****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1115
 #, fuzzy
-#| msgid "**** found valid probe config in INI File ****"
 msgid "Found valid probe config in INI file. Will use auto tool measurement."
 msgstr "****在INI文件中找到有效的探针配置****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1129
 #, fuzzy
-#| msgid "**** Only the first 10 will be reachable through this screen ****"
 msgid ""
 "To many increments given in INI File for this screen. Only the first 10 will "
 "be reachable through this screen."
@@ -191,13 +186,11 @@ msgstr "按下以点动关节 {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1327
 #, fuzzy
-#| msgid "**** GMOCCAPY INFO ****\n"
 msgid "GMOCCAPY INFO\n"
 msgstr "**** GMOCCAPY 信息****\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1328
 #, fuzzy
-#| msgid "**** found more than 16 macros, will use only the first 16 ****"
 msgid "found more than 16 macros, will use only the first 16"
 msgstr "**** 找到超过16个宏，将仅使用前16个宏 ****"
 
@@ -220,7 +213,6 @@ msgstr "按下显示虚拟键盘"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1488
 #, fuzzy
-#| msgid "**** GMOCCAPY ERROR ****"
 msgid "* GMOCCAPY ERROR *"
 msgstr "**** GMOCCAPY 错误****"
 
@@ -275,26 +267,18 @@ msgstr "错误，尝试初始化用户选项卡或面板，检查拼写错误"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1955
 #, fuzzy
-#| msgid "**** Did not find a toolfile file in [EMCIO] TOOL_TABLE ****"
 msgid "Did not find a toolfile file in [EMCIO] TOOL_TABLE"
 msgstr "**** 没有在[EMCIO] TOOL_TABLE 中找到刀具文件****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2039
 #, fuzzy
-#| msgid "**** audio available! ****"
-msgid "audio available!"
+msgid "Audio available!"
 msgstr "**** 音频可用!****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2051
 msgid ""
 "No audio available! PYGST library not installed? Is python-gstX.XX installed?"
 msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2059
-#, fuzzy
-#| msgid "**** Entering init gremlin ****"
-msgid "Entering init gremlin"
-msgstr "**** 正在进入init gremlin ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2079
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5313
@@ -307,13 +291,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2123
 #, fuzzy
-#| msgid "**** virtual keyboard program found : <onboard>"
 msgid "Virtual keyboard program found : <onboard>"
 msgstr "**** 发现虚拟键盘程序: <onboard>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2125
 #, fuzzy
-#| msgid "**** No virtual keyboard installed, we checked for <onboard> ."
 msgid ""
 "No virtual keyboard installed, we checked for <onboard>. Try 'sudo apt-get "
 "install onboard'."
@@ -332,7 +314,6 @@ msgstr "中断运行宏"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2201
 #, fuzzy
-#| msgid "**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****"
 msgid "Did not find a parameter file in [RS274NGC] PARAMETER_FILE"
 msgstr "**** 没有在[RS274NGC] PARAMETER_FILE 中找到参数文件****"
 
@@ -343,7 +324,6 @@ msgstr "选择要在程序启动时加载的文件"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2305
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2329
 #, fuzzy, python-brace-format
-#| msgid "**** GMOCCAPY ERROR **** /n Message type {0} not supported"
 msgid "Message type {0} not supported"
 msgstr "**** GMOCCAPY错误**** /n 不支持消息类型{0}"
 
@@ -384,10 +364,6 @@ msgstr "输入值："
 msgid "Set parameter {0} to:"
 msgstr "将参数 {0} 设置为:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3014
-msgid "conversion error"
-msgstr "转换错误"
-
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3015
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4952
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4975
@@ -406,12 +382,6 @@ msgstr "模式改变只有在解释器空闲的情况下才允许!"
 #, python-brace-format
 msgid "{0}"
 msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3386
-#, fuzzy, python-brace-format
-#| msgid "**** No widget named: {0} to sensitize ****"
-msgid "No widget named: {0} to sensitize"
-msgstr "**** 没有命名为: {0} 的小部件****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3552
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
@@ -443,11 +413,6 @@ msgstr "信息:"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3961
 msgid "Classicladder real-time component not detected"
 msgstr "未检测到ClassicLadder实时组件"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4076
-#, python-brace-format
-msgid "Something went wrong, we have an unknown spindle widget {0}"
-msgstr "出了点问题，我们有一个未知的主轴部件 {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4189
 msgid "Do you really want to delete the MDI history?\n"
@@ -498,10 +463,6 @@ msgstr "输入轴{0}的值"
 #, python-brace-format
 msgid "Set axis {0} to:"
 msgstr "将轴{0}设置为:"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4344
-msgid "Conversion error in btn_set_value"
-msgstr "btn_set_value中的转换错误"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4345
 msgid "Conversion error in btn_set_value!"
@@ -699,43 +660,6 @@ msgstr ""
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
 msgstr "点动只能在世界模式下进行，但是您处于关节模式！"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5540
-#, python-brace-format
-msgid "Received a not classified signal from pin {0}"
-msgstr "从引脚{0}接收到未分类信号"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5545
-#, python-brace-format
-msgid "Could not translate {0} to number"
-msgstr "无法把 {0} 翻译为数字"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5550
-msgid "no button here"
-msgstr "这里没有按钮"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5553
-msgid "the button is not sensitive"
-msgstr "按钮不灵"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5558
-#, python-brace-format
-msgid "Button {0} has been toggled"
-msgstr "按钮{0} 已切换"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5562
-#, python-brace-format
-msgid "Button {0} has been pressed"
-msgstr "按钮{0} 已按下"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5565
-#, python-brace-format
-msgid "Button {0} has been clicked"
-msgstr "按钮{0} 已单击"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5578
-msgid "got wrong location to locate the childs"
-msgstr "错误的路径以定位子项"
-
 #: src/emc/usr_intf/gmoccapy/dialogs.py:47
 #: src/emc/usr_intf/gmoccapy/dialogs.py:50
 msgid "Enter System Unlock Code"
@@ -786,9 +710,6 @@ msgstr "_跳转到"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:104
 #, fuzzy, python-brace-format
-#| msgid ""
-#| "**** gmoccapy can only handle 9 axis, ****\n"
-#| "**** but you have given {0} through your INI file ****\n"
 msgid ""
 "**** gmoccapy can only handle 9 axis, but you have given {0} through your "
 "INI file. "
@@ -798,9 +719,6 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:105
 #, fuzzy
-#| msgid ""
-#| "**** gmoccapy will not start ****\n"
-#| "\n"
 msgid "gmoccapy will not start ****\n"
 msgstr ""
 "**** gmoccapy 无法启动****\n"
@@ -1815,6 +1733,55 @@ msgstr "加载文件"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:255
 msgid "home joints"
 msgstr "关节回零"
+
+#, fuzzy
+#~| msgid "**** Entering init gremlin ****"
+#~ msgid "Entering init gremlin"
+#~ msgstr "**** 正在进入init gremlin ****"
+
+#~ msgid "conversion error"
+#~ msgstr "转换错误"
+
+#, fuzzy, python-brace-format
+#~| msgid "**** No widget named: {0} to sensitize ****"
+#~ msgid "No widget named: {0} to sensitize"
+#~ msgstr "**** 没有命名为: {0} 的小部件****"
+
+#, python-brace-format
+#~ msgid "Something went wrong, we have an unknown spindle widget {0}"
+#~ msgstr "出了点问题，我们有一个未知的主轴部件 {0}"
+
+#~ msgid "Conversion error in btn_set_value"
+#~ msgstr "btn_set_value中的转换错误"
+
+#, python-brace-format
+#~ msgid "Received a not classified signal from pin {0}"
+#~ msgstr "从引脚{0}接收到未分类信号"
+
+#, python-brace-format
+#~ msgid "Could not translate {0} to number"
+#~ msgstr "无法把 {0} 翻译为数字"
+
+#~ msgid "no button here"
+#~ msgstr "这里没有按钮"
+
+#~ msgid "the button is not sensitive"
+#~ msgstr "按钮不灵"
+
+#, python-brace-format
+#~ msgid "Button {0} has been toggled"
+#~ msgstr "按钮{0} 已切换"
+
+#, python-brace-format
+#~ msgid "Button {0} has been pressed"
+#~ msgstr "按钮{0} 已按下"
+
+#, python-brace-format
+#~ msgid "Button {0} has been clicked"
+#~ msgstr "按钮{0} 已单击"
+
+#~ msgid "got wrong location to locate the childs"
+#~ msgstr "错误的路径以定位子项"
 
 #~ msgid "**** GMOCCAPY INI Entry ****"
 #~ msgstr "**** GMOCCAPY INI 条目 **** "

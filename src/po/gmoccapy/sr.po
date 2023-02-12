@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-11 19:57+0100\n"
+"POT-Creation-Date: 2023-02-12 11:32+0100\n"
 "PO-Revision-Date: 2021-12-09 03:53+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Serbian <https://hosted.weblate.org/projects/linuxcnc/"
@@ -157,7 +157,6 @@ msgstr "postavi izabrani koordinatni sistem kao aktivan"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1101
 #, fuzzy
-#| msgid "**** no valid probe config in INI File ****"
 msgid "No valid probe config in INI File. Tool measurement disabled."
 msgstr "**** nije validna konfiguracija \"dodirivanje\" u INI datoteci ****"
 
@@ -168,7 +167,6 @@ msgstr "**** nije validna konfiguracija \"dodirivanje\" u INI datoteci ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1129
 #, fuzzy
-#| msgid "**** Only the first 10 will be reachable through this screen ****"
 msgid ""
 "To many increments given in INI File for this screen. Only the first 10 will "
 "be reachable through this screen."
@@ -200,7 +198,6 @@ msgstr "**** GMOCCAPY OBAVEŠTENJE ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1328
 #, fuzzy
-#| msgid "**** found more than 16 macros, will use only the first 16 ****"
 msgid "found more than 16 macros, will use only the first 16"
 msgstr ""
 "**** nije dozvoljeno više od 9 makroa, samo će da se koriste prvih devet ****"
@@ -225,7 +222,6 @@ msgstr "prikaži ili sakrij vurtualnu tastaturu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1488
 #, fuzzy
-#| msgid "**** GMOCCAPY ERROR ****"
 msgid "* GMOCCAPY ERROR *"
 msgstr "**** GMOCCAPY GREŠKA ****"
 
@@ -283,23 +279,17 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1955
 #, fuzzy
-#| msgid "**** Did not find a toolfile file in [EMCIO] TOOL_TABLE ****"
 msgid "Did not find a toolfile file in [EMCIO] TOOL_TABLE"
 msgstr "**** Nije pronađena datoteka alata u [EMCIO] TOOL_TABLE ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2039
 #, fuzzy
-#| msgid "**** audio available! ****"
-msgid "audio available!"
+msgid "Audio available!"
 msgstr "**** zvuk dostupan! ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2051
 msgid ""
 "No audio available! PYGST library not installed? Is python-gstX.XX installed?"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2059
-msgid "Entering init gremlin"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2079
@@ -311,7 +301,6 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2123
 #, fuzzy
-#| msgid "**** virtual keyboard program found : <onboard>"
 msgid "Virtual keyboard program found : <onboard>"
 msgstr "**** pronađen program virtualne tastature : <onboard>"
 
@@ -326,9 +315,6 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2138
 #, fuzzy
-#| msgid ""
-#| "Error with launching 'Onboard' on-screen keyboard program, is onboard "
-#| "installed?"
 msgid ""
 "Error with launching virtual keyboard. Is onboard installed?Try sudo apt-get "
 "install onboard"
@@ -343,7 +329,6 @@ msgstr "prekini pokrenuti makro"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2201
 #, fuzzy
-#| msgid "**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****"
 msgid "Did not find a parameter file in [RS274NGC] PARAMETER_FILE"
 msgstr ""
 "**** Nije pronađena parametarska datoteka u [RS274NGC] PARAMETER_FILE ****"
@@ -398,10 +383,6 @@ msgstr "Unesi vrednost:"
 msgid "Set parameter {0} to:"
 msgstr "Postavi parametar {0} na:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3014
-msgid "conversion error"
-msgstr "greška u pretvaranju"
-
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3015
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4952
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4975
@@ -420,11 +401,6 @@ msgstr ""
 #, python-brace-format
 msgid "{0}"
 msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3386
-#, fuzzy, python-brace-format
-msgid "No widget named: {0} to sensitize"
-msgstr "**** Neimenovana \"widget\" maska: {0} je osetljivo ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3552
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
@@ -456,11 +432,6 @@ msgstr "OBAVEŠTENjE:"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3961
 msgid "Classicladder real-time component not detected"
 msgstr "Classicladder komponenta u realnom vremenu nije otkrivena"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4076
-#, fuzzy, python-brace-format
-msgid "Something went wrong, we have an unknown spindle widget {0}"
-msgstr "Nešto nije u redu, javlja se nepoznati \"widget\" {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4189
 msgid "Do you really want to delete the MDI history?\n"
@@ -518,10 +489,6 @@ msgstr "Unesi vrednost za osu {0}"
 #, fuzzy, python-brace-format
 msgid "Set axis {0} to:"
 msgstr "Postavi osu {0} na:"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4344
-msgid "Conversion error in btn_set_value"
-msgstr "Greška u pretvaranju na btn_set_value"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4345
 msgid "Conversion error in btn_set_value!"
@@ -728,44 +695,6 @@ msgstr ""
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5540
-#, python-brace-format
-msgid "Received a not classified signal from pin {0}"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5545
-#, python-brace-format
-msgid "Could not translate {0} to number"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5550
-#, fuzzy
-msgid "no button here"
-msgstr "Auto Knopfleiste"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5553
-msgid "the button is not sensitive"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5558
-#, python-brace-format
-msgid "Button {0} has been toggled"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5562
-#, python-brace-format
-msgid "Button {0} has been pressed"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5565
-#, python-brace-format
-msgid "Button {0} has been clicked"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5578
-msgid "got wrong location to locate the childs"
-msgstr ""
-
 #: src/emc/usr_intf/gmoccapy/dialogs.py:47
 #: src/emc/usr_intf/gmoccapy/dialogs.py:50
 msgid "Enter System Unlock Code"
@@ -826,9 +755,6 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:105
 #, fuzzy
-#| msgid ""
-#| "**** gmoccapy will not start ****\n"
-#| "\n"
 msgid "gmoccapy will not start ****\n"
 msgstr ""
 "**** gmoccapy neće da se pokrene ****\n"
@@ -1863,6 +1789,24 @@ msgstr "Učitaj datoteku"
 #, fuzzy
 msgid "home joints"
 msgstr "\"nulovanje\" x-ose"
+
+#~ msgid "conversion error"
+#~ msgstr "greška u pretvaranju"
+
+#, fuzzy, python-brace-format
+#~ msgid "No widget named: {0} to sensitize"
+#~ msgstr "**** Neimenovana \"widget\" maska: {0} je osetljivo ****"
+
+#, fuzzy, python-brace-format
+#~ msgid "Something went wrong, we have an unknown spindle widget {0}"
+#~ msgstr "Nešto nije u redu, javlja se nepoznati \"widget\" {0}"
+
+#~ msgid "Conversion error in btn_set_value"
+#~ msgstr "Greška u pretvaranju na btn_set_value"
+
+#, fuzzy
+#~ msgid "no button here"
+#~ msgstr "Auto Knopfleiste"
 
 #, fuzzy
 #~ msgid "**** GMOCCAPY INI Entry ****"

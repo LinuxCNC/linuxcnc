@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-11 19:57+0100\n"
+"POT-Creation-Date: 2023-02-12 11:32+0100\n"
 "PO-Revision-Date: 2022-10-03 17:24+0000\n"
 "Last-Translator: Jan Mrázek <email@honzamrazek.cz>\n"
 "Language-Team: \n"
@@ -145,19 +145,16 @@ msgstr "aktivovat zvolený souřadný systém"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1101
 #, fuzzy
-#| msgid "**** no valid probe config in INI File ****"
 msgid "No valid probe config in INI File. Tool measurement disabled."
 msgstr "**** žádná konfigurace sondy v INI souboru ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1115
 #, fuzzy
-#| msgid "**** found valid probe config in INI File ****"
 msgid "Found valid probe config in INI file. Will use auto tool measurement."
 msgstr "**** zjištěna konfigurace sondy v INI souboru ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1129
 #, fuzzy
-#| msgid "**** Only the first 10 will be reachable through this screen ****"
 msgid ""
 "To many increments given in INI File for this screen. Only the first 10 will "
 "be reachable through this screen."
@@ -188,13 +185,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1327
 #, fuzzy
-#| msgid "**** GMOCCAPY INFO ****\n"
 msgid "GMOCCAPY INFO\n"
 msgstr "**** GMOCCAPY INFO ****\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1328
 #, fuzzy
-#| msgid "**** found more than 16 macros, will use only the first 16 ****"
 msgid "found more than 16 macros, will use only the first 16"
 msgstr "**** nalezeno více jak 16 maker, bude použitou pouze prvních 16 ****"
 
@@ -217,7 +212,6 @@ msgstr "zobrazit virtuální klávesnici"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1488
 #, fuzzy
-#| msgid "**** GMOCCAPY ERROR ****"
 msgid "* GMOCCAPY ERROR *"
 msgstr "**** GMOCCAPY CHYBA ****"
 
@@ -278,20 +272,13 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2039
 #, fuzzy
-#| msgid "**** audio available! ****"
-msgid "audio available!"
+msgid "Audio available!"
 msgstr "**** Zvuk zapnutý! ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2051
 msgid ""
 "No audio available! PYGST library not installed? Is python-gstX.XX installed?"
 msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2059
-#, fuzzy
-#| msgid "**** Entering init gremlin ****"
-msgid "Entering init gremlin"
-msgstr "**** Inicializace komponenty gremlin ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2079
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5313
@@ -304,7 +291,6 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2123
 #, fuzzy
-#| msgid "**** virtual keyboard program found : <onboard>"
 msgid "Virtual keyboard program found : <onboard>"
 msgstr "**** program virtuální klávesnice nalezen: <onboard>"
 
@@ -339,7 +325,6 @@ msgstr "Zvolte soubor, který chcete načíst, při startu"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2305
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2329
 #, fuzzy, python-brace-format
-#| msgid "**** GMOCCAPY ERROR **** /n Message type {0} not supported"
 msgid "Message type {0} not supported"
 msgstr "**** GMOCCAPY CHYBA **** /n zpráva typu {0} není podorována"
 
@@ -380,10 +365,6 @@ msgstr "Vlož hodnotu:"
 msgid "Set parameter {0} to:"
 msgstr "Nastav parametr {0}:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3014
-msgid "conversion error"
-msgstr ""
-
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3015
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4952
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4975
@@ -401,11 +382,6 @@ msgstr "Změna módu je povolena pouze v případě, že interpretr nepracuje!"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3377
 #, python-brace-format
 msgid "{0}"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3386
-#, python-brace-format
-msgid "No widget named: {0} to sensitize"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3552
@@ -437,11 +413,6 @@ msgstr "INFO:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3961
 msgid "Classicladder real-time component not detected"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4076
-#, python-brace-format
-msgid "Something went wrong, we have an unknown spindle widget {0}"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4189
@@ -496,10 +467,6 @@ msgstr "Vložení hodnoty pro osu {0}"
 #, python-brace-format
 msgid "Set axis {0} to:"
 msgstr "Nastav osu {0} :"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4344
-msgid "Conversion error in btn_set_value"
-msgstr "Konverzní chyba v btn_set_value"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4345
 msgid "Conversion error in btn_set_value!"
@@ -699,43 +666,6 @@ msgstr ""
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5540
-#, python-brace-format
-msgid "Received a not classified signal from pin {0}"
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5545
-#, python-brace-format
-msgid "Could not translate {0} to number"
-msgstr "Není možné převést {0} na číslo"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5550
-msgid "no button here"
-msgstr "není zde žádné tlačítko"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5553
-msgid "the button is not sensitive"
-msgstr "tlačítko není citlivé"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5558
-#, python-brace-format
-msgid "Button {0} has been toggled"
-msgstr "Přepnutí tlačítka {0}"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5562
-#, python-brace-format
-msgid "Button {0} has been pressed"
-msgstr "Stisknutí tlačítka {0}"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5565
-#, python-brace-format
-msgid "Button {0} has been clicked"
-msgstr "Kliknutí na tlačítko {0}"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5578
-msgid "got wrong location to locate the childs"
-msgstr ""
-
 #: src/emc/usr_intf/gmoccapy/dialogs.py:47
 #: src/emc/usr_intf/gmoccapy/dialogs.py:50
 msgid "Enter System Unlock Code"
@@ -787,9 +717,6 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:104
 #, fuzzy, python-brace-format
-#| msgid ""
-#| "**** gmoccapy can only handle 9 axis, ****\n"
-#| "**** but you have given {0} through your INI file ****\n"
 msgid ""
 "**** gmoccapy can only handle 9 axis, but you have given {0} through your "
 "INI file. "
@@ -799,9 +726,6 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:105
 #, fuzzy
-#| msgid ""
-#| "**** gmoccapy will not start ****\n"
-#| "\n"
 msgid "gmoccapy will not start ****\n"
 msgstr ""
 "**** gmoccapy se nespustí ****\n"
@@ -1871,6 +1795,36 @@ msgstr "Načíst soubor"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:255
 msgid "home joints"
 msgstr "referování aktuátorů"
+
+#, fuzzy
+#~| msgid "**** Entering init gremlin ****"
+#~ msgid "Entering init gremlin"
+#~ msgstr "**** Inicializace komponenty gremlin ****"
+
+#~ msgid "Conversion error in btn_set_value"
+#~ msgstr "Konverzní chyba v btn_set_value"
+
+#, python-brace-format
+#~ msgid "Could not translate {0} to number"
+#~ msgstr "Není možné převést {0} na číslo"
+
+#~ msgid "no button here"
+#~ msgstr "není zde žádné tlačítko"
+
+#~ msgid "the button is not sensitive"
+#~ msgstr "tlačítko není citlivé"
+
+#, python-brace-format
+#~ msgid "Button {0} has been toggled"
+#~ msgstr "Přepnutí tlačítka {0}"
+
+#, python-brace-format
+#~ msgid "Button {0} has been pressed"
+#~ msgstr "Stisknutí tlačítka {0}"
+
+#, python-brace-format
+#~ msgid "Button {0} has been clicked"
+#~ msgstr "Kliknutí na tlačítko {0}"
 
 #~ msgid "**** GMOCCAPY INI Entry ****"
 #~ msgstr "**** GMOCCAPY položka INI souboru ****"
