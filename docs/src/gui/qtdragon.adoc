@@ -1042,6 +1042,7 @@ This tabs will display another stab election of G-code utility programs:
 * 'Facing': allows quick face milling of a definable area at angles of 0,45 and 90 degrees
 * 'Hole Circle': allows quick setting of a program to drill a bolt circle of definable diameter and number of holes.
 * 'NGCGUI': is a QtVCP version of the popular G-code subroutine builder/selector.
+<<sub:qtvcp:widgets:qt-ngcgui,Widgets-NGCGUI>>
 
 Custom QtVCP panels can be displayed here by setting the EMBED_TAB_LOCATION option to 'tabWidget_utilities'
 
