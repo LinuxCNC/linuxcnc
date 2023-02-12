@@ -39,6 +39,13 @@ from gi.repository.GdkPixbuf import Pixbuf
 import os
 import mimetypes
 
+# Set up logging
+from qtvcp import logger
+
+LOG = logger.getLogger(__name__)
+# Force the log level for this module
+# LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
 # constants
 _ASCENDING = 0
 _DESCENDING = 1
@@ -227,6 +234,8 @@ class IconFileSelection(Gtk.HBox):
         self.iconView.connect("item-activated", self._on_item_activated)
         # will be emitted, when a icon is activated and the ENTER key has been pressed
         self.iconView.connect("activate-cursor-item", self._on_activate_cursor_item)
+        # initialize the button states before connecting to a signal
+        self._init_button_state()
         # will be emitted if the selection has changed, this happens also if the user clicks ones on an icon
         self.iconView.connect("selection-changed",  self._on_selection_changed)
         # will be emitted, when the widget is destroyed
@@ -240,7 +249,6 @@ class IconFileSelection(Gtk.HBox):
         self.iconView.connect("button_press_event", self._button_press)
 
         self._fill_store()
-        self._init_button_state()
 #        self.realized = True
 
     def _init_button_state(self):
@@ -289,6 +297,10 @@ class IconFileSelection(Gtk.HBox):
             number = 0
             dirs = []
             files = []
+            # TODO: Why is iconview looking in "/" ?
+            # if self.cur_dir == "/":
+            #     LOG.info("current dir is /")
+            
             for fl in os.listdir(self.cur_dir):
                 # we don't want to add hidden files
                 if fl[0] == '.':
@@ -310,8 +322,10 @@ class IconFileSelection(Gtk.HBox):
                         elif ext in self.filetypes:
                             files.append(fl)
                             number += 1
+                    except ValueError as e:
+                        LOG.debug("Tried to split filename without extension ({0}).".format(e))
                     except Exception as e:
-                        print(e)
+                        LOG.exception(e)
                         pass
 
             if self.sortorder not in [_ASCENDING, _DESCENDING, _FOLDERFIRST, _FILEFIRST]:
@@ -344,7 +358,7 @@ class IconFileSelection(Gtk.HBox):
                 for dir in dirs:
                     self.store.append([dir, self.dirIcon, True])
         except Exception as e:
-            print(e)
+            LOG.exception(e)
             pass
         finally:
             # check the stat of the button and set them as they should be
@@ -379,14 +393,14 @@ class IconFileSelection(Gtk.HBox):
         self.state_changed()
 
     def state_changed(self):
-        # find the difference
-        diff = set(self.button_state.items()) - set(self.old_button_state.items())
+        # find the difference (not used)
+        # diff = set(self.button_state.items()) - set(self.old_button_state.items())
         for key in self.button_state.keys():
             try:
                 if self.button_state[key] != self.old_button_state[key]:
                     self.emit("sensitive",key, self.button_state[key])
             except Exception as e:
-                print(e)
+                LOG.exception(e)
                 continue
 
         self.old_button_state = self.button_state.copy()
@@ -435,7 +449,7 @@ class IconFileSelection(Gtk.HBox):
             new_path = self.model.get_path(new_iter)
 
         except Exception as e:
-            print(e)
+            LOG.exception(e)
         #    new_iter = self.model.get_iter_last(self.model)
         new_path = self.model.get_path(new_iter)
         self.iconView.set_cursor(new_path,  None, False)
@@ -460,7 +474,7 @@ class IconFileSelection(Gtk.HBox):
             self.iconView.select_path(new_path)
 
         except Exception as e:
-            print(e)
+            LOG.exception(e)
             new_iter = self.get_iter_last(self.model)
             new_path = self.model.get_path(new_iter)
         self.iconView.set_cursor(new_path,  None, False)
@@ -498,7 +512,7 @@ class IconFileSelection(Gtk.HBox):
             self.icon_size = iconsize
             self._fill_store()
         except Exception as e:
-            print(e)
+            LOG.exception(e)
             pass
 
     def set_directory(self, directory):
@@ -517,16 +531,19 @@ class IconFileSelection(Gtk.HBox):
 
     def on_btn_select_clicked(self, data):
         try:
-            self.iconView.item_activated(self.iconView.get_cursor()[1])
-            if self.path:
-                filepath = self.cur_dir + os.path.sep + self.path
-                self.file_label.set_text(filepath)
-            else:
-                self.file_label.set_text("")
-                filepath = None
-            self.emit('selected', filepath)
+            if self.iconView.get_cursor()[0]:
+                self.iconView.item_activated(self.iconView.get_cursor()[1])
+                if self.path:
+                    filepath = self.cur_dir + os.path.sep + self.path
+                    self.file_label.set_text(filepath)
+                else:
+                    self.file_label.set_text("")
+                    filepath = None
+                if filepath is not None:
+                    self.emit('selected', filepath)
+
         except Exception as e:
-            print(e)
+            LOG.exception(e)
             pass
 
     def on_btn_exit_clicked(self, data):
@@ -576,7 +593,6 @@ class IconFileSelection(Gtk.HBox):
                     self.set_directory(self.start_dir)
                 if name == 'jump_to_dir':
                     self.jump_to_dir = os.path.expanduser(value)
-                    self.on_btn_jump_to()
                 if name == 'filetypes':
                     self.set_filetypes(value)
                 if name == 'sortorder':
@@ -588,7 +604,7 @@ class IconFileSelection(Gtk.HBox):
             else:
                 raise AttributeError('unknown iconview set_property %s' % property.name)
         except Exception as e:
-            print(e)
+            LOG.exception(e)
             pass
 
 # for testing without glade editor:
