@@ -24,8 +24,11 @@ fi
 
 # Force pyopengl (python3-opengl) to use its GLX backend, even
 # if we're running on Wayland where it would normally use EGL.
+# Similar for the Gtk and Qt backends.
 if [[ ! -v LINUXCNC_OPENGL_PLATFORM || "${LINUXCNC_OPENGL_PLATFORM}" == "glx" ]]; then
     export PYOPENGL_PLATFORM="x11"
+    export GDK_BACKEND="x11"
+    export QT_QPA_PLATFORM="xcb"
 fi
 
 ################################################################################

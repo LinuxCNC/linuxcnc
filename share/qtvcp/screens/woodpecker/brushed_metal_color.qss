@@ -334,7 +334,7 @@ QSlider::handle:vertical {
     border-radius: 2px;
 }
 QDialog{
-background-image: url(:/images/images/brushed_metal.png);
+    background-image: url(:/images/images/brushed_metal.png);
 }
 ToolDialog QPushButton{
     width: 100px;

@@ -13,13 +13,14 @@ unlinkp iocontrol.0.tool-prep-number
 net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change 
 net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
 net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
-net spindle-pause   woodpecker.spindle_pause <= spindle.0.inhibit
+# woodpecker.spindle-pause does not exist
+#net spindle-pause    woodpecker.spindle-pause      <= spindle.0.inhibit
 
 # ---setup spindle control signals---
 
 
 net spindle-vel-cmd        =>  spindle.0.speed-out
-net spindle-at-speed       =>  spindle.0.at-speed  
+net spindle-at-speed       =>  spindle.0.at-speed
 net spindle-brake          <=  spindle.0.brake
 net spindle-index-enable  <=>  spindle.0.index-enable
 
@@ -29,15 +30,16 @@ sets spindle-at-speed true
 
 
 
-net spindle-vel-cmd        =>  spindle.0.speed-out
+net spindle-vel-cmd => spindle.0.speed-out
 net spindle-vel-cmd => woodpecker.lcdnumber
 
 # external offset stuff
-net eoffset_enable   woodpecker.eoffset_enable => axis.z.eoffset-enable
-net eoffset_clear    woodpecker.eoffset_clear => axis.z.eoffset-clear
-net eoffset_count    woodpecker.eoffset_count => axis.z.eoffset-counts
-net eoffset        woodpecker.eoffset_value <= axis.z.eoffset
-net limited          woodpecker.led_eoffset_limit <= motion.eoffset-limited
+net eoffset_enable   woodpecker.eoffset-enable => axis.z.eoffset-enable
+net eoffset_clear    woodpecker.eoffset-clear => axis.z.eoffset-clear
+net eoffset_count    woodpecker.eoffset-count => axis.z.eoffset-counts
+net eoffset          woodpecker.eoffset-value <= axis.z.eoffset
+# woodpecker.led-eoffset-limit does not exist
+#net limited          woodpecker.led-eoffset-limit <= motion.eoffset-limited
 setp axis.z.eoffset-scale 1.0
 
 net mpg-sig           axis.x.jog-counts       axis.y.jog-counts  axis.z.jog-counts  woodpecker.mpg-in  woodpecker.MPG-s  
