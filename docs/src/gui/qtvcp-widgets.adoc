@@ -2867,8 +2867,8 @@ QtVCP's version of NGC subroutine selector (Shown as used in QtDragon).
 
 ==== INI settings
 
-Linuxcnc needs to know where to look to run the subroutines
-
+Linuxcnc needs to know where to look to run the subroutines. +
+If the subroutine calls other subroutines or custom M codes, those paths must be added too.
 [source,{ini}]
 ----
 [RS274NGC]
@@ -2902,11 +2902,11 @@ NGCGUI_SUBFILE = qpocket.ngc
 * 'FINALIZE GCODE' -create the full gcode and send it to linuxcnc/a file
 
 ==== Adding Custom Subroutines
-You can create your own subroutines fir use with ngcgui. +
+You can create your own subroutines for use with ngcgui. +
 they must follow these rules:
 
 * For creating a subroutine for use with NGCGUI, the filename and the subroutine name must be the same.
-^ The subroutine must be in a folder within linuxcnc's INI designated search path
+* The subroutine must be in a folder within linuxcnc's INI designated search path
 * On the first line there may be a comment of type info:
 * The subroutine must be surrounded by the sub and endsub tags.
 * The variables used must be numbered variables and must not skip number.
@@ -2917,9 +2917,9 @@ they must follow these rules:
 ----
 (info: feedrate -- simple example for setting feedrate)
 o<feedrate> sub
-    #<fedrate>       = #1 (= 6 Feed Rate) ; comments in brackets will be shown in ngcui
+    #<feedrate>       = #1 (= 6 Feed Rate) ; comments in brackets will be shown in ngcui
     f#<feedrate>
-o<deedrate> endsub
+o<feedrate> endsub
 ----
 
 image::images/qtvcp_ngcgui_custom.png["QtVCP NGCGUI Custom Sub",scale="25%"]
