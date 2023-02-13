@@ -190,7 +190,7 @@ class HandlerClass:
     # **** closing event **** #
     ###########################
     def closing_cleanup__(self):
-        print'CLOSING'
+        print('CLOSING')
 
     ##############################
     # required class boiler code #
