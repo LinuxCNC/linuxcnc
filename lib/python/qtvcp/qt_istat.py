@@ -71,6 +71,8 @@ class _IStat(object):
         self.MIN_SPINDLE_OVERRIDE = 0.5
         self.TITLE = ""
         self.ICON = ""
+        # this is updated in qtvcp.py on startup
+        self.IS_SCREEN = False
 
         self.update()
 

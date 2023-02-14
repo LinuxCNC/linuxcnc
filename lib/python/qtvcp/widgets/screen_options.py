@@ -294,8 +294,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     # be able to pass the preference object to the widgets
     def _pref_init(self):
         if self.use_pref_file:
-            # we prefer INI settings
-            if INFO.PREFERENCE_PATH:
+            # we prefer INI settings for screens
+            if INFO.PREFERENCE_PATH and INFO.IS_SCREEN:
                 self.pref_filename = INFO.PREFERENCE_PATH
                 LOG.debug('Switching to Preference File Path from INI: {}'.format(INFO.PREFERENCE_PATH))
             # substitute for keywords

@@ -128,6 +128,7 @@ class QTVCP:
             sys.exit(0)
         # set paths using basename
         error = self.PATH.set_paths(basepath, bool(INIPATH))
+        self.INFO.IS_SCREEN = bool(INIPATH)
         if error:
             sys.exit(0)
 
