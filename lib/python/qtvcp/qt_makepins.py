@@ -39,7 +39,6 @@ class QTPanel():
     def __init__(self, halcomp, path, window, debug):
         xmlname = path.XML
         self.window = window
-        self.window['PREFS_'] = None
         self.window['panel_'] = self
         self._screenOptions = None
         self._geo_string = ''
@@ -149,7 +148,8 @@ class QTPanel():
             w = self.window.geometry().width()
             h = self.window.geometry().height()
             geo = '%s %s %s %s' % (x, y, w, h)
-            self.window['PREFS_'].putpref('mainwindow_geometry', geo, str, 'SCREEN_OPTIONS')
+            mainName = self.window.objectName()+ '-geometry'
+            self.window['PREFS_'].putpref(mainName, geo, str, 'SCREEN_OPTIONS')
 
     # if there is a screen option widget and we haven't set INI switch geometry
     # then call screenoptions function to set preference geometry
@@ -164,7 +164,8 @@ class QTPanel():
             self.window.setGeometry(x, y, w, h)
 
         try:
-            self._geo_string = self.window.PREFS_.getpref('mainwindow_geometry', '', str, 'SCREEN_OPTIONS')
+            mainName = self.window.objectName() + '-geometry'
+            self._geo_string = self.window.PREFS_.getpref(mainName, '', str, 'SCREEN_OPTIONS')
             LOG.debug('Calculating geometry of main window using natural placement: {}'.format(self._geo_string))
             # If there is a preference file object use it to load the geometry
             if self._geo_string in ('default', ''):
@@ -178,7 +179,7 @@ class QTPanel():
                 temp = self._geo_string.split(' ')
                 go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
         except Exception as e:
-            LOG.error('main window gometry python error: {}'.format(e))
+            LOG.exception('main window gometry python error: {}'.format(e))
             LOG.error('Calculating geometry of main window using natural placement.')
             x = self.window.geometry().x()
             y = self.window.geometry().y()
