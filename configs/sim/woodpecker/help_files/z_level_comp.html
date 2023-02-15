@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QtDragon Documentation</title>
+  <link href="help.css" rel="stylesheet">
+</head>
+<body>
+<div class="sidenav">
+    <img src="images/WoodPecker.png" alt="Qt_WoodPecker">
+    <ul style="list-style-type:none">
+    <li><a href="hole_circle_utility.html">HOLE CIRCLE UTILITY</a></li>
+    <li><a href="facing_utility.html">FACING UTILITY</a></li>
+    <li><a href="ngcgui.html">NGCGUI</a></li>
+    <li><a href="using_a_vfd.html">USING A VFD</a></li>
+    <li><a href="spindle_pause.html">SPINDLE PAUSE</a></li>
+    <li><a href="z_level_comp.html">Z LEVEL COMPENSATION</a></li>
+    <li><a href="using_a_mpg.html">USING A MPG</a></li>
+    <li><a href="probing.html">PROBING</a></li>
+    <li><a href="runfromline.html">RUN FROM LINE</a></li>
+    <li><a href="stylesheets.html">STYLESHEETS</a></li>
+    <li><a href="about.html">ABOUT</a></li>
+    </ul>
+</div>
+        
+<div class = "main">
+<h1>Z LEVEL COMPENSATION</h1>
+<p>Z level compensation is a bed levelling/distortion correction function typically used in 3D printing or engraving.
+It uses a HAL user space component which utilizes the external offsets feature of LinuxCNC. The <i>loadusr</i> command
+in the handler_postgui file specifies an interpolation type, which must be one of <i>nearest, linear</i> or <i>cubic</i>.
+If none is specified or if an invalid word is specified, the default is assumed to be <i>cubic</i>.</p>
+<p>When Z LEVEL COMP is enabled:</p>
+    <li>the compensation component reads a probe data file, which must be called <i>probe_points.txt</i></li>
+    <li>a 3d height map image is created and the HAL map-ready pin is set True</li>
+    <li>the height map image is shown in the UTILS page -> Z Level Map tab</li>
+<p>The <i>probe_points.txt</i> file can be updated at any time while compensation is disabled. When next enabled, the file will be reread
+and the compensation map is recalculated.</p>
+<p>The necessary HAL connections are as follows:</p>
+
+<div class="code-block">
+    <pre class="hal">net xpos-cmd         compensate.x-pos <= axis.x.pos-cmd</pre>
+    <pre class="hal">net ypos-cmd         compensate.x-pos <= axis.y.pos-cmd</pre>
+    <pre class="hal">net zpos-cmd         compensate.x-pos <= halui.axis.z.pos-relative</pre>
+    <pre class="hal">net compensate-on    compensate.enable-in <= woodpecker.comp-on</pre>
+    <pre class="hal">net eoffset-clr2     compensate.clear  => or2_1.in1</pre>
+    <pre class="hal">net comp-count       compensate.counts => woodpecker.comp-count</pre>
+    <pre class="hal">net map-ready        compensate.map-ready => woodpecker.map-ready</pre>
+    <pre class="hal">setp compensate.fade-height 0.0</pre>
+    <pre class="hal">setp axis.z.eoffset-enable True</pre>
+</div>
+
+<h2>Workflow</h2>
+<p>The gcode program that creates <i>probe_points.txt</i> is created by one of 2 possible methods.</p>
+<button class = 'ui'>Method 1 - Using gcode_ripper</button>
+    <li>from the FILE page, navigate to config folder, set filter to Python Script, load gcode_ripper.py</li>
+    <li>set origin to match the origin of the gcode file to be probed</li>
+    <li>under G-Code Operations, check Auto Probe </li>
+    <li>File -> Open G-Code File, select the gcode program which needs to be level compensated</li>
+    <li>if necessary, enter any offsets, select number of sample points and press Recalculate</li>
+    <li>press Save G-Code File - Probe Only</li>
+    <li>save the generated file to the nc_files folder</li>
+    <li>exit gcode_ripper</li>
+<p>There should now be a file in the nc_files folder called {something}-probe-only.ngc. From the FILE page, set the file filter to G-Code Files, 
+and navigate to the nc_files directory and load this file. Running this program will create a file called <i>probe_points.txt</i></p>
+<button class = 'ui'>Method 2 - Using the UTILS -> Z Level Map interface</button>
+    <li>from the FILE page, open the gcode program which needs to be level compensated</li>
+    <li>enter the X and Y dimensions shown in the preview frame into the X and Y size fields</li>
+    <li>enter the number of probe points and other probe parameters</li>
+    <li>ensure that the selected zero reference point is the same as that of the gcode program</li>
+    <li>press MAKE GCODE - this creates the gcode probing routine</li>
+    <li>to save the probe routine to a file, press SAVE GCODE. A file dialog will appear.</li>
+    <li>to load the probe routine to LinuxCNC, press LOAD GCODE. When this program is run, it will create <i>probe_points.txt</i></li>
+</html>

@@ -1,0 +1,68 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QtDragon Documentation</title>
+  <link href="help.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="sidenav">
+    <img src="images/WoodPecker.png" alt="Qt_WoodPecker">
+    <ul style="list-style-type:none">
+    <li><a href="hole_circle_utility.html">HOLE CIRCLE UTILITY</a></li>
+    <li><a href="facing_utility.html">FACING UTILITY</a></li>
+    <li><a href="ngcgui.html">NGCGUI</a></li>
+    <li><a href="using_a_vfd.html">USING A VFD</a></li>
+    <li><a href="spindle_pause.html">SPINDLE PAUSE</a></li>
+    <li><a href="z_level_comp.html">Z LEVEL COMPENSATION</a></li>
+    <li><a href="using_a_mpg.html">USING A MPG</a></li>
+    <li><a href="probing.html">PROBING</a></li>
+    <li><a href="runfromline.html">RUN FROM LINE</a></li>
+    <li><a href="stylesheets.html">STYLESHEETS</a></li>
+    <li><a href="about.html">ABOUT</a></li>
+    </ul>
+</div>
+        
+<div class = "main">
+<h1>HOLE CIRCLE UTILITY</h1>
+<p>This program creates a gcode file that can be loaded into linuxnc to run a hole circle operation.</p>
+
+    <button class = 'ui'>VALIDATE INPUTS</button>
+    <ul>
+    <li>no blank entries.</li>
+    <li>spindle speed greater than 0</li>
+    <li>circle radius greater than 0</li>
+    <li>first hole angle less than 360</li>
+    <li>Z travel height greater than 0</li>
+    <li>hole start height greater than 0</li>
+    <li>drill feedrate greater than 0</li>
+    </ul>
+
+    <button class = 'ui'>SAVE AS PROGRAM</button>
+    <ul>
+    <li>checks for valid input fields</li>
+    <li>if MM button is checked, the gcode program will contain a G21 MDI command, otherwise a G20 command</li>
+    <li>if a red X remains in the display, the program will not be created</li>
+    <li>if a program is successfully created, it can be saved to a user selectable location</li>
+    </ul>
+
+    <button class = 'ui'>SEND AS MACRO</button>
+    <ul>
+    <li>a successfully created program can be transferred to the gcode viewer</li>
+    <li>the program is then ready to be run in linuxcnc</li>
+    </ul>
+
+<p>The machine should be X and Y zeroed at the center of the desired hole circle.</p>
+<p>The Z zero should be set to the top of the workpiece.</p>
+<p>The diagram on the right side shows a preview of the hole positions to be drilled.</p>
+
+<div class="admonition">
+<p>NOTE: It is up to the user to ensure that all entered parameters are compatible with the machine settings that the program will run on.</p>
+</div>
+
+</body>
+</html>
