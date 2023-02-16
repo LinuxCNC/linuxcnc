@@ -63,7 +63,7 @@ def use_pango_font(font, start, count, will_call_prepost=False):
         context.restore()
         w, h = int(w / Pango.SCALE), int(h / Pango.SCALE)
         GL.glNewList(base+i, GL.GL_COMPILE)
-        GL.glBitmap(1, 1, 0, 0, 0, h-d, bytearray([0]*4))
+        GL.glBitmap(1, 0, 0, 0, 0, h-d, bytearray([0]*4))
         #glDrawPixels(0, 0, 0, 0, 0, h-d, '');
         if not will_call_prepost:
             pango_font_pre()
@@ -74,7 +74,7 @@ def use_pango_font(font, start, count, will_call_prepost=False):
             except Exception as e:
                 print("glnav Exception ",e)
 
-        GL.glBitmap(1, 1, 0, 0, w, -h+d, bytearray([0]*4))
+        GL.glBitmap(1, 0, 0, 0, w, -h+d, bytearray([0]*4))
         if not will_call_prepost:
             pango_font_post()
         GL.glEndList()
