@@ -561,7 +561,7 @@ FEATURES & 0x20 -> OWORD_WARNONLY
 `[WIZARD]WIZARD_ROOT` is a valid search path but the Wizard has not been fully implemented and the results of using it are unpredictable.
 
 * `LOG_LEVEL = 0` Default 0 +
-  Specify the log_level (default: -1)
+  Specify the log_level (default: 0)
 //FIXME: Inconsistent
 * `LOG_FILE = file-name.log` +
   For specify the file used for log the data.
