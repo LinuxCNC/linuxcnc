@@ -689,7 +689,7 @@ For more information see the <<cha:hal-twopass,HAL TWOPASS>> chapter.
 LinuxCNC can start other applications before the specified GUI is started.
 The applications can be started after a specified delay to allow for GUI-dependent actions (like creating GUI-specific HAL pins).
 
-* `DELAY =` _value_ - seconds to wait beore starting other applications.
+* `DELAY =` _value_ - seconds to wait before starting other applications.
   A delay may be needed if an application has dependencies on `[HAL]POSTGUI_HALFILE` actions or GUI-created HAL pins (default `DELAY=0`).
 * `APP =` _appname_ [arg1 [arg2 ...]]' - Application to be started.
   This specification can be included multiple times.
