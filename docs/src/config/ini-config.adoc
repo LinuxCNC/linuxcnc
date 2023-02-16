@@ -59,7 +59,7 @@ CORRECT = value
 === Sections(((INI File,Components,Sections)))
 
 Related parts of an INI file are separated into sections.
-A section name is enclosed in brackets like this '[THIS_SECTION]'
+A section name is enclosed in brackets like this `[THIS_SECTION]`.
 The order of sections is unimportant.
 Sections begin at the section name and end at the next section name.
 
@@ -95,7 +95,7 @@ MACHINE = My Machine
 ----
 
 A variable line may be extended to multiple lines with a terminal backslash (\) character.
-A maximum of MAX_EXTEND_LINES (==20) are allowed.
+A maximum of `MAX_EXTEND_LINES` (==20) are allowed.
 There must be no whitespace following the trailing backslash character.
 
 Section identifiers may not be extended to multiple lines.
@@ -337,28 +337,28 @@ See <<cha:gmoccapy,GMOCCAPY>> document for GMOCCAPY details.
 . The letters X, Y, Z specify translation along the named coordinate.
 . The letters A, B, C specify rotation about the corresponding axes X, Y, Z.
 . The letters U, V, W specify translation along the related axes X, Y, Z.
-. Each letter specified must occur in [TRAJ]COORDINATES to have an effect.
+. Each letter specified must occur in `[TRAJ]COORDINATES` to have an effect.
 . A "*-*" character preceding any letter inverts the direction of the operation.
 . The translation and rotation operations are evaluated *right-to-left*.
-  So using GEOMETRY=XYZBC specifies a C rotation followed by a B rotation followed by Z, Y, X translations.
+  So using `GEOMETRY=XYZBC` specifies a C rotation followed by a B rotation followed by Z, Y, X translations.
   The ordering of consecutive translation letters is immaterial.
 . The proper GEOMETRY string depends on the machine configuration and the kinematics used to control it.
   The order of the letters is important.
   For example, rotating around C then B is different than rotating around B then C.
 . Rotations are by default applied with respect to the machine origin.
-  Example: GEOMETRY=CXYZ first translates the control point to X, Y, Z and then performs a C rotation about the Z axis centered at the machine origin.
-. UVW translation example: GEOMETRY=XYZUVW causes UVW to move in the coordinate system of the tool and XYZ to move in the coordinate system of the material.
-. Foam-cutting machines (FOAM = 1) should specify "XY;UV" or leave the value blank even though this value is presently ignored in foam-cutter mode.
+  Example: `GEOMETRY=CXYZ` first translates the control point to X, Y, Z and then performs a C rotation about the Z axis centered at the machine origin.
+. UVW translation example: `GEOMETRY=XYZUVW` causes UVW to move in the coordinate system of the tool and XYZ to move in the coordinate system of the material.
+. Foam-cutting machines (`FOAM = 1`) should specify "XY;UV" or leave the value blank even though this value is presently ignored in foam-cutter mode.
   A future version may define what ";" means, but if it does "XY;UV" will mean the same as the current foam default.
 . Experimental: If the "*!*` character is included in the GEOMETRY string, display points for A, B, C rotations respect the X, Y, Z offsets set by G5x, G92 codes.
-  Example: Using GEOMETRY = !CXZ for a machine with [TRAJ]COORDINATES=XZC.
+  Example: Using `GEOMETRY = !CXZ` for a machine with `[TRAJ]COORDINATES=XZC`.
   This provision applies for liveplots only -- G-code previews should be done with zero G5x, G92 offsets.
   This can be facilitated by setting offsets in programs only when task is running as indicated by #<_task> == 1.
   If nonzero offsets exist at startup due to persistence, offsets should be zeroed and preview reloaded.
 
 +
 [NOTE]
-If no [DISPLAY]GEOMETRY is included in the INI file, a default is provided by the [DISPLAY]DISPLAY GUI program (typically "XYZABCUVW").
+If no `[DISPLAY]GEOMETRY` is included in the INI file, a default is provided by the `[DISPLAY]DISPLAY` GUI program (typically "XYZABCUVW").
 
 * `ARCDIVISION = 64` - Set the quality of preview of arcs.
   Arcs are previewed by dividing them into a number of straight lines; a semicircle is divided into *ARCDIVISION* parts.
@@ -381,7 +381,7 @@ When operating in joint mode prior to homing, keyboard jog keys are assigned in 
 * `USER_COMMAND_FILE = mycommands.py` - The name of an optional, configuration-specific Python file sourced by the axis GUI instead of the user-specific file `~/.axisrc`.
 
 [NOTE]
-The following [DISPLAY] item is used by the TKLinuxCNC interface only.
+The following `[DISPLAY]` item is used by the TKLinuxCNC interface only.
 
 * `HELP_FILE = tklinucnc.txt` - Path to help file.
 
@@ -391,8 +391,8 @@ The following [DISPLAY] item is used by the TKLinuxCNC interface only.
 AXIS and GMOCCAPY have the ability to send loaded files through a filter program.
 This filter can do any desired task: Something as simple as making sure the file ends with M2,
 or something as complicated as detecting whether the input is a depth image, and generating G-code to mill the shape it defines.
-The [FILTER] section of the INI file controls how filters work.
-First, for each type of file, write a PROGRAM_EXTENSION line.
+The `[FILTER]` section of the INI file controls how filters work.
+First, for each type of file, write a `PROGRAM_EXTENSION`-line.
 Then, specify the program to execute for each type of file.
 This program is given the name of the input file as its first argument, and must write RS274NGC code to standard output.
 This output is what will be displayed in the text area, previewed in the display area, and executed by LinuxCNC when Run.
@@ -605,30 +605,30 @@ For more information on the motion controller see the <<sec:motion,Motion>> sect
 [[sub:ini:sec:hal]]
 === [HAL] section(((INI File,Sections,[HAL] Section)))
 
-* 'HALFILE = example.hal' - Execute the file 'example.hal' at start up.
+* `HALFILE = example.hal` - Execute the file 'example.hal' at start up.
 +
 --
-If 'HALFILE' is specified multiple times, the files are interpreted in the order they appear in the INI file.
+If `HALFILE` is specified multiple times, the files are interpreted in the order they appear in the INI file.
 HAL files are descriptive, the execution of what is described in HAL files is triggered by the threads in which functions are embedded, not by the reading of the HAL file.
-Almost all configurations will have at least one 'HALFILE', and stepper systems typically have two such files,
+Almost all configurations will have at least one `HALFILE`, and stepper systems typically have two such files,
 i.e., one which specifies the generic stepper configuration ('core_stepper.hal') and one which specifies the machine pin out ('xxx_pinout.hal').
 
 HAL files specified in the `HALFILES` variable are found using a search.
 If the named file is found in the directory containing the INI file, it is used.
 If the named file is not found in this INI file directory, a search is made using a system library of HAL files.
 
-If LinuxCNC is started with the `linuxcnc` script using the "`-H dirname`" option, the specified dirname is prepended to the search described above so that "dirname" is searched first.
-The "`-H dirname`" option may be specified more than once, directories are prepended in order.
+If LinuxCNC is started with the `linuxcnc` script using the "`-H` _dirname_" option, the specified dirname is prepended to the search described above so that _dirname_ is searched first.
+The "`-H` _dirname_" option may be specified more than once, directories are prepended in order.
 
 A HALFILE may also be specified as an absolute path (when the name starts with a '/' character).
 Absolute paths are not recommended as their use may limit relocation of configurations.
 --
-* `HALFILE =` _texample.tcl_ [_arg1_ [_arg2_] ...] - Execute the tcl file 'texample.tcl' at start up with arg1, arg2, etc. as argv list.
+* `HALFILE = texample.tcl` [_arg1_ [_arg2_] ...] - Execute the tcl file 'texample.tcl' at start up with arg1, arg2, etc. as argv list.
   Files with a .tcl suffix are processed as above but use haltcl for processing.
   See the <<cha:haltcl,HALTCL Chapter>> for more information.
-* ``HALFILE = LIB:``_sys_example.hal_ - Execute the system library file _sys_example.hal_ at start up.
+* ``HALFILE = LIB:sys_example.hal` - Execute the system library file _sys_example.hal_ at start up.
   Explicit use of the LIB: prefix causes use of the system library HALFILE without searching the INI file directory.
-* ``HALFILE = LIB:``_sys_texample.tcl_ [_arg1_ [_arg2_ ...]] - Execute the system library file _sys_texample.tcl_ at start up.
+* `HALFILE = LIB:sys_texample.tcl` [_arg1_ [_arg2_ ...]] - Execute the system library file _sys_texample.tcl_ at start up.
   Explicit use of the LIB: prefix causes use of the system library HALFILE without searching the INI file directory.
 
 HALFILE items specify files that loadrt HAL components and make signal connections between component pins.
@@ -663,9 +663,9 @@ Connections made using a POSTGUI_HALFILE are not checked.
 
 For more information see the <<cha:hal-twopass,HAL TWOPASS>> chapter.
 
-* `HALCMD =` _command_ - Execute 'command' as a single HAL command.
-  If 'HALCMD' is specified multiple times, the commands are executed in the order they appear in the INI file.
-  'HALCMD' lines are executed after all 'HALFILE' lines.
+* `HALCMD =` _command_ - Execute _command_ as a single HAL command.
+  If `HALCMD` is specified multiple times, the commands are executed in the order they appear in the INI file.
+  `HALCMD`-lines are executed after all `HALFILE`-lines.
 * `SHUTDOWN = shutdown.hal` - Execute the file 'shutdown.hal' when LinuxCNC is exiting.
   Depending on the hardware drivers used, this may make it possible to set outputs to defined values when LinuxCNC is exited normally.
   However, because there is no guarantee this file will be executed (for instance, in the case of a computer crash),
@@ -740,10 +740,9 @@ ARC_BLEND_RAMP_FREQ = 100
 The [TRAJ] section contains general parameters for the trajectory planning module in 'motion'.
 
 * `ARC_BLEND_ENABLE = 1` - Turn on new TP.
-  If set to 0 TP uses parabolic blending (1 segment look ahead).  Default value 1.
+  If set to 0 TP uses parabolic blending (1 segment look ahead) (Default: 1).
 * `ARC_BLEND_FALLBACK_ENABLE = 0` - Optionally fall back to parabolic blends if the estimated speed is faster.
-  However, this estimate is rough, and it seems that just disabling it gives better performance.
-  Default value 0.
+  However, this estimate is rough, and it seems that just disabling it gives better performance (Default: 0).
 * `ARC_BLEND_OPTIMIZATION_DEPTH = 50` - Look ahead depth in number of segments.
 +
 To expand on this a bit, you can choose this value somewhat arbitrarily.
@@ -848,7 +847,7 @@ Finally, no amount of tweaking will speed up a tool path with lots of small, tig
   See the hostmot2 manpage for more details.
 * `NO_FORCE_HOMING = 1` - The default behavior is for LinuxCNC to force the user to home the machine before any MDI command or a program is run.
   Normally, only jogging is allowed before homing.
-  For configurations using identity kinematics, setting NO_FORCE_HOMING = 1 allows the user to make MDI moves and run programs without homing the machine first.
+  For configurations using identity kinematics, setting `NO_FORCE_HOMING = 1` allows the user to make MDI moves and run programs without homing the machine first.
   Interfaces using identity kinematics without homing ability will need to have this option set to 1.
 
 [WARNING]
@@ -862,7 +861,7 @@ LinuxCNC will not know your joint travel limits when using 'NO_FORCE_HOMING = 1'
   On machines with trivial kinematics (mill, lathe, gantry types) this value is ignored.
   Note: The sim hexapod config requires a non-zero value for the Z coordinate.
 * `TPMOD =` _alternate_trajectory_planning module_ [tp_parms=value] +
-  The TPMOD variable is optional.  If specified, use a specified (user-built) module instead of the default (tpmod).
+  The `TPMOD` variable is optional.  If specified, use a specified (user-built) module instead of the default (tpmod).
   Module parameters (tp_parms) may be included if supported by the named module.
   The setting may be overridden from the command line using the -t option ($ linuxcnc -h).
 * `NO_PROBE_JOG_ERROR = 0` - Allow to bypass probe tripped check when you jog manually.
@@ -877,8 +876,8 @@ LinuxCNC will not know your joint travel limits when using 'NO_FORCE_HOMING = 1'
   A gantry machine with one motor on each of two of the axes, and two motors on the third axis, has 4 joints.
   (This config variable may be used by a GUI to set the number of joints (num_joints) specified to the motion module (motmod).)
 * `KINEMATICS = trivkins` - Specify a kinematics module for the motion module.
-  GUIs may use this variable to specify the loadrt line in HAL files for the motmod module.
-  For more information on kinematics modules see the manpage: '$ man kins'
+  GUIs may use this variable to specify the `loadrt`-line in HAL files for the motmod module.
+  For more information on kinematics modules see the manpage: `$ man kins`.
 
 [[sub:ini:sec:axis-letter]]
 === [AXIS_<letter>] Section(((INI File,Sections,[AXIS_<letter>] Sections)))
@@ -894,13 +893,13 @@ The <letter> specifies one of: X Y Z A B C U V W
 * `MAX_LIMIT = 1000` - (((MAX LIMIT))) The maximum limit (soft limit) for axis motion, in machine units.
   When this limit is exceeded, the controller aborts axis motion.
   The axis must be homed before MAX_LIMIT is in force.
-  For a rotary axis (A,B,C typ) with unlimited rotation having no MAX_LIMIT for that axis in the `[AXIS_`<letter>`]` section a value of 1e99 is used.
+  For a rotary axis (A,B,C typ) with unlimited rotation having no `MAX_LIMIT` for that axis in the `[AXIS_`<letter>`]` section a value of 1e99 is used.
 * `WRAPPED_ROTARY = 1` - When this is set to 1 for an ANGULAR axis the axis will move 0-359.999 degrees.
   Positive Numbers will move the axis in a positive direction and negative numbers will move the axis in the negative direction.
 * `LOCKING_INDEXER_JOINT = 4` - This value selects a joint to use for a locking indexer for the specified axis <letter>.
   In this example, the joint is 4 which would correspond to the B axis for a XYZAB system with trivkins (identity) kinematics.
   When set, a G0 move for this axis will initiate an unlock with the `joint.4.unlock pin` then wait for the `joint.4.is-unlocked` pin then move the joint at the rapid rate for that joint.
-  After the move the joint.4.unlock will be false and motion will wait for `joint.4.is-unlocked` to go false.
+  After the move the `joint.4.unlock` will be false and motion will wait for `joint.4.is-unlocked` to go false.
   Moving with other joints is not allowed when moving a locked rotary joint.
   To create the unlock pins, use the motmod parameter:
 +
@@ -1004,11 +1003,11 @@ If `COMP_FILE` is specified for a joint, `BACKLASH` is not used.
 * `MIN_LIMIT = -1000` - (((MIN LIMIT)))
   The minimum limit for joint motion, in machine units.
   When this limit is reached, the controller aborts joint motion.
-  For a rotary joint with unlimited rotation having no MIN_LIMIT for that joint in the [JOINT_N] section a the value -1e99 is used.
+  For a rotary joint with unlimited rotation having no `MIN_LIMIT` for that joint in the `[JOINT_N]` section a the value -1e99 is used.
 * `MAX_LIMIT = 1000` - (((MAX LIMIT)))
   The maximum limit for joint motion, in machine units.
   When this limit is reached, the controller aborts joint motion.
-  For a rotary joint with unlimited rotation having no MAX_LIMIT for that joint in the [JOINT_N] section a the value 1e99 is used.
+  For a rotary joint with unlimited rotation having no `MAX_LIMIT` for that joint in the `[JOINT_N]` section a the value 1e99 is used.
 
 [NOTE]
 ====
@@ -1024,7 +1023,7 @@ and by the trajectory planning used for G-code moves (programs and MDI commands)
 The trajectory planner works in Cartesian space (XYZABCUVW) and has no information about the motion of joints implemented by *any* kinematics module.
 It is possible for joint limit violations to occur for G-code that obeys trajectory planning position limits when non identity kinematics are used.
 The motion module always detects joint position limit violations and faults if they occur during the execution of G-code commands.
-See also related github issue #97.
+See also related https://github.com/LinuxCNC/linuxcnc/issues/97[GitHub issue #97].
 ====
 
 * `MIN_FERROR = 0.010` - (((MIN FERROR)))
@@ -1069,7 +1068,7 @@ These parameters are Homing related, for a better explanation read the <<cha:hom
   Currently, you can't home to index with steppers unless you're using StepGen in velocity mode and PID.
 * `HOME_INDEX_NO_ENCODER_RESET = NO` -
   Use YES if the encoder used for this joint does not reset its counter when an index pulse is detected after assertion of the joint index_enable HAL pin.
-  Applicable only for HOME_USE_INDEX = YES.
+  Applicable only for `HOME_USE_INDEX = YES`.
 * `HOME_IGNORE_LIMITS = NO` -
   When you use the limit switch as a home switch and the limit switch this should be set to YES.
   When set to YES the limit switch for this joint is ignored when homing.
@@ -1150,20 +1149,20 @@ image::images/encoder-counts-math.png[align="center"]
   The value multiplies the difference between the current and previous errors, resulting in a contribution to the computed voltage for the motor amplifier.
   The units on the D gain are volts per machine unit per second, e.g., image:images/i-term.png[height=25]
 // latexmath:[$\frac{volt}{mu/s}$].
-* `FF0 = 0` - The 0th order feed forward gain.
+* `FF0 = 0` - The 0^th^ order feed forward gain.
   This number is multiplied by the commanded position, resulting in a contribution to the computed voltage for the motor amplifier.
   The units on the FF0 gain are volts per machine unit, e.g., image:images/p-term.png[height=25]
 // latexmath:[$\frac{volt}{mu}$].
-* 'FF1 = 0' - The 1st order feed forward gain.
+* `FF1 = 0` - The 1^st^ order feed forward gain.
   This number is multiplied by the change in commanded position per second, resulting in a contribution to the computed voltage for the motor amplifier.
   The units on the FF1 gain are volts per machine unit per second, e.g., image:images/i-term.png[height=25]
 // latexmath:[$\frac{volt}{mu\, s}$].
-* 'FF2 = 0' - The 2nd order feed forward gain.
+* `FF2 = 0` - The 2^nd^ order feed forward gain.
   This number is multiplied by the change in commanded position per second per second, resulting in a contribution to the computed voltage for the motor amplifier.
   The units on the FF2 gain are volts per machine unit per second per second, e.g., image:images/ff2.png[height=25]
 // latexmath:[$\frac{volt}{mu\, s^{2}}$].
-* 'OUTPUT_SCALE = 1.000'
-* 'OUTPUT_OFFSET = 0.000'
+* `OUTPUT_SCALE = 1.000`
+* `OUTPUT_OFFSET = 0.000`
 +
 --
 These two values are the scale and offset factors for the joint output to the motor amplifiers.
@@ -1219,16 +1218,16 @@ See the following table for an example of voltage measurements.
 |===
 --
 
-* 'MAX_OUTPUT = 10' - The maximum value for the output of the PID compensation that is written to the motor amplifier, in volts.
+* `MAX_OUTPUT = 10` - The maximum value for the output of the PID compensation that is written to the motor amplifier, in volts.
   The computed output value is clamped to this limit.
   The limit is applied before scaling to raw output units.
   The value is applied symmetrically to both the plus and the minus side.
-* 'INPUT_SCALE = 20000' - in Sample configs
-* 'ENCODER_SCALE = 20000' - in PnCconf built configs
+* `INPUT_SCALE = 20000` - in Sample configs
+* `ENCODER_SCALE = 20000` - in PnCconf built configs
 
-Specifies the number of pulses that corresponds to a move of one machine unit as set in the [TRAJ] section.
-For a linear joint one machine unit will be equal to the setting of LINEAR_UNITS.
-For an angular joint one unit is equal to the setting in ANGULAR_UNITS.
+Specifies the number of pulses that corresponds to a move of one machine unit as set in the `[TRAJ]` section.
+For a linear joint one machine unit will be equal to the setting of `LINEAR_UNITS`.
+For an angular joint one unit is equal to the setting in `ANGULAR_UNITS`.
 A second number, if specified, is ignored.
 For example, on a 2000 counts per rev encoder, and 10 revs/inch gearing, and desired units of inch, we have:
 
@@ -1249,12 +1248,12 @@ For more information on custom INI file entries see the <<sub:ini:custom,Custom 
 
 The following items might be used by a StepGen component.
 
-* 'SCALE = 4000' - in Sample configs
-* 'STEP_SCALE = 4000' - in PnCconf built configs
+* `SCALE = 4000` - in Sample configs
+* `STEP_SCALE = 4000` - in PnCconf built configs
 
 Specifies the number of pulses that corresponds to a move of one machine unit as set in the `[TRAJ]` section.
 For stepper systems, this is the number of step pulses issued per machine unit.
-For a linear joint one machine unit will be equal to the setting of LINEAR_UNITS.
+For a linear joint one machine unit will be equal to the setting of `LINEAR_UNITS`.
 For an angular joint one unit is equal to the setting in `ANGULAR_UNITS`.
 For servo systems, this is the number of feedback pulses per machine unit.
 A second number, if specified, is ignored.
@@ -1271,9 +1270,9 @@ image::images/stepper-scale.png[align="center"]
 Old INI and HAL files used `INPUT_SCALE` for this value.
 
 * `ENCODER_SCALE = 20000` (Optionally used in PnCconf built configs) -
-  Specifies the number of pulses that corresponds to a move of one machine unit as set in the [TRAJ] section.
-  For a linear joint one machine unit will be equal to the setting of LINEAR_UNITS.
-  For an angular joint one unit is equal to the setting in ANGULAR_UNITS.
+  Specifies the number of pulses that corresponds to a move of one machine unit as set in the `[TRAJ]` section.
+  For a linear joint one machine unit will be equal to the setting of `LINEAR_UNITS`.
+  For an angular joint one unit is equal to the setting in `ANGULAR_UNITS`.
   A second number, if specified, is ignored.
   For example, on a 2000 counts per rev encoder, and 10 revs/inch gearing, and desired units of inch, we have:
 
@@ -1284,18 +1283,18 @@ image::images/encoder-scale.png[align="center"]
 //\frac{20000\, counts}{inch} ]
 
 * `STEPGEN_MAXACCEL = 21.0` -  Acceleration limit for the step generator.
-  This should be 1% to 10% larger than the joint MAX_ACCELERATION.
+  This should be 1% to 10% larger than the joint `MAX_ACCELERATION`.
   This value improves the tuning of StepGen's "position loop".
-  If you have added backlash compensation to an joint then this should be 1.5 to 2 times greater than MAX_ACCELERATION.
+  If you have added backlash compensation to an joint then this should be 1.5 to 2 times greater than `MAX_ACCELERATION`.
 * `STEPGEN_MAXVEL = 1.4` - Older configuration files have a velocity limit for the step generator as well.
-  If specified, it should also be 1% to 10% larger than the joint MAX_VELOCITY.
-  Subsequent testing has shown that use of STEPGEN_MAXVEL does not improve the tuning of StepGen's position loop.
+  If specified, it should also be 1% to 10% larger than the joint `MAX_VELOCITY`.
+  Subsequent testing has shown that use of `STEPGEN_MAXVEL` does not improve the tuning of StepGen's position loop.
 
 [[sub:ini:sec:spindle-num]]
 === [SPINDLE_<num>] Section(s)(((INI File,Sections,[SPINDLE_<num>] Section(s))))
 
-The <num> specifies the spindle number 0 ... (num_spindles-1)
-The value of 'num_spindles' is set by [TRAJ]SPINDLES=
+The _<num>_ specifies the spindle number 0 ... (num_spindles-1)
+The value of _num_spindles_ is set by `[TRAJ]SPINDLES=` .
 
 * `MAX_VELOCITY = 20000`
   The maximum spindle speed (in rpm) for the specified spindle. Optional.
@@ -1304,12 +1303,12 @@ The value of 'num_spindles' is set by [TRAJ]SPINDLES=
   Many spindles have a minimum speed below which they should not be run.
   Any spindle speed command below this limit will be /increased/ to this limit.
 * `MAX_REVERSE_VELOCITY = 20000`
-  This setting will default to MAX_VELOCITY if omitted.
+  This setting will default to `MAX_VELOCITY` if omitted.
   It can be used in cases where the spindle speed is limited in reverse.
   Set to zero for spindles which must not be run in reverse.
   In this context "max" refers to the absolute magnitude of the spindle speed.
 * `MIN_REVERSE_VELOCITY = 3000``
-  This setting is equivalent to MIN_VELOCITY but for reverse spindle rotation.
+  This setting is equivalent to `MIN_VELOCITY` but for reverse spindle rotation.
   It will default to the MIN_VELOCITY if omitted.
 * `INCREMENT = 200`
   Sets the step size for spindle speed increment / decrement commands.
@@ -1322,7 +1321,7 @@ The value of 'num_spindles' is set by [TRAJ]SPINDLES=
   Note that it makes no sense for the spindle home position to be any value other than zero, and so there is no provision to do so.
 * `HOME_SEQUENCE = 0` - FIXME: Spindle homing not yet working
   Controls where in the general homing sequence the spindle homing rotations occur.
-  Set the HOME_SEARCH_VELOCITY to zero to avoid spindle rotation during the homing sequence.
+  Set the `HOME_SEARCH_VELOCITY` to zero to avoid spindle rotation during the homing sequence.
 
 [[sub:ini:sec:emcio]]
 === [EMCIO] Section(((INI File,Sections,[EMCIO] Section)))
@@ -1345,7 +1344,7 @@ The value of 'num_spindles' is set by [TRAJ]SPINDLES=
   Useful for lathes or machines where the material is in the spindle, not the tool.
 * `TOOL_CHANGE_QUILL_UP = 1` -
   The Z axis will be moved to machine zero prior to the tool change when the value is 1.
-  This is the same as issuing a G0 G53 Z0.
+  This is the same as issuing a `G0 G53 Z0`.
 * `TOOL_CHANGE_AT_G30 = 1` -
   The machine is moved to reference point defined by parameters 5181-5186 for G30 if the value is 1.
   For more information see <<sec:overview-parameters,G-code Parameters>> and <<gcode:g30-g30.1,G-code G30-G30.1>>.
