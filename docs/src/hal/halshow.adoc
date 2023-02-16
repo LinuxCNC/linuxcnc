@@ -27,7 +27,7 @@ Halshow is available
 - in the TkLinuxCNC menu under Scripts/HAL Show,
 - in GMOCCAPY on the settings page.
 
-Halshow can also be started from a terminal command line and specify formats for integer and float items (pins or signals) and identify a saved watchlist file to use:
+`halshow` can also be started from a terminal command line and specify formats for integer and float items (pins or signals) and identify a saved watchlist file to use:
 
 ----
 $ halshow --help
@@ -44,12 +44,13 @@ Notes:
        LinuxCNC must be running for standalone usage.
 ----
 
-.Example to limit number of decimal points for floats and use a file named my.halshow in the current directory:
+Example to limit number of decimal points for floats and use a file named my.halshow in the current directory:
+
 ----
 $ halshow  --fformat "%.5f" ./my.halshow
 ----
 
-For more information regarding the format, please refer to https://www.tcl.tk/man/tcl/TclCmd/format.html
+For more information regarding the format, please refer to https://www.tcl.tk/man/tcl/TclCmd/format.html[the Tcl format man page].
 
 
 [[cap:halshow-layout]]

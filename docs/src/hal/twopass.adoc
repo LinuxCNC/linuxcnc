@@ -12,10 +12,11 @@
 
 == TWOPASS
 
-This section describes an option to use names not numbers to distinguish multiple occurences of a single module in a HAL file.
+
+This section describes an option to have multiple load-commands for multiple instances of the same component at different positions in the file or among different files.
 Internally, this requires to read the HAL file twice, hence the name TWOPASS.
 Supported since LinuxCNC version 2.5, the TWOPASS processing of LinuxCNC configuration files helps with their modularization and readability.
-To recall, LinuxCNC configuration files are specified in a LinuxCNC INI file as [LinuxCNC]HALFILE=filename.
+To recall, LinuxCNC configuration files are specified in a LinuxCNC INI file as `[HAL]HALFILE=filename`.
 
 Normally, a set of one or more LinuxCNC configuration files must use a single, unique loadrt line to load a kernel module that may handle multiple instances of a component.
 For example, if you use a two input AND gate component (and2) in three different places in your setup, you would need to have a single line somewhere to specify:
