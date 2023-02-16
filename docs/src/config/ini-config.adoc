@@ -626,7 +626,7 @@ Absolute paths are not recommended as their use may limit relocation of configur
 * `HALFILE = texample.tcl` [_arg1_ [_arg2_] ...] - Execute the tcl file 'texample.tcl' at start up with arg1, arg2, etc. as argv list.
   Files with a .tcl suffix are processed as above but use haltcl for processing.
   See the <<cha:haltcl,HALTCL Chapter>> for more information.
-* ``HALFILE = LIB:sys_example.hal` - Execute the system library file _sys_example.hal_ at start up.
+* `HALFILE = LIB:sys_example.hal` - Execute the system library file _sys_example.hal_ at start up.
   Explicit use of the LIB: prefix causes use of the system library HALFILE without searching the INI file directory.
 * `HALFILE = LIB:sys_texample.tcl` [_arg1_ [_arg2_ ...]] - Execute the system library file _sys_texample.tcl_ at start up.
   Explicit use of the LIB: prefix causes use of the system library HALFILE without searching the INI file directory.
