@@ -590,14 +590,14 @@ For more information on the motion controller see the <<sec:motion,Motion>> sect
 [[sub:ini:sec:task]]
 === [TASK] Section(((INI File,Sections,[TASK] Section)))
 
-* 'TASK = milltask' -
+* `TASK = milltask` -
   Specifies the name of the 'task' executable.
   The 'task' executable does various things, such as
   - communicate with the UIs over NML,
   - communicate with the realtime motion planner over non-HAL shared memory, and
   - interpret G-code.
   Currently there is only one task executable that makes sense for 99.9% of users, milltask.
-* 'CYCLE_TIME = 0.010' -
+* `CYCLE_TIME = 0.010` -
   The period, in seconds, at which TASK will run.
   This parameter affects the polling interval when waiting for motion to complete, when executing a pause instruction, and when accepting a command from a user interface.
   There is usually no need to change this number.
@@ -852,7 +852,7 @@ Finally, no amount of tweaking will speed up a tool path with lots of small, tig
 
 [WARNING]
 ====
-LinuxCNC will not know your joint travel limits when using 'NO_FORCE_HOMING = 1'.
+LinuxCNC will not know your joint travel limits when using `NO_FORCE_HOMING = 1`.
 ====
 
 * `HOME = 0 0 0 0 0 0 0 0 0` - World home position needed for kinematics modules that compute world coordinates using kinematicsForward() when switching from joint to teleop mode.
@@ -912,7 +912,7 @@ The jointmask bits are: (LSB)0:joint0, 1:joint1, 2:joint2, ...
 +
 Example: `loadrt motmod ... unlock_joints_mask=0x38` creates unlock-pins for joints 3,4,5.
 
-* 'OFFSET_AV_RATIO = 0.1' - If nonzero, this item enables the use of HAL input pins for external axis offsets:
+* `OFFSET_AV_RATIO = 0.1` - If nonzero, this item enables the use of HAL input pins for external axis offsets:
 +
 [source,{ini}]
 ----
@@ -950,7 +950,7 @@ For example, using trivkins with `coordinates=XZ`, the joint-axes relationships 
 * JOINT_0 = X
 * JOINT_1 = Z
 
-For more information on kinematics modules see the manpage: '$ man kins'
+For more information on kinematics modules see the manpage: `$ man kins`
 
 * `TYPE = LINEAR` - The type of joint, either `LINEAR` or `ANGULAR`.
 * `UNITS = INCH` - (((UNITS)))
