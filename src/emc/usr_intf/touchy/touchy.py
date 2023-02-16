@@ -164,16 +164,16 @@ class touchy:
                 else:
                     self.pointer_show()
 
-                self.wTree.get_object("controlfontbutton").set_font_name(self.control_font_name)
+                self.wTree.get_object("controlfontbutton").set_font(self.control_font_name)
                 self.control_font = Pango.FontDescription(self.control_font_name)
 
-                self.wTree.get_object("drofontbutton").set_font_name(self.dro_font_name)
+                self.wTree.get_object("drofontbutton").set_font(self.dro_font_name)
                 self.dro_font = Pango.FontDescription(self.dro_font_name)
 
-                self.wTree.get_object("errorfontbutton").set_font_name(self.error_font_name)
+                self.wTree.get_object("errorfontbutton").set_font(self.error_font_name)
                 self.error_font = Pango.FontDescription(self.error_font_name)
 
-                self.wTree.get_object("listingfontbutton").set_font_name(self.listing_font_name)
+                self.wTree.get_object("listingfontbutton").set_font(self.listing_font_name)
                 self.listing_font = Pango.FontDescription(self.listing_font_name)
 
                 settings = Gtk.Settings.get_default()
@@ -253,7 +253,6 @@ class touchy:
                                                        floods, mists, spindles, prefs,
                                                        opstop, blockdel)
 
-                self.current_file = self.status.emcstat.file
                 # check the INI file if UNITS are set to mm"
                 # first check the global settings
                 units=self.ini.find("TRAJ","LINEAR_UNITS")
@@ -296,6 +295,7 @@ class touchy:
                         self.linuxcnc.opstop_off(0)                        
 
                 self.linuxcnc.emccommand.program_open(empty_program.name)
+                self.current_file = empty_program.name
 
                 self.linuxcnc.max_velocity(self.mv_val)
                                 
@@ -585,19 +585,19 @@ class touchy:
                 self.setfont()
 
         def change_dro_font(self, fontbutton):
-                self.dro_font_name = fontbutton.get_font_name()
+                self.dro_font_name = fontbutton.get_font()
                 self.prefs.putpref('dro_font', self.dro_font_name, str)
                 self.dro_font = Pango.FontDescription(self.dro_font_name)
                 self.setfont()
 
         def change_error_font(self, fontbutton):
-                self.error_font_name = fontbutton.get_font_name()
+                self.error_font_name = fontbutton.get_font()
                 self.prefs.putpref('error_font', self.error_font_name, str)
                 self.error_font = Pango.FontDescription(self.error_font_name)
                 self.setfont()
 
         def change_listing_font(self, fontbutton):
-                self.listing_font_name = fontbutton.get_font_name()
+                self.listing_font_name = fontbutton.get_font()
                 self.prefs.putpref('listing_font', self.listing_font_name, str)
                 self.listing_font = Pango.FontDescription(self.listing_font_name)
                 self.setfont()

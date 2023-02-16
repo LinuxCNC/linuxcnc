@@ -7,9 +7,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-01-26 22:23+0100\n"
-"PO-Revision-Date: 2023-01-24 04:08+0000\n"
+"PO-Revision-Date: 2023-02-11 14:37+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -3554,9 +3554,9 @@ msgid "VERBOSE"
 msgstr "VERBOSO"
 
 #: src/hal/classicladder/config_gtk.c:789
-#, fuzzy, c-format
+#, c-format
 msgid "Read inputs map to"
-msgstr "Leer mapeo bobinas/entradas a"
+msgstr "Las entradas de lectura se asignan a"
 
 #: src/hal/classicladder/config_gtk.c:793
 #, c-format
@@ -3569,9 +3569,9 @@ msgid "Write Coils map from"
 msgstr "Escribir mapa de bobinas desde"
 
 #: src/hal/classicladder/config_gtk.c:801
-#, fuzzy, c-format
+#, c-format
 msgid "Read input registers map to"
-msgstr "Leer registro / mantener mapa en"
+msgstr "Los registros de entrada de lectura se asignan a"
 
 #: src/hal/classicladder/config_gtk.c:805
 #, c-format
@@ -3579,9 +3579,9 @@ msgid "Read register/holding map to"
 msgstr "Leer registro / mantener mapa en"
 
 #: src/hal/classicladder/config_gtk.c:809
-#, fuzzy, c-format
+#, c-format
 msgid "Write hold registers map from"
-msgstr "Escribir mapa de registros desde"
+msgstr "Los registros de retención de escritura se asignan desde"
 
 #: src/hal/classicladder/config_gtk.c:1075
 msgid "Period/object info"
@@ -3592,7 +3592,6 @@ msgid "Modbus communication setup"
 msgstr "Configuración de comunicación Modbus"
 
 #: src/hal/classicladder/config_gtk.c:1086
-#, fuzzy
 msgid "Modbus I/O register setup"
 msgstr "Configuración del registro de E/S Modbus"
 
@@ -3709,9 +3708,8 @@ msgid "You must select a boolean variable !"
 msgstr "¡Debe seleccionar una variable booleana!"
 
 #: src/hal/classicladder/edit.c:500
-#, fuzzy
 msgid "You must select a read/write variable for a coil!"
-msgstr "¡Debe seleccionar una variable booleana!"
+msgstr "¡Debe seleccionar una variable de lectura/escritura para una bobina!"
 
 #: src/hal/classicladder/edit.c:516 src/hal/classicladder/edit_sequential.c:99
 #: src/hal/classicladder/spy_vars_gtk.c:481
@@ -3725,17 +3723,16 @@ msgid "!!!Abnormal current type=%d in rung...(file %s,line %d)\n"
 msgstr "!!!Tipo anormal=%d en escalon... (archivo %s,línea %d)\n"
 
 #: src/hal/classicladder/edit.c:1250
-#, fuzzy
 msgid "No more free function block of this type available..."
-msgstr "No hay más bloques de funciones libres disponibles... ¡elimínelos!"
+msgstr "No más bloques de funciones libres de este tipo disponibles..."
 
 #: src/hal/classicladder/edit.c:1262
 msgid "No more free arithmetic expression for this type available..."
-msgstr ""
+msgstr "No hay más expresiones aritméticas libres disponibles para este tipo..."
 
 #: src/hal/classicladder/edit.c:1425
 msgid "You clicked outside of the current rung actually selected..."
-msgstr ""
+msgstr "Hizo clic fuera del escalón actual realmente seleccionado..."
 
 #: src/hal/classicladder/edit_gtk.c:143
 msgid "Current rung in edit mode..."
@@ -3840,12 +3837,16 @@ msgid ""
 "There is already a step to deactivate for this transition (clicked on top "
 "part)..."
 msgstr ""
+"Ya existe un paso para desactivar esta transición (pulsado en la parte "
+"superior)..."
 
 #: src/hal/classicladder/edit_sequential.c:418
 msgid ""
 "There is already a step to activate for this transition (clicked on bottom "
 "part)..."
 msgstr ""
+"Ya existe un paso para activar esta transición (pulsado en la parte "
+"superior)..."
 
 #: src/hal/classicladder/edit_sequential.c:433
 msgid "Not selected first and last transitions to be joined !!??"
@@ -3951,21 +3952,19 @@ msgstr "abajo"
 
 #: src/hal/classicladder/edit_sequential.c:842
 msgid "Now select the transition."
-msgstr ""
+msgstr "Ahora seleccione la transición."
 
 #: src/hal/classicladder/edit_sequential.c:844
 msgid "Now select the step that will be deactivated by this transition."
-msgstr ""
+msgstr "Ahora seleccione el paso que será desactivado por esta transición."
 
 #: src/hal/classicladder/edit_sequential.c:844
 msgid "Now select the step that will be activated by this transition."
-msgstr ""
+msgstr "Ahora seleccione el paso que será activado por esta transición."
 
 #: src/hal/classicladder/edit_sequential.c:846
-#, fuzzy
 msgid "You haven't selected a step or a transition to link!!!"
-msgstr ""
-"¡¡¡No se seleccionaron las primeras y últimas transiciones para unirse !! ??"
+msgstr "¡¡¡No has seleccionado un paso o una transición para enlazar!!!"
 
 #: src/hal/classicladder/edit_sequential.c:850
 #, c-format
@@ -3974,7 +3973,7 @@ msgstr "nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:856
 msgid "You haven't selected a transition and then the step to link!!!"
-msgstr ""
+msgstr "¡¡¡No ha seleccionado una transición y luego el paso para vincular!!!"
 
 #: src/hal/classicladder/edit_sequential.c:891
 msgid "Sequential memory full for comments"
@@ -4012,9 +4011,8 @@ msgid "Error blank symbol name"
 msgstr "Error Nombre del símbolo en blanco"
 
 #: src/hal/classicladder/emc_mods.c:64
-#, fuzzy
 msgid "Error unknown symbol name"
-msgstr "Error Nombre del símbolo en blanco"
+msgstr "Error nombre de símbolo desconocido"
 
 #: src/hal/classicladder/emc_mods.c:75 src/hal/classicladder/emc_mods.c:81
 #: src/hal/classicladder/emc_mods.c:89 src/hal/classicladder/emc_mods.c:97
@@ -4206,9 +4204,8 @@ msgid "Ladder"
 msgstr "Escalera"
 
 #: src/hal/classicladder/manager_gtk.c:183
-#, fuzzy
 msgid "This section name already exists or is incorrect !!!"
-msgstr "¡Este nombre de sección ya existe o es incorrecto!"
+msgstr "¡¡¡Este nombre de sección ya existe o es incorrecto !!!"
 
 #: src/hal/classicladder/manager_gtk.c:212
 msgid "This sub-routine number for calls is already defined !!!"
@@ -4221,17 +4218,15 @@ msgstr "Error al agregar una nueva sección. ¿Lleno?"
 #: src/hal/classicladder/manager_gtk.c:236
 #: src/hal/classicladder/manager_gtk.c:306
 msgid "Not possible when program running..."
-msgstr ""
+msgstr "No es posible cuando el programa se ejecuta..."
 
 #: src/hal/classicladder/manager_gtk.c:247
-#, fuzzy
 msgid "Add a new section..."
-msgstr "Agregar una sección..."
+msgstr "Añadir una nueva sección..."
 
 #: src/hal/classicladder/manager_gtk.c:278
-#, fuzzy
 msgid "Modify current section"
-msgstr "en el subfile actual"
+msgstr "Modificar sección actual"
 
 #: src/hal/classicladder/manager_gtk.c:315
 msgid "Do you really want to delete the section ?"
@@ -4246,9 +4241,8 @@ msgid "This section is already executed the first !"
 msgstr "¡Esta sección ya se ejecutó la primera!"
 
 #: src/hal/classicladder/manager_gtk.c:349
-#, fuzzy
 msgid "This section is already executed the latest !"
-msgstr "¡Esta sección ya se ejecutó la primera!"
+msgstr "¡Esta sección ya se ejecutó la última!"
 
 #: src/hal/classicladder/manager_gtk.c:421
 msgid "Language"
@@ -11683,7 +11677,9 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249

@@ -1178,6 +1178,7 @@ class GlCanonDraw:
     def redraw(self):
         s = self.stat
         s.poll()
+
         linuxcnc.gui_rot_offsets(s.g5x_offset[0] + s.g92_offset[0],
                                  s.g5x_offset[1] + s.g92_offset[1],
                                  s.g5x_offset[2] + s.g92_offset[2])

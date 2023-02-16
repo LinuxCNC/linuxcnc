@@ -71,6 +71,8 @@ class _IStat(object):
         self.MIN_SPINDLE_OVERRIDE = 0.5
         self.TITLE = ""
         self.ICON = ""
+        # this is updated in qtvcp.py on startup
+        self.IS_SCREEN = False
 
         self.update()
 
@@ -284,6 +286,7 @@ class _IStat(object):
                 self.JOG_INCREMENTS = ["Continuous", ".001 mm", ".01 mm", ".1 mm", "1 mm"]
             else:
                 self.JOG_INCREMENTS = ["Continuous", ".0001 in", ".001 in", ".01 in", ".1 in"]
+            log.warning('Missing [DISPLAY] LINEAR_INCREMENTS- using defaults.')
 
         # angular jogging increments
         increments = self.INI.find("DISPLAY", "ANGULAR_INCREMENTS")
@@ -296,6 +299,9 @@ class _IStat(object):
                 self.ANGULAR_INCREMENTS.insert(0, "Continuous")
         else:
             self.ANGULAR_INCREMENTS = ["Continuous", "1", "45", "180", "360"]
+            if self.HAS_ANGULAR_JOINT:
+                log.warning('Missing [DISPLAY] ANGULAR_INCREMENTS- using defaults.')
+
         # grid increments
         grid_increments = self.INI.find("DISPLAY", "GRIDS")
         if grid_increments:
@@ -407,36 +413,63 @@ class _IStat(object):
         except:
             self.ZIPPED_USRMESS = None
 
-        # XEmbed tabs
+        ##############
+        # Embed tabs #
+        ##############
+
         # AXIS panel style:
         self.GLADEVCP = (self.INI.find("DISPLAY", "GLADEVCP")) or None
 
-        # tab style for qtvcp tab style is used everty where
+        # tab style for qtvcp tab. style is used everywhere
+        good_flag = True
         self.TAB_NAMES = (self.INI.findall("DISPLAY", "EMBED_TAB_NAME")) or None
         self.TAB_LOCATIONS = (self.INI.findall("DISPLAY", "EMBED_TAB_LOCATION")) or []
-        self.TAB_CMDS = (self.INI.findall("DISPLAY", "EMBED_TAB_COMMAND")) or None
+        self.TAB_CMDS = (self.INI.findall("DISPLAY", "EMBED_TAB_COMMAND")) or []
         if self.TAB_NAMES is not None and len(self.TAB_NAMES) != len(self.TAB_CMDS):
-            log.critical('Embeded tab configuration -invalid number of TAB_NAMES vs TAB_CMDs')
+            log.critical('Embedded tab configuration -invalid number of TAB_NAMES vs TAB_CMDs')
+            good_flag = False
         if self.TAB_NAMES is not None and len(self.TAB_LOCATIONS) != len(self.TAB_NAMES):
-            log.warning('Embeded tab configuration -invalid number of TAB_NAMES vs TAB_LOCATION - guessing default.')
+            log.warning('Embedded tab configuration -invalid number of TAB_NAMES vs TAB_LOCATION - guessing default.')
             for num, i in enumerate(self.TAB_NAMES):
                 try:
                     if self.TAB_LOCATIONS[num]:
                         continue
                 except:
                     self.TAB_LOCATIONS.append("default")
-        try:
-            self.ZIPPED_TABS = list(zip(self.TAB_NAMES, self.TAB_LOCATIONS, self.TAB_CMDS))
-        except:
-            self.ZIPPED_TABS = None
 
+        # initial/default
         self.NATIVE_EMBED = []
-        if self.TAB_CMDS is not None:
-            for i in self.TAB_CMDS:
-                if i.split()[0].lower() == 'qtvcp':
-                    self.NATIVE_EMBED.append(True)
-                else:
-                    self.NATIVE_EMBED.append(False)
+        self.ZIPPED_TABS = None
+
+        # if no critical errors
+        if good_flag:
+            # check for duplicate names if qtvcp panels
+            if self.TAB_CMDS is not None:
+                nameList=[]
+                for num,i in enumerate(self.TAB_CMDS):
+                    if 'qtvcp' in i:
+                        nameList.append( self.TAB_NAMES[num])
+                # code to check for duplicate names
+                dup = {x for x in nameList if nameList.count(x) > 1}
+                if not dup == set():
+                    log.error('Embedded Qtvcp panel tab: Duplicate TAB_NAMES:{} in INI.'.format(dup))
+
+            try:
+                self.ZIPPED_TABS = list(zip(self.TAB_NAMES, self.TAB_LOCATIONS, self.TAB_CMDS))
+            except:
+                self.ZIPPED_TABS = None
+
+            # find qtvcp embedded - because they are added directly rather then x11 embedding
+            if self.TAB_CMDS is not None:
+                for i in self.TAB_CMDS:
+                    if i.split()[0].lower() == 'qtvcp':
+                        self.NATIVE_EMBED.append(True)
+                    else:
+                        self.NATIVE_EMBED.append(False)
+
+        ################
+        # MDI commands #
+        ################
         # users can specify a label for the MDI action button by adding ',Some\nText'
         # to the end of the MDI command
         # here we separate them to two lists

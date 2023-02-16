@@ -56,7 +56,7 @@ class _HalWidgetBase_(object):
             self.HAL_NAME_ = str(HAL_NAME)
         else:
             if self.objectName() =='':
-                LOG.warning('No objectName for HAL pin: {}'.format(self))
+                LOG.warning('No objectName or HAL_NAME specified for object: {}'.format(self))
             self.HAL_NAME_ = self.objectName()
         self.QT_OBJECT_ = self
         try:

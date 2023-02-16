@@ -1,4 +1,4 @@
-VERSION = '1.235.264'
+VERSION = '1.235.265'
 
 '''
 qtplasmac_handler.py
@@ -1000,6 +1000,7 @@ class HandlerClass:
         self.overlayProgress.setInvertedAppearance(True)
         self.overlayProgress.setFormat('')
         self.overlayProgress.hide()
+        self.camNum = self.PREFS.getpref('Camera port', 0, int, 'CAMERA_OFFSET')
 
     def get_overlay_text(self):
         text = ['']
@@ -1059,6 +1060,7 @@ class HandlerClass:
             msg0 = _translate('HandlerClass', 'Invalid entry for camera offset')
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
         if self.camOffsetX or self.camOffsetY:
+            self.w.camview.set_camnum(self.camNum)
             self.idleHomedList.append('camera')
             self.w.camera.setEnabled(False)
         else:
@@ -1916,7 +1918,7 @@ class HandlerClass:
             os.remove(tmpFile)
         except:
             log = _translate('HandlerClass', 'Unknown error removing')
-            STATUS.emit('update-machine-log', '{} config_info.txt'.format(log, file), 'TIME')
+            STATUS.emit('update-machine-log', '{} {}'.format(log, tmpFile), 'TIME')
         head = _translate('HandlerClass', 'Backup Complete')
         msg0 = _translate('HandlerClass', 'A compressed backup of the machine configuration including the machine logs has been saved in your home directory as')
         msg1 = _translate('HandlerClass', 'It is safe to delete this file at any time')
@@ -5226,7 +5228,7 @@ class HandlerClass:
                     return False
             else:
                 if not periodic:
-                    msg0 = _('cannot be found')
+                    msg0 = _translate('cannot be found')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {}\n{}'.format(head, port, msg0, msg1))
                 return False
         except:

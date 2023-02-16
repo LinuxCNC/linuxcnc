@@ -63,7 +63,7 @@ def use_pango_font(font, start, count, will_call_prepost=False):
         context.restore()
         w, h = int(w / Pango.SCALE), int(h / Pango.SCALE)
         GL.glNewList(base+i, GL.GL_COMPILE)
-        GL.glBitmap(0, 0, 0, 0, 0, h-d, ''.encode())
+        GL.glBitmap(1, 0, 0, 0, 0, h-d, bytearray([0]*4))
         #glDrawPixels(0, 0, 0, 0, 0, h-d, '');
         if not will_call_prepost:
             pango_font_pre()
@@ -74,7 +74,7 @@ def use_pango_font(font, start, count, will_call_prepost=False):
             except Exception as e:
                 print("glnav Exception ",e)
 
-        GL.glBitmap(0, 0, 0, 0, w, -h+d, ''.encode())
+        GL.glBitmap(1, 0, 0, 0, w, -h+d, bytearray([0]*4))
         if not will_call_prepost:
             pango_font_post()
         GL.glEndList()
@@ -831,6 +831,10 @@ class HalHud(object):
                 self.strings = []
                 self.formats = []
                 self.pinnames = []
+                self.background_color = (0,0.2,0,.5)
+                self.text_color = (0.9,0.9,0.0)
+                self.char_width = 13
+                self.char_height = 18
 
         def add_pin(self, text,form,pinname):
             self.strings.append(str(text))
@@ -850,7 +854,24 @@ class HalHud(object):
                 
         def clear(self):
                 self.messages = []
-                
+
+        # changes the hud color and transparency
+        def set_background_color(self, r, g, b, a =.7):
+            self.background_color = (r, g, b, 1-a)
+
+        # changes the hud text color
+        def set_text_color(self, r, g, b):
+            self.text_color = (r, g, b)
+
+        def set_char_width(self, width):
+            self.char_width = width
+
+        def set_char_height(self, height):
+            self.char_height = height
+
+        def set_font(self, font):
+            self._font = font
+ 
         def draw(self):
                 self.strs = []
                 # create the strings with the updated values using the corresponding list elements
@@ -875,7 +896,7 @@ class HalHud(object):
                 
                 if not self.fontbase:
                     self.fontbase, self._width, linespace = use_pango_font(self._font, 0, 128)
-                char_width, char_height = 9, 15
+
                 xmargin,ymargin = 5,5
                 ypos = float(self.app.winfo_height())
                 
@@ -886,19 +907,20 @@ class HalHud(object):
                 
                 #draw the text box
                 maxlen = max([len(p) for p in drawtext])
-                box_width = maxlen * char_width
+                box_width = maxlen * self.char_width
                 GL.glDepthFunc(GL.GL_ALWAYS)
                 GL.glDepthMask(GL.GL_FALSE)
                 GL.glDisable(GL.GL_LIGHTING)
                 GL.glEnable(GL.GL_BLEND)
                 GL.glEnable(GL.GL_NORMALIZE)
                 GL.glBlendFunc(GL.GL_ONE, GL.GL_CONSTANT_ALPHA)
-                GL.glColor3f(0,0.2,0) # sets the color of the hud overlay
-                GL.glBlendColor(0,0,0,0.5) #rgba, sets the transparency of the overlay using the 'a' value
+                color = self.background_color
+                GL.glColor3f(color[0],color[1],color[2])
+                GL.glBlendColor(0,0,0,color[3]) #rgba, sets the transparency of the overlay using the 'a' value
                 GL.glBegin(GL.GL_QUADS)
                 GL.glVertex3f(0, ypos, 1) #upper left
-                GL.glVertex3f(0, ypos - 2*ymargin - char_height*len(drawtext), 1) #lower left
-                GL.glVertex3f(box_width+2*xmargin, ypos - 2*ymargin - char_height*len(drawtext), 1) #lower right
+                GL.glVertex3f(0, ypos - 2*ymargin - self.char_height*len(drawtext), 1) #lower left
+                GL.glVertex3f(box_width+2*xmargin, ypos - 2*ymargin - self.char_height*len(drawtext), 1) #lower right
                 GL.glVertex3f(box_width+2*xmargin,  ypos , 1) #upper right
                 GL.glEnd()
                 GL.glDisable(GL.GL_BLEND)
@@ -906,16 +928,17 @@ class HalHud(object):
                 
                 #fill the box with text
                 maxlen = 0
-                ypos -= char_height+ymargin
+                ypos -= self.char_height+ymargin
                 i=0
                 GL.glDisable(GL.GL_LIGHTING)
-                GL.glColor3f(0.9,0.9,0.0) # sets the color of the text in the hud
+                color = self.text_color
+                GL.glColor3f(color[0],color[1],color[2])
                 for string in drawtext:
                         maxlen = max(maxlen, len(string))
                         GL.glRasterPos2i(xmargin, int(ypos))
                         for char in string:
                                 GL.glCallList(self.fontbase + ord(char))
-                        ypos -= char_height
+                        ypos -= self.char_height
                         i = i + 1
                 GL.glDepthFunc(GL.GL_LESS)
                 GL.glDepthMask(GL.GL_TRUE)

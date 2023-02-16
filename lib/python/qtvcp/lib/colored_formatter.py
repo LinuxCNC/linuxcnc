@@ -41,7 +41,7 @@ COLORS = {
 }
 
 MAPPING = {
-    'VERBOSE': 'blue',
+    'VERBOSE': 'bggrey',
     'DEBUG': 'blue',
     'INFO': 'cyan',
     'WARNING': 'yellow',

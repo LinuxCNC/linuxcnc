@@ -662,9 +662,9 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
                 rect = p.window()
                 top_right = rect.topRight() - QtCore.QPoint(self._right_edge_offset,-self._top_edge_offset)
                 if self.width() < self.height():
-                    size = self.width() * self._size
+                    size = int(self.width() * self._size)
                 else:
-                    size = self.height() * self._size
+                    size = int(self.height() * self._size)
 
                 gradient = QtGui.QLinearGradient(top_right- QtCore.QPoint(size, 0), top_right)
                 gradient.setColorAt(0, QtCore.Qt.white)
@@ -838,7 +838,7 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self.update()
 
     def set_right_edge_offset(self, data):
-        self._right_edge_offset = data
+        self._right_edge_offset = int(data)
         self.update()
     def get_right_edge_offset(self):
         return self._right_edge_offset
@@ -847,7 +847,7 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self.update()
 
     def set_top_edge_offset(self, data):
-        self._top_edge_offset = data
+        self._top_edge_offset = int(data)
         self.update()
     def get_top_edge_offset(self):
         return self._top_edge_offset
@@ -1336,7 +1336,7 @@ class ScaledLabel(QtWidgets.QLabel):
         dh = event.size().height() - event.oldSize().height() # height change
         fs = max(f.pointSizeF(), .5)
         while True:
-            f.setPointSize(fs)
+            f.setPointSize(int(fs))
             #gives bigger text
             #br =  QtGui.QFontMetrics(f).tightBoundingRect(self.textSample())
             # then this

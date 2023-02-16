@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-12 08:55+0100\n"
+"POT-Creation-Date: 2023-02-12 11:32+0100\n"
 "PO-Revision-Date: 2022-11-09 19:47+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: none\n"
@@ -18,102 +18,87 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "X-Generator: Weblate 4.15-dev\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:265
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:270
-msgid "**** GMOCCAPY INI Entry ****"
-msgstr "**** Vstup GMOCCAPY INI ****"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:266
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:253
 msgid "user mode selected"
 msgstr "zvolený užívateľský režim"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:271
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:257
 #, python-brace-format
 msgid "logo entry found = {0}"
 msgstr "nájdený záznam loga = {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:276
-msgid "**** GMOCCAPY INI Entry Error ****"
-msgstr "**** Chyba vstupu GMOCCAPY INI ****"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:277
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:262
 msgid "Logofile entry found, but could not be converted to path."
 msgstr "Položka súboru loga sa našla, ale nebolo ju možné konvertovať."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:278
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:263
 msgid "The file path should not contain any spaces"
 msgstr "Cesta k súboru by nemala obsahovať žiadne medzery"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:528
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:549
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:513
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:534
 msgid "Error in "
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:529
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:550
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:514
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:535
 msgid "Please check the console output."
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:692
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:675
 msgid "axis"
 msgstr "os"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:693
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:676
 msgid "axes"
 msgstr "osi"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:698
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:681
 msgid "joint"
 msgstr "kĺb"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:699
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:682
 msgid "joints"
 msgstr "kĺby"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:715
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:698
 #, python-brace-format
 msgid "Press to home all {0}"
 msgstr "Kalibrácia všetkých osí {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:728
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1022
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:711
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1003
 msgid "Press to display previous homing button"
 msgstr "tlačidlo predchádzajúcej kalibrácie"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:744
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:727
 #, python-brace-format
 msgid "Press to home {0} {1}"
 msgstr "Stlačením skalibrujete {0} {1}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:761
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1051
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:744
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1032
 msgid "Press to display next homing button"
 msgstr "Stlačením zobrazíte tlačidlo ďalšej kalibrácie"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:776
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:759
 #, python-brace-format
 msgid "Press to unhome all {0}"
 msgstr "Rozkalibrovať všetky osi {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:785
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1105
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:768
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1086
 msgid "Press to return to main button list"
 msgstr "Návrat do hlavného zoznamu tlačidiel"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:843
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1995
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2250
-msgid "**** GMOCCAPY ERROR ****\n"
-msgstr "**** GMOCCAPY CHYBA ****\n"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:844
-#, python-brace-format
-msgid "**** could not resolv the image path '{0}' given for button '{1}' ****"
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:826
+#, fuzzy, python-brace-format
+msgid "could not resolv the image path '{0}' given for button '{1}'"
 msgstr ""
 "**** nepodarilo sa vyriešiť cestu k obrázku '{0}' pre dané tlačidlo '{1}' "
 "****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1000
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:981
 msgid ""
 "edit\n"
 "offsets"
@@ -121,20 +106,20 @@ msgstr ""
 "upraviť\n"
 "ofsety"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1009
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:990
 msgid "Press to edit the offsets"
 msgstr "Úprava posunov"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1034
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1015
 #, python-brace-format
 msgid "Press to set touch off value for axis {0}"
 msgstr "Nastaviť hodnotu dotyku pre os {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1070
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1051
 msgid "Press to reset all G92 offsets"
 msgstr "Resetovať všetky G92 ofsety"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1076
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1057
 msgid ""
 " Block\n"
 "Height"
@@ -142,11 +127,11 @@ msgstr ""
 "Výška\n"
 "bloku"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1081
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1062
 msgid "Press to enter new value for block height"
 msgstr "Zadať novú hodnotu výšky bloku"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1086
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1067
 msgid ""
 "set\n"
 "selected"
@@ -154,183 +139,146 @@ msgstr ""
 "nastaviť\n"
 "vybrané"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1095
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1076
 msgid "Press to set the selected coordinate system to be the active one"
 msgstr "Nastaviť vybraný súradnicový systém ako aktívny"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1120
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1136
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1282
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1870
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2080
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2093
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2103
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2168
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2171
-msgid "**** GMOCCAPY INFO ****"
-msgstr "**** GMOCCAPY INFORMACIA ****"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1121
-msgid "**** no valid probe config in INI File ****"
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1101
+#, fuzzy
+msgid "No valid probe config in INI File. Tool measurement disabled."
 msgstr "**** žiadna platná konfigurácia sondy v súbore INI ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1122
-msgid "**** disabled tool measurement ****"
-msgstr "**** vypnuté meranie nástroja ****"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1137
-msgid "**** found valid probe config in INI File ****"
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1115
+#, fuzzy
+msgid "Found valid probe config in INI file. Will use auto tool measurement."
 msgstr "**** v súbore INI sa našla platná konfigurácia sondy ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1138
-msgid "**** will use auto tool measurement ****"
-msgstr "**** použiť automatické meranie nástroja ****"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1153
-msgid "**** GMOCCAPY build_GUI INFO ****"
-msgstr "**** GMOCCAPY nadstavba_GUI INFORMÁCIA ****"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1154
-msgid "**** To many increments given in INI File for this screen ****"
-msgstr ""
-"**** Príliš vela inkrementov uvedených v súbore INI pre túto obrazovku ****"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1155
-msgid "**** Only the first 10 will be reachable through this screen ****"
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1129
+#, fuzzy
+msgid ""
+"To many increments given in INI File for this screen. Only the first 10 will "
+"be reachable through this screen."
 msgstr "**** Pre túto obrazovku bude dostupných iba prvých 10 položiek ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1164
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1139
 msgid "Continuous"
 msgstr "Nepretržite"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1283
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1257
 #, python-brace-format
 msgid "unknown jog command {0}"
 msgstr "Neznámy príkaz pohybu {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1312
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1285
 #, python-brace-format
 msgid "Press to jog axis {0}"
 msgstr "Pohyb osi {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1333
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1305
 #, python-brace-format
 msgid "Press to jog joint {0}"
 msgstr "Pohyb kĺbu {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1356
-msgid "**** GMOCCAPY INFO ****\n"
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1327
+#, fuzzy
+msgid "GMOCCAPY INFO\n"
 msgstr "**** GMOCCAPY INFORMÁCIA ****\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1357
-msgid "**** found more than 16 macros, will use only the first 16 ****"
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1328
+#, fuzzy
+msgid "found more than 16 macros, will use only the first 16"
 msgstr "**** nájdených viac ako 16 makier, použije sa iba prvých 16 ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1368
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1339
 msgid "Press to display previous macro button"
 msgstr "Zobraziť predchádzajúce makro"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1390
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1361
 #, python-brace-format
 msgid "Press to run macro {0}"
 msgstr "Spustiť makro {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1401
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1372
 msgid "Press to display next macro button"
 msgstr "Zobraziť ďalšie tlačidlo makra"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1421
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1392
 msgid "Press to display the virtual keyboard"
 msgstr "Zobraziť virtuálnu klávesnicu"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1518
-msgid "*****  GMOCCAPY ERROR  *****"
-msgstr "*****  GMOCCAPY CHYBA  *****"
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1488
+#, fuzzy
+msgid "* GMOCCAPY ERROR *"
+msgstr "**** GMOCCAPY CHYBA ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1519
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1489
 msgid "this is not a lathe, as a lathe must have at least\n"
 msgstr "toto nie je sústruh, keďže sústruh musí mať najmenej\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1520
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1490
 msgid "an X and an Z axis\n"
 msgstr "os X a Z\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1521
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1491
 msgid "Wrong lathe configuration, we will leave here"
 msgstr "Nesprávna konfigurácia sústruhu, na tomto mieste to opúšťame"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1522
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1998
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2253
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1492
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1957
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2203
 msgid "Very critical situation"
 msgstr "Veľmi kritická situácia"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1672
-msgid "*****  GMOCCAPY INFO  *****"
-msgstr "*****  GMOCCAPY INFORMÁCIA  *****"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1673
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1637
 msgid "this is not a usual config\n"
 msgstr "toto nie je bežná konfigurácia\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1674
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1638
 msgid "we miss one of X , Y or Z axis\n"
 msgstr "chýba nám jedna z osi X, Y alebo Z\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1675
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1639
 msgid "We will use by axisletter ordered jog button"
 msgstr "Použijeme pomocou osového písmena príslušné tlačidlo jog"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1841
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2966
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1803
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2916
 msgid "mm/min"
 msgstr "mm/min"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1844
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2969
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1806
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2919
 msgid "inch/min"
 msgstr "palce/min"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1871
-msgid "**** Invalid embedded tab configuration ****"
-msgstr "**** Neplatná konfigurácia vloženej karty ****"
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1832
+msgid ""
+"No embedded tabs configured or invalid configuration. No tabs will be added!"
+msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1872
-msgid "**** No tabs will be added! ****"
-msgstr "**** Nebudú pridané žiadne karty! ****"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1889
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1849
 msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
 msgstr ""
 "CHYBA, pokúšate sa inicializovať používateľské karty alebo panely, "
 "skontrolujte preklepy"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1996
-msgid "**** Did not find a toolfile file in [EMCIO] TOOL_TABLE ****"
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1955
+#, fuzzy
+msgid "Did not find a toolfile file in [EMCIO] TOOL_TABLE"
 msgstr "**** V [EMCIO] TOOL_TABLE sa nenašiel súbor so súborom nástrojov ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2081
-msgid "**** audio available! ****"
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2039
+#, fuzzy
+msgid "Audio available!"
 msgstr "**** audio k dispozícii! ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2094
-msgid "**** no audio available! ****"
-msgstr "**** nie je k dispozícii žiadny zvuk! ****"
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2051
+msgid ""
+"No audio available! PYGST library not installed? Is python-gstX.XX installed?"
+msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2095
-msgid "**** PYGST library not installed? ****"
-msgstr "**** Knižnica PYGST nie je nainštalovaná? ****"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2096
-msgid "**** is python-gstX.XX installed? ****"
-msgstr "**** je python-gstX.XX nainštalovaný ? ****"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2104
-msgid "**** Entering init gremlin ****"
-msgstr "**** Zadanie init gremlin ****"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2124
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5366
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2079
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5313
 msgid ""
 " Joint\n"
 "mode"
@@ -338,243 +286,217 @@ msgstr ""
 "Režim\n"
 "kĺbov"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2169
-msgid "**** virtual keyboard program found : <onboard>"
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2123
+#, fuzzy
+msgid "Virtual keyboard program found : <onboard>"
 msgstr "**** nájdený program virtuálnej klávesnice: <onboard>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2172
-msgid "**** No virtual keyboard installed, we checked for <onboard> ."
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2125
+#, fuzzy
+msgid ""
+"No virtual keyboard installed, we checked for <onboard>. Try 'sudo apt-get "
+"install onboard'."
 msgstr ""
 "**** Nie je nainštalovaná žiadna virtuálna klávesnica, skontrolovali sme "
 "<onboard> ."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2173
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2188
-msgid "**** try sudo apt-get install onboard"
-msgstr "**** vyskúšajte sudo apt-get install onboard"
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2138
+msgid ""
+"Error with launching virtual keyboard. Is onboard installed?Try sudo apt-get "
+"install onboard"
+msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2185
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3427
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3437
-msgid "**** GMOCCAPY ERROR ****"
-msgstr "**** GMOCCAPY CHYBA ****"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2186
-msgid "**** Error with launching virtual keyboard,"
-msgstr "**** Chyba pri spúšťaní virtuálnej klávesnice,"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2187
-msgid "**** is onboard installed? ****"
-msgstr "**** je nainštalovaný onboard? ****"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2220
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3096
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2171
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3046
 msgid "interrupt running macro"
 msgstr "prerušenie spusteného makra"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2251
-msgid "**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****"
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2201
+#, fuzzy
+msgid "Did not find a parameter file in [RS274NGC] PARAMETER_FILE"
 msgstr "**** Nenašiel sa súbor parametrov v [RS274NGC] PARAMETER_FILE ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2321
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2271
 msgid "Select the file you want to be loaded at program start"
 msgstr "Vyberte súbor, ktorý chcete načítať pri spustení programu"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2355
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2379
-#, python-brace-format
-msgid "**** GMOCCAPY ERROR **** /n Message type {0} not supported"
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2305
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2329
+#, fuzzy, python-brace-format
+msgid "Message type {0} not supported"
 msgstr "**** GMOCCAPY ERROR **** /n Typ správy {0} nie je podporovaný"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2498
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2448
 msgid "Unknown error type and no error text given"
 msgstr "Neznámy typ chyby a žiadny text chyby"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2512
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2462
 msgid "Important Warning"
 msgstr "Dôležité upozornenie"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2532
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2482
 msgid "External ESTOP is set, could not change state!"
 msgstr "Externý ESTOP je nastavený, nemožno zmeniť stav!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2545
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2495
 msgid "Could not switch the machine on, is limit switch activated?"
 msgstr "Nie je možné zapnúť stroj. Je aktivovaný koncový spínač?"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2628
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2578
 msgid "No file loaded"
 msgstr "Nie je načítaný žiadny súbor"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2846
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2796
 msgid "It is not possible to change to MDI Mode at the moment"
 msgstr "Momentálne nie je možné prejsť do režimu MDI"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2880
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2830
 msgid "It is not possible to change to Auto Mode at the moment"
 msgstr "Momentálne nie je možné prejsť do automatického režimu"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3061
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3011
 msgid "Enter value:"
 msgstr "Zadajte hodnotu:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3062
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3012
 #, python-brace-format
 msgid "Set parameter {0} to:"
 msgstr "Nastaviť parameter {0} na:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3064
-msgid "conversion error"
-msgstr "chyba konverzie"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3065
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5005
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5028
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3015
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4952
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4975
 msgid "Conversion error !"
 msgstr "Chyba konverzie !"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3094
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3044
 msgid "This button will show or hide the keyboard"
 msgstr "Zobrazí alebo skryje klávesnicu"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3202
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3152
 msgid "Mode change is only allowed if the interpreter is idle!"
 msgstr "Zmena režimu je povolená len vtedy, ak je interpreter nečinný!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3428
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3377
 #, python-brace-format
-msgid "**** {0} ****"
-msgstr "**** {0} ****"
+msgid "{0}"
+msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3438
-#, python-brace-format
-msgid "**** No widget named: {0} to sensitize ****"
-msgstr "**** Žiadna aplikácia s názvom: {0} na zvýšenie citlivosti ****"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3604
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3552
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
 msgid "No tool description available"
 msgstr "Popis nástroja nie je k dispozícii"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3744
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3692
 #, python-brace-format
 msgid "Halo, welcome to the test message {0}"
 msgstr "Ahoj, vitaj v testovacej správe {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3855
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3803
 msgid "Hal Pin is low, Access denied"
 msgstr "Hal Pin je v stave \"low\", prístup odmietnutý"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3857
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3805
 msgid "wrong code entered, Access denied"
 msgstr "zadaný nesprávny kód, prístup odmietnutý"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3858
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4508
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3806
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4455
 msgid "Just to warn you"
 msgstr "Len aby som ťa varoval"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4012
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3960
 msgid "INFO:"
 msgstr "INFORMÁCIA:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4013
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3961
 msgid "Classicladder real-time component not detected"
 msgstr "Komponent v reálnom čase Classicladder nebol zistený"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4128
-#, python-brace-format
-msgid "Something went wrong, we have an unknown spindle widget {0}"
-msgstr "Niečo sa pokazilo, máme neznámu aplikáciu vretena {0}"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4241
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4189
 msgid "Do you really want to delete the MDI history?\n"
 msgstr "Naozaj chceš vymazať históriu MDI?\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4242
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4190
 msgid "This will not delete the MDI History file, but will\n"
 msgstr "Toto nebude odstránené zo súboru histórie MDI, ale bude\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4243
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4191
 msgid "delete the listbox entries for this session."
 msgstr "vymažte položky zoznamu pre túto reláciu."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4244
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4192
 msgid "Attention!!"
 msgstr "Pozor!!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4301
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4248
 msgid "Exit and discard changes?"
 msgstr "Ukončiť a zahodiť zmeny?"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4302
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4249
 msgid "Attention!"
 msgstr "Pozor!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4384
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4331
 msgid "Enter value for diameter"
 msgstr "Zadajte hodnotu pre priemer"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4385
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4332
 msgid "Set diameter to:"
 msgstr "Nastavte priemer na:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4388
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4335
 msgid "Enter value for radius"
 msgstr "Zadajte hodnotu pre polomer"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4389
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4336
 msgid "Set radius to:"
 msgstr "Nastaviť polomer na:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4392
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4339
 #, python-brace-format
 msgid "Enter value for axis {0}"
 msgstr "Zadajte hodnotu pre os {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4393
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4340
 #, python-brace-format
 msgid "Set axis {0} to:"
 msgstr "Nastaviť os {0} na:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4397
-msgid "Conversion error in btn_set_value"
-msgstr "Chyba konverzie v btn_set_value"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4398
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4345
 msgid "Conversion error in btn_set_value!"
 msgstr "Chyba konverzie v btn_set_value!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4399
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4346
 msgid "Please enter only numerical values. Values have not been applied"
 msgstr "Zadajte iba číselné hodnoty. Hodnoty neboli použité"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4413
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4360
 msgid ""
 "You did not select a system to be changed to, so nothing will be changed"
 msgstr "Nevybrali ste systém, ktorý chcete zmeniť, takže sa nič nezmení"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4414
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5034
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5048
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5052
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5067
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4361
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4981
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4995
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4999
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5014
 msgid "Important Warning!"
 msgstr "Dôležité upozornenie!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4464
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4411
 msgid "Enter the block height"
 msgstr "Zadajte výšku bloku"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4465
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4412
 msgid "Block height measured from base table"
 msgstr "Výška bloku meraná od základného stola"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4477
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4424
 msgid "Conversion error in btn_block_height!"
 msgstr "Chyba konverzie v btn_block_height!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4478
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4425
 msgid ""
 "Please enter only numerical values\n"
 "Values have not been applied"
@@ -582,11 +504,11 @@ msgstr ""
 "Zadajte iba číselné hodnoty\n"
 "Hodnoty neboli použité"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4922
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4869
 msgid "Please remove the mounted tool and press OK when done"
 msgstr "Odstráňte osadený nástroj a po dokončení stlačte tlačidlo OK"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4926
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4873
 #, python-brace-format
 msgid ""
 "Please change to tool\n"
@@ -601,7 +523,7 @@ msgstr ""
 "\n"
 "  potom kliknite na tlačidlo OK."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4928
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4875
 #, python-brace-format
 msgid ""
 "Tool\n"
@@ -616,119 +538,119 @@ msgstr ""
 "\n"
 " nie je v tabuľke nástrojov!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4930
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4877
 msgid "Manual Tool change"
 msgstr "Manuálna výmena nástroja"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4940
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4887
 msgid "Tool Change has been aborted!\n"
 msgstr "Výmena nástroja bola prerušená!\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4941
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4888
 msgid "The old tool will remain set!"
 msgstr "Starý nástroj zostane nastavený!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4949
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4896
 msgid "You are trying to delete the tool mounted in the spindle\n"
 msgstr "Pokúšate sa odstrániť nástroj osadený vo vretene\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4950
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4897
 msgid "This is not allowed, please change tool prior to delete it"
 msgstr "Toto nie je povolené, pred odstránením zmeňte nástroj"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4951
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4898
 msgid "Warning Tool can not be deleted!"
 msgstr "Upozornenie Nástroj nie je možné odstrániť!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4970
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4917
 msgid "No or multiple tools selected in the tool table. "
 msgstr "V tabuľke nástrojov ste vybrali žiadny, alebo viacero nástrojov. "
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4971
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4918
 msgid "Please select only one tool in the table!"
 msgstr "V tabuľke vyberte iba jeden nástroj!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4972
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4978
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4986
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4919
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4925
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4933
 msgid "Warning Tool Touch off not possible!"
 msgstr "Výstraha Vypnutie dotykového nástroja nie je možné!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4976
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4923
 msgid "You can not touch off a tool, which is not mounted in the spindle! "
 msgstr "Nemôžete sa dotknúť nástroja, ktorý nie je osadený vo vretene! "
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4977
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4924
 msgid "Your selection has been reset to the tool in spindle."
 msgstr "Váš výber bol resetovaný na nástroj vo vretene."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4984
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4931
 msgid ""
 "Tool touch off is not possible with cutter radius compensation switched on!\n"
 msgstr "Dotyk nástroja nie je možný so zapnutou korekciou polomeru frézy!\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4985
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4932
 msgid "Please emit an G40 before tool touch off."
 msgstr "Pred dotykom nástroja aktivujte G40."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4994
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4941
 msgid "Real big error!"
 msgstr "Naozaj veľká chyba!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4995
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4942
 msgid ""
 "You managed to come to a place that is not possible in on_btn_tool_touchoff"
 msgstr ""
 "Podarilo sa vám prísť na miesto, ktoré v on_btn_tool_touchoff nie je možné"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4999
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4946
 #, python-brace-format
 msgid "Enter value for axis {0} to set:"
 msgstr "Zadajte hodnotu pre os {0}, ktorú chcete nastaviť:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5000
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4947
 #, python-brace-format
 msgid "Set parameter of tool {0:d} and axis {1} to:"
 msgstr "Nastavte parameter nástroja {0:d} a osi {1} na:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5004
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4951
 #, python-brace-format
 msgid "Conversion error because of wrong entry for touch off axis {0}"
 msgstr "Chyba prevodu z dôvodu nesprávneho zadania pre os dotyku {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5023
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4970
 msgid "Enter the tool number as integer "
 msgstr "Zadajte číslo nástroja ako celé číslo"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5024
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4971
 msgid "Select the tool to change"
 msgstr "Vyberte nástroj, ktorý chcete zmeniť"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5026
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4973
 msgid "Conversion error because of wrong entry for tool number.\n"
 msgstr "Chyba konverzie z dôvodu nesprávneho zadania čísla nástroja.\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5027
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4974
 msgid "Enter only integer numbers!"
 msgstr "Zadajte iba celé čísla!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5033
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5051
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4980
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4998
 msgid "Selected tool is already in spindle, no change needed."
 msgstr "Vybraný nástroj je už vo vretene, nie je potrebná žiadna zmena."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5047
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4994
 msgid ""
 "you selected no or more than one tool, the tool selection must be unique"
 msgstr ""
 "nevybrali ste žiadny, alebo viac ako jeden nástroj. Výber nástroja musí byť "
 "jedinečný"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5066
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5013
 msgid "Could not understand the entered tool number. Will not change anything!"
 msgstr "Nerozumel som zadanému číslu nástroja. Nebude nič zmenené!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5371
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5318
 msgid ""
 "World\n"
 "mode"
@@ -736,47 +658,10 @@ msgstr ""
 "Režim svet.\n"
 "módu"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5557
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5504
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
 msgstr ""
 "Osové pohyby sú povolené iba vo svetovom režime, ale vy ste v kĺbovom režime!"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5593
-#, python-brace-format
-msgid "Received a not classified signal from pin {0}"
-msgstr "Prijatý neklasifikovaný signál z pinu {0}"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5598
-#, python-brace-format
-msgid "Could not translate {0} to number"
-msgstr "Nepodarilo sa preložiť {0} na číslo"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5603
-msgid "no button here"
-msgstr "nie je tu žiadne tlačidlo"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5606
-msgid "the button is not sensitive"
-msgstr "tlačidlo nie je citlivé"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5611
-#, python-brace-format
-msgid "Button {0} has been toggled"
-msgstr "Tlačidlo {0} bolo prepnuté"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5615
-#, python-brace-format
-msgid "Button {0} has been pressed"
-msgstr "Bolo stlačené tlačidlo {0}"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5618
-#, python-brace-format
-msgid "Button {0} has been clicked"
-msgstr "Bolo kliknuté na tlačidlo {0}"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5631
-msgid "got wrong location to locate the childs"
-msgstr "má zlé miesto na nájdenie sekcie"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:47
 #: src/emc/usr_intf/gmoccapy/dialogs.py:50
@@ -826,34 +711,25 @@ msgstr "_Dolu"
 msgid "_Jump to"
 msgstr "_Skoč na"
 
-#: src/emc/usr_intf/gmoccapy/getiniinfo.py:98
-msgid "**** GMOCCAPY GETINIINFO : ****"
-msgstr "**** GMOCAPY ZÍSKAJTE INFORMÁCIE: ****"
-
-#: src/emc/usr_intf/gmoccapy/getiniinfo.py:99
-#, python-brace-format
+#: src/emc/usr_intf/gmoccapy/getiniinfo.py:104
+#, fuzzy, python-brace-format
 msgid ""
-"**** gmoccapy can only handle 9 axis, ****\n"
-"**** but you have given {0} through your INI file ****\n"
+"**** gmoccapy can only handle 9 axis, but you have given {0} through your "
+"INI file. "
 msgstr ""
 "**** gmoccapy zvládne iba 9 osí, ****\n"
 "**** ale prostredníctvom súboru INI ste poskytli {0} ****\n"
 
-#: src/emc/usr_intf/gmoccapy/getiniinfo.py:100
-msgid ""
-"**** gmoccapy will not start ****\n"
-"\n"
+#: src/emc/usr_intf/gmoccapy/getiniinfo.py:105
+#, fuzzy
+msgid "gmoccapy will not start ****\n"
 msgstr ""
 "**** gmoccapy sa nespustí ****\n"
 "\n"
 
-#: src/emc/usr_intf/gmoccapy/getiniinfo.py:431
-msgid "**** GMOCCAPY GETINIINFO ****\n"
-msgstr "**** GMOCAPY ZÍSKAJTE INFORMÁCIE ****\n"
-
-#: src/emc/usr_intf/gmoccapy/getiniinfo.py:432
-msgid ""
-"**** No subroutine folder or program prefix is given in the INI file **** \n"
+#: src/emc/usr_intf/gmoccapy/getiniinfo.py:429
+#, fuzzy
+msgid "No subroutine folder or program prefix is given in the INI file!"
 msgstr ""
 "**** V súbore ini nie je uvedený žiadny priečinok podprogramov a ani "
 "preferované programy ****\n"
@@ -1870,6 +1746,121 @@ msgstr "Načítať súbor"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:255
 msgid "home joints"
 msgstr "skalibrovať kĺby"
+
+#, fuzzy
+#~| msgid "**** Entering init gremlin ****"
+#~ msgid "Entering init gremlin"
+#~ msgstr "**** Zadanie init gremlin ****"
+
+#~ msgid "conversion error"
+#~ msgstr "chyba konverzie"
+
+#, fuzzy, python-brace-format
+#~| msgid "**** No widget named: {0} to sensitize ****"
+#~ msgid "No widget named: {0} to sensitize"
+#~ msgstr "**** Žiadna aplikácia s názvom: {0} na zvýšenie citlivosti ****"
+
+#, python-brace-format
+#~ msgid "Something went wrong, we have an unknown spindle widget {0}"
+#~ msgstr "Niečo sa pokazilo, máme neznámu aplikáciu vretena {0}"
+
+#~ msgid "Conversion error in btn_set_value"
+#~ msgstr "Chyba konverzie v btn_set_value"
+
+#, python-brace-format
+#~ msgid "Received a not classified signal from pin {0}"
+#~ msgstr "Prijatý neklasifikovaný signál z pinu {0}"
+
+#, python-brace-format
+#~ msgid "Could not translate {0} to number"
+#~ msgstr "Nepodarilo sa preložiť {0} na číslo"
+
+#~ msgid "no button here"
+#~ msgstr "nie je tu žiadne tlačidlo"
+
+#~ msgid "the button is not sensitive"
+#~ msgstr "tlačidlo nie je citlivé"
+
+#, python-brace-format
+#~ msgid "Button {0} has been toggled"
+#~ msgstr "Tlačidlo {0} bolo prepnuté"
+
+#, python-brace-format
+#~ msgid "Button {0} has been pressed"
+#~ msgstr "Bolo stlačené tlačidlo {0}"
+
+#, python-brace-format
+#~ msgid "Button {0} has been clicked"
+#~ msgstr "Bolo kliknuté na tlačidlo {0}"
+
+#~ msgid "got wrong location to locate the childs"
+#~ msgstr "má zlé miesto na nájdenie sekcie"
+
+#~ msgid "**** GMOCCAPY INI Entry ****"
+#~ msgstr "**** Vstup GMOCCAPY INI ****"
+
+#~ msgid "**** GMOCCAPY INI Entry Error ****"
+#~ msgstr "**** Chyba vstupu GMOCCAPY INI ****"
+
+#~ msgid "**** GMOCCAPY ERROR ****\n"
+#~ msgstr "**** GMOCCAPY CHYBA ****\n"
+
+#~ msgid "**** GMOCCAPY INFO ****"
+#~ msgstr "**** GMOCCAPY INFORMACIA ****"
+
+#~ msgid "**** disabled tool measurement ****"
+#~ msgstr "**** vypnuté meranie nástroja ****"
+
+#~ msgid "**** will use auto tool measurement ****"
+#~ msgstr "**** použiť automatické meranie nástroja ****"
+
+#~ msgid "**** GMOCCAPY build_GUI INFO ****"
+#~ msgstr "**** GMOCCAPY nadstavba_GUI INFORMÁCIA ****"
+
+#~ msgid "**** To many increments given in INI File for this screen ****"
+#~ msgstr ""
+#~ "**** Príliš vela inkrementov uvedených v súbore INI pre túto obrazovku "
+#~ "****"
+
+#~ msgid "*****  GMOCCAPY ERROR  *****"
+#~ msgstr "*****  GMOCCAPY CHYBA  *****"
+
+#~ msgid "*****  GMOCCAPY INFO  *****"
+#~ msgstr "*****  GMOCCAPY INFORMÁCIA  *****"
+
+#~ msgid "**** Invalid embedded tab configuration ****"
+#~ msgstr "**** Neplatná konfigurácia vloženej karty ****"
+
+#~ msgid "**** No tabs will be added! ****"
+#~ msgstr "**** Nebudú pridané žiadne karty! ****"
+
+#~ msgid "**** no audio available! ****"
+#~ msgstr "**** nie je k dispozícii žiadny zvuk! ****"
+
+#~ msgid "**** PYGST library not installed? ****"
+#~ msgstr "**** Knižnica PYGST nie je nainštalovaná? ****"
+
+#~ msgid "**** is python-gstX.XX installed? ****"
+#~ msgstr "**** je python-gstX.XX nainštalovaný ? ****"
+
+#~ msgid "**** try sudo apt-get install onboard"
+#~ msgstr "**** vyskúšajte sudo apt-get install onboard"
+
+#~ msgid "**** Error with launching virtual keyboard,"
+#~ msgstr "**** Chyba pri spúšťaní virtuálnej klávesnice,"
+
+#~ msgid "**** is onboard installed? ****"
+#~ msgstr "**** je nainštalovaný onboard? ****"
+
+#, python-brace-format
+#~ msgid "**** {0} ****"
+#~ msgstr "**** {0} ****"
+
+#~ msgid "**** GMOCCAPY GETINIINFO : ****"
+#~ msgstr "**** GMOCAPY ZÍSKAJTE INFORMÁCIE: ****"
+
+#~ msgid "**** GMOCCAPY GETINIINFO ****\n"
+#~ msgstr "**** GMOCAPY ZÍSKAJTE INFORMÁCIE ****\n"
 
 #~ msgid "delete MDI"
 #~ msgstr "Vymazať MDI"

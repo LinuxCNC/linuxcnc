@@ -64,22 +64,18 @@ int    tooldata_find_index_for_tool(int toolno);
 void   tooldata_format_toolline (int idx,
                                  bool ignore_zero_values,
                                  CANON_TOOL_TABLE tdata,
-                                 char * ttcomments[],
                                  char formatted_line[CANON_TOOL_ENTRY_LEN]
                                  );
 
 void   tooldata_add_init(int nonrandom_start_idx);
-int    tooldata_read_entry(const char *input_line,
-                           char *ttcomments[]);
+int    tooldata_read_entry(const char *input_line);
 
 void   tooldata_set_db(tooldb_t mode);
 
 //----------------------------------------------------------
-int tooldata_load(const char *filename,
-                  char *ttcomments[CANON_POCKETS_MAX]);
+int tooldata_load(const char *filename);
 
-int tooldata_save(const char *filename,
-                  char *ttcomments[CANON_POCKETS_MAX]);
+int tooldata_save(const char *filename);
 
 //----------------------------------------------------------
 //mmap specific

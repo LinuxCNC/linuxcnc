@@ -480,9 +480,6 @@ When Qt Designer is first started there is a _'New Form' dialog_ displayed. +
 Pick _'Main Window'_ and press the _'Create'_ button. +
 A _`MainWindow` widget_ is displayed.
 
-WARNING: *Do not rename this window !* +
-  QtVCP requires the name to be `MainWindow`.
-
 We are going to make this window a specific non resizeable size:
  
 .Set `MainWindow` Minimum and Maximum Size

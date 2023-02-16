@@ -2821,9 +2821,12 @@
                           <object class="GtkLabel" id="status_activecodes">
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
+                            <property name="valign">start</property>
                             <property name="label" translatable="yes">G1 G2 G3
 M1 M2 M3
 F1 S1</property>
+			    <property name="max-width-chars">40</property>
+			    <property name="width-chars">40</property>
                             <property name="wrap">True</property>
                           </object>
                           <packing>
@@ -2954,6 +2957,7 @@ F1 S1</property>
                           <object class="GtkLabel" id="status_tooltable">
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
+                            <property name="valign">start</property>
                             <property name="label" translatable="yes">&lt;b&gt;1&lt;/b&gt;
 2
 3</property>
@@ -3843,6 +3847,9 @@ F1 S1</property>
             <property name="visible">True</property>
             <property name="xalign">0</property>
             <property name="xpad">5</property>
+            <property name="single-line-mode">True</property>
+            <property name="max-width-chars">80</property>
+            <property name="width-chars">80</property>
           </object>
           <packing>
             <property name="expand">False</property>

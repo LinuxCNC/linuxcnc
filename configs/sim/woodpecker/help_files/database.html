@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QtDragon Documentation</title>
+  <link href="help.css" rel="stylesheet">
+</head>
+<body>
+<div class="sidenav">
+    <img src="images/WoodPecker.png" alt="Qt_WoodPecker">
+    <ul style="list-style-type:none">
+    <li><a href="hole_circle_utility.html">HOLE CIRCLE UTILITY</a></li>
+    <li><a href="facing_utility.html">FACING UTILITY</a></li>
+    <li><a href="ngcgui.html">NGCGUI</a></li>
+    <li><a href="database.html">TOOL DATABASE</a></li>
+    <li><a href="using_a_vfd.html">USING A VFD</a></li>
+    <li><a href="spindle_pause.html">SPINDLE PAUSE</a></li>
+    <li><a href="z_level_comp.html">Z LEVEL COMPENSATION</a></li>
+    <li><a href="using_a_mpg.html">USING A MPG</a></li>
+    <li><a href="probing.html">PROBING</a></li>
+    <li><a href="runfromline.html">RUN FROM LINE</a></li>
+    <li><a href="stylesheets.html">STYLESHEETS</a></li>
+    <li><a href="about.html">ABOUT</a></li>
+    </ul>
+</div>
+        
+<div class = "main">
+<h1>TOOL DATABASE</h1>
+<p>The tool database utility enables the user to store additional information about the tools listed in the linuxcnc tool.tbl file.
+This extra information is kept in a SQLITE database. On startup, the program checks if the database exists and creates one if needed.
+Data that exists in the system tool.tbl cannot be modified by this program. That data can only be modified by the tool_offsetview module.</p>
+
+<h2>Usage</h2>
+<p>Very little user action is required other than entering data into the parameter fields of the tool information panel. This panel appears
+on the right side of the tool_offset view in the TOOL page.</p>
+    <ul>
+    <li>A combobox is used to select an icon to be displayed whenever a tool is loaded into the spindle.</li>
+    <li>To use tool icons, there must be a directory in the CONFIG folder called <i>tool_icons</i>.</li>
+    <li>The <i>tool_icons</i> must be .png images. This enables them to have transparent backgrounds.</li>
+    <li>If a recommended RPM value is entered, a corresponding SCS value is calculated.</li>
+    <li>All parameter fields that are editable can be filled in without committing them to the database.</li>
+    <li>To commit the changes to the database, the user must press RETURN on one of the parameter fields.</li>
+    <li>If the ADD TOOL button on the tool_offsetview is pressed, the tool info panel will show the next lowest tool number available.</li>
+    <li>Currently, duplicate tool numbers are not allowed. (This may change in the future).</li>
+    <li>To display the stored info for a particular tool, set that tool to checked in the tool_offsetview.</li>
+    <li>Tool parameters can only be modified if the machine is ON and the interpreter is IDLE.</li>
+    </ul>
+</body>
+</html>

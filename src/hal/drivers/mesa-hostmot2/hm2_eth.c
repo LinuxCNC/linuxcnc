@@ -992,7 +992,7 @@ static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *b
 static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size);
 
 static int hm2_eth_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size) {
-    if(rtapi_task_self() >= 0)
+    if(rtapi_task_self() >= 0 || this->force_enqueue)
         return hm2_eth_enqueue_write(this, addr, buffer, size);
 
     int send;
@@ -1058,6 +1058,16 @@ static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const 
     board->write_packet_ptr += size;
     board->write_packet_size += (sizeof(*packet) + size);
     return 1;
+}
+
+static int hm2_eth_set_force_enqueue(hm2_lowlevel_io_t *this, int do_enqueue) {
+    if (do_enqueue) {
+        this->force_enqueue = 1;
+        return 1;
+    } else {
+        this->force_enqueue = 0;
+        return hm2_eth_send_queued_writes(this);
+    }
 }
 
 static int llio_idx(const char *llio_name) {
@@ -1372,6 +1382,8 @@ static int hm2_eth_probe(hm2_eth_t *board) {
     board->llio.receive_queued_reads = hm2_eth_receive_queued_reads;
     board->llio.queue_write = hm2_eth_enqueue_write;
     board->llio.send_queued_writes = hm2_eth_send_queued_writes;
+    if (strncmp(board_name, "litehm2", 7) == 0)
+	    board->llio.set_force_enqueue = hm2_eth_set_force_enqueue;
     board->llio.reset = hm2_eth_reset;
 
     ret = hm2_register(&board->llio, config[boards_count]);

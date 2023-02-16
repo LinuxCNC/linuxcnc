@@ -57,6 +57,7 @@ usr/bin/melfagui
 usr/bin/milltask
 usr/bin/millturngui
 usr/bin/mitsub_vfd
+usr/bin/mqtt-publisher
 usr/bin/z_level_compensation
 usr/bin/monitor-xhc-hb04
 usr/bin/motion-logger
@@ -85,6 +86,7 @@ usr/bin/scaragui
 usr/bin/schedrmt
 usr/bin/scorbot-er-3
 usr/bin/sendkeys
+usr/bin/setup_designer
 usr/bin/shuttle
 usr/bin/sim-torch
 usr/bin/sim_pin
@@ -201,6 +203,7 @@ usr/share/man/man1/mitsub_vfd.1
 usr/share/man/man1/monitor-xhc-hb04.1
 usr/share/man/man1/motion-logger.1
 usr/share/man/man1/moveoff_gui.1
+usr/share/man/man1/mqtt-publisher.1
 usr/share/man/man1/ngcgui.1
 usr/share/man/man1/panelui.1
 usr/share/man/man1/pi500_vfd.1

@@ -2862,7 +2862,67 @@ Drill multiple holes on a bolt hole circle.
 [[sub:qtvcp:widgets:qt-ngcgui]]
 === Qt NGCGUI
 
-QtVCP's version of NGC subroutine selector.
+image::images/qtvcp_ngcgui.png["QtVCP NGCGUI: Shown from QtDragon",scale="25%"]
+QtVCP's version of NGC subroutine selector (Shown as used in QtDragon).
+
+==== INI settings
+
+Linuxcnc needs to know where to look to run the subroutines. +
+If the subroutine calls other subroutines or custom M codes, those paths must be added too.
+[source,{ini}]
+----
+[RS274NGC]
+SUBROUTINE_PATH = ~/linuxcnc/nc_files/examples/ngcgui_lib:~/linuxcnc/nc_files/examples/ngcgui_lib/utilitysubs
+----
+
+Qtvcp needs to know where to open subroutines from. +
+You can also specify subroutines to be pre-opened in tabs.
+
+[source,{ini}]
+----
+[DISPLAY]
+# NGCGUI subroutine path.
+# This path must also be in [RS274NGC] SUBROUTINE_PATH
+NGCGUI_SUBFILE_PATH = ~/linuxcnc/nc_files/examples/ngcgui_lib
+# pre selected programs tabs
+# specify filenames only, files must be in the NGCGUI_SUBFILE_PATH
+NGCGUI_SUBFILE = slot.ngc
+NGCGUI_SUBFILE = qpocket.ngc
+----
+
+==== Buttons
+
+* 'NEW TAB' -adds a new blank tab to ngcgui
+* 'SELECT PREAMBLE' -select a file that add preamble gcode
+* 'SELECT SUBFILE' -select a ngcgui subroutine file
+* 'SELECT POST' -select a file that add post gcode
+* 'REREAD FILE' -reload the subroutine file
+* 'CREATE FEATURE' -add feature to the list
+* 'RESTART FEATURE' - remove all features from the list
+* 'FINALIZE GCODE' -create the full gcode and send it to linuxcnc/a file
+
+==== Adding Custom Subroutines
+You can create your own subroutines for use with ngcgui. +
+they must follow these rules:
+
+* For creating a subroutine for use with NGCGUI, the filename and the subroutine name must be the same.
+* The subroutine must be in a folder within linuxcnc's INI designated search path
+* On the first line there may be a comment of type info:
+* The subroutine must be surrounded by the sub and endsub tags.
+* The variables used must be numbered variables and must not skip number.
+* Comments and presets may be included.
+* if an image file of the same name is in the folder, it will be shown.
+
+[source,{css}]
+----
+(info: feedrate -- simple example for setting feedrate)
+o<feedrate> sub
+    #<feedrate>       = #1 (= 6 Feed Rate) ; comments in brackets will be shown in ngcui
+    f#<feedrate>
+o<feedrate> endsub
+----
+
+image::images/qtvcp_ngcgui_custom.png["QtVCP NGCGUI Custom Sub",scale="25%"]
 
 [[sub:qtvcp:widgets:qt-pdf]]
 === Qt PDF

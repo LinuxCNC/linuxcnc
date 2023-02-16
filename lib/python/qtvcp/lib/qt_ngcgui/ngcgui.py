@@ -66,7 +66,7 @@ class OnePg(QWidget):
                 self.make_fileset()
                 self.create_parms()
             except Exception as detail:
-                print("update_onepage exception: {}".format(detail))
+                LOG.exception(detail)
                 return False
         elif ftype == 'pst':
             self.pst_file = fname
@@ -391,10 +391,13 @@ class SaveSection():
         tmpsdata = []
         for key, val in list(sub_info.ndict.items()):
             name, value, comment = val
+            # TODO entries of 'None' are converted to 0 to avoid error
+            # is this an ok thing to do?
+            value = 0 if value is None else value
             try:
                 v = float(value)
             except Exception as detail:
-                print("SaveSection Exception: {}".format(detail))
+                LOG.exception(detail)
                 mypg.textEdit_status.append("Entry for parm {} is not a number <{}>".format(key, value))
             if value is None: value = 0
             self.parmlist.append(str(value))
@@ -956,10 +959,10 @@ def save_a_copy(fname, archive_dir='/tmp/old_ngc'):
             os.mkdir(archive_dir)
         shutil.copyfile(fname, os.path.join(archive_dir, dt() + '_' + os.path.basename(fname)))
     except IOError as msg:
-        print("save_a_copy: IOError copying file to {}".format(archive_dir))
-        print(msg)
+        LOG.error("save_a_copy: IOError copying file to {}".format(archive_dir))
+        LOG.exception(msg)
     except Exception as detail:
-        print("Save a copy Exception: {}".format(detail))
+        LOG.exception("Save a copy Exception: {}".format(detail))
         sys.exit(1)
     
     #############################

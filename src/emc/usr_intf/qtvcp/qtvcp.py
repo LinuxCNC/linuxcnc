@@ -128,6 +128,7 @@ class QTVCP:
             sys.exit(0)
         # set paths using basename
         error = self.PATH.set_paths(basepath, bool(INIPATH))
+        self.INFO.IS_SCREEN = bool(INIPATH)
         if error:
             sys.exit(0)
 
@@ -488,15 +489,15 @@ if __name__ == "__main__":
 
         # we set the log level early so the imported modules get the right level
         if '-d' in sys.argv:
-            # Log level defaults to INFO, so set lower if in debug mode
+            # Log level defaults to WARNING, so set lower if in debug mode
             logger.setGlobalLevel(logger.DEBUG)
             LOG.debug('DEBUGGING logging on')
         elif '-i' in sys.argv:
-            # Log level defaults to INFO, so set lower if in debug mode
+            # Log level defaults to WARNING, so set lower if in info mode
             logger.setGlobalLevel(logger.INFO)
             LOG.info('INFO logging on')
         elif '-v' in sys.argv:
-            # Log level defaults to INFO, so set lowest if in verbose mode
+            # Log level defaults to WARNING, so set lowest if in verbose mode
             logger.setGlobalLevel(logger.VERBOSE)
             LOG.verbose('VERBOSE logging on')
         elif '-q' in sys.argv:
