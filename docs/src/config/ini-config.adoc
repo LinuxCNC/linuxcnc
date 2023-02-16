@@ -127,7 +127,7 @@ Most sample configurations use custom sections and variables to put all of the s
 
 To add a custom variable to an existing LinuxCNC section, simply include the variable in that section.
 
-.Custom Variable Example, assigning the value 'LINEAR' to the variable 'TYPE', and the value 16000 to the variable 'SCALE'.
+.Custom Variable Example, assigning the value 'LINEAR' to the variable 'TYPE', and the value '16000' to the variable 'SCALE'.
 [source,{ini}]
 ----
 [JOINT_0]
