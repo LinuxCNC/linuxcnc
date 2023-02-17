@@ -1540,23 +1540,19 @@ class gmoccapy(object):
         # the last line, the size of the DRO must be reduced also
         # this is a special case so we do not use _place_in_table
         elif len(self.dro_dic) == 5:
-            self.widgets.tbl_DRO.resize(4,2)
             dro_order = self._get_DRO_order()
 
             for dro, dro_name in enumerate(dro_order):
                 # as a lathe might not have all Axis, we check if the key is in directory
                 if dro < 3:
                     size = self.dro_size * 0.75
-                    self.widgets.tbl_DRO.attach(self.dro_dic[dro_name],
-                                                0, 2, int(dro), int(dro + 1), ypadding = 0)
+                    self.widgets.grid_DRO.attach(self.dro_dic[dro_name], 0, int(dro), 2, 1)
                 else:
                     size = self.dro_size * 0.65
                     if dro == 3:
-                        self.widgets.tbl_DRO.attach(self.dro_dic[dro_name],
-                                                    0, 1, int(dro), int(dro + 1), ypadding = 0)
+                        self.widgets.grid_DRO.attach(self.dro_dic[dro_name], 0, int(dro), 1, 1)
                     else:
-                        self.widgets.tbl_DRO.attach(self.dro_dic[dro_name],
-                                                    1, 2, int(dro-1), int(dro), ypadding = 0)
+                        self.widgets.grid_DRO.attach(self.dro_dic[dro_name], 1, int(dro-1), 1, 1)
                 self.dro_dic[dro_name].set_property("font_size", size)
 
         else:
@@ -1574,7 +1570,6 @@ class gmoccapy(object):
     def _place_in_table(self, rows, cols, dro_size):
         LOG.debug("Place in table")
 
-        self.widgets.tbl_DRO.resize(rows, cols)
         col = 0
         row = 0
 
@@ -1586,8 +1581,7 @@ class gmoccapy(object):
                 continue
             self.dro_dic[dro_name].set_property("font_size", dro_size)
 
-            self.widgets.tbl_DRO.attach(self.dro_dic[dro_name],
-                                        col, col+1, row, row + 1, ypadding = 0)
+            self.widgets.grid_DRO.attach(self.dro_dic[dro_name], col, row, 1, 1)
             if cols > 1:
                 # calculate if we have to place in the first or the second column
                 if (dro % 2 == 1):
@@ -5139,7 +5133,7 @@ class gmoccapy(object):
         self.hbox2_position = self.widgets.hbox2.get_position()
         self.widgets.ntb_button.set_current_page(_BB_EDIT)
         self.widgets.ntb_preview.hide()
-        self.widgets.tbl_DRO.hide()
+        self.widgets.grid_DRO.hide()
         width = self.widgets.window1.get_size().width
         width -= self.widgets.vbtb_main.get_allocated_width()
         width -= self.widgets.box_right.get_allocated_width()
@@ -5220,7 +5214,7 @@ class gmoccapy(object):
            self.widgets.ntb_preview.get_current_page() == _BB_LOAD_FILE:
             LOG.debug("we are in special case")
             self.widgets.ntb_preview.show()
-            self.widgets.tbl_DRO.show()
+            self.widgets.grid_DRO.show()
             self.widgets.vbx_jog.set_size_request(360, -1)
             self.widgets.hbox2.set_position(self.hbox2_position)
             self.widgets.gcode_view.set_sensitive(False)
