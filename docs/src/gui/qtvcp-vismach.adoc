@@ -385,8 +385,26 @@ model = Collection([base, saddle, head, carousel])
   For example [1,0,0,0.5] for a 50% opacity red.
 
 *`myhud = Hud()`*::
-*`myhud.show("_Mill_XYZ_")`*::
   Creates a _heads-up display_ in the Vismach GUI to display items such as axis positions, titles, or messages.
+[source,python]
+----
+myhud = Hud()
+myhud.show("Mill_XYZ")`
+----
+
+*`myhud = HalHud()`*::
+  A more advanced version of the Hud that allows HAL pins to be displayed. eg.
+[source,python]
+----
+myhud = HalHud()
+myhud.set_background_color(0,.1,.2,0)
+myhud.show_top("Mill_XYZ")
+myhud.show_top("------------")
+myhud.add_pin('axis-x: ',"{:10.4f}","axis.x.pos-cmd")
+myhud.add_pin('axis-y: ',"{:10.4f}","axis.y.pos-cmd")
+myhud.add_pin('axis-z: ',"{:10.4f}","axis.z.pos-cmd")
+myhud.show("-------------")
+----
 
 *`part = Capture()`*::
   This sets the current position in the model.
