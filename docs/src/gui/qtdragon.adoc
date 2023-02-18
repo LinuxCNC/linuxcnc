@@ -181,6 +181,31 @@ If using the `tabWidget_utilities` or `tabWidget_setup` locations, an extra tab 
 If using 'stackedWidget_mainTab', a button labelled 'User" will appear. Pressing this button will cycle 
 through displaying all available panels (specified for this location) on the main tab area.
 
+=== Subroutine Paths
+If using NGCGUI, remap or custom M codes routines, linuxcnc needs to know where to look for the files. +
+
+[source,{ini}]
+----
+[RS274NGC]
+SUBROUTINE_PATH = :~/linuxcnc/nc_files/examples/ngcgui_lib:~/linuxcnc/nc_files/examples/ngcgui_lib/utilitysubs; \
+~/linuxcnc/nc_files/examples/probe/basic_probe/macros:~/linuxcnc/nc_files/examples/remap-subroutines: \
+~/linuxcnc/nc_files/examples/ngcgui_lib/remap_lib
+----
+
+Qtvcp's NGCGUI program also need to know where to open for subroutine selection and pre-selection.
+
+[source,{ini}]
+----
+[DISPLAY]
+# NGCGUI subroutine path.
+# Thr path must also  be in [RS274NGC] SUBROUTINE_PATH
+NGCGUI_SUBFILE_PATH = ~/linuxcnc/nc_files/examples/ngcgui_lib
+# pre selected programs tabs
+# specify filenames only, files must be in the NGCGUI_SUBFILE_PATH
+NGCGUI_SUBFILE = slot.ngc
+NGCGUI_SUBFILE = qpocket.ngc
+----
+
 === Preview Control
 
 Magic comments can be used to control the G-code preview. +
@@ -247,6 +272,51 @@ Both perform similar probing routines, though Versa probe optionally handles aut
 [PROBE]
 #USE_PROBE = versaprobe
 USE_PROBE = basicprobe
+----
+
+=== Abort detection
+When using qtdragon's probing routines, it's important to detect a user abort request. +
+By default, linuxcnc does not report an abort in a useful way for the probe routines. +
+You need to add a ngc file to print out an error that can be detected.
+
+
+[source,{ini}]
+----
+[RS274NGC]
+# on abort, this ngc file is called. required for basic/versa probe routines. +
+ON_ABORT_COMMAND=O <on_abort> call
+----
+
+This example code will send a message on abort. The probe routines can detect this.
+
+[source,{ngc}]
+----
+o<on_abort> sub
+
+o100 if [#1 eq 5]
+    (machine on)
+o100 elseif [#1 eq 6]
+    (machine off)
+o100 elseif [#1 eq 7]
+    (estopped)
+o100 elseif [#1 eq 8]
+    (msg,Process Aborted)
+o100 else
+    (DEBUG,Abort Parameter is %d[#1])
+o100 endif
+
+o<on_abort> endsub
+m2
+----
+
+=== Startup codes
+You should set default M/G code for start up. These will be overridden by running a ngc file.
+ 
+[source,{ini}]
+----
+[RS274NGC]
+# start up G/M codes when first loaded
+RS274NGC_STARTUP_CODE = G17 G20 G40 G43H0 G54 G64P0.0005 G80 G90 G94 G97 M5 M9
 ----
 
 === Macro Buttons
