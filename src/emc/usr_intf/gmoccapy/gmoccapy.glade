@@ -757,12 +757,10 @@
           <object class="GtkBox" id="hbx_upper">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="orientation">horizontal</property>
             <child>
               <object class="GtkBox" id="box_left">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="orientation">horizontal</property>
                 <child>
                   <placeholder/>
                 </child>
@@ -884,28 +882,112 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkTable" id="tbl_gremlin_button">
+                                      <!-- n-columns=11 n-rows=1 -->
+                                      <object class="GtkGrid" id="grid_gremlin_button">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
-                                        <property name="n-columns">11</property>
                                         <property name="column-spacing">5</property>
+                                        <property name="row-homogeneous">True</property>
+                                        <property name="column-homogeneous">True</property>
                                         <child>
-                                          <object class="GtkButton" id="btn_delete_view">
+                                          <object class="GtkRadioButton" id="rbt_view_p">
                                             <property name="use-action-appearance">False</property>
                                             <property name="width-request">48</property>
                                             <property name="height-request">48</property>
                                             <property name="visible">True</property>
                                             <property name="can-focus">True</property>
-                                            <property name="receives-default">True</property>
-                                            <property name="tooltip-text" translatable="yes">clear plot</property>
-                                            <property name="image">img_tool_clear</property>
-                                            <signal name="clicked" handler="on_btn_delete_view_clicked" swapped="no"/>
+                                            <property name="receives-default">False</property>
+                                            <property name="tooltip-text" translatable="yes">view perspective</property>
+                                            <property name="image">img_view_p</property>
+                                            <property name="active">True</property>
+                                            <property name="draw-indicator">False</property>
+                                            <signal name="toggled" handler="on_rbt_view_p_toggled" swapped="no"/>
                                           </object>
                                           <packing>
-                                            <property name="left-attach">10</property>
-                                            <property name="right-attach">11</property>
-                                            <property name="x-options">GTK_SHRINK</property>
-                                            <property name="y-options">GTK_SHRINK</property>
+                                            <property name="left-attach">0</property>
+                                            <property name="top-attach">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkRadioButton" id="rbt_view_x">
+                                            <property name="use-action-appearance">False</property>
+                                            <property name="width-request">48</property>
+                                            <property name="height-request">48</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">False</property>
+                                            <property name="tooltip-text" translatable="yes">view along the X axis from positive to negative</property>
+                                            <property name="image">img_view_x</property>
+                                            <property name="draw-indicator">False</property>
+                                            <signal name="toggled" handler="on_rbt_view_x_toggled" swapped="no"/>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">1</property>
+                                            <property name="top-attach">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkRadioButton" id="rbt_view_y">
+                                            <property name="use-action-appearance">False</property>
+                                            <property name="width-request">48</property>
+                                            <property name="height-request">48</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">False</property>
+                                            <property name="tooltip-text" translatable="yes">view along the Y axis from positive to negative</property>
+                                            <property name="image">img_view_y</property>
+                                            <property name="draw-indicator">False</property>
+                                            <signal name="toggled" handler="on_rbt_view_y_toggled" swapped="no"/>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">2</property>
+                                            <property name="top-attach">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkRadioButton" id="rbt_view_z">
+                                            <property name="use-action-appearance">False</property>
+                                            <property name="width-request">48</property>
+                                            <property name="height-request">48</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">False</property>
+                                            <property name="tooltip-text" translatable="yes">view along the Z axis from positive to negative</property>
+                                            <property name="image">img_view_z</property>
+                                            <property name="draw-indicator">False</property>
+                                            <signal name="toggled" handler="on_rbt_view_z_toggled" swapped="no"/>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">3</property>
+                                            <property name="top-attach">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkRadioButton" id="rbt_view_y2">
+                                            <property name="use-action-appearance">False</property>
+                                            <property name="width-request">48</property>
+                                            <property name="height-request">48</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">False</property>
+                                            <property name="tooltip-text" translatable="yes">view along the Y axis from positive to negative as viewn for a back tool lathe</property>
+                                            <property name="image">img_view_y2</property>
+                                            <property name="draw-indicator">False</property>
+                                            <signal name="toggled" handler="on_rbt_view_y2_toggled" swapped="no"/>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">4</property>
+                                            <property name="top-attach">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel" id="label2">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">5</property>
+                                            <property name="top-attach">0</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -922,9 +1004,7 @@
                                           </object>
                                           <packing>
                                             <property name="left-attach">6</property>
-                                            <property name="right-attach">7</property>
-                                            <property name="x-options">GTK_SHRINK</property>
-                                            <property name="y-options">GTK_SHRINK</property>
+                                            <property name="top-attach">0</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -941,110 +1021,7 @@
                                           </object>
                                           <packing>
                                             <property name="left-attach">7</property>
-                                            <property name="right-attach">8</property>
-                                            <property name="x-options">GTK_SHRINK</property>
-                                            <property name="y-options">GTK_SHRINK</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkRadioButton" id="rbt_view_p">
-                                            <property name="use-action-appearance">False</property>
-                                            <property name="width-request">48</property>
-                                            <property name="height-request">48</property>
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">True</property>
-                                            <property name="receives-default">False</property>
-                                            <property name="tooltip-text" translatable="yes">view perspective</property>
-                                            <property name="image">img_view_p</property>
-                                            <property name="active">True</property>
-                                            <property name="draw-indicator">False</property>
-                                            <signal name="toggled" handler="on_rbt_view_p_toggled" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="x-options">GTK_SHRINK</property>
-                                            <property name="y-options">GTK_SHRINK</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkRadioButton" id="rbt_view_x">
-                                            <property name="use-action-appearance">False</property>
-                                            <property name="width-request">48</property>
-                                            <property name="height-request">48</property>
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">True</property>
-                                            <property name="receives-default">False</property>
-                                            <property name="tooltip-text" translatable="yes">view along the X axis from positive to negative</property>
-                                            <property name="image">img_view_x</property>
-                                            <property name="draw-indicator">False</property>
-                                            <property name="group">rbt_view_p</property>
-                                            <signal name="toggled" handler="on_rbt_view_x_toggled" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="left-attach">1</property>
-                                            <property name="right-attach">2</property>
-                                            <property name="x-options">GTK_SHRINK</property>
-                                            <property name="y-options">GTK_SHRINK</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkRadioButton" id="rbt_view_y">
-                                            <property name="use-action-appearance">False</property>
-                                            <property name="width-request">48</property>
-                                            <property name="height-request">48</property>
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">True</property>
-                                            <property name="receives-default">False</property>
-                                            <property name="tooltip-text" translatable="yes">view along the Y axis from positive to negative</property>
-                                            <property name="image">img_view_y</property>
-                                            <property name="draw-indicator">False</property>
-                                            <property name="group">rbt_view_p</property>
-                                            <signal name="toggled" handler="on_rbt_view_y_toggled" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="left-attach">2</property>
-                                            <property name="right-attach">3</property>
-                                            <property name="x-options">GTK_SHRINK</property>
-                                            <property name="y-options">GTK_SHRINK</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkRadioButton" id="rbt_view_z">
-                                            <property name="use-action-appearance">False</property>
-                                            <property name="width-request">48</property>
-                                            <property name="height-request">48</property>
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">True</property>
-                                            <property name="receives-default">False</property>
-                                            <property name="tooltip-text" translatable="yes">view along the Z axis from positive to negative</property>
-                                            <property name="image">img_view_z</property>
-                                            <property name="draw-indicator">False</property>
-                                            <property name="group">rbt_view_p</property>
-                                            <signal name="toggled" handler="on_rbt_view_z_toggled" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="left-attach">3</property>
-                                            <property name="right-attach">4</property>
-                                            <property name="x-options">GTK_SHRINK</property>
-                                            <property name="y-options">GTK_SHRINK</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkToggleButton" id="tbtn_view_tool_path">
-                                            <property name="use-action-appearance">False</property>
-                                            <property name="width-request">48</property>
-                                            <property name="height-request">48</property>
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">True</property>
-                                            <property name="receives-default">True</property>
-                                            <property name="tooltip-text" translatable="yes">Show or hide tool path</property>
-                                            <property name="image">img_tool_path</property>
-                                            <signal name="toggled" handler="on_tbtn_view_tool_path_toggled" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="left-attach">9</property>
-                                            <property name="right-attach">10</property>
-                                            <property name="x-options">GTK_SHRINK</property>
-                                            <property name="y-options">GTK_SHRINK</property>
+                                            <property name="top-attach">0</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -1061,47 +1038,47 @@
                                           </object>
                                           <packing>
                                             <property name="left-attach">8</property>
-                                            <property name="right-attach">9</property>
-                                            <property name="x-options">GTK_SHRINK</property>
-                                            <property name="y-options">GTK_SHRINK</property>
+                                            <property name="top-attach">0</property>
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkRadioButton" id="rbt_view_y2">
+                                          <object class="GtkToggleButton" id="tbtn_view_tool_path">
                                             <property name="use-action-appearance">False</property>
                                             <property name="width-request">48</property>
                                             <property name="height-request">48</property>
                                             <property name="visible">True</property>
                                             <property name="can-focus">True</property>
-                                            <property name="receives-default">False</property>
-                                            <property name="tooltip-text" translatable="yes">view along the Y axis from positive to negative as viewn for a back tool lathe</property>
-                                            <property name="image">img_view_y2</property>
-                                            <property name="draw-indicator">False</property>
-                                            <property name="group">rbt_view_p</property>
-                                            <signal name="toggled" handler="on_rbt_view_y2_toggled" swapped="no"/>
+                                            <property name="receives-default">True</property>
+                                            <property name="tooltip-text" translatable="yes">Show or hide tool path</property>
+                                            <property name="image">img_tool_path</property>
+                                            <signal name="toggled" handler="on_tbtn_view_tool_path_toggled" swapped="no"/>
                                           </object>
                                           <packing>
-                                            <property name="left-attach">4</property>
-                                            <property name="right-attach">5</property>
-                                            <property name="x-options">GTK_SHRINK</property>
-                                            <property name="y-options">GTK_SHRINK</property>
+                                            <property name="left-attach">9</property>
+                                            <property name="top-attach">0</property>
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkLabel" id="label2">
+                                          <object class="GtkButton" id="btn_delete_view">
+                                            <property name="use-action-appearance">False</property>
+                                            <property name="width-request">48</property>
+                                            <property name="height-request">48</property>
                                             <property name="visible">True</property>
-                                            <property name="can-focus">False</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">True</property>
+                                            <property name="tooltip-text" translatable="yes">clear plot</property>
+                                            <property name="image">img_tool_clear</property>
+                                            <signal name="clicked" handler="on_btn_delete_view_clicked" swapped="no"/>
                                           </object>
                                           <packing>
-                                            <property name="left-attach">5</property>
-                                            <property name="right-attach">6</property>
+                                            <property name="left-attach">10</property>
+                                            <property name="top-attach">0</property>
                                           </packing>
                                         </child>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
                                         <property name="fill">True</property>
-                                        <property name="padding">1</property>
                                         <property name="position">1</property>
                                       </packing>
                                     </child>
@@ -1282,7 +1259,6 @@
                                                     <property name="height-request">50</property>
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
-                                                    <property name="orientation">horizontal</property>
                                                     <child>
                                                       <object class="SpeedControl" id="spc_lin_jog_vel">
                                                         <property name="visible">True</property>
@@ -1348,7 +1324,6 @@
                                                   <object class="GtkBox" id="hbox_jog">
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
-                                                    <property name="orientation">horizontal</property>
                                                     <child>
                                                       <object class="GtkBox" id="vbx_jog_button">
                                                         <property name="visible">True</property>
@@ -1982,7 +1957,6 @@
                               <object class="GtkBox" id="hbox_main_info">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="orientation">horizontal</property>
                                 <child>
                                   <object class="GtkBox" id="box_tool_and_code_info">
                                     <property name="visible">True</property>
@@ -2219,7 +2193,6 @@
                                                       <object class="GtkBox" id="hbox5">
                                                         <property name="visible">True</property>
                                                         <property name="can-focus">False</property>
-                                                        <property name="orientation">horizontal</property>
                                                         <child>
                                                           <object class="GtkLabel" id="active_mcodes_label">
                                                             <property name="visible">True</property>
@@ -2283,7 +2256,6 @@
                                                       <object class="GtkBox" id="hbox10">
                                                         <property name="visible">True</property>
                                                         <property name="can-focus">False</property>
-                                                        <property name="orientation">horizontal</property>
                                                         <child>
                                                           <object class="GtkLabel" id="active_gcodes_label">
                                                             <property name="visible">True</property>
@@ -2383,12 +2355,10 @@
                                   <object class="GtkBox" id="box_coolant_and_spindle">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
-                                    <property name="orientation">horizontal</property>
                                     <child>
                                       <object class="GtkBox" id="box_cooling">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
-                                        <property name="orientation">horizontal</property>
                                         <child>
                                           <object class="GtkFrame" id="frm_cooling">
                                             <property name="visible">True</property>
@@ -2485,7 +2455,6 @@
                                     <child>
                                       <object class="GtkBox" id="box_custom_3">
                                         <property name="can-focus">False</property>
-                                        <property name="orientation">horizontal</property>
                                         <child>
                                           <placeholder/>
                                         </child>
@@ -2500,7 +2469,6 @@
                                       <object class="GtkBox" id="box_spindle">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
-                                        <property name="orientation">horizontal</property>
                                         <child>
                                           <object class="GtkFrame" id="frm_spindle">
                                             <property name="width-request">200</property>
@@ -2529,7 +2497,6 @@
                                                           <object class="GtkBox" id="hbox6">
                                                             <property name="visible">True</property>
                                                             <property name="can-focus">False</property>
-                                                            <property name="orientation">horizontal</property>
                                                             <child>
                                                             <object class="GtkLabel" id="lbl_spindle_act">
                                                             <property name="visible">True</property>
@@ -2699,7 +2666,6 @@
                                                           <object class="GtkBox" id="hbox_spindle_bar">
                                                             <property name="visible">True</property>
                                                             <property name="can-focus">False</property>
-                                                            <property name="orientation">horizontal</property>
                                                             <child>
                                                             <object class="HAL_HBar" id="spindle_feedback_bar">
                                                             <property name="visible">True</property>
@@ -2780,7 +2746,6 @@
                                     <child>
                                       <object class="GtkBox" id="box_custom_4">
                                         <property name="can-focus">False</property>
-                                        <property name="orientation">horizontal</property>
                                         <child>
                                           <placeholder/>
                                         </child>
@@ -2802,7 +2767,6 @@
                                 <child>
                                   <object class="GtkBox" id="box_custom_1">
                                     <property name="can-focus">False</property>
-                                    <property name="orientation">horizontal</property>
                                     <child>
                                       <placeholder/>
                                     </child>
@@ -2846,7 +2810,6 @@
                                                       <object class="GtkBox" id="hbx_rapid_override">
                                                         <property name="visible">True</property>
                                                         <property name="can-focus">False</property>
-                                                        <property name="orientation">horizontal</property>
                                                         <child>
                                                           <object class="GtkLabel" id="lbl_vel">
                                                             <property name="visible">True</property>
@@ -2952,7 +2915,6 @@
                                                       <object class="GtkBox" id="hbox8">
                                                         <property name="visible">True</property>
                                                         <property name="can-focus">False</property>
-                                                        <property name="orientation">horizontal</property>
                                                         <child>
                                                           <object class="GtkLabel" id="lbl_feed_act">
                                                             <property name="visible">True</property>
@@ -3052,7 +3014,6 @@
                                 <child>
                                   <object class="GtkBox" id="box_custom_2">
                                     <property name="can-focus">False</property>
-                                    <property name="orientation">horizontal</property>
                                     <child>
                                       <placeholder/>
                                     </child>
@@ -3079,7 +3040,6 @@
                               <object class="GtkBox" id="key_box">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="orientation">horizontal</property>
                                 <child>
                                   <placeholder/>
                                 </child>
@@ -3134,7 +3094,6 @@
                       <object class="GtkBox" id="hbox_setup_appear">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="orientation">horizontal</property>
                         <child>
                           <object class="GtkBox" id="vbox_window">
                             <property name="visible">True</property>
@@ -3870,7 +3829,6 @@
                                           <object class="GtkBox" id="hbox_dro_size">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
-                                            <property name="orientation">horizontal</property>
                                             <child>
                                               <object class="GtkLabel" id="lbl_dro_size">
                                                 <property name="visible">True</property>
@@ -3917,7 +3875,6 @@
                                           <object class="GtkBox" id="hbox_dro_size1">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
-                                            <property name="orientation">horizontal</property>
                                             <child>
                                               <object class="GtkLabel" id="lbl_dro_size1">
                                                 <property name="visible">True</property>
@@ -4033,7 +3990,6 @@ clicking on the DRO</property>
                                           <object class="GtkBox" id="hbox16">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
-                                            <property name="orientation">horizontal</property>
                                             <child>
                                               <object class="GtkLabel" id="label8">
                                                 <property name="visible">True</property>
@@ -4539,7 +4495,6 @@ clicking on the DRO</property>
                       <object class="GtkBox" id="hbox_hardware">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="orientation">horizontal</property>
                         <child>
                           <object class="GtkBox" id="vbox21">
                             <property name="visible">True</property>
@@ -5152,12 +5107,10 @@ clicking on the DRO</property>
                       <object class="GtkBox" id="hbox_advanced_settings">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="orientation">horizontal</property>
                         <child>
                           <object class="GtkBox" id="hbox_advanced">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="orientation">horizontal</property>
                             <child>
                               <object class="GtkBox" id="vbox_tool_settings">
                                 <property name="visible">True</property>
@@ -6055,7 +6008,6 @@ to test your settings.</property>
               <object class="GtkBox" id="box_right">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="orientation">horizontal</property>
                 <child>
                   <placeholder/>
                 </child>
