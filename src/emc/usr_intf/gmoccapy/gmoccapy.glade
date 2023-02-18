@@ -1554,10 +1554,11 @@
                                                       </packing>
                                                     </child>
                                                     <child>
-                                                      <object class="GtkVButtonBox" id="vbtb_jog_incr">
+                                                      <object class="GtkButtonBox" id="vbtb_jog_incr">
                                                         <property name="width-request">110</property>
                                                         <property name="visible">True</property>
                                                         <property name="can-focus">False</property>
+                                                        <property name="orientation">vertical</property>
                                                         <property name="spacing">3</property>
                                                         <child>
                                                           <placeholder/>
@@ -4187,7 +4188,7 @@ clicking on the DRO</property>
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkHButtonBox" id="hbtb_file_to_load">
+                                          <object class="GtkButtonBox" id="hbtb_file_to_load">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
                                             <child>
@@ -6019,10 +6020,11 @@ to test your settings.</property>
               </packing>
             </child>
             <child>
-              <object class="GtkVButtonBox" id="vbtb_main">
+              <object class="GtkButtonBox" id="vbtb_main">
                 <property name="width-request">100</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="orientation">vertical</property>
                 <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_estop">
@@ -6214,7 +6216,7 @@ Date</property>
             <property name="show-border">False</property>
             <signal name="switch-page" handler="on_ntb_button_switch_page" swapped="no"/>
             <child>
-              <object class="GtkHButtonBox" id="hbtb_main">
+              <object class="GtkButtonBox" id="hbtb_main">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="homogeneous">True</property>
@@ -6422,7 +6424,7 @@ F12 or $ key does the same</property>
               </packing>
             </child>
             <child>
-              <object class="GtkHButtonBox" id="hbtb_MDI">
+              <object class="GtkButtonBox" id="hbtb_MDI">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="homogeneous">True</property>
@@ -6473,7 +6475,7 @@ F12 or $ key does the same</property>
               </packing>
             </child>
             <child>
-              <object class="GtkHButtonBox" id="hbtb_auto">
+              <object class="GtkButtonBox" id="hbtb_auto">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="homogeneous">True</property>
@@ -6697,7 +6699,7 @@ F12 or $ key does the same</property>
               </packing>
             </child>
             <child>
-              <object class="GtkHButtonBox" id="hbtb_ref">
+              <object class="GtkButtonBox" id="hbtb_ref">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="homogeneous">True</property>
@@ -6756,7 +6758,7 @@ F12 or $ key does the same</property>
               </packing>
             </child>
             <child>
-              <object class="GtkHButtonBox" id="hbtb_touch_off">
+              <object class="GtkButtonBox" id="hbtb_touch_off">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="homogeneous">True</property>
@@ -6807,7 +6809,7 @@ F12 or $ key does the same</property>
               </packing>
             </child>
             <child>
-              <object class="GtkHButtonBox" id="hbtb_setup">
+              <object class="GtkButtonBox" id="hbtb_setup">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="homogeneous">True</property>
@@ -7019,7 +7021,7 @@ MDI history</property>
               </packing>
             </child>
             <child>
-              <object class="GtkHButtonBox" id="hbtb_edit">
+              <object class="GtkButtonBox" id="hbtb_edit">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="homogeneous">True</property>
@@ -7209,7 +7211,7 @@ MDI history</property>
               </packing>
             </child>
             <child>
-              <object class="GtkHButtonBox" id="hbtb_tool">
+              <object class="GtkButtonBox" id="hbtb_tool">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <child>
@@ -7470,7 +7472,7 @@ tool z</property>
               </packing>
             </child>
             <child>
-              <object class="GtkHButtonBox" id="hbtb_load_file">
+              <object class="GtkButtonBox" id="hbtb_load_file">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="homogeneous">True</property>
@@ -7674,7 +7676,7 @@ tool z</property>
               </packing>
             </child>
             <child>
-              <object class="GtkHButtonBox" id="hbtb_ref_joints">
+              <object class="GtkButtonBox" id="hbtb_ref_joints">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="homogeneous">True</property>
