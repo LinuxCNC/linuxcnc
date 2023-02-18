@@ -2924,6 +2924,8 @@ class gmoccapy(object):
         # check how to start the GUI
         start_as = "rbtn_" + self.prefs.getpref("screen1", "window", str)
         self.widgets[start_as].set_active(True)
+        self.widgets.window1.set_decorated(not self.prefs.getpref("hide_titlebar", False, bool))
+        self.widgets.chkbtn_hide_titlebar.set_active(not self.widgets.window1.get_decorated())
         if start_as == "rbtn_fullscreen":
             self.widgets.window1.fullscreen()
         elif start_as == "rbtn_maximized":
@@ -2933,7 +2935,6 @@ class gmoccapy(object):
             self.ypos = int(self.prefs.getpref("y_pos", 30, float))
             self.width = int(self.prefs.getpref("width", 979, float))
             self.height = int(self.prefs.getpref("height", 750, float))
-
             # set the adjustments according to Window position and size
             self.widgets.adj_x_pos.set_value(self.xpos)
             self.widgets.adj_y_pos.set_value(self.ypos)
@@ -4652,18 +4653,23 @@ class gmoccapy(object):
             self.prefs.putpref("screen1", "maximized")
         else:
             self.widgets.window1.unmaximize()
+        self.widgets.chkbtn_hide_titlebar.set_sensitive(widget.get_active())
 
     def on_rbtn_window_toggled(self, widget):
-        self.widgets.spbtn_x_pos.set_sensitive(widget.get_active())
-        self.widgets.spbtn_y_pos.set_sensitive(widget.get_active())
-        self.widgets.spbtn_width.set_sensitive(widget.get_active())
-        self.widgets.spbtn_height.set_sensitive(widget.get_active())
+        self.widgets.grid_main_window.set_sensitive(widget.get_active())
+        self.widgets.chkbtn_hide_titlebar.set_sensitive(widget.get_active())
         # we have to check also if the window is active, because the button is toggled the first time
         # before the window is shown
         if widget.get_active() and self.widgets.window1.is_active():
+            self.widgets.window1.set_decorated(not self.widgets.chkbtn_hide_titlebar.get_active())
             self.widgets.window1.move(self.xpos, self.ypos)
             self.widgets.window1.resize(self.width, self.height)
             self.prefs.putpref("screen1", "window")
+
+    def on_chkbtn_hide_titlebar_toggled(self, widget):
+        self.widgets.window1.set_decorated(not widget.get_active())
+        self.widgets.window1.move(self.xpos, self.ypos)
+        self.prefs.putpref("hide_titlebar", widget.get_active())
 
     def on_adj_x_pos_value_changed(self, widget, data=None):
         if not self.initialized:

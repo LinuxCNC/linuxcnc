@@ -3242,11 +3242,12 @@
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkTable" id="tbl_main_window">
+                                          <!-- n-columns=2 n-rows=5 -->
+                                          <object class="GtkGrid" id="grid_main_window">
                                             <property name="visible">True</property>
+                                            <property name="sensitive">False</property>
                                             <property name="can-focus">False</property>
-                                            <property name="n-rows">4</property>
-                                            <property name="n-columns">2</property>
+                                            <property name="margin-start">22</property>
                                             <child>
                                               <object class="GtkLabel" id="lbl_x_pos">
                                                 <property name="visible">True</property>
@@ -3257,8 +3258,23 @@
                                                 <property name="xalign">0</property>
                                               </object>
                                               <packing>
-                                                <property name="x-options">GTK_SHRINK | GTK_FILL</property>
-                                                <property name="y-options">GTK_SHRINK</property>
+                                                <property name="left-attach">0</property>
+                                                <property name="top-attach">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkSpinButton" id="spbtn_x_pos">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">True</property>
+                                                <property name="invisible-char">●</property>
+                                                <property name="xalign">1</property>
+                                                <property name="primary-icon-activatable">False</property>
+                                                <property name="secondary-icon-activatable">False</property>
+                                                <property name="adjustment">adj_x_pos</property>
+                                              </object>
+                                              <packing>
+                                                <property name="left-attach">1</property>
+                                                <property name="top-attach">0</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -3271,10 +3287,38 @@
                                                 <property name="xalign">0</property>
                                               </object>
                                               <packing>
+                                                <property name="left-attach">0</property>
                                                 <property name="top-attach">1</property>
-                                                <property name="bottom-attach">2</property>
-                                                <property name="x-options">GTK_SHRINK | GTK_FILL</property>
-                                                <property name="y-options">GTK_SHRINK</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkSpinButton" id="spbtn_y_pos">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">True</property>
+                                                <property name="invisible-char">●</property>
+                                                <property name="xalign">1</property>
+                                                <property name="primary-icon-activatable">False</property>
+                                                <property name="secondary-icon-activatable">False</property>
+                                                <property name="adjustment">adj_y_pos</property>
+                                              </object>
+                                              <packing>
+                                                <property name="left-attach">1</property>
+                                                <property name="top-attach">1</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkSpinButton" id="spbtn_width">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">True</property>
+                                                <property name="invisible-char">●</property>
+                                                <property name="xalign">1</property>
+                                                <property name="primary-icon-activatable">False</property>
+                                                <property name="secondary-icon-activatable">False</property>
+                                                <property name="adjustment">adj_width</property>
+                                              </object>
+                                              <packing>
+                                                <property name="left-attach">1</property>
+                                                <property name="top-attach">2</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -3287,10 +3331,23 @@
                                                 <property name="xalign">0</property>
                                               </object>
                                               <packing>
+                                                <property name="left-attach">0</property>
                                                 <property name="top-attach">2</property>
-                                                <property name="bottom-attach">3</property>
-                                                <property name="x-options">GTK_SHRINK | GTK_FILL</property>
-                                                <property name="y-options">GTK_SHRINK</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkSpinButton" id="spbtn_height">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">True</property>
+                                                <property name="invisible-char">●</property>
+                                                <property name="xalign">1</property>
+                                                <property name="primary-icon-activatable">False</property>
+                                                <property name="secondary-icon-activatable">False</property>
+                                                <property name="adjustment">adj_height</property>
+                                              </object>
+                                              <packing>
+                                                <property name="left-attach">1</property>
+                                                <property name="top-attach">3</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -3303,92 +3360,20 @@
                                                 <property name="xalign">0</property>
                                               </object>
                                               <packing>
+                                                <property name="left-attach">0</property>
                                                 <property name="top-attach">3</property>
-                                                <property name="bottom-attach">4</property>
-                                                <property name="x-options">GTK_SHRINK | GTK_FILL</property>
-                                                <property name="y-options">GTK_SHRINK</property>
                                               </packing>
                                             </child>
                                             <child>
-                                              <object class="GtkSpinButton" id="spbtn_x_pos">
+                                              <object class="GtkLabel">
                                                 <property name="visible">True</property>
-                                                <property name="sensitive">False</property>
-                                                <property name="can-focus">True</property>
-                                                <property name="invisible-char">●</property>
-                                                <property name="xalign">1</property>
-                                                <property name="primary-icon-activatable">False</property>
-                                                <property name="secondary-icon-activatable">False</property>
-                                                <property name="adjustment">adj_x_pos</property>
+                                                <property name="can-focus">False</property>
+                                                <property name="label" translatable="yes">                                                    </property>
                                               </object>
                                               <packing>
-                                                <property name="left-attach">1</property>
-                                                <property name="right-attach">2</property>
-                                                <property name="y-options">GTK_SHRINK</property>
-                                                <property name="x-padding">5</property>
-                                                <property name="y-padding">2</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <object class="GtkSpinButton" id="spbtn_y_pos">
-                                                <property name="visible">True</property>
-                                                <property name="sensitive">False</property>
-                                                <property name="can-focus">True</property>
-                                                <property name="invisible-char">●</property>
-                                                <property name="xalign">1</property>
-                                                <property name="primary-icon-activatable">False</property>
-                                                <property name="secondary-icon-activatable">False</property>
-                                                <property name="adjustment">adj_y_pos</property>
-                                              </object>
-                                              <packing>
-                                                <property name="left-attach">1</property>
-                                                <property name="right-attach">2</property>
-                                                <property name="top-attach">1</property>
-                                                <property name="bottom-attach">2</property>
-                                                <property name="y-options">GTK_SHRINK</property>
-                                                <property name="x-padding">5</property>
-                                                <property name="y-padding">2</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <object class="GtkSpinButton" id="spbtn_width">
-                                                <property name="visible">True</property>
-                                                <property name="sensitive">False</property>
-                                                <property name="can-focus">True</property>
-                                                <property name="invisible-char">●</property>
-                                                <property name="xalign">1</property>
-                                                <property name="primary-icon-activatable">False</property>
-                                                <property name="secondary-icon-activatable">False</property>
-                                                <property name="adjustment">adj_width</property>
-                                              </object>
-                                              <packing>
-                                                <property name="left-attach">1</property>
-                                                <property name="right-attach">2</property>
-                                                <property name="top-attach">2</property>
-                                                <property name="bottom-attach">3</property>
-                                                <property name="y-options">GTK_SHRINK</property>
-                                                <property name="x-padding">5</property>
-                                                <property name="y-padding">2</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <object class="GtkSpinButton" id="spbtn_height">
-                                                <property name="visible">True</property>
-                                                <property name="sensitive">False</property>
-                                                <property name="can-focus">True</property>
-                                                <property name="invisible-char">●</property>
-                                                <property name="xalign">1</property>
-                                                <property name="primary-icon-activatable">False</property>
-                                                <property name="secondary-icon-activatable">False</property>
-                                                <property name="adjustment">adj_height</property>
-                                              </object>
-                                              <packing>
-                                                <property name="left-attach">1</property>
-                                                <property name="right-attach">2</property>
-                                                <property name="top-attach">3</property>
-                                                <property name="bottom-attach">4</property>
-                                                <property name="y-options">GTK_SHRINK</property>
-                                                <property name="x-padding">5</property>
-                                                <property name="y-padding">2</property>
+                                                <property name="left-attach">0</property>
+                                                <property name="top-attach">4</property>
+                                                <property name="width">2</property>
                                               </packing>
                                             </child>
                                           </object>
@@ -3396,6 +3381,21 @@
                                             <property name="expand">True</property>
                                             <property name="fill">True</property>
                                             <property name="position">3</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkCheckButton" id="chkbtn_hide_titlebar">
+                                            <property name="label" translatable="yes">hide title bar</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">False</property>
+                                            <property name="draw-indicator">True</property>
+                                            <signal name="toggled" handler="on_chkbtn_hide_titlebar_toggled" swapped="no"/>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">4</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -3411,8 +3411,7 @@
                                           <packing>
                                             <property name="expand">True</property>
                                             <property name="fill">True</property>
-                                            <property name="padding">10</property>
-                                            <property name="position">4</property>
+                                            <property name="position">5</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -3427,7 +3426,7 @@
                                           <packing>
                                             <property name="expand">True</property>
                                             <property name="fill">True</property>
-                                            <property name="position">5</property>
+                                            <property name="position">6</property>
                                           </packing>
                                         </child>
                                       </object>
