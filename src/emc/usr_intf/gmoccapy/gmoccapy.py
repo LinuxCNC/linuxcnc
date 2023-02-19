@@ -565,6 +565,7 @@ class gmoccapy(object):
 
         # get the values for the sliders
         self.rabbit_jog = self.get_ini_info.get_jog_vel()
+        self.jog_rate_min = self.get_ini_info.get_min_jog_vel()
         self.jog_rate_max = self.get_ini_info.get_max_jog_vel()
 
         self.min_ang_vel = self.get_ini_info.get_min_ang_jog_vel()
@@ -1748,7 +1749,7 @@ class gmoccapy(object):
             self.widgets.lbl_reload_tool.set_visible(True)
 
         # set the slider limits
-        self.widgets.spc_lin_jog_vel.set_property("min", 0)
+        self.widgets.spc_lin_jog_vel.set_property("min", self.jog_rate_min)
         self.widgets.spc_lin_jog_vel.set_property("max", self.jog_rate_max)
         self.widgets.spc_lin_jog_vel.set_value(self.rabbit_jog)
 
@@ -3690,7 +3691,7 @@ class gmoccapy(object):
         self.prefs.putpref("turtle_jog_factor", self.turtle_jog_factor, int)
         self.turtle_jog = self.rabbit_jog / self.turtle_jog_factor
         if self.widgets.tbtn_turtle_jog.get_active():
-            self.widgets.spc_lin_jog_vel.set_property("min", 0)
+            self.widgets.spc_lin_jog_vel.set_property("min", self.jog_rate_min / self.turtle_jog_factor)
             self.widgets.spc_lin_jog_vel.set_property("max", self.jog_rate_max / self.turtle_jog_factor)
             self.widgets.spc_lin_jog_vel.set_value(self.turtle_jog)
 
@@ -3703,13 +3704,13 @@ class gmoccapy(object):
         if widget.get_active():
             self.rabbit_jog = value
             widget.set_image( self.widgets.img_turtle_jog )
-            self.widgets.spc_lin_jog_vel.set_property("min", min)
+            self.widgets.spc_lin_jog_vel.set_property("min", min / self.turtle_jog_factor)
             self.widgets.spc_lin_jog_vel.set_property("max", max / self.turtle_jog_factor)
             self.widgets.spc_lin_jog_vel.set_value(self.turtle_jog)
         else:
             self.turtle_jog = value
             widget.set_image( self.widgets.img_rabbit_jog )
-            self.widgets.spc_lin_jog_vel.set_property("min", min)
+            self.widgets.spc_lin_jog_vel.set_property("min", min * self.turtle_jog_factor)
             self.widgets.spc_lin_jog_vel.set_property("max", max * self.turtle_jog_factor)
             self.widgets.spc_lin_jog_vel.set_value(self.rabbit_jog)
 

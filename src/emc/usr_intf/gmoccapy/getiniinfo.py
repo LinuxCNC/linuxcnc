@@ -238,7 +238,15 @@ class GetIniInfo:
                 LOG.warning("No DEFAULT_LINEAR_VELOCITY entry found in [TRAJ] of INI file. Using half on MAX_LINEAR_VELOCITY.")
             else:
                 temp = 3.0
-                LOG.warning("No DEFAULT_LINEAR_VELOCITY entry found in [TRAJ] of INI file. Using default value of 180 units / min.")
+        return float(temp) * 60
+
+    def get_min_jog_vel(self):
+        # get min jog velocity
+        # must convert from INI's units per second to gmoccapy's units per minute
+        temp = self.inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY")
+        if not temp:
+            temp = 0.0
+            LOG.warning("No MIN_LINEAR_VELOCITY entry found in [DISPLAY] of INI file. Using default value 0.")
         return float(temp) * 60
 
     def get_max_jog_vel(self):
