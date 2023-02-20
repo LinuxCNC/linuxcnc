@@ -1421,12 +1421,8 @@ class HAL:
             print("setp   " + steppinname + ".position-scale  [%s_%d]STEP_SCALE"% (title, jnum), file=file)
             print("setp   " + steppinname + ".step_type        0", file=file)
             print("setp   " + steppinname + ".control-type     1", file=file)
-            if let =="s":
-                print("setp   " + steppinname + ".maxaccel         [%s_%d]MAX_ACCELERATION"% (title, jnum), file=file)
-                print("setp   " + steppinname + ".maxvel           [%s_%d]MAX_VELOCITY"% (title, jnum), file=file)
-            else:
-                print("setp   " + steppinname + ".maxaccel         [%s_%d]STEPGEN_MAXACCEL"% (title, jnum), file=file)
-                print("setp   " + steppinname + ".maxvel           [%s_%d]STEPGEN_MAXVEL"% (title, jnum), file=file)
+            print("setp   " + steppinname + ".maxaccel         [%s_%d]STEPGEN_MAXACCEL"% (title, jnum), file=file)
+            print("setp   " + steppinname + ".maxvel           [%s_%d]STEPGEN_MAXVEL"% (title, jnum), file=file)
 
             # invert step pins if requested
             # step does not have alias pin names so we invert it's GPIO pin
