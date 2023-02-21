@@ -520,7 +520,7 @@ Which updates the `weighted_sum` component.
 In the following example, a copy of the AXIS HAL configuration window, bits '0' and '2' are TRUE, they have no offset.
 The weight ('weight') of bit 0 is 1, that of bit 2 is 4, so the sum is 5.
 
-.`weighted_sum` Example component Pin for weighted sum.s
+.`weighted_sum` Example component Pin for weighted sums.
 [width="90%",options="header"]
 |===
 |Owner|Type |Dir  |Value |Name
