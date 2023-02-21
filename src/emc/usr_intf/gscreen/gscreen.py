@@ -44,27 +44,16 @@ for num,temp in enumerate(sys.argv):
         if temp == '-h' or temp == '--help' or len(sys.argv) == 1:
             _print_help()
 
-# Set up the base logger
-#   We have do do this before importing other modules because on import
-#   they set up their own loggers as children of the base logger.
-from qtvcp import logger
-LOG = logger.initBaseLogger('GScreen', log_file=None, log_level=logger.INFO)
-
 import gi
 gi.require_version("Gtk","3.0")
 gi.require_version("Gdk","3.0")
 gi.require_version('PangoCairo', '1.0')
 from gi.repository import Gtk,Gdk,GObject,Pango,PangoCairo,cairo,GLib
 from gi.repository import Pango as pango
-try:
-    from gi.repository import Vte as vte
-except:
-    LOG.error("**** WARNING GSCREEN: could not import vte terminal - is package installed?")
 
 import hal
 import errno
-import gladevcp.makepins
-from gladevcp.gladebuilder import GladeBuilder
+
 #import pango
 import traceback
 import atexit
@@ -144,10 +133,6 @@ try:
 except:
     pass
 import linuxcnc
-from gscreen import emc_interface
-from gscreen import mdi
-from gscreen import preferences
-from gscreen import keybindings
 
 # this is for hiding the pointer when using a touch screen
 #pixmap = gdk.Pixmap(None, 1, 1, 1)
@@ -455,7 +440,7 @@ def load_handlers(usermod,halcomp,builder,useropts,gscreen):
 # emc_interface.py which does most of the commands and status of linuxcnc
 # keep in mind some of the gladeVCP widgets send-commands-to/monitor linuxcnc also
 
-class Gscreen: 
+class Gscreen(object): 
 
     def __init__(self):
         global xmlname
@@ -1315,15 +1300,23 @@ class Gscreen:
         """
         # add terminal window
         try:
-            self.widgets._terminal = vte.Terminal ()
+            self.widgets._terminal = Vte.Terminal ()
             self.widgets._terminal.connect ("child-exited", lambda term: Gtk.main_quit())
-            self.widgets._terminal.fork_command()
+            self.widgets._terminal.spawn_sync(
+                    Vte.PtyFlags.DEFAULT,
+                    os.environ['HOME'],
+                    ["/bin/sh"],
+                    [],
+                    GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+                    None,
+                    None,
+            )
             self.widgets._terminal.show()
             window = self.widgets.terminal_window.add(self.widgets._terminal)
             self.widgets.terminal_window.connect('delete-event', lambda window, event: Gtk.main_quit())
             self.widgets.terminal_window.show()
-        except:
-            print (_("**** WARNING GSCREEN: could not initialize vte terminal - is package vte installed? Is widget: terminal_window in GLADE file?"))
+        except Exception as e:
+            LOG.exception()
 
     def init_themes(self):
         """adds theme names to comdo box
@@ -2190,7 +2183,7 @@ class Gscreen:
             self.widgets.gremlin.set_property('use_default_controls',not self.data.hide_cursor)
 
     # display calculator for input
-    def launch_numerical_input(self,callback="on_numerical_entry_return",data=None,data2=None,title=_("Entry dialog")):
+    def launch_numerical_input(self,callback="on_numerical_entry_return",data=None,data2=None,title="Entry dialog"):
         """This is a function to launch a numerical entry/calculator dialog.
             The default callback function will be 'on_numerical_entry_return.
             It will check to see if the handler file has this function, otherwise it will use the default.
@@ -4684,7 +4677,51 @@ class Gscreen:
 # calls a postgui file if there is one.
 # then starts Gscreen
 if __name__ == "__main__":
-    #app = Gscreen()
+
+    # Set up the base logger
+    #   We have do do this before importing other modules because on import
+    #   they set up their own loggers as children of the base logger.
+
+    # If log_file is none, logger.py will attempt to find the log file specified in
+    # INI [DISPLAY] LOG_FILE, failing that it will log to $HOME/<base_log_name>.log
+
+    # Note: In all other modules it is best to use the `__name__` attribute
+    #   to ensure we get a logger with the correct hierarchy.
+    #   Ex: LOG = logger.getLogger(__name__)
+
+    from qtvcp import logger
+    LOG = logger.initBaseLogger('Gmoccapy', log_file=None, log_level=logger.WARNING)
+
+    # we set the log level early so the imported modules get the right level
+    # The order is: VERBOSE, DEBUG, INFO, WARNING, ERROR, CRITICAL.
+
+    if '-d' in sys.argv:
+        # Log level defaults to WARNING, so set lower if in debug mode
+        logger.setGlobalLevel(logger.DEBUG)
+        LOG.debug('DEBUGGING logging on')
+    elif '-i' in sys.argv:
+        # Log level defaults to WARNING, so set lower if in info mode
+        logger.setGlobalLevel(logger.INFO)
+        LOG.info('INFO logging on')
+    elif '-v' in sys.argv:
+        # Log level defaults to WARNING, so set lowest if in verbose mode
+        logger.setGlobalLevel(logger.VERBOSE)
+        LOG.verbose('VERBOSE logging on')
+    elif '-q' in sys.argv:
+        logger.setGlobalLevel(logger.ERROR)
+
+    # Some of these libraries log when imported so logging level must already be set.
+    import gladevcp.makepins
+    from gscreen import emc_interface
+    from gscreen import mdi
+    from gscreen import preferences
+    from gscreen import keybindings
+    try:
+        gi.require_version('Vte', '2.91')
+        from gi.repository import Vte
+    except:
+        LOG.error("could not import Vte terminal - is python3 package installed?")
+
     try:
         app = Gscreen()
     except KeyboardInterrupt:
