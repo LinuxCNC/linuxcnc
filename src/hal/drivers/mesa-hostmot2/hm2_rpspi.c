@@ -1037,9 +1037,11 @@ static int peripheral_map(uint32_t membase, uint32_t memsize)
 	peripheralmem = mmap(NULL, peripheralsize, PROT_READ|PROT_WRITE, MAP_SHARED, fd, (off_t)membase);
 	err = errno;
 	close(fd);
-
 	if(peripheralmem == MAP_FAILED) {
-		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Can't map peripherals\n");
+		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Can't map peripherals: %s\n", strerror(err));
+		if (err == EPERM) {
+			rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Try adding 'iomem=relaxed' to your kernel command-line.\n");
+		}
 		return -err;
 	}
 
