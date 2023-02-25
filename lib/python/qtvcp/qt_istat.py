@@ -43,6 +43,9 @@ class _IStat(object):
         self.PREFERENCE_PATH = '~/.Preferences'
         self.SUB_PATH = None
         self.SUB_PATH_LIST = []
+        self.USER_M_PATH = None
+        self.USER_M_PATH_LIST = []
+
         self.MACRO_PATH_LIST = []
         self.IMAGE_PATH = IMAGEDIR
         self.LIB_PATH = os.path.join(HOME, "share", "qtvcp")
@@ -98,8 +101,9 @@ class _IStat(object):
         else:
             self.USER_COMMAND_FILE = None
 
-        self.SUB_PATH = (self.INI.find("RS274NGC", "SUBROUTINE_PATH")) or None
         self.STARTUP_CODES = (self.INI.find('RS274NGC', 'RS274NGC_STARTUP_CODE') ) or None
+
+        self.SUB_PATH = (self.INI.find("RS274NGC", "SUBROUTINE_PATH")) or None
         if self.SUB_PATH is not None:
             for mpath in (self.SUB_PATH.split(':')):
                 self.SUB_PATH_LIST.append(mpath)
@@ -109,6 +113,12 @@ class _IStat(object):
             self.MACRO_PATH = mpath or None
         else:
             self.MACRO_PATH = None
+
+        self.USER_M_PATH = (self.INI.find("RS274NGC", "USER_M_PATH")) or None
+        if self.USER_M_PATH is not None:
+            for mpath in (self.USER_M_PATH.split(':')):
+                self.USER_M_PATH_LIST.append(mpath)
+
         self.INI_MACROS = self.INI.findall("DISPLAY", "MACRO")
 
         self.NGC_SUB_PATH = (self.INI.find("DISPLAY","NGCGUI_SUBFILE_PATH")) or None
@@ -628,6 +638,35 @@ class _IStat(object):
     def get_jnum_from_axisnum(self, axisnum):
         joint = self.TRAJCO.index( "xyzabcuvw"[axisnum] )
         return joint
+
+    # check to see if file name plus paths from
+    # SUBROUTINE_PATH, USER_M_PATH or PROGRAM_PREFIX from INI
+    # is an existing path (meaning linuxcnc can find it)
+    # fname should just be the filename
+    # returns the full path or None
+    def check_known_paths(self,fname, prefix = True, sub=True, user_m=True):
+        fname = os.path.split(fname)[1]
+        if prefix:
+            path = os.path.join(self.PROGRAM_PREFIX,fname)
+            if os.path.exists(path): return path
+        if sub:
+            for i in self.SUB_PATH_LIST:
+                path = os.path.expanduser(os.path.join(i,fname))
+                if os.path.exists(path):
+                    return path
+        if user_m:
+            for i in self.USER_M_PATH_LIST:
+                path = os.path.expanduser(os.path.join(i,fname))
+                if os.path.exists(path):
+                    return path
+        return None
+
+    # same as above but just return True or False
+    def is_in_known_paths(self,fname, prefix = True, sub=True, user_m=True):
+        fname = os.path.split(fname)[1]
+        if self.check_known_paths(fname,prefix,sub,user_m) is None:
+            return False
+        return True
 
     def __getitem__(self, item):
         return getattr(self, item)
