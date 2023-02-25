@@ -32,7 +32,6 @@ gi.require_version('Gdk', '3.0')
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GdkPixbuf
-from gi.repository import GObject
 from gi.repository import GLib
 
 import traceback           # needed to launch traceback errors
@@ -49,7 +48,6 @@ import gettext             # to extract the strings to be translated
 from collections import OrderedDict # needed for proper jog button arrangement
 from time import strftime  # needed for the clock in the GUI
 #from Gtk._Gtk import main_quit
-
 
 # Throws up a dialog with debug info when an error is encountered
 def excepthook(exc_type, exc_obj, exc_tb):
@@ -105,14 +103,6 @@ BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 LIBDIR = os.path.join(BASE, "lib", "python")
 sys.path.insert(0, LIBDIR)
 
-
-_AUDIO_AVAILABLE = False
-try:
-    import gst
-    from .gmoccapy import player        # a class to handle sounds
-    _AUDIO_AVAILABLE = True
-except:
-    pass
 # set up paths to files, part two
 CONFIGPATH = os.environ['CONFIG_DIR']
 DATADIR = os.path.join(BASE, "share", "gmoccapy")
@@ -5778,6 +5768,11 @@ if __name__ == "__main__":
     from gmoccapy import getiniinfo    # this handles the INI File reading so checking is done in that module
     from gmoccapy import dialogs       # this takes the code of all our dialogs
     from gmoccapy import icon_theme_helper
+    try:
+        from gmoccapy import player        # a class to handle sounds
+        _AUDIO_AVAILABLE = True
+    except:
+        _AUDIO_AVAILABLE = False
 
     # instantiate gmoccapy
     app = gmoccapy(sys.argv)
