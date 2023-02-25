@@ -1034,11 +1034,11 @@ One can use this to split the size between the two areas. This can be set differ
 This tab displays the graphical representation of the current program.
 The side buttons will control the display.
 
-* 'User View': Select/restore a user set view of the current program
-* 'P','X','Y','Z': Set standard views
-* 'D': Toggle display of dimensions
-* '+', '-': Zoom controls
-* 'C': Clear graphics of tool movement lines
+* 'User View': Select/restore a user set view of the current program.
+* 'P','X','Y','Z': Set standard views.
+* 'D': Toggle display of dimensions.
+* '+', '-': Zoom controls.
+* 'C': Clear graphics of tool movement lines.
 
 In `qtdragon_hd` there are also macro buttons available on the right side.
 Up to tens buttons can be defined in the INI.

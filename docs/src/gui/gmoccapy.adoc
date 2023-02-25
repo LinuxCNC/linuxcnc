@@ -498,7 +498,7 @@ You can specify the log level in the INI file like this:
 [DISPLAY]
 DISPLAY = gmoccapy <log_level_param>
 ----
-using this parameters:
+using these parameters:
 ----
 Log level   <log_level_param>
 DEBUG       -d

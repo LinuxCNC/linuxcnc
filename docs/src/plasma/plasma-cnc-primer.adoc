@@ -397,7 +397,7 @@ WARNING: It is strongly recommended that the torch cannot be enabled while this 
 
 * Used for surface probing. A sensor or switch that is activated if the torch slides up when it hits the material.
 * Connect Proximity sensor output to chosen input pin. If mechanical switches are used. Connect one side of the switch to field power and the other side of the switch to input.
-* Usually Connected to `motion.probe-input`
+* Usually Connected to `motion.probe-input`.
 
 === Ohmic Sensor enable (output)
 

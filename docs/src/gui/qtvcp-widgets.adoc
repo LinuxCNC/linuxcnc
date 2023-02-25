@@ -2554,7 +2554,7 @@ As coded they these function _issue (emit) PyQt5 signals (joy_btn_pressed and jo
 Signal 'joy_btn_pressed' outputs a string code for the button. +
 Signal 'joy_<letter>_pressed' outputs a bool value.
 
-You could override the functions to do something else if making a custom widget,
+You could override the functions to do something else if making a custom widget:
 
 .Callable Functions
 *`reset_highlight()`*::
@@ -2901,7 +2901,7 @@ If the subroutine calls other subroutines or custom M codes, those paths must be
 SUBROUTINE_PATH = ~/linuxcnc/nc_files/examples/ngcgui_lib:~/linuxcnc/nc_files/examples/ngcgui_lib/utilitysubs
 ----
 
-Qtvcp needs to know where to open subroutines from. +
+QtVCP needs to know where to open subroutines from. +
 You can also specify subroutines to be pre-opened in tabs.
 
 [source,{ini}]
@@ -2928,8 +2928,8 @@ NGCGUI_SUBFILE = qpocket.ngc
 * 'FINALIZE GCODE' -create the full G-code and send it to LinuxCNC/a file
 
 ==== Adding Custom Subroutines
-You can create your own subroutines for use with ngcgui. +
-they must follow these rules:
+You can create your own subroutines for use with ngcgui.
+They must follow these rules:
 
 * For creating a subroutine for use with NGCGUI, the filename and the subroutine name must be the same.
 * The subroutine must be in a folder within LinuxCNC's INI designated search path.
