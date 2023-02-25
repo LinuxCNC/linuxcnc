@@ -538,10 +538,20 @@ class NgcGui(QtWidgets.QWidget):
         else:
             self.textEdit_status.append("Unknown file type")
             return
+
         fname = get_file_open(title)
         if fname == '':
             self.textEdit_status.append(error)
             return
+
+        # make sure linuxcnc it's self can find the path
+        rtn = self.check_linuxcnc_paths(fname)
+        if rtn == '':
+            self.textEdit_status.append("Path is not in linuxcnc's designated search folders")
+            return
+        else:
+            fname = rtn
+
         if ftype == 'pre':
             self.pre_file = fname
             self.lineEdit_preamble.setText(os.path.basename(fname))
@@ -792,6 +802,23 @@ class NgcGui(QtWidgets.QWidget):
         """ Convenience function to move the tabs frame to another layout"""
         newLayout.addWidget(self.frame_tabs)
 
+    # This could be overridden to actually fix the path
+    def check_linuxcnc_paths(self, fname):
+        if INFO.is_in_known_paths(fname):
+            return self.check_linuxcnc_paths_pass(fname)
+        else:
+            return self.check_linuxcnc_paths_fail(fname)
+
+    # can be overridden
+    # return fname to continue
+    def check_linuxcnc_paths_pass(self, fname):
+        return fname
+
+    # can be overridden
+    # return '' to fail
+    def check_linuxcnc_paths_fail(self, fname):
+        return ''
+
 ##################
 # Global functions
 ##################
@@ -964,7 +991,7 @@ def save_a_copy(fname, archive_dir='/tmp/old_ngc'):
     except Exception as detail:
         LOG.exception("Save a copy Exception: {}".format(detail))
         sys.exit(1)
-    
+
     #############################
     # Testing                   #
     #############################
