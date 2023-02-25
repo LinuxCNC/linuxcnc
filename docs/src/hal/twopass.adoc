@@ -12,7 +12,6 @@
 
 == TWOPASS
 
-
 This section describes an option to have multiple load-commands for multiple instances of the same component at different positions in the file or among different files.
 Internally, this requires to read the HAL file twice, hence the name TWOPASS.
 Supported since LinuxCNC version 2.5, the TWOPASS processing of LinuxCNC configuration files helps with their modularization and readability.
@@ -21,26 +20,25 @@ To recall, LinuxCNC configuration files are specified in a LinuxCNC INI file as 
 Normally, a set of one or more LinuxCNC configuration files must use a single, unique loadrt line to load a kernel module that may handle multiple instances of a component.
 For example, if you use a two input AND gate component (and2) in three different places in your setup, you would need to have a single line somewhere to specify:
 
+.Example resulting in real-time components with default names `and2.0`, `and2.1`, `and2.2`.
 [source,{hal}]
 ----
 loadrt and2 count=3
 ----
 
-resulting in components and2.0, and2.1, and2.2.
 
-Configurations are more readable if you specify with the names=option for components where it is supported, e.g.:
+Configurations are more readable if you specify with the `names=` option for components where it is supported, e.g.:
 
+.Example load command resulting in explicitly named components `aa`, `ab`, `ac`.
 [source,{hal}]
 ----
 loadrt and2 names=aa,ab,ac
 ----
 
-resulting in components aa,ab,ac.
-
 It can be a maintenance problem to keep track of the components and their names, since when you add (or remove) a component,
 you must find and update the single loadrt directive applicable to the component.
 
-.TWOPASS processing is enabled by including an INI file parameter in the [HAL] section, where "anystring" can be any non-null string.
+.TWOPASS processing is enabled by including an INI file parameter in the `[HAL]` section, where "anystring" can be any non-null string.
 [source,{ini}]
 ----
 [HAL]
@@ -135,7 +133,7 @@ HALUI = halui
 Some GUIs support HAL files that are processed after the GUI is started in order to connect LinuxCNC pins that are created by the GUI.
 When using a postgui HAL file with TWOPASS processing,
 include all loadrt items for components added by postgui HAL files in a separate HAL file that is processed before the GUI.
-The addf commands can also be included in the file.
+The `addf` commands can also be included in the file.
 
 .Example
 [source,{ini}]
@@ -153,12 +151,12 @@ POSTGUI_HALFILE = the_postgui_file.hal
 == Excluding .hal files
 
 TWOPASS processing converts '.hal' files to equivalent '.tcl' files and uses haltcl to find loadrt and addf commands in order to accumulate and consolidate their usage.
-Loadrt parameters that conform to the simple 'names=' (or 'count=') parameters accepted by the HAL Component Generator ('halcompile') are expected.
+Loadrt parameters that conform to the simple `names=` (or `count=`) parameters accepted by the HAL Component Generator (`halcompile`) are expected.
 More complex parameter items included in specialized LinuxCNC components may not be handled properly.
 
 A '.hal' file may be excluded from TWOPASS processing by including a magic comment line anywhere in the '.hal' file.
-The magic comment line must begin with the string: '#NOTWOPASS'.
-Files specified with this magic comment are sourced by halcmd using the '-k' (keep going if failure) and '-v' (verbose) options.
+The magic comment line must begin with the string: `#NOTWOPASS`.
+Files specified with this magic comment are sourced by halcmd using the `-k` (keep going if failure) and `-v` (verbose) options.
 
 This exclusion provision can be used to isolate problems or for loading any special LinuxCNC component that does not require or benefit from TWOPASS processing.
 
@@ -186,9 +184,9 @@ loadrt component_2
 
 [NOTE]
 Case and whitespace within the magic comment are ignored.
-The loading of components that use 'names=' or 'count=' parameters (typically built by halcompile) should not be used in excluded files,
+The loading of components that use `names=` or `count=` parameters (typically built by halcompile) should not be used in excluded files,
 as that would eliminate the benefits of TWOPASS processing.
-The LinuxCNC commands that create signals (net) and commands that establish execution order (addf) should not be placed in excluded files.
+The LinuxCNC commands that create signals (`net`) and commands that establish execution order (`addf`) should not be placed in excluded files.
 This is especially true for addf commands since their ordering may be important.
 
 
