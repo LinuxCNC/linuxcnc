@@ -951,7 +951,7 @@ class HandlerClass:
 
     # NGCGui library overridden function
     # adds an error message to status
-    def che ck_linuxcnc_paths_fail_override(self, fname):
+    def check_linuxcnc_paths_fail_override(self, fname):
         self.add_status("NGCGUI Path {} not in linuxcnc's SUBROUTINE_PATH INI entry".format(fname), CRITICAL)
         return ''
 
