@@ -107,6 +107,7 @@ Defining a code involves the following steps:
 - Decide if and how results are handled.
 - Decide about the execution sequence.
 
+[[sub:remap:sec:builtin-remaps]]
 === Builtin Remaps
 
 Please note that currently only some existing codes can be redefined, while there are many 'free' codes that may be available for remapping.
@@ -240,6 +241,7 @@ A detailed discussion of REMAP parameters is found in the reference section belo
 
 == Configuring Remapping
 
+[[sub:remap:sec:remap-statement]]
 === The REMAP statement
 
 To remap a code, define it using the `REMAP` option in `RS274NG` section of your INI file.
@@ -928,6 +930,7 @@ def prepare_epilog(self, **words):
 The functions 'prepare_prolog' and 'prepare_epilog' are part of the _standard glue_ provided by 'nc_files/remap_lib/python-stdglue/stdglue.py'.
 This module is intended to cover most standard remapping situations in a common way.
 
+[[sub:remap:sec:error-handling]]
 === Error handling: dealing with abort
 
 The built in tool change procedure has some precautions for dealing with a program abort, e.g., by hitting escape in AXIS during a change.
