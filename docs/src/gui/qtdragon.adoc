@@ -47,8 +47,12 @@ It will work in window mode on any monitor with higher resolution but not on mon
 == Getting Started - The INI File
 
 If your configuration is not currently set up to use QtDragon,
-you can change it by editing the INI file [DISPLAY] section.
+you can change it by editing the INI file sections.
 For an exhaustive list of options, see the <<sub:ini:sec:display,display section>> of INI file documentation.
+
+[NOTE]
+You can only have one of each section ( ie [HAL] ) in the INI file. If you see in these docs multiple section options
+ place them all under the one appropriate section name.  
 
 === Display
 
@@ -57,7 +61,7 @@ In the section '[DISPLAY]' change the 'DISPLAY' line to read:
 * `qtdragon` for a small version
 * `qtdradon_hd` for the large version.
 
-You can add `-v`, `-d`, '-i', or '-q' for verbose, debug, info or quiet (respectably) output to the terminal.
+You can add `-v`, `-d`, '-i', or '-q' for (respectably) verbose, debug, info or quiet output to the terminal.
 
 [source,{ini}]
 ----
@@ -70,7 +74,8 @@ DISPLAY = qtvcp qtdragon
 To keep track of preferences, QtDragon looks for a preference text file.
 add the following entry under the '[DISPLAY]' heading.
 This example will save the file in the config folder of the launch screen.
-(other options are possible see the QtVCP's screenoption widget docs.)
+(other options are possible see the QtVCP's screenoption widget docs.) +
+The file name qtdragon.pref can be user selected.
 
 [source,{ini}]
 ----
@@ -80,7 +85,8 @@ PREFERENCE_FILE_PATH = WORKINGFOLDER/qtdragon.pref
 
 === Logging
 
-You can specify where to save history/logs.
+You can specify where to save history/logs. +
+These file names can be user selected. +
 In the section `[DISPLAY]` add:
 
 [source,{ini}]
@@ -93,7 +99,7 @@ LOG_FILE = qtdragon.log
 
 === Override controls
 
-set override controls (1.0 = 100 percent):
+These set qtdragon's override controls (1.0 = 100 percent):
 
 [source,{ini}]
 ----
@@ -119,7 +125,8 @@ MAX_SPINDLE_POWER = 1500
 
 === Jogging increments
 
-Set selectable jogging increments
+Set selectable jogging increments. +
+These increments can be user changed.
 
 [source,{ini}]
 ----
@@ -144,10 +151,11 @@ MAX_ANGULAR_VELOCITY = 360
 ----
 
 === User message dialog system
-Optional popup custom message dialogs, controlled by HAL pins.
+Optional popup custom message dialogs, controlled by HAL pins. +
 MESSAGE_TYPE can be 'okdialog' or 'yesnodialog'.
-See qtvcp/library/messages for more information.
-This example shows how to make a dialog that requires the user to select 'ok' to acknowledge and hide.
+See qtvcp/library/messages for more information. +
+This example shows how to make a dialog that requires the user to select 'ok' to acknowledge and hide. +
+These dialogs could be used for such things as low lube oil warnings etc,
 
 [source,{ini}]
 ----
@@ -161,7 +169,7 @@ MESSAGE_PINNAME = oktest
 
 === Embed Custom VCP Panels
 
-You can embed QtVCP Virtual Control Panels into the QtDragon or QtDragon_hd screen. +
+You can optionally embed QtVCP Virtual Control Panels into the QtDragon or QtDragon_hd screen. +
 These panels can be either user built or builtin <<cha:qtvcp:panels,QtVCP Panels>>. +
 See QtVCP/VCP panels for other available builtin panels. +
 The `EMBED_TAB_NAME` entry will used as the title for the new tab.(must be unique) +
@@ -183,6 +191,9 @@ through displaying all available panels (specified for this location) on the mai
 
 === Subroutine Paths
 If using NGCGUI, remap or custom M codes routines, linuxcnc needs to know where to look for the files. +
+This sample is typical of what is needed for NgcGui, Basic Probe. and Versa Probe remap code. +
+These paths will need to be adjusted to point to the actual files on your system.
+<<sub:ini:sec:rs274ngc, RS274NZGC Section Details>>
 
 [source,{ini}]
 ----
@@ -192,7 +203,8 @@ SUBROUTINE_PATH = :~/linuxcnc/nc_files/examples/ngcgui_lib:~/linuxcnc/nc_files/e
 ~/linuxcnc/nc_files/examples/ngcgui_lib/remap_lib
 ----
 
-Qtvcp's NGCGUI program also need to know where to open for subroutine selection and pre-selection.
+Qtvcp's NGCGUI program also need to know where to open for subroutine selection and pre-selection. +
+NGCGUI_SUBFILE_PATH must point to an actual path on your system and also a path described in SUBROUTINE_PATHS.
 
 [source,{ini}]
 ----
@@ -209,7 +221,7 @@ NGCGUI_SUBFILE = qpocket.ngc
 === Preview Control
 
 Magic comments can be used to control the G-code preview. +
-On very large programs the preview can take a long time to load.
+On very large programs the preview can take a long time to load. +
 You can control what is shown and what is hidden the the graphics screen
 by adding the appropriate comments from this list into your G-code:
 
@@ -221,8 +233,8 @@ by adding the appropriate comments from this list into your G-code:
 
 === Program Extensions/Filters
 
-You can control what programs are displayed in the filemanager window with program extensions:
-Create a line with the . endings you wish to use separated by commas, then a space and the description.
+You can control what programs are displayed in the filemanager window with program extensions. +
+Create a line with the '.' endings you wish to use separated by commas, then a space and the description. +
 You can add multiple lines for different selections in the combo box.
 
 [source,{ini}]
@@ -231,18 +243,18 @@ You can add multiple lines for different selections in the combo box.
 PROGRAM_EXTENSION = .ngc,.nc,.tap G-Code File (*.ngc,*.nc,*.tap)
 ----
 
-QtDragon has the ability to send loaded files through a 'filter program'.
+QtDragon has the ability to send loaded files through a 'filter program'. +
 This filter can do any desired task: Something as simple as making sure the file ends with 'M2',
-or something as complicated as generating G-Code from an image.
+or something as complicated as generating G-Code from an image. +
 See <<cha:filter,Filter Programs>> for more information.
 
-The '[FILTER]'  section of the INI file controls how filters work.
-First, for each type of file, write a 'PROGRAM_EXTENSION' line.
-Then, specify the program to execute for each type of file.
+The '[FILTER]'  section of the INI file controls how filters work. +
+First, for each type of file, write a 'PROGRAM_EXTENSION' line. +
+Then, specify the program to execute for each type of file. +
 This program is given the name of the input file as its first argument,
-and must write rs274ngc code to standard output.
+and must write rs274ngc code to standard output. +
 This output is what will be displayed in the text area, previewed in the display area,
-and executed by LinuxCNC when 'Run'.
+and executed by LinuxCNC when 'Run'. +
 The following lines add support for the `image-to-gcode` converter
 included with LinuxCNC and running Python based filter programs:
 
@@ -278,7 +290,7 @@ USE_PROBE = basicprobe
 When using qtdragon's probing routines, it's important to detect a user abort request. +
 By default, linuxcnc does not report an abort in a useful way for the probe routines. +
 You need to add a ngc file to print out an error that can be detected.
-
+<<sub:remap:sec:error-handling, Remap Abort Details>>
 
 [source,{ini}]
 ----
@@ -287,7 +299,9 @@ You need to add a ngc file to print out an error that can be detected.
 ON_ABORT_COMMAND=O <on_abort> call
 ----
 
-This example code will send a message on abort. The probe routines can detect this.
+This example code will send a message on abort. The probe routines can detect this sample. +
+According to the setting above, it would need to be saved as 'on_abort.ngc' within 
+linuxcnc's [RS274NGC] SUBROUTINE_PATHS and [DISPLAY] PROGRAM_PREFIX search paths.
 
 [source,{ngc}]
 ----
@@ -310,8 +324,9 @@ m2
 ----
 
 === Startup codes
-You should set default M/G code for start up. These will be overridden by running a ngc file.
- 
+You should set default M/G code for start up. These will be overridden by running a ngc file. +
+These are only sample codes, integrator should choose appropriate codes.
+
 [source,{ini}]
 ----
 [RS274NGC]
@@ -321,11 +336,11 @@ RS274NGC_STARTUP_CODE = G17 G20 G40 G43H0 G54 G64P0.0005 G80 G90 G94 G97 M5 M9
 
 === Macro Buttons
 
-QtDragon has up to ten convenience macro buttons.
+QtDragon has up to ten convenience buttons for calling 'macro actions'. +
+These could also call OWord routines if desired. +
 In the sample configurations they are labelled for moving between
-current user system origin (zero point) and Machine system origin.
-User origin is the first MDI command in the INI list, machine origin is the second.
-These could also call OWord routines if desired.
+current user system origin (zero point) and Machine system origin. +
+User origin is the first MDI command in the INI list, machine origin is the second. +
 This example shows how to move Z axis up first. The commands are separated by the ';'
 The label is set after the comma. The symbols '\n' adds a line break.
 
@@ -339,10 +354,11 @@ MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0,Goto\nMachn\nZero
 
 === Post GUI HAL File
 
-These HAL files will be called after QtDragon has loaded everything else. +
+These optional HAL files will be called after QtDragon has loaded everything else. +
 You can add multiple line for multiple file. Each one will be called in the order they appear. +
-Calling HAL files after QtDragon is already loaded assures that QtDragon's HAL pins are available.
-
+Calling HAL files after QtDragon is already loaded assures that QtDragon's HAL pins are available. +
+This sample shows typical entries, but must be adjusted to actual requirements.
+ 
 [source,{ini}]
 ----
 [HAL]
@@ -352,9 +368,10 @@ POSTGUI_HALFILE = qtdragon_hd_debugging.hal
 
 === Post GUI HAL Command
 
-These HAL commands will be run after QtDragon has loaded everything else. +
+These optional HAL commands will be run after QtDragon has loaded everything else. +
 You can add multiple line. Each one will be called in the order they appear. +
-Any HAL command can be used.
+Any HAL command can be used. +
+This sample shows typical entries, but must be adjusted to actual requirements.
 
 [source,{ini}]
 ----
@@ -371,8 +388,8 @@ There are several examples, to demonstrate different machine configurations.
 
 == Key Bindings
 
-QtDragon is not intended to primarily use a keyboard for machine control.
-It lacks many keyboard short cuts that for instance AXIS has - but you can use a mouse.
+QtDragon is not intended to primarily use a keyboard for machine control. +
+It lacks many keyboard short cuts that for instance AXIS has - but you can use a mouse or touchscreen. +
 There are several key presses that will control the machine for convenience.
 
 ----
@@ -404,10 +421,11 @@ It should be noted that keyboard jogging is disabled when using the virtual keyb
 
 == HAL Pins
 
-These pins are specific to the QtDragon screen.
+These pins are specific to the QtDragon screen. +
 There are of course are many more HAL pins that must be connected for LinuxCNC to function.
 
-If you need a manual tool change prompt, add these lines in your postgui file.
+If you need a manual tool change prompt, add these lines in your postgui file. +
+Qtdragon emulates the hal_manualtoolchange HAL pins - don't load the separate HAL component 'hal_manualtoolchange'.
 
 [source,{hal}]
 ----
@@ -416,14 +434,14 @@ net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
 net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
 ----
 
-This input pin should be connected to indicate probe state:
+This input pin should be connected to indicate probe state.
 
 [source,{hal}]
 ----
 qtdragon.led-probe
 ----
 
-These pins are inputs related to spindle VFD indicating:
+These pins are inputs related to spindle VFD indicating. +
 The volt and amp pins are used to calculate spindle power.
 (You must also set the MAX_SPINDLE_POWER in the INI)
 
@@ -435,7 +453,7 @@ qtdragon.spindle-fault
 qtdragon.spindle-volts
 ----
 
-This bit pin is an output to the spindle control to pause it:
+This bit pin is an output to the spindle control to pause it. +
 You would connect it to spindle.0.inhibit.
 
 [source,{hal}]
@@ -485,7 +503,7 @@ qtdragon.slider-override-rapid
 qtdragon.slider-override-spindle
 ----
 
-These pins are available when setting the Versa Probe INI option.
+These pins are available when setting the Versa Probe INI option. +
 They can be used for auto-tool-length-probe at tool change - with added
 remap code.
 
@@ -500,14 +518,15 @@ qtdragon.versaprobe-searchvel
 == HAL files
 
 The HAL files supplied are for simulation only.
-A real machine needs its own custom HAL files.
+A real machine needs its own custom HAL files. +
 The QtDragon screen works with 3 or 4 axes with one joint per axis or 3 or 4 axes in a gantry configuration
 (2 joints on 1 axis).
 
 == Manual Tool Changes
 
-If your machine requires manual tool changes, QtDragon can pop a message box to direct you.
-You must connect the proper HAL pin in the postgui HAL file.
+If your machine requires manual tool changes, QtDragon can pop a message box to direct you. +
+Qtdragon emulates the hal_manualtoolchange HAL pins - don't load the separate HAL component 'hal_manualtoolchange'. +
+You must connect the proper HAL pin in the postgui HAL file. +
 For example:
 
 [source,{hal}]
@@ -519,16 +538,16 @@ net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-num
 
 == Spindle
 
-The screen is intended to interface to a VFD, but will still work without it.
-There are a number of VFD drivers included in the LinuxCNC distribution.
+The screen is intended to interface to a VFD, but will still work without it. +
+There are a number of VFD drivers included in the LinuxCNC distribution. +
 It is up to the end user to supply the appropriate driver and HAL file connections according to his own machine setup.
 
 == Auto Raise Z Axis on Spindle Pause
 
-QtDragon can be set up to automatically raise and lower the Z axis when the spindle is paused.
-When a program is paused, then you press the 'Spindle Pause' button to stop the spindle and raise it in Z.
-Press the button again to start spindle and lower it, then unpause program.
-The amount to raise and lower is set in the 'Settings' tab under the heading 'Z Ext Offset'.
+QtDragon can be set up to automatically raise and lower the Z axis when the spindle is paused. +
+When a program is paused, then you press the 'Spindle Pause' button to stop the spindle and raise it in Z. +
+Press the button again to start spindle and lower it, then unpause the program. +
+The amount to raise and lower is set in the 'Settings' tab under the heading 'Z Ext Offset'. +
 This requires additions to the INI and the qtdragon_post_gui file.
 
 In the INI, under the AXIS_Z heading.
@@ -865,6 +884,9 @@ USE_PROBE = basicprobe
 ----
 
 ==== The RS274NGC section
+<<sub:ini:sec:rs274ngc, RS274NGC Section Details>> +
+<<sub:remap:sec:remap-statement, Remap Statement Details>> +
+<<sub:remap:sec:error-handling, Remap Abort Details>>
 
 [source,{ini}]
 ----
@@ -881,7 +903,9 @@ ON_ABORT_COMMAND=O <on_abort> call
 REMAP=M6  modalgroup=6 prolog=change_prolog ngc=qt_auto_probe_tool epilog=change_epilog
 ----
 
-The abort command file should be in the configuration folder and look something like this:
+The abort command file should be in the configuration folder and look something like this sample. +
+According to the setting above, it would need to be saved as 'on_abort.ngc' within 
+linuxcnc's [RS274NGC] SUBROUTINE_PATHS and [DISPLAY] PROGRAM_PREFIX search paths.
 
 ----
 o<on_abort> sub
@@ -934,8 +958,9 @@ Z = -2
 
 ==== The Python Section
 
-The Python section sets up what files LinuxCNC's Python interpreter looks for.
-I.e., 'toplevel.py' file in the 'python' folder in the configuration directory:
+The Python section sets up what files LinuxCNC's Python interpreter looks for. +
+I.e., 'toplevel.py' file in the 'python' folder in the configuration directory. +
+<<sub:remap:sec:builtin-remaps, Remap INI Details>> +
 
 [source,{ini}]
 ----
