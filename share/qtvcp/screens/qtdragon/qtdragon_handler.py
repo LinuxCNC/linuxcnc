@@ -6,6 +6,7 @@ from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFSET_VIEW
 from qtvcp.widgets.stylesheeteditor import StyleSheetEditor as SSE
 from qtvcp.widgets.file_manager import FileManager as FM
+from qtvcp.lib.qt_ngcgui.ngcgui import NgcGui
 from qtvcp.lib.writer import writer
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.gcodes import GCodes
@@ -139,8 +140,12 @@ class HandlerClass:
 
 
     def class_patch__(self):
+        # override file manager load button
         self.old_fman = FM.load
         FM.load = self.load_code
+
+        # override NGCGui path check
+        NgcGui.check_linuxcnc_paths_fail = self.check_linuxcnc_paths_fail_override
 
     def initialized__(self):
         self.init_pins()
@@ -231,7 +236,6 @@ class HandlerClass:
 
         # load the NgcGui widget into the utilities tab
         # then move (warp) the info tab from it to the left tab widget
-        from qtvcp.lib.qt_ngcgui.ngcgui import NgcGui
         self.ngcgui = NgcGui()
         self.w.layout_ngcgui.addWidget(self.ngcgui)
         self.ngcgui.warp_info_frame(self.w.ngcGuiLeftLayout)
@@ -889,6 +893,8 @@ class HandlerClass:
     #####################
     # GENERAL FUNCTIONS #
     #####################
+
+    # file manager widget overridden function
     def load_code(self, fname):
         if fname is None: return
         filename, file_extension = os.path.splitext(fname)
@@ -942,6 +948,12 @@ class HandlerClass:
             if os.path.exists(fname):
                 self.PDFView.loadView(fname)
                 self.add_status("Loaded PDF file : {}".format(fname))
+
+    # NGCGui library overridden function
+    # adds an error message to status
+    def che ck_linuxcnc_paths_fail_override(self, fname):
+        self.add_status("NGCGUI Path {} not in linuxcnc's SUBROUTINE_PATH INI entry".format(fname), CRITICAL)
+        return ''
 
     def update_gcode_properties(self, props ):
         # substitute nice looking text:
