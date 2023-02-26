@@ -7,10 +7,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-02-12 11:32+0100\n"
-"PO-Revision-Date: 2023-02-14 07:59+0000\n"
-"Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
+"PO-Revision-Date: 2023-02-26 07:13+0000\n"
+"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "gmocappy/es/>\n"
 "Language: es\n"
@@ -191,6 +191,7 @@ msgid "Press to jog joint {0}"
 msgstr "Presione para mover el motor {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1327
+#, fuzzy
 msgid "GMOCCAPY INFO\n"
 msgstr "GMOCCAPY INFO"
 
