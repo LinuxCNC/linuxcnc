@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# whatawhiz <pink0floyd@vip.qq.com>, 2022.
+# whatawhiz <pink0floyd@vip.qq.com>, 2022, 2023.
 # Jeff Epler <jepler@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC EMC2.8.0\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-01-26 22:23+0100\n"
-"PO-Revision-Date: 2022-07-20 00:40+0000\n"
+"PO-Revision-Date: 2023-02-20 22:20+0000\n"
 "Last-Translator: whatawhiz <pink0floyd@vip.qq.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/zh_Hans/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.14-dev\n"
+"X-Generator: Weblate 4.16-dev\n"
 "X-Poedit-Language: Chinese\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -136,16 +136,15 @@ msgid ""
 msgstr "D指令 没有与 G41、G41.1、G42、G42.1、G96 配合使用"
 
 #: src/emc/rs274ngc/interp_check.cc:269
-#, fuzzy
 msgid ""
 "$ (spindle selection) word with no M3, M4, M5, M19, M51, G33, G33.1, G76, "
 "G95, G96 or G97 to use it"
-msgstr "$（主轴选择）指令没有与 G41、G41.1、G42、G42.1、G76、G95、G96 配合使用"
+msgstr "$（主轴选择）指令没有与 M3, M4, M5, M19, M51, G33, G33.1, G76, G95, G96 或 "
+"G97 配合使用"
 
 #: src/emc/rs274ngc/interp_check.cc:276
-#, fuzzy
 msgid "E word with no G70, G76, M66, M67 or M68 to use it"
-msgstr "E指令 没有与 G76、 M3、 M4、 M5、 M19、 M51、 M66、 M67、M6 配合使用"
+msgstr "E指令 没有与 G70, G76, M66, M67 或 M68 配合使用"
 
 #: src/emc/rs274ngc/interp_check.cc:281
 msgid "H word with no G43 or G76 to use it"
@@ -2922,14 +2921,12 @@ msgid "ERROR CLASSICLADDER-   Error initializing classicladder user module.\n"
 msgstr "梯形图错误- 初始化梯形图用户模块时出错。\n"
 
 #: src/hal/classicladder/classicladder.c:221
-#, fuzzy
 msgid "Stopped program - press run button to continue."
-msgstr "停止梯形图程序 - 按下运行按钮继续。"
+msgstr "已停止的程序 - 按下运行按钮以继续。"
 
 #: src/hal/classicladder/classicladder.c:231
-#, fuzzy
 msgid "Started program - press stop to pause."
-msgstr "启动梯形图程序 - 按停止暂停。"
+msgstr "已开始的程序 - 按下停止以暂停。"
 
 #: src/hal/classicladder/classicladder.c:286
 msgid ""
@@ -3060,27 +3057,23 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:651
 msgid "Reset logic data - Now running."
-msgstr ""
+msgstr "重置逻辑数据-正在运行。"
 
 #: src/hal/classicladder/classicladder_gtk.c:651
-#, fuzzy
 msgid "Reset logic data done."
-msgstr "重置梯形图数据"
+msgstr "重置逻辑数据完成。"
 
 #: src/hal/classicladder/classicladder_gtk.c:709
-#, fuzzy
 msgid "About ClassicLadder"
-msgstr "包括_Classic梯形图PLC"
+msgstr "关于ClassicLadder"
 
 #: src/hal/classicladder/classicladder_gtk.c:766
-#, fuzzy
 msgid "Save SVG File"
-msgstr "保存"
+msgstr "保存SVG文件"
 
 #: src/hal/classicladder/classicladder_gtk.c:766
-#, fuzzy
 msgid "Save PNG File"
-msgstr "保存"
+msgstr "保存PNG文件"
 
 #: src/hal/classicladder/classicladder_gtk.c:839
 #: src/hal/classicladder/classicladder_gtk.c:1294
@@ -3149,18 +3142,16 @@ msgstr ""
 " 你真的想退出吗?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:943
-#, fuzzy
 msgid "ClassicLadder Section Display"
-msgstr "梯形图项目"
+msgstr "ClassicLadder 分部显示"
 
 #: src/hal/classicladder/classicladder_gtk.c:971
 msgid "Label of the current selected rung"
 msgstr "当前所选梯级的标签"
 
 #: src/hal/classicladder/classicladder_gtk.c:980
-#, fuzzy
 msgid "Comment of the current selected ladder rung or sequential page"
-msgstr "当前所选梯级的注释"
+msgstr "当前选定阶梯梯级或顺序页面的注释"
 
 #: src/hal/classicladder/classicladder_gtk.c:983
 msgid "Display symbols"
@@ -3244,102 +3235,102 @@ msgid "Rung Refresh Rate (milliseconds)"
 msgstr "梯级刷新率(毫秒) "
 
 #: src/hal/classicladder/config_gtk.c:127
-#, fuzzy, c-format
+#, c-format
 msgid "Number of rungs (%d%c used)"
-msgstr "梯级数量(%d%c 使用         "
+msgstr "梯级数量（%d%c 已使用）"
 
 #: src/hal/classicladder/config_gtk.c:131
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Bits"
-msgstr "梯级数量"
+msgstr "Bits数量"
 
 #: src/hal/classicladder/config_gtk.c:135
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Words"
-msgstr "梯级数量"
+msgstr "指令数量"
 
 #: src/hal/classicladder/config_gtk.c:139
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Counters"
-msgstr "梯级数量"
+msgstr "计数器数量"
 
 #: src/hal/classicladder/config_gtk.c:143
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Timers IEC"
-msgstr "IEC定时器数量               "
+msgstr "IEC定时器数量"
 
 #: src/hal/classicladder/config_gtk.c:147
-#, fuzzy, c-format
+#, c-format
 msgid "Number of BIT Inputs HAL pins"
-msgstr "BIT输入HAL引脚数量            "
+msgstr "BIT输入型HAL引脚数量"
 
 #: src/hal/classicladder/config_gtk.c:151
-#, fuzzy, c-format
+#, c-format
 msgid "Number of BIT Outputs HAL pins"
-msgstr "BIT输出HAL引脚数量            "
+msgstr "BIT输出型HAL引脚数量"
 
 #: src/hal/classicladder/config_gtk.c:155
-#, fuzzy, c-format
+#, c-format
 msgid "Number of S32in HAL pins"
-msgstr "S32输入HAL管脚数量            "
+msgstr "S32输入型HAL管脚数量"
 
 #: src/hal/classicladder/config_gtk.c:159
-#, fuzzy, c-format
+#, c-format
 msgid "Number of S32out HAL pins"
-msgstr "S32输出HAL管脚数量            "
+msgstr "S32输出型HAL管脚数量"
 
 #: src/hal/classicladder/config_gtk.c:164
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Arithmetic Expressions"
-msgstr "表达式数量 "
+msgstr "算术表达式数量"
 
 #: src/hal/classicladder/config_gtk.c:169
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Sections (%d%c used)"
-msgstr "部件数量(%d%c 使用)         "
+msgstr "部件数量（%d%c 已使用）"
 
 #: src/hal/classicladder/config_gtk.c:174
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Symbols"
-msgstr "部件数量"
+msgstr "符号数量"
 
 #: src/hal/classicladder/config_gtk.c:179
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Timers"
-msgstr "梯级数量"
+msgstr "计时器数量"
 
 #: src/hal/classicladder/config_gtk.c:183
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Monostables"
-msgstr "继电器(M)数量                "
+msgstr "单稳态数量"
 
 #: src/hal/classicladder/config_gtk.c:188
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Error Bits"
-msgstr "错误位数量                 "
+msgstr "错误Bits数量"
 
 #: src/hal/classicladder/config_gtk.c:192
-#, fuzzy, c-format
+#, c-format
 msgid "Number of floatin HAL pins"
-msgstr "浮点输入HAL管脚数量            "
+msgstr "浮点输入HAL管脚数量"
 
 #: src/hal/classicladder/config_gtk.c:196
-#, fuzzy, c-format
+#, c-format
 msgid "Number of floatout HAL pins"
-msgstr "浮点输出HAL管脚数量            "
+msgstr "浮点输出HAL管脚数量"
 
 #: src/hal/classicladder/config_gtk.c:200
-#, fuzzy, c-format
+#, c-format
 msgid "Current path/filename:"
-msgstr "当前路径/文件名 "
+msgstr "当前路径/文件名："
 
 #: src/hal/classicladder/config_gtk.c:327
 msgid "1st %I mapped"
-msgstr ""
+msgstr "第一个 %I 已映射"
 
 #: src/hal/classicladder/config_gtk.c:327
 msgid "1st %Q mapped"
-msgstr ""
+msgstr "第一个 %Q 已映射"
 
 #: src/hal/classicladder/config_gtk.c:367
 #: src/hal/classicladder/config_gtk.c:566
@@ -3369,19 +3360,19 @@ msgid "Serial baud rate"
 msgstr "串口波特率"
 
 #: src/hal/classicladder/config_gtk.c:753
-#, fuzzy, c-format
+#, c-format
 msgid "Serial data bits"
-msgstr "串口波特率"
+msgstr "串口数据位宽"
 
 #: src/hal/classicladder/config_gtk.c:757
-#, fuzzy, c-format
+#, c-format
 msgid "Serial parity"
-msgstr "串口波特率"
+msgstr "奇偶校验"
 
 #: src/hal/classicladder/config_gtk.c:761
 #, c-format
 msgid "Serial stop bits"
-msgstr ""
+msgstr "停止位"
 
 #: src/hal/classicladder/config_gtk.c:765
 #, c-format
@@ -3427,9 +3418,9 @@ msgid "VERBOSE"
 msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:789
-#, fuzzy, c-format
+#, c-format
 msgid "Read inputs map to"
-msgstr "读取线圈/输入映射到"
+msgstr "读取输入映射到"
 
 #: src/hal/classicladder/config_gtk.c:793
 #, c-format
@@ -3599,9 +3590,8 @@ msgid "!!!Abnormal current type=%d in rung...(file %s,line %d)\n"
 msgstr "!!!异常电流类型=梯级的%d...(文件%s，行%d)\n"
 
 #: src/hal/classicladder/edit.c:1250
-#, fuzzy
 msgid "No more free function block of this type available..."
-msgstr "没有更多的免费功能块...请删除！"
+msgstr "没有更多可用的此类型自由功能块。。。"
 
 #: src/hal/classicladder/edit.c:1262
 msgid "No more free arithmetic expression for this type available..."
@@ -3830,9 +3820,8 @@ msgid "Now select the step that will be activated by this transition."
 msgstr ""
 
 #: src/hal/classicladder/edit_sequential.c:846
-#, fuzzy
 msgid "You haven't selected a step or a transition to link!!!"
-msgstr "没有选择要加入的第一个和最后一个转换!!??"
+msgstr "您尚未选择要链接的步骤或转换！！！"
 
 #: src/hal/classicladder/edit_sequential.c:850
 #, c-format
@@ -4210,9 +4199,9 @@ msgid "ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n"
 msgstr "错误 CLASSICLADDER-   MODBUS-响应中的低级错误!!!\n"
 
 #: src/hal/classicladder/serial_linux.c:140
-#, fuzzy, c-format
+#, c-format
 msgid "Serial speed value %d not found for serial\n"
-msgstr "未找到串行速度值\n"
+msgstr "未找到串行速度值%d\n"
 
 #: src/hal/classicladder/serial_linux.c:145
 #, c-format
@@ -6589,9 +6578,8 @@ msgid "directory: <%s> not writable"
 msgstr "目录:<%s>不可写"
 
 #: tcl/tooledit.tcl:287
-#, fuzzy
 msgid "Current file:"
-msgstr "关于当前子文件"
+msgstr "当前文件："
 
 #: tcl/tooledit.tcl:291
 #, fuzzy
@@ -7342,9 +7330,8 @@ msgid "Run time:"
 msgstr "运行时间:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1820
-#, fuzzy
 msgid "Tool Change List:"
-msgstr "换刀"
+msgstr "换刀列表："
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1821
 msgid "X bounds:"
@@ -11440,7 +11427,8 @@ msgstr "反向"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -11746,9 +11734,9 @@ msgid "Address is required for ethernet card"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1362
-#, fuzzy, python-format
+#, python-format
 msgid "%s board was not found"
-msgstr "没有找到板\n"
+msgstr "%s 没有找到mesa板"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1364
 msgid "Is the address correct?"
@@ -18945,11 +18933,12 @@ msgstr ""
 "内容:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1787
-#, fuzzy
 msgid ""
 "Replace\n"
 "All"
-msgstr "全部替换"
+msgstr ""
+"全部\n"
+"替换"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1801
 #, fuzzy
@@ -18997,9 +18986,8 @@ msgid "Starting RPM"
 msgstr "启动转速"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2077
-#, fuzzy
 msgid "Metric"
-msgstr "单位\n"
+msgstr "单位"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2091
 #, fuzzy
@@ -19104,11 +19092,12 @@ msgid "Halmeter"
 msgstr "H_al 仪表"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2385
-#, fuzzy
 msgid ""
 "LinuxCNC\n"
 "Status"
-msgstr "LinuxCNC 状态"
+msgstr ""
+"LinuxCNC\n"
+"状态"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2398
 msgid "Halscope"
@@ -19145,13 +19134,12 @@ msgstr ""
 " 步"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2733
-#, fuzzy
 msgid ""
 "Run At\n"
 "Line"
 msgstr ""
-"运行\n"
-"   行"
+"在\n"
+"行运行"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2746
 #, fuzzy
@@ -19168,9 +19156,8 @@ msgid "\n"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2834
-#, fuzzy
 msgid "Homing"
-msgstr "回零\n"
+msgstr "回零"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2854
 msgid ""
@@ -19190,9 +19177,8 @@ msgstr ""
 "倍率"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2899
-#, fuzzy
 msgid "Graphics"
-msgstr "图形\n"
+msgstr "图形"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2912
 msgid ""
@@ -19216,11 +19202,12 @@ msgid "<b>Select Buttons</b>"
 msgstr "<b>选择按钮</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3031
-#, fuzzy
 msgid ""
 "Unhome \n"
 "All"
-msgstr "全部消零"
+msgstr ""
+"全部\n"
+"消零"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3044
 #, fuzzy
@@ -19289,11 +19276,12 @@ msgstr ""
 "删除"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3303
-#, fuzzy
 msgid ""
 "Optional\n"
 "Stop"
-msgstr "选停"
+msgstr ""
+"可选\n"
+"停止"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3316
 #, fuzzy
@@ -19314,11 +19302,12 @@ msgstr ""
 " 标签"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3374
-#, fuzzy
 msgid ""
 "Feed\n"
 "Override"
-msgstr "进给倍率"
+msgstr ""
+"进给\n"
+"倍率"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3388
 msgid ""
@@ -19347,11 +19336,12 @@ msgstr ""
 "速度"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3438
-#, fuzzy
 msgid ""
 "Jog\n"
 "Increments"
-msgstr "增量"
+msgstr ""
+"点动\n"
+"增量"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3455
 msgid ""
@@ -19370,12 +19360,11 @@ msgstr ""
 "视图"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3527
-#, fuzzy
 msgid ""
 "Pan\n"
 "Vertical"
 msgstr ""
-"   Pan\n"
+"Pan\n"
 "垂直"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3541
@@ -19441,13 +19430,12 @@ msgstr ""
 "程序"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3677
-#, fuzzy
 msgid ""
 "Replace\n"
 "Text"
 msgstr ""
 "替换\n"
-"  文本"
+"文本"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3716
 #, fuzzy
