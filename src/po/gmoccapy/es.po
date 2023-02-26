@@ -7,9 +7,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-02-12 11:32+0100\n"
-"PO-Revision-Date: 2023-01-20 19:22+0000\n"
+"PO-Revision-Date: 2023-02-14 07:59+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "gmocappy/es/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.15.1\n"
+"X-Generator: Weblate 4.16-dev\n"
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -99,11 +99,11 @@ msgid "Press to return to main button list"
 msgstr "Volver a la lista de botones principales"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:826
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "could not resolv the image path '{0}' given for button '{1}'"
 msgstr ""
-"**** no se pudo resolver la ruta de la imagen'{0}' proporcionada para el "
-"botón '{1}' ****"
+"no se pudo resolver la ruta de la imagen'{0}' proporcionada para el botón "
+"'{1}'"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:981
 msgid ""
@@ -152,25 +152,24 @@ msgstr ""
 "Oprima para establecer el sistema de coordenadas seleccionado como activo"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1101
-#, fuzzy
 msgid "No valid probe config in INI File. Tool measurement disabled."
 msgstr ""
-"**** No se encontró una configuración valida para el medidor de herramientas "
-"en el archivo INI ****"
+"No se encontró una configuración valida para el medidor de herramientas en "
+"el archivo INI."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1115
-#, fuzzy
 msgid "Found valid probe config in INI file. Will use auto tool measurement."
 msgstr ""
-"**** Se encontró una configuración valida para el medidor de herramientas en "
-"el archivo INI ****"
+"Se encontró una configuración valida para el medidor de herramientas en el "
+"archivo INI."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1129
-#, fuzzy
 msgid ""
 "To many increments given in INI File for this screen. Only the first 10 will "
 "be reachable through this screen."
-msgstr "**** Solo los 10 primeros serán visualizado en la pantalla ****"
+msgstr ""
+"Hay muchos incrementos dados en el Archivo INI para esta pantalla. Sólo se "
+"podrá acceder a los 10 primeros a través de esta pantalla."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1139
 msgid "Continuous"
@@ -192,15 +191,12 @@ msgid "Press to jog joint {0}"
 msgstr "Presione para mover el motor {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1327
-#, fuzzy
 msgid "GMOCCAPY INFO\n"
-msgstr "**** GMOCCAPY INFO ****\n"
+msgstr "GMOCCAPY INFO"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1328
-#, fuzzy
 msgid "found more than 16 macros, will use only the first 16"
-msgstr ""
-"**** Hemos encontrado mas de 9 macros, solo los primeros 9 serán usados. ****"
+msgstr "se encontraron más de 16 macros, utilizará sólo las 16 primeras"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1339
 msgid "Press to display previous macro button"
@@ -220,9 +216,8 @@ msgid "Press to display the virtual keyboard"
 msgstr "Mostrar o ocultar teclado"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1488
-#, fuzzy
 msgid "* GMOCCAPY ERROR *"
-msgstr "**** GMOCCAPY ERROR ****"
+msgstr "* GMOCCAPY ERROR *"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1489
 msgid "this is not a lathe, as a lathe must have at least\n"
