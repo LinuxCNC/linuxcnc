@@ -6,20 +6,21 @@
 # <>, 2006.
 #
 #
+# Nilas GRahn <nilasgrahn@protonmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-01-26 22:23+0100\n"
-"PO-Revision-Date: 2022-02-14 01:56+0000\n"
-"Last-Translator: JanneK <janne.kronback@gmail.com>\n"
+"PO-Revision-Date: 2023-02-20 22:20+0000\n"
+"Last-Translator: Nilas GRahn <nilasgrahn@protonmail.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.11-dev\n"
+"X-Generator: Weblate 4.16-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -1831,7 +1832,7 @@ msgstr "_Öppna"
 
 #: src/hal/utils/scope.c:499
 msgid "Save Configuration File:"
-msgstr "Spara konfigurationsfil:"
+msgstr "Spara Konfigurationsfil:"
 
 #: src/hal/utils/scope.c:502 src/hal/utils/scope_horiz.c:809
 msgid "_Save"
@@ -1839,11 +1840,11 @@ msgstr "_Spara"
 
 #: src/hal/utils/scope.c:533
 msgid "_Open Configuration..."
-msgstr "Ladda konfiguration..."
+msgstr "Ladda Konfiguration..."
 
 #: src/hal/utils/scope.c:539
 msgid "_Save Configuration..."
-msgstr "_Spara konfiguration..."
+msgstr "_Spara Konfiguration..."
 
 #: src/hal/utils/scope.c:548
 #, fuzzy
@@ -2207,7 +2208,7 @@ msgstr "Förskjutning"
 
 #: src/hal/utils/scope_vert.c:648
 msgid "Chan Off"
-msgstr "Kanal av"
+msgstr "Kanal Av"
 
 #: src/hal/utils/scope_vert.c:706
 #, c-format
@@ -2246,7 +2247,7 @@ msgstr ""
 
 #: src/hal/utils/scope_vert.c:931
 msgid "Select Channel Source"
-msgstr "Välj kanalkälla"
+msgstr "Välj Kanalkälla"
 
 #: src/hal/utils/scope_vert.c:955
 msgid "Pins"
@@ -5630,7 +5631,7 @@ msgstr ""
 # ***: ../tcl/axis.tcl:1470
 #: tcl/tklinuxcnc.tcl:2086 share/axis/tcl/axis.tcl:1771
 msgid "ESTOP"
-msgstr "#Nödstopp?"
+msgstr "NÖDSTOPP"
 
 # ***: ../tcl/axis.tcl:1472
 #: tcl/tklinuxcnc.tcl:2088 tcl/ngcgui.tcl:3000 share/axis/tcl/axis.tcl:1773
@@ -5640,7 +5641,7 @@ msgstr ""
 # ***: ../tcl/axis.tcl:1471
 #: tcl/tklinuxcnc.tcl:2090
 msgid "ESTOP RESET"
-msgstr "#Återställ Nödstopp"
+msgstr "ÅTERSTÄLL NÖDSTOPP"
 
 #: tcl/tklinuxcnc.tcl:2096
 msgid "AUTO"
@@ -9092,9 +9093,8 @@ msgid "Mist Off"
 msgstr "Försjutning"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1361
-#, fuzzy
 msgid "<b>Coolant</b>"
-msgstr "Kylvätska:"
+msgstr "<b>Kylmedel</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1418
 #, fuzzy
@@ -9133,9 +9133,8 @@ msgid "label26"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:1535
-#, fuzzy
 msgid "<b>Spindle</b>"
-msgstr "Spindel:"
+msgstr "<b>Spindel</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1586
 msgid "file.ngc"
@@ -11543,7 +11542,8 @@ msgstr "Position:"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -17444,9 +17444,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:1677
 #: src/emc/usr_intf/pncconf/a_motor.glade:1602
 #: src/emc/usr_intf/pncconf/s_motor.glade:1832
-#, fuzzy
 msgid "<b>Configuration</b>"
-msgstr "Hal _configuration"
+msgstr "<b>Konfiguration</b>"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1700
 #: src/emc/usr_intf/pncconf/y_motor.glade:1694
