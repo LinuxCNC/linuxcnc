@@ -3,13 +3,14 @@
 # Michael Stellmacher <michaelst78@gmail.com>, 2022.
 # mk00002 <codo1983@gmail.com>, 2022.
 # Hans Unzner <hansunzner@gmail.com>, 2022.
+# Ettore Atalan <atalanttore@googlemail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-01-26 22:23+0100\n"
-"PO-Revision-Date: 2022-12-26 08:37+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2023-02-18 17:31+0000\n"
+"Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -17,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.15.1-dev\n"
+"X-Generator: Weblate 4.16-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -11766,7 +11767,8 @@ msgstr "Entgegengesetzt"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -19770,12 +19772,11 @@ msgid "Open"
 msgstr "Öffnen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3290
-#, fuzzy
 msgid ""
 "Block\n"
 "Delete"
 msgstr ""
-" Block\n"
+"Block\n"
 "löschen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3303
@@ -19787,12 +19788,11 @@ msgstr ""
 "Halt"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3316
-#, fuzzy
 msgid ""
 "Full\n"
 "View"
 msgstr ""
-" Vollständige\n"
+"Vollständige\n"
 "Darstellung"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3353

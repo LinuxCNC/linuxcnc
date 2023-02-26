@@ -7,10 +7,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-02-12 11:32+0100\n"
-"PO-Revision-Date: 2023-02-11 20:16+0000\n"
-"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
+"PO-Revision-Date: 2023-02-18 17:31+0000\n"
+"Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
 "Language: de\n"
@@ -276,7 +276,6 @@ msgstr ""
 "angegeben"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2039
-#, fuzzy
 msgid "Audio available!"
 msgstr "Audio verfügbar!"
 
