@@ -4,13 +4,14 @@
 # J.M. Garcia <jmgardeto@gmail.com>, 2020.
 # Billy Soto <cromatronix@gmail.com>, 2022.
 # Ulices <dev.n47os@aleeas.com>, 2022, 2023.
+# Roman Jesus Castañeda <rojecas@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-01-26 22:23+0100\n"
-"PO-Revision-Date: 2023-02-11 14:37+0000\n"
-"Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
+"PO-Revision-Date: 2023-02-25 03:06+0000\n"
+"Last-Translator: Roman Jesus Castañeda <rojecas@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
 "Language: es\n"
@@ -4346,7 +4347,7 @@ msgid "ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n"
 msgstr "ERROR CLASSICLADDER- MODBUS-¡¡ERROR DE NIVEL BAJO EN RESPUESTA !!!\n"
 
 #: src/hal/classicladder/serial_linux.c:140
-#, fuzzy, c-format
+#, c-format
 msgid "Serial speed value %d not found for serial\n"
 msgstr "Valor de velocidad no encontrado para serial\n"
 
@@ -4393,7 +4394,7 @@ msgstr "%d caracteres encontrados\n"
 #: src/hal/classicladder/serial_linux.c:256
 #, c-format
 msgid "Serial flush all!\n"
-msgstr "Serial flush all!\n"
+msgstr "Vaciado serial completo\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:111
 #, fuzzy, c-format
@@ -4440,10 +4441,9 @@ msgid "Connecting I/O module...\n"
 msgstr "Conectando el módulo de E/S...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:229
-#, fuzzy, c-format
+#, c-format
 msgid "Not able to retrieve IP address in Modbus table, huhh?!!!\n"
-msgstr ""
-"No se puede recuperar la dirección IP en la tabla de modbus, ¿eh? !!!\n"
+msgstr "No se puede recuperar la dirección IP en la tabla de modbus, ¿eh? !!!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:234
 #, c-format
