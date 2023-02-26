@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-02-12 11:32+0100\n"
-"PO-Revision-Date: 2022-11-09 19:47+0000\n"
+"PO-Revision-Date: 2023-02-17 20:37+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: none\n"
 "Language: sk\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.15-dev\n"
+"X-Generator: Weblate 4.16-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:253
 msgid "user mode selected"
@@ -38,12 +38,12 @@ msgstr "Cesta k súboru by nemala obsahovať žiadne medzery"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:513
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:534
 msgid "Error in "
-msgstr ""
+msgstr "Chyba v"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:514
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:535
 msgid "Please check the console output."
-msgstr ""
+msgstr "Skontrolujte výstup konzoly."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:675
 msgid "axis"
@@ -92,11 +92,9 @@ msgid "Press to return to main button list"
 msgstr "Návrat do hlavného zoznamu tlačidiel"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:826
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "could not resolv the image path '{0}' given for button '{1}'"
-msgstr ""
-"**** nepodarilo sa vyriešiť cestu k obrázku '{0}' pre dané tlačidlo '{1}' "
-"****"
+msgstr "nepodarilo sa vyriešiť cestu k obrázku '{0}' pre dané tlačidlo '{1}'"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:981
 msgid ""
@@ -144,21 +142,24 @@ msgid "Press to set the selected coordinate system to be the active one"
 msgstr "Nastaviť vybraný súradnicový systém ako aktívny"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1101
-#, fuzzy
 msgid "No valid probe config in INI File. Tool measurement disabled."
-msgstr "**** žiadna platná konfigurácia sondy v súbore INI ****"
+msgstr ""
+"V súbore INI nie je žiadna platná konfigurácia sondy. Meranie nástroja je "
+"zakázané."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1115
-#, fuzzy
 msgid "Found valid probe config in INI file. Will use auto tool measurement."
-msgstr "**** v súbore INI sa našla platná konfigurácia sondy ****"
+msgstr ""
+"V súbore INI sa našla platná konfigurácia sondy. Použije sa automatické "
+"meranie nástroja."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1129
-#, fuzzy
 msgid ""
 "To many increments given in INI File for this screen. Only the first 10 will "
 "be reachable through this screen."
-msgstr "**** Pre túto obrazovku bude dostupných iba prvých 10 položiek ****"
+msgstr ""
+"Príliš veľa inkrementov zadaných v súbore INI pre túto obrazovku. Cez túto "
+"obrazovku bude prístupných iba prvých 10."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1139
 msgid "Continuous"
@@ -180,14 +181,12 @@ msgid "Press to jog joint {0}"
 msgstr "Pohyb kĺbu {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1327
-#, fuzzy
 msgid "GMOCCAPY INFO\n"
-msgstr "**** GMOCCAPY INFORMÁCIA ****\n"
+msgstr "GMOCCAPY INFORMÁCIA\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1328
-#, fuzzy
 msgid "found more than 16 macros, will use only the first 16"
-msgstr "**** nájdených viac ako 16 makier, použije sa iba prvých 16 ****"
+msgstr "nájdených viac ako 16 makier, použije sa iba prvých 16"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1339
 msgid "Press to display previous macro button"
@@ -207,9 +206,8 @@ msgid "Press to display the virtual keyboard"
 msgstr "Zobraziť virtuálnu klávesnicu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1488
-#, fuzzy
 msgid "* GMOCCAPY ERROR *"
-msgstr "**** GMOCCAPY CHYBA ****"
+msgstr "* GMOCCAPY CHYBA *"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1489
 msgid "this is not a lathe, as a lathe must have at least\n"
@@ -255,6 +253,8 @@ msgstr "palce/min"
 msgid ""
 "No embedded tabs configured or invalid configuration. No tabs will be added!"
 msgstr ""
+"Nie sú nakonfigurované žiadne vložené karty alebo je konfigurácia neplatná. "
+"Nebudú pridané žiadne karty!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1849
 msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
@@ -263,19 +263,19 @@ msgstr ""
 "skontrolujte preklepy"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1955
-#, fuzzy
 msgid "Did not find a toolfile file in [EMCIO] TOOL_TABLE"
-msgstr "**** V [EMCIO] TOOL_TABLE sa nenašiel súbor so súborom nástrojov ****"
+msgstr "V [EMCIO] TOOL_TABLE sa nenašiel súbor so súborom nástrojov"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2039
-#, fuzzy
 msgid "Audio available!"
-msgstr "**** audio k dispozícii! ****"
+msgstr "Audio k dispozícii!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2051
 msgid ""
 "No audio available! PYGST library not installed? Is python-gstX.XX installed?"
 msgstr ""
+"Nie je k dispozícii žiadny zvuk! Knižnica PYGST je nainštalovaná? Je "
+"nainštalovaný python-gstX.XX?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2079
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5313
@@ -287,24 +287,24 @@ msgstr ""
 "kĺbov"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2123
-#, fuzzy
 msgid "Virtual keyboard program found : <onboard>"
-msgstr "**** nájdený program virtuálnej klávesnice: <onboard>"
+msgstr "Nájdený program virtuálnej klávesnice: <onboard>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2125
-#, fuzzy
 msgid ""
 "No virtual keyboard installed, we checked for <onboard>. Try 'sudo apt-get "
 "install onboard'."
 msgstr ""
-"**** Nie je nainštalovaná žiadna virtuálna klávesnica, skontrolovali sme "
-"<onboard> ."
+"Nie je nainštalovaná žiadna virtuálna klávesnica, skontrolovali sme "
+"<onboard>. Skúste „sudo apt-get install onboard“."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2138
 msgid ""
 "Error with launching virtual keyboard. Is onboard installed?Try sudo apt-get "
 "install onboard"
 msgstr ""
+"Chyba pri spúšťaní virtuálnej klávesnice. Je nainštalovaná onboard? "
+"Vyskúšajte sudo apt-get install onboard"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2171
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3046
@@ -312,9 +312,8 @@ msgid "interrupt running macro"
 msgstr "prerušenie spusteného makra"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2201
-#, fuzzy
 msgid "Did not find a parameter file in [RS274NGC] PARAMETER_FILE"
-msgstr "**** Nenašiel sa súbor parametrov v [RS274NGC] PARAMETER_FILE ****"
+msgstr "Nenašiel sa súbor parametrov v [RS274NGC] PARAMETER_FILE"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2271
 msgid "Select the file you want to be loaded at program start"
@@ -322,9 +321,9 @@ msgstr "Vyberte súbor, ktorý chcete načítať pri spustení programu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2305
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2329
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Message type {0} not supported"
-msgstr "**** GMOCCAPY ERROR **** /n Typ správy {0} nie je podporovaný"
+msgstr "Typ správy {0} nie je podporovaný"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2448
 msgid "Unknown error type and no error text given"
@@ -380,7 +379,7 @@ msgstr "Zmena režimu je povolená len vtedy, ak je interpreter nečinný!"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3377
 #, python-brace-format
 msgid "{0}"
-msgstr ""
+msgstr "{0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3552
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
@@ -712,27 +711,23 @@ msgid "_Jump to"
 msgstr "_Skoč na"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:104
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid ""
 "**** gmoccapy can only handle 9 axis, but you have given {0} through your "
 "INI file. "
 msgstr ""
-"**** gmoccapy zvládne iba 9 osí, ****\n"
-"**** ale prostredníctvom súboru INI ste poskytli {0} ****\n"
+"**** gmoccapy dokáže spracovať iba 9 osí, ale prostredníctvom súboru INI ste "
+"zadali {0}"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:105
-#, fuzzy
 msgid "gmoccapy will not start ****\n"
-msgstr ""
-"**** gmoccapy sa nespustí ****\n"
-"\n"
+msgstr "gmoccapy sa nespustí ****\n"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:429
-#, fuzzy
 msgid "No subroutine folder or program prefix is given in the INI file!"
 msgstr ""
-"**** V súbore ini nie je uvedený žiadny priečinok podprogramov a ani "
-"preferované programy ****\n"
+"V súbore INI nie je uvedený žiadny priečinok podprogramu ani predpona "
+"programu!"
 
 #: src/emc/usr_intf/gmoccapy/notification.py:225
 #, python-brace-format
@@ -745,27 +740,27 @@ msgstr "pozastaviť spustený program"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:2
 msgid "left rotate,  middle move,  right zoom"
-msgstr "otáčanie doľava, pohyb v strede, priblíženie doprava"
+msgstr "otáčanie vľavo, pohyb v strede, priblíženie vpravo"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:3
 msgid "left zoom,  middle move,  right rotate"
-msgstr "priblíženie doľava, pohyb v strede, otočenie doprava"
+msgstr "priblíženie vľavo, pohyb v strede, otočenie vpravo"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:4
 msgid "left move,  middle rotate,  right zoom"
-msgstr "pohyb doľava, otáčanie v strede, priblíženie doprava"
+msgstr "pohyb vľavo, otáčanie v strede, priblíženie vpravo"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:5
 msgid "left zoom,  middle rotate,  right move"
-msgstr "priblíženie doľava, otočenie v strede, pohyb doprava"
+msgstr "priblíženie vľavo, otočenie v strede, pohyb vpravo"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:6
 msgid "left move,  middle zoom,  right rotate"
-msgstr "pohyb doľava, priblíženie v strede, otočenie doprava"
+msgstr "pohyb vľavo, priblíženie v strede, otočenie vpravo"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:7
 msgid "left rotate,  middle zoom,  right move"
-msgstr "otáčanie doľava, priblíženie v strede, pohyb doprava"
+msgstr "otáčanie vľavo, priblíženie v strede, pohyb vpravo"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:8
 msgid "default"
@@ -1572,11 +1567,12 @@ msgid "delete MDI history"
 msgstr "Vymazať históriu MDI"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:212
-#, fuzzy
 msgid ""
 "Delete\n"
 "MDI history"
-msgstr "Vymazať históriu MDI"
+msgstr ""
+"Vymazať\n"
+"históriu MDI"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:214
 msgid "Cl.-ladder"
