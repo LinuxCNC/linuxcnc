@@ -138,7 +138,7 @@ param r  signed state = 0 "Current component state";
 param r  bit    homing  = 0 "Shows that homing is in progress. Only used for index mode";
 param r  float  timer "Shows the value of the internal timer";
 param r signed motor-dir "Internal tag for search direction";
-param r unsigned debounce "How many thread cycles to wait for the position to stabilise";
+param rw unsigned debounce "How many thread cycles to wait for the position to stabilise";
 
 option count_function;
 option extra_setup;
