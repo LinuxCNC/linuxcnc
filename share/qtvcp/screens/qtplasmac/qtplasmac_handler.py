@@ -1,4 +1,4 @@
-VERSION = '1.235.265'
+VERSION = '1.235.266'
 
 '''
 qtplasmac_handler.py
@@ -276,6 +276,8 @@ class HandlerClass:
         self.droScale = 1
         self.mdiError = False
         self.extLaserButton = False
+        self.virtualMachine = False
+        self.realTimeDelay = False
         # plasmac states
         self.IDLE           =  0
         self.PROBE_HEIGHT   =  1
@@ -374,6 +376,7 @@ class HandlerClass:
         self.ohmicLedTimer.setSingleShot(True)
         self.set_color_styles()
         self.autorepeat_keys(False)
+        self.vm_check()
         # set hal pins only after initialized__ has begun
         # some locales won't set pins before this phase
         self.thcFeedRatePin.set(self.thcFeedRate)
@@ -606,6 +609,7 @@ class HandlerClass:
 
     # we want custom notifications for jog errors
     def new_process_error(self, w, kind, text):
+        self.realTimeDelay = False
         O = self.w.screen_options
         N = O.QTVCP_INSTANCE_._NOTICE
         if 'jog-inhibit' in text:
@@ -622,10 +626,13 @@ class HandlerClass:
                 text = _translate('HandlerClass', 'Ohmic Probe has aborted active jogging')
             elif self.w.led_breakaway_switch.hal_pin.get():
                 text = _translate('HandlerClass', 'Breakaway Switch has aborted active jogging')
+        elif self.virtualMachine and 'unexpected realtime delay' in text.lower():
+            text = 'Error suppressed:\n"{}"\nRealtime delays are expected in a virtual environment'.format(text.strip())
+            self.realTimeDelay = True
         if O.desktop_notify:
             if 'on limit switch error' in text:
                 N.update(O.notify_hard_limits, title='Machine Error:', message=text, msgs=O.notify_max_msgs)
-            elif kind == linuxcnc.OPERATOR_ERROR:
+            elif kind == linuxcnc.OPERATOR_ERROR and not self.realTimeDelay:
                 N.update(O.notify_critical, title='Operator Error:', message=text, msgs=O.notify_max_msgs)
             elif kind == linuxcnc.OPERATOR_TEXT:
                 N.update(O.notify_critical, title='Operator Text:', message=text, msgs=O.notify_max_msgs)
@@ -1669,11 +1676,12 @@ class HandlerClass:
                 STATUS.emit('metric-mode-changed', True)
 
     def error_update(self, obj, kind, error):
-        if kind == linuxcnc.OPERATOR_ERROR:
-            self.error_status(True)
-            self.mdiError = True
-        if kind == linuxcnc.NML_ERROR:
-            self.error_status(True)
+        if not self.realTimeDelay:
+            if kind == linuxcnc.OPERATOR_ERROR:
+                self.error_status(True)
+                self.mdiError = True
+            if kind == linuxcnc.NML_ERROR:
+                self.error_status(True)
 
 
 #########################################################################################################################
@@ -3289,6 +3297,15 @@ class HandlerClass:
         if state:
             hal.set_p('qtplasmac.led_ohmic_probe', '1')
             self.ohmicLedTimer.start(150)
+
+    def vm_check(self):
+        try:
+            response = (Popen('cat /sys/class/dmi/id/product_name', stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]).decode('utf-8')
+            if 'virtual' in response.lower() or 'vmware' in response.lower():
+                self.virtualMachine = True
+                STATUS.emit('update-machine-log', '"{}" Virtual Machine detected'.format(response.strip()), 'TIME')
+        except:
+            pass
 
 #########################################################################################################################
 # TIMER FUNCTIONS #
