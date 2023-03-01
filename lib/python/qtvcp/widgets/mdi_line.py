@@ -66,6 +66,8 @@ class MDI(QLineEdit):
         except:
             self.mdiLast = None
             pass
+        # return callback GObject id
+        self._return_id = None
 
     def submit(self):
         self.mdiError = False
@@ -115,8 +117,20 @@ class MDI(QLineEdit):
         elif self.spindleInhibit and self.inhibit_spindle_commands(text):
             return
         else:
+
+            # make sure we didn't miss an display update callback.
+            # shouldn't be an update pending before the coming mdi command call
+            if self._return_id is not None:
+                STATUS.handler_disconnect(self._return_id)
+
             ACTION.CALL_MDI(text+'\n')
-            ACTION.RELOAD_DISPLAY()
+
+            # reloading the display causes a task_plan_synch()
+            # set up a callback so the display is updated only after the command is run.
+            # other wise the next MDI command could have stale linuxcnc state, causing
+            # multiple axes to move when ony issuing one axis to move.
+            self._return_id = STATUS.connect('command-stopped', lambda w: self.update_display())
+
         t = time.time() + 0.1
         while time.time() < t:
             QApplication.processEvents()
@@ -131,6 +145,14 @@ class MDI(QLineEdit):
         if not self.mdiError:
             self.mdiLast = text.lower()
             STATUS.emit('mdi-history-changed')
+
+    # only reload after the command is run
+    # remove the callback handler so this is only run once
+    # per MDI command 9nect MDI command will issue another callback)
+    def update_display(self):
+        ACTION.RELOAD_DISPLAY()
+        STATUS.handler_disconnect(self._return_id)
+        self._return_id = None
 
     # Gcode widget can emit a signal to this
     def external_line_selected(self, w, text, filename):
