@@ -109,7 +109,7 @@ static int Ini_init(pyIniFile *self, PyObject *a, PyObject *k) {
         self->i = new IniFile();
 
     if (!self->i->Open(inifile)) {
-        PyErr_Format( error, "inifile.open() failed");
+        PyErr_Format( error, "inifile.open(%s) failed", inifile);
         return -1;
     }
     return 0;
