@@ -230,7 +230,7 @@ puts [show sig *vel]
 puts [show sig *acc]
 ----
 
-== `haltcl`` Interactive
+== Haltcl Interactive
 
 The `halrun` command recognizes haltcl files.
 With the -T option, haltcl can be run interaactively as a Tcl interpreter.
