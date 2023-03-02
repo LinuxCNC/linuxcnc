@@ -133,7 +133,7 @@ Blank lines and lines beginning with a # character are ignored.
 [[sec:halscope]]
 == Halscope
 
-Halscope is an 'oscilloscope' for the HAL. It lets you capture the value of pins, signals, and parameters as a function of time.
+`Halscope` is an 'oscilloscope' for the HAL. It lets you capture the value of pins, signals, and parameters as a function of time.
 Complete operating instructions should be located here eventually.
 For now, refer to section  <<sec:tutorial-halscope>> in the tutorial chapter, which explains the basics.
 
