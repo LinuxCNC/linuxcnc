@@ -637,7 +637,7 @@ The `lut5` component is a 5 input logic component based on a look up table.
 
 * `lut5` does not require a floating point thread.
 
-.Loading `lut5``
+.Loading `lut5`
 ----
 loadrt lut5 [count=N|names=name1[,name2...]]
 addf lut5.N servo-thread | base-thread
