@@ -679,8 +679,7 @@ Definitions must be provided for each of these parameters (no omissions).
 #<zparm> = #3
 ----
 
-LinuxCNC considers all numbered parameters in the range #1 thru #30 to be calling parameters,
- so NGCGUI provides entry boxes for any occurrence of parameters in this range.
+LinuxCNC considers all numbered parameters in the range #1 thru #30 to be calling parameters, so NGCGUI provides entry boxes for any occurrence of parameters in this range.
 It is good practice to avoid use of numbered parameters #1 through #30 anywhere else in the subroutine.
 Using local, named parameters is recommended for all internal variables.
 
@@ -747,11 +746,12 @@ The helper routine returns a result in a global named parameter named #<_helper:
 
 For good practice, the calling subfile immediately localizes the result for use elsewhere in the subfile
 and the global named parameter used for returning the result is nullified in an attempt to mitigate its inadvertent use elsewhere in the global context.
-(A nullification value of 0.0 may not always be a good choice).
+A nullification value of 0.0 may not always be a good choice.
 
 NGCGUI supports the creation and concatenation of multiple features for a subfile and for multiple subfiles.
-It is sometimes useful for subfiles to determine their order at runtime so NGCGUI inserts a special global parameter that can be tested within subroutines.
-The parameter is named #<_feature:>.  Its value begins with a value of 0 and is incremented for each added feature.
+It is sometimes useful for subfiles to determine their order at runtime, so NGCGUI inserts a special global parameter that can be tested within subroutines.
+The parameter is named #<_feature:>.
+Its value begins with a value of 0 and is incremented for each added feature.
 
 .Additional Features
 
@@ -788,8 +788,8 @@ Additional user sumitted subroutines can be found on the Forum in the Subroutine
 === Gcode-meta-compiler (.gcmc) file requirements
 
 Files for the Gcode-meta-compiler (gcmc) are read by NGCGUI and it creates entry boxes for variables tagged in the file.
-When a feature for the file is finalized, NGCGUI passes the file as input to the gcmc compiler
-and, if the compile is successful, the resulting G-code file is sent to LinuxCNC for execution.
+When a feature for the file is finalized, NGCGUI passes the file as input to the gcmc compiler and, if the compile is successful,
+the resulting G-code file is sent to LinuxCNC for execution.
 The resulting file is formatted as single-file subroutine; .gcmc files and .ngc files can be intermixed by NGCGUI.
 
 The variables identified for  inclusion in NGCGUI are tagged with lines that will appear as comments to the gcmc compiler.
@@ -870,8 +870,7 @@ To ensure that the gcmc program mode is in effect, include the following stateme
 include("ensure_mode.gcmc")
 ----
 
-and provide a proper path for gcmc include_files in the INI file,
-for example:
+and provide a proper path for gcmc include_files in the INI file, for example:
 
 [source,{ini}]
 ----

@@ -403,7 +403,7 @@ WARNING: It is strongly recommended that the torch cannot be enabled while this 
 
 * See the <<ohmic-sensing,ohmic sensing>> schematic.
 * Connect output pin to one side of the isolation relays and the other side to field power ground.
-* In a non-QtPlasmaC configuration, usually triggered by a ``motion.digital-out-``_<nn>_ so it can be controlled in G-code by `M62`/`M63`/`M64`/`M65`
+* In a non-QtPlasmaC configuration, usually triggered by a ``motion.digital-out-``_<nn>_ so it can be controlled in G-code by `M62`/`M63`/`M64`/`M65`.
 
 === Ohmic Sensing (input)
 
@@ -431,7 +431,7 @@ LinuxCNC support this via `M67`/`M68` for analog commands and `M62`-`M65` for di
 How this is implemented is totally arbitrary.
 Lets look at how the LinuxCNC QtPlasmaC configuration does this:
 
-.Select Material Settings In QtPlasmaC And Use The Feedrate For That Material
+.Select Material Settings in QtPlasmaC and Use the Feedrate for that Material.
 [source,{ngc}]
 ----
 M190 Pn

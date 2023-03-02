@@ -4,13 +4,12 @@
 [[cha:halmodule]]
 = Creating Userspace Python Components(((Creating Userspace Python Components)))
 
+This section explains principles behind the implementation of HAL components with the Python programming language.
+
 == Basic usage
 
-A userspace component begins by creating its pins and parameters, then
-enters a loop which will periodically drive all the outputs from the
-inputs. The following component copies the value seen on its input pin
-('passthrough.in') to its output pin ('passthrough.out') approximately
-once per second.
+A userspace component begins by creating its pins and parameters, then enters a loop which will periodically drive all the outputs from the inputs.
+The following component copies the value seen on its input pin ('passthrough.in') to its output pin ('passthrough.out') approximately once per second.
 
 [source,c]
 ----
@@ -28,11 +27,12 @@ except KeyboardInterrupt:
     raise SystemExit
 ----
 
-Copy the above listing into a file named "passthrough", make it
-executable ('chmod +x'), and place it on your '$PATH'. Then try it out:
+Copy the above listing into a file named "passthrough", make it executable ('chmod +x'), and place it on your '$PATH'.
+Then try it out:
 
+.Screen copy with details on the execution of the newly created passthrough HAL module.
 ----
-halrun
+$ halrun
 
 halcmd: loadusr passthrough
 
@@ -55,19 +55,13 @@ halcmd: show pin
 
 == Userspace components and delays
 
-If you typed "show pin" quickly, you may see that 'passthrough.out'
-still had its old value of 0. This is because of the call to
-'time.sleep(1)', which makes the assignment to the output pin occur at
-most once per second. Because this is a userspace component, the actual
-delay between assignments can be much longer if the
-memory used by the passthrough component is swapped to disk, the
-assignment could be delayed until that memory is swapped back in.
+If you typed "show pin" quickly, you may see that 'passthrough.out' still had its old value of 0.
+This is because of the call to 'time.sleep(1)', which makes the assignment to the output pin occur at most once per second.
+Because this is a userspace component, the actual delay between assignments can be much longer if the memory used by the passthrough component is swapped to disk,
+as the assignment could be delayed until that memory is swapped back in.
 
-Thus, userspace components are suitable for user-interactive elements
-such as control panels (delays in the range of milliseconds are not
-noticed, and longer delays are acceptable), but not for sending step
-pulses to a stepper driver board (delays must always be in the range of
-microseconds, no matter what).
+Thus, userspace components are suitable for user-interactive elements such as control panels (delays in the range of milliseconds are not noticed, and longer delays are acceptable),
+but not for sending step pulses to a stepper driver board (delays must always be in the range of microseconds, no matter what).
 
 == Create pins and parameters
 
@@ -76,18 +70,16 @@ h = hal.component("passthrough")
 ----
 
 The component itself is created by a call to the constructor 'hal.component'.
-The arguments are the HAL component name and (optionally) the
-prefix used for pin and parameter names. If the prefix is not
-specified, the component name is used.
+The arguments are the HAL component name and (optionally) the prefix used for pin and parameter names.
+If the prefix is not specified, the component name is used.
 
 ----
 h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
 ----
 
-Then pins are created by calls to methods on the component object. The
-arguments are: pin name suffix, pin type, and pin direction. For
-parameters, the arguments are: parameter name suffix, parameter type,
-and parameter direction.
+Then pins are created by calls to methods on the component object.
+The arguments are: pin name suffix, pin type, and pin direction.
+For parameters, the arguments are: parameter name suffix, parameter type, and parameter direction.
 
 .HAL Option Names
 [width="100%",cols="<3s,4*<"]
@@ -390,7 +382,7 @@ Read these to acquire information about the realtime system.
 GladeVCP uses the hal_glib library, which can be used to connect a "watcher" signal on a HAL input pin. +
 This signal can be used to register a function to call when the HAL pin changes state. +
 
-One must import the module and the hal module:
+One must import the `hal_glib` and the `hal` modules:
 
 [source,python]
 ----
@@ -423,10 +415,10 @@ And have a function to be called:
 
 == Use with hal_glib in QtVCP Handler
 
-QtVCP uses the hal_glib library, which can be used to connect a "watcher" signal on a HAL input pin. +
-This signal can be used to register a function to call when the HAL pin changes state. +
+QtVCP uses the hal_glib library, which can be used to connect a "watcher" signal on a HAL input pin.
+This signal can be used to register a function to call when the HAL pin changes state.
 
-One must import the hal module:
+One must import the `hal` module:
 
 [source,python]
 ----
@@ -469,15 +461,12 @@ This shows ways to get the pin value and information.
 == Project ideas
 
 * Create an external control panel with buttons, switches, and indicators.
-  Connect everything to a microcontroller,
-  and connect the microcontroller to the PC using a serial interface.
-  Python has a very capable serial interface module called
-  https://pyserial.readthedocs.io/en/latest/[pyserial]
+  Connect everything to a microcontroller, and connect the microcontroller to the PC using a serial interface.
+  Python has a very capable serial interface module called https://pyserial.readthedocs.io/en/latest/[pyserial]
   (Ubuntu package name "python3-serial", in the universe repository).
 * Attach a http://lcdproc.omnipotent.net/[LCDProc]-compatible LCD module
   and use it to display a digital readout with information of your choice
   (Ubuntu package name "lcdproc", in the universe repository).
-* Create a virtual control panel using any GUI library supported by Python
-  (gtk, Qt, wxWindows, etc.).
+* Create a virtual control panel using any GUI library supported by Python (gtk, Qt, wxWindows, etc.).
 
 // vim: set syntax=asciidoc:
