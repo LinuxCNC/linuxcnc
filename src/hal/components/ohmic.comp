@@ -23,8 +23,6 @@ and a 390K series resistor resulting in a voltage divider of 4.9.
 .br
 This would result in a full scale reading of 24.5 volts which is above the power supply output voltage.
 .br
-If full scale is reached, it can be assumed that the THCAD-5 is sensing an arc voltage.
-.br
 The circuit will remain protected by the THCAD's ability to tolerate a 500V over-voltage indefinitely.
 .br
 It is optional that power to the ohmic sensing circuit be disconnected unless probing is in progress.
@@ -74,10 +72,8 @@ pin in  float thcad_fullscale = 5        "THCAD full scale (5v, 10v, or 300v)";
 pin in  float thcad_max_volt_freq        "Full scale calibration data for THCAD Card in Hz";
 pin in  float velocity_in                "The velocity returned from the THCAD and read by the Mesa encoder input";
 pin in  float volt_divider = 4.9         "The divide ratio";
-pin out bit   arc_on                     "True if measured voltage is >= full scale (arc is on)";
 pin out bit   ohmic_on                   "True if ohmic circuit is closed (material is sensed)";
 pin out float ohmic_volts                "Calculated ohmic voltage";
-pin out float thcad_volts                "Measured THCAD voltage";
 
 function _;
 license "GPL";
@@ -88,12 +84,10 @@ FUNCTION(_) {
     double thcad_vel_scale = 1/((thcad_max_volt_freq - thcad_0_volt_freq)/thcad_fullscale/thcad_divide);
     double thcad_scale_offset = thcad_0_volt_freq/thcad_divide;
 
-    thcad_volts = (velocity_in - thcad_scale_offset) * thcad_vel_scale;
-    ohmic_volts = thcad_volts * volt_divider;
+    ohmic_volts = (velocity_in - thcad_scale_offset) * thcad_vel_scale * volt_divider;
     if(is_probing)
         ohmic_on = (ohmic_volts >= ohmic_threshold ? 1 : 0);
     else
         if(ohmic_volts <= ohmic_low)
             ohmic_on = 0;
-    arc_on = (thcad_volts >= thcad_fullscale ? 1 : 0);
 }
