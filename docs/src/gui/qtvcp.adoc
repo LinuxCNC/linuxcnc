@@ -112,26 +112,22 @@ All `<options>` must appear before `<screen_name>`.
   XOFFSET/YOFFSET is referenced from top left of screen.
   Use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position.
   Example: `-g 200x400+0+100`
-* `-H FILE` Execute hal statements from FILE with halcmd after the component
-  is set up and ready.
+* `-H FILE` Execute hal statements from FILE with halcmd after the component is set up and ready.
 * `-m` Maximize window.
 * `-f` Fullscreen the window.
 * `-t THEME` Default is system theme
 * `-x XID` Embed into a X11 window that doesn't support embedding.
-* `--push_xid` Send QtVCP's X11 window id number to standard output; for
-  embedding.
+* `--push_xid` Send QtVCP's X11 window id number to standard output; for embedding.
 * `-u USERMOD` File path of a substitute handler file.
-* `-o USEROPTS` Pass a string to QtVCP's handler file under `self.w.USEROPTIONS_`
-  list variable. Can be multiple -o.
+* `-o USEROPTS` Pass a string to QtVCP's handler file under `self.w.USEROPTIONS_` list variable. Can be multiple -o.
 
 .<screen_name>
-`<screen_name>` is the _base name of the .ui and _handler.py files_. +
+`<screen_name>` is the _base name of the .ui and _handler.py files_.
 If `<screen_name>` is missing, the default screen will be loaded.
 
 QtVCP assumes the UI file and the handler file use the *same base name*.
 
-QtVCP will first search the LinuxCNC configuration directory that was launched for the files,
-then in the system skin folder holding standard screens.
+QtVCP will first search the LinuxCNC configuration directory that was launched for the files, then in the system skin folder holding standard screens.
 
 .Cycle Times
 
@@ -162,8 +158,7 @@ The Qt Designer editor makes it relatively easy to build and edit this file.
 
 A handler file is a file containing _Python_ code, which *adds to QtVCP default routines*.
 
-A handler file allows one to _modify defaults_,
-or _add logic_ to a QtVCP screen without having to modify QtVCP's core code.
+A handler file allows one to _modify defaults_, or _add logic_ to a QtVCP screen without having to modify QtVCP's core code.
 In this way you can have *custom behaviors*.
 
 If present a handler file will be loaded. +
@@ -206,14 +201,11 @@ QtVCP can also be customized with _Qt stylesheets (QSS)_ using CSS.
 
 === Local Files
 
-//FIXME Does that applies to .ui files only or handler.py and qss too ?
-//FIXME How does overriding/inheritance actually works ?
+If present, local UI/QSS/python files in the configuration folder will be loaded instead of the stock UI files.
 
-If present, local UI files in the configuration folder will be loaded instead of the stock UI files.
+Local UI/QSS/python files allow you to use your customized designs rather than the default screens.
 
-Local UI files allow you to use your customized designs rather than the default screens.
-
-QtVCP will look for a folder named _<screen_name>_ (in the launched configuration folder that holds the INI file).
+QtVCP will look for a folder named <screen_name> (in the launched configuration folder that holds the INI file).
 
 In that folder, QtVCP will load any of the available following files:
 
@@ -228,8 +220,9 @@ There are _three ways_ to customize a screen/panel.
 
 .Minor StyleSheet Changes
 Stylesheets can be used to *set Qt properties*. +
-If a widget uses properties they usually can be modified by stylesheets, e.g.:
+If a widget uses properties they usually can be modified by stylesheets.
 
+.Example of a widget with accompanying style sheet settings.
 [source,{css}]
 ----
 State_LED #name_of_led{
@@ -253,14 +246,13 @@ It can use `~` for home directory or `WORKINGDIRECTORY` or `CONFIGDIRECTORY` to 
 USER_COMMAND_FILE = CONFIGDIRECTORY/<screen_name_added_commands>
 ----
 
-If no entry is found in the _INI_, QtVCP will look in the *default path*. +
-The default path is in the configuration directory as a hidden file
-using the screen basename and rc, i.e. *`CONFIGDIRECTORY/.<screen_name>rc`*.
+If no entry is found in the _INI_, QtVCP will look in the *default path*.
+The default path is in the configuration directory as a hidden file using the screen basename and rc, e.g., *`CONFIGDIRECTORY/.<screen_name>rc`*.
 
 This file will be read and executed as Python code in the *handler file context*.
 
-*Only local functions and local attributes* can be referenced. +
-Global libraries can not be referenced. (usually seen as all capital words with no preceding self.) +
+*Only local functions and local attributes* can be referenced.
+Global libraries can not be referenced. (usually seen as all capital words with no preceding self.)
 
 What can be used can vary by screen and development cycle.
 
@@ -342,8 +334,7 @@ In this way HAL will wait till the HAL pins are made before continuing on.
 
 You can of course *make your own panel and load it*.
 
-If you made a UI file named `my_panel.ui` and a HAL file named `my_panel.hal`,
-you would then load this from a terminal with:
+If you made a UI file named `my_panel.ui` and a HAL file named `my_panel.hal`, you would then load this from a terminal with:
 
 ----
 halrun -I -f my_panel.hal
@@ -420,15 +411,11 @@ Actualmente el estiramiento de Debian usa 5.7, Mint 12 usa 5.5, Mint 19
 usa 5.9.
 En caso de duda, verifique la versión de Qt5 en el sistema.
 
-Debe descomprimir el archivo y luego copiar esa versión adecuada de
-'libpyqt5_py2.so' a esta carpeta
-'/usr/lib/x86_64-linux-gnu/qt5/plugins/designer'.
+Debe descomprimir el archivo y luego copiar esa versión adecuada de 'libpyqt5_py2.so' a esta carpeta '/usr/lib/x86_64-linux-gnu/qt5/plugins/designer'.
 
-(x86_64-linux-gnu podría llamarse algo ligeramente diferente en
-diferentes sistemas)
+(x86_64-linux-gnu podría llamarse algo ligeramente diferente en diferentes sistemas)
 
-Necesitará privilegios de superusuario para copiar el archivo en la
-carpeta.
+Necesitará privilegios de superusuario para copiar el archivo en la carpeta.
 ////
 
 .Add `qtvcp_plugin.py` link to the Qt Designer Search Path
@@ -444,8 +431,7 @@ For a _Package installed_ version it should be:
   'usr/lib/python2.7/qtvcp/plugins/qtvcp_plugin.py' or
   'usr/lib/python2.7/dist-packages/qtvcp/plugins/qtvcp_plugin.py'
 
-Make a symbolic link to the above file and move it to one of the places
-Qt Designer searches in.
+Make a symbolic link to the above file and move it to one of the places Qt Designer searches in.
 
 Qt Designer searches in these two place for links (pick one):
 
@@ -512,15 +498,12 @@ Place and resize them as you see fit leaving some room for buttons.
 Add 7 action buttons on to the main window.
 
 If you double click the button, you can add text. +
-Edit the button labels for 'Estop', 'Machine On', 'Home', 'Load', 'Run',
-'Pause' and 'stop'.
+Edit the button labels for 'Estop', 'Machine On', 'Home', 'Load', 'Run', 'Pause' and 'stop'.
 
-Action buttons _default to no action_ so we must change the properties
-for defined functions. You can edit the properties:
+Action buttons _default to no action_ so we must change the properties for defined functions. You can edit the properties:
 
 * directly in the _property editor_ on the right side of Qt Designer, or
-* conveniently, left double clicking on the button to launch a _properties dialog_,
-  that allows selecting actions while only displaying relevant data to the action.
+* conveniently, left double clicking on the button to launch a _properties dialog_ that allows selecting actions while only displaying relevant data to the action.
 
 We will describe the convenient way first:
 

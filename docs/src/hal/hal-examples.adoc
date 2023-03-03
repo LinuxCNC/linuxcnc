@@ -10,22 +10,19 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-All of these examples assume you are starting with a stepconf based
-configuration and have two threads 'base-thread' and 'servo-thread'. The
-stepconf wizard will create an empty custom.hal and a
-custom_postgui.hal file. The custom.hal file will be loaded after the
-configuration HAL file and the custom_postgui.hal file is loaded after
-the GUI has been loaded.
+All of these examples assume you are starting with a stepconf based configuration and have two threads 'base-thread' and 'servo-thread'.
+The stepconf wizard will create an empty custom.hal and a custom_postgui.hal file.
+The custom.hal file will be loaded after the configuration HAL file and the custom_postgui.hal file is loaded after the GUI has been loaded.
 
 == Connecting Two Outputs
 
-To connect two outputs to an input you can use the or2 component. The or2 works
-like this, if either input to or2 is on then the or2 output is on. If neither
-input to or2 is on the or2 output is off.
+To connect two outputs to an input you can use the or2 component.
+The or2 works like this, if either input to or2 is on then the or2 output is on.
+If neither input to or2 is on the or2 output is off.
 
-For example to have two pyvcp buttons both connected to one led.
+For example to have two PyVCP buttons both connected to one LED.
 
-.The .xml file
+.The .xml file to instruct PyVCP to prepare a GUI that features two buttons (named "button-1" and "button-2") and an LED (named "led-1").
 ----
 <pyvcp>
   <button>
@@ -47,7 +44,7 @@ For example to have two pyvcp buttons both connected to one led.
 </pyvcp>
 ----
 
-.The postgui.hal file
+.The postgui.hal file, read after the GUI is set up and ports ready to accept the logic described in HAL.
 ----
 loadrt or2
 addf or2.0 servo-thread
@@ -56,12 +53,12 @@ net button-2 or2.0.in1 <= pyvcp.button-2
 net led-1 pyvcp.led-1 <= or2.0.out
 ----
 
-When you run this example in an Axis simulator created with the Stepconf
-Wizard you can open a terminal and see the pins created with 'loadrt or2' by
-typing in 'halcmd show pin or2' in the terminal
+When you run this example in an axis simulator created with the StepConf Wizard,
+you can open a terminal and see the pins created with 'loadrt or2' by typing in `halcmd show pin or2` in the terminal.
 
+.Running `halcmd` on the UNIX command line to show the pins crafted with module 'or2'.
 ----
-halcmd show pin or2
+$ halcmd show pin or2
 Component Pins:
 Owner   Type  Dir         Value  Name
     22  bit   IN          FALSE  or2.0.in0 <== button-1
@@ -69,26 +66,24 @@ Owner   Type  Dir         Value  Name
     22  bit   OUT         FALSE  or2.0.out ==> led-1
 ----
 
-You can see from the HAL command 'show pin or2' that the 'button-1' pin is
-connected to the 'or2.0.in0' pin and from the direction arrow you can see that
-the button is and output and the 'or2.0.in0' is an input. The output from or2
-goes to the input of the led.
+You can see from the HAL command 'show pin or2' that the 'button-1' pin is connected to the 'or2.0.in0' pin.
+From the direction arrow you can see that the button is and output and the 'or2.0.in0' is an input.
+The output from or2 goes to the input of the LED.
 
 == Manual Toolchange
 
-In this example it is assumed that you're 'rolling your own'
-configuration and wish to add the HAL Manual Toolchange window. The HAL
-Manual Toolchange is primarily useful if you have presettable tools and
-you store the offsets in the tool table. If you need to touch off for
-each tool change then it is best just to split up your G-code. To use
-the HAL Manual Toolchange window you basically have to load the
-hal_manualtoolchange component then send the iocontrol 'tool change' to
-the hal_manualtoolchange 'change' and send the hal_manualtoolchange
-'changed' back to the iocontrol 'tool changed'. A pin is provided for an
-external input to indicate the tool change is complete.
+In this example it is assumed that you're 'rolling your own' configuration and wish to add the HAL Manual Toolchange window.
+The HAL Manual Toolchange is primarily useful if you have presettable tools and you store the offsets in the tool table.
+If you need to touch off for each tool change then it is best just to split up your G-code.
+To use the HAL Manual Toolchange window you basically have to
 
-This is an example of manual toolchange 'with'
-the HAL Manual Toolchange component:
+. load the hal_manualtoolchange component,
+. then send the iocontrol 'tool change' to the hal_manualtoolchange 'change' and
+. send the hal_manualtoolchange 'changed' back to the iocontrol 'tool changed'.
+
+A pin is provided for an external input to indicate the tool change is complete.
+
+This is an example of manual toolchange 'with' the HAL Manual Toolchange component:
 
 [source,{hal}]
 ----
@@ -100,8 +95,7 @@ net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number
 net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 ----
 
-This is an example of manual toolchange 'without'
-the HAL Manual Toolchange component:
+This is an example of manual toolchange 'without' the HAL Manual Toolchange component:
 
 [source,{hal}]
 ----
@@ -112,16 +106,13 @@ net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 
 == Compute Velocity
 
-This example uses 'ddt', 'mult2' and 'abs' to compute the velocity of
-a single axis. For more information on the real time components see the
-man pages or the HAL Components List (<<sec:hal-components>>).
+This example uses 'ddt', 'mult2' and 'abs' to compute the velocity of a single axis.
+For more information on the real time components see the man pages or the HAL Components List (<<sec:hal-components>>).
 
-The first thing is to check your configuration to make sure you are
-not using any of the real time components all ready. You can do this by
-opening up the HAL Configuration window and look for the components in
-the pin section. If you are then find the .hal file that they are being
-loaded in and increase the counts and adjust the instance to the
-correct value. Add the following to your custom.hal file.
+The first thing is to check your configuration to make sure you are not using any of the real time components all ready.
+You can do this by opening up the HAL Configuration window and look for the components in the pin section.
+If you are then find the HAL file that they are being loaded in and increase the counts and adjust the instance to the correct value.
+Add the following to your custom.hal file.
 
 Load the realtime components.
 
@@ -152,19 +143,17 @@ net X-ABS abs.0.in <= mult2.0.out
 net X-IPM abs.0.out
 ----
 
-In this last section we are setting the mult2.0.in1 to 60 to convert
-the inch per second to inch per minute that we get from the ddt.0.out.
+In this last section we are setting the `mult2.0.in1` to 60 to convert the inch per second to inch per minute (IPM) that we get from the `ddt.0.out`.
 
-The xpos-cmd sends the commanded position to the ddt.0.in. The ddt
-computes the derivative of the change of the input.
+The `xpos-cmd` sends the commanded position to the `ddt.0.in`.
+The ddt computes the derivative of the change of the input.
 
-The ddt2.0.out is multiplied by 60 to give IPM.
+The `ddt2.0.out` is multiplied by 60 to give IPM.
 
-The mult2.0.out is sent to the abs to get the absolute value.
+The `mult2.0.out` is sent to the `abs` to get the absolute value.
 
-The following figure shows the result when the X axis is moving at 15
-IPM in the minus direction. Notice that we can get the absolute value
-from either the abs.0.out pin or the X-IPM signal.
+The following figure shows the result when the X axis is moving at 15 IPM in the minus direction.
+Notice that we can get the absolute value from either the `abs.0.out` pin or the `X-IPM` signal.
 
 [[cap:hal-velocity-example]]
 .HAL: Velocity Example(((HAL:Velocity example)))
@@ -172,15 +161,12 @@ image::images/velocity-01.png["HAL: Velocity Example",align="center"]
 
 == Soft Start Details
 
-This example shows how the HAL components 'lowpass', 'limit2' or
-'limit3' can be used to limit how fast a signal changes.
+This example shows how the HAL components 'lowpass', 'limit2' or 'limit3' can be used to limit how fast a signal changes.
 
-In this example we have a servo motor driving a lathe spindle. If we
-just used the commanded spindle speeds on the servo it will try to go
-from present speed to commanded speed as fast as it can. This could
-cause a problem or damage the drive. To slow the rate of change we can
-send the spindle.N.speed-out through a limiter before the PID, so
-that the PID command value changes to new settings more slowly.
+In this example we have a servo motor driving a lathe spindle.
+If we just used the commanded spindle speeds on the servo it will try to go from present speed to commanded speed as fast as it can.
+This could cause a problem or damage the drive.
+To slow the rate of change we can send the `spindle.N.speed-out` through a limiter before the PID, so that the PID command value changes to new settings more slowly.
 
 Three built-in components that limit a signal are:
 
@@ -190,8 +176,8 @@ Three built-in components that limit a signal are:
 
 To find more information on these HAL components check the man pages.
 
-Place the following in a text file called softstart.hal. If you're not
-familiar with Linux place the file in your home directory.
+Place the following in a text file called softstart.hal.
+If you're not familiar with Linux place the file in your home directory.
 
 [source,{hal}]
 ----
@@ -223,29 +209,25 @@ Open a terminal window and run the file with the following command.
 halrun -I softstart.hal
 ----
 
-When the HAL Oscilloscope first starts up click 'OK' to accept the
-default thread.
+When the HAL Oscilloscope first starts up click 'OK' to accept the default thread.
 
-Next you have to add the signals to the channels. Click on channel 1
-then select 'square' from the Signals tab. Repeat for channels 2-4 and
-add lowpass, limit2, and limit3.
+Next you have to add the signals to the channels.
+Click on channel 1 then select 'square' from the Signals tab.
+Repeat for channels 2-4 and add lowpass, limit2, and limit3.
 
-Next to set up a trigger signal click on the Source None button and
-select square. The button will change to Source Chan 1.
+Next to set up a trigger signal click on the Source None button and select square.
+The button will change to Source Chan 1.
 
-Next click on Single in the Run Mode radio buttons box. This will
-start a run and when it finishes you will see your traces.
+Next click on Single in the Run Mode radio buttons box.
+This will start a run and when it finishes you will see your traces.
 
-To separate the signals so you can see them better click on a channel
-then use the Pos slider in the Vertical box to set the positions.
+To separate the signals so you can see them better click on a channel then use the Pos slider in the Vertical box to set the positions.
 
 [[fig:softstart]]
 image::images/softstart-scope.png["Softstart screenshot"]
 
-To see the effect of changing the set point values of any of the
-components you can change them in the terminal window. To see what
-different gain settings do for lowpass just type the following in the
-terminal window and try different settings.
+To see the effect of changing the set point values of any of the components you can change them in the terminal window.
+To see what different gain settings do for lowpass just type the following in the terminal window and try different settings.
 
 [source,{hal}]
 ----
@@ -254,19 +236,16 @@ setp lowpass.0.gain *.01
 
 After changing a setting run the oscilloscope again to see the change.
 
-When you're finished type 'exit' in the terminal window to shut down
-halrun and close the halscope. Don't close the terminal window with
-halrun running as it might leave some things in memory that could
-prevent LinuxCNC from loading.
+When you're finished type 'exit' in the terminal window to shut down halrun and close the halscope.
+Don't close the terminal window with halrun running as it might leave some things in memory that could prevent LinuxCNC from loading.
 
 For more information on Halscope see the HAL manual and the tutorial.
 
 == Stand Alone HAL
 
-In some cases you might want to run a GladeVCP screen with just HAL. For
-example say you had a stepper driven device that all you need is to run a
-stepper motor. A simple 'Start/Stop' interface is all you need for your
-application so no need to load up and configure a full blown CNC application.
+In some cases you might want to run a GladeVCP screen with just HAL.
+For example say you had a stepper driven device that all you need is to run a stepper motor.
+A simple 'Start/Stop' interface is all you need for your application so no need to load up and configure a full blown CNC application.
 
 In the following example we have created a simple GladeVCP panel with one stepper.
 

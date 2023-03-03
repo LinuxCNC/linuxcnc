@@ -8,19 +8,22 @@
 
 // < explanation of the difference between a real-time and a userspace component >
 
-Most of the commands in the following list have man pages. 
+Most of the commands in the following list have their own dedicated man pages. 
 Some will have expanded descriptions, some will have limited descriptions. 
-From this list you know what components exist, 
-and you can use 'man name' to get additional information.
+From this list you know what components exist, and you can use `man` _name_ on your UNIX command line to get additional information.
 To view the information in the man page, in a terminal window type: 
 
 ----
-man axis (or perhaps 'man <n> axis' if your system requires it. n = 1 for userspace and 9 for realtime components)
+man axis
 ----
 
+The one or other setup of a UNIX system may require to explicitly specify the section of the man page.
+If you do not find the man page or the name of the man page is already taken by another UNIX tool with the LinuxCNC man page residing in another section,
+then try to explicitly specify the section, as in `man _sectionno_ axis`, with _setionno_ = 1 for userspace and 9 for realtime components.
+
 [NOTE]
-See also the 'Man Pages' section of the link:../index.html[docs main page] or the
-link:../man/[directory listing].
+See also the 'Man Pages' section of the link:../index.html[docs main page] or the link:../man/[directory listing].
+To search in the man pages, use the UNIX tool `apropos`.
 
 
 === User Interfaces (Userspace)
@@ -298,9 +301,10 @@ the input is a position, this means that the 'position', 'velocity', and 'accele
 | link:../man/man9/classicladder.9.html[classicladder] | Realtime software PLC based on ladder logic. See <<cha:classicladder,ClassicLadder>> chapter for more information. ||
 | link:../man/man9/threads.9.html[threads] | Creates hard realtime HAL threads. ||
 | link:../man/man9/charge_pump.9.html[charge_pump] | Creates a square-wave for the 'charge pump' input of some controller boards.
-The 'Charge Pump' should be added to the base thread function. When enabled the output is on for one period and off for one period.
-To calculate the frequency of the output 1/(period time in seconds x 2) = Hz.
-For example, if you have a base period of 100,000 ns that is 0.0001 seconds and the formula would be 1/(0.0001 x 2) = 5,000 Hz or 5 kHz. ||
+The 'Charge Pump' should be added to the base thread function.
+When enabled, the output is on for one period and off for one period.
+To calculate the frequency [Hz] of the output: 1/(period time in seconds x 2).
+For example, if you have a base period of 100,000&#8239;ns that is 0.0001 seconds and the formula would be 1/(0.0001 x 2) = 5,000&#8239;Hz or 5&#8239;kHz. ||
 | link:../man/man9/encoder_ratio.9.html[encoder_ratio] | Electronic gear to synchronize two axes. ||
 | link:../man/man9/feedcomp.9.html[feedcomp] | Multiply the input by the ratio of current velocity to the feed rate. ||
 | link:../man/man9/gladevcp.9.html[gladevcp (Realtime)] |displays Virtual control Panels built with GTK / GLADE||
