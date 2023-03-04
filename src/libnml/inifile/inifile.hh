@@ -91,8 +91,18 @@ public:
         try {
             *result = boost::lexical_cast<T>(tmp);
         } catch (boost::bad_lexical_cast &) {
-            ThrowException(ERR_CONVERSION);
-            return(ERR_CONVERSION);
+            // If boost::lexical_cast fails, try std::stoi to parse also numbers in hex format
+            if(std::is_same<T, int>::value) {
+                try {
+                    *result = std::stoi(tmp, nullptr, 16);
+                } catch (...) {
+                    ThrowException(ERR_CONVERSION);
+                    return(ERR_CONVERSION);
+                }
+            } else {
+                ThrowException(ERR_CONVERSION);
+                return(ERR_CONVERSION);
+            }
         }
 
         return(ERR_NONE);
