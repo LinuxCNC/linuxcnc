@@ -1705,7 +1705,6 @@ class gmoccapy(object):
         else:
             rows = (self.stat.joints + 1) / 2
 
-        self.widgets.tbl_jog_btn_joints.resize(rows, cols)
 
         col = 0
         row = 0
@@ -1714,12 +1713,12 @@ class gmoccapy(object):
             #print(joint)
 
             joint_name = "{0}-".format(joint)
-            self.widgets.tbl_jog_btn_joints.attach(self.joints_button_dic[joint_name],
-                                    col, col+1, row, row + 1, ypadding = 0)
+            self.widgets.grid_jog_btn_joints.attach(self.joints_button_dic[joint_name],
+                                    col, row, 1, 1)
 
             joint_name = "{0}+".format(joint)
-            self.widgets.tbl_jog_btn_joints.attach(self.joints_button_dic[joint_name],
-                                    col+1, col+2, row, row + 1, ypadding = 0)
+            self.widgets.grid_jog_btn_joints.attach(self.joints_button_dic[joint_name],
+                                    col+1, row, 1, 1)
 
             row +=1
 
@@ -1728,7 +1727,7 @@ class gmoccapy(object):
                 col = 2
                 row = 0
 
-        self.widgets.tbl_jog_btn_joints.show_all()
+        self.widgets.grid_jog_btn_joints.show_all()
 
     def _init_preferences(self):
         # check if NO_FORCE_HOMING is used in INI
