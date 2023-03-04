@@ -1482,11 +1482,7 @@ class gmoccapy(object):
             self.dialogs.warning_dialog(self, _("Very critical situation"), message, sound = False)
             sys.exit()
         else:
-            if len(self.axis_list) == 2:
-                self.widgets.tbl_jog_btn_axes.resize(3,3)
-            elif len(self.axis_list) < 6:
-                self.widgets.tbl_jog_btn_axes.resize(3,4)
-            else:
+            if not len(self.axis_list) == 2 and not len(self.axis_list) < 6:
                 self._arrange_jog_button_by_axis()
                 return
             count = 0
@@ -1520,7 +1516,7 @@ class gmoccapy(object):
                         row = 2
                     count +=1
 
-                self.widgets.tbl_jog_btn_axes.attach(self.jog_button_dic[btn_name], col, col + 1, row, row + 1)
+                self.widgets.grid_jog_btn_axes.attach(self.jog_button_dic[btn_name], col, row, 1, 1)
                 self.jog_button_dic[btn_name].show()
 
     def _arrange_dro(self):
@@ -1627,12 +1623,8 @@ class gmoccapy(object):
 
         if len(self.axis_list) < 3:
             LOG.debug("Less than 3 axis")
-            # we can resize the jog_btn_table
-            self.widgets.tbl_jog_btn_axes.resize(3, 3)
         else:
             LOG.debug("less than 6 axis")
-            # we can resize the jog_btn_table
-            self.widgets.tbl_jog_btn_axes.resize(3, 4)
 
         count = 0
         for btn_name in self.jog_button_dic:
@@ -1666,8 +1658,8 @@ class gmoccapy(object):
                 else:
                     row = 2
                 count +=1
-            self.widgets.tbl_jog_btn_axes.attach(self.jog_button_dic[btn_name], col, col + 1, row, row + 1)
-        self.widgets.tbl_jog_btn_axes.show_all()
+            self.widgets.grid_jog_btn_axes.attach(self.jog_button_dic[btn_name], col, row, 1, 1)
+        self.widgets.grid_jog_btn_axes.show_all()
 
     def _arrange_jog_button_by_axis(self):
         LOG.debug("arrange JOG button by axis")
@@ -1679,7 +1671,6 @@ class gmoccapy(object):
         else:
             rows = (len(self.dro_dic) + 1) / 2
 
-        self.widgets.tbl_jog_btn_axes.resize(rows, cols)
         #print (cols,rows)
 
         col = 0
@@ -1690,11 +1681,11 @@ class gmoccapy(object):
             if btn_name not in list(self.jog_button_dic.keys()):
                 continue
 
-            self.widgets.tbl_jog_btn_axes.attach(self.jog_button_dic[btn_name],
-                                        col, col+1, row, row + 1, ypadding = 0)
+            self.widgets.grid_jog_btn_axes.attach(self.jog_button_dic[btn_name],
+                                        col, row, 1, 1)
             btn_name = "{0}+".format(btn)
-            self.widgets.tbl_jog_btn_axes.attach(self.jog_button_dic[btn_name],
-                                        col+1, col+2, row, row + 1, ypadding = 0)
+            self.widgets.grid_jog_btn_axes.attach(self.jog_button_dic[btn_name],
+                                        col+1, row, 1, 1)
 
             row +=1
 
@@ -1702,7 +1693,7 @@ class gmoccapy(object):
             if row >= rows:
                 col = 2
                 row = 0
-        self.widgets.tbl_jog_btn_axes.show_all()
+        self.widgets.grid_jog_btn_axes.show_all()
 
     def _arrange_joint_button(self):
         LOG.debug("arrange JOINTS button")
