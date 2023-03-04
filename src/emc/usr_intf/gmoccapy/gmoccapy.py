@@ -141,6 +141,15 @@ class gmoccapy(object):
                 padding: 3px;
                 margin: 1px;
             }
+            /* #__jog_incr_buttons *:checked {
+                background: rgba(230,230,50,0.8);
+            } */
+            #jog_incr_buttons *:active, #jog_buttons *:active {
+                background: rgba(230,230,50,0.8);
+            }
+            #eb_program_label, #eb_blockheight_label {
+                background: rgba(0,0,0,1);
+            }
         """
         screen = Gdk.Screen.get_default()
         provider = Gtk.CssProvider()
@@ -979,7 +988,8 @@ class gmoccapy(object):
         btn.connect("toggled", self.on_tbtn_edit_offsets_toggled)
         btn.set_property("tooltip-text", _("Press to edit the offsets"))
         btn.set_property("name", "edit_offsets")
-        btn.override_background_color(Gtk.StateFlags.ACTIVE, Gdk.RGBA(1.0, 1.0, 0.0, 1.0))
+        # TODO: Use CSS for this if still needed
+        # btn.override_background_color(Gtk.StateFlags.ACTIVE, Gdk.RGBA(1.0, 1.0, 0.0, 1.0))
         self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
         btn.show()
 
@@ -1133,7 +1143,6 @@ class gmoccapy(object):
         self.widgets.vbtb_jog_incr.pack_start(rbt, True, True, 0)
         rbt.set_property("draw_indicator", False)
         rbt.show()
-        rbt.override_background_color(Gtk.StateFlags.ACTIVE, Gdk.RGBA(1.0, 1.0, 0.0, 1.0))
         self.incr_rbt_dic[rbt.get_property("name")] = rbt
         # the rest of the buttons are now added to the group
         # self.no_increments is set while setting the hal pins with self._check_len_increments
@@ -1146,10 +1155,11 @@ class gmoccapy(object):
             self.widgets.vbtb_jog_incr.pack_start(rbt, True, True, 0)
             rbt.set_property("draw_indicator", False)
             rbt.show()
-            rbt.override_background_color(Gtk.StateFlags.ACTIVE, Gdk.RGBA(1.0, 1.0, 0.0, 1.0))
             self.incr_rbt_dic[rbt.get_property("name")] = rbt
         self.incr_rbt_dic["rbt_0"].set_active(True)
         self.active_increment = "rbt_0"
+        # Set name to assign CSS
+        self.widgets.vbtb_jog_incr.set_property("name","jog_incr_buttons")
 
     def _jog_increment_changed(self, widget,):
         # first cancel any joints jogging
@@ -1273,7 +1283,8 @@ class gmoccapy(object):
                 btn.connect("pressed", self._on_btn_jog_pressed, name)
                 btn.connect("released", self._on_btn_jog_released, name)
                 btn.set_property("tooltip-text", _("Press to jog axis {0}".format(axis)))
-                btn.override_background_color(Gtk.StateFlags.ACTIVE, Gdk.RGBA(1.0, 1.0, 0.0, 1.0))
+                # Set name to assign CSS
+                self.widgets.vbx_jog_button.set_property("name", "jog_buttons")
                 btn.set_size_request(48,48)
 
                 self.jog_button_dic[name] = btn
@@ -1293,7 +1304,6 @@ class gmoccapy(object):
                 btn.connect("pressed", self._on_btn_jog_pressed, name)
                 btn.connect("released", self._on_btn_jog_released, name)
                 btn.set_property("tooltip-text", _("Press to jog joint {0}".format(joint)))
-                btn.override_background_color(Gtk.StateFlags.ACTIVE, Gdk.RGBA(1.0, 1.0, 0.0, 1.0))
                 btn.set_size_request(48,48)
 
                 self.joints_button_dic[name] = btn
@@ -2041,8 +2051,9 @@ class gmoccapy(object):
         self.widgets.gremlin.set_property("mouse_btn_mode", self.prefs.getpref( "mouse_btn_mode", 4, int ) )
         self.widgets.gremlin.set_property("use_commanded", not self.dro_actual)
         self.widgets.gremlin.set_property("enable_dro", self.enable_gremlin_dro)
-        self.widgets.eb_program_label.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.0, 0.0, 0.0, 1.0))
-        self.widgets.eb_blockheight_label.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.0, 0.0, 0.0, 1.0))
+        # Set name to assign CSS
+        self.widgets.eb_program_label.set_name("eb_program_label")
+        self.widgets.eb_blockheight_label.set_name("eb_blockheight_label")
 
     def _init_kinematics_type (self):
         LOG.debug("Kinematics type changed")
