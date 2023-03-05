@@ -5,8 +5,6 @@ description
 Mesa THCAD Card component to scale input and outputs from the Mesa THCAD2, THCAD5, THCAD10, and THCAD300 cards.
 .br
 Allows user configurable voltage thresholds for ohmic sensing.
-.br
-Scaling of the Plasma arc voltage by a voltage divider is supported.
 
 Output pins are provided for:
 .br
@@ -15,8 +13,6 @@ ohmic-volts -the voltage sensed on ohmic sensing.
 thcad-volts -the actual voltage measured by the THCAD.
 .br
 ohmic-on    -true if ohmic-volts >= ohmic-threshold, false if ohmic-volts <= ohmic-low.
-.br
-arc-on      -true if arc voltage is received (full scale reached or exceeded).
 
 A THCAD-5 would often be used for ohmic sensing in conjunction with a 24 volt isolated power supply
 and a 390K series resistor resulting in a voltage divider of 4.9.
