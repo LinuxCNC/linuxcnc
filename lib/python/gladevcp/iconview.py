@@ -76,7 +76,7 @@ class IconFileSelection(Gtk.Box):
            'icon_size' : (GObject.TYPE_INT, 'Icon Size', 'Sets the size of the displayed icon',
                         12, 96, 48, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
            'start_dir' : (GObject.TYPE_STRING, 'start directory', 'Sets the directory to start in',
-                        "/", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+                        ".", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
            'jump_to_dir' : (GObject.TYPE_STRING, 'jump to directory', 'Sets the directory to jump to ',
                         "~", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
            'filetypes' : (GObject.TYPE_STRING, 'file filter', 'Sets the filter for the file types to be shown',
@@ -298,9 +298,6 @@ class IconFileSelection(Gtk.Box):
             number = 0
             dirs = []
             files = []
-            # TODO: Why is iconview looking in "/" ?
-            # if self.cur_dir == "/":
-            #     LOG.info("current dir is /")
 
             for fl in os.listdir(self.cur_dir):
                 # we don't want to add hidden files
