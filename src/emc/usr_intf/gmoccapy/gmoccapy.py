@@ -2010,7 +2010,7 @@ class gmoccapy(object):
                 selected_index = [icon_theme[1] for icon_theme in valid_icon_themes].index(icon_theme_preference)
                 icon_theme_choice.set_active(selected_index)
             except ValueError:
-                LOG.warning(f"Preferred icon-theme '{icon_theme_preference}' not found. Switching to '{DEFAULT_ICON_THEME}'.")
+                LOG.warning(f"Preferred icon-theme '{icon_theme_preference}' not found. Switching to first valid icon theme: '{valid_icon_themes[0][1]}'.")
                 icon_theme_choice.set_active(0)
 
         # load icon theme
