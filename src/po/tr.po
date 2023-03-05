@@ -1,84 +1,84 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
+# kemal askan <kemalaskan90@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-01-26 22:23+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2023-03-05 06:11+0000\n"
+"Last-Translator: kemal askan <kemalaskan90@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.16.2-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
 msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
-msgstr ""
+msgstr "komut (%s), makine E-stop'tan çıkıp açılana kadar yürütülemez"
 
 #: src/emc/task/emctaskmain.cc:1005
 #, c-format
 msgid "can't do that (%s:%d) in manual mode"
-msgstr ""
+msgstr "bunu (%s:%d) manuel modda yapamaz"
 
 #: src/emc/task/emctaskmain.cc:1112
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
-msgstr ""
+msgstr "bunu (%s) otomatik modda interpreter boştayken yapamazsınız"
 
 #: src/emc/task/emctaskmain.cc:1181
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
-msgstr ""
+msgstr "bunu (%s) otomatik modda interpreter okumasıyla yapamazsınız"
 
 #: src/emc/task/emctaskmain.cc:1268
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
-msgstr ""
+msgstr "bunu (%s) otomatik modda interpreter duraklatılmış halde yapamaz"
 
 #: src/emc/task/emctaskmain.cc:1339
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
-msgstr ""
+msgstr "bunu (%s) otomatik modda interpreter bekleme halinde yapamaz"
 
 #: src/emc/task/emctaskmain.cc:1460
 #, c-format
 msgid "can't do that (%s:%d) in MDI mode"
-msgstr ""
+msgstr "bunu (%s:%d) MDI modunda yapamaz"
 
 #: src/emc/task/emctaskmain.cc:2131
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
-msgstr ""
+msgstr "Mod AUTO iken ve interpreter BOŞTA değilken mod değiştirilemez"
 
 #: src/emc/task/emctaskmain.cc:2184
 msgid "failed to close file"
-msgstr ""
+msgstr "dosya kapatılamadı"
 
 #: src/emc/task/emctaskmain.cc:2198 tcl/bin/genedit.tcl:197
 #: tcl/tklinuxcnc.tcl:452
 #, c-format, tcl-format
 msgid "can't open %s"
-msgstr ""
+msgstr "Açılamıyor %s"
 
 #: src/emc/task/emctaskmain.cc:2210
 msgid "Can't issue MDI command when not homed"
-msgstr ""
+msgstr "Home'ye gitmeden MDI komutu verilemez"
 
 #: src/emc/task/emctaskmain.cc:2215
 msgid "Must be in MDI mode to issue MDI command"
-msgstr ""
+msgstr "MDI komutunu vermek için MDI modunda olmalıdır"
 
 #: src/emc/task/emctaskmain.cc:2297
 msgid "Can't run a program when not homed"
-msgstr ""
+msgstr "Home'ye gitmeden bu program çalışmaz"
 
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
 #, c-format
@@ -2924,7 +2924,7 @@ msgstr ""
 #: src/hal/classicladder/classicladder_gtk.c:1059
 #: src/hal/classicladder/manager_gtk.c:315 tcl/bin/genedit.tcl:78
 msgid "New"
-msgstr ""
+msgstr "Yeni"
 
 #: src/hal/classicladder/classicladder_gtk.c:609
 msgid "Do you really want to clear all data ?"
@@ -3071,7 +3071,7 @@ msgstr ""
 #: tcl/bin/genedit.tcl:82 tcl/bin/halconfig.tcl:155
 #: src/emc/usr_intf/axis/scripts/axis.py:2309
 msgid "Save"
-msgstr ""
+msgstr "Kaydet"
 
 #: src/hal/classicladder/classicladder_gtk.c:1074
 msgid "Save As"
@@ -3184,7 +3184,7 @@ msgstr ""
 #: src/hal/classicladder/config_gtk.c:164
 #, c-format
 msgid "Number of Arithmetic Expressions"
-msgstr ""
+msgstr "Aritmetik İfade Sayısı"
 
 #: src/hal/classicladder/config_gtk.c:169
 #, c-format
@@ -3194,22 +3194,22 @@ msgstr ""
 #: src/hal/classicladder/config_gtk.c:174
 #, c-format
 msgid "Number of Symbols"
-msgstr ""
+msgstr "Sembol Sayısı"
 
 #: src/hal/classicladder/config_gtk.c:179
 #, c-format
 msgid "Number of Timers"
-msgstr ""
+msgstr "Zamanlayıcı Sayısı"
 
 #: src/hal/classicladder/config_gtk.c:183
 #, c-format
 msgid "Number of Monostables"
-msgstr ""
+msgstr "Monostabil Sayısı"
 
 #: src/hal/classicladder/config_gtk.c:188
 #, c-format
 msgid "Number of Error Bits"
-msgstr ""
+msgstr "Hata Bitlerinin Sayısı"
 
 #: src/hal/classicladder/config_gtk.c:192
 #, c-format
@@ -3224,20 +3224,20 @@ msgstr ""
 #: src/hal/classicladder/config_gtk.c:200
 #, c-format
 msgid "Current path/filename:"
-msgstr ""
+msgstr "Geçerli yol/dosya adı:"
 
 #: src/hal/classicladder/config_gtk.c:327
 msgid "1st %I mapped"
-msgstr ""
+msgstr "1. %I eşlendi"
 
 #: src/hal/classicladder/config_gtk.c:327
 msgid "1st %Q mapped"
-msgstr ""
+msgstr "1. %I eşlendi"
 
 #: src/hal/classicladder/config_gtk.c:367
 #: src/hal/classicladder/config_gtk.c:566
 msgid "Inverted"
-msgstr ""
+msgstr "Ters çevrilmiş"
 
 #: src/hal/classicladder/config_gtk.c:662
 #, c-format
@@ -3253,32 +3253,32 @@ msgstr ""
 #: src/hal/classicladder/config_gtk.c:745
 #, c-format
 msgid "Serial port (blank = IP mode)"
-msgstr ""
+msgstr "Seri bağlantı noktası (boş = IP modu)"
 
 #: src/hal/classicladder/config_gtk.c:749
 #, c-format
 msgid "Serial baud rate"
-msgstr ""
+msgstr "Seri baud hızı"
 
 #: src/hal/classicladder/config_gtk.c:753
 #, c-format
 msgid "Serial data bits"
-msgstr ""
+msgstr "Seri veri bitleri"
 
 #: src/hal/classicladder/config_gtk.c:757
 #, c-format
 msgid "Serial parity"
-msgstr ""
+msgstr "seri parite"
 
 #: src/hal/classicladder/config_gtk.c:761
 #, c-format
 msgid "Serial stop bits"
-msgstr ""
+msgstr "Seri durdurma bitleri"
 
 #: src/hal/classicladder/config_gtk.c:765
 #, c-format
 msgid "After transmit pause - milliseconds"
-msgstr ""
+msgstr "İletim duraklamasından sonra - milisaniye"
 
 #: src/hal/classicladder/config_gtk.c:769
 #, c-format
@@ -3288,34 +3288,34 @@ msgstr ""
 #: src/hal/classicladder/config_gtk.c:773
 #, c-format
 msgid "Request Timeout length - milliseconds"
-msgstr ""
+msgstr "İstek Zaman Aşımı uzunluğu - milisaniye"
 
 #: src/hal/classicladder/config_gtk.c:777
 #, c-format
 msgid "Use RTS to send"
-msgstr ""
+msgstr "Göndermek için RTS'yi kullanın"
 
 #: src/hal/classicladder/config_gtk.c:781
 #, c-format
 msgid "Modbus element offset"
-msgstr ""
+msgstr "Modbus eleman ofseti"
 
 #: src/hal/classicladder/config_gtk.c:785
 #, c-format
 msgid "Debug level"
-msgstr ""
+msgstr "Hata ayıklama düzeyi"
 
 #: src/hal/classicladder/config_gtk.c:786
 msgid "QUIET"
-msgstr ""
+msgstr "SESSİZLİK"
 
 #: src/hal/classicladder/config_gtk.c:786
 msgid "LEVEL"
-msgstr ""
+msgstr "SEVİYE"
 
 #: src/hal/classicladder/config_gtk.c:786
 msgid "VERBOSE"
-msgstr ""
+msgstr "AYRINTILI"
 
 #: src/hal/classicladder/config_gtk.c:789
 #, c-format
@@ -3340,7 +3340,7 @@ msgstr ""
 #: src/hal/classicladder/config_gtk.c:805
 #, c-format
 msgid "Read register/holding map to"
-msgstr ""
+msgstr "Kayıt/tutma haritasını şu adrese okuyun"
 
 #: src/hal/classicladder/config_gtk.c:809
 #, c-format
@@ -3518,7 +3518,7 @@ msgstr ""
 #: src/hal/classicladder/edit_gtk.c:476
 #: lib/python/gladevcp/tooledit_gtk.glade:312
 msgid "Add"
-msgstr ""
+msgstr "Ekle"
 
 #: src/hal/classicladder/edit_gtk.c:481
 msgid "Insert"
@@ -5061,7 +5061,7 @@ msgstr ""
 
 #: tcl/bin/tkbackplot.tcl:250
 msgid "AXIS"
-msgstr ""
+msgstr "EKSEN"
 
 #: tcl/bin/tkbackplot.tcl:251
 msgid "OFFSET"
@@ -5116,7 +5116,7 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:262
 msgid "LinuxCNC Diagnostics"
-msgstr ""
+msgstr "LinuxCNC Teşhis"
 
 #: tcl/tklinuxcnc.tcl:264
 msgid "Task"
@@ -5184,7 +5184,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.glade:1597
 #: src/emc/usr_intf/gscreen/gscreen.glade:1609
 msgid "continuous"
-msgstr ""
+msgstr "sürekli"
 
 #: tcl/tklinuxcnc.tcl:751
 msgid "Edit..."
@@ -6144,7 +6144,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:3417 tcl/ngcgui.tcl:3598
 msgid "new"
-msgstr ""
+msgstr "yeni"
 
 #: tcl/ngcgui.tcl:3443
 msgid "Open a new Subfile"
@@ -6183,7 +6183,7 @@ msgstr ""
 #: tcl/ngcgui.tcl:3811 src/emc/usr_intf/axis/scripts/axis.py:2685
 #: src/emc/usr_intf/axis/scripts/axis.py:2711
 msgid "Warning"
-msgstr ""
+msgstr "Dikkat"
 
 #: tcl/ngcgui.tcl:3812
 msgid "File absolute path specifier conflicts with searchpath result"
@@ -6223,7 +6223,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:3837
 msgid "in ini file"
-msgstr ""
+msgstr "ini dosyası içinde"
 
 #: tcl/ngcgui.tcl:3838
 msgid "(Restart required after fixing ini file)"
@@ -6239,11 +6239,11 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:4135
 msgid "ini file"
-msgstr ""
+msgstr "ini dosyası"
 
 #: tcl/ngcgui.tcl:4144
 msgid "not found"
-msgstr ""
+msgstr "bulunamadı"
 
 #: tcl/ngcgui_ttt.tcl:68
 msgid "found truetype-tracer v4 -OK"
@@ -6267,7 +6267,7 @@ msgstr ""
 
 #: tcl/ngcgui_ttt.tcl:103 tcl/ngcgui_ttt.tcl:116
 msgid "problem with"
-msgstr ""
+msgstr "Hata şurada "
 
 #: tcl/ngcgui_ttt.tcl:107
 msgid "No entry for"
@@ -6295,7 +6295,7 @@ msgstr ""
 
 #: tcl/ngcgui_ttt.tcl:178
 msgid "none"
-msgstr ""
+msgstr "hiçbiri"
 
 #: tcl/ngcgui_ttt.tcl:193
 msgid "Subdiv"
@@ -6347,11 +6347,11 @@ msgstr ""
 
 #: tcl/ngcgui_ttt.tcl:389
 msgid "no such file"
-msgstr ""
+msgstr "böyle bir dosya yok"
 
 #: tcl/ngcgui_ttt.tcl:394
 msgid "file not readable"
-msgstr ""
+msgstr "dosya okunmuyor"
 
 #: tcl/ngcgui_ttt.tcl:508
 msgid "Creating new tab page"
@@ -6400,15 +6400,15 @@ msgstr ""
 #: tcl/tooledit.tcl:211 tcl/tooledit.tcl:214 tcl/tooledit.tcl:646
 #: tcl/tooledit.tcl:647 tcl/tooledit.tcl:1086
 msgid "NEW"
-msgstr ""
+msgstr "YENİ"
 
 #: tcl/tooledit.tcl:232
 msgid "Problem"
-msgstr ""
+msgstr "Sorun"
 
 #: tcl/tooledit.tcl:233
 msgid "Bad Entry"
-msgstr ""
+msgstr "Kötü Giriş"
 
 #: tcl/tooledit.tcl:234
 msgid "(must be a number)"
@@ -6475,7 +6475,7 @@ msgstr ""
 
 #: tcl/tooledit.tcl:455
 msgid "back"
-msgstr ""
+msgstr "geri"
 
 #: tcl/tooledit.tcl:456
 msgid "orien"
@@ -7109,7 +7109,7 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/axis.py:3246 share/axis/tcl/axis.tcl:922
 #: share/axis/tcl/axis.tcl:924 share/axis/tcl/axis.tcl:2051
 msgid "Continuous"
-msgstr ""
+msgstr "Sürekli"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1751
 msgid "T    Tool Table"
@@ -7364,7 +7364,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3560
 msgid "Axes"
-msgstr ""
+msgstr "Eksenler"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3562
 msgid "Joints"
@@ -7453,7 +7453,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/linuxcnctop.py:143
 msgid "Copy All"
-msgstr ""
+msgstr "Hepsini Kopyala"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:38
 #, python-format
@@ -7471,7 +7471,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:46
 msgid "Continue"
-msgstr ""
+msgstr "Devam Et"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:67
 msgid "AXIS Manual Toolchanger"
@@ -10367,7 +10367,7 @@ msgstr ""
 #: lib/python/gladevcp/tooledit_gtk.glade:551
 #: lib/python/gladevcp/tooledit_gtk.glade:773
 msgid "Back"
-msgstr ""
+msgstr "geri"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:642
 msgid ""
@@ -10379,7 +10379,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/main_page.glade:675
 msgid "Page 1"
-msgstr ""
+msgstr "Sayfa 1"
 
 #: src/emc/usr_intf/stepconf/base.glade:18
 #: src/emc/usr_intf/pncconf/base.glade:12
@@ -10750,7 +10750,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/options.glade:48
 #: src/emc/usr_intf/pncconf/private_data.py:493
 msgid "Axis"
-msgstr ""
+msgstr "Eksen"
 
 #: src/emc/usr_intf/stepconf/options.glade:51
 msgid "Gmoccapy"
@@ -10979,7 +10979,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/halui_page.glade:75
 msgid "ADD"
-msgstr ""
+msgstr "EKLE"
 
 #: src/emc/usr_intf/stepconf/halui_page.glade:99
 msgid "DELETE"
@@ -11184,7 +11184,9 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -13867,7 +13869,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:1209
 msgid "Do you want to quit?"
-msgstr ""
+msgstr "Çıkmak istiyor musun ?"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1215
 msgid ""
@@ -13894,8 +13896,9 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/tests.py:498
+#, fuzzy
 msgid "Servo tuning is not tested in PNCconf yet\n"
-msgstr ""
+msgstr "Servo ayarı henüz PNCconf test edilmedi"
 
 #: src/emc/usr_intf/pncconf/tests.py:507
 msgid "degrees"
@@ -13915,7 +13918,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/tests.py:513
 msgid "rpm"
-msgstr ""
+msgstr "Rpm-Devir"
 
 #: src/emc/usr_intf/pncconf/tests.py:514
 msgid "revs / second²"
@@ -13977,7 +13980,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/data.py:110
 msgid "my_LinuxCNC_machine"
-msgstr ""
+msgstr "benim_LinuxCnc_Makinem"
 
 #: src/emc/usr_intf/pncconf/data.py:873
 msgid ""
@@ -14002,7 +14005,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/data.py:901
 msgid "Continue? (y/n)"
-msgstr ""
+msgstr "Devam Et ? (y/n)"
 
 #: src/emc/usr_intf/pncconf/data.py:1078
 msgid "Desktop Launcher for LinuxCNC config made by PNCconf"
@@ -14046,7 +14049,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:51479
 #: src/emc/usr_intf/pncconf/mesa1.glade:56631
 msgid "page 1"
-msgstr ""
+msgstr "Sayfa 1"
 
 #: src/emc/usr_intf/pncconf/help.glade:6
 msgid ""
@@ -14142,7 +14145,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/help.glade:111
 msgid "Help Page"
-msgstr ""
+msgstr "Yardım Sayfası"
 
 #: src/emc/usr_intf/pncconf/help.glade:173
 msgid "Mill"
@@ -18742,11 +18745,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3617
 msgid "Undo"
-msgstr ""
+msgstr "Geri Al"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3628
 msgid "Redo"
-msgstr ""
+msgstr "Yeniden yap"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3663
 msgid ""
@@ -18776,23 +18779,23 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3838
 msgid "test"
-msgstr ""
+msgstr "test"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3841
 msgid "test2"
-msgstr ""
+msgstr "test2"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3891
 msgid "Data Entry"
-msgstr ""
+msgstr "Data Girişi"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3917
 msgid "<b>Calculator Entry</b>"
-msgstr ""
+msgstr "<b>Hesap Makinesi Girişi</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4006
 msgid "Program Restart"
-msgstr ""
+msgstr "Programı Tekrar Başlat"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4020
 msgid ""
@@ -18827,27 +18830,27 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen2.glade:35
 msgid "screen 2"
-msgstr ""
+msgstr "Ekran 2"
 
 #: lib/python/gladevcp/iconview.py:121
 msgid "Move to your home directory"
-msgstr ""
+msgstr "Ev Dizinine git"
 
 #: lib/python/gladevcp/iconview.py:130
 msgid "Move to parent directory"
-msgstr ""
+msgstr "Bir üst dizine git"
 
 #: lib/python/gladevcp/iconview.py:139
 msgid "Select the previous file"
-msgstr ""
+msgstr "Önceki dosyayı seç"
 
 #: lib/python/gladevcp/iconview.py:148
 msgid "Select the next file"
-msgstr ""
+msgstr "Bir sonraki dosyayı seç"
 
 #: lib/python/gladevcp/iconview.py:173
 msgid "Jump to user defined directory"
-msgstr ""
+msgstr "Kullanıcı'nın ayarladığı dosya konumuna git"
 
 #: lib/python/gladevcp/iconview.py:182
 msgid "select the highlighted file and return the path"
@@ -18859,7 +18862,7 @@ msgstr ""
 
 #: lib/python/gladevcp/hal_mdihistory.py:89
 msgid "Command"
-msgstr ""
+msgstr "Komut"
 
 #: lib/python/gladevcp/hal_mdihistory.py:271
 msgid "ERROR loading halshow"
@@ -18899,7 +18902,7 @@ msgstr ""
 #: lib/python/gladevcp/tooledit_gtk.glade:562
 #: lib/python/gladevcp/tooledit_gtk.glade:784
 msgid "Orientation"
-msgstr ""
+msgstr "Oryantasyon"
 
 #: lib/python/gladevcp/tooledit_widget.py:240
 msgid ""
@@ -18939,16 +18942,16 @@ msgstr ""
 
 #: lib/python/gladevcp/gladevcp-test.glade:183
 msgid "button"
-msgstr ""
+msgstr "Buton"
 
 #: lib/python/gladevcp/gladevcp-test.glade:194
 msgid "togglebutton"
-msgstr ""
+msgstr "Geçiş Düğmesi"
 
 #: lib/python/gladevcp/offsetpage.glade:40
 #: lib/python/gladevcp/offsetpage.glade:54
 msgid "Tool"
-msgstr ""
+msgstr "Tool"
 
 #: lib/python/gladevcp/offsetpage.glade:74
 msgid "Rot"
@@ -18956,71 +18959,75 @@ msgstr ""
 
 #: lib/python/gladevcp/offsetpage.glade:88
 msgid "Rotation of Z"
-msgstr ""
+msgstr "Z'de Rotasyon"
 
 #: lib/python/gladevcp/offsetpage.glade:285
 msgid "Offset"
-msgstr ""
+msgstr "Ofset"
 
 #: lib/python/gladevcp/offsetpage.glade:416
 msgid "Offset Name"
-msgstr ""
+msgstr "Ofset Adı"
 
 #: lib/python/gladevcp/offsetpage.glade:444
 msgid ""
 "Zero\n"
 "G92"
 msgstr ""
+"Zero\n"
+"G92"
 
 #: lib/python/gladevcp/offsetpage.glade:464
 msgid ""
 "Zero\n"
 "Rotational"
 msgstr ""
+"Zero\n"
+"Dönme"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:82
 #: lib/python/gladevcp/tooledit_gtk.glade:393
 #: lib/python/gladevcp/tooledit_gtk.glade:615
 msgid "Select"
-msgstr ""
+msgstr "Seçim"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:95
 #: lib/python/gladevcp/tooledit_gtk.glade:404
 #: lib/python/gladevcp/tooledit_gtk.glade:626
 msgid "Tool#"
-msgstr ""
+msgstr "Tool#"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:111
 #: lib/python/gladevcp/tooledit_gtk.glade:415
 #: lib/python/gladevcp/tooledit_gtk.glade:637
 msgid "Pocket"
-msgstr ""
+msgstr "Pocket-Cep"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:224
 #: lib/python/gladevcp/tooledit_gtk.glade:525
 #: lib/python/gladevcp/tooledit_gtk.glade:747
 msgid "Diameter"
-msgstr ""
+msgstr "Çap"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:239
 #: lib/python/gladevcp/tooledit_gtk.glade:540
 #: lib/python/gladevcp/tooledit_gtk.glade:762
 msgid "Front"
-msgstr ""
+msgstr "Ön"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:272
 #: lib/python/gladevcp/tooledit_gtk.glade:573
 #: lib/python/gladevcp/tooledit_gtk.glade:795
 msgid "Comments"
-msgstr ""
+msgstr "Yorum"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:327
 msgid "Reload"
-msgstr ""
+msgstr "Tekrar Yükle"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:371
 msgid "All Offsets"
-msgstr ""
+msgstr "Tüm Ofsetler"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:426
 msgid "X Wear"
@@ -19048,24 +19055,24 @@ msgstr ""
 
 #: lib/python/gladevcp/calculator.glade:83
 msgid "CLR"
-msgstr ""
+msgstr "SİL"
 
 #: lib/python/gladevcp/calculator.glade:332
 msgid "DEL"
-msgstr ""
+msgstr "SİL"
 
 #: lib/python/gladevcp/calculator.glade:346
 msgid "mm → in"
-msgstr ""
+msgstr "Milimetre → İnç"
 
 #: lib/python/gladevcp/calculator.glade:361
 msgid "in → mm"
-msgstr ""
+msgstr "inç → milimetre"
 
 #: lib/python/gladevcp/calculator.glade:376
 msgid "_Cancel_"
-msgstr ""
+msgstr "_İptal"
 
 #: lib/python/gladevcp/calculator.glade:393
 msgid "_Ok"
-msgstr ""
+msgstr "_Tamam"

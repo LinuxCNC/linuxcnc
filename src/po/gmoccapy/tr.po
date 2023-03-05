@@ -6,24 +6,26 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-02-12 11:32+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2023-03-05 06:11+0000\n"
+"Last-Translator: kemal askan <kemalaskan90@gmail.com>\n"
 "Language-Team: none\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.16.2-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:253
 msgid "user mode selected"
-msgstr ""
+msgstr "Kullanıcı Mod'u seçildi"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:257
 #, python-brace-format
 msgid "logo entry found = {0}"
-msgstr ""
+msgstr "logo girişi bulundu = {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:262
 msgid "Logofile entry found, but could not be converted to path."
@@ -31,38 +33,38 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:263
 msgid "The file path should not contain any spaces"
-msgstr ""
+msgstr "Dosya yolu boşluk içermemelidir"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:513
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:534
 msgid "Error in "
-msgstr ""
+msgstr "Hata Burada "
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:514
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:535
 msgid "Please check the console output."
-msgstr ""
+msgstr "Lütfen konsol çıktısını kontrol edin."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:675
 msgid "axis"
-msgstr ""
+msgstr "eksen"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:676
 msgid "axes"
-msgstr ""
+msgstr "Eksenler"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:681
 msgid "joint"
-msgstr ""
+msgstr "eklem"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:682
 msgid "joints"
-msgstr ""
+msgstr "eklemler"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:698
 #, python-brace-format
 msgid "Press to home all {0}"
-msgstr ""
+msgstr "Tümünü eve götürmek için basın {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:711
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1003
@@ -72,7 +74,7 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:727
 #, python-brace-format
 msgid "Press to home {0} {1}"
-msgstr ""
+msgstr "home tuşuna basın {0} {1}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:744
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1032
@@ -82,12 +84,12 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:759
 #, python-brace-format
 msgid "Press to unhome all {0}"
-msgstr ""
+msgstr "Tümünü eve götürmek için basın {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:768
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1086
 msgid "Press to return to main button list"
-msgstr ""
+msgstr "Ana düğme listesine dönmek için basın"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:826
 #, python-brace-format
@@ -99,10 +101,12 @@ msgid ""
 "edit\n"
 "offsets"
 msgstr ""
+"Düzenle\n"
+"ofsetler"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:990
 msgid "Press to edit the offsets"
-msgstr ""
+msgstr "Ofsetleri düzenlemek için basın"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1015
 #, python-brace-format
@@ -149,7 +153,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1139
 msgid "Continuous"
-msgstr ""
+msgstr "Sürekli"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1257
 #, python-brace-format
@@ -1538,7 +1542,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:231
 msgid "Delete"
-msgstr ""
+msgstr "Sil"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:232
 msgid "delete selected tool or tools"
@@ -1546,7 +1550,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:233
 msgid "Add"
-msgstr ""
+msgstr "Ekle"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:234
 msgid "add a new tool to tool table"
@@ -1562,7 +1566,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:237
 msgid "Apply"
-msgstr ""
+msgstr "Onayla"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:238
 msgid ""
@@ -1599,27 +1603,27 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:247
 msgid "Move to your home directory"
-msgstr ""
+msgstr "Ev Dizinine git"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:248
 msgid "Move to parent directory"
-msgstr ""
+msgstr "Ev Dizinine git"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:249
 msgid "Select the previous file"
-msgstr ""
+msgstr "Önceki dosyayı seç"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:250
 msgid "Select the next file"
-msgstr ""
+msgstr "Bir sonraki dosyayı seç"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:251
 msgid "Jump to user defined directory"
-msgstr ""
+msgstr "Kullanıcı'nın ayarladığı dosya konumuna git"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:252
 msgid "select the highlighted file and return the path"
-msgstr ""
+msgstr "vurgulanan dosyayı seçin ve yolu döndürün"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:253
 msgid "Close without returning a file path"
