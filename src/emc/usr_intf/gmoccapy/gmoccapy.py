@@ -1529,74 +1529,69 @@ class gmoccapy(object):
                 self.widgets.grid_jog_btn_axes.attach(self.jog_button_dic[btn_name], col, row, 1, 1)
                 self.jog_button_dic[btn_name].show()
 
-    def _arrange_dro(self):
-        LOG.debug("arrange DRO")
-        LOG.debug(len(self.dro_dic))
+    def _arrange_dro(self, attach=True):
+        def _place_special(attach):
+            LOG.debug("Place DRO 3x2")
+            dro_order = self._get_DRO_order()
+            for dro, dro_name in enumerate(dro_order):
+                if dro < 3:
+                    size = self.dro_size * 0.75
+                    if attach:
+                        self.widgets.grid_DRO.attach(self.dro_dic[dro_name], 0, int(dro), 2, 1)
+                else:
+                    size = self.dro_size * 0.65
+                    if attach:
+                        if dro == 3:
+                            self.widgets.grid_DRO.attach(self.dro_dic[dro_name], 0, int(dro), 1, 1)
+                        else:
+                            self.widgets.grid_DRO.attach(self.dro_dic[dro_name], 1, int(dro-1), 1, 1)
+                self.dro_dic[dro_name].set_property("font_size", size)
+
+        def _place_in_table(cols, dro_size, attach):
+            LOG.debug("Place DRO in table")
+            col = 0
+            row = 0
+            dro_order = self._get_DRO_order()
+            for dro, dro_name in enumerate(dro_order):
+                # as a lathe might not have all Axis, we check if the key is in directory
+                if dro_name not in list(self.dro_dic.keys()):
+                    continue
+                self.dro_dic[dro_name].set_property("font_size", dro_size)
+                if attach:
+                    self.widgets.grid_DRO.attach(self.dro_dic[dro_name], col, row, 1, 1)
+                if cols > 1:
+                    # calculate if we have to place in the first or the second column
+                    if (dro % 2 == 1):
+                        col = 0
+                        row +=1
+                    else:
+                        col += 1
+                else:
+                    row += 1
+        LOG.debug("Arrange DRO, length = {}".format(len(self.dro_dic)))
+        
         # if we have less than 4 axis, we can resize the table, as we have
         # enough space to display each one in it's own line
-
         if len(self.dro_dic) < 4:
-            self._place_in_table(len(self.dro_dic),1, self.dro_size)
+            _place_in_table(1, self.dro_size, attach)
 
         # having 4 DRO we need to reduce the size, to fit the available space
         elif len(self.dro_dic) == 4:
-            self._place_in_table(len(self.dro_dic),1, self.dro_size * 0.75)
+            _place_in_table(1, self.dro_size * 0.75, attach)
 
         # having 5 axis we will display 3 in an one line and two DRO share
         # the last line, the size of the DRO must be reduced also
         # this is a special case so we do not use _place_in_table
         elif len(self.dro_dic) == 5:
-            dro_order = self._get_DRO_order()
-
-            for dro, dro_name in enumerate(dro_order):
-                # as a lathe might not have all Axis, we check if the key is in directory
-                if dro < 3:
-                    size = self.dro_size * 0.75
-                    self.widgets.grid_DRO.attach(self.dro_dic[dro_name], 0, int(dro), 2, 1)
-                else:
-                    size = self.dro_size * 0.65
-                    if dro == 3:
-                        self.widgets.grid_DRO.attach(self.dro_dic[dro_name], 0, int(dro), 1, 1)
-                    else:
-                        self.widgets.grid_DRO.attach(self.dro_dic[dro_name], 1, int(dro-1), 1, 1)
-                self.dro_dic[dro_name].set_property("font_size", size)
+            _place_special(attach)
 
         else:
-            LOG.debug("more than 5 axis ")
-            # check if amount of axis is an even number, adapt the needed lines
-            if len(self.dro_dic) % 2 == 0:
-                rows = len(self.dro_dic) / 2
-            else:
-                rows = (len(self.dro_dic) + 1) / 2
-            self._place_in_table(rows, 2, self.dro_size * 0.65)
+            LOG.debug("DRO: more than 5 axes ")
+            _place_in_table(2, self.dro_size * 0.65, attach)
 
         # set values to dro size adjustments
         self.widgets.adj_dro_size.set_value(self.dro_size)
 
-    def _place_in_table(self, rows, cols, dro_size):
-        LOG.debug("Place in table")
-
-        col = 0
-        row = 0
-
-        dro_order = self._get_DRO_order()
-
-        for dro, dro_name in enumerate(dro_order):
-            # as a lathe might not have all Axis, we check if the key is in directory
-            if dro_name not in list(self.dro_dic.keys()):
-                continue
-            self.dro_dic[dro_name].set_property("font_size", dro_size)
-
-            self.widgets.grid_DRO.attach(self.dro_dic[dro_name], col, row, 1, 1)
-            if cols > 1:
-                # calculate if we have to place in the first or the second column
-                if (dro % 2 == 1):
-                    col = 0
-                    row +=1
-                else:
-                    col += 1
-            else:
-                row += 1
 
     def _get_DRO_order(self):
         LOG.debug("get DRO order")
@@ -4714,10 +4709,7 @@ class gmoccapy(object):
         value = int(widget.get_value())
         self.prefs.putpref("dro_size", value, int)
         self.dro_size = value
-
-        for dro in self.dro_dic:
-            size = self.dro_size
-            self.dro_dic[dro].set_property("font_size", size)
+        self._arrange_dro(attach=False)
 
     def on_chk_hide_cursor_toggled(self, widget, data=None):
         self.prefs.putpref("hide_cursor", widget.get_active())

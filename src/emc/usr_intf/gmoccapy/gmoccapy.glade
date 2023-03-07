@@ -3802,16 +3802,17 @@
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkHBox" id="hbox_dro_size">
+                                          <object class="GtkBox" id="hbox_dro_size">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
+                                            <property name="tooltip-text" translatable="yes">The real font size is reduced to 0.75*FontSize when four DRO elements are present and to 0.65*FontSize for more than five elements.</property>
                                             <child>
                                               <object class="GtkLabel" id="lbl_dro_size">
                                                 <property name="visible">True</property>
                                                 <property name="can-focus">False</property>
                                                 <property name="xpad">5</property>
                                                 <property name="ypad">5</property>
-                                                <property name="label" translatable="yes">Size</property>
+                                                <property name="label" translatable="yes">Font size</property>
                                                 <property name="xalign">0</property>
                                               </object>
                                               <packing>
@@ -3819,6 +3820,19 @@
                                                 <property name="fill">True</property>
                                                 <property name="padding">3</property>
                                                 <property name="position">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkImage">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">False</property>
+                                                <property name="icon-name">dialog-information</property>
+                                                <property name="icon_size">2</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">1</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -3837,7 +3851,7 @@
                                                 <property name="expand">False</property>
                                                 <property name="fill">True</property>
                                                 <property name="pack-type">end</property>
-                                                <property name="position">1</property>
+                                                <property name="position">2</property>
                                               </packing>
                                             </child>
                                           </object>
