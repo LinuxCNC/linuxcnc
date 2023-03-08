@@ -24,7 +24,7 @@ process and take the form:
 hm2_<board name>.<board index>.uart.<index> For example hm2_5i23.0.uart.0
 
 This function performs writes of data to the specified UART.
-It should be used inside a function in a realtime or userspace HAL component.
+It should be used inside a function in a realtime or non-realtime HAL component.
 
 .SH RETURN VALUE
 Returns the number of bytes sent on success and \-1 on failure.

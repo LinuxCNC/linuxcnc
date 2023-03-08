@@ -32,7 +32,7 @@ This determines how often and in what order functions are executed.
 Returns a HAL status code.
 
 .SH REALTIME CONSIDERATIONS
-Call only from realtime init code, not from user space or realtime code.
+Call only from realtime init code, not from realtime or non-realtime code.
 
 .SH SEE ALSO
 \fBhal_thread_new(3hal)\fR, \fBhal_export_funct(3hal)\fR

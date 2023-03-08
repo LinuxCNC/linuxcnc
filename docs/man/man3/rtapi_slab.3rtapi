@@ -45,7 +45,7 @@ functionality--is provided.  (For example, the userspace implementation for
 rtapi_device_register always succeeds)
 .SH REALTIME CONSIDERATIONS
 Call only from within init/cleanup code, not from realtime tasks.  This
-function is not available from user (non-realtime) code.
+function is not available from non-realtime code.
 .SH RETURN VALUE
 As in Linux.
 .SH SEE ALSO

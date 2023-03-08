@@ -12,9 +12,7 @@
 
 == Description
 
-I/O control handles I/O tasks like coolant, toolchange, e-stop and lube. The
-signals are turned on and off in userspace with G-code or in the case of e-stop
-in HAL.
+I/O control handles I/O tasks like coolant, toolchange, E-stop and lube. The signals are turned on and off with G-code or in the case of E-stop in HAL.
 
 I/O Control V2 adds more toolchanger support for communication with the
 toolchanger.

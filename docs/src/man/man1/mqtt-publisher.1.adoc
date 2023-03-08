@@ -9,7 +9,7 @@ mqtt-publisher - send HAL pin data to MQTT broker periodically
 
 == DESCRIPTION
 
-*mqtt-publisher* is a user space program that reads HAL values
+*mqtt-publisher* is a non-realtime program that reads HAL values
 periodically and passes the values to a MQTT broker.
 
 When specifying the MQTT settings in the INI file, this is the

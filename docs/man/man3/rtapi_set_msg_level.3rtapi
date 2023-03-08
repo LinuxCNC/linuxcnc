@@ -20,7 +20,7 @@ on the RTOS, this level may apply to a single RTAPI module, or it may apply
 to a group of modules.
 
 .SH REALTIME CONSIDERATIONS
-May be called from user, init/cleanup, and realtime code.
+May be called from non-realtime, init/cleanup, and realtime code.
 
 .SH RETURN VALUE
 \fBrtapi_set_msg_level\fR returns a status code, and \fBrtapi_get_msg_level\fR

@@ -17,8 +17,8 @@ Internally, this requires to read the HAL file twice, hence the name TWOPASS.
 Supported since LinuxCNC version 2.5, the TWOPASS processing of LinuxCNC configuration files helps with their modularization and readability.
 To recall, LinuxCNC configuration files are specified in a LinuxCNC INI file as `[HAL]HALFILE=filename`.
 
-Normally, a set of one or more LinuxCNC configuration files must use a single, unique loadrt line to load a kernel module that may handle multiple instances of a component.
-For example, if you use a two input AND gate component (and2) in three different places in your setup, you would need to have a single line somewhere to specify:
+Normally, a set of one or more LinuxCNC configuration files must use a single, unique `loadrt` line to load a realtime component, which may create multiple instances of the component.
+For example, if you use a two-input AND gate component (and2) in three different places in your setup, you would need to have a single line somewhere to specify:
 
 .Example resulting in real-time components with default names `and2.0`, `and2.1`, `and2.2`.
 [source,{hal}]
@@ -71,10 +71,10 @@ TWOPASS = on,verbose,nodelete
 ----
 
 With TWOPASS processing, all [HAL]HALFILES are first read and multiple appearances of loadrt directives for each module are accumulated.
-User components (loadusr) are loaded in order but no other LinuxCNC commands are executed in the initial pass.
+Non-realtime components (loadusr) are loaded in order but no other LinuxCNC commands are executed in the initial pass.
 
 [NOTE]
-User components should use the wait (-W) option to ensure the component is ready before other commands are executed.
+Non-realtime components should use the wait (-W) option to ensure the component is ready before other commands are executed.
 
 After the initial pass, the realtime modules are loaded (loadrt) automatically
 

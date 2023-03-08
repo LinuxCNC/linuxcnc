@@ -21,7 +21,7 @@ reads a byte from a hardware I/O port.
 
 .SH REALTIME CONSIDERATIONS
 May be called from init/cleanup code and from within realtime tasks.
-Not available in userspace components.
+Not available in non-realtime components.
 
 .SH RETURN VALUE
 \fBrtapi_inb\fR returns the byte read from the given I/O port

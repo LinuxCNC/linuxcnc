@@ -1,12 +1,12 @@
 .TH milltask 1 "September 30, 2014" "" "The Enhanced Machine Controller"
 .SH NAME
-\fBmilltask\fR \- Userspace task controller for LinuxCNC
+\fBmilltask\fR \- Non-realtime task controller for LinuxCNC
 .SH DESCRIPTION
 
 \fBmilltask\fR is an internal process of LinuxCNC.  It is generally not
 invoked directly but by an INI file setting: \fB[TASK]TASK=milltask\fR.
 The \fBmilltask\fR process creates the \fBini.*\fR HAL pins listed below
-and owned by the \fBinihal\fR user component.  These pins may be modified
+and owned by the \fBinihal\fR component.  These pins may be modified
 while LinuxCNC is running to alter values that are typically specified
 in an INI file.
 

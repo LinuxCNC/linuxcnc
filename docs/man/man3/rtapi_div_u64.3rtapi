@@ -55,4 +55,4 @@ module is loaded.
 
 .SH REALTIME CONSIDERATIONS
 May be called from init/cleanup code and from within realtime tasks.
-Available in userspace components.
+Available in non-realtime components.

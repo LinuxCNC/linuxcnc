@@ -202,7 +202,7 @@ change or removal at any time.
 Generally, these functions are both added to the servo-thread in the
 order shown.
 
-* 'motion-command-handler' - Processes motion commands coming from user space
+* 'motion-command-handler' - Receives and processes motion commands
 * 'motion-controller' - Runs the LinuxCNC motion controller
 
 == Spindle
@@ -316,11 +316,9 @@ See the motion man page 'motion(9)' for details on the pins and parameters.
 
 == iocontrol
 
-iocontrol - accepts NML I/O commands, interacts with HAL in userspace.
+iocontrol - accepts non-realtime I/O commands via NML, interacts with HAL .
 
-The signals are turned on and off in userspace - if you have strict
-timing requirements or simply need more i/o, consider using the realtime
-synchronized i/o provided by <<sec:motion,motion>> instead.
+iocontrol's HAL pins are turned on and off in non-realtime context.  If you have strict timing requirements or simply need more I/O, consider using the realtime synchronized I/O provided by <<sec:motion,motion>> instead.
 
 === Pins (((iocontrol (HAL pins))))
 

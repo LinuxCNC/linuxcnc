@@ -432,7 +432,7 @@ interact with it.
 . Optional Audio is initialized if available.
 . It reads some of the INI file to initialize the units, and the number/type
   of axes.
-. Initializes Python's binding to HAL to build a userspace component with the
+. Initializes Python's binding to HAL to build a non-realtime component with the
   Gscreen name.
 . GladeVCP's makepins is called to parse the XML file to build HAL pins for
   the HAL widgets and register the LinuxCNC connected widgets.

@@ -3,7 +3,7 @@
 
 == NAME
 
-hy_gt_vfd - HAL userspace component for Huanyang GT-series VFDs
+hy_gt_vfd - HAL non-realtime component for Huanyang GT-series VFDs
 
 
 == SYNOPSIS

@@ -48,8 +48,8 @@ The most common language used when working with ClassicLadder is
 
 There are two components to ClassicLadder.
 
-* The real time module classicladder_rt
-* The user space module (including a GUI) classicladder
+* The realtime module classicladder_rt
+* The non-realtime module (including a GUI) classicladder
 
 === Files
 
@@ -142,14 +142,14 @@ To load the default number of objects:
 loadrt classicladder_rt
 ----
 
-== Loading the ClassicLadder user module
+== Loading the ClassicLadder non-realtime module
 
 ClassicLadder HAL commands must executed before the GUI loads or the
 menu item Ladder Editor will not function. If you used the Stepper
 Config Wizard place any ClassicLadder HAL commands in the custom.hal
 file.
 
-To load the user module:
+To load the non-realtime module:
 
 [source,{hal}]
 ----
@@ -229,8 +229,7 @@ ladder elements that was loaded with the real time module.
 The Symbols button will display an editable list of symbols for the
 variables (hint you can name the inputs, outputs, coils etc).
 
-The Quit button will shut down the user program meaning Modbus and the
-display. The real time ladder program will still run in the background.
+The Quit button will shut down the non-realtime program meaning Modbus and the display. The realtime ladder program will still run in the background.
 
 The check box at the top right allows you to select whether variable
 names or symbol names are displayed
@@ -773,7 +772,7 @@ to the beginning step.
 
 Things to consider:
 
-* Modbus is a userspace program so it might have latency issues on a
+* Modbus is a non-realtime program so it might have latency issues on a
   heavily laden computer.
 * Modbus is not really suited to hard real time events such as position
   control of motors or to control E-stop.
@@ -781,7 +780,7 @@ Things to consider:
 * Modbus is not fully finished so it does not do all modbus functions.
 
 To get MODBUS to initialize you must specify that when loading the
-ClassicLadder userspace program.
+ClassicLadder non-realtime program.
 
 .Loading Modbus
 ----
@@ -803,8 +802,7 @@ on command line.
 * '15' - write multiple coils
 * '16' - write multiple registers
 
-If you do not specify a '-- modmaster' when loading the ClassicLadder user
-program this page will not be displayed.
+If you do not specify a '--modmaster' when loading the ClassicLadder non-realtime program this page will not be displayed.
 
 [[cap:config-io]]
 .Modbus I/O Config
@@ -1064,7 +1062,7 @@ If multiple registers are requested in one read/write then the variable number a
   tell ClassicLadder to initialize Modbus. You must initialize Modbus
   when you first load the GUI by adding '--modmaster'.
 * If the section manager is placed on top of the section display, across
-  the scroll bar and exit is clicked the user program crashes.
+  the scroll bar and exit is clicked the non-realtime program crashes.
 * When using '--modmaster' you must load the ladder program at the same
   time or else only TCP will work.
 * reading/writing multiple registers in Modbus has checksum errors.

@@ -61,4 +61,4 @@ trillion clocks (e.g., 3000 seconds at 3 GHz).
 
 .SH REALTIME CONSIDERATIONS
 May be called from init/cleanup code and from within realtime tasks.
-Not available in userspace components.
+Not available in non-realtime components.

@@ -490,8 +490,8 @@ ADD_HTML_MANPAGES = \
 
 objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
 	rm -f $@
-	$(call ADD_HTML_MANPAGES, 1, Commands and userspace components)
-	$(call ADD_HTML_MANPAGES, 9, Realtime components and kernel modules)
+	$(call ADD_HTML_MANPAGES, 1, Commands and non-realtime HAL components)
+	$(call ADD_HTML_MANPAGES, 9, Realtime HAL components)
 	$(call ADD_HTML_MANPAGES, 3hal, API calls: HAL)
 	$(call ADD_HTML_MANPAGES, 3rtapi, API calls: RTAPI)
 	$(call ADD_HTML_MANPAGES, 3hm2,  API calls: Hostmot2)

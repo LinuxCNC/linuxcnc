@@ -45,7 +45,7 @@ message came from \fBrtapi_print\fR, \fIlevel\fR is RTAPI_MSG_ALL.
 \fIlevel\fR is less than or equal to the current message level.
 
 .SH REALTIME CONSIDERATIONS
-\fBrtapi_print\fR and \fBrtapi_print_msg\fR May be called from user,
+\fBrtapi_print\fR and \fBrtapi_print_msg\fR May be called from non-realtime,
 init/cleanup, and realtime code.  \fBrtapi_get_msg_handler\fR and
 \fBrtapi_set_msg_handler\fR may be called from realtime init/cleanup
 code.  A message handler passed to \fBrtapi_set_msg_handler\fR may only
