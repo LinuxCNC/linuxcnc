@@ -59,7 +59,7 @@ CORRECT = value
 === Sections(((INI File,Components,Sections)))
 
 Related parts of an INI file are separated into sections.
-A section name is enclosed in brackets like this `[THIS_SECTION]`.
+A section name is enclosed in brackets like this: `[THIS_SECTION]`.
 The order of sections is unimportant.
 Sections begin at the section name and end at the next section name.
 
@@ -317,17 +317,17 @@ See <<cha:gmoccapy,GMOCCAPY>> document for GMOCCAPY details.
   GMOCCAPY will not use this setting, as it offers a corresponding entry on its settings page.
 * `EDITOR = gedit` - The editor to use when selecting File > Edit to edit the G-code from the AXIS menu.
   This must be configured for this menu item to work.
-  Another valid entry is gnome-terminal -e vim.
+  Another valid entry is `gnome-terminal -e vim`.
   This entry does not apply to GMOCCAPY, as GMOCCAPY has an integrated editor.
 * `TOOL_EDITOR = tooledit` - The editor to use when editing the tool table
   (for example by selecting "File > Edit tool table..." in AXIS).
-  Other valid entries are "gedit", "gnome-terminal -e vim", and "gvim".
+  Other valid entries are `gedit`, `gnome-terminal -e vim`, and `gvim`.
   This entry does not apply to GMOCCAPY, as GMOCCAPY has an integrated editor.
 * `PYVCP = /filename.xml` - The PyVCP panel description file.
   See the <<cha:pyvcp,PyVCP Chapter>>for more information.
 * `PYVCP_POSITION = BOTTOM` - The placement of the PyVCP panel in the AXIS user interface.
   If this variable is omitted the panel will default to the right side.
-  The only valid alternative is BOTTOM. See the <<cha:pyvcp,PyVCP Chapter>> for more information.
+  The only valid alternative is `BOTTOM`. See the <<cha:pyvcp,PyVCP Chapter>> for more information.
 * `LATHE = 1` - Any non-empty value (including "0") causes axis to use "lathe mode" with a top view and with Radius and Diameter on the DRO.
 * `BACK_TOOL_LATHE = 1` - Any non-empty value (including "0") causes axis to use "back tool lathe mode" with inverted X axis.
 * `FOAM = 1` - Any non-empty value (including "0") causes axis to change the display for foam-cutter mode.
