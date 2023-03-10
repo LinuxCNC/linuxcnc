@@ -11,6 +11,15 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
+LinuxCNC is about interacting with hardware. But few users have the same exact hardware specifications - similar, but not the same.
+And even for the exact same hardware, there may be different ways to use it, say for different materials or with different mills, which would require adaptations to the control of an already running system.
+An abstraction was needed to make it easier to configure LinuxCNC for a wide variety of hardware devices.
+At the highest level, it could simply be a way to allow a number of 'building blocks' to be loaded and interconnected to assemble a complex system.
+
+This chapter introduces to that Hardware Abstraction Layer.
+You will see that many of the building blocks are indeed, drivers for hardware devices.
+However, HAL can do more than just configure hardware drivers.
+
 == HAL Overview(((HAL)))
 
 The Hardware Abstraction Layer (or with a reference to the link:https://en.wikipedia.org/wiki/2001:_A_Space_Odyssey_(film)[2001 Space Odyssey movie] just "HAL") is a software to 
