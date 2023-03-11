@@ -19,7 +19,7 @@ man axis
 
 The one or other setup of a UNIX system may require to explicitly specify the section of the man page.
 If you do not find the man page or the name of the man page is already taken by another UNIX tool with the LinuxCNC man page residing in another section,
-then try to explicitly specify the section, as in `man _sectionno_ axis`, with _setionno_ = 1 for userspace and 9 for realtime components.
+then try to explicitly specify the section, as in `man _sectionno_ axis`, with _sectionno_ = 1 for userspace and 9 for realtime components.
 
 [NOTE]
 See also the 'Man Pages' section of the link:../index.html[docs main page] or the link:../man/[directory listing].
