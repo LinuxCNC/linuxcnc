@@ -88,7 +88,6 @@ To search in the man pages, use the UNIX tool `apropos`.
 |===
 | link:../man/man1/elbpcom.1.html[elbpcom] |Communicate with Mesa ethernet cards ||
 | link:../man/man1/gs2_vfd.1.html[gs2_vfd] |HAL userspace component for Automation Direct GS2 VFDs ||
-| link:../man/man1/hal_parport.1.html[hal_parport] |Realtime HAL component to communicate with one or more pc parallel ports ||
 | link:../man/man1/hy_gt_vfd.1.html[hy_gt_vfd] |HAL userspace component for Huanyang GT-series VFDs ||
 | link:../man/man1/hy_vfd.1.html[hy_vfd] |HAL userspace component for Huanyang VFDs ||
 | link:../man/man1/mb2hal.1.html[mb2hal] | MB2HAL is a generic userspace HAL component to communicate with one or more Modbus devices. Modbus RTU and Modbus TCP are supported. ||
@@ -112,6 +111,7 @@ To search in the man pages, use the UNIX tool `apropos`.
 |===
 | hal_ppmc | Pico Systems <<cha:pico-drivers,driver>> for analog servo, PWM and Stepper controller ||
 | link:../man/man9/hal_bb_gpio.9.html[hal_bb_gpio] |Driver for beaglebone GPIO pins ||
+| link:../man/man9/hal_parport.9.html[hal_parport] |Realtime HAL component to communicate with one or more PC parallel ports ||
 | link:../man/man9/hm2_7i43.9.html[hm2_7i43] |Mesa Electronics driver for the 7I43 EPP Anything IO board with HostMot2. (See the man page for more information) ||
 | link:../man/man9/hm2_7i90.9.html[hm2_7i90] |LinuxCNC HAL driver for the Mesa Electronics 7I90 EPP Anything IO board with HostMot2 firmware ||
 | link:../man/man9/hm2_eth.9.html[hm2_eth] |LinuxCNC HAL driver for the Mesa Electronics Ethernet Anything IO boards, with HostMot2 firmware ||
