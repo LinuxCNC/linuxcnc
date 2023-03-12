@@ -19,7 +19,7 @@ man axis
 
 The one or other setup of a UNIX system may require to explicitly specify the section of the man page.
 If you do not find the man page or the name of the man page is already taken by another UNIX tool with the LinuxCNC man page residing in another section,
-then try to explicitly specify the section, as in `man _sectionno_ axis`, with _setionno_ = 1 for userspace and 9 for realtime components.
+then try to explicitly specify the section, as in `man _sectionno_ axis`, with _sectionno_ = 1 for userspace and 9 for realtime components.
 
 [NOTE]
 See also the 'Man Pages' section of the link:../index.html[docs main page] or the link:../man/[directory listing].
@@ -80,7 +80,6 @@ To search in the man pages, use the UNIX tool `apropos`.
 | link:../man/man1/iov2.1.html[iov2]           |Interacts with HAL or G-code in userspace                               ||
 | link:../man/man1/mdi.1.html[mdi]             |Send G-code commands from the terminal to the running LinuxCNC instance ||
 | link:../man/man1/milltask.1.html[milltask]   |Userspace task controller for LinuxCNC                                  ||
-| link:../man/man9/motion.9.html[motion]       |Accepts NML motion commands, interacts with HAL in realtime             ||
 |===
 
 === Hardware Drivers
@@ -278,6 +277,12 @@ the input is a position, this means that the 'position', 'velocity', and 'accele
 | link:../man/man9/tripodkins.9.html[tripodkins] |The joints represent the distance of the controlled point from three predefined locations (the motors), giving three degrees of freedom in position (XYZ). ||
 | link:../man/man9/trivkins.9.html[trivkins] |1:1 correspondence between joints and axes. Most standard milling machines and lathes use the trivial kinematics module. ||
 | link:../man/man9/userkins.9.html[userkins] |Template for user-built kinematics ||
+|===
+
+=== Motion control (Realtime)
+[{tab_options}]
+|===
+| link:../man/man9/motion.9.html[motion] | Accepts NML motion commands, interacts with HAL in realtime             ||
 |===
 
 === Motor control (Realtime)

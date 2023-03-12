@@ -142,9 +142,8 @@ modules for some implementations (RTAI):
 
 * 'tpmod' - trajectory planning
 * 'homemod' - homing functions
-* 'motmod' - processes NML commands and controls hardware via hal
-* 'kinematics module' - performs forward (joints-->coordinates) and
-  inverse (coordinates->joints) kinematics calculations
+* 'motmod' - processes NML commands and controls hardware via HAL
+* 'kinematics module' - performs forward (joints-->coordinates) and inverse (coordinates->joints) kinematics calculations
 
 LinuxCNC is started by a *linuxcnc* script which reads a
 configuration INI file and starts all needed processes.  For

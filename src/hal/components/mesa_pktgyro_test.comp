@@ -208,7 +208,7 @@ EXTRA_SETUP(){ // the names parameters are passed in 'prefix'.
 
 	// Test the exported hm2_get_pktuart function
 	retval = hm2_get_pktuart(&hm2, name);
-	if (retval!=0)
+	if (retval < 0)
 	{
 	   rtapi_print_msg(RTAPI_MSG_ERR, "%s hm2_get_pktuart: smth. is wrong. \n", name);
 	   return -1;
