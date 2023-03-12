@@ -196,7 +196,7 @@ def run_from_line_get(file, startLine):
                         else:
                             break
                     oSub.append(os)
-        if 'f#<_hal[plasmac.cut-feed-rate]>' in line:
+        if '#<_hal[plasmac.cut-feed-rate]>' in line:
             codes['last']['feed'] = line.strip()
     # return an error line within a subroutine or if using cutter compensation
     if cutComp or oSub:
