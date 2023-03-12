@@ -754,13 +754,15 @@
         <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <child>
-          <object class="GtkHBox" id="hbx_upper">
+          <object class="GtkBox" id="hbx_upper">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
+            <property name="orientation">horizontal</property>
             <child>
-              <object class="GtkHBox" id="box_left">
+              <object class="GtkBox" id="box_left">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="orientation">horizontal</property>
                 <child>
                   <placeholder/>
                 </child>
@@ -1255,10 +1257,11 @@
                                                 <property name="can-focus">False</property>
                                                 <property name="orientation">vertical</property>
                                                 <child>
-                                                  <object class="GtkHBox" id="hbox_jog_vel">
+                                                  <object class="GtkBox" id="hbox_jog_vel">
                                                     <property name="height-request">50</property>
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
+                                                    <property name="orientation">horizontal</property>
                                                     <child>
                                                       <object class="SpeedControl" id="spc_lin_jog_vel">
                                                         <property name="visible">True</property>
@@ -1321,9 +1324,10 @@
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <object class="GtkHBox" id="hbox_jog">
+                                                  <object class="GtkBox" id="hbox_jog">
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
+                                                    <property name="orientation">horizontal</property>
                                                     <child>
                                                       <object class="GtkBox" id="vbx_jog_button">
                                                         <property name="visible">True</property>
@@ -1954,9 +1958,10 @@
                             <property name="show-border">False</property>
                             <signal name="switch-page" handler="on_ntb_info_switch_page" swapped="no"/>
                             <child>
-                              <object class="GtkHBox" id="hbox_main_info">
+                              <object class="GtkBox" id="hbox_main_info">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
+                                <property name="orientation">horizontal</property>
                                 <child>
                                   <object class="GtkBox" id="box_tool_and_code_info">
                                     <property name="visible">True</property>
@@ -2190,9 +2195,10 @@
                                                     <property name="can-focus">False</property>
                                                     <property name="orientation">vertical</property>
                                                     <child>
-                                                      <object class="GtkHBox" id="hbox5">
+                                                      <object class="GtkBox" id="hbox5">
                                                         <property name="visible">True</property>
                                                         <property name="can-focus">False</property>
+                                                        <property name="orientation">horizontal</property>
                                                         <child>
                                                           <object class="GtkLabel" id="active_mcodes_label">
                                                             <property name="visible">True</property>
@@ -2253,9 +2259,10 @@
                                                       </packing>
                                                     </child>
                                                     <child>
-                                                      <object class="GtkHBox" id="hbox10">
+                                                      <object class="GtkBox" id="hbox10">
                                                         <property name="visible">True</property>
                                                         <property name="can-focus">False</property>
+                                                        <property name="orientation">horizontal</property>
                                                         <child>
                                                           <object class="GtkLabel" id="active_gcodes_label">
                                                             <property name="visible">True</property>
@@ -2352,13 +2359,15 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkHBox" id="box_coolant_and_spindle">
+                                  <object class="GtkBox" id="box_coolant_and_spindle">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
+                                    <property name="orientation">horizontal</property>
                                     <child>
-                                      <object class="GtkHBox" id="box_cooling">
+                                      <object class="GtkBox" id="box_cooling">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
+                                        <property name="orientation">horizontal</property>
                                         <child>
                                           <object class="GtkFrame" id="frm_cooling">
                                             <property name="visible">True</property>
@@ -2453,8 +2462,9 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkHBox" id="box_custom_3">
+                                      <object class="GtkBox" id="box_custom_3">
                                         <property name="can-focus">False</property>
+                                        <property name="orientation">horizontal</property>
                                         <child>
                                           <placeholder/>
                                         </child>
@@ -2466,9 +2476,10 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkHBox" id="box_spindle">
+                                      <object class="GtkBox" id="box_spindle">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
+                                        <property name="orientation">horizontal</property>
                                         <child>
                                           <object class="GtkFrame" id="frm_spindle">
                                             <property name="width-request">200</property>
@@ -2494,9 +2505,10 @@
                                                         <property name="can-focus">False</property>
                                                         <property name="orientation">vertical</property>
                                                         <child>
-                                                          <object class="GtkHBox" id="hbox6">
+                                                          <object class="GtkBox" id="hbox6">
                                                             <property name="visible">True</property>
                                                             <property name="can-focus">False</property>
+                                                            <property name="orientation">horizontal</property>
                                                             <child>
                                                             <object class="GtkLabel" id="lbl_spindle_act">
                                                             <property name="visible">True</property>
@@ -2663,9 +2675,10 @@
                                                           </packing>
                                                         </child>
                                                         <child>
-                                                          <object class="GtkHBox" id="hbox_spindle_bar">
+                                                          <object class="GtkBox" id="hbox_spindle_bar">
                                                             <property name="visible">True</property>
                                                             <property name="can-focus">False</property>
+                                                            <property name="orientation">horizontal</property>
                                                             <child>
                                                             <object class="HAL_HBar" id="spindle_feedback_bar">
                                                             <property name="visible">True</property>
@@ -2744,8 +2757,9 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkHBox" id="box_custom_4">
+                                      <object class="GtkBox" id="box_custom_4">
                                         <property name="can-focus">False</property>
+                                        <property name="orientation">horizontal</property>
                                         <child>
                                           <placeholder/>
                                         </child>
@@ -2765,8 +2779,9 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkHBox" id="box_custom_1">
+                                  <object class="GtkBox" id="box_custom_1">
                                     <property name="can-focus">False</property>
+                                    <property name="orientation">horizontal</property>
                                     <child>
                                       <placeholder/>
                                     </child>
@@ -2807,9 +2822,10 @@
                                                     <property name="can-focus">False</property>
                                                     <property name="orientation">vertical</property>
                                                     <child>
-                                                      <object class="GtkHBox" id="hbx_rapid_override">
+                                                      <object class="GtkBox" id="hbx_rapid_override">
                                                         <property name="visible">True</property>
                                                         <property name="can-focus">False</property>
+                                                        <property name="orientation">horizontal</property>
                                                         <child>
                                                           <object class="GtkLabel" id="lbl_vel">
                                                             <property name="visible">True</property>
@@ -2912,9 +2928,10 @@
                                                     <property name="can-focus">False</property>
                                                     <property name="orientation">vertical</property>
                                                     <child>
-                                                      <object class="GtkHBox" id="hbox8">
+                                                      <object class="GtkBox" id="hbox8">
                                                         <property name="visible">True</property>
                                                         <property name="can-focus">False</property>
+                                                        <property name="orientation">horizontal</property>
                                                         <child>
                                                           <object class="GtkLabel" id="lbl_feed_act">
                                                             <property name="visible">True</property>
@@ -3012,8 +3029,9 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkHBox" id="box_custom_2">
+                                  <object class="GtkBox" id="box_custom_2">
                                     <property name="can-focus">False</property>
+                                    <property name="orientation">horizontal</property>
                                     <child>
                                       <placeholder/>
                                     </child>
@@ -3037,9 +3055,10 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkHBox" id="key_box">
+                              <object class="GtkBox" id="key_box">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
+                                <property name="orientation">horizontal</property>
                                 <child>
                                   <placeholder/>
                                 </child>
@@ -3091,9 +3110,10 @@
                     <property name="can-focus">True</property>
                     <property name="tab-pos">left</property>
                     <child>
-                      <object class="GtkHBox" id="hbox_setup_appear">
+                      <object class="GtkBox" id="hbox_setup_appear">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="orientation">horizontal</property>
                         <child>
                           <object class="GtkBox" id="vbox_window">
                             <property name="visible">True</property>
@@ -3830,6 +3850,7 @@
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
                                             <property name="tooltip-text" translatable="yes">The real font size is reduced to 0.75*FontSize when four DRO elements are present and to 0.65*FontSize for more than five elements.</property>
+                                            <property name="orientation">horizontal</property>
                                             <child>
                                               <object class="GtkLabel" id="lbl_dro_size">
                                                 <property name="visible">True</property>
@@ -3886,9 +3907,10 @@
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkHBox" id="hbox_dro_size1">
+                                          <object class="GtkBox" id="hbox_dro_size1">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
+                                            <property name="orientation">horizontal</property>
                                             <child>
                                               <object class="GtkLabel" id="lbl_dro_size1">
                                                 <property name="visible">True</property>
@@ -4001,9 +4023,10 @@ clicking on the DRO</property>
                                         <property name="can-focus">False</property>
                                         <property name="orientation">vertical</property>
                                         <child>
-                                          <object class="GtkHBox" id="hbox16">
+                                          <object class="GtkBox" id="hbox16">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
+                                            <property name="orientation">horizontal</property>
                                             <child>
                                               <object class="GtkLabel" id="label8">
                                                 <property name="visible">True</property>
@@ -4506,9 +4529,10 @@ clicking on the DRO</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkHBox" id="hbox_hardware">
+                      <object class="GtkBox" id="hbox_hardware">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="orientation">horizontal</property>
                         <child>
                           <object class="GtkBox" id="vbox21">
                             <property name="visible">True</property>
@@ -5118,13 +5142,15 @@ clicking on the DRO</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkHBox" id="hbox_advanced_settings">
+                      <object class="GtkBox" id="hbox_advanced_settings">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="orientation">horizontal</property>
                         <child>
-                          <object class="GtkHBox" id="hbox_advanced">
+                          <object class="GtkBox" id="hbox_advanced">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="orientation">horizontal</property>
                             <child>
                               <object class="GtkBox" id="vbox_tool_settings">
                                 <property name="visible">True</property>
@@ -6019,9 +6045,10 @@ to test your settings.</property>
               </packing>
             </child>
             <child>
-              <object class="GtkHBox" id="box_right">
+              <object class="GtkBox" id="box_right">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="orientation">horizontal</property>
                 <child>
                   <placeholder/>
                 </child>
