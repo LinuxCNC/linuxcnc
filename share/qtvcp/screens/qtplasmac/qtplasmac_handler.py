@@ -4222,6 +4222,13 @@ class HandlerClass:
             zHeight = self.zMax - (hal.get_value('plasmac.max-offset') * self.unitsPerMm)
             if STATUS.is_on_and_idle() and STATUS.is_all_homed():
                 self.framing = True
+                previousMode = ''
+                if self.units == 'in' and STATUS.is_metric_mode():
+                    previousMode = 'G21'
+                    ACTION.CALL_MDI('G20')
+                elif self.units == 'mm' and not STATUS.is_metric_mode():
+                    previousMode = 'G20'
+                    ACTION.CALL_MDI('G21')
                 ACTION.CALL_MDI_WAIT('G64 P{:0.3f}'.format(0.25 * self.unitsPerMm))
                 if self.defaultZ:
                     ACTION.CALL_MDI('G53 G0 Z{:0.4f}'.format(zHeight))
@@ -4231,6 +4238,7 @@ class HandlerClass:
                 ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f}'.format(frame_points[4][0], frame_points[4][1]))
                 ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f}'.format(frame_points[1][0], frame_points[1][1]))
                 ACTION.CALL_MDI('G0 X0 Y0')
+                ACTION.CALL_MDI(previousMode)
 
     def single_cut(self):
         self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], False)
