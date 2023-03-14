@@ -858,7 +858,7 @@ class HandlerClass:
         self.w.chk_keyboard_shortcuts.setChecked(self.PREFS.getpref('Use keyboard shortcuts', False, bool, 'GUI_OPTIONS'))
         self.w.chk_soft_keyboard.setChecked(self.PREFS.getpref('Use soft keyboard', False, bool, 'GUI_OPTIONS'))
         self.w.chk_overlay.setChecked(self.PREFS.getpref('Show materials', True, bool, 'GUI_OPTIONS'))
-        self.w.chk_run_from_line.setChecked(self.PREFS.getpref('Run from line', False, bool, 'GUI_OPTIONS'))
+        self.w.chk_run_from_line.setChecked(self.PREFS.getpref('Run from line', True, bool, 'GUI_OPTIONS'))
         self.w.chk_tool_tips.setChecked(self.PREFS.getpref('Tool tips', True, bool, 'GUI_OPTIONS'))
         self.w.chk_exit_warning.setChecked(self.PREFS.getpref('Exit warning', True, bool, 'GUI_OPTIONS'))
         self.exitMessage = self.PREFS.getpref('Exit warning text', '', str, 'GUI_OPTIONS')
