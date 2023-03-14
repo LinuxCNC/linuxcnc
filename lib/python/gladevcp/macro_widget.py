@@ -19,7 +19,8 @@ import os, time, string
 
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+gi.require_version('Gdk', '3.0')
+from gi.repository import Gtk, Gdk
 from gi.repository import GObject
 
 import linuxcnc
@@ -38,14 +39,15 @@ try:
 except:
     pass
 
-class MacroSelect(Gtk.VBox, _EMC_ActionBase):
+class MacroSelect(Gtk.Box, _EMC_ActionBase):
     __gtype_name__ = 'MacroSelect'
     __gsignals__ = {
                     'macro-submitted': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,GObject.TYPE_STRING,)),
                     }
 
     def __init__(self, *a, **kw):
-        Gtk.VBox.__init__(self, *a, **kw)
+        Gtk.Box.__init__(self, *a, **kw)
+        self.set_orientation(Gtk.Orientation.VERTICAL)
         self.gstat = GStat()
         # if 'NO_FORCE_HOMING' is true, MDI  commands are allowed before homing.
         try:
@@ -55,9 +57,12 @@ class MacroSelect(Gtk.VBox, _EMC_ActionBase):
             macros =  self.inifile.findall("MACROS", "MACRO")
             sub_path = self.inifile.find("RS274NGC", "SUBROUTINE_PATH")or '~/linuxcnc/nc_files/macros'
         except:
+            self.ini = None
             no_home_required = 1
             macros = None
             sub_path = '~/linuxcnc/nc_files/macros'
+
+        print("\nSELF.INI", self.ini,"\n")
 
         #path = self.ini.find('DISPLAY', 'MDI_HISTORY_FILE') or '~/.axis_mdi_history'
         self.foldername = os.path.expanduser(sub_path)
@@ -102,6 +107,8 @@ class MacroSelect(Gtk.VBox, _EMC_ActionBase):
         self.show_all()
 
     def reload(self):
+        if not self.ini:
+            return
         self.model.clear()
         files = []
         try:
@@ -152,7 +159,7 @@ class MacroSelect(Gtk.VBox, _EMC_ActionBase):
         idx = w.get_cursor()[0]
         if idx is None:
             return True
-        if gdk.keyval_name(event.keyval) == 'Return':
+        if Gdk.keyval_name(event.keyval) == 'Return':
             self.entry.set_text(self.model[idx][0])
             self.entry.grab_focus()
             return True
@@ -180,10 +187,11 @@ def main(filename = None):
         print(cmd,path)
 
     window = Gtk.Dialog("Macro Test dialog",
-                   None,
-                   Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
+                        None,
+                        modal = True,
+                        destroy_with_parent = True)
+    window.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                       Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT)
     widget = MacroSelect()
     widget.connect("macro-submitted",macro_callback)
     window.vbox.add(widget)

@@ -34,7 +34,7 @@ from gi.repository import Gdk
 from gi.repository import GObject
 from gi.repository import Pango
 
-class Calculator( Gtk.VBox ):
+class Calculator( Gtk.Box ):
     __gtype_name__ = 'Calculator'
     __gproperties__ = {
         'is_editable' : ( GObject.TYPE_BOOLEAN, 'Is Editable', 'Ability to use a keyboard to enter data',
@@ -45,7 +45,7 @@ class Calculator( Gtk.VBox ):
     __gproperties = __gproperties__
 
     def __init__( self, *a, **kw ):
-        Gtk.VBox.__init__( self, *a, **kw )
+        Gtk.Box.__init__( self, *a, **kw )
         self.preset_value = None
         self.eval_string = ""
         self.font = "sans 12"
@@ -94,7 +94,7 @@ class Calculator( Gtk.VBox ):
         self.window = self.calc_box.get_parent()
         self.window.remove(self.calc_box)
         self.add(self.calc_box)
-        
+
         # Use CSS style for buttons
         screen = Gdk.Screen.get_default()
         provider = Gtk.CssProvider()
@@ -105,22 +105,21 @@ class Calculator( Gtk.VBox ):
 
     def num_pad_only( self, value ):
         self.has_num_pad_only = value
-        objects = ["Left_bracket", "Right_bracket", "Pi", "Divide", "Multiply", 
-            "Add", "Minus", "Equal", "Inch_mm", "mm_Inch", "Backspace", "CLR", 
+        objects = ["Left_bracket", "Right_bracket", "Pi", "Divide", "Multiply",
+            "Add", "Minus", "Equal", "Inch_mm", "mm_Inch", "Backspace", "CLR",
             "Inch_mm", "mm_Inch", "cancel_button", "ok_button"]
-        if value:    
+        if value:
             for i in objects:
                 self.table.remove(self.wTree.get_object(i))
         if self.integer_only:
             col_offs = 0
         else:
             col_offs = 1
-        self.table.resize(5, 3+col_offs)
-        # reorder items to fit size-reduced table
-        self.table.attach(self.wTree.get_object("Backspace"), 1, 2, 0, 1)
-        self.table.attach(self.wTree.get_object("CLR"), 2, 3, 0, 1)
-        self.table.attach(self.wTree.get_object("cancel_button"), 1+col_offs, 2+col_offs, 4, 5)
-        self.table.attach(self.wTree.get_object("ok_button"), 2+col_offs, 3+col_offs, 4, 5)        
+        # reorder items to fit size-reduced grid
+        self.table.attach(self.wTree.get_object("Backspace"), 1, 0, 1, 1)
+        self.table.attach(self.wTree.get_object("CLR"), 2, 0, 1, 1)
+        self.table.attach(self.wTree.get_object("cancel_button"), 1+col_offs, 4, 1, 1)
+        self.table.attach(self.wTree.get_object("ok_button"), 2+col_offs, 4, 1, 1)
         self.show_all()
 
     def integer_entry_only( self, value ):
@@ -218,7 +217,7 @@ class Calculator( Gtk.VBox ):
         if i not in "+-*/" and self.eval_string != "":
             if self.eval_string[-1] == " ":
                 self.eval_string = ""
-    
+
         self.eval_string = self.eval_string + i
         self.wTree.get_object( "displayText" ).set_text( str( self.eval_string ) )
 
@@ -307,13 +306,13 @@ class Calculator( Gtk.VBox ):
         self.eval_string = "("+ self.eval_string + ") * " + locale.format("%f", float(25.4))
         self.compute()
 
-    def on_ok_button_clicked ( self, widget ):        
+    def on_ok_button_clicked ( self, widget ):
         dialog = self.calc_box.get_toplevel()
         dialog.response(Gtk.ResponseType.ACCEPT)
 
     def on_cancel_button_clicked ( self, widget ):
         dialog = self.calc_box.get_toplevel()
-        dialog.response(Gtk.ResponseType.REJECT)        
+        dialog.response(Gtk.ResponseType.REJECT)
 
     def do_get_property( self, property ):
         name = property.name.replace( '-', '_' )
@@ -334,9 +333,10 @@ class Calculator( Gtk.VBox ):
 
 # for testing without glade editor:
 def main():
-    window = Gtk.Dialog( "My dialog",
-                   None,
-                   modal=True, destroy_with_parent=True )
+    window = Gtk.Dialog("My dialog",
+                        None,
+                        modal=True,
+                        destroy_with_parent=True)
     calc = Calculator()
 
     window.vbox.add( calc )

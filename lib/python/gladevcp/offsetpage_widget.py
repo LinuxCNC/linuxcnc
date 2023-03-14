@@ -51,7 +51,7 @@ try:
 except:
     pass
 
-class OffsetPage(Gtk.VBox):
+class OffsetPage(Gtk.Box):
     __gtype_name__ = 'OffsetPage'
     __gproperties__ = {
         'display_units_mm' : (GObject.TYPE_BOOLEAN, 'Display Units', 'Display in metric or not',
@@ -94,13 +94,17 @@ class OffsetPage(Gtk.VBox):
         self.display_follows_program = False # display units are chosen indepenadently of G20/G21
         self.font = "sans 12"
         self.editing_mode = False
-        color = Gdk.RGBA()
-        color.parse("lightblue")
-        self.highlight_color = color
-        color.parse("red")
-        self.foreground_color = color
-        color.parse("lightgray")
-        self.unselectable_color = color
+        # color = Gdk.RGBA()
+        # color.parse("lightblue")
+        # self.highlight_color = color
+        # color.parse("red")
+        # self.foreground_color = color
+        # color.parse("lightgray")
+        # self.unselectable_color = color
+        self.highlight_color = self.color_parse("lightblue")
+        self.foreground_color = self.color_parse("red")
+        self.unselectable_color = self.color_parse("lightgray")
+
         self.hidejointslist = []
         self.hidecollist = []
         self.wTree = Gtk.Builder()
@@ -134,10 +138,11 @@ class OffsetPage(Gtk.VBox):
             temp.connect('edited', self.col_editted, col)
         temp = self.wTree.get_object("cell_name")
         temp.connect('edited', self.col_editted, 10)
-        # reparent offsetpage box from Glades top level window to widgets VBox
-        window = self.wTree.get_object("offsetpage_box")
-        window.reparent(self)
-
+        # reparent offsetpage box from Glades top level window to widget's Box
+        offsetpage_box = self.wTree.get_object("offsetpage_box")
+        window = offsetpage_box.get_parent()
+        window.remove(offsetpage_box)
+        self.add(offsetpage_box)
         # check the INI file if UNITS are set to mm
         # first check the global settings
         # if not available then the X axis units
@@ -206,12 +211,18 @@ class OffsetPage(Gtk.VBox):
                     self.store[row][column + 1] = locale.format_string(tmpl, i[column])
             # set the current system's label's color - to make it stand out a bit
             if self.store[row][0] == self.current_system:
-                self.store[row][13] = str(self.foreground_color)
+                if isinstance(self.foreground_color, str):
+                    self.store[row][13] = self.foreground_color
+                else:
+                    self.store[row][13] = self.convert_color(self.foreground_color)
             else:
                 self.store[row][13] = None
             # mark unselectable rows a dirrerent color
             if self.store[row][0] in self.selection_mask:
-                self.store[row][12] = str(self.unselectable_color)
+                if isinstance(self.unselectable_color, str):
+                    self.store[row][13] = self.unselectable_color
+                else:
+                    self.store[row][13] = self.convert_color(self.unselectable_color)
 
     # This is for adding a filename path after the offsetpage is already loaded.
     def set_filename(self, filename):
@@ -457,6 +468,12 @@ class OffsetPage(Gtk.VBox):
             colortuple = ((int(color.red * 255.0), int(color.green * 255.0), int(color.blue * 255.0)))
             return ('#' + ''.join(f'{i:02X}' for i in colortuple))
 
+    # convert a string color spec to RGBA
+    def color_parse(self, color):
+        c = Gdk.RGBA()
+        c.parse(color)
+        return c
+
     # sets the color when editing is active
     def set_highlight_color(self, value):
         self.highlight_color = self.convert_color(value)
@@ -581,11 +598,12 @@ class OffsetPage(Gtk.VBox):
 # Must linuxcnc running to see anything
 def main(filename = None):
     window = Gtk.Dialog("My dialog",
-                   None,
-                   modal = True , destroy_with_parent = True,)
+                        None,
+                        modal = True,
+                        destroy_with_parent = True)
     window.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
                        Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT)
-    
+
     offsetpage = OffsetPage()
 
     window.vbox.add(offsetpage)
@@ -617,5 +635,4 @@ def main(filename = None):
 
 if __name__ == "__main__":
     main()
-
 
