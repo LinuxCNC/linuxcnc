@@ -899,9 +899,11 @@ class FilterProgram:
         message = _('''The filter program '{}' that was filtering '{}' 
                         exited with an errorL'''.format(
                             self.program_filter, self.filtered_program))
-
-        dialog = gtk.MessageDialog(None, 0, gtk.MessageType.ERROR,
-                                        gtk.ButtonsType.CLOSE, message)
+        dialog = gtk.MessageDialog(parent=None,
+                                   message_type=gtk.MessageType.ERROR,
+                                   text=message)
+        dialog.set_keep_above(True)
+        dialog.add_buttons(gtk.STOCK_CLOSE, gtk.ResponseType.CLOSE)
         dialog.format_secondary_text(stderr)
         dialog.run()
         dialog.destroy()

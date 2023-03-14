@@ -559,7 +559,13 @@ class EMC_Action_UnHome(_EMC_Action):
         self.linuxcnc.unhome(self.axis)
 
 def prompt_areyousure(type, message, secondary=None):
-    dialog = Gtk.MessageDialog(None, 0, type, Gtk.ButtonsType.YES_NO, message)
+    dialog = Gtk.MessageDialog(parent=None,
+                               modal=True,
+                               message_type=type,
+                               text=message)
+    dialog.add_buttons(Gtk.STOCK_YES, Gtk.ResponseType.YES,
+                       Gtk.STOCK_NO, Gtk.ResponseType.NO)
+    dialog.set_keep_above(True)
     if secondary:
         dialog.format_secondary_text(secondary)
     r = dialog.run()

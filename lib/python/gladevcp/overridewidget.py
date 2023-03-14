@@ -25,7 +25,7 @@ from gi.repository import GLib
 
 INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
 
-class Override(Gtk.HScale):
+class Override(Gtk.Scale):
     __gtype_name__ = 'Override'
     __gproperties__ = {
         'override_type' : ( GObject.TYPE_INT, 'Override Type', '0: Feed  1: Rapid  2: Spindle 3: Max velocity',
@@ -34,7 +34,7 @@ class Override(Gtk.HScale):
     __gproperties = __gproperties__
 
     def __init__(self, *a, **kw):
-        Gtk.HScale.__init__(self, *a, **kw)
+        Gtk.Scale.__init__(self, *a, **kw)
         self.emc = linuxcnc
         self.status = self.emc.stat()
         self.cmd = linuxcnc.command()
@@ -124,7 +124,7 @@ class Override(Gtk.HScale):
         return True
 
     # This is so GLADE can get the values for the editor
-    # A user can use this too using goobject 
+    # A user can use this too using gobject
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
         if name in list(self.__gproperties.keys()):
@@ -145,28 +145,31 @@ class Override(Gtk.HScale):
 # for testing without glade editor:
 def main():
     window = Gtk.Dialog("My dialog",
-                   None,
-                   Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
-    t = Gtk.Table(rows=4, columns=1, homogeneous=True)
+                        None,
+                        modal = True,
+                        destroy_with_parent = True)
+    window.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                       Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT)
+    t = Gtk.Grid()
+    t.set_column_homogeneous(True)
+    t.set_row_homogeneous(True)
     window.vbox.add(t)
 
     offset1 = Override()
     offset1.set_type(0)
-    t.attach(offset1, 0, 1, 0, 1)
+    t.attach(offset1, 0, 0, 1, 1)
 
     offset2 = Override()
     offset2.set_type(1)
-    t.attach(offset2, 0, 1, 1, 2)
+    t.attach(offset2, 0, 1, 1, 1)
 
     offset3 = Override()
     offset3.set_type(2)
-    t.attach(offset3, 0, 1, 2, 3)
+    t.attach(offset3, 0, 2, 1, 1)
 
     offset4 = Override()
     offset4.set_type(3)
-    t.attach(offset4, 0, 1, 3, 4)
+    t.attach(offset4, 0, 3, 1, 1)
 
     window.connect("destroy", Gtk.main_quit)
 

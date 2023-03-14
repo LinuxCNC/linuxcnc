@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
 <interface>
   <requires lib="gtk+" version="3.0"/>
-  <!-- interface-naming-policy project-wide -->
   <object class="GtkListStore" id="liststore1">
     <columns>
       <!-- column-name checkbutton -->
@@ -41,42 +41,45 @@
     </columns>
   </object>
   <object class="GtkTreeModelFilter" id="tool_modelfilter">
-    <property name="child_model">liststore1</property>
+    <property name="child-model">liststore1</property>
   </object>
   <object class="GtkTreeModelFilter" id="wear_modelfilter">
-    <property name="child_model">liststore1</property>
+    <property name="child-model">liststore1</property>
   </object>
   <object class="GtkWindow" id="window1">
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <child>
       <object class="GtkBox" id="tooledit_box">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can-focus">False</property>
+        <property name="hexpand">True</property>
+        <property name="vexpand">True</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkNotebook" id="tool_offset_notebook">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
+            <property name="can-focus">True</property>
             <child>
               <object class="GtkBox" id="vbox1">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkScrolledWindow" id="all_window">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="hscrollbar_policy">automatic</property>
-                    <property name="vscrollbar_policy">automatic</property>
+                    <property name="can-focus">True</property>
                     <child>
                       <object class="GtkTreeView" id="treeview1">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
+                        <property name="can-focus">True</property>
                         <property name="model">liststore1</property>
-                        <property name="headers_clickable">False</property>
-                        <property name="search_column">0</property>
-                        <property name="hover_expand">True</property>
-                        <property name="enable_grid_lines">both</property>
+                        <property name="headers-clickable">False</property>
+                        <property name="search-column">0</property>
+                        <property name="hover-expand">True</property>
+                        <property name="enable-grid-lines">both</property>
+                        <child internal-child="selection">
+                          <object class="GtkTreeSelection"/>
+                        </child>
                         <child>
                           <object class="GtkTreeViewColumn" id="s1">
                             <property name="title" translatable="yes">Select</property>
@@ -94,8 +97,8 @@
                           <object class="GtkTreeViewColumn" id="t1">
                             <property name="title" translatable="yes">Tool#</property>
                             <property name="clickable">True</property>
-                            <property name="sort_indicator">True</property>
-                            <property name="sort_column_id">1</property>
+                            <property name="sort-indicator">True</property>
+                            <property name="sort-column-id">1</property>
                             <child>
                               <object class="GtkCellRendererText" id="cell_tool#1">
                                 <property name="editable">True</property>
@@ -110,8 +113,8 @@
                           <object class="GtkTreeViewColumn" id="p1">
                             <property name="title" translatable="yes">Pocket</property>
                             <property name="clickable">True</property>
-                            <property name="sort_indicator">True</property>
-                            <property name="sort_column_id">2</property>
+                            <property name="sort-indicator">True</property>
+                            <property name="sort-column-id">2</property>
                             <child>
                               <object class="GtkCellRendererText" id="cell_pos1"/>
                               <attributes>
@@ -224,8 +227,8 @@
                             <property name="title" translatable="yes">Diameter</property>
                             <property name="clickable">True</property>
                             <property name="reorderable">True</property>
-                            <property name="sort_indicator">True</property>
-                            <property name="sort_column_id">12</property>
+                            <property name="sort-indicator">True</property>
+                            <property name="sort-column-id">12</property>
                             <child>
                               <object class="GtkCellRendererText" id="cell_d1"/>
                               <attributes>
@@ -290,15 +293,15 @@
                 <child>
                   <object class="GtkButtonBox" id="buttonbox">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="layout_style">center</property>
+                    <property name="can-focus">False</property>
+                    <property name="layout-style">center</property>
                     <child>
                       <object class="GtkButton" id="delete">
                         <property name="label" translatable="yes">Delete</property>
+                        <property name="use-action-appearance">False</property>
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
                         <signal name="clicked" handler="on_delete_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -310,10 +313,10 @@
                     <child>
                       <object class="GtkButton" id="add">
                         <property name="label" translatable="yes">Add</property>
+                        <property name="use-action-appearance">False</property>
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
                         <signal name="clicked" handler="on_add_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -325,10 +328,10 @@
                     <child>
                       <object class="GtkButton" id="reload">
                         <property name="label" translatable="yes">Reload</property>
+                        <property name="use-action-appearance">False</property>
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
                         <signal name="clicked" handler="on_reload_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -340,11 +343,11 @@
                     <child>
                       <object class="GtkButton" id="apply">
                         <property name="label" translatable="yes">Apply</property>
+                        <property name="use-action-appearance">False</property>
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
-                        <property name="yalign">0.60000002384185791</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <property name="yalign">0.6000000238418579</property>
                         <signal name="clicked" handler="on_save_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -367,27 +370,28 @@
             </child>
             <child type="tab">
               <object class="GtkLabel" id="all_label">
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
                 <property name="label" translatable="yes">All Offsets</property>
               </object>
               <packing>
-                <property name="tab_fill">False</property>
+                <property name="tab-fill">False</property>
               </packing>
             </child>
             <child>
               <object class="GtkScrolledWindow" id="wear_window">
-                <property name="can_focus">True</property>
-                <property name="hscrollbar_policy">automatic</property>
-                <property name="vscrollbar_policy">automatic</property>
+                <property name="can-focus">True</property>
                 <child>
                   <object class="GtkTreeView" id="treeview2">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
+                    <property name="can-focus">True</property>
                     <property name="model">wear_modelfilter</property>
-                    <property name="headers_clickable">False</property>
-                    <property name="search_column">0</property>
-                    <property name="hover_expand">True</property>
-                    <property name="enable_grid_lines">both</property>
+                    <property name="headers-clickable">False</property>
+                    <property name="search-column">0</property>
+                    <property name="hover-expand">True</property>
+                    <property name="enable-grid-lines">both</property>
+                    <child internal-child="selection">
+                      <object class="GtkTreeSelection"/>
+                    </child>
                     <child>
                       <object class="GtkTreeViewColumn" id="s2">
                         <property name="title" translatable="yes">Select</property>
@@ -525,8 +529,8 @@
                         <property name="title" translatable="yes">Diameter</property>
                         <property name="clickable">True</property>
                         <property name="reorderable">True</property>
-                        <property name="sort_indicator">True</property>
-                        <property name="sort_column_id">12</property>
+                        <property name="sort-indicator">True</property>
+                        <property name="sort-column-id">12</property>
                         <child>
                           <object class="GtkCellRendererText" id="cell_d2"/>
                           <attributes>
@@ -588,28 +592,29 @@
             </child>
             <child type="tab">
               <object class="GtkLabel" id="wear_label">
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
                 <property name="label" translatable="yes">Lathe Wear Offsets</property>
               </object>
               <packing>
                 <property name="position">1</property>
-                <property name="tab_fill">False</property>
+                <property name="tab-fill">False</property>
               </packing>
             </child>
             <child>
               <object class="GtkScrolledWindow" id="tool_window">
-                <property name="can_focus">True</property>
-                <property name="hscrollbar_policy">automatic</property>
-                <property name="vscrollbar_policy">automatic</property>
+                <property name="can-focus">True</property>
                 <child>
                   <object class="GtkTreeView" id="treeview3">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
+                    <property name="can-focus">True</property>
                     <property name="model">tool_modelfilter</property>
-                    <property name="headers_clickable">False</property>
-                    <property name="search_column">0</property>
-                    <property name="hover_expand">True</property>
-                    <property name="enable_grid_lines">both</property>
+                    <property name="headers-clickable">False</property>
+                    <property name="search-column">0</property>
+                    <property name="hover-expand">True</property>
+                    <property name="enable-grid-lines">both</property>
+                    <child internal-child="selection">
+                      <object class="GtkTreeSelection"/>
+                    </child>
                     <child>
                       <object class="GtkTreeViewColumn" id="s3">
                         <property name="title" translatable="yes">Select</property>
@@ -747,8 +752,8 @@
                         <property name="title" translatable="yes">Diameter</property>
                         <property name="clickable">True</property>
                         <property name="reorderable">True</property>
-                        <property name="sort_indicator">True</property>
-                        <property name="sort_column_id">12</property>
+                        <property name="sort-indicator">True</property>
+                        <property name="sort-column-id">12</property>
                         <child>
                           <object class="GtkCellRendererText" id="cell_d3"/>
                           <attributes>
@@ -810,12 +815,12 @@
             </child>
             <child type="tab">
               <object class="GtkLabel" id="tool_label">
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
                 <property name="label" translatable="yes">Lathe Tool Offsets</property>
               </object>
               <packing>
                 <property name="position">2</property>
-                <property name="tab_fill">False</property>
+                <property name="tab-fill">False</property>
               </packing>
             </child>
           </object>
