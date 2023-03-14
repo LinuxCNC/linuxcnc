@@ -15,7 +15,8 @@
 
 import gi
 gi.require_version("Gtk","3.0")
-from gi.repository import Gtk
+gi.require_version("Gdk","3.0")
+from gi.repository import Gtk, Gdk
 from gi.repository import GObject
 
 import hal
@@ -120,15 +121,15 @@ class _HalSpeedControlBase(_HalWidgetBase):
         self.hal_pin.set(self.get_value())
 """ Real widgets """
 
-class HAL_HBox(Gtk.HBox, _HalSensitiveBase):
+class HAL_HBox(Gtk.Box, _HalSensitiveBase):
     __gtype_name__ = "HAL_HBox"
     __gsignals__ = dict([hal_pin_changed_signal])
 
-class HAL_Table(Gtk.Table, _HalSensitiveBase):
+class HAL_Table(Gtk.Grid, _HalSensitiveBase):
     __gtype_name__ = "HAL_Table"
     __gsignals__ = dict([hal_pin_changed_signal])
 
-class HAL_HideTable(Gtk.Table, _HalWidgetBase):
+class HAL_HideTable(Gtk.Grid, _HalWidgetBase):
     __gtype_name__ = "HAL_HideTable"
     __gsignals__ = dict([hal_pin_changed_signal])
 
@@ -216,7 +217,7 @@ class HAL_SpinButton(Gtk.SpinButton, _HalWidgetBase):
         data = self.get_value()
         self.hal_pin_f.set(float(data))
         self.hal_pin_s.set(int(data))
-        
+
     def _hal_init(self):
         self.hal_pin_f = self.hal.newpin(self.hal_name+"-f", hal.HAL_FLOAT, hal.HAL_OUT)
         self.hal_pin_s = self.hal.newpin(self.hal_name+"-s", hal.HAL_S32, hal.HAL_OUT)
@@ -229,15 +230,15 @@ class HAL_RadioButton(Gtk.RadioButton, _HalToggleBase):
 class HAL_ToggleButton(Gtk.ToggleButton, _HalToggleBase):
     __gtype_name__ = "HAL_ToggleButton"
 
-class HAL_HScale(Gtk.HScale, _HalScaleBase):
+class HAL_HScale(Gtk.Scale, _HalScaleBase):
     __gtype_name__ = "HAL_HScale"
 
 
-class HALIO_HScale(Gtk.HScale, _HalIOScaleBase):
+class HALIO_HScale(Gtk.Scale, _HalIOScaleBase):
     __gtype_name__ = "HALIO_HScale"
     __gsignals__ = dict([hal_pin_changed_signal])
 
-class HAL_VScale(Gtk.VScale, _HalScaleBase):
+class HAL_VScale(Gtk.Scale, _HalScaleBase):
     __gtype_name__ = "HAL_VScale"
 
 class HAL_ProgressBar(Gtk.ProgressBar, _HalWidgetBase):

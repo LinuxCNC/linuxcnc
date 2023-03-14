@@ -29,7 +29,7 @@ def find_valid_icon_themes(search_paths):
         # path, name
     ]
     for base_dir in [e for e in search_paths if os.path.exists(e)]:
-        for theme_name in os.listdir(base_dir):
+        for theme_name in sorted(os.listdir(base_dir)):
             theme_dir = os.path.join(base_dir, theme_name)
             if os.path.exists(os.path.join(theme_dir, "index.theme")):
                 # theme_dir acts here as unique key for the model and is not used as a dir later

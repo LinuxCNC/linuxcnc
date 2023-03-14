@@ -1,3 +1,10 @@
+ver 3.4.2.1
+
+  - Replaced deprecated Gtk widgets in GladeVCP library (#2381, thanks phillc54)
+  - Replaced deprecated Gtk widgets inside gmoccapy (reduced warnings)
+  - Fixed default icon theme in lathe configs
+  - Fixed DRO size after change in settings (#2374, thanks zz912 for reporting)
+
 ver 3.4.2
  
   New:

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding:UTF-8 -*-
 
-# GladeVcp Widget 
-# SpeedControl is a widget specially made to control an adjustment 
+# GladeVcp Widget
+# SpeedControl is a widget specially made to control an adjustment
 # with a touch screen. It is a replacement to the normal scale widget
 # which is difficult to slide on a touch screen.
 #
 # Copyright (c) 2016 Norbert Schechner
-# 
+#
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ if __name__ == "__main__":
 else:
     from .hal_widgets import _HalSpeedControlBase
 
-class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
+class SpeedControl(Gtk.Box, _HalSpeedControlBase):
     '''
     The SpeedControl Widget serves as a slider with button to increment od decrease
     the value and a progress bar showing the value with or without units
@@ -117,7 +117,7 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
         self._value = value
         self._min = min
         self._max = max
-        self.color = Gdk.RGBA() 
+        self.color = Gdk.RGBA()
         self.color.parse(color)
         self._unit = unit
         self._increment = (self._max - self._min) / 100.0
@@ -134,16 +134,20 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
         self.btn_minus = Gtk.Button(label = "-")
         self.btn_minus.connect("pressed", self.on_btn_minus_pressed)
         self.btn_minus.connect("released", self.on_btn_minus_released)
-        
+
         self.draw = Gtk.DrawingArea()
         self.draw.connect("draw", self.expose)
 
-        self.table = Gtk.Table(n_rows=2,n_columns=5)
-        self.table.attach( self.btn_minus, 0, 1, 0, 1, Gtk.AttachOptions.SHRINK, Gtk.AttachOptions.SHRINK )
-        self.table.attach( self.draw, 1, 4, 0, 1, Gtk.AttachOptions.FILL|Gtk.AttachOptions.EXPAND, Gtk.AttachOptions.EXPAND )
-        self.table.attach( self.btn_plus, 4, 5, 0, 1, Gtk.AttachOptions.SHRINK, Gtk.AttachOptions.SHRINK )
+        self.draw.set_valign(Gtk.Align.CENTER)
+        self.btn_plus.set_valign(Gtk.Align.CENTER)
+        self.btn_minus.set_valign(Gtk.Align.CENTER)
 
-        self.add(self.table)
+        self.table = Gtk.Box()
+        self.table.pack_start(self.btn_minus, expand=False, fill=False, padding=0)
+        self.table.pack_start(self.draw, expand=True, fill=True, padding=0)
+        self.table.pack_start(self.btn_plus, expand=False, fill=False, padding=0)
+
+        self.pack_start(self.table, fill=True, expand=True, padding=0)
         self.show_all()
         self.connect("destroy", Gtk.main_quit)
 
@@ -163,8 +167,8 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
         self.hal_pin_scale.set(60.0)
 
         # the scaled value to be handled in hal
-        self.hal_pin_scaled_value = self.hal.newpin(self.hal_name+".scaled-value", hal.HAL_FLOAT, hal.HAL_OUT)     
-        
+        self.hal_pin_scaled_value = self.hal.newpin(self.hal_name+".scaled-value", hal.HAL_FLOAT, hal.HAL_OUT)
+
         # pins to allow hardware button to be connected to the software button
         self.hal_pin_increase = self.hal.newpin(self.hal_name+".increase", hal.HAL_BIT, hal.HAL_IN)
         self.hal_pin_increase.connect("value-changed", self._on_plus_changed)
@@ -215,13 +219,13 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
 
         self.cr.set_line_width(linewith)
         self.cr.set_source_rgb(0, 0, 0)
-        
+
         # get the middle points of the corner radius
         tl = [radius, radius]                   # Top Left
         tr = [w - radius, radius]               # Top Right
         bl = [w - radius, self._size - radius]  # Bottom Left
         br = [radius, self._size - radius]      # Bottom Right
-        
+
         # could be written shorter, but this way it is easier to understand
         self.cr.arc(tl[0], tl[1], radius, 2 * (pi/2), 3 * (pi/2))
         self.cr.arc(tr[0], tr[1], radius, 3 * (pi/2), 4 * (pi/2))
@@ -260,9 +264,9 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
     # so it will do also to hal_widget_base
     def get_value(self):
         return self._value
-    
-    # if the value does change from outside, i.e. changing the adjustment value 
-    # we are not sync, so 
+
+    # if the value does change from outside, i.e. changing the adjustment value
+    # we are not sync, so
     def _on_value_changed(self, widget):
         value = widget.get_value()
         if value != self._value:
@@ -270,7 +274,7 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
             self.set_value(self._value)
         self.emit("value_changed", value)
 
-    # if the value does change from hal side, we have to update the scaled value 
+    # if the value does change from hal side, we have to update the scaled value
     def _on_scale_changed(self, pin):
         new_scale = pin.get()
         self.emit("scale_changed", new_scale)
@@ -289,8 +293,8 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
             GLib.source_remove(self.timer_id)
         except:
             pass
-    
-    # increase the value    
+
+    # increase the value
     def increase(self):
         value = self.adjustment.get_value()
         value += self._increment
@@ -318,7 +322,7 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
         except:
             pass
 
-    # decrease the value    
+    # decrease the value
     def decrease(self):
         value = self.adjustment.get_value()
         value -= self._increment
@@ -376,9 +380,9 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
         self._increment = (self._max - self._min) / 100.0
         self.adjustment.set_page_size(adjustment.get_page_size())
         self._value = self.adjustment.get_value()
-        self.set_value(self._value)    
-        
-    # Hiding the button, the widget can also be used as pure value bar    
+        self.set_value(self._value)
+
+    # Hiding the button, the widget can also be used as pure value bar
     def hide_button(self, state):
         if state:
             self.btn_minus.hide()
@@ -387,16 +391,16 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
             self.btn_minus.show()
             self.btn_plus.show()
 
-    # if the adjustment changes from external command, we need to check 
+    # if the adjustment changes from external command, we need to check
     # the button state. I.e. the value is equal max value, and the max value
-    # has been changed, the plus button will remain unsensitive 
+    # has been changed, the plus button will remain unsensitive
     def update_button(self):
         if self._value <= self._min:
             self._value = self._min
             self.btn_minus.set_sensitive(False)
         else:
             self.btn_minus.set_sensitive(True)
-            
+
         if self._value >= self._max:
             self._value = self._max
             self.btn_plus.set_sensitive(False)
@@ -456,7 +460,7 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
             pass
 
 # for testing without glade editor:
-# to show some behavior and setting options  
+# to show some behavior and setting options
 def main():
     window = Gtk.Window()
     #speedcontrol = SpeedControl(size = 48, value = 10000, min = 0, max = 15000, inc_speed = 100, unit = "mm/min", color = "#FF8116", template = "%.3f")

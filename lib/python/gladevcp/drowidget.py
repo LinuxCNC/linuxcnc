@@ -230,10 +230,11 @@ class HAL_DRO(Gtk.Label):
 # for testing without glade editor:
 def main():
     window = Gtk.Dialog("My dialog",
-                   None,
-                   Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
+                        None,
+                        modal = True,
+                        destroy_with_parent = True)
+    window.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                       Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT)
     dro = HAL_DRO()
     window.vbox.add(dro)
     window.connect("destroy", Gtk.main_quit)

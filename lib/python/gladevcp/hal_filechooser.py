@@ -84,11 +84,12 @@ class FilterProgram:
             self.callback(r)
 
     def error(self, exitcode, stderr):
-        dialog = gtk.MessageDialog(None, 0, gtk.MessageType.ERROR,
-                                        gtk.ButtonsType.CLOSE,
-                _("The program %(program)r exited with code %(code)d.  "
-                "Any error messages it produced are shown below:")
-                    % {'program': self.program_filter, 'code': exitcode})
+        message = _(f"""The program {self.program_filter} exited with code {exitcode}.
+                    Any error messages it produced are shown below:""")
+        dialog = gtk.MessageDialog(parent=None,
+                                   message_type=gtk.MessageType.ERROR,
+                                   text=message)
+        dialog.add_buttons(gtk.STOCK_CLOSE, gtk.ResponseType.CLOSE)
         dialog.format_secondary_text(stderr)
         dialog.run()
         dialog.destroy()

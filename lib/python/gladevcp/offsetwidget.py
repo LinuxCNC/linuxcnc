@@ -157,10 +157,11 @@ class HAL_Offset(Gtk.Label):
 # for testing without glade editor:
 def main():
     window = Gtk.Dialog("My dialog",
-                   None,
-                   Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
+                        None,
+                        modal = True,
+                        destroy_with_parent = True)
+    window.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                       Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT)
     offset = HAL_Offset()
     window.vbox.add(offset)
     window.connect("destroy", Gtk.main_quit)

@@ -35,7 +35,7 @@ from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import Gio
 from gi.repository import GObject
-from gi.repository.GdkPixbuf import Pixbuf
+from gi.repository import GdkPixbuf
 import os
 import mimetypes
 
@@ -65,7 +65,7 @@ _ = gettext.gettext
 # filetypes is a comma separated string, giving the extensions of the files to be shown in the widget
 # like "ngc,py,png,hal"
 # sortorder one of ASCENDING, DESCENDING, FOLDERFIRST, FILEFIRST
-class IconFileSelection(Gtk.HBox):
+class IconFileSelection(Gtk.Box):
 
 # ToDo:
 # - make the button up and down work to move faster from top to bottom
@@ -76,7 +76,7 @@ class IconFileSelection(Gtk.HBox):
            'icon_size' : (GObject.TYPE_INT, 'Icon Size', 'Sets the size of the displayed icon',
                         12, 96, 48, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
            'start_dir' : (GObject.TYPE_STRING, 'start directory', 'Sets the directory to start in',
-                        "/", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+                        ".", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
            'jump_to_dir' : (GObject.TYPE_STRING, 'jump to directory', 'Sets the directory to jump to ',
                         "~", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
            'filetypes' : (GObject.TYPE_STRING, 'file filter', 'Sets the filter for the file types to be shown',
@@ -112,9 +112,10 @@ class IconFileSelection(Gtk.HBox):
         self.old_button_state = {}
 
         # Make the GUI and connect signals
-        vbox = Gtk.VBox(homogeneous = False, spacing = 0)
+        vbox = Gtk.Box(homogeneous = False, spacing = 0)
+        vbox.set_orientation(Gtk.Orientation.VERTICAL)
 
-        self.buttonbox = Gtk.HButtonBox()
+        self.buttonbox = Gtk.ButtonBox()
         self.buttonbox.set_layout(Gtk.ButtonBoxStyle.EDGE)
         self.buttonbox.set_property("homogeneous", True)
         vbox.pack_end(self.buttonbox, False, False, 0)
@@ -241,7 +242,7 @@ class IconFileSelection(Gtk.HBox):
         # will be emitted, when the widget is destroyed
         self.connect("destroy", Gtk.main_quit)
 
-        self.add(vbox)
+        self.pack_start(vbox, fill=True, expand=True, padding=0)
         self.show_all()
 
         # To use the the events, we have to unmask them
@@ -285,7 +286,7 @@ class IconFileSelection(Gtk.HBox):
         return Gtk.IconTheme.get_default().load_icon(name, self.icon_size, 0)
 
     def _create_store(self):
-        store = Gtk.ListStore(str, Pixbuf, bool)
+        store = Gtk.ListStore(str, GdkPixbuf.Pixbuf, bool)
         return store
 
     def _fill_store(self):
@@ -297,10 +298,7 @@ class IconFileSelection(Gtk.HBox):
             number = 0
             dirs = []
             files = []
-            # TODO: Why is iconview looking in "/" ?
-            # if self.cur_dir == "/":
-            #     LOG.info("current dir is /")
-            
+
             for fl in os.listdir(self.cur_dir):
                 # we don't want to add hidden files
                 if fl[0] == '.':

@@ -23,7 +23,6 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GObject
-from gi.repository import Pango
 from gi.repository import GLib
 
 # localization
@@ -39,7 +38,7 @@ try:
 except:
     INIPATH = None
 
-class ToolEdit(Gtk.VBox):
+class ToolEdit(Gtk.Box):
     __gtype_name__ = 'ToolEdit'
     __gproperties__ = {
         'font' : ( GObject.TYPE_STRING, 'Pango Font', 'Display font to use',
@@ -132,7 +131,7 @@ class ToolEdit(Gtk.VBox):
             sort_column, _ = model.get_sort_column_id()
             value1 = model.get_value(row1,sort_column)
             value2 = model.get_value(row2,sort_column)
-            return cmp(value1,value2)
+            return (value1 > value2) - (value1 < value2)
         model = self.view1.get_model()
         model.set_sort_func(12, compare)
         #self.view2.connect('button_press_event', self.on_treeview2_button_press_event)
@@ -148,9 +147,11 @@ class ToolEdit(Gtk.VBox):
         self.tool_filter.set_visible_func(self.match_type,False)
         self.wear_filter = self.wTree.get_object("wear_modelfilter")
         self.wear_filter.set_visible_func(self.match_type,True)
-        # reparent tooledit box from Glades tp level window to tooledit's VBox
-        window = self.wTree.get_object("tooledit_box")
-        window.reparent(self)
+        # reparent tooledit box from Glades tp level window to widget's Box
+        tooledit_box = self.wTree.get_object("tooledit_box")
+        window = tooledit_box.get_parent()
+        window.remove(tooledit_box)
+        self.pack_start(tooledit_box, expand = True, fill = True, padding = 0)
         # If the toolfile was specified when tooledit was created load it
         if toolfile:
             self.reload(None)
@@ -236,12 +237,12 @@ class ToolEdit(Gtk.VBox):
         self.reload(None)
 
     def warning_dialog(self, line_number):
-        message = _("Error in tool table line {0} in column ").format(line_number) + _("Orientation") + \
-            _(".\nValid range is 0 - 9.")
-        dialog = Gtk.MessageDialog(self.wTree.get_object("window1"),
-            Gtk.DialogFlags.DESTROY_WITH_PARENT,
-            Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
-            message)
+        message = f"Error in tool table line {line_number} in column orientation.\nValid range is 0 ~ 9."
+        dialog = Gtk.MessageDialog(parent=self.wTree.get_object("window1"),
+                                   destroy_with_parent = True,
+                                   message_type=Gtk.MessageType.ERROR,
+                                   text=message)
+        dialog.add_buttons(Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT)
         dialog.show()
         dialog.run()
         dialog.destroy()
@@ -306,7 +307,7 @@ class ToolEdit(Gtk.VBox):
                                 print(_("Tooledit widget float error"))
                         else:
                             try:
-                                array[offset]= locale.format("%10.4f", float(word.lstrip(i)))
+                                array[offset]= locale.format_string("%10.4f", float(word.lstrip(i)))
                             except:
                                 print(_("Tooledit widget float error"))
                         break
@@ -380,7 +381,7 @@ class ToolEdit(Gtk.VBox):
         else:
             self.view2.hide()
             self.wear_window.hide()
-            
+
             self.tool_window.hide()
             self.view3.hide()
 
@@ -400,8 +401,8 @@ class ToolEdit(Gtk.VBox):
             if tab[i] in ('1','2','3'):
                 for j in objectlist:
                     column = self.wTree.get_object(j+tab[i])
-                    label = Gtk.Label(column.get_title())
-                    label.modify_font(Pango.FontDescription(value))
+                    label = Gtk.Label()
+                    label.set_markup(f'<span font="{value}">{column.get_title()}</span>')
                     label.show()
                     column.set_widget(label)
 
@@ -409,11 +410,11 @@ class ToolEdit(Gtk.VBox):
         for i in range(0, len(tab)):
             if tab[i] in ('1','2','3'):
                 if tab[i] =='1':
-                    self.all_label.modify_font(Pango.FontDescription(value))
+                    self.all_label.set_markup(f'<span font="{value}">{self.all_label.get_text()}</span>')
                 elif tab[i] =='2':
-                    self.wear_label.modify_font(Pango.FontDescription(value))
+                    self.wear_label.set_markup(f'<span font="{value}">{self.wear_label.get_text()}</span>')
                 elif tab[i] =='3':
-                    self.tool_label.modify_font(Pango.FontDescription(value))
+                    self.tool_label.set_markup(f'<span font="{value}">{self.tool_label.get_text()}</span>')
                 else:
                     pass
 
@@ -701,12 +702,12 @@ class ToolEdit(Gtk.VBox):
 # or uncomment the line and set the path correctly.
 def main(filename=None):
     window = Gtk.Dialog("My dialog",
-                   None,
-                   Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
+                        None,
+                        modal = True,
+                        destroy_with_parent = True)
+    window.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                       Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT)
     tooledit = ToolEdit(filename)
-    
     window.vbox.add(tooledit)
     window.connect("destroy", Gtk.main_quit)
     tooledit.set_col_visible("abcUVW", False, tab='1')
@@ -725,5 +726,4 @@ if __name__ == "__main__":
     # if there are two arguments then specify the path
     if len(sys.argv) > 1: main(sys.argv[1])
     else: main()
-    
-    
+

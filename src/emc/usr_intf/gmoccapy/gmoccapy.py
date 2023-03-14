@@ -76,7 +76,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.4.2"
+_RELEASE = " 3.4.2.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -140,6 +140,15 @@ class gmoccapy(object):
             #gcode_edit {
                 padding: 3px;
                 margin: 1px;
+            }
+            /* #__jog_incr_buttons *:checked {
+                background: rgba(230,230,50,0.8);
+            } */
+            #jog_incr_buttons *:active, #jog_buttons *:active {
+                background: rgba(230,230,50,0.8);
+            }
+            #eb_program_label, #eb_blockheight_label {
+                background: rgba(0,0,0,1);
             }
         """
         screen = Gdk.Screen.get_default()
@@ -979,7 +988,8 @@ class gmoccapy(object):
         btn.connect("toggled", self.on_tbtn_edit_offsets_toggled)
         btn.set_property("tooltip-text", _("Press to edit the offsets"))
         btn.set_property("name", "edit_offsets")
-        btn.override_background_color(Gtk.StateFlags.ACTIVE, Gdk.RGBA(1.0, 1.0, 0.0, 1.0))
+        # TODO: Use CSS for this if still needed
+        # btn.override_background_color(Gtk.StateFlags.ACTIVE, Gdk.RGBA(1.0, 1.0, 0.0, 1.0))
         self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
         btn.show()
 
@@ -1133,7 +1143,6 @@ class gmoccapy(object):
         self.widgets.vbtb_jog_incr.pack_start(rbt, True, True, 0)
         rbt.set_property("draw_indicator", False)
         rbt.show()
-        rbt.override_background_color(Gtk.StateFlags.ACTIVE, Gdk.RGBA(1.0, 1.0, 0.0, 1.0))
         self.incr_rbt_dic[rbt.get_property("name")] = rbt
         # the rest of the buttons are now added to the group
         # self.no_increments is set while setting the hal pins with self._check_len_increments
@@ -1146,10 +1155,11 @@ class gmoccapy(object):
             self.widgets.vbtb_jog_incr.pack_start(rbt, True, True, 0)
             rbt.set_property("draw_indicator", False)
             rbt.show()
-            rbt.override_background_color(Gtk.StateFlags.ACTIVE, Gdk.RGBA(1.0, 1.0, 0.0, 1.0))
             self.incr_rbt_dic[rbt.get_property("name")] = rbt
         self.incr_rbt_dic["rbt_0"].set_active(True)
         self.active_increment = "rbt_0"
+        # Set name to assign CSS
+        self.widgets.vbtb_jog_incr.set_property("name","jog_incr_buttons")
 
     def _jog_increment_changed(self, widget,):
         # first cancel any joints jogging
@@ -1273,7 +1283,8 @@ class gmoccapy(object):
                 btn.connect("pressed", self._on_btn_jog_pressed, name)
                 btn.connect("released", self._on_btn_jog_released, name)
                 btn.set_property("tooltip-text", _("Press to jog axis {0}".format(axis)))
-                btn.override_background_color(Gtk.StateFlags.ACTIVE, Gdk.RGBA(1.0, 1.0, 0.0, 1.0))
+                # Set name to assign CSS
+                self.widgets.vbx_jog_button.set_property("name", "jog_buttons")
                 btn.set_size_request(48,48)
 
                 self.jog_button_dic[name] = btn
@@ -1293,7 +1304,6 @@ class gmoccapy(object):
                 btn.connect("pressed", self._on_btn_jog_pressed, name)
                 btn.connect("released", self._on_btn_jog_released, name)
                 btn.set_property("tooltip-text", _("Press to jog joint {0}".format(joint)))
-                btn.override_background_color(Gtk.StateFlags.ACTIVE, Gdk.RGBA(1.0, 1.0, 0.0, 1.0))
                 btn.set_size_request(48,48)
 
                 self.joints_button_dic[name] = btn
@@ -1482,11 +1492,7 @@ class gmoccapy(object):
             self.dialogs.warning_dialog(self, _("Very critical situation"), message, sound = False)
             sys.exit()
         else:
-            if len(self.axis_list) == 2:
-                self.widgets.tbl_jog_btn_axes.resize(3,3)
-            elif len(self.axis_list) < 6:
-                self.widgets.tbl_jog_btn_axes.resize(3,4)
-            else:
+            if not len(self.axis_list) == 2 and not len(self.axis_list) < 6:
                 self._arrange_jog_button_by_axis()
                 return
             count = 0
@@ -1520,83 +1526,72 @@ class gmoccapy(object):
                         row = 2
                     count +=1
 
-                self.widgets.tbl_jog_btn_axes.attach(self.jog_button_dic[btn_name], col, col + 1, row, row + 1)
+                self.widgets.grid_jog_btn_axes.attach(self.jog_button_dic[btn_name], col, row, 1, 1)
                 self.jog_button_dic[btn_name].show()
 
-    def _arrange_dro(self):
-        LOG.debug("arrange DRO")
-        LOG.debug(len(self.dro_dic))
+    def _arrange_dro(self, attach=True):
+        def _place_special(attach):
+            LOG.debug("Place DRO 3x2")
+            dro_order = self._get_DRO_order()
+            for dro, dro_name in enumerate(dro_order):
+                if dro < 3:
+                    size = self.dro_size * 0.75
+                    if attach:
+                        self.widgets.grid_DRO.attach(self.dro_dic[dro_name], 0, int(dro), 2, 1)
+                else:
+                    size = self.dro_size * 0.65
+                    if attach:
+                        if dro == 3:
+                            self.widgets.grid_DRO.attach(self.dro_dic[dro_name], 0, int(dro), 1, 1)
+                        else:
+                            self.widgets.grid_DRO.attach(self.dro_dic[dro_name], 1, int(dro-1), 1, 1)
+                self.dro_dic[dro_name].set_property("font_size", size)
+
+        def _place_in_table(cols, dro_size, attach):
+            LOG.debug("Place DRO in table")
+            col = 0
+            row = 0
+            dro_order = self._get_DRO_order()
+            for dro, dro_name in enumerate(dro_order):
+                # as a lathe might not have all Axis, we check if the key is in directory
+                if dro_name not in list(self.dro_dic.keys()):
+                    continue
+                self.dro_dic[dro_name].set_property("font_size", dro_size)
+                if attach:
+                    self.widgets.grid_DRO.attach(self.dro_dic[dro_name], col, row, 1, 1)
+                if cols > 1:
+                    # calculate if we have to place in the first or the second column
+                    if (dro % 2 == 1):
+                        col = 0
+                        row +=1
+                    else:
+                        col += 1
+                else:
+                    row += 1
+        LOG.debug("Arrange DRO, length = {}".format(len(self.dro_dic)))
+        
         # if we have less than 4 axis, we can resize the table, as we have
         # enough space to display each one in it's own line
-
         if len(self.dro_dic) < 4:
-            self._place_in_table(len(self.dro_dic),1, self.dro_size)
+            _place_in_table(1, self.dro_size, attach)
 
         # having 4 DRO we need to reduce the size, to fit the available space
         elif len(self.dro_dic) == 4:
-            self._place_in_table(len(self.dro_dic),1, self.dro_size * 0.75)
+            _place_in_table(1, self.dro_size * 0.75, attach)
 
         # having 5 axis we will display 3 in an one line and two DRO share
         # the last line, the size of the DRO must be reduced also
         # this is a special case so we do not use _place_in_table
         elif len(self.dro_dic) == 5:
-            self.widgets.tbl_DRO.resize(4,2)
-            dro_order = self._get_DRO_order()
-
-            for dro, dro_name in enumerate(dro_order):
-                # as a lathe might not have all Axis, we check if the key is in directory
-                if dro < 3:
-                    size = self.dro_size * 0.75
-                    self.widgets.tbl_DRO.attach(self.dro_dic[dro_name],
-                                                0, 2, int(dro), int(dro + 1), ypadding = 0)
-                else:
-                    size = self.dro_size * 0.65
-                    if dro == 3:
-                        self.widgets.tbl_DRO.attach(self.dro_dic[dro_name],
-                                                    0, 1, int(dro), int(dro + 1), ypadding = 0)
-                    else:
-                        self.widgets.tbl_DRO.attach(self.dro_dic[dro_name],
-                                                    1, 2, int(dro-1), int(dro), ypadding = 0)
-                self.dro_dic[dro_name].set_property("font_size", size)
+            _place_special(attach)
 
         else:
-            LOG.debug("more than 5 axis ")
-            # check if amount of axis is an even number, adapt the needed lines
-            if len(self.dro_dic) % 2 == 0:
-                rows = len(self.dro_dic) / 2
-            else:
-                rows = (len(self.dro_dic) + 1) / 2
-            self._place_in_table(rows, 2, self.dro_size * 0.65)
+            LOG.debug("DRO: more than 5 axes ")
+            _place_in_table(2, self.dro_size * 0.65, attach)
 
         # set values to dro size adjustments
         self.widgets.adj_dro_size.set_value(self.dro_size)
 
-    def _place_in_table(self, rows, cols, dro_size):
-        LOG.debug("Place in table")
-
-        self.widgets.tbl_DRO.resize(rows, cols)
-        col = 0
-        row = 0
-
-        dro_order = self._get_DRO_order()
-
-        for dro, dro_name in enumerate(dro_order):
-            # as a lathe might not have all Axis, we check if the key is in directory
-            if dro_name not in list(self.dro_dic.keys()):
-                continue
-            self.dro_dic[dro_name].set_property("font_size", dro_size)
-
-            self.widgets.tbl_DRO.attach(self.dro_dic[dro_name],
-                                        col, col+1, row, row + 1, ypadding = 0)
-            if cols > 1:
-                # calculate if we have to place in the first or the second column
-                if (dro % 2 == 1):
-                    col = 0
-                    row +=1
-                else:
-                    col += 1
-            else:
-                row += 1
 
     def _get_DRO_order(self):
         LOG.debug("get DRO order")
@@ -1633,12 +1628,8 @@ class gmoccapy(object):
 
         if len(self.axis_list) < 3:
             LOG.debug("Less than 3 axis")
-            # we can resize the jog_btn_table
-            self.widgets.tbl_jog_btn_axes.resize(3, 3)
         else:
             LOG.debug("less than 6 axis")
-            # we can resize the jog_btn_table
-            self.widgets.tbl_jog_btn_axes.resize(3, 4)
 
         count = 0
         for btn_name in self.jog_button_dic:
@@ -1672,8 +1663,8 @@ class gmoccapy(object):
                 else:
                     row = 2
                 count +=1
-            self.widgets.tbl_jog_btn_axes.attach(self.jog_button_dic[btn_name], col, col + 1, row, row + 1)
-        self.widgets.tbl_jog_btn_axes.show_all()
+            self.widgets.grid_jog_btn_axes.attach(self.jog_button_dic[btn_name], col, row, 1, 1)
+        self.widgets.grid_jog_btn_axes.show_all()
 
     def _arrange_jog_button_by_axis(self):
         LOG.debug("arrange JOG button by axis")
@@ -1685,7 +1676,6 @@ class gmoccapy(object):
         else:
             rows = (len(self.dro_dic) + 1) / 2
 
-        self.widgets.tbl_jog_btn_axes.resize(rows, cols)
         #print (cols,rows)
 
         col = 0
@@ -1696,11 +1686,11 @@ class gmoccapy(object):
             if btn_name not in list(self.jog_button_dic.keys()):
                 continue
 
-            self.widgets.tbl_jog_btn_axes.attach(self.jog_button_dic[btn_name],
-                                        col, col+1, row, row + 1, ypadding = 0)
+            self.widgets.grid_jog_btn_axes.attach(self.jog_button_dic[btn_name],
+                                        col, row, 1, 1)
             btn_name = "{0}+".format(btn)
-            self.widgets.tbl_jog_btn_axes.attach(self.jog_button_dic[btn_name],
-                                        col+1, col+2, row, row + 1, ypadding = 0)
+            self.widgets.grid_jog_btn_axes.attach(self.jog_button_dic[btn_name],
+                                        col+1, row, 1, 1)
 
             row +=1
 
@@ -1708,7 +1698,7 @@ class gmoccapy(object):
             if row >= rows:
                 col = 2
                 row = 0
-        self.widgets.tbl_jog_btn_axes.show_all()
+        self.widgets.grid_jog_btn_axes.show_all()
 
     def _arrange_joint_button(self):
         LOG.debug("arrange JOINTS button")
@@ -1720,7 +1710,6 @@ class gmoccapy(object):
         else:
             rows = (self.stat.joints + 1) / 2
 
-        self.widgets.tbl_jog_btn_joints.resize(rows, cols)
 
         col = 0
         row = 0
@@ -1729,12 +1718,12 @@ class gmoccapy(object):
             #print(joint)
 
             joint_name = "{0}-".format(joint)
-            self.widgets.tbl_jog_btn_joints.attach(self.joints_button_dic[joint_name],
-                                    col, col+1, row, row + 1, ypadding = 0)
+            self.widgets.grid_jog_btn_joints.attach(self.joints_button_dic[joint_name],
+                                    col, row, 1, 1)
 
             joint_name = "{0}+".format(joint)
-            self.widgets.tbl_jog_btn_joints.attach(self.joints_button_dic[joint_name],
-                                    col+1, col+2, row, row + 1, ypadding = 0)
+            self.widgets.grid_jog_btn_joints.attach(self.joints_button_dic[joint_name],
+                                    col+1, row, 1, 1)
 
             row +=1
 
@@ -1743,7 +1732,7 @@ class gmoccapy(object):
                 col = 2
                 row = 0
 
-        self.widgets.tbl_jog_btn_joints.show_all()
+        self.widgets.grid_jog_btn_joints.show_all()
 
     def _init_preferences(self):
         # check if NO_FORCE_HOMING is used in INI
@@ -2016,7 +2005,7 @@ class gmoccapy(object):
                 selected_index = [icon_theme[1] for icon_theme in valid_icon_themes].index(icon_theme_preference)
                 icon_theme_choice.set_active(selected_index)
             except ValueError:
-                LOG.warning(f"Preferred icon-theme '{icon_theme_preference}' not found. Switching to '{DEFAULT_ICON_THEME}'.")
+                LOG.warning(f"Preferred icon-theme '{icon_theme_preference}' not found. Switching to first valid icon theme: '{valid_icon_themes[0][1]}'.")
                 icon_theme_choice.set_active(0)
 
         # load icon theme
@@ -2057,8 +2046,9 @@ class gmoccapy(object):
         self.widgets.gremlin.set_property("mouse_btn_mode", self.prefs.getpref( "mouse_btn_mode", 4, int ) )
         self.widgets.gremlin.set_property("use_commanded", not self.dro_actual)
         self.widgets.gremlin.set_property("enable_dro", self.enable_gremlin_dro)
-        self.widgets.eb_program_label.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.0, 0.0, 0.0, 1.0))
-        self.widgets.eb_blockheight_label.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.0, 0.0, 0.0, 1.0))
+        # Set name to assign CSS
+        self.widgets.eb_program_label.set_name("eb_program_label")
+        self.widgets.eb_blockheight_label.set_name("eb_blockheight_label")
 
     def _init_kinematics_type (self):
         LOG.debug("Kinematics type changed")
@@ -4726,10 +4716,7 @@ class gmoccapy(object):
         value = int(widget.get_value())
         self.prefs.putpref("dro_size", value, int)
         self.dro_size = value
-
-        for dro in self.dro_dic:
-            size = self.dro_size
-            self.dro_dic[dro].set_property("font_size", size)
+        self._arrange_dro(attach=False)
 
     def on_chk_hide_cursor_toggled(self, widget, data=None):
         self.prefs.putpref("hide_cursor", widget.get_active())
@@ -5146,7 +5133,7 @@ class gmoccapy(object):
         self.hbox2_position = self.widgets.hbox2.get_position()
         self.widgets.ntb_button.set_current_page(_BB_EDIT)
         self.widgets.ntb_preview.hide()
-        self.widgets.tbl_DRO.hide()
+        self.widgets.grid_DRO.hide()
         width = self.widgets.window1.get_size().width
         width -= self.widgets.vbtb_main.get_allocated_width()
         width -= self.widgets.box_right.get_allocated_width()
@@ -5227,7 +5214,7 @@ class gmoccapy(object):
            self.widgets.ntb_preview.get_current_page() == _BB_LOAD_FILE:
             LOG.debug("we are in special case")
             self.widgets.ntb_preview.show()
-            self.widgets.tbl_DRO.show()
+            self.widgets.grid_DRO.show()
             self.widgets.vbx_jog.set_size_request(360, -1)
             self.widgets.hbox2.set_position(self.hbox2_position)
             self.widgets.gcode_view.set_sensitive(False)
