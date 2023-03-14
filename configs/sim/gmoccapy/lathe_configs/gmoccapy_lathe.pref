@@ -76,6 +76,6 @@ offset_axis_r = 50.0
 radius offset_axis_x = 0
 use_toolmeasurement = False
 kbd_height = 250
-icon_theme = None
+icon_theme = classic
 hide_tooltips = False
 
