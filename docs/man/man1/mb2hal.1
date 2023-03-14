@@ -28,7 +28,7 @@
 .\"
 .TH mb2hal "1" "November 20, 2021" "Modbus to HAL" "LinuxCNC Documentation"
 .SH NAME
-\fBmb2hal\fR - HAL userspace component for Modbus
+\fBmb2hal\fR - HAL non-realtime component for Modbus
 .SH SYNOPSIS
 .TP
 Default component name:
@@ -39,7 +39,7 @@ loadusr -Wn mymodule mb2hal config=config_file.ini
 
 .br
 .SH DESCRIPTION
-MB2HAL is a generic userspace HAL component to communicate with one or more
+MB2HAL is a generic non-realtime HAL component to communicate with one or more
 Modbus devices. It supoorts Modbus RTU and Modbus TCP.
 
 .PP

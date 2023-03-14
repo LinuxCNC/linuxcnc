@@ -14,7 +14,7 @@ A HAL component identifier returned by an earlier call to \fBhal_init\fR.
 .SH DESCRIPTION
 \fBhal_ready\fR indicates that this component is ready (has created all its pins,
 parameters, and functions).  This must be called in any realtime HAL component
-before its \fBrtapi_app_init\fR exits, and in any userspace component before it
+before its \fBrtapi_app_init\fR exits, and in any non-realtime component before it
 enters its main loop.
 
 .SH RETURN VALUE

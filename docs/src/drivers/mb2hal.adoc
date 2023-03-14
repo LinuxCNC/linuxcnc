@@ -12,7 +12,7 @@
 
 == Introduction
 
-MB2HAL is a generic userspace HAL component to communicate with one or more Modbus devices.
+MB2HAL is a generic non-realtime HAL component to communicate with one or more Modbus devices.
 So far, there are two options to communicate with a Modbus device:
 
 . One option is to create a HAL component as a driver see https://wiki.linuxcnc.org/cgi-bin/wiki.pl?VFD_Modbus[VFD Modbus].
@@ -38,7 +38,7 @@ Consider using MB2HAL if:
 +
 Set `HAL_MODULE_NAME=mymodule` (default `HAL_MODULE_NAME=mb2hal`)
 +
-. Load the modbus HAL userspace component
+. Load the modbus HAL non-realtime component
 .. Default component name: `loadusr -W mb2hal config=config_file.ini`
 .. Custom component name: `loadusr -Wn mymodule mb2hal config=config_file.ini`
 

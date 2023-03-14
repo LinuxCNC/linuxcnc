@@ -61,7 +61,7 @@ to set the maximum of  personality items to 4:
 .IP \(bu 4
 Compile \fB.comp\fR and \fB.c\fR files into \fB.so\fR or \fB.ko\fR HAL realtime components (the \fB\-\-compile\fR flag)
 .IP \(bu 4
-Compile \fB.comp\fR and \fB.c\fR files into HAL userspace components (the \fB\-\-compile \-\-userspace\fR flag)
+Compile \fB.comp\fR and \fB.c\fR files into HAL non-realtime components (the \fB\-\-compile \-\-userspace\fR flag)
 .IP \(bu 4
 Preprocess \fB.comp\fR files into \fB.c\fR files (the \fB\-\-preprocess\fR flag)
 .IP \(bu 4
@@ -71,7 +71,7 @@ Display documentation from \fB.comp\fR files onscreen (the \fB\-\-view\-doc\fR f
 .IP \(bu 4
 Compile and install \fB.comp\fR and \fB.c\fR files into the proper directory for HAL realtime components (the \fB\-\-install\fR flag), which may require \fIsudo\fR to write to system directories.
 .IP \(bu 4
-Install \fB.c\fR and \fB.py\fR files into the proper directory for HAL userspace components (the \fB\-\-install \-\-userspace\fR flag), which may require \fIsudo\fR to write to system directories.
+Install \fB.c\fR and \fB.py\fR files into the proper directory for HAL non-realtime components (the \fB\-\-install \-\-userspace\fR flag), which may require \fIsudo\fR to write to system directories.
 .IP \(bu 4
 Extract documentation from \fB.comp\fR files into \fB.9\fR manpage files in the proper system directory (the \fB\-\-install\fR flag), which may require \fIsudo\fR to write to system directories.
 .IP \(bu 4
@@ -79,4 +79,4 @@ Preprocess \fB.comp\fR files into \fB.c\fR files (the \fB\-\-preprocess\fR flag)
 .SH "SEE ALSO"
 \fIHalcompile HAL Component Generator\fR in the LinuxCNC documentation for a full description of the \fB.comp\fR syntax, along with examples
 
-\fBpydoc, HAL\fR and \fICreating Userspace Python Components\fR in the LinuxCNC documentation for documentation on the Python interface to HAL components
+\fBpydoc, HAL\fR and \fICreating Non-realtime Python Components\fR in the LinuxCNC documentation for documentation on the Python interface to HAL components

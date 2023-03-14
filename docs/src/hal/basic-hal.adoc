@@ -28,7 +28,7 @@ image::images/HAL_Configuration.png["The HAL Configuration Window",align="center
 
 The command `loadrt` loads a real time HAL component.
 Real time component functions need to be added to a thread to be updated at the rate of the thread.
-You cannot load a user space component into the real time space.
+You cannot load a non-realtime component into the realtime space.
 
 .loadrt Syntax and Example
 [source,{hal}]
@@ -96,9 +96,9 @@ If the component requires a floating point thread that is usually the slower ser
 [[sub:hal-loadusr]]
 === loadusr(((HAL loadusr,loadusr)))
 
-The command `loadusr` loads a user space HAL component.
-User space programs are their own separate processes, which optionally talk to.other HAL components via pins and parameters.
-You cannot load real time components into user space.
+The command `loadusr` loads a non-realtime HAL component.
+Non-realtime programs are their own separate processes, which optionally talk to other HAL components via pins and parameters.
+You cannot load realtime components into non-realtime space.
 
 Flags may be one or more of the following:
 

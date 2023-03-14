@@ -10,8 +10,7 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-This is a userspace HAL program for the GS2 series of VFD's at
-Automation Direct. footnote:[In Europe the equivalent can be found under the brand name Omron.]
+This is a non-realtime HAL program for the GS2 series of VFD's at Automation Direct. footnote:[In Europe the equivalent can be found under the brand name Omron.]
 
 This component is loaded using the halcmd "loadusr" command:
 

@@ -8,8 +8,7 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-This is a userspace HAL program to control the S11 series of VFD's from
-Toshiba.
+This is a non-realtime HAL program to control the S11 series of VFD's from Toshiba.
 
 vfs11_vfd supports serial and TCP connections. Serial connections may
 be RS232 or RS485. RS485 is supported in full- and half-duplex

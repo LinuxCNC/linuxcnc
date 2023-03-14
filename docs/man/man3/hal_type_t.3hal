@@ -76,8 +76,8 @@ int
 .RE 
 
 Take care not to use the types \fBs32\fR and \fBu32\fR.  These will compile in
-kernel modules but not in userspace, and not for "realtime components" when
-using simulated (userspace) realtime.
+kernel modules but not in userspace, and not for realtime components when
+using uspace realtime.
 
 .SH SEE ALSO
 \fBhal_pin_new(3hal)\fR, \fBhal_param_new(3hal)\fR

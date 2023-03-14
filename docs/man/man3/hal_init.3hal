@@ -21,7 +21,7 @@ calls.
 The string may be no longer than \fBHAL_NAME_LEN\fR characters.
 
 .SH REALTIME CONSIDERATIONS
-Call only from within user or init/cleanup code, not from relatime tasks.
+Call only from within non-realtime or init/cleanup code, not from realtime tasks.
 
 .SH RETURN VALUE
 On success, returns a positive integer module ID, which is

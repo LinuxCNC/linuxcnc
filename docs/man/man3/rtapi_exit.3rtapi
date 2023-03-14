@@ -16,7 +16,7 @@ An rtapi module identifier returned by an earlier call to \fBrtapi_init\fR.
 called prior to exit by any module that called \fBrtapi_init\fR.
 
 .SH REALTIME CONSIDERATIONS
-Call only from within user or init/cleanup code, not from relatime tasks.
+Call only from within non-realtime or realtime init/cleanup code, not from realtime tasks.
 
 .SH RETURN VALUE
 Returns a RTAPI status code.

@@ -28,7 +28,7 @@ not yet been started.
 
 .SH REALTIME CONSIDERATIONS
 Call only from within init/cleanup code, not from realtime tasks.  This
-function is not available from user (non-realtime) code.
+function is not available from non-realtime code.
 
 .SH RETURN VALUE
 The actual period provided by the RTOS, which may be different than the

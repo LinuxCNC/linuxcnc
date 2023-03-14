@@ -53,7 +53,7 @@ associated with \fIshmem_id\fR.
 
 .SH REALTIME CONSIDERATIONS
 
-\fBrtapi_shmem_getptr\fR may be called from user code, init/cleanup code,
+\fBrtapi_shmem_getptr\fR may be called from non-realtime code, init/cleanup code,
 or realtime tasks.
 
 \fBrtapi_shmem_new\fR and \fBrtapi_shmem_dete\fR may not be called from

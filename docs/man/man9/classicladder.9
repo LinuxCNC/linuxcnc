@@ -9,8 +9,7 @@ ClassicLadder \- realtime software plc based on ladder logic
 \fBloadusr classicladder <file name> [--nogui]
 
 .SH DESCRIPTION
-This component consist of a realtime part and a non-realtime part
-(often called 'userspace' in the LinuxCNC documentation).  The
+This component consist of a realtime part and a non-realtime part.  The
 non-realtime part loads the programmable ladder description, while the
 realtime part provides the pins.  The file name of the configuration
 can be changed using an argument to the non-realtime part.  By default
@@ -55,8 +54,8 @@ These float signal pins map to \fB%QF\fINN\fR variables in ClassicLadder.
 
 .TP
 \fBclassicladder.0.hide_gui IN bit
-This bit pin hides the ClassicLadder window, while still having the userspace code
-run. This is usually desirable when modbus is used, as modbus requires the userspace
+This bit pin hides the ClassicLadder window, while still having the non-realtime code
+run. This is usually desirable when modbus is used, as modbus requires the non-realtime
 code to run.
 
 .SH PARAMETERS

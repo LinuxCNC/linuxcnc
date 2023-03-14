@@ -10,7 +10,7 @@
 
 == Introduction
 
-Panelui is a userspace component to interface buttons to LinuxCNC or HAL:
+Panelui is a non-realtime component to interface buttons to LinuxCNC or HAL:
 * It decodes MESA 7I73 style key-scan codes and calls the appropriate routine.
 * It gets input from a realtime component - sampler.
   Sampler gets it's input from either the MESA 7I73 or sim_matrix_kb component.

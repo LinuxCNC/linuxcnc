@@ -23,7 +23,7 @@ characters.  If \fImodname\fR is \fBNULL\fR, the system will assign a
 name.
 
 .SH REALTIME CONSIDERATIONS
-Call only from within user or init/cleanup code, not from relatime tasks.
+Call only from within non-realtime or realtime init/cleanup code, not from relatime tasks.
 
 .SH RETURN VALUE
 On success, returns a positive integer module ID, which is

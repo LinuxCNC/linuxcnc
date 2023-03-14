@@ -299,7 +299,7 @@ using the LinuxCNC vismach facility.
 
 === Vismach Simulation Models
 
-Vismach is a library of python routines to display a dynamic simulation of a CNC machine on the PC screen. The python script for a particular machine is loaded in HAL and data passed by HAL pin connections.  The user-space vismach model is loaded by a HAL command like:
+Vismach is a library of python routines to display a dynamic simulation of a CNC machine on the PC screen. The python script for a particular machine is loaded in HAL and data passed by HAL pin connections.  The non-realtime vismach model is loaded by a HAL command like:
 
 [source,{hal}]
 ----

@@ -193,10 +193,7 @@ LinuxCNC can run on many different hardware platforms and with many
 different realtime kernels, and they all may benefit from tuning for
 optimal latency.
 
-A primary goal in tuning the system for LinuxCNC is to reserve one or
-more CPUs for the exclusive use of LinuxCNC's realtime tasks, so that
-other tasks (both user programs and kernel threads) do not interfere
-with LinuxCNC's access to those CPUs.
+A primary goal in tuning the system for LinuxCNC is to reserve a CPU for the exclusive use of LinuxCNC's realtime tasks, so that other tasks (both user programs and kernel threads) do not interfere with LinuxCNC's access to that CPU.
 
 When specific tuning options are believed to be universally helpful
 LinuxCNC does this tuning automatically at startup, but many tuning

@@ -35,7 +35,7 @@ driver written in comp this will always be "inst" in the function call and the
 call should be anywhere in the EXTRA_SETUP code. 
 
 .SH REALTIME CONSIDERATIONS
-Call only from realtime init code, not from user space or realtime code.
+Call only from realtime init code, not from realtime code or non-realtime components.
 
 .SH RETURN VALUE
 Returns 0 on success and \-1 on failure.

@@ -213,7 +213,7 @@ Jog::
     jog speed can be set from the graphical interface.
 
 kernel-space::
-     See real-time.
+     Code running inside the kernel, as opposed to code running in userspace.  Some realtime systems (like RTAI) run realtime code in the kernel and non-realtime code in userspace, while other realtime systems (like Preempt-RT) run both realtime and non-realtime code in userspace.
 
 Kinematics::
      (((kinematics))) The position relationship between world
@@ -288,11 +288,7 @@ Rapid rate::
     testing a G-code program for the first time.
 
 Real-time::
-    (((real-time))) Software that is intended to meet
-    very strict timing deadlines. Under Linux, in order to meet these
-    requirements it is necessary to install a realtime kernel such
-    as RTAI and build the software to run in the special real-time
-    environment. For this reason real-time software runs in kernel-space.
+    (((real-time))) Software that is intended to meet very strict timing deadlines. On Linux, in order to meet these requirements it is necessary to install a realtime kernel such as RTAI or Preempt-RT, and build the LinuxCNC software to run in the special real-time environment.  Realtime software can run in the kernel or in userspace, depending on the facilities offered by the system.
 
 RTAI::
      (((RTAI))) Real Time Application Interface, see

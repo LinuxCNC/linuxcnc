@@ -2,13 +2,13 @@
 :toc:
 
 [[cha:halmodule]]
-= Creating Userspace Python Components(((Creating Userspace Python Components)))
+= Creating Non-realtime Python Components(((Creating Non-realtime Python Components)))
 
 This section explains principles behind the implementation of HAL components with the Python programming language.
 
 == Basic usage
 
-A userspace component begins by creating its pins and parameters, then enters a loop which will periodically drive all the outputs from the inputs.
+A non-realtime component begins by creating its pins and parameters, then enters a loop which will periodically drive all the outputs from the inputs.
 The following component copies the value seen on its input pin ('passthrough.in') to its output pin ('passthrough.out') approximately once per second.
 
 [source,c]
@@ -53,14 +53,14 @@ halcmd: show pin
      03   float OUT      3.14  passthrough.out
 ----
 
-== Userspace components and delays
+== Non-realtime components and delays
 
 If you typed "show pin" quickly, you may see that 'passthrough.out' still had its old value of 0.
 This is because of the call to 'time.sleep(1)', which makes the assignment to the output pin occur at most once per second.
-Because this is a userspace component, the actual delay between assignments can be much longer if the memory used by the passthrough component is swapped to disk,
+Because this is a non-realtime component, the actual delay between assignments can be much longer if the memory used by the passthrough component is swapped to disk,
 as the assignment could be delayed until that memory is swapped back in.
 
-Thus, userspace components are suitable for user-interactive elements such as control panels (delays in the range of milliseconds are not noticed, and longer delays are acceptable),
+Thus, non-realtime components are suitable for user-interactive elements such as control panels (delays in the range of milliseconds are not noticed, and longer delays are acceptable),
 but not for sending step pulses to a stepper driver board (delays must always be in the range of microseconds, no matter what).
 
 == Create pins and parameters
