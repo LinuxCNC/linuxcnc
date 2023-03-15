@@ -1128,6 +1128,8 @@ Options to add compile and link flags (only for userspace, only for .c files)
     --extra-compile-args="-I/usr/include/..."
     --extra-link-args="-l..."
 
+Do not use [sudo] for RIP installation.
+
 """ % {'name': os.path.basename(sys.argv[0]),'dflt':MAX_PERSONALITIES})
     raise SystemExit(exitval)
 
