@@ -3060,7 +3060,7 @@
                               <object class="GtkBox" id="key_box">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="orientation">horizontal</property>
+                                <property name="homogeneous">True</property>
                                 <child>
                                   <placeholder/>
                                 </child>
