@@ -282,7 +282,7 @@ halrun -I -f my_panel.hal
 loadrt threads
 loadrt classicladder_rt
 
-# load user space programs
+# load non-realtime programs
 loadusr classicladder
 loadusr -Wn my_panel qtvcp my_panel.ui  # <1>
 

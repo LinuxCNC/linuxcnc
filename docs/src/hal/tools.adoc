@@ -259,7 +259,7 @@ Information included:
 . System description and kernel version.
 . Signals and all connected output, io, and input pins.
 . Each pin's component_function, thread, and addf-order.
-. Userspace component pins having non-ordered functions.
+. Non-realtime component pins having non-ordered functions.
 . Identification of unknown functions for unhandled components.
 . Signals   with no output.
 . Signals   with no inputs.
@@ -296,8 +296,8 @@ Typically, the order is:
 
 For each signal in a critical path, the addf-order of the output pin should be numerically lower than the addf-order of the critical input pins that it connects to.
 
-For routine signal paths that handle switch inputs, user-space pins, etc., the addf-ordering is often not critical.
-Moreover, the timing of user-space pin value changes cannot be controlled or guaranteed at the intervals typically employed for HAL threads.
+For routine signal paths that handle switch inputs, non-realtime pins, etc., the addf-ordering is often not critical.
+Moreover, the timing of non-realtime pin value changes cannot be controlled or guaranteed at the intervals typically employed for HAL threads.
 
 Example report file excerpts showing a pid loop for a hostmot2 stepgen operated in velocity mode on a trivkins machine with `joint.0` corresponding to the X axis coordinate:
 
@@ -333,7 +333,7 @@ Questionable component function detection may occur for
 
 . unsupported (deprecated) components,
 . user-created components that use multiple functions or unconventional function naming, or
-. GUI-created userspace components that lack distinguishing characteristics such as a prefix based on the GUI program name.
+. GUI-created non-realtime components that lack distinguishing characteristics such as a prefix based on the GUI program name.
 
 Questionable functions are tagged with a question mark "?".
 ====

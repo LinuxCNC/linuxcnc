@@ -573,7 +573,7 @@ QtDragon_hd can be set up to probe and compensate for Z level height changes by 
 This is only available in the QtDragon_hd version.
 
 Z level compensation is a bed levelling/distortion correction function typically used in 3D printing or engraving.
-It uses a HAL user space component which utilizes the external offsets feature of LinuxCNC.
+It uses a HAL non-realtime component which utilizes the external offsets feature of LinuxCNC.
 The component has a HAL pin that specifies an interpolation type, which must be one of cubic, linear or nearest (0, 1, 2 respectively).
 If none is specified or if an invalid number is specified, the default is assumed to be cubic.
 

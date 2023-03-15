@@ -701,7 +701,7 @@ file ('--reload'), and making AXIS exit ('--quit').
 [[sec:manual-tool-change]]
 == Manual Tool Change(((AXIS:Manual Tool Change)))
 
-LinuxCNC includes a userspace HAL component called 'hal_manualtoolchange',
+LinuxCNC includes a non-realtime HAL component called 'hal_manualtoolchange',
 which shows a window prompt telling you what tool is expected when a
 'M6' command is issued. After the OK button is pressed, execution of
 the program will continue.
@@ -738,7 +738,7 @@ source code. These modules include:
 - 'emc' provides access to the LinuxCNC command, status, and error channels
 - 'gcode' provides access to the rs274ngc interpreter
 - 'rs274' provides additional tools for working with rs274ngc files
-- 'hal' allows the creation of userspace HAL components written in Python
+- 'hal' allows the creation of non-realtime HAL components written in Python
 - '_togl' provides an OpenGL widget that can be used in Tkinter applications
 - 'minigl' provides access to the subset of OpenGL used by AXIS
 

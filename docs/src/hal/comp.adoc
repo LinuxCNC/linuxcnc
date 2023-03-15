@@ -250,8 +250,8 @@ When implementing your own `rtapi_app_main()`, call the function `int export(cha
   in case of a detected error, in the automatically defined 'rtapi_app_main'.
 
 * 'option userspace yes' - (default: no) +
-  If specified, this file describes a userspace (i.e., non-realtime) component, rather than a regular (i.e., realtime) one.
-  A userspace component may not have functions defined by the 'function' directive.
+  If specified, this file describes a non-realtime (formerly known as "userspace") component, rather than a regular (i.e., realtime) one.
+  A non-realtime component may not have functions defined by the 'function' directive.
   Instead, after all the instances are constructed, the C function `void user_mainloop(void);` is called.
   When this function returns, the component exits.
   Typically, 'user_mainloop()' will use 'FOR_ALL_INSTS()' to perform the update action for each instance, then sleep for a short time.
@@ -265,7 +265,7 @@ When implementing your own `rtapi_app_main()`, call the function `int export(cha
 
 * 'option extra_link_args "..."' - (default: "")
    This option is ignored if the option 'userspace' (see above) is set to 'no'.
-   When linking a userspace component, the arguments given are inserted in the link line.
+   When linking a non-realtime component, the arguments given are inserted in the link line.
    Note that because compilation takes place in a temporary directory,
    "-L." refers to the temporary directory and not the directory where the .comp source file resides.
    This option can be set in the halcompile command-line with -extra-link-args="-L.....".
@@ -273,7 +273,7 @@ When implementing your own `rtapi_app_main()`, call the function `int export(cha
 
 * 'option extra_compile_args "..."' - (default: "")
    This option is ignored if the option 'userspace' (see above) is set to 'no'.
-   When compiling a userspace component, the arguments given are inserted in the compiler command line.
+   When compiling a non-realtime component, the arguments given are inserted in the compiler command line.
    If the input file is a .c file this option can be set in the halcompile command-line with --extra-compile-args="-I.....".
    This alternative provides a way to set extra flags in cases where the input file is a .c file rather than a .comp file.
 
@@ -375,7 +375,7 @@ When the item is a conditional item, it is only legal to refer to it when its 'c
   When 'variable_name' is an array, the normal C-style subscript is used: 'variable_name[idx]'.
 * 'data' - If "option data" is specified, this macro allows access to the instance data.
 * 'fperiod' - The floating-point number of seconds between calls to this realtime function.
-* `FOR_ALL_INSTS() {`...`}` - For userspace components.
+* `FOR_ALL_INSTS() {`...`}` - For non-realtime components.
   This macro iterates over all the defined instances.
   Inside the body of the loop, the 'pin_name', 'parameter_name', and 'data' macros work as they do in realtime functions.
 
@@ -423,7 +423,7 @@ Place the '.comp' file in the source directory 'linuxcnc/src/hal/components' and
 'Comp' files are automatically detected by the build system.
 
 If a '.comp' file is a driver for hardware, it may be placed in 'linuxcnc/src/hal/drivers'
-and will be built unless LinuxCNC is configured as a userspace simulator.
+and will be built unless LinuxCNC is configured as a non-realtime simulator.
 
 == Compiling realtime components outside the source tree
 
@@ -470,15 +470,15 @@ man ./example.9
 
 or copied to a standard location for manual pages.
 
-== Compiling userspace components outside the source tree
+== Compiling non-realtime components outside the source tree
 
-'halcompile' can process, compile, install, and document userspace components:
+'halcompile' can process, compile, install, and document non-realtime components:
 
 ----
-halcompile usrexample.comp
-halcompile --compile usrexample.comp
-[sudo] halcompile --install usrexample.comp
-halcompile --document usrexample.comp
+halcompile non-rt-example.comp
+halcompile --compile non-rt-example.comp
+[sudo] halcompile --install non-rt-example.comp
+halcompile --document non-rt-example.comp
 ----
 
 For some libraries (for example modbus) it might be necessary to add extra compiler and linker arguments to enable the compiler to find and link the libraries.
@@ -594,8 +594,8 @@ pin out float example;
 ----
 
 This fragment of a component illustrates the use of the 'hal_' prefix in a component name.
-'loop' is the name of a standard Linux kernel module,
-so a 'loop' component might not successfully load if the Linux 'loop' module was also present on the system.
+
+`loop` is a common name, and the `hal_` prefix avoids potential name collissions with other unrelated software.  For example, on RTAI realtime systems realtime code runs in the kernel, so if the component were named just `loop` it could easily conflict with the standard `loop` kernel module.
 
 When loaded, 'halcmd show comp' will show a component called 'hal_loop'.
 However, the pin shown by 'halcmd show pin' will be 'loop.0.example', not 'hal-loop.0.example'.
@@ -619,7 +619,7 @@ out(0) = in;
 
 === rand
 
-This userspace component changes the value on its output pin to a new random value in the range (0,1) about once every 1&#8239;ms.
+This non-realtime component changes the value on its output pin to a new random value in the range (0,1) about once every 1&#8239;ms.
 
 [source,c]
 ----

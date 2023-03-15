@@ -2,7 +2,7 @@
 
 == NAME
 
-xhc-whb04b-6 - Userspace jog dial HAL component for the wireless XHC WHB04B-6 USB device.
+xhc-whb04b-6 - Non-realtime jog dial HAL component for the wireless XHC WHB04B-6 USB device.
 
 == SYNOPSIS
 
@@ -94,9 +94,9 @@ This standalone mode is used to identify the button codes produced for each butt
 === EXAMPLES
 
 `xhc-whb04b-6 -ue`::
-Start in userspace mode (simulation) and prints incoming USB data transfer and generated key pressed/released events.
+Start in simulation mode and prints incoming USB data transfer and generated key pressed/released events.
 `xhc-whb04b-6 -p`::
-Start in userspace mode (simulation) and prints HAL pin names and events distributed to HAL memory.
+Start in simulation mode and prints HAL pin names and events distributed to HAL memory.
 `xhc-whb04b-6 -H`::
 Start in HAL mode (Normal mode for real machine use).
 `xhc-whb04b-6 -HsfB`::

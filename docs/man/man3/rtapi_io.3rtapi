@@ -55,7 +55,7 @@ rtapi_device_register and the kernel space implementation of rtapi_ioperm always
 succeeds)
 .SH REALTIME CONSIDERATIONS
 Call from init/cleanup code and from realtime tasks.  These functions will
-cause illegal instruction exceptions in userspace components, as well as in
+cause illegal instruction exceptions in non-realtime components, as well as in
 uspace rtapi_app when it is not setuid root.
 .SH RETURN VALUE
 As in Linux.

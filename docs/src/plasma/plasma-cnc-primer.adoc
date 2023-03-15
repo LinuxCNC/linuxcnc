@@ -702,11 +702,11 @@ QtPlasmaC will define LinuxCNC's plasma support for many years to come as it inc
 == Hypertherm RS485 Control
 
 Some Hypertherm plasma cutters have a RS485 interface to allow the controller (e.g., LinuxCNC) to set amps.pressure and mode.
-A number of people have used a userspace component written in Python to achieve this.
+A number of people have used a non-realtime component written in Python to achieve this.
 More recently, QtPlasmaC now supports this interface natively.
 Refer to the QtPlasmaC documentation for how to use it.
 
-The combination of a slow baud rate used by Hypertherm and the userspace component,
+The combination of a slow baud rate used by Hypertherm and the non-realtime component,
 make this fairly slow to alter machine states so it generally not viable to change settings on the fly while cutting.
 
 When selecting a RS485 interface to use at the PC end, users have reported that USB to RS485 interfaces are not reliable.

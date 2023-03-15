@@ -108,7 +108,7 @@ For the first example, we will use a HAL component called 'siggen',
 which is a simple signal generator. A complete description of the
 'siggen' component can be found in the <<sec:siggen,SigGen>> section of
 this Manual.
-It is a realtime component, implemented as a Linux kernel module.
+It is a realtime component.
 To load the "`siggen`" component, use the HAL command `loadrt`.
 
 .Loading siggen
@@ -144,7 +144,7 @@ It is possible to run more than one copy of halcmd at the same time (in differen
 so the PID is added to the end of the name to make it unique.
 The list also shows the 'siggen' component that we installed in the previous step.
 The 'RT' under 'Type' indicates that 'siggen' is a realtime component.
-The 'User' under 'Type' indicates it is a user space component.
+The 'User' under 'Type' indicates it is a non-realtime component.
 
 Next, let's see what pins `siggen` makes available:
 
@@ -838,11 +838,9 @@ of what happens is far too fast to see with halmeter. To take a closer
 look at what is going on inside the HAL, we want an oscilloscope.
 Fortunately HAL has one, called halscope.
 
-Halscope has two parts - a realtime part that is loaded as a kernel
-module, and a user part that supplies the GUI and display. However, you
-don't need to worry about this, because the userspace portion will
-automatically request that the realtime part be loaded. With LinuxCNC
-running in a terminal you can start halscope with the following command.
+Halscope has two parts - a realtime part that reads the HAL signals, and a non-realtime part that provides the GUI and display. However, you don't need to worry about this because the non-realtime part will automatically load the realtime part when needed.
+
+With LinuxCNC running in a terminal you can start halscope with the following command.
 
 .Starting Halscope
 ----

@@ -40,13 +40,13 @@ are used together to sample HAL data in real time and store it in a file.
 is a realtime HAL component that exports HAL pins and creates a FIFO in shared memory.
 It then begins sampling data from the HAL and storing it to the FIFO.
 .B halsampler
-is a user space program that copies data from the FIFO to stdout, where it can
+is a non-realtime program that copies data from the FIFO to stdout, where it can
 be redirected to a file or piped to some other program.
 
 .SH OPTIONS
 .TP
 .BI depth= depth1[,depth2...]
-sets the depth of the realtime->user FIFO that
+sets the depth of the realtime->non-realtime FIFO that
 .B sampler
 creates to buffer the realtime data.  Multiple values of
 .I depth

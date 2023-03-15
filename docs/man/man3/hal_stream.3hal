@@ -54,7 +54,7 @@ the stream, and which component (the second one loaded) will
 .B hal_stream_attach
 to the already-created stream.
 
-The userspace part can be
+The non-realtime part can be
 .BR halstreamer " or " halsampler .
 In the case of
 .B halstreamer

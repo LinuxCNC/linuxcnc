@@ -1,4 +1,4 @@
-.\" Man page for hal_manualtoolchange userspace component.
+.\" Man page for hal_manualtoolchange non-realtime component.
 .\" Written 05 APR 2017 by Joe Hildreth (joeh@threerivershospital.com)
 .\"
 .\" This is free documentation; you can redistribute it and/or
@@ -20,13 +20,13 @@
 .\" License along with this manual; if not, write to the Free
 .\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 .\" USA.
-.TH hal_manualtoolchange 1 "04 APR 2017" "LinuxCNC Documentation" "HAL Userspace Component"
+.TH hal_manualtoolchange 1 "04 APR 2017" "LinuxCNC Documentation" "HAL Non-realtime Component"
 .SH NAME
-hal_manualtoolchange \- HAL userspace component to enable manual tool changes.
+hal_manualtoolchange \- HAL non-realtime component to enable manual tool changes.
 .SH SYNOPSIS
 loadusr hal_manualtoolchange
 .SH DESCRIPTION
-hal_manualtoolchange is a LinuxCNC userspace component that allows users with machines lacking automatic tool changers to make manual tool changes.
+hal_manualtoolchange is a LinuxCNC non-realtime component that allows users with machines lacking automatic tool changers to make manual tool changes.
 In use when a M6 tool change is encountered, the motion component will stop the spindle and pause the program.
 The hal_manualtoolchange component will then receive a signal from the motion component causing it to display a tool change window prompting the user which tool number to load based on the last T\- number programmed.
 The dialog will stay active until the "continue" button is pressed.  When the "continue" button is pressed, hal_manualtoolchange will then signal the motion component that the tool change is complete thus allowing motion to turn the spindle back on and resume program execution.
@@ -50,10 +50,10 @@ Signifies that the tool change is complete.
 Pin to allow an external switch to signify that the tool change is complete.
 .SH USAGE
 Normal usage is to load the component in your HAL file and net the appropriate pins from the\fI motion\fR and\fI io\fR components.
-The following lines are typical in a HAL file when using the hal_manualtoolchange userspace component.
+The following lines are typical in a HAL file when using the hal_manualtoolchange non-realtime component.
 .TP
 .B loadusr \-W hal_manualtoolchange
-This will load the hal_manualtoolchange userspace component waiting for the component to be ready before continuing.
+This will load the hal_manualtoolchange non-realtime component waiting for the component to be ready before continuing.
 .TP
 .B net tool\-change iocontrol.0.tool\-change => hal_manualtoolchange.change
 When an M6 code is run, motion sets \fI iocontrol.0.tool\-change \fR to high indicating a tool change.

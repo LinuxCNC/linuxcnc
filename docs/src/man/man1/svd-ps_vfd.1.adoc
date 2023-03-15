@@ -3,7 +3,7 @@
 
 == NAME
 
-svd-ps_vfd - HAL userspace component for SVD-P(S) VFDs
+svd-ps_vfd - HAL non-realtime component for SVD-P(S) VFDs
 
 
 == SYNOPSIS

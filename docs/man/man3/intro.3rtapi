@@ -10,7 +10,7 @@ systems.  As of LinuxCNC 2.7, POSIX threads and RTAI are supported.
 .SH HEADER FILES
 .SS rtapi.h
 The file \fBrtapi.h\fR defines the RTAPI for both realtime and non-realtime
-code.  This is a change from Rev 2, where the non-realtime (user space) API
+code.  This is a change from Rev 2, where the non-realtime API
 was defined in ulapi.h and used different function names.  The symbols RTAPI
 and ULAPI are used to determine which mode is being compiled, RTAPI for
 realtime and ULAPI for non-realtime.
@@ -35,8 +35,8 @@ types, such as INT_MIN and INT_MAX.  This should be used instead of
 \fB<limits.h>\fR because that header file is not available to kernel modules.
 
 .SH REALTIME CONSIDERATIONS
-.SS Userspace code
-Certain functions are not available in userspace code.  This includes functions
+.SS Non-realtime code
+Certain functions are not available in non-realtime code.  This includes functions
 that perform direct device access such as \fBrtapi_inb(3)\fR.
 
 .SS Init/cleanup code

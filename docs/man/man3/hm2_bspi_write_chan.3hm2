@@ -26,7 +26,7 @@ fly setup changes).
 
 .SH REALTIME CONSIDERATIONS
 May be called from init/cleanup code and from within realtime tasks.
-Not available in userspace components.
+Not available in non-realtime components.
 
 .SH RETURN VALUE
 Returns 0 on success and \-1 on failure.

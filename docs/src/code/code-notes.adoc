@@ -122,12 +122,13 @@ discrete I/O controllers at the appropriate times.
 
 == Motion Controller Introduction
 
-The motion controller receives commands from user space modules via a
-shared memory buffer, and executes those commands in realtime. The
-status of the controller is made available to the user space modules
-through the same shared memory area. The motion controller interacts
-with the motors and other hardware using the HAL (Hardware Abstraction
-Layer). This document assumes that the reader has a basic understanding
+The motion controller is a realtime component.  It receives motion control commands from the non-realtime parts of LinuxCNC (i.e. the G-code interpreter/Task, GUIs, etc) and executes those commands within its realtime context.  The communication from non-realtime context to realtime context happens via a message-passing IPC mechanism using shared memory, and via the Hardware Abstraction Layer (HAL).
+
+The status of the motion controller is made available to the rest of LinuxCNC through the same message-passing shared memory IPC, and through HAL.
+
+The motion controller interacts with the motor controllers and other realtime and non-realtime hardware using HAL.
+
+This document assumes that the reader has a basic understanding
 of the HAL, and uses terms like HAL pins, HAL signals, etc, without
 explaining them. For more information about the HAL, see the
 HAL Manual. Another chapter of this document will
@@ -136,9 +137,7 @@ chapter, we only use the HAL API as defined in src/hal/hal.h.
 
 === Motion Controller Modules
 
-The realtime functions of the motion controller are implemented
-with modules -- shared objects for rtpreempt systems or kernel
-modules for some implementations (RTAI):
+The realtime functions of the motion controller are implemented with realtime modules -- userspace shared objects for Preempt-RT systems or kernel modules for some kernel-mode realtime implementations such as RTAI:
 
 * 'tpmod' - trajectory planning
 * 'homemod' - homing functions

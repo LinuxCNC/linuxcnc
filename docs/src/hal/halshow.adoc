@@ -193,7 +193,7 @@ The entry box labeled "HAL Command:" will accept any of the commands listed for 
 These include:
 
 - `loadrt`, `unloadrt` (load/unload real-time module)
-- `loadusr`, `unloadusr` (load/unload user-space component)
+- `loadusr`, `unloadusr` (load/unload non-realtime component)
 - `addf`, `delf` (add/delete a function to/from a real-time thread)
 - `net` (create a connection between two or more items)
 - `setp` (set parameter (or pin) to a value)

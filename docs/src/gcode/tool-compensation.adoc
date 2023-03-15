@@ -177,7 +177,7 @@ is used for all machines.
 [[sub:tool-io]]
 === Tool IO(((Tool IO)))
 
-The userspace program specified by *[EMCIO]EMCIO = io* is conventionally
+The non-realtime program specified by *[EMCIO]EMCIO = io* is conventionally
 used for tool changer management (and other io functions for enabling
 LinuxCNC and the control of coolant/lube hardware).  The HAL pins used for
 tool management are prefixed with *iocontrol.0.*.
@@ -251,7 +251,7 @@ is in the <<sub:ini:sec:emcio,EMCIO Section>> of the INI chapter.
 .Manual Tool Changer
 Manual tool changer (you change the tool by hand) is treated like a
 fixed location tool changer.  Manual toolchanges can be aided by
-a HAL configuration that employs the userspace program
+a HAL configuration that employs the non-realtime program
 *hal_manualtoolchange* and is typically specified in an INI file
 with INI statements:
 

@@ -728,7 +728,7 @@ more information.
 The number of names= instances was formerly limited to 16.  Now,
 for realtime components (loadrt) the instances are assigned
 dynamically with no built-in limit.  The limit of 16 still
-applies to names= items for userspace (loadusr) components.
+applies to names= items for non-realtime (loadusr) components.
 
 For components using 'personality', the maximum number is now
 settable by a command line option -P|--personalities.
@@ -1144,7 +1144,7 @@ Functions supported include:
   for each joint (and xy, xyz for trivkins machines)
 . 'simulated_home' -- a sim_home_switch HAL component is loaded and connected for each joint.
   The homing conditions are specified by the usual [JOINT_n]HOME_* INI file items.
-. 'use_hal_manualtoolchange' -- the user space hal_manualtoolchange
+. 'use_hal_manualtoolchange' -- the non-realtime hal_manualtoolchange
   component is loaded and connected.
 . 'sim_spindle' -- the sim_spindle component is loaded and connected to
   additional loaded HAL components to simulate the inertia of a rotating
@@ -1208,7 +1208,7 @@ HALFILE = ./example_cmds.hal
 ==== Notes
 
 All components and connections made by LIB:basic_sim.tcl can be viewed
-using halcmd.  The entire HAL configuration (except for userspace
+using halcmd.  The entire HAL configuration (except for non-realtime
 components loaded with loadusr) can be saved to a file using:
 
 ----
@@ -1363,7 +1363,7 @@ to user-fielded Python remap applications that modify tool handling.
 A new optional interface is provided to support management of
 tool data by an external database application.
 
-The ioControl_v2.cc file providing the userspace program iov2 has
+The ioControl_v2.cc file providing the non-realtime program iov2 has
 no maintainter and its use is deprecated -- it may be removed before
 the next release.
 
@@ -1430,10 +1430,10 @@ support of an additional user-specified kinematics type identified
 on the make command line by the userkfuncs environmental
 variable.  (See src/Makefile)
 
-The userspace test program bin/genserkins has been isolated to
+The non-realtime test program bin/genserkins has been isolated to
 a single file (ugenserkins.c) since its original source file
 (genserkins.c) has been refactored for switchkins support.
-The userspace test program has not been actively maintained and
+The non-realtime test program has not been actively maintained and
 its use is deprecated.  The ugenserkins.c file may be removed
 in the future.
 

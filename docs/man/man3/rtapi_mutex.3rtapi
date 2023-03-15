@@ -27,7 +27,7 @@ Otherwise, it returns a nonzero value.
 \fBrtapi_mutex_get\fR.
 
 .SH REALTIME CONSIDERATIONS
-\fBrtapi_mutex_give\fR and \fBrtapi_mutex_try\fR may be used from user,
+\fBrtapi_mutex_give\fR and \fBrtapi_mutex_try\fR may be used from non-realtime,
 init/cleanup, and realtime code.
 
 \fBrtapi_mutex_get\fR may not be used from realtime code.

@@ -49,7 +49,7 @@ import sys
 
 HAL pins are created with the normal Python "hal" library, and are not
 specific to Vismach. Further details can be found in the
-<<cha:halmodule,Creating Userspace Components in Python>> section.
+<<cha:halmodule,Creating Non-realtime Components in Python>> section.
 A component should be created with a name that matches the script file
 name and then the HAL pins are added to that component. They will be
 referenced by their component handle and short name when used to animate

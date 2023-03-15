@@ -22,7 +22,7 @@ floating-point values is done as though with %A even when other formats like %f
 are specified.
 
 .SH REALTIME CONSIDERATIONS
-May be called from user, init/cleanup, and realtime code.
+May be called from non-realtime, init/cleanup, and realtime code.
 
 .SH RETURN VALUE
 The number of characters written to \fIbuf\fR.

@@ -101,7 +101,7 @@ Anything following '\fB#\fR' on a line is a comment.
 module called \fImodname\fR.  \fBhalcmd\fR looks for the module
 in a directory specified at compile time.
 
-In systems with realtime-support, \fBhalcmd\fR calls the
+In systems with kernel-based realtime support (e.g. RTAI), \fBhalcmd\fR calls the
 \fBlinuxcnc_module_helper\fR to load realtime modules.
 \fBlinuxcnc_module_helper\fR is a setuid program and is compiled with
 a whitelist of modules it is allowed to load.  This is currently
@@ -112,10 +112,11 @@ restrict which users can load these \fBLinuxCNC\fR-related kernel
 modules can do this by setting the permissions and group on
 \fBlinuxcnc_module_helper\fR appropriately.
 
-In systems without realtime-support \fBhalcmd\fR calls the
-\fBrtapi_app\fR which creates the simulated realtime environment
-if it did not yet exist, and then loads the requested component
-with a call to \fBdlopen(3)\fR.
+In systems with userspace-based realtime support (e.g. Preempt-RT) and in
+systems without realtime support \fBhalcmd\fR calls the \fBrtapi_app\fR
+which creates the realtime environment (simulated realtime, on systems
+with no userspace realtime support) if it did not yet exist, and then
+loads the requested component with a call to \fBdlopen(3)\fR.
 .TP
 \fBunloadrt\fR \fImodname\fR
 (\fIunload\fR \fIr\fReal\fIt\fRime module)  Unloads a realtime HAL
@@ -126,7 +127,7 @@ also works by execing \fBlinuxcnc_module_helper\fR or \fBrtapi_app\fR, just like
 .TP
 \fBloadusr\fR \fI[flags]\fR \fIunix-command\fR
 (\fIload\fR \fIUs\fRe\fIr\fRspace component) Executes the given
-\fIunix-command\fR, usually to load a userspace component.
+\fIunix-command\fR, usually to load a non-realtime component.
 \fI[flags]\fR may be one or more of:
 .RS
 .IP \(bu 4
@@ -142,21 +143,21 @@ name.
 .RE
 .TP
 \fBwaitusr\fR \fIname\fR
-(\fIwait\fR for \fIUs\fRe\fIr\fRspace component) Waits for user
-space component \fIname\fR to disconnect from HAL (usually on exit).
+(\fIwait\fR for \fIUs\fRe\fIr\fRspace component) Waits for non-realtime
+component \fIname\fR to disconnect from HAL (usually on exit).
 The component must already be loaded.  Useful near the end of a
 HAL file to wait until the user closes some user interface component
 before cleaning up and exiting.
 .TP
 \fBunloadusr\fR \fIcompname\fR
-(\fIunload\fR \fIUs\fRe\fIr\fRspace component)  Unloads a userspace
+(\fIunload\fR \fIUs\fRe\fIr\fRspace component)  Unloads a non-realtime
 component called \fIcompname\fR.  If \fIcompname\fR is "all", it will
-unload all userspace components.  \fBunloadusr\fR
-works by sending SIGTERM to all userspace components.
+unload all non-realtime components.  \fBunloadusr\fR
+works by sending SIGTERM to all non-realtime components.
 .TP
 \fBunload\fR \fIcompname\fR
-Unloads a userspace component or realtime module.  If \fIcompname\fR is "all",
-it will unload all userspace components and realtime modules.
+Unloads a non-realtime component or realtime module.  If \fIcompname\fR is "all",
+it will unload all non-realtime components and realtime modules.
 .TP
 \fBnewsig\fR \fIsigname\fR \fItype\fR
 (OBSOLETE - use \fBnet\fR instead) (\fInew\fR \fIsig\fRnal)

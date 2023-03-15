@@ -34,7 +34,7 @@ from fastest to slowest results in rate monotonic priority scheduling.
 \fBhal_delete_thread\fR deletes a previously created thread.
 
 .SH REALTIME CONSIDERATIONS
-Call only from realtime init code, not from user space or realtime code.
+Call only from realtime init code, not from realtime or non-realtime code.
 
 .SH RETURN VALUE
 Returns a HAL status code.

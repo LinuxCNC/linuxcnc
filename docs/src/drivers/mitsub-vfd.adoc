@@ -12,13 +12,13 @@
 
 :hal: {basebackend@docbook:'':hal}
 
-This is a userspace HAL program, written in Python, to control VFD's from
+This is a non-realtime HAL program, written in Python, to control VFD's from
 Mitsubishi. +
 Specifically the A500 F500 E500 A500 D700 E700 F700 series - others may work. +
 mitsub_vfd supports serial control using the RS485 protocol. +
 Conversion from USB or serial port to RS485 requires special hardware. +
 [NOTE]
-Since this is a userspace program it can be affected by computer loading and
+Since this is a non-realtime program it can be affected by computer loading and
 latency. It is possible to lose control of the VFDs. It is optional to set the
 VFD to stop if it loses communication if that is desirable. One should always
 have an Estop circuit that kills the power to the unit in case of emergency.

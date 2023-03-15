@@ -1,7 +1,7 @@
 .TH "IOCONTROL - IO" "1" "2007-08-25" "LinuxCNC Documentation" "HAL Component" 
 
 .SH NAME
-iocontrol \- interacts with HAL or G-code in userspace
+iocontrol \- interacts with HAL or G-code in non-realtime
 
 .SH SYNOPSIS
 
@@ -12,12 +12,12 @@ iocontrol \- interacts with HAL or G-code in userspace
 .SH DESCRIPTION
 
 I/O control handles I/O tasks like coolant, toolchange, E-stop and lube.
-The signals are turned on and off in userspace with G-code or in the case of E-stop in HAL. 
+The signals are turned on and off in non-realtime with G-code or in the case of E-stop in HAL. 
 
-The following pins are created by the userspace IO controller, usually found in $LINUXCNC_HOME/bin/io
+The following pins are created by the non-realtime IO controller, usually found in $LINUXCNC_HOME/bin/io
 .P
-iocontrol is a userspace process - if you have strict timing requirements
-or simply need more I/O, consider using the realtime synchronized I/oO
+iocontrol is a non-realtime process - if you have strict timing requirements
+or simply need more I/O, consider using the realtime synchronized I/O
 provided by \fBmotion\fR(9) instead.
 .P
 The INI file is searched for in the directory from which halcmd was run,
