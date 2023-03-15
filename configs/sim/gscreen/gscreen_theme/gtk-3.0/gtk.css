@@ -1,0 +1,34 @@
+.background {
+    color: #ffffff;
+    background-color: #232323;
+}
+
+*:active {
+    color: #dadada;
+    background-color: #151515;
+}
+
+*:disabled {
+    color: #151515;
+    background-color: #303030;
+}
+
+*:hover {
+    color: #fcfcfc;
+    background-color: #003263;
+}
+
+*:checked {
+    color: #fcfcfc;
+    background-color: #002849;
+}
+
+button, notebook tab label {
+    border: 1px solid #808080;
+    margin:1px;
+}
+
+*button:active {
+    color: #dadada;
+    background-color: #151515;
+}

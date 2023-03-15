@@ -94,17 +94,9 @@ class OffsetPage(Gtk.Box):
         self.display_follows_program = False # display units are chosen indepenadently of G20/G21
         self.font = "sans 12"
         self.editing_mode = False
-        # color = Gdk.RGBA()
-        # color.parse("lightblue")
-        # self.highlight_color = color
-        # color.parse("red")
-        # self.foreground_color = color
-        # color.parse("lightgray")
-        # self.unselectable_color = color
         self.highlight_color = self.color_parse("lightblue")
         self.foreground_color = self.color_parse("red")
         self.unselectable_color = self.color_parse("lightgray")
-
         self.hidejointslist = []
         self.hidecollist = []
         self.wTree = Gtk.Builder()
