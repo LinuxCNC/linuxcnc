@@ -677,6 +677,7 @@ class HandlerClass:
         self.developmentPin = self.h.newpin('development', hal.HAL_BIT, hal.HAL_IN)
         self.extAbortPin = self.h.newpin('ext_abort', hal.HAL_BIT, hal.HAL_IN)
         self.extAutoVoltsEnablePin = self.h.newpin('ext_auto_volts_enable', hal.HAL_BIT, hal.HAL_IN)
+        self.extChangeConsPin = self.h.newpin('ext_consumables', hal.HAL_BIT, hal.HAL_IN)
         self.extCornerLockEnablePin = self.h.newpin('ext_cornerlock_enable', hal.HAL_BIT, hal.HAL_IN)
         self.extCutRecCancelPin = self.h.newpin('ext_cutrec_cancel', hal.HAL_BIT, hal.HAL_IN)
         self.extCutRecRevPin = self.h.newpin('ext_cutrec_rev', hal.HAL_BIT, hal.HAL_IN)
@@ -689,6 +690,7 @@ class HandlerClass:
         self.extCutRecSWPin = self.h.newpin('ext_cutrec_sw', hal.HAL_BIT, hal.HAL_IN)
         self.extCutRecWPin = self.h.newpin('ext_cutrec_w', hal.HAL_BIT, hal.HAL_IN)
         self.extCutRecNWPin = self.h.newpin('ext_cutrec_nw', hal.HAL_BIT, hal.HAL_IN)
+        self.extFramingPin = self.h.newpin('ext_frame_job', hal.HAL_BIT, hal.HAL_IN)
         self.extHeightOvrCountsPin = self.h.newpin('ext_height_ovr_counts', hal.HAL_S32, hal.HAL_IN)
         self.extHeightOvrCountEnablePin = self.h.newpin('ext_height_ovr_count_enable', hal.HAL_BIT, hal.HAL_IN)
         self.extHeightOvrMinusPin = self.h.newpin('ext_height_ovr_minus', hal.HAL_BIT, hal.HAL_IN)
@@ -700,9 +702,12 @@ class HandlerClass:
 #        self.extKerfCrossEnablePin = self.h.newpin('ext_kerfcross_enable', hal.HAL_BIT, hal.HAL_IN)
         self.extLaserTouchOffPin = self.h.newpin('ext_laser_touchoff', hal.HAL_BIT, hal.HAL_IN)
         self.extMeshModePin = self.h.newpin('ext_mesh_mode', hal.HAL_BIT, hal.HAL_IN)
+        self.extOhmicPin = self.h.newpin('ext_ohmic', hal.HAL_BIT, hal.HAL_IN)
         self.extOhmicProbeEnablePin = self.h.newpin('ext_ohmic_probe_enable', hal.HAL_BIT, hal.HAL_IN)
         self.extPausePin = self.h.newpin('ext_pause', hal.HAL_BIT, hal.HAL_IN)
         self.extPowerPin = self.h.newpin('ext_power', hal.HAL_BIT, hal.HAL_IN)
+        self.extProbePin = self.h.newpin('ext_probe', hal.HAL_BIT, hal.HAL_IN)
+        self.extPulsePin = self.h.newpin('ext_pulse', hal.HAL_BIT, hal.HAL_IN)
         self.extRunPausePin = self.h.newpin('ext_run_pause', hal.HAL_BIT, hal.HAL_IN)
         self.extRunPin = self.h.newpin('ext_run', hal.HAL_BIT, hal.HAL_IN)
         self.extThcEnablePin = self.h.newpin('ext_thc_enable', hal.HAL_BIT, hal.HAL_IN)
@@ -2770,6 +2775,7 @@ class HandlerClass:
         self.extHeightOvrResetPin.value_changed.connect(lambda v:self.height_ovr_pressed(v,0))
         self.extHeightOvrCountsPin.value_changed.connect(lambda v:self.height_ovr_encoder(v))
         self.extHeightOvrScalePin.value_changed.connect(lambda v:self.height_ovr_scale_change(v))
+        self.extChangeConsPin.value_changed.connect(lambda v:self.ext_change_consumables(v))
         self.extCutRecRevPin.value_changed.connect(lambda v:self.cutrec_motion(-v))
         self.extCutRecFwdPin.value_changed.connect(lambda v:self.cutrec_motion(v))
         self.extCutRecNPin.value_changed.connect(lambda v:self.cutrec_move(v, 0, 1))
@@ -2790,6 +2796,10 @@ class HandlerClass:
         self.extOhmicProbeEnablePin.value_changed.connect(lambda v:self.ext_ohmic_probe_enable_changed(v))
         self.extAutoVoltsEnablePin.value_changed.connect(lambda v:self.ext_auto_volts_enable_changed(v))
         self.extJogSlowPin.value_changed.connect(self.ext_jog_slow)
+        self.extProbePin.value_changed.connect(lambda v:self.ext_probe_test(v))
+        self.extPulsePin.value_changed.connect(lambda v:self.ext_torch_pulse(v))
+        self.extOhmicPin.value_changed.connect(lambda v:self.ext_ohmic_test(v))
+        self.extFramingPin.value_changed.connect(lambda v:self.ext_frame_job(v))
         self.probeTestErrorPin.value_changed.connect(lambda v:self.probe_test_error(v))
         self.w.preview_stack.currentChanged.connect(self.preview_stack_changed)
         self.w.gcode_stack.currentChanged.connect(self.gcode_stack_changed)
@@ -3556,8 +3566,6 @@ class HandlerClass:
                     self.ccButton = 'button_{}'.format(str(bNum))
                     self.idleHomedList.append(self.ccButton)
                     self.pausedValidList.append(self.ccButton)
-                    self.extChangeConsPin = self.h.newpin('ext_consumables', hal.HAL_BIT, hal.HAL_IN)
-                    self.extChangeConsPin.value_changed.connect(lambda v:self.ext_change_consumables(v))
                 else:
                     msg1 = _translate('HandlerClass', 'Check button code for invalid or missing arguments')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
@@ -3576,8 +3584,6 @@ class HandlerClass:
                     self.ptButton = 'button_{}'.format(str(bNum))
                     self.idleHomedList.append(self.ptButton)
                     self.probeText = self.w[self.ptButton].text()
-                    self.extProbePin = self.h.newpin('ext_probe', hal.HAL_BIT, hal.HAL_IN)
-                    self.extProbePin.value_changed.connect(lambda v:self.ext_probe_test(v))
                 else:
                     msg1 = _translate('HandlerClass', 'Check button code for extra arguments')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
@@ -3598,8 +3604,6 @@ class HandlerClass:
                     self.idleOnList.append(self.tpButton)
                     self.pausedValidList.append(self.tpButton)
                     self.tpText = self.w[self.tpButton].text()
-                    self.extPulsePin = self.h.newpin('ext_pulse', hal.HAL_BIT, hal.HAL_IN)
-                    self.extPulsePin.value_changed.connect(lambda v:self.ext_torch_pulse(v))
                 else:
                     msg1 = _translate('HandlerClass', 'Check button code for extra arguments')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
@@ -3608,8 +3612,6 @@ class HandlerClass:
                 self.otButton = 'button_{}'.format(str(bNum))
                 self.idleOnList.append(self.otButton)
                 self.pausedValidList.append(self.otButton)
-                self.extOhmicPin = self.h.newpin('ext_ohmic', hal.HAL_BIT, hal.HAL_IN)
-                self.extOhmicPin.value_changed.connect(lambda v:self.ext_ohmic_test(v))
             elif 'framing' in bCode:
                 frButton = True
                 self.defaultZ = True
@@ -3634,8 +3636,6 @@ class HandlerClass:
                 if frButton:
                     self.frButton = 'button_{}'.format(str(bNum))
                     self.idleHomedList.append(self.frButton)
-                    self.extFramingPin = self.h.newpin('ext_frame_job', hal.HAL_BIT, hal.HAL_IN)
-                    self.extFramingPin.value_changed.connect(lambda v:self.ext_frame_job(v))
             elif 'cut-type' in bCode:
                 self.ctButton = 'button_{}'.format(str(bNum))
                 self.idleOnList.append(self.ctButton)
