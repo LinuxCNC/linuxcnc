@@ -406,9 +406,28 @@ This depends on the widget/libraries used.
 intended to be sent when a G-code error is found when loading. +
 This depends on the widget/libraries used.
 
-*graphics-gcode-properties* :: '(returns string)' -
-intended to be sent when G-code is loaded. +
-This depends on the widget/libraries used.
+*graphics-gcode-properties* :: '(returns Python dict)' -
+Sent when G-code is loaded. +
+The dict contains the following keys:
+- `name` (_string_): Name of the loaded file
+- `size` (_string_): Size in bytes and lines
+- `g0` (_string_): Total rapid distance
+- `g1` (_string_): Total feed distance
+- `run` (_string_): Estimated program run time
+- `toollist` (_list_): List of used tools
+- `x` (_string_): X extents (bounds) ^1^
+- `x_zero_rxy` (_string_): X extents without rotation around z (bounds) ^1^
+- `y` (_string_): Y extents (bounds) ^1^
+- `y_zero_rxy` (_string_): Y extents without rotation around z (bounds) ^1^
+- `z` (_string_): Z extents (bounds) ^1^
+- `z_zero_rxy` (_string_): Z extents without rotation around z (bounds) ^1^
+- `machine_unit_sys` (_string_): Machine units ('Metric' or 'Imperial')
+- `gcode_units` (_string_): Units in G-code file ('mm' or 'in')
++
+[NOTE]
+====
+1. See the images image:images/gremlin_extents_non-rotated_link.png[align="left",link="images/gremlin_extents_non-rotated.png",alt="extends non-rotated"] and image:images/gremlin_extents_rotated_30_link.png[align="left",link="images/gremlin_extents_rotated_30.png",alt="extends rotated 30"] for a better understanding.
+====
 
 *graphics-view-changed* :: '(returns string, Python dict or None)' -
 intended to be sent when graphics view is changed. +
