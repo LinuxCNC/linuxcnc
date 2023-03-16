@@ -151,7 +151,6 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
                #AttributeError: 'NoneType' object has no attribute 'gl_end'
             print('hal_gremlin: continuing after',detail)
         self.gstat.emit('graphics-gcode-properties',self.gcode_properties)
-        print(self.gcode_properties)
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
