@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-02-12 11:32+0100\n"
-"PO-Revision-Date: 2023-03-05 06:11+0000\n"
+"PO-Revision-Date: 2023-03-13 09:40+0000\n"
 "Last-Translator: kemal askan <kemalaskan90@gmail.com>\n"
 "Language-Team: none\n"
 "Language: tr\n"
@@ -29,7 +29,7 @@ msgstr "logo girişi bulundu = {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:262
 msgid "Logofile entry found, but could not be converted to path."
-msgstr ""
+msgstr "Logofile girişi bulundu, ancak yola dönüştürülemedi."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:263
 msgid "The file path should not contain any spaces"
@@ -69,7 +69,7 @@ msgstr "Tümünü eve götürmek için basın {0}"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:711
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1003
 msgid "Press to display previous homing button"
-msgstr ""
+msgstr "Önceki homing düğmesini görüntülemek için basın"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:727
 #, python-brace-format
@@ -79,7 +79,7 @@ msgstr "home tuşuna basın {0} {1}"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:744
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1032
 msgid "Press to display next homing button"
-msgstr ""
+msgstr "Sonraki Homing düğmesini görüntülemek için basın"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:759
 #, python-brace-format
@@ -94,7 +94,7 @@ msgstr "Ana düğme listesine dönmek için basın"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:826
 #, python-brace-format
 msgid "could not resolv the image path '{0}' given for button '{1}'"
-msgstr ""
+msgstr "'{1}' düğmesi için verilen '{0}' görüntü yolunu çözemedi"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:981
 msgid ""
@@ -111,45 +111,52 @@ msgstr "Ofsetleri düzenlemek için basın"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1015
 #, python-brace-format
 msgid "Press to set touch off value for axis {0}"
-msgstr ""
+msgstr "{0} ekseni için temas değerini ayarlamak için basın"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1051
 msgid "Press to reset all G92 offsets"
-msgstr ""
+msgstr "Tüm G92 ofsetlerini sıfırlamak için basın"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1057
 msgid ""
 " Block\n"
 "Height"
 msgstr ""
+" Blok\n"
+"Yükseklik"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1062
 msgid "Press to enter new value for block height"
-msgstr ""
+msgstr "Blok yüksekliği için yeni değer girmek için basın"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1067
 msgid ""
 "set\n"
 "selected"
 msgstr ""
+"set\n"
+"seçilmiş"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1076
 msgid "Press to set the selected coordinate system to be the active one"
-msgstr ""
+msgstr "Seçilen koordinat sistemini etkin olacak şekilde ayarlamak için basın"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1101
 msgid "No valid probe config in INI File. Tool measurement disabled."
-msgstr ""
+msgstr "INI Dosyasında geçerli prob yapılandırması yok. Alet ölçümü devre dışı."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1115
 msgid "Found valid probe config in INI file. Will use auto tool measurement."
 msgstr ""
+"Yapılandırma ini dosyasında Bağlanan prob bulundu. Otomatik ölçüm yapılacak."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1129
 msgid ""
 "To many increments given in INI File for this screen. Only the first 10 will "
 "be reachable through this screen."
 msgstr ""
+"Bu ekran için INI Dosyasında verilen veriler çok fazla. Bu ekrandan sadece "
+"ilk 10'a ulaşılabilecektir."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1139
 msgid "Continuous"
@@ -158,72 +165,74 @@ msgstr "Sürekli"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1257
 #, python-brace-format
 msgid "unknown jog command {0}"
-msgstr ""
+msgstr "bilinmeyen jog komutu {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1285
 #, python-brace-format
 msgid "Press to jog axis {0}"
-msgstr ""
+msgstr "Jog eksenine basın {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1305
 #, python-brace-format
 msgid "Press to jog joint {0}"
-msgstr ""
+msgstr "Jog eklemi için basın {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1327
 msgid "GMOCCAPY INFO\n"
-msgstr ""
+msgstr "GMOCCAPY BİLGİSİ\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1328
 msgid "found more than 16 macros, will use only the first 16"
-msgstr ""
+msgstr "16'dan fazla makro bulundu, yalnızca ilk 16'yı kullanacak"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1339
 msgid "Press to display previous macro button"
-msgstr ""
+msgstr "Önceki makro düğmesini görüntülemek için basın"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1361
 #, python-brace-format
 msgid "Press to run macro {0}"
-msgstr ""
+msgstr "{0} makrosunu çalıştırmak için basın"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1372
 msgid "Press to display next macro button"
-msgstr ""
+msgstr "Sonraki makro düğmesini görüntülemek için basın"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1392
 msgid "Press to display the virtual keyboard"
-msgstr ""
+msgstr "Sanal klavye'ye geçmek için tıklayınız"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1488
 msgid "* GMOCCAPY ERROR *"
-msgstr ""
+msgstr "* GMOCCAPY HATASI *"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1489
 msgid "this is not a lathe, as a lathe must have at least\n"
 msgstr ""
+"Bu bir torna tezgahı değildir, çünkü bir torna tezgahının en azından sahip "
+"olması gerekir\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1490
 msgid "an X and an Z axis\n"
-msgstr ""
+msgstr "bir X ve bir Z ekseni\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1491
 msgid "Wrong lathe configuration, we will leave here"
-msgstr ""
+msgstr "Yanlış Torna ayarları, Şimdi buradan ayrılıyoruz"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1492
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1957
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2203
 msgid "Very critical situation"
-msgstr ""
+msgstr "Çok kritik durum"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1637
 msgid "this is not a usual config\n"
-msgstr ""
+msgstr "bu normal bir yapılandırma değil\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1638
 msgid "we miss one of X , Y or Z axis\n"
-msgstr ""
+msgstr "X , Y veya Z ekseninden birini kaçırıyoruz\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1639
 msgid "We will use by axisletter ordered jog button"
@@ -232,34 +241,40 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1803
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2916
 msgid "mm/min"
-msgstr ""
+msgstr "mm/dk"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1806
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2919
 msgid "inch/min"
-msgstr ""
+msgstr "inç/dk"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1832
 msgid ""
 "No embedded tabs configured or invalid configuration. No tabs will be added!"
 msgstr ""
+"Yapılandırılmış katıştırılmış sekme yok veya geçersiz yapılandırma. Hiçbir "
+"sekme eklenmeyecek!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1849
 msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
 msgstr ""
+"HATA, kullanıcı sekmelerini veya panellerini başlatmaya çalışırken, yazım "
+"hatalarını kontrol edin"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1955
 msgid "Did not find a toolfile file in [EMCIO] TOOL_TABLE"
-msgstr ""
+msgstr "[EMCIO] TOOL_TABLE'da bir araç dosyası bulunamadı"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2039
 msgid "Audio available!"
-msgstr ""
+msgstr "Ses Mevcut!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2051
 msgid ""
 "No audio available! PYGST library not installed? Is python-gstX.XX installed?"
 msgstr ""
+"Ses Mevcut değil! PYGST kütüphanesi yüklü değil mi ? yada python-gstX.XX "
+"Kurulmadı mı?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2079
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5313
@@ -267,191 +282,199 @@ msgid ""
 " Joint\n"
 "mode"
 msgstr ""
+" Eklem \n"
+"Modu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2123
 msgid "Virtual keyboard program found : <onboard>"
-msgstr ""
+msgstr "Sanal klavye programı bulundu : <onboard>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2125
 msgid ""
 "No virtual keyboard installed, we checked for <onboard>. Try 'sudo apt-get "
 "install onboard'."
 msgstr ""
+"Yüklü sanal klavye yok, <onboard> için kontrol ettik. 'Sudo apt-get install "
+"onboard' deneyin."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2138
 msgid ""
 "Error with launching virtual keyboard. Is onboard installed?Try sudo apt-get "
 "install onboard"
 msgstr ""
+"Sanal klavye başlatılırken hata oluştu. Onboard kurulu mu? Onboard sudo apt-"
+"get install deneyin"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2171
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3046
 msgid "interrupt running macro"
-msgstr ""
+msgstr "Çalışan makroyu kesmek"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2201
 msgid "Did not find a parameter file in [RS274NGC] PARAMETER_FILE"
-msgstr ""
+msgstr "[RS274NGC] PARAMETER_FILE içinde bir parametre dosyası bulunamadı"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2271
 msgid "Select the file you want to be loaded at program start"
-msgstr ""
+msgstr "Program başlangıcında yüklenmesini istediğiniz dosyayı seçin"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2305
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2329
 #, python-brace-format
 msgid "Message type {0} not supported"
-msgstr ""
+msgstr "{0} mesaj türü desteklenmiyor"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2448
 msgid "Unknown error type and no error text given"
-msgstr ""
+msgstr "Bilinmeyen hata türü ve hata metni verilmedi"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2462
 msgid "Important Warning"
-msgstr ""
+msgstr "Çok Önemli Uyarı amk"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2482
 msgid "External ESTOP is set, could not change state!"
-msgstr ""
+msgstr "Harici ESTOP'a basılmış durumda ve Durumu hala değişmedi!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2495
 msgid "Could not switch the machine on, is limit switch activated?"
-msgstr ""
+msgstr "Makine açılamadı, limit anahtarı etkin mi?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2578
 msgid "No file loaded"
-msgstr ""
+msgstr "Dosya yüklenmedi"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2796
 msgid "It is not possible to change to MDI Mode at the moment"
-msgstr ""
+msgstr "Şu anda MDI Moduna geçmek mümkün değil"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2830
 msgid "It is not possible to change to Auto Mode at the moment"
-msgstr ""
+msgstr "Şu anda Otomatik Mod'a geçmek mümkün değil"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3011
 msgid "Enter value:"
-msgstr ""
+msgstr "Değer girin:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3012
 #, python-brace-format
 msgid "Set parameter {0} to:"
-msgstr ""
+msgstr "{0} parametresini şu şekilde ayarlayın:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3015
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4952
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4975
 msgid "Conversion error !"
-msgstr ""
+msgstr "Dönüştürme hatası!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3044
 msgid "This button will show or hide the keyboard"
-msgstr ""
+msgstr "Klavyeyi görmek veya kaldırma butonu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3152
 msgid "Mode change is only allowed if the interpreter is idle!"
-msgstr ""
+msgstr "Mod değişikliğine yalnızca interpreter boştaysa izin verilir!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3377
 #, python-brace-format
 msgid "{0}"
-msgstr ""
+msgstr "{0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3552
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
 msgid "No tool description available"
-msgstr ""
+msgstr "Takım açıklaması yok"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3692
 #, python-brace-format
 msgid "Halo, welcome to the test message {0}"
-msgstr ""
+msgstr "Selam, {0} test mesajına hoş geldiniz"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3803
 msgid "Hal Pin is low, Access denied"
-msgstr ""
+msgstr "Hal Pin düşük, Erişim engellendi"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3805
 msgid "wrong code entered, Access denied"
-msgstr ""
+msgstr "yanlış kod girişi,Erişim engellendi"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3806
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4455
 msgid "Just to warn you"
-msgstr ""
+msgstr "Sadece seni uyarmak için"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3960
 msgid "INFO:"
-msgstr ""
+msgstr "BILGI:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3961
 msgid "Classicladder real-time component not detected"
-msgstr ""
+msgstr "Classicladder gerçek zamanlı bileşeni algılanmadı"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4189
 msgid "Do you really want to delete the MDI history?\n"
-msgstr ""
+msgstr "MDI geçmişini gerçekten silmek istiyor musun?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4190
 msgid "This will not delete the MDI History file, but will\n"
-msgstr ""
+msgstr "Bu MDI geçmişini silmez ama,ancak"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4191
 msgid "delete the listbox entries for this session."
-msgstr ""
+msgstr "bu oturum için liste kutusu girişlerini silin."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4192
 msgid "Attention!!"
-msgstr ""
+msgstr "Dikkat!!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4248
 msgid "Exit and discard changes?"
-msgstr ""
+msgstr "Çıkış yaptığınızda yapılan her şey eski haline dönsün mü? "
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4249
 msgid "Attention!"
-msgstr ""
+msgstr "Dikkat!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4331
 msgid "Enter value for diameter"
-msgstr ""
+msgstr "Ölçü değerini girin"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4332
 msgid "Set diameter to:"
-msgstr ""
+msgstr "Ölçüyü şuna ayarla:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4335
 msgid "Enter value for radius"
-msgstr ""
+msgstr "Radüs değerini girin"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4336
 msgid "Set radius to:"
-msgstr ""
+msgstr "Radüs değeri bu:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4339
 #, python-brace-format
 msgid "Enter value for axis {0}"
-msgstr ""
+msgstr "{0} Ekseni değerini girin"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4340
 #, python-brace-format
 msgid "Set axis {0} to:"
-msgstr ""
+msgstr "{0} eksen değeri:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4345
 msgid "Conversion error in btn_set_value!"
-msgstr ""
+msgstr "btn_set_value'da dönüştürme hatası!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4346
 msgid "Please enter only numerical values. Values have not been applied"
-msgstr ""
+msgstr "Lütfen sadece sayısal değerler giriniz. Değerler uygulanmadı"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4360
 msgid ""
 "You did not select a system to be changed to, so nothing will be changed"
 msgstr ""
+"Değiştirilecek bir sistem seçmediniz, dolayısıyla hiçbir şey "
+"değiştirilmeyecek"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4361
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4981
@@ -459,29 +482,29 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4999
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5014
 msgid "Important Warning!"
-msgstr ""
+msgstr "Önemli Uyarı!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4411
 msgid "Enter the block height"
-msgstr ""
+msgstr "Blok yüksekliğini girin"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4412
 msgid "Block height measured from base table"
-msgstr ""
+msgstr "Taban tablasından ölçülen blok yüksekliği"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4424
 msgid "Conversion error in btn_block_height!"
-msgstr ""
+msgstr "btn_block_height'ta dönüştürme hatası!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4425
 msgid ""
 "Please enter only numerical values\n"
 "Values have not been applied"
-msgstr ""
+msgstr "Lütfen sadece sayısal değerler giriniz. Değerler uygulanmadı"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4869
 msgid "Please remove the mounted tool and press OK when done"
-msgstr ""
+msgstr "Lütfen takılı takım'ı çıkarın ve tamamladığınızda Tamam'a basın"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4873
 #, python-brace-format
@@ -492,6 +515,11 @@ msgid ""
 "\n"
 " then click OK."
 msgstr ""
+"Lütfen takımı değiştirin\n"
+"\n"
+"# {0:d}     {1}\n"
+"\n"
+" ardından Tamam'a basın."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4875
 #, python-brace-format
@@ -502,75 +530,80 @@ msgid ""
 "\n"
 " not in the tool table!"
 msgstr ""
+"Takım\n"
+"\n"
+"# {0:d}\n"
+"\n"
+" Takımın tablosunda değil!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4877
 msgid "Manual Tool change"
-msgstr ""
+msgstr "Manuel Takım değiştirme"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4887
 msgid "Tool Change has been aborted!\n"
-msgstr ""
+msgstr "Takım Değiştirme iptal edildi!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4888
 msgid "The old tool will remain set!"
-msgstr ""
+msgstr "Eski takım ayarlı kalacaktır!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4896
 msgid "You are trying to delete the tool mounted in the spindle\n"
-msgstr ""
+msgstr "Spindle takımını silmeye çalışıyorsunuz\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4897
 msgid "This is not allowed, please change tool prior to delete it"
-msgstr ""
+msgstr "Buna izin verilmiyor, lütfen takımı değiştirip siliniz"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4898
 msgid "Warning Tool can not be deleted!"
-msgstr ""
+msgstr "Dikkat takım silinmedi!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4917
 msgid "No or multiple tools selected in the tool table. "
-msgstr ""
+msgstr "Takım tablosında hiç yada birden çok takım seçili"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4918
 msgid "Please select only one tool in the table!"
-msgstr ""
+msgstr "Lütfen tablodaki takımdan sadece bir tanesini seçin!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4919
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4925
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4933
 msgid "Warning Tool Touch off not possible!"
-msgstr ""
+msgstr "Uyarı Takım dokunma mümkün değil!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4923
 msgid "You can not touch off a tool, which is not mounted in the spindle! "
-msgstr ""
+msgstr "Spindle miline monte edilmemiş takıma dokunamazsınız !"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4924
 msgid "Your selection has been reset to the tool in spindle."
-msgstr ""
+msgstr "Spindle milindeki takım sıfırlandı."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4931
 msgid ""
 "Tool touch off is not possible with cutter radius compensation switched on!\n"
-msgstr ""
+msgstr "Takım dokunucu kesme radüsü kompenzasyonu açıkken yapılamaz !"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4932
 msgid "Please emit an G40 before tool touch off."
-msgstr ""
+msgstr "Lütfen takım dokunma yapmadan önce G40 komutunu girin."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4941
 msgid "Real big error!"
-msgstr ""
+msgstr "Gerçekten büyük hata!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4942
 msgid ""
 "You managed to come to a place that is not possible in on_btn_tool_touchoff"
-msgstr ""
+msgstr "on_btn_tool_touchoff'ta mümkün olmayan bir yere gelmeyi başardınız"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4946
 #, python-brace-format
 msgid "Enter value for axis {0} to set:"
-msgstr ""
+msgstr "Ayarlanacak {0} ekseni için değer girin:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4947
 #, python-brace-format
@@ -1627,12 +1660,12 @@ msgstr "vurgulanan dosyayı seçin ve yolu döndürün"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:253
 msgid "Close without returning a file path"
-msgstr ""
+msgstr "Dosya yolunu döndürmeden kapat"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:254
 msgid "Load File"
-msgstr ""
+msgstr "Dosya Yükle"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:255
 msgid "home joints"
-msgstr ""
+msgstr "Ev eklemeleri"
