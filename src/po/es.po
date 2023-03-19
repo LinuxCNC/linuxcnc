@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-01-26 22:23+0100\n"
-"PO-Revision-Date: 2023-02-25 03:06+0000\n"
-"Last-Translator: Roman Jesus Castañeda <rojecas@gmail.com>\n"
+"PO-Revision-Date: 2023-03-18 10:36+0000\n"
+"Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
 "Language: es\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.16-dev\n"
+"X-Generator: Weblate 4.16.2-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -4349,7 +4349,7 @@ msgstr "ERROR CLASSICLADDER- MODBUS-¡¡ERROR DE NIVEL BAJO EN RESPUESTA !!!\n"
 #: src/hal/classicladder/serial_linux.c:140
 #, c-format
 msgid "Serial speed value %d not found for serial\n"
-msgstr "Valor de velocidad no encontrado para serial\n"
+msgstr "Valor de velocidad serial %d no encontrado para serie\n"
 
 #: src/hal/classicladder/serial_linux.c:145
 #, c-format
@@ -6753,11 +6753,8 @@ msgid "directory: <%s> not writable"
 msgstr "directorio: <%s> no escribible"
 
 #: tcl/tooledit.tcl:287
-#, fuzzy
 msgid "Current file:"
-msgstr ""
-"archivo\n"
-"   actual"
+msgstr "Archivo actual:"
 
 #: tcl/tooledit.tcl:291
 #, fuzzy
@@ -6999,6 +6996,8 @@ msgid ""
 "differs from the the ini specified file:\n"
 "%s"
 msgstr ""
+"difiere del archivo ini especificado:\n"
+"%s"
 
 #: tcl/tooledit.tcl:1043
 #, fuzzy
@@ -11596,13 +11595,13 @@ msgstr "128"
 #: src/emc/usr_intf/pncconf/thcad.glade:39
 #: src/emc/usr_intf/pncconf/thcad.glade:162
 msgid "2 (W1 down)"
-msgstr ""
+msgstr "2 (W1 down)"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:59
 #: src/emc/usr_intf/pncconf/thcad.glade:42
 #: src/emc/usr_intf/pncconf/thcad.glade:163
 msgid "2 (W1 up)"
-msgstr ""
+msgstr "2 (W1 up)"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:68
 #: src/emc/usr_intf/pncconf/thcad.glade:51
@@ -11958,6 +11957,15 @@ msgid ""
 "doesn't require firmware to be loaded at run time.\n"
 "Discovery option requires the advanced options checked on this page."
 msgstr ""
+"Algunas tarjetas antiguas requieren firmware.\n"
+"Usted no tiene el firmware hostmot2 descargado en la carpeta:\n"
+"%s\n"
+"PNCconf utilizará sus muestras de datos de firmware interno para que puedas "
+"continuar.\n"
+"También puedes probar la opción de descubrimiento si tu tarjeta está "
+"conectada y no requiere que se cargue el firmware en tiempo de ejecución.\n"
+"La opción de descubrimiento requiere las opciones avanzadas marcadas en esta "
+"página."
 
 #: src/emc/usr_intf/pncconf/pncconf.py:948
 msgid "LinuxCNC 'PNCconf' configuration files"

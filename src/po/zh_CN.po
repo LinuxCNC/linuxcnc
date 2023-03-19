@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 # whatawhiz <pink0floyd@vip.qq.com>, 2022, 2023.
 # Jeff Epler <jepler@gmail.com>, 2022.
+# zhuxunyu <wuzhi_01@163.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC EMC2.8.0\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-01-26 22:23+0100\n"
-"PO-Revision-Date: 2023-02-20 22:20+0000\n"
-"Last-Translator: whatawhiz <pink0floyd@vip.qq.com>\n"
+"PO-Revision-Date: 2023-03-13 09:40+0000\n"
+"Last-Translator: zhuxunyu <wuzhi_01@163.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -17,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.16-dev\n"
+"X-Generator: Weblate 4.16.2-dev\n"
 "X-Poedit-Language: Chinese\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -3415,7 +3416,7 @@ msgstr "1级"
 
 #: src/hal/classicladder/config_gtk.c:786
 msgid "VERBOSE"
-msgstr ""
+msgstr "更多描述"
 
 #: src/hal/classicladder/config_gtk.c:789
 #, c-format
@@ -3567,7 +3568,7 @@ msgstr "变量类型不兼容(必须是整数!)"
 
 #: src/hal/classicladder/edit.c:485
 msgid "Parser error for indexed variable !"
-msgstr ""
+msgstr "索引变量区分错误"
 
 #: src/hal/classicladder/edit.c:491
 msgid "You must select a boolean variable !"
@@ -3595,7 +3596,7 @@ msgstr "没有更多可用的此类型自由功能块。。。"
 
 #: src/hal/classicladder/edit.c:1262
 msgid "No more free arithmetic expression for this type available..."
-msgstr ""
+msgstr "这种类型变量没有其它算式"
 
 #: src/hal/classicladder/edit.c:1425
 msgid "You clicked outside of the current rung actually selected..."
@@ -11429,6 +11430,7 @@ msgstr "反向"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
 msgid ""
 "_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249

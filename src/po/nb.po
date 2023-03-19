@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# Petter Reinholdtsen <pere-weblate@hungry.com>, 2022.
+# Petter Reinholdtsen <pere-weblate@hungry.com>, 2022, 2023.
 # Asle Næss <aness@bofh.no>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-01-26 22:23+0100\n"
-"PO-Revision-Date: 2022-12-02 04:40+0000\n"
+"PO-Revision-Date: 2023-03-18 10:36+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.15-dev\n"
+"X-Generator: Weblate 4.16.2-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -4152,9 +4152,9 @@ msgid "ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n"
 msgstr ""
 
 #: src/hal/classicladder/serial_linux.c:140
-#, fuzzy, c-format
+#, c-format
 msgid "Serial speed value %d not found for serial\n"
-msgstr "Verdi for hastighet ikke funnet for seriell\n"
+msgstr "Fant ikk seriellhastighetsverdi %d for seriell\n"
 
 #: src/hal/classicladder/serial_linux.c:145
 #, c-format
@@ -11350,7 +11350,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -18572,11 +18573,12 @@ msgstr ""
 "alle"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1801
-#, fuzzy
 msgid ""
 "Ignore\n"
 "Case"
-msgstr "Ignorer M1"
+msgstr ""
+"Ignorer\n"
+"store/små"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1828
 msgid "<b>Mode</b>"
@@ -18619,11 +18621,12 @@ msgid "Metric"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2091
-#, fuzzy
 msgid ""
 "Display\n"
 "Aux Screen"
-msgstr "Vis _tommer"
+msgstr ""
+"Vis\n"
+"Aux-skjerm"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2107
 msgid ""
@@ -18639,7 +18642,9 @@ msgstr ""
 msgid ""
 "Show\n"
 "Offsets"
-msgstr "Vis status"
+msgstr ""
+"Vis\n"
+"forskyvning"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2143
 msgid ""
@@ -18670,11 +18675,12 @@ msgid "Hide Pointer"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2224
-#, fuzzy
 msgid ""
 "Desktop\n"
 "Notification"
-msgstr "Nullstill beskjeder"
+msgstr ""
+"Skrivebords-\n"
+"varsler"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2297
 #: src/emc/usr_intf/gscreen/gscreen.glade:2439
@@ -18686,11 +18692,12 @@ msgid "Alarm History"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2350
-#, fuzzy
 msgid ""
 "Launch\n"
 "Halshow"
-msgstr "Halshow"
+msgstr ""
+"Start\n"
+"Halshow"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2363
 msgid "Calibration"
@@ -18735,14 +18742,17 @@ msgstr ""
 msgid ""
 "Single\n"
 "Step"
-msgstr "Enkelt mellomrom"
+msgstr ""
+"Enkelt-\n"
+"skritt"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2733
-#, fuzzy
 msgid ""
 "Run At\n"
 "Line"
-msgstr "Kjøretid:"
+msgstr ""
+"Kjøre på\n"
+"linje"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2746
 msgid ""
@@ -18785,11 +18795,12 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2926
-#, fuzzy
 msgid ""
 "Launch\n"
 "Keyboard"
-msgstr "Tastatur"
+msgstr ""
+"Start\n"
+"Tastatur"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2944
 msgid "<b>Select Buttons</b>"
@@ -18943,11 +18954,12 @@ msgid ""
 msgstr "Horisontal"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3569
-#, fuzzy
 msgid ""
 "Rotate\n"
 "Vertical"
-msgstr "Vertikal"
+msgstr ""
+"Roter\n"
+"Vertikalt"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3591
 msgid ""

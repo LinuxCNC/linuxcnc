@@ -1,11 +1,12 @@
 # nicolas <nicolas.camil@libertysurf.fr>, 2022.
+# Jérémie Tarot <silopolis@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-01-26 22:23+0100\n"
-"PO-Revision-Date: 2022-06-23 14:19+0000\n"
-"Last-Translator: nicolas <nicolas.camil@libertysurf.fr>\n"
+"PO-Revision-Date: 2023-03-14 19:56+0000\n"
+"Last-Translator: Jérémie Tarot <silopolis@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "fr/>\n"
 "Language: fr\n"
@@ -13,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.13.1-dev\n"
+"X-Generator: Weblate 4.16.2-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -128,31 +129,29 @@ msgstr ""
 "Entre les codes G5.2 et G5.3, seul le code additionnel G5.2 est autorisé."
 
 #: src/emc/rs274ngc/interp_check.cc:260
-#, fuzzy
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"
-msgstr "Mot D sans G41, G41.1, G42, G42.1 ou G96 l'utilisant"
+msgstr "Mot D sans G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 l'utilisant"
 
 #: src/emc/rs274ngc/interp_check.cc:269
-#, fuzzy
 msgid ""
 "$ (spindle selection) word with no M3, M4, M5, M19, M51, G33, G33.1, G76, "
 "G95, G96 or G97 to use it"
-msgstr "Mot D sans G41, G41.1, G42, G42.1 ou G96 l'utilisant"
+msgstr ""
+"Mot $(spindle selection) sans M3, M4, M5, M19, M51, G33, G33.1, G76, G95, "
+"G96 ou G97 pour l'utiliser"
 
 #: src/emc/rs274ngc/interp_check.cc:276
-#, fuzzy
 msgid "E word with no G70, G76, M66, M67 or M68 to use it"
-msgstr "Mot E sans G76, M66, M67 ou M68 l'utilisant"
+msgstr "Mot E sans G70, G76, M66, M67 ou M68 l'utilisant"
 
 #: src/emc/rs274ngc/interp_check.cc:281
 msgid "H word with no G43 or G76 to use it"
 msgstr "Mot H sans G43 ou G76 l'utilisant"
 
 #: src/emc/rs274ngc/interp_check.cc:289
-#, fuzzy
 msgid "I word with no G2, G3, G5, G5.1, G10, G33.1, G76, or G87 to use it"
-msgstr "Mot I sans G2, G3, G5, G5.1, G10, G76 ou G87 l'utilisant"
+msgstr "Mot I sans G2, G3, G5, G5.1, G10, G33.1, G76 ou G87 l'utilisant"
 
 #: src/emc/rs274ngc/interp_check.cc:295
 msgid "J word with no G2, G3, G5, G5.1, G10, G76 or G87 to use it"
@@ -163,27 +162,24 @@ msgid "K word with no G2, G3, G33, G33.1, G76, or G87 to use it"
 msgstr "Mot K sans G2, G3, G33, G33.1, G76 ou G87 l'utilisant"
 
 #: src/emc/rs274ngc/interp_check.cc:313
-#, fuzzy
 msgid ""
 "L word with no G10, cutter compensation, canned cycle, digital/analog input, "
 "M98 or NURBS code"
 msgstr ""
-"Mot L sans G10, ni code de compensation d'outil, cycle préprogrammé, entrée "
-"digitale/analogique ou NURBS"
+"Mot L sans G10, ni compensation d'outil, cycle préprogrammé, entrée digitale/"
+"analogique, M98 ou code NURBS"
 
 #: src/emc/rs274ngc/interp_check.cc:329
-#, fuzzy
 msgid ""
 "P word with no G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 or M50 M51 M52 "
 "M53 M62 M63 M64 M65 M66 M98 or user M code to use it"
 msgstr ""
-"Mot P sans G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 ou M50 M51 M52 M53 "
-"M62 M63 M64 M65 M66 ni code M utilisateur l'utilisant"
+"Mot P sans G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89, ou M50 M51 M52 M53 "
+"M62 M63 M64 M65 M66 M98, ni code M utilisateur l'utilisant"
 
 #: src/emc/rs274ngc/interp_check.cc:335
-#, fuzzy
 msgid "P value not an integer with M19 G2 or G3"
-msgstr "La valeur de P avec G2 ou G3 n'est pas un entier "
+msgstr "La valeur de P avec M19 G2 ou G3 n'est pas un entier"
 
 #: src/emc/rs274ngc/interp_check.cc:337
 msgid "P value must be 0,1,or 2 with M19"
@@ -194,13 +190,12 @@ msgid "P value should be 1 or greater with G2 or G3"
 msgstr "Valeur de P doit être 1 ou plus avec G2 ou G3"
 
 #: src/emc/rs274ngc/interp_check.cc:350
-#, fuzzy
 msgid ""
 "Q word with no G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 or user M "
 "code that uses it"
 msgstr ""
-"Mot Q sans G5, G10, G64, G73, G76, G83, M66, M67, M68 ou code M utilisateur "
-"l'utilisant"
+"Mot Q sans G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 ou code M "
+"utilisateur l'utilisant"
 
 #: src/emc/rs274ngc/interp_check.cc:363
 msgid "R value must be within 0..360 with M19"
@@ -248,9 +243,8 @@ msgid "Splines must be in the XY plane"
 msgstr "Les splines doivent être dans le plan XY"
 
 #: src/emc/rs274ngc/interp_convert.cc:240
-#, fuzzy
 msgid "Splines may not have motion in Z, A, B, or C"
-msgstr "Splines ne devrait pas avoir de mouvement avec Z, A, B, or C"
+msgstr "Splines ne devrait pas avoir de mouvement en Z, A, B, ou C"
 
 #: src/emc/rs274ngc/interp_convert.cc:244
 msgid "Must specify both I and J with G5.1"
@@ -519,11 +513,10 @@ msgid "Q word with M19 requires a value > 0"
 msgstr "Le mot Q avec M19 requiert une valeur > 0"
 
 #: src/emc/rs274ngc/interp_convert.cc:3523
-#, fuzzy
 msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
 msgstr ""
-"Impossible de récupérer depuis un appel invalide dans la pile - M70/73 "
-"manquant ?"
+"Impossible de restaurer le contexte depuis un cadre de pile invalide - M70/"
+"73 manquant ?"
 
 #: src/emc/rs274ngc/interp_convert.cc:3564
 #: src/emc/rs274ngc/interp_convert.cc:3585
@@ -551,16 +544,16 @@ msgstr "Numéro de broche ($) invalide dans la commande M51"
 #: src/emc/rs274ngc/interp_convert.cc:3763
 #: src/emc/rs274ngc/interp_convert.cc:3764
 #: src/emc/rs274ngc/interp_convert.cc:3765
-#, fuzzy, c-format
+#, c-format
 msgid "Indexing axis %c can only be moved with G0"
-msgstr "L'axis d'index %c ne peut être déplacé qu'avec G0"
+msgstr "L'axe d'indexation %c ne peut être déplacé qu'avec G0"
 
 #: src/emc/rs274ngc/interp_convert.cc:3772
 #: src/emc/rs274ngc/interp_convert.cc:3774
 #: src/emc/rs274ngc/interp_convert.cc:3776
-#, fuzzy, c-format
+#, c-format
 msgid "Indexing axis %c can only be moved alone"
-msgstr "L'axis d'index %c ne peut être déplacé que seul"
+msgstr "L'axe d'indexation %c ne peut être déplacé que seul"
 
 #: src/emc/rs274ngc/interp_convert.cc:3883
 msgid "Cannot probe with feed per rev mode"
@@ -734,9 +727,8 @@ msgid "Spindle not turning in %s"
 msgstr "La broche ne tourne pas dans %s."
 
 #: src/emc/rs274ngc/interp_cycles.cc:277
-#, fuzzy
 msgid "Spindle turning clockwise in G74"
-msgstr "La broche ne tourne pas en sens horaire dans g84"
+msgstr "Broche tournant dans horaire en G74"
 
 #: src/emc/rs274ngc/interp_cycles.cc:280
 msgid "Spindle turning counterclockwise in G84"
@@ -799,12 +791,10 @@ msgid "G18.1 canned cycle is not possible on a machine without V axis"
 msgstr "Le cycle préprogrammé G18.1 est impossible sur une machine sans axe V"
 
 #: src/emc/rs274ngc/interp_execute.cc:250
-#, fuzzy
 msgid "Invalid spindle ($) number in Spindle Mode command"
 msgstr "Numéro de broche ($) invalide dans la commande Mode Broche"
 
 #: src/emc/rs274ngc/interp_execute.cc:260
-#, fuzzy
 msgid "Invalid spindle ($) number in Spindle Feed command"
 msgstr "Numéro de broche ($) invalide dans la commande Avance Broche"
 
@@ -952,9 +942,10 @@ msgid "Multiple W words on one line"
 msgstr "Multiples mots W sur une ligne"
 
 #: src/emc/rs274ngc/interp_o_word.cc:104
-#, fuzzy, c-format
+#, c-format
 msgid "File:%s line:%d sub: o|%s| found in illegal location"
-msgstr "Fichier : %s ligne:%d sub : o|%s| défini à un emplacement non autorisé"
+msgstr ""
+"Fichier : %s ligne : %d sub : o|%s| défini à un emplacement non autorisé"
 
 #: src/emc/rs274ngc/interp_o_word.cc:108
 #, c-format
@@ -964,9 +955,9 @@ msgstr ""
 "fichier : %s"
 
 #: src/emc/rs274ngc/interp_o_word.cc:825
-#, fuzzy, c-format
+#, c-format
 msgid "%d: not in a subroutine definition: '%s'"
-msgstr "%d : Pas dans une définition de sous-programmme : %s"
+msgstr "%d : pas dans une définition de sous-programmme : %s"
 
 #: src/emc/rs274ngc/interp_o_word.cc:874 src/emc/rs274ngc/interp_o_word.cc:924
 #, c-format
@@ -1023,15 +1014,15 @@ msgid "Named parameter #<%s> not defined"
 msgstr "Paramètre nommé #<%s> non défini"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:215
-#, fuzzy, c-format
+#, c-format
 msgid "can't open INI file '%s'"
-msgstr "impossible d’ouvrir le fichier INI «%s»"
+msgstr "impossible d’ouvrir le fichier INI « %s »"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:232
-#, fuzzy, c-format
+#, c-format
 msgid "Named INI parameter #<%s> not found in INI file '%s': error=0x%x"
 msgstr ""
-"Paramètre nommé #<%s> non trouvé dans le fichier d'initialisation '%s' : "
+"Paramètre nommé #<%s> introuvable dans le fichier d'initialisation '%s' : "
 "erreur=0x%x"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:257
@@ -1325,9 +1316,8 @@ msgid "File name too long"
 msgstr "Nom de fichier trop long"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:83
-#, fuzzy
 msgid "G-code out of range"
-msgstr "G code hors d'étendue"
+msgstr "G-code hors plage"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:84
 msgid "I word given for arc in yz plane"
@@ -1371,9 +1361,8 @@ msgid "Mixed radius ijk format for arc"
 msgstr "Mélange de format de rayon ijk pour un arc"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:94
-#, fuzzy
 msgid "Multiple spindle choice ($) words on one line"
-msgstr "Multiples mots c sur une ligne"
+msgstr "Plusieurs mots de choix de broche ($) sur une même ligne"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:95
 msgid "Multiple a words on one line"
@@ -1492,9 +1481,8 @@ msgid "Negative spindle speed used"
 msgstr "Utilisation d'une vitesse de broche négative"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:124
-#, fuzzy
 msgid "Negative tool id (tool not found)"
-msgstr "Utilisation d'un index d'outil négatif"
+msgstr "ID outil négatif (outil introuvable)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:125
 msgid "Nested comment found"
@@ -1946,24 +1934,20 @@ msgstr "Ouvrir un fichier de configuration:"
 #: src/hal/utils/scope.c:478 src/hal/utils/scope.c:501
 #: src/hal/utils/scope_horiz.c:808 src/hal/utils/scope_vert.c:713
 #: src/hal/utils/scope_vert.c:933 src/hal/utils/scope_trig.c:315
-#, fuzzy
 msgid "_Cancel"
-msgstr "Annuler"
+msgstr "_Annuler"
 
 #: src/hal/utils/scope.c:479
-#, fuzzy
 msgid "_Open"
-msgstr "Ouvrir..."
+msgstr "_Ouvrir"
 
 #: src/hal/utils/scope.c:499
-#, fuzzy
 msgid "Save Configuration File:"
-msgstr "Ouvrir un fichier de configuration:"
+msgstr "Enregistrer le fichier de configuration :"
 
 #: src/hal/utils/scope.c:502 src/hal/utils/scope_horiz.c:809
-#, fuzzy
 msgid "_Save"
-msgstr "Enregistrer"
+msgstr "_Enregistrer"
 
 #: src/hal/utils/scope.c:533
 msgid "_Open Configuration..."
@@ -1974,14 +1958,12 @@ msgid "_Save Configuration..."
 msgstr "Enregi_strer la configuration..."
 
 #: src/hal/utils/scope.c:548
-#, fuzzy
 msgid "O_pen Log File"
-msgstr "Ouvrir un fichier de données..."
+msgstr "O_uvrir un fichier journal"
 
 #: src/hal/utils/scope.c:555
-#, fuzzy
 msgid "S_ave Log File"
-msgstr "Enregistrer dans un fichier"
+msgstr "E_nregistrer un fichier journal"
 
 #: src/hal/utils/scope.c:564 share/axis/tcl/axis.tcl:102
 msgid "_Quit"
@@ -2052,7 +2034,6 @@ msgid " Pos "
 msgstr " Pos "
 
 #: src/hal/utils/scope_horiz.c:175
-#, fuzzy
 msgid ""
 "----- Samples\n"
 "at ---- kHz"
@@ -2159,9 +2140,8 @@ msgstr ""
 "Cliquer 'Quitter' pour sortir de HALSCOPE"
 
 #: src/hal/utils/scope_horiz.c:535 src/hal/utils/scope_vert.c:712
-#, fuzzy
 msgid "_OK"
-msgstr "OK"
+msgstr "_OK"
 
 #: src/hal/utils/scope_horiz.c:555
 msgid "Thread:"
@@ -2246,9 +2226,8 @@ msgstr ""
 "Cliquer 'Quitter' pour sortir de HALSCOPE"
 
 #: src/hal/utils/scope_horiz.c:793
-#, fuzzy
 msgid "No channels selected"
-msgstr "Pas de jointure sélectionnée pour la télécommande"
+msgstr "Pas de canaux sélectionnés"
 
 #: src/hal/utils/scope_horiz.c:796
 msgid "You need to choose at least one channel."
@@ -2496,9 +2475,9 @@ msgid "Source"
 msgstr "Source"
 
 #: src/emc/motion/control.c:526
-#, fuzzy, c-format
+#, c-format
 msgid "fault %d during orient in progress"
-msgstr "erreur %d pendant prise d'orientation"
+msgstr "erreur %d en cours d'orientation"
 
 #: src/emc/motion/control.c:709
 msgid "G38.4 move finished without breaking contact."
@@ -2509,10 +2488,8 @@ msgid "G38.2 move finished without making contact."
 msgstr "mouvement G38.2 terminé sans obtenir le contact."
 
 #: src/emc/motion/control.c:725
-#, fuzzy
 msgid "Probe tripped during non-probe move."
-msgstr ""
-"La sonde à touché pendant une commande MDI ne faisant pas appel à elle."
+msgstr "Palpeur déclenché en dehors d'un mouvement de palpage."
 
 #: src/emc/motion/control.c:756
 msgid "Probe tripped during homing motion."
@@ -2531,7 +2508,7 @@ msgid "motion stopped by enable input"
 msgstr "mouvement stoppé par enable input"
 
 #: src/emc/motion/control.c:786
-#, fuzzy, c-format
+#, c-format
 msgid "spindle %d amplifier fault"
 msgstr "broche %d, amplificateur en défaut"
 
@@ -2551,7 +2528,7 @@ msgid "joint %d following error"
 msgstr "Erreur de suivi jointure %d"
 
 #: src/emc/motion/control.c:843
-#, fuzzy, c-format
+#, c-format
 msgid "Motion Stopped by misc error %d"
 msgstr "Mouvement interrompu par une erreur diverse %d"
 
@@ -2567,9 +2544,9 @@ msgid "kinematicsInverse failed"
 msgstr "kinematicsInverse a échoué"
 
 #: src/emc/motion/control.c:1502
-#, fuzzy, c-format
+#, c-format
 msgid "Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"
-msgstr "La limite logicielle négative (%.5f) est dépassée sur la jointure %d\n"
+msgstr "Limite logicielle négative (%.5f) dépassée sur la jointure %d\n"
 
 #: src/emc/motion/control.c:1505 src/emc/motion/control.c:1514
 msgid "Joint must be unhomed, jogged into limits, rehomed"
@@ -2622,11 +2599,9 @@ msgstr ""
 "impossible."
 
 #: src/emc/motion/command.c:214 src/emc/motion/command.c:219
-#, fuzzy, c-format
+#, c-format
 msgid "%s move on line %d would exceed %c's %s limit"
-msgstr ""
-"le mouvement %s de la ligne %d va dépasser la limite positive de la jointure "
-"%d's"
+msgstr "le mouvement %s sur la ligne %d dépasserait la limite %s de %c"
 
 #: src/emc/motion/command.c:215
 msgid "negative"
@@ -2699,9 +2674,11 @@ msgid "can't do linear move with limits exceeded"
 msgstr "mouvement linéaire impossible avec des limites dépassées"
 
 #: src/emc/motion/command.c:1039
-#, fuzzy, c-format
+#, c-format
 msgid "can't add linear move at line %d, error code %d"
-msgstr "mouvement linéaire de la ligne %d impossible, erreur %d"
+msgstr ""
+"impossible d'ajouter un mouvement linéaire à la ligne %d impossible, erreur "
+"%d"
 
 #: src/emc/motion/command.c:1066
 msgid "need to be enabled, in coord mode for circular move"
@@ -2712,14 +2689,13 @@ msgid "can't do circular move with limits exceeded"
 msgstr "mouvement circulaire impossible avec des limites dépassées"
 
 #: src/emc/motion/command.c:1095
-#, fuzzy, c-format
+#, c-format
 msgid "can't add circular move at line %d, error code %d"
-msgstr "mouvement circulaire impossible à la ligne %d, erreur %d"
+msgstr "impossible d'ajouter un mouvement circulaire à la ligne %d, erreur %d"
 
 #: src/emc/motion/command.c:1210
-#, fuzzy
 msgid "MOTION: can't STEP while already executing"
-msgstr "MOTION : STEP impossible, déjà en exécution"
+msgstr "MOTION : STEP impossible, déjà en cours d'exécution"
 
 #: src/emc/motion/command.c:1312
 msgid "can't enable motion, enable input is false"
@@ -2776,7 +2752,6 @@ msgstr ""
 "ne peut pas lancer un mouvement de taraudage rigide à la ligne %d, erreur %d"
 
 #: src/emc/motion/command.c:1563
-#, fuzzy
 msgid "Attempt to configure non-existent spindle"
 msgstr "Tentative de configuration d'une broche inexistante"
 
@@ -2800,9 +2775,9 @@ msgid "Attempt to increase non-existent spindle <%d>"
 msgstr "Tentative d'accélérer une broche inexistante <%d>"
 
 #: src/emc/motion/command.c:1733
-#, fuzzy, c-format
+#, c-format
 msgid "Attempt to decrease non-existent spindle <%d>."
-msgstr "Tentative de décélérer une broche inexistante <%d>"
+msgstr "Tentative de décélérer une broche inexistante <%d>."
 
 #: src/emc/motion/command.c:1757
 #, c-format
@@ -2836,9 +2811,8 @@ msgstr ""
 "mode teleop"
 
 #: src/emc/motion/motion.c:270
-#, fuzzy
 msgid "MOTION: hal_init() failed\n"
-msgstr "MOTION : hal_init() à échoué\n"
+msgstr "MOTION : hal_init() a échoué\n"
 
 #: src/emc/motion/motion.c:275
 #, c-format
@@ -2857,7 +2831,6 @@ msgstr ""
 "\n"
 
 #: src/emc/motion/motion.c:287
-#, fuzzy
 msgid ""
 "\n"
 "MOTION: nonzero num_extrajoints requires KINEMATICS_BOTH\n"
@@ -2868,7 +2841,7 @@ msgstr ""
 "\n"
 
 #: src/emc/motion/motion.c:292
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "\n"
 "MOTION: kinematicjoints=%2d\n"
@@ -2877,33 +2850,31 @@ msgid ""
 "\n"
 msgstr ""
 "\n"
-"MOTION : kinematicjoints=%2d\n"
-"            extrajoints=%2d\n"
-"           Total des jointures=%2d\n"
+"MOTION : kinematicjoints = %2d\n"
+"            extrajoints = %2d\n"
+"           Total des jointures = %2d\n"
 "\n"
 
 #: src/emc/motion/motion.c:299
-#, fuzzy, c-format
+#, c-format
 msgid "MOTION: num_spindles is %d, must be between 0 and %d\n"
-msgstr "MOTION : num_joints est %d, doit être compris entre 1 et %d\n"
+msgstr "MOTION : num_spindles = %d, doit être compris entre 0 et %d\n"
 
 #: src/emc/motion/motion.c:306
-#, fuzzy
 msgid "MOTION: Can't specify both names and number for digital pins\n"
 msgstr ""
-"MOTION : Impossible de spécifier à la fois le nom et le numéro d'une pin "
-"digitale\n"
+" MOTION : Impossible de spécifier à la fois le nom et le numéro d'une broche "
+"numérique\n"
 
 #: src/emc/motion/motion.c:320
-#, fuzzy, c-format
+#, c-format
 msgid "MOTION: num_dio is %d, must be between 1 and %d\n"
-msgstr "MOTION : num_dio est %d, doit être compris entre 1 et %d\n"
+msgstr "MOTION : num_dio = %d, doit être compris entre 1 et %d\n"
 
 #: src/emc/motion/motion.c:326
-#, fuzzy
 msgid "MOTION: Can't specify both names and number for analog pins\n"
 msgstr ""
-"MOTION : Impossible de définir à la fois le nom et le numéro d'une pin "
+"MOTION : Impossible de définir à la fois le nom et le numéro d'une broche "
 "analogique\n"
 
 #: src/emc/motion/motion.c:339
@@ -2912,43 +2883,37 @@ msgid "MOTION: num_aio is %d, must be between 1 and %d\n"
 msgstr "MOTION : num_aio est %d, doit être compris entre 1 et %d\n"
 
 #: src/emc/motion/motion.c:345
-#, fuzzy
 msgid "MOTION: Can't specify both names and number for misc error\n"
 msgstr ""
-"MOTION : Impossible de définir à la fois le nom et le numéro d'une erreur\n"
+"MOTION : Impossible de définir à la fois le nom et le numéro d'une erreur "
+"diverse\n"
 
 #: src/emc/motion/motion.c:358
-#, fuzzy, c-format
+#, c-format
 msgid "MOTION: num_misc_error is %d, must be between 0 and %d\n"
-msgstr "MOTION : misc_error est %d, doit être compris entre 1 et %d\n"
+msgstr "MOTION : misc_error = %d, doit être compris entre 0 et %d\n"
 
 #: src/emc/motion/motion.c:366
-#, fuzzy
 msgid "MOTION: init_hal_io() failed\n"
 msgstr "MOTION : init_hal_io() a échoué\n"
 
 #: src/emc/motion/motion.c:374
-#, fuzzy
 msgid "MOTION: init_comm_buffers() failed\n"
 msgstr "MOTION : init_comm_buffers() a échoué\n"
 
 #: src/emc/motion/motion.c:380
-#, fuzzy
 msgid "MOTION: module_intfc() failed\n"
 msgstr "MOTION : module_intfc() a échoué\n"
 
 #: src/emc/motion/motion.c:384
-#, fuzzy
 msgid "MOTION: tp_init() failed\n"
 msgstr "MOTION : tp_init() a échoué\n"
 
 #: src/emc/motion/motion.c:391
-#, fuzzy
 msgid "MOTION: init_threads() failed\n"
 msgstr "MOTION : init_threads() a échoué\n"
 
 #: src/emc/motion/motion.c:401
-#, fuzzy
 msgid "MOTION: homing_init() failed\n"
 msgstr "MOTION : homing_init() a échoué\n"
 
@@ -2963,29 +2928,28 @@ msgid "MOTION: rtapi_shmem_delete() failed, returned %d\n"
 msgstr "MOTION : défaut rtapi_shmem_delete(), a retourné %d\n"
 
 #: src/emc/motion/motion.c:438
-#, fuzzy, c-format
+#, c-format
 msgid "MOTION: hal_exit() failed, returned %d\n"
 msgstr "MOTION : hal_exit() a échoué, erreur %d\n"
 
 #: src/emc/motion/motion.c:467
-#, fuzzy
 msgid "MOTION: emcmot_hal_data malloc failed\n"
 msgstr "MOTION : malloc pour emcmot_hal_data a échoué\n"
 
 #: src/emc/motion/motion.c:664
-#, fuzzy, c-format
+#, c-format
 msgid "MOTION: spindle %d pin export failed"
-msgstr "MOTION : l'export des pins de la broche %d a échoué\n"
+msgstr "MOTION : l'export du pin de la broche %d a échoué"
 
 #: src/emc/motion/motion.c:674
-#, fuzzy, c-format
+#, c-format
 msgid "MOTION: joint %d pin/param export failed\n"
-msgstr "MOTION : l'export des pin de la jointure %d a échoué\n"
+msgstr "MOTION : l'export du pin/param de la jointure %d a échoué\n"
 
 #: src/emc/motion/motion.c:687
-#, fuzzy, c-format
+#, c-format
 msgid "MOTION: ejoint %d pin/param export failed\n"
-msgstr "MOTION: défaut joint %d pin/param export\n"
+msgstr "MOTION : export du pin/param du ejoint %d a échoué\n"
 
 #: src/emc/motion/homing.c:188
 #, fuzzy, c-format
@@ -2998,9 +2962,8 @@ msgid "j%d end of move in home state %d"
 msgstr "fin de mouvement j%d en recherche d'origine %d"
 
 #: src/emc/motion/homing.c:236
-#, fuzzy
 msgid "HOMING: all_joints_home_data_t malloc failed\n"
-msgstr "MOTION: malloc pour all_joints_home_data_t  a échoué\n"
+msgstr "MOTION : malloc pour all_joints_home_data_t a échoué\n"
 
 #: src/emc/motion/homing.c:299
 #, c-format
@@ -3013,14 +2976,16 @@ msgid "Cannot unhome while moving, joint %d"
 msgstr "impossible d'effacer l'origine pendant un mouvement, jointure %d"
 
 #: src/emc/motion/homing.c:311
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome extrajoint <%d> with motion enabled"
-msgstr "Jog d'articulation impossible quand elle n'est pas activée."
+msgstr ""
+"Impossible d'annuler les origines de l'extrajoint <%d> avec le mouvement "
+"activé"
 
 #: src/emc/motion/homing.c:366
 #, c-format
 msgid "homing.c Unexpected joint=%d jseq=%d current_seq=%d\n"
-msgstr ""
+msgstr "homing.c : joint=%d jseq=%d current_seq=%d inattendu\n"
 
 #: src/emc/motion/homing.c:482
 #, c-format
@@ -3033,11 +2998,11 @@ msgid "Cannot unhome invalid joint %d (max %d)\n"
 msgstr "impossible d'effacer l'origine de la jointure invalide %d (max %d)\n"
 
 #: src/emc/motion/homing.c:583
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome extrajoint <%d> with motion enabled\n"
 msgstr ""
-"impossible d'effacer l'origine de la jointure d'articulation <%d> pendant un "
-"mouvement\n"
+"impossible d'annuler l'origine de la jointure extrajoint <%d> avec le "
+"mouvement activé\n"
 
 #: src/emc/motion/homing.c:590
 #, c-format
@@ -3056,10 +3021,11 @@ msgid "Cannot unhome inactive joint %d\n"
 msgstr "impossible d'effacer l'origine d'une jointure inactive, jointure %d\n"
 
 #: src/emc/motion/homing.c:757
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot home while shared home switch is closed j=%d"
 msgstr ""
-"ne peut rechercher l'origine tant que le contact partagé est actif j=%d"
+"ne peut prendre l'origine alors que le contact d'origine partagé est actif "
+"j=%d"
 
 #: src/emc/motion/homing.c:816
 msgid ""
@@ -3093,9 +3059,9 @@ msgstr ""
 "contact d'origine inactif avant le début du mouvement de verrouillage j=%d"
 
 #: src/emc/motion/homing.c:1313
-#, fuzzy, c-format
+#, c-format
 msgid "hit limit in home state j=%d"
-msgstr "limite atteinte en recherche d'origine %d"
+msgstr "limite atteinte dans l'état d'origine j=%d"
 
 #: src/emc/motion/homing.c:1362
 #, c-format
@@ -3110,15 +3076,12 @@ msgstr ""
 "utilisateur classicladder\n"
 
 #: src/hal/classicladder/classicladder.c:221
-#, fuzzy
 msgid "Stopped program - press run button to continue."
-msgstr "Programme ladder arrêté - presser le bouton exécuter pour continuer."
+msgstr "Programme Ladder arrêté – presser le bouton exécuter pour continuer."
 
 #: src/hal/classicladder/classicladder.c:231
-#, fuzzy
 msgid "Started program - press stop to pause."
-msgstr ""
-"Programme ladder démarré - presser le bouton stop pour mettre en pause."
+msgstr "Programme Ladder démarré – presser le bouton stop pour mettre en pause."
 
 #: src/hal/classicladder/classicladder.c:286
 msgid ""
@@ -3153,9 +3116,8 @@ msgid "ERROR CLASSICLADDER-   Ladder memory allocation error\n"
 msgstr "ERROR CLASSICLADDER-   Erreur d'allocation de mémoire ladder\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:496
-#, fuzzy
 msgid "Load Error"
-msgstr "Erreur d'analyse"
+msgstr "Erreur de chargement"
 
 #: src/hal/classicladder/classicladder_gtk.c:496
 msgid "Failed to load the project file..."
@@ -3180,9 +3142,8 @@ msgstr "Projet chargé (arrêté)."
 
 #: src/hal/classicladder/classicladder_gtk.c:511
 #: src/hal/classicladder/classicladder_gtk.c:519
-#, fuzzy
 msgid "Save Error"
-msgstr "Erreur d'analyse"
+msgstr "Erreur d'enregistrement"
 
 #: src/hal/classicladder/classicladder_gtk.c:511
 #: src/hal/classicladder/classicladder_gtk.c:519
@@ -3256,27 +3217,23 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:651
 msgid "Reset logic data - Now running."
-msgstr ""
+msgstr "Données logiques réinitialisées – En cours d'exécution."
 
 #: src/hal/classicladder/classicladder_gtk.c:651
-#, fuzzy
 msgid "Reset logic data done."
-msgstr "Réinitialiser les données ladder "
+msgstr "Réinitialisation des données logiques effectuée."
 
 #: src/hal/classicladder/classicladder_gtk.c:709
-#, fuzzy
 msgid "About ClassicLadder"
-msgstr "Inclure l'API _Classicladder"
+msgstr "À propos de ClassicLadder"
 
 #: src/hal/classicladder/classicladder_gtk.c:766
-#, fuzzy
 msgid "Save SVG File"
-msgstr "Enregistrer dans un fichier"
+msgstr "Enregistrer un fichier SVG"
 
 #: src/hal/classicladder/classicladder_gtk.c:766
-#, fuzzy
 msgid "Save PNG File"
-msgstr "Enregistrer dans un fichier"
+msgstr "Enregistrer un fichier PNG"
 
 #: src/hal/classicladder/classicladder_gtk.c:839
 #: src/hal/classicladder/classicladder_gtk.c:1294
@@ -11975,7 +11932,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
