@@ -985,4 +985,51 @@ e.g., the G-code display widget can be set to accept the focus.
 In that case there are no sub-widgets in it,
 so comparing to the `widget.parent()` would get you the container that holds the G-code widget.
 
+== Read Command Line Load Time Options
+
+Some panels need information at load time for setup/options. Qtvcp covers this requirement with '-o' options. +
+The '-o' argument is good for a few, relatively short options, that can be added to the loading command line. +
+For more involved information, reading an INI or preference file is probably a better idea. +
+
+Multiple '-o' options can be used on the command line so you must decode them. +
+'self.w.USEROPTIONS_' will hold any found '-o' options as a list of strings.
+You must parse and define what is accepted and what to do with it.
+
+.Example code to get -o options for camera number and window size
+[source,python]
+----
+    def initialized__(self):
+
+        # set a default camera number
+        number = 0
+
+        # check if there are any -o options at all
+        if self.w.USEROPTIONS_ is not None:
+
+            # if in debug mode print the options to the terminal
+            LOG.debug('cam_align user options: {}'.format(self.w.USEROPTIONS_))
+
+            # go through the found options one by one
+            for num, i in enumerate(self.w.USEROPTIONS_):
+
+                # if the -o option has 'size=' in it, assume it's width and height of window
+                # override the default width and height of the window
+                if 'size=' in self.w.USEROPTIONS_[num]:
+                    try:
+                        strg = self.w.USEROPTIONS_[num].strip('size=')
+                        arg = strg.split(',')
+                        self.w.resize(int(arg[0]),int(arg[1]))
+                    except Exception as e:
+                        print('Error with cam_align size setting:',self.w.USEROPTIONS_[num])
+
+                #  # if the -o option has 'camnumber=' in it, assume it's the camera number to use
+                elif 'camnumber=' in self.w.USEROPTIONS_[num]:
+                    try:
+                        number = int(self.w.USEROPTIONS_[num].strip('camnumber='))
+                    except Exception as e:
+                        print('Error with cam_align camera selection - not a number - using 0')
+
+        # set the camera number either as default or if -o option changed the 'number' variable, to that number.
+        self.w.camview._camNum = number
+----
 // vim: set syntax=asciidoc:
