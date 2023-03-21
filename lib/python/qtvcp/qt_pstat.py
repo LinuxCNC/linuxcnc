@@ -92,18 +92,27 @@ class _PStat(object):
         self.BASENAME = os.path.splitext(os.path.basename(filename))[0]
         # base path (includes any extra path commands
         self.BASEPATH = os.path.splitext(filename)[0]
-        LOG.debug('BASEPATH {}'.format(self.BASEPATH))
+        LOG.debug('Passed name={}, BASENAME={} BASEPATH={}'.format(self.ARGUMENT, self.BASENAME, self.BASEPATH))
+        LOG.verbose('Working directory: {}'.format(self.WORKINGDIR))
 
         # look for custom handler files:
         handler_fn = "{}_handler.py".format(self.BASEPATH)
         local = []
         if self.IS_SCREEN:
+            # builtin screen folder
             default_handler_path = os.path.join(self.SCREENDIR, self.BASEPATH, handler_fn)
+            # relative to configuration folder
+            local.append( os.path.join(self.CONFIGPATH, handler_fn))
+            # in standard folder
             local.append( os.path.join(self.CONFIGPATH, 'qtvcp/screens',self.BASEPATH, handler_fn))
-            local.append( os.path.join(self.CONFIGPATH,self.BASEPATH, handler_fn))
+            # legacy standard folder
+            local.append( os.path.join(self.CONFIGPATH, self.BASEPATH, handler_fn))
         else:
+            # in standard folder
             local.append( os.path.join(self.WORKINGDIR, 'qtvcp/panels',self.BASEPATH, handler_fn))
+            # relative to configuration folder
             local.append( os.path.join(self.WORKINGDIR, handler_fn))
+            # builtin panel folder
             default_handler_path = os.path.join(self.PANELDIR, self.BASEPATH, handler_fn)
 
         for local_handler_path in local:
@@ -131,6 +140,7 @@ class _PStat(object):
         local = []
         if self.IS_SCREEN:
             defaultui = os.path.join(self.SCREENDIR, self.BASEPATH, ui_fn)
+            local.append( os.path.join(self.CONFIGPATH, ui_fn))
             local.append( os.path.join(self.CONFIGPATH, 'qtvcp/screens',self.BASEPATH, ui_fn))
             local.append( os.path.join(self.CONFIGPATH,self.BASEPATH, ui_fn))
         else:
@@ -174,6 +184,7 @@ class _PStat(object):
         local = []
         if self.IS_SCREEN:
             defaultqss = os.path.join(self.SCREENDIR, self.BASEPATH, qss_fn)
+            local.append( os.path.join(self.CONFIGPATH, qss_fn))
             local.append( os.path.join(self.CONFIGPATH, 'qtvcp/screens',self.BASEPATH, qss_fn))
             local.append( os.path.join(self.CONFIGPATH, self.BASEPATH, qss_fn))
         else:
@@ -202,6 +213,7 @@ class _PStat(object):
         local = []
         if self.IS_SCREEN:
             defaultqrc = os.path.join(self.SCREENDIR, self.BASEPATH, qrc_fn)
+            local.append(os.path.join(self.CONFIGPATH, qrc_fn))
             local.append( os.path.join(self.CONFIGPATH, 'qtvcp/screens',self.BASEPATH, qrc_fn))
             local.append(os.path.join(self.CONFIGPATH, self.BASEPATH, qrc_fn))
         else:
@@ -274,17 +286,22 @@ class _PStat(object):
 
         # look for ABOUT files:
         about_fn = "{}_ABOUT".format(self.BASEPATH)
+        local = []
         if self.IS_SCREEN:
             default_about_path = os.path.join(self.SCREENDIR, self.BASEPATH, about_fn)
-            local_about_path = os.path.join(self.CONFIGPATH, 'qtvcp/screens',self.BASEPATH, about_fn)
+            local.append(os.path.join(self.CONFIGPATH, about_fn))
+            local.append(os.path.join(self.CONFIGPATH, 'qtvcp/screens',self.BASEPATH, about_fn))
         else:
-            local_about_path = os.path.join(self.WORKINGDIR, 'qtvcp/screens', about_fn)
+            local.append(os.path.join(self.WORKINGDIR, about_fn))
+            local.append(os.path.join(self.WORKINGDIR, 'qtvcp/panels', about_fn))
             default_about_path = os.path.join(self.PANELDIR, self.BASEPATH, about_fn)
-        LOG.debug("Checking for LOCAL about file in: yellow<{}>".format(local_about_path))
 
-        if os.path.exists(local_about_path):
-            self.ABOUT = local_about_path
-            LOG.info("Using LOCAL about file path: yellow<{}>".format(self.ABOUT))
+        for localabout in local:
+            LOG.debug("Checking for LOCAL about file in: yellow<{}>".format(localabout))
+            if os.path.exists(localabout):
+                self.ABOUT = localabout
+                LOG.info("Using LOCAL about file path: yellow<{}>".format(self.ABOUT))
+                break
         else:
             LOG.debug("Checking for DEFAULT about file in: yellow<{}>".format(default_about_path))
             if os.path.exists(default_about_path):
@@ -292,7 +309,7 @@ class _PStat(object):
                 LOG.debug("Using DEFAULT about file path: yellow<{}>".format(self.ABOUT))
             else:
                 self.ABOUT = ""
-                LOG.info("No about file found.")
+                LOG.debug("No about file found.")
 
     # search for local ui paths or default to standard
     def find_widget_path(self,uifile=''):
