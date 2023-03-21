@@ -1,3 +1,9 @@
+***********************************
+old Gtk2 styling
+kept for obtaining original styling
+***********************************
+
+
 style "default"
 {
     GtkButton::default_border                    = {0, 0, 0, 0}
@@ -23,16 +29,16 @@ style "default"
     GtkScrollbar::min_slider_length              = 10
     GtkToolbar::shadow_type                      = out
     GtkWidget::focus-line-width                  = 1
-    GtkWidget::focus_padding                     = 1 
-    GtkWidget::interior_focus                    = 1 
-    GtkWidget::internal_padding                  = 2 
+    GtkWidget::focus_padding                     = 1
+    GtkWidget::interior_focus                    = 1
+    GtkWidget::internal_padding                  = 2
     GtkEntry::cursor_color                       = "#fcfcfc"
     GtkEntry::secondary_cursor_color             = "#fcfcfc"
     GtkTextView::cursor_color                    = "#fcfcfc"
     GtkTextView::secondary_cursor_color          = "#fcfcfc"
     GtkEntry::cursor_aspect_ratio                = 0.1
     GtkEntry::cursor_aspect_ratio                = 0.1
-    
+
     xthickness             = 1
     ythickness             = 1
 
@@ -81,7 +87,7 @@ style "button" = "default"
     xthickness = 2
     ythickness = 2
 
-    engine "xfce" 
+    engine "xfce"
     {
         smooth_edge = true
         grip_style = none
@@ -109,7 +115,7 @@ style "sbstyle" = "default"
 {
     xthickness = 2
     ythickness = 2
-    engine "xfce" 
+    engine "xfce"
     {
         smooth_edge = true
         grip_style = none
@@ -132,8 +138,8 @@ style "progress" = "default"
     xthickness = 2
     ythickness = 2
 }
-widget_class "*GtkProgress*"       style "progress" 
-class "*GtkProgress*"              style "progress" 
+widget_class "*GtkProgress*"       style "progress"
+class "*GtkProgress*"              style "progress"
 
 style "menuitem" = "default"
 {
@@ -152,7 +158,7 @@ style "flat" = "default"
 widget_class "*HandleBox"         style "flat"
 
 # This is for the window borders (xfwm4 & metacity)
-# 
+#
 style "titlebar"
 {
     bg[SELECTED]      = "#003263"
@@ -165,8 +171,8 @@ class "MetaFrames"                 style "titlebar"
 widget_class "MetaFrames"          style "titlebar"
 
 
-# These custom themed widget require the widget name 
-# to match in the glade file 
+# These custom themed widget require the widget name
+# to match in the glade file
 style "halsourceview" = "default"
 {
     base[SELECTED]    = "#FFFFFF" # highlight color
