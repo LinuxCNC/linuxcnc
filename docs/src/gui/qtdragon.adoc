@@ -448,7 +448,7 @@ qtdragon.spindle-volts
 ----
 
 This bit pin is an output to the spindle control to pause it. +
-You would connect it to spindle.0.inhibit.
+You would connect it to `spindle.0.inhibit`.
 
 [source,{hal}]
 ----

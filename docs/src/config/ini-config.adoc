@@ -229,10 +229,10 @@ GMOCCAPY can be used both ways and offers also many connections for hardware con
 Descriptions of the interfaces are in the Interfaces section of the User Manual.
 
 * `DISPLAY = axis` - The file name of the executable providing the user interface to use.
-  Prominent valid options are (all in lower case): 'axis', 'touchy', 'gmoccapy', 'gscreen', 'tklinuxcnc', 'qtvcp', 'qtvcp-qtdragon' or 'qtvcp-qtplasmac'.
-* `POSITION_OFFSET = RELATIVE` - The coordinate system (RELATIVE or MACHINE) to show on the DRO when the user interface starts.
+  Prominent valid options are (all in lower case): `axis`, `touchy`, `gmoccapy`, `gscreen`, `tklinuxcnc`, `qtvcp`, `qtvcp-qtdragon` or `qtvcp-qtplasmac`.
+* `POSITION_OFFSET = RELATIVE` - The coordinate system (`RELATIVE` or `MACHINE`) to show on the DRO when the user interface starts.
   The RELATIVE coordinate system reflects the G92 and G5__x__ coordinate offsets currently in effect.
-* `POSITION_FEEDBACK = COMMANDED` - The coordinate value (COMMANDED or ACTUAL) to show on the DRO when the user interface starts.
+* `POSITION_FEEDBACK = COMMANDED` - The coordinate value (`COMMANDED` or `ACTUAL`) to show on the DRO when the user interface starts.
   In AXIS this can be changed from the View menu.
   The COMMANDED position is the position requested by LinuxCNC.
   The ACTUAL position is the feedback position of the motors if they have feedback like most servo systems.
@@ -263,7 +263,7 @@ Descriptions of the interfaces are in the Interfaces section of the User Manual.
 * `DEFAULT_SPINDLE_0_SPEED = 100` - The default spindle RPM when the spindle is started in manual mode.
   On multi spindle machine there will be entries for each spindle number. Only used by the QtVCP-based user interfaces.
   - _deprecated_ - use the [SPINDLE_n] section instead.
-* `SPINDLE_INCREMENT = 200` - The increment used when clicking increase/decrease buttons Only used by the QtVCP based user interfaces.
+* `SPINDLE_INCREMENT = 200` - The increment used when clicking increase/decrease buttons. Only used by the QtVCP based user interfaces.
   - _deprecated_ - use the [SPINDLE_n] section instead.
 * `MIN_SPINDLE_0_SPEED = 1000` - The minimum RPM that can be manually selected.
   On multi spindle machine there will be entries for each spindle number. Only used by the QtVCP-based user interfaces.

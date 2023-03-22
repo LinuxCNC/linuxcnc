@@ -2932,7 +2932,7 @@ You can create your own subroutines for use with ngcgui. +
 they must follow these rules:
 
 * For creating a subroutine for use with NGCGUI, the filename and the subroutine name must be the same.
-* The subroutine must be in a folder within linuxcnc's INI designated search path
+* The subroutine must be in a folder within linuxcnc's INI designated search path.
 * On the first line there may be a comment of type info:
 * The subroutine must be surrounded by the sub and endsub tags.
 * The variables used must be numbered variables and must not skip number.
