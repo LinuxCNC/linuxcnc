@@ -306,6 +306,9 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                             Qt.RightButton]
         self._invertWheelZoom = False
 
+        # base units of config. updated by subclaas (gcode_graphics)
+        self.mach_units = 'Metric'
+
     # add a 100ms timer to poll linuxcnc stats
     # this may be overridden in sub widgets
     def addTimer(self):
@@ -459,12 +462,10 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 conv = 1
                 units = "mm"
                 fmt = "%.3f"
-                mach = 'Metric'
             else:
                 conv = 1/25.4
                 units = "in"
                 fmt = "%.4f"
-                mach = 'Imperial'
 
             mf = max_speed
             #print canon.traverse[0]
@@ -498,7 +499,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 e = max_extents_zero_rxy[i]
                 props[c] = "%f to %f = %f %s".replace("%f", fmt) % (a, b, b-a, units)
                 props[c + '_zero_rxy'] = "%f to %f = %f %s".replace("%f", fmt) % ( d, e, e-d, units)
-            props['machine_unit_sys'] = mach
+            props['machine_unit_sys'] = self.mach_units
 
             if 200 in canon.state.gcodes:
                 gcode_units = "in"
