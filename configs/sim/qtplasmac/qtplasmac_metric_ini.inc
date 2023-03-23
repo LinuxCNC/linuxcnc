@@ -1,5 +1,4 @@
 
-# this section required as is for removing z axis moves from the loaded gcode file
 [FILTER]
 PROGRAM_EXTENSION       = .ngc,.nc,.tap GCode File (*.ngc, *.nc, *.tap)
 ngc                     = qtplasmac_gcode
@@ -9,26 +8,17 @@ tap                     = qtplasmac_gcode
 [RS274NGC]
 RS274NGC_STARTUP_CODE   = G21 G40 G49 G80 G90 G92.1 G94 G97 M52P1
 PARAMETER_FILE          = metric_parameters.txt
-
 SUBROUTINE_PATH         = ./:../../nc_files
-
-# required for our material change
 USER_M_PATH             = ./:../../nc_files
 
 [HAL]
 TWOPASS                 = ON
-# the base machine
 HALFILE                 = sim_no_stepgen.tcl
 #HALFILE                 = sim_stepgen.tcl
-# component connections
 HALFILE                 = qtplasmac_comp.hal
-# custom hal commands
 HALFILE                 = custom.hal
-# custom postgui hal
 POSTGUI_HALFILE         = custom_postgui.hal
-# sim postgui hal
 POSTGUI_HALFILE         = sim_postgui.hal
-# required
 HALUI                   = halui
 
 [EMC]
@@ -53,7 +43,7 @@ SERVO_PERIOD            = 1000000
 [KINS]
 KINEMATICS              = trivkins coordinates=xyyz
 JOINTS                  = 4
- 
+
 [TRAJ]
 SPINDLES                = 3
 COORDINATES             = XYYZ
@@ -65,7 +55,7 @@ POSITION_FILE           = metric_position.txt
 
 [AXIS_X]
 MIN_LIMIT               = -0.001
-MAX_LIMIT               = 612.001
+MAX_LIMIT               = 1200.001
 # set to double the value in the corresponding joint
 MAX_VELOCITY            = 500.0
 # set to double the value in the corresponding joint
@@ -75,7 +65,7 @@ OFFSET_AV_RATIO         = 0.5
 
 [JOINT_0]
 MIN_LIMIT               = -0.001
-MAX_LIMIT               = 612.001
+MAX_LIMIT               = 1200.001
 MAX_VELOCITY            = 250
 MAX_ACCELERATION        = 2500
 TYPE                    = LINEAR
@@ -94,7 +84,7 @@ DIRHOLD                 = 5000
 
 [AXIS_Y]
 MIN_LIMIT               = -0.001
-MAX_LIMIT               = 612.001
+MAX_LIMIT               = 1200.001
 # set to double the value in the corresponding joint
 MAX_VELOCITY            = 500.0
 # set to double the value in the corresponding joint
@@ -104,7 +94,7 @@ OFFSET_AV_RATIO         = 0.5
 
 [JOINT_1]
 MIN_LIMIT               = -0.001
-MAX_LIMIT               = 612.001
+MAX_LIMIT               = 1200.001
 MAX_VELOCITY            = 250
 MAX_ACCELERATION        = 2500
 TYPE                    = LINEAR
@@ -123,7 +113,7 @@ DIRHOLD                 = 5000
 
 [JOINT_2]
 MIN_LIMIT               = -0.001
-MAX_LIMIT               = 612.001
+MAX_LIMIT               = 1200.001
 MAX_VELOCITY            = 250
 MAX_ACCELERATION        = 2500
 TYPE                    = LINEAR
@@ -141,10 +131,8 @@ DIRSETUP                = 8000
 DIRHOLD                 = 5000
 
 [AXIS_Z]
-#MIN_LIMIT               = -0.001
-#MAX_LIMIT               = 70.001
-MIN_LIMIT               = -150
-MAX_LIMIT               = 15
+MIN_LIMIT               = -0.001
+MAX_LIMIT               = 100.001
 # set to double the value in the corresponding joint
 MAX_VELOCITY            = 120.0
 # set to double the value in the corresponding joint
@@ -153,20 +141,15 @@ MAX_ACCELERATION        = 1200.0
 OFFSET_AV_RATIO         = 0.5
 
 [JOINT_3]
-# this should be the top of your slats
-#MIN_LIMIT               = -0.001
-#MAX_LIMIT               = 70.001
-MIN_LIMIT               = -150
-MAX_LIMIT               = 15
+MIN_LIMIT               = -0.001
+MAX_LIMIT               = 100.001
 MAX_VELOCITY            = 60
 MAX_ACCELERATION        = 600
 TYPE                    = LINEAR
 MIN_FERROR              = 5.0
 FERROR                  = 10.0
-#HOME                    = 65.0
-#HOME_OFFSET             = 70.0
-HOME                    = 0
-HOME_OFFSET             = 0
+HOME                    = 95.0
+HOME_OFFSET             = 100.0
 HOME_SEQUENCE           = 0
 HOME_USE_INDEX          = NO
 STEPGEN_MAXACCEL        = 1200.0
