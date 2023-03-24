@@ -306,7 +306,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                             Qt.RightButton]
         self._invertWheelZoom = False
 
-        # base units of config. updated by subclaas (gcode_graphics)
+        # base units of config. updated by subclass (gcode_graphics)
         self.mach_units = 'Metric'
 
     # add a 100ms timer to poll linuxcnc stats
@@ -458,17 +458,17 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             lines = sum(1 for line in open(loaded_file))
             props['size'] = "%(size)s bytes\n%(lines)s gcode lines" % {'size': size, 'lines': lines}
 
-            if self.metric_units:
-                conv = 1
-                units = "mm"
-                fmt = "%.3f"
-            else:
-                conv = 1/25.4
+            # report props in gcode's units
+            if 200 in canon.state.gcodes:
                 units = "in"
                 fmt = "%.4f"
+                conv = 1/25
+            else:
+                units = "mm"
+                fmt = "%.3f"
+                conv = 1
 
             mf = max_speed
-            #print canon.traverse[0]
 
             g0 = sum(dist(l[1][:3], l[2][:3]) for l in canon.traverse)
             g1 = (sum(dist(l[1][:3], l[2][:3]) for l in canon.feed) +
@@ -501,11 +501,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 props[c + '_zero_rxy'] = "%f to %f = %f %s".replace("%f", fmt) % ( d, e, e-d, units)
             props['machine_unit_sys'] = self.mach_units
 
-            if 200 in canon.state.gcodes:
-                gcode_units = "in"
-            else:
-                gcode_units = "mm"
-            props['gcode_units'] = gcode_units
+            props['gcode_units'] = units
 
         self.gcode_properties = props
 
