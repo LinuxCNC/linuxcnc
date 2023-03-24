@@ -1,4 +1,4 @@
-VERSION = '1.235.268'
+VERSION = '1.235.269'
 
 '''
 qtplasmac_handler.py
@@ -1967,9 +1967,9 @@ class HandlerClass:
         mid, size = GlCanonDraw.extents_info(self.w.gcodegraphics)
         if self.gcodeProps:
             mult = 1
-            if self.units == 'in' and self.gcodeProps['machine_unit_sys'] == 'Metric':
+            if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
                 mult = 0.03937
-            elif self.units == 'mm' and self.gcodeProps['machine_unit_sys'] == 'Imperial':
+            elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
                 mult = 25.4
             x = (round(float(self.gcodeProps['x'].split()[0]) * mult, 4))
             y = (round(float(self.gcodeProps['y'].split()[0]) * mult, 4))
@@ -2432,9 +2432,9 @@ class HandlerClass:
         self.boundsError[boundsType] = False
         msgList = []
         boundsMultiplier = 1
-        if self.units == 'in' and self.gcodeProps['machine_unit_sys'] == 'Metric':
+        if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
             boundsMultiplier = 0.03937
-        elif self.units == 'mm' and self.gcodeProps['machine_unit_sys'] == 'Imperial':
+        elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
             boundsMultiplier = 25.4
         if framing:
             xStart = STATUS.stat.g5x_offset[0] + xOffset
