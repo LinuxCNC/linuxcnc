@@ -26,12 +26,12 @@ import struct
 parser = optparse.OptionParser("%prog [options] [commands]",
     description="Communicate with Mesa ethernet cards using the LBP16 protocol")
 parser.add_option("-i", "--ip", dest="sip",
-    help="IP address of board",
+    help="IP address of board (default: 192.168.1.121)",
     metavar="X.Y.Z.W", default="192.168.1.121")
 parser.add_option("-p", "--port", dest="sport",
-    help="UDP port of board", type="int", default=27181)
+    help="UDP port of board (default: 27181)", type="int", default=27181)
 parser.add_option("-t", "--timeout", dest="timeout",
-    help="Response timeout in seconds", type="float", default=.2)
+    help="Response timeout in seconds (default: 0.2)", type="float", default=.2)
 parser.add_option("-s", "--space", dest="space", default=None,
     choices = ["0", "1", "2", "3", "4", "5", "6", "7"],
     help="Address space to read or write")
