@@ -42,7 +42,7 @@ parser.add_option("-a", "--address", type="int", dest="address", default=None,
     help="Base address to read or write")
 parser.add_option("-I", "--increment", dest="increment", action="store_true",
     default=True,
-    help="auto-increment address")
+    help="auto-increment address (enabled by default, use --no-increment to disable)")
 parser.add_option("-n", "--no-increment", dest="increment",
     action="store_false",
     help="do not auto-increment address")
