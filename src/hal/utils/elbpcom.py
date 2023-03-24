@@ -32,9 +32,9 @@ parser.add_option("-p", "--port", dest="sport",
     help="UDP port of board (default: 27181)", type="int", default=27181)
 parser.add_option("-t", "--timeout", dest="timeout",
     help="Response timeout in seconds (default: 0.2)", type="float", default=.2)
-parser.add_option("-s", "--space", dest="space", default=None,
+parser.add_option("-s", "--space", dest="space", default=0,
     choices = ["0", "1", "2", "3", "4", "5", "6", "7"],
-    help="Address space to read or write")
+    help="Address space to read or write (default: 0, the hm2 register file)")
 parser.add_option("--info", dest="info", action="store_true",
     default=False,
     help="Select info area for read operation (default: memory space)")
@@ -109,7 +109,6 @@ def optimal_size(space, info, address, nbytes):
     raise ValueError("Access size incompatible with address or length (address=%d nbytes=%d memsizes=%d)" % (address, nbytes, memsizes))
 
 if options.read:
-    if options.space is None: raise SystemExit("--read must specify --space")
     if options.address is None: raise SystemExit("--read must specify --address")
     size = optimal_size(options.space, options.info, options.address, options.read if options.increment else 0)
     command = make_read_request(options.space, options.info, size, options.increment, options.address, options.read)
@@ -118,7 +117,6 @@ if options.read:
     transact(command)
 
 elif options.write:
-    if options.space is None: raise SystemExit("--write must specify --space")
     if options.address is None: raise SystemExit("--write must specify --address")
     write = options.write.decode("hex")
     size = optimal_size(options.space, options.info, options.address, len(write) if options.increment else 0)
