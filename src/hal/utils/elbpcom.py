@@ -58,14 +58,13 @@ sizemap = {1: 0, 2: 1, 4: 2, 8: 3}
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
 s.settimeout(options.timeout)
 
-def transact(sdata, quiet=False, response=True):
-    sdata = "".join(sdata.split()).decode("hex")
+def transact(sdata:bytes, quiet=False, response=True):
     s.sendto(sdata, (options.sip, options.sport))
     if not response: return
     try:
         data, daddr = s.recvfrom(1280)
-        if not quiet: print("<", data.encode("hex"))
-        if not quiet: print("     ", re.sub('[^ -~]', '.', data))
+        if not quiet: print("<", data.hex())
+        if not quiet: print("     ", re.sub('[^ -~]', '.', data.decode('utf-7', errors='replace')))
         return data
     except socket.timeout:
         if not quiet: print("! no response")
@@ -80,21 +79,21 @@ def interact():
     except KeyboardInterrupt:
         pass
 
-def make_read_request(space, info, size, increment, address, nbytes):
+def make_read_request(space:int, info:bool, size:int, increment:bool, address:int, nbytes:int) -> bytes:
     return struct.pack("<HH",
         (1<<14) | (space << 10) | (info << 13)
-        | (sizemap[size] << 8) | (increment << 7) | (nbytes/size),
+        | (sizemap[size] << 8) | (increment << 7) | int(nbytes/size),
         address)
 
-def make_write_request(space, info, size, increment, address, bytes):
+def make_write_request(space:int, info:bool, size:int, increment:bool, address:int, data:bytes) -> bytes:
     return struct.pack("<HH",
         (1<<15) | (1<<14) | (space << 10) | (info << 13)
-        | (sizemap[size] << 8) | (increment << 7) | (len(bytes) / size),
-        address) + bytes
+        | (sizemap[size] << 8) | (increment << 7) | int(len(data) / size),
+        address) + data
 
-def optimal_size(space, info, address, nbytes):
+def optimal_size(space:int, info:bool, address:int, nbytes:int):
     if info: return 2
-    info = transact(make_read_request(space, True, 2, True, 2, 4).encode("hex"), quiet=True)
+    info = transact(make_read_request(space, True, 2, True, 2, 4), quiet=True)
     if info is None:
         raise RuntimeError("Failed to get information about memory space %d" % space)
     memsizes, memranges = struct.unpack("<HH", info)
@@ -112,17 +111,15 @@ if options.read:
     if options.address is None: raise SystemExit("--read must specify --address")
     size = optimal_size(options.space, options.info, options.address, options.read if options.increment else 0)
     command = make_read_request(options.space, options.info, size, options.increment, options.address, options.read)
-    command = command.encode("hex")
-    print(">", command)
+    print(">", command.hex())
     transact(command)
 
 elif options.write:
     if options.address is None: raise SystemExit("--write must specify --address")
-    write = options.write.decode("hex")
+    write = bytes.fromhex(options.write)
     size = optimal_size(options.space, options.info, options.address, len(write) if options.increment else 0)
     command = make_write_request(options.space, options.info, size, options.increment, options.address, write)
-    command = command.encode("hex")
-    print(">", command)
+    print(">", command.hex())
     transact(command, response=False)
 
 elif args:
