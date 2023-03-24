@@ -207,6 +207,19 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         return linuxcnc.draw_dwells(self.geometry, dwells, alpha, for_selection, self.is_lathe())
 
     def calc_extents(self):
+        # in the event of a "blank" gcode file (M2 only for example) this sets each of the extents to [0,0,0]
+        # to prevent passing the very large [9e99,9e99,9e99] values and populating the gcode properties with
+        # unusably large values. Some screens use the extents information to set the view distance so 0 values are preferred.
+        if not self.arcfeed and not self.feed and not self.traverse:
+            self.min_extents = \
+            self.max_extents = \
+            self.min_extents_notool = \
+            self.max_extents_notool = \
+            self.min_extents_zero_rxy = \
+            self.max_extents_zero_rxy = \
+            self.min_extents_notool_zero_rxy = \
+            self.max_extents_notool_zero_rxy = [0,0,0]
+            return
         self.min_extents, self.max_extents, self.min_extents_notool, self.max_extents_notool = gcode.calc_extents(self.arcfeed, self.feed, self.traverse)
         self.unrotate_preview()
         self.min_extents_zero_rxy, self.max_extents_zero_rxy, self.min_extents_notool_zero_rxy, self.max_extents_notool_zero_rxy = gcode.calc_extents(self.preview_zero_rxy)
@@ -221,8 +234,8 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
                 self.max_extents_notool[0], self.max_extents_notool[1], max_z
 
     # unrotates the current preview points defined by self.feed, self.arcfeed, self.traverse
-    # and populates self.preview_zero_rxy. Because this is only used to calculate the extents
-    # and not to draw to the screen, this can all be contained in the same list.
+    # by the current rotation_xy amount and populates self.preview_zero_rxy. Because this is
+    # only used to calculate the extents and not to draw to the screen, this can all be contained in the same list.
     def unrotate_preview(self):
         angle = math.radians(-self.rotation_xy)
         cos = math.cos(angle)
