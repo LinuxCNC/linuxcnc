@@ -653,7 +653,7 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
   sends a operator error message to the screen. (max 254 characters)
 
 `feedrate(float)`::
-  set the feedrate.
+  set the feedrate override, 1.0 = 100%.
 
 `flood(int)`::
   turn on/off flooding.
