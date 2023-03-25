@@ -113,14 +113,12 @@ class FileManager(QWidget, _HalWidgetBase):
         self.list = QListView()
         self.list.setModel(self.model)
         self.list.resize(640, 480)
-        self.list.activated.connect(self._getPathActivated)
         self.list.setAlternatingRowColors(True)
         self.list.hide()
 
         self.table = QTableView()
         self.table.setModel(self.model)
         self.table.resize(640, 480)
-        self.table.activated.connect(self._getPathActivated)
         self.table.setAlternatingRowColors(True)
 
         header = self.table.horizontalHeader()
@@ -283,6 +281,8 @@ class FileManager(QWidget, _HalWidgetBase):
             self.currentPath = dir_path
             self.textLine.setText(self.currentPath)
             return
+        else:
+            self.currentPath = None
         root_index = self.model.setRootPath(dir_path)
         self.list.setRootIndex(root_index)
         self.table.setRootIndex(root_index)
@@ -353,7 +353,7 @@ class FileManager(QWidget, _HalWidgetBase):
             row = self.list.selectionModel().currentIndex()
         else:
             row = self.table.selectionModel().currentIndex()
-            self.listClicked(row)
+        self.listClicked(row)
 
         fname = self.currentPath
         if fname is None:
@@ -514,6 +514,8 @@ class FileManager(QWidget, _HalWidgetBase):
         try:
             self.list.disconnect()
             self.table.disconnect()
+            self.list.activated.connect(self._getPathActivated)
+            self.table.activated.connect(self._getPathActivated)
         except:
             pass
         # choose double click or single click for folder selection
