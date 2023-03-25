@@ -1120,13 +1120,12 @@ and give an unlock code, witch is *123* as default. If you want to change it
 at this time you will have to edit the hidden preference file, see
 <<gmoccapy:display-section,the display section>> for details.
 
-The page looks at the moment like so:
-
-image::images/gmoccapy_settings_appearance.png[align="left"]
 
 The page is separated in three main tabs:
 
 === Appearance
+
+image::images/gmoccapy_settings_appearance.png[align="left"]
 
 On this tab you will find the following options:
 
