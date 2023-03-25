@@ -797,7 +797,7 @@ This *displays the current G-code in a graphical form*.
 
 .Stylesheets Properties
 
-*`+_view+`* _(string)_::
+*`_view`* _(string)_::
   Sets the _default view orientation_ on GUI load. +
   Valid choices for a lathe are p, y, y2. For other screens, valid choices are p, x, y, z, z2. +
   The following shows an example of how to set this property:
@@ -809,7 +809,7 @@ This *displays the current G-code in a graphical form*.
 }
 ----
 
-*`+_dro+`* _(bool)_::
+*`_dro`* _(bool)_::
   Determines whether or not to _show the DRO_. +
   The following shows an example of how to set this property:
 +
@@ -820,7 +820,7 @@ This *displays the current G-code in a graphical form*.
 }
 ----
 
-*`+_dtg+`* _(bool)_::
+*`_dtg`* _(bool)_::
   Determine whether or not to _show the Distance To Go_. +
   The following shows an example of how to set this property:
 +
@@ -831,7 +831,7 @@ This *displays the current G-code in a graphical form*.
 }
 ----
 
-*`+_metric+`* _(bool)_::
+*`_metric`* _(bool)_::
   Determines whether or not to _show the units in metric by default_. +
   The following shows an example of how to set this property:
 +
@@ -842,7 +842,7 @@ This *displays the current G-code in a graphical form*.
 }
 ----
 
-*`+_overlay+`* _(bool)_::
+*`_overlay`* _(bool)_::
   Determines whether or not to _show the overlay by default_. +
   The following shows an example of how to set this property:
 +
@@ -853,7 +853,7 @@ This *displays the current G-code in a graphical form*.
 }
 ----
 
-*`+_offsets+`* _(bool)_::
+*`_offsets`* _(bool)_::
   Determines whether or not to _show the offsets by default_. +
   The following shows an example of how to set this property:
 +
@@ -864,7 +864,7 @@ This *displays the current G-code in a graphical form*.
 }
 ----
 
-*`+_small_origin+`* _(bool)_::
+*`_small_origin`* _(bool)_::
   Determines whether or not to _show the small origin by default_. +
   The following shows an example of how to set this property:
 +
@@ -2078,6 +2078,32 @@ if temp[1]:
     print('Is a file')
 ----
 
+.Stylesheets Properties
+
+*`doubleClickSelection`* _(bool)_::
+  Determines whether or not to _require double clicking on a folder_. +
+  Single clicking a folder (False) is enabled by default and is intended for touch screen users. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
+----
+#filemanager {
+    qproperty-doubleClickSelection: True;
+}
+----
+
+*`showListView`* _(bool)_::
+  Determines whether or not to _show the file/folder structure in list form_. +
+  Table view (False) is enabled by default. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
+----
+#filemanager {
+    qproperty-showListView: True;
+}
+----
+
 It is based on PyQt's FIXME
 
 [[sub:qtvcp:widgets:radioaxisselector]]
@@ -2773,7 +2799,7 @@ There are several properties that can be selected to aid with this:
 *`isRunSensitive`*::
 *`isManSensitive`*::
 *`isMDISensitive`*::
-*`isAitoSensitive`*::
+*`isAutoSensitive`*::
 
 You can select multiple properties for combined requirements.
 
