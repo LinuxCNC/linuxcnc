@@ -46,6 +46,9 @@ parser.add_option("-I", "--increment", dest="increment", action="store_true",
 parser.add_option("-n", "--no-increment", dest="increment",
     action="store_false",
     help="do not auto-increment address")
+parser.add_option("--size", dest="size",
+    help="Transfer size in number of bytes (default: look up preferred transfer size in the space's info area)",
+    type="int", default=0)
 parser.add_option("-r", "--read", type="int", dest="read", default=None,
     help="Number of bytes to read")
 parser.add_option("-w", "--write", type="string", dest="write", default=None,
@@ -109,16 +112,18 @@ def optimal_size(space:int, info:bool, address:int, nbytes:int):
 
 if options.read:
     if options.address is None: raise SystemExit("--read must specify --address")
-    size = optimal_size(options.space, options.info, options.address, options.read if options.increment else 0)
-    command = make_read_request(options.space, options.info, size, options.increment, options.address, options.read)
+    if options.size == 0:
+        options.size = optimal_size(options.space, options.info, options.address, options.read if options.increment else 0)
+    command = make_read_request(options.space, options.info, options.size, options.increment, options.address, options.read)
     print(">", command.hex())
     transact(command)
 
 elif options.write:
     if options.address is None: raise SystemExit("--write must specify --address")
     write = bytes.fromhex(options.write)
-    size = optimal_size(options.space, options.info, options.address, len(write) if options.increment else 0)
-    command = make_write_request(options.space, options.info, size, options.increment, options.address, write)
+    if options.size == 0:
+        options.size = optimal_size(options.space, options.info, options.address, len(write) if options.increment else 0)
+    command = make_write_request(options.space, options.info, options.size, options.increment, options.address, write)
     print(">", command.hex())
     transact(command, response=False)
 

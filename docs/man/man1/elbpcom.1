@@ -10,6 +10,7 @@ Common options:
 .BI [\-\-port= PORT ]
 .BI [\-\-timeout= TIMEOUT ]
 .BI [\-\-space= MEMSPACE ]
+.BI [\-\-size= TRANSFER_SIZE ]
 .RE
 
 Reading data:
@@ -54,7 +55,14 @@ If not specified, the default values are
 .BI \-\-port= 27181
 .BI \-\-timeout= .2
 .BI \-\-space= 0
+.BI \-\-size= 0
 .RE 
+
+If the
+.B --size
+argument
+.I TRANSFER_SIZE
+is 0, elbpcom will look up the preferred transfer size of the space in the space's info area.
 
 This example demonstrates reading the HOSTMOT2 identifying string from the
 IDROM in space 0:
