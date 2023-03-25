@@ -136,12 +136,16 @@ class EMC_MDIHistory(Gtk.Box, _EMC_ActionBase):
         fp.close()
 
         lines = filter(bool, lines)
+        last = Gtk.TreeIter()
         for l in lines:
-            self.model.append((l,))
-        #path = (len(list(lines))-1,)
-        path = 0 #TODO: breaks the functionality
-        self.tv.scroll_to_cell(path)
-        self.tv.set_cursor(path)
+            last = self.model.append((l,))
+        path = self.model.get_path(last)
+        # if the hal mdi history file is empty, the model is empty and we will get an None iter
+        try:
+            self.tv.scroll_to_cell(path)
+            self.tv.set_cursor(path)
+        except:
+            pass
         self.entry.set_text('')
 
     def submit(self, *a):
