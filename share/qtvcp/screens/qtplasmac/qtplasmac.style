@@ -584,6 +584,21 @@ QHeaderView::section {
     color: backgnd;
     background-color: foregnd }
 
+#filemanager QListView {
+  border: 1px solid foregnd;
+  border-radius: 4px;
+  font: 11pt 'DejaVuSans';
+  alternate-background-color: backalt;
+  padding: 2px }
+
+#filemanager QListView::item:selected:active {
+  color: backgnd;
+  background-color: foregnd }
+
+#filemanager QListView::item:selected:!active {
+  color: backgnd;
+  background-color: foregnd }
+
 #filemanager QComboBox {
     height: 40px;
     padding-right: 6px}
@@ -684,6 +699,12 @@ QScrollBar::add-line:vertical {
 
 QScrollBar::sub-line:vertical {
     height: 0px }
+
+QListView QScrollBar:vertical {
+  margin-left: 1px }
+
+QListView QScrollBar:horizontal {
+  margin-top: 1px }
 
 /****** MENU ************/
 QMenu {
