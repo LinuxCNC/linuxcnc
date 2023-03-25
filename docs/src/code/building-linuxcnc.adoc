@@ -155,6 +155,11 @@ The most commonly used arguments are:
   the docs is quite time consuming.  If you are not actively working
   on the documentation you may want to omit this argument.
 
+`--disable-build-documentation-translation`::
+  Disable building the translated documentation for all available languages.
+  The building of the translated documentation takes a huge amount of time, so it is
+  recommend to skip that if not really needed.
+
 [[make-arguments]]
 ==== `make` arguments
 
@@ -222,12 +227,17 @@ The `debian/configure` script needs different arguments depending on the platfor
 see the <<debian-configure-arguments, `debian/configure` arguments>> section.
 ====
 
-Once the Debian package scripts and meta-data are configured, build the package by running `dpkg-buildpackage`
-(note that it needs to run from the `linuxcnc-dev` directory, *not* from `linuxcnc-dev/debian`):
+Once the Debian package scripts and meta-data are configured, build the package by running `dpkg-buildpackage`:
 
 ----
 $ dpkg-buildpackage -b -uc
 ----
+
+[NOTE]
+====
+`dpkg-buildpackage` needs to run from the `linuxcnc-dev` directory, *not* from `linuxcnc-dev/debian`. +
+`dpkg-buildpackage` takes an optional argument `-jN` (where N is a number). This enables to run multiple jobs simultaneously.
+====
 
 [[debian-configure-arguments]]
 ==== `debian/configure` arguments
@@ -237,6 +247,9 @@ It must be run before `dpkg-checkbuilddeps` and `dpkg-buildpackage` can be run.
 
 It takes a single argument which specifies the realtime or non-realtime platform to build for.
 The normal values for this argument are:
+
+`no-docs`::
+   Skip building documentation.
 
 `uspace`::
   Configure the Debian package for Preempt-RT realtime or for

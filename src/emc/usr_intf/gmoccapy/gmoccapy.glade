@@ -884,13 +884,9 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <!-- n-columns=11 n-rows=1 -->
-                                      <object class="GtkGrid" id="grid_gremlin_button">
+                                      <object class="GtkBox" id="box_gremlin_buttons">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
-                                        <property name="column-spacing">5</property>
-                                        <property name="row-homogeneous">True</property>
-                                        <property name="column-homogeneous">True</property>
                                         <child>
                                           <object class="GtkRadioButton" id="rbt_view_p">
                                             <property name="use-action-appearance">False</property>
@@ -900,14 +896,19 @@
                                             <property name="can-focus">True</property>
                                             <property name="receives-default">False</property>
                                             <property name="tooltip-text" translatable="yes">view perspective</property>
+                                            <property name="halign">start</property>
+                                            <property name="valign">center</property>
+                                            <property name="margin-end">2</property>
                                             <property name="image">img_view_p</property>
                                             <property name="active">True</property>
                                             <property name="draw-indicator">False</property>
+                                            <property name="group">rbt_view_p</property>
                                             <signal name="toggled" handler="on_rbt_view_p_toggled" swapped="no"/>
                                           </object>
                                           <packing>
-                                            <property name="left-attach">0</property>
-                                            <property name="top-attach">0</property>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">0</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -919,13 +920,19 @@
                                             <property name="can-focus">True</property>
                                             <property name="receives-default">False</property>
                                             <property name="tooltip-text" translatable="yes">view along the X axis from positive to negative</property>
+                                            <property name="halign">start</property>
+                                            <property name="valign">center</property>
+                                            <property name="margin-start">2</property>
+                                            <property name="margin-end">2</property>
                                             <property name="image">img_view_x</property>
                                             <property name="draw-indicator">False</property>
+                                            <property name="group">rbt_view_p</property>
                                             <signal name="toggled" handler="on_rbt_view_x_toggled" swapped="no"/>
                                           </object>
                                           <packing>
-                                            <property name="left-attach">1</property>
-                                            <property name="top-attach">0</property>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">1</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -937,31 +944,19 @@
                                             <property name="can-focus">True</property>
                                             <property name="receives-default">False</property>
                                             <property name="tooltip-text" translatable="yes">view along the Y axis from positive to negative</property>
+                                            <property name="halign">start</property>
+                                            <property name="valign">center</property>
+                                            <property name="margin-start">2</property>
+                                            <property name="margin-end">2</property>
                                             <property name="image">img_view_y</property>
                                             <property name="draw-indicator">False</property>
+                                            <property name="group">rbt_view_p</property>
                                             <signal name="toggled" handler="on_rbt_view_y_toggled" swapped="no"/>
                                           </object>
                                           <packing>
-                                            <property name="left-attach">2</property>
-                                            <property name="top-attach">0</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkRadioButton" id="rbt_view_z">
-                                            <property name="use-action-appearance">False</property>
-                                            <property name="width-request">48</property>
-                                            <property name="height-request">48</property>
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">True</property>
-                                            <property name="receives-default">False</property>
-                                            <property name="tooltip-text" translatable="yes">view along the Z axis from positive to negative</property>
-                                            <property name="image">img_view_z</property>
-                                            <property name="draw-indicator">False</property>
-                                            <signal name="toggled" handler="on_rbt_view_z_toggled" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="left-attach">3</property>
-                                            <property name="top-attach">0</property>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">2</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -973,23 +968,56 @@
                                             <property name="can-focus">True</property>
                                             <property name="receives-default">False</property>
                                             <property name="tooltip-text" translatable="yes">view along the Y axis from positive to negative as viewn for a back tool lathe</property>
+                                            <property name="halign">start</property>
+                                            <property name="valign">center</property>
+                                            <property name="margin-start">2</property>
+                                            <property name="margin-end">2</property>
                                             <property name="image">img_view_y2</property>
                                             <property name="draw-indicator">False</property>
+                                            <property name="group">rbt_view_p</property>
                                             <signal name="toggled" handler="on_rbt_view_y2_toggled" swapped="no"/>
                                           </object>
                                           <packing>
-                                            <property name="left-attach">4</property>
-                                            <property name="top-attach">0</property>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">3</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkRadioButton" id="rbt_view_z">
+                                            <property name="use-action-appearance">False</property>
+                                            <property name="width-request">48</property>
+                                            <property name="height-request">48</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">False</property>
+                                            <property name="tooltip-text" translatable="yes">view along the Z axis from positive to negative</property>
+                                            <property name="halign">start</property>
+                                            <property name="valign">center</property>
+                                            <property name="margin-start">2</property>
+                                            <property name="margin-end">2</property>
+                                            <property name="image">img_view_z</property>
+                                            <property name="draw-indicator">False</property>
+                                            <property name="group">rbt_view_p</property>
+                                            <signal name="toggled" handler="on_rbt_view_z_toggled" swapped="no"/>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">4</property>
                                           </packing>
                                         </child>
                                         <child>
                                           <object class="GtkLabel" id="label2">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
+                                            <property name="hexpand">False</property>
+                                            <property name="vexpand">False</property>
                                           </object>
                                           <packing>
-                                            <property name="left-attach">5</property>
-                                            <property name="top-attach">0</property>
+                                            <property name="expand">True</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">5</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -1001,12 +1029,17 @@
                                             <property name="can-focus">True</property>
                                             <property name="receives-default">True</property>
                                             <property name="tooltip-text" translatable="yes">Zoom in</property>
+                                            <property name="halign">end</property>
+                                            <property name="valign">center</property>
+                                            <property name="margin-start">2</property>
+                                            <property name="margin-end">2</property>
                                             <property name="image">img_zoom_in</property>
                                             <signal name="clicked" handler="on_btn_zoom_in_clicked" swapped="no"/>
                                           </object>
                                           <packing>
-                                            <property name="left-attach">6</property>
-                                            <property name="top-attach">0</property>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">6</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -1018,12 +1051,17 @@
                                             <property name="can-focus">True</property>
                                             <property name="receives-default">True</property>
                                             <property name="tooltip-text" translatable="yes">Zoom out</property>
+                                            <property name="halign">end</property>
+                                            <property name="valign">center</property>
+                                            <property name="margin-start">2</property>
+                                            <property name="margin-end">2</property>
                                             <property name="image">img_zoom_out</property>
                                             <signal name="clicked" handler="on_btn_zoom_out_clicked" swapped="no"/>
                                           </object>
                                           <packing>
-                                            <property name="left-attach">7</property>
-                                            <property name="top-attach">0</property>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">7</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -1035,12 +1073,17 @@
                                             <property name="can-focus">True</property>
                                             <property name="receives-default">True</property>
                                             <property name="tooltip-text" translatable="yes">Show or hide dimensions</property>
+                                            <property name="halign">end</property>
+                                            <property name="valign">center</property>
+                                            <property name="margin-start">2</property>
+                                            <property name="margin-end">2</property>
                                             <property name="image">img_dimensions</property>
                                             <signal name="toggled" handler="on_tbtn_view_dimension_toggled" swapped="no"/>
                                           </object>
                                           <packing>
-                                            <property name="left-attach">8</property>
-                                            <property name="top-attach">0</property>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">8</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -1052,12 +1095,17 @@
                                             <property name="can-focus">True</property>
                                             <property name="receives-default">True</property>
                                             <property name="tooltip-text" translatable="yes">Show or hide tool path</property>
+                                            <property name="halign">end</property>
+                                            <property name="valign">center</property>
+                                            <property name="margin-start">2</property>
+                                            <property name="margin-end">2</property>
                                             <property name="image">img_tool_path</property>
                                             <signal name="toggled" handler="on_tbtn_view_tool_path_toggled" swapped="no"/>
                                           </object>
                                           <packing>
-                                            <property name="left-attach">9</property>
-                                            <property name="top-attach">0</property>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">9</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -1069,12 +1117,16 @@
                                             <property name="can-focus">True</property>
                                             <property name="receives-default">True</property>
                                             <property name="tooltip-text" translatable="yes">clear plot</property>
+                                            <property name="halign">end</property>
+                                            <property name="valign">center</property>
+                                            <property name="margin-start">2</property>
                                             <property name="image">img_tool_clear</property>
                                             <signal name="clicked" handler="on_btn_delete_view_clicked" swapped="no"/>
                                           </object>
                                           <packing>
-                                            <property name="left-attach">10</property>
-                                            <property name="top-attach">0</property>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">10</property>
                                           </packing>
                                         </child>
                                       </object>
@@ -1261,7 +1313,6 @@
                                                     <property name="height-request">50</property>
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
-                                                    <property name="orientation">horizontal</property>
                                                     <child>
                                                       <object class="SpeedControl" id="spc_lin_jog_vel">
                                                         <property name="visible">True</property>
