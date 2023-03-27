@@ -261,12 +261,11 @@ The component exports two functions. Each function acts on all of the PWM genera
 * (funct) `pwmgen.make-pulses` - High speed function to generate PWM waveforms (no floating point).
   The high speed function `pwmgen.make-pulses` should be run in the base (fastest) thread, from 10 to 50&#8239;µs depending on the capabilities of the computer.
   That thread's period determines the maximum PWM carrier frequency, as well as the resolution of the PWM or PDM signals.
-  If the base thread is 50,000&#8239;ns then every 50uS the module decides if it is time to change the state of the output.
-  At 50% duty cycle and 25 Hz PWM frequency this means that the output changes state every (1/25)&#8239;s / 50&#8239;µs * 50% = 400 iterations.
-  This also means that you have a 800 possible duty cycle values (without dithering)
+  If the base thread is 50,000&#8239;ns then every 50&#8239;µs the module decides if it is time to change the state of the output.
+  At 50% duty cycle and 25&#9239;Hz PWM frequency this means that the output changes state every (1/25)&#8239;s / 50&#8239;µs * 50% = 400 iterations.
+  This also means that you have a 800 possible duty cycle values (without dithering).
 * (funct) `pwmgen.update` - Low speed function to scale and limit value and handle other parameters.
-  This is the function of the module that does the more complicated mathematics to work out how many base-periods the output should be high for,
-  and how many it should be low for.
+  This is the function of the module that does the more complicated mathematics to work out how many base-periods the output should be high for, and how many it should be low for.
 
 [[sec:encoder]]
 == Encoder(((encoder)))

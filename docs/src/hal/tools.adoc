@@ -14,7 +14,7 @@
 == Halcmd
 
 `halcmd` is a command line tool for manipulating the HAL.
-There is a rather complete man page for link:../man/man1/halcmd.1.html[`halcmd``], which will be installed if you have installed LinuxCNC from either source or a package.
+There is a rather complete man page for link:../man/man1/halcmd.1.html[`halcmd`], which will be installed if you have installed LinuxCNC from either source or a package.
 The manpage provides usage info:
 
 ----
