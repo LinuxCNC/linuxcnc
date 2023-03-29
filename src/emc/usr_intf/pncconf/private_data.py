@@ -985,7 +985,7 @@ class Private_Data:
         [S.ENCI,2],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
     ['7i96s-Internal Data', '7i96s', '7i96s_7i74', '7i96s', 'hm2_eth',
-         1, 3, 0, 10, 1, 3, 0, 0, 5, 2, 2, 9, [], 0, 0, 0, 0, 0, 0, 0, 1, 51, 100.0, 200.0, [1, 2, 3],
+         1, 3, 0, 10, 1, 3, 0, 0, 5, 2, 2, 8, [], 0, 0, 0, 0, 0, 0, 0, 1, 51, 100.0, 200.0, [1, 2, 3],
     [S.INM0, 100], [S.INM0, 101], [S.INM0, 102], [S.INM0, 103],[S.INM0, 104], [S.INM0, 105], [S.INM0, 106], [S.INM0, 107],
     [S.INM0, 108], [S.INM0, 109], [S.INM0, 110], [S.SSR0, 100],[S.SSR0, 101], [S.SSR0, 102], [S.SSR0, 103], [S.OUTM0, 104],
     [S.OUTM0, 105], (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0),(S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0),
