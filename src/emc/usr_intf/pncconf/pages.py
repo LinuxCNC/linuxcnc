@@ -877,7 +877,7 @@ class Pages:
         self.d.gs2_vfd_deaccel = self.w.gs2_vfd_deaccel.get_value()
         model = self.w.gs2_vfd_device_name.get_model()
         active = self.w.gs2_vfd_device_name.get_active()
-        self.d.gs2_vfd_port = '/dev/ttyS0';model[active][0]
+        self.d.gs2_vfd_port = model[active][0]
         model = self.w.gs2_vfd_baud.get_model()
         index = self.w.gs2_vfd_baud.get_active()
         self.d.gs2_vfd_baud = model[index][1]
@@ -976,8 +976,6 @@ class Pages:
     def search_for_serial_device_name(self):
         match = os.popen("""ls /sys/class/tty/*/device/driver | grep 'driver' | cut -d "/" -f 5""").read().split()
         if len(match) <1: return
-        return
-        print(len(match))
         model = self.w.gs2_vfd_device_name.get_model()
         model.clear()
         for item in match:
