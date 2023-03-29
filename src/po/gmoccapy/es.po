@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-02-12 11:32+0100\n"
-"PO-Revision-Date: 2023-02-26 07:13+0000\n"
-"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
+"PO-Revision-Date: 2023-03-29 03:16+0000\n"
+"Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "gmocappy/es/>\n"
 "Language: es\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.16-dev\n"
+"X-Generator: Weblate 4.17-dev\n"
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -191,9 +191,8 @@ msgid "Press to jog joint {0}"
 msgstr "Presione para mover el motor {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1327
-#, fuzzy
 msgid "GMOCCAPY INFO\n"
-msgstr "GMOCCAPY INFO"
+msgstr "GMOCCAPY INFO\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1328
 msgid "found more than 16 macros, will use only the first 16"
@@ -264,6 +263,8 @@ msgstr "inch/mm"
 msgid ""
 "No embedded tabs configured or invalid configuration. No tabs will be added!"
 msgstr ""
+"No hay pestañas embebidas configuradas o la configuración es inválida. ¡No "
+"se añadirá ninguna pestaña!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1849
 msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
@@ -272,20 +273,20 @@ msgstr ""
 "ortografía"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1955
-#, fuzzy
 msgid "Did not find a toolfile file in [EMCIO] TOOL_TABLE"
 msgstr ""
-"**** No existe el archivo para las herramientas en [EMCIO] TOOL_TABLE ****"
+"No se ha encontrado ningún archivo de herramientas en [EMCIO] TOOL_TABLE"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2039
-#, fuzzy
 msgid "Audio available!"
-msgstr "**** Sonido existente! ****"
+msgstr "¡Audio disponible!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2051
 msgid ""
 "No audio available! PYGST library not installed? Is python-gstX.XX installed?"
 msgstr ""
+"¡No hay audio disponible! ¿La biblioteca PYGST no está instalada? ¿Está "
+"instalado python-gstX.XX?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2079
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5313
@@ -297,23 +298,24 @@ msgstr ""
 "motores"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2123
-#, fuzzy
 msgid "Virtual keyboard program found : <onboard>"
-msgstr "**** teclado virtual <onboard> encontrado"
+msgstr "Programa de teclado virtual encontrado : <onboard>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2125
-#, fuzzy
 msgid ""
 "No virtual keyboard installed, we checked for <onboard>. Try 'sudo apt-get "
 "install onboard'."
-msgstr "**** No se encontró teclado virtual, hemos buscado por <onboard>."
+msgstr ""
+"No hay teclado virtual instalado, comprobamos <onboard>. Pruebe con <sudo "
+"apt-get install onboard>."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2138
-#, fuzzy
 msgid ""
 "Error with launching virtual keyboard. Is onboard installed?Try sudo apt-get "
 "install onboard"
-msgstr "Error intentando de iniciar el teclado onboard, esta instalado?"
+msgstr ""
+"Error al iniciar el teclado virtual. ¿Está instalado onboard? Pruebe sudo "
+"apt-get install onboard"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2171
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3046
@@ -321,10 +323,8 @@ msgid "interrupt running macro"
 msgstr "Interrumpir ejecución de macro"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2201
-#, fuzzy
 msgid "Did not find a parameter file in [RS274NGC] PARAMETER_FILE"
-msgstr ""
-"**** No se encontró archivo de paramentros en [RS274NGC] PARAMETER_FILE ****"
+msgstr "No se encontró un archivo de parámetros en [RS274NGC] PARAMETER_FILE"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2271
 msgid "Select the file you want to be loaded at program start"
@@ -332,9 +332,9 @@ msgstr "Seleccione el archivo que desea cargar al iniciar el programa"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2305
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2329
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Message type {0} not supported"
-msgstr "**** GMOCCAPY ERROR **** / tipo del mensaje {0} no soportado"
+msgstr "No se admite el mensaje de tipo {0} "
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2448
 msgid "Unknown error type and no error text given"
@@ -392,7 +392,7 @@ msgstr "Solo esta permitido el cambio de modo si el interprete está inactivo!"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3377
 #, python-brace-format
 msgid "{0}"
-msgstr ""
+msgstr "{0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3552
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
@@ -734,27 +734,23 @@ msgid "_Jump to"
 msgstr "_Saltar a"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:104
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid ""
 "**** gmoccapy can only handle 9 axis, but you have given {0} through your "
 "INI file. "
 msgstr ""
-"**** gmoccapy solo puede operar con 9 ejes, ****\n"
-"**** pero se encuentran {0} en el archivo INI ****\n"
+"**** gmoccapy solo puede operar con 9 ejes, pero ha dado {0} en el archivo "
+"INI. "
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:105
-#, fuzzy
 msgid "gmoccapy will not start ****\n"
-msgstr ""
-"**** gmoccapy no sera inicializado ****\n"
-"\n"
+msgstr "gmoccapy no arrancará ****\n"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:429
-#, fuzzy
 msgid "No subroutine folder or program prefix is given in the INI file!"
 msgstr ""
-"**** No se indica ninguna carpeta de subrutinas o prefijo de programa en el "
-"archivo INI **** \n"
+"¡En el archivo INI no se indica ninguna carpeta de subrutinas o prefijo de "
+"programa!"
 
 #: src/emc/usr_intf/gmoccapy/notification.py:225
 #, python-brace-format

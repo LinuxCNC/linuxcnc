@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-01-26 22:23+0100\n"
-"PO-Revision-Date: 2023-03-18 10:36+0000\n"
+"PO-Revision-Date: 2023-03-29 03:16+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.16.2-dev\n"
+"X-Generator: Weblate 4.17-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -4397,22 +4397,22 @@ msgid "Serial flush all!\n"
 msgstr "Vaciado serial completo\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:111
-#, fuzzy, c-format
+#, c-format
 msgid "ERROR CLASSICLADDER-   Failed to create thread I/O Modbus master...\n"
-msgstr "ERROR CLASSICLADDER- No se pudo crear hilo modbus master de E/S...\n"
+msgstr "ERROR CLASSICLADDER-   Fallo al crear hilo I/O Modbus maestro...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:128
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "INFO CLASSICLADDER---I/O Modbus master Data bits %i Stop bits %i Parity %i\n"
 msgstr ""
-"INFO CLASSICLADDER --- E/S modbus master Bits de Datos %i Bits de Parada %i "
+"INFO CLASSICLADDER --- E/S Modbus maestro Bits de Datos %i Bits de Parada %i "
 "Paridad %i\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:131
-#, fuzzy, c-format
+#, c-format
 msgid "INFO CLASSICLADDER---I/O Modbus master (%s) init ok !\n"
-msgstr "INFO CLASSICLADDER --- I/O modbus master (%s) init ok!\n"
+msgstr "INFO CLASSICLADDER---I/O Modbus maestro (%s) init ok !\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:131
 msgid "Serial"
@@ -4470,7 +4470,7 @@ msgid "INFO CLASSICLADDER-   waiting for slave response...\n"
 msgstr "INFO CLASSICLADDER- esperando respuesta esclavo...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:320
-#, fuzzy, c-format
+#, c-format
 msgid "INFO CLASSICLADDER---I/O Modbus master closed!\n"
 msgstr "INFO CLASSICLADDER --- ¡maestro modbus de E / S cerrado!\n"
 
@@ -4559,9 +4559,10 @@ msgid "Bit Status Window"
 msgstr "Ventana de estado de bit"
 
 #: src/hal/classicladder/spy_vars_gtk.c:222
-#, fuzzy
 msgid "Offset for vars displayed below (press return to apply)"
-msgstr "offset para los vars mostrados a continuación (return para aplicar)"
+msgstr ""
+"Offset para las variables que se muestran a continuación (pulse Retorno para "
+"aplicar)"
 
 #: src/hal/classicladder/spy_vars_gtk.c:522
 msgid "Watch Window"
@@ -5429,7 +5430,7 @@ msgstr "Diagnóstico de LinuxCNC"
 
 #: tcl/tklinuxcnc.tcl:264
 msgid "Task"
-msgstr "Task"
+msgstr "Tarea"
 
 #: tcl/tklinuxcnc.tcl:266 tcl/tklinuxcnc.tcl:289 tcl/tklinuxcnc.tcl:312
 msgid "Heartbeat:"
@@ -6723,19 +6724,16 @@ msgid "NEW"
 msgstr "NUEVO"
 
 #: tcl/tooledit.tcl:232
-#, fuzzy
 msgid "Problem"
-msgstr "Sonda"
+msgstr "Problema"
 
 #: tcl/tooledit.tcl:233
-#, fuzzy
 msgid "Bad Entry"
-msgstr "Entrada de datos"
+msgstr "Entrada incorrecta"
 
 #: tcl/tooledit.tcl:234
-#, fuzzy
 msgid "(must be a number)"
-msgstr "%s debe ser un número"
+msgstr "(debe ser un número)"
 
 #: tcl/tooledit.tcl:242
 #, tcl-format
@@ -6757,9 +6755,8 @@ msgid "Current file:"
 msgstr "Archivo actual:"
 
 #: tcl/tooledit.tcl:291
-#, fuzzy
 msgid "Tooledit already running"
-msgstr "Proyecto cargado y en ejecución"
+msgstr "Tooledit ya se está ejecutando"
 
 #: tcl/tooledit.tcl:335
 #, tcl-format
@@ -6986,9 +6983,9 @@ msgid "%s: Using: %s"
 msgstr "%s: Utilizando: %s"
 
 #: tcl/tooledit.tcl:1039
-#, fuzzy, tcl-format
+#, tcl-format
 msgid "%s"
-msgstr "s"
+msgstr "%s"
 
 #: tcl/tooledit.tcl:1040
 #, tcl-format
@@ -7000,9 +6997,8 @@ msgstr ""
 "%s"
 
 #: tcl/tooledit.tcl:1043
-#, fuzzy
 msgid "Axis is Running"
-msgstr "El eje no responde"
+msgstr "El eje está en marcha"
 
 #: tcl/tooledit.tcl:1058
 msgid "Must be On and Idle to reload tool table"
@@ -7518,9 +7514,8 @@ msgid "Run time:"
 msgstr "Tiempo de ejecución:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1820
-#, fuzzy
 msgid "Tool Change List:"
-msgstr "Cambio de herramienta"
+msgstr "Lista de cambio de herramientas:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1821
 msgid "X bounds:"
@@ -10540,11 +10535,10 @@ msgstr ""
 "END ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:332
-#, fuzzy
 msgid ""
 "# Load Classicladder with Modbus master included (GUI must run for Modbus)"
 msgstr ""
-"# Load Classicladder con modbus master incluido (la GUI debe ejecutarse para "
+"# Cargar Classicladder con Modbus master incluido (GUI debe ejecutarse para "
 "Modbus)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:335
@@ -10841,17 +10835,16 @@ msgid "Back"
 msgstr "Volver"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:642
-#, fuzzy
 msgid ""
 "This program creates configuration files (INI and HAL) for \"step and "
 "direction\" milling machines and lathes connected to the PC parallel port.\n"
 "\n"
 "Stepconf requires a minimum 800 X 600 display resolution."
 msgstr ""
-"Este programa crea archivos de configuración (.ini y .hal) para fresadoras y "
-"tornos \" paso y dirección \" conectados al puerto paralelo de la PC. \n"
+"Este programa crea archivos de configuración (INI y HAL) para fresadoras y "
+"tornos \"paso y dirección\" conectados al puerto paralelo del PC.\n"
 "\n"
-"Stepconf requiere una resolución mínima de pantalla de 800 X 600."
+"Stepconf requiere una resolución de pantalla mínima de 800 X 600."
 
 #: src/emc/usr_intf/stepconf/main_page.glade:675
 msgid "Page 1"
@@ -11428,9 +11421,8 @@ msgstr "Configuración del numero de pines externos"
 
 #: src/emc/usr_intf/stepconf/options.glade:1074
 #: src/emc/usr_intf/pncconf/options.glade:732
-#, fuzzy
 msgid "Include Modbus master support"
-msgstr "Incluir soporte del maestro modbus"
+msgstr "Incluir soporte del Modbus maestro"
 
 #: src/emc/usr_intf/stepconf/options.glade:1125
 #: src/emc/usr_intf/pncconf/options.glade:925
@@ -11444,9 +11436,8 @@ msgstr "Programa ladder de Estop"
 
 #: src/emc/usr_intf/stepconf/options.glade:1155
 #: src/emc/usr_intf/pncconf/options.glade:971
-#, fuzzy
 msgid "Serial Modbus program"
-msgstr "Programa Modbus serie"
+msgstr "Programa Serial Modbus"
 
 #: src/emc/usr_intf/stepconf/options.glade:1240
 #: src/emc/usr_intf/pncconf/options.glade:1057
@@ -13125,24 +13116,20 @@ msgid "Dir Gen-B"
 msgstr "Dir Gen-B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
-#, fuzzy
 msgid "StepGen Phase-C"
-msgstr "Paso Gen-A"
+msgstr "StepGen Fase-C"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
-#, fuzzy
 msgid "StepGen Phase-D"
-msgstr "Paso Gen-A"
+msgstr "StepGen Fase-D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:136
-#, fuzzy
 msgid "StepGen Phase-E"
-msgstr "Paso Gen-A"
+msgstr "StepGen Fase-E"
 
 #: src/emc/usr_intf/pncconf/private_data.py:136
-#, fuzzy
 msgid "StepGen Phase-F"
-msgstr "Paso Gen-A"
+msgstr "StepGen Fase-F"
 
 #: src/emc/usr_intf/pncconf/private_data.py:138
 msgid "PWM Gen-P"
@@ -14741,7 +14728,6 @@ msgstr ""
 "Datos"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:286
-#, fuzzy
 msgid ""
 "This program creates configuration files (INI and HAL) for milling machines "
 "and lathes connected to a Mesa Card.\n"
@@ -14750,12 +14736,12 @@ msgid ""
 "functional then go back and add other options such as VFD spindle control  "
 "or advanced limit/home control etc."
 msgstr ""
-"Este programa crea archivos de configuración (.ini y .hal) para fresadoras y "
-"tornos conectados a una tarjeta Mesa.\n"
+"Este programa crea archivos de configuración (INI y HAL) para fresadoras y "
+"tornos conectados a una Tarjeta Mesa.\n"
 "\n"
-"Es una estrategia recomendada comenzar con opciones de ejes muy básicas, "
-"hágalos funcionar, luego regrese y agregue otras opciones como control de "
-"husillo VFD o control avanzado de inicio/límite etc."
+"Es una estrategia recomendada para empezar con opciones de ejes muy básicas, "
+"conseguir que sean funcionales y luego volver atrás y añadir otras opciones "
+"como el control del husillo VFD o el control avanzado de límite/home, etc."
 
 #: src/emc/usr_intf/pncconf/main_page.glade:315
 #: src/emc/usr_intf/pncconf/mesa0.glade:20243
@@ -16488,15 +16474,13 @@ msgstr "Smart Serial 5"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:54744
 #: src/emc/usr_intf/pncconf/mesa1.glade:54744
-#, fuzzy
 msgid "Smart Serial 6"
-msgstr "Smart Serial 0"
+msgstr "Smart Serial 6"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:59908
 #: src/emc/usr_intf/pncconf/mesa1.glade:59908
-#, fuzzy
 msgid "Smart Serial 7"
-msgstr "Smart Serial 0"
+msgstr "Smart Serial 7"
 
 #: src/emc/usr_intf/pncconf/start.glade:27
 msgid "Create a desktop launcher to start LinuxCNC with this configuration."
