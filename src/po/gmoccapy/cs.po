@@ -8,17 +8,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-02-12 11:32+0100\n"
-"PO-Revision-Date: 2022-10-03 17:24+0000\n"
-"Last-Translator: Jan Mrázek <email@honzamrazek.cz>\n"
+"PO-Revision-Date: 2023-03-27 01:44+0000\n"
+"Last-Translator: Michal Čihař <michal@weblate.org>\n"
 "Language-Team: \n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.14.1\n"
+"X-Generator: Weblate 4.17-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:253
 msgid "user mode selected"
@@ -221,9 +221,7 @@ msgstr "toto není soustruh, je potřeba mít alespoň\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1490
 msgid "an X and an Z axis\n"
-msgstr ""
-"osu X a Z\n"
-"\n"
+msgstr "osu X a Z"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1491
 msgid "Wrong lathe configuration, we will leave here"
