@@ -34,10 +34,11 @@ complete LinuxCNC user interface could be built with GladeVCP and Python.
 
 GladeVCP uses the https://glade.gnome.org/[Glade] WYSIWYG user
 interface editor, which makes it easy to create visually pleasing
-panels. It relies on the https://pygobject.readthedocs.io/en/latest/[PyGObject] bindings to the
-rich https://www.gtk.org/[GTK+] widget set, and in fact all of these
-may be used in a GladeVCP application - not just the specialized
-widgets for interacting with HAL and LinuxCNC, which are documented here.
+panels. It relies on the https://pygobject.readthedocs.io/en/latest/[PyGObject]
+bindings to the rich https://docs.gtk.org/gtk3/[GTK3] widget set, and in fact
+all of these widgets may be used in a GladeVCP application - not just the
+specialized widgets for interacting with HAL and LinuxCNC, which are documented
+here.
 
 === PyVCP versus GladeVCP at a glance
 
@@ -54,7 +55,7 @@ linked to a HAL pin, which in turn interfaces to the rest of LinuxCNC.
 
 *GladeVCP:*
 
-- Widget set: relies on the  https://www.gtk.org/[GTK+] widget set.
+- Widget set: relies on the https://docs.gtk.org/gtk3/[GTK3] widget set.
 - User interface creation: uses the  https://glade.gnome.org/[Glade] WYSIWYG user interface editor.
 - Any HAL pin change may be directed to call back into a user-defined Python event handler.
 - Any GTK signal (key/button press, window, I/O, timer, network events) may be associated with user-defined handlers in Python.
@@ -238,8 +239,7 @@ Older versions will not work, you will get a Python error.
 
 This section just outlines the initial LinuxCNC-specific steps. For more
 information and a tutorial on Glade, see http://glade.gnome.org. Some
-Glade tips & tricks may also be found on
-https://www.youtube.com[youtube].
+Glade tips & tricks may also be found on https://www.youtube.com[youtube].
 
 Either modify an existing UI component by running +glade <file>.ui+
 or start a new one by just running the +glade+ command from the shell.
@@ -458,7 +458,6 @@ Options:
 
 -t THEME::
     Set gtk theme. Default is system theme. Different panels can have different themes.
-    An example theme can be found in the https://wiki.linuxcnc.org/cgi-bin/wiki.pl?GTK_Themes[EMC Wiki].
 
 -x XID::
     Re-parent GladeVCP into an existing window XID instead of creating a
@@ -566,8 +565,8 @@ HAL widgets are instances of GtKWidgets and hence inherit the methods,
 properties and signals of the applicable GtkWidget class. For
 instance, to figure out which GtkWidget-related methods, properties
 and signals a 'HAL_Button' has, lookup the description of
-https://www.pygtk.org/docs/pygtk/class-gtkbutton.html[GtkButton] in the
-https://www.pygtk.org/docs/pygtk[PyGtk Reference Manual].
+https://lazka.github.io/pgi-docs/#Gtk-3.0/classes/Button.html#Gtk.Button[GtkButton]
+in the https://lazka.github.io/pgi-docs/[PyGObject API Reference].
 
 An easy way to find out the inheritance relationship of a given HAL
 widget is as follows: run glade, place the widget in a window, and
@@ -575,6 +574,17 @@ select it; then choose the 'Signals' tab in the 'Properties'
 window. For example, selecting a 'HAL_LED' widget, this will show that
 a 'HAL_LED' is derived from a  'GtkWidget', which in turn is derived
 from a 'GtkObject', and eventually a 'GObject'.
+
+Full class hierarchy can be seen by invoking the GtkInspector while in
+the Glade GUI by selecting a widget then pressing Control-Shift-I.
+If the Inspector doesn't open then it can be enabled from a terminal by
+entering:
+----
+gsettings set org.gtk.Settings.Debug enable-inspector-keybinding true
+----
+The Inspector is also handy for testing css style changes "on the fly"
+as well as determining all the properties and signals available for a
+widget.
 
 HAL Widgets also have a few HAL-specific Python attributes:
 
@@ -1347,49 +1357,53 @@ Gremlin does not export any HAL pins.
 
 Gremlin has the following properties:
 
-show tool speed::
+enable_dro::
+  This displays the dro on the graphics. +
+  Default = true.
+show_velocity::
   This displays the tool speed. +
   Default = true.
-show commanded::
+use_commanded::
   This selects the DRO to use: commanded or actual values. +
   Default = true.
-use metric units::
+metric_units::
   This selects the DRO to use: metric or imperial units. +
   Default = true.
-show rapids::
+show_rapids::
   This tells the plotter to show the rapid moves. +
   Default = true.
-show DTG::
+show_dtg_::
   This selects the DRO to display the distance-to-go value. +
   Default = true.
-show relative::
+use_relative::
   This selects the DRO to show values relative to user system or machine coordinates. +
   Default = true.
-show live plot::
+show_live_plot::
   This tells the plotter to draw or not. +
   Default = true.
-show limits::
+show_limits::
   This tells the plotter to show the machine's limits. +
   Default = true.
-show lathe radius::
+show_lathe_radius::
   This selects the DRO to display the X axis in radius or diameter, if in lathe
   mode (selectable in the INI file with LATHE = 1). +
   Default = true.
-show extents::
-  This tells the plotter to show the extents. +
+show_extents_option::
+  This tells the plotter to show the machine's extents. +
   Default = true.
-show tool::
+show_tool::
   This tells the plotter to draw the tool. +
   Default = true.
-show program::
-  TODO
-use joints mode::
+show_program::
+  Show the gcode progame. +
+  Default = True
+use_joints_mode::
   Used in non trivialkins machines (e.g., robots). +
   Default = false.
-grid size::
+grid_size::
   Sets the size of the grid (only visible in the X, Y and Z views). +
   Defaults to 0
-use default mouse controls::
+use_default_controls::
   This disables the default mouse controls. +
   This is most useful when using a touchscreen as the default controls do not work well. You can programmatically
   add controls using Python and the handler file technique. +
@@ -1474,17 +1488,19 @@ The `HAL_Offset` widget is used to display the offset of a single axis.
 
 `HAL_Offset` has the following properties:
 
-Joint Number::
+display_units_mm::
+  Disply in metric units.
+joint_n_umber::
   Used to select which axis (technically which joint) is displayed. +
-  On a trivialkins machine (mill, lathe, router) axis vrs joint number are:
+  On a trivialkins machine (mill, lathe, router) axis vs. joint number are:
 +
   0:X  1:Y  2:Z  3:A  4:B  5:C  6:U  7:V  8:W
 +
-Text template for metric units::
+mm_text_template::
   You can use Python formatting to display the position with different precision.
-Text template for imperial units::
+imperial_text_template::
   You can use Python formatting to display the position with different precision.
-Reference Type::
+reference_type::
 +
   0:G5x 1:tool 2:G92 3:Rotation around Z
 
@@ -1497,49 +1513,123 @@ The DRO widget is used to display the current axis position.
 
 It has the following properties:
 
-Actual Position::
-  select actual (feedback) position or commanded position.
-Text template for metric units::
-  You can use Python formatting to display the position with different precision.
-Text template for imperial units::
-  You can use Python formatting to display the position with different precision.
-Reference Type::
-  * `absolute` <<sec:machine-coordinate-system,(machine origin)>>, or
-  * `relative` (to current user coordinate origin - G5x), or
-  * `distance-to-go` (relative to current user coordinate origin).
-Joint Number::
-  Used to select which axis (technically which joint) is displayed. +
-  On a trivialkins machine (mill, lathe, router) axis vrs joint number are:
-+
-  0:X  1:Y  2:Z  3:A  4:B  5:C  6:U  7:V  8:W
-Display units::
+display_units_mm::
   Used to toggle the display units between metric and imperial.
+  Default is False
+actual::
+  Select actual (feedback) position or commanded position.
+  Default is True
+diameter::
+  Display diameter for a lathe.
+  Default is False
+mm_text_template::
+  You can use Python formatting to display the position with different precision.
+  Default is "%10.3f".
+imperial_text_template::
+  You can use Python formatting to display the position with different precision.
+  Default is "%9.4f".
+joint_number::
+  Used to select which axis (technically which joint) is displayed.
+  Default is 0 +
+  On a trivialkins machine (mill, lathe, router) axis vs. joint number are:
++
+  0:X  1:Y  2:Z  3:A  4:B  5:C  6:U  7:V  8:W +
++
+reference_type::
+  * 0 = `absolute` <<sec:machine-coordinate-system,(machine origin)>>.
+  * 1 = `relative` (to current user coordinate origin - G5x).
+  * 2 = `distance-to-go` (relative to current user coordinate origin).
+  Default is 0
+font_family::
+  Specify the font family e.g. mono. Defaults to sans.
+  If the font does not exist then the current system font will be used.
+  Default is sans
+font_size::
+  Specify the size of the font between 8 and 96.
+  Default is 26
+font_weight::
+  Specify the weight of the font. Select from lighter, normal, bold, or bolder.
+  Default is bold
+unhomed_color::
+  The text color when unhomed pecified as a Gdk.RGBA color.
+  Default is red,
+  Gdk.RGBA(red=1.000000, green=0.000000, blue=0.000000, alpha=1.000000)
+homed_color::
+  The text color when homed pecified as a Gdk.RGBA color.
+  Default is green,
+  Gdk.RGBA(red=0.000000, green=0.501961, blue=0.000000, alpha=1.000000)
 Hints::
-  - If you want the display to be right justified, set the X align to 1.0
-  - If you want different colors or size or text change the attributes in the
-    Glade editor (eg scale is a good way to change the size of the text)
-  - The background of the widget is actually see through - so if you place if over
-    an image the DRO numbers will show on top of it with no background. There is a
-    special technique to do this. See the animated function diagrams below.
-  - The DRO widget is a modified gtk label widget. As such much or what can be
-    done to a gtk label can be done to DRO widget.
+  - If you want the display to be right justified, set the Horizontal Alignment
+    to `End`
+  - The background of the widget is actually see through, so if you place it
+    over an image, the DRO numbers will show on top of it with no background.
+    There is a special technique to do this.
+    See the animated function diagrams below.
+  - The DRO widget is a modified gtk label widget. As such, much of what can be
+    done to a gtk label can be done to the DRO widget.
+  - The font properties may also be set from a css stylesheet which has the
+    highest priority and will override values set by GObject properties.
 
 ==== Direct program control
 
 There a couple ways to directly control the widget using Python.
 
-Using goobject to set the above listed properties:
+Using GObject to set the above listed properties::
 
 ----
-[widget name].set_property("display_units_mm",True)
-[widget name].set_property("actual",True)
-[widget name].set_property("mm_text_template","%f")
-[widget name].set_property("imperial_text_template","%f")
-[widget name].set_property("Joint_number",3)
-[widget name].set_property("reference_type",3)
+[widget name].set_property("display_units_mm", True)
+[widget name].set_property("actual", True)
+[widget name].set_property("diameter", True)
+[widget name].set_property("mm_text_template", "%10.3f")
+[widget name].set_property("imperial_text_template", "%9.4f")
+[widget name].set_property("joint_number", 3)
+[widget name].set_property("reference_type", 3)
+[widget name].set_property("font_family", "mono")
+[widget name].set_property("font_size", 30)
+[widget name].set_property("font_weight", "bold")
 ----
 
-There are two Python methods:
+----
+# it is easier to read colors by calling a function:
+def str_to_rgba(color):
+  c = Gdk.RGBA()
+  c.parse(color)
+  return c
+
+[widget name].set_property("unhomed_color", str_to_rgba("magenta"))
+[widget name].set_property("homed_color", str_to_rgba("cyan"))
+----
+
+Using a CSS stylesheet to set font properties::
+
+Colors may be specified in one of several formats, these would all specify
+the same color, red, *#ff0000, *rgb(255,0,0), or rgba(255,0,0,255)
+
+Colors may be referenced either collectively:
+
+----
+.dro_unhomed {color: magenta}
+.dro_homed {color: cyan}
+----
+
+or individually by widget name:
+
+----
+#[widget name].dro_unhomed {color: magenta}
+#[widget name].dro_homed {color: cyan}
+----
+
+The other style properties need to be referenced by widget name:
+
+----
+#[widget name], #[widget name], #[widget name] {
+    font-family: mono;
+    font-size: 60px;
+    font-weight: lighter;
+}
+----
+
+There are two Python methods::
 
 ----
 [widget name].set_dro_inch()
@@ -1559,7 +1649,7 @@ In Relative Mode the actual coordinate system will be displayed.
 
 joint_number::
   Used to select which axis (technically which joint) is displayed. +
-  On a trivialkins machine (mill, lathe, router) axis vrs. joint number are:
+  On a trivialkins machine (mill, lathe, router) axis vs.. joint number are:
 +
   0:X  1:Y  2:Z  etc.
 +
@@ -1833,9 +1923,9 @@ You can preset the display and retrieve the result or that preset value. +
 
 `calculator` has the following properties:
 
-Is editable::
+is_editable::
   This allows the entry display to be typed into from a keyboard.
-Set Font::
+font::
   This allows you to set the font of the display.
 
 ==== Direct program control
@@ -1875,10 +1965,14 @@ NOTE: LinuxCNC requires remapping of tool calls to actually use wear offsets.
 
 `tooleditor` has the following properties:
 
-Hidden Columns::
+font:: 
+  Display font to use
+hide_columns::
   This will hide the given columns. +
   The columns are designated (in order) as such: `s,t,p,x,y,z,a,b,c,u,v,w,d,i,j,q`. +
   You can hide any number of columns including the select and comments.
+lathe_display_type::
+  Show lathe format
 
 ==== Direct program control
 
@@ -1947,24 +2041,26 @@ button to allow the `OffsetPage` to reflect changes.
 
 It has the following properties:
 
-Hidden Columns::
+display_units_mm::
+  Display in metrice units
+hide_columns::
   A no-space list of columns to hide.
   The columns are designated (in order) as such: `xyzabcuvwt`. +
   You can hide any of the columns.
-Hidden Rows::
+hide_rows::
   A no-space list of rows to hide. +
   The rows are designated (in order) as such: `0123456789abc`. +
   You can hide any of the rows.
-Pango Font::
+font::
   Sets text font type and size.
-HighLight color::
+highlight_color::
   When editing this is the highlight color.
-Active color::
+foreground_color::
   When `OffsetPage` detects an active user coordinate system it will use
   this color for the text.
-Text template for metric units::
+mm_text_template::
   You can use Python formatting to display the position with different precision.
-Text template for imperial units::
+imperial_text_template::
   You can use Python formatting to display the position with different precision.
 
 ==== Direct program control
@@ -2877,8 +2973,8 @@ def _on_example_trigger_change(self,pin,userdata=None):
 === Adding timers
 
 Since GladeVCP uses Gtk widgets which rely on the
-https://www.pygtk.org/pygtk2reference/gobject-functions.html[GObject]
-base class, the full glib functionally is available. Here is an
+https://pygobject.readthedocs.io/en/latest/[PyGObject]
+base class, the full GLib functionally is available. Here is an
 example for a timer callback:
 
 [source,python]
@@ -2888,9 +2984,9 @@ def _on_timer_tick(self,userdata=None):
     return True # to restart the timer; return False for on-shot
 ...
 # demonstrate a slow background timer - granularity is one second
-# for a faster timer (granularity 1 ms), use this:
-# glib.timeout_add(100, self._on_timer_tick,userdata) # 10Hz
-glib.timeout_add_seconds(1, self._on_timer_tick)
+# for a faster timer (granularity 100 ms), use this:
+# GLib.timeout_add(100, self._on_timer_tick,userdata) # 10Hz
+GLib.timeout_add_seconds(1, self._on_timer_tick)
 ----
 
 === Setting HAL widget properties programmatically
@@ -2994,6 +3090,7 @@ I want to set the background color or text of a HAL_Label widget depending on it
   in an EventBox container, which has a window but is otherwise
   invisible - see the coloredlabel.ui file.
 
+// FIXME: This is probably irrelevant now that we are on Python3 and Gtk3
 I defined a `hal_spinbutton` widget in Glade, and set a default `value` property in the corresponding adjustment. It comes up with zero?::
   This is due to a bug in the old Gtk version distributed with Ubuntu
   8.04 and 10.04, and is likely to be the case for all widgets using
