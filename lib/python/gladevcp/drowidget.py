@@ -313,6 +313,33 @@ class HAL_DRO(Gtk.Label):
     def set_to_radius(self):
         self.diameter = False
 
+    def set_style(self, property, Data):
+#         self.css_text = """
+#                         .background  {background-color: black;}
+#                         .labelcolor  {color: red;}
+#                         """
+
+        if property == "background":
+            self.get_style_context().remove_class('background')
+            replacement_string = ".background  {background-color: " + Data + ";}"        
+            self.css_text = re.sub(r'[.][b][a][c][k][g][r][o][u][n][d].*', replacement_string, self.css_text, re.IGNORECASE)
+        
+        elif property == "labelcolor":
+            self.get_style_context().remove_class('labelcolor')
+            replacement_string = ".labelcolor  {color: " + Data + ";}"        
+            self.css_text = re.sub(r'[.][l][a][b][e][l][c][o][l][o][r].*', replacement_string, self.css_text, re.IGNORECASE)
+
+        else:
+            print("Got unknown property in <<set_style>>")
+            return
+
+        self.css.load_from_data(bytes(self.css_text, 'utf-8'))
+        
+        self.get_style_context().add_class('background')
+        self.get_style_context().add_class('labelcolor')
+                
+        self.queue_draw()
+
 # for testing without glade editor:
 def main():
     window = Gtk.Dialog("My dialog",

@@ -26,18 +26,21 @@ license "GPL";
 author "Sebastian Kuzminsky";
 ;;
 FUNCTION(_) {
-    rtapi_s32 tmp = in;
-    if ( tmp >= 0 ) {
-	sign = 0;
-	out = tmp;
+    if ( in >= 0 ) {
+	sign = false;
+	out = in;
     } else {
-	sign = 1;
-	out = -tmp;
+	sign = true;
+	out = -in;
     }
 
-    if (tmp > 0) is_positive = 1;
-    else is_positive = 0;
+    if (in > 0)
+        is_positive = true;
+    else
+        is_positive = false;
 
-    if (tmp < 0) is_negative = 1;
-    else is_negative = 0;
+    if (in < 0)
+        is_negative = true;
+    else
+        is_negative = false;
 }

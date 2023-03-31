@@ -5,7 +5,7 @@ Authors ArcEye 15122011 schooner30@tiscali.co.uk / Andy Pugh andy@bodgesoc.org
 License GPL
 Copyright 2011 
 
-example Hal linkages required:-
+example HAL linkages required:-
 ################################
 loadrt multiswitch cfg=4,6,8
 addf multiswitch.0 servo-thread

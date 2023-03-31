@@ -83,7 +83,6 @@ static EMC_IO_STAT emcioStatus;
 static NML *emcErrorBuffer = 0;
 
 static char io_tool_table_file[LINELEN] = "tool.tbl"; // default
-static char *ttcomments[CANON_POCKETS_MAX];
 static int      random_toolchanger  = 0;
 static tooldb_t io_db_mode          = DB_NOTUSED;
 static char     db_program[LINELEN] = {0};
@@ -494,7 +493,6 @@ static void hal_init_pins(void)
 void load_tool(int idx) {
     CANON_TOOL_TABLE tdata;
     if(random_toolchanger) {
-        char *comment_temp;
         // swap the tools between the desired pocket and the spindle pocket
 
         CANON_TOOL_TABLE tzero,tpocket;
@@ -516,11 +514,7 @@ void load_tool(int idx) {
             UNEXPECTED_MSG;
         }
 
-        comment_temp = ttcomments[0];
-        ttcomments[0] = ttcomments[idx];
-        ttcomments[idx] = comment_temp;
-
-        if (0 != tooldata_save(io_tool_table_file,ttcomments)) {
+        if (0 != tooldata_save(io_tool_table_file)) {
             emcioStatus.status = RCS_ERROR;
         }
     } else if(idx == 0) {
@@ -846,9 +840,6 @@ int main(int argc, char *argv[])
                         "%s:can't connect to NML buffers in %s\n",progname,emc_inifile);
         exit(-1);
     }
-    for(int i = 0; i < CANON_POCKETS_MAX; i++) {
-        ttcomments[i] = (char *)malloc(CANON_TOOL_ENTRY_LEN);
-    }
 
     tooldata_init(random_toolchanger);
     tooldata_set_db(io_db_mode);
@@ -875,7 +866,6 @@ int main(int argc, char *argv[])
 
     // on nonrandom machines, always start by assuming the spindle is empty
     if(!random_toolchanger) {
-        ttcomments[0][0] = '\0';
         CANON_TOOL_TABLE tdata = tooldata_entry_init();
         tdata.pocketno =  0; //nonrandom init
         tdata.toolno   = -1; //nonrandom init
@@ -884,7 +874,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (0 != tooldata_load(io_tool_table_file, ttcomments)) {
+    if (0 != tooldata_load(io_tool_table_file)) {
         rcs_print_error("%s: can't load tool table.\n",progname);
     }
 
@@ -993,7 +983,7 @@ int main(int argc, char *argv[])
             break;
 
         case EMC_TOOL_INIT_TYPE:
-            tooldata_load(io_tool_table_file, ttcomments);
+            tooldata_load(io_tool_table_file);
             reload_tool_number(emcioStatus.tool.toolInSpindle);
             break;
 
@@ -1132,7 +1122,7 @@ int main(int argc, char *argv[])
                 ((EMC_TOOL_LOAD_TOOL_TABLE *) emcioCommand)->file;
             if(!strlen(filename)) filename = io_tool_table_file;
             rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD_TOOL_TABLE\n");
-            if (0 != tooldata_load(filename, ttcomments)) {
+            if (0 != tooldata_load(filename)) {
                 emcioStatus.status = RCS_ERROR;
             } else {
                 reload_tool_number(emcioStatus.tool.toolInSpindle);
@@ -1172,7 +1162,7 @@ int main(int argc, char *argv[])
                 if (tooldata_put(tdata,idx) == IDX_FAIL) {
                     UNEXPECTED_MSG;
                 }
-                if (0 != tooldata_save(io_tool_table_file, ttcomments)) {
+                if (0 != tooldata_save(io_tool_table_file)) {
                     emcioStatus.status = RCS_ERROR;
                 }
                 if (io_db_mode == DB_ACTIVE) {
@@ -1303,9 +1293,6 @@ int main(int argc, char *argv[])
         emcioCommandBuffer = 0;
     }
 
-    for(int i=0; i<CANON_POCKETS_MAX; i++) {
-        free(ttcomments[i]);
-    }
     rtapi_print("%s: exiting\n",progname);
     exit(0);
 }

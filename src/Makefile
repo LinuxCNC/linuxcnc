@@ -252,7 +252,7 @@ INCLUDE += $(LIBTIRPC_CFLAGS)
 # Compilation options.	Perhaps some of these should come from Makefile.inc? (CXXFLAGS now does)
 INTEGER_OVERFLOW_FLAGS := -fwrapv
 OPT := -Os $(INTEGER_OVERFLOW_FLAGS)
-DEBUG := $(DEBUG) -g -Wall -Wno-stringop-truncation -D_FORTIFY_SOURCE=2
+DEBUG := $(DEBUG) -g -Wall -D_FORTIFY_SOURCE=2
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DULAPI -std=gnu11 -Werror=implicit-function-declaration $(CFLAGS) $(CPPFLAGS)
 CXXFLAGS := $(INCLUDE) $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Werror=overloaded-virtual $(CXXFLAGS) $(CPPFLAGS)
 CXXFLAGS += -std=gnu++17
@@ -668,7 +668,7 @@ install-docs:
 install-dirs:
 	$(DIR) $(DESTDIR)$(EMC2_RTLIB_DIR) \
 		$(DESTDIR)$(sysconfdir)/linuxcnc $(DESTDIR)$(bindir) $(DESTDIR)$(libdir) \
-		$(DESTDIR)/lib/linuxcnc $(DESTDIR)$(includedir)/linuxcnc \
+		$(DESTDIR)/$(libdir)/linuxcnc $(DESTDIR)$(includedir)/linuxcnc \
 		$(DESTDIR)$(docsdir) $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
 		$(DESTDIR)$(tcldir)/scripts \
@@ -734,7 +734,7 @@ install-kernel-indep: install-dirs
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	cp --no-dereference $(wildcard ../lib/*.so) $(DESTDIR)$(libdir)
 	-ldconfig $(DESTDIR)$(libdir)
-	$(FILE) ../lib/linuxcnc/canterp.so $(DESTDIR)$(libdir)/linuxcnc
+	$(FILE) ../lib/linuxcnc/canterp.so $(DESTDIR)$(libdir)/linuxcnc/
 	$(FILE) $(HEADERS) $(DESTDIR)$(includedir)/linuxcnc/
 	$(TREE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
 	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)

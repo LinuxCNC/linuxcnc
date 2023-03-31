@@ -54,9 +54,6 @@ public:
     int random_toolchanger;
     const char *ini_filename;
     const char *tooltable_filename;
-private:
-
-    char *ttcomments[CANON_POCKETS_MAX];
 };
 
 extern Task *task_methods;

@@ -114,9 +114,10 @@ like this:
 * Clone the git repo
 * Make your changes in a local branch, making sure you "sign off" your commits
   according to our signed-off-by policy (see below).
-* Adding documentation and tests is an important part of adding a new
-  feature.  Otherwise, others won't know how to use your feature, and
-  if other changes break your feature it can go unnoticed without a test.
+* Adding documentation and <<cha:writing-tests,writing tests>> is
+  an important part of adding a new feature.  Otherwise, others won't
+  know how to use your feature, and if other changes break your
+  feature it can go unnoticed without a test.
 * Share your changes with the other project developers in one of these ways:
 ** Push your branch to github and create a github pull request to
    https://github.com/linuxcnc/linuxcnc (this requires a github account)

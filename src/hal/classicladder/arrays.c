@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* Copyright (C) 2001-2009 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* February 2001 */
@@ -42,17 +42,18 @@
 #endif
 #include "calc.h"
 #include "vars_access.h"
-#include "vars_names.h"
 #include "manager.h"
 #include "calc_sequential.h"
 #include "symbols.h"
+//#include "vars_system.h"
 
 
 #ifdef GTK_INTERFACE
+#include <gtk/gtk.h>
 #include "classicladder_gtk.h"
 #include "manager_gtk.h"
 #include "symbols_gtk.h"
-//#include <gtk/gtk.h>/
+//#include <gtk/gtk.h>
 #endif
 
 
@@ -66,9 +67,9 @@ int compId;
 static int ShmemId;
 #endif
 
-
 StrRung * RungArray;
 TYPE_FOR_BOOL_VAR * VarArray;
+//unsigned char * LogVarArray;
 int * VarWordArray;
 double * VarFloatArray;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
@@ -93,9 +94,9 @@ StrArithmExpr * EditArithmExpr;
 
 
 // Default sizes values
-// and variable used to store parameters before copying from realtime module
+// and variable used to store parameters before malloc()/init_rt_thread done!
+// After init, we used it again to store the configuration modifications !!!
 // The real values allocated are in InfosGene->GeneralParams.SizesInfos...
-
 StrGeneralParams GeneralParamsMirror = {
 	.SizesInfos.nbr_rungs = NBR_RUNGS_DEF,
 	.SizesInfos.nbr_bits = NBR_BITS_DEF,
@@ -111,7 +112,7 @@ StrGeneralParams GeneralParamsMirror = {
 	.SizesInfos.nbr_arithm_expr = NBR_ARITHM_EXPR_DEF,
 	.SizesInfos.nbr_sections = NBR_SECTIONS_DEF,
 	.SizesInfos.nbr_symbols = NBR_SYMBOLS_DEF,
-        .SizesInfos.nbr_phys_words_inputs = NBR_PHYS_WORDS_INPUTS_DEF,
+	.SizesInfos.nbr_phys_words_inputs = NBR_PHYS_WORDS_INPUTS_DEF,
 	.SizesInfos.nbr_phys_words_outputs = NBR_PHYS_WORDS_OUTPUTS_DEF,
         .SizesInfos.nbr_phys_float_inputs = NBR_PHYS_FLOAT_INPUTS_DEF,
 	.SizesInfos.nbr_phys_float_outputs = NBR_PHYS_FLOAT_OUTPUTS_DEF,
@@ -138,15 +139,19 @@ void InitInfosGene( void )
 	InfosGene->OffsetCurrentRungDisplayed = 0;
 	InfosGene->VScrollValue = 0;
 	InfosGene->HScrollValue = 0;
+	InfosGene->HeaderLabelCommentHeight = BLOCK_HEIGHT_DEF*65/100;
 
 	InfosGene->DurationOfLastScan = 0;
 	InfosGene->CurrentSection = 0;
 
 	InitIOConf( );
 	InfosGene->AskConfirmationToQuit = FALSE;
+	InfosGene->HasBeenModifiedForExitCode = FALSE;
 	InfosGene->DisplaySymbols = TRUE;
 
 	InfosGene->AskToConfHard = FALSE;
+	//InfosGene->LogContentModified = FALSE;
+	//InfosGene->DefaultLogListModified = FALSE;
 	InfosGene->HardwareErrMsgToDisplay[ 0 ] = '\0'; //no error for now!
 }
 
@@ -351,4 +356,12 @@ void ClassicLadder_InitAllDatas( void )
 	InitSequential( );
 #endif
 	InitSymbols( );
+	//InitSystemVars( TRUE );
+
+	//InitLog( );
+	//InitVarsArrayLogTags( );
+
+	InfosGene->AskConfirmationToQuit = FALSE;
+	InfosGene->HasBeenModifiedForExitCode = FALSE;
 }
+

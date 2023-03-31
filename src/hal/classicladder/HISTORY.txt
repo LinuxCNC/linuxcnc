@@ -1,5 +1,12 @@
-Classic Ladder history
-----------------------
+CLASSIC LADDER PROJECT
+Copyright (C) 2001-2010 Marc Le Douarain
+marc . le - douarain /AT\ laposte \DOT/ net
+http://www.sourceforge.net/projects/classicladder
+http://www.multimania.com/mavati/classicladder
+http://sites.google.com/site/classicladder
+----------
+HISTORY...
+----------
 
 v0.1 (February 2001 - Not released)
     - The first lines of codes for calculating one rung and displaying it...
@@ -448,3 +455,202 @@ v0.7.123 (4 November 2007)
      using WriteVar() call to updates them (just useful for me on another project).
    - In internal Counters using WriteVar() call to updates public variables (same reason).
 
+v0.7.124 (2 January 2008)
+   - Removed some Valgrind "Invalid read of size 4" in CyclicCalcRefresh() on exit.
+   - Merged back some fixes done in calc for the another project Dragon (important error
+     with the 0.7.123 WriteVar() internal modifications!), and some others things...
+   - Some fixes in the text parser for arithmetic expressions (all variable names must
+     had a number after first 2/3 characters + possible trouble if % used as operator).
+   - New define MODBUS_IO_MASTER to add possibility to exclude properly this part.
+   - A new interesting example included "3pumps"...
+   - Fixed following old bug: 2 sections defined in project, delete first (in internal
+     number 0), then reload project, first one still defined (the default section "Prog1" !)...
+   - During edit, see the current selected element with a red rectangle around it.
+   - When erasing, was putting an inexistant "erase" element instead of correct free one...
+     (some existent rungs projects can have that!) Drawing theses abnormal elements "(xx)"
+     to see them! (Now understand the case with long connections not working!!! because not "free")
+   - Confirmation requester if loading selected, and current project modified and not saved.
+
+v0.7.125 (18 February 2008)
+   - Added in variables array description, if "read only" or "read/write", and use/verify it
+     to edit (read/write required for coils + read/write target variable in operate block).
+   - Possibility to modify current value of a "read/write" variable (in a new window).
+   - When editing expression (compare/operate block), if incorrect, keep the previous expression
+     instead of setting it to "#" !
+   - Added a "Properties" button in section window to be able to modify its name.
+   - To be able to modify on run/fly a %Cx.V variable (now in read/write access).
+
+v0.7.126 (23 February 2008)
+   - Added some securities during arithm eval to avoid crashing (floating point exception).
+     Example strings: "%W<4" "%W0:=123++" "%W0:=123%%"... should trap thoses errors now... 
+     Bug reported by Chris Morley (EMC2 project).
+   - Bad (same) "Add a section..." title for properties section window. Little bug fixed.
+   - During rung edit, possibility to had 2 big elements overlapped (outside alive cell of
+     the element added).
+   - Confirmation quit requester if under edit.
+
+v0.7.127 (22 April 2008)
+   - "Abnormal current type found" warning message when deleting. Fixed.
+   - Problem to delete a symbol defined for a variable (reported by Chris Morley).
+     Fixed in the gtk edit symbols window (possible to delete the variable).
+   - Indexed variables are now available not only in arithmetic expressions, but also in all the
+     elements of the rungs !
+   - Current project file name displayed in section window title.
+
+v0.8.0 (7 August 2008) [Big switch to Cairo & gtk-print]
+   - New constant type support: character like that 'E', in arithmetic expression.
+   - Some little Dragon modifs backport (missing AskConfirmationToQuit set, exit return code usage,
+     display both current value & preset in functions blocks)
+   - Started a little some backports from current EMC project version done by Chris Morley.
+   - Removed old GTK1 codes parts (to clean up, and no more tested and ugly for texts...)
+   - Totally switched the drawing from gdk calls to Cairo graphic library. It is now used to
+     print with gtk-print instead of the old gnome-print, and the vector rendering is really
+     better than the old bitmaps done ! Moreover it should works under Windows...
+     A lot of works done... perhaps still some little things to improve.
+   - Now current selected element during edit drawned filled with alpha.
+   - See better the selected rung with a light yellow background + added error message if clicked
+     outside of it during edit.
+   - Header label/comment now drawed at the top of each rung (and used to print, done for it
+     in fact, but it's better no?!).
+
+v0.8.1 (23 August 2008) [gtk-print also working under Windows... finally not so simple]
+   - Many, many modifications done on the graphics rendering to remove all the many fixed in hard
+     pixels constants for some little values (the printing cairo context under Windows gives
+     a width/height size largely bigger than under Linux, explaining why I don't see that problem
+     before...). Font sizes also have to be different...
+     And many cleanups in general on the offsets for the ladder rungs... it is visible!
+   - Left/right bars for rungs present when printing.
+   - No more 'Print preview' button since switch from gnome-print (Linux only) to gtk-print now
+     available again (it is so easy that I don't find how to do it at the start with gtkprint:
+     just another action constant for gtk_print_operation_run(): 
+     GTK_PRINT_OPERATION_ACTION_PREVIEW instead of GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG).
+     Nice simple example with the gnome-dictionary software source code!
+     You must have the evince gtk package installed.
+   - Strange bug (since when?) on top buttons in toolbar depending of the language, if clicking
+     on another section in the window manager (I'm sure it was working before...!)
+   - SVG export of the current rung or sequential page (an easy Cairo feature here...)
+   - During edit on a free place, set default variable type (input or output) depending
+     if contact or coil (EMC, Chris Morley modification).
+   - New "words" variables for physical inputs/outputs %IWxxxx & %QWxxxx (used for distributed I/O
+     modbus master).
+   - Support of read/write registers code functions (4, 6 & 16) added in Modbus distributed
+     I/O (Chris Morley work, but a little revamped by me). Not tested for now by myself. Should works
+     if I didn't do a mistake when copying and modifying the code...
+   - Renamed variables %Xxxx in %Xxxx.A (trouble with the parser, easier like that!)
+About gtk-print (under Windows only): with the preview (using the windows preview utility) and with
+one printer (on two used!) I've obtained some black boxes during my tests... not understand why for now?
+Else the preview on Windows doesn't works if more than one page rendered (all on the same one), perfect
+on Linux side.
+
+v0.8.2 (7 September 2008) [configplc startup file removed]
+   - Removed completely the configplc file no more necessary with a new file "com_params.txt"
+     in the projects for the serial times parameters, and Serial port name & speed in the
+     file general_parameters (loaded before initializing all).
+     + New "Modbus com settings" page and some modbus distributed parameters moved there.
+   - I/O Modbus Master: added function read coils + read hold registers (from EMC).
+     + added function read status "7" (response value stored in the %QWx choosed).
+     + added function diagnostic "8", use field '1st modbus element' to store the sub-function
+     number to send, send the data from %IWxxxx and store the data received in the %QWxxxx (using
+     the same xxxxx mapping variable choosed).
+     NOTHING TESTED FOR NOW...
+   - Right bar drawed a little too much on left. Fixed.
+
+v0.8.3 (13 December 2008)
+   - During edit, a little element can no more replace a big one (else trouble with blocks
+     unavailables remaining).
+   - During edit, disable the widgets in the sections manager to avoid possible troubles...
+     (and as it is not the time to play with that...!)
+   - Added unit defined on a char in each timer block after current and preset values.
+   - Maxi preset for timers now fixed to 9999.
+   - In properties windows, for timers set focus to the preset edit line per default
+     (instead of the number, usually never modified).
+   - When deleting an element, try to delete also smartly the verticals bars... and if no
+     element will delete a vertical bar present.
+   - When opening the edit and properties window, move them near the main section window.
+   - When printing, add in the right margin for each rung the contents of the compare/operate that
+     where not displayed entirely (with a report number) + when displaying, better display of the
+     string at the max place and "(..)" after COMPARE/OPERATE if not displayed entirely.
+   - Added a pixel height to the vertical drawing.
+   - Bug report by Chris Morley in build of the config window for the modbus I/O slaves.
+   - Added a validity test in ABS() function with only one variable (Chris Morley report on EMC).
+   - Right bar printed a little too much on left. After the bug-fix to draw! ;-) Fixed.
+   - The same bug in the svg export. Fixed.
+   - Switched to LGPL version 3.
+
+v0.8.4 (26 April 2009) [Rung part Copy feature]
+   - Moved internal variable CurrentProjectFileName into struct InfosGene (EMC rework, why not!)
+   - Some fixes in modbus master with some 8 bits conversions (taken from EMC).
+   - Display current full path/file project in config window.
+   - Radio buttons (instead of simples entries) in modbus com parameters (idea from EMC but
+     compactly rewritten, hello Chris! what do you think of it? ;-) ).
+   - Can map any types of modbus request to any types of variables (an EMC feature idea).
+   - Ask confirmation before reset (from EMC).
+   - Ghost zone rectangle for the element selected in the toolbar (for current position of the mouse) to see
+     exactly the blocks place it will take if set there, and where it can be put (rules respect).
+   - Long awaited feature: part selection of a rung that can be then copied somewhere ! Two new buttons
+     in the toolbar available for that (selection & copy).
+   - For Sequential, do not allow step on last line, reserved only for link usage... (Francis Courtois report).
+     A lot of things still have to be done on the sequential part... the poor part, all major dev is done on
+     rungs ladder!
+   - Double licence : LGPLv3 & LGPLv2 for EMC usage.
+
+v0.8.5 (5 July 2009)
+   - New system variables %Sxxx and %SWxxx : %S0 is the classic 1Hz flash, always usefull...
+     And %SW0, %SW1 & %SW2 for BCD time, date & day of week.
+     %S10 is set per the modbus master if error of communication (EMC principle), in the future I've planned
+     to log any variables wanted and have a list of the current defaults events, you see where I want to go!
+
+v0.8.6 (25 August 2009)
+   - Events log of variables parametered (in a new config tab) which state changed (with log time display of start/end)
+     in a new window "Log"
+     + display new 'defaults' (which have their DataTag>0) in the status bar.
+   - Reorganised Modbus with a new defines file used for both slave and master
+     + in slave, abstraction of the vars.
+   - In modbus master, in rtu could crash if frame received with less then 4 chars... Seen on my little avr module test.
+
+v0.8.7 (6 April 2010)
+   - Pauses in ms not working if >= 1 second ( in DoPauseMilliSecs() ).
+   - Inter-pause time in modbus can be set to 0... tests on my avr i/o module!
+   - Added in hard a 10 ms pause before RTS off.
+   - Was crashing when started with the default example (logging %B0->%B3 and %B20 var demo!), doing "new", and then
+     setting in boolean var, one of them... mad loop... fixed!
+   - Added PNG export of the current rung or sequential page (So easy with Cairo...)
+   - Added copy to clipboard function... not so easy to find how to do it, used a .png temp file.
+   - Fixed trouble on step n°0 vars (X0.A & X0.V) conflict with steps not defined...
+   - Like in rungs, now current sequential selected element during edit drawned filled with alpha.
+   - Sequential, added some tests errors and help messages, cross step numbers colored when transition activated, cleanup link
+     transition<->step deleted, ...
+
+v0.8.8 (19 May 2010)
+   - Serial low-level functions added in Windows (used for Modbus). Tested with my avr modbus module (in RS485) with real
+     serial com port with an RS485 converter on it (requiring RTS command to send) + USB-RS485 converter.
+   - Modifying modbus serial port do no more need to save & restart software with this parameters
+     + if failed to open port: error in a message window  + no misleading modbus poll running!
+   - Better serial modbus frame testing : search first char with address (permitting to ignore extra chars before if any)
+     + ignoring extra chars at the end (if any).
+
+v0.8.9 (27 November 2010)
+   - Added serial init extra parameters: nbr.bits/parity/nbr.stops (EMC modifications)
+     + theses parameters in the Gtk options window.
+   - Renamed CreateEvent() to CreateEventLog() in log.c and log.h (error with #include <windows.h> and #include
+     <shellapi.h>), Heli Tejedor modification report.
+   - No more need to click on element to display its properties in the new status bar. Mouse move on it enough -
+     Heli Tejedor modification.
+   - Displaying in status bar both symbols names if available and real vars names between parenthesis (for variable
+     indexed or not, arithmetic expressions) - Nice interesting idea of Heli Tejedor.
+   - Alert error if too much expressions used (during adding evaluate/operate blocks) instead of using the first
+     already used, and no more creating bad function block number 0 to manually delete if no more avalaible!
+   - Add GTK+ version information in the about window, and started to make it in a classic about dialog.
+
+v0.8.10 (31 December 2010)
+   - In Modbus I/O module debug Tx, display address + function code explicitely.
+   - GUI Menu/toolbar revamp. Many thanks to Heli Tejedor to show me how ClassicLadder could be nicely transformed by
+     adding a menu and a toolbar instead of my old fashioned buttons (same since the start of the project...)
+   - Bug in gtk modbus options config on closing (for example modbus outputs not refreshed correctly if debug not on
+     only "level 1" !) Since new serial parameters added in 0.8.9...
+   - Properties window, to disable "apply", set sensitive true/false instead of invisible (look better, by avoiding
+     dynamical resizing of the widgets).
+   - Modbus master was not working if project not given in parameter, but loaded after (worked only after opening/closing
+     the config window). Working now (but fast fix perhaps to look again later...)
+     
+     

@@ -343,11 +343,12 @@ Copyright: 2021 Petter Reinholdtsen
 License: LGPL-2
 
 Files: src/hal/classicladder/*
-Copyright: 2001-2007 Marc Le Douarain <marc.le-douarain@laposte.net>
+Copyright: 2001-2010 Marc Le Douarain <marc.le-douarain@laposte.net>
 License: LGPL-2.1+
 Comment: The origin of this subtree is the Classic Ladder Project
- http://membres.lycos.fr/mavati/classicladder/ 
- http://www.sourceforge.net/projects/classicladder
+ https://sites.google.com/site/classicladder/
+ https://www.sourceforge.net/projects/classicladder
+
 
 Files: share/qtvcp/screens/woodpecker/images/QTvcp?Widgets_files/asciidoc.js
 Copyright:      2002 Mihai Bazon
