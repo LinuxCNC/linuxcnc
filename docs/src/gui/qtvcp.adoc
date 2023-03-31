@@ -19,7 +19,7 @@ combines this with _Python programming_ to create a GUI screen for
 running a CNC machine.
 
 QtVCP is completely _customizable_: you can add different buttons and
-status LEDs etc. or add python code for even finer grain customization.
+status LEDs etc. or add Python code for even finer grain customization.
 
 == Showcase
 
@@ -209,9 +209,9 @@ QtVCP can also be customized with _Qt stylesheets (QSS)_ using CSS.
 
 === Local Files
 
-If present, local UI/QSS/python files in the configuration folder will be loaded instead of the stock UI files.
+If present, local UI/QSS/Python files in the configuration folder will be loaded instead of the stock UI files.
 
-Local UI/QSS/python files allow you to use your customized designs rather than the default screens.
+Local UI/QSS/Python files allow you to use your customized designs rather than the default screens.
 
 QtVCP will look for a folder named <screen_name> (in the launched configuration folder that holds the INI file).
 
