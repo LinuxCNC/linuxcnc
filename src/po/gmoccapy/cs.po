@@ -220,6 +220,7 @@ msgid "this is not a lathe, as a lathe must have at least\n"
 msgstr "toto není soustruh, je potřeba mít alespoň\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1490
+#, fuzzy
 msgid "an X and an Z axis\n"
 msgstr "osu X a Z"
 
