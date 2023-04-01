@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2009 Marc Le Douarain */
+/* Copyright (C) 2001-2007 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* February 2001 */
@@ -48,7 +48,7 @@
 //#ifdef GTK_INTERFACE
 //char CurrentProjectFileName[400] = "../src/hal/classicladder/projects_examples/example.clp";
 //#else
-//char CurrentProjectFileName[400] = "projects_examples/parallel_port_direct.clp";
+//char CurrentProjectFileName[400] = "projects_examples/parallel_port_test.clp";
 //#endif
 
 
@@ -130,7 +130,7 @@ void InitTempDir( void )
 		mkdir( TmpDirectory );
 	}
 #endif
-printf("Init tmp dir=%s\n", TmpDirectory);
+
 }
 
 char LoadProjectFiles( char * FileProject )
@@ -147,6 +147,7 @@ char LoadProjectFiles( char * FileProject )
 	{
 		//printf("Loading an old project (many files in a directory) !\n");
 		LoadAllLadderDatas( FileProject );
+	
 	}
 	else
 	{
@@ -155,6 +156,7 @@ char LoadProjectFiles( char * FileProject )
 		//printf("Load project '%s' in tmp dir=%s\n", FileProject, TmpDirectory);
 		LoadAllLadderDatas( TmpDirectory );
 	}
+
 	return Result;
 }
 
@@ -165,15 +167,12 @@ char LoadGeneralParamsOnlyFromProject( char * FileProject )
 	if ( TmpDirectory[ 0 ]=='\0' )
 		InitTempDir( );
 	CleanTmpLadderDirectory( FALSE/*DestroyDir*/ );
-	if ( FileProject[0]!='\0' )
+	if ( strcmp( &FileProject[ strlen( FileProject ) -4 ], ".clp" )==0 )
 	{
-		if ( strcmp( &FileProject[ strlen( FileProject ) -4 ], ".clp" )==0 )
-		{
-			// split files of the project in the temp directory
-			Result = SplitFiles( FileProject, TmpDirectory );
-			snprintf(FileName, sizeof(FileName),"%s/general.txt",TmpDirectory);
-			LoadGeneralParameters( FileName );
-		}
+		// split files of the project in the temp directory
+		Result = SplitFiles( FileProject, TmpDirectory );
+		snprintf(FileName, sizeof(FileName),"%s/general.txt",TmpDirectory);
+		LoadGeneralParameters( FileName );
 	}
 	return Result;
 }
@@ -229,8 +228,7 @@ char JoinFiles( char * DirAndNameOfProject, char * TmpDirectoryFiles )
 						while( !feof( pParametersFile ) )
 						{
 							char Buff[ 300 ];
-							fgets( Buff, 300, pParametersFile );
-							if (!feof(pParametersFile))
+							if (fgets( Buff, 300, pParametersFile ) && !feof(pParametersFile))
 							{
 								fputs( Buff, pProjectFile );
 							}
@@ -270,14 +268,12 @@ char SplitFiles( char * DirAndNameOfProject, char * TmpDirectoryFiles )
 	{
 
 		/* start line of project ?*/
-		fgets( Buff, 300, pProjectFile );
-		if ( strncmp( Buff, "_FILES_CLASSICLADDER", strlen( "_FILES_CLASSICLADDER" ) )==0 )
+		if ( fgets( Buff, 300, pProjectFile ) && strncmp( Buff, "_FILES_CLASSICLADDER", strlen( "_FILES_CLASSICLADDER" ) )==0 )
 		{
 
 			while( !feof( pProjectFile ) )
 			{
-				fgets( Buff, 300, pProjectFile );
-				if ( !feof( pProjectFile ) )
+				if ( fgets( Buff, 300, pProjectFile ) && !feof( pProjectFile ) )
 				{
 					// header line for a file parameter ?
 					if (strncmp(Buff,FILE_HEAD,STR_LEN_FILE_HEAD) ==0)
@@ -305,8 +301,7 @@ ParametersFile[ strlen(ParametersFile)-1 ] = '\0';
 								fputs( Buff, pParametersFile );
 								while( !feof( pProjectFile ) && !cEndOfFile )
 								{
-									fgets( Buff, 300, pProjectFile );
-									if (strncmp(Buff,"_/FILE-",strlen("_/FILE-")) !=0)
+									if (fgets( Buff, 300, pProjectFile ) && strncmp(Buff,"_/FILE-",strlen("_/FILE-")) !=0)
 									{
 										if (!feof(pProjectFile))
 											fputs( Buff, pParametersFile );

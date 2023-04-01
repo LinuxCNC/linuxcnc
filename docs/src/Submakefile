@@ -41,7 +41,6 @@ DOC_SRCS_EN := \
 	code/adding-configs.adoc \
 	code/contributing-to-linuxcnc.adoc \
 	code/building-linuxcnc.adoc \
-	code/writing-tests.adoc \
 	common/emc-history.adoc \
 	common/glossary.adoc \
 	common/gpld-copyright.adoc \

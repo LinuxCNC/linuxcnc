@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2009 Marc Le Douarain */
+/* Copyright (C) 2001-2006 Marc Le Douarain */
 /* http://www.multimania.com/mavati/classicladder */
 /* http://www.sourceforge.net/projects/classicladder */
 /* August 2005 */
@@ -50,9 +50,11 @@
 
 #include "classicladder.h"
 #include "global.h"
+
 #include "socket_modbus_master.h"
 #include "protocol_modbus_master.h"
 #include "serial_common.h"
+
 
 #ifdef __WIN32__
 #define SOCK_FD SOCKET
@@ -74,11 +76,10 @@ int ClientSocketRunning = 0;
 
 int ClientSocketOpened[ NBR_CLIENTS_MAX ]; // -1 if not opened, else req nbr (to retrieve directly IP address)
 SOCK_FD ClientSockDescrip[ NBR_CLIENTS_MAX ]; 
-SOCK_FD client_s = SOCK_INVALID;             // Current client socket descriptor
+SOCK_FD client_s;             // Client socket descriptor
 
-//static int StatsNbrErrorsNoResponse = 0;
-static int StatsNbrErrorsModbusTreat = 0;
-static int StatsNbrFrames = 0;
+int CptErrors = 0;
+int NbrFrames = 0;
 
 void InitSocketModbusMaster( )
 {
@@ -88,7 +89,6 @@ void InitSocketModbusMaster( )
 
 	// WSAStartup for Windows already done for socket server...
 	
-	//InitModbusMasterParams( );
 	for( ScanClientSock=0; ScanClientSock<NBR_CLIENTS_MAX; ScanClientSock++ )
 	{
 		ClientSocketOpened[ ScanClientSock ] = -1;
@@ -113,25 +113,17 @@ void InitSocketModbusMaster( )
 	}
 	else
 	{
-		ConfigSerialModbusMaster( );
-	}
-}
-
-void ConfigSerialModbusMaster( void )
-{
-	int Error = 0;
-	if ( ModbusConfig.ModbusSerialPortNameUsed[ 0 ]!='\0' )
-	{
-		if ( !SerialOpen( ModbusConfig.ModbusSerialPortNameUsed, ModbusConfig.ModbusSerialSpeed ) )
+		Error = 0;
+		if ( ModbusSerialPortNameUsed[ 0 ]!='\0' )
 		{
-			Error = -1;
-                        printf(_("INFO CLASSICLADDER---I/O Modbus master Data bits %i Stop bits %i Parity %i\n"),ModbusConfig.ModbusSerialDataBits,ModbusConfig.ModbusSerialStopBits,ModbusConfig.ModbusSerialParity);
+			if ( !SerialOpen( ModbusSerialPortNameUsed, ModbusSerialSpeed ) )
+				Error = -1;
+                        printf(_("INFO CLASSICLADDER---I/O Modbus master Data bits %i Stop bits %i Parity %i\n"),ModbusSerialDataBits,ModbusSerialStopBits,ModbusSerialParity);
 		}
 		if ( Error!=-1 )
-		printf(_("INFO CLASSICLADDER---I/O Modbus master (%s) init ok !\n"), ModbusConfig.ModbusSerialPortNameUsed[ 0 ]!='\0'?_("Serial"):_("Ethernet"));
+		printf(_("INFO CLASSICLADDER---I/O Modbus master (%s) init ok !\n"), ModbusSerialPortNameUsed[ 0 ]!='\0'?_("Serial"):_("Ethernet"));
 	}
 }
-
 
 /* if not already connected => connect to slave... */
 char VerifyTcpConnection( char * SlaveAdr )
@@ -140,7 +132,6 @@ char VerifyTcpConnection( char * SlaveAdr )
 	char FreeOneFound = FALSE;
 	// verify all connections, to see if one is opened with the same IP address...
 	int ScanClientSock = 0;
-	client_s = SOCK_INVALID;
 	do
 	{
 		if ( ClientSocketOpened[ ScanClientSock ]!=-1 )
@@ -173,7 +164,7 @@ char VerifyTcpConnection( char * SlaveAdr )
 		{
 			struct sockaddr_in io_module_addr;          // Server Internet address
 
-			if( ModbusConfig.ModbusDebugLevel>=2 )
+			if( ModbusDebugLevel>=2 )
 				printf(_("Init socket for I/O module (%d)...\n"), ScanClientSock);	
 			client_s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 			if ( client_s==SOCK_INVALID )
@@ -203,7 +194,7 @@ char VerifyTcpConnection( char * SlaveAdr )
 				}
 				io_module_addr.sin_port = htons( NumPort ); /* Server port */
 
-				if( ModbusConfig.ModbusDebugLevel>=2 )
+				if( ModbusDebugLevel>=2 )
 					printf(_("Connecting I/O module...\n"));
 				/* Establish the connection with the I/O module */
 				if (connect(client_s, (struct sockaddr *) &io_module_addr, sizeof(io_module_addr)) >= 0)
@@ -253,26 +244,25 @@ int SendSocketModbusMaster( char * SlaveAdr, int NumPort, char * Frame, int LgtF
 	int LgtSend;
 	if ( VerifyTcpConnection( SlaveAdr ) )
 	{
-		if( ModbusConfig.ModbusDebugLevel>=2 )
-			debug_printf(_("INFO CLASSICLADDER-   Sending frame to I/O module...\n"));
+		if( ModbusDebugLevel>=2 )
+			printf(_("INFO CLASSICLADDER-   Sending frame to I/O module...\n"));
 		/* Send the Modbus frame */
 		LgtSend = send(client_s, Frame, LgtFrame, 0);
 		if ( LgtSend==LgtFrame )
 			Status = 0;
 		else
-			debug_printf(_("ERROR CLASSICLADDER-  FAILED TO SEND ON SOCKET !!!(LgtSend=%d)\n"),LgtSend);
+		printf(_("ERROR CLASSICLADDER-  FAILED TO SEND ON SOCKET !!!(LgtSend=%d)\n"),LgtSend);
 	}
 	return Status;
 }
 
 int WaitRespSocketModbusMaster( char * Buff, int BuffSize, int TimeOutResponseMilliSecs )
 {
-	int ResponseSize = 0;
-	if ( client_s!=SOCK_INVALID )
-	{
+		int ResponseSize = 0;	
 		int recep_descrip;
 		fd_set myset;
 		struct timeval tv;
+
 		FD_ZERO( &myset);
 		// add descrip to survey and set time-out wanted !
 		FD_SET( client_s, &myset );
@@ -281,14 +271,11 @@ int WaitRespSocketModbusMaster( char * Buff, int BuffSize, int TimeOutResponseMi
 		recep_descrip = select( 16, &myset, NULL, NULL, &tv );
 		if ( recep_descrip>0 )
 		{
-			int bytesRcvd;
-			if( ModbusConfig.ModbusDebugLevel>=2 )
-				printf(_("INFO CLASSICLADDER-   waiting for slave response...\n"));
-			if ((bytesRcvd = recv(client_s, Buff, BuffSize, 0)) > 0)
-				ResponseSize = bytesRcvd;
-		
+		int bytesRcvd;
+		if( ModbusDebugLevel>=2 )   {printf(_("INFO CLASSICLADDER-   waiting for slave response...\n"));}
+		if ((bytesRcvd = recv(client_s, Buff, BuffSize, 0)) > 0)    {ResponseSize = bytesRcvd;}
 		}
-	}
+	
 	return ResponseSize;
 }
 
@@ -315,7 +302,7 @@ void CloseSocketModbusMaster( void )
 		ClientSocketOpened[ ScanClientSock ] = -1;
 		ClientSockDescrip[ ScanClientSock ] = SOCK_INVALID;
 	}
-	if ( ModbusConfig.ModbusSerialPortNameUsed[ 0 ]!='\0' )
+	if ( ModbusSerialPortNameUsed[ 0 ]!='\0' )
 		SerialClose( );
 	printf(_("INFO CLASSICLADDER---I/O Modbus master closed!\n"));
 }
@@ -327,7 +314,7 @@ void SocketModbusMasterLoop( void )
 	static char QuestionFrame[ 800 ];
 	int ResponseSize;
 	static char ResponseFrame[ 800 ];
-	int SendResultStatus = 0;
+        int SendResultStatus = 0;
 
 #ifdef __XENO__
 	pthread_set_name_np(pthread_self(), __FUNCTION__);
@@ -341,59 +328,51 @@ void SocketModbusMasterLoop( void )
 
 //		DoPauseMilliSecs( 10 );
 
-		if (InfosGene->LadderState!=STATE_RUN || ( ModbusConfig.ModbusSerialPortNameUsed[ 0 ]!='\0' && !SerialPortIsOpened() ) )
+		if (InfosGene->LadderState!=STATE_RUN)
 		{
-			DoPauseMilliSecs( ModbusConfig.ModbusTimeInterFrame );
+			DoPauseMilliSecs( ModbusTimeInterFrame );
 		}
 		else
 		{
 			SizeQuestionToAsk = ModbusMasterAsk( (unsigned char*)AdrIP, (unsigned char*)QuestionFrame );
 			if ( SizeQuestionToAsk>0 )
 			{
-				if ( ModbusConfig.ModbusSerialPortNameUsed[ 0 ]=='\0' )
+				if ( ModbusSerialPortNameUsed[ 0 ]=='\0' )
 				{
 					SendResultStatus = SendSocketModbusMaster( AdrIP, 502, QuestionFrame, SizeQuestionToAsk );
 				}
 				else
 				{
-					int NbrCharsWaited = 1/*adr*/+GetModbusResponseLenghtToReceive()+2/*crc*/;
-					// before sending question, set size of frame that will be to receive after! 
-//					if( ModbusConfig.ModbusDebugLevel>=3 )
-//						debug_printf(DBG_HEADER_INFO "I/O modbus master - SetResponseSize, NbrCharsToReceive=%d\n",NbrCharsWaited);
-					SerialSetResponseSize( NbrCharsWaited, ModbusConfig.ModbusTimeOutReceipt );
-//TEMP TEST USB-RS485 converter...
-//SerialSend( "\0\0", 2 );
+					// before sending queston, set size of frame that will be to receive after! 
+					SerialSetResponseSize( 1/*adr*/+GetModbusResponseLenghtToReceive()+2/*crc*/, ModbusTimeOutReceipt );
 					SerialSend( QuestionFrame, SizeQuestionToAsk );
 				}
-
-				if ( SendResultStatus==0 )
+                                if ( SendResultStatus==0 )
 				{
-					if ( ModbusConfig.ModbusTimeAfterTransmit>0 )
-					{
-						// usefull for USB-RS485 dongle...
-						if( ModbusConfig.ModbusDebugLevel>=3 )
-							printf(_("INFO CLASSICLADDER- after transmit delay now...%i milliseconds\n"),ModbusConfig.ModbusTimeAfterTransmit);
-						DoPauseMilliSecs( ModbusConfig.ModbusTimeAfterTransmit );
-					}
-					
-					if ( ModbusConfig.ModbusSerialPortNameUsed[ 0 ]=='\0' )
-						ResponseSize = WaitRespSocketModbusMaster( ResponseFrame, 800, ModbusConfig.ModbusTimeOutReceipt );
-					else
-						ResponseSize = SerialReceive( ResponseFrame, 800 );
-					StatsNbrFrames++;
-					if ( ResponseSize==0 )
-						printf(_("ERROR CLASSICLADDER-  MODBUS NO RESPONSE (Errs=%d/%d) !?\n"), ++StatsNbrErrorsModbusTreat, StatsNbrFrames);
-					if ( !TreatModbusMasterResponse( (unsigned char *)ResponseFrame, ResponseSize ) )
-					{
-						StatsNbrErrorsModbusTreat++;
-						// trouble? => cleanup all pending chars (perhaps we can receive now responses for old asks
-						// and are shifted between ask/resp...)
-						if ( ModbusConfig.ModbusSerialPortNameUsed[ 0 ]!='\0' )
-							SerialPurge( );
-					}
-				}
-				if ( ModbusConfig.ModbusTimeInterFrame>0 )
-					DoPauseMilliSecs( ModbusConfig.ModbusTimeInterFrame );
+				    if ( ModbusTimeAfterTransmit>0 )
+				    {
+				    	// useful for USB-RS485 dongle...
+				    	if( ModbusDebugLevel>=3 )
+						printf(_("INFO CLASSICLADDER- after transmit delay now...%i milliseconds\n"),ModbusTimeAfterTransmit);
+					DoPauseMilliSecs( ModbusTimeAfterTransmit );
+			    	    }
+				
+				    if ( ModbusSerialPortNameUsed[ 0 ]=='\0' )
+					ResponseSize = WaitRespSocketModbusMaster( ResponseFrame, 800, ModbusTimeOutReceipt );
+				    else
+					ResponseSize = SerialReceive( ResponseFrame, 800, ModbusTimeOutReceipt );
+				    NbrFrames++;
+				    if ( ResponseSize==0 )
+					printf(_("ERROR CLASSICLADDER-  MODBUS NO RESPONSE (Errs=%d/%d) !?\n"), ++CptErrors, NbrFrames);
+				    if ( !TreatModbusMasterResponse( (unsigned char *)ResponseFrame, ResponseSize ) )
+				    {
+					// trouble? => flush all (perhaps we can receive now responses for old asks
+					// and are shifted between ask/resp...)
+					if ( ModbusSerialPortNameUsed[ 0 ]!='\0' )
+						SerialFlush( );
+				    }
+                                }
+				DoPauseMilliSecs( ModbusTimeInterFrame );
 			}
 			else
 			{
@@ -409,10 +388,4 @@ void SocketModbusMasterLoop( void )
 
 }
 
-/*
-void GetSocketModbusMasterStats( char * Buff )
-{
-	snprintf( Buff, sizeof(Buff), "Modbus I/O module master stats: FramesSend=%d - NoResponse=%d - BadResponses=%d", StatsNbrFrames, StatsNbrErrorsNoResponse, StatsNbrErrorsModbusTreat );
-}
-*/
 

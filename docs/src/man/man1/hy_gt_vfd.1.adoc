@@ -259,15 +259,8 @@ PC.03 = 1::
 
 *hy_gt_vfd.fault-info* (float, out)::
 
-        The VFD's fault info register in floating point
-        representation.  This is kept for backwards compatibility with
-        existing setups and will be removed in the future.
+        The VFD's fault info register.
 
-*hy_gt_vfd.fault-info-code* (u32, out)::
-
-        The VFD's fault code register value.  Introduced in LinuxCNC
-        version 2.10.  0x00 if no fault is detected, see GT Series
-        Inverter Manual page 87 for list of fault codes.
 
 == ISSUES
 

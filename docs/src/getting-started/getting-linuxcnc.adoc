@@ -266,25 +266,17 @@ run on any 64-bit x86 system)
 
 [options="header"]
 |===
-| Distribution    | Released | Architecture  | Kernel     | Package name    | Typical use
-| Debian Bookworm | n/a      | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
-| Debian Bookworm | n/a      | amd64 & armhf | preemp-rt  | linuxcnc-uspace | machine control & simulation
-| Debian Bookworm | n/a      | amd64         | RTAI       | linuxcnc        | machine control (known issues)
-| Debian Bullseye | 2021     | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
-| Debian Bullseye | 2021     | amd64 & armhf | preemp-rt  | linuxcnc-uspace | machine control & simulation
-| Debian Bullseye | 2021     | amd64         | RTAI       | linuxcnc        | machine control (known issues)
-| Debian Buster*  | 2019     | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
-| Debian Buster*  | 2019     | amd64 & armhf | preemp-rt  | linuxcnc-uspace | machine control & simulation
-| Debian Buster*  | 2019     | amd64         | RTAI       | linuxcnc        | machine control (known issues)
-| Debian Jessie*  | 2015     | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
-| Debian Wheezy*   | 2013    | i386          | RTAI       | linuxcnc        | machine control & simulation
-| Debian Wheezy*  | 2013     | amd64 & i386  | Preempt-RT | linuxcnc-uspace | machine control & simulation
-| Debian Wheezy*  | 2013     | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
-| Ubuntu Precise* | 2012     | i386          | RTAI       | linuxcnc        | machine control & simulation
-| Ubuntu Precise* | 2012     | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
+| Distribution   | Architecture  | Kernel     | Package name    | Typical use
+| Debian Buster  | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
+| Debian Buster  | amd64 & armhf | preemp-rt  | linuxcnc-uspace | machine control & simulation
+| Debian Buster  | amd64         | RTAI       | linuxcnc        | machine control (known issues)
+| Debian Jessie  | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
+| Debian Wheezy  | i386          | RTAI       | linuxcnc        | machine control & simulation
+| Debian Wheezy  | amd64 & i386  | Preempt-RT | linuxcnc-uspace | machine control & simulation
+| Debian Wheezy  | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
+| Ubuntu Precise | i386          | RTAI       | linuxcnc        | machine control & simulation
+| Ubuntu Precise | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
 |===
-
-Distributions marked with (*) are end of life and no longer receive security patches.
 
 NOTE: LinuxCNC v2.8 is not supported on Ubuntu Lucid or older.
 
@@ -303,7 +295,7 @@ The apt source is:
 * Ubuntu Precise: `deb https://linuxcnc.org precise base`
 
 [NOTE]
-Both Debian Wheezy (released 2013, end of life 2016), Debian Buster (released 2019, end of life 2022) and Ubuntu Precise (released 2012, end of life 2017) are old, and are out of their support period.
+Debian Wheezy and Ubuntu Precise are both extremely old, and are out of their support period.
 It is strongly advised not to use either for a new install, and to seriously consider upgrading an existing installation.
 
 The Buster / RTAI package is only available on amd64, but there are very few surviving systems that can not run a 64-bit OS.

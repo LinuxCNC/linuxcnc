@@ -221,8 +221,9 @@ int tooldata_db_getall() {
             //fprintf(stderr,"=====<ct=%3d>%s\n",ct,reply);
             break;
         }
+        char **ttcomments = NULL; //not used with db
 
-        int foundidx = tooldata_read_entry(reply);
+        int foundidx = tooldata_read_entry(reply,ttcomments);
         ct++;
         if (foundidx < 0) {
             fprintf(stderr,"!!!tooldata_db_getall %s\n",reply);
@@ -230,7 +231,7 @@ int tooldata_db_getall() {
         }
     }
     // update the single-entry tbl file (typ: db_spindle.tbl)
-    tooldata_save((char*)NULL);
+    tooldata_save((char*)NULL,(char**)NULL);
     initial_getall = 0;
     return 0;
 } // tooldata_db_getall()
@@ -304,6 +305,7 @@ int tooldata_db_notify(tool_notify_t ntype,
                        CANON_TOOL_TABLE tdata)
 {
     if (!db_live) return 0;   //silently ignore
+    char **ttcomments = NULL; //not used with db
     char msg[CANON_TOOL_ENTRY_LEN +20];
     char buffer[CANON_TOOL_ENTRY_LEN] = {0};
 
@@ -317,14 +319,14 @@ int tooldata_db_notify(tool_notify_t ntype,
     case SPINDLE_LOAD: // 'l' command
          tooldata_format_toolline(pocketno,
                                   1, // ignore_zero_values
-                                  notifydata, buffer);
+                                  notifydata, ttcomments, buffer);
          snprintf(msg,sizeof(msg),"l %s\n",buffer);
          if (db_debug) {fprintf(stderr,"SPINDLE_LOAD:%s\n",msg);}
          break;
     case SPINDLE_UNLOAD: // 'u' command
          tooldata_format_toolline(pocketno,
                                   1, // ignore_zero_values
-                                  notifydata, buffer);
+                                  notifydata, ttcomments, buffer);
          snprintf(msg,sizeof(msg),"u %s\n",buffer);
          if (db_debug) {fprintf(stderr,"SPINDLE_UNLOAD:%s\n",msg);}
          break;
@@ -334,7 +336,7 @@ int tooldata_db_notify(tool_notify_t ntype,
          notifydata.pocketno = pocketno;
          tooldata_format_toolline(pocketno,
                                   0, // do not ignore_zero_values
-                                  notifydata, buffer);
+                                  notifydata, ttcomments, buffer);
          snprintf(msg,sizeof(msg),"p %s\n",buffer);
          if (db_debug) {fprintf(stderr,"PUT:   %s\n",msg);}
          break;

@@ -2568,14 +2568,6 @@ int Interp::set_tool_parameters()
     default_tool_parameters();
     return 0;
   }
-// test to examine tool comment field for current tool:
-// #define TOOL_COMMENT_SHOW
-#ifdef  TOOL_COMMENT_SHOW //{
-    fprintf(stderr,"%s %s toolno=%d comment=%s\n",
-           __FILE__,__FUNCTION__,
-           _setup.tool_table[0].toolno,
-           _setup.tool_table[0].comment);
-#endif //}
   _setup.parameters[5400] = _setup.tool_table[0].toolno;
   _setup.parameters[5401] = _setup.tool_table[0].offset.tran.x;
   _setup.parameters[5402] = _setup.tool_table[0].offset.tran.y;

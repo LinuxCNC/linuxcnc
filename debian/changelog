@@ -1,9 +1,3 @@
-linuxcnc (1:2.10.0~pre0) UNRELEASED; urgency=medium
-
-  * Master branch open for new features.
-
- -- Andy Pugh <bodgesoc@gmail.com>  Mon, 7 Nov 2022 23:31:00 +0000
-
 linuxcnc (1:2.9.0~pre1) UNRELEASED; urgency=medium
 
   * githelper.sh: New master glob
@@ -23,19 +17,6 @@ linuxcnc (1:2.9.0~pre1) UNRELEASED; urgency=medium
   * Merge pull request #2119 from Roguish000/component-div2
 
  -- andypugh <andy@bodgesoc.org>  Sun, 13 Nov 2022 17:36:52 +0000
-
-linuxcnc (1:2.9.0~pre1) UNRELEASED; urgency=medium
-
-  * First 2.9 pre-release preparatory to release.
-  * Bugfixes welcome, new features by negotiation
-
- -- Andy Pugh <bodgesoc@gmail.com>  Mon, 7 Nov 2022 23:31:00 +0000
-
-linuxcnc (1:2.9.0~pre0) UNRELEASED; urgency=medium
-
-  * Master branch open for new features.
-
- -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 12 Aug 2022 20:56:25 +0200
 
 linuxcnc (2.9.0~pre0+git20221023.7a5beabae0-1) unstable; urgency=medium
 

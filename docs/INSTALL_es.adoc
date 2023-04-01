@@ -1,0 +1,133 @@
+:lang: es
+:toc:
+
+= Construir LinuxCNC para "ejecutar en el lugar" (RIP)
+
+== Instrucciones Básicas
+
+Desde el directorio de nivel superior:
+
+* *Construir LinuxCNC*
++
+----
+cd src                                            <1>
+./autogen.sh                                      <2>
+./configure [--with-realtime=uspace|/usr/rtai...] <3>
+make clean                                        <4>
+make                                              <5>
+sudo make setuid                                  <6>
+----
+<1> Cambiar al directorio de fuentes
+<2> Construye el script de configuración (usa `configure.in`)
+<3> Configure el paquete para su sistema +
+    Ejecutar `configure` toma un tiempo. Mientras se ejecuta, imprime
+    algunos mensajes que indican qué funciones está buscando.
+<4> Eliminar artefactos de compilaciones anteriores
+<5> Cree/compile el paquete de software
+<6> Establecer la propiedad y el modo de los archivos creados
+
+NOTE: Si esta usando `csh` en una versión anterior de System V, es
+      possible que necessite escribir `sh ./configure` en su lugar para
+      evitar que `csh' intente ejecutar `configure` en sí mismo.
+
+* Ejecutar LinuxCNC
++
+----
+cd ..                           <1>
+source scripts/rip-environment  <2>
+linuxcnc                        <3>
+----
+<1> Cambiar de nuevo al directorio de nivel superior
+<2> Configure el entorno de shell para los comandos de LinuxCNC y los
+    módulos de Python
+<3> Ejecutar LinuxCNC
+
+== Descripción Detallada
+
+=== Script de tiempo de ejecución
+
+El script de tiempo de ejecución se llama *linuxcnc*, lo que le permite
+escribir simplemente 'linuxcnc' en una instalacion para hacerlo funcionar.
+
+En un sistema de ejecución in situ (RIP) (por ejemplo, el que acaba de
+obtener de git), el script de ejecución es `scripts/linuxcnc`. +
+Cuando compruebe una copia nueva de LinuxCNC, verá que no hay
+`scripts/linuxcnc`, solo `scripts/linuxcnc.in`. Al ejecutar `configure`
+este ultimo será cambiado a `scripts/linuxcnc`. `configure` también
+reemplaza algunos valores predeterminados para su sistema (carpetas,
+rutas, etc.).
+
+
+=== Script configure
+
+El script de shell *`configure`* intenta adivinar los valores correctos
+de varias variables dependientes del sistema utilizadas durante la
+compilación. Usa esos valores para crear:
+
+Archivo `Makefile.inc`::
+
+Script de shell `config.status`::
+  Que puede ejecutar en el futuro para recrear la configuración actual.
+
+Archivo `config.cache`::
+  Que guarda los resultados de sus pruebas para acelerar la
+  reconfiguración.
+
+Archivo `config.log`::
+  Que contiene la salida del compilador (útil principalmente para
+  depurar `configure`).
+
+El archivo `configure.ac` se usa para crear `configure` mediante un programa
+llamado `autoconf`. Solo necesita `configure.ac` si desea cambiar o
+regenerar `configure' usando una versión más reciente de `autoconf'.
+
+==== Características opcionales
+
+LinuxCNC puede operar hardware solo si ha sido instalado un *sistema de
+tiempo real*: ya sea *RT-PREEMPT* o *RTAI*. Si no tiene ninguno
+instalado, no puede ejecutar LinuxCNC para controlar ninguna máquina.
+Por favor instale uno de los parches RT (consulte la documentación del
+proyecto sobre cómo lograr eso).
+
+// FIXME Add pointers for RT install
+
+Sin embargo, es posible probar LinuxCNC sin un sistema en tiempo real.
+Esto es posible utilizando un _modo simulador_, que no permite el control
+del hardware. Este es un modo alternativo de *uspace* _en tiempo real_.
+
+Para especificar RT-PREEMPT o no-tiempo-real, use `--with-realtime=uspace`.
+De lo contrario, use `--with-realtime=[ubicación donde rtai está instalado]`.
+
+Si no desea generar la documentación desde las fuentes, use
+`--disable-build-documentation`
+
+`configure` también acepta otros argumentos. Use `--help` para ver la
+lista.
+
+
+==== Controles de operación
+
+`configure` reconoce las siguientes opciones para controlar cómo opera:
+
+`--cache-file=FILE`::
+  Utilizar y guardar los resultados de las pruebas en FILE en lugar de
+  en `./config.cache`. +
+  Para depuración de `configure`, haga FILE como `/dev/null 'para
+  deshabilitar el almacenamiento en caché.
+
+`--help`::
+  Imprime un resumen de las opciones de `configure` y sale.
+
+`--quiet` | `--silent` | `-q`::
+  No imprime mensajes que indiquen qué chequeos se están realizando. +
+  Para suprimir toda la salida normal, redirigirla a `/dev/null`
+  (cualquier mensaje de error se mostrara todavia).
+
+`--srcdir=DIR`::
+  Buscar el código fuente del paquete en el directorio DIR. +
+  Generalmente `configure` puede determinar ese directorio
+  automáticamente.
+
+`--version`::
+  Imprimir la versión de _Autoconf_ utilizada para generar el script
+  `configure` y sale.

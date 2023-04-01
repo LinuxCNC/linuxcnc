@@ -272,7 +272,8 @@ This is intended as a speed control signal for a VFD.
 
 \fBParameters:\fR
 
-(bit rw) .7i77.0.0.output\-NN\-invert: Invert the sense of the corresponding output pin.
+(bit rw) .7i77.0.0.output\-NN\-invert: Invert the sense of the corresponding
+output pin.
 
 (bit rw) .7i77.0.0.spindir\-invert: Invert the sense of the spindle direction pin.
 
@@ -293,12 +294,12 @@ However, if spinout\-maxlim were set to 5,000 RPM then no voltage above 5 V woul
 
 (float rw) .7i77.0.0.analogoutN\-scalemax: (N = 0 to 5) The analog speed scaling.
 This is the speed request which would correspond to full-scale output from the spindle control pin.
-For example with a 10V drive voltage and a 10,000 rpm scalemax a value of 10,000 rpm on the spinout pin would produce 10V output.
-However, if spinout\-maxlim were set to 5,000 rpm then no voltage above 5V would be output.
-
+For example with a 10 V drive voltage and a 10000 RPM scalemax a value of 10,000 RPM on the spinout pin would produce 10 V output.
+However, if spinout\-maxlim were set to 5,000 RPM then no voltage above 5 V would be output.
 
 .SS 7I69
-The 7I69 is a 48 channel digital IO card. It can be configured in four different modes:
+The 7I69 is a 48 channel digital IO card. It can be configured in four
+different modes:
 
  MODE 0: Bidirectional mode (48 bits in 48 bits out)
  MODE 1: Input only mode (48 bits in)
@@ -332,11 +333,11 @@ Utilities exist to update and change this firmware.
 .SS 7I70
 
 The 7I70 is a remote isolated 48 input card. The 7I70 inputs sense positive inputs relative to a common field ground.
-Input impedance is 10KΩ and input voltage can range from 5VDC to 32VDC.
-All inputs have LED status indicators.  The input common field ground is galvanically isolated from the communications link.
+Input impedance is 10 kΩ and input voltage can range from 5 VDC to 32 VDC. All inputs have LED status indicators.
+The input common field ground is galvanically isolated from the communications link.
 
-The 7I70 has three software selectable modes.
-These different modes select different sets of 7I70 data to be transferred between the host and the 7I70 during real time process data exchanges.
+The 7I70 has three software selectable modes. These different modes select
+different sets of 7I70 data to be transferred between the host and the 7I70 during real time process data exchanges.
 For high speed applications, choosing the correct mode can reduced the data transfer sizes, resulting in higher maximum update rates.
 
  MODE 0: Input mode (48 bits input data only
@@ -375,7 +376,7 @@ The 48 outputs are 8VDC to 28VDC sourcing drivers (common + field power) with 30
 All outputs have LED status indicators.
 
 The 7I71 has two software selectable modes. For high speed applications, 
-choosing the correct mode can reduced the data transfer sizes, resulting in higher maximum update rates:
+choosing the correct mode can reduced the data transfer sizes, resulting in higher maximum update rates
 
  MODE 0: Output only mode (48 bits output data only)
  MODE 1: Outputs plus read back field voltage
@@ -387,17 +388,13 @@ choosing the correct mode can reduced the data transfer sizes, resulting in high
 
 (bit out) .7i71.0.0.output\-NN: (NN = 0 to 47) 48 digital outputs. The sense may be inverted by the invert parameter. 
 
-(bit out) .7i71.0.0.output\-NN: (NN = 0 to 47) 48 digital outputs.
-The sense may be inverted by the invert parameter. 
- 
 \fBParameters:\fR
 
 (bit rw) .7i71.0.0.output\-NN\-invert: Invert the sense of the corresponding output pin. 
 
 (u32 ro) .7i71.0.0.nvbaudrate: Indicates the vbaud rate. This probably should not be altered.
 
-(u32 ro) .7i71.0.0.nvunitnumber:
-Indicates the serial number of the device and should match a sticker on the card.
+(u32 ro) .7i71.0.0.nvunitnumber: Indicates the serial number of the device and should match a sticker on the card.
 This can be useful for determining which card is which.
 
 (u32 ro) .7i71.0.0.nvwatchdogtimeout: The sserial remote watchdog timeout.
@@ -423,8 +420,7 @@ For high speed applications, choosing the correct mode can reduced the data tran
 
 \fBPins:\fR
 
-(float out) .7i73.0.0.analoginN: Analogue inputs.
-Up to 8 channels may be available dependent on software and hardware configuration modes
+(float out) .7i73.0.0.analoginN: Analogue inputs. Up to 8 channels may be available dependent on software and hardware configuration modes
 (see the PDF manual downloadable from www.mesanet.com).
 
 (u32 in) .7i73.0.1.display (modes 1 and 2). Data for LCD display.

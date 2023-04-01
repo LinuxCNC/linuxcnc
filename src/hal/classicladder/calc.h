@@ -27,8 +27,6 @@ void PrepareTimersIEC(void);
 void PrepareAllDatasBeforeRun(void);
 void InitArithmExpr(void);
 void InitIOConf( void );
-int ReadVarForElement( StrElement * pElem );
-void WriteVarForElement( StrElement *pElem, int Value );
 void RefreshASection( StrSection * pSection );
 void ClassicLadder_RefreshAllSections(void);
 void CopyRungToRung(StrRung * RungSrc,StrRung * RungDest);

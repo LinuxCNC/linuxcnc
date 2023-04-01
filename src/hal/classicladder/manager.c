@@ -1,7 +1,7 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2008 Marc Le Douarain */
-/* http://membres.lycos.fr/mavati/classicladder/ */
-/* http://www.sourceforge.net/projects/classicladder */
+/* Copyright (C) 2001 Marc Le Douarain */
+/* mavati@club-internet.fr */
+/* http://www.multimania.com/mavati/classicladder */
 /* August 2002 */
 /* ---------------------------- */
 /* Sections functions utilities */
@@ -29,9 +29,7 @@
 
 #include "classicladder.h"
 #include "global.h"
-#ifdef GTK_INTERFACE
 #include "edit.h"
-#endif
 #include "manager.h"
 
 void InitSections( void )
@@ -50,9 +48,8 @@ void InitSections( void )
 		pSection->SequentialPage = 0;
 	}
 
-	// We directly create one section in ladder...
+	// we directly create one section in ladder...
 	// at least for compatibility with our old progs !
-	// The rung associated is defined in InitRungs() of calc.c
 	pSection = &SectionArray[ 0 ];
 	pSection->Used = TRUE;
 	rtapi_strxcpy( pSection->Name, "Prog1" );
@@ -122,11 +119,11 @@ int SearchSectionWithName( char * SectionNameToFind )
 		return -1;
 }
 
-void SetSectionSelected( int NumSec /*char * SectionName*/ )
+void SectionSelected( char * SectionName )
 {
 	StrSection * pSection;
-//	int NumSec = SearchSectionWithName( SectionName );
-//	if ( NumSec>=0 )
+	int NumSec = SearchSectionWithName( SectionName );
+	if ( NumSec>=0 )
 	{
 		pSection = &SectionArray[ NumSec ];
 		InfosGene->FirstRung = pSection->FirstRung;
@@ -134,9 +131,6 @@ void SetSectionSelected( int NumSec /*char * SectionName*/ )
 		InfosGene->CurrentRung = InfosGene->FirstRung;
 
 		InfosGene->CurrentSection = NumSec;
-		
-// added in v0.9.7
-		InfosGene->TopRungDisplayed = InfosGene->FirstRung;
 	}
 }
 
@@ -196,29 +190,18 @@ int AddSection( char * NewSectionName, int TypeLanguageSection, int SubRoutineNb
 			}
 		}
 #endif
-		InfosGene->AskConfirmationToQuit = TRUE;
-		InfosGene->HasBeenModifiedForExitCode = TRUE;
 	}
 	return FreeFound;
-}
-void ModifySectionProperties( int NumSec /*char * OriginalSectionName*/, char * NewSectionName )
-{
-	StrSection * pSection;
-//	int NumSec = SearchSectionWithName( OriginalSectionName );
-//	if ( NumSec>=0 )
-	{
-		pSection = &SectionArray[ NumSec ];
-		rtapi_strxcpy( pSection->Name, NewSectionName );
-	}
 }
 
 int NbrSectionsDefined( void )
 {
+	StrSection * pSection;
 	int NumSec;
 	int NbrSectionsDefined = 0;
 	for ( NumSec=0; NumSec<NBR_SECTIONS; NumSec++ )
 	{
-		StrSection * pSection = &SectionArray[ NumSec ];
+		pSection = &SectionArray[ NumSec ];
 		if ( pSection->Used )
 			NbrSectionsDefined++;
 	}
@@ -241,12 +224,12 @@ int VerifyIfSubRoutineNumberExist( int SubRoutineNbr )
 	return( NumSec>=0?TRUE:FALSE );
 }
 
-void DelSection( int NumSec /*char * SectionNameToErase*/ )
+void DelSection( char * SectionNameToErase )
 {
 	StrSection * pSection;
-//	int NumSec;
-//	NumSec = SearchSectionWithName( SectionNameToErase );
-//	if ( NumSec>=0 )
+	int NumSec;
+	NumSec = SearchSectionWithName( SectionNameToErase );
+	if ( NumSec>=0 )
 	{
 		pSection = &SectionArray[ NumSec ];
 		pSection->Used = FALSE;
@@ -261,48 +244,27 @@ void DelSection( int NumSec /*char * SectionNameToErase*/ )
 			}
 			RungArray[ InfosGene->LastRung ].Used = FALSE;
 		}
-		InfosGene->AskConfirmationToQuit = TRUE;
-		InfosGene->HasBeenModifiedForExitCode = TRUE;
 	}
 }
 
-int GetPrevNextSection( int RefSectionNbr, char NextSearch )
-{
-	int ScanSect = RefSectionNbr;
-//printf("Search sect base = %d\n", ScanSect );
-	int ScanFound = -1;
-	do
-	{
-		ScanSect = ScanSect + ( NextSearch?1:-1 );
-//printf("Search sect %d\n", ScanSect );
-		if ( SectionArray[ ScanSect ].Used )
-			ScanFound = ScanSect;
-	}
-	while( ( NextSearch && ScanSect<NBR_SECTIONS-1 ) && ( !NextSearch && ScanSect>0 ) );
-	return ScanFound;
-}
-
-void SwapSections( int SectionNbr1, int SectionNbr2 /*char * SectionName1, char * SectionName2*/ )
+void SwapSections( char * SectionName1, char * SectionName2 )
 {
 	StrSection * pSection1;
 	StrSection * pSection2;
 	StrSection SectionTemp;
 	StrSection * pSectionTemp = &SectionTemp;
-//	int NumSec1;
-//	int NumSec2;
-//	NumSec1 = SearchSectionWithName( SectionName1 );
-//	NumSec2 = SearchSectionWithName( SectionName2 );
-//	if ( NumSec1>=0 && NumSec2>=0 )
+	int NumSec1;
+	int NumSec2;
+	NumSec1 = SearchSectionWithName( SectionName1 );
+	NumSec2 = SearchSectionWithName( SectionName2 );
+	if ( NumSec1>=0 && NumSec2>=0 )
 	{
-		pSection1 = &SectionArray[ SectionNbr1 /*NumSec1*/ ];
-		pSection2 = &SectionArray[ SectionNbr2 /*NumSec2*/ ];
+		pSection1 = &SectionArray[ NumSec1 ];
+		pSection2 = &SectionArray[ NumSec2 ];
 
 		memcpy( pSectionTemp, pSection1, sizeof(StrSection) );
 		memcpy( pSection1, pSection2, sizeof(StrSection) );
 		memcpy( pSection2, pSectionTemp, sizeof(StrSection) );
-		
-		InfosGene->AskConfirmationToQuit = TRUE;
-		InfosGene->HasBeenModifiedForExitCode = TRUE;
 	}
 }
 
@@ -341,4 +303,3 @@ int FindFreeSequentialPage( void )
 #endif
 
 #endif
-

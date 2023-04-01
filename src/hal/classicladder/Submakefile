@@ -1,4 +1,4 @@
-ifneq ($(GTK_VERSION),)
+ifneq ($(GTK2_VERSION),)
 CLASSICLADDERSRCS := $(addprefix hal/classicladder/, \
 	arithm_eval.c \
 	arrays.c \
@@ -6,11 +6,11 @@ CLASSICLADDERSRCS := $(addprefix hal/classicladder/, \
 	calc_sequential.c \
 	classicladder.c \
 	classicladder_gtk.c \
+	config.c \
 	config_gtk.c \
 	drawing.c \
 	drawing_sequential.c \
 	edit.c \
-	edit_copy.c \
 	edit_gtk.c \
 	edit_sequential.c \
 	editproperties_gtk.c \
@@ -20,8 +20,6 @@ CLASSICLADDERSRCS := $(addprefix hal/classicladder/, \
 	files_sequential.c \
 	manager.c \
 	manager_gtk.c \
-	menu_and_toolbar_gtk.c \
-	print_gtk.c \
 	protocol_modbus_master.c \
 	protocol_modbus_slave.c \
 	serial_linux.c \
@@ -33,17 +31,22 @@ CLASSICLADDERSRCS := $(addprefix hal/classicladder/, \
 	vars_names.c \
 	vars_access.c \
         )
+	
+GTK2_CFLAGS += -DGTK_INTERFACE -DGTK2 -Wno-deprecated-declarations
+ifeq ($(HAVE_GNOMEPRINT),yes)
+CLASSICLADDERSRCS += hal/classicladder/print_gnome.c
+GTK2_CFLAGS += -DGNOME_PRINT_USE
+endif
 
-GTK_CFLAGS += -DGTK_INTERFACE
 
-$(call TOOBJSDEPS,$(CLASSICLADDERSRCS)) : EXTRAFLAGS = $(GTK_CFLAGS) -DGDK_DISABLE_DEPRECATION_WARNINGS -DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER
+$(call TOOBJSDEPS,$(CLASSICLADDERSRCS)) : EXTRAFLAGS = $(GTK2_CFLAGS) -DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER
 $(call TOOBJS, $(CLASSICLADDERSRCS)): Makefile.inc
 
 USERSRCS += $(CLASSICLADDERSRCS)
 
 ../bin/classicladder: $(call TOOBJS, $(CLASSICLADDERSRCS)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
-	@$(CC) $(LDFLAGS) $(CFLAGS) $(ULFLAGS) -o $@ $^ $(GTK_LIBS) -lpthread
+	@$(CC) $(LDFLAGS) $(CFLAGS) $(ULFLAGS) -o $@ $^ $(GTK2_LIBS) -lpthread
 
 TARGETS += ../bin/classicladder
 endif

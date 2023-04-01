@@ -1,2 +1,3 @@
 # xhc-whb04b-6 mpg pendant
-SUBSYSTEM=="usb", ATTR{idProduct}=="eb93", ATTR{idVendor}=="10ce", MODE="600", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idProduct}=="eb93", ATTR{idVendor}=="10ce", MODE="666", OWNER="root", GROUP="plugdev", TAG+="uaccess"
+

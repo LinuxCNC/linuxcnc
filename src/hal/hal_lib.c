@@ -593,18 +593,6 @@ int hal_pin_s32_new(const char *name, hal_pin_dir_t dir,
     return hal_pin_new(name, HAL_S32, dir, (void **) data_ptr_addr, comp_id);
 }
 
-int hal_pin_u64_new(const char *name, hal_pin_dir_t dir,
-    hal_u64_t ** data_ptr_addr, int comp_id)
-{
-    return hal_pin_new(name, HAL_U64, dir, (void **) data_ptr_addr, comp_id);
-}
-
-int hal_pin_s64_new(const char *name, hal_pin_dir_t dir,
-    hal_s64_t ** data_ptr_addr, int comp_id)
-{
-    return hal_pin_new(name, HAL_S64, dir, (void **) data_ptr_addr, comp_id);
-}
-
 int hal_pin_port_new(const char *name, hal_pin_dir_t dir,
     hal_port_t ** data_ptr_addr, int comp_id)
 {
@@ -671,28 +659,6 @@ int hal_pin_s32_newf(hal_pin_dir_t dir,
     return ret;
 }
 
-int hal_pin_u64_newf(hal_pin_dir_t dir,
-    hal_u64_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_pin_newfv(HAL_U64, dir, (void**)data_ptr_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
-int hal_pin_s64_newf(hal_pin_dir_t dir,
-    hal_s64_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_pin_newfv(HAL_S64, dir, (void**)data_ptr_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
 int hal_pin_port_newf(hal_pin_dir_t dir,
     hal_port_t **data_ptr_addr, int comp_id, const char *fmt, ...)
 {
@@ -727,9 +693,9 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
             "HAL: ERROR: pin_new(%s) called with already-initialized memory\n",
             name);
     }
-    if (type != HAL_BIT && type != HAL_FLOAT && type != HAL_S32 && type != HAL_U32 && type != HAL_S64 && type != HAL_U64 && type != HAL_PORT) {
+    if (type != HAL_BIT && type != HAL_FLOAT && type != HAL_S32 && type != HAL_U32 && type != HAL_PORT) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin type not one of HAL_BIT, HAL_FLOAT, HAL_S32, HAL_U32, HAL_S64, HAL_U64 or HAL_PORT\n");
+	    "HAL: ERROR: pin type not one of HAL_BIT, HAL_FLOAT, HAL_S32, HAL_U32 or HAL_PORT\n");
 	return -EINVAL;
     }
     
@@ -1011,8 +977,6 @@ with the C standard.
     case HAL_BIT:
     case HAL_S32:
     case HAL_U32:
-    case HAL_S64:
-    case HAL_U64:
     case HAL_FLOAT:
     case HAL_PORT:
         data_addr = shmalloc_up(sizeof(hal_data_u));
@@ -1043,12 +1007,6 @@ with the C standard.
         break;
     case HAL_U32:
 	*((hal_u32_t *) data_addr) = 0;
-        break;
-    case HAL_S64:
-	*((hal_s64_t *) data_addr) = 0;
-        break;
-    case HAL_U64:
-	*((hal_u64_t *) data_addr) = 0;
         break;
     case HAL_FLOAT:
 	*((hal_float_t *) data_addr) = 0.0;
@@ -1275,12 +1233,6 @@ int hal_link(const char *pin_name, const char *sig_name)
         case HAL_U32:
             *((hal_u32_t *) data_addr) = pin->dummysig.u;
             break;
-        case HAL_S64:
-            *((hal_s64_t *) data_addr) = pin->dummysig.s;
-            break;
-        case HAL_U64:
-            *((hal_u64_t *) data_addr) = pin->dummysig.u;
-            break;
         case HAL_FLOAT:
             *((hal_float_t *) data_addr) = pin->dummysig.f;
             break;
@@ -1453,9 +1405,9 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	return -EINVAL;
     }
 
-    if (type != HAL_BIT && type != HAL_FLOAT && type != HAL_S32 && type != HAL_U32 && type != HAL_S64 && type != HAL_U64) {
+    if (type != HAL_BIT && type != HAL_FLOAT && type != HAL_S32 && type != HAL_U32) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin type not one of HAL_BIT, HAL_FLOAT, HAL_S32, HAL_U32, Hal_S64 or HAL_U64\n");
+	    "HAL: ERROR: pin type not one of HAL_BIT, HAL_FLOAT, HAL_S32 or HAL_U32\n");
 	return -EINVAL;
     }
 
@@ -1573,16 +1525,6 @@ int hal_param_s32_set(const char *name, signed long value)
     return hal_param_set(name, HAL_S32, &value);
 }
 
-int hal_param_u64_set(const char *name, unsigned long value)
-{
-    return hal_param_set(name, HAL_U64, &value);
-}
-
-int hal_param_s64_set(const char *name, signed long value)
-{
-    return hal_param_set(name, HAL_S64, &value);
-}
-
 /* this is a generic function that does the majority of the work */
 
 int hal_param_set(const char *name, hal_type_t type, void *value_addr)
@@ -1647,12 +1589,6 @@ int hal_param_set(const char *name, hal_type_t type, void *value_addr)
 	break;
     case HAL_U32:
 	*((hal_u32_t *) (d_ptr)) = *((unsigned long *) (value_addr));
-	break;
-    case HAL_S64:
-	*((hal_s64_t *) (d_ptr)) = *((signed long *) (value_addr));
-	break;
-    case HAL_U64:
-	*((hal_u64_t *) (d_ptr)) = *((unsigned long *) (value_addr));
 	break;
     default:
 	/* Shouldn't get here, but just in case... */
@@ -3442,12 +3378,6 @@ static void unlink_pin(hal_pin_t * pin)
     case HAL_U32:
         dummy_addr->u = sig_data_addr->u;
         break;
-    case HAL_S64:
-        dummy_addr->s = sig_data_addr->s;
-        break;
-    case HAL_U64:
-        dummy_addr->u = sig_data_addr->u;
-        break;
     case HAL_FLOAT:
         dummy_addr->f = sig_data_addr->f;
         break;
@@ -3689,8 +3619,6 @@ static char *halpr_type_string(int type, char *buf, size_t nbuf) {
         case HAL_FLOAT: return "float";
         case HAL_S32: return "s32";
         case HAL_U32: return "u32";
-        case HAL_S64: return "s64";
-        case HAL_U64: return "u64";
         case HAL_PORT: return "port";
         default:
             rtapi_snprintf(buf, nbuf, "UNK#%d", type);
@@ -4284,8 +4212,6 @@ EXPORT_SYMBOL(hal_pin_bit_new);
 EXPORT_SYMBOL(hal_pin_float_new);
 EXPORT_SYMBOL(hal_pin_u32_new);
 EXPORT_SYMBOL(hal_pin_s32_new);
-EXPORT_SYMBOL(hal_pin_u64_new);
-EXPORT_SYMBOL(hal_pin_s64_new);
 EXPORT_SYMBOL(hal_pin_port_new);
 EXPORT_SYMBOL(hal_pin_new);
 
@@ -4293,8 +4219,6 @@ EXPORT_SYMBOL(hal_pin_bit_newf);
 EXPORT_SYMBOL(hal_pin_float_newf);
 EXPORT_SYMBOL(hal_pin_u32_newf);
 EXPORT_SYMBOL(hal_pin_s32_newf);
-EXPORT_SYMBOL(hal_pin_u64_newf);
-EXPORT_SYMBOL(hal_pin_s64_newf);
 EXPORT_SYMBOL(hal_pin_port_newf);
 
 
@@ -4307,23 +4231,17 @@ EXPORT_SYMBOL(hal_param_bit_new);
 EXPORT_SYMBOL(hal_param_float_new);
 EXPORT_SYMBOL(hal_param_u32_new);
 EXPORT_SYMBOL(hal_param_s32_new);
-EXPORT_SYMBOL(hal_param_u64_new);
-EXPORT_SYMBOL(hal_param_s64_new);
 EXPORT_SYMBOL(hal_param_new);
 
 EXPORT_SYMBOL(hal_param_bit_newf);
 EXPORT_SYMBOL(hal_param_float_newf);
 EXPORT_SYMBOL(hal_param_u32_newf);
 EXPORT_SYMBOL(hal_param_s32_newf);
-EXPORT_SYMBOL(hal_param_u64_newf);
-EXPORT_SYMBOL(hal_param_s64_newf);
 
 EXPORT_SYMBOL(hal_param_bit_set);
 EXPORT_SYMBOL(hal_param_float_set);
 EXPORT_SYMBOL(hal_param_u32_set);
 EXPORT_SYMBOL(hal_param_s32_set);
-EXPORT_SYMBOL(hal_param_u64_set);
-EXPORT_SYMBOL(hal_param_s64_set);
 EXPORT_SYMBOL(hal_param_set);
 
 EXPORT_SYMBOL(hal_set_constructor);

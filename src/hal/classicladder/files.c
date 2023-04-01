@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2009 Marc Le Douarain */
+/* Copyright (C) 2001-2008 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* February 2001 */
@@ -29,7 +29,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <errno.h>
-// for mkdir( ) Linux + unistd.h for rmdir()
+// for mkdir( ) Linux
 #if !defined(__WIN32__)
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -44,9 +44,7 @@
 #include "files_sequential.h"
 #include "files.h"
 #include "vars_access.h"
-#include "manager.h"
-//#include "log.h"
-
+#include "protocol_modbus_master.h"
 #include "emc_mods.h"
 #include <rtapi_string.h>
 
@@ -85,95 +83,66 @@ char *cl_fgets(char *s, int size, FILE *stream)
 
 char ConvRawLineOfElements(char * RawLine,int y,StrRung * StorageRung)
 {
-	char * StartOfValue;
-	char * EndOfValue;
-	int x = 0;
+    char * StartOfValue;
+    char * EndOfValue;
+    int x = 0;
 
-	char EndOfLine;
-	char IndexedVarFound;
+    char EndOfLine;
 
-	StartOfValue = RawLine;
-	EndOfValue = RawLine;
+    StartOfValue = RawLine;
+    EndOfValue = RawLine;
 
-	do
-	{
-		/* Extract Element Type */
-		StartOfValue = EndOfValue;
-		do
-		{
-			EndOfValue++;
-		}
-		while(*EndOfValue!='-');
-		*EndOfValue++ = '\0';
-		StorageRung->Element[x][y].Type = atoi(StartOfValue);
+    do
+    {
+        /* Extract Element Type */
+        StartOfValue = EndOfValue;
+        do
+        {
+            EndOfValue++;
+        }
+        while(*EndOfValue!='-');
+        *EndOfValue++ = '\0';
+        StorageRung->Element[x][y].Type = atoi(StartOfValue);
 
-		/* Extract ConnectedWithTop */
-		StartOfValue = EndOfValue;
-		do
-		{
-			EndOfValue++;
-		}
-		while(*EndOfValue!='-');
-		*EndOfValue++ = '\0';
-		StorageRung->Element[x][y].ConnectedWithTop = atoi(StartOfValue);
+        /* Extract ConnectedWithTop */
+        StartOfValue = EndOfValue;
+        do
+        {
+            EndOfValue++;
+        }
+        while(*EndOfValue!='-');
+        *EndOfValue++ = '\0';
+        StorageRung->Element[x][y].ConnectedWithTop = atoi(StartOfValue);
 
-		IndexedVarFound = FALSE;
-		/* Extract Var Type */
-		StartOfValue = EndOfValue;
-		do
-		{
-			EndOfValue++;
-		}
-		while(*EndOfValue!='/');
-		*EndOfValue++ = '\0';
-		StorageRung->Element[x][y].VarType = atoi(StartOfValue);
+        /* Extract Var Type */
+        StartOfValue = EndOfValue;
+        do
+        {
+            EndOfValue++;
+        }
+        while(*EndOfValue!='/');
+        *EndOfValue++ = '\0';
+        StorageRung->Element[x][y].VarType = atoi(StartOfValue);
 
-		/* Extract Var Offset in the type table */
-		StartOfValue = EndOfValue;
-		do
-		{
-			EndOfValue++;
-		}
-		while( (*EndOfValue!=',') && (*EndOfValue!='[') && (*EndOfValue!=10) && (*EndOfValue!='\0') );
-		EndOfLine = TRUE;
-		if (*EndOfValue==',')
-			EndOfLine = FALSE;
-		if ( *EndOfValue=='[' )
-			IndexedVarFound = TRUE;
-		*EndOfValue++ = '\0';
-		StorageRung->Element[x][y].VarNum = atoi(StartOfValue);
-		if ( IndexedVarFound )
-		{
-			/* Extract Indexed Var Type */
-			StartOfValue = EndOfValue;
-			do
-			{
-				EndOfValue++;
-			}
-			while(*EndOfValue!='/');
-			*EndOfValue++ = '\0';
-			StorageRung->Element[x][y].IndexedVarType = atoi(StartOfValue);
+        /* Extract Var Offset in the type table */
+        StartOfValue = EndOfValue;
+        do
+        {
+            EndOfValue++;
+        }
+        while( (*EndOfValue!=',') && (*EndOfValue!=10) && (*EndOfValue!='\0') );
+        EndOfLine = TRUE;
+        if (*EndOfValue==',')
+            EndOfLine = FALSE;
+        *EndOfValue++ = '\0';
+        StorageRung->Element[x][y].VarNum = atoi(StartOfValue);
 
-			/* Extract Indexed Var Offset in the type table */
-			StartOfValue = EndOfValue;
-			do
-			{
-				EndOfValue++;
-			}
-			while( (*EndOfValue!=',') && (*EndOfValue!=10) && (*EndOfValue!='\0') );
-			EndOfLine = TRUE;
-			if (*EndOfValue==',')
-				EndOfLine = FALSE;
-			*EndOfValue++ = '\0';
-			StorageRung->Element[x][y].IndexedVarNum = atoi(StartOfValue);
-		}
+        /* Next Element */
+        x++;
 
-		/* Next Element */
-		x++;
-
-	}
-	while(!EndOfLine);
-	return (x);
+    }
+    while(!EndOfLine);
+    return (x);
 }
 
 /*void RemoveEndLine( char * line )
@@ -266,8 +235,6 @@ char SaveRung(char * FileName,StrRung * BufRung)
             {
                 fprintf(File,"%d-%d-%d/%d",BufRung->Element[x][y].Type, BufRung->Element[x][y].ConnectedWithTop ,
                                     BufRung->Element[x][y].VarType , BufRung->Element[x][y].VarNum);
-                if ( BufRung->Element[x][y].IndexedVarType!=-1 )
-                    fprintf( File, "[%d/%d]", BufRung->Element[x][y].IndexedVarType, BufRung->Element[x][y].IndexedVarNum );
                 if (x<RUNG_WIDTH-1)
                     fprintf(File," , ");
             }
@@ -431,14 +398,14 @@ int ConvBaseInMilliSecsToId(int NbrMilliSecs)
 	}
 }
 
-char * ConvRawLineOfStringsOrNumbers(char * RawLine,int * LgtParams,char ** ParamsStringsFnd,int ** ParamsIntFnd)
+char * ConvRawLineOfStrings(char * RawLine,int * LgtParams,char ** ParamsStringsFnd)
 {
 	char * StartOfValue;
 	char * EndOfValue;
 	int Num = 0;
 	
 	char EndOfLine;
-
+	
 	StartOfValue = RawLine;
 	EndOfValue = RawLine;
 	EndOfLine = FALSE;
@@ -455,16 +422,8 @@ char * ConvRawLineOfStringsOrNumbers(char * RawLine,int * LgtParams,char ** Para
 		if (*EndOfValue==10 || *EndOfValue=='\0')
 			EndOfLine = TRUE;
 		*EndOfValue++ = '\0';
-		if ( ParamsStringsFnd[Num]!=NULL )
-		{
-			if ( strlen( StartOfValue )<(unsigned int)LgtParams[ Num ] )
-				strcpy( ParamsStringsFnd[Num], StartOfValue );
-		}
-		else if ( ParamsIntFnd!=NULL )
-		{
-			if ( ParamsIntFnd[ Num ]!=NULL )
-				*ParamsIntFnd[ Num ] = atoi( StartOfValue );
-		}
+		if ( strlen( StartOfValue )<(unsigned int)LgtParams[ Num ] )
+			strcpy( ParamsStringsFnd[Num], StartOfValue );
 		Num++;
 		StartOfValue = EndOfValue;
 	}
@@ -973,7 +932,7 @@ char LoadModbusIOConfParams(char * FileName)
 	FILE * File;
 	char Okay = FALSE;
 	char Line[300];
-	int IntDatas[ 6 ];
+	int IntDatas[] = {0,0,0,0,0,0};
 	char * LineOk;
 	StrModbusMasterReq * pConf = &ModbusMasterReq[ 0 ];
 	File = fopen(FileName,"rt");
@@ -1092,7 +1051,7 @@ char LoadSymbols(char * FileName)
 						PtrStrings[ 1 ] = pSymbol->Symbol; LgtMaxStrings[ 1 ] = LGT_SYMBOL_STRING;
 						PtrStrings[ 2 ] = pSymbol->Comment; LgtMaxStrings[ 2 ] = LGT_SYMBOL_COMMENT;
 						PtrStrings[ 3 ] = NULL; LgtMaxStrings[ 3 ] = 0;
-						ConvRawLineOfStringsOrNumbers( Line, LgtMaxStrings, PtrStrings, NULL );
+						ConvRawLineOfStrings( Line, LgtMaxStrings, PtrStrings );
 //						RemoveEndLine( pSymbol->Comment );
 						dbg_printf(_("Symbol: %s - %s - %s\n"), pSymbol->VarName, pSymbol->Symbol, pSymbol->Comment);
 						NumSymbol++;
@@ -1133,9 +1092,9 @@ char SaveSymbols(char * FileName)
 	return (Okay);
 }
 
-// This function is not used because parameters are loaded with real time module in EMC
+//this function is not used because parameters are loaded with real time module in EMC
 char LoadGeneralParameters(char * FileName)
-{
+{ 
 	FILE * File;
 	char Okay = FALSE;
 	char Line[300];
@@ -1190,12 +1149,6 @@ char LoadGeneralParameters(char * FileName)
 				pParameter = "SIZE_NBR_SYMBOLS=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
 					GeneralParamsMirror.SizesInfos.nbr_symbols = atoi( &Line[ strlen( pParameter) ] );
-				pParameter = "SIZE_NBR_PHYS_WORDS_INPUTS=";
-				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					GeneralParamsMirror.SizesInfos.nbr_phys_words_inputs = atoi( &Line[ strlen( pParameter) ] );
-				pParameter = "SIZE_NBR_PHYS_WORDS_OUTPUTS=";
-				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					GeneralParamsMirror.SizesInfos.nbr_phys_words_outputs = atoi( &Line[ strlen( pParameter) ] );
 			}
 		}
 		while(LineOk);
@@ -1227,8 +1180,6 @@ char SaveGeneralParameters(char * FileName)
 		fprintf( File,S_LINE "SIZE_NBR_ARITHM_EXPR=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_arithm_expr );
 		fprintf( File,S_LINE "SIZE_NBR_SECTIONS=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_sections );
 		fprintf( File,S_LINE "SIZE_NBR_SYMBOLS=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_symbols );
-		fprintf( File,S_LINE "SIZE_NBR_PHYS_WORDS_INPUTS=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_phys_words_inputs );
-		fprintf( File,S_LINE "SIZE_NBR_PHYS_WORDS_OUTPUTS=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_phys_words_outputs );
 		fclose(File);
 		Okay = TRUE;
 	}
@@ -1241,6 +1192,7 @@ char LoadComParameters(char * FileName)
 	char Okay = FALSE;
 	char Line[300];
 	char * LineOk;
+
 	File = fopen(FileName,"rt");
 	if (File)
 	{
@@ -1252,56 +1204,57 @@ char LoadComParameters(char * FileName)
 				char * pParameter;
 				pParameter = "MODBUS_MASTER_SERIAL_PORT=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					 rtapi_strxcpy(ModbusConfig.ModbusSerialPortNameUsed,&Line[strlen( pParameter) ] );
+					 rtapi_strxcpy(ModbusSerialPortNameUsed,&Line[strlen( pParameter) ] );
                                 pParameter = "MODBUS_MASTER_SERIAL_SPEED=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusConfig.ModbusSerialSpeed = atoi( &Line[ strlen( pParameter) ] );
+					ModbusSerialSpeed = atoi( &Line[ strlen( pParameter) ] );
                                 pParameter = "MODBUS_MASTER_SERIAL_DATABITS=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusConfig.ModbusSerialDataBits = atoi( &Line[ strlen( pParameter) ] );
+					ModbusSerialDataBits = atoi( &Line[ strlen( pParameter) ] );
                                 pParameter = "MODBUS_MASTER_SERIAL_STOPBITS=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusConfig.ModbusSerialStopBits = atoi( &Line[ strlen( pParameter) ] );
+					ModbusSerialStopBits = atoi( &Line[ strlen( pParameter) ] );
                                 pParameter = "MODBUS_MASTER_SERIAL_PARITY=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusConfig.ModbusSerialParity = atoi( &Line[ strlen( pParameter) ] );
-				pParameter = "MODBUS_ELEMENT_OFFSET=";
+					ModbusSerialParity = atoi( &Line[ strlen( pParameter) ] );
+                                pParameter = "MODBUS_ELEMENT_OFFSET=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusConfig.ModbusEleOffset = atoi( &Line[ strlen( pParameter) ] );
+					ModbusEleOffset = atoi( &Line[ strlen( pParameter) ] );
 				pParameter = "MODBUS_MASTER_SERIAL_USE_RTS_TO_SEND=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusConfig.ModbusSerialUseRtsToSend = atoi( &Line[ strlen( pParameter) ] );
+					ModbusSerialUseRtsToSend = atoi( &Line[ strlen( pParameter) ] );
 				pParameter = "MODBUS_MASTER_TIME_INTER_FRAME=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusConfig.ModbusTimeInterFrame = atoi( &Line[ strlen( pParameter) ] );
+					ModbusTimeInterFrame = atoi( &Line[ strlen( pParameter) ] );
 				pParameter = "MODBUS_MASTER_TIME_OUT_RECEIPT=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusConfig.ModbusTimeOutReceipt = atoi( &Line[ strlen( pParameter) ] );
+					ModbusTimeOutReceipt = atoi( &Line[ strlen( pParameter) ] );
 				pParameter = "MODBUS_MASTER_TIME_AFTER_TRANSMIT=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusConfig.ModbusTimeAfterTransmit = atoi( &Line[ strlen( pParameter) ] );
+					ModbusTimeAfterTransmit = atoi( &Line[ strlen( pParameter) ] );
 				pParameter = "MODBUS_DEBUG_LEVEL=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusConfig.ModbusDebugLevel = atoi( &Line[ strlen( pParameter) ] );
-				pParameter = "MODBUS_MAP_COIL_READ=";
+					ModbusDebugLevel = atoi( &Line[ strlen( pParameter) ] ); 
+                                pParameter = "MODBUS_MAP_COIL_READ=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusConfig.MapTypeForReadCoils = atoi( &Line[ strlen( pParameter) ] );
+					MapCoilRead = atoi( &Line[ strlen( pParameter) ] );
 				pParameter = "MODBUS_MAP_COIL_WRITE=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusConfig.MapTypeForWriteCoils = atoi( &Line[ strlen( pParameter) ] );
+				        MapCoilWrite = atoi( &Line[ strlen( pParameter) ] );
 				pParameter = "MODBUS_MAP_INPUT=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusConfig.MapTypeForReadInputs = atoi( &Line[ strlen( pParameter) ] );
+					MapInputs = atoi( &Line[ strlen( pParameter) ] );
 				pParameter = "MODBUS_MAP_HOLDING=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusConfig.MapTypeForReadInputRegs = atoi( &Line[ strlen( pParameter) ] );
+					MapHolding = atoi( &Line[ strlen( pParameter) ] );
 				pParameter = "MODBUS_MAP_REGISTER_READ=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusConfig.MapTypeForReadHoldRegs = atoi( &Line[ strlen( pParameter) ] );
+					MapRegisterRead = atoi( &Line[ strlen( pParameter) ] );
 				pParameter = "MODBUS_MAP_REGISTER_WRITE=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusConfig.MapTypeForWriteHoldRegs = atoi( &Line[ strlen( pParameter) ] );
-			}
+					MapRegisterWrite = atoi( &Line[ strlen( pParameter) ] );
+
+                         }
 		}
 		while(LineOk);
 		fclose(File);
@@ -1317,115 +1270,33 @@ char SaveComParameters(char * FileName)
 	File = fopen(FileName,"wt");
 	if (File)
 	{
-		fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_PORT=%s" E_LINE "\n",ModbusConfig.ModbusSerialPortNameUsed  );
-                fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_SPEED=%d" E_LINE "\n",ModbusConfig.ModbusSerialSpeed  );
-                fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_DATABITS=%d" E_LINE "\n",ModbusConfig.ModbusSerialDataBits );
-                fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_STOPBITS=%d" E_LINE "\n",ModbusConfig.ModbusSerialStopBits  );
-                fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_PARITY=%d" E_LINE "\n",ModbusConfig.ModbusSerialParity  );
-                fprintf( File,S_LINE "MODBUS_ELEMENT_OFFSET=%d" E_LINE "\n", ModbusConfig.ModbusEleOffset );
-		fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_USE_RTS_TO_SEND=%d" E_LINE "\n", ModbusConfig.ModbusSerialUseRtsToSend );
-		fprintf( File,S_LINE "MODBUS_MASTER_TIME_INTER_FRAME=%d" E_LINE "\n", ModbusConfig.ModbusTimeInterFrame );
-		fprintf( File,S_LINE "MODBUS_MASTER_TIME_OUT_RECEIPT=%d" E_LINE "\n", ModbusConfig.ModbusTimeOutReceipt );
-		fprintf( File,S_LINE "MODBUS_MASTER_TIME_AFTER_TRANSMIT=%d" E_LINE "\n", ModbusConfig.ModbusTimeAfterTransmit );
-		fprintf( File,S_LINE "MODBUS_DEBUG_LEVEL=%d" E_LINE "\n", ModbusConfig.ModbusDebugLevel );
-		fprintf( File,S_LINE "MODBUS_MAP_COIL_READ=%d" E_LINE "\n", ModbusConfig.MapTypeForReadCoils );
-		fprintf( File,S_LINE "MODBUS_MAP_COIL_WRITE=%d" E_LINE "\n", ModbusConfig.MapTypeForWriteCoils );
-		fprintf( File,S_LINE "MODBUS_MAP_INPUT=%d" E_LINE "\n", ModbusConfig.MapTypeForReadInputs );
-		fprintf( File,S_LINE "MODBUS_MAP_HOLDING=%d" E_LINE "\n", ModbusConfig.MapTypeForReadInputRegs );
-		fprintf( File,S_LINE "MODBUS_MAP_REGISTER_READ=%d" E_LINE "\n", ModbusConfig.MapTypeForReadHoldRegs );
-		fprintf( File,S_LINE "MODBUS_MAP_REGISTER_WRITE=%d" E_LINE "\n", ModbusConfig.MapTypeForWriteHoldRegs );
+		fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_PORT=%s" E_LINE "\n",ModbusSerialPortNameUsed  );
+                fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_SPEED=%d" E_LINE "\n",ModbusSerialSpeed  );
+                fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_DATABITS=%d" E_LINE "\n",ModbusSerialDataBits );
+                fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_STOPBITS=%d" E_LINE "\n",ModbusSerialStopBits  );
+                fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_PARITY=%d" E_LINE "\n",ModbusSerialParity  );
+                fprintf( File,S_LINE "MODBUS_ELEMENT_OFFSET=%d" E_LINE "\n", ModbusEleOffset );
+		fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_USE_RTS_TO_SEND=%d" E_LINE "\n", ModbusSerialUseRtsToSend );
+		fprintf( File,S_LINE "MODBUS_MASTER_TIME_INTER_FRAME=%d" E_LINE "\n", ModbusTimeInterFrame );
+		fprintf( File,S_LINE "MODBUS_MASTER_TIME_OUT_RECEIPT=%d" E_LINE "\n", ModbusTimeOutReceipt );
+		fprintf( File,S_LINE "MODBUS_MASTER_TIME_AFTER_TRANSMIT=%d" E_LINE "\n", ModbusTimeAfterTransmit );
+		fprintf( File,S_LINE "MODBUS_DEBUG_LEVEL=%d" E_LINE "\n", ModbusDebugLevel );
+
+                fprintf( File,S_LINE "MODBUS_MAP_COIL_READ=%d" E_LINE "\n", MapCoilRead );
+		fprintf( File,S_LINE "MODBUS_MAP_COIL_WRITE=%d" E_LINE "\n", MapCoilWrite );
+		fprintf( File,S_LINE "MODBUS_MAP_INPUT=%d" E_LINE "\n", MapInputs );
+		fprintf( File,S_LINE "MODBUS_MAP_HOLDING=%d" E_LINE "\n", MapHolding );
+		fprintf( File,S_LINE "MODBUS_MAP_REGISTER_READ=%d" E_LINE "\n", MapRegisterRead );
+		fprintf( File,S_LINE "MODBUS_MAP_REGISTER_WRITE=%d" E_LINE "\n", MapRegisterWrite );
 		fclose(File);
 		Okay = TRUE;
 	}
+        
 	return (Okay);
 }
-
-//XXX log functionality is not implemented.
-/*
-char LoadConfigEventsLog(char * FileName)
-{
-	FILE * File;
-	char Okay = FALSE;
-	char Line[300];
-	char * LineOk;
-	int NumConfigEvtLog = 0;
-	char *PtrStrings[ 7 ];
-	int LgtMaxStrings[ 7 ];
-	int *PtrInts[ 7 ];
-	StrConfigEventLog * pCfgEvtLog;
-	File = fopen(FileName,"rt");
-	if (File)
-	{
-		do
-		{
-			LineOk = cl_fgets(Line,300,File);
-			if (LineOk)
-			{
-				switch(Line[0])
-				{
-					case ';':
-						break;
-					case '#':
-						if(strncmp(&Line[1],"VER=",4)==0)
-						{
-							if (atoi(&Line[5])>1)
-							{
-								printf("Config Events file version not supported...\n");
-								LineOk = FALSE;
-							}
-						}
-						break;
-					default:
-						NumConfigEvtLog = atoi( Line );
-						pCfgEvtLog = &ConfigEventLog[ NumConfigEvtLog ];
-						PtrStrings[ 0 ] = NULL; LgtMaxStrings[ 0 ] = 1; PtrInts[ 0 ] = NULL; //first field already read in previous atoi()
-						PtrStrings[ 1 ] = NULL; LgtMaxStrings[ 1 ] = 1; PtrInts[ 1 ] = &pCfgEvtLog->FirstVarNum;
-						PtrStrings[ 2 ] = NULL; LgtMaxStrings[ 2 ] = 1; PtrInts[ 2 ] = &pCfgEvtLog->NbrVars;
-						PtrStrings[ 3 ] = NULL; LgtMaxStrings[ 3 ] = 1; PtrInts[ 3 ] = &pCfgEvtLog->EventType;
-						PtrStrings[ 4 ] = pCfgEvtLog->Symbol; LgtMaxStrings[ 4 ] = EVENT_SYMBOL_LGT; PtrInts[ 4 ] = NULL;
-						PtrStrings[ 5 ] = pCfgEvtLog->Text; LgtMaxStrings[ 5 ] = EVENT_TEXT_LGT; PtrInts[ 5 ] = NULL;
-						PtrStrings[ 6 ] = NULL; LgtMaxStrings[ 6 ] = 0; PtrInts[ 6 ] = NULL;
-						ConvRawLineOfStringsOrNumbers( Line, LgtMaxStrings, PtrStrings, PtrInts );
-dbg_printf("CfgEvt: %d: %d - %d - %s - %s\n", NumConfigEvtLog, pCfgEvtLog->FirstVarNum, pCfgEvtLog->NbrVars, pCfgEvtLog->Symbol, pCfgEvtLog->Text);
-						break;
-				}
-			}
-		}
-		while(LineOk);
-		fclose(File);
-		Okay = TRUE;
-	}
-	return (Okay);
-}
-
-char SaveConfigEventsLog(char * FileName)
-{
-	FILE * File;
-	char Okay = FALSE;
-	int Scan = 0;
-	StrConfigEventLog * pCfgEvtLog;
-	File = fopen(FileName,"wt");
-	if (File)
-	{
-		fprintf(File,S_LINE "#VER=1.0" E_LINE "\n");
-		do
-		{
-			pCfgEvtLog = &ConfigEventLog[ Scan ];
-			if ( pCfgEvtLog->FirstVarNum!=-1 && pCfgEvtLog->NbrVars!=0 )
-				fprintf(File,S_LINE "%d,%d,%d,%d,%s,%s" E_LINE "\n", Scan, pCfgEvtLog->FirstVarNum, pCfgEvtLog->NbrVars, pCfgEvtLog->EventType, pCfgEvtLog->Symbol, pCfgEvtLog->Text );
-			Scan++;
-		}
-		while(Scan<NBR_CONFIG_EVENTS_LOG);
-		fclose(File);
-		Okay = TRUE;
-	}
-	return (Okay);
-}
-*/
-
 void DeleteTheDefaultSection( )
 {
-	RungArray[ 0 ].Used = FALSE;
+	RungArray[0].Used = FALSE;
 	SectionArray[ 0 ].Used = FALSE;
 }
 
@@ -1492,25 +1363,15 @@ void LoadAllLadderDatas(char * DatasDirectory)
 #ifdef MODBUS_IO_MASTER
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"modbusioconf.csv",DatasDirectory);
 //	printf("Loading modbus distributed I/O configuration data from %s\n",FileName);
-	if (modmaster) {    PrepareModbusMaster( );    }
 	LoadModbusIOConfParams( FileName );
+        if (modmaster) {    PrepareModbusMaster( );    }
 #endif
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
 //	printf("Loading symbols data from %s\n",FileName);
 	LoadSymbols(FileName);
-	//sprintf(FileName,"%s/"FILE_PREFIX"config_events.csv",DatasDirectory);
-	//LoadConfigEventsLog(FileName);
-
-	// security if empty file...
-#ifdef GTK_INTERFACE
-	if ( NbrSectionsDefined()==0 )
-		AddSection("Prog1", SECTION_IN_LADDER, -1 );
-#endif	
 
 //printf("Prepare all data before run...\n");
 	PrepareAllDatasBeforeRun( );
-	// update the tags list of the variables that the user want to log (after to have load the config file...)
-	//InitVarsArrayLogTags( );
 }
 
 void SaveAllLadderDatas(char * DatasDirectory)
@@ -1548,8 +1409,6 @@ void SaveAllLadderDatas(char * DatasDirectory)
 #endif
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
 	SaveSymbols( FileName );
-	//sprintf(FileName,"%s/"FILE_PREFIX"config_events.csv",DatasDirectory);
-	//SaveConfigEventsLog( FileName );
 	InfosGene->AskConfirmationToQuit = FALSE;
 }
 
@@ -1586,8 +1445,8 @@ void CleanTmpLadderDirectory( char DestroyDir )
 					}
 				}
 			}
+			closedir(pDir);
 		}
-		closedir(pDir);
 		/* delete the temp directory if wanted */
 #ifndef __WIN32__
 		if ( DestroyDir )

@@ -6,7 +6,7 @@ manual pulse generator (MPG)) and static angle and scale factor
 settings.  It computes the counts and scale values required to jog two
 (M,N) axes (or joints) at an angle.  The corresponding output pins
 must be connected to the candidate axis.[MN].jog* (or joint.[MN].jog*)
-pins to create motion at the current angle.  HAL pins are provided to
+pins to create motion at the current angle.  Hal pins are provided to
 set the vector velocity and acceleration and to enable the
 computations.
 

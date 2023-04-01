@@ -278,22 +278,4 @@ button to completely turn off your computer. The RTAI group has been
 improving this in recent releases, so your LinuxCNC system may shut off by
 itself after all.
 
-== Computer/Machine Interface Hardware Options
-
-=== litehm2/rv901t
-
-Litehm2 is a board-agnostic port of the HostMot2 FPGA firmware. The first
-board it supports is the linsn rv901t, which was originally built as a LED
-controller board, but due to the available I/O it is well suited to act as
-a machine controller. It offers around 80 5V-buffered I/O ports and can
-switch between all input and all output. it is also easily modified to split
-the ports half/half between input and output. The rv901t interfaces to the
-computer via Gigabit or 100Mbit Ethernet.
-
-Litehm2 is based on the LiteX framework which supports a wide range of
-FPGA boards. Currently only the rv901t is supported, but support for more
-boards is under development.
-
-More information can be found at https://github.com/sensille/litehm2.
-
 // vim: set syntax=asciidoc:

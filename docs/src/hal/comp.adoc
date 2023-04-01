@@ -395,11 +395,11 @@ to allow for a variable number of input pins to each logic gate and to allow for
 The default number of allowed 'personality' items is a compile-time setting (64).
 The default applies to numerous components included in the distribution that are built using halcompile.
 
-To alter the allowed number of personality items for user-built components, use the '--personalities' option with halcompile.
+To alter the allowed number of personality items for user-built components, use the '--personality' option with halcompile.
 For example, to allow up to 128 personality times:
 
 ----
-  [sudo] halcompile --personalities=128 --install ...
+  [sudo] halcompile --personality=128 --install ...
 ----
 
 When using components with personality, normal usage is to specify a personality item for *each* specified component instance.

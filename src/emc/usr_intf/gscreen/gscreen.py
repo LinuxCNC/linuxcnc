@@ -3851,7 +3851,7 @@ class Gscreen:
             self.halcomp["tool-changed"] = True
             widget.destroy()
             try:
-                self.widgets.statusbar1.remove(self.statusbar_id,self.data.tool_message)
+                self.widgets.statusbar1.remove_message(self.statusbar_id,self.data.tool_message)
             except:
                 self.show_try_errors()
             return

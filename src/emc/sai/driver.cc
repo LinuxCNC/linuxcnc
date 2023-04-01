@@ -338,7 +338,7 @@ int read_tool_file(  /* ARGUMENTS         */
     }
 
   // no toolTable[] param used
-  return tooldata_load(tool_file_name);
+  return tooldata_load(tool_file_name, 0);
 }
 
 /************************************************************************/

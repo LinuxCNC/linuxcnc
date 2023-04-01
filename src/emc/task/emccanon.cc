@@ -699,9 +699,9 @@ static AccelData getStraightAcceleration(double x, double y, double z,
                     ta, tb, tc,
                     tu, tv, tw);
 
-        if(debug_velacc)
-            printf("getStraightAcceleration t^2 tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n",
-                   tx, ty, tz, ta, tb, tc, tu, tv, tw);
+    if(debug_velacc)
+        printf("getStraightAcceleration t^2 tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n", 
+               tx, ty, tz, ta, tb, tc, tu, tv, tw);
 /*  According to NIST IR6556 Section 2.1.2.5 Paragraph A
     a combnation move is handled like a linear move, except
     that the angular axes are allowed sufficient time to

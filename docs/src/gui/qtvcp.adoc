@@ -11,13 +11,15 @@
 :ngc: {basebackend@docbook:'':ngc}
 :css: {basebackend@docbook:'':css}
 
-QtVCP is an *infrastructure to build custom CNC screens or control panels for LinuxCNC*.
+QtVCP is an *infrastructure to build custom CNC screens or control
+panels for LinuxCNC*.
 
-It displays a _`.ui` file built with Qt Designer_ screen editor
-and combines this with _Python programming_ to create a GUI screen for running a CNC machine.
+It displays a _`.ui` file built with Qt Designer_ screen editor and
+combines this with _Python programming_ to create a GUI screen for
+running a CNC machine.
 
-QtVCP is completely _customizable_: you can add different buttons and status LEDs etc.,
-or add python code for even finer grain customization.
+QtVCP is completely _customizable_: you can add different buttons and
+status LEDs etc. or add python code for even finer grain customization.
 
 == Showcase
 
@@ -53,21 +55,26 @@ add customizations:
 * A *UI file* that is a _XML_ file made with _Qt Designer_ graphical editor.
 * A *handler file* which is a _Python_ code text file.
 
-Normally QtVCP uses the stock UI and handler file, but you can specify QtVCP to use 'local' UI and handler files. +
-A *'local' file* is one that is in the _configuration folder_ that defines the rest of the machine's requirements.
+Normally QtVCP uses the stock UI and handler file, but you can specify
+QtVCP to use 'local' UI and handler files. +
+A *'local' file* is one that is in the _configuration folder_ that defines
+the rest of the machine's requirements.
 
-One is not restricted to adding a custom panel on the right or a custom tab as QtVCP leverages _Qt Designer_ (the editor)
-and _PyQt5_ (the widget toolkit).
+One is not restricted to adding a custom panel on the right or a custom
+tab as QtVCP leverages _Qt Designer_ (the editor) and _PyQT5_ (the
+widget toolkit).
 
 QtVCP has some added *special LinuxCNC widgets and actions*. +
 There are special widgets to bridge third party widgets to HAL pins. +
-It's possible to create widget responses by connecting signals to Python code in the handler file.
+It's possible to create widget responses by connecting signals to
+Python code in the handler file.
 
 === QtVCP Widgets
 
 QtVCP uses the *PyQt5 toolkit's widgets* for LinuxCNC integration.
 
-*Widget* is the _general name for user interface objects_ such as buttons and labels in PyQt5.
+*Widget* is the _general name for user interface objects_ such as buttons
+and labels in PyQT5.
 
 You are free to use any available *default widgets* in the Qt Designer
 editor.
@@ -144,7 +151,8 @@ Defaults to 100, useable range 50 - 200.
 
 The widgets, graphics and HAL pin update can be set separately.
 
-If the update time is not set right the screen can become unresponsive or very jerky.
+If the update time is not set right the screen can become unresponsive
+or very jerky.
 
 === Qt Designer UI File
 
@@ -238,7 +246,7 @@ Another Python file can be used to *add commands* to the screen, after the handl
 In the _INI file_ under the `[DISPLAY]` heading add *`USER_COMMAND_FILE = _PATH_`* +
 
 _PATH_ can be any valid path.
-It can use `~` for home directory or `WORKINGDIRECTORY` or `CONFIGDIRECTORY` to represent QtVCP's idea of those directories, e.g.:
+It can use `~` for home directory or `WORKINGDIRECTORY` or `CONFIGDIRECTORY` to represent QtVCP's idea of those directories:
 
 [source,{ini}]
 ----
@@ -264,8 +272,8 @@ self.w.setWindowTitle('My Title Test')
 ----
 
 .Full Creative Control
-If you wish to *modify a stock screen* with full control,
-_copy it's UI and handler file to your configuration folder_.
+If you wish to *modify a stock screen* with full control, _copy it's UI
+and handler file to your configuration folder_.
 
 There is a QtVCP panel to help with this:
 
@@ -400,16 +408,16 @@ sudo apt-get install qttools5-dev-tools qttools5-dev libpython3-dev
 ////
 FIXME Do we need to keep this ?
 Luego necesita agregar la biblioteca de carga del módulo python.
-QtVCP usa Qt5 con python2. Esta combinación normalmente no está
+QtVCP usa QT5 con python2. Esta combinación normalmente no está
 disponible desde repositorios. Puede compilarlo usted mismo, o hay
 versiones precompiladas disponible para sistemas comunes.
 En 'lib/python/qtvcp/designer' hay carpetas basadas en arquitecturas de
-sistema y luego la versión Qt.
+sistema y luego la versión QT.
 Debe elegir la carpeta de arquitectura de la CPU y luego elegir la
 serie; 5.5, 5.7 o 5.9 de Qt.
 Actualmente el estiramiento de Debian usa 5.7, Mint 12 usa 5.5, Mint 19
 usa 5.9.
-En caso de duda, verifique la versión de Qt5 en el sistema.
+En caso de duda, verifique la versión de QT5 en el sistema.
 
 Debe descomprimir el archivo y luego copiar esa versión adecuada de 'libpyqt5_py2.so' a esta carpeta '/usr/lib/x86_64-linux-gnu/qt5/plugins/designer'.
 
@@ -491,7 +499,8 @@ On the Object inspector click on the _ScreenOptions_. +
 Then switch to the Property Editor and, under the _ScreenOptions_ heading, toggle *`filedialog_option`*.
 //TODO Explain what this FileDialo_option does
 
-Drag and drop a *`GCodeGraphics`* _widget_ and a *`GcodeEditor`* _widget_. +
+Drag and drop a *`GCodeGraphics`* _widget_ and a *`GcodeEditor`*
+_widget_. +
 Place and resize them as you see fit leaving some room for buttons.
 
 .Add Action Buttons
@@ -839,6 +848,7 @@ The variables `halcomp`, `widgets` and `paths` give access to QtVCP's HAL compon
 === SPECIAL FUNCTIONS Section
 
 There are several _special functions_ that QtVCP looks for in the handler file.
+
 If QtVCP finds these it will call them, if not it will silently ignore them.
 
 *`initialized__(self):`*::
@@ -849,6 +859,7 @@ If QtVCP finds these it will call them, if not it will silently ignore them.
   * styles applied to widgets,
   * status of LinuxCNC connected to functions.
   * keybindings would be added.
+
 *`class_patch__(self):`*::
   _Class patching_, also known as _monkey patching_, allows to *override function calls in an imported module*. +
   Class patching must be done _before the module is instantiated_, and it _modifies all instances_ made after that. +
@@ -861,12 +872,15 @@ If QtVCP finds these it will call them, if not it will silently ignore them.
 *`keypress_event__(self,receiver, event):`*::
   This function gives *raw key press events*. +
   It takes _precedence over_ the `processed_key_event`.
+
 *`keyrelease_event__(receiver, event):`*::
   This function gives *raw key release events*. +
   It takes _precedence over_ the `processed_key_event`.
+
 *`before_loop__(self):`*::
   This function is _called just before the Qt event loop is entered_.
   At that point, all widgets/libraries/initialization code has completed and the screen is already displayed.
+
 *`system_shutdown_request__(self):`*::
   If present, this function *overrides the normal function called for total system shutdown*. +
   It could be used to do _pre-shutdown housekeeping_. +
@@ -961,7 +975,7 @@ There are two ways to edit connections - This is the graphical way.
 * A 'Slots/Signals of MainWindow' dialog will pop up.
 * On the slots list at the top there is a '+' icon - click it.
 * You can now edit a new slot name.
-* Erase the default name `slot()` and change it to `test_button()`.
+* Erase the default name `slot()` and change it to `test_button()`
 * Press the 'OK' button.
 * You'll be back to the 'Configure Connections' dialog.
 * Now you can select your new slot in the slot list.

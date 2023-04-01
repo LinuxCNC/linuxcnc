@@ -1,3 +1,0 @@
-This is Gscreen's industrial screen combined with a remap to add lathe wear offsets and change tools without m6
-t101 gives tool 1 with offset 1. Offset 1 is in the toolfile as tool 10001.
-t201 gives tool 2 with offset 1. Offset 1 is in the toolfile as tool 10001.

@@ -124,7 +124,7 @@ AC_DEFUN([_AX_BOOST_BASE_RUNDETECT],[
     AS_CASE([${host_cpu}],
       [i?86],[multiarch_libsubdir="lib/i386-${host_os}"],
       [armv?l],[multiarch_libsubdir="lib/arm-${host_os}"],
-      [hppa1.1|hppa64],[multiarch_libsubdir="lib/hppa-${host_os}"],
+      [hppa64],[multiarch_libsubdir="lib/hppa-${host_os}"],
       [multiarch_libsubdir="lib/${host_cpu}-${host_os}"]
     )
 

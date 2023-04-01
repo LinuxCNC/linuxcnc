@@ -385,21 +385,8 @@ int hm2_sserial_get_param_value(hostmot2_t *hm2,
         case LBP_ENCODER:
             break; // Hard to imagine an encoder not in Process data
         case LBP_FLOAT:
-            {
-                char buf[g->DataLength/8];
-                r = hm2_sserial_get_bytes(hm2, chan, &buf[0], g->ParmAddr, g->DataLength/8);
-                if (g->DataLength == sizeof(float) * 8) {
-                    float temp;
-                    memcpy((void*)&temp, &buf[0], sizeof(float));
-                    p->float_written = temp;
-                } else if (g->DataLength == sizeof(double) * 8) {
-                    double temp;
-                    memcpy((void*)&temp, &buf[0], sizeof(double));
-                    p->float_written = temp;
-                } else {
-                    HM2_ERR("sserial get param value: LBP_FLOAT of bit-length %i not handled\n", g->DataLength);
-                }
-            }
+            r = hm2_sserial_get_bytes(hm2, chan, (void*)&(p->float_written),
+                                      g->ParmAddr, g->DataLength/8);
             if (set_hal) p->float_param = p->float_written;
             HM2_DBG("LBP_FLOAT %f %f \n", p->float_param, p->float_written);
             break;

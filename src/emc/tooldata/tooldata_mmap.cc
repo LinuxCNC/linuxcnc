@@ -287,8 +287,7 @@ toolidx_t tooldata_get(CANON_TOOL_TABLE* pdata, int idx)
         exit(EXIT_FAILURE);
     }
     if (idx < 0 || idx >= CANON_POCKETS_MAX) {
-        // ui programs may query for nonexistent idx values
-        // and must handle this error
+        UNEXPECTED_MSG;
         return IDX_FAIL;
     }
 

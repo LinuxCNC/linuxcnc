@@ -350,7 +350,7 @@ proc wheel_setup {jogmode} {
   makenet [existing_outpin_signame   halui.max-velocity.value pendant:jog-speed] \
                                   <= halui.max-velocity.value
 
-  makenet [existing_outpin_signame   halui.feed-override.value pendant:feed-override] \
+  makenet [existing_outpin_signame   halui.feed-overide.value pendant:feed-override] \
                                   <= halui.feed-override.value \
                                   => xhc-hb04.feed-override
 

@@ -48,7 +48,6 @@ struct CANON_TOOL_TABLE tooldata_entry_init()
     tdata.backangle   =  0;
     tdata.orientation =  0;
     ZERO_EMC_POSE(tdata.offset);
-    tdata.comment[0]  =  0;
 
     return tdata;
 } // tooldata_entry_init()
@@ -67,7 +66,8 @@ void tooldata_add_init(int nonrandom_start_idx)
     return;
 } // tooldata_add_init()
 
-int tooldata_read_entry(const char *input_line)
+int tooldata_read_entry(const char *input_line,
+                        char *ttcomments[])
 {
     char work_line[CANON_TOOL_ENTRY_LEN];
     const char *token;
@@ -208,20 +208,11 @@ int tooldata_read_entry(const char *input_line)
         tdata.frontangle  = frontangle;
         tdata.backangle   = backangle;
         tdata.orientation = orientation;
-        if (comment) {
-            strncpy(tdata.comment,comment,CANON_TOOL_COMMENT_SIZE-1);
-            tdata.comment[CANON_TOOL_COMMENT_SIZE-1] = 0;
-            if (strlen(comment) > (CANON_TOOL_COMMENT_SIZE-1) ) {
-                fprintf(stderr,"%s():comment for toolno %d truncated to %d chars:\n   <%s>\n"
-                       ,__FUNCTION__
-                       ,tdata.toolno
-                       ,CANON_TOOL_COMMENT_SIZE-1
-                       ,tdata.comment
-                       );
-            }
-        }
         if (tooldata_put(tdata,idx) == IDX_FAIL) {
             UNEXPECTED_MSG;
+        }
+        if (ttcomments && comment) {
+             strcpy(ttcomments[idx], comment);
         }
     } else {
          return -1;
@@ -232,6 +223,7 @@ int tooldata_read_entry(const char *input_line)
 void tooldata_format_toolline (int idx,
                                bool ignore_zero_values,
                                CANON_TOOL_TABLE tdata,
+                               char * ttcomments[],
                                char formatted_line[CANON_TOOL_ENTRY_LEN]
                                )
 {
@@ -269,14 +261,15 @@ void tooldata_format_toolline (int idx,
     I_ITEM(orientation,    "Q");
 #undef F_ITEM
 #undef I_ITEM
-    if (tdata.comment[0]) {
-        snprintf(tmp,sizeof(tmp)," ;%s\n",tdata.comment); \
-        strncat(formatted_line,tmp,CANON_TOOL_ENTRY_LEN-1); \
-    } 
+    if (ttcomments) {  //ignore if nil pointer
+       snprintf(tmp,sizeof(tmp)," ;%s\n",ttcomments[idx]);
+       strncat(formatted_line,tmp,CANON_TOOL_ENTRY_LEN-1);
+    }
     return;
 } // tooldata_format_toolline()
 
-int tooldata_load(const char *filename)
+int tooldata_load(const char *filename,
+                  char *ttcomments[])
 {
     FILE *fp;
     char input_line[CANON_TOOL_ENTRY_LEN];
@@ -296,6 +289,10 @@ int tooldata_load(const char *filename)
 
     // clear out tool table
     // (Set vars to indicate no tool in pocket):
+    int  idx;
+    for (idx = 0; idx < CANON_POCKETS_MAX; idx++) {
+        if(ttcomments) ttcomments[idx][0] = '\0';
+    }
     tooldata_reset();
 
     // open tool table file
@@ -322,7 +319,7 @@ int tooldata_load(const char *filename)
         strcpy(orig_line, input_line);
 
         // parse and store one line from tool table file
-        int entry_idx = tooldata_read_entry(input_line);
+        int entry_idx = tooldata_read_entry(input_line, ttcomments);
         if (entry_idx <0) {
             printf("File: %s Unrecognized line skipped:\n    %s",filename, orig_line);
             continue;
@@ -350,7 +347,7 @@ int tooldata_load(const char *filename)
     return 0;
 } // tooldata_load()
 
-static void write_tool_line(FILE* fp,int idx)
+static void write_tool_line(FILE* fp,int idx,char *ttcomments[])
 {
     CANON_TOOL_TABLE tdata;
     if (tooldata_get(&tdata,idx) != IDX_OK) {return;}
@@ -362,13 +359,14 @@ static void write_tool_line(FILE* fp,int idx)
         char theline[CANON_TOOL_ENTRY_LEN] = {0};
         tooldata_format_toolline (idx,
                                   1, // ignore_zero_values
-                                  tdata,theline);
+                                  tdata,ttcomments,theline);
         fprintf(fp,"%s",theline);
     }
     return;
 } // write_tool_line()
 
-int tooldata_save(const char *filename)
+int tooldata_save(const char *filename,
+                  char *ttcomments[CANON_POCKETS_MAX])
 {
     int idx;
     FILE *fp;
@@ -391,11 +389,11 @@ int tooldata_save(const char *filename)
 
     if (db_mode == DB_ACTIVE) {
         int spindle_idx = 0;
-        write_tool_line(fp,spindle_idx);
+        write_tool_line(fp,spindle_idx,ttcomments);
     } else {
         start_idx = is_random_toolchanger ? 0 : 1;
         for (idx = start_idx; idx < CANON_POCKETS_MAX; idx++) {
-            write_tool_line(fp,idx);
+            write_tool_line(fp,idx,ttcomments);
         }
     }
     fclose(fp);

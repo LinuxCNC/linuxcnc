@@ -1,11 +1,11 @@
 # ShuttleXpress USB jog pendant
 # model "S-XPRS"
-SUBSYSTEM=="hidraw", ATTRS{idVendor}=="0b33", ATTRS{idProduct}=="0020", MODE="0400", TAG+="uaccess"
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="0b33", ATTRS{idProduct}=="0020", MODE="0444"
 
 # ShuttlePRO USB jog pendant
 # model "SP-JNS"
-SUBSYSTEM=="hidraw", ATTRS{idVendor}=="05f3", ATTRS{idProduct}=="0240", MODE="0400", TAG+="uaccess"
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="05f3", ATTRS{idProduct}=="0240", MODE="0444"
 
 # ShuttlePROv2 USB jog pendant
 # model "S-PROV2"
-SUBSYSTEM=="hidraw", ATTRS{idVendor}=="0b33", ATTRS{idProduct}=="0030", MODE="0400", TAG+="uaccess"
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="0b33", ATTRS{idProduct}=="0030", MODE="0444"

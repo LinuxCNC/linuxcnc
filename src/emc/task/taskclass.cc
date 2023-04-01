@@ -447,6 +447,12 @@ Task::Task() : use_iocontrol(0), random_toolchanger(0) {
 	if ((t = inifile.Find("TOOL_TABLE", "EMCIO")) != NULL)
 	    tooltable_filename = strdup(t);
     }
+    if (!use_iocontrol) {
+	for(int i = 0; i < CANON_POCKETS_MAX; i++) {
+	    ttcomments[i] = (char *)malloc(CANON_TOOL_ENTRY_LEN);
+	}
+    }
+
 };
 
 

@@ -53,10 +53,10 @@ class RoundProgressBar(QWidget):
             self.rebuildBrush = True
         self.update()
 
-    def setMinimum(self, min):
+    def setMinimun(self, min):
         self.setRange(min, self.max)
 
-    def setMaximum(self, max):
+    def setMaximun(self, max):
         self.setRange(self.min, max)
 
     def sizeHint(self):
@@ -308,7 +308,7 @@ if __name__ == "__main__":
     #gui.setBarStyle(gui.StylePie)
     #gui.setBarStyle(gui.StyleLine)
     gui.setDataColors([(0., QColor.fromRgb(255,0,0)), (0.5, QColor.fromRgb(255,255,0)), (1., QColor.fromRgb(0,255,0))])
-    gui.setMaximum(100)
+    gui.setMaximun(100)
     gui.setValue(70)
     gui.setDataPenWidth(3)
     gui.setOutlinePenWidth(3)

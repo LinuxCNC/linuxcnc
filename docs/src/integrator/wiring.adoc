@@ -271,7 +271,7 @@ pin and a single output pin. Its job is to monitor the input and to send an outp
 for a programmed delay period. More information can be found for the debounce component by visiting the following
 page:
 
-link:../man/man9/debounce.9.html[debounce(9)]
+link:../man/man9/debounce.9.html
 
 == Documentation
 

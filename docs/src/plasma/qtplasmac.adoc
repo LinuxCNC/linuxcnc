@@ -409,12 +409,10 @@ This method to move to QtPlasmaC from PlasmaC (loaded on top of either AXIS or G
 This method then allows changing of the base machine configuration at a later date via the configuration wizard,
 provided that the base INI and base HAL files have not been edited.
 
-This method requires that the user take note of all HAL pins used in the existing config so they can be entered into the configuration wizard.
-Any custom HAL commands will also need to be noted and added manually to either the custom.hal file or the custom_postgui.hal file,
-which will be created by the configuration wizard.
+This method requires that the user take note of all HAL pins used in the existing config so they can be entered into the configuration wizard. Any custom HAL commands will also need to be noted and added manually to either the custom.hal file or the custom_postgui.hal file which will be created by the configuration wizard.
 
-After using the wizard, the user can then run a conversion program (cfg2prefs) to convert the parameters,
-settings, and materials from the previous PlasmaC configuration to the new QtPlasmaC configuration.
+After using the wizard, the user can then run a conversion program (cfg2prefs)
+to convert the parameters, settings, and materials from the previous PlasmaC configuration to the new QtPlasmaC configuration.
 This tool should be used immediately after the user has created a new QtPlasmaC configuration.
 
 Prior to running this conversion program,
@@ -424,8 +422,8 @@ and should be used with caution if it is not being run on a new QtPlasmaC config
 
 The program will create a time-stamped backup of the original preferences file and the existing materials file (if it exists).
 
-It will read the existing <machine_name>_config.cfg, <machine_name>_run.cfg, <machine_name>_wizards.cfg, and plasmac_stats.var files and write them to an existing _<machine_name>_.prefs file.
-It will also copy the <machine_name>_material.cfg file to the existing QtPlasmaC configuration.
+It will read the existing __<machine_name>___config.cfg, __<machine_name>___run.cfg, __<machine_name>___wizards.cfg, and plasmac_stats.var files and write them to an existing _<machine_name>_.prefs file.
+It will also copy the __<machine_name>___material.cfg file to the existing QtPlasmaC configuration.
 
 To run the cfg2prefs conversion program, use the following instructions:
 
@@ -447,12 +445,9 @@ Select the INI file of the old PlasmaC configuration, select the INI file of the
 [[plasma:lowpass]]
 === Lowpass Filter
 
-The plasmac HAL component has a built in lowpass filter that if used is applied to the *plasmac.arc-voltage-in* input pin to filter any noise that could cause erroneous voltage readings.
-The lowpass filter should only be used after using Halscope to determine the required frequency and whether the amplitude of the noise is large enough to cause any issues.
-For most plasma machines lowpass is not required and should not be used unless it is required.
+The plasmac HAL component has a built in lowpass filter that if used is applied to the *plasmac.arc-voltage-in* input pin to filter any noise that could cause erroneous voltage readings. The lowpass filter should only be used after using Halscope to determine the required frequency and whether the amplitude of the noise is large enough to cause any issues. For most plasma machines lowpass is not required and should not be used unless it is required.
 
-The HAL pin assigned to this filter is *plasmac.lowpass-frequency* and is set to 0 (disabled) by default.
-To apply a lowpass filter to the arc-voltage, the user would edit the following entry in the custom.hal file in the machine's configuration directory to add the appropriate cutoff frequency as measured in Hertz (Hz).
+The HAL pin assigned to this filter is *plasmac.lowpass-frequency* and is set to 0 (disabled) by default. To apply a lowpass filter to the arc-voltage, the user would edit the following entry in the custom.hal file in the machine's configuration directory to add the appropriate cutoff frequency as measured in Hertz (Hz).
 
 For example:
 
@@ -472,39 +467,29 @@ Contact bounce from mechanical relays, switches, or external interference may ca
 * Breakaway Switch
 * Arc OK (for modes 1 & 2)
 
-Due to the fact that the software is capable of sampling rates faster than the contact bounce period,
-it is possible that the software may see contact bounce as several changes in input states occurring in a very small time period,
-and incorrectly interpret this as a very quick on-off of the input.
-One method of mitigating contact bounce is to "debounce" the input.
-To summarize debounce, it requires the input state to be stable at the opposite state of the output state for consecutive delay periods before changing the state of the output.
+Due to the fact that the software is capable of sampling rates faster than the contact bounce period, it is possible that the software may see contact bounce as several changes in input states occurring in a very small time period, and incorrectly interpret this as a very quick on-off of the input. One method of mitigating contact bounce is to "debounce" the input. To summarize debounce, it requires the input state to be stable at the opposite state of the output state for consecutive delay periods before changing the state of the output.
 
-Debounce delay periods can be changed by editing the appropriate debounce value in the custom.hal file in the _<machine_name>_ config directory.
+Debounce delay periods can be changed by editing the appropriate debounce value in the custom.hal file in the <machine_name> config directory.
 
 Each increment of delay adds one servo thread cycle to the debounce time.
-For example: given a servo thread period of 1000000 (measured in nano seconds), a debounce delay of 5 would equate to 5000000&#8239;ns, or 5&#8239;ms.
+For example: given a servo thread period of 1000000 (measured in nano seconds), a debounce delay of 5 would equate to 5000000 ns, or 5 ms.
 
-For the Float and Ohmic switches this equates to a 0.001&#8239;mm (0.00004") increase in the probed height result.
+For the Float and Ohmic switches this equates to a 0.001 mm (0.00004") increase in the probed height result.
 
-It is recommended to keep the debounce values as low as possible while still achieving consistent results.
-Using link:../hal/tutorial.html#sec:tutorial-halscope[Halscope] to plot the inputs is a good way to establish the correct value.
+It is recommended to keep the debounce values as low as possible while still achieving consistent results. Using link:../hal/tutorial.html#sec:tutorial-halscope[Halscope] to plot the inputs is a good way to establish the correct value.
 
-For QtPlasmaC installations, debounce is achieved by using the HAL link:../man/man9/dbounce.9.html[dbounce component] which is a later alternative to the original debounce component.
-This new version allows for the loading and naming of individual debounce instances and is compatible with Twopass HAL file processing.
+For QtPlasmaC installations, debounce is achieved by using the HAL link:../man/man9/dbounce.9.html[dbounce component] which is a later alternative to the original debounce component. This new version allows for the loading and naming of individual debounce instances and is compatible with Twopass HAL file processing.
 
-All four signals above have an individual debounce component so the debounce periods can be catered individually to each input.
-Any changes made to these values in the custom.hal file will not be overwritten by later updates of QtPlasmaC.
+All four signals above have an individual debounce component so the debounce periods can be catered individually to each input. Any changes made to these values in the custom.hal file will not be overwritten by later updates of QtPlasmaC.
 
-The default delay for all four inputs is five servo thread periods.
-In most cases this value will work quite well. If any of the inputs do not use mechanical switches,
-it may be possible to either reduce or remove the delay for those inputs.
+The default delay for all four inputs is five servo thread periods. In most cases this value will work quite well. If any of the inputs do not use mechanical switches, it may be possible to either reduce or remove the delay for those inputs.
 
 If debounce is required for other equipment like home or limit switches etc. then more dbounce components may added in any of the HAL files without any regard to the signals listed here.
 
 [[plasma:qt-contact-load]]
 === Contact Load
 
-Mechanical relays and switches usually require a minimum current passing through the contacts for reliable operation.
-This current varies with the material that the contacts in the device are made from.
+Mechanical relays and switches usually require a minimum current passing through the contacts for reliable operation. This current varies with the material that the contacts in the device are made from.
 
 Depending on the specified minimum contact current and the current drawn by the input device there may be a need to provide a method to increase the current through the contacts.
 
@@ -523,12 +508,12 @@ More information on contact switching load can be seen on page III of link:https
 .*Calculations:*
 If using a Mesa card, the input resistance of a 7i96 is 4700 Ω (symbol R)(always consult the product manual associated with the revision being used as these values sometimes vary between revisions), giving a contact current of 5.1 mA (symbol I) assuming a supply voltage (symbol U) of 24 V (I = U/R)footnote:[In the US, the letter V is commonly used as a symbol (Voltage) and as a unit (Volt).].
 
-If using a Mesa card, the input resistance of a 7I96 is 47006&#8239;Ω
+If using a Mesa card, the input resistance of a 7I96 is 4700 Ω
 (always consult the product manual associated with the revision being used as these values sometimes vary between revisions),
-giving a contact current of 5.1&#8239;mA assuming a supply voltage of 24&#8239;V (I = V/R).
+giving a contact current of 5.1 mA assuming a supply voltage of 24 V (I = V/R).
 
-As an example, the typical relay used in a Hypertherm Powermax 65 plasma cutter (link:https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7F1308242_T77%7F1011%7Fpdf%7FEnglish%7FENG_DS_1308242_T77_1011.pdf%7F1-1393194-0[TE T77S1D10-24]) requires a minimum contact load of 100&#8239;mA @ 5&#8239;VDC which will dissipate 0.5&#8239;W (P = I * V).
-If using a 24&#8239;VDC power supply this would then equate to a minimum current of 20.8&#8239;mA.
+As an example, the typical relay used in a Hypertherm Powermax 65 plasma cutter (link:https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7F1308242_T77%7F1011%7Fpdf%7FEnglish%7FENG_DS_1308242_T77_1011.pdf%7F1-1393194-0[TE T77S1D10-24]) requires a minimum contact load of 100 mA @ 5 VDC which will dissipate 0.5 W (P = I * V).
+If using a 24 VDC power supply this would then equate to a minimum current of 20.8 mA.
 Because there is less current drawn by the Mesa input than is required by the relay there needs to be an increase in the current.
 
 The resistance can be calculated using R = U~s~ / (I~m~ - I~i~) where:
@@ -538,8 +523,8 @@ The resistance can be calculated using R = U~s~ / (I~m~ - I~i~) where:
 - I~m~ = minimum current required
 - I~i~ = input current
 
-Using a 7I96 with an input current of 5.1&#8239;mA gives a calculated value of 1529&#8239;Ω ( = 24&#8239;V / (.0208 - .0051)&#8239;A).
-This could then be rounded down to a commonly available 1500&#8239;Ω resistor, giving a small safety margin.
+Using a 7I96 with an input current of 5.1 mA gives a calculated value of 1529 Ω ( = 24 V / (.0208 - .0051) A).
+This could then be rounded down to a commonly available 1500 Ω resistor, giving a small safety margin.
 
 The power dissipation can by calculated using P = U~s~^2^ / R~s~ where:
 
@@ -547,9 +532,8 @@ The power dissipation can by calculated using P = U~s~^2^ / R~s~ where:
 - U~s~ = supply voltage
 - R~s~ = selected resistance
 
-This gives a value of 0.38&#8239;W.
-This could then be rounded up to 1&#8239;W, giving a good safety margin.
-The final selection would be a 1500&#8239;Ω 1&#8239;W resistor.
+This gives a value of 0.38 W. This could then be rounded up to 1 W, giving a good safety margin.
+The final selection would be a 1500 Ω 1 W resistor.
 
 === Desktop Launcher
 
@@ -557,8 +541,7 @@ If a link to the launch the configuration was not created when creating the conf
 the user could create a desktop launcher to the config by right clicking on the desktop and selecting Create Launcher or similar.
 This will bring up a dialog box to create a launcher. Give the icon a nice short name, enter anything for the command and click OK.
 
-After the launcher appears on the desktop, right click on it and then edit it with the user's editor of choice.
-Edit the file so it looks similar to:
+After the launcher appears on the desktop, right click on it and then edit it with the user's editor of choice. Edit the file so it looks similar to:
 
 ----
 [Desktop Entry]
@@ -2043,7 +2026,7 @@ If using a custom user button is utilized then QtPlasmaC will automatically relo
 
 It is recommended that any holes to be cut have a diameter no less than one and a half times the thickness of the material to be cut.
 
-It is also recommended that holes with a diameter of less than 32&#8239;mm (1.26") are cut at 60% of the feed rate used for profile cuts. This should also lock out THC due to velocity constraints.
+It is also recommended that holes with a diameter of less than 32 mm (1.26") are cut at 60% of the feed rate used for profile cuts. This should also lock out THC due to velocity constraints.
 
 QtPlasmaC can utilize G-code commands usually set by a CAM Post Processor (PP) to aid in hole cutting or if the user does not have a PP or the user's PP does not support these methods then QtPlasmaC can automatically adapt the G-code to suit. This automatic mode is disabled by default.
 
@@ -2128,7 +2111,7 @@ G1 X0
 M67 E3 Q60 (reduce feed rate to 60%)
 G3 I10 (the hole)
 M62 P3 (turn torch off)
-G3 X0.8 Y6.081 I10 (continue motion for 4 mm)
+G3 X0.8 Y6.081 I10 (continue motion for 4mm)
 M63 P3 (allow torch to be turned on)
 M67 E3 Q0 (restore feed rate to 100%)
 M5 $0 (end cut)
@@ -2151,7 +2134,7 @@ QtPlasmaC Hole Sensing is disabled by default. It can be enabled/disabled by usi
 * *#<holes> = 3* - Causes QtPlasmaC to reduce the speed of holes less than 32 mm (1.26") and arcs less than 16 mm (0.63") to 60% of *CutFeedRate*.
 * *#<holes> = 4* - Causes QtPlasmaC to <<plasma:overcut,Over cut>> the hole in addition to the velocity change in setting 3.
 
-The default hole size for QtPlasmaC hole sensing is 32&#8239;mm (1.26"). It is possible to change this value with the following command in a G-code file:
+The default hole size for QtPlasmaC hole sensing is 32 mm (1.26"). It is possible to change this value with the following command in a G-code file:
 
 * *#<h_diameter> = _nn_* - To set a diameter (_nn_) in the same units system as the rest of the G-code file.
 
@@ -2164,10 +2147,10 @@ It is possible to change this value with the following command in a G-code file:
 
 If Hole Sensing modes 2 or 4 are active, QtPlasmaC will over cut the hole in addition to the velocity changes associated with modes 1 and 3.
 
-The default over cut length for QtPlasmaC hole sensing is 4&#8239;mm (0.157").
+The default over cut length for QtPlasmaC hole sensing is 4 mm (0.157").
 It is possible to change this value with the following command in a G-code file:
 
-* *#<oclength> = __nn__* to specify an over cut length (_nn_) in the same units system as the rest of the G-code file.
+* *#<oclength> = nn* to specify an over cut length (nn) in the same units system as the rest of the G-code file.
 
 .*Arc Dwell (Pause At End)*
 
@@ -2181,7 +2164,7 @@ G64 P0.005
 M52 P1 (allow paused motion)
 F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
 #<holes> = 2 (over cut for holes)
-#<oclength> = 6.5 (optional, 6.5 mm over cut length)
+#<oclength> = 6.5 (optional, 6.5mm over cut length)
 G0 X10 Y10
 M3 $0 S1 (start cut)
 G1 X0
@@ -2349,7 +2332,7 @@ If an alignment laser has been set up then it is possible to use the laser durin
 If a laser offset is in effect when *CANCEL MOVE* is pressed then this offset will also be cleared.
 
 [NOTE]
-Cut recovery movements will be limited to a radius of 10&#8239;mm (0.4") from either the point the program was paused,
+Cut recovery movements will be limited to a radius of 10 mm (0.4") from either the point the program was paused,
 or from the last point on the cut path if paused motion was used.
 
 IMPORTANT: PUDDLE JUMP IS DISABLED DURING CUT RECOVERY
@@ -3382,7 +3365,7 @@ n Code = cut-type
 
 Pressing this button moves the torch to the specified coordinates when the machine is paused to allow the user easy access to change the torch consumables.
 
-Valid entries are X__nnn__ Y__nnn__ F__nnn__. Feed Rate (F) is mandatory and at least one of the X or Y coordinates are required.
+Valid entries are Xnnn Ynnn Fnnn. Feed Rate (F) is mandatory and at least one of the X or Y coordinates are required.
 
 The X and Y coordinates are in absolute machine coordinates. If X or Y are missing then the current coordinate for that axis will be used.
 
@@ -4087,7 +4070,7 @@ Options: +
 0 - Create temporary default +
 1 - Add if not existing +
 2 - Overwrite if existing else add new |mandatory parameters: +
-(o=<option>, nu=<__nn__>, na=<__ll__>, ph=<__nn__>, pd=<__nn__>, ch=<__nn__>, fr=<__nn__>) +
+(o=<option>, nu=<nn>, na=<ll>, ph=<nn>, pd=<nn>, ch=<nn>, fr=<nn>) +
 optional parameters: +
 (kw=<__nn__>, th=<__nn__>, ca=<__nn__>, cv=<__nn__>, pe=<__nn__>, gp=<__nn__>, cm=<__nn__>, jh=<__nn__>, jd=<__nn__>)
 |<<plasma:magic-comments,Keep Z Motion>> |#<keep-z-motion> = 1
