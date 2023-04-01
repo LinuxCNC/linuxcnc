@@ -93,7 +93,6 @@ po/linuxcnc.pot: hal/classicladder/arithm_eval.c \
     hal/classicladder/calc_sequential.c \
     hal/classicladder/classicladder.c \
     hal/classicladder/classicladder_gtk.c \
-    hal/classicladder/config.c \
     hal/classicladder/config_gtk.c \
     hal/classicladder/drawing.c \
     hal/classicladder/drawing_sequential.c \
