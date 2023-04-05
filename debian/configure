@@ -35,7 +35,7 @@ fi
 
 EXTRA_BUILD=
 PYTHON_VERSION_NEXT=$(python3 -c 'import sys; print (sys.version[:2] + str(1+int(sys.version[2])))')
-LIBREADLINE_DEV="libreadline-gplv2-dev | libreadline-dev"
+LIBREADLINE_DEV="libeditreadline-dev | libreadline-gplv2-dev | libreadline-dev"
 
 ENABLE_BUILD_DOCUMENTATION=--enable-build-documentation=pdf
 
