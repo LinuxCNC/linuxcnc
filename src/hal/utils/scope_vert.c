@@ -93,7 +93,6 @@ static gboolean dialog_select_source(int chan_num);
 static void selection_made(GtkTreeView *treeview, GtkTreePath *path,
         GtkTreeViewColumn *col, GtkWidget *dialog);
 static void change_source_button(GtkWidget * widget, gpointer gdata);
-static void channel_off_button(GtkWidget * widget, gpointer gdata);
 static void offset_button(GtkWidget * widget, gpointer gdata);
 static gboolean dialog_set_offset(int chan_num);
 static void scale_changed(GtkAdjustment * adj, gpointer gdata);
@@ -590,7 +589,6 @@ static void init_vert_info_window(void)
 {
     scope_vert_t *vert;
     GtkWidget *hbox, *vbox;
-    GtkWidget *button;
 
     vert = &(ctrl_usr->vert);
 
@@ -640,14 +638,6 @@ static void init_vert_info_window(void)
     g_signal_connect(vert->offset_button, "clicked",
 	G_CALLBACK(offset_button), NULL);
     gtk_widget_show(vert->offset_button);
-    /* a button to turn off the channel */
-    button = gtk_button_new_with_label(_("Chan Off"));
-    gtk_box_pack_start(GTK_BOX(ctrl_usr->vert_info_win), button, FALSE, FALSE,
-	0);
-    /* turn off the channel if button is clicked */
-    g_signal_connect(button, "clicked",
-	G_CALLBACK(channel_off_button), NULL);
-    gtk_widget_show(button);
 }
 
 static void scale_changed(GtkAdjustment * adj, gpointer gdata)
@@ -863,16 +853,6 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
         vert->selected = chan_num;
         channel_changed();
     }
-}
-
-static void channel_off_button(GtkWidget * widget, gpointer gdata)
-{
-    scope_vert_t *vert;
-    int chan_num;
-
-    vert = &(ctrl_usr->vert);
-    chan_num = vert->selected;
-    set_channel_off(chan_num);
 }
 
 static void change_source_button(GtkWidget * widget, gpointer gdata)
