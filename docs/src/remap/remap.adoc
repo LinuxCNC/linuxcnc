@@ -721,8 +721,8 @@ def change_prolog(self, **words):
         self.params["current_pocket"] = self.current_pocket
         self.params["selected_pocket"] = self.selected_pocket
         return INTERP_OK
-    except Exception, e:
-        return "M6/change_prolog: %s" % (e)
+    except Exception as e:
+        return "M6/change_prolog: {}".format(e)
 ---------------------------------------------------------------------
 
 You will find that most prolog functions look very similar:

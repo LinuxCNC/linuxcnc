@@ -507,4 +507,4 @@ if __name__ == "__main__":
         from qtvcp.core import Status, Info, Qhal, Path
 
         _qtvcp = QTVCP()
-        sys.exit(_app)
+        os._exit(_app)
