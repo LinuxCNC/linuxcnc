@@ -104,7 +104,7 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata);
 
 /* helper functions */
 static void write_chan_config(FILE *fp, scope_chan_t *chan);
-static void style_with_css(GtkWidget *widget, int (*color_arr)[3]);
+static void style_with_css(GtkWidget *widget, int color_index);
 
 /***********************************************************************
 *                       PUBLIC FUNCTIONS                               *
@@ -520,29 +520,22 @@ void write_vert_config(FILE *fp)
 *                       LOCAL FUNCTIONS                                *
 ************************************************************************/
 
-extern int normal_colors[16][3], selected_colors[16][3];
+extern int normal_colors[16][3];
 static void init_chan_sel_window(void)
 {
     scope_vert_t *vert;
     GtkWidget *button;
     long n;
-    int j;
-    int color_array[2][3];
     gchar buf[5];
 
     vert = &(ctrl_usr->vert);
     for (n = 0; n < 16; n++) {
-        /* fill array with color values */
-        for (j = 0; j < 3; j++) {
-            color_array[0][j] = normal_colors[n][j];
-            color_array[1][j] = selected_colors[n][j];
-        }
         snprintf(buf, 4, "%ld", n + 1);
         /* define the button */
         button = gtk_toggle_button_new_with_label(buf);
         chan_buttons[n] = button;
 
-        style_with_css(button, color_array);
+        style_with_css(button, n);
         /* put it in the window */
         gtk_box_pack_start(GTK_BOX(ctrl_usr->chan_sel_win), button, TRUE,
             TRUE, 0);
@@ -1202,7 +1195,7 @@ static void write_chan_config(FILE *fp, scope_chan_t *chan)
 /*
  * Inline css, set color to  channel select buttons.
  */
-static void style_with_css(GtkWidget *widget, int (*color_arr)[3])
+static void style_with_css(GtkWidget *widget, int color_index)
 {
     GtkStyleContext *context;
     GtkCssProvider *provider;
@@ -1210,12 +1203,12 @@ static void style_with_css(GtkWidget *widget, int (*color_arr)[3])
     char buf[230];
     snprintf(buf, sizeof(buf), "* {margin: 1px; border-style:solid; border-width: 2px;}\n"
                                "#selected {border-color: black; font-weight: bold;}\n"
-                               "*:checked {background: rgb(%d,%d,%d);}\n"
-                               "*:hover {background: rgb(%d,%d,%d);}\n"
-                               "*:active {background: rgb(%d,%d,%d);}",
-                               color_arr[0][0], color_arr[0][1], color_arr[0][2],
-                               color_arr[1][0], color_arr[1][1], color_arr[1][2],
-                               color_arr[0][0], color_arr[0][1], color_arr[0][2]);
+                               "*:checked, *:active {background: rgb(%d,%d,%d);}\n"
+                               "*:hover {background: rgba(%d,%d,%d,0.3);}\n",
+                               normal_colors[color_index][0],normal_colors[color_index][1],
+                               normal_colors[color_index][2],
+                               normal_colors[color_index][0],normal_colors[color_index][1],
+                               normal_colors[color_index][2]);
 
     provider = gtk_css_provider_new ();
     context = gtk_widget_get_style_context(widget);
