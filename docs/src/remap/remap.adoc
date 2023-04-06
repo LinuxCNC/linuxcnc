@@ -1298,7 +1298,7 @@ Return values:
 
 `INTERP_OK`:: Return this on success. You need to import this from `interpreter`.
 
-`"a message text"`:: Returning a string from a handler means 'this is an error message, abort the program'. Works like `(abort,` __<msg>__ `)`.
+_a message text_:: Returning a string from a handler means 'this is an error message, abort the program'. Works like `(abort,` __<msg>__ `)`.
 
 .Calling conventions for 'python=' subroutines
 
@@ -1321,7 +1321,7 @@ Return values:
 `INTERP_OK`::
   Return this on success
 
-`"a message text"`::
+_a message text_::
   Returning a string from a handler means 'this is an error message, abort the program'.
   Works like `(abort,` __<msg>__ `)`.
 
