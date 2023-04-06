@@ -1180,11 +1180,14 @@ static void style_with_css(GtkWidget *widget, int color_index)
     GtkStyleContext *context;
     GtkCssProvider *provider;
 
-    char buf[230];
+    char buf[270];
     snprintf(buf, sizeof(buf), "* {margin: 1px; border-style:solid; border-width: 2px;}\n"
                                "#selected {border-color: black; font-weight: bold;}\n"
                                "*:checked, *:active {background: rgb(%d,%d,%d);}\n"
-                               "*:hover {background: rgba(%d,%d,%d,0.3);}\n",
+                               "*:hover {background: rgba(%d,%d,%d,0.3);}\n"
+                               "*:hover#selected {background: rgba(%d,%d,%d,0.6);}\n",
+                               normal_colors[color_index][0],normal_colors[color_index][1],
+                               normal_colors[color_index][2],
                                normal_colors[color_index][0],normal_colors[color_index][1],
                                normal_colors[color_index][2],
                                normal_colors[color_index][0],normal_colors[color_index][1],
