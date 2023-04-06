@@ -419,14 +419,15 @@ void emcmotCommandHandler(void *arg, long servo_period)
 
     emcmot_command_t c;
 
-    /* check for split read */
-    if (emcmotCommand->head != emcmotCommand->tail) {
-	emcmotDebug->split++;
-	return;			/* not really an error */
+    if (rtapi_mutex_try(&emcmotStruct->command_mutex) != 0) {
+        // Failed to take the mutex, because it is held by Task.
+        // This means Task is in the process of updating the command.
+        // Give up for now, and try again on the next invocation.
+        return;
     }
-
-    // Make a local copy of the command.
+    // Make a local copy of the command and unlock the command buffer.
     c = *emcmotCommand;
+    rtapi_mutex_give(&emcmotStruct->command_mutex);
 
     if (c.commandNum != emcmotStatus->commandNumEcho) {
 	/* increment head count-- we'll be modifying emcmotStatus */
