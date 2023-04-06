@@ -53,6 +53,11 @@ parser.add_option("-r", "--read", type="int", dest="read", default=None,
     help="Number of bytes to read")
 parser.add_option("-w", "--write", type="string", dest="write", default=None,
     help="Hex-coded Values to read")
+
+parser.add_option("--read-info", dest="read_info", default=False,
+    action="store_true",
+    help="Read and decode the info area of the selected memory space.")
+
 options, args = parser.parse_args()
 if options.space: options.space = int(options.space)
 
@@ -110,6 +115,61 @@ def optimal_size(space:int, info:bool, address:int, nbytes:int):
         return b
     raise ValueError("Access size incompatible with address or length (address=%d nbytes=%d memsizes=%d)" % (address, nbytes, memsizes))
 
+def get_uint16(data:bytes, offset:int):
+    return (data[offset+1] << 8) | data[offset]
+
+def print_info(data:bytes):
+    print(f"info area for memory space {options.space}:")
+
+    cookie = get_uint16(data, 0)
+    print(f"    cookie: 0x{cookie:04x}")
+
+    memsize = get_uint16(data, 2)
+    memsize_writable = memsize & 0x8000
+    memsize_type = (memsize & 0x7f00) >> 8
+    memsize_access = memsize & 0x000f
+    print(f"    memsize: 0x{memsize:04x}")
+
+    print("        Writable" if memsize_writable else "        Read-Only")
+
+    if (memsize_type == 0x01):
+        print("        type=01 (Register)")
+    elif (memsize_type == 0x02):
+        print("        type=02 (Memory)")
+    elif (memsize_type == 0x0e):
+        print("        type=0e (EEPROM)")
+    elif (memsize_type == 0x0f):
+        print("        type=0f (Flash)")
+    else:
+        print(f"        type={memsize_type:02x}(unknown)")
+
+    print(f"        access=0x{memsize_access:01x}", end='')
+    if memsize_access & 0x1:
+        print(" 8-bit", end='')
+    if memsize_access & 0x2:
+        print(" 16-bit", end='')
+    if memsize_access & 0x4:
+        print(" 32-bit", end='')
+    if memsize_access & 0x8:
+        print(" 64-bit", end='')
+    print()
+
+    memranges = get_uint16(data, 4)
+    e = (memranges & 0xf800) >> 11
+    p = (memranges & 0x07c0) >> 6
+    s = memranges & 0x003f
+    print(f"    memranges: 0x{memranges:04x}")
+    print(f"        erase block size: {e} ({2**e} bytes)")
+    print(f"        page size: {p} ({2**p} bytes)")
+    print(f"        Ps address range: {s} ({2**s} bytes)")
+
+    addr_ptr = get_uint16(data, 6)
+    print(f"    addr ptr: 0x{addr_ptr:04x}")
+
+    name = str(data[8:], encoding='utf-7')
+    print(f"    name: {name}")
+
+
 if options.read:
     if options.address is None: raise SystemExit("--read must specify --address")
     if options.size == 0:
@@ -126,6 +186,14 @@ elif options.write:
     command = make_write_request(options.space, options.info, options.size, options.increment, options.address, write)
     print(">", command.hex())
     transact(command, response=False)
+
+elif options.read_info:
+    if options.size == 0:
+        options.size = optimal_size(options.space, True, 0x0000, 16)
+    command = make_read_request(options.space, True, options.size, options.increment, 0x00, 0x10)
+    print(">", command.hex())
+    data = transact(command)
+    print_info(data)
 
 elif args:
     for a in args:
