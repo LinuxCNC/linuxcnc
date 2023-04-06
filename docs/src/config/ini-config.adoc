@@ -59,7 +59,7 @@ CORRECT = value
 === Sections(((INI File,Components,Sections)))
 
 Related parts of an INI file are separated into sections.
-A section name is enclosed in brackets like this `[THIS_SECTION]`.
+A section name is enclosed in brackets like this: `[THIS_SECTION]`.
 The order of sections is unimportant.
 Sections begin at the section name and end at the next section name.
 
@@ -229,10 +229,10 @@ GMOCCAPY can be used both ways and offers also many connections for hardware con
 Descriptions of the interfaces are in the Interfaces section of the User Manual.
 
 * `DISPLAY = axis` - The file name of the executable providing the user interface to use.
-  Prominent valid options are (all in lower case): 'axis', 'touchy', 'gmoccapy', 'gscreen', 'tklinuxcnc', 'qtvcp', 'qtvcp-qtdragon' or 'qtvcp-qtplasmac'.
-* `POSITION_OFFSET = RELATIVE` - The coordinate system (RELATIVE or MACHINE) to show on the DRO when the user interface starts.
+  Prominent valid options are (all in lower case): `axis`, `touchy`, `gmoccapy`, `gscreen`, `tklinuxcnc`, `qtvcp`, `qtvcp-qtdragon` or `qtvcp-qtplasmac`.
+* `POSITION_OFFSET = RELATIVE` - The coordinate system (`RELATIVE` or `MACHINE`) to show on the DRO when the user interface starts.
   The RELATIVE coordinate system reflects the G92 and G5__x__ coordinate offsets currently in effect.
-* `POSITION_FEEDBACK = COMMANDED` - The coordinate value (COMMANDED or ACTUAL) to show on the DRO when the user interface starts.
+* `POSITION_FEEDBACK = COMMANDED` - The coordinate value (`COMMANDED` or `ACTUAL`) to show on the DRO when the user interface starts.
   In AXIS this can be changed from the View menu.
   The COMMANDED position is the position requested by LinuxCNC.
   The ACTUAL position is the feedback position of the motors if they have feedback like most servo systems.
@@ -263,7 +263,7 @@ Descriptions of the interfaces are in the Interfaces section of the User Manual.
 * `DEFAULT_SPINDLE_0_SPEED = 100` - The default spindle RPM when the spindle is started in manual mode.
   On multi spindle machine there will be entries for each spindle number. Only used by the QtVCP-based user interfaces.
   - _deprecated_ - use the [SPINDLE_n] section instead.
-* `SPINDLE_INCREMENT = 200` - The increment used when clicking increase/decrease buttons Only used by the QtVCP based user interfaces.
+* `SPINDLE_INCREMENT = 200` - The increment used when clicking increase/decrease buttons. Only used by the QtVCP based user interfaces.
   - _deprecated_ - use the [SPINDLE_n] section instead.
 * `MIN_SPINDLE_0_SPEED = 1000` - The minimum RPM that can be manually selected.
   On multi spindle machine there will be entries for each spindle number. Only used by the QtVCP-based user interfaces.
@@ -317,17 +317,17 @@ See <<cha:gmoccapy,GMOCCAPY>> document for GMOCCAPY details.
   GMOCCAPY will not use this setting, as it offers a corresponding entry on its settings page.
 * `EDITOR = gedit` - The editor to use when selecting File > Edit to edit the G-code from the AXIS menu.
   This must be configured for this menu item to work.
-  Another valid entry is gnome-terminal -e vim.
+  Another valid entry is `gnome-terminal -e vim`.
   This entry does not apply to GMOCCAPY, as GMOCCAPY has an integrated editor.
 * `TOOL_EDITOR = tooledit` - The editor to use when editing the tool table
   (for example by selecting "File > Edit tool table..." in AXIS).
-  Other valid entries are "gedit", "gnome-terminal -e vim", and "gvim".
+  Other valid entries are `gedit`, `gnome-terminal -e vim`, and `gvim`.
   This entry does not apply to GMOCCAPY, as GMOCCAPY has an integrated editor.
 * `PYVCP = /filename.xml` - The PyVCP panel description file.
   See the <<cha:pyvcp,PyVCP Chapter>>for more information.
 * `PYVCP_POSITION = BOTTOM` - The placement of the PyVCP panel in the AXIS user interface.
   If this variable is omitted the panel will default to the right side.
-  The only valid alternative is BOTTOM. See the <<cha:pyvcp,PyVCP Chapter>> for more information.
+  The only valid alternative is `BOTTOM`. See the <<cha:pyvcp,PyVCP Chapter>> for more information.
 * `LATHE = 1` - Any non-empty value (including "0") causes axis to use "lathe mode" with a top view and with Radius and Diameter on the DRO.
 * `BACK_TOOL_LATHE = 1` - Any non-empty value (including "0") causes axis to use "back tool lathe mode" with inverted X axis.
 * `FOAM = 1` - Any non-empty value (including "0") causes axis to change the display for foam-cutter mode.
@@ -882,7 +882,7 @@ LinuxCNC will not know your joint travel limits when using `NO_FORCE_HOMING = 1`
 [[sub:ini:sec:axis-letter]]
 === [AXIS_<letter>] Section(((INI File,Sections,[AXIS_<letter>] Sections)))
 
-The <letter> specifies one of: X Y Z A B C U V W
+The _<letter>_ specifies one of: X Y Z A B C U V W
 
 * `MAX_VELOCITY = 1.2` - Maximum velocity for this axis in <<sub:ini:sec:traj,machine units>> per second.
 * `MAX_ACCELERATION = 20.0` - Maximum acceleration for this axis in machine units per second squared.
@@ -896,7 +896,7 @@ The <letter> specifies one of: X Y Z A B C U V W
   For a rotary axis (A,B,C typ) with unlimited rotation having no `MAX_LIMIT` for that axis in the `[AXIS_`<letter>`]` section a value of 1e99 is used.
 * `WRAPPED_ROTARY = 1` - When this is set to 1 for an ANGULAR axis the axis will move 0-359.999 degrees.
   Positive Numbers will move the axis in a positive direction and negative numbers will move the axis in the negative direction.
-* `LOCKING_INDEXER_JOINT = 4` - This value selects a joint to use for a locking indexer for the specified axis <letter>.
+* `LOCKING_INDEXER_JOINT = 4` - This value selects a joint to use for a locking indexer for the specified axis _<letter>_.
   In this example, the joint is 4 which would correspond to the B axis for a XYZAB system with trivkins (identity) kinematics.
   When set, a G0 move for this axis will initiate an unlock with the `joint.4.unlock pin` then wait for the `joint.4.is-unlocked` pin then move the joint at the rapid rate for that joint.
   After the move the `joint.4.unlock` will be false and motion will wait for `joint.4.is-unlocked` to go false.
@@ -950,12 +950,12 @@ For example, using trivkins with `coordinates=XZ`, the joint-axes relationships 
 * JOINT_0 = X
 * JOINT_1 = Z
 
-For more information on kinematics modules see the manpage: `$ man kins`
+For more information on kinematics modules see the manpage 'kins' (on the UNIX terminal type `man kins`).
 
 * `TYPE = LINEAR` - The type of joint, either `LINEAR` or `ANGULAR`.
 * `UNITS = INCH` - (((UNITS)))
-  If specified, this setting overrides the related `[TRAJ] UNITS` setting.
-  (e.g., `[TRAJ]LINEAR_UNITS` if the `TYPE` of this joint is `LINEAR`, `[TRAJ]ANGULAR_UNITS` if the `TYPE` of this joint is `ANGULAR`)
+  If specified, this setting overrides the related `[TRAJ] UNITS` setting,
+  e.g., `[TRAJ]LINEAR_UNITS` if the `TYPE` of this joint is `LINEAR`, `[TRAJ]ANGULAR_UNITS` if the `TYPE` of this joint is `ANGULAR`.
 * `MAX_VELOCITY = 1.2` - Maximum velocity for this joint in <<sub:ini:sec:traj,machine units>> per second.
 * `MAX_ACCELERATION = 20.0` - Maximum acceleration for this joint in machine units per second squared.
 * `BACKLASH = 0.0000` - (((Backlash))) Backlash in machine units.
@@ -1067,15 +1067,15 @@ These parameters are Homing related, for a better explanation read the <<cha:hom
   When it is yes, it will affect the kind of home pattern used.
   Currently, you can't home to index with steppers unless you're using StepGen in velocity mode and PID.
 * `HOME_INDEX_NO_ENCODER_RESET = NO` -
-  Use YES if the encoder used for this joint does not reset its counter when an index pulse is detected after assertion of the joint index_enable HAL pin.
+  Use YES if the encoder used for this joint does not reset its counter when an index pulse is detected after assertion of the joint `index_enable` HAL pin.
   Applicable only for `HOME_USE_INDEX = YES`.
 * `HOME_IGNORE_LIMITS = NO` -
   When you use the limit switch as a home switch and the limit switch this should be set to YES.
   When set to YES the limit switch for this joint is ignored when homing.
   You must configure your homing so that at the end of your home move the home/limit switch is not in the toggled state you will get a limit switch error after the home move.
 * `HOME_IS_SHARED =` _<n>_ -
-  If the home input is shared by more than one joint set <n> to 1 to prevent homing from starting if the one of the shared switches is already closed.
-  Set <n> to 0 to permit homing if a switch is closed.
+  If the home input is shared by more than one joint set _<n>_ to 1 to prevent homing from starting if the one of the shared switches is already closed.
+  Set _<n>_ to 0 to permit homing if a switch is closed.
 * `HOME_ABSOLUTE_ENCODER = 0` | `1` | `2` - Used to indicate the joint uses an absolute encoder.
   At a request for homing, the current joint value is set to the `HOME_OFFSET` value.
   If the `HOME_ABSOLUTE_ENCODER` setting is 1, the machine makes the usual final move to the `HOME` value.
@@ -1332,7 +1332,7 @@ The value of _num_spindles_ is set by `[TRAJ]SPINDLES=` .
   There is usually no need to change this number.
 * `TOOL_TABLE = tool.tbl` - The file which contains tool information, described in the User Manual.
 * `DB_PROGRAM = db_program` - Path to an executable program that manages tool data.
-  (When a DB_PROGRAM is specified, a TOOL_TABLE entry is ignored)
+  When a DB_PROGRAM is specified, a TOOL_TABLE entry is ignored.
 * `TOOL_CHANGE_POSITION = 0 0 2` -
   Specifies the XYZ location to move to when performing a tool change if three digits are used.
   Specifies the XYZABC location when 6 digits are used.

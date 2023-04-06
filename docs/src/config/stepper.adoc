@@ -174,7 +174,7 @@ standard_pinout.hal gets executed/interpreted:
 * The Parport driver gets loaded (see the <<cha:parport,Parport Chapter>> for details).
 * The read & write functions of the parport driver get assigned to the
   base thread footnote:[the fastest thread in the LinuxCNC setup, usually ther
-  code gets executed every few tens of microseconds].
+  code gets executed every few tens of microseconds.].
 * The step & direction signals for axes X, Y, Z get linked to pins on the
   parport.
 * Further I/O signals get connected (estop loopback, toolchanger loopback).

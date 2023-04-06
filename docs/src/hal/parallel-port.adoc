@@ -80,6 +80,7 @@ The config string represents the hexadecimal address of the port, optionally fol
 The directions are _in_, _out_, or _x_, and determine the direction of the physical pins 2 to 9 of the D-Sub 25 connector.
 If the direction is not specified, the data group will by default be configured as outputs. For example:
 
+.Command to load the real-time module 'hal_partport' with the additional _<config-string>_ to specify the port at which the parallel-port card is expected.
 [source,{hal}]
 ----
 loadrt hal_parport cfg="0x278 0x378 in 0x20A0 out"
@@ -189,48 +190,48 @@ loadrt hal_parport cfg="0x378 0xc000"
 
 Please note that your values will differ.
 The Netmos cards are Plug-N-Play, and might change their settings depending on which slot you put them into,
-so if you like to \'get under the hood' and re-arrange things, be sure to check these values before you start LinuxCNC.
+so if you like to 'get under the hood' and re-arrange things, be sure to check these values before you start LinuxCNC.
 
 == Pins
 
-* 'parport.<p>.pin-<n>-out' (bit) Drives a physical output pin.
-* 'parport.<p>.pin-<n>-in' (bit) Tracks a physical input pin.
-* 'parport.<p>.pin-<n>-in-not' (bit) Tracks a physical input pin, but inverted.
+* `parport.<p>.pin-`__<n>__`-out` (bit) Drives a physical output pin.
+* `parport.<p>.pin-`__<n>__`-in` (bit) Tracks a physical input pin.
+* `parport.<p>.pin-`__<n>__`-in-not` (bit) Tracks a physical input pin, but inverted.
 
-For each pin, '<p>' is the port number, and '<n>' is the physical pin number in the 25 pin D-shell connector.
+For each pin, _<p>_ is the port number, and '<n>' is the physical pin number in the 25 pin D-shell connector.
 
-For each physical output pin, the driver creates a single HAL pin, for example: 'parport.0.pin-14-out'.
+For each physical output pin, the driver creates a single HAL pin, for example: `parport.0.pin-14-out`.
 
-For each physical input pin, the driver creates two HAL pins, for example: 'parport.0.pin-12-in' and 'parport.0.pin-12-in-not'.
+For each physical input pin, the driver creates two HAL pins, for example: `parport.0.pin-12-in` and `parport.0.pin-12-in-not`.
 
-The '-in' HAL pin is TRUE if the physical pin is high, and FALSE if the physical pin is low.
-The '-in-not' HAL pin is inverted and is FALSE if the physical pin is high.
+The `-in` HAL pin is TRUE if the physical pin is high, and FALSE if the physical pin is low.
+The `-in-not` HAL pin is inverted and is FALSE if the physical pin is high.
 
 == Parameters
 
-* 'parport.<p>.pin-<n>-out-invert' (bit) Inverts an output pin.
-* 'parport.<p>.pin-<n>-out-reset' (bit) (only for 'out' pins) TRUE if this pin should be reset when the '-reset' function is executed.
-* parport.<p>.reset-time' (U32) The time (in nanoseconds) between a pin is set by 'write' and reset by the 'reset' function if it is enabled.
+* `parport.`__<p>__`.pin-`__<n>__`-out-invert` (bit) Inverts an output pin.
+* `parport.`__<p>__`.pin-`__<n>__`-out-reset` (bit) (only for `-out` pins) TRUE if this pin should be reset when the `-reset` function is executed.
+* `parport.`__<p>__`.reset-time` (U32) The time (in nanoseconds) between a pin is set by `-write` and reset by the `-reset` function if it is enabled.
 
-The '-invert'  parameter determines whether an output pin is active high or active low.
-If '-invert' is FALSE, setting the HAL '-out' pin TRUE drives the physical pin high, and FALSE drives it low.
-If '-invert' is TRUE, then setting the HAL '-out' pin TRUE will drive the physical pin low.
+The `-invert`  parameter determines whether an output pin is active high or active low.
+If `-invert` is FALSE, setting the HAL `-out` pin TRUE drives the physical pin high, and FALSE drives it low.
+If `-invert` is TRUE, then setting the HAL `-out` pin TRUE will drive the physical pin low.
 
 [[sub:parport-functions]]
 == Functions
 
-* 'parport.<p>.read' (funct) Reads physical input pins of port '<portnum>' and updates HAL '-in' and '-in-not' pins.
-* 'parport.read-all' (funct) Reads physical input pins of all ports and updates HAL '-in' and '-in-not' pins.
-* 'parport.<p>.write' (funct) Reads HAL '-out' pins of port '<p>' and updates that port's physical output pins.
-* 'parport.write-all' (funct) Reads HAL '-out' pins of all ports and updates all physical output pins.
-* 'parport.<p>.reset' (funct) Waits until 'reset-time' has elapsed since the associated 'write', then resets pins to values indicated by '-out-invert' and '-out-invert' settings.
-  'reset' must be later in the same thread as 'write.
-  'If '-reset' is TRUE, then the 'reset' function will set the pin to the value of '-out-invert'.
+* `parport.`__<p>__`.read' (funct) Reads physical input pins of port number _<p>_ and updates HAL `-in` and `-in-not` pins.
+* `parport.read-all` (funct) Reads physical input pins of all ports and updates HAL `-in` and `-in-not` pins.
+* `parport.`__<p>__`.write` (funct) Reads HAL `-out` pins of port number _<p>_ and updates that port's physical output pins.
+* `parport.write-all` (funct) Reads HAL `-out` pins of all ports and updates all physical output pins.
+* `parport.`__<p>__`.reset` (funct) Waits until `reset-time` has elapsed since the associated `write`, then resets pins to values indicated by `-out-invert` and `-out-invert` settings.
+  `reset` must be later in the same thread as `write`.
+  If `-reset` is TRUE, then the `reset` function will set the pin to the value of `-out-invert`.
   This can be used in conjunction with stepgen's 'doublefreq' to produce one step per period.
   The <<sec:stepgen,stepgen stepspace>> for that pin must be set to 0 to enable doublefreq.
 
 The individual functions are provided for situations where one port needs to be updated in a very fast thread, but other ports can be updated in a slower thread to save CPU time.
-It is probably not a good idea to use both an '-all' function and an individual function at the same time.
+It is probably not a good idea to use both an `-all` function and an individual function at the same time.
 
 == Common problems
 
@@ -249,7 +250,7 @@ If the module loads but does not appear to function, then the port address is in
 == Using DoubleStep
 
 To setup DoubleStep on the parallel port you must add the function parport.n.reset after parport.n.write and configure stepspace to 0 and the reset time wanted.
-So that step can be asserted on every period in HAL and then toggled off by parport after being asserted for time specified by parport.n.reset-time.
+So that step can be asserted on every period in HAL and then toggled off by parport after being asserted for time specified by `parport.`__n__`.reset-time`.
 
 For example:
 

@@ -139,7 +139,7 @@ net signal-name pin-name <optional arrow> <optional second pin-name>
 net home-x joint.0.home-sw-in <= parport.0.pin-11-in
 ----
 
-In the above example 'home-x' is the signal name, 'joint.0.home-sw-in' is a 'Direction IN' pin, '<=' is the optional direction arrow, and 'parport.0.pin-11-in' is a 'Direction OUT' pin. 
+In the above example `home-x` is the signal name, `joint.0.home-sw-in` is a 'Direction IN' pin, `<=` is the optional direction arrow, and `parport.0.pin-11-in` is a 'Direction OUT' pin. 
 This may seem confusing but the in and out labels for a parallel port pin indicates the physical way the pin works not how it is handled in HAL.
 
 A pin can be connected to a signal if it obeys the following rules:
@@ -234,7 +234,7 @@ These commands are included so older configurations will still work.
 
 ==== linksp (deprecated)
 
-The command 'linksp' creates a 'connection' between a signal and one pin.
+The command `linksp` creates a 'connection' between a signal and one pin.
 
 .linksp Syntax and Example
 [source,{hal}]
@@ -243,12 +243,12 @@ linksp <signal-name> <pin-name>
 linksp X-step parport.0.pin-02-out
 ----
 
-*The 'linksp' command has been superseded by the 'net' command.*
+*The `linksp` command has been superseded by the `net` command.*
 
 ==== linkps (deprecated)
 
 The command `linkps` creates a 'connection' between one pin and one signal.
-It is the same as linksp but the arguments are reversed.
+It is the same as `linksp` but the arguments are reversed.
 
 .linkps Syntax and Example
 [source,{hal}]
@@ -520,7 +520,7 @@ Which updates the `weighted_sum` component.
 In the following example, a copy of the AXIS HAL configuration window, bits '0' and '2' are TRUE, they have no offset.
 The weight ('weight') of bit 0 is 1, that of bit 2 is 4, so the sum is 5.
 
-.`weighted_sum` Example component Pin for weighted sum.s
+.`weighted_sum` Example component Pin for weighted sums.
 [width="90%",options="header"]
 |===
 |Owner|Type |Dir  |Value |Name

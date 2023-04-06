@@ -111,11 +111,13 @@ Set the minimum deceleration. If you do not have a spindle encoder this is in RP
 If you do have an encoder the output is the actual speed minus this value.
 
 .TP
-\\fBspindle.\\fP\\fIN\\fB.speed-tolerance.\\fPx float in Tolerance for 'at-speed' signal (in RPM).
+\\fBspindle.\\fP\\fIN\\fB.speed-tolerance.\\fPx float in
+Tolerance for 'at-speed' signal (in RPM).
 Actual spindle speeds within this amount of the commanded speed will cause the at-speed signal to go TRUE.
 
 .TP
-\\fBspindle.\\fP\\fIN\\fB.zero-tolerance.\\fPx float in Tolerance for 'zero-speed' signal (in RPM).
+\\fBspindle.\\fP\\fIN\\fB.zero-tolerance.\\fPx float in
+Tolerance for 'zero-speed' signal (in RPM).
 
 .TP
 \\fBspindle.\\fP\\fIN\\fB.offset.\\fPx float in
