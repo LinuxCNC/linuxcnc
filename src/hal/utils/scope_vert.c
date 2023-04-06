@@ -83,6 +83,8 @@ struct offset_data {
     int ac_coupled;
 };
 
+GtkWidget *chan_buttons[16] = {NULL};
+
 static void init_chan_sel_window(void);
 static void init_chan_info_window(void);
 static void init_vert_info_window(void);
@@ -535,9 +537,10 @@ static void init_chan_sel_window(void)
             color_array[0][j] = normal_colors[n][j];
             color_array[1][j] = selected_colors[n][j];
         }
-	    snprintf(buf, 4, "%ld", n + 1);
+        snprintf(buf, 4, "%ld", n + 1);
         /* define the button */
         button = gtk_toggle_button_new_with_label(buf);
+        chan_buttons[n] = button;
 
         style_with_css(button, color_array);
         /* put it in the window */
@@ -803,7 +806,7 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
     chan_num = (long) gdata;
     chan = &(ctrl_usr->chan[chan_num - 1]);
 
-    if (ignore_click != 0) {
+    if (ignore_click) {
         ignore_click = 0;
         return;
     }
@@ -851,14 +854,19 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
             }
         }
         vert->chan_enabled[chan_num - 1] = 1;
+        /* make chan_num the selected channel */
+        vert->selected = chan_num;
+        channel_changed();
+    } else if (vert->selected == chan_num) {
+        /* a click on an already active channel turns it off */
+        set_channel_off(chan_num);
+        ignore_click = 0;
     } else {
         /* channel was already enabled, user wants to select it */
         /* button should stay down, so we force it */
         ignore_click = 1;
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), TRUE);
-    }
-    if (vert->selected != chan_num) {
-	    /* make chan_num the selected channel */
+        /* make chan_num the selected channel */
         vert->selected = chan_num;
         channel_changed();
     }
@@ -1092,8 +1100,18 @@ void channel_changed(void)
     GtkAdjustment *adj;
     gchar *name;
     gchar buf1[BUFLEN + 1], buf2[BUFLEN + 1];
-
+    static int last_channel = 0;
     vert = &(ctrl_usr->vert);
+    /* add a name to apply CSS for highlighted channel */
+    if (last_channel != vert->selected) {
+        if (last_channel) {
+            gtk_widget_set_name(chan_buttons[last_channel-1],"");
+        }
+        if (vert->selected) {
+            gtk_widget_set_name(chan_buttons[vert->selected-1],"selected");
+        }
+        last_channel = vert->selected;
+    }
     if ((vert->selected < 1) || (vert->selected > 16)) {
         gtk_label_set_text_if(vert->scale_label, "----");
         gtk_label_set_text_if(vert->chan_num_label, "--");
@@ -1189,9 +1207,9 @@ static void style_with_css(GtkWidget *widget, int (*color_arr)[3])
     GtkStyleContext *context;
     GtkCssProvider *provider;
 
-    char buf[180];
-
-    snprintf(buf, sizeof(buf), "* {background: none;}\n"
+    char buf[230];
+    snprintf(buf, sizeof(buf), "* {margin: 1px; border-style:solid; border-width: 2px;}\n"
+                               "#selected {border-color: black; font-weight: bold;}\n"
                                "*:checked {background: rgb(%d,%d,%d);}\n"
                                "*:hover {background: rgb(%d,%d,%d);}\n"
                                "*:active {background: rgb(%d,%d,%d);}",
