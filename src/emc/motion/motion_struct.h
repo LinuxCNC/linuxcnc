@@ -14,8 +14,7 @@
 
 /* big comm structure, for upper memory */
     typedef struct emcmot_struct_t {
-	struct emcmot_command_t command;	/* struct used to pass commands/data
-					   to the RT module from usr space */
+        struct emcmot_command_t command;   /* struct used to pass commands/data from Task to Motion */
 	struct emcmot_status_t status;	/* Struct used to store RT status */
 	struct emcmot_config_t config;	/* Struct used to store RT config */
 	struct emcmot_internal_t internal;	/*! \todo FIXME - doesn't need to be in
