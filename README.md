@@ -58,7 +58,7 @@ all age groups on automated machining.
 
 Any machinery capable of harming persons must have
 provisions for completely removing power from all
-motors, etc, before persons enter any danger area.
+motors, etc., before persons enter any danger area.
 
 All machinery must be designed to comply with local 
 and national safety codes, and the authors of this 

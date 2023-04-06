@@ -52,7 +52,7 @@ The last one uses step type '2' (quadrature) and runs in velocity mode.
 The default value for '<config-array>' is '0,0,0' which will install three type '0' (step/dir) generators.
 The maximum number of step generators is 8 (as defined by MAX_CHAN in stepgen.c).
 Each generator is independent, but all are updated by the same function(s) at the same time.
-In the following descriptions, '_<chan>_' is the number of a specific generator. The first generator is number 0.
+In the following descriptions, _<chan>_ is the number of a specific generator. The first generator is number 0.
 
 .Unloading `stepgen` component
 ----
@@ -64,37 +64,37 @@ halcmd: unloadrt stepgen
 
 On the step type and control type selected.
 
-* '(float) stepgen._<chan>_.position-cmd' - Desired motor position, in position units (position mode only).
-* '(float) stepgen._<chan>_.velocity-cmd' - Desired motor velocity, in position units per second (velocity mode only).
-* '(s32) stepgen._<chan>_.counts' - Feedback position in counts, updated by 'capture_position()'.
-* '(float) stepgen._<chan>_.position-fb' - Feedback position in position units, updated by 'capture_position()'.
-* '(bit) stepgen._<chan>_.enable' - Enables output steps - when false, no steps are generated.
-* '(bit) stepgen._<chan>_.step' - Step pulse output (step type 0 only).
-* '(bit) stepgen._<chan>_.dir' - Direction output (step type 0 only).
-* '(bit) stepgen._<chan>_.up' - UP pseudo-PWM output (step type 1 only).
-* '(bit) stepgen._<chan>_.down' - DOWN pseudo-PWM output (step type 1 only).
-* '(bit) stepgen._<chan>_.phase-A' - Phase A output (step types 2-14 only).
-* '(bit) stepgen._<chan>_.phase-B' - Phase B output (step types 2-14 only).
-* '(bit) stepgen._<chan>_.phase-C' - Phase C output (step types 3-14 only).
-* '(bit) stepgen._<chan>_.phase-D' - Phase D output (step types 5-14 only).
-* '(bit) stepgen._<chan>_.phase-E' - Phase E output (step types 11-14 only).
+* (float) `stepgen.`__<chan>__`.position-cmd` - Desired motor position, in position units (position mode only).
+* (float) `stepgen.`__<chan>__`.velocity-cmd` - Desired motor velocity, in position units per second (velocity mode only).
+* s32) `stepgen.`__<chan>__`.counts` - Feedback position in counts, updated by 'capture_position()'.
+* (float) `stepgen.`__<chan>__`.position-fb` - Feedback position in position units, updated by 'capture_position()'.
+* (bit) `stepgen.`__<chan>__`.enable` - Enables output steps - when false, no steps are generated.
+* (bit) `stepgen.`__<chan>__`.step` - Step pulse output (step type 0 only).
+* (bit) `stepgen.`__<chan>__`.dir` - Direction output (step type 0 only).
+* (bit) `stepgen.`__<chan>__`.up` - UP pseudo-PWM output (step type 1 only).
+* (bit) `stepgen.`__<chan>__`.down` - DOWN pseudo-PWM output (step type 1 only).
+* (bit) `stepgen.`__<chan>__`.phase-A` - Phase A output (step types 2-14 only).
+* (bit) `stepgen.`__<chan>__`.phase-B` - Phase B output (step types 2-14 only).
+* (bit) `stepgen.`__<chan>__`.phase-C` - Phase C output (step types 3-14 only).
+* (bit) `stepgen.`__<chan>__`.phase-D` - Phase D output (step types 5-14 only).
+* (bit) `stepgen.`__<chan>__`.phase-E` - Phase E output (step types 11-14 only).
 
 [[sec:stepgen-parameters]]
 === Parameters(((HAL stepgen parameters)))
 
-* '(float) stepgen._<chan>_.position-scale' - Steps per position unit.
+* (float) `stepgen.`__<chan>__`.position-scale` - Steps per position unit.
   This parameter is used for both output and feedback.
-* '(float) stepgen._<chan>_.maxvel' - Maximum velocity, in position units per second. If 0.0, has no effect.
-* '(float) stepgen._<chan>_.maxaccel' - Maximum accel/decel rate, in positions units per second squared.
+* (float) `stepgen.`__<chan>__`.maxvel` - Maximum velocity, in position units per second. If 0.0, has no effect.
+* (float) `stepgen.`__<chan>__`.maxaccel` - Maximum accel/decel rate, in positions units per second squared.
   If 0.0, has no effect.
-* '(float) stepgen._<chan>_.frequency' - The current step rate, in steps per second.
-* '(float) stepgen._<chan>_.steplen' - Length of a step pulse (step type 0 and 1) or minimum time in a given state (step types 2-14), in nano-seconds.
-* '(float) stepgen._<chan>_.stepspace' - Minimum spacing between two step pulses (step types 0 and 1 only), in nano-seconds.
+* (float) `stepgen.`__<chan>__`.frequency` - The current step rate, in steps per second.
+* (float) `stepgen.`__<chan>__`.steplen` - Length of a step pulse (step type 0 and 1) or minimum time in a given state (step types 2-14), in nano-seconds.
+* (float) `stepgen.`__<chan>__`.stepspace` - Minimum spacing between two step pulses (step types 0 and 1 only), in nano-seconds.
   Set to 0 to enable the stepgen 'doublefreq' function. To use 'doublefreq' the <<sub:parport-functions,parport reset function>> must be enabled.
-* '(float) stepgen._<chan>_.dirsetup' - Minimum time from a direction change to the beginning of the next step pulse (step type 0 only), in nanoseconds.
-* '(float) stepgen._<chan>_.dirhold' - Minimum time from the end of a step pulse to a direction change (step type 0 only), in nanoseconds.
-* '(float) stepgen._<chan>_.dirdelay' - Minimum time any step to a step in the opposite direction (step types 1-14 only), in nano-seconds.
-* '(s32) stepgen._<chan>_.rawcounts' - The raw feedback count, updated by 'make_pulses()'.
+* (float) `stepgen.`__<chan>__`.dirsetup` - Minimum time from a direction change to the beginning of the next step pulse (step type 0 only), in nanoseconds.
+* (float) `stepgen.`__<chan>__`.dirhold` - Minimum time from the end of a step pulse to a direction change (step type 0 only), in nanoseconds.
+* (float) `stepgen.`__<chan>__`.dirdelay` - Minimum time any step to a step in the opposite direction (step types 1-14 only), in nano-seconds.
+* (s32) `stepgen.`__<chan>__`.rawcounts` - The raw feedback count, updated by 'make_pulses()'.
 
 In position mode, the values of maxvel and maxaccel are used by the internal position loop to avoid generating step pulse trains that the motor cannot follow.
 When set to values that are appropriate for the motor, even a large instantaneous change in commanded position will result in a smooth trapezoidal move to the new location.
@@ -132,7 +132,7 @@ Step type 1 has two outputs, up and down.
 Pulses appear on one or the other, depending on the direction of travel.
 Each pulse is _steplen_ ns long, and the pulses are separated by at least _stepspace_ ns.
 The maximum frequency is the same as for step type 0.
-If 'maxfreq' is set higher than the limit it will be lowered.
+If _maxfreq_ is set higher than the limit it will be lowered.
 If _maxfreq_ is zero, it will remain zero but the output frequency will still be limited.
 
 [WARNING]
@@ -161,9 +161,9 @@ The component exports three functions. Each function acts on all of
 the step pulse generators - running different generators in different
 threads is not supported.
 
-* '(funct) stepgen.make-pulses' - High speed function to generate and count pulses (no floating point).
-* '(funct) stepgen.update-freq' - Low speed function does position to velocity conversion, scaling and limiting.
-* '(funct) stepgen.capture-position' - Low speed function for feedback, updates latches and scales position.
+* (funct) `stepgen.make-pulses` - High speed function to generate and count pulses (no floating point).
+* (funct) `stepgen.update-freq` - Low speed function does position to velocity conversion, scaling and limiting.
+* (funct) `stepgen.capture-position` - Low speed function for feedback, updates latches and scales position.
 
 The high speed function 'stepgen.make-pulses' should be run in a very fast thread, from 10 to 50&#8239;µs depending on the capabilities of the computer.
 That thread's period determines the maximum step frequency,
@@ -229,44 +229,43 @@ The PWM generator supports three different 'output types'.
 
 Each PWM generator will have the following pins:
 
-* '(float) pwmgen._<chan>_.value' - Command value, in arbitrary units.
+* (float) `pwmgen.`__<chan>__`.value` - Command value, in arbitrary units.
   Will be scaled by the 'scale' parameter (see below).
-* '(bit) pwmgen._<chan>_.enable' - Enables or disables the PWM generator outputs.
+* (bit) `pwmgen.`__<chan>__`.enable` - Enables or disables the PWM generator outputs.
 
 Each PWM generator will also have some of these pins, depending on the output type selected:
 
-* '(bit) pwmgen._<chan>_.pwm' - PWM (or PDM) output, (output types 0 and 1 only).
-* '(bit) pwmgen._<chan>_.dir' - Direction output (output type 1 only).
-* '(bit) pwmgen._<chan>_.up' - PWM/PDM output for positive input value (output type 2 only).
-* '(bit) pwmgen._<chan>_.down' - PWM/PDM output for negative input value (output type 2 only).
+* (bit) `pwmgen.`__<chan>__`.pwm` - PWM (or PDM) output, (output types 0 and 1 only).
+* (bit) `pwmgen.`__<chan>__`.dir` - Direction output (output type 1 only).
+* (bit) `pwmgen.`__<chan>__`.up` - PWM/PDM output for positive input value (output type 2 only).
+* (bit) `pwmgen.`__<chan>__`.down` - PWM/PDM output for negative input value (output type 2 only).
 
 === Parameters
 
-* '(float) pwmgen._<chan>_.scale' - Scaling factor to convert 'value' from arbitrary units to duty cycle.
-  For example if scale is set to 4000 and the input value passed to the pwmgen._<chan>_.value is 4000 then it will be 100% duty-cycle (always on).
+* (float) `pwmgen.`__<chan>__`.scale` - Scaling factor to convert `value`  from arbitrary units to duty cycle.
+  For example if scale is set to 4000 and the input value passed to the `pwmgen.`__<chan>__`.value` is 4000 then it will be 100% duty-cycle (always on).
   If the value is 2000 then it will be a 50% 25&#8239;Hz square wave.
-* '(float) pwmgen._<chan>_.pwm-freq' - Desired PWM frequency, in Hz.
+* (float) `pwmgen.`__<chan>__`.pwm-freq` - Desired PWM frequency, in Hz.
   If 0.0, generates PDM instead of PWM. If set higher than internal limits, next call of 'update_freq()' will set it to the internal limit.
   If non-zero, and 'dither' is false, next call of 'update_freq()' will set it to the nearest integer multiple of the 'make_pulses()' function period.
-* '(bit) pwmgen._<chan>_.dither-pwm' - If true, enables dithering to achieve average PWM frequencies or duty cycles that are unobtainable with pure PWM.
+* (bit) `pwmgen.`__<chan>__`.dither-pwm` - If true, enables dithering to achieve average PWM frequencies or duty cycles that are unobtainable with pure PWM.
   If false, both the PWM frequency and the duty cycle will be rounded to values that can be achieved exactly.
-* '(float) pwmgen._<chan>_.min-dc' - Minimum duty cycle, between 0.0 and 1.0 (duty cycle will go to zero when disabled, regardless of this setting).
-* '(float) pwmgen._<chan>_.max-dc' - Maximum duty cycle, between 0.0 and 1.0.
-* '(float) pwmgen._<chan>_.curr-dc' - Current duty cycle - after all limiting and rounding (read only).
+* (float) `pwmgen.`__<chan>__`.min-dc` - Minimum duty cycle, between 0.0 and 1.0 (duty cycle will go to zero when disabled, regardless of this setting).
+* (float) `pwmgen.`__<chan>__`.max-dc` - Maximum duty cycle, between 0.0 and 1.0.
+* (float) `pwmgen.`__<chan>__`.curr-dc` - Current duty cycle - after all limiting and rounding (read only).
 
 === Functions
 
 The component exports two functions. Each function acts on all of the PWM generators - running different generators in different threads is not supported.
 
-* '(funct) pwmgen.make-pulses' - High speed function to generate PWM waveforms (no floating point).
-  The high speed function 'pwmgen.make-pulses' should be run in the base (fastest) thread, from 10 to 50&#8239;µs depending on the capabilities of the computer.
+* (funct) `pwmgen.make-pulses` - High speed function to generate PWM waveforms (no floating point).
+  The high speed function `pwmgen.make-pulses` should be run in the base (fastest) thread, from 10 to 50&#8239;µs depending on the capabilities of the computer.
   That thread's period determines the maximum PWM carrier frequency, as well as the resolution of the PWM or PDM signals.
-  If the base thread is 50,000&#8239;ns then every 50uS the module decides if it is time to change the state of the output.
-  At 50% duty cycle and 25 Hz PWM frequency this means that the output changes state every (1 / 25)&#8239;s / 50&#8239;µs * 50% = 400 iterations.
-  This also means that you have a 800 possible duty cycle values (without dithering)
-* '(funct) pwmgen.update' - Low speed function to scale and limit value and handle other parameters.
-  This is the function of the module that does the more complicated mathematics to work out how many base-periods the output should be high for,
-  and how many it should be low for.
+  If the base thread is 50,000&#8239;ns then every 50&#8239;µs the module decides if it is time to change the state of the output.
+  At 50% duty cycle and 25&#9239;Hz PWM frequency this means that the output changes state every (1/25)&#8239;s / 50&#8239;µs * 50% = 400 iterations.
+  This also means that you have a 800 possible duty cycle values (without dithering).
+* (funct) `pwmgen.update` - Low speed function to scale and limit value and handle other parameters.
+  This is the function of the module that does the more complicated mathematics to work out how many base-periods the output should be high for, and how many it should be low for.
 
 [[sec:encoder]]
 == Encoder(((encoder)))
@@ -303,10 +302,10 @@ halcmd: unloadrt encoder
 
 === Pins
 
-* 'encoder._<chan>_.counter-mode' (bit, I/O) (default: FALSE) - Enables counter mode.
+* `encoder._<chan>_.counter-mode` (bit, I/O) (default: FALSE) - Enables counter mode.
   When true, the counter counts each rising edge of the phase-A input, ignoring the value on phase-B.
   This is useful for counting the output of a single channel (non-quadrature) sensor. When false, it counts in quadrature mode.
-* 'encoder._<chan>_.missing-teeth' (s32, In) (default: 0) - Enables the use
+* `encoder._<chan>_.missing-teeth` (s32, In) (default: 0) - Enables the use
   of missing-tooth index. This allows a single IO pin to provide both
   position and index information. If the encoder wheel has 58 teeth with
   two missing, spaced as if there were 60(common for automotive crank
@@ -314,60 +313,60 @@ halcmd: unloadrt encoder
   missing-teeth to 2. To use this mode counter-mode should be set
   true. This mode will work for lathe threading but not for rigid
   tapping.
-* 'encoder._<chan>_.counts' (s32, Out) - Position in encoder counts.
-* 'encoder._<chan>_.counts-latched' (s32, Out) - Not used at this time.
-* 'encoder._<chan>_.index-enable' (bit, I/O) - When True, 'counts' and
-  'position are' reset to zero on next rising edge of Phase Z. +
-  At the same time, 'index-enable' is reset to zero to indicate that the rising edge has occurred.
-  The 'index-enable' pin is bi-directional.
-  If 'index-enable' is False, the Phase Z channel of the encoder will be ignored, and the counter will count normally.
-  The encoder driver will never set 'index-enable' True. However, some other component may do so.
-* 'encoder._<chan>_.latch-falling' (bit, In) (default: TRUE) - Not used at this time.
-* 'encoder._<chan>_.latch-input' (bit, In) (default: TRUE) - Not used at this time.
-* 'encoder._<chan>_.latch-rising' (bit, In) - Not used at this time.
-* 'encoder._<chan>_.min-speed-estimate' (float, in) - Determine the minimum true velocity magnitude,
+* `encoder._<chan>_.counts` (s32, Out) - Position in encoder counts.
+* `encoder._<chan>_.counts-latched` (s32, Out) - Not used at this time.
+* `encoder._<chan>_.index-enable` (bit, I/O) - When True, `counts` and
+  `position` are reset to zero on next rising edge of Phase Z. +
+  At the same time, `index-enable` is reset to zero to indicate that the rising edge has occurred.
+  The `index-enable` pin is bi-directional.
+  If `index-enable` is False, the Phase Z channel of the encoder will be ignored, and the counter will count normally.
+  The encoder driver will never set `index-enable` True. However, some other component may do so.
+* `encoder._<chan>_.latch-falling` (bit, In) (default: TRUE) - Not used at this time.
+* `encoder._<chan>_.latch-input` (bit, In) (default: TRUE) - Not used at this time.
+* `encoder._<chan>_.latch-rising` (bit, In) - Not used at this time.
+* `encoder._<chan>_.min-speed-estimate` (float, in) - Determine the minimum true velocity magnitude,
   at which velocity will be estimated as nonzero and position-interpolated will be interpolated.
-  The units of 'min-speed-estimate' are the same as the units of 'velocity'.
+  The units of `min-speed-estimate` are the same as the units of `velocity`.
   Scale factor, in counts per length unit.
   Setting this parameter too low will cause it to take a long time for velocity to go to 0 after encoder pulses have stopped arriving.
-* 'encoder._<chan>_.phase-A' (bit, In) - Phase A of the quadrature encoder signal.
-* 'encoder._<chan>_.phase-B' (bit, In) - Phase B of the quadrature encoder signal.
-* 'encoder._<chan>_.phase-Z' (bit, In) - Phase Z (index pulse) of the quadrature encoder signal.
-* 'encoder._<chan>_.position' (float, Out) - Position in scaled units (see 'position-scale').
-* 'encoder._<chan>_.position-interpolated' (float, Out) - Position in scaled units, interpolated between encoder counts. +
-  The 'position-interpolated' attempts to interpolate between encoder counts, based on the most recently measured velocity.
-  Only valid when velocity is approximately constant and above 'min-speed-estimate'.
+* `encoder._<chan>_.phase-A` (bit, In) - Phase A of the quadrature encoder signal.
+* `encoder._<chan>_.phase-B` (bit, In) - Phase B of the quadrature encoder signal.
+* `encoder._<chan>_.phase-Z` (bit, In) - Phase Z (index pulse) of the quadrature encoder signal.
+* `encoder._<chan>_.position` (float, Out) - Position in scaled units (see `position-scale`).
+* `encoder._<chan>_.position-interpolated` (float, Out) - Position in scaled units, interpolated between encoder counts. +
+  The `position-interpolated` attempts to interpolate between encoder counts, based on the most recently measured velocity.
+  Only valid when velocity is approximately constant and above `min-speed-estimate`.
   Do not use for position control, since its value is incorrect at low speeds, during direction reversals, and during speed changes. +
   However, it allows a low ppr encoder (including a one pulse per revolution 'encoder') to be used for lathe threading, and may have other uses as well.
-* 'encoder._<chan>_.position-latched (float, Out)' - Not used at this time.
-* 'encoder._<chan>_.position-scale (float, I/O)' - Scale factor, in counts per length unit. For example, if
+* `encoder._<chan>_.position-latched` (float, Out) - Not used at this time.
+* `encoder._<chan>_.position-scale` (float, I/O) - Scale factor, in counts per length unit. For example, if
   position-scale is 500, then 1000 counts of the encoder will be reported as a position of 2.0 units.
-* 'encoder._<chan>_.rawcounts (s32, In)' - The raw count, as determined by update-counters.
+* `encoder._<chan>_.rawcounts` (s32, In) - The raw count, as determined by update-counters.
   This value is updated more frequently than counts and position.
   It is also unaffected by reset or the index pulse.
-* 'encoder._<chan>_.reset' (bit, In) - When True, force 'counts' and 'position' to zero immediately.
-* 'encoder._<chan>_.velocity' (float, Out) - Velocity in scaled units per second.
-  'encoder' uses an algorithm that greatly reduces quantization noise as compared to simply differentiating the 'position' output.
+* `encoder._<chan>_.reset` (bit, In) - When True, force 'counts' and 'position' to zero immediately.
+* `encoder._<chan>_.velocity` (float, Out) - Velocity in scaled units per second.
+  `encoder' uses an algorithm that greatly reduces quantization noise as compared to simply differentiating the 'position' output.
   When the magnitude of the true velocity is below min-speed-estimate, the velocity output is 0.
-* 'encoder._<chan>_.x4-mode (bit, I/O) (default: TRUE)' - Enables times-4 mode.
+* `encoder._<chan>_.x4-mode` (bit, I/O) (default: TRUE) - Enables times-4 mode.
   When true, the counter counts each edge of the quadrature waveform (four counts per full cycle).
   When false, it only counts once per full cycle.
   In counter-mode, this parameter is ignored. The 1x mode is useful for some jogwheels.
 
 === Parameters
 
-* 'encoder._<chan>_.capture-position.time (s32, RO)'
-* 'encoder._<chan>_.capture-position.tmax (s32, RW)'
-* 'encoder._<chan>_.update-counters.time (s32, RO)'
-* 'encoder._<chan>_.update-counter.tmax (s32, RW)'
+* `encoder._<chan>_.capture-position.time` (s32, RO)
+* `encoder._<chan>_.capture-position.tmax` (s32, RW)
+* `encoder._<chan>_.update-counters.time` (s32, RO)
+* `encoder._<chan>_.update-counter.tmax` (s32, RW)
 
 === Functions
 
 The component exports two functions.
 Each function acts on all of the encoder counters - running different counters in different threads is not supported.
 
-* '(funct) encoder.update-counters' - High speed function to count pulses (no floating point).
-* '(funct) encoder.capture-position' - Low speed function to update latches and scale position.
+* (funct) `encoder.update-counters` - High speed function to count pulses (no floating point).
+* (funct) `encoder.capture-position` - Low speed function to update latches and scale position.
 
 [[sec:pid]]
 == PID(((PID)))
@@ -392,7 +391,7 @@ The maximum number of loops is 16 (as defined by MAX_CHAN in pid.c).
 Each loop is completely independent. In the following descriptions, _<loopnum>_ is the loop number of a specific loop.
 The first loop is number 0.
 
-If 'debug=1' is specified, the component will export a few extra pins that may be useful during debugging and tuning.
+If `debug=1` is specified, the component will export a few extra pins that may be useful during debugging and tuning.
 By default, the extra pins are not exported, to save shared memory space and avoid cluttering the pin list.
 
 .Unloading PID
@@ -404,15 +403,15 @@ halcmd: unloadrt pid
 
 The three most important pins are
 
-* '(float) pid._<loopnum>_.command' - The desired position, as commanded by another system component.
-* '(float) pid._<loopnum>_.feedback' - The present position, as measured by a feedback device such as an encoder.
-* '(float) pid._<loopnum>_.output' - A velocity command that attempts to move from the present position to the desired position.
+* (float) `pid.`__<loopnum>__`.command` - The desired position, as commanded by another system component.
+* (float) `pid.`__<loopnum>__`.feedback` - The present position, as measured by a feedback device such as an encoder.
+* (float) `pid.`__<loopnum>__`.output` - A velocity command that attempts to move from the present position to the desired position.
 
-For a position loop, 'command' and 'feedback' are in position units.
+For a position loop, `.command` and `.feedback` are in position units.
 For a linear axis, this could be inches, mm, meters, or whatever is relevant.
 Likewise, for an angular axis, it could be degrees, radians, etc.
-The units of the 'output' pin represent the change needed to make the feedback match the command.
-As such, for a position loop 'Output' is a velocity, in inches/s, mm/s, degrees/s, etc.
+The units of the `.output` pin represent the change needed to make the feedback match the command.
+As such, for a position loop `.output` is a velocity, in inches/s, mm/s, degrees/s, etc.
 Time units are always seconds, and the velocity units match the position units.
 If command and feedback are in meters, then output is in meters per second.
 
@@ -493,18 +492,18 @@ halcmd: unloadrt sim-encoder
 
 === Pins
 
-* '(float) sim-encoder._<chan-num>_.speed' - The speed command for the simulated shaft.
-* '(bit) sim-encoder._<chan-num>_.phase-A' - Quadrature output.
-* '(bit) sim-encoder._<chan-num>_.phase-B' - Quadrature output.
-* '(bit) sim-encoder._<chan-num>_.phase-Z' - Index pulse output.
+* (float) `sim-encoder.`__<chan-num>__`.speed` - The speed command for the simulated shaft.
+* (bit) `sim-encoder.`__<chan-num>__`.phase-A` - Quadrature output.
+* (bit) `sim-encoder.`__<chan-num>__`.phase-B` - Quadrature output.
+* (bit) `sim-encoder.`__<chan-num>__`.phase-Z` - Index pulse output.
 
-When '.speed' is positive, '.phase-A' leads '.phase-B'.
+When `.speed` is positive, `.phase-A` leads `.phase-B`.
 
 === Parameters
 
-* '(u32) sim-encoder._<chan-num>_.ppr' - Pulses Per Revolution.
-* '(float) sim-encoder._<chan-num>_.scale' - Scale Factor for 'speed'.
-  The default is 1.0, which means that 'speed' is in revolutions per second.
+* (u32) `sim-encoder.`__<chan-num>__`.ppr` - Pulses Per Revolution.
+* (float) `sim-encoder.`__<chan-num>__`.scale` - Scale Factor for `.speed`.
+  The default is 1.0, which means that `.speed` is in revolutions per second.
   Change to 60 for RPM, to 360 for degrees per second, 6.283185 (= 2*&pi;) for radians per second, etc.
 
 Note that pulses per revolution is not the same as counts per revolution.
@@ -515,8 +514,8 @@ Most encoder counters will count four times during one complete cycle.
 
 The component exports two functions. Each function affects all simulated encoders.
 
-* '(funct) sim-encoder.make-pulses' - High speed function to generate quadrature pulses (no floating point).
-* '(funct) sim-encoder.update-speed' - Low speed function to read 'speed', do scaling, and set up 'make-pulses'.
+* (funct) `sim-encoder.make-pulses` - High speed function to generate quadrature pulses (no floating point).
+* (funct) `sim-encoder.update-speed` - Low speed function to read `.speed`, do scaling, and set up `.make-pulses`.
 
 [[sec:debounce]]
 == Debounce(((debounce)))
@@ -555,8 +554,8 @@ halcmd: unloadrt debounce
 
 Each individual filter has two pins.
 
-* '(bit) debounce._<G>_._<F>_.in' - Input of filter _<F>_ in group _<G>_.
-* '(bit) debounce._<G>_._<F>_.out' - Output of filter _<F>_ in group _<G>_.
+* (bit) `debounce.`__<G>__.__<F>__`.in` - Input of filter _<F>_ in group _<G>_.
+* (bit) `debounce.`__<G>__.__<F>__`.out` - Output of filter _<F>_ in group _<G>_.
 
 === Parameters
 
@@ -564,19 +563,19 @@ Each group of filters has one parameterfootnote:[Each individual filter also has
 There is a compile time switch that can export that variable as a parameter.
 This is intended for testing, and simply wastes shared memory under normal circumstances.].
 
-* '(s32) debounce._<G>_.delay' - Filter delay for all filters in group _<G>_.
+* (s32) `debounce.`__<G>__`.delay` - Filter delay for all filters in group _<G>_.
 
 The filter delay is in units of thread periods. The minimum delay is zero.
 The output of a zero delay filter exactly follows its input - it doesn't filter anything.
-As 'delay' increases, longer and longer glitches are rejected.
-If 'delay' is 4, all glitches less than or equal to four thread periods will be rejected.
+As `.delay` increases, longer and longer glitches are rejected.
+If `.delay` is 4, all glitches less than or equal to four thread periods will be rejected.
 
 === Functions
 
 Each group of filters has one function, which updates all the filters in that group 'simultaneously'.
 Different groups of filters can be updated from different threads at different periods.
 
-* '(funct) debounce._<G>_' - Updates all filters in group _<G>_.
+* (funct) `debounce.`__<G>__ - Updates all filters in group _<G>_.
 
 [[sec:siggen]]
 == SigGen(((SigGen)))
@@ -604,19 +603,19 @@ halcmd: unloadrt siggen
 
 Each generator has five output pins.
 
-* '(float) siggen._<chan>_.sine' - Sine wave output.
-* '(float) siggen._<chan>_.cosine' - Cosine output.
-* '(float) siggen._<chan>_.sawtooth' - Sawtooth output.
-* '(float) siggen._<chan>_.triangle' - Triangle wave output.
-* '(float) siggen._<chan>_.square' - Square wave output.
+* (float) `siggen.`__<chan>__`.sine` - Sine wave output.
+* (float) `siggen.`__<chan>__`.cosine` - Cosine output.
+* (float) `siggen.`__<chan>__`.sawtooth` - Sawtooth output.
+* (float) `siggen.`__<chan>__`.triangle` - Triangle wave output.
+* (float) `siggen.`__<chan>__`.square` - Square wave output.
 
 All five outputs have the same frequency, amplitude, and offset.
 
 In addition to the output pins, there are three control pins:
 
-* '(float) siggen._<chan>_.frequency' - Sets the frequency in Hertz, default value is 1 Hz.
-* '(float) siggen._<chan>_.amplitude' - Sets the peak amplitude of the output waveforms, default is 1.
-* '(float) siggen._<chan>_.offset' - Sets DC offset of the output waveforms, default is 0.
+* (float) `siggen.`__<chan>__`.frequency` - Sets the frequency in Hertz, default value is 1 Hz.
+* (float) `siggen.`__<chan>__`.amplitude` - Sets the peak amplitude of the output waveforms, default is 1.
+* (float) `siggen.`__<chan>__`.offset` - Sets DC offset of the output waveforms, default is 0.
 
 For example, if `siggen.0.amplitude` is 1.0 and `siggen.0.offset` is 0.0,
 the outputs will swing from -1.0 to +1.0. If `siggen.0.amplitude` is 2.5 and `siggen.0.offset` is 10.0, then the outputs will swing from 7.5 to 12.5.
@@ -628,7 +627,7 @@ They were changed to pins to allow control by other components.]
 
 === Functions
 
-* '(funct) siggen._<chan>_.update' - Calculates new values for all five outputs.
+* (funct) `siggen.`__<chan>__`.update` - Calculates new values for all five outputs.
 
 [[sec:lut5]]
 == `lut5`(((lut5)))

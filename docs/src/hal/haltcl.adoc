@@ -108,8 +108,8 @@ Because INI files can repeat the same ITEM in the same SECTION multiple times, `
 When there is just one value and it is a simple value (all values that are just letters and numbers without whitespace are in this group),
 then it is possible to treat `$::SECTION(ITEM)` as though it is not a list.
 
-When the value could contain special characters--quote characters, curly-brace characters, embedded whitespace, and other characters that have special meaning in Tcl.
-It is necessary to distinguish between the list of values and the initial (and possibly only) value in the list.
+When the value could contain special characters (quote characters, curly-brace characters, embedded whitespace, and other characters that have special meaning in Tcl)
+then it is necessary to distinguish between the list of values and the initial (and possibly only) value in the list.
 
 In Tcl, this is written `[lindex $::SECTION(ITEM) 0]`.
 
@@ -197,7 +197,7 @@ MAXACCEL = 10.0
 STEPGEN_MAXACCEL = 10.5
 ----
 
-With `haltcl`, you can use Tcl commands to do the computation and eliminate the STEPGEN_MAXACCEL INI file item altogether:
+With `haltcl`, you can use Tcl commands to do the computation and eliminate the `STEPGEN_MAXACCEL` INI file item altogether:
 
 [source,tcl]
 ----
