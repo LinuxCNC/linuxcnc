@@ -535,20 +535,20 @@ static void init_chan_sel_window(void)
             color_array[0][j] = normal_colors[n][j];
             color_array[1][j] = selected_colors[n][j];
         }
-	snprintf(buf, 4, "%ld", n + 1);
-	/* define the button */
-	button = gtk_toggle_button_new_with_label(buf);
+	    snprintf(buf, 4, "%ld", n + 1);
+        /* define the button */
+        button = gtk_toggle_button_new_with_label(buf);
 
         style_with_css(button, color_array);
-	/* put it in the window */
-	gtk_box_pack_start(GTK_BOX(ctrl_usr->chan_sel_win), button, TRUE,
-	    TRUE, 0);
-	gtk_widget_show(button);
-	/* hook a callback function to it */
-	g_signal_connect(button, "clicked",
-	    G_CALLBACK(chan_sel_button), (gpointer) n + 1);
-	/* save the button pointer */
-	vert->chan_sel_buttons[n] = button;
+        /* put it in the window */
+        gtk_box_pack_start(GTK_BOX(ctrl_usr->chan_sel_win), button, TRUE,
+            TRUE, 0);
+        gtk_widget_show(button);
+        /* hook a callback function to it */
+        g_signal_connect(button, "clicked",
+            G_CALLBACK(chan_sel_button), (gpointer) n + 1);
+        /* save the button pointer */
+        vert->chan_sel_buttons[n] = button;
     }
 }
 
@@ -804,26 +804,27 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
     chan = &(ctrl_usr->chan[chan_num - 1]);
 
     if (ignore_click != 0) {
-	ignore_click = 0;
-	return;
+        ignore_click = 0;
+        return;
     }
     if (vert->chan_enabled[chan_num - 1] == 0 ) {
-	/* channel is disabled, want to enable it */
-	if (ctrl_shm->state != IDLE) {
-	    /* acquisition in progress, must restart it */
+        /* channel is disabled, want to enable it */
+
+        if (ctrl_shm->state != IDLE) {
+            /* acquisition in progress, must restart it */
             prepare_scope_restart();
-	}
-	count = 0;
-	for (n = 0; n < 16; n++) {
-	    if (vert->chan_enabled[n]) {
-		count++;
-	    }
-	}
-	if (count >= ctrl_shm->sample_len) {
-	    /* max number of channels already enabled */
-	    /* force the button to pop back out */
-	    ignore_click = 1;
-	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), FALSE);
+        }
+        count = 0;
+        for (n = 0; n < 16; n++) {
+            if (vert->chan_enabled[n]) {
+            count++;
+            }
+        }
+        if (count >= ctrl_shm->sample_len) {
+            /* max number of channels already enabled */
+            /* force the button to pop back out */
+            ignore_click = 1;
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), FALSE);
             dialog = gtk_message_dialog_new(GTK_WINDOW(ctrl_usr->main_win),
                                             GTK_DIALOG_MODAL,
                                             GTK_MESSAGE_INFO,
@@ -836,29 +837,30 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
                     "the record length to allow for more channels"));
             gtk_dialog_run(GTK_DIALOG(dialog));
             gtk_widget_destroy(dialog);
-	    return;
-	}
-	if (chan->name == NULL) {
-	    /* need to assign a source */
-	    if (dialog_select_source(chan_num) != TRUE) {
-		/* user failed to assign a source */
-		/* force the button to pop back out */
-		ignore_click = 1;
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), FALSE);
-		return;
-	    }
-	}
-	vert->chan_enabled[chan_num - 1] = 1;
+            return;
+        }
+        if (chan->name == NULL) {
+            /* need to assign a source */
+
+            if (dialog_select_source(chan_num) != TRUE) {
+                /* user failed to assign a source */
+                /* force the button to pop back out */
+                ignore_click = 1;
+                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), FALSE);
+                return;
+            }
+        }
+        vert->chan_enabled[chan_num - 1] = 1;
     } else {
-	/* channel was already enabled, user wants to select it */
-	/* button should stay down, so we force it */
-	ignore_click = 1;
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), TRUE);
+        /* channel was already enabled, user wants to select it */
+        /* button should stay down, so we force it */
+        ignore_click = 1;
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), TRUE);
     }
     if (vert->selected != chan_num) {
-	/* make chan_num the selected channel */
-	vert->selected = chan_num;
-	channel_changed();
+	    /* make chan_num the selected channel */
+        vert->selected = chan_num;
+        channel_changed();
     }
 }
 
@@ -1093,16 +1095,16 @@ void channel_changed(void)
 
     vert = &(ctrl_usr->vert);
     if ((vert->selected < 1) || (vert->selected > 16)) {
-	gtk_label_set_text_if(vert->scale_label, "----");
-	gtk_label_set_text_if(vert->chan_num_label, "--");
-	gtk_label_set_text_if(vert->source_name_label, "------");
-	request_display_refresh(1);
-	return;
+        gtk_label_set_text_if(vert->scale_label, "----");
+        gtk_label_set_text_if(vert->chan_num_label, "--");
+        gtk_label_set_text_if(vert->source_name_label, "------");
+        request_display_refresh(1);
+        return;
     }
     chan = &(ctrl_usr->chan[vert->selected - 1]);
     /* set position slider based on new channel */
     gtk_adjustment_set_value(GTK_ADJUSTMENT(vert->pos_adj),
-	chan->position * VERT_POS_RESOLUTION);
+                             chan->position * VERT_POS_RESOLUTION);
     /* set scale slider based on new channel */
     adj = GTK_ADJUSTMENT(vert->scale_adj);
     gtk_adjustment_set_lower(adj, chan->min_index);
@@ -1115,7 +1117,7 @@ void channel_changed(void)
     gtk_label_set_text_if(vert->source_name_label, name);
     /* update the offset display */
     if (chan->data_type == HAL_BIT) {
-	snprintf(buf1, BUFLEN, "----");
+	    snprintf(buf1, BUFLEN, "----");
     } else {
         if(chan->ac_offset) {
             snprintf(buf1, BUFLEN, "(AC)");
