@@ -917,7 +917,6 @@ static gboolean dialog_select_source(int chan_num)
     char *tab_label_text[3];
     char *name[HAL_NAME_LEN + 1];
     char signal_name[HAL_NAME_LEN + 1];
-    char msg[BUFLEN];
     char title[BUFLEN];
     int next, n, tab, retval;
     int row, match_tab, match_row;
@@ -928,8 +927,6 @@ static gboolean dialog_select_source(int chan_num)
     vert->chan_num = chan_num;
 
     snprintf(title, BUFLEN - 1, _("Select Channel %d Source"), chan_num);
-    snprintf(msg, BUFLEN - 1, _("Select a pin, signal, or parameter\n"
-	"as the source for channel %d."), chan_num);
 
     /* create dialog window, disable resizing, set title, size and position */
     dialog = gtk_dialog_new_with_buttons(title,
@@ -941,11 +938,6 @@ static gboolean dialog_select_source(int chan_num)
     gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
     gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
     content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-
-    /* display message */
-    label = gtk_label_new(msg);
-    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
-            label, FALSE, FALSE, 10);
 
     /*
     * create a notebook to hold pin, signal, and parameter list,
