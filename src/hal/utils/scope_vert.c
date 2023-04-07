@@ -918,6 +918,7 @@ static gboolean dialog_select_source(int chan_num)
     char *name[HAL_NAME_LEN + 1];
     char signal_name[HAL_NAME_LEN + 1];
     char msg[BUFLEN];
+    char title[BUFLEN];
     int next, n, tab, retval;
     int row, match_tab, match_row;
 
@@ -926,11 +927,12 @@ static gboolean dialog_select_source(int chan_num)
 
     vert->chan_num = chan_num;
 
+    snprintf(title, BUFLEN - 1, _("Select Channel %d Source"), chan_num);
     snprintf(msg, BUFLEN - 1, _("Select a pin, signal, or parameter\n"
 	"as the source for channel %d."), chan_num);
 
     /* create dialog window, disable resizing, set title, size and position */
-    dialog = gtk_dialog_new_with_buttons(_("Select Channel Source"),
+    dialog = gtk_dialog_new_with_buttons(title,
                                          NULL, GTK_DIALOG_MODAL,
                                          _("_OK"), GTK_RESPONSE_ACCEPT,
                                          _("_Cancel"), GTK_RESPONSE_CANCEL,
