@@ -88,6 +88,7 @@ static void init_chan_info_window(void);
 static void init_vert_info_window(void);
 
 static gboolean dialog_select_source(int chan_num);
+static void selection_changed(GtkTreeSelection *selection, char *name);
 static void selection_made(GtkTreeView *treeview, GtkTreePath *path,
         GtkTreeViewColumn *col, GtkWidget *dialog);
 static void change_source_button(GtkWidget * widget, gpointer gdata);
@@ -915,6 +916,7 @@ static gboolean dialog_select_source(int chan_num)
 
     char *tab_label_text[3];
     char *name[HAL_NAME_LEN + 1];
+    char signal_name[HAL_NAME_LEN + 1];
     char msg[BUFLEN];
     int next, n, tab, retval;
     int row, match_tab, match_row;
@@ -930,6 +932,7 @@ static gboolean dialog_select_source(int chan_num)
     /* create dialog window, disable resizing, set title, size and position */
     dialog = gtk_dialog_new_with_buttons(_("Select Channel Source"),
                                          NULL, GTK_DIALOG_MODAL,
+                                         _("_OK"), GTK_RESPONSE_ACCEPT,
                                          _("_Cancel"), GTK_RESPONSE_CANCEL,
                                          NULL);
     gtk_widget_set_size_request(GTK_WIDGET(dialog), -1, 400);
@@ -977,6 +980,8 @@ static gboolean dialog_select_source(int chan_num)
 
         g_signal_connect(vert->lists[n], "row-activated",
             G_CALLBACK(selection_made), dialog);
+        g_signal_connect(gtk_tree_view_get_selection(GTK_TREE_VIEW(vert->lists[n])),
+                         "changed", G_CALLBACK(selection_changed), signal_name);
     }
 
     /* signals */
@@ -1049,38 +1054,32 @@ static gboolean dialog_select_source(int chan_num)
     retval = gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
 
-    if (retval == 0) {
-        /* user made a selection */
-        channel_changed();
+    if (retval == GTK_RESPONSE_ACCEPT) {
+        if (set_channel_source(vert->chan_num, vert->listnum, signal_name))
+            channel_changed();
         return TRUE;
     }
     return FALSE;
 }
 
-/* If we come here, then the user has clicked a row in the list. */
-static void selection_made(GtkTreeView *treeview, GtkTreePath *path,
-        GtkTreeViewColumn *col, GtkWidget *dialog)
+static void selection_changed(GtkTreeSelection *selection, char *name)
 {
-    scope_vert_t *vert;
-    vert = &(ctrl_usr->vert);
-
     GtkTreeIter iter;
     GtkTreeModel *model;
+    char *tmp;
 
-    char *name;
-    int retval;
-
-    retval = -6;
-    model = gtk_tree_view_get_model(treeview);
-    if (gtk_tree_model_get_iter(model, &iter, path)) {
-        gtk_tree_model_get(model, &iter, LIST_ITEM, &name, -1);
-
-        /* try to set up the new source */
-        /* return value "0" is success */
-        retval = set_channel_source(vert->chan_num, vert->listnum, name);
-        g_free(name);
+    if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
+        gtk_tree_model_get(model, &iter, LIST_ITEM, &tmp, -1);
+        strncpy(name, tmp, HAL_NAME_LEN);
+        g_free(tmp);
     }
-    gtk_dialog_response(GTK_DIALOG(dialog), retval);
+}
+
+/* User has double-clicked or hit 'enter' on a row in the list. */
+static void selection_made(GtkTreeView *treeview, GtkTreePath *path,
+                           GtkTreeViewColumn *col, GtkWidget *dialog)
+{
+    gtk_dialog_response(GTK_DIALOG(dialog), GTK_RESPONSE_ACCEPT);
 }
 
 void channel_changed(void)
