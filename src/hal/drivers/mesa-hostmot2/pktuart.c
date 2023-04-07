@@ -46,7 +46,15 @@ int hm2_pktuart_parse_md(hostmot2_t *hm2, int md_index)
     static int last_gtag = -1;
 
     //The PktUART declares a TX and RX module separately
-    if (!hm2_md_is_consistent_or_complain(hm2, md_index, 0, 4, 4, 0x000F)) {
+    //And Rx can currently be v1 or v2
+    if (md->gtag == HM2_GTAG_PKTUART_TX
+        && !hm2_md_is_consistent_or_complain(hm2,md_index, 0, 4, 4, 0x000F)) {
+        HM2_ERR("inconsistent Module Descriptor!\n");
+        return -EINVAL;
+    }
+    if (md->gtag == HM2_GTAG_PKTUART_RX
+        && !hm2_md_is_consistent_or_complain(hm2, md_index, 0, 4, 4, 0x000F)
+        && !hm2_md_is_consistent_or_complain(hm2, md_index, 1, 4, 4, 0x000F)) {
         HM2_ERR("inconsistent Module Descriptor!\n");
         return -EINVAL;
     }
@@ -95,6 +103,27 @@ int hm2_pktuart_parse_md(hostmot2_t *hm2, int md_index)
         }
     }
 
+    // Register automatic updating of the Rx and Tx mode (status) registers
+    if (md->gtag == HM2_GTAG_PKTUART_RX){
+        hm2->pktuart.rx_version = md->version;
+        r = hm2_register_tram_read_region(hm2, md->base_address + 3 * md->register_stride,
+                                 (hm2->pktuart.num_instances * sizeof(rtapi_u32)),
+                                 &hm2->pktuart.rx_status_reg);
+        if (r < 0) {
+            HM2_ERR("error registering tram read region for  PktUART Rx status(%d)\n", r);
+            goto fail0;
+        }
+    } else if (md->gtag == HM2_GTAG_PKTUART_TX) {
+        hm2->pktuart.tx_version = md->version;
+        r = hm2_register_tram_read_region(hm2, md->base_address + 3 * md->register_stride,
+                                 (hm2->pktuart.num_instances * sizeof(rtapi_u32)),
+                                 &hm2->pktuart.tx_status_reg);
+        if (r < 0) {
+            HM2_ERR("error registering tram read region for  PktUART Tx status(%d)\n", r);
+            goto fail0;
+        }
+    }
+
     for (i = 0 ; i < hm2->pktuart.num_instances ; i++){
         hm2_pktuart_instance_t *inst = &hm2->pktuart.instance[i];
         // For the time being we assume that all PktUARTS come on pairs
@@ -130,8 +159,7 @@ int hm2_pktuart_parse_md(hostmot2_t *hm2, int md_index)
         else{
             HM2_ERR("Something very weird happened");
             goto fail0;
-        }       
-        
+        }
     }
 
     return hm2->pktuart.num_instances;
@@ -140,13 +168,14 @@ fail0:
 }
 
 EXPORT_SYMBOL_GPL(hm2_pktuart_setup);
-// use -1 for tx_mode and rx_mode to leave the mode unchanged
+// use -1 for bitrate, tx_mode and rx_mode to leave the mode unchanged
 // use 1 for txclear or rxclear to issue a clear command for Tx or Rx registers
-int hm2_pktuart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode, int txclear, int rxclear){
+int hm2_pktuart_setup(char *name, unsigned int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode, int txclear, int rxclear){
     hostmot2_t *hm2;
     hm2_pktuart_instance_t *inst = 0;
     rtapi_u32 buff;
-    int i,r;
+    int i;
+    int r = 0;
 
     i = hm2_get_pktuart(&hm2, name);
     if (i < 0){
@@ -155,31 +184,22 @@ int hm2_pktuart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_m
     }
     inst = &hm2->pktuart.instance[i];
 
-    buff = (rtapi_u32)((bitrate * 1048576.0)/inst->clock_freq); //20 bits in this version
-    r = 0;
-    if (buff != inst->bitrate){
-        inst->bitrate = buff;
-        r += hm2->llio->write(hm2->llio, inst->rx_bitrate_addr, &buff, sizeof(rtapi_u32));
-        r += hm2->llio->write(hm2->llio, inst->tx_bitrate_addr, &buff, sizeof(rtapi_u32));
+    if (bitrate > 0){
+        buff = (rtapi_u32)((bitrate * 1048576.0)/inst->clock_freq); //20 bits in this version
+        if (buff != inst->bitrate){
+            inst->bitrate = buff;
+            r += hm2->llio->write(hm2->llio, inst->rx_bitrate_addr, &buff, sizeof(rtapi_u32));
+            r += hm2->llio->write(hm2->llio, inst->tx_bitrate_addr, &buff, sizeof(rtapi_u32));
+        }
     }
-
-    /* http://freeby.mesanet.com/regmap
-    The PktUARTx/PktUARTr mode register has a special data command that clears the PktUARTx/PktUARTr
-    Clearing aborts any sends/receives in process, clears the data FIFO and 
-    clears the send count FIFO. To issue a clear command, you write 0x80010000
-    to the PktUARTx/PktUARTr mode register.
-     */
-     buff = 0x80010000;
-     if (txclear==1)
-         r += hm2->llio->write(hm2->llio, inst->tx_mode_addr, &buff, sizeof(rtapi_u32)); // clear sends, data FIFO and count register
-     if (rxclear==1)
-         r += hm2->llio->write(hm2->llio, inst->rx_mode_addr, &buff, sizeof(rtapi_u32)); // clear receives, data FIFO and count register
 
     /*  http://freeby.mesanet.com/regmap
       The PktUARTxMode register is used for setting and checking the
       PktUARTx's operation mode, timing and status:
       Bit  21          FrameBuffer Has Data
-      Bits 20..16      Frames to send
+      Bits 20..16      Frames to send (input and output ports can overlap with an FPGA)
+      Bit  17          Parity enable WO
+      Bit  18          Odd Parity  WO  (1=odd, 0=even)
       Bits 15..8       InterFrame delay in bit times
       Bit  7           Transmit Logic active, not an error
       Bit  6           Drive Enable bit (enables external RS-422/485 Driver when set)
@@ -189,14 +209,19 @@ int hm2_pktuart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_m
                        to start of data transmit). In CLock Low periods
     */
     if (tx_mode >= 0) {
-        buff = ((rtapi_u32)tx_mode) & 0xffff;
+        buff = ((rtapi_u32)tx_mode) & 0x3ffff;
         r += hm2->llio->write(hm2->llio, inst->tx_mode_addr, &buff, sizeof(rtapi_u32));
     }
 
     /* http://freeby.mesanet.com/regmap
       The PktUARTrMode register is used for setting and checking the PktUARTr's 
       operation mode, timing, and status
-      Bit  21          FrameBuffer has data 
+      Bits 29..22      RX data digital filter (in ClockLow periods)
+                       Should be set to 1/2 bit time
+                       (or max=255 if it cannot be set long enough)
+      Bit  21          FrameBuffer has data
+      Bit  17          Parity enable WO
+      Bit  18          Odd Parity  WO  (1=odd, 0=even)
       Bits 20..16      Frames received
       Bits 15..8       InterFrame delay in bit times
       Bit  7           Receive Logic active, not an error
@@ -209,9 +234,21 @@ int hm2_pktuart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_m
       Bit  0           False Start bit error (sticky)
     */
     if (rx_mode >= 0) {
-        buff = ((rtapi_u32)rx_mode) & 0xffff;
+        buff = ((rtapi_u32)rx_mode) & 0x3FFFFFFF;
         r += hm2->llio->write(hm2->llio, inst->rx_mode_addr, &buff, sizeof(rtapi_u32));
     }
+
+    /* http://freeby.mesanet.com/regmap
+    The PktUARTx/PktUARTr mode register has a special data command that clears the PktUARTx/PktUARTr
+    Clearing aborts any sends/receives in process, clears the data FIFO and
+    clears the send count FIFO. To issue a clear command, you write 0x80010000
+    to the PktUARTx/PktUARTr mode register.
+     */
+     buff = 0x80010000;
+     if (txclear==1)
+         r += hm2->llio->write(hm2->llio, inst->tx_mode_addr, &buff, sizeof(rtapi_u32)); // clear sends, data FIFO and count register
+     if (rxclear==1)
+         r += hm2->llio->write(hm2->llio, inst->rx_mode_addr, &buff, sizeof(rtapi_u32)); // clear receives, data FIFO and count register
 
     if (r < 0) {
         HM2_ERR("PktUART: hm2->llio->write failure %s\n", name);
@@ -227,8 +264,16 @@ int hm2_pktuart_send(char *name,  unsigned char data[], rtapi_u8 *num_frames, rt
 {
     hostmot2_t *hm2;
     rtapi_u32 buff;
-    int r, c;
+    int c = 0;
+    int r = 0;
+    rtapi_u16 count = 0;
     int inst;
+/*
+       we work with nframes as a local copy of num_frames,
+       so that we can return the num_frames sent out
+       in case of SCFIFO error.
+*/
+    rtapi_u8 nframes;
     
     inst = hm2_get_pktuart(&hm2, name);
     if (inst < 0){
@@ -240,15 +285,6 @@ int hm2_pktuart_send(char *name,  unsigned char data[], rtapi_u8 *num_frames, rt
         return -EINVAL;
     }
 
-    c = 0;
-    rtapi_u16 count = 0;
-    /* 
-       we work with nframes as a local copy of num_frames,
-       so that we can return the num_frames sent out
-       in case of SCFIFO error.
-     */
-    rtapi_u8 nframes = *num_frames; 
-
     /* http://freeby.mesanet.com/regmap
        Send counts are written to 16 deep FIFO allowing up to 16 packets to be 
        sent in a burst (subject to data FIFO depth limits).
@@ -259,7 +295,7 @@ int hm2_pktuart_send(char *name,  unsigned char data[], rtapi_u8 *num_frames, rt
     } else{
         nframes = *num_frames;
     }
-    
+
     *num_frames = 0;
 
     rtapi_u8 i;
@@ -270,78 +306,83 @@ int hm2_pktuart_send(char *name,  unsigned char data[], rtapi_u8 *num_frames, rt
                       (data[c+1] << 8) +
                       (data[c+2] << 16) +
                       (data[c+3] << 24));
-               r = hm2->llio->write(hm2->llio, hm2->pktuart.instance[inst].tx_addr,
+               r = hm2->llio->queue_write(hm2->llio, hm2->pktuart.instance[inst].tx_addr,
                              &buff, sizeof(rtapi_u32));
                if (r < 0) {
-                   HM2_ERR("%s send: hm2->llio->write failure\n", name);
+                   HM2_ERR("%s send: hm2->llio->queue_write failure\n", name);
                    return -1;
                   }
               c = c + 4;
-    }
+        }
 
 
-    // Now write the last bytes with bytes number < 4
-    switch(count - c){
-             case 0: 
-                  break;
-             case 1:
-                  buff = data[c];  
-                  r = hm2->llio->write(hm2->llio, hm2->pktuart.instance[inst].tx_addr,
-                                 &buff, sizeof(rtapi_u32));
-                  if (r < 0){
-                     HM2_ERR("%s send: hm2->llio->write failure\n", name);
-                     return -1;
-                  }
-                  break;
-             case 2:
-                 buff = (data[c] + 
-                        (data[c+1] << 8));
-                 r = hm2->llio->write(hm2->llio, hm2->pktuart.instance[inst].tx_addr,
-                                 &buff, sizeof(rtapi_u32));
-                 if (r < 0){
-                     HM2_ERR("%s send: hm2->llio->write failure\n", name);
-                     return -1;
-                 }
-                 break;
-             case 3:
-                 buff = (data[c] + 
-                       (data[c+1] << 8) +
-                       (data[c+2] << 16));
-                 r = hm2->llio->write(hm2->llio, hm2->pktuart.instance[inst].tx_addr,
-                                 &buff, sizeof(rtapi_u32));
-                 if (r < 0){
-                     HM2_ERR("%s send: hm2->llio->write failure\n", name);
-                     return -1;
-                 }
-                 break;
-          default:
-               HM2_ERR("%s send error in buffer parsing: count = %i, i = %i\n", name, count, c);
-               return -1;
-    } // end switch 
-
-    // Write the number of bytes to be sent to PktUARTx sendcount register
-    buff = (rtapi_u32) frame_sizes[i];
-    r = hm2->llio->write(hm2->llio, hm2->pktuart.instance[inst].tx_fifo_count_addr,
-                                 &buff, sizeof(rtapi_u32));
-    // Check for Send Count FIFO error
-    r = hm2->llio->read(hm2->llio, hm2->pktuart.instance[inst].tx_mode_addr,
-                                 &buff, sizeof(rtapi_u32));
-    if ((buff >> 4) & 0x01) {
-        HM2_ERR_NO_LL("%s: SCFFIFO error\n", name);
-        return -HM2_PKTUART_TxSCFIFOError;
-    }
-
-    if (r < 0){
-        HM2_ERR("%s send: hm2->llio->write failure\n", name);
-        return -1;
-    }
-
-    (*num_frames)++;
-    c = count;
+        // Now write the last bytes with bytes number < 4
+        switch(count - c){
+                 case 0:
+                      break;
+                 case 1:
+                      buff = data[c];
+                      r = hm2->llio->queue_write(hm2->llio, hm2->pktuart.instance[inst].tx_addr,
+                                     &buff, sizeof(rtapi_u32));
+                      if (r < 0){
+                         HM2_ERR("%s send: hm2->llio->queue_write failure\n", name);
+                         return -1;
+                      }
+                      break;
+                 case 2:
+                     buff = (data[c] +
+                            (data[c+1] << 8));
+                     r = hm2->llio->queue_write(hm2->llio, hm2->pktuart.instance[inst].tx_addr,
+                                     &buff, sizeof(rtapi_u32));
+                     if (r < 0){
+                         HM2_ERR("%s send: hm2->llio->queue_write failure\n", name);
+                         return -1;
+                     }
+                     break;
+                 case 3:
+                     buff = (data[c] +
+                           (data[c+1] << 8) +
+                           (data[c+2] << 16));
+                     r = hm2->llio->queue_write(hm2->llio, hm2->pktuart.instance[inst].tx_addr,
+                                     &buff, sizeof(rtapi_u32));
+                     if (r < 0){
+                         HM2_ERR("%s send: hm2->llio->queue_write failure\n", name);
+                         return -1;
+                     }
+                     break;
+              default:
+                   HM2_ERR("%s send error in buffer parsing: count = %i, i = %i\n", name, count, c);
+                   return -1;
+        } // end switch
+        (*num_frames)++;
+        c = count;
     } // for loop
 
+    // Write the number of bytes to be sent to PktUARTx sendcount register
+    for (i = 0; i < nframes; i++){
+        buff = (rtapi_u32) frame_sizes[i];
+        r = hm2->llio->queue_write(hm2->llio, hm2->pktuart.instance[inst].tx_fifo_count_addr,
+                                     &buff, sizeof(rtapi_u32));
+        // Check for Send Count FIFO error
+        r = hm2->llio->queue_read(hm2->llio, hm2->pktuart.instance[inst].tx_mode_addr,
+                                     &buff, sizeof(rtapi_u32));
+        if ((buff >> 4) & 0x01) {
+            HM2_ERR_NO_LL("%s: SCFFIFO error\n", name);
+            return -HM2_PKTUART_TxSCFIFOError;
+        }
+        if (r < 0){
+            HM2_ERR("%s send: hm2->llio->queue_write failure\n", name);
+            return -1;
+        }
+    }
     return count;
 }
+
+/* The function hm2_pktuart_read performs reads/writes outside of the normal
+ * thread cycles. This is espacially a problem with the Ethernet and p-port
+ * connected cards where the reads and writes should be packeted.
+ * This function has been left in place for backwards compatibility, but it
+ * is recommended to use the hm2_pktuart_queue_* functions instead */
 
 EXPORT_SYMBOL_GPL(hm2_pktuart_read);
 int hm2_pktuart_read(char *name, unsigned char data[], rtapi_u8 *num_frames, rtapi_u16 *max_frame_length, rtapi_u16 frame_sizes[])
@@ -374,10 +415,17 @@ int hm2_pktuart_read(char *name, unsigned char data[], rtapi_u8 *num_frames, rta
     r = hm2->llio->read(hm2->llio, hm2->pktuart.instance[inst].rx_mode_addr,
                         &buff, sizeof(rtapi_u32));
     if (r < 0) {
-        HM2_ERR("%s read: hm2->llio->read failure\n", name);
+        HM2_ERR("%s read: hm2->llio->queue_read failure\n", name);
                 return -1; // make the error message more detailed
     }
-    countp = (buff >> 16)  & 0x1f; 
+    if (buff & (0x1 << 21)){
+        countp = (buff >> 16)  & 0x1f;
+    } else {
+        countp = 0;
+    }
+    HM2_INFO("hm2_pktuart: buffer = %08x\n", buff);
+    HM2_INFO("hm2_pktuart: %i frames received\n", countp);
+
     // We expect to read at least 1 frame. 
     // If there is no complete frame yet in the buffer,
     // we'll deal with this by checking error bits.
@@ -387,30 +435,29 @@ int hm2_pktuart_read(char *name, unsigned char data[], rtapi_u8 *num_frames, rta
     // but very probably means that the cycle time of the thread,
     // which you attach this function to, is not appropriate.       
     if ((buff >> 7) & 0x1){
-        HM2_INFO("%s: Rx Logic active\n", name);
+        HM2_INFO("%s: Buffer error (RX idle but data in RX data FIFO)\n", name);
     }
 
     // Now check the error bits
     if ((buff >> 1) & 0x1){
-        HM2_ERR_NO_LL("%s: Overrun error, no stop bit\n", name); 
+        HM2_ERR_NO_LL("%s: Overrun error, no stop bit\n", name);
         return -HM2_PKTUART_RxOverrunError;
     }
     if (buff & 0x1){
-        HM2_ERR_NO_LL("%s: False Start bit error\n", name);     
+        HM2_ERR_NO_LL("%s: False Start bit error\n", name);
         return -HM2_PKTUART_RxStartbitError;
     }
 
     // RCFIFO Error will get sticky if it is a consequence of either Overrun or False Start bit error?
     if ((buff >> 4) & 0x1){
-        HM2_ERR_NO_LL("%s: RCFIFO Error\n", name); 
+        HM2_ERR_NO_LL("%s: RCFIFO Error\n", name);
         return -HM2_PKTUART_RxRCFIFOError;
     }
 
     if (countp==0){ 
-        HM2_ERR_NO_LL("%s: no new frames \n", name);            
-        return 0;       // return zero bytes
+        HM2_INFO_NO_LL("%s: no new frames \n", name);
+        return 0;       // return zero bytes and zero frames
     }
-
 
     rtapi_u16 i=0;
     while ( i < countp ) {
@@ -443,6 +490,7 @@ int hm2_pktuart_read(char *name, unsigned char data[], rtapi_u8 *num_frames, rta
           if (( bytes_total+countb)> data_size) {
                HM2_ERR_NO_LL("%s: bytes available %d are more than data array size %d\n", name, bytes_total+countb, data_size);
                return -HM2_PKTUART_RxArraySizeError ;
+               countb = data_size - bytes_total;
           }
 
           (*num_frames)++; // increment num_frames to be returned at the end
@@ -455,7 +503,7 @@ int hm2_pktuart_read(char *name, unsigned char data[], rtapi_u8 *num_frames, rta
                             &buff, sizeof(rtapi_u32));
 
                 if (r < 0) {
-                   HM2_ERR("%s read: hm2->llio->read failure\n", name);
+                   HM2_ERR("%s read: hm2->llio->queue_read failure\n", name);
                    return r;
                 }
                  
@@ -493,16 +541,121 @@ int hm2_pktuart_read(char *name, unsigned char data[], rtapi_u8 *num_frames, rta
                      return -EINVAL;
           }
         if (r < 0) {
-            HM2_ERR("%s read: hm2->llio->write failure\n", name);
+            HM2_ERR("%s read: hm2->llio->queue_write failure\n", name);
             return -1;
         }
 
        bytes_total = bytes_total + countb;
+
        i++; // one frame/datagram read
     }// frame loop
 
 
     return bytes_total;
+}
+
+/* This function queues sufficient reads to get the available frame sizes
+ * data is loaded into the *fsizes array on the next read cycle.
+ * fsizes should be u32 x 16
+ * FIXME: decide how to work out that the data has all been transferred
+ */
+EXPORT_SYMBOL_GPL(hm2_pktuart_queue_get_frame_sizes);
+int hm2_pktuart_queue_get_frame_sizes(char *name, rtapi_u32 fsizes[]){
+    // queue as many reads of the FIFO as there are frames
+    hostmot2_t *hm2;
+    int inst;
+    int j;
+    int r;
+
+    inst = hm2_get_pktuart(&hm2, name);
+
+    if (inst < 0){
+        HM2_ERR_NO_LL("Can not find PktUART instance %s.\n", name);
+        return -EINVAL;
+    }
+
+    if (hm2->pktuart.instance[inst].bitrate == 0 ) {
+        HM2_ERR("%s has not been configured.\n", name);
+        return -EINVAL;
+    }
+
+    for (j = 0; j < ((hm2->pktuart.rx_status_reg[inst] >> 16) & 0x1F); j++ ){
+        rtapi_print_msg(RTAPI_MSG_INFO, "j = %i\n", j);
+        r = hm2->llio->queue_read(hm2->llio, hm2->pktuart.instance[inst].rx_fifo_count_addr,
+                     &fsizes[j], sizeof(rtapi_u32));
+        if (r < 0){
+            HM2_ERR("Unable to queue Rx FIFO count read");
+        }
+    }
+    return j - 1;
+}
+
+/* This function queues sufficient reads to extract the available data.
+ * It does no error checking and does not explicitly check if there is
+ * data to read (it will just queue zero reads in that case)
+ * The using function should use the hm2_pktuart_get_rx_status functions
+ * to determine whether data exists and error status.
+ * The function queues enough reads to read the given number of 32 bit
+ * frames, which should have been previously read by
+ * hm2_pktuart_queue_get_frame_sizes returns the number of frame reads queued.
+ */
+EXPORT_SYMBOL_GPL(hm2_pktuart_queue_read_data);
+int hm2_pktuart_queue_read_data(char *name, rtapi_u32 data[], int bytes) {
+    hostmot2_t *hm2;
+    int r;
+    int i;
+    int inst;
+
+    inst = hm2_get_pktuart(&hm2, name);
+
+    if (inst < 0){
+        HM2_ERR_NO_LL("Can not find PktUART instance %s.\n", name);
+        return -EINVAL;
+    }
+    if (hm2->pktuart.instance[inst].bitrate == 0 ) {
+        HM2_ERR("%s has not been configured.\n", name);
+        return -EINVAL;
+    }
+
+/* queue enough reads to get the whole frame. Data will be transferred
+ * to data[] next thread cycle, direct from FPGA, no serial latency    */
+    for (i = 0; i < ((bytes % 4 == 0)? bytes / 4 : bytes / 4 + 1 ); i++ ){
+        r = hm2->llio->queue_read(hm2->llio, hm2->pktuart.instance[inst].rx_addr,
+                     &data[i], sizeof(rtapi_u32));
+        if (r < 0){
+            HM2_ERR("Unable to queue Rx FIFO read");
+        }
+    }
+    return i - 1;
+}
+
+EXPORT_SYMBOL_GPL(hm2_pktuart_get_rx_status);
+rtapi_u32 hm2_pktuart_get_rx_status(char *name){
+    hostmot2_t *hm2;
+    int i = hm2_get_pktuart(&hm2, name);
+    return hm2->pktuart.rx_status_reg[i];
+}
+
+EXPORT_SYMBOL_GPL(hm2_pktuart_get_tx_status);
+rtapi_u32 hm2_pktuart_get_tx_status(char *name){
+    hostmot2_t *hm2;
+    int i = hm2_get_pktuart(&hm2, name);
+    return hm2->pktuart.tx_status_reg[i];
+}
+
+EXPORT_SYMBOL_GPL(hm2_pktuart_get_clock);
+int hm2_pktuart_get_clock(char* name){
+    hostmot2_t *hm2;
+    int i = hm2_get_pktuart(&hm2, name);
+    hm2_pktuart_instance_t inst = hm2->pktuart.instance[i];
+    return inst.clock_freq;
+}
+
+EXPORT_SYMBOL_GPL(hm2_pktuart_get_version);
+int hm2_pktuart_get_version(char* name){
+    hostmot2_t *hm2;
+    hm2_get_pktuart(&hm2, name);
+    return hm2->pktuart.tx_version + 16 * hm2->pktuart.rx_version  ;
 }
 
 void hm2_pktuart_print_module(hostmot2_t *hm2){
