@@ -6,3 +6,5 @@ The directory for icons is /usr/share/glade/pixmaps/hicolor/22x22/actions/
 For run-in-place installations the icons will not appear in Glade.
 If you have run-in-place and you would like the icons to appear then you could 
 manually copy the icon files to the directory above.
+For those that down't have own icons, there is a script create_symlinks.sh which
+creates symbolic links to the default glade-gtk icons.
