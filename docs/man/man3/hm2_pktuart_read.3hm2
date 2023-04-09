@@ -1,0 +1,19 @@
+\# Author Boris Skegin
+\# Issued under the terms of the GPL v2 License or any later version
+.TH hm2_pktuart_read "3hm2" "2016-02-26" "LinuxCNC Documentation" "Hostmot2"
+.SH NAME
+
+hm2_pktuart_read \- read data from a Hostmot2 UART buffer
+
+.SH SYNTAX
+.nf
+.B #include <hostmot2-serial.h>
+.HP
+int hm2_pktuart_read(char *name,  unsigned char data[], rtapi_u8 *num_frames, rtapi_u16 *max_frame_length, rtapi_u16 frame_sizes[])
+
+.SH DESCRIPTION
+\fBhm2_pktuart_read\fR reads data from the PktUART "name".
+
+DEPRECATED except in setup code.
+
+Please see the combined document hm2_pktuart.3hm2
