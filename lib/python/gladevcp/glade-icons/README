@@ -1,8 +1,0 @@
-Glade widget icons should be in this directory to ensure that the icons will 
-be installed to the correct location in a package installation.
-
-The directory for icons is /usr/share/glade/pixmaps/hicolor/22x22/actions/
-
-For run-in-place installations the icons will not appear in Glade.
-If you have run-in-place and you would like the icons to appear then you could 
-manually copy the icon files to the directory above.
