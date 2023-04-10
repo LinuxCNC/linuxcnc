@@ -9,13 +9,14 @@ Common options:
 .BI [\-\-ip= IP ]
 .BI [\-\-port= PORT ]
 .BI [\-\-timeout= TIMEOUT ]
+.BI [\-\-space= MEMSPACE ]
+.BI [\-\-size= TRANSFER_SIZE ]
 .RE
 
 Reading data:
 .RS
 .SY elbpcom
 .BI [ common\ options ]
-.BI \-\-space= SPACE
 .B [\-\-info]
 .BI \-\-address= ADDRESS
 .BI \-\-read= LENGTH
@@ -25,9 +26,15 @@ Writing data:
 .RS
 .SY elbpcom
 .BI [ common\ options ]
-.BI \-\-space= SPACE
 .BI \-\-address= ADDRESS
 .BI \-\-write= HEXDATA
+.RE
+
+Read and decode memory space info area:
+.RS
+.SY elbpcom
+.BI [\-\-space= MEMSPACE ]
+.BI \-\-read-info
 .RE
 
 Sending arbitrary packets:
@@ -54,13 +61,21 @@ If not specified, the default values are
 .BI \-\-ip= 192.168.1.121
 .BI \-\-port= 27181
 .BI \-\-timeout= .2
+.BI \-\-space= 0
+.BI \-\-size= 0
 .RE 
+
+If the
+.B --size
+argument
+.I TRANSFER_SIZE
+is 0, elbpcom will look up the preferred transfer size of the space in the space's info area.
 
 This example demonstrates reading the HOSTMOT2 identifying string from the
 IDROM in space 0:
 .RS
 .nf
-$ elbpcom \-\-space 0 \-\-address 0x104 \-\-read 8
+$ elbpcom \-\-address 0x104 \-\-read 8
 > 82420401
 < 484f53544d4f5432
       HOSTMOT2

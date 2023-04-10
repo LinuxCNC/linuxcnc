@@ -83,15 +83,17 @@ struct offset_data {
     int ac_coupled;
 };
 
+GtkWidget *chan_buttons[16] = {NULL};
+
 static void init_chan_sel_window(void);
 static void init_chan_info_window(void);
 static void init_vert_info_window(void);
 
 static gboolean dialog_select_source(int chan_num);
+static void selection_changed(GtkTreeSelection *selection, char *name);
 static void selection_made(GtkTreeView *treeview, GtkTreePath *path,
         GtkTreeViewColumn *col, GtkWidget *dialog);
 static void change_source_button(GtkWidget * widget, gpointer gdata);
-static void channel_off_button(GtkWidget * widget, gpointer gdata);
 static void offset_button(GtkWidget * widget, gpointer gdata);
 static gboolean dialog_set_offset(int chan_num);
 static void scale_changed(GtkAdjustment * adj, gpointer gdata);
@@ -102,7 +104,7 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata);
 
 /* helper functions */
 static void write_chan_config(FILE *fp, scope_chan_t *chan);
-static void style_with_css(GtkWidget *widget, int (*color_arr)[3]);
+static void style_with_css(GtkWidget *widget, int color_index);
 
 /***********************************************************************
 *                       PUBLIC FUNCTIONS                               *
@@ -518,37 +520,31 @@ void write_vert_config(FILE *fp)
 *                       LOCAL FUNCTIONS                                *
 ************************************************************************/
 
-extern int normal_colors[16][3], selected_colors[16][3];
+extern int normal_colors[16][3];
 static void init_chan_sel_window(void)
 {
     scope_vert_t *vert;
     GtkWidget *button;
     long n;
-    int j;
-    int color_array[2][3];
     gchar buf[5];
 
     vert = &(ctrl_usr->vert);
     for (n = 0; n < 16; n++) {
-        /* fill array with color values */
-        for (j = 0; j < 3; j++) {
-            color_array[0][j] = normal_colors[n][j];
-            color_array[1][j] = selected_colors[n][j];
-        }
-	snprintf(buf, 4, "%ld", n + 1);
-	/* define the button */
-	button = gtk_toggle_button_new_with_label(buf);
+        snprintf(buf, 4, "%ld", n + 1);
+        /* define the button */
+        button = gtk_toggle_button_new_with_label(buf);
+        chan_buttons[n] = button;
 
-        style_with_css(button, color_array);
-	/* put it in the window */
-	gtk_box_pack_start(GTK_BOX(ctrl_usr->chan_sel_win), button, TRUE,
-	    TRUE, 0);
-	gtk_widget_show(button);
-	/* hook a callback function to it */
-	g_signal_connect(button, "clicked",
-	    G_CALLBACK(chan_sel_button), (gpointer) n + 1);
-	/* save the button pointer */
-	vert->chan_sel_buttons[n] = button;
+        style_with_css(button, n);
+        /* put it in the window */
+        gtk_box_pack_start(GTK_BOX(ctrl_usr->chan_sel_win), button, TRUE,
+            TRUE, 0);
+        gtk_widget_show(button);
+        /* hook a callback function to it */
+        g_signal_connect(button, "clicked",
+            G_CALLBACK(chan_sel_button), (gpointer) n + 1);
+        /* save the button pointer */
+        vert->chan_sel_buttons[n] = button;
     }
 }
 
@@ -594,7 +590,6 @@ static void init_vert_info_window(void)
 {
     scope_vert_t *vert;
     GtkWidget *hbox, *vbox;
-    GtkWidget *button;
 
     vert = &(ctrl_usr->vert);
 
@@ -644,14 +639,6 @@ static void init_vert_info_window(void)
     g_signal_connect(vert->offset_button, "clicked",
 	G_CALLBACK(offset_button), NULL);
     gtk_widget_show(vert->offset_button);
-    /* a button to turn off the channel */
-    button = gtk_button_new_with_label(_("Chan Off"));
-    gtk_box_pack_start(GTK_BOX(ctrl_usr->vert_info_win), button, FALSE, FALSE,
-	0);
-    /* turn off the channel if button is clicked */
-    g_signal_connect(button, "clicked",
-	G_CALLBACK(channel_off_button), NULL);
-    gtk_widget_show(button);
 }
 
 static void scale_changed(GtkAdjustment * adj, gpointer gdata)
@@ -803,27 +790,28 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
     chan_num = (long) gdata;
     chan = &(ctrl_usr->chan[chan_num - 1]);
 
-    if (ignore_click != 0) {
-	ignore_click = 0;
-	return;
+    if (ignore_click) {
+        ignore_click = 0;
+        return;
     }
     if (vert->chan_enabled[chan_num - 1] == 0 ) {
-	/* channel is disabled, want to enable it */
-	if (ctrl_shm->state != IDLE) {
-	    /* acquisition in progress, must restart it */
+        /* channel is disabled, want to enable it */
+
+        if (ctrl_shm->state != IDLE) {
+            /* acquisition in progress, must restart it */
             prepare_scope_restart();
-	}
-	count = 0;
-	for (n = 0; n < 16; n++) {
-	    if (vert->chan_enabled[n]) {
-		count++;
-	    }
-	}
-	if (count >= ctrl_shm->sample_len) {
-	    /* max number of channels already enabled */
-	    /* force the button to pop back out */
-	    ignore_click = 1;
-	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), FALSE);
+        }
+        count = 0;
+        for (n = 0; n < 16; n++) {
+            if (vert->chan_enabled[n]) {
+            count++;
+            }
+        }
+        if (count >= ctrl_shm->sample_len) {
+            /* max number of channels already enabled */
+            /* force the button to pop back out */
+            ignore_click = 1;
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), FALSE);
             dialog = gtk_message_dialog_new(GTK_WINDOW(ctrl_usr->main_win),
                                             GTK_DIALOG_MODAL,
                                             GTK_MESSAGE_INFO,
@@ -836,40 +824,36 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
                     "the record length to allow for more channels"));
             gtk_dialog_run(GTK_DIALOG(dialog));
             gtk_widget_destroy(dialog);
-	    return;
-	}
-	if (chan->name == NULL) {
-	    /* need to assign a source */
-	    if (dialog_select_source(chan_num) != TRUE) {
-		/* user failed to assign a source */
-		/* force the button to pop back out */
-		ignore_click = 1;
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), FALSE);
-		return;
-	    }
-	}
-	vert->chan_enabled[chan_num - 1] = 1;
+            return;
+        }
+        if (chan->name == NULL) {
+            /* need to assign a source */
+
+            if (dialog_select_source(chan_num) != TRUE) {
+                /* user failed to assign a source */
+                /* force the button to pop back out */
+                ignore_click = 1;
+                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), FALSE);
+                return;
+            }
+        }
+        vert->chan_enabled[chan_num - 1] = 1;
+        /* make chan_num the selected channel */
+        vert->selected = chan_num;
+        channel_changed();
+    } else if (vert->selected == chan_num) {
+        /* a click on an already active channel turns it off */
+        set_channel_off(chan_num);
+        ignore_click = 0;
     } else {
-	/* channel was already enabled, user wants to select it */
-	/* button should stay down, so we force it */
-	ignore_click = 1;
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), TRUE);
+        /* channel was already enabled, user wants to select it */
+        /* button should stay down, so we force it */
+        ignore_click = 1;
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), TRUE);
+        /* make chan_num the selected channel */
+        vert->selected = chan_num;
+        channel_changed();
     }
-    if (vert->selected != chan_num) {
-	/* make chan_num the selected channel */
-	vert->selected = chan_num;
-	channel_changed();
-    }
-}
-
-static void channel_off_button(GtkWidget * widget, gpointer gdata)
-{
-    scope_vert_t *vert;
-    int chan_num;
-
-    vert = &(ctrl_usr->vert);
-    chan_num = vert->selected;
-    set_channel_off(chan_num);
 }
 
 static void change_source_button(GtkWidget * widget, gpointer gdata)
@@ -915,7 +899,8 @@ static gboolean dialog_select_source(int chan_num)
 
     char *tab_label_text[3];
     char *name[HAL_NAME_LEN + 1];
-    char msg[BUFLEN];
+    char signal_name[HAL_NAME_LEN + 1];
+    char title[BUFLEN];
     int next, n, tab, retval;
     int row, match_tab, match_row;
 
@@ -924,23 +909,18 @@ static gboolean dialog_select_source(int chan_num)
 
     vert->chan_num = chan_num;
 
-    snprintf(msg, BUFLEN - 1, _("Select a pin, signal, or parameter\n"
-	"as the source for channel %d."), chan_num);
+    snprintf(title, BUFLEN - 1, _("Select Channel %d Source"), chan_num);
 
     /* create dialog window, disable resizing, set title, size and position */
-    dialog = gtk_dialog_new_with_buttons(_("Select Channel Source"),
+    dialog = gtk_dialog_new_with_buttons(title,
                                          NULL, GTK_DIALOG_MODAL,
+                                         _("_OK"), GTK_RESPONSE_ACCEPT,
                                          _("_Cancel"), GTK_RESPONSE_CANCEL,
                                          NULL);
     gtk_widget_set_size_request(GTK_WIDGET(dialog), -1, 400);
     gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
     gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
     content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-
-    /* display message */
-    label = gtk_label_new(msg);
-    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
-            label, FALSE, FALSE, 10);
 
     /*
     * create a notebook to hold pin, signal, and parameter list,
@@ -977,6 +957,8 @@ static gboolean dialog_select_source(int chan_num)
 
         g_signal_connect(vert->lists[n], "row-activated",
             G_CALLBACK(selection_made), dialog);
+        g_signal_connect(gtk_tree_view_get_selection(GTK_TREE_VIEW(vert->lists[n])),
+                         "changed", G_CALLBACK(selection_changed), signal_name);
     }
 
     /* signals */
@@ -1049,38 +1031,32 @@ static gboolean dialog_select_source(int chan_num)
     retval = gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
 
-    if (retval == 0) {
-        /* user made a selection */
-        channel_changed();
+    if (retval == GTK_RESPONSE_ACCEPT) {
+        if (set_channel_source(vert->chan_num, vert->listnum, signal_name))
+            channel_changed();
         return TRUE;
     }
     return FALSE;
 }
 
-/* If we come here, then the user has clicked a row in the list. */
-static void selection_made(GtkTreeView *treeview, GtkTreePath *path,
-        GtkTreeViewColumn *col, GtkWidget *dialog)
+static void selection_changed(GtkTreeSelection *selection, char *name)
 {
-    scope_vert_t *vert;
-    vert = &(ctrl_usr->vert);
-
     GtkTreeIter iter;
     GtkTreeModel *model;
+    char *tmp;
 
-    char *name;
-    int retval;
-
-    retval = -6;
-    model = gtk_tree_view_get_model(treeview);
-    if (gtk_tree_model_get_iter(model, &iter, path)) {
-        gtk_tree_model_get(model, &iter, LIST_ITEM, &name, -1);
-
-        /* try to set up the new source */
-        /* return value "0" is success */
-        retval = set_channel_source(vert->chan_num, vert->listnum, name);
-        g_free(name);
+    if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
+        gtk_tree_model_get(model, &iter, LIST_ITEM, &tmp, -1);
+        strncpy(name, tmp, HAL_NAME_LEN);
+        g_free(tmp);
     }
-    gtk_dialog_response(GTK_DIALOG(dialog), retval);
+}
+
+/* User has double-clicked or hit 'enter' on a row in the list. */
+static void selection_made(GtkTreeView *treeview, GtkTreePath *path,
+                           GtkTreeViewColumn *col, GtkWidget *dialog)
+{
+    gtk_dialog_response(GTK_DIALOG(dialog), GTK_RESPONSE_ACCEPT);
 }
 
 void channel_changed(void)
@@ -1090,19 +1066,29 @@ void channel_changed(void)
     GtkAdjustment *adj;
     gchar *name;
     gchar buf1[BUFLEN + 1], buf2[BUFLEN + 1];
-
+    static int last_channel = 0;
     vert = &(ctrl_usr->vert);
+    /* add a name to apply CSS for highlighted channel */
+    if (last_channel != vert->selected) {
+        if (last_channel) {
+            gtk_widget_set_name(chan_buttons[last_channel-1],"");
+        }
+        if (vert->selected) {
+            gtk_widget_set_name(chan_buttons[vert->selected-1],"selected");
+        }
+        last_channel = vert->selected;
+    }
     if ((vert->selected < 1) || (vert->selected > 16)) {
-	gtk_label_set_text_if(vert->scale_label, "----");
-	gtk_label_set_text_if(vert->chan_num_label, "--");
-	gtk_label_set_text_if(vert->source_name_label, "------");
-	request_display_refresh(1);
-	return;
+        gtk_label_set_text_if(vert->scale_label, "----");
+        gtk_label_set_text_if(vert->chan_num_label, "--");
+        gtk_label_set_text_if(vert->source_name_label, "------");
+        request_display_refresh(1);
+        return;
     }
     chan = &(ctrl_usr->chan[vert->selected - 1]);
     /* set position slider based on new channel */
     gtk_adjustment_set_value(GTK_ADJUSTMENT(vert->pos_adj),
-	chan->position * VERT_POS_RESOLUTION);
+                             chan->position * VERT_POS_RESOLUTION);
     /* set scale slider based on new channel */
     adj = GTK_ADJUSTMENT(vert->scale_adj);
     gtk_adjustment_set_lower(adj, chan->min_index);
@@ -1115,7 +1101,7 @@ void channel_changed(void)
     gtk_label_set_text_if(vert->source_name_label, name);
     /* update the offset display */
     if (chan->data_type == HAL_BIT) {
-	snprintf(buf1, BUFLEN, "----");
+	    snprintf(buf1, BUFLEN, "----");
     } else {
         if(chan->ac_offset) {
             snprintf(buf1, BUFLEN, "(AC)");
@@ -1182,20 +1168,23 @@ static void write_chan_config(FILE *fp, scope_chan_t *chan)
 /*
  * Inline css, set color to  channel select buttons.
  */
-static void style_with_css(GtkWidget *widget, int (*color_arr)[3])
+static void style_with_css(GtkWidget *widget, int color_index)
 {
     GtkStyleContext *context;
     GtkCssProvider *provider;
 
-    char buf[180];
-
-    snprintf(buf, sizeof(buf), "* {background: none;}\n"
-                               "*:checked {background: rgb(%d,%d,%d);}\n"
-                               "*:hover {background: rgb(%d,%d,%d);}\n"
-                               "*:active {background: rgb(%d,%d,%d);}",
-                               color_arr[0][0], color_arr[0][1], color_arr[0][2],
-                               color_arr[1][0], color_arr[1][1], color_arr[1][2],
-                               color_arr[0][0], color_arr[0][1], color_arr[0][2]);
+    char buf[270];
+    snprintf(buf, sizeof(buf), "* {margin: 1px; border-style:solid; border-width: 2px;}\n"
+                               "#selected {border-color: black; font-weight: bold;}\n"
+                               "*:checked, *:active {background: rgb(%d,%d,%d);}\n"
+                               "*:hover {background: rgba(%d,%d,%d,0.3);}\n"
+                               "*:hover#selected {background: rgba(%d,%d,%d,0.6);}\n",
+                               normal_colors[color_index][0],normal_colors[color_index][1],
+                               normal_colors[color_index][2],
+                               normal_colors[color_index][0],normal_colors[color_index][1],
+                               normal_colors[color_index][2],
+                               normal_colors[color_index][0],normal_colors[color_index][1],
+                               normal_colors[color_index][2]);
 
     provider = gtk_css_provider_new ();
     context = gtk_widget_get_style_context(widget);
