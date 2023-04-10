@@ -1183,7 +1183,7 @@ def open_file_guts(f, filtered=False, addrecent=True):
         loaded_file = f
         program_filter = get_filter(f)
         if program_filter:
-            tempfile = os.path.join(tempdir, os.path.basename(f))
+            tempfile = os.path.join(tempdir, "filtered-" + os.path.basename(f))
             exitcode, stderr = filter_program(program_filter, f, tempfile)
             if exitcode:
                 root_window.tk.call("nf_dialog", (".error", "-ext", stderr),
@@ -1900,9 +1900,14 @@ def reload_file(refilter=True):
     o.set_highlight_line(None)
 
     if refilter or not get_filter(loaded_file):
-        open_file_guts(loaded_file, False, False)
-    else:
+        # we copy the file to a temporary file so that even if it subsequently
+        # changes on disk, LinuxCNC is parsing the file contents from the time
+        # the user opened the file
         tempfile = os.path.join(tempdir, os.path.basename(loaded_file))
+        shutil.copyfile(loaded_file, tempfile)
+        open_file_guts(tempfile, False, False)
+    else:
+        tempfile = os.path.join(tempdir, "filtered-" + os.path.basename(loaded_file))
         open_file_guts(tempfile, True, False)
     if line:
         o.set_highlight_line(line)
