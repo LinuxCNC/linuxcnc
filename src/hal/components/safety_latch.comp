@@ -114,6 +114,4 @@ FUNCTION(_)
     }
 
     last_reset = reset;
-
-    return 0;
 }
