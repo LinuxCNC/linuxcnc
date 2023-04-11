@@ -28,6 +28,24 @@
   The interpreter does not subtract off tool length offsets. It calls
   USE_TOOL_LENGTH_OFFSETS(length), which we record here and apply to
   all appropriate values subsequently.
+
+  NURBS
+  -----
+  The code in this file for nurbs calculations is from University of Palermo.
+  The publications can be found at: http://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS
+  AMST08_art837759.pdf and ECME14.pdf
+
+  1: 
+  M. Leto, R. Licari, E. Lo Valvo1 , M. Piacentini:
+  CAD/CAM INTEGRATION FOR NURBS PATH INTERPOLATION ON PC BASED REAL-TIME NUMERICAL CONTROL
+  Proceedings of AMST 2008 Conference, 2008, pp. 223-233
+
+  2:
+  ERNESTO LO VALVO, STEFANO DRAGO:
+  An Efficient NURBS Path Generator for a Open Source CNC
+  Recent Advances in Mechanical Engineering (pp.173-180). WSEAS Press
+
+  The code from University of Palermo is modified to work on planes xy, yz and zx by Joachim Franek
   */
 
 #include "config.h"
@@ -1081,10 +1099,7 @@ void STRAIGHT_TRAVERSE(int line_number,
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 }
 
-void STRAIGHT_FEED(int line_number,
-                   double x, double y, double z, 
-                   double a, double b, double c,
-                   double u, double v, double w)
+void STRAIGHT_FEED(int line_number, double x, double y, double z, double a, double b, double c, double u, double v, double w)
 {
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
     linearMoveMsg.feed_mode = canon.feed_mode;
@@ -1303,86 +1318,944 @@ static void unit(double *x, double *y) {
     if(h != 0) { *x/=h; *y/=h; }
 }
 
+
 static void
-arc(int lineno, double x0, double y0, double x1, double y1, double dx, double dy) {
-    double small = 0.000001;
-    double x = x1-x0, y=y1-y0;
-    double den = 2 * (y*dx - x*dy);
-    CANON_POSITION p = unoffset_and_unrotate_pos(canon.endPoint);
-    to_prog(p);
-    if (fabs(den) > small) {
-        double r = -(x*x+y*y)/den;
-        double i = dy*r, j = -dx*r;
-        double cx = x0+i, cy=y0+j;
-        ARC_FEED(lineno, x1, y1, cx, cy, r<0 ? 1 : -1,
-                 p.z, p.a, p.b, p.c, p.u, p.v, p.w);
-    } else { 
-        STRAIGHT_FEED(lineno, x1, y1, p.z, p.a, p.b, p.c, p.u, p.v, p.w);
-    }
+arc(int lineno, double x0, double y0, double x1, double y1, double dx,
+    double dy)
+{
+
+	double small = 0.000001;
+	double x = x1 - x0, y = y1 - y0;
+	double den = 2 * (y * dx - x * dy);
+	CANON_POSITION p = unoffset_and_unrotate_pos(canon.endPoint);
+	to_prog(p);
+	if (fabs(den) > small) {
+		double r = -(x * x + y * y) / den;
+		double i = dy * r, j = -dx * r;
+		double cx = x0 + i, cy = y0 + j;
+
+		if (canon.activePlane == CANON_PLANE_XY) {
+			ARC_FEED(lineno, x1, y1, cx, cy, r < 0 ? 1 : -1,
+				 p.z, p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		if (canon.activePlane == CANON_PLANE_YZ) {
+			ARC_FEED(lineno, x1, y1, cx, cy, r < 0 ? 1 : -1,
+				 p.x, p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		if (canon.activePlane == CANON_PLANE_XZ) {
+			ARC_FEED(lineno, x1, y1, cx, cy, r < 0 ? 1 : -1,
+				 p.y, p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+	} else {
+		if (canon.activePlane == CANON_PLANE_XY) {
+			STRAIGHT_FEED(lineno, x1, y1, p.z, p.a, p.b, p.c,
+				      p.u, p.v, p.w);
+		}
+		if (canon.activePlane == CANON_PLANE_YZ) {
+			STRAIGHT_FEED(lineno, p.x, x1, y1, p.a, p.b, p.c,
+				      p.u, p.v, p.w);
+		}
+		if (canon.activePlane == CANON_PLANE_XZ) {
+			STRAIGHT_FEED(lineno, y1, p.y, x1, p.a, p.b, p.c,
+				      p.u, p.v, p.w);
+		}
+	}
 }
 
 static int
 biarc(int lineno, double p0x, double p0y, double tsx, double tsy,
-      double p4x, double p4y, double tex, double tey, double r=1.0) {
-    unit(&tsx, &tsy);
-    unit(&tex, &tey);
+      double p4x, double p4y, double tex, double tey, double r = 1.0)
+{
+	unit(&tsx, &tsy);
+	unit(&tex, &tey);
 
-    double vx = p0x - p4x, vy = p0y - p4y;
-    double c = vx*vx + vy*vy;
-    double b = 2 * (vx * (r*tsx + tex) + vy * (r*tsy + tey));
-    double a = 2 * r * (tsx * tex + tsy * tey - 1);
+	double vx = p0x - p4x;	// Distanz x
+	double vy = p0y - p4y;	// Distanz y
+	double c = vx * vx + vy * vy;	// Distnaz r^2
+	double b = 2 * (vx * (r * tsx + tex) + vy * (r * tsy + tey));
+	double a = 2 * r * (tsx * tex + tsy * tey - 1);
 
-    double discr = b*b - 4*a*c;
-    if(discr < 0) return 0;
+	double discr = b * b - 4 * a * c;
+	if (discr < 0) {
+		return 0;
+	}
 
-    double disq = sqrt(discr);
-    double beta1 = (-b-disq) / 2 / a;
-    double beta2 = (-b+disq) / 2 / a;
+	double disq = sqrt(discr);
+	double beta1 = (-b - disq) / 2 / a;
+	double beta2 = (-b + disq) / 2 / a;
+	if (beta1 > 0 && beta2 > 0) {
+		return 0;
+	}
 
-    if(beta1 > 0 && beta2 > 0)
-      return 0;
-    double beta = max(beta1, beta2);
-    double alpha = beta * r;
-    double ab = alpha + beta;
-    double p1x = p0x + alpha * tsx, p1y = p0y + alpha * tsy,
-         p3x = p4x - beta * tex, p3y = p4y - beta * tey,
-         p2x = (p1x*beta + p3x*alpha) / ab,
-         p2y = (p1y*beta + p3y*alpha) / ab;
-    double tmx = p3x-p2x, tmy = p3y-p2y;
-    unit(&tmx, &tmy);
-
-    arc(lineno, p0x, p0y, p2x, p2y, tsx, tsy);
-    arc(lineno, p2x, p2y, p4x, p4y, tmx, tmy);
-    return 1;
+	double beta = max(beta1, beta2);
+	double aa = 1, bb = 0, cc;
+	cc = aa / bb;		//cc=inf
+	//if(beta1 == cc || beta2 == cc) { // original Lo Valvo
+	if (beta1 == cc || beta2 == cc || beta > (1 / CART_FUZZ)) {	// "beta > 1e8" added by jjf (without this condition "Ruota_dentata #101.ngc" is not working! beta=1e14)
+		CANON_POSITION p =
+		    unoffset_and_unrotate_pos(canon.endPoint);
+		to_prog(p);
+		STRAIGHT_FEED(lineno, p4x, p4y, p.z, p.a, p.b, p.c, p.u,
+			      p.v, p.w);
+	} else {
+		double alpha = beta * r;
+		double ab = alpha + beta;
+		double p1x = p0x + alpha * tsx, p1y = p0y + alpha * tsy,
+		    p3x = p4x - beta * tex, p3y = p4y - beta * tey,
+		    p2x = (p1x * beta + p3x * alpha) / ab,
+		    p2y = (p1y * beta + p3y * alpha) / ab;
+		double tmx = p3x - p2x, tmy = p3y - p2y;
+		unit(&tmx, &tmy);
+		arc(lineno, p0x, p0y, p2x, p2y, tsx, tsy);
+		arc(lineno, p2x, p2y, p4x, p4y, tmx, tmy);
+	}
+	return 1;
 }
-
 
 /* Canon calls */
 
-void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
-    flush_segments();
+//-----------------------------------------------------------------------------------------------------------------------------------------
+void NURBS_G5_FEED(int lineno,
+		   std::vector < NURBS_CONTROL_POINT >
+		   nurbs_control_points, unsigned int nurbs_order,
+		   int plane)
+{
+	flush_segments();
 
-    unsigned int n = nurbs_control_points.size() - 1;
-    double umax = n - k + 2;
-    unsigned int div = nurbs_control_points.size()*4;
-    std::vector<unsigned int> knot_vector = knot_vector_creator(n, k);	
-    PLANE_POINT P0, P0T, P1, P1T;
+	unsigned int n = nurbs_control_points.size() - 1;
+	double umax = n - nurbs_order + 2;
+	unsigned int div = nurbs_control_points.size() * 4;
 
-    P0 = nurbs_point(0,k,nurbs_control_points,knot_vector);
-    P0T = nurbs_tangent(0, k, nurbs_control_points, knot_vector);
+	std::vector < unsigned int >knot_vector =
+	    nurbs_G5_knot_vector_creator(n, nurbs_order);
+	NURBS_PLANE_POINT P0, P0T, P1, P1T;
 
-    for(unsigned int i=1; i<=div; i++) {
-	double u = umax * i / div;
-        P1 = nurbs_point(u,k,nurbs_control_points,knot_vector);
-	P1T = nurbs_tangent(u,k,nurbs_control_points,knot_vector);
-        biarc(lineno, P0.X,P0.Y, P0T.X,P0T.Y, P1.X,P1.Y, P1T.X,P1T.Y);
-        P0 = P1;
-        P0T = P1T;
-    }
-    knot_vector.clear();
+	P0 = nurbs_G5_point(0, nurbs_order, nurbs_control_points,
+			    knot_vector);
+	P0T =
+	    nurbs_G5_tangent(0, nurbs_order, nurbs_control_points,
+			     knot_vector);
+
+	for (unsigned int i = 1; i <= div; i++) {
+		double u = umax * i / div;
+		P1 = nurbs_G5_point(u, nurbs_order, nurbs_control_points,
+				    knot_vector);
+		P1T =
+		    nurbs_G5_tangent(u, nurbs_order, nurbs_control_points,
+				     knot_vector);
+		biarc(lineno, P0.NURBS_X, P0.NURBS_Y, P0T.NURBS_X, P0T.NURBS_Y, P1.NURBS_X, P1.NURBS_Y, P1T.NURBS_X, P1T.NURBS_Y);	// G5
+		P0 = P1;
+		P0T = P1T;
+	}
+	knot_vector.clear();
 }
 
+// G6.2 Q_option=3=NICL Interpolazione NURBS con movimento lineare
+// G6.2 Q_option=3=NICL NURBS interpolation with linear motion
+//-----------------------------------------------------------------------------------------------------------------------------------------
+void NURBS_FEED_G6_2_WITH_LINEAR_MOTION(int lineno,
+					std::vector <
+					NURBS_G6_CONTROL_POINT >
+					nurbs_control_points,
+					std::vector < double >knot_vector,
+					unsigned int k, double feedrate)
+{
+	flush_segments();
+	unsigned int n = nurbs_control_points.size() - 1 - k;
+	std::vector < double >span_knot_vector =
+	    nurbs_interval_span_knot_vector_creator(n, k, knot_vector);
+	std::vector < double >lenght_vector =
+	    nurbs_lenght_vector_creator(k, nurbs_control_points,
+					knot_vector, span_knot_vector);
+	std::vector < double >Du_span_knot_vector =
+	    nurbs_Du_span_knot_vector_creator(k, nurbs_control_points,
+					      knot_vector,
+					      span_knot_vector);
+	std::vector < double >nurbs_costant =
+	    nurbs_costant_crator(span_knot_vector, lenght_vector,
+				 Du_span_knot_vector);
+	NURBS_PLANE_POINT P1, P1x;
+	double dl, T, ltot, u_l, alf;
+	int alf1;
 
+	T = 0.1;		// Tempo di CAMPIONAMENTO (multiplo)
+	alf = (0.1 * 60 / (T * feedrate));
+	alf1 = (int) alf;
+	if (alf1 == 0) {
+		alf1 = 1;
+	}
+	if (feedrate >= 1500) {
+		feedrate = feedrate / 10;
+	}
+	dl = alf1 * (feedrate * T / 60);
+	ltot =
+	    nurbs_lenght_tot((lenght_vector.size() - 1), span_knot_vector,
+			     lenght_vector);
+
+	CANON_POSITION p = unoffset_and_unrotate_pos(canon.endPoint);	// hier steht z falsch drin
+	to_prog(p);
+	std::vector < std::vector < double >>A6;	// array
+	A6 = nurbs_G6_Nmix_creator(knot_vector[0], k, n + 1, knot_vector);
+	P1 = nurbs_G6_pointx(knot_vector[0], k, nurbs_control_points,
+			     knot_vector, A6);
+	if (canon.activePlane == CANON_PLANE_XY) {
+		STRAIGHT_FEED(lineno, P1.NURBS_X, P1.NURBS_Y, p.z, p.a,
+			      p.b, p.c, p.u, p.v, p.w);
+	}
+	if (canon.activePlane == CANON_PLANE_YZ) {
+		STRAIGHT_FEED(lineno, p.x, P1.NURBS_X, P1.NURBS_Y, p.a,
+			      p.b, p.c, p.u, p.v, p.w);
+	}
+	if (canon.activePlane == CANON_PLANE_XZ) {
+		STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X, p.a,
+			      p.b, p.c, p.u, p.v, p.w);
+	}
+
+	double a = 0, du = 0;
+	if (k >= 3) {
+		for (double l_ = dl; l_ <= ltot - dl; l_ = l_ + dl) {
+			u_l =
+			    nurbs_uj_l(l_, span_knot_vector, lenght_vector,
+				       nurbs_costant);
+			du = abs(u_l - a);
+
+			if (u_l >= a) {	// fa un controllo per rimediare a eventuali  errori groddolani di approssimazione
+				P1x =
+				    nurbs_G6_point_x(u_l, k,
+						     nurbs_control_points,
+						     knot_vector);
+				if (canon.activePlane == CANON_PLANE_XY) {
+					STRAIGHT_FEED(lineno, P1x.NURBS_X,
+						      P1x.NURBS_Y, p.z,
+						      p.a, p.b, p.c, p.u,
+						      p.v, p.w);
+				}
+				if (canon.activePlane == CANON_PLANE_YZ) {
+					STRAIGHT_FEED(lineno, p.x,
+						      P1x.NURBS_X,
+						      P1x.NURBS_Y, p.a,
+						      p.b, p.c, p.u, p.v,
+						      p.w);
+				}
+				if (canon.activePlane == CANON_PLANE_XZ) {
+					STRAIGHT_FEED(lineno, P1x.NURBS_Y,
+						      p.y, P1x.NURBS_X,
+						      p.a, p.b, p.c, p.u,
+						      p.v, p.w);
+				}
+				a = u_l;
+			} else {
+				u_l = a + du / 4;
+				P1x =
+				    nurbs_G6_point_x(u_l, k,
+						     nurbs_control_points,
+						     knot_vector);
+				if (canon.activePlane == CANON_PLANE_XY) {
+					STRAIGHT_FEED(lineno, P1x.NURBS_X,
+						      P1x.NURBS_Y, p.z,
+						      p.a, p.b, p.c, p.u,
+						      p.v, p.w);
+				}
+				if (canon.activePlane == CANON_PLANE_YZ) {
+					STRAIGHT_FEED(lineno, p.x,
+						      P1x.NURBS_X,
+						      P1x.NURBS_Y, p.a,
+						      p.b, p.c, p.u, p.v,
+						      p.w);
+				}
+				if (canon.activePlane == CANON_PLANE_XZ) {
+					STRAIGHT_FEED(lineno, P1x.NURBS_Y,
+						      p.y, P1x.NURBS_X,
+						      p.a, p.b, p.c, p.u,
+						      p.v, p.w);
+				}
+				a = u_l;
+			}
+		}
+		A6 = nurbs_G6_Nmix_creator(knot_vector[n + k], k, n + 1,
+					   knot_vector);
+		P1 = nurbs_G6_pointx(knot_vector[n + k], k,
+				     nurbs_control_points, knot_vector,
+				     A6);
+		if (canon.activePlane == CANON_PLANE_XY) {
+			STRAIGHT_FEED(lineno, P1.NURBS_X, P1.NURBS_Y, p.z,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		if (canon.activePlane == CANON_PLANE_YZ) {
+			STRAIGHT_FEED(lineno, p.x, P1.NURBS_X, P1.NURBS_Y,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		if (canon.activePlane == CANON_PLANE_XZ) {
+			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		knot_vector.clear();
+		span_knot_vector.clear();
+		lenght_vector.clear();
+		Du_span_knot_vector.clear();
+		A6.clear();
+	} else {
+		for (double l_ = dl; l_ <= ltot - dl; l_ = l_ + dl) {
+			u_l =
+			    nurbs_uj_l(l_, span_knot_vector, lenght_vector,
+				       nurbs_costant);
+			du = abs(u_l - a);
+
+			if (u_l >= a) {	// fa un controllo per rimediare a eventuali  errori grossolani di approssimazione
+				A6 = nurbs_G6_Nmix_creator(u_l, k, n + 1,
+							   knot_vector);
+				P1 = nurbs_G6_pointx(u_l, k,
+						     nurbs_control_points,
+						     knot_vector, A6);
+				if (canon.activePlane == CANON_PLANE_XY) {
+					STRAIGHT_FEED(lineno, P1.NURBS_X,
+						      P1.NURBS_Y, p.z, p.a,
+						      p.b, p.c, p.u, p.v,
+						      p.w);
+				}
+				if (canon.activePlane == CANON_PLANE_YZ) {
+					STRAIGHT_FEED(lineno, p.x,
+						      P1.NURBS_X,
+						      P1.NURBS_Y, p.a, p.b,
+						      p.c, p.u, p.v, p.w);
+				}
+				if (canon.activePlane == CANON_PLANE_XZ) {
+					STRAIGHT_FEED(lineno, P1.NURBS_Y,
+						      p.y, P1.NURBS_X, p.a,
+						      p.b, p.c, p.u, p.v,
+						      p.w);
+				}
+				a = u_l;
+			} else {
+				u_l = a + du / 4;	// il precedente valore di u è incrementato di 1/4;
+				A6 = nurbs_G6_Nmix_creator(u_l, k, n + 1,
+							   knot_vector);
+				P1 = nurbs_G6_pointx(u_l, k,
+						     nurbs_control_points,
+						     knot_vector, A6);
+				if (canon.activePlane == CANON_PLANE_XY) {
+					STRAIGHT_FEED(lineno, P1.NURBS_X,
+						      P1.NURBS_Y, p.z, p.a,
+						      p.b, p.c, p.u, p.v,
+						      p.w);
+				}
+				if (canon.activePlane == CANON_PLANE_YZ) {
+					STRAIGHT_FEED(lineno, p.x,
+						      P1.NURBS_X,
+						      P1.NURBS_Y, p.a, p.b,
+						      p.c, p.u, p.v, p.w);
+				}
+				if (canon.activePlane == CANON_PLANE_XZ) {
+					STRAIGHT_FEED(lineno, P1.NURBS_Y,
+						      p.y, P1.NURBS_X, p.a,
+						      p.b, p.c, p.u, p.v,
+						      p.w);
+				}
+			}
+		}
+		A6 = nurbs_G6_Nmix_creator(knot_vector[n + k], k, n + 1,
+					   knot_vector);
+		P1 = nurbs_G6_pointx(knot_vector[n + k], k,
+				     nurbs_control_points, knot_vector,
+				     A6);
+		if (canon.activePlane == CANON_PLANE_XY) {
+			STRAIGHT_FEED(lineno, P1.NURBS_X, P1.NURBS_Y, p.z,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		if (canon.activePlane == CANON_PLANE_YZ) {
+			STRAIGHT_FEED(lineno, p.x, P1.NURBS_X, P1.NURBS_Y,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		if (canon.activePlane == CANON_PLANE_XZ) {
+			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		knot_vector.clear();
+		span_knot_vector.clear();
+		lenght_vector.clear();
+		Du_span_knot_vector.clear();
+		A6.clear();
+	}
+}
+
+// G6.2 Q_option=2=NICC Interpolazione NURBS con movimento circolare
+// G6.2 Q_option=2=NICC NURBS interpolation with circular motion
+//-----------------------------------------------------------------------------------------------------------------------------------------
+void NURBS_FEED_G6_2_WITH_CIRCULAR_MOTION(int lineno,
+					  std::vector <
+					  NURBS_G6_CONTROL_POINT >
+					  nurbs_control_points,
+					  std::vector <
+					  double >knot_vector,
+					  unsigned int k, double feedrate)
+{
+	flush_segments();
+	unsigned int n = nurbs_control_points.size() - 1 - k;
+	std::vector < double >span_knot_vector =
+	    nurbs_interval_span_knot_vector_creator(n, k, knot_vector);
+	std::vector < double >lenght_vector =
+	    nurbs_lenght_vector_creator(k, nurbs_control_points,
+					knot_vector, span_knot_vector);
+	std::vector < double >Du_span_knot_vector =
+	    nurbs_Du_span_knot_vector_creator(k, nurbs_control_points,
+					      knot_vector,
+					      span_knot_vector);
+	std::vector < double >nurbs_costant =
+	    nurbs_costant_crator(span_knot_vector, lenght_vector,
+				 Du_span_knot_vector);
+	NURBS_PLANE_POINT P0, P1, P0T, P1T;
+	double dl, T, ltot, u_l, alf;
+	int alf1;
+	T = 0.1;		// Tempo T di campionamento (multiplo)
+	alf = (0.1 * 60 / (T * feedrate));
+	alf1 = (int) alf;
+	if (alf1 == 0) {
+		alf1 = 1;
+	}
+	if (feedrate >= 1500) {
+		feedrate = feedrate / 10;
+	}
+	dl = alf1 * (feedrate * T / 60);
+	ltot =
+	    nurbs_lenght_tot((lenght_vector.size() - 1), span_knot_vector,
+			     lenght_vector);
+	CANON_POSITION p = unoffset_and_unrotate_pos(canon.endPoint);
+	to_prog(p);
+	std::vector < std::vector < double >>A6;	//A6 è la matrice dove sono memorizzati i valori Ni,p(u) per dato valore di u
+
+	A6 = nurbs_G6_Nmix_creator(knot_vector[0], k, n + 1, knot_vector);
+	P1 = nurbs_G6_pointx(knot_vector[0], k, nurbs_control_points,
+			     knot_vector, A6);
+	if (canon.activePlane == CANON_PLANE_XY) {
+		STRAIGHT_FEED(lineno, P1.NURBS_X, P1.NURBS_Y, p.z, p.a,
+			      p.b, p.c, p.u, p.v, p.w);
+	}
+	if (canon.activePlane == CANON_PLANE_YZ) {
+		STRAIGHT_FEED(lineno, p.x, P1.NURBS_X, P1.NURBS_Y, p.a,
+			      p.b, p.c, p.u, p.v, p.w);
+	}
+	if (canon.activePlane == CANON_PLANE_XZ) {
+		STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X, p.a,
+			      p.b, p.c, p.u, p.v, p.w);
+	}
+	double a = 0, du = 0;
+	if (k >= 3) {		//l'algoritmo di De Boor non funziona per ordine <3 quindi uso la formulazione ricorsiva, ossia A6
+		P0 = nurbs_G6_point_x(knot_vector[0], k,
+				      nurbs_control_points, knot_vector);
+		P0T =
+		    nurbs_G6_tangent_x(knot_vector[0], k,
+				       nurbs_control_points, knot_vector);
+		for (double l_ = dl; l_ <= ltot - dl; l_ = l_ + dl) {
+			u_l =
+			    nurbs_uj_l(l_, span_knot_vector, lenght_vector,
+				       nurbs_costant);
+			du = abs(u_l - a);
+
+			if (u_l >= a) {	// fa un controllo per rimediare a eventuali  errori grossolani di approssimazione
+				P1 = nurbs_G6_point_x(u_l, k,
+						      nurbs_control_points,
+						      knot_vector);
+				P1T =
+				    nurbs_G6_tangent_x(u_l, k,
+						       nurbs_control_points,
+						       knot_vector);
+				biarc(lineno, P0.NURBS_X, P0.NURBS_Y,
+				      P0T.NURBS_X, P0T.NURBS_Y, P1.NURBS_X,
+				      P1.NURBS_Y, P1T.NURBS_X,
+				      P1T.NURBS_Y);
+				P0 = P1;
+				P0T = P1T;
+				a = u_l;
+			} else {
+				u_l = a + du / 4;	// il precedente valore di u è incrementato della metta del precedente du;
+
+				P1 = nurbs_G6_point_x(u_l, k,
+						      nurbs_control_points,
+						      knot_vector);
+				P1T =
+				    nurbs_G6_tangent_x(u_l, k,
+						       nurbs_control_points,
+						       knot_vector);
+				biarc(lineno, P0.NURBS_X, P0.NURBS_Y,
+				      P0T.NURBS_X, P0T.NURBS_Y, P1.NURBS_X,
+				      P1.NURBS_Y, P1T.NURBS_X,
+				      P1T.NURBS_Y);
+				P0 = P1;
+				P0T = P1T;
+				a = u_l;
+			}
+		}
+		A6 = nurbs_G6_Nmix_creator(knot_vector[n + k], k, n + 1,
+					   knot_vector);
+		P1 = nurbs_G6_pointx(knot_vector[n + k], k,
+				     nurbs_control_points, knot_vector,
+				     A6);
+		if (canon.activePlane == CANON_PLANE_XY) {
+			STRAIGHT_FEED(lineno, P1.NURBS_X, P1.NURBS_Y, p.z,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		if (canon.activePlane == CANON_PLANE_YZ) {
+			STRAIGHT_FEED(lineno, p.x, P1.NURBS_X, P1.NURBS_Y,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		if (canon.activePlane == CANON_PLANE_XZ) {
+			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		knot_vector.clear();
+		span_knot_vector.clear();
+		lenght_vector.clear();
+		Du_span_knot_vector.clear();
+		A6.clear();
+	} else {
+		for (double l_ = dl; l_ <= ltot - dl; l_ = l_ + dl) {
+			u_l =
+			    nurbs_uj_l(l_, span_knot_vector, lenght_vector,
+				       nurbs_costant);
+			du = abs(u_l - a);
+			if (u_l >= a) {
+				A6 = nurbs_G6_Nmix_creator(u_l, k, n + 1,
+							   knot_vector);
+				P1 = nurbs_G6_pointx(u_l, k,
+						     nurbs_control_points,
+						     knot_vector, A6);
+				if (canon.activePlane == CANON_PLANE_XY) {
+					STRAIGHT_FEED(lineno, P1.NURBS_X,
+						      P1.NURBS_Y, p.z, p.a,
+						      p.b, p.c, p.u, p.v,
+						      p.w);
+				}
+				if (canon.activePlane == CANON_PLANE_YZ) {
+					STRAIGHT_FEED(lineno, p.x,
+						      P1.NURBS_X,
+						      P1.NURBS_Y, p.a, p.b,
+						      p.c, p.u, p.v, p.w);
+				}
+				if (canon.activePlane == CANON_PLANE_XZ) {
+					STRAIGHT_FEED(lineno, P1.NURBS_Y,
+						      p.y, P1.NURBS_X, p.a,
+						      p.b, p.c, p.u, p.v,
+						      p.w);
+				}
+				a = u_l;
+			} else {	// fa un controllo per rimediare a eventuali  errori grossolani di approssimazione
+				u_l = a + du / 4;
+				A6 = nurbs_G6_Nmix_creator(u_l, k, n + 1,
+							   knot_vector);
+				P1 = nurbs_G6_pointx(u_l, k,
+						     nurbs_control_points,
+						     knot_vector, A6);
+				if (canon.activePlane == CANON_PLANE_XY) {
+					STRAIGHT_FEED(lineno, P1.NURBS_X,
+						      P1.NURBS_Y, p.z, p.a,
+						      p.b, p.c, p.u, p.v,
+						      p.w);
+				}
+				if (canon.activePlane == CANON_PLANE_YZ) {
+					STRAIGHT_FEED(lineno, p.x,
+						      P1.NURBS_X,
+						      P1.NURBS_Y, p.a, p.b,
+						      p.c, p.u, p.v, p.w);
+				}
+				if (canon.activePlane == CANON_PLANE_XZ) {
+					STRAIGHT_FEED(lineno, P1.NURBS_Y,
+						      p.y, P1.NURBS_X, p.a,
+						      p.b, p.c, p.u, p.v,
+						      p.w);
+				}
+				a = u_l;
+			}
+		}
+		A6 = nurbs_G6_Nmix_creator(knot_vector[n + k], k, n + 1,
+					   knot_vector);
+		P1 = nurbs_G6_pointx(knot_vector[n + k], k,
+				     nurbs_control_points, knot_vector,
+				     A6);
+		if (canon.activePlane == CANON_PLANE_XY) {
+			STRAIGHT_FEED(lineno, P1.NURBS_X, P1.NURBS_Y, p.z,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		if (canon.activePlane == CANON_PLANE_YZ) {
+			STRAIGHT_FEED(lineno, p.x, P1.NURBS_X, P1.NURBS_Y,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		if (canon.activePlane == CANON_PLANE_XZ) {
+			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		knot_vector.clear();
+		span_knot_vector.clear();
+		lenght_vector.clear();
+		Du_span_knot_vector.clear();
+		A6.clear();
+	}
+}
+
+// G6.2/G6.3 Q_option=1=NICU interpolazione NURBS con biarchi, du=cost
+// G6.2/G6.3 Q_option=1=NICU NURBS interpolation with biarc, du=const
+//-----------------------------------------------------------------------------------------------------------------------------------------
+void NURBS_FEED_G6_2_WITH_BIARCH_DU_CONST(int lineno,
+					  std::vector <
+					  NURBS_G6_CONTROL_POINT >
+					  nurbs_control_points,
+					  std::vector <
+					  double >knot_vector,
+					  unsigned int k, double feedrate)
+{
+	double u = knot_vector[0];
+	int dim = nurbs_control_points.size();
+	unsigned int n = dim - k - 1;
+	double umax = knot_vector[knot_vector.size() - 1];
+	unsigned int div = (dim - k) * 15;
+
+	std::vector < std::vector < double >>A6;
+	if (k >= 3) {
+		NURBS_PLANE_POINT P1, P0, P0T, P1T;
+		CANON_POSITION p =
+		    unoffset_and_unrotate_pos(canon.endPoint);
+		to_prog(p);
+
+		A6 = nurbs_G6_Nmix_creator(knot_vector[0], k, n + 1,
+					   knot_vector);
+		P1 = nurbs_G6_pointx(knot_vector[0], k,
+				     nurbs_control_points, knot_vector,
+				     A6);
+		if (canon.activePlane == CANON_PLANE_XY) {
+			STRAIGHT_FEED(lineno, P1.NURBS_X, P1.NURBS_Y, p.z,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		if (canon.activePlane == CANON_PLANE_YZ) {
+			STRAIGHT_FEED(lineno, p.x, P1.NURBS_X, P1.NURBS_Y,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		if (canon.activePlane == CANON_PLANE_XZ) {
+			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		P0 = nurbs_G6_point_x(knot_vector[0], k,
+				      nurbs_control_points, knot_vector);
+		P0T =
+		    nurbs_G6_tangent_x(knot_vector[0], k,
+				       nurbs_control_points, knot_vector);
+		double du = umax / div;
+		for (u = du; u <= (umax - du); u = u + du) {
+			P1 = nurbs_G6_point_x(u, k, nurbs_control_points,
+					      knot_vector);
+			P1T =
+			    nurbs_G6_tangent_x(u, k, nurbs_control_points,
+					       knot_vector);
+			biarc(lineno, P0.NURBS_X, P0.NURBS_Y, P0T.NURBS_X,
+			      P0T.NURBS_Y, P1.NURBS_X, P1.NURBS_Y,
+			      P1T.NURBS_X, P1T.NURBS_Y);
+			P0 = P1;
+			P0T = P1T;
+		}
+
+		A6 = nurbs_G6_Nmix_creator(umax, k, n + 1, knot_vector);
+		P1 = nurbs_G6_pointx(umax, k, nurbs_control_points,
+				     knot_vector, A6);
+		if (canon.activePlane == CANON_PLANE_XY) {
+			STRAIGHT_FEED(lineno, P1.NURBS_X, P1.NURBS_Y, p.z,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		if (canon.activePlane == CANON_PLANE_YZ) {
+			STRAIGHT_FEED(lineno, p.x, P1.NURBS_X, P1.NURBS_Y,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		if (canon.activePlane == CANON_PLANE_XZ) {
+			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		knot_vector.clear();
+		A6.clear();
+	} else {
+		NURBS_PLANE_POINT P1;
+
+		CANON_POSITION p =
+		    unoffset_and_unrotate_pos(canon.endPoint);
+		to_prog(p);
+		A6 = nurbs_G6_Nmix_creator(knot_vector[0], k, n + 1,
+					   knot_vector);
+		P1 = nurbs_G6_pointx(knot_vector[0], k,
+				     nurbs_control_points, knot_vector,
+				     A6);
+		if (canon.activePlane == CANON_PLANE_XY) {
+			STRAIGHT_FEED(lineno, P1.NURBS_X, P1.NURBS_Y, p.z,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		if (canon.activePlane == CANON_PLANE_YZ) {
+			STRAIGHT_FEED(lineno, p.x, P1.NURBS_X, P1.NURBS_Y,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		if (canon.activePlane == CANON_PLANE_XZ) {
+			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		double du = umax / div;
+		for (u = du; u <= (umax - du); u = u + du) {
+			P1 = nurbs_G6_point_x(u, k, nurbs_control_points,
+					      knot_vector);
+			if (canon.activePlane == CANON_PLANE_XY) {
+				STRAIGHT_FEED(lineno, P1.NURBS_X,
+					      P1.NURBS_Y, p.z, p.a, p.b,
+					      p.c, p.u, p.v, p.w);
+			}
+			if (canon.activePlane == CANON_PLANE_YZ) {
+				STRAIGHT_FEED(lineno, p.x, P1.NURBS_X,
+					      P1.NURBS_Y, p.a, p.b, p.c,
+					      p.u, p.v, p.w);
+			}
+			if (canon.activePlane == CANON_PLANE_XZ) {
+				STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y,
+					      P1.NURBS_X, p.a, p.b, p.c,
+					      p.u, p.v, p.w);
+			}
+		}
+		A6 = nurbs_G6_Nmix_creator(knot_vector[n + k], k, n + 1,
+					   knot_vector);
+		P1 = nurbs_G6_pointx(knot_vector[n + k], k,
+				     nurbs_control_points, knot_vector,
+				     A6);
+		if (canon.activePlane == CANON_PLANE_XY) {
+			STRAIGHT_FEED(lineno, P1.NURBS_X, P1.NURBS_Y, p.z,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		if (canon.activePlane == CANON_PLANE_YZ) {
+			STRAIGHT_FEED(lineno, p.x, P1.NURBS_X, P1.NURBS_Y,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		if (canon.activePlane == CANON_PLANE_XZ) {
+			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
+				      p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+		knot_vector.clear();
+		A6.clear();
+	}
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------
+void NURBS_FEED_DIVIDE(int lineno,
+		       std::vector < NURBS_G6_CONTROL_POINT >
+		       nurbs_control_points,
+		       std::vector < double >knot_vector,
+		       unsigned int nurbs_order, double feedrate,
+		       int Q_option)
+{
+	std::vector < double >knot_vector_new = knot_vector;
+	int k1 = knot_vector.size() / 2 - 1;
+	double ut;
+	ut = (knot_vector[k1] + 1);
+	//printf("ut: %f (F: %s L: %d)\n", ut, __FILE__, __LINE__);
+
+	//SEGMENTO NURBS 1
+	std::vector < NURBS_CONTROL_POINT > nurbs_control_points1;
+	// si passa il valore u in corrispondenza del quale suddividere la curva
+	// der u-Wert wird übergeben, bei dem die Kurve geteilt werden soll
+	std::vector < double >control_point_nurbs1_new1 =
+	    nurbs_G6_new_control_point_nurbs1(ut, nurbs_order,
+					      nurbs_control_points,
+					      knot_vector);
+
+	NURBS_CONTROL_POINT C_P1;
+	for (long unsigned int i = 0; i < control_point_nurbs1_new1.size();
+	     i = i + 3) {
+		C_P1.NURBS_X = control_point_nurbs1_new1[i + 0];
+		C_P1.NURBS_Y = control_point_nurbs1_new1[i + 1];
+		C_P1.NURBS_W = control_point_nurbs1_new1[i + 2];
+		nurbs_control_points1.push_back(C_P1);	//1
+	}
+
+	//SEGMENTO NURBS 2
+	//printf("*- SEGMENTO NURBS 2 ---------------------------------------- (%s %d)\n", __FILE__,__LINE__);
+	//Secondo segmento NURBS
+	// si passa il valore u in corrispondenza del quale suddividere la curva
+	// der u-Wert wird übergeben, bei dem die Kurve geteilt werden soll
+	std::vector < double >control_point_nurbs2_new2 =
+	    nurbs_G6_new_control_point_nurbs2(ut, nurbs_order,
+					      nurbs_control_points,
+					      knot_vector);
+
+	std::vector < NURBS_CONTROL_POINT > nurbs_control_points2;
+	NURBS_CONTROL_POINT C_P2;
+	for (long unsigned int i = 0; i < control_point_nurbs2_new2.size();
+	     i = i + 3) {
+		C_P2.NURBS_X = control_point_nurbs2_new2[i];
+		C_P2.NURBS_Y = control_point_nurbs2_new2[i + 1];
+		C_P2.NURBS_W = control_point_nurbs2_new2[i + 2];
+		nurbs_control_points2.push_back(C_P2);	//1
+	}
+
+	for (int j_segment = 0; j_segment <= 1; ++j_segment) {
+		// ridefinisco Control_point per il primo SGMENTO (1) NURBS
+		// ich definiere Control_point für die ersten SGMENTO (1) NURBS neu
+		nurbs_control_points.clear();
+		NURBS_G6_CONTROL_POINT CPU;
+		if (j_segment == 0) {
+			for (unsigned j = 0;
+			     j < nurbs_control_points1.size(); ++j) {
+				CPU.NURBS_X =
+				    nurbs_control_points1[j].NURBS_X;
+				CPU.NURBS_Y =
+				    nurbs_control_points1[j].NURBS_Y;
+				CPU.NURBS_R = nurbs_control_points1[j].NURBS_W;	// peso del punto di controll // Kontrollpunktgewicht
+				nurbs_control_points.push_back(CPU);
+			}
+			for (unsigned j = 0; j < nurbs_order; ++j) {
+				nurbs_control_points.push_back(CPU);
+			}
+			knot_vector =
+			    nurbs_G6_knot_vector_new_creator_sgment
+			    (nurbs_order, nurbs_control_points);
+		} else {
+			for (unsigned j = 0;
+			     j < nurbs_control_points2.size(); ++j) {
+				CPU.NURBS_X =
+				    nurbs_control_points2[j].NURBS_X;
+				CPU.NURBS_Y =
+				    nurbs_control_points2[j].NURBS_Y;
+				CPU.NURBS_R = nurbs_control_points2[j].NURBS_W;	// peso del punto di controll
+				nurbs_control_points.push_back(CPU);
+			}
+
+			// la porzione di codice aggiunge zeri, l'obiettivo è di far aumentare di k la dimenzione, questo in modo da farne coincidere le dimenzione rispetto a quando la suddivisione non avviene realizzata.
+			// Der Teil des Codes fügt Nullen hinzu, das Ziel ist es, die Dimension um k zu erhöhen, um die Dimensionen in Bezug darauf zusammenfallen zu lassen, wenn die Unterteilung nicht stattfindet.
+			for (unsigned j = 0; j < nurbs_order; ++j) {
+				nurbs_control_points.push_back(CPU);
+			}
+			knot_vector =
+			    nurbs_G6_knot_vector_new_creator_sgment
+			    (nurbs_order, nurbs_control_points);
+		}
+		if ((nurbs_control_points.size() - nurbs_order) >
+		    3 * nurbs_order) {
+			NURBS_FEED_DIVIDE(lineno, nurbs_control_points, knot_vector, nurbs_order, feedrate, Q_option);	// recursiv
+		} else {
+			if (Q_option == 3) {
+				NURBS_FEED_G6_2_WITH_LINEAR_MOTION(lineno,
+								   nurbs_control_points,
+								   knot_vector,
+								   nurbs_order,
+								   feedrate);
+			} else {
+				if (Q_option == 2) {
+					NURBS_FEED_G6_2_WITH_CIRCULAR_MOTION
+					    (lineno, nurbs_control_points,
+					     knot_vector, nurbs_order,
+					     feedrate);
+				} else {
+					if (Q_option == 1) {
+						flush_segments();
+						NURBS_FEED_G6_2_WITH_BIARCH_DU_CONST
+						    (lineno,
+						     nurbs_control_points,
+						     knot_vector,
+						     nurbs_order,
+						     feedrate);
+					} else {	//metodo misto, if there is a wrong code on #1 
+						if (feedrate <= 300) {	//velocità di avanzamento 300mm/min //METODO MISTO
+							//printf("G6.2_L_mist=interpolazione NURBS tramite movimento lineare (è il controllo a decidere di applicare tale metodo in funzione del valore ds)\n");
+							//printf("G6.2_L_mist=NURBS interpolation using linear movement (it is the control that decides to apply this method according to the ds value)\n");
+							NURBS_FEED_G6_2_WITH_LINEAR_MOTION
+							    (lineno,
+							     nurbs_control_points,
+							     knot_vector,
+							     nurbs_order,
+							     feedrate);
+						} else {	//SECONDA OPZIONE METODO MISTO
+							//printf("G6.2_B_mist=interpolazione NURBS tramite movimento circolare (è il controllo a decidere di applicare tale metodo in funzione del valore ds)\n");
+							NURBS_FEED_G6_2_WITH_CIRCULAR_MOTION
+							    (lineno,
+							     nurbs_control_points,
+							     knot_vector,
+							     nurbs_order,
+							     feedrate);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------
+//Non viene realizzata alcuna suddivisione in quanto il numero dei punti di controllo è <2*k =due volte l'ordine
+//No subdivision is made as the number of control points is <3*k = twice the order
+void NURBS_FEED_NO_SUBDIVISION(int lineno,
+			       std::vector < NURBS_G6_CONTROL_POINT >
+			       nurbs_control_points,
+			       std::vector < double >knot_vector,
+			       unsigned int nurbs_order, double feedrate,
+			       int Q_option)
+{
+	if (Q_option == 3) {
+		NURBS_FEED_G6_2_WITH_LINEAR_MOTION(lineno,
+						   nurbs_control_points,
+						   knot_vector,
+						   nurbs_order, feedrate);
+	} else {
+		if (Q_option == 2) {
+			NURBS_FEED_G6_2_WITH_CIRCULAR_MOTION(lineno,
+							     nurbs_control_points,
+							     knot_vector,
+							     nurbs_order,
+							     feedrate);
+		} else {
+			if (Q_option == 1) {
+				flush_segments();
+				NURBS_FEED_G6_2_WITH_BIARCH_DU_CONST
+				    (lineno, nurbs_control_points,
+				     knot_vector, nurbs_order, feedrate);
+			} else {	//metodo misto
+				// this does not occur, because L is 1 or 2 or 3
+				if (feedrate <= 300) {	//velocità di avanzamento 300mm/min
+					//printf("G6.2_L_mist=interpolazione NURBS tramite movimento lineare (è il controllo a decidere di applicare tale metodo in funzione del valore ds)\n");
+					//printf("G6.2_L_mist=NURBS interpolation using linear movement (it is the control that decides to apply this method according to the ds value)\n");
+					NURBS_FEED_G6_2_WITH_LINEAR_MOTION
+					    (lineno, nurbs_control_points,
+					     knot_vector, nurbs_order,
+					     feedrate);
+				} else {	//SECONDA OPZIONE METODO MISTO
+					//printf("G6.2_B_mist=interpolazione NURBS tramite movimento circolare (è il controllo a decidere di applicare tale metodo in funzione del valore ds)\n");
+					//printf("G6.2_B_mist=NURBS interpolation via circular movement (it is the control that decides to apply this method according to the ds value)\n");
+					NURBS_FEED_G6_2_WITH_CIRCULAR_MOTION
+					    (lineno, nurbs_control_points,
+					     knot_vector, nurbs_order,
+					     feedrate);
+				}
+			}
+		}
+	}
+}
+
+/* Canon calls G_6_2 */
+//-----------------------------------------------------------------------------------------------------------------------------------------
+void NURBS_G6_FEED(int lineno,
+		   std::vector < NURBS_G6_CONTROL_POINT >
+		   nurbs_control_points, unsigned int nurbs_order,
+		   double feedrate, int Q_option, int plane)
+{				// (L_option: NICU, NICL, NICC see publication from Lo Valvo and Drago) 
+	int n = nurbs_control_points.size() - 1 - nurbs_order;
+	std::vector < double >knot_vector =
+	    nurbs_g6_knot_vector_creator(n, nurbs_order,
+					 nurbs_control_points);
+
+	if (n > (int) (3 * nurbs_order)) {
+		//Operazione di verifica che eventualmente attiva la suddivisione della NURBS in segmenti
+		//Verification operation which eventually activates the subdivision of the NURBS into segments
+
+		//printf("n>3*k, è operata una suddivisione della curva NURBS;  n=%d\n",nurbs_control_points.size() - 1-k);
+		//printf("n>3*k, a subdivision of the NURBS curve is made;  n=%ld (F: %s L: %d)\n",nurbs_control_points.size() - 1 - k, __FILE__, __LINE__);
+		NURBS_FEED_DIVIDE(lineno, nurbs_control_points,
+				  knot_vector, nurbs_order, feedrate,
+				  Q_option);
+	} else {
+		// printf("n<3*k, Non è operata nessuna suddivisione della curva NURBS,  n=%d\n",n);
+		//printf("n<3*k, No subdivision of the NURBS curve is made,  n=%d (F: %s L: %d)\n",n, __FILE__, __LINE__);
+		NURBS_FEED_NO_SUBDIVISION(lineno, nurbs_control_points,
+					  knot_vector, nurbs_order,
+					  feedrate, Q_option);
+	}
+}
 /**
  * Simple circular shift function for PM_CARTESIAN type.
  * Cycle around axes without changing the individual values. A circshift of -1
@@ -1479,56 +2352,56 @@ static double axis_acc_time(const CANON_POSITION & start, const CANON_POSITION &
 }
 #endif
 
-void ARC_FEED(int line_number,
-              double first_end, double second_end,
-	      double first_axis, double second_axis, int rotation,
-	      double axis_end_point, 
-              double a, double b, double c,
-              double u, double v, double w)
-{
+void ARC_FEED(int line_number, 
+				double first_end, double second_end,
+				double first_axis, double second_axis, int rotation,
+				double axis_end_point, 
+				double a, double b, double c,
+				double u, double v, double w)
+	{
 
-    EMC_TRAJ_CIRCULAR_MOVE circularMoveMsg;
-    EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
+	EMC_TRAJ_CIRCULAR_MOVE circularMoveMsg;
+	EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
 
-    canon_debug("line = %d\n", line_number);
-    canon_debug("first_end = %f, second_end = %f\n", first_end,second_end);
+	canon_debug("line = %d\n", line_number);
+	canon_debug("first_end = %f, second_end = %f\n", first_end,second_end);
 
     if( canon.activePlane == CANON_PLANE_XY && canon.motionMode == CANON_CONTINUOUS) {
-        double mx, my;
-        double lx, ly, lz;
-        double unused = 0;
+		double mx, my;
+		double lx, ly, lz;
+		double unused = 0;
 
-        get_last_pos(lx, ly, lz);
+		get_last_pos(lx, ly, lz);
 
         double fe=FROM_PROG_LEN(first_end), se=FROM_PROG_LEN(second_end), ae=FROM_PROG_LEN(axis_end_point);
-        double fa=FROM_PROG_LEN(first_axis), sa=FROM_PROG_LEN(second_axis);
-        rotate_and_offset_pos(fe, se, ae, unused, unused, unused, unused, unused, unused);
-        rotate_and_offset_pos(fa, sa, unused, unused, unused, unused, unused, unused, unused);
+		double fa=FROM_PROG_LEN(first_axis), sa=FROM_PROG_LEN(second_axis);
+		rotate_and_offset_pos(fe, se, ae, unused, unused, unused, unused, unused, unused);
+		rotate_and_offset_pos(fa, sa, unused, unused, unused, unused, unused, unused, unused);
         if (chord_deviation(lx, ly, fe, se, fa, sa, rotation, mx, my) < canon.naivecamTolerance) {
-            a = FROM_PROG_ANG(a);
-            b = FROM_PROG_ANG(b);
-            c = FROM_PROG_ANG(c);
-            u = FROM_PROG_LEN(u);
-            v = FROM_PROG_LEN(v);
-            w = FROM_PROG_LEN(w);
+			a = FROM_PROG_ANG(a);
+			b = FROM_PROG_ANG(b);
+			c = FROM_PROG_ANG(c);
+			u = FROM_PROG_LEN(u);
+			v = FROM_PROG_LEN(v);
+			w = FROM_PROG_LEN(w);
 
-            rotate_and_offset_pos(unused, unused, unused, a, b, c, u, v, w);
-            see_segment(line_number, _tag, mx, my,
-                        (lz + ae)/2, 
-                        (canon.endPoint.a + a)/2, 
-                        (canon.endPoint.b + b)/2, 
-                        (canon.endPoint.c + c)/2, 
-                        (canon.endPoint.u + u)/2, 
-                        (canon.endPoint.v + v)/2, 
-                        (canon.endPoint.w + w)/2);
-            see_segment(line_number, _tag, fe, se, ae, a, b, c, u, v, w);
-            return;
-        }
-    }
+			rotate_and_offset_pos(unused, unused, unused, a, b, c, u, v, w);
+			see_segment(line_number, _tag, mx, my,
+									(lz + ae)/2, 
+									(canon.endPoint.a + a)/2, 
+									(canon.endPoint.b + b)/2, 
+									(canon.endPoint.c + c)/2, 
+									(canon.endPoint.u + u)/2, 
+									(canon.endPoint.v + v)/2, 
+									(canon.endPoint.w + w)/2);
+			see_segment(line_number, _tag, fe, se, ae, a, b, c, u, v, w);
+			return;
+			}
+		}
 
-    linearMoveMsg.feed_mode = canon.feed_mode;
-    circularMoveMsg.feed_mode = canon.feed_mode;
-    flush_segments();
+  linearMoveMsg.feed_mode = canon.feed_mode;
+  circularMoveMsg.feed_mode = canon.feed_mode;
+  flush_segments();
 
     // Start by defining 3D points for the motion end and center.
     PM_CARTESIAN end_cart(first_end, second_end, axis_end_point);
@@ -1679,7 +2552,8 @@ void ARC_FEED(int line_number,
               1 0
               2 1
              -1 0
-             -2 -1 */
+             -2 -1 
+    */
 
     // Compute the number of FULL turns in addition to the principal angle
     int full_turns = 0;
@@ -1695,7 +2569,7 @@ void ARC_FEED(int line_number,
     canon_debug("angle = %f\n", angle);
     canon_debug("full turns = %d\n", full_turns);
 
-	canon_debug("full_angle = %.17e\n", full_angle);
+		canon_debug("full_angle = %.17e\n", full_angle);
 
     //Use total angle to get spiral properties
     double spiral = end_radius - start_radius;
@@ -1715,11 +2589,11 @@ void ARC_FEED(int line_number,
     // Get planar velocity bounds
     double v1 = FROM_EXT_LEN(emcAxisGetMaxVelocity(axis1));
     double v2 = FROM_EXT_LEN(emcAxisGetMaxVelocity(axis2));
+    double v_max_axes = MIN(v1, v2);
 
     // Get planar acceleration bounds
     double a1 = FROM_EXT_LEN(emcAxisGetMaxAcceleration(axis1));
     double a2 = FROM_EXT_LEN(emcAxisGetMaxAcceleration(axis2));
-    double v_max_axes = MIN(v1, v2);
     double a_max_axes = MIN(a1, a2);
 
     if(canon.xy_rotation && canon.activePlane != CANON_PLANE_XY) {
