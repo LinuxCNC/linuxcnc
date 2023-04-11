@@ -113,7 +113,7 @@ Flags may be one or more of the following:
 
 -n:: name a component when it is a valid option for that component.
 
-.`loadusr` Syntax and Examples
+.Syntax and Examples of `loadusr` 
 [source,{hal}]
 ----
 loadusr <component> <options>
