@@ -87,6 +87,14 @@ class LinuxCNC2MQTT():
         while hal.component_exists('halui') and running:
             data = {}
             if self.hal['enable']:
+                for key in self.keys:
+                    try:
+                        data[key] = hal.get_value(key)
+                    except RuntimeError as e:
+                        # Only print warning once
+                        if key not in missing:
+                            print(f"warning: Missing pin {key} not sent to MQTT")
+                            missing[key] = True
                 data['mqtt-publisher.period'] = self.hal['period']
                 if not self.dryrun:
                     print(f"info: Publishing MQTT message ({self.mqtt_prefix}):", json.dumps(data))
