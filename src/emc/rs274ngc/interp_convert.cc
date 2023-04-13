@@ -3467,11 +3467,11 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
      } else { // default spindle
        if (settings->default_spindle == -1) {
          enqueue_START_SPINDLE_CLOCKWISE(0);
-         settings->spindle_turning[0] = CANON_CLOCKWISE;
+         settings->spindle_turning[0] = CANON_COUNTERCLOCKWISE;
        }
        else {
          enqueue_START_SPINDLE_CLOCKWISE(settings->default_spindle);
-         settings->spindle_turning[settings->default_spindle] = CANON_CLOCKWISE;
+         settings->spindle_turning[settings->default_spindle] = CANON_COUNTERCLOCKWISE;
        }
      }
  } else if ((block->m_modes[7] == 5) && ONCE_M(7)){
