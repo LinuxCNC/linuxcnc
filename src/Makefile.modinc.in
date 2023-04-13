@@ -28,10 +28,12 @@
 # but there is no technical reason it cannot be extended to pre-kbuild systems.
 
 # When there is a single module and it consists of a single source file, an
-# easier way to build modules is to invoke 'comp':
-#  comp --compile example.c
+# easier way to build modules is to invoke 'halcompile':
+#  halcompile --compile example.c
 # or
-#  comp --install example.c
+#  halcompile --install example.c
+# despite the name 'halcompile' will also compile other modules, such as
+# kinematics. 
 
 ifeq ("$(origin V)", "command line")
   BUILD_VERBOSE = $(V)

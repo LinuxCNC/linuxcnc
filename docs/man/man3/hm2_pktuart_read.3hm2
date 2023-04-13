@@ -13,62 +13,7 @@ int hm2_pktuart_read(char *name,  unsigned char data[], rtapi_u8 *num_frames, rt
 
 .SH DESCRIPTION
 \fBhm2_pktuart_read\fR reads data from the PktUART "name".
-"name" is a unique string given to each PktUART during hostmot2 setup. The names of 
-the available channels are printed to standard output during the driver loading 
-process and take the form:
-hm2_<board name>.<board index>.pktuart.<index> For example hm2_5i25.0.pktuart.0
 
-This function reads a variable number of PktUART packets from the the specified 
-channel. It should be used inside a realtime HAL component registered with the 
-main hostmot2 driver using the function hm2_pktuart_setup in the setup
-code. 
+DEPRECATED except in setup code.
 
-"(*num_frames)*(*max_frame_length)" should be <= sizeof "data", which one tries
-to estimate or guess before calling the function.
-If there are more bytes in the buffer than the size of data array is, then
-RxArraySizeError is returned.
-
-Note that the PktUART MaxFrameSize is 1024 bytes as hard-coded in hostmot2.vhd .
-
-
-.SH RETURN VALUE
-Returns the number of bytes read on success and negative error codes on failure.
-
-"num_frames" which pointer is passed by value is set to the number of successfully 
-datagrams read.
-
-Negative error codes are:
-.TP 
-.B -1 - low level read/write error
-.TP
-.B -EINVAL - any PktUART configuration error per instance
-.TP
-.B 
-.TP
-.B -HM2_PKTUART_RxStartbitError - Rx mode register error
-.TP
-.B -HM2_PKTUART_RxOverrunError - Rx mode register error
-.TP
-.B -HM2_PKTUART_RxRCFIFOError - Rx mode register error
-.TP
-.B 
-.TP
-.B -HM2_PKTUART_RxPacketOverrrunError - Rx count register error
-.TP
-.B -HM2_PKTUART_RxPacketStartbitError - Rx count register error
-.TP
-.B 
-.TP
-.B -HM2_PKTUART_RxPacketSizeZero - the size of the received packet is zero
-.TP
-.B -HM2_PKTUART_RxArraySizeError - data array is too small for all the data in the buffer
-.TP
-Numeric values of the HM2_PKTUART_ error codes are defined in src/hal/drivers/mesa-hostmot2/pktuart_errno.h .
-
-
-.SH SEE ALSO
-.TP
-\fBhm2_pktuart_setup\fR(3hm2), \fBhm2_pktuart_send\fR(3hm2)
-
-.TP
-See src/hal/drivers/mesa_pktgyro_test.comp for an example usage.
+Please see the combined document hm2_pktuart.3hm2
