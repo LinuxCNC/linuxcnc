@@ -101,7 +101,8 @@ on what using % does not do.
 * 'M5 [$n]' - stop the selected spindle.
 
 Use $ to operate on specific spindles.
-If $ is omitted then the commands default to operating on spindle 0.
+If RS274NGC:DEFAULT_SPINDLE is set in the ini file, commands will use specified spindle
+If RS274NGC:DEFAULT_SPINDLE is not set and $ is omitted then the commands default to operating on spindle 0.
 Use $-1 to operate on all active spindles.
 
 This example will start spindles 0, 1, and 2 simultaneously at different

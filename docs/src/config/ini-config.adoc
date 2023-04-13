@@ -508,6 +508,7 @@ if __name__ == "__main__":
   Specifies a list of colon (:) separated directories for user defined functions.
   Directories are specified relative to the current directory for the INI file or as absolute paths.
   The list must contain no intervening whitespace.
+* `DEFAULT_SPINDLE = 0` - Specify Default spindle used by M3,M4,M5 (-1 for all spindles)
 +
 A search is made for each possible user defined function, typically (M100-M199). The search order is:
 +
