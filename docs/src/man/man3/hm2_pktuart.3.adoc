@@ -9,15 +9,25 @@ hm2_pktuart - functions to access the Mesa FPGA card packeted UARTs
 
 *#include hostmot2-serial.h*
 
+
 *int hm2_pktuart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode, int txclear, int rxclear)*
+
 *int hm2_pktuart_send(char *name,  unsigned char data[], rtapi_u8 *num_frames, rtapi_u16 frame_sizes[])*
+
 *int hm2_pktuart_read(char *name, unsigned char data[],  rtapi_u8 *num_frames, rtapi_u16 *max_frame_length, rtapi_u16 frame_sizes[])*
+
 *int hm2_pktuart_queue_get_frame_sizes(char *name, rtapi_u32 fsizes[])*
+
 *int hm2_pktuart_queue_read_data(char *name, rtapi_u32 *data, int bytes)*
+
 *int hm2_pktuart_get_clock(char *name)*
+
 *int hm2_pktuart_get_version(char *name)*
+
 *rtapi_u32 hm2_pktuart_get_rx_status(char *name)*
+
 *rtapi_u32 hm2_pktuart_get_tx_status(char *name)*
+
 
 == DESCRIPTION
 
@@ -33,8 +43,8 @@ Instead interfaxes are created to allow secondary drivers to use them.
 In LinuxCNC v2.8 and earlier the PktUART driver was entirely inactive.
 In LinuxCNC v2.9 onwards the driver polls the Rx and Tx status registers
 every servo thread, and these can be read with the functions
-rtapi_u32 hm2_pktuart_get_rx_status(char *name) and
-rtapi_u32 hm2_pktuart_get_tx_status(char *name).
+rtapi_u32 hm2_pktuart_get_rx_status() and
+rtapi_u32 hm2_pktuart_get_tx_status().
 
 === Acessing the UARTs ===
 
@@ -58,7 +68,7 @@ You should refer to the Hostmot2 "regmap" file for up-to-date register
 setup information. The latest version will normally be found at
 http://freeby.mesanet.com/regmap.
 
-You should use the function **hm2_pktuart_get_version(char *name)** to
+You should use the function **hm2_pktuart_get_version()** to
 check the module version loaded to the FPGA board. This documentation
 is valid for Rx v0 / v1 and Tx v0. The return value of the function is
 16 * Tx + Rx. If viewed in Hex then 0x01 would indicate Tx v0 and Rx v1
@@ -71,13 +81,14 @@ when read or written.
 
 To configure the UART use
 
-*int hm2_pktuart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode, int txclear, int rxclear)*
+*int hm2_pktuart_setup(name, bitrate, tx_mode, rx_mode, txclear, rxclear)*
 
 **bitrate** is simply the bitrate. (eg 9600, 115200 etc).
 
 **txmode** is built up from the following bits (directly copied from the
 regmap)
 
+----
     Bit  17        Parity enable WO
     Bit  18        Odd Parity  WO  (1=odd, 0=even)
     Bits 15..8     InterFrame delay in bit times RW
@@ -88,8 +99,11 @@ regmap)
                    to start of data transmit. In Clock Low periods RW
                    Drive enable delay is important to avoid start bit timing errors
                    at high baud rates in RS-485 (half duplex) modes
+----
 
 A reasonable starting value for txmode is **0x00000A20**
+
+----
 
 **rxmode** is built from the following:
 
@@ -102,11 +116,11 @@ A reasonable starting value for txmode is **0x00000A20**
     Bit  6	       RXMask RO
     Bit  3	       RXEnable (must be set to receive packets) RW 
     Bit  2	       RXMask Enable (enables input data masking when transmitting) RW
-
+----
 For low baudrates **0x3FC0140C** will generally work, but the filter bits
 should really be set according to the actual baudrate.
 
-The function **int hm2_pktuart_get_clock(char *name)** is provided to
+The function **int hm2_pktuart_get_clock(name)** is provided to
 enable calculation of the required filter period. It returns units of Hz.
 
 [Note] It is expected that v2 of Rx will extend the number of bits in
@@ -115,12 +129,15 @@ the filter definition for better behaviour at low bitrates.
 === Direct reads and writes ===
 
 The function:
-*int hm2_pktuart_send(char *name,  unsigned char data[], rtapi_u8 *num_frames, rtapi_u16 frame_sizes[])*
+
+*int hm2_pktuart_send()*
 
 Will always use the hm2_llio_queue_write function where available.
 
 However:
-*int hm2_pktuart_read(char *name, unsigned char data[],  rtapi_u8 *num_frames, rtapi_u16 *max_frame_length, rtapi_u16 frame_sizes[])*
+
+*int hm2_pktuart_read()*
+
 Will force an immediate read transaction. It may be used in setup and
 teardown code, but should not be called in the realtime functions as
 this will cause extra packets to be transmitted.
@@ -132,8 +149,9 @@ In the realtime threads the queued reads and writes should be used. This
 means that most transactions will be spread over more than one thread
 period.
 
-*rtapi_u32 hm2_pktuart_get_rx_status(char *name)*
-*rtapi_u32 hm2_pktuart_get_tx_status(char *name)*
+*rtapi_u32 hm2_pktuart_get_rx_status(name)*
+
+*rtapi_u32 hm2_pktuart_get_tx_status(name)*
 
 These functions will always return the latest status from the most
 recent data packet from the FPGA. The status should be used to check if
@@ -142,12 +160,17 @@ transmissions.
 
 The Tx status is encoded as:
 
+----
+
 Bit  21	       FrameBuffer Has Data RO
 Bits 20..16    Frames to send  RO
 Bit  7	       Send busy RO
 Bit  4	       SCFIFO Error RO
+----
 
 The Rx status is:
+
+----
 
 Bit  21	       FrameBuffer has data RO
 Bits 20..16    Frames received RO
@@ -157,6 +180,7 @@ Bit  5         Parity Error RW
 Bit  4	       RCFIFO Error RW
 Bit  1	       Overrun error (no stop bit when expected) (sticky) RW
 Bit  0	       False Start bit error (sticky) RW
+----
 
 Based on the status of the Rx and Tx components reads or writes from the
 FPGA can then be set up. This is typically a multi-step process:
@@ -164,7 +188,7 @@ FPGA can then be set up. This is typically a multi-step process:
 1) rxstatus indicates that there are packets of data, but at this point
 we need to know how big each packet is (and reading two much or two
 little data from the FIFOs will cause problems).
-2) Queue a read of the frame sizes. **hm2_pktuart_queue_get_frame_sizes(char *name, rtapi_u32 fsizes[])**
+2) Queue a read of the frame sizes. **hm2_pktuart_queue_get_frame_sizes(name, fsizes[])**
 On return, the fsizes[] array will have been loaded with the frame sizes
 (size in bytes). If fsizes are [8] [7] [6] and you only read 1 frame from
 the data FIFO then on the next call to get_frame_sizes the returned array
@@ -173,7 +197,7 @@ would be [7] [6].
 latency here, the data is already on the FPGA but we can only know how
 much data to request once we know the packet size
 4) Queue enough data reads to get all the data frames that the packet
-is spread over. **int hm2_pktuart_queue_read_data(char *name, rtapi_u32 *data, int bytes)**
+is spread over. **int hm2_pktuart_queue_read_data(name, data, bytes)**
 On return the data[] array will have been loaded with enough 32-bit
 frames to include "bytes" bytes.
 5) Parse the data.
@@ -204,6 +228,8 @@ some steps will have serial-port latency delays it is recommended to use
 a state machine in the realtime code where waiting on input is not
 possible.
 
+[source, C]
+----
 int process(void *arg, long period) {
     static int state = START;
 
@@ -261,7 +287,7 @@ int process(void *arg, long period) {
             break;
     }
 }
-
+----
 
 
 == PINS
