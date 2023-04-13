@@ -417,6 +417,14 @@ void emcmotCommandHandler(void *arg, long servo_period)
     int abort = 0;
     char* emsg = "";
 
+    if (emcmotCommand->commandNum == emcmotStatus->commandNumEcho) {
+      // if (emcmotCommand->commandNum == emcmotstatus->commandNumEcho)
+      // means has no new command, not need to execute
+      // if (emcmotCommand->commandNum != emcmotstatus->commandNumEcho)
+      // means has new command, will check complete of the new command
+      return;
+    }
+
     /* check for split read */
     if (emcmotCommand->head != emcmotCommand->tail) {
 	emcmotDebug->split++;
