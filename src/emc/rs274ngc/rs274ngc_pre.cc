@@ -1063,7 +1063,13 @@ int Interp::init()
 		       "DISABLE_G92_PERSISTENCE",
 		       "RS274NGC");
 
-	  // INI file m98/m99 subprogram default setting
+    // INI file g52/g92 offset persistence default setting
+    inifile.Find(&_setup.default_spindle,
+                 "DEFAULT_SPINDLE",
+                 "RS274NGC");
+
+
+        // INI file m98/m99 subprogram default setting
 	  inifile.Find(&_setup.disable_fanuc_style_sub,
 		       "DISABLE_FANUC_STYLE_SUB",
 		       "RS274NGC");
@@ -1074,6 +1080,7 @@ int Interp::init()
           inifile.Close();
       }
   }
+
 
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
   USE_LENGTH_UNITS(_setup.length_units);

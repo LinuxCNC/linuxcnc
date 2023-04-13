@@ -3442,8 +3442,14 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
             settings->spindle_turning[(int)block->dollar_number] = CANON_CLOCKWISE;
         }
      } else { // the default spindle
-        enqueue_START_SPINDLE_CLOCKWISE(0);
-        settings->spindle_turning[0] = CANON_CLOCKWISE;
+        if (settings->default_spindle == -1) {
+          enqueue_START_SPINDLE_CLOCKWISE(0);
+          settings->spindle_turning[0] = CANON_CLOCKWISE;
+        }
+        else {
+          enqueue_START_SPINDLE_CLOCKWISE(settings->default_spindle);
+          settings->spindle_turning[settings->default_spindle] = CANON_CLOCKWISE;
+        }
      }
  } else if ((block->m_modes[7] == 4) && ONCE_M(7)) {
      if (block->dollar_flag){
@@ -3459,8 +3465,14 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
             settings->spindle_turning[(int)block->dollar_number] = CANON_COUNTERCLOCKWISE;
         }
      } else { // default spindle
-         enqueue_START_SPINDLE_COUNTERCLOCKWISE(0);
-         settings->spindle_turning[0] = CANON_COUNTERCLOCKWISE;
+       if (settings->default_spindle == -1) {
+         enqueue_START_SPINDLE_CLOCKWISE(0);
+         settings->spindle_turning[0] = CANON_CLOCKWISE;
+       }
+       else {
+         enqueue_START_SPINDLE_CLOCKWISE(settings->default_spindle);
+         settings->spindle_turning[settings->default_spindle] = CANON_CLOCKWISE;
+       }
      }
  } else if ((block->m_modes[7] == 5) && ONCE_M(7)){
     if (block->dollar_flag){
@@ -3476,8 +3488,15 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
             enqueue_STOP_SPINDLE_TURNING(block->dollar_number);
         }
     } else { // the default spindle
-        settings->spindle_turning[0] = CANON_STOPPED;
-        enqueue_STOP_SPINDLE_TURNING(0);
+      if(settings->default_spindle == -1){
+        for (int i = 0; i < settings->num_spindles; i++){
+          settings->spindle_turning[i] = CANON_STOPPED;
+          enqueue_STOP_SPINDLE_TURNING(i);
+        }
+      }else {
+        settings->spindle_turning[settings->default_spindle] = CANON_STOPPED;
+        enqueue_STOP_SPINDLE_TURNING(settings->default_spindle);
+      }
     }
   } else if ((block->m_modes[7] == 19) && ONCE_M(7)) {
       for (int i = 0; i < settings->num_spindles; i++)

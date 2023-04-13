@@ -177,6 +177,7 @@ setup::setup() :
     disable_fanuc_style_sub(false),
     loop_on_main_m99(false),
     disable_g92_persistence(0),
+    default_spindle(-1),
     pythis(),
     on_abort_command(NULL),
     init_once(CANON_STOPPED)

@@ -805,6 +805,7 @@ struct setup
     bool loop_on_main_m99;
 
   int disable_g92_persistence;
+  int default_spindle;
 
 #define FEATURE(x) (_setup.feature_set & FEATURE_ ## x)
 #define FEATURE_RETAIN_G43           0x00000001
