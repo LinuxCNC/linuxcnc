@@ -48,7 +48,7 @@ int kinematicsForward(const double *joints,
 
     pos->tran.x = xyr * cos(xytheta) + xb - xv;
     pos->tran.y = xyr * sin(xytheta) - joints[7];
-    pos->tran.z = joints[2] - zb + zv + *(haldata->pivot_length);
+    pos->tran.z = joints[2] + zb - zv + *(haldata->pivot_length);
 
     pos->a = joints[3];
     pos->b = joints[4];
@@ -79,9 +79,9 @@ int kinematicsInverse(const EmcPose * pos,
 
     // V correction is always in joint 1 only
 
-    joints[0] = xyr * cos(xytheta) - xb + xv;
+    joints[0] = xyr * cos(xytheta) + xb + xv;
     joints[1] = xyr * sin(xytheta) + pos->v;
-    joints[2] = pos->tran.z + zb + zv - *(haldata->pivot_length);
+    joints[2] = pos->tran.z + zb - zv - *(haldata->pivot_length);
 
     joints[3] = pos->a;
     joints[4] = pos->b;
