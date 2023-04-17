@@ -20,6 +20,8 @@ Coordinated multi-axis CNC machine tools controlled with LinuxCNC, require a spe
 
 The kinematics components are given as well as vismach simulation models to demonstrate their behaviour on a computer screen. Examples of HAL file data are also given.
 
+Note that with these kinematics, the rotational axes move in the opposite direction of what the convention is. See section ["rotational axes"](https://linuxcnc.org/docs/html/gcode/machining-center.html#_rotational_axes) for details.
+
 == 5-Axis Machine Tool Configurations
 
 In this section we deal with the typical 5-axis milling or router machines with five joints or degrees-of-freedom which are controlled in coordinated moves.
@@ -412,6 +414,7 @@ image::5-axis-figures/Figure-11.png["Spindle tilting/rotary configuration",align
 
 == REFERENCES
 
+. AXIS MACHINE TOOLS: Kinematics and Vismach Implementation in LinuxCNC, RJ du Preez, SA-CNC-CLUB, April 7, 2016.
 . A Postprocessor Based on the Kinematics Model for General Five-Axis machine
   Tools: C-H She, R-S Lee, J Manufacturing Processes, V2 N2, 2000.
 . NC Post-processor for 5-axis milling of table-rotating/tilting type: YH Jung,
