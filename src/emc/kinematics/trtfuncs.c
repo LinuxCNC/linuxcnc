@@ -1,4 +1,5 @@
 /**************************************************************************
+* Copyright 2023 DerAndere
 * Copyright 2016 Rudy du Preez <rudy@asmsa.co.za>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -149,31 +150,30 @@ int xyzacKinematicsForward(const double *joints,
                            const KINEMATICS_FORWARD_FLAGS * fflags,
                            KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    double x_rot_point = *(haldata->x_rot_point);
-    double y_rot_point = *(haldata->y_rot_point);
-    double z_rot_point = *(haldata->z_rot_point);
-    double          dt = *(haldata->tool_offset);
-    double          dy = *(haldata->y_offset);
-    double          dz = *(haldata->z_offset);
-    double       a_rad = joints[JA]*TO_RAD;
-    double       c_rad = joints[JC]*TO_RAD;
+    const double x_rot_point = *(haldata->x_rot_point);
+    const double y_rot_point = *(haldata->y_rot_point);
+    const double z_rot_point = *(haldata->z_rot_point);
+    const double          dt = *(haldata->tool_offset);
+    const double          dy = *(haldata->y_offset);
+    const double          dz = *(haldata->z_offset) + dt;
+    const double       a_rad = joints[JA]*TO_RAD;
+    const double       c_rad = joints[JC]*TO_RAD;
 
-    dz = dz + dt;
 
     pos->tran.x = + cos(c_rad)              * (joints[JX]      - x_rot_point)
-                  + sin(c_rad) * cos(a_rad) * (joints[JY] - dy - y_rot_point)
+                  - sin(c_rad) * cos(a_rad) * (joints[JY] - dy - y_rot_point)
                   + sin(c_rad) * sin(a_rad) * (joints[JZ] - dz - z_rot_point)
-                  + sin(c_rad) * dy
+                  - sin(c_rad) * dy
                   + x_rot_point;
 
-    pos->tran.y = - sin(c_rad)              * (joints[JX]      - x_rot_point)
+    pos->tran.y = + sin(c_rad)              * (joints[JX]      - x_rot_point)
                   + cos(c_rad) * cos(a_rad) * (joints[JY] - dy - y_rot_point)
-                  + cos(c_rad) * sin(a_rad) * (joints[JZ] - dz - z_rot_point)
+                  - cos(c_rad) * sin(a_rad) * (joints[JZ] - dz - z_rot_point)
                   + cos(c_rad) * dy
                   + y_rot_point;
 
     pos->tran.z = + 0
-                  - sin(a_rad) * (joints[JY] - dy - y_rot_point)
+                  + sin(a_rad) * (joints[JY] - dy - y_rot_point)
                   + cos(a_rad) * (joints[JZ] - dz - z_rot_point)
                   + dz
                   + z_rot_point;
@@ -195,35 +195,34 @@ int xyzacKinematicsInverse(const EmcPose * pos,
                            const KINEMATICS_INVERSE_FLAGS * iflags,
                            KINEMATICS_FORWARD_FLAGS * fflags)
 {
-    double x_rot_point = *(haldata->x_rot_point);
-    double y_rot_point = *(haldata->y_rot_point);
-    double z_rot_point = *(haldata->z_rot_point);
-    double         dy  = *(haldata->y_offset);
-    double         dz  = *(haldata->z_offset);
-    double         dt  = *(haldata->tool_offset);
-    double      a_rad  = pos->a*TO_RAD;
-    double      c_rad  = pos->c*TO_RAD;
+    const double x_rot_point = *(haldata->x_rot_point);
+    const double y_rot_point = *(haldata->y_rot_point);
+    const double z_rot_point = *(haldata->z_rot_point);
+    const double         dy  = *(haldata->y_offset);
+    const double         dt  = *(haldata->tool_offset);
+    const double         dz  = *(haldata->z_offset) + dt;
+    const double      a_rad  = pos->a*TO_RAD;
+    const double      c_rad  = pos->c*TO_RAD;
+
 
     EmcPose P; // computed position
 
-    dz = dz + dt;
-
     P.tran.x   = + cos(c_rad)              * (pos->tran.x - x_rot_point)
-                 - sin(c_rad)              * (pos->tran.y - y_rot_point)
+                 + sin(c_rad)              * (pos->tran.y - y_rot_point)
                  + x_rot_point;
 
-    P.tran.y   = + sin(c_rad) * cos(a_rad) * (pos->tran.x - x_rot_point)
+    P.tran.y   = - sin(c_rad) * cos(a_rad) * (pos->tran.x - x_rot_point)
                  + cos(c_rad) * cos(a_rad) * (pos->tran.y - y_rot_point)
-                 -              sin(a_rad) * (pos->tran.z - z_rot_point)
+                 +              sin(a_rad) * (pos->tran.z - z_rot_point)
                  -              cos(a_rad) * dy
-                 +              sin(a_rad) * dz
+                 -              sin(a_rad) * dz
                  + dy
                  + y_rot_point;
 
     P.tran.z   = + sin(c_rad) * sin(a_rad) * (pos->tran.x - x_rot_point)
-                 + cos(c_rad) * sin(a_rad) * (pos->tran.y - y_rot_point)
+                 - cos(c_rad) * sin(a_rad) * (pos->tran.y - y_rot_point)
                  +              cos(a_rad) * (pos->tran.z - z_rot_point)
-                 -              sin(a_rad) * dy
+                 +              sin(a_rad) * dy
                  -              cos(a_rad) * dz
                  + dz
                  + z_rot_point;
@@ -254,30 +253,29 @@ int xyzbcKinematicsForward(const double *joints,
                            KINEMATICS_INVERSE_FLAGS * iflags)
 {
     // Note: 'principal' joints are used
-    double x_rot_point = *(haldata->x_rot_point);
-    double y_rot_point = *(haldata->y_rot_point);
-    double z_rot_point = *(haldata->z_rot_point);
-    double          dx = *(haldata->x_offset);
-    double          dz = *(haldata->z_offset);
-    double          dt = *(haldata->tool_offset);
-                    dz = dz + dt;
-    double       b_rad = joints[JB]*TO_RAD;
-    double       c_rad = joints[JC]*TO_RAD;
+    const double x_rot_point = *(haldata->x_rot_point);
+    const double y_rot_point = *(haldata->y_rot_point);
+    const double z_rot_point = *(haldata->z_rot_point);
+    const double          dx = *(haldata->x_offset);
+    const double          dt = *(haldata->tool_offset);
+    const double          dz = *(haldata->z_offset) + dt;
+    const double       b_rad = joints[JB]*TO_RAD;
+    const double       c_rad = joints[JC]*TO_RAD;
 
 
     pos->tran.x =   cos(c_rad) * cos(b_rad) * (joints[JX] - dx - x_rot_point)
-                  + sin(c_rad) *              (joints[JY]      - y_rot_point)
-                  - cos(c_rad) * sin(b_rad) * (joints[JZ] - dz - z_rot_point)
+                  - sin(c_rad) *              (joints[JY]      - y_rot_point)
+                  + cos(c_rad) * sin(b_rad) * (joints[JZ] - dz - z_rot_point)
                   + cos(c_rad) * dx
                   + x_rot_point;
 
-    pos->tran.y = - sin(c_rad) * cos(b_rad) * (joints[JX] - dx - x_rot_point)
+    pos->tran.y = + sin(c_rad) * cos(b_rad) * (joints[JX] - dx - x_rot_point)
                   + cos(c_rad) *              (joints[JY]      - y_rot_point)
                   + sin(c_rad) * sin(b_rad) * (joints[JZ] - dz - z_rot_point)
-                  - sin(c_rad) * dx
+                  + sin(c_rad) * dx
                   + y_rot_point;
 
-    pos->tran.z =   sin(b_rad) * (joints[JX] - dx - x_rot_point)
+    pos->tran.z = - sin(b_rad) * (joints[JX] - dx - x_rot_point)
                   + cos(b_rad) * (joints[JZ] - dz - z_rot_point)
                   + dz
                   + z_rot_point;
@@ -299,31 +297,31 @@ int xyzbcKinematicsInverse(const EmcPose * pos,
                            const KINEMATICS_INVERSE_FLAGS * iflags,
                            KINEMATICS_FORWARD_FLAGS * fflags)
 {
-    double x_rot_point = *(haldata->x_rot_point);
-    double y_rot_point = *(haldata->y_rot_point);
-    double z_rot_point = *(haldata->z_rot_point);
-    double          dx = *(haldata->x_offset);
-    double          dz = *(haldata->z_offset);
-    double          dt = *(haldata->tool_offset);
-                    dz = dz + dt;
-    double       b_rad = pos->b*TO_RAD;
-    double       c_rad = pos->c*TO_RAD;
-    double         dpx = -cos(b_rad)*dx - sin(b_rad)*dz + dx;
-    double         dpz =  sin(b_rad)*dx - cos(b_rad)*dz + dz;
+    const double x_rot_point = *(haldata->x_rot_point);
+    const double y_rot_point = *(haldata->y_rot_point);
+    const double z_rot_point = *(haldata->z_rot_point);
+    const double          dx = *(haldata->x_offset);
+    const double          dt = *(haldata->tool_offset);
+    const double          dz = *(haldata->z_offset) + dt;
+    const double       b_rad = pos->b*TO_RAD;
+    const double       c_rad = pos->c*TO_RAD;
+    const double         dpx = -cos(b_rad)*dx + sin(b_rad)*dz + dx;
+    const double         dpz = -sin(b_rad)*dx - cos(b_rad)*dz + dz;
+
 
     EmcPose P; // computed position
 
     P.tran.x   = + cos(c_rad) * cos(b_rad) * (pos->tran.x - x_rot_point)
-                 - sin(c_rad) * cos(b_rad) * (pos->tran.y - y_rot_point)
-                 + sin(b_rad) *              (pos->tran.z - z_rot_point)
+                 + sin(c_rad) * cos(b_rad) * (pos->tran.y - y_rot_point)
+                 - sin(b_rad) *              (pos->tran.z - z_rot_point)
                  + dpx
                  + x_rot_point;
 
-    P.tran.y   = + sin(c_rad) * (pos->tran.x - x_rot_point)
+    P.tran.y   = - sin(c_rad) * (pos->tran.x - x_rot_point)
                  + cos(c_rad) * (pos->tran.y - y_rot_point)
                  + y_rot_point;
 
-    P.tran.z   = - cos(c_rad) * sin(b_rad) * (pos->tran.x - x_rot_point)
+    P.tran.z   = + cos(c_rad) * sin(b_rad) * (pos->tran.x - x_rot_point)
                  + sin(c_rad) * sin(b_rad) * (pos->tran.y - y_rot_point)
                  + cos(b_rad) *              (pos->tran.z - z_rot_point)
                  + dpz
