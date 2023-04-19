@@ -462,7 +462,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             if 200 in canon.state.gcodes:
                 units = "in"
                 fmt = "%.4f"
-                conv = 1/25
+                conv = 1/25.4
             else:
                 units = "mm"
                 fmt = "%.3f"

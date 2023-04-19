@@ -14,39 +14,6 @@ int hm2_uart_send(char *name,  unsigned char data[], rtapi_u8 *num_frames, rtapi
 .SH DESCRIPTION
 \fBhm2_pktuart_send\fR writes "num_frames"  of data to the PktUART "name" from the 
 buffer "data" with frame sizes preset in "frame_sizes[]" array.
-"frame_sizes[]" array should not have more than 16 elements as this is the highest
-number of frames that can be sent out in the so called "burst mode".
 
-Note that the PktUART MaxFrameSize is 1024 bytes as hard-coded in hostmot2.vhd .
-
-"name" is a unique string given to each PktUART during hostmot2 setup. The names of 
-the available channels are printed to standard output during the driver loading 
-process and take the form:                                    
-hm2_<board name>.<board index>.pktuart.<index> For example hm2_5i25.0.pktuart.0 .
-
-This function sends a variable number of PktUART packets (less or equal 16) from 
-the the specified channel. It should be used inside a realtime HAL component
-registered with the main hostmot2 driver using the function hm2_pktuart_setup 
-in the setup code. 
-
-.SH RETURN VALUE
-Returns the number of bytes sent on success and negative error codes on failure.
-
-"num_frames" which pointer is passed by value is set to the number of successfully 
-datagrams sent out.
-
-Negative error codes are:
-.TP 
-.B -1 - low level read/write error
-.TP
-.B -EINVAL - any PktUART configuration error per instance
-.TP
-.B -HM2_PKTUART_TxSCFIFOError - Tx Send Count FIFO Error
-.TP
-Numeric values of HM2_PKTUART_ error codes are defined in src/hal/drivers/mesa-hostmot2/pktuart_errno.h .
-
-
-.SH SEE ALSO
-\fBhm2_pktuart_setup\fR(3hm2), \fBhm2_pktuart_read\fR(3hm2)
-.TP
-See src/hal/drivers/mesa_pktgyro_test.comp for an example usage.
+Please see the combined document hm2_pktuart.3hm2 for how to use this
+function. 

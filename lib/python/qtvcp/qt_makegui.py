@@ -109,7 +109,7 @@ class _VCPWindow(QtWidgets.QMainWindow):
     def keyPressEvent(self, e):
         self.keyPressTrap(e)
 
-    def keyreleaseEvent(self, e):
+    def keyReleaseEvent(self, e):
         self.keyReleaseTrap(e)
 
     # These can get class patched by xembed library to catch events

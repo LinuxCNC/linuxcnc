@@ -245,20 +245,20 @@ Either modify an existing UI component by running +glade <file>.ui+
 or start a new one by just running the +glade+ command from the shell.
 
 - If LinuxCNC was not installed from a package, the LinuxCNC shell environment needs to be set up with
-  +<linuxcncdir>/scripts/rip-environment+, otherwise Glade won't find the LinuxCNC-specific widgets.
+  `source <linuxcncdir>/scripts/rip-environment`, otherwise Glade won't find the LinuxCNC-specific widgets.
 - When asked for unsaved preferences, just accept the defaults and hit 'Close'.
-- From 'Toplevel' (left pane), pick 'Window' (first icon) as top level window, which
-  by default will be named 'window1'. Do not change this name - GladeVCP relies on it.
-- In the left tab, scroll down and expand  'HAL Python' and 'VCP Actions'.
-- add a container like a HAL_Box or a HAL_Table from 'HAL Python' to the frame
-- pick and place some elements like LED, button, etc. within a container
+- From 'Toplevels' (toolbar), pick 'GtkWindow' (first entry) as top level window. Set 'window1' as ID in the
+  right pane under the tab 'General'. This naming is important because GladeVCP relies on it.
+- From the button with the three dots you can find the LinuxCNC specific widgets.
+- Add a container like a HAL_Box or a HAL_Table from 'HAL Python' to the frame.
+- Pick and place some elements like LED, button, etc. within a container.
 
-This will look like so:
+This will look like this:
 
 image::images/glade-manual-small.png[]
 
 Glade tends to write a lot of messages to the shell window, which
-mostly can be ignored.  Select 'File→Save as', give it a name like
+mostly can be ignored.  Select 'File'→'Save as', give it a name like
 'myui.ui' and make sure it's saved as 'GtkBuilder' file (radio button
 left bottom corner in Save dialog). GladeVCP will also process the
 older 'libglade' format correctly but there is no point in using it. The

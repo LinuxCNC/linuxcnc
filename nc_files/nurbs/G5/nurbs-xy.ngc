@@ -1,0 +1,28 @@
+
+; from
+; linuxcnc.org/docs/html/gcode/g-code.html#gcode::g5.2-g5.3
+; 
+
+G17 ; Plane XY
+
+G0 X0 Y0 (rapid move)
+F100 (set feed rate)
+
+G5.2 P1 L3
+     X0 Y1 P1
+     X2 Y2 P1
+     X2 Y0 P1
+     X0 Y0 P2
+G5.3
+
+; The rapid moves show the same path without the NURBS Block
+G0 X0 Y1
+   X2 Y2
+   X2 Y0
+   X0 Y0
+
+G0 X0 Y0 (rapid move)
+M2
+
+
+

@@ -212,6 +212,9 @@ def main():
             sys.exit(0)
 
     window = builder.get_object("window1")
+    if window is None:
+        print('*** GLADE VCP ERROR:    No window named "window1" found. The toplevel windows has to be named "window1"!')
+        sys.exit(0)
 
     window.set_title(opts.component)
 
