@@ -1,4 +1,4 @@
-VERSION = '1.235.271'
+VERSION = '1.235.272'
 
 '''
 qtplasmac_handler.py
@@ -5077,15 +5077,12 @@ class HandlerClass:
                     zAngle = 0
             else:
                 zAngle = 0
-            if not self.gcodeProps:
-                msgList, units, xMin, yMin, xMax, yMax = self.bounds_check('align', 0, 0)
             self.w.camview.rotation = zAngle
             ACTION.CALL_MDI_WAIT('G10 L20 P0 X{} Y{}'.format(offsetX, offsetY))
             ACTION.CALL_MDI_WAIT('G10 L2 P0 R{}'.format(zAngle))
-            if not self.boundsError['align']:
-                ACTION.CALL_MDI('G0 X0 Y0')
-                while not STATUS.is_interp_idle():
-                    self.w.gcodegraphics.updateGL()
+            ACTION.CALL_MDI('G0 X0 Y0')
+            while not STATUS.is_interp_idle():
+                self.w.gcodegraphics.updateGL()
             if self.fileOpened == True:
                 self.file_reload_clicked()
                 self.w.gcodegraphics.logger.clear()
@@ -5104,12 +5101,10 @@ class HandlerClass:
         self.camButtonState = self.sheet_align(self.camButtonState, self.w.cam_mark, self.camOffsetX, self.camOffsetY)
 
     def cam_goto_clicked(self):
-        msgList, units, xMin, yMin, xMax, yMax = self.bounds_check('align', 0, 0)
-        if not self.boundsError['align']:
-            ACTION.CALL_MDI_WAIT('G0 X0 Y0')
-            while not STATUS.is_interp_idle():
-                self.w.gcodegraphics.updateGL()
-            ACTION.SET_MANUAL_MODE()
+        ACTION.CALL_MDI_WAIT('G0 X0 Y0')
+        while not STATUS.is_interp_idle():
+            self.w.gcodegraphics.updateGL()
+        ACTION.SET_MANUAL_MODE()
 
     def cam_zoom_plus_pressed(self):
         if self.w.camview.scale >= 5:
