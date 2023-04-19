@@ -152,6 +152,7 @@ man9/pluto_servo.9
 man9/pluto_step.9
 man9/raster.9
 man9/reset.9
+man9/safety_latch.9
 man9/sample_hold.9
 man9/scale.9
 man9/scaled_s32_sums.9
