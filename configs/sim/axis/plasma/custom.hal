@@ -1,0 +1,17 @@
+# Keep your plasmac2 I/O connections here to prevent them from
+# being overwritten by updates or pncconf/stepconf changes
+
+# Other customisations may be placed here as well
+
+#***** DEBOUNCE FOR THE INPUTS *****
+# for the float and ohmic inputs
+# each increment in delay is a 0.001mm (0.00004") increase in any probed height result
+setp db_float.delay     5
+setp db_ohmic.delay     5
+setp db_breakaway.delay 5
+setp db_arc-ok.delay    5
+
+#***** ARC VOLTAGE LOWPASS FILTER *****
+# only use this if comprehensive testing shows that it is required
+# change to the cutoff frequency you require
+setp plasmac.lowpass-frequency 0
