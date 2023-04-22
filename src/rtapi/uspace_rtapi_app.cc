@@ -1351,8 +1351,12 @@ void Posix::do_outb(unsigned char val, unsigned int port)
 }
 
 void Posix::do_delay(long ns) {
-    struct timespec ts = {0, ns};
-    rtapi_clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL, NULL);
+    if (rtapi_thread_timing_mode == RTAPI_THREAD_TIMING_MODE_BUSYWAIT) {
+        rtapi_busywait(ns);
+    } else {
+        struct timespec ts = {0, ns};
+        rtapi_clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL, NULL);
+    }
 }
 int rtapi_prio_highest(void)
 {
