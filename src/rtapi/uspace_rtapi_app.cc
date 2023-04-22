@@ -1173,6 +1173,12 @@ static void set_cpufreq_governor_to_performance(int rt_cpu_number) {
     snprintf(filename, PATH_MAX, "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor", rt_cpu_number);
     FILE *f = fopen(filename, "w");
     if (f == NULL) {
+        if (errno == ENOENT) {
+            // Not all systems have cpufreq support (for example if CPU
+            // frequency scaling is disabled in the BIOS), so it's not
+            // a failure if this doesn't work.
+            return;
+        }
         rtapi_print_msg(RTAPI_MSG_ERR, "failed to open %s: %s\n", filename, strerror(errno));
     } else {
         fprintf(f, "performance\n");
