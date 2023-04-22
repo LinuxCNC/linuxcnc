@@ -1144,10 +1144,10 @@ int Posix::task_delete(int id)
 static int find_rt_cpu_number() {
 #ifdef __linux__
     if (rtapi_thread_timing_mode == RTAPI_THREAD_TIMING_MODE_SLEEP) {
-        return sysconf(_SC_NPROCESSORS_CONF) - 1;
+        return sysconf(_SC_NPROCESSORS_ONLN) - 1;
 
     } else {
-        static int next_rt_cpu = sysconf(_SC_NPROCESSORS_CONF) - 1;
+        static int next_rt_cpu = sysconf(_SC_NPROCESSORS_ONLN) - 1;
         if (next_rt_cpu == 0) {
             rtapi_print_msg(RTAPI_MSG_ERR, "rtapi: too many realtime threads for number of CPUs in the system!\n");
             return -1;
