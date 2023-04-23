@@ -113,7 +113,7 @@ Flags may be one or more of the following:
 
 -n:: name a component when it is a valid option for that component.
 
-.loadusr Syntax and Examples
+.Syntax and Examples of `loadusr` 
 [source,{hal}]
 ----
 loadusr <component> <options>
@@ -126,13 +126,13 @@ In English it means 'loadusr wait for name spindle component gs2_vfd name spindl
 [[sub:hal-net]]
 === net(((HAL net,net)))
 
-The command 'net' creates a 'connection' between a signal and one or more pins.
+The command `net` creates a 'connection' between a signal and one or more pins.
 If the signal does not exist net creates the new signal.
 This replaces the need to use the command newsig.
-The optional direction arrows '<=', '=>' and '<=>' make it easier to follow the logic when reading a 'net' command line and are not used by the net command.
+The optional direction arrows `<=`, `=>` and `<=>` make it easier to follow the logic when reading a `net` command line and are not used by the net command.
 The direction arrows must be separated by a space from the pin names.
 
-.net Syntax and Example
+.`net` Syntax and Example
 [source,{hal}]
 ----
 net signal-name pin-name <optional arrow> <optional second pin-name>
@@ -178,7 +178,7 @@ An I/O pin like encoder._N_.index-enable can be read or set as allowed by the co
 [[sub:hal-setp]]
 === setp(((HAL setp,setp)))
 
-The command 'setp' sets the value of a pin or parameter.
+The command `setp` sets the value of a pin or parameter.
 The valid values will depend on the type of the pin or parameter.
 It is an error if the data types do not match.
 
@@ -186,7 +186,7 @@ Some components have parameters that need to be set before use.
 Parameters can be set before use or while running as needed.
 You cannot use setp on a pin that is connected to a signal.
 
-.setp Syntax and Example
+.`setp` Syntax and Example
 [source,{hal}]
 ----
 setp <pin/parameter-name> <value>
@@ -196,9 +196,9 @@ setp parport.0.pin-08-out TRUE
 [[sub:hal-sets]]
 === sets(((HAL sets,sets)))
 
-The command 'sets' sets the value of a signal.
+The command `sets` sets the value of a signal.
 
-.sets Syntax and Example:
+.`sets` Syntax and Example:
 [source,{hal}]
 ----
 sets <signal-name> <value>
@@ -215,11 +215,11 @@ It is an error if:
 [[sub:hal-inlinkp]]
 === unlinkp(((HAL unlinkp,unlinkp)))
 
-The command 'unlinkp' unlinks a pin from the connected signal.
+The command `unlinkp` unlinks a pin from the connected signal.
 If no signal was connected to the pin prior running the command, nothing happens.
-The 'unlinkp' command is useful for trouble shooting.
+The `unlinkp` command is useful for trouble shooting.
 
-.unlinkp syntax and Example
+.`unlinkp` Syntax and Example
 [source,{hal}]
 ----
 unlinkp <pin-name>
@@ -236,7 +236,7 @@ These commands are included so older configurations will still work.
 
 The command `linksp` creates a 'connection' between a signal and one pin.
 
-.linksp Syntax and Example
+.`linksp` Syntax and Example
 [source,{hal}]
 ----
 linksp <signal-name> <pin-name>
@@ -250,7 +250,7 @@ linksp X-step parport.0.pin-02-out
 The command `linkps` creates a 'connection' between one pin and one signal.
 It is the same as `linksp` but the arguments are reversed.
 
-.linkps Syntax and Example
+.`linkps` Syntax and Example
 [source,{hal}]
 ----
 linkps <pin-name> <signal-name>
@@ -264,7 +264,7 @@ linkps parport.0.pin-02-out X-Step
 the command `newsig` creates a new HAL signal by the name _<signame>_ and the data type of _<type>_.
 Type must be 'bit', 's32', 'u32' or 'float'. Error if _<signame>_ already exists.
 
-.newsig Syntax and Example
+.`newsig` Syntax and Example
 [source,{hal}]
 ----
 newsig <signame> <type>
@@ -365,7 +365,7 @@ and2.N.in1 (bit, in)
 and2.N.out (bit, out)
 ----
 
-.and2 Truth Table
+.`and2` Truth Table
 [width="90%",options="header"]
 |===
 |in0   | in1   | out
@@ -397,7 +397,7 @@ not.n.in (bit, in)
 not.n.out (bit, out)
 ----
 
-.not Truth Table
+.`not` Truth Table
 [width="90%",options="header"]
 |===
 |in    | out
@@ -523,18 +523,18 @@ The weight ('weight') of bit 0 is 1, that of bit 2 is 4, so the sum is 5.
 .`weighted_sum` Example component Pin for weighted sums.
 [width="90%",options="header"]
 |===
-|Owner|Type |Dir  |Value |Name
-|10   |bit  |In   |TRUE  |wsum.0.bit.0.in
-|10   |s32  |I/O  |1     |wsum.0.bit.0.weight
-|10   |bit  |In   |FALSE |wsum.0.bit.1.in
-|10   |s32  |I/O  |2     |wsum.0.bit.1.weight
-|10   |bit  |In   |TRUE  |wsum.0.bit.2.in
-|10   |s32  |I/O  |4     |wsum.0.bit.2.weight
-|10   |bit  |In   |FALSE |wsum.0.bit.3.in
-|10   |s32  |I/O  |8     |wsum.0.bit.3.weight
-|10   |bit  |In   |FALSE |wsum.0.hold
-|10   |s32  |I/O  |0     |wsum.0.offset
-|10   |s32  |Out  |5     |wsum.0.sum
+|Owner |Type |Dir  |Value |Name
+|10    |bit  |In   |TRUE  m|wsum.0.bit.0.in
+|10    |s32  |I/O  |1     m|wsum.0.bit.0.weight
+|10    |bit  |In   |FALSE m|wsum.0.bit.1.in
+|10    |s32  |I/O  |2     m|wsum.0.bit.1.weight
+|10    |bit  |In   |TRUE  m|wsum.0.bit.2.in
+|10    |s32  |I/O  |4     m|wsum.0.bit.2.weight
+|10    |bit  |In   |FALSE m|wsum.0.bit.3.in
+|10    |s32  |I/O  |8     m|wsum.0.bit.3.weight
+|10    |bit  |In   |FALSE m|wsum.0.hold
+|10    |s32  |I/O  |0     m|wsum.0.offset
+|10    |s32  |Out  |5     m|wsum.0.sum
 |===
 
 // vim: set syntax=asciidoc:

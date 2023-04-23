@@ -350,7 +350,7 @@ See <<cha:gmoccapy,GMOCCAPY>> document for GMOCCAPY details.
 . UVW translation example: `GEOMETRY=XYZUVW` causes UVW to move in the coordinate system of the tool and XYZ to move in the coordinate system of the material.
 . Foam-cutting machines (`FOAM = 1`) should specify "XY;UV" or leave the value blank even though this value is presently ignored in foam-cutter mode.
   A future version may define what ";" means, but if it does "XY;UV" will mean the same as the current foam default.
-. Experimental: If the "*!*` character is included in the GEOMETRY string, display points for A, B, C rotations respect the X, Y, Z offsets set by G5x, G92 codes.
+. Experimental: If the exclamation mark (`!`) character is included in the GEOMETRY string, display points for A, B, C rotations respect the X, Y, Z offsets set by G5x, G92 codes.
   Example: Using `GEOMETRY = !CXZ` for a machine with `[TRAJ]COORDINATES=XZC`.
   This provision applies for liveplots only -- G-code previews should be done with zero G5x, G92 offsets.
   This can be facilitated by setting offsets in programs only when task is running as indicated by #<_task> == 1.
@@ -370,7 +370,7 @@ If no `[DISPLAY]GEOMETRY` is included in the INI file, a default is provided by 
   This is useful if you have multiple configurations on one computer.
 * `JOG_AXES =` - The order in which jog keys are assigned to axis letters.
   The left and right arrows are assigned to the first axis letter, up and down to the second, page up/page down to the third, and left and right bracket to the fourth.
-  If unspecified, the default is determined from the [TRAJ]COORDINATES, [DISPLAY]LATHE and [DISPLAY]FOAM values.
+  If unspecified, the default is determined from the `[TRAJ]COORDINATES`, `[DISPLAY]LATHE` and `[DISPLAY]FOAM` values.
 * `JOG_INVERT =` - For each axis letter, the jog direction is inverted.
   The default is "X" for lathes and blank otherwise.
 +
@@ -378,7 +378,7 @@ If no `[DISPLAY]GEOMETRY` is included in the INI file, a default is provided by 
 The settings for `JOG_AXES` and `JOG_INVERT` apply to world mode jogging by axis coordinate letter and are in effect while in world mode after successful homing.
 When operating in joint mode prior to homing, keyboard jog keys are assigned in a fixed sequence: left/right: joint0, up/down: joint1, page up/page down: joint2, left/right bracket: joint3
 
-* `USER_COMMAND_FILE = mycommands.py` - The name of an optional, configuration-specific Python file sourced by the axis GUI instead of the user-specific file `~/.axisrc`.
+* `USER_COMMAND_FILE = mycommands.py` - The name of an optional, configuration-specific Python file sourced by the AXIS GUI instead of the user-specific file `~/.axisrc`.
 
 [NOTE]
 The following `[DISPLAY]` item is used by the TKLinuxCNC interface only.
@@ -497,7 +497,7 @@ if __name__ == "__main__":
   because the modal codes of machines differ, and may be changed by G-code interpreted earlier in the session.
 * `SUBROUTINE_PATH = ncsubroutines:/tmp/testsubs:lathesubs:millsubs` - (((SUBROUTINE PATH)))
   Specifies a colon (:) separated list of up to 10 directories to be searched when single-file subroutines are specified in G-code.
-  These directories are searched after searching [DISPLAY]PROGRAM_PREFIX (if it is specified) and before searching `[WIZARD]WIZARD_ROOT` (if specified).
+  These directories are searched after searching `[DISPLAY]PROGRAM_PREFIX` (if it is specified) and before searching `[WIZARD]WIZARD_ROOT` (if specified).
   The paths are searched in the order that they are listed.
   The first matching subroutine file found in the search is used.
   Directories are specified relative to the current directory for the INI file or as absolute paths.
@@ -511,9 +511,9 @@ if __name__ == "__main__":
 +
 A search is made for each possible user defined function, typically (M100-M199). The search order is:
 +
-. [DISPLAY]PROGRAM_PREFIX (if specified)
-. If [DISPLAY]PROGRAM_PREFIX is not specified, search the default location: nc_files
-. Then search each directory in the list [RS274NGC]USER_M_PATH
+. `[DISPLAY]PROGRAM_PREFIX` (if specified)
+. If `[DISPLAY]PROGRAM_PREFIX` is not specified, search the default location: nc_files
+. Then search each directory in the list `[RS274NGC]USER_M_PATH`.
 +
 The first executable M1__xx__ found in the search is used for each M1__xx__.
 
