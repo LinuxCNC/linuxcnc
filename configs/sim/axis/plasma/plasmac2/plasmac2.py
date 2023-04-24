@@ -1411,9 +1411,6 @@ def sheet_align(mode, buttonState, offsetX, offsetY):
                 zAngle = 0
         else:
             zAngle = 0
-#FIXME: I CANNOT REMEMBER WHY WE DO THIS, I CANNOT SEE A REASON (1)
-#        if not o.canon:
-#            msgList, units, xMin, yMin, xMax, yMax = bounds_check('align', 0, 0)
 #FIXME: NO CAMERA - IS A CAMERA WORTHWHILE ON A PLASMA TABLE?
 #        self.w.camview.rotation = zAngle
         ensure_mode(linuxcnc.MODE_MDI)
@@ -1423,8 +1420,6 @@ def sheet_align(mode, buttonState, offsetX, offsetY):
         c.wait_complete()
         if loaded_file:
             commands.reload_file(False)
-#FIXME: SEE (1) ABOVE
-#        if not boundsError['align']:
         if 1:
             ensure_mode(linuxcnc.MODE_MDI)
             c.mdi('G0 X0 Y0')
