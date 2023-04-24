@@ -573,7 +573,6 @@ class gmoccapy(object):
         self.spindle_override_max = self.get_ini_info.get_max_spindle_override()
         self.spindle_override_min = self.get_ini_info.get_min_spindle_override()
         self.feed_override_max = self.get_ini_info.get_max_feed_override()
-        self.rapid_override_max = self.get_ini_info.get_max_rapid_override()
         self.dro_actual = self.get_ini_info.get_position_feedback_actual()
 
     def _get_pref_data(self):
@@ -1752,7 +1751,7 @@ class gmoccapy(object):
         self.widgets.spc_spindle.set_value(100)
 
         self.widgets.spc_rapid.set_property("min", 0)
-        self.widgets.spc_rapid.set_property("max", self.rapid_override_max * 100)
+        self.widgets.spc_rapid.set_property("max", 100)
         self.widgets.spc_rapid.set_value(100)
 
         self.widgets.spc_feed.set_property("min", 0)
