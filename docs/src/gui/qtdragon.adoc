@@ -46,9 +46,8 @@ It will work in window mode on any monitor with higher resolution but not on mon
 
 == Getting Started - The INI File
 
-If your configuration is not currently set up to use QtDragon,
-you can change it by editing the INI file sections.
-For an exhaustive list of options, see the <<sub:ini:sec:display,display section>> of INI file documentation.
+If your configuration is not currently set up to use QtDragon, you can change it by editing the INI file sections.
+For an exhaustive list of options, see the <<sub:ini:sec:display,display section>> of the INI file documentation.
 
 [NOTE]
 You can only have one of each section ( ie [HAL] ) in the INI file. If you see in these docs multiple section options
@@ -444,7 +443,7 @@ qtdragon.led-probe
 
 These pins are inputs related to spindle VFD indicating. +
 The volt and amp pins are used to calculate spindle power.
-(You must also set the MAX_SPINDLE_POWER in the INI.)
+You must also set the MAX_SPINDLE_POWER in the INI.
 
 [source,{hal}]
 ----
@@ -584,8 +583,7 @@ It uses a HAL non-realtime component which utilizes the external offsets feature
 The component has a HAL pin that specifies an interpolation type, which must be one of cubic, linear or nearest (0, 1, 2 respectively).
 If none is specified or if an invalid number is specified, the default is assumed to be cubic.
 
-When Z LEVEL COMP is enabled, the compensation component reads a probe data file,
-which must be called 'probe_points.txt'.
+When Z LEVEL COMP is enabled, the compensation component reads a probe data file, which must be called 'probe_points.txt'.
 The file can be modified or updated at any time while compensation is disabled.
 When next enabled, the file will be reread and the compensation map is recalculated.
 This file is expected to be in the configuration directory.
@@ -683,8 +681,11 @@ then the tool is lowered until it touches the plate, triggering the probe signal
 Z0 is set to probe height - plate thickness.
 
 The second method uses a tool setter in a fixed position and a known height above the table where the probe signal will be triggered.
-In order to set Z0 to the top of the workpiece, it has to know how far above the table the probe trigger point is (tool setter height).
-and how far above the table the top of the workpiece is.
+In order to set Z0 to the top of the workpiece, it has to know
+
+ . how far above the table the probe trigger point is (tool setter height) and
+ . how far above the table the top of the workpiece is.
+ 
 This operation has to be done every time the tool is changed as the tool length is not saved.
 
 For touching off with a touch probe, whether you use the touchplate operation with thickness set to 0 or use a probing routine,
