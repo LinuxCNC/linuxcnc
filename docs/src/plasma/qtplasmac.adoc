@@ -1357,7 +1357,7 @@ Note that throughout this user guide there are several additional recommendation
 Aside from the preamble code, postamble code, and X/Y motion code, the only mandatory G-code syntax for QtPlasmaC to run a G-code program using a torch for cutting is `M3 $0 S1` to begin a cut and `M5 $0` to end a cut.
 
 For backwards compatibility it is permissible to use `M3 S1` in lieu of `M3 $0 S1` to begin a cutting job and `M5` in lieu of `M5 $0` to end a cutting job.
-Note, that this applies to cutting jobs only, for scribe and spotting jobs the `$`__n__ tool identifier is mandatory.
+Note, that this applies to cutting jobs only, for scribe and spotting jobs the `$n` tool identifier is mandatory.
 
 === Coordinates
 
@@ -2056,7 +2056,7 @@ G-code commands can be set up by either by a CAM Post Processor (PP) or by hand 
 .*Hole Cutting Velocity Reduction*
 
 If cutting a hole requires a reduced velocity then the user would use the following command to set the velocity:
-`M67 E3 Q`__nn__ where _nn_ is the percentage of the velocity desired.
+`M67 E3 Qnn` where `nn` is the percentage of the velocity desired.
 For example, `M67 E3 Q60` would set the velocity to 60% of the current material's *CutFeedRate*.
 
 See the <<plasma:velocity_thc,Velocity Based THC>> section.

@@ -301,7 +301,7 @@ Note that while many combinations of argspec options are possible, not all of th
 
 `argspec=`__<words>__ `ngc=`__<procname>__ `modalgroup=`___<group>__::
   The recommended way to call an NGC procedure with a standard argspec parameter conversion.
-  Used if argspec is good enough. Note it's not good enough for remapping the `T`__x__ and `M6`/`M61` tool change codes.
+  Used if argspec is good enough. Note it's not good enough for remapping the `Tx` and `M6`/`M61` tool change codes.
 
 `prolog=`__<pythonprolog>__ `ngc=`__<procname>__ `epilog=`__<pythonepilog>__ `modalgroup=`__<group>__::
   Call a Python prolog function to take any preliminary steps, then call the NGC procedure.
@@ -793,7 +793,7 @@ Therefore, we configure `iocontrol` to immediately acknowledge a change by confi
 # loop change signals when remapping M6
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 ---------------------------------------------------------------------
-If you for some reason want to remap `T`__x__ (prepare), the corresponding `iocontrol` pins need to be looped as well.
+If you for some reason want to remap `Tx` (prepare), the corresponding `iocontrol` pins need to be looped as well.
 
 === Writing the change and prepare O-word procedures
 
@@ -2223,7 +2223,7 @@ raises the "tool-prepare" pin, and waits for the "tool-prepared" pin to go high.
 When the changer responds by asserting "tool-prepared", it considers the prepare phase to be completed and signals `task` to continue.
 Again, this 'wait' is not strictly necessary IMO.
 
-.Building the prolog and epilog for `T`__x__
+.Building the prolog and epilog for `Tx`
 See the Python functions `prepare_prolog` and `prepare_epilog` in `configs/sim/axis/remap/toolchange/python/toolchange.py`.
 
 === How M6 (Change tool) works
@@ -2241,7 +2241,7 @@ When the interpreter sees an M6, it:
 
 [[remap:send-tool-load-msg]]
 . checks whether a `T` command has already been executed (test 'settings->selected_pocket' to be >= 0)
-  and fail with 'Need tool prepared -`T`__xx__- for toolchange' message if not.
+  and fail with 'Need tool prepared -`Txx`- for toolchange' message if not.
 . check for cutter compensation being active, and fail with 'Cannot change tools with cutter radius compensation on' if so.
 . stop the spindle except if the "TOOL_CHANGE_WITH_SPINDLE_ON" INI option is set.
 . generate a rapid 'Z up' move if if the "TOOL_CHANGE_QUILL_UP" INI option is set.
