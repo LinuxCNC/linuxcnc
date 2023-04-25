@@ -5147,7 +5147,7 @@ class gmoccapy(object):
         else:
             self.widgets.ntb_info.hide()
             self.widgets.ntb_info.set_size_request(-1, -1)
-        self.widgets.tbl_search.show()
+        self.widgets.grid_search.show()
         self.gcodeerror = ""
         self.file_changed = False
         # deactivate the mode buttons, so changing modes is not possible while we are editing
@@ -5221,7 +5221,7 @@ class gmoccapy(object):
             self.widgets.ntb_info.set_current_page(0)
             self.widgets.ntb_info.show()
             self.widgets.ntb_info.set_size_request(-1, -1)
-            self.widgets.tbl_search.hide()
+            self.widgets.grid_search.hide()
 
     # make a new file
     def on_btn_new_clicked(self, widget, data=None):
