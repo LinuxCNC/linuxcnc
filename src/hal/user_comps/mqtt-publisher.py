@@ -116,6 +116,7 @@ mqtt-publisher [options] [keys=pin1,pin2,...]
     @staticmethod
     def main():
         from optparse import Option, OptionParser
+        keys={}
         options = [
             Option( '--dryrun', dest='dryrun', action='store_true',
                     help='Dryrun, only collect HAL pin values, do not send them to MQTT.'),
