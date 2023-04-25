@@ -91,7 +91,7 @@ class LinuxCNC2MQTT():
                 for key in self.keys:
                     try:
                          data[key] = hal.get_value(key)
-                    except RuntimeError as e:
+                    except AttributeError as e:
                         # Only print warning once
                         if key not in missing:
                             print(f"warning: Missing pin {key} not sent to MQTT")
