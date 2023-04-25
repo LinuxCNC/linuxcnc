@@ -345,6 +345,61 @@ class _PStat(object):
             LOG.verbose("Using default image path from: yellow<{}>".format(default))
             return default
 
+    def find_embed_panel_path(self, name):
+        # look for custom ui file
+        ui_fn = "{}.ui".format(name)
+        local = []
+        local.append( os.path.join(self.WORKINGDIR, 'qtvcp/panels',name, ui_fn))
+        local.append( os.path.join(self.WORKINGDIR, ui_fn))
+        defaultui = os.path.join(self.PANELDIR, name, ui_fn)
+
+        for localui in local:
+            LOG.debug("(embed) Checking for .ui in: yellow<{}>".format(localui))
+            if os.path.exists(localui):
+                LOG.info("(embed) Using LOCAL ui file from: yellow<{}>".format(localui))
+                XML = localui
+                return XML
+        # if no break
+        else:
+            LOG.debug("(embed) Checking for .ui in: yellow<{}>".format(defaultui))
+            if os.path.exists(defaultui):
+                LOG.debug("(embed) Using DEFAULT ui file from: yellow<{}>".format(defaultui))
+                XML = defaultui
+                return XML
+            else:
+                # error
+                LOG.critical("(embed) No UI file found - Did you add the .ui name/path?")
+                return True # error
+
+    def find_embed_handler_path(self, name):
+        # look for custom handler files:
+        handler_fn = "{}_handler.py".format(name)
+        local = []
+        # in standard folder
+        local.append( os.path.join(self.WORKINGDIR, 'qtvcp/panels',name, handler_fn))
+        # relative to configuration folder
+        local.append( os.path.join(self.WORKINGDIR, handler_fn))
+        # builtin panel folder
+        default_handler_path = os.path.join(self.PANELDIR, name, handler_fn)
+
+        for local_handler_path in local:
+            LOG.debug("(embed) Checking for handler file in: yellow<{}>".format(local_handler_path))
+            if os.path.exists(local_handler_path):
+                HANDLER = local_handler_path
+                LOG.info("(embed) Using LOCAL handler file path: yellow<{}>".format(HANDLER))
+                return HANDLER
+        # if no break
+        else:
+            LOG.debug("(embed) Checking for default handler file in: yellow<{}>".format(default_handler_path))
+            if os.path.exists(default_handler_path):
+                HANDLER = default_handler_path
+                LOG.debug("(embed) Using DEFAULT handler file path: yellow<{}>".format(HANDLER))
+                return HANDLER
+            else:
+                HANDLER = None
+                LOG.info("(embed) No handler file found.")
+                return True
+
     def find_screen_dirs(self):
         dirs = next(os.walk(self.SCREENDIR))[1]
         return dirs
