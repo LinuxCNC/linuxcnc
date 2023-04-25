@@ -27,7 +27,7 @@ Please forward reports to the forum or maillist.
 
 === QtDragon
 
-.QtDragon - 3 or 4 Axes Sample (1440x860) in silver theme
+.QtDragon - 3 or 4 axis sample (1440x860) in silver theme
 image::images/silverdragon.png["QtDragon Router",scale="25%"]
 
 QtDragon is resizable from a resolution of 1280x768 to 1680x1200.
@@ -35,7 +35,7 @@ It will work in window mode on any monitor with higher resolution but not on mon
 
 === QtDragon_hd
 
-.QtDragon_hd - 3 or 4 Axis Sample for larger monitors (1920x1056) in dark theme
+.QtDragon_hd - 3 or 4 axis sample for larger monitors (1920x1056) in dark theme
 image::images/qtdragon_hd.png["QtDragon_hd",scale="25%"]
 
 QtDragon_hd is a similar design as QtDragon but modified to utilize the extra space of modern larger monitors.
@@ -46,9 +46,8 @@ It will work in window mode on any monitor with higher resolution but not on mon
 
 == Getting Started - The INI File
 
-If your configuration is not currently set up to use QtDragon,
-you can change it by editing the INI file sections.
-For an exhaustive list of options, see the <<sub:ini:sec:display,display section>> of INI file documentation.
+If your configuration is not currently set up to use QtDragon, you can change it by editing the INI file sections.
+For an exhaustive list of options, see the <<sub:ini:sec:display,display section>> of the INI file documentation.
 
 [NOTE]
 You can only have one of each section ( ie [HAL] ) in the INI file. If you see in these docs multiple section options
@@ -56,12 +55,12 @@ You can only have one of each section ( ie [HAL] ) in the INI file. If you see i
 
 === Display
 
-In the section '[DISPLAY]' change the 'DISPLAY' line to read:
+In the section `[DISPLAY]` change the `DISPLAY =` assignment to read:
 
 * `qtdragon` for a small version
 * `qtdradon_hd` for the large version.
 
-You can add `-v`, `-d`, '-i', or '-q' for (respectably) verbose, debug, info or quiet output to the terminal.
+You can add `-v`, `-d`, `-i`, or `-q` for (respectably) verbose, debug, info or quiet output to the terminal.
 
 [source,{ini}]
 ----
@@ -72,7 +71,7 @@ DISPLAY = qtvcp qtdragon
 === Preferences
 
 To keep track of preferences, QtDragon looks for a preference text file.
-Add the following entry under the '[DISPLAY]' heading.
+Add the following entry under the `[DISPLAY]` heading.
 This example will save the file in the config folder of the launch screen.
 (Other options are possible see the QtVCP's screenoption widget docs.)
 
@@ -150,11 +149,12 @@ MAX_ANGULAR_VELOCITY = 360
 ----
 
 === User message dialog system
+
 Optional popup custom message dialogs, controlled by HAL pins. +
 MESSAGE_TYPE can be 'okdialog' or 'yesnodialog'.
-See qtvcp/library/messages for more information. +
+See `qtvcp/library/messages` for more information. +
 This example shows how to make a dialog that requires the user to select 'ok' to acknowledge and hide. +
-These dialogs could be used for such things as low lube oil warnings etc,
+These dialogs could be used for such things as low lube oil warnings, etc.
 
 [source,{ini}]
 ----
@@ -170,12 +170,13 @@ MESSAGE_PINNAME = oktest
 
 You can optionally embed QtVCP Virtual Control Panels into the QtDragon or QtDragon_hd screen. +
 These panels can be either user built or builtin <<cha:qtvcp:panels,QtVCP Panels>>. +
-See QtVCP/VCP panels for other available builtin panels. +
+See QtVCP/VCP panels for other available builtin panels.
+
 The `EMBED_TAB_NAME` entry will used as the title for the new tab.(must be unique) +
 Tab `EMBED_TAB_LOCATION` options include: `tabWidget_utilities`, `tabWidget_setup` and `stackedWidget_mainTab`. +
-Tab `EMBED_TAB_COMMAND' specifies what embed-able program to run, including any of it's command line options. + 
-This sample adds a builtin panel, a graphical animated machine using the vismach library, to the utilities tab.
+Tab `EMBED_TAB_COMMAND` specifies what embed-able program to run, including any of it's command line options.
 
+.Sample adding a builtin panel to the utilities tab, i.e., a graphical animated machine using the vismach library.
 [source,{ini}]
 ----
 [DISPLAY]
@@ -184,11 +185,12 @@ EMBED_TAB_COMMAND = qtvcp vismach_mill_xyz
 EMBED_TAB_LOCATION = tabWidget_utilities
 ----
 
-If using the `tabWidget_utilities` or `tabWidget_setup` locations, an extra tab will appear with the panel. +
-If using 'stackedWidget_mainTab', a button labelled 'User" will appear. Pressing this button will cycle 
-through displaying all available panels (specified for this location) on the main tab area.
+If using the `tabWidget_utilities` or `tabWidget_setup` locations, an extra tab will appear with the panel.
+If using `stackedWidget_mainTab`, a button labelled 'User' will appear.
+Pressing this button will cycle through displaying all available panels (specified for this location) on the main tab area.
 
 === Subroutine Paths
+
 If using NGCGUI, remap or custom M codes routines, linuxcnc needs to know where to look for the files. +
 This sample is typical of what is needed for NgcGui, Basic Probe. and Versa Probe remap code. +
 These paths will need to be adjusted to point to the actual files on your system.
@@ -219,7 +221,8 @@ NGCGUI_SUBFILE = qpocket.ngc
 
 === Preview Control
 
-Magic comments can be used to control the G-code preview. +
+Magic comments can be used to control the G-code preview.
+
 On very large programs the preview can take a long time to load.
 You can control what is shown and what is hidden the the graphics screen by adding the appropriate comments from this list into your G-code:
 
@@ -242,7 +245,7 @@ PROGRAM_EXTENSION = .ngc,.nc,.tap G-Code File (*.ngc,*.nc,*.tap)
 ----
 
 QtDragon has the ability to send loaded files through a 'filter program'.
-This filter can do any desired task: Something as simple as making sure the file ends with 'M2', or something as complicated as generating G-Code from an image.
+This filter can do any desired task: Something as simple as making sure the file ends with 'M2', or something as complicated as generating G-code from an image.
 See <<cha:filter,Filter Programs>> for more information.
 
 The '[FILTER]'  section of the INI file controls how filters work.
@@ -250,6 +253,7 @@ First, for each type of file, write a 'PROGRAM_EXTENSION' line.
 Then, specify the program to execute for each type of file.
 This program is given the name of the input file as its first argument, and must write rs274ngc code to standard output.
 This output is what will be displayed in the text area, previewed in the display area, and executed by LinuxCNC when 'Run'.
+
 The following lines add support for the `image-to-gcode` converter included with LinuxCNC and running Python based filter programs:
 
 [source,{ini}]
@@ -318,7 +322,8 @@ m2
 ----
 
 === Startup codes
-You should set default M/G code for start up. These will be overridden by running a ngc file. +
+
+You should set default M/G code for start up. These will be overridden by running a NGC file. +
 These are only sample codes, integrator should choose appropriate codes.
 
 [source,{ini}]
@@ -335,7 +340,8 @@ These could also call OWord routines if desired. +
 In the sample configurations they are labelled for moving between
 current user system origin (zero point) and Machine system origin. +
 User origin is the first MDI command in the INI list, machine origin is the second. +
-This example shows how to move Z axis up first. The commands are separated by the ';'
+This example shows how to move Z axis up first. The commands are separated by the ';'.
+
 The label is set after the comma. The symbols '\n' adds a line break.
 
 [source,{ini}]
@@ -350,9 +356,9 @@ MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0,Goto\nMachn\nZero
 
 These optional HAL files will be called after QtDragon has loaded everything else. +
 You can add multiple line for multiple file. Each one will be called in the order they appear. +
-Calling HAL files after QtDragon is already loaded assures that QtDragon's HAL pins are available. +
-This sample shows typical entries, but must be adjusted to actual requirements.
- 
+Calling HAL files after QtDragon is already loaded assures that QtDragon's HAL pins are available.
+
+.Sample with typical entries for the specificion of HAL files to be read after the QtDragon was startd. Adjust these lines to match actual requirements.
 [source,{ini}]
 ----
 [HAL]
@@ -364,9 +370,9 @@ POSTGUI_HALFILE = qtdragon_hd_debugging.hal
 
 These optional HAL commands will be run after QtDragon has loaded everything else. +
 You can add multiple line. Each one will be called in the order they appear. +
-Any HAL command can be used. +
-This sample shows typical entries, but must be adjusted to actual requirements.
+Any HAL command can be used.
 
+.Sample with typical files in INI file to load modules after the GUI is available. Adjusti these to match your actual requirements.
 [source,{ini}]
 ----
 [HAL]
@@ -377,8 +383,8 @@ POSTGUI_HALCMD = loadusr halmeter
 
 === Builtin Sample Configurations
 
-The sample configurations 'sim/qtdragon/' or `sim/qtdragon_hd` are already configured to use QtDragon as the screen. +
-There are several examples, to demonstrate different machine configurations.
+The sample configurations `sim/qtdragon/` or `sim/qtdragon_hd` are already configured to use QtDragon as the screen.
+There are several examples that demonstrate various machine configurations.
 
 == Key Bindings
 
@@ -397,14 +403,14 @@ Pause - Pause Machine Movement
 
 == Buttons
 
-Buttons that are checkable will change their text colour when checked. +
-This is controlled by the stylesheet/theme +
+Buttons that are checkable will change their text colour when checked.
+This is controlled by the stylesheet/theme
 
 == Virtual Keyboard
 
-QtDragon includes a virtual keyboard for use with touchscreens. +
-To enable the keyboard, check the Use Virtual Keyboard checkbox in the Settings page. +
-Clicking on any input field, such as probe parameters or tool table entries, will show the keyboard. +
+QtDragon includes a virtual keyboard for use with touchscreens.
+To enable the keyboard, check the Use Virtual Keyboard checkbox in the Settings page.
+Clicking on any input field, such as probe parameters or tool table entries, will show the keyboard.
 To hide the keyboard, do one of the following:
 
 - click the MAIN page button
@@ -437,7 +443,7 @@ qtdragon.led-probe
 
 These pins are inputs related to spindle VFD indicating. +
 The volt and amp pins are used to calculate spindle power.
-(You must also set the MAX_SPINDLE_POWER in the INI.)
+You must also set the MAX_SPINDLE_POWER in the INI.
 
 [source,{hal}]
 ----
@@ -577,13 +583,12 @@ It uses a HAL non-realtime component which utilizes the external offsets feature
 The component has a HAL pin that specifies an interpolation type, which must be one of cubic, linear or nearest (0, 1, 2 respectively).
 If none is specified or if an invalid number is specified, the default is assumed to be cubic.
 
-When Z LEVEL COMP is enabled, the compensation component reads a probe data file,
-which must be called 'probe_points.txt'.
+When Z LEVEL COMP is enabled, the compensation component reads a probe data file, which must be called 'probe_points.txt'.
 The file can be modified or updated at any time while compensation is disabled.
 When next enabled, the file will be reread and the compensation map is recalculated.
 This file is expected to be in the configuration directory.
 
-The probe data file is generated by a probing program, which itself is generated by an external python program called gcode_ripper,
+The probe data file is generated by a probing program, which itself is generated by an external python program called `gcode_ripper`,
 which can be launched from the file manager tab using the 'G-code Ripper' button.
 
 === Using G-code Ripper for Z level Compensation
@@ -596,7 +601,7 @@ G-code Ripper offers many functions that we will not go in to here.
 This is only available in the QtDragon_hd version.
 
 * In Qtdragon_hd switch to the file tab and press the load G-code Ripper button.
-* Set origin to match the origin of the gcode file to be probed.
+* Set origin to match the origin of the G-code file to be probed.
 * Under G-Code Operations, check Auto Probe.
 * File -> Open G-Code File (The file you will run after compensation)
 * If necessary, make adjustments and press Recalculate.
@@ -676,8 +681,11 @@ then the tool is lowered until it touches the plate, triggering the probe signal
 Z0 is set to probe height - plate thickness.
 
 The second method uses a tool setter in a fixed position and a known height above the table where the probe signal will be triggered.
-In order to set Z0 to the top of the workpiece, it has to know how far above the table the probe trigger point is (tool setter height)
-and how far above the table the top of the workpiece is.
+In order to set Z0 to the top of the workpiece, it has to know
+
+ . how far above the table the probe trigger point is (tool setter height) and
+ . how far above the table the top of the workpiece is.
+ 
 This operation has to be done every time the tool is changed as the tool length is not saved.
 
 For touching off with a touch probe, whether you use the touchplate operation with thickness set to 0 or use a probing routine,
@@ -936,7 +944,7 @@ Z = -2
 
 ==== The Python Section
 
-The Python section sets up what files LinuxCNC's Python interpreter looks for, e.g., 'toplevel.py' file in the 'python' folder in the configuration directory:
+The Python section sets up what files LinuxCNC's Python interpreter looks for, e.g., `toplevel.py` file in the `python` folder in the configuration directory:
 
 [source,{ini}]
 ----
@@ -956,18 +964,18 @@ First create a folder named 'python' in your machine's configuration folder.
 If using a compiled RIP version of LinuxCNC: +
 From 'YOUR-LINUXCNC-DIRECTORY/configs/sim/QtDragon/python', copy 'toplevel.py' and 'remap.py' to your configuration's new 'python' folder.
 
-if using an installed version of LinuxCNC: +
+If using an installed version of LinuxCNC: +
 from '/usr/share/doc/linuxcnc/examples/sample-configs/sim/qtvcp_screens/qtdragon/python/', copy 'toplevel.py' and 'remap.py' to your configuration's new 'python' folder.
 
 Alternately, you can make new files in your 'python' folder that you made in your configuration folder, with a text editor.
 
-One named 'remap.py' saved with this text:
+One named `remap.py` saved with this text:
 [source,python]
 ----
 from stdglue import *
 ----
 
-One named 'toplevel.py' saved with this text:
+One named `toplevel.py` saved with this text:
 [source,python]
 ----
 import remap
@@ -983,7 +991,7 @@ In `~/linuxcnc/nc_files/examples/remap_lib/python_stdglue/` folder.
 These file names and location could be different depending on installed verses development (RIP) version of LinuxCNC.
 For instance `~/linuxcnc/nc_files/macros` is `~/linuxcnc/nc_files/examples/macros` in installed versions of LinuxCNC.
 You could use customized versions of the same files or name them differently.
-The entries in the '[RS274NGC]' section dictate to LinuxCNC what and where to look.
+The entries in the `[RS274NGC]` section dictate to LinuxCNC what and where to look.
 The names and location quoted should be available in either system by default.
 
 === Needed HAL Connections
@@ -1027,20 +1035,20 @@ One can use this to split the size between the two areas. This can be set differ
 This tab displays the graphical representation of the current program.
 The side buttons will control the display.
 
-* 'User View': Select/restore a user set view of the current program
-* 'P','X','Y','Z': Set standard views
-* 'D': Toggle display of dimensions
-* '+', '-': Zoom controls
-* 'C': Clear graphics of tool movement lines
+* 'User View': Select/restore a user set view of the current program.
+* 'P','X','Y','Z': Set standard views.
+* 'D': Toggle display of dimensions.
+* '+', '-': Zoom controls.
+* 'C': Clear graphics of tool movement lines.
 
-In QtDragon_hd there are also macro buttons available on the right side.
+In `qtdragon_hd` there are also macro buttons available on the right side.
 Up to tens buttons can be defined in the INI.
 
 === File Tab
 
 You can use this tab to load or transfer programs.
 Editing of G-code programs can be selected from this tab.
-With qtdragon_hd, this is where you can load 'Gcode Ripper'.
+With `qtdragon_hd`, this is where you can load the 'G-code Ripper'
 
 === Offsets Tab
 
@@ -1108,7 +1116,7 @@ This tabs will display another stab election of G-code utility programs:
 * 'Hole Circle': allows quick setting of a program to drill a bolt circle of definable diameter and number of holes.
 * 'NGCGUI': is a QtVCP version of the popular G-code subroutine builder/selector, see <<sub:qtvcp:widgets:qt-ngcgui,Widgets-NGCGUI>>.
 
-Custom QtVCP panels can be displayed here by setting the EMBED_TAB_LOCATION option to 'tabWidget_utilities'
+Custom QtVCP panels can be displayed here by setting the EMBED_TAB_LOCATION option to `tabWidget_utilities`
 
 === User Tab
 

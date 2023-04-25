@@ -207,7 +207,6 @@ class HandlerClass:
         self.data.spindle_override_max = self.gscreen.inifile.find("DISPLAY", "MAX_SPINDLE_OVERRIDE")
         self.data.spindle_override_min = self.gscreen.inifile.find("DISPLAY", "MIN_SPINDLE_OVERRIDE")
         self.data.feed_override_max = self.gscreen.inifile.find("DISPLAY", "MAX_FEED_OVERRIDE")
-        self.data.rapid_override_max = self.gscreen.inifile.find("DISPLAY", "MAX_RAPID_OVERRIDE")
         self.data.dro_actual = self.gscreen.inifile.find("DISPLAY", "POSITION_FEEDBACK")
         # set the slider limits
         self.widgets.jog_speed.set_range(100, float(self.jog_rate_max) * 60)
@@ -215,7 +214,7 @@ class HandlerClass:
         self.widgets.jog_speed.set_digits(0)
         self.widgets.spc_spindle.set_range(float(self.data.spindle_override_min) * 100, float(self.data.spindle_override_max) * 100)
         self.widgets.spc_spindle.set_value(100)
-        self.widgets.spc_rapid.set_range(1, float(self.data.rapid_override_max) * 100)
+        self.widgets.spc_rapid.set_range(1, 100)
         self.widgets.spc_rapid.set_value(100)
         self.widgets.spc_feed.set_range(1, float(self.data.feed_override_max) * 100)
         self.widgets.spc_feed.set_value(100)

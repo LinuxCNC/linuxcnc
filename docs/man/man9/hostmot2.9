@@ -871,7 +871,7 @@ Sets the master RC PWM frequency. Maximum is 1 kHz, minimum is .01 Hz. Defaults 
 
 .TP
 (float rw) width
-Sets the per channel pulse width in (ms/scale)
+Sets the per channel pulse width in (ms/scale).
 
 .TP
 (float rw) offset
@@ -882,7 +882,7 @@ This would be set to 1.5 ms for 1-2 ms servos for a 0 center position.
 (float rw) scale
 Sets the per channel pulse width scaling.
 For example, setting the scale to 90 and the offset to 1.5 ms would result in a position range of +-45 degrees
-and scale in degrees for 1-2 ms servos with a full motion range of 90 degrees
+and scale in degrees for 1-2 ms servos with a full motion range of 90 degrees.
 
 .SS stepgen
 
@@ -1123,7 +1123,7 @@ Only full GPIO pins have this parameter.
 (bit r/w) is_opendrain
 This parameter only has an effect if the "is_output" parameter is True.
 If this parameter is False, the GPIO behaves as a normal output pin:
-the IO pin on the connector is driven to the value specified by the "out" HAL pin (possibly inverted), and the value of the "in" and "in_not" HAL pins is undefined.
+The IO pin on the connector is driven to the value specified by the "out" HAL pin (possibly inverted), and the value of the "in" and "in_not" HAL pins is undefined.
 If this parameter is True, the GPIO behaves as an open-drain pin.
 Writing 0 to the "out" HAL pin drives the IO pin low, writing 1 to the "out" HAL pin puts the IO pin in a high-impedance state.
 In this high-impedance state the IO pin floats (weakly pulled high), and other devices can drive the value;

@@ -98,7 +98,7 @@ _Reload tree view_ is useful when new components are loaded during runtime and s
 .Halshow: Show Tab
 image::images/halshow-show-tab.png["Halshow: Show Tab",align="center"]
 
-Clicking on the node name in the tree, e.g. "Components", will show you (under the "Show" tab) all that HAL knows about the contents of that node.
+Clicking on the node name, "Components" in the tree for example, will show you (under the "Show" tab) all that HAL knows about the contents of that node.
 Figure <<fig:halshow-show-tab,Halshow Show Tab>> shows a list exactly like you will see if you click the "Components" name.
 The information display is exactly like those shown in traditional text based HAL analysis tools.
 The advantage here is that we have mouse click access, access that can be as broad or as focused as you need.
@@ -152,7 +152,8 @@ _Watch's_ refresh rate is a bit slow to see stepper pulses, but you can use it f
 
 .New in 2.9
 ****
-The pins and signals that are writable have buttons for manipulation on the right side. Pins that are linked to a signal have disabled buttons.
+The pins and signals that are writable have buttons for manipulation on the right side.
+Pins that are linked to a signal have disabled buttons.
 To set these values, the corresponding pin has to be unlinked from the signal.
 That can be done by right-click on the signal name and select "Unlink pin", see <<cap:watch-tab-context-menu,Watch Tach Context Menu>>.
 
@@ -189,8 +190,7 @@ They will persist as long as LinuxCNC remains up but are gone as soon as LinuxCN
 The command entry has a BASH-like history (during the session), so you can restore inserted commands with the arrow up key.
 ****
 
-The entry box labeled "HAL Command:" will accept any of the commands listed for halcmd.
-These include:
+The entry box labeled "HAL Command:" will accept any of the commands listed for halcmd. These include:
 
 - `loadrt`, `unloadrt` (load/unload real-time module)
 - `loadusr`, `unloadusr` (load/unload non-realtime component)
@@ -246,7 +246,7 @@ ID Type        Name
 02 User   iocontrol
 ----
 
-Sure enough there it is. Notice that its ID is 08.
+Sure enough, there it is. Notice that its ID is 08.
 Next we need to find out what functions are available with it so we look at functions:
 
 ----
@@ -265,8 +265,8 @@ Owner  CodeAddr      Arg  FP Users Name
   04   E0B614AD E0DC7448 YES     1 stepgen.update-freq
 ----
 
-Here we look for owner #08 and see a function named ddt.0.
-We should be able to add ddt.0 to the servo thread and it will do its math each time the servo thread is updated.
+Here we look for owner #08 and see a function named `ddt.0`.
+We should be able to add `ddt.0` to the servo thread and it will do its math each time the servo thread is updated.
 Once again we look up the addf command and find that it uses three arguments like this:
 
 [source,{hal}]
@@ -294,7 +294,7 @@ image::images/halshow-2.png["Addf command",align="center"]
 Next we need to connect ddt to something.
 But how do we know what pins are available?
 The answer is to look under pins.
-There we find ddt and see this:
+There we find `ddt` and see this:
 
 ----
 Component Pins:

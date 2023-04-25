@@ -7,6 +7,8 @@
 *  2) specify 3 KS,KF,KI functions for switchkins_type=0,1,2
 *  3) the 0th switchkins_type is the startup default
 *  4) sparm is a module string parameter for configuration
+*  5) The directions of the rotational axes are the opposite of the 
+*     conventional axis directions.
 */
 
 #include "motion.h"

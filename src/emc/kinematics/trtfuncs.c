@@ -24,6 +24,10 @@
 *  2) 5 axis mill (XYZBC)
 *     This mill has a tilting table (B axis) and horizontal rotary
 *     mounted to the table (C axis).
+*
+* Note: The directions of the rotational axes are the opposite of the 
+* conventional axis directions. See 
+* https://linuxcnc.org/docs/html/gcode/machining-center.html
 
 ********************************************************************/
 

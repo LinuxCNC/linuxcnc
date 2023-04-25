@@ -397,7 +397,7 @@ WARNING: It is strongly recommended that the torch cannot be enabled while this 
 
 * Used for surface probing. A sensor or switch that is activated if the torch slides up when it hits the material.
 * Connect Proximity sensor output to chosen input pin. If mechanical switches are used. Connect one side of the switch to field power and the other side of the switch to input.
-* Usually Connected to `motion.probe-input`
+* Usually Connected to `motion.probe-input`.
 
 === Ohmic Sensor enable (output)
 
@@ -494,8 +494,7 @@ We can do this by doubling the machine's Z axis velocity and acceleration settin
 That way 100% of the maximum velocity and acceleration will be available for both probing and THC.
 
 Example:
-On a metric machine with a NEMA23 motor with a direct drive to a 5 mm ball screw,
-60 mm/s maximum velocity and 700 mm/s^2^ acceleration were determined to be safe values without loss of steps.
+On a metric machine with a NEMA23 motor with a direct drive to a 5 mm ball screw, 60 mm/s maximum velocity and 700 mm/s^2^ acceleration were determined to be safe values without loss of steps.
 For this machine, set the Z axis in the INI file as follows:
 
 [source,{ini}]
@@ -544,7 +543,7 @@ So assuming we have a 5 Volt input, the calculated frequency would be:
 
 So now it should be fairly clear how to convert the frequency to its voltage equivalent:
 
-Volts = (frequency [Hz] - 3800 Hz) / 2520 Hz/V
+Voltage = (frequency [Hz] - 3800 Hz) / (2520 Hz/V)
 
 === THCAD Connections
 

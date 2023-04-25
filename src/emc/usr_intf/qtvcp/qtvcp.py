@@ -124,8 +124,17 @@ class QTVCP:
         elif INIPATH:
             basepath = "qt_cnc"
         else:
-            print(parser.print_help())
+            parser.print_help()
+            print("")
+
+            LOG.critical('Available built-in Machine Control Screens:')
+            print(self.PATH.find_screen_dirs())
+            print("")
+
+            LOG.critical('Available built-in VCP Panels:')
+            print(self.PATH.find_panel_dirs())
             sys.exit(0)
+
         # set paths using basename
         error = self.PATH.set_paths(basepath, bool(INIPATH))
         self.INFO.IS_SCREEN = bool(INIPATH)

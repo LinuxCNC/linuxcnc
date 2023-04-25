@@ -126,7 +126,6 @@ All `<options>` must appear before `<screen_name>`.
 If `<screen_name>` is missing, the default screen will be loaded.
 
 QtVCP assumes the UI file and the handler file use the *same base name*.
-
 QtVCP will first search the LinuxCNC configuration directory that was launched for the files, then in the system skin folder holding standard screens.
 
 .Cycle Times
@@ -139,7 +138,7 @@ GRAPHICS_CYCLE_TIME = 100
 HALPIN_CYCLE = 100
 ----
 
-Adjusts the response rate of the GUI updates in milliseconds. +
+Adjusts the response rate of the GUI updates in milliseconds.
 Defaults to 100, useable range 50 - 200.
 
 The widgets, graphics and HAL pin update can be set separately.
@@ -161,7 +160,7 @@ A handler file is a file containing _Python_ code, which *adds to QtVCP default 
 A handler file allows one to _modify defaults_, or _add logic_ to a QtVCP screen without having to modify QtVCP's core code.
 In this way you can have *custom behaviors*.
 
-If present a handler file will be loaded. +
+If present a handler file will be loaded.
 *Only one file* is allowed.
 
 === Libraries Modules
@@ -170,7 +169,8 @@ QtVCP, as built, does little more than display the screen and react to widgets.
 For more *prebuilt behaviors* there are available libraries (found in `lib/python/qtvcp/lib` in RIP LinuxCNC install).
 
 *Libraries* are prebuilt _Python modules_ that *add features* to QtVCP.
-In this way you can select what features you want - yet don't have to build common ones yourself. +
+In this way you can select what features you want - yet don't have to build common ones yourself.
+
 Such libraries include:
 
 * `audio_player`
@@ -219,8 +219,8 @@ In that folder, QtVCP will load any of the available following files:
 There are _three ways_ to customize a screen/panel.
 
 .Minor StyleSheet Changes
-Stylesheets can be used to *set Qt properties*. +
-If a widget uses properties they usually can be modified by stylesheets.
+Stylesheets can be used to *set Qt properties*.
+If a widget uses properties then they usually can be modified by stylesheets.
 
 .Example of a widget with accompanying style sheet settings.
 [source,{css}]
@@ -252,7 +252,8 @@ The default path is in the configuration directory as a hidden file using the sc
 This file will be read and executed as Python code in the *handler file context*.
 
 *Only local functions and local attributes* can be referenced.
-Global libraries can not be referenced. (usually seen as all capital words with no preceding self.)
+Global libraries can not be referenced.
+These are usually seen as all capital words with no preceding self.
 
 What can be used can vary by screen and development cycle.
 
@@ -291,14 +292,12 @@ There are several *builtin HAL panels* available.
 
 In a terminal type `qtvcp <return>` to see a list:
 
-*`test_panel`*::
-  Collection of useful widgets for testing HAL components, including speech of LED state.
+*`test_panel`*:: Collection of useful widgets for testing HAL components, including speech of LED state.
 +
 .QtVCP HAL Test Builtin Panel
 image::images/qtvcp_test_panel.png["QtVCP HAL Test Builtin Panel",align="center"]
 
-*`cam_align`*::
-  A camera display widget for rotational alignment.
+*`cam_align`*:: A camera display widget for rotational alignment.
 +
 .cam_align - Camera Alignment VCP
 image::images/qtvcp-cam-align.png["Qtscreen x1mill",align="center"]
@@ -310,8 +309,7 @@ image::images/qtvcp-cam-align.png["Qtscreen x1mill",align="center"]
 .QtVCP Sim Builtin Panel
 image::images/qtvcp_sim_panel.png["QtVCP Sim Builtin Panel",align="center"]
 
-*`vismach_mill_xyz`*::
-  3D openGL view of a 3-Axis milling machine.
+*`vismach_mill_xyz`*:: 3D OpenGL view of a 3-axis milling machine.
 +
 .QtVismach - 3-Axis Mill Builtin Panel
 image::images/qtvismach.png["QtVismach - 3-Axis Mill Builtin Panel",align="center"]
@@ -324,6 +322,7 @@ loadusr qtvcp test_panel
 ----
 
 But more typically like this:
+
 [source,{hal}]
 ----
 loadusr -Wn test_panel qtvcp test_panel
@@ -419,8 +418,7 @@ Necesitará privilegios de superusuario para copiar el archivo en la carpeta.
 ////
 
 .Add `qtvcp_plugin.py` link to the Qt Designer Search Path
-Then you must add a link to the `qtvcp_plugin.py` in one of the folders
-that Qt Designer will search into.
+Then you must add a link to the `qtvcp_plugin.py` in one of the folders that Qt Designer will search into.
 
 In a _RIP_ version of LinuxCNC `qtvcp_plugin.py` will be:
 
