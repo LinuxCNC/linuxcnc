@@ -1,4 +1,4 @@
-VERSION = '1.235.272'
+VERSION = '1.235.273'
 
 '''
 qtplasmac_handler.py
@@ -3856,6 +3856,7 @@ class HandlerClass:
                     continue
                 while not STATUS.is_interp_idle():
                     self.w.gcodegraphics.updateGL()
+                    QApplication.processEvents()
                 if command.lower().replace(' ', '').startswith('g10l20') and self.fileOpened:
                     self.reloadRequired = True
             if self.reloadRequired:
