@@ -471,7 +471,12 @@ FUNCTION(_){
         old_index = (sense(0) && sense(1));
         break; // So that we don't see the tool1 pulse twice
     case 20: //jogging fwd/rev
-        if (current_position != target) return;
+        if (current_position != target){
+			deb = debounce;
+			return;
+        } else if (deb-- >0) {
+			return;
+		}
         if (align_dc != 0 && ! align_pin) return;
         motor_fwd = 0;
         motor_rev = 0;
