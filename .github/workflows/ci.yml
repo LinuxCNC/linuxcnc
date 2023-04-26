@@ -10,16 +10,63 @@ on:
 
 jobs:
   main:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      matrix:
+        image: ["debian:wheezy", "debian:buster"]
+    container:
+      image: debian:buster
+      # IPC_OWNER is needed for shmget IPC_CREAT
+      # SYS_ADMIN is needed for shmctl IPC_SET
+      options: --cpus=2 --cap-add=IPC_OWNER --cap-add=SYS_ADMIN
     steps:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: echo "$GITHUB_CONTEXT"
-    - uses: actions/checkout@v2
+
+    - name: Install pre-dependencies
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set -e
+        set -x
+        apt-get --quiet update
+        apt-get --yes --quiet install --no-install-suggests git
+
+    - uses: actions/checkout@v3
       with:
-        submodules: true
+        # "fetch-depth: 0" fetches all of history, this is needed by
+        # our build system to determine the version from tags
         fetch-depth: 0
-    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
-    - run: ./scripts/travis-install-build-deps.sh
-    - run: ./scripts/travis-build-test.sh
+
+    - run: apt-get update --quiet
+    - run: apt-get --yes --quiet install --no-install-recommends gpg software-properties-common
+    - run: gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
+    - run: |
+        source /etc/os-release
+        add-apt-repository "deb http://linuxcnc.org ${VERSION_CODENAME} base"
+    - run: apt-get update --quiet
+
+    - run: apt-get install --quiet --yes --no-install-recommends python lsb-release devscripts equivs sudo  # git
+
+    - run: adduser --disabled-password --gecos "" testrunner
+    - run: passwd -d testrunner
+    - run: adduser testrunner sudo
+
+    - run: chown -R testrunner:testrunner .
+
+    - run: sudo -u testrunner debian/configure uspace noauto
+    - run: mk-build-deps -i -r -t 'apt-get --quiet --yes --no-install-recommends --no-install-suggests'
+    - run: |
+        set -e
+        cd src
+        sudo -u testrunner ./autogen.sh
+        sudo -u testrunner ./configure --with-realtime=uspace --disable-check-runtime-deps --enable-build-documentation
+        sudo -u testrunner make -j$(getconf _NPROCESSORS_ONLN)
+
+    - run: |
+        sudo -u testrunner ./scripts/runtests
