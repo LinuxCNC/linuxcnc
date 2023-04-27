@@ -906,7 +906,7 @@ static int hm2_eth_receive_queued_reads(hm2_lowlevel_io_t *this) {
         board->comm_error_counter = 0;
     }
 
-    long read_timeout = board->hal ? board->hal->read_timeout : 1600000;
+    long read_timeout = board->hal ? board->hal->read_timeout : 16000000; //x10
     if(read_timeout <= 0)//less than or equal to 0, use 80% of the thread period.
         read_timeout = 80;
     if(read_timeout < 100)//less than 100 is interpreted as a percentage of the thread period.
