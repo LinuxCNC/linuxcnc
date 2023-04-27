@@ -112,7 +112,8 @@ class QTPanel():
                             idname = widget.objectName()
                             LOG.verbose('{}: HAL-ified widget: {}'.format(name.upper(), idname))
                             if not isinstance(widget, ScreenOptions):
-                                widget.hal_init()
+                                # give panel name to halified widgets
+                                widget.hal_init(INSTANCE_NAME= pName)
 
                     # restore HAL component name
                     halcomp.comp.setprefix(oldname)

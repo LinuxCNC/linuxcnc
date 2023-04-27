@@ -411,7 +411,8 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
             self.hal_pin_led.value_changed.connect(lambda data: self.indicator_update(data))
         elif self._ind_status:
             self._init_state_change()
-        self._globalParameter = {'__builtins__' : None, 'INSTANCE':self.QTVCP_INSTANCE_,
+        self._globalParameter = {'__builtins__' : None, 'MAIN_INSTANCE':self.QTVCP_INSTANCE_,
+                                    'INSTANCE':self.THIS_INSTANCE_,
                                  'PROGRAM_LOADER':AUX_PRGM, 'ACTION':ACTION, 'HAL':hal, 'print':print}
         self._localsParameter = {'dir': dir, 'True':True, 'False':False}
 
