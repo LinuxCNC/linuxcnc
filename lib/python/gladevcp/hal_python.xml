@@ -3,30 +3,30 @@
     <init-function>glade_python_init</init-function>
     
     <glade-widget-classes>
-        <glade-widget-class name="HAL_HideTable" generic-name="hal_hidetable" title="HAL Hideable Table"/>
-        <glade-widget-class name="HAL_HBox" generic-name="hal_hbox" title="HAL Sensitive HBox"/>
-        <glade-widget-class name="HAL_Table" generic-name="hal_table" title="HAL Sensitive table"/>
-        <glade-widget-class name="State_Sensitive_Table" generic-name="state_sensitive_table" title="State_Sensitive_table"/>
-        <glade-widget-class name="HAL_ComboBox" generic-name="hal_combobox" title="HAL_ComboBox"/>
-        <glade-widget-class name="HAL_Button" generic-name="hal_button" title="HAL_Button"/>
-        <glade-widget-class name="HALIO_Button" generic-name="halio_button" title="HALIO_Button"/>
-        <glade-widget-class name="HAL_CheckButton" generic-name="hal_checkbutton" title="HAL_CheckButton"/>
-        <glade-widget-class name="HAL_SpinButton" generic-name="hal_spinbutton" title="HAL_SpinButton"/>
-        <glade-widget-class name="HAL_ToggleButton" generic-name="hal_togglebutton" title="HAL_ToggleButton"/>
-        <glade-widget-class name="HAL_RadioButton" generic-name="hal_radiobutton" title="HAL_RadioButton"/>
-        <glade-widget-class name="HAL_HScale" generic-name="hal_hscale" title="HAL_HScale">
+        <glade-widget-class name="HAL_HideTable" generic-name="hal_hidetable" title="HAL Hideable Table" icon-name="widget-gtk-table"/>
+        <glade-widget-class name="HAL_HBox" generic-name="hal_hbox" title="HAL Sensitive HBox" icon_name="widget-gtk-hbox"/>
+        <glade-widget-class name="HAL_Table" generic-name="hal_table" title="HAL Sensitive table" icon-name="widget-gtk-table"/>
+        <glade-widget-class name="State_Sensitive_Table" generic-name="state_sensitive_table" title="State_Sensitive_table" icon-name="widget-gtk-table"/>
+        <glade-widget-class name="HAL_ComboBox" generic-name="hal_combobox" title="HAL_ComboBox" icon_name="widget-gtk-combobox"/>
+        <glade-widget-class name="HAL_Button" generic-name="hal_button" title="HAL_Button" icon_name="widget-gtk-button"/>
+        <glade-widget-class name="HALIO_Button" generic-name="halio_button" title="HALIO_Button" icon_name="widget-gtk-button"/>
+        <glade-widget-class name="HAL_CheckButton" generic-name="hal_checkbutton" title="HAL_CheckButton" icon_name="widget-gtk-checkbutton"/>
+        <glade-widget-class name="HAL_SpinButton" generic-name="hal_spinbutton" title="HAL_SpinButton" icon_name="widget-gtk-spinbutton"/>
+        <glade-widget-class name="HAL_ToggleButton" generic-name="hal_togglebutton" title="HAL_ToggleButton" icon_name="widget-gtk-togglebutton"/>
+        <glade-widget-class name="HAL_RadioButton" generic-name="hal_radiobutton" title="HAL_RadioButton" icon_name="widget-gtk-radiobutton"/>
+        <glade-widget-class name="HAL_HScale" generic-name="hal_hscale" title="HAL_HScale" icon_name="widget-gtk-hscale">
             <properties>
                 <property id="Orientation" query="Horizontal" default="Vertical" visible="False"/>
             </properties>
         </glade-widget-class>
-        <glade-widget-class name="HALIO_HScale" generic-name="halio_hscale" title="HALIO_HScale">
+        <glade-widget-class name="HALIO_HScale" generic-name="halio_hscale" title="HALIO_HScale" icon_name="widget-gtk-hscale">
             <properties>
                 <property id="Orientation" query="Horizontal" default="Vertical" visible="False"/>
             </properties>
         </glade-widget-class>
-        <glade-widget-class name="HAL_VScale" generic-name="hal_vscale" title="HAL_VScale"/>
-        <glade-widget-class name="HAL_ProgressBar" generic-name="hal_progressbar" title="HAL_ProgressBar"/>
-        <glade-widget-class name="HAL_LightButton" generic-name="hal_light_button" title="HAL_LightButton">
+        <glade-widget-class name="HAL_VScale" generic-name="hal_vscale" title="HAL_VScale" icon_name="widget-gtk-vscale"/>
+        <glade-widget-class name="HAL_ProgressBar" generic-name="hal_progressbar" title="HAL_ProgressBar" icon_name="widget-gtk-progressbar"/>
+        <glade-widget-class name="HAL_LightButton" generic-name="hal_light_button" title="HAL_LightButton" icon_name="widget-gtk-colorbutton">
             <properties>
             	<property id="has_hal_pins" weight="1" />
             	<property id="button_halio_pin" weight="2" />
@@ -66,12 +66,12 @@
                 <property id="blink_color"  weight ="12"/>
             </properties>
         </glade-widget-class>
-        <glade-widget-class name="HAL_Label" generic-name="hal_label" title="HAL Label"/>
-        <glade-widget-class name="Status_Label" generic-name="status_label" title="Status Label"/>
-        <glade-widget-class name="State_Label" generic-name="state_label" title="State Label"/>
+        <glade-widget-class name="HAL_Label" generic-name="hal_label" title="HAL Label" icon_name="widget-gtk-label"/>
+        <glade-widget-class name="Status_Label" generic-name="status_label" title="Status Label" icon_name="widget-gtk-label"/>
+        <glade-widget-class name="State_Label" generic-name="state_label" title="State Label" icon_name="widget-gtk-label"/>
         <glade-widget-class name="HAL_HBar" generic-name="hal_hbar" title="HAL HBar"/>
         <glade-widget-class name="HAL_VBar" generic-name="hal_vbar" title="HAL VBar"/>
-        <glade-widget-class name="Override" generic-name="override" title="Override Controls">
+        <glade-widget-class name="Override" generic-name="override" title="Override Controls" icon_name="widget-gtk-hscale">
             <properties>
                 <property id="Orientation" query="Horizontal" default="Vertical" visible="False"/>
                 <property id="Adjustment" visible="false"/>
@@ -91,7 +91,7 @@
         </glade-widget-class>
         <glade-widget-class name="Hal_Dial" generic-name="hal_dial" title="Hal_Dial"/>
         
-        <glade-widget-class name="PyNgcGui" generic-name="pyngcgui" title="Python NgcGui"/>
+        <glade-widget-class name="PyNgcGui" generic-name="pyngcgui" title="Python NgcGui" icon_name="widget-gtk-assistant"/>
         <glade-widget-class name="HAL_GremlinPlus" generic-name="hal_gremlin_plus" title="HAL Gremlin Plus"/>
         
         <glade-widget-class name="ToolEdit" generic-name="tooledit" title="Tooleditor">
@@ -101,7 +101,7 @@
                 <property id="homogeneous" query="False" default="0" visible="False"/>
             </properties>
         </glade-widget-class>
-        <glade-widget-class name="OffsetPage" generic-name="offsetpage" title="Offsetpage">
+        <glade-widget-class name="OffsetPage" generic-name="offsetpage" title="Offsetpage" icon_name="widget-gtk-grid">
             <properties>
                 <property id="size" query="False" default="1" visible="False"/>
                 <property id="spacing" query="False" default="0" visible="False"/>
@@ -116,7 +116,7 @@
                 <property id="homogeneous" query="False" default="0" visible="False"/>
             </properties>
         </glade-widget-class>
-        <glade-widget-class name="IconFileSelection" generic-name="icon_filechooser" title="Icon File Chooser">
+        <glade-widget-class name="IconFileSelection" generic-name="icon_filechooser" title="Icon File Chooser" icon_name="widget-gtk-iconview">
             <properties>
                 <property id="size" query="False" default="1" visible="False"/>
                 <property id="spacing" query="False" default="0" visible="False"/>
@@ -159,19 +159,19 @@
         <glade-widget-class name="EMC_RadioAction_OFF" generic-name="vcp_radioaction_off" title="VCP RadioAction OFF" icon-name='gtk-disconnect'/>
         
         <glade-widget-class name="EMC_Stat" generic-name="vcp_stat" title="VCP Stat" icon-name='gtk-properties' toplevel='yes'/>
-        <glade-widget-class name="EMC_FileChooserDialog" generic-name="vcp_filechooserdialog" title="VCP FileChooserDialog"/>
-        <glade-widget-class name="EMC_FileChooserButton" generic-name="vcp_filechooserbutton" title="VCP FileChooserButton"/>
+        <glade-widget-class name="EMC_FileChooserDialog" generic-name="vcp_filechooserdialog" title="VCP FileChooserDialog" icon_name="widget-gtk-filechooserdialog"/>
+        <glade-widget-class name="EMC_FileChooserButton" generic-name="vcp_filechooserbutton" title="VCP FileChooserButton" icon_name="widget-gtk-filechooserbutton"/>
         <glade-widget-class name="EMC_Action_Open" generic-name="vcp_action_open" title="VCP Action Open" icon-name='gtk-open'/>
         <glade-widget-class name="EMC_Action_Reload" generic-name="vcp_action_reload" title="VCP Action Reload" icon-name='gtk-refresh'/>
         <glade-widget-class name="EMC_Action_Save" generic-name="vcp_action_save" title="VCP Action Save" icon-name='gtk-save'/>
         <glade-widget-class name="EMC_Action_SaveAs" generic-name="vcp_action_saveas" title="VCP Action Save As" icon-name='gtk-save-as'/>
-        <glade-widget-class name="EMC_SourceView" generic-name="vcp_sourceview" title="VCP SourceView"/>
-        <glade-widget-class name="EMC_MDIHistory" generic-name="vcp_mdihistory" title="VCP MDIHistory">
+        <glade-widget-class name="EMC_SourceView" generic-name="vcp_sourceview" title="VCP SourceView" icon_name="widget-gtk-textview"/>
+        <glade-widget-class name="EMC_MDIHistory" generic-name="vcp_mdihistory" title="VCP MDIHistory" icon_name="widget-gtk-treeview">
             <properties>
                 <property id="size" query="False" default="0" visible="False"/>
             </properties>
         </glade-widget-class>
-        <glade-widget-class name="MacroSelect" generic-name="vcp_macro_select" title="VCP Macro Select">
+        <glade-widget-class name="MacroSelect" generic-name="vcp_macro_select" title="VCP Macro Select" icon_name="widget-gtk-hbox">
             <properties>
                 <property id="size" query="False" default="0" visible="False"/>
             </properties>
