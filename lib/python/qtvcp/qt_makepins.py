@@ -43,6 +43,7 @@ class QTPanel():
         self._screenOptions = None
         self._geo_string = ''
         self.PATH = path
+        window._VCPWindowList.append(window)
 
         # see if a screenoptions widget is present
         # if it is then initiate the preference file
@@ -97,6 +98,7 @@ class QTPanel():
                     # search for ui path and load if available
                     uipath = self.PATH.find_embed_panel_path(cmd)
                     window[pName].instance(uipath)
+                    window._VCPWindowList.append(window[pName])
 
                     # initialize handler if available
                     if hndlr is not True and os.path.exists(hndlr):
