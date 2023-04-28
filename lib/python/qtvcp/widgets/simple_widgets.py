@@ -617,8 +617,8 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
                 except AttributeError as e:
                     LOG.error('({} called exec in error:{}'.format(self.objectName(),e))
                     LOG.warning('   Command was {}'.format(self.true_python_command))
-                    LOG.warning('   List of objects:')
-                    print(dir(self.QTVCP_INSTANCE_))
+                    LOG.verbose('   List of objects:')
+                    LOG.verbose(dir(self.QTVCP_INSTANCE_))
             else:
                 try:
                     exec(self.false_python_command, self._globalParameter, self._localsParameter)
@@ -628,8 +628,8 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
                 except AttributeError as e:
                     LOG.error('({} called exec in error:{}'.format(self.objectName(),e))
                     LOG.warning('   Command was {}'.format(self.false_python_command))
-                    LOG.warning('   List of objects:')
-                    print(dir(self.QTVCP_INSTANCE_))
+                    LOG.verbose('   List of objects:')
+                    LOG.verbose(dir(self.QTVCP_INSTANCE_))
 
     # callback to toggle text when button is toggled
     def toggle_text(self, state=None):
