@@ -93,6 +93,7 @@ class _VCPWindow(QtWidgets.QMainWindow):
         self.PREFS_ = None
         self.originalCloseEvent_ = self.closeEvent
         self._halWidgetList = []
+        self._VCPWindowList = []
         self.settings = QtCore.QSettings('QtVcp', path.BASENAME)
         log.info('Qsettings file path: yellow<{}>'.format(self.settings.fileName()))
         # make an instance with embedded variables so they
@@ -119,10 +120,12 @@ class _VCPWindow(QtWidgets.QMainWindow):
     def keyReleaseTrap(self, e):
         return False
 
+    # call closing function on main and embedded windows.
     def shutdown(self):
-        if self.has_closing_handler:
-            log.debug('Calling handler file Closing_cleanup__ function.')
-            self.handler_instance.closing_cleanup__()
+        for i in (self._VCPWindowList):
+            if 'closing_cleanup__' in dir(i):
+                log.debug('Calling handler file Closing_cleanup__ function of {}.'.format(i))
+                i.closing_cleanup__()
 
     def sync_qsettings(self):
         try:

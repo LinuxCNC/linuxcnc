@@ -49,9 +49,13 @@ class _HalWidgetBase_(object):
         #print self.__class__._instanceNum >=1
         #print 'comp',comp,self.__class__._instanceNum
 
-
-    def hal_init(self, HAL_NAME=None):
+        # INSTANCE_NAME is the embedded panel name
+    def hal_init(self, HAL_NAME=None,INSTANCE_NAME = None):
         self.__class__.QTVCP_INSTANCE_.registerHalWidget(self)
+        if INSTANCE_NAME is not None:
+            self.__class__.THIS_INSTANCE_ = self.__class__.QTVCP_INSTANCE_[INSTANCE_NAME]
+        else:
+            self.__class__.THIS_INSTANCE_ = self.__class__.QTVCP_INSTANCE_
         if HAL_NAME is not None:
             self.HAL_NAME_ = str(HAL_NAME)
         else:
