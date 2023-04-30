@@ -146,8 +146,7 @@ read|write:: Indicates whether the function reads the hardware or writes to it.
 
 motenc.0.encoder.read:: Reads all encoders on the first motenc board.
 
-generic8255.0.din.09-15.read:: Reads the second 8 bit port on the first generic 8255 based
-  digital I/O board.
+generic8255.0.din.09-15.read:: Reads the second 8 bit port on the first generic 8255 based digital I/O board.
 
 ppmc.0.write:: Writes all outputs (step generators, pwm, DACs, and digital) on the first Pico Systems ppmc board.
 
