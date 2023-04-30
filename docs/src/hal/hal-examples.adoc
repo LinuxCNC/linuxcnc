@@ -10,8 +10,8 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-All of these examples assume you are starting with a stepconf based configuration and have two threads 'base-thread' and 'servo-thread'.
-The stepconf wizard will create an empty custom.hal and a custom_postgui.hal file.
+All of these examples assume you are starting with a StepConf-based configuration and have two threads 'base-thread' and 'servo-thread'.
+The StepConf wizard will create an empty custom.hal and a custom_postgui.hal file.
 The custom.hal file will be loaded after the configuration HAL file and the custom_postgui.hal file is loaded after the GUI has been loaded.
 
 == Connecting Two Outputs
@@ -66,8 +66,8 @@ Owner   Type  Dir         Value  Name
     22  bit   OUT         FALSE  or2.0.out ==> led-1
 ----
 
-You can see from the HAL command 'show pin or2' that the 'button-1' pin is connected to the 'or2.0.in0' pin.
-From the direction arrow you can see that the button is and output and the 'or2.0.in0' is an input.
+You can see from the HAL command `show pin or2` that the `button-1` pin is connected to the `or2.0.in0` pin.
+From the direction arrow you can see that the button is and output and the `or2.0.in0` is an input.
 The output from or2 goes to the input of the LED.
 
 == Manual Toolchange
