@@ -91,7 +91,6 @@ int main(int argc, char **argv)
 
     /* Each link has it's own thread */
     pthread_attr_init(&thrd_attr);
-    pthread_attr_setdetachstate(&thrd_attr, PTHREAD_CREATE_DETACHED);
     for (counter = 0; counter < gbl.tot_mb_links; counter++) {
         ret = pthread_create(&gbl.mb_links[counter].thrd, &thrd_attr, link_loop_and_logic, (void *) &gbl.mb_links[counter].mb_link_num);
         if (ret != 0) {
@@ -103,6 +102,14 @@ int main(int argc, char **argv)
     OK(gbl.init_dbg, "%s is running", gbl.hal_mod_name);
     while (gbl.quit_flag == 0) {
         sleep(1);
+    }
+
+    for (counter = 0; counter < gbl.tot_mb_links; counter++) {
+        ret = pthread_join(gbl.mb_links[counter].thrd, NULL);
+        if (ret != 0) {
+            ERR(gbl.init_dbg, "Unable to join thread for link number %d: %s", counter, strerror(ret));
+        }
+        // OK(gbl.init_dbg, "Link thread %d joined OK OK", counter);
     }
 
 QUIT_CLEANUP:
