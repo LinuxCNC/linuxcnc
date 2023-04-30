@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-01-26 22:23+0100\n"
-"PO-Revision-Date: 2023-03-18 10:36+0000\n"
+"PO-Revision-Date: 2023-04-30 06:51+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.16.2-dev\n"
+"X-Generator: Weblate 4.18-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -7284,7 +7284,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1818
 msgid "Rapid distance:"
-msgstr ""
+msgstr "Ilgangavstand:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1819
 #, fuzzy
@@ -8382,7 +8382,7 @@ msgstr "%"
 
 #: share/axis/tcl/axis.tcl:1529
 msgid "Rapid Override:"
-msgstr ""
+msgstr "Ilgangoverstyring:"
 
 #: share/axis/tcl/axis.tcl:1571
 msgid ""
@@ -11352,6 +11352,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
 msgid ""
 "_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -18899,13 +18900,12 @@ msgstr ""
 "Overstyring"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3402
-#, fuzzy
 msgid ""
 "Rapid\n"
 "Override"
 msgstr ""
-"Spindel\n"
-"Overstyring"
+"Ilgang\n"
+"overstyring"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3424
 #, fuzzy
