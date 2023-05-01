@@ -125,7 +125,6 @@ mb2hal create_each_mb_tx_hal_pins DEBUG: mb_tx_num [4] pin_name [mb2hal.Modbus_f
 mb2hal main OK: HAL components created OK
 mb2hal main OK: Link thread loop and logic 0 created OK
 mb2hal main OK: mb2hal is running
-mb2hal quit_signal DEBUG: signal [15] received
 mb2hal quit_cleanup DEBUG: started
 mb2hal quit_cleanup DEBUG: unloading HAL module [(ignored comp id)] ret[0]
 mb2hal quit_cleanup DEBUG: done OK
