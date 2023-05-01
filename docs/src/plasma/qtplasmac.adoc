@@ -12,10 +12,10 @@
 
 == Preamble
 
-*Except where noted, this guide assumes the user is using the latest version of QtPlasmaC.*
-*Version history can be seen by visiting this https://htmlpreview.github.io/?https://github.com/LinuxCNC/linuxcnc/blob/master/share/qtvcp/screens/qtplasmac/versions.html[link] which will show the latest available version.*
-*The installed QtPlasmaC version is displayed in the title bar.*
-*See <<plasma:update,Update QtPlasmaC>> for information on updating QtPlasmaC.*
+Except where noted, this guide assumes the user is using the latest version of QtPlasmaC.
+Version history can be seen by visiting this https://htmlpreview.github.io/?https://github.com/LinuxCNC/linuxcnc/blob/master/share/qtvcp/screens/qtplasmac/versions.html[link] which will show the latest available version.
+The installed QtPlasmaC version is displayed in the title bar.
+See <<plasma:update,Update QtPlasmaC>> for information on updating QtPlasmaC.
 
 == License
 
@@ -29,7 +29,7 @@ The QtPlasmaC GUI supports up to five axes and uses the QtVCP infrastructure pro
 
 The standard theme is based on a design by user "pinder" on the LinuxCNC Forum and the colors are able to be changed by the user.
 
-The QtPlasmaC GUI will run on any hardware that is supported by LinuxCNC provided there are enough hardware I/O pins to fulfill the requirements of a plasma configuration.
+The QtPlasmaC GUI will run on any hardware that is supported by LinuxCNC v2.9 or later provided there are enough hardware I/O pins to fulfill the requirements of a plasma configuration.
 
 There are three available formats:
 
@@ -58,26 +58,26 @@ It is possible to install and run LinuxCNC on a variety of Linux distributions h
 
 === If The User Does Not Have Linux Installed
 
-Installation instructions are available at: link:../getting-started/getting-linuxcnc.html
+Installation instructions are available from link:../getting-started/getting-linuxcnc.html[here].
 
 Following these instructions will yield a machine with the current stable branch (v2.8) of LinuxCNC on Debian Buster.
 
 === Package Installation (Buildbot) If The User Has Linux with LinuxCNC v2.8
 
-A package installation (Buildbot) uses prebuilt packages from the LinuxCNC Buildbot, instructions for upgrading from 2.8 to 2.9 are available at: http://buildbot.linuxcnc.org
+A package installation (Buildbot) uses prebuilt packages from the LinuxCNC Buildbot, instructions for upgrading from 2.8 to 2.9 or later are available at: http://buildbot.linuxcnc.org
 
-Following these instructions by using the below stanzas will upgrade the machine to the last LinuxCNC Buildbot build master branch (v2.9) of LinuxCNC. This may not always be the latest version of master branch (v2.9) as from time to time the LinuxCNC Buildbot may stop due to errors.
+Following these instructions by using the below stanzas will upgrade the machine to the last LinuxCNC Buildbot build of LinuxCNC v2.9. This may not always be the latest version though, as from time to time the LinuxCNC Buildbot may stop due to errors.
 
 ----
-deb     http://buildbot.linuxcnc.org/ buster master-rtpreempt
-deb-src http://buildbot.linuxcnc.org/ buster master-rtpreempt
+deb     http://buildbot.linuxcnc.org/ buster 2.9-rtpreempt
+deb-src http://buildbot.linuxcnc.org/ buster 2.9-rtpreempt
 ----
 
 === Run In Place Installation If The User Has Linux with LinuxCNC v2.8
 
-A run in place installation runs LinuxCNC from a locally compiled version usually located at ~/linuxcnc-dev, instructions for building a run in place installation are available at: link:../code/building-linuxcnc.html
+A run in place installation runs LinuxCNC from a locally compiled version usually located at ~/linuxcnc-dev, instructions for building a run in place installation are available from link:../code/building-linuxcnc.html[here].
 
-Following these instructions will install the latest master branch (v2.9) of LinuxCNC.
+Following these instructions will install the latest master branch (v2.10) of LinuxCNC.
 
 == Creating A QtPlasmaC Configuration
 
@@ -214,14 +214,16 @@ it is highly recommended to install a switch on the floating head as a backup me
 LinuxCNC provides two configuration wizards which can be used to build a machine configuration.
 The choice of these wizards is dependent on the hardware used to control the machine.
 
-If the user wishes to use a Run In Place installation then prior to running one of the following commands they will need to run the following command from a terminal: +
-`source ~/linuxcnc-dev/scripts/rip-environment` .
+If the user wishes to use a Run In Place installation then prior to running one of the following commands they will need to run the following command from a terminal:
+----
+source ~/linuxcnc-dev/scripts/rip-environment
+----
 
 If using a Package installation then no additional action is required.
 
-If using a parallel port, use the <<cha:stepconf-wizard,StepConf wizard>> by running the `stepconf` command in a terminal window or launching it using the *Application > CNC > StepConf Wizard* desktop menu entry.
+If using a parallel port, use the <<cha:stepconf-wizard,StepConf wizard>> by running the `stepconf` command in a terminal window or launching it using the *Application -> CNC -> StepConf Wizard* desktop menu entry.
 
-If using a Mesa Electronics board, use the <<cha:pncconf-wizard,PnCconf wizard>> by running the `pncconf` command in a terminal window or launching it using the *Application > CNC > PnCConf Wizard* desktop menu entry.
+If using a Mesa Electronics board, use the <<cha:pncconf-wizard,PnCconf wizard>> by running the `pncconf` command in a terminal window or launching it using the *Application -> CNC -> PnCConf Wizard* desktop menu entry.
 
 If using a Pico Systems board,
 https://forum.linuxcnc.org/27-driver-boards/14977-pico-systems-faq[this LinuxCNC forum thread] may be helpful.
@@ -262,11 +264,15 @@ When the configuration is complete, the wizard will save a copy of the configura
 
 The way the newly created QtPlasmaC configuration can be run from the command line slightly differs depending the way LinuxCNC was installed:
 
-For a package installation (Buildbot): +
-`linuxcnc&nbsp;~/linuxcnc/configs/_<machine_name>_/_<machine_name>_.ini`
+For a package installation (Buildbot):
+----
+linuxcnc ~/linuxcnc/configs/_<machine_name>_/_<machine_name>_.ini
+----
 
 For a run in place installation: +
-`\~/linuxcnc&#8209;dev/scripts/linuxcnc&nbsp;~/linuxcnc/configs/_<machine_name>_/_<machine_name>_.ini`
+----
+~/linuxcnc-dev/scripts/linuxcnc ~/linuxcnc/configs/_<machine_name>_/_<machine_name>_.ini
+----
 
 After running the above command LinuxCNC should be running with the QtPlasmaC GUI visible.
 
@@ -283,11 +289,15 @@ It is possible to create a sim configuration using StepConf but it is not possib
 If any Qt dependency errors are encountered while attempting to run the QtPlasmaC configuration,
 the user may need to run the QtVCP installation script to resolve these issues.
 
-For a package installation (Buildbot) enter the following command in a terminal window: +
-`/usr/lib/python3/dist-packages/qtvcp/designer/install_script` .
+For a package installation (Buildbot) enter the following command in a terminal window:
+----
+/usr/lib/python3/dist-packages/qtvcp/designer/install_script
+----
 
-For a run in place installation enter the following command in a terminal window: +
-`~/linuxcnc-dev/lib/python/qtvcp/designer/install_script` .
+For a run in place installation enter the following command in a terminal window:
+----
+~/linuxcnc-dev/lib/python/qtvcp/designer/install_script
+----
 
 [[plasma:initial-setup]]
 === Initial Setup
@@ -429,12 +439,16 @@ It will also copy the <machine_name>_material.cfg file to the existing QtPlasmaC
 
 To run the cfg2prefs conversion program, use the following instructions:
 
-For a package installation (Buildbot) enter the following line in a terminal window: +
-`qtplasmac-cfg2prefs`
+For a package installation (Buildbot) enter the following line in a terminal window:
+----
+qtplasmac-cfg2prefs
+----
 
-For a run in place installation enter the following lines in terminal window: +
-`source ~/linuxcnc-dev/scripts/rip-environment
-qtplasmac-cfg2prefs`
+For a run in place installation enter the following lines in terminal window:
+----
+source ~/linuxcnc-dev/scripts/rip-environment
+qtplasmac-cfg2prefs
+----
 
 
 .`qtplasmac-cfg2prefs`
@@ -517,7 +531,7 @@ There are two different methods available to provide this minimum current if it 
 
 Schematics are shown at <<plasma:contact-load-schematics,contact load schematics>>.
 
-More information on contact switching load can be seen on page III of link:https://www.finder-relais.net/en/Finder-general-technical-information-en.pdf[Finder Relays General Technical Information]
+More information on contact switching load can be seen on page VI of the finder https://cdn.findernet.com/app/uploads/TecEN.pdf[General Technical Information] document.
 
 [[plasma:calculations]]
 .*Calculations:*
@@ -619,7 +633,7 @@ The _<machine_name>_.prefs file is plain text and may be edited with any text ed
 
 QtPlasmaC has some specific _<machine_name>_.ini file variables as follows:
 
-.`[FILTER]` Section
+.*[FILTER]* Section
 
 These variables are mandatory.
 
@@ -1027,8 +1041,6 @@ Screenshot example of the QtPlasmaC <<plasma:parameters-tab,PARAMETERS Tab>> in 
 image::images/qtplasmac_parameters.png[width=800,align="center"]
 
 Some functions/features are only used for particular modes and are not displayed if they are not required by the chosen QtPlasmaC mode.
-
-Due to space constraints, the 4x3 GUI's <<plasma:parameters-tab,PARAMETERS Tab>> will be spread across two tabs, PARAMETERS and SETTINGS.
 
 This tab is used to display configuration parameters that are modified infrequently.
 
@@ -3004,7 +3016,7 @@ If unsure of the HAL pin's full name, the user may start LinuxCNC and run *HalSh
 Styling of the QtPlasmaC GUI is done with Qt stylesheets and some customization may be achieved by the use of a custom stylesheet.
 This allows the user to change some GUI items such as color, border, size, etc. It cannot change the layout of the GUI.
 
-Information on Qt stylesheets is available link:https://doc.qt.io/archives/qt-5.11/stylesheet.html[here].
+Information on Qt stylesheets is available https://doc.qt.io/archives/qt-5.11/stylesheet.html[here].
 
 There are two methods available to apply custom styles:
 
@@ -3903,12 +3915,16 @@ that will show all available ports and can also be used to test communications w
 
 To use the test script follow these instructions:
 
-For a package installation (Buildbot) enter the following command in a terminal window: +
-`pmx485-test`
+For a package installation (Buildbot) enter the following command in a terminal window:
+----
+pmx485-test
+----
 
-For a run in place installation enter the following two commands in a terminal window: +
-`source ~/linuxcnc-dev/scripts/rip-environment +
-pmx485-test`
+For a run in place installation enter the following two commands in a terminal window:
+----
+source ~/linuxcnc-dev/scripts/rip-environment
+pmx485-test
+----
 
 The gas pressure units display (psi or bar) is determined by the data received during initial setup of the communication link
 and is then shown next to the Gas Pressure setting in the MATERIAL section of the <<plasma:parameters-tab,PARAMETERS Tab>>.
@@ -3928,8 +3944,10 @@ TIP: If PowerMax communications is active then selecting <<plasma:mesh-mode,Mesh
 To use the PowerMax communications feature it is necessary to have the Python pyserial module installed. +
 If pyserial is not installed an error message will be displayed.
 
-To install pyserial, enter the following command into a terminal window: +
-`sudo apt install python-serial`
+To install pyserial, enter the following command into a terminal window:
+----
+sudo apt install python-serial
+----
 
 A typical <<plasma:rs485_connections,connection diagram>> is shown in the appendix of this document as well as confirmed working interfaces.
 
@@ -3941,8 +3959,6 @@ To create and or edit a translation file requires that LinuxCNC has been install
 
 The following assumes that the linuxcnc git directory is ~/linuxcnc-dev.
 
-The *$* indicates a terminal prompt.
-
 All language files are kept in ~/linuxcnc-dev/share/screens/qtplasmac/languages.
 
 The qtplasmac.py file is a Python version of the GUI file used for translation purposes.
@@ -3953,47 +3969,55 @@ These are the files that require creating/editing for each language.
 The .qm files are the compiled translation files used by pyqt.
 
 The language is determined by an underscore plus the first two letters of the locale,
-for example if an Italian translation was being done then it would be "\_it".
-It will be referred to as "_xx" in this document, so "qtplasmac_xx.ts" in this document would actually be "qtplasmac_it.ts" for an Italian translation.
+for example if an Italian translation was being done then it would be `_it`.
+It will be referred to as `_xx` in this document, so `qtplasmac_xx.ts` in this document would actually be `qtplasmac_it.ts` for an Italian translation.
 
-The default locale for QtPlasmaC is "_en" which means that any translation files created as "qtplasmac_en.*" will not be used for translations.
+The default locale for QtPlasmaC is `_en` which means that any translation files created as `qtplasmac_en.*` will not be used for translations.
 
-If any of the required utilities (pyuic5, pylupdate5, linguist) are not installed then the user will need to install pyqt5-dev-tools: +
-`sudo apt install pyqt5-dev-tools`
+If any of the required utilities (pyuic5, pylupdate5, linguist) are not installed then the user will need to install pyqt5-dev-tools:
+----
+sudo apt install pyqt5-dev-tools
+----
 
-Change to the languages directory: +
-`cd ~/linuxcnc-dev/share/qtvcp/screens/qtplasmac/languages`
+Change to the languages directory:
+----
+cd ~/linuxcnc-dev/share/qtvcp/screens/qtplasmac/languages
+----
 
-If any text changes have been made to the GUI then run the following to update the GUI Python file: +
-`pyuic5 ../qtplasmac.ui > qtplasmac.py`
-+
+If any text changes have been made to the GUI then run the following to update the GUI Python file:
+----
+pyuic5 ../qtplasmac.ui > qtplasmac.py
+----
+
 The user can either create a new translation source file for a non-existing language translation
 or modify an existing translation source file due to changes being made to some text in a QtPlasmaC source file.
 If modifying an existing translation that has had no source file changes then this step is not required.
 
-Create or edit a .ts file: +
-`langfile xx`
-+
+Create or edit a .ts file:
+----
+langfile xx
+----
+
 [NOTE]
 this command is a script which runs the following: $ pylupdate5 *.py ../*.py ../../../../../lib/python/qtvcp/lib/qtplasmac/*.py -ts qtplasmac_xx.ts
 
-The editing of the translation is done with the linguist application: +
-`linguist`
+The editing of the translation is done with the linguist application:
+----
+linguist
+----
 
 . Open the TS file and translate the strings
 
 It is not necessary to provide a translation for every text string, if no translation is specified for a string then the original string will be used in the application.
 The user needs to be careful with the length of strings that appear on widgets as space is limited. If possible try to make the translation no longer than the original.
 
-When editing is complete save the file:
-----
-File > Save
-----
+When editing is complete save the file: +
+`File -> Save`
 
-Then create the .qm file:
-----
-File > Release
-----
+
+Then create the .qm file: +
+`File -> Release`
+
 
 Then create links to the compiled .qm file for the other QtPlasmaC GUIs.
 ----
@@ -4097,10 +4121,10 @@ Options: +
 0 - Create temporary default +
 1 - Add if not existing +
 2 - Overwrite if existing else add new |mandatory parameters: +
-(o=<option>, nu=<__nn__>, na=<__ll__>, ph=<__nn__>, pd=<__nn__>, ch=<__nn__>, fr=<__nn__>) +
+(o=<__option__>, nu=<__nn__>, na=<__ll__>, ph=<__nn__>, pd=<__nn__>, ch=<__nn__>, fr=<__nn__>) +
 optional parameters: +
 (kw=<__nn__>, th=<__nn__>, ca=<__nn__>, cv=<__nn__>, pe=<__nn__>, gp=<__nn__>, cm=<__nn__>, jh=<__nn__>, jd=<__nn__>)
-|<<plasma:magic-comments,Keep Z Motion>> |#<keep-z-motion> = 1
+|<<plasma:magic-comments,Keep Z Motion>> m|#<keep-z-motion> = 1
 |===
 
 === QtPlasmaC G-code Examples
@@ -4132,7 +4156,7 @@ M67 E3 Q100 (restore feed rate to 100%) +
 M5 $0 (end cut) +
 G0 X0 Y0 +
 M2 (end job)
-|Cut a hole with 60% reduced speed using the #<holes> command |G21 (metric) +
+|Cut a hole with 60% reduced speed using the #<holes> command m|G21 (metric) +
 G64 P0.05 +
 M52 P1 (allow paused motion) +
 \#<holes> = 1 (velocity reduction for holes) +
@@ -4144,7 +4168,7 @@ G3 I10 (the hole) +
 M5 $0 (end cut) +
 G0 X0 Y0 +
 M2 (end job)
-|Cut a hole with over cut using torch disable |G21 (metric) +
+|Cut a hole with over cut using torch disable m|G21 (metric) +
 G64 P0.05 +
 M52 P1 (allow paused motion) +
 F#<_hal[plasmac.cut-feed-rate]> +
@@ -4160,7 +4184,7 @@ M67 E3 Q0 (restore feed rate to 100%) +
 M5 $0 (end cut) +
 G0 X0 Y0 +
 M2 (end job)
-|Cut a hole with over cut using the #<holes> command |G21 (metric) +
+|Cut a hole with over cut using the #<holes> command m|G21 (metric) +
 G64 P0.05 +
 M52 P1 (allow paused motion) +
 \#<holes> = 2 (over cut for holes) +
@@ -4172,7 +4196,7 @@ G3 I10 (the hole) +
 M5 $0 (end cut) +
 G0 X0 Y0 +
 M2 (end job) +
-|Cut a hole with 6.5 mm over cut using the #<holes> command |G21 (metric) +
+|Cut a hole with 6.5 mm over cut using the #<holes> command m|G21 (metric) +
 G64 P0.05 +
 M52 P1 (allow paused motion) +
 \#<holes> = 2 (over cut for holes) +
@@ -4198,8 +4222,7 @@ T0 M6 (select torch) +
 G43 H0 (apply offsets) +
 G0 X0 Y0 (parking position) +
 M5 $1 (end)
-|Hole center spotting. +
-|(Requires a small motion command or nothing happens) +
+|Hole center spotting. m|(Requires a small motion command or nothing happens) +
 G21 (metric) +
 F99999 (high feed rate) +
 G0 X10 Y10 +
@@ -4212,7 +4235,7 @@ G0 X0 Y0 +
 G90 +
 M2
 |Create temporary default material m|(o=0, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000)
-|Edit material, if not existing create a new one |(o=2, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000, kw=1.0)
+|Edit material, if not existing create a new one m|(o=2, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000, kw=1.0)
 |===
 
 [[plasma:mesa-thcad]]
