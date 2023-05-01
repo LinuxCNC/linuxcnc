@@ -10,4 +10,9 @@ cd "${TESTDIR}"
 # so that a single `expected` file works for both.
 sed --in-place --regexp-extended --expression='s/^(.*unloading HAL module \[)[0-9]+(.*)$/\1(ignored comp id)\2/' result
 
+# The SIGQUIT signal does not arrive at a well-defined time, so don't
+# check for that debug log message.  The rest of the shutdown messages
+# seem to have well-defined order.
+sed --in-place --regexp-extended --expression='/^mb2hal quit_signal DEBUG: signal \[15\] received$/d' result
+
 diff -u expected result
