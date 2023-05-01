@@ -127,6 +127,6 @@ mb2hal main OK: Link thread loop and logic 0 created OK
 mb2hal main OK: mb2hal is running
 mb2hal quit_signal DEBUG: signal [15] received
 mb2hal quit_cleanup DEBUG: started
-mb2hal quit_cleanup DEBUG: unloading HAL module [4] ret[0]
+mb2hal quit_cleanup DEBUG: unloading HAL module [(ignored comp id)] ret[0]
 mb2hal quit_cleanup DEBUG: done OK
 mb2hal main OK: going to exit!

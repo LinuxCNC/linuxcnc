@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+
+TESTDIR=$(dirname $1)
+cd "${TESTDIR}"
+
+# HAL assigns each component a unique component ID at load-time.
+# The RTAI and uspace HAL implementations assign different component IDs,
+# so remove all mentions of specific component IDs from the result file,
+# so that a single `expected` file works for both.
+sed --in-place --regexp-extended --expression='s/^( *)[0-9]+(.*mb2hal.Modbus_fnct_.*)$/\1(ignored comp id)\2/' result
+
+diff -u expected result
