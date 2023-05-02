@@ -107,7 +107,7 @@ POSITIVE TRAVEL DISTANCE:
     the total travel minus the negative travel 
     distance. You would set this to zero if the
     origin is positioned at the positive limit.
-    The will always be zero or a positive number.
+    This will always be zero or a positive number.
 
 NEGATIVE TRAVEL DISTANCE:
     This is the distance the Axis travels from 
