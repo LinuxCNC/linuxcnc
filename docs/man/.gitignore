@@ -97,6 +97,7 @@ man9/deadzone.9
 man9/demux.9
 man9/differential.9
 man9/edge.9
+man9/enum.9
 man9/eoffset_per_angle.9
 man9/estop_latch.9
 man9/feedcomp.9
