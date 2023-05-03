@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
-"POT-Creation-Date: 2023-01-26 22:23+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-05-03 08:16+0200\n"
 "PO-Revision-Date: 2023-04-01 02:17+0000\n"
 "Last-Translator: kemal askan <kemalaskan90@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -121,489 +121,553 @@ msgstr ""
 msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:260
+#: src/emc/rs274ngc/interp_check.cc:261
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:269
+#: src/emc/rs274ngc/interp_check.cc:270
 msgid ""
 "$ (spindle selection) word with no M3, M4, M5, M19, M51, G33, G33.1, G76, "
 "G95, G96 or G97 to use it"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:276
+#: src/emc/rs274ngc/interp_check.cc:277
 msgid "E word with no G70, G76, M66, M67 or M68 to use it"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:281
+#: src/emc/rs274ngc/interp_check.cc:282
 msgid "H word with no G43 or G76 to use it"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:289
-msgid "I word with no G2, G3, G5, G5.1, G10, G33.1, G76, or G87 to use it"
+#: src/emc/rs274ngc/interp_check.cc:291
+msgid ""
+"I word with no G2, G3, G5, G5.1, G6, G6.1, G10, G33.1, G76, or G87 to use it"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:295
-msgid "J word with no G2, G3, G5, G5.1, G10, G76 or G87 to use it"
+#: src/emc/rs274ngc/interp_check.cc:298
+msgid "J word with no G2, G3, G5, G5.1, G6, G6.1, G10, G76 or G87 to use it"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:301
-msgid "K word with no G2, G3, G33, G33.1, G76, or G87 to use it"
+#: src/emc/rs274ngc/interp_check.cc:303
+msgid "K word with no G2, G3, G6.2, G33, G33.1, G76, or G87 to use it"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:313
+#: src/emc/rs274ngc/interp_check.cc:315
 msgid ""
 "L word with no G10, cutter compensation, canned cycle, digital/analog input, "
 "M98 or NURBS code"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:329
+#: src/emc/rs274ngc/interp_check.cc:332
 msgid ""
-"P word with no G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 or M50 M51 M52 "
-"M53 M62 M63 M64 M65 M66 M98 or user M code to use it"
+"P word with no G2 G3 G4 G10 G64 G5 G5.2 G6, G6.2, G76 G82 G86 G88 G89 or M50 "
+"M51 M52 M53 M62 M63 M64 M65 M66 M98 or user M code to use it"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:335
+#: src/emc/rs274ngc/interp_check.cc:338
 msgid "P value not an integer with M19 G2 or G3"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:337
+#: src/emc/rs274ngc/interp_check.cc:340
 msgid "P value must be 0,1,or 2 with M19"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:339
+#: src/emc/rs274ngc/interp_check.cc:342
 msgid "P value should be 1 or greater with G2 or G3"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:350
+#: src/emc/rs274ngc/interp_check.cc:353
 msgid ""
-"Q word with no G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 or user M "
+"Q word with no G5, G6, G10, G64, G73, G76, G83, M19, M66, M67, M68 or user M "
 "code that uses it"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:363
+#: src/emc/rs274ngc/interp_check.cc:366
 msgid "R value must be within 0..360 with M19"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:149
+#: src/emc/rs274ngc/interp_convert.cc:187
+#: src/emc/rs274ngc/interp_convert.cc:380
 msgid "You must specify both X and Y coordinates for Control Points"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:152
+#: src/emc/rs274ngc/interp_convert.cc:192
 msgid "Can specify P without X and Y only for the first control point"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:155
+#: src/emc/rs274ngc/interp_convert.cc:199
+#: src/emc/rs274ngc/interp_convert.cc:387
+msgid "You must specify both Y and Z coordinates for Control Points"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:204
+msgid "Can specify P without Y and Z only for the first control point"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:211
+#: src/emc/rs274ngc/interp_convert.cc:394
+msgid "You must specify both X and Z coordinates for Control Points"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:216
+msgid "Can specify P without X and Z only for the first control point"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:222
 msgid "Must specify positive weight P for every Control Point"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:158
+#: src/emc/rs274ngc/interp_convert.cc:225
 msgid "Cannot make a NURBS with 0 feedrate"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:195
+#: src/emc/rs274ngc/interp_convert.cc:317
 msgid "Cannot use G5.3 without G5.2 first"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:196
+#: src/emc/rs274ngc/interp_convert.cc:320
 #, c-format
 msgid ""
 "You must specify a number of control points at least equal to the order L = "
 "%d"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:225
+#: src/emc/rs274ngc/interp_convert.cc:373
+msgid "one plane must be selected for nurbs: XY, YZ, ZX"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:400
+msgid "Program the nurbs order P in the first block of instruction"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:404
+msgid "nurbs order P number is not an integer"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:410
+msgid ""
+"Program the nurbs Q value (1,2,3) in the first block of nurbs instruction"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:415
+msgid "nurbs Q value not in range 1 to 3"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:417
+msgid "nurbs Q number is not an integer"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:423
+msgid "Must specify positive nurbs weight R for every Control Point"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:428
+msgid "Must specify nurbs K number for every Control Point"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:432
+msgid "nurbs K number is not an integer"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:437
+msgid "Cannot make a nurbs with 0 feedrate"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:503
+#, c-format
+msgid ""
+"You must specify a number of control points at least equal to the order P = "
+"%d"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:567
 msgid "Cannot convert spline with cutter radius compensation"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:235
-msgid "Splines must be in the XY plane"
+#: src/emc/rs274ngc/interp_convert.cc:579
+msgid "Splines may not have motion in A, B, or C"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:240
-msgid "Splines may not have motion in Z, A, B, or C"
+#: src/emc/rs274ngc/interp_convert.cc:586
+msgid "Must specify both I and J with G5.1 or G6.1"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:244
-msgid "Must specify both I and J with G5.1"
-msgstr ""
-
-#: src/emc/rs274ngc/interp_convert.cc:266
+#: src/emc/rs274ngc/interp_convert.cc:691
 msgid "Must specify both I and J, or neither"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:277
+#: src/emc/rs274ngc/interp_convert.cc:745
 msgid "Must specify both P and Q with G5"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:382
+#: src/emc/rs274ngc/interp_convert.cc:928
 msgid ""
 "The move just after exiting cutter compensation mode must be straight, not "
 "an arc"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:390
+#: src/emc/rs274ngc/interp_convert.cc:936
 msgid "Cannot do an arc in planes G17.1, G18.1, or G19.1"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:402
-#: src/emc/rs274ngc/interp_convert.cc:4789
+#: src/emc/rs274ngc/interp_convert.cc:948
+#: src/emc/rs274ngc/interp_convert.cc:5329
 msgid "Cannot feed with zero spindle speed in feed per rev mode"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:413
-#: src/emc/rs274ngc/interp_convert.cc:419
-#: src/emc/rs274ngc/interp_convert.cc:428
-#: src/emc/rs274ngc/interp_convert.cc:434
-#: src/emc/rs274ngc/interp_convert.cc:443
-#: src/emc/rs274ngc/interp_convert.cc:449
+#: src/emc/rs274ngc/interp_convert.cc:959
+#: src/emc/rs274ngc/interp_convert.cc:965
+#: src/emc/rs274ngc/interp_convert.cc:974
+#: src/emc/rs274ngc/interp_convert.cc:980
+#: src/emc/rs274ngc/interp_convert.cc:989
+#: src/emc/rs274ngc/interp_convert.cc:995
 #, c-format
 msgid "%c word missing in absolute center arc"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:676
+#: src/emc/rs274ngc/interp_convert.cc:1222
 msgid ""
 "Radius of cutter compensation entry arc is not greater than the tool radius"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:895
-#: src/emc/rs274ngc/interp_convert.cc:905 src/emc/rs274ngc/interp_queue.cc:607
+#: src/emc/rs274ngc/interp_convert.cc:1441
+#: src/emc/rs274ngc/interp_convert.cc:1451 src/emc/rs274ngc/interp_queue.cc:607
 msgid ""
 "Arc move in concave corner cannot be reached by the tool without gouging"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:931
+#: src/emc/rs274ngc/interp_convert.cc:1477
 msgid "Arc to arc motion is invalid because the arcs have the same center"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:934
+#: src/emc/rs274ngc/interp_convert.cc:1480
 msgid ""
 "Arc to arc motion makes a corner the compensated tool can't fit in without "
 "gouging"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:1069
-#: src/emc/rs274ngc/interp_convert.cc:1073
-#: src/emc/rs274ngc/interp_convert.cc:1077
-#: src/emc/rs274ngc/interp_convert.cc:4208
-#: src/emc/rs274ngc/interp_convert.cc:4211
-#: src/emc/rs274ngc/interp_convert.cc:4214 src/emc/rs274ngc/interp_find.cc:99
+#: src/emc/rs274ngc/interp_convert.cc:1615
+#: src/emc/rs274ngc/interp_convert.cc:1619
+#: src/emc/rs274ngc/interp_convert.cc:1623
+#: src/emc/rs274ngc/interp_convert.cc:4746
+#: src/emc/rs274ngc/interp_convert.cc:4749
+#: src/emc/rs274ngc/interp_convert.cc:4752 src/emc/rs274ngc/interp_find.cc:99
 #, c-format
 msgid "Invalid absolute position %5.2f for wrapped rotary axis %c"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:1641
+#: src/emc/rs274ngc/interp_convert.cc:2187
 msgid "Cannot change control mode with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:1759
+#: src/emc/rs274ngc/interp_convert.cc:2305
 msgid "Cannot change coordinate systems with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2004
+#: src/emc/rs274ngc/interp_convert.cc:2542
 #, c-format
 msgid "G%d.1 with no D word"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2007
+#: src/emc/rs274ngc/interp_convert.cc:2545
 #, c-format
 msgid "G%d.1 with L word, but plane is not G18"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2018
+#: src/emc/rs274ngc/interp_convert.cc:2556
 #, c-format
 msgid "G%d requires D word to be a whole number"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2025
+#: src/emc/rs274ngc/interp_convert.cc:2563
 #, c-format
 msgid "G%d with lathe tool, but plane is not G18"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2443
+#: src/emc/rs274ngc/interp_convert.cc:2981
 msgid "Cannot set reference point with cutter compensation in effect"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3026
+#: src/emc/rs274ngc/interp_convert.cc:3564
 #, c-format
 msgid "gen_restore G20/G21 failed: '%s'"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3076
+#: src/emc/rs274ngc/interp_convert.cc:3614
 #, c-format
 msgid ""
 "BUG: cannot restore from a lower call level (%d) to a higher call level (%d)"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3077
+#: src/emc/rs274ngc/interp_convert.cc:3615
 #, c-format
 msgid "BUG: restore from level %d !?"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3078
+#: src/emc/rs274ngc/interp_convert.cc:3616
 #, c-format
 msgid "BUG: restore to level %d !?"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3097
+#: src/emc/rs274ngc/interp_convert.cc:3635
 #, c-format
 msgid "M7x: restore_settings G20/G21 failed: '%s'"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3122
+#: src/emc/rs274ngc/interp_convert.cc:3660
 #, c-format
 msgid "M7x: restore_settings failed executing: '%s': %s"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3191
+#: src/emc/rs274ngc/interp_convert.cc:3729
 #, c-format
 msgid "Failed to restore interp state on abort '%s': %s"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3262
+#: src/emc/rs274ngc/interp_convert.cc:3800
 msgid "Cannot set motion output with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3263
+#: src/emc/rs274ngc/interp_convert.cc:3801
 msgid "No valid P word with M62"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3267
+#: src/emc/rs274ngc/interp_convert.cc:3805
 msgid "Cannot set motion digital output with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3268
+#: src/emc/rs274ngc/interp_convert.cc:3806
 msgid "No valid P word with M63"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3272
-#: src/emc/rs274ngc/interp_convert.cc:3277
+#: src/emc/rs274ngc/interp_convert.cc:3810
+#: src/emc/rs274ngc/interp_convert.cc:3815
 msgid "Cannot set auxiliary digital output with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3273
+#: src/emc/rs274ngc/interp_convert.cc:3811
 msgid "No valid P word with M64"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3278
+#: src/emc/rs274ngc/interp_convert.cc:3816
 msgid "No valid P word with M65"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3309
+#: src/emc/rs274ngc/interp_convert.cc:3847
 msgid "invalid P-word with M66"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3324
+#: src/emc/rs274ngc/interp_convert.cc:3862
 msgid "Cannot wait for digital input with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3336
+#: src/emc/rs274ngc/interp_convert.cc:3874
 msgid "Cannot wait for analog input with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3351
+#: src/emc/rs274ngc/interp_convert.cc:3889
 msgid "Cannot set motion analog output with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3352
+#: src/emc/rs274ngc/interp_convert.cc:3890
 msgid "Invalid analog index with M67"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3358
+#: src/emc/rs274ngc/interp_convert.cc:3896
 msgid "Cannot set auxiliary analog output with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3359
+#: src/emc/rs274ngc/interp_convert.cc:3897
 msgid "Invalid analog index with M68"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3390
+#: src/emc/rs274ngc/interp_convert.cc:3928
 msgid "Need non-negative Q-word to specify tool number with M61"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3434
+#: src/emc/rs274ngc/interp_convert.cc:3972
 #, c-format
 msgid ""
 "Spindle ($) number out of range in M3 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3451
+#: src/emc/rs274ngc/interp_convert.cc:3989
 #, c-format
 msgid ""
 "Spindle ($) number out of range in M4 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3468
+#: src/emc/rs274ngc/interp_convert.cc:4006
 #, c-format
 msgid ""
 "Spindle ($) number out of range in M5 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3487
+#: src/emc/rs274ngc/interp_convert.cc:4025
 msgid "Spindle ($) number out of range in M19 Command"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3494
+#: src/emc/rs274ngc/interp_convert.cc:4032
 msgid "Q word with M19 requires a value > 0"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3523
+#: src/emc/rs274ngc/interp_convert.cc:4061
 msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3564
-#: src/emc/rs274ngc/interp_convert.cc:3585
-#: src/emc/rs274ngc/interp_convert.cc:3605
-#: src/emc/rs274ngc/interp_convert.cc:3627
-#: src/emc/rs274ngc/interp_convert.cc:3641
+#: src/emc/rs274ngc/interp_convert.cc:4102
+#: src/emc/rs274ngc/interp_convert.cc:4123
+#: src/emc/rs274ngc/interp_convert.cc:4143
+#: src/emc/rs274ngc/interp_convert.cc:4165
+#: src/emc/rs274ngc/interp_convert.cc:4179
 msgid "Cannot enable overrides with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3573
-#: src/emc/rs274ngc/interp_convert.cc:3590
-#: src/emc/rs274ngc/interp_convert.cc:3614
-#: src/emc/rs274ngc/interp_convert.cc:3632
-#: src/emc/rs274ngc/interp_convert.cc:3646
+#: src/emc/rs274ngc/interp_convert.cc:4111
+#: src/emc/rs274ngc/interp_convert.cc:4128
+#: src/emc/rs274ngc/interp_convert.cc:4152
+#: src/emc/rs274ngc/interp_convert.cc:4170
+#: src/emc/rs274ngc/interp_convert.cc:4184
 msgid "Cannot disable overrides with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3600
+#: src/emc/rs274ngc/interp_convert.cc:4138
 msgid "Invalid spindle ($) number in M51 command"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3763
-#: src/emc/rs274ngc/interp_convert.cc:3764
-#: src/emc/rs274ngc/interp_convert.cc:3765
+#: src/emc/rs274ngc/interp_convert.cc:4301
+#: src/emc/rs274ngc/interp_convert.cc:4302
+#: src/emc/rs274ngc/interp_convert.cc:4303
 #, c-format
 msgid "Indexing axis %c can only be moved with G0"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3772
-#: src/emc/rs274ngc/interp_convert.cc:3774
-#: src/emc/rs274ngc/interp_convert.cc:3776
+#: src/emc/rs274ngc/interp_convert.cc:4310
+#: src/emc/rs274ngc/interp_convert.cc:4312
+#: src/emc/rs274ngc/interp_convert.cc:4314
 #, c-format
 msgid "Indexing axis %c can only be moved alone"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3883
+#: src/emc/rs274ngc/interp_convert.cc:4421
 msgid "Cannot probe with feed per rev mode"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3931
+#: src/emc/rs274ngc/interp_convert.cc:4469
 msgid "Cannot change retract mode with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3965
+#: src/emc/rs274ngc/interp_convert.cc:4503
 msgid "G10 L1 without offsets has no effect"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4071
+#: src/emc/rs274ngc/interp_convert.cc:4609
 msgid "Q number in G10 is not an integer"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4072
+#: src/emc/rs274ngc/interp_convert.cc:4610
 msgid "Invalid tool orientation"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4196
+#: src/emc/rs274ngc/interp_convert.cc:4734
 msgid "I J words not allowed with G10 L2"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4217
+#: src/emc/rs274ngc/interp_convert.cc:4755
 msgid ""
 "Cannot change the active coordinate system with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4225
+#: src/emc/rs274ngc/interp_convert.cc:4763
 msgid "R not allowed in G10 L20"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4569
+#: src/emc/rs274ngc/interp_convert.cc:5109
 msgid "Bug:  Reached convert_stop() from M99 as subprogram return"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4849
+#: src/emc/rs274ngc/interp_convert.cc:5389
 msgid "Invalid spindle ($) number in G33 move"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4854
+#: src/emc/rs274ngc/interp_convert.cc:5394
 msgid "Spindle not turning in G33"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4864
+#: src/emc/rs274ngc/interp_convert.cc:5404
 msgid "Invalid spindle ($) number in G33.1 move"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4869
+#: src/emc/rs274ngc/interp_convert.cc:5409
 msgid "Spindle not turning in G33.1"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4884
+#: src/emc/rs274ngc/interp_convert.cc:5424
 msgid "Invalid D-number in G76 cycle"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4889
+#: src/emc/rs274ngc/interp_convert.cc:5429
 #, c-format
 msgid "Chosen spindle (%i) not turning in G76"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4927
+#: src/emc/rs274ngc/interp_convert.cc:5467
 msgid "BUG: An axis incorrectly moved along with an indexer"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4940
+#: src/emc/rs274ngc/interp_convert.cc:5480
 msgid "BUG: trying to index incorrect axis"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5035
+#: src/emc/rs274ngc/interp_convert.cc:5575
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5038
+#: src/emc/rs274ngc/interp_convert.cc:5578
 msgid "In G76, I must not be 0"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5040
+#: src/emc/rs274ngc/interp_convert.cc:5580
 msgid "In G76, J must be greater than 0"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5042
+#: src/emc/rs274ngc/interp_convert.cc:5582
 msgid "In G76, K must be greater than J"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5185
+#: src/emc/rs274ngc/interp_convert.cc:5725
 msgid ""
 "Length of cutter compensation entry move is not greater than the tool radius"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5404
+#: src/emc/rs274ngc/interp_convert.cc:5944
 msgid "Zero degree inside corner is invalid for cutter compensation"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5442
-#: src/emc/rs274ngc/interp_convert.cc:5450
+#: src/emc/rs274ngc/interp_convert.cc:5982
+#: src/emc/rs274ngc/interp_convert.cc:5990
 msgid ""
 "Arc to straight motion makes a corner the compensated tool can't fit in "
 "without gouging"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5534
+#: src/emc/rs274ngc/interp_convert.cc:6074
 msgid "Cannot change tools with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5658
+#: src/emc/rs274ngc/interp_convert.cc:6198
 msgid "Cannot change tool offset with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5709
+#: src/emc/rs274ngc/interp_convert.cc:6249
 msgid "G43.2: Can not have both H and axis words"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5712
+#: src/emc/rs274ngc/interp_convert.cc:6252
 msgid "G43.2: No axes specified and H word missing"
 msgstr ""
 
@@ -761,8 +825,8 @@ msgid "Cannot specify both polar coordinate and Y word"
 msgstr ""
 
 #: src/emc/rs274ngc/interp_internal.cc:183
-#: src/emc/rs274ngc/interp_internal.cc:200
-#: src/emc/rs274ngc/interp_internal.cc:216
+#: src/emc/rs274ngc/interp_internal.cc:201
+#: src/emc/rs274ngc/interp_internal.cc:217
 msgid "Polar coordinates can only be used for motion"
 msgstr ""
 
@@ -941,16 +1005,16 @@ msgstr ""
 msgid "BUG: lookup_named_param(%s): unhandled index=%fn"
 msgstr ""
 
-#: src/emc/rs274ngc/rs274ngc_pre.cc:1449 src/emc/rs274ngc/rs274ngc_pre.cc:1524
+#: src/emc/rs274ngc/rs274ngc_pre.cc:1452 src/emc/rs274ngc/rs274ngc_pre.cc:1527
 msgid "Queue is not empty after tool change"
 msgstr ""
 
-#: src/emc/rs274ngc/rs274ngc_pre.cc:1840
+#: src/emc/rs274ngc/rs274ngc_pre.cc:1843
 #, c-format
 msgid "Unable to open parameter file: '%s'"
 msgstr ""
 
-#: src/emc/rs274ngc/rs274ngc_pre.cc:2511
+#: src/emc/rs274ngc/rs274ngc_pre.cc:2514
 msgid "Parameter file name is missing"
 msgstr ""
 
@@ -1809,8 +1873,8 @@ msgid "Open Configuration File:"
 msgstr ""
 
 #: src/hal/utils/scope.c:478 src/hal/utils/scope.c:501
-#: src/hal/utils/scope_horiz.c:808 src/hal/utils/scope_vert.c:713
-#: src/hal/utils/scope_vert.c:933 src/hal/utils/scope_trig.c:315
+#: src/hal/utils/scope_horiz.c:808 src/hal/utils/scope_vert.c:700
+#: src/hal/utils/scope_vert.c:918 src/hal/utils/scope_trig.c:315
 msgid "_Cancel"
 msgstr ""
 
@@ -1884,9 +1948,9 @@ msgstr ""
 
 #: src/hal/utils/scope.c:696 src/hal/classicladder/classicladder_gtk.c:1084
 #: share/axis/tcl/axis.tcl:144 share/axis/tcl/axis.tcl:1044
-#: src/emc/usr_intf/gscreen/gscreen.py:4481
-#: src/emc/usr_intf/gscreen/gscreen.py:4482
-#: src/emc/usr_intf/gscreen/gscreen.glade:2685
+#: src/emc/usr_intf/gscreen/gscreen.py:4578
+#: src/emc/usr_intf/gscreen/gscreen.py:4579
+#: src/emc/usr_intf/gscreen/gscreen.glade:4123
 msgid "Stop"
 msgstr ""
 
@@ -1902,7 +1966,7 @@ msgstr ""
 msgid "Roll"
 msgstr ""
 
-#: src/hal/utils/scope_horiz.c:139 src/emc/usr_intf/gscreen/gscreen.glade:3515
+#: src/hal/utils/scope_horiz.c:139 src/emc/usr_intf/gscreen/gscreen.glade:3587
 msgid "Zoom"
 msgstr ""
 
@@ -1943,11 +2007,11 @@ msgstr ""
 #: tcl/tklinuxcnc.tcl:1225 tcl/tklinuxcnc.tcl:1296 tcl/tklinuxcnc.tcl:1327
 #: tcl/tklinuxcnc.tcl:1358 tcl/tklinuxcnc.tcl:1892 tcl/tklinuxcnc.tcl:1911
 #: tcl/tklinuxcnc.tcl:1930 tcl/tklinuxcnc.tcl:1977
-#: src/emc/usr_intf/axis/scripts/axis.py:1195
-#: src/emc/usr_intf/axis/scripts/axis.py:1300
-#: src/emc/usr_intf/axis/scripts/axis.py:1660
-#: src/emc/usr_intf/axis/scripts/axis.py:2960
-#: src/emc/usr_intf/axis/scripts/axis.py:4216
+#: src/emc/usr_intf/axis/scripts/axis.py:1194
+#: src/emc/usr_intf/axis/scripts/axis.py:1299
+#: src/emc/usr_intf/axis/scripts/axis.py:1659
+#: src/emc/usr_intf/axis/scripts/axis.py:2964
+#: src/emc/usr_intf/axis/scripts/axis.py:4220
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:725
 #: lib/python/propertywindow.py:35 share/axis/tcl/axis.tcl:1580
 #: share/axis/tcl/axis.tcl:1617
@@ -1990,7 +2054,8 @@ msgid ""
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
 
-#: src/hal/utils/scope_horiz.c:535 src/hal/utils/scope_vert.c:712
+#: src/hal/utils/scope_horiz.c:535 src/hal/utils/scope_vert.c:699
+#: src/hal/utils/scope_vert.c:917
 msgid "_OK"
 msgstr ""
 
@@ -2155,61 +2220,57 @@ msgstr ""
 msgid "MHz"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:411 src/hal/utils/scope_vert.c:1126
+#: src/hal/utils/scope_vert.c:413 src/hal/utils/scope_vert.c:1112
 #, c-format
 msgid ""
 "Offset\n"
 "%s"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:607
+#: src/hal/utils/scope_vert.c:602
 msgid "Gain"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:620 src/hal/utils/scope_trig.c:257
+#: src/hal/utils/scope_vert.c:615 src/hal/utils/scope_trig.c:257
 msgid "Pos"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:635 tcl/ngcgui_ttt.tcl:215
+#: src/hal/utils/scope_vert.c:630 tcl/ngcgui_ttt.tcl:215
 #: src/emc/usr_intf/pncconf/x_motor.glade:1672
 #: src/emc/usr_intf/pncconf/y_motor.glade:1666
 #: src/emc/usr_intf/pncconf/z_motor.glade:1666
 #: src/emc/usr_intf/pncconf/a_motor.glade:1591
 #: src/emc/usr_intf/pncconf/s_motor.glade:1821
-#: lib/python/gladevcp/gladevcp-test.glade:222
+#: lib/python/gladevcp/gladevcp-test.glade:250
 msgid "Scale"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:640
+#: src/hal/utils/scope_vert.c:635
 msgid ""
 "Offset\n"
 "----"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:648
-msgid "Chan Off"
-msgstr ""
-
-#: src/hal/utils/scope_vert.c:706
+#: src/hal/utils/scope_vert.c:693
 #, c-format
 msgid ""
 "Set the vertical offset\n"
 "for channel %d."
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:710
+#: src/hal/utils/scope_vert.c:697
 msgid "Set Offset"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:729
+#: src/hal/utils/scope_vert.c:716
 msgid "AC Coupled"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:831
+#: src/hal/utils/scope_vert.c:819
 msgid "Too many channels"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:834
+#: src/hal/utils/scope_vert.c:822
 msgid ""
 "You cannot add another channel.\n"
 "\n"
@@ -2217,26 +2278,20 @@ msgid ""
 "the record length to allow for more channels"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:927
+#: src/hal/utils/scope_vert.c:912
 #, c-format
-msgid ""
-"Select a pin, signal, or parameter\n"
-"as the source for channel %d."
+msgid "Select Channel %d Source"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:931
-msgid "Select Channel Source"
-msgstr ""
-
-#: src/hal/utils/scope_vert.c:955
+#: src/hal/utils/scope_vert.c:935
 msgid "Pins"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:956
+#: src/hal/utils/scope_vert.c:936
 msgid "Signals"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:957
+#: src/hal/utils/scope_vert.c:937
 msgid "Parameters"
 msgstr ""
 
@@ -2821,7 +2876,7 @@ msgstr ""
 msgid "hit limit in home state j=%d"
 msgstr ""
 
-#: src/emc/motion/homing.c:1362
+#: src/emc/motion/homing.c:1364
 #, c-format
 msgid "unknown state '%d' during homing j=%d"
 msgstr ""
@@ -2884,7 +2939,7 @@ msgstr ""
 #: src/hal/classicladder/classicladder_gtk.c:1294
 #: src/hal/classicladder/edit.c:416 src/hal/classicladder/edit_gtk.c:496
 #: src/hal/classicladder/manager_gtk.c:466
-#: src/emc/usr_intf/axis/scripts/axis.py:1604
+#: src/emc/usr_intf/axis/scripts/axis.py:1603
 msgid "Ok"
 msgstr ""
 
@@ -2989,7 +3044,7 @@ msgid "Error"
 msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:856 tcl/bin/pickconfig.tcl:625
-#: src/emc/usr_intf/axis/scripts/axis.py:156
+#: src/emc/usr_intf/axis/scripts/axis.py:155
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:570
 #: src/emc/usr_intf/stepconf/options.glade:388
 #: src/emc/usr_intf/stepconf/options.glade:405
@@ -3007,7 +3062,7 @@ msgid "Yes"
 msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:857
-#: src/emc/usr_intf/axis/scripts/axis.py:156
+#: src/emc/usr_intf/axis/scripts/axis.py:155
 #: src/emc/usr_intf/stepconf/options.glade:315
 #: src/emc/usr_intf/stepconf/options.glade:329
 #: src/emc/usr_intf/stepconf/options.glade:343
@@ -3069,7 +3124,7 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:1069 tcl/bin/emccalib.tcl:123
 #: tcl/bin/genedit.tcl:82 tcl/bin/halconfig.tcl:155
-#: src/emc/usr_intf/axis/scripts/axis.py:2309
+#: src/emc/usr_intf/axis/scripts/axis.py:2313
 msgid "Save"
 msgstr "Kaydet"
 
@@ -3507,7 +3562,7 @@ msgid "Edit mode..."
 msgstr ""
 
 #: src/hal/classicladder/edit_gtk.c:208 src/hal/classicladder/edit_gtk.c:486
-#: tcl/tooledit.tcl:536 lib/python/gladevcp/tooledit_gtk.glade:297
+#: tcl/tooledit.tcl:536 lib/python/gladevcp/tooledit_gtk.glade:300
 msgid "Delete"
 msgstr ""
 
@@ -3516,7 +3571,7 @@ msgid "Do you really want to delete the current rung ?"
 msgstr ""
 
 #: src/hal/classicladder/edit_gtk.c:476
-#: lib/python/gladevcp/tooledit_gtk.glade:312
+#: lib/python/gladevcp/tooledit_gtk.glade:315
 msgid "Add"
 msgstr "Ekle"
 
@@ -3534,15 +3589,15 @@ msgstr ""
 #: tcl/bin/pickconfig.tcl:432 tcl/bin/pickconfig.tcl:625 tcl/tklinuxcnc.tcl:163
 #: tcl/tklinuxcnc.tcl:214 tcl/tklinuxcnc.tcl:421 tcl/tklinuxcnc.tcl:1227
 #: tcl/tklinuxcnc.tcl:1297 tcl/tklinuxcnc.tcl:1328 tcl/tklinuxcnc.tcl:1359
-#: tcl/tklinuxcnc.tcl:1978 src/emc/usr_intf/axis/scripts/axis.py:1605
-#: src/emc/usr_intf/axis/scripts/axis.py:1661
-#: src/emc/usr_intf/axis/scripts/axis.py:1891
-#: src/emc/usr_intf/axis/scripts/axis.py:2310
+#: tcl/tklinuxcnc.tcl:1978 src/emc/usr_intf/axis/scripts/axis.py:1604
+#: src/emc/usr_intf/axis/scripts/axis.py:1660
+#: src/emc/usr_intf/axis/scripts/axis.py:1890
+#: src/emc/usr_intf/axis/scripts/axis.py:2314
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:727
 #: src/emc/usr_intf/stepconf/main_page.glade:475
 #: src/emc/usr_intf/pncconf/main_page.glade:101
 #: src/emc/usr_intf/pncconf/dialogs.glade:576
-#: src/emc/usr_intf/gscreen/gscreen.glade:4099
+#: src/emc/usr_intf/gscreen/gscreen.glade:403
 msgid "Cancel"
 msgstr ""
 
@@ -3756,7 +3811,7 @@ msgid "Properties"
 msgstr ""
 
 #: src/hal/classicladder/editproperties_gtk.c:289 tcl/bin/halshow.tcl:734
-#: lib/python/gladevcp/tooledit_gtk.glade:342
+#: lib/python/gladevcp/tooledit_gtk.glade:345
 msgid "Apply"
 msgstr ""
 
@@ -3787,7 +3842,7 @@ msgstr ""
 #: src/hal/classicladder/emc_mods.c:131
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:618
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:631
-#: src/emc/usr_intf/touchy/emc_interface.py:442
+#: src/emc/usr_intf/touchy/emc_interface.py:441
 #: src/emc/usr_intf/pncconf/base.glade:505
 msgid "None"
 msgstr ""
@@ -3949,7 +4004,7 @@ msgstr ""
 
 #: src/hal/classicladder/manager_gtk.c:108
 #: src/hal/classicladder/manager_gtk.c:442
-#: src/emc/usr_intf/gscreen/gscreen.glade:2409
+#: src/emc/usr_intf/gscreen/gscreen.glade:2872
 msgid "Ladder"
 msgstr ""
 
@@ -4465,8 +4520,8 @@ msgstr ""
 msgid "Exit"
 msgstr ""
 
-#: tcl/bin/genedit.tcl:91 src/emc/usr_intf/gscreen/gscreen.glade:2759
-#: lib/python/gladevcp/offsetpage.glade:488
+#: tcl/bin/genedit.tcl:91 src/emc/usr_intf/gscreen/gscreen.glade:4207
+#: lib/python/gladevcp/offsetpage.glade:495
 msgid "Edit"
 msgstr ""
 
@@ -5167,7 +5222,7 @@ msgstr ""
 msgid "Tool:"
 msgstr ""
 
-#: tcl/tklinuxcnc.tcl:466 src/emc/usr_intf/axis/scripts/axis.py:2230
+#: tcl/tklinuxcnc.tcl:466 src/emc/usr_intf/axis/scripts/axis.py:2234
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:763
 msgid "All files"
 msgstr ""
@@ -5181,8 +5236,8 @@ msgid "NC files"
 msgstr ""
 
 #: tcl/tklinuxcnc.tcl:630 tcl/tklinuxcnc.tcl:1152 tcl/tklinuxcnc.tcl:1156
-#: src/emc/usr_intf/gscreen/gscreen.glade:1597
-#: src/emc/usr_intf/gscreen/gscreen.glade:1609
+#: src/emc/usr_intf/gscreen/gscreen.glade:2049
+#: src/emc/usr_intf/gscreen/gscreen.glade:2061
 msgid "continuous"
 msgstr "sürekli"
 
@@ -5238,10 +5293,10 @@ msgstr ""
 msgid "inches"
 msgstr ""
 
-#: tcl/tklinuxcnc.tcl:786 src/emc/usr_intf/axis/scripts/axis.py:1760
-#: src/emc/usr_intf/axis/scripts/axis.py:2046
-#: src/emc/usr_intf/axis/scripts/axis.py:2624
-#: src/emc/usr_intf/touchy/touchy.glade:3272
+#: tcl/tklinuxcnc.tcl:786 src/emc/usr_intf/axis/scripts/axis.py:1759
+#: src/emc/usr_intf/axis/scripts/axis.py:2050
+#: src/emc/usr_intf/axis/scripts/axis.py:2628
+#: src/emc/usr_intf/touchy/touchy.glade:3276
 #: src/emc/usr_intf/stepconf/stepconf.py:1567
 #: src/emc/usr_intf/stepconf/pages.py:961
 #: src/emc/usr_intf/stepconf/main_page.glade:240
@@ -5305,7 +5360,7 @@ msgstr ""
 msgid "Machine on"
 msgstr ""
 
-#: tcl/tklinuxcnc.tcl:848 src/emc/usr_intf/gscreen/gscreen.glade:2524
+#: tcl/tklinuxcnc.tcl:848 src/emc/usr_intf/gscreen/gscreen.glade:3927
 msgid "Machine off"
 msgstr ""
 
@@ -5464,12 +5519,12 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:1547 src/emc/usr_intf/stepconf/main_page.glade:292
 #: src/emc/usr_intf/pncconf/dialogs.glade:3734
-#: src/emc/usr_intf/gscreen/gscreen.glade:2696
+#: src/emc/usr_intf/gscreen/gscreen.glade:4137
 msgid "Run"
 msgstr ""
 
 #: tcl/tklinuxcnc.tcl:1548 src/emc/usr_intf/pncconf/dialogs.glade:3651
-#: src/emc/usr_intf/gscreen/gscreen.glade:2709
+#: src/emc/usr_intf/gscreen/gscreen.glade:4153
 msgid "Pause"
 msgstr ""
 
@@ -5606,7 +5661,7 @@ msgid "Coordinate System Control Window"
 msgstr ""
 
 #: tcl/scripts/Set_Coordinates.tcl:83
-#: src/emc/usr_intf/axis/scripts/axis.py:3643
+#: src/emc/usr_intf/axis/scripts/axis.py:3647
 msgid "Axis "
 msgstr ""
 
@@ -5770,7 +5825,7 @@ msgstr ""
 msgid "Reread"
 msgstr ""
 
-#: tcl/ngcgui.tcl:1313 src/emc/usr_intf/gscreen/gscreen.glade:4086
+#: tcl/ngcgui.tcl:1313 src/emc/usr_intf/gscreen/gscreen.glade:390
 msgid "Restart"
 msgstr ""
 
@@ -6180,8 +6235,8 @@ msgstr ""
 msgid "using path"
 msgstr ""
 
-#: tcl/ngcgui.tcl:3811 src/emc/usr_intf/axis/scripts/axis.py:2685
-#: src/emc/usr_intf/axis/scripts/axis.py:2711
+#: tcl/ngcgui.tcl:3811 src/emc/usr_intf/axis/scripts/axis.py:2689
+#: src/emc/usr_intf/axis/scripts/axis.py:2715
 msgid "Warning"
 msgstr "Dikkat"
 
@@ -6688,592 +6743,592 @@ msgstr ""
 msgid "Missing filename"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:155
+#: src/emc/usr_intf/axis/scripts/axis.py:154
 msgid "Do you really want to close LinuxCNC?"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:156
+#: src/emc/usr_intf/axis/scripts/axis.py:155
 msgid "Confirm Close"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:182
+#: src/emc/usr_intf/axis/scripts/axis.py:181
 msgid "Emergency stop"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:183
+#: src/emc/usr_intf/axis/scripts/axis.py:182
 msgid "Turn machine on"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:185
+#: src/emc/usr_intf/axis/scripts/axis.py:184
 msgid "Activate first axis"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:186
+#: src/emc/usr_intf/axis/scripts/axis.py:185
 msgid "Activate second axis"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:187
+#: src/emc/usr_intf/axis/scripts/axis.py:186
 msgid "Activate third axis"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:188
+#: src/emc/usr_intf/axis/scripts/axis.py:187
 msgid "Activate fourth axis"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:189
+#: src/emc/usr_intf/axis/scripts/axis.py:188
 msgid "Activate first through ninth joint"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:190
+#: src/emc/usr_intf/axis/scripts/axis.py:189
 msgid "if joints radiobuttons visible"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:191
+#: src/emc/usr_intf/axis/scripts/axis.py:190
 msgid "Set Feed Override from 0% to 100%"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:192
+#: src/emc/usr_intf/axis/scripts/axis.py:191
 msgid "if axes radiobuttons visible"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:193
+#: src/emc/usr_intf/axis/scripts/axis.py:192
 msgid ", and ."
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:193
+#: src/emc/usr_intf/axis/scripts/axis.py:192
 msgid "Select jog speed"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:194
+#: src/emc/usr_intf/axis/scripts/axis.py:193
 msgid "< and >"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:194
+#: src/emc/usr_intf/axis/scripts/axis.py:193
 msgid "Select angular jog speed"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:195
+#: src/emc/usr_intf/axis/scripts/axis.py:194
 msgid "I, Shift-I"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:195 share/axis/tcl/axis.tcl:2269
+#: src/emc/usr_intf/axis/scripts/axis.py:194 share/axis/tcl/axis.tcl:2269
 msgid "Select jog increment"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:196
+#: src/emc/usr_intf/axis/scripts/axis.py:195
 msgid "Continuous jog"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:197
+#: src/emc/usr_intf/axis/scripts/axis.py:196
 msgid "Home"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:197
+#: src/emc/usr_intf/axis/scripts/axis.py:196
 msgid "Send active joint home"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:198
+#: src/emc/usr_intf/axis/scripts/axis.py:197
 msgid "Ctrl-Home"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:198
+#: src/emc/usr_intf/axis/scripts/axis.py:197
 msgid "Home all joints"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:199
+#: src/emc/usr_intf/axis/scripts/axis.py:198
 msgid "Shift-Home"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:199
+#: src/emc/usr_intf/axis/scripts/axis.py:198
 msgid "Zero G54 offset for active axis"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:200
+#: src/emc/usr_intf/axis/scripts/axis.py:199
 msgid "End"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:200
+#: src/emc/usr_intf/axis/scripts/axis.py:199
 msgid "Set G54 offset for active axis"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:201
+#: src/emc/usr_intf/axis/scripts/axis.py:200
 msgid "Ctrl-End"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:201
+#: src/emc/usr_intf/axis/scripts/axis.py:200
 msgid "Set tool offset for loaded tool"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:202
+#: src/emc/usr_intf/axis/scripts/axis.py:201
 msgid "Jog active axis or joint"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:203
+#: src/emc/usr_intf/axis/scripts/axis.py:202
 msgid "Select Max velocity"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:206
+#: src/emc/usr_intf/axis/scripts/axis.py:205
 msgid "Left, Right"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:206
+#: src/emc/usr_intf/axis/scripts/axis.py:205
 msgid "Jog first axis or joint"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:207
+#: src/emc/usr_intf/axis/scripts/axis.py:206
 msgid "Up, Down"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:207
+#: src/emc/usr_intf/axis/scripts/axis.py:206
 msgid "Jog second axis or joint"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:208
+#: src/emc/usr_intf/axis/scripts/axis.py:207
 msgid "Pg Up, Pg Dn"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:208
+#: src/emc/usr_intf/axis/scripts/axis.py:207
 msgid "Jog third axis or joint"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:209
+#: src/emc/usr_intf/axis/scripts/axis.py:208
 msgid "Shift+above jogs"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:209
+#: src/emc/usr_intf/axis/scripts/axis.py:208
 msgid "Jog at traverse speed"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:210
+#: src/emc/usr_intf/axis/scripts/axis.py:209
 msgid "Jog fourth axis or joint"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:213
+#: src/emc/usr_intf/axis/scripts/axis.py:212
 msgid "Toggle between Drag and Rotate mode"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:214
+#: src/emc/usr_intf/axis/scripts/axis.py:213
 msgid "Left Button"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:214
+#: src/emc/usr_intf/axis/scripts/axis.py:213
 msgid "Pan, rotate or select line"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:215
+#: src/emc/usr_intf/axis/scripts/axis.py:214
 msgid "Shift+Left Button"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:215
+#: src/emc/usr_intf/axis/scripts/axis.py:214
 msgid "Rotate or pan"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:216
+#: src/emc/usr_intf/axis/scripts/axis.py:215
 msgid "Right Button"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:216
+#: src/emc/usr_intf/axis/scripts/axis.py:215
+#: src/emc/usr_intf/axis/scripts/axis.py:217
 #: src/emc/usr_intf/axis/scripts/axis.py:218
-#: src/emc/usr_intf/axis/scripts/axis.py:219
 msgid "Zoom view"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:217
+#: src/emc/usr_intf/axis/scripts/axis.py:216
 msgid "Wheel Button"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:217
+#: src/emc/usr_intf/axis/scripts/axis.py:216
 msgid "Rotate view"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:218
+#: src/emc/usr_intf/axis/scripts/axis.py:217
 msgid "Rotate Wheel"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:219
+#: src/emc/usr_intf/axis/scripts/axis.py:218
 msgid "Ctrl+Left Button"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:222
+#: src/emc/usr_intf/axis/scripts/axis.py:221
 msgid "Manual control"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:223
+#: src/emc/usr_intf/axis/scripts/axis.py:222
 msgid "Code entry (MDI)"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:224 share/axis/tcl/axis.tcl:159
+#: src/emc/usr_intf/axis/scripts/axis.py:223 share/axis/tcl/axis.tcl:159
 msgid "Ctrl-M"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:224
+#: src/emc/usr_intf/axis/scripts/axis.py:223
 msgid "Clear MDI history"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:225 share/axis/tcl/axis.tcl:163
+#: src/emc/usr_intf/axis/scripts/axis.py:224 share/axis/tcl/axis.tcl:163
 msgid "Ctrl-H"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:225
+#: src/emc/usr_intf/axis/scripts/axis.py:224
 msgid "Copy selected MDI history elements"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:226
+#: src/emc/usr_intf/axis/scripts/axis.py:225
 msgid "to clipboard"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:227 share/axis/tcl/axis.tcl:167
+#: src/emc/usr_intf/axis/scripts/axis.py:226 share/axis/tcl/axis.tcl:167
 msgid "Ctrl-Shift-H"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:227
+#: src/emc/usr_intf/axis/scripts/axis.py:226
 msgid "Paste clipboard to MDI history"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:228 share/axis/tcl/axis.tcl:950
+#: src/emc/usr_intf/axis/scripts/axis.py:227 share/axis/tcl/axis.tcl:950
 #: src/emc/usr_intf/touchy/touchy.glade:518
 msgid "Override Limits"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:230
+#: src/emc/usr_intf/axis/scripts/axis.py:229
 msgid "Open program"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:231 share/axis/tcl/axis.tcl:69
+#: src/emc/usr_intf/axis/scripts/axis.py:230 share/axis/tcl/axis.tcl:69
 msgid "Ctrl-R"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:231
+#: src/emc/usr_intf/axis/scripts/axis.py:230
 msgid "Reload program"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:232 share/axis/tcl/axis.tcl:74
+#: src/emc/usr_intf/axis/scripts/axis.py:231 share/axis/tcl/axis.tcl:74
 msgid "Ctrl-S"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:232
+#: src/emc/usr_intf/axis/scripts/axis.py:231
 msgid "Save G-code as"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:233
+#: src/emc/usr_intf/axis/scripts/axis.py:232
 msgid "Run program"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:234
+#: src/emc/usr_intf/axis/scripts/axis.py:233
 msgid "Step program"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:235
+#: src/emc/usr_intf/axis/scripts/axis.py:234
 msgid "Pause program"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:236
+#: src/emc/usr_intf/axis/scripts/axis.py:235
 msgid "Resume program"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:237
+#: src/emc/usr_intf/axis/scripts/axis.py:236
 msgid "Stop running program, or"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:238
+#: src/emc/usr_intf/axis/scripts/axis.py:237
 msgid "stop loading program preview"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:240
+#: src/emc/usr_intf/axis/scripts/axis.py:239
 msgid "Toggle mist"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:241
+#: src/emc/usr_intf/axis/scripts/axis.py:240
 msgid "Toggle flood"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:242
+#: src/emc/usr_intf/axis/scripts/axis.py:241
 msgid "Spindle brake off"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:243
+#: src/emc/usr_intf/axis/scripts/axis.py:242
 msgid "Shift-B"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:243
+#: src/emc/usr_intf/axis/scripts/axis.py:242
 msgid "Spindle brake on"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:244
+#: src/emc/usr_intf/axis/scripts/axis.py:243
 msgid "Turn spindle clockwise"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:245
+#: src/emc/usr_intf/axis/scripts/axis.py:244
 msgid "Turn spindle counterclockwise"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:246
+#: src/emc/usr_intf/axis/scripts/axis.py:245
 msgid "Turn spindle more slowly"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:247
+#: src/emc/usr_intf/axis/scripts/axis.py:246
 msgid "Turn spindle more quickly"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:248 share/axis/tcl/axis.tcl:379
+#: src/emc/usr_intf/axis/scripts/axis.py:247 share/axis/tcl/axis.tcl:379
 msgid "Ctrl-K"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:248
+#: src/emc/usr_intf/axis/scripts/axis.py:247
 msgid "Clear live plot"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:249
+#: src/emc/usr_intf/axis/scripts/axis.py:248
 msgid "Cycle among preset views"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:250
+#: src/emc/usr_intf/axis/scripts/axis.py:249
 msgid "Cycle among preview, DRO, and user tabs"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:251
+#: src/emc/usr_intf/axis/scripts/axis.py:250
 msgid "toggle Actual/Commanded"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:252
+#: src/emc/usr_intf/axis/scripts/axis.py:251
 msgid "toggle Relative/Machine"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:253
+#: src/emc/usr_intf/axis/scripts/axis.py:252
 msgid "Ctrl-Space"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:253
+#: src/emc/usr_intf/axis/scripts/axis.py:252
 msgid "Clear notifications"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:254
+#: src/emc/usr_intf/axis/scripts/axis.py:253
 msgid "Alt-F, M, V"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:254
+#: src/emc/usr_intf/axis/scripts/axis.py:253
 msgid "Open a Menu"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:919
+#: src/emc/usr_intf/axis/scripts/axis.py:918
 #, python-format
 msgid "Unknown tool %d"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:921 share/axis/tcl/axis.tcl:1872
+#: src/emc/usr_intf/axis/scripts/axis.py:920 share/axis/tcl/axis.tcl:1872
 msgid "No tool"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:923
+#: src/emc/usr_intf/axis/scripts/axis.py:922
 #, python-format
 msgid "Tool %(tool)d, offset %(zo)g, diameter %(dia)g"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:925
+#: src/emc/usr_intf/axis/scripts/axis.py:924
 #, python-format
 msgid "Tool %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1099
+#: src/emc/usr_intf/axis/scripts/axis.py:1098
 msgid "G-code preview loading timed out"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1126
+#: src/emc/usr_intf/axis/scripts/axis.py:1125
 msgid "Filtering..."
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1191
+#: src/emc/usr_intf/axis/scripts/axis.py:1190
 msgid "Filter failed"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1192
+#: src/emc/usr_intf/axis/scripts/axis.py:1191
 #, python-format
 msgid ""
 "The program %(program)r exited with code %(code)d.  Any error messages it "
 "produced are shown below:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1298
+#: src/emc/usr_intf/axis/scripts/axis.py:1297
 #, python-format
 msgid "G-Code error in %s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1299
+#: src/emc/usr_intf/axis/scripts/axis.py:1298
 #, python-format
 msgid ""
 "Near line %(seq)d of %(f)s:\n"
 "%(error_str)s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1488
-#: src/emc/usr_intf/axis/scripts/axis.py:3246 share/axis/tcl/axis.tcl:922
+#: src/emc/usr_intf/axis/scripts/axis.py:1487
+#: src/emc/usr_intf/axis/scripts/axis.py:3250 share/axis/tcl/axis.tcl:922
 #: share/axis/tcl/axis.tcl:924 share/axis/tcl/axis.tcl:2051
 msgid "Continuous"
 msgstr "Sürekli"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1751
+#: src/emc/usr_intf/axis/scripts/axis.py:1750
 msgid "T    Tool Table"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1761
-#: src/emc/usr_intf/axis/scripts/axis.py:2050
-#: src/emc/usr_intf/axis/scripts/axis.py:2625
+#: src/emc/usr_intf/axis/scripts/axis.py:1760
+#: src/emc/usr_intf/axis/scripts/axis.py:2054
+#: src/emc/usr_intf/axis/scripts/axis.py:2629
 #: src/emc/usr_intf/stepconf/stepconf.py:1581
 #: src/emc/usr_intf/stepconf/pages.py:967
 msgid "in"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1764
+#: src/emc/usr_intf/axis/scripts/axis.py:1763
 msgid " radius"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1766
+#: src/emc/usr_intf/axis/scripts/axis.py:1765
 msgid " diameter"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1767
+#: src/emc/usr_intf/axis/scripts/axis.py:1766
 msgid "°"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1777
+#: src/emc/usr_intf/axis/scripts/axis.py:1776
 msgid "Coordinate System:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1795
+#: src/emc/usr_intf/axis/scripts/axis.py:1794
 msgid "fixture"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1796
+#: src/emc/usr_intf/axis/scripts/axis.py:1795
 msgid "workpiece"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1817
+#: src/emc/usr_intf/axis/scripts/axis.py:1816
 msgid "Name:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1817
+#: src/emc/usr_intf/axis/scripts/axis.py:1816
 msgid "Size:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1818
+#: src/emc/usr_intf/axis/scripts/axis.py:1817
 msgid "Tool order:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1818
+#: src/emc/usr_intf/axis/scripts/axis.py:1817
 msgid "Rapid distance:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1819
+#: src/emc/usr_intf/axis/scripts/axis.py:1818
 msgid "Feed distance:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1819
+#: src/emc/usr_intf/axis/scripts/axis.py:1818
 msgid "Total distance:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1820
+#: src/emc/usr_intf/axis/scripts/axis.py:1819
 msgid "Run time:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1820
+#: src/emc/usr_intf/axis/scripts/axis.py:1819
 msgid "Tool Change List:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1821
+#: src/emc/usr_intf/axis/scripts/axis.py:1820
 msgid "X bounds:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1821
+#: src/emc/usr_intf/axis/scripts/axis.py:1820
 msgid "Y bounds:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1822
+#: src/emc/usr_intf/axis/scripts/axis.py:1821
 msgid "Z bounds:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1822
+#: src/emc/usr_intf/axis/scripts/axis.py:1821
 msgid "A bounds:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1823
+#: src/emc/usr_intf/axis/scripts/axis.py:1822
 msgid "B bounds:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1823
+#: src/emc/usr_intf/axis/scripts/axis.py:1822
 msgid "C bounds:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1880
+#: src/emc/usr_intf/axis/scripts/axis.py:1879
 #, python-format
 msgid "Program exceeds machine minimum on axis %s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1883
+#: src/emc/usr_intf/axis/scripts/axis.py:1882
 #, python-format
 msgid "Program exceeds machine maximum on axis %s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1888
+#: src/emc/usr_intf/axis/scripts/axis.py:1887
 msgid "Program exceeds machine limits"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1891
+#: src/emc/usr_intf/axis/scripts/axis.py:1890
 msgid "Run Anyway"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2028
+#: src/emc/usr_intf/axis/scripts/axis.py:2032
 msgid "No file loaded"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2036
+#: src/emc/usr_intf/axis/scripts/axis.py:2040
 #, python-format
 msgid "generated from %s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2042
+#: src/emc/usr_intf/axis/scripts/axis.py:2046
 #, python-format
 msgid ""
 "%(size)s bytes\n"
 "%(lines)s G-code lines"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2068
+#: src/emc/usr_intf/axis/scripts/axis.py:2072
 #, python-format
 msgid "%.1f minutes"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2070
+#: src/emc/usr_intf/axis/scripts/axis.py:2074
 #, python-format
 msgid "%d seconds"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2078
+#: src/emc/usr_intf/axis/scripts/axis.py:2082
 #, python-format
 msgid "%(a)f to %(b)f = %(diff)f %(units)s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2080
+#: src/emc/usr_intf/axis/scripts/axis.py:2084
 msgid "G-Code Properties"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2228
+#: src/emc/usr_intf/axis/scripts/axis.py:2232
 msgid "All machinable files"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2229
-#: src/emc/usr_intf/axis/scripts/axis.py:2947
+#: src/emc/usr_intf/axis/scripts/axis.py:2233
+#: src/emc/usr_intf/axis/scripts/axis.py:2951
 msgid "rs274ngc files"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2245
+#: src/emc/usr_intf/axis/scripts/axis.py:2249
 msgid "axis cannot accept remote command while running"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2300
+#: src/emc/usr_intf/axis/scripts/axis.py:2304
 msgid "File not Writable:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2301
+#: src/emc/usr_intf/axis/scripts/axis.py:2305
 msgid ""
 "This file is not writable\n"
 "You can Edit-readonly\n"
@@ -7284,58 +7339,58 @@ msgid ""
 "then open that saved, writable file"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2308
+#: src/emc/usr_intf/axis/scripts/axis.py:2312
 msgid "Edit-readonly"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2626
+#: src/emc/usr_intf/axis/scripts/axis.py:2630
 msgid "Custom Grid"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2626
+#: src/emc/usr_intf/axis/scripts/axis.py:2630
 msgid "Enter grid size"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2685
+#: src/emc/usr_intf/axis/scripts/axis.py:2689
 msgid "Joint is already homed, are you sure you want to re-home?"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2699
+#: src/emc/usr_intf/axis/scripts/axis.py:2703
 #, python-format
 msgid "home_joint <%s> Use joint mode for homing"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2702
+#: src/emc/usr_intf/axis/scripts/axis.py:2706
 #, python-format
 msgid ""
 "\n"
 "Individual axis homing disallowed for duplicated letter:<%s> "
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2711
+#: src/emc/usr_intf/axis/scripts/axis.py:2715
 msgid "This joint is already homed, are you sure you want to re-home?"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2749
+#: src/emc/usr_intf/axis/scripts/axis.py:2753
 msgid "Touch Off (system)"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2750
-#: src/emc/usr_intf/axis/scripts/axis.py:2791
+#: src/emc/usr_intf/axis/scripts/axis.py:2754
+#: src/emc/usr_intf/axis/scripts/axis.py:2795
 #, python-format
 msgid "Enter %s coordinate relative to %%s:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2790
+#: src/emc/usr_intf/axis/scripts/axis.py:2794
 #, python-format
 msgid "Tool %s TouchOff"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2959
+#: src/emc/usr_intf/axis/scripts/axis.py:2963
 msgid "Error saving file"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3415
+#: src/emc/usr_intf/axis/scripts/axis.py:3419
 #, python-format
 msgid ""
 "\n"
@@ -7344,7 +7399,7 @@ msgid ""
 "See the 'INI Configuration' documents\n"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3428
+#: src/emc/usr_intf/axis/scripts/axis.py:3432
 #, python-format
 msgid ""
 "\n"
@@ -7353,7 +7408,7 @@ msgid ""
 "See the 'INI Configuration' documents\n"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3441
+#: src/emc/usr_intf/axis/scripts/axis.py:3445
 #, python-format
 msgid ""
 "\n"
@@ -7362,88 +7417,88 @@ msgid ""
 "See the 'INI Configuration' documents\n"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3560
+#: src/emc/usr_intf/axis/scripts/axis.py:3564
 msgid "Axes"
 msgstr "Eksenler"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3562
+#: src/emc/usr_intf/axis/scripts/axis.py:3566
 msgid "Joints"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3564
+#: src/emc/usr_intf/axis/scripts/axis.py:3568
 #: src/emc/usr_intf/touchy/touchy.glade:584
-#: src/emc/usr_intf/gscreen/gscreen.glade:3009
+#: src/emc/usr_intf/gscreen/gscreen.glade:3010
 msgid "Home All"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3566
+#: src/emc/usr_intf/axis/scripts/axis.py:3570
 #, python-format
 msgid "Home all %s [Ctrl-Home]"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3569
+#: src/emc/usr_intf/axis/scripts/axis.py:3573
 #, python-format
 msgid "Home All %s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3571
+#: src/emc/usr_intf/axis/scripts/axis.py:3575
 #, python-format
 msgid "Unhome All %s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3612
+#: src/emc/usr_intf/axis/scripts/axis.py:3616
 #, python-format
 msgid "Warning: Forward kinematics must handle duplicate coordinate letters:%s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3615
+#: src/emc/usr_intf/axis/scripts/axis.py:3619
 #, python-format
 msgid "Note: number of [TRAJ]COORDINATES=%(t)s exceeds [KINS]JOINTS=%(l)d"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3647
+#: src/emc/usr_intf/axis/scripts/axis.py:3651
 msgid ""
 "\n"
 "Note:\n"
 "Individual axis homing is not currently supported for"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3648
+#: src/emc/usr_intf/axis/scripts/axis.py:3652
 #, python-format
 msgid "KINEMATICS_IDENTITY with duplicate axis letter <%s>\n"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3660
+#: src/emc/usr_intf/axis/scripts/axis.py:3664
 msgid "Joint"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3662
+#: src/emc/usr_intf/axis/scripts/axis.py:3666
 msgid "Home Joint"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3670
+#: src/emc/usr_intf/axis/scripts/axis.py:3674
 #, python-format
 msgid "Home %(name)s _%(id)s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3672
+#: src/emc/usr_intf/axis/scripts/axis.py:3676
 #, python-format
 msgid "Unhome %(name)s _%(id)s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3866
+#: src/emc/usr_intf/axis/scripts/axis.py:3870
 msgid "Run from here"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3927
+#: src/emc/usr_intf/axis/scripts/axis.py:3931
 msgid "toggle PYVCP panel visibility"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3929 share/axis/tcl/axis.tcl:387
+#: src/emc/usr_intf/axis/scripts/axis.py:3933 share/axis/tcl/axis.tcl:387
 msgid "Show PyVCP pan_el"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:4215
+#: src/emc/usr_intf/axis/scripts/axis.py:4219
 msgid "Error in ~/.axisrc"
 msgstr ""
 
@@ -8108,7 +8163,7 @@ msgstr ""
 msgid "Axis:"
 msgstr ""
 
-#: share/axis/tcl/axis.tcl:932 src/emc/usr_intf/gscreen/gscreen.glade:3020
+#: share/axis/tcl/axis.tcl:932 src/emc/usr_intf/gscreen/gscreen.glade:3023
 msgid "Home Axis"
 msgstr ""
 
@@ -8130,7 +8185,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:889
 #: src/emc/usr_intf/pncconf/dialogs.glade:3279
 #: src/emc/usr_intf/pncconf/dialogs.glade:3447
-#: src/emc/usr_intf/gscreen/gscreen.glade:4180
+#: src/emc/usr_intf/gscreen/gscreen.glade:74
 msgid "-"
 msgstr ""
 
@@ -8138,7 +8193,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/main_page.glade:38
 #: src/emc/usr_intf/pncconf/dialogs.glade:3276
 #: src/emc/usr_intf/pncconf/dialogs.glade:3474
-#: src/emc/usr_intf/gscreen/gscreen.glade:4169
+#: src/emc/usr_intf/gscreen/gscreen.glade:62
 msgid "+"
 msgstr ""
 
@@ -8150,7 +8205,7 @@ msgstr ""
 msgid "Coolant:"
 msgstr ""
 
-#: share/axis/tcl/axis.tcl:1139 src/emc/usr_intf/gscreen/gscreen.glade:1493
+#: share/axis/tcl/axis.tcl:1139 src/emc/usr_intf/gscreen/gscreen.glade:1945
 msgid "Mist"
 msgstr ""
 
@@ -8284,7 +8339,7 @@ msgid "Position:"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:1835 src/emc/usr_intf/pncconf/screen.glade:89
-#: src/emc/usr_intf/gscreen/gscreen.py:4587
+#: src/emc/usr_intf/gscreen/gscreen.py:4679
 msgid "Machine"
 msgstr ""
 
@@ -8293,12 +8348,12 @@ msgstr ""
 msgid "Relative"
 msgstr ""
 
-#: share/axis/tcl/axis.tcl:1836 src/emc/usr_intf/touchy/touchy.glade:3300
+#: share/axis/tcl/axis.tcl:1836 src/emc/usr_intf/touchy/touchy.glade:3304
 #: src/emc/usr_intf/pncconf/screen.glade:78
 msgid "Actual"
 msgstr ""
 
-#: share/axis/tcl/axis.tcl:1836 src/emc/usr_intf/touchy/touchy.glade:3289
+#: share/axis/tcl/axis.tcl:1836 src/emc/usr_intf/touchy/touchy.glade:3293
 #: src/emc/usr_intf/pncconf/screen.glade:75
 msgid "Commanded"
 msgstr ""
@@ -8390,7 +8445,7 @@ msgstr ""
 #: src/emc/usr_intf/touchy/touchy.py:144
 #: src/emc/usr_intf/pncconf/pncconf.py:1867
 #: src/emc/usr_intf/pncconf/pncconf.py:1870
-#: src/emc/usr_intf/gscreen/gscreen.py:1339
+#: src/emc/usr_intf/gscreen/gscreen.py:1405
 msgid "Follow System Theme"
 msgstr ""
 
@@ -8526,15 +8581,15 @@ msgstr ""
 msgid "CSS Mode"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/emc_interface.py:435
+#: src/emc/usr_intf/touchy/emc_interface.py:434
 msgid "CCW"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/emc_interface.py:435
+#: src/emc/usr_intf/touchy/emc_interface.py:434
 msgid "Stopped"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/emc_interface.py:435
+#: src/emc/usr_intf/touchy/emc_interface.py:434
 msgid "CW"
 msgstr ""
 
@@ -8575,15 +8630,15 @@ msgid "zd"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:141
-#: src/emc/usr_intf/gscreen/gscreen.glade:86
-#: src/emc/usr_intf/gscreen/gscreen.glade:217
-#: src/emc/usr_intf/gscreen/gscreen.glade:349
-#: src/emc/usr_intf/gscreen/gscreen.glade:478
-#: src/emc/usr_intf/gscreen/gscreen.glade:609
-#: src/emc/usr_intf/gscreen/gscreen.glade:739
-#: src/emc/usr_intf/gscreen/gscreen.glade:870
-#: src/emc/usr_intf/gscreen/gscreen.glade:1001
-#: src/emc/usr_intf/gscreen/gscreen.glade:1132
+#: src/emc/usr_intf/gscreen/gscreen.glade:603
+#: src/emc/usr_intf/gscreen/gscreen.glade:727
+#: src/emc/usr_intf/gscreen/gscreen.glade:850
+#: src/emc/usr_intf/gscreen/gscreen.glade:971
+#: src/emc/usr_intf/gscreen/gscreen.glade:1094
+#: src/emc/usr_intf/gscreen/gscreen.glade:1215
+#: src/emc/usr_intf/gscreen/gscreen.glade:1338
+#: src/emc/usr_intf/gscreen/gscreen.glade:1461
+#: src/emc/usr_intf/gscreen/gscreen.glade:1584
 msgid "DTG"
 msgstr ""
 
@@ -8677,17 +8732,17 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/pport2.glade:26
 #: src/emc/usr_intf/pncconf/pport1.glade:26
 #: src/emc/usr_intf/pncconf/pport2.glade:26
-#: src/emc/usr_intf/gscreen/gscreen.glade:2514
+#: src/emc/usr_intf/gscreen/gscreen.glade:3914
 msgid "Estop"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:485
-#: src/emc/usr_intf/gscreen/gscreen.py:2552
+#: src/emc/usr_intf/gscreen/gscreen.py:2640
 msgid "Machine On"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:500
-#: src/emc/usr_intf/gscreen/gscreen.py:2557
+#: src/emc/usr_intf/gscreen/gscreen.py:2645
 msgid "Machine Off"
 msgstr ""
 
@@ -8732,7 +8787,7 @@ msgid "G"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:932
-#: lib/python/gladevcp/calculator.glade:284
+#: lib/python/gladevcp/calculator.glade:241
 msgid "."
 msgstr ""
 
@@ -8935,7 +8990,7 @@ msgid "Loaded tool:"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:2577
-#: src/emc/usr_intf/touchy/touchy.glade:2928
+#: src/emc/usr_intf/touchy/touchy.glade:2931
 msgid "label19"
 msgstr ""
 
@@ -8946,8 +9001,8 @@ msgstr ""
 #: src/emc/usr_intf/touchy/touchy.glade:2605
 #: src/emc/usr_intf/touchy/touchy.glade:2752
 #: src/emc/usr_intf/touchy/touchy.glade:2781
-#: src/emc/usr_intf/touchy/touchy.glade:2885
-#: src/emc/usr_intf/touchy/touchy.glade:2900
+#: src/emc/usr_intf/touchy/touchy.glade:2888
+#: src/emc/usr_intf/touchy/touchy.glade:2903
 msgid "label21"
 msgstr ""
 
@@ -8995,218 +9050,218 @@ msgstr ""
 msgid "label52"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:2824
+#: src/emc/usr_intf/touchy/touchy.glade:2825
 msgid ""
 "G1 G2 G3\n"
 "M1 M2 M3\n"
 "F1 S1"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:2843
+#: src/emc/usr_intf/touchy/touchy.glade:2846
 msgid "Active codes:"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:2856
+#: src/emc/usr_intf/touchy/touchy.glade:2859
 msgid "G5x Offset:"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:2871
+#: src/emc/usr_intf/touchy/touchy.glade:2874
 msgid "G92 Offset:"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:2915
+#: src/emc/usr_intf/touchy/touchy.glade:2918
 msgid "Loaded file lines:"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:2944
+#: src/emc/usr_intf/touchy/touchy.glade:2947
 msgid "Pockets:"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:2957
+#: src/emc/usr_intf/touchy/touchy.glade:2961
 msgid ""
 "<b>1</b>\n"
 "2\n"
 "3"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:2979
+#: src/emc/usr_intf/touchy/touchy.glade:2983
 msgid "Status"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3007
+#: src/emc/usr_intf/touchy/touchy.glade:3011
 msgid "Control Font:"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3019
+#: src/emc/usr_intf/touchy/touchy.glade:3023
 msgid "DRO Font:"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3033
+#: src/emc/usr_intf/touchy/touchy.glade:3037
 msgid "Error Font:"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3050
+#: src/emc/usr_intf/touchy/touchy.glade:3054
 msgid "ControlFont"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3069
+#: src/emc/usr_intf/touchy/touchy.glade:3073
 msgid "DRO Font"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3090
+#: src/emc/usr_intf/touchy/touchy.glade:3094
 msgid "Error Font"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3108
+#: src/emc/usr_intf/touchy/touchy.glade:3112
 msgid "Listing Font:"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3125
+#: src/emc/usr_intf/touchy/touchy.glade:3129
 msgid "Listing Font"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3145
+#: src/emc/usr_intf/touchy/touchy.glade:3149
 msgid "Hide pointer"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3156
+#: src/emc/usr_intf/touchy/touchy.glade:3160
 msgid "Show pointer"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3183
+#: src/emc/usr_intf/touchy/touchy.glade:3187
 msgid "Theme:"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3226
+#: src/emc/usr_intf/touchy/touchy.glade:3230
 msgid "<b>Display Options</b>"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3257
+#: src/emc/usr_intf/touchy/touchy.glade:3261
 #: src/emc/usr_intf/stepconf/base.glade:69
 #: src/emc/usr_intf/pncconf/base.glade:54
-#: src/emc/usr_intf/gscreen/gscreen.py:4647
-#: src/emc/usr_intf/gscreen/gscreen.py:4648
-#: src/emc/usr_intf/gscreen/gscreen.glade:3777
+#: src/emc/usr_intf/gscreen/gscreen.py:4739
+#: src/emc/usr_intf/gscreen/gscreen.py:4740
+#: src/emc/usr_intf/gscreen/gscreen.glade:3870
 msgid "Inch"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3320
+#: src/emc/usr_intf/touchy/touchy.glade:3324
 msgid "<b>Position Readout</b>"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3347
+#: src/emc/usr_intf/touchy/touchy.glade:3351
 msgid "Workpiece"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3358
+#: src/emc/usr_intf/touchy/touchy.glade:3362
 msgid "Fixture"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3378
+#: src/emc/usr_intf/touchy/touchy.glade:3382
 msgid "<b>Tool Setting</b>"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3406
+#: src/emc/usr_intf/touchy/touchy.glade:3410
 msgid "Delete / lines"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3421
+#: src/emc/usr_intf/touchy/touchy.glade:3425
 msgid "Keep / lines"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3438
+#: src/emc/usr_intf/touchy/touchy.glade:3442
 msgid "Pause on M1"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3449
+#: src/emc/usr_intf/touchy/touchy.glade:3453
 msgid "Ignore M1"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3469
+#: src/emc/usr_intf/touchy/touchy.glade:3473
 msgid "<b>Program Options</b>"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3490
-#: src/emc/usr_intf/gscreen/gscreen.glade:2269
+#: src/emc/usr_intf/touchy/touchy.glade:3494
+#: src/emc/usr_intf/gscreen/gscreen.glade:2719
 msgid "Preferences"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3525
-#: src/emc/usr_intf/gscreen/gscreen.glade:1448
+#: src/emc/usr_intf/touchy/touchy.glade:3529
+#: src/emc/usr_intf/gscreen/gscreen.glade:1897
 msgid "FO: 100%"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3540
-#: src/emc/usr_intf/gscreen/gscreen.glade:1460
+#: src/emc/usr_intf/touchy/touchy.glade:3544
+#: src/emc/usr_intf/gscreen/gscreen.glade:1911
 msgid "SO: 100%"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3554
+#: src/emc/usr_intf/touchy/touchy.glade:3558
 msgid "MV: 100"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3568
+#: src/emc/usr_intf/touchy/touchy.glade:3572
 msgid "Jogging"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3582
+#: src/emc/usr_intf/touchy/touchy.glade:3586
 msgid "Start Point"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3609
+#: src/emc/usr_intf/touchy/touchy.glade:3613
 msgid ".01"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3622
+#: src/emc/usr_intf/touchy/touchy.glade:3626
 msgid ".001"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3638
+#: src/emc/usr_intf/touchy/touchy.glade:3642
 msgid ".0001"
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3666
+#: src/emc/usr_intf/touchy/touchy.glade:3670
 msgid "  X  "
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3678
+#: src/emc/usr_intf/touchy/touchy.glade:3682
 msgid "  Y  "
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3693
+#: src/emc/usr_intf/touchy/touchy.glade:3697
 msgid "  Z  "
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3708
+#: src/emc/usr_intf/touchy/touchy.glade:3712
 msgid "  A  "
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3724
+#: src/emc/usr_intf/touchy/touchy.glade:3728
 msgid "  B  "
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3742
+#: src/emc/usr_intf/touchy/touchy.glade:3746
 msgid "  C  "
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3760
+#: src/emc/usr_intf/touchy/touchy.glade:3764
 msgid "  U  "
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3776
+#: src/emc/usr_intf/touchy/touchy.glade:3780
 msgid "  V  "
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3794
+#: src/emc/usr_intf/touchy/touchy.glade:3798
 msgid "  W  "
 msgstr ""
 
-#: src/emc/usr_intf/touchy/touchy.glade:3827
+#: src/emc/usr_intf/touchy/touchy.glade:3831
 msgid "<b>Handwheel</b>"
 msgstr ""
 
 #. # Touchy is Copyright (c) 2009-2015  Chris Radek <chris@timeguy.com> # # Touchy is free software: you can redistribute it and/or modify # it under the terms of the GNU General Public License as published by # the Free Software Foundation, either version 2 of the License, or # (at your option) any later version. # # Touchy is distributed in the hope that it will be useful, # but WITHOUT ANY WARRANTY; without even the implied warranty of # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the # GNU General Public License for more details.
-#: src/emc/usr_intf/touchy/touchy.glade:3857
+#: src/emc/usr_intf/touchy/touchy.glade:3864
 msgid "window1"
 msgstr ""
 
@@ -9223,9 +9278,9 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/private_data.py:39
 #: src/emc/usr_intf/pncconf/private_data.py:1201
 #: src/emc/usr_intf/pncconf/main_page.glade:229
-#: src/emc/usr_intf/gscreen/gscreen.py:4479
-#: src/emc/usr_intf/gscreen/gscreen.py:4480
-#: src/emc/usr_intf/gscreen/gscreen.glade:4156
+#: src/emc/usr_intf/gscreen/gscreen.py:4576
+#: src/emc/usr_intf/gscreen/gscreen.py:4577
+#: src/emc/usr_intf/gscreen/gscreen.glade:50
 msgid "Start"
 msgstr ""
 
@@ -9852,7 +9907,7 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:267
-#: src/emc/usr_intf/pncconf/pages.py:1537
+#: src/emc/usr_intf/pncconf/pages.py:1538
 #: src/emc/usr_intf/pncconf/private_data.py:1205
 msgid ""
 "You edited a ladder program and have selected a different program to copy to "
@@ -10180,12 +10235,12 @@ msgid "# This is a generated file do not edit."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:723
-#: src/emc/usr_intf/pncconf/build_HAL.py:1895
+#: src/emc/usr_intf/pncconf/build_HAL.py:1891
 msgid "# Include your custom HAL commands here"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:741
-#: src/emc/usr_intf/pncconf/build_HAL.py:1911
+#: src/emc/usr_intf/pncconf/build_HAL.py:1907
 msgid ""
 "\n"
 "\n"
@@ -10194,94 +10249,94 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:742
-#: src/emc/usr_intf/pncconf/build_HAL.py:1912
+#: src/emc/usr_intf/pncconf/build_HAL.py:1908
 msgid ""
 "# The following variables are available for fine tuning some parameters."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:743
-#: src/emc/usr_intf/pncconf/build_HAL.py:1913
+#: src/emc/usr_intf/pncconf/build_HAL.py:1909
 msgid ""
 "# To use any of these, uncomment the required setp line and set an "
 "appropriate value.\n"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:744
-#: src/emc/usr_intf/pncconf/build_HAL.py:1914
+#: src/emc/usr_intf/pncconf/build_HAL.py:1910
 msgid "# Dampen excessive noise on the arc voltage input"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:745
 #: src/emc/usr_intf/stepconf/build_HAL.py:757
-#: src/emc/usr_intf/pncconf/build_HAL.py:1915
-#: src/emc/usr_intf/pncconf/build_HAL.py:1927
+#: src/emc/usr_intf/pncconf/build_HAL.py:1911
+#: src/emc/usr_intf/pncconf/build_HAL.py:1923
 msgid "# default = 0 (volts)"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:747
-#: src/emc/usr_intf/pncconf/build_HAL.py:1917
+#: src/emc/usr_intf/pncconf/build_HAL.py:1913
 msgid ""
 "# The time delay from losing the arc ok signal until QtPlasmaC reacts to the "
 "arc loss."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:748
-#: src/emc/usr_intf/pncconf/build_HAL.py:1918
+#: src/emc/usr_intf/pncconf/build_HAL.py:1914
 msgid "# default = 0.0 (seconds)"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:750
-#: src/emc/usr_intf/pncconf/build_HAL.py:1920
+#: src/emc/usr_intf/pncconf/build_HAL.py:1916
 msgid ""
 "# For mode 0 Arc-OK only, the number of consecutive readings within the "
 "threshold that are required to set the Arc-OK signal."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:751
-#: src/emc/usr_intf/pncconf/build_HAL.py:1921
+#: src/emc/usr_intf/pncconf/build_HAL.py:1917
 msgid "# default = 6"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:753
-#: src/emc/usr_intf/pncconf/build_HAL.py:1923
+#: src/emc/usr_intf/pncconf/build_HAL.py:1919
 msgid ""
 "# For mode 0 Arc-OK only, the maximum voltage deviation that is allowed for "
 "a valid voltage to set the Arc OK signal."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:754
-#: src/emc/usr_intf/pncconf/build_HAL.py:1924
+#: src/emc/usr_intf/pncconf/build_HAL.py:1920
 msgid "# default = 10 (volts)"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:756
-#: src/emc/usr_intf/pncconf/build_HAL.py:1926
+#: src/emc/usr_intf/pncconf/build_HAL.py:1922
 msgid ""
 "# The voltage above and below 0V that will display as 0V. Prevents small "
 "fluctuations from flickering the voltage display."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:759
-#: src/emc/usr_intf/pncconf/build_HAL.py:1929
+#: src/emc/usr_intf/pncconf/build_HAL.py:1925
 msgid ""
 "# The distance (in millimeters) away from the Z MAX_LIMIT that QtPlasmaC "
 "will allow the Z axis to travel while under machine control."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:760
-#: src/emc/usr_intf/pncconf/build_HAL.py:1930
+#: src/emc/usr_intf/pncconf/build_HAL.py:1926
 msgid "# default = 5 (mm)"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:762
-#: src/emc/usr_intf/pncconf/build_HAL.py:1932
+#: src/emc/usr_intf/pncconf/build_HAL.py:1928
 msgid ""
 "# The required number of consecutive times that the threshold has been "
 "exceeded before applying the void lock to the THC."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:763
-#: src/emc/usr_intf/pncconf/build_HAL.py:1933
+#: src/emc/usr_intf/pncconf/build_HAL.py:1929
 msgid "# default = 2"
 msgstr ""
 
@@ -10353,19 +10408,19 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:4894
 #: src/emc/usr_intf/pncconf/dialogs.glade:4907
 #: src/emc/usr_intf/pncconf/dialogs.glade:4920
-#: src/emc/usr_intf/gscreen/gscreen.glade:1365
-#: src/emc/usr_intf/gscreen/gscreen.glade:1383
-#: src/emc/usr_intf/gscreen/gscreen.glade:1401
-#: lib/python/gladevcp/gladevcp-test.glade:80
-#: lib/python/gladevcp/gladevcp-test.glade:94
+#: src/emc/usr_intf/gscreen/gscreen.glade:1823
+#: src/emc/usr_intf/gscreen/gscreen.glade:1839
+#: src/emc/usr_intf/gscreen/gscreen.glade:1854
+#: lib/python/gladevcp/gladevcp-test.glade:89
+#: lib/python/gladevcp/gladevcp-test.glade:102
 msgid "label"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/main_page.glade:553
 #: src/emc/usr_intf/pncconf/main_page.glade:201
-#: lib/python/gladevcp/tooledit_gtk.glade:250
-#: lib/python/gladevcp/tooledit_gtk.glade:551
-#: lib/python/gladevcp/tooledit_gtk.glade:773
+#: lib/python/gladevcp/tooledit_gtk.glade:253
+#: lib/python/gladevcp/tooledit_gtk.glade:555
+#: lib/python/gladevcp/tooledit_gtk.glade:778
 msgid "Back"
 msgstr "geri"
 
@@ -11114,6 +11169,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/thcad.glade:68
 #: src/emc/usr_intf/pncconf/thcad.glade:51
 #: src/emc/usr_intf/pncconf/thcad.glade:166
+#: src/emc/usr_intf/gscreen/gscreen.glade:2513
 msgid "300"
 msgstr ""
 
@@ -11184,9 +11240,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid ""
-"_:"
-""
+msgid "_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -11739,41 +11793,41 @@ msgstr ""
 msgid "mm / min"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pages.py:1024
+#: src/emc/usr_intf/pncconf/pages.py:1025
 msgid ""
 "You need to configure the mesa0 page.\n"
 " Choose the board type, firmware, component amounts and press 'Accept "
 "component changes' button'"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pages.py:1027
+#: src/emc/usr_intf/pncconf/pages.py:1028
 msgid ""
 "The chosen Mesa0 board is different from the current displayed.\n"
 "please press 'Accept component changes' button'"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pages.py:1076
+#: src/emc/usr_intf/pncconf/pages.py:1077
 msgid ""
 "You need to configure the mesa1 page.\n"
 " Choose the board type, firmware, component amounts and press 'Accept "
 "component changes' button'"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pages.py:1079
+#: src/emc/usr_intf/pncconf/pages.py:1080
 msgid ""
 "The chosen Mesa1 board is different from the current displayed.\n"
 "please press 'Accept component changes' button'"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pages.py:1510
+#: src/emc/usr_intf/pncconf/pages.py:1511
 msgid "You need to designate an E-stop input pin for this ladder program."
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pages.py:1521
+#: src/emc/usr_intf/pncconf/pages.py:1522
 msgid "You need to designate a probe input pin for this ladder program."
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pages.py:1531
+#: src/emc/usr_intf/pncconf/pages.py:1532
 msgid ""
 "OK to replace existing custom ladder program?\n"
 "Existing Custom.clp will be renamed custom_backup.clp.\n"
@@ -12015,7 +12069,7 @@ msgid "# **** Setup of spindle speed display using pyvcp -END ****"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:965
-#: src/emc/usr_intf/pncconf/build_HAL.py:1896
+#: src/emc/usr_intf/pncconf/build_HAL.py:1892
 msgid "# This file will not be overwritten when you run PNCconf again"
 msgstr ""
 
@@ -12155,132 +12209,132 @@ msgstr ""
 msgid "# Step Gen signals/setup"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1446
+#: src/emc/usr_intf/pncconf/build_HAL.py:1442
 msgid "# ---closedloop stepper signals---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1460
+#: src/emc/usr_intf/pncconf/build_HAL.py:1456
 msgid "# ---Encoder feedback signals/setup---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1483
+#: src/emc/usr_intf/pncconf/build_HAL.py:1479
 msgid "# ---Resolver feedback signals/setup---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1502
+#: src/emc/usr_intf/pncconf/build_HAL.py:1498
 msgid "# ---setup spindle control signals---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1518
+#: src/emc/usr_intf/pncconf/build_HAL.py:1514
 msgid "# ---Setup spindle at speed signals---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1539
+#: src/emc/usr_intf/pncconf/build_HAL.py:1535
 msgid "#  Use ACTUAL spindle velocity from spindle encoder"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1540
+#: src/emc/usr_intf/pncconf/build_HAL.py:1536
 msgid "#  spindle-velocity bounces around so we filter it with lowpass"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1541
+#: src/emc/usr_intf/pncconf/build_HAL.py:1537
 msgid ""
 "#  spindle-velocity is signed so we use absolute component to remove sign"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1542
+#: src/emc/usr_intf/pncconf/build_HAL.py:1538
 msgid "#  ACTUAL velocity is in RPS not RPM so we scale it."
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1558
+#: src/emc/usr_intf/pncconf/build_HAL.py:1554
 msgid "# ---setup home / limit switch signals---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1566
+#: src/emc/usr_intf/pncconf/build_HAL.py:1562
 msgid "# external input signals"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1661
+#: src/emc/usr_intf/pncconf/build_HAL.py:1657
 msgid "# external output signals"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1822
+#: src/emc/usr_intf/pncconf/build_HAL.py:1818
 msgid ""
 "\n"
 "# ---PLASMA INPUT DEBOUNCE---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1823
+#: src/emc/usr_intf/pncconf/build_HAL.py:1819
 msgid "#values for these are in custom.hal"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1829
+#: src/emc/usr_intf/pncconf/build_HAL.py:1825
 msgid ""
 "\n"
 "# ---JOINT ASSOCIATED WITH THE Z AXIS---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1840
+#: src/emc/usr_intf/pncconf/build_HAL.py:1836
 msgid ""
 "\n"
 "# ---PLASMA INPUTS---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1841
-#: src/emc/usr_intf/pncconf/build_HAL.py:1854
+#: src/emc/usr_intf/pncconf/build_HAL.py:1837
+#: src/emc/usr_intf/pncconf/build_HAL.py:1850
 msgid "# ---all modes---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1846
+#: src/emc/usr_intf/pncconf/build_HAL.py:1842
 msgid "# ---modes 0 & 1"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1848
+#: src/emc/usr_intf/pncconf/build_HAL.py:1844
 msgid "# ---modes 1 & 2"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1850
+#: src/emc/usr_intf/pncconf/build_HAL.py:1846
 msgid "# ---mode 2"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1853
+#: src/emc/usr_intf/pncconf/build_HAL.py:1849
 msgid ""
 "\n"
 "# ---PLASMA OUTPUTS---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1879
+#: src/emc/usr_intf/pncconf/build_HAL.py:1875
 msgid ""
 "\n"
 "# ---ARC VOLTAGE ENCODER---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1889
+#: src/emc/usr_intf/pncconf/build_HAL.py:1885
 msgid ""
 "\n"
 "# ---OHMIC SENSE LINK---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1897
+#: src/emc/usr_intf/pncconf/build_HAL.py:1893
 msgid ""
 "\n"
 "# ---COMMON PLASMAC DEBOUNCE---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1898
+#: src/emc/usr_intf/pncconf/build_HAL.py:1894
 msgid "# for the float and ohmic inputs each increment in delay is"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1899
+#: src/emc/usr_intf/pncconf/build_HAL.py:1895
 msgid "# is a 0.001mm (0.00004\") increase in any probed height result"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1902
-#: src/emc/usr_intf/pncconf/build_HAL.py:1947
+#: src/emc/usr_intf/pncconf/build_HAL.py:1898
+#: src/emc/usr_intf/pncconf/build_HAL.py:1943
 msgid "# set to zero if using internal ohmic sensing"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1980
+#: src/emc/usr_intf/pncconf/build_HAL.py:1976
 msgid ""
 "\n"
 "# ---OHMIC SENSE CONTACT DEBOUNCE---"
@@ -15788,12 +15842,12 @@ msgid "Digital Control"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:1414
-#: src/emc/usr_intf/gscreen/gscreen.glade:511
+#: src/emc/usr_intf/gscreen/gscreen.glade:1009
 msgid "A"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:1425
-#: src/emc/usr_intf/gscreen/gscreen.glade:381
+#: src/emc/usr_intf/gscreen/gscreen.glade:887
 msgid "Z"
 msgstr ""
 
@@ -15803,7 +15857,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/screen.glade:2878
 #: src/emc/usr_intf/pncconf/vcp.glade:201
 #: src/emc/usr_intf/pncconf/vcp.glade:637
-#: src/emc/usr_intf/gscreen/gscreen.glade:250
+#: src/emc/usr_intf/gscreen/gscreen.glade:751
 msgid "Y"
 msgstr ""
 
@@ -16247,7 +16301,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/screen.glade:2849
 #: src/emc/usr_intf/pncconf/vcp.glade:229
 #: src/emc/usr_intf/pncconf/vcp.glade:609
-#: src/emc/usr_intf/gscreen/gscreen.glade:119
+#: src/emc/usr_intf/gscreen/gscreen.glade:641
 msgid "X"
 msgstr ""
 
@@ -16256,7 +16310,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/screen.glade:2838
 #: src/emc/usr_intf/pncconf/vcp.glade:242
 #: src/emc/usr_intf/pncconf/vcp.glade:598
-#: src/emc/usr_intf/gscreen/gscreen.glade:1165
+#: src/emc/usr_intf/gscreen/gscreen.glade:1622
 msgid "W"
 msgstr ""
 
@@ -16287,7 +16341,7 @@ msgid "GTK Theme"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/screen.glade:1859
-#: src/emc/usr_intf/gscreen/gscreen.glade:1919
+#: src/emc/usr_intf/gscreen/gscreen.glade:2392
 msgid "Absolute Text Color"
 msgstr ""
 
@@ -17768,1183 +17822,1270 @@ msgid ""
 "https://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:285
+#: src/emc/usr_intf/gscreen/gscreen.py:122
+msgid "Desktop notifications are available"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:124
+msgid "Desktop notifications are not available"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:126
+msgid "There was a problem initializing the notification module"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:133
+msgid "Audio alerts are available!"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:136
+msgid ""
+"No audio alerts are available - Is gir1.2-gstreamer-1.0 package installed?"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:286
+#: src/emc/usr_intf/gscreen/gscreen.py:290
+msgid "No widget '{}'"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:328
 msgid "Manual Mode"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:285
+#: src/emc/usr_intf/gscreen/gscreen.py:328
 msgid "MDI Mode"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:285
+#: src/emc/usr_intf/gscreen/gscreen.py:328
 msgid "Auto Mode"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:401
-#, python-format
-msgid "adding import dir %s"
+#: src/emc/usr_intf/gscreen/gscreen.py:444
+msgid "Adding import dir {}"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:407
-#, python-format
-msgid "module '%s' imported OK"
+#: src/emc/usr_intf/gscreen/gscreen.py:448
+msgid "Module '{}' skipped - import error: {}"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:486
-msgid ""
-"**** GSCREEN ERROR: INI file path missing from Gscreen launch command ****\n"
+#: src/emc/usr_intf/gscreen/gscreen.py:450
+msgid "Module '{}' imported OK"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:494
-msgid "**** GSCREEN INFO: CUSTOM locale name ="
+#: src/emc/usr_intf/gscreen/gscreen.py:456
+#: src/emc/usr_intf/gscreen/gscreen.py:461
+msgid "Module '{}': '{}' function found"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:500
-msgid "**** GSCREEN INFO: SKIN locale name ="
+#: src/emc/usr_intf/gscreen/gscreen.py:466
+msgid "Module '{}': no '{}' function - registering only functions as callbacks"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:512
-#, python-format
-msgid ""
-"\n"
-"**** GSCREEN INFO:  Using CUSTOM glade file from %s ****"
+#: src/emc/usr_intf/gscreen/gscreen.py:470
+msgid "Registering handlers in module '{}' object '{}'"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:517
-#, python-format
-msgid ""
-"\n"
-"**** GSCREEN INFO:  Using SKIN glade file from %s ****"
+#: src/emc/usr_intf/gscreen/gscreen.py:482
+msgid "Trouble looking for handlers in '{}': {}"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:520
-#, python-format
-msgid ""
-"\n"
-"**** GSCREEN INFO:  using STOCK glade file from: %s ****"
+#: src/emc/usr_intf/gscreen/gscreen.py:515
+msgid "Skin name = {}"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:534
-#, python-format
-msgid "**** Gscreen GLADE ERROR:    With main screen xml file: %s"
+#: src/emc/usr_intf/gscreen/gscreen.py:528
+msgid "INI file path missing from Gscreen launch command"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:539
-#, python-format
-msgid ""
-"\n"
-"**** GSCREEN INFO:  Screen 2 -Using CUSTOM glade file from %s ****"
+#: src/emc/usr_intf/gscreen/gscreen.py:536
+msgid "Custom locale name = {}"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:545
-#, python-format
-msgid "**** Gscreen GLADE ERROR:    With screen 2's xml file: %s"
+#: src/emc/usr_intf/gscreen/gscreen.py:542
+msgid "Skin locale name = {}"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:547
-msgid ""
-"\n"
-"**** GSCREEN INFO:  No Screen 2 glade file present"
+#: src/emc/usr_intf/gscreen/gscreen.py:554
+msgid "Using custom glade file from {}"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:591
+#: src/emc/usr_intf/gscreen/gscreen.py:559
+msgid " Using skin glade file from {}"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:562
+msgid "Using stock glade file from: {}"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:576
+msgid "With main screen xml file: {}"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:581
+msgid "Screen 2 - Using custom glade file from {}"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:587
+msgid "Error with screen 2's xml file: {}"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:589
+msgid "No Screen 2 glade file present"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:600
+msgid "Audio test failed - Is gstreamer0.10-plugins-base installed?"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:615
+msgid "No coordinates entry found in [TRAJ] of INI file"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:633
 msgid "No UNITS entry found in [TRAJ] or [AXIS_X] of INI file"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:604
-msgid ""
-"*** Gscreen ERROR:    Asking for a HAL component using a name that already "
-"exists."
+#: src/emc/usr_intf/gscreen/gscreen.py:646
+msgid "Asking for a HAL component using a name that already exists"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:675
+#: src/emc/usr_intf/gscreen/gscreen.py:661
+msgid "Handler file path: {}"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:668
+msgid "Preference file path: {}"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:717
 msgid "No default jog increments entry found in [DISPLAY] of INI file"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:688
+#: src/emc/usr_intf/gscreen/gscreen.py:730
 msgid "No default angular jog increments entry found in [DISPLAY] of INI file"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:697
+#: src/emc/usr_intf/gscreen/gscreen.py:739
 #, python-format
 msgid ""
 "No DEFAULT_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using "
 "internal default of %s"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:708
+#: src/emc/usr_intf/gscreen/gscreen.py:750
 #, python-format
 msgid ""
 "No MAX_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using internal "
 "default of %s"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:715
+#: src/emc/usr_intf/gscreen/gscreen.py:757
 msgid "No MAX_LINEAR_VELOCITY found in [TRAJ] of the INI file"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:728
+#: src/emc/usr_intf/gscreen/gscreen.py:770
 #, python-format
 msgid ""
 "No DEFAULT_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file: using "
 "internal default of %s"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:739
+#: src/emc/usr_intf/gscreen/gscreen.py:781
 #, python-format
 msgid ""
 "No MAX_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file: using internal "
 "default of %s"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:747
+#: src/emc/usr_intf/gscreen/gscreen.py:789
 msgid "No MAX_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:753
+#: src/emc/usr_intf/gscreen/gscreen.py:795
 msgid "No MIN_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:759
+#: src/emc/usr_intf/gscreen/gscreen.py:801
 msgid "No MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:764
+#: src/emc/usr_intf/gscreen/gscreen.py:806
 msgid "This screen will be orientated for Lathe options"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:818
+#: src/emc/usr_intf/gscreen/gscreen.py:855
 msgid "CYCLE_TIME in [DISPLAY] of INI file is missing: defaulting to 100ms"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:821
+#: src/emc/usr_intf/gscreen/gscreen.py:858
 msgid "CYCLE_TIME in [DISPLAY] of INI file is too small: defaulting to 100ms"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:823
-#, python-format
-msgid "timeout %d"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.py:1275
+#: src/emc/usr_intf/gscreen/gscreen.py:1319
 msgid "Ready For Homing"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1326
+#: src/emc/usr_intf/gscreen/gscreen.py:1381
 msgid ""
-"**** WARNING GSCREEN: could not initialize vte terminal - is package vte "
-"installed? Is widget: terminal_window in GLADE file?"
+"Could not initialize Vte terminal:\n"
+"                  Is libvte-2.91-0 package installed?\n"
+"                  Is a 'terminal_window' widget in the GLADE file?"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1342
+#: src/emc/usr_intf/gscreen/gscreen.py:1389
+msgid ""
+"Exception while writing to terminal:\n"
+"{}"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:1406
+#: src/emc/usr_intf/gscreen/gscreen.py:1411
+#: src/emc/usr_intf/gscreen/gscreen.py:1412
 msgid "Local Config Theme"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1398
-msgid ""
-"**** WARNING GSCREEN: could not understand the window geometry info in "
-"hidden preference file"
+#: src/emc/usr_intf/gscreen/gscreen.py:1463
+msgid "Window size is fullscreen"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1530
+#: src/emc/usr_intf/gscreen/gscreen.py:1466
+msgid "Window size is maximized"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:1473
+msgid "Window size set to {}x{}"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:1475
+msgid "Invalid window size specified '{}', defaulted to {}x{}"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:1477
+msgid "Using default window size: {}x{}"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:1607
 msgid "Control powered up and initialized"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1897
+#: src/emc/usr_intf/gscreen/gscreen.py:1630
+msgid "Unlock code #{}"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:1933
+msgid "Key {} ({}) was pressed state: {} last: {}"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:1936
+msgid "Control was being held down"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:1939
+msgid "Alt was being held down"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:1942
+msgid "Shift was being held down"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:1974
 msgid "Cycle start pressed in AUTO mode"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1900
+#: src/emc/usr_intf/gscreen/gscreen.py:1977
 msgid "Cycle start pressed in MDI mode"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1935
+#: src/emc/usr_intf/gscreen/gscreen.py:2012
 #, python-format
 msgid "Please change to tool # %s, then click OK."
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1936
-#: src/emc/usr_intf/gscreen/gscreen.py:1948
-#: src/emc/usr_intf/gscreen/gscreen.py:1951
-#: src/emc/usr_intf/gscreen/gscreen.py:1967
-#: src/emc/usr_intf/gscreen/gscreen.py:1970
-#: src/emc/usr_intf/gscreen/gscreen.py:1976
-#: src/emc/usr_intf/gscreen/gscreen.py:2358
-#: src/emc/usr_intf/gscreen/gscreen.py:2687
-#: src/emc/usr_intf/gscreen/gscreen.py:4106
-#: src/emc/usr_intf/gscreen/gscreen.py:4109
-#: src/emc/usr_intf/gscreen/gscreen.py:4161
-#: src/emc/usr_intf/gscreen/gscreen.py:4181
-#: src/emc/usr_intf/gscreen/gscreen.py:4184
-#: src/emc/usr_intf/gscreen/gscreen.py:4254
-#: src/emc/usr_intf/gscreen/gscreen.py:4257
-#: src/emc/usr_intf/gscreen/gscreen.py:4264
-#: src/emc/usr_intf/gscreen/gscreen.py:4267
-#: src/emc/usr_intf/gscreen/gscreen.py:4276
-#: src/emc/usr_intf/gscreen/gscreen.py:4287
-#: src/emc/usr_intf/gscreen/gscreen.py:4293
-#: src/emc/usr_intf/gscreen/gscreen.py:4296
+#: src/emc/usr_intf/gscreen/gscreen.py:2013
+#: src/emc/usr_intf/gscreen/gscreen.py:2025
+#: src/emc/usr_intf/gscreen/gscreen.py:2028
+#: src/emc/usr_intf/gscreen/gscreen.py:2044
+#: src/emc/usr_intf/gscreen/gscreen.py:2047
+#: src/emc/usr_intf/gscreen/gscreen.py:2053
+#: src/emc/usr_intf/gscreen/gscreen.py:2445
+#: src/emc/usr_intf/gscreen/gscreen.py:2772
+#: src/emc/usr_intf/gscreen/gscreen.py:4203
+#: src/emc/usr_intf/gscreen/gscreen.py:4206
+#: src/emc/usr_intf/gscreen/gscreen.py:4258
+#: src/emc/usr_intf/gscreen/gscreen.py:4278
+#: src/emc/usr_intf/gscreen/gscreen.py:4281
+#: src/emc/usr_intf/gscreen/gscreen.py:4351
+#: src/emc/usr_intf/gscreen/gscreen.py:4354
+#: src/emc/usr_intf/gscreen/gscreen.py:4361
+#: src/emc/usr_intf/gscreen/gscreen.py:4364
+#: src/emc/usr_intf/gscreen/gscreen.py:4373
+#: src/emc/usr_intf/gscreen/gscreen.py:4384
+#: src/emc/usr_intf/gscreen/gscreen.py:4390
+#: src/emc/usr_intf/gscreen/gscreen.py:4393
 msgid "INFO:"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1948
-#: src/emc/usr_intf/gscreen/gscreen.py:1967
+#: src/emc/usr_intf/gscreen/gscreen.py:2025
+#: src/emc/usr_intf/gscreen/gscreen.py:2044
 msgid "Can't start spindle manually while MDI busy"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1951
-#: src/emc/usr_intf/gscreen/gscreen.py:1970
+#: src/emc/usr_intf/gscreen/gscreen.py:2028
+#: src/emc/usr_intf/gscreen/gscreen.py:2047
 msgid "can't start spindle manually in Auto mode"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1976
-#: src/emc/usr_intf/gscreen/gscreen.py:4161
+#: src/emc/usr_intf/gscreen/gscreen.py:2053
+#: src/emc/usr_intf/gscreen/gscreen.py:4258
 msgid "No direction selected for spindle"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1988
-#: src/emc/usr_intf/gscreen/gscreen.py:1990
+#: src/emc/usr_intf/gscreen/gscreen.py:2066
+#: src/emc/usr_intf/gscreen/gscreen.py:2068
 msgid "Spindle Speed Preset Entry"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2022
-#: src/emc/usr_intf/gscreen/gscreen.py:2025
+#: src/emc/usr_intf/gscreen/gscreen.py:2101
+#: src/emc/usr_intf/gscreen/gscreen.py:2106
 msgid "Manual Tool Index Entry"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2193
+#: src/emc/usr_intf/gscreen/gscreen.py:2278
 msgid "Entry dialog"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2358
+#: src/emc/usr_intf/gscreen/gscreen.py:2445
 msgid "Classicladder realtime component not detected"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2359
+#: src/emc/usr_intf/gscreen/gscreen.py:2446
 msgid "ladder not available - is the realtime component loaded?"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2509
+#: src/emc/usr_intf/gscreen/gscreen.py:2452
+msgid "Estopping and killing gscreen"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:2597
 msgid "Override Entry"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2553
+#: src/emc/usr_intf/gscreen/gscreen.py:2641
 msgid "Machine powered on"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2558
+#: src/emc/usr_intf/gscreen/gscreen.py:2646
 msgid "Machine Estopped!"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2564
+#: src/emc/usr_intf/gscreen/gscreen.py:2652
 #: lib/python/gladevcp/calculator.glade:33
 msgid "Calculator"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2795
+#: src/emc/usr_intf/gscreen/gscreen.py:2880
 #, python-format
 msgid "Axes %s are homed"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2809
+#: src/emc/usr_intf/gscreen/gscreen.py:2894
 msgid "All the axes have been homed"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2822
+#: src/emc/usr_intf/gscreen/gscreen.py:2907
 #, python-format
 msgid "There are unhomed axes: %s"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2831
+#: src/emc/usr_intf/gscreen/gscreen.py:2916
 #, python-format
 msgid "Program loaded: %s"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2984
+#: src/emc/usr_intf/gscreen/gscreen.py:2932
+msgid ""
+"Cannot set focus to hal_mdihistory when Onboard launched - Is this widget "
+"name in glade file?"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:2937
+msgid ""
+"Cannot set focus to gcode_view when Onboard launched - Is this widget name "
+"in glade file?"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:3069
 msgid "Manual Spindle Control"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3064
-#: src/emc/usr_intf/gscreen/gscreen.py:3065
-msgid "Error with launching on-screen keyboard program -can't find program."
+#: src/emc/usr_intf/gscreen/gscreen.py:3149
+#: src/emc/usr_intf/gscreen/gscreen.py:3150
+msgid "Error with launching on-screen keyboard program - cannot find program"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3075
+#: src/emc/usr_intf/gscreen/gscreen.py:3160
 msgid "Keyboard"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3108
-#, python-format
-msgid "Error with launching 'Onboard' on-screen keyboard program %s"
+#: src/emc/usr_intf/gscreen/gscreen.py:3194
+msgid "Error with launching 'Onboard' on-screen keyboard program {}"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3257
-#, python-format
-msgid "**** GSCREEN INFO: Overriding internal signal call to %s"
+#: src/emc/usr_intf/gscreen/gscreen.py:3343
+msgid "Overriding internal signal call to '{}'"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3689
+#: src/emc/usr_intf/gscreen/gscreen.py:3364
+msgid "Could not connect '{}' to '{}'"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:3397
+msgid "No widget named '{}' to sensitize"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:3777
 msgid ""
 "Zero\n"
 " "
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3690
+#: src/emc/usr_intf/gscreen/gscreen.py:3778
 msgid ""
 "Set At\n"
 " "
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3694
+#: src/emc/usr_intf/gscreen/gscreen.py:3782
 msgid " Zero Origin"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3695
-#: src/emc/usr_intf/gscreen/gscreen.glade:2610
+#: src/emc/usr_intf/gscreen/gscreen.py:3783
+#: src/emc/usr_intf/gscreen/gscreen.glade:4032
 msgid "Offset Origin"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3710
+#: src/emc/usr_intf/gscreen/gscreen.py:3798
 msgid ""
-"**** Gscreen ERROR:    Invalid message configuration (missing text or type) "
-"in INI File [DISPLAY] section"
+"Invalid message configuration (missing text or type) in INI File [DISPLAY] "
+"section"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3712
+#: src/emc/usr_intf/gscreen/gscreen.py:3800
 msgid ""
-"**** Gscreen ERROR:    Invalid message configuration (missing pinname) in "
-"INI File [DISPLAY] section"
+"Invalid message configuration (missing pinname) in INI File [DISPLAY] section"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3714
+#: src/emc/usr_intf/gscreen/gscreen.py:3802
 msgid ""
-"**** Gscreen ERROR:    Invalid message configuration (missing boldtext) in "
-"INI File [DISPLAY] section"
+"Invalid message configuration (missing boldtext) in INI File [DISPLAY] "
+"section"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3718
-#, python-format
-msgid ""
-"**** Gscreen ERROR:    invalid message type (%s)in INI File [DISPLAY] section"
+#: src/emc/usr_intf/gscreen/gscreen.py:3806
+msgid "Invalid message type ({})in INI File [DISPLAY] section"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3752
+#: src/emc/usr_intf/gscreen/gscreen.py:3840
 msgid "Dialog error - Is the dialog handler missing from the handler file?"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3754
+#: src/emc/usr_intf/gscreen/gscreen.py:3842
 msgid "Manual Toolchange"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3756
+#: src/emc/usr_intf/gscreen/gscreen.py:3844
 msgid "Operator Message"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3790
-#: src/emc/usr_intf/gscreen/gscreen.py:3793
+#: src/emc/usr_intf/gscreen/gscreen.py:3878
+#: src/emc/usr_intf/gscreen/gscreen.py:3883
 msgid "Restart Entry"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3805
+#: src/emc/usr_intf/gscreen/gscreen.py:3895
 msgid "_Up     "
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3807
+#: src/emc/usr_intf/gscreen/gscreen.py:3897
 msgid "_Down"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3809
+#: src/emc/usr_intf/gscreen/gscreen.py:3899
 msgid "_Jump to"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3829
+#: src/emc/usr_intf/gscreen/gscreen.py:3918
 #, python-format
 msgid "Ready to Restart program from line %d"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3862
+#: src/emc/usr_intf/gscreen/gscreen.py:3951
 msgid "Invalid embedded tab configuration"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4106
-#: src/emc/usr_intf/gscreen/gscreen.py:4181
+#: src/emc/usr_intf/gscreen/gscreen.py:4203
+#: src/emc/usr_intf/gscreen/gscreen.py:4278
 msgid "Can't jog multiple axis"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4109
+#: src/emc/usr_intf/gscreen/gscreen.py:4206
 msgid "No axis selected to jog"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4184
+#: src/emc/usr_intf/gscreen/gscreen.py:4281
 msgid "No axis selected to move"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4254
+#: src/emc/usr_intf/gscreen/gscreen.py:4351
 msgid "Can't home multiple axis - select HOME ALL instead"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4257
+#: src/emc/usr_intf/gscreen/gscreen.py:4354
 msgid "No axis selected to home"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4264
+#: src/emc/usr_intf/gscreen/gscreen.py:4361
 msgid "Can't unhome multiple axis"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4267
+#: src/emc/usr_intf/gscreen/gscreen.py:4364
 msgid "No axis selected to unhome"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4276
+#: src/emc/usr_intf/gscreen/gscreen.py:4373
 msgid "No axis selected for origin zeroing"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4287
+#: src/emc/usr_intf/gscreen/gscreen.py:4384
 msgid "No axis selected for origin touch-off"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4293
+#: src/emc/usr_intf/gscreen/gscreen.py:4390
 msgid "Can't tool touch-off multiple axes"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4296
+#: src/emc/usr_intf/gscreen/gscreen.py:4393
 msgid "No axis selected for tool touch-off"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4355
-#: src/emc/usr_intf/gscreen/gscreen.py:4440
+#: src/emc/usr_intf/gscreen/gscreen.py:4452
+#: src/emc/usr_intf/gscreen/gscreen.py:4537
 msgid "Error Message"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4355
+#: src/emc/usr_intf/gscreen/gscreen.py:4452
 #, python-format
 msgid "Tool editor error - is the %s editor available?"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4442
-#: src/emc/usr_intf/gscreen/gscreen.py:4444
+#: src/emc/usr_intf/gscreen/gscreen.py:4539
+#: src/emc/usr_intf/gscreen/gscreen.py:4541
 msgid "Message"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4474
+#: src/emc/usr_intf/gscreen/gscreen.py:4571
 #, python-format
 msgid "%d RPM"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4590
+#: src/emc/usr_intf/gscreen/gscreen.py:4682
 #, python-format
 msgid "Tool %(t)s     %(l)s"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4622
+#: src/emc/usr_intf/gscreen/gscreen.py:4714
 #, python-format
 msgid "%4.2f mm/min"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4624
+#: src/emc/usr_intf/gscreen/gscreen.py:4716
 #, python-format
 msgid "%3.2f IPM"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4627
+#: src/emc/usr_intf/gscreen/gscreen.py:4719
 #, python-format
 msgid "%4.2f DPM"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4636
+#: src/emc/usr_intf/gscreen/gscreen.py:4728
 #, python-format
 msgid "%(n)s   View -%(v)s               %(t)s"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4645
-#: src/emc/usr_intf/gscreen/gscreen.py:4646
+#: src/emc/usr_intf/gscreen/gscreen.py:4737
+#: src/emc/usr_intf/gscreen/gscreen.py:4738
 msgid " mm "
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:48
-#: src/emc/usr_intf/gscreen/gscreen.glade:59
-#: src/emc/usr_intf/gscreen/gscreen.glade:138
-#: src/emc/usr_intf/gscreen/gscreen.glade:179
-#: src/emc/usr_intf/gscreen/gscreen.glade:190
-#: src/emc/usr_intf/gscreen/gscreen.glade:270
-#: src/emc/usr_intf/gscreen/gscreen.glade:312
-#: src/emc/usr_intf/gscreen/gscreen.glade:323
-#: src/emc/usr_intf/gscreen/gscreen.glade:400
-#: src/emc/usr_intf/gscreen/gscreen.glade:441
-#: src/emc/usr_intf/gscreen/gscreen.glade:452
-#: src/emc/usr_intf/gscreen/gscreen.glade:530
-#: src/emc/usr_intf/gscreen/gscreen.glade:571
-#: src/emc/usr_intf/gscreen/gscreen.glade:582
-#: src/emc/usr_intf/gscreen/gscreen.glade:660
-#: src/emc/usr_intf/gscreen/gscreen.glade:701
-#: src/emc/usr_intf/gscreen/gscreen.glade:712
-#: src/emc/usr_intf/gscreen/gscreen.glade:791
-#: src/emc/usr_intf/gscreen/gscreen.glade:832
-#: src/emc/usr_intf/gscreen/gscreen.glade:843
-#: src/emc/usr_intf/gscreen/gscreen.glade:922
-#: src/emc/usr_intf/gscreen/gscreen.glade:963
-#: src/emc/usr_intf/gscreen/gscreen.glade:974
-#: src/emc/usr_intf/gscreen/gscreen.glade:1053
-#: src/emc/usr_intf/gscreen/gscreen.glade:1094
-#: src/emc/usr_intf/gscreen/gscreen.glade:1105
-#: src/emc/usr_intf/gscreen/gscreen.glade:1184
-msgid "0000.0000"
+#: src/emc/usr_intf/gscreen/gscreen.py:4789
+msgid "Postgui filename: {}"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:73
-#: src/emc/usr_intf/gscreen/gscreen.glade:204
-#: src/emc/usr_intf/gscreen/gscreen.glade:337
-#: src/emc/usr_intf/gscreen/gscreen.glade:466
-#: src/emc/usr_intf/gscreen/gscreen.glade:596
-#: src/emc/usr_intf/gscreen/gscreen.glade:726
-#: src/emc/usr_intf/gscreen/gscreen.glade:857
-#: src/emc/usr_intf/gscreen/gscreen.glade:988
-#: src/emc/usr_intf/gscreen/gscreen.glade:1119
-msgid "REL"
+#: src/emc/usr_intf/gscreen/gscreen.glade:38
+msgid "S 1000"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:101
-#: src/emc/usr_intf/gscreen/gscreen.glade:232
-#: src/emc/usr_intf/gscreen/gscreen.glade:364
-#: src/emc/usr_intf/gscreen/gscreen.glade:493
-#: src/emc/usr_intf/gscreen/gscreen.glade:624
-#: src/emc/usr_intf/gscreen/gscreen.glade:754
-#: src/emc/usr_intf/gscreen/gscreen.glade:885
-#: src/emc/usr_intf/gscreen/gscreen.glade:1016
-#: src/emc/usr_intf/gscreen/gscreen.glade:1147
-msgid "ABS"
+#: src/emc/usr_intf/gscreen/gscreen.glade:114
+msgid "FWD"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:641
-msgid "B"
+#: src/emc/usr_intf/gscreen/gscreen.glade:160
+msgid "REV"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:772
-msgid "C"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:903
-msgid "U"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1034
-msgid "V"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1321
-msgid "G-code"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1415
-msgid "<b>G-Codes Active</b>"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1474
-msgid "MV:100%"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1504
-msgid "Flood "
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1556
-msgid "At Speed "
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1569
-msgid "Jog mode"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1623
-msgid "10 DPM"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1639
-msgid "10 Ipm"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1713
-msgid "<b>Status</b>"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1738
-msgid ""
-"Search\n"
-"Text:"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1767
-msgid ""
-"Replace\n"
-"Text:"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1787
-msgid ""
-"Replace\n"
-"All"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1801
-msgid ""
-"Ignore\n"
-"Case"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1828
-msgid "<b>Mode</b>"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1844
-msgid "Main Level"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1885
-msgid "Themes"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1909
-msgid "Relative Text Color"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1957
-msgid "DTG Text Color"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1978
-msgid "Warning Audio"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1988
-msgid "Alert Audio"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2009
-msgid "Grid Size"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2048
-msgid "Starting RPM"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2077
-msgid "Metric"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2091
-msgid ""
-"Display\n"
-"Aux Screen"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2107
-msgid ""
-"Diameter\n"
-"Mode"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2125
-#: src/emc/usr_intf/gscreen/gscreen.glade:3180
-msgid ""
-"Show\n"
-"Offsets"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2143
-msgid ""
-"Show\n"
-"DTG"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2161
-msgid ""
-"Gscreen\n"
-"Fullscreen"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2184
-msgid ""
-"On M7 Use\n"
-"Aux Coolant"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2198
-msgid ""
-"On M8 Use\n"
-"Aux Coolant"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2212
-msgid "Hide Pointer"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2224
-msgid ""
-"Desktop\n"
-"Notification"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2297
-#: src/emc/usr_intf/gscreen/gscreen.glade:2439
-msgid "Debug"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2332
-msgid "Alarm History"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2350
-msgid ""
-"Launch\n"
-"Halshow"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2363
-msgid "Calibration"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2374
-msgid "Halmeter"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2385
-msgid ""
-"LinuxCNC\n"
-"Status"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2398
-msgid "Halscope"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2457
-msgid "Tooleditor"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2475
-msgid ""
-"Offset\n"
-"Page"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2599
-msgid "Zero Origin"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2655
-msgid "Tool Setting"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2719
-msgid ""
-"Single\n"
-"Step"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2733
-msgid ""
-"Run At\n"
-"Line"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2746
-msgid ""
-"Change \n"
-"View"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2823
-#: src/emc/usr_intf/gscreen/gscreen.glade:3241
-msgid "\n"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2834
-msgid "Homing"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2854
-msgid ""
-"Ignore\n"
-"Limits"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2884
-msgid ""
-"Set\n"
-"Override"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2899
-msgid "Graphics"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2912
-msgid ""
-"Menu\n"
-"Level"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2926
-msgid ""
-"Launch\n"
-"Keyboard"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2944
-msgid "<b>Select Buttons</b>"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3031
-msgid ""
-"Unhome \n"
-"All"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3044
-msgid ""
-"Unhome\n"
-"Axis"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3057
-#: src/emc/usr_intf/gscreen/gscreen.glade:3167
-msgid ""
-"Toggle\n"
-"Readout"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3083
-msgid ""
-"Jogging\n"
-"Mode"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3096
-msgid ""
-"coordinate\n"
-"System"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3141
-msgid ""
-"Index\n"
-"Tool"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3154
-msgid ""
-"Spindle\n"
-"Controls"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3280
-msgid "Open"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3290
-msgid ""
-"Block\n"
-"Delete"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3303
-msgid ""
-"Optional\n"
-"Stop"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3316
-msgid ""
-"Full\n"
-"View"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3353
-msgid ""
-"Next\n"
-"Tab"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3374
-msgid ""
-"Feed\n"
-"Override"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3388
-msgid ""
-"Spindle\n"
-"Override"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3402
-msgid ""
-"Rapid\n"
-"Override"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3424
-msgid ""
-"Jog\n"
-"Speed"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3438
-msgid ""
-"Jog\n"
-"Increments"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3455
-msgid ""
-"Adjust\n"
-"Rotary"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3478
-msgid ""
-"Change\n"
-"  View"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3527
-msgid ""
-"Pan\n"
-"Vertical"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3541
-msgid ""
-"Pan\n"
-"Horizontal"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3555
-msgid ""
-"Rotate\n"
-"Horiontal"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3569
-msgid ""
-"Rotate\n"
-"Vertical"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3591
-msgid ""
-"Search\n"
-"Bwd"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3604
-msgid ""
-"Search\n"
-"Fwd"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3617
-msgid "Undo"
-msgstr "Geri Al"
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3628
-msgid "Redo"
-msgstr "Yeniden yap"
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3663
-msgid ""
-"Reload\n"
-"Program"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3677
-msgid ""
-"Replace\n"
-"Text"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3716
-msgid ""
-"Clear\n"
-"status"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3747
-msgid "G54"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3763
-msgid "calc"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3838
-msgid "test"
-msgstr "test"
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3841
-msgid "test2"
-msgstr "test2"
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3891
+#: src/emc/usr_intf/gscreen/gscreen.glade:228
 msgid "Data Entry"
 msgstr "Data Girişi"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3917
+#: src/emc/usr_intf/gscreen/gscreen.glade:297
 msgid "<b>Calculator Entry</b>"
 msgstr "<b>Hesap Makinesi Girişi</b>"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:4006
+#: src/emc/usr_intf/gscreen/gscreen.glade:359
+msgid "test"
+msgstr "test"
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:362
+msgid "test2"
+msgstr "test2"
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:374
 msgid "Program Restart"
 msgstr "Programı Tekrar Başlat"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:4020
+#: src/emc/usr_intf/gscreen/gscreen.glade:431
 msgid ""
 "Highlighting the run-at-line with the\n"
 "up / down buttons or entering the line\n"
 "directly."
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:4034
+#: src/emc/usr_intf/gscreen/gscreen.glade:447
 msgid ""
 "Line\n"
 "Up"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:4058
+#: src/emc/usr_intf/gscreen/gscreen.glade:474
 msgid ""
 "Line\n"
 "Down"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:4141
-msgid "S 1000"
+#: src/emc/usr_intf/gscreen/gscreen.glade:562
+#: src/emc/usr_intf/gscreen/gscreen.glade:575
+#: src/emc/usr_intf/gscreen/gscreen.glade:630
+#: src/emc/usr_intf/gscreen/gscreen.glade:686
+#: src/emc/usr_intf/gscreen/gscreen.glade:699
+#: src/emc/usr_intf/gscreen/gscreen.glade:768
+#: src/emc/usr_intf/gscreen/gscreen.glade:810
+#: src/emc/usr_intf/gscreen/gscreen.glade:823
+#: src/emc/usr_intf/gscreen/gscreen.glade:876
+#: src/emc/usr_intf/gscreen/gscreen.glade:931
+#: src/emc/usr_intf/gscreen/gscreen.glade:944
+#: src/emc/usr_intf/gscreen/gscreen.glade:998
+#: src/emc/usr_intf/gscreen/gscreen.glade:1053
+#: src/emc/usr_intf/gscreen/gscreen.glade:1066
+#: src/emc/usr_intf/gscreen/gscreen.glade:1119
+#: src/emc/usr_intf/gscreen/gscreen.glade:1174
+#: src/emc/usr_intf/gscreen/gscreen.glade:1187
+#: src/emc/usr_intf/gscreen/gscreen.glade:1242
+#: src/emc/usr_intf/gscreen/gscreen.glade:1297
+#: src/emc/usr_intf/gscreen/gscreen.glade:1310
+#: src/emc/usr_intf/gscreen/gscreen.glade:1365
+#: src/emc/usr_intf/gscreen/gscreen.glade:1420
+#: src/emc/usr_intf/gscreen/gscreen.glade:1433
+#: src/emc/usr_intf/gscreen/gscreen.glade:1488
+#: src/emc/usr_intf/gscreen/gscreen.glade:1543
+#: src/emc/usr_intf/gscreen/gscreen.glade:1556
+#: src/emc/usr_intf/gscreen/gscreen.glade:1611
+msgid "0000.0000"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:4211
-msgid "FWD"
+#: src/emc/usr_intf/gscreen/gscreen.glade:589
+#: src/emc/usr_intf/gscreen/gscreen.glade:713
+#: src/emc/usr_intf/gscreen/gscreen.glade:837
+#: src/emc/usr_intf/gscreen/gscreen.glade:958
+#: src/emc/usr_intf/gscreen/gscreen.glade:1080
+#: src/emc/usr_intf/gscreen/gscreen.glade:1201
+#: src/emc/usr_intf/gscreen/gscreen.glade:1324
+#: src/emc/usr_intf/gscreen/gscreen.glade:1447
+#: src/emc/usr_intf/gscreen/gscreen.glade:1570
+msgid "REL"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:4246
-msgid "REV"
+#: src/emc/usr_intf/gscreen/gscreen.glade:617
+#: src/emc/usr_intf/gscreen/gscreen.glade:741
+#: src/emc/usr_intf/gscreen/gscreen.glade:864
+#: src/emc/usr_intf/gscreen/gscreen.glade:985
+#: src/emc/usr_intf/gscreen/gscreen.glade:1107
+#: src/emc/usr_intf/gscreen/gscreen.glade:1229
+#: src/emc/usr_intf/gscreen/gscreen.glade:1352
+#: src/emc/usr_intf/gscreen/gscreen.glade:1475
+#: src/emc/usr_intf/gscreen/gscreen.glade:1598
+msgid "ABS"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:1130
+msgid "B"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:1253
+msgid "C"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:1376
+msgid "U"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:1499
+msgid "V"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:1776
+msgid "G-code"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:1869
+msgid "<b>Active Codes</b>"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:1925
+msgid "MV:100%"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:1958
+msgid "Flood "
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2009
+msgid "At Speed "
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2022
+msgid "Jog mode"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2073
+msgid "10 DPM"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2087
+msgid "10 Ipm"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2155
+msgid "<b>Status</b>"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2180
+msgid ""
+"Search\n"
+"Text:"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2217
+msgid ""
+"Replace\n"
+"Text:"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2241
+msgid ""
+"Replace\n"
+"All"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2256
+msgid ""
+"Ignore\n"
+"Case"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2286
+msgid "<b>Mode</b>"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2302
+msgid "Main Level"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2355
+msgid "Themes"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2379
+msgid "Relative Text Color"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2427
+msgid "DTG Text Color"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2450
+msgid "Warning Audio"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2463
+msgid "Alert Audio"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2486
+msgid "Grid Size"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2499
+msgid "0.000"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2527
+msgid "Starting RPM"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2552
+msgid "Metric"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2564
+msgid ""
+"Display\n"
+"Aux Screen"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2577
+msgid ""
+"Diameter\n"
+"Mode"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2590
+#: src/emc/usr_intf/gscreen/gscreen.glade:3202
+msgid ""
+"Show\n"
+"Offsets"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2603
+msgid ""
+"Show\n"
+"DTG"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2616
+msgid ""
+"Gscreen\n"
+"Fullscreen"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2642
+msgid ""
+"On M7 Use\n"
+"Aux Coolant"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2655
+msgid ""
+"On M8 Use\n"
+"Aux Coolant"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2668
+msgid "Hide Pointer"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2680
+msgid ""
+"Desktop\n"
+"Notification"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2750
+#: src/emc/usr_intf/gscreen/gscreen.glade:2905
+msgid "Debug"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2784
+msgid "Alarm History"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2805
+msgid ""
+"Launch\n"
+"Halshow"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2819
+msgid "Calibration"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2832
+msgid "Halmeter"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2845
+msgid ""
+"LinuxCNC\n"
+"Status"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2859
+msgid "Halscope"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2925
+msgid "Tooleditor"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2945
+msgid ""
+"Offset\n"
+"Page"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3036
+msgid ""
+"Unhome \n"
+"All"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3050
+msgid ""
+"Unhome\n"
+"Axis"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3064
+#: src/emc/usr_intf/gscreen/gscreen.glade:3188
+msgid ""
+"Toggle\n"
+"Readout"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3093
+msgid ""
+"Jogging\n"
+"Mode"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3108
+msgid ""
+"coordinate\n"
+"System"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3160
+msgid ""
+"Index\n"
+"Tool"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3174
+msgid ""
+"Spindle\n"
+"Controls"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3275
+#: src/emc/usr_intf/gscreen/gscreen.glade:4284
+msgid "\n"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3322
+msgid "Open"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3334
+msgid ""
+"Block\n"
+"Delete"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3348
+msgid ""
+"Optional\n"
+"Stop"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3362
+msgid ""
+"Full\n"
+"View"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3409
+msgid ""
+"Next\n"
+"Tab"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3434
+msgid ""
+"Feed\n"
+"Override"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3448
+msgid ""
+"Spindle\n"
+"Override"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3462
+msgid ""
+"Rapid\n"
+"Override"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3487
+msgid ""
+"Jog\n"
+"Speed"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3501
+msgid ""
+"Jog\n"
+"Increments"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3518
+msgid ""
+"Adjust\n"
+"Rotary"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3543
+msgid ""
+"Change\n"
+"  View"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3600
+msgid ""
+"Pan\n"
+"Vertical"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3614
+msgid ""
+"Pan\n"
+"Horizontal"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3628
+msgid ""
+"Rotate\n"
+"Horiontal"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3642
+msgid ""
+"Rotate\n"
+"Vertical"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3666
+msgid ""
+"Search\n"
+"Bwd"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3680
+msgid ""
+"Search\n"
+"Fwd"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3694
+msgid "Undo"
+msgstr "Geri Al"
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3707
+msgid "Redo"
+msgstr "Yeniden yap"
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3748
+msgid ""
+"Reload\n"
+"Program"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3763
+msgid ""
+"Replace\n"
+"Text"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3807
+msgid ""
+"Clear\n"
+"status"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3841
+msgid "G54"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3856
+msgid "calc"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:4019
+msgid "Zero Origin"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:4084
+msgid "Tool Setting"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:4179
+msgid ""
+"Run At\n"
+"Line"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:4193
+msgid ""
+"Change \n"
+"View"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:4297
+msgid "Homing"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:4321
+msgid ""
+"Ignore\n"
+"Limits"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:4356
+msgid ""
+"Set\n"
+"Override"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:4370
+msgid "Graphics"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:4383
+msgid ""
+"Menu\n"
+"Level"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:4396
+msgid ""
+"Launch\n"
+"Keyboard"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:4414
+msgid "<b>Select Buttons</b>"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen2.glade:35
 msgid "screen 2"
 msgstr "Ekran 2"
 
-#: lib/python/gladevcp/iconview.py:121
+#: lib/python/gladevcp/iconview.py:129
 msgid "Move to your home directory"
 msgstr "Ev Dizinine git"
 
-#: lib/python/gladevcp/iconview.py:130
+#: lib/python/gladevcp/iconview.py:138
 msgid "Move to parent directory"
 msgstr "Bir üst dizine git"
 
-#: lib/python/gladevcp/iconview.py:139
+#: lib/python/gladevcp/iconview.py:147
 msgid "Select the previous file"
 msgstr "Önceki dosyayı seç"
 
-#: lib/python/gladevcp/iconview.py:148
+#: lib/python/gladevcp/iconview.py:156
 msgid "Select the next file"
 msgstr "Bir sonraki dosyayı seç"
 
-#: lib/python/gladevcp/iconview.py:173
+#: lib/python/gladevcp/iconview.py:181
 msgid "Jump to user defined directory"
 msgstr "Kullanıcı'nın ayarladığı dosya konumuna git"
 
-#: lib/python/gladevcp/iconview.py:182
+#: lib/python/gladevcp/iconview.py:190
 msgid "select the highlighted file and return the path"
 msgstr ""
 
-#: lib/python/gladevcp/iconview.py:191
+#: lib/python/gladevcp/iconview.py:199
 msgid "Close without returning a file path"
 msgstr ""
 
-#: lib/python/gladevcp/hal_mdihistory.py:89
+#: lib/python/gladevcp/hal_mdihistory.py:90
 msgid "Command"
 msgstr "Komut"
 
-#: lib/python/gladevcp/hal_mdihistory.py:271
+#: lib/python/gladevcp/hal_mdihistory.py:276
 msgid "ERROR loading halshow"
 msgstr ""
 
-#: lib/python/gladevcp/offsetpage_widget.py:354
+#: lib/python/gladevcp/offsetpage_widget.py:357
 msgid "offsetpage widget error: unrecognized float input"
 msgstr ""
 
-#: lib/python/gladevcp/offsetpage_widget.py:391
+#: lib/python/gladevcp/offsetpage_widget.py:394
 msgid "offsetpage widget error: MDI call error"
 msgstr ""
 
-#: lib/python/gladevcp/offsetpage_widget.py:410
+#: lib/python/gladevcp/offsetpage_widget.py:413
 msgid "MDI error in offsetpage widget -zero G92"
 msgstr ""
 
-#: lib/python/gladevcp/offsetpage_widget.py:427
+#: lib/python/gladevcp/offsetpage_widget.py:430
 msgid "MDI error in offsetpage widget-zero rotational offset"
 msgstr ""
 
-#: lib/python/gladevcp/offsetpage_widget.py:506
+#: lib/python/gladevcp/offsetpage_widget.py:515
 msgid "offsetpage_widget error: cannot select coordinate system"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:227
+#: lib/python/gladevcp/tooledit_widget.py:228
 msgid "tooledit_widget error: cannot select tool number"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:239
-#, python-brace-format
-msgid "Error in tool table line {0} in column "
-msgstr ""
-
-#: lib/python/gladevcp/tooledit_widget.py:239
-#: lib/python/gladevcp/tooledit_gtk.glade:261
-#: lib/python/gladevcp/tooledit_gtk.glade:562
-#: lib/python/gladevcp/tooledit_gtk.glade:784
-msgid "Orientation"
-msgstr "Oryantasyon"
-
-#: lib/python/gladevcp/tooledit_widget.py:240
-msgid ""
-".\n"
-"Valid range is 0 - 9."
-msgstr ""
-
-#: lib/python/gladevcp/tooledit_widget.py:257
+#: lib/python/gladevcp/tooledit_widget.py:258
 msgid "Toolfile does not exist"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:296
+#: lib/python/gladevcp/tooledit_widget.py:297
 msgid "Tooledit widget int error"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:306
-#: lib/python/gladevcp/tooledit_widget.py:311
+#: lib/python/gladevcp/tooledit_widget.py:307
+#: lib/python/gladevcp/tooledit_widget.py:312
 msgid "Tooledit widget float error"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:358
+#: lib/python/gladevcp/tooledit_widget.py:359
 msgid "Reloading tooltable into linuxcnc failed"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:527
+#: lib/python/gladevcp/tooledit_widget.py:528
 msgid "Tool file was modified since it was last read"
 msgstr ""
 
-#: lib/python/gladevcp/gladevcp-test.glade:103
-#: lib/python/gladevcp/gladevcp-test.glade:119
+#: lib/python/gladevcp/gladevcp-test.glade:111
+#: lib/python/gladevcp/gladevcp-test.glade:125
 msgid "radiobutton"
 msgstr ""
 
-#: lib/python/gladevcp/gladevcp-test.glade:159
+#: lib/python/gladevcp/gladevcp-test.glade:161
 msgid "checkbutton"
 msgstr ""
 
-#: lib/python/gladevcp/gladevcp-test.glade:183
+#: lib/python/gladevcp/gladevcp-test.glade:204
 msgid "button"
 msgstr "Buton"
 
-#: lib/python/gladevcp/gladevcp-test.glade:194
+#: lib/python/gladevcp/gladevcp-test.glade:217
 msgid "togglebutton"
 msgstr "Geçiş Düğmesi"
 
@@ -18961,15 +19102,15 @@ msgstr ""
 msgid "Rotation of Z"
 msgstr "Z'de Rotasyon"
 
-#: lib/python/gladevcp/offsetpage.glade:285
+#: lib/python/gladevcp/offsetpage.glade:290
 msgid "Offset"
 msgstr "Ofset"
 
-#: lib/python/gladevcp/offsetpage.glade:416
+#: lib/python/gladevcp/offsetpage.glade:421
 msgid "Offset Name"
 msgstr "Ofset Adı"
 
-#: lib/python/gladevcp/offsetpage.glade:444
+#: lib/python/gladevcp/offsetpage.glade:454
 msgid ""
 "Zero\n"
 "G92"
@@ -18977,7 +19118,7 @@ msgstr ""
 "Zero\n"
 "G92"
 
-#: lib/python/gladevcp/offsetpage.glade:464
+#: lib/python/gladevcp/offsetpage.glade:475
 msgid ""
 "Zero\n"
 "Rotational"
@@ -18985,94 +19126,100 @@ msgstr ""
 "Zero\n"
 "Dönme"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:82
-#: lib/python/gladevcp/tooledit_gtk.glade:393
-#: lib/python/gladevcp/tooledit_gtk.glade:615
+#: lib/python/gladevcp/tooledit_gtk.glade:85
+#: lib/python/gladevcp/tooledit_gtk.glade:397
+#: lib/python/gladevcp/tooledit_gtk.glade:620
 msgid "Select"
 msgstr "Seçim"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:95
-#: lib/python/gladevcp/tooledit_gtk.glade:404
-#: lib/python/gladevcp/tooledit_gtk.glade:626
+#: lib/python/gladevcp/tooledit_gtk.glade:98
+#: lib/python/gladevcp/tooledit_gtk.glade:408
+#: lib/python/gladevcp/tooledit_gtk.glade:631
 msgid "Tool#"
 msgstr "Tool#"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:111
-#: lib/python/gladevcp/tooledit_gtk.glade:415
-#: lib/python/gladevcp/tooledit_gtk.glade:637
+#: lib/python/gladevcp/tooledit_gtk.glade:114
+#: lib/python/gladevcp/tooledit_gtk.glade:419
+#: lib/python/gladevcp/tooledit_gtk.glade:642
 msgid "Pocket"
 msgstr "Pocket-Cep"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:224
-#: lib/python/gladevcp/tooledit_gtk.glade:525
-#: lib/python/gladevcp/tooledit_gtk.glade:747
+#: lib/python/gladevcp/tooledit_gtk.glade:227
+#: lib/python/gladevcp/tooledit_gtk.glade:529
+#: lib/python/gladevcp/tooledit_gtk.glade:752
 msgid "Diameter"
 msgstr "Çap"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:239
-#: lib/python/gladevcp/tooledit_gtk.glade:540
-#: lib/python/gladevcp/tooledit_gtk.glade:762
+#: lib/python/gladevcp/tooledit_gtk.glade:242
+#: lib/python/gladevcp/tooledit_gtk.glade:544
+#: lib/python/gladevcp/tooledit_gtk.glade:767
 msgid "Front"
 msgstr "Ön"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:272
-#: lib/python/gladevcp/tooledit_gtk.glade:573
-#: lib/python/gladevcp/tooledit_gtk.glade:795
+#: lib/python/gladevcp/tooledit_gtk.glade:264
+#: lib/python/gladevcp/tooledit_gtk.glade:566
+#: lib/python/gladevcp/tooledit_gtk.glade:789
+msgid "Orientation"
+msgstr "Oryantasyon"
+
+#: lib/python/gladevcp/tooledit_gtk.glade:275
+#: lib/python/gladevcp/tooledit_gtk.glade:577
+#: lib/python/gladevcp/tooledit_gtk.glade:800
 msgid "Comments"
 msgstr "Yorum"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:327
+#: lib/python/gladevcp/tooledit_gtk.glade:330
 msgid "Reload"
 msgstr "Tekrar Yükle"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:371
+#: lib/python/gladevcp/tooledit_gtk.glade:374
 msgid "All Offsets"
 msgstr "Tüm Ofsetler"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:426
+#: lib/python/gladevcp/tooledit_gtk.glade:430
 msgid "X Wear"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:448
+#: lib/python/gladevcp/tooledit_gtk.glade:452
 msgid "Z Wear"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:592
+#: lib/python/gladevcp/tooledit_gtk.glade:596
 msgid "Lathe Wear Offsets"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:648
+#: lib/python/gladevcp/tooledit_gtk.glade:653
 msgid "X Tool"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:670
+#: lib/python/gladevcp/tooledit_gtk.glade:675
 msgid "Z Tool"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:814
+#: lib/python/gladevcp/tooledit_gtk.glade:819
 msgid "Lathe Tool Offsets"
 msgstr ""
 
-#: lib/python/gladevcp/calculator.glade:83
+#: lib/python/gladevcp/calculator.glade:84
 msgid "CLR"
 msgstr "SİL"
 
-#: lib/python/gladevcp/calculator.glade:332
+#: lib/python/gladevcp/calculator.glade:280
 msgid "DEL"
 msgstr "SİL"
 
-#: lib/python/gladevcp/calculator.glade:346
+#: lib/python/gladevcp/calculator.glade:294
 msgid "mm → in"
 msgstr "Milimetre → İnç"
 
-#: lib/python/gladevcp/calculator.glade:361
+#: lib/python/gladevcp/calculator.glade:307
 msgid "in → mm"
 msgstr "inç → milimetre"
 
-#: lib/python/gladevcp/calculator.glade:376
+#: lib/python/gladevcp/calculator.glade:320
 msgid "_Cancel_"
 msgstr "_İptal"
 
-#: lib/python/gladevcp/calculator.glade:393
+#: lib/python/gladevcp/calculator.glade:335
 msgid "_Ok"
 msgstr "_Tamam"

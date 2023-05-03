@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-12 11:32+0100\n"
+"POT-Creation-Date: 2023-05-03 08:16+0200\n"
 "PO-Revision-Date: 2021-12-09 03:53+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Serbian <https://hosted.weblate.org/projects/linuxcnc/"
@@ -23,88 +23,88 @@ msgstr ""
 "X-Generator: Weblate 4.10-dev\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:253
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:252
 msgid "user mode selected"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:257
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:256
 #, python-brace-format
 msgid "logo entry found = {0}"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:262
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:261
 msgid "Logofile entry found, but could not be converted to path."
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:263
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:262
 msgid "The file path should not contain any spaces"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:512
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:533
+msgid "Error in "
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:513
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:534
-msgid "Error in "
-msgstr ""
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:514
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:535
 msgid "Please check the console output."
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:675
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:674
 msgid "axis"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:676
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:675
 msgid "axes"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:681
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:680
 #, fuzzy
 msgid "joint"
 msgstr "\"nulovanje\" x-ose"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:682
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:681
 #, fuzzy
 msgid "joints"
 msgstr "\"nulovanje\" x-ose"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:698
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:697
 #, python-brace-format
 msgid "Press to home all {0}"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:711
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:710
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1003
 msgid "Press to display previous homing button"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:727
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:726
 #, python-brace-format
 msgid "Press to home {0} {1}"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:744
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:743
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1032
 msgid "Press to display next homing button"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:759
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:758
 #, python-brace-format
 msgid "Press to unhome all {0}"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:768
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:767
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1086
 #, fuzzy
 msgid "Press to return to main button list"
 msgstr "nazad na glavnu listu tastera"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:826
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:825
 #, python-brace-format
 msgid "could not resolv the image path '{0}' given for button '{1}'"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:981
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:980
 #, fuzzy
 msgid ""
 "edit\n"
@@ -113,7 +113,7 @@ msgstr ""
 "     Uredi\n"
 "odstupanja"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:990
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:989
 #, fuzzy
 msgid "Press to edit the offsets"
 msgstr "Uredi odstupanja"
@@ -186,7 +186,7 @@ msgstr ""
 msgid "Press to jog axis {0}"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1305
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1306
 #, python-brace-format
 msgid "Press to jog joint {0}"
 msgstr ""
@@ -238,73 +238,73 @@ msgid "Wrong lathe configuration, we will leave here"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1492
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1957
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2203
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1936
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2183
 msgid "Very critical situation"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1637
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1622
 msgid "this is not a usual config\n"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1638
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1623
 msgid "we miss one of X , Y or Z axis\n"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1639
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1624
 msgid "We will use by axisletter ordered jog button"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1803
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2916
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1782
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2896
 msgid "mm/min"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1806
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2919
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1785
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2899
 msgid "inch/min"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1832
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1811
 msgid ""
 "No embedded tabs configured or invalid configuration. No tabs will be added!"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1849
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1828
 #, fuzzy
 msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
 msgstr ""
 "GREŠKA, pokušava se inicijalizacija korisničkih tabulatora ili panela, "
 "proveri tipove"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1955
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1934
 #, fuzzy
 msgid "Did not find a toolfile file in [EMCIO] TOOL_TABLE"
 msgstr "**** Nije pronađena datoteka alata u [EMCIO] TOOL_TABLE ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2039
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2018
 #, fuzzy
 msgid "Audio available!"
 msgstr "**** zvuk dostupan! ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2051
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2030
 msgid ""
 "No audio available! PYGST library not installed? Is python-gstX.XX installed?"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2079
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5313
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2059
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5290
 msgid ""
 " Joint\n"
 "mode"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2123
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2103
 #, fuzzy
 msgid "Virtual keyboard program found : <onboard>"
 msgstr "**** pronađen program virtualne tastature : <onboard>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2125
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2105
 #, fuzzy
 msgid ""
 "No virtual keyboard installed, we checked for <onboard>. Try 'sudo apt-get "
@@ -313,7 +313,7 @@ msgstr ""
 "**** Nije instalirana virtualna tastatura, proveravamo <onboard> i <matchbox-"
 "keyboard>."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2138
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2118
 #, fuzzy
 msgid ""
 "Error with launching virtual keyboard. Is onboard installed?Try sudo apt-get "
@@ -322,211 +322,211 @@ msgstr ""
 "Greška pri pokretanju \"Onboard\" programa za tastaturu na ekranu, da li je "
 "onboard instaliran? "
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2171
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3046
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2151
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3026
 msgid "interrupt running macro"
 msgstr "prekini pokrenuti makro"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2201
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2181
 #, fuzzy
 msgid "Did not find a parameter file in [RS274NGC] PARAMETER_FILE"
 msgstr ""
 "**** Nije pronađena parametarska datoteka u [RS274NGC] PARAMETER_FILE ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2271
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2251
 msgid "Select the file you want to be loaded at program start"
 msgstr "Izaberi datoteku koju želiš da se učita prilikom pokretanja programa"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2305
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2329
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2285
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2309
 #, fuzzy, python-brace-format
 msgid "Message type {0} not supported"
 msgstr "**** GMOCCAPY GREŠKA **** /n vrsta poruke {0} nije podržana"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2448
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2428
 msgid "Unknown error type and no error text given"
 msgstr "Nepoznata greška i nema opisa greške"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2462
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2442
 msgid "Important Warning"
 msgstr "Važno Upozorenje"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2482
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2462
 #, fuzzy
 msgid "External ESTOP is set, could not change state!"
 msgstr "GREŠKA: Nužno stop je na snazi, nema promena!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2495
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2475
 #, fuzzy
 msgid "Could not switch the machine on, is limit switch activated?"
 msgstr ""
 "GREŠKA: Mašina ne može da se upali, da nije neki krajnji prekidač aktivan?"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2578
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2558
 msgid "No file loaded"
 msgstr "Program nije učitan"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2796
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2776
 msgid "It is not possible to change to MDI Mode at the moment"
 msgstr "Trenutno nije moguće da se pređe u MDI mod"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2830
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2810
 msgid "It is not possible to change to Auto Mode at the moment"
 msgstr "Trenutno nije moguće da se pređe u Auto mod"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3011
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2991
 msgid "Enter value:"
 msgstr "Unesi vrednost:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3012
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2992
 #, fuzzy, python-brace-format
 msgid "Set parameter {0} to:"
 msgstr "Postavi parametar {0} na:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3015
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2995
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4929
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4952
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4975
 msgid "Conversion error !"
 msgstr "Greška u pretvaranju !"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3044
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3024
 msgid "This button will show or hide the keyboard"
 msgstr "ovim tasterom ćeš prikazati ili sakriti tastaturu"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3152
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3132
 msgid "Mode change is only allowed if the interpreter is idle!"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3377
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3357
 #, python-brace-format
 msgid "{0}"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3552
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3532
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:51
 msgid "No tool description available"
 msgstr "Nije dostupan opis alata"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3692
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3672
 #, fuzzy, python-brace-format
 msgid "Halo, welcome to the test message {0}"
 msgstr "Zdravo, dobrodošli na test poruku {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3803
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3783
 msgid "Hal Pin is low, Access denied"
 msgstr "Hal pin je neaktivan, Pristup zabranjen"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3805
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3785
 msgid "wrong code entered, Access denied"
 msgstr "Unet je pogrešan kod, Pristup zabranjen"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3806
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4455
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3786
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4435
 msgid "Just to warn you"
 msgstr "Samo da te upozorim"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3960
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3940
 msgid "INFO:"
 msgstr "OBAVEŠTENjE:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3961
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3941
 msgid "Classicladder real-time component not detected"
 msgstr "Classicladder komponenta u realnom vremenu nije otkrivena"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4189
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4169
 msgid "Do you really want to delete the MDI history?\n"
 msgstr "Da li zaista želiš da izbrišeš MDI listu?\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4190
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4170
 #, fuzzy
 msgid "This will not delete the MDI History file, but will\n"
 msgstr "Ovim nećeš da izbrišeš MDI istorijski zapis, ali ćeš \n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4191
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4171
 #, fuzzy
 msgid "delete the listbox entries for this session."
 msgstr "da izbrišeš listu unosa u ovoj sesiji"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4192
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4172
 msgid "Attention!!"
 msgstr "PAŽNJA!!!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4248
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4228
 msgid "Exit and discard changes?"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4249
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4229
 #, fuzzy
 msgid "Attention!"
 msgstr "PAŽNJA!!!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4331
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4311
 #, fuzzy
 msgid "Enter value for diameter"
 msgstr "Unesi vrednost za osu %s "
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4332
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4312
 #, fuzzy
 msgid "Set diameter to:"
 msgstr "Postavi parametar %s na:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4335
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4315
 #, fuzzy
 msgid "Enter value for radius"
 msgstr "Unesi vrednost za osu %s "
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4336
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4316
 #, fuzzy
 msgid "Set radius to:"
 msgstr "Postavi osu %s na:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4339
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4319
 #, fuzzy, python-brace-format
 msgid "Enter value for axis {0}"
 msgstr "Unesi vrednost za osu {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4340
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4320
 #, fuzzy, python-brace-format
 msgid "Set axis {0} to:"
 msgstr "Postavi osu {0} na:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4345
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4325
 msgid "Conversion error in btn_set_value!"
 msgstr "Greška u pretvaranju na btn_set_value"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4346
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4326
 msgid "Please enter only numerical values. Values have not been applied"
 msgstr ""
 "Unesi samo numeričke vrednosti\n"
 "Vrednosti nisu prihvaćene"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4360
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4340
 #, fuzzy
 msgid ""
 "You did not select a system to be changed to, so nothing will be changed"
 msgstr "Nisi izabrao sistem za promenu, dakle, neće se ništa promeniti"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4361
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4981
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4995
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4999
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5014
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4341
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4958
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4972
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4976
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4991
 msgid "Important Warning!"
 msgstr "Važno Upozorenje!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4411
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4391
 msgid "Enter the block height"
 msgstr "Unesi visinu bloka"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4412
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4392
 msgid "Block height measured from base table"
 msgstr "Visina bloka merena od osnove stola"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4424
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4404
 msgid "Conversion error in btn_block_height!"
 msgstr "Greška u pretvaranju na btn_block_height!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4425
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4405
 msgid ""
 "Please enter only numerical values\n"
 "Values have not been applied"
@@ -534,11 +534,11 @@ msgstr ""
 "Unesi samo numeričke vrednosti\n"
 "Vrednosti nisu prihvaćene"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4869
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4846
 msgid "Please remove the mounted tool and press OK when done"
 msgstr "Molim te ukloni postavljeni alat i stisni \"U redu\" kad završiš"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4873
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4850
 #, python-brace-format
 msgid ""
 "Please change to tool\n"
@@ -553,7 +553,7 @@ msgstr ""
 "\n"
 "pa klikni na \"U redu\"."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4875
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4852
 #, python-brace-format
 msgid ""
 "Tool\n"
@@ -563,135 +563,135 @@ msgid ""
 " not in the tool table!"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4877
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4854
 #, fuzzy
 msgid "Manual Tool change"
 msgstr "Ručna zamena alata"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4887
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4864
 msgid "Tool Change has been aborted!\n"
 msgstr "Obustavljena je zamena alata!\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4888
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4865
 msgid "The old tool will remain set!"
 msgstr "Stari alat ostaje na snazi!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4896
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4873
 #, fuzzy
 msgid "You are trying to delete the tool mounted in the spindle\n"
 msgstr "ne možeš uraditi dodir alatom ukoliko nije postavljen u vretenu"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4897
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4874
 msgid "This is not allowed, please change tool prior to delete it"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4898
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4875
 #, fuzzy
 msgid "Warning Tool can not be deleted!"
 msgstr "Upozorenje: Nije moguć dodir alatom!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4917
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4894
 #, fuzzy
 msgid "No or multiple tools selected in the tool table. "
 msgstr "Ili si izabrao više ili nijedan alat iz tabele alata"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4918
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4895
 #, fuzzy
 msgid "Please select only one tool in the table!"
 msgstr "Molim te izaberi samo jedan alat iz tabele"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4919
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4925
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4933
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4896
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4902
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4910
 msgid "Warning Tool Touch off not possible!"
 msgstr "Upozorenje: Nije moguć dodir alatom!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4923
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4900
 #, fuzzy
 msgid "You can not touch off a tool, which is not mounted in the spindle! "
 msgstr "ne možeš uraditi dodir alatom ukoliko nije postavljen u vretenu"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4924
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4901
 #, fuzzy
 msgid "Your selection has been reset to the tool in spindle."
 msgstr "tvoj izbor je vraćen na alat koji je u vretenu"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4931
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4908
 msgid ""
 "Tool touch off is not possible with cutter radius compensation switched on!\n"
 msgstr "Dodir nije moguć sa uključenom kompenzacijom radijusa alata!\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4932
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4909
 #, fuzzy
 msgid "Please emit an G40 before tool touch off."
 msgstr "Postavi G40 pre dodirivanja alata"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4941
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4918
 msgid "Real big error!"
 msgstr "Stvarno KRUPNA greška!!!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4942
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4919
 msgid ""
 "You managed to come to a place that is not possible in on_btn_tool_touchoff"
 msgstr ""
 "Uspeo si da dođeš do pozicije do koje nije moguće u on_btn_tool_touchoff"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4946
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4923
 #, fuzzy, python-brace-format
 msgid "Enter value for axis {0} to set:"
 msgstr "Unesi vrednost za osu {0} radi podešavanja:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4947
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4924
 #, python-brace-format
 msgid "Set parameter of tool {0:d} and axis {1} to:"
 msgstr "Podesi parametar alata {0:d} i ose {1} na:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4951
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4928
 #, fuzzy, python-brace-format
 msgid "Conversion error because of wrong entry for touch off axis {0}"
 msgstr "Greška pri pretvaranju usled lošeg unosa za dodir ose {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4970
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4947
 msgid "Enter the tool number as integer "
 msgstr "Unesi \"ceo broj\" kao broj alata"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4971
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4948
 msgid "Select the tool to change"
 msgstr "Izaberi alat za zamenu"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4973
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4950
 #, fuzzy
 msgid "Conversion error because of wrong entry for tool number.\n"
 msgstr "Greška u pretvaranju usled lošeg unosa broja alata\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4974
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4951
 #, fuzzy
 msgid "Enter only integer numbers!"
 msgstr "uneti samo celi broj"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4980
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4998
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4957
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4975
 msgid "Selected tool is already in spindle, no change needed."
 msgstr "Izabrani alat je već u vretenu, nema potrebe za izmenom!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4994
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4971
 msgid ""
 "you selected no or more than one tool, the tool selection must be unique"
 msgstr ""
 "Ili si izabrao više alata ili nijedan, izbor alata mora da je jedinstven"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5013
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4990
 #, fuzzy
 msgid "Could not understand the entered tool number. Will not change anything!"
 msgstr "Nerazumljiv uneti broj alata. Ništa neće da se izmeni."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5318
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5295
 msgid ""
 "World\n"
 "mode"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5504
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5481
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
 msgstr ""
 
@@ -768,7 +768,7 @@ msgstr ""
 "**** U ini datoteci nisu date podrutine za fasciklu ili prefiks programa "
 "****\n"
 
-#: src/emc/usr_intf/gmoccapy/notification.py:225
+#: src/emc/usr_intf/gmoccapy/notification.py:230
 #, fuzzy, python-brace-format
 msgid "Error trying to delete the message with number {0}"
 msgstr "Greška. Pokušaj brisanja poruke pod brojem {0}"
@@ -817,46 +817,46 @@ msgstr ""
 "bloka"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:11
-msgid "clear plot"
-msgstr "očisti ekran"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:12
-msgid "Zoom in"
-msgstr "uvećaj"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:13
-msgid "Zoom out"
-msgstr "umanji"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:14
 msgid "view perspective"
 msgstr "izometrijski pogled"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:15
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:12
 msgid "view along the X axis from positive to negative"
 msgstr "pogled duž X ose"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:16
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:13
 msgid "view along the Y axis from positive to negative"
 msgstr "pogled duž Y ose"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:17
-msgid "view along the Z axis from positive to negative"
-msgstr "pogled duž Z ose"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:18
-msgid "Show or hide tool path"
-msgstr "prikaži ili sakrij putanju alata"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:19
-msgid "Show or hide dimensions"
-msgstr "prikaži ili sakrij dimenzije"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:20
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:14
 msgid ""
 "view along the Y axis from positive to negative as viewn for a back tool "
 "lathe"
 msgstr "pogled duž Y ose"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:15
+msgid "view along the Z axis from positive to negative"
+msgstr "pogled duž Z ose"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:16
+msgid "Zoom in"
+msgstr "uvećaj"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:17
+msgid "Zoom out"
+msgstr "umanji"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:18
+msgid "Show or hide dimensions"
+msgstr "prikaži ili sakrij dimenzije"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:19
+msgid "Show or hide tool path"
+msgstr "prikaži ili sakrij putanju alata"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:20
+msgid "clear plot"
+msgstr "očisti ekran"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:21
 msgid "Preview"
@@ -899,90 +899,10 @@ msgid "Shows the code to execute"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:31
-msgid "Information over the tool in spindle"
-msgstr "podatak o alatu u vretenu"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:32
-msgid "Tool no."
-msgstr "Br. alata"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:33
-msgid "Diameter"
-msgstr "Prečnik"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:34
-msgid "offset z"
-msgstr "Z odstup."
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:35
-msgid "offset x"
-msgstr "X odstup."
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:37
-#, fuzzy
-msgid "Vc= 0.00"
-msgstr "0.000"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:38
-msgid "<b>Tool information</b>"
-msgstr "<b>Podaci o alatu</b>"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:39
-msgid "G and M code information as well as speed and feed"
-msgstr "G i M - kod informacije, kao i brzine vretena i brzine pomeranja alata"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:40
-msgid "active_mcodes_label"
-msgstr "Aktivan M-kod"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:41
-msgid "active_gcodes_label"
-msgstr "Aktivan G-kod"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:42
-msgid "<b>G-Code</b>"
-msgstr "<b>G-kod</b>"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:43
-msgid "<b>Cooling</b>"
-msgstr "<b>Hlađenje</b>"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:44
-msgid "<b>Spindle [rpm]</b>"
-msgstr "<b>Vreteno [o/min]</b>"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:45
-msgid "Vel."
-msgstr "Brz."
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:46
-msgid "Displays the current velocity"
-msgstr "Prikazuje trenutnu brzinu"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:47
-#, fuzzy
-msgid "<b>Rapid Override</b>"
-msgstr "<b>Brz. pomeranja alata [%]</b>"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:48
-#, fuzzy
-msgid "Displays the programmed feed rate"
-msgstr "Prikazuje programiranu brzinu kretanja alata"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:50
-msgid "reset feed override to 100 %"
-msgstr "vrati brzinu kretanja alata na 100 %"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:51
-#, fuzzy
-msgid "<b>Feed Override</b>"
-msgstr "<b>Brz. pomeranja alata [%]</b>"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:52
 msgid "Undo"
 msgstr "poništi"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:53
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:32
 msgid ""
 "Search\n"
 " back"
@@ -990,7 +910,7 @@ msgstr ""
 "  Traži\n"
 "nazad"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:55
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:34
 msgid ""
 "Search\n"
 "  fwd"
@@ -998,13 +918,13 @@ msgstr ""
 "  Traži\n"
 "napred"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:57
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
 msgid "Redo"
 msgstr ""
 "ponovo \n"
 "  uradi"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:58
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:37
 msgid ""
 "Replace\n"
 "  Text:"
@@ -1012,7 +932,7 @@ msgstr ""
 "Zameni\n"
 "  ispis:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:60
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:39
 msgid ""
 "Replace\n"
 "   All"
@@ -1020,7 +940,7 @@ msgstr ""
 "Zameni\n"
 "   sve"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:62
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:41
 msgid ""
 "Ignore\n"
 " Case"
@@ -1028,17 +948,97 @@ msgstr ""
 "Ignoriši \n"
 "događaj"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:64
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:43
 msgid "Replace"
 msgstr "Zameni"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:65
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:44
 msgid ""
 "Search\n"
 "  Text:"
 msgstr ""
 "  Traži\n"
 "ispis:"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:46
+msgid "Information over the tool in spindle"
+msgstr "podatak o alatu u vretenu"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:47
+msgid "Tool no."
+msgstr "Br. alata"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:48
+msgid "Diameter"
+msgstr "Prečnik"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:49
+msgid "offset z"
+msgstr "Z odstup."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:50
+msgid "offset x"
+msgstr "X odstup."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:52
+#, fuzzy
+msgid "Vc= 0.00"
+msgstr "0.000"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:53
+msgid "<b>Tool information</b>"
+msgstr "<b>Podaci o alatu</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:54
+msgid "G and M code information as well as speed and feed"
+msgstr "G i M - kod informacije, kao i brzine vretena i brzine pomeranja alata"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:55
+msgid "active_mcodes_label"
+msgstr "Aktivan M-kod"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:56
+msgid "active_gcodes_label"
+msgstr "Aktivan G-kod"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:57
+msgid "<b>G-Code</b>"
+msgstr "<b>G-kod</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:58
+msgid "<b>Cooling</b>"
+msgstr "<b>Hlađenje</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:59
+msgid "<b>Spindle [rpm]</b>"
+msgstr "<b>Vreteno [o/min]</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:60
+msgid "Vel."
+msgstr "Brz."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:61
+msgid "Displays the current velocity"
+msgstr "Prikazuje trenutnu brzinu"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:62
+#, fuzzy
+msgid "<b>Rapid Override</b>"
+msgstr "<b>Brz. pomeranja alata [%]</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:63
+#, fuzzy
+msgid "Displays the programmed feed rate"
+msgstr "Prikazuje programiranu brzinu kretanja alata"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:65
+msgid "reset feed override to 100 %"
+msgstr "vrati brzinu kretanja alata na 100 %"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:66
+#, fuzzy
+msgid "<b>Feed Override</b>"
+msgstr "<b>Brz. pomeranja alata [%]</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:67
 msgid "Main"
@@ -1146,48 +1146,55 @@ msgid "Unhomed color"
 msgstr "Boja \"raznulovanja\""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:92
-msgid "Size"
-msgstr "Veličina"
+msgid ""
+"The real font size is reduced to 0.75*FontSize when four DRO elements are "
+"present and to 0.65*FontSize for more than five elements."
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:93
+#, fuzzy
+msgid "Font size"
+msgstr "Slova"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:94
 msgid "Digits"
 msgstr "Decimale"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:94
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:95
 msgid ""
 "toggle DRO mode\n"
 "clicking on the DRO"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:96
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:97
 msgid "<b>DRO</b>"
 msgstr "<b>DRO</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:97
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:98
 msgid "Grid size"
 msgstr "Razmera"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:98
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:99
 msgid "Show DRO"
 msgstr "Prikaži DRO"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:99
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:100
 msgid "Show offsets"
 msgstr "prikaži odstupanja"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:100
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:101
 msgid "Show DTG"
 msgstr "Prikaži DTG"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:101
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:102
 msgid "<b>Mouse Button mode</b>"
 msgstr "<b>Izbor tastera na mišu</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:102
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:103
 msgid "<b>Preview</b>"
 msgstr "<b>Prikazivanja</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:103
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:104
 msgid ""
 "current\n"
 "   file"
@@ -1195,166 +1202,166 @@ msgstr ""
 " trenutna\n"
 " datoteka"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:105
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:106
 msgid "none"
 msgstr "nijedna"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:106
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:107
 msgid "<b>File to load on start</b>"
 msgstr "<b>Učitati datoteku na početku</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:107
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:108
 msgid "Select user dir"
 msgstr "Izaberi koris.dir."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:108
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:109
 msgid "<b>Select jump to dir</b>"
 msgstr "<b>Izaberi skok na direktorijum</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:109
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:110
 msgid "Themes"
 msgstr "Teme"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:110
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:111
 msgid "Warning Audio"
 msgstr "Zvuk upozorenja"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:111
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:112
 msgid "Alert Audio"
 msgstr "Zvučni alarm"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:112
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:113
 #, fuzzy
 msgid "Icon Theme"
 msgstr "Teme"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:113
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:114
 msgid "<b>Themes and sound</b>"
 msgstr "<b>Teme i zvuk</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:114
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:115
 msgid "Appearance"
 msgstr "Prikaz"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:115
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
 #, fuzzy
 msgid "Scale rapid override"
 msgstr "Faktor brzine vretena"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
 msgid "Scale jog velocity"
 msgstr "Faktor brzine \"vozakanja\""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:118
 msgid "Scale feed override"
 msgstr "Faktor brzine kretanja alata"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:118
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:119
 msgid "Scale spindle override"
 msgstr "Faktor brzine vretena"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:119
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:120
 msgid "<b>Hardware MPG Scale</b>"
 msgstr "<b>Hardver MPG faktori</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:120
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:121
 msgid "Use keyboard shortcuts"
 msgstr "Koristi prečice sa tastature"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:121
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:122
 msgid "<b>Keyboard shortcuts</b>"
 msgstr "<b>Prečice sa tastature</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:122
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:123
 msgid "Use unlock code"
 msgstr "Koristi šifru za zaključavanje"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:123
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:124
 msgid "Do not use unlock code"
 msgstr "Ne koristi šifru za zaključavanje"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:124
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:125
 msgid "Use hal pin to unlock"
 msgstr "Koristi HAL pin za otključavanje"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:125
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:126
 msgid "<b>Unlock settings</b>"
 msgstr "<b>Podešavanje otključavanja</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:126
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:127
 msgid "Starting RPM"
 msgstr "Početni broj obrtaja"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:127
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:128
 msgid "Spindle bar min"
 msgstr "Najmanji broj obrtaja"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:128
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:129
 msgid "Spindle bar max"
 msgstr "Najveći broj obrtaja"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:129
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:130
 msgid "<b>Spindle</b>"
 msgstr "<b>Vreteno</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:130
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:131
 msgid "Hide turtle Jog Button"
 msgstr "Sakrij taster za sporo vozakanje"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:131
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:132
 msgid "Turtle jog Factor"
 msgstr "Faktor sporog vozakanja"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:132
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:133
 msgid "<b>Turtle Jog</b>"
 msgstr "<b>Sporo Vozakanje</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:133
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:134
 msgid "Hardware"
 msgstr "Hardver"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:134
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:135
 msgid "Use auto tool measurement"
 msgstr "Koristi automatsko merenje alata"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:135
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:136
 msgid "Probe Height"
 msgstr "Visina Dodira"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:136
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:137
 msgid "0.000"
 msgstr "0.000"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:137
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:138
 msgid "Z Pos."
 msgstr "Z poz."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:138
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:139
 msgid "Max. Probe"
 msgstr "Maks. Dodir"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:139
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:140
 #, fuzzy
 msgid "<b>Probe Information</b>"
 msgstr "<b>Informacije o \"Dodiru\"</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:140
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:141
 msgid "Search Vel."
 msgstr ""
 "Traži\n"
 "brzinu"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:141
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:142
 msgid "Probe Vel."
 msgstr ""
 "Brzina \n"
 "dodirivanja"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:142
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:143
 msgid "<b>Probe velocitys</b>"
 msgstr "<b>Brzina \"dodirivanja\"</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:143
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:144
 #, fuzzy
 msgid ""
 "No valid configuration\n"
@@ -1369,15 +1376,15 @@ msgstr ""
 "WIKI i proveri kako\n"
 "konfigurisati podešavanja."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:148
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:149
 msgid "<b>Tool Measurement</b>"
 msgstr "<b>Merenje alata</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:149
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:150
 msgid "Reload Tool on Start"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:150
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:151
 msgid ""
 "If checked, the tool in spindle\n"
 "will be saved on each change\n"
@@ -1386,81 +1393,81 @@ msgid ""
 "length offset will be reloaded.\n"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:156
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:157
 msgid ""
 "You use NO_FORCE_HOMING,\n"
 "so the reload of a tool at start\n"
 "is not possible."
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:159
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:160
 #, fuzzy
 msgid "<b>Reload Tool</b>"
 msgstr "<b>Tastatura</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:160
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:161
 msgid "Do not use run from line"
 msgstr "Ne koristi pokretanje sa linije"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:161
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:162
 msgid "Use run from line"
 msgstr "Koristi pokretanje sa linije"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:162
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:163
 msgid "<b>Run from line</b>"
 msgstr "<b>Pokreni sa linije</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:163
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:164
 msgid "Use frames"
 msgstr "Koristi konture"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:164
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:165
 msgid ""
 "If checked, the messages\n"
 "will be in a frame."
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:166
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:167
 msgid "Font"
 msgstr "Slova"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:167
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:168
 #, fuzzy
 msgid "Max. messages"
 msgstr "Poruka"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:168
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:169
 msgid "The font to use"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:169
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:170
 msgid "The maximum messages you want to be shown\t"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:170
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:171
 #, fuzzy
 msgid "The width of the messages"
 msgstr "Izaberi alat za zamenu"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:171
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:172
 msgid "X-position in pixel from top left corner of the screen"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:172
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:173
 msgid "Y-position in pixel from top left corner of the screen"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:173
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:174
 msgid "Launch test message"
 msgstr "Prikaži test poruku"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:174
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:175
 msgid ""
 "Push here to launch a test message\n"
 "to test your settings."
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:176
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:177
 msgid ""
 "<b>      gmoccapy message\n"
 " behavior and appearance </b>"
@@ -1468,7 +1475,7 @@ msgstr ""
 "<b>      gmoccapy poruka\n"
 " ponašanje i izgled </b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:178
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:179
 msgid ""
 "Advanced\n"
 " Settings"
@@ -1476,111 +1483,111 @@ msgstr ""
 "Napredna \n"
 "podešavanja"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:180
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:181
 msgid "Settings"
 msgstr "Podešavanja"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:181
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:182
 msgid "User tab 1"
 msgstr "Korisnikov tabulator 1"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:182
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:183
 msgid "User tabs"
 msgstr "Korisnikovi tabulatori"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:183
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:184
 #, fuzzy
 msgid ""
 "Estop the machine\n"
 "[F1]"
 msgstr "Nužno STOP"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:185
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:186
 #, fuzzy
 msgid ""
 "Turn the machine on/off\n"
 "[F2]"
 msgstr "uključi / isključi mašinu"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:187
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:188
 #, fuzzy
 msgid ""
 "enter manual mode to jog axis by hand or touch off\n"
 "[F3]"
 msgstr "ulaz u \"Manuelni mod\" za \"vozakanje\" osa ručno ili preko tastature"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:189
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:190
 #, fuzzy
 msgid ""
 "enter MDI mode to launch G-code commands\n"
 "[F5]"
 msgstr "ulaz u \"MDI mod\" za izvršenje G-kod naredbi"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:191
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:192
 msgid "enter auto mode to run programs"
 msgstr "ulaz u \"Automatski mod\" za izvršenje programa"
-
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:192
-msgid "Enter the settings page, the default code is \"123\""
-msgstr "Uđi na stranicu \"Podešavanje\", podrazumevani kod je \"123\""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:193
 msgid "show user tabs"
 msgstr "prikaži korisnikove tabulatore"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:194
+msgid "Enter the settings page, the default code is \"123\""
+msgstr "Uđi na stranicu \"Podešavanje\", podrazumevani kod je \"123\""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:195
 msgid "open homing button list"
 msgstr "otvori listu tastera za \"nulovanje\" osa"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:195
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:196
 msgid "open touch off button list"
 msgstr "otvori listu tastera \"za dodirivanje\" obradka"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:196
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:197
 msgid "Open the tooleditor page"
 msgstr "otvori stranicu za uređivanje alata"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:197
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:198
 msgid ""
 "World\n"
 "Mode"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:199
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:200
 msgid ""
 "Switch motion mode between Joint and World mode\n"
 "F12 or $ key does the same"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:201
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:202
 msgid "make the preview as large as possible"
 msgstr "povećaj prikaz po celom ekranu"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:202
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:203
 msgid "Close gmoccapy / leave the program"
 msgstr "zatvori i napusti program"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:203
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:204
 msgid "Load a new program"
 msgstr "Učitaj novi program"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:204
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:205
 msgid "Run the loaded program"
 msgstr "pokreni učitani program"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:205
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:206
 msgid "Stop the running program"
 msgstr "zaustavi pokrenuti program"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:206
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:207
 msgid "Pause the running program"
 msgstr "Pauziraj program"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:207
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:208
 msgid "Run the  loaded program step by step"
 msgstr "pokreni učitani program korak po korak"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:208
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:209
 #, fuzzy
 msgid ""
 "run the program from a certain line, attention, that is dangerous, because "
@@ -1589,7 +1596,7 @@ msgstr ""
 "pokretanje programa sa određene linije, pažnja, opasno je, jer prethodne "
 "linije neće da budu proveravane!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:209
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:210
 msgid ""
 "Machine or not the optional blocks of the program. If the button is pressed, "
 "the optional blocks will not be machined. The button will indicate this by a "
@@ -1598,142 +1605,142 @@ msgstr ""
 "Obraditi ili ne, opcione delove programa. Opcioni delovi neće da budu "
 "obrađeni ukoliko je taster pritisnut. Taster će imati žutu pozadinu."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:210
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:211
 msgid "Edit the loaded program"
 msgstr "uredi učitani program"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:211
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:212
 msgid "delete MDI history"
 msgstr "izbriši MDI listu"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:212
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:213
 #, fuzzy
 msgid ""
 "Delete\n"
 "MDI history"
 msgstr "izbriši MDI listu"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:214
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:215
 msgid "Cl.-ladder"
 msgstr "Cl.-ladder"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:215
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:216
 msgid "Open classicladder"
 msgstr "otvori Classicladder"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:216
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:217
 msgid "Hal-Scope"
 msgstr "Hal-Scope"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:217
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:218
 msgid "launch hal scope"
 msgstr "pokreni Hal Scope"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:218
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:219
 msgid "Status"
 msgstr "Status"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:219
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:220
 msgid "launch linuxcnc status"
 msgstr "pokreni Linuxcnc status"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:220
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:221
 msgid "Hal Meter"
 msgstr "Hal Metar"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:221
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:222
 msgid "launch hal meter"
 msgstr "pokreni Hal Metar"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:222
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:223
 msgid "Calibration"
 msgstr "Kalibracija"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:223
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:224
 msgid "launch calibration"
 msgstr "pokreni kalibraciju"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:224
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:225
 msgid "Halshow"
 msgstr "Hal prozor"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:225
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:226
 msgid "opens the show hal tool"
 msgstr "Hal Show pokrenut"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:226
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:227
 msgid "save the file using the original name"
 msgstr "sačuvaj datoteku pod originalnim imenom"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:227
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:228
 msgid "save the file with a new name"
 msgstr "sačuvaj datoteku sa novim imenom"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:228
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:229
 msgid "clear the edit field and make a new file"
 msgstr "očisti polje za uređivanje i napravi novu datoteku"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:229
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:230
 msgid "Show or hide the virtual keyboard"
 msgstr "prikaži ili sakrij vurtualnu tastaturu"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:230
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:231
 msgid "Go back to main button list"
 msgstr "nazad na glavnu listu tastera"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:231
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:232
 msgid "Delete"
 msgstr "Izbriši"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:232
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:233
 msgid "delete selected tool or tools"
 msgstr "izbriši izabrani alat ili alate"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:233
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:234
 msgid "Add"
 msgstr "Dodaj"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:234
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:235
 msgid "add a new tool to tool table"
 msgstr "dodaj novi alat u tabeli alata"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:235
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:236
 msgid "Reload"
 msgstr ""
 "Ponovo\n"
 " učitaj"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:236
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:237
 msgid "reload tool table from file"
 msgstr "ponovo učitaj tabelu alata iz datoteke"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:237
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:238
 msgid "Apply"
 msgstr "Prihvati"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:238
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:239
 #, fuzzy
 msgid ""
 "apply the changes you made, G43 will be executed only if it is active G-code"
 msgstr "prihvati izmene, G43 će se izvršiti samo ako je G-kod aktivan"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:239
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:240
 msgid "Select a tool by number"
 msgstr "Izaberi alat po broju"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:240
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:241
 msgid "change tool with the command M61 Q?, no machine move will be done"
 msgstr "zameni alat komandom M61 Q?, nema pomeranja mašine"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:241
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:242
 msgid "change tool to the selected one"
 msgstr "zameni alat izabranim"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:242
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:243
 msgid "touch off the tool and set the value to the tool table"
 msgstr "dodirni alatom i podesi vrednost u tabeli alata"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:243
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:244
 #, fuzzy
 msgid ""
 "touchoff\n"
@@ -1742,7 +1749,7 @@ msgstr ""
 "dodir\n"
 " alat X"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:245
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:246
 #, fuzzy
 msgid ""
 "touchoff\n"
@@ -1751,44 +1758,47 @@ msgstr ""
 "dodir\n"
 " alat Z"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:247
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:248
 msgid "Move to your home directory"
 msgstr "Idi na tvoj \"matični\" direktorijum"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:248
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:249
 #, fuzzy
 msgid "Move to parent directory"
 msgstr "Idi na gornji direktorijum"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:249
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:250
 #, fuzzy
 msgid "Select the previous file"
 msgstr "Izaberi prethodnu datoteku"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:250
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:251
 msgid "Select the next file"
 msgstr "Izaberi sledeću datoteku"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:251
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:252
 msgid "Jump to user defined directory"
 msgstr "Skoči na korisnikov direktorijum"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:252
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:253
 msgid "select the highlighted file and return the path"
 msgstr "izaberi naznačenu datoteku i vrati putanju"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:253
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:254
 msgid "Close without returning a file path"
 msgstr "zatvori bez vraćanja putanje datoteke"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:254
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:255
 msgid "Load File"
 msgstr "Učitaj datoteku"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:255
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:256
 #, fuzzy
 msgid "home joints"
 msgstr "\"nulovanje\" x-ose"
+
+#~ msgid "Size"
+#~ msgstr "Veličina"
 
 #~ msgid "conversion error"
 #~ msgstr "greška u pretvaranju"
