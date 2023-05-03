@@ -40,13 +40,14 @@ details.
 image::images/pncconf-splash.png["PnCconf Configuration Wizard"]
 
 == Create or Edit
+image::images/pncconf-create.png["PnCconf Create or Edit"]
 
 This allows you to select a previously saved configuration or create a new one.
 If you pick 'Modify a configuration' and then press 'Next' a file selection box
 will show. PnCconf preselects your last saved file. Choose the config you
 wish to edit. If you made any changes to the main HAL or INI files *PnCconf will
 over write* those files and those changes will be lost. Some files will not be
-over written and PnCconf places a note in those files. It also allows you to
+over written (such as custom.hal, custom_gvcp.hal, and custom_postgui.hal) and PnCconf places a note in those files. It also allows you to
 select desktop shortcut / launcher options. A desktop shortcut will place a
 folder icon on the desktop that points to your new configuration files.
 Otherwise you would have to look in your home folder under linuxcnc/configs.
@@ -54,6 +55,8 @@ Otherwise you would have to look in your home folder under linuxcnc/configs.
 A Desktop launcher will add an icon to the desktop for starting your config
 directly. You can also launch it from the main menu by using the Configuration
 Selector 'LinuxCNC' found in CNC menu and selecting your config name.
+
+You can also select 'Use INI substitution for Mesa board names.' and 'Show Advanced option Pages', which make additional settings and pages available as you proceed through the configuration process. These include making PID settings available in the motor/encoder section, and aditional configuration pages such as 'External Controls', 'Options', and 'Real Time'.
 
 == Basic Machine Information
 
