@@ -40,7 +40,7 @@ details.
 image::images/pncconf-splash.png["PnCconf Configuration Wizard"]
 
 == Create or Edit
-# insert attached image here image::images/pncconf-create.png["PnCconf Create or Edit"]
+insert attached image here #image::images/pncconf-create.png["PnCconf Create or Edit"]
 
 This allows you to select a previously saved configuration or create a new one.
 If you pick 'Modify a configuration' and then press 'Next' a file selection box
