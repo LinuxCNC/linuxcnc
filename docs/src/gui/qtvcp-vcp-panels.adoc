@@ -305,4 +305,75 @@ start
 <1> In this case we load `qtvcp` using *`-Wn`* which waits for the panel to finish loading before continuing to run the next HAL command. +
     This is to _ensure that the panel created HAL pins are actually done_ in case they are used in the rest of the file.
 
+== Embedding QtVCP Virtual Control Panels into QtVCP Screens
+Qtvcp panels can be embedded into most Qtvcp screens and avoids problems such as focus transferring that can be a problem in non-native embedding.
+
+=== Embedding Commands
+A typical screen such as QtDragon will search the INI file under the heading [DISPLAY] for commands to embed a panel.
+
+[source,{ini}]
+----
+[DISPLAY]
+EMBED_TAB_NAME=Embedding demo
+EMBED_TAB_COMMAND=qtvcp simple_hal
+EMBED_TAB_LOCATION=tabWidget_utilities
+----
+
+*'EMBED_TAB_NAME'*:: will typically be the title of the tab.
+*'EMBED_TAB_LOCATION'*:: will be specific to the screen and specifies the tabWidget or stackedWidget to embed into.
+*'EMBED_TAB_COMMAND'*:: is the command used to invoke loading of the panel. For native embedded panels the first word will always be 'qtvcp', the second will be the panel to load. You cannot currently add any switches to the command line. The panel will follow the debugging mode setting of the main screen.
+
+=== Location of builtin Panels
+There are panels available that are included with linuxcnc. To see a list open a terminal and type 'qtvcp' and press return. +
+You will get a help printout and a list of builtin screen and panels. +
+Pick any of the names from the panel list and add that to the COMMAND entry after 'qtvcp'. +
+The builtin panel search path is 'share/qtvcp/panels/PANELNAME'. +
+Run-In-Place and installed versions of linuxcnc have these in different locations on the system.
+
+=== Location of Custom Panels
+Custom panels can be embedded too -either a modified builtin panel or a new user-built one. +
+When loading panels, QtVCP looks in the configuration folders path for 'qtvcp/panels/PANELNAME/PANELNAME.ui'. +
+'PANNELNAME' being any valid string with no spaces. If no path is found there, then looks in the builtin file path. +
+QtVCP will do the same process for the optional handler file: 'qtvcp/panels/PANELNAME/PANELNAME_handler.py'
+
+=== Handler Programming Tips
+In a screen handler file, the reference used for the window is 'self.w'. +
+In QtVCP panels, that reference will refers to the panel's window. +
+To reference the main window use 'self.w.MAIN'
+If your panel is to be able to run independently and embedded, you must trap errors from referencing objects not available.
+(ie main screen objects are not available in an independent panel.)
+
+eg. This would use the panels preference file if there is one.
+[source,{hal}]
+----
+try:
+    belt_en = self.w.PREFS_.getpref('Front_Belt_enabled', 1, int, 'SPINDLE_EXTRAS')
+exception:
+    belt_en = 1
+----
+
+This would use the main screen preference file if there is one.
+[source,{hal}]
+----
+try:
+    belt_en = self.w.MAIN.PREFS_.getpref('Front_Belt_enabled', 1, int, 'SPINDLE_EXTRAS')
+exception:
+    belt_en = 1
+----
+
+=== Designer Widget Tips
+
+When using python command option in Action Button widgets of an embedded panel:
+
+*`INSTANCE`*::
+  refers to the panel window 
+  E.g., `INSTANCE.my_panel_handler_function_call(True)`
+
+*'MAIN_INSTANCE'*::
+  refers to the main screen window.
+  E.g., `INSTANCE.my_main_screen_handler_function_call(True)`
+
+If the panel is not embedded, both refer to the panel window. +
+
+
 // vim: set syntax=asciidoc:
