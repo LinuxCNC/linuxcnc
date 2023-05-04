@@ -447,6 +447,7 @@ You must also set the MAX_SPINDLE_POWER in the INI.
 
 [source,{hal}]
 ----
+qtdragon.spindle-modbus-connection
 qtdragon.spindle-modbus-errors
 qtdragon.spindle-amps
 qtdragon.spindle-fault
@@ -1230,6 +1231,18 @@ qproperty-styleFont4: "Times,15,-1,5,90,0,0,1,1,0";
 qproperty-styleFont5: "Times,15,-1,5,90,0,0,1,1,0";
 qproperty-styleFont6: "Times,15,-1,5,90,0,0,1,1,0";
 qproperty-styleFont7: "Times,15,-1,5,90,0,0,1,1,0";
+}
+----
+
+To have the manual spindle buttons also incrementally increase/decrease speed:
+
+[source,{ini}]
+----
+#action_spindle_fwd{
+    qproperty-spindle_up_action: true;
+}
+#action_spindle_rev{
+    qproperty-spindle_down_action: true;
 }
 ----
 

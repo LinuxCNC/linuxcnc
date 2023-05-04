@@ -253,6 +253,8 @@ class HandlerClass:
         pin.value_changed.connect(self.spindle_fault_changed)
         pin = QHAL.newpin("spindle-modbus-errors", QHAL.HAL_U32, QHAL.HAL_IN)
         pin.value_changed.connect(self.mb_errors_changed)
+        pin = QHAL.newpin("spindle-modbus-connection", QHAL.HAL_U32, QHAL.HAL_IN)
+        pin.value_changed.connect(self.mb_connection_changed)
         QHAL.newpin("spindle-inhibit", QHAL.HAL_BIT, QHAL.HAL_OUT)
         # external offset control pins
         QHAL.newpin("eoffset-enable", QHAL.HAL_BIT, QHAL.HAL_OUT)
@@ -469,6 +471,12 @@ class HandlerClass:
     def mb_errors_changed(self, data):
         errors = self.h['spindle-modbus-errors']
         self.w.lbl_mb_errors.setText(str(errors))
+
+    def mb_connection_changed(self, data):
+        if data:
+            self.w.lbl_mb_errors.setStyleSheet('')
+        else:
+            self.w.lbl_mb_errors.setStyleSheet('''background-color:rgb(202, 0, 0);''')
 
     def dialog_return(self, w, message):
         rtn = message.get('RETURN')
