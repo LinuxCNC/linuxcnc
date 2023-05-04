@@ -1509,10 +1509,6 @@ The following modules are built in:
 `emccanon`::
   Exposes most calls of  `src/emc/task/emccanon.cc`.
 
-`emctask`::
-  Exposes the `emcStatus` class instance. See `src/emc/task/taskmodule.cc`.
-  Not present when using the `gcode` module used for user interfaces - only present in the milltask instance of the interpreter.
-
 [[remap:adding-predefined-named-parameters]]
 == Adding Predefined Named Parameters
 

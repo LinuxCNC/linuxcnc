@@ -1,7 +1,7 @@
 TARGETS += ../bin/rs274
 #  builtin_modules.cc
 SAISRCS := $(addprefix emc/sai/, saicanon.cc driver.cc dummyemcstat.cc) \
-	 emc/task/taskmodule.cc emc/task/taskclass.cc
+	 emc/task/taskclass.cc
 USERSRCS += $(SAISRCS)
 
 INCLUDES += emc/sai

@@ -19,11 +19,8 @@ MILLTASKSRCS := \
 	emc/task/taskintf.cc \
 	emc/motion/dbuf.c \
 	emc/motion/stashf.c \
-	emc/task/taskmodule.cc \
 	emc/task/taskclass.cc \
 	emc/task/backtrace.cc \
-
-$(call TOOBJSDEPS, emc/task/taskmodule.cc): EXTRAFLAGS += $(SILENCE_BOOST_INTERNAL_DIAGNOSTICS_FLAGS)
 
 USERSRCS += $(MILLTASKSRCS)
 
