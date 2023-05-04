@@ -84,9 +84,18 @@ class LinuxCNC2MQTT():
     def update_mqtt(self):
         "Run the endless loop fetching pin data and sending it to MQTT."
         running = True
+        missing = {}
         while hal.component_exists('halui') and running:
             data = {}
             if self.hal['enable']:
+                for key in self.keys:
+                    try:
+                         data[key] = hal.get_value(key)
+                    except RuntimeError as e:
+                        # Only print warning once
+                        if key not in missing:
+                            print(f"warning: Missing pin {key} not sent to MQTT")
+                            missing[key] = True
                 data['mqtt-publisher.period'] = self.hal['period']
                 if not self.dryrun:
                     print(f"info: Publishing MQTT message ({self.mqtt_prefix}):", json.dumps(data))
@@ -107,6 +116,7 @@ mqtt-publisher [options] [keys=pin1,pin2,...]
     @staticmethod
     def main():
         from optparse import Option, OptionParser
+        keys={}
         options = [
             Option( '--dryrun', dest='dryrun', action='store_true',
                     help='Dryrun, only collect HAL pin values, do not send them to MQTT.'),
