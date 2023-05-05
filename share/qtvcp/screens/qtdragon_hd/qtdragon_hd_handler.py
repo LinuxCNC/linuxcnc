@@ -214,7 +214,7 @@ class HandlerClass:
         pin = QHAL.newpin("spindle-modbus-errors", QHAL.HAL_U32, QHAL.HAL_IN)
         pin.value_changed.connect(self.mb_errors_changed)
         QHAL.newpin("spindle-inhibit", QHAL.HAL_BIT, QHAL.HAL_OUT)
-        pin = QHAL.newpin("spindle-modbus-connection", QHAL.HAL_U32, QHAL.HAL_IN)
+        pin = QHAL.newpin("spindle-modbus-connection", QHAL.HAL_BIT, QHAL.HAL_IN)
         pin.value_changed.connect(self.mb_connection_changed)
 
         # external offset control pins

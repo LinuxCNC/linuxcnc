@@ -371,7 +371,7 @@ When using python command option in Action Button widgets of an embedded panel:
 
 *'MAIN_INSTANCE'*::
   refers to the main screen window.
-  E.g., `INSTANCE.my_main_screen_handler_function_call(True)`
+  E.g., `MAIN_INSTANCE.my_main_screen_handler_function_call(True)`
 
 If the panel is not embedded, both refer to the panel window. +
 
