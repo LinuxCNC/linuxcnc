@@ -1,0 +1,734 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1020</width>
+    <height>620</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="1">
+     <widget class="QGroupBox" name="groupBox">
+      <property name="title">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="checkable">
+       <bool>false</bool>
+      </property>
+      <widget class="PushButton" name="pushbutton">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>490</y>
+         <width>341</width>
+         <height>37</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>VFD Error Reset</string>
+       </property>
+       <property name="pin_name" stdset="0">
+        <string>vfd-reset</string>
+       </property>
+      </widget>
+      <widget class="QWidget" name="gridLayoutWidget_2">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>230</y>
+         <width>341</width>
+         <height>241</height>
+        </rect>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_6">
+        <item row="4" column="2">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Total Time on</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="4">
+         <widget class="LED" name="led">
+          <property name="layoutDirection">
+           <enum>Qt::RightToLeft</enum>
+          </property>
+          <property name="pin_name" stdset="0">
+           <string>RS485-connected</string>
+          </property>
+          <property name="diameter">
+           <number>30</number>
+          </property>
+          <property name="color">
+           <color>
+            <red>0</red>
+            <green>255</green>
+            <blue>0</blue>
+           </color>
+          </property>
+          <property name="currentstate" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="4">
+         <widget class="HALLabel" name="vfdfrequency_2">
+          <property name="lineWidth">
+           <number>-11</number>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="pin_name" stdset="0">
+           <string>vfdfrequency</string>
+          </property>
+          <property name="s32_pin_type" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="float_pin_type" stdset="0">
+           <bool>true</bool>
+          </property>
+          <property name="use_multi_label" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="textTemplate" stdset="0">
+           <string>%0.2f</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Spindle Time On</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="3" column="3">
+         <spacer name="verticalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="3" column="2">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Motor Torque</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="label_6">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>RS485 Spindle</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="3">
+         <spacer name="verticalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="3" column="4">
+         <widget class="HALLabel" name="motortorque_2">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="pin_name" stdset="0">
+           <string>motortorque</string>
+          </property>
+          <property name="float_pin_type" stdset="0">
+           <bool>true</bool>
+          </property>
+          <property name="use_multi_label" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="textTemplate" stdset="0">
+           <string>%0.2f</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Is Connected</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="4">
+         <widget class="HALLabel" name="timeon_2">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="pin_name" stdset="0">
+           <string>timeon</string>
+          </property>
+          <property name="float_pin_type" stdset="0">
+           <bool>true</bool>
+          </property>
+          <property name="textTemplate" stdset="0">
+           <string>%0.2f</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="4">
+         <widget class="HALLabel" name="spindleontime_2">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="pin_name" stdset="0">
+           <string>spindleontime</string>
+          </property>
+          <property name="float_pin_type" stdset="0">
+           <bool>true</bool>
+          </property>
+          <property name="textTemplate" stdset="0">
+           <string>%0.2f</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>VFD Frequency</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="3">
+         <spacer name="verticalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="3">
+         <spacer name="verticalSpacer_16">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="2" column="3">
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="6" column="4">
+         <widget class="HALLabel" name="hallabel">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="pin_name" stdset="0">
+           <string>this-max-rpm</string>
+          </property>
+          <property name="s32_pin_type" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="float_pin_type" stdset="0">
+           <bool>true</bool>
+          </property>
+          <property name="textTemplate" stdset="0">
+           <string>%4.0f</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="3">
+         <spacer name="verticalSpacer_6">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="6" column="2">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Max Geared RPM</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="PushButton" name="belt_1">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>30</y>
+         <width>158</width>
+         <height>37</height>
+        </rect>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>0</width>
+         <height>100</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Belt 1</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="pin_name" stdset="0">
+        <string>belt-1</string>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="indicator_status_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="python_command_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="indicator_size" stdset="0">
+        <double>0.600000000000000</double>
+       </property>
+       <property name="true_python_cmd_string" stdset="0">
+        <string>INSTANCE.frontBeltSelected(1)</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroupFront</string>
+       </attribute>
+      </widget>
+      <widget class="PushButton" name="belt_2">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>80</y>
+         <width>158</width>
+         <height>37</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Belt 2</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="pin_name" stdset="0">
+        <string>belt-2</string>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="indicator_HAL_pin_option" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_status_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="python_command_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="indicator_size" stdset="0">
+        <double>0.600000000000000</double>
+       </property>
+       <property name="true_python_cmd_string" stdset="0">
+        <string>INSTANCE.frontBeltSelected(2)</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroupFront</string>
+       </attribute>
+      </widget>
+      <widget class="PushButton" name="belt_3">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>130</y>
+         <width>158</width>
+         <height>37</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Belt 3</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+       <property name="pin_name" stdset="0">
+        <string>belt-3</string>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="indicator_HAL_pin_option" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_status_option" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="python_command_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="indicator_size" stdset="0">
+        <double>0.600000000000000</double>
+       </property>
+       <property name="true_python_cmd_string" stdset="0">
+        <string>INSTANCE.frontBeltSelected(3)</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroupFront</string>
+       </attribute>
+      </widget>
+      <widget class="PushButton" name="belt_4">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>180</y>
+         <width>158</width>
+         <height>37</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Belt4</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="pin_name" stdset="0">
+        <string>belt-4</string>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="indicator_status_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="python_command_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="indicator_size" stdset="0">
+        <double>0.600000000000000</double>
+       </property>
+       <property name="true_python_cmd_string" stdset="0">
+        <string>INSTANCE.frontBeltSelected(4)</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroupFront</string>
+       </attribute>
+      </widget>
+      <widget class="PushButton" name="belt_5">
+       <property name="geometry">
+        <rect>
+         <x>210</x>
+         <y>30</y>
+         <width>158</width>
+         <height>37</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Belt 5</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="pin_name" stdset="0">
+        <string>belt-5</string>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="indicator_status_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="python_command_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="indicator_size" stdset="0">
+        <double>0.600000000000000</double>
+       </property>
+       <property name="true_python_cmd_string" stdset="0">
+        <string>INSTANCE.backBeltSelected(5)</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroupBack</string>
+       </attribute>
+      </widget>
+      <widget class="PushButton" name="belt_6">
+       <property name="geometry">
+        <rect>
+         <x>210</x>
+         <y>80</y>
+         <width>158</width>
+         <height>37</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Belt 6</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="pin_name" stdset="0">
+        <string>belt-6</string>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="indicator_status_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="python_command_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="indicator_size" stdset="0">
+        <double>0.600000000000000</double>
+       </property>
+       <property name="true_python_cmd_string" stdset="0">
+        <string>INSTANCE.backBeltSelected(6)</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroupBack</string>
+       </attribute>
+      </widget>
+      <widget class="PushButton" name="belt_7">
+       <property name="geometry">
+        <rect>
+         <x>210</x>
+         <y>130</y>
+         <width>158</width>
+         <height>37</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Belt 7</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="pin_name" stdset="0">
+        <string>belt-7</string>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="indicator_status_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="python_command_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="indicator_size" stdset="0">
+        <double>0.600000000000000</double>
+       </property>
+       <property name="true_python_cmd_string" stdset="0">
+        <string>INSTANCE.backBeltSelected(7)</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroupBack</string>
+       </attribute>
+      </widget>
+      <widget class="PushButton" name="belt_8">
+       <property name="geometry">
+        <rect>
+         <x>210</x>
+         <y>180</y>
+         <width>158</width>
+         <height>37</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Belt 8</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+       <property name="pin_name" stdset="0">
+        <string>belt-8</string>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="indicator_status_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="python_command_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="indicator_size" stdset="0">
+        <double>0.600000000000000</double>
+       </property>
+       <property name="true_python_cmd_string" stdset="0">
+        <string>INSTANCE.backBeltSelected(8)</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroupBack</string>
+       </attribute>
+      </widget>
+      <widget class="QLabel" name="label_13">
+       <property name="geometry">
+        <rect>
+         <x>210</x>
+         <y>0</y>
+         <width>158</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Back Belts</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_12">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>0</y>
+         <width>158</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Front Belts</string>
+       </property>
+      </widget>
+      <widget class="ScreenOptions" name="screen_options">
+       <property name="geometry">
+        <rect>
+         <x>380</x>
+         <y>500</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1020</width>
+     <height>27</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>IndicatedPushButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>IndicatedPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>LED</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.led_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>HALLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.hal_label</header>
+  </customwidget>
+  <customwidget>
+   <class>ScreenOptions</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.screen_options</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+ <buttongroups>
+  <buttongroup name="buttonGroupBack"/>
+  <buttongroup name="buttonGroupFront"/>
+ </buttongroups>
+</ui>
+

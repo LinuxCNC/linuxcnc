@@ -36,6 +36,67 @@ qtvcp copy
 .QtVCP `copy` Dialog - Screen, VCP Panel or QtVismach Code Copy Panel
 image::images/qtvcp_copy_dialog.png["QtVCP copy Dialog - Screen, Panel or Vismach Code Copy Panel",align="center"]
 
+[[sub:qtvcp:panels:spindle-belts]]
+=== spindle_belts
+
+This panel is designed to display additional RS485 VFD data and also to configure a 4 sheave, 2 belt spindle drive via a series of buttons.
+
+image::images/qtvcp_spindle_belts.png["QtVCP spindle_belts Panel - Spindle Belts VCP",align="center"]
+
+In addition, it is also a useful template to use for your custom panel because it includes:
+
+* Display of additional hal data
+* Buttons and button groups
+* Dynamic changes to button enabled/disabled state based on the state of other buttons
+* Saving data to the qtdragon.prefs file
+* Custom button to reset the VFD
+
+Modify this panel to suit your own requirements. Most common features are used. 
+The advantage of using panels is that it separates your custom display code from the qtdragon core code so upgrading the system will not break your customization.
+
+==== Additional Requirements
+
+* A spindle drive (for instance VFDMOD)
+* A custom component that scales the VFD frequency to obtain the desired spindle speed.
+* A belt driven spindle that uses two belts and an intermediate idler pulley much like a drill press.
+* Connect the input pins qtdragon.belts.<pin-name> in your postgui hal file.
+
+==== Function
+The belts are broken into two button groups, the front belts and the rear belts. These are numbered as per the plate on the machine. Buttons in a group are mutually exclusive. Eg. Only one can be selected in the group.
+
+Additionally, it's not possible to have both belts on the same level with this kind of mechanism because you can’t fit two belts to the one idler pulley sheave.. So if a belt is selected, its opposite button is disabled. Eg. if belt 3 is selected, belt 7 is disabled.
+
+==== Embedding commands
+Add these lines to the [DISPLAY] section in your .ini file +
+The example tab_location is for the QtDragon screen.
+----
+EMBED_TAB_NAME=Spindle Extras
+EMBED_TAB_COMMAND=qtvcp spindle_belts
+EMBED_TAB_LOCATION=tabWidget_utilities
+----
+
+Here is how to load `spindle_belt` from a HAL script:
+
+[source,{hal}]
+----
+loadusr qtvcp spindle_belts
+----
+
+==== Customization Hints
+
+Customizing the panel: +
+
+* Copy the files located in /user/share/qtvcp/qtdragon/panels/belts to:
+~/linuxcnc/configs/<my_configuration_folder>/qtvcp/panels/belts (you can use the copy dialog panel to do this)
+
+* Edit belts.ui with designer. 
+* Edit belts_handler.py with a text editor
+* Connect the relevant pins in a postgui.hal file
+* Make sure your postgui file is loaded by your .ini file.
+
+For information on the finer points, consult the qtvcp and qtdragon documentation
+The python handler file also provides a useful template for any custom panel.
+
 [[sub:qtvcp:panels:test-dial]]
 === `test_dial`
 
