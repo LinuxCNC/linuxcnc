@@ -65,7 +65,6 @@ static void decode(void *inst, long period);
 static void encode(void *inst, long period);
 
 int rtapi_app_main(void){
-    int num_chans;
     int i, j, v;
     int retval;
     char *token;
@@ -191,7 +190,6 @@ int rtapi_app_main(void){
 
 static void decode(void *v_inst, long period){;
     enum_inst_t *inst = v_inst;
-    static int once = 0;
     for (int i = 1; i <= inst->num_pins; i++){
         if (*(inst->hal[0].en) == *(inst->hal[i].en)){
            *(inst->hal[i].bit) = 1;
