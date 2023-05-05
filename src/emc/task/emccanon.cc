@@ -3238,7 +3238,6 @@ void MESSAGE(char *s)
     EMC_OPERATOR_DISPLAY operator_display_msg;
 
     flush_segments();
-    operator_display_msg.id = 0;
     strncpy(operator_display_msg.display, s, LINELEN);
     operator_display_msg.display[LINELEN - 1] = 0;
     interp_list.append(operator_display_msg);
@@ -3488,7 +3487,6 @@ void CANON_ERROR(const char *fmt, ...)
 
     flush_segments();
 
-    operator_error_msg.id = 0;
     if (fmt != NULL) {
 	va_start(ap, fmt);
 	vsnprintf(operator_error_msg.error,sizeof(operator_error_msg.error), fmt, ap);

@@ -68,7 +68,7 @@ static void print_interp_error(int retval)
     if (0 != interp_error_text_buf[0]) {
 	rcs_print_error("interp_error: %s\n", interp_error_text_buf);
     }
-    emcOperatorError(0, "%s", interp_error_text_buf);
+    emcOperatorError("%s", interp_error_text_buf);
     index = 0;
     if (emc_debug & EMC_DEBUG_INTERP) {
 	rcs_print("Interpreter stack: \t");
@@ -270,7 +270,7 @@ int emcTaskSetMode(EMC_TASK_MODE mode)
     int retval = 0;
 
     if (jogging_is_active()) {
-        emcOperatorError(0, "Ignoring task mode change while jogging");
+        emcOperatorError("Ignoring task mode change while jogging");
         return 0;
     }
 

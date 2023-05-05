@@ -44,8 +44,6 @@ class EMC_OPERATOR_ERROR:public RCS_CMD_MSG {
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
-
-    int id;
     char error[LINELEN];
 };
 
@@ -62,8 +60,6 @@ class EMC_OPERATOR_TEXT:public RCS_CMD_MSG {
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
-
-    int id;
     char text[LINELEN];
 };
 
@@ -84,8 +80,6 @@ class EMC_OPERATOR_DISPLAY:public RCS_CMD_MSG {
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
-
-    int id;
     char display[LINELEN];
 };
 

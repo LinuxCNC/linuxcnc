@@ -1450,7 +1450,6 @@ static PyObject *error_msg(pyCommandChannel *s,  PyObject *args ) {
 
     if(!PyArg_ParseTuple(args, "s", &m)) return NULL;
 
-    operator_error_msg.id = 0;
     strncpy(operator_error_msg.error, m, LINELEN);
     operator_error_msg.error[LINELEN - 1] = 0;
     emcSendCommand(s, operator_error_msg);
@@ -1465,7 +1464,6 @@ static PyObject *text_msg(pyCommandChannel *s,  PyObject *args ) {
 
     if(!PyArg_ParseTuple(args, "s", &m)) return NULL;
 
-    operator_text_msg.id = 0;
     strncpy(operator_text_msg.text, m, LINELEN);
     operator_text_msg.text[LINELEN - 1] = 0;
     emcSendCommand(s, operator_text_msg);
@@ -1480,7 +1478,6 @@ static PyObject *display_msg(pyCommandChannel *s,  PyObject *args ) {
 
     if(!PyArg_ParseTuple(args, "s", &m)) return NULL;
 
-    operator_display_msg.id = 0;
     strncpy(operator_display_msg.display, m, LINELEN);
     operator_display_msg.display[LINELEN - 1] = 0;
     emcSendCommand(s, operator_display_msg);

@@ -388,7 +388,7 @@ int return_int(const char *funcname, PyObject *retval)
     int status = python_plugin->plugin_status();
 
     if (status == PLUGIN_EXCEPTION) {
-	emcOperatorError(status,"return_int(%s): %s",
+	emcOperatorError("return_int(%s): %s",
 			 funcname, python_plugin->last_exception().c_str());
 	return -1;
     }
@@ -396,7 +396,7 @@ int return_int(const char *funcname, PyObject *retval)
     (PyLong_Check(retval))) {
     return PyLong_AsLong(retval);
     } else {
-	emcOperatorError(0, "return_int(%s): expected int return value, got '%s' (%s)",
+	emcOperatorError("return_int(%s): expected int return value, got '%s' (%s)",
 			 funcname,
             PyBytes_AsString(retval),
             Py_TYPE(retval)->tp_name);
@@ -416,7 +416,7 @@ int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg)
 	return return_int(PLUGIN_CALL, retval.ptr());
 
     } else {
-	emcOperatorError(0, "emcPluginCall: Python plugin not initialized");
+	emcOperatorError("emcPluginCall: Python plugin not initialized");
 	return -1;
     }
 }
