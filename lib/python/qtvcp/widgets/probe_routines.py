@@ -753,7 +753,7 @@ class ProbeRoutines():
     # End at Z_clearance above workpiece
     def probe_down(self):
         ACTION.CALL_MDI("G91")
-        c = "G38.2 Z-{} F{}".format(self.data_max_travel, self.data_search_vel)
+        c = "G38.2 Z-{} F{}".format(self.data_max_z_travel, self.data_search_vel)
         if self.CALL_MDI_WAIT(c, 30) == -1: return -1
         c = "G1 Z{} F{}".format(self.data_latch_return_dist, self.data_rapid_vel)
         if self.CALL_MDI_WAIT(c, 30) == -1: return -1

@@ -38,6 +38,7 @@ class ProbeSubprog(QObject, ProbeRoutines):
         self.parm_list = ['probe_diam',
                           'latch_return_dist',
                           'max_travel',
+                          'max_z_travel',
                           'search_vel',
                           'probe_vel',
                           'rapid_vel',
@@ -66,6 +67,7 @@ class ProbeSubprog(QObject, ProbeRoutines):
         self.data_probe_vel = 10.0
         self.data_rapid_vel = 10.0
         self.data_max_travel = 10.0
+        self.data_max_z_travel = 10.0
         self.data_side_edge_length = 1.0
         self.data_xy_clearance = 1.0
         self.data_z_clearance = 1.0

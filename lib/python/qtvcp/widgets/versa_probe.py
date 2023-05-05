@@ -65,7 +65,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.send_dict = {}
         # these parameters are sent to the subprogram
         self.parm_list = ['adj_x', 'adj_y', 'adj_z', 'adj_angle',
-                          'probe_diam', 'max_travel', 'latch_return_dist',
+                          'probe_diam', 'max_travel','max_z_travel', 'latch_return_dist',
                           'search_vel', 'probe_vel', 'rapid_vel',
                           'side_edge_length', 'tool_probe_height', 'tool_block_height',
                           'xy_clearance', 'z_clearance']
@@ -145,6 +145,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.input_probe_vel.installEventFilter(self)
         self.input_z_clearance.installEventFilter(self)
         self.input_max_travel.installEventFilter(self)
+        self.input_max_z_travel.installEventFilter(self)
         self.input_latch_return_dist.installEventFilter(self)
         self.input_probe_diam.installEventFilter(self)
         self.input_xy_clearance.installEventFilter(self)
@@ -162,6 +163,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.input_probe_vel.setText(str(self.PREFS_.getpref( "ps_probevel", 10.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_z_clearance.setText(str(self.PREFS_.getpref( "ps_z_clearance", 3.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_max_travel.setText(str(self.PREFS_.getpref( "ps_probe_max", 1.0, float, 'VERSA_PROBE_OPTIONS')) )
+            self.input_max_z_travel.setText(str(self.PREFS_.getpref( "ps_probe_max_z_travel", 1.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_latch_return_dist.setText(str(self.PREFS_.getpref( "ps_probe_latch", 0.5, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_probe_diam.setText(str(self.PREFS_.getpref( "ps_probe_diam", 2.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_xy_clearance.setText(str(self.PREFS_.getpref( "ps_xy_clearance", 5.0, float, 'VERSA_PROBE_OPTIONS')) )
@@ -202,6 +204,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.PREFS_.putpref( "ps_probevel", float(self.input_probe_vel.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_z_clearance", float(self.input_z_clearance.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probe_max", float(self.input_max_travel.text()), float, 'VERSA_PROBE_OPTIONS')
+            self.PREFS_.putpref( "ps_probe_max_z_travel", float(self.input_max_z_travel.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probe_latch", float(self.input_latch_return_dist.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probe_diam", float(self.input_probe_diam.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_xy_clearance", float(self.input_xy_clearance.text()), float, 'VERSA_PROBE_OPTIONS')
