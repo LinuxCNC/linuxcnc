@@ -141,9 +141,10 @@ Earlier versions of LinuxCNC had two different tool table formats for mills and 
 [[sub:tool-io]]
 === Tool IO(((Tool IO)))
 
-The non-realtime program specified by `[EMCIO]EMCIO = io` is conventionally used for tool changer management
-(and other io functions for enabling LinuxCNC and the control of coolant/lube hardware).
-The HAL pins used for tool management are prefixed with `iocontrol.0.`.
+The non-realtime program specified by *[EMCIO]EMCIO = io* is conventionally
+used for tool changer management (and other io functions for enabling
+LinuxCNC and the control of coolant hardware).  The HAL pins used for
+tool management are prefixed with *iocontrol.0.*.
 
 A G-code *T* command asserts the HAL output pin `iocontrol.0.tool-prepare`.
 The HAL input pin, `iocontrol.0.tool-prepared`, must be set by external HAL logic to complete tool preparation leading to a subsequent reset of the tool-prepare pin.

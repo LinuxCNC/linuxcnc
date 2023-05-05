@@ -138,12 +138,6 @@ $ man halui
 * 'halui.home-all' (bit, in) - pin for requesting all axis to home. This
   pin will only be there if HOME_SEQUENCE is set in the INI file.
 
-=== Lube
-
-* 'halui.lube.is-on' (bit, out) - indicates lube is on
-* 'halui.lube.off' (bit, in) - pin for requesting lube off
-* 'halui.lube.on' (bit, in) - pin for requesting lube on
-
 === Machine
 
 * 'halui.machine.units-per-mm' (float out) - pin  for  machine  units-per-mm

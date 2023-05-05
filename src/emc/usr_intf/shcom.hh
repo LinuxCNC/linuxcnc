@@ -111,8 +111,6 @@ extern int sendMistOn();
 extern int sendMistOff();
 extern int sendFloodOn();
 extern int sendFloodOff();
-extern int sendLubeOn();
-extern int sendLubeOff();
 extern int sendSpindleForward(int spindle);
 extern int sendSpindleReverse(int spindle);
 extern int sendSpindleOff(int spindle);

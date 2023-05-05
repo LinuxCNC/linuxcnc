@@ -58,7 +58,6 @@ int main(int argc, char **argv) {
     fprintf(stderr,"%8ld    EMC_TOOL_STAT\n",sizeof(EMC_TOOL_STAT));
     fprintf(stderr,"%8ld     EMC_COOLANT_STAT\n",sizeof(EMC_COOLANT_STAT));
     fprintf(stderr,"%8ld     EMC_AUX_STAT\n",sizeof(EMC_AUX_STAT));
-    fprintf(stderr,"%8ld     EMC_LUBE_STAT\n",sizeof(EMC_LUBE_STAT));
     fprintf(stderr,"%8ld   EMC_TASK_STAT\n",sizeof(EMC_TASK_STAT));
     fprintf(stderr,"%8ld   EMC_MOTION_STAT\n",sizeof(EMC_MOTION_STAT));
     fprintf(stderr,"%8ld     EMC_TRAJ_STAT\n",sizeof(EMC_TRAJ_STAT));

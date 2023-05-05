@@ -930,8 +930,6 @@ static int emcTaskPlan(void)
 	    case EMC_COOLANT_MIST_OFF_TYPE:
 	    case EMC_COOLANT_FLOOD_ON_TYPE:
 	    case EMC_COOLANT_FLOOD_OFF_TYPE:
-	    case EMC_LUBE_ON_TYPE:
-	    case EMC_LUBE_OFF_TYPE:
 	    case EMC_TASK_SET_MODE_TYPE:
 	    case EMC_TASK_SET_STATE_TYPE:
 	    case EMC_TASK_ABORT_TYPE:
@@ -1043,8 +1041,6 @@ static int emcTaskPlan(void)
 		case EMC_COOLANT_MIST_OFF_TYPE:
 		case EMC_COOLANT_FLOOD_ON_TYPE:
 		case EMC_COOLANT_FLOOD_OFF_TYPE:
-		case EMC_LUBE_ON_TYPE:
-		case EMC_LUBE_OFF_TYPE:
 		case EMC_TASK_SET_MODE_TYPE:
 		case EMC_TASK_SET_STATE_TYPE:
 		case EMC_TASK_ABORT_TYPE:
@@ -1156,8 +1152,6 @@ static int emcTaskPlan(void)
                 case EMC_COOLANT_MIST_OFF_TYPE:
                 case EMC_COOLANT_FLOOD_ON_TYPE:
                 case EMC_COOLANT_FLOOD_OFF_TYPE:
-                case EMC_LUBE_ON_TYPE:
-                case EMC_LUBE_OFF_TYPE:
 		    retval = emcTaskIssueCommand(emcCommand);
 		    return retval;
 		    break;
@@ -1220,8 +1214,6 @@ static int emcTaskPlan(void)
 		case EMC_COOLANT_MIST_OFF_TYPE:
 		case EMC_COOLANT_FLOOD_ON_TYPE:
 		case EMC_COOLANT_FLOOD_OFF_TYPE:
-		case EMC_LUBE_ON_TYPE:
-		case EMC_LUBE_OFF_TYPE:
 		case EMC_TASK_SET_MODE_TYPE:
 		case EMC_TASK_SET_STATE_TYPE:
 		case EMC_TASK_ABORT_TYPE:
@@ -1315,8 +1307,6 @@ static int emcTaskPlan(void)
                 case EMC_COOLANT_MIST_OFF_TYPE:
                 case EMC_COOLANT_FLOOD_ON_TYPE:
                 case EMC_COOLANT_FLOOD_OFF_TYPE:
-                case EMC_LUBE_ON_TYPE:
-                case EMC_LUBE_OFF_TYPE:
 		    retval = emcTaskIssueCommand(emcCommand);
 		    break;
 
@@ -1385,8 +1375,6 @@ static int emcTaskPlan(void)
 	    case EMC_COOLANT_MIST_OFF_TYPE:
 	    case EMC_COOLANT_FLOOD_ON_TYPE:
 	    case EMC_COOLANT_FLOOD_OFF_TYPE:
-	    case EMC_LUBE_ON_TYPE:
-	    case EMC_LUBE_OFF_TYPE:
 	    case EMC_TASK_SET_MODE_TYPE:
 	    case EMC_TASK_SET_STATE_TYPE:
 	    case EMC_TASK_PLAN_INIT_TYPE:
@@ -1541,8 +1529,6 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 	break;
 
     case EMC_TOOL_PREPARE_TYPE:
-    case EMC_LUBE_ON_TYPE:
-    case EMC_LUBE_OFF_TYPE:
 	return EMC_TASK_EXEC::WAITING_FOR_IO;
 	break;
 
@@ -2036,14 +2022,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = emcCoolantFloodOff();
 	break;
 
-    case EMC_LUBE_ON_TYPE:
-	retval = emcLubeOn();
-	break;
-
-    case EMC_LUBE_OFF_TYPE:
-	retval = emcLubeOff();
-	break;
-
     case EMC_TOOL_PREPARE_TYPE:
 	tool_prepare_msg = (EMC_TOOL_PREPARE *) cmd;
 	retval = emcToolPrepare(tool_prepare_msg->tool);
@@ -2451,8 +2429,6 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_COOLANT_MIST_OFF_TYPE:
     case EMC_COOLANT_FLOOD_ON_TYPE:
     case EMC_COOLANT_FLOOD_OFF_TYPE:
-    case EMC_LUBE_ON_TYPE:
-    case EMC_LUBE_OFF_TYPE:
 	return EMC_TASK_EXEC::DONE;
 	break;
 
@@ -3341,7 +3317,6 @@ int main(int argc, char *argv[])
     for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
     emcAuxEstopOn();
     emcTrajDisable();
-    emcLubeOff();
     emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP);
     emcJointUnhome(-2);
 
@@ -3397,9 +3372,6 @@ int main(int argc, char *argv[])
 	    }
 	    if (emcStatus->io.coolant.flood) {
 		emcCoolantFloodOff();
-	    }
-	    if (emcStatus->io.lube.on) {
-		emcLubeOff();
 	    }
 	    for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
 	    	if (emcStatus->motion.spindle[n].enabled) {

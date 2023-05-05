@@ -113,7 +113,7 @@ At the coarsest level, LinuxCNC is a
 hierarchy of three controllers: the task level command handler and program
 interpreter, the motion controller, and the discrete I/O controller. The
 discrete I/O controller is implemented as a hierarchy of controllers,
-in this case for spindle, coolant, and auxiliary (e.g., estop, lube)
+in this case for spindle, coolant, and auxiliary (e.g., estop)
 subsystems. The task controller coordinates the actions of the motion and
 discrete I/O controllers. Their actions are programmed in conventional
 numerical control "G and M code" programs, which are interpreted by
@@ -764,7 +764,7 @@ It interacts with external I/O using HAL pins.
 iocontrol.cc is loaded via the linuxcnc script before TASK is.
 There are currently two versions of iocontrol. The second version handles toolchange hardware errors.
 
-Currently ESTOP/Enable, coolant, lube, and tool changing are handled by
+Currently ESTOP/Enable, coolant, and tool changing are handled by
 iocontrol. These are relatively low speed events, high speed coordinated I/O is handled in motion.
 
 emctaskmain.cc sends I/O commands via taskclass.cc.

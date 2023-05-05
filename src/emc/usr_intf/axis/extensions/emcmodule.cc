@@ -501,10 +501,6 @@ static PyMemberDef Stat_members[] = {
 // EMC_AUX_STAT     io.aux
     {(char*)"estop", T_INT, O(io.aux.estop), READONLY},
 
-// EMC_LUBE_STAT    io.lube
-    {(char*)"lube", T_INT, O(io.lube.on), READONLY},
-    {(char*)"lube_level", T_INT, O(io.lube.level), READONLY},
-
     {(char*)"debug", T_INT, O(debug), READONLY},
     {NULL}
 };

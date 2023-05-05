@@ -117,8 +117,6 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
     EXPAND(emcCoolantMistOff)
     EXPAND(emcCoolantFloodOn)
     EXPAND(emcCoolantFloodOff)
-    EXPAND(emcLubeOn)
-    EXPAND(emcLubeOff)
     EXPAND1(emcIoSetDebug,int,debug)
 
     EXPAND1(emcToolPrepare, int, tool)
@@ -396,11 +394,6 @@ BOOST_PYTHON_MODULE(emctask) {
     class_ <EMC_COOLANT_STAT , boost::noncopyable>("EMC_COOLANT_STAT ",no_init)
 	.def_readwrite("mist", &EMC_COOLANT_STAT::mist )
 	.def_readwrite("flood", &EMC_COOLANT_STAT::flood )
-	;
-
-    class_ <EMC_LUBE_STAT, boost::noncopyable>("EMC_LUBE_STAT",no_init)
-	.def_readwrite("on", &EMC_LUBE_STAT::on )
-	.def_readwrite("level", &EMC_LUBE_STAT::level )
 	;
 
     class_ <EMC_MOTION_STAT, boost::noncopyable>("EMC_MOTION_STAT",no_init)

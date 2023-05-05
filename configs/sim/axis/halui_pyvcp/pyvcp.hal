@@ -17,14 +17,11 @@ net step                 pyvcp.program.step         halui.program.step
 
 net mist-on              pyvcp.mist.on              halui.mist.on
 net mist-off             pyvcp.mist.off             halui.mist.off
-net lube-on              pyvcp.lube.on              halui.lube.on
-net lube-off             pyvcp.lube.off             halui.lube.off
 net flood-on             pyvcp.flood.on             halui.flood.on
 net flood-off            pyvcp.flood.off            halui.flood.off
 
 net mist-is-on           pyvcp.mist.is-on           halui.mist.is-on
 net flood-is-on          pyvcp.flood.is-on          halui.flood.is-on
-net lube-is-on           pyvcp.lube.is-on           halui.lube.is-on
 
 net mode-manual          pyvcp.mode.manual          halui.mode.manual
 net mode-auto            pyvcp.mode.auto            halui.mode.auto  

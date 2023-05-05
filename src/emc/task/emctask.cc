@@ -321,7 +321,7 @@ int emcTaskSetState(EMC_TASK_STATE state)
     for (t = 0; t < emcStatus->motion.traj.spindles; t++)  emcSpindleAbort(t);
 	emcTrajDisable();
 	emcIoAbort(EMC_ABORT_TASK_STATE_OFF);
-	emcLubeOff();
+    emcCoolantFloodOff();//TODO: race here
 	emcTaskAbort();
     emcJointUnhome(-2); // only those joints which are volatile_home
 	emcAbortCleanup(EMC_ABORT_TASK_STATE_OFF);
@@ -331,13 +331,13 @@ int emcTaskSetState(EMC_TASK_STATE state)
     case EMC_TASK_STATE::ON:
 	// turn the machine servos on
 	emcTrajEnable();
-	emcLubeOn();
+    emcCoolantFloodOff();//TODO: race here
 	break;
 
     case EMC_TASK_STATE::ESTOP_RESET:
 	// reset the estop
 	emcAuxEstopOff();
-	emcLubeOff();
+	emcCoolantFloodOff();//TODO: race here
 	emcTaskAbort();
         emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP_RESET);
     for (t = 0; t < emcStatus->motion.traj.spindles; t++) emcSpindleAbort(t);
@@ -351,7 +351,7 @@ int emcTaskSetState(EMC_TASK_STATE state)
 	// go into estop-- do both IO estop and machine servos off
 	emcAuxEstopOn();
 	emcTrajDisable();
-	emcLubeOff();
+    emcCoolantFloodOff();//TODO: race here
 	emcTaskAbort();
         emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP);
 	for (t = 0; t < emcStatus->motion.traj.spindles; t++) emcSpindleAbort(t);

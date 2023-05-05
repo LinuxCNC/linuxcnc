@@ -55,7 +55,6 @@ SET_AXIS_POSITION_LIMITS axis=0, min=-40, max=0
 #     * Send Estop to IO (which we don't detect in motion-logger)
 #     * Disable all the amps
 #     * Disable Motion
-#     * Send Lube Off to IO (which we don't detect)
 #     * Abort Motion again, which aborts each Axis, and Motion, again
 #     * Abort IO, which we miss
 #     * Unhome VOLATILE_HOME joints
