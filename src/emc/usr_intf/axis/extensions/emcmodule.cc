@@ -43,6 +43,7 @@
 
 #include <epoxy/gl.h>
 #include <epoxy/glx.h>
+#include <algorithm>
 
 #define LOCAL_SPINDLE_FORWARD (1)
 #define LOCAL_SPINDLE_REVERSE (-1)
@@ -1808,16 +1809,13 @@ static void glvertex9(const double pt[9], const char *geometry) {
     glVertex3dv(p);
 }
 
-#define max(a,b) ((a) < (b) ? (b) : (a))
-#define max3(a,b,c) (max((a),max((b),(c))))
-
 static void line9(const double p1[9], const double p2[9], const char *geometry) {
     if(p1[3] != p2[3] || p1[4] != p2[4] || p1[5] != p2[5]) {
-        double dc = max3(
+        double dc = std::max({
             fabs(p2[3] - p1[3]),
             fabs(p2[4] - p1[4]),
-            fabs(p2[5] - p1[5]));
-        int st = (int)ceil(max(10, dc/10));
+            fabs(p2[5] - p1[5])});
+        int st = (int)ceil(std::max(10.0, dc/10));
         int i;
 
         for(i=1; i<=st; i++) {
@@ -1835,11 +1833,11 @@ static void line9(const double p1[9], const double p2[9], const char *geometry) 
 static void line9b(const double p1[9], const double p2[9], const char *geometry) {
     glvertex9(p1, geometry);
     if(p1[3] != p2[3] || p1[4] != p2[4] || p1[5] != p2[5]) {
-        double dc = max3(
+        double dc = std::max({
             fabs(p2[3] - p1[3]),
             fabs(p2[4] - p1[4]),
-            fabs(p2[5] - p1[5]));
-        int st = (int)ceil(max(10, dc/10));
+            fabs(p2[5] - p1[5])});
+        int st = (int)ceil(std::max(10.0, dc/10));
         int i;
 
         for(i=1; i<=st; i++) {
