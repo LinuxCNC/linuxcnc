@@ -491,7 +491,7 @@ class GlCanonDraw:
         self.trajcoordinates = "unknown"
         self.dro_in = "% 9.4f"
         self.dro_mm = "% 9.3f"
-        self.show_overlay = True
+        self.show_overlay = False
         self.enable_dro = True
         self.cone_basesize = .5
         self.show_small_origin = True
@@ -1486,6 +1486,7 @@ class GlCanonDraw:
 
         # allows showing/hiding overlay DRO readout
         if self.enable_dro:
+            self.show_overlay = True
             for string in thestring:
                 maxlen = max(maxlen, len(string))
                 glRasterPos2i(stringstart_xpos, ypos)
@@ -1523,6 +1524,8 @@ class GlCanonDraw:
                         self.show_icon(idx,limiticon)
 
                 ypos -= linespace
+        else:
+            self.show_overlay = False
 
         glDepthFunc(GL_LESS)
         glDepthMask(GL_TRUE)
