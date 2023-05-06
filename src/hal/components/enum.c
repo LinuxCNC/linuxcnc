@@ -100,7 +100,6 @@ int rtapi_app_main(void){
     for (i = 0; i < e.num_insts; i++){
         enum_inst_t *inst = &(e.insts[i]);
         char this[HAL_NAME_LEN];
-        char func[HAL_NAME_LEN];
 
         // Count the pins
         inst->num_pins = 0;
@@ -165,11 +164,9 @@ int rtapi_app_main(void){
             }
         }
         if (inst->dir == HAL_OUT){
-            retval = rtapi_snprintf(func, HAL_NAME_LEN, "%s.decode", this);
-            hal_export_funct(func, decode, inst, 0, 0, comp_id);
+            hal_export_funct(this, decode, inst, 0, 0, comp_id);
         } else {
-            retval = rtapi_snprintf(func, HAL_NAME_LEN, "%s.encode", this);
-            hal_export_funct(func, encode, inst, 0, 0, comp_id);
+            hal_export_funct(this, encode, inst, 0, 0, comp_id);
         }
         if (retval < 0){
             rtapi_print_msg(RTAPI_MSG_ERR, "Failed to export functions\n");
