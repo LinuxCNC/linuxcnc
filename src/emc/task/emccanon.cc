@@ -63,6 +63,7 @@
 #include <rtapi_string.h>
 #include "modal_state.hh"
 #include "tooldata.hh"
+#include <algorithm>
 
 //#define EMCCANON_DEBUG
 
@@ -96,30 +97,6 @@ void UPDATE_TAG(StateTag tag) {
     canon_debug("--Got UPDATE_TAG: %d--\n",tag.fields[GM_FIELD_LINE_NUMBER]);
     _tag = tag;
 }
-
-#ifndef MIN
-#define MIN(a,b) ((a)<(b)?(a):(b))
-#endif
-
-#ifndef MIN3
-#define MIN3(a,b,c) (MIN(MIN((a),(b)),(c)))
-#endif
-
-#ifndef MAX
-#define MAX(a,b) ((a)>(b)?(a):(b))
-#endif
-
-#ifndef MAX3
-#define MAX3(a,b,c) (MAX(MAX((a),(b)),(c)))
-#endif
-
-#ifndef MAX4
-#define MAX4(a,b,c,d) (MAX(MAX((a),(b)),MAX((c),(d))))
-#endif
-
-#ifndef MAX9
-#define MAX9(a,b,c,d,e,f,g,h,i) (MAX3((MAX3(a,b,c)),(MAX3(d,e,f)),(MAX3(g,h,i))))
-#endif
 
 /* macros for converting internal (mm/deg) units to external units */
 #define TO_EXT_LEN(mm) ((mm) * GET_EXTERNAL_LENGTH_UNITS())
@@ -678,8 +655,8 @@ static AccelData getStraightAcceleration(double x, double y, double z,
 	tu = du? (du / FROM_EXT_LEN(emcAxisGetMaxAcceleration(6))): 0.0;
 	tv = dv? (dv / FROM_EXT_LEN(emcAxisGetMaxAcceleration(7))): 0.0;
 	tw = dw? (dw / FROM_EXT_LEN(emcAxisGetMaxAcceleration(8))): 0.0;
-        out.tmax = MAX3(tx, ty ,tz);
-        out.tmax = MAX4(tu, tv, tw, out.tmax);
+        out.tmax = std::max({tx, ty ,tz});
+        out.tmax = std::max({tu, tv, tw, out.tmax});
 
         if(dx || dy || dz)
             out.dtot = sqrt(dx * dx + dy * dy + dz * dz);
@@ -695,7 +672,7 @@ static AccelData getStraightAcceleration(double x, double y, double z,
 	ta = da? (da / FROM_EXT_ANG(emcAxisGetMaxAcceleration(3))): 0.0;
 	tb = db? (db / FROM_EXT_ANG(emcAxisGetMaxAcceleration(4))): 0.0;
 	tc = dc? (dc / FROM_EXT_ANG(emcAxisGetMaxAcceleration(5))): 0.0;
-        out.tmax = MAX3(ta, tb, tc);
+        out.tmax = std::max({ta, tb, tc});
 
 	out.dtot = sqrt(da * da + db * db + dc * dc);
 	if (out.tmax > 0.0) {
@@ -713,9 +690,9 @@ static AccelData getStraightAcceleration(double x, double y, double z,
 	tu = du? (du / FROM_EXT_LEN(emcAxisGetMaxAcceleration(6))): 0.0;
 	tv = dv? (dv / FROM_EXT_LEN(emcAxisGetMaxAcceleration(7))): 0.0;
 	tw = dw? (dw / FROM_EXT_LEN(emcAxisGetMaxAcceleration(8))): 0.0;
-        out.tmax = MAX9(tx, ty, tz,
+        out.tmax = std::max({tx, ty, tz,
                     ta, tb, tc,
-                    tu, tv, tw);
+                    tu, tv, tw});
 
         if(debug_velacc)
             printf("getStraightAcceleration t^2 tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n",
@@ -807,8 +784,8 @@ static VelData getStraightVelocity(double x, double y, double z,
 	tu = du? fabs(du / FROM_EXT_LEN(emcAxisGetMaxVelocity(6))): 0.0;
 	tv = dv? fabs(dv / FROM_EXT_LEN(emcAxisGetMaxVelocity(7))): 0.0;
 	tw = dw? fabs(dw / FROM_EXT_LEN(emcAxisGetMaxVelocity(8))): 0.0;
-        out.tmax = MAX3(tx, ty ,tz);
-        out.tmax = MAX4(tu, tv, tw, out.tmax);
+        out.tmax = std::max({tx, ty ,tz});
+        out.tmax = std::max({tu, tv, tw, out.tmax});
 
         if(dx || dy || dz)
             out.dtot = sqrt(dx * dx + dy * dy + dz * dz);
@@ -826,7 +803,7 @@ static VelData getStraightVelocity(double x, double y, double z,
 	ta = da? fabs(da / FROM_EXT_ANG(emcAxisGetMaxVelocity(3))): 0.0;
 	tb = db? fabs(db / FROM_EXT_ANG(emcAxisGetMaxVelocity(4))): 0.0;
 	tc = dc? fabs(dc / FROM_EXT_ANG(emcAxisGetMaxVelocity(5))): 0.0;
-        out.tmax = MAX3(ta, tb, tc);
+        out.tmax = std::max({ta, tb, tc});
 
 	out.dtot = sqrt(da * da + db * db + dc * dc);
 	if (out.tmax <= 0.0) {
@@ -846,9 +823,9 @@ static VelData getStraightVelocity(double x, double y, double z,
 	tu = du? fabs(du / FROM_EXT_LEN(emcAxisGetMaxVelocity(6))): 0.0;
 	tv = dv? fabs(dv / FROM_EXT_LEN(emcAxisGetMaxVelocity(7))): 0.0;
 	tw = dw? fabs(dw / FROM_EXT_LEN(emcAxisGetMaxVelocity(8))): 0.0;
-        out.tmax = MAX9(tx, ty, tz,
+        out.tmax = std::max({tx, ty, tz,
                     ta, tb, tc,
-                    tu, tv, tw);
+                    tu, tv, tw});
 
         if(debug_velacc)
             printf("getStraightVelocity times tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n",
@@ -1309,10 +1286,6 @@ static double chord_deviation(double sx, double sy, double ex, double ey, double
 
 /* Spline and NURBS additional functions; */
 
-static double max(double a, double b) {
-    if(a < b) return b;
-    return a;
-}
 static void unit(double *x, double *y) {
     double h = hypot(*x, *y);
     if(h != 0) { *x/=h; *y/=h; }
@@ -1387,7 +1360,7 @@ biarc(int lineno, double p0x, double p0y, double tsx, double tsy,
 		return 0;
 	}
 
-	double beta = max(beta1, beta2);
+	double beta = std::max(beta1, beta2);
 	double aa = 1, bb = 0, cc;
 	cc = aa / bb;		//cc=inf
 	//if(beta1 == cc || beta2 == cc) { // original Lo Valvo
@@ -2589,12 +2562,12 @@ void ARC_FEED(int line_number,
     // Get planar velocity bounds
     double v1 = FROM_EXT_LEN(emcAxisGetMaxVelocity(axis1));
     double v2 = FROM_EXT_LEN(emcAxisGetMaxVelocity(axis2));
-    double v_max_axes = MIN(v1, v2);
+    double v_max_axes = std::min(v1, v2);
 
     // Get planar acceleration bounds
     double a1 = FROM_EXT_LEN(emcAxisGetMaxAcceleration(axis1));
     double a2 = FROM_EXT_LEN(emcAxisGetMaxAcceleration(axis2));
-    double a_max_axes = MIN(a1, a2);
+    double a_max_axes = std::min(a1, a2);
 
     if(canon.xy_rotation && canon.activePlane != CANON_PLANE::XY) {
         // also consider the third plane's constraint, which may get
@@ -2604,8 +2577,8 @@ void ARC_FEED(int line_number,
         if (axis_valid(axis3)) {
             double v3 = FROM_EXT_LEN(emcAxisGetMaxVelocity(axis3));
             double a3 = FROM_EXT_LEN(emcAxisGetMaxAcceleration(axis3));
-            v_max_axes = MIN(v3, v_max_axes);
-            a_max_axes = MIN(a3, a_max_axes);
+            v_max_axes = std::min(v3, v_max_axes);
+            a_max_axes = std::min(a3, a_max_axes);
         }
     }
 
@@ -2618,7 +2591,7 @@ void ARC_FEED(int line_number,
     canon_debug("v_max_radial = %f\n", v_max_radial);
 
     // Restrict our maximum velocity in-plane if need be
-    double v_max_planar = MIN(v_max_radial, v_max_axes);
+    double v_max_planar = std::min(v_max_radial, v_max_axes);
     canon_debug("v_max_planar = %f\n", v_max_planar);
 
     // Find the equivalent maximum velocity for a linear displacement
@@ -2665,7 +2638,7 @@ void ARC_FEED(int line_number,
     double a_max = total_xyz_length / tt_max;
 
     // Limit velocity by maximum
-    double vel = MIN(canon.linearFeedRate, v_max);
+    double vel = std::min(canon.linearFeedRate, v_max);
     canon_debug("current F = %f\n",canon.linearFeedRate);
     canon_debug("vel = %f\n",vel);
 
