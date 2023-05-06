@@ -129,9 +129,7 @@ they are defined. They may be called from other functions, and may call
 themselves recursively if it makes sense to do so. The maximum
 subroutine nesting level is 10.
 
-Subroutines can change the value of parameters above #30 and those changes will
-be visible to the calling code. Subroutines may also change the value of global
-named parameters.
+Subroutines can change the value of parameters above #30 and those changes will be visible to the calling code. Subroutines may also change the value of <<gcode:named-parameters,global named parameters>> (i.e. parameters whose names begin with the underscore character "`_`");
 
 [[ocode:fanuc-style-programs]]
 === Fanuc-Style Numbered Programs(((Subroutines,M98,M99)))
