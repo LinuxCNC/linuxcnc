@@ -25,14 +25,14 @@ class ProbeRoutines():
         # move Z+ z_clearance
         s = """G91
         G1 F{} Z{}
-        G90""".format(self.data_rapid_vel, self.data_z_clearance)
+        G90""".format(self.data_rapid_vel, self.data_z_clearance + self.data_extra_depth)
         return self.CALL_MDI_WAIT(s, 30)
 
     def z_clearance_down(self):
         # move Z- z_clearance
         s = """G91
         G1 F{} Z-{}
-        G90""".format(self.data_rapid_vel, self.data_z_clearance)        
+        G90""".format(self.data_rapid_vel, self.data_z_clearance + self.data_extra_depth)        
         return self.CALL_MDI_WAIT(s, 30)
 
     def length_x(self):
@@ -764,7 +764,11 @@ class ProbeRoutines():
         self.status_z = float(a[2])
         self.add_history('Straight Down ', "Z", 0, 0, 0, 0, 0, 0, 0, 0, a[2], 0, 0)
         self.set_zero("Z")
-        if self.z_clearance_up() == -1: return
+        # move back up
+        c = """G91
+        G1 F{} Z{}
+        G90""".format(self.data_rapid_vel, self.data_z_clearance)
+        if self.CALL_MDI_WAIT(c, 30) == -1: return -1
         return 1
 
 ########

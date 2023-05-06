@@ -173,7 +173,7 @@ class ProbeSubprog(QObject, ProbeRoutines):
         except:
             pass
         # adjust z_clearance data
-        self.data_z_clearance += self.data_extra_depth
+        #self.data_z_clearance += self.data_extra_depth
         # clear all previous probe results
         for i in (self.status_list):
             self['status_' + i] = 0.0
