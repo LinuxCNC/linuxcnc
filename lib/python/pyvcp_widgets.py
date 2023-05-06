@@ -1086,7 +1086,7 @@ class pyvcp_u32(Label):
             halpin = "number."+str(pyvcp_number.n)
             pyvcp_number.n += 1
         self.halpin=halpin
-        self.value=0.0
+        self.value=int(0.0)
         dummy = "%(b)"+self.format
         self.v.set( str( dummy  % {'b':self.value} ) )
         pycomp.newpin(halpin, HAL_U32, HAL_IN)
@@ -1110,7 +1110,7 @@ class pyvcp_s32(Label):
             halpin = "number."+str(pyvcp_number.n)
             pyvcp_number.n += 1
         self.halpin=halpin
-        self.value=0.0
+        self.value=int(0.0)
         dummy = "%(b)"+self.format
         self.v.set( str( dummy  % {'b':self.value} ) )
         pycomp.newpin(halpin, HAL_S32, HAL_IN)
