@@ -16,24 +16,28 @@ STATUS = Status()
 
 class ProbeRoutines():
     def __init__(self):
-        pass
+        self.timeout = 30
 
 ##################
 # Helper Functions
 ##################
+
+    def set_timeout(self, time):
+        self.timeout = time
+
     def z_clearance_up(self):
         # move Z+ z_clearance
         s = """G91
         G1 F{} Z{}
         G90""".format(self.data_rapid_vel, self.data_z_clearance + self.data_extra_depth)
-        return self.CALL_MDI_WAIT(s, 30)
+        return self.CALL_MDI_WAIT(s, self.timeout)
 
     def z_clearance_down(self):
         # move Z- z_clearance
         s = """G91
         G1 F{} Z-{}
         G90""".format(self.data_rapid_vel, self.data_z_clearance + self.data_extra_depth)        
-        return self.CALL_MDI_WAIT(s, 30)
+        return self.CALL_MDI_WAIT(s, self.timeout)
 
     def length_x(self):
         if self.status_xp == 0 or self.status_xm == 0: return 0
@@ -71,7 +75,7 @@ class ProbeRoutines():
                 s += " X{}".format(x)      
                 s += " Y{}".format(y)      
             s +=  " R{}".format(a)
-            self.CALL_MDI_WAIT(s, 30)
+            self.CALL_MDI_WAIT(s, self.timeout)
             ACTION.RELOAD_DISPLAY()
 
     def add_history(self, text, s="",xm=0.,xc=0.,xp=0.,lx=0.,ym=0.,yc=0.,yp=0.,ly=0.,z=0.,d=0.,a=0.):
@@ -97,49 +101,51 @@ class ProbeRoutines():
         # probe toward target
         s = """G91
         G38.2 {}{} F{}""".format(axis, travel, self.data_search_vel)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return -1
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # retract
         s = "G1 {}{} F{}".format(axis, -latch, self.data_rapid_vel)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return -1
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # wait and probe toward target
         s = """G4 P0.5
         G38.2 {}{} F{}""".format(axis, 1.2*latch, self.data_probe_vel)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return -1
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # retract
         s = "G1 {}{} F{}".format(axis, -latch, self.data_rapid_vel)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return -1
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        return 1
 
     def CALL_MDI_WAIT(self, code, timeout = 5):
         LOG.debug('MDI_WAIT_COMMAND= {}, maxt = {}'.format(code, timeout))
         for l in code.split("\n"):
-            #LOG.debug('MDI_wait COMMAND: {}'.format(l))
             ACTION.CALL_MDI( l )
             result = ACTION.cmd.wait_complete(timeout)
-            #LOG.debug('MDI_COMMAND_WAIT result: {}'.format(result))
-            if result == -1:
-                LOG.debug('MDI_COMMAND_WAIT timeout past {} sec. Error: {}'.format( timeout, result))
-                ACTION.SET_ERROR_MESSAGE('Probe time out error - MDI command took longer than {} seconds'.format(timeout))
-                ACTION.ABORT()
-                return -1
-            elif result == linuxcnc.RCS_ERROR:
-                LOG.debug('MDI_COMMAND_WAIT RCS error: {}'.format( timeout, result))
-                #STATUS.emit('MDI time out error',)
-                ACTION.ABORT()
-                return -1
             try:
                 # give a chance for the error message to get to stdin
                 time.sleep(.1)
                 error = STATUS.ERROR.poll()
                 if not error is None:
-                    LOG.error('MDI_COMMAND_WAIT Error channel: {}'.format(error))
                     ACTION.ABORT()
-                    return -1
+                    return error[1]
             except Exception as e:
-                sys.stdout.write("[ERROR] Command exception: {}\n".format(e))
-                sys.stdout.flush()
                 ACTION.ABORT()
-                return -1
-        return 0
+                return e
+
+            if result == -1:
+                ACTION.ABORT()
+                return 'Command timed out: ({} second)'.format(timeout)
+            elif result == linuxcnc.RCS_ERROR:
+                ACTION.ABORT()
+                return 'MDI_COMMAND_WAIT RCS error'
+
+        return 1
 
     ####################
     # Z rotation probing
@@ -150,9 +156,15 @@ class ProbeRoutines():
         s = """G91
         G1 F%s Y-%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance )
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe('yplus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('yplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         ycres = float(a[1]) + 0.5 * self.data_probe_diam
@@ -162,8 +174,12 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, self.data_side_edge_length)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.probe('yplus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('yplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         ypres = float(a[1])+0.5*self.data_probe_diam
@@ -172,7 +188,9 @@ class ProbeRoutines():
         self.add_history('Rotation YP ', "YcYpA", 0, 0, 0, 0, 0, ycres, ypres, 0, 0, 0, alfa)
 
         # move Z to start point
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.rotate_coord_system(alfa)
         return 1
 
@@ -182,8 +200,12 @@ class ProbeRoutines():
         s = """G91
         G1 F%s Y%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance )
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         if self.probe('yminus') == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
@@ -193,7 +215,9 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X-%f
         G90""" % (self.data_rapid_vel, self.data_side_edge_length)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         if self.probe('yminus') == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
@@ -202,7 +226,9 @@ class ProbeRoutines():
         alfa = math.degrees(math.atan2(ycres-ymres,self.data_side_edge_length))
         self.add_history('Rotation YM ', "YmYcA", 0, 0, 0, 0, ymres, ycres, 0, 0, 0, 0, alfa)
         # move Z to start point
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.rotate_coord_system(alfa)
         return 1
 
@@ -212,9 +238,15 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X-%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance )
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe('xplus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('xplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xcres = float(a[0]) + 0.5 * self.data_probe_diam
@@ -224,8 +256,12 @@ class ProbeRoutines():
         s = """G91
         G1 F%s Y-%f
         G90""" % (self.data_rapid_vel, self.data_side_edge_length)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.probe('xplus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('xplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xpres = float(a[0]) + 0.5 * self.data_probe_diam
@@ -233,7 +269,9 @@ class ProbeRoutines():
         alfa = math.degrees(math.atan2(xcres - xpres, self.data_side_edge_length))
         self.add_history('Rotation XP', "XcXpA", 0, xcres, xpres, 0, 0, 0, 0, 0, 0, 0, alfa)
         # move Z to start point
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.rotate_coord_system(alfa)
         return 1
 
@@ -243,9 +281,15 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance )
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe('xminus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('xminus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xcres = float(a[0]) - 0.5 * self.data_probe_diam
@@ -255,8 +299,12 @@ class ProbeRoutines():
         s = """G91
         G1 F%s Y%f
         G90""" % (self.data_rapid_vel, self.data_side_edge_length)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.probe('xminus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('xminus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xmres = float(a[0]) - 0.5 * self.data_probe_diam
@@ -264,7 +312,9 @@ class ProbeRoutines():
         alfa = math.degrees(math.atan2(xcres - xmres, self.data_side_edge_length))
         self.add_history('Rotation XM ', "XmXcA", xmres, xcres, 0, 0, 0, 0, 0, 0, 0, 0, alfa)
         # move Z to start point
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.rotate_coord_system(alfa)
         return 1
 
@@ -272,14 +322,20 @@ class ProbeRoutines():
 #  Inside probing
 ###################
     def probe_xy_hole(self):
-        if self.z_clearance_down() == -1: return
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # move X- edge_length - xy_clearance
         tmpx = self.data_side_edge_length - self.data_xy_clearance
         s = """G91
         G1 F%s X-%f
         G90""" % (self.data_rapid_vel, tmpx)        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.probe('xminus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('xminus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xmres = float(a[0])-0.5*self.data_probe_diam
@@ -290,8 +346,12 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, tmpx)        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.probe('xplus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('xplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xpres = float(a[0]) + 0.5 * self.data_probe_diam
@@ -302,14 +362,18 @@ class ProbeRoutines():
         # move X to new center
         s = """G90
         G1 F%s X%f""" % (self.data_rapid_vel, xcres)        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
 
         # move Y- edge_length + xy_clearance
         tmpy = self.data_side_edge_length - self.data_xy_clearance
         s = """G91
         G1 F%s Y-%f
         G90""" % (self.data_rapid_vel, tmpy)        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         if self.probe('yminus') == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
@@ -321,8 +385,12 @@ class ProbeRoutines():
         s = """G91
         G1 F%s Y%f
         G90""" % (self.data_rapid_vel, tmpy)        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.probe('yplus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('yplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         ypres = float(a[1]) + 0.5 * self.data_probe_diam
@@ -335,10 +403,14 @@ class ProbeRoutines():
         self.status_d = diam
 
         self.add_history('Inside Hole ', "XmXcXpLxYmYcYpLyD", xmres, xcres, xpres, len_x, ymres, ycres, ypres, len_y, 0, diam, 0)
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # move to center
         s = "G1 F%s Y%f" % (self.data_rapid_vel, ycres)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.set_zero("XY")
         return 1
         
@@ -350,9 +422,15 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X-%f Y-%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance,self.data_side_edge_length )        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe("xplus") == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('xplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xres = float(a[0]) + 0.5 * self.data_probe_diam
@@ -364,8 +442,12 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X-%f Y%f
         G90""" % (self.data_rapid_vel, tmpxy,tmpxy)        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.probe("yplus") == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('yplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         yres = float(a[1]) + 0.5 * self.data_probe_diam
@@ -373,10 +455,14 @@ class ProbeRoutines():
         len_y = self.length_y()
         self.add_history('Inside XPYP ', "XpLxYpLy", 0, 0, xres, len_x, 0, 0, yres, len_y, 0, 0, 0)
         # move Z to start point
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.set_zero("XY")
         return 1
 
@@ -386,9 +472,15 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X-%f Y%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance,self.data_side_edge_length )        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe("xplus") == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('xplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xres = float(a[0]) + 0.5 * self.data_probe_diam
@@ -400,8 +492,12 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X-%f Y-%f
         G90""" % (self.data_rapid_vel, tmpxy,tmpxy)        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.probe("yminus") == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('yminus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         yres = float(a[1]) - 0.5 * self.data_probe_diam
@@ -409,10 +505,14 @@ class ProbeRoutines():
         len_y = self.length_y()
         self.add_history('Inside XPYM ', "XpLxYmLy", 0, 0, xres, len_x, yres, 0, 0, len_y, 0, 0, 0)
         # move Z to start point
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.set_zero("XY")
         return 1
 
@@ -422,9 +522,15 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X%f Y-%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance,self.data_side_edge_length )        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe("xminus") == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('xminus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xres = float(a[0]) - 0.5 * self.data_probe_diam
@@ -436,8 +542,12 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X%f Y%f
         G90""" % (self.data_rapid_vel, tmpxy,tmpxy)        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.probe("yplus") == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('yplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
 
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
@@ -446,10 +556,14 @@ class ProbeRoutines():
         len_y = self.length_y()
         self.add_history('Inside XMYP', "XmLxYpLy", xres, 0, 0, len_x, 0, 0, yres, len_y, 0, 0, 0)
         # move Z to start point
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.set_zero("XY")
         return 1
 
@@ -459,9 +573,15 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X%f Y%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance,self.data_side_edge_length )        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe("xminus") == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('xminus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xres = float(a[0]) - 0.5 * self.data_probe_diam
@@ -473,8 +593,12 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X%f Y-%f
         G90""" % (self.data_rapid_vel, tmpxy,tmpxy)        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.probe("yminus") == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('yminus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         yres = float(a[1]) - 0.5 * self.data_probe_diam
@@ -482,10 +606,14 @@ class ProbeRoutines():
         len_y = self.length_y()
         self.add_history('Inside XMYM', "XmLxYmLy", xres, 0, 0, len_x, yres, 0, 0, len_y, 0, 0, 0)
         # move Z to start point
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.set_zero("XY")
         return 1
 
@@ -499,19 +627,29 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X-%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance )        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe('xplus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('xplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         a = STATUS.get_probed_position_with_offsets()
         xres = float(a[0] + 0.5 * self.data_probe_diam)
         self.status_xp = xres
         len_x = 0
         self.add_history('Outside XP ', "XpLx", 0, 0, xres, len_x, 0, 0, 0, 0, 0, 0, 0)
         # move Z to start point up
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # move to found  point
         s = "G1 F%s X%f" % (self.data_rapid_vel, xres)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.set_zero("X")
         return 1
 
@@ -521,19 +659,29 @@ class ProbeRoutines():
         s = """G91
         G1 F%s Y-%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance )        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe('yplus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('yplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         a = STATUS.get_probed_position_with_offsets()
         yres = float(a[1]) + 0.5 * self.data_probe_diam
         self.status_yp = yres
         len_y = 0
         self.add_history('Outside YP ', "YpLy", 0, 0, 0, 0, 0, 0, yres, len_y, 0, 0, 0)
         # move Z to start point up
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # move to found  point
         s = "G1 F%s Y%f" % (self.data_rapid_vel, yres)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.set_zero("Y")
         return 1
 
@@ -543,19 +691,29 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance )        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe('xminus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('xminus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         a = STATUS.get_probed_position_with_offsets()
         xres = float(a[0] - 0.5 * self.data_probe_diam)
         self.status_xm = xres
         len_x = 0
         self.add_history('Outside XM ', "XmLx", xres, 0, 0, len_x, 0, 0, 0, 0, 0, 0, 0)
         # move Z to start point up
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # move to found  point
         s = "G1 F%s X%f" % (self.data_rapid_vel, xres)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.set_zero("X")
         return 1
 
@@ -565,8 +723,10 @@ class ProbeRoutines():
         s = """G91
         G1 F%s Y%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance )        
-        if self.CALL_MDI_WAIT(s,30) == -1: return
-        if self.z_clearance_down() == -1: return
+        if self.CALL_MDI_WAIT(s, self.timeout) == -1: return
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         if self.probe('yminus') == -1: return
         a = STATUS.get_probed_position_with_offsets()
         yres = float(a[1]) - 0.5 * self.data_probe_diam
@@ -574,10 +734,14 @@ class ProbeRoutines():
         len_y = 0
         self.add_history('Outside YM ', "YmLy", 0, 0, 0, 0, yres, 0, 0, len_y, 0, 0, 0)
         # move Z to start point up
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # move to found  point
         s = "G1 F%s Y%f" % (self.data_rapid_vel, yres)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.set_zero("Y")
         return 1
 
@@ -589,25 +753,39 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X-%f Y%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance, self.data_side_edge_length )        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe('xplus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('xplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xres = float(a[0] + 0.5 * self.data_probe_diam)
         self.status_xp = xres
         len_x = self.length_x()
         # move Z to start point up
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
 
         # move X+ edge_length + xy_clearance,  Y- edge_length + xy_clearance
         a = self.data_side_edge_length + self.data_xy_clearance
         s = """G91
         G1 F%s X%f Y-%f
         G90""" % (self.data_rapid_vel, a,a)        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe('yplus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('yplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         yres = float(a[1]) + 0.5 * self.data_probe_diam
@@ -615,10 +793,14 @@ class ProbeRoutines():
         len_y = self.length_y()
         self.add_history('Outside XPYP ', "XpLxYpLy", 0, 0, xres, len_x, 0, 0, yres, len_y, 0, 0, 0)
         # move Z to start point up
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.set_zero("XY")
         return 1
 
@@ -628,24 +810,36 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X-%f Y-%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance, self.data_side_edge_length )        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe('xplus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('xplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xres = float(a[0] + 0.5 * self.data_probe_diam)
         self.status_xp = xres
         len_x = self.length_x()
         # move Z to start point up
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
 
         # move X+ edge_length + xy_clearance,  Y+ edge_length + xy_clearance
         a = self.data_side_edge_length + self.data_xy_clearance
         s = """G91
         G1 F%s X%f Y%f
         G90""" % (self.data_rapid_vel, a,a)        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         if self.probe('yminus') == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
@@ -654,10 +848,14 @@ class ProbeRoutines():
         len_y = self.length_y()
         self.add_history('Outside XPYM ', "XpLxYmLy", 0, 0, xres, len_x, yres, 0, 0, len_y, 0, 0, 0)
         # move Z to start point up
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.set_zero("XY")
         return 1
 
@@ -667,25 +865,39 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X%f Y%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance, self.data_side_edge_length )        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe('xminus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('xminus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xres = float(a[0] - 0.5 * self.data_probe_diam)
         self.status_xm = xres
         len_x = self.length_x()
         # move Z to start point up
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
 
         # move X- edge_length + xy_clearance,  Y- edge_length + xy_clearance
         a = self.data_side_edge_length + self.data_xy_clearance
         s = """G91
         G1 F%s X-%f Y-%f
         G90""" % (self.data_rapid_vel, a,a)        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe('yplus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('yplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         yres = float(a[1]) + 0.5 * self.data_probe_diam
@@ -693,10 +905,14 @@ class ProbeRoutines():
         len_y = self.length_y()
         self.add_history('Outside XMYP ', "XmLxYpLy", xres, 0, 0, len_x, 0, 0, yres,len_y, 0, 0, 0)
         # move Z to start point up
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.set_zero("XY")
         return 1
 
@@ -706,24 +922,36 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X%f Y-%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance, self.data_side_edge_length )        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe('xminus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('xminus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xres = float(a[0] - 0.5 * self.data_probe_diam)
         self.status_xm = xres
         len_x = self.length_x()
         # move Z to start point up
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
 
         # move X- edge_length + xy_clearance,  Y+ edge_length + xy_clearance
         a = self.data_side_edge_length + self.data_xy_clearance
         s = """G91
         G1 F%s X-%f Y%f
         G90""" % (self.data_rapid_vel, a, a)        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         if self.probe('yminus') == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
@@ -732,10 +960,14 @@ class ProbeRoutines():
         len_y = self.length_y()
         self.add_history('Outside XMYM ', "XmLxYmLy", xres, 0, 0, len_x, yres, 0, 0, len_y, 0, 0, 0)
         # move Z to start point up
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres, yres)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.set_zero("XY")
         return 1
 
@@ -752,23 +984,41 @@ class ProbeRoutines():
     # Probe Z Minus direction and set Z0 in current WCO
     # End at Z_clearance above workpiece
     def probe_down(self):
+        # if annything fails this message is left
+        self.history_log = 'Probe Down Pressed'
+
         ACTION.CALL_MDI("G91")
+
         c = "G38.2 Z-{} F{}".format(self.data_max_z_travel, self.data_search_vel)
-        if self.CALL_MDI_WAIT(c, 30) == -1: return -1
+        rtn = self.CALL_MDI_WAIT(c, self.timeout) 
+        if rtn != 1:
+            return 'Probe down: fast probe failed: {}'.format(rtn)
+
         c = "G1 Z{} F{}".format(self.data_latch_return_dist, self.data_rapid_vel)
-        if self.CALL_MDI_WAIT(c, 30) == -1: return -1
+        rtn = self.CALL_MDI_WAIT(c, self.timeout) 
+        if rtn != 1:
+            return 'Probe down: latch return failed: {}'.format(rtn)
+
         ACTION.CALL_MDI("G4 P0.5")
+
         c = "G38.2 Z-{} F{}".format(1.2*self.data_latch_return_dist, self.data_probe_vel)
-        if self.CALL_MDI_WAIT(c, 30) == -1: return -1
+        rtn = self.CALL_MDI_WAIT(c, self.timeout) 
+        if rtn != 1:
+            return 'Probe down: slow probe failed: {}'.format(rtn)
+
         a = STATUS.get_probed_position_with_offsets()
         self.status_z = float(a[2])
         self.add_history('Straight Down ', "Z", 0, 0, 0, 0, 0, 0, 0, 0, a[2], 0, 0)
         self.set_zero("Z")
+
         # move back up
         c = """G91
         G1 F{} Z{}
         G90""".format(self.data_rapid_vel, self.data_z_clearance)
-        if self.CALL_MDI_WAIT(c, 30) == -1: return -1
+        rtn = self.CALL_MDI_WAIT(c, self.timeout) 
+        if rtn != 1:
+                return 'Probe down: move to Z clearence failed: {}'.format(rtn)
+        # all good
         return 1
 
 ########
@@ -780,24 +1030,38 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X-%f
         G90""" % (self.data_rapid_vel, self.data_side_edge_length + self.data_xy_clearance)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe('xplus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('xplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xpres = float(a[0]) + 0.5 * self.data_probe_diam
         self.status_xp = xpres
         # move Z to start point up
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
 
         # move X+ 2 * (edge_length + xy_clearance)
         aa = 2 * (self.data_side_edge_length + self.data_xy_clearance)
         s = """G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, aa)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe('xminus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('xminus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xmres = float(a[0]) - 0.5 * self.data_probe_diam
@@ -807,10 +1071,14 @@ class ProbeRoutines():
         self.status_xc = xcres
         self.add_history('Outside Length X ', "XmXcXpLx", xmres, xcres, xpres, len_x, 0,0,0,0,0,0,0)
         # move Z to start point up
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # go to the new center of X
         s = "G1 F%s X%f" % (self.data_rapid_vel, xcres)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.set_zero("X")
         return 1
 
@@ -821,23 +1089,35 @@ class ProbeRoutines():
         s = """G91
         G1 F%s Y-%f
         G90""" % (self.data_rapid_vel, a)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe('yplus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('yplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         ypres = float(a[1]) + 0.5 * self.data_probe_diam
         self.status_yp = ypres
         # move Z to start point up
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
 
         # move Y+ 2 * (edge_length +  xy_clearance)
         aa = 2 * (self.data_side_edge_length + self.data_xy_clearance)
         s = """G91
         G1 F%s Y%f
         G90""" % (self.data_rapid_vel, aa)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         if self.probe('yminus') == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
@@ -849,23 +1129,33 @@ class ProbeRoutines():
         self.status_yc = ycres
         self.add_history('Outside Length Y ', "YmYcYpLy", 0, 0, 0, 0, ymres, ycres, ypres, len_y, 0, 0, 0)
         # move Z to start point up
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # move to found  point
         s = "G1 F%s Y%f" % (self.data_rapid_vel, ycres)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.set_zero("Y")
         return 1
 
     # Lx IN
     def probe_inside_length_x(self):
-        if self.z_clearance_down() == -1: return
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # move X- edge_length Y- xy_clearance
         tmpx = self.data_side_edge_length - self.data_xy_clearance
         s = """G91
         G1 F%s X-%f
         G90""" % (self.data_rapid_vel, tmpx)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.probe('xminus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('xminus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xmres = float(a[0]) - 0.5 * self.data_probe_diam
@@ -876,8 +1166,12 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, tmpx)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.probe('xplus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('xplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xpres = float(a[0]) + 0.5 * self.data_probe_diam
@@ -887,22 +1181,30 @@ class ProbeRoutines():
         self.status_xc = xcres
         self.add_history('Inside Length X ', "XmXcXpLx", xmres, xcres, xpres, len_x, 0,0,0,0,0,0,0)
         # move Z to start point
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # move X to new center
         s = """G1 F%s X%f""" % (self.data_rapid_vel, xcres)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.set_zero("X")
         return 1
 
     # Ly IN
     def probe_inside_length_y(self):
-        if self.z_clearance_down() == -1: return
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # move Y- edge_length - xy_clearance
         tmpy = self.data_side_edge_length - self.data_xy_clearance
         s = """G91
         G1 F%s Y-%f
         G90""" % (self.data_rapid_vel, tmpy)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         if self.probe('yminus') == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
@@ -914,8 +1216,12 @@ class ProbeRoutines():
         s = """G91
         G1 F%s Y%f
         G90""" % (self.data_rapid_vel, tmpy)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.probe('yplus') == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.probe('yplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         ypres = float(a[1]) + 0.5 * self.data_probe_diam
@@ -926,10 +1232,14 @@ class ProbeRoutines():
         self.status_yc = ycres
         self.add_history('Inside Length Y ', "YmYcYpLy", 0, 0, 0, 0, ymres, ycres, ypres, len_y, 0, 0, 0)
         # move Z to start point
-        if self.z_clearance_up() == -1: return
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # move to center
         s = "G1 F%s Y%f" % (self.data_rapid_vel, ycres)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         self.set_zero("Y")
         return 1
 
@@ -1048,7 +1358,9 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, self.data_side_edge_length)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         error = self.probe_yp()
         if error != 1: return error
         second_pt = self.status_yp
@@ -1064,7 +1376,9 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X-%f
         G90""" % (self.data_rapid_vel, self.data_side_edge_length)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         error = self.probe_ym()
         if error != 1: return error
         second_pt = self.status_ym
@@ -1080,7 +1394,9 @@ class ProbeRoutines():
         s = """G91
         G1 F%s Y-%f
         G90""" % (self.data_rapid_vel, self.data_side_edge_length)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         error = self.probe_xp()
         if error != 1: return error
         second_pt = self.status_xp
@@ -1096,7 +1412,9 @@ class ProbeRoutines():
         s = """G91
         G1 F%s Y%f
         G90""" % (self.data_rapid_vel, self.data_side_edge_length)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         error = self.probe_xm()
         if error != 1: return error
         second_pt = self.status_xm

@@ -203,14 +203,17 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def parse_input(self, line):
         line = line.decode("utf-8")
-        if "INFO" in line:
-            print(line)
+        if "ERROR INFO" in line:
+            ACTION.SET_ERROR_MESSAGE(line)
         elif "ERROR" in line:
             #print(line)
             STATUS.unblock_error_polling()
             ACTION.SET_ERROR_MESSAGE('Basic Probe process finished  in error')
+        elif "INFO" in line:
+            pass
         elif "DEBUG" in line:
-            print(line)
+            if LOG.getEffectiveLevel() < LOG.INFO:
+                print(line)
         elif "COMPLETE" in line:
             STATUS.unblock_error_polling()
             LOG.info("Basic Probing routine completed without errors")
@@ -218,8 +221,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             data = json.loads(return_data[1])
             self.show_results(data)
         elif "HISTORY" in line:
-            temp = line.strip('HISTORY$')
-            STATUS.emit('update-machine-log', temp, 'TIME')
+            STATUS.emit('update-machine-log', line, 'TIME')
             LOG.info("Probe history updated to machine log")
         else:
             LOG.error("Error parsing return data from sub_processor. Line={}".format(line))

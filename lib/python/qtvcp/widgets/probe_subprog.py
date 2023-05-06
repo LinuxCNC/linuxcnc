@@ -122,20 +122,32 @@ class ProbeSubprog(QObject, ProbeRoutines):
                 line = None
                 try:
                     error = self.process_command(cmd)
-                    # error = 1 means success, error = None means ignore, anything else is an error
+
+                    # block polling here 0 main program should start polling in their end
                     STATUS.block_error_polling()
+
+                    # error = 1 means success,
+                    # error = None means ignore,
+                    # anything else is an error - a returned string is n error message
                     if error is not None:
                         if error != 1:
-                            sys.stdout.write("ERROR Probe routine returned with error\n")
+                            if type(error) == str:
+                                sys.stdout.write("ERROR INFO Probe routine: {}\n".format(error))
+                            else:
+                                sys.stdout.write("ERROR Probe routine returned with error\n")
                         else:
                             self.collect_status()
                             sys.stdout.write("COMPLETE$" + json.dumps(self.send_dict) + "\n")
                             sys.stdout.flush()
-                            if self.history_log != "":
-                                time.sleep(0.1)
-                                sys.stdout.write("HISTORY {}\n".format(self.history_log))
-                                self.history_log = ""
                         sys.stdout.flush()
+
+                    # print history
+                    if self.history_log != "":
+                        time.sleep(0.1)
+                        sys.stdout.write("HISTORY {}\n".format(self.history_log))
+                        self.history_log = ""
+                        sys.stdout.flush()
+
                 except Exception as e:
                     sys.stdout.write("ERROR Command Error: {}\n".format(e))
                     sys.stdout.flush()
@@ -149,9 +161,10 @@ class ProbeSubprog(QObject, ProbeRoutines):
             if not STATUS.is_on_and_idle(): return None
             parms = json.loads(cmd[1])
             self.update_data(parms)
+            # start polling errirs here - parent program should have blocked their polling
             STATUS.unblock_error_polling()
             error = self[cmd[0]]()
-            if error != 1 and STATUS.is_on_and_idle():
+            if (error != 1 or type(error== str)) and STATUS.is_on_and_idle():
                 ACTION.CALL_MDI("G90")
             return error
         else:
