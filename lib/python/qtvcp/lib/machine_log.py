@@ -20,6 +20,8 @@ class MachineLogger():
         self.mlp = os.path.expanduser(INFO.MACHINE_LOG_HISTORY_PATH)
 
     def log_it(self, w, message, option=None):
+        message =message.rstrip('\n')
+
         if option == 'TIME':
             self.log_message_time(message)
         elif option == 'DATE':
