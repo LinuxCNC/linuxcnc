@@ -36,7 +36,7 @@ INFO = Info()
 PATH = Path()
 LOG = logger.getLogger(__name__)
 # Force the log level for this module
-LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 current_dir = os.path.dirname(__file__)
 SUBPROGRAM = os.path.abspath(os.path.join(current_dir, 'probe_subprog.py'))
@@ -50,9 +50,9 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         super(VersaProbe, self).__init__(parent)
         self.proc = None
         if INFO.MACHINE_IS_METRIC:
-            self.valid = QtGui.QDoubleValidator(0.0, 999.999, 3)
+            self.valid = QtGui.QRegExpValidator(QtCore.QRegExp('^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$'))
         else:
-            self.valid = QtGui.QDoubleValidator(0.0, 99.9999, 4)
+            self.valid = QtGui.QRegExpValidator(QtCore.QRegExp('^((\d{1,3}(\.\d{1,4})?)|(\.\d{1,4}))$'))
         self.setMinimumSize(600, 420)
         # Load the widgets UI file will use local file if available:
         self.filename = PATH.find_widget_path('versa_probe.ui')
@@ -288,14 +288,17 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def parse_input(self, line):
         line = line.decode("utf-8")
-        if "ERROR" in line:
+        if "ERROR INFO" in line:
+            ACTION.SET_ERROR_MESSAGE(line)
+        elif "ERROR" in line:
             #print(line)
             STATUS.unblock_error_polling()
             ACTION.SET_ERROR_MESSAGE('Versa Probe process finished in error')
-        elif "DEBUG" in line:
-            print(line)
+        elif "PROBE_ROUTINES" in line:
+            if LOG.getEffectiveLevel() < LOG.INFO:
+                print(line)
         elif "INFO" in line:
-            print(line)
+            pass
         elif "COMPLETE" in line:
             STATUS.unblock_error_polling()
             LOG.info("Versa Probing routine completed without errors")
@@ -303,9 +306,10 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             data = json.loads(return_data[1])
             self.show_results(data)
         elif "HISTORY" in line:
-            temp = line.strip('HISTORY$')
-            STATUS.emit('update-machine-log', temp, 'TIME')
-            LOG.info("Probe history updated to machine log")
+            if not self.set_statusbar(line,1):
+                STATUS.emit('update-machine-log', line, 'TIME')
+        elif "DEBUG" in line:
+            pass
         else:
             LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
 
@@ -377,6 +381,17 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 #####################################################
 # Helper functions
 #####################################################
+
+    # return false if failed so other ways of reporting can be used.
+    # there might not be a statusbar in main screen.
+    def set_statusbar(self, msg, priority = 2):
+        try:
+            self.QTVCP_INSTANCE_.add_status(msg, priority)
+        except:
+            return False
+        return True
+
+
     def get_parms(self):
         self.send_dict = {key: self['input_' + key].text() for key in (self.parm_list)}
         for key in ['allow_auto_zero', 'allow_auto_skew']:

@@ -19,18 +19,23 @@ import time
 import json
 
 from PyQt5.QtCore import QObject
-from qtvcp.core import Status, Action
+from qtvcp.core import Status, Action, Info
 from qtvcp.widgets.probe_routines import ProbeRoutines
 
 # Instantiate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
 STATUS = Status()
 ACTION = Action()
-
+INFO = Info()
 class ProbeSubprog(QObject, ProbeRoutines):
     def __init__(self):
         QObject.__init__(self)
         ProbeRoutines.__init__(self)
+        if INFO.MACHINE_IS_METRIC:
+            self._format_template = "%3.3f"
+        else:
+            self._format_template = "%2.4f"
+
         self.send_dict = {}
         self.error_status = None
         # list of parameters received from main probe program
@@ -122,20 +127,32 @@ class ProbeSubprog(QObject, ProbeRoutines):
                 line = None
                 try:
                     error = self.process_command(cmd)
-                    # error = 1 means success, error = None means ignore, anything else is an error
+
+                    # block polling here 0 main program should start polling in their end
                     STATUS.block_error_polling()
+
+                    # error = 1 means success,
+                    # error = None means ignore,
+                    # anything else is an error - a returned string is an error message
                     if error is not None:
                         if error != 1:
-                            sys.stdout.write("ERROR Probe routine returned with error\n")
+                            if type(error) == str:
+                                sys.stdout.write("ERROR INFO Probe routine: {}\n".format(error))
+                            else:
+                                sys.stdout.write("ERROR Probe routine returned with error\n")
                         else:
                             self.collect_status()
                             sys.stdout.write("COMPLETE$" + json.dumps(self.send_dict) + "\n")
                             sys.stdout.flush()
-                            if self.history_log != "":
-                                time.sleep(0.1)
-                                sys.stdout.write("HISTORY {}\n".format(self.history_log))
-                                self.history_log = ""
                         sys.stdout.flush()
+
+                    # print history
+                    if self.history_log != "":
+                        time.sleep(0.1)
+                        sys.stdout.write("HISTORY {}\n".format(self.history_log))
+                        self.history_log = ""
+                        sys.stdout.flush()
+
                 except Exception as e:
                     sys.stdout.write("ERROR Command Error: {}\n".format(e))
                     sys.stdout.flush()
@@ -149,9 +166,10 @@ class ProbeSubprog(QObject, ProbeRoutines):
             if not STATUS.is_on_and_idle(): return None
             parms = json.loads(cmd[1])
             self.update_data(parms)
+            # start polling errors here - parent program should have blocked their polling
             STATUS.unblock_error_polling()
             error = self[cmd[0]]()
-            if error != 1 and STATUS.is_on_and_idle():
+            if (error != 1 or type(error)== str) and STATUS.is_on_and_idle():
                 ACTION.CALL_MDI("G90")
             return error
         else:
@@ -173,15 +191,25 @@ class ProbeSubprog(QObject, ProbeRoutines):
         except:
             pass
         # adjust z_clearance data
-        self.data_z_clearance += self.data_extra_depth
+        #self.data_z_clearance += self.data_extra_depth
         # clear all previous probe results
         for i in (self.status_list):
             self['status_' + i] = 0.0
 
     def collect_status(self):
+       try:
+        tmpl = lambda s: self._format_template % s
         for key in self.status_list:
-            data = "{:3.3f}".format(self['status_' + key])
+            data = tmpl(self['status_' + key])
             self.send_dict.update( {key: data} )
+       except Exception as e:
+        print('ERROR ',e)
+       return
+
+        #for key in self.status_list:
+        #    data = "{:3.3f}".format(self['status_' + key])
+        #    self.send_dict.update( {key: data} )
+        #return
 
 ########################################
 # required boiler code
