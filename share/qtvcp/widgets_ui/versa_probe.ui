@@ -953,7 +953,7 @@
             <enum>QFrame::WinPanel</enum>
            </property>
            <property name="currentIndex">
-            <number>3</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="page_outside">
             <property name="minimumSize">
@@ -1373,7 +1373,7 @@
                    <bool>false</bool>
                   </property>
                   <property name="probe" stdset="0">
-                   <string>probe_outside_xy_center</string>
+                   <string>probe_outside_xy_boss</string>
                   </property>
                   <attribute name="buttonGroup">
                    <string notr="true">outside_buttonGroup</string>
@@ -5391,12 +5391,12 @@ ZERO</string>
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="outside_buttonGroup">
+  <buttongroup name="inside_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="inside_buttonGroup">
+  <buttongroup name="outside_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
