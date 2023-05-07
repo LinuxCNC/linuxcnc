@@ -15,34 +15,14 @@
 * Last change:
 ********************************************************************/
 
-
-#include <string.h>		/* memcpy() */
-
 #include "rcs.hh"		// LinkedList
 #include "interpl.hh"		// these decls
 #include "emc.hh"
 #include "emcglb.h"
-#include "linklist.hh"
 #include "nmlmsg.hh"            /* class NMLmsg */
 #include "rcs_print.hh"
 
 NML_INTERP_LIST interp_list;	/* NML Union, for interpreter */
-
-NML_INTERP_LIST::NML_INTERP_LIST()
-{
-    linked_list_ptr = new LinkedList;
-
-    next_line_number = 0;
-    line_number = 0;
-}
-
-NML_INTERP_LIST::~NML_INTERP_LIST()
-{
-    if (NULL != linked_list_ptr) {
-	delete linked_list_ptr;
-	linked_list_ptr = NULL;
-    }
-}
 
 int NML_INTERP_LIST::append(NMLmsg & nml_msg)
 {
@@ -50,11 +30,9 @@ int NML_INTERP_LIST::append(NMLmsg & nml_msg)
 }
 
 // sets the line number used for subsequent appends
-int NML_INTERP_LIST::set_line_number(int line)
+void NML_INTERP_LIST::set_line_number(int line)
 {
     next_line_number = line;
-
-    return 0;
 }
 
 int NML_INTERP_LIST::append(NMLmsg * nml_msg_ptr)
@@ -72,11 +50,6 @@ int NML_INTERP_LIST::append(NMLmsg * nml_msg_ptr)
 	return -1;
     }
 
-    if (nml_msg_ptr->size > MAX_NML_COMMAND_SIZE - 64) {
-	rcs_print_error
-	    ("NML_INTERP_LIST::append : command size is too large.");
-	return -1;
-    }
     if (nml_msg_ptr->size < 4) {
 	rcs_print_error
 	    ("NML_INTERP_LIST::append : command size is invalid.");
@@ -93,28 +66,21 @@ int NML_INTERP_LIST::append(NMLmsg * nml_msg_ptr)
     }
 #endif
 
-    if (NULL == linked_list_ptr) {
-	return -1;
-    }
+    NML_INTERP_LIST_NODE node;
+    node.line_number = next_line_number;
+    node.command.reserve(nml_msg_ptr->size);
     // fill in the NML_INTERP_LIST_NODE
-    temp_node.line_number = next_line_number;
-    memcpy(temp_node.command.commandbuf, nml_msg_ptr, nml_msg_ptr->size);
+    node.command.insert(node.command.begin(), (char*)nml_msg_ptr, (char*)nml_msg_ptr + nml_msg_ptr->size);
 
     // stick it on the list
-    linked_list_ptr->store_at_tail(&temp_node,
-				   nml_msg_ptr->size +
-				   sizeof(temp_node.line_number) +
-				   sizeof(temp_node.dummy) + 32 + (32 -
-								   nml_msg_ptr->
-								   size %
-								   32), 1);
+    linked_list.push_back(node);
 
     if (emc_debug & EMC_DEBUG_INTERP_LIST) {
 	rcs_print
-	    ("NML_INTERP_LIST(%p)::append(nml_msg_ptr{size=%ld,type=%s}) : list_size=%d, line_number=%d\n",
+	    ("NML_INTERP_LIST(%p)::append(nml_msg_ptr{size=%ld,type=%s}) : list_size=%lu, line_number=%d\n",
              this,
 	     nml_msg_ptr->size, emc_symbol_lookup(nml_msg_ptr->type),
-	     linked_list_ptr->list_size, temp_node.line_number);
+	     linked_list.size(), node.line_number);
     }
 
     return 0;
@@ -123,32 +89,27 @@ int NML_INTERP_LIST::append(NMLmsg * nml_msg_ptr)
 NMLmsg *NML_INTERP_LIST::get()
 {
     NMLmsg *ret;
-    NML_INTERP_LIST_NODE *node_ptr;
 
-    if (NULL == linked_list_ptr) {
-	line_number = 0;
-	return NULL;
+    if(linked_list.empty()){
+        line_number = 0;
+        return NULL;
     }
-
-    node_ptr = (NML_INTERP_LIST_NODE *) linked_list_ptr->retrieve_head();
-
-    if (NULL == node_ptr) {
-	line_number = 0;
-	return NULL;
-    }
-    // save line number of this one, for use by get_line_number
-    line_number = node_ptr->line_number;
 
     // get it off the front
-    ret = (NMLmsg *) ((char *) node_ptr->command.commandbuf);
+    node = linked_list.front();
+    linked_list.pop_front();
+
+    // save line number of this one, for use by get_line_number
+    line_number = node.line_number;
+    ret = (NMLmsg *) node.command.data();
 
     if (emc_debug & EMC_DEBUG_INTERP_LIST) {
         rcs_print(
-            "NML_INTERP_LIST(%p)::get(): {size=%ld, type=%s}, list_size=%d\n",
+            "NML_INTERP_LIST(%p)::get(): {size=%ld, type=%s}, list_size=%lu\n",
             this,
             ret->size,
             emc_symbol_lookup(ret->type),
-            linked_list_ptr->list_size
+            linked_list.size()
         );
     }
 
@@ -157,45 +118,27 @@ NMLmsg *NML_INTERP_LIST::get()
 
 void NML_INTERP_LIST::clear()
 {
-    if (NULL != linked_list_ptr) {
-        if (emc_debug & EMC_DEBUG_INTERP_LIST) {
-            rcs_print("NML_INTERP_LIST(%p)::clear(): discarding %d items\n", this, linked_list_ptr->list_size);
-        }
-
-	linked_list_ptr->delete_members();
+    if (emc_debug & EMC_DEBUG_INTERP_LIST) {
+        rcs_print("NML_INTERP_LIST(%p)::clear(): discarding %lu items\n", this, linked_list.size());
     }
+	linked_list.clear();
 }
 
 void NML_INTERP_LIST::print()
 {
-    NMLmsg *ret;
-    NML_INTERP_LIST_NODE *node_ptr;
-    int line_number;
+    NMLmsg *msg;
 
-    if (NULL == linked_list_ptr) {
-	return;
-    }
-    node_ptr = (NML_INTERP_LIST_NODE *) linked_list_ptr->get_head();
-
-    rcs_print("NML_INTERP_LIST::print(): list size=%d\n",linked_list_ptr->list_size);
-    while (NULL != node_ptr) {
-	line_number = node_ptr->line_number;
-	ret = (NMLmsg *) ((char *) node_ptr->command.commandbuf);
-	rcs_print("--> type=%s,  line_number=%d\n",
-		  emc_symbol_lookup((int)ret->type),
-		  line_number);
-	node_ptr = (NML_INTERP_LIST_NODE *) linked_list_ptr->get_next();
+    rcs_print("NML_INTERP_LIST::print(): list size=%lu\n",linked_list.size());
+    for(auto &i:linked_list){
+        msg = (NMLmsg *) i.command.data();
+        rcs_print("--> type=%s,  line_number=%d\n", emc_symbol_lookup(msg->type), i.line_number);
     }
     rcs_print("\n");
 }
 
 int NML_INTERP_LIST::len()
 {
-    if (NULL == linked_list_ptr) {
-	return 0;
-    }
-
-    return ((int) linked_list_ptr->list_size);
+    return ((int) linked_list.size());
 }
 
 int NML_INTERP_LIST::get_line_number()
