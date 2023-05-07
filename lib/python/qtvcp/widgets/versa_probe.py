@@ -50,9 +50,9 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         super(VersaProbe, self).__init__(parent)
         self.proc = None
         if INFO.MACHINE_IS_METRIC:
-            self.valid = QtGui.QDoubleValidator(0.0, 999.999, 3)
+            self.valid = QtGui.QRegExpValidator(QtCore.QRegExp('^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$'))
         else:
-            self.valid = QtGui.QDoubleValidator(0.0, 99.9999, 4)
+            self.valid = QtGui.QRegExpValidator(QtCore.QRegExp('^((\d{1,3}(\.\d{1,4})?)|(\.\d{1,4}))$'))
         self.setMinimumSize(600, 420)
         # Load the widgets UI file will use local file if available:
         self.filename = PATH.find_widget_path('versa_probe.ui')

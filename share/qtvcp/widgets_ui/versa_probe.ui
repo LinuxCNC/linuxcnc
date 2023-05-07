@@ -572,7 +572,7 @@
                   <string/>
                  </property>
                  <property name="maxLength">
-                  <number>5</number>
+                  <number>7</number>
                  </property>
                  <property name="frame">
                   <bool>true</bool>
@@ -5386,12 +5386,12 @@ ZERO</string>
   <slot>input_next()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="length_buttonGroup">
+  <buttongroup name="inside_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="inside_buttonGroup">
+  <buttongroup name="skew_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
@@ -5401,7 +5401,7 @@ ZERO</string>
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="skew_buttonGroup">
+  <buttongroup name="length_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>

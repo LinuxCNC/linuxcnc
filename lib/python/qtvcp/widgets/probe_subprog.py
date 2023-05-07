@@ -19,18 +19,23 @@ import time
 import json
 
 from PyQt5.QtCore import QObject
-from qtvcp.core import Status, Action
+from qtvcp.core import Status, Action, Info
 from qtvcp.widgets.probe_routines import ProbeRoutines
 
 # Instantiate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
 STATUS = Status()
 ACTION = Action()
-
+INFO = Info()
 class ProbeSubprog(QObject, ProbeRoutines):
     def __init__(self):
         QObject.__init__(self)
         ProbeRoutines.__init__(self)
+        if INFO.MACHINE_IS_METRIC:
+            self._format_template = "%3.3f"
+        else:
+            self._format_template = "%2.4f"
+
         self.send_dict = {}
         self.error_status = None
         # list of parameters received from main probe program
@@ -192,9 +197,19 @@ class ProbeSubprog(QObject, ProbeRoutines):
             self['status_' + i] = 0.0
 
     def collect_status(self):
+       try:
+        tmpl = lambda s: self._format_template % s
         for key in self.status_list:
-            data = "{:3.3f}".format(self['status_' + key])
+            data = tmpl(self['status_' + key])
             self.send_dict.update( {key: data} )
+       except Exception as e:
+        print('ERROR ',e)
+       return
+
+        #for key in self.status_list:
+        #    data = "{:3.3f}".format(self['status_' + key])
+        #    self.send_dict.update( {key: data} )
+        #return
 
 ########################################
 # required boiler code
