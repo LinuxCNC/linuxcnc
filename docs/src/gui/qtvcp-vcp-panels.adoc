@@ -275,6 +275,20 @@ loadusr qtvcp vismach_mill_xyz
 .QtVCP `vismach_mill_xyz` - 3-Axis Mill 3D View Panel
 image::images/qtvismach.png["QtVCP vismach_mill_xyz - 3-Axis Mill 3D View Panel",align="center"]
 
+=== QtVCP `vismach_router_atc`
+
+3D OpenGL view of a _3-Axis router style, gantry bed milling machine_. +
+This particular panel shows how to define and connect the model parts in the handler file, rather then importing the
+pre-built model from qtvcp's vismach library.
+ 
+[source,{hal}]
+----
+loadusr qtvcp vismach_router_atc
+----
+
+.QtVCP `vismach_router_atc` - 3-Axis Gantry Bed Mil 3D View Panel
+image::images/qtvismach_router_atc.png["QtVCP vismach_router_atc - 3-Axis Gantry Bed Mill 3D View Panel",align="center"]
+
 === QtVCP `vismach_scara`
 
 3D OpenGL view of a _SCARA based milling machine_.
