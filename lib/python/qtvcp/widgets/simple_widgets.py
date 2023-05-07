@@ -705,10 +705,10 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
                 grad.setColorAt(.5, QtCore.Qt.white)
                 grad.setColorAt(.8, color)
                 p.setBrush(QtGui.QBrush(grad))
-                p.drawRoundedRect(topLeft.x()+(self.width()*((1-self._w_fraction)/2)) + self._top_edge_offset,
-                                    topLeft.y()+self._right_edge_offset,
-                                    self.width()*self._w_fraction+2,
-                                    self.height()*self._h_fraction,
+                p.drawRoundedRect(int(topLeft.x()+(self.width()*((1-self._w_fraction)/2)) + self._top_edge_offset),
+                                    int(topLeft.y()+self._right_edge_offset),
+                                    int(self.width()*self._w_fraction+2),
+                                    int(self.height()*self._h_fraction),
                                     self._corner_radius, self._corner_radius)
 
 
@@ -726,10 +726,10 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
                 grad.setColorAt(.5, QtCore.Qt.white)
                 grad.setColorAt(.8, color)
                 p.setBrush(QtGui.QBrush(grad))
-                p.drawRoundedRect(topRight.x()- self.width()*self._w_fraction-self._right_edge_offset,
-                                    topRight.y()+(self.height()*((1-self._h_fraction)/2)) + self._top_edge_offset,
-                                    self.width()*self._w_fraction,
-                                    self.height()*self._h_fraction,
+                p.drawRoundedRect(int(topRight.x()- self.width()*self._w_fraction-self._right_edge_offset),
+                                    int(topRight.y()+(self.height()*((1-self._h_fraction)/2)) + self._top_edge_offset),
+                                    int(self.width()*self._w_fraction),
+                                    int(self.height()*self._h_fraction),
                                     self._corner_radius, self._corner_radius)
 
     def set_indicator(self, data):
