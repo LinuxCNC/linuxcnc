@@ -135,8 +135,37 @@ module will create the following pins for each instance of the driver:
 
 *modname.drive_delay* (default 0)
 
+•modname.update-hz* (default 0)
+
+*modname.fault* - indicates a fault with the device or comms
+
+*modname.last-error* - indicates the error code that set the fault
+output.
+
 These can be redefined at any time and will take effect the next time
 that a modbus packet is assembled.
+
+*modname.update-hz* is provided to slow down the transaction rate for
+modbus devices that become unstable if polled too frequently. If you see
+fault 11 then try setting this to 0.1Hz or even 1Hz. If set to zero the
+system runs as fast as it can.
+
+The fault codes returned in "last error" are
+
+|===
+|Code|Fault
+|1|Illegal Function
+|2|Illegal Data Address
+|3|Illegal Data Value
+|4|Server Device Failure
+|5|Acknowledge
+|6|Server Device Busy
+|7|Negative Acknowledge
+|8|Memory Parity Error
+|9|Gateway Path Unavailable
+|10|Gateway Failed to Respond
+|11|Comm Timeout
+|===
 
 Each module exports a single HAL function to be attached to a realtime
 thread. The function name is just the module name, with no distinction

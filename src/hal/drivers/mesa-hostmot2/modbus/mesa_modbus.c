@@ -347,8 +347,8 @@ int rtapi_app_main(void){
                                     i, channels[c].name);
                                 retval = hal_pin_float_newf(HAL_IN,
                                     (hal_float_t**)&(inst->hal->scale[p]),
-                                    comp_id, COMP_NAME".%02i.%s-%02i-scale",
-                                    i, channels[c].name, j);
+                                    comp_id, COMP_NAME".%02i.%s-scale",
+                                    i, channels[c].name);
                                 retval = hal_pin_float_newf(dir,
                                     (hal_float_t**)&(inst->hal->pin2[p]),
                                     comp_id, COMP_NAME".%02i.%s-scaled",
@@ -380,11 +380,11 @@ int rtapi_app_main(void){
                                 retval = hal_pin_float_newf(HAL_IN,
                                     (hal_float_t**)&(inst->hal->scale[p]),
                                     comp_id, COMP_NAME".%02i.%s-scale",
-                                    i, channels[c].name, j);
+                                    i, channels[c].name);
                                 retval = hal_pin_float_newf(HAL_IN,
                                     (hal_float_t**)&(inst->hal->pin2[p]),
                                     comp_id, COMP_NAME".%02i.%s-offset",
-                                    i, channels[c].name, j);
+                                    i, channels[c].name);
                             }
                             *(inst->hal->scale[p]) = 1;
                             p++;
