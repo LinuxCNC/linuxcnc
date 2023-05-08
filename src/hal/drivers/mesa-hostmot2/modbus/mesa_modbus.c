@@ -156,15 +156,15 @@ char *ports[MAX_CHAN];
 RTAPI_MP_ARRAY_STRING(ports, MAX_CHAN, "PktUART names");
 
 int rtapi_app_main(void){
+    int retval;
+    int i; // instance loops
+    int c; // channel loop
+    int p; // pin loops
+    int j; // generic loops
+    char hal_name[HAL_NAME_LEN];
 
     rtapi_set_msg_level(DEBUG);
-    
-    int retval;
-    char hal_name[HAL_NAME_LEN];
-    unsigned int rxmode;
-    unsigned int txmode;
-    unsigned int filter;
-    
+
     if (!ports[0]) {
         rtapi_print_msg(RTAPI_MSG_ERR, "The "COMP_NAME" component requires at least"
                 " one valid pktuart port, eg ports=\"hm2_5i25.0.pktuart.7\"\n");
@@ -190,12 +190,12 @@ int rtapi_app_main(void){
     for (m->num_insts = 0; ports[m->num_insts];m->num_insts++) {}
     m->insts = (hm2_modbus_inst_t*)rtapi_kmalloc(m->num_insts * sizeof(hm2_modbus_inst_t), RTAPI_GFP_KERNEL);
     // Parse the config string
-    for (int i = 0; i < m->num_insts; i++) {
+    for (i = 0; i < m->num_insts; i++) {
         hm2_modbus_inst_t *inst = &m->insts[i];
         inst->num_chans = sizeof(channels)/sizeof(channels[0]);
         // there may be more pins than channels
         inst->num_pins = 0;
-        for (int c = 0; c < inst->num_chans; c++){
+        for (c = 0; c < inst->num_chans; c++){
             inst->num_pins += channels[c].count;
         }
         // Malloc structs and pins, some in main or kernel memory, some in HAL
@@ -244,8 +244,8 @@ int rtapi_app_main(void){
                     
         do_setup(inst);
  
-        int p = 0; // HAL pin index, not aligned to channel index
-        for (int c = 0; c < inst->num_chans; c++){
+        p = 0; // HAL pin index, not aligned to channel index
+        for (c = 0; c < inst->num_chans; c++){
             hm2_modbus_channel_t *ch = &(inst->chans[c]);
             hal_pin_dir_t dir;
             rtapi_print_msg(RTAPI_MSG_INFO, "ch %i is at %p\n", c, ch);
@@ -277,7 +277,7 @@ int rtapi_app_main(void){
                 case 1: // read coils
                 case 2: // read inputs
                     if (ch->count > 1){
-                        for (int j = 0; j < ch->count; j++){
+                        for (j = 0; j < ch->count; j++){
                             retval = hal_pin_bit_newf(dir,
                                     (hal_bit_t**)&(inst->hal->pins[p++]),
                                     comp_id, COMP_NAME".%02i.%s-%02i",
@@ -310,7 +310,7 @@ int rtapi_app_main(void){
                     // deliberate fall-through
                 case 3: // read holding registers
                 case 4: // read input registers
-                    for (int j = 0; j < ch->count; j++){
+                    for (j = 0; j < ch->count; j++){
                         switch (ch->type){
                         case HAL_U32:
                             if (ch->count > 1) {
@@ -391,7 +391,7 @@ int rtapi_app_main(void){
                             break;
                         default:
                            rtapi_print_msg(RTAPI_MSG_ERR,
-                           "Unsupported HAL pin type in mesa_modbus definition file\n",
+                           "Unsupported HAL pin type (%i) in mesa_modbus definition file\n",
                                          ch->type);
                             goto fail0;
                         } // type switch
@@ -472,14 +472,14 @@ int send_modbus_pkt(hm2_modbus_inst_t *inst){
     rtapi_u16 checksum;
     rtapi_u16 fsizes[1];
     rtapi_u8  frames;
-    int p = 0; // data string pointer
+    int i; 
 
     checksum = RTU_CRC(ch->data, ch->ptr + 1);
     ch->data[++(ch->ptr)] = checksum & 0xFF;
     ch->data[++(ch->ptr)] = (checksum >> 8) & 0xFF;
 
     rtapi_print_msg(RTAPI_MSG_INFO, "Sending to %s %i bytes ", inst->port, ch->ptr + 1);
-    for (int i = 0; i <= ch->ptr; i++) rtapi_print_msg(RTAPI_MSG_INFO, " %02X ", ch->data[i]);
+    for (i = 0; i <= ch->ptr; i++) rtapi_print_msg(RTAPI_MSG_INFO, " %02X ", ch->data[i]);
     rtapi_print_msg(RTAPI_MSG_INFO, "\n");
 
     frames = 1;
@@ -543,7 +543,7 @@ void process(void *arg, long period) {
             break;
         case WAIT_FOR_SEND_BEGIN:
             // single cycle delay to allow for queued data
-            rtapi_print_msg(RTAPI_MSG_INFO, "WAIT_FOR_SEND_BEGIN\n", txstatus, rxstatus);
+            rtapi_print_msg(RTAPI_MSG_INFO, "WAIT_FOR_SEND_BEGIN RX %X TX %X\n", txstatus, rxstatus);
             do_timeout(inst); // just to reset the counter
             inst->state = WAIT_FOR_SEND_COMPLETE;
             break;
@@ -645,9 +645,9 @@ int build_data_frame(hm2_modbus_inst_t *inst){
     hm2_modbus_channel_t *ch = &(inst->chans[inst->index]);
     hm2_modbus_hal_t hal = *inst->hal;
     rtapi_u8 acc = 0;
-    int byte_count;
     int r;
     int p = ch->start_pin;
+    int i;
 
     rtapi_print_msg(RTAPI_MSG_INFO, "building packet %X %X start pin %i\n", ch->func, ch->addr, p);
     
@@ -686,13 +686,15 @@ int build_data_frame(hm2_modbus_inst_t *inst){
                 }
                 rtapi_print_msg(RTAPI_MSG_INFO, "678\n");
                 break;
+            default:
+                break;
             }
             break;
         case 15: // Write multiple coils
             r += ch_append16(ch, ch->addr);
             r += ch_append16(ch, ch->count);
             r += ch_append8(ch, ( ch->count + 8 - 1) / 8);
-            for (int i = 0; i < ch->count; i++){
+            for (i = 0; i < ch->count; i++){
                 if (hal.pins[p++]->b) acc += 1 << (i % 8);
                 if (i % 8 == 7 || i == (ch->count -1)) { // time for the next byte
                     r += ch_append8(ch, acc);
@@ -704,7 +706,7 @@ int build_data_frame(hm2_modbus_inst_t *inst){
             r += ch_append16(ch, ch->addr);
             r += ch_append16(ch, ch->count);
             r += ch_append8(ch, ch->count * 2);
-            for (int i = 0; i < ch->count; i++){
+            for (i = 0; i < ch->count; i++){
                 switch (ch->type){
                 case HAL_U32:
                     r += ch_append16(ch, (rtapi_u16)hal.pins[p]->u);
@@ -716,6 +718,8 @@ int build_data_frame(hm2_modbus_inst_t *inst){
                     if (*(hal.scale[p]) != 0){
                         r+= ch_append16(ch, (rtapi_u16)((hal.pins[p]->f - hal.pin2[p]->f) / *hal.scale[p])) ;
                     }
+                    break;
+                default:
                     break;
                 }
                 p++ ; // increment pin pointer
@@ -777,13 +781,14 @@ int parse_data_frame(hm2_modbus_inst_t *inst){
             for (i = 0; i < bytes[2] / 2; i++){
                 switch (ch->type){
                 case HAL_U32:
-                    hal.pins[p]->u = 256 * bytes[w++] + bytes[w++];
+                    hal.pins[p]->u = 256 * bytes[w] + bytes[w + 1];
+                    w += 2;
                     p++;
                     break;
                 case HAL_S32: // wrap the result into the (s32) offset too
                     tmp = hal.pins[p]->s;
-                    //hal.pins[p]->s = bytes[w++] * 256 + bytes[w++];
-                    hal.pins[p]->s = (rtapi_s16)( hal.pins[p]->s - 0x4000); // Testing wrap
+                    hal.pins[p]->s = bytes[w] * 256 + bytes[w + 1];
+                    w += 2;
                     tmp = hal.pins[p]->s - tmp;
                     if (tmp > 32768) tmp -= 65536;
                     if (tmp < -32768) tmp += 65536;
@@ -792,9 +797,12 @@ int parse_data_frame(hm2_modbus_inst_t *inst){
                     p++;
                     break;
                 case HAL_FLOAT:
-                    hal.pins[p]->f = (256 * bytes[w++] + bytes[w++])
+                    hal.pins[p]->f = (256 * bytes[w] + bytes[w + 1])
                                     * *(hal.scale[p]) + hal.pin2[p]->f;
+                    w += 2;
                     p++;
+                    break;
+                default:
                     break;
                 }
             }
@@ -821,12 +829,11 @@ int parse_data_frame(hm2_modbus_inst_t *inst){
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Unknown or unsupported Modbus function code\n");
     }
-    
+    return 0;
 }
 
 void rtapi_app_exit(void){
 int i;
-int j;
 for (i = 0; i < m->num_insts;i++){
     if (m->insts[i].chans != NULL) rtapi_kfree(m->insts[i].chans);
     // rtapi_kfree(m->insts[i].hal); Automatically freed as was hal_malloc-ed
@@ -836,14 +843,15 @@ if (m != NULL) rtapi_kfree(m);
 hal_exit(comp_id);
 }
 
-uint16_t RTU_CRC(rtapi_u8* buf, int len)
-{
+uint16_t RTU_CRC(rtapi_u8* buf, int len){
   uint16_t crc = 0xFFFF;
+  int pos;
+  int i;
   
-  for (int pos = 0; pos < len; pos++) {
+  for (pos = 0; pos < len; pos++) {
     crc ^= (uint16_t)buf[pos];          // XOR byte into least sig. byte of crc
   
-    for (int i = 8; i != 0; i--) {    // Loop over each bit
+    for (i = 8; i != 0; i--) {    // Loop over each bit
       if ((crc & 0x0001) != 0) {      // If the LSB is set
         crc >>= 1;                    // Shift right and XOR 0xA001
         crc ^= 0xA001;
