@@ -517,7 +517,6 @@ void process(void *arg, long period) {
         case START:
 
             if (inst->hal->rate > 0 && (timer -= period) > 0) break;
-            timer = 1e9 / inst->hal->rate;
 
             rtapi_print_msg(RTAPI_MSG_INFO, "START txstatus = %08X rxstatus = %08X\n", txstatus, rxstatus);
 
@@ -538,6 +537,7 @@ void process(void *arg, long period) {
             if (build_data_frame(inst)){ // if data has changed
                 r = send_modbus_pkt(inst);
                 inst->state = WAIT_FOR_SEND_BEGIN;
+                timer = 1e9 / inst->hal->rate;
             }
 
             break;
