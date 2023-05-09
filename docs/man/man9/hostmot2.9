@@ -92,6 +92,7 @@ The valid entries in the format string are:
  [num_pwmgens=\fIN\fB]
  [num_3pwmgens=\fIN\fB]
  [num_oneshots=\fIN\fB]
+ [num_periodms=\fIN\fB]
  [num_rcpwmgens=\fIN\fB]
  [num_stepgens=\fIN\fB]
  [stepgen_width=\fIN\fB]
@@ -855,6 +856,66 @@ These monitor the filtered inputs.
 (bit rw) swtrigger1,swtrigger2
 software trigger inputs to trigger timer1 and timer2.
 
+.SS periodm
+The periodm is a period/width/duty cycle measuring module. It can measure period, frequency,
+pulse width and duty cycle. It can also average readings for noise filering.
+
+Pins:
+ 
+.TP
+(float r) period_us
+Input period in microseconds.
+
+.TP
+(float r) width_us
+Input pulse width in microseconds.
+
+.TP
+(float r) duty_cycle
+Input duty cycle (width/period) scaling and offset are changeable.
+
+.TP
+(float rw) duty_cycle_scale
+Sets the scale of the duty cycle value, default is 100.
+
+.TP
+(float rw) duty_cycle_offset
+Sets an offset to the duty cycle value, added after scaling. Default is 0.
+
+.TP
+(float rw) averages
+Number of periods/widths to average. From 1 to 4095. Update rate of period, width, duty cycle, and frequency
+will be input frequency/averages.
+
+.TP
+(float r) frequency
+Input frequency in Hz.
+
+.TP
+(float w) minimum_frequency
+Minimum input frequency in Hz, if input frequency is lower than this threshold, the valid bit will be cleared.
+
+.TP
+(float w) filtertc_us
+The periodm input in conditioned with a digital filter for noise rejection. The time constant 
+of this filter is settable via this pin in units of microseconds. Pulses shorter than this time
+constant will not be recognized.
+
+.TP
+(bit out) valid
+The valid output bit is true when the input signal is present and the input frequency exceeds the minimum frequency setting.
+  
+.TP
+(bit in) invert
+The invert bit sets the input polarity, when false, the input is direct which means the input high time
+determines the width. When set true, the input is inverted so the input low time determines the width. 
+
+.TP
+(bit out) input_status
+The input_status bit reads the real time filtered input status (affected by invert pin). 
+
+
+ 
 .SS rcpwmgen
 The rcpwmgen is a simple PWM generator optimized for use with standard RC servos that use pulse width to determine position.
 rcpwmgens have names like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.rcpwmgen.\fI<Instance>\fR" where <Instance> is a 2-digit number.
