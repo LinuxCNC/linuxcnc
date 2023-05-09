@@ -472,7 +472,7 @@ int send_modbus_pkt(hm2_modbus_inst_t *inst){
     rtapi_u16 checksum;
     rtapi_u16 fsizes[1];
     rtapi_u8  frames;
-    int i; 
+    int i;
 
     checksum = RTU_CRC(ch->data, ch->ptr + 1);
     ch->data[++(ch->ptr)] = checksum & 0xFF;

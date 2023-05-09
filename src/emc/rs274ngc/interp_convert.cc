@@ -4750,11 +4750,10 @@ The approach to operating in incremental distance mode (g91) is to
 put the the absolute position values into the block before using the
 block to generate a move.
 
-In inverse time feed mode, a lower bound of 0.1 is placed on the feed
-rate so that the feed rate is never set to zero. If the destination
-point is the same as the current point, the feed rate would be
-calculated as zero otherwise.
-
+If the destination point is the same as the current point, the feed rate
+will be calculated as zero, so a default of 0.1 is applied in this case
+(It doesn't matter how wrong the feed rate is on a zero-length move)
+ 
 If cutter compensation is in use, the path's length may increase or
 decrease.  Also an arc may be added, to go around a corner, before the
 straight move.  For the purpose of calculating the feed rate when in
