@@ -133,7 +133,7 @@ class ProbeSubprog(QObject, ProbeRoutines):
 
                     # error = 1 means success,
                     # error = None means ignore,
-                    # anything else is an error - a returned string is n error message
+                    # anything else is an error - a returned string is an error message
                     if error is not None:
                         if error != 1:
                             if type(error) == str:
@@ -166,10 +166,10 @@ class ProbeSubprog(QObject, ProbeRoutines):
             if not STATUS.is_on_and_idle(): return None
             parms = json.loads(cmd[1])
             self.update_data(parms)
-            # start polling errirs here - parent program should have blocked their polling
+            # start polling errors here - parent program should have blocked their polling
             STATUS.unblock_error_polling()
             error = self[cmd[0]]()
-            if (error != 1 or type(error== str)) and STATUS.is_on_and_idle():
+            if (error != 1 or type(error)== str) and STATUS.is_on_and_idle():
                 ACTION.CALL_MDI("G90")
             return error
         else:

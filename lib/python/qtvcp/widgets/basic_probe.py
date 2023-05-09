@@ -215,7 +215,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             ACTION.SET_ERROR_MESSAGE('Basic Probe process finished  in error')
         elif "INFO" in line:
             pass
-        elif "DEBUG" in line:
+        elif "PROBE_ROUTINES" in line:
             if LOG.getEffectiveLevel() < LOG.INFO:
                 print(line)
         elif "COMPLETE" in line:
@@ -227,6 +227,8 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         elif "HISTORY" in line:
             if not self.set_statusbar(line,1):
                 STATUS.emit('update-machine-log', line, 'TIME')
+        elif "DEBUG" in line:
+            pass
         else:
             LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
 

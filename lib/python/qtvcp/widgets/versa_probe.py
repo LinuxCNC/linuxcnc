@@ -294,7 +294,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             #print(line)
             STATUS.unblock_error_polling()
             ACTION.SET_ERROR_MESSAGE('Versa Probe process finished in error')
-        elif "DEBUG" in line:
+        elif "PROBE_ROUTINES" in line:
             if LOG.getEffectiveLevel() < LOG.INFO:
                 print(line)
         elif "INFO" in line:
@@ -308,6 +308,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         elif "HISTORY" in line:
             if not self.set_statusbar(line,1):
                 STATUS.emit('update-machine-log', line, 'TIME')
+        elif "DEBUG" in line:
+            pass
         else:
             LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
 
