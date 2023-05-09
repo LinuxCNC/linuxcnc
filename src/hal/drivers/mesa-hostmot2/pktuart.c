@@ -559,7 +559,6 @@ int hm2_pktuart_read(char *name, unsigned char data[], rtapi_u8 *num_frames, rta
  * fsizes should be u32 x 16
  * FIXME: decide how to work out that the data has all been transferred
  */
-EXPORT_SYMBOL_GPL(hm2_pktuart_queue_get_frame_sizes);
 int hm2_pktuart_queue_get_frame_sizes(char *name, rtapi_u32 fsizes[]){
     // queue as many reads of the FIFO as there are frames
     hostmot2_t *hm2;
@@ -589,6 +588,7 @@ int hm2_pktuart_queue_get_frame_sizes(char *name, rtapi_u32 fsizes[]){
     }
     return j - 1;
 }
+EXPORT_SYMBOL_GPL(hm2_pktuart_queue_get_frame_sizes);
 
 /* This function queues sufficient reads to extract the available data.
  * It does no error checking and does not explicitly check if there is
@@ -599,7 +599,7 @@ int hm2_pktuart_queue_get_frame_sizes(char *name, rtapi_u32 fsizes[]){
  * frames, which should have been previously read by
  * hm2_pktuart_queue_get_frame_sizes returns the number of frame reads queued.
  */
-EXPORT_SYMBOL_GPL(hm2_pktuart_queue_read_data);
+
 int hm2_pktuart_queue_read_data(char *name, rtapi_u32 data[], int bytes) {
     hostmot2_t *hm2;
     int r;
@@ -628,35 +628,40 @@ int hm2_pktuart_queue_read_data(char *name, rtapi_u32 data[], int bytes) {
     }
     return i - 1;
 }
+EXPORT_SYMBOL_GPL(hm2_pktuart_queue_read_data);
 
-EXPORT_SYMBOL_GPL(hm2_pktuart_get_rx_status);
+
 rtapi_u32 hm2_pktuart_get_rx_status(char *name){
     hostmot2_t *hm2;
     int i = hm2_get_pktuart(&hm2, name);
     return hm2->pktuart.rx_status_reg[i];
 }
+EXPORT_SYMBOL_GPL(hm2_pktuart_get_rx_status);
 
-EXPORT_SYMBOL_GPL(hm2_pktuart_get_tx_status);
+
 rtapi_u32 hm2_pktuart_get_tx_status(char *name){
     hostmot2_t *hm2;
     int i = hm2_get_pktuart(&hm2, name);
     return hm2->pktuart.tx_status_reg[i];
 }
+EXPORT_SYMBOL_GPL(hm2_pktuart_get_tx_status);
 
-EXPORT_SYMBOL_GPL(hm2_pktuart_get_clock);
+
 int hm2_pktuart_get_clock(char* name){
     hostmot2_t *hm2;
     int i = hm2_get_pktuart(&hm2, name);
     hm2_pktuart_instance_t inst = hm2->pktuart.instance[i];
     return inst.clock_freq;
 }
+EXPORT_SYMBOL_GPL(hm2_pktuart_get_clock);
 
-EXPORT_SYMBOL_GPL(hm2_pktuart_get_version);
+
 int hm2_pktuart_get_version(char* name){
     hostmot2_t *hm2;
     hm2_get_pktuart(&hm2, name);
     return hm2->pktuart.tx_version + 16 * hm2->pktuart.rx_version  ;
 }
+EXPORT_SYMBOL_GPL(hm2_pktuart_get_version);
 
 void hm2_pktuart_print_module(hostmot2_t *hm2){
     int i;

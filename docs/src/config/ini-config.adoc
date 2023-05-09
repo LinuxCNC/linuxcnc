@@ -271,8 +271,8 @@ Descriptions of the interfaces are in the Interfaces section of the User Manual.
 * `MAX_SPINDLE_0_SPEED = 20000` - The maximum RPM that can be manually selected.
   On multi spindle machine there will be entries for each spindle number. Only used by the QtVCP-based user interfaces.
   - _deprecated_ - use the [SPINDLE_n] section instead.
-* `PROGRAM_PREFIX = ~/linuxcnc/nc_files` - The default location for G-code files and the location for user-defined M-codes.
-  This location is searched for the file name before the subroutine path and user M path if specified in the [RS274NGC] section.
+* `PROGRAM_PREFIX = ~/linuxcnc/nc_files` - The default directory for G-code files, named subroutines, and user-defined M-codes.
+  The `PROGRAM_PREFIX` directory is searched before the directories listed in `[RS274]SUBROUTINE_PATH` and `[RS274]USER_M_PATH`.
 * `INTRO_GRAPHIC = emc2.gif` - The image shown on the splash screen.
 * `INTRO_TIME = 5` - The maximum time to show the splash screen, in seconds.
 * `CYCLE_TIME = 100` - Cycle time of the display GUI.

@@ -98,6 +98,7 @@ class HandlerClass:
         self.axis_a_list = ["label_axis_a", "dro_axis_a", "action_zero_a", "axistoolbutton_a",
                             "dro_button_stack_a", "widget_jog_angular", "widget_increments_angular",
                             "a_plus_jogbutton", "a_minus_jogbutton"]
+        self.statusbar_reset_time = 10000 # ten seconds
 
         STATUS.connect('general', self.dialog_return)
         STATUS.connect('state-on', lambda w: self.enable_onoff(True))
@@ -1197,16 +1198,23 @@ class HandlerClass:
     def writer(self):
         WRITER.show()
 
+    def endcolor(self):
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.set_style_default)
+        self.timer.start(self.statusbar_reset_time)
+
     # change Status bar text color
     def set_style_default(self):
         self.w.statusbar.setStyleSheet(
                 "background-color: rgb(252, 252, 252);color: rgb(0,0,0)")  #default white
     def set_style_warning(self):
         self.w.statusbar.setStyleSheet(
-                "background-color: rgb(242, 246, 103);color: rgb(0,0,0)")  #yelow
+                "background-color: rgb(242, 246, 103);color: rgb(0,0,0)")  #yellow
+        self.endcolor()
     def set_style_critical(self):
         self.w.statusbar.setStyleSheet(
                 "background-color: rgb(255, 144, 0);color: rgb(0,0,0)")   #orange
+        self.endcolor()
 
     def adjust_stacked_widgets(self,requestedIndex):
         IGNORE = -1

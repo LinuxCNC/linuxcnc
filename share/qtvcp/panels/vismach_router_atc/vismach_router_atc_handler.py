@@ -15,10 +15,14 @@ from qtvcp.lib.qt_vismach.qt_vismach import *
 STATUS = Status()
 PATH = Path()
 
-###### VISMACH MODEL CODE #################
+###########################################
+# **** VISMACH MODEL CODE ****            #
+###########################################
+
+# decided not to use separate component in example
 #import hal
 
-#c = hal.component("3axisatcgui")
+#c = hal.component("router_atc")
 #c.newpin("joint0", hal.HAL_FLOAT, hal.HAL_IN)
 #c.newpin("joint1", hal.HAL_FLOAT, hal.HAL_IN)
 #c.newpin("joint2", hal.HAL_FLOAT, hal.HAL_IN)
@@ -29,21 +33,16 @@ work = Capture()
 tool = Capture()
 tooltip = Capture()
 
-
-
 # kinematic axis
 # axis_y -> axis_x -> axis_z  -> tool
 # base -> work
 
-
 # tool
-
 tool = Collection([tooltip, tool])
 
 
 # axis z
-print(PATH.PANELDIR)
-objfile = os.path.join(PATH.PANELDIR, "3axisatcgui/headz.obj")
+objfile = os.path.join(PATH.PANELDIR, "vismach_router_atc/headz.obj")
 axisz = AsciiOBJ(filename=objfile)
 axisz = Color([1,1,1,1],[axisz])
 axisz = Rotate([axisz],90,1,0,0)
@@ -52,18 +51,18 @@ axisz = Collection([axisz, tool])
 axisz = Translate([axisz],0,0,-77)
 #axisz = HalTranslate([axisz],c,"joint2",0,0,1)
 axisz = HalTranslate([axisz], None, "joint.2.pos-fb",0,0,1)
-# axis x
 
-objfile = os.path.join(PATH.PANELDIR, "3axisatcgui/head.obj")
+# axis x
+objfile = os.path.join(PATH.PANELDIR, "vismach_router_atc/head.obj")
 head = AsciiOBJ(filename=objfile)
 head = Color([0.5,0.5,1,1],[head])
 head = Rotate([head],90,1,0,0)
 axisx = Collection([axisz, head])
 #axisx = HalTranslate([axisx],c,"joint0",1,0,0)
 axisx = HalTranslate([axisx],None, "joint.0.pos-fb",1,0,0)
-# axis y
 
-objfile = os.path.join(PATH.PANELDIR, "3axisatcgui/gantri.obj")
+# axis y
+objfile = os.path.join(PATH.PANELDIR, "vismach_router_atc/gantri.obj")
 rack = AsciiOBJ(filename=objfile)
 rack = Color([0.7,0.7,0.4,0.4],[rack])
 rack = Rotate([rack],90,1,0,0)
@@ -72,20 +71,18 @@ axisy = Collection([axisx, rack])
 axisy = HalTranslate([axisy],None, "joint.1.pos-fb",0,1,0)
 machine = Collection([axisy])
 
-
-
 # base
-objfile = os.path.join(PATH.PANELDIR, "3axisatcgui/rangka.obj")
+objfile = os.path.join(PATH.PANELDIR, "vismach_router_atc/rangka.obj")
 rangka = AsciiOBJ(filename=objfile)
 rangka = Color([1,1,1,1],[rangka])
 rangka = Rotate([rangka],90,1,0,0)
 
-objfile = os.path.join(PATH.PANELDIR, "3axisatcgui/bed.obj")
+objfile = os.path.join(PATH.PANELDIR, "vismach_router_atc/bed.obj")
 bed = AsciiOBJ(filename=objfile)
 bed = Color([1,0.8,0.2,0.2],[bed])
 bed = Rotate([bed],90,1,0,0)
 
-objfile = os.path.join(PATH.PANELDIR, "3axisatcgui/atc.obj")
+objfile = os.path.join(PATH.PANELDIR, "vismach_router_atc/atc.obj")
 atc = AsciiOBJ(filename=objfile)
 atc = Color([0.5,0.5,0.5,0.5],[atc])
 atc = Rotate([atc],90,1,0,0)
@@ -95,6 +92,20 @@ work = Capture()
 base = Collection([rangka, bed, atc, work])
 
 model = Collection([base, machine])
+
+# uncomment for a DRO HUD
+#myhud = HalHud()
+#myhud.set_background_color(0,.1,.2,0)
+#myhud.show_top("Router_atc")
+#myhud.show_top("------------")
+#myhud.add_pin('axis-x: ',"{:10.4f}","axis.x.pos-cmd")
+#myhud.add_pin('axis-y: ',"{:10.4f}","axis.y.pos-cmd")
+#myhud.add_pin('axis-z: ',"{:10.4f}","axis.z.pos-cmd")
+#myhud.show("-------------")
+
+###########################################
+# model window                            #
+###########################################
 
 # we want to embed with qtvcp so build a window to display
 # the model
@@ -130,6 +141,7 @@ class VisWindow(QWidget):
 # **** instantiate libraries section **** #
 ###########################################
 STATUS = Status()
+
 ###################################
 # **** HANDLER CLASS SECTION **** #
 ###################################

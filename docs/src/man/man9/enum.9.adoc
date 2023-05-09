@@ -54,9 +54,9 @@ E and D-type enumerations may be freely mixed in separate instances.
 
 == FUNCTIONS
 
-*enum-decode._NN_.decode* - if instance type = "D"
+*enum-decode._NN_* - if instance type = "D"
 
-*enum-encode._NN_.encode* - if instance type = "E"
+*enum-encode._NN_* - if instance type = "E"
 
 == PINS
 

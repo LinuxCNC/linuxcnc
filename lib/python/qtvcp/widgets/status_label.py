@@ -159,7 +159,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         elif self.halpin:
             STATUS.connect('periodic', lambda w: self._set_halpin_text())
         else:
-            LOG.warning('{} : no option recognised'.format(self.HAL_NAME_))
+            LOG.debug('{} : no option recognised'.format(self.HAL_NAME_))
 
     def _set_text(self, data):
             tmpl = lambda s: str(self._textTemplate) % s

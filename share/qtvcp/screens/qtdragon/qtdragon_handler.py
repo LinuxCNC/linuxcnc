@@ -97,6 +97,7 @@ class HandlerClass:
                             "btn_home_z", "action_home_a", "btn_reload_file", "macrobutton0", "macrobutton1",
                             "macrobutton2", "macrobutton3", "macrobutton4", "macrobutton5", "macrobutton6",
                             "macrobutton7", "macrobutton8", "macrobutton9"]
+        self.statusbar_reset_time = 10000 # ten seconds
 
         STATUS.connect('general', self.dialog_return)
         STATUS.connect('state-on', lambda w: self.enable_onoff(True))
@@ -1139,13 +1140,20 @@ class HandlerClass:
     def writer(self):
         WRITER.show()
 
+    def endcolor(self):
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.set_style_default)
+        self.timer.start(self.statusbar_reset_time)
+
     # change Status bar text color
     def set_style_default(self):
         self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(252, 252, 252);color: rgb(0,0,0)")  #default white
     def set_style_warning(self):
-        self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(242, 246, 103);color: rgb(0,0,0)")  #yelow
+        self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(242, 246, 103);color: rgb(0,0,0)")  #yellow
+        self.endcolor()
     def set_style_critical(self):
         self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(255, 144, 0);color: rgb(0,0,0)")   #orange
+        self.endcolor()
 
     def adjust_stacked_widgets(self,requestedIndex):
         IGNORE = -1

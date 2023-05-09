@@ -13,7 +13,7 @@ SystemToolButton,
 OffsetToolButton,
 AxisToolButton, 
 QToolButton {
-background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1.6, stop:0 rgba(180, 180, 180, 225),  stop:0.6 rgba(130, 130, 130, 180));
+background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1.6, stop:0 rgba(180, 180, 180, 225),  stop:0.6 rgba(130, 130, 130, 225));
     border: 2px solid black;
     border-radius: 4px;
     font: 10pt "Lato Heavy";
@@ -38,9 +38,11 @@ AxisToolButton:hover {
 
 QPushButton:disabled,
 ActionButton:disabled,
-AxisToolButton:disabled {
-    color:  #c8c8c8;
+AxisToolButton:disabled,
+QToolButton:disabled {
+    color:  #cacaca;
 }
+
 
 ActionButton#action_machine_on {
     color: #FF0000;
@@ -79,7 +81,8 @@ ActionButton#action_machine_on[isStateOn=true] {
 
 ActionButton#action_estop {
     color: #00FF00;
-    background: rgb(255, 80, 80,160);
+    background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(255, 120, 120,150),  stop:0.6 rgba(255, 20, 20,150));
+
 }
 
 
@@ -239,7 +242,7 @@ QProgressBar {
     background-color: rgb(250, 250, 250);
     border: 1px solid black;
     border-radius: 4px;
-    font: 9 pt "Lato Heavy";
+    font: 10pt "Lato Heavy";
 }
 
 QProgressBar::chunk {
@@ -394,5 +397,6 @@ OriginOffsetView {
    qproperty-imperial_template: '%9.4f'; 
    qproperty-metric_template: '%10.2f'; 
 }
+
 
 
