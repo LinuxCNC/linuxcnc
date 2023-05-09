@@ -131,6 +131,6 @@ int Interp::inverse_time_rate_straight(double end_x,     //!< x coordinate of en
   
   enqueue_SET_FEED_RATE(rate);
   settings->feed_rate = rate;
-  printf("Length = %f, rate = %f\n", length, rate);
+
   return INTERP_OK;
 }
