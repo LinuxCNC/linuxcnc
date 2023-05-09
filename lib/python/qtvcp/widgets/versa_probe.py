@@ -306,8 +306,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             data = json.loads(return_data[1])
             self.show_results(data)
         elif "HISTORY" in line:
-            STATUS.emit('update-machine-log', line, 'TIME')
-            LOG.info("Probe history updated to machine log")
+            if not self.set_statusbar(line,1):
+                STATUS.emit('update-machine-log', line, 'TIME')
         else:
             LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
 
@@ -379,6 +379,17 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 #####################################################
 # Helper functions
 #####################################################
+
+    # return false if failed so other ways of reporting can be used.
+    # there might not be a statusbar in main screen.
+    def set_statusbar(self, msg, priority = 2):
+        try:
+            self.QTVCP_INSTANCE_.add_status(msg, priority)
+        except:
+            return False
+        return True
+
+
     def get_parms(self):
         self.send_dict = {key: self['input_' + key].text() for key in (self.parm_list)}
         for key in ['allow_auto_zero', 'allow_auto_skew']:
