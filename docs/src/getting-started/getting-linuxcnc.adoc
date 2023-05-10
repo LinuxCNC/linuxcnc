@@ -11,10 +11,10 @@ adventurous.  If you have an existing install that you want to upgrade,
 go to the <<cha:updating-linuxcnc,Updating LinuxCNC>> section instead.
 
 NOTE: LinuxCNC requires a special kernel with real-time extensions.
-There are three possibilities here: preempt-rt, RTAI or Xenomai. In
-addition there are two versions of LinuxCNC which work with these kernels.
+There are three possibilities here: preempt-rt, RTAI or Xenomai. Preempt_rt  will eventually become part of the core Linux kernel and is now included as a package in most modern Linux distributions. Linuzxcnc is now included in Debian Bookworm. There are two other versions of LinuxCNC which work with Xenomai and RTAI kernels.
 See the table below for details.
-
+[[sec:download_image]]
+== Download the image
 Fresh installs of LinuxCNC are most easily created using the Live/Install
 Image.  This is a hybrid ISO filesystem image that can be written to a
 USB storage device or a DVD and used to boot a computer.  At boot time
@@ -23,49 +23,48 @@ without making any permanent changes to your computer) or booting the
 Installer (to install LinuxCNC and its operating system onto your
 computer's hard drive).
 
+With the release of Debian Bookworm (Debian 12) on 10 June 2023, another option is to simply install Debian from the debian.org website and install linuxcnc-uspace from the Synaptic package manager or by simply opening a terminal window and typing:
+----
+sudo apt install linuxcnc-uspace
+----
+
 The outline of the process looks like this:
 
-. Download the Live/Install Image.
-. Write the image to a USB storage device or DVD.
-. Boot the Live system to test out LinuxCNC.
+. Download the Live/Install Image from linuxcnc.org
+. or Download the Debian Bookworm image from  debian.org
+. Write your chosen image to a USB storage device or DVD.
+. Boot the Live system to test out LinuxCNC if using The Live/Install image.
 . Boot the Installer to install LinuxCNC.
 
-== Download the image
-
-This section describes some methods for downloading the Live/Install
-Image.
+If you choose use Debian Bookworm, some additional configuration may be required to make a more friendly environment. These steps will be covered in an seperate section later in this document. This section describes some methods for downloading the Live/Install Image.
 
 [[sec:_normal_download]]
 === Normal Download
 
 For x86 PCs Download the Live/Install CD by clicking here:
 
-https://linuxcnc.org/iso/linuxcnc-2.8.4-buster.iso
+https://linuxcnc.org/iso/linuxcnc-2.8.4-buster.iso  FIX_ME
 
 For the Raspberry Pi a complete SD card image is available here:
 
-https://linuxcnc.org/iso/linuxcnc-2.8.1-pi4.zip (this will auto-update
-to 2.8.4)
+https://linuxcnc.org/iso/linuxcnc-2.8.1-pi4.zip FIX_ME
 
-This can be installed using the normal Pi
+Another alternative for the Raspberry Pi is to download the Debian Bookworm image from https://raspi.debian.net/tested-images/
+
+This either Pi image can  be installed using the normal Pi
 https://www.raspberrypi.org/documentation/installation/installing-images/README.md[install process]
-including with the Raspberry Pi Imager app.
+and using the Raspberry Pi Imager app. Note the Debian image will require additional configuration as by default it does not install a graphical environment and only presents a text based console. How to complete the installation will be covered in a later section of this document.
 
-This SD image is reported not to work with the Raspberry Pi4 8GB model.
-Note also that this version of the SD image limits available memory to
-3GB as this is necessary to persuade it to run with both WiFi and USB
-working  on some versions of the Pi. You can experiment with removing
-this limit by editing the config-rt.txt file in the boot directory. If
-you can't boot after the change then the file can be edited back by
-mounting the SD card in a a different computer (maybe even a Pi with a
-USB card reader).
+[[sec:_debian_download]]
+=== Debian Download
+Simply got to the Debian Website at https://www.debian.org/ and click on the download button. Assuming  a x86 PC, choose the netinst CD version.
 
 === Download using zsync
 
 zsync is a download application that efficiently resumes interrupted
 downloads and efficiently transfers large files with small modifications
 (if you have an older local copy).  Use zsync if you have trouble
-downloading the image using the <<sec:_normal_download,Normal Download>>
+downloading the image using the <<sec:_normal_download,Normal Download>> or the <<sec:_debian_download,Debian Download>>
 method.
 
 .zsync in Linux
@@ -103,18 +102,19 @@ https://www.assembla.com/spaces/zsync-windows/documents
 . After downloading, verify the checksum of the image to ensure integrity.
 +
 ----
-md5sum linuxcnc-2.8.4-buster.iso
+md5sum linuxcnc-2.8.4-buster.iso FIX_ME
 ----
 +
 or
 +
 ----
-sha256sum linuxcnc-2.8.4-buster.iso
+sha256sum linuxcnc-2.8.4-buster.iso FIX_ME
 ----
 
 . Then compare to these checksums
 +
 -----
+FIX_ME
 md5sum: 8a6e6abd2c792c3e06fbee0ed049ed41
 sha256sum: 0bfeac3ddfe1bdbf5ca4dad84eeec165741d3f253a16b75e4405c06b7b489700
 -----
@@ -126,54 +126,17 @@ https://help.ubuntu.com/community/HowToMD5SUM[How To MD5SUM]
 
 == Write the image to a bootable device
 
-The Raspberry Pi image is a completes SD card image and should be
-written to an SD card in
-https://www.raspberrypi.org/documentation/installation/installing-images/README.md[the normal way].
+There are many ways to burn an ISO to a USB drive. Some tools include win32diskimager, rufus, DD and more. By far the fastest method is to use Balena Etcher. It supports Linux, Windows and Apple Macintosh. You can download Balena Etcher from https://www.balena.io/etcher
 
-The LinuxCNC Live/Install ISO Image is a hybrid ISO image which can
-be written directly to a USB storage device (flash drive) or a DVD and
-used to boot a computer. The image is too large to fit on a CD.
+The .iso file will be to big to fit on a CD but if required, it can be burnt to a DVD. Use a suitable DVD burner application on your operating system.
 
-.Writing the image to a USB storage device in Linux
-. Connect a USB storage device (for example a flash drive or thumb
-  drive type device).
-. Determine the device file corresponding to the USB flash drive.
-  This information can be found in the output of `dmesg` after
-  connecting the device.  `/proc/partitions` may also be helpful.
-. Use the `dd` command to write the image to your USB storage device.
-  For example, if your storage device showed up as `/dev/sde`,
-  then use this command:
+
+.Writing the image to a USB storage device on any Operating systems
+. Open Balena Etcher
+. select your .iso file
+. select your USB storage device.
+. Click on burn image FIX_ME
 +
------
-dd if=linuxcnc-2.8.4-buster.iso of=/dev/sde
------
-
-.Writing the image to a USB storage device in Mac OSX
-. Open a terminal and type
-+
------
-diskutil list
------
-
-. Insert the USB and note the name of the new disk that appears, eg
-  /dev/disk5
-. unmount the USB. The number found above should be substituted in place
-  of the N
-+
------
-diskutil unmountDisk /dev/diskN
------
-
-. Transfer the data with dd, as for Linux above. Note that the disk name
-  has an added "r" at the beginning
-+
------
-sudo dd if=/path-to.iso of=/dev/rdiskN bs=1m
------
-
-. Note that this may take a long time to complete and there will be no
-  feedback during the process.
-
 .Writing the image to a DVD in Linux
 . Insert a blank DVD into your burner. A 'CD/DVD Creator' or 'Choose
   Disc Type' window will pop up. Close this, as we will not be using it.
@@ -185,21 +148,7 @@ sudo dd if=/path-to.iso of=/dev/rdiskN bs=1m
 . If a 'choose a file name for the disc image' window pops up, just pick
   OK.
 
-.Writing the image to a DVD in Windows
-. Download and install Infra Recorder, a free and open source image
-  burning program: http://infrarecorder.org/
-. Insert a blank CD in the drive and select Do nothing or Cancel if an
-  auto-run dialog pops up.
-. Open Infra Recorder, and select the
-  'Actions' menu, then 'Burn image'.
-
-.Writing the image to a DVD in Mac OSX
-. Download the .iso file
-. Right-click on the file in the Finder window and select "Burn to disc"
-  (The option to burn to disc  will only appear if the machine has an
-  optical drive fitted or connected)
-
-== Testing LinuxCNC
+== Testing LinuxCNC with Live Image
 
 With the USB storage device plugged in or the DVD in the DVD drive,
 shut down the computer then turn the computer back on. This will boot
@@ -225,7 +174,7 @@ run the Latency Test as shown <<sec:latency-test,here>>.
 At the time of writing the Live-Image is only available with the
 preempt-rt kernel and a matching LinuxCNC. On some hardware this might
 not offer good enough latency. There is an experimental version available
-using the RTAI realtime kernel which will often give better latency.
+using the RTAI realtime kernel which will often give better latency. RTAI is only supported on older versions of Debian. Modern hardware demands  a modern operating system so this may be a poor choice.
 
 == Installing LinuxCNC
 
@@ -240,59 +189,49 @@ Linux knowledge needed.
 It is OK to upgrade everything except the operating system when asked to.
 
 [WARNING]
-Do not upgrade the operating system if prompted to do so. You
-should accept OS _updates_ however, especially security updates.
+If you have used the live image, Do not upgrade the operating system if prompted to do so. You should accept OS _updates_ however, especially security updates. Upgrading Debian Bookworm where you have installed linuxcnc-uspace from the repositories, upgrading the operating system should be quite safe.
 
 [[linuxcnc:install-problems]]
 == Install Problems(((LinuxCNC:Installation Problems)))(((Installation:Problems)))
 
+Most problems booting the installation image are due to uefi hardware. Fortuately, Debian Bookworm has significantly better support for uefi systems than earlier versions of Linux.
+
+Sometimes you can tell the BIOS to boot legacy (non-uefi) hardware.
+
 In rare cases you might have to reset the BIOS to default settings if
 during the Live CD install it cannot recognize the hard drive
 during the boot up.
-
+    
 [[sec:_alternate_install_methods]]
 == Alternate Install Methods(((LinuxCNC:Alternate Install Methods)))(((Installation:Alternate Methods)))
 
 The easiest, preferred way to install LinuxCNC is to use the Live/Install
-Image as described above.  That method is as simple and reliable as we
-can make it, and is suitable for novice users and experienced users alike.
-However, this will typically replace any existing operating system.
+Image or Debian Bookworm as described above.  Both methods are as simple and reliable as we can make it, and are suitable for novice users and experienced users alike. Both methods  will typically replace any existing operating system on your hard drive.
 
-In addition, for experienced users who are familiar with Debian system
-administration (finding install images, manipulating apt sources, changing
-kernel flavors, etc), new installs are supported on following platforms:
+Experienced users who are familiar with Debian system
+administration (finding install images, manipulating apt sources, changing kernel flavors, etc), new installs are supported on following platforms:
 ("amd64" means "64-bit", and is not specific to AMD processors, it will
 run on any 64-bit x86 system)
+Note that in Debian Bookworm, the preempt_rt kernel is a dependency of linuxcnc-uspace so it is automatically installed with linuxcnc so the Stock kernel is not listed.
 
 [options="header"]
 |===
-| Distribution    | Released | Architecture  | Kernel     | Package name    | Typical use
-| Debian Bookworm | n/a      | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
-| Debian Bookworm | n/a      | amd64 & armhf | preemp-rt  | linuxcnc-uspace | machine control & simulation
-| Debian Bookworm | n/a      | amd64         | RTAI       | linuxcnc        | machine control (known issues)
-| Debian Bullseye | 2021     | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
-| Debian Bullseye | 2021     | amd64 & armhf | preemp-rt  | linuxcnc-uspace | machine control & simulation
-| Debian Bullseye | 2021     | amd64         | RTAI       | linuxcnc        | machine control (known issues)
-| Debian Buster*  | 2019     | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
-| Debian Buster*  | 2019     | amd64 & armhf | preemp-rt  | linuxcnc-uspace | machine control & simulation
-| Debian Buster*  | 2019     | amd64         | RTAI       | linuxcnc        | machine control (known issues)
-| Debian Jessie*  | 2015     | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
-| Debian Wheezy*   | 2013    | i386          | RTAI       | linuxcnc        | machine control & simulation
-| Debian Wheezy*  | 2013     | amd64 & i386  | Preempt-RT | linuxcnc-uspace | machine control & simulation
-| Debian Wheezy*  | 2013     | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
-| Ubuntu Precise* | 2012     | i386          | RTAI       | linuxcnc        | machine control & simulation
-| Ubuntu Precise* | 2012     | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
+| Distribution   | Architecture  | Kernel     | Package name    | Typical use
+| Debian Bookworm| amd64 & i386  | preempt-rt | linuxcnc-uspace | machine e| Debian Buster  | amd64 & armhf | preempt-rt | linuxcnc-uspace | machine control & simulation
+| Debian Buster  | amd64         | RTAI       | linuxcnc        | machine control (known issues)
+| Debian Jessie  | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
+| Debian Wheezy  | i386          | RTAI       | linuxcnc        | machine control & simulation
+| Debian Wheezy  | amd64 & i386  | Preempt-RT | linuxcnc-uspace | machine control & simulation
+| Debian Wheezy  | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
+| Ubuntu Precise | i386          | RTAI       | linuxcnc        | machine control & simulation
+| Ubuntu Precise | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
 |===
 
-Distributions marked with (*) are end of life and no longer receive security patches.
-
-NOTE: LinuxCNC v2.8 is not supported on Ubuntu Lucid or older.
+NOTE: LinuxCNC v2.8 and above is not supported on Ubuntu Lucid or older.
 
 .Preempt-RT kernels
-The Preempt-rt kernels are available for Debian from the regular debian.org archive.
-The preempt-rt kernel for RaspBerry Pi is available from the LinuxCNC repository.
-The package is called `linux-image-rt-*`.
-Simply install the package in the same way as any other package from the Synaptic Package manager or with `apt-get` at the command-line.
+The Preempt-rt kernels are available for Debian from the regular debian.org archives. The package is called `linux-image-rt-*`.
+Simply install the package in the same way as any other package from the Synaptic Package manager or with `sudo apt-get install` at the command-line if it is not installed with linuxcnc-uspace.
 
 .RTAI Kernels
 The RTAI kernels are available for download from the linuxcnc.org debian archive.
@@ -303,7 +242,7 @@ The apt source is:
 * Ubuntu Precise: `deb https://linuxcnc.org precise base`
 
 [NOTE]
-Both Debian Wheezy (released 2013, end of life 2016), Debian Buster (released 2019, end of life 2022) and Ubuntu Precise (released 2012, end of life 2017) are old, and are out of their support period.
+Debian Wheezy and Ubuntu Precise are both extremely old, and are out of their support period.
 It is strongly advised not to use either for a new install, and to seriously consider upgrading an existing installation.
 
 The Buster / RTAI package is only available on amd64, but there are very few surviving systems that can not run a 64-bit OS.
@@ -319,15 +258,12 @@ But should nevertheless be considered experimental at this point.
 If you decide to use the RTAI 5.2 kernel and see a problem outside the circumstances described above,
 then please report it immediately to the project developers.
 
-=== Installing on Debian Buster (with Preempt-RT kernel)
+=== Installing on Debian Bookworm (with the Preempt-RT kernel)
 
-. Install Debian Buster (Debian 10), amd64 version. You can download the
-  installer here: https://www.debian.org/releases/buster/ .
+. Install Debian Bookworm (Debian 12), amd64 version.  .
 
-. After burning the iso and booting up, if you don't want Gnome desktop,
-  select 'Advanced Options' > 'Alternative desktop environments' and pick the one you like.
-
-. Then select 'Install' or 'Graphical Install'.
+. After burning the iso and booting up (preferably with a wired connection to the internet), select 'Install' or 'Graphical Install'. When asked to select a desktop we strongly recommend you use XFCE and don't install the default gnome desktop. This is because Gnome uses Wayland for graphic rendering. Linuxcnc has been developed over many years and was written using Xorg so full Wayland support may not have been achieved.
+.
 
 [WARNING]
 Do not enter a root password, if you do sudo is disabled and you won't be able to complete the following steps.
@@ -339,56 +275,21 @@ sudo apt-get update
 sudo apt-get dist-upgrade
 ----
 
-. Install the Preempt-RT kernel and modules
+. Install linuxcnc and the Preempt-RT kernel
 +
 ----
-sudo apt-get install linux-image-rt-amd64
+sudo apt-get install linuxcnc-uspace linuxcnc-uspace-dev
 ----
-
-. Re-boot, and select the Linux 4.19.0-9-rt-amd64 kernel (the exact kernel version might be different, look for the "-rt" suffix).
-  This might be hidden in the "Advanced options for Debian Buster" sub-menu in Grub.
-  When you log in, verify that `PREEMPT RT`is reported by the following command.
-+
-----
-uname -v
-----
-
-. Open Applications Menu > System > Synaptic Package Manager,
-  search for 'linux-image', right click on the original non-rt and select 'Mark for Complete Removal'.
-  Reboot. This is to force the system to boot from the RT kernel.
-  If you prefer to retain both kernels then the other kernels need not be deleted,
-  but grub boot configuration changes will be needed beyond the scope of this document.
-
-. Add the LinuxCNC Archive Signing Key to your apt keyring by running
-+
-----
-sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
-Alternate keyserver: keyserver.ubuntu.com
-----
-
-. Add the apt repository:
-+
-----
-echo deb https://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
-echo deb-src https://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
-----
-
-. Update the package list from linuxcnc.org
-+
-----
-sudo apt-get update
-----
-
-. Install uspace (a reboot may be required prior to installing uspace)
-+
-----
-sudo apt-get install linuxcnc-uspace
-----
-
 . Optionally you can install mesaflash if you are using a Mesa card.
 +
 ----
 sudo apt install mesaflash
+----
+
+. Re-boot. When you log in, verify that `PREEMPT RT`is reported by the following command.
++
+----
+uname -v
 ----
 
 [[cha:Installing-RTAI]]
@@ -441,41 +342,57 @@ sudo apt-get install linuxcnc
 
 Reboot the machine, ensuring that the system boots from the new 4.19.195-rtai kernel.
 
-=== Installing on Raspbian 10
-
-. Download a stock Raspbian image to an SD card and install in the
+=== Installing on Raspberry Pi using Debian Bookworm
+. FIX_ME - this needs testing.
+. Download a Debian Bookworm  image from https://raspi.debian.net/tested-images/ and burn to an SD card and install in the
   https://www.raspberrypi.org/documentation/installation/installing-images/README.md[usual way].
-. Boot the Pi and open a terminal.
-. Add the LinuxCNC Archive Signing Key to your apt keyring.
-+
+. Boot the Pi. It will  open a text based terminal
+. Login using the root account (which does not have a password yet). Type:
 ----
-# Alternate keyserver: keyserver.ubuntu.com
-sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
+root
 ----
+and hit enter
+Add a password to the root user account. Type:
+----
+passwd
+----
+and allocate a password you will never forget! Add a new user and allocate a password. I used pi:
+----
+adduser pi
+----
+Add your user to the sudo group. Type:
+----
+usermod -aG sudo pi
+----
+Type the following lines:
+----
+apt update
+apt upgrade
+apt-install linux-image-rt-arm64 linux-headers-rt-arm64
+----
+Reboot to boot into the PREEMPT_RT kernel log in with root and the password you set. Type:
+----
+nano /boot/firmware/cmdline.txt
+----
+and add this to the line:
+----
+processor.max_cstate=1 isolcpus=2,3 save
+----
+Install a graphical environment by typing
+----
+tasksel
+----
+Select a desktop environment.  Only Select XFCE. Press Tab to select ok, press enter and  continue. Select a keyboard when prompted and continue. Don’t panic if the screen display appears corrupt, just wait until completed.
+Install linuxcnc. Type:
+----
+apt install linuxcnc-uspace linuxcnc-uspace-dev
+----
+to start the graphical environment type:
+----
+startx
+----
+Reboot. Your graphical envieonment should start normally. Log in with the username and password you created in step 7 (I used pi)
 
-. Add the apt repository:
-+
------
-echo deb https://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
------
-
-. Update the package list from linuxcnc.org
-+
-----
-sudo apt-get update
-----
-
-. install the realtime kernel
-+
-----
-sudo apt-get install linux-image-4.19.71-rt24-v7l+
-----
-
-. Install linuxcnc (a reboot may be required prior to installing)
-+
-----
-sudo apt-get install linuxcnc-uspace
-----
 
 === Installing on Ubuntu Precise
 
@@ -535,5 +452,163 @@ uname -r
 ----
 sudo apt-get install linuxcnc
 ----
+[[sec:_bookworm_tweaks]]
+== Bookworm Tweaks(((LinuxCNC:Bookworm Tweaks)))(((Installation:Bookworm Tweaks)))
+=== Basic Tweaks
+To make life easy, there are some standard tweaks you can mmkae to Bookworm which should work on X86 and the pi.
++
+From the menu settings/Power manager set the power settings to suit your needs. You can turn off screen saver and screen lock here
+Install geany and grub-customizer:
+----
+sudo apt install geany grub-customizer
+----
+Finally now geany is installed, enable auto login
+----
+sudo geany /etc/lightdm/lightdm.conf
+----
+scroll down to about line 126 and uncomment (remove #) both of the following lines and add YOUR login user name. Eg an example for user matt.
+----
+autologin-user=matt
+autologin-user-timeout=0
+----
+=== Preempt_rt Tweaks
+isolcpus can make a huge difference to latency on some systems because it isolates specific CPU cores so they are purely used by real time threads (eg the linuxcnc servo thread). The instructions below assume a 4 core CPU eg. Celeron, i3, i5 etc) those with 2 cores or more than 4 cores need different isolcpus settings. Never isolate core 0 as it is used for system threads so it already includes a lot of running threads.
++ Now we need to isolate 2 cores for better RT performance
+----
+sudo grub-customizer
+----
+On the General Settings in the kernel parameters field
+----
+quiet
+----
+Change to
+----
+quiet isolcpus=2,3
+----
+Save the config, close grub-customiser and reboot for changes to take effect
+Check latency with
+----
+latency-histogram --nobase --sbins=1000
+----
+It should be much improved.
+
+=== Review Latency
+Use latency-histogram  instead of latency-test to review latency particularly if you are using a mesa card or ethercat and don;t need a base thread: 
+----
+latency-histogram --nobase --sbins 1000 
+---- 
+How to evaluate latency is covered in the linuxcnc documents
+Among other things, latency is affected by: BIOS settings; Isolcpus and other boot time settings; Kernel version used
+
+=== Realtek network drivers
+Some users have been reporting significant error finishing read issues with some Realtek NIC’s. 
+
+There are two additional device drivers available in Debian for realtek cards;
+
+r8125-dkms for 2.5 Gb network cards - RTL8125, RTL8125B(S)(G)
+
+r8168-dkms  for the following network cards RTL8111B/RTL8111C, RTL8111D/RTL8111E, RTL8111F/RTL8111G(S), RTL8111H(S), RTL8118(A)(S), RTL8119i, RTL8111L, RTL8111K, RTL8168B, RTL8168E, RTL8168H, RTL8111DP, RTL8111EP, RTL8111FP, RTL8411/RTL8411B, RTL8101E, RTL8102E, RTL8103E, RTL8105E, RTL8106E, RTL8107E, RTL8401, RTL8402
+
+Installing the r8168-dkms driver improved network latency by 400% on our R8111 network card. Similar results were reported on other affected hardware.
+
+The r8168-dkms and r8125-dkms drivers are in the non-free packages which are not included in sources.list by default.
+
+You can see your driver if you type the following to identify your NIC name: 
+----
+ip a
+----
+Now display the NIC info eg: 
+----
+ethtool -i enps02
+----
+If it seems you could benefit from this driver, continue
+Type:
+----
+sudo geany /etc/apt/sources.list
+----
+Add a space followed by non-free to each of the 4 lines that end with firmware-non-free as follows:
+----
+deb http://deb.debian.org/debian/ bookworm main non-free-firmware non-free
+deb-src http://deb.debian.org/debian/ bookworm main non-free-firmware non-free
+deb http://security.debian.org/debian-security bookworm-security main non-free-firmware non-free 
+deb-src http://security.debian.org/debian-security bookworm-security main non-free-firmware non-free
+----
+Save and close geany. Type: 
+----
+sudo apt update
+----
+you need to install some utilities. Type:
+----
+sudo apt install build-essential dkms 
+----
+If you have not installed a later kernel as described above install linux-headers. Type:
+----
+sudo apt install linux-headers-$(uname -r)
+----
+You can now install the r8168 or R8125 driver. Depending on your driver 
+Type: 
+----
+sudo apt install r8168-dkms 
+----
+or type:
+----
+sudo apt install r8125-dkms 
+----
+Reboot and check you still have a network driver with
+----
+ip a
+----
+Check you can still ping the mesa card 
+----
+ping 10.10.10.10 
+----
+If you have to remove this driver, it needs to be purged completely or you will have no network. Eg.  
+----
+sudo apt purge r8168-dkms 
+----
+=== Set fixed ip address - only for mesa card.
+Usually we set up the mesa card to have the ip address 10.10.10.10. We need to set a fixed ip address of 10.10.10.1 to the network interface that connects to it. Type:
+----
+ip a 
+----
+to determine the network interface name used for your mesa card. This is usually something like eth0 or enp2s0. Type 
+----
+sudo geany /etc/network/interfaces
+----
+to append the following at the end of the file:
+----
+auto enp2s0
+iface enp2s0 inet static
+address 10.10.10.1
+hardware-irq-coalesce-rx-usecs 0 
+----
+[Note]
+The last line is only required for Intel network cards. It seems to be ignored on non-applicable hardware.
+
+Save and close geany. 
+Reboot to restart the network.
+Ping the mesa card to confirm it's all working 
+----
+ping 10.10.10.1
+----
+
+=== Installing a later kernel
+Since the release of Debian Bullseye (Linux kernel 5.10), real time performance has been  disappointing. In particular, network latency when communicating with a Mesa ethernet card has  been generating Error Finishing Read Errors. This means that the network latency left insufficient time for the servo thread cycle to complete in time.
+This appears to have been more prevalent with Realtek Network interfaces. Fortunately, each iteration of the Linux kernel has improved results, particularly since the release of 6.x kernels. Debian Bookworm (Debian 12) is using the 6.1 kernel which is quite good. In our testing, we found that latency improved by 265% if we used the 6.3 kernel. We have compiled this version of the kernel for your convenience. Updated to the final 6.3 kernel on 1 May 2023
+ 
+Only try installing it if you have exhausted all options by following the steps below:
+. Download the 2 deb files (image, source) from 
+https://drive.google.com/drive/folders/1NzQIHnf9M_cHzuZCqSldVFGschOOxaER?usp=sharing 
+. The link above is to  my latest kernel versions following the final release of 6.3 kernel and the matching preempt_rt patches.
+
+Navigate to the Downloads folder and open a new Terminal session. Install the debs as follows (pressing tab auto completes the command)
+----
+dpkg -i linux-source(tab)
+dpkg -i linux-image(tab)
+----
+- Reboot into the new kernel
+. Check that uname -v shows the 6.3 kernel is installed
+. If it isn’t, use grub-customizer mentioned earlier to change the kernel boot order and reboot again
+
 
 // vim: set syntax=asciidoc:
