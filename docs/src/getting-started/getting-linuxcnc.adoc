@@ -133,9 +133,9 @@ The .iso file will be to big to fit on a CD but if required, it can be burnt to 
 
 .Writing the image to a USB storage device on any Operating systems
 . Open Balena Etcher
-. select your .iso file
-. select your USB storage device.
-. Click on burn image FIX_ME
+. Select image - your .iso file
+. Select drive - your USB storage device.
+. Click on Flash!
 +
 .Writing the image to a DVD in Linux
 . Insert a blank DVD into your burner. A 'CD/DVD Creator' or 'Choose
