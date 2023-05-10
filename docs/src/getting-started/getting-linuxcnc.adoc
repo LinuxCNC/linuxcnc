@@ -217,7 +217,8 @@ Note that in Debian Bookworm, the preempt_rt kernel is a dependency of linuxcnc-
 [options="header"]
 |===
 | Distribution   | Architecture  | Kernel     | Package name    | Typical use
-| Debian Bookworm| amd64 & i386  | preempt-rt | linuxcnc-uspace | machine e| Debian Buster  | amd64 & armhf | preempt-rt | linuxcnc-uspace | machine control & simulation
+| Debian Bookworm| amd64 & i386  | preempt-rt | linuxcnc-uspace | machine control & simulation
+| Debian Buster  | amd64 & armhf | preempt-rt | linuxcnc-uspace | machine control & simulation
 | Debian Buster  | amd64         | RTAI       | linuxcnc        | machine control (known issues)
 | Debian Jessie  | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
 | Debian Wheezy  | i386          | RTAI       | linuxcnc        | machine control & simulation
