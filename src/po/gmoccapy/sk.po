@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-05-03 08:16+0200\n"
-"PO-Revision-Date: 2023-02-17 20:37+0000\n"
+"PO-Revision-Date: 2023-05-10 23:53+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: none\n"
 "Language: sk\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.16-dev\n"
+"X-Generator: Weblate 4.18-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:252
 msgid "user mode selected"
@@ -1099,11 +1099,12 @@ msgid ""
 "The real font size is reduced to 0.75*FontSize when four DRO elements are "
 "present and to 0.65*FontSize for more than five elements."
 msgstr ""
+"Skutočná veľkosť písma sa zníži na 0,75* , ak sú prítomné štyri prvky DRO, a "
+"na 0,65* pre viac ako päť prvkov."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:93
-#, fuzzy
 msgid "Font size"
-msgstr "Písmo"
+msgstr "Veľkosť písma"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:94
 msgid "Digits"
