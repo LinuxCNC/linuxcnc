@@ -28,6 +28,7 @@
 #include <boost/python/exec.hpp>
 #include <boost/python/extract.hpp>
 #include <boost/python/import.hpp>
+#include <pyconfig.h>
 
 namespace bp = boost::python;
 

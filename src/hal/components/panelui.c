@@ -71,6 +71,7 @@
     information, go to www.linuxcnc.org.
 */
 #include <Python.h>
+#include <pyconfig.h>
 #include <time.h>
 
 #include <stdio.h>
