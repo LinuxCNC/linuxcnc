@@ -11,6 +11,9 @@ from qtvcp.core import Status, Action
 from qtvcp import logger
 LOG = logger.getLogger(__name__)
 
+# Force the log level for this module
+#LOG.setLevel(logger.ERROR) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
 ACTION = Action()
 STATUS = Status()
 
@@ -22,6 +25,7 @@ class ProbeRoutines():
 # Helper Functions
 ##################
 
+    # mdi timeout setting
     def set_timeout(self, time):
         self.timeout = time
 
@@ -103,23 +107,23 @@ class ProbeRoutines():
         G38.2 {}{} F{}""".format(axis, travel, self.data_search_vel)
         rtn = self.CALL_MDI_WAIT(s, self.timeout) 
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
+            return 'Probe {} failed: {}'.format(name, rtn)
         # retract
         s = "G1 {}{} F{}".format(axis, -latch, self.data_rapid_vel)
         rtn = self.CALL_MDI_WAIT(s, self.timeout) 
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
+            return 'Probe {} failed: {}'.format(name, rtn)
         # wait and probe toward target
         s = """G4 P0.5
         G38.2 {}{} F{}""".format(axis, 1.2*latch, self.data_probe_vel)
         rtn = self.CALL_MDI_WAIT(s, self.timeout) 
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
+            return 'Probe {} failed: {}'.format(name, rtn)
         # retract
         s = "G1 {}{} F{}".format(axis, -latch, self.data_rapid_vel)
         rtn = self.CALL_MDI_WAIT(s, self.timeout) 
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
+            return 'Probe {} failed: {}'.format(name, rtn)
         return 1
 
     def CALL_MDI_WAIT(self, code, timeout = 5):
@@ -1126,7 +1130,7 @@ class ProbeRoutines():
     # End at Z_clearance above workpiece
     def probe_down(self):
         # if annything fails this message is left
-        self.history_log = 'Probe Down Pressed'
+        self.history_log = 'Probe Down did not finish'
 
         ACTION.CALL_MDI("G91")
 
@@ -1385,6 +1389,9 @@ class ProbeRoutines():
         return 1
 
     def probe_round_boss(self):
+        if self.data_probe_diam <= 0 :
+            return 'Boss diameter hint must be larger then 0'
+
         self.data_side_edge_length = self.data_diameter_hint / 2
         error = self.probe_outside_xy_boss()
         return error
@@ -1392,11 +1399,17 @@ class ProbeRoutines():
     def probe_round_pocket(self):
         if self.data_probe_diam >= self.data_diameter_hint:
             return 'Probe diameter too large for hole diameter hint'
+
         self.data_side_edge_length = self.data_diameter_hint / 2
         error = self.probe_xy_hole()
         return error
 
     def probe_rectangular_boss(self):
+        if self.data_probe_diam >= self.data_y_hint_bp / 2:
+            return 'Probe diameter too large for Y length hint'
+        if self.data_probe_diam >= self.data_x_hint_bp / 2:
+            return 'Probe diameter too large for X length hint'
+
         self.data_side_edge_length = self.data_x_hint_bp / 2
         error = self.probe_outside_length_x()
         if error != 1: return error
@@ -1405,6 +1418,11 @@ class ProbeRoutines():
         return error
 
     def probe_rectangular_pocket(self):
+        if self.data_probe_diam >= self.data_y_hint_bp / 2:
+            return 'Probe diameter too large for Y length hint'
+        if self.data_probe_diam >= self.data_x_hint_bp / 2:
+            return 'Probe diameter too large for X length hint'
+
         self.data_side_edge_length = self.data_x_hint_bp / 2
         error = self.probe_inside_length_x()
         if error != 1: return error
@@ -1413,21 +1431,33 @@ class ProbeRoutines():
         return error
 
     def probe_ridge_x(self):
+        if self.data_probe_diam >= self.data_x_hint_rv / 2:
+            return 'Probe diameter too large for X length hint'
+
         self.data_side_edge_length = self.data_x_hint_rv / 2
         error = self.probe_outside_length_x()
         return error
 
     def probe_ridge_y(self):
+        if self.data_probe_diam >= self.data_y_hint_rv / 2:
+            return 'Probe diameter too large for Y length hint'
+
         self.data_side_edge_length = self.data_y_hint_rv / 2
         error = self.probe_outside_length_y()
         return error
 
     def probe_valley_x(self):
+        if self.data_probe_diam >= self.data_x_hint_rv / 2:
+            return 'Probe diameter too large for X length hint'
+
         self.data_side_edge_length = self.data_x_hint_rv / 2
         error = self.probe_inside_length_x()
         return error
 
     def probe_valley_y(self):
+        if self.data_probe_diam >= self.data_y_hint_rv / 2:
+            return 'Probe diameter too large for Y length hint'
+
         self.data_side_edge_length = self.data_y_hint_rv / 2
         error = self.probe_inside_length_y()
         return error
@@ -1445,6 +1475,11 @@ class ProbeRoutines():
         return error
 
     def probe_cal_square_pocket(self):
+        if self.data_cal_x_width <= 0:
+            return 'Calibration X width hint must be greater then zero.'
+        if self.data_cal_y_width <= 0:
+            return 'Calibration Y width hint must be greater then zero.'
+
         self.data_side_edge_length = self.data_cal_x_width / 2
         error = self.probe_inside_length_x()
         if error != 1: return error
@@ -1455,6 +1490,9 @@ class ProbeRoutines():
         return error
 
     def probe_cal_round_boss(self):
+        if self.data_cal_diameter <= 0:
+            return 'Calibration diameter hint must be greater then zero.'
+
         self.data_side_edge_length = self.data_cal_diameter / 2
         error = self.self.probe_outside_xy_boss()
         if error != 1: return error
@@ -1465,6 +1503,11 @@ class ProbeRoutines():
         return error
 
     def probe_cal_square_boss(self):
+        if self.data_cal_x_width <= 0:
+            return 'Calibration X width hint must be greater then zero.'
+        if self.data_cal_y_width <= 0:
+            return 'Calibration Y width hint must be greater then zero.'
+
         self.data_side_edge_length = self.data_cal_x_width / 2
         error = self.probe_outside_length_x()
         if error != 1: return error
