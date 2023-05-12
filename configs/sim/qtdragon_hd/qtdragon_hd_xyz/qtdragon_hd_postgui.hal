@@ -32,12 +32,14 @@ net eoffset-clear    axis.z.eoffset-clear
 net eoffset-counts   axis.z.eoffset-counts
 setp axis.z.eoffset-scale .001
 net eoffset-total          axis.z.eoffset
+net eoffset-total          qtdragon.eoffset-value
 setp axis.z.eoffset-enable True
 
 ## external offsets for spindle pause function
 ##################################################
-#net eoffset-clear     qtdragon.eoffset-clear
+net eoffset-clear     qtdragon.eoffset-clear
 net eoffset-spindle-count   <= qtdragon.eoffset-spindle-count    
+net spindle-pause     qtdragon.spindle-inhibit spindle.0.inhibit
 
 ## Z level compensation
 ####################################################
@@ -49,7 +51,7 @@ net z_compensation_on       z_level_compensation.enable-in  <= qtdragon.comp-on
 net eoffset-zlevel-count    z_level_compensation.counts     => qtdragon.eoffset-zlevel-count
 
 net eoffset-spindle-count   scaled-s32-sums.0.in0
-net eoffset-zlevel-count    scaled-s32-sums.0.in1       qtdragon.eoffset-value
+net eoffset-zlevel-count    scaled-s32-sums.0.in1
 setp scaled-s32-sums.0.scale0 1000
 net eoffset-counts          scaled-s32-sums.0.out-s
 

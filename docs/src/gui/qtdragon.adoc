@@ -490,7 +490,7 @@ This float output pin indicates the camera rotation in degrees:
 qtdragon.cam-rotation
 ----
 
-These bit/s32 pins are related to external offsets if they are used:
+These bit/s32/float pins are related to external offsets if they are used:
 
 [source,{hal}]
 ----
@@ -498,6 +498,8 @@ qtdragon.eoffset-clear
 qtdragon.eoffset-count
 qtdragon.eoffset-enable
 qtdragon.eoffset-value
+qtdragon.eoffset-spindle-count
+qtdragon.eoffset-zlevel-count
 ----
 
 These float output pins reflect the current slider jograte (in machine units):
@@ -576,7 +578,7 @@ In the qtdragon_postgui.hal file add:
 ----
 # Set up Z axis external offsets
 net eoffset_clear    qtdragon.eoffset-clear => axis.z.eoffset-clear
-net eoffset_count    qtdragon.eoffset-count => axis.z.eoffset-counts
+net eoffset_count    qtdragon.eoffset-spindle-count => axis.z.eoffset-counts
 net eoffset          qtdragon.eoffset-value <= axis.z.eoffset
 
 # uncomment for dragon_hd
