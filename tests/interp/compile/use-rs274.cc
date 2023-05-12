@@ -48,7 +48,6 @@ int main() {
 int _task = 0;
 char _parameter_file_name[LINELEN];
 
-extern "C" PyObject* PyInit_emctask(void);
 extern "C" PyObject* PyInit_interpreter(void);
 extern "C" PyObject* PyInit_emccanon(void);
 extern "C" struct _inittab builtin_modules[];
