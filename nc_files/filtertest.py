@@ -16,6 +16,4 @@ for i in range(0,100):
         print('Error; But this was only a test', file=sys.stderr)
         raise SystemExit(1)
 
-
-
-
+print('M2', file=sys.stdout)
