@@ -19,7 +19,7 @@ png = image-to-gcode
 gif = image-to-gcode
 jpg = image-to-gcode
 py = python3
-duh
+
 [TASK]
 TASK =                  milltask
 CYCLE_TIME =            0.001
