@@ -17,40 +17,19 @@
 #ifndef INTERP_LIST_HH
 #define INTERP_LIST_HH
 
-#include <stdint.h>
-
-#define MAX_NML_COMMAND_SIZE 1000
+#include <deque>
+#include <vector>
 
 // these go on the interp list
 struct NML_INTERP_LIST_NODE {
-    int line_number;		// line number it was on
-    union _dummy_union {
-	int32_t i;
-	int32_t l;
-	double d;
-	float f;
-	int64_t ll;
-	long double ld;
-    } dummy;			// paranoid alignment variable.
-
-    union _command_union {
-	char commandbuf[MAX_NML_COMMAND_SIZE];	// the NML command;
-	int32_t i;
-	int32_t l;
-	double d;
-	float f;
-	int64_t ll;
-	long double ld;
-    } command;
+  int line_number;		// line number it was on
+  std::vector<char> command;
 };
 
 // here's the interp list itself
 class NML_INTERP_LIST {
   public:
-    NML_INTERP_LIST();
-    ~NML_INTERP_LIST();
-
-    int set_line_number(int line);
+    void set_line_number(int line);
     int get_line_number();
     int append(NMLmsg &);
     int append(NMLmsg *);
@@ -60,10 +39,10 @@ class NML_INTERP_LIST {
     int len();
 
   private:
-    class LinkedList * linked_list_ptr;
-    NML_INTERP_LIST_NODE temp_node;	// filled in and put on the list
-    int next_line_number;	// line number used to fill temp_node
-    int line_number;		// line number of node from get()
+    std::deque<NML_INTERP_LIST_NODE> linked_list;
+    int next_line_number = 0;	// line number used to fill temp_node
+    int line_number = 0;		// line number of node from get()
+    NML_INTERP_LIST_NODE node; // pointer returned by get
 };
 
 extern NML_INTERP_LIST interp_list;	/* NML Union, for interpreter */
