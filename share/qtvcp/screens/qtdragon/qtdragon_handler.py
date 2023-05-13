@@ -1143,12 +1143,17 @@ class HandlerClass:
 
     def endcolor(self):
         self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(self.set_style_default)
+        self.timer.timeout.connect(self.clear_status_bar)
         self.timer.start(self.statusbar_reset_time)
+
+    def clear_status_bar(self):
+        self.set_style_default()
+        self.w.lineEdit_statusbar.setText('')
 
     # change Status bar text color
     def set_style_default(self):
         self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(252, 252, 252);color: rgb(0,0,0)")  #default white
+
     def set_style_warning(self):
         self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(242, 246, 103);color: rgb(0,0,0)")  #yellow
         self.endcolor()

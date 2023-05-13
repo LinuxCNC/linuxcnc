@@ -1194,8 +1194,12 @@ class HandlerClass:
 
     def endcolor(self):
         self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(self.set_style_default)
+        self.timer.timeout.connect(self.clear_status_bar)
         self.timer.start(self.statusbar_reset_time)
+
+    def clear_status_bar(self):
+        self.set_style_default()
+        self.w.statusbar.showMessage('')
 
     # change Status bar text color
     def set_style_default(self):
