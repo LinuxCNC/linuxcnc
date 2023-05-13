@@ -1920,6 +1920,9 @@ class gmoccapy(object):
                 widgetlist = ["vbx_jog_button", "vbtb_jog_incr"]
                 for widget in widgetlist:
                     self.widgets[widget].hide()
+                    
+            if "box_dro_side" in tab_locations:
+                self.widgets.box_dro_side.show()
 
 # Dynamic tabs handling End
 # =============================================================

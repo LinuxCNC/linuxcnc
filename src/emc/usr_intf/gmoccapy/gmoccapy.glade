@@ -1234,47 +1234,71 @@
                             <property name="can-focus">False</property>
                             <property name="orientation">vertical</property>
                             <child>
-                              <!-- n-columns=2 n-rows=5 -->
-                              <object class="GtkGrid" id="grid_DRO">
+                              <object class="GtkBox" id="box_dro">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="column-spacing">3</property>
-                                <property name="row-homogeneous">True</property>
-                                <property name="column-homogeneous">True</property>
                                 <child>
-                                  <placeholder/>
+                                  <!-- n-columns=2 n-rows=5 -->
+                                  <object class="GtkGrid" id="grid_DRO">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="column-spacing">3</property>
+                                    <property name="row-homogeneous">True</property>
+                                    <property name="column-homogeneous">True</property>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
                                 </child>
                                 <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
+                                  <object class="GtkBox" id="box_dro_side">
+                                    <property name="can-focus">False</property>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
                                 </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">False</property>
+                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
@@ -1738,6 +1762,9 @@
                                 <property name="padding">2</property>
                                 <property name="position">1</property>
                               </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
                             </child>
                           </object>
                           <packing>
