@@ -2013,9 +2013,16 @@ class gmoccapy(object):
 
     def _init_audio(self):
         # try to add ability for audio feedback to user.
+        audio_enabled = self.prefs.getpref('audio_enabled', True, bool)
+        self.widgets.chk_en_audio.set_active(audio_enabled)
         if _AUDIO_AVAILABLE:
             LOG.info(_("Audio available!"))
-
+            if audio_enabled:
+                self.audio_active = True
+                LOG.info(_("Audio enabled!"))
+            else:
+                self.audio_active = False
+                LOG.info(_("Audio disabled!"))
             # the sounds to play if an error or message rises
             self.alert_sound = "/usr/share/sounds/freedesktop/stereo/dialog-warning.oga"
             self.error_sound = "/usr/share/sounds/freedesktop/stereo/dialog-error.oga"
@@ -2427,7 +2434,7 @@ class gmoccapy(object):
             text = _("Unknown error type and no error text given")
         self.notification.add_message(text, icon)
 
-        if _AUDIO_AVAILABLE:
+        if self.audio_active:
             if kind == 1 or kind == 11:
                 self._on_play_sound(None, "error")
             else:
@@ -5272,6 +5279,10 @@ class gmoccapy(object):
 
     def on_btn_from_line_clicked(self, widget, data=None):
         self.dialogs.restart_dialog(self)
+        
+    def on_chk_en_audio_toggled(self, widget, data=None):
+        self.prefs.putpref("audio_enabled", widget.get_active())
+        self.audio_active = widget.get_active()
 
     def on_change_sound(self, widget, sound=None):
         file = widget.get_filename()
@@ -5429,7 +5440,7 @@ class gmoccapy(object):
 
     def _on_play_sound(self, widget, sound = None):
         LOG.debug("_on_play_sound {0} {1} {2}".format(self,widget,sound))
-        if _AUDIO_AVAILABLE and sound:
+        if self.audio_active and sound:
             if sound == "error":
                 self.audio.set_sound(self.error_sound)
             elif sound == "alert":
