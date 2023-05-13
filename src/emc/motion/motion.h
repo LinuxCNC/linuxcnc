@@ -206,7 +206,6 @@ extern "C" {
    memory, and all commands from higher level code come thru it.
 */
     typedef struct emcmot_command_t {
-	unsigned char head;	/* flag count for mutex detect */
 	cmd_code_t command;	/* command code (enum) */
 	int commandNum;		/* increment this for new command */
 	double motor_offset;    /* offset from joint to motor position */
@@ -260,7 +259,6 @@ extern "C" {
     char    direction;      /* CANON_DIRECTION flag for spindle orient */
     double  timeout;        /* of wait for spindle orient to complete */
     unsigned char wait_for_spindle_at_speed; // EMCMOT_SPINDLE_ON now carries this, for next feed move
-    unsigned char tail;	/* flag count for mutex detect */
     int arcBlendOptDepth;
     int arcBlendEnable;
     int arcBlendFallbackEnable;

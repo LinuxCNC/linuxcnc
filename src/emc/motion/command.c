@@ -57,10 +57,12 @@
 #include <float.h>
 #include "posemath.h"
 #include "rtapi.h"
+#include "rtapi_mutex.h"
 #include "hal.h"
 #include "motion.h"
 #include "tp.h"
 #include "mot_priv.h"
+#include "motion_struct.h"
 #include "rtapi_math.h"
 #include "motion_types.h"
 #include "homing.h"
@@ -374,11 +376,14 @@ STATIC int is_feed_type(int motion_type)
     }
 }
 
+
 /*
   emcmotCommandHandler() is called each main cycle to read the
   shared memory buffer
+
+  This function runs with the emcmotCommand struct locked.
   */
-void emcmotCommandHandler(void *arg, long servo_period)
+void emcmotCommandHandler_locked(void *arg, long servo_period)
 {
     int joint_num, spindle_num;
     int n,s0,s1;
@@ -389,11 +394,6 @@ void emcmotCommandHandler(void *arg, long servo_period)
     int abort = 0;
     char* emsg = "";
 
-    /* check for split read */
-    if (emcmotCommand->head != emcmotCommand->tail) {
-	emcmotInternal->split++;
-	return;			/* not really an error */
-    }
     if (emcmotCommand->commandNum != emcmotStatus->commandNumEcho) {
 	/* increment head count-- we'll be modifying emcmotStatus */
 	emcmotStatus->head++;
@@ -1916,4 +1916,16 @@ void emcmotCommandHandler(void *arg, long servo_period)
     /* end of: if-new-command */
 
     return;
+}
+
+
+void emcmotCommandHandler(void *arg, long servo_period) {
+    if (rtapi_mutex_try(&emcmotStruct->command_mutex) != 0) {
+        // Failed to take the mutex, because it is held by Task.
+        // This means Task is in the process of updating the command.
+        // Give up for now, and try again on the next invocation.
+        return;
+    }
+    emcmotCommandHandler_locked(arg, servo_period);
+    rtapi_mutex_give(&emcmotStruct->command_mutex);
 }
