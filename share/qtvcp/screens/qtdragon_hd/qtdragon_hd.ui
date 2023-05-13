@@ -3724,6 +3724,68 @@ TO FILE</string>
                        </property>
                       </spacer>
                      </item>
+                     <item>
+                      <widget class="IndicatedPushButton" name="btn_select_log_2">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>80</width>
+                         <height>50</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>80</width>
+                         <height>50</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string>Recall
+Error</string>
+                       </property>
+                       <property name="checkable">
+                        <bool>false</bool>
+                       </property>
+                       <property name="checked">
+                        <bool>false</bool>
+                       </property>
+                       <property name="indicator_option" stdset="0">
+                        <bool>false</bool>
+                       </property>
+                       <property name="checked_state_text_option" stdset="0">
+                        <bool>false</bool>
+                       </property>
+                       <property name="python_command_option" stdset="0">
+                        <bool>true</bool>
+                       </property>
+                       <property name="on_color" stdset="0">
+                        <color>
+                         <red>0</red>
+                         <green>255</green>
+                         <blue>0</blue>
+                        </color>
+                       </property>
+                       <property name="true_state_string" stdset="0">
+                        <string>SYSTEM
+LOG</string>
+                       </property>
+                       <property name="false_state_string" stdset="0">
+                        <string>MACHINE
+LOG</string>
+                       </property>
+                       <property name="true_python_cmd_string" stdset="0">
+                        <string>INSTANCE._NOTICE.show_last()</string>
+                       </property>
+                       <property name="false_python_cmd_string" stdset="0">
+                        <string/>
+                       </property>
+                      </widget>
+                     </item>
                     </layout>
                    </widget>
                   </item>
@@ -15639,7 +15701,7 @@ ANGULAR</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>11:13:29 PM</string>
+               <string>04:52:10 PM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>

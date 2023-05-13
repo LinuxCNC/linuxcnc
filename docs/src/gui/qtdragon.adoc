@@ -490,7 +490,7 @@ This float output pin indicates the camera rotation in degrees:
 qtdragon.cam-rotation
 ----
 
-These bit/s32 pins are related to external offsets if they are used:
+These bit/s32/float pins are related to external offsets if they are used:
 
 [source,{hal}]
 ----
@@ -498,6 +498,8 @@ qtdragon.eoffset-clear
 qtdragon.eoffset-count
 qtdragon.eoffset-enable
 qtdragon.eoffset-value
+qtdragon.eoffset-spindle-count
+qtdragon.eoffset-zlevel-count
 ----
 
 These float output pins reflect the current slider jograte (in machine units):
@@ -576,7 +578,7 @@ In the qtdragon_postgui.hal file add:
 ----
 # Set up Z axis external offsets
 net eoffset_clear    qtdragon.eoffset-clear => axis.z.eoffset-clear
-net eoffset_count    qtdragon.eoffset-count => axis.z.eoffset-counts
+net eoffset_count    qtdragon.eoffset-spindle-count => axis.z.eoffset-counts
 net eoffset          qtdragon.eoffset-value <= axis.z.eoffset
 
 # uncomment for dragon_hd
@@ -639,14 +641,17 @@ If you use auto raise Z to lift the spindle on pause, you must combine the two w
 # load components
 ########################################################################
 
+loadrt logic names=logic-and personality=0x102
+addf logic-and servo-thread
+
 # load a summing component for adding spindle lift and Z compensation
 loadrt scaled_s32_sums
 addf scaled-s32-sums.0 servo-thread
 
 loadusr -Wn z_level_compensation z_level_compensation
 # method parameter must be one of nearest(2), linear(1), cubic (0)
-setp z_level_compensation.method 1
 setp z_level_compensation.fade-height 0.0
+setp z_level_compensation.method 1
 
 # connect signals to LinuxCNC's motion component
 ########################################################################
@@ -659,22 +664,25 @@ setp axis.z.eoffset-enable True
 
 # external offsets for spindle pause function
 ########################################################################
+net eoffset-clear              qtdragon.eoffset-clear
 net eoffset-spindle-count   <= qtdragon.eoffset-spindle-count
+net spindle-pause              qtdragon.spindle-inhibit     spindle.0.inhibit
 
-# Z level compensation
-########################################################################
+## Z level compensation
+####################################################
+net eoffset-clr2            z_level_compensation.clear      => logic-and.in-01
 net xpos-cmd                z_level_compensation.x-pos      <= axis.x.pos-cmd
 net ypos-cmd                z_level_compensation.y-pos      <= axis.y.pos-cmd
 net zpos-cmd                z_level_compensation.z-pos      <= axis.z.pos-cmd
 net z_compensation_on       z_level_compensation.enable-in  <= qtdragon.comp-on
 net eoffset-zlevel-count    z_level_compensation.counts     => qtdragon.eoffset-zlevel-count
 
-# set up scaled sum component
-########################################################################
+# add Z level and scaled spindle raise level values together
 net eoffset-spindle-count   scaled-s32-sums.0.in0
-net eoffset-zlevel-count    scaled-s32-sums.0.in1       qtdragon.eoffset-value
+net eoffset-zlevel-count    scaled-s32-sums.0.in1
 setp scaled-s32-sums.0.scale0 1000
 net eoffset-counts          scaled-s32-sums.0.out-s
+
 ----
 
 == Probing
@@ -686,9 +694,6 @@ This gives the operator the opportunity to watch the DROs and stop the routine a
 
 [NOTE]
 Probing is very unforgiving to mistakes; be sure to check settings before using.
-
-.QtDragon - Versa Probe Option
-image::images/qtdragon_versaprobe.png["QtDragon Probe",scale="25%"]
 
 QtDragon has 2 methods for setting Z0.
 The first is a touchplate, where a metal plate of known thickness is placed on top of the workpiece,
@@ -707,10 +712,38 @@ For touching off with a touch probe, whether you use the touchplate operation wi
 the height from table to top of workpiece parameter is not taken into account and can be ignored.
 It is only for the tool setter.
 
+=== Versa Probe
+
+.QtDragon - Versa Probe Option
+image::images/qtvcp_versaProbe.png["QtDragon Probe",scale="25%"]
+
+Versa probe is used to semi-automatically probe work pieces to find edges, centers and angles. +
+It can also be sued to auto probe tool length at tool changes with added remap code. 
+
+You must carefully set the 'Probing Parameters':
+
+* 'DIAMETER':: This is the diameter of the probe tip. The accuracy of probe measurements is directly affected by the accuracy of the probe tip diameter. 
+* 'TRAVEL':: The distance that the probe will travel during the initial search. If the search distance is too short, you will receive a message like "G38 finished without making contact". For safety reasons, it is recommended to set this parameter to 3-4 mm more than probe stylus diameter. 
+* 'LATCH RTN':: The distance the probe is retracted after making initial contact with the workpiece. This should be a short distance because the second approach will be at a slow speed, but large enough for the probe to break contact and bring it to the search ready state. If the Latch Rtn distance too large, you will end up spending a lot of time waiting for the search to complete. Recommendation: 1-2 mm 
+* 'SEARCH':: This is the feed rate at which the probe searches for the target workpiece in machine units per minute. The search speed should be slow enough to give an acceptable initial accuracy, but fast enough to not waste time waiting for movement. Recommendation: 200-500 mm/min. 
+* 'PROBE':: Once initial contact has been made and the probe is retracted, it will wait for 0.5 seconds before performing the search again at a lower speed, the probe velocity. This lower speed ensures the machine can stop movement as quickly as possible on contact with the workpiece. 
+* 'RAPID':: Axis movements not associated with searching are done at the speed defined by RAPID in machine units per minute. 
+* 'SIDE/EDGE LENGTH':: This is the distance the probe will move at the rapid rate to the position where it will begin a search. If measuring a corner, it will move EDGE LENGTH units away from the corner, then move away from the workpiece by XY CLEARANCE, lower by Z CLEARANCE and begin the initial search. If measuring an inner circle, then EDGE LENGTH should be set to the approximate radius of the circle. Note: NOT the diameter. 
+* 'PROBE HT':: The height of the tool sensor from the machine table surface. This value is used to calculate the Z zero height for the current work coordinate system when using the probe with a tool setter sensor. 
+* 'BLOCK HT':: The height of the top of the workpiece from the machine table surface. This value is used to calculate the Z zero height for the current work coordinate system when using the probe with a tool setter sensor. 
+* 'XY CLEARANCE':: The distance that the probe will move away from an edge or corner before performing a search. It should be large enough to ensure that the probe will not contact the workpiece or any other fixtures before moving down. It should be small enough to avoid excessive waiting for movement while searching. 
+* 'Z CLEARANCE':: The distance that the probe will move down before performing a search. If measuring an inside hole, the probe could be manually jogged to the starting Z height and then set Z CLEARANCE to 0.
+
+There are three toggle buttons:
+
+* 'Auto Zero' This selects if after probing the relevant axis is set to zero in the current user system.
+* 'Auto Skew' This selects if after probing, the system will be rotated or just display the calculated rotation.
+* 'Tool Measure' This (if integrated) turns auto tool probing on and off.
+
 === Basic probe
 
 .QtDragon - Basic Probe Option
-image::images/silverdragon_probe.png["QtDragon Probe",scale="25%"]
+image::images/qtvcp_basicProbe.png["QtDragon Probe",scale="25%"]
 
 Basic probe is used to semi-automatically probe work pieces to find edges, centers and angles.
 The combo box allows selecting the basic type of probing buttons shown:
@@ -729,16 +762,16 @@ You must carefully set the 'Probing Parameters':
 * 'Probe Rapid': the speed of rapid moves in machine units
 * 'Probe Search': the speed of the first 'rough' search in machine units
 * 'Probe Feed': the speed of the second 'fine' search in machine units
-* 'Extra Depth': Lowers the probe further by this much
 * 'Step Off': back off and re-probe distance
-* 'Max XY Distance': the maximum distance the probe will search for in X and Y before erroring
-* 'Max Z Distance':  the maximum distance the probe will search for in Z before erroring
-* 'XY Clearance': move away distance from probed point before rapid traversing in X and Y
-* 'Z Clearance': move away distance from probed point before rapid traversing in Z
+* 'Max XY Distance': the maximum distance the probe will search for in X and Y before failing with error
+* 'Max Z Distance':  the maximum distance the probe will search for in Z before failing with error
+* 'XY Clearance': clearance distance from probe to wall edge before rapid traversing down in Z and 'rough' probng.
+* 'Z Clearance': clearance distance from probed to top of material
+* 'Extra Depth': distance from top of material to desired probe depth
 
 There are also hint parameters depending on selected probing type:
 
-* 'Edge Width': approximate distance the probe start position is from edge
+* 'Edge Width': desired distance from the probe start position, along wall edge before starting to probe
 * 'Diameter Hint': used by Round Boss or Round Pocket probing (start move: 1/2 diameter plus XY clearance)
 * 'X Hint': used by Rectangular Boss/Pocket probing (start move: 1/2 X length plus XY clearance)
 * 'Y Hint': used by Rectangular Boss/Pocket probing (start move: 1/2 Y length plus XY clearance)
@@ -752,6 +785,38 @@ After setting the parameters and hints:
 The probing routine will start immediately.
 [NOTE]
 Pressing the stop button or the keyboard escape key, will abort the probing.
+
+==== Corner Probe Example
+
+Lets discuss inside corner probing using the top right button in Basic Probe (back_right_inside).
+While all probe entries must be correct, the most important settings to change for each each probe:
+
+* XY CLEARANCE  -distance away from edge before rough probing
+* Z CLEARANCE   -distance from probe to top of material
+* EXTRA DEPTH   -distance to lower probe from top of material
+* EDGE WIDTH    -distance along edge wall (away from corner) to start probing.
+
+[NOTE]
+These distance are always to be set in 'machine units' (mm for metric machine, inch for imprial machine)
+
+Preset:
+
+* manual set probe at the intersection of the edges (ie corner) of material as described by the green bullseye on the button. Set it Z CLEARANCE above the top of material. These can be done by eye.
+* set EXTRA CLEARANCE to a value that you want the probe to go below the _top_ of material.
+(So the probe will move from it's start position down  Z Clearance + Extra Clearance distance)
+* set XY CLEARANCE to a value that definitely gives clearance from the wall so when the probe goes down it doesn't hit anything.
+* set EDGE WIDTH to a value that describes the distance measured from the corner, along the wall to where you wish to probe. this edge distance will be used along the X wall and then the Y wall.
+
+Sequence after pressing the probe button: +
+
+. rapid EDGE WIDTH distance away from corner at the same time moving XY CLEARANCE away from edge. So this is a slightly diagonal move.
+. move probe down by Z CLEARANCE + EXTRA DEPTH
+. probe wall twice (rough and fine)
+. move diagonally to the other wall as set by EDGE WIDTH and XY CLEARANCE
+. probe wall twice
+. raise probe up by Z CLEARANCE + EXTRA DEPTH 9returns to starting height)
+. rapid back to starting corner, now calculated using the probed walls.
+. if auto zero button is enabled, set X and Y of the current user system to zero.
 
 == Touch plate
 

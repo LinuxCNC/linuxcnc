@@ -224,8 +224,8 @@ class HandlerClass:
         QHAL.newpin("eoffset-spindle-count", QHAL.HAL_S32, QHAL.HAL_OUT)
         QHAL.newpin("eoffset-count", QHAL.HAL_S32, QHAL.HAL_OUT)
 
+        # total external offsets
         pin = QHAL.newpin("eoffset-value", QHAL.HAL_FLOAT, QHAL.HAL_IN)
-        pin.value_changed.connect(self.eoffset_changed)
 
         pin = QHAL.newpin("eoffset-zlevel-count", QHAL.HAL_S32, QHAL.HAL_IN)
         pin.value_changed.connect(self.comp_count_changed)
@@ -251,7 +251,7 @@ class HandlerClass:
         self.w.lineEdit_max_probe.setText(str(self.w.PREFS_.getpref('Max Probe', 10, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_retract_distance.setText(str(self.w.PREFS_.getpref('Retract Distance', 10, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_z_safe_travel.setText(str(self.w.PREFS_.getpref('Z Safe Travel', 10, float, 'CUSTOM_FORM_ENTRIES')))
-        self.w.lineEdit_eoffset_count.setText(str(self.w.PREFS_.getpref('Eoffset count', 0, int, 'CUSTOM_FORM_ENTRIES')))
+        self.w.lineEdit_eoffset_count.setText(str(self.w.PREFS_.getpref('Eoffset count', 0, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.chk_eoffsets.setChecked(self.w.PREFS_.getpref('External offsets', False, bool, 'CUSTOM_FORM_ENTRIES'))
         self.w.chk_reload_program.setChecked(self.w.PREFS_.getpref('Reload program', False, bool,'CUSTOM_FORM_ENTRIES'))
         self.w.chk_reload_tool.setChecked(self.w.PREFS_.getpref('Reload tool', False, bool,'CUSTOM_FORM_ENTRIES'))
@@ -284,7 +284,7 @@ class HandlerClass:
         self.w.PREFS_.putpref('Max Probe', self.w.lineEdit_max_probe.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Retract Distance', self.w.lineEdit_retract_distance.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Z Safe Travel', self.w.lineEdit_z_safe_travel.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
-        self.w.PREFS_.putpref('Eoffset count', self.w.lineEdit_eoffset_count.text().encode('utf-8'), int, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Eoffset count', self.w.lineEdit_eoffset_count.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('External offsets', self.w.chk_eoffsets.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Reload program', self.w.chk_reload_program.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Reload tool', self.w.chk_reload_tool.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
@@ -511,12 +511,8 @@ class HandlerClass:
         else:
             self.w.lbl_mb_errors.setStyleSheet('''background-color:rgb(202, 0, 0);''')
 
-    def eoffset_changed(self, data):
+    def comp_count_changed(self, data):
         self.w.z_comp_eoffset_value.setText(format(data*.001, '.3f'))
-
-    def comp_count_changed(self):
-        if self.w.btn_enable_comp.isChecked():
-            self.h['eoffset-count'] = self.h['eoffset-zlevel-count']
 
     def dialog_return(self, w, message):
         rtn = message.get('RETURN')
@@ -531,7 +527,9 @@ class HandlerClass:
         elif sensor_code and name == 'MESSAGE' and rtn is True:
             self.touchoff('sensor')
         elif wait_code and name == 'MESSAGE':
-            self.h['eoffset-clear'] = False
+            self.h['eoffset-clear'] = True
+            self.h['eoffset-spindle-count'] = 0
+            self.w.spindle_eoffset_value.setText('0')
         elif unhome_code and name == 'MESSAGE' and rtn is True:
             ACTION.SET_MACHINE_UNHOMED(-1)
         elif overwrite and name == 'MESSAGE':
@@ -685,24 +683,20 @@ class HandlerClass:
         self.w.action_step.setEnabled(not state)
         if state:
         # set external offsets to lift spindle
+            self.h['eoffset-clear'] = False
             self.h['eoffset-enable'] = self.w.chk_eoffsets.isChecked()
             fval = float(self.w.lineEdit_eoffset_count.text())
             self.h['eoffset-spindle-count'] = int(fval)
             self.w.spindle_eoffset_value.setText(self.w.lineEdit_eoffset_count.text())
             self.h['spindle-inhibit'] = True
-            #self.w.btn_enable_comp.setChecked(False)
-            #self.w.widget_zaxis_offset.hide()
             if not QHAL.hal.component_exists("z_level_compensation"):
                 self.add_status("Z level compensation HAL component not loaded", CRITICAL)
                 return
-            #self.h['comp-on'] = False
         else:
-            self.h['eoffset-spindle-count'] = 0
-            self.w.spindle_eoffset_value.setText('0')
-            #self.h['eoffset-clear'] = True
+            # turn spindle back on
             self.h['spindle-inhibit'] = False
+            # wait for dialog to close before lowering spindle
             if STATUS.is_auto_running():
-            # instantiate warning box
                 info = "Wait for spindle at speed signal before resuming"
                 mess = {'NAME':'MESSAGE', 'ICON':'WARNING',
                         'ID':'_wait_resume_', 'MESSAGE':'CAUTION',
@@ -1200,8 +1194,12 @@ class HandlerClass:
 
     def endcolor(self):
         self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(self.set_style_default)
+        self.timer.timeout.connect(self.clear_status_bar)
         self.timer.start(self.statusbar_reset_time)
+
+    def clear_status_bar(self):
+        self.set_style_default()
+        self.w.statusbar.showMessage('')
 
     # change Status bar text color
     def set_style_default(self):

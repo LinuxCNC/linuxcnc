@@ -36,7 +36,7 @@ INFO = Info()
 PATH = Path()
 LOG = logger.getLogger(__name__)
 # Force the log level for this module
-LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 current_dir = os.path.dirname(__file__)
 SUBPROGRAM = os.path.abspath(os.path.join(current_dir, 'probe_subprog.py'))
@@ -50,9 +50,9 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         super(VersaProbe, self).__init__(parent)
         self.proc = None
         if INFO.MACHINE_IS_METRIC:
-            self.valid = QtGui.QDoubleValidator(0.0, 999.999, 3)
+            self.valid = QtGui.QRegExpValidator(QtCore.QRegExp('^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$'))
         else:
-            self.valid = QtGui.QDoubleValidator(0.0, 99.9999, 4)
+            self.valid = QtGui.QRegExpValidator(QtCore.QRegExp('^((\d{1,3}(\.\d{1,4})?)|(\.\d{1,4}))$'))
         self.setMinimumSize(600, 420)
         # Load the widgets UI file will use local file if available:
         self.filename = PATH.find_widget_path('versa_probe.ui')
@@ -65,7 +65,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.send_dict = {}
         # these parameters are sent to the subprogram
         self.parm_list = ['adj_x', 'adj_y', 'adj_z', 'adj_angle',
-                          'probe_diam', 'max_travel', 'latch_return_dist',
+                          'probe_diam', 'max_travel','max_z_travel', 'latch_return_dist',
                           'search_vel', 'probe_vel', 'rapid_vel',
                           'side_edge_length', 'tool_probe_height', 'tool_block_height',
                           'xy_clearance', 'z_clearance']
@@ -145,6 +145,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.input_probe_vel.installEventFilter(self)
         self.input_z_clearance.installEventFilter(self)
         self.input_max_travel.installEventFilter(self)
+        self.input_max_z_travel.installEventFilter(self)
         self.input_latch_return_dist.installEventFilter(self)
         self.input_probe_diam.installEventFilter(self)
         self.input_xy_clearance.installEventFilter(self)
@@ -162,6 +163,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.input_probe_vel.setText(str(self.PREFS_.getpref( "ps_probevel", 10.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_z_clearance.setText(str(self.PREFS_.getpref( "ps_z_clearance", 3.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_max_travel.setText(str(self.PREFS_.getpref( "ps_probe_max", 1.0, float, 'VERSA_PROBE_OPTIONS')) )
+            self.input_max_z_travel.setText(str(self.PREFS_.getpref( "ps_probe_max_z_travel", 1.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_latch_return_dist.setText(str(self.PREFS_.getpref( "ps_probe_latch", 0.5, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_probe_diam.setText(str(self.PREFS_.getpref( "ps_probe_diam", 2.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_xy_clearance.setText(str(self.PREFS_.getpref( "ps_xy_clearance", 5.0, float, 'VERSA_PROBE_OPTIONS')) )
@@ -202,6 +204,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.PREFS_.putpref( "ps_probevel", float(self.input_probe_vel.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_z_clearance", float(self.input_z_clearance.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probe_max", float(self.input_max_travel.text()), float, 'VERSA_PROBE_OPTIONS')
+            self.PREFS_.putpref( "ps_probe_max_z_travel", float(self.input_max_z_travel.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probe_latch", float(self.input_latch_return_dist.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probe_diam", float(self.input_probe_diam.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_xy_clearance", float(self.input_xy_clearance.text()), float, 'VERSA_PROBE_OPTIONS')
@@ -285,14 +288,17 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def parse_input(self, line):
         line = line.decode("utf-8")
-        if "ERROR" in line:
+        if "ERROR INFO" in line:
+            ACTION.SET_ERROR_MESSAGE(line)
+        elif "ERROR" in line:
             #print(line)
             STATUS.unblock_error_polling()
             ACTION.SET_ERROR_MESSAGE('Versa Probe process finished in error')
-        elif "DEBUG" in line:
-            print(line)
+        elif "PROBE_ROUTINES" in line:
+            if LOG.getEffectiveLevel() < LOG.INFO:
+                print(line)
         elif "INFO" in line:
-            print(line)
+            pass
         elif "COMPLETE" in line:
             STATUS.unblock_error_polling()
             LOG.info("Versa Probing routine completed without errors")
@@ -300,9 +306,10 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             data = json.loads(return_data[1])
             self.show_results(data)
         elif "HISTORY" in line:
-            temp = line.strip('HISTORY$')
-            STATUS.emit('update-machine-log', temp, 'TIME')
-            LOG.info("Probe history updated to machine log")
+            if not self.set_statusbar(line,1):
+                STATUS.emit('update-machine-log', line, 'TIME')
+        elif "DEBUG" in line:
+            pass
         else:
             LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
 
@@ -374,6 +381,17 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 #####################################################
 # Helper functions
 #####################################################
+
+    # return false if failed so other ways of reporting can be used.
+    # there might not be a statusbar in main screen.
+    def set_statusbar(self, msg, priority = 2):
+        try:
+            self.QTVCP_INSTANCE_.add_status(msg, priority)
+        except:
+            return False
+        return True
+
+
     def get_parms(self):
         self.send_dict = {key: self['input_' + key].text() for key in (self.parm_list)}
         for key in ['allow_auto_zero', 'allow_auto_skew']:

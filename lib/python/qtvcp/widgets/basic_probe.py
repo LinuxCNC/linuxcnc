@@ -67,6 +67,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         # these parameters are sent to the subprogram
         self.parm_list = ['probe_diam',
                           'max_travel',
+                          'max_z_travel',
                           'xy_clearance',
                           'z_clearance',
                           'extra_depth',
@@ -125,7 +126,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.lineEdit_probe_vel.setText(self.PREFS_.getpref('Probe feed', '10', str, 'PROBE OPTIONS'))
             self.lineEdit_search_vel.setText(self.PREFS_.getpref('Probe search', '10', str, 'PROBE OPTIONS'))
             self.lineEdit_max_travel.setText(self.PREFS_.getpref('Probe max travel', '10', str, 'PROBE OPTIONS'))
-            self.lineEdit_max_z.setText(self.PREFS_.getpref('Probe max z', '2', str, 'PROBE OPTIONS'))
+            self.lineEdit_max_z_travel.setText(self.PREFS_.getpref('Probe max z', '2', str, 'PROBE OPTIONS'))
             self.lineEdit_extra_depth.setText(self.PREFS_.getpref('Probe extra depth', '0', str, 'PROBE OPTIONS'))
             self.lineEdit_latch_return_dist.setText(self.PREFS_.getpref('Probe step off', '10', str, 'PROBE OPTIONS'))
             self.lineEdit_xy_clearance.setText(self.PREFS_.getpref('Probe xy clearance', '10', str, 'PROBE OPTIONS'))
@@ -145,7 +146,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.PREFS_.putpref('Probe feed', self.lineEdit_probe_vel.text(), str, 'PROBE OPTIONS')
             self.PREFS_.putpref('Probe search', self.lineEdit_search_vel.text(), str, 'PROBE OPTIONS')
             self.PREFS_.putpref('Probe max travel', self.lineEdit_max_travel.text(), str, 'PROBE OPTIONS')
-            self.PREFS_.putpref('Probe max z', self.lineEdit_max_z.text(), str, 'PROBE OPTIONS')
+            self.PREFS_.putpref('Probe max z', self.lineEdit_max_z_travel.text(), str, 'PROBE OPTIONS')
             self.PREFS_.putpref('Probe extra depth', self.lineEdit_extra_depth.text(), str, 'PROBE OPTIONS')
             self.PREFS_.putpref('Probe step off', self.lineEdit_latch_return_dist.text(), str, 'PROBE OPTIONS')
             self.PREFS_.putpref('Probe xy clearance', self.lineEdit_xy_clearance.text(), str, 'PROBE OPTIONS')
@@ -174,8 +175,12 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             LOG.info("Probe Routine processor is busy")
             return
         if int(self.lineEdit_probe_tool.text()) != STATUS.get_current_tool():
-            LOG.error("Probe tool not mounted in spindle")
+            msg = "Probe tool not mounted in spindle"
+            if not self.set_statusbar(msg):
+                STATUS.emit('update-machine-log', msg, 'TIME')
+                ACTION.SET_ERROR_MESSAGE(msg)
             return
+
         self.start_process()
         string_to_send = cmd + '$' + json.dumps(self.send_dict) + '\n'
         #print("String to send ", string_to_send)
@@ -202,14 +207,17 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def parse_input(self, line):
         line = line.decode("utf-8")
-        if "INFO" in line:
-            print(line)
+        if "ERROR INFO" in line:
+            ACTION.SET_ERROR_MESSAGE(line)
         elif "ERROR" in line:
             #print(line)
             STATUS.unblock_error_polling()
             ACTION.SET_ERROR_MESSAGE('Basic Probe process finished  in error')
-        elif "DEBUG" in line:
-            print(line)
+        elif "INFO" in line:
+            pass
+        elif "PROBE_ROUTINES" in line:
+            if LOG.getEffectiveLevel() < LOG.INFO:
+                print(line)
         elif "COMPLETE" in line:
             STATUS.unblock_error_polling()
             LOG.info("Basic Probing routine completed without errors")
@@ -217,11 +225,21 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             data = json.loads(return_data[1])
             self.show_results(data)
         elif "HISTORY" in line:
-            temp = line.strip('HISTORY$')
-            STATUS.emit('update-machine-log', temp, 'TIME')
-            LOG.info("Probe history updated to machine log")
+            if not self.set_statusbar(line,1):
+                STATUS.emit('update-machine-log', line, 'TIME')
+        elif "DEBUG" in line:
+            pass
         else:
             LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
+
+    # return false if failed so other ways of reporting can be used.
+    # there might not be a statusbar in main screen.
+    def set_statusbar(self, msg, priority = 2):
+        try:
+            self.QTVCP_INSTANCE_.add_status(msg, priority)
+            return True
+        except:
+            return False
 
 # Main button handler routines
     def probe_help_clicked(self):
@@ -255,7 +273,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def probe_btn_clicked(self, button):
         cmd = button.property('probe')
-#        print("Button clicked ", cmd)
+        #print("Button clicked ", cmd)
         self.get_parms()
         self.start_probe(cmd)
 
@@ -307,6 +325,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
 # Helper functions
     def get_parms(self):
         self.send_dict = {key: self['lineEdit_' + key].text() for key in (self.parm_list)}
+        #print(self.send_dict)
         for key in ['allow_auto_zero', 'allow_auto_skew', 'cal_avg_error', 'cal_x_error', 'cal_y_error']:
             val = '1' if self[key].isChecked() else '0'
             self.send_dict.update( {key: val} )
