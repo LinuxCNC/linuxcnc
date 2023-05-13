@@ -495,7 +495,6 @@ These bit/s32/float pins are related to external offsets if they are used:
 [source,{hal}]
 ----
 qtdragon.eoffset-clear
-qtdragon.eoffset-count
 qtdragon.eoffset-enable
 qtdragon.eoffset-value
 qtdragon.eoffset-spindle-count
