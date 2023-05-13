@@ -164,6 +164,8 @@ class ProbeSubprog(QObject, ProbeRoutines):
         cmd = cmd.rstrip().split('$')
         if cmd[0] in dir(self):
             if not STATUS.is_on_and_idle(): return None
+            pre = self.prechecks()
+            if pre is not None: return pre
             parms = json.loads(cmd[1])
             self.update_data(parms)
             # start polling errors here - parent program should have blocked their polling
@@ -171,6 +173,7 @@ class ProbeSubprog(QObject, ProbeRoutines):
             error = self[cmd[0]]()
             if (error != 1 or type(error)== str) and STATUS.is_on_and_idle():
                 ACTION.CALL_MDI("G90")
+            self.postreset()
             return error
         else:
             return None
@@ -210,6 +213,24 @@ class ProbeSubprog(QObject, ProbeRoutines):
         #    data = "{:3.3f}".format(self['status_' + key])
         #    self.send_dict.update( {key: data} )
         #return
+
+    # need to be in the right mode - entries are in machine units
+    def prechecks(self):
+        if INFO.MACHINE_IS_METRIC and STATUS.is_metric_mode():
+            return None
+        if not INFO.MACHINE_IS_METRIC and not STATUS.is_metric_mode():
+            return None
+        # record motion modes
+        ACTION.CALL_MDI('M70')
+        if INFO.MACHINE_IS_METRIC:
+            ACTION.CALL_MDI('g21')
+        else:
+            ACTION.CALL_MDI('g20')
+        return None
+
+    # return to previous motion modes
+    def postreset(self):
+        ACTION.CALL_MDI('M72')
 
 ########################################
 # required boiler code
