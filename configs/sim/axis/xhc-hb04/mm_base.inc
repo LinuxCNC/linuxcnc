@@ -18,8 +18,8 @@ PROGRAM_EXTENSION = .py Python Script
 png = image-to-gcode
 gif = image-to-gcode
 jpg = image-to-gcode
-py = python
-duh
+py = python3
+
 [TASK]
 TASK =                  milltask
 CYCLE_TIME =            0.001
