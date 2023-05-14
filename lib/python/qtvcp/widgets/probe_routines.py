@@ -326,6 +326,8 @@ class ProbeRoutines():
 #  Inside probing
 ###################
     def probe_xy_hole(self):
+        self.history_log = 'Probe_xy_hole did not finish'
+
         rtn = self.z_clearance_down()
         if rtn != 1:
             return 'Probe_xy_hole failed: clearance up: {}'.format(rtn)
@@ -347,7 +349,7 @@ class ProbeRoutines():
         if rtn != 1:
             return 'Probe_xy_hole failed: X minus probe: {}'.format(rtn)
 
-        # show X result
+        # show -X result
         a = STATUS.get_probed_position_with_offsets()
         xmres = float(a[0])-0.5*self.data_probe_diam
         self.status_xm =  xmres
@@ -644,6 +646,7 @@ class ProbeRoutines():
     def probe_outside_xy_boss(self):
 
         # probe_outside_length_x
+        self.history_log = 'Probe outside_xy_boss did not finish'
 
         # move X- edge_length + xy_clearance
         s = """G91
@@ -651,43 +654,44 @@ class ProbeRoutines():
         G90""" % (self.data_rapid_vel, self.data_side_edge_length + self.data_xy_clearance)
         rtn = self.CALL_MDI_WAIT(s, self.timeout) 
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
+            return 'Probe outside_xy_boss: -X positioning failed: {}'.format(rtn)
         rtn = self.z_clearance_down()
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
+            return 'Probe outside_xy_boss: Z clearance down failed: {}'.format(rtn)
         rtn = self.probe('xplus')
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
+            return 'Probe outside_xy_boss: Probe +X failed: {}'.format(rtn)
 
-        # show X result
+        # show -X result
         a = STATUS.get_probed_position_with_offsets()
-        xpres = float(a[0]) + 0.5 * self.data_probe_diam
-        self.status_xp = xpres
+        xmres = float(a[0]) + 0.5 * self.data_probe_diam
+        self.status_xm = xmres
 
         # move Z to start point up
         rtn = self.z_clearance_up()
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
+            return 'Probe outside_xy_boss: Z clearance up failed: {}'.format(rtn)
 
-        # move X+ 2 * (edge_length + xy_clearance)
-        aa = 2 * (self.data_side_edge_length + self.data_xy_clearance)
+        # move X+ (2 edge_length + latch return + xy_clearance)
+        aa = (2 * self.data_side_edge_length) + self.data_latch_return_dist + self.data_xy_clearance
         s = """G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, aa)
         rtn = self.CALL_MDI_WAIT(s, self.timeout) 
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
+            return 'Probe outside_xy_boss: X positioning failed: {}'.format(rtn)
         rtn = self.z_clearance_down()
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
+            return 'Probe outside_xy_boss: Z clearance down failed: {}'.format(rtn)
         rtn = self.probe('xminus')
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
+            return 'Probe outside_xy_boss: Probe -X failed: {}'.format(rtn)
 
         # show X result
         a = STATUS.get_probed_position_with_offsets()
-        xmres = float(a[0]) - 0.5 * self.data_probe_diam
-        self.status_xm = xmres
+        xpres = float(a[0]) - 0.5 * self.data_probe_diam
+        self.status_xp = xpres
+
         len_x = self.length_x()
         xcres = 0.5 * (xpres + xmres)
         self.status_xc = xcres
@@ -695,13 +699,13 @@ class ProbeRoutines():
         # move Z to start point up
         rtn = self.z_clearance_up()
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
+            return 'Probe outside_xy_boss: Z clearance up failed: {}'.format(rtn)
 
         # go to the new center of X
         s = "G1 F%s X%f" % (self.data_rapid_vel, xcres)
         rtn = self.CALL_MDI_WAIT(s, self.timeout) 
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
+            return 'Probe outside_xy_boss: X to center failed: {}'.format(rtn)
 
         ################################
         # X probing done
@@ -715,40 +719,44 @@ class ProbeRoutines():
         G90""" % (self.data_rapid_vel, a)
         rtn = self.CALL_MDI_WAIT(s, self.timeout) 
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
+            return 'Probe outside_xy_boss: -Y positioning failed: {}'.format(rtn)
         rtn = self.z_clearance_down()
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
+            return 'Probe outside_xy_boss: Z clearance down failed: {}'.format(rtn)
         rtn = self.probe('yplus')
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
+            return 'Probe outside_xy_boss: Probe +Y failed: {}'.format(rtn)
 
-        # show Y result
+        # show +Y result
         a = STATUS.get_probed_position_with_offsets()
-        ypres = float(a[1]) + 0.5 * self.data_probe_diam
-        self.status_yp = ypres
+        ymres = float(a[1]) + 0.5 * self.data_probe_diam
+        self.status_ym = ymres
+
         # move Z to start point up
         rtn = self.z_clearance_up()
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
+            return 'Probe outside_xy_boss: Z clearance up failed: {}'.format(rtn)
 
-        # move Y+ 2 * (edge_length +  xy_clearance)
-        aa = 2 * (self.data_side_edge_length + self.data_xy_clearance)
+        # move Y+ (2 * edge_length) + latch return +  xy_clearance)
+        aa = (2 * self.data_side_edge_length) + self.data_latch_return_dist + self.data_xy_clearance
         s = """G91
         G1 F%s Y%f
         G90""" % (self.data_rapid_vel, aa)
         rtn = self.CALL_MDI_WAIT(s, self.timeout) 
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
+            return 'Probe outside_xy_boss: +Y positioning failed: {}'.format(rtn)
         rtn = self.z_clearance_down()
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
-        if self.probe('yminus') == -1: return
+            return 'Probe outside_xy_boss: Z clearance down failed: {}'.format(rtn)
+        rtn = self.probe('yminus')
+        if rtn != 1:
+            return 'Probe outside_xy_boss: Probe -Y failed: {}'.format(rtn)
 
-        # show Y result
+        # show -Y result
         a = STATUS.get_probed_position_with_offsets()
-        ymres = float(a[1]) - 0.5 * self.data_probe_diam
-        self.status_ym = ymres
+        ypres = float(a[1]) - 0.5 * self.data_probe_diam
+        self.status_yp = ypres
+
         len_y = self.length_y()
 
         # find, show and move to found  point
@@ -764,12 +772,12 @@ class ProbeRoutines():
         # move Z to start point up
         rtn = self.z_clearance_up()
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
+            return 'Probe outside_xy_boss: Z clearance up failed: {}'.format(rtn)
         # move to found  point
         s = "G1 F%s Y%f" % (self.data_rapid_vel, ycres)
         rtn = self.CALL_MDI_WAIT(s, self.timeout) 
         if rtn != 1:
-            return 'failed: {}'.format(rtn)
+            return 'Probe outside_xy_boss: Y to center failed: {}'.format(rtn)
         self.set_zero("XY")
         return 1
 
@@ -1389,7 +1397,7 @@ class ProbeRoutines():
         return 1
 
     def probe_round_boss(self):
-        if self.data_probe_diam <= 0 :
+        if self.data_diameter_hint <= 0 :
             return 'Boss diameter hint must be larger then 0'
 
         self.data_side_edge_length = self.data_diameter_hint / 2
@@ -1397,6 +1405,8 @@ class ProbeRoutines():
         return error
 
     def probe_round_pocket(self):
+        if self.data_diameter_hint <= 0 :
+            return 'Boss diameter hint must be larger then 0'
         if self.data_probe_diam >= self.data_diameter_hint:
             return 'Probe diameter too large for hole diameter hint'
 
@@ -1405,6 +1415,10 @@ class ProbeRoutines():
         return error
 
     def probe_rectangular_boss(self):
+        if self.data_y_hint_bp <= 0 :
+            return 'Y length hint must be larger then 0'
+        if self.data_x_hint_bp <= 0 :
+            return 'X length hint must be larger then 0'
         if self.data_probe_diam >= self.data_y_hint_bp / 2:
             return 'Probe diameter too large for Y length hint'
         if self.data_probe_diam >= self.data_x_hint_bp / 2:
@@ -1418,6 +1432,10 @@ class ProbeRoutines():
         return error
 
     def probe_rectangular_pocket(self):
+        if self.data_y_hint_bp <= 0 :
+            return 'Y length hint must be larger then 0'
+        if self.data_x_hint_bp <= 0 :
+            return 'X length hint must be larger then 0'
         if self.data_probe_diam >= self.data_y_hint_bp / 2:
             return 'Probe diameter too large for Y length hint'
         if self.data_probe_diam >= self.data_x_hint_bp / 2:
