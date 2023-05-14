@@ -216,12 +216,12 @@ class ProbeSubprog(QObject, ProbeRoutines):
 
     # need to be in the right mode - entries are in machine units
     def prechecks(self):
+        ACTION.CALL_MDI('M70')
         if INFO.MACHINE_IS_METRIC and STATUS.is_metric_mode():
             return None
         if not INFO.MACHINE_IS_METRIC and not STATUS.is_metric_mode():
             return None
         # record motion modes
-        ACTION.CALL_MDI('M70')
         if INFO.MACHINE_IS_METRIC:
             ACTION.CALL_MDI('g21')
         else:

@@ -18,7 +18,7 @@
 import sys
 import os
 import json
-from PyQt5.QtCore import QProcess, QRegExp
+from PyQt5.QtCore import QProcess, QRegExp, QFile
 from PyQt5 import QtGui, QtWidgets, uic
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Action, Status, Info, Path
@@ -35,6 +35,9 @@ LOG = logger.getLogger(__name__)
 current_dir =  os.path.dirname(__file__)
 SUBPROGRAM = os.path.abspath(os.path.join(current_dir, 'probe_subprog.py'))
 CONFIG_DIR = os.getcwd()
+
+# can use/favours local image and help files
+HELP = PATH.find_widget_path()
 
 class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -57,6 +60,10 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.dialog = uic.loadUi(self.filename)
         except AttributeError as e:
             LOG.critical(e)
+        self.helpPages = ['basic_help.html','basic_help1.html','basic_help2.html',
+                        'basic_help3.html','basic_help4.html','basic_help5.html',
+                        'basic_help6.html','basic_help7.html']
+        self.currentHelpPage = 0
 
         self.probe_list = ["OUTSIDE CORNERS", "INSIDE CORNERS", "EDGE ANGLE", "BOSS and POCKETS",
                            "RIDGE and VALLEY", "CALIBRATE"]
@@ -244,32 +251,43 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
 # Main button handler routines
     def probe_help_clicked(self):
         self.dialog.show()
+        self.update_help_page()
 
     def help_close_clicked(self):
         self.dialog.hide()
 
     def help_prev_clicked(self):
-        i = self.dialog.probe_help_widget.currentIndex()
-        if i > 0:
-            self.dialog.probe_help_widget.setCurrentIndex(i - 1)
+        self.currentHelpPage -=1
+        if self.currentHelpPage < 0:
+            self.currentHelpPage = 0
+        self.update_help_page()
 
     def help_next_clicked(self):
-        i = self.dialog.probe_help_widget.currentIndex()
-        if i < 5:
-            self.dialog.probe_help_widget.setCurrentIndex(i + 1)
+        self.currentHelpPage +=1
+        if self.currentHelpPage > len(self.helpPages)-1:
+            self.currentHelpPage = len(self.helpPages)-1
+        self.update_help_page()
 
     def cmb_probe_select_changed(self, index):
         self.stackedWidget_probe_buttons.setCurrentIndex(index)
 
-    def probe_help_prev_clicked(self):
-        i = self.probe_help_widget.currentIndex()
-        if i > 0:
-            self.probe_help_widget.setCurrentIndex(i - 1)
+    def update_help_page(self):
 
-    def probe_help_next_clicked(self):
-        i = self.probe_help_widget.currentIndex()
-        if i < 5:
-            self.probe_help_widget.setCurrentIndex(i + 1)
+            try:
+                pagePath = os.path.join(HELP, self.helpPages[self.currentHelpPage])
+                if not os.path.exists(pagePath): raise Exception("Missing File: {}".format(pagePath)) 
+                file = QFile(pagePath)
+                file.open(QFile.ReadOnly)
+                html = file.readAll()
+                html = str(html, encoding='utf8')
+                html = html.replace("../images/widgets/","{}/widgets/".format(INFO.IMAGE_PATH))
+                self.dialog.html_textEdit.setHtml(html)
+            except Exception as e:
+                print(e)
+                self.dialog.html_textEdit.setHtml('''
+<h1 style=" margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" font-size:xx-large; font-weight:600;">Basic Probe Help not available</span> </h1>
+{}
+'''.format(e))
 
     def probe_btn_clicked(self, button):
         cmd = button.property('probe')
