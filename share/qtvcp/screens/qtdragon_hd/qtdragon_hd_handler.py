@@ -530,6 +530,7 @@ class HandlerClass:
             self.h['eoffset-clear'] = True
             self.h['eoffset-spindle-count'] = 0
             self.w.spindle_eoffset_value.setText('0')
+            self.add_status('Spindle lowered')
         elif unhome_code and name == 'MESSAGE' and rtn is True:
             ACTION.SET_MACHINE_UNHOMED(-1)
         elif overwrite and name == 'MESSAGE':
@@ -689,12 +690,14 @@ class HandlerClass:
             self.h['eoffset-spindle-count'] = int(fval)
             self.w.spindle_eoffset_value.setText(self.w.lineEdit_eoffset_count.text())
             self.h['spindle-inhibit'] = True
+            self.add_status("Spindle stopped and raised {}".format(fval))
             if not QHAL.hal.component_exists("z_level_compensation"):
                 self.add_status("Z level compensation HAL component not loaded", CRITICAL)
                 return
         else:
             # turn spindle back on
             self.h['spindle-inhibit'] = False
+            self.add_status('Spindle re-started')
             # wait for dialog to close before lowering spindle
             if STATUS.is_auto_running():
                 info = "Wait for spindle at speed signal before resuming"

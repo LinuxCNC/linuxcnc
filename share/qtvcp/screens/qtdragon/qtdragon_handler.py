@@ -495,6 +495,7 @@ class HandlerClass:
         elif wait_code and name == 'MESSAGE':
             self.h['eoffset-spindle-count'] = 0
             self.h['eoffset-clear'] = True
+            self.add_status('Spindle lowered')
         elif unhome_code and name == 'MESSAGE' and rtn is True:
             ACTION.SET_MACHINE_UNHOMED(-1)
         elif overwrite and name == 'MESSAGE':
@@ -683,8 +684,10 @@ class HandlerClass:
             fval = float(self.w.lineEdit_eoffset_count.text())
             self.h['eoffset-spindle-count'] = int(fval)
             self.h['spindle-inhibit'] = True
+            self.add_status("Spindle stopped and raised {}".format(fval))
         else:
             self.h['spindle-inhibit'] = False
+            self.add_status('Spindle re-started')
         # instantiate warning box
             info = "Wait for spindle at speed signal before resuming"
             mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_resume_', 'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
