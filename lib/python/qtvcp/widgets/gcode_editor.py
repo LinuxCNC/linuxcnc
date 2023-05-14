@@ -206,8 +206,10 @@ class EditorBase(QsciScintilla):
 
         self.set_lexer("g-code")
 
+        self._marginWidth = '00000'
+
         # Margin 0 is used for line numbers
-        self.set_margin_width(1)
+        self.setMarginWidth(0, self._marginWidth)
         self.linesChanged.connect(self.on_lines_changed)
         self.setMarginLineNumbers(0, True)
 
@@ -215,8 +217,8 @@ class EditorBase(QsciScintilla):
         self.marginClicked.connect(self.on_margin_clicked)
         self.setMarginMarkerMask(0, 0b1111)
         self.setMarginSensitivity(0, True)
-        # setting marker margin width to zero make the marker highlight line
-        self.setMarginWidth(1, 5)
+        # setting _marker_ margin width
+        self.setMarginWidth(1, 0)
 
         # Gcode highlight current line
         self.currentHandle = self.markerDefine(QsciScintilla.Background,
@@ -286,12 +288,20 @@ class EditorBase(QsciScintilla):
             for i in range(0, self.lexer_num_styles):
                 self.lexer.setColor(self._styleColor.get(i, self._styleColor[0]), i)
 
-    def set_margin_width(self, width):
+    def set_margin_width(self):
+        self.setMarginWidth(0, self._marginWidth)
+
+    def set_margin_metric(self, width):
         fontmetrics = QFontMetrics(self.getFontMargins())
         self.setMarginWidth(0, fontmetrics.width("0" * width) + 6)
 
+    # reset margin width when number od lines change
     def on_lines_changed(self):
-        self.set_margin_width(len(str(self.lines())))
+        if len(str(self.lines())) < 3:
+            self._marginWidth = '0000'
+        else:
+            self._marginWidth = str(self.lines())+'0'
+        self.setMarginWidth(0, self._marginWidth)
 
     def on_margin_clicked(self, nmargin, nline, modifiers):
         # Toggle marker for the line the margin was clicked on
@@ -714,6 +724,16 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.setCursorPosition(line, 0)
         self.highlight_line(None, line)
 
+    # overridden functions               #
+    #####################################
+    def zoomIn(self):
+        super().zoomIn()
+        self.set_margin_width()
+    def zoomOut(self):
+        super().zoomOut()
+        self.set_margin_width()
+    #####################################
+
     # designer recognized getter/setters
     # auto_show_mdi status
     def set_auto_show_mdi(self, data):
@@ -1065,8 +1085,8 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     def get_line(self):
         return self.editor.getCursorPosition()[0] +1
 
-    def set_margin_width(self,width):
-        self.editor.set_margin_width(width)
+    def set_margin_metric(self,width):
+        self.editor.set_margin_metric(width)
 
     def set_font(self, font):
         self.editor.setDefaultFont(font)

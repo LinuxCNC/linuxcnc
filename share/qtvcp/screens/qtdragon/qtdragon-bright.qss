@@ -74,6 +74,10 @@ StateLabel {
     color: black;
 }
 
+StatusLabel#status_rpm, Label {
+    font: 20pt "Lato Heavy";
+}
+
 DROLabel {
     background: #202020;
     border: 1px solid black;
