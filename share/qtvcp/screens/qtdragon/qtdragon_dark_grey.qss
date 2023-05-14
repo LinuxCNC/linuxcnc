@@ -142,6 +142,10 @@ StateLabel {
     color: #9ad58d;
 }
 
+StatusLabel#status_rpm, Label {
+    font: 20pt "Lato Heavy";
+}
+
 DROLabel {
     background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(40, 40, 40, 255), stop:1 rgba(83, 83, 83, 255));
     border: 1px solid black;
