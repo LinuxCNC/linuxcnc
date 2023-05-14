@@ -495,6 +495,7 @@ class HandlerClass:
         elif wait_code and name == 'MESSAGE':
             self.h['eoffset-spindle-count'] = 0
             self.h['eoffset-clear'] = True
+            self.add_status('Spindle lowered')
         elif unhome_code and name == 'MESSAGE' and rtn is True:
             ACTION.SET_MACHINE_UNHOMED(-1)
         elif overwrite and name == 'MESSAGE':
@@ -683,8 +684,10 @@ class HandlerClass:
             fval = float(self.w.lineEdit_eoffset_count.text())
             self.h['eoffset-spindle-count'] = int(fval)
             self.h['spindle-inhibit'] = True
+            self.add_status("Spindle stopped and raised {}".format(fval))
         else:
             self.h['spindle-inhibit'] = False
+            self.add_status('Spindle re-started')
         # instantiate warning box
             info = "Wait for spindle at speed signal before resuming"
             mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_resume_', 'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
@@ -1175,12 +1178,12 @@ class HandlerClass:
                     TAB_FILE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
                     TAB_OFFSETS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
                     TAB_TOOL: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_STATUS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
+                    TAB_STATUS: (requestedIndex,PAGE_GCODE,False,SHOW_DRO),
                     TAB_PROBE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
                     TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
                     TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
                     TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
-                    TAB_SETTINGS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
+                    TAB_SETTINGS: (requestedIndex,PAGE_GCODE,False,SHOW_DRO),
                     TAB_UTILITIES: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
                     TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE) }
         else:
