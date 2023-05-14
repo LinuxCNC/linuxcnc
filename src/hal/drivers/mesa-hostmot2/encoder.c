@@ -328,11 +328,15 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
     //
 
     if (hm2->md[md_index].gtag == HM2_GTAG_ENCODER) {
-        if (hm2_md_is_consistent(hm2, md_index, 2, 5, 4, 0x0003)) {
+        if (hm2_md_is_consistent(hm2, md_index, 1, 5, 4, 0x0003)) {
+            HM2_PRINT("WARNING: this firmware has Encoder v1!\n");
+            HM2_PRINT("WARNING: Index logic is buggy\n");
+            HM2_PRINT("WARNING: upgrade your firmware!\n");
+        } else if (hm2_md_is_consistent(hm2, md_index, 2, 5, 4, 0x0003)) {
             // ok
         } else if (hm2_md_is_consistent(hm2, md_index, 3, 5, 4, 0x0003)) {
             // ok
-        } else if (hm2_md_is_consistent_or_complain(hm2, md_index, 0x83, 5, 4, 0x0003)) {
+        } else if (hm2_md_is_consistent(hm2, md_index, 0x83, 5, 4, 0x0003)) {
             // ok
             hm2->encoder.firmware_supports_probe = 1;
         } else {
@@ -348,7 +352,7 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
             // ok
         } else if (hm2_md_is_consistent(hm2, md_index, 4, 5, 4, 0x0003)) {
             // ok
-        } else if (hm2_md_is_consistent_or_complain(hm2, md_index, 0x84, 5, 4, 0x0003)) {
+        } else if (hm2_md_is_consistent(hm2, md_index, 0x84, 5, 4, 0x0003)) {
             // ok
             hm2->encoder.firmware_supports_probe = 1;
         } else {
