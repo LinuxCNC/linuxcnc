@@ -1228,7 +1228,7 @@ class HandlerClass:
                     TAB_CAMVIEW: (requestedIndex,PAGE_UNCHANGED,SHOW_DRO),
                     TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,SHOW_DRO),
                     TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,SHOW_DRO),
-                    TAB_SETTINGS: (TAB_MAIN,PAGE_GCODE,SHOW_DRO),
+                    TAB_SETTINGS: (requestedIndex,PAGE_GCODE,SHOW_DRO),
                     TAB_UTILS: (TAB_MAIN,PAGE_GCODE,SHOW_DRO),
                     TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE) }
         else:

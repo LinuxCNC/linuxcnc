@@ -1175,12 +1175,12 @@ class HandlerClass:
                     TAB_FILE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
                     TAB_OFFSETS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
                     TAB_TOOL: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_STATUS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
+                    TAB_STATUS: (requestedIndex,PAGE_GCODE,False,SHOW_DRO),
                     TAB_PROBE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
                     TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
                     TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
                     TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
-                    TAB_SETTINGS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
+                    TAB_SETTINGS: (requestedIndex,PAGE_GCODE,False,SHOW_DRO),
                     TAB_UTILITIES: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
                     TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE) }
         else:
