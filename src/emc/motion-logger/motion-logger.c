@@ -284,12 +284,11 @@ int main(int argc, char* argv[]) {
     init_comm_buffers();
 
     while (1) {
-        if (c->commandNum != c->tail) {
-            // "split read"
-            continue;
-        }
+        rtapi_mutex_get(&emcmotStruct->command_mutex);
+
         if (c->commandNum == emcmotStatus->commandNumEcho) {
             // nothing new
+            rtapi_mutex_give(&emcmotStruct->command_mutex);
             maybe_reopen_logfile();
             usleep(10 * 1000);
             continue;
@@ -682,6 +681,8 @@ int main(int argc, char* argv[]) {
         emcmotStatus->commandNumEcho = c->commandNum;
         emcmotStatus->commandStatus = EMCMOT_COMMAND_OK;
         emcmotStatus->tail = emcmotStatus->head;
+
+        rtapi_mutex_give(&emcmotStruct->command_mutex);
     }
 
     return 0;

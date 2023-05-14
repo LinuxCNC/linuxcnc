@@ -855,10 +855,8 @@ static int init_comm_buffers(void)
     emcmotErrorInit(emcmotError);
 
     /* init command struct */
-    emcmotCommand->head = 0;
     emcmotCommand->command = 0;
     emcmotCommand->commandNum = 0;
-    emcmotCommand->tail = 0;
 
     /* init status struct */
     emcmotStatus->head = 0;
