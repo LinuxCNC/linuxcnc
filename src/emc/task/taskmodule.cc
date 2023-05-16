@@ -104,7 +104,7 @@ static int handle_exception(const char *name)
 
 struct TaskWrap : public Task, public bp::wrapper<Task> {
 
-    TaskWrap() : Task() {}
+    TaskWrap() : Task(emcStatus->io) {}
 
     EXPAND(emcIoInit)
     EXPAND(emcIoHalt)
@@ -152,18 +152,6 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
 	    }
 	else
 	    return  Task::emcToolSetOffset(pocket,toolno,offset,diameter,frontangle,backangle,orientation);
-    }
-
-    int emcIoUpdate(EMC_IO_STAT * stat) {
-	if (bp::override f = this->get_override("emcIoUpdate"))
-	    try {
-		return f(); /// bug in Boost.Python, fixed in 1.44 I guess: return_int("foo",f());
-	    }
-	    catch( const bp::error_already_set& ) {
-		return handle_exception("emcIoUpdate");
-	    }
-	else
-	    return  Task::emcIoUpdate(stat);
     }
 
 };
@@ -319,7 +307,6 @@ BOOST_PYTHON_MODULE(emctask) {
 
     class_<TaskWrap, boost::shared_ptr<TaskWrap>, boost::noncopyable >("Task")
 
-	.def_readonly("use_iocontrol", &Task::use_iocontrol)
 	.def_readonly("random_toolchanger", &Task::random_toolchanger)
 	.def_readonly("tooltable_filename", &Task::tooltable_filename)
 	;

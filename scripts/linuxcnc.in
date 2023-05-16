@@ -541,11 +541,6 @@ if [ -z "$HOMEMOD" ] ; then
     HOMEMOD=${retval:-homemod} #use default if not found
 fi
 
-
-# 2.4. get io information
-GetFromIniEx IO IO EMCIO EMCIO io
-EMCIO=$retval
-
 # 2.5. get task information
 GetFromIni TASK TASK
 EMCTASK=$retval
@@ -830,18 +825,15 @@ fi
 # "halcmd loadrt" can find them
 export HAL_RTMOD_DIR=$LINUXCNC_RTLIB_DIR
 
-# 4.3.4. Run io in background if so defined in INI
-if [ "$EMCIO" != "" ] ; then
-        echo "Starting LinuxCNC IO program: $EMCIO" >>$PRINT_FILE
-        if ! program_available $EMCIO ; then
-                echo "Can't execute IO program $EMCIO"
-                Cleanup
-        exit 1
-        fi
-        $HALCMD loadusr -Wn iocontrol $EMCIO -ini "$INIFILE"
-else
-        echo "Skipping LinuxCNC IO program >>$PRINT_FILE"
+# 4.3.7. Run task in background
+echo "Starting TASK program: $EMCTASK" >>$PRINT_FILE
+if ! program_available $EMCTASK ; then
+    echo "Can't execute TASK program $EMCTASK"
+    Cleanup
+    exit 1
 fi
+
+halcmd loadusr -Wn iocontrol $EMCTASK -ini "$INIFILE" &
 
 # 4.3.5. Run halui in background, if necessary
 if [ -n "$HALUI" ] ; then
@@ -935,17 +927,6 @@ else
         CFGFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
     done
 fi
-
-
-# 4.3.7. Run task in background
-echo "Starting TASK program: $EMCTASK" >>$PRINT_FILE
-if ! program_available $EMCTASK ; then
-    echo "Can't execute TASK program $EMCTASK"
-    Cleanup
-    exit 1
-fi
-
-halcmd loadusr -Wn inihal $EMCTASK -ini "$INIFILE" &
 
 # 4.3.8. execute discrete HAL commands from INI file (if any)
 # get first command from INI file

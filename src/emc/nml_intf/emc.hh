@@ -527,8 +527,6 @@ extern int emcIoAbort(int reason);
 extern int emcIoSetCycleTime(double cycleTime);
 extern int emcIoSetDebug(int debug);
 
-extern int emcIoUpdate(EMC_IO_STAT * stat);
-
 // implementation functions for EMC aggregate types
 
 extern int emcInit();

@@ -27,8 +27,6 @@
 #include "rcs.hh"		// RCS_CMD_CHANNEL, etc.
 #include "rcs_print.hh"
 #include "timer.hh"             // esleep, etc.
-#include "emc.hh"		// EMC NML
-#include "emc_nml.hh"
 #include "emcglb.h"		// EMC_INIFILE
 
 #include "python_plugin.hh"
@@ -42,6 +40,260 @@
 #include <boost/python/tuple.hpp>
 namespace bp = boost::python;
 
+#include "tooldata.hh"
+#include "hal.h"
+
+struct iocontrol_str {
+    hal_bit_t *user_enable_out;        /* output, TRUE when EMC wants stop */
+    hal_bit_t *emc_enable_in;        /* input, TRUE on any external stop */
+    hal_bit_t *user_request_enable;        /* output, used to reset ENABLE latch */
+    hal_bit_t *coolant_mist;        /* coolant mist output pin */
+    hal_bit_t *coolant_flood;        /* coolant flood output pin */
+    hal_bit_t *lube;                /* lube output pin */
+    hal_bit_t *lube_level;        /* lube level input pin */
+
+    // the following pins are needed for toolchanging
+    //tool-prepare
+    hal_bit_t *tool_prepare;        /* output, pin that notifies HAL it needs to prepare a tool */
+    hal_s32_t *tool_prep_pocket;/* output, pin that holds the pocketno for the tool table entry matching the tool to be prepared,
+                                   only valid when tool-prepare=TRUE */
+    hal_s32_t *tool_from_pocket;/* output, pin indicating pocket current load tool retrieved from*/
+    hal_s32_t *tool_prep_index; /* output, pin for internal index (idx) of prepped tool above */
+    hal_s32_t *tool_prep_number;/* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
+    hal_s32_t *tool_number;     /* output, pin that holds the tool number currently in the spindle */
+    hal_bit_t *tool_prepared;        /* input, pin that notifies that the tool has been prepared */
+    //tool-change
+    hal_bit_t *tool_change;        /* output, notifies a tool-change should happen (emc should be in the tool-change position) */
+    hal_bit_t *tool_changed;        /* input, notifies tool has been changed */
+
+    // note: spindle control has been moved to motion
+} * iocontrol_data;                        //pointer to the HAL-struct
+
+static int comp_id;                                /* component ID */
+
+/********************************************************************
+*
+* Description: iocontrol_hal_init(void)
+*
+* Side Effects: Exports HAL pins.
+*
+* Called By: main
+********************************************************************/
+int Task::iocontrol_hal_init(void)
+{
+    int n = 0, retval;                //n - number of the hal component (only one for iocotrol)
+
+    /* STEP 1: initialise the hal component */
+    comp_id = hal_init("iocontrol");
+    if (comp_id < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "IOCONTROL: ERROR: hal_init() failed\n");
+        return -1;
+    }
+
+    /* STEP 2: allocate shared memory for iocontrol data */
+    iocontrol_data = (iocontrol_str *) hal_malloc(sizeof(iocontrol_str));
+    if (iocontrol_data == 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "IOCONTROL: ERROR: hal_malloc() failed\n");
+        hal_exit(comp_id);
+        return -1;
+    }
+
+    /* STEP 3a: export the out-pin(s) */
+
+    // user-enable-out
+    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->user_enable_out), comp_id,
+                              "iocontrol.%d.user-enable-out", n);
+    if (retval < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "IOCONTROL: ERROR: iocontrol %d pin user-enable-out export failed with err=%i\n",
+                        n, retval);
+        hal_exit(comp_id);
+        return -1;
+    }
+    // user-request-enable
+    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->user_request_enable), comp_id,
+                             "iocontrol.%d.user-request-enable", n);
+    if (retval < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "IOCONTROL: ERROR: iocontrol %d pin user-request-enable export failed with err=%i\n",
+                        n, retval);
+        hal_exit(comp_id);
+        return -1;
+    }
+    // coolant-flood
+    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->coolant_flood), comp_id,
+                         "iocontrol.%d.coolant-flood", n);
+    if (retval < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "IOCONTROL: ERROR: iocontrol %d pin coolant-flood export failed with err=%i\n",
+                        n, retval);
+        hal_exit(comp_id);
+        return -1;
+    }
+    // coolant-mist
+    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->coolant_mist), comp_id,
+                              "iocontrol.%d.coolant-mist", n);
+    if (retval < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "IOCONTROL: ERROR: iocontrol %d pin coolant-mist export failed with err=%i\n",
+                        n, retval);
+        hal_exit(comp_id);
+        return -1;
+    }
+    // lube
+    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->lube), comp_id,
+                              "iocontrol.%d.lube", n);
+    if (retval < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "IOCONTROL: ERROR: iocontrol %d pin lube export failed with err=%i\n",
+                        n, retval);
+        hal_exit(comp_id);
+        return -1;
+    }
+    // tool-prepare
+    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->tool_prepare), comp_id,
+                              "iocontrol.%d.tool-prepare", n);
+    if (retval < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "IOCONTROL: ERROR: iocontrol %d pin tool-prepare export failed with err=%i\n",
+                        n, retval);
+        hal_exit(comp_id);
+        return -1;
+    }
+    // tool-number
+    retval = hal_pin_s32_newf(HAL_OUT, &(iocontrol_data->tool_number), comp_id,
+                              "iocontrol.%d.tool-number", n);
+    if (retval < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "IOCONTROL: ERROR: iocontrol %d pin tool-number export failed with err=%i\n",
+                        n, retval);
+        hal_exit(comp_id);
+        return -1;
+    }
+    // tool-prep-number
+    retval = hal_pin_s32_newf(HAL_OUT, &(iocontrol_data->tool_prep_number), comp_id,
+                              "iocontrol.%d.tool-prep-number", n);
+    if (retval < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "IOCONTROL: ERROR: iocontrol %d pin tool-prep-number export failed with err=%i\n",
+                        n, retval);
+        hal_exit(comp_id);
+        return -1;
+    }
+
+    // tool-prep-index (idx)
+    retval = hal_pin_s32_newf(HAL_OUT, &(iocontrol_data->tool_prep_index), comp_id,
+                              "iocontrol.%d.tool-prep-index", n);
+    if (retval < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "IOCONTROL: ERROR: iocontrol %d pin tool-prep-index export failed with err=%i\n",
+                        n, retval);
+        hal_exit(comp_id);
+        return -1;
+    }
+
+    // tool-prep-pocket
+    retval = hal_pin_s32_newf(HAL_OUT, &(iocontrol_data->tool_prep_pocket), comp_id,
+                              "iocontrol.%d.tool-prep-pocket", n);
+    if (retval < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "IOCONTROL: ERROR: iocontrol %d pin tool-prep-pocket export failed with err=%i\n",
+                        n, retval);
+        hal_exit(comp_id);
+        return -1;
+    }
+    // tool-from-pocket
+    retval = hal_pin_s32_newf(HAL_OUT, &(iocontrol_data->tool_from_pocket), comp_id,
+                              "iocontrol.%d.tool-from-pocket", n);
+    if (retval < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "IOCONTROL: ERROR: iocontrol %d pin tool-from-pocket export failed with err=%i\n",
+                        n, retval);
+        hal_exit(comp_id);
+        return -1;
+    }
+    // tool-prepared
+    retval = hal_pin_bit_newf(HAL_IN, &(iocontrol_data->tool_prepared), comp_id,
+                              "iocontrol.%d.tool-prepared", n);
+    if (retval < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "IOCONTROL: ERROR: iocontrol %d pin tool-prepared export failed with err=%i\n",
+                        n, retval);
+        hal_exit(comp_id);
+        return -1;
+    }
+    // tool-change
+    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->tool_change), comp_id,
+                              "iocontrol.%d.tool-change", n);
+    if (retval < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "IOCONTROL: ERROR: iocontrol %d pin tool-change export failed with err=%i\n",
+                        n, retval);
+        hal_exit(comp_id);
+        return -1;
+    }
+    // tool-changed
+    retval = hal_pin_bit_newf(HAL_IN, &(iocontrol_data->tool_changed), comp_id,
+                        "iocontrol.%d.tool-changed", n);
+    if (retval < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "IOCONTROL: ERROR: iocontrol %d pin tool-changed export failed with err=%i\n",
+                        n, retval);
+        hal_exit(comp_id);
+        return -1;
+    }
+    /* STEP 3b: export the in-pin(s) */
+
+    // emc-enable-in
+    retval = hal_pin_bit_newf(HAL_IN, &(iocontrol_data->emc_enable_in), comp_id,
+                             "iocontrol.%d.emc-enable-in", n);
+    if (retval < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "IOCONTROL: ERROR: iocontrol %d pin emc-enable-in export failed with err=%i\n",
+                        n, retval);
+        hal_exit(comp_id);
+        return -1;
+    }
+    // lube_level
+    retval = hal_pin_bit_newf(HAL_IN, &(iocontrol_data->lube_level), comp_id,
+                             "iocontrol.%d.lube_level", n);
+    if (retval < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "IOCONTROL: ERROR: iocontrol %d pin lube_level export failed with err=%i\n",
+                        n, retval);
+        hal_exit(comp_id);
+        return -1;
+    }
+
+    hal_ready(comp_id);
+    return 0;
+}
+
+/********************************************************************
+*
+* Description: hal_init_pins(void)
+*
+* Side Effects: Sets HAL pins default values.
+*
+* Called By: main
+********************************************************************/
+static void hal_init_pins(void)
+{
+    *(iocontrol_data->user_enable_out)=0;    /* output, FALSE when EMC wants stop */
+    *(iocontrol_data->user_request_enable)=0;/* output, used to reset HAL latch */
+    *(iocontrol_data->coolant_mist)=0;       /* coolant mist output pin */
+    *(iocontrol_data->coolant_flood)=0;      /* coolant flood output pin */
+    *(iocontrol_data->lube)=0;               /* lube output pin */
+    *(iocontrol_data->tool_prepare)=0;       /* output, pin that notifies HAL it needs to prepare a tool */
+    *(iocontrol_data->tool_prep_number)=0;   /* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
+    *(iocontrol_data->tool_prep_pocket)=0;   /* output, pin that holds the pocketno for the tool to be prepared, only valid when tool-prepare=TRUE */
+    *(iocontrol_data->tool_from_pocket)=0;   /* output, always 0 at startup */
+    *iocontrol_data->tool_prep_index=0;      /* output, pin that holds the internal index (idx) of the tool to be prepared, for debug */
+    *(iocontrol_data->tool_change)=0;        /* output, notifies a tool-change should happen (emc should be in the tool-change position) */
+}
+
+
 // Python plugin interface
 #define TASK_MODULE "task"
 #define TASK_VAR "pytask"
@@ -52,213 +304,8 @@ extern PythonPlugin *python_plugin;  // exported by python_plugin.cc
 extern int return_int(const char *funcname, bp::object &retval);
 Task *task_methods;
 
-// IO INTERFACE
-
-// the NML channels to the EMCIO controller
-static RCS_CMD_CHANNEL *emcIoCommandBuffer = 0;
-static RCS_STAT_CHANNEL *emcIoStatusBuffer = 0;
-
 // global status structure
 EMC_IO_STAT *emcIoStatus = 0;
-
-// serial number for communication
-static int emcIoCommandSerialNumber = 0;
-static double EMCIO_BUFFER_GET_TIMEOUT = 5.0;
-
-static int forceCommand(RCS_CMD_MSG *msg);
-
-static int emcioNmlGet()
-{
-    int retval = 0;
-    double start_time;
-    RCS_PRINT_DESTINATION_TYPE orig_dest;
-    if (emcIoCommandBuffer == 0) {
-	orig_dest = get_rcs_print_destination();
-	set_rcs_print_destination(RCS_PRINT_TO_NULL);
-	start_time = etime();
-	while (start_time - etime() < EMCIO_BUFFER_GET_TIMEOUT) {
-	    emcIoCommandBuffer =
-		new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emc",
-				    emc_nmlfile);
-	    if (!emcIoCommandBuffer->valid()) {
-		delete emcIoCommandBuffer;
-		emcIoCommandBuffer = 0;
-	    } else {
-		break;
-	    }
-	    esleep(0.1);
-	}
-	set_rcs_print_destination(orig_dest);
-    }
-
-    if (emcIoCommandBuffer == 0) {
-	emcIoCommandBuffer =
-	    new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emc", emc_nmlfile);
-	if (!emcIoCommandBuffer->valid()) {
-	    delete emcIoCommandBuffer;
-	    emcIoCommandBuffer = 0;
-	    retval = -1;
-	}
-    }
-
-    if (emcIoStatusBuffer == 0) {
-	orig_dest = get_rcs_print_destination();
-	set_rcs_print_destination(RCS_PRINT_TO_NULL);
-	start_time = etime();
-	while (start_time - etime() < EMCIO_BUFFER_GET_TIMEOUT) {
-	    emcIoStatusBuffer =
-		new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emc",
-				     emc_nmlfile);
-	    if (!emcIoStatusBuffer->valid()) {
-		delete emcIoStatusBuffer;
-		emcIoStatusBuffer = 0;
-	    } else {
-		emcIoStatus =
-		    (EMC_IO_STAT *) emcIoStatusBuffer->get_address();
-		// capture serial number for next send
-		emcIoCommandSerialNumber = emcIoStatus->echo_serial_number;
-		break;
-	    }
-	    esleep(0.1);
-	}
-	set_rcs_print_destination(orig_dest);
-    }
-
-    if (emcIoStatusBuffer == 0) {
-	emcIoStatusBuffer =
-	    new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emc", emc_nmlfile);
-	if (!emcIoStatusBuffer->valid()
-	    || EMC_IO_STAT_TYPE != emcIoStatusBuffer->peek()) {
-	    delete emcIoStatusBuffer;
-	    emcIoStatusBuffer = 0;
-	    emcIoStatus = 0;
-	    retval = -1;
-	} else {
-	    emcIoStatus = (EMC_IO_STAT *) emcIoStatusBuffer->get_address();
-	    // capture serial number for next send
-	    emcIoCommandSerialNumber = emcIoStatus->echo_serial_number;
-	}
-    }
-
-    return retval;
-}
-
-static RCS_CMD_MSG *last_io_command = 0;
-static long largest_io_command_size = 0;
-
-/*
-  sendCommand() waits until any currently executing command has finished,
-  then writes the given command.*/
-/*! \todo
-  FIXME: Not very RCS-like to wait for status done here. (wps)
-*/
-static int sendCommand(RCS_CMD_MSG * msg)
-{
-    // need command buffer to be there
-    if (0 == emcIoCommandBuffer) {
-	return -1;
-    }
-    // need status buffer also, to check for command received
-    if (0 == emcIoStatusBuffer || !emcIoStatusBuffer->valid()) {
-	return -1;
-    }
-
-    // always force-queue an abort
-    if (msg->type == EMC_TOOL_ABORT_TYPE) {
-	// just queue the abort and call it a day
-	int rc = forceCommand(msg);
-	if (rc) {
-	    rcs_print_error("forceCommand(EMC_TOOL_ABORT) returned %d\n", rc);
-	}
-	return 0;
-    }
-
-    double send_command_timeout = etime() + 5.0;
-
-    // check if we're executing, and wait until we're done
-    while (etime() < send_command_timeout) {
-	emcIoStatusBuffer->peek();
-	if (emcIoStatus->echo_serial_number != emcIoCommandSerialNumber ||
-	    emcIoStatus->status == RCS_EXEC) {
-	    esleep(0.001);
-	    continue;
-	} else {
-	    break;
-	}
-    }
-
-    if (emcIoStatus->echo_serial_number != emcIoCommandSerialNumber ||
-	emcIoStatus->status == RCS_EXEC) {
-	// Still not done, must have timed out.
-	rcs_print_error
-	    ("Command to IO level (%s:%s) timed out waiting for last command done. \n",
-	     emcSymbolLookup(msg->type), emcIoCommandBuffer->msg2str(msg));
-	rcs_print_error
-	    ("emcIoStatus->echo_serial_number=%d, emcIoCommandSerialNumber=%d, emcIoStatus->status=%d\n",
-	     emcIoStatus->echo_serial_number, emcIoCommandSerialNumber,
-	     emcIoStatus->status);
-	if (0 != last_io_command) {
-	    rcs_print_error("Last command sent to IO level was (%s:%s)\n",
-			    emcSymbolLookup(last_io_command->type),
-			    emcIoCommandBuffer->msg2str(last_io_command));
-	}
-	return -1;
-    }
-    // now we can send
-    msg->serial_number = ++emcIoCommandSerialNumber;
-    if (0 != emcIoCommandBuffer->write(msg)) {
-	rcs_print_error("Failed to send command to  IO level (%s:%s)\n",
-			emcSymbolLookup(msg->type),
-			emcIoCommandBuffer->msg2str(msg));
-	return -1;
-    }
-
-    if (largest_io_command_size < msg->size) {
-	largest_io_command_size = std::max<long>(msg->size, 4096);
-	last_io_command = (RCS_CMD_MSG *) realloc(last_io_command, largest_io_command_size);
-    }
-
-    if (0 != last_io_command) {
-	memcpy(last_io_command, msg, msg->size);
-    }
-
-    return 0;
-}
-
-/*
-  forceCommand() writes the given command regardless of the executing
-  status of any previous command.
-*/
-static int forceCommand(RCS_CMD_MSG * msg)
-{
-    // need command buffer to be there
-    if (0 == emcIoCommandBuffer) {
-	return -1;
-    }
-    // need status buffer also, to check for command received
-    if (0 == emcIoStatusBuffer || !emcIoStatusBuffer->valid()) {
-	return -1;
-    }
-    // send it immediately
-    msg->serial_number = ++emcIoCommandSerialNumber;
-    if (0 != emcIoCommandBuffer->write(msg)) {
-	rcs_print_error("Failed to send command to  IO level (%s:%s)\n",
-			emcSymbolLookup(msg->type),
-			emcIoCommandBuffer->msg2str(msg));
-	return -1;
-    }
-
-    if (largest_io_command_size < msg->size) {
-	largest_io_command_size = std::max<long>(msg->size, 4096);
-	last_io_command = (RCS_CMD_MSG *) realloc(last_io_command, largest_io_command_size);
-    }
-
-    if (0 != last_io_command) {
-	memcpy(last_io_command, msg, msg->size);
-    }
-
-    return 0;
-}
 
 // glue
 
@@ -296,12 +343,11 @@ int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
     return task_methods->emcToolSetOffset( pocket,  toolno,  offset,  diameter,
 					   frontangle,  backangle,  orientation); }
 int emcToolSetNumber(int number) { return task_methods->emcToolSetNumber(number); }
-int emcIoUpdate(EMC_IO_STAT * stat) { return task_methods->emcIoUpdate(stat); }
 int emcIoPluginCall(EMC_IO_PLUGIN_CALL *call_msg) { return task_methods->emcIoPluginCall(call_msg->len,
 											   call_msg->call); }
 static const char *instance_name = "task_instance";
 
-int emcTaskOnce(const char *filename)
+int emcTaskOnce(const char *filename, EMC_IO_STAT &emcioStatus)
 {
     // initialize the Python plugin singleton
     // Interp is already instantiated but not yet fully configured
@@ -346,7 +392,11 @@ int emcTaskOnce(const char *filename)
 	if (emc_debug & EMC_DEBUG_PYTHON_TASK) {
 	    rcs_print("emcTaskOnce: no Python Task() instance available, using default iocontrol-based task methods\n");
 	}
-	task_methods = new Task();
+	task_methods = new Task(emcioStatus);
+    if (int res = task_methods->iocontrol_hal_init()) {
+        return res;
+    }
+    *(iocontrol_data->tool_number) = emcioStatus.tool.toolInSpindle;//TODO: move
     }
     return 0;
 }
@@ -432,19 +482,53 @@ struct _inittab builtin_modules[] = {
     { NULL, NULL }
 };
 
-Task::Task() : use_iocontrol(0), random_toolchanger(0) {
+Task::Task(EMC_IO_STAT & emcioStatus_in) :
+    emcioStatus(emcioStatus_in),
+    random_toolchanger(0),
+    ini_filename(emc_inifile)
+    {
 
     IniFile inifile;
 
     ini_filename = emc_inifile;
 
     if (inifile.Open(ini_filename)) {
-	use_iocontrol = (inifile.Find("EMCIO", "EMCIO") != NULL);
 	inifile.Find(&random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
 	const char *t;
 	if ((t = inifile.Find("TOOL_TABLE", "EMCIO")) != NULL)
 	    tooltable_filename = strdup(t);
     }
+	tool_mmap_creator((EMC_TOOL_STAT*)&(emcioStatus.tool), random_toolchanger);
+#ifdef TOOL_NML //{
+    tool_nml_register( (CANON_TOOL_TABLE*)&emcStatus->io.tool.toolTable);
+#else //}{
+    tool_mmap_user();
+    // initialize database tool finder:
+#endif //}
+    emcioStatus.status = RCS_DONE;//TODO??
+    tooldata_init(random_toolchanger);
+    emcioStatus.tool.pocketPrepped = -1;
+    if(!random_toolchanger) {
+        CANON_TOOL_TABLE tdata = tooldata_entry_init();
+        tdata.pocketno =  0; //nonrandom init
+        tdata.toolno   = -1; //nonrandom init
+        if (tooldata_put(tdata,0) != IDX_OK) {
+            UNEXPECTED_MSG;
+        }
+    }
+    if (0 != tooldata_load(tooltable_filename)) {
+        rcs_print_error("can't load tool table.\n");
+    }
+
+    if (random_toolchanger) {
+        CANON_TOOL_TABLE tdata;
+        if (tooldata_get(&tdata,0) != IDX_OK) {
+            UNEXPECTED_MSG;//todo: handle error
+        }
+        emcioStatus.tool.toolInSpindle = tdata.toolno;
+    } else {
+        emcioStatus.tool.toolInSpindle = 0;
+    }    
 };
 
 
@@ -527,273 +611,413 @@ static int iniTool(const char *filename)
     return retval;
 }
 
+void Task::load_tool(int idx) {
+    CANON_TOOL_TABLE tdata;
+    if(random_toolchanger) {
+        // swap the tools between the desired pocket and the spindle pocket
+
+        CANON_TOOL_TABLE tzero,tpocket;
+        if (   tooldata_get(&tzero,0    ) != IDX_OK
+            || tooldata_get(&tpocket,idx) != IDX_OK) {
+            UNEXPECTED_MSG; return;
+        }
+        // spindle-->pocket (specified by idx)
+        tooldata_db_notify(SPINDLE_UNLOAD,tzero.toolno,idx,tzero);
+        tzero.pocketno = tpocket.pocketno;
+        if (tooldata_put(tzero,idx) != IDX_OK) {
+            UNEXPECTED_MSG;
+        }
+
+        // pocket-->spindle (idx==0)
+        tooldata_db_notify(SPINDLE_LOAD,tpocket.toolno,0,tpocket);
+        tpocket.pocketno = 0;
+        if (tooldata_put(tpocket,0) != IDX_OK) {
+            UNEXPECTED_MSG;
+        }
+
+        if (0 != tooldata_save(tooltable_filename)) {
+            emcioStatus.status = RCS_ERROR;
+        }
+    } else if(idx == 0) {
+        // on non-random tool-changers, asking for pocket 0 is the secret
+        // handshake for "unload the tool from the spindle"
+        tdata = tooldata_entry_init();
+        tdata.toolno   = 0; // nonrandom unload tool from spindle
+        tdata.pocketno = 0; // nonrandom unload tool from spindle
+        if (tooldata_put(tdata,0) != IDX_OK) {
+            UNEXPECTED_MSG; return;
+        }
+        if (tooldata_db_notify(SPINDLE_UNLOAD,0,0,tdata)) { UNEXPECTED_MSG; }
+    } else {
+        // just copy the desired tool to the spindle
+        if (tooldata_get(&tdata,idx) != IDX_OK) {
+            UNEXPECTED_MSG; return;
+        }
+        if (tooldata_put(tdata,0) != IDX_OK) {
+            UNEXPECTED_MSG; return;
+        }
+        // notify idx==0 tool in spindle:
+        CANON_TOOL_TABLE temp;
+        if (tooldata_get(&temp,0) != IDX_OK) { UNEXPECTED_MSG; }
+        if (tooldata_db_notify(SPINDLE_LOAD,temp.toolno,0,temp)) { UNEXPECTED_MSG; }
+    }
+} // load_tool()
+
+void Task::reload_tool_number(int toolno) {
+    CANON_TOOL_TABLE tdata;
+    if(random_toolchanger) return; // doesn't need special handling here
+    for(int idx = 1; idx <= tooldata_last_index_get(); idx++) { //note <=
+        if (tooldata_get(&tdata,idx) != IDX_OK) {
+            UNEXPECTED_MSG; return;
+        }
+        if(tdata.toolno == toolno) {
+            load_tool(idx);
+            break;
+        }
+    }
+}
+
 // NML commands
 
-int Task::emcIoInit()
+int Task::emcIoInit()//EMC_TOOL_INIT
 {
-    EMC_TOOL_INIT ioInitMsg;
-
-    // get NML buffer to emcio
-    if (0 != emcioNmlGet()) {
-	rcs_print_error("emcioNmlGet() failed.\n");
-	return -1;
-    }
+    tooldata_load(tooltable_filename);
+    reload_tool_number(emcioStatus.tool.toolInSpindle);
 
     if (0 != iniTool(emc_inifile)) {
 	return -1;
     }
-
-    // send init command to emcio
-    if (forceCommand(&ioInitMsg)) {
-	rcs_print_error("Can't forceCommand(ioInitMsg)\n");
-	return -1;
-    }
-
     return 0;
 }
 
 int Task::emcIoHalt()
 {
-    EMC_TOOL_HALT ioHaltMsg;
-
-    // send halt command to emcio
-    if (emcIoCommandBuffer != 0) {
-	forceCommand(&ioHaltMsg);
-    }
-    // clear out the buffers
-
-    if (emcIoStatusBuffer != 0) {
-	delete emcIoStatusBuffer;
-	emcIoStatusBuffer = 0;
-	emcIoStatus = 0;
-    }
-
-    if (emcIoCommandBuffer != 0) {
-	delete emcIoCommandBuffer;
-	emcIoCommandBuffer = 0;
-    }
-
-    if (last_io_command) {
-        free(last_io_command);
-        last_io_command = 0;
-    }
 
     return 0;
 }
 
-int Task::emcIoAbort(int reason)
+int Task::emcIoAbort(int reason)//EMC_TOOL_ABORT_TYPE
 {
-    EMC_TOOL_ABORT ioAbortMsg;
-
-    ioAbortMsg.reason = reason;
-    // send abort command to emcio
-    sendCommand(&ioAbortMsg);
-
+    // only used in v2
+    // this gets sent on any Task Abort, so it might be safer to stop
+    // the spindle  and coolant
+    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_ABORT\n");
+    emcioStatus.coolant.mist = 0;
+    emcioStatus.coolant.flood = 0;
+    *(iocontrol_data->coolant_mist)=0;                /* coolant mist output pin */
+    *(iocontrol_data->coolant_flood)=0;                /* coolant flood output pin */
+    *(iocontrol_data->tool_change)=0;                /* abort tool change if in progress */
+    *(iocontrol_data->tool_prepare)=0;                /* abort tool prepare if in progress */
     return 0;
 }
 
-int Task::emcIoSetDebug(int debug)
+int Task::emcIoSetDebug(int debug)//EMC_SET_DEBUG
 {
-    EMC_SET_DEBUG ioDebugMsg;
-
-    ioDebugMsg.debug = debug;
-
-    return sendCommand(&ioDebugMsg);
+    return 0;
 }
 
-int Task::emcAuxEstopOn()
+int Task::emcAuxEstopOn()//EMC_AUX_ESTOP_ON_TYPE
 {
-    EMC_AUX_ESTOP_ON estopOnMsg;
-
-    return forceCommand(&estopOnMsg);
+    /* assert an ESTOP to the outside world (thru HAL) */
+    *(iocontrol_data->user_enable_out) = 0; //disable on ESTOP_ON
+    hal_init_pins(); //resets all HAL pins to safe valuea
+    return 0;
 }
 
 int Task::emcAuxEstopOff()
 {
-    EMC_AUX_ESTOP_OFF estopOffMsg;
-
-    return forceCommand(&estopOffMsg); //force the EstopOff message
+    /* remove ESTOP */
+    *(iocontrol_data->user_enable_out) = 1; //we're good to enable on ESTOP_OFF
+    /* generate a rising edge to reset optional HAL latch */
+    *(iocontrol_data->user_request_enable) = 1;
+    emcioStatus.aux.estop = 0;
+    return 0;
 }
 
 int Task::emcCoolantMistOn()
 {
-    EMC_COOLANT_MIST_ON mistOnMsg;
-
-    sendCommand(&mistOnMsg);
-
+    emcioStatus.coolant.mist = 1;
+    *(iocontrol_data->coolant_mist) = 1;
     return 0;
 }
 
 int Task::emcCoolantMistOff()
 {
-    EMC_COOLANT_MIST_OFF mistOffMsg;
-
-    sendCommand(&mistOffMsg);
-
+    emcioStatus.coolant.mist = 0;
+    *(iocontrol_data->coolant_mist) = 0;
     return 0;
 }
 
 int Task::emcCoolantFloodOn()
 {
-    EMC_COOLANT_FLOOD_ON floodOnMsg;
-
-    sendCommand(&floodOnMsg);
-
+    emcioStatus.coolant.flood = 1;
+    *(iocontrol_data->coolant_flood) = 1;
     return 0;
 }
 
 int Task::emcCoolantFloodOff()
 {
-    EMC_COOLANT_FLOOD_OFF floodOffMsg;
-
-    sendCommand(&floodOffMsg);
-
+    emcioStatus.coolant.flood = 0;
+    *(iocontrol_data->coolant_flood) = 0;
     return 0;
 }
 
 int Task::emcLubeOn()
 {
-    EMC_LUBE_ON lubeOnMsg;
-
-    sendCommand(&lubeOnMsg);
-
+    emcioStatus.lube.on = 1;
+    *(iocontrol_data->lube) = 1;
     return 0;
 }
 
 int Task::emcLubeOff()
 {
-    EMC_LUBE_OFF lubeOffMsg;
-
-    sendCommand(&lubeOffMsg);
-
+    emcioStatus.lube.on = 0;
+    *(iocontrol_data->lube) = 0;
     return 0;
 }
 
-int Task::emcToolPrepare(int tool)
+int Task::emcToolPrepare(int toolno)
 {
-    EMC_TOOL_PREPARE toolPrepareMsg;
+    int idx = 0;
+    CANON_TOOL_TABLE tdata;
+    idx  = tooldata_find_index_for_tool(toolno);
+#ifdef TOOL_NML
+    if (!random_toolchanger && toolno == 0) { idx = 0; }
+#endif
+    if (idx == -1) {  // not found
+        emcioStatus.tool.pocketPrepped = -1;
+    } else {
+        if (tooldata_get(&tdata,idx) != IDX_OK) {
+            UNEXPECTED_MSG;
+        }
+        rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE tool=%d idx=%d\n", toolno, idx);
 
-    toolPrepareMsg.tool = tool;
-    sendCommand(&toolPrepareMsg);
+        *(iocontrol_data->tool_prep_index)  = idx; // any type of changer
 
-    return 0;
-}
-
-
-int Task::emcToolStartChange()
-{
-    EMC_TOOL_START_CHANGE toolStartChangeMsg;
-
-    sendCommand(&toolStartChangeMsg);
-
-    return 0;
-}
-
-
-int Task::emcToolLoad()
-{
-    EMC_TOOL_LOAD toolLoadMsg;
-
-    sendCommand(&toolLoadMsg);
-
-    return 0;
-}
-
-int Task::emcToolUnload()
-{
-    EMC_TOOL_UNLOAD toolUnloadMsg;
-
-    sendCommand(&toolUnloadMsg);
-
-    return 0;
-}
-
-int Task::emcToolLoadToolTable(const char *file)
-{
-    EMC_TOOL_LOAD_TOOL_TABLE toolLoadToolTableMsg;
-
-    rtapi_strxcpy(toolLoadToolTableMsg.file, file);
-
-    sendCommand(&toolLoadToolTableMsg);
-
-    return 0;
-}
-
-int Task::emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
-                     double frontangle, double backangle, int orientation)
-{
-    EMC_TOOL_SET_OFFSET toolSetOffsetMsg;
-
-    toolSetOffsetMsg.pocket = pocket;
-    toolSetOffsetMsg.toolno = toolno;
-    toolSetOffsetMsg.offset = offset;
-    toolSetOffsetMsg.diameter = diameter;
-    toolSetOffsetMsg.frontangle = frontangle;
-    toolSetOffsetMsg.backangle = backangle;
-    toolSetOffsetMsg.orientation = orientation;
-
-    sendCommand(&toolSetOffsetMsg);
-
-    return 0;
-}
-
-int Task::emcToolSetNumber(int number)
-{
-    EMC_TOOL_SET_NUMBER toolSetNumberMsg;
-
-    toolSetNumberMsg.tool = number;
-
-    sendCommand(&toolSetNumberMsg);
-
-    return 0;
-}
-
-// Status functions
-
-int Task::emcIoUpdate(EMC_IO_STAT * stat)
-{
-    if (!use_iocontrol) {
-	// there's no message to copy - Python directly operates on emcStatus and its io member
-	return 0;
-    }
-    if (0 == emcIoStatusBuffer || !emcIoStatusBuffer->valid()) {
-	return -1;
+        // Note: some of the following logic could be simplified
+        //       but is maintained to preserve runtests expectations
+        // Set HAL pins for tool number, pocket, and index.
+        if (random_toolchanger) {
+            // RANDOM_TOOLCHANGER
+            *(iocontrol_data->tool_prep_number) = tdata.toolno;
+            if (idx == 0) {
+                emcioStatus.tool.pocketPrepped      = 0; // pocketPrepped is an idx
+                *(iocontrol_data->tool_prep_pocket) = 0;
+                return 0;
+            }
+            *(iocontrol_data->tool_prep_pocket) = tdata.pocketno;
+        } else {
+            // NON_RANDOM_TOOLCHANGER
+            if (idx == 0) {
+                emcioStatus.tool.pocketPrepped      = 0; // pocketPrepped is an idx
+                *(iocontrol_data->tool_prep_number) = 0;
+                *(iocontrol_data->tool_prep_pocket) = 0;
+            } else {
+                *(iocontrol_data->tool_prep_number) = tdata.toolno;
+                *(iocontrol_data->tool_prep_pocket) = tdata.pocketno;
+            }
+        }
+        // it doesn't make sense to prep the spindle pocket
+        if (random_toolchanger && idx == 0) {
+            emcioStatus.tool.pocketPrepped = 0; // idx
+            return 0;
+        }
     }
 
-    switch (emcIoStatusBuffer->peek()) {
-    case -1:
-	// error on CMS channel
-	return -1;
-	break;
+    /* then set the prepare pin to tell external logic to get started */
+    *(iocontrol_data->tool_prepare) = 1;
+    // the feedback logic is done inside read_hal_inputs()
+    // we only need to set RCS_EXEC if RCS_DONE is not already set by the above logic
+    if (tool_status != 10) //set above to 10 in case PREP already finished (HAL loopback machine)
+        emcioStatus.status = RCS_EXEC;
+    return 0;
+}
 
-    case 0:			// nothing new
-    case EMC_IO_STAT_TYPE:	// something new
-	// drop out to copy
-	break;
 
-    default:
-	// something else is in there
-	return -1;
-	break;
+int Task::emcToolStartChange()//EMC_TOOL_START_CHANGE_TYPE
+{
+    return 0;
+}
+
+
+int Task::emcToolLoad()//EMC_TOOL_LOAD_TYPE
+{
+    // it doesn't make sense to load a tool from the spindle pocket
+    if (random_toolchanger && emcioStatus.tool.pocketPrepped == 0) {
+        return 0;
     }
 
-    // copy status
-    *stat = *emcIoStatus;
-
-    /*
-       We need to check that the RCS_DONE isn't left over from the previous
-       command, by comparing the command number we sent with the command
-       number that emcio echoes. If they're different, then the command
-       hasn't been acknowledged yet and the state should be forced to be
-       RCS_EXEC. */
-    if (stat->echo_serial_number != emcIoCommandSerialNumber) {
-	stat->status = RCS_EXEC;
+    // it's not necessary to load the tool already in the spindle
+    CANON_TOOL_TABLE tdata;
+    if (tooldata_get(&tdata, emcioStatus.tool.pocketPrepped) != IDX_OK) {
+        UNEXPECTED_MSG;
     }
-    //commented out because it keeps resetting the spindle speed to some odd value
-    //the speed gets set by the IO controller, no need to override it here (io takes care of increase/decrease speed too)
-    // stat->spindle.speed = spindleSpeed;
+    if (!random_toolchanger && (emcioStatus.tool.pocketPrepped > 0) &&
+        (emcioStatus.tool.toolInSpindle == tdata.toolno) ) {
+        return 0;
+    }
+
+    if (emcioStatus.tool.pocketPrepped != -1) {
+        //notify HW for toolchange
+        *(iocontrol_data->tool_change) = 1;
+        // the feedback logic is done inside read_hal_inputs() we only
+        // need to set RCS_EXEC if RCS_DONE is not already set by the
+        // above logic
+        if (tool_status != 11)
+            // set above to 11 in case LOAD already finished (HAL
+            // loopback machine)
+            emcioStatus.status = RCS_EXEC;
+    }
+    return 0;
+}
+
+int Task::emcToolUnload()//EMC_TOOL_UNLOAD_TYPE
+{
+    emcioStatus.tool.toolInSpindle = 0;
+    return 0;
+}
+
+int Task::emcToolLoadToolTable(const char *file)//EMC_TOOL_LOAD_TOOL_TABLE_TYPE
+{
+    //error handler?
+    tooldata_load(file);
+    reload_tool_number(emcioStatus.tool.toolInSpindle);
+    return 0;
+}
+
+int Task::emcToolSetOffset(int idx, int toolno, EmcPose offset, double diameter,
+                     double frontangle, double backangle, int orientation)//EMC_TOOL_SET_OFFSET
+{
+
+    int o;
+    double d, f, b;
+
+    d = diameter;
+    f = frontangle;
+    b = backangle;
+    o = orientation;
+
+    rtapi_print_msg(RTAPI_MSG_DBG,
+            "EMC_TOOL_SET_OFFSET idx=%d toolno=%d zoffset=%lf, "
+            "xoffset=%lf, diameter=%lf, "
+            "frontangle=%lf, backangle=%lf, orientation=%d\n",
+            idx, toolno, offset.tran.z, offset.tran.x, d, f, b, o);
+    CANON_TOOL_TABLE tdata;
+    if (tooldata_get(&tdata,idx) != IDX_OK) {
+        UNEXPECTED_MSG;
+    }
+    tdata.toolno = toolno;
+    tdata.offset = offset;
+    tdata.diameter = d;
+    tdata.frontangle = f;
+    tdata.backangle = b;
+    tdata.orientation = o;
+    if (tooldata_put(tdata,idx) != IDX_OK) {
+        UNEXPECTED_MSG;
+    }
+    if (0 != tooldata_save(tooltable_filename)) {
+        emcioStatus.status = RCS_ERROR;
+    }
+    //TODO
+    // if (io_db_mode == DB_ACTIVE) {
+    //     int pno = idx; // for random_toolchanger
+    //     if (!random_toolchanger) { pno = tdata.pocketno; }
+    //     if (tooldata_db_notify(TOOL_OFFSET,toolno,pno,tdata)) {
+    //         UNEXPECTED_MSG;
+    //     }
+    // }
 
     return 0;
+}
+
+int Task::emcToolSetNumber(int number)//EMC_TOOL_SET_NUMBER
+{
+    int idx;
+
+    idx = number;//TODO: should be toolno
+    CANON_TOOL_TABLE tdata;
+    if (tooldata_get(&tdata,idx) != IDX_OK) {
+        UNEXPECTED_MSG;
+    }
+    load_tool(idx);
+
+    idx=0; // update spindle (fix legacy behavior)
+    if (tooldata_get(&tdata,idx) != IDX_OK) {
+        UNEXPECTED_MSG;
+    }
+    emcioStatus.tool.toolInSpindle = tdata.toolno;
+    rtapi_print_msg(RTAPI_MSG_DBG,
+            "EMC_TOOL_SET_NUMBER old_loaded_tool=%d new_idx_number=%d new_tool=%d\n"
+            , emcioStatus.tool.toolInSpindle, idx, tdata.toolno);
+    //likewise in HAL
+    *(iocontrol_data->tool_number) = emcioStatus.tool.toolInSpindle;
+    if (emcioStatus.tool.toolInSpindle == 0) {
+        emcioStatus.tool.toolFromPocket =  *(iocontrol_data->tool_from_pocket) = 0; // no tool in spindle
+    }
+
+    return 0;
+}
+
+/********************************************************************
+*
+* Description: read_tool_inputs(void)
+*                        Reads the tool-pin values from HAL
+*                        this function gets called once per cycle
+*                        It sets the values for the emcioStatus.aux.*
+*
+* Returns:        returns which of the status has changed
+*                we then need to update through NML (a bit different as read_hal_inputs)
+*
+* Side Effects: updates values
+*
+* Called By: main every CYCLE
+********************************************************************/
+int Task::read_tool_inputs(void)
+{
+    if (*iocontrol_data->tool_prepare && *iocontrol_data->tool_prepared) {
+        emcioStatus.tool.pocketPrepped = *iocontrol_data->tool_prep_index; //check if tool has been (idx) prepared
+        *(iocontrol_data->tool_prepare) = 0;
+        emcioStatus.status = RCS_DONE;  // we finally finished to do tool-changing, signal task with RCS_DONE
+        return 10; //prepped finished
+    }
+
+    if (*iocontrol_data->tool_change && *iocontrol_data->tool_changed) {
+        if(!random_toolchanger && emcioStatus.tool.pocketPrepped == 0) {
+            emcioStatus.tool.toolInSpindle = 0;
+            emcioStatus.tool.toolFromPocket  =  *(iocontrol_data->tool_from_pocket) = 0;
+        } else {
+            // the tool now in the spindle is the one that was prepared
+            CANON_TOOL_TABLE tdata;
+            if (tooldata_get(&tdata,emcioStatus.tool.pocketPrepped) != IDX_OK) {
+                UNEXPECTED_MSG; return -1;
+            }
+            emcioStatus.tool.toolInSpindle = tdata.toolno;
+            emcioStatus.tool.toolFromPocket = *(iocontrol_data->tool_from_pocket) = tdata.pocketno;
+        }
+        if (emcioStatus.tool.toolInSpindle == 0) {
+             emcioStatus.tool.toolFromPocket =  *(iocontrol_data->tool_from_pocket) = 0;
+        }
+        *(iocontrol_data->tool_number) = emcioStatus.tool.toolInSpindle; //likewise in HAL
+        load_tool(emcioStatus.tool.pocketPrepped);
+        emcioStatus.tool.pocketPrepped = -1; //reset the tool preped number, -1 to permit tool 0 to be loaded
+        *(iocontrol_data->tool_prep_number) = 0; //likewise in HAL
+        *(iocontrol_data->tool_prep_pocket) = 0; //likewise in HAL
+        *(iocontrol_data->tool_prep_index)  = 0; //likewise in HAL
+        *(iocontrol_data->tool_change) = 0; //also reset the tool change signal
+        emcioStatus.status = RCS_DONE;        // we finally finished to do tool-changing, signal task with RCS_DONE
+        return 11; //change finished
+    }
+    return 0;
+}
+
+void Task::run(){ // called periodically from emctaskmain.cc
+    tool_status = read_tool_inputs();
+    if ( *(iocontrol_data->emc_enable_in)==0) //check for estop from HW
+        emcioStatus.aux.estop = 1;
+    else
+        emcioStatus.aux.estop = 0;
+
+    emcioStatus.lube.level = *(iocontrol_data->lube_level);        //check for lube_level from HW
 }
 
 int Task::emcIoPluginCall(int len, const char *msg)

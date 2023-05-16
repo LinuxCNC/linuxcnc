@@ -21,9 +21,11 @@
 #include "emc.hh"
 #include "inifile.hh"
 
+#define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
+
 class Task {
 public:
-    Task();
+    Task(EMC_IO_STAT &emcioStatus_in);
     virtual ~Task();
 
     virtual int emcIoInit();
@@ -46,14 +48,19 @@ public:
     virtual int emcToolLoadToolTable(const char *file);
     virtual int emcToolUnload();
     virtual int emcToolSetNumber(int number);
-    virtual int emcIoUpdate(EMC_IO_STAT * stat);
 
     virtual int emcIoPluginCall(int len, const char *msg);
+    int iocontrol_hal_init(void);
+    void reload_tool_number(int toolno);
+    void load_tool(int idx);
+    void run();
+    int read_tool_inputs(void);
 
-    int use_iocontrol;
+    EMC_IO_STAT &emcioStatus;
     int random_toolchanger;
     const char *ini_filename;
     const char *tooltable_filename;
+    int tool_status;
 };
 
 extern Task *task_methods;
