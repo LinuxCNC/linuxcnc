@@ -27,4 +27,3 @@ static const hm2_modbus_chan_descriptor_t channels[] = {
    Use 3 to see a lot of information about the modbus
    internal workings. 1 is default (errors only)                    */
 
-#define DEBUG 1

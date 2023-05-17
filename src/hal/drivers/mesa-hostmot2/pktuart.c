@@ -48,14 +48,19 @@ int hm2_pktuart_parse_md(hostmot2_t *hm2, int md_index)
     //The PktUART declares a TX and RX module separately
     //And Rx can currently be v1 or v2
     if (md->gtag == HM2_GTAG_PKTUART_TX
-        && !hm2_md_is_consistent_or_complain(hm2,md_index, 0, 4, 4, 0x000F)) {
-        HM2_ERR("inconsistent Module Descriptor!\n");
+        && !hm2_md_is_consistent(hm2,md_index, 0, 4, 4, 0x000F)
+        && !hm2_md_is_consistent(hm2,md_index, 1, 4, 4, 0x000F)
+        && !hm2_md_is_consistent(hm2,md_index, 2, 4, 4, 0x000F))  {
+        HM2_ERR("Unsupported or inconsistent PktUART TX module (version %i)"
+                "not loading driver \n", md->version);
         return -EINVAL;
     }
     if (md->gtag == HM2_GTAG_PKTUART_RX
-        && !hm2_md_is_consistent_or_complain(hm2, md_index, 0, 4, 4, 0x000F)
-        && !hm2_md_is_consistent_or_complain(hm2, md_index, 1, 4, 4, 0x000F)) {
-        HM2_ERR("inconsistent Module Descriptor!\n");
+        && !hm2_md_is_consistent(hm2, md_index, 0, 4, 4, 0x000F)
+        && !hm2_md_is_consistent(hm2, md_index, 1, 4, 4, 0x000F)
+        && !hm2_md_is_consistent(hm2, md_index, 2, 4, 4, 0x000F)) {
+        HM2_ERR("Unsupported or inconsistent PktUART RX module (version %i)"
+                "not loading driver \n", md->version);
         return -EINVAL;
     }
     
@@ -167,6 +172,157 @@ fail0:
     return r;
 }
 
+EXPORT_SYMBOL_GPL(hm2_pktuart_setup_rx);
+int hm2_pktuart_setup_rx(char *name, unsigned int bitrate, unsigned int filter_hz, unsigned int parity, int frame_delay, bool rx_enable, bool rx_mask){
+    hostmot2_t *hm2;
+    hm2_pktuart_instance_t *inst = 0;
+    rtapi_u32 buff1, buff2;
+    int i;
+    int r = 0;
+    rtapi_u32 filter;
+
+    i = hm2_get_pktuart(&hm2, name);
+    if (i < 0){
+        HM2_ERR_NO_LL("Can not find PktUART instance %s.\n", name);
+        return -EINVAL;
+    }
+
+    inst = &hm2->pktuart.instance[i];
+
+/*
+PktUART V2+ RX regmap
+Bit 30         BadPop Error (read data FIFO with no data) RO
+Bits 29..22    RX data digital filter bits (7..0) (in ClockLow periods)
+               Should be set to 1/2 bit time
+               (or max=65535 if it cannot be set long enough)
+Bit  21	       FrameBuffer has data RO
+Bits 20..16    Frames received RO
+Bit  17        Parity enable WO
+Bit  18        Odd Parity  WO  (1=odd, 0=even)
+Bits 15..8     InterFrame delay in bit times RW
+Bit  7	       RXBusy (serial state machine busy)
+Bit  6	       RXMask RO
+Bit  5         Parity Error RW
+Bit  4	       RCFIFO Error RW
+Bit  3	       RXEnable (must be set to receive packets) RW
+Bit  2	       RXMask Enable (enables input data masking when transmitting) RW
+Bit  1	       Overrun error (no stop bit when expected) (sticky) RW
+Bit  0	       False Start bit error (sticky) RW*/
+
+    filter = inst->clock_freq / filter_hz;
+    if (hm2->pktuart.rx_version >= 2){
+        if (filter > 0xFFFF) filter = 0xFFFF;
+        buff1 = (rtapi_u32)((bitrate * 16777216.0)/inst->clock_freq); //24 bits in v2+
+        buff1 |= (rtapi_u32)((filter & 0xFF00) << 16);
+    } else {
+        if (filter > 0xFF) filter = 0xFF;
+        buff1 = (rtapi_u32)((bitrate * 1048576.0)/inst->clock_freq); //20 bits in v0 & v1
+    }
+    buff2  = (rtapi_u32)((filter & 0xFF) << 22);
+    buff2 |= (rtapi_u32)(rx_mask << 2);
+    buff2 |= (rtapi_u32)(rx_enable << 3);
+    buff2 |= (rtapi_u32)((frame_delay & 0xFF) << 8);
+    if (parity >  0) buff2 |= 0x20000;
+    if (parity == 1) buff2 |= 0x40000;
+
+    if (buff1 != inst->rx_bitrate){
+        inst->rx_bitrate = buff1;
+        r += hm2->llio->write(hm2->llio, inst->rx_bitrate_addr, &buff1, sizeof(rtapi_u32));
+    }
+    if (buff2 != inst->rx_mode){
+        inst->rx_mode = buff2;
+        r += hm2->llio->write(hm2->llio, inst->rx_mode_addr, &buff2, sizeof(rtapi_u32));
+    }
+
+    if (r < 0) {
+        HM2_ERR("PktUART: hm2->llio->write failure %s setting up RX\n", name);
+        return -1;
+    }
+
+    return 0;
+}
+
+EXPORT_SYMBOL_GPL(hm2_pktuart_setup_tx);
+int hm2_pktuart_setup_tx(char *name, unsigned int bitrate, unsigned int parity, int frame_delay, bool drive_enable, bool drive_auto, int enable_delay){
+    hostmot2_t *hm2;
+    hm2_pktuart_instance_t *inst = 0;
+    rtapi_u32 buff1, buff2;
+    int i;
+    int r = 0;
+
+    i = hm2_get_pktuart(&hm2, name);
+    if (i < 0){
+        HM2_ERR_NO_LL("Can not find PktUART instance %s.\n", name);
+        return -EINVAL;
+    }
+     inst = &hm2->pktuart.instance[i];
+
+/*
+PktUART V2+ TX regmap
+Bit  21	    FrameBuffer Has Data RO
+Bits 20..16 Frames to send  RO
+Bit  17	    Parity enable WO
+Bit  18	    Odd Parity  WO  (1=odd, 0=even)
+Bits 15..8  InterFrame delay in bit times RW
+Bit  7      Send busy RO
+Bit  6      Drive Enable bit (enables external RS-422/485 Driver when set) RW
+Bit  5      Drive enable Auto (Automatic external drive enable) RW
+            Drive Enable Auto has priority over Drive Enable (bit 6 is a no-op if bit 5 is set)
+Bit  4      SCFIFO Error RO
+Bits 3..0   Drive enable delay (delay from asserting drive enable
+            to start of data transmit. In CLock Low periods RW
+            Drive enable delay is important to avoid start bit timing errors
+            at high baud rates in RS-485 (half duplex) modes
+*/
+
+    if (hm2->pktuart.tx_version >= 2){
+        buff1 = (rtapi_u32)((bitrate * 16777216.0)/inst->clock_freq); //24 bits in v2+
+    } else {
+        buff1 = (rtapi_u32)((bitrate * 1048576.0)/inst->clock_freq); //20 bits in v0 & v1
+    }
+
+    buff2  = (rtapi_u32)(enable_delay & 0x0F);
+    if (drive_auto)   buff2 |= 0x00020;
+    if (drive_enable) buff2 |= 0x00040;
+    if (parity >  0)  buff2 |= 0x20000;
+    if (parity == 1)  buff2 |= 0x40000;
+    buff2 |= (rtapi_u32)((frame_delay & 0xFF) << 8);
+
+    if (buff1 != inst->tx_bitrate){
+        inst->tx_bitrate = buff1;
+        r += hm2->llio->write(hm2->llio, inst->tx_bitrate_addr, &buff1, sizeof(rtapi_u32));
+    }
+    if (buff2 != inst->tx_mode){
+        inst->tx_mode = buff2;
+        r += hm2->llio->write(hm2->llio, inst->tx_mode_addr, &buff2, sizeof(rtapi_u32));
+    }
+
+    if (r < 0) {
+        HM2_ERR("PktUART: hm2->llio->write failure %s setting up TX\n", name);
+        return -1;
+    }
+
+    return 0;
+}
+
+EXPORT_SYMBOL_GPL(hm2_pktuart_reset);
+void hm2_pktuart_reset(char *name){
+    hostmot2_t *hm2;
+    hm2_pktuart_instance_t *inst = 0;
+    rtapi_u32 buff;
+    int i;
+    i = hm2_get_pktuart(&hm2, name);
+    if (i < 0){
+        HM2_ERR_NO_LL("Can not find PktUART instance %s.\n", name);
+        return;
+    }
+    inst = &hm2->pktuart.instance[i];
+    buff = 0x80010000;
+    hm2->llio->write(hm2->llio, inst->tx_mode_addr, &buff, sizeof(rtapi_u32)); // clear sends, data FIFO and count register
+    hm2->llio->write(hm2->llio, inst->rx_mode_addr, &buff, sizeof(rtapi_u32)); // clear receives, data FIFO and count register
+}
+
+
 EXPORT_SYMBOL_GPL(hm2_pktuart_setup);
 // use -1 for bitrate, tx_mode and rx_mode to leave the mode unchanged
 // use 1 for txclear or rxclear to issue a clear command for Tx or Rx registers
@@ -185,11 +341,23 @@ int hm2_pktuart_setup(char *name, unsigned int bitrate, rtapi_s32 tx_mode, rtapi
     inst = &hm2->pktuart.instance[i];
 
     if (bitrate > 0){
-        buff = (rtapi_u32)((bitrate * 1048576.0)/inst->clock_freq); //20 bits in this version
-        if (buff != inst->bitrate){
-            inst->bitrate = buff;
-            r += hm2->llio->write(hm2->llio, inst->rx_bitrate_addr, &buff, sizeof(rtapi_u32));
+        if (hm2->pktuart.tx_version >= 2){
+            buff = (rtapi_u32)((bitrate * 16777216.0)/inst->clock_freq); //24 bits in v2+
+        } else {
+            buff = (rtapi_u32)((bitrate * 1048576.0)/inst->clock_freq); //20 bits in v0 & v1
+        } 
+        if (buff != inst->tx_bitrate){
+            inst->tx_bitrate = buff;
             r += hm2->llio->write(hm2->llio, inst->tx_bitrate_addr, &buff, sizeof(rtapi_u32));
+        }
+        if (hm2->pktuart.rx_version >= 2){
+            buff = (rtapi_u32)((bitrate * 16777216.0)/inst->clock_freq); //24 bits in v2+
+        } else {
+            buff = (rtapi_u32)((bitrate * 1048576.0)/inst->clock_freq); //20 bits in v0 & v1
+        } 
+        if (buff != inst->rx_bitrate){
+            inst->rx_bitrate = buff;
+            r += hm2->llio->write(hm2->llio, inst->rx_bitrate_addr, &buff, sizeof(rtapi_u32));
         }
     }
 
@@ -280,7 +448,7 @@ int hm2_pktuart_send(char *name,  unsigned char data[], rtapi_u8 *num_frames, rt
         HM2_ERR_NO_LL("Can not find PktUART instance %s.\n", name);
         return -EINVAL;
     }
-    if (hm2->pktuart.instance[inst].bitrate == 0){
+    if (hm2->pktuart.instance[inst].tx_bitrate == 0){
         HM2_ERR("%s has not been configured.\n", name);
         return -EINVAL;
     }
@@ -403,7 +571,7 @@ int hm2_pktuart_read(char *name, unsigned char data[], rtapi_u8 *num_frames, rta
         *num_frames=0;  
         return -EINVAL;
     }
-    if (hm2->pktuart.instance[inst].bitrate == 0 ) {
+    if (hm2->pktuart.instance[inst].rx_bitrate == 0 ) {
         HM2_ERR("%s has not been configured.\n", name);
         *num_frames=0;  
         return -EINVAL;
@@ -573,7 +741,7 @@ int hm2_pktuart_queue_get_frame_sizes(char *name, rtapi_u32 fsizes[]){
         return -EINVAL;
     }
 
-    if (hm2->pktuart.instance[inst].bitrate == 0 ) {
+    if (hm2->pktuart.instance[inst].rx_bitrate == 0 ) {
         HM2_ERR("%s has not been configured.\n", name);
         return -EINVAL;
     }
@@ -612,7 +780,7 @@ int hm2_pktuart_queue_read_data(char *name, rtapi_u32 data[], int bytes) {
         HM2_ERR_NO_LL("Can not find PktUART instance %s.\n", name);
         return -EINVAL;
     }
-    if (hm2->pktuart.instance[inst].bitrate == 0 ) {
+    if (hm2->pktuart.instance[inst].rx_bitrate == 0 ) {
         HM2_ERR("%s has not been configured.\n", name);
         return -EINVAL;
     }

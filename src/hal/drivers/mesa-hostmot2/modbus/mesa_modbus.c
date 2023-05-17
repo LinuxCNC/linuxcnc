@@ -433,31 +433,10 @@ int do_setup(hm2_modbus_inst_t *inst){
     inst->rxdelay     = inst->hal->rxdelay;
     inst->drive_delay = inst->hal->drive_delay;
     
-    switch (inst->parity) {
-        case 1:
-            txmode = 0x60020; //Drive enable auto, odd parity
-            rxmode = 0x6000C; //RX Enable, Rx Mask, odd parity
-            break;
-        case 2:
-            txmode = 0x20020; //Drive enable auto, even parity
-            rxmode = 0x2000C; //RX Enable, Rx Mask, even parity
-            break;
-        case 0:
-        default:
-            txmode = 0x20; //Drive enable auto, no parity
-            rxmode = 0x0C; //RX Enable, Rx Mask, no parity
-            break;
-    }
+ 
+    retval  = hm2_pktuart_setup_rx(inst->port, inst->baudrate, inst->baudrate *2, inst->parity, inst->rxdelay, 1, 1);
+    retval += hm2_pktuart_setup_tx(inst->port, inst->baudrate, inst->parity, inst->txdelay, 1, 1, inst->drive_delay);
 
-    txmode |= inst->txdelay << 8;
-    rxmode |= inst->rxdelay << 8;
-    clocklow = hm2_pktuart_get_clock(inst->port);
-    rtapi_print_msg(RTAPI_MSG_INFO, "Clocklow = %d\n", clocklow);
-    filter = (clocklow * 0.5 / inst->baudrate);
-    if (filter > 0xFF) filter = 0xFF;
-    rxmode |= (filter << 22);
-    rtapi_print_msg(RTAPI_MSG_INFO, "txmode = %08X rxmode = %08X, rxdelay = %i, txdelay = %i\n", txmode, rxmode, inst->rxdelay, inst->txdelay);
-    retval=hm2_pktuart_setup(inst->port, inst->baudrate , txmode,  rxmode, 1, 1);
     if (retval<0)
     {
      rtapi_print_msg(RTAPI_MSG_ERR, COMP_NAME"PktUART setup problem: %d\n", retval);
@@ -495,7 +474,7 @@ void do_timeout(hm2_modbus_inst_t *inst){
     }
     if (inst->iter++ > 1000){
         rtapi_print_msg(RTAPI_MSG_INFO, "\n %i TIMEOUT_RESET %i\n", inst->iter, inst->state);
-        hm2_pktuart_setup(inst->port, -1, -1, -1, 1, 1);
+        hm2_pktuart_reset(inst->port);
         inst->state = RESET_WAIT;
         inst->iter = 0;
         *(inst->hal->last_err) = 11;
@@ -576,7 +555,7 @@ void process(void *arg, long period) {
             if (inst->fsizes[inst->frame_index] & 0xC000) { // indicates an overrun
                 rtapi_print_msg(RTAPI_MSG_INFO, "RESET\n");
                 inst->state = START;
-                hm2_pktuart_setup(inst->port, -1, -1, -1, 0, 1); // reset
+                hm2_pktuart_reset(inst->port);
                 break;
             }
             r = hm2_pktuart_queue_read_data(inst->port, inst->rxdata, inst->fsizes[inst->frame_index] & 0x3FF);
