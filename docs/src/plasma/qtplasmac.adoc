@@ -3387,9 +3387,11 @@ n Code = cut-type
 
 Pressing this button moves the torch to the specified coordinates when the machine is paused to allow the user easy access to change the torch consumables.
 
-Valid entries are Xnnn Ynnn Fnnn. Feed Rate (F) is mandatory and at least one of the X or Y coordinates are required.
+Valid entries are Xnnn Ynnn Fnnn. At least one of the X or Y coordinates are required, Feed Rate (F) is optional.
 
 The X and Y coordinates are in absolute machine coordinates. If X or Y are missing then the current coordinate for that axis will be used.
+
+Feed Rate (F) is optional, if it is missing or invalid then the feed rate of the current material will be used.
 
 There are three methods to return to the previous coordinates:
 

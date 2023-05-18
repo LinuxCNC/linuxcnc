@@ -3543,7 +3543,7 @@ class HandlerClass:
             self.w['button_{}'.format(str(bNum))].setText(bLabel)
             if 'change-consumables' in bCode:
                 self.ccParm = bCode.replace('change-consumables','').replace(' ','').lower() or None
-                if self.ccParm != None and ('x' in self.ccParm or 'y' in self.ccParm) and 'f' in self.ccParm:
+                if self.ccParm != None and ('x' in self.ccParm or 'y' in self.ccParm):
                     self.ccButton = 'button_{}'.format(str(bNum))
                     self.idleHomedList.append(self.ccButton)
                     self.pausedValidList.append(self.ccButton)
@@ -3970,7 +3970,7 @@ class HandlerClass:
                 self.w[self.otButton].setEnabled(False)
 
     def consumable_change_setup(self):
-        self.ccXpos = self.ccYpos = self.ccFeed = 'None'
+        self.ccXpos = self.ccYpos = self.ccFeed = None
         X = Y = F = ''
         ccAxis = [X, Y, F]
         ccName = ['x', 'y', 'f']
@@ -3996,6 +3996,11 @@ class HandlerClass:
                     self.ccYpos = float(ccAxis[loop])
                 elif ccName[loop] == 'f' and ccAxis[loop]:
                     self.ccFeed = float(ccAxis[loop])
+        if not self.ccFeed or self.ccFeed < 1:
+            msg0 = _translate('HandlerClass', 'Invalid feed rate for consumable change')
+            msg1 = _translate('HandlerClass', 'Defaulting to materials cut feed rate')
+            STATUS.emit('update-machine-log', '{}, {}'.format(msg0, msg1), 'TIME')
+            self.ccFeed = float(self.w.cut_feed_rate.text())
 
     def ext_change_consumables(self, state):
         if self.ccButton and self.w[self.ccButton].isEnabled():
@@ -4011,31 +4016,23 @@ class HandlerClass:
             self.w[self.ccButton].setEnabled(False)
         else:
             self.consumable_change_setup()
-            if self.ccFeed == 'None' or self.ccFeed < 1:
-                head = _translate('HandlerClass', 'User Button Error')
-                msg0 = _translate('HandlerClass', 'Feed rate for consumable change missing or less than 1')
-                msg1 = _translate('HandlerClass', 'Check arguments for "change-consumables" button code in')
-                msg2 = _translate('HandlerClass', '.prefs file')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n{}{}\n'.format(head, msg0, msg1, self.machineName, msg2))
-                return
-            else:
-                hal.set_p('plasmac.xy-feed-rate', str(float(self.ccFeed)))
             self.w.run.setEnabled(False)
             if self.frButton:
                 self.w[self.frButton].setEnabled(False)
             self.w.pause.setEnabled(False)
-            if self.ccXpos == 'None':
+            if not self.ccXpos:
                 self.ccXpos = STATUS.get_position()[0][0]
             if self.ccXpos < round(self.xMin, 6) + (10 * self.unitsPerMm):
                 self.ccXpos = round(self.xMin, 6) + (10 * self.unitsPerMm)
             elif self.ccXpos > round(self.xMax, 6) - (10 * self.unitsPerMm):
                 self.ccXpos = round(self.xMax, 6) - (10 * self.unitsPerMm)
-            if self.ccYpos == 'None':
+            if not self.ccYpos:
                 self.ccYpos = STATUS.get_position()[0][1]
             if self.ccYpos < round(self.yMin, 6) + (10 * self.unitsPerMm):
                 self.ccYpos = round(self.yMin, 6) + (10 * self.unitsPerMm)
             elif self.ccYpos > round(self.yMax, 6) - (10 * self.unitsPerMm):
                 self.ccYpos = round(self.yMax, 6) - (10 * self.unitsPerMm)
+            hal.set_p('plasmac.xy-feed-rate', str(float(self.ccFeed)))
             hal.set_p('plasmac.x-offset', '{:.0f}'.format((self.ccXpos - STATUS.get_position()[0][0]) / hal.get_value('plasmac.offset-scale')))
             hal.set_p('plasmac.y-offset', '{:.0f}'.format((self.ccYpos - STATUS.get_position()[0][1]) / hal.get_value('plasmac.offset-scale')))
             hal.set_p('plasmac.consumable-change', '1')
