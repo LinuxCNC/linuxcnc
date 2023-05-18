@@ -3195,6 +3195,7 @@ Buttons can run the following:
 . <<plasma:button-mancut,Begin/End a manual cut>>
 . <<plasma:button-offsets,Display/Hide an offsets viewer>>
 . <<plasma:button-latest,Load the latest modified NGC file found in a directory>>
+. <<plasma:button-umanual,Display/Hide the online HTML user manual>>
 
 [[plasma:button-cmds]]
 .External Commands
@@ -3532,7 +3533,8 @@ n Code = manual-cut
 [[plasma:button-offsets]]
 .Offset Viewer
 
-This allows the showing/hiding of an offset viewing screen that displays all machine offsets. All relative offsets can be edited and the G54 ~ G59.3 work system coordinates are able to be given custom names.
+This allows the showing/hiding of an offset viewing screen that displays all machine offsets.
+All relative offsets can be edited and the G54 ~ G59.3 work system coordinates are able to be given custom names.
 
 [source,{ini}]
 ----
@@ -3542,12 +3544,23 @@ n Code = offsets-view
 [[plasma:button-latest]]
 .Load Latest File
 
-this allows the loading of the last modified file in a directory.
+This allows the loading of the last modified file in a directory.
 The directory name is optional and if omitted will default to the last directory a file was loaded from.
 
 [source,{ini}]
 ----
 n Code = latest-file /home/me/linuxcnc/nc_files/qtplasmac-test
+----
+
+[[plasma:button-umanual]]
+.User Manual
+
+This allows the showing/hiding of the online HTML user manual specific to the version of LinuxCNC currently running.
+Note that internet access is required for this functionality.
+
+[source,{ini}]
+----
+n Code = user-manual
 ----
 
 [[peripheral-offsets]]
