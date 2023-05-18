@@ -1,4 +1,4 @@
-VERSION = '1.235.273'
+VERSION = '1.235.274'
 
 '''
 qtplasmac_handler.py
@@ -963,13 +963,13 @@ class HandlerClass:
         self.w.conv_material.view().setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.w.materials_box.view().setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.w.materials_box.view().setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.w.gcode_display.set_margin_width(3)
+        self.w.gcode_display.set_margin_metric(3)
         self.w.gcode_display.setBraceMatching(False)
         self.w.gcode_display.setCaretWidth(0)
         self.w.gcode_display.setCornerWidget(QLabel())
         self.w.gcode_editor.topBox.setContentsMargins(4,4,4,4)
         self.w.gcode_editor.bottomBox.setContentsMargins(4,4,4,4)
-        self.w.gcode_editor.set_margin_width(3)
+        self.w.gcode_editor.set_margin_metric(3)
         self.w.gcode_editor.editor.setBraceMatching(False)
         self.w.gcode_editor.editor.setCaretWidth(4)
         self.w.gcode_editor.editor.setCornerWidget(QLabel())
@@ -1541,8 +1541,8 @@ class HandlerClass:
                 self.w.gcode_editor.editor.new_text()
                 self.w.gcode_editor.editor.setModified(False)
                 self.w.gcode_display.new_text()
-                self.w.gcode_display.set_margin_width(3)
-                self.w.gcode_editor.set_margin_width(3)
+                self.w.gcode_display.set_margin_metric(3)
+                self.w.gcode_editor.set_margin_metric(3)
         ACTION.SET_MANUAL_MODE()
         if not len(self.w.gcode_display.text()):
             self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -2029,8 +2029,8 @@ class HandlerClass:
 
     def gcode_display_loaded(self):
         gcodeLines = len(str(self.w.gcode_display.lines()))
-        self.w.gcode_display.set_margin_width(gcodeLines)
-        self.w.gcode_editor.set_margin_width(gcodeLines)
+        self.w.gcode_display.set_margin_metric(gcodeLines)
+        self.w.gcode_editor.set_margin_metric(gcodeLines)
 
     def file_clear_clicked(self):
         if self.fileOpened:
