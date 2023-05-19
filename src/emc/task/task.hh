@@ -16,6 +16,7 @@
 #ifndef EMC_TASK_HH
 #define EMC_TASK_HH
 #include "taskclass.hh"
+#include "emc_nml.hh"
 extern NMLmsg *emcTaskCommand;
 extern int stepping;
 extern int steppingWait;
