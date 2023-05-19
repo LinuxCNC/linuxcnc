@@ -21,7 +21,8 @@
 #scribe_config, #spotting_config, #utility_frame,
 #gui_frame, #materials_frame, #camview_frame,
 #conv_frame, #stats_frame, #pmx_stats_frame,
-#machinelog_frame, #ub_frame, #sd_frame {
+#machinelog_frame, #ub_frame, #sd_frame,
+#webview_frame {
     border: 1px solid frames;
     background: backgnd;
     border-radius: 4px }
@@ -53,13 +54,13 @@ QToolTip {
     padding: 4 }
 
 /****** MATERIAL LABEL ************/
-#material_label{
+#material_label {
     color: backgnd;
     background: frames;
     border-top-left-radius: 2px }
 
 /****** VELOCITY LABELS ************/
-#velocity_label{
+#velocity_label {
     color: backgnd;
     background: frames }
 
@@ -785,7 +786,7 @@ QPlainTextEdit {
 EditorBase#lexer {
     height: 44 }
 
-/*QTableView::item{
+/*QTableView::item {
     height: 44 }*/
 
 EditorBase {
@@ -842,12 +843,12 @@ EditorBase {
     height: 40px }
 
 /****** MESSAGE BOX ************/
-QMessageBox{
+QMessageBox {
     border: 1px solid foregnd;
     border-radius: 4px;
     margin: 2 }
 
-QMessageBox QLabel{
+QMessageBox QLabel {
     font: 11pt }
 
 QMessageBox QPushButton {
@@ -856,15 +857,15 @@ QMessageBox QPushButton {
     font: 11pt }
 
 /****** INPUT DIALOG ************/
-QInputDialog{
+QInputDialog {
     border: 1px solid foregnd;
     border-radius: 4px;
     margin: 2 }
 
-QInputDialog QLabel{
+QInputDialog QLabel {
     font: 11pt }
 
-QInputDialog QLineEdit{
+QInputDialog QLineEdit {
     background: backalt;
     border: 1px solid foregnd;
     border-radius: 4px;
@@ -890,6 +891,25 @@ Calculator QLineEdit {
     font: 20pt }
 
 /****** KEYBOARD ************/
-KeyboardDialog QLineEdit{
+KeyboardDialog QLineEdit {
     font: 20pt;
     height: 36px }
+
+/****** WEBVIEW ************/
+QWebView {
+    color: black;
+    background: white }
+
+#webview_back, #webview_reload, #webview_forward {
+    color: backgnd;
+    background: foregnd;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px }
+
+#webview_back {
+    border-top-left-radius: 2px }
+
+#webview_forward {
+    border-top-right-radius: 2px }

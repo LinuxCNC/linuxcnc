@@ -316,10 +316,10 @@ class Data:
         self.qtplasmacpmx = ""
         self.increments_metric_qtplasmac = "10mm 1mm .1mm .01mm .001mm"
         self.increments_imperial_qtplasmac= "1in .1in .01in .001in .0001in"
-        self.qtplasmac_bnames = ["OHMIC\TEST","PROBE\TEST","SINGLE\CUT","NORMAL\CUT","TORCH\PULSE","FRAMING", \
-                                 "","","","","","","","","","","","","",""]
-        self.qtplasmac_bcodes = ["ohmic-test","probe-test 10","single-cut","cut-type","torch-pulse 0.5","framing", \
-                                 "","","","","","","","","","","","","",""]
+        self.qtplasmac_bnames = ["OHMIC\TEST","PROBE\TEST","SINGLE\CUT","NORMAL\CUT","TORCH\PULSE","FRAMING", "USER\MANUAL", \
+                                 "","","","","","","","","","","","",""]
+        self.qtplasmac_bcodes = ["ohmic-test","probe-test 10","single-cut","cut-type","torch-pulse 0.5","framing", "user-manual", \
+                                 "","","","","","","","","","","","",""]
         self._arcvpin = None
         self.voltsmodel = "10"
         self.voltsfjumper = "32"
