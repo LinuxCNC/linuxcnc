@@ -43,34 +43,6 @@ namespace bp = boost::python;
 #include "tooldata.hh"
 #include "hal.h"
 
-struct iocontrol_str {
-    hal_bit_t *user_enable_out;        /* output, TRUE when EMC wants stop */
-    hal_bit_t *emc_enable_in;        /* input, TRUE on any external stop */
-    hal_bit_t *user_request_enable;        /* output, used to reset ENABLE latch */
-    hal_bit_t *coolant_mist;        /* coolant mist output pin */
-    hal_bit_t *coolant_flood;        /* coolant flood output pin */
-    hal_bit_t *lube;                /* lube output pin */
-    hal_bit_t *lube_level;        /* lube level input pin */
-
-    // the following pins are needed for toolchanging
-    //tool-prepare
-    hal_bit_t *tool_prepare;        /* output, pin that notifies HAL it needs to prepare a tool */
-    hal_s32_t *tool_prep_pocket;/* output, pin that holds the pocketno for the tool table entry matching the tool to be prepared,
-                                   only valid when tool-prepare=TRUE */
-    hal_s32_t *tool_from_pocket;/* output, pin indicating pocket current load tool retrieved from*/
-    hal_s32_t *tool_prep_index; /* output, pin for internal index (idx) of prepped tool above */
-    hal_s32_t *tool_prep_number;/* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
-    hal_s32_t *tool_number;     /* output, pin that holds the tool number currently in the spindle */
-    hal_bit_t *tool_prepared;        /* input, pin that notifies that the tool has been prepared */
-    //tool-change
-    hal_bit_t *tool_change;        /* output, notifies a tool-change should happen (emc should be in the tool-change position) */
-    hal_bit_t *tool_changed;        /* input, notifies tool has been changed */
-
-    // note: spindle control has been moved to motion
-} * iocontrol_data;                        //pointer to the HAL-struct
-
-static int comp_id;                                /* component ID */
-
 /********************************************************************
 *
 * Description: iocontrol_hal_init(void)
@@ -265,7 +237,7 @@ int Task::iocontrol_hal_init(void)
         hal_exit(comp_id);
         return -1;
     }
-
+    *(iocontrol_data->tool_number) = emcioStatus.tool.toolInSpindle;
     hal_ready(comp_id);
     return 0;
 }
@@ -278,7 +250,7 @@ int Task::iocontrol_hal_init(void)
 *
 * Called By: main
 ********************************************************************/
-static void hal_init_pins(void)
+void Task::hal_init_pins(void)
 {
     *(iocontrol_data->user_enable_out)=0;    /* output, FALSE when EMC wants stop */
     *(iocontrol_data->user_request_enable)=0;/* output, used to reset HAL latch */
@@ -396,7 +368,6 @@ int emcTaskOnce(const char *filename, EMC_IO_STAT &emcioStatus)
     if (int res = task_methods->iocontrol_hal_init()) {
         return res;
     }
-    *(iocontrol_data->tool_number) = emcioStatus.tool.toolInSpindle;//TODO: move
     }
     return 0;
 }
