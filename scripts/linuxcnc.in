@@ -833,7 +833,7 @@ if ! program_available $EMCTASK ; then
     exit 1
 fi
 
-halcmd loadusr -Wn iocontrol $EMCTASK -ini "$INIFILE" &
+halcmd loadusr -Wn iocontrol $EMCTASK -ini "$INIFILE"
 
 # 4.3.5. Run halui in background, if necessary
 if [ -n "$HALUI" ] ; then
