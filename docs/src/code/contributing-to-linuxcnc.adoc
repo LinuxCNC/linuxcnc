@@ -109,29 +109,18 @@ https://wiki.spheredev.org/index.php/Git_for_the_lazy
 The high-level overview of how to contribute changes to the source goes
 like this:
 
-* Communicate with the project developers and let us know what you're
-  hacking on
-* Clone the git repo
-* Make your changes in a local branch, making sure you "sign off" your commits
-  according to our signed-off-by policy (see below).
-* Adding documentation and tests is an important part of adding a new
-  feature.  Otherwise, others won't know how to use your feature, and
-  if other changes break your feature it can go unnoticed without a test.
+* Communicate with the project developers and let us know what you're hacking on.  Explain what you are doing, and why.
+* Clone the git repo.
+* Make your changes in a local branch.
+* Adding documentation and tests is an important part of adding a new feature.  Otherwise, others won't know how to use your feature, and if other changes break your feature it can go unnoticed without a test.
 * Share your changes with the other project developers in one of these ways:
-** Push your branch to github and create a github pull request to
-   https://github.com/linuxcnc/linuxcnc (this requires a github account)
-** Push your branch to a publicly visible git repo (such as github,
-   bitbucket, your own publicly-accessible server, etc) and share that
-   location on the emc-developers mailing list, or
-** Email your commits to the LinuxCNC-developers mailing list
-   (emc-developers@lists.sourceforge.net) (use `git
-   format-patch` to create the patches)
-* Advocate for your patch
-** Explain what problem it addresses and why it should be included
-   in LinuxCNC
+** Push your branch to github and create a github pull request to <https://github.com/linuxcnc/linuxcnc> (this requires a github account), or
+** Push your branch to a publicly visible git repo (such as github, or your own publicly-accessible server, etc) and share that location on the emc-developers mailing list, or
+** Email your commits to the LinuxCNC-developers mailing list (<emc-developers@lists.sourceforge.net>) (use `git format-patch` to create the patches).
+* Advocate for your patch:
+** Explain what problem it addresses and why it should be included in LinuxCNC.
 ** Be receptive to questions and feedback from the developer community.
-** It is not uncommon for a patch to go through several revisions before
-   it is accepted.
+** It is not uncommon for a patch to go through several revisions before it is accepted.
 
 == git configuration
 
