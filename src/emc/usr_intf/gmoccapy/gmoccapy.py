@@ -232,8 +232,7 @@ class gmoccapy(object):
         self.diameter_mode = False
 
         # the default theme = System Theme we store here to be able to go back to that one later
-        #TODO:
-        #self.default_theme = Gtk.settings_get_default().get_property("Gtk-theme-name")
+        self.default_theme = Gtk.Settings.get_default().get_property("gtk-theme-name")
         self.icon_theme = Gtk.IconTheme()
         self.icon_theme.append_search_path(ICON_THEME_DIR)
         self.icon_theme.append_search_path(USER_ICON_THEME_DIR)
@@ -1964,7 +1963,7 @@ class gmoccapy(object):
             for dirs in names:
                 try:
                     sbdirs = os.listdir(os.path.join(USERTHEMEDIR, dirs))
-                    if 'Gtk-2.0' in sbdirs:
+                    if 'gtk-3.0' in sbdirs:
                         themes.append(dirs)
                 except:
                     pass
@@ -1974,7 +1973,7 @@ class gmoccapy(object):
             for dirs in names:
                 try:
                     sbdirs = os.listdir(os.path.join(THEMEDIR, dirs))
-                    if 'Gtk-2.0' in sbdirs:
+                    if 'gtk-3.0' in sbdirs:
                         themes.append(dirs)
                 except:
                     pass
@@ -1985,10 +1984,9 @@ class gmoccapy(object):
             if theme == theme_name:
                 temp = index + 1
         self.widgets.theme_choice.set_active(temp)
-        #TODO:
-        #settings = Gtk.settings_get_default()
-        #if not theme_name == "Follow System Theme":
-        #    settings.set_string_property("Gtk-theme-name", theme_name, "")
+        settings = Gtk.Settings.get_default()
+        if not theme_name == "Follow System Theme":
+            settings.set_property("gtk-theme-name", theme_name)
 
     def _init_icon_themes(self):
         valid_icon_themes = icon_theme_helper.find_valid_icon_themes([USER_ICON_THEME_DIR, ICON_THEME_DIR])
@@ -3300,8 +3298,9 @@ class gmoccapy(object):
     # Notification stuff.
     def _init_notification(self):
         start_as = "rbtn_" + self.prefs.getpref("screen1", "window", str)
-        #TODO
-        xpos, ypos = (10,10)#self.widgets.window1.window.get_origin()
+        #TODO probably xpos and ypos should be added to notification's properties 'x_pos' and 'y_pos*.
+        # But then the behavior should be defined what should happen if the window is moved.
+        xpos, ypos = self.widgets.window1.get_position()
         self.notification.set_property('x_pos', self.widgets.adj_x_pos_popup.get_value())
         self.notification.set_property('y_pos', self.widgets.adj_y_pos_popup.get_value())
         self.notification.set_property('message_width', self.widgets.adj_width_popup.get_value())
@@ -4412,17 +4411,15 @@ class gmoccapy(object):
 
     # choose a theme to apply
     def on_theme_choice_changed(self, widget):
-        return
-        #TODO:
-        #theme = widget.get_active_text()
-        #if theme == None:
-        #    return
-        #self.prefs.putpref('Gtk_theme', theme)
-        #settings = Gtk.settings_get_default()
-        ##TODO:
-        # if theme == "Follow System Theme":
-        #    theme = self.default_theme
-        #settings.set_string_property("Gtk-theme-name", theme, "")
+        active = widget.get_active_iter()
+        if active is None:
+            return
+        theme = widget.get_model()[active][0]
+        self.prefs.putpref('Gtk_theme', theme)
+        if theme == "Follow System Theme":
+            theme = self.default_theme
+        settings = Gtk.Settings.get_default()
+        settings.set_property("gtk-theme-name", theme)
 
     def _set_icon_theme(self, name):
         LOG.debug(f"Setting icon theme '{name}'")
