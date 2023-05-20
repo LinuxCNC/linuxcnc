@@ -106,7 +106,7 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
         NCE_MUST_USE_G0_OR_G1_WITH_G53);
     CHKS(((block->g_modes[GM_DISTANCE_MODE] == G_91) ||
          ((block->g_modes[GM_DISTANCE_MODE] != G_90) &&
-          (settings->distance_mode == MODE_INCREMENTAL))),
+          (settings->distance_mode == DISTANCE_MODE::INCREMENTAL))),
         NCE_CANNOT_USE_G53_INCREMENTAL);
   } else if (mode0 == G_92) {
   } else

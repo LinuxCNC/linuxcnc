@@ -159,7 +159,7 @@ public:
 
  int arc_data_comp_ijk(int move,
          int plane,
-         int side,
+         CUTTER_COMP side,
          double tool_radius,
          double current_x,
          double current_y,
@@ -178,7 +178,7 @@ public:
 
  int arc_data_comp_r(int move,
          int plane,
-         int side,
+         CUTTER_COMP side,
          double tool_radius,
          double current_x,
          double current_y,
@@ -268,7 +268,7 @@ public:
  int convert_cutter_compensation(int g_code, block_pointer block,
                                        setup_pointer settings);
  int convert_cutter_compensation_off(setup_pointer settings);
- int convert_cutter_compensation_on(int side, block_pointer block,
+ int convert_cutter_compensation_on(CUTTER_COMP side, block_pointer block,
                                           setup_pointer settings);
  int convert_cycle(int motion, block_pointer block,
                          setup_pointer settings);

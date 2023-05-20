@@ -102,7 +102,7 @@ static inline bool equal(double a, double b)
 #define MAX_EMS  4
 
 // feed_mode
-enum FEED_MODE {
+enum class FEED_MODE {
     UNITS_PER_MINUTE=0,
     INVERSE_TIME=1,
     UNITS_PER_REVOLUTION=2
@@ -110,13 +110,14 @@ enum FEED_MODE {
 
 // cutter radius compensation mode, 0 or false means none
 // not using CANON_SIDE since interpreter handles cutter radius comp
-enum CUTTER_COMP_DIRECTION {
+enum class CUTTER_COMP {
+    OFF = 0,
     RIGHT = 1,
     LEFT = 2,
 };
 
 // spindle control modes
-enum SPINDLE_MODE {
+enum class SPINDLE_MODE {
     CONSTANT_RPM,
     CONSTANT_SURFACE
 };
@@ -311,14 +312,14 @@ std::string toString(GCodes g);
 /**********************/
 
 /* distance_mode */
-enum DISTANCE_MODE
+enum class DISTANCE_MODE
 {
-    MODE_ABSOLUTE,
-    MODE_INCREMENTAL,
+    ABSOLUTE,
+    INCREMENTAL,
 };
 
 /* retract_mode for cycles */
-enum RETRACT_MODE
+enum class RETRACT_MODE
 {
     R_PLANE,
     OLD_Z,
@@ -692,7 +693,7 @@ struct setup
   double current_z;             // current Z-axis position
   double cutter_comp_radius;    // current cutter compensation radius
   int cutter_comp_orientation;  // current cutter compensation tool orientation
-  int cutter_comp_side;         // current cutter compensation side
+  CUTTER_COMP cutter_comp_side;         // current cutter compensation side
   double cycle_cc;              // cc-value (normal) for canned cycles
   double cycle_i;               // i-value for canned cycles
   double cycle_j;               // j-value for canned cycles
@@ -705,7 +706,7 @@ struct setup
   int cycle_il_flag;            // il is currently valid because we're in a series of cycles
   DISTANCE_MODE distance_mode;  // absolute or incremental
   DISTANCE_MODE ijk_distance_mode;  // absolute or incremental for IJK in arcs
-  int feed_mode;                // G_93 (inverse time) or G_94 units/min
+  FEED_MODE feed_mode;                // G_93 (inverse time) or G_94 units/min
   bool feed_override;         // whether feed override is enabled
   double feed_rate;             // feed rate in current units/min
   char filename[PATH_MAX];      // name of currently open NC code file
@@ -749,7 +750,7 @@ struct setup
   int num_spindles;				// number of spindles available
   int active_spindle;			// the spindle currently used for CSS, FPR etc.
   double speed[EMCMOT_MAX_SPINDLES];// array of spindle speeds
-  SPINDLE_MODE spindle_mode[EMCMOT_MAX_SPINDLES];// CONSTANT_RPM or CONSTANT_SURFACE
+  SPINDLE_MODE spindle_mode[EMCMOT_MAX_SPINDLES];// SPINDLE_MODE::CONSTANT_RPM or SPINDLE_MODE::CONSTANT_SURFACE
   CANON_SPEED_FEED_MODE speed_feed_mode;        // independent or synched
   bool speed_override[EMCMOT_MAX_SPINDLES];        // whether speed override is enabled
   CANON_DIRECTION spindle_turning[EMCMOT_MAX_SPINDLES];  // direction spindle is turning

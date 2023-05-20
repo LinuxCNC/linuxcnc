@@ -994,9 +994,9 @@ public:
     switch_settings(Interp *i,setup_pointer s):interp(i), settings(s)
     {
 	saved_distance_mode=settings->distance_mode;
-	settings->distance_mode=MODE_ABSOLUTE;
+	settings->distance_mode=DISTANCE_MODE::ABSOLUTE;
 	saved_ijk_distance_mode=settings->ijk_distance_mode;
-	settings->ijk_distance_mode=MODE_ABSOLUTE;
+	settings->ijk_distance_mode=DISTANCE_MODE::ABSOLUTE;
 	read_a=interp->_readers[(int)'a'];
 	read_c=interp->_readers[(int)'c'];
 	read_u=interp->_readers[(int)'u'];
@@ -1030,7 +1030,7 @@ int Interp::convert_g7x(int mode,
     int subcycle=cycle%10;
     cycle/=10;
 
-    if(settings->cutter_comp_side && cycle!=70)
+    if(settings->cutter_comp_side != CUTTER_COMP::OFF && cycle!=70)
 	ERS("G%d.%d cannot be used with cutter compensation enabled",
 	    cycle, subcycle);
     if(settings->plane!=CANON_PLANE_XZ)
@@ -1043,7 +1043,7 @@ int Interp::convert_g7x(int mode,
 
     double x=settings->current_x;
     double z=settings->current_z;
-    if(old.distance_mode()==MODE_INCREMENTAL) {
+    if(old.distance_mode()==DISTANCE_MODE::INCREMENTAL) {
 	if(block->x_flag)
 	    x+=block->x_number;
 	if(block->z_flag)
@@ -1085,11 +1085,11 @@ int Interp::convert_g7x(int mode,
 	std::complex<double> end(start);
 	std::complex<double> center(0,0);
 
-	if(old.distance_mode()==MODE_INCREMENTAL)
+	if(old.distance_mode()==DISTANCE_MODE::INCREMENTAL)
 	    end=0;
 
 	if(block->u_flag) {
-	    if(old.distance_mode()==MODE_INCREMENTAL)
+	    if(old.distance_mode()==DISTANCE_MODE::INCREMENTAL)
 		ERS("G7x error: Cannot use U in incremental mode (G91)");
 	    if(block->x_flag)
 		ERS("G7x error: Cannot use U and X in the same block");
@@ -1101,7 +1101,7 @@ int Interp::convert_g7x(int mode,
 	    end.imag(block->x_number);
 
 	if(block->w_flag) {
-	    if(old.distance_mode()==MODE_INCREMENTAL)
+	    if(old.distance_mode()==DISTANCE_MODE::INCREMENTAL)
 		ERS("G7x error: Cannot use W in incremental mode (G91)");
 	    if(block->z_flag)
 		ERS("G7x error: Cannot use W and Z in the same block");
@@ -1112,7 +1112,7 @@ int Interp::convert_g7x(int mode,
 	if(block->i_flag) center.imag(block->i_number);
 	if(block->k_flag) center.real(block->k_number);
 
-	if(old.distance_mode()==MODE_INCREMENTAL)
+	if(old.distance_mode()==DISTANCE_MODE::INCREMENTAL)
 	    end+=start;
 
 	if(block->g_modes[1]!=-1)
@@ -1141,7 +1141,7 @@ int Interp::convert_g7x(int mode,
 		} else {
 		    if(!block->i_flag && !block->k_flag)
 			ERS("G7X error: either I or K must be present for arc");
-		    if(old.ijk_distance_mode()==MODE_INCREMENTAL)
+		    if(old.ijk_distance_mode()==DISTANCE_MODE::INCREMENTAL)
 			center+=start;
 		}
 		path.emplace_back(std::make_unique<round_segment>(

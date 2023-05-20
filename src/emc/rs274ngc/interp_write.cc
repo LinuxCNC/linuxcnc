@@ -100,12 +100,12 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
       break;
   }
   gez[4] =
-    (settings->cutter_comp_side == RIGHT) ? G_42 :
-    (settings->cutter_comp_side == LEFT) ? G_41 : G_40;
+    (settings->cutter_comp_side == CUTTER_COMP::RIGHT) ? G_42 :
+    (settings->cutter_comp_side == CUTTER_COMP::LEFT) ? G_41 : G_40;
   gez[5] = (settings->length_units == CANON_UNITS_INCHES) ? G_20 : G_21;
-  gez[6] = (settings->distance_mode == MODE_ABSOLUTE) ? G_90 : G_91;
-  gez[7] = (settings->feed_mode == INVERSE_TIME) ? G_93 :
-	    (settings->feed_mode == UNITS_PER_MINUTE) ? G_94 : G_95;
+  gez[6] = (settings->distance_mode == DISTANCE_MODE::ABSOLUTE) ? G_90 : G_91;
+  gez[7] = (settings->feed_mode == FEED_MODE::INVERSE_TIME) ? G_93 :
+	    (settings->feed_mode == FEED_MODE::UNITS_PER_MINUTE) ? G_94 : G_95;
   gez[8] =
     (settings->origin_index <
      7) ? (530 + (10 * settings->origin_index)) : (584 +
@@ -113,15 +113,15 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
   gez[9] = (settings->tool_offset.tran.x || settings->tool_offset.tran.y || settings->tool_offset.tran.z ||
             settings->tool_offset.a || settings->tool_offset.b || settings->tool_offset.c ||
             settings->tool_offset.u || settings->tool_offset.v || settings->tool_offset.w) ? G_43 : G_49;
-  gez[10] = (settings->retract_mode == OLD_Z) ? G_98 : G_99;
+  gez[10] = (settings->retract_mode == RETRACT_MODE::OLD_Z) ? G_98 : G_99;
   // Three modes:  G_64, G_61, G_61_1 or CANON_CONTINUOUS/EXACT_PATH/EXACT_STOP
   gez[11] =
     (settings->control_mode == CANON_CONTINUOUS) ? G_64 :
     (settings->control_mode == CANON_EXACT_PATH) ? G_61 : G_61_1;
   gez[12] = -1;
   gez[13] = //I don't even know how to display the mode of an arbitrary number of spindles (andypugh 17/6/16)
-    (settings->spindle_mode[0] == CONSTANT_RPM) ? G_97 : G_96;
-  gez[14] = (settings->ijk_distance_mode == MODE_ABSOLUTE) ? G_90_1 : G_91_1;
+    (settings->spindle_mode[0] == SPINDLE_MODE::CONSTANT_RPM) ? G_97 : G_96;
+  gez[14] = (settings->ijk_distance_mode == DISTANCE_MODE::ABSOLUTE) ? G_90_1 : G_91_1;
   gez[15] = (settings->lathe_diameter_mode) ? G_7 : G_8;
   gez[16] = (settings->parameters[5210])? G_92_3: G_92_2;
   return INTERP_OK;
@@ -249,18 +249,18 @@ int Interp::write_state_tag(block_pointer block,
     }
 
     state.fields[GM_FIELD_CUTTER_COMP] =
-	(settings->cutter_comp_side == RIGHT) ? G_42 :
-	(settings->cutter_comp_side == LEFT) ? G_41 : G_40;
+	(settings->cutter_comp_side == CUTTER_COMP::RIGHT) ? G_42 :
+	(settings->cutter_comp_side == CUTTER_COMP::LEFT) ? G_41 : G_40;
 
     state.flags[GM_FLAG_UNITS] =
 	(settings->length_units == CANON_UNITS_INCHES);
 
     state.flags[GM_FLAG_DISTANCE_MODE] =
-	(settings->distance_mode == MODE_ABSOLUTE);
+	(settings->distance_mode == DISTANCE_MODE::ABSOLUTE);
     state.flags[GM_FLAG_FEED_INVERSE_TIME] =
-	(settings->feed_mode == INVERSE_TIME);
+	(settings->feed_mode == FEED_MODE::INVERSE_TIME);
     state.flags[GM_FLAG_FEED_UPM] =
-	(settings->feed_mode == UNITS_PER_MINUTE);
+	(settings->feed_mode == FEED_MODE::UNITS_PER_MINUTE);
 
 
     state.fields[GM_FIELD_ORIGIN] =
@@ -281,7 +281,7 @@ int Interp::write_state_tag(block_pointer block,
 	 settings->tool_offset.v ||
 	 settings->tool_offset.w);
     state.flags[GM_FLAG_RETRACT_OLDZ] =
-	(settings->retract_mode == OLD_Z);
+	(settings->retract_mode == RETRACT_MODE::OLD_Z);
 
     state.flags[GM_FLAG_BLEND] =
 	(settings->control_mode == CANON_CONTINUOUS);
@@ -293,9 +293,9 @@ int Interp::write_state_tag(block_pointer block,
 	settings->naivecam_tolerance;
 
     state.flags[GM_FLAG_CSS_MODE] =
-	(settings->spindle_mode[0] == CONSTANT_RPM);
+	(settings->spindle_mode[0] == SPINDLE_MODE::CONSTANT_RPM);
     state.flags[GM_FLAG_IJK_ABS] =
-	(settings->ijk_distance_mode == MODE_ABSOLUTE);
+	(settings->ijk_distance_mode == DISTANCE_MODE::ABSOLUTE);
     state.flags[GM_FLAG_DIAMETER_MODE] =
 	(settings->lathe_diameter_mode);
 
