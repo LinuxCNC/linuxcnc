@@ -841,11 +841,11 @@ int Interp::init()
   _setup.tool_change_quill_up = 0;
   _setup.tool_change_with_spindle_on = 0;
   if (_setup.length_units == CANON_UNITS_INCHES) {
-      _setup.parameter_g73_peck_clearence = .050;
-      _setup.parameter_g83_peck_clearence = .050;
+      _setup.parameter_g73_peck_clearance = .050;
+      _setup.parameter_g83_peck_clearance = .050;
    } else{
-      _setup.parameter_g73_peck_clearence = 1;
-      _setup.parameter_g83_peck_clearence = 1;
+      _setup.parameter_g73_peck_clearance = 1;
+      _setup.parameter_g83_peck_clearance = 1;
     }
   _setup.a_axis_wrapped = 0;
   _setup.b_axis_wrapped = 0;
@@ -915,8 +915,8 @@ int Interp::init()
               _setup.c_indexer_jnum = atol(inistring);
           }
           inifile.Find(&_setup.orient_offset, "ORIENT_OFFSET", "RS274NGC");
-          inifile.Find(&_setup.parameter_g73_peck_clearence, "PARAMETER_G73_PECK_CLEARENCE", "RS274NGC");
-          inifile.Find(&_setup.parameter_g83_peck_clearence, "PARAMETER_G83_PECK_CLEARENCE", "RS274NGC");
+          inifile.Find(&_setup.parameter_g73_peck_clearance, "PARAMETER_G73_PECK_CLEARANCE", "RS274NGC");
+          inifile.Find(&_setup.parameter_g83_peck_clearance, "PARAMETER_G83_PECK_CLEARANCE", "RS274NGC");
 
           inifile.Find(&_setup.debugmask, "DEBUG", "EMC");
 
