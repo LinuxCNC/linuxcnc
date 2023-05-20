@@ -816,17 +816,17 @@ static inline int get_tool_change_with_spindle_on(Interp &interp)  {
 static inline void set_tool_change_with_spindle_on(Interp &interp, int value)  {
     interp._setup.tool_change_with_spindle_on = value;
 }
-static inline double get_parameter_g73_peck_clearence (Interp &interp)  {
-    return interp._setup.parameter_g73_peck_clearence;
+static inline double get_parameter_g73_peck_clearance (Interp &interp)  {
+    return interp._setup.parameter_g73_peck_clearance;
 }
-static inline void set_parameter_g73_peck_clearence(Interp &interp, double value)  {
-    interp._setup.parameter_g73_peck_clearence = value;
+static inline void set_parameter_g73_peck_clearance(Interp &interp, double value)  {
+    interp._setup.parameter_g73_peck_clearance = value;
 }
-static inline double get_parameter_g83_peck_clearence (Interp &interp)  {
-    return interp._setup.parameter_g83_peck_clearence;
+static inline double get_parameter_g83_peck_clearance (Interp &interp)  {
+    return interp._setup.parameter_g83_peck_clearance;
 }
-static inline void set_parameter_g83_peck_clearence(Interp &interp, double value)  {
-    interp._setup.parameter_g83_peck_clearence = value;
+static inline void set_parameter_g83_peck_clearance(Interp &interp, double value)  {
+    interp._setup.parameter_g83_peck_clearance = value;
 }
 
 BOOST_PYTHON_MODULE(interpreter) {
@@ -1019,8 +1019,8 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("tool_change_quill_up", &get_tool_change_quill_up, &set_tool_change_quill_up)
 	.add_property("tool_change_with_spindle_on", &get_tool_change_with_spindle_on,
              &set_tool_change_with_spindle_on)
-	.add_property("parameter_g73_peck_clearence", &get_parameter_g73_peck_clearence, &set_parameter_g73_peck_clearence)
-    .add_property("parameter_g83_peck_clearence", &get_parameter_g83_peck_clearence, &set_parameter_g83_peck_clearence)
+	.add_property("parameter_g73_peck_clearance", &get_parameter_g73_peck_clearance, &set_parameter_g73_peck_clearance)
+    .add_property("parameter_g83_peck_clearance", &get_parameter_g83_peck_clearance, &set_parameter_g83_peck_clearance)
 
 	.add_property( "params",
 		       bp::make_function( &param_wrapper,

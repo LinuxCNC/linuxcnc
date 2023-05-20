@@ -788,8 +788,8 @@ struct setup
   int tool_change_at_g30;
   int tool_change_quill_up;
   int tool_change_with_spindle_on;
-  double parameter_g73_peck_clearence;
-  double parameter_g83_peck_clearence;
+  double parameter_g73_peck_clearance;
+  double parameter_g83_peck_clearance;
   int a_axis_wrapped;
   int b_axis_wrapped;
   int c_axis_wrapped;
