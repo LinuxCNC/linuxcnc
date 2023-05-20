@@ -249,16 +249,14 @@ class gmoccapy(object):
             if arg == "-user_mode":
                 self.user_mode = True
                 self.widgets.tbtn_setup.set_sensitive(False)
-                message = "\n" + _("user mode selected")
-                LOG.debug(message)
+                LOG.debug(_("user mode selected"))
             if arg == "-logo":
                 self.logofile = str(argv[ index + 1 ])
-                message = "\n" + _("logo entry found = {0}").format(self.logofile)
-                LOG.debug(message)
+                LOG.debug(_("logo entry found = {0}").format(self.logofile))
                 self.logofile = self.logofile.strip("\"\'")
                 if not os.path.isfile(self.logofile):
                     self.logofile = None
-                    message = "\n" + _("Logofile entry found, but could not be converted to path.")
+                    message = _("Logofile entry found, but could not be converted to path.")
                     message += "\n" + _("The file path should not contain any spaces")
                     LOG.warning(message)
 
@@ -2069,15 +2067,13 @@ class gmoccapy(object):
             self.widgets.tbtn_switch_mode.set_sensitive(False)
             self.widgets.tbtn_switch_mode.set_active(True)
             self.widgets.lbl_replace_mode_btn.hide()
-            #TODO
-            #self.widgets.ntb_jog_JA.set_page(1)
+            self.widgets.ntb_jog_JA.set_current_page(1)
         else:
             self.widgets.gremlin.set_property("enable_dro", self.enable_gremlin_dro )
             self.widgets.gremlin.use_joints_mode = False
             self.widgets.tbtn_switch_mode.hide()
             self.widgets.lbl_replace_mode_btn.show()
-            #TODO
-            #self.widgets.ntb_jog_JA.set_page(0)
+            self.widgets.ntb_jog_JA.set_current_page(0)
 
     # init the function to hide the cursor
     def _init_hide_cursor(self):
@@ -2849,16 +2845,14 @@ class gmoccapy(object):
             self.widgets.gremlin.set_property("enable_dro", True)
             self.widgets.gremlin.use_joints_mode = True
             self.widgets.tbtn_switch_mode.set_active(True)
-            #TODO
-            #self.widgets.ntb_jog_JA.set_page(1)
+            self.widgets.ntb_jog_JA.set_current_page(1)
             state = False
         else:
             if not self.widgets.tbtn_fullsize_preview0.get_active():
                 self.widgets.gremlin.set_property("enable_dro", self.enable_gremlin_dro)
             self.widgets.gremlin.use_joints_mode = False
             self.widgets.tbtn_switch_mode.set_active(False)
-            #TODO
-            #self.widgets.ntb_jog_JA.set_page(0)
+            self.widgets.ntb_jog_JA.set_current_page(0)
             state = True
         if self.stat.task_state != linuxcnc.STATE_ON:
             state = False
