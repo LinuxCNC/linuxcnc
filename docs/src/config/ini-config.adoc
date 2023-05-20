@@ -541,7 +541,11 @@ The maximum number of `USER_M_PATH` directories is defined at compile time (typ:
   Allow to clear the G92 offset automatically when config start-up.
 * `DISABLE_FANUC_STYLE_SUB = 0` (Default: 0)
   If there is reason to disable Fanuc subroutines set it to 1.
-
+* 'PARAMETER_G73_PECK_CLEARANCE = .020' (default: Metric machine: 1mm, imperial machine: .050 inches)
+  Chip breaking back-off distance in machine units
+* 'PARAMETER_G83_PECK_CLEARANCE = .020' (default: Metric machine: 1mm, imperial machine: .050 inches)
+  Clearance distance from last feed depth when machine rapids back to bottom of hole, in machine units.
+ 
 [NOTE]
 ====
 The above six options were controlled by the `FEATURES` bitmask in versions of LinuxCNC prior to 2.8.
