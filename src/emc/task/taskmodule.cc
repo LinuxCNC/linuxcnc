@@ -119,7 +119,6 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
     EXPAND(emcCoolantFloodOff)
     EXPAND(emcLubeOn)
     EXPAND(emcLubeOff)
-    EXPAND1(emcIoSetDebug,int,debug)
 
     EXPAND1(emcToolPrepare, int, tool)
     EXPAND(emcToolLoad)

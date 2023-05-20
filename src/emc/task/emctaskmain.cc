@@ -1979,8 +1979,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_SET_DEBUG_TYPE:
 	/* set the debug level here */
 	emc_debug = ((EMC_SET_DEBUG *) cmd)->debug;
-	/* and in IO and motion */
-	emcIoSetDebug(emc_debug);
+	/* and motion */
 	emcMotionSetDebug(emc_debug);
 	/* and reflect it in the status-- this isn't updated continually */
 	emcStatus->debug = emc_debug;

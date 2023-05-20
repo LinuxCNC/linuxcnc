@@ -296,7 +296,6 @@ int emcIoHalt() {
 
 
 int emcIoAbort(int reason) { return task_methods->emcIoAbort(reason); }
-int emcIoSetDebug(int debug) { return task_methods->emcIoSetDebug(debug); }
 int emcAuxEstopOn()  { return task_methods->emcAuxEstopOn(); }
 int emcAuxEstopOff() { return task_methods->emcAuxEstopOff(); }
 int emcCoolantMistOn() { return task_methods->emcCoolantMistOn(); }
@@ -679,11 +678,6 @@ int Task::emcIoAbort(int reason)//EMC_TOOL_ABORT_TYPE
     *(iocontrol_data->coolant_flood)=0;                /* coolant flood output pin */
     *(iocontrol_data->tool_change)=0;                /* abort tool change if in progress */
     *(iocontrol_data->tool_prepare)=0;                /* abort tool prepare if in progress */
-    return 0;
-}
-
-int Task::emcIoSetDebug(int debug)//EMC_SET_DEBUG
-{
     return 0;
 }
 
