@@ -225,7 +225,7 @@ In that folder, QtVCP will load any of the available following files:
 
 There are _three ways_ to customize a screen/panel.
 
-.Minor StyleSheet Changes
+==== Minor StyleSheet Changes
 Stylesheets can be used to *set Qt properties*.
 If a widget uses properties then they usually can be modified by stylesheets.
 
@@ -239,8 +239,9 @@ State_LED #name_of_led{
   }
 ----
 
-.Minor Python Code Changes
+==== Minor Python Code Changes
 Another Python file can be used to *add commands* to the screen, after the handler file is parsed.
+This can be useful for minor changes while still honouring standard handler updates from linuxcnc repositoies.
 
 In the _INI file_ under the `[DISPLAY]` heading add *`USER_COMMAND_FILE = _PATH_`* +
 
@@ -258,20 +259,78 @@ The default path is in the configuration directory as a hidden file using the sc
 
 This file will be read and executed as Python code in the *handler file context*.
 
-*Only local functions and local attributes* can be referenced.
-Global libraries can not be referenced.
-These are usually seen as all capital words with no preceding self.
+*Only local functions and local attributes* can be referenced. +
+Global libraries defined in the screen's handler file can be referenced but must be preceded with 'self.' +
+These are usually seen as all capital words with no preceding self. +
+'self' references the window class +
+'self.w' typically references the widgets
 
 What can be used can vary by screen and development cycle.
 
-For a valid example:
+.A simple example
+Reference the main window to change the title (Won't show if using INI entries for title change)
 
 [source,python]
 ----
 self.w.setWindowTitle('My Title Test')
 ----
 
-.Full Creative Control
+.An advanced instance patching example
+This could work with the Qtdragon screen's handler file. +
+Here we show how to add new functions and override existing ones.
+
+[source,python]
+----
+# needed to instance patch
+# reference: https://ruivieira.dev/python-monkey-patching-for-readability.html
+import types
+
+# This is actually an unbounded function with 'obj' as a parameter.
+# You call this function without the usual preceding 'self.'
+# This is because will will not be patching it into the original handler class instance
+# It will only be called from code in this file
+def test_function(obj):
+    print(dir(obj))
+
+# This is a new function we will added to the existing handler class instance.
+# Notice it calls the unbounded function with 'self' as an parameter
+# 'self' is the only global reference available. It references the window instance
+def on_keycall_F10(self,event,state,shift,cntrl):
+    if state:
+        print ('F10')
+        test_function(self)
+
+# This will be used to override an existing function in the existing handler class instance
+# note we also call a copy of the original function too
+# this shows how to extend an existing function to do extra functions
+def on_keycall_F11(self,event,state,shift,cntrl):
+    if state:
+        self.on_keycall_F11_super(event,state,shift,cntrl)
+        print ('Hello')
+
+# We are referencing the KEYBIND library that was instantiated in the 
+# original handler class instance by adding 'self.' to it.
+# This function tells KEYBIND to call 'on_keycall_F10' when F10 is pressed
+self.KEYBIND.add_call('Key_F10','on_keycall_F10')
+
+# Here we are instance patching the original handler file to add a new
+# function that calls our new function (of the same name)
+# defined in this file
+self.on_keycall_F10 = types.MethodType(on_keycall_F10, self)
+
+# Here we are defining a copy of the original 'on_keycall_F11' function
+# so we can call it later. we can use any valid, unused function name.
+# We need to do this before overriding the original function.
+self.on_keycall_F11_super = self.on_keycall_F11
+
+# Here we are instance patching the original handler file to override
+# an existing function to point to our new function (of the same name) 
+# defined in this file
+self.on_keycall_F11 = types.MethodType(on_keycall_F11, self)
+
+----
+
+==== Full Creative Control with custom handler/ui files
 If you wish to *modify a stock screen* with full control, _copy it's UI
 and handler file to your configuration folder_.
 
@@ -285,8 +344,9 @@ qtvcp copy_dialog
 
 * Select the screen and destination folder in the dialog
 * If you wish to *name your screen* differently than the builtin screen's default name, change the _basename_ in the edit box.
+* There should be a folder in the config folder; for screens: named '<CONFIG FOLDER>/qtvcp/screens/' for panels:  named '<CONFIG FOLDER>/qtvcp/panels/' add the folders if ther are missing and copy your folder/files in it.
 * Validate to copy all the files
-* Delete the files you don't wish to modifyso that the original files will be used.
+* Delete the files you don't wish to modify so that the original files will be used.
 
 [[sec:qtvcp:vcp-panels]]
 == VCP Panels
