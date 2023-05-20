@@ -62,7 +62,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             LOG.critical(e)
         self.helpPages = ['basic_help.html','basic_help1.html','basic_help2.html',
                         'basic_help3.html','basic_help4.html','basic_help5.html',
-                        'basic_help6.html','basic_help7.html']
+                        'basic_help6.html','basic_help7.html','basic_help8.html']
         self.currentHelpPage = 0
 
         self.probe_list = ["OUTSIDE CORNERS", "INSIDE CORNERS", "EDGE ANGLE", "BOSS and POCKETS",
