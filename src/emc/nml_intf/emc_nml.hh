@@ -1532,16 +1532,6 @@ class EMC_TOOL_CMD_MSG:public RCS_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_TOOL_INIT:public EMC_TOOL_CMD_MSG {
-  public:
-    EMC_TOOL_INIT():EMC_TOOL_CMD_MSG(EMC_TOOL_INIT_TYPE,
-				     sizeof(EMC_TOOL_INIT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
 class EMC_TOOL_HALT:public EMC_TOOL_CMD_MSG {
   public:
     EMC_TOOL_HALT():EMC_TOOL_CMD_MSG(EMC_TOOL_HALT_TYPE,
@@ -1681,36 +1671,6 @@ class EMC_TOOL_STAT:public EMC_TOOL_STAT_MSG {
 class EMC_AUX_CMD_MSG:public RCS_CMD_MSG {
   public:
     EMC_AUX_CMD_MSG(NMLTYPE t, size_t s):RCS_CMD_MSG(t, s) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_AUX_ESTOP_ON:public EMC_AUX_CMD_MSG {
-  public:
-    EMC_AUX_ESTOP_ON():EMC_AUX_CMD_MSG(EMC_AUX_ESTOP_ON_TYPE,
-				       sizeof(EMC_AUX_ESTOP_ON)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_AUX_ESTOP_OFF:public EMC_AUX_CMD_MSG {
-  public:
-    EMC_AUX_ESTOP_OFF():EMC_AUX_CMD_MSG(EMC_AUX_ESTOP_OFF_TYPE,
-					sizeof(EMC_AUX_ESTOP_OFF)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_AUX_ESTOP_RESET:public EMC_AUX_CMD_MSG {
-  public:
-    EMC_AUX_ESTOP_RESET():EMC_AUX_CMD_MSG(EMC_AUX_ESTOP_RESET_TYPE,
-					sizeof(EMC_AUX_ESTOP_RESET)) {
     };
 
     // For internal NML/CMS use only.
