@@ -41,7 +41,7 @@
 //note:the +1 is for the PROGRAM_PREFIX or default directory==nc_files
 
 /* flag for how we want to interpret traj coord mode, as mdi or auto */
-static int mdiOrAuto = EMC_TASK_MODE_AUTO;
+static EMC_TASK_MODE mdiOrAuto = EMC_TASK_MODE::AUTO;
 
 InterpBase *pinterp=0;
 #define interp (*pinterp)
@@ -219,7 +219,7 @@ int emcTaskStateRestore()
 {
     int res = 0;
     // Do NOT restore on MDI command
-    if (emcStatus->task.mode == EMC_TASK_MODE_AUTO) {
+    if (emcStatus->task.mode == EMC_TASK_MODE::AUTO) {
         // Validity of state tag checked within restore function
         res = pinterp->restore_from_tag(emcStatus->motion.traj.tag);
     }
@@ -235,8 +235,8 @@ int emcTaskAbort()
     interp_list.clear();
 
     // clear out the interpreter state
-    emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
-    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+    emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;
+    emcStatus->task.execState = EMC_TASK_EXEC::DONE;
     emcStatus->task.task_paused = 0;
     emcStatus->task.motionLine = 0;
     emcStatus->task.readLine = 0;
@@ -265,7 +265,7 @@ int emcTaskAbort()
     return 0;
 }
 
-int emcTaskSetMode(int mode)
+int emcTaskSetMode(EMC_TASK_MODE mode)
 {
     int retval = 0;
 
@@ -275,30 +275,30 @@ int emcTaskSetMode(int mode)
     }
 
     switch (mode) {
-    case EMC_TASK_MODE_MANUAL:
+    case EMC_TASK_MODE::MANUAL:
 	// go to manual mode
         if (all_homed()) {
-            emcTrajSetMode(EMC_TRAJ_MODE_TELEOP);
+            emcTrajSetMode(EMC_TRAJ_MODE::TELEOP);
         } else {
-            emcTrajSetMode(EMC_TRAJ_MODE_FREE);
+            emcTrajSetMode(EMC_TRAJ_MODE::FREE);
         }
-	mdiOrAuto = EMC_TASK_MODE_AUTO;	// we'll default back to here
+	mdiOrAuto = EMC_TASK_MODE::AUTO;	// we'll default back to here
 	break;
 
-    case EMC_TASK_MODE_MDI:
+    case EMC_TASK_MODE::MDI:
 	// go to mdi mode
-	emcTrajSetMode(EMC_TRAJ_MODE_COORD);
+	emcTrajSetMode(EMC_TRAJ_MODE::COORD);
 	emcTaskAbort();
 	emcTaskPlanSynch();
-	mdiOrAuto = EMC_TASK_MODE_MDI;
+	mdiOrAuto = EMC_TASK_MODE::MDI;
 	break;
 
-    case EMC_TASK_MODE_AUTO:
+    case EMC_TASK_MODE::AUTO:
 	// go to auto mode
-	emcTrajSetMode(EMC_TRAJ_MODE_COORD);
+	emcTrajSetMode(EMC_TRAJ_MODE::COORD);
 	emcTaskAbort();
 	emcTaskPlanSynch();
-	mdiOrAuto = EMC_TASK_MODE_AUTO;
+	mdiOrAuto = EMC_TASK_MODE::AUTO;
 	break;
 
     default:
@@ -309,13 +309,13 @@ int emcTaskSetMode(int mode)
     return retval;
 }
 
-int emcTaskSetState(int state)
+int emcTaskSetState(EMC_TASK_STATE state)
 {
     int t;
     int retval = 0;
 
     switch (state) {
-    case EMC_TASK_STATE_OFF:
+    case EMC_TASK_STATE::OFF:
         emcMotionAbort();
 	// turn the machine servos off-- go into READY state
     for (t = 0; t < emcStatus->motion.traj.spindles; t++)  emcSpindleAbort(t);
@@ -331,7 +331,7 @@ int emcTaskSetState(int state)
 	emcTaskPlanSynch();
 	break;
 
-    case EMC_TASK_STATE_ON:
+    case EMC_TASK_STATE::ON:
 	// turn the machine servos on
 	emcTrajEnable();
 	for (t = 0; t < emcStatus->motion.traj.joints; t++){
@@ -340,7 +340,7 @@ int emcTaskSetState(int state)
 	emcLubeOn();
 	break;
 
-    case EMC_TASK_STATE_ESTOP_RESET:
+    case EMC_TASK_STATE::ESTOP_RESET:
 	// reset the estop
 	emcAuxEstopOff();
 	emcLubeOff();
@@ -351,7 +351,7 @@ int emcTaskSetState(int state)
 	emcTaskPlanSynch();
 	break;
 
-    case EMC_TASK_STATE_ESTOP:
+    case EMC_TASK_STATE::ESTOP:
         emcMotionAbort();
 	for (t = 0; t < emcStatus->motion.traj.spindles; t++) emcSpindleAbort(t);
 	// go into estop-- do both IO estop and machine servos off
@@ -393,15 +393,15 @@ int emcTaskSetState(int state)
   COORD       MDI           MDI
   COORD       AUTO          AUTO
   */
-static int determineMode()
+EMC_TASK_MODE determineMode()
 {
-    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_FREE) {
-        return EMC_TASK_MODE_MANUAL;
+    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::FREE) {
+        return EMC_TASK_MODE::MANUAL;
     }
-    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) {
-        return EMC_TASK_MODE_MANUAL;
+    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP) {
+        return EMC_TASK_MODE::MANUAL;
     }
-    // for EMC_TRAJ_MODE_COORD
+    // for EMC_TRAJ_MODE::COORD
     return mdiOrAuto;
 }
 
@@ -419,17 +419,17 @@ static int determineMode()
   DISABLED       OUT OF ESTOP  ESTOP_RESET
   ENABLED        OUT OF ESTOP  ON
   */
-static int determineState()
+static EMC_TASK_STATE determineState()
 {
     if (emcStatus->io.aux.estop) {
-	return EMC_TASK_STATE_ESTOP;
+	return EMC_TASK_STATE::ESTOP;
     }
 
     if (!emcStatus->motion.traj.enabled) {
-	return EMC_TASK_STATE_ESTOP_RESET;
+	return EMC_TASK_STATE::ESTOP_RESET;
     }
 
-    return EMC_TASK_STATE_ON;
+    return EMC_TASK_STATE::ON;
 }
 
 static int waitFlag = 0;
@@ -692,11 +692,11 @@ int emcTaskPlanCommand(char *cmd)
 
 int emcTaskUpdate(EMC_TASK_STAT * stat)
 {
-    stat->mode = (enum EMC_TASK_MODE_ENUM) determineMode();
-    int oldstate = stat->state;
-    stat->state = (enum EMC_TASK_STATE_ENUM) determineState();
+    stat->mode = determineMode();
+    EMC_TASK_STATE oldstate = stat->state;
+    stat->state = determineState();
 
-    if(oldstate == EMC_TASK_STATE_ON && oldstate != stat->state) {
+    if(oldstate == EMC_TASK_STATE::ON && oldstate != stat->state) {
 	emcTaskAbort();
     for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
         emcIoAbort(EMC_ABORT_TASK_STATE_NOT_ON);
@@ -718,7 +718,7 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     // update active G and M codes
     // Start by assuming that we can't unpack a state tag from motion
     int res_state = INTERP_ERROR;
-    if (emcStatus->task.interpState != EMC_TASK_INTERP_IDLE) {
+    if (emcStatus->task.interpState != EMC_TASK_INTERP::IDLE) {
         res_state = interp.active_modes(&stat->activeGCodes[0],
 					&stat->activeMCodes[0],
 					&stat->activeSettings[0],
@@ -726,7 +726,7 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     } 
     // If we get an error from trying to unpack from the motion state, always
     // use interp's internal state, so the active state is never out of date
-    if (emcStatus->task.mode != EMC_TASK_MODE_AUTO ||
+    if (emcStatus->task.mode != EMC_TASK_MODE::AUTO ||
 	res_state == INTERP_ERROR) {
         interp.active_g_codes(&stat->activeGCodes[0]);
         interp.active_m_codes(&stat->activeMCodes[0]);

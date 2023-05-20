@@ -441,7 +441,7 @@ int sendEstop()
 {
     EMC_TASK_SET_STATE state_msg;
 
-    state_msg.state = EMC_TASK_STATE_ESTOP;
+    state_msg.state = EMC_TASK_STATE::ESTOP;
     emcCommandSend(state_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -456,7 +456,7 @@ int sendEstopReset()
 {
     EMC_TASK_SET_STATE state_msg;
 
-    state_msg.state = EMC_TASK_STATE_ESTOP_RESET;
+    state_msg.state = EMC_TASK_STATE::ESTOP_RESET;
     emcCommandSend(state_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -471,7 +471,7 @@ int sendMachineOn()
 {
     EMC_TASK_SET_STATE state_msg;
 
-    state_msg.state = EMC_TASK_STATE_ON;
+    state_msg.state = EMC_TASK_STATE::ON;
     emcCommandSend(state_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -486,7 +486,7 @@ int sendMachineOff()
 {
     EMC_TASK_SET_STATE state_msg;
 
-    state_msg.state = EMC_TASK_STATE_OFF;
+    state_msg.state = EMC_TASK_STATE::OFF;
     emcCommandSend(state_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -501,7 +501,7 @@ int sendManual()
 {
     EMC_TASK_SET_MODE mode_msg;
 
-    mode_msg.mode = EMC_TASK_MODE_MANUAL;
+    mode_msg.mode = EMC_TASK_MODE::MANUAL;
     emcCommandSend(mode_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -516,7 +516,7 @@ int sendAuto()
 {
     EMC_TASK_SET_MODE mode_msg;
 
-    mode_msg.mode = EMC_TASK_MODE_AUTO;
+    mode_msg.mode = EMC_TASK_MODE::AUTO;
     emcCommandSend(mode_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -531,7 +531,7 @@ int sendMdi()
 {
     EMC_TASK_SET_MODE mode_msg;
 
-    mode_msg.mode = EMC_TASK_MODE_MDI;
+    mode_msg.mode = EMC_TASK_MODE::MDI;
     emcCommandSend(mode_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -562,9 +562,9 @@ int sendJogStop(int ja, int jjogmode)
     EMC_JOG_STOP emc_jog_stop_msg;
 
     if (   (   (jjogmode == JOGJOINT)
-            && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) )
+            && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP) )
         || (   (jjogmode == JOGTELEOP )
-            && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) )
+            && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP) )
        ) {
        return -1;
     }
@@ -586,11 +586,11 @@ int sendJogCont(int ja, int jjogmode, double speed)
 {
     EMC_JOG_CONT emc_jog_cont_msg;
 
-    if (emcStatus->task.state != EMC_TASK_STATE_ON) { return -1; }
+    if (emcStatus->task.state != EMC_TASK_STATE::ON) { return -1; }
     if (   (  (jjogmode == JOGJOINT)
-            && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) )
+            && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP) )
         || (   (jjogmode == JOGTELEOP )
-            && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) )
+            && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP) )
        ) {
        return -1;
     }
@@ -615,11 +615,11 @@ int sendJogIncr(int ja, int jjogmode, double speed, double incr)
 {
     EMC_JOG_INCR emc_jog_incr_msg;
 
-    if (emcStatus->task.state != EMC_TASK_STATE_ON) { return -1; }
+    if (emcStatus->task.state != EMC_TASK_STATE::ON) { return -1; }
     if (   ( (jjogmode == JOGJOINT)
-        && (  emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) )
+        && (  emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP) )
         || ( (jjogmode == JOGTELEOP )
-        && (  emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) )
+        && (  emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP) )
        ) {
        return -1;
     }

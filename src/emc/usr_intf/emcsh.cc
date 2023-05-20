@@ -677,7 +677,7 @@ static int emc_estop(ClientData clientdata,
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
 	    updateStatus();
 	}
-	if (emcStatus->task.state == EMC_TASK_STATE_ESTOP) {
+	if (emcStatus->task.state == EMC_TASK_STATE::ESTOP) {
 	    setresult(interp,"on");
 	} else {
 	    setresult(interp,"off");
@@ -713,7 +713,7 @@ static int emc_machine(ClientData clientdata,
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
 	    updateStatus();
 	}
-	if (emcStatus->task.state == EMC_TASK_STATE_ON) {
+	if (emcStatus->task.state == EMC_TASK_STATE::ON) {
 	    setresult(interp,"on");
 	} else {
 	    setresult(interp,"off");
@@ -749,13 +749,13 @@ static int emc_mode(ClientData clientdata,
 	    updateStatus();
 	}
 	switch (emcStatus->task.mode) {
-	case EMC_TASK_MODE_MANUAL:
+	case EMC_TASK_MODE::MANUAL:
 	    setresult(interp,"manual");
 	    break;
-	case EMC_TASK_MODE_AUTO:
+	case EMC_TASK_MODE::AUTO:
 	    setresult(interp,"auto");
 	    break;
-	case EMC_TASK_MODE_MDI:
+	case EMC_TASK_MODE::MDI:
 	    setresult(interp,"mdi");
 	    break;
 	default:
@@ -2178,13 +2178,13 @@ static int emc_program_status(ClientData clientdata,
     }
 
     switch (emcStatus->task.interpState) {
-    case EMC_TASK_INTERP_READING:
-    case EMC_TASK_INTERP_WAITING:
+    case EMC_TASK_INTERP::READING:
+    case EMC_TASK_INTERP::WAITING:
 	setresult(interp,"running");
 	return TCL_OK;
 	break;
 
-    case EMC_TASK_INTERP_PAUSED:
+    case EMC_TASK_INTERP::PAUSED:
 	setresult(interp,"paused");
 	return TCL_OK;
 	break;
@@ -3146,7 +3146,7 @@ int emc_teleop_enable(ClientData clientdata,
 
     Tcl_SetObjResult(interp,
 		     Tcl_NewIntObj(emcStatus->motion.traj.mode ==
-				   EMC_TRAJ_MODE_TELEOP));
+				   EMC_TRAJ_MODE::TELEOP));
     return TCL_OK;
 }
 

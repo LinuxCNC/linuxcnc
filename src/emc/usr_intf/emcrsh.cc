@@ -1331,7 +1331,7 @@ int commandSet(connectionRecType *context)
     snprintf(context->outBuf, sizeof(context->outBuf), setCmdNakStr, pch);
     return write(context->cliSock, context->outBuf, strlen(context->outBuf));
     }
-  if ((cmd > scMachine) && (emcStatus->task.state != EMC_TASK_STATE_ON)) {
+  if ((cmd > scMachine) && (emcStatus->task.state != EMC_TASK_STATE::ON)) {
 //  Extra check in the event of an undetected change in Machine state resulting in
 //  sending a set command when the machine state is off. This condition is detected
 //  and appropriate error messages are generated, however erratic behavior has been
@@ -1527,7 +1527,7 @@ static cmdResponseType getEStop(char *s, connectionRecType *context)
 {
   const char *pEStopStr = "ESTOP %s";
   
-  if (emcStatus->task.state == EMC_TASK_STATE_ESTOP)
+  if (emcStatus->task.state == EMC_TASK_STATE::ESTOP)
     snprintf(context->outBuf, sizeof(context->outBuf), pEStopStr, "ON");
   else snprintf(context->outBuf, sizeof(context->outBuf), pEStopStr, "OFF");
   return rtNoError;
@@ -1601,7 +1601,7 @@ static cmdResponseType getMachine(char *s, connectionRecType *context)
 {
   const char *pMachineStr = "MACHINE %s";
   
-  if (emcStatus->task.state == EMC_TASK_STATE_ON)
+  if (emcStatus->task.state == EMC_TASK_STATE::ON)
     snprintf(context->outBuf, sizeof(context->outBuf), pMachineStr, "ON");
   else snprintf(context->outBuf, sizeof(context->outBuf), pMachineStr, "OFF");
   return rtNoError; 
@@ -1612,9 +1612,9 @@ static cmdResponseType getMode(char *s, connectionRecType *context)
   const char *pModeStr = "MODE %s";
   
   switch (emcStatus->task.mode) {
-    case EMC_TASK_MODE_MANUAL: snprintf(context->outBuf, sizeof(context->outBuf), pModeStr, "MANUAL"); break;
-    case EMC_TASK_MODE_AUTO: snprintf(context->outBuf, sizeof(context->outBuf), pModeStr, "AUTO"); break;
-    case EMC_TASK_MODE_MDI: snprintf(context->outBuf, sizeof(context->outBuf), pModeStr, "MDI"); break;
+    case EMC_TASK_MODE::MANUAL: snprintf(context->outBuf, sizeof(context->outBuf), pModeStr, "MANUAL"); break;
+    case EMC_TASK_MODE::AUTO: snprintf(context->outBuf, sizeof(context->outBuf), pModeStr, "AUTO"); break;
+    case EMC_TASK_MODE::MDI: snprintf(context->outBuf, sizeof(context->outBuf), pModeStr, "MDI"); break;
     default: snprintf(context->outBuf, sizeof(context->outBuf), pModeStr, "?");
     }
   return rtNoError; 
@@ -2072,9 +2072,9 @@ static cmdResponseType getProgramStatus(char *s, connectionRecType *context)
   const char *pProgramStatus = "PROGRAM_STATUS %s";
   
   switch (emcStatus->task.interpState) {
-      case EMC_TASK_INTERP_READING:
-      case EMC_TASK_INTERP_WAITING: snprintf(context->outBuf, sizeof(context->outBuf), pProgramStatus, "RUNNING"); break;
-      case EMC_TASK_INTERP_PAUSED: snprintf(context->outBuf, sizeof(context->outBuf), pProgramStatus, "PAUSED"); break;
+      case EMC_TASK_INTERP::READING:
+      case EMC_TASK_INTERP::WAITING: snprintf(context->outBuf, sizeof(context->outBuf), pProgramStatus, "RUNNING"); break;
+      case EMC_TASK_INTERP::PAUSED: snprintf(context->outBuf, sizeof(context->outBuf), pProgramStatus, "PAUSED"); break;
       default: snprintf(context->outBuf, sizeof(context->outBuf), pProgramStatus, "IDLE"); break;
     }
   return rtNoError;
@@ -2336,7 +2336,7 @@ static cmdResponseType getTeleopEnable(char *s, connectionRecType *context)
 {
   const char *pTeleopEnable = "TELEOP_ENABLE %s";
   
-  if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP)
+  if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP)
     snprintf(context->outBuf, sizeof(context->outBuf), pTeleopEnable, "YES");  
    else snprintf(context->outBuf, sizeof(context->outBuf), pTeleopEnable, "NO");
   return rtNoError;

@@ -1063,18 +1063,18 @@ int emcTrajSetUnits(double linearUnits, double angularUnits)
     return 0;
 }
 
-int emcTrajSetMode(int mode)
+int emcTrajSetMode(EMC_TRAJ_MODE mode)
 {
     switch (mode) {
-    case EMC_TRAJ_MODE_FREE:
+    case EMC_TRAJ_MODE::FREE:
 	emcmotCommand.command = EMCMOT_FREE;
 	return usrmotWriteEmcmotCommand(&emcmotCommand);
 
-    case EMC_TRAJ_MODE_COORD:
+    case EMC_TRAJ_MODE::COORD:
 	emcmotCommand.command = EMCMOT_COORD;
 	return usrmotWriteEmcmotCommand(&emcmotCommand);
 
-    case EMC_TRAJ_MODE_TELEOP:
+    case EMC_TRAJ_MODE::TELEOP:
 	emcmotCommand.command = EMCMOT_TELEOP;
 	return usrmotWriteEmcmotCommand(&emcmotCommand);
 
@@ -1549,10 +1549,10 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
     stat->mode =
 	emcmotStatus.
-	motionFlag & EMCMOT_MOTION_TELEOP_BIT ? EMC_TRAJ_MODE_TELEOP
+	motionFlag & EMCMOT_MOTION_TELEOP_BIT ? EMC_TRAJ_MODE::TELEOP
 	: (emcmotStatus.
-	   motionFlag & EMCMOT_MOTION_COORD_BIT ? EMC_TRAJ_MODE_COORD :
-	   EMC_TRAJ_MODE_FREE);
+	   motionFlag & EMCMOT_MOTION_COORD_BIT ? EMC_TRAJ_MODE::COORD :
+	   EMC_TRAJ_MODE::FREE);
 
     /* enabled if motion enabled and all joints enabled */
     stat->enabled = 0;		/* start at disabled */

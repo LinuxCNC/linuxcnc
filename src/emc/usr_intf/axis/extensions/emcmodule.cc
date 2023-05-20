@@ -933,9 +933,9 @@ static PyObject *mode(pyCommandChannel *s, PyObject *o) {
     EMC_TASK_SET_MODE m;
     if(!PyArg_ParseTuple(o, "i", &m.mode)) return NULL;
     switch(m.mode) {
-        case EMC_TASK_MODE_MDI:
-        case EMC_TASK_MODE_MANUAL:
-        case EMC_TASK_MODE_AUTO:
+        case EMC_TASK_MODE::MDI:
+        case EMC_TASK_MODE::MANUAL:
+        case EMC_TASK_MODE::AUTO:
             break;
         default:
             PyErr_Format(PyExc_ValueError,"Mode should be MODE_MDI, MODE_MANUAL, or MODE_AUTO");
@@ -1057,10 +1057,10 @@ static PyObject *state(pyCommandChannel *s, PyObject *o) {
     EMC_TASK_SET_STATE m;
     if(!PyArg_ParseTuple(o, "i", &m.state)) return NULL;
     switch(m.state){
-        case EMC_TASK_STATE_ESTOP:
-        case EMC_TASK_STATE_ESTOP_RESET:
-        case EMC_TASK_STATE_ON:
-        case EMC_TASK_STATE_OFF:
+        case EMC_TASK_STATE::ESTOP:
+        case EMC_TASK_STATE::ESTOP_RESET:
+        case EMC_TASK_STATE::ON:
+        case EMC_TASK_STATE::OFF:
             break;
         default:
             PyErr_Format(PyExc_ValueError,"Machine state should be STATE_ESTOP, STATE_ESTOP_RESET, STATE_ON, or STATE_OFF");
@@ -2505,19 +2505,19 @@ PyMODINIT_FUNC PyInit_linuxcnc(void)
     ENUMX(4, EMC_LINEAR);
     ENUMX(4, EMC_ANGULAR);
 
-    ENUMX(9, EMC_TASK_INTERP_IDLE);
-    ENUMX(9, EMC_TASK_INTERP_READING);
-    ENUMX(9, EMC_TASK_INTERP_PAUSED);
-    ENUMX(9, EMC_TASK_INTERP_WAITING);
+    PyModule_AddIntConstant(m, "INTERP_IDLE", (int)EMC_TASK_INTERP::IDLE);
+    PyModule_AddIntConstant(m, "INTERP_READING", (int)EMC_TASK_INTERP::READING);
+    PyModule_AddIntConstant(m, "INTERP_PAUSED", (int)EMC_TASK_INTERP::PAUSED);
+    PyModule_AddIntConstant(m, "INTERP_WAITING", (int)EMC_TASK_INTERP::WAITING);
 
-    ENUMX(9, EMC_TASK_MODE_MDI);
-    ENUMX(9, EMC_TASK_MODE_MANUAL);
-    ENUMX(9, EMC_TASK_MODE_AUTO);
+    PyModule_AddIntConstant(m, "MODE_MDI", (int)EMC_TASK_MODE::MDI);
+    PyModule_AddIntConstant(m, "MODE_MANUAL", (int)EMC_TASK_MODE::MANUAL);
+    PyModule_AddIntConstant(m, "MODE_AUTO", (int)EMC_TASK_MODE::AUTO);
 
-    ENUMX(9, EMC_TASK_STATE_OFF);
-    ENUMX(9, EMC_TASK_STATE_ON);
-    ENUMX(9, EMC_TASK_STATE_ESTOP);
-    ENUMX(9, EMC_TASK_STATE_ESTOP_RESET);
+    PyModule_AddIntConstant(m, "STATE_OFF", (int)EMC_TASK_STATE::OFF);
+    PyModule_AddIntConstant(m, "STATE_ON", (int)EMC_TASK_STATE::ON);
+    PyModule_AddIntConstant(m, "STATE_ESTOP", (int)EMC_TASK_STATE::ESTOP);
+    PyModule_AddIntConstant(m, "STATE_ESTOP_RESET", (int)EMC_TASK_STATE::ESTOP_RESET);
 
     ENUMX(6, LOCAL_SPINDLE_FORWARD);
     ENUMX(6, LOCAL_SPINDLE_REVERSE);
@@ -2546,9 +2546,9 @@ PyMODINIT_FUNC PyInit_linuxcnc(void)
     ENUMX(6, LOCAL_AUTO_REVERSE);
     ENUMX(6, LOCAL_AUTO_FORWARD);
 
-    ENUMX(4, EMC_TRAJ_MODE_FREE);
-    ENUMX(4, EMC_TRAJ_MODE_COORD);
-    ENUMX(4, EMC_TRAJ_MODE_TELEOP);
+    PyModule_AddIntConstant(m, "TRAJ_MODE_FREE", (int)EMC_TRAJ_MODE::FREE);
+    PyModule_AddIntConstant(m, "TRAJ_MODE_COORD", (int)EMC_TRAJ_MODE::COORD);
+    PyModule_AddIntConstant(m, "TRAJ_MODE_TELEOP", (int)EMC_TRAJ_MODE::TELEOP);
 
     ENUMX(4, EMC_MOTION_TYPE_TRAVERSE);
     ENUMX(4, EMC_MOTION_TYPE_FEED);
@@ -2575,15 +2575,15 @@ PyMODINIT_FUNC PyInit_linuxcnc(void)
     ENUMX(4, EMC_DEBUG_PYTHON);
     ENUMX(4, EMC_DEBUG_STATE_TAGS);
 
-    ENUMX(9, EMC_TASK_EXEC_ERROR);
-    ENUMX(9, EMC_TASK_EXEC_DONE);
-    ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_MOTION);
-    ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_MOTION_QUEUE);
-    ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_IO);
-    ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO);
-    ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_DELAY);
-    ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD);
-    ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_SPINDLE_ORIENTED);
+    PyModule_AddIntConstant(m, "EXEC_ERROR", (int)EMC_TASK_EXEC::ERROR);
+    PyModule_AddIntConstant(m, "EXEC_DONE", (int)EMC_TASK_EXEC::DONE);
+    PyModule_AddIntConstant(m, "EXEC_WAITING_FOR_MOTION", (int)EMC_TASK_EXEC::WAITING_FOR_MOTION);
+    PyModule_AddIntConstant(m, "EXEC_WAITING_FOR_MOTION_QUEUE", (int)EMC_TASK_EXEC::WAITING_FOR_MOTION_QUEUE);
+    PyModule_AddIntConstant(m, "EXEC_WAITING_FOR_IO", (int)EMC_TASK_EXEC::WAITING_FOR_IO);
+    PyModule_AddIntConstant(m, "EXEC_WAITING_FOR_MOTION_AND_IO", (int)EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO);
+    PyModule_AddIntConstant(m, "EXEC_WAITING_FOR_DELAY", (int)EMC_TASK_EXEC::WAITING_FOR_DELAY);
+    PyModule_AddIntConstant(m, "EXEC_WAITING_FOR_SYSTEM_CMD", (int)EMC_TASK_EXEC::WAITING_FOR_SYSTEM_CMD);
+    PyModule_AddIntConstant(m, "EXEC_WAITING_FOR_SPINDLE_ORIENTED", (int)EMC_TASK_EXEC::WAITING_FOR_SPINDLE_ORIENTED);
 
     ENUMX(7, EMCMOT_MAX_JOINTS);
     ENUMX(7, EMCMOT_MAX_AXIS);
