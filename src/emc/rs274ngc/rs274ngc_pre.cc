@@ -1163,12 +1163,12 @@ int Interp::init()
 //_setup.current_x set in Interp::synch
 //_setup.current_y set in Interp::synch
 //_setup.current_z set in Interp::synch
-  _setup.cutter_comp_side = false;
+  _setup.cutter_comp_side = CUTTER_COMP::OFF;
   _setup.arc_not_allowed = false;
   _setup.cycle_il_flag = false;
-  _setup.distance_mode = MODE_ABSOLUTE;
-  _setup.ijk_distance_mode = MODE_INCREMENTAL;  // backwards compatibility
-  _setup.feed_mode = UNITS_PER_MINUTE;
+  _setup.distance_mode = DISTANCE_MODE::ABSOLUTE;
+  _setup.ijk_distance_mode = DISTANCE_MODE::INCREMENTAL;  // backwards compatibility
+  _setup.feed_mode = FEED_MODE::UNITS_PER_MINUTE;
 //_setup.feed_override set in Interp::synch
 //_setup.feed_rate set in Interp::synch
   _setup.filename[0] = 0;
@@ -2048,7 +2048,7 @@ int Interp::synch()
 	  _setup.speed[s] = GET_EXTERNAL_SPEED(s);
 	  _setup.spindle_turning[s] = GET_EXTERNAL_SPINDLE(s);
 	  _setup.speed_override[s] = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(s);
-	  _setup.spindle_mode[s] = CONSTANT_RPM;
+	  _setup.spindle_mode[s] = SPINDLE_MODE::CONSTANT_RPM;
   }
   GET_EXTERNAL_PARAMETER_FILE_NAME(file_name, (LINELEN - 1));
   save_parameters(((file_name[0] ==

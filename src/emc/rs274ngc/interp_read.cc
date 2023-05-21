@@ -2051,7 +2051,7 @@ int Interp::read_parameter(
       }
       CHKS(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
-      CHKS(((index >= 5420) && (index <= 5428) && (_setup.cutter_comp_side)),
+      CHKS(((index >= 5420) && (index <= 5428) && (_setup.cutter_comp_side != CUTTER_COMP::OFF)),
            _("Cannot read current position with cutter radius compensation on"));
       *double_ptr = parameters[index];
   }

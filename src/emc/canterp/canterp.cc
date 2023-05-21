@@ -347,15 +347,15 @@ int Canterp::execute(const char *line) {
 
     if (!strcmp(the_command_name, "SELECT_PLANE")) {
 	if (!strcmp(the_command_args, "CANON_PLANE_XY")) {
-	    SELECT_PLANE(CANON_PLANE_XY);
+	    SELECT_PLANE(CANON_PLANE::XY);
 	    return 0;
 	}
 	if (!strcmp(the_command_args, "CANON_PLANE_YZ")) {
-	    SELECT_PLANE(CANON_PLANE_YZ);
+	    SELECT_PLANE(CANON_PLANE::YZ);
 	    return 0;
 	}
 	if (!strcmp(the_command_args, "CANON_PLANE_XZ")) {
-	    SELECT_PLANE(CANON_PLANE_XZ);
+	    SELECT_PLANE(CANON_PLANE::XZ);
 	    return 0;
 	}
 	return INTERP_ERROR;

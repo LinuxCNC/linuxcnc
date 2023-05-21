@@ -246,46 +246,46 @@ struct PM_CARTESIAN;
 #define EMC_STAT_TYPE                                ((NMLTYPE) 1999)
 
 // types for EMC_TASK mode
-enum EMC_TASK_MODE_ENUM {
-    EMC_TASK_MODE_MANUAL = 1,
-    EMC_TASK_MODE_AUTO = 2,
-    EMC_TASK_MODE_MDI = 3
+enum class EMC_TASK_MODE {
+    MANUAL = 1,
+    AUTO = 2,
+    MDI = 3
 };
 
 // types for EMC_TASK state
-enum EMC_TASK_STATE_ENUM {
-    EMC_TASK_STATE_ESTOP = 1,
-    EMC_TASK_STATE_ESTOP_RESET = 2,
-    EMC_TASK_STATE_OFF = 3,
-    EMC_TASK_STATE_ON = 4
+enum class EMC_TASK_STATE {
+    ESTOP = 1,
+    ESTOP_RESET = 2,
+    OFF = 3,
+    ON = 4
 };
 
 // types for EMC_TASK execState
-enum EMC_TASK_EXEC_ENUM {
-    EMC_TASK_EXEC_ERROR = 1,
-    EMC_TASK_EXEC_DONE = 2,
-    EMC_TASK_EXEC_WAITING_FOR_MOTION = 3,
-    EMC_TASK_EXEC_WAITING_FOR_MOTION_QUEUE = 4,
-    EMC_TASK_EXEC_WAITING_FOR_IO = 5,
-    EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO = 7,
-    EMC_TASK_EXEC_WAITING_FOR_DELAY = 8,
-    EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD = 9,
-    EMC_TASK_EXEC_WAITING_FOR_SPINDLE_ORIENTED = 10
+enum class EMC_TASK_EXEC {
+    ERROR = 1,
+    DONE = 2,
+    WAITING_FOR_MOTION = 3,
+    WAITING_FOR_MOTION_QUEUE = 4,
+    WAITING_FOR_IO = 5,
+    WAITING_FOR_MOTION_AND_IO = 7,
+    WAITING_FOR_DELAY = 8,
+    WAITING_FOR_SYSTEM_CMD = 9,
+    WAITING_FOR_SPINDLE_ORIENTED = 10
 };
 
 // types for EMC_TASK interpState
-enum EMC_TASK_INTERP_ENUM {
-    EMC_TASK_INTERP_IDLE = 1,
-    EMC_TASK_INTERP_READING = 2,
-    EMC_TASK_INTERP_PAUSED = 3,
-    EMC_TASK_INTERP_WAITING = 4
+enum class EMC_TASK_INTERP {
+    IDLE = 1,
+    READING = 2,
+    PAUSED = 3,
+    WAITING = 4
 };
 
 // types for motion control
-enum EMC_TRAJ_MODE_ENUM {
-    EMC_TRAJ_MODE_FREE = 1,	// independent-axis motion,
-    EMC_TRAJ_MODE_COORD = 2,	// coordinated-axis motion,
-    EMC_TRAJ_MODE_TELEOP = 3	// velocity based world coordinates motion,
+enum class EMC_TRAJ_MODE {
+    FREE = 1,	// independent-axis motion,
+    COORD = 2,	// coordinated-axis motion,
+    TELEOP = 3	// velocity based world coordinates motion,
 };
 
 // types for emcIoAbort() reasons
@@ -398,7 +398,7 @@ extern int emcTrajSetAxes(int axismask);
 extern int emcTrajSetSpindles(int spindles);
 extern int emcTrajSetUnits(double linearUnits, double angularUnits);
 extern int emcTrajSetCycleTime(double cycleTime);
-extern int emcTrajSetMode(int traj_mode);
+extern int emcTrajSetMode(EMC_TRAJ_MODE traj_mode);
 extern int emcTrajSetVelocity(double vel, double ini_maxvel);
 extern int emcTrajSetAcceleration(double acc);
 extern int emcTrajSetMaxVelocity(double vel);

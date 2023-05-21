@@ -935,7 +935,7 @@ static int openProgram(char *s)
 
 static void displayJogMode(jogModeType mode)
 {
-  if (emcStatus->task.mode != EMC_TASK_MODE_MANUAL) {
+  if (emcStatus->task.mode != EMC_TASK_MODE::MANUAL) {
     widgetSetStr(JOGMODE_WIDGET, "    ", "");
     return;
     }
@@ -1139,7 +1139,7 @@ static int jog(int jnum, float speed)
 {
   float stepSize;
 
-  if (emcStatus->task.mode != EMC_TASK_MODE_MANUAL) return 0;
+  if (emcStatus->task.mode != EMC_TASK_MODE::MANUAL) return 0;
   if (units == unmm) stepSize = 10.0;
   else stepSize = 1.0;
   if ((jnum < 0) || (jnum > 5)) return -1;
@@ -1167,7 +1167,7 @@ static int jog(int jnum, float speed)
 
 static int jogStop(int jnum)
 {
-  if (emcStatus->task.mode != EMC_TASK_MODE_MANUAL) return 0;
+  if (emcStatus->task.mode != EMC_TASK_MODE::MANUAL) return 0;
   if ((jnum < 0) || (jnum > 5)) return -1;
   jogging = 0;
   if (jogMode != jtCont) return 0;
@@ -1245,9 +1245,9 @@ static int toggleMode()
 
 {
   switch (emcStatus->task.mode) {
-    case EMC_TASK_MODE_MANUAL: sendAuto(); break;
-    case EMC_TASK_MODE_AUTO: sendManual(); break;
-    case EMC_TASK_MODE_MDI: sendAuto(); break;
+    case EMC_TASK_MODE::MANUAL: sendAuto(); break;
+    case EMC_TASK_MODE::AUTO: sendManual(); break;
+    case EMC_TASK_MODE::MDI: sendAuto(); break;
     }
   return 0;
 }
@@ -1256,7 +1256,7 @@ static int nextKey()
 {
   int temp;
 
-  if ((curScreen == stMain) && (emcStatus->task.mode == EMC_TASK_MODE_MANUAL)) {
+  if ((curScreen == stMain) && (emcStatus->task.mode == EMC_TASK_MODE::MANUAL)) {
     temp = jogMode;
     temp--;
     if (temp < 0) temp = 4;
@@ -1271,7 +1271,7 @@ static int prevKey()
 {
   int temp;
 
-  if ((curScreen == stMain) && (emcStatus->task.mode == EMC_TASK_MODE_MANUAL)) {
+  if ((curScreen == stMain) && (emcStatus->task.mode == EMC_TASK_MODE::MANUAL)) {
     temp = jogMode;
     temp++;
     temp %= 5;
@@ -1367,14 +1367,14 @@ static int doKey(keyType k)
       break;
     case ktEnterRelease: break;
     case ktEStopPress: 
-      if (emcStatus->task.state == EMC_TASK_STATE_ESTOP)
+      if (emcStatus->task.state == EMC_TASK_STATE::ESTOP)
         sendEstopReset();
       else
         sendEstop();
       break;
     case ktEStopRelease: break;
     case ktPowerPress: 
-      if (emcStatus->task.state == EMC_TASK_STATE_ON)
+      if (emcStatus->task.state == EMC_TASK_STATE::ON)
         sendMachineOff();
       else
         sendMachineOn();
@@ -1480,29 +1480,29 @@ static void slowLoop()
     }
 
   switch (emcStatus->task.interpState) {
-      case EMC_TASK_INTERP_READING:
-      case EMC_TASK_INTERP_WAITING: 
+      case EMC_TASK_INTERP::READING:
+      case EMC_TASK_INTERP::WAITING: 
         rtapi_strxcpy(status, widgetSetStr(STATUSWIDGET, "  Run", status));
         if (runStatus != rsRun)
           widgetSetStr(JOG_WIDGET, "Step", "");
         runStatus = rsRun;
         break;
-      case EMC_TASK_INTERP_PAUSED: 
+      case EMC_TASK_INTERP::PAUSED: 
         rtapi_strxcpy(status, widgetSetStr(STATUSWIDGET, "Pause", status));
         runStatus = rsPause;
         break;
       default:
-        if (emcStatus->task.state == EMC_TASK_STATE_ESTOP) {
+        if (emcStatus->task.state == EMC_TASK_STATE::ESTOP) {
           rtapi_strxcpy(status, widgetSetStr(STATUSWIDGET, "EStop", status));
           widgetSetStr(JOG_WIDGET, "    ", "");
           }
         else
-          if (emcStatus->task.state != EMC_TASK_STATE_ON) {
+          if (emcStatus->task.state != EMC_TASK_STATE::ON) {
             rtapi_strxcpy(status, widgetSetStr(STATUSWIDGET, "  Off", status));
             widgetSetStr(JOG_WIDGET, "    ", "");
             }
           else
-            if (emcStatus->task.mode == EMC_TASK_MODE_MANUAL) {          
+            if (emcStatus->task.mode == EMC_TASK_MODE::MANUAL) {          
               rtapi_strxcpy(status, widgetSetStr(STATUSWIDGET, "  Man", status));
               widgetSetStr(JOG_WIDGET, "Jog ", "");
               }

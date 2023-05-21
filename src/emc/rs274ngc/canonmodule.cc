@@ -42,12 +42,12 @@ BOOST_PYTHON_MODULE(emccanon) {
         "Canon access & introspection\n"
         ;
     enum_<CANON_PLANE>("CANON_PLANE")
-            .value("CANON_PLANE_XY", CANON_PLANE_XY)
-            .value("CANON_PLANE_YZ", CANON_PLANE_YZ)
-            .value("CANON_PLANE_XZ", CANON_PLANE_XZ)
-            .value("CANON_PLANE_UV", CANON_PLANE_UV)
-            .value("CANON_PLANE_VW", CANON_PLANE_VW)
-            .value("CANON_PLANE_UW", CANON_PLANE_UW)
+            .value("CANON_PLANE_XY", CANON_PLANE::XY)
+            .value("CANON_PLANE_YZ", CANON_PLANE::YZ)
+            .value("CANON_PLANE_XZ", CANON_PLANE::XZ)
+            .value("CANON_PLANE_UV", CANON_PLANE::UV)
+            .value("CANON_PLANE_VW", CANON_PLANE::VW)
+            .value("CANON_PLANE_UW", CANON_PLANE::UW)
             .export_values();
 
     enum_<CANON_UNITS>("CANON_UNITS")

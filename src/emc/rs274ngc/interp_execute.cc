@@ -265,7 +265,7 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
 
   }
   if (block->f_flag){
-      if ((settings->feed_mode != INVERSE_TIME) && ONCE(STEP_SET_FEED_RATE))  {
+      if ((settings->feed_mode != FEED_MODE::INVERSE_TIME) && ONCE(STEP_SET_FEED_RATE))  {
 	  if (STEP_REMAPPED_IN_BLOCK(block, STEP_SET_FEED_RATE)) {
 	      return (convert_remapped_code(block, settings, STEP_SET_FEED_RATE, 'F'));
 	  } else {

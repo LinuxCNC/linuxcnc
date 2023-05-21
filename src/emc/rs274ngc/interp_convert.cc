@@ -38,7 +38,7 @@
 #include <rtapi_string.h>
 
 #include "units.h"
-#define TOOL_INSIDE_ARC(side, turn) (((side)==LEFT&&(turn)>0)||((side)==RIGHT&&(turn)<0))
+#define TOOL_INSIDE_ARC(side, turn) (((side)==CUTTER_COMP::LEFT&&(turn)>0)||((side)==CUTTER_COMP::RIGHT&&(turn)<0))
 #define DEBUG_EMC
 
 using namespace interp_param_global;
@@ -54,12 +54,12 @@ using namespace interp_param_global;
 
 int Interp::comp_get_current(setup_pointer settings, double *x, double *y, double *z) {
     switch(settings->plane) {
-    case CANON_PLANE_XY:
+    case CANON_PLANE::XY:
         *x = settings->current_x;
         *y = settings->current_y;
         *z = settings->current_z;
         break;
-    case CANON_PLANE_XZ:
+    case CANON_PLANE::XZ:
         *x = settings->current_z;
         *y = settings->current_x;
         *z = settings->current_y;
@@ -72,12 +72,12 @@ int Interp::comp_get_current(setup_pointer settings, double *x, double *y, doubl
 
 int Interp::comp_set_current(setup_pointer settings, double x, double y, double z) {
     switch(settings->plane) {
-    case CANON_PLANE_XY:
+    case CANON_PLANE::XY:
         settings->current_x = x;
         settings->current_y = y;
         settings->current_z = z;
         break;
-    case CANON_PLANE_XZ:
+    case CANON_PLANE::XZ:
         settings->current_x = y;
         settings->current_y = z;
         settings->current_z = x;
@@ -90,12 +90,12 @@ int Interp::comp_set_current(setup_pointer settings, double x, double y, double 
 
 int Interp::comp_get_programmed(setup_pointer settings, double *x, double *y, double *z) {
     switch(settings->plane) {
-    case CANON_PLANE_XY:
+    case CANON_PLANE::XY:
         *x = settings->program_x;
         *y = settings->program_y;
         *z = settings->program_z;
         break;
-    case CANON_PLANE_XZ:
+    case CANON_PLANE::XZ:
         *x = settings->program_z;
         *y = settings->program_x;
         *z = settings->program_y;
@@ -108,12 +108,12 @@ int Interp::comp_get_programmed(setup_pointer settings, double *x, double *y, do
 
 int Interp::comp_set_programmed(setup_pointer settings, double x, double y, double z) {
     switch(settings->plane) {
-    case CANON_PLANE_XY:
+    case CANON_PLANE::XY:
         settings->program_x = x;
         settings->program_y = y;
         settings->program_z = z;
         break;
-    case CANON_PLANE_XZ:
+    case CANON_PLANE::XZ:
         settings->program_x = y;
         settings->program_y = z;
         settings->program_z = x;
@@ -179,7 +179,7 @@ int Interp::convert_nurbs(int mode,
 
 	if (mode == G_5_2) {
 
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			CHKS((((block->x_flag) && !(block->y_flag))
 			      || (!(block->x_flag)
 				  && (block->y_flag))),
@@ -191,7 +191,7 @@ int Interp::convert_nurbs(int mode,
 			     (_
 			      ("Can specify P without X and Y only for the first control point")));
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			CHKS((((block->y_flag) && !(block->z_flag))
 			      || (!(block->y_flag)
 				  && (block->z_flag))),
@@ -203,7 +203,7 @@ int Interp::convert_nurbs(int mode,
 			     (_
 			      ("Can specify P without Y and Z only for the first control point")));
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			CHKS((((block->x_flag) && !(block->z_flag))
 			      || (!(block->x_flag)
 				  && (block->z_flag))),
@@ -220,7 +220,7 @@ int Interp::convert_nurbs(int mode,
 		      && (!nurbs_g5_control_points.empty())),
 		     (_
 		      ("Must specify positive weight P for every Control Point")));
-		if (settings->feed_mode == UNITS_PER_MINUTE) {
+		if (settings->feed_mode == FEED_MODE::UNITS_PER_MINUTE) {
 			CHKS((settings->feed_rate == 0.0),
 			     (_("Cannot make a NURBS with 0 feedrate")));
 		}
@@ -228,7 +228,7 @@ int Interp::convert_nurbs(int mode,
 			nurbs_g5_control_points.clear();
 
 		if (nurbs_g5_control_points.empty()) {
-			if (settings->plane == CANON_PLANE_XY) {
+			if (settings->plane == CANON_PLANE::XY) {
 				CP_G5.NURBS_X = settings->current_x;
 				CP_G5.NURBS_Y = settings->current_y;
 				if (!(block->x_flag) && !(block->y_flag)
@@ -238,7 +238,7 @@ int Interp::convert_nurbs(int mode,
 					CP_G5.NURBS_W = 1;
 				}
 			}
-			if (settings->plane == CANON_PLANE_YZ) {
+			if (settings->plane == CANON_PLANE::YZ) {
 				CP_G5.NURBS_X = settings->current_y;
 				CP_G5.NURBS_Y = settings->current_z;
 				if (!(block->y_flag) && !(block->z_flag)
@@ -248,7 +248,7 @@ int Interp::convert_nurbs(int mode,
 					CP_G5.NURBS_W = 1;
 				}
 			}
-			if (settings->plane == CANON_PLANE_XZ) {
+			if (settings->plane == CANON_PLANE::XZ) {
 				CP_G5.NURBS_X = settings->current_z;
 				CP_G5.NURBS_Y = settings->current_x;
 				if (!(block->x_flag) && !(block->z_flag)
@@ -265,7 +265,7 @@ int Interp::convert_nurbs(int mode,
 			nurbs_order = block->l_number;
 		}
 
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			if ((block->x_flag) && (block->y_flag)) {
 				CHP(find_ends
 				    (block, settings, &CP_G5.NURBS_X,
@@ -276,7 +276,7 @@ int Interp::convert_nurbs(int mode,
 				nurbs_g5_control_points.push_back(CP_G5);
 			}
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			if ((block->y_flag) && (block->z_flag)) {
 				CHP(find_ends
 				    (block, settings, &end_x,
@@ -287,7 +287,7 @@ int Interp::convert_nurbs(int mode,
 				nurbs_g5_control_points.push_back(CP_G5);
 			}
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			if ((block->x_flag) && (block->z_flag)) {
 				CHP(find_ends
 				    (block, settings, &CP_G5.NURBS_Y,
@@ -320,7 +320,7 @@ int Interp::convert_nurbs(int mode,
 		     ("You must specify a number of control points at least equal to the order L = %d"),
 		     nurbs_order);
 
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			settings->current_x =
 			    nurbs_g5_control_points
 			    [nurbs_g5_control_points.size() - 1].NURBS_X;
@@ -328,7 +328,7 @@ int Interp::convert_nurbs(int mode,
 			    nurbs_g5_control_points
 			    [nurbs_g5_control_points.size() - 1].NURBS_Y;
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			settings->current_y =
 			    nurbs_g5_control_points
 			    [nurbs_g5_control_points.size() - 1].NURBS_X;
@@ -336,7 +336,7 @@ int Interp::convert_nurbs(int mode,
 			    nurbs_g5_control_points
 			    [nurbs_g5_control_points.size() - 1].NURBS_Y;
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			settings->current_z =
 			    nurbs_g5_control_points
 			    [nurbs_g5_control_points.size() - 1].NURBS_X;
@@ -366,27 +366,27 @@ int Interp::convert_nurbs(int mode,
 		// Q=2 NICC NURBS interpolation with circular motion
 		// Q=1 NICU NURBS interpolation with biarch, du=const
 
-		CHKS(((settings->plane != CANON_PLANE_XY)
-		      && (settings->plane != CANON_PLANE_YZ)
-		      && (settings->plane != CANON_PLANE_XZ)),
+		CHKS(((settings->plane != CANON_PLANE::XY)
+		      && (settings->plane != CANON_PLANE::YZ)
+		      && (settings->plane != CANON_PLANE::XZ)),
 		     (_
 		      ("one plane must be selected for nurbs: XY, YZ, ZX")));
 
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			CHKS((((block->x_flag) && !(block->y_flag))
 			      || (!(block->x_flag)
 				  && (block->y_flag))),
 			     (_
 			      ("You must specify both X and Y coordinates for Control Points")));
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			CHKS((((block->y_flag) && !(block->z_flag))
 			      || (!(block->y_flag)
 				  && (block->z_flag))),
 			     (_
 			      ("You must specify both Y and Z coordinates for Control Points")));
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			CHKS((((block->x_flag) && !(block->z_flag))
 			      || (!(block->x_flag)
 				  && (block->z_flag))),
@@ -432,7 +432,7 @@ int Interp::convert_nurbs(int mode,
 			     _("nurbs K number is not an integer"));
 		}
 
-		if (settings->feed_mode == UNITS_PER_MINUTE) {
+		if (settings->feed_mode == FEED_MODE::UNITS_PER_MINUTE) {
 			CHKS((settings->feed_rate == 0.0),
 			     (_("Cannot make a nurbs with 0 feedrate")));
 		}
@@ -451,7 +451,7 @@ int Interp::convert_nurbs(int mode,
 			Q_G6_option = block->q_number;	// Q_G6_option=1...3 (NICU, NICL, NICC see publication from Lo Valvo and Drago)
 		}
 
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			if (((block->x_flag) && (block->y_flag))
 			    || block->k_flag) {
 				CHP(find_ends
@@ -463,7 +463,7 @@ int Interp::convert_nurbs(int mode,
 				nurbs_g6_control_points.push_back(CP_G6);
 			}
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			if (((block->y_flag) && (block->z_flag))
 			    || block->k_flag) {
 				CHP(find_ends
@@ -475,7 +475,7 @@ int Interp::convert_nurbs(int mode,
 				nurbs_g6_control_points.push_back(CP_G6);
 			}
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			if (((block->x_flag) && (block->z_flag))
 			    || block->k_flag) {
 				CHP(find_ends
@@ -564,12 +564,12 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 	y1 = 0;
 	z1 = 0;			//to avoid compiler warning "may be used uninitialized" 
 
-	CHKS((settings->cutter_comp_side), _("Cannot convert spline with cutter radius compensation"));	// XXX
+	CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF), _("Cannot convert spline with cutter radius compensation"));	// XXX
 
-	if (settings->feed_mode == UNITS_PER_MINUTE) {
+	if (settings->feed_mode == FEED_MODE::UNITS_PER_MINUTE) {
 		CHKS((settings->feed_rate == 0.0),
 		     NCE_CANNOT_MAKE_ARC_WITH_ZERO_FEED_RATE);
-	} else if (settings->feed_mode == INVERSE_TIME) {
+	} else if (settings->feed_mode == FEED_MODE::INVERSE_TIME) {
 		CHKS((!block->f_flag),
 		     NCE_F_WORD_MISSING_WITH_INVERSE_TIME_ARC_MOVE);
 	}
@@ -585,7 +585,7 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 		     || !block->j_flag,
 		     _("Must specify both I and J with G5.1 or G6.1"));
 
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			x1 = settings->current_x + block->i_number;
 			y1 = settings->current_y + block->j_number;
 			CHP(find_ends
@@ -594,7 +594,7 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 			printf("find_ends x2: %8.4f y2: %8.4f (%s %d)\n",
 			       x2, y2, __FILE__, __LINE__);
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			y1 = settings->current_y + block->i_number;
 			z1 = settings->current_z + block->j_number;
 			CHP(find_ends
@@ -603,7 +603,7 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 			printf("find_ends y2: %8.4f z2: %8.4f (%s %d)\n",
 			       y2, z2, __FILE__, __LINE__);
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			x1 = settings->current_x + block->i_number;
 			z1 = settings->current_z + block->j_number;
 			CHP(find_ends
@@ -615,43 +615,43 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 
 		cp.NURBS_W = 1;
 
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			cp.NURBS_X = settings->current_x;
 			cp.NURBS_Y = settings->current_y;
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			cp.NURBS_X = settings->current_y;
 			cp.NURBS_Y = settings->current_z;
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			cp.NURBS_X = settings->current_z;
 			cp.NURBS_Y = settings->current_x;
 		}
 		nurbs_g5_control_points.push_back(cp);
 
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			cp.NURBS_X = x1;
 			cp.NURBS_Y = y1;
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			cp.NURBS_X = y1;
 			cp.NURBS_Y = z1;
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			cp.NURBS_X = z1;
 			cp.NURBS_Y = x1;
 		}
 		nurbs_g5_control_points.push_back(cp);
 
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			cp.NURBS_X = x2;
 			cp.NURBS_Y = y2;
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			cp.NURBS_X = y2;
 			cp.NURBS_Y = z2;
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			cp.NURBS_X = z2;
 			cp.NURBS_Y = x2;
 		}
@@ -672,15 +672,15 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 			      3, settings->plane);
 		nurbs_g5_control_points.clear();
 
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			settings->current_x = x2;
 			settings->current_y = y2;
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			settings->current_y = y2;
 			settings->current_z = z2;
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			settings->current_x = x2;
 			settings->current_z = z2;
 		}
@@ -689,26 +689,26 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 			CHKS(block->i_flag
 			     || block->j_flag,
 			     _("Must specify both I and J, or neither"));
-			if (settings->plane == CANON_PLANE_XY) {
+			if (settings->plane == CANON_PLANE::XY) {
 				x1 = settings->current_x +
 				    settings->cycle_i;
 				y1 = settings->current_y +
 				    settings->cycle_j;
 			}
-			if (settings->plane == CANON_PLANE_YZ) {
+			if (settings->plane == CANON_PLANE::YZ) {
 				y1 = settings->current_y +
 				    settings->cycle_i;
 				z1 = settings->current_z +
 				    settings->cycle_j;
 			}
-			if (settings->plane == CANON_PLANE_XZ) {
+			if (settings->plane == CANON_PLANE::XZ) {
 				x1 = settings->current_x +
 				    settings->cycle_i;
 				z1 = settings->current_z +
 				    settings->cycle_j;
 			}
 		} else {
-			if (settings->plane == CANON_PLANE_XY) {
+			if (settings->plane == CANON_PLANE::XY) {
 				x1 = settings->current_x + block->i_number;
 				y1 = settings->current_y + block->j_number;
 				CHP(find_ends
@@ -718,7 +718,7 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 				printf("x3: %8.4f y3: %8.4f (%s %d)\n", x3,
 				       y3, __FILE__, __LINE__);
 			}
-			if (settings->plane == CANON_PLANE_YZ) {
+			if (settings->plane == CANON_PLANE::YZ) {
 				y1 = settings->current_y + block->i_number;
 				z1 = settings->current_z + block->j_number;
 				CHP(find_ends
@@ -728,7 +728,7 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 				printf("y3: %8.4f z3: %8.4f (%s %d)\n", y3,
 				       z3, __FILE__, __LINE__);
 			}
-			if (settings->plane == CANON_PLANE_XZ) {
+			if (settings->plane == CANON_PLANE::XZ) {
 				x1 = settings->current_x + block->i_number;
 				z1 = settings->current_z + block->j_number;
 				CHP(find_ends
@@ -743,19 +743,19 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 		CHKS(!block->p_flag
 		     || !block->q_flag,
 		     _("Must specify both P and Q with G5"));
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			x2 = x3 + block->p_number;
 			y2 = y3 + block->q_number;
 			printf("x2: %8.4f y2: %8.4f (%s %d)\n", x2, y2,
 			       __FILE__, __LINE__);
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			y2 = y3 + block->p_number;
 			z2 = z3 + block->q_number;
 			printf("y2: %8.4f z2: %8.4f (%s %d)\n", y2, z2,
 			       __FILE__, __LINE__);
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			z2 = z3 + block->p_number;
 			x2 = x3 + block->q_number;
 			printf("x2: %8.4f z2: %8.4f (%s %d)\n", x2, z2,
@@ -763,54 +763,54 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 		}
 
 		cp.NURBS_W = 1;
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			cp.NURBS_X = settings->current_x;
 			cp.NURBS_Y = settings->current_y;
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			cp.NURBS_X = settings->current_y;
 			cp.NURBS_Y = settings->current_z;
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			cp.NURBS_X = settings->current_z;
 			cp.NURBS_Y = settings->current_x;
 		}
 		nurbs_g5_control_points.push_back(cp);
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			cp.NURBS_X = x1;
 			cp.NURBS_Y = y1;
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			cp.NURBS_X = y1;
 			cp.NURBS_Y = z1;
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			cp.NURBS_X = z1;
 			cp.NURBS_Y = x1;
 		}
 		nurbs_g5_control_points.push_back(cp);
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			cp.NURBS_X = x2;
 			cp.NURBS_Y = y2;
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			cp.NURBS_X = y2;
 			cp.NURBS_Y = z2;
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			cp.NURBS_X = z2;
 			cp.NURBS_Y = x2;
 		}
 		nurbs_g5_control_points.push_back(cp);
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			cp.NURBS_X = x3;
 			cp.NURBS_Y = y3;
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			cp.NURBS_X = y3;
 			cp.NURBS_Y = z3;
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			cp.NURBS_X = z3;
 			cp.NURBS_Y = x3;
 		}
@@ -832,15 +832,15 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 
 		settings->cycle_i = -block->p_number;
 		settings->cycle_j = -block->q_number;
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			settings->current_x = x3;
 			settings->current_y = y3;
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			settings->current_y = y3;
 			settings->current_z = z3;
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			settings->current_x = x3;
 			settings->current_z = z3;
 		}
@@ -930,68 +930,68 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
   ijk_flag = block->i_flag || block->j_flag || block->k_flag;
   first = settings->cutter_comp_firstmove;
 
-  CHKS((settings->plane == CANON_PLANE_UV
-            || settings->plane == CANON_PLANE_VW
-            || settings->plane == CANON_PLANE_UW),
+  CHKS((settings->plane == CANON_PLANE::UV
+            || settings->plane == CANON_PLANE::VW
+            || settings->plane == CANON_PLANE::UW),
     _("Cannot do an arc in planes G17.1, G18.1, or G19.1"));
   CHKS(((!block->r_flag) && (!ijk_flag)),
       NCE_R_I_J_K_WORDS_ALL_MISSING_FOR_ARC);
   CHKS(((block->r_flag) && (ijk_flag)),
       NCE_MIXED_RADIUS_IJK_FORMAT_FOR_ARC);
-  if (settings->feed_mode == UNITS_PER_MINUTE) {
+  if (settings->feed_mode == FEED_MODE::UNITS_PER_MINUTE) {
     CHKS((settings->feed_rate == 0.0),
         NCE_CANNOT_MAKE_ARC_WITH_ZERO_FEED_RATE);
-  } else if(settings->feed_mode == UNITS_PER_REVOLUTION) {
+  } else if(settings->feed_mode == FEED_MODE::UNITS_PER_REVOLUTION) {
     CHKS((settings->feed_rate == 0.0),
         NCE_CANNOT_MAKE_ARC_WITH_ZERO_FEED_RATE);
     CHKS((settings->speed[settings->active_spindle] == 0.0),
 	_("Cannot feed with zero spindle speed in feed per rev mode"));
-  } else if (settings->feed_mode == INVERSE_TIME) {
+  } else if (settings->feed_mode == FEED_MODE::INVERSE_TIME) {
     CHKS((!block->f_flag),
         NCE_F_WORD_MISSING_WITH_INVERSE_TIME_ARC_MOVE);
   }
 
   if (ijk_flag) {
-    if (settings->plane == CANON_PLANE_XY) {
+    if (settings->plane == CANON_PLANE::XY) {
       CHKS((block->k_flag), NCE_K_WORD_GIVEN_FOR_ARC_IN_XY_PLANE);
       if (!block->i_flag) { /* i or j flag on to get here */
-	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
+	if (settings->ijk_distance_mode == DISTANCE_MODE::ABSOLUTE) {
 	  ERS(_("%c word missing in absolute center arc"), 'I');
 	} else {
 	  block->i_number = 0.0;
 	}
       } else if (!block->j_flag) {
-	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
+	if (settings->ijk_distance_mode == DISTANCE_MODE::ABSOLUTE) {
 	  ERS(_("%c word missing in absolute center arc"), 'J');
 	} else {
 	  block->j_number = 0.0;
 	}
       }
-    } else if (settings->plane == CANON_PLANE_YZ) {
+    } else if (settings->plane == CANON_PLANE::YZ) {
       CHKS((block->i_flag), NCE_I_WORD_GIVEN_FOR_ARC_IN_YZ_PLANE);
       if (!block->j_flag) { /* j or k flag on to get here */
-	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
+	if (settings->ijk_distance_mode == DISTANCE_MODE::ABSOLUTE) {
 	  ERS(_("%c word missing in absolute center arc"), 'J');
 	} else {
 	  block->j_number = 0.0;
 	}
       } else if (!block->k_flag) {
-	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
+	if (settings->ijk_distance_mode == DISTANCE_MODE::ABSOLUTE) {
 	  ERS(_("%c word missing in absolute center arc"), 'K');
 	} else {
 	  block->k_number = 0.0;
 	}
       }
-    } else if (settings->plane == CANON_PLANE_XZ) {
+    } else if (settings->plane == CANON_PLANE::XZ) {
       CHKS((block->j_flag), NCE_J_WORD_GIVEN_FOR_ARC_IN_XZ_PLANE);
       if (!block->i_flag) { /* i or k flag on to get here */
-	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
+	if (settings->ijk_distance_mode == DISTANCE_MODE::ABSOLUTE) {
 	  ERS(_("%c word missing in absolute center arc"), 'I');
 	} else {
 	  block->i_number = 0.0;
 	}
       } else if (!block->k_flag) {
-	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
+	if (settings->ijk_distance_mode == DISTANCE_MODE::ABSOLUTE) {
 	  ERS(_("%c word missing in absolute center arc"), 'K');
 	} else {
 	  block->k_number = 0.0;
@@ -1002,13 +1002,13 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
     }
   } else {
     // in R format, we need some XYZ words specified because a full circle is not allowed.
-    if (settings->plane == CANON_PLANE_XY) {
+    if (settings->plane == CANON_PLANE::XY) {
         CHKS(((!block->x_flag) && (!block->y_flag) && (!block->radius_flag) && (!block->theta_flag)),
             NCE_X_AND_Y_WORDS_MISSING_FOR_ARC_IN_XY_PLANE);
-    } else if (settings->plane == CANON_PLANE_YZ) {
+    } else if (settings->plane == CANON_PLANE::YZ) {
         CHKS(((!block->y_flag) && (!block->z_flag)),
             NCE_Y_AND_Z_WORDS_MISSING_FOR_ARC_IN_YZ_PLANE);
-    } else if (settings->plane == CANON_PLANE_XZ) {
+    } else if (settings->plane == CANON_PLANE::XZ) {
         CHKS(((!block->x_flag) && (!block->z_flag)),
             NCE_X_AND_Z_WORDS_MISSING_FOR_ARC_IN_XZ_PLANE);
     }
@@ -1024,8 +1024,8 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
   // Should be done with changes to settings here, so we can pack the state
   write_canon_state_tag(block, settings);
 
-  if (settings->plane == CANON_PLANE_XY) {
-    if ((!settings->cutter_comp_side) ||
+  if (settings->plane == CANON_PLANE::XY) {
+    if ((settings->cutter_comp_side == CUTTER_COMP::OFF) ||
         (settings->cutter_comp_radius == 0.0)) {
       status =
         convert_arc2(move, block, settings,
@@ -1048,8 +1048,8 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
                                  u_end, v_end, w_end);
       CHP(status);
     }
-  } else if (settings->plane == CANON_PLANE_XZ) {
-    if ((!settings->cutter_comp_side) ||
+  } else if (settings->plane == CANON_PLANE::XZ) {
+    if ((settings->cutter_comp_side == CUTTER_COMP::OFF) ||
         (settings->cutter_comp_radius == 0.0)) {
       status =
         convert_arc2(move, block, settings,
@@ -1073,7 +1073,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
 
       CHP(status);
     }
-  } else if (settings->plane == CANON_PLANE_YZ) {
+  } else if (settings->plane == CANON_PLANE::YZ) {
     status =
       convert_arc2(move, block, settings,
                    &(settings->current_y), &(settings->current_z),
@@ -1125,7 +1125,7 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
   double center1;
   double center2;
   int turn;                     /* number of full or partial turns CCW in arc */
-  int plane = settings->plane;
+  CANON_PLANE plane = settings->plane;
 
   // Spiral tolerance is the amount of "spiral" allowed in a given arc segment, or (r2-r1)/theta
   double spiral_abs_tolerance = (settings->length_units == CANON_UNITS_INCHES) ?
@@ -1141,7 +1141,7 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
                      &center1, &center2, &turn, radius_tolerance));
   } else {
       CHP(arc_data_ijk(move, plane, *current1, *current2, end1, end2,
-                       (settings->ijk_distance_mode == MODE_ABSOLUTE),
+                       (settings->ijk_distance_mode == DISTANCE_MODE::ABSOLUTE),
                        offset1, offset2, block->p_flag? round_to_int(block->p_number) : 1,
                        &center1, &center2, &turn, radius_tolerance, spiral_abs_tolerance, SPIRAL_RELATIVE_TOLERANCE));
   }
@@ -1204,11 +1204,11 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 {
     double center_x, center_y;
     double gamma;                 /* direction of perpendicular to arc at end */
-    int side;                     /* offset side - right or left              */
+    CUTTER_COMP side;                     /* offset side - right or left              */
     double tool_radius;
     int turn;                     /* 1 for counterclockwise, -1 for clockwise */
     double cx, cy, cz; // current
-    int plane = settings->plane;
+    CANON_PLANE plane = settings->plane;
 
     side = settings->cutter_comp_side;
     tool_radius = settings->cutter_comp_radius;   /* always is positive */
@@ -1227,7 +1227,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                             &center_x, &center_y, &turn, radius_tolerance));
     } else {
         CHP(arc_data_comp_ijk(move, plane, side, tool_radius, cx, cy, end_x, end_y,
-                              (settings->ijk_distance_mode == MODE_ABSOLUTE),
+                              (settings->ijk_distance_mode == DISTANCE_MODE::ABSOLUTE),
                               offset_x, offset_y, block->p_flag? round_to_int(block->p_number): 1,
                               &center_x, &center_y, &turn, radius_tolerance, spiral_abs_tolerance, SPIRAL_RELATIVE_TOLERANCE));
     }
@@ -1359,13 +1359,13 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     double delta;                 /* direction of radius from start of arc to center of arc */
     double gamma;                 /* direction of perpendicular to arc at end */
     double midx, midy;
-    int side;
+    CUTTER_COMP side;
     double small = TOLERANCE_CONCAVE_CORNER;      /* angle for testing corners */
     double opx = 0, opy = 0, opz = 0;
     double theta;                 /* direction of tangent to last cut */
     double tool_radius;
     int turn;                     /* number of full or partial circles CCW */
-    int plane = settings->plane;
+    CANON_PLANE plane = settings->plane;
     double cx, cy, cz;
     double new_end_x, new_end_y;
 
@@ -1385,7 +1385,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     } else {
         CHP(arc_data_ijk(move, plane,
                          opx, opy, end_x, end_y,
-                         (settings->ijk_distance_mode == MODE_ABSOLUTE),
+                         (settings->ijk_distance_mode == DISTANCE_MODE::ABSOLUTE),
                          offset_x, offset_y, block->p_flag? round_to_int(block->p_number): 1,
                          &centerx, &centery, &turn, radius_tolerance, spiral_abs_tolerance, SPIRAL_RELATIVE_TOLERANCE));
     }
@@ -1397,15 +1397,15 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     tool_radius = settings->cutter_comp_radius;   /* always is positive */
     arc_radius = hypot((centerx - end_x), (centery - end_y));
     theta = atan2(cy - opy, cx - opx);
-    theta = (side == LEFT) ? (theta - M_PI_2l) : (theta + M_PI_2l);
+    theta = (side == CUTTER_COMP::LEFT) ? (theta - M_PI_2l) : (theta + M_PI_2l);
     delta = atan2(centery - opy, centerx - opx);
     alpha = (move == G_3) ? (delta - M_PI_2l) : (delta + M_PI_2l);
-    beta = (side == LEFT) ? (theta - alpha) : (alpha - theta);
+    beta = (side == CUTTER_COMP::LEFT) ? (theta - alpha) : (alpha - theta);
 
     // normalize beta -90 to +270?
     beta = (beta > (1.5 * M_PIl)) ? (beta - (2 * M_PIl)) : (beta < -M_PI_2l) ? (beta + (2 * M_PIl)) : beta;
 
-    if (((side == LEFT) && (move == G_3)) || ((side == RIGHT) && (move == G_2))) {
+    if (((side == CUTTER_COMP::LEFT) && (move == G_3)) || ((side == CUTTER_COMP::RIGHT) && (move == G_2))) {
         // we are cutting inside the arc
         gamma = atan2((centery - end_y), (centerx - end_x));
         CHKS((arc_radius <= tool_radius),
@@ -1509,7 +1509,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
         dequeue_canons(settings);
         enqueue_ARC_FEED(settings, block->line_number,
                          0.0, // doesn't matter since we won't move this arc's endpoint
-                         midx, midy, opx, opy, ((side == LEFT) ? -1 : 1),
+                         midx, midy, opx, opy, ((side == CUTTER_COMP::LEFT) ? -1 : 1),
                          cz,
                          AA_end, BB_end, CC_end, u, v, w);
         dequeue_canons(settings);
@@ -1608,7 +1608,7 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
 {
   double *pars;                 /* short name for settings->parameters            */
 
-  CHKS((settings->cutter_comp_side),      /* not "== true" */
+  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),      /* not "== true" */
       NCE_CANNOT_CHANGE_AXIS_OFFSETS_WITH_CUTTER_RADIUS_COMP);
   CHKS((block->a_flag && settings->a_axis_wrapped &&
 	(block->a_number <= -360.0 || block->a_number >= 360.0)),
@@ -2183,7 +2183,7 @@ int Interp::convert_control_mode(
     setup_pointer settings)       // pointer to machine settings
 {
     double tolerance, naivecam_tolerance;
-  CHKS((settings->cutter_comp_side),
+  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
        (_("Cannot change control mode with cutter radius compensation on")));
   if (g_code == G_61) {
     SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
@@ -2301,7 +2301,7 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
   int origin;
   double *parameters;
 
-  CHKS((settings->cutter_comp_side),
+  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
        (_("Cannot change coordinate systems with cutter radius compensation on")));
   parameters = settings->parameters;
   switch (g_code) {
@@ -2423,13 +2423,13 @@ int Interp::convert_cutter_compensation(int g_code,      //!< must be G_40, G_41
   if (g_code == G_40) {
     CHP(convert_cutter_compensation_off(settings));
   } else if (g_code == G_41) {
-    CHP(convert_cutter_compensation_on(LEFT, block, settings));
+    CHP(convert_cutter_compensation_on(CUTTER_COMP::LEFT, block, settings));
   } else if (g_code == G_42) {
-    CHP(convert_cutter_compensation_on(RIGHT, block, settings));
+    CHP(convert_cutter_compensation_on(CUTTER_COMP::RIGHT, block, settings));
   } else if (g_code == G_41_1) {
-    CHP(convert_cutter_compensation_on(LEFT, block, settings));
+    CHP(convert_cutter_compensation_on(CUTTER_COMP::LEFT, block, settings));
   } else if (g_code == G_42_1) {
-    CHP(convert_cutter_compensation_on(RIGHT, block, settings));
+    CHP(convert_cutter_compensation_on(CUTTER_COMP::RIGHT, block, settings));
   } else
     ERS("BUG: Code not G40, G41, G41.1, G42, G42.1");
 
@@ -2458,7 +2458,7 @@ int Interp::convert_cutter_compensation_off(setup_pointer settings)      //!< po
 #ifdef DEBUG_EMC
   enqueue_COMMENT("interpreter: cutter radius compensation off");
 #endif
-  if(settings->cutter_comp_side && settings->cutter_comp_radius > 0.0 &&
+  if(settings->cutter_comp_side != CUTTER_COMP::OFF && settings->cutter_comp_radius > 0.0 &&
      !settings->cutter_comp_firstmove) {
       double cx, cy, cz;
       comp_get_current(settings, &cx, &cy, &cz);
@@ -2469,7 +2469,7 @@ int Interp::convert_cutter_compensation_off(setup_pointer settings)      //!< po
       settings->current_z = settings->program_z;
       settings->arc_not_allowed = true;
   }
-  settings->cutter_comp_side = false;
+  settings->cutter_comp_side = CUTTER_COMP::OFF;
   settings->cutter_comp_firstmove = true;
   return INTERP_OK;
 }
@@ -2526,23 +2526,23 @@ convex corners.
 
 */
 
-int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutter is on (LEFT or RIGHT)
+int Interp::convert_cutter_compensation_on(CUTTER_COMP side,     //!< side of path cutter is on (LEFT or RIGHT)
                                           block_pointer block,  //!< pointer to a block of RS274 instructions
                                           setup_pointer settings)       //!< pointer to machine settings
 {
   double radius;
   int idx, orientation;
 
-  CHKS((settings->plane != CANON_PLANE_XY && settings->plane != CANON_PLANE_XZ),
+  CHKS((settings->plane != CANON_PLANE::XY && settings->plane != CANON_PLANE::XZ),
       NCE_RADIUS_COMP_ONLY_IN_XY_OR_XZ);
-  CHKS((settings->cutter_comp_side),
+  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
       NCE_CANNOT_TURN_CUTTER_RADIUS_COMP_ON_WHEN_ON);
   if(block->g_modes[GM_CUTTER_COMP] == G_41_1 || block->g_modes[GM_CUTTER_COMP] == G_42_1) {
       CHKS((!block->d_flag),
               _("G%d.1 with no D word"), block->g_modes[GM_CUTTER_COMP]/10 );
       radius = block->d_number_float / 2;
       if(block->l_number != -1) {
-          CHKS((settings->plane != CANON_PLANE_XZ), _("G%d.1 with L word, but plane is not G18"), block->g_modes[GM_CUTTER_COMP]/10);
+          CHKS((settings->plane != CANON_PLANE::XZ), _("G%d.1 with L word, but plane is not G18"), block->g_modes[GM_CUTTER_COMP]/10);
           orientation = block->l_number;
       } else {
           orientation = 0;
@@ -2560,17 +2560,17 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
       }
       radius = USER_TO_PROGRAM_LEN(settings->tool_table[idx].diameter) / 2.0;
       orientation = settings->tool_table[idx].orientation;
-      CHKS((settings->plane != CANON_PLANE_XZ && orientation != 0 && orientation != 9), _("G%d with lathe tool, but plane is not G18"), block->g_modes[7]/10);
+      CHKS((settings->plane != CANON_PLANE::XZ && orientation != 0 && orientation != 9), _("G%d with lathe tool, but plane is not G18"), block->g_modes[7]/10);
   }
   if (radius < 0.0) { /* switch side & make radius positive if radius negative */
     radius = -radius;
-    if (side == RIGHT)
-      side = LEFT;
+    if (side == CUTTER_COMP::RIGHT)
+      side = CUTTER_COMP::LEFT;
     else
-      side = RIGHT;
+      side = CUTTER_COMP::RIGHT;
   }
 #ifdef DEBUG_EMC
-  if (side == RIGHT)
+  if (side == CUTTER_COMP::RIGHT)
     enqueue_COMMENT("interpreter: cutter radius compensation on right");
   else
     enqueue_COMMENT("interpreter: cutter radius compensation on left");
@@ -2611,18 +2611,18 @@ int Interp::convert_distance_mode(int g_code,    //!< g_code being executed (mus
                                  setup_pointer settings)        //!< pointer to machine settings
 {
   if (g_code == G_90) {
-    if (settings->distance_mode != MODE_ABSOLUTE) {
+    if (settings->distance_mode != DISTANCE_MODE::ABSOLUTE) {
 #ifdef DEBUG_EMC
       enqueue_COMMENT("interpreter: distance mode changed to absolute");
 #endif
-      settings->distance_mode = MODE_ABSOLUTE;
+      settings->distance_mode = DISTANCE_MODE::ABSOLUTE;
     }
   } else if (g_code == G_91) {
-    if (settings->distance_mode != MODE_INCREMENTAL) {
+    if (settings->distance_mode != DISTANCE_MODE::INCREMENTAL) {
 #ifdef DEBUG_EMC
       enqueue_COMMENT("interpreter: distance mode changed to incremental");
 #endif
-      settings->distance_mode = MODE_INCREMENTAL;
+      settings->distance_mode = DISTANCE_MODE::INCREMENTAL;
     }
   } else
     ERS(NCE_BUG_CODE_NOT_G90_OR_G91);
@@ -2658,18 +2658,18 @@ int Interp::convert_ijk_distance_mode(int g_code,    //!< g_code being executed 
                                  setup_pointer settings)        //!< pointer to machine settings
 {
   if (g_code == G_90_1) {
-    if (settings->ijk_distance_mode != MODE_ABSOLUTE) {
+    if (settings->ijk_distance_mode != DISTANCE_MODE::ABSOLUTE) {
 #ifdef DEBUG_EMC
       enqueue_COMMENT("interpreter: IJK distance mode changed to absolute");
 #endif
-      settings->ijk_distance_mode = MODE_ABSOLUTE;
+      settings->ijk_distance_mode = DISTANCE_MODE::ABSOLUTE;
     }
   } else if (g_code == G_91_1) {
-    if (settings->ijk_distance_mode != MODE_INCREMENTAL) {
+    if (settings->ijk_distance_mode != DISTANCE_MODE::INCREMENTAL) {
 #ifdef DEBUG_EMC
       enqueue_COMMENT("interpreter: IJK distance mode changed to incremental");
 #endif
-      settings->ijk_distance_mode = MODE_INCREMENTAL;
+      settings->ijk_distance_mode = DISTANCE_MODE::INCREMENTAL;
     }
   } else
     ERS(NCE_BUG_CODE_NOT_G90_OR_G91);
@@ -2788,13 +2788,13 @@ int Interp::convert_feed_mode(int g_code,        //!< g_code being executed (mus
 #ifdef DEBUG_EMC
     enqueue_COMMENT("interpreter: feed mode set to inverse time");
 #endif
-    settings->feed_mode = INVERSE_TIME;
+    settings->feed_mode = FEED_MODE::INVERSE_TIME;
     enqueue_SET_FEED_MODE(0, 0);
   } else if (g_code == G_94) {
 #ifdef DEBUG_EMC
     enqueue_COMMENT("interpreter: feed mode set to units per minute");
 #endif
-    settings->feed_mode = UNITS_PER_MINUTE;
+    settings->feed_mode = FEED_MODE::UNITS_PER_MINUTE;
     enqueue_SET_FEED_MODE(0, 0);
     settings->feed_rate = 0.0;
     enqueue_SET_FEED_RATE(0);
@@ -2802,7 +2802,7 @@ int Interp::convert_feed_mode(int g_code,        //!< g_code being executed (mus
 #ifdef DEBUG_EMC
     enqueue_COMMENT("interpreter: feed mode set to units per revolution");
 #endif
-    settings->feed_mode = UNITS_PER_REVOLUTION;
+    settings->feed_mode = FEED_MODE::UNITS_PER_REVOLUTION;
     enqueue_SET_FEED_MODE(settings->active_spindle , 1);
     settings->feed_rate = 0.0;
     enqueue_SET_FEED_RATE(0);
@@ -2977,7 +2977,7 @@ Saves the absolute coordinates of the current point in parameters 5161-5169
 int Interp::convert_savehome(int code, block_pointer block, setup_pointer s) {
     double *p = s->parameters;
 
-    if(s->cutter_comp_side) {
+    if(s->cutter_comp_side != CUTTER_COMP::OFF) {
         ERS(_("Cannot set reference point with cutter compensation in effect"));
     }
 
@@ -3100,7 +3100,7 @@ int Interp::convert_home(int move,       //!< G-code, must be G_28 or G_30
                 &AA_end, &BB_end, &CC_end,
                 &u_end, &v_end, &w_end));
 
-  CHKS((settings->cutter_comp_side),
+  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
       NCE_CANNOT_USE_G28_OR_G30_WITH_CUTTER_RADIUS_COMP);
 
   // waypoint is in currently active coordinate system
@@ -3796,22 +3796,22 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       return convert_remapped_code(block, settings, STEP_M_5, 'm',
 				   block->m_modes[5]);
   } else if ((block->m_modes[5] == 62) && ONCE_M(5)) {
-      CHKS((settings->cutter_comp_side),
+      CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
            (_("Cannot set motion output with cutter radius compensation on")));  // XXX
       CHKS((!block->p_flag), _("No valid P word with M62"));
       SET_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
   } else if ((block->m_modes[5] == 63) && ONCE_M(5)) {
-      CHKS((settings->cutter_comp_side),
+      CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
            (_("Cannot set motion digital output with cutter radius compensation on")));  // XXX
       CHKS((!block->p_flag), _("No valid P word with M63"));
       CLEAR_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
   } else if ((block->m_modes[5] == 64) && ONCE_M(5)){
-      CHKS((settings->cutter_comp_side),
+      CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
            (_("Cannot set auxiliary digital output with cutter radius compensation on")));  // XXX
       CHKS((!block->p_flag), _("No valid P word with M64"));
       SET_AUX_OUTPUT_BIT(round_to_int(block->p_number));
   } else if ((block->m_modes[5] == 65) && ONCE_M(5)) {
-      CHKS((settings->cutter_comp_side),
+      CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
            (_("Cannot set auxiliary digital output with cutter radius compensation on")));  // XXX
       CHKS((!block->p_flag), _("No valid P word with M65"));
       CLEAR_AUX_OUTPUT_BIT(round_to_int(block->p_number));
@@ -3858,7 +3858,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	    timeout = 0;
         }
 
-        CHKS((settings->cutter_comp_side),
+        CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
              (_("Cannot wait for digital input with cutter radius compensation on")));
 
 	int ret = WAIT(round_to_int(block->p_number), DIGITAL_INPUT, type, timeout);
@@ -3870,7 +3870,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	    settings->input_digital = true;
 	}
     } else if (round_to_int(block->e_number) >= 0) { // got an analog input
-        CHKS((settings->cutter_comp_side),
+        CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
              (_("Cannot wait for analog input with cutter radius compensation on")));
 
 	int ret = WAIT(round_to_int(block->e_number), ANALOG_INPUT, 0, 0); //WAIT returns 0 on success, -1 for out of bounds
@@ -3885,14 +3885,14 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
     //E-word = analog channel
     //Q-word = analog value
-      CHKS((settings->cutter_comp_side),
+      CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
            (_("Cannot set motion analog output with cutter radius compensation on")));  // XXX
       CHKS((!block->e_flag) || (round_to_int(block->e_number) < 0), (_("Invalid analog index with M67")));
       SET_MOTION_OUTPUT_VALUE(round_to_int(block->e_number), block->q_number);
   } else if ((block->m_modes[5] == 68)  && ONCE_M(5)) {
     //E-word = analog channel
     //Q-word = analog value
-      CHKS((settings->cutter_comp_side),
+      CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
            (_("Cannot set auxiliary analog output with cutter radius compensation on")));  // XXX
       CHKS((!block->e_flag) || (round_to_int(block->e_number) < 0), (_("Invalid analog index with M68")));
       SET_AUX_OUTPUT_VALUE(round_to_int(block->e_number), block->q_number);
@@ -4098,7 +4098,7 @@ if (IS_USER_MCODE(block,settings,9) && ONCE_M(9)) {
      return convert_remapped_code(block, settings, STEP_M_9, 'm',
 				   block->m_modes[9]);
  } else if ((block->m_modes[9] == 48)  && ONCE_M(9)){
-    CHKS((settings->cutter_comp_side),
+    CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
          (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
     ENABLE_FEED_OVERRIDE();
     settings->feed_override = true;
@@ -4107,7 +4107,7 @@ if (IS_USER_MCODE(block,settings,9) && ONCE_M(9)) {
         ENABLE_SPEED_OVERRIDE(s);
     }
  } else if ((block->m_modes[9] == 49)  && ONCE_M(9)){
-    CHKS((settings->cutter_comp_side),
+    CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
          (_("Cannot disable overrides with cutter radius compensation on")));  // XXX
     DISABLE_FEED_OVERRIDE();
     settings->feed_override = false;
@@ -4119,12 +4119,12 @@ if (IS_USER_MCODE(block,settings,9) && ONCE_M(9)) {
 
 if ((block->m_modes[9] == 50)  && ONCE_M(9)){
     if (block->p_number != 0) {
-        CHKS((settings->cutter_comp_side),
+        CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
              (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
 	ENABLE_FEED_OVERRIDE();
 	settings->feed_override = true;
     } else {
-        CHKS((settings->cutter_comp_side),
+        CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
              (_("Cannot disable overrides with cutter radius compensation on")));  // XXX
         DISABLE_FEED_OVERRIDE();
 	settings->feed_override = false;
@@ -4139,7 +4139,7 @@ if ((block->m_modes[9] == 51)  && ONCE_M(9)){
 		e = block->dollar_number;
 	}
     if (block->p_number != 0) {
-        CHKS((settings->cutter_comp_side),
+        CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
              (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
 		for (int s = 0; s < settings->num_spindles; s++){
 			if (e == -1 or s == e){
@@ -4148,7 +4148,7 @@ if ((block->m_modes[9] == 51)  && ONCE_M(9)){
 			}
 		}
     } else {
-        CHKS((settings->cutter_comp_side),
+        CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
              (_("Cannot disable overrides with cutter radius compensation on")));  // XXX
 		for (int s = 0; s < settings->num_spindles; s++){
 			if (e == -1 or s == e){
@@ -4161,12 +4161,12 @@ if ((block->m_modes[9] == 51)  && ONCE_M(9)){
 
 if ((block->m_modes[9] == 52)  && ONCE_M(9)){
     if (block->p_number != 0) {
-        CHKS((settings->cutter_comp_side),
+        CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
              (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
 	ENABLE_ADAPTIVE_FEED();
 	settings->adaptive_feed = true;
     } else {
-        CHKS((settings->cutter_comp_side),
+        CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
              (_("Cannot disable overrides with cutter radius compensation on")));  // XXX
 	DISABLE_ADAPTIVE_FEED();
 	settings->adaptive_feed = false;
@@ -4175,12 +4175,12 @@ if ((block->m_modes[9] == 52)  && ONCE_M(9)){
 
 if ((block->m_modes[9] == 53)  && ONCE_M(9)){
     if (block->p_number != 0) {
-        CHKS((settings->cutter_comp_side),
+        CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
              (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
 	ENABLE_FEED_HOLD();
 	settings->feed_hold = true;
     } else {
-        CHKS((settings->cutter_comp_side),
+        CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
              (_("Cannot disable overrides with cutter radius compensation on")));  // XXX
 	DISABLE_FEED_HOLD();
 	settings->feed_hold = false;
@@ -4414,10 +4414,10 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
 
   unsigned char probe_type = g_code - G_38_2;
 
-  CHKS((settings->cutter_comp_side),
+  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
       NCE_CANNOT_PROBE_WITH_CUTTER_RADIUS_COMP_ON);
   CHKS((settings->feed_rate == 0.0), NCE_CANNOT_PROBE_WITH_ZERO_FEED_RATE);
-  CHKS(settings->feed_mode == UNITS_PER_REVOLUTION,
+  CHKS(settings->feed_mode == FEED_MODE::UNITS_PER_REVOLUTION,
 	  _("Cannot probe with feed per rev mode"));
   CHP(find_ends(block, settings, &end_x, &end_y, &end_z,
                 &AA_end, &BB_end, &CC_end,
@@ -4465,18 +4465,18 @@ this function.
 int Interp::convert_retract_mode(int g_code,     //!< g_code being executed (must be G_98 or G_99)
                                 setup_pointer settings) //!< pointer to machine settings
 {
-  CHKS((settings->cutter_comp_side),
+  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
        (_("Cannot change retract mode with cutter radius compensation on")));
   if (g_code == G_98) {
 #ifdef DEBUG_EMC
     enqueue_COMMENT("interpreter: retract mode set to old_z");
 #endif
-    settings->retract_mode = OLD_Z;
+    settings->retract_mode = RETRACT_MODE::OLD_Z;
   } else if (g_code == G_99) {
 #ifdef DEBUG_EMC
     enqueue_COMMENT("interpreter: retract mode set to r_plane");
 #endif
-    settings->retract_mode = R_PLANE;
+    settings->retract_mode = RETRACT_MODE::R_PLANE;
   } else
     ERS(NCE_BUG_CODE_NOT_G98_OR_G99);
   return INTERP_OK;
@@ -4751,7 +4751,7 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
         (block->c_number <= -360.0 || block->c_number >= 360.0)),
        (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->c_number, 'C');
 
-  CHKS((settings->cutter_comp_side && p_int == settings->origin_index),
+  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF && p_int == settings->origin_index),
        (_("Cannot change the active coordinate system with cutter radius compensation on")));
 
   find_current_in_system(settings, p_int,
@@ -4933,34 +4933,34 @@ Called by: convert_g.
 int Interp::convert_set_plane(int g_code,        //!< must be G_17, G_18, or G_19
                              setup_pointer settings)    //!< pointer to machine settings
 {
-  CHKS((settings->cutter_comp_side && g_code == G_17 && settings->plane != CANON_PLANE_XY),
+  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF && g_code == G_17 && settings->plane != CANON_PLANE::XY),
         NCE_CANNOT_CHANGE_PLANES_WITH_CUTTER_RADIUS_COMP_ON);
-  CHKS((settings->cutter_comp_side && g_code == G_18 && settings->plane != CANON_PLANE_XZ),
+  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF && g_code == G_18 && settings->plane != CANON_PLANE::XZ),
         NCE_CANNOT_CHANGE_PLANES_WITH_CUTTER_RADIUS_COMP_ON);
-  CHKS((settings->cutter_comp_side && g_code == G_19 && settings->plane != CANON_PLANE_YZ),
+  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF && g_code == G_19 && settings->plane != CANON_PLANE::YZ),
         NCE_CANNOT_CHANGE_PLANES_WITH_CUTTER_RADIUS_COMP_ON);
 
-  CHKS((settings->cutter_comp_side && g_code == G_19),
+  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF && g_code == G_19),
           NCE_RADIUS_COMP_ONLY_IN_XY_OR_XZ);
 
   if (g_code == G_17) {
-    SELECT_PLANE(CANON_PLANE_XY);
-    settings->plane = CANON_PLANE_XY;
+    SELECT_PLANE(CANON_PLANE::XY);
+    settings->plane = CANON_PLANE::XY;
   } else if (g_code == G_18) {
-    SELECT_PLANE(CANON_PLANE_XZ);
-    settings->plane = CANON_PLANE_XZ;
+    SELECT_PLANE(CANON_PLANE::XZ);
+    settings->plane = CANON_PLANE::XZ;
   } else if (g_code == G_19) {
-    SELECT_PLANE(CANON_PLANE_YZ);
-    settings->plane = CANON_PLANE_YZ;
+    SELECT_PLANE(CANON_PLANE::YZ);
+    settings->plane = CANON_PLANE::YZ;
   } else if (g_code == G_17_1) {
-    SELECT_PLANE(CANON_PLANE_UV);
-    settings->plane = CANON_PLANE_UV;
+    SELECT_PLANE(CANON_PLANE::UV);
+    settings->plane = CANON_PLANE::UV;
   } else if (g_code == G_18_1) {
-    SELECT_PLANE(CANON_PLANE_UW);
-    settings->plane = CANON_PLANE_UW;
+    SELECT_PLANE(CANON_PLANE::UW);
+    settings->plane = CANON_PLANE::UW;
   } else if (g_code == G_19_1) {
-    SELECT_PLANE(CANON_PLANE_VW);
-    settings->plane = CANON_PLANE_VW;
+    SELECT_PLANE(CANON_PLANE::VW);
+    settings->plane = CANON_PLANE::VW;
   } else
     ERS(NCE_BUG_CODE_NOT_G17_G18_OR_G19);
   return INTERP_OK;
@@ -4998,10 +4998,10 @@ int Interp::convert_spindle_mode(int dollar_number, block_pointer block, setup_p
 	for (int s = 0; s < settings->num_spindles; s++){
 		if (dollar_number == -1 || s == dollar_number){
 			  if(block->g_modes[14] == G_97) {
-				settings->spindle_mode[s] = CONSTANT_RPM;
+				settings->spindle_mode[s] = SPINDLE_MODE::CONSTANT_RPM;
 			enqueue_SET_SPINDLE_MODE(s, 0);
 			} else { /* G_96 */
-				settings->spindle_mode[s] = CONSTANT_SURFACE;
+				settings->spindle_mode[s] = SPINDLE_MODE::CONSTANT_SURFACE;
 			if(block->d_flag)
 				enqueue_SET_SPINDLE_MODE(s, fabs(block->d_number_float));
 			else
@@ -5076,8 +5076,8 @@ canonical machining command and/or by resetting interpreter
 settings. They occur on M2 or M30.
 
 1. origin offsets are set to the default (like G54)
-2. Selected plane is set to CANON_PLANE_XY (like G17) - SELECT_PLANE
-3. Distance mode is set to MODE_ABSOLUTE (like G90)   - no canonical call
+2. Selected plane is set to CANON_PLANE::XY (like G17) - SELECT_PLANE
+3. Distance mode is set to DISTANCE_MODE::ABSOLUTE (like G90)   - no canonical call
 4. Feed mode is set to UNITS_PER_MINUTE (like G94)    - no canonical call
 5. Feed and speed overrides are set to true (like M48)  - ENABLE_FEED_OVERRIDE
                                                       - ENABLE_SPEED_OVERRIDE
@@ -5174,15 +5174,15 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
                    settings->w_origin_offset);
     SET_XY_ROTATION(settings->rotation_xy);
 
-/*2*/ if (settings->plane != CANON_PLANE_XY) {
-      SELECT_PLANE(CANON_PLANE_XY);
-      settings->plane = CANON_PLANE_XY;
+/*2*/ if (settings->plane != CANON_PLANE::XY) {
+      SELECT_PLANE(CANON_PLANE::XY);
+      settings->plane = CANON_PLANE::XY;
     }
 
 /*3*/
-    settings->distance_mode = MODE_ABSOLUTE;
+    settings->distance_mode = DISTANCE_MODE::ABSOLUTE;
 
-/*4*/ settings->feed_mode = UNITS_PER_MINUTE;
+/*4*/ settings->feed_mode = FEED_MODE::UNITS_PER_MINUTE;
     SET_FEED_MODE(0, 0);
     settings->feed_rate = block->f_number;
     SET_FEED_RATE(0);
@@ -5193,7 +5193,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     }
 
 /*6*/
-    settings->cutter_comp_side = false;
+    settings->cutter_comp_side = CUTTER_COMP::OFF;
     settings->cutter_comp_firstmove = true;
 
 /*7*/
@@ -5320,13 +5320,13 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   settings->arc_not_allowed = false;
 
   if (move == G_1) {
-    if (settings->feed_mode == UNITS_PER_MINUTE) {
+    if (settings->feed_mode == FEED_MODE::UNITS_PER_MINUTE) {
       CHKS((settings->feed_rate == 0.0), NCE_CANNOT_DO_G1_WITH_ZERO_FEED_RATE);
-    } else if (settings->feed_mode == UNITS_PER_REVOLUTION) {
+    } else if (settings->feed_mode == FEED_MODE::UNITS_PER_REVOLUTION) {
       CHKS((settings->feed_rate == 0.0), NCE_CANNOT_DO_G1_WITH_ZERO_FEED_RATE);
       CHKS((settings->speed[settings->active_spindle] == 0.0),
     		  (_("Cannot feed with zero spindle speed in feed per rev mode")));
-    } else if (settings->feed_mode == INVERSE_TIME) {
+    } else if (settings->feed_mode == FEED_MODE::INVERSE_TIME) {
       CHKS((!block->f_flag),
           NCE_F_WORD_MISSING_WITH_INVERSE_TIME_G1_MOVE);
     }
@@ -5346,20 +5346,20 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   // Create a state tag and dump it to canon
   write_canon_state_tag(block, settings);
 
-  if ((settings->cutter_comp_side) &&    /* ! "== true" */
+  if ((settings->cutter_comp_side != CUTTER_COMP::OFF) &&    /* ! "== true" */
       (settings->cutter_comp_radius > 0.0)) {   /* radius always is >= 0 */
 
     CHKS((block->g_modes[GM_MODAL_0] == G_53),
         NCE_CANNOT_USE_G53_WITH_CUTTER_RADIUS_COMP);
 
-    if(settings->plane == CANON_PLANE_XZ) {
+    if(settings->plane == CANON_PLANE::XZ) {
         if (settings->cutter_comp_firstmove)
             status = convert_straight_comp1(move, block, settings, end_z, end_x, end_y,
                                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
         else
             status = convert_straight_comp2(move, block, settings, end_z, end_x, end_y,
                                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
-    } else if(settings->plane == CANON_PLANE_XY) {
+    } else if(settings->plane == CANON_PLANE::XY) {
         if (settings->cutter_comp_firstmove)
             status = convert_straight_comp1(move, block, settings, end_x, end_y, end_z,
                                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
@@ -5570,7 +5570,7 @@ int Interp::convert_threading_cycle(block_pointer block,
 				    double end_x, double end_y, double end_z) {
 
 
-    CHKS((settings->cutter_comp_side),
+    CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
          (_("Cannot use G76 threading cycle with cutter radius compensation on")));
 
     CHKS((block->i_number == 0),
@@ -5714,16 +5714,16 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
     double radius = settings->cutter_comp_radius; /* always will be positive */
     double end_x, end_y;
 
-    int side = settings->cutter_comp_side;
+    CUTTER_COMP side = settings->cutter_comp_side;
     double cx, cy, cz;
 
     comp_get_current(settings, &cx, &cy, &cz);
     distance = hypot((px - cx), (py - cy));
 
-    CHKS(((side != LEFT) && (side != RIGHT)), NCE_BUG_SIDE_NOT_RIGHT_OR_LEFT);
+    CHKS(((side != CUTTER_COMP::LEFT) && (side != CUTTER_COMP::RIGHT)), NCE_BUG_SIDE_NOT_RIGHT_OR_LEFT);
     CHKS((distance <= radius), _("Length of cutter compensation entry move is not greater than the tool radius"));
 
-    alpha = atan2(py - cy, px - cx) + (side == LEFT ? M_PIl/2. : -M_PIl/2.);
+    alpha = atan2(py - cy, px - cx) + (side == CUTTER_COMP::LEFT ? M_PIl/2. : -M_PIl/2.);
 
     end_x = (px + (radius * cos(alpha)));
     end_y = (py + (radius * sin(alpha)));
@@ -5844,7 +5844,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
     double gamma;
     double mid_x, mid_y;                 /* x-coordinate of end of added arc, if needed */
     double radius;
-    int side;
+    CUTTER_COMP side;
     double small = TOLERANCE_CONCAVE_CORNER;      /* radians, testing corners */
     double opx = 0, opy = 0, opz = 0;      /* old programmed beginning point */
     double theta;
@@ -5875,12 +5875,12 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
         theta = atan2(cy - opy, cx - opx);
         alpha = atan2(py - opy, px - opx);
 
-        if (side == LEFT) {
+        if (side == CUTTER_COMP::LEFT) {
             if (theta < alpha)
                 theta = (theta + (2 * M_PIl));
             beta = ((theta - alpha) - M_PI_2l);
             gamma = M_PI_2l;
-        } else if (side == RIGHT) {
+        } else if (side == CUTTER_COMP::RIGHT) {
             if (alpha < theta)
                 alpha = (alpha + (2 * M_PIl));
             beta = ((alpha - theta) - M_PI_2l);
@@ -5896,8 +5896,8 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
             concave = 1;
         } else if (beta > (M_PIl - small) &&
                    (!qc().empty() && qc().front().type == QARC_FEED &&
-                    ((side == RIGHT && qc().front().data.arc_feed.turn > 0) ||
-                     (side == LEFT && qc().front().data.arc_feed.turn < 0)))) {
+                    ((side == CUTTER_COMP::RIGHT && qc().front().data.arc_feed.turn > 0) ||
+                     (side == CUTTER_COMP::LEFT && qc().front().data.arc_feed.turn < 0)))) {
             // this is an "h" shape, tool on right, going right to left
             // over the hemispherical round part, then up next to the
             // vertical part (or, the mirror case).  there are two ways
@@ -5916,7 +5916,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                 enqueue_ARC_FEED(settings, block->line_number,
                                  0.0, // doesn't matter, since we will not move this arc's endpoint
                                  mid_x, mid_y, opx, opy,
-                                 ((side == LEFT) ? -1 : 1), cz,
+                                 ((side == CUTTER_COMP::LEFT) ? -1 : 1), cz,
                                  AA_end, BB_end, CC_end, u_end, v_end, w_end);
                 dequeue_canons(settings);
                 set_endpoint(mid_x, mid_y);
@@ -6069,7 +6069,7 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
     ERS(NCE_TXX_MISSING_FOR_M6);
   }
 
-  CHKS((settings->cutter_comp_side),
+  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
        (_("Cannot change tools with cutter radius compensation on")));
 
   START_CHANGE(); // indicate start of change operation
@@ -6193,7 +6193,7 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   EmcPose tool_offset;
   ZERO_EMC_POSE(tool_offset);
 
-  CHKS((settings->cutter_comp_side),
+  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
        (_("Cannot change tool offset with cutter radius compensation on")));
   if (g_code == G_49) {
     idx = 0;
