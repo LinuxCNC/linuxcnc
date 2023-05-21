@@ -1855,8 +1855,8 @@ Optional settings
 
 * '$-' - The spindle number to which the motion will be synchronised
   (default 0).
-  For example is $1 is programmed then the motion will begin on the
-  reset od spindle.1.index-enable and proceed in synchrony with the
+  For example if $1 is programmed then the motion will begin on the
+  reset of spindle.1.index-enable and proceed in synchrony with the
   value of spindle.1.revs
 * 'R-' - The 'depth degression'. 'R1.0' selects constant depth on
   successive threading passes. 'R2.0' selects constant area.
