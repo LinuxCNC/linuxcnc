@@ -161,10 +161,12 @@ int Interp::write_m_codes(block_pointer block,   //!< pointer to a block of RS27
     (settings->mist) ? 7 : (settings->flood) ? -1 : 9;
   emz[5] =                      /* 5 flood       */
     (settings->flood) ? 8 : -1;
+  // This only considers spindle 0. This function //
+  //doesn't even know how many spindles there are //
   if (settings->feed_override) {
-    if (settings->speed_override) emz[6] =  48;
+    if (settings->speed_override[0]) emz[6] =  48;
     else emz[6] = 50;
-  } else if (settings->speed_override) {
+  } else if (settings->speed_override[0]) {
     emz[6] = 51;
   } else emz[6] = 49;
   
@@ -315,7 +317,7 @@ int Interp::write_state_tag(block_pointer block,
     state.flags[GM_FLAG_FLOOD] = (settings->flood);
 
     state.flags[GM_FLAG_FEED_OVERRIDE] = settings->feed_override;
-    state.flags[GM_FLAG_SPEED_OVERRIDE] = settings->speed_override;
+    state.flags[GM_FLAG_SPEED_OVERRIDE] = settings->speed_override[0];
 
     state.flags[GM_FLAG_ADAPTIVE_FEED] = (settings->adaptive_feed);
 
