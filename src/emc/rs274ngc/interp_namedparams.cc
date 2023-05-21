@@ -514,22 +514,22 @@ int Interp::lookup_named_param(const char *nameBuf,
 
     case NP_PLANE: // _plane
 	switch(_setup.plane) {
-	case CANON_PLANE_XY:
+	case CANON_PLANE::XY:
 	    *value = G_17;
 	    break;
-	case CANON_PLANE_XZ:
+	case CANON_PLANE::XZ:
 	    *value = G_18;
 	    break;
-	case CANON_PLANE_YZ:
+	case CANON_PLANE::YZ:
 	    *value = G_19;
 	    break;
-	case CANON_PLANE_UV:
+	case CANON_PLANE::UV:
 	    *value = G_17_1;
 	    break;
-	case CANON_PLANE_UW:
+	case CANON_PLANE::UW:
 	    *value = G_18_1;
 	    break;
-	case CANON_PLANE_VW:
+	case CANON_PLANE::VW:
 	    *value = G_19_1;
 	    break;
 	}

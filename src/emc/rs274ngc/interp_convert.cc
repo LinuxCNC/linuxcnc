@@ -54,12 +54,12 @@ using namespace interp_param_global;
 
 int Interp::comp_get_current(setup_pointer settings, double *x, double *y, double *z) {
     switch(settings->plane) {
-    case CANON_PLANE_XY:
+    case CANON_PLANE::XY:
         *x = settings->current_x;
         *y = settings->current_y;
         *z = settings->current_z;
         break;
-    case CANON_PLANE_XZ:
+    case CANON_PLANE::XZ:
         *x = settings->current_z;
         *y = settings->current_x;
         *z = settings->current_y;
@@ -72,12 +72,12 @@ int Interp::comp_get_current(setup_pointer settings, double *x, double *y, doubl
 
 int Interp::comp_set_current(setup_pointer settings, double x, double y, double z) {
     switch(settings->plane) {
-    case CANON_PLANE_XY:
+    case CANON_PLANE::XY:
         settings->current_x = x;
         settings->current_y = y;
         settings->current_z = z;
         break;
-    case CANON_PLANE_XZ:
+    case CANON_PLANE::XZ:
         settings->current_x = y;
         settings->current_y = z;
         settings->current_z = x;
@@ -90,12 +90,12 @@ int Interp::comp_set_current(setup_pointer settings, double x, double y, double 
 
 int Interp::comp_get_programmed(setup_pointer settings, double *x, double *y, double *z) {
     switch(settings->plane) {
-    case CANON_PLANE_XY:
+    case CANON_PLANE::XY:
         *x = settings->program_x;
         *y = settings->program_y;
         *z = settings->program_z;
         break;
-    case CANON_PLANE_XZ:
+    case CANON_PLANE::XZ:
         *x = settings->program_z;
         *y = settings->program_x;
         *z = settings->program_y;
@@ -108,12 +108,12 @@ int Interp::comp_get_programmed(setup_pointer settings, double *x, double *y, do
 
 int Interp::comp_set_programmed(setup_pointer settings, double x, double y, double z) {
     switch(settings->plane) {
-    case CANON_PLANE_XY:
+    case CANON_PLANE::XY:
         settings->program_x = x;
         settings->program_y = y;
         settings->program_z = z;
         break;
-    case CANON_PLANE_XZ:
+    case CANON_PLANE::XZ:
         settings->program_x = y;
         settings->program_y = z;
         settings->program_z = x;
@@ -179,7 +179,7 @@ int Interp::convert_nurbs(int mode,
 
 	if (mode == G_5_2) {
 
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			CHKS((((block->x_flag) && !(block->y_flag))
 			      || (!(block->x_flag)
 				  && (block->y_flag))),
@@ -191,7 +191,7 @@ int Interp::convert_nurbs(int mode,
 			     (_
 			      ("Can specify P without X and Y only for the first control point")));
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			CHKS((((block->y_flag) && !(block->z_flag))
 			      || (!(block->y_flag)
 				  && (block->z_flag))),
@@ -203,7 +203,7 @@ int Interp::convert_nurbs(int mode,
 			     (_
 			      ("Can specify P without Y and Z only for the first control point")));
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			CHKS((((block->x_flag) && !(block->z_flag))
 			      || (!(block->x_flag)
 				  && (block->z_flag))),
@@ -228,7 +228,7 @@ int Interp::convert_nurbs(int mode,
 			nurbs_g5_control_points.clear();
 
 		if (nurbs_g5_control_points.empty()) {
-			if (settings->plane == CANON_PLANE_XY) {
+			if (settings->plane == CANON_PLANE::XY) {
 				CP_G5.NURBS_X = settings->current_x;
 				CP_G5.NURBS_Y = settings->current_y;
 				if (!(block->x_flag) && !(block->y_flag)
@@ -238,7 +238,7 @@ int Interp::convert_nurbs(int mode,
 					CP_G5.NURBS_W = 1;
 				}
 			}
-			if (settings->plane == CANON_PLANE_YZ) {
+			if (settings->plane == CANON_PLANE::YZ) {
 				CP_G5.NURBS_X = settings->current_y;
 				CP_G5.NURBS_Y = settings->current_z;
 				if (!(block->y_flag) && !(block->z_flag)
@@ -248,7 +248,7 @@ int Interp::convert_nurbs(int mode,
 					CP_G5.NURBS_W = 1;
 				}
 			}
-			if (settings->plane == CANON_PLANE_XZ) {
+			if (settings->plane == CANON_PLANE::XZ) {
 				CP_G5.NURBS_X = settings->current_z;
 				CP_G5.NURBS_Y = settings->current_x;
 				if (!(block->x_flag) && !(block->z_flag)
@@ -265,7 +265,7 @@ int Interp::convert_nurbs(int mode,
 			nurbs_order = block->l_number;
 		}
 
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			if ((block->x_flag) && (block->y_flag)) {
 				CHP(find_ends
 				    (block, settings, &CP_G5.NURBS_X,
@@ -276,7 +276,7 @@ int Interp::convert_nurbs(int mode,
 				nurbs_g5_control_points.push_back(CP_G5);
 			}
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			if ((block->y_flag) && (block->z_flag)) {
 				CHP(find_ends
 				    (block, settings, &end_x,
@@ -287,7 +287,7 @@ int Interp::convert_nurbs(int mode,
 				nurbs_g5_control_points.push_back(CP_G5);
 			}
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			if ((block->x_flag) && (block->z_flag)) {
 				CHP(find_ends
 				    (block, settings, &CP_G5.NURBS_Y,
@@ -320,7 +320,7 @@ int Interp::convert_nurbs(int mode,
 		     ("You must specify a number of control points at least equal to the order L = %d"),
 		     nurbs_order);
 
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			settings->current_x =
 			    nurbs_g5_control_points
 			    [nurbs_g5_control_points.size() - 1].NURBS_X;
@@ -328,7 +328,7 @@ int Interp::convert_nurbs(int mode,
 			    nurbs_g5_control_points
 			    [nurbs_g5_control_points.size() - 1].NURBS_Y;
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			settings->current_y =
 			    nurbs_g5_control_points
 			    [nurbs_g5_control_points.size() - 1].NURBS_X;
@@ -336,7 +336,7 @@ int Interp::convert_nurbs(int mode,
 			    nurbs_g5_control_points
 			    [nurbs_g5_control_points.size() - 1].NURBS_Y;
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			settings->current_z =
 			    nurbs_g5_control_points
 			    [nurbs_g5_control_points.size() - 1].NURBS_X;
@@ -366,27 +366,27 @@ int Interp::convert_nurbs(int mode,
 		// Q=2 NICC NURBS interpolation with circular motion
 		// Q=1 NICU NURBS interpolation with biarch, du=const
 
-		CHKS(((settings->plane != CANON_PLANE_XY)
-		      && (settings->plane != CANON_PLANE_YZ)
-		      && (settings->plane != CANON_PLANE_XZ)),
+		CHKS(((settings->plane != CANON_PLANE::XY)
+		      && (settings->plane != CANON_PLANE::YZ)
+		      && (settings->plane != CANON_PLANE::XZ)),
 		     (_
 		      ("one plane must be selected for nurbs: XY, YZ, ZX")));
 
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			CHKS((((block->x_flag) && !(block->y_flag))
 			      || (!(block->x_flag)
 				  && (block->y_flag))),
 			     (_
 			      ("You must specify both X and Y coordinates for Control Points")));
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			CHKS((((block->y_flag) && !(block->z_flag))
 			      || (!(block->y_flag)
 				  && (block->z_flag))),
 			     (_
 			      ("You must specify both Y and Z coordinates for Control Points")));
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			CHKS((((block->x_flag) && !(block->z_flag))
 			      || (!(block->x_flag)
 				  && (block->z_flag))),
@@ -451,7 +451,7 @@ int Interp::convert_nurbs(int mode,
 			Q_G6_option = block->q_number;	// Q_G6_option=1...3 (NICU, NICL, NICC see publication from Lo Valvo and Drago)
 		}
 
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			if (((block->x_flag) && (block->y_flag))
 			    || block->k_flag) {
 				CHP(find_ends
@@ -463,7 +463,7 @@ int Interp::convert_nurbs(int mode,
 				nurbs_g6_control_points.push_back(CP_G6);
 			}
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			if (((block->y_flag) && (block->z_flag))
 			    || block->k_flag) {
 				CHP(find_ends
@@ -475,7 +475,7 @@ int Interp::convert_nurbs(int mode,
 				nurbs_g6_control_points.push_back(CP_G6);
 			}
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			if (((block->x_flag) && (block->z_flag))
 			    || block->k_flag) {
 				CHP(find_ends
@@ -585,7 +585,7 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 		     || !block->j_flag,
 		     _("Must specify both I and J with G5.1 or G6.1"));
 
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			x1 = settings->current_x + block->i_number;
 			y1 = settings->current_y + block->j_number;
 			CHP(find_ends
@@ -594,7 +594,7 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 			printf("find_ends x2: %8.4f y2: %8.4f (%s %d)\n",
 			       x2, y2, __FILE__, __LINE__);
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			y1 = settings->current_y + block->i_number;
 			z1 = settings->current_z + block->j_number;
 			CHP(find_ends
@@ -603,7 +603,7 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 			printf("find_ends y2: %8.4f z2: %8.4f (%s %d)\n",
 			       y2, z2, __FILE__, __LINE__);
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			x1 = settings->current_x + block->i_number;
 			z1 = settings->current_z + block->j_number;
 			CHP(find_ends
@@ -615,43 +615,43 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 
 		cp.NURBS_W = 1;
 
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			cp.NURBS_X = settings->current_x;
 			cp.NURBS_Y = settings->current_y;
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			cp.NURBS_X = settings->current_y;
 			cp.NURBS_Y = settings->current_z;
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			cp.NURBS_X = settings->current_z;
 			cp.NURBS_Y = settings->current_x;
 		}
 		nurbs_g5_control_points.push_back(cp);
 
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			cp.NURBS_X = x1;
 			cp.NURBS_Y = y1;
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			cp.NURBS_X = y1;
 			cp.NURBS_Y = z1;
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			cp.NURBS_X = z1;
 			cp.NURBS_Y = x1;
 		}
 		nurbs_g5_control_points.push_back(cp);
 
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			cp.NURBS_X = x2;
 			cp.NURBS_Y = y2;
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			cp.NURBS_X = y2;
 			cp.NURBS_Y = z2;
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			cp.NURBS_X = z2;
 			cp.NURBS_Y = x2;
 		}
@@ -672,15 +672,15 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 			      3, settings->plane);
 		nurbs_g5_control_points.clear();
 
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			settings->current_x = x2;
 			settings->current_y = y2;
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			settings->current_y = y2;
 			settings->current_z = z2;
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			settings->current_x = x2;
 			settings->current_z = z2;
 		}
@@ -689,26 +689,26 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 			CHKS(block->i_flag
 			     || block->j_flag,
 			     _("Must specify both I and J, or neither"));
-			if (settings->plane == CANON_PLANE_XY) {
+			if (settings->plane == CANON_PLANE::XY) {
 				x1 = settings->current_x +
 				    settings->cycle_i;
 				y1 = settings->current_y +
 				    settings->cycle_j;
 			}
-			if (settings->plane == CANON_PLANE_YZ) {
+			if (settings->plane == CANON_PLANE::YZ) {
 				y1 = settings->current_y +
 				    settings->cycle_i;
 				z1 = settings->current_z +
 				    settings->cycle_j;
 			}
-			if (settings->plane == CANON_PLANE_XZ) {
+			if (settings->plane == CANON_PLANE::XZ) {
 				x1 = settings->current_x +
 				    settings->cycle_i;
 				z1 = settings->current_z +
 				    settings->cycle_j;
 			}
 		} else {
-			if (settings->plane == CANON_PLANE_XY) {
+			if (settings->plane == CANON_PLANE::XY) {
 				x1 = settings->current_x + block->i_number;
 				y1 = settings->current_y + block->j_number;
 				CHP(find_ends
@@ -718,7 +718,7 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 				printf("x3: %8.4f y3: %8.4f (%s %d)\n", x3,
 				       y3, __FILE__, __LINE__);
 			}
-			if (settings->plane == CANON_PLANE_YZ) {
+			if (settings->plane == CANON_PLANE::YZ) {
 				y1 = settings->current_y + block->i_number;
 				z1 = settings->current_z + block->j_number;
 				CHP(find_ends
@@ -728,7 +728,7 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 				printf("y3: %8.4f z3: %8.4f (%s %d)\n", y3,
 				       z3, __FILE__, __LINE__);
 			}
-			if (settings->plane == CANON_PLANE_XZ) {
+			if (settings->plane == CANON_PLANE::XZ) {
 				x1 = settings->current_x + block->i_number;
 				z1 = settings->current_z + block->j_number;
 				CHP(find_ends
@@ -743,19 +743,19 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 		CHKS(!block->p_flag
 		     || !block->q_flag,
 		     _("Must specify both P and Q with G5"));
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			x2 = x3 + block->p_number;
 			y2 = y3 + block->q_number;
 			printf("x2: %8.4f y2: %8.4f (%s %d)\n", x2, y2,
 			       __FILE__, __LINE__);
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			y2 = y3 + block->p_number;
 			z2 = z3 + block->q_number;
 			printf("y2: %8.4f z2: %8.4f (%s %d)\n", y2, z2,
 			       __FILE__, __LINE__);
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			z2 = z3 + block->p_number;
 			x2 = x3 + block->q_number;
 			printf("x2: %8.4f z2: %8.4f (%s %d)\n", x2, z2,
@@ -763,54 +763,54 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 		}
 
 		cp.NURBS_W = 1;
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			cp.NURBS_X = settings->current_x;
 			cp.NURBS_Y = settings->current_y;
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			cp.NURBS_X = settings->current_y;
 			cp.NURBS_Y = settings->current_z;
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			cp.NURBS_X = settings->current_z;
 			cp.NURBS_Y = settings->current_x;
 		}
 		nurbs_g5_control_points.push_back(cp);
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			cp.NURBS_X = x1;
 			cp.NURBS_Y = y1;
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			cp.NURBS_X = y1;
 			cp.NURBS_Y = z1;
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			cp.NURBS_X = z1;
 			cp.NURBS_Y = x1;
 		}
 		nurbs_g5_control_points.push_back(cp);
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			cp.NURBS_X = x2;
 			cp.NURBS_Y = y2;
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			cp.NURBS_X = y2;
 			cp.NURBS_Y = z2;
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			cp.NURBS_X = z2;
 			cp.NURBS_Y = x2;
 		}
 		nurbs_g5_control_points.push_back(cp);
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			cp.NURBS_X = x3;
 			cp.NURBS_Y = y3;
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			cp.NURBS_X = y3;
 			cp.NURBS_Y = z3;
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			cp.NURBS_X = z3;
 			cp.NURBS_Y = x3;
 		}
@@ -832,15 +832,15 @@ int Interp::convert_spline(int mode, block_pointer block,	//!< pointer to a bloc
 
 		settings->cycle_i = -block->p_number;
 		settings->cycle_j = -block->q_number;
-		if (settings->plane == CANON_PLANE_XY) {
+		if (settings->plane == CANON_PLANE::XY) {
 			settings->current_x = x3;
 			settings->current_y = y3;
 		}
-		if (settings->plane == CANON_PLANE_YZ) {
+		if (settings->plane == CANON_PLANE::YZ) {
 			settings->current_y = y3;
 			settings->current_z = z3;
 		}
-		if (settings->plane == CANON_PLANE_XZ) {
+		if (settings->plane == CANON_PLANE::XZ) {
 			settings->current_x = x3;
 			settings->current_z = z3;
 		}
@@ -930,9 +930,9 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
   ijk_flag = block->i_flag || block->j_flag || block->k_flag;
   first = settings->cutter_comp_firstmove;
 
-  CHKS((settings->plane == CANON_PLANE_UV
-            || settings->plane == CANON_PLANE_VW
-            || settings->plane == CANON_PLANE_UW),
+  CHKS((settings->plane == CANON_PLANE::UV
+            || settings->plane == CANON_PLANE::VW
+            || settings->plane == CANON_PLANE::UW),
     _("Cannot do an arc in planes G17.1, G18.1, or G19.1"));
   CHKS(((!block->r_flag) && (!ijk_flag)),
       NCE_R_I_J_K_WORDS_ALL_MISSING_FOR_ARC);
@@ -952,7 +952,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
   }
 
   if (ijk_flag) {
-    if (settings->plane == CANON_PLANE_XY) {
+    if (settings->plane == CANON_PLANE::XY) {
       CHKS((block->k_flag), NCE_K_WORD_GIVEN_FOR_ARC_IN_XY_PLANE);
       if (!block->i_flag) { /* i or j flag on to get here */
 	if (settings->ijk_distance_mode == DISTANCE_MODE::ABSOLUTE) {
@@ -967,7 +967,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
 	  block->j_number = 0.0;
 	}
       }
-    } else if (settings->plane == CANON_PLANE_YZ) {
+    } else if (settings->plane == CANON_PLANE::YZ) {
       CHKS((block->i_flag), NCE_I_WORD_GIVEN_FOR_ARC_IN_YZ_PLANE);
       if (!block->j_flag) { /* j or k flag on to get here */
 	if (settings->ijk_distance_mode == DISTANCE_MODE::ABSOLUTE) {
@@ -982,7 +982,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
 	  block->k_number = 0.0;
 	}
       }
-    } else if (settings->plane == CANON_PLANE_XZ) {
+    } else if (settings->plane == CANON_PLANE::XZ) {
       CHKS((block->j_flag), NCE_J_WORD_GIVEN_FOR_ARC_IN_XZ_PLANE);
       if (!block->i_flag) { /* i or k flag on to get here */
 	if (settings->ijk_distance_mode == DISTANCE_MODE::ABSOLUTE) {
@@ -1002,13 +1002,13 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
     }
   } else {
     // in R format, we need some XYZ words specified because a full circle is not allowed.
-    if (settings->plane == CANON_PLANE_XY) {
+    if (settings->plane == CANON_PLANE::XY) {
         CHKS(((!block->x_flag) && (!block->y_flag) && (!block->radius_flag) && (!block->theta_flag)),
             NCE_X_AND_Y_WORDS_MISSING_FOR_ARC_IN_XY_PLANE);
-    } else if (settings->plane == CANON_PLANE_YZ) {
+    } else if (settings->plane == CANON_PLANE::YZ) {
         CHKS(((!block->y_flag) && (!block->z_flag)),
             NCE_Y_AND_Z_WORDS_MISSING_FOR_ARC_IN_YZ_PLANE);
-    } else if (settings->plane == CANON_PLANE_XZ) {
+    } else if (settings->plane == CANON_PLANE::XZ) {
         CHKS(((!block->x_flag) && (!block->z_flag)),
             NCE_X_AND_Z_WORDS_MISSING_FOR_ARC_IN_XZ_PLANE);
     }
@@ -1024,7 +1024,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
   // Should be done with changes to settings here, so we can pack the state
   write_canon_state_tag(block, settings);
 
-  if (settings->plane == CANON_PLANE_XY) {
+  if (settings->plane == CANON_PLANE::XY) {
     if ((settings->cutter_comp_side == CUTTER_COMP::OFF) ||
         (settings->cutter_comp_radius == 0.0)) {
       status =
@@ -1048,7 +1048,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
                                  u_end, v_end, w_end);
       CHP(status);
     }
-  } else if (settings->plane == CANON_PLANE_XZ) {
+  } else if (settings->plane == CANON_PLANE::XZ) {
     if ((settings->cutter_comp_side == CUTTER_COMP::OFF) ||
         (settings->cutter_comp_radius == 0.0)) {
       status =
@@ -1073,7 +1073,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
 
       CHP(status);
     }
-  } else if (settings->plane == CANON_PLANE_YZ) {
+  } else if (settings->plane == CANON_PLANE::YZ) {
     status =
       convert_arc2(move, block, settings,
                    &(settings->current_y), &(settings->current_z),
@@ -1125,7 +1125,7 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
   double center1;
   double center2;
   int turn;                     /* number of full or partial turns CCW in arc */
-  int plane = settings->plane;
+  CANON_PLANE plane = settings->plane;
 
   // Spiral tolerance is the amount of "spiral" allowed in a given arc segment, or (r2-r1)/theta
   double spiral_abs_tolerance = (settings->length_units == CANON_UNITS_INCHES) ?
@@ -1208,7 +1208,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     double tool_radius;
     int turn;                     /* 1 for counterclockwise, -1 for clockwise */
     double cx, cy, cz; // current
-    int plane = settings->plane;
+    CANON_PLANE plane = settings->plane;
 
     side = settings->cutter_comp_side;
     tool_radius = settings->cutter_comp_radius;   /* always is positive */
@@ -1365,7 +1365,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     double theta;                 /* direction of tangent to last cut */
     double tool_radius;
     int turn;                     /* number of full or partial circles CCW */
-    int plane = settings->plane;
+    CANON_PLANE plane = settings->plane;
     double cx, cy, cz;
     double new_end_x, new_end_y;
 
@@ -2533,7 +2533,7 @@ int Interp::convert_cutter_compensation_on(CUTTER_COMP side,     //!< side of pa
   double radius;
   int idx, orientation;
 
-  CHKS((settings->plane != CANON_PLANE_XY && settings->plane != CANON_PLANE_XZ),
+  CHKS((settings->plane != CANON_PLANE::XY && settings->plane != CANON_PLANE::XZ),
       NCE_RADIUS_COMP_ONLY_IN_XY_OR_XZ);
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
       NCE_CANNOT_TURN_CUTTER_RADIUS_COMP_ON_WHEN_ON);
@@ -2542,7 +2542,7 @@ int Interp::convert_cutter_compensation_on(CUTTER_COMP side,     //!< side of pa
               _("G%d.1 with no D word"), block->g_modes[GM_CUTTER_COMP]/10 );
       radius = block->d_number_float / 2;
       if(block->l_number != -1) {
-          CHKS((settings->plane != CANON_PLANE_XZ), _("G%d.1 with L word, but plane is not G18"), block->g_modes[GM_CUTTER_COMP]/10);
+          CHKS((settings->plane != CANON_PLANE::XZ), _("G%d.1 with L word, but plane is not G18"), block->g_modes[GM_CUTTER_COMP]/10);
           orientation = block->l_number;
       } else {
           orientation = 0;
@@ -2560,7 +2560,7 @@ int Interp::convert_cutter_compensation_on(CUTTER_COMP side,     //!< side of pa
       }
       radius = USER_TO_PROGRAM_LEN(settings->tool_table[idx].diameter) / 2.0;
       orientation = settings->tool_table[idx].orientation;
-      CHKS((settings->plane != CANON_PLANE_XZ && orientation != 0 && orientation != 9), _("G%d with lathe tool, but plane is not G18"), block->g_modes[7]/10);
+      CHKS((settings->plane != CANON_PLANE::XZ && orientation != 0 && orientation != 9), _("G%d with lathe tool, but plane is not G18"), block->g_modes[7]/10);
   }
   if (radius < 0.0) { /* switch side & make radius positive if radius negative */
     radius = -radius;
@@ -4933,34 +4933,34 @@ Called by: convert_g.
 int Interp::convert_set_plane(int g_code,        //!< must be G_17, G_18, or G_19
                              setup_pointer settings)    //!< pointer to machine settings
 {
-  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF && g_code == G_17 && settings->plane != CANON_PLANE_XY),
+  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF && g_code == G_17 && settings->plane != CANON_PLANE::XY),
         NCE_CANNOT_CHANGE_PLANES_WITH_CUTTER_RADIUS_COMP_ON);
-  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF && g_code == G_18 && settings->plane != CANON_PLANE_XZ),
+  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF && g_code == G_18 && settings->plane != CANON_PLANE::XZ),
         NCE_CANNOT_CHANGE_PLANES_WITH_CUTTER_RADIUS_COMP_ON);
-  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF && g_code == G_19 && settings->plane != CANON_PLANE_YZ),
+  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF && g_code == G_19 && settings->plane != CANON_PLANE::YZ),
         NCE_CANNOT_CHANGE_PLANES_WITH_CUTTER_RADIUS_COMP_ON);
 
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF && g_code == G_19),
           NCE_RADIUS_COMP_ONLY_IN_XY_OR_XZ);
 
   if (g_code == G_17) {
-    SELECT_PLANE(CANON_PLANE_XY);
-    settings->plane = CANON_PLANE_XY;
+    SELECT_PLANE(CANON_PLANE::XY);
+    settings->plane = CANON_PLANE::XY;
   } else if (g_code == G_18) {
-    SELECT_PLANE(CANON_PLANE_XZ);
-    settings->plane = CANON_PLANE_XZ;
+    SELECT_PLANE(CANON_PLANE::XZ);
+    settings->plane = CANON_PLANE::XZ;
   } else if (g_code == G_19) {
-    SELECT_PLANE(CANON_PLANE_YZ);
-    settings->plane = CANON_PLANE_YZ;
+    SELECT_PLANE(CANON_PLANE::YZ);
+    settings->plane = CANON_PLANE::YZ;
   } else if (g_code == G_17_1) {
-    SELECT_PLANE(CANON_PLANE_UV);
-    settings->plane = CANON_PLANE_UV;
+    SELECT_PLANE(CANON_PLANE::UV);
+    settings->plane = CANON_PLANE::UV;
   } else if (g_code == G_18_1) {
-    SELECT_PLANE(CANON_PLANE_UW);
-    settings->plane = CANON_PLANE_UW;
+    SELECT_PLANE(CANON_PLANE::UW);
+    settings->plane = CANON_PLANE::UW;
   } else if (g_code == G_19_1) {
-    SELECT_PLANE(CANON_PLANE_VW);
-    settings->plane = CANON_PLANE_VW;
+    SELECT_PLANE(CANON_PLANE::VW);
+    settings->plane = CANON_PLANE::VW;
   } else
     ERS(NCE_BUG_CODE_NOT_G17_G18_OR_G19);
   return INTERP_OK;
@@ -5076,7 +5076,7 @@ canonical machining command and/or by resetting interpreter
 settings. They occur on M2 or M30.
 
 1. origin offsets are set to the default (like G54)
-2. Selected plane is set to CANON_PLANE_XY (like G17) - SELECT_PLANE
+2. Selected plane is set to CANON_PLANE::XY (like G17) - SELECT_PLANE
 3. Distance mode is set to DISTANCE_MODE::ABSOLUTE (like G90)   - no canonical call
 4. Feed mode is set to UNITS_PER_MINUTE (like G94)    - no canonical call
 5. Feed and speed overrides are set to true (like M48)  - ENABLE_FEED_OVERRIDE
@@ -5174,9 +5174,9 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
                    settings->w_origin_offset);
     SET_XY_ROTATION(settings->rotation_xy);
 
-/*2*/ if (settings->plane != CANON_PLANE_XY) {
-      SELECT_PLANE(CANON_PLANE_XY);
-      settings->plane = CANON_PLANE_XY;
+/*2*/ if (settings->plane != CANON_PLANE::XY) {
+      SELECT_PLANE(CANON_PLANE::XY);
+      settings->plane = CANON_PLANE::XY;
     }
 
 /*3*/
@@ -5352,14 +5352,14 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     CHKS((block->g_modes[GM_MODAL_0] == G_53),
         NCE_CANNOT_USE_G53_WITH_CUTTER_RADIUS_COMP);
 
-    if(settings->plane == CANON_PLANE_XZ) {
+    if(settings->plane == CANON_PLANE::XZ) {
         if (settings->cutter_comp_firstmove)
             status = convert_straight_comp1(move, block, settings, end_z, end_x, end_y,
                                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
         else
             status = convert_straight_comp2(move, block, settings, end_z, end_x, end_y,
                                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
-    } else if(settings->plane == CANON_PLANE_XY) {
+    } else if(settings->plane == CANON_PLANE::XY) {
         if (settings->cutter_comp_firstmove)
             status = convert_straight_comp1(move, block, settings, end_x, end_y, end_z,
                                             AA_end, BB_end, CC_end, u_end, v_end, w_end);

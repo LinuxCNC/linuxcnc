@@ -108,7 +108,7 @@ setup::setup() :
     named_parameters{nullptr},
     named_parameter_values{0},
     percent_flag(0),
-    plane(CANON_PLANE_XY),
+    plane(CANON_PLANE::XY),
     probe_flag(0),
     input_flag(0),
     toolchange_flag(0),

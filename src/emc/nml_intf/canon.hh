@@ -71,13 +71,13 @@ struct NURBS_G6_DPLANE_POINT {
 };	//è impiegata per salvare le derivate x'(u) y'(u).
 
 
-enum CANON_PLANE {
-    CANON_PLANE_XY = 1,
-    CANON_PLANE_YZ,
-    CANON_PLANE_XZ,
-    CANON_PLANE_UV,
-    CANON_PLANE_VW,
-    CANON_PLANE_UW,
+enum class CANON_PLANE {
+    XY = 1,
+    YZ,
+    XZ,
+    UV,
+    VW,
+    UW,
 };
 
 enum CANON_UNITS
@@ -552,12 +552,12 @@ extern std::vector<double> nurbs_G6_knot_vector_new_creator_sgment(unsigned int 
 
 /* Canon calls */
 
-extern void NURBS_G5_FEED(int lineno, std::vector<NURBS_CONTROL_POINT> nurbs_control_points, unsigned int nurbs_order, int plane);
+extern void NURBS_G5_FEED(int lineno, std::vector<NURBS_CONTROL_POINT> nurbs_control_points, unsigned int nurbs_order, CANON_PLANE plane);
 /* Move at the feed rate along an approximation of a NURBS with a variable number
  * of control points
  */
 
-extern void NURBS_G6_FEED(int lineno, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, unsigned int k, double feedrate, int l, int plane);
+extern void NURBS_G6_FEED(int lineno, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, unsigned int k, double feedrate, int l, CANON_PLANE plane);
 // this is for G6xx
 
 extern double alpha_finder(double dx, double dy);

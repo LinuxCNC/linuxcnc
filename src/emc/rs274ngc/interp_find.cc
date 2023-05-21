@@ -265,7 +265,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
             *py = block->y_number;
         } else {
             // but only XY affects Y ...
-            *py = (comp != CUTTER_COMP::OFF && middle && s->plane == CANON_PLANE_XY) ? s->program_y : s->current_y;
+            *py = (comp != CUTTER_COMP::OFF && middle && s->plane == CANON_PLANE::XY) ? s->program_y : s->current_y;
         }
 
         if(block->radius_flag && block->theta_flag) {
@@ -291,7 +291,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
             *pz = block->z_number;
         } else {
             // and only XZ affects Z.
-            *pz = (comp != CUTTER_COMP::OFF && middle && s->plane == CANON_PLANE_XZ) ? s->program_z : s->current_z;
+            *pz = (comp != CUTTER_COMP::OFF && middle && s->plane == CANON_PLANE::XZ) ? s->program_z : s->current_z;
         }
 
         if(block->a_flag) {
@@ -335,7 +335,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         if(block->x_flag) *px += block->x_number;
 
         // but only XY affects Y ...
-        *py = (comp != CUTTER_COMP::OFF && middle && s->plane == CANON_PLANE_XY) ? s->program_y: s->current_y;
+        *py = (comp != CUTTER_COMP::OFF && middle && s->plane == CANON_PLANE::XY) ? s->program_y: s->current_y;
         if(block->y_flag) *py += block->y_number;
 
         if(block->radius_flag) {
@@ -359,7 +359,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         }
 
         // and only XZ affects Z.
-        *pz = (comp != CUTTER_COMP::OFF && middle && s->plane == CANON_PLANE_XZ) ? s->program_z: s->current_z;
+        *pz = (comp != CUTTER_COMP::OFF && middle && s->plane == CANON_PLANE::XZ) ? s->program_z: s->current_z;
         if(block->z_flag) *pz += block->z_number;
 
         *AA_p = s->AA_current;

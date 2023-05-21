@@ -158,7 +158,7 @@ public:
 /* Function prototypes for all  functions */
 
  int arc_data_comp_ijk(int move,
-         int plane,
+         CANON_PLANE plane,
          CUTTER_COMP side,
          double tool_radius,
          double current_x,
@@ -177,7 +177,7 @@ public:
          double spiral_rel_tolerance);
 
  int arc_data_comp_r(int move,
-         int plane,
+         CANON_PLANE plane,
          CUTTER_COMP side,
          double tool_radius,
          double current_x,
@@ -192,7 +192,7 @@ public:
          double radius_tolerance);
 
  int arc_data_ijk(int move,
-         int plane,
+         CANON_PLANE plane,
          double current_x,
          double current_y,
          double end_x,
@@ -209,7 +209,7 @@ public:
          double spiral_rel_tolerance);
 
  int arc_data_r(int move,
-         int plane,
+         CANON_PLANE plane,
          double current_x,
          double current_y,
          double end_x,
@@ -255,8 +255,8 @@ public:
                        double offset_x, double offset_y,
                        double AA_end, double BB_end, double CC_end,
                        double u_end, double v_end, double w_end);
- char arc_axis1(int plane);
- char arc_axis2(int plane);
+ char arc_axis1(CANON_PLANE plane);
+ char arc_axis2(CANON_PLANE plane);
  int convert_axis_offsets(int g_code, block_pointer block,
                                 setup_pointer settings);
  int convert_param_comment(char *comment, char *expanded, int len);

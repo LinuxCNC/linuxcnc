@@ -1033,7 +1033,7 @@ int Interp::convert_g7x(int mode,
     if(settings->cutter_comp_side != CUTTER_COMP::OFF && cycle!=70)
 	ERS("G%d.%d cannot be used with cutter compensation enabled",
 	    cycle, subcycle);
-    if(settings->plane!=CANON_PLANE_XZ)
+    if(settings->plane!=CANON_PLANE::XZ)
 	ERS("G%d.%d can only be used in XZ plane (G18)",
 	    cycle, subcycle);
 

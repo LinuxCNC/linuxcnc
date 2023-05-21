@@ -715,7 +715,7 @@ static inline void set_origin_index(Interp &interp, int value)  {
     interp._setup.origin_index = value;
 }
 static inline int get_plane (Interp &interp)  {
-    return interp._setup.plane;
+    return (int)interp._setup.plane;
 }
 static inline void set_plane(Interp &interp, int value)  {
     interp._setup.plane = static_cast<CANON_PLANE>(value);

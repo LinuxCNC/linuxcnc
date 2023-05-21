@@ -80,22 +80,22 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
   gez[1] = settings->motion_mode;
   gez[2] = ((block == NULL) ? -1 : block->g_modes[0]);
   switch(settings->plane) {
-  case CANON_PLANE_XY:
+  case CANON_PLANE::XY:
       gez[3] = G_17;
       break;
-  case CANON_PLANE_XZ:
+  case CANON_PLANE::XZ:
       gez[3] = G_18;
       break;
-  case CANON_PLANE_YZ:
+  case CANON_PLANE::YZ:
       gez[3] = G_19;
       break;
-  case CANON_PLANE_UV:
+  case CANON_PLANE::UV:
       gez[3] = G_17_1;
       break;
-  case CANON_PLANE_UW:
+  case CANON_PLANE::UW:
       gez[3] = G_18_1;
       break;
-  case CANON_PLANE_VW:
+  case CANON_PLANE::VW:
       gez[3] = G_19_1;
       break;
   }
@@ -228,22 +228,22 @@ int Interp::write_state_tag(block_pointer block,
 	((block == NULL) ? -1 : block->g_modes[0]);
     state.fields[GM_FIELD_MOTION_MODE] = settings->motion_mode;
     switch(settings->plane) {
-    case CANON_PLANE_XY:
+    case CANON_PLANE::XY:
 	state.fields[GM_FIELD_PLANE] = G_17;
 	break;
-    case CANON_PLANE_XZ:
+    case CANON_PLANE::XZ:
 	state.fields[GM_FIELD_PLANE] = G_18;
 	break;
-    case CANON_PLANE_YZ:
+    case CANON_PLANE::YZ:
 	state.fields[GM_FIELD_PLANE] = G_19;
 	break;
-    case CANON_PLANE_UV:
+    case CANON_PLANE::UV:
 	state.fields[GM_FIELD_PLANE] = G_17_1;
 	break;
-    case CANON_PLANE_UW:
+    case CANON_PLANE::UW:
 	state.fields[GM_FIELD_PLANE] = G_18_1;
 	break;
-    case CANON_PLANE_VW:
+    case CANON_PLANE::VW:
 	state.fields[GM_FIELD_PLANE] = G_19_1;
 	break;
     }
