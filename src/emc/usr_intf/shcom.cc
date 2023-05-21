@@ -297,11 +297,11 @@ int emcCommandWaitDone()
 	    return 0;
 	}
 
-	if (emcStatus->status == RCS_DONE) {
+	if (emcStatus->status == RCS_STATUS::DONE) {
 	    return 0;
 	}
 
-	if (emcStatus->status == RCS_ERROR) {
+	if (emcStatus->status == RCS_STATUS::ERROR) {
 	    return -1;
 	}
 

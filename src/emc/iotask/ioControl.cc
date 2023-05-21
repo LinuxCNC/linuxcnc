@@ -165,7 +165,7 @@ static int emcIoNmlGet()
             emcioStatus.heartbeat = 0;
             emcioStatus.command_type = 0;
             emcioStatus.echo_serial_number = 0;
-            emcioStatus.status = RCS_DONE;
+            emcioStatus.status = RCS_STATUS::DONE;
             emcioStatusBuffer->write(&emcioStatus);
         }
     }
@@ -562,7 +562,7 @@ void load_tool(int idx) {
         }
 
         if (0 != tooldata_save(io_tool_table_file)) {
-            emcioStatus.status = RCS_ERROR;
+            emcioStatus.status = RCS_STATUS::ERROR;
         }
     } else if(idx == 0) {
         // on non-random tool-changers, asking for pocket 0 is the secret
@@ -622,7 +622,7 @@ static int read_tool_inputs(void)
     if (*iocontrol_data->tool_prepare && *iocontrol_data->tool_prepared) {
         emcioStatus.tool.pocketPrepped = *iocontrol_data->tool_prep_index; //check if tool has been (idx) prepared
         *(iocontrol_data->tool_prepare) = 0;
-        emcioStatus.status = RCS_DONE;  // we finally finished to do tool-changing, signal task with RCS_DONE
+        emcioStatus.status = RCS_STATUS::DONE;  // we finally finished to do tool-changing, signal task with RCS_DONE
         return 10; //prepped finished
     }
 
@@ -649,7 +649,7 @@ static int read_tool_inputs(void)
         *(iocontrol_data->tool_prep_pocket) = 0; //likewise in HAL
         *(iocontrol_data->tool_prep_index)  = 0; //likewise in HAL
         *(iocontrol_data->tool_change) = 0; //also reset the tool change signal
-        emcioStatus.status = RCS_DONE;        // we finally finished to do tool-changing, signal task with RCS_DONE
+        emcioStatus.status = RCS_STATUS::DONE;        // we finally finished to do tool-changing, signal task with RCS_DONE
         return 11; //change finished
     }
     return 0;
@@ -835,7 +835,7 @@ int main(int argc, char *argv[])
         }
 
         type = emcioCommand->type;
-        emcioStatus.status = RCS_DONE;
+        emcioStatus.status = RCS_STATUS::DONE;
 
         switch (type) {
         case 0:
@@ -921,7 +921,7 @@ int main(int argc, char *argv[])
                 // the feedback logic is done inside read_hal_inputs()
                 // we only need to set RCS_EXEC if RCS_DONE is not already set by the above logic
                 if (tool_status != 10) //set above to 10 in case PREP already finished (HAL loopback machine)
-                    emcioStatus.status = RCS_EXEC;
+                    emcioStatus.status = RCS_STATUS::EXEC;
             }
             break;
         case EMC_TOOL_LOAD_TYPE:
@@ -952,7 +952,7 @@ int main(int argc, char *argv[])
                 if (tool_status != 11)
                     // set above to 11 in case LOAD already finished (HAL
                     // loopback machine)
-                    emcioStatus.status = RCS_EXEC;
+                    emcioStatus.status = RCS_STATUS::EXEC;
             }
             break;
         }
@@ -968,7 +968,7 @@ int main(int argc, char *argv[])
                 if(!strlen(filename)) filename = io_tool_table_file;
                 rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD_TOOL_TABLE\n");
                 if (0 != tooldata_load(filename)) {
-                    emcioStatus.status = RCS_ERROR;
+                    emcioStatus.status = RCS_STATUS::ERROR;
                 } else {
                     reload_tool_number(emcioStatus.tool.toolInSpindle);
                 }
@@ -1007,7 +1007,7 @@ int main(int argc, char *argv[])
                     UNEXPECTED_MSG;
                 }
                 if (0 != tooldata_save(io_tool_table_file)) {
-                    emcioStatus.status = RCS_ERROR;
+                    emcioStatus.status = RCS_STATUS::ERROR;
                 }
                 if (io_db_mode == DB_ACTIVE) {
                     int pno = idx; // for random_toolchanger

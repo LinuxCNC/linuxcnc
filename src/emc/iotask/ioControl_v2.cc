@@ -253,7 +253,7 @@ static int emcIoNmlGet()
             emcioStatus.heartbeat = 0;
             emcioStatus.command_type = 0;
             emcioStatus.echo_serial_number = 0;
-            emcioStatus.status = RCS_DONE;
+            emcioStatus.status = RCS_STATUS::DONE;
             emcioStatusBuffer->write(&emcioStatus);
         }
     }
@@ -515,7 +515,7 @@ void load_tool(int idx) {
         }
 
         if (0 != tooldata_save(io_tool_table_file)) {
-            emcioStatus.status = RCS_ERROR;
+            emcioStatus.status = RCS_STATUS::ERROR;
         }
     } else if(idx == 0) {
             // magic T0 = pocket 0 = no tool
@@ -736,14 +736,14 @@ static void do_hal_exit(void) {
 }
 
 
-static void update_status(int status, int serial)
+static void update_status(RCS_STATUS status, int serial)
 {
-    static int status_reported = -1;
+    static RCS_STATUS status_reported = RCS_STATUS::UNINITIALIZED;
 
     emcioStatus.status = status;
     if (status_reported != status) {
         rtapi_print_msg(RTAPI_MSG_DBG, "%s: updating status=%s state=%s fault=%d reason=%d\n",
-                        progname,strcs[emcioStatus.status],strstate[*(iocontrol_data->state)],
+                        progname,strcs[(int)emcioStatus.status],strstate[*(iocontrol_data->state)],//BUG: array accessed at -1 when status is RCS_STATUS::UNINITIALIZED
                         emcioStatus.fault, emcioStatus.reason
                         );
         status_reported = emcioStatus.status;  // just print this once
@@ -919,11 +919,11 @@ int main(int argc, char *argv[])
                 rtapi_print_msg(RTAPI_MSG_DBG, "%s:lube_level changed to %d\n",progname,emcioStatus.lube.level);
 
             // need for different serial number, because we are pushing a new message
-            update_status(RCS_DONE, emcioCommand->serial_number + 1);
+            update_status(RCS_STATUS::DONE, emcioCommand->serial_number + 1);
         }
 
         if (input_status & (TI_PREPARING)) {
-            update_status(RCS_EXEC, emcioCommand->serial_number);
+            update_status(RCS_STATUS::EXEC, emcioCommand->serial_number);
         }
 
         if (input_status & (TI_START_CHANGE|TI_CHANGING)) {
@@ -934,15 +934,15 @@ int main(int argc, char *argv[])
                                 strstate[*(iocontrol_data->state)],
                                 str_input(input_status)
                                 );
-                update_status(RCS_ERROR, emcioCommand->serial_number);
+                update_status(RCS_STATUS::ERROR, emcioCommand->serial_number);
             } else {
-                update_status(RCS_EXEC, emcioCommand->serial_number);
+                update_status(RCS_STATUS::EXEC, emcioCommand->serial_number);
             }
         }
 
         //        if (input_status & (TI_PREPARE_COMPLETE|TI_CHANGE_COMPLETE|TI_START_CHANGE_ACKED|TI_EMC_ABORT_ACKED))
         if (input_status & (TI_PREPARE_COMPLETE|TI_CHANGE_COMPLETE|TI_START_CHANGE_ACKED)) {
-            update_status(RCS_DONE, emcioCommand->serial_number);
+            update_status(RCS_STATUS::DONE, emcioCommand->serial_number);
         }
 
         /* read NML, run commands */
@@ -970,7 +970,7 @@ int main(int argc, char *argv[])
          * to cause an abort, set emcioStatus.reason and
          * emcioStatus.status to RCS_ERROR.
          */
-        emcioStatus.status = RCS_DONE;
+        emcioStatus.status = RCS_STATUS::DONE;
         type = emcioCommand->type;
 
         switch (type) {
@@ -1061,7 +1061,7 @@ int main(int argc, char *argv[])
 
                 // delay fetching the next message until prepare done
                 if (!(input_status & TI_PREPARE_COMPLETE)) {
-                    emcioStatus.status = RCS_EXEC;
+                    emcioStatus.status = RCS_STATUS::EXEC;
                 }
             }
         }
@@ -1093,7 +1093,7 @@ int main(int argc, char *argv[])
 
                 // delay fetching the next message until change done
                 if (! (input_status & TI_CHANGE_COMPLETE)) {
-                    emcioStatus.status = RCS_EXEC;
+                    emcioStatus.status = RCS_STATUS::EXEC;
                 }
             }
             break;
@@ -1106,7 +1106,7 @@ int main(int argc, char *argv[])
                 *(iocontrol_data->state) = ST_START_CHANGE;
                 // delay fetching the next message until ack line seen
                 if (! (input_status & TI_START_CHANGE_ACKED)) {
-                    emcioStatus.status = RCS_EXEC;
+                    emcioStatus.status = RCS_STATUS::EXEC;
                 }
             }
             break;
@@ -1123,7 +1123,7 @@ int main(int argc, char *argv[])
             if(!strlen(filename)) filename = io_tool_table_file;
             rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD_TOOL_TABLE\n");
             if (0 != tooldata_load(filename)) {
-                emcioStatus.status = RCS_ERROR;
+                emcioStatus.status = RCS_STATUS::ERROR;
             } else {
                 reload_tool_number(emcioStatus.tool.toolInSpindle);
             }
@@ -1163,7 +1163,7 @@ int main(int argc, char *argv[])
                     UNEXPECTED_MSG;
                 }
                 if (0 != tooldata_save(io_tool_table_file)) {
-                    emcioStatus.status = RCS_ERROR;
+                    emcioStatus.status = RCS_STATUS::ERROR;
                 }
                 if (io_db_mode == DB_ACTIVE) {
                     int pno = idx; // for random_toolchanger

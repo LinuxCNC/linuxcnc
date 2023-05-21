@@ -268,9 +268,9 @@ BOOST_PYTHON_MODULE(emctask) {
 				   "send a message to the operator display"  ));
 
     BOOST_PYENUM_(RCS_STATUS)
-            .BOOST_PYENUM_VAL(RCS_EXEC)
-            .BOOST_PYENUM_VAL(RCS_DONE)
-            .BOOST_PYENUM_VAL(RCS_ERROR)
+            .BOOST_PYENUM_VAL(RCS_STATUS::EXEC)
+            .BOOST_PYENUM_VAL(RCS_STATUS::DONE)
+            .BOOST_PYENUM_VAL(RCS_STATUS::ERROR)
             ;
 
     BOOST_PYENUM_(EMC_TASK_MODE)

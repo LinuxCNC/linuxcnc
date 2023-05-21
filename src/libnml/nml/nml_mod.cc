@@ -116,7 +116,7 @@ NML_MODULE::zero_common_vars ()
   execute = 0;
   command_time = 0;
   state = UNINITIALIZED_STATE;
-  status = UNINITIALIZED_STATUS;
+  status = RCS_STATUS::UNINITIALIZED;
 
   sup_req_num = 0;
   sup_req_num_echo = 0;
@@ -768,7 +768,7 @@ NML_MODULE::read_subordinates_status ()
 	      if (subs[t]->statusInData->echo_serial_number !=
 		  subs[t]->commandOutData->serial_number)
 		{
-		  subs[t]->statusInData->status = RCS_EXEC;
+		  subs[t]->statusInData->status = RCS_STATUS::EXEC;
 		}
 	    }
 	  // something new in STATUS
@@ -808,7 +808,7 @@ NML_MODULE::write_status_out ()
   statusOutData->command_type = commandInData->type;
   statusOutData->state = state;
   statusOutData->status = (RCS_STATUS) status;
-  if (status == RCS_DONE &&
+  if (status == RCS_STATUS::DONE &&
       last_command_completed_serial_number != commandInData->serial_number)
     {
       last_command_completed_serial_number = commandInData->serial_number;
@@ -952,7 +952,7 @@ NML_MODULE::check_if_new_command (void)
   if (statusOutData->echo_serial_number != commandInData->serial_number)
     {
       state = NEW_COMMAND;
-      status = RCS_EXEC;
+      status = RCS_STATUS::EXEC;
       commands_received++;
       statusOutData->echo_serial_number = commandInData->serial_number;
       statusOutData->command_type = commandInData->type;

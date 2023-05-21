@@ -2830,7 +2830,7 @@ static int emc_task_command_status(ClientData clientdata,
 	updateStatus();
     }
 
-    commandstatus = Tcl_NewIntObj(emcStatus->task.status);
+    commandstatus = Tcl_NewIntObj((int)emcStatus->task.status);
 
     Tcl_SetObjResult(interp, commandstatus);
     return TCL_OK;
@@ -2918,7 +2918,7 @@ static int emc_io_command_status(ClientData clientdata,
 	updateStatus();
     }
 
-    commandstatus = Tcl_NewIntObj(emcStatus->io.status);
+    commandstatus = Tcl_NewIntObj((int)emcStatus->io.status);
 
     Tcl_SetObjResult(interp, commandstatus);
     return TCL_OK;
@@ -3006,7 +3006,7 @@ static int emc_motion_command_status(ClientData clientdata,
 	updateStatus();
     }
 
-    commandstatus = Tcl_NewIntObj(emcStatus->motion.status);
+    commandstatus = Tcl_NewIntObj((int)emcStatus->motion.status);
 
     Tcl_SetObjResult(interp, commandstatus);
     return TCL_OK;

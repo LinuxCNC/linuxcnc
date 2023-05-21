@@ -209,7 +209,7 @@ static PyTypeObject Ini_Type = {
 #define EMC_COMMAND_TIMEOUT 5.0  // how long to wait until timeout
 #define EMC_COMMAND_DELAY   0.01 // how long to sleep between checks
 
-static int emcWaitCommandComplete(pyCommandChannel *s, double timeout) {
+static RCS_STATUS emcWaitCommandComplete(pyCommandChannel *s, double timeout) {
     double start = etime();
 
     do {
@@ -218,16 +218,16 @@ static int emcWaitCommandComplete(pyCommandChannel *s, double timeout) {
            EMC_STAT *stat = (EMC_STAT*)s->s->get_address();
            int serial_diff = stat->echo_serial_number - s->serial;
            if (serial_diff > 0) {
-                return RCS_DONE;
+                return RCS_STATUS::DONE;
            }
            if (serial_diff == 0 &&
-               ( stat->status == RCS_DONE || stat->status == RCS_ERROR )) {
+               ( stat->status == RCS_STATUS::DONE || stat->status == RCS_STATUS::ERROR )) {
                 return stat->status;
            }
         }
         esleep(fmin(timeout - (now - start), EMC_COMMAND_DELAY));
     } while (etime() - start < timeout);
-    return -1;
+    return RCS_STATUS::UNINITIALIZED;
 }
 
 static int emcSendCommand(pyCommandChannel *s, RCS_CMD_MSG & cmd) {
@@ -1445,7 +1445,7 @@ static PyObject *wait_complete(pyCommandChannel *s, PyObject *o) {
     double timeout = EMC_COMMAND_TIMEOUT;
     if (!PyArg_ParseTuple(o, "|d:emc.command.wait_complete", &timeout))
         return NULL;
-    return PyLong_FromLong(emcWaitCommandComplete(s, timeout));
+    return PyLong_FromLong((int)emcWaitCommandComplete(s, timeout));
 }
 
 static PyObject *error_msg(pyCommandChannel *s,  PyObject *args ) {
@@ -2589,9 +2589,9 @@ PyMODINIT_FUNC PyInit_linuxcnc(void)
     ENUMX(7, EMCMOT_MAX_AXIS);
 
 
-    ENUM(RCS_DONE);
-    ENUM(RCS_EXEC);
-    ENUM(RCS_ERROR);
+    PyModule_AddIntConstant(m, "RCS_DONE", (int)RCS_STATUS::DONE);
+    PyModule_AddIntConstant(m, "RCS_EXEC", (int)RCS_STATUS::EXEC);
+    PyModule_AddIntConstant(m, "RCS_ERROR", (int)RCS_STATUS::ERROR);
     return m;
 }
 

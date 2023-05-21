@@ -433,11 +433,11 @@ static int emcCommandWaitDone()
 	    return 0;
 	}
 
-	if (emcStatus->status == RCS_DONE) {
+	if (emcStatus->status == RCS_STATUS::DONE) {
 	    return 0;
 	}
 
-	if (emcStatus->status == RCS_ERROR) {
+	if (emcStatus->status == RCS_STATUS::ERROR) {
 	    return -1;
 	}
 
@@ -2129,7 +2129,7 @@ static void modify_hal_pins()
     }
 
     if (halui_sent_mdi) { // we have an ongoing MDI command
-	if (emcStatus->status == 1) { //which seems to have finished
+	if (emcStatus->status == RCS_STATUS::DONE) { //which seems to have finished
 	    halui_sent_mdi = 0;
 	    switch (halui_old_mode) {
 		case EMC_TASK_MODE::MANUAL: sendManual();break;

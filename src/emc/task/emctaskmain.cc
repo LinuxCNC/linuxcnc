@@ -686,7 +686,7 @@ static void mdi_execute_hook(void)
 	emcStatus->task.execState ==  EMC_TASK_EXEC::DONE && 
 	emcStatus->task.interpState != EMC_TASK_INTERP::IDLE && 
 	emcStatus->motion.traj.queue == 0 &&
-	emcStatus->io.status == RCS_DONE && 
+	emcStatus->io.status == RCS_STATUS::DONE && 
 	!mdi_execute_wait && 
 	!mdi_execute_next) {
 
@@ -717,7 +717,7 @@ void readahead_waiting(void)
 	if (interp_list.len() == 0 &&
 	    emcTaskCommand == 0 &&
 	    emcStatus->motion.traj.queue == 0 &&
-	    emcStatus->io.status == RCS_DONE)
+	    emcStatus->io.status == RCS_STATUS::DONE)
 	    // finished
 	{
 	    int was_open = taskplanopen;
@@ -2653,10 +2653,10 @@ static int emcTaskExecute(void)
 
     case EMC_TASK_EXEC::WAITING_FOR_MOTION:
 	STEPPING_CHECK();
-	if (emcStatus->motion.status == RCS_ERROR) {
+	if (emcStatus->motion.status == RCS_STATUS::ERROR) {
 	    // emcOperatorError(0, "error in motion controller");
 	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
-	} else if (emcStatus->motion.status == RCS_DONE) {
+	} else if (emcStatus->motion.status == RCS_STATUS::DONE) {
 	    emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 	    emcTaskEager = 1;
 	}
@@ -2664,10 +2664,10 @@ static int emcTaskExecute(void)
 
     case EMC_TASK_EXEC::WAITING_FOR_IO:
 	STEPPING_CHECK();
-	if (emcStatus->io.status == RCS_ERROR) {
+	if (emcStatus->io.status == RCS_STATUS::ERROR) {
 	    // emcOperatorError(0, "error in IO controller");
 	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
-	} else if (emcStatus->io.status == RCS_DONE) {
+	} else if (emcStatus->io.status == RCS_STATUS::DONE) {
 	    emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 	    emcTaskEager = 1;
 	}
@@ -2675,14 +2675,14 @@ static int emcTaskExecute(void)
 
     case EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO:
 	STEPPING_CHECK();
-	if (emcStatus->motion.status == RCS_ERROR) {
+	if (emcStatus->motion.status == RCS_STATUS::ERROR) {
 	    // emcOperatorError(0, "error in motion controller");
 	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
-	} else if (emcStatus->io.status == RCS_ERROR) {
+	} else if (emcStatus->io.status == RCS_STATUS::ERROR) {
 	    // emcOperatorError(0, "error in IO controller");
 	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
-	} else if (emcStatus->motion.status == RCS_DONE &&
-		   emcStatus->io.status == RCS_DONE) {
+	} else if (emcStatus->motion.status == RCS_STATUS::DONE &&
+		   emcStatus->io.status == RCS_STATUS::DONE) {
 	    emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 	    emcTaskEager = 1;
 	}
@@ -3434,7 +3434,7 @@ int main(int argc, char *argv[])
 	}
 
 	// toolchanger indicated fault code > 0
-	if ((emcStatus->io.status == RCS_ERROR) &&
+	if ((emcStatus->io.status == RCS_STATUS::ERROR) &&
 	    emcStatus->io.fault) {
 	    static int reported = -1;
 	    if (emcStatus->io.reason > 0) {
@@ -3443,11 +3443,11 @@ int main(int argc, char *argv[])
 			      emcStatus->io.fault, emcStatus->io.reason);
 		    reported = emcStatus->io.fault;
 		}
-		emcStatus->io.status = RCS_DONE; // let program continue
+		emcStatus->io.status = RCS_STATUS::DONE; // let program continue
 	    } else {
 		rcs_print("M6: toolchanger hard fault, reason=%d\n",
 			  emcStatus->io.reason);
-		// abort since io.status is RCS_ERROR
+		// abort since io.status is RCS_STATUS::ERROR
 	    }
 
 	}
@@ -3455,7 +3455,7 @@ int main(int argc, char *argv[])
         if (!emcStatus->motion.on_soft_limit) {gave_soft_limit_message = 0;}
 
 	// check for subordinate errors, and halt task if so
-        if (   emcStatus->motion.status == RCS_ERROR
+        if (   emcStatus->motion.status == RCS_STATUS::ERROR
             && emcStatus->motion.on_soft_limit) { 
            if (!gave_soft_limit_message) {
                 emcOperatorError(0, "On Soft Limit");
@@ -3466,26 +3466,26 @@ int main(int argc, char *argv[])
                 }
                 gave_soft_limit_message = 1;
            }
-        } else if (emcStatus->motion.status == RCS_ERROR ||
-	    ((emcStatus->io.status == RCS_ERROR) &&
+        } else if (emcStatus->motion.status == RCS_STATUS::ERROR ||
+	    ((emcStatus->io.status == RCS_STATUS::ERROR) &&
 	     (emcStatus->io.reason <= 0))) {
 	    /*! \todo FIXME-- duplicate code for abort,
 	      also in emcTaskExecute()
 	      and in emcTaskIssueCommand() */
 
-	    if (emcStatus->io.status == RCS_ERROR) {
+	    if (emcStatus->io.status == RCS_STATUS::ERROR) {
 		// this is an aborted M6.
 		if (emc_debug & EMC_DEBUG_RCS ) {
-		    rcs_print("io.status=RCS_ERROR, fault=%d reason=%d\n",
+		    rcs_print("io.status=RCS_STATUS::ERROR, fault=%d reason=%d\n",
 			      emcStatus->io.fault, emcStatus->io.reason);
 		}
 		if (emcStatus->io.reason < 0) {
 		    emcOperatorError(0, io_error, emcStatus->io.reason);
 		}
 	    }
-	    // motion already should have reported this condition (and set RCS_ERROR?)
+	    // motion already should have reported this condition (and set RCS_STATUS::ERROR?)
 	    // an M19 orient failed to complete within timeout
-	    // if ((emcStatus->motion.status == RCS_ERROR) && 
+	    // if ((emcStatus->motion.status == RCS_STATUS::ERROR) && 
 	    // 	(emcStatus->motion.spindle.orient_state == EMCMOT_ORIENT_FAULTED) &&
 	    // 	(emcStatus->motion.spindle.orient_fault != 0)) {
 	    // 	emcOperatorError(0, "wait for orient complete timed out");
@@ -3541,23 +3541,23 @@ int main(int argc, char *argv[])
 
 	if (taskPlanError || taskExecuteError ||
 	    emcStatus->task.execState == EMC_TASK_EXEC::ERROR ||
-	    emcStatus->motion.status == RCS_ERROR ||
-	    emcStatus->io.status == RCS_ERROR) {
-	    emcStatus->status = RCS_ERROR;
-	    emcStatus->task.status = RCS_ERROR;
+	    emcStatus->motion.status == RCS_STATUS::ERROR ||
+	    emcStatus->io.status == RCS_STATUS::ERROR) {
+	    emcStatus->status = RCS_STATUS::ERROR;
+	    emcStatus->task.status = RCS_STATUS::ERROR;
 	} else if (!taskPlanError && !taskExecuteError &&
 		   emcStatus->task.execState == EMC_TASK_EXEC::DONE &&
-		   emcStatus->motion.status == RCS_DONE &&
-		   emcStatus->io.status == RCS_DONE &&
+		   emcStatus->motion.status == RCS_STATUS::DONE &&
+		   emcStatus->io.status == RCS_STATUS::DONE &&
 		   mdi_execute_queue.len() == 0 &&
 		   interp_list.len() == 0 &&
 		   emcTaskCommand == 0 &&
 		   emcStatus->task.interpState == EMC_TASK_INTERP::IDLE) {
-	    emcStatus->status = RCS_DONE;
-	    emcStatus->task.status = RCS_DONE;
+	    emcStatus->status = RCS_STATUS::DONE;
+	    emcStatus->task.status = RCS_STATUS::DONE;
 	} else {
-	    emcStatus->status = RCS_EXEC;
-	    emcStatus->task.status = RCS_EXEC;
+	    emcStatus->status = RCS_STATUS::EXEC;
+	    emcStatus->task.status = RCS_STATUS::EXEC;
 	}
 
 	// write it
