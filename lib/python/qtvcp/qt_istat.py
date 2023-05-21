@@ -233,7 +233,7 @@ class _IStat(object):
         for j in range(jointcount):
             seq = self.INI.find("JOINT_" + str(j), "HOME_SEQUENCE")
             if seq is None:
-                seq = -1
+                seq = 0
                 self.HOME_ALL_FLAG = 0
             self.JOINT_SEQUENCE_LIST[j] = int(seq)
         # joint sequence/type
@@ -265,7 +265,7 @@ class _IStat(object):
             if flag:
                 templist.append(temp)
         # remove duplicates
-        self.JOINT_SYNCH_LIST = list(set(tuple(sorted(sub)) for sub in templist))
+        self.JOINT_SYNC_LIST = list(set(tuple(sorted(sub)) for sub in templist))
 
         # This is a list of joints that are related to a joint.
         #ie. JOINT_RELATIONS_LIST(0) will give a list of joints that go with joint 0
@@ -276,8 +276,12 @@ class _IStat(object):
         for j in range(jointcount):
             temp = []
             for hj, hs in list(self.JOINT_SEQUENCE_LIST.items()):
+                # the absolute numbers must be equal first
                 if abs(int(hs)) == abs(int(self.JOINT_SEQUENCE_LIST.get(j))):
-                    temp.append(hj)
+                    # theN one has to be negative to signal syncing
+                    if int(hs) <0 or int(self.JOINT_SEQUENCE_LIST.get(j)) < 0:
+                        temp.append(hj)
+            # If empty list: no synced joints, just add the jointcount number
             if temp == []:
                 temp.append(j)
             self.JOINT_RELATIONS_LIST[j] = temp

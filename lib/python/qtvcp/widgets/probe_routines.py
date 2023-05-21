@@ -1481,8 +1481,11 @@ class ProbeRoutines():
         return error
 
     def probe_cal_round_pocket(self):
-        if self.data_probe_diam >= self.data_diameter_hint:
-            return 'Probe diameter too large for hole diameter hint'
+        if self.data_cal_diameter_hint <= 0 :
+            return 'Calibration diameter hint must be larger then 0'
+        if self.data_probe_diameter >= self.data_cal_diameter_hint:
+            return 'Probe diameter too large for Calibration diameter hint'
+
         self.data_side_edge_length = self.data_cal_diameter / 2
         error = self.probe_xy_hole()
         if error != 1: return error

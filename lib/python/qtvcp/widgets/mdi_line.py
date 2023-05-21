@@ -67,6 +67,10 @@ class MDI(QLineEdit):
             self.mdiLast = None
             pass
 
+    def getMDIText(self):
+        text = str(self.text()).strip()
+        return text
+
     def submit(self):
         self.mdiError = False
         text = str(self.text()).strip()

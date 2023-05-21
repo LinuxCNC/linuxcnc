@@ -448,6 +448,13 @@ net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
 net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
 ----
 
+Also if you don't have an automatic tool changer make sure these pins are connected in one of the HAL files:
+
+[source,{hal}]
+----
+net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+----
+
 This input pin should be connected to indicate probe state.
 
 [source,{hal}]
@@ -1330,7 +1337,16 @@ All aspects of the GUI are fully customization through Qt Designer and/or Python
 This capability is included with the QtVCP development environment.
 The extensive use of QtVCP widgets keeps the amount of required Python code to a minimum, allowing relatively easy modifications.
 The LinuxCNC website has extensive documentation on the installation and use of QtVCP libraries.
-See <<cha:qtvcp,QtVCP Overview>> for more information.
+See <<cha:qtvcp,QtVCP>> for more information in about QtVCP in general.
+Qtdragon can also utilize QtVCP's rc file to do minor python code modifications without using a custom handler file.
+
+[source,{ini}]
+----
+[DISPLAY]
+USER_COMMAND_FILE = CONFIGFOLDER/qtdragonrc.py
+----
+
+See <<cha:qtvcp:modifying-screens,Modifying Screens>> for more information about customization.
 
 .QtDragon - Customized QtDragon
 image::images/silverdragon_custom.png["QtDragon customized",scale=25]
