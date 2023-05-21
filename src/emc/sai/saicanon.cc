@@ -290,7 +290,7 @@ extern void SET_NAIVECAM_TOLERANCE(double tolerance)
 
 void SELECT_PLANE(CANON_PLANE in_plane)
 {
-  PRINT("SELECT_PLANE(CANON_PLANE::%s)\n",
+  PRINT("SELECT_PLANE(CANON_PLANE_%s)\n",
          ((in_plane == CANON_PLANE::XY) ? "XY" :
           (in_plane == CANON_PLANE::YZ) ? "YZ" :
           (in_plane == CANON_PLANE::XZ) ? "XZ" : "UNKNOWN"));
