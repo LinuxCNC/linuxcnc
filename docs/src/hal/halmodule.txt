@@ -191,7 +191,7 @@ read a pin, param or signal directly. +
 example: +
 value = hal.get_value("iocontrol.0.emc-enable-in") +
 
-=== new_signal
+=== new_sig
 Create a New signal of the type specified. +
 example" +
 hal.new_sig("signalname",hal.HAL_BIT)
