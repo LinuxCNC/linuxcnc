@@ -248,6 +248,7 @@ revisions that are ahead of origin/master, so you can do things like
 `git format-patch` them to share with others without pushing to the
 central repository.
 
+[[sec:contributing-translations]]
 == Translations
 
 The LinuxCNC project uses `gettext` to translate the software into
@@ -257,15 +258,12 @@ any programming, and you don't need to install any special translation
 programs or other software.
 
 The easiest way to help with translations is using Weblate,
-an open-source web service.  Our translation project is here:
+an open-source web service. Our translation project is here:
+
 https://hosted.weblate.org/projects/linuxcnc/
 
 Documentation on how to use Weblate is here:
 https://docs.weblate.org/en/latest/user/basic.html
-
-If web services are not your thing, you can also work on translations
-using a variety of local gettext translator apps including gtranslator,
-poedit, and many more.
 
 == Other ways to contribute
 
