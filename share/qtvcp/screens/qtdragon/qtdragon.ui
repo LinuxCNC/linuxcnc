@@ -16170,6 +16170,61 @@ ZERO</string>
           </spacer>
          </item>
          <item>
+          <widget class="QLabel" name="label_47">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>88</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>88</width>
+             <height>36</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>MOTION</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="StatusLabel" name="statuslabel_motion">
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="motion_type_status" stdset="0">
+            <bool>true</bool>
+           </property>
+           <property name="motion_type_list" stdset="0">
+            <stringlist>
+             <string>           </string>
+             <string>Rapid</string>
+             <string>Feed</string>
+             <string>Arc</string>
+             <string>Tool Change</string>
+             <string>Probe</string>
+             <string>Rotaty Index</string>
+            </stringlist>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="label_44">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -16277,7 +16332,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>07:12:33 PM</string>
+            <string>08:55:13 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -17321,7 +17376,7 @@ ZERO</string>
   <slot>btn_spindle_z_down_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
