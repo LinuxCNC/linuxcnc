@@ -5153,114 +5153,6 @@ LOG</string>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QWidget" name="widget_ext_offset" native="true">
-                       <layout class="QHBoxLayout" name="horizontalLayout_48">
-                        <property name="spacing">
-                         <number>4</number>
-                        </property>
-                        <property name="leftMargin">
-                         <number>0</number>
-                        </property>
-                        <property name="topMargin">
-                         <number>0</number>
-                        </property>
-                        <property name="rightMargin">
-                         <number>0</number>
-                        </property>
-                        <property name="bottomMargin">
-                         <number>0</number>
-                        </property>
-                        <item>
-                         <widget class="QLabel" name="label_3">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="minimumSize">
-                           <size>
-                            <width>180</width>
-                            <height>30</height>
-                           </size>
-                          </property>
-                          <property name="maximumSize">
-                           <size>
-                            <width>180</width>
-                            <height>30</height>
-                           </size>
-                          </property>
-                          <property name="toolTip">
-                           <string>Distance to raise Z axis during spindle pause</string>
-                          </property>
-                          <property name="text">
-                           <string>Z EXT OFFSET</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QLineEdit" name="lineEdit_eoffset_count">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="minimumSize">
-                           <size>
-                            <width>60</width>
-                            <height>30</height>
-                           </size>
-                          </property>
-                          <property name="maximumSize">
-                           <size>
-                            <width>60</width>
-                            <height>30</height>
-                           </size>
-                          </property>
-                          <property name="maxLength">
-                           <number>8</number>
-                          </property>
-                          <property name="alignment">
-                           <set>Qt::AlignCenter</set>
-                          </property>
-                          <property name="readOnly">
-                           <bool>false</bool>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QLabel" name="lbl_zoffset_units">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="minimumSize">
-                           <size>
-                            <width>60</width>
-                            <height>30</height>
-                           </size>
-                          </property>
-                          <property name="maximumSize">
-                           <size>
-                            <width>60</width>
-                            <height>30</height>
-                           </size>
-                          </property>
-                          <property name="text">
-                           <string>MM</string>
-                          </property>
-                          <property name="alignment">
-                           <set>Qt::AlignCenter</set>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </widget>
-                     </item>
-                     <item>
                       <widget class="QWidget" name="widget_touch_height" native="true">
                        <layout class="QHBoxLayout" name="horizontalLayout_37">
                         <property name="spacing">
@@ -6158,6 +6050,235 @@ LOG</string>
                             </widget>
                            </item>
                           </layout>
+                         </widget>
+                        </item>
+                       </layout>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QGroupBox" name="groupBox">
+                       <property name="title">
+                        <string>SPINDLE RAISE</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                       <layout class="QVBoxLayout" name="verticalLayout_58">
+                        <property name="spacing">
+                         <number>4</number>
+                        </property>
+                        <property name="leftMargin">
+                         <number>4</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>12</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>4</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>4</number>
+                        </property>
+                        <item>
+                         <widget class="QWidget" name="widget_ext_offset" native="true">
+                          <layout class="QHBoxLayout" name="horizontalLayout_53" stretch="0,0,0,0,0">
+                           <property name="spacing">
+                            <number>0</number>
+                           </property>
+                           <property name="sizeConstraint">
+                            <enum>QLayout::SetDefaultConstraint</enum>
+                           </property>
+                           <property name="leftMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="topMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="rightMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="bottomMargin">
+                            <number>4</number>
+                           </property>
+                           <item>
+                            <widget class="PushButton" name="pushbutton_6">
+                             <property name="minimumSize">
+                              <size>
+                               <width>50</width>
+                               <height>30</height>
+                              </size>
+                             </property>
+                             <property name="maximumSize">
+                              <size>
+                               <width>50</width>
+                               <height>30</height>
+                              </size>
+                             </property>
+                             <property name="text">
+                              <string>+</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="PushButton" name="pushbutton_7">
+                             <property name="minimumSize">
+                              <size>
+                               <width>50</width>
+                               <height>30</height>
+                              </size>
+                             </property>
+                             <property name="maximumSize">
+                              <size>
+                               <width>50</width>
+                               <height>30</height>
+                              </size>
+                             </property>
+                             <property name="text">
+                              <string>-</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <spacer name="horizontalSpacer_2">
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                             <property name="sizeType">
+                              <enum>QSizePolicy::Fixed</enum>
+                             </property>
+                             <property name="sizeHint" stdset="0">
+                              <size>
+                               <width>40</width>
+                               <height>20</height>
+                              </size>
+                             </property>
+                            </spacer>
+                           </item>
+                           <item>
+                            <widget class="QLineEdit" name="lineEdit_eoffset_count">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="minimumSize">
+                              <size>
+                               <width>60</width>
+                               <height>30</height>
+                              </size>
+                             </property>
+                             <property name="maximumSize">
+                              <size>
+                               <width>60</width>
+                               <height>30</height>
+                              </size>
+                             </property>
+                             <property name="maxLength">
+                              <number>8</number>
+                             </property>
+                             <property name="alignment">
+                              <set>Qt::AlignCenter</set>
+                             </property>
+                             <property name="readOnly">
+                              <bool>false</bool>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QLabel" name="lbl_zoffset_units">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="minimumSize">
+                              <size>
+                               <width>60</width>
+                               <height>30</height>
+                              </size>
+                             </property>
+                             <property name="maximumSize">
+                              <size>
+                               <width>60</width>
+                               <height>30</height>
+                              </size>
+                             </property>
+                             <property name="text">
+                              <string>MM</string>
+                             </property>
+                             <property name="alignment">
+                              <set>Qt::AlignCenter</set>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </widget>
+                        </item>
+                       </layout>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QGroupBox" name="groupBox_gcode_zoom">
+                       <property name="title">
+                        <string>GCODE ZOOM</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                       <layout class="QHBoxLayout" name="horizontalLayout_70" stretch="0,0">
+                        <property name="spacing">
+                         <number>4</number>
+                        </property>
+                        <property name="leftMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>5</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>4</number>
+                        </property>
+                        <item>
+                         <widget class="PushButton" name="btn_gcode_zoomin">
+                          <property name="minimumSize">
+                           <size>
+                            <width>50</width>
+                            <height>30</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>50</width>
+                            <height>30</height>
+                           </size>
+                          </property>
+                          <property name="text">
+                           <string>+</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="PushButton" name="btn_gcode_zoomout">
+                          <property name="minimumSize">
+                           <size>
+                            <width>50</width>
+                            <height>30</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>50</width>
+                            <height>30</height>
+                           </size>
+                          </property>
+                          <property name="text">
+                           <string>-</string>
+                          </property>
                          </widget>
                         </item>
                        </layout>
@@ -15701,7 +15822,7 @@ ANGULAR</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>04:52:10 PM</string>
+               <string>08:22:38 PM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -15935,7 +16056,7 @@ ANGULAR</string>
    <slot>btn_load_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1035</x>
+     <x>623</x>
      <y>144</y>
     </hint>
     <hint type="destinationlabel">
@@ -15951,8 +16072,8 @@ ANGULAR</string>
    <slot>btn_gcode_edit_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1035</x>
-     <y>586</y>
+     <x>623</x>
+     <y>153</y>
     </hint>
     <hint type="destinationlabel">
      <x>1088</x>
@@ -15967,8 +16088,8 @@ ANGULAR</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1035</x>
-     <y>309</y>
+     <x>623</x>
+     <y>157</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -15983,8 +16104,8 @@ ANGULAR</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1035</x>
-     <y>375</y>
+     <x>623</x>
+     <y>159</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
@@ -15999,8 +16120,8 @@ ANGULAR</string>
    <slot>btn_clear_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1772</x>
-     <y>162</y>
+     <x>650</x>
+     <y>114</y>
     </hint>
     <hint type="destinationlabel">
      <x>1039</x>
@@ -16015,8 +16136,8 @@ ANGULAR</string>
    <slot>btn_save_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1772</x>
-     <y>218</y>
+     <x>650</x>
+     <y>121</y>
     </hint>
     <hint type="destinationlabel">
      <x>1098</x>
@@ -16095,8 +16216,8 @@ ANGULAR</string>
    <slot>btn_m61_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1772</x>
-     <y>218</y>
+     <x>650</x>
+     <y>125</y>
     </hint>
     <hint type="destinationlabel">
      <x>1770</x>
@@ -16159,8 +16280,8 @@ ANGULAR</string>
    <slot>cam_zoom_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1751</x>
-     <y>204</y>
+     <x>585</x>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
      <x>1784</x>
@@ -16175,8 +16296,8 @@ ANGULAR</string>
    <slot>cam_dia_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1751</x>
-     <y>392</y>
+     <x>585</x>
+     <y>193</y>
     </hint>
     <hint type="destinationlabel">
      <x>1703</x>
@@ -16191,8 +16312,8 @@ ANGULAR</string>
    <slot>cam_rot_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1751</x>
-     <y>580</y>
+     <x>585</x>
+     <y>200</y>
     </hint>
     <hint type="destinationlabel">
      <x>1737</x>
@@ -16527,8 +16648,8 @@ ANGULAR</string>
    <slot>chk_lock_wph_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>495</x>
-     <y>678</y>
+     <x>533</x>
+     <y>716</y>
     </hint>
     <hint type="destinationlabel">
      <x>520</x>
@@ -16575,8 +16696,8 @@ ANGULAR</string>
    <slot>btn_gripper_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1035</x>
-     <y>586</y>
+     <x>623</x>
+     <y>153</y>
     </hint>
     <hint type="destinationlabel">
      <x>1463</x>
@@ -16591,8 +16712,8 @@ ANGULAR</string>
    <slot>btn_gripper_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1035</x>
-     <y>530</y>
+     <x>623</x>
+     <y>152</y>
     </hint>
     <hint type="destinationlabel">
      <x>1420</x>
@@ -16639,8 +16760,8 @@ ANGULAR</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1048</x>
-     <y>745</y>
+     <x>1096</x>
+     <y>799</y>
     </hint>
     <hint type="destinationlabel">
      <x>1060</x>
@@ -16693,6 +16814,70 @@ ANGULAR</string>
     <hint type="destinationlabel">
      <x>1788</x>
      <y>-2</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton_6</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_spindle_z_up_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>851</x>
+     <y>555</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>829</x>
+     <y>-13</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton_7</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_spindle_z_down_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>912</x>
+     <y>554</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>959</x>
+     <y>-13</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_gcode_zoomout</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_gcode_zoomout_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1086</x>
+     <y>604</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1289</x>
+     <y>-10</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_gcode_zoomin</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_gcode_zoomin_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>930</x>
+     <y>605</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>878</x>
+     <y>-13</y>
     </hint>
    </hints>
   </connection>
@@ -16772,9 +16957,14 @@ ANGULAR</string>
   <slot>btn_gripper_clicked()</slot>
   <slot>btn_enable_comp_clicked()</slot>
   <slot>btn_about_clicked()</slot>
+  <slot>btn_spindle_z_up_clicked()</slot>
+  <slot>btn_spindle_z_down_clicked()</slot>
+  <slot>btn_gcode_zoomout_clicked()</slot>
+  <slot>slot1()</slot>
+  <slot>btn_gcode_zoomin_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>

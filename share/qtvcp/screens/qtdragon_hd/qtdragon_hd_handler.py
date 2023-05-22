@@ -104,6 +104,9 @@ class HandlerClass:
         STATUS.connect('state-on', lambda w: self.enable_onoff(True))
         STATUS.connect('state-off', lambda w: self.enable_onoff(False))
         STATUS.connect('mode-auto', lambda w: self.enable_auto(True))
+        STATUS.connect('mode-auto', lambda w: self.w.lineEdit_eoffset_count.setEnabled(False))
+        STATUS.connect('mode-mdi', lambda w: self.w.lineEdit_eoffset_count.setEnabled(True))
+        STATUS.connect('mode-manual', lambda w: self.w.lineEdit_eoffset_count.setEnabled(True))
         STATUS.connect('gcode-line-selected', lambda w, line: self.set_start_line(line))
         STATUS.connect('hard-limits-tripped', self.hard_limit_tripped)
         STATUS.connect('program-pause-changed', lambda w, state: self.w.btn_pause_spindle.setEnabled(state))
@@ -167,6 +170,7 @@ class HandlerClass:
     # set validators for lineEdit widgets
         for val in self.lineedit_list:
             self.w['lineEdit_' + val].setValidator(self.valid)
+        self.w.lineEdit_eoffset_count.setValidator(QtGui.QIntValidator(0,100))
     # set unit labels according to machine mode
         unit = "MM" if INFO.MACHINE_IS_METRIC else "IN"
         for i in self.unit_label_list:
@@ -221,6 +225,7 @@ class HandlerClass:
         # external offset control pins
         QHAL.newpin("eoffset-enable", QHAL.HAL_BIT, QHAL.HAL_OUT)
         QHAL.newpin("eoffset-clear", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        self.h['eoffset-clear'] = True
         QHAL.newpin("eoffset-spindle-count", QHAL.HAL_S32, QHAL.HAL_OUT)
         QHAL.newpin("eoffset-count", QHAL.HAL_S32, QHAL.HAL_OUT)
 
@@ -251,7 +256,7 @@ class HandlerClass:
         self.w.lineEdit_max_probe.setText(str(self.w.PREFS_.getpref('Max Probe', 10, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_retract_distance.setText(str(self.w.PREFS_.getpref('Retract Distance', 10, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_z_safe_travel.setText(str(self.w.PREFS_.getpref('Z Safe Travel', 10, float, 'CUSTOM_FORM_ENTRIES')))
-        self.w.lineEdit_eoffset_count.setText(str(self.w.PREFS_.getpref('Eoffset count', 0, float, 'CUSTOM_FORM_ENTRIES')))
+        self.w.lineEdit_eoffset_count.setText(str(self.w.PREFS_.getpref('Eoffset count', 0, int, 'CUSTOM_FORM_ENTRIES')))
         self.w.chk_eoffsets.setChecked(self.w.PREFS_.getpref('External offsets', False, bool, 'CUSTOM_FORM_ENTRIES'))
         self.w.chk_reload_program.setChecked(self.w.PREFS_.getpref('Reload program', False, bool,'CUSTOM_FORM_ENTRIES'))
         self.w.chk_reload_tool.setChecked(self.w.PREFS_.getpref('Reload tool', False, bool,'CUSTOM_FORM_ENTRIES'))
@@ -284,7 +289,7 @@ class HandlerClass:
         self.w.PREFS_.putpref('Max Probe', self.w.lineEdit_max_probe.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Retract Distance', self.w.lineEdit_retract_distance.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Z Safe Travel', self.w.lineEdit_z_safe_travel.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
-        self.w.PREFS_.putpref('Eoffset count', self.w.lineEdit_eoffset_count.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Eoffset count', self.w.lineEdit_eoffset_count.text().encode('utf-8'), int, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('External offsets', self.w.chk_eoffsets.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Reload program', self.w.chk_reload_program.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Reload tool', self.w.chk_reload_tool.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
@@ -686,7 +691,7 @@ class HandlerClass:
         # set external offsets to lift spindle
             self.h['eoffset-clear'] = False
             self.h['eoffset-enable'] = self.w.chk_eoffsets.isChecked()
-            fval = float(self.w.lineEdit_eoffset_count.text())
+            fval = int(self.w.lineEdit_eoffset_count.text())
             self.h['eoffset-spindle-count'] = int(fval)
             self.w.spindle_eoffset_value.setText(self.w.lineEdit_eoffset_count.text())
             self.h['spindle-inhibit'] = True
@@ -974,6 +979,32 @@ class HandlerClass:
     def btn_about_clicked(self):
         info = ACTION.GET_ABOUT_INFO()
         self.w.aboutDialog_.showdialog()
+
+    def btn_gcode_zoomin_clicked(self):
+        self.w.gcode_viewer.editor.zoomIn()
+    def btn_gcode_zoomout_clicked(self):
+        self.w.gcode_viewer.editor.zoomOut()
+
+    def btn_spindle_z_up_clicked(self):
+        fval = int(self.w.lineEdit_eoffset_count.text())
+        if INFO.MACHINE_IS_METRIC:
+            fval += 5
+        else:
+            fval += 1
+        self.w.lineEdit_eoffset_count.setText(str(fval))
+        if self.h['eoffset-clear'] != True:
+            self.h['eoffset-spindle-count'] = int(fval)
+
+    def btn_spindle_z_down_clicked(self):
+        fval = int(self.w.lineEdit_eoffset_count.text())
+        if INFO.MACHINE_IS_METRIC:
+            fval -= 5
+        else:
+            fval -= 1
+        if fval <0: fval = 0
+        self.w.lineEdit_eoffset_count.setText(str(fval))
+        if self.h['eoffset-clear'] != True:
+            self.h['eoffset-spindle-count'] = int(fval)
 
     #####################
     # GENERAL FUNCTIONS #

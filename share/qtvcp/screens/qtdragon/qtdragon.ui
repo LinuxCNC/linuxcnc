@@ -6710,7 +6710,7 @@ LOG</string>
                                 <number>4</number>
                                </property>
                                <property name="topMargin">
-                                <number>12</number>
+                                <number>5</number>
                                </property>
                                <property name="rightMargin">
                                 <number>4</number>
@@ -7345,7 +7345,7 @@ LOG</string>
                             <item>
                              <widget class="QGroupBox" name="groupBox">
                               <property name="title">
-                               <string>Spindle Raise</string>
+                               <string>SPINDLE RAISE</string>
                               </property>
                               <property name="alignment">
                                <set>Qt::AlignCenter</set>
@@ -7358,7 +7358,7 @@ LOG</string>
                                 <number>4</number>
                                </property>
                                <property name="topMargin">
-                                <number>12</number>
+                                <number>5</number>
                                </property>
                                <property name="rightMargin">
                                 <number>4</number>
@@ -7385,30 +7385,40 @@ LOG</string>
                                    <number>4</number>
                                   </property>
                                   <item>
-                                   <widget class="QLabel" name="label_3">
-                                    <property name="sizePolicy">
-                                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                                      <horstretch>0</horstretch>
-                                      <verstretch>0</verstretch>
-                                     </sizepolicy>
-                                    </property>
+                                   <widget class="PushButton" name="pushbutton_6">
                                     <property name="minimumSize">
                                      <size>
-                                      <width>120</width>
+                                      <width>50</width>
                                       <height>30</height>
                                      </size>
                                     </property>
                                     <property name="maximumSize">
                                      <size>
-                                      <width>120</width>
+                                      <width>50</width>
                                       <height>30</height>
                                      </size>
                                     </property>
-                                    <property name="toolTip">
-                                     <string>Distance to raise Z axis during spindle pause</string>
+                                    <property name="text">
+                                     <string>+</string>
+                                    </property>
+                                   </widget>
+                                  </item>
+                                  <item>
+                                   <widget class="PushButton" name="pushbutton_7">
+                                    <property name="minimumSize">
+                                     <size>
+                                      <width>50</width>
+                                      <height>30</height>
+                                     </size>
+                                    </property>
+                                    <property name="maximumSize">
+                                     <size>
+                                      <width>50</width>
+                                      <height>30</height>
+                                     </size>
                                     </property>
                                     <property name="text">
-                                     <string>Z EXT OFFSET</string>
+                                     <string>-</string>
                                     </property>
                                    </widget>
                                   </item>
@@ -7491,8 +7501,14 @@ LOG</string>
                              </spacer>
                             </item>
                             <item>
-                             <widget class="QWidget" name="widget_ext_offset_2" native="true">
-                              <layout class="QHBoxLayout" name="horizontalLayout_51">
+                             <widget class="QGroupBox" name="groupBox_gcode_zoom">
+                              <property name="title">
+                               <string>GCODE ZOOM</string>
+                              </property>
+                              <property name="alignment">
+                               <set>Qt::AlignCenter</set>
+                              </property>
+                              <layout class="QHBoxLayout" name="horizontalLayout_51" stretch="0,0">
                                <property name="spacing">
                                 <number>4</number>
                                </property>
@@ -7500,7 +7516,7 @@ LOG</string>
                                 <number>0</number>
                                </property>
                                <property name="topMargin">
-                                <number>0</number>
+                                <number>5</number>
                                </property>
                                <property name="rightMargin">
                                 <number>0</number>
@@ -7509,48 +7525,17 @@ LOG</string>
                                 <number>4</number>
                                </property>
                                <item>
-                                <widget class="QLabel" name="label_13">
-                                 <property name="sizePolicy">
-                                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                                   <horstretch>0</horstretch>
-                                   <verstretch>0</verstretch>
-                                  </sizepolicy>
-                                 </property>
-                                 <property name="minimumSize">
-                                  <size>
-                                   <width>120</width>
-                                   <height>30</height>
-                                  </size>
-                                 </property>
-                                 <property name="maximumSize">
-                                  <size>
-                                   <width>120</width>
-                                   <height>30</height>
-                                  </size>
-                                 </property>
-                                 <property name="toolTip">
-                                  <string>Distance to raise Z axis during spindle pause</string>
-                                 </property>
-                                 <property name="text">
-                                  <string>Gcode Zoom</string>
-                                 </property>
-                                 <property name="alignment">
-                                  <set>Qt::AlignCenter</set>
-                                 </property>
-                                </widget>
-                               </item>
-                               <item>
                                 <widget class="PushButton" name="pushbutton_5">
                                  <property name="minimumSize">
                                   <size>
                                    <width>50</width>
-                                   <height>25</height>
+                                   <height>30</height>
                                   </size>
                                  </property>
                                  <property name="maximumSize">
                                   <size>
                                    <width>50</width>
-                                   <height>25</height>
+                                   <height>30</height>
                                   </size>
                                  </property>
                                  <property name="text">
@@ -7563,13 +7548,13 @@ LOG</string>
                                  <property name="minimumSize">
                                   <size>
                                    <width>50</width>
-                                   <height>25</height>
+                                   <height>30</height>
                                   </size>
                                  </property>
                                  <property name="maximumSize">
                                   <size>
                                    <width>50</width>
-                                   <height>25</height>
+                                   <height>30</height>
                                   </size>
                                  </property>
                                  <property name="text">
@@ -16185,6 +16170,61 @@ ZERO</string>
           </spacer>
          </item>
          <item>
+          <widget class="QLabel" name="label_47">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>88</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>88</width>
+             <height>36</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>MOTION</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="StatusLabel" name="statuslabel_motion">
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="motion_type_status" stdset="0">
+            <bool>true</bool>
+           </property>
+           <property name="motion_type_list" stdset="0">
+            <stringlist>
+             <string>           </string>
+             <string>Rapid</string>
+             <string>Feed</string>
+             <string>Arc</string>
+             <string>Tool Change</string>
+             <string>Probe</string>
+             <string>Rotaty Index</string>
+            </stringlist>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="label_44">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -16292,7 +16332,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>05:02:53 PM</string>
+            <string>08:55:13 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -16719,8 +16759,8 @@ ZERO</string>
    <slot>btn_dimensions_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>461</x>
-     <y>312</y>
+     <x>449</x>
+     <y>313</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -16735,8 +16775,8 @@ ZERO</string>
    <slot>cam_zoom_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>975</x>
-     <y>172</y>
+     <x>466</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
      <x>1105</x>
@@ -16751,8 +16791,8 @@ ZERO</string>
    <slot>chk_use_sensor_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>646</x>
-     <y>392</y>
+     <x>634</x>
+     <y>399</y>
     </hint>
     <hint type="destinationlabel">
      <x>508</x>
@@ -16767,8 +16807,8 @@ ZERO</string>
    <slot>btn_gcode_edit_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>491</x>
-     <y>424</y>
+     <x>479</x>
+     <y>122</y>
     </hint>
     <hint type="destinationlabel">
      <x>515</x>
@@ -16783,8 +16823,8 @@ ZERO</string>
    <slot>cam_dia_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>975</x>
-     <y>277</y>
+     <x>466</x>
+     <y>151</y>
     </hint>
     <hint type="destinationlabel">
      <x>1124</x>
@@ -16799,8 +16839,8 @@ ZERO</string>
    <slot>chk_use_virtual_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>646</x>
-     <y>373</y>
+     <x>634</x>
+     <y>379</y>
     </hint>
     <hint type="destinationlabel">
      <x>565</x>
@@ -16815,8 +16855,8 @@ ZERO</string>
    <slot>chk_alpha_mode_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>646</x>
-     <y>240</y>
+     <x>634</x>
+     <y>238</y>
     </hint>
     <hint type="destinationlabel">
      <x>645</x>
@@ -16831,8 +16871,8 @@ ZERO</string>
    <slot>btn_save_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>997</x>
-     <y>225</y>
+     <x>528</x>
+     <y>119</y>
     </hint>
     <hint type="destinationlabel">
      <x>1098</x>
@@ -16847,8 +16887,8 @@ ZERO</string>
    <slot>chk_override_limits_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>646</x>
-     <y>431</y>
+     <x>634</x>
+     <y>439</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -16863,8 +16903,8 @@ ZERO</string>
    <slot>cam_rot_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>975</x>
-     <y>382</y>
+     <x>466</x>
+     <y>157</y>
     </hint>
     <hint type="destinationlabel">
      <x>1156</x>
@@ -16879,8 +16919,8 @@ ZERO</string>
    <slot>chk_use_camera_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>646</x>
-     <y>411</y>
+     <x>634</x>
+     <y>419</y>
     </hint>
     <hint type="destinationlabel">
      <x>656</x>
@@ -16895,8 +16935,8 @@ ZERO</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>491</x>
-     <y>312</y>
+     <x>479</x>
+     <y>131</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
@@ -16911,8 +16951,8 @@ ZERO</string>
    <slot>chk_run_from_line_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>646</x>
-     <y>354</y>
+     <x>634</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
      <x>554</x>
@@ -16943,8 +16983,8 @@ ZERO</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>491</x>
-     <y>246</y>
+     <x>479</x>
+     <y>129</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -16959,8 +16999,8 @@ ZERO</string>
    <slot>btn_clear_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>997</x>
-     <y>169</y>
+     <x>528</x>
+     <y>112</y>
     </hint>
     <hint type="destinationlabel">
      <x>1039</x>
@@ -16975,8 +17015,8 @@ ZERO</string>
    <slot>chk_inhibit_selection_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>646</x>
-     <y>259</y>
+     <x>634</x>
+     <y>258</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -17055,8 +17095,8 @@ ZERO</string>
    <slot>btn_about_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>998</x>
-     <y>117</y>
+     <x>1006</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
      <x>988</x>
@@ -17087,8 +17127,8 @@ ZERO</string>
    <slot>percent_done_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>91</y>
+     <x>102</x>
+     <y>82</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -17119,8 +17159,8 @@ ZERO</string>
    <slot>cmb_gcode_history_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>95</y>
+     <x>102</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>356</x>
@@ -17135,8 +17175,8 @@ ZERO</string>
    <slot>btn_goto_sensor_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>77</x>
-     <y>115</y>
+     <x>74</x>
+     <y>135</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -17151,8 +17191,8 @@ ZERO</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>162</x>
-     <y>144</y>
+     <x>153</x>
+     <y>135</y>
     </hint>
     <hint type="destinationlabel">
      <x>322</x>
@@ -17167,8 +17207,8 @@ ZERO</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>369</x>
-     <y>394</y>
+     <x>161</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -17183,12 +17223,44 @@ ZERO</string>
    <slot>btn_m61_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>280</x>
-     <y>394</y>
+     <x>136</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
      <y>438</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton_6</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_spindle_z_up_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>686</x>
+     <y>335</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>717</x>
+     <y>-11</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton_7</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_spindle_z_down_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>739</x>
+     <y>348</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>926</x>
+     <y>-8</y>
     </hint>
    </hints>
   </connection>
@@ -17199,12 +17271,12 @@ ZERO</string>
    <slot>btn_zoomin_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>777</x>
-     <y>406</y>
+     <x>708</x>
+     <y>411</y>
     </hint>
     <hint type="destinationlabel">
-     <x>943</x>
-     <y>-5</y>
+     <x>631</x>
+     <y>-11</y>
     </hint>
    </hints>
   </connection>
@@ -17215,12 +17287,12 @@ ZERO</string>
    <slot>btn_zoomout_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>836</x>
+     <x>832</x>
      <y>405</y>
     </hint>
     <hint type="destinationlabel">
-     <x>920</x>
-     <y>-11</y>
+     <x>1073</x>
+     <y>-19</y>
     </hint>
    </hints>
   </connection>
@@ -17300,9 +17372,11 @@ ZERO</string>
   <slot>btn_about_clicked()</slot>
   <slot>btn_zoomin_clicked()</slot>
   <slot>btn_zoomout_clicked()</slot>
+  <slot>btn_spindle_z_up_clicked()</slot>
+  <slot>btn_spindle_z_down_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
