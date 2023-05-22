@@ -980,8 +980,12 @@ class HandlerClass:
         info = ACTION.GET_ABOUT_INFO()
         self.w.aboutDialog_.showdialog()
 
+    def btn_gcode_zoomin_clicked(self):
+        self.w.gcode_viewer.editor.zoomIn()
+    def btn_gcode_zoomout_clicked(self):
+        self.w.gcode_viewer.editor.zoomOut()
+
     def btn_spindle_z_up_clicked(self):
-        print(self.w.lineEdit_eoffset_count.text())
         fval = int(self.w.lineEdit_eoffset_count.text())
         if INFO.MACHINE_IS_METRIC:
             fval += 5
