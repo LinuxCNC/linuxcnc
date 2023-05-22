@@ -567,8 +567,11 @@ It is up to the end user to supply the appropriate driver and HAL file connectio
 QtDragon can be set up to automatically raise and lower the Z axis when the spindle is paused. +
 When a program is paused, then you press the 'Spindle Pause' button to stop the spindle and raise it in Z. +
 Press the button again to start spindle and lower it, then unpause the program. +
-The amount to raise and lower is set in the 'Settings' tab under the heading 'Z Ext Offset'. +
-This requires additions to the INI and the qtdragon_post_gui file.
+The amount to raise is set in the 'Settings' tab under the heading 'SPINDLE RAISE'. +
+This line edit box can only be directly set when not in Auto mode. +
+The up/down buttons can be used to adjust the raise amount at any time, including when the spindle is already raised. +
+The button increments are 1 inch or 5 mm (depending on the units the machine is based on) +
+This optional behaviour requires additions to the INI and the qtdragon_post_gui HAL file.
 
 In the INI, under the AXIS_Z heading.
 
