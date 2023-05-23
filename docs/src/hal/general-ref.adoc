@@ -20,7 +20,7 @@ Typical pins definitions look like these examples:
 
 Occasionally, an abbreviated version of the name may be used, for example the second pin above could be simply called with _.output_ when it can be done without causing confusion.
 
-[[sec:hal-gr:namming-conventions]]
+[[sec:hal-gr:naming-conventions]]
 == HAL General Naming Conventions(((HAL General Naming Conventions)))
 
 Consistent naming conventions would make HAL much easier to use.
