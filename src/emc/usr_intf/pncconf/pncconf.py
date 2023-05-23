@@ -2140,10 +2140,10 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             dbg('Looking for firmware data %s'%self.d["mesa%d_firmware"% boardnum])
             found = False
             search = 0
-            model = self.widgets["mesa%d_firmware"% boardnum].get_model()
-            for search,item in enumerate(model):
-                dbg('%d,%s'%(search,model[search][0]))
-                if model[search][0]  == self.d["mesa%d_firmware"% boardnum]:
+            combo_model = self.widgets["mesa%d_firmware"% boardnum].get_model()
+            for search,item in enumerate(combo_model):
+                dbg('%d,%s'%(search,combo_model[search][0]))
+                if combo_model[search][0]  == self.d["mesa%d_firmware"% boardnum]:
                     self.widgets["mesa%d_firmware"% boardnum].set_active(search)
                     found = True
                     dbg('found firmware # %d'% search)
@@ -2152,9 +2152,10 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 dbg('firmware not found')
                 cur_firm = self.d['mesa%d_currentfirmwaredata'% boardnum][_PD._FIRMWARE]
                 dbg('looking for: %s'% cur_firm )
+                combo = self.widgets["mesa%d_firmware"% boardnum]
                 #self.widgets["mesa%d_firmware"% boardnum].set_active(0)
                 self._p.MESA_FIRMWAREDATA.append(self.d['mesa%d_currentfirmwaredata'% boardnum])
-                model.append((cur_firm,))
+                combo.append_text(cur_firm)
                 self.init_mesa_options(boardnum)
                 return
             else:
