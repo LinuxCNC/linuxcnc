@@ -3089,8 +3089,6 @@ static int emc_joint_enable(ClientData clientdata,
 	setresult(interp,"emc_joint_enable: need 0, 1 for disable, enable");
 	return TCL_ERROR;
     }
-
-    sendJointEnable(joint, val);
     return TCL_OK;
 }
 

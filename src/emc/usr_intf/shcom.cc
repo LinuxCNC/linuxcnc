@@ -1168,27 +1168,6 @@ int sendJointSetBacklash(int joint, double backlash)
     return 0;
 }
 
-int sendJointEnable(int joint, int val)
-{
-    EMC_JOINT_ENABLE emc_joint_enable_msg;
-    EMC_JOINT_DISABLE emc_joint_disable_msg;
-
-    if (val) {
-	emc_joint_enable_msg.joint = joint;
-	emcCommandSend(emc_joint_enable_msg);
-    } else {
-	emc_joint_disable_msg.joint = joint;
-	emcCommandSend(emc_joint_disable_msg);
-    }
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
-}
-
 int sendJointLoadComp(int joint, const char *file, int type)
 {
     EMC_JOINT_LOAD_COMP emc_joint_load_comp_msg;
