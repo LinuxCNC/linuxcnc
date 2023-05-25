@@ -701,7 +701,7 @@ static rtapi_s64 rtapi_cycle_counter_frequency = -1;
 // Sets `rtapi_cycle_counter_frequency` to the frequency of the hardware
 // cycle counter (in Hz), or 0 if no fixed-rate hardware cycle counter
 // is available.
-// Returns the frequency.
+// Returns the frequency in Hz.
 static rtapi_s64 rtapi_cycle_counter_get_freq(void) {
     if (rtapi_cycle_counter_frequency != -1) {
         // We initialized it already.
@@ -725,9 +725,28 @@ static rtapi_s64 rtapi_cycle_counter_get_freq(void) {
         }
     }
 
-    // cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq (that's in kHz, return *1000)
-    //rtapi_cycle_counter_frequency = 4500000000LL;
-    rtapi_cycle_counter_frequency = 1601000LL * 1000LL;
+    // TSC frequency is the same as max CPU frequency.  Read that out of /sys.
+    // FIXME: Should read info for the RT CPU, not CPU 0...
+    char const * const filename = "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq";
+    FILE *f = fopen(filename, "r");
+    if (f == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "failed to open %s: %s\n", filename, strerror(errno));
+        rtapi_cycle_counter_frequency = 0;
+        return 0;
+    }
+
+    uint32_t freq_khz;
+    int r;
+    r = fscanf(f, "%u", &freq_khz);
+    if (r != 1) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "failed to read frequency from %s: %s\n", filename, strerror(errno));
+        fclose(f);
+        rtapi_cycle_counter_frequency = 0;
+        return 0;
+    }
+
+    // that file has the frequency in kHz, compute freq in Hz
+    rtapi_cycle_counter_frequency = (uint64_t)freq_khz * 1000LL;
 
 #elif defined(__aarch64__)
     rtapi_u32 freq;
