@@ -822,7 +822,8 @@ class HandlerClass:
             return
         # instantiate dialog box
         sensor = self.w.sender().property('sensor')
-        info = "Ensure tooltip is within {} mm of tool sensor and click OK".format(self.w.lineEdit_max_probe.text())
+        unit = "mm" if INFO.MACHINE_IS_METRIC else "in"
+        info = "Ensure tooltip is within {} {} of tool sensor and click OK".format(self.w.lineEdit_max_probe.text,unit))
         mess = {'NAME':'MESSAGE', 'ID':sensor, 'MESSAGE':'TOOL TOUCHOFF', 'MORE':info, 'TYPE':'OKCANCEL'}
         ACTION.CALL_DIALOG(mess)
         
