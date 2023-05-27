@@ -90,7 +90,6 @@ class Dialogs(GObject.GObject):
         calc.entry.connect("activate", lambda w : dialog.emit("response", Gtk.ResponseType.ACCEPT))
         dialog.parse_geometry("460x400")
         dialog.set_decorated(True)
-        self.emit("play_sound", "alert")
         if integer: # The user is only allowed to enter integer values, we hide some button
             calc.integer_entry_only(True)
             calc.num_pad_only(True)            
@@ -245,7 +244,6 @@ class Dialogs(GObject.GObject):
 
         restart_dialog.parse_geometry("410x400+0+0")
         restart_dialog.show_all()
-        self.emit("play_sound", "alert")
         result = restart_dialog.run()
         restart_dialog.destroy()
         if result == Gtk.ResponseType.REJECT:

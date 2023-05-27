@@ -358,6 +358,8 @@ class HandlerClass:
             self.w.lbl_laser_offset.setText('INCH')
             self.w.lbl_camera_offset.setText('INCH')
             self.w.lbl_touchheight_units.setText('INCH')
+            self.w.lbl_retract_dist_units.setText('INCH')
+            self.w.lbl_z_safe_travel_units.setText('INCH')
 
         #set up gcode list
         self.gcodes.setup_list()
@@ -822,7 +824,8 @@ class HandlerClass:
             return
         # instantiate dialog box
         sensor = self.w.sender().property('sensor')
-        info = "Ensure tooltip is within {} mm of tool sensor and click OK".format(self.w.lineEdit_max_probe.text())
+        unit = "mm" if INFO.MACHINE_IS_METRIC else "in"
+        info = "Ensure tooltip is within {} {} of tool sensor and click OK".format(self.w.lineEdit_max_probe.text(),unit)
         mess = {'NAME':'MESSAGE', 'ID':sensor, 'MESSAGE':'TOOL TOUCHOFF', 'MORE':info, 'TYPE':'OKCANCEL'}
         ACTION.CALL_DIALOG(mess)
         
@@ -1040,16 +1043,23 @@ class HandlerClass:
         else:
             self.add_status("Unknown touchoff routine specified", CRITICAL)
             return
-        self.add_status("Touchoff to {} started".format(selector))
+
         max_probe = self.w.lineEdit_max_probe.text()
         search_vel = self.w.lineEdit_search_vel.text()
         probe_vel = self.w.lineEdit_probe_vel.text()
         retract = self.w.lineEdit_retract_distance.text()
         safe_z = self.w.lineEdit_z_safe_travel.text()
+        self.add_status("Touchoff to {} started with {} {} {} {} {} {}".format(selector,
+                search_vel, probe_vel, max_probe, 
+                z_offset, retract, safe_z))
         rtn = ACTION.TOUCHPLATE_TOUCHOFF(search_vel, probe_vel, max_probe, 
-                z_offset, retract, safe_z)
+                z_offset, retract, safe_z, self.touchoff_return)
         if rtn == 0:
             self.add_status("Touchoff routine is already running", CRITICAL)
+
+    def touchoff_return(self, data):
+        self.add_status("Touchplate touchoff routine returned successfully")
+        self.add_status("Touchplate returned: "+data, CRITICAL)
 
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
         ACTION.SET_MANUAL_MODE()

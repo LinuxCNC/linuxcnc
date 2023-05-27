@@ -1,3 +1,18 @@
+ver 3.4.3
+
+- fix setting of themes
+- fix display of logo with "-logo" option
+- added embedded tab location "box_dro_side"
+- added setting to disable sound
+- added setting for "hide title bar"
+- replaced deprecated GTK widgets, mostly GtkTable and GtkAlignment
+- removed setting MAX_RAPID_OVERRIDE (#2392)
+- removed sound for calculator dialogs (except unlock code dialog)
+- transparent buttons for cooling and spindle, fixed spindle_stop/spindle_stop_on icon
+- fixed buttons in restart dialog (run from line) (side effect from #2381)
+- hal_mdihistory: scroll to last line on reload
+- fixed virtual keyboard did not expand (#2394)
+
 ver 3.4.2.1
 
   - Replaced deprecated Gtk widgets in GladeVCP library (#2381, thanks phillc54)

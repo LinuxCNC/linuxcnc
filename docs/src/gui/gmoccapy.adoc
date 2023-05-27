@@ -318,6 +318,7 @@ All you have to take care of, is that you include for every tab or side panel th
 ** *box_custom_2*             (will introduce your glade file left of cooling_frame)
 ** *box_custom_3*             (will introduce your glade file left of spindle_frame)
 ** *box_custom_4*             (will introduce your glade file right of spindle_frame)
+** *box_dro_side*             (will introduce your glade file right of the DRO)
 
 [NOTE]
 See also the included sample INI files to see the differences.
@@ -1129,7 +1130,9 @@ You have three options:
 * _Start as window_  - If you select start as window the spinboxes to set the position and size will get active.
   One time set, the GUI will start every time on the place and with the size selected.
   Nevertheless the user can change the size and position using the mouse, but that will not have any influence on the settings.
-* _hide the cursor_ - Does allow to hide the cursor, what is very useful if you use a touch screen.
+* _Window decorated_ - Allows the title bar to be hidden. (default: title bar visible)
+* _hide cursor_ - Does allow to hide the cursor, what is very useful if you use a touch screen.
+* _hide tooltips_ - Does gide the tool tips.
 
 .Keyboard
 
