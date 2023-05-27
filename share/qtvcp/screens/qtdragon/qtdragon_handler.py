@@ -358,6 +358,8 @@ class HandlerClass:
             self.w.lbl_laser_offset.setText('INCH')
             self.w.lbl_camera_offset.setText('INCH')
             self.w.lbl_touchheight_units.setText('INCH')
+            self.w.lbl_retract_dist_units.setText('INCH')
+            self.w.lbl_z_safe_travel_units.setText('INCH')
 
         #set up gcode list
         self.gcodes.setup_list()
@@ -823,7 +825,7 @@ class HandlerClass:
         # instantiate dialog box
         sensor = self.w.sender().property('sensor')
         unit = "mm" if INFO.MACHINE_IS_METRIC else "in"
-        info = "Ensure tooltip is within {} {} of tool sensor and click OK".format(self.w.lineEdit_max_probe.text,unit))
+        info = "Ensure tooltip is within {} {} of tool sensor and click OK".format(self.w.lineEdit_max_probe.text(),unit)
         mess = {'NAME':'MESSAGE', 'ID':sensor, 'MESSAGE':'TOOL TOUCHOFF', 'MORE':info, 'TYPE':'OKCANCEL'}
         ACTION.CALL_DIALOG(mess)
         
