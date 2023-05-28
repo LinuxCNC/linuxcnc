@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-05-03 08:16+0200\n"
-"PO-Revision-Date: 2023-05-10 23:53+0000\n"
+"PO-Revision-Date: 2023-05-23 17:52+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -19021,32 +19021,31 @@ msgstr "Tamaño de ventana especificado no válido '{}', predeterminado a {}x{}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1477
 msgid "Using default window size: {}x{}"
-msgstr ""
+msgstr "Utilizando el tamaño de ventana por defecto: {}x{}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1607
 msgid "Control powered up and initialized"
 msgstr "Control encendido e inicializado"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1630
-#, fuzzy
 msgid "Unlock code #{}"
-msgstr "Usar código de desbloqueo"
+msgstr "Código de desbloqueo #{}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1933
 msgid "Key {} ({}) was pressed state: {} last: {}"
-msgstr ""
+msgstr "La tecla {} ({}) fue pulsada estado: {} último: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1936
 msgid "Control was being held down"
-msgstr ""
+msgstr "Control se mantenía presionado"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1939
 msgid "Alt was being held down"
-msgstr ""
+msgstr "Alt se mantenía presionado"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1942
 msgid "Shift was being held down"
-msgstr ""
+msgstr "Shift se mantenía presionado"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1974
 msgid "Cycle start pressed in AUTO mode"
@@ -19124,7 +19123,7 @@ msgstr "ladder no disponible: ¿está cargado el componente en tiempo real?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2452
 msgid "Estopping and killing gscreen"
-msgstr ""
+msgstr "Paro de emergencia y matando gscreen"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2597
 msgid "Override Entry"
@@ -19167,12 +19166,16 @@ msgid ""
 "Cannot set focus to hal_mdihistory when Onboard launched - Is this widget "
 "name in glade file?"
 msgstr ""
+"No se puede establecer el foco en hal_mdihistory cuando se inicia Onboard - ¿"
+"Este nombre de widget está en el archivo glade?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2937
 msgid ""
 "Cannot set focus to gcode_view when Onboard launched - Is this widget name "
 "in glade file?"
 msgstr ""
+"No se puede establecer el foco a gcode_view cuando Onboard lanzado - ¿Es "
+"este nombre de widget en el archivo glade?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3069
 msgid "Manual Spindle Control"
@@ -19180,36 +19183,30 @@ msgstr "Control Manual del husillo"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3149
 #: src/emc/usr_intf/gscreen/gscreen.py:3150
-#, fuzzy
 msgid "Error with launching on-screen keyboard program - cannot find program"
 msgstr ""
-"Error al iniciar el programa de teclado en pantalla: no se puede encontrar "
-"el programa."
+"Error al iniciar el programa de teclado en pantalla - no se encuentra el "
+"programa"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3160
 msgid "Keyboard"
 msgstr "Teclado"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3194
-#, fuzzy
 msgid "Error with launching 'Onboard' on-screen keyboard program {}"
-msgstr "Error al iniciar el programa de teclado en pantalla 'Onboard' %s"
+msgstr "Error al iniciar el programa de teclado en pantalla 'Onboard' {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3343
-#, fuzzy
 msgid "Overriding internal signal call to '{}'"
-msgstr ""
-"**** INFORMACIÓN GSCREEN: anulación de la llamada de señal interna a %s"
+msgstr "Anulación de la llamada de señal interna a '{}'"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3364
-#, fuzzy
 msgid "Could not connect '{}' to '{}'"
-msgstr "No se pudo traducir {0} a número"
+msgstr "No se ha podido conectar '{}' a '{}'"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3397
-#, fuzzy
 msgid "No widget named '{}' to sensitize"
-msgstr "**** Ningún widget llamado: {0} para sensibilizar ****"
+msgstr "No hay widget llamado '{}' para sensibilizar"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3777
 msgid ""
@@ -19237,37 +19234,31 @@ msgid "Offset Origin"
 msgstr "Offset de Origen"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3798
-#, fuzzy
 msgid ""
 "Invalid message configuration (missing text or type) in INI File [DISPLAY] "
 "section"
 msgstr ""
-"**** ERROR de Gscreen: configuración de mensaje no válida (falta texto o "
-"tipo)en la sección del archivo INI [DISPLAY]"
+"Configuración de mensajes inválida (falta texto o tipo) en la sección "
+"[DISPLAY] del archivo INI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3800
-#, fuzzy
 msgid ""
 "Invalid message configuration (missing pinname) in INI File [DISPLAY] section"
 msgstr ""
-"**** ERROR de Gscreen: configuración de mensaje no válida (falta el pinname) "
-"enSección del archivo INI [DISPLAY]"
+"Configuración de mensajes inválida (falta nombre de pin) en la sección "
+"[DISPLAY] del archivo INI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3802
-#, fuzzy
 msgid ""
 "Invalid message configuration (missing boldtext) in INI File [DISPLAY] "
 "section"
 msgstr ""
-"**** Gscreen ERROR: configuración de mensaje no válida (falta texto en "
-"negrita) enSección del archivo INI [DISPLAY]"
+"Configuración de mensajes inválida (falta texto en negrita) en la sección "
+"[DISPLAY] del archivo INI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3806
-#, fuzzy
 msgid "Invalid message type ({})in INI File [DISPLAY] section"
-msgstr ""
-"**** ERROR de Gscreen: tipo de mensaje no válido (%s) en la sección "
-"[DISPLAY] del archivo INI"
+msgstr "Tipo de mensaje inválido ({}) en la sección [DISPLAY] del archivo INI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3840
 msgid "Dialog error - Is the dialog handler missing from the handler file?"
@@ -19405,9 +19396,8 @@ msgid " mm "
 msgstr "mm"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4789
-#, fuzzy
 msgid "Postgui filename: {}"
-msgstr "nombre de archivo:"
+msgstr "Nombre de archivo Postgui: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:38
 msgid "S 1000"
@@ -19542,9 +19532,8 @@ msgid "G-code"
 msgstr "Código G"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1869
-#, fuzzy
 msgid "<b>Active Codes</b>"
-msgstr "Códigos G activos:"
+msgstr "<b>Códigos activos</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1925
 msgid "MV:100%"
