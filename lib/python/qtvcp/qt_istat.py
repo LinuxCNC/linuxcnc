@@ -518,7 +518,8 @@ class _IStat(object):
     ###################
     # helper functions
     ###################
-
+    # return a found string or else None by default, anything else by option
+    # since this is used in this file there are some workarounds for plasma machines
     def get_error_safe_setting(self, heading, detail, default=None):
         result = self.INI.find(heading, detail)
         if result:
@@ -529,6 +530,22 @@ class _IStat(object):
                 return default
             else:
                 log.warning('INI Parsing Error, No {} Entry in {}, Using: {}'.format(detail, heading, default))
+            return default
+
+    # return a found float or else None by default, anything else by option
+    def get_safe_float(self, heading, detail, default=None):
+        try:
+            result = float(self.INI.find(heading, detail))
+            return result
+        except:
+            return default
+
+    # return a found integer or else None by default, anything else by option
+    def get_safe_int(self, heading, detail, default=None):
+        try:
+            result = int(self.INI.find(heading, detail))
+            return result
+        except:
             return default
 
     def convert_machine_to_metric(self, data):
