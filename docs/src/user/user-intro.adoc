@@ -145,6 +145,9 @@ QtDragon:: <<cha:qtdragon-gui,QtDragon>>, a touch screen GUI based on QtVCP usin
 .QtDragon, a touch screen GUI based on QtVCP
 image::images/qtdragon.png["QtDragon, a touch screen GUI based on QtVCP",align="center"]
 
+== User Interfaces
+These User interfaces are a way to interact with linuxcnc outside of the graphical user interfaces.
+
 halui:: A HAL based user interface allowing to control LinuxCNC using buttons and switches
 
 linuxcncrsh:: A telnet based user interface allowing to send commands from remote computers.
