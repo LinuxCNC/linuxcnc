@@ -49,6 +49,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(VersaProbe, self).__init__(parent)
         self.proc = None
+        self.tool_diameter = None
+        STATUS.connect('tool-info-changed', lambda w, data: self._tool_info(data))
         if INFO.MACHINE_IS_METRIC:
             self.valid = QtGui.QRegExpValidator(QtCore.QRegExp('^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$'))
         else:
@@ -113,6 +115,14 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
                     self.popEntry(obj)
         return super(VersaProbe, self).eventFilter(obj, event)
 
+
+    def _tool_info(self, data):
+        if data.id != -1:
+            self.tool_diameter = data.diameter
+            print(data)
+            return
+        self.tool_diameter = None
+
     def _hal_init(self):
 
         def homed_on_test():
@@ -176,6 +186,13 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.input_adj_z.setText(str(self.PREFS_.getpref( "ps_offs_z", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_adj_angle.setText(str(self.PREFS_.getpref( "ps_offs_angle", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_rapid_vel.setText(str(self.PREFS_.getpref( "ps_probe_rapid_vel", 60.0, float, 'VERSA_PROBE_OPTIONS')) )
+
+        self.z_max_clear = INFO.get_safe_float("VERSA_TOOLSETTER", "Z_MAX_CLEAR")
+        self.ts_x =  INFO.get_safe_float('VERSA_TOOLSETTER','X')
+        self.ts_y = INFO.get_safe_float('VERSA_TOOLSETTER','Y')
+        self.ts_z = INFO.get_safe_float('VERSA_TOOLSETTER','Z')
+        self.ts_max = INFO.get_safe_float('VERSA_TOOLSETTER','MAXPROBE')
+        self.ts_diam = INFO.get_safe_float('VERSA_TOOLSETTER','DIAMETER')
 
         # make pins available for tool measure remaps
         oldname = self.HAL_GCOMP_.comp.getprefix()
@@ -396,6 +413,11 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.send_dict = {key: self['input_' + key].text() for key in (self.parm_list)}
         for key in ['allow_auto_zero', 'allow_auto_skew']:
             val = '1' if self[key].isChecked() else '0'
+            self.send_dict.update( {key: val} )
+        # come from INI
+        for key in ['ts_diam','z_max_clear','ts_x','ts_y','ts_z','ts_max','tool_diameter']:
+            val = str(self[key])
+            if val == 'NONE': val = None
             self.send_dict.update( {key: val} )
 
     def check_probe(self):

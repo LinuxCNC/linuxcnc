@@ -707,7 +707,7 @@ Probing is very unforgiving to mistakes; be sure to check settings before using.
 QtDragon has 2 methods for setting Z0.
 The first is a touchplate, where a metal plate of known thickness is placed on top of the workpiece,
 then the tool is lowered until it touches the plate, triggering the probe signal.
-Z0 is set to probe height - plate thickness.
+The current user system's (G5x) Z0 is set to probe height - the entered plate thickness.
 
 The second method uses a tool setter in a fixed position and a known height above the table where the probe signal will be triggered.
 In order to set Z0 to the top of the workpiece, it has to know
