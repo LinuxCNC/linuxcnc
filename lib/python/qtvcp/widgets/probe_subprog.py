@@ -63,7 +63,15 @@ class ProbeSubprog(QObject, ProbeRoutines):
                           'cal_x_width',
                           'cal_y_width',
                           'cal_diameter',
-                          'calibration_offset']
+                          'calibration_offset',
+                          'ts_diam',
+                          'z_max_clear',
+                          'ts_x',
+                          'ts_y',
+                          'ts_z',
+                          'ts_max',
+                          'tool_diameter']
+
         # data structure to hold parameters
         # common
         self.data_probe_diam = 1.0
@@ -84,6 +92,13 @@ class ProbeSubprog(QObject, ProbeRoutines):
         self.data_adj_y = 0.0
         self.data_adj_z = 0.0
         self.data_adj_angle = 0.0
+        self.data_ts_diam = 1.0
+        self.data_z_max_clear = None
+        self.data_ts_x= None
+        self.data_ts_y= None
+        self.data_ts_z= None
+        self.data_ts_max = None
+        self.data_tool_diameter = None
         # BasicProbe exclusive
         self.data_x_hint_bp = 0.0
         self.data_y_hint_bp = 0.0

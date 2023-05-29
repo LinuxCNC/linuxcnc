@@ -2767,7 +2767,7 @@
                 <item row="4" column="2">
                  <widget class="PushButton" name="pbtn_measure_diam">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -2788,7 +2788,7 @@
                    </size>
                   </property>
                   <property name="toolTip">
-                   <string>This button not implemented</string>
+                   <string>Probe height and diameter of the current tool</string>
                   </property>
                   <property name="text">
                    <string/>
@@ -2813,8 +2813,11 @@
                    <bool>false</bool>
                   </property>
                   <property name="probe" stdset="0">
-                   <string>probe_help</string>
+                   <string>probe_tool_z_d</string>
                   </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">length_buttonGroup</string>
+                  </attribute>
                  </widget>
                 </item>
                 <item row="2" column="2">
@@ -5311,8 +5314,8 @@ ZERO</string>
    <slot>input_next()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>101</x>
-     <y>399</y>
+     <x>112</x>
+     <y>386</y>
     </hint>
     <hint type="destinationlabel">
      <x>779</x>
@@ -5386,22 +5389,22 @@ ZERO</string>
   <slot>input_next()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="inside_buttonGroup">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="skew_buttonGroup">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
   <buttongroup name="outside_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
   <buttongroup name="length_buttonGroup">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="inside_buttonGroup">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="skew_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
