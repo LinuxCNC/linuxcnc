@@ -271,6 +271,7 @@ void userinit(int argc, char **argv)
 void user_mainloop(void) {
 	wj200_status status;
 	uint16_t calculated_frequency;
+    bool last_enable_state = FALSE;
 
 	while(1) {
 	FOR_ALL_INSTS() {
@@ -297,10 +298,19 @@ void user_mainloop(void) {
 		  pin won't change until we make it all the way through
 		  the loop.
                 */
-		if(!wj200_getStatus(ctx, &status)) {	
-			print_modbus_error(__comp_inst, "failed to get status");
-			continue;
-		}
+
+        if(!wj200_getStatus(ctx, &status)) {
+            /*
+               Only want to list 'failed to get status' once
+               any time enable changes - don't spam the output.
+               A wink is as good as a nod.
+            */
+            if (last_enable_state != enable) {
+                print_modbus_error(__comp_inst, "failed to get status");
+            }
+            last_enable_state = enable;
+            continue;
+        }
 
 		is_running = status.running;
 		is_at_speed = status.at_speed;
