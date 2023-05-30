@@ -187,12 +187,11 @@ Current sensing is not a viable technique for DIY tables but float switches and 
 === Float Switches
 
 The torch is mounted on a sliding stage that can move up when the torch tip contacts the material surface and trigger a switch or sensor.
-Often this is achieved under G-code control using the G38 Commands.
+Often this is achieved under G-code control using the G38 commands.
 If this is the case, then after initial probing, it is recommended to probe away from the surface until the probe signal is lost at a slower speed.
 Also, ensure the switch hysteresis is accounted for.
 
-Regardless of the probing method used,
-it is strongly recommended that float switch is implemented so that there is a fallback or secondary signal to avoid damage to the torch from a crash.
+Regardless of the probing method used, it is strongly recommended that float switch is implemented so that there is a fallback or secondary signal to avoid damage to the torch from a crash.
 
 [[ohmic-sensing]]
 === Ohmic Sensing
@@ -396,8 +395,8 @@ WARNING: It is strongly recommended that the torch cannot be enabled while this 
 === Float switch (input)
 
 * Used for surface probing. A sensor or switch that is activated if the torch slides up when it hits the material.
-* Connect Proximity sensor output to chosen input pin. If mechanical switches are used. Connect one side of the switch to field power and the other side of the switch to input.
-* Usually Connected to `motion.probe-input`.
+* Connect proximity sensor output to chosen input pin. If mechanical switches are used. Connect one side of the switch to field power and the other side of the switch to input.
+* Usually connected to `motion.probe-input`.
 
 === Ohmic Sensor enable (output)
 
@@ -521,7 +520,7 @@ For further information about external offsets (for version 2.8 or later) please
 The Mesa THCAD board is a remarkably well priced and accurate voltage to frequency converter that is designed for the hostile noisy electrical environment associated with plasma cutting.
 Internally it has a 0-10 V range.
 This range can be simply extended by the addition of some resistors as described in the documentation.
-This board is available in three versions, the newer THCAD-5 with a 0-5 V range, the THCAD-10 with a 0-10 Volt range and the THCAD-300 which is pre-calibrated for a 300 Volt extended range.
+This board is available in three versions, the newer THCAD-5 with a 0-5 V range, the THCAD-10 with a 0-10 Volt range and the THCAD-300 which is pre-calibrated for a 300 Volt extended range.
 Each board is individually calibrated and a sticker is applied to the board that states the frequency at 0 Volts and full scale.
 For use with LinuxCNC, it is recommended that the 1/32 divisor be selected by the appropriate link on the board.
 In this case, be sure to also divide the stated frequencies by 32.
@@ -537,7 +536,7 @@ Because the full scale is 10 Volts, then the frequency per Volt is:
 
 (29000 Hz - 3800 Hz) / 10 V = 2520 Hz per Volt
 
-So assuming we have a 5 Volt input, the calculated frequency would be:
+So assuming we have a 5 Volt input, the calculated frequency would be:
 
 (2520 Hz/V * 5 V) + 3800 Hz = 16400 Hz
 
@@ -635,7 +634,8 @@ The simplest way is to use a EMI filtered mains power IEC connector commonly use
 Plan the layout of components in the enclosure so that mains power, high voltage motor wires and logic signals are kept as separate as possible from each other.
 If they do have to cross, keep them at 90 degrees.
 
-Peter Wallace from Mesa Electronics suggests: "If you have a CNC compatible plasma source with a voltage divider, I would mount the THCAD inside your electronics enclosure with all the other motion hardware.
+Peter Wallace from Mesa Electronics suggests:
+"If you have a CNC compatible plasma source with a voltage divider, I would mount the THCAD inside your electronics enclosure with all the other motion hardware.
 If you have a manual plasma source and you are reading raw plasma voltage, I would mount the THCAD as close to the plasma source as possible (even inside the plasma source case if it fits).
 In this case, make sure that all low side THCAD connections are fully isolated from the plasma source.
 If you use a shielded box for the THCAD, the shield should connect to your electronic enclosure ground, not the plasma source ground."
