@@ -597,10 +597,6 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
         return -EINVAL;
     }
 
-    if (hm2->config.num_sserials == 0) {
-        return 0;
-    }
-
     //
     // looks good, start initializing
     //
@@ -638,7 +634,8 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
                     chan_counts[hm2->pin[pin].sec_unit] = (hm2->pin[pin].sec_pin & 0x0F);
                 }
                 // check if the channel is enabled
-                HM2_DBG("sec unit = %i, sec pin = %i\n", hm2->pin[pin].sec_unit, hm2->pin[pin].sec_pin & 0x0F);
+                HM2_DBG("port %i sec unit = %i, sec pin = %i mode=%c\n", port, hm2->pin[pin].sec_unit, hm2->pin[pin].sec_pin & 0x0F,
+                               hm2->config.sserial_modes[hm2->pin[pin].sec_unit][(hm2->pin[pin].sec_pin & 0x0F) - 1] );
                 if (hm2->config.sserial_modes[hm2->pin[pin].sec_unit]
                                         [(hm2->pin[pin].sec_pin & 0x0F) - 1] != 'x') {
                     src_reg |= (1 << port_pin);
@@ -655,8 +652,7 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
     }
 
     // Now iterate through the sserial instances, seeing what is on the enabled pins.
-    for (i = 0 ; i < hm2->sserial.num_instances ; i++) {
-
+    for (i = 0 ; i < md->instances ; i++) {
         hm2_sserial_instance_t *inst = &hm2->sserial.instance[count];
         inst->index = i;
         inst->num_channels = chan_counts[i];
@@ -677,11 +673,11 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
         HM2_PRINT("Smart Serial Firmware Version %i\n",buff);
         hm2->sserial.version = buff;
 
-        r = check_set_baudrate(hm2, inst) < 0;
+        r = check_set_baudrate(hm2, inst);
         if (r < 0) goto fail0;
 
         //start up in setup mode
-        r = hm2_sserial_stopstart(hm2, md, inst, 0xF00) < 0;
+        r = hm2_sserial_stopstart(hm2, md, inst, 0xF00);
         if(r < 0) {goto fail0;}
 
         inst->num_remotes = 0;
@@ -693,17 +689,17 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
             addr0 = md->base_address + 3 * md->register_stride
                                     + i * md->instance_stride + c * sizeof(rtapi_u32);
             HM2READ(addr0, user0);
-            HM2_DBG("Inst %i Chan %i User0 = %x\n", i, c, user0);
+            HM2_DBG("Inst %i Chan %i Addr %x User0 = %x\n", i, c, addr0, user0);
 
             addr1 = md->base_address + 4 * md->register_stride
                                     + i * md->instance_stride + c * sizeof(rtapi_u32);
             HM2READ(addr1, user1);
-            HM2_DBG("Inst %i Chan %i User1 = %x\n", i, c, user1);
+            HM2_DBG("Inst %i Chan %i Addr %x User1 = %x\n", i, c, addr1, user1);
 
             addr2 = md->base_address + 5 * md->register_stride
             + i * md->instance_stride + c * sizeof(rtapi_u32);
             HM2READ(addr2, user2);
-            HM2_DBG("Inst %i Chan %i User2 = %x\n", i, c, user2);
+            HM2_DBG("Inst %i Chan %i Addr %x User2 = %x\n", i, c, addr2, user2);
 
             if (hm2->sserial.baudrate == 115200
                 && hm2->config.sserial_modes[i][c] != 'x') { //setup mode
