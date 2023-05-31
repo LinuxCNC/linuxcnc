@@ -11197,6 +11197,9 @@ SPINDLE</string>
                             <property name="is_joint_homed_status" stdset="0">
                              <bool>true</bool>
                             </property>
+                            <property name="joint_number_status" stdset="0">
+                             <number>1</number>
+                            </property>
                             <property name="joint" stdset="0">
                              <number>1</number>
                             </property>
@@ -16332,7 +16335,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>08:55:13 PM</string>
+            <string>09:35:25 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -17376,7 +17379,7 @@ ZERO</string>
   <slot>btn_spindle_z_down_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
