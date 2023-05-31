@@ -70,6 +70,7 @@ class HandlerClass:
         KEYBIND.add_call('Key_Less','on_keycall_angular_jograte',0)
 
         # some global variables
+        self._spindle_wait = False
         self.probe = None
         self.default_setup = os.path.join(PATH.CONFIGPATH, "default_setup.html")
         self.docs = os.path.join(PATH.SCREENDIR, PATH.BASEPATH,'docs/getting_started.html')
@@ -117,7 +118,7 @@ class HandlerClass:
         STATUS.connect('file-loaded', self.file_loaded)
         STATUS.connect('all-homed', self.all_homed)
         STATUS.connect('not-all-homed', self.not_all_homed)
-        STATUS.connect('periodic', lambda w: self.update_runtimer())
+        STATUS.connect('periodic', lambda w: self.periodic_update())
         STATUS.connect('command-stopped', lambda w: self.stop_timer())
         STATUS.connect('progress', lambda w,p,t: self.updateProgress(p,t))
         STATUS.connect('override-limits-changed', lambda w, state, data: self._check_override_limits(state, data))
@@ -692,10 +693,16 @@ class HandlerClass:
         else:
             self.h['spindle-inhibit'] = False
             self.add_status('Spindle re-started')
-        # instantiate warning box
-            info = "Wait for spindle at speed signal before resuming"
-            mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_resume_', 'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
-            ACTION.CALL_DIALOG(mess)
+            # If spindle at speed is connected use it lower spindle
+            if self.h.hal.pin_has_writer('spindle.0.at-speed'):
+                self._spindle_wait=True
+                return
+            else:
+            # or wait for dialog to close before lowering spindle
+            # instantiate warning box
+                info = "Wait for spindle at speed signal before resuming"
+                mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_resume_', 'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
+                ACTION.CALL_DIALOG(mess)
         
     # override frame
     def slow_button_clicked(self, state):
@@ -1142,6 +1149,18 @@ class HandlerClass:
             self.w.lbl_spindle_set.style().unpolish(self.w.lbl_spindle_set)
             self.w.lbl_spindle_set.style().polish(self.w.lbl_spindle_set)
 
+    def periodic_update(self):
+        # if waiting and up to speed, lower spindle
+        if self._spindle_wait:
+            if bool(self.h.hal.get_value('spindle.0.at-speed')):
+                self.h['eoffset-spindle-count'] = 0
+                self.h['eoffset-clear'] = True
+                self.add_status('Spindle lowered')
+                self.h['eoffset-clear'] = False
+                self._spindle_wait = False
+
+        self.update_runtimer()
+
     def update_runtimer(self):
         if not self.timer_on or STATUS.is_auto_paused():
             return
@@ -1154,6 +1173,7 @@ class HandlerClass:
         hours, remainder = divmod(int(self.run_time), 3600)
         minutes, seconds = divmod(remainder, 60)
         self.w.lbl_runtime.setText("{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds))
+
 
     def start_timer(self):
         self.run_time = 0

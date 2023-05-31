@@ -12120,6 +12120,9 @@ CAMERA</string>
                          <property name="false_state_string" stdset="0">
                           <string>HOME</string>
                          </property>
+                         <property name="joint_number_status" stdset="0">
+                          <number>1</number>
+                         </property>
                          <property name="joint" stdset="0">
                           <number>1</number>
                          </property>
@@ -12273,7 +12276,7 @@ CAMERA</string>
                           <string>HOME</string>
                          </property>
                          <property name="joint_number_status" stdset="0">
-                          <number>0</number>
+                          <number>2</number>
                          </property>
                          <property name="joint" stdset="0">
                           <number>2</number>
@@ -15822,7 +15825,7 @@ ANGULAR</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>08:22:38 PM</string>
+               <string>09:36:20 PM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -16964,7 +16967,7 @@ ANGULAR</string>
   <slot>btn_gcode_zoomin_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>

@@ -99,7 +99,7 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_38">
             <property name="spacing">
-             <number>4</number>
+             <number>2</number>
             </property>
             <property name="leftMargin">
              <number>4</number>
@@ -231,7 +231,7 @@ HELP</string>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_33">
               <property name="spacing">
-               <number>4</number>
+               <number>0</number>
               </property>
               <property name="topMargin">
                <number>0</number>
@@ -981,7 +981,7 @@ HELP</string>
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,0,0">
               <property name="spacing">
                <number>4</number>
               </property>
@@ -991,7 +991,7 @@ HELP</string>
               <item>
                <widget class="QLabel" name="label_63">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -1005,7 +1005,7 @@ HELP</string>
                 <property name="maximumSize">
                  <size>
                   <width>100</width>
-                  <height>15</height>
+                  <height>35</height>
                  </size>
                 </property>
                 <property name="text">
@@ -1019,7 +1019,7 @@ HELP</string>
               <item>
                <widget class="QLineEdit" name="lineEdit_extra_depth">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -1091,7 +1091,7 @@ HELP</string>
               <item>
                <widget class="QLineEdit" name="lineEdit_side_edge_length">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -1123,18 +1123,57 @@ HELP</string>
             </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <property name="spacing">
+               <number>4</number>
+              </property>
               <item>
                <widget class="QLabel" name="label_10">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>100</width>
+                  <height>28</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>100</width>
+                  <height>35</height>
+                 </size>
+                </property>
                 <property name="text">
                  <string>MOTION TYPE</string>
                 </property>
                 <property name="alignment">
-                 <set>Qt::AlignCenter</set>
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="StatusLabel" name="statuslabel_motiontype">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>28</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>80</width>
+                  <height>35</height>
+                 </size>
+                </property>
                 <property name="text">
                  <string>100.0</string>
                 </property>
@@ -1155,6 +1194,96 @@ HELP</string>
                 </property>
                 <property name="motion_type_status" stdset="0">
                  <bool>true</bool>
+                </property>
+                <property name="motion_type_list" stdset="0">
+                 <stringlist>
+                  <string> </string>
+                  <string>Rapid</string>
+                  <string>Feed</string>
+                  <string>Arc</string>
+                  <string>Tool Change</string>
+                  <string>Probe</string>
+                  <string>Rotaty Index</string>
+                 </stringlist>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_21">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Preferred</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_9">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>100</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>100</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>PROBE  </string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="StateLED" name="led_probe">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>80</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="color">
+                 <color>
+                  <red>0</red>
+                  <green>255</green>
+                  <blue>0</blue>
+                 </color>
+                </property>
+                <property name="follow_halpin_state" stdset="0">
+                 <bool>true</bool>
+                </property>
+                <property name="halpin_name" stdset="0">
+                 <string>motion.probe-input</string>
                 </property>
                </widget>
               </item>
@@ -1181,9 +1310,12 @@ HELP</string>
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::MinimumExpanding</enum>
+           </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>10</width>
+             <width>5</width>
              <height>20</height>
             </size>
            </property>
@@ -1216,7 +1348,7 @@ HELP</string>
             <enum>QFrame::Plain</enum>
            </property>
            <property name="currentIndex">
-            <number>4</number>
+            <number>5</number>
            </property>
            <widget class="QWidget" name="outside_corners">
             <property name="sizePolicy">
@@ -6136,6 +6268,16 @@ Y ERROR</string>
    <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
+   <class>LED</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.led_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>StateLED</class>
+   <extends>LED</extends>
+   <header>qtvcp.widgets.state_led</header>
+  </customwidget>
+  <customwidget>
    <class>StatusLabel</class>
    <extends>QLabel</extends>
    <header>qtvcp.widgets.status_label</header>
@@ -6149,12 +6291,12 @@ Y ERROR</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="clear_buttonGroup"/>
+  <buttongroup name="inside_buttonGroup"/>
+  <buttongroup name="skew_buttonGroup"/>
   <buttongroup name="cal_buttonGroup"/>
   <buttongroup name="ridge_valley_buttonGroup"/>
   <buttongroup name="boss_pocket_buttonGroup"/>
+  <buttongroup name="clear_buttonGroup"/>
   <buttongroup name="outside_buttonGroup"/>
-  <buttongroup name="inside_buttonGroup"/>
-  <buttongroup name="skew_buttonGroup"/>
  </buttongroups>
 </ui>

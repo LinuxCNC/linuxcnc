@@ -73,6 +73,7 @@ class HandlerClass:
 
         # some global variables
         self.factor = 1.0
+        self._spindle_wait = False
         self.probe = None
         self.default_setup = os.path.join(PATH.CONFIGPATH, "default_setup.html")
         self.docs = os.path.join(PATH.SCREENDIR, PATH.BASEPATH,'docs/getting_started.html')
@@ -115,7 +116,7 @@ class HandlerClass:
         STATUS.connect('file-loaded', self.file_loaded)
         STATUS.connect('all-homed', self.all_homed)
         STATUS.connect('not-all-homed', self.not_all_homed)
-        STATUS.connect('periodic', lambda w: self.update_runtimer())
+        STATUS.connect('periodic', lambda w: self.periodic_update())
         STATUS.connect('interp-idle', lambda w: self.stop_timer())
         STATUS.connect('actual-spindle-speed-changed',self.update_spindle)
         STATUS.connect('requested-spindle-speed-changed',self.update_spindle_requested)
@@ -703,13 +704,19 @@ class HandlerClass:
             # turn spindle back on
             self.h['spindle-inhibit'] = False
             self.add_status('Spindle re-started')
-            # wait for dialog to close before lowering spindle
-            if STATUS.is_auto_running():
-                info = "Wait for spindle at speed signal before resuming"
-                mess = {'NAME':'MESSAGE', 'ICON':'WARNING',
-                        'ID':'_wait_resume_', 'MESSAGE':'CAUTION',
-                        'NONBLOCKING':'True', 'MORE':info, 'TYPE':'OK'}
-                ACTION.CALL_DIALOG(mess)
+
+            # If spindle at speed is connected use it lower spindle
+            if self.h.hal.pin_has_writer('spindle.0.at-speed'):
+                self._spindle_wait=True
+                return
+            else:
+                # or wait for dialog to close before lowering spindle
+                if STATUS.is_auto_running():
+                    info = "Wait for spindle at speed signal before resuming"
+                    mess = {'NAME':'MESSAGE', 'ICON':'WARNING',
+                            'ID':'_wait_resume_', 'MESSAGE':'CAUTION',
+                            'NONBLOCKING':'True', 'MORE':info, 'TYPE':'OK'}
+                    ACTION.CALL_DIALOG(mess)
 
     def btn_enable_comp_clicked(self, state):
         if state:
@@ -1192,6 +1199,18 @@ class HandlerClass:
             self.add_status("Copied file from {} to {}".format(self.source_file, self.destination_file))
         except Exception as e:
             self.add_status("Unable to copy file. %s" %e, WARNING)
+
+    def periodic_update(self):
+        # if waiting and up to speed, lower spindle
+        if self._spindle_wait:
+            if bool(self.h.hal.get_value('spindle.0.at-speed')):
+                self.h['eoffset-spindle-count'] = 0
+                self.h['eoffset-clear'] = True
+                self.add_status('Spindle lowered')
+                self.h['eoffset-clear'] = False
+                self._spindle_wait = False
+
+        self.update_runtimer()
 
     def update_runtimer(self):
         if not self.timer_on or STATUS.is_auto_paused():
