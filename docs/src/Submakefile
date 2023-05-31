@@ -65,6 +65,7 @@ DOC_SRCS_EN := \
 	drivers/gs2.adoc \
 	drivers/hostmot2.adoc \
 	drivers/mb2hal.adoc \
+	drivers/mesa_modbus.adoc \
 	drivers/motenc.adoc \
 	drivers/opto22.adoc \
 	drivers/pico-ppmc.adoc \
