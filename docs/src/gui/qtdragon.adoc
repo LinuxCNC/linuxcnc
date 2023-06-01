@@ -567,6 +567,10 @@ It is up to the end user to supply the appropriate driver and HAL file connectio
 QtDragon can be set up to automatically raise and lower the Z axis when the spindle is paused. +
 When a program is paused, then you press the 'Spindle Pause' button to stop the spindle and raise it in Z. +
 Press the button again to start spindle and lower it, then unpause the program. +
+If you have the HAL pin 'spindle.0.at-speed' connected to a driving pin, the spindle will not lower until the pin is true +
+You typically connect this to a timer or logic that detects the speed of the spindle. +
+If that pin is not connected to a driving pin, a dialog will pop up to warn you to wait for the spindle response. +
+The spindle will lower when you close that dialog. +
 The amount to raise is set in the 'Settings' tab under the heading 'SPINDLE RAISE'. +
 This line edit box can only be directly set when not in Auto mode. +
 The up/down buttons can be used to adjust the raise amount at any time, including when the spindle is already raised. +

@@ -1,6 +1,7 @@
 :lang: en
+:toc:
 
-[[cha:mesa_modbusl]]
+[[cha:mesa_modbus]]
 
 = Mesa Modbus =
 
@@ -11,27 +12,29 @@ There are several existing ways to control Modbus devices with LinuxCNC,
 and those should also be considered.
 They include, but are not limited to:
 
-<<cha:mb2hal>>
+<<cha:mb2hal,MB2HAL>>
 
 https://forum.linuxcnc.org/24-hal-components/38733-vfdmod-an-easy-vfd-control-over-modbus-rtu?start=0#162435[vfdmod]
 
-<<cha:cl-programming>>
+<<cha:cl-programming,Classic Ladder>>
 
 There are also several drivers for specific VFDs, for example
 
-<<cha:mitsub>>
+<<cha:mitsub,Mitsubishi VFD>>
 
-<<hy_gt_vfd>>
+<<cha:vfs11-vfd,Toshiba-Schneider VF-S11 VFD>>
 
-<<hy_vfd>>
+<<cha:vfs11-vfd,Toshiba-Schneider VF-S11 VFD>>
 
-<<gs2_vfd>>
+hy-vfd - HuangYang VFD
 
-<<vfdb_vfd>>
+hy-gt-vfd - HuangYang GT VFD
 
-<<vfs11_vfd>>
+gs2-vfd - Automation Direct GS2 VFD
 
-<<wj200_vfd>>
+vfdb-vfd - Delta VFD-B VFD
+
+wj200-vfd - Hitachi wj200 VFD
 
 For most applications (especially the "hy" (HuangYang) VFDs which do not
 actually conform to true modbus) it is likely to be less work to use
@@ -152,6 +155,7 @@ system runs as fast as it can.
 
 The fault codes returned in "last error" are
 
+[width="90%",options="header"]
 |===
 |Code|Fault
 |1|Illegal Function
@@ -256,8 +260,9 @@ HAL_S32.
 
 The supported Modbus command types are:
 
-[cols=description, code]
+[width="90%",options="header"]
 |===
+|Description|Code|
 |Read Coils|1|
 |Read Discrete Inputs|2|
 |Read Multiple Holding Registers|3|
@@ -288,9 +293,11 @@ necessary except in the special case of the 'modcompile all' command,
 which will compile and install all .mod files in the current directory.
 
 ----
-./modcompile my_file.mod
+/modcompile my_file.mod
 ----
+
 or
+
 ----
 ./modcompile all
 ----
@@ -300,10 +307,13 @@ or
 ----
 sudo apt-get install linuxcnc-uspace-dev
 ----
+
 or
+
 ----
 sudo apt-get install linuxcnc-dev
 ----
+
 if using RTAI kernel realtime.
 
 Alternatively the package should be installable with the Synaptic
@@ -315,7 +325,7 @@ The Mesa serial ports have separate pins for Tx and Tx pairs. For RS422
 Modbus RTU communications these should be connected at the Mesa card
 Tx+ to Rx+ and Tx- to Rx-.
 
-Nore that there are differing naming standards for Modbus pins.
+Note that there are differing naming standards for Modbus pins.
 Typically Rx+ and TX+ will connect to the B- pin on the modbus device
 and Rx- and Tx- will connect to the A+ pin. (ie, +/- will appear
 reversed.
@@ -365,3 +375,4 @@ mesaflash --device 7i96 --addr 10.10.10.10 --rpo 0x6500
 mesaflash --device 7i96 --addr 10.10.10.10 --rpo 0x6500
 ----
 
+// vim: set syntax=asciidoc:

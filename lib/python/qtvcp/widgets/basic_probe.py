@@ -125,6 +125,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
 
         # must directly initialize
         self.statuslabel_motiontype.hal_init()
+        self.led_probe.hal_init()
 
         if self.PREFS_:
             self.lineEdit_probe_tool.setText(self.PREFS_.getpref('Probe tool', '0', str, 'PROBE OPTIONS'))
