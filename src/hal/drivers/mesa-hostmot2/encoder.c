@@ -537,6 +537,13 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
 
+            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.position-interpolated", hm2->llio->name, i);
+            r = hal_pin_float_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.position_interpolated), hm2->llio->comp_id);
+            if (r < 0) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                goto fail1;
+            }
+
             rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.position-latched", hm2->llio->name, i);
             r = hal_pin_float_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.position_latch), hm2->llio->comp_id);
             if (r < 0) {
@@ -824,6 +831,10 @@ static void hm2_encoder_instance_update_rawcounts_and_handle_index(hostmot2_t *h
 
             e->zero_offset = prev_rawcounts + reg_count_diff;
             *e->hal.pin.index_enable = 0;
+            // may need to update interpolated position after index event because
+            // this _may_ happen without a count but its pretty ugly...
+            // *e->hal.pin.count = *e->hal.pin.rawcounts - e->zero_offset;
+            //*e->hal.pin.position_interpolated = *e->hal.pin.count / e->hal.param.scale;
         }
     } else if(e->prev_control & HM2_ENCODER_LATCH_ON_PROBE) {
         if (hm2->encoder.firmware_supports_probe) {
@@ -888,6 +899,8 @@ static void hm2_encoder_instance_update_position(hostmot2_t *hm2, int instance) 
 
     if (*e->hal.pin.reset) {
         e->zero_offset = *e->hal.pin.rawcounts;
+        *e->hal.pin.position_interpolated = *e->hal.pin.position; 
+
     }
 
 
@@ -1000,6 +1013,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                 if (dT_s >= e->hal.param.vel_timeout) {
                     *e->hal.pin.velocity = 0.0;
                     *e->hal.pin.velocity_rpm = 0.0;
+                    *e->hal.pin.position_interpolated = *e->hal.pin.position;
                     e->state = HM2_ENCODER_STOPPED;
                     break;
                 }
@@ -1009,6 +1023,8 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                 } else {
                     dS_counts = -1;
                 }
+                // if no counts, calculate interpolated position
+                *e->hal.pin.position_interpolated = *e->hal.pin.position + (dT_s * *e->hal.pin.velocity);
 
                 dS_pos_units = dS_counts / e->hal.param.scale;
 
@@ -1039,7 +1055,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
 
                 hm2_encoder_instance_update_rawcounts_and_handle_index(hm2, instance);
                 hm2_encoder_instance_update_position(hm2, instance);
-
+                *e->hal.pin.position_interpolated = *e->hal.pin.position;
                 time_of_interest = hm2_encoder_get_reg_timestamp(hm2, instance);
                 if (time_of_interest < e->prev_time_of_interest) {
                     // tsc rollover!
@@ -1059,6 +1075,8 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                 ) {
                     *e->hal.pin.velocity = 0.0;
                     *e->hal.pin.velocity_rpm = 0.0;
+                    *e->hal.pin.position_interpolated = *e->hal.pin.position;
+
                 } else {
                     dT_clocks = (time_of_interest - e->prev_event_reg_timestamp) + (e->tsc_num_rollovers << 16);
                     dT_s = (double)dT_clocks * hm2->encoder.seconds_per_tsdiv_clock;

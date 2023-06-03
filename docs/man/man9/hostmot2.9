@@ -291,6 +291,14 @@ Number of encoder counts since the previous reset.
 Encoder position in position units (count / scale).
 
 .TP
+(float out) position-interpolated
+Encoder interpolated position in position units (count / scale).
+Only valid  when velocity is approximately constant and the time 
+between counts is less than the velocity timeout parameter value.  
+Do not use for position control. Useful for spindle synchronized
+moves with low resolution encoders.
+
+.TP
 (float out) position-latched
 Encoder latched position in position units (count / scale).
 

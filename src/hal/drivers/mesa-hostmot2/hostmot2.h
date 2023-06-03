@@ -281,6 +281,7 @@ typedef struct {
             hal_s32_t *count_latch;  // (rawlatch - zero_offset)
             hal_float_t *position;
             hal_float_t *position_latch;
+            hal_float_t *position_interpolated;
             hal_float_t *velocity;
             hal_float_t *velocity_rpm;
             hal_bit_t *reset;
@@ -338,7 +339,7 @@ typedef struct {
         hal_u32_t *sample_frequency;
         hal_u32_t *skew;
         hal_s32_t *dpll_timer_num;
-	hal_bit_t *hires_timestamp;
+        hal_bit_t *hires_timestamp;
 
     } pin;
 } hm2_encoder_module_global_t;
