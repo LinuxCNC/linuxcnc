@@ -1091,8 +1091,8 @@ def save_setup_clicked():
     putPrefs(PREF, 'GUI_OPTIONS', 'Arc OK color', colorArc, str)
     putPrefs(PREF, 'GUI_OPTIONS', 'LED color', colorLed, str)
     putPrefs(PREF, 'GUI_OPTIONS', 'Trough color', colorTrough, str)
-    for key in togglePins:
-        set_toggle_pins(togglePins[key])
+    for button in togglePins:
+        set_toggle_pins(button)
 
 
 ##############################################################################
@@ -1134,15 +1134,15 @@ def set_probe_offset_pins():
     hal.set_p('plasmac.offset-probe-y', f'{probeOffsets["Y"]}')
     hal.set_p('plasmac.offset-probe-delay', f'{probeOffsets["Delay"]}')
 
-def set_toggle_pins(pin):
-    pin['state'] = hal.get_value(pin['pin'])
-    if pin['state']:
-        rC(f'{fbuttons}.button{pin["button"]}','configure','-bg',colorActive)
+def set_toggle_pins(button):
+    togglePins[button]['state'] = hal.get_value(togglePins[button]['pin'])
+    if togglePins[button]['state']:
+        rC(f'{fbuttons}.button{button}','configure','-bg',colorActive)
     else:
-        if pin['runcritical']:
-            rC(f'{fbuttons}.button{pin["button"]}','configure','-bg',colorWarn)
+        if togglePins[button]['runcritical']:
+            rC(f'{fbuttons}.button{button}','configure','-bg',colorWarn)
         else:
-            rC(f'{fbuttons}.button{pin["button"]}','configure','-bg',colorBack)
+            rC(f'{fbuttons}.button{button}','configure','-bg',colorBack)
 
 def jog_default_changed(value):
     set_jog_slider(int(value) / (vars.max_speed.get() * 60))
@@ -1345,9 +1345,13 @@ def laser_button_toggled(state, button):
             return
         # long press timer
         elif isIdleHomed:
-            laserTimer = 0.7
+            laserTimer = 700
+            root_window.after(100, laser_long_press_timer)
     else: # button released
-        laserTimer = 0.0
+        if laserButtonState == 'reset':
+            laserButtonState = 'laser'
+            return
+        laserTimer = 0
         if not isIdleHomed:
             return
         xPos = s.position[0] - laserOffsets['X']
@@ -1356,10 +1360,7 @@ def laser_button_toggled(state, button):
             msg0 = _('Laser is outside the machine boundary')
             notifications.add('error', f'{title}:\n{msg0}')
             return
-        if laserButtonState == 'reset':
-            laserButtonState = 'laser'
-            return
-        elif laserButtonState == 'laser':
+        if laserButtonState == 'laser':
             pVars.laserText.set(_('Mark'))
             laserButtonState = 'markedge'
             comp['laser-on'] = 1
@@ -1367,6 +1368,17 @@ def laser_button_toggled(state, button):
         elif laserButtonState == 'setorigin':
             comp['laser-on'] = 0
         laserButtonState = sheet_align('laser', laserButtonState, laserOffsets['X'], laserOffsets['Y'])
+
+def laser_long_press_timer():
+    global laserTimer, laserButtonState
+    if laserTimer > 0:
+        laserTimer -= 100
+        if laserTimer <= 0:
+            comp['laser-on'] = 0
+            laserButtonState = 'reset'
+            pVars.laserText.set(_('Laser'))
+        else:
+            root_window.after(100, laser_long_press_timer)
 
 def sheet_align(mode, buttonState, offsetX, offsetY):
     global relPos, startAlignPos
@@ -1873,11 +1885,11 @@ def reload_file(refilter=True):
     live_plotter.clear()
 
 def task_run(*event):
-    for key in togglePins:
-        if togglePins[key]['runcritical'] and not togglePins[key]['state']:
+    for button in togglePins:
+        if togglePins[button]['runcritical'] and not togglePins[button]['state']:
             title = _('RUN ERROR')
             msg0 = _('Cannot run program while critical button is not active')
-            btn = rC(f'{fbuttons}.button{togglePins[key]["button"]}','cget','-text')
+            btn = rC(f'{fbuttons}.button{button}','cget','-text')
             notifications.add('error', f'{title}:\n{msg0}: {btn}\n')
             return
     if run_warn(): return
@@ -2308,12 +2320,10 @@ def user_button_setup():
             if len(bCode.split()) > 1 and len(bCode.split()) < 4:
                 codes = bCode.strip().split()
                 if validate_hal_pin(codes[1], n, 'pulse-halpin'):
-                    outCode = {'code':'pulse-halpin', 'pin':codes[1], 'time':1.0}
-                    outCode['pin'] = codes[1]
                     try:
                         value = round(float(codes[2]), 1)
-                        outCode['time'] = value
-                        pulsePins[str(n)] = {'button':str(n), 'pin':outCode['pin'], 'text':None, 'timer':0, 'counter':0, 'state':False}
+                        outCode = {'code':'pulse-halpin', 'pin':codes[1], 'time':value}
+                        pulsePins[str(n)] = {'pin':codes[1], 'text':None, 'pulse':0, 'state':False}
                     except:
                         outCode = {'code':None}
                 else:
@@ -2327,7 +2337,7 @@ def user_button_setup():
                     if len(codes) == 3 and codes[2] == 'runcritical':
                         outCode['critical'] = True
                         criticalButtons.append(n)
-                    togglePins[str(n)] = {'button':str(n), 'pin':outCode['pin'], 'state':hal.get_value(outCode['pin']), 'runcritical':outCode['critical']}
+                    togglePins[str(n)] = {'pin':outCode['pin'], 'state':hal.get_value(outCode['pin']), 'runcritical':outCode['critical']}
                 else:
                     parmError = True
         elif bCode and bCode not in singleCodes:
@@ -2394,8 +2404,8 @@ def user_button_setup():
 
 def user_button_pressed(button, code):
     global colorBack, activeFunction
-    global probePressed, probeStart, probeTimer, probeButton
-    global torchPressed, torchStart, torchTimer, torchButton
+    global probePressed, probeTimer, probeButton
+    global torchPressed, torchTimer, torchButton
     if rC(f'{fbuttons}.button{button}','cget','-state') == 'disabled' or not code:
         return
     if code['code'] == 'ohmic-test':
@@ -2412,25 +2422,27 @@ def user_button_pressed(button, code):
     elif code['code'] == 'probe-test' and not hal.get_value('halui.program.is-running'):
         if probeTimer:
             probeTimer = 0
+            probe_test_timer()
         elif not hal.get_value('plasmac.z-offset-counts'):
             activeFunction = True
             probePressed = True
-            probeStart = time.time()
-            probeTimer = code['time']
+            probeTimer = code['time'] * 1000
             hal.set_p('plasmac.probe-test','1')
             rC(f'{fbuttons}.button{probeButton}','configure','-text',str(int(probeTimer)))
             rC(f'{fbuttons}.button{probeButton}','configure','-bg',colorActive)
+            root_window.after(100, probe_test_timer)
     elif code['code'] == 'torch-pulse':
         if torchTimer:
             torchTimer = 0
+            torch_pulse_timer()
         elif not hal.get_value('plasmac.z-offset-counts'):
             torchPressed = True
-            torchStart = time.time()
-            torchTimer = code['time']
+            torchTimer = code['time'] * 1000
             hal.set_p('plasmac.torch-pulse-time',f'{torchTimer}')
             hal.set_p('plasmac.torch-pulse-start','1')
             rC(f'{fbuttons}.button{torchButton}','configure','-text',str(int(torchTimer)))
             rC(f'{fbuttons}.button{torchButton}','configure','-bg',colorActive)
+            root_window.after(100, torch_pulse_timer)
     elif code['code'] == 'change-consumables' and not hal.get_value('plasmac.breakaway'):
         if hal.get_value('axis.x.eoffset-counts') or hal.get_value('axis.y.eoffset-counts'):
             hal.set_p('plasmac.consumable-change', '0')
@@ -2460,13 +2472,13 @@ def user_button_pressed(button, code):
             comp[code['pin'].replace('axisui.','')] = not hal.get_value(code['pin'])
         else:
             hal.set_p(code['pin'], str(not hal.get_value(code['pin'])))
-        if not pulsePins[button]['timer']:
-            pulsePins[button]['text'] = rC(f'{fbuttons}.button{button}','cget','-text')
-            pulsePins[button]['timer'] = code['time']
-            pulsePins[button]['counter'] = time.time()
-        else:
-            pulsePins[button]['timer'] = 0
+        if pulsePins[button]['pulse']:
+            pulsePins[button]['pulse'] = 0
             rC(f'{fbuttons}.button{button}','configure','-text',pulsePins[button]['text'])
+        else:
+            pulsePins[button]['pulse'] = code['time'] * 1000
+            pulsePins[button]['text'] = rC(f'{fbuttons}.button{button}','cget','-text')
+            root_window.after(100, pulse_halpin_off, button)
     elif code['code'] == 'toggle-halpin' and hal.get_value('halui.machine.is-on'):
         if code['pin'].startswith('axisui.ext.out_'):
             comp[code['pin'].replace('axisui.','')] = not hal.get_value(code['pin'])
@@ -2559,6 +2571,56 @@ def user_button_save():
         rC(f'{fsetup}.r.ubuttons.canvas.frame.name{n}','delete',0,'end')
         rC(f'{fsetup}.r.ubuttons.canvas.frame.code{n}','delete',0,'end')
     user_button_setup()
+
+def probe_test_timer():
+    global probeTimer, activeFunction
+    if probeTimer > 0:
+        probeTimer -= 100
+        if hal.get_value('plasmac.probe-test-error') and not probePressed:
+            probeTimer = 0
+        if probeTimer > 0:
+            rC(f'{fbuttons}.button{probeButton}','configure','-text',f'{round(probeTimer / 1000, 1)}')
+            root_window.after(100, probe_test_timer)
+    if probeTimer <= 0:
+        if probePressed:
+            root_window.after(100, probe_test_timer)
+        else:
+            hal.set_p('plasmac.probe-test','0')
+            rC(f'{fbuttons}.button{probeButton}','configure','-text',probeText)
+            rC(f'{fbuttons}.button{probeButton}','configure','-bg',colorBack)
+            probeTimer = 0
+            activeFunction = False
+
+def torch_pulse_timer():
+    global torchTimer
+    if torchTimer > 0:
+        torchTimer -= 100
+        if torchTimer > 0:
+            rC(f'{fbuttons}.button{torchButton}','configure','-text',f'{round(torchTimer / 1000, 1)}')
+            root_window.after(100, torch_pulse_timer)
+    if torchTimer <= 0:
+        if torchPressed:
+            root_window.after(100, torch_pulse_timer)
+        else:
+            hal.set_p('plasmac.torch-pulse-start','0')
+            hal.set_p('plasmac.torch-pulse-time', '0')
+            rC(f'{fbuttons}.button{torchButton}','configure','-text',torchText)
+            rC(f'{fbuttons}.button{torchButton}','configure','-bg',colorBack)
+            torchTimer = 0
+
+def pulse_halpin_off(button):
+    if pulsePins[button]['pulse'] > 0:
+        pulsePins[button]['pulse'] -= 100
+        if pulsePins[button]['pulse'] > 0:
+            rC(f'{fbuttons}.button{button}','configure','-text',f'{round(pulsePins[button]["pulse"] / 1000, 1)}')
+            root_window.after(100, pulse_halpin_off, button)
+    if pulsePins[button]['pulse'] <= 0:
+        rC(f'{fbuttons}.button{button}','configure','-text',pulsePins[button]['text'])
+        if pulsePins[button]['pin'].startswith('axisui.ext.out_'):
+            comp[pulsePins[button]['pin'].replace('axisui.','')] = not hal.get_value(pulsePins[button]['pin'])
+        else:
+            hal.set_p(pulsePins[button]['pin'], str(not hal.get_value(pulsePins[button]['pin'])))
+        pulsePins[button]['pulse'] = 0
 
 
 ##############################################################################
@@ -4139,11 +4201,9 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     probePressed = False
     probeTimer = 0
     probeButton = ''
-    probeStart = 0
     torchPressed = False
     torchTimer = 0
     torchButton = ''
-    torchStart = 0
     torchHeight = 0
     cChangeButton = ''
     cutType = 0
@@ -5417,12 +5477,8 @@ def user_live_update():
     if orientStart:
         return
     global isIdle, isIdleHomed, isPaused, isRunning
-    global runState, pausedState, relPos
-    global probeTimer, probeStart, probeButton
-    global probeText, probePressed, previewSize
-    global torchTimer, torchStart, torchButton
-    global torchText, torchPressed, torchColor
-    global laserTimer, laserButtonState
+    global runState, pausedState, relPos, previewSize
+    global probeTimer, laserButtonState
     global framingState, activeFunction
     global currentTool, pmx485, homeInProgress
     global materialChangePin, materialChangeNumberPin
@@ -5477,60 +5533,19 @@ def user_live_update():
                 rC(widget,'configure','-state','disabled')
     # update arc voltage
     rC(f'{fplasma}.arc-voltage','configure','-text',f'{comp["arc-voltage"]:3.0f}v')
-    # probe-test
-    if probeTimer > 0:
-        if hal.get_value('plasmac.probe-test-error') and not probePressed:
-            probeTimer = 0
-        elif time.time() >= probeStart + 0.1:
-            probeStart += 0.1
-            probeTimer -= 0.1
-            rC(f'{fbuttons}.button{probeButton}','configure','-text',str(round(probeTimer, 1)))
-    elif probeStart and probeTimer <= 0 and not probePressed:
-        hal.set_p('plasmac.probe-test','0')
-        rC(f'{fbuttons}.button{probeButton}','configure','-text',probeText)
-        rC(f'{fbuttons}.button{probeButton}','configure','-bg',colorBack)
-        probeStart = 0
-        probeTimer = 0
-        activeFunction = False
-    # torch pulse
-    if torchTimer > 0:
-        if time.time() >= torchStart + 0.1:
-            torchStart += 0.1
-            torchTimer -= 0.1
-            rC(f'{fbuttons}.button{torchButton}','configure','-text',str(abs(round(torchTimer, 1))))
-    elif torchStart and torchTimer <= 0 and not torchPressed:
-        hal.set_p('plasmac.torch-pulse-start','0')
-        hal.set_p('plasmac.torch-pulse-time', '0')
-        rC(f'{fbuttons}.button{torchButton}','configure','-text',torchText)
-        rC(f'{fbuttons}.button{torchButton}','configure','-bg',colorBack)
-        torchStart = 0
-        torchTimer = 0
     # halpin toggle
-    for key in togglePins:
-        if hal.get_value(togglePins[key]['pin']) != togglePins[key]['state']:
-            set_toggle_pins(togglePins[key])
+    for button in togglePins:
+        if hal.get_value(togglePins[button]['pin']) != togglePins[button]['state']:
+            set_toggle_pins(button)
     # halpin pulse
-    for key in pulsePins:
-        # service the timers
-        if pulsePins[key]['timer']:
-            if time.time() >= pulsePins[key]['counter'] + 0.1:
-                pulsePins[key]['counter'] += 0.1
-                pulsePins[key]['timer'] -= 0.1
-                rC(f'{fbuttons}.button{pulsePins[key]["button"]}','configure','-text',str(abs(round(pulsePins[key]['timer'], 1))))
-                if pulsePins[key]['timer'] <= 0:
-                    pulsePins[key]['timer'] = 0
-                    rC(f'{fbuttons}.button{pulsePins[key]["button"]}','configure','-text',pulsePins[key]['text'])
-                    if pulsePins[key]['pin'].startswith('axisui.ext.out_'):
-                        comp[pulsePins[key]['pin'].replace('axisui.','')] = not hal.get_value(pulsePins[key]['pin'])
-                    else:
-                        hal.set_p(pulsePins[key]['pin'], str(not hal.get_value(pulsePins[key]['pin'])))
+    for button in pulsePins:
         # set button color for pulse-halpin buttons
-        if hal.get_value(pulsePins[key]['pin']) != pulsePins[key]['state']:
-            pulsePins[key]['state'] = hal.get_value(pulsePins[key]['pin'])
-            if pulsePins[key]['state']:
-                rC(f'{fbuttons}.button{pulsePins[key]["button"]}','configure','-bg',colorActive)
+        if hal.get_value(pulsePins[button]['pin']) != pulsePins[button]['state']:
+            pulsePins[button]['state'] = hal.get_value(pulsePins[button]['pin'])
+            if pulsePins[button]['state']:
+                rC(f'{fbuttons}.button{button}','configure','-bg',colorActive)
             else:
-                rC(f'{fbuttons}.button{pulsePins[key]["button"]}','configure','-bg',colorBack)
+                rC(f'{fbuttons}.button{button}','configure','-bg',colorBack)
     # reset a consumable change
     if (hal.get_value('plasmac.consumable-change') or hal.get_value('plasmac.consumable-change')) and \
        (hal.get_value('axisui.abort') or not s.paused):
@@ -5546,13 +5561,6 @@ def user_live_update():
         vars.jog_speed.set(manualCut['feed'])
         rC('.pane.top.jogspeed.s','configure','-state','normal')
         save_total_stats()
-    # laser timer
-    if laserTimer > 0:
-        laserTimer -= 0.1
-        if laserTimer <= 0:
-            comp['laser-on'] = 0
-            laserButtonState = 'reset'
-            pVars.laserText.set(_('Laser'))
     # show cut recovery tab
     if s.paused and 'manual' in rC(ftabs,'pages'):
         rC(ftabs,'delete','manual',0)
