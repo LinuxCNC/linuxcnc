@@ -86,6 +86,7 @@ class HandlerClass:
         self.reload_tool = 0
         self.last_loaded_program = ""
         self.first_turnon = True
+        self._maintab_cycle = 1
         self.lineedit_list = ["work_height", "touch_height", "sensor_height", "laser_x", "laser_y",
                               "sensor_x", "sensor_y", "camera_x", "camera_y",
                               "search_vel", "probe_vel", "max_probe", "eoffset_count"]
@@ -612,6 +613,8 @@ class HandlerClass:
         elif index == self.w.stackedWidget_mainTab.currentIndex():
             self.w.stackedWidget_dro.setCurrentIndex(0)
 
+            if index == TAB_MAIN and STATUS.is_auto_mode():
+                self._maintab_cycle +=1
         if index is None: return
 
         # adjust the stack widgets depending on modes
@@ -1099,13 +1102,15 @@ class HandlerClass:
     def enable_auto(self, state):
         for widget in self.auto_list:
             self.w[widget].setEnabled(state)
+        # need to let adjust stack function know the mode changed
+        # not auto
         if state is True:
-            if self.w.stackedWidget_mainTab.currentIndex() != TAB_SETUP:
-                self.adjust_stacked_widgets(self.w.stackedWidget_mainTab.currentIndex())
+            self.adjust_stacked_widgets(self.w.stackedWidget_mainTab.currentIndex(),mode_change = True)
+        # auto mode
         else:
-            if self.w.stackedWidget_mainTab.currentIndex() != TAB_PROBE:
-                self.w.btn_main.setChecked(True)
-                self.adjust_stacked_widgets(TAB_MAIN)
+            self.w.btn_main.setChecked(True)
+            self.adjust_stacked_widgets(TAB_MAIN,mode_change = True)
+
 
     def enable_onoff(self, state):
         if state:
@@ -1217,41 +1222,44 @@ class HandlerClass:
         self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(255, 144, 0);color: rgb(0,0,0)")   #orange
         self.endcolor()
 
-    def adjust_stacked_widgets(self,requestedIndex):
+    def adjust_stacked_widgets(self,requestedIndex,mode_change=False):
         IGNORE = -1
         SHOW_DRO = 0
-        premode = ['','','Auto','MDI'][STATUS.get_previous_mode()]
         mode = ['','','Auto','MDI'][STATUS.get_current_mode()]
+        if mode_change:
+            premode = ['','','Auto','MDI'][STATUS.get_previous_mode()]
+        else:
+            premode=mode
         currentIndex = self.w.stackedWidget_mainTab.currentIndex()
         indexList = ['main','file','offsets','tool','status','probe','cam',
                     'gcode','setup','settings','util','user']
 
         if mode == 'Auto':
-            seq = {TAB_MAIN: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_FILE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_OFFSETS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_TOOL: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_STATUS: (requestedIndex,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_PROBE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
-                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
-                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
-                    TAB_SETTINGS: (requestedIndex,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_UTILITIES: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE) }
+            seq = {TAB_MAIN: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_FILE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_OFFSETS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_TOOL: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_STATUS: (requestedIndex,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_PROBE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,False),
+                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,False),
+                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,False),
+                    TAB_SETTINGS: (requestedIndex,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_UTILITIES: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE,False) }
         else:
-            seq = {TAB_MAIN: (requestedIndex,PAGE_GCODE,True,SHOW_DRO),
-                    TAB_FILE: (requestedIndex,PAGE_FILE,True,IGNORE),
-                    TAB_OFFSETS: (requestedIndex,PAGE_OFFSET,True,IGNORE),
-                    TAB_TOOL: (requestedIndex,PAGE_TOOL,True,IGNORE),
-                    TAB_STATUS: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO),
-                    TAB_PROBE: (requestedIndex,PAGE_GCODE,True,SHOW_DRO),
-                    TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,True,IGNORE),
-                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
-                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,IGNORE),
-                    TAB_SETTINGS: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
-                    TAB_UTILITIES: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO),
-                    TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE) }
+            seq = {TAB_MAIN: (requestedIndex,PAGE_GCODE,True,SHOW_DRO,True),
+                    TAB_FILE: (requestedIndex,PAGE_FILE,True,IGNORE,True),
+                    TAB_OFFSETS: (requestedIndex,PAGE_OFFSET,True,IGNORE,True),
+                    TAB_TOOL: (requestedIndex,PAGE_TOOL,True,IGNORE,True),
+                    TAB_STATUS: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO,True),
+                    TAB_PROBE: (requestedIndex,PAGE_GCODE,True,SHOW_DRO,True),
+                    TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,True,IGNORE,True),
+                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,True),
+                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,IGNORE,True),
+                    TAB_SETTINGS: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,True),
+                    TAB_UTILITIES: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO,True),
+                    TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE,True) }
 
         rtn =  seq.get(requestedIndex)
 
@@ -1261,8 +1269,9 @@ class HandlerClass:
             stacked_index = 0
             show_JogControls = True
             show_dro = 0
+            show_macro = True
         else:
-            main_index,stacked_index,show_JogControls,show_dro = rtn
+            main_index,stacked_index,show_JogControls,show_dro,show_macro = rtn
 
         # user tab button covers multiple tabs so adjust name
         # for extra user tabs
@@ -1288,6 +1297,12 @@ class HandlerClass:
         # show DRO rather then keyboard.
         if show_dro > IGNORE:
             self.w.stackedWidget_dro.setCurrentIndex(0)
+
+        # macros can only be run in manual or mdi mode
+        if show_macro:
+            self.w.frame_macro_buttons.show()
+        else:
+            self.w.frame_macro_buttons.hide()
 
         # show ngcgui info tab if utilities tab is selected
         # but only if the utilities tab has ngcgui selected
@@ -1334,6 +1349,28 @@ class HandlerClass:
             tabId = 'user{}'.format(cur - len(indexList))
         else:
             tabId = indexList[cur]
+
+        # if in auto mode and the main tab button is pressed
+        # cycle between full gcode, split and pull graphics
+        if main_index == TAB_MAIN and mode =='Auto':
+            if self._maintab_cycle >3: self._maintab_cycle = 1
+            if self._maintab_cycle == 2:
+                self.w.frame_top_left.hide()
+                self.w.frm_backplot.show()
+                return
+            elif self._maintab_cycle == 3:
+                self.w.frame_top_left.show()
+                self.w.frm_backplot.hide()
+                return
+            else:
+                self.w.frame_top_left.show()
+                self.w.frm_backplot.show()
+        else:
+            self.w.frame_top_left.show()
+            self.w.frm_backplot.show()
+
+        # adjust window splitter size as per saved adjustments
+
         name = 'splitterSettings-{}{}'.format(tabId,mode)
         #print ('NOW:',name)
         # restore new qsplitter setting
