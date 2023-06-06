@@ -138,7 +138,7 @@ module will create the following pins for each instance of the driver:
 
 *modname.drive_delay* (default 0)
 
-•modname.update-hz* (default 0)
+*modname.update-hz* (default 0)
 
 *modname.fault* - indicates a fault with the device or comms
 
@@ -262,15 +262,15 @@ The supported Modbus command types are:
 
 [width="90%",options="header"]
 |===
-|Description|Code|
-|Read Coils|1|
-|Read Discrete Inputs|2|
-|Read Multiple Holding Registers|3|
-|Read Input Registers|4|
-|Write Single Coil|5|
-|Write Single Holding Register|6|
-|Write Multiple Coils|15|
-|Write Multiple Holding Registers|16|
+|Description|Code
+|Read Coils|1
+|Read Discrete Inputs|2
+|Read Multiple Holding Registers|3
+|Read Input Registers|4
+|Write Single Coil|5
+|Write Single Holding Register|6
+|Write Multiple Coils|15
+|Write Multiple Holding Registers|16
 |===
 
 The Modbus address can be given in Hexadecimal, decimal (or even octal)
@@ -293,13 +293,13 @@ necessary except in the special case of the 'modcompile all' command,
 which will compile and install all .mod files in the current directory.
 
 ----
-/modcompile my_file.mod
+modcompile my_file.mod
 ----
 
 or
 
 ----
-./modcompile all
+modcompile all
 ----
 
 "modcompile" is provided by the "linuxcnc-dev" package.
