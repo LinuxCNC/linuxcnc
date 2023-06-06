@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/python3
 
 #    Build Realtime Modbus modules to use the Mesa FPGA card PktUART
 
@@ -42,8 +42,7 @@ def find_modinc():
     global modinc
     if modinc: return modinc
     d = os.path.abspath(os.path.dirname(os.path.dirname(sys.argv[0])))
-    for e in ['%s/src' % os.environ["EMC2_HOME"], 'etc/linuxcnc',
-              '/etc/linuxcnc', 'share/linuxcnc']:
+    for e in ['src', 'etc/linuxcnc', '/etc/linuxcnc', 'share/linuxcnc']:
         e = os.path.join(d, e, 'Makefile.modinc')
         if os.path.exists(e):
             modinc = e
@@ -59,17 +58,19 @@ else:
     names = [sys.argv[1]]
 
 tempdir = tempfile.mkdtemp()
+BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 print(os.path.join(tempdir, "mesa_modbus.c"))
-os.symlink(os.path.join(os.path.abspath("."), "mesa_modbus.c"), os.path.join(tempdir, "mesa_modbus.c"))
+os.symlink(os.path.join(BASE, "share", "linuxcnc", "mesa_modbus.c.tmpl"), os.path.join(tempdir, "mesa_modbus.c"))
 for f in names:
+    b = os.path.splitext(os.path.basename(f))[0]
     # The module definition is #included as mesa_modbus.h
     m = open(os.path.join(tempdir, "Makefile"), "w")
-    print("obj-m += %s.o" % os.path.splitext(f)[0],file=m)
-    print("%s-objs:=mesa_modbus.o" % os.path.splitext(f)[0],file=m)
+    print("obj-m += %s.o" % b,file=m)
+    print("%s-objs:=mesa_modbus.o" % b,file=m)
     print("include %s" % find_modinc(), file=m)
-    print("EXTRA_CFLAGS += -I%s" % os.path.abspath('.'), file=m)
-    print("EXTRA_CFLAGS += -DMODFILE=%s" % f, file=m)
-    print("EXTRA_CFLAGS += -D_COMP_NAME_=%s" % os.path.splitext(f)[0], file=m)
+    print("EXTRA_CFLAGS += -I%s" % tempdir, file=m)
+    print("EXTRA_CFLAGS += -DMODFILE=%s" % os.path.abspath(f), file=m)
+    print("EXTRA_CFLAGS += -D_COMP_NAME_=%s" % b, file=m)
     m.close()
     os.system("touch mesa_modbus.c") # Force a recompile
     result = os.system("cd %s && make -S modules install" % tempdir)

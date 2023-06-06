@@ -293,13 +293,13 @@ necessary except in the special case of the 'modcompile all' command,
 which will compile and install all .mod files in the current directory.
 
 ----
-modcompile my_file.mod
+sudo modcompile my_file.mod
 ----
 
 or
 
 ----
-modcompile all
+sudo modcompile all
 ----
 
 "modcompile" is provided by the "linuxcnc-dev" package.
