@@ -526,15 +526,17 @@ qtdragon.slider-override-rapid
 qtdragon.slider-override-spindle
 ----
 
-These pins are available when setting the Versa Probe INI option.
+These output pins are available when setting the Versa Probe INI option.
 They can be used for auto-tool-length-probe at tool change - with added remap code.
 
 [source,{hal}]
 ----
-qtdragon.versaprobe-blockheight
-qtdragon.versaprobe-probeheight
-qtdragon.versaprobe-probevel
-qtdragon.versaprobe-searchvel
+qtversaprobe.enable
+qtversaprobe.blockheight
+qtversaprobe.probeheight
+qtversaprobe.probevel
+qtversaprobe.searchvel
+qtversaprobe.backoffdist
 ----
 
 == HAL files
@@ -938,14 +940,15 @@ Initial testing with no tool and safe heights is recommended.
 
 === Tool Measurement Pins
 
-Versaprobe offers 5 pins for tool measurement purpose.
+Versaprobe offers 5 output pins for tool measurement purpose.
 The pins are used to be read from a remap G-code subroutine, so the code can react to different values.
 
-* `qtversaprobe.toolmeasurement` (HAL_BIT) enable or not tool measurement
-* `qtversaprobe.blockheight` (HAL_FLOAT) the measured value of the top face of the workpiece
-* `qtversaprobe.probeheight` (HAL_FLOAT) the probe switch height
+* `qtversaprobe.enable` (HAL_BIT) measurement enabled or not tool. Reflects screen button state.
+* `qtversaprobe.blockheight` (HAL_FLOAT) the measured height of the top face of the workpiece. Reflects screen entry.
+* `qtversaprobe.probeheight` (HAL_FLOAT) the toolsetter probe switch height. Reflects screen entry.
 * `qtversaprobe.searchvel` (HAL_FLOAT) the velocity to search for the tool probe switch
-* `qtversaprobe.probevel` (HAL_FLOAT) the velocity to probe tool length
+* `qtversaprobe.probevel` (HAL_FLOAT) the velocity to probe tool length. Reflects screen entry.
+* 'qtversaprobe.backoffdist' (HAL_FLOAT) the distance the probe backs off after triggering. Reflects screen entry.
 
 === Tool Measurement INI File Modifications
 
