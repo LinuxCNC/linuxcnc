@@ -50,6 +50,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         super(VersaProbe, self).__init__(parent)
         self.proc = None
         self.tool_diameter = None
+        self.tool_number = None
         STATUS.connect('tool-info-changed', lambda w, data: self._tool_info(data))
         if INFO.MACHINE_IS_METRIC:
             self.valid = QtGui.QRegExpValidator(QtCore.QRegExp('^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$'))
@@ -71,7 +72,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
                           'search_vel', 'probe_vel', 'rapid_vel',
                           'side_edge_length', 'tool_probe_height', 'tool_block_height',
                           'xy_clearance', 'z_clearance']
-        self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a']
+        self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a','th','bh']
 
         for i in self.parm_list:
             self['input_' + i].setValidator(self.valid)
@@ -81,6 +82,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.outside_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
         self.skew_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
         self.length_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
+        self.tool_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
         self.pbtn_set_x.released.connect(self.pbtn_set_x_released)
         self.pbtn_set_y.released.connect(self.pbtn_set_y_released)	
         self.pbtn_set_z.released.connect(self.pbtn_set_z_released)
@@ -119,9 +121,11 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def _tool_info(self, data):
         if data.id != -1:
             self.tool_diameter = data.diameter
+            self.tool_number = data.id
             print(data)
             return
         self.tool_diameter = None
+        self.tool_number = None
 
     def _hal_init(self):
 
@@ -205,6 +209,9 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.pin_pheight.set(float(self.input_tool_probe_height.text()))
         self.pin_bheight = self.HAL_GCOMP_.newpin("blockheight", hal.HAL_FLOAT, hal.HAL_OUT)
         self.pin_bheight.set(float(self.input_tool_block_height.text()))
+        self.pin_latch_rtn = self.HAL_GCOMP_.newpin("backoffdist", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.pin_latch_rtn.set(float(self.input_latch_return_dist.text()))
+
         self.HAL_GCOMP_.comp.setprefix(oldname)
 
         # install callbacks to update HAL pins
@@ -212,6 +219,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.input_probe_vel.textChanged.connect(self.update_probe_vel_pin)
         self.input_tool_probe_height.textChanged.connect(self.update_probe_height_pin)
         self.input_tool_block_height.textChanged.connect(self.update_block_height_pin)
+        self.input_latch_return_dist.textChanged.connect(self.update_latch_return_dist_pin)
 
     # when qtvcp closes this gets called
     def _hal_cleanup(self):
@@ -391,10 +399,20 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         except:
             pass
     def update_block_height_pin(self, text):
+        value = float(text)
+        #if value == self.pin_bheight.get(): return
+        origin = float(INFO.INI.find("AXIS_Z", "MIN_LIMIT")) + value
+        ACTION.CALL_MDI_WAIT( "G10 L2 P0 Z%s" % origin )
         try:
-            self.pin_bheight.set(float(text))
+            self.pin_bheight.set(value)
         except:
             pass
+    def update_latch_return_dist_pin(self, text):
+        try:
+            self.pin_latch_rtn.set(float(text))
+        except:
+            pass
+
 #####################################################
 # Helper functions
 #####################################################
@@ -415,7 +433,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             val = '1' if self[key].isChecked() else '0'
             self.send_dict.update( {key: val} )
         # come from INI
-        for key in ['ts_diam','z_max_clear','ts_x','ts_y','ts_z','ts_max','tool_diameter']:
+        for key in ['ts_diam','z_max_clear','ts_x','ts_y','ts_z','ts_max','tool_diameter','tool_number']:
             val = str(self[key])
             if val == 'NONE': val = None
             self.send_dict.update( {key: val} )
@@ -428,7 +446,15 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def show_results(self, line):
         for key in self.status_list:
-            self['status_' + key].setText(line[key])
+            if key in('th','bh'):
+                if key == 'bh' and line[key] != 'None':
+                    self.input_tool_block_height.setText(line[key])
+                elif line[key] != 'None':
+                    self.input_tool_probe_height.setText(line[key])
+            elif line[key] != 'None':
+                self['status_' + key].setText(line[key])
+            else:
+                self['status_' + key].setText('')
 
     def pop_help(self):
         def next(self,t,direction):

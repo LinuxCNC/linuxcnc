@@ -7,7 +7,7 @@ import time
 import select
 import math
 import linuxcnc
-from qtvcp.core import Status, Action
+from qtvcp.core import Status, Action, Info
 from qtvcp import logger
 LOG = logger.getLogger(__name__)
 
@@ -16,7 +16,7 @@ LOG = logger.getLogger(__name__)
 
 ACTION = Action()
 STATUS = Status()
-
+INFO = Info()
 class ProbeRoutines():
     def __init__(self):
         self.timeout = 30
@@ -43,11 +43,15 @@ class ProbeRoutines():
         return self.CALL_MDI_WAIT(s, self.timeout)
 
     def length_x(self):
+        if self.status_xp is None: self.status_xp = 0
+        if self.status_xm is None: self.status_xm = 0
         if self.status_xp == 0 or self.status_xm == 0: return 0
         self.status_lx = abs(self.status_xp - self.status_xm)
         return self.status_lx
 
     def length_y(self):
+        if self.status_yp is None: self.status_yp = 0
+        if self.status_ym is None: self.status_ym = 0
         if self.status_yp == 0 or self.status_ym == 0: return 0
         self.status_ly = abs(self.status_yp - self.status_ym)
         return self.status_ly
@@ -125,46 +129,19 @@ class ProbeRoutines():
             return 'Probe {} failed: {}'.format(name, rtn)
         return 1
 
-    def goto_toolsetter(self):
-      try:
-        # basic sanity checks 
-        for test in('z_max_clear','ts_x','ts_y','ts_z','ts_max'):
-            if self['data_{}'.format(test)] is None:
-                return'Missing toolsetter setting: {}'.format(test)
-        if self.data_tool_diameter is None:
-            return 'No tool diameter found'
 
-        # raise to safe Z height
-        # move to tool setter (XY then Z)
-        # offset X by tool radius (from toolfile)
-        # probe Z
-        # raise z clear
-        # move back X by tool radius
-
-        cmdList = []
-        cmdList.append('F{}'.format(self.data_rapid_vel))
-        cmdList.append('G53 G1 Z{}'.format(self.data_z_max_clear))
-        cmdList.append('G53 G1 X{} Y{}'.format(self.data_ts_x, self.data_ts_y))
-        cmdList.append('G53 G1 Z{}'.format(self.data_ts_z))
-        cmdList.append('G91 ')
-        cmdList.append('G1 X{}'.format(self.data_tool_diameter/2))
-        cmdList.append('G38.2 Z{} F{}'.format(self.data_ts_max,self.data_search_vel))
-        cmdList.append('G1 Z{} F{}'.format(self.data_latch_return_dist, self.data_rapid_vel))
-        cmdList.append('F{} G4 P0.5'.format(self.data_probe_vel))
-        cmdList.append('G38.2 Z-{}'.format(self.data_latch_return_dist*2))
-        cmdList.append('G1 Z{} F{}'.format(self.data_z_clearance, self.data_rapid_vel))
-        cmdList.append('G1 X-{}'.format(self.data_tool_diameter/2))
-        cmdList.append('G90')
-
-        # call each command - if fail report the error and gcode command
-        for s in cmdList:
-            rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+    def CALL_MDI_LIST(self, codeList):
+        for s in codeList:
+            # call the gcode in MDI
+            if type(s) is str:
+                rtn = self.CALL_MDI_WAIT(s, self.timeout)
+            # call the function directly
+            else:
+                rtn = s()
             if rtn != 1:
                 return 'failed: {} cmd: {}'.format(rtn, s)
-        # report success
+
         return 1
-      except Exception as e:
-        return e
 
     def CALL_MDI_WAIT(self, code, timeout = 5):
         LOG.debug('MDI_WAIT_COMMAND= {}, maxt = {}'.format(code, timeout))
@@ -173,14 +150,14 @@ class ProbeRoutines():
             result = ACTION.cmd.wait_complete(timeout)
             try:
                 # give a chance for the error message to get to stdin
-                time.sleep(.1)
+                time.sleep(.01)
                 error = STATUS.ERROR.poll()
                 if not error is None:
                     ACTION.ABORT()
                     return error[1]
             except Exception as e:
                 ACTION.ABORT()
-                return e
+                return '{}'.format(e)
 
             if result == -1:
                 ACTION.ABORT()
@@ -190,6 +167,338 @@ class ProbeRoutines():
                 return 'MDI_COMMAND_WAIT RCS error'
 
         return 1
+
+
+    #########################
+    # toolsetter
+    #########################
+    def goto_toolsetter(self):
+        try:
+            # basic sanity check
+            for test in('z_max_clear','ts_x','ts_y','ts_z','ts_max'):
+                if self['data_{}'.format(test)] is None:
+                    return'Missing toolsetter setting: {}'.format(test)
+
+            # raise to safe Z height
+            # move to tool setter (XY then Z)
+            # offset X by tool radius (from toolfile)
+
+            cmdList = []
+            cmdList.append('F{}'.format(self.data_rapid_vel))
+            cmdList.append('G53 G1 Z{}'.format(self.data_z_max_clear))
+            cmdList.append('G53 G1 X{} Y{}'.format(self.data_ts_x, self.data_ts_y))
+            cmdList.append('G53 G1 Z{}'.format(self.data_ts_z))
+            # call each command - if fail report the error and gcode command
+            rtn = self.CALL_MDI_LIST(cmdList)
+            if rtn != 1:
+                return rtn
+            # report success
+            return 1
+        except Exception as e:
+            return '{}'.format(e)
+
+    def wait(self):
+        rtn = self.CALL_MDI_WAIT('G4 p 5', self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        return 1
+
+    def probe_tool_z(self):
+        return self.probe_tool_with_toolsetter()
+
+    def probe_tool_with_toolsetter(self):
+        try:
+            # basic sanity checks
+            for test in('ts_x','ts_y','ts_z','ts_max','ts_diam','tool_probe_height', 'tool_block_height'):
+                if self['data_{}'.format(test)] is None:
+                    return'Missing toolsetter setting: {}'.format(test)
+            if self.data_tool_diameter is None or self.data_tool_number is None:
+                return 'No tool diameter found'
+
+            # see if we need to offset for tool diameter
+            # if so see if there is enough room in X axis limits
+            if self.data_tool_diameter > self.data_ts_diam:
+                # if close to edge of machine X, offset in the opposite direction
+                xplimit = float(INFO.INI.find('AXIS_X','MAX_LIMIT'))
+                xmlimit = float(INFO.INI.find('AXIS_X','MIN_LIMIT'))
+                if not (self.data_tool_diameter/2+self.data_ts_x) > xplimit:
+                    Xoffset = self.data_tool_diameter/2
+                elif not (self.data_ts_x -(self.data_tool_diameter/2)) < xmlimit:
+                    Xoffset = 0-self.data_tool_diameter/2
+                else:
+                    return 'cannot offset enough in X for tool diameter'
+            else: Xoffset = 0
+
+            # offset X by tool radius (from toolfile) if required
+            # probe Z
+            # raise Z clear
+            # move back X by tool radius if required
+
+            cmdList = []
+            cmdList.append('F{}'.format(self.data_rapid_vel))
+            cmdList.append('G91 ')
+            # should start spindle in proper direction/speed here..
+            cmdList.append('G1 X{}'.format(Xoffset))
+            cmdList.append('G38.2 Z-{} F{}'.format(self.data_ts_max,self.data_search_vel))
+            cmdList.append('G1 Z{} F{}'.format(self.data_latch_return_dist, self.data_rapid_vel))
+            cmdList.append('F{}'.format(self.data_probe_vel))
+            cmdList.append('G38.2 Z-{}'.format(self.data_latch_return_dist*1.2))
+            cmdList.append('G1 Z{} F{}'.format(self.data_z_clearance, self.data_rapid_vel))
+            cmdList.append('G1 X{}'.format(-Xoffset))
+            cmdList.append('G90')
+            cmdList.append('#<touch_result> = #5063')
+            cmdList.append('G10 L1 P{}  Z[#<touch_result> -{}]'.format( 
+                    self.data_tool_number,self.data_tool_probe_height+self.data_tool_block_height))
+            cmdList.append('G43')
+            # call each command - if fail report the error and gcode command
+            rtn = self.CALL_MDI_LIST(cmdList)
+            if rtn != 1:
+                return rtn
+            h = STATUS.get_probed_position()[2]
+            self.status_z = h
+            self.add_history('Probed Tool height',"Z",0,0,0,0,0,0,0,0,h,0,0)
+
+            # report success
+            return 1
+        except Exception as e:
+            return '{}'.format(e)
+
+    def probe_ts_z(self):
+        try:
+            # basic sanity checks
+            if self.data_ts_max is None:
+                return'Missing toolsetter setting: data_ts_max'
+
+            # probe Z
+            # raise z clear
+
+            cmdList = []
+            cmdList.append('G49')
+            cmdList.append('G91')
+            cmdList.append('G38.2 Z-{} F{}'.format(self.data_ts_max,self.data_search_vel))
+            cmdList.append('G1 Z{} F{}'.format(self.data_latch_return_dist, self.data_rapid_vel))
+            cmdList.append('F{}'.format(self.data_probe_vel))
+            cmdList.append('G38.2 Z-{}'.format(self.data_latch_return_dist*1.2))
+            cmdList.append('G1 Z{} F{}'.format(self.data_z_clearance, self.data_rapid_vel))
+            cmdList.append('G90')
+
+            # call each command - if fail report the error and gcode command
+            rtn = self.CALL_MDI_LIST(cmdList)
+            if rtn != 1:
+                return rtn
+            h=STATUS.get_probed_position()[2]
+            self.status_th  = h
+
+            self.add_history('Tool Setter height',"Z",0,0,0,0,0,0,0,0,h,0,0)
+
+            # report success
+            return 1
+        except Exception as e:
+            return '{}'.format(e)
+
+    # TOOL setter Diameter/height
+    # returns 1 for success or a string error message for failure
+    def probe_tool_z_diam(self):
+      try:
+        # probe tool height
+        rtn = self.probe_tool_with_toolsetter()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+
+        # confirm there is enough axis room to offset for diameters of tool and toolsetter
+        xplimit = float(INFO.INI.find('AXIS_X','MAX_LIMIT'))
+        xmlimit = float(INFO.INI.find('AXIS_X','MIN_LIMIT'))
+        offset = (self.data_tool_diameter+self.data_ts_diam)*.5
+        if (offset+self.data_ts_x) > xplimit:
+            return 'cannot offset enough in + X for tool radius + toolsetter radius'
+        elif (self.data_ts_x -(offset)) < xmlimit:
+            return 'cannot offset enough in - X for tool radius + toolsetter radius'
+
+        yplimit = float(INFO.INI.find('AXIS_Y','MAX_LIMIT'))
+        ymlimit = float(INFO.INI.find('AXIS_Y','MIN_LIMIT'))
+        if (offset+self.data_ts_y) > yplimit:
+            return 'cannot offset enough in + Y for tool radius offset + toolsetter radius'
+        elif (self.data_ts_y -(offset)) < ymlimit:
+            return 'cannot offset enough in - Y for tool radius offset + toolsetter radius'
+
+
+        # move X - edge_length- xy_clearance
+        s="""G91
+        G1 F%s X-%f
+        G90""" % (self.data_rapid_vel, 0.5 * self.data_ts_diam + self.data_xy_clearance)
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+
+        # Start xplus
+        rtn = self.probe('xplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+
+        # show X result
+        a = STATUS.get_probed_position_with_offsets()
+        xpres=float(a[0])+0.5*self.data_probe_diam
+
+        # move Z to start point up
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+
+        # move to finded  point X
+        s = "G1 F%s X%f" % (self.data_rapid_vel, xpres)
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+
+        # move X + data_ts_diam +  xy_clearance
+        aa=self.data_ts_diam+self.data_xy_clearance
+        s="""G91
+        G1 X%f
+        G90""" % (aa)
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+
+        # Start xminus
+        rtn = self.probe('xminus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+
+        # show X result
+        a = STATUS.get_probed_position_with_offsets()
+        xmres=float(a[0])-0.5*self.data_probe_diam
+        self.length_x()
+        xcres=0.5*(xpres+xmres)
+        self.status_xc = xcres
+
+        # move Z to start point up
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+
+        # go to the new center of X
+        s = "G1 F%s X%f" % (self.data_rapid_vel, xcres)
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+
+        # move Y - data_ts_diam/2 - xy_clearance
+        a=0.5*self.data_ts_diam+self.data_xy_clearance
+        s="""G91
+        G1 Y-%f
+        G90""" % a
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+
+        # Start yplus
+        rtn = self.probe('yplus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+
+        # show Y result
+        a = STATUS.get_probed_position_with_offsets()
+        ypres=float(a[1])+0.5*self.data_probe_diam
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+
+        # move to found point Y
+        s = "G1 Y%f" % ypres
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+
+        # move Y + data_ts_diam +  xy_clearance
+        aa=self.data_ts_diam+self.data_xy_clearance
+        s="""G91
+        G1 Y%f
+        G90""" % (aa)
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        rtn = self.z_clearance_down()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+
+        # Start yminus
+        rtn = self.probe('yminus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        # show Y result
+        a = STATUS.get_probed_position_with_offsets()
+        ymres=float(a[1])-0.5*self.data_probe_diam
+        self.length_y()
+
+        # find, show and move to finded  point
+        ycres=0.5*(ypres+ymres)
+        self.status_yc = ycres
+        diam=self.data_probe_diam + (ymres-ypres-self.data_ts_diam)
+        self.status_d = diam
+
+        # move Z to start point up
+        rtn = self.z_clearance_up()
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        tmpz=STATUS.stat.position[2] - self.data_z_clearance
+        self.status_z=tmpz
+        self.add_history('Tool diameter',"XcYcZD",0,xcres,0,0,0,ycres,0,0,tmpz,diam,0)
+        # move to finded  point
+        s = "G1 Y%f" % ycres
+        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
+        # success
+        return 1
+      except Exception as e:
+        return '{}'.format(e)
+
+
+    ########################
+    # material
+    ########################
+    def probe_material_z(self):
+
+        try:
+            # basic sanity checks
+            if self.data_ts_max is None:
+                return'Missing toolsetter setting: data_ts_max'
+
+            cmdList = []
+            cmdList.append('G49')
+            cmdList.append('G92.1')
+            cmdList.append('G10 L20 P0  Z[#<_abs_z>]')
+            cmdList.append('G91')
+            cmdList.append('F {}'.format(self.data_search_vel))
+            cmdList.append('G38.2 Z-{}'.format(self.data_ts_max))
+            cmdList.append('G1 Z{} F{}'.format(self.data_latch_return_dist, self.data_rapid_vel))
+            cmdList.append('F{}'.format(self.data_probe_vel))
+            cmdList.append('G38.2 Z-{}'.format(self.data_latch_return_dist*1.2))
+            cmdList.append('G1 Z{} F{}'.format(self.data_z_clearance, self.data_rapid_vel))
+            cmdList.append('G90')
+
+            # call each command - if fail report the error and gcode command
+            rtn = self.CALL_MDI_LIST(cmdList)
+            if rtn != 1:
+                return rtn
+            h=STATUS.get_probed_position()[2]
+            self.status_bh  = h
+            self.add_history('Probe Material Top',"Z",0,0,0,0,0,0,0,0,h,0,0)
+            # report success
+            return 1
+        except Exception as e:
+            return '{}'.format(e)
 
     ####################
     # Z rotation probing
@@ -1152,7 +1461,9 @@ class ProbeRoutines():
         rtn = self.z_clearance_down()
         if rtn != 1:
             return 'failed: {}'.format(rtn)
-        if self.probe('yminus') == -1: return
+        rtn = self.probe('yminus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         yres = float(a[1]) -0.5 * self.data_probe_diam
@@ -1311,7 +1622,9 @@ class ProbeRoutines():
         rtn = self.z_clearance_down()
         if rtn != 1:
             return 'failed: {}'.format(rtn)
-        if self.probe('yminus') == -1: return
+        rtn = self.probe('yminus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         ymres = float(a[1]) - 0.5 * self.data_probe_diam
@@ -1398,7 +1711,9 @@ class ProbeRoutines():
         rtn = self.CALL_MDI_WAIT(s, self.timeout) 
         if rtn != 1:
             return 'failed: {}'.format(rtn)
-        if self.probe('yminus') == -1: return
+        rtn = self.probe('yminus')
+        if rtn != 1:
+            return 'failed: {}'.format(rtn)
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         ymres = float(a[1]) - 0.5 * self.data_probe_diam
@@ -1521,10 +1836,10 @@ class ProbeRoutines():
         return error
 
     def probe_cal_round_pocket(self):
-        if self.data_cal_diameter_hint <= 0 :
-            return 'Calibration diameter hint must be larger then 0'
-        if self.data_probe_diam >= self.data_cal_diameter_hint:
-            return 'Probe diameter too large for Calibration diameter hint'
+        if self.data_cal_diameter <= 0 :
+            return 'Calibration diameter must be larger then 0'
+        if self.data_probe_diam >= self.data_cal_diameter:
+            return 'Probe diameter too large for Calibration diameter'
 
         self.data_side_edge_length = self.data_cal_diameter / 2
         error = self.probe_xy_hole()
@@ -1672,153 +1987,4 @@ class ProbeRoutines():
         self.rotate_coord_system(self.status_a)
         return error
 
-    # TOOL setter Diameter/height
-    # returns 1 for success or a string error message for failure
-    def probe_tool_z_d(self):
-      try:
-        # move XY to Tool Setter point
-        # Start goto ts (probes Z height too)
-        rtn = self.goto_toolsetter()
-        if rtn != 1:
-            return 'failed: {}'.format(rtn)
-        # move X - edge_length- xy_clearance
-        s="""G91
-        G1 F%s X-%f
-        G90""" % (self.data_rapid_vel, 0.5 * self.data_ts_diam + self.data_xy_clearance)
-        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
-        if rtn != 1:
-            return 'failed: {}'.format(rtn)
-        rtn = self.z_clearance_down()
-        if rtn != 1:
-            return 'failed: {}'.format(rtn)
 
-        # Start xplus
-        rtn = self.probe('xplus')
-        if rtn != 1:
-            return 'failed: {}'.format(rtn)
-
-        # show X result
-        a = STATUS.get_probed_position_with_offsets()
-        xpres=float(a[0])+0.5*self.data_probe_diam
-
-        # move Z to start point up
-        rtn = self.z_clearance_up()
-        if rtn != 1:
-            return 'failed: {}'.format(rtn)
-
-        # move to finded  point X
-        s = "G1 F%s X%f" % (self.data_rapid_vel, xpres)
-        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
-        if rtn != 1:
-            return 'failed: {}'.format(rtn)
-
-        # move X + data_ts_diam +  xy_clearance
-        aa=self.data_ts_diam+self.data_xy_clearance
-        s="""G91
-        G1 X%f
-        G90""" % (aa)
-        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
-        if rtn != 1:
-            return 'failed: {}'.format(rtn)
-
-        rtn = self.z_clearance_down()
-        if rtn != 1:
-            return 'failed: {}'.format(rtn)
-
-        # Start xminus
-        rtn = self.probe('xminus')
-        if rtn != 1:
-            return 'failed: {}'.format(rtn)
-
-        # show X result
-        a = STATUS.get_probed_position_with_offsets()
-        xmres=float(a[0])-0.5*self.data_probe_diam
-        self.length_x()
-        xcres=0.5*(xpres+xmres)
-        self.status_xc = xcres
-
-        # move Z to start point up
-        rtn = self.z_clearance_up()
-        if rtn != 1:
-            return 'failed: {}'.format(rtn)
-
-        # go to the new center of X
-        s = "G1 F%s X%f" % (self.data_rapid_vel, xcres)
-        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
-        if rtn != 1:
-            return 'failed: {}'.format(rtn)
-
-        # move Y - data_ts_diam/2 - xy_clearance
-        a=0.5*self.data_ts_diam+self.data_xy_clearance
-        s="""G91
-        G1 Y-%f
-        G90""" % a
-        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
-        if rtn != 1:
-            return 'failed: {}'.format(rtn)
-
-        rtn = self.z_clearance_down()
-        if rtn != 1:
-            return 'failed: {}'.format(rtn)
-
-        # Start yplus
-        rtn = self.probe('yplus')
-        if rtn != 1:
-            return 'failed: {}'.format(rtn)
-
-        # show Y result
-        a = STATUS.get_probed_position_with_offsets()
-        ypres=float(a[1])+0.5*self.data_probe_diam
-        # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
-
-        # move to found point Y
-        s = "G1 Y%f" % ypres
-        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
-        if rtn != 1:
-            return 'failed: {}'.format(rtn)
-
-        # move Y + data_ts_diam +  xy_clearance
-        aa=self.data_ts_diam+self.data_xy_clearance
-        s="""G91
-        G1 Y%f
-        G90""" % (aa)
-        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
-        if rtn != 1:
-            return 'failed: {}'.format(rtn)
-        rtn = self.z_clearance_down()
-        if rtn != 1:
-            return 'failed: {}'.format(rtn)
-
-        # Start yminus
-        rtn = self.probe('yminus')
-        if rtn != 1:
-            return 'failed: {}'.format(rtn)
-        # show Y result
-        a = STATUS.get_probed_position_with_offsets()
-        ymres=float(a[1])-0.5*self.data_probe_diam
-        self.length_y()
-
-        # find, show and move to finded  point
-        ycres=0.5*(ypres+ymres)
-        self.status_yc = ycres
-        diam=self.data_probe_diam + (ymres-ypres-self.data_ts_diam)
-        self.status_d = diam
-
-        # move Z to start point up
-        rtn = self.z_clearance_up()
-        if rtn != 1:
-            return 'failed: {}'.format(rtn)
-        tmpz=STATUS.stat.position[2] - self.data_z_clearance
-        self.status_z=tmpz
-        self.add_history('Tool diameter',"XcYcZD",0,xcres,0,0,0,ycres,0,0,tmpz,diam,0)
-        # move to finded  point
-        s = "G1 Y%f" % ycres
-        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
-        if rtn != 1:
-            return 'failed: {}'.format(rtn)
-        # success
-        return 1
-      except Exception as e:
-        return e

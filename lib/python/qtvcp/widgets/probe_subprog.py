@@ -70,7 +70,10 @@ class ProbeSubprog(QObject, ProbeRoutines):
                           'ts_y',
                           'ts_z',
                           'ts_max',
-                          'tool_diameter']
+                          'tool_diameter',
+                          'tool_number',
+                          'tool_probe_height',
+                          'tool_block_height']
 
         # data structure to hold parameters
         # common
@@ -92,13 +95,16 @@ class ProbeSubprog(QObject, ProbeRoutines):
         self.data_adj_y = 0.0
         self.data_adj_z = 0.0
         self.data_adj_angle = 0.0
-        self.data_ts_diam = 1.0
+        self.data_ts_diam = None
         self.data_z_max_clear = None
         self.data_ts_x= None
         self.data_ts_y= None
         self.data_ts_z= None
         self.data_ts_max = None
         self.data_tool_diameter = None
+        self.data_tool_number = None
+        self.data_tool_probe_height = None
+        self.data_tool_block_height = None
         # BasicProbe exclusive
         self.data_x_hint_bp = 0.0
         self.data_y_hint_bp = 0.0
@@ -113,20 +119,22 @@ class ProbeSubprog(QObject, ProbeRoutines):
         self.cal_x_error = False
         self.cal_y_error = False
         # list of results to be transferred to main program
-        self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a', 'delta']
+        self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a', 'delta','th','bh']
         # data structure to hold result values
-        self.status_xm = 0.0
-        self.status_xc = 0.0
-        self.status_xp = 0.0
-        self.status_ym = 0.0
-        self.status_yc = 0.0
-        self.status_yp = 0.0
-        self.status_lx = 0.0
-        self.status_ly = 0.0
-        self.status_z = 0.0
-        self.status_d = 0.0
-        self.status_a = 0.0
-        self.status_delta = 0.0
+        self.status_xm = None
+        self.status_xc = None
+        self.status_xp = None
+        self.status_ym = None
+        self.status_yc = None
+        self.status_yp = None
+        self.status_lx = None
+        self.status_ly = None
+        self.status_z = None
+        self.status_d = None
+        self.status_a = None
+        self.status_delta = None
+        self.status_th = None
+        self.status_bh = None
         self.history_log = ""
 
         self.process()
@@ -191,7 +199,7 @@ class ProbeSubprog(QObject, ProbeRoutines):
             self.postreset()
             return error
         else:
-            return None
+            return 'Command function {} not in probe routines'.format(cmd[0])
 
     def update_data(self, parms):
         for key in parms:
@@ -212,13 +220,16 @@ class ProbeSubprog(QObject, ProbeRoutines):
         #self.data_z_clearance += self.data_extra_depth
         # clear all previous probe results
         for i in (self.status_list):
-            self['status_' + i] = 0.0
+            self['status_' + i] = None
 
     def collect_status(self):
        try:
         tmpl = lambda s: self._format_template % s
         for key in self.status_list:
-            data = tmpl(self['status_' + key])
+            if self['status_' + key] is None:
+                data = 'None'
+            else:
+                data = tmpl(self['status_' + key])
             self.send_dict.update( {key: data} )
        except Exception as e:
         print('ERROR ',e)
