@@ -351,7 +351,10 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def show_results(self, line):
         for key in self.status_list:
-            self['status_' + key].setText(line[key])
+            if line[key] != 'None':
+                self['status_' + key].setText(line[key])
+            else:
+                self['status_' + key].setText('')
 
     ##############################
     # required class boiler code #

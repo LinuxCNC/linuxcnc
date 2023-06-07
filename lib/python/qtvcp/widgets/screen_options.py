@@ -723,6 +723,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         if not STATUS.is_limits_override_set():
             ACTION.TOGGLE_LIMITS_OVERRIDE()
         ACTION.SET_MACHINE_STATE(True)
+        ACTION.SET_MANUAL_MODE()
 
     def effect(self, data, text, color):
         if self.use_focus_blur:

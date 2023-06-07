@@ -1195,6 +1195,10 @@ class _GStat(GObject.GObject):
         if jjogmode == JOGJOINT: j_or_a = self.jnum_for_axisnum(axisnum)
         return jjogmode,j_or_a
 
+    def get_probed_position(self):
+        self.stat.poll()
+        return list(self.stat.probed_position)
+
     def get_probed_position_with_offsets(self) :
         self.stat.poll()
         probed_position=list(self.stat.probed_position)
