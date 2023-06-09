@@ -48,7 +48,6 @@ int main() {
 int _task = 0;
 char _parameter_file_name[LINELEN];
 
-extern "C" PyObject* PyInit_emctask(void);
 extern "C" PyObject* PyInit_interpreter(void);
 extern "C" PyObject* PyInit_emccanon(void);
 extern "C" struct _inittab builtin_modules[];
@@ -103,7 +102,7 @@ void STRAIGHT_FEED(int lineno,
     printf("-> %.1f %.1f\n", x, y);
 }
 
-void NURBS_G5_FEED(int lineno, std::vector<NURBS_CONTROL_POINT> nurbs_control_points, unsigned int k, int plane) {
+void NURBS_G5_FEED(int lineno, std::vector<NURBS_CONTROL_POINT> nurbs_control_points, unsigned int k, CANON_PLANE plane) {
     double u = 0.0;
     unsigned int n = nurbs_control_points.size() - 1;
     double umax = n - k + 2;
@@ -121,7 +120,7 @@ void NURBS_G5_FEED(int lineno, std::vector<NURBS_CONTROL_POINT> nurbs_control_po
     knot_vector.clear();
 }
 
-void NURBS_G6_FEED(int lineno, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, unsigned int k, double feedrate, int L_option, int plane) { // (L_option: NICU, NICL, NICC see publication from Lo Valvo and Drago) 
+void NURBS_G6_FEED(int lineno, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, unsigned int k, double feedrate, int L_option, CANON_PLANE plane) { // (L_option: NICU, NICL, NICC see publication from Lo Valvo and Drago) 
 	}
 
 void RIGID_TAP(int lineno,

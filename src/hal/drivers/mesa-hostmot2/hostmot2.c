@@ -115,6 +115,7 @@ static void hm2_read(void *void_hm2, long period) {
     hm2_bspi_process_tram_read(hm2, period);
     hm2_absenc_process_tram_read(hm2, period);
     hm2_oneshot_process_tram_read(hm2);
+    hm2_periodm_process_tram_read(hm2);
     //UARTS PktUARTS need to be explicitly handled by an external component
 
     hm2_tp_pwmgen_process_read(hm2); // check the status of the fault bit
@@ -137,6 +138,7 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_ioport_gpio_prepare_tram_write(hm2);
     hm2_pwmgen_prepare_tram_write(hm2);
     hm2_oneshot_prepare_tram_write(hm2);
+    hm2_periodm_prepare_tram_write(hm2);
     hm2_rcpwmgen_prepare_tram_write(hm2);
     hm2_inmux_prepare_tram_write(hm2);
     hm2_inm_prepare_tram_write(hm2);
@@ -146,6 +148,7 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_bspi_prepare_tram_write(hm2, period);
     hm2_ssr_prepare_tram_write(hm2);
     hm2_outm_prepare_tram_write(hm2);
+
     //UARTS need to be explicitly handled by an external component
     hm2_tram_write(hm2);
 
@@ -155,6 +158,7 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_watchdog_write(hm2, period);  // in case the user has written to the watchdog.timeout_ns param
     hm2_pwmgen_write(hm2);    // update pwmgen registers if needed
     hm2_oneshot_write(hm2);   // update oneshot registers if needed
+    hm2_periodm_write(hm2);   // update periodm registers if needed
     hm2_rcpwmgen_write(hm2);  // update rcpwmgen registers if needed
     hm2_inmux_write(hm2);     // update inmux control register if needed
     hm2_inm_write(hm2);       // update inm control register if needed
@@ -321,6 +325,7 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_DPAINTER:        return "Data Painter";
         case HM2_GTAG_SSR:             return "SSR";
         case HM2_GTAG_ONESHOT:         return "OneShot";
+        case HM2_GTAG_PERIODM:         return "PeriodM";
 
         default: {
             static char unknown[100];
@@ -400,6 +405,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     hm2->config.num_ssrs = -1;
     hm2->config.num_outms = -1;
     hm2->config.num_oneshots = -1;
+    hm2->config.num_periodms = -1;
     hm2->config.enable_raw = 0;
     hm2->config.firmware = NULL;
 
@@ -461,6 +467,10 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
         } else if (strncmp(token, "num_oneshots=", 13) == 0) {
             token += 13;
             hm2->config.num_oneshots = simple_strtol(token, NULL, 0);
+
+        } else if (strncmp(token, "num_periodms=", 13) == 0) {
+            token += 13;
+            hm2->config.num_periodms = simple_strtol(token, NULL, 0);
 
         } else if (strncmp(token, "num_ssrs=", 9) == 0) {
             token += 9;
@@ -558,6 +568,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     HM2_DBG("    num_inms=%d\n",  hm2->config.num_inms);
     HM2_DBG("    num_outms=%d\n",  hm2->config.num_outms);
     HM2_DBG("    num_oneshots=%d\n",  hm2->config.num_oneshots);
+    HM2_DBG("    num_periodms=%d\n",  hm2->config.num_periodms);
     HM2_DBG("    num_ssrs=%d\n",  hm2->config.num_ssrs);
     HM2_DBG("    num_xy2mods=%d\n",  hm2->config.num_xy2mods);
     HM2_DBG("    num_3pwmgens=%d\n", hm2->config.num_tp_pwmgens);
@@ -1062,6 +1073,10 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
                 md_accepted = hm2_oneshot_parse_md(hm2, md_index);
                 break;
 
+            case HM2_GTAG_PERIODM:
+                md_accepted = hm2_periodm_parse_md(hm2, md_index);
+                break;
+
           case HM2_GTAG_RCPWMGEN:
                 md_accepted = hm2_rcpwmgen_parse_md(hm2, md_index);
                 break;
@@ -1140,6 +1155,7 @@ static void hm2_cleanup(hostmot2_t *hm2) {
     hm2_ssr_cleanup(hm2);
     hm2_outm_cleanup(hm2);
     hm2_oneshot_cleanup(hm2);
+    hm2_periodm_cleanup(hm2);
     hm2_rcpwmgen_cleanup(hm2);
 
     // free all the tram entries
@@ -1162,6 +1178,7 @@ void hm2_print_modules(hostmot2_t *hm2) {
     hm2_ssr_print_module(hm2);
     hm2_outm_print_module(hm2);
     hm2_oneshot_print_module(hm2);
+    hm2_periodm_print_module(hm2);
     hm2_watchdog_print_module(hm2);
     hm2_inmux_print_module(hm2);
     hm2_inm_print_module(hm2);
@@ -1826,6 +1843,7 @@ void hm2_force_write(hostmot2_t *hm2) {
     hm2_inm_force_write(hm2);
     hm2_xy2mod_force_write(hm2);
     hm2_oneshot_force_write(hm2);
+    hm2_periodm_force_write(hm2);
 
     // NOTE: It's important that the SSR is written *after* the
     // ioport is written.  Initialization of the SSR requires that

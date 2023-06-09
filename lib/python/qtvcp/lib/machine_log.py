@@ -20,16 +20,21 @@ class MachineLogger():
         self.mlp = os.path.expanduser(INFO.MACHINE_LOG_HISTORY_PATH)
 
     def log_it(self, w, message, option=None):
-        if option == 'TIME':
-            self.log_message_time(message)
-        elif option == 'DATE':
-            self.log_message_date(message)
-        elif option == 'DELETE':
+        if option == 'DELETE':
             self.delete_log()
-        elif option == 'INITIAL':
-            self.initial_greeting()
-        else:
-            self.log_message(message)
+            return
+        try:
+            message = message.rstrip('\n')
+            if option == 'TIME':
+                self.log_message_time(message)
+            elif option == 'DATE':
+                self.log_message_date(message)
+            elif option == 'INITIAL':
+                self.initial_greeting()
+            else:
+                self.log_message(message)
+        except Exception as e:
+            log.exception('log_it function: {}'.format(e))
 
     def initial_greeting(self):
         try:

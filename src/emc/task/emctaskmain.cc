@@ -426,7 +426,7 @@ static EMC_TASK_PLAN_RUN taskPlanRunCmd;	// 16-Aug-1999 FMP
 static EMC_TASK_PLAN_INIT taskPlanInitCmd;
 static EMC_TASK_PLAN_SYNCH taskPlanSynchCmd;
 
-static int interpResumeState = EMC_TASK_INTERP_IDLE;
+static EMC_TASK_INTERP interpResumeState = EMC_TASK_INTERP::IDLE;
 static int programStartLine = 0;	// which line to run program from
 // how long the interp list can be
 
@@ -510,7 +510,7 @@ interpret_again:
 			if (interp_list.len() == 0 &&
 			    emcTaskCommand == 0 &&
 			    emcStatus->task.execState ==
-			    EMC_TASK_EXEC_DONE) {
+			    EMC_TASK_EXEC::DONE) {
 			    emcTaskPlanClearWait();
 			 }
 		    } else {
@@ -530,7 +530,7 @@ interpret_again:
 			       readRetVal != INTERP_OK
 			       (N.B. Watch for negative error codes.) */
 			    emcStatus->task.interpState =
-				EMC_TASK_INTERP_WAITING;
+				EMC_TASK_INTERP::WAITING;
 			} else {
 			    // got a good line
 			    // record the line number and command
@@ -546,14 +546,14 @@ interpret_again:
 			    emcStatus->task.readLine = emcTaskPlanLine();
 			    if (execRetval > INTERP_MIN_ERROR) {
 				emcStatus->task.interpState =
-				    EMC_TASK_INTERP_WAITING;
+				    EMC_TASK_INTERP::WAITING;
 				interp_list.clear();
 				emcAbortCleanup(EMC_ABORT_INTERPRETER_ERROR,
 						"interpreter error"); 
 			    } else if (execRetval == -1
 				    || execRetval == INTERP_EXIT ) {
 				emcStatus->task.interpState =
-				    EMC_TASK_INTERP_WAITING;
+				    EMC_TASK_INTERP::WAITING;
 			    } else if (execRetval == INTERP_EXECUTE_FINISH) {
 				// INTERP_EXECUTE_FINISH signifies
 				// that no more reading should be done until
@@ -565,7 +565,7 @@ interpret_again:
 			    } else if (execRetval != 0) {
 				// end of file
 				emcStatus->task.interpState =
-				    EMC_TASK_INTERP_WAITING;
+				    EMC_TASK_INTERP::WAITING;
                                 emcStatus->task.motionLine = 0;
                                 emcStatus->task.readLine = 0;
 			    } else {
@@ -590,7 +590,7 @@ interpret_again:
 				    // for a bad read from emcTaskPlanRead()
 				    // above
 				    emcStatus->task.interpState =
-					EMC_TASK_INTERP_WAITING;
+					EMC_TASK_INTERP::WAITING;
 				}
 				// and clear it regardless
 				interp_list.clear();
@@ -622,7 +622,7 @@ interpret_again:
 			    }
 
                             if (count++ < emc_task_interp_max_len
-                                    && emcStatus->task.interpState == EMC_TASK_INTERP_READING
+                                    && emcStatus->task.interpState == EMC_TASK_INTERP::READING
                                     && interp_list.len() <= emc_task_interp_max_len * 2/3) {
                                 goto interpret_again;
                             }
@@ -650,7 +650,7 @@ static void mdi_execute_abort(void)
     mdi_execute_queue.clear();
     emcStatus->task.queuedMDIcommands = 0;
 
-    emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
+    emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;
 }
 
 static void mdi_execute_hook(void)
@@ -660,7 +660,7 @@ static void mdi_execute_hook(void)
 	if (interp_list.len() == 0 &&
 	    emcTaskCommand == 0 &&
 	    emcStatus->task.execState ==
-	    EMC_TASK_EXEC_DONE) {
+	    EMC_TASK_EXEC::DONE) {
 	    emcTaskPlanClearWait(); 
 	    mdi_execute_wait = 0;
 	    mdi_execute_hook();
@@ -683,10 +683,10 @@ static void mdi_execute_hook(void)
     // determine when a MDI command actually finishes normally.
     if (interp_list.len() == 0 &&
 	emcTaskCommand == 0 &&
-	emcStatus->task.execState ==  EMC_TASK_EXEC_DONE && 
-	emcStatus->task.interpState != EMC_TASK_INTERP_IDLE && 
+	emcStatus->task.execState ==  EMC_TASK_EXEC::DONE && 
+	emcStatus->task.interpState != EMC_TASK_INTERP::IDLE && 
 	emcStatus->motion.traj.queue == 0 &&
-	emcStatus->io.status == RCS_DONE && 
+	emcStatus->io.status == RCS_STATUS::DONE && 
 	!mdi_execute_wait && 
 	!mdi_execute_next) {
 
@@ -695,7 +695,7 @@ static void mdi_execute_hook(void)
 	    rcs_print("mdi_execute_hook: MDI command '%s' done (remaining: %d)\n",
 		      emcStatus->task.command, mdi_input_queue.len());
 	emcStatus->task.command[0] = 0;
-	emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
+	emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;
     }
 
     if (!mdi_execute_next) return;
@@ -717,7 +717,7 @@ void readahead_waiting(void)
 	if (interp_list.len() == 0 &&
 	    emcTaskCommand == 0 &&
 	    emcStatus->motion.traj.queue == 0 &&
-	    emcStatus->io.status == RCS_DONE)
+	    emcStatus->io.status == RCS_STATUS::DONE)
 	    // finished
 	{
 	    int was_open = taskplanopen;
@@ -731,7 +731,7 @@ void readahead_waiting(void)
 		// then resynch interpreter
 		emcTaskQueueCommand(&taskPlanSynchCmd);
 	    } else {
-		emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
+		emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;
 	    }
 	    emcStatus->task.readLine = 0;
 	} else {
@@ -740,7 +740,7 @@ void readahead_waiting(void)
 }
 
 static bool allow_while_idle_type() {
-    // allow for EMC_TASK_MODE_AUTO, EMC_TASK_MODE_MDI
+    // allow for EMC_TASK_MODE::AUTO, EMC_TASK_MODE::MDI
     // expect immediate command
     RCS_CMD_MSG *emcCommand;
     emcCommand = emcCommandBuffer->get_address();
@@ -786,15 +786,15 @@ static int emcTaskPlan(void)
 
     // handle any new command
     switch (emcStatus->task.state) {
-    case EMC_TASK_STATE_OFF:
-    case EMC_TASK_STATE_ESTOP:
-    case EMC_TASK_STATE_ESTOP_RESET:
+    case EMC_TASK_STATE::OFF:
+    case EMC_TASK_STATE::ESTOP:
+    case EMC_TASK_STATE::ESTOP_RESET:
 
 	// now switch on the mode
 	switch (emcStatus->task.mode) {
-	case EMC_TASK_MODE_MANUAL:
-	case EMC_TASK_MODE_AUTO:
-	case EMC_TASK_MODE_MDI:
+	case EMC_TASK_MODE::MANUAL:
+	case EMC_TASK_MODE::AUTO:
+	case EMC_TASK_MODE::MDI:
 
 	    // now switch on the command
 	    switch (type) {
@@ -847,7 +847,7 @@ static int emcTaskPlan(void)
 		// one case where we need to be in manual mode
 	    case EMC_JOINT_OVERRIDE_LIMITS_TYPE:
 		retval = 0;
-		if (emcStatus->task.mode == EMC_TASK_MODE_MANUAL) {
+		if (emcStatus->task.mode == EMC_TASK_MODE::MANUAL) {
 		    retval = emcTaskIssueCommand(emcCommand);
 		}
 		break;
@@ -885,13 +885,13 @@ static int emcTaskPlan(void)
 
 	}			// switch (mode)
 
-	break;			// case EMC_TASK_STATE_OFF,ESTOP,ESTOP_RESET
+	break;			// case EMC_TASK_STATE::OFF,ESTOP,ESTOP_RESET
 
-    case EMC_TASK_STATE_ON:
+    case EMC_TASK_STATE::ON:
 	/* we can do everything (almost) when the machine is on, so let's
 	   switch on the execution mode */
 	switch (emcStatus->task.mode) {
-	case EMC_TASK_MODE_MANUAL:	// ON, MANUAL
+	case EMC_TASK_MODE::MANUAL:	// ON, MANUAL
 	    switch (type) {
 	    case 0:
 	    case EMC_NULL_TYPE:
@@ -1009,11 +1009,11 @@ static int emcTaskPlan(void)
 
 	    }			// switch (type) in ON, MANUAL
 
-	    break;		// case EMC_TASK_MODE_MANUAL
+	    break;		// case EMC_TASK_MODE::MANUAL
 
-	case EMC_TASK_MODE_AUTO:	// ON, AUTO
+	case EMC_TASK_MODE::AUTO:	// ON, AUTO
 	    switch (emcStatus->task.interpState) {
-	    case EMC_TASK_INTERP_IDLE:	// ON, AUTO, IDLE
+	    case EMC_TASK_INTERP::IDLE:	// ON, AUTO, IDLE
 		switch (type) {
 		case 0:
 		case EMC_NULL_TYPE:
@@ -1084,10 +1084,10 @@ static int emcTaskPlan(void)
 		    retval = emcTaskIssueCommand(&taskPlanRunCmd);
 		    if(retval != 0) break;
 		    emcTrajPause();
-		    if (emcStatus->task.interpState != EMC_TASK_INTERP_PAUSED) {
+		    if (emcStatus->task.interpState != EMC_TASK_INTERP::PAUSED) {
 			interpResumeState = emcStatus->task.interpState;
 		    }
-		    emcStatus->task.interpState = EMC_TASK_INTERP_PAUSED;
+		    emcStatus->task.interpState = EMC_TASK_INTERP::PAUSED;
 		    emcStatus->task.task_paused = 1;
 		    retval = 0;
 		    break;
@@ -1103,7 +1103,7 @@ static int emcTaskPlan(void)
 		    break;
 		    // otherwise we can't handle it
 		default:
-	            //EMC_TASK_MODE_AUTO(2) && EMC_TASK_INTERP_IDLE(1)
+	            //EMC_TASK_MODE::AUTO(2) && EMC_TASK_INTERP::IDLE(1)
                     if ( allow_while_idle_type() ) {
                         retval = emcTaskIssueCommand(emcCommand);
 		        break;
@@ -1116,9 +1116,9 @@ static int emcTaskPlan(void)
 
 		}		// switch (type) in ON, AUTO, IDLE
 
-		break;		// EMC_TASK_INTERP_IDLE
+		break;		// EMC_TASK_INTERP::IDLE
 
-	    case EMC_TASK_INTERP_READING:	// ON, AUTO, READING
+	    case EMC_TASK_INTERP::READING:	// ON, AUTO, READING
 		switch (type) {
 		case 0:
 		case EMC_NULL_TYPE:
@@ -1188,9 +1188,9 @@ static int emcTaskPlan(void)
                // handle interp readahead logic
                 readahead_reading();
                 
-		break;		// EMC_TASK_INTERP_READING
+		break;		// EMC_TASK_INTERP::READING
 
-	    case EMC_TASK_INTERP_PAUSED:	// ON, AUTO, PAUSED
+	    case EMC_TASK_INTERP::PAUSED:	// ON, AUTO, PAUSED
 		switch (type) {
 		case 0:
 		case EMC_NULL_TYPE:
@@ -1257,7 +1257,7 @@ static int emcTaskPlan(void)
 			// there are pending motions paused; step them
 			emcTrajStep();
 		    } else {
-			emcStatus->task.interpState = (enum EMC_TASK_INTERP_ENUM) interpResumeState;
+			emcStatus->task.interpState = interpResumeState;
 		    }
 		    emcStatus->task.task_paused = 1;
 		    break;
@@ -1272,9 +1272,9 @@ static int emcTaskPlan(void)
 
 		}		// switch (type) in ON, AUTO, PAUSED
 
-		break;		// EMC_TASK_INTERP_PAUSED
+		break;		// EMC_TASK_INTERP::PAUSED
 
-	    case EMC_TASK_INTERP_WAITING:
+	    case EMC_TASK_INTERP::WAITING:
 		// interpreter ran to end
 		// handle input commands
 		switch (type) {
@@ -1346,19 +1346,19 @@ static int emcTaskPlan(void)
                 // handle interp readahead logic
                 readahead_waiting();
 
-		break;		// end of case EMC_TASK_INTERP_WAITING
+		break;		// end of case EMC_TASK_INTERP::WAITING
 
 	    default:
 		// coding error
-		rcs_print_error("invalid mode(%d)", emcStatus->task.mode);
+		rcs_print_error("invalid mode(%d)", (int)emcStatus->task.mode);
 		retval = -1;
 		break;
 
 	    }			// switch (mode) in ON, AUTO
 
-	    break;		// case EMC_TASK_MODE_AUTO
+	    break;		// case EMC_TASK_MODE::AUTO
 
-	case EMC_TASK_MODE_MDI:	// ON, MDI
+	case EMC_TASK_MODE::MDI:	// ON, MDI
 	    switch (type) {
 	    case 0:
 	    case EMC_NULL_TYPE:
@@ -1452,7 +1452,7 @@ static int emcTaskPlan(void)
 
 		// otherwise we can't handle it
 	    default:
-	        //EMC_TASK_MODE_MDI(3) && EMC_TASK_INTERP_IDLE(1)
+	        //EMC_TASK_MODE::MDI(3) && EMC_TASK_INTERP::IDLE(1)
                 if ( allow_while_idle_type() ) {
                     retval = emcTaskIssueCommand(emcCommand);
 		    break;
@@ -1466,14 +1466,14 @@ static int emcTaskPlan(void)
 	    }			// switch (type) in ON, MDI
 	    mdi_execute_hook();
 
-	    break;		// case EMC_TASK_MODE_MDI
+	    break;		// case EMC_TASK_MODE::MDI
 
 	default:
 	    break;
 
 	}			// switch (mode)
 
-	break;			// case EMC_TASK_STATE_ON
+	break;			// case EMC_TASK_STATE::ON
 
     default:
 	break;
@@ -1489,12 +1489,12 @@ static int emcTaskPlan(void)
    in emcTaskPlan() directly, are not handled here.
 
    The return value is a state for emcTaskExecute() to wait on, e.g.,
-   EMC_TASK_EXEC_WAITING_FOR_MOTION, before the command can be sent out.
+   EMC_TASK_EXEC::WAITING_FOR_MOTION, before the command can be sent out.
    */
-static int emcTaskCheckPreconditions(NMLmsg * cmd)
+static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 {
     if (0 == cmd) {
-	return EMC_TASK_EXEC_DONE;
+	return EMC_TASK_EXEC::DONE;
     }
 
     switch (cmd->type) {
@@ -1509,7 +1509,7 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:	// and this
     case EMC_AUX_INPUT_WAIT_TYPE:
     case EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE:
-	return EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO;
+	return EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO;
 	break;
 
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
@@ -1521,7 +1521,7 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_FO_ENABLE_TYPE:
     case EMC_TRAJ_SET_FH_ENABLE_TYPE:
     case EMC_TRAJ_SET_SO_ENABLE_TYPE:
-	return EMC_TASK_EXEC_WAITING_FOR_IO;
+	return EMC_TASK_EXEC::WAITING_FOR_IO;
 	break;
 
     case EMC_TRAJ_SET_OFFSET_TYPE:
@@ -1531,7 +1531,7 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_G92_TYPE:
     case EMC_TRAJ_SET_ROTATION_TYPE:
 	// this applies the program origin after previous motions
-	return EMC_TASK_EXEC_WAITING_FOR_MOTION;
+	return EMC_TASK_EXEC::WAITING_FOR_MOTION;
 	break;
 
     case EMC_TOOL_LOAD_TYPE:
@@ -1545,66 +1545,66 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_SPINDLE_ON_TYPE:
     case EMC_SPINDLE_OFF_TYPE:
     case EMC_SPINDLE_ORIENT_TYPE: // not sure
-	return EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO;
+	return EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO;
 	break;
 
     case EMC_TOOL_PREPARE_TYPE:
     case EMC_LUBE_ON_TYPE:
     case EMC_LUBE_OFF_TYPE:
-	return EMC_TASK_EXEC_WAITING_FOR_IO;
+	return EMC_TASK_EXEC::WAITING_FOR_IO;
 	break;
 
     case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
     case EMC_TOOL_SET_OFFSET_TYPE:
-	return EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO;
+	return EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO;
 	break;
 
     case EMC_TOOL_SET_NUMBER_TYPE:
-	return EMC_TASK_EXEC_WAITING_FOR_IO;
+	return EMC_TASK_EXEC::WAITING_FOR_IO;
 	break;
 
     case EMC_TASK_PLAN_PAUSE_TYPE:
     case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
 	/* pause on the interp list is queued, so wait until all are done */
-	return EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO;
+	return EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO;
 	break;
 
     case EMC_TASK_PLAN_END_TYPE:
-	return EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO;
+	return EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO;
 	break;
 
     case EMC_TASK_PLAN_INIT_TYPE:
     case EMC_TASK_PLAN_RUN_TYPE:
     case EMC_TASK_PLAN_SYNCH_TYPE:
     case EMC_TASK_PLAN_EXECUTE_TYPE:
-	return EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO;
+	return EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO;
 	break;
 
     case EMC_TRAJ_DELAY_TYPE:
-	return EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO;
+	return EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO;
 	break;
 
     case EMC_MOTION_SET_AOUT_TYPE:
 	if (((EMC_MOTION_SET_AOUT *) cmd)->now) {
-    	    return EMC_TASK_EXEC_WAITING_FOR_MOTION;
+    	    return EMC_TASK_EXEC::WAITING_FOR_MOTION;
 	}
-	return EMC_TASK_EXEC_DONE;
+	return EMC_TASK_EXEC::DONE;
 	break;
 
     case EMC_MOTION_SET_DOUT_TYPE:
 	if (((EMC_MOTION_SET_DOUT *) cmd)->now) {
-    	    return EMC_TASK_EXEC_WAITING_FOR_MOTION;
+    	    return EMC_TASK_EXEC::WAITING_FOR_MOTION;
 	}
-	return EMC_TASK_EXEC_DONE;
+	return EMC_TASK_EXEC::DONE;
 	break;
 
     case EMC_MOTION_ADAPTIVE_TYPE:
-	return EMC_TASK_EXEC_WAITING_FOR_MOTION;
+	return EMC_TASK_EXEC::WAITING_FOR_MOTION;
 	break;
 
     case EMC_EXEC_PLUGIN_CALL_TYPE:
     case EMC_IO_PLUGIN_CALL_TYPE:
-	return EMC_TASK_EXEC_DONE;
+	return EMC_TASK_EXEC::DONE;
 	break;
 
 
@@ -1614,11 +1614,11 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
 	    rcs_print_error("preconditions: unrecognized command %d:%s\n",
 			    (int)cmd->type, emc_symbol_lookup(cmd->type));
 	}
-	return EMC_TASK_EXEC_ERROR;
+	return EMC_TASK_EXEC::ERROR;
 	break;
     }
 
-    return EMC_TASK_EXEC_DONE;
+    return EMC_TASK_EXEC::DONE;
 }
 
 // puts command on interp list
@@ -1952,9 +1952,9 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
 	if (((EMC_TRAJ_SET_TELEOP_ENABLE *) cmd)->enable) {
-	    retval = emcTrajSetMode(EMC_TRAJ_MODE_TELEOP);
+	    retval = emcTrajSetMode(EMC_TRAJ_MODE::TELEOP);
 	} else {
-	    retval = emcTrajSetMode(EMC_TRAJ_MODE_FREE);
+	    retval = emcTrajSetMode(EMC_TRAJ_MODE::FREE);
 	}
 	break;
 
@@ -2125,13 +2125,13 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TASK_SET_MODE_TYPE:
 	mode_msg = (EMC_TASK_SET_MODE *) cmd;
-	if (emcStatus->task.mode == EMC_TASK_MODE_AUTO &&
-	    emcStatus->task.interpState != EMC_TASK_INTERP_IDLE &&
-	    mode_msg->mode != EMC_TASK_MODE_AUTO) {
+	if (emcStatus->task.mode == EMC_TASK_MODE::AUTO &&
+	    emcStatus->task.interpState != EMC_TASK_INTERP::IDLE &&
+	    mode_msg->mode != EMC_TASK_MODE::AUTO) {
 	    emcOperatorError(0, _("Can't switch mode while mode is AUTO and interpreter is not IDLE"));
 	} else { // we can honour the modeswitch
-	    if (mode_msg->mode == EMC_TASK_MODE_MANUAL &&
-		emcStatus->task.mode != EMC_TASK_MODE_MANUAL) {
+	    if (mode_msg->mode == EMC_TASK_MODE::MANUAL &&
+		emcStatus->task.mode != EMC_TASK_MODE::MANUAL) {
 		// leaving auto or mdi mode for manual
 
 		/*! \todo FIXME-- duplicate code for abort,
@@ -2159,8 +2159,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
                 emcStatus->task.currentLine = 0;
 
 		// clear out the interpreter state
-		emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
-		emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+		emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;
+		emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 		stepping = 0;
 		steppingWait = 0;
 
@@ -2211,13 +2211,13 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
             retval = -1;
             break;
         }
-        if (emcStatus->task.mode != EMC_TASK_MODE_MDI) {
+        if (emcStatus->task.mode != EMC_TASK_MODE::MDI) {
             emcOperatorError(0, _("Must be in MDI mode to issue MDI command"));
             retval = -1;
             break;
         }
 	// track interpState also during MDI - it might be an oword sub call
-	emcStatus->task.interpState = EMC_TASK_INTERP_READING;
+	emcStatus->task.interpState = EMC_TASK_INTERP::READING;
 
 	if (execute_msg->command[0] != 0) {
 	    char * command = execute_msg->command;
@@ -2230,7 +2230,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    }
 
 	    int level = emcTaskPlanLevel();
-	    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
+	    if (emcStatus->task.mode == EMC_TASK_MODE::MDI) {
 		if (mdi_execute_level < 0)
 		    mdi_execute_level = level;
 	    }
@@ -2239,7 +2239,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
 	    level = emcTaskPlanLevel();
 
-	    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
+	    if (emcStatus->task.mode == EMC_TASK_MODE::MDI) {
 		if (mdi_execute_level == level) {
 		    mdi_execute_level = -1;
 		} else if (level > 0) {
@@ -2267,13 +2267,13 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		break;
 
 	    case INTERP_ERROR:
-		// emcStatus->task.interpState =  EMC_TASK_INTERP_WAITING;
+		// emcStatus->task.interpState =  EMC_TASK_INTERP::WAITING;
 		interp_list.clear();
 		// abort everything
 		emcTaskAbort();
 		emcIoAbort(EMC_ABORT_INTERPRETER_ERROR_MDI);
 	    for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
-		mdi_execute_abort(); // sets emcStatus->task.interpState to  EMC_TASK_INTERP_IDLE
+		mdi_execute_abort(); // sets emcStatus->task.interpState to  EMC_TASK_INTERP::IDLE
 		emcAbortCleanup(EMC_ABORT_INTERPRETER_ERROR_MDI, "interpreter error during MDI");
 		retval = -1;
 		break;
@@ -2305,17 +2305,17 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	}
 	run_msg = (EMC_TASK_PLAN_RUN *) cmd;
 	programStartLine = run_msg->line;
-	emcStatus->task.interpState = EMC_TASK_INTERP_READING;
+	emcStatus->task.interpState = EMC_TASK_INTERP::READING;
 	emcStatus->task.task_paused = 0;
 	retval = 0;
 	break;
 
     case EMC_TASK_PLAN_PAUSE_TYPE:
 	emcTrajPause();
-	if (emcStatus->task.interpState != EMC_TASK_INTERP_PAUSED) {
+	if (emcStatus->task.interpState != EMC_TASK_INTERP::PAUSED) {
 	    interpResumeState = emcStatus->task.interpState;
 	}
-	emcStatus->task.interpState = EMC_TASK_INTERP_PAUSED;
+	emcStatus->task.interpState = EMC_TASK_INTERP::PAUSED;
 	emcStatus->task.task_paused = 1;
 	retval = 0;
 	break;
@@ -2323,10 +2323,10 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
 	if (GET_OPTIONAL_PROGRAM_STOP() == ON) {
 	    emcTrajPause();
-	    if (emcStatus->task.interpState != EMC_TASK_INTERP_PAUSED) {
+	    if (emcStatus->task.interpState != EMC_TASK_INTERP::PAUSED) {
 		interpResumeState = emcStatus->task.interpState;
 	    }
-	    emcStatus->task.interpState = EMC_TASK_INTERP_PAUSED;
+	    emcStatus->task.interpState = EMC_TASK_INTERP::PAUSED;
 	    emcStatus->task.task_paused = 1;
 	}
 	retval = 0;
@@ -2344,8 +2344,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TASK_PLAN_RESUME_TYPE:
 	emcTrajResume();
-	emcStatus->task.interpState =
-	    (enum EMC_TASK_INTERP_ENUM) interpResumeState;
+	emcStatus->task.interpState = interpResumeState;
 	emcStatus->task.task_paused = 0;
 	stepping = 0;
 	steppingWait = 0;
@@ -2419,24 +2418,24 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
    in emcTaskPlan() directly, are not handled here.
 
    The return value is a state for emcTaskExecute() to wait on, e.g.,
-   EMC_TASK_EXEC_WAITING_FOR_MOTION, after the command has finished and
+   EMC_TASK_EXEC::WAITING_FOR_MOTION, after the command has finished and
    before any other commands can be sent out.
    */
-static int emcTaskCheckPostconditions(NMLmsg * cmd)
+static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
 {
     if (0 == cmd) {
-	return EMC_TASK_EXEC_DONE;
+	return EMC_TASK_EXEC::DONE;
     }
 
     switch (cmd->type) {
     case EMC_OPERATOR_ERROR_TYPE:
     case EMC_OPERATOR_TEXT_TYPE:
     case EMC_OPERATOR_DISPLAY_TYPE:
-	return EMC_TASK_EXEC_DONE;
+	return EMC_TASK_EXEC::DONE;
 	break;
 
     case EMC_SYSTEM_CMD_TYPE:
-	return EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD;
+	return EMC_TASK_EXEC::WAITING_FOR_SYSTEM_CMD;
 	break;
 
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
@@ -2456,7 +2455,7 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_FO_ENABLE_TYPE:
     case EMC_TRAJ_SET_FH_ENABLE_TYPE:
     case EMC_TRAJ_SET_SO_ENABLE_TYPE:
-	return EMC_TASK_EXEC_DONE;
+	return EMC_TASK_EXEC::DONE;
 	break;
 
     case EMC_TOOL_PREPARE_TYPE:
@@ -2476,7 +2475,7 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_COOLANT_FLOOD_OFF_TYPE:
     case EMC_LUBE_ON_TYPE:
     case EMC_LUBE_OFF_TYPE:
-	return EMC_TASK_EXEC_DONE;
+	return EMC_TASK_EXEC::DONE;
 	break;
 
     case EMC_TASK_PLAN_RUN_TYPE:
@@ -2486,27 +2485,27 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TASK_PLAN_SYNCH_TYPE:
     case EMC_TASK_PLAN_EXECUTE_TYPE:
     case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
-	return EMC_TASK_EXEC_DONE;
+	return EMC_TASK_EXEC::DONE;
 	break;
 
     case EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE:
-	return EMC_TASK_EXEC_WAITING_FOR_SPINDLE_ORIENTED;
+	return EMC_TASK_EXEC::WAITING_FOR_SPINDLE_ORIENTED;
 	break;
 
     case EMC_TRAJ_DELAY_TYPE:
     case EMC_AUX_INPUT_WAIT_TYPE:
-	return EMC_TASK_EXEC_WAITING_FOR_DELAY;
+	return EMC_TASK_EXEC::WAITING_FOR_DELAY;
 	break;
 
     case EMC_MOTION_SET_AOUT_TYPE:
     case EMC_MOTION_SET_DOUT_TYPE:
     case EMC_MOTION_ADAPTIVE_TYPE:
-	return EMC_TASK_EXEC_DONE;
+	return EMC_TASK_EXEC::DONE;
 	break;
 
     case EMC_EXEC_PLUGIN_CALL_TYPE:
     case EMC_IO_PLUGIN_CALL_TYPE:
-	return EMC_TASK_EXEC_DONE;
+	return EMC_TASK_EXEC::DONE;
 	break;
 
     default:
@@ -2515,10 +2514,10 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
 	    rcs_print_error("postconditions: unrecognized command %d:%s\n",
 			    (int)cmd->type, emc_symbol_lookup(cmd->type));
 	}
-	return EMC_TASK_EXEC_DONE;
+	return EMC_TASK_EXEC::DONE;
 	break;
     }
-    return EMC_TASK_EXEC_DONE; // unreached
+    return EMC_TASK_EXEC::DONE; // unreached
 }
 
 /*
@@ -2550,7 +2549,7 @@ static int emcTaskExecute(void)
     // first check for an abandoned system command and abort it
     if (emcSystemCmdPid != 0 &&
 	emcStatus->task.execState !=
-	EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD) {
+	EMC_TASK_EXEC::WAITING_FOR_SYSTEM_CMD) {
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print("emcSystemCmd: abandoning process %d\n",
 		      emcSystemCmdPid);
@@ -2560,7 +2559,7 @@ static int emcTaskExecute(void)
     }
 
     switch (emcStatus->task.execState) {
-    case EMC_TASK_EXEC_ERROR:
+    case EMC_TASK_EXEC::ERROR:
 
 	/*! \todo FIXME-- duplicate code for abort,
 	   also near end of main, when aborting on subordinate errors,
@@ -2591,8 +2590,8 @@ static int emcTaskExecute(void)
         emcStatus->task.currentLine = 0;
 
 	// clear out the interpreter state
-	emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
-	emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+	emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;
+	emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 	stepping = 0;
 	steppingWait = 0;
 
@@ -2602,10 +2601,10 @@ static int emcTaskExecute(void)
 	retval = -1;
 	break;
 
-    case EMC_TASK_EXEC_DONE:
+    case EMC_TASK_EXEC::DONE:
 	STEPPING_CHECK();
 	if (!emcStatus->motion.traj.queueFull &&
-	    emcStatus->task.interpState != EMC_TASK_INTERP_PAUSED) {
+	    emcStatus->task.interpState != EMC_TASK_INTERP::PAUSED) {
 	    if (0 == emcTaskCommand) {
 		// need a new command
 		emcTaskCommand = interp_list.get();
@@ -2620,21 +2619,18 @@ static int emcTaskExecute(void)
 		    emcTrajSetMotionId(emcStatus->task.currentLine);
 		    if (emcStatus->motion.traj.queueFull) {
 			emcStatus->task.execState =
-			    EMC_TASK_EXEC_WAITING_FOR_MOTION_QUEUE;
+			    EMC_TASK_EXEC::WAITING_FOR_MOTION_QUEUE;
 		    } else {
-			emcStatus->task.execState =
-			    (enum EMC_TASK_EXEC_ENUM)
-			    emcTaskCheckPreconditions(emcTaskCommand);
+			emcStatus->task.execState = emcTaskCheckPreconditions(emcTaskCommand);
 		    }
 		}
 	    } else {
 		// have an outstanding command
 		if (0 != emcTaskIssueCommand(emcTaskCommand)) {
-		    emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
+		    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 		    retval = -1;
 		} else {
-		    emcStatus->task.execState = (enum EMC_TASK_EXEC_ENUM)
-			emcTaskCheckPostconditions(emcTaskCommand);
+		    emcStatus->task.execState = emcTaskCheckPostconditions(emcTaskCommand);
 		    emcTaskEager = 1;
 		}
 		emcTaskCommand = 0;	// reset it
@@ -2642,58 +2638,57 @@ static int emcTaskExecute(void)
 	}
 	break;
 
-    case EMC_TASK_EXEC_WAITING_FOR_MOTION_QUEUE:
+    case EMC_TASK_EXEC::WAITING_FOR_MOTION_QUEUE:
 	STEPPING_CHECK();
 	if (!emcStatus->motion.traj.queueFull) {
 	    if (0 != emcTaskCommand) {
-		emcStatus->task.execState = (enum EMC_TASK_EXEC_ENUM)
-		    emcTaskCheckPreconditions(emcTaskCommand);
+		emcStatus->task.execState = emcTaskCheckPreconditions(emcTaskCommand);
 		emcTaskEager = 1;
 	    } else {
-		emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+		emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 		emcTaskEager = 1;
 	    }
 	}
 	break;
 
-    case EMC_TASK_EXEC_WAITING_FOR_MOTION:
+    case EMC_TASK_EXEC::WAITING_FOR_MOTION:
 	STEPPING_CHECK();
-	if (emcStatus->motion.status == RCS_ERROR) {
+	if (emcStatus->motion.status == RCS_STATUS::ERROR) {
 	    // emcOperatorError(0, "error in motion controller");
-	    emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
-	} else if (emcStatus->motion.status == RCS_DONE) {
-	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
+	} else if (emcStatus->motion.status == RCS_STATUS::DONE) {
+	    emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 	    emcTaskEager = 1;
 	}
 	break;
 
-    case EMC_TASK_EXEC_WAITING_FOR_IO:
+    case EMC_TASK_EXEC::WAITING_FOR_IO:
 	STEPPING_CHECK();
-	if (emcStatus->io.status == RCS_ERROR) {
+	if (emcStatus->io.status == RCS_STATUS::ERROR) {
 	    // emcOperatorError(0, "error in IO controller");
-	    emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
-	} else if (emcStatus->io.status == RCS_DONE) {
-	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
+	} else if (emcStatus->io.status == RCS_STATUS::DONE) {
+	    emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 	    emcTaskEager = 1;
 	}
 	break;
 
-    case EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO:
+    case EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO:
 	STEPPING_CHECK();
-	if (emcStatus->motion.status == RCS_ERROR) {
+	if (emcStatus->motion.status == RCS_STATUS::ERROR) {
 	    // emcOperatorError(0, "error in motion controller");
-	    emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
-	} else if (emcStatus->io.status == RCS_ERROR) {
+	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
+	} else if (emcStatus->io.status == RCS_STATUS::ERROR) {
 	    // emcOperatorError(0, "error in IO controller");
-	    emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
-	} else if (emcStatus->motion.status == RCS_DONE &&
-		   emcStatus->io.status == RCS_DONE) {
-	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
+	} else if (emcStatus->motion.status == RCS_STATUS::DONE &&
+		   emcStatus->io.status == RCS_STATUS::DONE) {
+	    emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 	    emcTaskEager = 1;
 	}
 	break;
 
-    case EMC_TASK_EXEC_WAITING_FOR_SPINDLE_ORIENTED:
+    case EMC_TASK_EXEC::WAITING_FOR_SPINDLE_ORIENTED:
 	STEPPING_CHECK(); // not sure
 	{int state = 0;
 		for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
@@ -2703,7 +2698,7 @@ static int emcTaskExecute(void)
 	switch (state) {
 		case EMCMOT_ORIENT_NONE:
 		case EMCMOT_ORIENT_COMPLETE:
-			emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+			emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 			emcStatus->task.delayLeft = 0;
 			emcTaskEager = 1;
 			rcs_print("wait for orient complete: nothing to do\n");
@@ -2712,7 +2707,7 @@ static int emcTaskExecute(void)
 		case EMCMOT_ORIENT_IN_PROGRESS:
 			emcStatus->task.delayLeft = taskExecDelayTimeout - etime();
 			if (etime() >= taskExecDelayTimeout) {
-			emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
+			emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 			emcStatus->task.delayLeft = 0;
 			emcTaskEager = 1;
 			emcOperatorError(0, "wait for orient complete: TIMED OUT");
@@ -2721,7 +2716,7 @@ static int emcTaskExecute(void)
 
 		case EMCMOT_ORIENT_FAULTED:
 			// actually the code in main() should trap this before we get here
-			emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
+			emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 			emcStatus->task.delayLeft = 0;
 			emcTaskEager = 1;
 			for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
@@ -2733,12 +2728,12 @@ static int emcTaskExecute(void)
 	}
 	break;
 
-    case EMC_TASK_EXEC_WAITING_FOR_DELAY:
+    case EMC_TASK_EXEC::WAITING_FOR_DELAY:
 	STEPPING_CHECK();
 	// check if delay has passed
 	emcStatus->task.delayLeft = taskExecDelayTimeout - etime();
 	if (etime() >= taskExecDelayTimeout) {
-	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+	    emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 	    emcStatus->task.delayLeft = 0;
 	    if (emcStatus->task.input_timeout != 0)
 		emcStatus->task.input_timeout = 1; // timeout occurred
@@ -2752,7 +2747,7 @@ static int emcTaskExecute(void)
 		    if (emcStatus->motion.synch_di[emcAuxInputWaitIndex] != 0) {
 			emcStatus->task.input_timeout = 0; // clear timeout flag
 			emcAuxInputWaitIndex = -1;
-			emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+			emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 			emcStatus->task.delayLeft = 0;
 		    }
 		    break;
@@ -2767,7 +2762,7 @@ static int emcTaskExecute(void)
 		    if (emcStatus->motion.synch_di[emcAuxInputWaitIndex] == 0) {
 			emcStatus->task.input_timeout = 0; // clear timeout flag
 			emcAuxInputWaitIndex = -1;
-			emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+			emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 			emcStatus->task.delayLeft = 0;
 		    }
 		    break;
@@ -2781,7 +2776,7 @@ static int emcTaskExecute(void)
 		case WAIT_MODE_IMMEDIATE:
 		    emcStatus->task.input_timeout = 0; // clear timeout flag
 		    emcAuxInputWaitIndex = -1;
-		    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+		    emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 		    emcStatus->task.delayLeft = 0;
 		    break;
 		
@@ -2791,12 +2786,12 @@ static int emcTaskExecute(void)
 	}
 	break;
 
-    case EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD:
+    case EMC_TASK_EXEC::WAITING_FOR_SYSTEM_CMD:
 	STEPPING_CHECK();
 
 	// if we got here without a system command pending, say we're done
 	if (0 == emcSystemCmdPid) {
-	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+	    emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 	    break;
 	}
 	// check the status of the system command
@@ -2814,7 +2809,7 @@ static int emcTaskExecute(void)
 			  emcSystemCmdPid);
 	    }
 	    emcSystemCmdPid = 0;
-	    emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
+	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 	    break;
 	}
 
@@ -2826,7 +2821,7 @@ static int emcTaskExecute(void)
 		     emcSystemCmdPid, pid);
 	    }
 	    emcSystemCmdPid = 0;
-	    emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
+	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 	    break;
 	}
 	// else child has finished
@@ -2834,7 +2829,7 @@ static int emcTaskExecute(void)
 	    if (0 == WEXITSTATUS(status)) {
 		// child exited normally
 		emcSystemCmdPid = 0;
-		emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+		emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 		emcTaskEager = 1;
 	    } else {
 		// child exited with non-zero status
@@ -2844,7 +2839,7 @@ static int emcTaskExecute(void)
 			 emcSystemCmdPid, WEXITSTATUS(status));
 		}
 		emcSystemCmdPid = 0;
-		emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
+		emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 	    }
 	} else if (WIFSIGNALED(status)) {
 	    // child exited with an uncaught signal
@@ -2853,13 +2848,13 @@ static int emcTaskExecute(void)
 			  emcSystemCmdPid, WTERMSIG(status));
 	    }
 	    emcSystemCmdPid = 0;
-	    emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
+	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 	} else if (WIFSTOPPED(status)) {
 	    // child is currently being traced, so keep waiting
 	} else {
 	    // some other status, we'll call this an error
 	    emcSystemCmdPid = 0;
-	    emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
+	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 	}
 	break;
 
@@ -3375,7 +3370,7 @@ int main(int argc, char *argv[])
     emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP);
     emcJointUnhome(-2);
 
-    emcTrajSetMode(EMC_TRAJ_MODE_FREE);
+    emcTrajSetMode(EMC_TRAJ_MODE::FREE);
 
     // reflect the initial value of EMC_DEBUG in emcStatus->debug
     emcStatus->debug = emc_debug;
@@ -3439,7 +3434,7 @@ int main(int argc, char *argv[])
 	}
 
 	// toolchanger indicated fault code > 0
-	if ((emcStatus->io.status == RCS_ERROR) &&
+	if ((emcStatus->io.status == RCS_STATUS::ERROR) &&
 	    emcStatus->io.fault) {
 	    static int reported = -1;
 	    if (emcStatus->io.reason > 0) {
@@ -3448,11 +3443,11 @@ int main(int argc, char *argv[])
 			      emcStatus->io.fault, emcStatus->io.reason);
 		    reported = emcStatus->io.fault;
 		}
-		emcStatus->io.status = RCS_DONE; // let program continue
+		emcStatus->io.status = RCS_STATUS::DONE; // let program continue
 	    } else {
 		rcs_print("M6: toolchanger hard fault, reason=%d\n",
 			  emcStatus->io.reason);
-		// abort since io.status is RCS_ERROR
+		// abort since io.status is RCS_STATUS::ERROR
 	    }
 
 	}
@@ -3460,7 +3455,7 @@ int main(int argc, char *argv[])
         if (!emcStatus->motion.on_soft_limit) {gave_soft_limit_message = 0;}
 
 	// check for subordinate errors, and halt task if so
-        if (   emcStatus->motion.status == RCS_ERROR
+        if (   emcStatus->motion.status == RCS_STATUS::ERROR
             && emcStatus->motion.on_soft_limit) { 
            if (!gave_soft_limit_message) {
                 emcOperatorError(0, "On Soft Limit");
@@ -3471,26 +3466,26 @@ int main(int argc, char *argv[])
                 }
                 gave_soft_limit_message = 1;
            }
-        } else if (emcStatus->motion.status == RCS_ERROR ||
-	    ((emcStatus->io.status == RCS_ERROR) &&
+        } else if (emcStatus->motion.status == RCS_STATUS::ERROR ||
+	    ((emcStatus->io.status == RCS_STATUS::ERROR) &&
 	     (emcStatus->io.reason <= 0))) {
 	    /*! \todo FIXME-- duplicate code for abort,
 	      also in emcTaskExecute()
 	      and in emcTaskIssueCommand() */
 
-	    if (emcStatus->io.status == RCS_ERROR) {
+	    if (emcStatus->io.status == RCS_STATUS::ERROR) {
 		// this is an aborted M6.
 		if (emc_debug & EMC_DEBUG_RCS ) {
-		    rcs_print("io.status=RCS_ERROR, fault=%d reason=%d\n",
+		    rcs_print("io.status=RCS_STATUS::ERROR, fault=%d reason=%d\n",
 			      emcStatus->io.fault, emcStatus->io.reason);
 		}
 		if (emcStatus->io.reason < 0) {
 		    emcOperatorError(0, io_error, emcStatus->io.reason);
 		}
 	    }
-	    // motion already should have reported this condition (and set RCS_ERROR?)
+	    // motion already should have reported this condition (and set RCS_STATUS::ERROR?)
 	    // an M19 orient failed to complete within timeout
-	    // if ((emcStatus->motion.status == RCS_ERROR) && 
+	    // if ((emcStatus->motion.status == RCS_STATUS::ERROR) && 
 	    // 	(emcStatus->motion.spindle.orient_state == EMCMOT_ORIENT_FAULTED) &&
 	    // 	(emcStatus->motion.spindle.orient_fault != 0)) {
 	    // 	emcOperatorError(0, "wait for orient complete timed out");
@@ -3521,8 +3516,8 @@ int main(int argc, char *argv[])
 	    emcAbortCleanup(EMC_ABORT_MOTION_OR_IO_RCS_ERROR);
 
 	    // clear out the interpreter state
-	    emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
-	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+	    emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;
+	    emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 	    stepping = 0;
 	    steppingWait = 0;
 
@@ -3545,24 +3540,24 @@ int main(int argc, char *argv[])
 	emcStatus->echo_serial_number = emcCommand->serial_number;
 
 	if (taskPlanError || taskExecuteError ||
-	    emcStatus->task.execState == EMC_TASK_EXEC_ERROR ||
-	    emcStatus->motion.status == RCS_ERROR ||
-	    emcStatus->io.status == RCS_ERROR) {
-	    emcStatus->status = RCS_ERROR;
-	    emcStatus->task.status = RCS_ERROR;
+	    emcStatus->task.execState == EMC_TASK_EXEC::ERROR ||
+	    emcStatus->motion.status == RCS_STATUS::ERROR ||
+	    emcStatus->io.status == RCS_STATUS::ERROR) {
+	    emcStatus->status = RCS_STATUS::ERROR;
+	    emcStatus->task.status = RCS_STATUS::ERROR;
 	} else if (!taskPlanError && !taskExecuteError &&
-		   emcStatus->task.execState == EMC_TASK_EXEC_DONE &&
-		   emcStatus->motion.status == RCS_DONE &&
-		   emcStatus->io.status == RCS_DONE &&
+		   emcStatus->task.execState == EMC_TASK_EXEC::DONE &&
+		   emcStatus->motion.status == RCS_STATUS::DONE &&
+		   emcStatus->io.status == RCS_STATUS::DONE &&
 		   mdi_execute_queue.len() == 0 &&
 		   interp_list.len() == 0 &&
 		   emcTaskCommand == 0 &&
-		   emcStatus->task.interpState == EMC_TASK_INTERP_IDLE) {
-	    emcStatus->status = RCS_DONE;
-	    emcStatus->task.status = RCS_DONE;
+		   emcStatus->task.interpState == EMC_TASK_INTERP::IDLE) {
+	    emcStatus->status = RCS_STATUS::DONE;
+	    emcStatus->task.status = RCS_STATUS::DONE;
 	} else {
-	    emcStatus->status = RCS_EXEC;
-	    emcStatus->task.status = RCS_EXEC;
+	    emcStatus->status = RCS_STATUS::EXEC;
+	    emcStatus->task.status = RCS_STATUS::EXEC;
 	}
 
 	// write it

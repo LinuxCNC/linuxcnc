@@ -70,6 +70,7 @@ class HandlerClass:
         KEYBIND.add_call('Key_Less','on_keycall_angular_jograte',0)
 
         # some global variables
+        self._spindle_wait = False
         self.probe = None
         self.default_setup = os.path.join(PATH.CONFIGPATH, "default_setup.html")
         self.docs = os.path.join(PATH.SCREENDIR, PATH.BASEPATH,'docs/getting_started.html')
@@ -85,11 +86,12 @@ class HandlerClass:
         self.reload_tool = 0
         self.last_loaded_program = ""
         self.first_turnon = True
+        self._maintab_cycle = 1
         self.lineedit_list = ["work_height", "touch_height", "sensor_height", "laser_x", "laser_y",
                               "sensor_x", "sensor_y", "camera_x", "camera_y",
                               "search_vel", "probe_vel", "max_probe", "eoffset_count"]
         self.onoff_list = ["frame_program", "frame_tool", "frame_dro", "frame_override", "frame_status"]
-        self.auto_list = ["chk_eoffsets", "cmb_gcode_history"]
+        self.auto_list = ["chk_eoffsets", "cmb_gcode_history","lineEdit_eoffset_count"]
         self.axis_a_list = ["label_axis_a", "dro_axis_a", "action_zero_a", "axistoolbutton_a",
                             "dro_button_stack_a", "widget_jog_angular", "widget_increments_angular",
                             "a_plus_jogbutton", "a_minus_jogbutton"]
@@ -117,7 +119,7 @@ class HandlerClass:
         STATUS.connect('file-loaded', self.file_loaded)
         STATUS.connect('all-homed', self.all_homed)
         STATUS.connect('not-all-homed', self.not_all_homed)
-        STATUS.connect('periodic', lambda w: self.update_runtimer())
+        STATUS.connect('periodic', lambda w: self.periodic_update())
         STATUS.connect('command-stopped', lambda w: self.stop_timer())
         STATUS.connect('progress', lambda w,p,t: self.updateProgress(p,t))
         STATUS.connect('override-limits-changed', lambda w, state, data: self._check_override_limits(state, data))
@@ -170,6 +172,7 @@ class HandlerClass:
     # set validators for lineEdit widgets
         for val in self.lineedit_list:
             self.w['lineEdit_' + val].setValidator(self.valid)
+        self.w.lineEdit_eoffset_count.setValidator(QtGui.QIntValidator(0,100))
     # check for default setup html file
         try:
             # web view widget for SETUP page
@@ -260,7 +263,9 @@ class HandlerClass:
         # external offset control pins
         QHAL.newpin("eoffset-enable", QHAL.HAL_BIT, QHAL.HAL_OUT)
         QHAL.newpin("eoffset-clear", QHAL.HAL_BIT, QHAL.HAL_OUT)
-        QHAL.newpin("eoffset-count", QHAL.HAL_S32, QHAL.HAL_OUT)
+        self.h['eoffset-clear'] = True
+        QHAL.newpin("eoffset-spindle-count", QHAL.HAL_S32, QHAL.HAL_OUT)
+        # total external offset
         pin = QHAL.newpin("eoffset-value", QHAL.HAL_FLOAT, QHAL.HAL_IN)
 
     def init_preferences(self):
@@ -355,6 +360,8 @@ class HandlerClass:
             self.w.lbl_laser_offset.setText('INCH')
             self.w.lbl_camera_offset.setText('INCH')
             self.w.lbl_touchheight_units.setText('INCH')
+            self.w.lbl_retract_dist_units.setText('INCH')
+            self.w.lbl_z_safe_travel_units.setText('INCH')
 
         #set up gcode list
         self.gcodes.setup_list()
@@ -492,7 +499,9 @@ class HandlerClass:
         elif sensor_code and name == 'MESSAGE' and rtn is True:
             self.touchoff('sensor')
         elif wait_code and name == 'MESSAGE':
-            self.h['eoffset-clear'] = False
+            self.h['eoffset-spindle-count'] = 0
+            self.h['eoffset-clear'] = True
+            self.add_status('Spindle lowered')
         elif unhome_code and name == 'MESSAGE' and rtn is True:
             ACTION.SET_MACHINE_UNHOMED(-1)
         elif overwrite and name == 'MESSAGE':
@@ -604,6 +613,8 @@ class HandlerClass:
         elif index == self.w.stackedWidget_mainTab.currentIndex():
             self.w.stackedWidget_dro.setCurrentIndex(0)
 
+            if index == TAB_MAIN and STATUS.is_auto_mode():
+                self._maintab_cycle +=1
         if index is None: return
 
         # adjust the stack widgets depending on modes
@@ -676,18 +687,25 @@ class HandlerClass:
         self.w.action_step.setEnabled(not state)
         if state:
         # set external offsets to lift spindle
+            self.h['eoffset-clear'] = False
             self.h['eoffset-enable'] = self.w.chk_eoffsets.isChecked()
-            fval = float(self.w.lineEdit_eoffset_count.text())
-            self.h['eoffset-count'] = int(fval)
+            fval = int(self.w.lineEdit_eoffset_count.text())
+            self.h['eoffset-spindle-count'] = int(fval)
             self.h['spindle-inhibit'] = True
+            self.add_status("Spindle stopped and raised {}".format(fval))
         else:
-            self.h['eoffset-count'] = 0
-            self.h['eoffset-clear'] = True
             self.h['spindle-inhibit'] = False
-        # instantiate warning box
-            info = "Wait for spindle at speed signal before resuming"
-            mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_resume_', 'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
-            ACTION.CALL_DIALOG(mess)
+            self.add_status('Spindle re-started')
+            # If spindle at speed is connected use it lower spindle
+            if self.h.hal.pin_has_writer('spindle.0.at-speed'):
+                self._spindle_wait=True
+                return
+            else:
+            # or wait for dialog to close before lowering spindle
+            # instantiate warning box
+                info = "Wait for spindle at speed signal before resuming"
+                mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_resume_', 'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
+                ACTION.CALL_DIALOG(mess)
         
     # override frame
     def slow_button_clicked(self, state):
@@ -816,7 +834,8 @@ class HandlerClass:
             return
         # instantiate dialog box
         sensor = self.w.sender().property('sensor')
-        info = "Ensure tooltip is within {} mm of tool sensor and click OK".format(self.w.lineEdit_max_probe.text())
+        unit = "mm" if INFO.MACHINE_IS_METRIC else "in"
+        info = "Ensure tooltip is within {} {} of tool sensor and click OK".format(self.w.lineEdit_max_probe.text(),unit)
         mess = {'NAME':'MESSAGE', 'ID':sensor, 'MESSAGE':'TOOL TOUCHOFF', 'MORE':info, 'TYPE':'OKCANCEL'}
         ACTION.CALL_DIALOG(mess)
         
@@ -898,6 +917,27 @@ class HandlerClass:
         self.w.gcode_viewer.editor.zoomIn()
     def btn_zoomout_clicked(self):
         self.w.gcode_viewer.editor.zoomOut()
+
+    def btn_spindle_z_up_clicked(self):
+        fval = int(self.w.lineEdit_eoffset_count.text())
+        if INFO.MACHINE_IS_METRIC:
+            fval += 5
+        else:
+            fval += 1
+        self.w.lineEdit_eoffset_count.setText(str(fval))
+        if self.h['eoffset-clear'] != True:
+            self.h['eoffset-spindle-count'] = int(fval)
+    def btn_spindle_z_down_clicked(self):
+        fval = int(self.w.lineEdit_eoffset_count.text())
+        if INFO.MACHINE_IS_METRIC:
+            fval -= 5
+        else:
+            fval -= 1
+        if fval <0: fval = 0
+        self.w.lineEdit_eoffset_count.setText(str(fval))
+        if self.h['eoffset-clear'] != True:
+            self.h['eoffset-spindle-count'] = int(fval)
+
 
     #####################
     # GENERAL FUNCTIONS #
@@ -1000,7 +1040,7 @@ class HandlerClass:
         retval = msg.exec_()
 
     def disable_spindle_pause(self):
-        self.h['eoffset-count'] = 0
+        self.h['eoffset-spindle-count'] = 0
         self.h['spindle-inhibit'] = False
         if self.w.btn_spindle_pause.isChecked():
             self.w.btn_spindle_pause.setChecked(False)
@@ -1013,16 +1053,23 @@ class HandlerClass:
         else:
             self.add_status("Unknown touchoff routine specified", CRITICAL)
             return
-        self.add_status("Touchoff to {} started".format(selector))
+
         max_probe = self.w.lineEdit_max_probe.text()
         search_vel = self.w.lineEdit_search_vel.text()
         probe_vel = self.w.lineEdit_probe_vel.text()
         retract = self.w.lineEdit_retract_distance.text()
         safe_z = self.w.lineEdit_z_safe_travel.text()
+        self.add_status("Touchoff to {} started with {} {} {} {} {} {}".format(selector,
+                search_vel, probe_vel, max_probe, 
+                z_offset, retract, safe_z))
         rtn = ACTION.TOUCHPLATE_TOUCHOFF(search_vel, probe_vel, max_probe, 
-                z_offset, retract, safe_z)
+                z_offset, retract, safe_z, self.touchoff_return)
         if rtn == 0:
             self.add_status("Touchoff routine is already running", CRITICAL)
+
+    def touchoff_return(self, data):
+        self.add_status("Touchplate touchoff routine returned successfully")
+        self.add_status("Touchplate returned: "+data, CRITICAL)
 
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
         ACTION.SET_MANUAL_MODE()
@@ -1055,13 +1102,15 @@ class HandlerClass:
     def enable_auto(self, state):
         for widget in self.auto_list:
             self.w[widget].setEnabled(state)
+        # need to let adjust stack function know the mode changed
+        # not auto
         if state is True:
-            if self.w.stackedWidget_mainTab.currentIndex() != TAB_SETUP:
-                self.adjust_stacked_widgets(self.w.stackedWidget_mainTab.currentIndex())
+            self.adjust_stacked_widgets(self.w.stackedWidget_mainTab.currentIndex(),mode_change = True)
+        # auto mode
         else:
-            if self.w.stackedWidget_mainTab.currentIndex() != TAB_PROBE:
-                self.w.btn_main.setChecked(True)
-                self.adjust_stacked_widgets(TAB_MAIN)
+            self.w.btn_main.setChecked(True)
+            self.adjust_stacked_widgets(TAB_MAIN,mode_change = True)
+
 
     def enable_onoff(self, state):
         if state:
@@ -1069,7 +1118,7 @@ class HandlerClass:
         else:
             self.add_status("Machine OFF")
         self.w.btn_spindle_pause.setChecked(False)
-        self.h['eoffset-count'] = 0
+        self.h['eoffset-spindle-count'] = 0
         for widget in self.onoff_list:
             self.w[widget].setEnabled(state)
 
@@ -1105,6 +1154,18 @@ class HandlerClass:
             self.w.lbl_spindle_set.style().unpolish(self.w.lbl_spindle_set)
             self.w.lbl_spindle_set.style().polish(self.w.lbl_spindle_set)
 
+    def periodic_update(self):
+        # if waiting and up to speed, lower spindle
+        if self._spindle_wait:
+            if bool(self.h.hal.get_value('spindle.0.at-speed')):
+                self.h['eoffset-spindle-count'] = 0
+                self.h['eoffset-clear'] = True
+                self.add_status('Spindle lowered')
+                self.h['eoffset-clear'] = False
+                self._spindle_wait = False
+
+        self.update_runtimer()
+
     def update_runtimer(self):
         if not self.timer_on or STATUS.is_auto_paused():
             return
@@ -1117,6 +1178,7 @@ class HandlerClass:
         hours, remainder = divmod(int(self.run_time), 3600)
         minutes, seconds = divmod(remainder, 60)
         self.w.lbl_runtime.setText("{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds))
+
 
     def start_timer(self):
         self.run_time = 0
@@ -1142,12 +1204,17 @@ class HandlerClass:
 
     def endcolor(self):
         self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(self.set_style_default)
+        self.timer.timeout.connect(self.clear_status_bar)
         self.timer.start(self.statusbar_reset_time)
+
+    def clear_status_bar(self):
+        self.set_style_default()
+        self.w.lineEdit_statusbar.setText('')
 
     # change Status bar text color
     def set_style_default(self):
         self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(252, 252, 252);color: rgb(0,0,0)")  #default white
+
     def set_style_warning(self):
         self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(242, 246, 103);color: rgb(0,0,0)")  #yellow
         self.endcolor()
@@ -1155,41 +1222,44 @@ class HandlerClass:
         self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(255, 144, 0);color: rgb(0,0,0)")   #orange
         self.endcolor()
 
-    def adjust_stacked_widgets(self,requestedIndex):
+    def adjust_stacked_widgets(self,requestedIndex,mode_change=False):
         IGNORE = -1
         SHOW_DRO = 0
-        premode = ['','','Auto','MDI'][STATUS.get_previous_mode()]
         mode = ['','','Auto','MDI'][STATUS.get_current_mode()]
+        if mode_change:
+            premode = ['','','Auto','MDI'][STATUS.get_previous_mode()]
+        else:
+            premode=mode
         currentIndex = self.w.stackedWidget_mainTab.currentIndex()
         indexList = ['main','file','offsets','tool','status','probe','cam',
                     'gcode','setup','settings','util','user']
 
         if mode == 'Auto':
-            seq = {TAB_MAIN: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_FILE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_OFFSETS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_TOOL: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_STATUS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_PROBE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
-                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
-                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
-                    TAB_SETTINGS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_UTILITIES: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE) }
+            seq = {TAB_MAIN: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_FILE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_OFFSETS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_TOOL: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_STATUS: (requestedIndex,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_PROBE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,False),
+                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,False),
+                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,False),
+                    TAB_SETTINGS: (requestedIndex,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_UTILITIES: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE,False) }
         else:
-            seq = {TAB_MAIN: (requestedIndex,PAGE_GCODE,True,SHOW_DRO),
-                    TAB_FILE: (requestedIndex,PAGE_FILE,True,IGNORE),
-                    TAB_OFFSETS: (requestedIndex,PAGE_OFFSET,True,IGNORE),
-                    TAB_TOOL: (requestedIndex,PAGE_TOOL,True,IGNORE),
-                    TAB_STATUS: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO),
-                    TAB_PROBE: (requestedIndex,PAGE_GCODE,True,SHOW_DRO),
-                    TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,True,IGNORE),
-                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
-                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,IGNORE),
-                    TAB_SETTINGS: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
-                    TAB_UTILITIES: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO),
-                    TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE) }
+            seq = {TAB_MAIN: (requestedIndex,PAGE_GCODE,True,SHOW_DRO,True),
+                    TAB_FILE: (requestedIndex,PAGE_FILE,True,IGNORE,True),
+                    TAB_OFFSETS: (requestedIndex,PAGE_OFFSET,True,IGNORE,True),
+                    TAB_TOOL: (requestedIndex,PAGE_TOOL,True,IGNORE,True),
+                    TAB_STATUS: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO,True),
+                    TAB_PROBE: (requestedIndex,PAGE_GCODE,True,SHOW_DRO,True),
+                    TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,True,IGNORE,True),
+                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,True),
+                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,IGNORE,True),
+                    TAB_SETTINGS: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,True),
+                    TAB_UTILITIES: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO,True),
+                    TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE,True) }
 
         rtn =  seq.get(requestedIndex)
 
@@ -1199,8 +1269,9 @@ class HandlerClass:
             stacked_index = 0
             show_JogControls = True
             show_dro = 0
+            show_macro = True
         else:
-            main_index,stacked_index,show_JogControls,show_dro = rtn
+            main_index,stacked_index,show_JogControls,show_dro,show_macro = rtn
 
         # user tab button covers multiple tabs so adjust name
         # for extra user tabs
@@ -1226,6 +1297,12 @@ class HandlerClass:
         # show DRO rather then keyboard.
         if show_dro > IGNORE:
             self.w.stackedWidget_dro.setCurrentIndex(0)
+
+        # macros can only be run in manual or mdi mode
+        if show_macro:
+            self.w.frame_macro_buttons.show()
+        else:
+            self.w.frame_macro_buttons.hide()
 
         # show ngcgui info tab if utilities tab is selected
         # but only if the utilities tab has ngcgui selected
@@ -1272,6 +1349,28 @@ class HandlerClass:
             tabId = 'user{}'.format(cur - len(indexList))
         else:
             tabId = indexList[cur]
+
+        # if in auto mode and the main tab button is pressed
+        # cycle between full gcode, split and pull graphics
+        if main_index == TAB_MAIN and mode =='Auto':
+            if self._maintab_cycle >3: self._maintab_cycle = 1
+            if self._maintab_cycle == 2:
+                self.w.frame_top_left.hide()
+                self.w.frm_backplot.show()
+                return
+            elif self._maintab_cycle == 3:
+                self.w.frame_top_left.show()
+                self.w.frm_backplot.hide()
+                return
+            else:
+                self.w.frame_top_left.show()
+                self.w.frm_backplot.show()
+        else:
+            self.w.frame_top_left.show()
+            self.w.frm_backplot.show()
+
+        # adjust window splitter size as per saved adjustments
+
         name = 'splitterSettings-{}{}'.format(tabId,mode)
         #print ('NOW:',name)
         # restore new qsplitter setting

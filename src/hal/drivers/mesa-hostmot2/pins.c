@@ -265,6 +265,12 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
         }
         break;
 
+        case HM2_GTAG_PERIODM:
+            switch (sec_pin) {
+                case 0x1: return "input";
+        }
+        break;
+
         case HM2_GTAG_BSPI:
             switch (sec_pin) {
                 case 0x1: return "/Frame";
@@ -597,6 +603,12 @@ const char* hm2_get_pin_secondary_hal_name(const hm2_pin_t *pin) {
                 case 0x2: return "trigger2";
                 case 0x3: return "out1";
                 case 0x4: return "out2";
+        }
+        break;
+
+        case HM2_GTAG_PERIODM:
+            switch (sec_pin) {
+                case 0x1: return "input";
         }
         break;
 
@@ -1010,6 +1022,7 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     hm2_pins_allocate_all(hm2, HM2_GTAG_SSR, hm2->ssr.num_instances, false);
     hm2_pins_allocate_all(hm2, HM2_GTAG_OUTM, hm2->outm.num_instances, false);
     hm2_pins_allocate_all(hm2, HM2_GTAG_ONESHOT, hm2->oneshot.num_instances, false);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_PERIODM, hm2->periodm.num_instances, false);
 }
 
 const char *hm2_get_general_function_hal_name(int gtag) {
@@ -1025,6 +1038,7 @@ const char *hm2_get_general_function_hal_name(int gtag) {
         case HM2_GTAG_INM:      return "inm";
         case HM2_GTAG_OUTM:     return "outm";
         case HM2_GTAG_ONESHOT:  return "oneshot";
+        case HM2_GTAG_PERIODM:  return "periodm";
         case HM2_GTAG_SSR:      return "ssr";
         case HM2_GTAG_XY2MOD:   return "xy2mod";
         case HM2_GTAG_TPPWM:    return "3pwmgen";

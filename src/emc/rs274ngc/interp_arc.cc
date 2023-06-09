@@ -31,20 +31,20 @@
 
 #define _(s) gettext(s)
 
-char Interp::arc_axis1(int plane) {
+char Interp::arc_axis1(CANON_PLANE plane) {
     switch(plane) {
-    case CANON_PLANE_XY: return 'X';
-    case CANON_PLANE_XZ: return 'Z';
-    case CANON_PLANE_YZ: return 'Y';
+    case CANON_PLANE::XY: return 'X';
+    case CANON_PLANE::XZ: return 'Z';
+    case CANON_PLANE::YZ: return 'Y';
     default: return '!';
     }
 }
 
-char Interp::arc_axis2(int plane) {
+char Interp::arc_axis2(CANON_PLANE plane) {
     switch(plane) {
-    case CANON_PLANE_XY: return 'Y';
-    case CANON_PLANE_XZ: return 'X';
-    case CANON_PLANE_YZ: return 'Z';
+    case CANON_PLANE::XY: return 'Y';
+    case CANON_PLANE::XZ: return 'X';
+    case CANON_PLANE::YZ: return 'Z';
     default: return '!';
     }
 }
@@ -76,8 +76,8 @@ tool radius from the arc.
 */
 
 int Interp::arc_data_comp_ijk(int move,  //!<either G_2 (cw arc) or G_3 (ccw arc)
-                              int plane, //!<active plane
-                             int side,  //!<either RIGHT or LEFT
+                             CANON_PLANE plane, //!<active plane
+                             CUTTER_COMP side,  //!<either RIGHT or LEFT
                              double tool_radius,        //!<radius of the tool
                              double current_x,  //!<first coordinate of current point
                              double current_y,  //!<second coordinate of current point
@@ -127,8 +127,8 @@ int Interp::arc_data_comp_ijk(int move,  //!<either G_2 (cw arc) or G_3 (ccw arc
        a, end_x, b, end_y, arc_radius, radius2,
        abs_err, rel_err*100);
 
-  CHKS(((arc_radius <= tool_radius) && (((side == LEFT) && (move == G_3)) ||
-                                       ((side == RIGHT) && (move == G_2)))),
+  CHKS(((arc_radius <= tool_radius) && (((side == CUTTER_COMP::LEFT) && (move == G_3)) ||
+                                       ((side == CUTTER_COMP::RIGHT) && (move == G_2)))),
       NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
 
   /* This catches an arc too small for the tool, also */
@@ -199,8 +199,8 @@ the pin is inside or outside the hoop.
 */
 
 int Interp::arc_data_comp_r(int move,    //!< either G_2 (cw arc) or G_3 (ccw arc)
-                            int plane,
-                           int side,    //!< either RIGHT or LEFT
+                           CANON_PLANE plane,
+                           CUTTER_COMP side,    //!< either RIGHT or LEFT
                            double tool_radius,  //!< radius of the tool
                            double current_x,    //!< first coordinate of current point
                            double current_y,    //!< second coordinate of current point
@@ -216,8 +216,8 @@ int Interp::arc_data_comp_r(int move,    //!< either G_2 (cw arc) or G_3 (ccw ar
   double abs_radius;            // absolute value of big_radius
 
   abs_radius = fabs(big_radius);
-  CHKS(((abs_radius <= tool_radius) && (((side == LEFT) && (move == G_3)) ||
-                                       ((side == RIGHT) && (move == G_2)))),
+  CHKS(((abs_radius <= tool_radius) && (((side == CUTTER_COMP::LEFT) && (move == G_3)) ||
+                                       ((side == CUTTER_COMP::RIGHT) && (move == G_2)))),
       NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
 
   return arc_data_r(move, plane, current_x, current_y, end_x, end_y, big_radius, p_number,
@@ -255,7 +255,7 @@ are handled similarly.
 */
 
 int Interp::arc_data_ijk(int move,       //!< either G_2 (cw arc) or G_3 (ccw arc)
-                         int plane,
+                        CANON_PLANE plane,
                         double current_x,       //!< first coordinate of current point
                         double current_y,       //!< second coordinate of current point
                         double end_x,   //!< first coordinate of arc end point
@@ -347,7 +347,7 @@ of the arc lies on a line through M perpendicular to L.
 */
 
 int Interp::arc_data_r(int move, //!< either G_2 (cw arc) or G_3 (ccw arc)
-                       int plane,
+                      CANON_PLANE plane,
                       double current_x, //!< first coordinate of current point
                       double current_y, //!< second coordinate of current point
                       double end_x,     //!< first coordinate of arc end point

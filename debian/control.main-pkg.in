@@ -28,6 +28,7 @@ Depends:
     bwidget (>= 1.7),
     tclreadline,
     tclx,
+    @QTVCP_DEPENDS@,
     procps, psmisc,
     udev
 Recommends:
@@ -35,8 +36,7 @@ Recommends:
     librsvg2-dev,
     @EXTRA_RECOMMENDS@,
     @PYTHON_IMAGING@,
-    @PYTHON_IMAGING_TK@,
-    @QTVCP_DEPENDS@
+    @PYTHON_IMAGING_TK@
 Suggests: mesaflash,
     onboard
 Description: motion controller for CNC machines and robots

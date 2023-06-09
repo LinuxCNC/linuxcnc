@@ -78,6 +78,10 @@ StatusLabel, StateLabel {
     color: black;
 }
 
+StatusLabel#status_rpm, Label {
+    font: 20pt "Lato Heavy";
+}
+
 QLineEdit {
     background: rgb(250, 250, 250);
     border: 1px solid;

@@ -92,7 +92,7 @@ void hm2_oneshot_update_control(hostmot2_t *hm2, int i) {
     controlbuff |= (*hm2->oneshot.instance[i].hal.pin.enable1 << 6);
     controlbuff |= (*hm2->oneshot.instance[i].hal.pin.reset1 << 7);
     controlbuff |= (*hm2->oneshot.instance[i].hal.pin.swtrig1 << 10);
-    controlbuff |= ((*hm2->oneshot.instance[i].hal.pin.dpll_timer_num && 7) << 12);
+    controlbuff |= ((*hm2->oneshot.instance[i].hal.pin.dpll_timer_num & 7) << 12);
     controlbuff |= (*hm2->oneshot.instance[i].hal.pin.trigselect2 << 16);
     controlbuff |= (*hm2->oneshot.instance[i].hal.pin.trigrise2 << 19);
     controlbuff |= (*hm2->oneshot.instance[i].hal.pin.trigfall2 << 20);

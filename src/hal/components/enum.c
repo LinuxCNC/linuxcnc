@@ -15,8 +15,7 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-/* A configurable component to use Mesa PktUART for modbus control */
-
+// Convert bit pins to enumerated ints and vice-versa
 
 #include "rtapi.h"
 #include "rtapi_slab.h"
@@ -179,15 +178,16 @@ int rtapi_app_main(void){
     return 0;
 
     fail0:
-    free(e.insts);
+    rtapi_kfree(e.insts);
     hal_exit(comp_id);
     return -1;
 
 }
 
-static void decode(void *v_inst, long period){;
+static void decode(void *v_inst, long period){
+    int i;
     enum_inst_t *inst = v_inst;
-    for (int i = 1; i <= inst->num_pins; i++){
+    for (i = 1; i <= inst->num_pins; i++){
         if (*(inst->hal[0].en) == *(inst->hal[i].en)){
            *(inst->hal[i].bit) = 1;
         } else {
@@ -195,10 +195,11 @@ static void decode(void *v_inst, long period){;
         }
     }
 }
-static void encode(void *v_inst, long period){;
+static void encode(void *v_inst, long period){
+    int i;
     enum_inst_t *inst = v_inst;
     *(inst->hal[0].en) = 0;
-    for (int i = 1; i <= inst->num_pins; i++){
+    for (i = 1; i <= inst->num_pins; i++){
         if (*(inst->hal[i].bit)){
             *(inst->hal[0].en) = *(inst->hal[i].en);
         }

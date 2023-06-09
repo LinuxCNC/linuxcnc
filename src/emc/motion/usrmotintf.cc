@@ -75,15 +75,13 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
 {
     emcmot_status_t s;
     static int commandNum = 0;
-    static unsigned char headCount = 0;
     double end;
 
     if (!MOTION_ID_VALID(c->id)) {
         rcs_print("USRMOT: ERROR: invalid motion id: %d\n",c->id);
 	return EMCMOT_COMM_INVALID_MOTION_ID;
     }
-    c->head = ++headCount;
-    c->tail = c->head;
+
     c->commandNum = ++commandNum;
 
     /* check for mapped mem still around */
@@ -91,8 +89,12 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
         rcs_print("USRMOT: ERROR: can't connect to shared memory\n");
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
+
     /* copy entire command structure to shared memory */
+    rtapi_mutex_get(&emcmotStruct->command_mutex);
     *emcmotCommand = *c;
+    rtapi_mutex_give(&emcmotStruct->command_mutex);
+
     /* poll for receipt of command */
     /* set timeout for comm failure, now + timeout */
     end = etime() + EMCMOT_COMM_TIMEOUT;

@@ -602,7 +602,7 @@ class EMC_TRAJ_SET_MODE:public EMC_TRAJ_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    enum EMC_TRAJ_MODE_ENUM mode;
+    EMC_TRAJ_MODE mode;
 };
 
 class EMC_TRAJ_SET_VELOCITY:public EMC_TRAJ_CMD_MSG {
@@ -1034,8 +1034,8 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     int joints;			// maximum joint number
     int spindles;			// maximum spindle number
     int axis_mask;		// mask of axes actually present
-    enum EMC_TRAJ_MODE_ENUM mode;	// EMC_TRAJ_MODE_FREE,
-    // EMC_TRAJ_MODE_COORD
+    EMC_TRAJ_MODE mode;	// EMC_TRAJ_MODE::FREE,
+    // EMC_TRAJ_MODE::COORD
     bool enabled;		// non-zero means enabled
 
     bool inpos;			// non-zero means in position
@@ -1282,7 +1282,7 @@ class EMC_TASK_SET_MODE:public EMC_TASK_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    enum EMC_TASK_MODE_ENUM mode;
+    EMC_TASK_MODE mode;
 };
 
 class EMC_TASK_SET_STATE:public EMC_TASK_CMD_MSG {
@@ -1294,7 +1294,7 @@ class EMC_TASK_SET_STATE:public EMC_TASK_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    enum EMC_TASK_STATE_ENUM state;
+    EMC_TASK_STATE state;
 };
 
 class EMC_TASK_PLAN_OPEN:public EMC_TASK_CMD_MSG {
@@ -1488,11 +1488,11 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    enum EMC_TASK_MODE_ENUM mode;	// EMC_TASK_MODE_MANUAL, etc.
-    enum EMC_TASK_STATE_ENUM state;	// EMC_TASK_STATE_ESTOP, etc.
+    EMC_TASK_MODE mode;	// EMC_TASK_MODE::MANUAL, etc.
+    EMC_TASK_STATE state;	// EMC_TASK_STATE::ESTOP, etc.
 
-    enum EMC_TASK_EXEC_ENUM execState;	// EMC_DONE,WAITING_FOR_MOTION, etc.
-    enum EMC_TASK_INTERP_ENUM interpState;	// EMC_IDLE,READING,PAUSED,WAITING
+    EMC_TASK_EXEC execState;	// EMC_DONE,WAITING_FOR_MOTION, etc.
+    EMC_TASK_INTERP interpState;	// EMC_IDLE,READING,PAUSED,WAITING
     int callLevel;              // current subroutine level - 0 if not in a subroutine, > 0 otherwise
     int motionLine;		// line motion is executing-- may lag
     int currentLine;		// line currently executing

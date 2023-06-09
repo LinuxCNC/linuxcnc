@@ -1,4 +1,4 @@
-VERSION = '1.235.273'
+VERSION = '1.235.274'
 
 '''
 qtplasmac_handler.py
@@ -33,6 +33,7 @@ import time
 import tarfile
 import math
 import glob
+import webbrowser
 import linuxcnc
 import hal
 from OpenGL.GL import glTranslatef
@@ -150,6 +151,14 @@ class HandlerClass:
         if os.path.basename(self.PATHS.XML) == 'qtplasmac_9x16.ui':
             self.landscape = False
         self.upFile = os.path.join(self.PATHS.CONFIGPATH, 'user_periodic.py')
+        major = linuxcnc.version.split('.')[0]
+        minor = linuxcnc.version.split('.')[1]
+        # this will need changing whenever the development branch changes versions
+        if major == '2' and minor == '10':
+            umVer = 'devel'
+        else:
+            umVer = '{}.{}'.format(major, minor)
+        self.umUrl = QUrl('http://linuxcnc.org/docs/{}/html/plasma/qtplasmac.html'.format(umVer))
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_F9','on_keycall_F9')
         KEYBIND.add_call('Key_Plus', 'on_keycall_PLUS')
@@ -260,7 +269,7 @@ class HandlerClass:
         self.rflActive = False
         self.ccButton, self.otButton, self.ptButton, self.tpButton = '', '', '', ''
         self.ctButton, self.scButton, self.frButton, self.mcButton = '', '', '', ''
-        self.ovButton, self.llButton, self.tlButton = '', '', ''
+        self.ovButton, self.llButton, self.tlButton, self.umButton = '', '', '', ''
         self.halTogglePins = {}
         self.halPulsePins = {}
         self.torchOn = False
@@ -908,6 +917,7 @@ class HandlerClass:
         self.w.jogincrements.setItemText(0, text)
         self.w.main_tab_widget.setCurrentIndex(0)
         self.w.preview_stack.setCurrentIndex(0)
+        self.previewIndex = 0
         self.w.gcode_stack.setCurrentIndex(0)
         self.w.jog_stack.setCurrentIndex(0)
         self.w.chk_override_limits.setChecked(False)
@@ -963,13 +973,13 @@ class HandlerClass:
         self.w.conv_material.view().setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.w.materials_box.view().setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.w.materials_box.view().setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.w.gcode_display.set_margin_width(3)
+        self.w.gcode_display.set_margin_metric(3)
         self.w.gcode_display.setBraceMatching(False)
         self.w.gcode_display.setCaretWidth(0)
         self.w.gcode_display.setCornerWidget(QLabel())
         self.w.gcode_editor.topBox.setContentsMargins(4,4,4,4)
         self.w.gcode_editor.bottomBox.setContentsMargins(4,4,4,4)
-        self.w.gcode_editor.set_margin_width(3)
+        self.w.gcode_editor.set_margin_metric(3)
         self.w.gcode_editor.editor.setBraceMatching(False)
         self.w.gcode_editor.editor.setCaretWidth(4)
         self.w.gcode_editor.editor.setCornerWidget(QLabel())
@@ -1541,8 +1551,8 @@ class HandlerClass:
                 self.w.gcode_editor.editor.new_text()
                 self.w.gcode_editor.editor.setModified(False)
                 self.w.gcode_display.new_text()
-                self.w.gcode_display.set_margin_width(3)
-                self.w.gcode_editor.set_margin_width(3)
+                self.w.gcode_display.set_margin_metric(3)
+                self.w.gcode_editor.set_margin_metric(3)
         ACTION.SET_MANUAL_MODE()
         if not len(self.w.gcode_display.text()):
             self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -2029,10 +2039,12 @@ class HandlerClass:
 
     def gcode_display_loaded(self):
         gcodeLines = len(str(self.w.gcode_display.lines()))
-        self.w.gcode_display.set_margin_width(gcodeLines)
-        self.w.gcode_editor.set_margin_width(gcodeLines)
+        self.w.gcode_display.set_margin_metric(gcodeLines)
+        self.w.gcode_editor.set_margin_metric(gcodeLines)
 
     def file_clear_clicked(self):
+        if self.w.preview_stack.currentIndex() == 5:
+            self.user_manual_clear(0)
         if self.fileOpened:
             self.fileClear = True
             if self.rflActive:
@@ -2060,7 +2072,10 @@ class HandlerClass:
             self.view_t_pressed()
 
     def file_open_clicked(self):
-        self.w.preview_stack.setCurrentIndex(1)
+        if self.w.preview_stack.currentIndex() == 5:
+            self.user_manual_clear(1)
+        else:
+            self.w.preview_stack.setCurrentIndex(1)
         self.vkb_hide()
         self.w.filemanager.table.setFocus()
 
@@ -2188,6 +2203,8 @@ class HandlerClass:
             self.set_jog_button_state()
 
     def file_reload_clicked(self):
+        if self.w.preview_stack.currentIndex() == 5:
+            self.user_manual_clear(0)
         if self.rflActive:
             self.clear_rfl()
             self.set_run_button_state()
@@ -2257,7 +2274,7 @@ class HandlerClass:
                               'mdi_show', 'height_lower', 'height_raise', 'wcs_button', 'set_offsets']
         self.ccButton, self.otButton, self.ptButton, self.tpButton = '', '', '', ''
         self.ctButton, self.scButton, self.frButton, self.mcButton = '', '', '', ''
-        self.ovButton, self.llButton, self.tlButton = '', '', ''
+        self.ovButton, self.llButton, self.tlButton, self.umButton = '', '', '', ''
         self.halTogglePins = {}
         self.halPulsePins = {}
         for n in range(1, 21):
@@ -2283,6 +2300,15 @@ class HandlerClass:
             self.w['ub_name_{}'.format(n)].clear()
             self.w['ub_code_{}'.format(n)].clear()
         self.user_button_setup()
+
+    def web_back_pressed(self):
+        self.w.webview.back()
+
+    def web_forward_pressed(self):
+        self.w.webview.forward()
+
+    def web_reload_pressed(self):
+        self.w.webview.load(self.umUrl)
 
 
 #########################################################################################################################
@@ -2809,6 +2835,9 @@ class HandlerClass:
         self.zOffsetPin.value_changed.connect(lambda v:self.z_offset_changed(v))
         self.laserRecStatePin.value_changed.connect(lambda v:self.laser_recovery_state_changed(v))
         self.ohmicLedInPin.value_changed.connect(lambda v:self.ohmic_sensed(v))
+        self.w.webview_back.pressed.connect(self.web_back_pressed)
+        self.w.webview_forward.pressed.connect(self.web_forward_pressed)
+        self.w.webview_reload.pressed.connect(self.web_reload_pressed)
 
     def conv_call(self, operation):
         if self.developmentPin.get():
@@ -3298,6 +3327,13 @@ class HandlerClass:
         except:
             pass
 
+    def user_manual_clear(self, page):
+        self.w.preview_stack.setCurrentIndex(page)
+        self.button_normal(self.umButton)
+        self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
+        if self.w.gcode_display.lines() > 1:
+            self.w.run.setEnabled(True)
+
 #########################################################################################################################
 # TIMER FUNCTIONS #
 #########################################################################################################################
@@ -3503,7 +3539,8 @@ class HandlerClass:
         self.cutType = 0
         self.single_cut_request = False
         self.oldFile = None
-        singleCodes = ['change-consumables', 'cut-type', 'framing', 'manual-cut', 'offsets-view', 'ohmic-test', 'probe-test', 'single-cut', 'torch-pulse']
+        singleCodes = ['change-consumables', 'cut-type', 'framing', 'manual-cut', 'offsets-view', \
+                       'ohmic-test', 'probe-test', 'single-cut', 'torch-pulse', 'user-manual']
         head = _translate('HandlerClass', 'User Button Error')
         for bNum in range(1,21):
             self.w['button_{}'.format(str(bNum))].setEnabled(False)
@@ -3543,7 +3580,7 @@ class HandlerClass:
             self.w['button_{}'.format(str(bNum))].setText(bLabel)
             if 'change-consumables' in bCode:
                 self.ccParm = bCode.replace('change-consumables','').replace(' ','').lower() or None
-                if self.ccParm != None and ('x' in self.ccParm or 'y' in self.ccParm) and 'f' in self.ccParm:
+                if self.ccParm != None and ('x' in self.ccParm or 'y' in self.ccParm):
                     self.ccButton = 'button_{}'.format(str(bNum))
                     self.idleHomedList.append(self.ccButton)
                     self.pausedValidList.append(self.ccButton)
@@ -3714,6 +3751,11 @@ class HandlerClass:
             elif 'latest-file' in bCode:
                 self.llButton = 'button_{}'.format(str(bNum))
                 self.idleList.append(self.llButton)
+            elif 'user-manual' in bCode:
+                pass
+                self.umButton = 'button_{}'.format(str(bNum))
+                self.idleList.append(self.umButton)
+                self.w.webview.load(self.umUrl)
             else:
                 for command in bCode.split('\\'):
                     command = command.strip()
@@ -3847,6 +3889,16 @@ class HandlerClass:
                 head = _translate('HandlerClass', 'File Error')
                 msg0 = _translate('HandlerClass', 'Cannot open latest file from user button')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n'.format(head, msg0, bNum))
+        elif 'user-manual' in commands.lower():
+            if self.w.preview_stack.currentIndex() == 5:
+                self.user_manual_clear(self.previewIndex)
+            else:
+                self.previewIndex = self.w.preview_stack.currentIndex()
+                self.w.preview_stack.setCurrentIndex(5)
+                self.button_active(self.umButton)
+                buttonList = [button for button in self.idleHomedList if button != self.ovButton]
+                self.set_buttons_state([self.idleOnList, buttonList], False)
+                self.w.run.setEnabled(False)
         else:
             self.reloadRequired = False
             for command in commands.split('\\'):
@@ -3970,7 +4022,7 @@ class HandlerClass:
                 self.w[self.otButton].setEnabled(False)
 
     def consumable_change_setup(self):
-        self.ccXpos = self.ccYpos = self.ccFeed = 'None'
+        self.ccXpos = self.ccYpos = self.ccFeed = None
         X = Y = F = ''
         ccAxis = [X, Y, F]
         ccName = ['x', 'y', 'f']
@@ -3996,6 +4048,11 @@ class HandlerClass:
                     self.ccYpos = float(ccAxis[loop])
                 elif ccName[loop] == 'f' and ccAxis[loop]:
                     self.ccFeed = float(ccAxis[loop])
+        if not self.ccFeed or self.ccFeed < 1:
+            msg0 = _translate('HandlerClass', 'Invalid feed rate for consumable change')
+            msg1 = _translate('HandlerClass', 'Defaulting to materials cut feed rate')
+            STATUS.emit('update-machine-log', '{}, {}'.format(msg0, msg1), 'TIME')
+            self.ccFeed = float(self.w.cut_feed_rate.text())
 
     def ext_change_consumables(self, state):
         if self.ccButton and self.w[self.ccButton].isEnabled():
@@ -4011,31 +4068,23 @@ class HandlerClass:
             self.w[self.ccButton].setEnabled(False)
         else:
             self.consumable_change_setup()
-            if self.ccFeed == 'None' or self.ccFeed < 1:
-                head = _translate('HandlerClass', 'User Button Error')
-                msg0 = _translate('HandlerClass', 'Feed rate for consumable change missing or less than 1')
-                msg1 = _translate('HandlerClass', 'Check arguments for "change-consumables" button code in')
-                msg2 = _translate('HandlerClass', '.prefs file')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n{}{}\n'.format(head, msg0, msg1, self.machineName, msg2))
-                return
-            else:
-                hal.set_p('plasmac.xy-feed-rate', str(float(self.ccFeed)))
             self.w.run.setEnabled(False)
             if self.frButton:
                 self.w[self.frButton].setEnabled(False)
             self.w.pause.setEnabled(False)
-            if self.ccXpos == 'None':
+            if not self.ccXpos:
                 self.ccXpos = STATUS.get_position()[0][0]
             if self.ccXpos < round(self.xMin, 6) + (10 * self.unitsPerMm):
                 self.ccXpos = round(self.xMin, 6) + (10 * self.unitsPerMm)
             elif self.ccXpos > round(self.xMax, 6) - (10 * self.unitsPerMm):
                 self.ccXpos = round(self.xMax, 6) - (10 * self.unitsPerMm)
-            if self.ccYpos == 'None':
+            if not self.ccYpos:
                 self.ccYpos = STATUS.get_position()[0][1]
             if self.ccYpos < round(self.yMin, 6) + (10 * self.unitsPerMm):
                 self.ccYpos = round(self.yMin, 6) + (10 * self.unitsPerMm)
             elif self.ccYpos > round(self.yMax, 6) - (10 * self.unitsPerMm):
                 self.ccYpos = round(self.yMax, 6) - (10 * self.unitsPerMm)
+            hal.set_p('plasmac.xy-feed-rate', str(float(self.ccFeed)))
             hal.set_p('plasmac.x-offset', '{:.0f}'.format((self.ccXpos - STATUS.get_position()[0][0]) / hal.get_value('plasmac.offset-scale')))
             hal.set_p('plasmac.y-offset', '{:.0f}'.format((self.ccYpos - STATUS.get_position()[0][1]) / hal.get_value('plasmac.offset-scale')))
             hal.set_p('plasmac.consumable-change', '1')

@@ -448,3 +448,30 @@ QTabBar::tab:selected {
 QTabBar::tab:!selected {
     margin-top: 2px; /* make non-selected tabs look smaller */
 }
+/** GCode Display **/
+EditorBase {
+    qproperty-styleColorBackground: #202020;
+    qproperty-styleColorMarginBackground: #303030;
+    qproperty-styleColorMarginText: #00aaff;
+    qproperty-styleColorMarkerBackground: #505050;
+    qproperty-styleColorSelectionBackground: #006aff;
+    qproperty-styleColorSelectionText: #ffffff;
+    qproperty-styleFont: "DejaVu Sans Mono,12,-1,5,50,0,0,0,1,0"; /* default */
+    qproperty-styleFont0: "DejaVu Sans Mono,12,-1,5,50,0,0,0,1,0";
+    qproperty-styleFont1: "DejaVu Sans Mono,12,-1,5,50,1,0,0,1,0";
+    qproperty-styleFont2: "DejaVu Sans Mono,12,-1,5,90,0,0,0,1,0";
+    qproperty-styleFont3: "DejaVu Sans Mono,12,-1,5,90,0,0,0,1,0";
+    qproperty-styleFont4: "DejaVu Sans Mono,12,-1,5,90,0,0,0,1,0";
+    qproperty-styleFont5: "DejaVu Sans Mono,12,-1,5,90,0,0,0,1,0";
+    qproperty-styleFont6: "DejaVu Sans Mono,12,-1,5,90,0,0,0,1,0";
+    qproperty-styleFont7: "DejaVu Sans Mono,12,-1,5,90,0,0,0,1,0";
+    qproperty-styleFontMargin: "DejaVu Sans Mono,8,-1,5,50,0,0,0,1,0";    
+    qproperty-styleColor0: #efefef;	/* default */
+    qproperty-styleColor1: white; 	/* LineNo & Comments */
+    qproperty-styleColor2: blue;  	/* Gcodes */     
+    qproperty-styleColor3: lightgreen;	/* Mcodes */
+    qproperty-styleColor4: yellow;	/* Axes */
+    qproperty-styleColor5: red;	/* Other (feed, spindle, radius, etc) */
+    qproperty-styleColor6: #8282aa;	/* Axes Values */
+    qproperty-styleColor7: #cd6197;	/* Other Values */
+}

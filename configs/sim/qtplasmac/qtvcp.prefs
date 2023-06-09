@@ -3,20 +3,20 @@ AboutDialog-geometry = half
 LncMessage-geometry = default
 
 [DIALOG_OPTIONS]
-EntryDialog_play_sound = True
+EntryDialog_play_sound = False
 EntryDialog_sound_type = READY
-fileDialog_play_sound = True
+fileDialog_play_sound = False
 fileDialog_sound_type = READY
-KeyboardDialog_play_sound = True
+KeyboardDialog_play_sound = False
 KeyboardDialog_sound_type = READY
-CalculatorDialog_play_sound = True
+CalculatorDialog_play_sound = False
 CalculatorDialog_sound_type = READY
-MachineLogDialog_play_sound = True
+MachineLogDialog_play_sound = False
 MachineLogDialog_sound_type = READY
 
 [BOOK_KEEPING]
-last_loaded_directory = /home/phill/git/linuxcnc-dev/configs/nc_files/plasmac
-RecentPath_0 = /home/phill/git/linuxcnc-dev/configs/nc_files/plasmac/metric_wrench.ngc
+last_loaded_directory = None
+RecentPath_0 = None
 style_QSS_Path = DEFAULT
 
 [SCREEN_OPTIONS]
@@ -27,12 +27,12 @@ desktop_notify = True
 notify_max_msgs = 10
 shutdown_check = False
 sound_player_on = False
-MainWindow-geometry = 566 133 1348 702
+MainWindow-geometry = 6 56 1348 702
 
 [MCH_MSG_OPTIONS]
-mchnMsg_play_sound = True
+mchnMsg_play_sound = False
 mchnMsg_speak_errors = False
-mchnMsg_speak_text = True
+mchnMsg_speak_text = False
 mchnMsg_sound_type = ATTENTION
 
 [USR_MSG_OPTIONS]
@@ -41,7 +41,7 @@ userMsg_sound_type = ATTENTION
 userMsg_use_focusOverlay = True
 
 [SHUTDOWN_OPTIONS]
-shutdown_play_sound = True
+shutdown_play_sound = False
 shutdown_alert_sound_type = READY
 shutdown_exit_sound_type = LOGOUT
 shutdown_msg_title = Do you want to Shutdown now?
@@ -55,7 +55,7 @@ notify_start_detail = This option can be changed in the preference file
 notify_start_timeout = 5
 
 [SCREEN_CONTROL_LAST_SETTING]
-conv_preview-user-view = p
+conv_preview-user-view = z
 conv_preview-user-zoom = 10.0
 conv_preview-user-panx = 0.0
 conv_preview-user-pany = 0.0

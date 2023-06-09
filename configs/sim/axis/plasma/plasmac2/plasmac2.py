@@ -1091,8 +1091,8 @@ def save_setup_clicked():
     putPrefs(PREF, 'GUI_OPTIONS', 'Arc OK color', colorArc, str)
     putPrefs(PREF, 'GUI_OPTIONS', 'LED color', colorLed, str)
     putPrefs(PREF, 'GUI_OPTIONS', 'Trough color', colorTrough, str)
-    for key in togglePins:
-        set_toggle_pins(togglePins[key])
+    for button in togglePins:
+        set_toggle_pins(button)
 
 
 ##############################################################################
@@ -1134,15 +1134,15 @@ def set_probe_offset_pins():
     hal.set_p('plasmac.offset-probe-y', f'{probeOffsets["Y"]}')
     hal.set_p('plasmac.offset-probe-delay', f'{probeOffsets["Delay"]}')
 
-def set_toggle_pins(pin):
-    pin['state'] = hal.get_value(pin['pin'])
-    if pin['state']:
-        rC(f'{fbuttons}.button{pin["button"]}','configure','-bg',colorActive)
+def set_toggle_pins(button):
+    togglePins[button]['state'] = hal.get_value(togglePins[button]['pin'])
+    if togglePins[button]['state']:
+        rC(f'{fbuttons}.button{button}','configure','-bg',colorActive)
     else:
-        if pin['runcritical']:
-            rC(f'{fbuttons}.button{pin["button"]}','configure','-bg',colorWarn)
+        if togglePins[button]['runcritical']:
+            rC(f'{fbuttons}.button{button}','configure','-bg',colorWarn)
         else:
-            rC(f'{fbuttons}.button{pin["button"]}','configure','-bg',colorBack)
+            rC(f'{fbuttons}.button{button}','configure','-bg',colorBack)
 
 def jog_default_changed(value):
     set_jog_slider(int(value) / (vars.max_speed.get() * 60))
@@ -1193,11 +1193,13 @@ def update_preview(clear):
     if clear:
        live_plotter.clear()
 
-def migrate_copy():
-    text, cmd = migrate_text()
-    root_window.clipboard_clear()
-    root_window.clipboard_append(cmd)
-    rE('wm withdraw .migrate')
+def user_manual():
+    web = webbrowser.open_new_tab('https://phillc54.github.io/plasmac2-docs/plasmac2.html')
+    if not web:
+        title = _('BROWSER ERROR')
+        msg0 = _('Cannot open user manual web page')
+        notifications.add('error', f'{title}:\n{msg0}')
+
 
 ##############################################################################
 # JOINTS/AXES FUNCTIONS                                                      #
@@ -1343,9 +1345,13 @@ def laser_button_toggled(state, button):
             return
         # long press timer
         elif isIdleHomed:
-            laserTimer = 0.7
+            laserTimer = 700
+            root_window.after(100, laser_long_press_timer)
     else: # button released
-        laserTimer = 0.0
+        if laserButtonState == 'reset':
+            laserButtonState = 'laser'
+            return
+        laserTimer = 0
         if not isIdleHomed:
             return
         xPos = s.position[0] - laserOffsets['X']
@@ -1354,10 +1360,7 @@ def laser_button_toggled(state, button):
             msg0 = _('Laser is outside the machine boundary')
             notifications.add('error', f'{title}:\n{msg0}')
             return
-        if laserButtonState == 'reset':
-            laserButtonState = 'laser'
-            return
-        elif laserButtonState == 'laser':
+        if laserButtonState == 'laser':
             pVars.laserText.set(_('Mark'))
             laserButtonState = 'markedge'
             comp['laser-on'] = 1
@@ -1365,6 +1368,17 @@ def laser_button_toggled(state, button):
         elif laserButtonState == 'setorigin':
             comp['laser-on'] = 0
         laserButtonState = sheet_align('laser', laserButtonState, laserOffsets['X'], laserOffsets['Y'])
+
+def laser_long_press_timer():
+    global laserTimer, laserButtonState
+    if laserTimer > 0:
+        laserTimer -= 100
+        if laserTimer <= 0:
+            comp['laser-on'] = 0
+            laserButtonState = 'reset'
+            pVars.laserText.set(_('Laser'))
+        else:
+            root_window.after(100, laser_long_press_timer)
 
 def sheet_align(mode, buttonState, offsetX, offsetY):
     global relPos, startAlignPos
@@ -1592,7 +1606,7 @@ def offsets_show(toolFile):
     text.append(_('2. Touchoff the torch to X0Y0'))
     text.append(_('3. Mark the material with a torch pulse'))
     text.append(_('4. Click the appropriate button to activate the peripheral'))
-    reply = plasmacPopUp('offsets', _('Set Peripheral Offsets'), ' \n'.join(text)).reply
+    reply = plasmacPopUp('offsets', _('SET PERIPHERAL OFFSETS'), ' \n'.join(text)).reply
     if reply == 'laser':
         comp['laser-on'] = True
         offsets_laser_clicked()
@@ -1610,20 +1624,20 @@ def offsets_show(toolFile):
     return True
 
 def offsets_laser_clicked():
-    reply = plasmacPopUp('yesno', 'Set Laser Offsets', ' \n'.join(offsets_text)).reply
+    reply = plasmacPopUp('yesno', _('SET LASER OFFSETS'), ' \n'.join(offsets_text)).reply
     if not reply:
         comp['laser-on'] = False
         return
     newOffsets = {'X':round(s.position[0] - s.g5x_offset[0] - s.g92_offset[0], 4) + 0, \
                   'Y':round(s.position[1] - s.g5x_offset[1] - s.g92_offset[1], 4) + 0}
-    if offsets_prompt(_('Change Laser Offsets'), laserOffsets, newOffsets):
+    if offsets_prompt(_('CHANGE LASER OFFSETS'), laserOffsets, newOffsets):
         laserOffsets['X'] = newOffsets['X']
         laserOffsets['Y'] = newOffsets['Y']
         putPrefs(PREF, 'LASER_OFFSET', 'X axis', laserOffsets['X'], float)
         putPrefs(PREF, 'LASER_OFFSET', 'Y axis', laserOffsets['Y'], float)
         laser_button_enable()
         comp['laser-on'] = False
-        title = _('Laser Offsets')
+        title = _('LASER OFFSETS')
         msg = _('Laser offsets have been saved')
         plasmacPopUp('info', title, msg)
     comp['laser-on'] = False
@@ -1645,33 +1659,33 @@ def offsets_scribe_clicked(toolFile):
                 elif item.startswith('Y'):
                     scribeOffsets['Y'] = float(item.replace('Y','').replace('+',''))
     except:
-        title = _('Tool File Error')
+        title = _('TOOL FILE ERROR')
         msg = _('Could not get current scribe offsets from tooltable')
         plasmacPopUp('info', title, msg)
         return
-    reply = plasmacPopUp('yesno', 'Set Scribe Offsets', ' \n'.join(offsets_text)).reply
+    reply = plasmacPopUp('yesno', _('SET SCRIBE OFFSETS'), ' \n'.join(offsets_text)).reply
     if not reply:
         comp['offset-set-scribe'] = False
         return
     newOffsets = {'X':round(s.position[0] - s.g5x_offset[0] - s.g92_offset[0], 4) + 0, \
                   'Y':round(s.position[1] - s.g5x_offset[1] - s.g92_offset[1], 4) + 0}
-    if offsets_prompt(_('Change Scribe Offsets'), scribeOffsets, newOffsets):
+    if offsets_prompt(_('CHANGE SCRIBE OFFSETS'), scribeOffsets, newOffsets):
         scribeOffsets['X'] = newOffsets['X']
         scribeOffsets['Y'] = newOffsets['Y']
         offsets_write_scribe(toolFile, scribeOffsets)
         c.load_tool_table()
         comp['offset-set-scribe'] = False
-        title = _('Scribe Offsets')
+        title = _('SCRIBE OFFSETS')
         msg = _('Scribe offsets have been saved')
         plasmacPopUp('info', title, msg)
     comp['offset-set-scribe'] = False
 
 def offsets_probe_clicked():
-    reply = plasmacPopUp('yesno', 'Set Probe Offsets', ' \n'.join(offsets_text)).reply
+    reply = plasmacPopUp('yesno', _('SET PROBE OFFSETS'), ' \n'.join(offsets_text)).reply
     if not reply:
         comp['offset-set-probe'] = False
         return
-    title = _('Offset Probe Delay')
+    title = _('OFFSET PROBE DELAY')
     prompt = _('Delay (Seconds)')
     while 1:
         valid, delay = plasmacPopUp('entry', title, prompt, True, probeOffsets['Delay']).reply
@@ -1689,7 +1703,7 @@ def offsets_probe_clicked():
     newOffsets = {'X':round(s.position[0] - s.g5x_offset[0] - s.g92_offset[0], 4) + 0, \
                   'Y':round(s.position[1] - s.g5x_offset[1] - s.g92_offset[1], 4) + 0, \
                   'Delay':delay}
-    if offsets_prompt(_('Change Probe Offsets'), probeOffsets, newOffsets, True):
+    if offsets_prompt(_('CHANGE PROBE OFFSETS'), probeOffsets, newOffsets, True):
         probeOffsets['X'] = newOffsets['X']
         probeOffsets['Y'] = newOffsets['Y']
         probeOffsets['Delay'] = newOffsets['Delay']
@@ -1698,7 +1712,7 @@ def offsets_probe_clicked():
         putPrefs(PREF, 'OFFSET_PROBING', 'Delay', probeOffsets['Delay'], float)
         set_probe_offset_pins()
         comp['offset-set-probe'] = False
-        title = _('Probe Offsets')
+        title = _('PROBE OFFSETS')
         msg = _('Probe offsets have been saved')
         plasmacPopUp('info', title, msg)
     comp['offset-set-probe'] = False
@@ -1871,11 +1885,11 @@ def reload_file(refilter=True):
     live_plotter.clear()
 
 def task_run(*event):
-    for key in togglePins:
-        if togglePins[key]['runcritical'] and not togglePins[key]['state']:
+    for button in togglePins:
+        if togglePins[button]['runcritical'] and not togglePins[button]['state']:
             title = _('RUN ERROR')
             msg0 = _('Cannot run program while critical button is not active')
-            btn = rC(f'{fbuttons}.button{togglePins[key]["button"]}','cget','-text')
+            btn = rC(f'{fbuttons}.button{button}','cget','-text')
             notifications.add('error', f'{title}:\n{msg0}: {btn}\n')
             return
     if run_warn(): return
@@ -2101,12 +2115,6 @@ def install_help(app):    # from axis.py
     # we use install_kb_text instead so we can change colors
     return
 
-def install_migrate_text(app):
-    migrate = nf.makewidget(app, Frame, '.migrate.text')
-    fixed = app.tk.call("linuxcnc::standard_fixed_font")
-    text, cmd = migrate_text()
-    Label(migrate, text=f'{text}{cmd}\n').grid(row=0, column=0, padx=4, pady=(4,0), sticky="w")
-
 def install_kb_text(app):
     keys = nf.makewidget(app, Frame, '.keys.text')
     fixed = app.tk.call("linuxcnc::standard_fixed_font")
@@ -2265,7 +2273,7 @@ def user_button_setup():
                                 outCode['XYF'['xyf'.index(l)]] = value
                             except:
                                 outCode['code'] = None
-                if (not outCode['X'] and not outCode['Y']) or not outCode['F']:
+                if not outCode['X'] and not outCode['Y']:
                     outCode['code'] = None
                 else:
                     buff = 10 * hal.get_value('halui.machine.units-per-mm') # keep 10mm away from machine limits
@@ -2312,12 +2320,10 @@ def user_button_setup():
             if len(bCode.split()) > 1 and len(bCode.split()) < 4:
                 codes = bCode.strip().split()
                 if validate_hal_pin(codes[1], n, 'pulse-halpin'):
-                    outCode = {'code':'pulse-halpin', 'pin':codes[1], 'time':1.0}
-                    outCode['pin'] = codes[1]
                     try:
                         value = round(float(codes[2]), 1)
-                        outCode['time'] = value
-                        pulsePins[str(n)] = {'button':str(n), 'pin':outCode['pin'], 'text':None, 'timer':0, 'counter':0, 'state':False}
+                        outCode = {'code':'pulse-halpin', 'pin':codes[1], 'time':value}
+                        pulsePins[str(n)] = {'pin':codes[1], 'text':None, 'pulse':0, 'state':False}
                     except:
                         outCode = {'code':None}
                 else:
@@ -2331,7 +2337,7 @@ def user_button_setup():
                     if len(codes) == 3 and codes[2] == 'runcritical':
                         outCode['critical'] = True
                         criticalButtons.append(n)
-                    togglePins[str(n)] = {'button':str(n), 'pin':outCode['pin'], 'state':hal.get_value(outCode['pin']), 'runcritical':outCode['critical']}
+                    togglePins[str(n)] = {'pin':outCode['pin'], 'state':hal.get_value(outCode['pin']), 'runcritical':outCode['critical']}
                 else:
                     parmError = True
         elif bCode and bCode not in singleCodes:
@@ -2398,8 +2404,8 @@ def user_button_setup():
 
 def user_button_pressed(button, code):
     global colorBack, activeFunction
-    global probePressed, probeStart, probeTimer, probeButton
-    global torchPressed, torchStart, torchTimer, torchButton
+    global probePressed, probeTimer, probeButton
+    global torchPressed, torchTimer, torchButton
     if rC(f'{fbuttons}.button{button}','cget','-state') == 'disabled' or not code:
         return
     if code['code'] == 'ohmic-test':
@@ -2416,25 +2422,27 @@ def user_button_pressed(button, code):
     elif code['code'] == 'probe-test' and not hal.get_value('halui.program.is-running'):
         if probeTimer:
             probeTimer = 0
+            probe_test_timer()
         elif not hal.get_value('plasmac.z-offset-counts'):
             activeFunction = True
             probePressed = True
-            probeStart = time.time()
-            probeTimer = code['time']
+            probeTimer = code['time'] * 1000
             hal.set_p('plasmac.probe-test','1')
             rC(f'{fbuttons}.button{probeButton}','configure','-text',str(int(probeTimer)))
             rC(f'{fbuttons}.button{probeButton}','configure','-bg',colorActive)
+            root_window.after(100, probe_test_timer)
     elif code['code'] == 'torch-pulse':
         if torchTimer:
             torchTimer = 0
+            torch_pulse_timer()
         elif not hal.get_value('plasmac.z-offset-counts'):
             torchPressed = True
-            torchStart = time.time()
-            torchTimer = code['time']
+            torchTimer = code['time'] * 1000
             hal.set_p('plasmac.torch-pulse-time',f'{torchTimer}')
             hal.set_p('plasmac.torch-pulse-start','1')
             rC(f'{fbuttons}.button{torchButton}','configure','-text',str(int(torchTimer)))
             rC(f'{fbuttons}.button{torchButton}','configure','-bg',colorActive)
+            root_window.after(100, torch_pulse_timer)
     elif code['code'] == 'change-consumables' and not hal.get_value('plasmac.breakaway'):
         if hal.get_value('axis.x.eoffset-counts') or hal.get_value('axis.y.eoffset-counts'):
             hal.set_p('plasmac.consumable-change', '0')
@@ -2446,6 +2454,8 @@ def user_button_pressed(button, code):
             activeFunction = True
             xPos = s.position[0] if code['X'] is None else code['X']
             yPos = s.position[1] if code['Y'] is None else code['Y']
+            if not code['F']:
+                code['F'] = rC(f'{fruns}.material.cut-feed-rate', 'get')
             hal.set_p('plasmac.xy-feed-rate', str(code['F']))
             hal.set_p('plasmac.x-offset', f'{(xPos - s.position[0]) / hal.get_value("plasmac.offset-scale"):.0f}')
             hal.set_p('plasmac.y-offset', f'{(yPos - s.position[1]) / hal.get_value("plasmac.offset-scale"):.0f}')
@@ -2457,19 +2467,19 @@ def user_button_pressed(button, code):
         pass # actioned from button_release
     elif code['code'] == 'latest-file':
         pass # actioned from button_release
-    elif code['code'] == 'pulse-halpin' and hal.get_value('halui.program.is-idle'):
+    elif code['code'] == 'pulse-halpin' and hal.get_value('halui.machine.is-on'):
         if code['pin'].startswith('axisui.ext.out_'):
             comp[code['pin'].replace('axisui.','')] = not hal.get_value(code['pin'])
         else:
             hal.set_p(code['pin'], str(not hal.get_value(code['pin'])))
-        if not pulsePins[button]['timer']:
-            pulsePins[button]['text'] = rC(f'{fbuttons}.button{button}','cget','-text')
-            pulsePins[button]['timer'] = code['time']
-            pulsePins[button]['counter'] = time.time()
-        else:
-            pulsePins[button]['timer'] = 0
+        if pulsePins[button]['pulse']:
+            pulsePins[button]['pulse'] = 0
             rC(f'{fbuttons}.button{button}','configure','-text',pulsePins[button]['text'])
-    elif code['code'] == 'toggle-halpin' and hal.get_value('halui.program.is-idle'):
+        else:
+            pulsePins[button]['pulse'] = code['time'] * 1000
+            pulsePins[button]['text'] = rC(f'{fbuttons}.button{button}','cget','-text')
+            root_window.after(100, pulse_halpin_off, button)
+    elif code['code'] == 'toggle-halpin' and hal.get_value('halui.machine.is-on'):
         if code['pin'].startswith('axisui.ext.out_'):
             comp[code['pin'].replace('axisui.','')] = not hal.get_value(code['pin'])
         else:
@@ -2561,6 +2571,56 @@ def user_button_save():
         rC(f'{fsetup}.r.ubuttons.canvas.frame.name{n}','delete',0,'end')
         rC(f'{fsetup}.r.ubuttons.canvas.frame.code{n}','delete',0,'end')
     user_button_setup()
+
+def probe_test_timer():
+    global probeTimer, activeFunction
+    if probeTimer > 0:
+        probeTimer -= 100
+        if hal.get_value('plasmac.probe-test-error') and not probePressed:
+            probeTimer = 0
+        if probeTimer > 0:
+            rC(f'{fbuttons}.button{probeButton}','configure','-text',f'{round(probeTimer / 1000, 1)}')
+            root_window.after(100, probe_test_timer)
+    if probeTimer <= 0:
+        if probePressed:
+            root_window.after(100, probe_test_timer)
+        else:
+            hal.set_p('plasmac.probe-test','0')
+            rC(f'{fbuttons}.button{probeButton}','configure','-text',probeText)
+            rC(f'{fbuttons}.button{probeButton}','configure','-bg',colorBack)
+            probeTimer = 0
+            activeFunction = False
+
+def torch_pulse_timer():
+    global torchTimer
+    if torchTimer > 0:
+        torchTimer -= 100
+        if torchTimer > 0:
+            rC(f'{fbuttons}.button{torchButton}','configure','-text',f'{round(torchTimer / 1000, 1)}')
+            root_window.after(100, torch_pulse_timer)
+    if torchTimer <= 0:
+        if torchPressed:
+            root_window.after(100, torch_pulse_timer)
+        else:
+            hal.set_p('plasmac.torch-pulse-start','0')
+            hal.set_p('plasmac.torch-pulse-time', '0')
+            rC(f'{fbuttons}.button{torchButton}','configure','-text',torchText)
+            rC(f'{fbuttons}.button{torchButton}','configure','-bg',colorBack)
+            torchTimer = 0
+
+def pulse_halpin_off(button):
+    if pulsePins[button]['pulse'] > 0:
+        pulsePins[button]['pulse'] -= 100
+        if pulsePins[button]['pulse'] > 0:
+            rC(f'{fbuttons}.button{button}','configure','-text',f'{round(pulsePins[button]["pulse"] / 1000, 1)}')
+            root_window.after(100, pulse_halpin_off, button)
+    if pulsePins[button]['pulse'] <= 0:
+        rC(f'{fbuttons}.button{button}','configure','-text',pulsePins[button]['text'])
+        if pulsePins[button]['pin'].startswith('axisui.ext.out_'):
+            comp[pulsePins[button]['pin'].replace('axisui.','')] = not hal.get_value(pulsePins[button]['pin'])
+        else:
+            hal.set_p(pulsePins[button]['pin'], str(not hal.get_value(pulsePins[button]['pin'])))
+        pulsePins[button]['pulse'] = 0
 
 
 ##############################################################################
@@ -2884,46 +2944,30 @@ def material_exists(material):
 # POWERMAX COMMUNICATIONS FUNCTIONS                                          #
 ##############################################################################
 def pmx485_check(port, periodic=False):
-    try:
-        import serial
-        import serial.tools.list_ports as PORTS
-        title = _('PORT ERROR')
-        msg1 = _('Powermax communications is disabled')
-        ports = []
-        for p in PORTS.comports():
-            ports.append(p[0])
-        if port in ports:
-            try:
-                sPort = serial.Serial(port, 19200)
-                sPort.close()
-            except Exception as err:
-                if not periodic:
-                    notifications.add('error', f'{title}:\n{err}\n{msg0}')
-                return False
-        else:
+    if not comPorts:
+        return False
+    title = _('PORT ERROR')
+    msg1 = _('Powermax communications is disabled')
+    ports = []
+    for p in comPorts.comports():
+        ports.append(p[0])
+    if port in ports:
+        try:
+            sPort = serial.Serial(port, 19200)
+            sPort.close()
+        except Exception as err:
             if not periodic:
-                msg0 = _('cannot be found')
-                notifications.add('error', f'{title}:\n{port} {msg0}\n{msg1}')
+                notifications.add('error', f'{title}:\n{err}\n{msg1}')
             return False
-    except:
+    else:
         if not periodic:
-            title = _('MODULE ERROR')
-            msg0 = _('python3-serial cannot be found')
-            msg1 = _('Install python3-serial or linuxcnc-dev')
-            notifications.add('error', f'{title}:\n{msg0}\n{msg1}')
+            msg0 = _('cannot be found')
+            notifications.add('error', f'{title}:\n{port} {msg0}\n{msg1}')
         return False
     return True
 
 def pmx485_startup(port):
     global pmx485
-    for parm in ['compStatus','commsError','connected','exists','meshMode']:
-        pmx485[parm] = False
-    for parm in ['compArcTime','compFault','commsTimer','retryTimer','oldPressure']:
-        pmx485[parm] = 0.0
-    for parm in ['compMinC','compMaxC','compMinP','compMaxP']:
-        pmx485[parm] = 0.0
-    for parm in ['oldMode']:
-        pmx485[parm] = 0
     if pmx485_load(port):
         return
     pmx485['exists'] = True
@@ -2939,6 +2983,7 @@ def pmx485_load(port):
     while not hal.component_exists('pmx485'):
         if count >= 3:
             notifications.add('error', f'{title}:\n{msg0}\n{msg1}\n')
+            rC(f'{fruns}.pmx.info','configure','-text',_('Comms Error'),'-bg','red')
             return 1
         subprocess.run(['halcmd', 'loadusr', '-Wn', 'pmx485', 'pmx485', f'{port}'])
         count += 1
@@ -2965,7 +3010,7 @@ def pmx485_enable_toggled():
             hal.set_p('pmx485.current_set', str(pVars.cutAmps.get()))
             hal.set_p('pmx485.mode_set', str(pVars.cutMode.get()))
             hal.set_p('pmx485.enable', '1')
-            rC(f'{fruns}.pmx.info','configure','-text',_('CONNECTING'))
+            rC(f'{fruns}.pmx.info','configure','-text',_('Connecting'),'-bg',colorBack)
             pmx485['commsTimer'] = 3
     else:
         if hal.component_exists('pmx485'):
@@ -2974,7 +3019,7 @@ def pmx485_enable_toggled():
         pmx485['commsError'] = False
         pmx485['commsTimer'] == 0
         pmx485['retryTimer'] == 0
-        rC(f'{fruns}.pmx.info','configure','-text','')
+        rC(f'{fruns}.pmx.info','configure','-text','','-bg',colorBack)
 
 def pmx485_current_changed(value):
     hal.set_p('pmx485.current_set', str(value))
@@ -3013,7 +3058,7 @@ def pmx485_status_changed(state):
     if state != pmx485['connected']:
         if state:
             pmx485['commsError'] = False
-            rC(f'{fruns}.pmx.info','configure','-text',_('CONNECTED'))
+            rC(f'{fruns}.pmx.info','configure','-text',_('Connected'),'-bg','green')
             pmx485['connected'] = True
             # probably not required as we change the text directly in periodic
             #if pmx485['compArcTime']:
@@ -3024,7 +3069,7 @@ def pmx485_status_changed(state):
             pmx485['commsTimer'] = 0
             pmx485['retryTimer'] = 0
         else:
-            rC(f'{fruns}.pmx.info','configure','-text',_('COMMS ERROR'))
+            rC(f'{fruns}.pmx.info','configure','-text',_('Comms Error'),'-bg','red')
             pmx485['commsError'] = True
             pmx485['connected'] = False
             pmx485['retryTimer'] = 3
@@ -3038,7 +3083,7 @@ def pmx485_fault_changed(fault):
         code = _('Fault Code')
         text = _('Powermax error')
         if faultRaw == '0000':
-            rC(f'{fruns}.pmx.info','configure','-text',_('CONNECTED'))
+            rC(f'{fruns}.pmx.info','configure','-text',_('Connected'),'-bg','green')
         elif faultRaw in pmx485FaultName.keys():
             if faultRaw == '0210' and hal.get_value('pmx485.current_max') > 110:
                 faultMsg = pmx485FaultName[faultRaw][1]
@@ -3046,11 +3091,11 @@ def pmx485_fault_changed(fault):
                 faultMsg = pmx485FaultName[faultRaw][0]
             else:
                 faultMsg = pmx485FaultName[faultRaw]
-            rC(f'{fruns}.pmx.info','configure','-text',f'{code}: {pmx485["compFaultCode"]}')
+            rC(f'{fruns}.pmx.info','configure','-text',f'{code}: {pmx485["compFaultCode"]}','-bg','red')
             msg0 = _('Code')
             notifications.add('error', f'{title}:\n{msg0}: {pmx485["compFaultCode"]}\n{faultMsg}\n')
         else:
-            rC(f'{fruns}.pmx.info','configure','-text',f'{code}: {pmx485["compFaultCode"]}')
+            rC(f'{fruns}.pmx.info','configure','-text',f'{code}: {pmx485["compFaultCode"]}','-bg','red')
             pmx485['labelState'] = None
             msg0 = _('Unknown Powermax fault code')
             notifications.add('error', f'{title}:\n{msg0}: {faultRaw}\n')
@@ -3071,7 +3116,7 @@ def pmx485_mesh_enable_toggled():
 
 def pmx485_comms_timeout():
     global pmx485
-    rC(f'{fruns}.pmx.info','configure','-text',_('COMMS ERROR'))
+    rC(f'{fruns}.pmx.info','configure','-text',_('Comms Error'),'-bg','red')
     pmx485['commsError'] = True
     pmx485['connected'] = False
     pmx485['retryTimer'] = 3
@@ -3280,19 +3325,6 @@ def help_text():
         (_('End'), _('Touchoff X and Y to zero')),
         (_('Del'), _('Emulate GUI laser button')),
     ]
-
-def migrate_text():
-    text  = _('plasmac2 can be installed by migrating an existing working QtPlasmaC config.')
-    text += '\n\n'
-    text += _('Migration is achieved by opening the migration application')
-    text += '\n'
-    text += _('which is done by entering the following in a terminal:')
-    text += '\n\n'
-    if installType == 'package':
-        cmd = 'python3 /usr/share/doc/linuxcnc/examples/sample-configs/sim/axis/plasma/plasmac2/migrate.py'
-    else:
-        cmd = 'python3 ~/linuxcnc-dev/configs/sim/axis/plasma/plasmac2/migrate.py'
-    return text, cmd
 
 
 ##############################################################################
@@ -3873,7 +3905,7 @@ def make_run_panel():
     # pmx frame
     rC('labelframe',f'{fruns}.pmx','-text',_('Powermax'),'-relief','groove')
     rC('checkbutton',f'{fruns}.pmx.enable','-text',_('Powermax Comms'),'-variable','pmx485Enable','-command','pmx485_enable_toggled','-width',2,'-anchor','w','-indicatoron',0)
-    rC('label',f'{fruns}.pmx.info','-text',_('PMX Info goes here'),'-anchor','w')
+    rC('label',f'{fruns}.pmx.info','-anchor','w')
     rC('pack',f'{fruns}.pmx.enable','-expand',1,'-fill','x')
     rC('pack',f'{fruns}.pmx.info','-expand',1,'-fill','x')
 
@@ -3988,6 +4020,7 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     from importlib import reload
     from plasmac import run_from_line as RFL
     import conversational
+    import webbrowser
     imagePath = os.path.join(libPath, 'images') # our own images
     imageAxis = os.path.join(BASE, 'share', 'axis', 'images') # images pinched from Axis
     if not os.path.isdir('/tmp/plasmac'):
@@ -4168,11 +4201,9 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     probePressed = False
     probeTimer = 0
     probeButton = ''
-    probeStart = 0
     torchPressed = False
     torchTimer = 0
     torchButton = ''
-    torchStart = 0
     torchHeight = 0
     cChangeButton = ''
     cutType = 0
@@ -4302,7 +4333,7 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     TclCommands.key_pressed = key_pressed
     TclCommands.key_released = key_released
     TclCommands.color_set = color_set
-    TclCommands.migrate_copy = migrate_copy
+    TclCommands.user_manual = user_manual
     commands = TclCommands(root_window)
     # set up the fonts
     lastFontSize = pVars.fontSize.get()
@@ -4680,25 +4711,6 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     rC('grid',f'{fleds}.led-corner-locked',  '-column',4,'-row',2,'-padx',(4,0),'-pady',(4,0))
     rC('grid',f'{fleds}.led-corner-lockedL',             '-column',5,'-row',2,'-padx',(0,0),'-pady',(4,0),'-sticky','W')
 
-    # new migrate help window
-    rC('toplevel','.migrate')
-    rC('bind','.migrate','<Key-Return>','wm withdraw .migrate')
-    rC('bind','.migrate','<Key-Escape>','wm withdraw .migrate')
-    rC('frame','.migrate.text')
-    rC('button','.migrate.copy','-command','migrate_copy','-default','active','-padx',0,'-pady',0,'-width','14')
-    rC('setup_widget_accel','.migrate.copy','Copy Command')
-    rC('button','.migrate.ok','-command','wm wi .migrate','-default','active','-padx',0,'-pady',0,'-width','14')
-    rC('setup_widget_accel','.migrate.ok','OK')
-    rC('grid','.migrate.text','-column',0,'-row',0,'-columnspan',3,'-padx',4,'-pady',(4,0),'-sticky','EW')
-    rC('grid','.migrate.copy','-column',0,'-row',1,'-padx',4,'-pady',(0,4))
-    rC('grid','.migrate.ok','-column',2,'-row',1,'-padx',4,'-pady',(0,4))
-    rC('wm','title','.migrate','plasmac2 Migration')
-    rC('wm','iconname','.migrate','')
-    rC('wm','resiz','.migrate',0,0)
-    rC('wm','minsize','.migrate',1,1)
-    rC('wm','protocol','.migrate','WM_DELETE_WINDOW','wm wi .migrate')
-    rC('wm','withdraw','.migrate')
-
     # rename keyboard shortcut window
     rC('wm','title','.keys','plasmac2 Keyboard Shortcuts')
     # new keypad shortcut window
@@ -4743,8 +4755,8 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     rC('.menu.help','add','command','-command','wm transient .about .;wm deiconify .about;show_all .about.message;focus .about.ok')
     rC('setup_menu_accel','.menu.help','end',_('About AXIS'))
     rC('.menu.help','add','separator')
-    rC('.menu.help','add','command','-command','wm transient .migrate .;wm deiconify .migrate; focus .migrate.ok')
-    rC('setup_menu_accel','.menu.help','end',_('Migration'))
+    rC('.menu.help','add','command','-command','user_manual')
+    rC('setup_menu_accel','.menu.help','end',_('User Manual'))
 
     # rework the status bar
     rC('grid','forget',f'{ftop}.gcodel')
@@ -5310,7 +5322,7 @@ else:
 # HAL SETUP - CALLED DIRECTLY FROM AXIS ONCE AT STARTUP                      #
 ##############################################################################
 def user_hal_pins():
-    global firstRun, previewSize, halPinList
+    global firstRun, previewSize, halPinList, serial, comPorts
     if firstRun == 'invalid':
         return
     # create new hal pins
@@ -5392,8 +5404,27 @@ def user_hal_pins():
     # load materials when setup is complete
     load_materials()
     # start powermax comms if valid port
-    if pmPort and pmx485_check(pmPort):
-        pmx485_startup(pmPort)
+    if pmPort:
+        global pmx485
+        for parm in ['compStatus','commsError','connected','exists','meshMode']:
+            pmx485[parm] = False
+        for parm in ['compArcTime','compFault','commsTimer','retryTimer','oldPressure']:
+            pmx485[parm] = 0.0
+        for parm in ['compMinC','compMaxC','compMinP','compMaxP']:
+            pmx485[parm] = 0.0
+        for parm in ['oldMode']:
+            pmx485[parm] = 0
+        try:
+            import serial
+            import serial.tools.list_ports as comPorts
+            if pmx485_check(pmPort):
+                pmx485_startup(pmPort)
+        except:
+            comPorts = None
+            title = _('MODULE ERROR')
+            msg0 = _('python3-serial cannot be found')
+            msg1 = _('Install python3-serial or linuxcnc-dev')
+            notifications.add('error', f'{title}:\n{msg0}\n{msg1}')
     # check preferences for a file to load
     addRecent = True
     openFile = getPrefs(PREF, 'GUI_OPTIONS','Open file', '', str)
@@ -5416,8 +5447,6 @@ def user_hal_pins():
     uhFile = os.path.join(configPath, 'user_hal.py')
     if os.path.isfile(uhFile):
         exec(compile(open(uhFile, "rb").read(), uhFile, 'exec'))
-    # setup migration text
-    install_migrate_text(root_window)
     # setup shortcuts help
     install_kb_text(root_window)
     install_kp_text(root_window)
@@ -5448,12 +5477,8 @@ def user_live_update():
     if orientStart:
         return
     global isIdle, isIdleHomed, isPaused, isRunning
-    global runState, pausedState, relPos
-    global probeTimer, probeStart, probeButton
-    global probeText, probePressed, previewSize
-    global torchTimer, torchStart, torchButton
-    global torchText, torchPressed, torchColor
-    global laserTimer, laserButtonState
+    global runState, pausedState, relPos, previewSize
+    global probeTimer, laserButtonState
     global framingState, activeFunction
     global currentTool, pmx485, homeInProgress
     global materialChangePin, materialChangeNumberPin
@@ -5508,60 +5533,19 @@ def user_live_update():
                 rC(widget,'configure','-state','disabled')
     # update arc voltage
     rC(f'{fplasma}.arc-voltage','configure','-text',f'{comp["arc-voltage"]:3.0f}v')
-    # probe-test
-    if probeTimer > 0:
-        if hal.get_value('plasmac.probe-test-error') and not probePressed:
-            probeTimer = 0
-        elif time.time() >= probeStart + 0.1:
-            probeStart += 0.1
-            probeTimer -= 0.1
-            rC(f'{fbuttons}.button{probeButton}','configure','-text',str(round(probeTimer, 1)))
-    elif probeStart and probeTimer <= 0 and not probePressed:
-        hal.set_p('plasmac.probe-test','0')
-        rC(f'{fbuttons}.button{probeButton}','configure','-text',probeText)
-        rC(f'{fbuttons}.button{probeButton}','configure','-bg',colorBack)
-        probeStart = 0
-        probeTimer = 0
-        activeFunction = False
-    # torch pulse
-    if torchTimer > 0:
-        if time.time() >= torchStart + 0.1:
-            torchStart += 0.1
-            torchTimer -= 0.1
-            rC(f'{fbuttons}.button{torchButton}','configure','-text',str(abs(round(torchTimer, 1))))
-    elif torchStart and torchTimer <= 0 and not torchPressed:
-        hal.set_p('plasmac.torch-pulse-start','0')
-        hal.set_p('plasmac.torch-pulse-time', '0')
-        rC(f'{fbuttons}.button{torchButton}','configure','-text',torchText)
-        rC(f'{fbuttons}.button{torchButton}','configure','-bg',colorBack)
-        torchStart = 0
-        torchTimer = 0
     # halpin toggle
-    for key in togglePins:
-        if hal.get_value(togglePins[key]['pin']) != togglePins[key]['state']:
-            set_toggle_pins(togglePins[key])
+    for button in togglePins:
+        if hal.get_value(togglePins[button]['pin']) != togglePins[button]['state']:
+            set_toggle_pins(button)
     # halpin pulse
-    for key in pulsePins:
-        # service the timers
-        if pulsePins[key]['timer']:
-            if time.time() >= pulsePins[key]['counter'] + 0.1:
-                pulsePins[key]['counter'] += 0.1
-                pulsePins[key]['timer'] -= 0.1
-                rC(f'{fbuttons}.button{pulsePins[key]["button"]}','configure','-text',str(abs(round(pulsePins[key]['timer'], 1))))
-                if pulsePins[key]['timer'] <= 0:
-                    pulsePins[key]['timer'] = 0
-                    rC(f'{fbuttons}.button{pulsePins[key]["button"]}','configure','-text',pulsePins[key]['text'])
-                    if pulsePins[key]['pin'].startswith('axisui.ext.out_'):
-                        comp[pulsePins[key]['pin'].replace('axisui.','')] = not hal.get_value(pulsePins[key]['pin'])
-                    else:
-                        hal.set_p(pulsePins[key]['pin'], str(not hal.get_value(pulsePins[key]['pin'])))
+    for button in pulsePins:
         # set button color for pulse-halpin buttons
-        if hal.get_value(pulsePins[key]['pin']) != pulsePins[key]['state']:
-            pulsePins[key]['state'] = hal.get_value(pulsePins[key]['pin'])
-            if pulsePins[key]['state']:
-                rC(f'{fbuttons}.button{pulsePins[key]["button"]}','configure','-bg',colorActive)
+        if hal.get_value(pulsePins[button]['pin']) != pulsePins[button]['state']:
+            pulsePins[button]['state'] = hal.get_value(pulsePins[button]['pin'])
+            if pulsePins[button]['state']:
+                rC(f'{fbuttons}.button{button}','configure','-bg',colorActive)
             else:
-                rC(f'{fbuttons}.button{pulsePins[key]["button"]}','configure','-bg',colorBack)
+                rC(f'{fbuttons}.button{button}','configure','-bg',colorBack)
     # reset a consumable change
     if (hal.get_value('plasmac.consumable-change') or hal.get_value('plasmac.consumable-change')) and \
        (hal.get_value('axisui.abort') or not s.paused):
@@ -5577,13 +5561,6 @@ def user_live_update():
         vars.jog_speed.set(manualCut['feed'])
         rC('.pane.top.jogspeed.s','configure','-state','normal')
         save_total_stats()
-    # laser timer
-    if laserTimer > 0:
-        laserTimer -= 0.1
-        if laserTimer <= 0:
-            comp['laser-on'] = 0
-            laserButtonState = 'reset'
-            pVars.laserText.set(_('Laser'))
     # show cut recovery tab
     if s.paused and 'manual' in rC(ftabs,'pages'):
         rC(ftabs,'delete','manual',0)
@@ -5687,12 +5664,12 @@ def user_live_update():
                 else:
                     rC(f'{fbuttons}.button{n}','configure','-state','disabled')
             elif buttonCodes[n]['code'] == 'pulse-halpin':
-                if isIdle:
+                if hal.get_value('halui.machine.is-on'):
                     rC(f'{fbuttons}.button{n}','configure','-state','normal')
                 else:
                     rC(f'{fbuttons}.button{n}','configure','-state','disabled')
             elif buttonCodes[n]['code'] == 'toggle-halpin':
-                if isIdle:
+                if hal.get_value('halui.machine.is-on'):
                     rC(f'{fbuttons}.button{n}','configure','-state','normal')
                 else:
                     rC(f'{fbuttons}.button{n}','configure','-state','disabled')

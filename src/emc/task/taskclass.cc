@@ -179,7 +179,7 @@ static int sendCommand(RCS_CMD_MSG * msg)
     while (etime() < send_command_timeout) {
 	emcIoStatusBuffer->peek();
 	if (emcIoStatus->echo_serial_number != emcIoCommandSerialNumber ||
-	    emcIoStatus->status == RCS_EXEC) {
+	    emcIoStatus->status == RCS_STATUS::EXEC) {
 	    esleep(0.001);
 	    continue;
 	} else {
@@ -188,7 +188,7 @@ static int sendCommand(RCS_CMD_MSG * msg)
     }
 
     if (emcIoStatus->echo_serial_number != emcIoCommandSerialNumber ||
-	emcIoStatus->status == RCS_EXEC) {
+	emcIoStatus->status == RCS_STATUS::EXEC) {
 	// Still not done, must have timed out.
 	rcs_print_error
 	    ("Command to IO level (%s:%s) timed out waiting for last command done. \n",
@@ -423,13 +423,11 @@ int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg)
     }
 }
 
-extern "C" PyObject* PyInit_emctask(void);
 extern "C" PyObject* PyInit_interpreter(void);
 extern "C" PyObject* PyInit_emccanon(void);
 struct _inittab builtin_modules[] = {
     { "interpreter", PyInit_interpreter },
     { "emccanon", PyInit_emccanon },
-    { "emctask", PyInit_emctask },
     // any others...
     { NULL, NULL }
 };
@@ -787,9 +785,9 @@ int Task::emcIoUpdate(EMC_IO_STAT * stat)
        command, by comparing the command number we sent with the command
        number that emcio echoes. If they're different, then the command
        hasn't been acknowledged yet and the state should be forced to be
-       RCS_EXEC. */
+       RCS_STATUS::EXEC. */
     if (stat->echo_serial_number != emcIoCommandSerialNumber) {
-	stat->status = RCS_EXEC;
+	stat->status = RCS_STATUS::EXEC;
     }
     //commented out because it keeps resetting the spindle speed to some odd value
     //the speed gets set by the IO controller, no need to override it here (io takes care of increase/decrease speed too)

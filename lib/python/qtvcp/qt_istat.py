@@ -233,7 +233,7 @@ class _IStat(object):
         for j in range(jointcount):
             seq = self.INI.find("JOINT_" + str(j), "HOME_SEQUENCE")
             if seq is None:
-                seq = -1
+                seq = 0
                 self.HOME_ALL_FLAG = 0
             self.JOINT_SEQUENCE_LIST[j] = int(seq)
         # joint sequence/type
@@ -265,7 +265,7 @@ class _IStat(object):
             if flag:
                 templist.append(temp)
         # remove duplicates
-        self.JOINT_SYNCH_LIST = list(set(tuple(sorted(sub)) for sub in templist))
+        self.JOINT_SYNC_LIST = list(set(tuple(sorted(sub)) for sub in templist))
 
         # This is a list of joints that are related to a joint.
         #ie. JOINT_RELATIONS_LIST(0) will give a list of joints that go with joint 0
@@ -276,8 +276,12 @@ class _IStat(object):
         for j in range(jointcount):
             temp = []
             for hj, hs in list(self.JOINT_SEQUENCE_LIST.items()):
+                # the absolute numbers must be equal first
                 if abs(int(hs)) == abs(int(self.JOINT_SEQUENCE_LIST.get(j))):
-                    temp.append(hj)
+                    # theN one has to be negative to signal syncing
+                    if int(hs) <0 or int(self.JOINT_SEQUENCE_LIST.get(j)) < 0:
+                        temp.append(hj)
+            # If empty list: no synced joints, just add the jointcount number
             if temp == []:
                 temp.append(j)
             self.JOINT_RELATIONS_LIST[j] = temp
@@ -514,7 +518,8 @@ class _IStat(object):
     ###################
     # helper functions
     ###################
-
+    # return a found string or else None by default, anything else by option
+    # since this is used in this file there are some workarounds for plasma machines
     def get_error_safe_setting(self, heading, detail, default=None):
         result = self.INI.find(heading, detail)
         if result:
@@ -525,6 +530,22 @@ class _IStat(object):
                 return default
             else:
                 log.warning('INI Parsing Error, No {} Entry in {}, Using: {}'.format(detail, heading, default))
+            return default
+
+    # return a found float or else None by default, anything else by option
+    def get_safe_float(self, heading, detail, default=None):
+        try:
+            result = float(self.INI.find(heading, detail))
+            return result
+        except:
+            return default
+
+    # return a found integer or else None by default, anything else by option
+    def get_safe_int(self, heading, detail, default=None):
+        try:
+            result = int(self.INI.find(heading, detail))
+            return result
+        except:
             return default
 
     def convert_machine_to_metric(self, data):

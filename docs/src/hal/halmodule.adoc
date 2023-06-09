@@ -273,7 +273,7 @@ Does the specified pin have a driving pin connected. +
 Returns True or False.
 
 ----
-h.in.pin_has_writer()
+hal.pin_has_writer('some-comp.pin-name')
 ----
 
 === get_name
