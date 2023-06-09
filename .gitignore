@@ -21,6 +21,7 @@ share/menus/CNC.menu
 share/desktop-directories/linuxcnc-cnc.directory
 share/desktop-directories/linuxcnc-ref.directory
 share/desktop-directories/linuxcnc-doc.directory
+share/linuxcnc/mesa_modbus.c.tmpl
 src/modules.order
 /configs/*/emc.nml
 !/configs/common/emc.nml
