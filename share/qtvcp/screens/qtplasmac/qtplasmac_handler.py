@@ -2378,16 +2378,13 @@ class HandlerClass:
         if 'metric_startup' in startupCode or 'imperial_startup' in startupCode:
             self.updateIni.append(207)
         # remove the qtplasmac link from the config directory (pre V1.225.208 2022/06/29)
-        if os.path.lexists(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
+        if os.path.islink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
             # stage 1: set up for unlinking on the next run of qtplasmac
             if 'code.py' in self.iniFile.find('FILTER', 'ngc'):
                 self.updateIni.append(208)
             # stage 2: remove the qtplasmac link
             else:
-                if os.path.islink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
-                    os.unlink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
-                else:
-                    os.rmdir(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
+                os.unlink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
         # move qtplasmac options from INI file to prefs file pre V1.227.219 2022/07/14)
         if not self.PREFS.has_section('BUTTONS'):
             UPDATER.move_options_to_prefs_file(self.iniFile, self.PREFS)
