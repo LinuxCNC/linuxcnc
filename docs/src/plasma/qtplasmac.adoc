@@ -1009,7 +1009,7 @@ The <<plasma:conversational-tab,CONVERSATIONAL Tab>> enables the user to quickly
 
 See <<plasma:shape-library,Conversational Shape Library>> for detailed information on the Conversational feature.
 
-It is possible to disable this tab so the conversational feature cannot be used by an operator. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
+It is possible to hide this tab so the conversational feature cannot be used by an operator. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
 
 [source,{hal}]
 ----
@@ -1027,7 +1027,7 @@ Some functions/features are only used for particular modes and are not displayed
 
 This tab is used to display configuration parameters that are modified infrequently.
 
-It is possible to disable this tab so machine settings cannot be modified by unauthorized personnel. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
+It is possible to hide this tab so machine settings cannot be modified by unauthorized personnel. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
 
 [source,{hal}]
 ----
@@ -1205,7 +1205,7 @@ image::images/qtplasmac_settings.png[width=800,align="center"]
 
 This tab is used to display GUI configuration parameters, button text, and shutdown text that are modified infrequently as well as some utility buttons.
 
-It is possible to disable this tab so machine settings cannot be modified by unauthorized personnel. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
+It is possible to hide this tab so machine settings cannot be modified by unauthorized personnel. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
 
 [source,{hal}]
 ----
@@ -3121,17 +3121,17 @@ Preview = #000000
 === Custom Python Code
 
 It is possible to add custom Python code to change some existing functions or to add new ones.
-Custom code can be added in two different way, a user command file or a user periodic file.
+Custom code can be added in two different ways:  a user command file or a user periodic file.
 
-A user command file is specified in the DISPLAY section of the _<machine_name>_.ini file and contains Python code that is processed during startup.
+A user command file is specified in the DISPLAY section of the _<machine_name>_.ini file and contains Python code that is processed only once during startup.
 
 [source,{ini}]
 ----
-n USER_COMMAND_FILE = my_custom_code.py
+USER_COMMAND_FILE = my_custom_code.py
 ----
 
-A user periodic file must be named user_periodic.py and must be loated in the machines config directory.
-This file is processed every cycle (usually 100 ms) and is used for functions that require regular updating.
+A user periodic file must be named user_periodic.py and must be loaded in the machines config directory.
+This file is processed every cycle (usually 100 ms) and is used for functions that require regular updating.
 
 == QtPlasmaC Advanced Topics
 
