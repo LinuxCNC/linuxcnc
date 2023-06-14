@@ -346,9 +346,6 @@ Python Error:\n {}'''.format(str(e))
     # this is the function that is injected into the handler file to read an override file
     # this will be called from qtvcp.py later
     def call_user_command_(self, klass, rcfile = "~/.qtvcprc"):
-        #user_command_file = inifile.find("DISPLAY", "USER_COMMAND_FILE") or ""
-        #if user_command_file:
-        #    rcfile = user_command_file
         rcfile = os.path.expanduser(rcfile)
         if os.path.exists(rcfile):
             log.info('Handler Override file found at: yellow<{}>'.format(rcfile))
@@ -356,7 +353,7 @@ Python Error:\n {}'''.format(str(e))
                 local = {'self': klass, 'rcfile': rcfile}
                 exec(compile(open(rcfile, "rb").read(), rcfile, 'exec'),local)
             except Exception as e:
-                log.warning(e)
+                log.exception(e)
         else:
             log.info('No Handler Override file at: yellow<{}>'.format(rcfile))
 
