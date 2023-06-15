@@ -598,7 +598,7 @@ The recorded position will be remembered at shutdown if a preference file option
 Due to programming limitations, the recorded position may not show exactly the same.
 Particularly, if you pan zoomed out and pan zoomed in again while setting the desired view. +
 _Best practice_ is to select a main view, modify as desired, record, then immediately click the button to switch to the recorded position.
-If it is not as you like, modify it's existing position and re-record.
+If it is not as you like, modify its existing position and re-record.
 
 [[sub:qtvcp:widgets:roundbutton]]
 === `RoundButton` - Round Shapped `ActionButton` Widget
@@ -2074,7 +2074,7 @@ It has a the ability to scroll the names with hardware such as a MPG.
 
 One can class patch the function `load(self,fname)` to customize file loading.
 
-The function `getCurrentSelected()` will return a Python tuple, containing the file path and whether it's a file.
+The function `getCurrentSelected()` will return a Python tuple, containing the file path and whether it is a file.
 
 [source,python]
 ----
@@ -2813,7 +2813,7 @@ You can select multiple properties for combined requirements.
 ==== Text Changes On State
 
 //FIXME What is a 'checkable' button ? A checkbox ?
-Choosing the *`checked_state_text_option`* allows a 'checkable' button to _change the text based on it's checked state_.
+Choosing the *`checked_state_text_option`* allows a 'checkable' button to _change the text based on its checked state_.
 
 It uses the following properties to specify the text for each state:
 
@@ -2835,8 +2835,7 @@ ActionButton #action_aux{
 [[sub:qtvcp:widgets:indicatedpushbutton:python-command]]
 ==== Call Python Commands On State
 
-The *`python_command_option`* allow small snippets of Python code to be run from the push of a button,
-without having to edit the handler file.
+The *`python_command_option`* allow small snippets of Python code to be run from the push of a button, without having to edit the handler file.
 Though, it can call functions in the handler file.
 
 When using the `command_string` properties.

@@ -220,7 +220,7 @@ This will look like this:
 image::images/glade-manual-small.png[]
 
 Glade tends to write a lot of messages to the shell window, which mostly can be ignored.
-Select 'File'→'Save as', give it a name like 'myui.ui' and make sure it's saved as 'GtkBuilder' file (radio button left bottom corner in Save dialog).
+Select 'File'→'Save as', give it a name like 'myui.ui' and make sure it is saved as 'GtkBuilder' (radio button left bottom corner in Save dialog).
 GladeVCP will also process the older 'libglade' format correctly but there is no point in using it.
 The convention for GtkBuilder file extension is '.ui'.
 
@@ -625,7 +625,7 @@ By double clicking the left or right button the scale factor can be increased or
 
 ==== Pins
 
-`hal_dial` exports it's count value as HAL pins:
+`hal_dial` exports its count value as HAL pins:
 
 <widgetname>::
   out s32 pin
@@ -737,7 +737,7 @@ It is recommended to use the mouse wheel, and only for very rough movements the 
 
 ==== Pins
 
-`jogwheel` exports it's count value as HAL pin:
+`jogwheel` exports its count value as HAL pin:
 
 <widgetname>-s::
    out s32 pin
@@ -930,7 +930,7 @@ text_template::
 These containers are meant to be used to insensitize (grey out) or hide their children. +
 Insensitized children will not respond to input.
 
-*HAL_HideTable*:: Has one HAL BIT input pin which controls if it's child widgets are hidden or not.
+*HAL_HideTable*:: Has one HAL BIT input pin which controls if its child widgets are hidden or not.
 +
 --
 *Pin:*::
@@ -965,7 +965,7 @@ If you find some part of your GladeVCP application is 'grayed out' (insensitive)
 === LED
 
 The `hal_led` simulates a real indicator LED. +
-It has a single input BIT pin which controls it's state: ON or OFF.
+It has a single input BIT pin which controls its state: ON or OFF.
 
 ==== Properties
 
@@ -988,7 +988,7 @@ led_shape::
   LED Shape. +
   Valid values are 0 for round, 1 for oval and 2 for square shapes.
 led_blink_rate::
-  If set and LED is ON then it's blinking. +
+  If set and LED is ON then it is blinking. +
   Blink period is equal to "led_blink_rate" specified in milliseconds.
 create_hal_pin::
   Select/deselect creation of a HAL pin to control the LED. +
@@ -1111,7 +1111,7 @@ show limits::
   Used to select/deselect the limits text on bar.
 zero::
   Zero point of range. +
-  If it's inside of min/max range then the bar will grow from that value
+  If it is inside of min/max range then the bar will grow from that value
   and not from the left (or right) side of the widget. +
   Useful to represent values that may be both positive or negative.
 force_width, force_height::
@@ -1331,7 +1331,7 @@ There are Python methods:
 
 Hints::
   - If you set all the plotting options false but show_offsets true you get an offsets page instead of a graphics plot.
-  - If you get the zoom distance before changing the view then reset the zoom distance, it's much more user friendly.
+  - If you get the zoom distance before changing the view then reset the zoom distance, it is much more user friendly.
   - if you select an element in the preview, the selected element will be used as rotation center point
 
 .Gremlin Example
@@ -1721,7 +1721,7 @@ There are Python methods to control the widget:
   Refreshes the filelist. +
   Needed if you add a file without changing the directory.
 
-If the button box has been hidden, you can reach the functions of this button through it's clicked signals like so:
+If the button box has been hidden, you can reach the functions of this button through its clicked signals like so:
 
 ----
 [widget name].btn_home.emit("clicked")
@@ -2034,12 +2034,12 @@ VCP Action Widgets are derived from the `Gtk.Action` widget.
 
 The Action widget in a nutshell:
 
-- is an object available in Glade
-- has no visual appearance by itself
-- it's purpose: associate a visible, sensitive UI component like menu, toolbutton, button with a command.
+- It is an object available in Glade
+- It has no visual appearance by itself
+- Its purpose: Associate a visible, sensitive UI component like menu, toolbutton, button with a command.
   See these widget's 'General→Related→Action' property.
-- the "canned action" will be executed when the associated UI component is triggered (button press, menu click..)
-- provides an easy way to execute commands without resorting to Python programming.
+- The "canned action" will be executed when the associated UI component is triggered (button press, menu click..).
+- It provides an easy way to execute commands without resorting to Python programming.
 
 The appearance of VCP Actions in Glade is roughly as follows:
 
@@ -2117,16 +2117,15 @@ A simplex example is the `ESTOP` toggle button.
 
 Currently the following widgets are available:
 
-- The `ESTOP` toggle sends `ESTOP` or `ESTOP_RESET` commands to LinuxCNC depending on it's state.
+<<<<<<< HEAD
+- The `ESTOP` toggle sends `ESTOP` or `ESTOP_RESET` commands to LinuxCNC depending on its state.
 - The `ON/OFF` toggle sends `STATE_ON` and `STATE_OFF` commands.
 - `Pause/Resume` sends `AUTO_PAUSE` or `AUTO_RESUME` commands.
 
-The following toggle actions have only one associated command
-and use the `pressed` state to indicate that the requested operation is running:
+The following toggle actions have only one associated command and use the `pressed` state to indicate that the requested operation is running:
 
 - The `Run` toggle sends an `AUTO_RUN` command and waits in the `pressed` state until the interpreter is idle again.
-- The `Stop` toggle is inactive until the interpreter enters the active state (is running G-code)
-  and then allows user to send `AUTO_ABORT` command.
+- The `Stop` toggle is inactive until the interpreter enters the active state (is running G-code) and then allows user to send `AUTO_ABORT` command.
 - The `MDI` toggle sends given MDI command and waits for its completion in `pressed` inactive state.
 
 === The Action_MDI Toggle and Action_MDI widgets
@@ -2138,9 +2137,9 @@ The `Action_MDI` widget does not wait for command completion as the `Action_MDI`
 
 `configs/apps/gladevcp/mdi-command-example/whoareyou.ui` is a Glade UI file which conveys the basics:
 
-. Open it in Glade and study how it's done.
+. Open it in Glade and study how it is done.
 . Start AXIS, and then start this from a terminal window with `gladevcp whoareyou.ui`.
-. See the `hal_action_mdi1` action and it's `MDI command` property - this just executes `(MSG, "Hi, I'm an VCP_Action_MDI")` so there should be a message popup in AXIS like so:
+. See the `hal_action_mdi1` action and its `MDI command` property - this just executes `(MSG, "Hi, I'm an VCP_Action_MDI")` so there should be a message popup in AXIS like so:
 
 .Action_MDI Simple Example
 image::images/whoareyou.png[align="center"]
@@ -2251,9 +2250,8 @@ Once added, you can associate handlers with its following signals:
 
 === User Defined Actions
 
-Most widget sets, and their associated user interface editors,
-support the concept of callbacks - functions in user-written code,
-which are executed when 'something happens' in the UI - events like mouse clicks, characters typed, mouse movement, timer events, window hiding and exposure and so forth.
+Most widget sets, and their associated user interface editors, support the concept of callbacks,
+i.e. functions in user-written code which are executed when 'something happens' in the UI - events like mouse clicks, characters typed, mouse movement, timer events, window hiding and exposure and so forth.
 
 HAL output widgets typically map input-type events like a button press to a value change of the associated HAL pin by means of such a - predefined - callback.
 Within PyVCP, this is really the only type of event handling supported - doing something more complex, like executing MDI commands to call a G-code subroutine, is not supported.
@@ -2290,7 +2288,7 @@ print(INFO.MACHINE_IS_METRIC)
 ACTION.SET_ERROR_MESSAGE('Something went wrong')
 ----
 
-More information can be found here in the chapter on <<cha:gladevcp-libraries,GladeVCP Libraries modules>>.
+More information can be found here: <<cha:gladevcp-libraries,GladeVCP Libraries modules>>.
 There is a sample configuration that demonstrates using the core library with GladeVCP's action Python widgets and with a Python handler file.
 Try loading 'sim/axis/gladevcp/gladevcp_panel_tester'.
 
@@ -2319,7 +2317,7 @@ Enter 'on_button_press' there, and save the Glade file.
 Then add the option '-u handlers.py' to the GladeVCP command line.
 If your event handlers are spread over several files, just add multiple '-u <pyfilename>' options.
 
-Now, pressing the button should change its label since it's set in the callback function.
+Now, pressing the button should change its label since it is set in the callback function.
 
 What the `+-u+` flag does: all Python functions in this file are collected and setup as potential callback handlers for your Gtk widgets - they can be referenced from Glade 'Signals' tabs.
 The callback handlers are called with the particular object instance as parameter, like the GtkButton instance above, so you can apply any GtkButton method from there.
@@ -2344,18 +2342,15 @@ See the <<gladevcp:hal-pin-changed-signal,HAL Widgets>> section for details.
 
 The overall approach is as follows:
 
-- Design your UI with Glade, and set signal handlers where you want
-  actions associated with a widget.
-- Write a Python module which contains callable objects (see 'handler
-  models' below).
+- Design your UI with Glade, and set signal handlers where you want actions associated with a widget.
+- Write a Python module which contains callable objects (see 'handler models' below).
 - Pass your module's path name to GladeVCP with the '-u <module>' option.
-- GladeVCP imports the module, inspects it for signal handlers and
-  connects them to the widget tree.
+- GladeVCP imports the module, inspects it for signal handlers and connects them to the widget tree.
 - The main event loop is run.
 
 ==== The simple handler model
 
-For simple tasks it's sufficient to define functions named after the Glade signal handlers.
+For simple tasks it is sufficient to define functions named after the Glade signal handlers.
 These will be called when the corresponding event happens in the widget tree.
 Here's a trivial example - it assumes that the 'pressed' signal of a Gtk Button or HAL Button is linked to a callback called 'on_button_press':
 
@@ -2374,16 +2369,14 @@ Add this function to a Python file and run as follows:
 gladevcp -u <myhandler>.py mygui.ui
 ----
 
-Note communication between handlers has to go through global
-variables, which does not scale well and is positively un-pythonic.
+Note communication between handlers has to go through global variables, which does not scale well and is positively un-pythonic.
 This is why we came up with the class-based handler model.
 
 ==== The class-based handler model
 
-The idea here is: handlers are linked to class methods. The underlying
-class(es) are instantiated and inspected during GladeVCP startup and
-linked to the widget tree as signal handlers. So the task now is to
-write:
+The idea here is: Handlers are linked to class methods.
+The underlying class(es) are instantiated and inspected during GladeVCP startup and linked to the widget tree as signal handlers.
+So the task now is to write:
 
 - one or more several class definition(s) with one or several methods, in one module or split over several modules,
 - a function 'get_handlers' in each module which will return a list of class instances to GladeVCP - their method names will be linked to signal handlers
@@ -2405,8 +2398,7 @@ Now, 'on_this_signal' will be available as signal handler to your widget tree.
 ==== GladeVCP-specific signals
 
 For GladeVCP panel which respond to HAL inputs it may be important that the handler code can tell that the GladeVCP panel is currently active and displayed.
-For example a panel inside the Touchy interface might well need to perform an action when the switch connected to touchy.cycle-start is operated
-(in the same way that the native tabs respond differently to the same button). +
+For example a panel inside the Touchy interface might well need to perform an action when the switch connected to touchy.cycle-start is operated (in the same way that the native tabs respond differently to the same button). +
 To make this possible, a signal is sent from the GUI (at the time of writing, only Touchy) to the embedded tab.
 The signal is of type "Gladevcp" and the two messages sent are "Visible" and "Hidden".
 (Note that the signals  have a fixed length of 20 characters so only the first characters should be used in any comparison, hence the [:7] below.)
@@ -2454,12 +2446,12 @@ Also, the complete list of widgets is available as `builder.get_objects()` regar
 === Initialization sequence
 
 It is important to know in which state of affairs your `get_handlers()` function is called so you know what is safe to do there and what not.
-First, modules are imported and initialized in command line order.  After successful import, `get_handlers()` is called in the following state:
+First, modules are imported and initialized in command line order.
+After successful import, `get_handlers()` is called in the following state:
 
 - The widget tree is created, but not yet realized (no toplevel `window.show()` has been executed yet).
-- The halcomp HAL component is set up and all HAL widget's pins have already been added to it.
-- It is safe to add more HAL pins because `halcomp.ready()` has not yet been called at this point, so you may add your own pins,
-  for instance in the class `__init__()` method.
+- The halcomp HAL component is set up and all HAL widgets' pins have already been added to it.
+- It is safe to add more HAL pins because `halcomp.ready()` has not yet been called at this point, so you may add your own pins, for instance in the class `__init__()` method.
 
 Once all modules have been imported and method names extracted, the following steps happen:
 
@@ -2472,8 +2464,7 @@ Once all modules have been imported and method names extracted, the following st
 So when your handler class is initialized, all widgets are existent but not yet realized (displayed on screen).
 And the HAL component isn't ready as well, so its unsafe to access pins values in your `__init__()` method.
 
-If you want to have a callback to execute at program start after it is safe to access HAL pins,
-then a connect a handler to the realize signal of the top level window1 (which might be its only real purpose).
+If you want to have a callback to execute at program start after it is safe to access HAL pins, then a connect a handler to the realize signal of the top level window1 (which might be its only real purpose).
 At this point GladeVCP is done with all setup tasks, the HAL file has been run, and GladeVCP is about to enter the Gtk main loop.
 
 === Multiple callbacks with the same name
@@ -2485,7 +2476,8 @@ When the corresponding signal occurs, these methods will be called in definition
 === The GladeVCP `-U <useropts>` flag
 
 Instead of extending GladeVCP for any conceivable option which could potentially be useful for a handler class, you may use the -U <useroption> flag (repeatedly if you wish).
-This flag collects a list of <useroption> strings. This list is passed to the get_handlers() function (useropts argument).
+This flag collects a list of <useroption> strings.
+This list is passed to the get_handlers() function (useropts argument).
 Your code is free to interpret these strings as you see fit.
 An possible usage would be to pass them to the Python exec function in your `get_handlers()` as follows:
 
@@ -2510,7 +2502,7 @@ This should set debug to 2 and confirm that your module actually did it.
 
 === Persistent variables in GladeVCP
 
-An annoying aspect of GladeVCP in its earlier form and PyVCP is the fact that you may change values and HAL pins through text entry, sliders, spin boxes, toggle buttons etc.,
+An annoying aspect of GladeVCP in its earlier form and PyVCP is the fact that you may change values and HAL pins through text entry, sliders, spin boxes, toggle buttons, etc.,
 but their settings are not saved and restored at the next run of LinuxCNC - they start at the default value as set in the panel or widget definition.
 
 GladeVCP has an easy-to-use mechanism to save and restore the state of HAL widgets, and program variables (in fact any instance attribute of type int, float, bool or string).
@@ -2614,8 +2606,7 @@ Next time you start the GladeVCP application, the widgets should come up in the 
 
 [CAUTION]
 ====
-The 'GtkWidget' line has a similarly sounding 'destroy-event' - *dont use that to connect to the 'on_destroy' handler, it wont work* -
-make sure you use the 'destroy' event from the 'GtkObject' line.
+The 'GtkWidget' line has a similarly sounding 'destroy-event' - *dont use that to connect to the 'on_destroy' handler, it wont work* - make sure you use the 'destroy' event from the 'GtkObject' line.
 ====
 
 === Saving state when Ctrl-C is pressed
@@ -2775,9 +2766,9 @@ I get an unexpected unmap event in my handler function right after startup. What
 
 My GladeVCP program starts, but no window appears where I expect it to be?::
   The window AXIS allocates for GladeVCP will obtain the 'natural size' of all its child widgets combined.
-  It's the child widget's job to request a size (width and/or height).
+  It is the child widget's job to request a size (width and/or height).
   However, not all widgets do request a width greater than 0, for instance the Graph widget in its current form.
-  If there's such a widget in your Glade file and it's the one which defines the layout you might want to set its width explicitly.
+  If there's such a widget in your Glade file and it is the one which defines the layout you might want to set its width explicitly.
   Note that setting the window1 width and height properties in Glade does not make sense because this window will be orphaned during re-parenting and hence its geometry will have no impact on layout (see above).
   The general rule is: if you manually run a UI file with 'gladevcp <uifile>' and its window has reasonable geometry, it should come up in AXIS properly as well.
 
@@ -2809,8 +2800,8 @@ I defined a `hal_spinbutton` widget in Glade, and set a default `value` property
 
 - Make sure you have the development version of LinuxCNC installed.
   You don't need the axisrc file any more, this was mentioned in the old GladeVCP wiki page.
-- Run GladeVCP or AXIS from a terminal window. If you get Python errors,
-  check whether there's still a `/usr/lib/python2.6/dist-packages/hal.so` file lying around besides the newer `/usr/lib/python2.6/dist-packages/_hal.so` (note the underscore);
+- Run GladeVCP or AXIS from a terminal window.
+  If you get Python errors, check whether there's still a `/usr/lib/python2.6/dist-packages/hal.so` file lying around besides the newer `/usr/lib/python2.6/dist-packages/_hal.so` (note the underscore);
   if yes, remove the `hal.so` file. It has been superseded by hal.py in the same directory and  confuses the import mechanism.
 - If you're using run-in-place, do a 'make clean' to remove any accidentally left over hal.so file, then 'make'.
 - If you're using 'HAL_table' or 'HAL_HBox' widgets, be aware they have an HAL pin associated with it which is off by default.
@@ -2821,11 +2812,12 @@ I defined a `hal_spinbutton` widget in Glade, and set a default `value` property
 We believe key handling works OK, but since it is new code, we're telling about it you so you can watch out for problems; please let us know of errors or odd behavior.
 This is the story:
 
-AXIS uses the TkInter widget set. GladeVCP applications use Gtk widgets and run in a separate process context.
+AXIS uses the TkInter widget set.
+GladeVCP applications use Gtk widgets and run in a separate process context.
 They are hooked into AXIS with the Xembed protocol.
 This allows a child application like GladeVCP to properly fit in a parent's window, and - in theory - have integrated event handling.
 
-However, this assumes that both parent and child application properly support the Xembed protocol, which Gtk does, but TkInter doesn't.
+However, this assumes that both parent and child application properly support the Xembed protocol, which Gtk does, but TkInter does not.
 A consequence of this is that certain keys would not be forwarded from a GladeVCP panel to AXIS properly under all circumstances.
 One of these situations was the case when an Entry, or SpinButton widget had focus:
 In this case, for instance an Escape key would not have been forwarded to AXIS and cause an abort as it should, with potentially disastrous consequences.
@@ -2840,8 +2832,7 @@ link:https://wiki.linuxcnc.org/cgi-bin/wiki.pl?GladeVCP_Custom_Widgets[GladeVCP 
 
 == Auxiliary GladeVCP Applications
 
-Support is provided for independently installed GladeVCP applications that conform to system directory placements
-as defined by the LINUXCNC_AUX_GLADEVCP and LINUXCNC_AUX_EXAMPLES items reported by the script linuxcnc_var:
+Support is provided for independently installed GladeVCP applications that conform to system directory placements as defined by the LINUXCNC_AUX_GLADEVCP and LINUXCNC_AUX_EXAMPLES items reported by the script linuxcnc_var:
 
 ----
 $ linuxcnc_var LINUXCNC_AUX_GLADEVCP
