@@ -2,7 +2,7 @@
 
 # ---SET CONSTANTS---
 set numJoints $::KINS(JOINTS)
-set z-axis [expr $numJoints - 1]
+set zAxis [string first "z" [string tolower $::TRAJ(COORDINATES)]]
 
 # ---LOAD COMPONENTS---
 loadrt $::KINS(KINEMATICS)
@@ -59,7 +59,7 @@ addf db_breakaway servo-thread
 addf db_arc-ok    servo-thread
 
 # ---Z JOINT CONNECTION---
-net plasmac:axis-position joint.${z-axis}.pos-fb => plasmac.axis-z-position
+net plasmac:axis-position joint.${zAxis}.pos-fb => plasmac.axis-z-position
 
 # ---TOOL CHANGE PASSTHROUGH
 net sim:tool-number                                    <= iocontrol.0.tool-prep-number
