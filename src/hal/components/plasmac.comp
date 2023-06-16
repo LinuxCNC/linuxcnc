@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.235
+1.236
 
 .I SUMMARY:
 .br
@@ -2240,9 +2240,9 @@ FUNCTION(_) {
                 }
                 if(x_offset_counts == 0 && y_offset_counts == 0){
                     if((int)(x_offset_current * offset_res) == 0 && (int)(y_offset_current * offset_res) == 0){
-                        cut_recovering = FALSE;
                         laser_recovery_state = OFF;
-                        if(cut_recovery){
+                        if(cut_recovering){
+                            cut_recovering = FALSE;
                             feed_hold = FALSE;
                             thc_delay_timer = thc_delay;
                             if(mode < 2){
