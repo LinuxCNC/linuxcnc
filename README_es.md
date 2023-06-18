@@ -22,4 +22,4 @@ La traduccion al español de este software queda adherida a este descargo y a la
 
 Consulte el archivo 'docs/src/code/building-linuxcnc.txt' para obtener información sobre cómo construir y ejecutar el software, o vea:
 
-http://linuxcnc.org/docs/devel/html/code/building-linuxcnc.html
+http://linuxcnc.org/docs/2.9/html/code/building-linuxcnc.html

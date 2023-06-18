@@ -402,7 +402,7 @@ MDI_COMMAND=(debug,macro16)
 
 Exercise caution if using copy and paste of this example code from the online web docs.
 Certain characters are incompatibly encoded by the web site (minus becomes em-dash).
-It is safer to copy and paste from https://raw.githubusercontent.com/LinuxCNC/linuxcnc/2.8/src/hal/user_comps/xhc-whb04b-6/example-configuration.md[].
+It is safer to copy and paste from https://raw.githubusercontent.com/LinuxCNC/linuxcnc/2.9/src/hal/user_comps/xhc-whb04b-6/example-configuration.md[].
 
 ----
 #
