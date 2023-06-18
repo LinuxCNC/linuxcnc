@@ -188,40 +188,6 @@ class EMC_JOINT_CMD_MSG:public RCS_CMD_MSG {
 };
 
 /**
- * Set the joint type to linear or angular.
- * Similar to the JOINT_TYPE field in the INI file.
- */
-class EMC_JOINT_SET_JOINT:public EMC_JOINT_CMD_MSG {
-  public:
-    EMC_JOINT_SET_JOINT():EMC_JOINT_CMD_MSG(EMC_JOINT_SET_JOINT_TYPE,
-					 sizeof(EMC_JOINT_SET_JOINT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    // EMC_JOINT_LINEAR, EMC_JOINT_ANGULAR
-    unsigned char jointType;
-};
-
-/**
- * Set the units conversion factor.
- * @see EMC_JOINT_SET_INPUT_SCALE
- */
-class EMC_JOINT_SET_UNITS:public EMC_JOINT_CMD_MSG {
-  public:
-    EMC_JOINT_SET_UNITS():EMC_JOINT_CMD_MSG(EMC_JOINT_SET_UNITS_TYPE,
-					  sizeof(EMC_JOINT_SET_UNITS)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    // units per mm, deg for linear, angular
-    double units;
-};
-
-/**
  * Set the Axis backlash.
  * This command sets the backlash value.
  */
@@ -326,30 +292,10 @@ class EMC_JOINT_SET_MAX_VELOCITY:public EMC_JOINT_CMD_MSG {
     double vel;
 };
 
-class EMC_JOINT_INIT:public EMC_JOINT_CMD_MSG {
-  public:
-    EMC_JOINT_INIT():EMC_JOINT_CMD_MSG(EMC_JOINT_INIT_TYPE,
-				     sizeof(EMC_JOINT_INIT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
 class EMC_JOINT_HALT:public EMC_JOINT_CMD_MSG {
   public:
     EMC_JOINT_HALT():EMC_JOINT_CMD_MSG(EMC_JOINT_HALT_TYPE,
 				     sizeof(EMC_JOINT_HALT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_JOINT_ABORT:public EMC_JOINT_CMD_MSG {
-  public:
-    EMC_JOINT_ABORT():EMC_JOINT_CMD_MSG(EMC_JOINT_ABORT_TYPE,
-				      sizeof(EMC_JOINT_ABORT)) {
     };
 
     // For internal NML/CMS use only.
@@ -447,26 +393,6 @@ class EMC_JOG_STOP:public EMC_JOG_CMD_MSG {
     void update(CMS * cms);
 
     int jjogmode; // 1==> joint jog, 0==> axis jog
-};
-
-class EMC_JOINT_ACTIVATE:public EMC_JOINT_CMD_MSG {
-  public:
-    EMC_JOINT_ACTIVATE():EMC_JOINT_CMD_MSG(EMC_JOINT_ACTIVATE_TYPE,
-					 sizeof(EMC_JOINT_ACTIVATE)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_JOINT_DEACTIVATE:public EMC_JOINT_CMD_MSG {
-  public:
-    EMC_JOINT_DEACTIVATE():EMC_JOINT_CMD_MSG(EMC_JOINT_DEACTIVATE_TYPE,
-					   sizeof(EMC_JOINT_DEACTIVATE)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
 };
 
 class EMC_JOINT_OVERRIDE_LIMITS:public EMC_JOINT_CMD_MSG {
@@ -947,18 +873,6 @@ class EMC_TRAJ_SET_ROTATION:public EMC_TRAJ_CMD_MSG {
     double rotation;
 };
 
-class EMC_TRAJ_SET_HOME:public EMC_TRAJ_CMD_MSG {
-  public:
-    EMC_TRAJ_SET_HOME():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_HOME_TYPE,
-					 sizeof(EMC_TRAJ_SET_HOME)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    EmcPose home;
-};
-
 class EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG():EMC_TRAJ_CMD_MSG
@@ -1081,36 +995,6 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
 class EMC_MOTION_CMD_MSG:public RCS_CMD_MSG {
   public:
     EMC_MOTION_CMD_MSG(NMLTYPE t, size_t s):RCS_CMD_MSG(t, s) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_MOTION_INIT:public EMC_MOTION_CMD_MSG {
-  public:
-    EMC_MOTION_INIT():EMC_MOTION_CMD_MSG(EMC_MOTION_INIT_TYPE,
-					 sizeof(EMC_MOTION_INIT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_MOTION_HALT:public EMC_MOTION_CMD_MSG {
-  public:
-    EMC_MOTION_HALT():EMC_MOTION_CMD_MSG(EMC_MOTION_HALT_TYPE,
-					 sizeof(EMC_MOTION_HALT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_MOTION_ABORT:public EMC_MOTION_CMD_MSG {
-  public:
-    EMC_MOTION_ABORT():EMC_MOTION_CMD_MSG(EMC_MOTION_ABORT_TYPE,
-					  sizeof(EMC_MOTION_ABORT)) {
     };
 
     // For internal NML/CMS use only.
@@ -1243,26 +1127,6 @@ class EMC_TASK_CMD_MSG:public RCS_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_TASK_INIT:public EMC_TASK_CMD_MSG {
-  public:
-    EMC_TASK_INIT():EMC_TASK_CMD_MSG(EMC_TASK_INIT_TYPE,
-				     sizeof(EMC_TASK_INIT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_TASK_HALT:public EMC_TASK_CMD_MSG {
-  public:
-    EMC_TASK_HALT():EMC_TASK_CMD_MSG(EMC_TASK_HALT_TYPE,
-				     sizeof(EMC_TASK_HALT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
 class EMC_TASK_ABORT:public EMC_TASK_CMD_MSG {
   public:
     EMC_TASK_ABORT():EMC_TASK_CMD_MSG(EMC_TASK_ABORT_TYPE,
@@ -1320,16 +1184,6 @@ class EMC_TASK_PLAN_RUN:public EMC_TASK_CMD_MSG {
 
     int line;			// line to run from; 0 or 1 means from start,
     // negative means run through to verify
-};
-
-class EMC_TASK_PLAN_READ:public EMC_TASK_CMD_MSG {
-  public:
-    EMC_TASK_PLAN_READ():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_READ_TYPE,
-					  sizeof(EMC_TASK_PLAN_READ)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
 };
 
 class EMC_TASK_PLAN_EXECUTE:public EMC_TASK_CMD_MSG {
@@ -1707,16 +1561,6 @@ class EMC_AUX_ESTOP_OFF:public EMC_AUX_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_AUX_ESTOP_RESET:public EMC_AUX_CMD_MSG {
-  public:
-    EMC_AUX_ESTOP_RESET():EMC_AUX_CMD_MSG(EMC_AUX_ESTOP_RESET_TYPE,
-					sizeof(EMC_AUX_ESTOP_RESET)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
 class EMC_AUX_INPUT_WAIT:public EMC_AUX_CMD_MSG {
   public:
     EMC_AUX_INPUT_WAIT():EMC_AUX_CMD_MSG(EMC_AUX_INPUT_WAIT_TYPE,
@@ -2046,45 +1890,6 @@ class EMC_IO_CMD_MSG:public RCS_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_IO_INIT:public EMC_IO_CMD_MSG {
-  public:
-    EMC_IO_INIT():EMC_IO_CMD_MSG(EMC_IO_INIT_TYPE, sizeof(EMC_IO_INIT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_IO_HALT:public EMC_IO_CMD_MSG {
-  public:
-    EMC_IO_HALT():EMC_IO_CMD_MSG(EMC_IO_HALT_TYPE, sizeof(EMC_IO_HALT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_IO_ABORT:public EMC_IO_CMD_MSG {
-  public:
-    EMC_IO_ABORT():EMC_IO_CMD_MSG(EMC_IO_ABORT_TYPE, sizeof(EMC_IO_ABORT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_IO_SET_CYCLE_TIME:public EMC_IO_CMD_MSG {
-  public:
-    EMC_IO_SET_CYCLE_TIME():EMC_IO_CMD_MSG(EMC_IO_SET_CYCLE_TIME_TYPE,
-					   sizeof(EMC_IO_SET_CYCLE_TIME)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    double cycleTime;
-};
-
 // EMC_IO status base class
 class EMC_IO_STAT_MSG:public RCS_STAT_MSG {
   public:
@@ -2125,33 +1930,6 @@ class EMC_IO_STAT:public EMC_IO_STAT_MSG {
 class EMC_CMD_MSG:public RCS_CMD_MSG {
   public:
     EMC_CMD_MSG(NMLTYPE t, size_t s):RCS_CMD_MSG(t, s) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_INIT:public EMC_CMD_MSG {
-  public:
-    EMC_INIT():EMC_CMD_MSG(EMC_INIT_TYPE, sizeof(EMC_INIT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_HALT:public EMC_CMD_MSG {
-  public:
-    EMC_HALT():EMC_CMD_MSG(EMC_HALT_TYPE, sizeof(EMC_HALT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_ABORT:public EMC_CMD_MSG {
-  public:
-    EMC_ABORT():EMC_CMD_MSG(EMC_ABORT_TYPE, sizeof(EMC_ABORT)) {
     };
 
     // For internal NML/CMS use only.

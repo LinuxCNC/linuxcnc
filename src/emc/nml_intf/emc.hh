@@ -59,25 +59,19 @@ struct PM_CARTESIAN;
 
 // NML for EMC_JOINT
 
-#define EMC_JOINT_SET_JOINT_TYPE                       ((NMLTYPE) 101)
-#define EMC_JOINT_SET_UNITS_TYPE                      ((NMLTYPE) 102)
 #define EMC_JOINT_SET_MIN_POSITION_LIMIT_TYPE         ((NMLTYPE) 107)
 #define EMC_JOINT_SET_MAX_POSITION_LIMIT_TYPE         ((NMLTYPE) 108)
 #define EMC_JOINT_SET_FERROR_TYPE                     ((NMLTYPE) 111)
 #define EMC_JOINT_SET_HOMING_PARAMS_TYPE              ((NMLTYPE) 112)
 #define EMC_JOINT_SET_MIN_FERROR_TYPE                 ((NMLTYPE) 115)
 #define EMC_JOINT_SET_MAX_VELOCITY_TYPE               ((NMLTYPE) 116)
-#define EMC_JOINT_INIT_TYPE                           ((NMLTYPE) 118)
 #define EMC_JOINT_HALT_TYPE                           ((NMLTYPE) 119)
-#define EMC_JOINT_ABORT_TYPE                          ((NMLTYPE) 120)
 #define EMC_JOINT_ENABLE_TYPE                         ((NMLTYPE) 121)
 #define EMC_JOINT_DISABLE_TYPE                        ((NMLTYPE) 122)
 #define EMC_JOINT_HOME_TYPE                           ((NMLTYPE) 123)
 #define EMC_JOG_CONT_TYPE                             ((NMLTYPE) 124)
 #define EMC_JOG_INCR_TYPE                             ((NMLTYPE) 125)
 #define EMC_JOG_ABS_TYPE                              ((NMLTYPE) 126)
-#define EMC_JOINT_ACTIVATE_TYPE                       ((NMLTYPE) 127)
-#define EMC_JOINT_DEACTIVATE_TYPE                     ((NMLTYPE) 128)
 #define EMC_JOINT_OVERRIDE_LIMITS_TYPE                ((NMLTYPE) 129)
 #define EMC_JOINT_LOAD_COMP_TYPE                      ((NMLTYPE) 131)
 #define EMC_JOINT_SET_BACKLASH_TYPE                   ((NMLTYPE) 134)
@@ -120,7 +114,6 @@ struct PM_CARTESIAN;
 #define EMC_TRAJ_SET_TERM_COND_TYPE                  ((NMLTYPE) 222)
 #define EMC_TRAJ_SET_OFFSET_TYPE                     ((NMLTYPE) 223)
 #define EMC_TRAJ_SET_G5X_TYPE                        ((NMLTYPE) 224)
-#define EMC_TRAJ_SET_HOME_TYPE                       ((NMLTYPE) 225)
 #define EMC_TRAJ_SET_ROTATION_TYPE                   ((NMLTYPE) 226)
 #define EMC_TRAJ_SET_G92_TYPE                        ((NMLTYPE) 227)
 #define EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE       ((NMLTYPE) 228)
@@ -137,9 +130,6 @@ struct PM_CARTESIAN;
 
 // EMC_MOTION aggregate class type declaration
 
-#define EMC_MOTION_INIT_TYPE                         ((NMLTYPE) 301)
-#define EMC_MOTION_HALT_TYPE                         ((NMLTYPE) 302)
-#define EMC_MOTION_ABORT_TYPE                        ((NMLTYPE) 303)
 #define EMC_MOTION_SET_AOUT_TYPE                     ((NMLTYPE) 304)
 #define EMC_MOTION_SET_DOUT_TYPE                     ((NMLTYPE) 305)
 #define EMC_MOTION_ADAPTIVE_TYPE                     ((NMLTYPE) 306)
@@ -148,14 +138,11 @@ struct PM_CARTESIAN;
 
 // NML for EMC_TASK
 
-#define EMC_TASK_INIT_TYPE                           ((NMLTYPE) 501)
-#define EMC_TASK_HALT_TYPE                           ((NMLTYPE) 502)
 #define EMC_TASK_ABORT_TYPE                          ((NMLTYPE) 503)
 #define EMC_TASK_SET_MODE_TYPE                       ((NMLTYPE) 504)
 #define EMC_TASK_SET_STATE_TYPE                      ((NMLTYPE) 505)
 #define EMC_TASK_PLAN_OPEN_TYPE                      ((NMLTYPE) 506)
 #define EMC_TASK_PLAN_RUN_TYPE                       ((NMLTYPE) 507)
-#define EMC_TASK_PLAN_READ_TYPE                      ((NMLTYPE) 508)
 #define EMC_TASK_PLAN_EXECUTE_TYPE                   ((NMLTYPE) 509)
 #define EMC_TASK_PLAN_PAUSE_TYPE                     ((NMLTYPE) 510)
 #define EMC_TASK_PLAN_STEP_TYPE                      ((NMLTYPE) 511)
@@ -194,7 +181,6 @@ struct PM_CARTESIAN;
 // EMC_AUX type declarations
 #define EMC_AUX_ESTOP_ON_TYPE                         ((NMLTYPE) 1206)
 #define EMC_AUX_ESTOP_OFF_TYPE                        ((NMLTYPE) 1207)
-#define EMC_AUX_ESTOP_RESET_TYPE                      ((NMLTYPE) 1208)
 #define EMC_AUX_INPUT_WAIT_TYPE                       ((NMLTYPE) 1209)
 
 #define EMC_AUX_STAT_TYPE                             ((NMLTYPE) 1299)
@@ -226,22 +212,7 @@ struct PM_CARTESIAN;
 #define EMC_LUBE_OFF_TYPE                            ((NMLTYPE) 1505)
 #define EMC_LUBE_STAT_TYPE                           ((NMLTYPE) 1599)
 
-// EMC_IO aggregate class type declaration
-#define EMC_IO_INIT_TYPE                             ((NMLTYPE) 1601)
-#define EMC_IO_HALT_TYPE                             ((NMLTYPE) 1602)
-#define EMC_IO_ABORT_TYPE                            ((NMLTYPE) 1603)
-#define EMC_IO_SET_CYCLE_TIME_TYPE                   ((NMLTYPE) 1604)
-
 #define EMC_IO_STAT_TYPE                             ((NMLTYPE) 1699)
-
-// EMC aggregate class type declaration
-// these are placeholders
-#define EMC_LOG_TYPE_IO_CMD      21	// command into EMC IO controller
-#define EMC_LOG_TYPE_TASK_CMD    51	// command into EMC Task controller
-
-#define EMC_INIT_TYPE                                ((NMLTYPE) 1901)
-#define EMC_HALT_TYPE                                ((NMLTYPE) 1902)
-#define EMC_ABORT_TYPE                               ((NMLTYPE) 1903)
 
 #define EMC_STAT_TYPE                                ((NMLTYPE) 1999)
 

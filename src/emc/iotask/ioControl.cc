@@ -841,11 +841,6 @@ int main(int argc, char *argv[])
         case 0:
             break;
 
-        case EMC_IO_INIT_TYPE:
-            rtapi_print_msg(RTAPI_MSG_DBG, "EMC_IO_INIT\n");
-            hal_init_pins();
-            break;
-
         case EMC_TOOL_INIT_TYPE:
             tooldata_load(io_tool_table_file);
             reload_tool_number(emcioStatus.tool.toolInSpindle);
@@ -1083,12 +1078,6 @@ int main(int argc, char *argv[])
             *(iocontrol_data->user_enable_out) = 1; //we're good to enable on ESTOP_OFF
             /* generate a rising edge to reset optional HAL latch */
             *(iocontrol_data->user_request_enable) = 1;
-            break;
-
-        case EMC_AUX_ESTOP_RESET_TYPE:
-            rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ESTOP_RESET\n");
-            // doesn't do anything right now, this will need to come from GUI
-            // but that means task needs to be rewritten/rethinked
             break;
 
         case EMC_LUBE_ON_TYPE:

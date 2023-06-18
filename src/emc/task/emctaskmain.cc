@@ -810,7 +810,6 @@ static int emcTaskPlan(void)
 	    case EMC_JOINT_ENABLE_TYPE:
 	    case EMC_JOINT_SET_FERROR_TYPE:
 	    case EMC_JOINT_SET_MIN_FERROR_TYPE:
-	    case EMC_JOINT_ABORT_TYPE:
 	    case EMC_JOINT_LOAD_COMP_TYPE:
 	    case EMC_JOINT_UNHOME_TYPE:
 	    case EMC_TRAJ_SET_SCALE_TYPE:
@@ -822,7 +821,6 @@ static int emcTaskPlan(void)
 	    case EMC_TRAJ_SET_SO_ENABLE_TYPE:
 	    case EMC_TRAJ_SET_VELOCITY_TYPE:
 	    case EMC_TRAJ_SET_ACCELERATION_TYPE:
-	    case EMC_TASK_INIT_TYPE:
 	    case EMC_TASK_SET_MODE_TYPE:
 	    case EMC_TASK_SET_STATE_TYPE:
 	    case EMC_TASK_PLAN_INIT_TYPE:
@@ -2101,10 +2099,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
 	// task commands
-
-    case EMC_TASK_INIT_TYPE:
-	retval = emcTaskInit();
-	break;
 
     case EMC_TASK_ABORT_TYPE:
 	// abort everything
