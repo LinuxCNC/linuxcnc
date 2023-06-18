@@ -3032,6 +3032,42 @@ def get_handlers(halcomp,builder,useropts):
     return [HandlerClass(halcomp,builder,useropts)]
 ----
 
+=== Value-changed callback with hal_glib
+
+GladeVCP uses the hal_glib library, which can be used to connect a "watcher" signal on a HAL input pin. +
+This signal can be used to register a function to call when the HAL pin changes state. +
+
+One must import the `hal_glib` and the `hal` modules:
+
+[source,python]
+----
+import hal_glib
+import hal
+----
+
+Then make a pin and connect a 'value-changed' (the watcher) signal to a function call:
+
+[source,python]
+----
+class HandlerClass:
+    def __init__(self, halcomp,builder,useropts):
+        self.example_trigger = hal_glib.GPin(halcomp.newpin('example-trigger', hal.HAL_BIT, hal.HAL_IN))
+        self.example_trigger.connect('value-changed', self._on_example_trigger_change)
+----
+
+And have a function to be called:
+
+[source,python]
+----
+    def _on_example_trigger_change(self,pin,userdata=None):
+        print("pin value changed to: {}".format(pin.get()))
+        print("pin name= {}".format(pin.get_name()))
+        print("pin type= {}".format(pin.get_type()))
+
+        # this can be called outside the function
+        self.example_trigger.get()
+----
+
 === Examples, and rolling your own GladeVCP application
 
 Visit `linuxcnc_root_directory/configs/apps/gladevcp` for running
