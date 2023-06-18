@@ -154,7 +154,7 @@ int Interp::convert_cycle_g83(block_pointer block,
      Thanks to Billy Singleton for pointing it out... */
   CHKS((delta <= 0.0), NCE_NEGATIVE_OR_ZERO_Q_VALUE_USED);
 
-  rapid_delta = _setup.parameter_g83_peck_clearance;;
+  rapid_delta = block->p_flag?block->p_number:_setup.parameter_g83_peck_clearance;
 
   for (current_depth = (r - delta);
        current_depth > bottom_z; current_depth = (current_depth - delta)) {
@@ -215,7 +215,7 @@ int Interp::convert_cycle_g73(block_pointer block,
      Thanks to Billy Singleton for pointing it out... */
   CHKS((delta <= 0.0), NCE_NEGATIVE_OR_ZERO_Q_VALUE_USED);
 
-  rapid_delta = _setup.parameter_g73_peck_clearance;
+  rapid_delta = block->p_flag?block->p_number:_setup.parameter_g73_peck_clearance;
 
   for (current_depth = (r - delta);
     current_depth > bottom_z; current_depth = (current_depth - delta)) {
