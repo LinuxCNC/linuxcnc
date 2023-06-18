@@ -336,7 +336,6 @@ extern int emcOperatorDisplay(int id, const char *fmt, ...) __attribute__((forma
 
 // implementation functions for EMC_AXIS types
 
-extern int emcAxisSetUnits(int axis, double units);
 extern int emcAxisSetMinPositionLimit(int axis, double limit);
 extern int emcAxisSetMaxPositionLimit(int axis, double limit);
 extern int emcAxisSetMaxVelocity(int axis, double vel, double ext_offset_vel);
@@ -397,7 +396,6 @@ extern int emcTrajUpdateTag(StateTag const &tag);
 extern int emcTrajSetAxes(int axismask);
 extern int emcTrajSetSpindles(int spindles);
 extern int emcTrajSetUnits(double linearUnits, double angularUnits);
-extern int emcTrajSetCycleTime(double cycleTime);
 extern int emcTrajSetMode(EMC_TRAJ_MODE traj_mode);
 extern int emcTrajSetVelocity(double vel, double ini_maxvel);
 extern int emcTrajSetAcceleration(double acc);
@@ -432,13 +430,10 @@ extern int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center, PM_CARTESIAN
 extern int emcTrajSetTermCond(int cond, double tolerance);
 extern int emcTrajSetSpindleSync(int spindle, double feed_per_revolution, bool wait_for_index);
 extern int emcTrajSetOffset(EmcPose tool_offset);
-extern int emcTrajSetOrigin(EmcPose origin);
-extern int emcTrajSetRotation(double rotation);
 extern int emcTrajSetHome(EmcPose home);
 extern int emcTrajClearProbeTrippedFlag();
 extern int emcTrajProbe(EmcPose pos, int type, double vel, 
                         double ini_maxvel, double acc, unsigned char probe_type);
-extern int emcAuxInputWait(int index, int input_type, int wait_type, int timeout);
 extern int emcTrajRigidTap(EmcPose pos, double vel, double ini_maxvel, double acc, double scale);
 
 extern int emcTrajUpdate(EMC_TRAJ_STAT * stat);
@@ -462,9 +457,6 @@ int setup_inihal(void);
 
 // implementation functions for EMC_TOOL types
 
-extern int emcToolInit();
-extern int emcToolHalt();
-extern int emcToolAbort();
 extern int emcToolPrepare(int tool);
 extern int emcToolLoad();
 extern int emcToolUnload();
@@ -474,16 +466,10 @@ extern int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diame
 extern int emcToolSetNumber(int number);
 extern int emcToolStartChange();
 
-extern int emcToolSetToolTableFile(const char *file);
-
-extern int emcToolUpdate(EMC_TOOL_STAT * stat);
-
 // implementation functions for EMC_AUX types
 
 extern int emcAuxEstopOn();
 extern int emcAuxEstopOff();
-
-extern int emcAuxUpdate(EMC_AUX_STAT * stat);
 
 // implementation functions for EMC_SPINDLE types
 
@@ -491,15 +477,12 @@ extern int emcSpindleAbort(int spindle);
 extern int emcSpindleSpeed(int spindle, double speed, double factor, double xoffset);
 extern int emcSpindleOn(int spindle, double speed, double factor, double xoffset,int wait_for_atspeed = 1);
 extern int emcSpindleOrient(int spindle, double orientation, int direction);
-extern int emcSpindleWaitOrientComplete(double timout);
 extern int emcSpindleOff(int spindle);
 extern int emcSpindleIncrease(int spindle);
 extern int emcSpindleDecrease(int spindle);
 extern int emcSpindleConstant(int spindle);
 extern int emcSpindleBrakeRelease(int spindle);
 extern int emcSpindleBrakeEngage(int spindle);
-
-extern int emcSpindleSetMode(int mode); //determines if Spindle needs to reset on abort
 
 extern int emcSpindleUpdate(EMC_SPINDLE_STAT stat[], int num_spindles);
 
@@ -510,30 +493,21 @@ extern int emcCoolantMistOff();
 extern int emcCoolantFloodOn();
 extern int emcCoolantFloodOff();
 
-extern int emcCoolantUpdate(EMC_COOLANT_STAT * stat);
-
 // implementation functions for EMC_LUBE types
 
 extern int emcLubeOn();
 extern int emcLubeOff();
-
-extern int emcLubeUpdate(EMC_LUBE_STAT * stat);
 
 // implementation functions for EMC_IO types
 
 extern int emcIoInit();
 extern int emcIoHalt();
 extern int emcIoAbort(int reason);
-extern int emcIoSetCycleTime(double cycleTime);
 extern int emcIoSetDebug(int debug);
 
 extern int emcIoUpdate(EMC_IO_STAT * stat);
 
 // implementation functions for EMC aggregate types
-
-extern int emcInit();
-extern int emcHalt();
-extern int emcAbort();
 
 int emcSetMaxFeedOverride(double maxFeedScale);
 int emcSetupArcBlends(int arcBlendEnable,
