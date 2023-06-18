@@ -159,8 +159,6 @@ extern "C" {
 	EMCMOT_JOG_ABORT,               /* abort one joint num or axis num */
 	EMCMOT_JOINT_ACTIVATE,          /* make joint active */
 	EMCMOT_JOINT_DEACTIVATE,        /* make joint inactive */
-	EMCMOT_JOINT_ENABLE_AMPLIFIER,  /* enable amp outputs */
-	EMCMOT_JOINT_DISABLE_AMPLIFIER, /* disable amp outputs */
 	EMCMOT_JOINT_HOME,              /* home a joint or all joints */
 	EMCMOT_JOINT_UNHOME,            /* unhome a joint or all joints*/
 	EMCMOT_SET_JOINT_POSITION_LIMITS, /* set the joint position +/- limits */

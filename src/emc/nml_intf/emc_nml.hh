@@ -302,26 +302,6 @@ class EMC_JOINT_HALT:public EMC_JOINT_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_JOINT_ENABLE:public EMC_JOINT_CMD_MSG {
-  public:
-    EMC_JOINT_ENABLE():EMC_JOINT_CMD_MSG(EMC_JOINT_ENABLE_TYPE,
-				       sizeof(EMC_JOINT_ENABLE)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_JOINT_DISABLE:public EMC_JOINT_CMD_MSG {
-  public:
-    EMC_JOINT_DISABLE():EMC_JOINT_CMD_MSG(EMC_JOINT_DISABLE_TYPE,
-					sizeof(EMC_JOINT_DISABLE)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
 class EMC_JOINT_HOME:public EMC_JOINT_CMD_MSG {
   public:
     EMC_JOINT_HOME():EMC_JOINT_CMD_MSG(EMC_JOINT_HOME_TYPE,

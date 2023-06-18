@@ -359,8 +359,6 @@ int emcSystemCmd(char *s)
 
 // shorthand typecasting ptrs
 static EMC_JOINT_HALT *joint_halt_msg;
-static EMC_JOINT_DISABLE *disable_msg;
-static EMC_JOINT_ENABLE *enable_msg;
 static EMC_JOINT_HOME *home_msg;
 static EMC_JOINT_UNHOME *unhome_msg;
 static EMC_JOG_CONT *jog_cont_msg;
@@ -806,8 +804,6 @@ static int emcTaskPlan(void)
 		// immediate commands
 	    case EMC_JOINT_SET_BACKLASH_TYPE:
 	    case EMC_JOINT_SET_HOMING_PARAMS_TYPE:
-	    case EMC_JOINT_DISABLE_TYPE:
-	    case EMC_JOINT_ENABLE_TYPE:
 	    case EMC_JOINT_SET_FERROR_TYPE:
 	    case EMC_JOINT_SET_MIN_FERROR_TYPE:
 	    case EMC_JOINT_LOAD_COMP_TYPE:
@@ -898,8 +894,6 @@ static int emcTaskPlan(void)
 
 		// immediate commands
 
-	    case EMC_JOINT_DISABLE_TYPE:
-	    case EMC_JOINT_ENABLE_TYPE:
 	    case EMC_JOINT_SET_BACKLASH_TYPE:
 	    case EMC_JOINT_SET_HOMING_PARAMS_TYPE:
 	    case EMC_JOINT_SET_FERROR_TYPE:
@@ -1670,16 +1664,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
 	// joint commands
-
-    case EMC_JOINT_DISABLE_TYPE:
-	disable_msg = (EMC_JOINT_DISABLE *) cmd;
-	retval = emcJointDisable(disable_msg->joint);
-	break;
-
-    case EMC_JOINT_ENABLE_TYPE:
-	enable_msg = (EMC_JOINT_ENABLE *) cmd;
-	retval = emcJointEnable(enable_msg->joint);
-	break;
 
     case EMC_JOINT_HOME_TYPE:
 	home_msg = (EMC_JOINT_HOME *) cmd;
@@ -3356,9 +3340,6 @@ int main(int argc, char *argv[])
     emcMotionAbort();
     for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
     emcAuxEstopOn();
-    for (int t = 0; t < emcStatus->motion.traj.joints; t++) {
-        emcJointDisable(t);
-    }
     emcTrajDisable();
     emcLubeOff();
     emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP);

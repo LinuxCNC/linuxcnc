@@ -319,9 +319,6 @@ int emcTaskSetState(EMC_TASK_STATE state)
         emcMotionAbort();
 	// turn the machine servos off-- go into READY state
     for (t = 0; t < emcStatus->motion.traj.spindles; t++)  emcSpindleAbort(t);
-	for (t = 0; t < emcStatus->motion.traj.joints; t++) {
-	    emcJointDisable(t);
-	}
 	emcTrajDisable();
 	emcIoAbort(EMC_ABORT_TASK_STATE_OFF);
 	emcLubeOff();
@@ -334,9 +331,6 @@ int emcTaskSetState(EMC_TASK_STATE state)
     case EMC_TASK_STATE::ON:
 	// turn the machine servos on
 	emcTrajEnable();
-	for (t = 0; t < emcStatus->motion.traj.joints; t++){
-		emcJointEnable(t);
-	}
 	emcLubeOn();
 	break;
 
@@ -356,9 +350,6 @@ int emcTaskSetState(EMC_TASK_STATE state)
 	for (t = 0; t < emcStatus->motion.traj.spindles; t++) emcSpindleAbort(t);
 	// go into estop-- do both IO estop and machine servos off
 	emcAuxEstopOn();
-	for (t = 0; t < emcStatus->motion.traj.joints; t++) {
-	    emcJointDisable(t);
-	}
 	emcTrajDisable();
 	emcLubeOff();
 	emcTaskAbort();

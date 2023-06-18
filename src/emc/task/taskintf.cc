@@ -740,30 +740,6 @@ int emcJointOverrideLimits(int joint)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcJointEnable(int joint)
-{
-    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
-	return 0;
-    }
-
-    emcmotCommand.command = EMCMOT_JOINT_ENABLE_AMPLIFIER;
-    emcmotCommand.joint = joint;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-int emcJointDisable(int joint)
-{
-    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
-	return 0;
-    }
-
-    emcmotCommand.command = EMCMOT_JOINT_DISABLE_AMPLIFIER;
-    emcmotCommand.joint = joint;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
 int emcJointHome(int joint)
 {
     if (joint < -1 || joint >= EMCMOT_MAX_JOINTS) {

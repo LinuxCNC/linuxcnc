@@ -139,7 +139,6 @@ extern int sendMdiCmd(const char *mdi);
 extern int sendLoadToolTable(const char *file);
 extern int sendToolSetOffset(int tool, double length, double diameter);
 extern int sendJointSetBacklash(int jnum, double backlash);
-extern int sendJointEnable(int joint, int val);
 extern int sendJointLoadComp(int joint, const char *file, int type);
 extern int sendSetTeleopEnable(int enable);
 extern int sendClearProbeTrippedFlag();
