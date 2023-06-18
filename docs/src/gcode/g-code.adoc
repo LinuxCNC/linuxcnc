@@ -1757,7 +1757,7 @@ It is an error if:
 
 [source,{ngc}]
 ----
-G73 X- Y- Z- R- Q- <L->
+G73 X- Y- Z- R- Q- P- <L->
 ----
 
 * 'R' - retract position along the Z axis.
@@ -1766,7 +1766,7 @@ G73 X- Y- Z- R- Q- <L->
 
 The 'G73' cycle is drilling or milling with chip breaking.
 This cycle takes a Q number which represents a 'delta' increment along
-the Z axis.
+the Z axis. Peck clearance can be specified by optional P number.
 
 * Preliminary motion.
   ** If the current Z position is below the R position, The Z axis does
@@ -2371,7 +2371,7 @@ seconds at the bottom of the hole.
 
 [source,{ngc}]
 ----
-G83 (X- Y- Z-) or (U- V- W-) R- L- Q-
+G83 (X- Y- Z-) or (U- V- W-) R- L- Q- P-
 ----
 
 The 'G83' cycle (often called peck drilling) is intended for deep
@@ -2381,7 +2381,8 @@ drilling in aluminum). This cycle takes a Q number which represents a
 'delta' increment along the Z-axis. The retract before final depth will
 always be to the 'retract' plane even if G98 is in effect. The final
 retract will honor the G98/99 in effect. G83 functions the same as G81
-with the addition of retracts during the drilling operation.
+with the addition of retracts during the drilling operation. Peck clearance
+can be specified by optional P number.
 
 * Preliminary motion, as described in the
   <<gcode:preliminary-motion,Preliminary and In-Between Motion>> section.
