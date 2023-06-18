@@ -286,6 +286,8 @@ int emcCoolantFloodOn() { return task_methods->emcCoolantFloodOn(); }
 int emcCoolantFloodOff() { return task_methods->emcCoolantFloodOff(); }
 int emcLubeOn() { return task_methods->emcLubeOn(); }
 int emcLubeOff() { return task_methods->emcLubeOff(); }
+int emcWorklightOn() { return task_methods->emcWorklightOn(); }
+int emcWorklightOff() { return task_methods->emcWorklightOff(); }
 int emcToolPrepare(int tool) { return task_methods->emcToolPrepare(tool); }
 int emcToolStartChange() { return task_methods->emcToolStartChange(); }
 int emcToolLoad() { return task_methods->emcToolLoad(); }
@@ -673,6 +675,24 @@ int Task::emcLubeOff()
     EMC_LUBE_OFF lubeOffMsg;
 
     sendCommand(&lubeOffMsg);
+
+    return 0;
+}
+
+int Task::emcWorklightOn()
+{
+    EMC_WORKLIGHT_ON worklightOnMsg;
+
+    sendCommand(&worklightOnMsg);
+
+    return 0;
+}
+
+int Task::emcWorklightOff()
+{
+    EMC_WORKLIGHT_OFF worklightOffMsg;
+
+    sendCommand(&worklightOffMsg);
 
     return 0;
 }

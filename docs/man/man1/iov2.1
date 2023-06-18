@@ -66,6 +66,13 @@ into E-stop, and when the "Lube Off" command gets sent to the controller.
 (Bit, In) Should be driven FALSE when lubrication tank is empty.
 
 .TP
+\fBiocontrol.0.worklight
+(Bit, Out) TRUE when worklight is enabled.  This pin gets driven
+True when the "Worklight On" command gets sent to the controller.  It
+gets driven when the "Worklight Off" command gets sent to the
+controller.  Worklight is enabled when LinuxCNC starts.
+
+.TP
 \fBiocontrol.0.tool\-change 
 (Bit, Out) TRUE when a tool change is requested.
 

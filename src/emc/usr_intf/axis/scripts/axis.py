@@ -887,6 +887,7 @@ class LivePlotter:
         vupdate(vars.interp_pause, self.stat.paused)
         vupdate(vars.mist, self.stat.mist)
         vupdate(vars.flood, self.stat.flood)
+        vupdate(vars.light, self.stat.worklight)
         vupdate(vars.brake, self.stat.spindle[0]['brake'])
         vupdate(vars.spindledir, self.stat.spindle[0]['direction'])
         vupdate(vars.motion_mode, self.stat.motion_mode)
@@ -1365,6 +1366,7 @@ widget_list=[
        ("coolant", Label, tabs_manual + ".coolant"),
        ("flood", Checkbutton, tabs_manual + ".flood"),
        ("mist", Checkbutton, tabs_manual + ".mist"),
+       ("worklight", Checkbutton, tabs_manual + ".worklight"),
 
        ("brake", Checkbutton, tabs_manual + ".spindlef.brake"),
 
@@ -2843,6 +2845,8 @@ class TclCommands(nf.TclCommands):
         c.flood(vars.flood.get())
     def mist(event=None):
         c.mist(vars.mist.get())
+    def worklight(event=None):
+        c.worklight(vars.worklight.get())
     def spindle(event=None):
         if not manual_ok(): return
         ensure_mode(linuxcnc.MODE_MANUAL)
@@ -2869,6 +2873,9 @@ class TclCommands(nf.TclCommands):
     def flood_toggle(*args):
         s.poll()
         c.flood(not s.flood)
+    def worklight_toggle(*args):
+        s.poll()
+        c.worklight(not s.worklight)
 
     def spindle_forward_toggle(*args):
         if not manual_ok(): return
@@ -3007,6 +3014,7 @@ vars = nf.Variables(root_window,
     ("tto_g11", BooleanVar),
     ("mist", BooleanVar),
     ("flood", BooleanVar),
+    ("worklight", BooleanVar),
     ("brake", BooleanVar),
     ("spindledir", IntVar),
     ("running_line", IntVar),
@@ -4209,6 +4217,7 @@ if not has_limit_switch:
 forget(widgets.mist, "iocontrol.0.coolant-mist")
 forget(widgets.flood, "iocontrol.0.coolant-flood")
 forget(widgets.coolant, "iocontrol.0.coolant-flood", "iocontrol.0.coolant-mist")
+forget(widgets.worklight, "iocontrol.0.worklight")
 
 rcfile = "~/.axisrc"
 user_command_file = inifile.find("DISPLAY", "USER_COMMAND_FILE") or ""

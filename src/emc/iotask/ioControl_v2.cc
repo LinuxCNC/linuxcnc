@@ -145,6 +145,7 @@ struct iocontrol_str {
     hal_bit_t *coolant_flood;        /* coolant flood output pin */
     hal_bit_t *lube;                /* lube output pin */
     hal_bit_t *lube_level;        /* lube level input pin */
+    hal_bit_t *worklight;                /* worklight output pin */
 
     // the following pins are needed for toolchanging
     //tool-prepare
@@ -410,6 +411,7 @@ static int iocontrol_hal_init(void)
     BITPIN( HAL_OUT, "iocontrol.%d.coolant-flood", &(iocontrol_data->coolant_flood));
     BITPIN( HAL_OUT, "iocontrol.%d.coolant-mist", &(iocontrol_data->coolant_mist));
     BITPIN( HAL_OUT, "iocontrol.%d.lube", &(iocontrol_data->lube));
+    BITPIN( HAL_OUT, "iocontrol.%d.worklight", &(iocontrol_data->worklight));
     S32PIN( HAL_OUT, "iocontrol.%d.tool-number", &(iocontrol_data->tool_number));
     S32PIN( HAL_OUT, "iocontrol.%d.tool-prep-number", &(iocontrol_data->tool_prep_number));
     S32PIN( HAL_OUT, "iocontrol.%d.tool-prep-pocket", &(iocontrol_data->tool_prep_pocket));
@@ -473,6 +475,7 @@ static void hal_init_pins(void)
     *(iocontrol_data->coolant_mist) = 0;                /* coolant mist output pin */
     *(iocontrol_data->coolant_flood) = 0;                /* coolant flood output pin */
     *(iocontrol_data->lube) = 0;                        /* lube output pin */
+    *(iocontrol_data->worklight) = 0;                        /* worklight output pin */
     *(iocontrol_data->tool_prepare) = 0;                /* output, pin that notifies HAL it needs to prepare a tool */
     *(iocontrol_data->tool_prep_number) = 0;        /* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
     *(iocontrol_data->tool_prep_pocket) = 0;        /* output, pin that holds the pocketno for the tool to be prepared, only valid when tool-prepare=TRUE */
@@ -906,6 +909,7 @@ int main(int argc, char *argv[])
     emcioStatus.coolant.flood = 0;
     emcioStatus.lube.on = 0;
     emcioStatus.lube.level = 1;
+    emcioStatus.worklight.on = 1;
 
     while (!done) {
 
@@ -1263,6 +1267,18 @@ int main(int argc, char *argv[])
             rtapi_print_msg(RTAPI_MSG_DBG, "EMC_LUBE_OFF\n");
             emcioStatus.lube.on = 0;
             *(iocontrol_data->lube) = 0;
+            break;
+
+        case EMC_WORKLIGHT_ON_TYPE:
+            rtapi_print_msg(RTAPI_MSG_DBG, "EMC_WORKLIGHT_ON\n");
+            emcioStatus.worklight.on = 1;
+            *(iocontrol_data->worklight) = 1;
+            break;
+
+        case EMC_WORKLIGHT_OFF_TYPE:
+            rtapi_print_msg(RTAPI_MSG_DBG, "EMC_WORKLIGHT_OFF\n");
+            emcioStatus.worklight.on = 0;
+            *(iocontrol_data->worklight) = 0;
             break;
 
         case EMC_SET_DEBUG_TYPE:

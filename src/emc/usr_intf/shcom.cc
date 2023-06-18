@@ -725,6 +725,34 @@ int sendLubeOff()
     return 0;
 }
 
+int sendWorklightOn()
+{
+    EMC_WORKLIGHT_ON emc_worklight_on_msg;
+
+    emcCommandSend(emc_worklight_on_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived();
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone();
+    }
+
+    return 0;
+}
+
+int sendWorklightOff()
+{
+    EMC_WORKLIGHT_OFF emc_worklight_off_msg;
+
+    emcCommandSend(emc_worklight_off_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived();
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone();
+    }
+
+    return 0;
+}
+
 int sendSpindleForward(int spindle)
 {
     EMC_SPINDLE_ON emc_spindle_on_msg;

@@ -1143,6 +1143,11 @@ checkbutton $_tabs_manual.flood \
 	-variable flood
 setup_widget_accel $_tabs_manual.flood [_ Flood]
 
+checkbutton $_tabs_manual.worklight \
+	-command worklight \
+	-variable worklight
+setup_widget_accel $_tabs_manual.worklight [_ Work light]
+
 grid rowconfigure $_tabs_manual 99 -weight 1
 grid columnconfigure $_tabs_manual 99 -weight 1
 # Grid widget $_tabs_manual.axes

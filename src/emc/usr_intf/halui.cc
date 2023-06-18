@@ -80,6 +80,9 @@ static int axis_mask = 0;
     FIELD(hal_bit_t,lube_on) /* pin for starting lube */ \
     FIELD(hal_bit_t,lube_off) /* pin for stopping lube */ \
     FIELD(hal_bit_t,lube_is_on) /* pin for lube is on */ \
+    FIELD(hal_bit_t,worklight_on) /* pin for starting worklight */ \
+    FIELD(hal_bit_t,worklight_off) /* pin for stopping worklight */ \
+    FIELD(hal_bit_t,worklight_is_on) /* pin for worklight is on */ \
 \
     FIELD(hal_bit_t,program_is_idle) /* pin for notifying user that program is idle */ \
     FIELD(hal_bit_t,program_is_running) /* pin for notifying user that program is running */ \
@@ -613,6 +616,8 @@ int halui_hal_init(void)
     if (retval < 0) return retval;
     retval = halui_export_pin_OUT_bit(&(halui_data->lube_is_on), "halui.lube.is-on");
     if (retval < 0) return retval;
+    retval = halui_export_pin_OUT_bit(&(halui_data->worklight_is_on), "halui.worklight.is-on");
+    if (retval < 0) return retval;
     retval = halui_export_pin_OUT_bit(&(halui_data->program_is_idle), "halui.program.is-idle");
     if (retval < 0) return retval;
     retval = halui_export_pin_OUT_bit(&(halui_data->program_is_running), "halui.program.is-running");
@@ -785,6 +790,10 @@ int halui_hal_init(void)
     retval = halui_export_pin_IN_bit(&(halui_data->lube_on), "halui.lube.on");
     if (retval < 0) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->lube_off), "halui.lube.off");
+    if (retval < 0) return retval;
+    retval = halui_export_pin_IN_bit(&(halui_data->worklight_on), "halui.worklight.on");
+    if (retval < 0) return retval;
+    retval = halui_export_pin_IN_bit(&(halui_data->worklight_off), "halui.worklight.off");
     if (retval < 0) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->program_run), "halui.program.run");
     if (retval < 0) return retval;
@@ -1117,6 +1126,20 @@ static int sendLubeOff()
     EMC_LUBE_OFF emc_lube_off_msg;
 
     return emcCommandSend(emc_lube_off_msg);
+}
+
+static int sendWorklightOn()
+{
+    EMC_WORKLIGHT_ON emc_worklight_on_msg;
+
+    return emcCommandSend(emc_worklight_on_msg);
+}
+
+static int sendWorklightOff()
+{
+    EMC_WORKLIGHT_OFF emc_worklight_off_msg;
+
+    return emcCommandSend(emc_worklight_off_msg);
 }
 
 // programStartLine is the saved valued of the line that
@@ -1693,6 +1716,12 @@ static void check_hal_changes()
     if (check_bit_changed(new_halui_data.lube_off, old_halui_data.lube_off) != 0)
 	sendLubeOff();
 
+    if (check_bit_changed(new_halui_data.worklight_on, old_halui_data.worklight_on) != 0)
+	sendWorklightOn();
+
+    if (check_bit_changed(new_halui_data.worklight_off, old_halui_data.worklight_off) != 0)
+	sendWorklightOff();
+
     if (check_bit_changed(new_halui_data.program_run, old_halui_data.program_run) != 0)
 	sendProgramRun(0);
 
@@ -2185,6 +2214,7 @@ static void modify_hal_pins()
     *(halui_data->mist_is_on) = emcStatus->io.coolant.mist;
     *(halui_data->flood_is_on) = emcStatus->io.coolant.flood;
     *(halui_data->lube_is_on) = emcStatus->io.lube.on;
+    *(halui_data->worklight_is_on) = emcStatus->io.worklight.on;
 
     *(halui_data->tool_number) = emcStatus->io.tool.toolInSpindle;
     *(halui_data->tool_length_offset_x) = emcStatus->task.toolOffset.tran.x;

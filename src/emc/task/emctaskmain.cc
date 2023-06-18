@@ -940,6 +940,8 @@ static int emcTaskPlan(void)
 	    case EMC_COOLANT_FLOOD_OFF_TYPE:
 	    case EMC_LUBE_ON_TYPE:
 	    case EMC_LUBE_OFF_TYPE:
+	    case EMC_WORKLIGHT_ON_TYPE:
+	    case EMC_WORKLIGHT_OFF_TYPE:
 	    case EMC_TASK_SET_MODE_TYPE:
 	    case EMC_TASK_SET_STATE_TYPE:
 	    case EMC_TASK_ABORT_TYPE:
@@ -1053,6 +1055,8 @@ static int emcTaskPlan(void)
 		case EMC_COOLANT_FLOOD_OFF_TYPE:
 		case EMC_LUBE_ON_TYPE:
 		case EMC_LUBE_OFF_TYPE:
+		case EMC_WORKLIGHT_ON_TYPE:
+		case EMC_WORKLIGHT_OFF_TYPE:
 		case EMC_TASK_SET_MODE_TYPE:
 		case EMC_TASK_SET_STATE_TYPE:
 		case EMC_TASK_ABORT_TYPE:
@@ -1166,6 +1170,8 @@ static int emcTaskPlan(void)
                 case EMC_COOLANT_FLOOD_OFF_TYPE:
                 case EMC_LUBE_ON_TYPE:
                 case EMC_LUBE_OFF_TYPE:
+                case EMC_WORKLIGHT_ON_TYPE:
+                case EMC_WORKLIGHT_OFF_TYPE:
 		    retval = emcTaskIssueCommand(emcCommand);
 		    return retval;
 		    break;
@@ -1230,6 +1236,8 @@ static int emcTaskPlan(void)
 		case EMC_COOLANT_FLOOD_OFF_TYPE:
 		case EMC_LUBE_ON_TYPE:
 		case EMC_LUBE_OFF_TYPE:
+		case EMC_WORKLIGHT_ON_TYPE:
+		case EMC_WORKLIGHT_OFF_TYPE:
 		case EMC_TASK_SET_MODE_TYPE:
 		case EMC_TASK_SET_STATE_TYPE:
 		case EMC_TASK_ABORT_TYPE:
@@ -1325,6 +1333,8 @@ static int emcTaskPlan(void)
                 case EMC_COOLANT_FLOOD_OFF_TYPE:
                 case EMC_LUBE_ON_TYPE:
                 case EMC_LUBE_OFF_TYPE:
+                case EMC_WORKLIGHT_ON_TYPE:
+                case EMC_WORKLIGHT_OFF_TYPE:
 		    retval = emcTaskIssueCommand(emcCommand);
 		    break;
 
@@ -1395,6 +1405,8 @@ static int emcTaskPlan(void)
 	    case EMC_COOLANT_FLOOD_OFF_TYPE:
 	    case EMC_LUBE_ON_TYPE:
 	    case EMC_LUBE_OFF_TYPE:
+	    case EMC_WORKLIGHT_ON_TYPE:
+	    case EMC_WORKLIGHT_OFF_TYPE:
 	    case EMC_TASK_SET_MODE_TYPE:
 	    case EMC_TASK_SET_STATE_TYPE:
 	    case EMC_TASK_PLAN_INIT_TYPE:
@@ -1551,6 +1563,10 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_TOOL_PREPARE_TYPE:
     case EMC_LUBE_ON_TYPE:
     case EMC_LUBE_OFF_TYPE:
+	return EMC_TASK_EXEC_WAITING_FOR_IO;
+	break;
+    case EMC_WORKLIGHT_ON_TYPE:
+    case EMC_WORKLIGHT_OFF_TYPE:
 	return EMC_TASK_EXEC_WAITING_FOR_IO;
 	break;
 
@@ -2062,6 +2078,14 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = emcLubeOff();
 	break;
 
+    case EMC_WORKLIGHT_ON_TYPE:
+	retval = emcWorklightOn();
+	break;
+
+    case EMC_WORKLIGHT_OFF_TYPE:
+	retval = emcWorklightOff();
+	break;
+
     case EMC_TOOL_PREPARE_TYPE:
 	tool_prepare_msg = (EMC_TOOL_PREPARE *) cmd;
 	retval = emcToolPrepare(tool_prepare_msg->tool);
@@ -2476,6 +2500,8 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_COOLANT_FLOOD_OFF_TYPE:
     case EMC_LUBE_ON_TYPE:
     case EMC_LUBE_OFF_TYPE:
+    case EMC_WORKLIGHT_ON_TYPE:
+    case EMC_WORKLIGHT_OFF_TYPE:
 	return EMC_TASK_EXEC_DONE;
 	break;
 
@@ -3372,6 +3398,7 @@ int main(int argc, char *argv[])
     }
     emcTrajDisable();
     emcLubeOff();
+    emcWorklightOn();
     emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP);
     emcJointUnhome(-2);
 

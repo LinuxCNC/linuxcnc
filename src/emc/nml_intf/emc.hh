@@ -32,6 +32,7 @@ class EMC_AUX_STAT;
 class EMC_SPINDLE_STAT;
 class EMC_COOLANT_STAT;
 class EMC_LUBE_STAT;
+class EMC_WORKLIGHT_STAT;
 class EMC_IO_STAT;
 class EMC_STAT;
 class CMS;
@@ -233,6 +234,11 @@ struct PM_CARTESIAN;
 #define EMC_IO_SET_CYCLE_TIME_TYPE                   ((NMLTYPE) 1604)
 
 #define EMC_IO_STAT_TYPE                             ((NMLTYPE) 1699)
+
+// EMC_WORKLIGHT type declarations
+#define EMC_WORKLIGHT_ON_TYPE                        ((NMLTYPE) 1701)
+#define EMC_WORKLIGHT_OFF_TYPE                       ((NMLTYPE) 1702)
+#define EMC_WORKLIGHT_STAT_TYPE                      ((NMLTYPE) 1799)
 
 // EMC aggregate class type declaration
 // these are placeholders
@@ -518,6 +524,11 @@ extern int emcLubeOn();
 extern int emcLubeOff();
 
 extern int emcLubeUpdate(EMC_LUBE_STAT * stat);
+
+// implementation functions for EMC_WORKLIGHT types
+
+extern int emcWorklightOn();
+extern int emcWorklightOff();
 
 // implementation functions for EMC_IO types
 

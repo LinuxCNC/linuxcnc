@@ -2034,6 +2034,57 @@ class EMC_LUBE_STAT:public EMC_LUBE_STAT_MSG {
     int level;			// 0 low, 1 okay
 };
 
+// EMC_WORKLIGHT type declarations
+
+// EMC_WORKLIGHT command base class
+class EMC_WORKLIGHT_CMD_MSG:public RCS_CMD_MSG {
+  public:
+    EMC_WORKLIGHT_CMD_MSG(NMLTYPE t, size_t s):RCS_CMD_MSG(t, s) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+};
+
+class EMC_WORKLIGHT_ON:public EMC_WORKLIGHT_CMD_MSG {
+  public:
+    EMC_WORKLIGHT_ON():EMC_WORKLIGHT_CMD_MSG(EMC_WORKLIGHT_ON_TYPE, sizeof(EMC_WORKLIGHT_ON)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+};
+
+class EMC_WORKLIGHT_OFF:public EMC_WORKLIGHT_CMD_MSG {
+  public:
+    EMC_WORKLIGHT_OFF():EMC_WORKLIGHT_CMD_MSG(EMC_WORKLIGHT_OFF_TYPE,
+				    sizeof(EMC_WORKLIGHT_OFF)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+};
+
+// EMC_WORKLIGHT status base class
+class EMC_WORKLIGHT_STAT_MSG:public RCS_STAT_MSG {
+  public:
+    EMC_WORKLIGHT_STAT_MSG(NMLTYPE t, size_t s):RCS_STAT_MSG(t, s) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+};
+
+class EMC_WORKLIGHT_STAT:public EMC_WORKLIGHT_STAT_MSG {
+  public:
+    EMC_WORKLIGHT_STAT();
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+
+    int on;			// 0 off, 1 on
+};
+
 // EMC_IO is aggregate of all EMC IO-related status classes
 
 // EMC_IO command base class
@@ -2116,6 +2167,7 @@ class EMC_IO_STAT:public EMC_IO_STAT_MSG {
     EMC_COOLANT_STAT coolant;
     EMC_AUX_STAT aux;
     EMC_LUBE_STAT lube;
+    EMC_LUBE_STAT worklight;
 
 };
 

@@ -382,7 +382,7 @@ net tool-current-number iocontrol.0.tool-number
 # misc control
 # tool change location push button operators
 net magazine-index-pbs ax5214h.0.in-07
-net worklight-pbs ax5214h.0.in-08
+net worklight-pbs iocontrol.0.worklight ax5214h.0.in-08
 net tool-load-pbs ax5214h.0.in-09
 net tool-unload-pbs ax5214h.0.in-10
 
