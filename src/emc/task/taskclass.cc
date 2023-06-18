@@ -1,8 +1,3 @@
-// this is a slide-in replacement for the functions in iotaskintf.cc
-// iotaskintf functions are made into class methods and are the default
-// methods of TaskClass which may be overridden by Python methods
-
-
 /********************************************************************
 * Description: iotaskintf.cc
 *   NML interface functions for IO
@@ -35,21 +30,6 @@
 #include "taskclass.hh"
 #include <rtapi_string.h>
 
-#define BOOST_PYTHON_MAX_ARITY 4
-#include <boost/python/dict.hpp>
-#include <boost/python/extract.hpp>
-#include <boost/python/object.hpp>
-#include <boost/python/tuple.hpp>
-namespace bp = boost::python;
-
-// Python plugin interface
-#define TASK_MODULE "task"
-#define TASK_VAR "pytask"
-#define PLUGIN_CALL "plugin_call"
-
-extern PythonPlugin *python_plugin;  // exported by python_plugin.cc
-#define PYUSABLE (((python_plugin) != NULL) && (python_plugin->usable()))
-extern int return_int(const char *funcname, bp::object &retval);
 Task *task_methods;
 
 // IO INTERFACE
@@ -265,14 +245,7 @@ static int forceCommand(RCS_CMD_MSG * msg)
 int emcIoInit() { return task_methods->emcIoInit(); }
 
 int emcIoHalt() {
-    try {
 	return task_methods->emcIoHalt();
-    } catch( bp::error_already_set &) {
-	std::string msg = handle_pyerror();
-	rcs_print("emcIoHalt(): %s\n", msg.c_str());
-	PyErr_Clear();
-	return -1;
-    }
 }
 
 
@@ -295,131 +268,14 @@ int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
 					   frontangle,  backangle,  orientation); }
 int emcToolSetNumber(int number) { return task_methods->emcToolSetNumber(number); }
 int emcIoUpdate(EMC_IO_STAT * stat) { return task_methods->emcIoUpdate(stat); }
-int emcIoPluginCall(EMC_IO_PLUGIN_CALL *call_msg) { return task_methods->emcIoPluginCall(call_msg->len,
-											   call_msg->call); }
 static const char *instance_name = "task_instance";
 
 int emcTaskOnce(const char *filename)
 {
-    // initialize the Python plugin singleton
-    // Interp is already instantiated but not yet fully configured
-    // both Task and Interp use it - first to call configure() instantiates the Python part
-    // NB: the interpreter.this global will appear only after Interp.init()
-
-    extern struct _inittab builtin_modules[];
-    if (!PythonPlugin::instantiate(builtin_modules)) {
-	rcs_print("emcTaskOnce: can\'t instantiate Python plugin\n");
-	goto no_pytask;
-    }
-    if (python_plugin->configure(filename, "PYTHON") == PLUGIN_OK) {
-	if (emc_debug & EMC_DEBUG_PYTHON_TASK) {
-	    rcs_print("emcTaskOnce: Python plugin configured\n");
-	}
-    } else {
-	goto no_pytask;
-    }
-    if (PYUSABLE) {
-	// extract the instance of Python Task()
-	try {
-	    bp::object task_namespace =  python_plugin->main_namespace[TASK_MODULE].attr("__dict__");;
-	    bp::object result = task_namespace[TASK_VAR];
-	    bp::extract<Task *> typetest(result);
-	    if (typetest.check()) {
-		task_methods = bp::extract< Task * >(result);
-	    } else {
-		rcs_print("can\'t extract a Task instance out of '%s'\n", instance_name);
-		task_methods = NULL;
-	    }
-	} catch(bp::error_already_set &) {
-	    std::string msg = handle_pyerror();
-	    if (emc_debug & EMC_DEBUG_PYTHON_TASK) {
-		// this really just means the task python backend wasn't configured.
-		rcs_print("emcTaskOnce: extract(%s): %s\n", instance_name, msg.c_str());
-	    }
-	    PyErr_Clear();
-	}
-    }
- no_pytask:
-    if (task_methods == NULL) {
-	if (emc_debug & EMC_DEBUG_PYTHON_TASK) {
-	    rcs_print("emcTaskOnce: no Python Task() instance available, using default iocontrol-based task methods\n");
-	}
 	task_methods = new Task();
-    }
     return 0;
 }
 
-// If using a Python-based HAL module in task, normal HAL_FILE's are run too early.
-// Execute those here if specified via POSTTASK_HALFILE in INI.
-int emcRunHalFiles(const char *filename)
-{
-    IniFile inifile;
-    const char *inistring;
-    int lineno,status;
-    int n = 1;
-    pid_t pid;
-
-    if (inifile.Open(filename) == false) {
-	return -1;
-    }
-    while (NULL != (inistring = inifile.Find("POSTTASK_HALFILE", "HAL",
-					     n, &lineno))) {
-	if ((pid = vfork()) < 0)
-	    perror("vfork()");
-	else if (pid == 0) {
-	    execlp("halcmd", "halcmd","-i",filename,"-f",inistring, NULL);
-	    perror("execlp halcmd");
-	} else {
-	    if ((waitpid (pid, &status, 0) == pid) &&  WEXITSTATUS(status))
-		rcs_print("'halcmd -i %s -f %s' exited with  %d\n",
-		       filename, inistring, WEXITSTATUS(status));
-	}
-	n++;
-    }
-    return 0;
-}
-
-// task callables are expected to return an int.
-// extract it, and return that
-// else complain.
-// Also fail with an operator error if we caused an exception.
-int return_int(const char *funcname, PyObject *retval)
-{
-    int status = python_plugin->plugin_status();
-
-    if (status == PLUGIN_EXCEPTION) {
-	emcOperatorError("return_int(%s): %s",
-			 funcname, python_plugin->last_exception().c_str());
-	return -1;
-    }
-    if ((retval != Py_None) &&
-    (PyLong_Check(retval))) {
-    return PyLong_AsLong(retval);
-    } else {
-	emcOperatorError("return_int(%s): expected int return value, got '%s' (%s)",
-			 funcname,
-            PyBytes_AsString(retval),
-            Py_TYPE(retval)->tp_name);
-	Py_XDECREF(retval);
-	return -1;
-    }
-}
-
-int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg)
-{
-    if (PYUSABLE) {
-	bp::object retval;
-	bp::object arg = bp::make_tuple(bp::object(call_msg->call));
-	bp::dict kwarg;
-
-	python_plugin->call(TASK_MODULE, PLUGIN_CALL, arg, kwarg, retval);
-	return return_int(PLUGIN_CALL, retval.ptr());
-
-    } else {
-	emcOperatorError("emcPluginCall: Python plugin not initialized");
-	return -1;
-    }
-}
 
 extern "C" PyObject* PyInit_interpreter(void);
 extern "C" PyObject* PyInit_emccanon(void);
@@ -430,14 +286,13 @@ struct _inittab builtin_modules[] = {
     { NULL, NULL }
 };
 
-Task::Task() : use_iocontrol(0), random_toolchanger(0) {
+Task::Task() : random_toolchanger(0) {
 
     IniFile inifile;
 
     ini_filename = emc_inifile;
 
     if (inifile.Open(ini_filename)) {
-	use_iocontrol = (inifile.Find("EMCIO", "EMCIO") != NULL);
 	inifile.Find(&random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
 	const char *t;
 	if ((t = inifile.Find("TOOL_TABLE", "EMCIO")) != NULL)
@@ -732,10 +587,6 @@ int Task::emcToolSetNumber(int number)
 
 int Task::emcIoUpdate(EMC_IO_STAT * stat)
 {
-    if (!use_iocontrol) {
-	// there's no message to copy - Python directly operates on emcStatus and its io member
-	return 0;
-    }
     if (0 == emcIoStatusBuffer || !emcIoStatusBuffer->valid()) {
 	return -1;
     }
@@ -773,13 +624,5 @@ int Task::emcIoUpdate(EMC_IO_STAT * stat)
     //the speed gets set by the IO controller, no need to override it here (io takes care of increase/decrease speed too)
     // stat->spindle.speed = spindleSpeed;
 
-    return 0;
-}
-
-int Task::emcIoPluginCall(int len, const char *msg)
-{
-    if (emc_debug & EMC_DEBUG_PYTHON_TASK) {
-	rcs_print("emcIoPluginCall(%d,%s) - no Python handler set\n",len,msg);
-    }
     return 0;
 }

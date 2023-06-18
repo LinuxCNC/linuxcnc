@@ -1046,12 +1046,6 @@ extern void ON_RESET(void);
 // expose CANON_ERROR
 extern void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
-// queue a call to a task-time Python plugin method
-// call is expected to be a tuple of (method,pickled posargs,pickled kwargs)
-extern void PLUGIN_CALL(int len, const char *call);
-
-// same for IoTask context
-extern void IO_PLUGIN_CALL(int len, const char *call);
 extern int     GET_EXTERNAL_OFFSET_APPLIED();
 extern EmcPose GET_EXTERNAL_OFFSETS();
 extern void UPDATE_TAG(StateTag tag);

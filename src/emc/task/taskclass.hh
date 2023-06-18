@@ -46,9 +46,6 @@ public:
     virtual int emcToolSetNumber(int number);
     virtual int emcIoUpdate(EMC_IO_STAT * stat);
 
-    virtual int emcIoPluginCall(int len, const char *msg);
-
-    int use_iocontrol;
     int random_toolchanger;
     const char *ini_filename;
     const char *tooltable_filename;
