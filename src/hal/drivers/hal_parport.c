@@ -136,11 +136,11 @@ typedef struct {
     hal_u32_t reset_time;       /* min ns between write and reset */
     hal_u32_t debug1, debug2;
     long long write_time;
-    unsigned char outdata;
+    unsigned short outdata;
     unsigned char reset_mask;       /* reset flag for pin 2..9 */
     unsigned char reset_val;        /* reset values for pin 2..9 */
     long long write_time_ctrl;
-    unsigned char outdata_ctrl;
+    unsigned short outdata_ctrl;
     unsigned char reset_mask_ctrl;  /* reset flag for pin 1, 14, 16, 17 */
     unsigned char reset_val_ctrl;   /* reset values for pin 1, 14, 16, 17 */
     struct hal_parport_t portdata;
@@ -366,7 +366,7 @@ static void read_port(void *arg, long period)
 static void reset_port(void *arg, long period) {
     parport_t *port = arg;
     long long deadline, reset_time_tsc;
-    unsigned char outdata = (port->outdata&~port->reset_mask) ^ port->reset_val;
+    unsigned char outdata = (unsigned char)((port->outdata&~port->reset_mask) ^ port->reset_val);
    
     if(port->reset_time > period/4) port->reset_time = period/4;
     reset_time_tsc = ns2tsc(port->reset_time);
@@ -375,16 +375,17 @@ static void reset_port(void *arg, long period) {
         deadline = port->write_time + reset_time_tsc;
         while(rtapi_get_clocks() < deadline) {}
         rtapi_outb(outdata, port->base_addr);
+        port->outdata = outdata;
     }
 
-    outdata = (port->outdata_ctrl&~port->reset_mask_ctrl)^port->reset_val_ctrl;
+    outdata = (unsigned char)((port->outdata_ctrl&~port->reset_mask_ctrl)^port->reset_val_ctrl);
 
     if(outdata != port->outdata_ctrl) {
-	/* correct for hardware inverters on pins 1, 14, & 17 */
-	outdata ^= 0x0B;
         deadline = port->write_time_ctrl + reset_time_tsc;
         while(rtapi_get_clocks() < deadline) {}
-        rtapi_outb(outdata, port->base_addr + 2);
+	/* correct for hardware inverters on pins 1, 14, & 17 */
+        rtapi_outb(outdata ^ 0x0B, port->base_addr + 2);
+        port->outdata_ctrl = outdata;
     }
 }
 
@@ -416,12 +417,15 @@ static void write_port(void *arg, long period)
 	    }
 	    mask <<= 1;
 	}
-	/* write it to the hardware */
-	rtapi_outb(outdata, port->base_addr);
-	port->write_time = rtapi_get_clocks();
+	if (outdata != port->outdata)
+	{
+	    /* write it to the hardware */
+	    rtapi_outb(outdata, port->base_addr);
+	    port->write_time = rtapi_get_clocks();
+	    port->outdata = outdata;
+        }
 	port->reset_val = reset_val;
 	port->reset_mask = reset_mask;
-	port->outdata = outdata;
 	/* prepare to build control port byte, with direction bit clear */
 	outdata = 0x00;
     } else {
@@ -452,13 +456,15 @@ static void write_port(void *arg, long period)
 	}
         port->reset_mask_ctrl = reset_mask;
         port->reset_val_ctrl = reset_val;
-	port->outdata_ctrl = outdata;
     }
-    /* correct for hardware inverters on pins 1, 14, & 17 */
-    outdata ^= 0x0B;
-    /* write it to the hardware */
-    rtapi_outb(outdata, port->base_addr + 2);
-    port->write_time_ctrl = rtapi_get_clocks();
+    if (outdata != port->outdata_ctrl)
+    {
+        /* write it to the hardware */
+        /* correct for hardware inverters on pins 1, 14, & 17 */
+        rtapi_outb(outdata ^ 0x0B, port->base_addr + 2);
+        port->write_time_ctrl = rtapi_get_clocks();
+        port->outdata_ctrl = outdata;
+    }
 }
 
 void read_all(void *arg, long period)
@@ -597,6 +603,10 @@ static int pins_and_params(char *argv[])
 	if (data_dir[n]) {
 	    rtapi_outb(rtapi_inb(port_data_array[n].base_addr+2) | 0x20, port_data_array[n].base_addr+2);
 	}
+
+	/* The first task execution should write all outdata. */
+	port_data_array[n].outdata = 0xFF00;
+	port_data_array[n].outdata_ctrl = 0xFF00;
 
 	/* export all vars */
 	retval = export_port(n, &(port_data_array[n]));
