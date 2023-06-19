@@ -480,36 +480,35 @@ SE := \" style=\"-moz-column-width: 25ex; \
 #     * the manpage section title
 #
 ADD_HTML_MANPAGES = \
-	@echo "Adding manpages: man$(strip $(1)): $(strip $(2))"; \
-	echo "$(SA)$(strip $(1))$(SB)$(strip $(1))$(SC)$(strip $(2))</a></p>" >> objects/index.incl; \
-	echo "$(SD)$(strip $(1))$(SE)" >> objects/index.incl; \
+	echo "Adding manpages: man$(strip $(2)): $(strip $(3))"; \
+	echo "$(SA)$(strip $(2))$(SB)$(strip $(2))$(SC)$(strip $(3))</a></p>" >> objects/index.incl; \
+	echo "$(SD)$(strip $(2))$(SE)" >> objects/index.incl; \
 	echo "<ul>" >> objects/index.incl; \
-	for HTML_FILE in $(filter $(DOC_DIR)/html/man/man$(strip $(1))/%.html, $(MAN_HTML_TARGETS)); do \
+	for HTML_FILE in $(filter $(DOC_DIR)/html/man/man$(strip $(1))/%.$(strip $(2)).html, $(MAN_HTML_TARGETS)); do \
 		BASENAME=$$(basename $$HTML_FILE .html); \
 		echo "<li><a href=\"$${HTML_FILE\#$(DOC_DIR)/html/}\">$${BASENAME%.*}</a></li>"; \
 	done >> objects/index.incl; \
-	echo "</ul></div>" >> objects/index.incl
+	echo "</ul></div>" >> objects/index.incl; \
 
 
 objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
 	rm -f $@
-	$(call ADD_HTML_MANPAGES, 1, Commands and non-realtime HAL components)
-	$(call ADD_HTML_MANPAGES, 9, Realtime HAL components)
-	$(call ADD_HTML_MANPAGES, 3hal, API calls: HAL)
-	$(call ADD_HTML_MANPAGES, 3rtapi, API calls: RTAPI)
-	$(call ADD_HTML_MANPAGES, 3hm2,  API calls: Hostmot2)
-	$(call ADD_HTML_MANPAGES, 3, API calls: General)
-
-	# now make sure all manpages made it into the html index
+	$(call ADD_HTML_MANPAGES, 1, 1, Commands and userspace components) \
+	$(call ADD_HTML_MANPAGES, 9, 9, Realtime components and kernel modules) \
+	$(call ADD_HTML_MANPAGES, 3, 3hal, API calls: HAL) \
+	$(call ADD_HTML_MANPAGES, 3, 3rtapi, API calls: RTAPI) \
+	$(call ADD_HTML_MANPAGES, 3, 3hm2,  API calls: Hostmot2) \
+	$(call ADD_HTML_MANPAGES, 3, 3, API calls: General) \
+	# now make sure all manpages made it into the html index \
 	FAIL=0; \
-	for F in $$(find $(DOC_DIR)/man/? -type f); do \
+	for F in $$(find $(DOC_DIR)/man/man* -type f); do \
 		B=$$(basename $$F); \
 		if ! grep -q $$B $@; then \
 			echo stray manpage not added to index: $$B; \
 			FAIL=1; \
 		fi; \
 	done; \
-	if [ $$FAIL -ne 0 ]; then false; fi
+	if [ $$FAIL -ne 0 ]; then exit 1; fi
 	mkdir -p $(DOC_DIR)/html/man/man/images/
 	find $(DOC_DIR)/man -name "*.png" ! -name "grohtml*" -exec mv {} "$(DOC_DIR)/html/man/man/images/" \;
 
