@@ -267,7 +267,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         else:
             tmpl = self.imperial_text_template
 
-        degree_tmpl = "%11.2f"
+        degree_tmpl = "%{}.2f".format(len(locale.format(tmpl, 0)))
 
         # fill each row of the liststore from the offsets arrays
         for row, i in enumerate([ap, rot, g92, tool, g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3]):
