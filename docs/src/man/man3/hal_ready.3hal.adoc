@@ -1,0 +1,25 @@
+= hal_ready(3hal)
+
+== NAME
+
+hal_ready - indicates that this component is ready
+
+== SYNTAX
+
+hal_ready(int _comp_id_)
+
+== ARGUMENTS
+
+comp_id::
+  A HAL component identifier returned by an earlier call to *hal_init*.
+
+== DESCRIPTION
+
+*hal_ready* indicates that this component is ready (has created all its
+pins, parameters, and functions). This must be called in any realtime
+HAL component before its *rtapi_app_init* exits, and in any non-realtime
+component before it enters its main loop.
+
+== RETURN VALUE
+
+Returns a HAL status code.

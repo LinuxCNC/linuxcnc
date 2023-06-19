@@ -1,0 +1,10 @@
+= undocumented(3rtapi)
+
+== NAME
+
+undocumented - undocumented functions in RTAPI
+
+== SEE ALSO
+
+The header file _rtapi.h_. Most rtapi functions have documentation in
+that file.

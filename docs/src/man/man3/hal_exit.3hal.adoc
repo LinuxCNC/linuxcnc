@@ -1,0 +1,28 @@
+= hal_exit(3hal)
+
+== NAME
+
+hal_exit - Shut down HAL
+
+== SYNTAX
+
+int hal_exit(int _comp_id_)
+
+== ARGUMENTS
+
+comp_id::
+  A HAL component identifier returned by an earlier call to *hal_init*.
+
+== DESCRIPTION
+
+*hal_exit* shuts down and cleans up HAL and RTAPI. It must be called
+prior to exit by any module that called *hal_init*.
+
+== REALTIME CONSIDERATIONS
+
+Call only from within non-realtime or init/cleanup code, not from
+realtime tasks.
+
+== RETURN VALUE
+
+Returns a HAL status code.
