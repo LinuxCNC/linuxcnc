@@ -619,16 +619,19 @@ QHeaderView::section {
 
 /****** ORIGIN OFFSET VIEW ************/
 /* this also uses QHeaderView from FILEMANAGER */
+#originoffsetview QHeaderView::section {
+    padding-top: 0;
+    padding-left: 4;
+    height: 30px;
+    width: 60px }
 
 #originoffsetview {
-    font: 11pt 'DejaVuSans';
+    font: 11pt 'Mono';
     border: 1px solid foregnd;
     border-radius: 4px;
     alternate-background-color: backgnd;
     padding: 2px;
-    gridline-color: backalt }
-
-#originoffsetview {
+    gridline-color: backalt;
     qproperty-styleColorHighlight: backalt }
 
 #originoffsetview::item:selected:active {
@@ -782,7 +785,6 @@ QPlainTextEdit {
     qproperty-background_color: prevu }
 
 /****** GCODE EDITOR & GCODE DISPLAY ************/
-
 EditorBase#lexer {
     height: 44 }
 
@@ -791,14 +793,14 @@ EditorBase#lexer {
 
 EditorBase {
     qproperty-styleColorBackground: backgnd;
-    qproperty-styleColor0: foregnd;
-    qproperty-styleColor1: foregnd;
-    qproperty-styleColor2: foregnd;
-    qproperty-styleColor3: foregnd;
-    qproperty-styleColor4: foregnd;
-    qproperty-styleColor5: foregnd;
-    qproperty-styleColor6: foregnd;
-    qproperty-styleColor7: foregnd;
+    qproperty-styleColor0: foregnd;   /* parameters */
+    qproperty-styleColor1: foregnd;   /* comments */
+    qproperty-styleColor2: foregnd;   /* g codes */
+    qproperty-styleColor3: foregnd;   /* m codes */
+    qproperty-styleColor4: foregnd;   /* axes */
+    qproperty-styleColor5: foregnd;   /* non axes */
+    qproperty-styleColor6: foregnd;   /* axes values */
+    qproperty-styleColor7: foregnd;   /* non axes values */
     qproperty-styleColorMarginText: foregnd;
     qproperty-styleColorMarginBackground: backgnd;
     qproperty-styleFont0: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
