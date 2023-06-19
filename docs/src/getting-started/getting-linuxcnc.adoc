@@ -284,7 +284,7 @@ package: linuxcnc-uspace-doc-zh-cn
 pin: release o=http://buildbot2.highlab.com/debian/
 Pin-Priority: 500
 ----
-Hit Control-O, Y, Control-X to save the file and exit nano. Then type the following commands. Make sure you don't make a mistake or you could corrupt a critical linux config file /etc/apt/sources.list
+Hit Control-O, Y, Control-X to save the file and exit nano. Then type the following commands.
 .
 Before starting, you may wish to run linuxcnc from the command line and note the version number displayed as it loads. Exit the linuxcnc chooser and note the version number.
 Then type the following commands:
@@ -292,7 +292,7 @@ Then type the following commands:
 cd ~/Downloads
 wget http://buildbot2.highlab.com/buildbot-archive-key.gpg
 sudo cp ./buildbot-archive-key.gpg /etc/apt/trusted.gpg.d
-sudo echo "deb http://buildbot2.highlab.com/debian/ bookworm 2.9-uspace" | sudo tee -a /etc/apt/sources.list
+sudo echo "deb http://buildbot2.highlab.com/debian/ bookworm 2.9-uspace" | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
 sudo apt update
 sudo apt upgrade
 ----
