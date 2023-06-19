@@ -390,7 +390,7 @@ The velocity limit for the teleop planner.
 (\fBNote:\fR pins marked \fB(DEBUG)\fR serve as debugging aids and are subject to change or removal at any time.)
 
 .TP
-\fBjoint.\fIN\fB.joint\-acc\-cmd\fR OUT FLOAT \fB(DEBUG)\fR
+\fBjoint.\fIN\fB.acc\-cmd\fR OUT FLOAT \fB(DEBUG)\fR
 The joint's commanded acceleration.
 
 .TP
@@ -475,10 +475,8 @@ TRUE if the joint is using the "free planner" and has come to a stop.
 \fBjoint.\fIN\fB.index\-enable\fR IO BIT
 Should be attached to the index\-enable pin of the joint's encoder to enable homing to index pulse.
 
-.br
-.ns
-.TP
-\fBjoint.N.is\-unlocked\fR IN BIT
+.TQ
+\fBjoint.\fIN\fB.is\-unlocked\fR IN BIT
 Indicates joint is unlocked (see JOINT UNLOCK PINS).
 
 .TP
@@ -552,8 +550,8 @@ Should be driven TRUE if the positive limit switch for this joint is tripped.
 TRUE if the axis is a locked joint (typically a rotary) and a move is commanded (see JOINT UNLOCK PINS).
 
 .TP
-\fBjoint.\fIN\fB.joint\-vel\-cmd\fR OUT FLOAT \fB(DEBUG)\fR
-The joint's commanded velocity
+\fBjoint.\fIN\fB.vel\-cmd\fR OUT FLOAT \fB(DEBUG)\fR
+The joint's commanded velocity.
 
 .TP
 \fBjoint.\fIN\fB.wheel\-jog\-active\fR OUT BIT \fB(DEBUG)\fR
