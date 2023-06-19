@@ -4014,8 +4014,10 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
             enqueue_STOP_SPINDLE_TURNING(block->dollar_number);
         }
     } else { // the default spindle
-        settings->spindle_turning[0] = CANON_STOPPED;
-        enqueue_STOP_SPINDLE_TURNING(0);
+      for (int i = 0; i < settings->num_spindles; i++){
+        settings->spindle_turning[i] = CANON_STOPPED;
+        enqueue_STOP_SPINDLE_TURNING(i);
+      }
     }
   } else if ((block->m_modes[7] == 19) && ONCE_M(7)) {
       for (int i = 0; i < settings->num_spindles; i++)

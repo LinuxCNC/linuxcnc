@@ -1,4 +1,4 @@
-VERSION = '1.236.276'
+VERSION = '1.236.277'
 
 '''
 qtplasmac_handler.py
@@ -3281,6 +3281,10 @@ class HandlerClass:
             self.set_buttons_state([self.idleOnList, buttonList], False)
             self.w.jog_frame.setEnabled(False)
             self.w.run.setEnabled(False)
+            for row in range(self.w.originoffsetview.tablemodel.rowCount(self.w.originoffsetview)):
+                self.w.originoffsetview.resizeRowToContents(row)
+            for column in range(self.w.originoffsetview.tablemodel.rowCount(self.w.originoffsetview)-1):
+                self.w.originoffsetview.resizeColumnToContents(column)
         elif self.w.preview_stack.currentIndex() == self.USER_MANUAL:
             self.button_active(self.umButton)
             self.autorepeat_keys(True)

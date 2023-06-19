@@ -1,7 +1,7 @@
 ---
 Bug-Database: https://github.com/LinuxCNC/linuxcnc/issues
 Bug-Submit: https://github.com/LinuxCNC/linuxcnc/issues/new
-Documentation: http://linuxcnc.org/docs/2.8/html/
+Documentation: http://linuxcnc.org/docs/2.9/html/
 Repository-Browse: https://github.com/LinuxCNC/linuxcnc
 Reference:
  - Author: Ronald Lumia
