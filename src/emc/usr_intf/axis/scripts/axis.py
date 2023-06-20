@@ -4217,7 +4217,7 @@ if not has_limit_switch:
 forget(widgets.mist, "iocontrol.0.coolant-mist")
 forget(widgets.flood, "iocontrol.0.coolant-flood")
 forget(widgets.coolant, "iocontrol.0.coolant-flood", "iocontrol.0.coolant-mist")
-forget(widgets.worklight, "iocontrol.0.worklight")
+forget(widgets.worklight, "iocontrol.0.worklight", "worklight.0.enabled")
 
 rcfile = "~/.axisrc"
 user_command_file = inifile.find("DISPLAY", "USER_COMMAND_FILE") or ""
