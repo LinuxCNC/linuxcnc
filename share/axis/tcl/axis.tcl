@@ -1130,8 +1130,8 @@ pack $_tabs_manual.spindlef.spindleplus \
 vspace $_tabs_manual.space2 \
 	-height 12
 
-label $_tabs_manual.coolant
-setup_widget_accel $_tabs_manual.coolant [_ Coolant:]
+label $_tabs_manual.coolantl
+setup_widget_accel $_tabs_manual.coolantl [_ Coolant:]
 
 checkbutton $_tabs_manual.mist \
 	-command mist \
@@ -1159,8 +1159,8 @@ grid $_tabs_manual.axis \
 	-pady 1 \
 	-sticky nw
 
-# Grid widget $_tabs_manual.coolant
-grid $_tabs_manual.coolant \
+# Grid widget $_tabs_manual.coolantl
+grid $_tabs_manual.coolantl \
 	-column 0 \
 	-row 5 \
 	-sticky w

@@ -1359,7 +1359,7 @@ widget_list=[
 
        ("ajogspeed", Entry, pane_top + ".ajogspeed"),
 
-       ("lubel", Label, tabs_manual + ".coolant"),
+       ("coolantl", Label, tabs_manual + ".coolantl"),
        ("flood", Checkbutton, tabs_manual + ".flood"),
        ("mist", Checkbutton, tabs_manual + ".mist"),
 
@@ -4198,7 +4198,7 @@ if not has_limit_switch:
 
 forget(widgets.mist, "iocontrol.0.coolant-mist")
 forget(widgets.flood, "iocontrol.0.coolant-flood")
-forget(widgets.lubel, "iocontrol.0.coolant-flood", "iocontrol.0.coolant-mist")
+forget(widgets.coolantl, "iocontrol.0.coolant-flood", "iocontrol.0.coolant-mist")
 
 rcfile = "~/.axisrc"
 user_command_file = inifile.find("DISPLAY", "USER_COMMAND_FILE") or ""
