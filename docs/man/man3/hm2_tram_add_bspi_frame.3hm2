@@ -12,22 +12,18 @@ hm2_tram_add_bspi_frame \- add a register-write to the Hostmot2 TRAM
 hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff)
 
 .SH DESCRIPTION
-\fBhm2_tram_add_bspi_frame\fR Add a regular (every thread) write event to the 
-Hostmot2 tram for bspi instance "name". "name" is a unique string given to each 
-bspi channel during hostmot2 setup. The names of the available
-channels are printed to standard output during the driver loading process and 
-take the form:
+\fBhm2_tram_add_bspi_frame\fR Add a regular (every thread) write event to the Hostmot2 tram for bspi instance "name".
+"name" is a unique string given to each bspi channel during hostmot2 setup.
+The names of the available channels are printed to standard output during the driver loading process and take the form:
 hm2_<board name>.<board index>.bspi.<index> For example hm2_5i23.0.bspi.0
 
-This function is used to add a regular, every thread, write or write-read 
-transaction to the Translation RAM system. A write need not have a read (use 0
-for **rbuff) but it is an error to have a read without a write. Note that the 
-TRAM list is not actioned until the hm2_allocate_bspi_tram function is called. 
-The read and write parameters must be pointers to pointers, as TRAM re-maps the 
-buffers into contiguous memory. 
+This function is used to add a regular, every thread, write or write-read transaction to the Translation RAM system.
+A write need not have a read (use 0 for **rbuff) but it is an error to have a read without a write.
+Note that the TRAM list is not actioned until the hm2_allocate_bspi_tram function is called. 
+The read and write parameters must be pointers to pointers, as TRAM re-maps the buffers into contiguous memory. 
 
 .SH REALTIME CONSIDERATIONS
-Call only from realtime init code, not from realtime code or non-realtime components.
+Call only from realtime init code, not from other realtime code or non-realtime components.
 
 .SH RETURN VALUE
 Returns 0 on success and \-1 on failure.

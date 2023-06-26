@@ -1505,7 +1505,7 @@ In Relative Mode the actual coordinate system will be displayed.
 
 joint_number::
   Used to select which axis (technically which joint) is displayed. +
-  On a trivialkins machine (mill, lathe, router) axis vs.. joint number are:
+  On a trivialkins machine (mill, lathe, router) axis/joint numbers are:
 +
   0:X  1:Y  2:Z  etc.
 +

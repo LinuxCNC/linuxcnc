@@ -22,7 +22,7 @@ This function allocates the TRAM memory and sets up the regular data transfers.
 It should be called only when all the frames have been defined by calls to hm2_tram_add_bspi_frame(). 
 
 .SH REALTIME CONSIDERATIONS
-Call only from realtime init code, not from realtime code or non-realtime components.
+Call only from realtime init code, not from other realtime code or non-realtime components.
 
 .SH RETURN VALUE
 Returns 0 on success and \-1 on failure.
