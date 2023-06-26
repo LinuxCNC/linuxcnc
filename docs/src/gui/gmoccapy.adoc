@@ -33,14 +33,9 @@ GMOCCAPY offers a separate settings page to configure most settings of the GUI w
 
 GMOCCAPY can be localized very easy, because the corresponding files are separated from the linuxcnc.po files,
 so there is no need to translate unneeded stuff.
-The files are placed in */src/po/gmoccapy*.
-You could just copy the gmoccapy.pot file to something like it.po and translate that file with gtranslator or poedit.
-After rebuilding, you'd get the GUI in your preference language.
-To facilitate the sharing of the translation,
-GMOCCAPY is available on the https://hosted.weblate.org/projects/linuxcnc/gmocappy/[Weblate web interface].
-GMOCCAPY is currently available in English, German, Spanish, Polish, Serbian and Hungarian.
-Feel free to help me to introduce more languages, be it locally or via the web.
-If you need help, don't hesitate to contact me on *nieson@web.de*.
+If you want to contribute a translation, please use the
+link:https://hosted.weblate.org/projects/linuxcnc/gmocappy/[web based
+translation editor Weblate]. For more information see the section <<sec:contributing-translations,Translations>>
 
 image:images/gmoccapy_5_axis_mid.png[align="left",link="images/gmoccapy_5_axis.png"]
 
