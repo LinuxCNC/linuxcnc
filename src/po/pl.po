@@ -4,13 +4,14 @@
 # Michael Geszkiewicz <micges@wp.pl>
 #
 #
+# WaldiS <sto@tutanota.de>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-05-03 08:16+0200\n"
-"PO-Revision-Date: 2021-12-09 03:53+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"PO-Revision-Date: 2023-06-26 05:39+0000\n"
+"Last-Translator: WaldiS <sto@tutanota.de>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "pl/>\n"
 "Language: pl\n"
@@ -19,7 +20,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.10-dev\n"
+"X-Generator: Weblate 4.18.1\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -30,9 +31,9 @@ msgstr ""
 "polecenie (%s) nie może być wykonane gdy maszyna maszyna jest wyłączona"
 
 #: src/emc/task/emctaskmain.cc:1005
-#, fuzzy, c-format
+#, c-format
 msgid "can't do that (%s:%d) in manual mode"
-msgstr "nie można wykonać (%s) w trybie manualnym"
+msgstr "nie można tego wykonać (%s:%d) w trybie manualnym"
 
 #: src/emc/task/emctaskmain.cc:1112
 #, c-format
@@ -55,18 +56,17 @@ msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr "nie można wykonać (%s) w trybie auto i interpreterem oczekującym"
 
 #: src/emc/task/emctaskmain.cc:1460
-#, fuzzy, c-format
+#, c-format
 msgid "can't do that (%s:%d) in MDI mode"
-msgstr "nie można wykonać (%s) w trybie MDI"
+msgstr "nie można wykonać (%s:%d) w trybie MDI"
 
 #: src/emc/task/emctaskmain.cc:2131
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
 msgstr "Nie można przełączyć trybu gdy tryb jest AUTO i interpreter pracuje"
 
 #: src/emc/task/emctaskmain.cc:2184
-#, fuzzy
 msgid "failed to close file"
-msgstr "Nie można otworzyć pliku <%s>"
+msgstr "nie udało się zamknąć pliku"
 
 #: src/emc/task/emctaskmain.cc:2198 tcl/bin/genedit.tcl:197
 #: tcl/tklinuxcnc.tcl:452
@@ -87,14 +87,13 @@ msgid "Can't run a program when not homed"
 msgstr "Nie można wykonać programu gdy nie zbazowano"
 
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c"
 "%.4f) r1=%.4f r2=%.4f"
 msgstr ""
-"Promień końca różni się od promienia początku: początek=(%c%.4f,%c%.4f) "
-"środek=(%c%.4f,%c%.4f) koniec=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
-"rel_err=%.4f%%"
+"Łuk o zerowym promieniu: start=(%c%.4f,%c%.4f) środek=(%c%.4f,%c%.4f) "
+"koniec=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
 
 #: src/emc/rs274ngc/interp_arc.cc:122 src/emc/rs274ngc/interp_arc.cc:296
 #, c-format
@@ -109,47 +108,46 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_check.cc:89
 msgid "G4 not allowed with G2 or G3 because they both use P"
-msgstr ""
+msgstr "G4 nie można użyć z G2 lub G3, gdyż obie używają P"
 
 #: src/emc/rs274ngc/interp_check.cc:92
 msgid "Line with G10 does not have L0, L1, L10, L11, L2, or L20"
-msgstr ""
+msgstr "Linia z G10 nie ma L0, L1, L10, L11, L2, ani L20"
 
 #: src/emc/rs274ngc/interp_check.cc:93
 msgid "P value not an integer with G10"
 msgstr "Wartość P nie jest całkowita w G10"
 
 #: src/emc/rs274ngc/interp_check.cc:94
-#, fuzzy, c-format
+#, c-format
 msgid "P value out of range (0-9) with G10 L%d"
-msgstr "Wartość P poza zakresem (0-9) w G10 L2 lub L20"
+msgstr "Wartość P poza zakresem (0-9) w G10 L%d"
 
 #: src/emc/rs274ngc/interp_check.cc:95
-#, fuzzy, c-format
+#, c-format
 msgid "P value out of range with G10 L%d"
-msgstr "Wartość P poza zakresem w G10 L1 lub G10 L20"
+msgstr "Wartość P poza zakresem w G10 L%d"
 
 #: src/emc/rs274ngc/interp_check.cc:99
 msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
 msgstr "Pomiędzy kodami G5.2 i G5.3 tylko kolejne kody G5.2 są dozwolone."
 
 #: src/emc/rs274ngc/interp_check.cc:261
-#, fuzzy
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"
-msgstr "Słowo D użyte bez G41 G41.1 G42 G42.1 lub G96"
+msgstr "Słowo D użyte bez G41, G41.1, G42, G42.1, G71, G71.1, G71.2 lub G96"
 
 #: src/emc/rs274ngc/interp_check.cc:270
-#, fuzzy
 msgid ""
 "$ (spindle selection) word with no M3, M4, M5, M19, M51, G33, G33.1, G76, "
 "G95, G96 or G97 to use it"
-msgstr "Słowo D użyte bez G41 G41.1 G42 G42.1 lub G96"
+msgstr ""
+"Słowo $ (wybór wrzeciona) bez M3, M4, M5, M19, M51, G33, G33.1, G76, G95, "
+"G96 lub G97 do użycia"
 
 #: src/emc/rs274ngc/interp_check.cc:277
-#, fuzzy
 msgid "E word with no G70, G76, M66, M67 or M68 to use it"
-msgstr "Słowo E użyte bez G76, M66, M67 lub M68"
+msgstr "Słowo E bez użycia G70, G76, M66, M67 lub M68"
 
 #: src/emc/rs274ngc/interp_check.cc:282
 msgid "H word with no G43 or G76 to use it"
@@ -172,13 +170,12 @@ msgid "K word with no G2, G3, G6.2, G33, G33.1, G76, or G87 to use it"
 msgstr "Słowo K użyte bez G2, G3, G33, G33.1, G76, lub G87"
 
 #: src/emc/rs274ngc/interp_check.cc:315
-#, fuzzy
 msgid ""
 "L word with no G10, cutter compensation, canned cycle, digital/analog input, "
 "M98 or NURBS code"
 msgstr ""
 "słowo L użyte bez G10, kompensacji narzędzia, cykli wiertarskich, cyfrowego/"
-"analowego wejścia lub kodu NURBS"
+"analowego wejścia, M98 lub kodu NURBS"
 
 #: src/emc/rs274ngc/interp_check.cc:332
 #, fuzzy
@@ -195,7 +192,7 @@ msgstr "Wartość P nie jest całkowita w G10 L2"
 
 #: src/emc/rs274ngc/interp_check.cc:340
 msgid "P value must be 0,1,or 2 with M19"
-msgstr ""
+msgstr "wartość P musi wynosić 0,1 lub 2 z M19"
 
 #: src/emc/rs274ngc/interp_check.cc:342
 msgid "P value should be 1 or greater with G2 or G3"
@@ -212,7 +209,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_check.cc:366
 msgid "R value must be within 0..360 with M19"
-msgstr ""
+msgstr "wartość R musi zawierać się pomiędzy 0..360 z M19"
 
 #: src/emc/rs274ngc/interp_convert.cc:187
 #: src/emc/rs274ngc/interp_convert.cc:380
@@ -11648,7 +11645,8 @@ msgstr "Dodatnie"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
