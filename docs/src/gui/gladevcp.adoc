@@ -64,8 +64,7 @@ GladeVCP panel windows may be run in three different setups:
 - as a standalone toplevel window, which can be iconifyed/deiconified independent of the main window.
 
 .Installed LinuxCNC
-If you're using an installed version of LinuxCNC the examples shown below are in the <<cha:starting-linuxcnc,configuration picker>> in the 'Sample
-Configurations > apps > GladeVCP' branch.
+If you're using an installed version of LinuxCNC the examples shown below are in the <<cha:starting-linuxcnc,configuration picker>> in the 'Sample Configurations > apps > GladeVCP' branch.
 
 .Git Checkout
 The following instructions only apply if you're using a git checkout.
@@ -232,16 +231,12 @@ You're now ready to give it a try (while LinuxCNC, e.g. AXIS is running) it with
 gladevcp myui.ui
 ----
 
-GladeVCP creates a HAL component named like the basename of the UI
-file - 'myui' in this case - unless overridden by the `-c <component name>` option.
+GladeVCP creates a HAL component named like the basename of the UI file - 'myui' in this case - unless overridden by the `-c <component name>` option.
 If running AXIS, just try 'Show HAL configuration' and inspect its pins.
 
-You might wonder why widgets contained a 'HAL_Hbox' or 'HAL_Table' appear
-greyed out (inactive). HAL containers have an associated HAL pin which
-is off by default, which causes all contained widgets to render
-inactive. A common use case would be to associate these container HAL
-pins with `halui.machine.is-on` or one of the `halui.mode` signals,
-to assure some widgets appear active only in a certain state.
+You might wonder why widgets contained a 'HAL_Hbox' or 'HAL_Table' appear greyed out (inactive).
+HAL containers have an associated HAL pin which is off by default, which causes all contained widgets to render inactive.
+A common use case would be to associate these container HAL pins with `halui.machine.is-on` or one of the `halui.mode` signals, to assure some widgets appear active only in a certain state.
 
 To just activate a container, execute the HAL command `setp gladevcp.<container-name> 1`.
 
@@ -297,22 +292,17 @@ halcmd loadusr -Wn example gladevcp -c example -x {XID} -u ./hitcounter.py ./man
 ----
 
 [NOTE]
-The file specifiers like ./hitcounter.py, ./manual-example.ui, etc. indicate that the files
-are located in the same directory as the INI file.  You might have to copy them to you
-directory (alternatively, specify a correct absolute or relative path to the file(s))
+The file specifiers like ./hitcounter.py, ./manual-example.ui, etc. indicate that the files are located in the same directory as the INI file.
+You might have to copy them to you directory (alternatively, specify a correct absolute or relative path to the file(s)).
 
 [NOTE]
-The +[RS274NGC]SUBROUTINE_PATH=+ option is only set so the example
-panel will find the Oword subroutine (oword.ngc) for the MDI Command widget. It
-might not be needed in your setup. The relative path specifier ../../nc_files/gladevcp_lib
-is constructed to work with directories copied by the configuration picker and when
-using a run-in-place setup.
+The +[RS274NGC]SUBROUTINE_PATH=+ option is only set so the example panel will find the Oword subroutine (oword.ngc) for the MDI Command widget.
+It might not be needed in your setup. The relative path specifier ../../nc_files/gladevcp_lib is constructed to work with directories copied by the configuration picker and when using a run-in-place setup.
 
 [[gladevcp:embedding-tab]]
 === Embedding as a Tab
 
-To do so, edit your INI file and add to the DISPLAY and HAL sections of INI
-file as follows:
+To do so, edit your INI file and add to the DISPLAY and HAL sections of INI file as follows:
 
 [source,{ini}]
 ----
@@ -365,7 +355,7 @@ You might have to copy them to you directory (alternatively, specify a correct a
 Note the following differences to the AXIS tab setup:
 
 - The HAL command file is slightly modified since 'Touchy' does not use the 'halui' components so its signals are not available and some shortcuts have been taken.
-- There is no 'POSTGUI_HALFILE=' INI option, but passing the HAL command file on the 'EMBED_TAB_COMMAND=' line is ok
+- There is no 'POSTGUI_HALFILE=' INI option, but passing the HAL command file on the 'EMBED_TAB_COMMAND=' line is ok.
 - The 'halcmd loaduser -Wn ...' incantation is not needed.
 
 == GladeVCP command line options
@@ -426,19 +416,15 @@ The normal LinuxCNC startup process does the following:
 The introduction of GladeVCP brought the following issue:
 
 - GladeVCP panels need to be embedded in a master GUI window setup.
-- GladeVCP panels need to be embedded in a master GUI window setup,
-  e.g., AXIS, or Touchy, Gscreen, or GMOCCAPY (embedded window or as an embedded tab).
+- GladeVCP panels need to be embedded in a master GUI window setup, e.g., AXIS, or Touchy, Gscreen, or GMOCCAPY (embedded window or as an embedded tab).
 - This requires the master GUI to run before the GladeVCP window can be hooked into the master GUI.
 - However, GladeVCP is also a HAL component, and creates HAL pins of its own.
-- As a consequence, all HAL plumbing involving GladeVCP HAL pins as source
-  or destination must be run *after* the GUI has been set up.
+- As a consequence, all HAL plumbing involving GladeVCP HAL pins as source or destination must be run *after* the GUI has been set up.
 
-This is the purpose of the `POSTGUI_HALFILE`.
-This INI option is inspected by the GUIs.
+This is the purpose of the `POSTGUI_HALFILE`. This INI option is inspected by the GUIs.
 If a GUI detects this option, it runs the corresponding HAL file after any embedded GladeVCP panel is set up.
 However, it does not check whether a GladeVCP panel is actually used, in which case the HAL cmd file is just run normally.
-So if you do NOT start GladeVCP through `GLADEVCP` or `EMBED_TAB` etc.,
-but later in a separate shell window or some other mechanism, a HAL command file in `POSTGUI_HALFILE` will be executed too early.
+So if you do NOT start GladeVCP through `GLADEVCP` or `EMBED_TAB` etc, but later in a separate shell window or some other mechanism, a HAL command file in `POSTGUI_HALFILE` will be executed too early.
 Assuming GladeVCP pins are referenced herein, this will fail with an error message indicating that the GladeVCP HAL component is not available.
 
 So, in case you run GladeVCP from a separate shell window (i.e., not started by the GUI in an embedded fashion):
@@ -519,8 +505,9 @@ The are several HAL-specific methods of HAL Widgets, but the only relevant metho
 
 === Setting pin and widget values
 
-As a general rule, if you need to set a HAL output widget's value from Python code, do so by calling the underlying Gtk 'setter'
-(e.g.  +set_active()+, +set_value()+) - do not try to set the associated pin's value by +halcomp[pinname] = value+ directly because the widget will not take notice of the change!
+As a general rule, if you need to set a HAL output widget's value from Python code,
+do so by calling the underlying Gtk 'setter' (e.g.,  +set_active()+, +set_value()+).
+Do not try to set the associated pin's value by +halcomp[pinname] = value+ directly because the widget will not take notice of the change!
 
 It might be tempting to 'set HAL widget input pins' programmatically.
 Note this defeats the purpose of an input pin in the first place - it should be linked to, and react to signals generated by other HAL components.
@@ -534,8 +521,8 @@ that is, has been created by the +hal_glib.GPin(halcomp.newpin(<name>,<type>,<di
 === The hal-pin-changed signal
 
 Event-driven programming means that the UI tells your code when "something happens" - through a callback, like when a button was pressed.
-The output HAL widgets (those which display a HAL pin's value) like LED, Bar, VBar, Meter etc, support the 'hal-pin-changed' signal,
-which may cause a callback into your Python code when - well, a HAL pin changes its value.
+The output HAL widgets (those which display a HAL pin's value) like LED, Bar, VBar, Meter, etc.,
+support the 'hal-pin-changed' signal, which may cause a callback into your Python code when - well, a HAL pin changes its value.
 This means there's no more need for permanent polling of HAL pin changes in your code, the widgets do that in the background and let you know.
 
 Here is an example how to set a +hal-pin-changed+ signal for a HAL_LED in the Glade UI editor:
@@ -890,9 +877,8 @@ There are also Python methods to modify the widget:
 [widget name].set_adjustment(gtk-adjustment)
 ----
 
-You can assign a existing adjustment to the control, that way it is easy to replace
-existing sliders without many code changes. Be aware, that after changing the adjustment
-you may need to set a new increment, as it will be reset to its default (100 steps from MIN to MAX):
+You can assign a existing adjustment to the control, that way it is easy to replace existing sliders without many code changes.
+Be aware, that after changing the adjustment you may need to set a new increment, as it will be reset to its default (100 steps from MIN to MAX):
 
 * `[widget name].get_value()` +
   Will return the counts value as float
@@ -912,8 +898,7 @@ image::images/SpeedControl.png[align="center"]
 `hal_label` is a simple widget based on GtkLabel which represents a HAL pin value in a user-defined format.
 
 label_pin_type::
-  The pin's HAL type  (0:s32, 1:float, 2:u32), see also the tooltip on 'General→HAL pin type'
-  (note this is different from PyVCP which has three label widgets, one for each type).
+  The pin's HAL type  (0:s32, 1:float, 2:u32), see also the tooltip on 'General→HAL pin type' (note this is different from PyVCP which has three label widgets, one for each type).
 text_template::
   Determines the text displayed - a Python format string to convert the pin value to text.
   Defaults to +%s+ (values are converted by the str() function) but may contain any legit as an argument to Pythons format() method. +
@@ -1036,8 +1021,7 @@ HAL input pins:
 
 scale::
   Value scale. +
-  Sets the maximum absolute value of input. Same as setting
-  the <widgetname>.scale pin. +
+  Sets the maximum absolute value of input. Same as setting the <widgetname>.scale pin. +
   A float, range from -2^24 to +2^24.
 green_limit::
   Green zone lower limit
@@ -1046,8 +1030,7 @@ yellow_limit::
 red_limit::
   Red zone lower limit
 text_template::
-  Text template to display the current value of the
-  +<widgetname>+ pin. +
+  Text template to display the current value of the +<widgetname>+ pin. +
   Python formatting may be used for dict +{"value":value}+.
 
 .Example HAL_ProgressBar
@@ -1056,8 +1039,7 @@ image::images/progressbar2.png[align="center"]
 [[gladevcp:hal_combobox]]
 === ComboBox
 
-`HAL_ComboBox` is derived from gtk.ComboBox. It enables choice of a
-value from a dropdown list.
+`HAL_ComboBox` is derived from gtk.ComboBox. It enables choice of a value from a dropdown list.
 
 ==== Pins
 
@@ -1111,13 +1093,11 @@ show limits::
   Used to select/deselect the limits text on bar.
 zero::
   Zero point of range. +
-  If it is inside of min/max range then the bar will grow from that value
-  and not from the left (or right) side of the widget. +
+  If it is inside of min/max range then the bar will grow from that value and not from the left (or right) side of the widget. +
   Useful to represent values that may be both positive or negative.
 force_width, force_height::
   Forced width or height of widget. +
-  If not set then size will be deduced from packing or from fixed widget
-  size and bar will fill whole area.
+  If not set then size will be deduced from packing or from fixed widget size and bar will fill whole area.
 text_template::
   Like in Label, sets text format for min/max/current values. +
   Can be used to turn off value display.
@@ -1171,8 +1151,7 @@ min, max::
   It is not an error condition if the current value is outside this range.
 force_size::
   Forced diameter of widget. +
-  If not set then size will be deduced from packing or from fixed widget
-  size, and meter will fill all available space with respect to aspect ratio.
+  If not set then size will be deduced from packing or from fixed widget size, and meter will fill all available space with respect to aspect ratio.
 text_template::
   Like in Label, sets text format for current value. +
   Can be used to turn off value display.
@@ -1418,14 +1397,11 @@ homed_color::
   Gdk.RGBA(red=0.000000, green=0.501961, blue=0.000000, alpha=1.000000)
 Hints::
   - If you want the display to be right justified, set the Horizontal Alignment to `End`.
-  - The background of the widget is actually see through, so if you place it over an image,
-    the DRO numbers will show on top of it with no background.
-    There is a special technique to do this.
-    See the animated function diagrams below.
+  - The background of the widget is actually see through, so if you place it over an image, the DRO numbers will show on top of it with no background.
+    There is a special technique to do this.  See the animated function diagrams below.
   - The DRO widget is a modified gtk label widget.
     As such, much of what can be done to a gtk label can be done to the DRO widget.
-  - The font properties may also be set from a css stylesheet which has the highest priority
-    and will override values set by GObject properties.
+  - The font properties may also be set from a css stylesheet which has the highest priority and will override values set by GObject properties.
 
 ==== Direct program control
 
@@ -1459,7 +1435,7 @@ def str_to_rgba(color):
 
 Using a CSS stylesheet to set font properties::
 
-Colors may be specified in one of several formats, these would all specify the same color, red, *#ff0000, *rgb(255,0,0), or rgba(255,0,0,255)
+Colors may be specified in one of several formats, these would all specify the same color, red, *#ff0000, *rgb(255,0,0), or rgba(255,0,0,255).
 
 Colors may be referenced either collectively:
 
@@ -1628,8 +1604,7 @@ The widget will emit the following signals:
      The widget object that sends the signal.
   ** `system` = string +
      The actual coordinate system.
-     Will be one of G54 G55 G56 G57 G58 G59 G59.1 G59.2 G59.3 or Rel if non has been selected at all,
-     what will only happen in Glade with no LinuxCNC running.
+     Will be one of G54 G55 G56 G57 G58 G59 G59.1 G59.2 G59.3 or Rel if non has been selected at all, what will only happen in Glade with no LinuxCNC running.
 
 There are some information you can get through commands, which may be of interest for you:
 
@@ -1986,7 +1961,7 @@ image::images/hal_sourceview.png[align="center"]
 === MDI history
 
 This is for displaying and entering MDI codes. +
-It will be automatically grayed out when MDI is not available, eg during E-stop and program running.
+It will be automatically grayed out when MDI is not available, e.g., during E-stop and program running.
 
 ==== Properties
 
@@ -2103,10 +2078,9 @@ You can use a semicolon to separate multiple commands;
 print('Set Machine Off');CMD.state(linuxcnc.STATE_OFF)
 ----
 
-More information on INFO and ACTION can be found here: 
-<<cha:gladevcp-libraries,GladeVCP Libraries modules>>
+More information on INFO and ACTION can be found here: <<cha:gladevcp-libraries,GladeVCP Libraries modules>>.
 
-More information on GStat can be found here: <<cha:gstat,GStat>>
+More information on GStat can be found here: <<cha:gstat,GStat>>.
 
 === VCP ToggleAction widgets
 
@@ -2177,8 +2151,7 @@ image::images/oword.png[align="center"]
 === Preparing for an MDI Action, and cleaning up afterwards
 
 The LinuxCNC G-code interpreter has a single global set of variables, like feed, spindle speed, relative/absolute mode and others.
-If you use G-code commands or O-word subs, some of these variables might get changed by the command or subroutine - for example,
-a probing subroutine will very likely set the feed value quite low.
+If you use G-code commands or O-word subs, some of these variables might get changed by the command or subroutine - for example, a probing subroutine will very likely set the feed value quite low.
 With no further precautions, your previous feed setting will be overwritten by the probing subroutine's value.
 
 To deal with this surprising and undesirable side effect of a given O-word subroutine or G-code statement executed with an LinuxCNC ToggleAction_MDI,
@@ -2214,8 +2187,7 @@ They will make saving state before a subroutine call, and restoring state on ret
 Many actions depend on LinuxCNC status - is it in manual, MDI or auto mode?
 Is a program running, paused or idle?
 You cannot start an MDI command while a G-code program is running, so this needs to be taken care of.
-Many LinuxCNC actions take care of this themselves,
-and related buttons and menu entries are deactivated when the operation is currently impossible.
+Many LinuxCNC actions take care of this themselves, and related buttons and menu entries are deactivated when the operation is currently impossible.
 
 When using Python event handlers - which are at a lower level than Actions - one needs to take care of dealing with status dependencies oneself.
 For this purpose, there's the LinuxCNC Stat widget: to associate LinuxCNC status changes with event handlers.
@@ -2279,7 +2251,7 @@ ACTION = Action()
 INFO = Info()
 ----
 
-using the library functions:
+Using the library functions:
 
 [source,python]
 ----
@@ -2377,8 +2349,8 @@ The idea here is: Handlers are linked to class methods.
 The underlying class(es) are instantiated and inspected during GladeVCP startup and linked to the widget tree as signal handlers.
 So the task now is to write:
 
-- one or more several class definition(s) with one or several methods, in one module or split over several modules,
-- a function 'get_handlers' in each module which will return a list of class instances to GladeVCP - their method names will be linked to signal handlers
+- One or more several class definition(s) with one or several methods, in one module or split over several modules,
+- a function 'get_handlers' in each module which will return a list of class instances to GladeVCP - their method names will be linked to signal handlers.
 
 Here is a minimum user-defined handler example module:
 
@@ -2580,7 +2552,7 @@ To save the widget and/or variable state on exit, proceed as follows:
 
 - Select some interior widget (type is not important, for instance a table).
 - In the 'Signals' tab, select 'GtkObject'. It should show a 'destroy' signal in the first column.
-- Add the handler name, e.g. 'on_destroy' to the second column.
+- Add the handler name, e.g. 'on_destroy', to the second column.
 - Add a Python handler like below:
 
 [source,python]
@@ -2848,7 +2820,7 @@ See the getting-started/running-linuxcnc section for 'Adding Configuration Selec
 
 For testing, a runtime specification of auxiliary applications may be specified using the exported environmental variable: GLADEVCP_EXTRAS.
 This variable should be a path list of one or more configuration directories separated by a (:).
-Typically, this variable would be set in a shell starting linuxcnc or in a user's ~/.profile startup script.
+Typically, this variable would be set in a shell starting `linuxcnc` or in a user's `~/.profile startup` script.
 Example:
 
 ----
