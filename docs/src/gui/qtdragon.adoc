@@ -1142,7 +1142,7 @@ Up to tens buttons can be defined in the INI.
 
 You can use this tab to load or transfer programs.
 Editing of G-code programs can be selected from this tab.
-With `qtdragon_hd`, this is where you can load the 'G-code Ripper'
+With `qtdragon_hd`, this is where you can load the 'G-code Ripper'.
 
 === Offsets Tab
 
