@@ -6,10 +6,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-05-03 08:16+0200\n"
-"PO-Revision-Date: 2021-12-09 03:53+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"PO-Revision-Date: 2023-06-26 05:39+0000\n"
+"Last-Translator: WaldiS <sto@tutanota.de>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "pl/>\n"
 "Language: pl\n"
@@ -18,43 +18,43 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.10-dev\n"
+"X-Generator: Weblate 4.18.1\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:252
 msgid "user mode selected"
-msgstr ""
+msgstr "wybrany tryb użytkownika"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:256
 #, python-brace-format
 msgid "logo entry found = {0}"
-msgstr ""
+msgstr "znaleziono wpis logo = {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:261
 msgid "Logofile entry found, but could not be converted to path."
-msgstr ""
+msgstr "Znaleziono wpis Logofile, ale nie można go przekonwertować na ścieżkę."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:262
 msgid "The file path should not contain any spaces"
-msgstr ""
+msgstr "Ścieżka do pliku nie powinna zawierać spacji"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:512
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:533
 msgid "Error in "
-msgstr ""
+msgstr "Błąd w "
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:513
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:534
 msgid "Please check the console output."
-msgstr ""
+msgstr "Sprawdź dane wyjściowe konsoli."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:674
 msgid "axis"
-msgstr ""
+msgstr "oś"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:675
 msgid "axes"
-msgstr ""
+msgstr "osie"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:680
 #, fuzzy
@@ -67,14 +67,15 @@ msgid "joints"
 msgstr "Bazuj oś X"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:697
-#, python-brace-format
+#, fuzzy, python-brace-format
 msgid "Press to home all {0}"
-msgstr ""
+msgstr "Naciśnij, aby ustawić wszystkie {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:710
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1003
+#, fuzzy
 msgid "Press to display previous homing button"
-msgstr ""
+msgstr "Naciśnij, aby wyświetlić poprzedni przycisk samonaprowadzania"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:726
 #, python-brace-format
@@ -154,14 +155,15 @@ msgid "Press to set the selected coordinate system to be the active one"
 msgstr "ustaw wybrany system współrzędnych jako aktywny"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1101
-#, fuzzy
 msgid "No valid probe config in INI File. Tool measurement disabled."
-msgstr "**** Brak poprawnej konfiguracji czujnika narzędzia w pliku INI ****"
+msgstr ""
+"Brak prawidłowej konfiguracji sondy w pliku INI. Pomiar narzędzia wyłączony."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1115
-#, fuzzy
 msgid "Found valid probe config in INI file. Will use auto tool measurement."
-msgstr "**** Brak poprawnej konfiguracji czujnika narzędzia w pliku INI ****"
+msgstr ""
+"Znaleziono prawidłową konfigurację sondy w pliku INI. Zostanie użyty "
+"automatyczny pomiar narzędzia."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1129
 #, fuzzy
@@ -177,12 +179,12 @@ msgstr "Ciągły"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1257
 #, python-brace-format
 msgid "unknown jog command {0}"
-msgstr ""
+msgstr "nieznana komenda jog {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1285
 #, python-brace-format
 msgid "Press to jog axis {0}"
-msgstr ""
+msgstr "Naciśnij, aby przesunąć oś {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1306
 #, python-brace-format
@@ -195,59 +197,57 @@ msgid "GMOCCAPY INFO\n"
 msgstr "**** GMOCCAPY INFO ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1328
-#, fuzzy
 msgid "found more than 16 macros, will use only the first 16"
-msgstr ""
-"**** znaleziono ponad zbyt wiele makr, tylko pierwsze 9 będzie użyte ****"
+msgstr "znaleziono więcej niż 16 makr, użyje tylko pierwszych 16"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1339
+#, fuzzy
 msgid "Press to display previous macro button"
-msgstr ""
+msgstr "Naciśnij, aby wyświetlić przycisk poprzedniego makra"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1361
 #, python-brace-format
 msgid "Press to run macro {0}"
-msgstr ""
+msgstr "Naciśnij, aby uruchomić makro {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1372
+#, fuzzy
 msgid "Press to display next macro button"
-msgstr ""
+msgstr "Naciśnij, aby wyświetlić przycisk następnego makra"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1392
-#, fuzzy
 msgid "Press to display the virtual keyboard"
-msgstr "Pokaż/ukryj klawiaturę"
+msgstr "Naciśnij, aby wyświetlić wirtualną klawiaturę"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1488
-#, fuzzy
 msgid "* GMOCCAPY ERROR *"
-msgstr "**** GMOCCAPY ERROR ****"
+msgstr "* BŁĄD GMOCCAPY *"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1489
 msgid "this is not a lathe, as a lathe must have at least\n"
-msgstr ""
+msgstr "to nie jest tokarka, ponieważ tokarka musi mieć co najmniej\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1490
 msgid "an X and an Z axis\n"
-msgstr ""
+msgstr "oś X i Z\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1491
 msgid "Wrong lathe configuration, we will leave here"
-msgstr ""
+msgstr "Zła konfiguracja tokarki, zostawimy to tutaj"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1492
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1936
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2183
 msgid "Very critical situation"
-msgstr ""
+msgstr "Bardzo krytyczna sytuacja"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1622
 msgid "this is not a usual config\n"
-msgstr ""
+msgstr "to nie jest zwykła konfiguracja\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1623
 msgid "we miss one of X , Y or Z axis\n"
-msgstr ""
+msgstr "brakuje jednej z osi X, Y lub Z\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1624
 msgid "We will use by axisletter ordered jog button"
@@ -256,7 +256,7 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1782
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2896
 msgid "mm/min"
-msgstr ""
+msgstr "mm/min"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1785
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2899
@@ -267,6 +267,8 @@ msgstr ""
 msgid ""
 "No embedded tabs configured or invalid configuration. No tabs will be added!"
 msgstr ""
+"Brak skonfigurowanych kart osadzonych lub nieprawidłowa konfiguracja. Żadne "
+"zakładki nie zostaną dodane!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1828
 #, fuzzy
@@ -274,49 +276,49 @@ msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
 msgstr "Błąd uruchomienia paneli użytkownika, sprawdź czy nie ma literówek"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1934
-#, fuzzy
 msgid "Did not find a toolfile file in [EMCIO] TOOL_TABLE"
-msgstr "**** Nie znaleziono pliku tabeli narzędzi z [EMCIO] TOOL_TABLE ****"
+msgstr "Nie znaleziono pliku narzędziowego w [EMCIO] TOOL_TABLE"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2018
-#, fuzzy
 msgid "Audio available!"
-msgstr "**** dźwięk jest dostępny ****"
+msgstr "Dostępny dźwięk!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2030
 msgid ""
 "No audio available! PYGST library not installed? Is python-gstX.XX installed?"
 msgstr ""
+"Brak dźwięku! Biblioteka PYGST nie jest zainstalowana? Czy python-gstX.XX "
+"jest zainstalowany?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2059
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5290
+#, fuzzy
 msgid ""
 " Joint\n"
 "mode"
 msgstr ""
+" Połączenie\n"
+"tryb"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2103
-#, fuzzy
 msgid "Virtual keyboard program found : <onboard>"
-msgstr "****Znaleziono  klawiaturę ekranową : <onboard> "
+msgstr "Znaleziono program klawiatury wirtualnej : <onboard>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2105
-#, fuzzy
 msgid ""
 "No virtual keyboard installed, we checked for <onboard>. Try 'sudo apt-get "
 "install onboard'."
 msgstr ""
-"****Brak zainstalowanej klawiatury ekranowej (szukano onboard lub matchbox-"
-"keyboard)"
+"Nie zainstalowano klawiatury wirtualnej, sprawdziliśmy <onboard>. Spróbuj "
+"'sudo apt-get install onboard'."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2118
-#, fuzzy
 msgid ""
 "Error with launching virtual keyboard. Is onboard installed?Try sudo apt-get "
 "install onboard"
 msgstr ""
-"Fehler beim Aktivieren der virtuellen Bildschirmtastatur, ist das Paket "
-"\"Onboard\" installiert? "
+"Błąd podczas uruchamiania wirtualnej klawiatury. Czy onboard jest "
+"zainstalowany? Spróbuj sudo apt-get install onboard"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2151
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3026
@@ -324,11 +326,8 @@ msgid "interrupt running macro"
 msgstr "Przerwanie uruchomionego makra"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2181
-#, fuzzy
 msgid "Did not find a parameter file in [RS274NGC] PARAMETER_FILE"
-msgstr ""
-"**** Nie znaleziono pliku parametrów podanego w [RS274NGC] PARAMETER_FILE "
-"****"
+msgstr "Nie znaleziono pliku parametrów w [RS274NGC] PARAMETER_FILE"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2251
 msgid "Select the file you want to be loaded at program start"
@@ -336,9 +335,9 @@ msgstr "Wybierz plik, który ma być ładowany przy uruchamianiu programu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2285
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2309
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Message type {0} not supported"
-msgstr "**** GMOCCAPY ERROR **** /n nie obsługiwany komunikat {0}"
+msgstr "Typ komunikatu {0} nie jest obsługiwany"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2428
 msgid "Unknown error type and no error text given"
@@ -354,10 +353,8 @@ msgid "External ESTOP is set, could not change state!"
 msgstr "Błąd : sprzętowy ESTOP jest aktywny - nie mogę zmienić stanu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2475
-#, fuzzy
 msgid "Could not switch the machine on, is limit switch activated?"
-msgstr ""
-"Bład : nie mogę włączyć maszyny, czy któryś wyłącznik krańcowy jest aktywny ?"
+msgstr "Nie można włączyć urządzenia, czy wyłącznik krańcowy jest włączony?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2558
 msgid "No file loaded"
@@ -376,7 +373,7 @@ msgid "Enter value:"
 msgstr "Wprowadź wartość:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2992
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Set parameter {0} to:"
 msgstr "Parametr {0} ustawiono na:"
 
@@ -393,11 +390,13 @@ msgstr "Ten przycisk pokazuje/ukrywa klawiaturę"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3132
 msgid "Mode change is only allowed if the interpreter is idle!"
 msgstr ""
+"Zmiana trybu jest dozwolona tylko wtedy, gdy interpreter jest w stanie "
+"bezczynności!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3357
 #, python-brace-format
 msgid "{0}"
-msgstr ""
+msgstr "{0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3532
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:51
@@ -405,9 +404,9 @@ msgid "No tool description available"
 msgstr "Opis narzędzia niedostępny"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3672
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Halo, welcome to the test message {0}"
-msgstr "Wiadomość testowa {0}"
+msgstr "Witaj w wiadomości testowej {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3783
 msgid "Hal Pin is low, Access denied"
@@ -435,14 +434,12 @@ msgid "Do you really want to delete the MDI history?\n"
 msgstr "Czy na pewno chcesz usunąć historię MDI ?\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4170
-#, fuzzy
 msgid "This will not delete the MDI History file, but will\n"
-msgstr "to nie usunie pliku historii MDI, ale \n"
+msgstr "Nie spowoduje to usunięcia pliku historii MDI, ale\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4171
-#, fuzzy
 msgid "delete the listbox entries for this session."
-msgstr "usunie wpisy w tej sesji"
+msgstr "usuń wpisy w polu listy dla tej sesji."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4172
 msgid "Attention!!"
@@ -450,42 +447,37 @@ msgstr "Uwaga!!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4228
 msgid "Exit and discard changes?"
-msgstr ""
+msgstr "Wyjdź i odrzuć zmiany?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4229
-#, fuzzy
 msgid "Attention!"
-msgstr "Uwaga!!"
+msgstr "Uwaga!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4311
-#, fuzzy
 msgid "Enter value for diameter"
-msgstr "Wprowadź wartość dla osi %s"
+msgstr "Wprowadź wartość dla średnicy"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4312
-#, fuzzy
 msgid "Set diameter to:"
-msgstr "Parametr %s ustawiono na:"
+msgstr "Ustaw średnicę na:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4315
-#, fuzzy
 msgid "Enter value for radius"
-msgstr "Wprowadź wartość dla osi %s"
+msgstr "Wprowadź wartość promienia"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4316
-#, fuzzy
 msgid "Set radius to:"
-msgstr "Oś %s ustawiona na :"
+msgstr "Ustaw promień na:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4319
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Enter value for axis {0}"
 msgstr "Wprowadź wartość dla osi {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4320
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Set axis {0} to:"
-msgstr "Oś {0} ustawiona na :"
+msgstr "Ustaw oś {0} na:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4325
 msgid "Conversion error in btn_set_value!"
@@ -496,7 +488,6 @@ msgid "Please enter only numerical values. Values have not been applied"
 msgstr "Wprowadź tylko wartości numeryczne"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4340
-#, fuzzy
 msgid ""
 "You did not select a system to be changed to, so nothing will be changed"
 msgstr "Nie wybrałeś układu do zmiany, więc nic nie będzie zmienione"
@@ -555,9 +546,13 @@ msgid ""
 "\n"
 " not in the tool table!"
 msgstr ""
+"Narzędzie\n"
+"\n"
+"# {0:d}\n"
+"\n"
+" nie w tabeli narzędzi!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4854
-#, fuzzy
 msgid "Manual Tool change"
 msgstr "Ręczna zmiana narzędzia"
 
