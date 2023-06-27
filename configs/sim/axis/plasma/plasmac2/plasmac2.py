@@ -4030,7 +4030,7 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
 
     # not used:
     # use a non existant file name so Axis doesn't open a default file
-    # only usefull if we move the file open code in Axis so it is called after the user command file is called
+    # only useful if we move the file open code in Axis so it is called after the user command file is called
     #args = ['do_not_open_a_file']
 
     PREF = plasmacPreferences()
