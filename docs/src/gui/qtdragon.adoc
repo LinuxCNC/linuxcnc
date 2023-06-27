@@ -50,7 +50,7 @@ If your configuration is not currently set up to use QtDragon, you can change it
 For an exhaustive list of options, see the <<sub:ini:sec:display,display section>> of the INI file documentation.
 
 [NOTE]
-You can only have one of each section ( ie [HAL] ) in the INI file.
+You can only have one of each section (e.g., [HAL]) in the INI file.
 If you see in these docs multiple section options, place them all under the one appropriate section name.  
 
 === Display

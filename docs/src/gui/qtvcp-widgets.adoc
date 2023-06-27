@@ -2898,8 +2898,9 @@ QtVCP's version of NGC subroutine selector (Shown as used in QtDragon).
 
 ==== INI settings
 
-Linuxcnc needs to know where to look to run the subroutines. +
+LinuxCNC needs to know where to look to run the subroutines. +
 If the subroutine calls other subroutines or custom M codes, those paths must be added too.
+
 [source,{ini}]
 ----
 [RS274NGC]

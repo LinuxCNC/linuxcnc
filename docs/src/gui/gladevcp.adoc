@@ -1352,13 +1352,13 @@ It has the following properties:
 
 display_units_mm::
   Used to toggle the display units between metric and imperial.
-  Default is False
+  Default is False.
 actual::
   Select actual (feedback) position or commanded position.
-  Default is True
+  Default is True.
 diameter::
   Display diameter for a lathe.
-  Default is False
+  Default is False.
 mm_text_template::
   You can use Python formatting to display the position with different precision.
   Default is "%10.3f".
@@ -1367,7 +1367,7 @@ imperial_text_template::
   Default is "%9.4f".
 joint_number::
   Used to select which axis (technically which joint) is displayed.
-  Default is 0 +
+  Default is 0. +
   On a trivialkins machine (mill, lathe, router) axis vs. joint number are:
 +
   0:X  1:Y  2:Z  3:A  4:B  5:C  6:U  7:V  8:W +
@@ -1376,17 +1376,17 @@ reference_type::
   * 0 = `absolute` <<sec:machine-coordinate-system,(machine origin)>>.
   * 1 = `relative` (to current user coordinate origin - G5x).
   * 2 = `distance-to-go` (relative to current user coordinate origin).
-  Default is 0
+  Default is 0.
 font_family::
   Specify the font family e.g. mono. Defaults to sans.
   If the font does not exist then the current system font will be used.
-  Default is sans
+  Default is sans.
 font_size::
   Specify the size of the font between 8 and 96.
-  Default is 26
+  Default is 26.
 font_weight::
   Specify the weight of the font. Select from lighter, normal, bold, or bolder.
-  Default is bold
+  Default is bold.
 unhomed_color::
   The text color when unhomed specified as a Gdk.RGBA color.
   Default is red,
@@ -1527,8 +1527,7 @@ toggle_readout::
   Default is TRUE.
 cycle_time::
   The time the DRO waits between two polls. +
-  this setting should only be changed if you use more than 5 DRO at the same time,
-  i.e., on a 6 axis config, to avoid, that the DRO slows down the main application too much. +
+  This setting should only be changed if you use more than 5 DRO at the same time, i.e. on a 6 axis config, to avoid that the DRO slows down the main application too much. +
   The value must be an integer in the range of 100 to 1000. FIXME unit=ms ? +
   Default is 150.
 
@@ -1604,7 +1603,7 @@ The widget will emit the following signals:
      The widget object that sends the signal.
   ** `system` = string +
      The actual coordinate system.
-     Will be one of G54 G55 G56 G57 G58 G59 G59.1 G59.2 G59.3 or Rel if non has been selected at all, what will only happen in Glade with no LinuxCNC running.
+     Will be one of G54 G55 G56 G57 G58 G59 G59.1 G59.2 G59.3 or Rel if none has been selected at all, what will only happen in Glade with no LinuxCNC running.
 
 There are some information you can get through commands, which may be of interest for you:
 
@@ -1670,7 +1669,7 @@ There are Python methods to control the widget:
 * `[widget name].show_buttonbox(state)` +
   If False the bottom button box will be hidden. +
   This is helpful in custom screens, with special buttons layouts to not alter the layout of the GUI.
-  Good example for that is gmoccapy. +
+  Good example for that is GMOCCAPY. +
   `state` = boolean (True or False). +
   Default is True.
 * `[widget name].show_filelabel(state)` +
@@ -1717,7 +1716,7 @@ The widget will emit the following signals:
   It will return a string containing a file path if a file has been selected, or `None` if a directory has been selected.
 * `sensitive` +
   This signal is emitted when the buttons change their state from sensitive to not sensitive or vice versa. +
-  This signal is useful to maintain surrounding GUI synchronized with the button of the widget. See gmoccapy as example. +
+  This signal is useful to maintain surrounding GUI synchronized with the button of the widget. See GMOCCAPY as example. +
   It will return the **buttonname** and the new **state**: +
   ** `buttonname` is one of `btn_home`, `btn_dir_up`, `btn_sel_prev`,
      `btn_sel_next`, `btn_jump_to` or `btn_select`.
@@ -1973,7 +1972,7 @@ font_size_entry::
   Will modify the default font size of the entry to the selected value. +
 use_double_click::
   Boolean, True enables the mouse double click feature and a double click on an entry will submit that command. +
-  It is not recommended to use this feature on real machines, as a double click on a wrong entry may cause dangerous situations
+  It is not recommended to use this feature on real machines, as a double click on a wrong entry may cause dangerous situations.
 
 ==== Direct program control
 
@@ -1987,10 +1986,8 @@ Using goobject to set the above listed properties:
 
 === Animated function diagrams: HAL widgets in a bitmap
 
-For some applications it might be desirable to have a background image -
-like a functional diagram - and position widgets at appropriate places in that image.
-A good combination is setting a bitmap background image, like from a .png file, making the GladeVCP window fixed-size,
-and use the Glade Fixed widget to position widgets on this image.
+For some applications it might be desirable to have a background image - like a functional diagram - and position widgets at appropriate places in that image.
+A good combination is setting a bitmap background image, like from a .png file, making the GladeVCP window fixed-size, and use the Glade Fixed widget to position widgets on this image.
 The code for the below example can be found in `configs/apps/gladevcp/animated-backdrop`:
 
 .HAL widgets in a bitmap Example
@@ -2372,7 +2369,7 @@ For GladeVCP panel which respond to HAL inputs it may be important that the hand
 For example a panel inside the Touchy interface might well need to perform an action when the switch connected to touchy.cycle-start is operated (in the same way that the native tabs respond differently to the same button). +
 To make this possible, a signal is sent from the GUI (at the time of writing, only Touchy) to the embedded tab.
 The signal is of type "Gladevcp" and the two messages sent are "Visible" and "Hidden".
-(Note that the signals  have a fixed length of 20 characters so only the first characters should be used in any comparison, hence the [:7] below.)
+(Note that the signals have a fixed length of 20 characters so only the first characters should be used in any comparison, hence the [:7] below.)
 A sample handler for these signals is:
 
 [source,python]
@@ -2668,15 +2665,15 @@ class HandlerClass:
         self.meter.queue_draw() # force a widget redraw
 
     def __init__(self, halcomp,builder,useropts):
-  self.builder = builder
+        self.builder = builder
 
         # HAL pin with change callback.
         # When the pin's value changes the callback is executed.
         self.max_value = hal_glib.GPin(halcomp.newpin('max-value',  hal.HAL_FLOAT, hal.HAL_IN))
         self.max_value.connect('value-changed', self._on_max_value_change)
 
-  inifile = linuxcnc.ini(os.getenv("INI_FILE_NAME"))
-  mmin = float(inifile.find("METER", "MIN") or 0.0)
+        inifile = linuxcnc.ini(os.getenv("INI_FILE_NAME"))
+        mmin = float(inifile.find("METER", "MIN") or 0.0)
         self.meter = self.builder.get_object('meter')
         self.meter.min = mmin
 

@@ -6,14 +6,12 @@
 
 *Vismach* is a set of *Python functions that can be used to create and animate models of machines*.
 
-This chapter is about the Qt embedded version of <<cha:vismach,Vismach>>,
-also see: https://sa-cnc.com/linuxcnc-vismach/ .
+This chapter is about the Qt embedded version of <<cha:vismach,Vismach>>, also see: https://sa-cnc.com/linuxcnc-vismach/ .
 
 [[sec:qtvcp:vismach:intro]]
 == Introduction
 
-Vismach displays the model in a *3D viewport*
-and the *model parts are animated as the values of associated HAL pins change*.
+Vismach displays the model in a *3D viewport* and the *model parts are animated as the values of associated HAL pins change*.
 
 .QtVismach 3D Viewport
 image::images/qtvismach.png["QtVismach 3D Viewport",align="center"]
@@ -105,8 +103,7 @@ then it finally groups with the base.
 [[sec:qtvcp:vismach:start]]
 == Start the script
 
-It is useful for testing to include the `#!/usr/bin/env python3` shebang line
-to _allow the file to be executed directly from the command line.
+It is useful for testing to include the `#!/usr/bin/env python3` shebang line to _allow the file to be executed directly from the command line.
 
 The first thing to do is to _import the required libraries_.
 
@@ -124,11 +121,9 @@ from qtvcp.lib.qt_vismach.qt_vismach import *
 [[sec:qtvcp:vismach:hal]]
 == HAL pins.
 
-Originally the vismach library required creating a component and
-connecting HAL pins to control the simulation.
+Originally the vismach library required creating a component and connecting HAL pins to control the simulation.
 
-`qt_vismach` can read the HAL system pins directly or if you wish,
-to use separate HAL pins that you must define in a HAL component:
+`qt_vismach` can read the HAL system pins directly or if you wish, to use separate HAL pins that you must define in a HAL component:
 
 [source,python]
 ----
@@ -160,11 +155,10 @@ part = AsciiOBJ(data="v 0.123 0.234 0.345 1.0 ...")
 ----
 
 - STL model parts are added to the Vismach space in the _same locations as they were created in the STL or OBJ space_,
-  ie ideally with a rotational point at their origin.
+  i.e. ideally with a rotational point at their origin.
 
 [NOTE]
-It is much easier to move while building if the origin of the model is at 
-a rotational pivot point.
+It is much easier to move while building if the origin of the model is at a rotational pivot point.
 
 [[sub:qtvcp:vismach:primitives]]
 === Build from Geometric Primitives
@@ -207,12 +201,10 @@ part4 = Collection([part1, part2])
 == Moving Model Parts
 
 Parts may need to be moved in the Vismach space to assemble the model.
-The origin does not move - Translate() and Rotate() move the Collection 
-as you add parts, relative to a stationary origin.
+The origin does not move - Translate() and Rotate() move the Collection as you add parts, relative to a stationary origin.
 
 //FIXME unclear
-They may also need to be moved to create the animation as the animation
-rotation axis is created at the origin (but moves with the Part).
+They may also need to be moved to create the animation as the animation rotation axis is created at the origin (but moves with the Part).
 
 [[sub:qtvcp:vismach:translate]]
 === Translating Model parts
@@ -223,8 +215,7 @@ rotation axis is created at the origin (but moves with the Part).
 === Rotating Model Parts
 
 *`part1 = Rotate([part1], theta, x, y, z)`*::
-  Rotate the part by angle theta [degrees] about an axis between the origin and
-  x, y, z.
+  Rotate the part by angle theta [degrees] about an axis between the origin and x, y, z.
 
 [[sec:qtvcp:vismach:animate]]
 == Animating Parts
@@ -393,7 +384,7 @@ myhud.show("Mill_XYZ")`
 ----
 
 *`myhud = HalHud()`*::
-  A more advanced version of the Hud that allows HAL pins to be displayed. eg.
+  A more advanced version of the Hud that allows HAL pins to be displayed:
 [source,python]
 ----
 myhud = HalHud()
