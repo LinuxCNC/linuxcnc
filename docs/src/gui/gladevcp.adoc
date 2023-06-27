@@ -1327,7 +1327,7 @@ The `HAL_Offset` widget is used to display the offset of a single axis.
 
 display_units_mm::
   Display in metric units.
-joint_n_umber::
+joint_number::
   Used to select which axis (technically which joint) is displayed. +
   On a trivialkins machine (mill, lathe, router) axis vs. joint number are:
 +
