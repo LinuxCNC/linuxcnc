@@ -1187,7 +1187,7 @@ class HandlerClass:
         if state:
             self.w.lineEdit_eoffset_count.text()
 
-    # show ngcgui info tab (in the stackedWidget) if ngcgui utilites
+    # show ngcgui info tab (in the stackedWidget) if ngcgui utilities
     # tab is selected
     def tab_utilities_changed(self, num):
         if num == 2:
