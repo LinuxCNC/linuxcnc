@@ -35,7 +35,7 @@ Applied offsets are 'automatically returned' to zero (respecting limits)
 when either of the enabling inputs is deactivated.  The zero value
 tolerance is specified by the epsilon input pin value.
 
-Waypoints are recorded when the moveoff componenent is enabled.  Waypoints are
+Waypoints are recorded when the moveoff component is enabled.  Waypoints are
 managed with the waypoint-sample-secs and waypoint-threshold pins.  When the
 backtrack-enable pin is TRUE, the auto-return path follows the recorded
 waypoints.  When the memory available for waypoints is exhausted, offsets are

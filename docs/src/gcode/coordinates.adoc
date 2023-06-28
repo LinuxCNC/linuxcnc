@@ -52,7 +52,7 @@ will move from the current position to the position where
 the machine coordinates of the three axes will be at zero. You can
 use this command if you have a fixed position for the tool change or if
 your machine has an automatic tool changer. You can also use this command
-to clear the work area and access the workpiece in the vise.
+to clear the work area and access the workpiece in the vice.
 
 G53 is a non modal command. It must be used in every block where a move
 in machine coordinate system is desired.

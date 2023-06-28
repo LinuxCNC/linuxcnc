@@ -6,7 +6,7 @@
 
 This chapter provides details on core functionalities of LinuxCNC that demand exact timing for
 
-* the generation of signals that is intepreted by hardware (like motors) or
+* the generation of signals that is interpreted by hardware (like motors) or
 * for the interpretation of signals sent by the hardware (like encoders).
 
 [[sec:stepgen]]

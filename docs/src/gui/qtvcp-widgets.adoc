@@ -1879,9 +1879,9 @@ To use `MDITouchy`:
   On the left will show the entry fields that can be filled out.
 * Then press `Next` and `Back` to navigate between fields.
 * `Calc` will pop up a calculator dialog.
-* `Clear` clears the ecurrent entry.
+* `Clear` clears the current entry.
 * `Set Tool` will call for a tool change.
-* `Set Origin` will allow setting the origin of the current G6x systen.
+* `Set Origin` will allow setting the origin of the current G6x system.
 * `Macro` will call any available macro ngc programs.
 
 The widget _requires an explicit call to MDITouchy Python code_ to _actually run the MDI command_:

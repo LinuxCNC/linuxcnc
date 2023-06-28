@@ -372,7 +372,7 @@ These optional HAL files will be called after QtDragon has loaded everything els
 You can add multiple line for multiple file. Each one will be called in the order they appear. +
 Calling HAL files after QtDragon is already loaded assures that QtDragon's HAL pins are available.
 
-.Sample with typical entries for the specificion of HAL files to be read after the QtDragon was startd. Adjust these lines to match actual requirements.
+.Sample with typical entries for the specificion of HAL files to be read after the QtDragon was started. Adjust these lines to match actual requirements.
 [source,{ini}]
 ----
 [HAL]
