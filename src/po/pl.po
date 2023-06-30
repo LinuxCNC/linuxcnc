@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: LinuxCNC\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-05-03 08:16+0200\n"
-"PO-Revision-Date: 2023-06-26 05:39+0000\n"
+"PO-Revision-Date: 2023-06-30 10:37+0000\n"
 "Last-Translator: WaldiS <sto@tutanota.de>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "pl/>\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.18.1\n"
+"X-Generator: Weblate 5.0-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -6717,17 +6717,16 @@ msgstr ""
 #: tcl/tooledit.tcl:357
 #, tcl-format
 msgid "At linenumber %d, Unknown tag <%s>"
-msgstr ""
+msgstr "W wierszu numer %d, Nieznany tag <%s>"
 
 #: tcl/tooledit.tcl:442
 #, tcl-format
 msgid "%s: Column sorting not available with tcl_version==%s"
-msgstr ""
+msgstr "%s: Sortowanie kolumn niedostępne z tcl_version==%s"
 
 #: tcl/tooledit.tcl:451
-#, fuzzy
 msgid "tool"
-msgstr "Brak narzędzia"
+msgstr "narzędzie"
 
 #: tcl/tooledit.tcl:452
 msgid "poc"
@@ -6766,17 +6765,18 @@ msgid "ReLoadTable"
 msgstr "Przeładuj ta_bele narzędzi"
 
 #: tcl/tooledit.tcl:526
-#, fuzzy
 msgid "SaveFile"
-msgstr "Zapisz do pliku"
+msgstr "Zapisz plik"
 
 #: tcl/tooledit.tcl:531
+#, fuzzy
 msgid "ReRead"
-msgstr ""
+msgstr "Przeczytaj ponownie"
 
 #: tcl/tooledit.tcl:533
+#, fuzzy
 msgid "AddTool"
-msgstr ""
+msgstr "Dodaj narzędzie"
 
 #: tcl/tooledit.tcl:583
 #, tcl-format
@@ -11647,6 +11647,7 @@ msgstr "Dodatnie"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
 msgid ""
 "_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
