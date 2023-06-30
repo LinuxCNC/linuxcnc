@@ -76,7 +76,7 @@ some realtime implementations of LinuxCNC realtime require that modules
 be kernel modules, and kernel modules have no access to files, the
 mesa_modbus framework compiles-in the modbus register structure and
 HAL pins into an immutable, loadable, module. If you need to change
-the register assigments or add/remove pins/registers then the module
+the register assignments or add/remove pins/registers then the module
 must be recompiled.
 
 Load and activate the module with HAL commands such as
@@ -334,7 +334,7 @@ reversed.
 === Ad-hoc Modbus device access ===
 
 For experimentation and one-off configuration it is possible to send /
-recieve data through the FPGA serial port using the mesaflash utility
+receive data through the FPGA serial port using the mesaflash utility
 in a script. A sample script follows.
 
 [source,bash]

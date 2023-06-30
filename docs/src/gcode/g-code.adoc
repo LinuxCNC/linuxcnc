@@ -1032,7 +1032,7 @@ if TOOL_CHANGE_AT_G30=1 is in the [EMCIO] section of the INI file.
 .G30 Example Line
 [source,{ngc}]
 ----
-G30 Z2.5 (rapid to Z2.5 then to the Z location specified in #5i83)
+G30 Z2.5 (rapid to Z2.5 then to the Z location specified in #5183)
 ----
 
 It is an error if :

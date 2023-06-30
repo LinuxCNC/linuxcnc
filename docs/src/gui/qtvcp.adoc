@@ -341,7 +341,7 @@ qtvcp copy_dialog
 
 * Select the screen and destination folder in the dialog
 * If you wish to *name your screen* differently than the builtin screen's default name, change the _basename_ in the edit box.
-* There should be a folder in the config folder; for screens: named '<CONFIG FOLDER>/qtvcp/screens/' for panels:  named '<CONFIG FOLDER>/qtvcp/panels/' add the folders if ther are missing and copy your folder/files in it.
+* There should be a folder in the config folder; for screens: named '<CONFIG FOLDER>/qtvcp/screens/' for panels:  named '<CONFIG FOLDER>/qtvcp/panels/' add the folders if they are missing and copy your folder/files in it.
 * Validate to copy all the files
 * Delete the files you don't wish to modify so that the original files will be used.
 

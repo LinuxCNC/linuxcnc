@@ -37,7 +37,7 @@ debian this is available from the `python3-paho-mqtt` package.
 
     The name of HAL pins, signals and other values to publish using
     MQTT.  The names are also used as the JSON keys in the MQTT
-    message publised with the broker.
+    message published with the broker.
 
 *--dryrun*::
 

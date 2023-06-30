@@ -1489,7 +1489,7 @@ The `HAL_Offset` widget is used to display the offset of a single axis.
 `HAL_Offset` has the following properties:
 
 display_units_mm::
-  Disply in metric units.
+  Display in metric units.
 joint_n_umber::
   Used to select which axis (technically which joint) is displayed. +
   On a trivialkins machine (mill, lathe, router) axis vs. joint number are:
@@ -1551,11 +1551,11 @@ font_weight::
   Specify the weight of the font. Select from lighter, normal, bold, or bolder.
   Default is bold
 unhomed_color::
-  The text color when unhomed pecified as a Gdk.RGBA color.
+  The text color when unhomed specified as a Gdk.RGBA color.
   Default is red,
   Gdk.RGBA(red=1.000000, green=0.000000, blue=0.000000, alpha=1.000000)
 homed_color::
-  The text color when homed pecified as a Gdk.RGBA color.
+  The text color when homed specified as a Gdk.RGBA color.
   Default is green,
   Gdk.RGBA(red=0.000000, green=0.501961, blue=0.000000, alpha=1.000000)
 Hints::

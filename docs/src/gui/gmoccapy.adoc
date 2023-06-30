@@ -459,7 +459,7 @@ The widget names can the looked up in the /usr/share/gmoccapy.glade file
 === User CSS File
 
 Similar to the User command file it's possible to influence the appearance by cascading style sheets (CSS).
-If a file `~/.gmoccapy_css` exists, its contents are loaded into the stylesheet provider and are so beeing applied to the GUI.
+If a file `~/.gmoccapy_css` exists, its contents are loaded into the stylesheet provider and are so being applied to the GUI.
 
 A configuration-specific CSS file may be specified with an INI file setting
 [source,{ini}]

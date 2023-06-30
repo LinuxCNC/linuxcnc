@@ -1266,7 +1266,7 @@ class craftsman(object):
 		else: 
 			self.set_ops_leds(1, 3, False)
 		
-		##Overide limits LED			
+		##Override limits LED			
 		#if self.machine_overide_limits:		
 		if self.status.joint[0]['override_limits'] != 0:
 			self.set_ops_leds(5,  5,   True)

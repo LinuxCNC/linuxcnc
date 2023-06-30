@@ -13,7 +13,7 @@
 == Introduction
 
 This section introduces to the compilation HAL components, i.e. the addition of some machinists' knowledge on how to deal with the machine.
-It should be noted that such components do not neccessarily deal with the hardware directly.
+It should be noted that such components do not necessarily deal with the hardware directly.
 They often do, but not necessarily, e.g. there could be a component to convert between imperial and metric scales,
 so this section does not require to dive into the interaction with hardware.
 
@@ -595,7 +595,7 @@ pin out float example;
 
 This fragment of a component illustrates the use of the 'hal_' prefix in a component name.
 
-`loop` is a common name, and the `hal_` prefix avoids potential name collissions with other unrelated software.  For example, on RTAI realtime systems realtime code runs in the kernel, so if the component were named just `loop` it could easily conflict with the standard `loop` kernel module.
+`loop` is a common name, and the `hal_` prefix avoids potential name collisions with other unrelated software.  For example, on RTAI realtime systems realtime code runs in the kernel, so if the component were named just `loop` it could easily conflict with the standard `loop` kernel module.
 
 When loaded, 'halcmd show comp' will show a component called 'hal_loop'.
 However, the pin shown by 'halcmd show pin' will be 'loop.0.example', not 'hal-loop.0.example'.
