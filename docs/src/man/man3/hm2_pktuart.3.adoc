@@ -46,7 +46,7 @@ every servo thread, and these can be read with the functions
 rtapi_u32 hm2_pktuart_get_rx_status() and
 rtapi_u32 hm2_pktuart_get_tx_status().
 
-=== Acessing the UARTs ===
+=== Accessing the UARTs ===
 
 The UART functions above can be included in your driver code by
 ``#include "hostmot2-serial.h"``
@@ -155,7 +155,7 @@ period.
 
 These functions will always return the latest status from the most
 recent data packet from the FPGA. The status should be used to check if
-any new data has been recieved, or if the UART has completed the recent
+any new data has been received, or if the UART has completed the recent
 transmissions.
 
 The Tx status is encoded as:
@@ -207,7 +207,7 @@ frames to include "bytes" bytes.
 Both the Tx and Rx pack the bytes that are to be read or written in
 32-bit "frames" stored in a 16-deep FIFO.
 
-To send the sequence 01, 02, 03, 04, 05, 06  folowed by the sequence
+To send the sequence 01, 02, 03, 04, 05, 06  followed by the sequence
 F1, F2, F3, F3, F5, F6, F7 the registers
 would be loaded with:
 

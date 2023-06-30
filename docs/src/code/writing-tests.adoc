@@ -35,7 +35,7 @@ _test.hal_ below the directories specified on the command line, or under
 represent three different ways to run the tests.
 
 The _runtests_ script accepts the following arguments, see the output
-from `scripts/runtests -h` for the authorative list:
+from `scripts/runtests -h` for the authoritative list:
 ----
 -n  do not remove temporary files for successful tests.
 -s  stop after any failed test.
@@ -78,7 +78,7 @@ test.hal::
    expected file, the test succeeds.
 
 checkresult::
-   An excutable file to perform more complex validation than just comparing
+   An executable file to perform more complex validation than just comparing
    the output of a test script. It gets the filename of the test program as
    its command line argument. The exit code of this program controls the result
    of the test. If both `expected` and `checkresult` exist, only `checkresult`

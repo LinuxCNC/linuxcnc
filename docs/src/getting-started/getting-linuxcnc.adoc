@@ -6,7 +6,7 @@
 
 This section describes how to install LinuxCNC version 2.9 on a PC already running Debian Bookworm (Debian 12). Linuxcnc requires the PREEMPT_RT real time kernel to ensure the strict timing required for CNC operations are met. We will also cover  how to install Debian Bookworm optimised for Linuxcnc on the x86/AMD64 and ARM64 platforms for first time users. We will also cover some troubleshooting steps and common problems you may experience.
 
-NOTE: The PREEMPT_RT kernel is a dependency of LinuxCNC so on most computer platforms, eg AMD64/x86, it will be installed with LinuxCNC. On some platforms such as the Raspberry Pi, it needs to be installed seperately. Some environments (eg. Armbian) may suport installation of Debian Bookworm but require special procedures to install PREEMPT_RT which are beyond the scope of this document.
+NOTE: The PREEMPT_RT kernel is a dependency of LinuxCNC so on most computer platforms, eg AMD64/x86, it will be installed with LinuxCNC. On some platforms such as the Raspberry Pi, it needs to be installed separately. Some environments (eg. Armbian) may support installation of Debian Bookworm but require special procedures to install PREEMPT_RT which are beyond the scope of this document.
 
 There are other versions of LinuxCNC which work with Xenomai and RTAI kernels. See the table at the end of this document for details.
 
@@ -44,7 +44,7 @@ uname -v
 ----
 PREEMPT_RT should be displayed in the results.
 
-Thats it! You are done! You will find LinuxCNC under the CNC menu.
+That's it! You are done! You will find LinuxCNC under the CNC menu.
 
 
 [[sec:bookworm_x86]]
@@ -98,7 +98,7 @@ Add your user to the sudo group. Type:
 ----
 usermod -aG sudo pi
 ----
-To update your system, and istall the real time kernel, type the following lines:
+To update your system, and install the real time kernel, type the following lines:
 
 ----
 apt update
