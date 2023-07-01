@@ -2924,17 +2924,17 @@ NGCGUI_SUBFILE = qpocket.ngc
 
 ==== Buttons
 
-* 'NEW TAB' -adds a new blank tab to ngcgui
-* 'SELECT PREAMBLE' -select a file that add preamble G-code
-* 'SELECT SUBFILE' -select a ngcgui subroutine file
-* 'SELECT POST' -select a file that add post G-code
-* 'REREAD FILE' -reload the subroutine file
-* 'CREATE FEATURE' -add feature to the list
+* 'NEW TAB' - add new blank tab to NGCGUI
+* 'SELECT PREAMBLE' - select a file that add preamble G-code
+* 'SELECT SUBFILE' - select a NGCGUI subroutine file
+* 'SELECT POST' - select a file that add post G-code
+* 'REREAD FILE' - reload the subroutine file
+* 'CREATE FEATURE' - add feature to the list
 * 'RESTART FEATURE' - remove all features from the list
-* 'FINALIZE GCODE' -create the full G-code and send it to LinuxCNC/a file
+* 'FINALIZE GCODE' - create the full G-code and send it to LinuxCNC/a file
 
 ==== Adding Custom Subroutines
-You can create your own subroutines for use with ngcgui.
+You can create your own subroutines for use with NGCGUI.
 They must follow these rules:
 
 * For creating a subroutine for use with NGCGUI, the filename and the subroutine name must be the same.
@@ -2943,7 +2943,7 @@ They must follow these rules:
 * The subroutine must be surrounded by the sub and endsub tags.
 * The variables used must be numbered variables and must not skip number.
 * Comments and presets may be included.
-* if an image file of the same name is in the folder, it will be shown.
+* If an image file of the same name is in the folder, it will be shown.
 
 [source,{css}]
 ----
