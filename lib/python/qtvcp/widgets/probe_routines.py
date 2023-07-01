@@ -347,7 +347,7 @@ class ProbeRoutines():
         if rtn != 1:
             return 'failed: {}'.format(rtn)
 
-        # move to finded  point X
+        # move to found point X
         s = "G1 F%s X%f" % (self.data_rapid_vel, xpres)
         rtn = self.CALL_MDI_WAIT(s, self.timeout) 
         if rtn != 1:
@@ -441,7 +441,7 @@ class ProbeRoutines():
         ymres=float(a[1])-0.5*self.data_probe_diam
         self.length_y()
 
-        # find, show and move to finded  point
+        # find, show and move to found point
         ycres=0.5*(ypres+ymres)
         self.status_yc = ycres
         diam=self.data_probe_diam + (ymres-ypres-self.data_ts_diam)
@@ -454,7 +454,7 @@ class ProbeRoutines():
         tmpz=STATUS.stat.position[2] - self.data_z_clearance
         self.status_z=tmpz
         self.add_history('Tool diameter',"XcYcZD",0,xcres,0,0,0,ycres,0,0,tmpz,diam,0)
-        # move to finded  point
+        # move to found point
         s = "G1 Y%f" % ycres
         rtn = self.CALL_MDI_WAIT(s, self.timeout) 
         if rtn != 1:
