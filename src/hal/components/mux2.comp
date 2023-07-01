@@ -6,6 +6,7 @@ pin in float in0;
 function _;
 license "GPL";
 author "Jeff Epler";
+see_also "mux4(9), mux8(9), mux16(9), mux_generic(9).";
 ;;
 FUNCTION(_) {
     if(sel) out = in1;

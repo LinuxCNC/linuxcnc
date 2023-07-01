@@ -42,6 +42,7 @@ variable int running;
 function _;
 license "GPL";
 author "Chris S Morley";
+see_also "mux2(9), mux4(9), mux8(9), mux_generic(9).";
 ;;
 FUNCTION(_) {
     int i,num = 0;
