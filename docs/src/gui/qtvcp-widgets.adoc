@@ -627,10 +627,16 @@ If you press and hold the button a pop up menu will show allowing one to:
 * Set the axis arbitrarily
 * Reset the axis to the last number recorded
 
-You select the axis by setting the joint number.
+You must have selected an entry dialog that corresponds to the dialog_code_string, 
+usually this is selected from the screenOptions widget. 
 
-You can select a `halpin` option that is set true when the axis is selected.
+You can select the property `halpin_option', it will then set a HAL pin true when the axis is selected.
+The property 'joint_number' should be set to the appropriate joint number.
+The property 'axis_letter' should be set to the appropriate axis letter.
 
+The property 'dialog_code_string' can be changed to 'ENTRY' or 'CALCULATOR' 
+to call a typing only entry dialog or a touch/typing calculator type entry dialog.
+ 
 It is based on PyQt's _QToolButton_.
 
 [[sub:qtvcp:widgets:camview]]
