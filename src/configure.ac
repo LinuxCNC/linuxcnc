@@ -1555,7 +1555,8 @@ GPL-2 only) and Readline version 6 and greater (GPL-3 or later).])
             AC_MSG_ERROR(
 [To configure LinuxCNC in this way, you must
 invoke configure with "--enable-non-distributable=yes".  Note that on
-Debian-based systems, you may be able to use libreadline-gplv2-dev instead.])
+Debian-based systems, you may be able to use libeditreadline-dev or
+libreadline-gplv2-dev instead of libreadline-dev.])
         fi
 ])
 
