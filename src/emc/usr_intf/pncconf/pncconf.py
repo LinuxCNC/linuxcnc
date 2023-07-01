@@ -3039,7 +3039,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         self.widgets[ptype].set_sensitive(0)
                         self.widgets[p].set_model(self.d._notusedsignaltree)
                         self.widgets[p].set_active(0)
-                        return 'ERROR: more then maximium channels'
+                        return 'ERROR: more then maximum channels'
 
                     #print("**** INFO: SMART SERIAL ENCODER:",firmptype," compnum = ",compnum," channel = ",channelnum)
                     #print("sserial channel:%d"% numofsserialchannels)

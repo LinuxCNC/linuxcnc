@@ -919,7 +919,7 @@ class Gscreen:
         function signature would be written in python.
 
         :param method: a python method
-        :return: A string similar describing the pythong method signature.
+        :return: A string similar describing the python method signature.
         eg: "my_method(first_argArg, second_arg=42, third_arg='something')"
         """
 

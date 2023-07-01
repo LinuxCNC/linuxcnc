@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-#    Visulization model of Chris's MAX-NC mill, as modified to 5-axis
+#    Visualization model of Chris's MAX-NC mill, as modified to 5-axis
 #
 #    Copyright 2007 John Kasunich
 #    Derived from a work by John Kasunich, Jeff Epler, and Chris Radek

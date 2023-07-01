@@ -547,7 +547,7 @@ int hm2_pktuart_send(char *name,  unsigned char data[], rtapi_u8 *num_frames, rt
 }
 
 /* The function hm2_pktuart_read performs reads/writes outside of the normal
- * thread cycles. This is espacially a problem with the Ethernet and p-port
+ * thread cycles. This is especially a problem with the Ethernet and p-port
  * connected cards where the reads and writes should be packeted.
  * This function has been left in place for backwards compatibility, but it
  * is recommended to use the hm2_pktuart_queue_* functions instead */
@@ -649,7 +649,7 @@ int hm2_pktuart_read(char *name, unsigned char data[], rtapi_u8 *num_frames, rta
           }
 
            // a packet is completely received, but its byte count is zero
-           // is very unprobable, however we intercept this error too
+           // is very improbable, however we intercept this error too
           if (countb==0) {
               HM2_ERR_NO_LL("%s: packet %d has %d bytes.\n", name, countp+1, countb);
               return -HM2_PKTUART_RxPacketSizeZero; 

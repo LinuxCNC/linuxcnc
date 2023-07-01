@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-#    Visulization model of a Horizontal Boring Mill with quill
+#    Visualization model of a Horizontal Boring Mill with quill
 #
 #    Copyright 2007 John Kasunich
 #    Derived from a work by John Kasunich, Jeff Epler, and Chris Radek

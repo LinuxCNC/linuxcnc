@@ -34,7 +34,7 @@
 #define HM2_PKTUART_RxPacketStartbitError (1114)    // Bit 14         False Start bit error in this packet
 
 // the next two error conditions
-// are very unprobable, but we consider them nevertheless
+// are very improbable, but we consider them nevertheless
 #define HM2_PKTUART_RxPacketSizeZero      (1120)    // the length of the received packet is 0
 #define HM2_PKTUART_RxArraySizeError      (1140)    // sizeof(data array)= num_frames*max_frame_length is too small for all the data in the buffer
 

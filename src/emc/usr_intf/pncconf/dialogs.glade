@@ -311,7 +311,7 @@ Field power should be connected to detect all pins.
         <col id="1" translatable="yes">hm2_4i43</col>
       </row>
       <row>
-        <col id="0" translatable="yes">Parellel Port- 7i90</col>
+        <col id="0" translatable="yes">Parallel Port- 7i90</col>
         <col id="1" translatable="yes">hm2_7i90</col>
       </row>
     </data>
@@ -337,7 +337,7 @@ Field power should be connected to detect all pins.
         <col id="1" translatable="yes">hm2_4i43</col>
       </row>
       <row>
-        <col id="0" translatable="yes">Parellel Port- 7i90</col>
+        <col id="0" translatable="yes">Parallel Port- 7i90</col>
         <col id="1" translatable="yes">hm2_7i90</col>
       </row>
     </data>
