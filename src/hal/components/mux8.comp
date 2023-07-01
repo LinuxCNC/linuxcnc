@@ -44,6 +44,7 @@ pin in float in7;
 function _;
 license "GPL";
 author "Stuart Stevenson";
+see_also "mux2(9), mux4(9), mux16(9), mux_generic(9).";
 ;;
 FUNCTION(_) {
     if(sel0) {
