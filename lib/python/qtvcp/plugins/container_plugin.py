@@ -82,7 +82,7 @@ class JointEnableWidgetPlugin(QPyDesignerCustomWidgetPlugin):
         return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('jointenablewidget')))
 
     def toolTip(self):
-        return "Linuxcnc Joint Availablility enable/disable widget"
+        return "Linuxcnc Joint Availability enable/disable widget"
 
     def whatsThis(self):
         return ""

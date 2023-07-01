@@ -22,7 +22,7 @@ import math
 # no component made here - reads the pins directly
 comp = None
 
-# set mesurement system
+# set measurement system
 METRIC = 1
 IMPERIAL = 25.4
 MODEL_SCALING = METRIC

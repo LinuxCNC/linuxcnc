@@ -35,7 +35,7 @@ if __name__ != '__main__':  # This avoids segfault when testing directly in pyth
     INFO = Info()
 LOG = logger.getLogger(__name__)
 
-# Surpress cryptic messages when chacking for useable ports
+# Suppress cryptic messages when checking for useable ports
 os.environ["OPENCV_LOG_LEVEL"]="FATAL"
 
 # If the library is missing don't crash the GUI

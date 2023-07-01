@@ -141,7 +141,7 @@ class HAL_Offset(Gtk.Label):
         return g5x,tool,g92,rot
 
     # This does the units conversion
-    # it just mutiplies the two arrays 
+    # it just multiplies the two arrays 
     def convert_units(self,v):
         c = self.conversion
         return list(map(lambda x,y: x*y, v, c))

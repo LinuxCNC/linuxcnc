@@ -853,7 +853,7 @@ class _Lcnc_Action(object):
     # Action Helper functions
     ######################################
 
-    # adjust the jog rate by one aproximate division of the
+    # adjust the jog rate by one approximate division of the
     # min/max range on an exponential scale.
     # cut off at the upper and lower jog rates as per the INI
     def _step_jograte(self, jograte, minrate, maxrate, inc, divs):

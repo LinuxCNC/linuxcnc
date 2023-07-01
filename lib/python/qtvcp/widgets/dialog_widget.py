@@ -167,7 +167,7 @@ class GeometryMixin(_HalWidgetBase):
                     self._geometry_string = self.get_current_geometry()
 
             else:
-                # assuming geometry is actual size/positon
+                # assuming geometry is actual size/position
                 temp = self._geometry_string.split(' ')
                 self.setGeometry(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
         except Exception as e:
