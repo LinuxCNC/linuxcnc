@@ -2,6 +2,11 @@ o<qt_auto_probe_tool> sub
 ;(debug, in change tool_in_spindle=#<tool_in_spindle> current_pocket=#<current_pocket>)
 ;(debug, selected_tool=#<selected_tool> selected_pocket=#<selected_pocket>)
 
+; calculate Z offset value based on current work offset (#5220) and
+; G92/G52 offset if enabled (#5210)
+#<zworkoffset> = [#[5203 + #5220 * 20] + #5213 * #5210]
+
+
 #<tool> = #<selected_tool>
 #<pocket> = #<selected_pocket>
 ; we must execute this only in the milltask interpreter
@@ -61,22 +66,27 @@ O400 endif
 
 F #<_hal[qtversaprobe.searchvel]>
 G91
-G38.2 Z- #<_ini[VERSA_TOOLSETTER]MAXPROBE>
+G38.3 Z- #<_ini[VERSA_TOOLSETTER]MAXPROBE>
 G0 Z #<_hal[qtversaprobe.backoffdist]>
-
-;reprobe at probe speed
-F #<_hal[qtversaprobe.probevel]>
-G38.2 Z- [#<_hal[qtversaprobe.backoffdist]> *1.2]
 
 O500 if [#5070 EQ 0]
 G90
 O500 return [-3] ; indicate probe contact failure to epilog
 O500 endif
 
+;reprobe at probe speed
+F #<_hal[qtversaprobe.probevel]>
+G38.3 Z- [#<_hal[qtversaprobe.backoffdist]> *1.2]
+
+O600 if [#5070 EQ 0]
+G90
+O600 return [-3] ; indicate probe contact failure to epilog
+O600 endif
+
 G90
 G53 G0 Z[#<_ini[CHANGE_POSITION]Z>]
 
-#<touch_result> = #5063
+#<touch_result> = [#5063 + #<zworkoffset>]
 
 (DEBUG, %fProbe Height: #<_hal[qtversaprobe.probeheight]>)
 (DEBUG, %fBlock Height: #<_hal[qtversaprobe.blockheight]>)
