@@ -24,29 +24,34 @@ However, HAL can do more than just configure hardware drivers.
 
 The Hardware Abstraction Layer (or with a reference to the link:https://en.wikipedia.org/wiki/2001:_A_Space_Odyssey_(film)[2001 Space Odyssey movie] just "HAL") is a software to 
 
-* control the execution of other software and
-* provide the infrastructure for the communication with and between the many software "threads" that it contols.
+* provide the infrastructure for the communication with and between the many software and hardware components of the system.
+* optionally process and/or override that information as it flows from component to component.
 
 In itself, this link:https://en.wikipedia.org/wiki/Middleware[Middleware] is agnostic about its application on CNC.
-Searching for LinuxCNC use cases, the InterNet for instance knows about an astronomical application to control telescopes with LinuxCNC:
+An Internet search, for example, found an astronomical application to control telescopes using Linuxcnc.
 Motors move the telescope into the right position, and it needs to know how to map motor activity with the effect of that positioning with the real world.
-Such a synchronisation of motor positions with real-world positions is reminiscent of what CNC machines need to do, or space crafts.
-Any machine controller needs to know 
+Such a synchronisation of motor positions with real-world positions is reminiscent of what CNC machines need to do, or space craft.
+
+
+Any machine controller needs to know:
 
 * about its internal state and how this maps to the environment (machine coordinates, state of switches/regulators), 
 * how actuators are expected to change that state,
-* allow for updates of the internal state by sensors (encoders, probes).
+* how allow for updates of the internal state by sensors (encoders, probes).
 
-The adaptation to CNC for mills and lathes are implemented in adjunct parts of HAL (referred to as "components") that
+The HAL layer consists of parts (referred to as "components") that
 
+* are connected with each other, e.g., to update position data or have the planning algorithm tell the motors about the next step.
 * may know how to communicate with hardware,
-* may be periodically executed
+* may simply process incoming data and provide data outputs to other components,
+* are always periodically executed either
   - with a very high frequency of a few microseconds (µs) execution time, called base thread, e.g., to
     . give a stepper motor a trigger to step ahead, or to
     . read out the position presented by an encoder.
   - with a lower frequency every millisecond (ms), e.g. to
-    . adjust the plannung for the next moves to complete a G-code instruction.
-* are connected with each other, e.g., to update position data or have the planning algorithm tell the motors about the next step.
+    . adjust the planning for the next moves to complete a G-code instruction.
+  - as non-realtime "user-space" components that run a "main loop" just like any other software, and may be interrupted or delayed when the rest of the system is busy or overloaded. 
+
 
 Taken together, HAL allows
 
@@ -56,7 +61,7 @@ Taken together, HAL allows
   * tell the machine what to do
   * listen to what the machine wants to tell about the state it is in. 
 . Vertical Abstractions: The human system integrator of such machine uses HAL
-  * to describe what the machine is looking alike and how what cable controls what motor that drives what axis.
+  * to describe what the machine is looking like and how what cable controls which motor that drives which axis.
   * The description of the machine, the programmer's interfaces and the user's interface somehow "meet" in that abtract layer.
 . Horizontal Abstractions:
   * Not all machines have all kinds of features
@@ -65,28 +70,26 @@ Taken together, HAL allows
     - planning algorithms for their movements.
 
 HAL has no direct interaction with the user.
-But multiple interfaces have been provided that allow HAL to be contacted
+But multiple interfaces have been provided that allow HAL to be manipulated
 
-* from the command line, and it can be contacted
+* from the command line using the "halcmd" command.
 * from Python scripts and
 * from within C/C++ programs,
 
 but none of these interfaces are 'HAL itself'.
-HAL is a program running in the background, a demon, which reads its configuration once and completely at startup to then remain in the background, answering to requests from users or machines alike.
 
-However, other than for the typical service-oriented demon like a printer spooler or a web server,
-at any given time, an individual machine can run no more than a single instance of HAL.
-This is unfortunate, since today's hardware would be sufficient to control more than a single machine, but helps avoiding the need to check for conflicts and generally simplifies everything.
-Virtualization could be a way to work around that one-HAL-per-machine-limitation,
-but then special care needs to be taken that the extra latencies induced by the virtualization are compatible with the application.
-With an increasing interest in the control of multiple cooperating machines, to overcome this limitation is likely one of the prime steps for the future development of HAL to address.
+HAL itself is not a program, it consists of one or more lists of loaded programs (the components) that are periodically executed (in strict sequence), and an area of shared-memory that these components use to interchange data. 
+
+The main HAL script runs only once at machine startup, setting up the realtime threads and the shared-memory locations, loading the components and setting up the data links between them (the "signals" and "pins")
+
+In principle multiple machines could share a common HAL to allow them to inter-operate, however the current implementation of LinuxCNC is limited to a single interpreter and a single Task module. Currently this is almost always a G-code interpreter and "milltask" (which was found to also work well for lathes and adequately for robots) but these modules are selectable at load-time. 
+With an increasing interest in the control of multiple cooperating machines, to overcome this limitation is likely one of the prime steps for the future development of LinuxCNC to address.
 It is a bit tricky though and the community is still organizing its thoughts on this.
 
-While the interpretation of G-code by the interpreter ("canon") may be part of LinuxCNC that is closest to a representation of the user's intent,
-HAL is at the very technical center of LinuxCNC, that is used and/or extended by all the parts of LinuxCNC, which includes the GUIs.
-The G-code interpreter knows how to interpret the G-code and translates it into machine operations by triggering signals in HAL.
-Below is also shown how to learn about what is going on in a machine, i.e., how the user may ask HAL to report about its state, which then also represents the state of the machine.
-While writing during the release days of version 2.9, the GUIs still make bit of an exception to that rule and may know something that HAL does not (need to) know.
+HAL lies at the core of LinuxCNC and is used and/or extended by all the parts of LinuxCNC, which includes the GUIs.
+The G-code (or alternative language) interpreter knows how to interpret the G-code and translates it into machine operations by triggering signals in HAL.
+The user may query HAL in vatious ways to gain information about its state, which then also represents the state of the machine.
+Whilst writing during the develpment of version 2.9, the GUIs still make bit of an exception to that rule and may know something that HAL does not (need to) know.
 
 
 == Communication
@@ -94,18 +97,10 @@ While writing during the release days of version 2.9, the GUIs still make bit of
 HAL is special in that it can communicate really fast
 
 * with other programs, but in particular
-* with its components that typically run in their very own thread.
+* with its components that typically run in one of the realtime threads
 
 And while communicating, the part of LinuxCNC that is talked to does not need to prepare for the communication:
-All these actions are performed asynchroniously, i.e. no component is interrupting its regular execution to receive a signal and signals can be sent rightaway, i.e., an application may wait until a particular message has arrived - like an enable-signal, but it does not need to prepare for receiving that message.
-This asynchronicity is beneficial for LinuxCNC at large, rendering it:
-
-* *self-stabilizing*: A component not updating in time or an overloaded stepping motor missing a signal will see larger deltas to a previous position but will not be as close as possible to the latest state of the system.
-  HAL offers PIDs that self-adjust a mismatch between an error and the strength of its correction. 
-* *intrinsically parallel*: All components can be executed at the same time.
-  HAL assigns components to different threads to juggle between components with
-  * hard real-time demands, e.g., to keep motors ticking, and
-  * tasks that need more time to compute, e.g., the path planning or user interfaces.
+All these actions are performed asynchronously, i.e. no component is interrupting its regular execution to receive a signal and signals can be sent rightaway, i.e., an application may wait until a particular message has arrived - like an enable-signal, but it does not need to prepare for receiving that message.
 
 The communication system
 
@@ -114,11 +109,13 @@ The communication system
 
 The communication with the hardware of the machine itself is performed by respective dedicated HAL components.
 
-The HAL-based communication system may be imagined as a black board via which all the many parts that constitute LinuxCNC are exchanging information.
-That black board features pins that are identified by a name, though a LinuxCNC engineer may prefer the association with a pin of an electronic circuit.
-These pins can have arbitrary values, i.e., beyond logics 0 and 1 also texts.
+The HAL layer is a shared space in which all the many parts that constitute LinuxCNC are exchanging information.
+That space features pins that are identified by a name, though a LinuxCNC engineer may prefer the association with a pin of an electronic circuit.
+These pins can carry numerical and logical values, boolean, float and signed and unsigned integers. There is also a (relatively new) pin type named hal_port intended for byte streams, and a framework for exchanging more complex data called hal_stream (which uses a private shared memory area, rather than a HAL pin). 
+These latter two types are used relatively infrequently. 
+
 With HAL you can send a signal to that named pin.
-Every part of HAL can read that pin that harbors that value of the signal.
+Every part of HAL can read that pin that holds that value of the signal.
 That is until a new signal is sent to the same named pin to substitute the previous value.
 The core message exchange system of HAL is agnostic about CNC, but HAL ships with a large number of components that know a lot about CNC and present that information via pins.
 There are pins representing
@@ -137,9 +134,9 @@ HAL components prepare such input and output pins and are thus automatically tri
 .HAL Components
 The many "expert" software parts of LinuxCNC are typically implemented as _components_ of HAL, conceptually also referred to as _modules_.
 These computer-implemented experts perpetually read from HAL about a state that the machine should strive to achieve
-and compare that desired state with the state the machine is in at the very moment.
-When there is a difference beween what shall be and what the current state is then some action is performed to reduce that difference,
-while perpetually writing updates of the current states back to the HAL "black board system".
+and compare that desired state with the state the machine is in at the current moment.
+When there is a difference beween what should be and what the current state is then some action is performed to reduce that difference,
+while perpetually writing updates of the current states back to the HAL data space.
 
 There are components specializing on how to talk to stepper motors, and other components know how to control servos.
 On a higher level, some components know how the machine's axes are arranged in 3D and yet others know how to perform a smooth movement from one point in space to another.
@@ -150,24 +147,10 @@ Still, two machines may be looking very different since built for very different
 On the lowest (closest to hardware) level, e.g. for stepper motors, the description of a state of that motor is very intuitive:
 It is the number of steps in a particular direction. 
 A difference between the desired position and the actual position translates into a movement.
-Speeds, acceleration and other parameters are all communicated and steadily updated via the HAL.
-
-On the highest level, all motivation is derived from user-provided G-code.
-That can be manually entered (referred to as MDI), crafted via a CAM tool (as provided by e.g. SolidWorks, Fusion360 or the Free software FreeCAD),
-or (that is an exception) a special setup to e.g. cut gears has a script crafted in some programming language that generates G-code.
-The latter would be not too different from programming a HAL component.
+Speeds, acceleration and other parameters may be internally limited in the component itself, or may optionally be limited by upstream components.
+(For example, in most cases the moment-by-moment axis position values sent to the step-generator components have already been limited and shaped to suit the configured machine limits or the current feed rate)
 
 Any G-code line is interpreted and triggers a set of routines that in turn know how to communicate with components that are on a middle layer, e.g. to create a circle.
-
-.Reuse of Components and New Developments
-LinuxCNC provides a series of GUIs for lathes and mills in particular,
-to visualize the states from various components and to change them manually, i.e. to control the the machine.
-There is yet no such HAL GUI for rockets, but that is not a fault of the technology underneath HAL.
-That said, there is an interest particularly in the 3D printing world to quantify vibration,
-so we are expecting HAL components for gyroscopes any time soon.
-With others working on fluid control, e.g. for biochemical research, a good fraction of controls required for rockets would be available.
-A yet not existing HAL component would contribute the insights how gyros, fuel and height should work together and LinuxCNC would need additional GUIs to graphically present all those new parameters for the capcom.
-HAL would then serve as "glue-logic", just in software, to lego-brick all those components together and direct them towards fulfilling their purpose.
 
 .Pins and Signals
 HAL has a special place in the heart of its programmers for the way that the data flow between modules is represented.
@@ -175,12 +158,12 @@ When traditional programmers think of variables, addresses or I/O ports, HAL ref
 And those pins are connected or assigned values to via signals.
 Much like an electrical engineer would connect wires between pins of components of a mill, a HAL engineer establishes the data flow between pins of module instances.
 
-The graphical user interface presents the pins together with their state, e.g., the state of an axis' limit switch may be represented graphically as an LED in the GUI.
+The LinuxCNC GUIS (Axis, Gmoccapy, Touchy etc) will represent the states of some pins (such as limit switches) but other graphical tools also exist for troubleshooting and configuration: Halshow, Halmeter, Halscope and Halreport. 
 
 The remainder of this introduction presents
 
-* the syntax how pins of different components are connected in the HAL configuration files, and
-* software of inspect the values of pins
+* the syntax of how pins of different components are connected in the HAL configuration files, and
+* software to inspect the values of pins
   - at any given moment
   - developing over time
 
