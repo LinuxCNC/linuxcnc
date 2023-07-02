@@ -938,8 +938,6 @@ obj-$(CONFIG_MATRIX_KB) += matrix_kb.o
 matrix_kb-objs := hal/components/matrix_kb.o $(MATHSTUB)
 obj-$(CONFIG_MUX_GENERIC) += mux_generic.o
 mux_generic-objs := hal/components/mux_generic.o $(MATHSTUB)
-obj-m += limit_axis.o
-limit_axis-objs := hal/components/limit_axis.o $(MATHSTUB)
 obj-$(CONFIG_PWMGEN) += pwmgen.o
 pwmgen-objs := hal/components/pwmgen.o $(MATHSTUB)
 obj-$(CONFIG_SIGGEN) += siggen.o
@@ -1289,7 +1287,6 @@ endif
 ../rtlib/weighted_sum$(MODULE_EXT): $(addprefix objects/rt,$(weighted_sum-objs))
 ../rtlib/watchdog$(MODULE_EXT): $(addprefix objects/rt,$(watchdog-objs))
 ../rtlib/modmath$(MODULE_EXT): $(addprefix objects/rt,$(modmath-objs))
-../rtlib/limit_axis$(MODULE_EXT): $(addprefix objects/rt,$(limit_axis-objs))
 ../rtlib/t_on$(MODULE_EXT): $(addprefix objects/rt,$(t_on-objs))
 ../rtlib/t_off$(MODULE_EXT): $(addprefix objects/rt,$(t_off-objs))
 ../rtlib/t_p$(MODULE_EXT): $(addprefix objects/rt,$(t_p-objs))
