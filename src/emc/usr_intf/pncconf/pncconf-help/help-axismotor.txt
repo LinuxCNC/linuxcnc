@@ -108,7 +108,7 @@ Open loop servo test Button:
     the axis a known distance and noting the encoder count. The encoder
     should function with out the amp enabled depending how it is powered.
     The limit switches are not functional during this test.
-    The fast-dac / slow-dac options are preselect options so it is convienant
+    The fast-dac / slow-dac options are preselect options so it is convenient
     to switch between slow speed and fast speed. Set them to what you like - 
     remember there is no ramping.
     Bias - used to add / subtract a constant value to the dac. It can only be 

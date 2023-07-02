@@ -731,7 +731,7 @@ int parse_data_frame(hm2_modbus_inst_t *inst){
     }
     rtapi_print_msg(RTAPI_MSG_INFO, "\n");
     if ((bytes[1] & 0x7F ) != ch->func) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "call/response function number missmatch\n");
+        rtapi_print_msg(RTAPI_MSG_ERR, "call/response function number mismatch\n");
         return -1;
     }
 

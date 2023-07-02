@@ -166,7 +166,7 @@ int kinematicsForward(const double *j,
     // define forward kinematic models using case structure for
     // for switchable kinematics
     switch (switchkins_type) {
-        case 0: // ====================== IDENTITIY kinematics FORWARD ===================
+        case 0: // ====================== IDENTITY kinematics FORWARD ====================
             pos->tran.x = j[0];
             pos->tran.y = j[1];
             pos->tran.z = j[2];
@@ -227,7 +227,7 @@ int kinematicsInverse(const EmcPose * pos,
     double       qz = 0;
 
     switch (switchkins_type) {
-        case 0:// ====================== IDENTITIY kinematics INVERSE ===================
+        case 0:// ====================== IDENTITY kinematics INVERSE =====================
             j[0] = pos->tran.x;
             j[1] = pos->tran.y;
             j[2] = pos->tran.z;
