@@ -79,16 +79,16 @@ But multiple interfaces have been provided that allow HAL to be manipulated
 but none of these interfaces are 'HAL itself'.
 
 HAL itself is not a program, it consists of one or more lists of loaded programs (the components) that are periodically executed (in strict sequence), and an area of shared-memory that these components use to interchange data. 
-
 The main HAL script runs only once at machine startup, setting up the realtime threads and the shared-memory locations, loading the components and setting up the data links between them (the "signals" and "pins")
 
-In principle multiple machines could share a common HAL to allow them to inter-operate, however the current implementation of LinuxCNC is limited to a single interpreter and a single Task module. Currently this is almost always a G-code interpreter and "milltask" (which was found to also work well for lathes and adequately for robots) but these modules are selectable at load-time. 
+In principle multiple machines could share a common HAL to allow them to inter-operate, however the current implementation of LinuxCNC is limited to a single interpreter and a single Task module.
+Currently this is almost always a G-code interpreter and "milltask" (which was found to also work well for lathes and adequately for robots) but these modules are selectable at load-time. 
 With an increasing interest in the control of multiple cooperating machines, to overcome this limitation is likely one of the prime steps for the future development of LinuxCNC to address.
 It is a bit tricky though and the community is still organizing its thoughts on this.
 
 HAL lies at the core of LinuxCNC and is used and/or extended by all the parts of LinuxCNC, which includes the GUIs.
 The G-code (or alternative language) interpreter knows how to interpret the G-code and translates it into machine operations by triggering signals in HAL.
-The user may query HAL in vatious ways to gain information about its state, which then also represents the state of the machine.
+The user may query HAL in various ways to gain information about its state, which then also represents the state of the machine.
 Whilst writing during the develpment of version 2.9, the GUIs still make bit of an exception to that rule and may know something that HAL does not (need to) know.
 
 
@@ -97,7 +97,7 @@ Whilst writing during the develpment of version 2.9, the GUIs still make bit of 
 HAL is special in that it can communicate really fast
 
 * with other programs, but in particular
-* with its components that typically run in one of the realtime threads
+* with its components that typically run in one of the realtime threads.
 
 And while communicating, the part of LinuxCNC that is talked to does not need to prepare for the communication:
 All these actions are performed asynchronously, i.e. no component is interrupting its regular execution to receive a signal and signals can be sent rightaway, i.e., an application may wait until a particular message has arrived - like an enable-signal, but it does not need to prepare for receiving that message.
@@ -133,8 +133,7 @@ HAL components prepare such input and output pins and are thus automatically tri
 
 .HAL Components
 The many "expert" software parts of LinuxCNC are typically implemented as _components_ of HAL, conceptually also referred to as _modules_.
-These computer-implemented experts perpetually read from HAL about a state that the machine should strive to achieve
-and compare that desired state with the state the machine is in at the current moment.
+These computer-implemented experts perpetually read from HAL about a state that the machine should strive to achieve and compare that desired state with the state the machine is in at the current moment.
 When there is a difference beween what should be and what the current state is then some action is performed to reduce that difference,
 while perpetually writing updates of the current states back to the HAL data space.
 
@@ -148,9 +147,9 @@ On the lowest (closest to hardware) level, e.g. for stepper motors, the descript
 It is the number of steps in a particular direction. 
 A difference between the desired position and the actual position translates into a movement.
 Speeds, acceleration and other parameters may be internally limited in the component itself, or may optionally be limited by upstream components.
-(For example, in most cases the moment-by-moment axis position values sent to the step-generator components have already been limited and shaped to suit the configured machine limits or the current feed rate)
+(For example, in most cases the moment-by-moment axis position values sent to the step-generator components have already been limited and shaped to suit the configured machine limits or the current feed rate.)
 
-Any G-code line is interpreted and triggers a set of routines that in turn know how to communicate with components that are on a middle layer, e.g. to create a circle.
+Any G-code line is interpreted and triggers a set of routines that in turn know how to communicate with components that are on a middle layer, e.g., to create a circle.
 
 .Pins and Signals
 HAL has a special place in the heart of its programmers for the way that the data flow between modules is represented.
@@ -158,14 +157,14 @@ When traditional programmers think of variables, addresses or I/O ports, HAL ref
 And those pins are connected or assigned values to via signals.
 Much like an electrical engineer would connect wires between pins of components of a mill, a HAL engineer establishes the data flow between pins of module instances.
 
-The LinuxCNC GUIS (Axis, Gmoccapy, Touchy etc) will represent the states of some pins (such as limit switches) but other graphical tools also exist for troubleshooting and configuration: Halshow, Halmeter, Halscope and Halreport. 
+The LinuxCNC GUIS (AXIS, GMOCCAPY, Touchy, etc.) will represent the states of some pins (such as limit switches) but other graphical tools also exist for troubleshooting and configuration: Halshow, Halmeter, Halscope and Halreport. 
 
 The remainder of this introduction presents
 
 * the syntax of how pins of different components are connected in the HAL configuration files, and
 * software to inspect the values of pins
-  - at any given moment
-  - developing over time
+  - at any given moment,
+  - developing over time.
 
 [[sec:hal-system-design]]
 == HAL System Design(((HAL System Design)))
@@ -174,8 +173,7 @@ The remainder of this introduction presents
 
 HAL is based on the same principles that are used to design hardware circuits and systems, so it is useful to examine those principles first.
 Any system, including a CNC(((CNC))) machine, consists of interconnected components.
-For the CNC machine, those components might be the main controller, servo amps or stepper drives, motors, encoders,
-limit switches, pushbutton pendants, perhaps a VFD for the spindle drive, a PLC to run a toolchanger, etc.
+For the CNC machine, those components might be the main controller, servo amps or stepper drives, motors, encoders, limit switches, pushbutton pendants, perhaps a VFD for the spindle drive, a PLC to run a toolchanger, etc.
 The machine builder must aselect, mount and wire these pieces together to make a complete system.
 
 .HAL Concept - Connecting like electrical circuits.
@@ -231,8 +229,7 @@ Other tools allow you to save a complete list of all the parts, wires, and other
 Very few machines work right the first time.
 While testing, the builder may use a meter to see whether a limit switch is working or to measure the DC voltage going to a servo motor.
 He may hook up an oscilloscope to check the tuning of a drive, or to look for electrical noise.
-He may find a problem that requires the wiring diagram to be changed;
-perhaps a part needs to be connected differently or replaced with something completely different.
+He may find a problem that requires the wiring diagram to be changed; perhaps a part needs to be connected differently or replaced with something completely different.
 
 HAL provides the software equivalents of a voltmeter, oscilloscope, signal generator, and other tools needed for testing and tuning a system.
 The same commands used to build the system can be used to make changes as needed.
@@ -302,17 +299,13 @@ Pin:: (((HAL Pin)))
   HAL pins are software entities that exist only inside the computer.
 
 Physical_Pin:: (((HAL Physical Pin)))
-  Many I/O devices have real physical pins or
-  terminals that connect to external hardware, for example the pins of a
-  parallel port connector. To avoid confusion, these are referred to as
-  'physical pins'. These are the things that 'stick out' into the real
-  world.
+  Many I/O devices have real physical pins or terminals that connect to external hardware, for example the pins of a parallel port connector.
+  To avoid confusion, these are referred to as 'physical pins'.
+  These are the things that 'stick out' into the real world.
 
 [NOTE]
 ====
-You may be wondering what relationship there is between the HAL_pins,
-Physical_pins and external elements like encoders or a STG card: we are
-dealing here with interfaces of data translation/conversion type.
+You may be wondering what relationship there is between the HAL_pins, physical_pins and external elements like encoders or a STG card: we are dealing here with interfaces of data translation/conversion type.
 ====
 
 Signal:: (((HAL Signal)))
@@ -348,7 +341,7 @@ Function:: (((HAL:Function)))
   The system integrator can use 'threads' to schedule a series of functions to be executed in a particular order and at specific time intervals.
 
 Thread:: (((HAL:Thread)))
-  . 'thread' is a list of functions that runs at specific intervals as part of a realtime task.
+  A 'thread' is a list of functions that runs at specific intervals as part of a realtime task.
   When a thread is kirst created, it has a specific time interval (period), but no functions.
   Functions can be added to the thread, and will be executed in order every time the thread runs.
 
@@ -406,7 +399,6 @@ Some of those decisions are the same in (nearly) any LinuxCNC system.
 For instance, motion-command-handler is always added to servo-thread.
 
 Other connections would be made by the integrator.
-These might include hooking the STG driver's encoder read and DAC write functions to the servo thread,
-or hooking StepGen's function to the base-thread, along with the parport function(s) to write the steps to the port.
+These might include hooking the STG driver's encoder read and DAC write functions to the servo thread, or hooking StepGen's function to the base-thread, along with the parport function(s) to write the steps to the port.
 
 // vim: set syntax=asciidoc:
