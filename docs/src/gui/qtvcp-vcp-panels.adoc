@@ -423,7 +423,7 @@ eg. This would use the panels preference file if there is one.
 ----
 try:
     belt_en = self.w.PREFS_.getpref('Front_Belt_enabled', 1, int, 'SPINDLE_EXTRAS')
-exception:
+except:
     belt_en = 1
 ----
 
@@ -432,7 +432,7 @@ This would use the main screen preference file if there is one.
 ----
 try:
     belt_en = self.w.MAIN.PREFS_.getpref('Front_Belt_enabled', 1, int, 'SPINDLE_EXTRAS')
-exception:
+except:
     belt_en = 1
 ----
 

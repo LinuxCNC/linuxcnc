@@ -435,12 +435,13 @@ A configuration-specific Python file may be specified with an INI file setting
 [DISPLAY]
 USER_COMMAND_FILE=filename.py
 ----
-If this file is specified, this file is sourced just after the AXIS GUI is displayed
+If this file is specified, this file is sourced just after the GMOCCAPY GUI is displayed
 *instead* of `~/.gmoccapyrc`.
 
 
 The following example changes the size of the vertical buttons:
-.Example of .axisrc file
+.Example of .gmoccapyrc file
+[source,python]
 -----
 self.widgets.vbtb_main.set_size_request(85,-1)
 BB_SIZE = (70, 70) # default = (90, 56)

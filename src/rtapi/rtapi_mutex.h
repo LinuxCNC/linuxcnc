@@ -52,7 +52,7 @@ typedef unsigned long rtapi_mutex_t;
     returns 0 and the mutex is no longer available, since the
     caller now has it.  If the mutex is not available, it returns
     a non-zero value to indicate that someone else has the mutex.
-    The programer is responsible for "doing the right thing" when
+    The programmer is responsible for "doing the right thing" when
     it returns non-zero.  "Doing the right thing" almost certainly
     means doing something that will yield the CPU, so that whatever
     other process has the mutex gets a chance to release it.
