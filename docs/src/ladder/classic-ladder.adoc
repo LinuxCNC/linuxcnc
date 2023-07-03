@@ -426,7 +426,7 @@ The compare block will be true when comparison is true. You can use most math sy
 * (, ) separate into groups example %IF1=2,&%IF2<5 in pseudo code translates to if %IF1 is equal to 2 and %IF2 is less than 5 then the comparison is true.
   Note the comma separating the two groups of comparisons.
 * ^ (exponent),% (modulus),& (and),| (or),. -
-* ABS (absolute), MOY (French for average),AVG (average)
+* ABS (absolute), MOY (French for average), AVG (average)
 
 For example ABS(%W2)=1, MOY(%W1,%W2)<3.
 
