@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-#    Visulization model of U of Akron's Maho 600C with 2-axis NC table
+#    Visualization model of U of Akron's Maho 600C with 2-axis NC table
 #
 #    Copyright 2007 John Kasunich
 #    Derived from a work by John Kasunich, Jeff Epler, and Chris Radek

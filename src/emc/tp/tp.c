@@ -1764,7 +1764,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
                 tp_debug_print("Found 2nd non-tangent segment, stopping optimization\n");
                 return TP_ERR_OK;
             } else  {
-                tp_debug_print("Found first non-tangent segment, contining\n");
+                tp_debug_print("Found first non-tangent segment, continuing\n");
                 hit_non_tangent = true;
                 continue;
             }
