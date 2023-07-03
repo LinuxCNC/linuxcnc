@@ -2659,7 +2659,7 @@ proc ::ngcgui::dcheck {hdl} {
   foreach n [array names ::ngc $hdl,arg,entrywidget,*] {
     set i1 [string last , $n]
     set num02 [string range $n [expr 1 + $i1] end]
-    # under some contitions, this entrywidget may be done:
+    # under some conditions, this entrywidget may be done:
     if ![winfo exists $::ngc($hdl,arg,entrywidget,$num02)] continue
     if {   [info exists ::ngc($hdl,arg,dvalue,$num02)] \
         && "$::ngc($hdl,arg,dvalue,$num02)" \

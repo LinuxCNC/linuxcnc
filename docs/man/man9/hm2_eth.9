@@ -152,7 +152,7 @@ Setting it too high can cause realtime delay errors.
 hm2_eth uses an iptables chain called "hm2\-eth\-rules\-output.
 That technology is common to control network access to (INPUT chain), through (FORWARD chain) or from (OUTPUT chain) your computer.
 Someone who has configured a firewall on Linux has encountered iptables and is familiar with that technology.
-This chain contains addtional rules to control network interface while HAL is running.
+This chain contains additional rules to control network interface while HAL is running.
 The chain is created if it does not exist, and a jump to it is inserted at the beginning of the OUTPUT chain if it is not there already.
 If you have an existing iptables setup, you can insert a direct jump from OUTPUT to hm2\-eth\-rules\-output in an order appropriate to your local network.
 

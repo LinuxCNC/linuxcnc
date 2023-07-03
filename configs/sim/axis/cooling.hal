@@ -1,4 +1,4 @@
-# Fake the existance of coolant options
+# Fake the existence of coolant options
 loadrt and2 count=3
 addf and2.0 servo-thread
 addf and2.1 servo-thread

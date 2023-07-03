@@ -8,7 +8,7 @@ o<qt_auto_probe_tool> sub
 ; or preview will break, so test for '#<_task>' which is 1 for 
 ; the milltask interpreter and 0 in the UI's
 O100 if [#<_task> EQ 0]
-        (debug, Task ist Null)
+        (debug, Task is Null)
 O100     return [999]
 O100 endif
 
