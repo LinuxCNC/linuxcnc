@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-05-03 08:16+0200\n"
-"PO-Revision-Date: 2023-06-30 19:43+0000\n"
-"Last-Translator: Issy Varsano <info@sivar.bg>\n"
+"PO-Revision-Date: 2023-07-01 22:26+0000\n"
+"Last-Translator: Michael Crusoe <mrc@commonwl.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: ro\n"
 "MIME-Version: 1.0\n"
@@ -40,7 +40,7 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:512
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:533
 msgid "Error in "
-msgstr "mamaliga chaushescu pentru salami"
+msgstr "Eroarea este "
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:513
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:534
