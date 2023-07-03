@@ -180,7 +180,7 @@ One must power cycle the VFD for some of these to register eg PR 79
    '-no parity'
 
  * 'PR 121' set to 1-10
-   '-if 10 (maximuim) COM errors then VFD faults.'
+   '-if 10 (maximum) COM errors then VFD faults.'
 
  * 'PR 122' tested with 9999
    '-if communication is lost VFD will not error.'
