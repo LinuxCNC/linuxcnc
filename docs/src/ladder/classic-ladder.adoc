@@ -721,7 +721,7 @@ Serial:
 
 * ClassicLadder uses RTU protocol (not ASCII).
 * 8 data bits, No parity is used, and 1 stop bit is also known as 8-N-1.
-* BAUD rate must be the same for slave and master.
+* Baud rate must be the same for slave and master.
   ClassicLadder can only have one baud rate so all the slaves must be set to the same rate.
 * Pause inter frame is the time to pause after receiving an answer.
 * MODBUS_TIME_AFTER_TRANSMIT is the length of pause after sending a request and before receiving an answer (this apparently helps with USB converters which are slow).
