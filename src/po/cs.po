@@ -86,8 +86,8 @@ msgstr "Nelze spustit program pokud stroj není zreferován"
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
 #, c-format
 msgid ""
-"Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,"
-"%c%.4f) r1=%.4f r2=%.4f"
+"Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c"
+"%.4f) r1=%.4f r2=%.4f"
 msgstr ""
 "Oblouk s nulový poloměrem: začátek=(%c%.4f,%c%.4f) střed=(%c%.4f,%c%.4f) "
 "konec=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
@@ -99,9 +99,9 @@ msgid ""
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
 "rel_err=%.4f%%"
 msgstr ""
-"Poloměr k začátku oblouku se liší od poloměru ke konci oblouku: "
-"začátek=(%c%.4f,%c%.4f) střed=(%c%.4f,%c%.4f) konec=(%c%.4f,%c%.4f) r1=%.4f "
-"r2=%.4f abs_err=%.4g rel_err=%.4f%%"
+"Poloměr k začátku oblouku se liší od poloměru ke konci oblouku: začátek=(%c"
+"%.4f,%c%.4f) střed=(%c%.4f,%c%.4f) konec=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f "
+"abs_err=%.4g rel_err=%.4f%%"
 
 #: src/emc/rs274ngc/interp_check.cc:89
 msgid "G4 not allowed with G2 or G3 because they both use P"
@@ -1877,8 +1877,8 @@ msgstr "Fronta není prázdná po vnějším vstupu"
 #: src/emc/rs274ngc/rs274ngc_return.hh:206
 msgid "Can't select analog input with wait type != immediate return"
 msgstr ""
-"Není možné vybrat analogový vstup s typem čekáním jiným než \"okamžitý "
-"návrat\""
+"Není možné vybrat analogový vstup s typem čekáním jiným než \"okamžitý návrat"
+"\""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:207
 msgid "Zero timeout with wait type != immediate return"

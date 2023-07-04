@@ -92,11 +92,11 @@ msgstr "Không thể chạy chương trình khi chưa về gốc máy"
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
 #, c-format
 msgid ""
-"Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,"
-"%c%.4f) r1=%.4f r2=%.4f"
+"Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c"
+"%.4f) r1=%.4f r2=%.4f"
 msgstr ""
-"Cung tròn có bán kính băng không: điểm đầu=(%c%.4f,%c%.4f) tâm=(%c%.4f,"
-"%c%.4f) cuối=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
+"Cung tròn có bán kính băng không: điểm đầu=(%c%.4f,%c%.4f) tâm=(%c%.4f,%c"
+"%.4f) cuối=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
 
 #: src/emc/rs274ngc/interp_arc.cc:122 src/emc/rs274ngc/interp_arc.cc:296
 #, c-format
@@ -105,9 +105,9 @@ msgid ""
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
 "rel_err=%.4f%%"
 msgstr ""
-"Bán kính đến cuối của cung tròn khác với bán kính đến đầu: đầu=(%c%.4f,"
-"%c%.4f) tâm=(%c%.4f,%c%.4f) cuối=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f "
-"abs_err=%.4g rel_err=%.4f%%"
+"Bán kính đến cuối của cung tròn khác với bán kính đến đầu: đầu=(%c%.4f,%c"
+"%.4f) tâm=(%c%.4f,%c%.4f) cuối=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
+"rel_err=%.4f%%"
 
 #: src/emc/rs274ngc/interp_check.cc:89
 msgid "G4 not allowed with G2 or G3 because they both use P"

@@ -99,11 +99,11 @@ msgstr "Nem futtatható a program, ha nincs referencia felvéve"
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
 #, c-format
 msgid ""
-"Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,"
-"%c%.4f) r1=%.4f r2=%.4f"
+"Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c"
+"%.4f) r1=%.4f r2=%.4f"
 msgstr ""
-"Zéró-rádiusz ív: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,"
-"%c%.4f) r1=%.4f r2=%.4f"
+"Zéró-rádiusz ív: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c"
+"%.4f) r1=%.4f r2=%.4f"
 
 #: src/emc/rs274ngc/interp_arc.cc:122 src/emc/rs274ngc/interp_arc.cc:296
 #, c-format
@@ -112,9 +112,9 @@ msgid ""
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
 "rel_err=%.4f%%"
 msgstr ""
-"Az ív végéhez tartozó sugár és a kezdeti sugár különbözik: start=(%c%.4f,"
-"%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f "
-"abs_err=%.4g rel_err=%.4f%%"
+"Az ív végéhez tartozó sugár és a kezdeti sugár különbözik: start=(%c%.4f,%c"
+"%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err="
+"%.4g rel_err=%.4f%%"
 
 #: src/emc/rs274ngc/interp_check.cc:89
 msgid "G4 not allowed with G2 or G3 because they both use P"

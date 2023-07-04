@@ -91,11 +91,11 @@ msgstr "Falta homing. No se puede ejecutar el programa"
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
 #, c-format
 msgid ""
-"Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,"
-"%c%.4f) r1=%.4f r2=%.4f"
+"Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c"
+"%.4f) r1=%.4f r2=%.4f"
 msgstr ""
-"Arco de radio cero: inicio=(%c%.4f,%c%.4f) centro=(%c%.4f,"
-"%c%.4f)final=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
+"Arco de radio cero: inicio=(%c%.4f,%c%.4f) centro=(%c%.4f,%c%.4f)final=(%c"
+"%.4f,%c%.4f) r1=%.4f r2=%.4f"
 
 #: src/emc/rs274ngc/interp_arc.cc:122 src/emc/rs274ngc/interp_arc.cc:296
 #, c-format
@@ -104,9 +104,9 @@ msgid ""
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
 "rel_err=%.4f%%"
 msgstr ""
-"El radio al final del arco difiere del radio al inicio: inicio=(%c%.4f,"
-"%c%.4f) centro=(%c%.4f,%c%.4f) final=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f "
-"abs_err=%.4grel_err=%.4f%%"
+"El radio al final del arco difiere del radio al inicio: inicio=(%c%.4f,%c"
+"%.4f) centro=(%c%.4f,%c%.4f) final=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err="
+"%.4grel_err=%.4f%%"
 
 #: src/emc/rs274ngc/interp_check.cc:89
 msgid "G4 not allowed with G2 or G3 because they both use P"
@@ -4558,15 +4558,15 @@ msgstr "ERROR CLASSICLADDER --- Error al abrir el socket de servidor...\n"
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to bind socket server...(error=%s)\n"
 msgstr ""
-"ERROR CLASSICLADDER --- No se pudo vincular socket del servidor... "
-"(error=%s)\n"
+"ERROR CLASSICLADDER --- No se pudo vincular socket del servidor... (error="
+"%s)\n"
 
 #: src/hal/classicladder/socket_server.c:113
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to listen socket server...(error=%s)\n"
 msgstr ""
-"ERROR CLASSICLADDER --- Error al escuchar el socket del servidor... "
-"(error=%s)\n"
+"ERROR CLASSICLADDER --- Error al escuchar el socket del servidor... (error="
+"%s)\n"
 
 #: src/hal/classicladder/socket_server.c:132
 #, c-format

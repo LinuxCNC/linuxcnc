@@ -96,8 +96,8 @@ msgstr "Impossível executar programa enquanto a máquina não for referenciada"
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
 #, fuzzy, c-format
 msgid ""
-"Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,"
-"%c%.4f) r1=%.4f r2=%.4f"
+"Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c"
+"%.4f) r1=%.4f r2=%.4f"
 msgstr ""
 "Raio entre o ponto final e centro difere do raio entre início e o centro: "
 "início=(%c%.4f,%c%.4f) centro=(%c%.4f,%c%.4f) final=(%c%.4f,%c%.4f) r1=%.4f "

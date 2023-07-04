@@ -87,8 +87,8 @@ msgstr "Nie je možné spustiť program, pokiaľ nie je stroj skalibrovaný"
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
 #, c-format
 msgid ""
-"Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,"
-"%c%.4f) r1=%.4f r2=%.4f"
+"Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c"
+"%.4f) r1=%.4f r2=%.4f"
 msgstr ""
 "Oblúk s neplatným polomerom: začiatok=(%c%.4f,%c%.4f) stred=(%c%.4f,%c%.4f) "
 "koniec=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
@@ -100,9 +100,9 @@ msgid ""
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
 "rel_err=%.4f%%"
 msgstr ""
-"Nelogicky zadaný polomer, alebo súradnice jeho konca: začiatok=(%c%.4f,"
-"%c%.4f) stred=(%c%.4f,%c%.4f) koniec=(%c%.4f, %c%.4f) r1=%.4f r2=%.4f "
-"abs_err=%.4g rel_err=%.4f%%"
+"Nelogicky zadaný polomer, alebo súradnice jeho konca: začiatok=(%c%.4f,%c"
+"%.4f) stred=(%c%.4f,%c%.4f) koniec=(%c%.4f, %c%.4f) r1=%.4f r2=%.4f abs_err="
+"%.4g rel_err=%.4f%%"
 
 #: src/emc/rs274ngc/interp_check.cc:89
 msgid "G4 not allowed with G2 or G3 because they both use P"

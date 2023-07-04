@@ -89,8 +89,8 @@ msgstr "Nie można wykonać programu gdy nie zbazowano"
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
 #, c-format
 msgid ""
-"Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,"
-"%c%.4f) r1=%.4f r2=%.4f"
+"Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c"
+"%.4f) r1=%.4f r2=%.4f"
 msgstr ""
 "Łuk o zerowym promieniu: start=(%c%.4f,%c%.4f) środek=(%c%.4f,%c%.4f) "
 "koniec=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
