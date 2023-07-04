@@ -84,8 +84,8 @@ msgstr "Pas de départ cycle avant la prise d'origine machine"
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
 #, c-format
 msgid ""
-"Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,"
-"%c%.4f) r1=%.4f r2=%.4f"
+"Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c"
+"%.4f) r1=%.4f r2=%.4f"
 msgstr ""
 "Le rayon à la fin de l'arc diffère de celui du début: début=(%c%.4f,%c%.4f) "
 "centre=(%c%.4f,%c%.4f) fin=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
@@ -3104,8 +3104,8 @@ msgstr "impossible d'effacer l'origine d'une jointure inactive, jointure %d\n"
 #, c-format
 msgid "Cannot home while shared home switch is closed j=%d"
 msgstr ""
-"ne peut prendre l'origine alors que le contact d'origine partagé est actif "
-"j=%d"
+"ne peut prendre l'origine alors que le contact d'origine partagé est actif j="
+"%d"
 
 #: src/emc/motion/homing.c:816
 msgid ""
@@ -11290,8 +11290,8 @@ msgid ""
 "they will be lost when you select \"Modify a configuration\""
 msgstr ""
 "Si vous avez modifié ce fichier à l'extérieur du programme, les "
-"modifications seront perdues si vous choisissez \"Modifier une "
-"configuration\"."
+"modifications seront perdues si vous choisissez \"Modifier une configuration"
+"\"."
 
 #: src/emc/usr_intf/stepconf/pport1.glade:32
 #: src/emc/usr_intf/stepconf/pport2.glade:37
@@ -20704,8 +20704,8 @@ msgstr "Ok"
 #~ msgid ""
 #~ "Error in ChoiceOfTheCurrentRung( %d ) with OffsetCurrentRungDisplayed=%d\n"
 #~ msgstr ""
-#~ "Erreur dans ChoiceOfTheCurrentRung( %d ) avec "
-#~ "OffsetCurrentRungDisplayed=%d\n"
+#~ "Erreur dans ChoiceOfTheCurrentRung( %d ) avec OffsetCurrentRungDisplayed="
+#~ "%d\n"
 
 #~ msgid "Okay"
 #~ msgstr "D'accord"

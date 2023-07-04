@@ -97,11 +97,11 @@ msgstr "Programm kann ohne vorherige Referenzfahrt nicht ausgeführt werden"
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
 #, c-format
 msgid ""
-"Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,"
-"%c%.4f) r1=%.4f r2=%.4f"
+"Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c"
+"%.4f) r1=%.4f r2=%.4f"
 msgstr ""
-"Kreisbogen mit Radius Null: Anfang=(%c%.4f,%c%.4f), Mittelpunkt=(%c%.4f,"
-"%c%.4f), Ende=(%c%.4f,%c%.4f), Radius 1=%.4f, Radius 2=%.4f"
+"Kreisbogen mit Radius Null: Anfang=(%c%.4f,%c%.4f), Mittelpunkt=(%c%.4f,%c"
+"%.4f), Ende=(%c%.4f,%c%.4f), Radius 1=%.4f, Radius 2=%.4f"
 
 #: src/emc/rs274ngc/interp_arc.cc:122 src/emc/rs274ngc/interp_arc.cc:296
 #, c-format
@@ -110,10 +110,9 @@ msgid ""
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
 "rel_err=%.4f%%"
 msgstr ""
-"Radius am Kreisanfang unterscheidet sich vom Radius am Kreisende: "
-"Anfang=(%c%.4f,%c%.4f), Mittelpunkt=(%c%.4f,%c%.4f), Ende=(%c%.4f,%c%.4f), "
-"Radius 1=%.4f, Radius 2=%.4f absolute Abweichung=%.4g relative "
-"Abweichung=%.4f%%"
+"Radius am Kreisanfang unterscheidet sich vom Radius am Kreisende: Anfang=(%c"
+"%.4f,%c%.4f), Mittelpunkt=(%c%.4f,%c%.4f), Ende=(%c%.4f,%c%.4f), Radius 1="
+"%.4f, Radius 2=%.4f absolute Abweichung=%.4g relative Abweichung=%.4f%%"
 
 #: src/emc/rs274ngc/interp_check.cc:89
 msgid "G4 not allowed with G2 or G3 because they both use P"
@@ -2259,8 +2258,8 @@ msgstr ""
 "\n"
 "Führen Sie eine dieser Möglichkeiten aus:\n"
 "\n"
-"Wählen Sie einen Threadnamen sowie einen Multiplikator und klicken Sie "
-"\"OK\"\n"
+"Wählen Sie einen Threadnamen sowie einen Multiplikator und klicken Sie \"OK"
+"\"\n"
 "oder\n"
 "klicken Sie 'Beenden' um HALSCOPE zu verlassen"
 

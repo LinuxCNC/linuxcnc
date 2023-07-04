@@ -100,11 +100,11 @@ msgstr ""
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
 #, c-format
 msgid ""
-"Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,"
-"%c%.4f) r1=%.4f r2=%.4f"
+"Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c"
+"%.4f) r1=%.4f r2=%.4f"
 msgstr ""
-"Arco raggio zero: partenza=(%c%.4f,%c%.4f) centro=(%c%.4f,%c%.4f) "
-"fine=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
+"Arco raggio zero: partenza=(%c%.4f,%c%.4f) centro=(%c%.4f,%c%.4f) fine=(%c"
+"%.4f,%c%.4f) r1=%.4f r2=%.4f"
 
 #: src/emc/rs274ngc/interp_arc.cc:122 src/emc/rs274ngc/interp_arc.cc:296
 #, c-format
@@ -4246,8 +4246,8 @@ msgid ""
 "Section %d => Name=%s, Language=%d, SRnbr=%d, FirstRung=%d, LastRung=%d, "
 "SequentialPage=%d\n"
 msgstr ""
-"Sezione %d => Nome = %s , Lingua= %d, SRnbr=%d , FirstRung= %d , LastRung "
-"=%d , SequentialPage=%d\n"
+"Sezione %d => Nome = %s , Lingua= %d, SRnbr=%d , FirstRung= %d , LastRung ="
+"%d , SequentialPage=%d\n"
 
 #: src/hal/classicladder/files.c:1084
 #, c-format
@@ -20631,8 +20631,8 @@ msgstr "Ok"
 #~ "%s: Warning: Axis is running but the tool table file <%s> \n"
 #~ "differs from the standalone startup file <%s>"
 #~ msgstr ""
-#~ "%s: Attenzione: Axis è in esecuzione ma il file della tabella utensili "
-#~ "<%s>\n"
+#~ "%s: Attenzione: Axis è in esecuzione ma il file della tabella utensili <"
+#~ "%s>\n"
 #~ "è diverso dal file di avvio autonomo <%s >"
 
 #~ msgid "Parport _Number:"
