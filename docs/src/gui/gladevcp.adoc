@@ -220,7 +220,7 @@ This will look like this:
 image::images/glade-manual-small.png[]
 
 Glade tends to write a lot of messages to the shell window, which mostly can be ignored.
-Select 'File'→'Save as', give it a name like 'myui.ui' and make sure it is saved as 'GtkBuilder' (radio button left bottom corner in Save dialog).
+Select 'File'→'Save as', give it a name like 'myui.ui' and make sure it is saved as 'GtkBuilder' file (radio button left bottom corner in Save dialog).
 GladeVCP will also process the older 'libglade' format correctly but there is no point in using it.
 The convention for GtkBuilder file extension is '.ui'.
 
