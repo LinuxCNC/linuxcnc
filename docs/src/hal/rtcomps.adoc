@@ -12,19 +12,15 @@ This chapter provides details on core functionalities of LinuxCNC that demand ex
 [[sec:stepgen]]
 == StepGen(((stepgen)))
 
-This component provides software based generation of step pulses in
-response to position or velocity commands. In position mode, it has a
-built in pre-tuned position loop, so PID tuning is not required. In
-velocity mode, it drives a motor at the commanded speed, while obeying
-velocity and acceleration limits. It is a realtime component only, and
-depending on CPU speed, etc, is capable of maximum step rates of 10&#8239;kHz
-to perhaps 50&#8239;kHz. The step pulse generator block diagram shows three block
-diagrams, each is a single step pulse generator. The first diagram is for
-step type '0', (step and direction). The second is for step type '1'
-(up/down, or pseudo-PWM), and the third is for step types 2 through 14
-(various stepping patterns). The first two diagrams show position mode
-control, and the third one shows velocity mode. Control mode and step type
-are set independently, and any combination can be selected.
+This component provides software based generation of step pulses in response to position or velocity commands.
+In position mode, it has a built in pre-tuned position loop, so PID tuning is not required.
+In velocity mode, it drives a motor at the commanded speed, while obeying velocity and acceleration limits.
+It is a realtime component only, and depending on CPU speed, etc., is capable of maximum step rates of 10&#8239;kHz to perhaps 50&#8239;kHz.
+The step pulse generator block diagram shows three block diagrams, each is a single step pulse generator.
+The first diagram is for step type '0', (step and direction).
+The second is for step type '1' (up/down, or pseudo-PWM), and the third is for step types 2 through 14 (various stepping patterns).
+The first two diagrams show position mode control, and the third one shows velocity mode.
+Control mode and step type are set independently, and any combination can be selected.
 
 [[fig:stepgen-block-diagram]]
 .Step Pulse Generator Block Diagram position mode(((Stepgen Block Diagram)))
@@ -174,7 +170,7 @@ The other two functions can be called at a much lower rate.
 == PWMgen(((PWMgen)))
 
 This component provides software based generation of PWM (Pulse Width Modulation) and PDM (Pulse Density Modulation) waveforms.
-It is a realtime component only, and depending on CPU speed, etc, is capable of PWM frequencies from a few hundred Hertz at pretty good resolution,
+It is a realtime component only, and depending on CPU speed, etc., is capable of PWM frequencies from a few hundred Hertz at pretty good resolution,
 to perhaps 10 kHz with limited resolution.
 
 .Loading PWMgen
@@ -271,7 +267,7 @@ The component exports two functions. Each function acts on all of the PWM genera
 == Encoder(((encoder)))
 
 This component provides software based counting of signals from quadrature (or single-pulse) encoders.
-It is a realtime component only, and depending on CPU speed, latency, etc, is capable of maximum count rates of 10&#8239;kHz to perhaps up to 50&#8239;kHz.
+It is a realtime component only, and depending on CPU speed, latency, etc., is capable of maximum count rates of 10&#8239;kHz to perhaps up to 50&#8239;kHz.
 
 The base thread should be 1/2 count speed to allow for noise and timing variation.
 For example if you have a 100 pulse per revolution encoder on the spindle and your maximum RPM is 3000 the maximum base thread should be 25&#8239;µs.

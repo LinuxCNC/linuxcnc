@@ -151,8 +151,7 @@ Usage:
 
 == Sim Pin
 
-sim_pin is a command line utility to display and update any number of
-writable pins, parameters or signals.
+sim_pin is a command line utility to display and update any number of writable pins, parameters or signals.
 
 .`sim_pin` Usage
 ----
@@ -242,18 +241,16 @@ or
  2. If no pinname is specified, default is: `motion-command-handler.time`.
  3. This app may be opened for 5 pins.
  4. Pintypes float, s32, u32, bit are supported.
- 5. The pin must be associated with a thread supporting floating point
-    For a base thread, this may require using
-    `loadrt motmod ... base_thread_fp=1` .
+ 5. The pin must be associated with a thread supporting floating point.
+    For a base thread, this may require using `loadrt motmod ... base_thread_fp=1` .
 
 .`hal-histogram` Window
 image::images/hal-histogram.png["hal-histogram Window"]
 
 == Halreport
 
-`halreport` is a command-line utility that generates a report about HAL
-connections for a running LinuxCNC (or other HAL) application.  The
-report shows all signal connections and flags potential problems.
+`halreport` is a command-line utility that generates a report about HAL connections for a running LinuxCNC (or other HAL) application.
+The report shows all signal connections and flags potential problems.
 Information included:
 
 . System description and kernel version.

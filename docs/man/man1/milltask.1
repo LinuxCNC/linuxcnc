@@ -3,22 +3,16 @@
 \fBmilltask\fR \- Non-realtime task controller for LinuxCNC
 .SH DESCRIPTION
 
-\fBmilltask\fR is an internal process of LinuxCNC.  It is generally not
-invoked directly but by an INI file setting: \fB[TASK]TASK=milltask\fR.
-The \fBmilltask\fR process creates the \fBini.*\fR HAL pins listed below
-and owned by the \fBinihal\fR component.  These pins may be modified
-while LinuxCNC is running to alter values that are typically specified
-in an INI file.
+\fBmilltask\fR is an internal process of LinuxCNC.
+It is generally not invoked directly but by an INI file setting: \fB[TASK]TASK=milltask\fR.
+The \fBmilltask\fR process creates the \fBini.*\fR HAL pins listed below and owned by the \fBinihal\fR component.
+These pins may be modified while LinuxCNC is running to alter values that are typically statically specified in an INI file.
 
-The \fBinihal\fR pins are sampled in every task cycle, however, commands
-affected by their values typically use the value present at the time
-when the command is processed.  Such commands include all codes handled
-by the interpreter (\fBG-code\fR programs and \fBMDI\fR commands) and NML
-\fBjogging\fR commands issued by a GUI (including \fBhalui\fR).
-\fBWheel jogging\fR is implemented in the realtime motion module so
-\fBinihal\fR pin changes (e.g., ini.*.max_velocity,
-ini.*.max_acceleration) may be honored as soon as altered values are
-propagated to the motion module.
+The \fBinihal\fR pins are sampled in every task cycle, however,
+commands affected by their values typically use the value present at the time when the command is processed.
+Such commands include all codes handled by the interpreter (\fBG-code\fR programs and \fBMDI\fR commands)
+and NML \fBjogging\fR commands issued by a GUI (including \fBhalui\fR).
+\fBWheel jogging\fR is implemented in the realtime motion module so \fBinihal\fR pin changes (e.g., ini.*.max_velocity, ini.*.max_acceleration) may be honored as soon as altered values are propagated to the motion module.
 
 .SH PINS
 .SS Per-joint pins (N == joint number)
@@ -100,13 +94,7 @@ Allows adjustment of \fB[TRAJ]ARC_BLEND_RAMP_FREQ
 
 .SH NOTES
 
-The \fBinihal\fR pins cannot be linked or set in a HAL file that is
-specified by an INI file \fB[HAL]HALFILE\fR item because they are not created
-until \fBmilltask\fR is started.  The \fBinihal\fR pin values can be
-altered by independent halcmd programs specified by
-\fB[APPLICATION]APP\fR items or by GUIs that support a
-\fB[HAL]POSTGUI_HALFILE\fR.
+The \fBinihal\fR pins cannot be linked or set in a HAL file that is specified by an INI file \fB[HAL]HALFILE\fR item because they are not created until \fBmilltask\fR is started.
+The \fBinihal\fR pin values can be altered by independent halcmd programs specified by \fB[APPLICATION]APP\fR items or by GUIs that support a \fB[HAL]POSTGUI_HALFILE\fR.
 
-The INI file is not automatically updated with values altered by
-\fBinihal\fR pin settings  but can be updated using the calibration
-program (emccalib.tcl) when using a \fB[HAL]POSTGUI_HALFILE\fR.
+The INI file is not automatically updated with values altered by \fBinihal\fR pin settings but can be updated using the calibration program (emccalib.tcl) when using a \fB[HAL]POSTGUI_HALFILE\fR.

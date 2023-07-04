@@ -73,14 +73,11 @@ Python code in the handler file.
 
 QtVCP uses the *PyQt5 toolkit's widgets* for LinuxCNC integration.
 
-*Widget* is the _general name for user interface objects_ such as buttons
-and labels in PyQT5.
+*Widget* is the _general name for user interface objects_ such as buttons and labels in PyQT5.
 
-You are free to use any available *default widgets* in the Qt Designer
-editor.
+You are free to use any available *default widgets* in the Qt Designer editor.
 
-There are also *special widgets* made for LinuxCNC that make integration
-easier. +
+There are also *special widgets* made for LinuxCNC that make integration easier. +
 These are split in three heading on the left side of the editor:
 
 //TODO Add links to sections of QtVCP Widgets chapter
@@ -91,13 +88,11 @@ These are split in three heading on the left side of the editor:
 You are free to mix them in any way on your panel.
 
 A very important widget for CNC control is the *`ScreenOptions` widget*:
-it does not add anything visually to the screen but, allows important
-details to be selected rather then be coded in the handler file.
+It does not add anything visually to the screen but, allows important details to be selected rather then be coded in the handler file.
 
 === INI Settings
 
-If you are using QtVCP to make a CNC motion control screen (rather then a HAL based panel), in the INI file,
-in the `[DISPLAY]` section, add a line with the following pattern:
+If you are using QtVCP to make a CNC motion control screen (rather then a HAL based panel), in the INI file, in the `[DISPLAY]` section, add a line with the following pattern:
 
 [source,{ini}]
 ----
@@ -335,7 +330,7 @@ self.on_keycall_F11 = types.MethodType(on_keycall_F11, self)
 ----
 
 ==== Full Creative Control with custom handler/ui files
-If you wish to *modify a stock screen* with full control, _copy it's UI
+If you wish to *modify a stock screen* with full control, _copy its UI
 and handler file to your configuration folder_.
 
 There is a QtVCP panel to help with this:
@@ -729,7 +724,7 @@ class HandlerClass:
                     QtCore.Qt.Key_F3,QtCore.Qt.Key_F5,QtCore.Qt.Key_F5):
 
             # search for the top widget of whatever widget received the event
-            # then check if it's one we want the keypress events to go to
+            # then check if it is one we want the keypress events to go to
             flag = False
             receiver2 = receiver
             while receiver2 is not None and not flag:
