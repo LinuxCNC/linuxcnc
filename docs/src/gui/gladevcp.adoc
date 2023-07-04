@@ -2117,7 +2117,6 @@ A simplex example is the `ESTOP` toggle button.
 
 Currently the following widgets are available:
 
-<<<<<<< HEAD
 - The `ESTOP` toggle sends `ESTOP` or `ESTOP_RESET` commands to LinuxCNC depending on its state.
 - The `ON/OFF` toggle sends `STATE_ON` and `STATE_OFF` commands.
 - `Pause/Resume` sends `AUTO_PAUSE` or `AUTO_RESUME` commands.
