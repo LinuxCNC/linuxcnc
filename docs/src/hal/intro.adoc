@@ -62,7 +62,7 @@ Taken together, HAL allows
   * listen to what the machine wants to tell about the state it is in. 
 . Vertical Abstractions: The human system integrator of such machine uses HAL
   * to describe what the machine is looking like and how what cable controls which motor that drives which axis.
-  * The description of the machine, the programmer's interfaces and the user's interface somehow "meet" in that abtract layer.
+  * The description of the machine, the programmer's interfaces and the user's interface somehow "meet" in that abstract layer.
 . Horizontal Abstractions:
   * Not all machines have all kinds of features
   * Mills, Lathes and Robots share many
@@ -89,7 +89,7 @@ It is a bit tricky though and the community is still organizing its thoughts on 
 HAL lies at the core of LinuxCNC and is used and/or extended by all the parts of LinuxCNC, which includes the GUIs.
 The G-code (or alternative language) interpreter knows how to interpret the G-code and translates it into machine operations by triggering signals in HAL.
 The user may query HAL in various ways to gain information about its state, which then also represents the state of the machine.
-Whilst writing during the develpment of version 2.9, the GUIs still make bit of an exception to that rule and may know something that HAL does not (need to) know.
+Whilst writing during the development of version 2.9, the GUIs still make bit of an exception to that rule and may know something that HAL does not (need to) know.
 
 
 == Communication
@@ -134,7 +134,7 @@ HAL components prepare such input and output pins and are thus automatically tri
 .HAL Components
 The many "expert" software parts of LinuxCNC are typically implemented as _components_ of HAL, conceptually also referred to as _modules_.
 These computer-implemented experts perpetually read from HAL about a state that the machine should strive to achieve and compare that desired state with the state the machine is in at the current moment.
-When there is a difference beween what should be and what the current state is then some action is performed to reduce that difference,
+When there is a difference between what should be and what the current state is then some action is performed to reduce that difference,
 while perpetually writing updates of the current states back to the HAL data space.
 
 There are components specializing on how to talk to stepper motors, and other components know how to control servos.

@@ -35,7 +35,7 @@ function _;
 pin out bit error-no-range "error pin indicating that no range matches the fb";
 pin out float min-output "Minimum limit output";
 pin out float max-output "Maximum limit output";
-pin in float fb "Feedback pin, the value of this pin determiens which range is active";
+pin in float fb "Feedback pin, the value of this pin determines which range is active";
 pin out unsigned current-range "Indicates which range is currently active";
 pin in float min-limit-## [10:personality] "The array of minimum limits to select from";
 pin in float max-limit-## [10:personality] "The array of macimum limits";
