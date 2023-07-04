@@ -126,4 +126,5 @@ FUNCTION(_){
 EXTRA_SETUP(){
     if (personality > 10) personality = 10;
     if (personality < 2) personality = 2;
+    return 0;
 }
