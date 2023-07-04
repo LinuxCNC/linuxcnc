@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-05-03 08:16+0200\n"
-"PO-Revision-Date: 2023-03-18 10:36+0000\n"
+"PO-Revision-Date: 2023-07-01 22:26+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/gmocappy/nb_NO/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.16.2-dev\n"
+"X-Generator: Weblate 5.0-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:252
 msgid "user mode selected"
@@ -44,7 +44,7 @@ msgstr "Feil i "
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:513
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:534
 msgid "Please check the console output."
-msgstr ""
+msgstr "Sjekk utskriften i konsollet."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:674
 msgid "axis"
@@ -93,9 +93,9 @@ msgid "Press to return to main button list"
 msgstr "Trykk for å gå tilbake til hovedknappelisten"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:825
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "could not resolv the image path '{0}' given for button '{1}'"
-msgstr "**** klarte ikke forstå bildestien '{0}' oppgitt for knapp '{1}' ****"
+msgstr "klarte ikke forsløse bildestien «{0}» oppgitt for knapp «{1}»"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:980
 msgid ""
@@ -151,13 +151,12 @@ msgid "Found valid probe config in INI file. Will use auto tool measurement."
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1129
-#, fuzzy
 msgid ""
 "To many increments given in INI File for this screen. Only the first 10 will "
 "be reachable through this screen."
 msgstr ""
-"For mange skritt oppgitt i INI-filen for dette skjermbildet. Kun de 10 "
-"første vil være tilgjengelig på dette skjermbildet."
+"For mange skrittlengder oppgitt i INI-filen for dette skjermbildet. Kun de "
+"10 første vil være tilgjengelig på dette skjermbildet."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1139
 msgid "Continuous"
@@ -166,12 +165,12 @@ msgstr "Kontinuerlig"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1257
 #, python-brace-format
 msgid "unknown jog command {0}"
-msgstr ""
+msgstr "Ukjent ilgangskommando {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1285
 #, python-brace-format
 msgid "Press to jog axis {0}"
-msgstr ""
+msgstr "Trykk for ilgang med akse {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1306
 #, python-brace-format
@@ -179,14 +178,12 @@ msgid "Press to jog joint {0}"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1327
-#, fuzzy
 msgid "GMOCCAPY INFO\n"
-msgstr "**** GMOCCAPY INFO ****\n"
+msgstr "GMOCCAPY INFO\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1328
-#, fuzzy
 msgid "found more than 16 macros, will use only the first 16"
-msgstr "**** fant mer enn 16 makroer, vil kun bruke de 16 første ****"
+msgstr "fant mer enn 16 makroer, vil kun bruke de 16 første"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1339
 msgid "Press to display previous macro button"
