@@ -697,34 +697,6 @@ int sendFloodOff()
     return 0;
 }
 
-int sendLubeOn()
-{
-    EMC_LUBE_ON emc_lube_on_msg;
-
-    emcCommandSend(emc_lube_on_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
-}
-
-int sendLubeOff()
-{
-    EMC_LUBE_OFF emc_lube_off_msg;
-
-    emcCommandSend(emc_lube_off_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
-}
-
 int sendSpindleForward(int spindle)
 {
     EMC_SPINDLE_ON emc_spindle_on_msg;

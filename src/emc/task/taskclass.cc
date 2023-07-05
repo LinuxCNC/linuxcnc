@@ -284,8 +284,6 @@ int emcCoolantMistOn() { return task_methods->emcCoolantMistOn(); }
 int emcCoolantMistOff() { return task_methods->emcCoolantMistOff(); }
 int emcCoolantFloodOn() { return task_methods->emcCoolantFloodOn(); }
 int emcCoolantFloodOff() { return task_methods->emcCoolantFloodOff(); }
-int emcLubeOn() { return task_methods->emcLubeOn(); }
-int emcLubeOff() { return task_methods->emcLubeOff(); }
 int emcToolPrepare(int tool) { return task_methods->emcToolPrepare(tool); }
 int emcToolStartChange() { return task_methods->emcToolStartChange(); }
 int emcToolLoad() { return task_methods->emcToolLoad(); }
@@ -390,7 +388,7 @@ int return_int(const char *funcname, PyObject *retval)
     int status = python_plugin->plugin_status();
 
     if (status == PLUGIN_EXCEPTION) {
-	emcOperatorError(status,"return_int(%s): %s",
+	emcOperatorError("return_int(%s): %s",
 			 funcname, python_plugin->last_exception().c_str());
 	return -1;
     }
@@ -398,7 +396,7 @@ int return_int(const char *funcname, PyObject *retval)
     (PyLong_Check(retval))) {
     return PyLong_AsLong(retval);
     } else {
-	emcOperatorError(0, "return_int(%s): expected int return value, got '%s' (%s)",
+	emcOperatorError("return_int(%s): expected int return value, got '%s' (%s)",
 			 funcname,
             PyBytes_AsString(retval),
             Py_TYPE(retval)->tp_name);
@@ -418,7 +416,7 @@ int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg)
 	return return_int(PLUGIN_CALL, retval.ptr());
 
     } else {
-	emcOperatorError(0, "emcPluginCall: Python plugin not initialized");
+	emcOperatorError("emcPluginCall: Python plugin not initialized");
 	return -1;
     }
 }
@@ -647,24 +645,6 @@ int Task::emcCoolantFloodOff()
     EMC_COOLANT_FLOOD_OFF floodOffMsg;
 
     sendCommand(&floodOffMsg);
-
-    return 0;
-}
-
-int Task::emcLubeOn()
-{
-    EMC_LUBE_ON lubeOnMsg;
-
-    sendCommand(&lubeOnMsg);
-
-    return 0;
-}
-
-int Task::emcLubeOff()
-{
-    EMC_LUBE_OFF lubeOffMsg;
-
-    sendCommand(&lubeOffMsg);
 
     return 0;
 }

@@ -198,7 +198,7 @@ int emcErrorBufferOKtoWrite(int space, const char *caller)
 
 
 // implementation of EMC error logger
-int emcOperatorError(int id, const char *fmt, ...)
+int emcOperatorError(const char *fmt, ...)
 {
     EMC_OPERATOR_ERROR error_msg;
     va_list ap;
@@ -214,9 +214,6 @@ int emcOperatorError(int id, const char *fmt, ...)
     }
     // prepend error code, leave off 0 ad-hoc code
     error_msg.error[0] = 0;
-    if (0 != id) {
-	snprintf(error_msg.error, sizeof(error_msg.error), "[%d] ", id);
-    }
     // append error string
     va_start(ap, fmt);
     vsnprintf(&error_msg.error[strlen(error_msg.error)], 
@@ -231,7 +228,7 @@ int emcOperatorError(int id, const char *fmt, ...)
     return emcErrorBuffer->write(error_msg);
 }
 
-int emcOperatorText(int id, const char *fmt, ...)
+int emcOperatorText(const char *fmt, ...)
 {
     EMC_OPERATOR_TEXT text_msg;
     va_list ap;
@@ -251,7 +248,7 @@ int emcOperatorText(int id, const char *fmt, ...)
     return emcErrorBuffer->write(text_msg);
 }
 
-int emcOperatorDisplay(int id, const char *fmt, ...)
+int emcOperatorDisplay(const char *fmt, ...)
 {
     EMC_OPERATOR_DISPLAY display_msg;
     va_list ap;
@@ -470,8 +467,7 @@ static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * stat)
 	switch (cmd->type) {
 
 	case EMC_OPERATOR_ERROR_TYPE:
-	    emcOperatorError(operator_error_msg->id, "%s",
-			     operator_error_msg->error);
+	    emcOperatorError("%s", operator_error_msg->error);
 	    break;
 
 //FIXME: there was limit checking tests below, see if they were needed
@@ -864,10 +860,7 @@ static int emcTaskPlan(void)
 		break;
 
 	    default:
-		emcOperatorError(0,
-				 _
-				 ("command (%s) cannot be executed until the machine is out of E-stop and turned on"),
-				 emc_symbol_lookup(type));
+		emcOperatorError(_("command (%s) cannot be executed until the machine is out of E-stop and turned on"), emc_symbol_lookup(type));
 		retval = -1;
 		break;
 
@@ -930,8 +923,6 @@ static int emcTaskPlan(void)
 	    case EMC_COOLANT_MIST_OFF_TYPE:
 	    case EMC_COOLANT_FLOOD_ON_TYPE:
 	    case EMC_COOLANT_FLOOD_OFF_TYPE:
-	    case EMC_LUBE_ON_TYPE:
-	    case EMC_LUBE_OFF_TYPE:
 	    case EMC_TASK_SET_MODE_TYPE:
 	    case EMC_TASK_SET_STATE_TYPE:
 	    case EMC_TASK_ABORT_TYPE:
@@ -994,8 +985,7 @@ static int emcTaskPlan(void)
 
 		// otherwise we can't handle it
 	    default:
-		emcOperatorError(0, _("can't do that (%s:%d) in manual mode"),
-				 emc_symbol_lookup(type),(int) type);
+		emcOperatorError(_("can't do that (%s:%d) in manual mode"), emc_symbol_lookup(type),(int) type);
 		retval = -1;
 		break;
 
@@ -1043,8 +1033,6 @@ static int emcTaskPlan(void)
 		case EMC_COOLANT_MIST_OFF_TYPE:
 		case EMC_COOLANT_FLOOD_ON_TYPE:
 		case EMC_COOLANT_FLOOD_OFF_TYPE:
-		case EMC_LUBE_ON_TYPE:
-		case EMC_LUBE_OFF_TYPE:
 		case EMC_TASK_SET_MODE_TYPE:
 		case EMC_TASK_SET_STATE_TYPE:
 		case EMC_TASK_ABORT_TYPE:
@@ -1100,9 +1088,7 @@ static int emcTaskPlan(void)
                         retval = emcTaskIssueCommand(emcCommand);
 		        break;
                     }
-		    emcOperatorError(0, _
-			    ("can't do that (%s) in auto mode with the interpreter idle"),
-			    emc_symbol_lookup(type));
+		    emcOperatorError(_("can't do that (%s) in auto mode with the interpreter idle"), emc_symbol_lookup(type));
 		    retval = -1;
 		    break;
 
@@ -1156,8 +1142,6 @@ static int emcTaskPlan(void)
                 case EMC_COOLANT_MIST_OFF_TYPE:
                 case EMC_COOLANT_FLOOD_ON_TYPE:
                 case EMC_COOLANT_FLOOD_OFF_TYPE:
-                case EMC_LUBE_ON_TYPE:
-                case EMC_LUBE_OFF_TYPE:
 		    retval = emcTaskIssueCommand(emcCommand);
 		    return retval;
 		    break;
@@ -1169,9 +1153,7 @@ static int emcTaskPlan(void)
 
 		    // otherwise we can't handle it
 		default:
-		    emcOperatorError(0, _
-			    ("can't do that (%s) in auto mode with the interpreter reading"),
-			    emc_symbol_lookup(type));
+		    emcOperatorError(_("can't do that (%s) in auto mode with the interpreter reading"), emc_symbol_lookup(type));
 		    retval = -1;
 		    break;
 
@@ -1220,8 +1202,6 @@ static int emcTaskPlan(void)
 		case EMC_COOLANT_MIST_OFF_TYPE:
 		case EMC_COOLANT_FLOOD_ON_TYPE:
 		case EMC_COOLANT_FLOOD_OFF_TYPE:
-		case EMC_LUBE_ON_TYPE:
-		case EMC_LUBE_OFF_TYPE:
 		case EMC_TASK_SET_MODE_TYPE:
 		case EMC_TASK_SET_STATE_TYPE:
 		case EMC_TASK_ABORT_TYPE:
@@ -1256,9 +1236,7 @@ static int emcTaskPlan(void)
 
 		    // otherwise we can't handle it
 		default:
-		    emcOperatorError(0, _
-			    ("can't do that (%s) in auto mode with the interpreter paused"),
-			    emc_symbol_lookup(type));
+		    emcOperatorError(_("can't do that (%s) in auto mode with the interpreter paused"), emc_symbol_lookup(type));
 		    retval = -1;
 		    break;
 
@@ -1315,8 +1293,6 @@ static int emcTaskPlan(void)
                 case EMC_COOLANT_MIST_OFF_TYPE:
                 case EMC_COOLANT_FLOOD_ON_TYPE:
                 case EMC_COOLANT_FLOOD_OFF_TYPE:
-                case EMC_LUBE_ON_TYPE:
-                case EMC_LUBE_OFF_TYPE:
 		    retval = emcTaskIssueCommand(emcCommand);
 		    break;
 
@@ -1327,9 +1303,7 @@ static int emcTaskPlan(void)
 
 		    // otherwise we can't handle it
 		default:
-		    emcOperatorError(0, _
-			    ("can't do that (%s) in auto mode with the interpreter waiting"),
-			    emc_symbol_lookup(type));
+		    emcOperatorError(_("can't do that (%s) in auto mode with the interpreter waiting"), emc_symbol_lookup(type));
 		    retval = -1;
 		    break;
 
@@ -1385,8 +1359,6 @@ static int emcTaskPlan(void)
 	    case EMC_COOLANT_MIST_OFF_TYPE:
 	    case EMC_COOLANT_FLOOD_ON_TYPE:
 	    case EMC_COOLANT_FLOOD_OFF_TYPE:
-	    case EMC_LUBE_ON_TYPE:
-	    case EMC_LUBE_OFF_TYPE:
 	    case EMC_TASK_SET_MODE_TYPE:
 	    case EMC_TASK_SET_STATE_TYPE:
 	    case EMC_TASK_PLAN_INIT_TYPE:
@@ -1449,8 +1421,7 @@ static int emcTaskPlan(void)
                     retval = emcTaskIssueCommand(emcCommand);
 		    break;
                 }
-		emcOperatorError(0, _("can't do that (%s:%d) in MDI mode"),
-			emc_symbol_lookup(type),(int) type);
+		emcOperatorError(_("can't do that (%s:%d) in MDI mode"), emc_symbol_lookup(type),(int) type);
 
 		retval = -1;
 		break;
@@ -1541,8 +1512,6 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 	break;
 
     case EMC_TOOL_PREPARE_TYPE:
-    case EMC_LUBE_ON_TYPE:
-    case EMC_LUBE_OFF_TYPE:
 	return EMC_TASK_EXEC::WAITING_FOR_IO;
 	break;
 
@@ -1644,19 +1613,15 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	// general commands
 
     case EMC_OPERATOR_ERROR_TYPE:
-	retval = emcOperatorError(((EMC_OPERATOR_ERROR *) cmd)->id,
-				  "%s", ((EMC_OPERATOR_ERROR *) cmd)->error);
+	retval = emcOperatorError("%s", ((EMC_OPERATOR_ERROR *) cmd)->error);
 	break;
 
     case EMC_OPERATOR_TEXT_TYPE:
-	retval = emcOperatorText(((EMC_OPERATOR_TEXT *) cmd)->id,
-				 "%s", ((EMC_OPERATOR_TEXT *) cmd)->text);
+	retval = emcOperatorText("%s", ((EMC_OPERATOR_TEXT *) cmd)->text);
 	break;
 
     case EMC_OPERATOR_DISPLAY_TYPE:
-	retval = emcOperatorDisplay(((EMC_OPERATOR_DISPLAY *) cmd)->id,
-				    "%s", ((EMC_OPERATOR_DISPLAY *) cmd)->
-				    display);
+	retval = emcOperatorDisplay("%s", ((EMC_OPERATOR_DISPLAY *) cmd)->display);
 	break;
 
     case EMC_SYSTEM_CMD_TYPE:
@@ -2036,14 +2001,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = emcCoolantFloodOff();
 	break;
 
-    case EMC_LUBE_ON_TYPE:
-	retval = emcLubeOn();
-	break;
-
-    case EMC_LUBE_OFF_TYPE:
-	retval = emcLubeOff();
-	break;
-
     case EMC_TOOL_PREPARE_TYPE:
 	tool_prepare_msg = (EMC_TOOL_PREPARE *) cmd;
 	retval = emcToolPrepare(tool_prepare_msg->tool);
@@ -2106,7 +2063,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	if (emcStatus->task.mode == EMC_TASK_MODE::AUTO &&
 	    emcStatus->task.interpState != EMC_TASK_INTERP::IDLE &&
 	    mode_msg->mode != EMC_TASK_MODE::AUTO) {
-	    emcOperatorError(0, _("Can't switch mode while mode is AUTO and interpreter is not IDLE"));
+	    emcOperatorError(_("Can't switch mode while mode is AUTO and interpreter is not IDLE"));
 	} else { // we can honour the modeswitch
 	    if (mode_msg->mode == EMC_TASK_MODE::MANUAL &&
 		emcStatus->task.mode != EMC_TASK_MODE::MANUAL) {
@@ -2159,7 +2116,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TASK_PLAN_CLOSE_TYPE:
         retval = emcTaskPlanClose();
 	if (retval > INTERP_MIN_ERROR) {
-	    emcOperatorError(0, _("failed to close file"));
+	    emcOperatorError(_("failed to close file"));
 	    retval = -1;
 	} else {
 	    retval = 0;
@@ -2173,7 +2130,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    retval = -1;
 	}
 	if (-1 == retval) {
-	    emcOperatorError(0, _("can't open %s"), open_msg->file);
+	    emcOperatorError(_("can't open %s"), open_msg->file);
 	} else {
 	    rtapi_strxcpy(emcStatus->task.file, open_msg->file);
 	    retval = 0;
@@ -2185,12 +2142,12 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	steppingWait = 0;
 	execute_msg = (EMC_TASK_PLAN_EXECUTE *) cmd;
         if (!all_homed() && !no_force_homing) { //!no_force_homing = force homing before MDI
-            emcOperatorError(0, _("Can't issue MDI command when not homed"));
+            emcOperatorError(_("Can't issue MDI command when not homed"));
             retval = -1;
             break;
         }
         if (emcStatus->task.mode != EMC_TASK_MODE::MDI) {
-            emcOperatorError(0, _("Must be in MDI mode to issue MDI command"));
+            emcOperatorError(_("Must be in MDI mode to issue MDI command"));
             retval = -1;
             break;
         }
@@ -2272,7 +2229,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TASK_PLAN_RUN_TYPE:
         if (!all_homed() && !no_force_homing) { //!no_force_homing = force homing before Auto
-            emcOperatorError(0, _("Can't run a program when not homed"));
+            emcOperatorError(_("Can't run a program when not homed"));
             retval = -1;
             break;
         }
@@ -2451,8 +2408,6 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_COOLANT_MIST_OFF_TYPE:
     case EMC_COOLANT_FLOOD_ON_TYPE:
     case EMC_COOLANT_FLOOD_OFF_TYPE:
-    case EMC_LUBE_ON_TYPE:
-    case EMC_LUBE_OFF_TYPE:
 	return EMC_TASK_EXEC::DONE;
 	break;
 
@@ -2688,7 +2643,7 @@ static int emcTaskExecute(void)
 			emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 			emcStatus->task.delayLeft = 0;
 			emcTaskEager = 1;
-			emcOperatorError(0, "wait for orient complete: TIMED OUT");
+			emcOperatorError("wait for orient complete: TIMED OUT");
 			}
 			break;
 
@@ -2699,7 +2654,7 @@ static int emcTaskExecute(void)
 			emcTaskEager = 1;
 			for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
 				if (emcStatus->motion.spindle[n].orient_fault)
-						emcOperatorError(0, "wait for orient complete: FAULTED code=%d",
+						emcOperatorError("wait for orient complete: FAULTED code=%d",
 						emcStatus->motion.spindle[n].orient_fault);
 			}
 		}
@@ -2759,7 +2714,7 @@ static int emcTaskExecute(void)
 		    break;
 		
 		default:
-		    emcOperatorError(0, "Unknown Wait Mode");
+		    emcOperatorError("Unknown Wait Mode");
 	    }
 	}
 	break;
@@ -3341,7 +3296,6 @@ int main(int argc, char *argv[])
     for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
     emcAuxEstopOn();
     emcTrajDisable();
-    emcLubeOff();
     emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP);
     emcJointUnhome(-2);
 
@@ -3398,9 +3352,6 @@ int main(int argc, char *argv[])
 	    if (emcStatus->io.coolant.flood) {
 		emcCoolantFloodOff();
 	    }
-	    if (emcStatus->io.lube.on) {
-		emcLubeOff();
-	    }
 	    for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
 	    	if (emcStatus->motion.spindle[n].enabled) {
 	    		emcSpindleOff(n);
@@ -3433,11 +3384,11 @@ int main(int argc, char *argv[])
         if (   emcStatus->motion.status == RCS_STATUS::ERROR
             && emcStatus->motion.on_soft_limit) { 
            if (!gave_soft_limit_message) {
-                emcOperatorError(0, "On Soft Limit");
+                emcOperatorError("On Soft Limit");
                 // if gui does not provide a means to switch to joint mode
                 // the  machine may be stuck (a misconfiguration)
                 if (emcmotConfig.kinType == KINEMATICS_IDENTITY) {
-                    emcOperatorError(0,"Identity kinematics are MISCONFIGURED");
+                    emcOperatorError("Identity kinematics are MISCONFIGURED");
                 }
                 gave_soft_limit_message = 1;
            }
@@ -3455,7 +3406,7 @@ int main(int argc, char *argv[])
 			      emcStatus->io.fault, emcStatus->io.reason);
 		}
 		if (emcStatus->io.reason < 0) {
-		    emcOperatorError(0, io_error, emcStatus->io.reason);
+		    emcOperatorError(io_error, emcStatus->io.reason);
 		}
 	    }
 	    // motion already should have reported this condition (and set RCS_STATUS::ERROR?)
@@ -3463,7 +3414,7 @@ int main(int argc, char *argv[])
 	    // if ((emcStatus->motion.status == RCS_STATUS::ERROR) && 
 	    // 	(emcStatus->motion.spindle.orient_state == EMCMOT_ORIENT_FAULTED) &&
 	    // 	(emcStatus->motion.spindle.orient_fault != 0)) {
-	    // 	emcOperatorError(0, "wait for orient complete timed out");
+	    // 	emcOperatorError("wait for orient complete timed out");
 	    // }
 
             // abort everything

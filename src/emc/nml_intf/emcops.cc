@@ -195,13 +195,6 @@ EMC_COOLANT_STAT::EMC_COOLANT_STAT():EMC_COOLANT_STAT_MSG(EMC_COOLANT_STAT_TYPE,
     flood = 0;
 }
 
-EMC_LUBE_STAT::EMC_LUBE_STAT():
-EMC_LUBE_STAT_MSG(EMC_LUBE_STAT_TYPE, sizeof(EMC_LUBE_STAT))
-{
-    on = 0;
-    level = 1;
-}
-
 // overload = , since class has array elements
 EMC_TOOL_STAT EMC_TOOL_STAT::operator =(EMC_TOOL_STAT s)
 {

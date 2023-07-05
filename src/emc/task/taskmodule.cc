@@ -117,8 +117,6 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
     EXPAND(emcCoolantMistOff)
     EXPAND(emcCoolantFloodOn)
     EXPAND(emcCoolantFloodOff)
-    EXPAND(emcLubeOn)
-    EXPAND(emcLubeOff)
     EXPAND1(emcIoSetDebug,int,debug)
 
     EXPAND1(emcToolPrepare, int, tool)
@@ -221,13 +219,13 @@ static const char *get_command( EMC_TASK_STAT &t) { return t.command; }
 static const char *get_ini_filename( EMC_TASK_STAT &t) { return t.ini_filename; }
 
 static void operator_error(const char *message, int id = 0) {
-    emcOperatorError(id,"%s",message);
+    emcOperatorError("%s",message);
 }
 static void operator_text(const char *message, int id = 0) {
-    emcOperatorText(id,"%s",message);
+    emcOperatorText("%s",message);
 }
 static void operator_display(const char *message, int id = 0) {
-    emcOperatorDisplay(id,"%s",message);
+    emcOperatorDisplay("%s",message);
 }
 
 
@@ -398,11 +396,6 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("flood", &EMC_COOLANT_STAT::flood )
 	;
 
-    class_ <EMC_LUBE_STAT, boost::noncopyable>("EMC_LUBE_STAT",no_init)
-	.def_readwrite("on", &EMC_LUBE_STAT::on )
-	.def_readwrite("level", &EMC_LUBE_STAT::level )
-	;
-
     class_ <EMC_MOTION_STAT, boost::noncopyable>("EMC_MOTION_STAT",no_init)
 	.def_readwrite("traj", &EMC_MOTION_STAT::traj)
 	.add_property( "spindle",
@@ -482,7 +475,6 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("tool", &EMC_IO_STAT::tool)
 	.def_readwrite("aux", &EMC_IO_STAT::aux)
 	.def_readwrite("coolant", &EMC_IO_STAT::coolant)
-	.def_readwrite("lube", &EMC_IO_STAT::lube)
 	.def_readwrite("status", &EMC_IO_STAT::status)
 	;
 

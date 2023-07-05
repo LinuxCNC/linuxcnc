@@ -257,12 +257,6 @@ machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS INI value.
 *linear_units*:: '(returns float)' -
   machine linear units per mm, reflects [TRAJ]LINEAR_UNITS INI value.
 
-*lube*:: '(returns integer)' -
-  'lube on' flag.
-
-*lube_level*:: '(returns integer)' -
-  reflects 'iocontrol.0.lube_level'.
-
 *max_acceleration*:: '(returns float)' -
   maximum  acceleration. Reflects [TRAJ]MAX_ACCELERATION.
 

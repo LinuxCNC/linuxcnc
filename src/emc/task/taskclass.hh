@@ -36,8 +36,6 @@ public:
     virtual int emcCoolantMistOff();
     virtual int emcCoolantFloodOn();
     virtual int emcCoolantFloodOff();
-    virtual int emcLubeOn();
-    virtual int emcLubeOff();
     virtual int emcIoSetDebug(int debug);
     virtual int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
 				 double frontangle, double backangle, int orientation);

@@ -11,7 +11,7 @@ iocontrol \- interacts with HAL or G-code in non-realtime
 
 .SH DESCRIPTION
 
-I/O control handles I/O tasks like coolant, toolchange, E-stop and lube.
+I/O control handles I/O tasks like coolant, toolchange and E-stop.
 The signals are turned on and off in non-realtime with G-code or in the case of E-stop in HAL. 
 
 The following pins are created by the non-realtime IO controller, usually found in $LINUXCNC_HOME/bin/io
@@ -36,17 +36,6 @@ unless an absolute path is specified.
 .TP
 \fBiocontrol.0.emc\-enable\-in 
 (Bit, In) Should be driven FALSE when an external E-stop condition exists.
-
-.TP
-\fBiocontrol.0.lube 
-(Bit, Out) TRUE when lube is requested.  This pin gets driven True when
-the controller comes out of E-stop, and when the "Lube On" command gets
-sent to the controller.  It gets driven False when the controller goes
-into E-stop, and when the "Lube Off" command gets sent to the controller.
-
-.TP
-\fBiocontrol.0.lube_level 
-(Bit, In) Should be driven FALSE when lubrication tank is empty.
 
 .TP
 \fBiocontrol.0.tool\-change 

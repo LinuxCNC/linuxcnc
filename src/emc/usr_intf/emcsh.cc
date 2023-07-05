@@ -133,13 +133,6 @@
   With no arg, returns the flood setting as "on" or "off". Otherwise,
   sends a flood on or off command.
 
-  emc_lube (none) | on | off
-  With no arg, returns the lubricant pump setting as "on" or "off".
-  Otherwise, sends a lube on or off command.
-
-  emc_lube_level
-  Returns the lubricant level sensor reading as "ok" or "low".
-
   emc_spindle (spindle_number) (none) | forward | reverse | increase | decrease | constant | off
   With no spindle_number defaults to spindle 0. This is a little different
   from the default behaviour elsewhere where specifyin no spindle affects all spindles.
@@ -852,63 +845,6 @@ static int emc_flood(ClientData clientdata,
     }
 
     setresult(interp,"emc_flood: need 'on', 'off', or no args"); return TCL_ERROR;
-}
-
-static int emc_lube(ClientData clientdata,
-		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
-{
-    char *objstr;
-
-    CHECKEMC
-    if (objc == 1) {
-	// no arg-- return status
-	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
-	}
-	if (emcStatus->io.lube.on == 0) {
-	    setresult(interp,"off");
-	} else {
-	    setresult(interp,"on");
-	}
-	return TCL_OK;
-    }
-
-    if (objc == 2) {
-	objstr = Tcl_GetStringFromObj(objv[1], 0);
-	if (!strcmp(objstr, "on")) {
-	    sendLubeOn();
-	    return TCL_OK;
-	}
-	if (!strcmp(objstr, "off")) {
-	    sendLubeOff();
-	    return TCL_OK;
-	}
-    }
-
-    setresult(interp,"emc_lube: need 'on', 'off', or no args");
-    return TCL_ERROR;
-}
-
-static int emc_lube_level(ClientData clientdata,
-			  Tcl_Interp * interp, int objc,
-			  Tcl_Obj * CONST objv[])
-{
-    CHECKEMC
-    if (objc == 1) {
-	// no arg-- return status
-	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
-	}
-	if (emcStatus->io.lube.level == 0) {
-	    setresult(interp,"low");
-	} else {
-	    setresult(interp,"ok");
-	}
-	return TCL_OK;
-    }
-
-    setresult(interp,"emc_lube_level: need no args");
-    return TCL_ERROR;
 }
 
 static int emc_spindle(ClientData clientdata,
@@ -3611,12 +3547,6 @@ int Linuxcnc_Init(Tcl_Interp * interp)
 
     Tcl_CreateObjCommand(interp, "emc_flood", emc_flood, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "emc_lube", emc_lube, (ClientData) NULL,
-			 (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "emc_lube_level", emc_lube_level,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_spindle", emc_spindle,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);

@@ -31,7 +31,6 @@ class EMC_TOOL_STAT;
 class EMC_AUX_STAT;
 class EMC_SPINDLE_STAT;
 class EMC_COOLANT_STAT;
-class EMC_LUBE_STAT;
 class EMC_IO_STAT;
 class EMC_STAT;
 class CMS;
@@ -205,11 +204,6 @@ struct PM_CARTESIAN;
 
 #define EMC_COOLANT_STAT_TYPE                        ((NMLTYPE) 1499)
 
-// EMC_LUBE type declarations
-#define EMC_LUBE_ON_TYPE                             ((NMLTYPE) 1504)
-#define EMC_LUBE_OFF_TYPE                            ((NMLTYPE) 1505)
-#define EMC_LUBE_STAT_TYPE                           ((NMLTYPE) 1599)
-
 #define EMC_IO_STAT_TYPE                             ((NMLTYPE) 1699)
 
 #define EMC_STAT_TYPE                                ((NMLTYPE) 1999)
@@ -295,13 +289,13 @@ extern char **Argv;
 // intended to be implemented in main() file, by writing to NML buffer
 
 // print an error
-extern int emcOperatorError(int id, const char *fmt, ...) __attribute__((format(printf,2,3)));
+extern int emcOperatorError(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
 // print general text
-extern int emcOperatorText(int id, const char *fmt, ...) __attribute__((format(printf,2,3)));
+extern int emcOperatorText(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
 // print note to operator
-extern int emcOperatorDisplay(int id, const char *fmt, ...) __attribute__((format(printf,2,3)));
+extern int emcOperatorDisplay(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
 // implementation functions for EMC_AXIS types
 
@@ -459,11 +453,6 @@ extern int emcCoolantMistOn();
 extern int emcCoolantMistOff();
 extern int emcCoolantFloodOn();
 extern int emcCoolantFloodOff();
-
-// implementation functions for EMC_LUBE types
-
-extern int emcLubeOn();
-extern int emcLubeOff();
 
 // implementation functions for EMC_IO types
 

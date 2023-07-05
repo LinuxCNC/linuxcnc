@@ -370,8 +370,6 @@ Copyright: The LinuxCNC developers derived this work from
 License: LGPL-2
 
 Files: src/libnml/inifile/*
-       src/libnml/nml/nml_mod.cc
-       src/libnml/nml/nml_mod.hh
        src/libnml/nml/nml_type.hh
        src/libnml/buffer/tcpmem.cc
        src/libnml/buffer/tcpmem.hh

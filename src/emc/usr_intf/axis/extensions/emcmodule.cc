@@ -43,6 +43,7 @@
 
 #include <epoxy/gl.h>
 #include <epoxy/glx.h>
+#include <algorithm>
 
 #define LOCAL_SPINDLE_FORWARD (1)
 #define LOCAL_SPINDLE_REVERSE (-1)
@@ -500,10 +501,6 @@ static PyMemberDef Stat_members[] = {
 
 // EMC_AUX_STAT     io.aux
     {(char*)"estop", T_INT, O(io.aux.estop), READONLY},
-
-// EMC_LUBE_STAT    io.lube
-    {(char*)"lube", T_INT, O(io.lube.on), READONLY},
-    {(char*)"lube_level", T_INT, O(io.lube.level), READONLY},
 
     {(char*)"debug", T_INT, O(debug), READONLY},
     {NULL}
@@ -1454,7 +1451,6 @@ static PyObject *error_msg(pyCommandChannel *s,  PyObject *args ) {
 
     if(!PyArg_ParseTuple(args, "s", &m)) return NULL;
 
-    operator_error_msg.id = 0;
     strncpy(operator_error_msg.error, m, LINELEN);
     operator_error_msg.error[LINELEN - 1] = 0;
     emcSendCommand(s, operator_error_msg);
@@ -1469,7 +1465,6 @@ static PyObject *text_msg(pyCommandChannel *s,  PyObject *args ) {
 
     if(!PyArg_ParseTuple(args, "s", &m)) return NULL;
 
-    operator_text_msg.id = 0;
     strncpy(operator_text_msg.text, m, LINELEN);
     operator_text_msg.text[LINELEN - 1] = 0;
     emcSendCommand(s, operator_text_msg);
@@ -1484,7 +1479,6 @@ static PyObject *display_msg(pyCommandChannel *s,  PyObject *args ) {
 
     if(!PyArg_ParseTuple(args, "s", &m)) return NULL;
 
-    operator_display_msg.id = 0;
     strncpy(operator_display_msg.display, m, LINELEN);
     operator_display_msg.display[LINELEN - 1] = 0;
     emcSendCommand(s, operator_display_msg);
@@ -1815,16 +1809,13 @@ static void glvertex9(const double pt[9], const char *geometry) {
     glVertex3dv(p);
 }
 
-#define max(a,b) ((a) < (b) ? (b) : (a))
-#define max3(a,b,c) (max((a),max((b),(c))))
-
 static void line9(const double p1[9], const double p2[9], const char *geometry) {
     if(p1[3] != p2[3] || p1[4] != p2[4] || p1[5] != p2[5]) {
-        double dc = max3(
+        double dc = std::max({
             fabs(p2[3] - p1[3]),
             fabs(p2[4] - p1[4]),
-            fabs(p2[5] - p1[5]));
-        int st = (int)ceil(max(10, dc/10));
+            fabs(p2[5] - p1[5])});
+        int st = (int)ceil(std::max(10.0, dc/10));
         int i;
 
         for(i=1; i<=st; i++) {
@@ -1842,11 +1833,11 @@ static void line9(const double p1[9], const double p2[9], const char *geometry) 
 static void line9b(const double p1[9], const double p2[9], const char *geometry) {
     glvertex9(p1, geometry);
     if(p1[3] != p2[3] || p1[4] != p2[4] || p1[5] != p2[5]) {
-        double dc = max3(
+        double dc = std::max({
             fabs(p2[3] - p1[3]),
             fabs(p2[4] - p1[4]),
-            fabs(p2[5] - p1[5]));
-        int st = (int)ceil(max(10, dc/10));
+            fabs(p2[5] - p1[5])});
+        int st = (int)ceil(std::max(10.0, dc/10));
         int i;
 
         for(i=1; i<=st; i++) {
