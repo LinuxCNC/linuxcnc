@@ -33,12 +33,6 @@
 void EmcPose_update(CMS * cms, EmcPose * x);
 void CANON_TOOL_TABLE_update(CMS * cms, CANON_TOOL_TABLE * x);
 void PmCartesian_update(CMS * cms, PmCartesian * x);
-void initialize_PmCartesian(PmCartesian * x);
-void CANON_VECTOR_update(CMS * cms, CANON_VECTOR * x);
-void initialize_CANON_TOOL_TABLE(CANON_TOOL_TABLE * x);
-void initialize_EmcPose(EmcPose * x);
-void CANON_POSITION_update(CMS * cms, CANON_POSITION * x);
-void initialize_CANON_POSITION(CANON_POSITION * x);
 
 /*
 *	NML/CMS Format function : emcFormat
