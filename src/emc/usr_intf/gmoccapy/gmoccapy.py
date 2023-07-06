@@ -3537,11 +3537,14 @@ class gmoccapy(object):
             self.on_hal_status_interp_idle(None)
             return
 
+        # automatic run command "G43"
         if "G43" in self.active_gcodes and self.stat.task_mode != linuxcnc.MODE_AUTO:
-            self.command.mode(linuxcnc.MODE_MDI)
-            self.command.wait_complete()
-            self.command.mdi("G43")
-            self.command.wait_complete()
+            if not hal.get_value("gmoccapy.disable_automatic_G43"):
+                self.command.mode(linuxcnc.MODE_MDI)
+                self.command.wait_complete()
+                self.command.mdi("G43")
+                self.command.wait_complete()
+                LOG.debug("automatic run command G43 was executed ")
 
     def _set_enable_tooltips(self, value):
         LOG.debug("_set_enable_tooltips = {0}".format(value))
@@ -5685,6 +5688,10 @@ class gmoccapy(object):
         pin = self.halcomp.newpin('toolchange-change', hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect('value_changed', self.on_tool_change)
         self.halcomp.newpin('toolchange-confirm', hal.HAL_BIT, hal.HAL_IN)
+
+        # make a pin to disable automatic run command "G43" after toolchange
+        # automatic run command "G43" can cause run condition
+        self.halcomp.newpin("disable_automatic_G43", hal.HAL_BIT, hal.HAL_IN)
 
         # make a pin to confirm a warning dialog
         self.halcomp.newpin('warning-confirm', hal.HAL_BIT, hal.HAL_IN)
