@@ -160,7 +160,6 @@ static int emcIoNmlGet()
             retval = -1;
         } else {
             /* initialize and write status */
-            emcioStatus.heartbeat = 0;
             emcioStatus.command_type = 0;
             emcioStatus.echo_serial_number = 0;
             emcioStatus.status = RCS_STATUS::DONE;
@@ -773,7 +772,6 @@ int main(int argc, char *argv[])
             emcioStatus.command_type = EMC_IO_STAT_TYPE;
             emcioStatus.echo_serial_number =
                 emcioCommand->serial_number+1; //need for different serial number, because we are pushing a new message
-            emcioStatus.heartbeat++;
             emcioStatusBuffer->write(&emcioStatus);
         }
         ;
@@ -781,7 +779,6 @@ int main(int argc, char *argv[])
             emcioStatus.command_type = EMC_IO_STAT_TYPE; // to RCS_DONE, no need for different serial_number
             emcioStatus.echo_serial_number =
                 emcioCommand->serial_number;
-            emcioStatus.heartbeat++;
             emcioStatusBuffer->write(&emcioStatus);
         }
 
@@ -1067,7 +1064,6 @@ int main(int argc, char *argv[])
         emcioStatus.echo_serial_number = emcioCommand->serial_number;
         //set above, to allow some commands to fail this
         //emcioStatus.status = RCS_DONE;
-        emcioStatus.heartbeat++;
         emcioStatusBuffer->write(&emcioStatus);
 
         esleep(emc_io_cycle_time);

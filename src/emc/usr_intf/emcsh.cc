@@ -2684,28 +2684,6 @@ static int emc_angular_unit_conversion(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_task_heartbeat(ClientData clientdata,
-			      Tcl_Interp * interp, int objc,
-			      Tcl_Obj * CONST objv[])
-{
-    Tcl_Obj *hbobj;
-
-    CHECKEMC
-    if (objc != 1) {
-	setresult(interp,"emc_task_heartbeat: need no args");
-	return TCL_ERROR;
-    }
-
-    if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
-    }
-
-    hbobj = Tcl_NewIntObj(emcStatus->task.heartbeat);
-
-    Tcl_SetObjResult(interp, hbobj);
-    return TCL_OK;
-}
-
 static int emc_task_command(ClientData clientdata,
 			    Tcl_Interp * interp, int objc,
 			    Tcl_Obj * CONST objv[])
@@ -2772,28 +2750,6 @@ static int emc_task_command_status(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_io_heartbeat(ClientData clientdata,
-			    Tcl_Interp * interp, int objc,
-			    Tcl_Obj * CONST objv[])
-{
-    Tcl_Obj *hbobj;
-
-    CHECKEMC
-    if (objc != 1) {
-	setresult(interp,"emc_io_heartbeat: need no args");
-	return TCL_ERROR;
-    }
-
-    if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
-    }
-
-    hbobj = Tcl_NewIntObj(emcStatus->io.heartbeat);
-
-    Tcl_SetObjResult(interp, hbobj);
-    return TCL_OK;
-}
-
 static int emc_io_command(ClientData clientdata,
 			  Tcl_Interp * interp, int objc,
 			  Tcl_Obj * CONST objv[])
@@ -2857,28 +2813,6 @@ static int emc_io_command_status(ClientData clientdata,
     commandstatus = Tcl_NewIntObj((int)emcStatus->io.status);
 
     Tcl_SetObjResult(interp, commandstatus);
-    return TCL_OK;
-}
-
-static int emc_motion_heartbeat(ClientData clientdata,
-				Tcl_Interp * interp, int objc,
-				Tcl_Obj * CONST objv[])
-{
-    Tcl_Obj *hbobj;
-
-    CHECKEMC
-    if (objc != 1) {
-	setresult(interp,"emc_motion_heartbeat: need no args");
-	return TCL_ERROR;
-    }
-
-    if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
-    }
-
-    hbobj = Tcl_NewIntObj(emcStatus->motion.heartbeat);
-
-    Tcl_SetObjResult(interp, hbobj);
     return TCL_OK;
 }
 
@@ -3699,8 +3633,6 @@ int Linuxcnc_Init(Tcl_Interp * interp)
 			 emc_angular_unit_conversion, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_task_heartbeat", emc_task_heartbeat,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_task_command", emc_task_command,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
@@ -3713,9 +3645,6 @@ int Linuxcnc_Init(Tcl_Interp * interp)
 			 emc_task_command_status, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_io_heartbeat", emc_io_heartbeat,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-
     Tcl_CreateObjCommand(interp, "emc_io_command", emc_io_command,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
@@ -3727,9 +3656,6 @@ int Linuxcnc_Init(Tcl_Interp * interp)
 			 emc_io_command_status, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_motion_heartbeat",
-			 emc_motion_heartbeat, (ClientData) NULL,
-			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_motion_command", emc_motion_command,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);

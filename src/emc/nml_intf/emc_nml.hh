@@ -1021,13 +1021,7 @@ class EMC_MOTION_ADAPTIVE:public EMC_MOTION_CMD_MSG {
 class EMC_MOTION_STAT_MSG:public RCS_STAT_MSG {
   public:
     EMC_MOTION_STAT_MSG(NMLTYPE t, size_t s):RCS_STAT_MSG(t, s) {
-	heartbeat = 0;
     };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    uint32_t heartbeat;
 };
 
 
@@ -1816,13 +1810,7 @@ class EMC_IO_CMD_MSG:public RCS_CMD_MSG {
 class EMC_IO_STAT_MSG:public RCS_STAT_MSG {
   public:
     EMC_IO_STAT_MSG(NMLTYPE t, size_t s):RCS_STAT_MSG(t, s) {
-	heartbeat = 0;
     };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    uint32_t heartbeat;
 };
 
 class EMC_IO_STAT:public EMC_IO_STAT_MSG {

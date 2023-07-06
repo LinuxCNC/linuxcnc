@@ -82,7 +82,6 @@ static int emcmotion_initialized = 0;	// non-zero means both
 						// emcMotionInit called.
 
 // local status data, not provided by emcmot
-static unsigned long localMotionHeartbeat = 0;
 static int localMotionCommandType = 0;
 static int localMotionEchoSerialNumber = 0;
 
@@ -2006,7 +2005,6 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
 
     // save the heartbeat and command number locally,
     // for use with emcMotionUpdate
-    localMotionHeartbeat = emcmotStatus.heartbeat;
     localMotionCommandType = emcmotStatus.commandEcho;	/*! \todo FIXME-- not NML one! */
     localMotionEchoSerialNumber = emcmotStatus.commandNumEcho;
 
@@ -2015,7 +2013,6 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     r2 = emcAxisUpdate(&stat->axis[0], stat->traj.axis_mask);
     r3 = emcTrajUpdate(&stat->traj);
     r4 = emcSpindleUpdate(&stat->spindle[0], stat->traj.spindles);
-    stat->heartbeat = localMotionHeartbeat;
     stat->command_type = localMotionCommandType;
     stat->echo_serial_number = localMotionEchoSerialNumber;
     stat->debug = emcmotConfig.debug;

@@ -247,7 +247,6 @@ static int emcIoNmlGet()
             retval = -1;
         } else {
             /* initialize and write status */
-            emcioStatus.heartbeat = 0;
             emcioStatus.command_type = 0;
             emcioStatus.echo_serial_number = 0;
             emcioStatus.status = RCS_STATUS::DONE;
@@ -736,7 +735,6 @@ static void update_status(RCS_STATUS status, int serial)
     }
     emcioStatus.command_type = EMC_IO_STAT_TYPE;
     emcioStatus.echo_serial_number = serial;
-    emcioStatus.heartbeat++;
     emcioStatusBuffer->write(&emcioStatus);
 }
 
@@ -1218,7 +1216,6 @@ int main(int argc, char *argv[])
         // ack for the received command
         emcioStatus.command_type = type;
         emcioStatus.echo_serial_number = emcioCommand->serial_number;
-        emcioStatus.heartbeat++;
         emcioStatus.reason = toolchanger_reason;  // always piggyback current fault code
         emcioStatusBuffer->write(&emcioStatus);
 
