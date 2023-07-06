@@ -301,7 +301,7 @@ Note that while many combinations of argspec options are possible, not all of th
 
 `argspec=`__<words>__ `ngc=`__<procname>__ `modalgroup=`___<group>__::
   The recommended way to call an NGC procedure with a standard argspec parameter conversion.
-  Used if argspec is good enough. Note it's not good enough for remapping the `Tx` and `M6`/`M61` tool change codes.
+  Used if argspec is good enough. Note, it is not good enough for remapping the `Tx` and `M6`/`M61` tool change codes.
 
 `prolog=`__<pythonprolog>__ `ngc=`__<procname>__ `epilog=`__<pythonepilog>__ `modalgroup=`__<group>__::
   Call a Python prolog function to take any preliminary steps, then call the NGC procedure.
@@ -391,7 +391,7 @@ and `m400.ngc` looks as follows:
 [source,{ngc}]
 ----------------------------------------------------------------------------------
 o<m400> sub
-(P is required since it's uppercase in the argspec)
+(P is required since it is uppercase in the argspec)
 (debug, P word=#<P>)
 (the q argspec is optional since its lowercase in the argspec. Use as follows:)
 o100 if [EXISTS[#<q>]]
@@ -458,7 +458,7 @@ Try this with out with:
 
 You'll notice the gradual introduction of the embedded Python environment - see <<remap:programming-embedded-python,here>> for details.
 Note that with Python remapping functions,
-it make no sense to have Python prolog or epilog functions since it's executing a Python function in the first place.
+it make no sense to have Python prolog or epilog functions since it is executing a Python function in the first place.
 
 .Advanced example: Remapped codes in pure Python
 
@@ -1032,7 +1032,7 @@ NOTE: INI and HAL variable expansion is optional and can be disabled in the <<su
 
 If more fine grained recovery action is needed, use the idiom laid out in the previous example:
 
-- Define an epilog function, even if it's just to signal an error condition,
+- Define an epilog function, even if it is just to signal an error condition,
 - pass a negative value from the handler to signal the error,
 - inspect the return value in the epilog function,
 - take any recovery action needed,
@@ -1175,7 +1175,7 @@ The namespace is expected to be laid out as follows:
 
 The interpreter is an existing C++ class ('Interp') defined in 'src/emc/rs274ngc'.
 Conceptually all `oword.<function>` and `remap.<function>` Python calls are methods of this Interp class,
-although there is no explicit Python definition of this class (it's a 'Boost.Python' wrapper instance)
+although there is no explicit Python definition of this class (it is a 'Boost.Python' wrapper instance)
 and hence receive the as the first parameter `self` which can be used to access internals.
 
 === The Interpreter `__init__` and `__delete__` functions
@@ -1725,7 +1725,7 @@ To use this approach:
 - Setup the LinuxCNC source tree as an Eclipse project.
 - Start the Pydev Debug Server in Eclipse.
 - Make sure the embedded Python code can find the `pydevd.py` module which comes with that plug in -
-  it's buried somewhere deep under the Eclipse install directory.
+  it is buried somewhere deep under the Eclipse install directory.
   Set the the `pydevd` variable in `util.py` to reflect this directory location.
 - Add `import pydevd` to your Python module - see example `util.py` and `remap.py`.
 - Call `pydevd.settrace()` in your module at some point to connect to the Eclipse Python debug server -
@@ -1758,7 +1758,7 @@ Now assume that your remap procedure contains a G38 probe operation, for example
 If the probe fails, that would clearly be an error, so you'd display a message and abort the program.
 
 Now, what about preview of this procedure?
-At preview time, of course it's not known whether the probe succeeds or fails -
+At preview time, of course it is not known whether the probe succeeds or fails -
 but you would likely want to see what the maximum depth of the probe is,
 and assume it succeeds and continues execution to preview further movements.
 Also, there is no point in displaying a 'probe failed' message and aborting *during preview*.
@@ -2099,7 +2099,7 @@ N95 M2
 ----
 
 To pre-compute the move in N90, the interpreter would need to know where the machine is after line N80 -
-and that depends on whether the probe command succeeded or not, which is not known until it's actually executed.
+and that depends on whether the probe command succeeded or not, which is not known until it is actually executed.
 
 So, some operations are incompatible with further read-ahead.
 These are called _queue busters_, and they are:
@@ -2161,7 +2161,7 @@ Task makes sure to synchronize the world model, and continue parsing and executi
 [[remap:how-tool-change-currently-works]]
 === How tool change currently works
 
-The actions happening in LinuxCNC are a bit involved, but it's necessary to get the overall idea what currently happens,
+The actions happening in LinuxCNC are a bit involved, but it is necessary to get the overall idea what currently happens,
 before you set out to adapt those workings to your own needs.
 
 Note that remapping an existing code completely disables all internal processing for that code.

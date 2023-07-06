@@ -12,14 +12,11 @@
 
 Panelui is a non-realtime component to interface buttons to LinuxCNC or HAL:
 * It decodes MESA 7I73 style key-scan codes and calls the appropriate routine.
-* It gets input from a realtime component - sampler.
-  Sampler gets it's input from either the MESA 7I73 or sim_matrix_kb component.
-* Panelui is configurable using an INI style text file to define button
-  types, HAL pin types, and/or commands.
+* It gets input from a realtime component - sampler.  Sampler gets its input from either the MESA 7I73 or sim_matrix_kb component.
+* Panelui is configurable using an INI style text file to define button types, HAL pin types, and/or commands.
 * It can be extended using a Python based 'handler' file to add functions.
 
-While actual input buttons are required to be momentary, Panelui will use this
-input to make toggle, radio, or momentary button output.
+While actual input buttons are required to be momentary, Panelui will use this input to make toggle, radio, or momentary button output.
 
 == Loading Commands
 
@@ -136,8 +133,8 @@ Radio button definitions start with the text 'RADIO_BUTTON' inside single bracke
     #
     # This button, named 'small'is controller by the row 0 column 1 key.
     # It will cause the group output to be .0001 when it is pressed.
-    # It has no output of it's own, but has a status
-    # pin which will follow it's current state.
+    # It has no output of its own, but has a status
+    # pin which will follow its current state.
     # since this button is in a group, DEFAULT has no bearing.
     # since OUTPUT in not 'COMMAND' _COMMAND entries are ignored.
     [[[small]]]
@@ -153,8 +150,8 @@ Radio button definitions start with the text 'RADIO_BUTTON' inside single bracke
       DEFAULT = false
     # This button, named 'large' is controller by the row 0 column 2 key.
     # It will cause the group output to be 1000 when it is pressed.
-    # It has a S32 output of it's own, will be 20 on true and 0 on false.
-    # It also has a status pin which will follow it's current state.
+    # It has a S32 output of its own, will be 20 on true and 0 on false.
+    # It also has a status pin which will follow its current state.
     # since this button is in a group, DEFAULT has no bearing.
     # since OUTPUT in not 'COMMAND' _COMMAND entries are ignored.
     [[[large]]]
@@ -180,7 +177,7 @@ Toggle button definitions start with the text 'TOGGLE_BUTTON' inside single brac
   # Each button name inside double brackets, must be unique and is case sensitive.
   # This button, named 'tool_change'is controller by the row 2 column 5 key.
   # It has a BIT output, will output 1 on true state and 0 on false state.
-  # It also has a status pin which will follow it's current state.
+  # It also has a status pin which will follow its current state.
   # DEFAULT sets this to true when first initialized.
   # The _COMMAND are not used since OUTPUT is not set to COMMAND but validation will
   # add the lines regardless
@@ -205,7 +202,7 @@ Momentary button definitions start with the text 'MOMENTARY_BUTTON' inside singl
   # Each button name inside double brackets, must be unique and is case sensitive.
   # This button, named 'spindle_rev'is controller by the row 2 column 3 key.
   # It has a COMMAND output, so will use TRUE_COMMAND and FALSE_COMMAND.
-  # It also has a status pin which will follow it's current state.
+  # It also has a status pin which will follow its current state.
   # COMMANDs will have a command name and then any required arguments
   # This TRUE_COMMAND calls an internal command to start the spindle in reverse at 200 rpm
   # If the spindle is already started, it will increase the rpm.
@@ -258,8 +255,7 @@ There are a number of internal commands you may use.
 .*spindle_forward_adjust*
 * optional argument: starting RPM (int) - default 100
 * Description: If the spindle is stopped it will start in the forward direction.
-  If it is already running it will increase or decrease the rpm depending on
-  what direction the spindle is running in.
+  If it is already running it will increase or decrease the rpm depending on what direction the spindle is running in.
 
 .*spindle_forward*
 * optional argument: starting RPM (int) - default 100
@@ -272,8 +268,7 @@ There are a number of internal commands you may use.
 .*spindle_reverse_adjust*
 * optional argument: starting RPM (int) - default 100
 * Description: If the spindle is stopped it will start in the reverse direction.
-  If it is already running it will increase or decrease the rpm depending on
-  what direction the spindle is running in.
+  If it is already running it will increase or decrease the rpm depending on what direction the spindle is running in.
 
 .*spindle_faster*
 * Description: increases spindle speed by 100 RPM
@@ -365,8 +360,7 @@ In this way panelui can interact will other programs such as QtVCP screens. +
     FALSE_STATE = 0
 ----
 
-Here is a sample program that will receive the message and print it to the
-terminal. +
+Here is a sample program that will receive the message and print it to the terminal. +
 
 [source,python]
 ----
@@ -393,7 +387,7 @@ while True:
 
 A special file can be used to add custom python code that will be available as commands.
 panelui_handler.py must be written in python and be placed in the configuration folder.
-If panelui finds a file there it will add it's function calls to the available commands.
+If panelui finds a file there it will add its function calls to the available commands.
 Here is an example of a handler file that adds two functions - hello_world and cycle_mode:
 
 [source,python]

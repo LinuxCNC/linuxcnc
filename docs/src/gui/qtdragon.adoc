@@ -50,8 +50,8 @@ If your configuration is not currently set up to use QtDragon, you can change it
 For an exhaustive list of options, see the <<sub:ini:sec:display,display section>> of the INI file documentation.
 
 [NOTE]
-You can only have one of each section ( ie [HAL] ) in the INI file. If you see in these docs multiple section options
- place them all under the one appropriate section name.  
+You can only have one of each section ( ie [HAL] ) in the INI file.
+If you see in these docs multiple section options, place them all under the one appropriate section name.  
 
 === Display
 
@@ -174,7 +174,7 @@ See QtVCP/VCP panels for other available builtin panels.
 
 The `EMBED_TAB_NAME` entry will used as the title for the new tab.(must be unique) +
 Tab `EMBED_TAB_LOCATION` options include: `tabWidget_utilities`, `tabWidget_setup` and `stackedWidget_mainTab`. +
-Tab `EMBED_TAB_COMMAND` specifies what embed-able program to run, including any of it's command line options.
+Tab `EMBED_TAB_COMMAND` specifies what embed-able program to run, including any of its command line options.
 
 If using the `tabWidget_utilities` or `tabWidget_setup` locations, an extra tab will appear with the panel. +
 If using `stackedWidget_mainTab`, a button labelled 'User' will appear. +
@@ -205,10 +205,10 @@ EMBED_TAB_LOCATION = tabWidget_utilities
 
 === Subroutine Paths
 
-If using NGCGUI, remap or custom M codes routines, linuxcnc needs to know where to look for the files. +
+If using NGCGUI, remap or custom M codes routines, LinuxCNC needs to know where to look for the files. +
 This sample is typical of what is needed for NgcGui, Basic Probe. and Versa Probe remap code. +
 These paths will need to be adjusted to point to the actual files on your system.
-<<sub:ini:sec:rs274ngc, RS274NZGC Section Details>>
+<<sub:ini:sec:rs274ngc,RS274NZGC Section Details>>
 
 [source,{ini}]
 ----
@@ -218,7 +218,7 @@ SUBROUTINE_PATH = :~/linuxcnc/nc_files/examples/ngcgui_lib:~/linuxcnc/nc_files/e
 ~/linuxcnc/nc_files/examples/ngcgui_lib/remap_lib
 ----
 
-Qtvcp's NGCGUI program also need to know where to open for subroutine selection and pre-selection. +
+QtVCP's NGCGUI program also need to know where to open for subroutine selection and pre-selection. +
 NGCGUI_SUBFILE_PATH must point to an actual path on your system and also a path described in SUBROUTINE_PATHS.
 
 [source,{ini}]
@@ -299,8 +299,8 @@ USE_PROBE = basicprobe
 ----
 
 === Abort detection
-When using qtdragon's probing routines, it's important to detect a user abort request. +
-By default, linuxcnc does not report an abort in a useful way for the probe routines. +
+When using qtdragon's probing routines, it is important to detect a user abort request. +
+By default, LinuxCNC does not report an abort in a useful way for the probe routines. +
 You need to add a ngc file to print out an error that can be detected.
 <<sub:remap:sec:error-handling, Remap Abort Details>>
 
@@ -312,8 +312,7 @@ ON_ABORT_COMMAND=O <on_abort> call
 ----
 
 This example code will send a message on abort. The probe routines can detect this sample. +
-According to the setting above, it would need to be saved as 'on_abort.ngc' within 
-linuxcnc's [RS274NGC] SUBROUTINE_PATHS and [DISPLAY] PROGRAM_PREFIX search paths.
+According to the setting above, it would need to be saved as 'on_abort.ngc' within LinuxCNC's [RS274NGC] SUBROUTINE_PATHS and [DISPLAY] PROGRAM_PREFIX search paths.
 
 [source,{ngc}]
 ----
@@ -818,7 +817,7 @@ Preset:
 
 * manual set probe at the intersection of the edges (ie corner) of material as described by the green bullseye on the button. Set it Z CLEARANCE above the top of material. These can be done by eye.
 * set EXTRA CLEARANCE to a value that you want the probe to go below the _top_ of material.
-(So the probe will move from it's start position down  Z Clearance + Extra Clearance distance)
+  (So the probe will move from its start position down  Z Clearance + Extra Clearance distance.)
 * set XY CLEARANCE to a value that definitely gives clearance from the wall so when the probe goes down it doesn't hit anything.
 * set EDGE WIDTH to a value that describes the distance measured from the corner, along the wall to where you wish to probe. this edge distance will be used along the X wall and then the Y wall.
 
@@ -857,8 +856,7 @@ The machine will probe down twice and the current user offset (G5X) will be zero
 == Auto Tool Measurement
 
 QtDragon can be setup to do integrated auto tool measurement using the Versa Probe widget and remap code.
-To use this feature, you will need to do some additional settings
-and you may want to use the offered HAL pin to get values in your own ngc remap procedure.
+To use this feature, you will need to do some additional settings and you may want to use the offered HAL pin to get values in your own ngc remap procedure.
 
 [IMPORTANT]
 Before starting the first test, do not forget to enter the probe height and probe velocities on the versa probe settings page.
@@ -872,7 +870,7 @@ Tool Measurement in QtDragon is done with the following steps:
 * Go to auto mode and start your program.
 
 [NOTE]
-When fist setting up auto tool measurement, please use caution until you confirm tool change and probe locations - it's easy to break a tool/probe.
+When fist setting up auto tool measurement, please use caution until you confirm tool change and probe locations - it is easy to break a tool/probe.
 Abort will be honoured while the probe is in motion.
 
 .Auto tool measurement
@@ -988,7 +986,7 @@ REMAP=M6  modalgroup=6 prolog=change_prolog ngc=qt_auto_probe_tool epilog=change
 
 The abort command file should be in the configuration folder and look something like this sample. +
 According to the setting above, it would need to be saved as 'on_abort.ngc' within 
-linuxcnc's [RS274NGC] SUBROUTINE_PATHS and [DISPLAY] PROGRAM_PREFIX search paths.
+LinuxCNC's [RS274NGC] SUBROUTINE_PATHS and [DISPLAY] PROGRAM_PREFIX search paths.
 
 ----
 o<on_abort> sub

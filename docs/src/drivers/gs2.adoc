@@ -10,7 +10,7 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-This is a non-realtime HAL program for the GS2 series of VFD's at Automation Direct. footnote:[In Europe the equivalent can be found under the brand name Omron.]
+This is a non-realtime HAL program for the GS2 series of VFDs at Automation Direct. footnote:[In Europe the equivalent can be found under the brand name Omron.]
 
 This component is loaded using the halcmd "loadusr" command:
 
@@ -19,46 +19,35 @@ This component is loaded using the halcmd "loadusr" command:
 loadusr -Wn spindle-vfd gs2_vfd -n spindle-vfd
 ----
 
-The above command says: loadusr, wait for named to load,
-component gs2_vfd, named spindle-vfd.
+The above command says: loadusr, wait for named to load, component gs2_vfd, named spindle-vfd.
 The HAL `loadusr` command is described in the <<sub:hal-loadusr,loadusr>> chapter.
 
 == Command Line Options
 
-* '-b' or '--bits _<n>_' (default: 8) Set number of data bits to _n_, where _n_
-  must be from 5 to 8 inclusive.
-* '-d' or '--device <path>' (default: /dev/ttyS0) Set the file path to the serial
-  device node to use.
-* '-g' or '--debug' Turn on debugging messages. This will also set the
-  verbose flag. Debug mode will cause all modbus messages to be printed
-  in hex on the terminal.
-* '-n' or '--name <string>' (default: gs2_vfd) Set the name of the HAL
-  module. The HAL comp name will be set to <string>, and all pin and
-  parameter names will begin with <string>.
-* '-p' or '--parity {even,odd,none}' (default: odd) Set serial parity to
-  even, odd, or none.
-* '-r' or '--rate _<n>_' (default: 38400) Set baud rate to _n_. It is an error
-  if the rate is not one of the following: 110, 300, 600, 1200, 2400,
-  4800, 9600, 19200, 38400, 57600, 115200.
+* '-b' or '--bits _<n>_' (default: 8) Set number of data bits to _n_, where _n_ must be from 5 to 8 inclusive.
+* '-d' or '--device <path>' (default: /dev/ttyS0) Set the file path to the serial device node to use.
+* '-g' or '--debug' Turn on debugging messages.
+  This will also set the verbose flag.
+  Debug mode will cause all modbus messages to be printed in hex on the terminal.
+* '-n' or '--name <string>' (default: gs2_vfd) Set the name of the HAL module.
+  The HAL comp name will be set to <string>, and all pin and parameter names will begin with <string>.
+* '-p' or '--parity {even,odd,none}' (default: odd) Set serial parity to even, odd, or none.
+* '-r' or '--rate _<n>_' (default: 38400) Set baud rate to _n_.
+  It is an error if the rate is not one of the following: 110, 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200.
 * '-s' or '--stopbits {1,2}' (default: 1) Set serial stop bits to 1 or 2
-* '-t' or '--target _<n>_' (default: 1) Set MODBUS target (slave) number. This
-  must match the device number you set on the GS2.
+* '-t' or '--target _<n>_' (default: 1) Set MODBUS target (slave) number.
+  This must match the device number you set on the GS2.
 * '-v' or '--verbose' Turn on debug messages.
-* '-A' or '--accel-seconds' _<n>_ (default: 10.0) Seconds to accelerate the
-  spindle from 0 to max. RPM.
-* '-D' or '--decel-seconds' _<n>_ (default: 0.0) Seconds to decelerate the spindle
-  from max. RPM to 0. If set to 0.0 the spindle will be allowed to coast to a
-  stop without controlled deceleration.
-* '-R' or '--braking-resistor' This argument should be used when a braking
-  resistor is installed on the GS2 VFD (see Appendix A of the GS2 manual).
-  It disables deceleration over-voltage stall prevention (see GS2 modbus
-  Parameter 6.05), allowing the VFD to keep braking even in situations where
-  the motor is regenerating high voltage. The regenerated voltage gets safely
-  dumped into the braking resistor.
+* '-A' or '--accel-seconds' _<n>_ (default: 10.0) Seconds to accelerate the spindle from 0 to max. RPM.
+* '-D' or '--decel-seconds' _<n>_ (default: 0.0) Seconds to decelerate the spindle from max. RPM to 0.
+  If set to 0.0 the spindle will be allowed to coast to a stop without controlled deceleration.
+* '-R' or '--braking-resistor' This argument should be used when a braking resistor is installed on the GS2 VFD (see Appendix A of the GS2 manual).
+  It disables deceleration over-voltage stall prevention (see GS2 modbus Parameter 6.05),
+  allowing the VFD to keep braking even in situations where the motor is regenerating high voltage.
+  The regenerated voltage gets safely dumped into the braking resistor.
 
 [NOTE]
-That if there are serial configuration errors, turning on verbose
-may result in a flood of timeout errors.
+That if there are serial configuration errors, turning on verbose may result in a flood of timeout errors.
 
 == Pins
 
@@ -78,8 +67,7 @@ With _<name>_ being "gs2_vfd" or the name given during loading with the `-n` opt
 * '_<name>_.power-factor' (float, out) from the VFD
 * '_<name>_.scale-frequency' (float, out) from the VFD
 * '_<name>_.speed-command' (float, in) speed sent to VFD in RPM
-  It is an error to send a speed faster than the Motor Max RPM as set in
-  the VFD.
+  It is an error to send a speed faster than the Motor Max RPM as set in the VFD.
 * '_<name>_.spindle-fwd' (bit, in) 1 for FWD and 0 for REV sent to VFD
 * '_<name>_.spindle-rev' (bit, in) 1 for REV and 0 if off
 * '_<name>_.spindle-on' (bit, in) 1 for ON and 0 for OFF sent to VFD
@@ -87,9 +75,8 @@ With _<name>_ being "gs2_vfd" or the name given during loading with the `-n` opt
 * '_<name>_.status-2' (s32, out) Drive Status of the VFD (see the GS2 manual)
 
 [NOTE]
-The status value is a sum of all the bits that are on. So a 163
-which means the drive is in the run mode is the sum of 3 (run) + 32
-(freq set by serial) + 128 (operation set by serial).
+The status value is a sum of all the bits that are on.
+So a 163 which means the drive is in the run mode is the sum of 3 (run) + 32 (freq set by serial) + 128 (operation set by serial).
 
 == Parameters
 
@@ -101,10 +88,8 @@ With _<name>_ being gs2_vfd or the name given during loading with the `-n` optio
 * '_<name>_.nameplate-RPM' (float, RW) Nameplate RPM of motor (default: 1730)
 * '_<name>_.retval' (s32, RW) the return value of an error in HAL
 * '_<name>_.tolerance' (s32, RW) speed tolerance (default: 0.01)
-* '_<name>_.ack-delay' (s32, RW) number of read/write cycles before checking at-speed
-  (default 2)
+* '_<name>_.ack-delay' (s32, RW) number of read/write cycles before checking at-speed (default 2)
 
-For an example of using this component to drive a spindle see the
-<<cha:gs2-spindle,GS2 Spindle>> example.
+For an example of using this component to drive a spindle see the <<cha:gs2-spindle,GS2 Spindle>> example.
 
 // vim: set syntax=asciidoc:

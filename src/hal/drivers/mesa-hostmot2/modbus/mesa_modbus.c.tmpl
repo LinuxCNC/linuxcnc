@@ -479,6 +479,7 @@ void do_timeout(hm2_modbus_inst_t *inst){
         inst->iter = 0;
         *(inst->hal->last_err) = 11;
         *(inst->hal->fault) = 1;
+        inst->chans[inst->index].data[1] = 0xFF; // Write invalid data to force re-send
     }
     rtapi_print_msg(RTAPI_MSG_INFO, "%i timeout %i\r", inst->iter, inst->state);
 }
@@ -732,6 +733,7 @@ int parse_data_frame(hm2_modbus_inst_t *inst){
     rtapi_print_msg(RTAPI_MSG_INFO, "\n");
     if ((bytes[1] & 0x7F ) != ch->func) {
         rtapi_print_msg(RTAPI_MSG_ERR, "call/response function number mismatch\n");
+        ch->data[1] = 0xFF; // Write invalid data to force re-send
         return -1;
     }
 
@@ -739,6 +741,7 @@ int parse_data_frame(hm2_modbus_inst_t *inst){
     if (bytes[count - 2] != (checksum & 0xFF) || bytes[count - 1] != (checksum >> 8)){
         rtapi_print_msg(RTAPI_MSG_ERR, "Modbus checksum error\n");
         rtapi_print_msg(RTAPI_MSG_ERR, "%2X%02X != %04X\n", bytes[count - 1], bytes[count - 2], checksum);
+        ch->data[1] = 0xFF; // Write invalid data to force re-send
         return -1;
     }
 
@@ -802,6 +805,7 @@ int parse_data_frame(hm2_modbus_inst_t *inst){
         case 134: // 6 + error bit
         case 143: // 15 + error bit
         case 144: // 16 + error bit
+            ch->data[1] = 0xFF; // Write invalid data to force re-send
             rtapi_print_msg(RTAPI_MSG_ERR, "Modbus error response function %i error %s\n",
                             bytes[1] & 0x8F, error_codes[bytes[2]]);
             break;
