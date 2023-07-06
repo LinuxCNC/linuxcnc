@@ -273,19 +273,6 @@ class EMC_JOINT_SET_HOMING_PARAMS:public EMC_JOINT_CMD_MSG {
     int absolute_encoder;
 };
 
-class EMC_JOINT_SET_MAX_VELOCITY:public EMC_JOINT_CMD_MSG {
-  public:
-    EMC_JOINT_SET_MAX_VELOCITY():EMC_JOINT_CMD_MSG
-	(EMC_JOINT_SET_MAX_VELOCITY_TYPE,
-	 sizeof(EMC_JOINT_SET_MAX_VELOCITY)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    double vel;
-};
-
 class EMC_JOINT_HALT:public EMC_JOINT_CMD_MSG {
   public:
     EMC_JOINT_HALT():EMC_JOINT_CMD_MSG(EMC_JOINT_HALT_TYPE,
@@ -456,43 +443,6 @@ class EMC_TRAJ_CMD_MSG:public RCS_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_TRAJ_SET_UNITS:public EMC_TRAJ_CMD_MSG {
-  public:
-    EMC_TRAJ_SET_UNITS():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_UNITS_TYPE,
-					  sizeof(EMC_TRAJ_SET_UNITS)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    double linearUnits;		// units per mm
-    double angularUnits;	// units per degree
-};
-
-class EMC_TRAJ_SET_AXES:public EMC_TRAJ_CMD_MSG {
-  public:
-    EMC_TRAJ_SET_AXES():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_AXES_TYPE,
-					 sizeof(EMC_TRAJ_SET_AXES)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    int axes;
-};
-
-class EMC_TRAJ_SET_CYCLE_TIME:public EMC_TRAJ_CMD_MSG {
-  public:
-    EMC_TRAJ_SET_CYCLE_TIME():EMC_TRAJ_CMD_MSG
-	(EMC_TRAJ_SET_CYCLE_TIME_TYPE, sizeof(EMC_TRAJ_SET_CYCLE_TIME)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    double cycleTime;
-};
-
 class EMC_TRAJ_SET_MODE:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_MODE():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_MODE_TYPE,
@@ -543,19 +493,6 @@ class EMC_TRAJ_SET_MAX_VELOCITY:public EMC_TRAJ_CMD_MSG {
     void update(CMS * cms);
 
     double velocity;
-};
-
-class EMC_TRAJ_SET_MAX_ACCELERATION:public EMC_TRAJ_CMD_MSG {
-  public:
-    EMC_TRAJ_SET_MAX_ACCELERATION():EMC_TRAJ_CMD_MSG
-	(EMC_TRAJ_SET_MAX_ACCELERATION_TYPE,
-	 sizeof(EMC_TRAJ_SET_MAX_ACCELERATION)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    double acceleration;
 };
 
 class EMC_TRAJ_SET_SCALE:public EMC_TRAJ_CMD_MSG {
@@ -631,59 +568,6 @@ class EMC_TRAJ_SET_FH_ENABLE:public EMC_TRAJ_CMD_MSG {
     unsigned char mode; //mode=0, override off (feedhold is disabled), mode != 0, override on, user can use feedhold
 };
 
-class EMC_TRAJ_SET_MOTION_ID:public EMC_TRAJ_CMD_MSG {
-  public:
-    EMC_TRAJ_SET_MOTION_ID():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_MOTION_ID_TYPE,
-					      sizeof
-					      (EMC_TRAJ_SET_MOTION_ID)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    int id;
-};
-
-class EMC_TRAJ_INIT:public EMC_TRAJ_CMD_MSG {
-  public:
-    EMC_TRAJ_INIT():EMC_TRAJ_CMD_MSG(EMC_TRAJ_INIT_TYPE,
-				     sizeof(EMC_TRAJ_INIT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_TRAJ_HALT:public EMC_TRAJ_CMD_MSG {
-  public:
-    EMC_TRAJ_HALT():EMC_TRAJ_CMD_MSG(EMC_TRAJ_HALT_TYPE,
-				     sizeof(EMC_TRAJ_HALT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_TRAJ_ENABLE:public EMC_TRAJ_CMD_MSG {
-  public:
-    EMC_TRAJ_ENABLE():EMC_TRAJ_CMD_MSG(EMC_TRAJ_ENABLE_TYPE,
-				       sizeof(EMC_TRAJ_ENABLE)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_TRAJ_DISABLE:public EMC_TRAJ_CMD_MSG {
-  public:
-    EMC_TRAJ_DISABLE():EMC_TRAJ_CMD_MSG(EMC_TRAJ_DISABLE_TYPE,
-					sizeof(EMC_TRAJ_DISABLE)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
 class EMC_TRAJ_ABORT:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_ABORT():EMC_TRAJ_CMD_MSG(EMC_TRAJ_ABORT_TYPE,
@@ -698,16 +582,6 @@ class EMC_TRAJ_PAUSE:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_PAUSE():EMC_TRAJ_CMD_MSG(EMC_TRAJ_PAUSE_TYPE,
 				      sizeof(EMC_TRAJ_PAUSE)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_TRAJ_STEP:public EMC_TRAJ_CMD_MSG {
-  public:
-    EMC_TRAJ_STEP():EMC_TRAJ_CMD_MSG(EMC_TRAJ_STEP_TYPE,
-				     sizeof(EMC_TRAJ_STEP)) {
     };
 
     // For internal NML/CMS use only.

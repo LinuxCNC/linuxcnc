@@ -63,7 +63,6 @@ struct PM_CARTESIAN;
 #define EMC_JOINT_SET_FERROR_TYPE                     ((NMLTYPE) 111)
 #define EMC_JOINT_SET_HOMING_PARAMS_TYPE              ((NMLTYPE) 112)
 #define EMC_JOINT_SET_MIN_FERROR_TYPE                 ((NMLTYPE) 115)
-#define EMC_JOINT_SET_MAX_VELOCITY_TYPE               ((NMLTYPE) 116)
 #define EMC_JOINT_HALT_TYPE                           ((NMLTYPE) 119)
 #define EMC_JOINT_HOME_TYPE                           ((NMLTYPE) 123)
 #define EMC_JOG_CONT_TYPE                             ((NMLTYPE) 124)
@@ -85,25 +84,15 @@ struct PM_CARTESIAN;
 #define EMC_TRAJ_TERM_COND_EXACT 1
 #define EMC_TRAJ_TERM_COND_BLEND 2
 
-#define EMC_TRAJ_SET_AXES_TYPE                       ((NMLTYPE) 201)
-#define EMC_TRAJ_SET_UNITS_TYPE                      ((NMLTYPE) 202)
-#define EMC_TRAJ_SET_CYCLE_TIME_TYPE                 ((NMLTYPE) 203)
 #define EMC_TRAJ_SET_MODE_TYPE                       ((NMLTYPE) 204)
 #define EMC_TRAJ_SET_VELOCITY_TYPE                   ((NMLTYPE) 205)
 #define EMC_TRAJ_SET_ACCELERATION_TYPE               ((NMLTYPE) 206)
 #define EMC_TRAJ_SET_MAX_VELOCITY_TYPE               ((NMLTYPE) 207)
-#define EMC_TRAJ_SET_MAX_ACCELERATION_TYPE           ((NMLTYPE) 208)
 #define EMC_TRAJ_SET_SCALE_TYPE                      ((NMLTYPE) 209)
 #define EMC_TRAJ_SET_RAPID_SCALE_TYPE                ((NMLTYPE) 238)
-#define EMC_TRAJ_SET_MOTION_ID_TYPE                  ((NMLTYPE) 210)
 
-#define EMC_TRAJ_INIT_TYPE                           ((NMLTYPE) 211)
-#define EMC_TRAJ_HALT_TYPE                           ((NMLTYPE) 212)
-#define EMC_TRAJ_ENABLE_TYPE                         ((NMLTYPE) 213)
-#define EMC_TRAJ_DISABLE_TYPE                        ((NMLTYPE) 214)
 #define EMC_TRAJ_ABORT_TYPE                          ((NMLTYPE) 215)
 #define EMC_TRAJ_PAUSE_TYPE                          ((NMLTYPE) 216)
-#define EMC_TRAJ_STEP_TYPE                           ((NMLTYPE) 217)
 #define EMC_TRAJ_RESUME_TYPE                         ((NMLTYPE) 218)
 #define EMC_TRAJ_DELAY_TYPE                          ((NMLTYPE) 219)
 #define EMC_TRAJ_LINEAR_MOVE_TYPE                    ((NMLTYPE) 220)
