@@ -1188,15 +1188,27 @@ if you click on a line, a description of the code will be displayed.
 
 === Setup Tab
 
-It's possible to load HTML or PDF file (.html / .pdf ending) with setup notes.
-HTML/PDF docs will be displayed in the setup tab.
+It's possible to load HTML or PDF file (.html / .pdf ending) with setup notes, and will be displayed in the setup tab. +
+If you load a G-code program and there is an HTML/PDF file of the same name, it will load automatically. +
 Some program, such as Fusion 360 and Aspire will create these files for you.
-If you load a G-code program and there is an HTML/PDF file of the same name, it will load automatically.
-You can also write your own HTML docs with the included SetUp Writer button.
-Custom QtVCP panels can be displayed here by setting the EMBED_TAB_LOCATION option to 'tabWidget_setup'.
+You can also write your own HTML docs with the included SetUp Writer button. +
+There are three sub tabs:
+
+* 'HTML' - any loaded HTML pages are displayed here. The navigation buttons work on this page.
+* 'PDF' - any loaded PDF setup pages are displayed here
+* 'PROPERTIES' - when a program is loaded its gcode properties are displayed here.
+
+There are navigation buttons for HTML page; 
+
+* The up arrow returns you to the default HTML page
+* The left arrow moves backward one HTML page
+* The right arrow moves forward one HTML page
+
+If you wish to include a custom default HTML page, name it 'default_setup.html' and place it in your configuration folder. +
+Custom QtVCP panels can be displayed in this tab by setting the EMBED_TAB_LOCATION option to 'tabWidget_setup'.
 
 .QtDragon - Setup Tab Sample
-image::images/silverdragon_setup.png["QtDragon Setup Tab",scale="25%"]
+image::images/qtdragon_setup_page.png["QtDragon Setup Tab",scale="25%"]
 
 === Settings Tab
 
