@@ -1,5 +1,6 @@
 import os, time
 from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtWebEngineWidgets import QWebEnginePage
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
@@ -333,22 +334,29 @@ class HandlerClass:
                 self.toolBar = QtWidgets.QToolBar(self.w)
                 self.w.tabWidget_setup.setCornerWidget(self.toolBar)
 
+                self.homeBtn = QtWidgets.QPushButton(self.w)
+                self.homeBtn.setEnabled(True)
+                self.homeBtn.setIconSize(QtCore.QSize(48, 38))
+                self.homeBtn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/up-32.png'))
+                self.homeBtn.clicked.connect(self.homeWeb)
+                self.toolBar.addWidget(self.homeBtn)
+
                 self.backBtn = QtWidgets.QPushButton(self.w)
                 self.backBtn.setEnabled(True)
-                self.backBtn.setIconSize(QtCore.QSize(48, 48))
+                self.backBtn.setIconSize(QtCore.QSize(48, 38))
                 self.backBtn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/left-32.png'))
                 self.backBtn.clicked.connect(self.back)
                 self.toolBar.addWidget(self.backBtn)
 
                 self.forBtn = QtWidgets.QPushButton(self.w)
                 self.forBtn.setEnabled(True)
-                self.forBtn.setIconSize(QtCore.QSize(48, 48))
+                self.forBtn.setIconSize(QtCore.QSize(48, 38))
                 self.forBtn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/right-32.png'))
                 self.forBtn.clicked.connect(self.forward)
                 self.toolBar.addWidget(self.forBtn)
 
                 self.writeBtn = QtWidgets.QPushButton('SetUp\n Writer',self.w)
-                self.writeBtn.setMinimumSize(48,48)
+                self.writeBtn.setMinimumSize(48,38)
                 self.writeBtn.setEnabled(True)
                 self.writeBtn.clicked.connect(self.writer)
                 self.toolBar.addWidget(self.writeBtn)
@@ -358,6 +366,7 @@ class HandlerClass:
                     self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.default_setup))
                 else:
                     self.w.web_view.setHtml(self.html)
+                self.w.web_view.page().urlChanged.connect(self.onLoadFinished)
         except Exception as e:
             print("No default setup file found - {}".format(e))
 
@@ -1235,16 +1244,41 @@ class HandlerClass:
             self.timer_on = False
             self.add_status("Run timer stopped at {}".format(self.w.lbl_runtime.text()))
 
-    def back(self):
+    # go directly the default HTML page
+    def homeWeb(self):
         if os.path.exists(self.default_setup):
             self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.default_setup))
         else:
             self.w.web_view.setHtml(self.html)
-        #self.w.web_view.page().triggerAction(QWebEnginePage.Back)
 
+    # setup tab's web page back button
+    def back(self):
+        try:
+            self.w.web_view.page().triggerAction(QWebEnginePage.Back)
+        except:
+            if os.path.exists(self.default_setup):
+                self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.default_setup))
+            else:
+                self.w.web_view.setHtml(self.html)
+
+    # setup tab's web page forward button
     def forward(self):
-        self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.docs))
-        #self.w.web_view.page().triggerAction(QWebEnginePage.Forward)
+        try:
+            self.w.web_view.page().triggerAction(QWebEnginePage.Forward)
+        except:
+            self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.docs))
+
+    # setup tab's web page - enable/disable buttons
+    def onLoadFinished(self):
+        if self.w.web_view.history().canGoBack():
+            self.backBtn.setEnabled(True)
+        else:
+            self.backBtn.setEnabled(False)
+
+        if self.w.web_view.history().canGoForward():
+            self.forBtn.setEnabled(True)
+        else:
+            self.forBtn.setEnabled(False)
 
     def writer(self):
         WRITER.show()
