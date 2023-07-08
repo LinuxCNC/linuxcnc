@@ -262,7 +262,9 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
 
   if (block->dollar_flag) {
       CHKS(((motion != G_76) && (motion != G_33) && (motion != G_33_1) &&
-      (motion != G_95) && (motion != G_96) && (motion != G_97) &&
+      (block->g_modes[GM_FEED_MODE] != G_95) &&
+      (block->g_modes[GM_SPINDLE_MODE] != G_96) &&
+      (block->g_modes[GM_SPINDLE_MODE] != G_97) &&
       (block->m_modes[7] != 3) && (block->m_modes[7] != 4) &&
       (block->m_modes[7] != 5) && (block->m_modes[7] != 19) &&
       (block->m_modes[9] != 51) && (! block->s_flag)),
