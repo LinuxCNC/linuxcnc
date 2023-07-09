@@ -522,10 +522,10 @@ that is, has been created by the +hal_glib.GPin(halcomp.newpin(<name>,<type>,<di
 
 Event-driven programming means that the UI tells your code when "something happens" - through a callback, like when a button was pressed.
 The output HAL widgets (those which display a HAL pin's value) like LED, Bar, VBar, Meter, etc.,
-support the 'hal-pin-changed' signal, which may cause a callback into your Python code when - well, a HAL pin changes its value.
+support the `hal-pin-changed` signal, which may cause a callback into your Python code when - well, a HAL pin changes its value.
 This means there's no more need for permanent polling of HAL pin changes in your code, the widgets do that in the background and let you know.
 
-Here is an example how to set a +hal-pin-changed+ signal for a HAL_LED in the Glade UI editor:
+Here is an example how to set a `hal-pin-changed` signal for a HAL_LED in the Glade UI editor:
 
 image::images/hal-pin-change-66.png[]
 

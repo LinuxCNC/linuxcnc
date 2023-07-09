@@ -51,7 +51,7 @@ For an exhaustive list of options, see the <<sub:ini:sec:display,display section
 
 [NOTE]
 You can only have one of each section (e.g., [HAL]) in the INI file.
-If you see in these docs multiple section options, place them all under the one appropriate section name.  
+If you see in these docs multiple section options, place them all under the one appropriate section name.
 
 === Display
 
@@ -719,7 +719,7 @@ In order to set Z0 to the top of the workpiece, it has to know
 
  . how far above the table the probe trigger point is (tool setter height) and
  . how far above the table the top of the workpiece is.
- 
+
 This operation has to be done every time the tool is changed as the tool length is not saved.
 
 For touching off with a touch probe, whether you use the touchplate operation with thickness set to 0 or use a probing routine,
@@ -732,20 +732,20 @@ It is only for the tool setter.
 image::images/qtvcp_versaProbe.png["QtDragon Probe",scale="25%"]
 
 Versa probe is used to semi-automatically probe work pieces to find edges, centers and angles. +
-It can also be sued to auto probe tool length at tool changes with added remap code. 
+It can also be sued to auto probe tool length at tool changes with added remap code.
 
 You must carefully set the 'Probing Parameters':
 
-* 'DIAMETER':: This is the diameter of the probe tip. The accuracy of probe measurements is directly affected by the accuracy of the probe tip diameter. 
-* 'TRAVEL':: The distance that the probe will travel during the initial search. If the search distance is too short, you will receive a message like "G38 finished without making contact". For safety reasons, it is recommended to set this parameter to 3-4 mm more than probe stylus diameter. 
-* 'LATCH RTN':: The distance the probe is retracted after making initial contact with the workpiece. This should be a short distance because the second approach will be at a slow speed, but large enough for the probe to break contact and bring it to the search ready state. If the Latch Rtn distance too large, you will end up spending a lot of time waiting for the search to complete. Recommendation: 1-2 mm 
-* 'SEARCH':: This is the feed rate at which the probe searches for the target workpiece in machine units per minute. The search speed should be slow enough to give an acceptable initial accuracy, but fast enough to not waste time waiting for movement. Recommendation: 200-500 mm/min. 
-* 'PROBE':: Once initial contact has been made and the probe is retracted, it will wait for 0.5 seconds before performing the search again at a lower speed, the probe velocity. This lower speed ensures the machine can stop movement as quickly as possible on contact with the workpiece. 
-* 'RAPID':: Axis movements not associated with searching are done at the speed defined by RAPID in machine units per minute. 
-* 'SIDE/EDGE LENGTH':: This is the distance the probe will move at the rapid rate to the position where it will begin a search. If measuring a corner, it will move EDGE LENGTH units away from the corner, then move away from the workpiece by XY CLEARANCE, lower by Z CLEARANCE and begin the initial search. If measuring an inner circle, then EDGE LENGTH should be set to the approximate radius of the circle. Note: NOT the diameter. 
-* 'PROBE HT':: The height of the tool sensor from the machine table surface. This value is used to calculate the Z zero height for the current work coordinate system when using the probe with a tool setter sensor. 
-* 'BLOCK HT':: The height of the top of the workpiece from the machine table surface. This value is used to calculate the Z zero height for the current work coordinate system when using the probe with a tool setter sensor. 
-* 'XY CLEARANCE':: The distance that the probe will move away from an edge or corner before performing a search. It should be large enough to ensure that the probe will not contact the workpiece or any other fixtures before moving down. It should be small enough to avoid excessive waiting for movement while searching. 
+* 'DIAMETER':: This is the diameter of the probe tip. The accuracy of probe measurements is directly affected by the accuracy of the probe tip diameter.
+* 'TRAVEL':: The distance that the probe will travel during the initial search. If the search distance is too short, you will receive a message like "G38 finished without making contact". For safety reasons, it is recommended to set this parameter to 3-4 mm more than probe stylus diameter.
+* 'LATCH RTN':: The distance the probe is retracted after making initial contact with the workpiece. This should be a short distance because the second approach will be at a slow speed, but large enough for the probe to break contact and bring it to the search ready state. If the Latch Rtn distance too large, you will end up spending a lot of time waiting for the search to complete. Recommendation: 1-2 mm
+* 'SEARCH':: This is the feed rate at which the probe searches for the target workpiece in machine units per minute. The search speed should be slow enough to give an acceptable initial accuracy, but fast enough to not waste time waiting for movement. Recommendation: 200-500 mm/min.
+* 'PROBE':: Once initial contact has been made and the probe is retracted, it will wait for 0.5 seconds before performing the search again at a lower speed, the probe velocity. This lower speed ensures the machine can stop movement as quickly as possible on contact with the workpiece.
+* 'RAPID':: Axis movements not associated with searching are done at the speed defined by RAPID in machine units per minute.
+* 'SIDE/EDGE LENGTH':: This is the distance the probe will move at the rapid rate to the position where it will begin a search. If measuring a corner, it will move EDGE LENGTH units away from the corner, then move away from the workpiece by XY CLEARANCE, lower by Z CLEARANCE and begin the initial search. If measuring an inner circle, then EDGE LENGTH should be set to the approximate radius of the circle. Note: NOT the diameter.
+* 'PROBE HT':: The height of the tool sensor from the machine table surface. This value is used to calculate the Z zero height for the current work coordinate system when using the probe with a tool setter sensor.
+* 'BLOCK HT':: The height of the top of the workpiece from the machine table surface. This value is used to calculate the Z zero height for the current work coordinate system when using the probe with a tool setter sensor.
+* 'XY CLEARANCE':: The distance that the probe will move away from an edge or corner before performing a search. It should be large enough to ensure that the probe will not contact the workpiece or any other fixtures before moving down. It should be small enough to avoid excessive waiting for movement while searching.
 * 'Z CLEARANCE':: The distance that the probe will move down before performing a search. If measuring an inside hole, the probe could be manually jogged to the starting Z height and then set Z CLEARANCE to 0.
 
 There are three toggle buttons:
@@ -985,8 +985,7 @@ REMAP=M6  modalgroup=6 prolog=change_prolog ngc=qt_auto_probe_tool epilog=change
 ----
 
 The abort command file should be in the configuration folder and look something like this sample. +
-According to the setting above, it would need to be saved as 'on_abort.ngc' within 
-LinuxCNC's [RS274NGC] SUBROUTINE_PATHS and [DISPLAY] PROGRAM_PREFIX search paths.
+According to the setting above, it would need to be saved as 'on_abort.ngc' within LinuxCNC's [RS274NGC] SUBROUTINE_PATHS and [DISPLAY] PROGRAM_PREFIX search paths.
 
 ----
 o<on_abort> sub
@@ -1123,7 +1122,7 @@ Tabs allow the user to select the most appropriate info/control on the top three
 If the on screen keyboard is showing and the user wishes to hide it but keep the current tab, they can do that by pressing the current show tab.
 In QtDragon, there is a splitter handle between the G-code text display and the G-code graphical display.
 One can use this to split the size between the two areas. This can be set differently in each tab and in each mode.
- 
+
 === Main tab
 
 This tab displays the graphical representation of the current program.
@@ -1198,7 +1197,7 @@ There are three sub tabs:
 * 'PDF' - any loaded PDF setup pages are displayed here
 * 'PROPERTIES' - when a program is loaded its gcode properties are displayed here.
 
-There are navigation buttons for HTML page; 
+There are navigation buttons for HTML page:
 
 * The up arrow returns you to the default HTML page
 * The left arrow moves backward one HTML page

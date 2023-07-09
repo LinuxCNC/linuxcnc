@@ -8,10 +8,10 @@
 
 // < explanation of the difference between a realtime and a non-realtime component >
 
-Most of the commands in the following list have their own dedicated man pages. 
-Some will have expanded descriptions, some will have limited descriptions. 
+Most of the commands in the following list have their own dedicated man pages.
+Some will have expanded descriptions, some will have limited descriptions.
 From this list you know what components exist, and you can use `man` _name_ on your UNIX command line to get additional information.
-To view the information in the man page, in a terminal window type: 
+To view the information in the man page, in a terminal window type:
 
 ----
 man axis
@@ -87,7 +87,7 @@ To search in the man pages, use the UNIX tool `apropos`.
 ==== VFD & Communication Interfaces (non-realtime)
 [{tab_options}]
 |===
-| link:../man/man1/elbpcom.1.html[elbpcom] |Communicate with Mesa ethernet cards                                                                                                   || 
+| link:../man/man1/elbpcom.1.html[elbpcom] |Communicate with Mesa ethernet cards                                                                                                   ||
 | link:../man/man1/gs2_vfd.1.html[gs2_vfd] |HAL non-realtime component for Automation Direct GS2 VFDs                                                                              ||
 | link:../man/man1/hy_gt_vfd.1.html[hy_gt_vfd] |HAL non-realtime component for Huanyang GT-series VFDs                                                                             ||
 | link:../man/man1/hy_vfd.1.html[hy_vfd] |HAL non-realtime component for Huanyang VFDs                                                                                             ||
@@ -211,9 +211,9 @@ Smart-serial remote parameters can now be set in the HAL file in the normal way.
 | link:../man/man9/knob2float.9.html[knob2float] |Converts counts (probably from an encoder) to a float value. ||
 | link:../man/man9/lowpass.9.html[lowpass]   |Low-pass filter | |
 | link:../man/man9/limit1.9.html[limit1]     |Limits the output signal to fall between min and max. footnote:[When the input is a position, this means that the 'position' is limited.] ||
-| link:../man/man9/limit2.9.html[limit2]     |Limits the output signal to fall between min and max.  Limit its slew rate to less than maxv per second. 
+| link:../man/man9/limit2.9.html[limit2]     |Limits the output signal to fall between min and max.  Limit its slew rate to less than maxv per second.
 footnote:[When the input is a position, this means that 'position' and 'velocity' are limited.] ||
-| link:../man/man9/limit3.9.html[limit3]     |Limit the output signal to fall between min and max. 
+| link:../man/man9/limit3.9.html[limit3]     |Limit the output signal to fall between min and max.
 Limit its slew rate to less than maxv per second. Limit its second derivative to less than MaxA per second squared footnote:[When
 the input is a position, this means that the 'position', 'velocity', and 'acceleration' are limited.]. ||
 | link:../man/man9/lincurve.9.html[lincurve] |One-dimensional lookup table ||

@@ -138,8 +138,9 @@ image::images/tklinuxcnc_fr.png["TkLinuxCNC graphical interface",align="center"]
 
 Xemc:: an X-Window program
 
-QtDragon:: <<cha:qtdragon-gui,QtDragon>>, a touch screen GUI based on QtVCP using the PyQt5 library. It comes in two versions 
-'QtDragon' and 'QtDragon_hd'. They are very similar in features but QtDragon_hd is made for larger monitors.
+QtDragon:: <<cha:qtdragon-gui,QtDragon>>, a touch screen GUI based on QtVCP using the PyQt5 library.
+It comes in two versions 'QtDragon' and 'QtDragon_hd'.
+They are very similar in features but QtDragon_hd is made for larger monitors.
 
 [[fig:QtDragon-graphical-interface]]
 .QtDragon, a touch screen GUI based on QtVCP
@@ -175,7 +176,7 @@ GladeVCP:: <<cha:glade-vcp,'GladeVCP'>>, a Glade-based virtual control panel tha
 .GladeVCP Example Embedded Into AXIS GUI
 image::../gui/images/axis-gladevcp.png["GladeVCP embedded into AXIS",align="center"]
 
-QtVCP:: <<cha:qtvcp,'QtVCP'>>, a PyQT5-based virtual control panel that can be added to most GUIs or run as a standalone panel.
+QtVCP:: <<cha:qtvcp,'QtVCP'>>, a PyQt5-based virtual control panel that can be added to most GUIs or run as a standalone panel.
   QtVCP has the advantage over PyVCP in that it is not limited to the display or control of HAL virtual signals,
   but can include other external interfaces outside LinuxCNC such as window or network events by extending with python code.
   QtVCP is also more flexible in how it may be configured to appear on the GUI with many special widgets:

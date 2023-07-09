@@ -22,7 +22,7 @@ However, HAL can do more than just configure hardware drivers.
 
 == HAL Overview(((HAL)))
 
-The Hardware Abstraction Layer (or with a reference to the link:https://en.wikipedia.org/wiki/2001:_A_Space_Odyssey_(film)[2001 Space Odyssey movie] just "HAL") is a software to 
+The Hardware Abstraction Layer (or with a reference to the link:https://en.wikipedia.org/wiki/2001:_A_Space_Odyssey_(film)[2001 Space Odyssey movie] just "HAL") is a software to
 
 * provide the infrastructure for the communication with and between the many software and hardware components of the system.
 * optionally process and/or override that information as it flows from component to component.
@@ -35,7 +35,7 @@ Such a synchronisation of motor positions with real-world positions is reminisce
 
 Any machine controller needs to know:
 
-* about its internal state and how this maps to the environment (machine coordinates, state of switches/regulators), 
+* about its internal state and how this maps to the environment (machine coordinates, state of switches/regulators),
 * how actuators are expected to change that state,
 * how allow for updates of the internal state by sensors (encoders, probes).
 
@@ -50,7 +50,7 @@ The HAL layer consists of parts (referred to as "components") that
     . read out the position presented by an encoder.
   - with a lower frequency every millisecond (ms), e.g. to
     . adjust the planning for the next moves to complete a G-code instruction.
-  - as non-realtime "user-space" components that run a "main loop" just like any other software, and may be interrupted or delayed when the rest of the system is busy or overloaded. 
+  - as non-realtime "user-space" components that run a "main loop" just like any other software, and may be interrupted or delayed when the rest of the system is busy or overloaded.
 
 
 Taken together, HAL allows
@@ -59,7 +59,7 @@ Taken together, HAL allows
   but may rely on a programming interface with well-specified effect on the machine.
   That interface may be used to
   * tell the machine what to do
-  * listen to what the machine wants to tell about the state it is in. 
+  * listen to what the machine wants to tell about the state it is in.
 . Vertical Abstractions: The human system integrator of such machine uses HAL
   * to describe what the machine is looking like and how what cable controls which motor that drives which axis.
   * The description of the machine, the programmer's interfaces and the user's interface somehow "meet" in that abstract layer.
@@ -78,11 +78,11 @@ But multiple interfaces have been provided that allow HAL to be manipulated
 
 but none of these interfaces are 'HAL itself'.
 
-HAL itself is not a program, it consists of one or more lists of loaded programs (the components) that are periodically executed (in strict sequence), and an area of shared-memory that these components use to interchange data. 
+HAL itself is not a program, it consists of one or more lists of loaded programs (the components) that are periodically executed (in strict sequence), and an area of shared-memory that these components use to interchange data.
 The main HAL script runs only once at machine startup, setting up the realtime threads and the shared-memory locations, loading the components and setting up the data links between them (the "signals" and "pins")
 
 In principle multiple machines could share a common HAL to allow them to inter-operate, however the current implementation of LinuxCNC is limited to a single interpreter and a single Task module.
-Currently this is almost always a G-code interpreter and "milltask" (which was found to also work well for lathes and adequately for robots) but these modules are selectable at load-time. 
+Currently this is almost always a G-code interpreter and "milltask" (which was found to also work well for lathes and adequately for robots) but these modules are selectable at load-time.
 With an increasing interest in the control of multiple cooperating machines, to overcome this limitation is likely one of the prime steps for the future development of LinuxCNC to address.
 It is a bit tricky though and the community is still organizing its thoughts on this.
 
@@ -111,8 +111,8 @@ The communication with the hardware of the machine itself is performed by respec
 
 The HAL layer is a shared space in which all the many parts that constitute LinuxCNC are exchanging information.
 That space features pins that are identified by a name, though a LinuxCNC engineer may prefer the association with a pin of an electronic circuit.
-These pins can carry numerical and logical values, boolean, float and signed and unsigned integers. There is also a (relatively new) pin type named hal_port intended for byte streams, and a framework for exchanging more complex data called hal_stream (which uses a private shared memory area, rather than a HAL pin). 
-These latter two types are used relatively infrequently. 
+These pins can carry numerical and logical values, boolean, float and signed and unsigned integers. There is also a (relatively new) pin type named hal_port intended for byte streams, and a framework for exchanging more complex data called hal_stream (which uses a private shared memory area, rather than a HAL pin).
+These latter two types are used relatively infrequently.
 
 With HAL you can send a signal to that named pin.
 Every part of HAL can read that pin that holds that value of the signal.
@@ -144,7 +144,7 @@ Still, two machines may be looking very different since built for very different
 
 .From Where the Incentive to Move Originates
 On the lowest (closest to hardware) level, e.g. for stepper motors, the description of a state of that motor is very intuitive:
-It is the number of steps in a particular direction. 
+It is the number of steps in a particular direction.
 A difference between the desired position and the actual position translates into a movement.
 Speeds, acceleration and other parameters may be internally limited in the component itself, or may optionally be limited by upstream components.
 (For example, in most cases the moment-by-moment axis position values sent to the step-generator components have already been limited and shaped to suit the configured machine limits or the current feed rate.)
@@ -157,7 +157,7 @@ When traditional programmers think of variables, addresses or I/O ports, HAL ref
 And those pins are connected or assigned values to via signals.
 Much like an electrical engineer would connect wires between pins of components of a mill, a HAL engineer establishes the data flow between pins of module instances.
 
-The LinuxCNC GUIS (AXIS, GMOCCAPY, Touchy, etc.) will represent the states of some pins (such as limit switches) but other graphical tools also exist for troubleshooting and configuration: Halshow, Halmeter, Halscope and Halreport. 
+The LinuxCNC GUIS (AXIS, GMOCCAPY, Touchy, etc.) will represent the states of some pins (such as limit switches) but other graphical tools also exist for troubleshooting and configuration: Halshow, Halmeter, Halscope and Halreport.
 
 The remainder of this introduction presents
 
@@ -310,7 +310,7 @@ You may be wondering what relationship there is between the HAL_pins, physical_p
 
 Signal:: (((HAL Signal)))
   In a physical machine, the terminals of real hardware components are interconnected by wires.
-  The HAL equivalent of a wire is a 'signal' or 'HAL signal'. 
+  The HAL equivalent of a wire is a 'signal' or 'HAL signal'.
   HAL signals connect HAL pins together as required by the machine builder.
   HAL signals can be disconnected and reconnected at will (even while the machine is running).
 

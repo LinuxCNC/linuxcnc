@@ -113,7 +113,7 @@ Flags may be one or more of the following:
 
 -n:: name a component when it is a valid option for that component.
 
-.Syntax and Examples of `loadusr` 
+.Syntax and Examples of `loadusr`
 [source,{hal}]
 ----
 loadusr <component> <options>
@@ -139,7 +139,7 @@ net signal-name pin-name <optional arrow> <optional second pin-name>
 net home-x joint.0.home-sw-in <= parport.0.pin-11-in
 ----
 
-In the above example `home-x` is the signal name, `joint.0.home-sw-in` is a 'Direction IN' pin, `<=` is the optional direction arrow, and `parport.0.pin-11-in` is a 'Direction OUT' pin. 
+In the above example `home-x` is the signal name, `joint.0.home-sw-in` is a 'Direction IN' pin, `<=` is the optional direction arrow, and `parport.0.pin-11-in` is a 'Direction OUT' pin.
 This may seem confusing but the in and out labels for a parallel port pin indicates the physical way the pin works not how it is handled in HAL.
 
 A pin can be connected to a signal if it obeys the following rules:

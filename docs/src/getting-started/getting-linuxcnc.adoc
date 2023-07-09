@@ -164,15 +164,12 @@ NOTE: This has put you into a desktop as root. It is not best practice to work a
 [[linuxcnc:install-problems]]
 == Install Problems(((LinuxCNC:Installation Problems)))(((Installation:Problems)))
 
-Most problems booting the installation image are due to uefi hardware. Fortunately, Debian Bookworm has significantly better support for uefi systems than earlier versions of Linux.
+Most problems booting the installation image are due to uefi hardware.
+Fortunately, Debian Bookworm has significantly better support for uefi systems than earlier versions of Linux.
 
 Sometimes you can tell the BIOS to boot legacy (non-uefi) hardware.
 
-In rare cases you might have to reset the BIOS to default settings if
-during the Live CD install it cannot recognize the hard drive
-during the boot up.
-    
-
+In rare cases you might have to reset the BIOS to default settings if during the Live CD install it cannot recognize the hard drive during the boot up.
 
 [[sec:_bookworm_tweaks]]
 == Bookworm Tweaks(((LinuxCNC:Bookworm Tweaks)))(((Installation:Bookworm Tweaks)))
@@ -404,13 +401,12 @@ dpkg -i linux-image(tab)
 [[sec:_alternate_install_methods]]
 == Alternate Install Methods(((LinuxCNC:Alternate Install Methods)))(((Installation:Alternate Methods)))
 
-The easiest, preferred way to install LinuxCNC is to use the Live/Install
-Image or Debian Bookworm as described above.  Both methods are as simple and reliable as we can make it, and are suitable for novice users and experienced users alike. Both methods  will typically replace any existing operating system on your hard drive.
+The easiest, preferred way to install LinuxCNC is to use the Live/Install Image or Debian Bookworm as described above.
+Both methods are as simple and reliable as we can make it, and are suitable for novice users and experienced users alike.
+Both methods  will typically replace any existing operating system on your hard drive.
 
-Experienced users who are familiar with Debian system
-administration (finding install images, manipulating apt sources, changing kernel flavors, etc), new installs are supported on following platforms:
-("amd64" means "64-bit", and is not specific to AMD processors, it will
-run on any 64-bit x86 system)
+Experienced users who are familiar with Debian system administration (finding install images, manipulating apt sources, changing kernel flavors, etc), new installs are supported on following platforms:
+("amd64" means "64-bit", and is not specific to AMD processors, it will run on any 64-bit x86 system)
 Note that in Debian Bookworm, the preempt_rt kernel is a dependency of linuxcnc-uspace so it is automatically installed with linuxcnc so the Stock kernel is not listed.
 
 If you wish to use RTAI or Xenomai, please follow the instructions in the Linuxcnc V2.8 documentation.
