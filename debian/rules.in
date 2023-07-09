@@ -15,6 +15,13 @@ export DH_VERBOSE=1
 
 include /usr/share/dpkg/pkg-info.mk
 
+# Pass the parallel operation parameter to the make command
+# if the default behavior is overridden and the $(MAKE) command is called,
+# not dh_auto_build.
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+    PARALLEL = -j$(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+endif
+
 # Support more robust code and makes code modifications more difficult
 # Compare https://wiki.debian.org/Hardening
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
@@ -47,19 +54,19 @@ override_dh_auto_configure:
 	    --disable-check-runtime-deps
 
 override_dh_auto_build-arch:
-	$(MAKE) PYTHON=/usr/bin/python3 -C src build-software
+	$(MAKE) $(PARALLEL) PYTHON=/usr/bin/python3 -C src build-software
 
 override_dh_auto_build-indep:
 ifneq "$(enable_build_documentation)" ""
-	$(MAKE) PYTHON=/usr/bin/python3 -C src manpages
-	$(MAKE) PYTHON=/usr/bin/python3 -C src translateddocs
-	$(MAKE) PYTHON=/usr/bin/python3 -C src docs
+	$(MAKE) $(PARALLEL) PYTHON=/usr/bin/python3 -C src manpages
+	$(MAKE) $(PARALLEL) PYTHON=/usr/bin/python3 -C src translateddocs
+	$(MAKE) $(PARALLEL) PYTHON=/usr/bin/python3 -C src docs
 endif
 
 override_dh_auto_clean:
 	dh_auto_clean
 	py3clean .
-	if [ -r src/Makefile.inc -a -r src/config.status ]; then $(MAKE) -C src clean -s; fi
+	if [ -r src/Makefile.inc -a -r src/config.status ]; then $(MAKE) $(PARALLEL) -C src clean -s; fi
 	rm -f Makefile.inc
 	rm -f src/config.log src/config.status
 	rm -f $(for i in $(find . -name "*.in"); do basename $i .in; done)
@@ -69,11 +76,11 @@ override_dh_auto_clean:
 override_dh_auto_install-arch:
 	# Install all architecture-dependent libraries and executables
 	# in DESTDIR (the staging dir for the main package).
-	DESTDIR=$(DESTDIR) $(MAKE) -C src install-software
+	DESTDIR=$(DESTDIR) $(MAKE) $(PARALLEL) -C src install-software
 	py3clean .
 
 	desktop-file-validate $(shell find debian/extras/ share/applications/ -name *.desktop);
-	
+
 	# some clean-up
 	rm -f $(DESTDIR)/usr/share/doc/@MAIN_PACKAGE_NAME@/examples/sample-configs/*/*position*.txt
 
@@ -85,12 +92,12 @@ override_dh_installdocs-arch:
 	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=@MAIN_PACKAGE_NAME@
 	mkdir -p debian/@MAIN_PACKAGE_NAME@/usr/share/doc/linuxcnc
 	mv debian/@MAIN_PACKAGE_NAME@/usr/share/doc/@MAIN_PACKAGE_NAME@/examples debian/@MAIN_PACKAGE_NAME@/usr/share/doc/linuxcnc
-	
+
 	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=@MAIN_PACKAGE_NAME@-dev
 
 
 override_dh_auto_install-indep:
-	DESTDIR=$(DESTDIR) $(MAKE) -C src install-docs install-doc
+	DESTDIR=$(DESTDIR) $(MAKE) $(PARALLEL) -C src install-docs install-doc
 	# Remove the docs we just built that we don't have debs for yet...
 	rm -f $(DESTDIR)/usr/share/doc/linuxcnc/*_nb.pdf
 
@@ -108,18 +115,18 @@ override_dh_installdocs-indep:
 	dh_installdocs --doc-main-package=linuxcnc-uspace --package=linuxcnc-doc-de
 	mv debian/linuxcnc-doc-de/usr/share/doc/linuxcnc-uspace/gcode.html debian/linuxcnc-doc-de/usr/share/doc/linuxcnc-uspace/gcode_de.html
 	mv debian/linuxcnc-doc-de/usr/share/doc/linuxcnc-uspace debian/linuxcnc-doc-de/usr/share/doc/linuxcnc
-	
+
 	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-en
 	mv debian/linuxcnc-doc-en/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-en/usr/share/doc/linuxcnc
-	
+
 	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-es
 	mv debian/linuxcnc-doc-es/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode.html debian/linuxcnc-doc-es/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode_es.html
 	mv debian/linuxcnc-doc-es/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-es/usr/share/doc/linuxcnc
-	
+
 	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-fr
 	mv debian/linuxcnc-doc-fr/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode.html debian/linuxcnc-doc-fr/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode_fr.html
 	mv debian/linuxcnc-doc-fr/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-fr/usr/share/doc/linuxcnc
-	
+
 	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-zh-cn
 	mv debian/linuxcnc-doc-zh-cn/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode.html debian/linuxcnc-doc-zh-cn/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode_zh_CN.html
 	mv debian/linuxcnc-doc-zh-cn/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-zh-cn/usr/share/doc/linuxcnc
