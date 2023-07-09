@@ -322,19 +322,19 @@ iocontrol's HAL pins are turned on and off in non-realtime context.  If you have
 
 === Pins (((iocontrol (HAL pins))))
 
-* 'iocontrol.0.coolant-flood' - (bit, out) TRUE when flood coolant is requested.
-* 'iocontrol.0.coolant-mist' - (bit, out) TRUE when mist coolant is requested.
-* 'iocontrol.0.emc-enable-in' - (bit, in) Should be driven FALSE when an external E-Stop condition exists.
-* 'iocontrol.0.lube' - (bit, out) TRUE when lube is commanded.
-* 'iocontrol.0.lube_level' - (bit, in) Should be driven TRUE when lube level is high enough.
-* 'iocontrol.0.tool-change' - (bit, out) TRUE when a tool change is requested.
-* 'iocontrol.0.tool-changed' - (bit, in) Should be driven TRUE when a tool change is completed.
-* 'iocontrol.0.tool-number' - (s32, out) The current tool number.
-* 'iocontrol.0.tool-prep-number' - (s32, out) The number of the next tool, from the RS274NGC T-word.
-* 'iocontrol.0.tool-prepare' - (bit, out) TRUE when a tool prepare is requested.
-* 'iocontrol.0.tool-prepared' - (bit, in) Should be driven TRUE when a tool prepare is completed.
-* 'iocontrol.0.user-enable-out' - (bit, out) FALSE when an internal E-Stop condition exists.
-* 'iocontrol.0.user-request-enable' - (bit, out) TRUE when the user has requested that E-Stop be cleared.
+* 'iocontrol.0.coolant-flood' (bit, out) TRUE when flood coolant is requested.
+* 'iocontrol.0.coolant-mist' (bit, out) TRUE when mist coolant is requested.
+* 'iocontrol.0.emc-enable-in' (bit, in) Should be driven FALSE when an external E-Stop condition exists.
+* 'iocontrol.0.lube' (bit, out) TRUE when lube is commanded.
+* 'iocontrol.0.lube_level' (bit, in) Should be driven TRUE when lube level is high enough.
+* 'iocontrol.0.tool-change' (bit, out) TRUE when a tool change is requested.
+* 'iocontrol.0.tool-changed' (bit, in) Should be driven TRUE when a tool change is completed.
+* 'iocontrol.0.tool-number' (s32, out) The current tool number.
+* 'iocontrol.0.tool-prep-number' (s32, out) The number of the next tool, from the RS274NGC T-word.
+* 'iocontrol.0.tool-prepare' (bit, out) TRUE when a tool prepare is requested.
+* 'iocontrol.0.tool-prepared' (bit, in) Should be driven TRUE when a tool prepare is completed.
+* 'iocontrol.0.user-enable-out' (bit, out) FALSE when an internal E-Stop condition exists.
+* 'iocontrol.0.user-request-enable' (bit, out) TRUE when the user has requested that E-Stop be cleared.
 
 == INI settings
 
