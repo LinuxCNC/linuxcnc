@@ -1234,7 +1234,10 @@ def open_file_guts(f, filtered=False, addrecent=True):
                 # will appear at s.gcodes[2] which caused issue #269
                 if i in (0, 1, 2): continue
                 if g == -1: continue
-                initcodes.append("G%.1f" % (g * .1))
+                if g == 960: # Issue #1232
+                    initcodes.append("G96 S%.0f" % s.settings[2])
+                else:
+                    initcodes.append("G%.1f" % (g * .1))
             tool_offset = "G43.1"
             for i in range(9):
                 if s.axis_mask & (1<<i):
