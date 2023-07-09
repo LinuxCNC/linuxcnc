@@ -417,14 +417,14 @@ If you wish to use RTAI or Xenomai, please follow the instructions in the Linuxc
 
 [options="header"]
 |===
-| Distribution   | Architecture  | Kernel     | Package name    | Typical use
-| Debian Bookworm| amd64 & arm64 | preempt-rt | linuxcnc-uspace | machine control & simulation
-| Debian Buster  | amd64 & arm64 | preempt-rt | linuxcnc-uspace | machine control & simulation
-| Debian Buster  | amd64         | RTAI       | linuxcnc        | machine control (known issues)
-| Debian Jessie  | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
-| Debian Wheezy  | i386          | RTAI       | linuxcnc        | machine control & simulation
-| Debian Wheezy  | amd64 & i386  | Preempt-RT | linuxcnc-uspace | machine control & simulation
-| Debian Wheezy  | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
+| Distribution    | Architecture  | Kernel     | Package name    | Typical use
+| Debian Bookworm | amd64 & arm64 | preempt-rt | linuxcnc-uspace | machine control & simulation
+| Debian Buster   | amd64 & arm64 | preempt-rt | linuxcnc-uspace | machine control & simulation
+| Debian Buster   | amd64         | RTAI       | linuxcnc        | machine control (known issues)
+| Debian Jessie   | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
+| Debian Wheezy   | i386          | RTAI       | linuxcnc        | machine control & simulation
+| Debian Wheezy   | amd64 & i386  | Preempt-RT | linuxcnc-uspace | machine control & simulation
+| Debian Wheezy   | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
 |===
 
 NOTE: LinuxCNC v2.8 and above is not supported on Ubuntu Lucid or older.
