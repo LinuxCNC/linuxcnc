@@ -117,6 +117,7 @@ man9/knob2float.9
 man9/laserpower.9
 man9/latencybins.9
 man9/led_dim.9
+man9/limit_axis.9
 man9/limit1.9
 man9/limit2.9
 man9/limit3.9
