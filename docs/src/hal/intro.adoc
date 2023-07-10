@@ -342,7 +342,7 @@ Function:: (((HAL:Function)))
 
 Thread:: (((HAL:Thread)))
   A 'thread' is a list of functions that runs at specific intervals as part of a realtime task.
-  When a thread is kirst created, it has a specific time interval (period), but no functions.
+  When a thread is first created, it has a specific time interval (period), but no functions.
   Functions can be added to the thread, and will be executed in order every time the thread runs.
 
 As an example, suppose we have a parport component named hal_parport.
@@ -375,7 +375,7 @@ A perfect example is a single rung ladder, with a NC contact in series with a co
 The contact and coil belong to the same relay.
 
 If this were a conventional relay, as soon as the coil is energized, the contacts begin to open and de-energize it.
-That means the contacts close again, etc, etc.
+That means the contacts close again, etc., etc.
 The relay becomes a buzzer.
 
 With a PLC, if the coil is OFF and the contact is closed when the PLC begins to evaluate the rung, then when it finishes that pass, the coil is ON.
