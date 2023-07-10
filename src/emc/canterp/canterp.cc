@@ -102,6 +102,7 @@ public:
     void print_state_tag(StateTag const &tag);
     void set_loglevel(int level);
     void set_loop_on_main_m99(bool state);
+    FILE* get_stdout() { return NULL; };
     FILE *f;
     char filename[PATH_MAX];
 };

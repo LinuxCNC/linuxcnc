@@ -1505,7 +1505,7 @@ int Interp::convert_comment(char *comment, bool enqueue)       //!< string with 
   char MSG_STR[] = "msg,";
 
   //!!!KL add two -- debug => same as msg
-  //!!!KL         -- print => goes to stderr
+  //!!!KL         -- print => goes to stdout
   char DEBUG_STR[] = "debug,";
   char PRINT_STR[] = "print,";
   char LOG_STR[] = "log,";
@@ -1544,10 +1544,13 @@ int Interp::convert_comment(char *comment, bool enqueue)       //!< string with 
   }
   else if (startswith(lc, PRINT_STR))
   {
-      convert_param_comment(comment+start+strlen(PRINT_STR), expanded,
-                            EX_SIZE);
-      fprintf(stdout, "%s\n", expanded);
-      fflush(stdout);
+      FILE *fd = get_stdout();
+      if (fd) {
+          convert_param_comment(comment+start+strlen(PRINT_STR), expanded,
+                                EX_SIZE);
+          fprintf(fd, "%s\n", expanded);
+          fflush(fd);
+      }
       return INTERP_OK;
   }
   else if (startswith(lc, LOG_STR))
