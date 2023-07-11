@@ -28,7 +28,7 @@ The Hardware Abstraction Layer (or with a reference to the link:https://en.wikip
 * optionally process and/or override that information as it flows from component to component.
 
 In itself, this link:https://en.wikipedia.org/wiki/Middleware[Middleware] is agnostic about its application on CNC.
-An Internet search, for example, found an astronomical application to control telescopes using Linuxcnc.
+An Internet search, for example, found an astronomical application to control telescopes using LinuxCNC.
 Motors move the telescope into the right position, and it needs to know how to map motor activity with the effect of that positioning with the real world.
 Such a synchronisation of motor positions with real-world positions is reminiscent of what CNC machines need to do, or space craft.
 
@@ -79,7 +79,7 @@ But multiple interfaces have been provided that allow HAL to be manipulated
 but none of these interfaces are 'HAL itself'.
 
 HAL itself is not a program, it consists of one or more lists of loaded programs (the components) that are periodically executed (in strict sequence), and an area of shared-memory that these components use to interchange data.
-The main HAL script runs only once at machine startup, setting up the realtime threads and the shared-memory locations, loading the components and setting up the data links between them (the "signals" and "pins")
+The main HAL script runs only once at machine startup, setting up the realtime threads and the shared-memory locations, loading the components and setting up the data links between them (the "signals" and "pins").
 
 In principle multiple machines could share a common HAL to allow them to inter-operate, however the current implementation of LinuxCNC is limited to a single interpreter and a single Task module.
 Currently this is almost always a G-code interpreter and "milltask" (which was found to also work well for lathes and adequately for robots) but these modules are selectable at load-time.

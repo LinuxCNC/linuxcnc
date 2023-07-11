@@ -291,9 +291,9 @@ A short description of each of the buttons:
 * 'Timer' - creates a Timer Module (depreciated use IEC Timer instead).
 * 'Monostable' - creates a one-shot monostable module
 * 'Counter' - creates a counter module.
-* 'Compare' - creates a compare block to compare variable to values or other variables, e.g. %W1<=5 or %W1=%W2.
+* 'Compare' - creates a compare block to compare variable to values or other variables, e.g. `%W1<=5` or `%W1=%W2`.
   Compare cannot be placed in the right most side of the section display.
-* 'Variable Assignment' - creates an assignment block so you to assign values to variables, e.g. %W2=7 or %W1=%W2.
+* 'Variable Assignment' - creates an assignment block so you to assign values to variables, e.g. `%W2=7` or `%W1=%W2`.
   ASSIGNMENT functions can only be placed at the right most side of the section display.
 
 === Config Window
@@ -310,7 +310,7 @@ image::images/Config.png["Config Window",align="center"]
 
 Represent switches or relay contacts. They are controlled by the variable letter and number assigned to them.
 
-The variable letter can be B, I, or Q and the number can be up to a three digit number, e.g. %I2, %Q3, or %B123.
+The variable letter can be B, I, or Q and the number can be up to a three digit number, e.g. `%I2`, `%Q3`, or `%B123`.
 Variable I is controlled by a HAL input pin with a corresponding number.
 Variable B is for internal contacts, controlled by a B coil with a corresponding number.
 Variable Q is controlled by a Q coil with a corresponding number (like a relay with multiple contacts).
@@ -341,7 +341,7 @@ There are three modes - TON, TOF, TP.
 * 'TOF' - When timer input is true, sets output true. When the input is false the timer counts down then sets output false.
 * 'TP' - When timer input is pulsed true or held true timer sets output true till timer counts down. (one-shot)
 
-The time intervals can be set in multiples of 100ms, seconds, or minutes.
+The time intervals can be set in multiples of 100&8239;ms, seconds, or minutes.
 
 There are also Variables for IEC timers that can be read and/or written to in compare or operate blocks.
 
@@ -395,13 +395,13 @@ Represent up/down counters.
 
 There are 7 contacts:
 
-* 'R' - reset (input) will reset the count to 0.
-* 'P' - preset (input) will set the count to the preset number assigned from the edit menu.
-* 'U' - up count (input) will add one to the count.
-* 'D' - down count (input) will subtract one from the count.
-* 'E' - under flow (output) will be true when the count rolls over from 0 to 9999.
-* 'D' - done (output) will be true when the count equals the preset.
-* 'F' - overflow (output) will be true when the count rolls over from 9999 to 0.
+* `R` - reset (input) will reset the count to 0.
+* `P` - preset (input) will set the count to the preset number assigned from the edit menu.
+* `U` - up count (input) will add one to the count.
+* `D` - down count (input) will subtract one from the count.
+* `E` - under flow (output) will be true when the count rolls over from 0 to 9999.
+* `D` - done (output) will be true when the count equals the preset.
+* `F` - overflow (output) will be true when the count rolls over from 9999 to 0.
 
 The up and down count contacts are edge sensitive meaning they only count when the contact changes from false to true (or off to on if you prefer).
 
@@ -409,11 +409,11 @@ The range is 0 to 9999.
 
 There are also Variables for counters that can be read and/or written to in compare or operate blocks.
 
-* '%Cxx.D' - Counter xx done (Boolean, read only)
-* '%Cxx.E' - Counter xx empty overflow (Boolean, read only)
-* '%Cxx.F' - Counter xx full overflow (Boolean, read only)
-* '%Cxx.V' - Counter xx current value (integer, read or write)
-* '%Cxx.P' - Counter xx preset (integer, read or write)
+* `%C`__xx__`.D` - Counter _xx_ done (Boolean, read only)
+* `%C`__xx__`.E` - Counter _xx_ empty overflow (Boolean, read only)
+* `%C`__xx__`.F` - Counter _xx_ full overflow (Boolean, read only)
+* `%C`__xx__`.V` - Counter _xx_ current value (integer, read or write)
+* `%C`__xx__`.P` - Counter _xx_ preset (integer, read or write)
 
 === COMPARE
 
@@ -421,20 +421,20 @@ For arithmetic comparison. Is variable %XXX = to this number (or evaluated numbe
 
 The compare block will be true when comparison is true. You can use most math symbols:
 
-* +, -, *, /, = (standard math symbols)
-* < (less than), > (greater than), <= (less or equal), >= (greater or equal), <> (not equal)
-* (, ) separate into groups example %IF1=2,&%IF2<5 in pseudo code translates to if %IF1 is equal to 2 and %IF2 is less than 5 then the comparison is true.
+* `+`, `-`, `*`, `/`, `=` (standard math symbols)
+* `<` (less than), `>` (greater than), `<=` (less or equal), `>=` (greater or equal), `<>` (not equal)
+* `(`, `)` separate into groups example `%IF1=2,&%IF2<5` in pseudo code translates to if %IF1 is equal to 2 and %IF2 is less than 5 then the comparison is true.
   Note the comma separating the two groups of comparisons.
-* ^ (exponent),% (modulus),& (and),| (or),. -
-* ABS (absolute), MOY (French for average), AVG (average)
+* `^` (exponent), `%` (modulus), `&` (and), `|` (or),. -
+* `ABS` (absolute), `MOY` (French for average), `AVG` (average)
 
 For example ABS(%W2)=1, MOY(%W1,%W2)<3.
 
 No spaces are allowed in the comparison equation.
-For example %C0.V>%C0.P is a valid comparison expression while %C0.V > %CO.P is not a valid expression.
+For example `%C0.V>%C0.P` is a valid comparison expression while `%C0.V > %CO.P` is not a valid expression.
 
 There is a list of Variables down the page that can be used for reading from and writing to ladder objects.
-When a new compare block is opened be sure and delete the # symbol when you enter a compare.
+When a new compare block is opened be sure and delete the `#` symbol when you enter a compare.
 
 To find out if word variable #1 is less than 2 times the current value of counter #0 the syntax would be:
 
@@ -455,7 +455,7 @@ Note: Compare uses the arithmetic equals not the double equals that programmers 
 For variable assignment, e.g. assign this number (or evaluated number) to this variable %xxx,
 there are two math functions MINI and MAXI that check a variable for maximum (0x80000000) and minimum values (0x07FFFFFFF) (think signed values) and keeps them from going beyond.
 
-When a new variable assignment block is opened be sure to delete the # symbol when you enter an assignment.
+When a new variable assignment block is opened be sure to delete the `#` symbol when you enter an assignment.
 
 To assign a value of 10 to the timer preset of IEC Timer 0 the syntax would be:
 
@@ -545,35 +545,35 @@ These Variables are used in COMPARE or OPERATE to get information about, or chan
 
 List of variables :
 
-* '%Bxxx' - Bit memory xxx (Boolean)
-* '%Wxxx' - Word memory xxx (32 bits signed integer)
-* '%IWxxx' - Word memory xxx (S32 in pin)
-* '%QWxxx' - Word memory xxx (S32 out pin)
-* '%IFxx' - Word memory xx (Float in pin) (*converted to S32 in ClassicLadder*)
-* '%QFxx' - Word memory xx (Float out pin) (*converted to S32 in ClassicLadder*)
-* '%Txx.R' - Timer xx running (Boolean, user read only)
-* '%Txx.D' - Timer xx done (Boolean, user read only)
-* '%Txx.V' - Timer xx current value (integer, user read only)
-* '%Txx.P' - Timer xx preset (integer)
-* '%TMxxx.Q' - Timer xxx done (Boolean, read write)
-* '%TMxxx.P' - Timer xxx preset (integer, read write)
-* '%TMxxx.V' - Timer xxx value (integer, read write)
-* '%Mxx.R' - Monostable xx running (Boolean)
-* '%Mxx.V' - Monostable xx current value (integer, user read only)
-* '%Mxx.P' - Monostable xx preset (integer)
-* '%Cxx.D' - Counter xx done (Boolean, user read only)
-* '%Cxx.E' - Counter xx empty overflow (Boolean, user read only)
-* '%Cxx.F' - Counter xx full overflow (Boolean, user read only)
-* '%Cxx.V' - Counter xx current value (integer)
-* '%Cxx.P' - Counter xx preset (integer)
-* '%Ixxx' - Physical input xxx (Boolean) (HAL input bit)
-* '%Qxxx' - Physical output xxx (Boolean) (HAL output bit)
-* '%Xxxx' - Activity of step xxx (sequential language)
-* '%Xxxx.V' - Time of activity in seconds of step xxx (sequential language)
-* '%Exx' - Errors (Boolean, read write(will be overwritten))
+* `%B`__xxx__ - Bit memory _xxx_ (Boolean)
+* `%W`__xxx__ - Word memory _xxx_ (32 bits signed integer)
+* `%IW`__xxx__ - Word memory _xxx_ (S32 in pin)
+* `%QW`__xxx__ - Word memory _xxx_ (S32 out pin)
+* `%IF`__xx__ - Word memory _xx_ (Float in pin) (*converted to S32 in ClassicLadder*)
+* `%QF`__xx__ - Word memory _xx_ (Float out pin) (*converted to S32 in ClassicLadder*)
+* `%T`__xx__`.R` - Timer _xx_ running (Boolean, user read only)
+* `%T`__xx__`.D` - Timer _xx_ done (Boolean, user read only)
+* `%T`__xx__`.V` - Timer _xx_ current value (integer, user read only)
+* `%T`__xx__`.P` - Timer _xx_ preset (integer)
+* `%TM`__xxx__`.Q` - Timer _xxx_ done (Boolean, read write)
+* `%TM`__xxx__`.P` - Timer _xxx_ preset (integer, read write)
+* `%TM`__xxx__`.V` - Timer _xxx_ value (integer, read write)
+* `%M`__xx__`.R` - Monostable _xx_ running (Boolean)
+* `%M`__xx__`.V` - Monostable _xx_ current value (integer, user read only)
+* `%M`__xx__`.P` - Monostable _xx_ preset (integer)
+* `%C`__xx__`.D` - Counter _xx_ done (Boolean, user read only)
+* `%C`__xx__`.E` - Counter _xx_ empty overflow (Boolean, user read only)
+* `%C`__xx__`.F` - Counter _xx_ full overflow (Boolean, user read only)
+* `%C`__xx__`.V` - Counter _xx_ current value (integer)
+* `%C`__xx__`.P` - Counter _xx_ preset (integer)
+* `%I`__xxx__ - Physical input _xxx_ (Boolean) (HAL input bit)
+* `%Q`__xxx__ - Physical output _xxx_ (Boolean) (HAL output bit)
+* `%X`__xxx__ - Activity of step _xxx_ (sequential language)
+* `%X`__xxx__`.V` - Time of activity in seconds of step _xxx_ (sequential language)
+* `%E`__xx__ - Errors (Boolean, read write(will be overwritten))
 * 'Indexed or vectored variables' - These are variables indexed by another variable.
   Some might call this vectored variables.
-  Example: %W0[%W4] => if %W4 equals 23 it corresponds to %W23
+  Example: `%W0[%W4]` => if %W4 equals 23 it corresponds to %W23
 
 == GRAFCET (State Machine) Programming
 
@@ -620,8 +620,8 @@ To use links, you must have steps already placed.
 Select the type of link, then select the two steps or transactions one at a time.
 It takes practice!
 
-With sequential programming: The variable %Xxxx (e.g., %X5) is used to see if a step is active.
-The variable %Xxxx.V (eg. %X5.V) is used to see how long the step has been active.
+With sequential programming: The variable `%X`__xxx__ (e.g., `%X5`) is used to see if a step is active.
+The variable `%X`__xxx__`.V` (e.g., `%X5.V`) is used to see how long the step has been active.
 The %X and %X.v variables are use in LADDER logic. The variables assigned to the transitions (e.g., %B) control whether the logic will pass to the next step.
 After a step has become active the transition variable that caused it to become active has no control of it anymore.
 The last step has to JUMP LINK back only to the beginning step.
