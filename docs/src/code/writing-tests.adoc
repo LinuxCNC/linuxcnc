@@ -31,6 +31,7 @@ These files represent three different ways to run the tests.
 
 The _runtests_ script accepts the following arguments, see the output
 from `scripts/runtests -h` for the authoritative list:
+
 ----
 -n  do not remove temporary files for successful tests.
 -s  stop after any failed test.
@@ -39,6 +40,7 @@ from `scripts/runtests -h` for the authoritative list:
 -u  Only run tests that require normal user access.
 -v  Show stdout and stderr (normally it's hidden).
 ----
+
 == Writing tests
 
 Make sure the test can run successfully without a working X11 display,
@@ -65,13 +67,13 @@ test.hal::
 
  expected::
    A file whose content is compared to the output from running the test scripts.
-   If the test output is identical to the content of the expected file, the test succeeds.
+If the test output is identical to the content of the expected file, the test succeeds.
 
 checkresult::
    An executable file to perform more complex validation than just comparing the output of a test script.
-   It gets the filename of the test program as its command line argument.
-   The exit code of this program controls the result of the test.
-   If both `expected` and `checkresult` exist, only `checkresult` is consulted to validate the test output.
+It gets the filename of the test program as its command line argument.
+The exit code of this program controls the result of the test.
+If both `expected` and `checkresult` exist, only `checkresult` is consulted to validate the test output.
 
  xfail::
    If this file exist, a test failure is expected and does not cause runtests to return an exit code signaling an error.
@@ -81,8 +83,8 @@ checkresult::
 
  control::
    This file can be used to flag specific needs in the test.
-   At the moment, the use of _sudo_ can be flagged, and tests requiring sudo can be skipped when using `runtests -u`.
-   To flag such requirements, add a line with `Restrictions: sudo` to this file.
+At the moment, the use of _sudo_ can be flagged, and tests requiring sudo can be skipped when using `runtests -u`.
+To flag such requirements, add a line with `Restrictions: sudo` to this file.
 
 == Some testing approaches
 
