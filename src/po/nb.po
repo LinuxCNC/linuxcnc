@@ -2,13 +2,13 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # Petter Reinholdtsen <pere-weblate@hungry.com>, 2022, 2023.
-# Asle Næss <aness@bofh.no>, 2022.
+# Asle Næss <aness@bofh.no>, 2022, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-05-03 16:00+0000\n"
+"PO-Revision-Date: 2023-07-11 08:06+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.18-dev\n"
+"X-Generator: Weblate 5.0-dev\n"
 
 #: src/emc/task/emctaskmain.cc:869
 #, c-format
@@ -73,16 +73,18 @@ msgid "can't open %s"
 msgstr "kan ikke åpne %s"
 
 #: src/emc/task/emctaskmain.cc:2188
+#, fuzzy
 msgid "Can't issue MDI command when not homed"
-msgstr ""
+msgstr "Maskinen må hjemkjøres før MDI-kommandoer kan brukes"
 
 #: src/emc/task/emctaskmain.cc:2193
 msgid "Must be in MDI mode to issue MDI command"
 msgstr "Må være i MDI-modus for å sende MDI-kommando"
 
 #: src/emc/task/emctaskmain.cc:2275
+#, fuzzy
 msgid "Can't run a program when not homed"
-msgstr ""
+msgstr "Kan ikke kjøre program før maskinen er hjemkjørt"
 
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
 #, c-format
@@ -938,7 +940,7 @@ msgstr "Resultatet av kalkulasjonen ble 'infinity'"
 #: src/emc/rs274ngc/interp_read.cc:3130
 #, c-format
 msgid "EOF in file:%s seeking o-word: o<%s> from line: %d"
-msgstr ""
+msgstr "Slutt på filen:%s leter etter o-parameter: o<%s> fra linje: %d"
 
 #: src/emc/rs274ngc/interp_read.cc:3242
 msgid "Multiple U words on one line"
@@ -1906,7 +1908,7 @@ msgstr ""
 
 #: src/hal/utils/meter.c:649
 msgid "_Close"
-msgstr ""
+msgstr "_Lukk"
 
 #: src/hal/utils/scope.c:132
 msgid ""
@@ -1924,11 +1926,11 @@ msgstr "Åpne oppsettfil:"
 #: src/hal/utils/scope_horiz.c:808 src/hal/utils/scope_vert.c:700
 #: src/hal/utils/scope_vert.c:918 src/hal/utils/scope_trig.c:315
 msgid "_Cancel"
-msgstr ""
+msgstr "_Avbryt"
 
 #: src/hal/utils/scope.c:479
 msgid "_Open"
-msgstr ""
+msgstr "Å_pne"
 
 #: src/hal/utils/scope.c:499
 msgid "Save Configuration File:"
@@ -1936,15 +1938,15 @@ msgstr "Lagre oppsettfil:"
 
 #: src/hal/utils/scope.c:502 src/hal/utils/scope_horiz.c:809
 msgid "_Save"
-msgstr ""
+msgstr "_Lagre"
 
 #: src/hal/utils/scope.c:533
 msgid "_Open Configuration..."
-msgstr ""
+msgstr "Åpne _oppsett..."
 
 #: src/hal/utils/scope.c:539
 msgid "_Save Configuration..."
-msgstr ""
+msgstr "_Lagre oppsett..."
 
 #: src/hal/utils/scope.c:548
 msgid "O_pen Log File"
@@ -1960,7 +1962,7 @@ msgstr "_Avslutt"
 
 #: src/hal/utils/scope.c:570
 msgid "_About Halscope"
-msgstr ""
+msgstr "O_m Halscope"
 
 #: src/hal/utils/scope.c:576 share/axis/tcl/axis.tcl:470
 msgid "_File"
@@ -2329,9 +2331,9 @@ msgid ""
 msgstr ""
 
 #: src/hal/utils/scope_vert.c:912
-#, fuzzy, c-format
+#, c-format
 msgid "Select Channel %d Source"
-msgstr "Velg kanalkilde"
+msgstr "Velg kilde for kanal %d"
 
 #: src/hal/utils/scope_vert.c:935
 msgid "Pins"
@@ -3490,9 +3492,8 @@ msgid "Modbus communication setup"
 msgstr "Modbus kommunikasjonsoppsett"
 
 #: src/hal/classicladder/config_gtk.c:1086
-#, fuzzy
 msgid "Modbus I/O register setup"
-msgstr "Modbus  I/O register oppsett "
+msgstr "Modbus I/O registeroppsett"
 
 #: src/hal/classicladder/edit.c:149 src/hal/classicladder/edit_sequential.c:72
 msgid "Variable"
@@ -11423,7 +11424,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -13857,7 +13859,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:533
 msgid "Coolant"
-msgstr ""
+msgstr "Kjøleveske"
 
 #: src/emc/usr_intf/pncconf/private_data.py:533
 msgid "Control"
@@ -18019,27 +18021,20 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:122
-#, fuzzy
 msgid "Desktop notifications are available"
-msgstr ""
-"Skrivebords-\n"
-"varsler"
+msgstr "Skrivebordsvarsler er tilgjengelig"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:124
-#, fuzzy
 msgid "Desktop notifications are not available"
-msgstr ""
-"Skrivebords-\n"
-"varsler"
+msgstr "Skrivebordsvarsler er ikke tilgjengelig"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:126
 msgid "There was a problem initializing the notification module"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:133
-#, fuzzy
 msgid "Audio alerts are available!"
-msgstr "Ingen detaljer tilgjengelige."
+msgstr "Lydvarsler tilgjengelig!"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:136
 msgid ""
@@ -18121,9 +18116,8 @@ msgid "Using stock glade file from: {}"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:576
-#, fuzzy
 msgid "With main screen xml file: {}"
-msgstr "**** Gscreen GLADE-FEIL:    Med xml-fil for hovedskjerm: %s"
+msgstr "Med xml-fil for hovedskjerm: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:581
 msgid "Screen 2 - Using custom glade file from {}"
@@ -18425,10 +18419,8 @@ msgstr "Manuell spindelkontroll"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3149
 #: src/emc/usr_intf/gscreen/gscreen.py:3150
-#, fuzzy
 msgid "Error with launching on-screen keyboard program - cannot find program"
-msgstr ""
-"Klarte ikke starte skjermtastaturprogram - kunne ikke finne programmet."
+msgstr "Klarte ikke starte skjermtastaturprogram - kunne ikke finne programmet"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3160
 msgid "Keyboard"
@@ -18759,9 +18751,8 @@ msgid "G-code"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1869
-#, fuzzy
 msgid "<b>Active Codes</b>"
-msgstr "Aktive G-koder:"
+msgstr "<b>Aktive koder</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1925
 msgid "MV:100%"
@@ -19003,11 +18994,12 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3108
-#, fuzzy
 msgid ""
 "coordinate\n"
 "System"
-msgstr "_Nullstill koordinatsystem"
+msgstr ""
+"koordinat-\n"
+"system"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3160
 #, fuzzy
@@ -19032,18 +19024,20 @@ msgid "Open"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3334
-#, fuzzy
 msgid ""
 "Block\n"
 "Delete"
-msgstr "Slett"
+msgstr ""
+"Blokk\n"
+"slett"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3348
-#, fuzzy
 msgid ""
 "Optional\n"
 "Stop"
-msgstr "Valgmuligheter"
+msgstr ""
+"Valgfri\n"
+"stop"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3362
 #, fuzzy
@@ -19121,11 +19115,12 @@ msgid ""
 msgstr "Horisontal"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3628
-#, fuzzy
 msgid ""
 "Rotate\n"
 "Horiontal"
-msgstr "Horisontal"
+msgstr ""
+"Roter\n"
+"horisontalt"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3642
 msgid ""
