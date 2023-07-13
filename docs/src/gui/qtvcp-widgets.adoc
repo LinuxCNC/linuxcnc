@@ -627,16 +627,16 @@ If you press and hold the button a pop up menu will show allowing one to:
 * Set the axis arbitrarily
 * Reset the axis to the last number recorded
 
-You must have selected an entry dialog that corresponds to the dialog_code_string, 
-usually this is selected from the screenOptions widget. 
+You must have selected an entry dialog that corresponds to the dialog_code_string,
+usually this is selected from the screenOptions widget.
 
 You can select the property `halpin_option', it will then set a HAL pin true when the axis is selected.
 The property 'joint_number' should be set to the appropriate joint number.
 The property 'axis_letter' should be set to the appropriate axis letter.
 
-The property 'dialog_code_string' can be changed to 'ENTRY' or 'CALCULATOR' 
+The property 'dialog_code_string' can be changed to 'ENTRY' or 'CALCULATOR'
 to call a typing only entry dialog or a touch/typing calculator type entry dialog.
- 
+
 It is based on PyQt's _QToolButton_.
 
 [[sub:qtvcp:widgets:camview]]
@@ -2898,8 +2898,9 @@ QtVCP's version of NGC subroutine selector (Shown as used in QtDragon).
 
 ==== INI settings
 
-Linuxcnc needs to know where to look to run the subroutines. +
+LinuxCNC needs to know where to look to run the subroutines. +
 If the subroutine calls other subroutines or custom M codes, those paths must be added too.
+
 [source,{ini}]
 ----
 [RS274NGC]
@@ -2923,17 +2924,17 @@ NGCGUI_SUBFILE = qpocket.ngc
 
 ==== Buttons
 
-* 'NEW TAB' -adds a new blank tab to ngcgui
-* 'SELECT PREAMBLE' -select a file that add preamble G-code
-* 'SELECT SUBFILE' -select a ngcgui subroutine file
-* 'SELECT POST' -select a file that add post G-code
-* 'REREAD FILE' -reload the subroutine file
-* 'CREATE FEATURE' -add feature to the list
+* 'NEW TAB' - add new blank tab to NGCGUI
+* 'SELECT PREAMBLE' - select a file that add preamble G-code
+* 'SELECT SUBFILE' - select a NGCGUI subroutine file
+* 'SELECT POST' - select a file that add post G-code
+* 'REREAD FILE' - reload the subroutine file
+* 'CREATE FEATURE' - add feature to the list
 * 'RESTART FEATURE' - remove all features from the list
-* 'FINALIZE GCODE' -create the full G-code and send it to LinuxCNC/a file
+* 'FINALIZE GCODE' - create the full G-code and send it to LinuxCNC/a file
 
 ==== Adding Custom Subroutines
-You can create your own subroutines for use with ngcgui.
+You can create your own subroutines for use with NGCGUI.
 They must follow these rules:
 
 * For creating a subroutine for use with NGCGUI, the filename and the subroutine name must be the same.
@@ -2942,7 +2943,7 @@ They must follow these rules:
 * The subroutine must be surrounded by the sub and endsub tags.
 * The variables used must be numbered variables and must not skip number.
 * Comments and presets may be included.
-* if an image file of the same name is in the folder, it will be shown.
+* If an image file of the same name is in the folder, it will be shown.
 
 [source,{css}]
 ----

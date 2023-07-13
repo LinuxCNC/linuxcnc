@@ -223,7 +223,7 @@ image::images/halshow-settings.png["Halshow Settings",align="center"]
 
 Let's use this editor to add a differential module to a HAL and connect it to axis position so that we could see the rate of change in position, i.e., acceleration.
 We first need to load a HAL component named ddt, add it to the servo thread, then connect it to the position pin of a joint.
-Once that is done we can find the output of the differentiator in halscope. So let's go. 
+Once that is done we can find the output of the differentiator in halscope. So let's go.
 
 [source,{hal}]
 ----

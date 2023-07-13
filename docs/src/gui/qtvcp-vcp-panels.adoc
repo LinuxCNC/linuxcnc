@@ -51,7 +51,7 @@ In addition, it is also a useful template to use for your custom panel because i
 * Saving data to the qtdragon.prefs file
 * Custom button to reset the VFD
 
-Modify this panel to suit your own requirements. Most common features are used. 
+Modify this panel to suit your own requirements. Most common features are used.
 The advantage of using panels is that it separates your custom display code from the qtdragon core code so upgrading the system will not break your customization.
 
 ==== Additional Requirements
@@ -89,7 +89,7 @@ Customizing the panel: +
 * Copy the files located in /user/share/qtvcp/qtdragon/panels/belts to:
 ~/linuxcnc/configs/<my_configuration_folder>/qtvcp/panels/belts (you can use the copy dialog panel to do this)
 
-* Edit belts.ui with designer. 
+* Edit belts.ui with designer.
 * Edit belts_handler.py with a text editor
 * Connect the relevant pins in a postgui.hal file
 * Make sure your postgui file is loaded by your .ini file.
@@ -204,7 +204,7 @@ Mouse controls:
 * left mouse single click - increase cross hair rotation one increment
 * right mouse single click - decrease cross hair rotation one increment
 * middle mouse single click - cycle through rotation increments
-* left mouse hold and scroll - scroll camera zoom 
+* left mouse hold and scroll - scroll camera zoom
 * right mouse hold and scroll - scroll cross hair rotation angle
 * mouse scroll only - scroll circle diameter
 * left mouse double click - reset zoom
@@ -221,7 +221,7 @@ MDI_COMMAND=G0 X0 Y0,Go To\nOrigin
 Where the first command is referring to the button "SET origin" and the second to the button "GOTO Origin". +
 Note the comma and text after is optional - it will override the default button text. +
 These buttons are QtVCP action buttons and follow those rules.
- 
+
 [[sub:qtvcp:panels:sim-panel]]
 === `sim_panel`
 
@@ -280,7 +280,7 @@ image::images/qtvismach.png["QtVCP vismach_mill_xyz - 3-Axis Mill 3D View Panel"
 3D OpenGL view of a _3-Axis router style, gantry bed milling machine_. +
 This particular panel shows how to define and connect the model parts in the handler file, rather then importing the
 pre-built model from qtvcp's vismach library.
- 
+
 [source,{hal}]
 ----
 loadusr qtvcp vismach_router_atc
@@ -441,7 +441,7 @@ except:
 When using python command option in Action Button widgets of an embedded panel:
 
 *`INSTANCE`*::
-  refers to the panel window 
+  refers to the panel window.
   E.g., `INSTANCE.my_panel_handler_function_call(True)`
 
 *'MAIN_INSTANCE'*::

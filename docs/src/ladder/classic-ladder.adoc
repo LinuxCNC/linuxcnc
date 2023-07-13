@@ -643,7 +643,7 @@ loadusr -w classicladder --modmaster myprogram.clp
 ----
 
 The `-w` makes HAL wait until you close ClassicLadder before closing realtime session.
-ClassicLadder also loads a TCP modbus slave if you add '--modserver' on command line.
+ClassicLadder also loads a TCP modbus slave if you add `--modserver` on command line.
 
 .Modbus Functions
 * '1' - read coils

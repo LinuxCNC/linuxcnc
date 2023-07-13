@@ -151,7 +151,7 @@ The HAL input pin, `iocontrol.0.tool-prepared`, must be set by external HAL logi
 A G-code *M6* command asserts the HAL output pin `iocontrol.0.tool-change`.
 The related HAL input pin, `iocontrol.0.tool-prepared`, must be set by external HAL logic to indicate completion of the tool change leading to a subsequent reset of the tool-change pin.
 
-Tooldata is accessed by an ordered index (idx) that depends on the type of toolchanger specified by `[EMCIO]RANDOM_TOOLCHANGER=type`.
+Tooldata is accessed by an ordered index (idx) that depends on the type of toolchanger specified by `[EMCIO]RANDOM_TOOLCHANGER=`__type__.
 
 . For `RANDOM_TOOLCHANGER = 0`, (0 is default and specifies a non-random toolchanger) idx is a number indicating the sequence in which tooldata was loaded.
 . For `RANDOM_TOOLCHANGER = 1`, idx is the *current* pocket number for the tool number specified by the G-code select tool command *T__n__*.
@@ -211,7 +211,7 @@ Manual toolchanges can be aided by a HAL configuration that employs the non-real
 HALFILE = axis_manualtoolchange.hal
 ----
 
-.Fixed Location Tool Changers 
+.Fixed Location Tool Changers
 Fixed location tool changers always return the tools to a fixed position in the tool changer.
 This would also include designs like lathe turrets.
 When LinuxCNC is configured for a fixed location tool changer the 'P' number is not used internally (but read, preserved and rewritten) by LinuxCNC,
@@ -222,7 +222,7 @@ When using `[EMCIO]RANDOM_TOOLCHANGER = 0` (the default),
 the 'P' pocket number is a parameter of the tooldata that is retrieved from the tooldata source (`[EMCIO]TOOL_TABLE` or `[EMCIO]DB_PROGRAM`).
 In many applications it is fixed but it may be changed by edits to the `[EMCIO]TOOL_TABLE` or programmatically when the `[EMCIO]DB_PROGRAM` is used.
 LinuxCNC pushes updates to the data source (`[EMCIO]TOOL_TABLE` or `[EMCIO]DB_PROGRAM`) for G-codes G10L1, G10L10, G10L11, M61.
-LinuxCNC can pull tooldata updates from the data source by UI (user-interface) commands (Python example: `linuxcnc.command().load_tool_table()`) or by the G-code: G10L0.
+LinuxCNC can pull tooldata updates from the data source by UI (user-interface) commands (Python example: `linuxcnc.command().load_tool_table()`) or by the G-code: `G10L0`.
 
 .Random Location Tool Changers
 Random location tool changers (`[EMCIO]RANDOM_TOOLCHANGER = 1`) swap the tool in the spindle with the one in the changer.
@@ -237,7 +237,7 @@ A tool compensation is programmed using G43 H_n_, where _n_ is the index number 
 It is intended that all entries in the tool table are positive.
 The value of H is checked, it must be a non-negative integer when read. The interpreter behaves as follows:
 
-1. If G43 H_n_ is programmed, a call to the function USE_TOOL_LENGTH_OFFSET(length) is made (where length is the length difference, read from the tool table, of the indexed tool _n_),
+1. If G43 H_n_ is programmed, a call to the function `USE_TOOL_LENGTH_OFFSET(`__length__`)` is made (where _length_ is the length difference, read from the tool table, of the indexed tool _n_),
    tool_length_offset is repositioned in the machine settings model and the value of current_z in the model is adjusted.
    Note that _n_ does not have to be the same as the slot number of the tool currently in the spindle.
 
