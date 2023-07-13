@@ -58,3 +58,4 @@ from qtvcp.plugins.basic_probe_plugin import BasicProbePlugin
 from qtvcp.plugins.tab_widget_plugin import TabWidgetPlugin
 from qtvcp.plugins.virtualkeyboard_plugin import VirtualKeyboardPlugin
 from qtvcp.plugins.round_gauge_plugin import GaugePlugin
+from qtvcp.plugins.bar_plugin import HalBarPlugin
