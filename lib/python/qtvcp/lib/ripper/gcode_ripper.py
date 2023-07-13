@@ -753,7 +753,7 @@ class Application(Frame):
         self.WriteRoundButton = Button(self.master,text="Stock Rounding",
                                       command=self.STOCK_Round_Window)
 
-        ## Define "Export" mode input feilds here
+        ## Define "Export" mode input fields here
         self.Label_Gcode_Export_Properties = Label(self.master,text="Export Properties:",\
                                            anchor=W)
 

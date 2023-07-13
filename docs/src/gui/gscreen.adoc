@@ -330,7 +330,7 @@ self.update_filepath(self, obj, path):
 ----
 
 When LinuxCNC loads a new file, Gstat will send a callback message to the function 'update_filepath'.
-In this example we update a label with that path name (assuming there is a label nammed 'my_path_label') in the GLADE file.
+In this example we update a label with that path name (assuming there is a label named 'my_path_label') in the GLADE file.
 
 === Jogging Keys
 
