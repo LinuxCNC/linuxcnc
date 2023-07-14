@@ -29,7 +29,7 @@ $ man -M docs/man halcmd
 
 === Notation
 
-For this tutorial, commands for the operating system are typically shown without the prompt provided by the UNIX shell, i.e typically a dollar sign ($) or a hash/double cross (#). 
+For this tutorial, commands for the operating system are typically shown without the prompt provided by the UNIX shell, i.e typically a dollar sign ($) or a hash/double cross (#).
 When communicating directly with the HAL through `halcmd` or `halrun`, the prompts are shown in the examples.
 The terminal window is in 'Applications/Accessories' from the main Ubuntu menu bar.
 

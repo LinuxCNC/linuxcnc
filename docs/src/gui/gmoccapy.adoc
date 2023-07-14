@@ -517,7 +517,7 @@ You can specify where to save the log file:
 [DISPLAY]
 LOG_FILE = gmoccapy.log
 ----
-If `LOG_FILE` is not set, logging happens to `$HOME/<base_log_name>.log`
+If `LOG_FILE` is not set, logging happens to `$HOME/<base_log_name>.log`.
 
 
 == HAL Pins
@@ -953,8 +953,7 @@ Tool Measurement in GMOCCAPY is done a little bit different to many other GUIs.
 You should follow these steps:
 
 . Touch off your workpiece in X and Y.
-. Measure the height of your block from the base where your tool switch is
-  located, to the upper face of the block (including chuck etc.).
+. Measure the height of your block from the base where your tool switch is located, to the upper face of the block (including chuck etc.).
 . Push the button block height and enter the measured value.
 . Go to auto mode and start your program.
 
@@ -1133,10 +1132,9 @@ You have three options:
 .Keyboard
 
 The checkboxes allow the user to select if he wants the on board keyboard to be shown immediately,
-when entering the MDI Mode, when entering the offset page, the tooledit widget or when open a program
-in the EDIT mode. The keyboard button on the bottom button list will not be affected by these settings,
-so you are able to show or hide the keyboard by pressing the button. The default behavior will be set by
-the checkboxes.
+when entering the MDI Mode, when entering the offset page, the tooledit widget or when open a program in the EDIT mode.
+The keyboard button on the bottom button list will not be affected by these settings, so you are able to show or hide the keyboard by pressing the button.
+The default behavior will be set by the checkboxes.
 
 Default are :
 

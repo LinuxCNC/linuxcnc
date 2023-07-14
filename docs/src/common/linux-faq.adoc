@@ -139,8 +139,8 @@ Open the file with File > Open > Edit
 === Root Access
 
 In Ubuntu you can become root by typing in "sudo -i" in a terminal
-window then typing in your password. Be careful, because you can really 
-foul things up as root if you don't know what you're doing. 
+window then typing in your password. Be careful, because you can really
+foul things up as root if you don't know what you're doing.
 
 == Terminal Commands
 
@@ -183,7 +183,7 @@ cd linuxcnc/configs
 
 === Listing files in a directory
 
-To view a list of all the files and subdirectories in the terminal window type: 
+To view a list of all the files and subdirectories in the terminal window type:
 
 ----
 dir
@@ -213,7 +213,7 @@ Open a new terminal window and type:
 pwd
 ----
 
-And pwd might return the following result: 
+And pwd might return the following result:
 
 ----
 /home/joe

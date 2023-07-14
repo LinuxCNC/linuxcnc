@@ -213,7 +213,7 @@ head = HalTranslate([head],c,"Z",0,0,0.1)
 
 # base
 base = AsciiSTL(filename="./base.stl")
-base = Color([0.5,0.5,0.5,1],[base]) 
+base = Color([0.5,0.5,0.5,1],[base])
 # mount head on it
 base = Collection([head, base])
 ----

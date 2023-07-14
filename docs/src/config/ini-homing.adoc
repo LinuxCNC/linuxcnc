@@ -41,7 +41,7 @@ Homing relies on some fundamental machine assumptions.
 * Soft(ware) limits are inside the limit switch area.
 * (Final) Homed Position is inside the soft limit area
 * (If using switch based homing) the homing switch(es) either utilize the limit switches (shared home / limit switch),
-  or when using a separate home switch, are inside the limit switch area. 
+  or when using a separate home switch, are inside the limit switch area.
 * If using a separate homing switch, it is possible to start homing on the wrong side of the home switch,
   which combined with HOME_IGNORE_LIMITS option will lead to a hard crash.
   You can avoid this by making the home switch toggle its state when the trip dog is on a particular side until it returns passed the trip point again.
@@ -59,7 +59,7 @@ This example shows minimum and maximum limit switches with a separate home switc
 .Demonstrative Separate Switch Layout
 image::images/HomeAxisTravel_V2.png["Example Homing Switch layout",align="center"]
 
-* A is the negative soft limit 
+* A is the negative soft limit
 * B is the G53 machine coordinate Origin
 * C is the home switch trip point
 * D is the positive soft limit
