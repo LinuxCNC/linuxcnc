@@ -130,6 +130,7 @@ The following parameters can be set either programmatically or via the Qt Design
 
 +
 If this option is not set, then `value` and `setpoint` must be connected programmatically, i.e., in the handler file.
+
 *`max_reading`*::
   This value determines the _highest number displayed_ on the gauge face.
 *`max_value`*::
@@ -165,6 +166,46 @@ They can be set via HAL pins, programmatically or via signals from other widgets
 *`setpoint`*::
   This is a value that determines the location of a small _marker on the gauge face_.
   It must be set to a value between 0 and the maximum value.
+
+=== 'HalBar' - HAL Bar Level Indicator
+
+.QtVCP `HalBar`: Panel demonstrating the HAL Bar Level Indicator
+image::images/qthalbar.png["QtVCP HalBar: Panel demonstrating the HAL Bar Level Indicator ",scale="25%"]
+
+This widget is used to indicate level or value, usually of a HAL s32/float pin. +
+you can also disable the HAL pin and use Qt signals or python commands to change the level. +
+
+==== Bar Properties:
+HalBar is a subclass of the Bar widget, so it inherits these properties  + 
+
+* 'stepColorList': a list of color strings, the number of colors defines the number of bars.
+* 'backgroundColor': a QColor definition of the background color.
+* 'setMaximum': an integer that defines the maximum level of indication.
+* 'setMinimum': an integer that defines the lowest level of indication.
+
+==== halBar Properties:
+
+* 'pinType': to select *HAL pins type*:
+** `NONE` no HAL pin will be added
+** `S32` A S32 integer pin will be added
+** `FLOAT` A Float pin will be added
+
+* 'pinName': to change the *HAL pin name* otherwise the widget base name is used.
+
+==== HalBar style sheets
+The above Bar properties could be set in _styles sheets_. +
+pinType and pinName properties can not be changed in stylesheets.
+
+[NOTE]
+In style sheets, stepColorList is a single string of color names separated by commas.
+
+[source,{css}]
+----
+HalBar{
+    qproperty-backgroundColor: #000;
+    qproperty-stepColorList: 'green,green,#00b600,#00b600,#00d600,#00d600,yellow,yellow,red,red';
+}
+----
 
 [[sub:qtvcp:widgets:halpad]]
 === `HALPad` - HAL Buttons Joypad
@@ -2670,7 +2711,7 @@ self.w.joypadename.setProperty('false_color','red')
 [[sec:qtvcp:widgets:baseclass-mixin]]
 == BaseClass/Mixin Widgets
 
-These widgets are used *combine different properties and behaviours into other widgets*.
+These widgets are used to *combine different properties and behaviours into other widgets*.
 
 You will see them as a collapsible header in the Qt Designer properties column.
 
