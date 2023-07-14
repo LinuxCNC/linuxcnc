@@ -238,7 +238,6 @@ class Bar(QtWidgets.QWidget):
 
 class HALPinType:
     NONE = 0
-    BIT = hal.HAL_BIT
     S32 = hal.HAL_S32
     FLOAT = hal.HAL_FLOAT
 
@@ -249,7 +248,6 @@ class  HalBar(Bar, _HalWidgetBase):
 
     # older version of pyqt5 need this as well as Q_ENUM
     NONE = 0
-    BIT = hal.HAL_BIT
     S32 = hal.HAL_S32
     FLOAT = hal.HAL_FLOAT
 
@@ -289,7 +287,7 @@ class  HalBar(Bar, _HalWidgetBase):
         self._pin_name = ''
 
     pinType = pyqtProperty(HALPinType, get_pin_type, set_pin_type, reset_pin_type)
-    pin_name = pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
+    pinName = pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication([])
