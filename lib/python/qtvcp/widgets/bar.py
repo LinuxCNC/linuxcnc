@@ -18,8 +18,8 @@ class Bar(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.vertical = False
-        self.opposite = False
+        self._vertical = False
+        self._opposite = False
         self._minimum = 0
         self._maximum = 200
         self._value = 100
@@ -53,7 +53,7 @@ class Bar(QtWidgets.QWidget):
         d_height = painter.device().height() - (self._padding * 2)
         d_width = painter.device().width() - (self._padding * 2)
 
-        if self.vertical:
+        if self._vertical:
             # Draw the vertical bars.
             step_size = d_height / self.n_steps
             bar_height = step_size * self._bar_solid_percent
@@ -63,29 +63,49 @@ class Bar(QtWidgets.QWidget):
             pc = (value - vmin) / (vmax - vmin)
             n_steps_to_draw = int(pc * self.n_steps)
             partial = (pc * self.n_steps) % 1
+            #print('pre',value,pc, n_steps_to_draw, partial)
 
             n =-1 # default fall through value if n_steps_to_draw = 0
             # draw complete step bars
             for n in range(n_steps_to_draw):
                 brush.setColor(QColor(self._step_color_list[n]))
-                rect = QRectF(
-                    self._padding,
-                    self._padding + d_height - ((1 + n) * step_size) + bar_spacer,
-                    d_width,
-                    bar_height
-                )
+                if self._opposite:
+                    rect = QRectF(
+                        self._padding,
+                        self._padding + (( + n) * step_size) + bar_spacer,
+                        d_width,
+                        bar_height
+                        )
+                else:
+                    rect = QRectF(
+                        self._padding,
+                        self._padding + d_height - ((1 + n) * step_size) + bar_spacer,
+                        d_width,
+                        bar_height
+                        )
                 painter.fillRect(rect, brush)
 
             # draw partial step bar for in-between values
             if partial > 0:
                 n +=1
                 brush.setColor(QColor(self._step_color_list[n]))
-                rect = QRectF(
-                    self._padding,
-                    self._padding + d_height - ((1 + n) * step_size) + bar_spacer,
-                    d_width,
-                    bar_height * partial
-                )
+                if self._opposite:
+                    rect = QRectF(
+                        self._padding,
+                        self._padding  + (n * step_size) + bar_spacer,
+                        d_width,
+                        bar_height * partial
+                        )
+                else:
+                    height = (bar_height* partial)
+                    # left,top,width,height
+                    rect = QRectF(
+                        self._padding,
+                        self._padding + d_height - (n * step_size) + bar_spacer - height,
+                        d_width,
+                        height- bar_spacer
+                        )
+
                 painter.fillRect(rect, brush)
 
         else:
@@ -104,7 +124,7 @@ class Bar(QtWidgets.QWidget):
             for n in range(n_steps_to_draw):
                 brush.setColor(QColor(self._step_color_list[n]))
                 # left, top, width and height floats
-                if self.opposite:
+                if self._opposite:
                     left = self._padding + d_width - ((1 + n) * step_size) + bar_spacer
                 else:
                     left = self._padding + bar_spacer + ((0 + n) * step_size)
@@ -120,14 +140,23 @@ class Bar(QtWidgets.QWidget):
             if partial > 0:
                 n+=1
                 brush.setColor(QColor(self._step_color_list[n]))
-                if self.opposite:
-                    left = self._padding + d_width - ((1 + n) * step_size) + bar_spacer
-                else:
-                    left = self._padding + bar_spacer + ((0 + n) * step_size)
-                rect = QRectF(
+                # right to left
+                if self._opposite:
+                    width = (bar_width* partial)
+                    left = self._padding - (n * step_size) + d_width - width
+                    rect = QRectF(
                                 left ,
                                 self._padding ,
-                                bar_width*partial,
+                                width - bar_spacer,
+                                d_height
+                                )
+                # left to right
+                else:
+                    left = self._padding + bar_spacer + (n * step_size)
+                    rect = QRectF(
+                                left,
+                                self._padding ,
+                                bar_width * partial,
                                 d_height
                                 )
                 painter.fillRect(rect, brush)
@@ -167,7 +196,7 @@ class Bar(QtWidgets.QWidget):
             self.update()
 
     def sizeHint(self):
-        if self.vertical:
+        if self._vertical:
             return QSize(40, 120)
         else:
             return QSize(40, 20)
@@ -185,8 +214,14 @@ class Bar(QtWidgets.QWidget):
     def setFormat(self, data):
         pass
 
+    def getInvertedAppearance(self):
+        return self._opposite
     def setInvertedAppearance(self, data):
-        self.opposite = bool(data)
+        self._opposite = bool(data)
+        self.update()
+    def resetInvertedAppearance(self, data):
+        self._opposite = False
+        self.update()
 
     #########################################################################
     # This is how designer can interact with our widget properties.
@@ -228,6 +263,15 @@ class Bar(QtWidgets.QWidget):
     def resetMin(self):
         self._minimum = 0
 
+    def getVertical(self):
+        return self._vertical
+    def setVertical(self, data):
+        self._vertical = data
+        self.update()
+    def resetVertical(self):
+        self._vertical = False
+        self.update()
+
     stepColorList = pyqtProperty(
                         QVariant.typeToName(QVariant.StringList),
                          get_step_color_l, set_step_color_l, reset_step_color_l)
@@ -235,6 +279,8 @@ class Bar(QtWidgets.QWidget):
     backgroundColor = pyqtProperty(QColor, getBackgroundColor, setBackgroundColor)
     setMaximum = pyqtProperty(int, getMax, setMax, resetMax)
     setMinimum = pyqtProperty(int, getMin, setMin, resetMin)
+    setVertical = pyqtProperty(bool, getVertical, setVertical, resetVertical)
+    setInverted = pyqtProperty(bool, getInvertedAppearance, setInvertedAppearance, resetInvertedAppearance)
 
 class HALPinType:
     NONE = 0
@@ -264,7 +310,7 @@ class  HalBar(Bar, _HalWidgetBase):
 
         if self._pin_type == HALPinType.FLOAT:
             self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_FLOAT, hal.HAL_IN)
-            self.hal_pin.value_changed.connect(lambda data: self.updateFloatDisplay(data))
+            self.hal_pin.value_changed.connect(lambda data: self.updateDisplay(data))
         elif self._pin_type == HALPinType.S32:
             self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_S32, hal.HAL_IN)
             self.hal_pin.value_changed.connect(lambda data: self.updateDisplay(data))
@@ -292,8 +338,8 @@ class  HalBar(Bar, _HalWidgetBase):
 if __name__ == '__main__':
     app = QtWidgets.QApplication([])
     bar = HalBar()
-    #bar.opposite=True
-    #bar.vertical = True
+    bar.setProperty('setInverted',True)
+    bar.setProperty('setVertical',True)
     bar.setValue(51)
     bar.show()
     app.exec_()
