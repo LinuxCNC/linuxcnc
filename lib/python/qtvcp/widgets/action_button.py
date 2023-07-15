@@ -582,7 +582,10 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
                 b = self.joint +1
             for i in range(a,b):
                 if STATUS.is_spindle_on(i):
-                    ACTION.SET_SPINDLE_FASTER(i)
+                    if STATUS.get_spindle_speed(i) >= 0:
+                        ACTION.SET_SPINDLE_FASTER(i)
+                    else:
+                        ACTION.SET_SPINDLE_SLOWER(i)
                 else:
                     ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_FORWARD,
                          INFO['DEFAULT_SPINDLE_{}_SPEED'.format(i)],i)
@@ -595,7 +598,11 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
                 b = self.joint +1
             for i in range(a,b):
                 if STATUS.is_spindle_on(i):
-                    ACTION.SET_SPINDLE_SLOWER(i)
+                    if STATUS.get_spindle_speed(i) <= 0:
+                        ACTION.SET_SPINDLE_FASTER(i)
+                    else:
+                        ACTION.SET_SPINDLE_SLOWER(i)
+
                 else:
                     ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_REVERSE,
                          INFO['DEFAULT_SPINDLE_{}_SPEED'.format(i)],i)
