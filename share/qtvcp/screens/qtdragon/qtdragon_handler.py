@@ -1,6 +1,5 @@
 import os, time
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtWebEngineWidgets import QWebEnginePage
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
@@ -25,6 +24,11 @@ PATH = Path()
 STYLEEDITOR = SSE()
 WRITER = writer.Main()
 QHAL = Qhal()
+
+try:
+    from PyQt5.QtWebEngineWidgets import QWebEnginePage
+except:
+    LOG.warning('QtDragon Warning with loading QtWebEngineWidget - is python3-pyqt5.qtwebengine installed?')
 
 # constants for tab pages
 TAB_MAIN = 0
@@ -975,12 +979,14 @@ class HandlerClass:
 
             # adjust ending to check for related HTML setup files
             fname = filename+'.html'
-            if os.path.exists(fname):
-                self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
-                self.add_status("Loaded HTML file : {}".format(fname), CRITICAL)
-            else:
-                self.w.web_view.setHtml(self.html)
-
+            try:
+                if os.path.exists(fname):
+                    self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
+                    self.add_status("Loaded HTML file : {}".format(fname), CRITICAL)
+                else:
+                    self.w.web_view.setHtml(self.html)
+            except Exception as e:
+                self.add_status("Error loading HTML file {} : {}".format(fname,e))
             # look for PDF setup files
             # load it with system program
             fname = filename+'.pdf'
@@ -1003,7 +1009,7 @@ class HandlerClass:
                 self.w.btn_setup.setChecked(True)
                 self.w.jogging_frame.hide()
             except Exception as e:
-                print("Error loading HTML file : {}".format(e))
+                self.add_status("Error loading HTML file {} : {}".format(fname,e))
         else:
             if os.path.exists(fname):
                 self.PDFView.loadView(fname)
@@ -1203,39 +1209,50 @@ class HandlerClass:
 
     # go directly the default HTML page
     def homeWeb(self):
-        if os.path.exists(self.default_setup):
-            self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.default_setup))
-        else:
-            self.w.web_view.setHtml(self.html)
-
-    # setup tab's web page back button
-    def back(self):
         try:
-            self.w.web_view.page().triggerAction(QWebEnginePage.Back)
-        except:
             if os.path.exists(self.default_setup):
                 self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.default_setup))
             else:
                 self.w.web_view.setHtml(self.html)
+        except:
+            pass
+    # setup tab's web page back button
+    def back(self):
+        try:
+            try:
+                self.w.web_view.page().triggerAction(QWebEnginePage.Back)
+            except:
+                if os.path.exists(self.default_setup):
+                    self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.default_setup))
+                else:
+                    self.w.web_view.setHtml(self.html)
+        except:
+            pass
 
     # setup tab's web page forward button
     def forward(self):
         try:
-            self.w.web_view.page().triggerAction(QWebEnginePage.Forward)
+            try:
+                self.w.web_view.page().triggerAction(QWebEnginePage.Forward)
+            except:
+                self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.docs))
         except:
-            self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.docs))
+            pass
 
     # setup tab's web page - enable/disable buttons
     def onLoadFinished(self):
-        if self.w.web_view.history().canGoBack():
-            self.backBtn.setEnabled(True)
-        else:
-            self.backBtn.setEnabled(False)
+        try:
+            if self.w.web_view.history().canGoBack():
+                self.backBtn.setEnabled(True)
+            else:
+                self.backBtn.setEnabled(False)
 
-        if self.w.web_view.history().canGoForward():
-            self.forBtn.setEnabled(True)
-        else:
-            self.forBtn.setEnabled(False)
+            if self.w.web_view.history().canGoForward():
+                self.forBtn.setEnabled(True)
+            else:
+                self.forBtn.setEnabled(False)
+        except:
+            pass
 
     def writer(self):
         WRITER.show()
