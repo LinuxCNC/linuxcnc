@@ -191,7 +191,7 @@ include::drivers/ax5214h.txt[]
 
 include::drivers/gs2.txt[]
 
-include::drivers/hal_pi_gpio[]
+include::drivers/hal_pi_gpio.txt[]
 
 include::drivers/hostmot2.txt[]
 

@@ -50,7 +50,7 @@ DOC_SRCS_EN := \
 	config/core-components.txt \
 	config/ini-config.txt \
 	config/ini-homing.txt \
-  config/iov2.txt \
+	config/iov2.txt \
 	config/integrator-concepts.txt \
 	config/lathe-config.txt \
 	config/moveoff.txt \
@@ -65,6 +65,7 @@ DOC_SRCS_EN := \
 	drivers/mitsub_vfd.txt \
 	drivers/gm.txt \
 	drivers/gs2.txt \
+	drivers/hal_pi_gpio.txt \
 	drivers/hostmot2.txt \
 	drivers/mb2hal.txt \
 	drivers/motenc.txt \
