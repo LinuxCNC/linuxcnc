@@ -1,7 +1,13 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QColor, QBrush, QPainter
 from PyQt5.QtCore import (Qt, pyqtSlot, pyqtProperty, QVariant, QRectF,
-    QSize, Q_ENUM)
+    QSize)
+
+try:
+    from PyQt5.QtCore import Q_ENUM
+except:
+    # before Qt 5.10
+    from PyQt5.QtCore import Q_ENUMS as Q_ENUM
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 import hal
