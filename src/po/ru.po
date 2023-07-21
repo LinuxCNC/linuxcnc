@@ -8,22 +8,23 @@
 # Дмитрий <krdima352@gmail.com>, 2022.
 # Nikita Shubin <nikita.shubin@maquefel.me>, 2022.
 # ekam230 <ekamyshov@yandex.ru>, 2022.
+# Ilya Koubatkin <ilya@kubatkin.ru>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2022-10-18 16:10+0000\n"
-"Last-Translator: ekam230 <ekamyshov@yandex.ru>\n"
+"PO-Revision-Date: 2023-07-21 19:35+0000\n"
+"Last-Translator: Ilya Koubatkin <ilya@kubatkin.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.15-dev\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 5.0-dev\n"
 
 #: src/emc/task/emctaskmain.cc:869
 #, c-format
@@ -116,7 +117,7 @@ msgstr "G4 не допустимо с G2 или G3, потому что они �
 
 #: src/emc/rs274ngc/interp_check.cc:92
 msgid "Line with G10 does not have L0, L1, L10, L11, L2, or L20"
-msgstr "Строка с G10 не имеет L1, L10, L11, L2 или L20"
+msgstr "Строка с G10 не содержит L1, L10, L11, L2 или L20"
 
 #: src/emc/rs274ngc/interp_check.cc:93
 msgid "P value not an integer with G10"
@@ -11638,7 +11639,8 @@ msgstr "Обратное"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
