@@ -6,10 +6,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Gmoccapy 2.2.3.4\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2022-06-29 05:24+0000\n"
-"Last-Translator: whatawhiz <pink0floyd@vip.qq.com>\n"
+"PO-Revision-Date: 2023-07-18 06:06+0000\n"
+"Last-Translator: taotieren <admin@taotieren.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "linuxcnc/gmocappy/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.13.1-dev\n"
+"X-Generator: Weblate 5.0-dev\n"
 "X-Poedit-Language: Chinese\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -42,31 +42,28 @@ msgstr "文件路径不应该包含任何空格"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:509
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:530
 msgid "Error in "
-msgstr ""
+msgstr "错误在 "
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:510
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:531
 msgid "Please check the console output."
-msgstr ""
+msgstr "请检查控制台输出。"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:670
 msgid "axis"
-msgstr ""
+msgstr "轴"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:671
-#, fuzzy
 msgid "axes"
-msgstr "点动轴"
+msgstr "点动轴数"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:676
-#, fuzzy
 msgid "joint"
 msgstr "点动关节"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:677
-#, fuzzy
 msgid "joints"
-msgstr "点动关节"
+msgstr "点动关节数"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:693
 #, python-brace-format
@@ -99,9 +96,9 @@ msgid "Press to return to main button list"
 msgstr "按下返回主按钮列表"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:821
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "could not resolv the image path '{0}' given for button '{1}'"
-msgstr "**** 无法解析按钮'{1}' 的图片地址 '{0}' ****"
+msgstr "无法解析按钮 '{1}' 的图像路径 '{0}'"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:976
 msgid ""
@@ -149,21 +146,18 @@ msgid "Press to set the selected coordinate system to be the active one"
 msgstr "按下将选定的坐标系设置为活动坐标系"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1097
-#, fuzzy
 msgid "No valid probe config in INI File. Tool measurement disabled."
-msgstr "**** INI文件中没有有效的探针配置****"
+msgstr "INI 文件中没有有效的探针配置。工具测量无效。"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1111
-#, fuzzy
 msgid "Found valid probe config in INI file. Will use auto tool measurement."
-msgstr "****在INI文件中找到有效的探针配置****"
+msgstr "在 INI 文件中找到有效的探针配置。将使用自动工具测量。"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1125
-#, fuzzy
 msgid ""
 "To many increments given in INI File for this screen. Only the first 10 will "
 "be reachable through this screen."
-msgstr "**** 只有前10个才能通过此界面访问 ****"
+msgstr "在 INI 文件中为该屏幕指定的增量。只有前 10 个可以通过该屏幕访问。"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1135
 msgid "Continuous"
@@ -185,14 +179,12 @@ msgid "Press to jog joint {0}"
 msgstr "按下以点动关节 {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1323
-#, fuzzy
 msgid "GMOCCAPY INFO\n"
-msgstr "**** GMOCCAPY 信息****\n"
+msgstr "GMOCCAPY 信息\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1324
-#, fuzzy
 msgid "found more than 16 macros, will use only the first 16"
-msgstr "**** 找到超过16个宏，将仅使用前16个宏 ****"
+msgstr "找到超过16个宏，将仅使用前16个宏"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1335
 msgid "Press to display previous macro button"
@@ -212,9 +204,8 @@ msgid "Press to display the virtual keyboard"
 msgstr "按下显示虚拟键盘"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1484
-#, fuzzy
 msgid "* GMOCCAPY ERROR *"
-msgstr "**** GMOCCAPY 错误****"
+msgstr "* GMOCCAPY 错误 *"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1485
 msgid "this is not a lathe, as a lathe must have at least\n"
@@ -259,36 +250,32 @@ msgstr "英寸/分钟"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1807
 msgid ""
 "No embedded tabs configured or invalid configuration. No tabs will be added!"
-msgstr ""
+msgstr "未配置嵌入式标签或配置无效。不会添加标签！"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1824
 msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
 msgstr "错误，尝试初始化用户选项卡或面板，检查拼写错误"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1933
-#, fuzzy
 msgid "Did not find a toolfile file in [EMCIO] TOOL_TABLE"
-msgstr "**** 没有在[EMCIO] TOOL_TABLE 中找到刀具文件****"
+msgstr "在[EMCIO] TOOL_TABLE 中没有找到刀具文件"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2018
-#, fuzzy
 msgid "Audio available!"
-msgstr "**** 音频可用!****"
+msgstr "音频可用！"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2021
-#, fuzzy
 msgid "Audio enabled!"
-msgstr "**** 音频可用!****"
+msgstr "音频启用！"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2024
-#, fuzzy
 msgid "Audio disabled!"
-msgstr "**** 音频可用!****"
+msgstr "音频禁用！"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2035
 msgid ""
 "No audio available! PYGST library not installed? Is python-gstX.XX installed?"
-msgstr ""
+msgstr "无音频可用！PYGST 库未安装？是否安装了 python-gstX.XX？"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2064
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5300
@@ -300,22 +287,20 @@ msgstr ""
 "模式"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2106
-#, fuzzy
 msgid "Virtual keyboard program found : <onboard>"
-msgstr "**** 发现虚拟键盘程序: <onboard>"
+msgstr "发现虚拟键盘程序: <onboard>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2108
-#, fuzzy
 msgid ""
 "No virtual keyboard installed, we checked for <onboard>. Try 'sudo apt-get "
 "install onboard'."
-msgstr "**** 没有安装虚拟键盘, 我们检查了 <onboard> ."
+msgstr "未安装虚拟键盘，我们检查了 <onboard>。尝试 \"sudo apt-get install onboard\"。"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2121
 msgid ""
 "Error with launching virtual keyboard. Is onboard installed?Try sudo apt-get "
 "install onboard"
-msgstr ""
+msgstr "启动虚拟键盘时出错。是否安装了onboard？尝试 sudo apt-get install onboard"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2154
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3028
@@ -323,9 +308,8 @@ msgid "interrupt running macro"
 msgstr "中断运行宏"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2184
-#, fuzzy
 msgid "Did not find a parameter file in [RS274NGC] PARAMETER_FILE"
-msgstr "**** 没有在[RS274NGC] PARAMETER_FILE 中找到参数文件****"
+msgstr "在 [RS274NGC] PARAMETER_FILE 中没有找到参数文件"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2254
 msgid "Select the file you want to be loaded at program start"
@@ -333,9 +317,9 @@ msgstr "选择要在程序启动时加载的文件"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2288
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2312
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Message type {0} not supported"
-msgstr "**** GMOCCAPY错误**** /n 不支持消息类型{0}"
+msgstr "不支持消息类型 {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2431
 msgid "Unknown error type and no error text given"
@@ -719,25 +703,19 @@ msgid "_Jump to"
 msgstr "_跳转到"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:104
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid ""
 "**** gmoccapy can only handle 9 axis, but you have given {0} through your "
 "INI file. "
-msgstr ""
-"**** gmoccapy 只能处理9轴, ****\n"
-"**** 但是您已经通过INI文件给出了{0} ****\n"
+msgstr "**** gmoccapy 只能处理 9 个轴，但您在 INI 文件中给出了 {0}。 "
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:105
-#, fuzzy
 msgid "gmoccapy will not start ****\n"
-msgstr ""
-"**** gmoccapy 无法启动****\n"
-"\n"
+msgstr "gmoccapy 无法启动 ****\n"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:422
-#, fuzzy
 msgid "No subroutine folder or program prefix is given in the INI file!"
-msgstr "**** ini文件中没有给出子例程文件夹或程序前缀**** \n"
+msgstr "INI 文件中未给出子程序文件夹或程序前缀！"
 
 #: src/emc/usr_intf/gmoccapy/notification.py:230
 #, python-brace-format
@@ -1020,11 +998,11 @@ msgstr "以窗口启动"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:71
 msgid "X Pos."
-msgstr "X位置"
+msgstr "X 位置。"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:72
 msgid "Y Pos."
-msgstr "Y位置"
+msgstr "Y 位置。"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:73
 msgid "Width"
@@ -1036,7 +1014,7 @@ msgstr "高 度"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:75
 msgid "hide title bar"
-msgstr ""
+msgstr "隐藏标题栏"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:76
 msgid "hide cursor"
@@ -1071,9 +1049,8 @@ msgid "Show keyboard on load file"
 msgstr "在加载文件上显示键盘"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:84
-#, fuzzy
 msgid "<b>Virtual Keyboard</b>"
-msgstr "<b>键盘</b>"
+msgstr "<b>虚拟键盘</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:85
 msgid "show preview"
@@ -1193,7 +1170,7 @@ msgstr "警告声音"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:114
 msgid "Enable sound"
-msgstr ""
+msgstr "启用声音"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:115
 msgid "<b>Themes and sound</b>"
@@ -1285,7 +1262,7 @@ msgstr "使用自动刀具测量"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:137
 msgid "Z Pos."
-msgstr "Z 位置"
+msgstr "Z 位置。"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:138
 msgid "Max. Probe"
@@ -1323,8 +1300,8 @@ msgid ""
 "the WIKI to check how\n"
 "to configure the settings."
 msgstr ""
-"在你的INI文件中没有找到有效配置，\n"
-"请看一下WIKI来检查如何配置设置。"
+"在您的 INI 文件中没有找到有效的配置，\n"
+"请查看 WIKI 检查如何配置设置。"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:150
 msgid "<b>Tool Measurement</b>"
@@ -1342,10 +1319,10 @@ msgid ""
 "at start of the GUI. Also it's\n"
 "length offset will be reloaded.\n"
 msgstr ""
-"如果选中，\n"
-"主轴中的刀具将在每次更改时保存，\n"
-"最后一个刀具将在GUI开始时重新加载。\n"
-"它的长度偏移也将被重新加载。\n"
+"如果选中该选项，\n"
+"每次更换主轴时，主轴上的刀具将被保存，\n"
+"并且在 GUI 开始时，最后一把刀具将被重新加载。\n"
+"同时，它的长度偏移也将被重新加载。\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:158
 msgid ""
@@ -1378,7 +1355,7 @@ msgstr "消息框在屏幕左上角的X位置"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:166
 msgid "Max. messages"
-msgstr ""
+msgstr "最大信息量"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:167
 msgid "Font"
@@ -1576,11 +1553,12 @@ msgid "delete MDI history"
 msgstr "删除MDI历史记录"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:214
-#, fuzzy
 msgid ""
 "Delete\n"
 "MDI history"
-msgstr "删除MDI历史记录"
+msgstr ""
+"删除\n"
+"MDI 历史记录"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:216
 msgid "Cl.-ladder"
@@ -1724,7 +1702,6 @@ msgid "Move to parent directory"
 msgstr "移动到父目录"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:251
-#, fuzzy
 msgid "Select the previous file"
 msgstr "选择上一个文件"
 
