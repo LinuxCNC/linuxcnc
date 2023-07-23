@@ -51,8 +51,8 @@ Thats it! You are done! You will find LinuxCNC under the CNC menu.
 == Install Debian Bookworm on a X86/AMD64 machine
 . Download Balena Etcher from https://etcher.balena.io/
 . Download a Debian Boookworm ISO. There are two versions to consider.
-.. The small netinst .ISO that requires a connection to the internet during the installation (recommended) https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.0.0-amd64-netinst.iso
-.. The much larger full live install that includes everything in Debian (use if you do not have an internet connection). https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/debian-live-12.0.0-amd64-xfce.iso
+.. The small netinst .ISO that requires a connection to the internet during the installation (recommended) https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.1.0-amd64-netinst.iso
+.. The much larger full live install that includes everything in Debian (use if you do not have an internet connection). https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/debian-live-12.1.0-amd64-xfce.iso
 . Burn the Debian Image to a USB drive using Balena Etcher
 . Connect the PC to install Linuxcnc on to a wired internet connection (only use wifi if you must)
 . Boot the PC from the USB image. This may require changing the boot order to boot from a USB first.
