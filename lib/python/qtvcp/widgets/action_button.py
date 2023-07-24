@@ -126,9 +126,15 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
 
     # Estop button behaviour works different then most buttons.
     # The visual cue is set by linuxcnc E-state not button state.
-    # We catch the tsate change here and reset it to linuxcnc state
-    # only if the button is an estop button and is a checkable.
+    # We catch the state change here and reset it to linuxcnc state
+    # only if the button is an estop button and is checkable.
     # This behaviour is consistent with AXIS ans users are used to it.
+
+    # spindle up/down also have odd behaviour and are caught here.
+    # if the spindle is already running, pressing the opposite button
+    # should not change the check state (only change the spindle speed)
+    # but if the spindle is running or stopped then the check state
+    # should change (and the spindle speed - done in other code)
     def nextCheckState (self):
         if self.estop and self.isCheckable():
             if STATUS.estop_is_clear():
@@ -136,6 +142,16 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
             else:
                 self.setChecked(True)
             self._safecheck(not STATUS.estop_is_clear())
+            return
+
+        speed = STATUS.get_spindle_speed()
+        if self.spindle_down and self.isCheckable():
+            if speed == 0 or speed < 0:
+                self._safecheck(not self.isChecked())
+        elif self.spindle_up and self.isCheckable():
+            if speed == 0 or speed > 0:
+                self._safecheck(not self.isChecked())
+
         else:
             self.setChecked(not self.isChecked())
 
@@ -209,11 +225,17 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
                 ACTION.TOGGLE_LIMITS_OVERRIDE()
 
         def spindle_control_test(e,d):
+            # this can happen if these fwd/rev properties are
+            # changed to up/down in stylesheets - this callback is
+            # still called
+            if self.spindle_up or self.spindle_down:
+                return
+
             if self.spindle_fwd:
                 if d in(0,-1):
                     self._safecheck(False)
                     return
-            else:
+            elif self.spindle_rev:
                 if d in(0,1):
                     self._safecheck(False)
                     return
@@ -351,6 +373,8 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
             if self.spindle_fwd or self.spindle_rev:
                 STATUS.connect('spindle-control-changed', lambda w, num, e, d, upto: spindle_control_test(e,d))
         elif self.spindle_stop:
+            STATUS.connect('mode-manual', lambda w: self.setEnabled(True))
+            STATUS.connect('mode-mdi', lambda w: self.setEnabled(True))
             STATUS.connect('mode-auto', lambda w: self.setEnabled(False))
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
