@@ -147,7 +147,7 @@ They are very similar in features but QtDragon_hd is made for larger monitors.
 image::images/qtdragon.png["QtDragon, a touch screen GUI based on QtVCP",align="center"]
 
 == User Interfaces
-These User interfaces are a way to interact with linuxcnc outside of the graphical user interfaces.
+These User interfaces are a way to interact with LinuxCNC outside of the graphical user interfaces.
 
 halui:: A HAL based user interface allowing to control LinuxCNC using buttons and switches
 

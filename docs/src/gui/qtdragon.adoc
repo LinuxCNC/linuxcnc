@@ -825,13 +825,13 @@ Preset:
 
 Sequence after pressing the probe button: +
 
-. rapid EDGE WIDTH distance away from corner at the same time moving XY CLEARANCE away from edge. So this is a slightly diagonal move.
-. move probe down by Z CLEARANCE + EXTRA DEPTH
-. probe wall twice (rough and fine)
-. move diagonally to the other wall as set by EDGE WIDTH and XY CLEARANCE
-. probe wall twice
-. raise probe up by Z CLEARANCE + EXTRA DEPTH 9returns to starting height)
-. rapid back to starting corner, now calculated using the probed walls.
+. Rapid EDGE WIDTH distance away from corner at the same time moving XY CLEARANCE away from edge. So this is a slightly diagonal move.
+. Move probe down by Z CLEARANCE + EXTRA DEPTH,
+. probe wall twice (rough and fine),
+. move diagonally to the other wall as set by EDGE WIDTH and XY CLEARANCE,
+. probe wall twice,
+. raise probe up by Z CLEARANCE + EXTRA DEPTH 9returns to starting height),
+. rapid back to starting corner (now calculated using the probed walls),
 . if auto zero button is enabled, set X and Y of the current user system to zero.
 
 == Touch plate

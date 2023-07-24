@@ -289,8 +289,8 @@ def test_function(obj):
     print(dir(obj))
 
 # This is a new function we will added to the existing handler class instance.
-# Notice it calls the unbounded function with 'self' as an parameter
-# 'self' is the only global reference available. It references the window instance.
+# Notice it calls the unbounded function with 'self' as an parameter 'self' is the only global reference available.
+# It references the window instance.
 def on_keycall_F10(self,event,state,shift,cntrl):
     if state:
         print ('F10')
@@ -304,24 +304,22 @@ def on_keycall_F11(self,event,state,shift,cntrl):
         self.on_keycall_F11_super(event,state,shift,cntrl)
         print ('Hello')
 
-# We are referencing the KEYBIND library that was instantiated in the 
-# original handler class instance by adding 'hdlr.' to it (from the imp).
+# We are referencing the KEYBIND library that was instantiated in the original handler class instance
+# by adding 'hdlr.' to it (from the imp).
 # This function tells KEYBIND to call 'on_keycall_F10' when F10 is pressed.
 hdlr.KEYBIND.add_call('Key_F10','on_keycall_F10')
 
-# Here we are instance patching the original handler file to add a new
-# function that calls our new function (of the same name)
-# defined in this file.
+# Here we are instance patching the original handler file to add a new function 
+# that calls our new function (of the same name) defined in this file.
 self.on_keycall_F10 = types.MethodType(on_keycall_F10, self)
 
-# Here we are defining a copy of the original 'on_keycall_F11' function
-# so we can call it later. we can use any valid, unused function name.
+# Here we are defining a copy of the original 'on_keycall_F11' function,
+# so we can call it later. We can use any valid, unused function name.
 # We need to do this before overriding the original function.
 self.on_keycall_F11_super = self.on_keycall_F11
 
-# Here we are instance patching the original handler file to override
-# an existing function to point to our new function (of the same name) 
-# defined in this file.
+# Here we are instance patching the original handler file to override an existing function
+# to point to our new function (of the same name) defined in this file.
 self.on_keycall_F11 = types.MethodType(on_keycall_F11, self)
 
 ----

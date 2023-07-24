@@ -142,7 +142,7 @@ On a higher level, some components know how the machine's axes are arranged in 3
 Lathes, mills and robots will differ in the LinuxCNC component that are active, i.e. that are loaded by a HAL configuration file for that machine.
 Still, two machines may be looking very different since built for very different purposes, but when they both use servo motors then they can still both use the same HAL servo component.
 
-.From Where the Incentive to Move Originates
+.Origin of the Incentive to Move
 On the lowest (closest to hardware) level, e.g. for stepper motors, the description of a state of that motor is very intuitive:
 It is the number of steps in a particular direction.
 A difference between the desired position and the actual position translates into a movement.

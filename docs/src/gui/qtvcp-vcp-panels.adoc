@@ -45,7 +45,7 @@ image::images/qtvcp_spindle_belts.png["QtVCP spindle_belts Panel - Spindle Belts
 
 In addition, it is also a useful template to use for your custom panel because it includes:
 
-* Display of additional hal data
+* Display of additional HAL data
 * Buttons and button groups
 * Dynamic changes to button enabled/disabled state based on the state of other buttons
 * Saving data to the qtdragon.prefs file
@@ -59,12 +59,16 @@ The advantage of using panels is that it separates your custom display code from
 * A spindle drive (for instance VFDMOD)
 * A custom component that scales the VFD frequency to obtain the desired spindle speed.
 * A belt driven spindle that uses two belts and an intermediate idler pulley much like a drill press.
-* Connect the input pins qtdragon.belts.<pin-name> in your postgui hal file.
+* Connect the input pins qtdragon.belts.<pin-name> in your postgui HAL file.
 
 ==== Function
-The belts are broken into two button groups, the front belts and the rear belts. These are numbered as per the plate on the machine. Buttons in a group are mutually exclusive. Eg. Only one can be selected in the group.
+The belts are broken into two button groups, the front belts and the rear belts.
+These are numbered as per the plate on the machine.
+Buttons in a group are mutually exclusive, i.e., only one can be selected in the group.
 
-Additionally, it's not possible to have both belts on the same level with this kind of mechanism because you can’t fit two belts to the one idler pulley sheave.. So if a belt is selected, its opposite button is disabled. Eg. if belt 3 is selected, belt 7 is disabled.
+Additionally, it's not possible to have both belts on the same level with this kind of mechanism because you cannot fit two belts to the one idler pulley sheave.
+So if a belt is selected, its opposite button is disabled.
+E.g., if belt 3 is selected, belt 7 is disabled.
 
 ==== Embedding commands
 Add these lines to the [DISPLAY] section in your .ini file +
@@ -278,8 +282,8 @@ image::images/qtvismach.png["QtVCP vismach_mill_xyz - 3-Axis Mill 3D View Panel"
 === QtVCP `vismach_router_atc`
 
 3D OpenGL view of a _3-Axis router style, gantry bed milling machine_. +
-This particular panel shows how to define and connect the model parts in the handler file, rather then importing the
-pre-built model from qtvcp's vismach library.
+This particular panel shows how to define and connect the model parts in the handler file,
+rather then importing the pre-built model from QtVCP's vismach library.
 
 [source,{hal}]
 ----
@@ -381,7 +385,7 @@ start
     This is to _ensure that the panel created HAL pins are actually done_ in case they are used in the rest of the file.
 
 == Embedding QtVCP Virtual Control Panels into QtVCP Screens
-Qtvcp panels can be embedded into most Qtvcp screens and avoids problems such as focus transferring that can be a problem in non-native embedding.
+QtVCP panels can be embedded into most QtVCP screens and avoids problems such as focus transferring that can be a problem in non-native embedding.
 
 === Embedding Commands
 A typical screen such as QtDragon will search the INI file under the heading [DISPLAY] for commands to embed a panel.
