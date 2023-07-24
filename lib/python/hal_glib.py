@@ -1091,7 +1091,7 @@ class _GStat(GObject.GObject):
         self.stat.poll()
         return self.stat.spindle[num]['enabled']
 
-    def get_spindle_speed(self, num):
+    def get_spindle_speed(self, num=0):
         self.stat.poll()
         return self.stat.spindle[num]['speed']
 

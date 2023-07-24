@@ -103,7 +103,7 @@ class _Lcnc_Action(object):
                     return
                 length = len(INFO.JOINT_SEQUENCE_LIST)
                 for num, j in enumerate(INFO.JOINT_SEQUENCE_LIST):
-                    print(j, num, len(INFO.JOINT_SEQUENCE_LIST))
+                    #print(j, num, len(INFO.JOINT_SEQUENCE_LIST))
                     # at the end so all homed
                     if num == length - 1:
                         self.home_all_warning_flag = False

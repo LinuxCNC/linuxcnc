@@ -591,6 +591,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.auto_show_manual = False
         self.auto_show_preference = True
         self.last_line = 0
+        # keep track of vertical scroll setting in auto mode
         self._last_auto_scroll = 0
 
     def _hal_init(self):
@@ -633,8 +634,9 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
     def reload_last(self, w):
         self.load_text(STATUS.old['file'])
         self.setCursorPosition(0, 0)
-        print(self._last_auto_scroll)
+        # keep track of vertical scroll bar setting
         self.verticalScrollBar().setValue(self._last_auto_scroll)
+        #  and margin marker if it is showing
         if self._lastUserLine >0:
             self.markerAdd(self._lastUserLine, self.USER_MARKER_NUM)
 
