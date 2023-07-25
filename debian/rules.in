@@ -13,7 +13,9 @@
 # Uncomment this to turn on verbose mode.
 export DH_VERBOSE=1
 
-include /usr/share/dpkg/pkg-info.mk
+# see EXAMPLES in dpkg-buildflags(1) and read /usr/share/dpkg/*
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/default.mk
 
 # Support more robust code and makes code modifications more difficult
 # Compare https://wiki.debian.org/Hardening
@@ -31,11 +33,12 @@ export TIME=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%T')
 kernel_version = @KERNEL_VERSION@
 configure_realtime_arg = @CONFIGURE_REALTIME_ARG@
 enable_build_documentation = @ENABLE_BUILD_DOCUMENTATION@
+SRCDIR = $(CURDIR)/src
 DESTDIR=$(CURDIR)/debian/tmp
 DEV_PACKAGE_NAME=@MAIN_PACKAGE_NAME@-dev
 
 %:
-	dh $@
+	dh $@ -D$(SRCDIR)
 
 override_dh_auto_configure:
 	cd src && ./autogen.sh
