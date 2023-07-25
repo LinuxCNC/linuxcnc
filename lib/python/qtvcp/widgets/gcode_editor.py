@@ -1059,7 +1059,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
     def getSaveFileName(self):
         mess = {'NAME':self.save_dialog_code,'ID':'%s__' % self.objectName(),
-            'TITLE':'Save Editor'}
+            'TITLE':'Save Editor', 'FILENAME':self.editor._last_filename}
         STATUS.emit('dialog-request', mess)
 
     # process the STATUS return message
