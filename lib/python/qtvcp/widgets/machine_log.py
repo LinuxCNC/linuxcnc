@@ -78,6 +78,8 @@ class MachineLog(QTextEdit, _HalWidgetBase):
         logText = file.readAll()
         file.close()
         self.setPlainText(str(logText, encoding='utf8'))
+        # scroll down to show last entry
+        self.verticalScrollBar().setSliderPosition(self.verticalScrollBar().maximum())
 
     def loadIntegratorLog(self):
         file = QFile(self.integratorPath)
@@ -85,7 +87,8 @@ class MachineLog(QTextEdit, _HalWidgetBase):
         logText = file.readAll()
         file.close()
         self.setPlainText(str(logText, encoding='utf8'))
-
+        # scroll down to show last entry
+        self.verticalScrollBar().setSliderPosition(self.verticalScrollBar().maximum())
 
 ################## properties ###################
 
