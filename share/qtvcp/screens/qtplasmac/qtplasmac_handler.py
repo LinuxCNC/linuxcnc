@@ -130,6 +130,8 @@ class HandlerClass:
             if os.path.realpath(m190Path) != os.path.realpath(self.PATHS.CONFIGPATH):
                 COPY(os.path.join(m190Path, 'M190'), os.path.join(self.PATHS.CONFIGPATH, 'M190'))
         self.machineName = self.iniFile.find('EMC', 'MACHINE')
+        self.prefsFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')
+        self.materialFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '_material.cfg')
         self.unitsPerMm = 1
         self.units = self.iniFile.find('TRAJ', 'LINEAR_UNITS')
         if self.units == 'inch':
@@ -137,14 +139,14 @@ class HandlerClass:
             self.unitsPerMm = 0.03937
         # open prefs file so we can use it for updates
         # it will not exist prior to V1.222.170 2022/03/08
-        if os.path.isfile(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')):
-            self.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
+        if os.path.isfile(self.prefsFile):
+            self.PREFS = Access(self.prefsFile)
         else:
             self.PREFS = None
         self.updateIni = []
         self.update_check()
-        self.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
-        self.MATS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '_material.cfg'))
+        self.PREFS = Access(self.prefsFile)
+        self.MATS = Access(self.materialFile)
         self.STYLEEDITOR = SSE(widgets, paths)
         self.GCODES = GCodes(widgets)
         self.IMAGES = os.path.join(self.PATHS.IMAGEDIR, 'qtplasmac/images/')
@@ -347,7 +349,7 @@ class HandlerClass:
         self.user_button_setup()
         self.set_buttons_state([self.alwaysOnList], True)
         self.get_main_tab_widgets()
-        self.load_materials()
+        self.load_material_file()
         self.offset_peripherals()
         self.set_probe_offset_pins()
         self.wcs_rotation('get')
@@ -523,7 +525,7 @@ class HandlerClass:
 
     # load the qtplasmac preferences file rather than the qtvcp preferences file
     def new_load_preference(self, w):
-        self.w.gcode_editor.editor.load_text(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
+        self.w.gcode_editor.editor.load_text(self.prefsFile)
         self.w.gcode_editor.editor.setCursorPosition(self.w.gcode_editor.editor.lines(), 0)
 
     # dont highlight lines selected from the editor in the preview window
@@ -1376,7 +1378,7 @@ class HandlerClass:
            STATUS.is_interp_idle() and not self.offsetsActivePin.get() and \
            self.plasmacStatePin.get() == 0 and not self.boundsError['loaded'] and not self.fileClear:
             if int(self.w.materials_box.currentText().split(': ', 1)[0]) >= 1000000:
-                self.w.materials_box.setCurrentIndex(0)
+                self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
             if self.w.gcode_display.lines() > 1:
                 self.w.run.setEnabled(True)
                 if self.frButton:
@@ -2328,7 +2330,6 @@ class HandlerClass:
         # if any writing to the INI file is required then that needs
         # to be done later in the update_iniwrite function
         halfiles = self.iniFile.findall('HAL', 'HALFILE') or None
-        machinePrefsFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')
         qtvcpPrefsFile = os.path.join(self.PATHS.CONFIGPATH, 'qtvcp.prefs')
         # use qtplasmac_comp.hal for component connections (pre V1.221.154 2022/01/18)
         if halfiles and not [f for f in halfiles if 'plasmac.tcl' in f] and not \
@@ -2336,17 +2337,17 @@ class HandlerClass:
             UPDATER.add_component_hal_file(self.PATHS.CONFIGPATH, halfiles)
             self.updateIni.append(154)
         # split out qtplasmac specific prefs into a separate file (pre V1.222.170 2022/03/08)
-        if not os.path.isfile(machinePrefsFile):
+        if not os.path.isfile(self.prefsFile):
             old = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs')
             if os.path.isfile(old):
-                UPDATER.split_prefs_file(old, qtvcpPrefsFile, machinePrefsFile)
-            self.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
+                UPDATER.split_prefs_file(old, qtvcpPrefsFile, self.prefsFile)
+            self.PREFS = Access(self.prefsFile)
         # move conversational prefs from qtvcp.prefs to <machine_name>.prefs (pre V1.222.187 2022/05/03)
-        if os.path.isfile(qtvcpPrefsFile) and os.path.isfile(machinePrefsFile):
+        if os.path.isfile(qtvcpPrefsFile) and os.path.isfile(self.prefsFile):
             with open(qtvcpPrefsFile, 'r') as inFile:
                 data = inFile.readlines()
                 if [line for line in data if '[CONVERSATIONAL]' in line]:
-                    UPDATER.move_prefs(qtvcpPrefsFile, machinePrefsFile)
+                    UPDATER.move_prefs(qtvcpPrefsFile, self.prefsFile)
         # change RS274 startup parameters from a subroutine (pre V1.224.207 2022/06/22)
         startupCode = self.iniFile.find('RS274NGC', 'RS274NGC_STARTUP_CODE')
         if 'metric_startup' in startupCode or 'imperial_startup' in startupCode:
@@ -2364,10 +2365,11 @@ class HandlerClass:
             UPDATER.move_options_to_prefs_file(self.iniFile, self.PREFS)
             self.updateIni.append(219)
         # move port info from [GUI_OPTIONS] section (if it was moved via V1.227.219 update) to [POWERMAX] section
-        with open(machinePrefsFile, 'r') as inFile:
-            data = inFile.read()
-            if data.count('Port') > 1:
-                UPDATER.move_port(self.PREFS)
+        if self.PREFS.has_option('GUI_OPTIONS', 'Port'):
+            UPDATER.move_port(self.PREFS)
+        # move default material from prefs file to material 0 in materials file (pre V1.236.278 2023/07/07)
+        if self.PREFS.has_section('DEFAULT MATERIAL'):
+            UPDATER.move_default_material(self.PREFS, self.materialFile, self.unitsPerMm)
 
     def update_iniwrite(self):
         # this is for updates that write to the INI file
@@ -2687,6 +2689,7 @@ class HandlerClass:
         self.w.materials_box.currentIndexChanged.connect(lambda w:self.material_changed(w))
         self.w.material_selector.currentIndexChanged.connect(lambda w:self.selector_changed(w))
         self.w.conv_material.currentIndexChanged.connect(lambda w:self.conv_material_changed(w))
+        self.w.default_material.currentIndexChanged.connect(lambda w:self.default_material_changed(w))
         self.w.sd_save.clicked.connect(self.save_shutdown_message_clicked)
         self.w.sd_reload.clicked.connect(self.reload_shutdown_message_clicked)
         self.w.ub_save.clicked.connect(self.save_user_button_clicked)
@@ -4518,14 +4521,14 @@ class HandlerClass:
     def save_materials_clicked(self):
         matNum = self.materialChangeNumberPin.get()
         index = self.w.materials_box.currentIndex()
-        self.save_materials(matNum, index)
+        self.save_material_file(matNum, index)
 
     def reload_materials_clicked(self):
         self.materialUpdate = True
         index = self.w.materials_box.currentIndex()
         self.materialDict = {}
         self.materialNumList = []
-        self.load_materials()
+        self.load_material_file()
         self.w.materials_box.setCurrentIndex(index)
         self.materialUpdate = False
         self.materialReloadPin.set(0)
@@ -4551,7 +4554,7 @@ class HandlerClass:
                     msg0 = _translate('HandlerClass', 'is not a valid number')
                     msgs = '{} {}.\n\n{}:'.format(matNum, msg0, msg1)
                 continue
-            if matNum == 0 or matNum in self.materialNumList:
+            if matNum in self.materialNumList:
                 msg0 = _translate('HandlerClass', 'Material')
                 msg2 = _translate('HandlerClass', 'is in use')
                 msgs = '{} #{} {}.\n\n{}:'.format(msg0, matNum, msg2, msg1)
@@ -4578,7 +4581,7 @@ class HandlerClass:
         self.materialUpdate = True
         self.materialDict = {}
         self.materialNumList = []
-        self.load_materials()
+        self.load_material_file()
         self.w.materials_box.setCurrentIndex(self.materialList.index(matNum))
         self.materialUpdate = False
 
@@ -4603,7 +4606,7 @@ class HandlerClass:
                     msg0 = _translate('HandlerClass', 'is not a valid number')
                     msgs = '{} {}.\n\n{}:'.format(matNum, msg0, msg1)
                 continue
-            if matNum == 0:
+            if matNum == self.defaultMaterial:
                 msg0 = _translate('HandlerClass', 'Default material cannot be deleted')
                 msgs = '{}.\n\n{}:'
                 continue
@@ -4622,7 +4625,7 @@ class HandlerClass:
         self.materialUpdate = True
         self.materialDict = {}
         self.materialNumList = []
-        self.load_materials()
+        self.load_material_file()
         self.materialUpdate = False
 
     def selector_changed(self, index):
@@ -4723,21 +4726,12 @@ class HandlerClass:
                         mat[13] = float(line.split('=')[1].strip())
             self.write_materials_to_dict(mat)
             self.display_materials()
-            self.change_material(0)
-            self.w.materials_box.setCurrentIndex(0)
+            self.change_material(self.defaultMaterial)
+            self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
             self.materialTempPin.set(0)
 
-    def save_materials(self, matNum, index):
-        if index == 0:
-            self.save_default_material()
-        self.save_material_file(matNum, index)
-
-    def load_materials(self):
-        self.load_default_material()
-        self.load_material_file()
-
-    def write_materials_to_dict(self, mat):
-        self.materialDict[mat[0]] = mat[1:]
+    def write_materials_to_dict(self, matNum):
+        self.materialDict[matNum[0]] = matNum[1:]
 
     def display_materials(self):
         self.materialList = []
@@ -4784,7 +4778,7 @@ class HandlerClass:
         self.write_one_material(mat)
         self.materialUpdate = True
         self.materialDict = {}
-        self.load_materials()
+        self.load_material_file()
         self.w.materials_box.setCurrentIndex(index)
         self.materialUpdate = False
         self.set_saved_material()
@@ -4808,7 +4802,15 @@ class HandlerClass:
 
     def load_material_file(self):
         self.getMaterialBusy = 1
+        # create a basic default material if no materials exist
+        if not self.MATS.sections():
+            if self.units == 'mm':
+                mat = [0,'Basic default Material',1,3,.1,0,0,1,1000,45,100,0,0,1]
+            else:
+                mat = [0,'Basic default Material',.04,.12,.1,0,0,.04,40,45,100,0,0,1]
+            self.write_one_material(mat)
         head = _translate('HandlerClass', 'Materials Error')
+        # read all the materials into the materials dict
         for section in self.MATS.sections():
             matNum = int(section.rsplit('_',1)[1])
             if matNum >= 1000000:
@@ -4821,7 +4823,12 @@ class HandlerClass:
             self.materialNumList.append(matNum)
             self.write_materials_to_dict(mat)
         self.display_materials()
-        self.change_material(0)
+        self.defaultMaterial = self.PREFS.getpref('Default material', self.materialNumList[0], int, 'GUI_OPTIONS')
+        self.change_material(self.defaultMaterial)
+        self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
+        self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
+        self.w.conv_material.setCurrentIndex(self.w.materials_box.currentIndex())
+        self.set_default_material()
         self.getMaterialBusy = 0
 
     def material_exists(self, matNum):
@@ -4870,35 +4877,17 @@ class HandlerClass:
         self.MATS.putpref('GAS_PRESSURE', mat[12], float, section)
         self.MATS.putpref('CUT_MODE', mat[13], float, section)
 
-    def save_default_material(self):
-        self.PREFS.putpref('Kerf width', self.w.kerf_width.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Pierce height',self.w.pierce_height.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Pierce delay',self.w.pierce_delay.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Puddle jump height',self.w.puddle_jump_height.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Puddle jump delay',self.w.puddle_jump_delay.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Cut height',self.w.cut_height.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Cut feed rate',self.w.cut_feed_rate.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Cut amps',self.w.cut_amps.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Cut volts',self.w.cut_volts.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Pause at end',self.w.pause_at_end.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Gas pressure',self.w.gas_pressure.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Cut mode',self.w.cut_mode.value(), float, 'DEFAULT MATERIAL')
+    def set_default_material(self):
+        self.w.default_material.clear()
+        for n in self.materialNumList:
+            self.w.default_material.addItem(str(n))
+        self.w.default_material.setCurrentIndex(self.materialList.index(self.defaultMaterial))
 
-    def load_default_material(self):
-        mat = [0, 'DEFAULT']
-        mat.append(self.PREFS.getpref('Kerf width', round(1 * self.unitsPerMm, 2), float, 'DEFAULT MATERIAL'))
-        mat.append(self.PREFS.getpref('Pierce height', round(3 * self.unitsPerMm, 2), float, 'DEFAULT MATERIAL'))
-        mat.append(self.PREFS.getpref('Pierce delay', 0, float, 'DEFAULT MATERIAL'))
-        mat.append(self.PREFS.getpref('Puddle jump height', 0, float, 'DEFAULT MATERIAL'))
-        mat.append(self.PREFS.getpref('Puddle jump delay', 0, float, 'DEFAULT MATERIAL'))
-        mat.append(self.PREFS.getpref('Cut height', round(1 * self.unitsPerMm, 2), float, 'DEFAULT MATERIAL'))
-        mat.append(self.PREFS.getpref('Cut feed rate', round(4000 * self.unitsPerMm, 0), float, 'DEFAULT MATERIAL'))
-        mat.append(self.PREFS.getpref('Cut amps', 45, float, 'DEFAULT MATERIAL'))
-        mat.append(self.PREFS.getpref('Cut volts', 99, float, 'DEFAULT MATERIAL'))
-        mat.append(self.PREFS.getpref('Pause at end', 0, float, 'DEFAULT MATERIAL'))
-        mat.append(self.PREFS.getpref('Gas pressure', 0, float, 'DEFAULT MATERIAL'))
-        mat.append(self.PREFS.getpref('Cut mode', 1, float, 'DEFAULT MATERIAL'))
-        self.write_materials_to_dict(mat)
+    def default_material_changed(self, index):
+        self.defaultMaterial = self.materialList[index]
+        self.change_material(self.defaultMaterial)
+        self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
+        self.PREFS.putpref('Default material', self.defaultMaterial, int, 'GUI_OPTIONS')
 
 
 #########################################################################################################################

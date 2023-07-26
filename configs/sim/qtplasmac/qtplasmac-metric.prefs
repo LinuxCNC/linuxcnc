@@ -19,6 +19,7 @@ Hide pause = False
 Hide abort = False
 DRO position = bottom
 Custom style = None
+Default material = 0
 
 [LASER_OFFSET]
 X axis = -25.0
@@ -130,20 +131,6 @@ THC Delay = 0.5
 THC Sample Counts = 50
 THC Sample Threshold = 1
 THC Threshold = 1
-
-[DEFAULT MATERIAL]
-Kerf width = 1
-Pierce height = 3
-Pierce delay = 0
-Puddle jump height = 0
-Puddle jump delay = 0
-Cut height = 1
-Cut feed rate = 4000
-Cut amps = 45
-Cut volts = 99
-Pause at end = 0
-Gas pressure = 0
-Cut mode = 1
 
 [OFFSET_PROBING]
 X axis = 0
