@@ -2731,6 +2731,8 @@ def material_change_number_pin_changed(halpin):
         return
     if comp['material-change'] == 1:
         materialAutoChange = True
+    if halpin == -1:
+        halpin = pVars.matDefault.get()
     if not material_exists(halpin):
         materialAutoChange = False
         return
