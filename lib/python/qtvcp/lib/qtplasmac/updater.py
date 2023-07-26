@@ -22,21 +22,58 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import os
 from shutil import copy as COPY
 
-# move port from [GUI_OPTIONS] to [POWERMAX]
+# move default material from prefs file to material 0 in materials file (pre V1.236.278 2023/07/07)
+def move_default_material(prefs, materials, unitsPerMm):
+    if os.path.isfile(materials):
+        with open(materials, 'r') as f_in:
+            mats = f_in.readlines()
+    else:
+        mats = None
+    mat  = '[MATERIAL_NUMBER_0]\n'
+    mat += f'NAME               = Default\n'
+    mat += f'KERF_WIDTH         = {prefs.getpref("Kerf width", round(1 * unitsPerMm, 2), float, "DEFAULT MATERIAL")}\n'
+    mat += f'PIERCE_HEIGHT      = {prefs.getpref("Pierce height", round(3 * unitsPerMm, 2), float, "DEFAULT MATERIAL")}\n'
+    mat += f'PIERCE_DELAY       = {prefs.getpref("Pierce delay", 0, float, "DEFAULT MATERIAL")}\n'
+    mat += f'PUDDLE_JUMP_HEIGHT = {prefs.getpref("Puddle jump height", 0, float, "DEFAULT MATERIAL")}\n'
+    mat += f'PUDDLE_JUMP_DELAY  = {prefs.getpref("Puddle jump delay", 0, float, "DEFAULT MATERIAL")}\n'
+    mat += f'CUT_HEIGHT         = {prefs.getpref("Cut height", round(1 * unitsPerMm, 2), float, "DEFAULT MATERIAL")}\n'
+    mat += f'CUT_SPEED          = {prefs.getpref("Cut feed rate", round(4000 * unitsPerMm, 0), float, "DEFAULT MATERIAL")}\n'
+    mat += f'CUT_AMPS           = {prefs.getpref("Cut amps", 45, float, "DEFAULT MATERIAL")}\n'
+    mat += f'CUT_VOLTS          = {prefs.getpref("Cut volts", 99, float, "DEFAULT MATERIAL")}\n'
+    mat += f'PAUSE_AT_END       = {prefs.getpref("Pause at end", 0, float, "DEFAULT MATERIAL")}\n'
+    mat += f'GAS_PRESSURE       = {prefs.getpref("Gas pressure", 0, float, "DEFAULT MATERIAL")}\n'
+    mat += f'CUT_MODE           = {prefs.getpref("Cut mode", 1, float, "DEFAULT MATERIAL")}\n\n'
+    with open(materials, 'w') as f_out:
+        f_out.write(mat)
+        if mats:
+            valid = False
+            for line in mats:
+                if line[0] != '#':
+                    if line[0] == '[':
+                        if line[1:17] == 'MATERIAL_NUMBER_' and line.strip()[-3:] != '_0]':
+                            valid = True
+                        else:
+                            valid = False
+                    if valid:
+                        f_out.write(line)
+    prefs.remove_section('DEFAULT MATERIAL')
+    prefs.write(open(prefs.fn, 'w'))
+
+# move port info from [GUI_OPTIONS] section (if it was moved via V1.227.219 update) to [POWERMAX] section
 def move_port(prefs):
-    if not prefs.getpref('Port', '', str, 'POWERMAX'):
+    if not prefs.has_option('POWERMAX', 'Port'):
         data = prefs.getpref('Port', '', str, 'GUI_OPTIONS')
         prefs.putpref('Port', data, str, 'POWERMAX')
     prefs.removepref('Port', 'GUI_OPTIONS')
-    prefs.write(open(prefs.fn, "w"))
+    prefs.write(open(prefs.fn, 'w'))
     update_notify('V1.232.240')
 
-# move qtplasmac options from INI file to prefs file pre V1.227.219 2022/07/14)
+# move qtplasmac options from INI file to prefs file (pre V1.227.219 2022/07/14)
 def move_options_to_prefs_file(inifile, prefs):
     text = prefs.getpref('shutdown_msg_detail', '', str, 'SHUTDOWN_OPTIONS')
     prefs.putpref('Exit warning text', text, str, 'GUI_OPTIONS')
     prefs.remove_section('SHUTDOWN_OPTIONS')
-    prefs.write(open(prefs.fn, "w"))
+    prefs.write(open(prefs.fn, 'w'))
     data = inifile.find('QTPLASMAC', 'MODE') or None
     if data:
         prefs.putpref('Mode', data, int, 'GUI_OPTIONS')
@@ -89,14 +126,15 @@ def move_options_to_prefs_file(inifile, prefs):
     if data:
         prefs.putpref('Port', data, str, 'POWERMAX')
     for bNum in range(1,21):
-        bName = inifile.find('QTPLASMAC', 'BUTTON_{}_NAME'.format(bNum)) or None
-        bCode = inifile.find('QTPLASMAC', 'BUTTON_{}_CODE'.format(bNum)) or None
+        bName = inifile.find('QTPLASMAC', f'BUTTON_{bNum}_NAME') or None
+        bCode = inifile.find('QTPLASMAC', f'BUTTON_{bNum}_CODE') or None
         if bName and bCode:
-            prefs.putpref('{} Name'.format(bNum), bName, str, 'BUTTONS')
-            prefs.putpref('{} Code'.format(bNum), bCode, str, 'BUTTONS')
+            prefs.putpref(f'{bNum} Name', bName, str, 'BUTTONS')
+            prefs.putpref(f'{bNum} Code', bCode, str, 'BUTTONS')
 
+# move qtplasmac options from INI file to prefs file (pre V1.227.219 2022/07/14)
 def move_options_to_prefs_file_iniwrite(inifile):
-    tmpFile = '{}~'.format(inifile)
+    tmpFile = f'{inifile}~'
     COPY(inifile, tmpFile)
     with open(tmpFile, 'r') as inFile:
         with open(inifile, 'w') as outFile:
@@ -119,7 +157,7 @@ def move_options_to_prefs_file_iniwrite(inifile):
 
 # remove the qtplasmac link from the config directory (pre V1.225.208 2022/06/29)
 def remove_qtplasmac_link_iniwrite(inifile):
-    tmpFile = '{}~'.format(inifile)
+    tmpFile = f'{inifile}~'
     COPY(inifile, tmpFile)
     with open(tmpFile, 'r') as inFile:
         with open(inifile, 'w') as outFile:
@@ -139,14 +177,14 @@ def remove_qtplasmac_link_iniwrite(inifile):
 
 # change startup parameters from a subroutine (pre V1.224.207 2022/06/22)
 def rs274ngc_startup_code_iniwrite(inifile):
-    tmpFile = '{}~'.format(inifile)
+    tmpFile = f'{inifile}~'
     COPY(inifile, tmpFile)
     with open(tmpFile, 'r') as inFile:
         with open(inifile, 'w') as outFile:
             for line in inFile:
                 if line.startswith('RS274NGC_STARTUP_CODE') and ('metric' in line or 'imperial' in line):
                     units = 21 if 'metric' in line else 20
-                    line = 'RS274NGC_STARTUP_CODE   = G{} G40 G49 G80 G90 G92.1 G94 G97 M52P1\n'.format(units)
+                    line = f'RS274NGC_STARTUP_CODE   = G{units} G40 G49 G80 G90 G92.1 G94 G97 M52P1\n'
                 outFile.write(line)
     if os.path.isfile(tmpFile):
         os.remove(tmpFile)
@@ -241,7 +279,7 @@ def add_component_hal_file(path, halfiles):
             with open(halfile, 'r') as inFile:
                 if 'plasmac.cutting-start' in inFile.read():
                     inFile.seek(0)
-                    tmpFile = '{}~'.format(halfile)
+                    tmpFile = f'{halfile}~'
                     COPY(halfile, tmpFile)
                     with open(tmpFile, 'r') as inFile:
                         with open(f, 'w') as outFile:
@@ -254,7 +292,7 @@ def add_component_hal_file(path, halfiles):
 
 def add_component_hal_file_iniwrite(inifile):
     written = False
-    tmpFile = '{}~'.format(inifile)
+    tmpFile = f'{inifile}~'
     COPY(inifile, tmpFile)
     with open(tmpFile, 'r') as inFile:
         with open(inifile, 'w') as outFile:

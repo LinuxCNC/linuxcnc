@@ -1,4 +1,4 @@
-VERSION = '1.236.277'
+VERSION = '1.236.278'
 
 '''
 qtplasmac_handler.py
@@ -130,6 +130,8 @@ class HandlerClass:
             if os.path.realpath(m190Path) != os.path.realpath(self.PATHS.CONFIGPATH):
                 COPY(os.path.join(m190Path, 'M190'), os.path.join(self.PATHS.CONFIGPATH, 'M190'))
         self.machineName = self.iniFile.find('EMC', 'MACHINE')
+        self.prefsFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')
+        self.materialFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '_material.cfg')
         self.unitsPerMm = 1
         self.units = self.iniFile.find('TRAJ', 'LINEAR_UNITS')
         if self.units == 'inch':
@@ -137,13 +139,14 @@ class HandlerClass:
             self.unitsPerMm = 0.03937
         # open prefs file so we can use it for updates
         # it will not exist prior to V1.222.170 2022/03/08
-        if os.path.isfile(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')):
-            self.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
+        if os.path.isfile(self.prefsFile):
+            self.PREFS = Access(self.prefsFile)
         else:
             self.PREFS = None
         self.updateIni = []
         self.update_check()
-        self.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
+        self.PREFS = Access(self.prefsFile)
+        self.MATS = Access(self.materialFile)
         self.STYLEEDITOR = SSE(widgets, paths)
         self.GCODES = GCodes(widgets)
         self.IMAGES = os.path.join(self.PATHS.IMAGEDIR, 'qtplasmac/images/')
@@ -228,11 +231,8 @@ class HandlerClass:
         self.tmpPath = '/tmp/qtplasmac/'
         if not os.path.isdir(self.tmpPath):
             os.mkdir(self.tmpPath)
-        self.materialFile = '{}_material.cfg'.format(self.machineName)
-        self.tmpMaterialFile = '{}{}'.format(self.tmpPath, self.materialFile.replace('.cfg','.tmp'))
-        self.tmpMaterialFileGCode = '{}{}'.format(self.tmpPath, self.materialFile.replace('.cfg','.gcode'))
+        self.tmpMaterialGcode = '{}{}_material.gcode'.format(self.tmpPath, self.machineName)
         self.gcodeErrorFile = '{}gcode_errors.txt'.format(self.tmpPath)
-        self.materialFileDict = {}
         self.materialDict = {}
         self.materialNumList = []
         self.materialUpdate = False
@@ -349,8 +349,7 @@ class HandlerClass:
         self.user_button_setup()
         self.set_buttons_state([self.alwaysOnList], True)
         self.get_main_tab_widgets()
-        self.check_material_file()
-        self.load_materials()
+        self.load_material_file()
         self.offset_peripherals()
         self.set_probe_offset_pins()
         self.wcs_rotation('get')
@@ -526,7 +525,7 @@ class HandlerClass:
 
     # load the qtplasmac preferences file rather than the qtvcp preferences file
     def new_load_preference(self, w):
-        self.w.gcode_editor.editor.load_text(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
+        self.w.gcode_editor.editor.load_text(self.prefsFile)
         self.w.gcode_editor.editor.setCursorPosition(self.w.gcode_editor.editor.lines(), 0)
 
     # dont highlight lines selected from the editor in the preview window
@@ -1379,7 +1378,7 @@ class HandlerClass:
            STATUS.is_interp_idle() and not self.offsetsActivePin.get() and \
            self.plasmacStatePin.get() == 0 and not self.boundsError['loaded'] and not self.fileClear:
             if int(self.w.materials_box.currentText().split(': ', 1)[0]) >= 1000000:
-                self.w.materials_box.setCurrentIndex(0)
+                self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
             if self.w.gcode_display.lines() > 1:
                 self.w.run.setEnabled(True)
                 if self.frButton:
@@ -2331,7 +2330,6 @@ class HandlerClass:
         # if any writing to the INI file is required then that needs
         # to be done later in the update_iniwrite function
         halfiles = self.iniFile.findall('HAL', 'HALFILE') or None
-        machinePrefsFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')
         qtvcpPrefsFile = os.path.join(self.PATHS.CONFIGPATH, 'qtvcp.prefs')
         # use qtplasmac_comp.hal for component connections (pre V1.221.154 2022/01/18)
         if halfiles and not [f for f in halfiles if 'plasmac.tcl' in f] and not \
@@ -2339,17 +2337,17 @@ class HandlerClass:
             UPDATER.add_component_hal_file(self.PATHS.CONFIGPATH, halfiles)
             self.updateIni.append(154)
         # split out qtplasmac specific prefs into a separate file (pre V1.222.170 2022/03/08)
-        if not os.path.isfile(machinePrefsFile):
+        if not os.path.isfile(self.prefsFile):
             old = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs')
             if os.path.isfile(old):
-                UPDATER.split_prefs_file(old, qtvcpPrefsFile, machinePrefsFile)
-            self.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
+                UPDATER.split_prefs_file(old, qtvcpPrefsFile, self.prefsFile)
+            self.PREFS = Access(self.prefsFile)
         # move conversational prefs from qtvcp.prefs to <machine_name>.prefs (pre V1.222.187 2022/05/03)
-        if os.path.isfile(qtvcpPrefsFile) and os.path.isfile(machinePrefsFile):
+        if os.path.isfile(qtvcpPrefsFile) and os.path.isfile(self.prefsFile):
             with open(qtvcpPrefsFile, 'r') as inFile:
                 data = inFile.readlines()
                 if [line for line in data if '[CONVERSATIONAL]' in line]:
-                    UPDATER.move_prefs(qtvcpPrefsFile, machinePrefsFile)
+                    UPDATER.move_prefs(qtvcpPrefsFile, self.prefsFile)
         # change RS274 startup parameters from a subroutine (pre V1.224.207 2022/06/22)
         startupCode = self.iniFile.find('RS274NGC', 'RS274NGC_STARTUP_CODE')
         if 'metric_startup' in startupCode or 'imperial_startup' in startupCode:
@@ -2367,10 +2365,11 @@ class HandlerClass:
             UPDATER.move_options_to_prefs_file(self.iniFile, self.PREFS)
             self.updateIni.append(219)
         # move port info from [GUI_OPTIONS] section (if it was moved via V1.227.219 update) to [POWERMAX] section
-        with open(machinePrefsFile, 'r') as inFile:
-            data = inFile.read()
-            if data.count('Port') > 1:
-                UPDATER.move_port(self.PREFS)
+        if self.PREFS.has_option('GUI_OPTIONS', 'Port'):
+            UPDATER.move_port(self.PREFS)
+        # move default material from prefs file to material 0 in materials file (pre V1.236.278 2023/07/07)
+        if self.PREFS.has_section('DEFAULT MATERIAL'):
+            UPDATER.move_default_material(self.PREFS, self.materialFile, self.unitsPerMm)
 
     def update_iniwrite(self):
         # this is for updates that write to the INI file
@@ -2690,6 +2689,7 @@ class HandlerClass:
         self.w.materials_box.currentIndexChanged.connect(lambda w:self.material_changed(w))
         self.w.material_selector.currentIndexChanged.connect(lambda w:self.selector_changed(w))
         self.w.conv_material.currentIndexChanged.connect(lambda w:self.conv_material_changed(w))
+        self.w.default_material.currentIndexChanged.connect(lambda w:self.default_material_changed(w))
         self.w.sd_save.clicked.connect(self.save_shutdown_message_clicked)
         self.w.sd_reload.clicked.connect(self.reload_shutdown_message_clicked)
         self.w.ub_save.clicked.connect(self.save_user_button_clicked)
@@ -4519,16 +4519,16 @@ class HandlerClass:
 # MATERIAL HANDLING FUNCTIONS #
 #########################################################################################################################
     def save_materials_clicked(self):
-        material = self.materialChangeNumberPin.get()
+        matNum = self.materialChangeNumberPin.get()
         index = self.w.materials_box.currentIndex()
-        self.save_materials(material, index)
+        self.save_material_file(matNum, index)
 
     def reload_materials_clicked(self):
         self.materialUpdate = True
         index = self.w.materials_box.currentIndex()
-        self.materialFileDict = {}
+        self.materialDict = {}
         self.materialNumList = []
-        self.load_materials()
+        self.load_material_file()
         self.w.materials_box.setCurrentIndex(index)
         self.materialUpdate = False
         self.materialReloadPin.set(0)
@@ -4541,25 +4541,25 @@ class HandlerClass:
         btn2 = _translate('HandlerClass', 'CANCEL')
         virtkb = 4
         while(1):
-            valid, num = self.dialog_input(virtkb, head, '{}:'.format(msgs), btn1, btn2)
+            valid, matNum = self.dialog_input(virtkb, head, '{}:'.format(msgs), btn1, btn2)
             if not valid:
                 return
             try:
-                num = int(num)
+                matNum = int(matNum)
             except:
-                if not num:
+                if not matNum:
                     msg0 = _translate('HandlerClass', 'A material number is required')
                     msgs = '{}.\n\n{}:'.format(msg0, msg1)
                 else:
                     msg0 = _translate('HandlerClass', 'is not a valid number')
-                    msgs = '{} {}.\n\n{}:'.format(num, msg0, msg1)
+                    msgs = '{} {}.\n\n{}:'.format(matNum, msg0, msg1)
                 continue
-            if num == 0 or num in self.materialNumList:
+            if matNum in self.materialNumList:
                 msg0 = _translate('HandlerClass', 'Material')
                 msg2 = _translate('HandlerClass', 'is in use')
-                msgs = '{} #{} {}.\n\n{}:'.format(msg0, num, msg2, msg1)
+                msgs = '{} #{} {}.\n\n{}:'.format(msg0, matNum, msg2, msg1)
                 continue
-            elif num >= 1000000:
+            elif matNum >= 1000000:
                 msg0 = _translate('HandlerClass', 'Material numbers need to be less than 1000000')
                 msgs = '{}.\n\n{}:'.format(msg0, msg1)
                 continue
@@ -4567,57 +4567,22 @@ class HandlerClass:
         msg1 = 'Enter New Material Name'
         virtkb = 3
         while(1):
-            valid, nam = self.dialog_input(virtkb, head, msg1, btn1, btn2)
+            valid, matNam = self.dialog_input(virtkb, head, msg1, btn1, btn2)
             if not valid:
                 return
-            if not nam:
+            if not matNam:
                 msg0 = _translate('HandlerClass', 'Material name is required')
                 msgs = '{}.\n\n{}:'.format(msg0, msg1)
                 continue
             break
-
-
-        material = self.w.materials_box.currentText().split(': ', 1)[0].lstrip('0')
-        material = int(material) if material else 0
-        COPY(self.materialFile, self.tmpMaterialFile)
-        with open(self.tmpMaterialFile, 'r') as inFile:
-            with open(self.materialFile, 'w') as outFile:
-                written = False
-                while 1:
-                    line = inFile.readline()
-                    if not written:
-                        if not line or \
-                           (line.startswith('[MATERIAL_NUMBER_') and \
-                           num < int(line.strip().split('NUMBER_')[1].rstrip(']'))):
-                            outFile.write('[MATERIAL_NUMBER_{}]\n'.format(num))
-                            outFile.write('NAME               = {}\n'.format(nam))
-                            outFile.write('KERF_WIDTH         = {}\n'.format(self.materialFileDict[material][1]))
-                            outFile.write('PIERCE_HEIGHT      = {}\n'.format(self.materialFileDict[material][2]))
-                            outFile.write('PIERCE_DELAY       = {}\n'.format(self.materialFileDict[material][3]))
-                            outFile.write('PUDDLE_JUMP_HEIGHT = {}\n'.format(self.materialFileDict[material][4]))
-                            outFile.write('PUDDLE_JUMP_DELAY  = {}\n'.format(self.materialFileDict[material][5]))
-                            outFile.write('CUT_HEIGHT         = {}\n'.format(self.materialFileDict[material][6]))
-                            outFile.write('CUT_SPEED          = {}\n'.format(self.materialFileDict[material][7]))
-                            outFile.write('CUT_AMPS           = {}\n'.format(self.materialFileDict[material][8]))
-                            outFile.write('CUT_VOLTS          = {}\n'.format(self.materialFileDict[material][9]))
-                            outFile.write('PAUSE_AT_END       = {}\n'.format(self.materialFileDict[material][10]))
-                            outFile.write('GAS_PRESSURE       = {}\n'.format(self.materialFileDict[material][11]))
-                            outFile.write('CUT_MODE           = {}\n\n'.format(self.materialFileDict[material][12]))
-                            outFile.write(line)
-                            written = True
-                        elif not line:
-                            break
-                        else:
-                            outFile.write(line)
-                    elif not line:
-                        break
-                    else:
-                        outFile.write(line)
+        mat = [matNum, matNam]
+        mat[2:] = self.materialDict[self.materialList[0]][1:]
+        self.write_one_material(mat)
         self.materialUpdate = True
-        self.materialFileDict = {}
+        self.materialDict = {}
         self.materialNumList = []
-        self.load_materials()
-        self.w.materials_box.setCurrentIndex(self.materialList.index(num))
+        self.load_material_file()
+        self.w.materials_box.setCurrentIndex(self.materialList.index(matNum))
         self.materialUpdate = False
 
     def delete_material_clicked(self):
@@ -4628,59 +4593,39 @@ class HandlerClass:
         msgs = msg1
         virtkb = 4
         while(1):
-            valid, num = self.dialog_input(virtkb, head, '{}:'.format(msgs), btn1, btn2)
+            valid, matNum = self.dialog_input(virtkb, head, '{}:'.format(msgs), btn1, btn2)
             if not valid:
                 return
             try:
-                num = int(num)
+                matNum = int(matNum)
             except:
-                if not num:
+                if not matNum:
                     msg0 = _translate('HandlerClass', 'A material number is required')
                     msgs = '{}.\n\n\{}:'.format(msg0, msg1)
                 else:
                     msg0 = _translate('HandlerClass', 'is not a valid number')
-                    msgs = '{} {}.\n\n{}:'.format(num, msg0, msg1)
+                    msgs = '{} {}.\n\n{}:'.format(matNum, msg0, msg1)
                 continue
-            if num == 0:
+            if matNum == self.defaultMaterial:
                 msg0 = _translate('HandlerClass', 'Default material cannot be deleted')
                 msgs = '{}.\n\n{}:'
                 continue
-            if num not in self.materialNumList:
+            if matNum not in self.materialNumList:
                 msg0 = _translate('HandlerClass', 'Material')
                 msg3 = _translate('HandlerClass', 'does not exist')
-                msgs = '{} #{} {}.\n\n{}:'.format(msg0, num, msg3, msg1)
+                msgs = '{} #{} {}.\n\n{}:'.format(msg0, matNum, msg3, msg1)
                 continue
             break
         head = _translate('HandlerClass', 'Delete Material')
         msg0 = _translate('HandlerClass', 'Do you really want to delete material')
-        if not self.dialog_show_yesno(QMessageBox.Question, '{}'.format(head), '\n{} #{}?\n'.format(msg0, num)):
+        if not self.dialog_show_yesno(QMessageBox.Question, '{}'.format(head), '\n{} #{}?\n'.format(msg0, matNum)):
             return
-        COPY(self.materialFile, self.tmpMaterialFile)
-        with open(self.tmpMaterialFile, 'r') as inFile:
-            with open(self.materialFile, 'w') as outFile:
-                while 1:
-                    line = inFile.readline()
-                    if not line: break
-                    elif line.startswith('[MATERIAL_NUMBER_') and \
-                         int(line.strip().strip(']').split('[MATERIAL_NUMBER_')[1]) == num:
-                        break
-                    else:
-                        outFile.write(line)
-                while 1:
-                    line = inFile.readline()
-                    if not line: break
-                    elif line.startswith('[MATERIAL_NUMBER_'):
-                        outFile.write(line)
-                        break
-                while 1:
-                    line = inFile.readline()
-                    if not line: break
-                    else:
-                        outFile.write(line)
+        self.MATS.remove_section('MATERIAL_NUMBER_{}'.format(matNum))
+        self.MATS.write(open(self.MATS.fn, 'w'))
         self.materialUpdate = True
-        self.materialFileDict = {}
+        self.materialDict = {}
         self.materialNumList = []
-        self.load_materials()
+        self.load_material_file()
         self.materialUpdate = False
 
     def selector_changed(self, index):
@@ -4699,18 +4644,18 @@ class HandlerClass:
                 self.materialChangePin.set(0)
                 self.autoChange = False
                 return
-            material = int(self.w.materials_box.currentText().split(': ', 1)[0])
-            if material >= 1000000:
+            matNum = int(self.w.materials_box.currentText().split(': ', 1)[0])
+            if matNum >= 1000000:
                 self.w.save_material.setEnabled(False)
             else:
                 self.w.save_material.setEnabled(True)
             if self.autoChange:
                 hal.set_p('motion.digital-in-03','0')
-                self.change_material(material)
+                self.change_material(matNum)
                 self.materialChangePin.set(2)
                 hal.set_p('motion.digital-in-03','1')
             else:
-                self.change_material(material)
+                self.change_material(matNum)
             self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
             self.w.conv_material.setCurrentIndex(self.w.materials_box.currentIndex())
         self.autoChange = False
@@ -4724,6 +4669,8 @@ class HandlerClass:
             self.materialChangePin.set(0)
 
     def material_change_number_pin_changed(self, halpin):
+        if halpin == -1:
+            halpin = self.defaultMaterial
         if self.getMaterialBusy:
             return
         if self.materialChangePin.get() == 1:
@@ -4737,10 +4684,10 @@ class HandlerClass:
         head = _translate('HandlerClass', 'Materials Error')
         if halpin:
             # should we stop or pause the program if a timeout occurs???
-            material = int(self.w.materials_box.currentText().split(': ', 1)[0])
+            matNum = int(self.w.materials_box.currentText().split(': ', 1)[0])
             msg0 = _translate('HandlerClass', 'Material change timeout occurred for material')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:{} #{}\n'.format(head, msg0, material))
-            self.materialChangeNumberPin.set(material)
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:{} #{}\n'.format(head, msg0, matNum))
+            self.materialChangeNumberPin.set(matNum)
             self.materialChangeTimeoutPin.set(0)
             hal.set_p('motion.digital-in-03','0')
 
@@ -4750,316 +4697,144 @@ class HandlerClass:
 
     def material_temp_pin_changed(self, halpin):
         if halpin:
-            t_name = 'Temporary {}'.format(halpin)
-            k_width, p_height, p_delay, pj_height, pj_delay, c_height, \
-            c_speed, c_amps, c_volts, pause, g_press, c_mode, t_item = \
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            with open(self.tmpMaterialFileGCode, 'r') as f_in:
+            mat = [halpin, 'Temporary {}'.format(halpin), 0,0,0,0,0,0,0,0,0,0,0,0]
+            with open(self.tmpMaterialGcode, 'r') as f_in:
                 for line in f_in:
                     if line.startswith('NAME'):
-                        t_name = line.split('=')[1].strip()
+                        mat[1] = line.split('=')[1].strip()
                     if line.startswith('KERF_WIDTH'):
-                        k_width = float(line.split('=')[1].strip())
+                        mat[2] = float(line.split('=')[1].strip())
                     elif line.startswith('PIERCE_HEIGHT'):
-                        p_height = float(line.split('=')[1].strip())
+                        mat[3] = float(line.split('=')[1].strip())
                     elif line.startswith('PIERCE_DELAY'):
-                        p_delay = float(line.split('=')[1].strip())
+                        mat[4] = float(line.split('=')[1].strip())
                     elif line.startswith('PUDDLE_JUMP_HEIGHT'):
-                        pj_height = float(line.split('=')[1].strip())
+                        mat[5] = float(line.split('=')[1].strip())
                     elif line.startswith('PUDDLE_JUMP_DELAY'):
-                        pj_delay = float(line.split('=')[1].strip())
+                        mat[6] = float(line.split('=')[1].strip())
                     elif line.startswith('CUT_HEIGHT'):
-                        c_height = float(line.split('=')[1].strip())
+                        mat[7] = float(line.split('=')[1].strip())
                     elif line.startswith('CUT_SPEED'):
-                        c_speed = float(line.split('=')[1].strip())
+                        mat[8] = float(line.split('=')[1].strip())
                     elif line.startswith('CUT_AMPS'):
-                        c_amps = float(line.split('=')[1].strip())
+                        mat[9] = float(line.split('=')[1].strip())
                     elif line.startswith('CUT_VOLTS'):
-                        c_volts = float(line.split('=')[1].strip())
+                        mat[10] = float(line.split('=')[1].strip())
                     elif line.startswith('PAUSE_AT_END'):
-                        pause = float(line.split('=')[1].strip())
+                        mat[11] = float(line.split('=')[1].strip())
                     elif line.startswith('GAS_PRESSURE'):
-                        g_press = float(line.split('=')[1].strip())
+                        mat[12] = float(line.split('=')[1].strip())
                     elif line.startswith('CUT_MODE'):
-                        c_mode = float(line.split('=')[1].strip())
-            self.write_materials(halpin, t_name, k_width, p_height, \
-                                 p_delay, pj_height, pj_delay, c_height, c_speed, \
-                                 c_amps, c_volts, pause, g_press, c_mode, t_item)
+                        mat[13] = float(line.split('=')[1].strip())
+            self.write_materials_to_dict(mat)
             self.display_materials()
-            self.change_material(0)
-            self.w.materials_box.setCurrentIndex(0)
+            self.change_material(self.defaultMaterial)
+            self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
             self.materialTempPin.set(0)
 
-    def save_materials(self, material, index):
-        if index == 0:
-            self.save_default_material()
-        self.save_material_file(material, index)
-
-    def load_materials(self):
-        self.load_default_material()
-        self.load_material_file()
-
-    def write_materials(self, *items):
-        mat = []
-        for item in items[1:]:
-            mat.append(item)
-        self.materialFileDict[items[0]] = mat
+    def write_materials_to_dict(self, matNum):
+        self.materialDict[matNum[0]] = matNum[1:]
 
     def display_materials(self):
         self.materialList = []
         self.w.materials_box.clear()
         self.w.material_selector.clear()
         self.w.conv_material.clear()
-        for key in sorted(self.materialFileDict):
-            self.w.materials_box.addItem('{:05d}: {}'.format(key, self.materialFileDict[key][0]))
-            self.w.material_selector.addItem('{:05d}: {}'.format(key, self.materialFileDict[key][0]))
-            self.w.conv_material.addItem('{:05d}: {}'.format(key, self.materialFileDict[key][0]))
+        for key in sorted(self.materialDict):
+            self.w.materials_box.addItem('{:05d}: {}'.format(key, self.materialDict[key][0]))
+            self.w.material_selector.addItem('{:05d}: {}'.format(key, self.materialDict[key][0]))
+            self.w.conv_material.addItem('{:05d}: {}'.format(key, self.materialDict[key][0]))
             self.materialList.append(key)
 
-    def change_material(self, material):
-            self.materialName = self.materialFileDict[material][0]
-            self.w.kerf_width.setValue(self.materialFileDict[material][1])
-            self.w.pierce_height.setValue(self.materialFileDict[material][2])
-            self.w.pierce_delay.setValue(self.materialFileDict[material][3])
-            self.w.puddle_jump_height.setValue(self.materialFileDict[material][4])
-            self.w.puddle_jump_delay.setValue(self.materialFileDict[material][5])
-            self.w.cut_height.setValue(self.materialFileDict[material][6])
-            self.w.cut_feed_rate.setValue(self.materialFileDict[material][7])
-            self.w.cut_amps.setValue(self.materialFileDict[material][8])
-            self.w.cut_volts.setValue(self.materialFileDict[material][9])
-            self.w.pause_at_end.setValue(self.materialFileDict[material][10])
-            self.w.gas_pressure.setValue(self.materialFileDict[material][11])
-            self.w.cut_mode.setValue(self.materialFileDict[material][12])
-            self.materialChangeNumberPin.set(material)
+    def change_material(self, matNum):
+        self.materialName = self.materialDict[matNum][0]
+        self.w.kerf_width.setValue(self.materialDict[matNum][1])
+        self.w.pierce_height.setValue(self.materialDict[matNum][2])
+        self.w.pierce_delay.setValue(self.materialDict[matNum][3])
+        self.w.puddle_jump_height.setValue(self.materialDict[matNum][4])
+        self.w.puddle_jump_delay.setValue(self.materialDict[matNum][5])
+        self.w.cut_height.setValue(self.materialDict[matNum][6])
+        self.w.cut_feed_rate.setValue(self.materialDict[matNum][7])
+        self.w.cut_amps.setValue(self.materialDict[matNum][8])
+        self.w.cut_volts.setValue(self.materialDict[matNum][9])
+        self.w.pause_at_end.setValue(self.materialDict[matNum][10])
+        self.w.gas_pressure.setValue(self.materialDict[matNum][11])
+        self.w.cut_mode.setValue(self.materialDict[matNum][12])
+        self.materialChangeNumberPin.set(matNum)
 
-    def save_material_file(self, material, index):
-        COPY(self.materialFile, self.tmpMaterialFile)
-        with open(self.tmpMaterialFile, 'r') as inFile:
-            with open(self.materialFile, 'w') as outFile:
-                while 1:
-                    line = inFile.readline()
-                    if not line: break
-                    elif line.startswith('[MATERIAL_NUMBER_') and \
-                         material == int(line.strip().strip(']').split('[MATERIAL_NUMBER_')[1]):
-                        outFile.write(line)
-                        break
-                    else:
-                        outFile.write(line)
-                while 1:
-                    line = inFile.readline()
-                    if not line: break
-                    elif line.startswith('[MATERIAL_NUMBER_'):
-                        outFile.write(line)
-                        break
-                    elif line.startswith('NAME'):
-                        outFile.write(line)
-                    elif line.startswith('KERF_WIDTH'):
-                        outFile.write('KERF_WIDTH         = {}\n'.format(self.w.kerf_width.value()))
-                    elif line.startswith('PIERCE_HEIGHT'):
-                        outFile.write('PIERCE_HEIGHT      = {}\n'.format(self.w.pierce_height.value()))
-                    elif line.startswith('PIERCE_DELAY'):
-                        outFile.write('PIERCE_DELAY       = {}\n'.format(self.w.pierce_delay.value()))
-                    elif line.startswith('PUDDLE_JUMP_HEIGHT'):
-                        outFile.write('PUDDLE_JUMP_HEIGHT = {}\n'.format(self.w.puddle_jump_height.value()))
-                    elif line.startswith('PUDDLE_JUMP_DELAY'):
-                        outFile.write('PUDDLE_JUMP_DELAY  = {}\n'.format(self.w.puddle_jump_delay.value()))
-                    elif line.startswith('CUT_HEIGHT'):
-                        outFile.write('CUT_HEIGHT         = {}\n'.format(self.w.cut_height.value()))
-                    elif line.startswith('CUT_SPEED'):
-                        outFile.write('CUT_SPEED          = {}\n'.format(self.w.cut_feed_rate.value()))
-                    elif line.startswith('CUT_AMPS'):
-                        outFile.write('CUT_AMPS           = {}\n'.format(self.w.cut_amps.value()))
-                    elif line.startswith('CUT_VOLTS'):
-                        outFile.write('CUT_VOLTS          = {}\n'.format(self.w.cut_volts.value()))
-                    elif line.startswith('PAUSE_AT_END'):
-                        outFile.write('PAUSE_AT_END       = {}\n'.format(self.w.pause_at_end.value()))
-                    elif line.startswith('GAS_PRESSURE'):
-                        outFile.write('GAS_PRESSURE       = {}\n'.format(self.w.gas_pressure.value()))
-                    elif line.startswith('CUT_MODE'):
-                        outFile.write('CUT_MODE           = {}\n'.format(self.w.cut_mode.value()))
-                    else:
-                         outFile.write(line)
-                while 1:
-                    line = inFile.readline()
-                    if not line: break
-                    outFile.write(line)
+    def save_material_file(self, matNum, index):
+        mat = [matNum]
+        mat.append(self.w.materials_box.currentText().split(': ', 1)[1].strip())
+        mat.append(self.w.kerf_width.value())
+        mat.append(self.w.pierce_height.value())
+        mat.append(self.w.pierce_delay.value())
+        mat.append(self.w.puddle_jump_height.value())
+        mat.append(self.w.puddle_jump_delay.value())
+        mat.append(self.w.cut_height.value())
+        mat.append(self.w.cut_feed_rate.value())
+        mat.append(self.w.cut_amps.value())
+        mat.append(self.w.cut_volts.value())
+        mat.append(self.w.pause_at_end.value())
+        mat.append(self.w.gas_pressure.value())
+        mat.append(self.w.cut_mode.value())
+        self.write_one_material(mat)
         self.materialUpdate = True
-        self.materialFileDict = {}
-        self.load_materials()
+        self.materialDict = {}
+        self.load_material_file()
         self.w.materials_box.setCurrentIndex(index)
         self.materialUpdate = False
         self.set_saved_material()
 
     def set_saved_material(self):
-        material = int(self.w.materials_box.currentText().split(': ', 1)[0])
-        self.materialFileDict[material][0] = self.materialName
-        self.materialFileDict[material][1] = self.w.kerf_width.value()
-        self.materialFileDict[material][2] = self.w.pierce_height.value()
-        self.materialFileDict[material][3] = self.w.pierce_delay.value()
-        self.materialFileDict[material][4] = self.w.puddle_jump_height.value()
-        self.materialFileDict[material][5] = self.w.puddle_jump_delay.value()
-        self.materialFileDict[material][6] = self.w.cut_height.value()
-        self.materialFileDict[material][7] = self.w.cut_feed_rate.value()
-        self.materialFileDict[material][8] = self.w.cut_amps.value()
-        self.materialFileDict[material][9] = self.w.cut_volts.value()
-        self.materialFileDict[material][10] = self.w.pause_at_end.value()
-        self.materialFileDict[material][11] = self.w.gas_pressure.value()
-        self.materialFileDict[material][12] = self.w.cut_mode.value()
-
-        self.write_materials( \
-                material, self.materialName , \
-                self.w.kerf_width.value(), \
-                self.w.pierce_height.value(), \
-                self.w.pierce_delay.value(), \
-                self.w.puddle_jump_height.value(), \
-                self.w.puddle_jump_delay.value(), \
-                self.w.cut_height.value(), \
-                self.w.cut_feed_rate.value(), \
-                self.w.cut_amps.value(), \
-                self.w.cut_volts.value(), \
-                self.w.pause_at_end.value(), \
-                self.w.gas_pressure.value(), \
-                self.w.cut_mode.value())
+        mat = [int(self.w.materials_box.currentText().split(': ', 1)[0])]
+        mat.append(self.materialName)
+        mat.append(self.w.kerf_width.value())
+        mat.append(self.w.pierce_height.value())
+        mat.append(self.w.pierce_delay.value())
+        mat.append(self.w.puddle_jump_height.value())
+        mat.append(self.w.puddle_jump_delay.value())
+        mat.append(self.w.cut_height.value())
+        mat.append(self.w.cut_feed_rate.value())
+        mat.append(self.w.cut_amps.value())
+        mat.append(self.w.cut_volts.value())
+        mat.append(self.w.pause_at_end.value())
+        mat.append(self.w.gas_pressure.value())
+        mat.append(self.w.cut_mode.value())
+        self.write_materials_to_dict(mat)
 
     def load_material_file(self):
         self.getMaterialBusy = 1
+        # create a basic default material if no materials exist
+        if not self.MATS.sections():
+            if self.units == 'mm':
+                mat = [0,'Basic default Material',1,3,.1,0,0,1,1000,45,100,0,0,1]
+            else:
+                mat = [0,'Basic default Material',.04,.12,.1,0,0,.04,40,45,100,0,0,1]
+            self.write_one_material(mat)
         head = _translate('HandlerClass', 'Materials Error')
-        with open(self.materialFile, 'r') as f_in:
-            firstpass = True
-            material_error = False
-            t_item = 0
-            required = ['PIERCE_HEIGHT', 'PIERCE_DELAY', 'CUT_HEIGHT', 'CUT_SPEED']
-            received = []
-            for line in f_in:
-                try:
-                    if line.startswith('#'):
-                        continue
-                    elif line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
-                        if int(line.rsplit('_', 1)[1].strip().strip(']')) < 1000000:
-                            if not firstpass:
-                                self.write_materials(t_number,t_name,k_width,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
-                                for item in required:
-                                    if item not in received:
-                                        msg0 = _translate('HandlerClass', 'is missing from Material')
-                                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {} #{}\n'.format(head, item, msg0, t_number))
-                            firstpass = False
-                            t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
-                            self.materialNumList.append(t_number)
-                            t_name = k_width = p_height = p_delay = pj_height = pj_delay = c_height = c_speed = c_amps = c_volts =  pause = g_press = c_mode = 0.0
-                            t_item += 1
-                            received = []
-                        else:
-                            msg0 = _translate('HandlerClass', 'Line')
-                            msg1 = _translate('HandlerClass', 'is invalid')
-                            msg2 = _translate('HandlerClass', 'Material numbers need to be less than 1000000')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} "{}" {}\n{}\n'.format(head, msg0, line.strip(), msg1, msg2))
-                            continue
-                    elif line.startswith('NAME'):
-                        if line.split('=')[1].strip():
-                            t_name = line.split('=')[1].strip()
-                    elif line.startswith('KERF_WIDTH'):
-                        if line.split('=')[1].strip():
-                            k_width = float(line.split('=')[1].strip())
-                    elif line.startswith('PIERCE_HEIGHT'):
-                        received.append('PIERCE_HEIGHT')
-                        if line.split('=')[1].strip():
-                            p_height = float(line.split('=')[1].strip())
-                        elif t_number:
-                            msg0 = _translate('HandlerClass', 'No value for PIERCE_HEIGHT in Material')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n'.format(head, msg0, t_number))
-                    elif line.startswith('PIERCE_DELAY'):
-                        received.append('PIERCE_DELAY')
-                        if line.split('=')[1].strip():
-                            p_delay = float(line.split('=')[1].strip())
-                        else:
-                            msg0 = _translate('HandlerClass', 'No value for PIERCE_DELAY in Material')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n'.format(head, msg0, t_number))
-                    elif line.startswith('PUDDLE_JUMP_HEIGHT'):
-                        if line.split('=')[1].strip():
-                            pj_height = float(line.split('=')[1].strip())
-                    elif line.startswith('PUDDLE_JUMP_DELAY'):
-                        if line.split('=')[1].strip():
-                            pj_delay = float(line.split('=')[1].strip())
-                    elif line.startswith('CUT_HEIGHT'):
-                        received.append('CUT_HEIGHT')
-                        if line.split('=')[1].strip():
-                            c_height = float(line.split('=')[1].strip())
-                        else:
-                            msg0 = _translate('HandlerClass', 'No value for CUT_HEIGHT in Material')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n'.format(head, msg0, t_number))
-                    elif line.startswith('CUT_SPEED'):
-                        received.append('CUT_SPEED')
-                        if line.split('=')[1].strip():
-                            c_speed = float(line.split('=')[1].strip())
-                        else:
-                            msg0 = _translate('HandlerClass', 'No value for CUT_SPEED in Material')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n'.format(head, msg0, t_number))
-                    elif line.startswith('CUT_AMPS'):
-                        if line.split('=')[1].strip():
-                            c_amps = float(line.split('=')[1].strip().replace(' ',''))
-                    elif line.startswith('CUT_VOLTS'):
-                        if line.split('=')[1].strip():
-                            c_volts = float(line.split('=')[1].strip())
-                    elif line.startswith('PAUSE_AT_END'):
-                        if line.split('=')[1].strip():
-                            pause = float(line.split('=')[1].strip())
-                    elif line.startswith('GAS_PRESSURE'):
-                        if line.split('=')[1].strip():
-                            g_press = float(line.split('=')[1].strip())
-                    elif line.startswith('CUT_MODE'):
-                        if line.split('=')[1].strip():
-                            c_mode = float(line.split('=')[1].strip())
-                except:
-                    msg0 = _translate('HandlerClass', 'Material file processing was aborted')
-                    msg1 = _translate('HandlerClass', 'The following line in the material file')
-                    msg2 = _translate('HandlerClass', 'contains an erroneous character')
-                    msg3 = _translate('HandlerClass', 'Fix the line and reload the material file')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n{}:\n{}{}\n'.format(head, msg0, msg1, msg2, line, msg3))
-                    material_error = True
-                    break
-            if not firstpass and not material_error:
-                self.write_materials(t_number,t_name,k_width,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
-                for item in required:
-                    if item not in received:
-                        msg0 = _translate('HandlerClass', 'is missing from Material')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {} #{}\n'.format(head, item, msg0, t_number))
+        # read all the materials into the materials dict
+        for section in self.MATS.sections():
+            matNum = int(section.rsplit('_',1)[1])
+            if matNum >= 1000000:
+                msg0 = _translate('HandlerClass', 'Material number')
+                msg1 = _translate('HandlerClass', 'is invalid')
+                msg2 = _translate('HandlerClass', 'Material numbers need to be less than 1000000')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} "{}" {}\n{}\n'.format(head, msg0, matNum, msg1, msg2))
+                continue
+            mat = self.read_one_material(section)
+            self.materialNumList.append(matNum)
+            self.write_materials_to_dict(mat)
         self.display_materials()
-        self.change_material(0)
+        self.defaultMaterial = self.PREFS.getpref('Default material', self.materialNumList[0], int, 'GUI_OPTIONS')
+        self.change_material(self.defaultMaterial)
+        self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
+        self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
+        self.w.conv_material.setCurrentIndex(self.w.materials_box.currentIndex())
+        self.set_default_material()
         self.getMaterialBusy = 0
 
-    def check_material_file(self):
-        # create a new material file if it doesn't exist
-        if not os.path.exists(self.materialFile):
-            if os.path.exists('{}_material.cfg'.format(self.machineName.lower())):
-                MOVE('{}_material.cfg'.format(self.machineName.lower()), self.materialFile)
-                return
-            with open(self.materialFile, 'w') as f_out:
-                f_out.write(\
-                    '# plasmac material file\n'\
-                    '# example only, may be deleted\n'\
-                    '# items marked * are mandatory\n'\
-                    '# other items are optional and will default to 0\n'\
-                    '#[MATERIAL_NUMBER_1]\n'\
-                    '#NAME               = \n'\
-                    '#KERF_WIDTH         = \n'\
-                    '#PIERCE_HEIGHT      = *\n'\
-                    '#PIERCE_DELAY       = *\n'\
-                    '#PUDDLE_JUMP_HEIGHT = \n'\
-                    '#PUDDLE_JUMP_DELAY  = \n'\
-                    '#CUT_HEIGHT         = *\n'\
-                    '#CUT_SPEED          = *\n'\
-                    '#CUT_AMPS           = \n'\
-                    '#CUT_VOLTS          = \n'\
-                    '#PAUSE_AT_END       = \n'\
-                    '#GAS_PRESSURE       = \n'\
-                    '#CUT_MODE           = \n'\
-                    '\n')
-            head = _translate('HandlerClass', 'Materials Setup')
-            msg0 = _translate('HandlerClass', 'Creating New Material File')
-            STATUS.emit('error', linuxcnc.OPERATOR_DISPLAY, '{}:\n{}: {}\n'.format(head, msg0, self.materialFile))
-
-    def material_exists(self, material):
-        if int(material) in self.materialList:
+    def material_exists(self, matNum):
+        if int(matNum) in self.materialList:
             return True
         else:
             if self.autoChange:
@@ -5068,39 +4843,53 @@ class HandlerClass:
                 head = _translate('HandlerClass', 'Materials Error')
                 msg0 = _translate('HandlerClass', 'Material #')
                 msg1 = _translate('HandlerClass', 'not in material list')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{} {}\n'.format(head, msg0, int(material),msg1))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{} {}\n'.format(head, msg0, int(matNum),msg1))
             return False
 
-    def save_default_material(self):
-        self.PREFS.putpref('Kerf width', self.w.kerf_width.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Pierce height',self.w.pierce_height.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Pierce delay',self.w.pierce_delay.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Puddle jump height',self.w.puddle_jump_height.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Puddle jump delay',self.w.puddle_jump_delay.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Cut height',self.w.cut_height.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Cut feed rate',self.w.cut_feed_rate.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Cut amps',self.w.cut_amps.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Cut volts',self.w.cut_volts.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Pause at end',self.w.pause_at_end.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Gas pressure',self.w.gas_pressure.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Cut mode',self.w.cut_mode.value(), float, 'DEFAULT MATERIAL')
+    def read_one_material(self, section):
+        mat = [int(section.rsplit('_',1)[1])]
+        mat.append(self.MATS.getpref('NAME', 'Material', str, section))
+        mat.append(self.MATS.getpref('KERF_WIDTH', 1.0 / self.unitsPerMm, float, section))
+        mat.append(self.MATS.getpref('PIERCE_HEIGHT', 3.0 / self.unitsPerMm, float, section))
+        mat.append(self.MATS.getpref('PIERCE_DELAY', 0.2, float, section))
+        mat.append(self.MATS.getpref('PUDDLE_JUMP_HEIGHT', 0, float, section))
+        mat.append(self.MATS.getpref('PUDDLE_JUMP_DELAY', 0, float, section))
+        mat.append(self.MATS.getpref('CUT_HEIGHT', 1.0 / self.unitsPerMm, float, section))
+        mat.append(self.MATS.getpref('CUT_SPEED', 2000 / self.unitsPerMm, float, section))
+        mat.append(self.MATS.getpref('CUT_AMPS', 45, float, section))
+        mat.append(self.MATS.getpref('CUT_VOLTS', 100, float, section))
+        mat.append(self.MATS.getpref('PAUSE_AT_END', 0, float, section))
+        mat.append(self.MATS.getpref('GAS_PRESSURE', 0, float, section))
+        mat.append(self.MATS.getpref('CUT_MODE', 1, float, section))
+        return(mat)
 
-    def load_default_material(self):
-        self.write_materials( \
-                0, 'DEFAULT' , \
-                self.PREFS.getpref('Kerf width', round(1 * self.unitsPerMm, 2), float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Pierce height', round(3 * self.unitsPerMm, 2), float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Pierce delay', 0, float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Puddle jump height', 0, float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Puddle jump delay', 0, float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Cut height', round(1 * self.unitsPerMm, 2), float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Cut feed rate', round(4000 * self.unitsPerMm, 0), float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Cut amps', 45, float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Cut volts', 99, float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Pause at end', 0, float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Gas pressure', 0, float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Cut mode', 1, float, 'DEFAULT MATERIAL'),\
-                0)
+    def write_one_material(self, mat):
+        section = 'MATERIAL_NUMBER_{}'.format(mat[0])
+        self.MATS.putpref('NAME', mat[1], str, section)
+        self.MATS.putpref('KERF_WIDTH', mat[2], float, section)
+        self.MATS.putpref('PIERCE_HEIGHT', mat[3], float, section)
+        self.MATS.putpref('PIERCE_DELAY', mat[4], float, section)
+        self.MATS.putpref('PUDDLE_JUMP_HEIGHT', mat[5], float, section)
+        self.MATS.putpref('PUDDLE_JUMP_DELAY', mat[6], float, section)
+        self.MATS.putpref('CUT_HEIGHT', mat[7], float, section)
+        self.MATS.putpref('CUT_SPEED', mat[8], float, section)
+        self.MATS.putpref('CUT_AMPS', mat[9], float, section)
+        self.MATS.putpref('CUT_VOLTS', mat[10], float, section)
+        self.MATS.putpref('PAUSE_AT_END', mat[11], float, section)
+        self.MATS.putpref('GAS_PRESSURE', mat[12], float, section)
+        self.MATS.putpref('CUT_MODE', mat[13], float, section)
+
+    def set_default_material(self):
+        self.w.default_material.clear()
+        for n in self.materialNumList:
+            self.w.default_material.addItem(str(n))
+        self.w.default_material.setCurrentIndex(self.materialList.index(self.defaultMaterial))
+
+    def default_material_changed(self, index):
+        self.defaultMaterial = self.materialList[index]
+        self.change_material(self.defaultMaterial)
+        self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
+        self.PREFS.putpref('Default material', self.defaultMaterial, int, 'GUI_OPTIONS')
 
 
 #########################################################################################################################

@@ -1545,6 +1545,9 @@ M3 $0 S1
 M5 $0
 ----
 
+[NOTE]
+Returning to the default material prior to the end of the program is possible with the code *M190 P-1*.
+
 [[plasma:magic-comments]]
 === Material Addition Via Magic Comments In G-code
 

@@ -529,8 +529,12 @@ QComboBox#material_selector {
     background: frames;
     border: none;
     border-radius: 0;
-    height: 16px;
-    }
+    height: 16px }
+
+QComboBox#default_material {
+    height: 24px;
+    font: 11pt;
+    padding-left: 60px }
 
 QComboBox::drop-down {
     width: 0;
