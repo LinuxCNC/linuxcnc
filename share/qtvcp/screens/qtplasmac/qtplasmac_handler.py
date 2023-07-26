@@ -1,4 +1,4 @@
-VERSION = '1.236.277'
+VERSION = '1.236.278'
 
 '''
 qtplasmac_handler.py
@@ -4669,6 +4669,8 @@ class HandlerClass:
             self.materialChangePin.set(0)
 
     def material_change_number_pin_changed(self, halpin):
+        if halpin == -1:
+            halpin = self.defaultMaterial
         if self.getMaterialBusy:
             return
         if self.materialChangePin.get() == 1:

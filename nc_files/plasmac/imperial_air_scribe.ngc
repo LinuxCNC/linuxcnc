@@ -1,15 +1,13 @@
-;imperial air-scribe
+(imperial air-scribe)
 
-G20 (units: imperial)
-G40 (cutter compensation: off)
-G90 (distance mode: absolute)
-M52 P1 (adaptive feed: on)
-G64 P0.01 Q0.0001 (tracking tolerances: 0.01)
-F#<_hal[plasmac.cut-feed-rate]>
+G20 (imperial units)
+G64 P0.005 (path tolerance)
+M52 P1 (enable reverse-run)
+
+F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
 
 M6 T1 (air scribe tool)
-G43 (apply offsets)
-F#<_hal[plasmac.cut-feed-rate]>
+G43 (apply tool offsets)
 
 G0 X1.0918 Y0.7874
 M3 $1  S1 (start air-scribe)
@@ -90,12 +88,7 @@ G1 X2.8452 Y1.1155
 M5 $1 (stop air-scribe)
 
 M6 T0 (torch tool)
-G43 (apply offsets)
-F#<_hal[plasmac.cut-feed-rate]>
+G43 (apply tool offsets)
 
 G0 X0 Y0
-
-G40 (cutter compensation: off)
-G90 (distance mode: absolute)
-M5 $-1 (plasmac stop)
 M2 (end program)
