@@ -235,16 +235,16 @@ This can be useful for minor changes while still honouring standard handler upda
 In the _INI file_ under the `[DISPLAY]` heading add *`USER_COMMAND_FILE = _PATH_`* +
 
 _PATH_ can be any valid path.
-It can use `~` for home directory or `WORKINGDIRECTORY` or `CONFIGDIRECTORY` to represent QtVCP's idea of those directories, e.g.:
+It can use `~` for home directory or `WORKINGFOLDER` or `CONFIGFOLDER` to represent QtVCP's idea of those directories, e.g.:
 
 [source,{ini}]
 ----
 [DISPLAY]
-USER_COMMAND_FILE = CONFIGDIRECTORY/<screen_name_added_commands>
+USER_COMMAND_FILE = CONFIGFOLDER/<screen_name_added_commands>
 ----
 
 If no entry is found in the _INI_, QtVCP will look in the *default path*.
-The default path is in the configuration directory as a hidden file using the screen basename and rc, e.g., *`CONFIGDIRECTORY/.<screen_name>rc`*.
+The default path is in the configuration directory as a hidden file using the screen basename and rc, e.g., *`CONFIGURATION DIRECTORY/.<screen_name>rc`*.
 
 This file will be read and executed as Python code in the *handler file context*.
 
