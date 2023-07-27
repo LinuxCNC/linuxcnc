@@ -60,14 +60,10 @@ ifneq "$(enable_build_documentation)" ""
 endif
 
 override_dh_auto_clean:
-	dh_auto_clean
-	py3clean .
-	if [ -r src/Makefile.inc -a -r src/config.status ]; then $(MAKE) -C src clean -s; fi
-	rm -f Makefile.inc
-	rm -f src/config.log src/config.status
-	rm -f $(for i in $(find . -name "*.in"); do basename $i .in; done)
-	dh_clean
-
+	if [ -r src/Makefile.inc -a -r src/config.status ]; then \
+	dh_auto_clean; \
+	py3clean .; \
+	fi
 
 override_dh_auto_install-arch:
 	# Install all architecture-dependent libraries and executables
