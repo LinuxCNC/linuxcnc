@@ -71,7 +71,9 @@ DISPLAY = qtvcp qtdragon
 === Preferences
 
 To keep track of preferences, QtDragon looks for a preference text file.
-Add the following entry under the `[DISPLAY]` heading.
+Add the following entry under the `[DISPLAY]` heading. +
+It can use `~` for home directory or `WORKINGFOLDER` or `CONFIGFOLDER`
+ to represent QtVCP's idea of those directories: +
 This example will save the file in the config folder of the launch screen.
 (Other options are possible see the QtVCP's screenoption widget docs.)
 
@@ -1356,7 +1358,7 @@ All aspects of the GUI are fully customization through Qt Designer and/or Python
 This capability is included with the QtVCP development environment.
 The extensive use of QtVCP widgets keeps the amount of required Python code to a minimum, allowing relatively easy modifications.
 The LinuxCNC website has extensive documentation on the installation and use of QtVCP libraries.
-See <<cha:qtvcp,QtVCP>> for more information in about QtVCP in general.
+See <<cha:qtvcp,QtVCP>> for more information in about QtVCP in general. +
 Qtdragon can also utilize QtVCP's rc file to do minor python code modifications without using a custom handler file.
 
 [source,{ini}]
