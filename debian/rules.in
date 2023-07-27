@@ -37,12 +37,14 @@ SRCDIR = $(CURDIR)/src
 DESTDIR=$(CURDIR)/debian/tmp
 DEV_PACKAGE_NAME=@MAIN_PACKAGE_NAME@-dev
 
+export PYTHON=/usr/bin/python3
+
 %:
 	dh $@ -D$(SRCDIR)
 
 override_dh_auto_configure:
 	cd src && ./autogen.sh
-	cd src && PYTHON=/usr/bin/python3 ./configure \
+	cd src && ./configure \
 	    --prefix=/usr --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
 	    $(configure_realtime_arg) \
