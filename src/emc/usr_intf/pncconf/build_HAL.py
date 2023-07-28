@@ -1687,11 +1687,14 @@ class HAL:
                                 comment = "#qtplasmac uses digital output %s:\n#" % p
                             print("%snet %s  =>     %s"% (comment,p,temp), file=file)
                     if i: # invert pin
-                        if "sserial" in pname:
-                            ending = "-invert"
-                        elif "parport" in pinname: ending = "-invert"
-                        else: ending = ".invert_output"
-                        print("setp %s true"%  (pinname + ending ), file=file)
+                        if t in (_PD.SSR0,_PD.OUTM0):
+                            print("setp %s true"%  (pinname.replace('.out-', '.invert-')), file=file)
+                        else:
+                            if "sserial" in pname:
+                                ending = "-invert"
+                            elif "parport" in pinname: ending = "-invert"
+                            else: ending = ".invert_output"
+                            print("setp %s true"%  (pinname + ending ), file=file)
 
             # for pwm pins
             elif t in (_PD.PWMP,_PD.PDMP,_PD.UDMU):
