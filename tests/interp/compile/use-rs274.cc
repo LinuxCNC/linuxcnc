@@ -211,7 +211,7 @@ double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE() { return 0.0; }
 void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size) {
     snprintf(filename, max_size, "%s", "rs274ngc.var");
 }
-CANON_PLANE GET_EXTERNAL_PLANE() { return CANON_PLANE_XY; }
+CANON_PLANE GET_EXTERNAL_PLANE() { return CANON_PLANE::XY; }
 double GET_EXTERNAL_POSITION_A() { return 0.0; }
 double GET_EXTERNAL_POSITION_B() { return 0.0; }
 double GET_EXTERNAL_POSITION_C() { return 0.0; }
