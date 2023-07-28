@@ -46,6 +46,8 @@ override_dh_auto_configure:
 	cd src && ./autogen.sh
 	dh_auto_configure -- \
 	    --prefix=/usr --sysconfdir=/etc \
+	    --libdir=/usr/lib \
+	    --disable-multiarch \
 	    --mandir=/usr/share/man \
 	    $(configure_realtime_arg) \
 	    $(enable_build_documentation) \
