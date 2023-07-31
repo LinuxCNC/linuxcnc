@@ -136,6 +136,7 @@ class HandlerClass:
 <h1>Setup Tab</h1>
 <p>If you select a file with .html as a file ending, it will be shown here..</p>
 <li><a href="http://linuxcnc.org/docs/devel/html/">Documents online</a></li>
+<li><a href="http://linuxcnc.org/docs/2.9/html/gui/qtdragon.html">QtDragon online</a></li>
 <li><a href="file://%s">Local files</a></li>
 <img src="file://%s" alt="lcnc_swoop" />
 <hr />
@@ -337,6 +338,14 @@ class HandlerClass:
             if self.w.web_view:
                 self.toolBar = QtWidgets.QToolBar(self.w)
                 self.w.tabWidget_setup.setCornerWidget(self.toolBar)
+
+                self.zoomBtn = QtWidgets.QPushButton(self.w)
+                self.zoomBtn.setEnabled(True)
+                self.zoomBtn.setMinimumSize(64, 40)
+                self.zoomBtn.setIconSize(QtCore.QSize(38, 38))
+                self.zoomBtn.setIcon(QtGui.QIcon(QtGui.QPixmap(':/buttons/images/zoom.png')))
+                self.zoomBtn.clicked.connect(self.zoomWeb)
+                self.toolBar.addWidget(self.zoomBtn)
 
                 self.homeBtn = QtWidgets.QPushButton(self.w)
                 self.homeBtn.setEnabled(True)
@@ -1249,6 +1258,24 @@ class HandlerClass:
         if self.timer_on:
             self.timer_on = False
             self.add_status("Run timer stopped at {}".format(self.w.lbl_runtime.text()))
+
+    # web page zoom
+    def zoomWeb(self):
+        # webview
+        try:
+            f = self.w.web_view.zoomFactor() +.5
+            if f > 2:f = 1
+            self.w.web_view.setZoomFactor(f)
+        except:
+            pass
+
+        # PDF
+        try:
+            f = self.PDFView.zoomFactor() +.5
+            if f > 2:f = 1
+            self.PDFView.setZoomFactor(f)
+        except:
+            pass
 
     # go directly the default HTML page
     def homeWeb(self):

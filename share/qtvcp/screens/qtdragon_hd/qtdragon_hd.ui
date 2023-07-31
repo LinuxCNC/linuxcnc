@@ -15825,7 +15825,7 @@ ANGULAR</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>09:36:20 PM</string>
+               <string>10:33:51 PM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -16049,7 +16049,6 @@ ANGULAR</string>
  <resources>
   <include location="qtdragon_hd.qrc"/>
   <include location="../qtdragon/qtdragon.qrc"/>
-  <include location="qtdragon.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -16967,7 +16966,7 @@ ANGULAR</string>
   <slot>btn_gcode_zoomin_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
