@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="buttons">
+    <file>images/zoom.png</file>
     <file>images/unchecked.png</file>
     <file>images/spindle_ccw.gif</file>
     <file>images/spindle_cw.gif</file>

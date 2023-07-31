@@ -5405,19 +5405,19 @@ GCODE</string>
                               <property name="cornerButtonEnabled">
                                <bool>false</bool>
                               </property>
-                              <attribute name="horizontalHeaderDefaultSectionSize">
+                              <attribute name="horizontalHeaderMinimumSectionSize">
                                <number>80</number>
                               </attribute>
-                              <attribute name="horizontalHeaderMinimumSectionSize">
+                              <attribute name="horizontalHeaderDefaultSectionSize">
                                <number>80</number>
                               </attribute>
                               <attribute name="verticalHeaderCascadingSectionResizes">
                                <bool>false</bool>
                               </attribute>
-                              <attribute name="verticalHeaderDefaultSectionSize">
+                              <attribute name="verticalHeaderMinimumSectionSize">
                                <number>30</number>
                               </attribute>
-                              <attribute name="verticalHeaderMinimumSectionSize">
+                              <attribute name="verticalHeaderDefaultSectionSize">
                                <number>30</number>
                               </attribute>
                              </widget>
@@ -16700,7 +16700,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>11:16:14 </string>
+            <string>10:12:29 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -16880,19 +16880,17 @@ ZERO</string>
    <header>qtvcp.widgets.system_tool_button</header>
   </customwidget>
   <customwidget>
-   <class>VirtualKeyboard</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.virtualkeyboard</header>
-  </customwidget>
-  <customwidget>
    <class>ActionToolButton</class>
    <extends>QToolButton</extends>
    <header>qtvcp.widgets.action_tool_button</header>
   </customwidget>
+  <customwidget>
+   <class>VirtualKeyboard</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.virtualkeyboard</header>
+  </customwidget>
  </customwidgets>
  <resources>
-  <include location="qtdragon.qrc"/>
-  <include location="qtdragon.qrc"/>
   <include location="qtdragon.qrc"/>
  </resources>
  <connections>
@@ -17744,8 +17742,7 @@ ZERO</string>
   <slot>btn_spindle_z_down_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
-
