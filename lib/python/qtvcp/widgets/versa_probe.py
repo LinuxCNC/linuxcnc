@@ -21,11 +21,12 @@ import hal
 import json
 
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
-from PyQt5.QtCore import QProcess, QEvent
+from PyQt5.QtCore import QProcess, QEvent, Qt
 from PyQt5.QtWidgets import QDialogButtonBox
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info, Path
+from qtvcp.widgets.dialogMixin import GeometryMixin
 from qtvcp import logger
 # Instantiate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
@@ -103,10 +104,6 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         #self.buildToolTip(self.input_adj_z, '', '')
         #self.buildToolTip(self.input_adj_angle, '', '')
         self.buildToolTip(self.input_rapid_vel, 'Rapid Velocity', 'rapid_vel')
-        self.helpPages = ['versa_usage.html','versa_usage1.html','versa_usage2.html',
-                        'versa_usage3.html','versa_usage4.html','versa_usage5.html',
-                        'versa_usage6.html','versa_usage7.html','versa_usage8.html']
-        self.currentHelpPage = 0
 
     # catch focusIn event to pop calculator dialog
     def eventFilter(self, obj, event):
@@ -128,7 +125,6 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.tool_number = None
 
     def _hal_init(self):
-
         def homed_on_test():
             return (STATUS.machine_is_on() and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
 
@@ -143,6 +139,10 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.allow_auto_skew.hal_init()
         self.allow_auto_zero.hal_init()
         self.statuslabel_motiontype.hal_init()
+        self.statelabel_machineUnits.hal_init()
+        self.statelabel_machineUnits_2.hal_init()
+        self.help = HelpDialog(self.QTVCP_INSTANCE_)
+        self.help.hal_init()
 
         # connect to STATUS
         STATUS.connect('state-off', lambda w: self.setEnabled(False))
@@ -457,8 +457,77 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
                 self['status_' + key].setText('')
 
     def pop_help(self):
-        def next(self,t,direction):
-            if direction:
+        self.help.showDialog()
+
+########################################
+# required boiler code
+########################################
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
+
+class HelpDialog(QtWidgets.QDialog, GeometryMixin):
+    def __init__(self, parent=None):
+        super(HelpDialog, self).__init__(parent)
+        self._title = 'Versa Help'
+        self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.Dialog | Qt.WindowStaysOnTopHint |
+                            Qt.WindowSystemMenuHint)
+        self.currentHelpPage=-1
+        self.setMinimumWidth(600)
+        self.setMinimumHeight(600)
+        self.helpPages = ['versa_usage.html','versa_usage1.html','versa_usage2.html',
+                        'versa_usage3.html','versa_usage4.html','versa_usage5.html',
+                        'versa_usage6.html','versa_usage7.html','versa_usage8.html']
+
+    def _hal_init(self):
+        self.buildWidget()
+        self.set_default_geometry()
+        self.read_preference_geometry('VersaHelpDialog-geometry')
+
+    def buildWidget(self):
+
+        l = QtWidgets.QVBoxLayout()
+        t = QtWidgets.QTextEdit('Versa Probe Help')
+        t.setReadOnly(True)
+        try:
+            self.next(t)
+        except Exception as e:
+                t.setText('Versa Probe Help file Unavailable:\n\n{}'.format(e))
+
+        l.addWidget(t)
+
+        buttons = QDialogButtonBox()
+
+        closebutton = QtWidgets.QPushButton()
+        closebutton.setIconSize(QtCore.QSize(38, 38))
+        closebutton.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/standardbutton-cancel-128.png'))
+        closebutton.clicked.connect(lambda : self.close())
+
+        nextbutton = QtWidgets.QPushButton()
+        nextbutton.setIconSize(QtCore.QSize(38, 38))
+        nextbutton.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/right-32.png'))
+        nextbutton.clicked.connect(lambda : self.next(t,True))
+
+        previousbutton = QtWidgets.QPushButton()
+        previousbutton.setIconSize(QtCore.QSize(38, 38))
+        previousbutton.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/left-32.png'))
+        previousbutton.clicked.connect(lambda : self.next(t,False))
+
+        bBox = QDialogButtonBox(buttons)
+        bBox.addButton(previousbutton, QDialogButtonBox.ActionRole)
+        bBox.addButton(nextbutton, QDialogButtonBox.ActionRole)
+        bBox.addButton(closebutton, QDialogButtonBox.DestructiveRole)
+        bBox.rejected.connect(self.reject)
+
+        l.addWidget(bBox)
+        self.setLayout(l)
+
+    def next(self,t,direction=None):
+            if direction is None:
+                self.currentHelpPage = 0
+            elif direction:
                 self.currentHelpPage +=1
                 if self.currentHelpPage > len(self.helpPages)-1:
                     self.currentHelpPage = len(self.helpPages)-1
@@ -476,53 +545,20 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
                 t.setHtml(html)
             except Exception as e:
                 t.setText('Versa Probe Help file Unavailable:\n\n{}'.format(e))
+            if direction is None:
+                return
+            self.show()
 
-        d = QtWidgets.QDialog(self)
-        d.setMinimumWidth(600)
-        d.setMinimumHeight(600)
-        l = QtWidgets.QVBoxLayout()
-        t = QtWidgets.QTextEdit('Versa Probe Help')
-        t.setReadOnly(False)
-        try:
-            pagePath = os.path.join(HELP, 'versa_usage.html')
-            file = QtCore.QFile(pagePath)
-            file.open(QtCore.QFile.ReadOnly)
-            html = file.readAll()
-            html = str(html, encoding='utf8')
-            html = html.replace("../images/probe_icons/","{}/probe_icons/".format(INFO.IMAGE_PATH))
-            t.setHtml(html)
-        except Exception as e:
-                t.setText('Versa Probe Help file Unavailable:\n\n{}'.format(e))
+    # accept button applies presets and if line number given starts linuxcnc
+    def close(self):
+        self.record_geometry()
+        super(HelpDialog, self).close()
 
-        l.addWidget(t)
-
-        num = 0
-        buttons = QDialogButtonBox.Close
-        nextbutton = QtWidgets.QPushButton('Next\nPage')
-        nextbutton.clicked.connect(lambda : next(self,t,True))
-        previousbutton = QtWidgets.QPushButton('Page\nBack')
-        previousbutton.clicked.connect(lambda : next(self,t,False))
-
-        bBox = QDialogButtonBox(buttons)
-        bBox.addButton(previousbutton, QDialogButtonBox.ActionRole)
-        bBox.addButton(nextbutton, QDialogButtonBox.ActionRole)
-        bBox.rejected.connect(d.reject)
-
-        l.addWidget(bBox)
-        d.setLayout(l)
-
-
-        d.show()
-        d.exec_()
-
-
-########################################
-# required boiler code
-########################################
-    def __getitem__(self, item):
-        return getattr(self, item)
-    def __setitem__(self, item, value):
-        return setattr(self, item, value)
+    def showDialog(self):
+        self.setWindowTitle(self._title);
+        self.set_geometry()
+        retval = self.exec_()
+        LOG.debug('Value of pressed button: {}'.format(retval))
 
 ####################################
 # Testing
