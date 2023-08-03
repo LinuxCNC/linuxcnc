@@ -1015,6 +1015,7 @@ class HandlerClass:
                 self.add_status("Loaded HTML file : {}".format(fname))
                 self.w.stackedWidget_mainTab.setCurrentIndex(TAB_SETUP)
                 self.w.stackedWidget.setCurrentIndex(0)
+                self.w.tabWidget_setup.setCurrentIndex(1)
                 self.w.btn_setup.setChecked(True)
                 self.w.jogging_frame.hide()
             except Exception as e:
@@ -1023,6 +1024,11 @@ class HandlerClass:
             if os.path.exists(fname):
                 self.PDFView.loadView(fname)
                 self.add_status("Loaded PDF file : {}".format(fname))
+                self.w.stackedWidget_mainTab.setCurrentIndex(TAB_SETUP)
+                self.w.stackedWidget.setCurrentIndex(0)
+                self.w.tabWidget_setup.setCurrentIndex(1)
+                self.w.btn_setup.setChecked(True)
+                self.w.jogging_frame.hide()
 
     # NGCGui library overridden function
     # adds an error message to status

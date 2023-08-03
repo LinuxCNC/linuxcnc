@@ -1041,6 +1041,9 @@ class HandlerClass:
     def load_code(self, fname):
         if fname is None: return
         filename, file_extension = os.path.splitext(fname)
+
+        # loading ngc then HTML/PDF
+
         if not file_extension in (".html", '.pdf'):
             if not (INFO.program_extension_valid(fname)):
                 self.add_status("Unknown or invalid filename extension {}".format(file_extension), WARNING)
@@ -1072,12 +1075,15 @@ class HandlerClass:
                 self.PDFView.loadSample('setup_tab')
             return
 
+        # loading HTML/PDF directly
+
         if file_extension == ".html":
             try:
                 self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
                 self.add_status("Loaded HTML file : {}".format(fname))
                 self.w.stackedWidget_mainTab.setCurrentIndex(TAB_SETUP)
                 self.w.stackedWidget.setCurrentIndex(0)
+                self.w.tabWidget_setup.setCurrentIndex(0)
                 self.w.btn_setup.setChecked(True)
             except Exception as e:
                 self.add_status("Error loading HTML file {} : {}".format(fname,e))
@@ -1086,6 +1092,10 @@ class HandlerClass:
             if os.path.exists(fname):
                 self.PDFView.loadView(fname)
                 self.add_status("Loaded PDF file : {}".format(fname))
+                self.w.stackedWidget_mainTab.setCurrentIndex(TAB_SETUP)
+                self.w.stackedWidget.setCurrentIndex(0)
+                self.w.tabWidget_setup.setCurrentIndex(1)
+                self.w.btn_setup.setChecked(True)
 
     # NGCGui library overridden function
     # adds an error message to status
