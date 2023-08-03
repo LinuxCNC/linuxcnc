@@ -244,8 +244,17 @@ class Filter():
         if data[0] in 'XYZAB':
             data = f'G{self.lastG} {data}'
         # add leading 0's to G & M codes < 10
-        if data[0] in 'GM' and (len(data) < 3 or not data[2].isdigit()):
-            data = data[0] + '0' + data[1:]
+        tmp = ''
+        while data:
+            tmp += data[0]
+            if data[0] in 'GM' and data[1].isdigit():
+                if len(data) == 2:
+                    tmp += '0'
+                elif len(data) > 2:
+                    if not data[2].isdigit():
+                        tmp += '0'
+            data = data[1:]
+        data = tmp
         # if incremental distance mode fix overburn coordinates
         if data[:3] in ['G00', 'G01'] and self.distMode == 91 and (self.oBurnX or self.oBurnY):
             data = self.fix_overburn_incremental_coordinates(data)
