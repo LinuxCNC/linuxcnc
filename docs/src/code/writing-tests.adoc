@@ -33,7 +33,7 @@ _test.hal_ below the directories specified on the command line, or under
 `tests/` if no command line argument is specified. These files
 represent three different ways to run the tests.
 
-.Arguments acceppted by The _runtests_ script, see the output from `scripts/runtests -h` for the authoritative list.
+.Arguments accepted by the _runtests_ script, see the output from `scripts/runtests -h` for the authoritative list.
 ----
 -n  do not remove temporary files for successful tests.
 -s  stop after any failed test.
