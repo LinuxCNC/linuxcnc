@@ -45,7 +45,7 @@ image::images/qtvcp_spindle_belts.png["QtVCP spindle_belts Panel - Spindle Belts
 
 In addition, it is also a useful template to use for your custom panel because it includes:
 
-* Display of additional hal data
+* Display of additional HAL data
 * Buttons and button groups
 * Dynamic changes to button enabled/disabled state based on the state of other buttons
 * Saving data to the qtdragon.prefs file
@@ -59,12 +59,16 @@ The advantage of using panels is that it separates your custom display code from
 * A spindle drive (for instance VFDMOD)
 * A custom component that scales the VFD frequency to obtain the desired spindle speed.
 * A belt driven spindle that uses two belts and an intermediate idler pulley much like a drill press.
-* Connect the input pins qtdragon.belts.<pin-name> in your postgui hal file.
+* Connect the input pins qtdragon.belts.<pin-name> in your postgui HAL file.
 
 ==== Function
-The belts are broken into two button groups, the front belts and the rear belts. These are numbered as per the plate on the machine. Buttons in a group are mutually exclusive. Eg. Only one can be selected in the group.
+The belts are broken into two button groups, the front belts and the rear belts.
+These are numbered as per the plate on the machine.
+Buttons in a group are mutually exclusive, i.e., only one can be selected in the group.
 
-Additionally, it's not possible to have both belts on the same level with this kind of mechanism because you can’t fit two belts to the one idler pulley sheave.. So if a belt is selected, its opposite button is disabled. Eg. if belt 3 is selected, belt 7 is disabled.
+Additionally, it's not possible to have both belts on the same level with this kind of mechanism because you cannot fit two belts to the one idler pulley sheave.
+So if a belt is selected, its opposite button is disabled.
+E.g., if belt 3 is selected, belt 7 is disabled.
 
 ==== Embedding commands
 Add these lines to the [DISPLAY] section in your .ini file +
@@ -94,8 +98,8 @@ Customizing the panel: +
 * Connect the relevant pins in a postgui.hal file
 * Make sure your postgui file is loaded by your .ini file.
 
-For information on the finer points, consult the qtvcp and qtdragon documentation
-The python handler file also provides a useful template for any custom panel.
+For information on the finer points, consult the QtVCP and QtDragon documentation.
+The Python handler file also provides a useful template for any custom panel.
 
 [[sub:qtvcp:panels:test-dial]]
 === `test_dial`
@@ -278,15 +282,15 @@ image::images/qtvismach.png["QtVCP vismach_mill_xyz - 3-Axis Mill 3D View Panel"
 === QtVCP `vismach_router_atc`
 
 3D OpenGL view of a _3-Axis router style, gantry bed milling machine_. +
-This particular panel shows how to define and connect the model parts in the handler file, rather then importing the
-pre-built model from qtvcp's vismach library.
+This particular panel shows how to define and connect the model parts in the handler file,
+rather then importing the pre-built model from QtVCP's vismach library.
 
 [source,{hal}]
 ----
 loadusr qtvcp vismach_router_atc
 ----
 
-.QtVCP `vismach_router_atc` - 3-Axis Gantry Bed Mil 3D View Panel
+.QtVCP `vismach_router_atc` - 3-Axis Gantry Bed Mill 3D View Panel
 image::images/qtvismach_router_atc.png["QtVCP vismach_router_atc - 3-Axis Gantry Bed Mill 3D View Panel",align="center"]
 
 === QtVCP `vismach_scara`
@@ -381,7 +385,7 @@ start
     This is to _ensure that the panel created HAL pins are actually done_ in case they are used in the rest of the file.
 
 == Embedding QtVCP Virtual Control Panels into QtVCP Screens
-Qtvcp panels can be embedded into most Qtvcp screens and avoids problems such as focus transferring that can be a problem in non-native embedding.
+QtVCP panels can be embedded into most QtVCP screens and avoids problems such as focus transferring that can be a problem in non-native embedding.
 
 === Embedding Commands
 A typical screen such as QtDragon will search the INI file under the heading [DISPLAY] for commands to embed a panel.
@@ -399,11 +403,11 @@ EMBED_TAB_LOCATION=tabWidget_utilities
 *'EMBED_TAB_COMMAND'*:: is the command used to invoke loading of the panel. For native embedded panels the first word will always be 'qtvcp', the second will be the panel to load. You cannot currently add any switches to the command line. The panel will follow the debugging mode setting of the main screen.
 
 === Location of builtin Panels
-There are panels available that are included with linuxcnc. To see a list open a terminal and type 'qtvcp' and press return. +
+There are panels available that are included with LinuxCNC. To see a list open a terminal and type 'qtvcp' and press return. +
 You will get a help printout and a list of builtin screen and panels. +
 Pick any of the names from the panel list and add that to the COMMAND entry after 'qtvcp'. +
 The builtin panel search path is 'share/qtvcp/panels/PANELNAME'. +
-Run-In-Place and installed versions of linuxcnc have these in different locations on the system.
+Run-In-Place and installed versions of LinuxCNC have these in different locations on the system.
 
 === Location of Custom Panels
 Custom panels can be embedded too -either a modified builtin panel or a new user-built one. +
@@ -416,9 +420,9 @@ In a screen handler file, the reference used for the window is 'self.w'. +
 In QtVCP panels, that reference will refers to the panel's window. +
 To reference the main window use 'self.w.MAIN'
 If your panel is to be able to run independently and embedded, you must trap errors from referencing objects not available.
-(ie main screen objects are not available in an independent panel.)
+(Note, main screen objects are not available in an independent panel.)
 
-eg. This would use the panels preference file if there is one.
+E.g., this would use the panel's preference file if there is one.
 [source,{hal}]
 ----
 try:
@@ -438,7 +442,7 @@ except:
 
 === Designer Widget Tips
 
-When using python command option in Action Button widgets of an embedded panel:
+When using Python command option in Action Button widgets of an embedded panel:
 
 *`INSTANCE`*::
   refers to the panel window.
@@ -448,7 +452,7 @@ When using python command option in Action Button widgets of an embedded panel:
   refers to the main screen window.
   E.g., `MAIN_INSTANCE.my_main_screen_handler_function_call(True)`
 
-If the panel is not embedded, both refer to the panel window. +
+If the panel is not embedded, both refer to the panel window.
 
 
 // vim: set syntax=asciidoc:

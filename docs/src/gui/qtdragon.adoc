@@ -257,7 +257,7 @@ You can add multiple lines for different selections in the combo box.
 [source,{ini}]
 ----
 [FILTER]
-PROGRAM_EXTENSION = .ngc,.nc,.tap G-Code File (*.ngc,*.nc,*.tap)
+PROGRAM_EXTENSION = .ngc,.nc,.tap G-Code file (*.ngc,*.nc,*.tap)
 ----
 
 QtDragon has the ability to send loaded files through a 'filter program'.
@@ -440,7 +440,7 @@ These pins are specific to the QtDragon screen. +
 There are of course are many more HAL pins that must be connected for LinuxCNC to function.
 
 If you need a manual tool change prompt, add these lines in your postgui file. +
-Qtdragon emulates the hal_manualtoolchange HAL pins - don't load the separate HAL component 'hal_manualtoolchange'.
+QtDragon emulates the hal_manualtoolchange HAL pins - don't load the separate HAL component 'hal_manualtoolchange'.
 
 [source,{hal}]
 ----
@@ -570,7 +570,7 @@ It is up to the end user to supply the appropriate driver and HAL file connectio
 QtDragon can be set up to automatically raise and lower the Z axis when the spindle is paused. +
 When a program is paused, then you press the 'Spindle Pause' button to stop the spindle and raise it in Z. +
 Press the button again to start spindle and lower it, then unpause the program. +
-If you have the HAL pin 'spindle.0.at-speed' connected to a driving pin, the spindle will not lower until the pin is true +
+If you have the HAL pin `spindle.0.at-speed` connected to a driving pin, the spindle will not lower until the pin is true +
 You typically connect this to a timer or logic that detects the speed of the spindle. +
 If that pin is not connected to a driving pin, a dialog will pop up to warn you to wait for the spindle response. +
 The spindle will lower when you close that dialog. +
@@ -633,7 +633,7 @@ image::images/qtdragon_hd_gcoderipper.png["QtDragon G-code Ripper"]
 G-code Ripper offers many functions that we will not go in to here.
 This is only available in the QtDragon_hd version.
 
-* In Qtdragon_hd switch to the file tab and press the load G-code Ripper button.
+* In qtdragon_hd, switch to the file tab and press the load G-code Ripper button.
 * Set origin to match the origin of the G-code file to be probed.
 * Under G-Code Operations, check Auto Probe.
 * File -> Open G-Code File (The file you will run after compensation)
@@ -641,9 +641,9 @@ This is only available in the QtDragon_hd version.
 * Press Save G-Code File - Probe Only.
 * Save the generated file to the nc_files folder.
 * Exit gcode_ripper.
-* There should now be a file in the nc_files folder called {something}-probe-only.ngc. Set the file filter to G-Code Files, navigate to the nc_files directory and load this file.
+* There should now be a file in the nc_files folder called {something}-probe-only.ngc. Set the file filter to G-Code files, navigate to the nc_files directory and load this file.
 * Without changing the offsets, run this program. Make sure the probe tool is installed. When complete, there will be a file in the config directory called 'probe_points.txt'.
-* In Qtdragon_hd press the 'Enable Z Comp' button to enable compensation.
+* In qtdragon_hd, press the 'Enable Z Comp' button to enable compensation.
   Look at the status line for indication of success or failure.
   Active compensation will be displayed beside the label: 'Z Level Comp'
   While jogging that display should change based on the compensation component.
@@ -781,7 +781,7 @@ You must carefully set the 'Probing Parameters':
 * 'Step Off': back off and re-probe distance
 * 'Max XY Distance': the maximum distance the probe will search for in X and Y before failing with error
 * 'Max Z Distance':  the maximum distance the probe will search for in Z before failing with error
-* 'XY Clearance': clearance distance from probe to wall edge before rapid traversing down in Z and 'rough' probng.
+* 'XY Clearance': clearance distance from probe to wall edge before rapid traversing down in Z and 'rough' probing
 * 'Z Clearance': clearance distance from probed to top of material
 * 'Extra Depth': distance from top of material to desired probe depth
 
@@ -807,31 +807,31 @@ Pressing the stop button or the keyboard escape key, will abort the probing.
 Lets discuss inside corner probing using the top right button in Basic Probe (back_right_inside).
 While all probe entries must be correct, the most important settings to change for each each probe:
 
-* XY CLEARANCE  -distance away from edge before rough probing
-* Z CLEARANCE   -distance from probe to top of material
-* EXTRA DEPTH   -distance to lower probe from top of material
-* EDGE WIDTH    -distance along edge wall (away from corner) to start probing.
+* XY CLEARANCE - distance away from edge before rough probing,
+* Z CLEARANCE  - distance from probe to top of material,
+* EXTRA DEPTH  - distance to lower probe from top of material,
+* EDGE WIDTH   - distance along edge wall (away from corner) to start probing.
 
 [NOTE]
-These distance are always to be set in 'machine units' (mm for metric machine, inch for imprial machine)
+These distance are always to be set in 'machine units' (mm for metric machine, inch for imperial machine).
 
 Preset:
 
 * manual set probe at the intersection of the edges (ie corner) of material as described by the green bullseye on the button. Set it Z CLEARANCE above the top of material. These can be done by eye.
 * set EXTRA CLEARANCE to a value that you want the probe to go below the _top_ of material.
   (So the probe will move from its start position down  Z Clearance + Extra Clearance distance.)
-* set XY CLEARANCE to a value that definitely gives clearance from the wall so when the probe goes down it doesn't hit anything.
+* set XY CLEARANCE to a value that definitely gives clearance from the wall so when the probe goes down it does not hit anything.
 * set EDGE WIDTH to a value that describes the distance measured from the corner, along the wall to where you wish to probe. this edge distance will be used along the X wall and then the Y wall.
 
 Sequence after pressing the probe button: +
 
-. rapid EDGE WIDTH distance away from corner at the same time moving XY CLEARANCE away from edge. So this is a slightly diagonal move.
-. move probe down by Z CLEARANCE + EXTRA DEPTH
-. probe wall twice (rough and fine)
-. move diagonally to the other wall as set by EDGE WIDTH and XY CLEARANCE
-. probe wall twice
-. raise probe up by Z CLEARANCE + EXTRA DEPTH 9returns to starting height)
-. rapid back to starting corner, now calculated using the probed walls.
+. Rapid EDGE WIDTH distance away from corner at the same time moving XY CLEARANCE away from edge. So this is a slightly diagonal move.
+. Move probe down by Z CLEARANCE + EXTRA DEPTH,
+. probe wall twice (rough and fine),
+. move diagonally to the other wall as set by EDGE WIDTH and XY CLEARANCE,
+. probe wall twice,
+. raise probe up by Z CLEARANCE + EXTRA DEPTH 9returns to starting height),
+. rapid back to starting corner (now calculated using the probed walls),
 . if auto zero button is enabled, set X and Y of the current user system to zero.
 
 == Touch plate
@@ -841,7 +841,7 @@ image::images/qtdragon_touchplate.png["QtDragon Touch Plate",scale="25%"]
 
 You can use a conductive touch plate or equivalent to auto touch off (zero the user coordinate) for the Z position of a tool.
 There must be a tool loaded prior to probing.
-In the tool tab or settings tab, set the touch plate height, search and probe velocity and Max probing distance.
+In the tool tab or settings tab, set the touch plate height, search and probe velocity and max. probing distance.
 
 [NOTE]
 When using a conductive plate the search and probe velocity should be the same and slow.
@@ -898,7 +898,7 @@ This program probes 2 user specified locations in the Z axis and calculates the 
 This is only available in the QtDragon_hd version.
 
 .Enable Probe Position Set Buttons
-* Wwhen checked, the SET buttons are enabled.
+* When checked, the SET buttons are enabled.
 * This allows the user to automatically fill in the X, Y and Z parameters with the current position as displayed on the DROs.
 
 .Autofill Workpiece Height on Main Screen
@@ -923,10 +923,10 @@ This is only available in the QtDragon_hd version.
 * The parameters for search velocity, probe velocity, maximum probe distance and return distance are read from the main GUI Settings page.
 
 .ABORT button
-* causes all jog and probe routines currently executing to stop
+* causes all jog and probe routines currently executing to stop.
 
 .HELP button
-* displays this help file
+* displays this help file.
 
 [NOTE]
 * Any 2 points within the machine operating volume can be specified.
@@ -952,7 +952,7 @@ The pins are used to be read from a remap G-code subroutine, so the code can rea
 
 === Tool Measurement INI File Modifications
 
-Modify your INI File to include the following:
+Modify your INI file to include the following:
 
 ==== The PROBE section
 
@@ -975,8 +975,8 @@ USE_PROBE = basicprobe
 ----
 [RS274NGC]
 
-# adjust this paths to point to folders with stdglu.py and qt_auto_tool_probe.ngc
-# or similarly coded custom remap files
+# Adjust this paths to point to folders with stdglu.py and qt_auto_tool_probe.ngc
+# or similarly coded custom remap files.
 SUBROUTINE_PATH = ~/linuxcnc/nc_files/remap-subroutines:~/linuxcnc/nc_files/remap_lib
 
 # is the sub, with is called when a error during tool change happens.
@@ -1358,8 +1358,8 @@ All aspects of the GUI are fully customization through Qt Designer and/or Python
 This capability is included with the QtVCP development environment.
 The extensive use of QtVCP widgets keeps the amount of required Python code to a minimum, allowing relatively easy modifications.
 The LinuxCNC website has extensive documentation on the installation and use of QtVCP libraries.
-See <<cha:qtvcp,QtVCP>> for more information in about QtVCP in general. +
-Qtdragon can also utilize QtVCP's rc file to do minor python code modifications without using a custom handler file.
+See <<cha:qtvcp,QtVCP>> for more information about QtVCP in general. +
+QtDragon can also utilize QtVCP's rc file to do minor python code modifications without using a custom handler file.
 
 [source,{ini}]
 ----

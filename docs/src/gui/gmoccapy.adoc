@@ -1132,7 +1132,7 @@ You have three options:
   Nevertheless the user can change the size and position using the mouse, but that will not have any influence on the settings.
 * _Window decorated_ - Allows the title bar to be hidden. (default: title bar visible)
 * _hide cursor_ - Does allow to hide the cursor, what is very useful if you use a touch screen.
-* _hide tooltips_ - Does gide the tool tips.
+* _hide tooltips_ - Hides the tool tips.
 
 .Keyboard
 

@@ -21,8 +21,7 @@ locate tests to run under `tests/`, but can be limited to only run a
 limited set of tests by specifying the directory of the test or tests
 as argument(s).
 
-Here is an example running only the tests in `tests/lathe/`
-
+.An example running only the tests in `tests/lathe/`.
 ----
 $ scripts/runtests tests/lathe/
 Running test: tests/lathe
@@ -34,8 +33,7 @@ _test.hal_ below the directories specified on the command line, or under
 `tests/` if no command line argument is specified. These files
 represent three different ways to run the tests.
 
-The _runtests_ script accepts the following arguments, see the output
-from `scripts/runtests -h` for the authoritative list:
+.Arguments accepted by the _runtests_ script, see the output from `scripts/runtests -h` for the authoritative list.
 ----
 -n  do not remove temporary files for successful tests.
 -s  stop after any failed test.
@@ -44,10 +42,11 @@ from `scripts/runtests -h` for the authoritative list:
 -u  Only run tests that require normal user access.
 -v  Show stdout and stderr (normally it's hidden).
 ----
+
 == Writing tests
 
 Make sure the test can run successfully without a working X11 display,
-i.e. with the DISPLAY environment variable unset.
+i.e., with the DISPLAY environment variable unset.
 
 1. Create a folder in `tests/`.
 2. Provide one test script.

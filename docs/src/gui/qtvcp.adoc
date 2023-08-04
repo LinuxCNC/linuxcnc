@@ -11,8 +11,7 @@
 :ngc: {basebackend@docbook:'':ngc}
 :css: {basebackend@docbook:'':css}
 
-QtVCP is an *infrastructure to build custom CNC screens or control
-panels for LinuxCNC*.
+QtVCP is an *infrastructure to build custom CNC screens or control panels for LinuxCNC*.
 
 It displays a _`.ui` file built with Qt Designer_ screen editor and
 combines this with _Python programming_ to create a GUI screen for
@@ -49,8 +48,7 @@ image::images/test_panel.png["Test Panel",align="center"]
 [[sec:qtvcp-overview]]
 == Overview(((QtVCP Overview)))
 
-_Two files are used, individually or in combination_, to
-add customizations:
+_Two files are used, individually or in combination_, to add customizations:
 
 * A *UI file* that is a _XML_ file made with _Qt Designer_ graphical editor.
 * A *handler file* which is a _Python_ code text file.
@@ -236,10 +234,9 @@ State_LED #name_of_led{
 
 ==== Minor Python Code Changes
 Another Python file can be used to *add commands* to the screen, after the handler file is parsed.
-This can be useful for minor changes while still honouring standard handler updates from linuxcnc repositoies.
+This can be useful for minor changes while still honouring standard handler updates from LinuxCNC repositories.
 
 In the _INI file_ under the `[DISPLAY]` heading add *`USER_COMMAND_FILE = _PATH_`* +
-
 _PATH_ can be any valid path.
 It can use `~` for home directory or `WORKINGFOLDER` or `CONFIGFOLDER` to represent QtVCP's idea of those directories:
 
@@ -263,7 +260,7 @@ These are usually seen as all capital words with no preceding self. +
 What can be used can vary by screen and development cycle.
 
 .A simple example
-Reference the main window to change the title (Won't show if using INI entries for title change)
+Reference the main window to change the title (won't show if using INI entries for title change).
 
 [source,python]
 ----
@@ -276,55 +273,53 @@ Here we show how to add new functions and override existing ones.
 
 [source,python]
 ----
-# needed to instance patch
+# Needed to instance patch.
 # reference: https://ruivieira.dev/python-monkey-patching-for-readability.html
 import types
 
-# import the handlerfile to get reference to it's libraries
+# import the handlerfile to get reference to it's libraries.
 # use <screenname>_handler
 import qtdragon_handler as hdlr
 
 # This is actually an unbounded function with 'obj' as a parameter.
 # You call this function without the usual preceding 'self.'
 # This is because will will not be patching it into the original handler class instance
-# It will only be called from code in this file
+# It will only be called from code in this file.
 def test_function(obj):
     print(dir(obj))
 
 # This is a new function we will added to the existing handler class instance.
-# Notice it calls the unbounded function with 'self' as an parameter
-# 'self' is the only global reference available. It references the window instance
+# Notice it calls the unbounded function with 'self' as an parameter 'self' is the only global reference available.
+# It references the window instance.
 def on_keycall_F10(self,event,state,shift,cntrl):
     if state:
         print ('F10')
         test_function(self)
 
-# This will be used to override an existing function in the existing handler class instance
-# note we also call a copy of the original function too
-# this shows how to extend an existing function to do extra functions
+# This will be used to override an existing function in the existing handler class instance.
+# Note, we also call a copy of the original function too.
+# This shows how to extend an existing function to do extra functions.
 def on_keycall_F11(self,event,state,shift,cntrl):
     if state:
         self.on_keycall_F11_super(event,state,shift,cntrl)
         print ('Hello')
 
-# We are referencing the KEYBIND library that was instantiated in the 
-# original handler class instance by adding 'hdlr.' to it (from the imp).
-# This function tells KEYBIND to call 'on_keycall_F10' when F10 is pressed
+# We are referencing the KEYBIND library that was instantiated in the original handler class instance
+# by adding 'hdlr.' to it (from the imp).
+# This function tells KEYBIND to call 'on_keycall_F10' when F10 is pressed.
 hdlr.KEYBIND.add_call('Key_F10','on_keycall_F10')
 
-# Here we are instance patching the original handler file to add a new
-# function that calls our new function (of the same name)
-# defined in this file
+# Here we are instance patching the original handler file to add a new function 
+# that calls our new function (of the same name) defined in this file.
 self.on_keycall_F10 = types.MethodType(on_keycall_F10, self)
 
-# Here we are defining a copy of the original 'on_keycall_F11' function
-# so we can call it later. we can use any valid, unused function name.
+# Here we are defining a copy of the original 'on_keycall_F11' function,
+# so we can call it later. We can use any valid, unused function name.
 # We need to do this before overriding the original function.
 self.on_keycall_F11_super = self.on_keycall_F11
 
-# Here we are instance patching the original handler file to override
-# an existing function to point to our new function (of the same name) 
-# defined in this file
+# Here we are instance patching the original handler file to override an existing function
+# to point to our new function (of the same name) defined in this file.
 self.on_keycall_F11 = types.MethodType(on_keycall_F11, self)
 
 ----
