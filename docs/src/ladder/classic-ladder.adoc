@@ -395,13 +395,13 @@ Represent up/down counters.
 
 There are 7 contacts:
 
-* `R` - reset (input) will reset the count to 0.
-* `P` - preset (input) will set the count to the preset number assigned from the edit menu.
-* `U` - up count (input) will add one to the count.
-* `D` - down count (input) will subtract one from the count.
-* `E` - under flow (output) will be true when the count rolls over from 0 to 9999.
-* `D` - done (output) will be true when the count equals the preset.
-* `F` - overflow (output) will be true when the count rolls over from 9999 to 0.
+* 'R' - reset (input) will reset the count to 0.
+* 'P' - preset (input) will set the count to the preset number assigned from the edit menu.
+* 'U' - up count (input) will add one to the count.
+* 'D' - down count (input) will subtract one from the count.
+* 'E' - under flow (output) will be true when the count rolls over from 0 to 9999.
+* 'D' - done (output) will be true when the count equals the preset.
+* 'F' - overflow (output) will be true when the count rolls over from 9999 to 0.
 
 The up and down count contacts are edge sensitive meaning they only count when the contact changes from false to true (or off to on if you prefer).
 
@@ -409,11 +409,11 @@ The range is 0 to 9999.
 
 There are also Variables for counters that can be read and/or written to in compare or operate blocks.
 
-* `%C`__xx__`.D` - Counter _xx_ done (Boolean, read only)
-* `%C`__xx__`.E` - Counter _xx_ empty overflow (Boolean, read only)
-* `%C`__xx__`.F` - Counter _xx_ full overflow (Boolean, read only)
-* `%C`__xx__`.V` - Counter _xx_ current value (integer, read or write)
-* `%C`__xx__`.P` - Counter _xx_ preset (integer, read or write)
+* '%C'__xx__`.D` - Counter _xx_ done (_Boolean_, _read only_)
+* '%C'__xx__`.E` - Counter _xx_ empty overflow (_Boolean_, _read only__)
+* '%C'__xx__`.F` - Counter _xx_ full overflow (_Boolean_, _read only_)
+* '%C'__xx__`.V` - Counter _xx_ current value (_integer_, _read_ or _write_)
+* '%C'__xx__`.P` - Counter _xx_ preset (_integer_, _read_ or _write_)
 
 === COMPARE
 
