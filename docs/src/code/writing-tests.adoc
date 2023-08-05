@@ -15,8 +15,7 @@ The tests are grouped in directories.
 The tests are executed by the `scripts/runtests` script generated from `scripts/runtests.in` during build.
 The runtests script will by default locate tests to run under `tests/`, but can be limited to only run a limited set of tests by specifying the directory of the test or tests as argument(s).
 
-Here is an example running only the tests in `tests/lathe/`
-
+.An example running only the tests in `tests/lathe/`.
 ----
 $ scripts/runtests tests/lathe/
 Running test: tests/lathe
@@ -35,6 +34,7 @@ The _runtests_ script accepts the following arguments, see the output from `scri
 -u  Only run tests that require normal user access.
 -v  Show stdout and stderr (normally it's hidden).
 ----
+
 == Writing tests
 
 Make sure the test can run successfully without a working X11 display, i.e. with the DISPLAY environment variable unset.

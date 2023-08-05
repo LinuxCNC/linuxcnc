@@ -4,7 +4,7 @@
 [[cha:getting-linuxcnc]]
 = Getting LinuxCNC(((Getting LinuxCNC)))
 
-This section describes how to install LinuxCNC version 2.9 on a PC already running Debian Bookworm (Debian 12). Linuxcnc requires the PREEMPT_RT real time kernel to ensure the strict timing required for CNC operations are met. We will also cover  how to install Debian Bookworm optimised for Linuxcnc on the x86/AMD64 and ARM64 platforms for first time users. We will also cover some troubleshooting steps and common problems you may experience.
+This section describes how to install LinuxCNC version 2.9 on a PC already running Debian Bookworm (Debian 12). LinuxCNC requires the PREEMPT_RT real time kernel to ensure the strict timing required for CNC operations are met. We will also cover  how to install Debian Bookworm optimised for LinuxCNC on the x86/AMD64 and ARM64 platforms for first time users. We will also cover some troubleshooting steps and common problems you may experience.
 
 NOTE: The PREEMPT_RT kernel is a dependency of LinuxCNC so on most computer platforms, eg AMD64/x86, it will be installed with LinuxCNC. On some platforms such as the Raspberry Pi, it needs to be installed separately. Some environments (eg. Armbian) may support installation of Debian Bookworm but require special procedures to install PREEMPT_RT which are beyond the scope of this document.
 
@@ -37,7 +37,7 @@ Optionally you can install mesaflash if you are using a Mesa card:
 sudo apt install mesaflash
 ----
 Reboot and log in again as the same user.
-Open a terminal window and check PREEMPT_RT is installed
+Open a terminal window and check PREEMPT_RT is installed:
 
 ----
 uname -v
@@ -53,20 +53,20 @@ That's it! You are done! You will find LinuxCNC under the CNC menu.
 . Download a Debian Boookworm ISO. There are two versions to consider.
 .. The small netinst .ISO that requires a connection to the internet during the installation (recommended) https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.1.0-amd64-netinst.iso
 .. The much larger full live install that includes everything in Debian (use if you do not have an internet connection). https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/debian-live-12.1.0-amd64-xfce.iso
-. Burn the Debian Image to a USB drive using Balena Etcher
-. Connect the PC to install Linuxcnc on to a wired internet connection (only use wifi if you must)
+. Burn the Debian Image to a USB drive using Balena Etcher.
+. Connect the PC to install LinuxCNC on to a wired internet connection (only use wifi if you must).
 . Boot the PC from the USB image. This may require changing the boot order to boot from a USB first.
-. Follow the prompts to install Debian Bookworm
-. When asked to partition the drive, use all of the available space and install all files on one partition
-. Do NOT add a password to the root account
+. Follow the prompts to install Debian Bookworm.
+. When asked to partition the drive, use all of the available space and install all files on one partition.
+. Do NOT add a password to the root account.
 [WARNING]
 Do not enter a root password, if you do sudo is disabled and you won't be able to install software.
 
-. When asked to install a desktop environment during the netinst installation , Choose XFCE and deselect other desktops.
-. When complete, install Linuxcnc following the steps above.
+. When asked to install a desktop environment during the netinst installation, choose XFCE and deselect other desktops.
+. When complete, install LinuxCNC following the steps above.
 
-== Install Debian Bookworm on a  Raspberry Pi
-NOTE: Raspberry Pis (and most other Single Board Computers, or SBUs) are ARM64 machines. These instructions will feature arm64 kernel and can't be used for AMD64 machines (which is what many PCs are, including all Intel based machines.)
+== Install Debian Bookworm on a Raspberry Pi
+NOTE: Raspberry Pis (and most other Single Board Computers, or SBUs) are ARM64 machines. These instructions will feature arm64 kernel and can't be used for AMD64 machines (which is what many PCs are, including all Intel based machines).
 
 . Download a Debian Bookworm  image from  https://raspi.debian.net/daily-images/ and burn to an SD card and install in the
   https://www.raspberrypi.org/documentation/installation/installing-images/README.md[usual way].
@@ -74,7 +74,7 @@ NOTE: Raspberry Pis (and most other Single Board Computers, or SBUs) are ARM64 m
 NOTE:  There have been reported black screen lockout with the "tested" images on some Pis. It may be that removing dtoverlay=vc4-fkms-v3d-pi4 from /boot/config.txt resolves that problem.
 These instructions were tested using the 2023/05/15 daily build.
 
-. Ensure the Pi is connected to the internet. Boot the Pi. It will  open a text based terminal
+. Ensure the Pi is connected to the internet. Boot the Pi. It will open a text based terminal.
 . Login using the root account (which does not have a password yet). Type:
 
 ----
@@ -191,7 +191,10 @@ autologin-user=matt
 autologin-user-timeout=0
 ----
 == PREEMPT_RT Tweaks (x86/AMD64 only)
-isolcpus can make a huge difference to latency on some systems because it isolates specific CPU cores so they are purely used by real time threads (eg the linuxcnc servo thread). The instructions below assume a 4 core CPU eg. Celeron, i3, i5 etc) those with 2 cores or more than 4 cores need different isolcpus settings. It is best to never isolate core 0 as it is used for system threads so it already includes a lot of running threads.
+isolcpus can make a huge difference to latency on some systems, because it isolates specific CPU cores so they are purely used by real time threads (e.g. the LinuxCNC servo thread).
+The instructions below assume a 4 core CPU, e.g. Celeron, i3, i5, etc.
+Those with 2 cores or more than 4 cores need different isolcpus settings.
+It is best to never isolate core 0 as it is used for system threads so it already includes a lot of running threads.
 
 Isolate 2 cores for better RT performance on a 4 core machine.
 ----
@@ -212,7 +215,7 @@ Use latency-histogram  instead of latency-test to review latency particularly if
 ----
 latency-histogram --nobase --sbins 1000
 ----
-How to evaluate latency is covered in the linuxcnc documents
+How to evaluate latency is covered in the LinuxCNC documents
 Among other things, latency is affected by: BIOS settings; Isolcpus and other boot time settings; Kernel version used
 
 NOTE: Optimal latency settings are still subject to review following recent changes to the Linux kernel.
@@ -238,15 +241,20 @@ The last line is only required for Intel network cards. It seems to be ignored o
 
 Save and close geany.
 Reboot to restart the network.
-Ping the mesa card to confirm it's all working
+Ping the mesa card to confirm it's all working:
+
 ----
 ping 10.10.10.10
 ----
 
-== Updating Linuxcnc on Debian Bookworm (X86 only)
-The version of linuxcnc in Bookworm is a bit dated because of the freeze process associated with the Debian release process. Fortunately, there is a Linuxcnc buildbot which rebuilds version 2.9 packages whenever the code base changes. We can "trick" Debian to get the linuxcnc repositories from this source. These instructions assume you have already installed linuxcnc from the Debian Bookworm repositories.
+== Updating LinuxCNC on Debian Bookworm (X86 only)
 
-Start  by creating a new configuration file to set a higher priority to our linuxCNC files than the default Debian repositories.
+The version of LinuxCNC in Bookworm is a bit dated because of the freeze process associated with the Debian release process.
+Fortunately, there is a LinuxCNC buildbot which rebuilds version 2.9 packages whenever the code base changes.
+We can "trick" Debian to get the LinuxCNC repositories from this source.
+These instructions assume you have already installed LinuxCNC from the Debian Bookworm repositories.
+
+Start  by creating a new configuration file to set a higher priority to our LinuxCNC files than the default Debian repositories.
 ----
 sudo nano /etc/apt/preferences.d/99linuxcnc-uspace
 ----
@@ -281,10 +289,12 @@ package: linuxcnc-uspace-doc-zh-cn
 pin: release o=http://buildbot2.highlab.com/debian/
 Pin-Priority: 500
 ----
-Hit Control-O, Y, Control-X to save the file and exit nano. Then type the following commands.
-.
-Before starting, you may wish to run linuxcnc from the command line and note the version number displayed as it loads. Exit the linuxcnc chooser and note the version number.
+Hit Control-O, Y, Control-X to save the file and exit nano.
+
+Before starting, you may wish to run `linuxcnc` from the command line and note the version number displayed as it loads.
+Exit the LinuxCNC chooser and note the version number.
 Then type the following commands:
+
 ----
 cd ~/Downloads
 wget http://buildbot2.highlab.com/buildbot-archive-key.gpg
@@ -296,11 +306,11 @@ sudo apt upgrade
 
 The second last line updates Linux to look at our buildbot.
 
-The last line upgrades all Linux programs including our Linuxcnc files.
+The last line upgrades all Linux programs including our LinuxCNC files.
 
-Repeat running linuxcnc and note the version. It should have changed to the latest version (which can change daily).
+Repeat running LinuxCNC and note the version. It should have changed to the latest version (which can change daily).
 
-Now any time you wish to update your version of linuxcnc (and any other Debian programs installed on your PC, just type:
+Now any time you wish to update your version of LinuxCNC (and any other Debian programs installed on your PC, just type:
 
 ----
 sudo apt update
@@ -377,9 +387,17 @@ sudo apt purge r8168-dkms
 ----
 
 == Installing a later kernel
-Since the release of Debian Bullseye (Linux kernel 5.10), real time performance has been  disappointing. In particular, network latency when communicating with a Mesa ethernet card has  been generating Error Finishing Read Errors. This means that the network latency left insufficient time for the servo thread cycle to complete in time.
 
-This appears to have been more prevalent with Realtek Network interfaces. Fortunately, each iteration of the Linux kernel has improved results, particularly since the release of 6.x kernels. Debian Bookworm (Debian 12) is using the 6.1 kernel which is quite good. In our testing, we found that latency improved by 265% if we used the 6.3 kernel. We have compiled this version of the kernel for your convenience. This image was updated to the final 6.3 kernel on 1 May 2023 and may be updated form time to time.
+Since the release of Debian Bullseye (Linux kernel 5.10), real time performance has been disappointing.
+In particular, network latency when communicating with a Mesa ethernet card has been generating Error Finishing Read Errors.
+This means that the network latency left insufficient time for the servo thread cycle to complete in time.
+
+This appears to have been more prevalent with Realtek Network interfaces.
+Fortunately, each iteration of the Linux kernel has improved results, particularly since the release of 6.x kernels.
+Debian Bookworm (Debian 12) is using the 6.1 kernel which is quite good.
+In our testing, we found that latency improved by 265% if we used the 6.3 kernel.
+We have compiled this version of the kernel for your convenience.
+This image was updated to the final 6.3 kernel on 1 May 2023 and may be updated form time to time.
  
 Only try installing it if you have exhausted all options by following the steps below:
 
@@ -403,13 +421,15 @@ dpkg -i linux-image(tab)
 
 The easiest, preferred way to install LinuxCNC is to use the Live/Install Image or Debian Bookworm as described above.
 Both methods are as simple and reliable as we can make it, and are suitable for novice users and experienced users alike.
-Both methods  will typically replace any existing operating system on your hard drive.
+Both methods will typically replace any existing operating system on your hard drive.
 
-Experienced users who are familiar with Debian system administration (finding install images, manipulating apt sources, changing kernel flavors, etc), new installs are supported on following platforms:
-("amd64" means "64-bit", and is not specific to AMD processors, it will run on any 64-bit x86 system)
-Note that in Debian Bookworm, the preempt_rt kernel is a dependency of linuxcnc-uspace so it is automatically installed with linuxcnc so the Stock kernel is not listed.
+Experienced users who are familiar with Debian system administration (finding install images, manipulating apt sources, changing kernel flavors, etc.) should note that new installations are supported on the platforms listed in the table below.
+"amd64" refers to any 64-bit x86 system, i.e. the installation is not specific to AMD processors.
 
-If you wish to use RTAI or Xenomai, please follow the instructions in the Linuxcnc V2.8 documentation.
+Please be aware that in Debian Bookworm, the preempt_rt kernel is a dependency of linuxcnc-uspace.
+Therefore, it is automatically installed with LinuxCNC, and the stock kernel is not listed.
+
+If you wish to use RTAI or Xenomai, please follow the instructions in the LinuxCNC V2.8 documentation.
 
 [options="header"]
 |===

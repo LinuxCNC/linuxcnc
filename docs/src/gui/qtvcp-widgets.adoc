@@ -671,7 +671,7 @@ If you press and hold the button a pop up menu will show allowing one to:
 You must have selected an entry dialog that corresponds to the dialog_code_string,
 usually this is selected from the screenOptions widget.
 
-You can select the property `halpin_option', it will then set a HAL pin true when the axis is selected.
+You can select the property 'halpin_option', it will then set a HAL pin true when the axis is selected.
 The property 'joint_number' should be set to the appropriate joint number.
 The property 'axis_letter' should be set to the appropriate axis letter.
 
