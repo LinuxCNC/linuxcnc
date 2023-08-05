@@ -294,7 +294,7 @@ class Widgets:
 # here we initialize the data
 class Data:
     def __init__(self):
-        # constants for mode idenity
+        # constants for mode identity
         self._MAN = 0
         self._MDI = 1
         self._AUTO = 2

@@ -89,7 +89,7 @@ class _HalWidgetBase_(object):
 
 # we do this so we can manipulate all instances based on this.
 # we wish to embed variables.
-# This class gets get instatiated in qt_makegui.py
+# This class gets get instantiated in qt_makegui.py
 class _HalWidgetBase(_HalWidgetBase_):
     _instance = None
     _instanceNum = 0
