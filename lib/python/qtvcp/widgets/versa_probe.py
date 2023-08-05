@@ -142,7 +142,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.statelabel_machineUnits.hal_init()
         self.statelabel_machineUnits_2.hal_init()
         self.help = HelpDialog(self.QTVCP_INSTANCE_)
-        self.help.hal_init()
+        self.help.hal_init(HAL_NAME='_versa_help')
 
         # connect to STATUS
         STATUS.connect('state-off', lambda w: self.setEnabled(False))

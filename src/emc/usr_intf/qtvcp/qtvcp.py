@@ -402,9 +402,13 @@ Pressing cancel will close linuxcnc.""" % target)
         # ineach screen/embedded panel. (screen should be last)
         # last chance to change anything before event loop.
         for i in reversed(window._VCPWindowList):
-            if "before_loop__" in dir(i.handler_instance):
-                LOG.debug('''Calling handler file's before_loop__ function in object'''+str(i))
-                i.handler_instance.before_loop__()
+            try:
+                if "before_loop__" in dir(i.handler_instance):
+                    LOG.debug('''Calling handler file's before_loop__ function in object'''+str(i))
+                    i.handler_instance.before_loop__()
+            # probably panel with no handler file
+            except:
+                pass
 
         LOG.info('Preference path: yellow<{}>'.format(self.PATH.PREFS_FILENAME))
 
