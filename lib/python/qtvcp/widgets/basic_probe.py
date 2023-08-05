@@ -123,7 +123,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.led_probe.hal_init()
         self.statelabel_machineUnits.hal_init()
         self.help = HelpDialog(self.QTVCP_INSTANCE_)
-        self.help.hal_init()
+        self.help.hal_init(HAL_NAME='_basic_help')
 
         if self.PREFS_:
             self.lineEdit_probe_tool.setText(self.PREFS_.getpref('Probe tool', '0', str, 'PROBE OPTIONS'))
