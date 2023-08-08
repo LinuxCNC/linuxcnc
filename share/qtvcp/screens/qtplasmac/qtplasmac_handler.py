@@ -233,8 +233,6 @@ class HandlerClass:
             os.mkdir(self.tmpPath)
         self.tmpMaterialGcode = '{}{}_material.gcode'.format(self.tmpPath, self.machineName)
         self.gcodeErrorFile = '{}gcode_errors.txt'.format(self.tmpPath)
-        self.materialDict = {}
-        self.materialNumList = []
         self.materialUpdate = False
         self.autoChange = False
         self.pmx485Exists = False
@@ -434,11 +432,35 @@ class HandlerClass:
 #########################################################################################################################
 # called by qtvcp.py
     def class_patch__(self):
+        self.file_manager_patch()
         self.gcode_editor_patch()
         self.camview_patch()
         self.offset_table_patch()
         self.qt5_graphics_patch()
         self.screen_options_patch()
+
+# patched file manager functions
+    def file_manager_patch(self):
+        self.old_load = FILE_MAN.load
+        FILE_MAN.load = self.new_load
+
+    # remove temporary materials before loading a file
+    def new_load(self, fname=None):
+        try:
+            if fname is None:
+                self.w.filemanager._getPathActivated()
+                return
+            self.w.filemanager.recordBookKeeping()
+            pop = [key for key in self.materialDict if key >= 1000000]
+            if pop:
+                for e in pop:
+                    self.materialDict.pop(e)
+                self.display_materials()
+            ACTION.OPEN_PROGRAM(fname)
+            STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
+        except Exception as e:
+            LOG.error("Load file error: {}".format(e))
+            STATUS.emit('error', linuxcnc.NML_ERROR, "Load file error: {}".format(e))
 
 # patched gcode editor functions
     def gcode_editor_patch(self):
@@ -466,12 +488,12 @@ class HandlerClass:
             if saved[-3:] in ['ngc', '.nc', 'tap']:
                 if self.rflActive:
                     self.clear_rfl()
-                ACTION.OPEN_PROGRAM(saved)
+                self.open_file(saved)
 
     # open a non gcode file and don't load it into linuxcnc
     def new_openReturn(self, filename):
         if filename[-3:] in ['ngc', '.nc', 'tap']:
-            ACTION.OPEN_PROGRAM(filename)
+            self.open_file(filename)
         else:
             self.w.gcode_editor.editor.load_text(filename)
         self.w.gcode_editor.editor.setModified(False)
@@ -1333,7 +1355,7 @@ class HandlerClass:
         if self.single_cut_request:
             self.single_cut_request = False
             if self.oldFile and self.fileOpened:
-                ACTION.OPEN_PROGRAM(self.oldFile)
+                self.open_file(self.oldFile)
             else:
                 self.fileOpened = True
                 self.file_clear_clicked()
@@ -1537,7 +1559,7 @@ class HandlerClass:
             if self.single_cut_request:
                 self.single_cut_request = False
                 if self.oldFile and not 'single_cut' in self.oldFile:
-                    ACTION.OPEN_PROGRAM(self.oldFile)
+                    self.open_file(self.oldFile)
                     self.set_run_button_state()
                 self.w[self.scButton].setEnabled(True)
                 self.w.run.setEnabled(False)
@@ -1812,7 +1834,7 @@ class HandlerClass:
                     # load rfl file
                     if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
                         self.preRflFile = ACTION.prefilter_path or self.lastLoadedProgram
-                    ACTION.OPEN_PROGRAM(rflFile)
+                    self.open_file(rflFile)
                     ACTION.prefilter_path = self.preRflFile
                     self.set_run_button_state()
                     txt0 = _translate('HandlerClass', 'RUN FROM LINE')
@@ -2065,7 +2087,7 @@ class HandlerClass:
                     else:
                         if self.lastLoadedProgram != 'None':
                             self.preClearFile = ACTION.prefilter_path or self.lastLoadedProgram
-                ACTION.OPEN_PROGRAM(clearFile)
+                self.open_file(clearFile)
                 ACTION.prefilter_path = self.preClearFile
                 self.w.material_selector.setCurrentIndex(0)
                 self.w.conv_material.setCurrentIndex(0)
@@ -2215,7 +2237,7 @@ class HandlerClass:
                 file = ACTION.prefilter_path or self.lastLoadedProgram
                 if os.path.exists(file):
                     self.overlayProgress.setValue(0)
-                    ACTION.OPEN_PROGRAM(file)
+                    self.open_file(file)
                     log = _translate('HandlerClass', 'Reloaded')
                     STATUS.emit('update-machine-log', '{}: {}'.format(log, file), 'TIME')
                 else:
@@ -2290,6 +2312,15 @@ class HandlerClass:
 #########################################################################################################################
 # GENERAL FUNCTIONS #
 #########################################################################################################################
+    def open_file(self, file):
+        # remove temporary materials before opening a file
+        pop = [key for key in self.materialDict if key >= 1000000]
+        if pop:
+            for e in pop:
+                self.materialDict.pop(e)
+            self.display_materials()
+        ACTION.OPEN_PROGRAM(file)
+
 # called by ScreenOptions, this function overrides ScreenOption's closeEvent
     def closeEvent(self, event):
         O = self.w.screen_options
@@ -3905,7 +3936,7 @@ class HandlerClass:
         elif 'load' in commands.lower():
             lFile = '{}/{}'.format(self.programPrefix, commands.split('load', 1)[1].strip())
             self.overlayProgress.setValue(0)
-            ACTION.OPEN_PROGRAM(lFile)
+            self.open_file(lFile)
         elif 'toggle-halpin' in commands.lower():
             halpin = commands.lower().split('toggle-halpin')[1].split(' ')[1].strip()
             try:
@@ -3967,7 +3998,7 @@ class HandlerClass:
                 files = glob.glob('{}/*.ngc'.format(dir))
                 latest = max(files, key = os.path.getctime)
                 self.overlayProgress.setValue(0)
-                ACTION.OPEN_PROGRAM(latest)
+                self.open_file(latest)
             except:
                 head = _translate('HandlerClass', 'File Error')
                 msg0 = _translate('HandlerClass', 'Cannot open latest file from user button')
@@ -4408,7 +4439,7 @@ class HandlerClass:
             f.write('M5 $0\n')
             f.write('M2\n')
         self.single_cut_request = True
-        ACTION.OPEN_PROGRAM(newFile)
+        self.open_file(newFile)
 
     def manual_cut(self):
         if self.manualCut:
@@ -4520,15 +4551,15 @@ class HandlerClass:
 #########################################################################################################################
     def save_materials_clicked(self):
         matNum = self.materialChangeNumberPin.get()
+        if matNum == -1:
+            matNum = self.defaultMaterial
         index = self.w.materials_box.currentIndex()
         self.save_material_file(matNum, index)
 
     def reload_materials_clicked(self):
         self.materialUpdate = True
         index = self.w.materials_box.currentIndex()
-        self.materialDict = {}
-        self.materialNumList = []
-        self.load_material_file()
+        self.load_material_file(True)
         self.w.materials_box.setCurrentIndex(index)
         self.materialUpdate = False
         self.materialReloadPin.set(0)
@@ -4579,9 +4610,7 @@ class HandlerClass:
         mat[2:] = self.materialDict[self.materialList[0]][1:]
         self.write_one_material(mat)
         self.materialUpdate = True
-        self.materialDict = {}
-        self.materialNumList = []
-        self.load_material_file()
+        self.load_material_file(True)
         self.w.materials_box.setCurrentIndex(self.materialList.index(matNum))
         self.materialUpdate = False
 
@@ -4623,9 +4652,7 @@ class HandlerClass:
         self.MATS.remove_section('MATERIAL_NUMBER_{}'.format(matNum))
         self.MATS.write(open(self.MATS.fn, 'w'))
         self.materialUpdate = True
-        self.materialDict = {}
-        self.materialNumList = []
-        self.load_material_file()
+        self.load_material_file(True)
         self.materialUpdate = False
 
     def selector_changed(self, index):
@@ -4779,8 +4806,7 @@ class HandlerClass:
         mat.append(self.w.cut_mode.value())
         self.write_one_material(mat)
         self.materialUpdate = True
-        self.materialDict = {}
-        self.load_material_file()
+        self.load_material_file(True)
         self.w.materials_box.setCurrentIndex(index)
         self.materialUpdate = False
         self.set_saved_material()
@@ -4802,8 +4828,16 @@ class HandlerClass:
         mat.append(self.w.cut_mode.value())
         self.write_materials_to_dict(mat)
 
-    def load_material_file(self):
+    def load_material_file(self, keepTemp=False):
         self.getMaterialBusy = 1
+        # don't remove temporary materials unless required
+        if keepTemp:
+            pop = [key for key in self.materialDict if key < 1000000]
+            for e in pop:
+                self.materialDict.pop(e)
+        else:
+            self.materialDict = {}
+        self.materialNumList = []
         # create a basic default material if no materials exist
         if not self.MATS.sections():
             if self.units == 'mm':
