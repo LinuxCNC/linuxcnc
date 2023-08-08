@@ -6190,7 +6190,7 @@ F12 or $ key does the same</property>
               <object class="GtkLabel" id="lbl_ntb_button_manuel">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label">manuel</property>
+                <property name="label">manual</property>
               </object>
               <packing>
                 <property name="tab-fill">False</property>
