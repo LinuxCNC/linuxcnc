@@ -3136,6 +3136,59 @@ USER_COMMAND_FILE = my_custom_code.py
 A user periodic file must be named user_periodic.py and must be loaded in the machines config directory.
 This file is processed every cycle (usually 100 ms) and is used for functions that require regular updating.
 
+=== Custom G-code Filter
+
+All incoming G-code is parsed by a G-code filter to ensure it is suitable for QtPlasmaC.
+It is possible to extend this filter with custom python code ececuted from a file in the configuration directory to aid in converting different flavours of G-code to a format suitable for QtPlasmac.
+
+The name of this file is custom_filter.py and it will be automatically used if it exists.
+
+There are three preset methods available for use:
+
+[cols="1,4",options="header"]
+|===
+|Name | Function
+|custom_pre_process |this does basic processing of each line before any processing is done in the filter
+|custom_pre_parse |this parses any G-code from a line *before* any parsing done in the filter
+|custom_post_parse |this parses any G-code from a line *after* any parsing done in the filter
+|===
+
+These methods are applied by the following procedure:
+
+- define the method with an argument for the incoming data
+- add any required code to manipulate the data
+- return the resultant data
+- attach the new method
+
+For example to remove any code begining with 'G71' and change 'M2' to 'M5 $0' and 'M2':
+
+[source,python]
+----
+def custom_pre_parse(data):
+    if data[:3] == 'G71':
+        return(None)
+    if data == 'M2':
+        return(f'M5 $0\n\n{data}')
+    return(data)
+self.custom_pre_parse = custom_pre_parse
+----
+
+In addition to these it is also possible to override any existing method in the filter the same way.
+This reqires defining the same number of arguments as the existing method, noting that 'self' in the original does not constitute an argument.
+
+[source,python]
+----
+def new_method_name(data):
+    if data[:3] == 'G71':
+        return(None)
+    return(data)
+self.old_method_name = new_method_name
+----
+
+[NOTE]
+The existing filter code may be observed in the file /bin/qtplasmac_gcode +
+The file sim/qtplasmac/custom_filter.py has example skeleton code for custom filtering
+
 == QtPlasmaC Advanced Topics
 
 [[plasma:custom-user-buttons]]

@@ -142,6 +142,12 @@ class Filter():
         self.warnChar = []
         # create a dict of material numbers and kerf widths
         self.get_materials()
+        # setup for custom filtering
+        self.cfFile = os.path.join(DIR, 'custom_filter.py')
+        if not os.path.isfile(self.cfFile):
+            self.cfFile = None
+        if self.cfFile:
+            exec(open(self.cfFile).read())
         # process the g-code file line by line
         self.process_file()
         # for pierce only mode
@@ -169,6 +175,11 @@ class Filter():
             for line in inLines:
                 self.lineNum += 1
                 self.lineNumOrg += 1
+                # allow custom processing before standard processing
+                if self.cfFile:
+                    line = self.custom_pre_process(line)
+                    if not line:
+                        continue
                 # if original is already filtered there is no need to process again
                 if self.filtered:
                     if not ';qtplasmac filtered G-code file' in line:
@@ -221,7 +232,10 @@ class Filter():
                             continue
                         code = self.parse_code(both[0])
                         cmnt = both[1]
-                        line = f'{code} {tag}{cmnt}'
+                        if code:
+                            line = f'{code} {tag}{cmnt}'
+                        else:
+                            line = f'{tag}{cmnt}'
                 # code only - parse the code
                 else:
                     line = self.parse_code(line)
@@ -238,6 +252,11 @@ class Filter():
                     self.gcodeList.append(line)
 
     def parse_code(self, data):
+        # allow custom parsing before standard code parsing
+        if self.cfFile:
+            data = self.custom_pre_parse(data)
+            if not data:
+                return(None)
         # set the current g-code
         self.lastG = self.set_last_gcode(data, self.lastG)
         # if data starts with axis then preface with last g-code
@@ -348,7 +367,27 @@ class Filter():
         # if program end
         elif data[:3] in ['M02', 'M30'] or data[0] == '%':
             data = self.program_end(data)
+        # allow custom parsing after standard code parsing
+        if self.cfFile:
+            data = self.custom_post_parse(data)
+            if not data:
+                return(None)
         return data
+
+    def custom_pre_process(self, line):
+        ''' placeholder function for custom processing
+            before standard processing '''
+        return(line)
+
+    def custom_pre_parse(self, data):
+        ''' placeholder function for custom parsing
+            before standard code parsing '''
+        return(data)
+
+    def custom_post_parse(self, data):
+        ''' placeholder function for custom parsing
+            after standard code parsing '''
+        return(data)
 
     def write_gcode(self):
         with open(self.filteredBkp, 'w') as outFile:
