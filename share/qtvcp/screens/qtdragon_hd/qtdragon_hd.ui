@@ -11136,6 +11136,9 @@ CAMERA</string>
                      <property name="joint_number" stdset="0">
                       <number>0</number>
                      </property>
+                     <property name="axis_letter" stdset="0">
+                      <string>X</string>
+                     </property>
                      <property name="incr_imperial_number" stdset="0">
                       <double>0.010000000000000</double>
                      </property>
@@ -11232,6 +11235,9 @@ CAMERA</string>
                      <property name="joint_number" stdset="0">
                       <number>1</number>
                      </property>
+                     <property name="axis_letter" stdset="0">
+                      <string>Y</string>
+                     </property>
                      <property name="incr_imperial_number" stdset="0">
                       <double>0.010000000000000</double>
                      </property>
@@ -11327,6 +11333,9 @@ CAMERA</string>
                      </property>
                      <property name="joint_number" stdset="0">
                       <number>2</number>
+                     </property>
+                     <property name="axis_letter" stdset="0">
+                      <string>Z</string>
                      </property>
                      <property name="incr_imperial_number" stdset="0">
                       <double>0.010000000000000</double>
@@ -15825,7 +15834,7 @@ ANGULAR</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>10:33:51 PM</string>
+               <string>05:19:12 PM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>

@@ -11734,6 +11734,9 @@ SPINDLE</string>
                         <property name="joint_number" stdset="0">
                          <number>1</number>
                         </property>
+                        <property name="axis_letter" stdset="0">
+                         <string>Y</string>
+                        </property>
                         <property name="incr_imperial_number" stdset="0">
                          <double>0.010000000000000</double>
                         </property>
@@ -12954,6 +12957,9 @@ ZERO</string>
                         <property name="joint_number" stdset="0">
                          <number>2</number>
                         </property>
+                        <property name="axis_letter" stdset="0">
+                         <string>Z</string>
+                        </property>
                         <property name="incr_imperial_number" stdset="0">
                          <double>0.010000000000000</double>
                         </property>
@@ -13336,6 +13342,9 @@ ZERO</string>
                         </property>
                         <property name="joint_number" stdset="0">
                          <number>0</number>
+                        </property>
+                        <property name="axis_letter" stdset="0">
+                         <string>X</string>
                         </property>
                         <property name="incr_imperial_number" stdset="0">
                          <double>0.010000000000000</double>
@@ -16700,7 +16709,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>10:12:29 PM</string>
+            <string>10:12:06 AM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -17742,7 +17751,7 @@ ZERO</string>
   <slot>btn_spindle_z_down_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
