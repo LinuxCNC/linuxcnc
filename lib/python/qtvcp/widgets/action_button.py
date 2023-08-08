@@ -507,11 +507,15 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
         elif self.tool_offset_dialog:
             STATUS.emit('dialog-request', {'NAME':'TOOLOFFSET', 'ID':'_%s_'% self.objectName()})
         elif self.zero_axis:
-            j = "XYZABCUVW"
-            try:
-                axis = j[self.joint]
-            except IndexError:
-                LOG.error("can't zero origin for specified joint {}".format(self.joint))
+            axis = self.axis
+            if axis == '':
+                # TODO remove this 2.9 workaround in the future
+                LOG.warning("{} should use axis property not joint".format(self.objectName()))
+                j = "XYZABCUVW"
+                try:
+                    axis = j[self.joint]
+                except IndexError:
+                    LOG.error("can't zero origin for specified joint {}".format(self.joint))
             ACTION.SET_AXIS_ORIGIN(axis, 0)
         elif self.zero_g5x:
             ACTION.ZERO_G5X_OFFSET(0)
