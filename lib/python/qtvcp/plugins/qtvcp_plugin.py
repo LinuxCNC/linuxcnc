@@ -31,6 +31,7 @@ from qtvcp.plugins.joypad_plugin import *
 
 # plain widgets
 from qtvcp.plugins.nurbs_editor_plugin import NurbsEditorPlugin
+from qtvcp.plugins.web_widget_plugin import WebWidgetPlugin
 
 # Linuxcnc widgets
 from qtvcp.plugins.container_plugin import StateEnableGridLayoutPlugin
