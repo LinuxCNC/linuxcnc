@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1470</width>
-    <height>1032</height>
+    <width>1002</width>
+    <height>702</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -225,7 +225,7 @@
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>0</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -3584,7 +3584,7 @@ HOME</string>
                  </size>
                 </property>
                 <property name="currentIndex">
-                 <number>5</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="preview_page">
                  <layout class="QHBoxLayout" name="horizontalLayout_18">
@@ -4836,7 +4836,7 @@ EDGE</string>
                     <property name="frameShadow">
                      <enum>QFrame::Plain</enum>
                     </property>
-                    <layout class="QVBoxLayout" name="verticalLayout_61">
+                    <layout class="QVBoxLayout" name="verticalLayout_61" stretch="0,1">
                      <property name="spacing">
                       <number>2</number>
                      </property>
@@ -4967,19 +4967,7 @@ EDGE</string>
                          <number>0</number>
                         </property>
                         <item>
-                         <widget class="QWebView" name="webview">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="url">
-                           <url>
-                            <string>about:blank</string>
-                           </url>
-                          </property>
-                         </widget>
+                         <widget class="WebWidget" name="webview"/>
                         </item>
                        </layout>
                       </widget>
@@ -14573,8 +14561,8 @@ MOVE</string>
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>720</width>
-                      <height>861</height>
+                      <width>698</width>
+                      <height>636</height>
                      </rect>
                     </property>
                     <property name="sizePolicy">
@@ -17323,6 +17311,11 @@ CONFIG</string>
    <class>HALLabel</class>
    <extends>QLabel</extends>
    <header>qtvcp.widgets.hal_label</header>
+  </customwidget>
+  <customwidget>
+   <class>WebWidget</class>
+   <extends>QWebView</extends>
+   <header>qtvcp.widgets.web_widget</header>
   </customwidget>
   <customwidget>
    <class>GCodeGraphics</class>
