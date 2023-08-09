@@ -738,7 +738,7 @@
               <item>
                <widget class="QStackedWidget" name="preview_stack">
                 <property name="currentIndex">
-                 <number>5</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="preview_page">
                  <layout class="QHBoxLayout" name="horizontalLayout_11">
@@ -2003,7 +2003,7 @@ ORIGIN</string>
                     <property name="frameShadow">
                      <enum>QFrame::Plain</enum>
                     </property>
-                    <layout class="QVBoxLayout" name="verticalLayout_70">
+                    <layout class="QVBoxLayout" name="verticalLayout_70" stretch="0,1">
                      <property name="spacing">
                       <number>2</number>
                      </property>
@@ -2134,19 +2134,7 @@ ORIGIN</string>
                          <number>0</number>
                         </property>
                         <item>
-                         <widget class="QWebView" name="webview">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="url">
-                           <url>
-                            <string>about:blank</string>
-                           </url>
-                          </property>
-                         </widget>
+                         <widget class="WebWidget" name="webview"/>
                         </item>
                        </layout>
                       </widget>
@@ -17727,6 +17715,11 @@ CONFIG</string>
    <class>HALLabel</class>
    <extends>QLabel</extends>
    <header>qtvcp.widgets.hal_label</header>
+  </customwidget>
+  <customwidget>
+   <class>WebWidget</class>
+   <extends>QWebView</extends>
+   <header>qtvcp.widgets.web_widget</header>
   </customwidget>
   <customwidget>
    <class>GCodeGraphics</class>
