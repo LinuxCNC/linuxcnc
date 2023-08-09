@@ -147,7 +147,6 @@ class HandlerClass:
 """ %(  os.path.expanduser('~/linuxcnc'),
         os.path.join(paths.IMAGEDIR,'lcnc_swoop.png'))
 
-
     def class_patch__(self):
         # override file manager load button
         self.old_fman = FM.load
@@ -182,7 +181,7 @@ class HandlerClass:
     # check for default setup html file
         try:
             # web view widget for SETUP page
-            if self.w.web_view:
+            if self.w.webwidget:
                 self.toolBar = QtWidgets.QToolBar(self.w)
                 self.w.tabWidget_setup.setCornerWidget(self.toolBar)
 
@@ -224,12 +223,11 @@ class HandlerClass:
                 self.writeBtn.clicked.connect(self.writer)
                 self.toolBar.addWidget(self.writeBtn)
 
-                self.w.layout_HTML.addWidget(self.w.web_view)
                 if os.path.exists(self.default_setup):
-                    self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.default_setup))
+                    self.w.webwidget.load(QtCore.QUrl.fromLocalFile(self.default_setup))
                 else:
-                    self.w.web_view.setHtml(self.html)
-                self.w.web_view.page().urlChanged.connect(self.onLoadFinished)
+                    self.w.webwidget.setHtml(self.html)
+                self.w.webwidget.page().urlChanged.connect(self.onLoadFinished)
 
         except Exception as e:
             print("No default setup file found - {}".format(e))
@@ -990,10 +988,10 @@ class HandlerClass:
             fname = filename+'.html'
             try:
                 if os.path.exists(fname):
-                    self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
+                    self.w.webwidget.loadFile(fname)
                     self.add_status("Loaded HTML file : {}".format(fname), CRITICAL)
                 else:
-                    self.w.web_view.setHtml(self.html)
+                    self.w.webwidget.setHtml(self.html)
             except Exception as e:
                 self.add_status("Error loading HTML file {} : {}".format(fname,e))
             # look for PDF setup files
@@ -1011,7 +1009,7 @@ class HandlerClass:
 
         if file_extension == ".html":
             try:
-                self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
+                self.w.webwidget.loadFile(fname)
                 self.add_status("Loaded HTML file : {}".format(fname))
                 self.w.stackedWidget_mainTab.setCurrentIndex(TAB_SETUP)
                 self.w.stackedWidget.setCurrentIndex(0)
@@ -1226,9 +1224,9 @@ class HandlerClass:
     def zoomWeb(self):
         # webview
         try:
-            f = self.w.web_view.zoomFactor() +.5
+            f = self.w.webwidget.zoomFactor() +.5
             if f > 2:f = 1
-            self.w.web_view.setZoomFactor(f)
+            self.w.webwidget.setZoomFactor(f)
         except:
             pass
 
@@ -1244,21 +1242,21 @@ class HandlerClass:
     def homeWeb(self):
         try:
             if os.path.exists(self.default_setup):
-                self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.default_setup))
+                self.w.webwidget.load(QtCore.QUrl.fromLocalFile(self.default_setup))
             else:
-                self.w.web_view.setHtml(self.html)
+                self.w.webwidget.setHtml(self.html)
         except:
             pass
     # setup tab's web page back button
     def back(self):
         try:
             try:
-                self.w.web_view.page().triggerAction(QWebEnginePage.Back)
+                self.w.webwidget.page().triggerAction(QWebEnginePage.Back)
             except:
                 if os.path.exists(self.default_setup):
-                    self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.default_setup))
+                    self.w.webwidget.load(QtCore.QUrl.fromLocalFile(self.default_setup))
                 else:
-                    self.w.web_view.setHtml(self.html)
+                    self.w.webwidget.setHtml(self.html)
         except:
             pass
 
@@ -1266,21 +1264,21 @@ class HandlerClass:
     def forward(self):
         try:
             try:
-                self.w.web_view.page().triggerAction(QWebEnginePage.Forward)
+                self.w.webwidget.page().triggerAction(QWebEnginePage.Forward)
             except:
-                self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.docs))
+                self.w.webwidget.load(QtCore.QUrl.fromLocalFile(self.docs))
         except:
             pass
 
     # setup tab's web page - enable/disable buttons
     def onLoadFinished(self):
         try:
-            if self.w.web_view.history().canGoBack():
+            if self.w.webwidget.history().canGoBack():
                 self.backBtn.setEnabled(True)
             else:
                 self.backBtn.setEnabled(False)
 
-            if self.w.web_view.history().canGoForward():
+            if self.w.webwidget.history().canGoForward():
                 self.forBtn.setEnabled(True)
             else:
                 self.forBtn.setEnabled(False)

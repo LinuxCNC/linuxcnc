@@ -3421,7 +3421,7 @@ PLATE</string>
                         <enum>QFrame::Raised</enum>
                        </property>
                        <property name="currentIndex">
-                        <number>9</number>
+                        <number>0</number>
                        </property>
                        <widget class="QWidget" name="stackedWidget_mainTabPage1">
                         <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -6396,6 +6396,9 @@ LOG</string>
                                <property name="bottomMargin">
                                 <number>0</number>
                                </property>
+                               <item>
+                                <widget class="WebWidget" name="webwidget"/>
+                               </item>
                               </layout>
                              </widget>
                              <widget class="QWidget" name="tabPDF">
@@ -16709,7 +16712,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>10:12:06 AM</string>
+            <string>09:07:27 AM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -16897,6 +16900,16 @@ ZERO</string>
    <class>VirtualKeyboard</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.virtualkeyboard</header>
+  </customwidget>
+  <customwidget>
+   <class>QWebView</class>
+   <extends>QWidget</extends>
+   <header location="global">QtWebKitWidgets/QWebView</header>
+  </customwidget>
+  <customwidget>
+   <class>WebWidget</class>
+   <extends>QWebView</extends>
+   <header>qtvcp.widgets.web_widget</header>
   </customwidget>
  </customwidgets>
  <resources>
@@ -17108,22 +17121,6 @@ ZERO</string>
     <hint type="destinationlabel">
      <x>719</x>
      <y>429</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>tabWidget_utilities</sender>
-   <signal>currentChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>tab_utilities_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>204</y>
     </hint>
    </hints>
   </connection>
@@ -17668,6 +17665,22 @@ ZERO</string>
     <hint type="destinationlabel">
      <x>1073</x>
      <y>-19</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tabWidget_utilities</sender>
+   <signal>currentChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>tab_utilities_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>474</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>204</y>
     </hint>
    </hints>
   </connection>
