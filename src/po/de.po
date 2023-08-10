@@ -1,4 +1,4 @@
-# Steffen Möller <steffen_moeller@gmx.de>, 2022.
+# Steffen Möller <steffen_moeller@gmx.de>, 2022, 2023.
 # Hans U. <hansunzner@gmail.com>, 2022.
 # Michael Stellmacher <michaelst78@gmail.com>, 2022.
 # mk00002 <codo1983@gmail.com>, 2022.
@@ -7,10 +7,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-02-18 17:31+0000\n"
-"Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
+"PO-Revision-Date: 2023-08-07 18:51+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.16-dev\n"
+"X-Generator: Weblate 5.0-dev\n"
 
 #: src/emc/task/emctaskmain.cc:869
 #, c-format
@@ -4108,7 +4108,7 @@ msgstr "unten"
 
 #: src/hal/classicladder/edit_sequential.c:842
 msgid "Now select the transition."
-msgstr ""
+msgstr "Nun wähle die Transition aus."
 
 #: src/hal/classicladder/edit_sequential.c:844
 msgid "Now select the step that will be deactivated by this transition."
@@ -11845,7 +11845,8 @@ msgstr "Entgegengesetzt"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
