@@ -1,7 +1,7 @@
 import os
 
 from PyQt5.QtCore import QUrl, QFile, QUrl
-
+from PyQt5.QtWidgets import (QWidget,QVBoxLayout,QLabel)
 from qtvcp.core import Path
 
 # Set up logging
@@ -21,7 +21,7 @@ except:
         # PyQt5.QtWebEngineWidgets must be loaded before QApplication
         # which doesn't happen in designer. Also screen won't immediately 
         # crash if both libraries are not missing
-        WebBase = QtWidgets.QWidget
+        WebBase = QWidget
         good = False
 
 class WebWidget(WebBase):
@@ -30,9 +30,9 @@ class WebWidget(WebBase):
 
         # bad imports - give a clue
         if not good:
-            vbox = QtWidgets.QVBoxLayout(self)
+            vbox = QVBoxLayout(self)
             vbox.addStretch(1)
-            mess = QtWidgets.QLabel('WebWidget Import failed')
+            mess = QLabel('WebWidget Import failed')
             vbox.addWidget(mess)
 
     # load a HTML file, but try to fix the image path
