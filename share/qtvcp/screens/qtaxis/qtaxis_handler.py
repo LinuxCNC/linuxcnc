@@ -120,6 +120,7 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionOptionalStop, 'optional_stop')
         TOOLBAR.configure_action(self.w.actionZoomIn, 'zoom_in')
         TOOLBAR.configure_action(self.w.actionZoomOut, 'zoom_out')
+        TOOLBAR.configure_action(self.w.actionLargeDRO, 'large_dro')
         if not INFO.MACHINE_IS_LATHE:
             TOOLBAR.configure_action(self.w.actionFrontView, 'view_x')
             TOOLBAR.configure_action(self.w.actionRotatedView, 'view_z2')

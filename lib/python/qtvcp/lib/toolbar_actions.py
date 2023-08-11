@@ -224,6 +224,8 @@ class ToolBarActions():
             function = (self.actOnViewClear)
         elif action == 'show_offsets':
             function = (self.actOnViewOffsets)
+        elif action == 'large_dro':
+            function = (self.actOnLargeDRO)
         elif action == 'quit':
             function = (self.actOnQuit)
         elif action == 'system_shutdown':
@@ -519,6 +521,12 @@ class ToolBarActions():
             ACTION.SET_GRAPHICS_VIEW('overlay-offsets-on')
         else:
             ACTION.SET_GRAPHICS_VIEW('overlay-offsets-off')
+
+    def actOnLargeDRO(self, widget, state=None):
+        if state:
+            ACTION.SET_GRAPHICS_VIEW('set-large-dro')
+        else:
+            ACTION.SET_GRAPHICS_VIEW('set-small-dro')
 
     def actOnQuit(self, widget, state=None):
         WIDGETS.close()
