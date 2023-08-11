@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-06-30 16:24+0000\n"
+"PO-Revision-Date: 2023-08-10 18:39+0000\n"
 "Last-Translator: Issy Varsano <info@sivar.bg>\n"
 "Language-Team: none\n"
 "Language: bg\n"
@@ -273,14 +273,12 @@ msgid "Audio available!"
 msgstr "Налично аудио!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2021
-#, fuzzy
 msgid "Audio enabled!"
 msgstr "Налично аудио!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2024
-#, fuzzy
 msgid "Audio disabled!"
-msgstr "Налично аудио!"
+msgstr "Забранено аудио!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2035
 msgid ""
@@ -1051,7 +1049,7 @@ msgstr "Височина"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:75
 msgid "hide title bar"
-msgstr ""
+msgstr "скрий заглавната лента"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:76
 msgid "hide cursor"
@@ -1123,7 +1121,7 @@ msgstr "Unhomed цвят"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:93
 msgid "Size"
-msgstr ""
+msgstr "Размер"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:94
 msgid "Digits"
@@ -1207,7 +1205,7 @@ msgstr "Аудио предупреждение"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:114
 msgid "Enable sound"
-msgstr ""
+msgstr "Включване на звуците"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:115
 msgid "<b>Themes and sound</b>"
@@ -1615,7 +1613,7 @@ msgstr "Отворете classicladder"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:218
 msgid "Hal-Scope"
-msgstr "Hal-Scope"
+msgstr "ХАЛ-ОСЦИЛОСКОП"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:219
 msgid "launch hal scope"
