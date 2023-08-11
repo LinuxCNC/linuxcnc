@@ -42,7 +42,10 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         self._joint_type = 1
         self.diameter = False
         self.reference_type = 0
+        # joint index of 9 axis
         self.joint_number = 0
+        # linuxcnc joint number
+        self._jointNum = 0
         self.display_units_mm = 0
         self.metric_text_template = '%10.3f'
         self.imperial_text_template = '%9.4f'
@@ -92,7 +95,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
     # polish widget so stylesheet sees the property change
     # some stylesheets color the text on home/unhome
     def _home_status_polish(self, d, state):
-        if d == self.joint_number or (self.joint_number==10 and d==1):
+        if d == self._jointNum or (self.joint_number==10 and d==1):
             self.setProperty('isHomed', state)
             self.style().unpolish(self)
             self.style().polish(self)
@@ -186,6 +189,16 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         self.diameter = False
         self._scale = 1.0
 
+    # index = index of 9 axis
+    def set_joint_type(self, index):
+        # convert to linxcnc joint number
+        self._jointNum = INFO.GET_JOINT_NUM_FROM_AXIS_INDEX.get(index)
+        if self._jointNum is None:
+            self._joint_type  = 1
+        else:
+            self._joint_type  = INFO.JOINT_TYPE_INT[self._jointNum]
+        self. update_units()
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -243,11 +256,14 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         self.allow_reference_change_requests = True
     follow_reference_changes = QtCore.pyqtProperty(bool, get_follow_reference, set_follow_reference, reset_follow_reference)
 
-    # JOINT Number
+    # JOINT Number TODO this is actually joint index of the 9 axes
+    # rather then linuxcnc's idea of joint number
     def setjoint_number(self, data):
         if data >10: data = 10
         if data < 0: data = 0
         self.joint_number = data
+        if data < 10:
+            self.set_joint_type(data)
     def getjoint_number(self):
         return self.joint_number
     def resetjoint_number(self):

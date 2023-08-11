@@ -97,11 +97,13 @@ class HandlerClass:
                               "search_vel", "probe_vel", "max_probe", "eoffset_count"]
         self.onoff_list = ["frame_program", "frame_tool", "frame_dro", "frame_override", "frame_status"]
         self.auto_list = ["chk_eoffsets", "cmb_gcode_history","lineEdit_eoffset_count"]
-        self.axis_a_list = ["label_axis_a", "dro_axis_a", "action_zero_a", "axistoolbutton_a",
-                            "dro_button_stack_a", "widget_jog_angular", "widget_increments_angular",
-                            "a_plus_jogbutton", "a_minus_jogbutton"]
+        self.axis_4_list = ["label_axis_4", "dro_axis_4", "action_zero_4", "axistoolbutton_4",
+                            "dro_button_stack_4", "plus_jogbutton_4", "minus_jogbutton_4"]
+        self.axis_5_list = ["label_axis_5", "dro_axis_5", "action_zero_5", "axistoolbutton_5",
+                            "dro_button_stack_5",
+                            "plus_jogbutton_5", "minus_jogbutton_5"]
         self.button_response_list = ["btn_start", "btn_home_all", "btn_home_x", "btn_home_y",
-                            "btn_home_z", "action_home_a", "btn_reload_file", "macrobutton0", "macrobutton1",
+                            "btn_home_z", "action_home_4","action_home_5", "btn_reload_file", "macrobutton0", "macrobutton1",
                             "macrobutton2", "macrobutton3", "macrobutton4", "macrobutton5", "macrobutton6",
                             "macrobutton7", "macrobutton8", "macrobutton9"]
         self.statusbar_reset_time = 10000 # ten seconds
@@ -169,11 +171,33 @@ class HandlerClass:
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
         self.w.filemanager_usb.showMediaDir(quiet = True)
 
-    # hide widgets for A axis if not present
-        if "A" not in INFO.AVAILABLE_AXES:
-            for i in self.axis_a_list:
+    # hide or initiate 4th/5th AXIS dro/jog
+        flag = False
+        flag4 = True
+        num = 4
+        for temp in ('A','B','C','U','V','W'):
+            if temp in INFO.AVAILABLE_AXES:
+                if temp in ('A','B','C'):
+                    flag = True
+                self.initiate_axis_dro(num,temp)
+                num +=1
+                if num ==6:
+                    break
+        # no 5th axis
+        if num < 6:
+            for i in self.axis_5_list:
                 self.w[i].hide()
-            self.w.lbl_increments_linear.setText("INCREMENTS")
+        # no 4th axis
+        if num < 5 :
+            for i in self.axis_4_list:
+                self.w[i].hide()
+        # angular increment controls
+        if flag:
+           self.w.lbl_increments_linear.setText("INCREMENTS")
+        else:
+            self.w.widget_jog_angular.hide()
+            self.w.widget_increments_angular.hide()
+
     # set validators for lineEdit widgets
         for val in self.lineedit_list:
             self.w['lineEdit_' + val].setValidator(self.valid)
@@ -1407,8 +1431,11 @@ class HandlerClass:
             num = 1
         else:
             num = 0
-        for i in INFO.AVAILABLE_AXES:
-            self.w['dro_button_stack_%s'%i.lower()].setCurrentIndex(num)
+        for n,i in enumerate(INFO.AVAILABLE_AXES):
+            if n >2:
+                self.w['dro_button_stack_%s'%(n+1)].setCurrentIndex(num)
+            else:
+                self.w['dro_button_stack_%s'%i.lower()].setCurrentIndex(num)
 
         # user tabs button cycles between all user tabs
         main_current = self.w.stackedWidget_mainTab.currentIndex()
@@ -1468,6 +1495,39 @@ class HandlerClass:
                 self.w.splitter_h.restoreState(QtCore.QByteArray(splitterSetting))
             except Exception as e:
                 print(e)
+
+    # set axis 4/5 dro widgets to the proper axis
+    # TODO do this with all the axes for more flexibility
+    def initiate_axis_dro(self, num, axis):
+        self.w['label_axis_{}'.format(num)].setText(axis)
+        jnum = INFO.GET_JOG_FROM_NAME.get(axis)
+        # DRO uses axis index
+        index = "XYZABCUVW".index(axis)
+        self.w['dro_axis_{}'.format(num)].setProperty('Qjoint_number',index)
+        self.w['action_zero_{}'.format(num)].setProperty('axis_letter',axis)
+        self.w['axistoolbutton_{}'.format(num)].setProperty('axis_letter',axis)
+        self.w['axistoolbutton_{}'.format(num)].setText('REF {}'.format(axis))
+        self.w['action_home_{}'.format(num)].setProperty('axis_letter',axis)
+        self.w['action_home_{}'.format(num)].setProperty('joint_number_status',jnum)
+        self.w['action_home_{}'.format(num)].setProperty('joint',index)
+        self.w['offsettoolbutton_{}'.format(num)].setProperty('axis_letter',axis)
+        self.w['plus_jogbutton_{}'.format(num)].setProperty('axis_letter',axis)
+        self.w['plus_jogbutton_{}'.format(num)].setProperty('joint_number',jnum)
+        a = axis.lower()
+        try:
+            icn = QtGui.QIcon(QtGui.QPixmap(':/buttons/images/{}_plus_jog_button.png'.format(a)))
+            if icn.isNull(): raise Exception
+            self.w['plus_jogbutton_{}'.format(num)].setIcon(icn)
+        except Exception as e:
+            self.w['plus_jogbutton_{}'.format(num)].setProperty('text','{}+'.format(axis))
+        self.w['minus_jogbutton_{}'.format(num)].setProperty('axis_letter',axis)
+        self.w['minus_jogbutton_{}'.format(num)].setProperty('joint_number',jnum)
+        try:
+            icn = QtGui.QIcon(QtGui.QPixmap(':/buttons/images/{}_minus_jog_button.png'.format(a)))
+            if icn.isNull(): raise Exception
+            self.w['minus_jogbutton_{}'.format(num)].setIcon(icn)
+        except Exception as e:
+            self.w['minus_jogbutton_{}'.format(num)].setProperty('text','{}-'.format(axis))
 
     #####################
     # KEY BINDING CALLS #
