@@ -5,7 +5,7 @@ echo -e '\ninstalling common base packages'
 sudo apt-get install -y gstreamer1.0-tools espeak espeak-ng sound-theme-freedesktop
 
 echo -e '\ninstalling base packages for python3'
-sudo apt-get install -y python3-opengl python3-pyqt5 python3-pyqt5.qsci python3-pyqt5.qtsvg python3-pyqt5.qtopengl python3-opencv python3-dbus python3-dbus.mainloop.pyqt5 python3-espeak python3-pyqt5.qtwebkit python3-xlib python3-numpy python3-cairo python3-gi-cairo python3-poppler-qt5
+sudo apt-get install -y python3-opengl python3-pyqt5 python3-pyqt5.qsci python3-pyqt5.qtsvg python3-pyqt5.qtopengl python3-opencv python3-dbus python3-dbus.mainloop.pyqt5 python3-espeak python3-pyqt5.qtwebengine python3-xlib python3-numpy python3-cairo python3-gi-cairo python3-poppler-qt5
 
 echo -e '\ninstalling python3 tools'
 sudo apt-get install -y pyqt5-dev-tools
@@ -82,7 +82,8 @@ fi
 echo -e '\ncreate plugin link at:\n~/.designer/plugins/python/\n'
 ln -s $pifile ~/.designer/plugins/python/
 
-sopath=/usr/lib/x86_64-linux-gnu/qt5/plugins/designer/
+arch="`uname -m`"
+sopath=/usr/lib/$arch-linux-gnu/qt5/plugins/designer/
 p2sofile=libpyqt5_py2.so
 p3sofile=libpyqt5.so
 
