@@ -300,6 +300,8 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.dro_deg = "% 9.2f"
         self.dro_vel = "   Vel:% 9.2F"
         self._font = 'monospace bold 16'
+        self._fontLarge = 'monospace bold 22'
+        self._largeFontState = False
         self.addTimer()
         self._buttonList = [Qt.LeftButton,
                             Qt.MiddleButton,
@@ -505,6 +507,20 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
         self.gcode_properties = props
 
+    def set_font(self, large=None):
+        # set to None to reset the DRO font
+        if large is None: large = self._largeFontState
+        if large:
+            font = self._fontLarge
+            self._largeFontState = True
+        else:
+            font = self._font
+            self._largeFontState = False
+        self.font_base, width, linespace = glnav.use_pango_font(font, 0, 128)
+        self.font_linespace = linespace
+        self.font_charwidth = width
+        self.update()
+
     # setup details when window shows
     def realize(self):
         self.set_current_view()
@@ -519,10 +535,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         except:
             return
         self._current_file = None
-
-        self.font_base, width, linespace = glnav.use_pango_font(self._font, 0, 128)
-        self.font_linespace = linespace
-        self.font_charwidth = width
+        self.set_font(False)
         glcanon.GlCanonDraw.realize(self)
         if s.file: self.load()
 
@@ -1210,11 +1223,21 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 #############
     def setfont(self, font):
         self._font = font
+        self.set_font()
     def getfont(self):
         return self._font
     def resetfont(self):
         self._font = 'monospace bold 16'
     dro_font = pyqtProperty(str, getfont, setfont, resetfont)
+
+    def setfontlarge(self, font):
+        self._fontLarge = font
+        self.set_font()
+    def getfontlarge(self):
+        return self._fontLarge
+    def resetfontlarge(self):
+        self._fontLarge = 'monospace bold 22'
+    dro_large_font = pyqtProperty(str, getfontlarge, setfontlarge, resetfontlarge)
 
 ###########
 # Testing

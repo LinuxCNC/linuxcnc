@@ -202,6 +202,10 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             self.recordCurrentViewSettings()
         elif v == 'set-recorded-view':
             self.setRecordedView()
+        elif v == 'set-large-dro':
+            self.set_font(True)
+        elif v == 'set-small-dro':
+            self.set_font(False)
         else:
             self.set_view(v)
 

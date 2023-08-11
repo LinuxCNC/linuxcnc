@@ -843,11 +843,23 @@ image::images/qtvcp_gcodeGraphics.png["QtVCP GcodeGraphics: G-code Graphic Backp
 This *displays the current G-code in a graphical form*.
 
 .Stylesheets Properties
+*`dro-font/dro-large-font`* _(string)_::
+  Sets the small and large DRO font properties +
+  Here we reference with the widget base name; GCodeGraphics
+[source,{css}]
+----
+GCodeGraphics{
+    qproperty-dro_font:"monospace  bold 12";
+}
+GCodeGraphics{
+    qproperty-dro_large_font:"Times 25";
+}
+----
 
 *`_view`* _(string)_::
   Sets the _default view orientation_ on GUI load. +
   Valid choices for a lathe are p, y, y2. For other screens, valid choices are p, x, y, z, z2. +
-  The following shows an example of how to set this property:
+  The following shows an example of how to set this property (referenced using the widget user selected name):
 +
 [source,{css}]
 ----
@@ -1086,6 +1098,8 @@ The `ACTION` library can control the G-code graphics widget.
   * `Y2`
   * `Z`
   * `Z2`
+  * 'set-large-dro'
+  * 'set-small-dro'
 *`ACTION.ADJUST_PAN(_X,Y_)`*::
   Directly set the relative pan of view in x and y direction.
 *`ACTION.ADJUST_ROTATE(_X,Y_)`*::
