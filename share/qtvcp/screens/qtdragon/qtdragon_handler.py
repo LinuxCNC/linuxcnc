@@ -100,6 +100,9 @@ class HandlerClass:
         self.axis_a_list = ["label_axis_a", "dro_axis_a", "action_zero_a", "axistoolbutton_a",
                             "dro_button_stack_a", "widget_jog_angular", "widget_increments_angular",
                             "a_plus_jogbutton", "a_minus_jogbutton"]
+        self.axis_5_list = ["label_axis_5", "dro_axis_5", "action_zero_5", "axistoolbutton_5",
+                            "dro_button_stack_5",
+                            "plus_jogbutton_5", "minus_jogbutton_5"]
         self.button_response_list = ["btn_start", "btn_home_all", "btn_home_x", "btn_home_y",
                             "btn_home_z", "action_home_a", "btn_reload_file", "macrobutton0", "macrobutton1",
                             "macrobutton2", "macrobutton3", "macrobutton4", "macrobutton5", "macrobutton6",
@@ -170,10 +173,29 @@ class HandlerClass:
         self.w.filemanager_usb.showMediaDir(quiet = True)
 
     # hide widgets for A axis if not present
-        if "A" not in INFO.AVAILABLE_AXES:
-            for i in self.axis_a_list:
-                self.w[i].hide()
-            self.w.lbl_increments_linear.setText("INCREMENTS")
+    # hide or initiate 5th AXIS dro/jog
+        flag = False
+        flag4 = True
+        for temp in ('A','B','C','U','V','W','end'):
+            if temp in INFO.AVAILABLE_AXES:
+                if temp in ('A','B','C'):
+                    flag = True
+                if temp == 'A':
+                    flag4 = False
+                else:
+                    self.initiate_axis_5(temp)
+                    break
+            if temp == 'end':
+                for i in self.axis_5_list:
+                    self.w[i].hide()
+        # no 4th axes
+        if flag4:
+                for i in self.axis_a_list:
+                    self.w[i].hide()
+        # angular increment controls
+        if flag:
+           self.w.lbl_increments_linear.setText("INCREMENTS")
+
     # set validators for lineEdit widgets
         for val in self.lineedit_list:
             self.w['lineEdit_' + val].setValidator(self.valid)
@@ -1408,6 +1430,8 @@ class HandlerClass:
         else:
             num = 0
         for i in INFO.AVAILABLE_AXES:
+            if i in('B','C'):
+                i ='5'
             self.w['dro_button_stack_%s'%i.lower()].setCurrentIndex(num)
 
         # user tabs button cycles between all user tabs
@@ -1468,6 +1492,26 @@ class HandlerClass:
                 self.w.splitter_h.restoreState(QtCore.QByteArray(splitterSetting))
             except Exception as e:
                 print(e)
+
+    # set axis 5 dro widgets to the proper axis
+    # TODO do this with all the axes for more flexibility
+    def initiate_axis_5(self, axis):
+        self.w.label_axis_5.setText(axis)
+        jnum = INFO.GET_JOG_FROM_NAME.get(axis)
+        # DRO uses axis index
+        index = "XYZABCUVW".index(axis)
+        self.w.dro_axis_5.setProperty('Qjoint_number',index)
+        self.w.action_zero_5.setProperty('axis_letter',axis)
+        self.w.axistoolbutton_5.setProperty('axis_letter',axis)
+        self.w.axistoolbutton_5.setText('REF {}'.format(axis))
+        self.w.action_home_5.setProperty('axis_letter',axis)
+        self.w.offsettoolbutton_5.setProperty('axis_letter',axis)
+        self.w.plus_jogbutton_5.setProperty('axis_letter',axis)
+        self.w.plus_jogbutton_5.setProperty('joint_number',jnum)
+        self.w.plus_jogbutton_5.setProperty('text','{}+'.format(axis))
+        self.w.minus_jogbutton_5.setProperty('axis_letter',axis)
+        self.w.minus_jogbutton_5.setProperty('joint_number',jnum)
+        self.w.minus_jogbutton_5.setProperty('text','{}-'.format(axis))
 
     #####################
     # KEY BINDING CALLS #
