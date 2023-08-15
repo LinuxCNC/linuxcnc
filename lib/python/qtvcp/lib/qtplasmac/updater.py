@@ -108,17 +108,17 @@ def move_options_to_prefs_file(inifile, prefs):
         prefs.putpref('Autorepeat all', data, bool, 'GUI_OPTIONS')
     data = inifile.find('QTPLASMAC', 'LASER_TOUCHOFF') or None
     if data:
-        x, y, d = get_offsets(data)
+        x, y, d = get_offsets(data, 'LASER_OFFSET')
         prefs.putpref('X axis', x, float, 'LASER_OFFSET')
         prefs.putpref('Y axis', y, float, 'LASER_OFFSET')
     data = inifile.find('QTPLASMAC', 'CAMERA_TOUCHOFF') or None
     if data:
-        x, y, d = get_offsets(data)
+        x, y, d = get_offsets(data, 'CAMERA_OFFSET')
         prefs.putpref('X axis', x, float, 'CAMERA_OFFSET')
         prefs.putpref('Y axis', y, float, 'CAMERA_OFFSET')
     data = inifile.find('QTPLASMAC', 'OFFSET_PROBING') or None
     if data:
-        x, y, d = get_offsets(data)
+        x, y, d = get_offsets(data, 'OFFSET_PROBING')
         prefs.putpref('X axis', x, float, 'OFFSET_PROBING')
         prefs.putpref('Y axis', y, float, 'OFFSET_PROBING')
         prefs.putpref('Delay', d, float, 'OFFSET_PROBING')
@@ -335,7 +335,7 @@ def add_component_hal_file_iniwrite(inifile):
 
 # common functions
 
-def get_offsets(data):
+def get_offsets(data, oType):
     x = y = d = 0
     parms = data.lower().split()
     for parm in parms:
@@ -343,8 +343,10 @@ def get_offsets(data):
             x = float(parm.replace('x', ''))
         elif parm.startswith('y'):
             y = float(parm.replace('y', ''))
-        else:
+        elif oType == 'OFFSET_PROBING':
             d = float(parm)
+        else:
+            print(f'Parameter error in {oType}. "{data}" is invalid.')
     return x, y, d
 
 def update_notify(version, restart=False):
