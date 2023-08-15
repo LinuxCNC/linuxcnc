@@ -229,12 +229,23 @@ These buttons are QtVCP action buttons and follow those rules.
 [[sub:qtvcp:panels:sim-panel]]
 === `sim_panel`
 
-Small control panel to *simulate MPG jogging controls etc*. +
-For simulated configurations
+Small control panel to *simulate MPG jogging controls etc* for simulated configurations. +
+The MPG, selection buttons and control buttons export HAL pins to connect to linuxcnc. +
+The selection and control group boxes can be hidden if not needed by using the '-o hide=' option. +
+'groupBoxControl' and 'groupBoxSelection' are the widget names that can be hidden. +
+If you want to hide both, use a comma between them with no spaces. +
+The '-a' option will make the panel always-on-top of all windows.
 
 [source,{hal}]
 ----
 loadusr qtvcp sim_panel
+----
+
+Here we load the panel with no MPG selection buttons and the always-on-top option.
+
+[source,{hal}]
+----
+loadusr qtvcp -a -o hide=groupBoxSelection sim_panel
 ----
 
 .QtVCP `sim_panel` - Simulated Controls Panel For Screen Testing.
