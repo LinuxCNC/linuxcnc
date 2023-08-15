@@ -42,9 +42,7 @@ class HandlerClass:
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
         self.w.setFocusPolicy(Qt.NoFocus)
-        print(self.w.parent())
         for widget in self.w.children():
-            print(widget)
             try:
                 widget.setFocusPolicy(QtCore.Qt.NoFocus)
             except:
@@ -67,7 +65,7 @@ class HandlerClass:
                         strg = self.w.USEROPTIONS_[num].strip('hide=')
                         arg = strg.split(',')
                         for i in arg:
-                            print (i)
+                            #print (i)
                             try:
                                 self.w[i].hide()
                             except:
