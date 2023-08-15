@@ -61,7 +61,7 @@ the folders created by the wizard would typically contain the following files:
    how to link the internal virtual signals to physical connections beyond the computer.
    For example, specifying pin 4 on the parallel port to send out the Z axis step direction signal,
    or directing LinuxCNC to cease driving the X axis motor when a limit switch is triggered on parallel port pin 13.
-** *`custom.HAL`* +
+** *`custom.hal`* +
    Customisations to the mill configuration beyond the scope of the wizard may be performed
    by including further links to other virtual points within LinuxCNC in this HAL file.
    When starting a LinuxCNC session, this file is read and processed before the GUI is loaded.
@@ -134,9 +134,7 @@ TkLinuxCNC:: <<sec:tklinuxcnc-intro,TkLinuxCNC>>, another interface based on Tcl
 
 [[fig:tklinuxcnc-gui]]
 .TkLinuxCNC graphical interface
-image::images/tklinuxcnc_fr.png["TkLinuxCNC graphical interface",align="center"]
-
-Xemc:: an X-Window program
+image::images/tkemc.png["TkLinuxCNC graphical interface",align="center"]
 
 QtDragon:: <<cha:qtdragon-gui,QtDragon>>, a touch screen GUI based on QtVCP using the PyQt5 library.
 It comes in two versions 'QtDragon' and 'QtDragon_hd'.
@@ -145,6 +143,13 @@ They are very similar in features but QtDragon_hd is made for larger monitors.
 [[fig:QtDragon-graphical-interface]]
 .QtDragon, a touch screen GUI based on QtVCP
 image::images/qtdragon.png["QtDragon, a touch screen GUI based on QtVCP",align="center"]
+
+QtPlasmaC:: <<cha:qtplasmac,QtPlasmaC>>, a touch screen plasma cutting GUI based on QtVCP using the PyQt5 library.
+It comes in three aspect ratios, 16:9, 4:3, and 9:16.
+
+[[fig:QtPlasmaC-graphical-interface]]
+.QtPlasmaC, a touch screen plasma cutting GUI based on QtVCP
+image::../plasma/images/qtplasmac_16x9.png["QtPlasmaC, a touch screen plasma cutting GUI based on QtVCP",align="center"]
 
 == User Interfaces
 These User interfaces are a way to interact with LinuxCNC outside of the graphical user interfaces.
