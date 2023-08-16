@@ -4,8 +4,8 @@ QMainWindow {
    background-image: url(:/images/images/brushed_metal.png);
 }
 
-/* Uncomment to stop blur effect with dialogs */
-#screen_options {qproperty-focusBlur_option: false;}
+/* comment for blur effect with dialogs */
+screen_options {qproperty-focusBlur_option: false;}
 
 QPushButton,
 ActionButton,
@@ -64,17 +64,28 @@ ActionButton#y_minus_jogbutton {
 ActionButton#z_plus_jogbutton,
 ActionButton#z_minus_jogbutton {
     border-radius: 4px;
-   background: rgb(80, 80, 255,120);
-  background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(180, 180, 255,160),  stop:0.6 rgba(80, 80, 255,160));
-    
+  background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(180, 180, 255,160),  stop:0.6 rgba(80, 80, 255,160));    
 }
-ActionButton#a_plus_jogbutton,
-ActionButton#a_minus_jogbutton {
-    border-radius: 4px;
-    background: rgb(60, 60, 60,120);
+
+
+
+#plus_jogbutton_4,
+#minus_jogbutton_4 {
+   border-radius: 4px;
+   font: 17pt "Lato Heavy";
    background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(180, 180, 180,160),  stop:0.6 rgba(80, 80, 80, 160));
-    
+   background-color: rgb(193, 125, 17);
 }
+
+
+#plus_jogbutton_5,
+#minus_jogbutton_5 {
+   border-radius: 4px;
+   font: 17pt "Lato Heavy";
+   background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(180, 180, 180,160),  stop:0.6 rgba(80, 80, 80, 160));
+   background-color: rgb(173, 127, 168);
+}
+
 ActionButton#action_machine_on[isStateOn=true] {
     color: #00FF00;
 }
@@ -129,14 +140,21 @@ QLabel#label_axis_z {
     background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1.6, stop:0 rgba(160, 160, 160, 225),  stop:0.6 rgba(110, 110, 110, 225));
 }
 
-QLabel#label_axis_a {
+#label_axis_4 {
     border: 2px solid black;
     border-radius: 4px;
     font: 20pt "Lato Heavy";
-    color: rgb(60, 60, 60);
+    color: rgb(223, 155, 37);
     background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1.6, stop:0 rgba(160, 160, 160, 225),  stop:0.6 rgba(110, 110, 110, 225));
 }
 
+#label_axis_5 {
+    border: 2px solid black;
+    border-radius: 4px;
+    font: 20pt "Lato Heavy";
+    color: rgb(213, 167, 198);
+    background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1.6, stop:0 rgba(160, 160, 160, 225),  stop:0.6 rgba(110, 110, 110, 225));
+}
 
 QLabel#lbl_cycle_start,
 QLabel#lbl_home_all {
@@ -417,6 +435,7 @@ OriginOffsetView {
    qproperty-imperial_template: '%9.4f'; 
    qproperty-metric_template: '%10.2f'; 
 }
+
 
 
 
