@@ -1,4 +1,4 @@
-VERSION = '1.236.283'
+VERSION = '1.236.284'
 
 '''
 qtplasmac_handler.py
@@ -739,6 +739,7 @@ class HandlerClass:
         self.extJogSlowPin = self.h.newpin('ext_jog_slow', hal.HAL_BIT, hal.HAL_IN)
 #        self.extKerfCrossEnablePin = self.h.newpin('ext_kerfcross_enable', hal.HAL_BIT, hal.HAL_IN)
         self.extLaserTouchOffPin = self.h.newpin('ext_laser_touchoff', hal.HAL_BIT, hal.HAL_IN)
+        self.extLaserTogglePin = self.h.newpin('ext_laser_toggle', hal.HAL_BIT, hal.HAL_IN)
         self.extMeshModePin = self.h.newpin('ext_mesh_mode', hal.HAL_BIT, hal.HAL_IN)
         self.extOhmicPin = self.h.newpin('ext_ohmic', hal.HAL_BIT, hal.HAL_IN)
         self.extOhmicProbeEnablePin = self.h.newpin('ext_ohmic_probe_enable', hal.HAL_BIT, hal.HAL_IN)
@@ -1754,6 +1755,10 @@ class HandlerClass:
             else:
                 self.extLaserButton = False
                 self.laser_clicked()
+
+    def ext_laser_toggle(self, state):
+        if self.w.laser.isVisible() and state:
+            self.laserOnPin.set(not self.laserOnPin.get())
 
     def ext_jog_slow(self, state):
         if self.w.jog_slow.isEnabled() and state:
@@ -2855,6 +2860,7 @@ class HandlerClass:
         self.extAbortPin.value_changed.connect(lambda v:self.ext_abort(v))
         self.extTouchOffPin.value_changed.connect(lambda v:self.ext_touch_off(v))
         self.extLaserTouchOffPin.value_changed.connect(lambda v:self.ext_laser_touch_off(v))
+        self.extLaserTogglePin.value_changed.connect(lambda v:self.ext_laser_toggle(v))
         self.extRunPausePin.value_changed.connect(lambda v:self.ext_run_pause(v))
         self.extHeightOvrPlusPin.value_changed.connect(lambda v:self.height_ovr_pressed(v,1))
         self.extHeightOvrMinusPin.value_changed.connect(lambda v:self.height_ovr_pressed(v,-1))
