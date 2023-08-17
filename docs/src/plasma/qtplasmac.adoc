@@ -3711,6 +3711,7 @@ The following HAL bit pins are always created. The HAL pin has the identical beh
 |Abort the loaded G-code program m|qtplasmac.ext_abort |CYCLE STOP
 |Touchoff X & Y axes to zero m|qtplasmac.ext_touchoff |X0Y0
 |Use a laser to set an origin with or without rotation m|qtplasmac.ext_laser_touchoff |LASER
+|Toggle qtplasmac.laser_on pin m|qtplasmac.ext_laser_toggle |N/A
 |Run/Pause/Resume the loaded G-code program m|qtplasmac.ext_run_pause |CYCLE START, CYCLE PAUSE, CYCLE RESUME in sequence
 |Torch height override plus m|qtplasmac.ext_height_ovr_plus |OVERRIDE + 
 |Torch height override minus m|qtplasmac.ext_height_ovr_minus |OVERRIDE -
