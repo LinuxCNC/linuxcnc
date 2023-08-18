@@ -19,6 +19,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import sys
 
+VER = '4'
+
 ##############################################################################
 # NEW CLASSES                                                                #
 ##############################################################################
@@ -2166,10 +2168,10 @@ def validate_hal_pin(halpin, button, usage):
             break
     if not valid:
         msg0 = _('does not exist for user button')
-        notifications.add('error', f'{title}:\n{halpin} {msg0,} #{button}')
+        notifications.add('error', f'{title}:\n{halpin} {msg0} #{button}')
     elif not pBit:
         msg0 = _('must be a bit pin for user button')
-        notifications.add('error', f'{title}:\n{usage} {msg0,} #{button}')
+        notifications.add('error', f'{title}:\n{usage} {msg0} #{button}')
         valid = False
     return valid
 
@@ -2183,7 +2185,7 @@ def validate_ini_param(code, button):
         valid, code = get_ini_param(code, data)
     if not valid:
         msg0 = _('is an invalid ini parameter for user button')
-        notifications.add('error', f'{title}:\n{code} {msg0,} #{button}')
+        notifications.add('error', f'{title}:\n{code} {msg0} #{button}')
     return valid, code
 
 def get_ini_param(code, data):
@@ -2191,14 +2193,17 @@ def get_ini_param(code, data):
     if code.count(data[0]) == code.count(data[1]):
         for p in code.split(data[0])[1:]:
             parm = p.split(data[1])[0]
-            value = inifile.find(parm.split(data[2])[0].upper(), parm.split(data[2])[1].upper()) or None
-            if value is not None:
-                code = code.replace(f'{data[0]}{parm}{data[1]}', value)
-                valid = True
+            section, option = parm.split(data[2], 1)
+            if PREF.has_option(section, option):
+                value = getPrefs(PREF, section.upper(), option, '', str)
+            elif inifile.find(section.upper(), option.upper()):
+                value = inifile.find(section.upper(), option.upper())
             else:
                 valid = False
                 code = f'[{parm.split(data[2])[0]}] {parm.split(data[2])[1]}'
                 break
+            code = code.replace(f'{data[0]}{parm}{data[1]}', value)
+            valid = True
     else:
         valid = False
     return valid, code
@@ -2494,6 +2499,7 @@ def user_button_pressed(button, code):
             elif code['code'][n][0] in ['gcode', 'ocode']:
                 if manual_ok():
                     ensure_mode(linuxcnc.MODE_MDI)
+                    print(f'send MDI code: {code["code"][n][1]}')
                     commands.send_mdi_command(code['code'][n][1])
 
 def user_button_released(button, code):
@@ -4044,7 +4050,6 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     icon = PhotoImage(file=f'{imagePath}/chips_plasma.png')
     rE(f'wm iconphoto . {icon}')
     # set the version
-    VER = '0'
     try:
         with open(os.path.join(p2Path, 'versions.html'), 'r') as inFile:
             for line in inFile:
