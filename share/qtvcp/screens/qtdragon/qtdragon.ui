@@ -5405,19 +5405,19 @@ GCODE</string>
                               <property name="cornerButtonEnabled">
                                <bool>false</bool>
                               </property>
-                              <attribute name="horizontalHeaderDefaultSectionSize">
+                              <attribute name="horizontalHeaderMinimumSectionSize">
                                <number>80</number>
                               </attribute>
-                              <attribute name="horizontalHeaderMinimumSectionSize">
+                              <attribute name="horizontalHeaderDefaultSectionSize">
                                <number>80</number>
                               </attribute>
                               <attribute name="verticalHeaderCascadingSectionResizes">
                                <bool>false</bool>
                               </attribute>
-                              <attribute name="verticalHeaderDefaultSectionSize">
+                              <attribute name="verticalHeaderMinimumSectionSize">
                                <number>30</number>
                               </attribute>
-                              <attribute name="verticalHeaderMinimumSectionSize">
+                              <attribute name="verticalHeaderDefaultSectionSize">
                                <number>30</number>
                               </attribute>
                              </widget>
@@ -6397,7 +6397,7 @@ LOG</string>
                                 <number>0</number>
                                </property>
                                <item>
-                                <widget class="WebWidget" name="webwidget" native="true"/>
+                                <widget class="WebWidget" name="webwidget"/>
                                </item>
                               </layout>
                              </widget>
@@ -9245,6 +9245,40 @@ LOG</string>
                         </spacer>
                        </item>
                        <item row="3" column="2">
+                        <widget class="ActionButton" name="plus_jogbutton_5">
+                         <property name="minimumSize">
+                          <size>
+                           <width>53</width>
+                           <height>53</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>53</width>
+                           <height>53</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string/>
+                         </property>
+                         <property name="iconSize">
+                          <size>
+                           <width>44</width>
+                           <height>44</height>
+                          </size>
+                         </property>
+                         <property name="jog_joint_pos_action" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                         <property name="joint_number" stdset="0">
+                          <number>5</number>
+                         </property>
+                         <property name="axis_letter" stdset="0">
+                          <string>C</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="4" column="2">
                         <widget class="ActionButton" name="minus_jogbutton_5">
                          <property name="minimumSize">
                           <size>
@@ -9274,40 +9308,6 @@ LOG</string>
                           <bool>false</bool>
                          </property>
                          <property name="jog_joint_neg_action" stdset="0">
-                          <bool>true</bool>
-                         </property>
-                         <property name="joint_number" stdset="0">
-                          <number>5</number>
-                         </property>
-                         <property name="axis_letter" stdset="0">
-                          <string>C</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="4" column="2">
-                        <widget class="ActionButton" name="plus_jogbutton_5">
-                         <property name="minimumSize">
-                          <size>
-                           <width>53</width>
-                           <height>53</height>
-                          </size>
-                         </property>
-                         <property name="maximumSize">
-                          <size>
-                           <width>53</width>
-                           <height>53</height>
-                          </size>
-                         </property>
-                         <property name="text">
-                          <string/>
-                         </property>
-                         <property name="iconSize">
-                          <size>
-                           <width>44</width>
-                           <height>44</height>
-                          </size>
-                         </property>
-                         <property name="jog_joint_pos_action" stdset="0">
                           <bool>true</bool>
                          </property>
                          <property name="joint_number" stdset="0">
@@ -17416,7 +17416,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>07:02:54 </string>
+            <string>11:29:07 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -17514,6 +17514,11 @@ ZERO</string>
    <header>qtvcp.widgets.led_widget</header>
   </customwidget>
   <customwidget>
+   <class>WebWidget</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.web_widget</header>
+  </customwidget>
+  <customwidget>
    <class>GCodeGraphics</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.gcode_graphics</header>
@@ -17596,19 +17601,14 @@ ZERO</string>
    <header>qtvcp.widgets.system_tool_button</header>
   </customwidget>
   <customwidget>
-   <class>VirtualKeyboard</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.virtualkeyboard</header>
-  </customwidget>
-  <customwidget>
    <class>ActionToolButton</class>
    <extends>QToolButton</extends>
    <header>qtvcp.widgets.action_tool_button</header>
   </customwidget>
   <customwidget>
-   <class>WebWidget</class>
+   <class>VirtualKeyboard</class>
    <extends>QWidget</extends>
-   <header>qtvcp.widgets.web_widget</header>
+   <header>qtvcp.widgets.virtualkeyboard</header>
   </customwidget>
  </customwidgets>
  <resources>
@@ -18495,8 +18495,7 @@ ZERO</string>
   <slot>btn_spindle_z_down_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
-
