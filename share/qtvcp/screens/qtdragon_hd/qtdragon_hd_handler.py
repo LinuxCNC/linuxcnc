@@ -426,6 +426,13 @@ class HandlerClass:
         self.hole_circle = Hole_Circle()
         self.w.layout_hole_circle.addWidget(self.hole_circle)
 
+        try:
+            from qtvcp.lib.gcode_utility.hole_enlarge import Hole_Enlarge
+            self.hole_enlarge = Hole_Enlarge()
+            ACTION.ADD_WIDGET_TO_TAB(self.w.tabWidget_utilities,self.hole_enlarge, 'Hole Enlarge')
+        except Exception as e:
+            LOG.info("Utility hole enlarge unavailable: {}".format(e))
+
         LOG.info("Using NGCGUI utility")
         self.ngcgui = NgcGui()
         self.w.layout_ngcgui.addWidget(self.ngcgui)
