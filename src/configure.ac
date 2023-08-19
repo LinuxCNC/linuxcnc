@@ -1001,7 +1001,7 @@ AC_SUBST(YAPPS)
 ##############################################################################
 # Subsection 3.7 - check for programs needed to build documentation          #
 #                                                                            #
-# Check for LyX and other programs we need to build and install docs.        #
+# Check for programs we need to build and install docs.                      #
 # (Optional, if not present, just don't build the docs.)                     #
 ##############################################################################
 
@@ -1069,7 +1069,7 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
 :ascii-ids:
 
 ....
-umläut nuß
+Matúš hat Geläut am Fuß
 ....
 EOF
     if $A2X --dblatex-opts "-P latex.encoding=utf8" $temp_asciidoc > /dev/null 2>&1;
