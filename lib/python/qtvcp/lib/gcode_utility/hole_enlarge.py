@@ -56,15 +56,15 @@ class Hole_Enlarge(QtWidgets.QWidget):
         except AttributeError as e:
             print("Error: ", e)
 
-        self.lineEdit_tool.setValidator(QtGui.QIntValidator(0, 19999))
-        self.lineEdit_spindle.setValidator(QtGui.QIntValidator(0, 99999))
-        self.lineEdit_feed.setValidator(QtGui.QIntValidator(0, 9999))
-        self.lineEdit_tool_dia.setValidator(QtGui.QDoubleValidator(0, 99.9, 4))
-        self.lineEdit_start_dia.setValidator(QtGui.QDoubleValidator(0.0, 999.9, 4))
-        self.lineEdit_final_dia.setValidator(QtGui.QDoubleValidator(0.0, 999.9, 4))
-        self.lineEdit_loops.setValidator(QtGui.QIntValidator(0, 99))
-        self.lineEdit_cut_depth.setValidator(QtGui.QDoubleValidator(0.0, 99.9, 4))
-        self.lineEdit_z_safe.setValidator(QtGui.QDoubleValidator(0.0, 999.9, 4))
+        self.lineEdit_tool.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,5}')))
+        self.lineEdit_spindle.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,5}')))
+        self.lineEdit_feed.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,4}')))
+        self.lineEdit_tool_dia.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,3}[.][0-9]{0,4}')))
+        self.lineEdit_start_dia.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,5}[.][0-9]{0,4}')))
+        self.lineEdit_final_dia.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,5}[.][0-9]{0,4}')))
+        self.lineEdit_loops.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,2}')))
+        self.lineEdit_cut_depth.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,4}[.][0-9]{0,4}')))
+        self.lineEdit_z_safe.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,4}')))
 
         self.red_border = "border: 2px solid red;"
         self.black_border = "border: 2px solid black;"
@@ -166,6 +166,10 @@ class Hole_Enlarge(QtWidgets.QWidget):
             if self.start_dia <= 0.0:
                 self.lineEdit_start_dia.setStyleSheet(self.red_border)
                 self.lineEdit_status.setText("Warning - Start diameter must be > 0.0")
+                valid = False
+            if self.start_dia <= self.tool_dia:
+                self.lineEdit_start_dia.setStyleSheet(self.red_border)
+                self.lineEdit_status.setText("Warning - Start diameter must be > tool diameter")
                 valid = False
         except:
             self.lineEdit_start_dia.setStyleSheet(self.red_border)
