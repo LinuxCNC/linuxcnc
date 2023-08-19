@@ -69,7 +69,7 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
         for count in range(self.count()):
             label = self.itemText(count)
             try:
-                number = float(label.rstrip(" inchmuil").lower())
+                number = float(label.rstrip(" inchmuildeg").lower())
             except:
                 number = None
             # assume continuous jogging (selection 0)
