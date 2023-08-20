@@ -2442,7 +2442,7 @@ class HandlerClass:
                               'mdi_show', 'height_lower', 'height_raise', 'wcs_button', 'set_offsets']
         self.ccButton, self.otButton, self.ptButton, self.tpButton = '', '', '', ''
         self.ctButton, self.scButton, self.frButton, self.mcButton = '', '', '', ''
-        self.ovButton, self.llButton, self.tlButton, self.umButton = '', '', '', ''
+        self.ovButton, self.llButton, self.tlButton, self.umButton = '', '', [], ''
         self.halTogglePins = {}
         self.halPulsePins = {}
 
@@ -3250,10 +3250,11 @@ class HandlerClass:
                 if color != self.w.color_backgrnd.palette().color(QPalette.Background):
                     self.button_normal(self.halPulsePins[halpin][0])
         if self.tlButton:
-            if self.laserOnPin.get():
-                self.button_active(self.tlButton)
-            else:
-                self.button_normal(self.tlButton)
+            for button in self.tlButton:
+                if self.laserOnPin.get():
+                    self.button_active(button)
+                else:
+                    self.button_normal(button)
 
 
     def run_critical_check(self):
@@ -3669,7 +3670,7 @@ class HandlerClass:
         self.single_cut_request = False
         self.oldFile = None
         singleCodes = ['change-consumables', 'cut-type', 'framing', 'manual-cut', 'offsets-view', \
-                       'ohmic-test', 'probe-test', 'single-cut', 'torch-pulse', 'user-manual']
+                       'ohmic-test', 'probe-test', 'single-cut', 'torch-pulse', 'user-manual', 'latest-file']
         head = _translate('HandlerClass', 'User Button Error')
         for bNum in range(1,21):
             self.w['button_{}'.format(str(bNum))].setEnabled(False)
@@ -3826,7 +3827,7 @@ class HandlerClass:
                 # halTogglePins format is: button name, run critical flag, button text
                 self.halTogglePins[halpin] = ['button_{}'.format(str(bNum)), critical, bLabel]
             elif 'toggle-laser' in bCode:
-                self.tlButton = 'button_{}'.format(str(bNum))
+                self.tlButton.append('button_{}'.format(str(bNum)))
                 self.idleHomedList.append('button_{}'.format(str(bNum)))
                 continue
             elif 'pulse-halpin' in bCode:
