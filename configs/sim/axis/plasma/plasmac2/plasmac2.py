@@ -231,28 +231,39 @@ class plasmacPopUp(Tkinter.Toplevel):
 ##############################################################################
 # PREFERENCE FUNCTIONS                                                       #
 ##############################################################################
-def getPrefs(prefs, section, option, default=False, type=bool):
-    m = prefs.types.get(type)
+def getPrefs(prefs, section, option, default=False, typ=bool):
+    m = prefs.types.get(typ)
     if prefs.has_section(section):
         if prefs.has_option(section, option):
-            return m(prefs, section, option)
+            try:
+                return m(prefs, section, option)
+            except Exception as err:
+                title = _('Preference File Error')
+                msg0 = f'[{section}]{option} is invalid, default of {typ(default)} applied'
+                notifications.add('error', f'{title}:\n{msg0}\n')
+                prefs.set(section, option, str(typ(default)))
+                prefs.write(open(prefs.fn, 'w'))
+                return typ(default)
         else:
-            prefs.set(section, option, str(default))
+            prefs.set(section, option, str(typ(default)))
             prefs.write(open(prefs.fn, 'w'))
-            return default
+            print(f'Preferences file, adding {option} to [{section}] section')
+            return typ(default)
     else:
         prefs.add_section(section)
-        prefs.set(section, option, str(default))
+        prefs.set(section, option, str(typ(default)))
         prefs.write(open(prefs.fn, 'w'))
-        return default
+        print(f'Preferences file, adding [{section}] section')
+        print(f'Preferences file, adding {option} to [{section}] section')
+        return typ(default)
 
-def putPrefs(prefs, section, option, value, type=bool):
+def putPrefs(prefs, section, option, value, typ=bool):
     if prefs.has_section(section):
-        prefs.set(section, option, str(type(value)))
+        prefs.set(section, option, str(typ(value)))
         prefs.write(open(prefs.fn, 'w'))
     else:
         prefs.add_section(section)
-        prefs.set(section.upper(), option, str(type(value)))
+        prefs.set(section.upper(), option, str(typ(value)))
         prefs.write(open(prefs.fn, 'w'))
 
 def removePrefsSect(prefs, section):
@@ -3818,7 +3829,7 @@ def set_orient_frames():
     make_run_panel()
 
 def make_torch_button():
-    rC('button',f'{fbuttons}.torch-enable','-takefocus',0,'-width',6,'-highlightthickness',0)
+    rC('button',f'{fbuttons}.torch-enable','-takefocus',0,'-width',10,'-highlightthickness',0)
     if '\\' in torchEnable['enabled'] or '\\' in torchEnable['disabled']:
         rC(f'{fbuttons}.torch-enable','configure','-height',2)
     else:
@@ -3978,6 +3989,7 @@ def populate_user_buttons():
     else:
         col = 0
         row = 1
+    width = 0
     for n in range(1, maxUserButtons + 1):
         rC('grid','forget',f'{fbuttons}.button{n}')
         if buttonNames[n]['name'] or buttonCodes[n]['code']:
@@ -3989,6 +4001,12 @@ def populate_user_buttons():
                     row += 1
             else:
                 row += 1
+            if len(buttonNames[n]['name']) > width:
+                width = len(buttonNames[n]['name'])
+    width = width if width > 10 else 10
+    for n in range(1, maxUserButtons + 1):
+        rE(f'{fbuttons}.button{n} configure -width {int(width)}')
+        rE(f'{fsetup}.r.ubuttons.canvas.frame.name{n} configure -width {width + 2}')
 
 def recreate_widget_list():
     global widgets
@@ -5207,7 +5225,19 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
 # INITIALIZATION                                                             #
 ##############################################################################
     # reinitialize notifications to keep them on top of new widgets
+    notify_list = []
+    for nw in rE(f'winfo children {notifications}').split():
+        for n in rE(f'winfo children {nw}').split():
+            if n[-5:] == 'label':
+                img = rE(f'{n} cget -image').rsplit('_',1)[1]
+            elif n[-6:] == 'label2':
+                txt = rE(f'{n} cget -text')
+        notify_list.append([img, txt])
+    notifications.clear()
     notifications.__init__(root_window)
+    if notify_list:
+        for n in notify_list:
+            notifications.add(n[0], n[1])
     update_title()
     o.show_overlay = False
     pVars.jogMultiplier.set(1)
