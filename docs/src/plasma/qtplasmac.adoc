@@ -3317,8 +3317,16 @@ n Code = G0 X#<_ini[joint_0]home> Y1
 n Code = G53 G0 Z[#<_ini[axis_z]max_limit> - 1.001]
 ----
 
-[NOTE]
-The original method of entering _<machine_name>_.ini file variables by enclosing in braces is deprecated and may be removed in the future.
+_<machine_name>_.prefs file variables and also _<machine_name>_.ini variables can be entered by enclosing each option in *{}* .
+You must put a space after each *}* if there are any following characters.
+If expressions are included then they need to be surrounded by brackets.
+
+[source,{ini}]
+----
+BUTTON_n_CODE = G0 X{LASER_OFFSET X axis} Y{LASER_OFFSET Y axis}
+BUTTON_n_CODE = G0 X{JOINT_0 HOME} Y1
+BUTTON_n_CODE = G53 G0 Z[{AXIS_Z MAX_LIMIT} - 1.001]
+----
 
 Multiple codes can be run by separating the codes with a "\" (backslash) character.
 The exception is the special commands which are required to be a single command per button.
@@ -3385,7 +3393,7 @@ The following code would allow the user to use a button to invert the current st
 
 [source,{ini}]
 ----
-n Code = G0 {QTPLASMAC LASER_TOUCHOFF} \ toggle-laser
+n Code = G0 X{LASER_OFFSET X axis} Y{LASER_OFFSET Y axis} \ toggle-laser
 ----
 
 The position of the "toggle-laser" command is not important as it is always the first command actioned regardless of position.
