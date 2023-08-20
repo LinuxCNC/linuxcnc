@@ -1,4 +1,4 @@
-VERSION = '1.236.284'
+VERSION = '1.236.285'
 
 '''
 qtplasmac_handler.py
@@ -907,8 +907,8 @@ class HandlerClass:
         self.w.chk_exit_warning.setChecked(self.PREFS.getpref('Exit warning', True, bool, 'GUI_OPTIONS'))
         self.exitMessage = self.PREFS.getpref('Exit warning text', '', str, 'GUI_OPTIONS')
         self.w.cone_size.setValue(self.PREFS.getpref('Preview cone size', 0.5, float, 'GUI_OPTIONS'))
-        self.w.grid_size.setValue(self.PREFS.getpref('Preview grid size', 0, float, 'GUI_OPTIONS'))
-        self.w.table_zoom_scale.setValue(self.PREFS.getpref('T view zoom scale', 1, float, 'GUI_OPTIONS'))
+        self.w.grid_size.setValue(self.PREFS.getpref('Preview grid size', 0.0, float, 'GUI_OPTIONS'))
+        self.w.table_zoom_scale.setValue(self.PREFS.getpref('T view zoom scale', 1.0, float, 'GUI_OPTIONS'))
         self.zPlusOverrideJog = self.PREFS.getpref('Override jog inhibit via Z+', False, bool, 'GUI_OPTIONS')
         self.w.color_foregrnd.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Foreground', '#ffee06', str, 'COLOR_OPTIONS')))
         self.w.color_foregalt.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Highlight', '#ffee06', str, 'COLOR_OPTIONS')))
@@ -1099,8 +1099,8 @@ class HandlerClass:
         head = _translate('HandlerClass', 'Prefs File Error')
         # laser
         try:
-            self.laserOffsetX = self.PREFS.getpref('X axis', 0, float, 'LASER_OFFSET')
-            self.laserOffsetY = self.PREFS.getpref('Y axis', 0, float, 'LASER_OFFSET')
+            self.laserOffsetX = self.PREFS.getpref('X axis', 0.0, float, 'LASER_OFFSET')
+            self.laserOffsetY = self.PREFS.getpref('Y axis', 0.0, float, 'LASER_OFFSET')
         except:
             self.w.laser.hide()
             msg0 = _translate('HandlerClass', 'Invalid entry for laser offset')
@@ -1111,8 +1111,8 @@ class HandlerClass:
             self.w.laser.hide()
         # camera
         try:
-            self.camOffsetX = self.PREFS.getpref('X axis', 0, float, 'CAMERA_OFFSET')
-            self.camOffsetY = self.PREFS.getpref('Y axis', 0, float, 'CAMERA_OFFSET')
+            self.camOffsetX = self.PREFS.getpref('X axis', 0.0, float, 'CAMERA_OFFSET')
+            self.camOffsetY = self.PREFS.getpref('Y axis', 0.0, float, 'CAMERA_OFFSET')
         except:
             self.w.camera.hide()
             msg0 = _translate('HandlerClass', 'Invalid entry for camera offset')
@@ -1124,9 +1124,9 @@ class HandlerClass:
             self.w.camera.hide()
         # probing
         try:
-            self.probeOffsetX = self.PREFS.getpref('X axis', 0, float, 'OFFSET_PROBING')
-            self.probeOffsetY = self.PREFS.getpref('Y axis', 0, float, 'OFFSET_PROBING')
-            self.probeDelay = self.PREFS.getpref('Delay', 0, float, 'OFFSET_PROBING')
+            self.probeOffsetX = self.PREFS.getpref('X axis', 0.0, float, 'OFFSET_PROBING')
+            self.probeOffsetY = self.PREFS.getpref('Y axis', 0.0, float, 'OFFSET_PROBING')
+            self.probeDelay = self.PREFS.getpref('Delay', 0.0, float, 'OFFSET_PROBING')
         except:
             msg0 = _translate('HandlerClass', 'Invalid entry for probe offset')
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
@@ -2648,35 +2648,35 @@ class HandlerClass:
     def load_plasma_parameters(self):
         self.w.setup_feed_rate.setValue(self.PREFS.getpref('Setup Feed Rate', self.thcFeedRate * 0.8, float, 'PLASMA_PARAMETERS'))
         self.w.probe_feed_rate.setMaximum(self.w.setup_feed_rate.value())
-        self.w.arc_fail_delay.setValue(self.PREFS.getpref('Arc Fail Timeout', 3, float, 'PLASMA_PARAMETERS'))
-        self.w.arc_ok_high.setValue(self.PREFS.getpref('Arc OK High', 250, float, 'PLASMA_PARAMETERS'))
-        self.w.arc_ok_low.setValue(self.PREFS.getpref('Arc OK Low', 60, float, 'PLASMA_PARAMETERS'))
+        self.w.arc_fail_delay.setValue(self.PREFS.getpref('Arc Fail Timeout', 3.0, float, 'PLASMA_PARAMETERS'))
+        self.w.arc_ok_high.setValue(self.PREFS.getpref('Arc OK High', 250.0, float, 'PLASMA_PARAMETERS'))
+        self.w.arc_ok_low.setValue(self.PREFS.getpref('Arc OK Low', 60.0, float, 'PLASMA_PARAMETERS'))
         self.w.arc_max_starts.setValue(self.PREFS.getpref('Arc Maximum Starts', 3, int, 'PLASMA_PARAMETERS'))
-        self.w.arc_voltage_offset.setValue(self.PREFS.getpref('Arc Voltage Offset', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.arc_voltage_scale.setValue(self.PREFS.getpref('Arc Voltage Scale', 1, float, 'PLASMA_PARAMETERS'))
-        self.w.cornerlock_threshold.setValue(self.PREFS.getpref('Velocity Anti Dive Threshold', 90, float, 'PLASMA_PARAMETERS'))
+        self.w.arc_voltage_offset.setValue(self.PREFS.getpref('Arc Voltage Offset', 0.0, float, 'PLASMA_PARAMETERS'))
+        self.w.arc_voltage_scale.setValue(self.PREFS.getpref('Arc Voltage Scale', 1.0, float, 'PLASMA_PARAMETERS'))
+        self.w.cornerlock_threshold.setValue(self.PREFS.getpref('Velocity Anti Dive Threshold', 90.0, float, 'PLASMA_PARAMETERS'))
         self.w.float_switch_travel.setValue(self.PREFS.getpref('Float Switch Travel', round(1.5 * self.unitsPerMm, 2), float, 'PLASMA_PARAMETERS'))
         self.w.height_per_volt.setValue(self.PREFS.getpref('Height Per Volt', round(0.1 * self.unitsPerMm, 3), float, 'PLASMA_PARAMETERS'))
         self.w.voidlock_slope.setValue(self.PREFS.getpref('Void Sense Slope', 500, int, 'PLASMA_PARAMETERS'))
         self.w.ohmic_max_attempts.setValue(self.PREFS.getpref('Ohmic Maximum Attempts', 0, int, 'PLASMA_PARAMETERS'))
-        self.w.ohmic_probe_offset.setValue(self.PREFS.getpref('Ohmic Probe Offset', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.pid_p_gain.setValue(self.PREFS.getpref('Pid P Gain', 10, float, 'PLASMA_PARAMETERS'))
-        self.w.pid_d_gain.setValue(self.PREFS.getpref('Pid D Gain', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.pid_i_gain.setValue(self.PREFS.getpref('Pid I Gain', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.probe_feed_rate.setValue(self.PREFS.getpref('Probe Feed Rate', round(300 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
-        self.w.probe_start_height.setValue(self.PREFS.getpref('Probe Start Height', round(25 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
-        self.w.arc_restart_delay.setValue(self.PREFS.getpref('Arc Restart Delay', 1, float, 'PLASMA_PARAMETERS'))
-        self.w.safe_height.setValue(self.PREFS.getpref('Safe Height', round(25 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
+        self.w.ohmic_probe_offset.setValue(self.PREFS.getpref('Ohmic Probe Offset', 0.0, float, 'PLASMA_PARAMETERS'))
+        self.w.pid_p_gain.setValue(self.PREFS.getpref('Pid P Gain', 10.0, float, 'PLASMA_PARAMETERS'))
+        self.w.pid_d_gain.setValue(self.PREFS.getpref('Pid D Gain', 0.0, float, 'PLASMA_PARAMETERS'))
+        self.w.pid_i_gain.setValue(self.PREFS.getpref('Pid I Gain', 0.0, float, 'PLASMA_PARAMETERS'))
+        self.w.probe_feed_rate.setValue(self.PREFS.getpref('Probe Feed Rate', round(300.0 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
+        self.w.probe_start_height.setValue(self.PREFS.getpref('Probe Start Height', round(25.0 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
+        self.w.arc_restart_delay.setValue(self.PREFS.getpref('Arc Restart Delay', 1.0, float, 'PLASMA_PARAMETERS'))
+        self.w.safe_height.setValue(self.PREFS.getpref('Safe Height', round(25.0 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
         self.w.setup_feed_rate.setValue(self.PREFS.getpref('Setup Feed Rate', self.thcFeedRate * 0.8, float, 'PLASMA_PARAMETERS'))
-        self.w.scribe_arm_delay.setValue(self.PREFS.getpref('Scribe Arming Delay', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.scribe_on_delay.setValue(self.PREFS.getpref('Scribe On Delay', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.skip_ihs_distance.setValue(self.PREFS.getpref('Skip IHS Distance', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.spotting_threshold.setValue(self.PREFS.getpref('Spotting Threshold', 1, float, 'PLASMA_PARAMETERS'))
-        self.w.spotting_time.setValue(self.PREFS.getpref('Spotting Time', 0, float, 'PLASMA_PARAMETERS'))
+        self.w.scribe_arm_delay.setValue(self.PREFS.getpref('Scribe Arming Delay', 0.0, float, 'PLASMA_PARAMETERS'))
+        self.w.scribe_on_delay.setValue(self.PREFS.getpref('Scribe On Delay', 0.0, float, 'PLASMA_PARAMETERS'))
+        self.w.skip_ihs_distance.setValue(self.PREFS.getpref('Skip IHS Distance', 0.0, float, 'PLASMA_PARAMETERS'))
+        self.w.spotting_threshold.setValue(self.PREFS.getpref('Spotting Threshold', 1.0, float, 'PLASMA_PARAMETERS'))
+        self.w.spotting_time.setValue(self.PREFS.getpref('Spotting Time', 0.0, float, 'PLASMA_PARAMETERS'))
         self.w.thc_delay.setValue(self.PREFS.getpref('THC Delay', 0.5, float, 'PLASMA_PARAMETERS'))
         self.w.thc_sample_counts.setValue(self.PREFS.getpref('THC Sample Counts', 50, int, 'PLASMA_PARAMETERS'))
-        self.w.thc_sample_threshold.setValue(self.PREFS.getpref('THC Sample Threshold', 1, float, 'PLASMA_PARAMETERS'))
-        self.w.thc_threshold.setValue(self.PREFS.getpref('THC Threshold', 1, float, 'PLASMA_PARAMETERS'))
+        self.w.thc_sample_threshold.setValue(self.PREFS.getpref('THC Sample Threshold', 1.0, float, 'PLASMA_PARAMETERS'))
+        self.w.thc_threshold.setValue(self.PREFS.getpref('THC Threshold', 1.0, float, 'PLASMA_PARAMETERS'))
 
     def set_signal_connections(self):
         self.w.power.pressed.connect(lambda:self.power_button("pressed", True))
@@ -3222,7 +3222,6 @@ class HandlerClass:
         # cancel clicked
         else:
             return {'cancel':True}
-
 
     def invert_pin_state(self, halpin):
         if 'qtplasmac.ext_out_' in halpin:
@@ -4042,8 +4041,28 @@ class HandlerClass:
                     if char == '{':
                         subCommand = ':'
                     elif char == '}':
-                        f1, f2 = subCommand.replace(':','').split()
-                        newCommand += self.iniFile.find(f1,f2)
+                        if len(subCommand.split()) > 1:
+                            section, option = subCommand.replace(':','').split(' ', 1)
+                        else:
+                            head = _translate('HandlerClass', 'Code Error')
+                            msg0 = _translate('HandlerClass', 'Value Error in user button')
+                            msg1 = self.w['button_{}'.format(str(bNum))].text().replace('\n',' ')
+                            errorCode = '{}'.format(subCommand.replace(':', '{')) + '}'
+                            msg2 = _translate('HandlerClass', 'Requires a valid section and option pair')
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{} ({}):\n"{}"\n{}\n'.format(head, msg0, bNum, msg1, errorCode, msg2))
+                            return
+                        if self.PREFS.has_option(section, option):
+                            newCommand += self.PREFS.getpref(option, '', str, section)
+                        elif self.iniFile.find(section, option):
+                            newCommand += self.iniFile.find(section, option)
+                        else:
+                            head = _translate('HandlerClass', 'Code Error')
+                            msg0 = _translate('HandlerClass', 'Invalid code in user button')
+                            msg1 = self.w['button_{}'.format(str(bNum))].text().replace('\n',' ')
+                            errorCode = '{}'.format(subCommand.replace(':', '{')) + '}'
+                            msg2 = _translate('HandlerClass', 'Provided section option pair does not exist')
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{} ({}):\n"{}"\n{}\n'.format(head, msg0, bNum, msg1, errorCode, msg2))
+                            return
                         subCommand = ''
                     elif subCommand.startswith(':'):
                         subCommand += char
@@ -4894,15 +4913,15 @@ class HandlerClass:
         mat.append(self.MATS.getpref('KERF_WIDTH', 1.0 / self.unitsPerMm, float, section))
         mat.append(self.MATS.getpref('PIERCE_HEIGHT', 3.0 / self.unitsPerMm, float, section))
         mat.append(self.MATS.getpref('PIERCE_DELAY', 0.2, float, section))
-        mat.append(self.MATS.getpref('PUDDLE_JUMP_HEIGHT', 0, float, section))
-        mat.append(self.MATS.getpref('PUDDLE_JUMP_DELAY', 0, float, section))
+        mat.append(self.MATS.getpref('PUDDLE_JUMP_HEIGHT', 0.0, float, section))
+        mat.append(self.MATS.getpref('PUDDLE_JUMP_DELAY', 0.0, float, section))
         mat.append(self.MATS.getpref('CUT_HEIGHT', 1.0 / self.unitsPerMm, float, section))
-        mat.append(self.MATS.getpref('CUT_SPEED', 2000 / self.unitsPerMm, float, section))
-        mat.append(self.MATS.getpref('CUT_AMPS', 45, float, section))
+        mat.append(self.MATS.getpref('CUT_SPEED', 2000.0 / self.unitsPerMm, float, section))
+        mat.append(self.MATS.getpref('CUT_AMPS', 45.0, float, section))
         mat.append(self.MATS.getpref('CUT_VOLTS', 100, float, section))
-        mat.append(self.MATS.getpref('PAUSE_AT_END', 0, float, section))
-        mat.append(self.MATS.getpref('GAS_PRESSURE', 0, float, section))
-        mat.append(self.MATS.getpref('CUT_MODE', 1, float, section))
+        mat.append(self.MATS.getpref('PAUSE_AT_END', 0.0, float, section))
+        mat.append(self.MATS.getpref('GAS_PRESSURE', 0.0, float, section))
+        mat.append(self.MATS.getpref('CUT_MODE', 1.0, float, section))
         return(mat)
 
     def write_one_material(self, mat):
@@ -5100,26 +5119,26 @@ class HandlerClass:
         self.statistics_load()
 
     def statistics_save(self, reset=False):
-        self.PREFS.putpref('Cut time', '{:0.2f}'.format(self.statsSaved['cut'] + hal.get_value('plasmac.cut-time')) , float,'STATISTICS')
-        self.PREFS.putpref('Paused time', '{:0.2f}'.format(self.statsSaved['paused'] + hal.get_value('plasmac.paused-time')) , float,'STATISTICS')
-        self.PREFS.putpref('Probe time', '{:0.2f}'.format(self.statsSaved['probe'] + hal.get_value('plasmac.probe-time')) , float,'STATISTICS')
-        self.PREFS.putpref('Program run time', '{:0.2f}'.format(self.statsSaved['run'] + hal.get_value('plasmac.run-time')) , float,'STATISTICS')
-        self.PREFS.putpref('Torch on time', '{:0.2f}'.format(self.statsSaved['torch'] + hal.get_value('plasmac.torch-time')) , float,'STATISTICS')
-        self.PREFS.putpref('Rapid time', '{:0.2f}'.format(self.statsSaved['rapid'] + hal.get_value('plasmac.rapid-time')) , float,'STATISTICS')
-        self.PREFS.putpref('Cut length', '{:0.2f}'.format(self.statsSaved['length'] + hal.get_value('plasmac.cut-length')) , float,'STATISTICS')
-        self.PREFS.putpref('Pierce count', '{:d}'.format(self.statsSaved['pierce'] + hal.get_value('plasmac.pierce-count')) , int,'STATISTICS')
+        self.PREFS.putpref('Cut time', '{:0.2f}'.format(self.statsSaved['cut'] + hal.get_value('plasmac.cut-time')), float,'STATISTICS')
+        self.PREFS.putpref('Paused time', '{:0.2f}'.format(self.statsSaved['paused'] + hal.get_value('plasmac.paused-time')), float,'STATISTICS')
+        self.PREFS.putpref('Probe time', '{:0.2f}'.format(self.statsSaved['probe'] + hal.get_value('plasmac.probe-time')), float,'STATISTICS')
+        self.PREFS.putpref('Program run time', '{:0.2f}'.format(self.statsSaved['run'] + hal.get_value('plasmac.run-time')), float,'STATISTICS')
+        self.PREFS.putpref('Torch on time', '{:0.2f}'.format(self.statsSaved['torch'] + hal.get_value('plasmac.torch-time')), float,'STATISTICS')
+        self.PREFS.putpref('Rapid time', '{:0.2f}'.format(self.statsSaved['rapid'] + hal.get_value('plasmac.rapid-time')), float,'STATISTICS')
+        self.PREFS.putpref('Cut length', '{:0.2f}'.format(self.statsSaved['length'] + hal.get_value('plasmac.cut-length')), float,'STATISTICS')
+        self.PREFS.putpref('Pierce count', '{:d}'.format(self.statsSaved['pierce'] + hal.get_value('plasmac.pierce-count')), int,'STATISTICS')
         self.statistics_load()
         self.jobRunning = False
 
     def statistics_load(self):
-        self.statsSaved['cut'] = self.PREFS.getpref('Cut time', 0 , float,'STATISTICS')
-        self.statsSaved['paused'] = self.PREFS.getpref('Paused time', 0 , float,'STATISTICS')
-        self.statsSaved['probe'] = self.PREFS.getpref('Probe time', 0 , float,'STATISTICS')
-        self.statsSaved['run'] = self.PREFS.getpref('Program run time', 0 , float,'STATISTICS')
-        self.statsSaved['torch'] = self.PREFS.getpref('Torch on time', 0 , float,'STATISTICS')
-        self.statsSaved['rapid'] = self.PREFS.getpref('Rapid time', 0 , float,'STATISTICS')
-        self.statsSaved['length'] = self.PREFS.getpref('Cut length', 0 , float,'STATISTICS')
-        self.statsSaved['pierce'] = self.PREFS.getpref('Pierce count', 0 , int,'STATISTICS')
+        self.statsSaved['cut'] = self.PREFS.getpref('Cut time', 0.0, float,'STATISTICS')
+        self.statsSaved['paused'] = self.PREFS.getpref('Paused time', 0.0, float,'STATISTICS')
+        self.statsSaved['probe'] = self.PREFS.getpref('Probe time', 0.0, float,'STATISTICS')
+        self.statsSaved['run'] = self.PREFS.getpref('Program run time', 0.0, float,'STATISTICS')
+        self.statsSaved['torch'] = self.PREFS.getpref('Torch on time', 0.0, float,'STATISTICS')
+        self.statsSaved['rapid'] = self.PREFS.getpref('Rapid time', 0.0, float,'STATISTICS')
+        self.statsSaved['length'] = self.PREFS.getpref('Cut length', 0.0, float,'STATISTICS')
+        self.statsSaved['pierce'] = self.PREFS.getpref('Pierce count', 0, int,'STATISTICS')
         for stat in ['cut', 'paused', 'probe', 'run', 'torch', 'rapid']:
             self.display_hms('{}_time_t'.format(stat), self.statsSaved['{}'.format(stat)])
         self.w.cut_length_t.setText('{:0.2f}'.format(self.statsSaved['length'] / self.statsDivisor))
@@ -5137,7 +5156,7 @@ class HandlerClass:
             self.w.cut_length.setText('0.00')
         elif stat == 'pierce_count':
             self.w.pierce_count.setText('0')
-        self.PREFS.putpref(statT, 0 , float,'STATISTICS')
+        self.PREFS.putpref(statT, 0.0, float,'STATISTICS')
         self.statistics_load()
 
     def statistics_reset(self):
@@ -5147,8 +5166,8 @@ class HandlerClass:
         self.w.pierce_count.setText('0')
         for stat in ['Cut time', 'Paused time', 'Probe time', 'Program run time', 'Torch on time', \
                      'Rapid time', 'Cut length']:
-            self.PREFS.putpref(stat, 0 , float,'STATISTICS')
-        self.PREFS.putpref('Pierce count', 0 , int ,'STATISTICS')
+            self.PREFS.putpref(stat, 0.0, float,'STATISTICS')
+        self.PREFS.putpref('Pierce count', 0, int,'STATISTICS')
         self.statistics_load()
 
     def statistics_init(self):
