@@ -3962,6 +3962,7 @@ class HandlerClass:
                 command = command.strip()
                 if command != 'toggle-laser':
                     self.user_button_command(bNum, command)
+            ACTION.SET_MANUAL_MODE()
         elif 'pulse-halpin' in commands.lower():
             head = _translate('HandlerClass', 'HAL Pin Error')
             msg1 = _translate('HandlerClass', 'Failed to pulse HAL pin')
@@ -4024,9 +4025,6 @@ class HandlerClass:
                 self.user_button_command(bNum, command)
                 if command[0] == "%":
                     continue
-                while not STATUS.is_interp_idle():
-                    self.w.gcodegraphics.updateGL()
-                    QApplication.processEvents()
                 if command.lower().replace(' ', '').startswith('g10l20') and self.fileOpened:
                     self.reloadRequired = True
             if self.reloadRequired:
@@ -4053,6 +4051,9 @@ class HandlerClass:
                         newCommand += char
                 command = newCommand
             ACTION.CALL_MDI(command)
+            while not STATUS.is_interp_idle():
+                self.w.gcodegraphics.updateGL()
+                QApplication.processEvents()
         elif command and command[0] == '%':
             command = command.lstrip('%').lstrip()
             if command[-3:] == '.py':
