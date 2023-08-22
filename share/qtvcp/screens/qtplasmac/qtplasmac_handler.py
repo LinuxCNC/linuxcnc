@@ -2092,10 +2092,11 @@ class HandlerClass:
                     else:
                         if self.lastLoadedProgram != 'None':
                             self.preClearFile = ACTION.prefilter_path or self.lastLoadedProgram
+                        self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
+                        self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
+                        self.w.conv_material.setCurrentIndex(self.w.materials_box.currentIndex())
                 self.open_file(clearFile)
                 ACTION.prefilter_path = self.preClearFile
-                self.w.material_selector.setCurrentIndex(0)
-                self.w.conv_material.setCurrentIndex(0)
                 if self.w.lbl_tool.text() != 'TORCH' and STATUS.is_on_and_idle() and STATUS.is_all_homed():
                     ACTION.CALL_MDI_WAIT('T0 M6')
                     ACTION.CALL_MDI_WAIT('G43 H0')
