@@ -37,8 +37,9 @@ class Facing(QtWidgets.QWidget):
         self.mb.setWindowTitle("Facing Help")
         self.mb.setText(help_text)
         self.mb.setStandardButtons(QMessageBox.Ok)
+        STATUS.connect('forced-update',lambda w:self.init())
 
-        
+    def init(self):
         # Initial values
         self._tmp = None
         self.unit_code = "G21"
