@@ -65,6 +65,7 @@ DOC_SRCS_EN := \
 	drivers/mitsub-vfd.adoc \
 	drivers/gm.adoc \
 	drivers/gs2.adoc \
+	drivers/hal_gpio.adoc \
 	drivers/hal_pi_gpio.adoc \
 	drivers/hostmot2.adoc \
 	drivers/mb2hal.adoc \
