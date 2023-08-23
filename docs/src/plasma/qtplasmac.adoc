@@ -978,6 +978,8 @@ This value displayed below MOVE represents the Kerf Width of the currently selec
 |===
 |Name   |Description
 |CLEAR  |This button will clear the currently opened program. +
+If a file is open, the default material will be selected. +
+If no file is open, the <<sub:qt-preview-views,preview>> will be reset to a top down full table view. +
 The torch (T0) will be selected if it was not the active tool.
 |OPEN   |This button will open a FILE OPEN panel over the PREVIEW WINDOW.
 |RELOAD |This button will reload the currently loaded G-code File.
