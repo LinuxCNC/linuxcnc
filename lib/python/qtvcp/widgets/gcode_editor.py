@@ -1085,7 +1085,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
             return False
 
     def emit_percent(self, percent):
-        self.percentDone.emit(percent)
+        self.percentDone.emit(int(percent))
 
     def select_lineup(self):
         self.editor.select_lineup(None)
