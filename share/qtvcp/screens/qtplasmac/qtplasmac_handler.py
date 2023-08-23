@@ -1,4 +1,4 @@
-VERSION = '1.236.285'
+VERSION = '1.236.287'
 
 '''
 qtplasmac_handler.py
@@ -4053,7 +4053,7 @@ class HandlerClass:
                             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{} ({}):\n"{}"\n{}\n'.format(head, msg0, bNum, msg1, errorCode, msg2))
                             return
                         if self.PREFS.has_option(section, option):
-                            newCommand += self.PREFS.getpref(option, '', str, section)
+                            newCommand += str(self.PREFS.get(section, option))
                         elif self.iniFile.find(section, option):
                             newCommand += self.iniFile.find(section, option)
                         else:
