@@ -530,6 +530,17 @@ install with "sudo apt-get install libusb-1.0-0-dev" or disable with
 )
 
 
+
+#
+# check for libgpiod
+#
+AC_MSG_CHECKING([for libgpiod])
+AC_CHECK_LIB(gpiod, main,
+            [AC_DEFINE_UNQUOTED([LIBGPIOD_VER], `pkg-config libgpiod --modversion | awk -F. '{print ($1 * 100)+($2) }'`,
+            [libgpiod version, undefined if not present])
+            AC_SUBST([LIBGPIOD_VER], `pkg-config libgpiod --modversion | awk -F. '{print ($1 * 100)+($2) }'`)],
+            [AC_MSG_WARN([Could not find libgpiod, not building hal_gpio])])
+
 ##############################################################################
 # Subsection 3.2 - check for the kernel version, with RT patches             #
 #----------------------------------------------------------------------------#

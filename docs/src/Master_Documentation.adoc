@@ -130,6 +130,8 @@ include::drivers/gs2.adoc[]
 
 include::drivers/hal_pi_gpio.adoc[]
 
+include::drivers/hal_gpio.adoc[]
+
 include::drivers/hostmot2.adoc[]
 
 include::drivers/mb2hal.adoc[]

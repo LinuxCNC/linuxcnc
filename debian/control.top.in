@@ -27,6 +27,7 @@ Build-Depends:
     libglu1-mesa-dev,
     libgtk-3-dev,
     libmodbus-dev (>= 3.0),
+    libgpiod-dev,
     @LIBREADLINE_DEV@,
     libtirpc-dev,
     libusb-1.0-0-dev,
