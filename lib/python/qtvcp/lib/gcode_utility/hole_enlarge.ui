@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1110</width>
-    <height>571</height>
+    <width>790</width>
+    <height>450</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,6 +31,12 @@
    </property>
    <item>
     <widget class="QFrame" name="frame_hole_enlarge">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="maximumSize">
       <size>
        <width>16777215</width>
@@ -43,7 +49,7 @@
      <property name="frameShadow">
       <enum>QFrame::Plain</enum>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
       <property name="spacing">
        <number>4</number>
       </property>
@@ -51,20 +57,20 @@
        <number>2</number>
       </property>
       <property name="topMargin">
-       <number>2</number>
+       <number>0</number>
       </property>
       <property name="rightMargin">
        <number>2</number>
       </property>
       <property name="bottomMargin">
-       <number>2</number>
+       <number>1</number>
       </property>
       <item>
        <widget class="QGroupBox" name="groupbox_parameters">
         <property name="minimumSize">
          <size>
           <width>360</width>
-          <height>0</height>
+          <height>1</height>
          </size>
         </property>
         <property name="maximumSize">
@@ -81,13 +87,13 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
          <property name="spacing">
-          <number>4</number>
+          <number>2</number>
          </property>
          <property name="leftMargin">
           <number>4</number>
          </property>
          <property name="topMargin">
-          <number>12</number>
+          <number>8</number>
          </property>
          <property name="rightMargin">
           <number>4</number>
@@ -97,10 +103,16 @@
          </property>
          <item>
           <widget class="QWidget" name="widget_tool" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>30</height>
+             <height>20</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -127,6 +139,12 @@
             </property>
             <item>
              <widget class="QLabel" name="lbl_tool_num">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>160</width>
@@ -145,6 +163,12 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
               </property>
               <property name="maximumSize">
                <size>
@@ -187,10 +211,16 @@
          </item>
          <item>
           <widget class="QWidget" name="widget_too_dia" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>30</height>
+             <height>20</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -292,10 +322,16 @@
          </item>
          <item>
           <widget class="QWidget" name="widget_spindle" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>30</height>
+             <height>20</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -394,10 +430,16 @@
          </item>
          <item>
           <widget class="QWidget" name="widget_start_dia" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>30</height>
+             <height>20</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -502,10 +544,16 @@
          </item>
          <item>
           <widget class="QWidget" name="widget_final_dia" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>30</height>
+             <height>20</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -610,10 +658,16 @@
          </item>
          <item>
           <widget class="QWidget" name="widget_depth" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>30</height>
+             <height>20</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -712,10 +766,16 @@
          </item>
          <item>
           <widget class="QWidget" name="widget_cut_depth" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>30</height>
+             <height>20</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -814,10 +874,16 @@
          </item>
          <item>
           <widget class="QWidget" name="widget_z_safe" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>30</height>
+             <height>20</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -916,10 +982,16 @@
          </item>
          <item>
           <widget class="QWidget" name="widget_feed" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>30</height>
+             <height>20</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -1017,19 +1089,6 @@
           </widget>
          </item>
          <item>
-          <spacer name="verticalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
           <layout class="QHBoxLayout" name="horizontalLayout_14">
            <property name="spacing">
             <number>4</number>
@@ -1048,7 +1107,7 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>30</height>
+               <height>20</height>
               </size>
              </property>
              <property name="maximumSize">
@@ -1082,7 +1141,7 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>30</height>
+               <height>20</height>
               </size>
              </property>
              <property name="maximumSize">
@@ -1107,7 +1166,7 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>30</height>
+               <height>20</height>
               </size>
              </property>
              <property name="maximumSize">
@@ -1158,7 +1217,7 @@
               <property name="minimumSize">
                <size>
                 <width>80</width>
-                <height>0</height>
+                <height>20</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -1186,6 +1245,18 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777215</height>
+               </size>
+              </property>
               <property name="toolTip">
                <string/>
               </property>
@@ -1198,25 +1269,12 @@
           </widget>
          </item>
          <item>
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <property name="spacing">
             <number>4</number>
            </property>
            <property name="topMargin">
-            <number>0</number>
+            <number>2</number>
            </property>
            <item>
             <widget class="QPushButton" name="btn_preview">
@@ -1229,7 +1287,7 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>50</height>
+               <height>44</height>
               </size>
              </property>
              <property name="maximumSize">
@@ -1255,7 +1313,7 @@ PROGRAM</string>
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>50</height>
+               <height>44</height>
               </size>
              </property>
              <property name="maximumSize">
@@ -1284,7 +1342,7 @@ PROGRAM</string>
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>50</height>
+               <height>44</height>
               </size>
              </property>
              <property name="maximumSize">
@@ -1313,7 +1371,7 @@ LINUXCNC</string>
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>50</height>
+               <height>44</height>
               </size>
              </property>
              <property name="maximumSize">
@@ -1334,6 +1392,12 @@ LINUXCNC</string>
       </item>
       <item>
        <widget class="QGroupBox" name="groupbox_preview">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>1</height>
+         </size>
+        </property>
         <property name="title">
          <string>PREVIEW</string>
         </property>
@@ -1351,7 +1415,7 @@ LINUXCNC</string>
           <number>4</number>
          </property>
          <property name="topMargin">
-          <number>12</number>
+          <number>3</number>
          </property>
          <property name="rightMargin">
           <number>4</number>
@@ -1408,8 +1472,17 @@ LINUXCNC</string>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_9">
-     <property name="bottomMargin">
+     <property name="spacing">
+      <number>6</number>
+     </property>
+     <property name="topMargin">
       <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>6</number>
+     </property>
+     <property name="bottomMargin">
+      <number>2</number>
      </property>
      <item>
       <widget class="QLineEdit" name="lineEdit_status">
@@ -1422,7 +1495,7 @@ LINUXCNC</string>
        <property name="minimumSize">
         <size>
          <width>0</width>
-         <height>30</height>
+         <height>22</height>
         </size>
        </property>
        <property name="maximumSize">
@@ -1444,7 +1517,7 @@ LINUXCNC</string>
        <property name="minimumSize">
         <size>
          <width>0</width>
-         <height>30</height>
+         <height>22</height>
         </size>
        </property>
        <property name="maximumSize">
@@ -1461,20 +1534,20 @@ LINUXCNC</string>
      <item>
       <widget class="QLineEdit" name="lineEdit_runtime">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
-         <height>30</height>
+         <width>80</width>
+         <height>22</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>120</width>
+         <width>100</width>
          <height>30</height>
         </size>
        </property>
@@ -1511,3 +1584,4 @@ LINUXCNC</string>
   <slot>btn_help_clicked()</slot>
  </slots>
 </ui>
+
