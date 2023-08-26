@@ -34,6 +34,7 @@ class Hole_Enlarge(QtWidgets.QWidget):
         super(Hole_Enlarge, self).__init__(parent)
         self.tool_db = parent
         self.units_text = ""
+        self.units_gcode = 'G21'
         self.angle_inc = 4
         self.line_num = 0
         self.tool = 0
@@ -299,7 +300,8 @@ class Hole_Enlarge(QtWidgets.QWidget):
         self.file.write(f"({self.units_text})")
         self.file.write("\n")
         self.next_line(f"G40 G49 G64 P0.03 M6 T{self.tool}")
-        self.next_line("G17")
+        self.next_line("G17 G90")
+        self.next_line(f"{self.units_gcode}")
         if self.chk_mist.isChecked():
             self.next_line("M7")
         if self.chk_flood.isChecked():
@@ -337,6 +339,7 @@ class Hole_Enlarge(QtWidgets.QWidget):
 
     def units_changed(self, mode):
         text = "MM" if mode else "IN"
+        self.units_gcode = 'G21' if mode else 'G20'
         self.lbl_feed_unit.setText(text + "/MIN")
         self.lbl_tool_dia_unit.setText(text)
         self.lbl_start_dia_unit.setText(text)
