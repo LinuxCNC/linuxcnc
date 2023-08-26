@@ -7516,6 +7516,219 @@ OFF</string>
                </layout>
               </item>
               <item>
+               <widget class="QWidget" name="widget_home_4" native="true">
+                <layout class="QHBoxLayout" name="horizontalLayout_31">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_home_4">
+                   <property name="spacing">
+                    <number>4</number>
+                   </property>
+                   <item>
+                    <widget class="QLabel" name="label_home_4">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>0</width>
+                       <height>24</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>24</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>HOME A</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                     </property>
+                     <property name="margin">
+                      <number>0</number>
+                     </property>
+                     <property name="indent">
+                      <number>4</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="StateLED" name="hal_led_home_4">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>24</width>
+                       <height>24</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>24</width>
+                       <height>24</height>
+                      </size>
+                     </property>
+                     <property name="halpin_option" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="diameter">
+                      <number>15</number>
+                     </property>
+                     <property name="color">
+                      <color>
+                       <red>0</red>
+                       <green>255</green>
+                       <blue>0</blue>
+                      </color>
+                     </property>
+                     <property name="off_color" stdset="0">
+                      <color>
+                       <red>255</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </property>
+                     <property name="is_joint_homed_status" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="joint_number_status" stdset="0">
+                      <number>3</number>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QWidget" name="widget_home_5" native="true">
+                <layout class="QHBoxLayout" name="horizontalLayout_48">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="label_home_5">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>HOME C</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                   </property>
+                   <property name="margin">
+                    <number>0</number>
+                   </property>
+                   <property name="indent">
+                    <number>4</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="StateLED" name="hal_led_home_5">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>24</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>24</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="halpin_option" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="diameter">
+                    <number>15</number>
+                   </property>
+                   <property name="color">
+                    <color>
+                     <red>0</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="off_color" stdset="0">
+                    <color>
+                     <red>255</red>
+                     <green>0</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="is_joint_homed_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="joint_number_status" stdset="0">
+                    <number>4</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
                <layout class="QHBoxLayout" name="horizontalLayout_62">
                 <property name="spacing">
                  <number>4</number>
@@ -10810,83 +11023,9 @@ CAMERA</string>
                    <property name="bottomMargin">
                     <number>0</number>
                    </property>
-                   <property name="horizontalSpacing">
+                   <property name="spacing">
                     <number>4</number>
                    </property>
-                   <property name="verticalSpacing">
-                    <number>6</number>
-                   </property>
-                   <item row="0" column="0">
-                    <widget class="SystemToolButton" name="systemtoolbutton">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>70</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>16777215</width>
-                       <height>54</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>Select work coordinate system</string>
-                     </property>
-                     <property name="text">
-                      <string>WCS</string>
-                     </property>
-                     <property name="popupMode">
-                      <enum>QToolButton::InstantPopup</enum>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="4">
-                    <widget class="AxisToolButton" name="axistoolbutton_y">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>70</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>16777215</width>
-                       <height>54</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string>REFY</string>
-                     </property>
-                     <property name="popupMode">
-                      <enum>QToolButton::InstantPopup</enum>
-                     </property>
-                     <property name="arrowType">
-                      <enum>Qt::NoArrow</enum>
-                     </property>
-                     <property name="joint_number" stdset="0">
-                      <number>1</number>
-                     </property>
-                     <property name="axis_letter" stdset="0">
-                      <string>Y</string>
-                     </property>
-                     <property name="halpin_option" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="3" column="4">
                     <widget class="AxisToolButton" name="axistoolbutton_z">
                      <property name="sizePolicy">
@@ -10927,8 +11066,8 @@ CAMERA</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="1" column="4">
-                    <widget class="AxisToolButton" name="axistoolbutton_x">
+                   <item row="4" column="3">
+                    <widget class="ActionButton" name="action_zero_4">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -10947,20 +11086,82 @@ CAMERA</string>
                        <height>54</height>
                       </size>
                      </property>
+                     <property name="toolTip">
+                      <string>Zero axis A</string>
+                     </property>
                      <property name="text">
-                      <string>REFX</string>
+                      <string>ZERO</string>
                      </property>
-                     <property name="popupMode">
-                      <enum>QToolButton::InstantPopup</enum>
+                     <property name="indicator_option" stdset="0">
+                      <bool>false</bool>
                      </property>
-                     <property name="arrowType">
-                      <enum>Qt::NoArrow</enum>
+                     <property name="indicator_HAL_pin_option" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="on_color" stdset="0">
+                      <color>
+                       <red>0</red>
+                       <green>255</green>
+                       <blue>0</blue>
+                      </color>
+                     </property>
+                     <property name="off_color" stdset="0">
+                      <color>
+                       <red>255</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </property>
+                     <property name="indicator_size" stdset="0">
+                      <double>0.200000000000000</double>
+                     </property>
+                     <property name="mdi_action" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="zero_axis_action" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="template_label_option" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="joint_number" stdset="0">
+                      <number>3</number>
                      </property>
                      <property name="axis_letter" stdset="0">
-                      <string>X</string>
+                      <string>A</string>
                      </property>
-                     <property name="halpin_option" stdset="0">
+                     <property name="incr_imperial_number" stdset="0">
+                      <double>0.010000000000000</double>
+                     </property>
+                     <property name="incr_mm_number" stdset="0">
+                      <double>0.025000000000000</double>
+                     </property>
+                     <property name="incr_angular_number" stdset="0">
+                      <double>-1.000000000000000</double>
+                     </property>
+                     <property name="toggle_float_option" stdset="0">
                       <bool>false</bool>
+                     </property>
+                     <property name="float_num" stdset="0">
+                      <double>100.000000000000000</double>
+                     </property>
+                     <property name="float_alt_num" stdset="0">
+                      <double>50.000000000000000</double>
+                     </property>
+                     <property name="view_type_string" stdset="0">
+                      <string>P</string>
+                     </property>
+                     <property name="command_text_string" stdset="0">
+                      <string/>
+                     </property>
+                     <property name="ini_mdi_number" stdset="0">
+                      <number>0</number>
+                     </property>
+                     <property name="textTemplate" stdset="0">
+                      <string>%1.3f in</string>
+                     </property>
+                     <property name="alt_textTemplate" stdset="0">
+                      <string>%1.2f mm</string>
                      </property>
                     </widget>
                    </item>
@@ -11001,8 +11202,8 @@ CAMERA</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="1" colspan="2">
-                    <widget class="DROLabel" name="dro_axis_y">
+                   <item row="4" column="1" colspan="2">
+                    <widget class="DROLabel" name="dro_axis_4">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -11031,52 +11232,18 @@ CAMERA</string>
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                      </property>
                      <property name="Qjoint_number" stdset="0">
-                      <number>1</number>
+                      <number>3</number>
+                     </property>
+                     <property name="Qreference_type" stdset="0">
+                      <number>0</number>
                      </property>
                      <property name="homed" stdset="0">
                       <bool>false</bool>
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="1" colspan="2">
-                    <widget class="DROLabel" name="dro_axis_z">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>154</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>154</width>
-                       <height>54</height>
-                      </size>
-                     </property>
-                     <property name="frameShape">
-                      <enum>QFrame::WinPanel</enum>
-                     </property>
-                     <property name="frameShadow">
-                      <enum>QFrame::Sunken</enum>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                     </property>
-                     <property name="Qjoint_number" stdset="0">
-                      <number>2</number>
-                     </property>
-                     <property name="homed" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="3">
-                    <widget class="ActionButton" name="action_zero_x">
+                   <item row="0" column="1">
+                    <widget class="ActionButton" name="actionbutton_abs">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -11095,82 +11262,29 @@ CAMERA</string>
                        <height>54</height>
                       </size>
                      </property>
+                     <property name="baseSize">
+                      <size>
+                       <width>0</width>
+                       <height>0</height>
+                      </size>
+                     </property>
                      <property name="toolTip">
-                      <string>Zero axis X</string>
+                      <string>Show absolute coordinates</string>
                      </property>
                      <property name="text">
-                      <string>ZERO</string>
+                      <string>ABS</string>
                      </property>
-                     <property name="indicator_option" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="indicator_HAL_pin_option" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="on_color" stdset="0">
-                      <color>
-                       <red>0</red>
-                       <green>255</green>
-                       <blue>0</blue>
-                      </color>
-                     </property>
-                     <property name="off_color" stdset="0">
-                      <color>
-                       <red>255</red>
-                       <green>0</green>
-                       <blue>0</blue>
-                      </color>
-                     </property>
-                     <property name="indicator_size" stdset="0">
-                      <double>0.200000000000000</double>
-                     </property>
-                     <property name="mdi_action" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="zero_axis_action" stdset="0">
+                     <property name="checkable">
                       <bool>true</bool>
                      </property>
-                     <property name="template_label_option" stdset="0">
-                      <bool>false</bool>
+                     <property name="checked">
+                      <bool>true</bool>
                      </property>
-                     <property name="joint_number" stdset="0">
-                      <number>0</number>
+                     <property name="autoExclusive">
+                      <bool>true</bool>
                      </property>
-                     <property name="axis_letter" stdset="0">
-                      <string>X</string>
-                     </property>
-                     <property name="incr_imperial_number" stdset="0">
-                      <double>0.010000000000000</double>
-                     </property>
-                     <property name="incr_mm_number" stdset="0">
-                      <double>0.025000000000000</double>
-                     </property>
-                     <property name="incr_angular_number" stdset="0">
-                      <double>-1.000000000000000</double>
-                     </property>
-                     <property name="toggle_float_option" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="float_num" stdset="0">
-                      <double>100.000000000000000</double>
-                     </property>
-                     <property name="float_alt_num" stdset="0">
-                      <double>50.000000000000000</double>
-                     </property>
-                     <property name="view_type_string" stdset="0">
-                      <string>P</string>
-                     </property>
-                     <property name="command_text_string" stdset="0">
-                      <string/>
-                     </property>
-                     <property name="ini_mdi_number" stdset="0">
-                      <number>0</number>
-                     </property>
-                     <property name="textTemplate" stdset="0">
-                      <string>%1.3f in</string>
-                     </property>
-                     <property name="alt_textTemplate" stdset="0">
-                      <string>%1.2f mm</string>
+                     <property name="dro_absolute_action" stdset="0">
+                      <bool>true</bool>
                      </property>
                     </widget>
                    </item>
@@ -11273,107 +11387,8 @@ CAMERA</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="3">
-                    <widget class="ActionButton" name="action_zero_z">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>70</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>16777215</width>
-                       <height>54</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>Zero axis Z</string>
-                     </property>
-                     <property name="text">
-                      <string>ZERO</string>
-                     </property>
-                     <property name="indicator_option" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="indicator_HAL_pin_option" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="on_color" stdset="0">
-                      <color>
-                       <red>0</red>
-                       <green>255</green>
-                       <blue>0</blue>
-                      </color>
-                     </property>
-                     <property name="off_color" stdset="0">
-                      <color>
-                       <red>255</red>
-                       <green>0</green>
-                       <blue>0</blue>
-                      </color>
-                     </property>
-                     <property name="indicator_size" stdset="0">
-                      <double>0.200000000000000</double>
-                     </property>
-                     <property name="mdi_action" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="zero_axis_action" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                     <property name="template_label_option" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="joint_number" stdset="0">
-                      <number>2</number>
-                     </property>
-                     <property name="axis_letter" stdset="0">
-                      <string>Z</string>
-                     </property>
-                     <property name="incr_imperial_number" stdset="0">
-                      <double>0.010000000000000</double>
-                     </property>
-                     <property name="incr_mm_number" stdset="0">
-                      <double>0.025000000000000</double>
-                     </property>
-                     <property name="incr_angular_number" stdset="0">
-                      <double>-1.000000000000000</double>
-                     </property>
-                     <property name="toggle_float_option" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="float_num" stdset="0">
-                      <double>100.000000000000000</double>
-                     </property>
-                     <property name="float_alt_num" stdset="0">
-                      <double>50.000000000000000</double>
-                     </property>
-                     <property name="view_type_string" stdset="0">
-                      <string>P</string>
-                     </property>
-                     <property name="command_text_string" stdset="0">
-                      <string/>
-                     </property>
-                     <property name="ini_mdi_number" stdset="0">
-                      <number>0</number>
-                     </property>
-                     <property name="textTemplate" stdset="0">
-                      <string>%1.3f in</string>
-                     </property>
-                     <property name="alt_textTemplate" stdset="0">
-                      <string>%1.2f mm</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QLabel" name="label_axis_x">
+                   <item row="4" column="0">
+                    <widget class="QLabel" name="label_axis_4">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -11402,10 +11417,50 @@ CAMERA</string>
                       <number>2</number>
                      </property>
                      <property name="text">
-                      <string>X</string>
+                      <string>A</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="4">
+                    <widget class="AxisToolButton" name="axistoolbutton_4">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>70</width>
+                       <height>50</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>54</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>REFA</string>
+                     </property>
+                     <property name="popupMode">
+                      <enum>QToolButton::InstantPopup</enum>
+                     </property>
+                     <property name="arrowType">
+                      <enum>Qt::NoArrow</enum>
+                     </property>
+                     <property name="joint_number" stdset="0">
+                      <number>3</number>
+                     </property>
+                     <property name="axis_letter" stdset="0">
+                      <string>A</string>
+                     </property>
+                     <property name="halpin_option" stdset="0">
+                      <bool>false</bool>
                      </property>
                     </widget>
                    </item>
@@ -11446,183 +11501,8 @@ CAMERA</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="0">
-                    <widget class="QLabel" name="label_axis_z">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>70</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>80</width>
-                       <height>54</height>
-                      </size>
-                     </property>
-                     <property name="frameShape">
-                      <enum>QFrame::WinPanel</enum>
-                     </property>
-                     <property name="frameShadow">
-                      <enum>QFrame::Raised</enum>
-                     </property>
-                     <property name="lineWidth">
-                      <number>2</number>
-                     </property>
-                     <property name="text">
-                      <string>Z</string>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="3">
-                    <widget class="ActionButton" name="actionbutton_dtg">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>70</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>16777215</width>
-                       <height>54</height>
-                      </size>
-                     </property>
-                     <property name="baseSize">
-                      <size>
-                       <width>0</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>Show distance to go</string>
-                     </property>
-                     <property name="text">
-                      <string>DTG</string>
-                     </property>
-                     <property name="checkable">
-                      <bool>true</bool>
-                     </property>
-                     <property name="autoExclusive">
-                      <bool>true</bool>
-                     </property>
-                     <property name="dro_absolute_action" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="dro_dtg_action" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="2">
-                    <widget class="ActionButton" name="actionbutton_rel">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>70</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>16777215</width>
-                       <height>54</height>
-                      </size>
-                     </property>
-                     <property name="baseSize">
-                      <size>
-                       <width>0</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>Show relative coordinates</string>
-                     </property>
-                     <property name="text">
-                      <string>G54</string>
-                     </property>
-                     <property name="checkable">
-                      <bool>true</bool>
-                     </property>
-                     <property name="autoExclusive">
-                      <bool>true</bool>
-                     </property>
-                     <property name="dro_absolute_action" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="dro_relative_action" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="ActionButton" name="actionbutton_abs">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>70</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>16777215</width>
-                       <height>54</height>
-                      </size>
-                     </property>
-                     <property name="baseSize">
-                      <size>
-                       <width>0</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>Show absolute coordinates</string>
-                     </property>
-                     <property name="text">
-                      <string>ABS</string>
-                     </property>
-                     <property name="checkable">
-                      <bool>true</bool>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                     <property name="autoExclusive">
-                      <bool>true</bool>
-                     </property>
-                     <property name="dro_absolute_action" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="0">
-                    <widget class="QLabel" name="label_axis_a">
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="label_axis_x">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -11651,55 +11531,15 @@ CAMERA</string>
                       <number>2</number>
                      </property>
                      <property name="text">
-                      <string>A</string>
+                      <string>X</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignCenter</set>
                      </property>
                     </widget>
                    </item>
-                   <item row="4" column="1" colspan="2">
-                    <widget class="DROLabel" name="dro_axis_a">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>154</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>154</width>
-                       <height>54</height>
-                      </size>
-                     </property>
-                     <property name="frameShape">
-                      <enum>QFrame::WinPanel</enum>
-                     </property>
-                     <property name="frameShadow">
-                      <enum>QFrame::Sunken</enum>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                     </property>
-                     <property name="Qjoint_number" stdset="0">
-                      <number>3</number>
-                     </property>
-                     <property name="Qreference_type" stdset="0">
-                      <number>0</number>
-                     </property>
-                     <property name="homed" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="3">
-                    <widget class="ActionButton" name="action_zero_a">
+                   <item row="1" column="3">
+                    <widget class="ActionButton" name="action_zero_x">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -11719,7 +11559,7 @@ CAMERA</string>
                       </size>
                      </property>
                      <property name="toolTip">
-                      <string>Zero axis A</string>
+                      <string>Zero axis X</string>
                      </property>
                      <property name="text">
                       <string>ZERO</string>
@@ -11757,10 +11597,10 @@ CAMERA</string>
                       <bool>false</bool>
                      </property>
                      <property name="joint_number" stdset="0">
-                      <number>3</number>
+                      <number>0</number>
                      </property>
                      <property name="axis_letter" stdset="0">
-                      <string>A</string>
+                      <string>X</string>
                      </property>
                      <property name="incr_imperial_number" stdset="0">
                       <double>0.010000000000000</double>
@@ -11797,8 +11637,8 @@ CAMERA</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="4" column="4">
-                    <widget class="AxisToolButton" name="axistoolbutton_a">
+                   <item row="1" column="4">
+                    <widget class="AxisToolButton" name="axistoolbutton_x">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -11818,7 +11658,7 @@ CAMERA</string>
                       </size>
                      </property>
                      <property name="text">
-                      <string>REFA</string>
+                      <string>REFX</string>
                      </property>
                      <property name="popupMode">
                       <enum>QToolButton::InstantPopup</enum>
@@ -11826,11 +11666,8 @@ CAMERA</string>
                      <property name="arrowType">
                       <enum>Qt::NoArrow</enum>
                      </property>
-                     <property name="joint_number" stdset="0">
-                      <number>3</number>
-                     </property>
                      <property name="axis_letter" stdset="0">
-                      <string>A</string>
+                      <string>X</string>
                      </property>
                      <property name="halpin_option" stdset="0">
                       <bool>false</bool>
@@ -11890,6 +11727,281 @@ CAMERA</string>
                      </property>
                      <property name="is_homed_status" stdset="0">
                       <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="5">
+                    <widget class="QStackedWidget" name="dro_button_stack_y">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>70</width>
+                       <height>50</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>70</width>
+                       <height>54</height>
+                      </size>
+                     </property>
+                     <property name="currentIndex">
+                      <number>0</number>
+                     </property>
+                     <widget class="QWidget" name="page_7">
+                      <layout class="QVBoxLayout" name="verticalLayout_48">
+                       <property name="spacing">
+                        <number>0</number>
+                       </property>
+                       <property name="leftMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <widget class="IndicatedPushButton" name="btn_home_y">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>70</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>54</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>HOME</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>false</bool>
+                         </property>
+                         <property name="checked_state_text_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="true_state_string" stdset="0">
+                          <string>UNHOME</string>
+                         </property>
+                         <property name="false_state_string" stdset="0">
+                          <string>HOME</string>
+                         </property>
+                         <property name="joint_number_status" stdset="0">
+                          <number>1</number>
+                         </property>
+                         <property name="joint" stdset="0">
+                          <number>1</number>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                     <widget class="QWidget" name="page_8">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>58</width>
+                        <height>40</height>
+                       </size>
+                      </property>
+                      <layout class="QVBoxLayout" name="verticalLayout_50">
+                       <property name="spacing">
+                        <number>0</number>
+                       </property>
+                       <property name="leftMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+                        <widget class="OffsetToolButton" name="offsettoolbutton_y">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>70</width>
+                           <height>54</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>76</width>
+                           <height>1000</height>
+                          </size>
+                         </property>
+                         <property name="baseSize">
+                          <size>
+                           <width>0</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>TOOL Y</string>
+                         </property>
+                         <property name="popupMode">
+                          <enum>QToolButton::InstantPopup</enum>
+                         </property>
+                         <property name="axis_letter" stdset="0">
+                          <string>Y</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QLabel" name="label_axis_z">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>70</width>
+                       <height>50</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>80</width>
+                       <height>54</height>
+                      </size>
+                     </property>
+                     <property name="frameShape">
+                      <enum>QFrame::WinPanel</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Raised</enum>
+                     </property>
+                     <property name="lineWidth">
+                      <number>2</number>
+                     </property>
+                     <property name="text">
+                      <string>Z</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="2">
+                    <widget class="ActionButton" name="actionbutton_rel">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>70</width>
+                       <height>50</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>54</height>
+                      </size>
+                     </property>
+                     <property name="baseSize">
+                      <size>
+                       <width>0</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>Show relative coordinates</string>
+                     </property>
+                     <property name="text">
+                      <string>G54</string>
+                     </property>
+                     <property name="checkable">
+                      <bool>true</bool>
+                     </property>
+                     <property name="autoExclusive">
+                      <bool>true</bool>
+                     </property>
+                     <property name="dro_absolute_action" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="dro_relative_action" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1" colspan="2">
+                    <widget class="DROLabel" name="dro_axis_z">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>154</width>
+                       <height>50</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>154</width>
+                       <height>54</height>
+                      </size>
+                     </property>
+                     <property name="frameShape">
+                      <enum>QFrame::WinPanel</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Sunken</enum>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                     <property name="Qjoint_number" stdset="0">
+                      <number>2</number>
+                     </property>
+                     <property name="homed" stdset="0">
+                      <bool>false</bool>
                      </property>
                     </widget>
                    </item>
@@ -12054,8 +12166,45 @@ CAMERA</string>
                      </widget>
                     </widget>
                    </item>
-                   <item row="2" column="5">
-                    <widget class="QStackedWidget" name="dro_button_stack_y">
+                   <item row="2" column="1" colspan="2">
+                    <widget class="DROLabel" name="dro_axis_y">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>154</width>
+                       <height>50</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>154</width>
+                       <height>54</height>
+                      </size>
+                     </property>
+                     <property name="frameShape">
+                      <enum>QFrame::WinPanel</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Sunken</enum>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                     <property name="Qjoint_number" stdset="0">
+                      <number>1</number>
+                     </property>
+                     <property name="homed" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="0">
+                    <widget class="SystemToolButton" name="systemtoolbutton">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -12070,143 +12219,164 @@ CAMERA</string>
                      </property>
                      <property name="maximumSize">
                       <size>
-                       <width>70</width>
+                       <width>16777215</width>
                        <height>54</height>
                       </size>
                      </property>
-                     <property name="currentIndex">
+                     <property name="toolTip">
+                      <string>Select work coordinate system</string>
+                     </property>
+                     <property name="text">
+                      <string>WCS</string>
+                     </property>
+                     <property name="popupMode">
+                      <enum>QToolButton::InstantPopup</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="3">
+                    <widget class="ActionButton" name="actionbutton_dtg">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>70</width>
+                       <height>50</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>54</height>
+                      </size>
+                     </property>
+                     <property name="baseSize">
+                      <size>
+                       <width>0</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>Show distance to go</string>
+                     </property>
+                     <property name="text">
+                      <string>DTG</string>
+                     </property>
+                     <property name="checkable">
+                      <bool>true</bool>
+                     </property>
+                     <property name="autoExclusive">
+                      <bool>true</bool>
+                     </property>
+                     <property name="dro_absolute_action" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="dro_dtg_action" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="3">
+                    <widget class="ActionButton" name="action_zero_z">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>70</width>
+                       <height>50</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>54</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>Zero axis Z</string>
+                     </property>
+                     <property name="text">
+                      <string>ZERO</string>
+                     </property>
+                     <property name="indicator_option" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="indicator_HAL_pin_option" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="on_color" stdset="0">
+                      <color>
+                       <red>0</red>
+                       <green>255</green>
+                       <blue>0</blue>
+                      </color>
+                     </property>
+                     <property name="off_color" stdset="0">
+                      <color>
+                       <red>255</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </property>
+                     <property name="indicator_size" stdset="0">
+                      <double>0.200000000000000</double>
+                     </property>
+                     <property name="mdi_action" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="zero_axis_action" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="template_label_option" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="joint_number" stdset="0">
+                      <number>2</number>
+                     </property>
+                     <property name="axis_letter" stdset="0">
+                      <string>Z</string>
+                     </property>
+                     <property name="incr_imperial_number" stdset="0">
+                      <double>0.010000000000000</double>
+                     </property>
+                     <property name="incr_mm_number" stdset="0">
+                      <double>0.025000000000000</double>
+                     </property>
+                     <property name="incr_angular_number" stdset="0">
+                      <double>-1.000000000000000</double>
+                     </property>
+                     <property name="toggle_float_option" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="float_num" stdset="0">
+                      <double>100.000000000000000</double>
+                     </property>
+                     <property name="float_alt_num" stdset="0">
+                      <double>50.000000000000000</double>
+                     </property>
+                     <property name="view_type_string" stdset="0">
+                      <string>P</string>
+                     </property>
+                     <property name="command_text_string" stdset="0">
+                      <string/>
+                     </property>
+                     <property name="ini_mdi_number" stdset="0">
                       <number>0</number>
                      </property>
-                     <widget class="QWidget" name="page_7">
-                      <layout class="QVBoxLayout" name="verticalLayout_48">
-                       <property name="spacing">
-                        <number>0</number>
-                       </property>
-                       <property name="leftMargin">
-                        <number>0</number>
-                       </property>
-                       <property name="topMargin">
-                        <number>0</number>
-                       </property>
-                       <property name="rightMargin">
-                        <number>0</number>
-                       </property>
-                       <property name="bottomMargin">
-                        <number>0</number>
-                       </property>
-                       <item>
-                        <widget class="IndicatedPushButton" name="btn_home_y">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="minimumSize">
-                          <size>
-                           <width>70</width>
-                           <height>50</height>
-                          </size>
-                         </property>
-                         <property name="maximumSize">
-                          <size>
-                           <width>16777215</width>
-                           <height>54</height>
-                          </size>
-                         </property>
-                         <property name="text">
-                          <string>HOME</string>
-                         </property>
-                         <property name="checkable">
-                          <bool>false</bool>
-                         </property>
-                         <property name="checked_state_text_option" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="true_state_string" stdset="0">
-                          <string>UNHOME</string>
-                         </property>
-                         <property name="false_state_string" stdset="0">
-                          <string>HOME</string>
-                         </property>
-                         <property name="joint_number_status" stdset="0">
-                          <number>1</number>
-                         </property>
-                         <property name="joint" stdset="0">
-                          <number>1</number>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </widget>
-                     <widget class="QWidget" name="page_8">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>58</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <layout class="QVBoxLayout" name="verticalLayout_50">
-                       <property name="spacing">
-                        <number>0</number>
-                       </property>
-                       <property name="leftMargin">
-                        <number>0</number>
-                       </property>
-                       <property name="topMargin">
-                        <number>0</number>
-                       </property>
-                       <property name="rightMargin">
-                        <number>0</number>
-                       </property>
-                       <property name="bottomMargin">
-                        <number>0</number>
-                       </property>
-                       <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-                        <widget class="OffsetToolButton" name="offsettoolbutton_y">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="minimumSize">
-                          <size>
-                           <width>70</width>
-                           <height>54</height>
-                          </size>
-                         </property>
-                         <property name="maximumSize">
-                          <size>
-                           <width>76</width>
-                           <height>1000</height>
-                          </size>
-                         </property>
-                         <property name="baseSize">
-                          <size>
-                           <width>0</width>
-                           <height>0</height>
-                          </size>
-                         </property>
-                         <property name="text">
-                          <string>TOOL Y</string>
-                         </property>
-                         <property name="popupMode">
-                          <enum>QToolButton::InstantPopup</enum>
-                         </property>
-                         <property name="axis_letter" stdset="0">
-                          <string>Y</string>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </widget>
+                     <property name="textTemplate" stdset="0">
+                      <string>%1.3f in</string>
+                     </property>
+                     <property name="alt_textTemplate" stdset="0">
+                      <string>%1.2f mm</string>
+                     </property>
                     </widget>
                    </item>
                    <item row="3" column="5">
@@ -12334,7 +12504,7 @@ CAMERA</string>
                          <property name="minimumSize">
                           <size>
                            <width>70</width>
-                           <height>54</height>
+                           <height>50</height>
                           </size>
                          </property>
                          <property name="maximumSize">
@@ -12364,8 +12534,8 @@ CAMERA</string>
                      </widget>
                     </widget>
                    </item>
-                   <item row="4" column="5">
-                    <widget class="QStackedWidget" name="dro_button_stack_a">
+                   <item row="2" column="4">
+                    <widget class="AxisToolButton" name="axistoolbutton_y">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -12374,21 +12544,289 @@ CAMERA</string>
                      </property>
                      <property name="minimumSize">
                       <size>
+                       <width>70</width>
+                       <height>50</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>54</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>REFY</string>
+                     </property>
+                     <property name="popupMode">
+                      <enum>QToolButton::InstantPopup</enum>
+                     </property>
+                     <property name="arrowType">
+                      <enum>Qt::NoArrow</enum>
+                     </property>
+                     <property name="joint_number" stdset="0">
+                      <number>1</number>
+                     </property>
+                     <property name="axis_letter" stdset="0">
+                      <string>Y</string>
+                     </property>
+                     <property name="halpin_option" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="0">
+                    <widget class="QLabel" name="label_axis_5">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
                        <width>58</width>
+                       <height>38</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>82</width>
+                       <height>64</height>
+                      </size>
+                     </property>
+                     <property name="frameShape">
+                      <enum>QFrame::WinPanel</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Raised</enum>
+                     </property>
+                     <property name="lineWidth">
+                      <number>2</number>
+                     </property>
+                     <property name="text">
+                      <string>C</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="1" colspan="2">
+                    <widget class="DROLabel" name="dro_axis_5">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>58</width>
+                       <height>38</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>64</height>
+                      </size>
+                     </property>
+                     <property name="frameShape">
+                      <enum>QFrame::WinPanel</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Sunken</enum>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                     <property name="Qjoint_number" stdset="0">
+                      <number>4</number>
+                     </property>
+                     <property name="homed" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="3">
+                    <widget class="ActionButton" name="action_zero_5">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>58</width>
+                       <height>38</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>82</width>
+                       <height>64</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>Zero axis A</string>
+                     </property>
+                     <property name="text">
+                      <string>ZERO</string>
+                     </property>
+                     <property name="indicator_option" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="indicator_HAL_pin_option" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="on_color" stdset="0">
+                      <color>
+                       <red>0</red>
+                       <green>255</green>
+                       <blue>0</blue>
+                      </color>
+                     </property>
+                     <property name="off_color" stdset="0">
+                      <color>
+                       <red>255</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </property>
+                     <property name="indicator_size" stdset="0">
+                      <double>0.200000000000000</double>
+                     </property>
+                     <property name="mdi_action" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="zero_axis_action" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="template_label_option" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="joint_number" stdset="0">
+                      <number>5</number>
+                     </property>
+                     <property name="axis_letter" stdset="0">
+                      <string>C</string>
+                     </property>
+                     <property name="incr_imperial_number" stdset="0">
+                      <double>0.010000000000000</double>
+                     </property>
+                     <property name="incr_mm_number" stdset="0">
+                      <double>0.025000000000000</double>
+                     </property>
+                     <property name="incr_angular_number" stdset="0">
+                      <double>-1.000000000000000</double>
+                     </property>
+                     <property name="toggle_float_option" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="float_num" stdset="0">
+                      <double>100.000000000000000</double>
+                     </property>
+                     <property name="float_alt_num" stdset="0">
+                      <double>50.000000000000000</double>
+                     </property>
+                     <property name="view_type_string" stdset="0">
+                      <string>P</string>
+                     </property>
+                     <property name="command_text_string" stdset="0">
+                      <string/>
+                     </property>
+                     <property name="ini_mdi_number" stdset="0">
+                      <number>0</number>
+                     </property>
+                     <property name="textTemplate" stdset="0">
+                      <string>%1.3f in</string>
+                     </property>
+                     <property name="alt_textTemplate" stdset="0">
+                      <string>%1.2f mm</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="4">
+                    <widget class="AxisToolButton" name="axistoolbutton_5">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>58</width>
+                       <height>38</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>82</width>
+                       <height>64</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>REFB</string>
+                     </property>
+                     <property name="popupMode">
+                      <enum>QToolButton::InstantPopup</enum>
+                     </property>
+                     <property name="arrowType">
+                      <enum>Qt::NoArrow</enum>
+                     </property>
+                     <property name="joint_number" stdset="0">
+                      <number>5</number>
+                     </property>
+                     <property name="axis_letter" stdset="0">
+                      <string>C</string>
+                     </property>
+                     <property name="halpin_option" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="dialog_code_string" stdset="0">
+                      <string>CALCULATOR</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="5">
+                    <widget class="QStackedWidget" name="dro_button_stack_5">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>70</width>
                        <height>50</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
                        <width>82</width>
-                       <height>54</height>
+                       <height>64</height>
                       </size>
                      </property>
                      <property name="currentIndex">
                       <number>0</number>
                      </property>
-                     <widget class="QWidget" name="page_11">
-                      <layout class="QVBoxLayout" name="verticalLayout_53">
+                     <widget class="QWidget" name="page_13">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>82</width>
+                        <height>64</height>
+                       </size>
+                      </property>
+                      <layout class="QVBoxLayout" name="verticalLayout_59">
                        <property name="spacing">
                         <number>0</number>
                        </property>
@@ -12405,12 +12843,9 @@ CAMERA</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="ActionButton" name="action_home_a">
-                         <property name="enabled">
-                          <bool>true</bool>
-                         </property>
+                        <widget class="IndicatedPushButton" name="btn_home_5">
                          <property name="sizePolicy">
-                          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                            <horstretch>0</horstretch>
                            <verstretch>0</verstretch>
                           </sizepolicy>
@@ -12426,6 +12861,179 @@ CAMERA</string>
                            <width>70</width>
                            <height>54</height>
                           </size>
+                         </property>
+                         <property name="text">
+                          <string>HOME</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>false</bool>
+                         </property>
+                         <property name="indicator_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="indicator_HAL_pin_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="indicator_status_option" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                         <property name="checked_state_text_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="on_color" stdset="0">
+                          <color>
+                           <red>0</red>
+                           <green>255</green>
+                           <blue>0</blue>
+                          </color>
+                         </property>
+                         <property name="shape_option" stdset="0">
+                          <number>1</number>
+                         </property>
+                         <property name="indicator_size" stdset="0">
+                          <double>0.200000000000000</double>
+                         </property>
+                         <property name="right_edge_offset" stdset="0">
+                          <number>4</number>
+                         </property>
+                         <property name="top_edge_offset" stdset="0">
+                          <number>5</number>
+                         </property>
+                         <property name="true_state_string" stdset="0">
+                          <string>UNHOME</string>
+                         </property>
+                         <property name="false_state_string" stdset="0">
+                          <string>HOME</string>
+                         </property>
+                         <property name="is_joint_homed_status" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                         <property name="joint_number_status" stdset="0">
+                          <number>4</number>
+                         </property>
+                         <property name="joint" stdset="0">
+                          <number>4</number>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                     <widget class="QWidget" name="page_14">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>58</width>
+                        <height>40</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>82</width>
+                        <height>64</height>
+                       </size>
+                      </property>
+                      <layout class="QVBoxLayout" name="verticalLayout_60">
+                       <property name="spacing">
+                        <number>0</number>
+                       </property>
+                       <property name="leftMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <widget class="OffsetToolButton" name="offsettoolbutton_5">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>70</width>
+                           <height>54</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>82</width>
+                           <height>64</height>
+                          </size>
+                         </property>
+                         <property name="baseSize">
+                          <size>
+                           <width>0</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>TOOL</string>
+                         </property>
+                         <property name="popupMode">
+                          <enum>QToolButton::InstantPopup</enum>
+                         </property>
+                         <property name="axis_letter" stdset="0">
+                          <string>A</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                     <widget class="QWidget" name="page_2">
+                      <layout class="QVBoxLayout" name="verticalLayout_61">
+                       <property name="spacing">
+                        <number>0</number>
+                       </property>
+                       <property name="leftMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <widget class="ActionButton" name="action_home_7">
+                         <property name="enabled">
+                          <bool>true</bool>
+                         </property>
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>70</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>70</width>
+                           <height>54</height>
+                          </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::StrongFocus</enum>
                          </property>
                          <property name="text">
                           <string>GO TO
@@ -12509,9 +13117,127 @@ ZERO</string>
                        </item>
                       </layout>
                      </widget>
+                    </widget>
+                   </item>
+                   <item row="4" column="5">
+                    <widget class="QStackedWidget" name="dro_button_stack_4">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>70</width>
+                       <height>50</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>82</width>
+                       <height>64</height>
+                      </size>
+                     </property>
+                     <property name="currentIndex">
+                      <number>0</number>
+                     </property>
+                     <widget class="QWidget" name="page_3">
+                      <layout class="QVBoxLayout" name="verticalLayout_53">
+                       <property name="spacing">
+                        <number>0</number>
+                       </property>
+                       <property name="leftMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <widget class="IndicatedPushButton" name="btn_home_4">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>70</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>70</width>
+                           <height>54</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>HOME</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>false</bool>
+                         </property>
+                         <property name="indicator_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="indicator_HAL_pin_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="indicator_status_option" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                         <property name="checked_state_text_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="on_color" stdset="0">
+                          <color>
+                           <red>0</red>
+                           <green>255</green>
+                           <blue>0</blue>
+                          </color>
+                         </property>
+                         <property name="shape_option" stdset="0">
+                          <number>1</number>
+                         </property>
+                         <property name="indicator_size" stdset="0">
+                          <double>0.200000000000000</double>
+                         </property>
+                         <property name="right_edge_offset" stdset="0">
+                          <number>4</number>
+                         </property>
+                         <property name="top_edge_offset" stdset="0">
+                          <number>5</number>
+                         </property>
+                         <property name="true_state_string" stdset="0">
+                          <string>UNHOME</string>
+                         </property>
+                         <property name="false_state_string" stdset="0">
+                          <string>HOME</string>
+                         </property>
+                         <property name="is_joint_homed_status" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                         <property name="joint_number_status" stdset="0">
+                          <number>3</number>
+                         </property>
+                         <property name="joint" stdset="0">
+                          <number>3</number>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
                      <widget class="QWidget" name="page_12">
                       <property name="sizePolicy">
-                       <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
+                       <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
                         <horstretch>0</horstretch>
                         <verstretch>0</verstretch>
                        </sizepolicy>
@@ -12520,6 +13246,12 @@ ZERO</string>
                        <size>
                         <width>58</width>
                         <height>40</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>82</width>
+                        <height>64</height>
                        </size>
                       </property>
                       <layout class="QVBoxLayout" name="verticalLayout_57">
@@ -12538,10 +13270,10 @@ ZERO</string>
                        <property name="bottomMargin">
                         <number>0</number>
                        </property>
-                       <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-                        <widget class="OffsetToolButton" name="offsettoolbutton_a">
+                       <item>
+                        <widget class="OffsetToolButton" name="offsettoolbutton_4">
                          <property name="sizePolicy">
-                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                            <horstretch>0</horstretch>
                            <verstretch>0</verstretch>
                           </sizepolicy>
@@ -12549,13 +13281,13 @@ ZERO</string>
                          <property name="minimumSize">
                           <size>
                            <width>70</width>
-                           <height>54</height>
+                           <height>50</height>
                           </size>
                          </property>
                          <property name="maximumSize">
                           <size>
-                           <width>1000</width>
-                           <height>1000</height>
+                           <width>82</width>
+                           <height>64</height>
                           </size>
                          </property>
                          <property name="baseSize">
@@ -12565,13 +13297,150 @@ ZERO</string>
                           </size>
                          </property>
                          <property name="text">
-                          <string>TOOL A</string>
+                          <string>TOOL</string>
                          </property>
                          <property name="popupMode">
                           <enum>QToolButton::InstantPopup</enum>
                          </property>
                          <property name="axis_letter" stdset="0">
                           <string>A</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                     <widget class="QWidget" name="page_11">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>82</width>
+                        <height>64</height>
+                       </size>
+                      </property>
+                      <layout class="QVBoxLayout" name="verticalLayout_62">
+                       <property name="spacing">
+                        <number>0</number>
+                       </property>
+                       <property name="leftMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <widget class="ActionButton" name="action_home_6">
+                         <property name="enabled">
+                          <bool>true</bool>
+                         </property>
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>58</width>
+                           <height>38</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>82</width>
+                           <height>64</height>
+                          </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::StrongFocus</enum>
+                         </property>
+                         <property name="text">
+                          <string>GO TO
+ZERO</string>
+                         </property>
+                         <property name="indicator_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="indicator_HAL_pin_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="on_color" stdset="0">
+                          <color>
+                           <red>0</red>
+                           <green>255</green>
+                           <blue>0</blue>
+                          </color>
+                         </property>
+                         <property name="off_color" stdset="0">
+                          <color>
+                           <red>255</red>
+                           <green>0</green>
+                           <blue>0</blue>
+                          </color>
+                         </property>
+                         <property name="indicator_size" stdset="0">
+                          <double>0.200000000000000</double>
+                         </property>
+                         <property name="mdi_action" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="home_action" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="mdi_command_action" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                         <property name="template_label_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="joint_number" stdset="0">
+                          <number>3</number>
+                         </property>
+                         <property name="axis_letter" stdset="0">
+                          <string>A</string>
+                         </property>
+                         <property name="incr_imperial_number" stdset="0">
+                          <double>0.010000000000000</double>
+                         </property>
+                         <property name="incr_mm_number" stdset="0">
+                          <double>0.025000000000000</double>
+                         </property>
+                         <property name="incr_angular_number" stdset="0">
+                          <double>-1.000000000000000</double>
+                         </property>
+                         <property name="toggle_float_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="float_num" stdset="0">
+                          <double>100.000000000000000</double>
+                         </property>
+                         <property name="float_alt_num" stdset="0">
+                          <double>50.000000000000000</double>
+                         </property>
+                         <property name="view_type_string" stdset="0">
+                          <string>P</string>
+                         </property>
+                         <property name="command_text_string" stdset="0">
+                          <string>G90 G0 A0</string>
+                         </property>
+                         <property name="ini_mdi_number" stdset="0">
+                          <number>0</number>
+                         </property>
+                         <property name="textTemplate" stdset="0">
+                          <string>%1.3f in</string>
+                         </property>
+                         <property name="alt_textTemplate" stdset="0">
+                          <string>%1.2f mm</string>
                          </property>
                         </widget>
                        </item>
@@ -14145,51 +15014,7 @@ ZERO</string>
                  <property name="spacing">
                   <number>2</number>
                  </property>
-                 <item row="5" column="2">
-                  <widget class="ActionButton" name="a_plus_jogbutton">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>50</width>
-                     <height>50</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>50</width>
-                     <height>50</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="qtdragon_hd.qrc">
-                     <normaloff>:/buttons/images/a_plus_jog_button.png</normaloff>:/buttons/images/a_plus_jog_button.png</iconset>
-                   </property>
-                   <property name="iconSize">
-                    <size>
-                     <width>46</width>
-                     <height>46</height>
-                    </size>
-                   </property>
-                   <property name="jog_joint_pos_action" stdset="0">
-                    <bool>true</bool>
-                   </property>
-                   <property name="joint_number" stdset="0">
-                    <number>3</number>
-                   </property>
-                   <property name="axis_letter" stdset="0">
-                    <string>A</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="1">
+                 <item row="5" column="1">
                   <widget class="ActionButton" name="y_minus_jogbutton">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
@@ -14269,7 +15094,7 @@ ZERO</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="1">
+                 <item row="3" column="1">
                   <widget class="ActionButton" name="y_plus_jogbutton">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
@@ -14349,7 +15174,7 @@ ZERO</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="0">
+                 <item row="4" column="0">
                   <widget class="ActionButton" name="x_minus_jogbutton">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
@@ -14429,7 +15254,7 @@ ZERO</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="0" column="1">
+                 <item row="1" column="0">
                   <widget class="ActionButton" name="z_plus_jogbutton">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
@@ -14473,51 +15298,7 @@ ZERO</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="1">
-                  <widget class="ActionButton" name="z_minus_jogbutton">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>50</width>
-                     <height>50</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>50</width>
-                     <height>50</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="qtdragon_hd.qrc">
-                     <normaloff>:/buttons/images/z_minus_jog_button.png</normaloff>:/buttons/images/z_minus_jog_button.png</iconset>
-                   </property>
-                   <property name="iconSize">
-                    <size>
-                     <width>46</width>
-                     <height>46</height>
-                    </size>
-                   </property>
-                   <property name="jog_joint_neg_action" stdset="0">
-                    <bool>true</bool>
-                   </property>
-                   <property name="joint_number" stdset="0">
-                    <number>2</number>
-                   </property>
-                   <property name="axis_letter" stdset="0">
-                    <string>Z</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="2">
+                 <item row="4" column="2">
                   <widget class="ActionButton" name="x_plus_jogbutton">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
@@ -14597,8 +15378,8 @@ ZERO</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="5" column="0">
-                  <widget class="ActionButton" name="a_minus_jogbutton">
+                 <item row="2" column="0">
+                  <widget class="ActionButton" name="z_minus_jogbutton">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                      <horstretch>0</horstretch>
@@ -14622,12 +15403,157 @@ ZERO</string>
                    </property>
                    <property name="icon">
                     <iconset resource="qtdragon_hd.qrc">
-                     <normaloff>:/buttons/images/a_minus_jog_button.png</normaloff>:/buttons/images/a_minus_jog_button.png</iconset>
+                     <normaloff>:/buttons/images/z_minus_jog_button.png</normaloff>:/buttons/images/z_minus_jog_button.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
                      <width>46</width>
                      <height>46</height>
+                    </size>
+                   </property>
+                   <property name="jog_joint_neg_action" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="joint_number" stdset="0">
+                    <number>2</number>
+                   </property>
+                   <property name="axis_letter" stdset="0">
+                    <string>Z</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="ActionButton" name="plus_jogbutton_5">
+                   <property name="minimumSize">
+                    <size>
+                     <width>53</width>
+                     <height>53</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>53</width>
+                     <height>53</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>44</width>
+                     <height>44</height>
+                    </size>
+                   </property>
+                   <property name="jog_joint_pos_action" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="joint_number" stdset="0">
+                    <number>5</number>
+                   </property>
+                   <property name="axis_letter" stdset="0">
+                    <string>C</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="ActionButton" name="minus_jogbutton_5">
+                   <property name="minimumSize">
+                    <size>
+                     <width>53</width>
+                     <height>53</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>53</width>
+                     <height>53</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true"/>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>44</width>
+                     <height>44</height>
+                    </size>
+                   </property>
+                   <property name="jog_joint_pos_action" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="jog_joint_neg_action" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="joint_number" stdset="0">
+                    <number>5</number>
+                   </property>
+                   <property name="axis_letter" stdset="0">
+                    <string>C</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="2">
+                  <widget class="ActionButton" name="plus_jogbutton_4">
+                   <property name="minimumSize">
+                    <size>
+                     <width>53</width>
+                     <height>53</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>53</width>
+                     <height>53</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true"/>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>44</width>
+                     <height>44</height>
+                    </size>
+                   </property>
+                   <property name="jog_joint_pos_action" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="joint_number" stdset="0">
+                    <number>3</number>
+                   </property>
+                   <property name="axis_letter" stdset="0">
+                    <string>A</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="2">
+                  <widget class="ActionButton" name="minus_jogbutton_4">
+                   <property name="minimumSize">
+                    <size>
+                     <width>53</width>
+                     <height>53</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>53</width>
+                     <height>53</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>44</width>
+                     <height>44</height>
                     </size>
                    </property>
                    <property name="jog_joint_pos_action" stdset="0">
@@ -15834,7 +16760,7 @@ ANGULAR</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>05:19:12 PM</string>
+               <string>12:02:13 AM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -16067,8 +16993,8 @@ ANGULAR</string>
    <slot>btn_load_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>623</x>
-     <y>144</y>
+     <x>594</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1059</x>
@@ -16083,8 +17009,8 @@ ANGULAR</string>
    <slot>btn_gcode_edit_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>623</x>
-     <y>153</y>
+     <x>594</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1088</x>
@@ -16099,8 +17025,8 @@ ANGULAR</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>623</x>
-     <y>157</y>
+     <x>594</x>
+     <y>116</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -16115,8 +17041,8 @@ ANGULAR</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>623</x>
-     <y>159</y>
+     <x>594</x>
+     <y>116</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
@@ -16131,8 +17057,8 @@ ANGULAR</string>
    <slot>btn_clear_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>650</x>
-     <y>114</y>
+     <x>594</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1039</x>
@@ -16147,8 +17073,8 @@ ANGULAR</string>
    <slot>btn_save_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>650</x>
-     <y>121</y>
+     <x>594</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1098</x>
@@ -16163,8 +17089,8 @@ ANGULAR</string>
    <slot>chk_override_limits_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>630</y>
+     <x>614</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -16195,8 +17121,8 @@ ANGULAR</string>
    <slot>chk_use_virtual_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>526</y>
+     <x>614</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>565</x>
@@ -16211,8 +17137,8 @@ ANGULAR</string>
    <slot>chk_alpha_mode_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>344</y>
+     <x>614</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>708</x>
@@ -16227,8 +17153,8 @@ ANGULAR</string>
    <slot>btn_m61_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>650</x>
-     <y>125</y>
+     <x>594</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1770</x>
@@ -16243,8 +17169,8 @@ ANGULAR</string>
    <slot>disable_spindle_pause()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>396</y>
+     <x>614</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>678</x>
@@ -16259,8 +17185,8 @@ ANGULAR</string>
    <slot>chk_use_sensor_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>552</y>
+     <x>614</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>563</x>
@@ -16275,8 +17201,8 @@ ANGULAR</string>
    <slot>chk_use_camera_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>604</y>
+     <x>614</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>623</x>
@@ -16291,8 +17217,8 @@ ANGULAR</string>
    <slot>cam_zoom_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>585</x>
-     <y>187</y>
+     <x>544</x>
+     <y>176</y>
     </hint>
     <hint type="destinationlabel">
      <x>1784</x>
@@ -16307,8 +17233,8 @@ ANGULAR</string>
    <slot>cam_dia_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>585</x>
-     <y>193</y>
+     <x>544</x>
+     <y>176</y>
     </hint>
     <hint type="destinationlabel">
      <x>1703</x>
@@ -16323,8 +17249,8 @@ ANGULAR</string>
    <slot>cam_rot_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>585</x>
-     <y>200</y>
+     <x>544</x>
+     <y>176</y>
     </hint>
     <hint type="destinationlabel">
      <x>1737</x>
@@ -16371,8 +17297,8 @@ ANGULAR</string>
    <slot>chk_run_from_line_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>500</y>
+     <x>614</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>-17</x>
@@ -16451,8 +17377,8 @@ ANGULAR</string>
    <slot>chk_use_touchplate_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>578</y>
+     <x>614</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>635</x>
@@ -16483,8 +17409,8 @@ ANGULAR</string>
    <slot>slider_rapid_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1314</x>
-     <y>760</y>
+     <x>1308</x>
+     <y>782</y>
     </hint>
     <hint type="destinationlabel">
      <x>1204</x>
@@ -16499,8 +17425,8 @@ ANGULAR</string>
    <slot>slider_maxv_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1314</x>
-     <y>704</y>
+     <x>1308</x>
+     <y>726</y>
     </hint>
     <hint type="destinationlabel">
      <x>1246</x>
@@ -16627,8 +17553,8 @@ ANGULAR</string>
    <slot>btn_maxv_100_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1358</x>
-     <y>704</y>
+     <x>1352</x>
+     <y>726</y>
     </hint>
     <hint type="destinationlabel">
      <x>1306</x>
@@ -16675,8 +17601,8 @@ ANGULAR</string>
    <slot>chk_inhibit_selection_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>370</y>
+     <x>614</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>959</x>
@@ -16707,8 +17633,8 @@ ANGULAR</string>
    <slot>btn_gripper_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>623</x>
-     <y>153</y>
+     <x>594</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1463</x>
@@ -16723,8 +17649,8 @@ ANGULAR</string>
    <slot>btn_gripper_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>623</x>
-     <y>152</y>
+     <x>594</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1420</x>
@@ -16771,8 +17697,8 @@ ANGULAR</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1096</x>
-     <y>799</y>
+     <x>1091</x>
+     <y>781</y>
     </hint>
     <hint type="destinationlabel">
      <x>1060</x>
@@ -16803,8 +17729,8 @@ ANGULAR</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1046</x>
-     <y>918</y>
+     <x>1091</x>
+     <y>890</y>
     </hint>
     <hint type="destinationlabel">
      <x>1066</x>
@@ -16819,8 +17745,8 @@ ANGULAR</string>
    <slot>btn_about_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1736</x>
-     <y>119</y>
+     <x>610</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1788</x>
@@ -16835,8 +17761,8 @@ ANGULAR</string>
    <slot>btn_spindle_z_up_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>851</x>
-     <y>555</y>
+     <x>564</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>829</x>
@@ -16851,8 +17777,8 @@ ANGULAR</string>
    <slot>btn_spindle_z_down_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>912</x>
-     <y>554</y>
+     <x>564</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>959</x>
@@ -16867,8 +17793,8 @@ ANGULAR</string>
    <slot>btn_gcode_zoomout_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1086</x>
-     <y>604</y>
+     <x>564</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>1289</x>
@@ -16883,12 +17809,44 @@ ANGULAR</string>
    <slot>btn_gcode_zoomin_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>930</x>
-     <y>605</y>
+     <x>564</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>878</x>
      <y>-13</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_home_4</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_home_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1074</x>
+     <y>919</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1949</x>
+     <y>783</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_home_5</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_home_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1047</x>
+     <y>958</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1940</x>
+     <y>652</y>
     </hint>
    </hints>
   </connection>
