@@ -211,6 +211,8 @@ class Filter():
                         self.gcodeList.append(line)
                         self.gcodeList.append(f'M190 P{self.tmpMatNum}')
                         self.gcodeList.append('M66 P3 L3 Q1')
+                        if not self.firstMaterial:
+                            self.firstMaterial = self.tmpMatNum
                         self.tmpMatNum += 1
                     else:
                         self.gcodeList.append(line)
@@ -252,6 +254,8 @@ class Filter():
                     self.gcodeList.append(line)
 
     def parse_code(self, data):
+        #set g and m codes to upper case
+        data = self.set_to_upper_case(data)
         # allow custom parsing before standard code parsing
         if self.cfFile:
             data = self.custom_pre_parse(data)
@@ -330,7 +334,7 @@ class Filter():
             return data
         # change material
         if data[:4] == 'M190':
-            self.do_material_change(data.upper())
+            self.do_material_change(data)
         # wait for material change
         if 'M66' in data:
             self.material_change_wait()
@@ -396,6 +400,23 @@ class Filter():
                 outFile.write(f'{data}\n')
             print(';qtplasmac filtered G-code file')
             outFile.write(';qtplasmac filtered G-code file')
+
+    def set_to_upper_case(self, data):
+        tmp = ''
+        keep = False
+        for d in data:
+            if d in '#':
+                keep = True
+                tmp += d
+            elif d in '>':
+                keep = False
+                tmp += d
+            else:
+                if keep:
+                    tmp += d
+                else:
+                    tmp += d.upper()
+        return tmp
 
     def get_axis_value(self, data, axis):
         tmp1 = data.split(axis)[1].replace(' ','')
@@ -946,7 +967,6 @@ class Filter():
             self.errorMissMat.append(self.lineNum)
             self.errorLines.append(self.lineNumOrg)
             return
-        RUN(['halcmd', 'setp', self.matNumPin, str(self.currentMaterial[0])])
         if not self.firstMaterial:
             self.firstMaterial = self.currentMaterial[0]
 
