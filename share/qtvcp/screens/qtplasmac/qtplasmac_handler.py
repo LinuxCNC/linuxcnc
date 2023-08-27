@@ -1,4 +1,4 @@
-VERSION = '1.236.287'
+VERSION = '1.236.288'
 
 '''
 qtplasmac_handler.py
@@ -276,6 +276,8 @@ class HandlerClass:
         self.extLaserButton = False
         self.virtualMachine = False
         self.realTimeDelay = False
+        self.preSingleCutMaterial = None
+        self.preFileSaveMaterial = None
         # plasmac states
         self.IDLE           =  0
         self.PROBE_HEIGHT   =  1
@@ -451,11 +453,7 @@ class HandlerClass:
                 self.w.filemanager._getPathActivated()
                 return
             self.w.filemanager.recordBookKeeping()
-            pop = [key for key in self.materialDict if key >= 1000000]
-            if pop:
-                for e in pop:
-                    self.materialDict.pop(e)
-                self.display_materials()
+            self.remove_temp_materials()
             ACTION.OPEN_PROGRAM(fname)
             STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
         except Exception as e:
@@ -486,14 +484,17 @@ class HandlerClass:
         if saved is not None:
             self.w.gcode_editor.editor.setModified(False)
             if saved[-3:] in ['ngc', '.nc', 'tap']:
+                self.preFileSaveMaterial = int(self.w.materials_box.currentText().split(': ', 1)[0])
                 if self.rflActive:
                     self.clear_rfl()
-                self.open_file(saved)
+                self.remove_temp_materials()
+                ACTION.OPEN_PROGRAM(saved)
 
     # open a non gcode file and don't load it into linuxcnc
     def new_openReturn(self, filename):
         if filename[-3:] in ['ngc', '.nc', 'tap']:
-            self.open_file(filename)
+            self.remove_temp_materials()
+            ACTION.OPEN_PROGRAM(filename)
         else:
             self.w.gcode_editor.editor.load_text(filename)
         self.w.gcode_editor.editor.setModified(False)
@@ -1356,7 +1357,8 @@ class HandlerClass:
         if self.single_cut_request:
             self.single_cut_request = False
             if self.oldFile and self.fileOpened:
-                self.open_file(self.oldFile)
+                self.remove_temp_materials()
+                ACTION.OPEN_PROGRAM(self.oldFile)
             else:
                 self.fileOpened = True
                 self.file_clear_clicked()
@@ -1400,8 +1402,6 @@ class HandlerClass:
         if STATUS.machine_is_on() and STATUS.is_all_homed() and \
            STATUS.is_interp_idle() and not self.offsetsActivePin.get() and \
            self.plasmacStatePin.get() == 0 and not self.boundsError['loaded'] and not self.fileClear:
-            if int(self.w.materials_box.currentText().split(': ', 1)[0]) >= 1000000:
-                self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
             if self.w.gcode_display.lines() > 1:
                 self.w.run.setEnabled(True)
                 if self.frButton:
@@ -1560,7 +1560,8 @@ class HandlerClass:
             if self.single_cut_request:
                 self.single_cut_request = False
                 if self.oldFile and not 'single_cut' in self.oldFile:
-                    self.open_file(self.oldFile)
+                    self.remove_temp_materials()
+                    ACTION.OPEN_PROGRAM(self.oldFile)
                     self.set_run_button_state()
                 self.w[self.scButton].setEnabled(True)
                 self.w.run.setEnabled(False)
@@ -1590,6 +1591,21 @@ class HandlerClass:
                 self.view_t_pressed()
         else:
             self.view_t_pressed()
+        if not 'single_cut.ngc' in filename:
+            self.preSingleCutMaterial = None
+        # remove unused temporary materials from comboboxes
+        self.getMaterialBusy = True
+        if int(self.w.materials_box.currentText().split(": ", 1)[0]) not in self.materialList:
+            self.change_material(self.defaultMaterial)
+        for idx in range(self.w.materials_box.count() - 1, -1, -1):
+            matNum = int(self.w.materials_box.itemText(idx).split(': ', 1)[0])
+            if matNum < 1000000:
+                break
+            if matNum not in self.materialList:
+                self.w.materials_box.removeItem(idx)
+                self.w.material_selector.removeItem(idx)
+                self.w.conv_material.removeItem(idx)
+        self.getMaterialBusy = False
 
     def joints_all_homed(self, obj):
         self.interp_idle(None)
@@ -1839,7 +1855,8 @@ class HandlerClass:
                     # load rfl file
                     if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
                         self.preRflFile = ACTION.prefilter_path or self.lastLoadedProgram
-                    self.open_file(rflFile)
+                    self.remove_temp_materials()
+                    ACTION.OPEN_PROGRAM(rflFile)
                     ACTION.prefilter_path = self.preRflFile
                     self.set_run_button_state()
                     txt0 = _translate('HandlerClass', 'RUN FROM LINE')
@@ -2095,7 +2112,8 @@ class HandlerClass:
                         self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
                         self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
                         self.w.conv_material.setCurrentIndex(self.w.materials_box.currentIndex())
-                self.open_file(clearFile)
+                self.remove_temp_materials()
+                ACTION.OPEN_PROGRAM(clearFile)
                 ACTION.prefilter_path = self.preClearFile
                 if self.w.lbl_tool.text() != 'TORCH' and STATUS.is_on_and_idle() and STATUS.is_all_homed():
                     ACTION.CALL_MDI_WAIT('T0 M6')
@@ -2243,7 +2261,8 @@ class HandlerClass:
                 file = ACTION.prefilter_path or self.lastLoadedProgram
                 if os.path.exists(file):
                     self.overlayProgress.setValue(0)
-                    self.open_file(file)
+                    self.remove_temp_materials()
+                    ACTION.OPEN_PROGRAM(file)
                     log = _translate('HandlerClass', 'Reloaded')
                     STATUS.emit('update-machine-log', '{}: {}'.format(log, file), 'TIME')
                 else:
@@ -2318,15 +2337,6 @@ class HandlerClass:
 #########################################################################################################################
 # GENERAL FUNCTIONS #
 #########################################################################################################################
-    def open_file(self, file):
-        # remove temporary materials before opening a file
-        pop = [key for key in self.materialDict if key >= 1000000]
-        if pop:
-            for e in pop:
-                self.materialDict.pop(e)
-            self.display_materials()
-        ACTION.OPEN_PROGRAM(file)
-
 # called by ScreenOptions, this function overrides ScreenOption's closeEvent
     def closeEvent(self, event):
         O = self.w.screen_options
@@ -3943,7 +3953,8 @@ class HandlerClass:
         elif 'load' in commands.lower():
             lFile = '{}/{}'.format(self.programPrefix, commands.split('load', 1)[1].strip())
             self.overlayProgress.setValue(0)
-            self.open_file(lFile)
+            self.remove_temp_materials()
+            ACTION.OPEN_PROGRAM(lFile)
         elif 'toggle-halpin' in commands.lower():
             halpin = commands.lower().split('toggle-halpin')[1].split(' ')[1].strip()
             try:
@@ -4006,7 +4017,8 @@ class HandlerClass:
                 files = glob.glob('{}/*.ngc'.format(dir))
                 latest = max(files, key = os.path.getctime)
                 self.overlayProgress.setValue(0)
-                self.open_file(latest)
+                self.remove_temp_materials()
+                ACTION.OPEN_PROGRAM(latest)
             except:
                 head = _translate('HandlerClass', 'File Error')
                 msg0 = _translate('HandlerClass', 'Cannot open latest file from user button')
@@ -4458,8 +4470,10 @@ class HandlerClass:
         xEnd = STATUS.get_position()[0][0] + xLength.value()
         yEnd = STATUS.get_position()[0][1] + yLength.value()
         newFile = '{}single_cut.ngc'.format(self.tmpPath)
+        matNum = int(self.w.materials_box.currentText().split(': ', 1)[0])
         with open(newFile, 'w') as f:
             f.write('G90\n')
+            f.write('M190 P{}\n'.format(matNum))
             f.write('F#<_hal[plasmac.cut-feed-rate]>\n')
             f.write('G53 G0 X{:0.6f} Y{:0.6f}\n'.format(STATUS.get_position()[0][0], STATUS.get_position()[0][1]))
             f.write('M3 $0 S1\n')
@@ -4467,7 +4481,9 @@ class HandlerClass:
             f.write('M5 $0\n')
             f.write('M2\n')
         self.single_cut_request = True
-        self.open_file(newFile)
+        if self.fileOpened:
+            self.preSingleCutMaterial = matNum
+        ACTION.OPEN_PROGRAM(newFile)
 
     def manual_cut(self):
         if self.manualCut:
@@ -4635,7 +4651,7 @@ class HandlerClass:
                 continue
             break
         mat = [matNum, matNam]
-        mat[2:] = self.materialDict[self.materialList[0]][1:]
+        mat[2:] = self.materialDict[self.materialList[self.w.materials_box.currentIndex()]][1:]
         self.write_one_material(mat)
         self.materialUpdate = True
         self.load_material_file(True)
@@ -4667,7 +4683,12 @@ class HandlerClass:
                 msg0 = _translate('HandlerClass', 'Default material cannot be deleted')
                 msgs = '{}.\n\n{}:'
                 continue
-            if matNum not in self.materialNumList:
+            elif matNum >= 1000000 and matNum in self.materialList:
+                msg0 = _translate('HandlerClass', 'Temporary material')
+                msg3 = _translate('HandlerClass', 'cannot be deleted')
+                msgs = '{} #{} {}.\n\n{}:'.format(msg0, matNum, msg3, msg1)
+                continue
+            elif matNum not in self.materialNumList:
                 msg0 = _translate('HandlerClass', 'Material')
                 msg3 = _translate('HandlerClass', 'does not exist')
                 msgs = '{} #{} {}.\n\n{}:'.format(msg0, matNum, msg3, msg1)
@@ -4683,20 +4704,33 @@ class HandlerClass:
         self.load_material_file(True)
         self.materialUpdate = False
 
+    def remove_temp_materials(self):
+        mats = [m for m in self.materialList if m >= 1000000]
+        if mats:
+            for mat in mats:
+                self.materialDict.pop(mat)
+                self.materialList.remove(mat)
+
     def selector_changed(self, index):
+        if index == -1 or self.getMaterialBusy:
+            return
         if self.w.material_selector.currentIndex() != self.w.materials_box.currentIndex():
             self.w.materials_box.setCurrentIndex(index)
             self.w.conv_material.setCurrentIndex(index)
 
     def conv_material_changed(self, index):
+        if index == -1 or self.getMaterialBusy:
+            return
         if self.w.conv_material.currentIndex() != self.w.materials_box.currentIndex():
             self.w.materials_box.setCurrentIndex(index)
             self.w.material_selector.setCurrentIndex(index)
 
     def material_changed(self, index):
+        if index == -1 or self.getMaterialBusy:
+            return
         if self.w.materials_box.currentText():
             if self.getMaterialBusy:
-                self.materialChangePin.set(0)
+                self.materialChangePin.set(-1)
                 self.autoChange = False
                 return
             matNum = int(self.w.materials_box.currentText().split(': ', 1)[0])
@@ -4706,8 +4740,9 @@ class HandlerClass:
                 self.w.save_material.setEnabled(True)
             if self.autoChange:
                 hal.set_p('motion.digital-in-03','0')
-                self.change_material(matNum)
-                self.materialChangePin.set(2)
+                if self.preSingleCutMaterial is None and self.preFileSaveMaterial is None:
+                    self.change_material(matNum)
+                    self.materialChangePin.set(2)
                 hal.set_p('motion.digital-in-03','1')
             else:
                 self.change_material(matNum)
@@ -4726,14 +4761,21 @@ class HandlerClass:
     def material_change_number_pin_changed(self, halpin):
         if halpin == -1:
             halpin = self.defaultMaterial
-        if self.getMaterialBusy:
+        if self.getMaterialBusy or halpin == int(self.w.materials_box.currentText().split(': ', 1)[0]):
             return
         if self.materialChangePin.get() == 1:
             self.autoChange = True
         if not self.material_exists(halpin):
             self.autoChange = False
             return
-        self.w.materials_box.setCurrentIndex(self.materialList.index(halpin))
+        if self.preSingleCutMaterial is not None:
+            self.materialChangeNumberPin.set(self.preSingleCutMaterial)
+            self.preSingleCutMaterial = None
+        elif self.preFileSaveMaterial is not None:
+            self.materialChangeNumberPin.set(self.preFileSaveMaterial)
+            self.preFileSaveMaterial = None
+        else:
+            self.w.materials_box.setCurrentIndex(self.materialList.index(halpin))
 
     def material_change_timeout_pin_changed(self, halpin):
         head = _translate('HandlerClass', 'Materials Error')
@@ -4782,9 +4824,23 @@ class HandlerClass:
                     elif line.startswith('CUT_MODE'):
                         mat[13] = float(line.split('=')[1].strip())
             self.write_materials_to_dict(mat)
-            self.display_materials()
-            self.change_material(self.defaultMaterial)
-            self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
+            self.materialList.append(halpin)
+            exists = False
+            for n in range(self.w.materials_box.count()):
+                if self.w.materials_box.itemText(n) .startswith(str(halpin)):
+                    self.w.materials_box.setItemText(n, '{:05d}: {}'.format(halpin, self.materialDict[halpin][0]))
+                    self.w.material_selector.setItemText(n, '{:05d}: {}'.format(halpin, self.materialDict[halpin][0]))
+                    self.w.conv_material.setItemText(n, '{:05d}: {}'.format(halpin, self.materialDict[halpin][0]))
+                    exists = True
+            if not exists:
+                self.w.materials_box.addItem('{:05d}: {}'.format(halpin, self.materialDict[halpin][0]))
+                self.w.material_selector.addItem('{:05d}: {}'.format(halpin, self.materialDict[halpin][0]))
+                self.w.conv_material.addItem('{:05d}: {}'.format(halpin, self.materialDict[halpin][0]))#
+            if halpin == int(self.w.materials_box.currentText().split(': ', 1)[0]):
+                self.change_material(halpin)
+
+
+
             self.materialTempPin.set(0)
 
     def write_materials_to_dict(self, matNum):
@@ -4857,7 +4913,7 @@ class HandlerClass:
         self.write_materials_to_dict(mat)
 
     def load_material_file(self, keepTemp=False):
-        self.getMaterialBusy = 1
+        self.getMaterialBusy = True
         # don't remove temporary materials unless required
         if keepTemp:
             pop = [key for key in self.materialDict if key < 1000000]
@@ -4893,7 +4949,7 @@ class HandlerClass:
         self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
         self.w.conv_material.setCurrentIndex(self.w.materials_box.currentIndex())
         self.set_default_material()
-        self.getMaterialBusy = 0
+        self.getMaterialBusy = False
 
     def material_exists(self, matNum):
         if int(matNum) in self.materialList:
@@ -4942,12 +4998,16 @@ class HandlerClass:
         self.MATS.putpref('CUT_MODE', mat[13], float, section)
 
     def set_default_material(self):
+        self.getMaterialBusy = True
         self.w.default_material.clear()
         for n in self.materialNumList:
             self.w.default_material.addItem(str(n))
+        self.getMaterialBusy = False
         self.w.default_material.setCurrentIndex(self.materialList.index(self.defaultMaterial))
 
     def default_material_changed(self, index):
+        if self.getMaterialBusy:
+            return
         self.defaultMaterial = self.materialList[index]
         self.change_material(self.defaultMaterial)
         self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
