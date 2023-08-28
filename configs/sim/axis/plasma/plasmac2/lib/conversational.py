@@ -79,19 +79,19 @@ class Conv(tk.Tk):
         self.module = None
         self.oldModule = None
         if self.unitsPerMm == 1:
-            gCode = '21'
-            tolerance = '0.25'
-            self.smallHoleSet = 32
+            smallHole = 32
+            leadin = 5
+            preAmble = 'G21 G64P0.25'
         else:
-            gCode = '20'
-            tolerance = '0.01'
-            self.smallHoleSet = 1.26
-        self.ambles = f'G{gCode} G64P{tolerance} G40 G49 G80 G90 G92.1 G94 G97'
+            smallHole = 1.25
+            leadin = 0.2
+            preAmble = 'G20 G64P0.01'
+        preAmble = f'{preAmble} G40 G49 G80 G90 G92.1 G94 G97'
         self.xOrigin = 0.000
         self.yOrigin = 0.000
         if self.comp['development']:
             reload(CONVSET)
-        CONVSET.load(self)
+        CONVSET.load(self, preAmble, leadin, smallHole, preAmble)
         if convFirstRun or self.comp['development']:
             self.create_widgets(imagePath)
             self.show_common_widgets()
