@@ -537,6 +537,7 @@ AC_MSG_CHECKING([for libgpiod])
 AC_CHECK_LIB(gpiod, main,
             [AC_DEFINE_UNQUOTED([LIBGPIOD_VER], `pkg-config libgpiod --modversion | awk -F. '{print ($1 * 100)+($2) }'`,
             [libgpiod version, undefined if not present])
+            LDFLAGS="$LDFLAGS -lgpiod"
             AC_SUBST([LIBGPIOD_VER], `pkg-config libgpiod --modversion | awk -F. '{print ($1 * 100)+($2) }'`)],
             [AC_MSG_WARN([Could not find libgpiod, not building hal_gpio])])
 

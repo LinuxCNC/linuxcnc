@@ -1004,10 +1004,12 @@ hal_pi_gpio-objs := 				\
     hal/drivers/hal_pi_gpio.o 		\
     hal/drivers/cpuinfo.o 		\
     $(MATHSTUB)
+ifdef LIBGPIOD_VER
 obj-$(CONFIG_HAL_GPIO) += hal_gpio.o
 hal_gpio-objs  :=			\
     hal/drivers/hal_gpio.o	        \
     $(MATHSTUB)
+endif
 endif
 
 obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_test.o hm2_pci.o hm2_7i43.o hm2_7i90.o setsserial.o
