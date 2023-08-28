@@ -17,9 +17,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-import sys
+VER = '6'
 
-VER = '4'
+# suppress pylance undefined variable errors in vscode
+# pyright: reportUndefinedVariable=false
 
 ##############################################################################
 # NEW CLASSES                                                                #
@@ -1419,7 +1420,7 @@ def sheet_align(mode, buttonState, offsetX, offsetY):
         xDiff = relPos['X'] - startAlignPos['X']
         yDiff = relPos['Y'] - startAlignPos['Y']
         if xDiff and yDiff:
-            zAngle = degrees(atan(yDiff / xDiff))
+            zAngle = math.degrees(math.atan(yDiff / xDiff))
             if xDiff > 0:
                 zAngle += 180
             elif yDiff > 0:
@@ -4033,11 +4034,11 @@ orientStart = False
 configPath = os.getcwd()
 p2Path = os.path.join(configPath, 'plasmac2')
 if os.path.isdir(os.path.join(p2Path, 'lib')):
+    import sys
     libPath = os.path.join(p2Path, 'lib')
     sys.path.append(libPath)
     import tarfile
     from tkinter.colorchooser import askcolor
-    from math import radians, atan, degrees
     from collections import OrderedDict
     from glob import glob as GLOB
     from shutil import copy as COPY
@@ -4045,7 +4046,8 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     from subprocess import Popen, PIPE
     from importlib import reload
     from plasmac import run_from_line as RFL
-    import conversational
+    # suppress pylance unresolved module error in vscode
+    import conversational # type: ignore
     import webbrowser
     imagePath = os.path.join(libPath, 'images') # our own images
     imageAxis = os.path.join(BASE, 'share', 'axis', 'images') # images pinched from Axis
