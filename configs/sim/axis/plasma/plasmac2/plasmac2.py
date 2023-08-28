@@ -2166,6 +2166,18 @@ def prompt_touchoff(title, text, default, tool_only, system=None):    # from axi
     else:
         return(None, None)
 
+def filter_program_new(program_filter, infilename, outfilename):
+    mats = [m for m in materialNumList if m >= 1000000]
+    if mats:
+        for mat in mats:
+            materialFileDict.pop(mat)
+            materialNumList.remove(mat)
+        if get_displayed_material() >= 1000000:
+            change_default_material()
+        insert_materials()
+    exitcode, stderr = filter_program_old(program_filter, infilename, outfilename)
+    return exitcode, stderr
+
 
 ##############################################################################
 # USER BUTTON FUNCTIONS                                                      #
@@ -2644,14 +2656,21 @@ def pulse_halpin_off(button):
 ##############################################################################
 # MATERIAL HANDLING FUNCTIONS                                                #
 ##############################################################################
+def get_displayed_material():
+    try:
+        return int(rC(f"{fruns}.material.materials","get").split(":")[0])
+    except:
+        return -1
+
 def save_material_clicked():
-    section = f'MATERIAL_NUMBER_{int(rC(f"{fruns}.material.materials","get").split(":")[0])}'
-    save_one_material(section)
-    load_materials(section)
+    matNum = get_displayed_material()
+    save_one_material(matNum)
+    load_materials(matNum, True)
 
 def reload_material_clicked():
+    MATS.clear()
     MATS.read(MATS.fn)
-    load_materials()
+    load_materials(get_displayed_material(), True)
 
 def new_material_clicked():
     global materialNumList
@@ -2697,9 +2716,9 @@ def new_material_clicked():
         else:
             break
     putPrefs(MATS,f'MATERIAL_NUMBER_{num}','NAME', nam, str)
-    save_one_material(f'MATERIAL_NUMBER_{num}')
+    save_one_material(num)
     sortPrefs(MATS)
-    load_materials(num)
+    load_materials(num, True)
 
 def delete_material_clicked():
     title = _('DELETE MATERIAL')
@@ -2712,8 +2731,8 @@ def delete_material_clicked():
     reply = plasmacPopUp('yesno', title, f'{msg0} #{material}?').reply
     if not reply:
         return
-    removePrefsSect(MATS,f'MATERIAL_NUMBER_{int(rC(f"{fruns}.material.materials","get").split(":")[0])}')
-    load_materials()
+    removePrefsSect(MATS,f'MATERIAL_NUMBER_{get_displayed_material()}')
+    load_materials(-1, True)
 
 def material_changed():
     global getMaterialBusy, materialAutoChange
@@ -2799,10 +2818,14 @@ def insert_materials():
     global materialNumList, materialFileDict
     mats = []
     materialNumList = []
+    matDefaultList = []
     for matnum in sorted(materialFileDict):
         mats.append(f'{matnum}: {materialFileDict[matnum]["name"]}')
         materialNumList.append(matnum)
+        if matnum < 1000000:
+            matDefaultList.append(matnum)
     rC(f'{fruns}.material.materials','configure','-values',mats)
+    rC(f'{fsetup}.l.gui.matdefault','configure','-values',matDefaultList)
 
 def display_selected_material(matnum, reload=False):
     rC(f'{fruns}.material.kerf-width','set',materialFileDict[matnum]['kerf_width'])
@@ -2820,7 +2843,8 @@ def display_selected_material(matnum, reload=False):
     if not reload:
         comp['material-change-number'] = matnum
 
-def save_one_material(section):
+def save_one_material(num):
+    section = f'MATERIAL_NUMBER_{num}'
     putPrefs(MATS,section, 'KERF_WIDTH', rC(f'{fruns}.material.kerf-width','get'), float)
     putPrefs(MATS,section, 'PIERCE_HEIGHT', rC(f'{fruns}.material.pierce-height','get'), float)
     putPrefs(MATS,section, 'PIERCE_DELAY', rC(f'{fruns}.material.pierce-delay','get'), float)
@@ -2894,9 +2918,14 @@ def set_material_dict(materialFileDict, matnum, material):
             'gas_pressure': material['gas_pressure'], \
             'cut_mode': material['cut_mode']}
 
-def load_materials(mat=None):
+def load_materials(display, keepTemp):
     global getMaterialBusy, materialFileDict
-    materialFileDict = {}
+    if keepTemp:
+        pop = [key for key in materialFileDict if key < 1000000]
+        for e in pop:
+            materialFileDict.pop(e)
+    else:
+        materialFileDict = {}
     getMaterialBusy = True
     if not MATS.sections():
         title = _('MATERIALS WARNING')
@@ -2923,7 +2952,6 @@ def load_materials(mat=None):
             notifications.add('error', f'{title}:\n{msg0}\n')
             return
     insert_materials()
-    rC(f'{fsetup}.l.gui.matdefault','configure','-values',materialNumList)
     value = getPrefs(PREF, 'GUI_OPTIONS', 'Default material', materialNumList[0], int)
     pVars.matDefault.set(value)
     restoreSetup['matDefault'] = value
@@ -2936,9 +2964,11 @@ def load_materials(mat=None):
         notifications.add('info', f'{title}:\n{msg0} #{pVars.matDefault.get()} {msg1}\n{msg2} #{mat}\n')
         pVars.matDefault.set(mat)
         putPrefs(PREF, 'GUI_OPTIONS', 'Default material', pVars.matDefault.get(), int)
-    index = f'@{materialNumList.index(pVars.matDefault.get())}'
+    if display == -1 or get_displayed_material() not in materialNumList:
+        display = pVars.matDefault.get()
+    index = f'@{materialNumList.index(display)}'
     rC(f'{fruns}.material.materials','setvalue',index)
-    display_selected_material(pVars.matDefault.get())
+    display_selected_material(display)
     material_list_width()
     getMaterialBusy = False
 
@@ -3798,7 +3828,7 @@ def set_orientation():
         rC(box,'configure','-font','fontGui')
     color_change()
     set_window_size()
-    load_materials()
+    load_materials(get_displayed_material(), keepTemp=True)
     index = f'@{materialNumList.index(matNum)}'
     rC(f'{fruns}.material.materials','setvalue',index)
     display_selected_material(matNum)
@@ -4287,6 +4317,8 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     get_coordinate_font = get_coordinate_font
     install_help = install_help
     prompt_touchoff = prompt_touchoff
+    filter_program_old = filter_program
+    filter_program = filter_program_new
     # monkeypatched functions from glcanon.py
     o.draw_grid = draw_grid
     o.posstrs = posstrs
@@ -5362,6 +5394,8 @@ else:
 ##############################################################################
 def user_hal_pins():
     global firstRun, previewSize, halPinList, serial, comPorts
+    global materialChangePin, materialChangeNumberPin, materialChangeTimeoutPin
+    global materialReloadPin, materialTempPin
     if firstRun == 'invalid':
         return
     # create new hal pins
@@ -5441,7 +5475,7 @@ def user_hal_pins():
     halPinList = hal.get_info_pins()
     user_button_setup()
     # load materials when setup is complete
-    load_materials()
+    load_materials(-1, False)
     # start powermax comms if valid port
     if pmPort:
         global pmx485
