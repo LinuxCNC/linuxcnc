@@ -1,4 +1,4 @@
-VERSION = '1.236.288'
+VERSION = '1.236.289'
 
 '''
 qtplasmac_handler.py
@@ -1527,12 +1527,12 @@ class HandlerClass:
             return
         if filename is not None:
             self.overlayProgress.setValue(0)
-            self.lastLoadedProgram = filename
+            if not any(name in filename for name in ['qtplasmac_program_clear', 'single_cut']):
+                self.lastLoadedProgram = filename
             if not self.cameraOn:
                 self.preview_index_return(self.w.preview_stack.currentIndex())
             self.w.file_open.setText(os.path.basename(filename))
-            if not self.single_cut_request:
-                self.fileOpened = True
+            self.fileOpened = True
             text = _translate('HandlerClass', 'EDIT')
             self.w.edit_label.setText('{}: {}'.format(text, filename))
             if self.w.gcode_stack.currentIndex() != self.GCODE:
@@ -1586,8 +1586,9 @@ class HandlerClass:
             self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         if self.w.main_tab_widget.currentIndex() != self.MAIN:
             self.w.main_tab_widget.setCurrentIndex(self.MAIN)
+        # forces the view to remain "table view" if T is checked when a file is loaded
         if self.fileOpened:
-            if not (self.w.view_p.isChecked() or self.w.view_z.isChecked()):
+            if self.w.view_t.isChecked():
                 self.view_t_pressed()
         else:
             self.view_t_pressed()
