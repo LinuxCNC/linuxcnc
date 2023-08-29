@@ -500,13 +500,25 @@ class NgcGui(QtWidgets.QWidget):
 
         # sort through sub list and add the pages.
         for curr_ngcfile in INFO.NGC_SUB:
-           curr_fname = os.path.join(abs_ngc_sub_path,curr_ngcfile)
-           LOG.debug("Adding NGCGUI:{}".format(curr_fname))
-           self.add_page()
-           mpage = self.tabWidget.currentWidget()
-           mindex = self.tabWidget.currentIndex()
-           mpage.update_onepage('sub', curr_fname)
-           self.tabWidget.setTabText(mindex, curr_ngcfile)    
+            curr_fname = os.path.join(abs_ngc_sub_path,curr_ngcfile)
+            LOG.debug("Adding NGCGUI:{}".format(curr_fname))
+
+            # check if file exists on system    
+            if not os.path.exists(curr_fname):
+                LOG.warning("The ngc_sub path does not exist: {}".format(curr_fname))
+                continue
+
+            # check if file is in linuxcnc's list of paths from INI
+            rtn = self.check_linuxcnc_paths(curr_fname)
+            if rtn == '':
+                LOG.warning("The ngc_sub path is not in a known path from the INI: {}".format(curr_fname))
+                continue
+
+            self.add_page()
+            mpage = self.tabWidget.currentWidget()
+            mindex = self.tabWidget.currentIndex()
+            mpage.update_onepage('sub', curr_fname)
+            self.tabWidget.setTabText(mindex, curr_ngcfile)    
         index = self.tabWidget.currentIndex()
         self.tab_changed(index)
 
