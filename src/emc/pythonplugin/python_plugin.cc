@@ -353,8 +353,14 @@ int PythonPlugin::configure(const char *iniFilename,
     }
 
     char real_path[PATH_MAX];
+    char expandinistring[PATH_MAX];
     if ((inistring = inifile.Find("TOPLEVEL", section)) != NULL) {
-	toplevel = strstore(inistring);
+        if (inifile.TildeExpansion(inistring,expandinistring,sizeof(expandinistring))) {
+	        logPP(-1, "TildeExpansion failed  '%s'", toplevel);
+	        status = PLUGIN_BAD_PATH;
+	        return status;
+        }
+	toplevel = strstore(expandinistring);
 
 	if ((inistring = inifile.Find("RELOAD_ON_CHANGE", section)) != NULL)
 	    reload_on_change = (atoi(inistring) > 0);
@@ -391,7 +397,12 @@ int PythonPlugin::configure(const char *iniFilename,
     int lineno;
     while (NULL != (inistring = inifile.Find("PATH_PREPEND", "PYTHON",
 					     n, &lineno))) {
-	snprintf(pycmd, sizeof(pycmd), "import sys\nsys.path.insert(0,\"%s\")", inistring);
+        if (inifile.TildeExpansion(inistring,expandinistring,sizeof(expandinistring))) {
+	        logPP(-1, "TildeExpansion failed  '%s'", toplevel);
+	        status = PLUGIN_EXCEPTION_DURING_PATH_PREPEND;
+	        return status;
+        }
+	snprintf(pycmd, sizeof(pycmd), "import sys\nsys.path.insert(0,\"%s\")", expandinistring);
 	logPP(1, "%s:%d: executing '%s'",iniFilename, lineno, pycmd);
 
 	if (PyRun_SimpleString(pycmd)) {
@@ -405,7 +416,12 @@ int PythonPlugin::configure(const char *iniFilename,
     n = 1;
     while (NULL != (inistring = inifile.Find("PATH_APPEND", "PYTHON",
 					     n, &lineno))) {
-	snprintf(pycmd, sizeof(pycmd), "import sys\nsys.path.append(\"%s\")", inistring);
+        if (inifile.TildeExpansion(inistring,expandinistring,sizeof(expandinistring))) {
+	        logPP(-1, "TildeExpansion failed  '%s'", toplevel);
+	        status = PLUGIN_EXCEPTION_DURING_PATH_APPEND;
+	        return status;
+        }
+	snprintf(pycmd, sizeof(pycmd), "import sys\nsys.path.append(\"%s\")", expandinistring);
 	logPP(1, "%s:%d: executing '%s'",iniFilename, lineno, pycmd);
 	if (PyRun_SimpleString(pycmd)) {
 	    logPP(-1, "%s:%d: exception running '%s'",iniFilename, lineno, pycmd);
