@@ -1,4 +1,4 @@
-VERSION = '1.236.289'
+VERSION = '1.236.290'
 
 '''
 qtplasmac_handler.py
@@ -144,6 +144,7 @@ class HandlerClass:
         else:
             self.PREFS = None
         self.updateIni = []
+        self.updateData = []
         self.update_check()
         self.PREFS = Access(self.prefsFile)
         self.MATS = Access(self.materialFile)
@@ -418,6 +419,25 @@ class HandlerClass:
         self.w.mdihistory.MDILine.spindle_inhibit(True)
         if self.updateIni:
             self.update_iniwrite()
+        updateLog = os.path.join(self.PATHS.CONFIGPATH, 'update_log.txt')
+        if self.updateData:
+            restart = False
+            msgType = linuxcnc.OPERATOR_TEXT
+            msgText = ''
+            with open(updateLog, 'a') as f:
+                for update in self.updateData:
+                    if update[2]:
+                        f.write('{} {}\n'.format(time.strftime('%y-%m-%d'), update[2]))
+                        msgText += '{}\n'.format(update[2])
+                        if update[0]: restart = True
+                        if update[1]: msgType = linuxcnc.OPERATOR_ERROR
+            STATUS.emit('error', msgType, msgText)
+            if restart:
+                STATUS.emit('error', linuxcnc.OPERATOR_TEXT, 'Due to configuration changes a restart is required')
+
+        if not os.path.isfile(updateLog):
+            with open(updateLog, 'w') as f:
+                f.write('{} Initial    V{}\n'.format(time.strftime('%y-%m-%d'), VERSION))
         self.startupTimer.start(250)
 
 # called by qtvcp.py, can override qtvcp settings or qtvcp allowed user options (via INI)
@@ -2379,23 +2399,33 @@ class HandlerClass:
         # to be done later in the update_iniwrite function
         halfiles = self.iniFile.findall('HAL', 'HALFILE') or None
         qtvcpPrefsFile = os.path.join(self.PATHS.CONFIGPATH, 'qtvcp.prefs')
+        self.restart = False
         # use qtplasmac_comp.hal for component connections (pre V1.221.154 2022/01/18)
         if halfiles and not [f for f in halfiles if 'plasmac.tcl' in f] and not \
             [f for f in halfiles if 'qtplasmac_comp.hal' in f]:
-            UPDATER.add_component_hal_file(self.PATHS.CONFIGPATH, halfiles)
+            restart, error, text = UPDATER.add_component_hal_file(self.PATHS.CONFIGPATH, halfiles)
+            self.updateData.append([restart, error, text])
+            if error:
+                return
             self.updateIni.append(154)
         # split out qtplasmac specific prefs into a separate file (pre V1.222.170 2022/03/08)
         if not os.path.isfile(self.prefsFile):
             old = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs')
             if os.path.isfile(old):
-                UPDATER.split_prefs_file(old, qtvcpPrefsFile, self.prefsFile)
+                restart, error, text = UPDATER.split_prefs_file(old, qtvcpPrefsFile, self.prefsFile)
+                self.updateData.append([restart, error, text])
+                if error:
+                    return
             self.PREFS = Access(self.prefsFile)
         # move conversational prefs from qtvcp.prefs to <machine_name>.prefs (pre V1.222.187 2022/05/03)
         if os.path.isfile(qtvcpPrefsFile) and os.path.isfile(self.prefsFile):
             with open(qtvcpPrefsFile, 'r') as inFile:
                 data = inFile.readlines()
                 if [line for line in data if '[CONVERSATIONAL]' in line]:
-                    UPDATER.move_prefs(qtvcpPrefsFile, self.prefsFile)
+                    restart, error, text = UPDATER.move_prefs(qtvcpPrefsFile, self.prefsFile)
+                    self.updateData.append([restart, error, text])
+                    if error:
+                        return
         # change RS274 startup parameters from a subroutine (pre V1.224.207 2022/06/22)
         startupCode = self.iniFile.find('RS274NGC', 'RS274NGC_STARTUP_CODE')
         if 'metric_startup' in startupCode or 'imperial_startup' in startupCode:
@@ -2410,25 +2440,54 @@ class HandlerClass:
                 os.unlink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
         # move qtplasmac options from INI file to prefs file pre V1.227.219 2022/07/14)
         if not self.PREFS.has_section('BUTTONS'):
-            UPDATER.move_options_to_prefs_file(self.iniFile, self.PREFS)
+            restart, error, text = UPDATER.move_options_to_prefs_file(self.iniFile, self.PREFS)
+            self.updateData.append([restart, error, text])
+            if error:
+                return
             self.updateIni.append(219)
         # move port info from [GUI_OPTIONS] section (if it was moved via V1.227.219 update) to [POWERMAX] section
         if self.PREFS.has_option('GUI_OPTIONS', 'Port'):
-            UPDATER.move_port(self.PREFS)
+            restart, error, text = UPDATER.move_port(self.PREFS)
+            self.updateData.append([restart, error, text])
+            if error:
+                return
         # move default material from prefs file to material 0 in materials file (pre V1.236.278 2023/07/07)
         if self.PREFS.has_section('DEFAULT MATERIAL'):
-            UPDATER.move_default_material(self.PREFS, self.materialFile, self.unitsPerMm)
+            restart, error, text = UPDATER.move_default_material(self.PREFS, self.materialFile, self.unitsPerMm)
+            self.updateData.append([restart, error, text])
+            if error:
+                return
 
     def update_iniwrite(self):
         # this is for updates that write to the INI file
         if 154 in self.updateIni:
-            UPDATER.add_component_hal_file_iniwrite(INIPATH)
+            restart, error, text = UPDATER.add_component_hal_file_iniwrite(INIPATH)
+            if restart:
+                self.restart = True
+            self.updateData.append([self.restart, error, text])
+            if error:
+                return
         if 207 in self.updateIni:
-            UPDATER.rs274ngc_startup_code_iniwrite(INIPATH)
+            restart, error, text = UPDATER.rs274ngc_startup_code_iniwrite(INIPATH)
+            if restart:
+                self.restart = True
+            self.updateData.append([self.restart, error, text])
+            if error:
+                return
         if 208 in self.updateIni:
-            UPDATER.remove_qtplasmac_link_iniwrite(INIPATH)
+            restart, error, text = UPDATER.remove_qtplasmac_link_iniwrite(INIPATH)
+            if restart:
+                self.restart = True
+            self.updateData.append([self.restart, error, text])
+            if error:
+                return
         if 219 in self.updateIni:
-            UPDATER.move_options_to_prefs_file_iniwrite(INIPATH)
+            restart, error, text = UPDATER.move_options_to_prefs_file_iniwrite(INIPATH)
+            if restart:
+                self.restart = True
+            self.updateData.append([self.restart, error, text])
+            if error:
+                return
 
     def motion_type_changed(self, value):
         if value == 0 and STATUS.is_mdi_mode():
