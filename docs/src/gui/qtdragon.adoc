@@ -1010,8 +1010,27 @@ m2
 
 ==== The Tool Sensor Section
 
-The position of the tool sensor and the start position of the probing movement, all values are absolute (G53) coordinates, except MAXPROBE, what must be given in relative movement.
-All values are in machine native units.
+The position of the tool sensor and the start position of the probing movement. +
+All values are absolute (G53) coordinates, except MAXPROBE, which is expressed in relative movement. +
+All values are in machine native units. +
+X,Y,Z set the tool setter probe location. +
+auto probe action sequence (this could be changed with a modified ngc remap file): +
+
+* go to TOOLCHANGE Z position
+* go to TOOLCAHNGE XY position.
+* wait for manual tool change acknowledgement
+* go to VERSA_TOOLSETTER XY position
+* go to VERSA_TOOLSETTER Z position
+* fast probe
+* slow probe
+* go to TOOLCHANGE Z position
+
+Z_MAX_CLEAR is the Z position to go to before moving to the tool setter when using the 'Travel to Toolsetter button'. +
+'Travel to Toolsetter' Action sequence: +
+
+* go to VERSA_TOOLSETTER Z_MAX_CLEAR Z position
+* go to VERSA_TOOLSETTER XY position
+* go to VERSA_TOOLSETTER Z position.
 
 [source,{ini}]
 ----
@@ -1019,6 +1038,7 @@ All values are in machine native units.
 X = 10
 Y = 10
 Z = -20
+Z_MAX_CLEAR = -2
 MAXPROBE =  -20
 ----
 
@@ -1044,9 +1064,9 @@ The Python section sets up what files LinuxCNC's Python interpreter looks for, e
 [source,{ini}]
 ----
 [PYTHON]
-# The path to start a search for user modules
+# The path to start a search for remap modules (relative to the INI path)
 PATH_PREPEND = python
-# The start point for all.
+# The path to the toplevel remap file
 TOPLEVEL = python/toplevel.py
 ----
 
