@@ -297,12 +297,10 @@ class Combi_DRO(Gtk.Box):
             if name in list(self.__gproperties.keys()):
 #                 setattr(self, name, value)
 #                 self.queue_draw()
-                if name in ('mm_text_template', 'imperial_text_template'):
-                    try:
-                        v = value % 0.0
-                    except Exception as e:
-                        print("Invalid format string '%s': %s" % (value, e))
-                        return False
+                if name == 'mm_text_template':
+                    self.mm_text_template = value
+                if name == 'imperial_text_template':
+                    self.imperial_text_template = value                    
                 if name == "homed_color":
                     self.homed_color = self.convert_color(value)
                     if self.homed:
