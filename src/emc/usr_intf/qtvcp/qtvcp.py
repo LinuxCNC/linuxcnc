@@ -301,8 +301,11 @@ Pressing cancel will close linuxcnc.""" % target)
             # TODO: what about embedded panels override files?
             # TODO: could listed them like this: for i in reversed(window._VCPWindowList):
             window.handler_instance.call_user_command_(window.handler_instance, self.INFO.USER_COMMAND_FILE)
+            if "after_override__" in dir(window.handler_instance):
+                LOG.debug('''Calling the handler file's after_override__ function''')
+                window.handler_instance.after_override__()
 
-        # All Widgets should be added now - synch them to linuxcnc
+        # All Widgets should be added now - sync them to linuxcnc
         self.STATUS.forced_update()
 
         # call a HAL file after widgets built
