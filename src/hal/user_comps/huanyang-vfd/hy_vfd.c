@@ -118,13 +118,18 @@ typedef struct {
 	
 	hal_float_t *max_rpm;				// calculated based on VFD max frequency setup parameter
 
-        hal_float_t     *spindle_speed_fb;   // (out) reports current spindle speed
-        hal_bit_t       *spindle_at_speed;   // (out) True when spindle is on and at commanded speed
-        hal_float_t     *spindle_at_speed_tolerance;  // (in)
+	hal_float_t     *spindle_speed_fb;   // (out) reports current spindle speed (rpm)
+	hal_float_t     *spindle_speed_fb_rps;   // (out) reports current spindle speed (rps)
+	hal_bit_t       *spindle_at_speed;   // (out) True when spindle is on and at commanded speed
+	hal_float_t     *spindle_at_speed_tolerance;  // (in)
 
 	hal_float_t	retval;
 	hal_s32_t	errorcount;
 	hal_float_t	looptime;
+
+	hal_u32_t	*pin_retval;
+	hal_u32_t	*pin_errorcount;
+	
 	//hal_float_t	motor_nameplate_hz;		// speeds are scaled in Hz, not RPM
 	//hal_float_t	motor_nameplate_RPM;	// nameplate RPM at default Hz
 	//hal_float_t	rpm_limit;				// do-not-exceed output frequency
@@ -156,15 +161,15 @@ static struct option long_options[] = {
 		{"rate", 1, 0, 'r'},
 		{"stopbits", 1, 0, 's'},
 		{"target", 1, 0, 't'},
-                {"max-frequency", 1, 0, 'F'},
-                {"min-frequency", 1, 0, 'f'},
-                {"base-frequency", 1, 0, 'B'},
-                {"motor-voltage", 1, 0, 'V'},
-                {"motor-current", 1, 0, 'I'},
-                {"motor-speed", 1, 0, 'S'},
-                {"motor-poles", 1, 0, 'P'},
-                {"register", 1, 0, 'x'},
-                {"regdump", 0, 0, 'y'},
+		{"max-frequency", 1, 0, 'F'},
+		{"min-frequency", 1, 0, 'f'},
+		{"base-frequency", 1, 0, 'B'},
+		{"motor-voltage", 1, 0, 'V'},
+		{"motor-current", 1, 0, 'I'},
+		{"motor-speed", 1, 0, 'S'},
+		{"motor-poles", 1, 0, 'P'},
+		{"register", 1, 0, 'x'},
+		{"regdump", 0, 0, 'y'},
 		{0,0,0,0}
 };
 
@@ -365,7 +370,7 @@ int write_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 	} else {
 		*(haldata->CNST_Track_Start) = FALSE;	
 	}
-	
+
 	retval = 0;
 	haldata->retval = retval;
 	return retval;
@@ -375,7 +380,15 @@ int write_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 		printf("write_data: FAILED\n");
 	}
 	haldata->retval = retval;
-	haldata->errorcount++;
+	haldata->errorcount++;	
+	
+	if (haldata->errorcount) {
+		*(haldata->pin_errorcount) = haldata->errorcount;
+	}
+	if (haldata->retval){
+		*(haldata->pin_retval) = haldata->retval;
+	}
+
 	retval = -1;
 	return retval;	
 }
@@ -550,6 +563,14 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 	}
 	haldata->retval = retval;
 	haldata->errorcount++;
+	
+	if (haldata->errorcount) {
+		*(haldata->pin_errorcount) = haldata->errorcount;
+	}
+	if (haldata->retval){
+		*(haldata->pin_retval) = haldata->retval;
+	}
+
 	retval = -1;
 	return retval;	
 }
@@ -588,6 +609,7 @@ int read_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *halda
             && (*haldata->Set_F > 0.0)
         ) {
             *haldata->spindle_speed_fb = (*haldata->Out_F / *haldata->max_freq) * *haldata->rated_motor_rev;
+            *haldata->spindle_speed_fb_rps = *haldata->spindle_speed_fb / 60.0;
             if (fabs(1 - (*haldata->spindle_speed_fb / fabs(*haldata->speed_command))) < *haldata->spindle_at_speed_tolerance) {
                 *haldata->spindle_at_speed = 1;
             } else {
@@ -663,6 +685,14 @@ int read_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *halda
 	}
 	haldata->retval = retval;
 	haldata->errorcount++;
+	
+	if (haldata->errorcount) {
+		*(haldata->pin_errorcount) = haldata->errorcount;
+	}
+	if (haldata->retval){
+		*(haldata->pin_retval) = haldata->retval;
+	}
+
 	retval = -1;
 	return retval;
 }
@@ -978,6 +1008,16 @@ int main(int argc, char **argv)
 
 	retval = hal_pin_float_newf(HAL_IN, &(haldata->spindle_at_speed_tolerance), hal_comp_id, "%s.spindle-at-speed-tolerance", modname);
 	if (retval!=0) goto out_closeHAL;
+
+	retval = hal_pin_float_newf(HAL_OUT, &(haldata->spindle_speed_fb_rps), hal_comp_id, "%s.spindle-speed-fb-rps", modname);
+	if (retval!=0) goto out_closeHAL;
+	
+	retval = hal_pin_u32_newf(HAL_OUT, &(haldata->pin_errorcount), hal_comp_id, "%s.pin-error-count", modname);
+	if (retval!=0) goto out_closeHAL;
+	
+	retval = hal_pin_u32_newf(HAL_OUT, &(haldata->pin_retval), hal_comp_id, "%s.pin-retval", modname);
+	if (retval!=0) goto out_closeHAL;
+
 
 	/* make default data match what we expect to use */
 
