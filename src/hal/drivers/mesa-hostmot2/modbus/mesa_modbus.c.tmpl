@@ -551,9 +551,11 @@ void process(void *arg, long period) {
             
         case WAIT_FOR_FRAME_SIZES:
         case FETCH_MORE_DATA:
-            rtapi_print_msg(RTAPI_MSG_INFO, "WAIT_FOR_FRAME_SIZES Index %i Frames %X %X %X %X\n", inst->frame_index, inst->fsizes[0], inst->fsizes[1], inst->fsizes[2], inst->fsizes[3]);
+            rtapi_print_msg(RTAPI_MSG_INFO, "WAIT_FOR_FRAME_SIZES Index %i Frames %X %X %X %X\n",
+                inst->frame_index, inst->fsizes[0], inst->fsizes[1], inst->fsizes[2], inst->fsizes[3]);
             do_timeout(inst);
-            if (inst->fsizes[inst->frame_index] & 0xC000) { // indicates an overrun
+            if ((inst->fsizes[inst->frame_index] & 0xC000)
+                ||  ((inst->fsizes[inst->frame_index] & 0x3FF) > MAX_MSG_LEN)) { // indicates an overrun
                 rtapi_print_msg(RTAPI_MSG_INFO, "RESET\n");
                 inst->state = START;
                 hm2_pktuart_reset(inst->port);
