@@ -991,6 +991,8 @@ class HandlerClass:
         if self.h['eoffset-clear'] != True:
             self.h['eoffset-spindle-count'] = int(fval)
 
+    def btn_pause_clicked(self, data):
+        self.disable_spindle_pause()
 
     #####################
     # GENERAL FUNCTIONS #
