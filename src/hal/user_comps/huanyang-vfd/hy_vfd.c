@@ -369,7 +369,7 @@ int write_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 	}
 
 	retval = 0;
-	haldata->retval = retval;
+	*(haldata->retval) = retval;
 	return retval;
 
 	failed:
@@ -544,7 +544,7 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
         fflush(NULL);
 
 	retval = 0;
-	haldata->retval = retval;
+	*(haldata->retval) = retval;
 	return retval;
 
 	failed:
@@ -659,14 +659,14 @@ int read_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *halda
 	
 
 	retval = 0;
-	haldata->retval = retval;
+	*(haldata->retval) = retval;
 	return retval;
 
 	failed:
 	if (hc_param->debug) {
 		printf("read_data: FAILED\n");
 	}
-	haldata->retval = retval;
+	*(haldata->retval) = retval;
 	haldata->errorcount++;
 
 	retval = -1;
