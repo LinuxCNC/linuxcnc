@@ -17416,7 +17416,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>11:29:07 PM</string>
+            <string>10:42:51 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -17623,27 +17623,11 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>96</x>
-     <y>707</y>
+     <y>872</y>
     </hint>
     <hint type="destinationlabel">
      <x>168</x>
      <y>859</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>action_pause</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>disable_spindle_pause()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>85</x>
-     <y>553</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>614</y>
     </hint>
    </hints>
   </connection>
@@ -17655,7 +17639,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>189</x>
-     <y>502</y>
+     <y>667</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -17671,7 +17655,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>189</x>
-     <y>553</y>
+     <y>718</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -17687,7 +17671,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>189</x>
-     <y>707</y>
+     <y>872</y>
     </hint>
     <hint type="destinationlabel">
      <x>358</x>
@@ -17703,11 +17687,11 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>189</x>
-     <y>502</y>
+     <y>667</y>
     </hint>
     <hint type="destinationlabel">
      <x>190</x>
-     <y>736</y>
+     <y>901</y>
     </hint>
    </hints>
   </connection>
@@ -17718,8 +17702,8 @@ ZERO</string>
    <slot>btn_start_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>61</x>
-     <y>502</y>
+     <x>70</x>
+     <y>667</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -17734,8 +17718,8 @@ ZERO</string>
    <slot>btn_home_all_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>747</x>
-     <y>497</y>
+     <x>891</x>
+     <y>660</y>
     </hint>
     <hint type="destinationlabel">
      <x>761</x>
@@ -17750,8 +17734,8 @@ ZERO</string>
    <slot>btn_maxv_50_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>803</x>
-     <y>516</y>
+     <x>947</x>
+     <y>681</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -17766,8 +17750,8 @@ ZERO</string>
    <slot>slider_maxv_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>894</x>
-     <y>516</y>
+     <x>1237</x>
+     <y>681</y>
     </hint>
     <hint type="destinationlabel">
      <x>878</x>
@@ -17782,8 +17766,8 @@ ZERO</string>
    <slot>slider_rapid_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>894</x>
-     <y>588</y>
+     <x>1237</x>
+     <y>753</y>
     </hint>
     <hint type="destinationlabel">
      <x>935</x>
@@ -17798,8 +17782,8 @@ ZERO</string>
    <slot>btn_maxv_100_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>940</x>
-     <y>516</y>
+     <x>1283</x>
+     <y>681</y>
     </hint>
     <hint type="destinationlabel">
      <x>1064</x>
@@ -17814,8 +17798,8 @@ ZERO</string>
    <slot>slow_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1262</x>
-     <y>335</y>
+     <x>1613</x>
+     <y>415</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -17830,8 +17814,8 @@ ZERO</string>
    <slot>btn_dimensions_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>429</x>
-     <y>313</y>
+     <x>578</x>
+     <y>410</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -17846,8 +17830,8 @@ ZERO</string>
    <slot>cam_zoom_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>446</x>
-     <y>145</y>
+     <x>553</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
      <x>1105</x>
@@ -17862,8 +17846,8 @@ ZERO</string>
    <slot>chk_use_sensor_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>482</x>
-     <y>83</y>
+     <x>623</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>508</x>
@@ -17878,7 +17862,7 @@ ZERO</string>
    <slot>btn_gcode_edit_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>454</x>
+     <x>603</x>
      <y>104</y>
     </hint>
     <hint type="destinationlabel">
@@ -17894,8 +17878,8 @@ ZERO</string>
    <slot>cam_dia_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>446</x>
-     <y>151</y>
+     <x>553</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
      <x>1124</x>
@@ -17910,8 +17894,8 @@ ZERO</string>
    <slot>chk_use_virtual_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>482</x>
-     <y>81</y>
+     <x>623</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>565</x>
@@ -17926,8 +17910,8 @@ ZERO</string>
    <slot>chk_alpha_mode_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>482</x>
-     <y>71</y>
+     <x>623</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>645</x>
@@ -17942,7 +17926,7 @@ ZERO</string>
    <slot>btn_save_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>454</x>
+     <x>603</x>
      <y>104</y>
     </hint>
     <hint type="destinationlabel">
@@ -17958,8 +17942,8 @@ ZERO</string>
    <slot>chk_override_limits_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>482</x>
-     <y>86</y>
+     <x>623</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -17974,8 +17958,8 @@ ZERO</string>
    <slot>cam_rot_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>446</x>
-     <y>157</y>
+     <x>553</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
      <x>1156</x>
@@ -17990,7 +17974,7 @@ ZERO</string>
    <slot>chk_use_camera_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>482</x>
+     <x>623</x>
      <y>84</y>
     </hint>
     <hint type="destinationlabel">
@@ -18006,7 +17990,7 @@ ZERO</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>454</x>
+     <x>603</x>
      <y>114</y>
     </hint>
     <hint type="destinationlabel">
@@ -18022,8 +18006,8 @@ ZERO</string>
    <slot>chk_run_from_line_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>482</x>
-     <y>80</y>
+     <x>623</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>554</x>
@@ -18038,7 +18022,7 @@ ZERO</string>
    <slot>btn_load_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>454</x>
+     <x>603</x>
      <y>104</y>
     </hint>
     <hint type="destinationlabel">
@@ -18054,7 +18038,7 @@ ZERO</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>454</x>
+     <x>603</x>
      <y>114</y>
     </hint>
     <hint type="destinationlabel">
@@ -18070,7 +18054,7 @@ ZERO</string>
    <slot>btn_clear_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>454</x>
+     <x>603</x>
      <y>104</y>
     </hint>
     <hint type="destinationlabel">
@@ -18086,8 +18070,8 @@ ZERO</string>
    <slot>chk_inhibit_selection_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>482</x>
-     <y>73</y>
+     <x>623</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -18102,8 +18086,8 @@ ZERO</string>
    <slot>slow_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1081</x>
-     <y>437</y>
+     <x>1432</x>
+     <y>568</y>
     </hint>
     <hint type="destinationlabel">
      <x>1478</x>
@@ -18118,8 +18102,8 @@ ZERO</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>747</x>
-     <y>614</y>
+     <x>891</x>
+     <y>777</y>
     </hint>
     <hint type="destinationlabel">
      <x>809</x>
@@ -18134,8 +18118,8 @@ ZERO</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>747</x>
-     <y>575</y>
+     <x>891</x>
+     <y>738</y>
     </hint>
     <hint type="destinationlabel">
      <x>855</x>
@@ -18150,8 +18134,8 @@ ZERO</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>747</x>
-     <y>536</y>
+     <x>891</x>
+     <y>699</y>
     </hint>
     <hint type="destinationlabel">
      <x>858</x>
@@ -18166,7 +18150,7 @@ ZERO</string>
    <slot>btn_about_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>470</x>
+     <x>619</x>
      <y>100</y>
     </hint>
     <hint type="destinationlabel">
@@ -18262,8 +18246,8 @@ ZERO</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>148</x>
-     <y>135</y>
+     <x>82</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
      <x>322</x>
@@ -18278,8 +18262,8 @@ ZERO</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>355</x>
-     <y>406</y>
+     <x>430</x>
+     <y>571</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -18294,8 +18278,8 @@ ZERO</string>
    <slot>btn_m61_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>269</x>
-     <y>406</y>
+     <x>344</x>
+     <y>571</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -18310,8 +18294,8 @@ ZERO</string>
    <slot>btn_spindle_z_up_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>482</x>
-     <y>123</y>
+     <x>573</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>717</x>
@@ -18326,8 +18310,8 @@ ZERO</string>
    <slot>btn_spindle_z_down_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>545</x>
-     <y>123</y>
+     <x>573</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>926</x>
@@ -18342,8 +18326,8 @@ ZERO</string>
    <slot>btn_zoomin_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>530</x>
-     <y>130</y>
+     <x>573</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>631</x>
@@ -18358,8 +18342,8 @@ ZERO</string>
    <slot>btn_zoomout_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>645</x>
-     <y>130</y>
+     <x>573</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>1073</x>
@@ -18374,7 +18358,7 @@ ZERO</string>
    <slot>tab_utilities_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
+     <x>623</x>
      <y>84</y>
     </hint>
     <hint type="destinationlabel">
@@ -18390,8 +18374,8 @@ ZERO</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>712</x>
-     <y>620</y>
+     <x>891</x>
+     <y>816</y>
     </hint>
     <hint type="destinationlabel">
      <x>717</x>
@@ -18406,12 +18390,28 @@ ZERO</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>714</x>
-     <y>667</y>
+     <x>891</x>
+     <y>855</y>
     </hint>
     <hint type="destinationlabel">
      <x>1045</x>
      <y>-72</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_pause</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_pause_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>40</x>
+     <y>679</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-57</x>
+     <y>560</y>
     </hint>
    </hints>
   </connection>
@@ -18493,9 +18493,10 @@ ZERO</string>
   <slot>btn_zoomout_clicked()</slot>
   <slot>btn_spindle_z_up_clicked()</slot>
   <slot>btn_spindle_z_down_clicked()</slot>
+  <slot>btn_pause_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>

@@ -16760,7 +16760,7 @@ ANGULAR</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>12:02:13 AM</string>
+               <string>11:47:11 AM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -17697,8 +17697,8 @@ ANGULAR</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1091</x>
-     <y>781</y>
+     <x>1096</x>
+     <y>779</y>
     </hint>
     <hint type="destinationlabel">
      <x>1060</x>
@@ -17729,8 +17729,8 @@ ANGULAR</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1091</x>
-     <y>890</y>
+     <x>1096</x>
+     <y>887</y>
     </hint>
     <hint type="destinationlabel">
      <x>1066</x>
@@ -17850,6 +17850,22 @@ ANGULAR</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>action_pause</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_pause_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>44</x>
+     <y>759</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-80</x>
+     <y>663</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <designerdata>
   <property name="gridDeltaX">
@@ -17931,6 +17947,7 @@ ANGULAR</string>
   <slot>btn_gcode_zoomout_clicked()</slot>
   <slot>slot1()</slot>
   <slot>btn_gcode_zoomin_clicked()</slot>
+  <slot>btn_pause_clicked()</slot>
  </slots>
  <buttongroups>
   <buttongroup name="page_buttonGroup"/>
