@@ -970,10 +970,10 @@ int main(int argc, char **argv)
 	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->hycomm_ok), hal_comp_id, "%s.hycomm-ok", modname); 
 	if (retval!=0) goto out_closeHAL;
 	
-	retval = hal_pin_s32_newf(HAL_R0, &(haldata->errorcount), hal_comp_id, "%s.error-count", modname);
+	retval = hal_pin_s32_newf(HAL_OUT, &(haldata->errorcount), hal_comp_id, "%s.error-count", modname);
 	if (retval!=0) goto out_closeHAL;
 
-	retval = hal_pin_u32_newf(HAL_R0, &(haldata->retval), hal_comp_id, "%s.retval", modname);
+	retval = hal_pin_u32_newf(HAL_OUT, &(haldata->retval), hal_comp_id, "%s.retval", modname);
 	if (retval!=0) goto out_closeHAL;
 
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->spindle_speed_fb), hal_comp_id, "%s.spindle-speed-fb", modname);
