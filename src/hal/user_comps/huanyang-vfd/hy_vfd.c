@@ -377,7 +377,7 @@ int write_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 		printf("write_data: FAILED\n");
 	}
 	*(haldata->retval) = retval;
-	*(haldata->errorcount)++;
+	(*(haldata->errorcount))++;
 
 	retval = -1;
 	return retval;	
@@ -393,7 +393,7 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 		return -1;
 	/* but we can signal an error if the other params are null */
 	if (hc_param==NULL) {
-		*(haldata->errorcount)++;
+		(*(haldata->errorcount))++;
 		return -1;
 	}
 
@@ -552,7 +552,7 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 		printf("read_setup: FAILED\n");
 	}
 	*(haldata->retval) = retval;
-	*(haldata->errorcount)++;
+	(*(haldata->errorcount))++;
 
 	retval = -1;
 	return retval;	
@@ -667,7 +667,7 @@ int read_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *halda
 		printf("read_data: FAILED\n");
 	}
 	*(haldata->retval) = retval;
-	haldata->errorcount++;
+	(*(haldata->errorcount))++;
 
 	retval = -1;
 	return retval;
