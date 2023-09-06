@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-08-10 18:39+0000\n"
+"PO-Revision-Date: 2023-09-06 00:18+0000\n"
 "Last-Translator: Issy Varsano <info@sivar.bg>\n"
 "Language-Team: none\n"
 "Language: bg\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.0-dev\n"
+"X-Generator: Weblate 5.0.1-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:251
 msgid "user mode selected"
@@ -141,7 +141,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1072
 msgid "Press to set the selected coordinate system to be the active one"
-msgstr "Натиснете , за да зададете избраната координатна система като активна."
+msgstr "Натиснете , за да зададете активна по подразбиране координатна система"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1097
 msgid "No valid probe config in INI File. Tool measurement disabled."
