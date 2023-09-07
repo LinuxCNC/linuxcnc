@@ -309,7 +309,7 @@ class HandlerClass:
         pin.value_changed.connect(self.spindle_pwr_changed)
 
         pin = QHAL.newpin("spindle-fault-u32", QHAL.HAL_U32, QHAL.HAL_IN)
-        pin.value_changed.connect(self.spindle_pwr_changed)
+        pin.value_changed.connect(self.spindle_fault_changed)
         pin = QHAL.newpin("spindle-fault", QHAL.HAL_S32, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_fault_changed)
 
@@ -537,12 +537,11 @@ class HandlerClass:
         self.w.lbl_spindle_power.setText(pwr)
 
     def spindle_fault_changed(self, data):
-        fault = hex(self.h['spindle-fault'])
+        fault = hex(data)
         self.w.lbl_spindle_fault.setText(fault)
 
     def mb_errors_changed(self, data):
-        errors = self.h['spindle-modbus-errors']
-        self.w.lbl_mb_errors.setText(str(errors))
+        self.w.lbl_mb_errors.setText(str(data))
 
     def mb_connection_changed(self, data):
         if data:
