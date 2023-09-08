@@ -564,12 +564,11 @@ class HandlerClass:
             self.w.spindle_power.setValue(0)
 
     def spindle_fault_changed(self, data):
-        fault = hex(self.h['spindle-fault'])
+        fault = hex(data)
         self.w.lbl_spindle_fault.setText(fault)
 
     def mb_errors_changed(self, data):
-        errors = self.h['spindle-modbus-errors']
-        self.w.lbl_mb_errors.setText(str(errors))
+        self.w.lbl_mb_errors.setText(str(data))
 
     def mb_connection_changed(self, data):
         if data:
