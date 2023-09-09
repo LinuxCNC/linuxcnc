@@ -35,7 +35,7 @@ def stop_polling_hal_in_background():
 
 def do_change(n):
     if n:
-        message = _("Insert tool %d and click continue when ready") % n
+        message = get_tool_change_message(n)
     else:
         message = _("Remove the tool and click continue when ready")
     app.wm_withdraw()
@@ -50,6 +50,32 @@ def do_change(n):
     if r == 0:
         h.changed = True
     app.update()
+
+def get_tool_change_message(n):
+    try:
+        s = linuxcnc.stat()
+        s.poll()
+        inipath = getattr(s, "ini_filename")
+        inidir = os.path.dirname(inipath)
+        inifile = linuxcnc.ini(inipath)
+        machine_units = inifile.find("TRAJ", "LINEAR_UNITS")
+
+        tool_info = s.toolinfo(n)
+        comment = tool_info["comment"]
+        diameter = tool_info["diameter"]
+
+        return _("Insert tool and click continue when ready.\n\nTool number: %(number)s\nDiameter: %(diameter)s%(units)s\nComment: %(comment)s") % ({
+            "number":   n,
+            "diameter": diameter,
+            "units":    machine_units,
+            "comment":  comment
+        })
+    except Exception as error:
+        # old style message with just tool number and the error message
+        return "".join([_("Insert tool %d and click continue when ready") % n,
+                        _("\n\nError: %s") % error])
+
+
 
 h = hal.component("hal_manualtoolchange")
 h.newpin("number", hal.HAL_S32, hal.HAL_IN)
