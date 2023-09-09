@@ -13,7 +13,9 @@
 # Uncomment this to turn on verbose mode.
 export DH_VERBOSE=1
 
-include /usr/share/dpkg/pkg-info.mk
+# see EXAMPLES in dpkg-buildflags(1) and read /usr/share/dpkg/*
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/default.mk
 
 # Support more robust code and makes code modifications more difficult
 # Compare https://wiki.debian.org/Hardening
@@ -31,15 +33,18 @@ export TIME=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%T')
 kernel_version = @KERNEL_VERSION@
 configure_realtime_arg = @CONFIGURE_REALTIME_ARG@
 enable_build_documentation = @ENABLE_BUILD_DOCUMENTATION@
+SRCDIR = $(CURDIR)/src
 DESTDIR=$(CURDIR)/debian/tmp
 DEV_PACKAGE_NAME=@MAIN_PACKAGE_NAME@-dev
 
+export PYTHON=/usr/bin/python3
+
 %:
-	dh $@
+	dh $@ -D$(SRCDIR)
 
 override_dh_auto_configure:
 	cd src && ./autogen.sh
-	cd src && PYTHON=/usr/bin/python3 ./configure \
+	cd src && ./configure \
 	    --prefix=/usr --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
 	    $(configure_realtime_arg) \
@@ -47,24 +52,20 @@ override_dh_auto_configure:
 	    --disable-check-runtime-deps
 
 override_dh_auto_build-arch:
-	$(MAKE) PYTHON=/usr/bin/python3 -C src build-software
+	dh_auto_build -- build-software
 
 override_dh_auto_build-indep:
 ifneq "$(enable_build_documentation)" ""
-	$(MAKE) PYTHON=/usr/bin/python3 -C src manpages
-	$(MAKE) PYTHON=/usr/bin/python3 -C src translateddocs
-	$(MAKE) PYTHON=/usr/bin/python3 -C src docs
+	dh_auto_build -- manpages
+	dh_auto_build -- translateddocs
+	dh_auto_build -- docs
 endif
 
 override_dh_auto_clean:
-	dh_auto_clean
-	py3clean .
-	if [ -r src/Makefile.inc -a -r src/config.status ]; then $(MAKE) -C src clean -s; fi
-	rm -f Makefile.inc
-	rm -f src/config.log src/config.status
-	rm -f $(for i in $(find . -name "*.in"); do basename $i .in; done)
-	dh_clean
-
+	if [ -r src/Makefile.inc -a -r src/config.status ]; then \
+	dh_auto_clean; \
+	py3clean .; \
+	fi
 
 override_dh_auto_install-arch:
 	# Install all architecture-dependent libraries and executables
