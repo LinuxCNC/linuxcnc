@@ -95,9 +95,9 @@ class QTPanel():
                     if hndlr is not True and os.path.exists(hndlr):
                         window[pName].load_extension(hndlr)
 
-                    # do any class patching now #TODO not tested feature
-                    if "class_patch__" in dir(window[pName].handler_instance):
-                        window[pName].handler_instance.class_patch__()
+                        # do any class patching now #TODO not tested feature
+                        if "class_patch__" in dir(window[pName].handler_instance):
+                            window[pName].handler_instance.class_patch__()
 
                     # search for ui path and load if available
                     uipath = self.PATH.find_embed_panel_path(cmd)
