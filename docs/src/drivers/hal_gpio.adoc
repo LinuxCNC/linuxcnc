@@ -92,7 +92,7 @@ The version of libgpiod-dev installed can be determined by the command "gpioinfo
 
 * 'hal_gpio.write' - Add this to the base thread to update the physical pins to match the HAL values.
 
-* 'hal_gpio.rset' - Only exported if there are pins defined in the reset list. This should be placed after the "write" function, and should be in the same thread.
+* 'hal_gpio.reset' - Only exported if there are pins defined in the reset list. This should be placed after the "write" function, and should be in the same thread.
 
 Typically the 'read' function will be early in the call list, before any encoder counters and the 'write' function will be later in the call list, after stepgen.make-pulses.
 

@@ -11871,7 +11871,7 @@ CAMERA</string>
                           </size>
                          </property>
                          <property name="text">
-                          <string>TOOL Y</string>
+                          <string>TOOL</string>
                          </property>
                          <property name="popupMode">
                           <enum>QToolButton::InstantPopup</enum>
@@ -12146,7 +12146,7 @@ CAMERA</string>
                           </size>
                          </property>
                          <property name="text">
-                          <string>TOOL X</string>
+                          <string>TOOL</string>
                          </property>
                          <property name="checkable">
                           <bool>false</bool>
@@ -12520,7 +12520,7 @@ CAMERA</string>
                           </size>
                          </property>
                          <property name="text">
-                          <string>TOOL Z</string>
+                          <string>TOOL</string>
                          </property>
                          <property name="popupMode">
                           <enum>QToolButton::InstantPopup</enum>
@@ -16760,7 +16760,7 @@ ANGULAR</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>11:47:11 AM</string>
+               <string>10:25:03 PM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -17950,7 +17950,7 @@ ANGULAR</string>
   <slot>btn_pause_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>

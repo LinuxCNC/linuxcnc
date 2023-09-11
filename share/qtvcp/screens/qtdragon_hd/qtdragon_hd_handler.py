@@ -1466,8 +1466,11 @@ class HandlerClass:
             num = 1
         else:
             num = 0
-        for i in INFO.AVAILABLE_AXES:
-            self.w['dro_button_stack_%s'%i.lower()].setCurrentIndex(num)
+        for n,i in enumerate(INFO.AVAILABLE_AXES):
+            if n >2:
+                self.w['dro_button_stack_%s'%(n+1)].setCurrentIndex(num)
+            else:
+                self.w['dro_button_stack_%s'%i.lower()].setCurrentIndex(num)
 
         # adjust the stacked widget
         if stacked_index > PAGE_UNCHANGED:
