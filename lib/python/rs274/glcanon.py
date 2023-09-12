@@ -301,8 +301,8 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         if self.suppress > 0: return
         self.first_move = False
         l = self.rotate_and_translate(x,y,z,0,0,0,0,0,0)[:3]
-        l += [self.lo[3], self.lo[4], self.lo[5],
-               self.lo[6], self.lo[7], self.lo[8]]
+        l += (self.lo[3], self.lo[4], self.lo[5],
+               self.lo[6], self.lo[7], self.lo[8])
         self.feed_append((self.lineno, self.lo, l, self.feedrate, (self.xo, self.yo, self.zo)))
 #        self.dwells_append((self.lineno, self.colors['dwell'], x + self.offset_x, y + self.offset_y, z + self.offset_z, 0))
         self.feed_append((self.lineno, l, self.lo, self.feedrate, (self.xo, self.yo, self.zo)))
