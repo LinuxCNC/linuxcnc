@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-09-16 14:31+0000\n"
-"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
+"PO-Revision-Date: 2023-09-16 17:21+0000\n"
+"Last-Translator: xXx <xxx_xxx_xxxxxxxxx@mail.ru>\n"
 "Language-Team: none\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -183,9 +183,8 @@ msgid "Press to jog joint {0}"
 msgstr "Нажмите, чтобы переместить шарнир {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1323
-#, fuzzy
 msgid "GMOCCAPY INFO\n"
-msgstr "ИНФОРМАЦИЯ О GMOCCAPY"
+msgstr "ИНФОРМАЦИЯ О GMOCCAPY\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1324
 msgid "found more than 16 macros, will use only the first 16"
@@ -213,15 +212,13 @@ msgid "* GMOCCAPY ERROR *"
 msgstr "*ОШИБКА ГМОККАПИ*"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1485
-#, fuzzy
 msgid "this is not a lathe, as a lathe must have at least\n"
 msgstr ""
-"это не токарный станок, так как токарный станок должен иметь как минимум"
+"это не токарный станок, так как токарный станок должен иметь как минимум\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1486
-#, fuzzy
 msgid "an X and an Z axis\n"
-msgstr "оси X и Z"
+msgstr "оси X и Z\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1487
 msgid "Wrong lathe configuration, we will leave here"
@@ -234,14 +231,12 @@ msgid "Very critical situation"
 msgstr "Очень критическая ситуация"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1618
-#, fuzzy
 msgid "this is not a usual config\n"
-msgstr "это не обычная конфигурация"
+msgstr "это не обычная конфигурация\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1619
-#, fuzzy
 msgid "we miss one of X , Y or Z axis\n"
-msgstr "мы пропускаем одну из осей X, Y или Z"
+msgstr "мы пропускаем одну из осей X, Y или Z\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1620
 msgid "We will use by axisletter ordered jog button"
@@ -430,14 +425,12 @@ msgid "Classicladder real-time component not detected"
 msgstr "Компонент классической лестницы реального времени не обнаружен"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4172
-#, fuzzy
 msgid "Do you really want to delete the MDI history?\n"
-msgstr "Вы действительно хотите удалить историю MDI?"
+msgstr "Вы действительно хотите удалить историю MDI?\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4173
-#, fuzzy
 msgid "This will not delete the MDI History file, but will\n"
-msgstr "Это не приведет к удалению файла истории MDI, но"
+msgstr "Это не приведет к удалению файла истории MDI, но\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4174
 msgid "delete the listbox entries for this session."
@@ -554,18 +547,19 @@ msgid ""
 msgstr ""
 "Инструмент\n"
 "\n"
+"\n"
 "# {0:д}\n"
 "\n"
-"нет в таблице инструментов!"
+"\n"
+" нет в таблице инструментов!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4860
 msgid "Manual Tool change"
 msgstr "Ручная смена инструмента"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4870
-#, fuzzy
 msgid "Tool Change has been aborted!\n"
-msgstr "Смена инструмента прервана!"
+msgstr "Смена инструмента прервана!\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4871
 msgid "The old tool will remain set!"
@@ -587,7 +581,7 @@ msgstr "Внимание! Инструмент нельзя удалить!"
 msgid "No or multiple tools selected in the tool table. "
 msgstr ""
 "В таблице инструментов не выбрано ни одного инструмента или несколько "
-"инструментов."
+"инструментов. "
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4901
 msgid "Please select only one tool in the table!"
@@ -601,18 +595,17 @@ msgstr "Инструмент предупреждения Отключение �
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4906
 msgid "You can not touch off a tool, which is not mounted in the spindle! "
-msgstr "Вы не можете отключить инструмент, который не установлен в шпиндель!"
+msgstr "Вы не можете отключить инструмент, который не установлен в шпиндель! "
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4907
 msgid "Your selection has been reset to the tool in spindle."
 msgstr "Ваш выбор был сброшен на инструмент в шпинделе."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4914
-#, fuzzy
 msgid ""
 "Tool touch off is not possible with cutter radius compensation switched on!\n"
 msgstr ""
-"Отключение инструмента невозможно с включенной компенсацией радиуса выреза!"
+"Отключение инструмента невозможно с включенной компенсацией радиуса выреза!\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4915
 msgid "Please emit an G40 before tool touch off."
@@ -651,9 +644,9 @@ msgid "Select the tool to change"
 msgstr "Выберите инструмент для изменения"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4956
-#, fuzzy
 msgid "Conversion error because of wrong entry for tool number.\n"
-msgstr "Ошибка преобразования из-за неправильной записи для номера инструмента."
+msgstr ""
+"Ошибка преобразования из-за неправильной записи для номера инструмента.\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4957
 msgid "Enter only integer numbers!"
@@ -746,12 +739,11 @@ msgid ""
 "INI file. "
 msgstr ""
 "**** gmoccapy может обрабатывать только 9 осей, но вы указали {0} в своем "
-"INI файле."
+"INI файле. "
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:105
-#, fuzzy
 msgid "gmoccapy will not start ****\n"
-msgstr "gmoccapy не запускается ****"
+msgstr "gmoccapy не запускается ****\n"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:422
 msgid "No subroutine folder or program prefix is given in the INI file!"
@@ -979,7 +971,7 @@ msgstr "Информация о кодах G и M, а также скорост�
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:55
 msgid "active_mcodes_label"
-msgstr "active_mcodes_label"
+msgstr "активный_код_метка"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:56
 msgid "active_gcodes_label"
@@ -999,7 +991,7 @@ msgstr "<b>Шпиндель [об/мин]</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:60
 msgid "Vel."
-msgstr "Vel."
+msgstr "Вел."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:61
 msgid "Displays the current velocity"
@@ -1039,11 +1031,11 @@ msgstr "Начните с окна"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:71
 msgid "X Pos."
-msgstr "X Pos."
+msgstr "X Поз."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:72
 msgid "Y Pos."
-msgstr "Y Pos."
+msgstr "Y Поз."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:73
 msgid "Width"
@@ -1303,7 +1295,7 @@ msgstr "Использовать автоматическое измерение
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:137
 msgid "Z Pos."
-msgstr "Z Pos."
+msgstr "Z Поз."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:138
 msgid "Max. Probe"
@@ -1356,7 +1348,6 @@ msgid "Reload Tool on Start"
 msgstr "Перезагрузить инструмент при запуске"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:152
-#, fuzzy
 msgid ""
 "If checked, the tool in spindle\n"
 "will be saved on each change\n"
@@ -1365,10 +1356,14 @@ msgid ""
 "length offset will be reloaded.\n"
 msgstr ""
 "Если этот флажок установлен, инструмент в шпинделе\n"
+"\n"
 "будет сохраняться при каждом изменении\n"
+"\n"
 "и последний инструмент будет перезагружен\n"
+"\n"
 "в начале графического интерфейса. Также это\n"
-"смещение длины будет перезагружено."
+"\n"
+"смещение длины будет перезагружено.\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:158
 msgid ""
@@ -1620,7 +1615,7 @@ msgstr "Открытая классическая лестница"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:218
 msgid "Hal-Scope"
-msgstr "Hal-Scope"
+msgstr "Хал-Скоуп"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:219
 msgid "launch hal scope"
