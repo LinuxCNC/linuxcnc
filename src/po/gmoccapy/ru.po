@@ -6,264 +6,287 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2023-09-11 02:15+0000\n"
+"Last-Translator: xXx <xxx_xxx_xxxxxxxxx@mail.ru>\n"
 "Language-Team: none\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 5.0.1-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:251
 msgid "user mode selected"
-msgstr ""
+msgstr "выбран пользовательский режим"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:254
 #, python-brace-format
 msgid "logo entry found = {0}"
-msgstr ""
+msgstr "найдена запись логотипа = {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:258
 msgid "Logofile entry found, but could not be converted to path."
-msgstr ""
+msgstr "Запись в файле логотипа найдена, но не может быть преобразована в путь."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:259
 msgid "The file path should not contain any spaces"
-msgstr ""
+msgstr "Путь к файлу не должен содержать пробелов"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:509
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:530
 msgid "Error in "
-msgstr ""
+msgstr "Ошибка в"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:510
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:531
 msgid "Please check the console output."
-msgstr ""
+msgstr "Пожалуйста, проверьте вывод консоли."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:670
 msgid "axis"
-msgstr ""
+msgstr "ось"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:671
 msgid "axes"
-msgstr ""
+msgstr "осей"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:676
 msgid "joint"
-msgstr ""
+msgstr "Сочленение"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:677
 msgid "joints"
-msgstr ""
+msgstr "суставы"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:693
 #, python-brace-format
 msgid "Press to home all {0}"
-msgstr ""
+msgstr "Нажмите, чтобы вернуться домой {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:706
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:999
 msgid "Press to display previous homing button"
-msgstr ""
+msgstr "Нажмите, чтобы отобразить предыдущую кнопку возврата"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:722
 #, python-brace-format
 msgid "Press to home {0} {1}"
-msgstr ""
+msgstr "Нажмите, чтобы вернуться домой {0} {1}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:739
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1028
 msgid "Press to display next homing button"
-msgstr ""
+msgstr "Нажмите, чтобы отобразить следующую кнопку возврата домой"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:754
 #, python-brace-format
 msgid "Press to unhome all {0}"
-msgstr ""
+msgstr "Нажмите, чтобы отменить все {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:763
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1082
 msgid "Press to return to main button list"
-msgstr ""
+msgstr "Нажмите, чтобы вернуться к основному списку кнопок"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:821
 #, python-brace-format
 msgid "could not resolv the image path '{0}' given for button '{1}'"
 msgstr ""
+"не удалось разрешить путь к изображению \"{0}\", указанный для кнопки \"{1}\""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:976
 msgid ""
 "edit\n"
 "offsets"
 msgstr ""
+"редактировать\n"
+"смещения"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:985
 msgid "Press to edit the offsets"
-msgstr ""
+msgstr "Нажмите, чтобы изменить смещения"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1011
 #, python-brace-format
 msgid "Press to set touch off value for axis {0}"
-msgstr ""
+msgstr "Нажмите, чтобы установить значение касания для оси {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1047
 msgid "Press to reset all G92 offsets"
-msgstr ""
+msgstr "Нажмите, чтобы сбросить все смещения G92"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1053
 msgid ""
 " Block\n"
 "Height"
 msgstr ""
+"Блокировать\n"
+"Высота"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1058
 msgid "Press to enter new value for block height"
-msgstr ""
+msgstr "Нажмите, чтобы ввести новое значение высоты блока"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1063
 msgid ""
 "set\n"
 "selected"
 msgstr ""
+"набор\n"
+"выбрано"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1072
 msgid "Press to set the selected coordinate system to be the active one"
-msgstr ""
+msgstr "Нажмите, чтобы сделать выбранную систему координат активной"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1097
 msgid "No valid probe config in INI File. Tool measurement disabled."
 msgstr ""
+"В INI файле нет допустимой конфигурации зонда. Измерение инструмента "
+"отключено."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1111
 msgid "Found valid probe config in INI file. Will use auto tool measurement."
 msgstr ""
+"В INI-файле обнаружена действительная конфигурация зонда. Будет "
+"использоваться автоматическое измерение инструмента."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1125
 msgid ""
 "To many increments given in INI File for this screen. Only the first 10 will "
 "be reachable through this screen."
 msgstr ""
+"Слишком много приращений, указанных в INI-файле для этого экрана. Через этот "
+"экран будут доступны только первые 10."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1135
 msgid "Continuous"
-msgstr ""
+msgstr "Непрерывно"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1253
 #, python-brace-format
 msgid "unknown jog command {0}"
-msgstr ""
+msgstr "неизвестная команда толчка {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1281
 #, python-brace-format
 msgid "Press to jog axis {0}"
-msgstr ""
+msgstr "Нажмите, чтобы переместить ось {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1302
 #, python-brace-format
 msgid "Press to jog joint {0}"
-msgstr ""
+msgstr "Нажмите, чтобы переместить шарнир {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1323
 msgid "GMOCCAPY INFO\n"
-msgstr ""
+msgstr "ИНФОРМАЦИЯ О GMOCCAPY"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1324
 msgid "found more than 16 macros, will use only the first 16"
-msgstr ""
+msgstr "найдено более 16 макросов, буду использовать только первые 16"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1335
 msgid "Press to display previous macro button"
-msgstr ""
+msgstr "Нажмите, чтобы отобразить кнопку предыдущего макроса"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1357
 #, python-brace-format
 msgid "Press to run macro {0}"
-msgstr ""
+msgstr "Нажмите, чтобы запустить макрос {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1368
 msgid "Press to display next macro button"
-msgstr ""
+msgstr "Нажмите, чтобы отобразить кнопку следующего макроса"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1388
 msgid "Press to display the virtual keyboard"
-msgstr ""
+msgstr "Нажмите, чтобы отобразить виртуальную клавиатуру"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1484
 msgid "* GMOCCAPY ERROR *"
-msgstr ""
+msgstr "*ОШИБКА ГМОККАПИ*"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1485
 msgid "this is not a lathe, as a lathe must have at least\n"
 msgstr ""
+"это не токарный станок, так как токарный станок должен иметь как минимум"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1486
 msgid "an X and an Z axis\n"
-msgstr ""
+msgstr "оси X и Z"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1487
 msgid "Wrong lathe configuration, we will leave here"
-msgstr ""
+msgstr "Неправильная конфигурация станка, оставим здесь"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1488
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1935
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2186
 msgid "Very critical situation"
-msgstr ""
+msgstr "Очень критическая ситуация"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1618
 msgid "this is not a usual config\n"
-msgstr ""
+msgstr "это не обычная конфигурация"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1619
 msgid "we miss one of X , Y or Z axis\n"
-msgstr ""
+msgstr "мы пропускаем одну из осей X, Y или Z"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1620
 msgid "We will use by axisletter ordered jog button"
-msgstr ""
+msgstr "Мы будем использовать кнопку перемещения по буквам оси"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1778
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2897
 msgid "mm/min"
-msgstr ""
+msgstr "мм/мин"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1781
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2900
 msgid "inch/min"
-msgstr ""
+msgstr "дюйм/мин"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1807
 msgid ""
 "No embedded tabs configured or invalid configuration. No tabs will be added!"
 msgstr ""
+"Встроенные вкладки не настроены или неверная конфигурация. Вкладки добавлены "
+"не будут!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1824
 msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
 msgstr ""
+"ОШИБКА, пытаюсь инициализировать пользовательские вкладки или панели, "
+"проверьте на наличие опечаток"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1933
 msgid "Did not find a toolfile file in [EMCIO] TOOL_TABLE"
-msgstr ""
+msgstr "Не найден файл инструмента в [EMCIO] TOOL_TABLE"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2018
 msgid "Audio available!"
-msgstr ""
+msgstr "Аудио доступно!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2021
 msgid "Audio enabled!"
-msgstr ""
+msgstr "Звук включен!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2024
 msgid "Audio disabled!"
-msgstr ""
+msgstr "Звук отключен!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2035
 msgid ""
 "No audio available! PYGST library not installed? Is python-gstX.XX installed?"
 msgstr ""
+"Звук отсутствует! Библиотека PYGST не установлена? Установлен ли python-gstX."
+"XX?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2064
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5300
@@ -271,191 +294,199 @@ msgid ""
 " Joint\n"
 "mode"
 msgstr ""
+"Соединение\n"
+"режим"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2106
 msgid "Virtual keyboard program found : <onboard>"
-msgstr ""
+msgstr "Обнаружена программа виртуальной клавиатуры: <onboard>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2108
 msgid ""
 "No virtual keyboard installed, we checked for <onboard>. Try 'sudo apt-get "
 "install onboard'."
 msgstr ""
+"Виртуальная клавиатура не установлена, мы проверили <onboard>. Попробуйте "
+"'sudo apt-get install onboard'."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2121
 msgid ""
 "Error with launching virtual keyboard. Is onboard installed?Try sudo apt-get "
 "install onboard"
 msgstr ""
+"Ошибка при запуске виртуальной клавиатуры. Установлен ли бортовой компьютер? "
+"Попробуйте sudo apt-get install onboard"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2154
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3028
 msgid "interrupt running macro"
-msgstr ""
+msgstr "прервать выполнение макроса"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2184
 msgid "Did not find a parameter file in [RS274NGC] PARAMETER_FILE"
-msgstr ""
+msgstr "Не найден файл параметров в [RS274NGC] PARAMETER_FILE"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2254
 msgid "Select the file you want to be loaded at program start"
-msgstr ""
+msgstr "Выберите файл, который вы хотите загрузить при запуске программы"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2288
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2312
 #, python-brace-format
 msgid "Message type {0} not supported"
-msgstr ""
+msgstr "Тип сообщения {0} не поддерживается"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2431
 msgid "Unknown error type and no error text given"
-msgstr ""
+msgstr "Неизвестный тип ошибки, текст ошибки не указан"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2445
 msgid "Important Warning"
-msgstr ""
+msgstr "Важное предупреждение"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2465
 msgid "External ESTOP is set, could not change state!"
-msgstr ""
+msgstr "Установлен внешний ESTOP, изменить состояние невозможно!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2478
 msgid "Could not switch the machine on, is limit switch activated?"
-msgstr ""
+msgstr "Не удалось включить машину, активирован ли концевой выключатель?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2561
 msgid "No file loaded"
-msgstr ""
+msgstr "Ни один файл не загружен"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2779
 msgid "It is not possible to change to MDI Mode at the moment"
-msgstr ""
+msgstr "В данный момент невозможно перейти в режим MDI"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2813
 msgid "It is not possible to change to Auto Mode at the moment"
-msgstr ""
+msgstr "В данный момент невозможно перейти в автоматический режим"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2993
 msgid "Enter value:"
-msgstr ""
+msgstr "Введите значение:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2994
 #, python-brace-format
 msgid "Set parameter {0} to:"
-msgstr ""
+msgstr "Установите для параметра {0} значение:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2997
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4935
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4958
 msgid "Conversion error !"
-msgstr ""
+msgstr "Ошибка конвертации!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3026
 msgid "This button will show or hide the keyboard"
-msgstr ""
+msgstr "Эта кнопка покажет или скроет клавиатуру"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3134
 msgid "Mode change is only allowed if the interpreter is idle!"
 msgstr ""
+"Смена режима разрешена только в том случае, если переводчик не работает!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3360
 #, python-brace-format
 msgid "{0}"
-msgstr ""
+msgstr "{0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3535
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:52
 msgid "No tool description available"
-msgstr ""
+msgstr "Описание инструмента отсутствует"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3675
 #, python-brace-format
 msgid "Halo, welcome to the test message {0}"
-msgstr ""
+msgstr "Halo, добро пожаловать в тестовое сообщение {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3786
 msgid "Hal Pin is low, Access denied"
-msgstr ""
+msgstr "У Хэла Пина низкий уровень, доступ запрещен"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3788
 msgid "wrong code entered, Access denied"
-msgstr ""
+msgstr "введен неправильный код, доступ запрещен"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3789
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4436
 msgid "Just to warn you"
-msgstr ""
+msgstr "Просто чтобы предупредить тебя"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3943
 msgid "INFO:"
-msgstr ""
+msgstr "ИНФОРМАЦИЯ:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3944
 msgid "Classicladder real-time component not detected"
-msgstr ""
+msgstr "Компонент классической лестницы реального времени не обнаружен"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4172
 msgid "Do you really want to delete the MDI history?\n"
-msgstr ""
+msgstr "Вы действительно хотите удалить историю MDI?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4173
 msgid "This will not delete the MDI History file, but will\n"
-msgstr ""
+msgstr "Это не приведет к удалению файла истории MDI, но"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4174
 msgid "delete the listbox entries for this session."
-msgstr ""
+msgstr "удалите записи списка для этого сеанса."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4175
 msgid "Attention!!"
-msgstr ""
+msgstr "Внимание!!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4231
 msgid "Exit and discard changes?"
-msgstr ""
+msgstr "Выйти и отменить изменения?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4232
 msgid "Attention!"
-msgstr ""
+msgstr "Внимание!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4314
 msgid "Enter value for diameter"
-msgstr ""
+msgstr "Введите значение диаметра"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4315
 msgid "Set diameter to:"
-msgstr ""
+msgstr "Установите диаметр:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4318
 msgid "Enter value for radius"
-msgstr ""
+msgstr "Введите значение радиуса"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4319
 msgid "Set radius to:"
-msgstr ""
+msgstr "Установите радиус:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4322
 #, python-brace-format
 msgid "Enter value for axis {0}"
-msgstr ""
+msgstr "Введите значение для оси {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4323
 #, python-brace-format
 msgid "Set axis {0} to:"
-msgstr ""
+msgstr "Установите ось {0} на:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4328
 msgid "Conversion error in btn_set_value!"
-msgstr ""
+msgstr "Ошибка преобразования в btn_set_value!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4329
 msgid "Please enter only numerical values. Values have not been applied"
 msgstr ""
+"Пожалуйста, вводите только числовые значения. Значения не были применены"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4343
 msgid ""
 "You did not select a system to be changed to, so nothing will be changed"
-msgstr ""
+msgstr "Вы не выбрали систему для перехода, поэтому ничего не изменится"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4344
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4964
@@ -463,29 +494,32 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4982
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4997
 msgid "Important Warning!"
-msgstr ""
+msgstr "Важное предупреждение!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4394
 msgid "Enter the block height"
-msgstr ""
+msgstr "Введите высоту блока"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4395
 msgid "Block height measured from base table"
-msgstr ""
+msgstr "Высота блока измеряется от базового стола"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4407
 msgid "Conversion error in btn_block_height!"
-msgstr ""
+msgstr "Ошибка преобразования в btn_block_height!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4408
 msgid ""
 "Please enter only numerical values\n"
 "Values have not been applied"
 msgstr ""
+"Пожалуйста, вводите только числовые значения\n"
+"Значения не были применены"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4852
 msgid "Please remove the mounted tool and press OK when done"
 msgstr ""
+"Пожалуйста, снимите установленный инструмент и нажмите ОК, когда закончите"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4856
 #, python-brace-format
@@ -496,6 +530,11 @@ msgid ""
 "\n"
 " then click OK."
 msgstr ""
+"Пожалуйста, измените на инструмент\n"
+"\n"
+"# {0:d} {1}\n"
+"\n"
+"  затем нажмите ОК."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4858
 #, python-brace-format
@@ -506,173 +545,189 @@ msgid ""
 "\n"
 " not in the tool table!"
 msgstr ""
+"Инструмент\n"
+"\n"
+"# {0:д}\n"
+"\n"
+"нет в таблице инструментов!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4860
 msgid "Manual Tool change"
-msgstr ""
+msgstr "Ручная смена инструмента"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4870
 msgid "Tool Change has been aborted!\n"
-msgstr ""
+msgstr "Смена инструмента прервана!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4871
 msgid "The old tool will remain set!"
-msgstr ""
+msgstr "Старый инструмент останется на месте!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4879
 msgid "You are trying to delete the tool mounted in the spindle\n"
-msgstr ""
+msgstr "Вы пытаетесь удалить инструмент, установленный в шпиндель\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4880
 msgid "This is not allowed, please change tool prior to delete it"
-msgstr ""
+msgstr "Это запрещено, пожалуйста, измените инструмент, прежде чем удалять его"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4881
 msgid "Warning Tool can not be deleted!"
-msgstr ""
+msgstr "Внимание! Инструмент нельзя удалить!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4900
 msgid "No or multiple tools selected in the tool table. "
 msgstr ""
+"В таблице инструментов не выбрано ни одного инструмента или несколько "
+"инструментов."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4901
 msgid "Please select only one tool in the table!"
-msgstr ""
+msgstr "Пожалуйста, выберите в таблице только один инструмент!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4902
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4908
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4916
 msgid "Warning Tool Touch off not possible!"
-msgstr ""
+msgstr "Инструмент предупреждения Отключение невозможно!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4906
 msgid "You can not touch off a tool, which is not mounted in the spindle! "
-msgstr ""
+msgstr "Вы не можете отключить инструмент, который не установлен в шпиндель!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4907
 msgid "Your selection has been reset to the tool in spindle."
-msgstr ""
+msgstr "Ваш выбор был сброшен на инструмент в шпинделе."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4914
 msgid ""
 "Tool touch off is not possible with cutter radius compensation switched on!\n"
 msgstr ""
+"Отключение инструмента невозможно с включенной компенсацией радиуса выреза!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4915
 msgid "Please emit an G40 before tool touch off."
-msgstr ""
+msgstr "Пожалуйста, издайте G40 перед отключением инструмента."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4924
 msgid "Real big error!"
-msgstr ""
+msgstr "Настоящая большая ошибка!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4925
 msgid ""
 "You managed to come to a place that is not possible in on_btn_tool_touchoff"
-msgstr ""
+msgstr "Вам удалось попасть в место, которое невозможно в on_btn_tool_touchoff"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4929
 #, python-brace-format
 msgid "Enter value for axis {0} to set:"
-msgstr ""
+msgstr "Введите значение для оси {0}, чтобы установить:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4930
 #, python-brace-format
 msgid "Set parameter of tool {0:d} and axis {1} to:"
-msgstr ""
+msgstr "Установите параметр инструмента {0:d} и оси {1} на:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4934
 #, python-brace-format
 msgid "Conversion error because of wrong entry for touch off axis {0}"
-msgstr ""
+msgstr "Ошибка преобразования из-за неправильного ввода оси касания {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4953
 msgid "Enter the tool number as integer "
-msgstr ""
+msgstr "Введите номер инструмента как целое число"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4954
 msgid "Select the tool to change"
-msgstr ""
+msgstr "Выберите инструмент для изменения"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4956
 msgid "Conversion error because of wrong entry for tool number.\n"
-msgstr ""
+msgstr "Ошибка преобразования из-за неправильной записи для номера инструмента."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4957
 msgid "Enter only integer numbers!"
-msgstr ""
+msgstr "Введите только целые числа!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4963
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4981
 msgid "Selected tool is already in spindle, no change needed."
 msgstr ""
+"Выбранный инструмент уже установлен в шпинделе, никаких изменений не "
+"требуется."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4977
 msgid ""
 "you selected no or more than one tool, the tool selection must be unique"
 msgstr ""
+"вы не выбрали ни одного инструмента или несколько, выбор инструмента должен "
+"быть уникальным"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4996
 msgid "Could not understand the entered tool number. Will not change anything!"
-msgstr ""
+msgstr "Невозможно понять введенный номер инструмента. Ничего не изменит!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5305
 msgid ""
 "World\n"
 "mode"
 msgstr ""
+"Мир\n"
+"режим"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5491
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
 msgstr ""
+"Перемещение по осям разрешено только в мировом режиме, но вы находитесь в "
+"совместном режиме!"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:47
 #: src/emc/usr_intf/gmoccapy/dialogs.py:50
 msgid "Enter System Unlock Code"
-msgstr ""
+msgstr "Введите код разблокировки системы"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:73
 msgid "Enter value"
-msgstr ""
+msgstr "Введите значение"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:73
 msgid "Enter the value to set"
-msgstr ""
+msgstr "Введите значение для установки"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:111
 #: src/emc/usr_intf/gmoccapy/dialogs.py:146
 #: src/emc/usr_intf/gmoccapy/dialogs.py:173
 msgid "Operator Message"
-msgstr ""
+msgstr "Сообщение оператора"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:154
 msgid "_Yes"
-msgstr ""
+msgstr "_Да"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:155
 msgid "_No"
-msgstr ""
+msgstr "_Нет"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:181
 msgid "_Ok"
-msgstr ""
+msgstr "_Хорошо"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:218
 #: src/emc/usr_intf/gmoccapy/dialogs.py:220
 msgid "Restart Entry"
-msgstr ""
+msgstr "Перезапустить запись"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:232
 msgid "_Up     "
-msgstr ""
+msgstr "_Вверх"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:234
 msgid "_Down"
-msgstr ""
+msgstr "_Вниз"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:236
 msgid "_Jump to"
-msgstr ""
+msgstr "_Перейти к"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:104
 #, python-brace-format
@@ -680,573 +735,592 @@ msgid ""
 "**** gmoccapy can only handle 9 axis, but you have given {0} through your "
 "INI file. "
 msgstr ""
+"**** gmoccapy может обрабатывать только 9 осей, но вы указали {0} в своем "
+"INI файле."
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:105
 msgid "gmoccapy will not start ****\n"
-msgstr ""
+msgstr "gmoccapy не запускается ****"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:422
 msgid "No subroutine folder or program prefix is given in the INI file!"
-msgstr ""
+msgstr "В файле INI отсутствует папка подпрограмм или префикс программы!"
 
 #: src/emc/usr_intf/gmoccapy/notification.py:230
 #, python-brace-format
 msgid "Error trying to delete the message with number {0}"
-msgstr ""
+msgstr "Ошибка попытки удалить сообщение с номером {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:1
 msgid "pause the running program"
-msgstr ""
+msgstr "приостановить работающую программу"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:2
 msgid "left rotate,  middle move,  right zoom"
-msgstr ""
+msgstr "левый поворот, средний ход, правый зум"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:3
 msgid "left zoom,  middle move,  right rotate"
-msgstr ""
+msgstr "масштабирование влево, перемещение в середине, поворот вправо"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:4
 msgid "left move,  middle rotate,  right zoom"
-msgstr ""
+msgstr "левый ход, средний поворот, правый зум"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:5
 msgid "left zoom,  middle rotate,  right move"
-msgstr ""
+msgstr "левый зум, средний поворот, правый ход"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:6
 msgid "left move,  middle zoom,  right rotate"
-msgstr ""
+msgstr "левый ход, средний зум, правый поворот"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:7
 msgid "left rotate,  middle zoom,  right move"
-msgstr ""
+msgstr "левый вращающийся, средний зум, правый ход"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:8
 msgid "default"
-msgstr ""
+msgstr "нормальный"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:9
 msgid "No Program loaded"
-msgstr ""
+msgstr "Программа не загружена"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:10
 msgid "blockheight = 0.0"
-msgstr ""
+msgstr "высота блока = 0,0"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:11
 msgid "view perspective"
-msgstr ""
+msgstr "просмотреть перспективу"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:12
 msgid "view along the X axis from positive to negative"
-msgstr ""
+msgstr "вид вдоль оси X от положительной до отрицательной"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:13
 msgid "view along the Y axis from positive to negative"
-msgstr ""
+msgstr "вид вдоль оси X от положительной до отрицательной"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:14
 msgid ""
 "view along the Y axis from positive to negative as viewn for a back tool "
 "lathe"
 msgstr ""
+"вид вдоль оси Y от положительной до отрицательной, как вид для задней панели"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:15
 msgid "view along the Z axis from positive to negative"
-msgstr ""
+msgstr "вид вдоль оси Z от положительной до отрицательной"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:16
 msgid "Zoom in"
-msgstr ""
+msgstr "Приблизить"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:17
 msgid "Zoom out"
-msgstr ""
+msgstr "Уменьшить"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:18
 msgid "Show or hide dimensions"
-msgstr ""
+msgstr "Показать или скрыть размеры"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:19
 msgid "Show or hide tool path"
-msgstr ""
+msgstr "Показать или скрыть путь инструмента"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:20
 msgid "clear plot"
-msgstr ""
+msgstr "участок"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:21
 msgid "Preview"
-msgstr ""
+msgstr "Просмотр"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:22
 msgid "Offset Page"
-msgstr ""
+msgstr "Страница смещения"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:23
 msgid "Tooledit"
-msgstr ""
+msgstr "Редактор таблицы инструментов"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:24
 msgid "File Selection"
-msgstr ""
+msgstr "Выбор файла"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:25
 msgid "jog axes"
-msgstr ""
+msgstr "толчковые топоры"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:26
 msgid "jog joints"
-msgstr ""
+msgstr "беговые суставы"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:27
 msgid "Logo"
-msgstr ""
+msgstr "Логотип"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:28
 msgid "Ignore limits"
-msgstr ""
+msgstr "Игнорировать ограничения"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:29
 msgid "<b>Jogging</b>"
-msgstr ""
+msgstr "<b>Бег</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:30
 msgid "Shows the code to execute"
-msgstr ""
+msgstr "Показать код для выполнения"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:31
 msgid "Undo"
-msgstr ""
+msgstr "Отмена"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:32
 msgid ""
 "Search\n"
 " back"
 msgstr ""
+"Поиск\n"
+"назад"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:34
 msgid ""
 "Search\n"
 "  Text:"
 msgstr ""
+"Найти\n"
+"Текст:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
 msgid ""
 "Replace\n"
 "  Text:"
 msgstr ""
+"Заменить\n"
+"Текст:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:38
 msgid ""
 "Search\n"
 "  fwd"
 msgstr ""
+"Поиск\n"
+"fwd"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:40
 msgid ""
 "Ignore\n"
 " Case"
 msgstr ""
+"Игнорировать\n"
+"Дело"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:42
 msgid ""
 "Replace\n"
 "   All"
 msgstr ""
+"Заменить\n"
+"Все"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:44
 msgid "Replace"
-msgstr ""
+msgstr "Заменить"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:45
 msgid "Redo"
-msgstr ""
+msgstr "Повторить"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:46
 msgid "Information over the tool in spindle"
-msgstr ""
+msgstr "Информация о инструменте в шпиндле"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:47
 msgid "Tool no."
-msgstr ""
+msgstr "Инструмента нет."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:48
 msgid "Diameter"
-msgstr ""
+msgstr "Диаметр"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:49
 msgid "offset z"
-msgstr ""
+msgstr "смещение z"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:50
 msgid "offset x"
-msgstr ""
+msgstr "смещение x"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:51
 msgid "Vc= 0.00"
-msgstr ""
+msgstr "Vc= 0.00"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:53
 msgid "<b>Tool information</b>"
-msgstr ""
+msgstr "<b>Информация об инструменте</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:54
 msgid "G and M code information as well as speed and feed"
-msgstr ""
+msgstr "Информация о кодах G и M, а также скорость и подача"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:55
 msgid "active_mcodes_label"
-msgstr ""
+msgstr "active_mcodes_label"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:56
 msgid "active_gcodes_label"
-msgstr ""
+msgstr "active_mcodes_label"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:57
 msgid "<b>G-Code</b>"
-msgstr ""
+msgstr "<b>G-код</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:58
 msgid "<b>Cooling</b>"
-msgstr ""
+msgstr "<b>Охлаждение</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:59
 msgid "<b>Spindle [rpm]</b>"
-msgstr ""
+msgstr "<b>Шпиндель [об/мин]</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:60
 msgid "Vel."
-msgstr ""
+msgstr "Vel."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:61
 msgid "Displays the current velocity"
-msgstr ""
+msgstr "Показывает текущую скорость"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:62
 msgid "<b>Rapid Override</b>"
-msgstr ""
+msgstr "<b>Быстрое переопределение</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:63
 msgid "Displays the programmed feed rate"
-msgstr ""
+msgstr "Отображает запрограммированную скорость подачи"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:65
 msgid "reset feed override to 100 %"
-msgstr ""
+msgstr "сбросить коррекцию подачи на 100 %"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:66
 msgid "<b>Feed Override</b>"
-msgstr ""
+msgstr "<b>Переопределение фида</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:67
 msgid "Main"
-msgstr ""
+msgstr "Главное"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:68
 msgid "Start as fullscreen"
-msgstr ""
+msgstr "Начать в полноэкранном режиме"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:69
 msgid "Start maximized"
-msgstr ""
+msgstr "Начните максимизировать"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:70
 msgid "Start as window"
-msgstr ""
+msgstr "Начните с окна"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:71
 msgid "X Pos."
-msgstr ""
+msgstr "X Pos."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:72
 msgid "Y Pos."
-msgstr ""
+msgstr "Y Pos."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:73
 msgid "Width"
-msgstr ""
+msgstr "Ширина"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:74
 msgid "Height"
-msgstr ""
+msgstr "Высота"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:75
 msgid "hide title bar"
-msgstr ""
+msgstr "скрыть заголовок"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:76
 msgid "hide cursor"
-msgstr ""
+msgstr "скрыть курсор"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:77
 msgid "hide tooltips"
-msgstr ""
+msgstr "скрыть инструменты"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:78
 msgid "<b>Main Window</b>"
-msgstr ""
+msgstr "<b>Главное окно</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:79
 msgid "Show keyboard on offset"
-msgstr ""
+msgstr "Показать клавиатуру по смещению"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:80
 msgid "Show keyboard on tooledit"
-msgstr ""
+msgstr "Показать клавиатуру на инструменте"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:81
 msgid "Show keyboard on MDI"
-msgstr ""
+msgstr "Показать клавиатуру на MDI"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:82
 msgid "Show keyboard on EDIT"
-msgstr ""
+msgstr "Показать клавиатуру на EDIT"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:83
 msgid "Show keyboard on load file"
-msgstr ""
+msgstr "Показывать клавиатуру в файле загрузки"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:84
 msgid "<b>Virtual Keyboard</b>"
-msgstr ""
+msgstr "<b>Виртуальная клавиатура</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:85
 msgid "show preview"
-msgstr ""
+msgstr "Предварительный просмотр"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:86
 msgid "show offsets"
-msgstr ""
+msgstr "показать смещения"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:87
 msgid "<b>On Touch off</b>"
-msgstr ""
+msgstr "<b>Вкл. Выкл. касание</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:88
 msgid "Relative Color"
-msgstr ""
+msgstr "Относительный цвет"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:89
 msgid "Absolute Color"
-msgstr ""
+msgstr "Абсолютный цвет"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:90
 msgid "DTG Color"
-msgstr ""
+msgstr "DTG цвет"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:91
 msgid "Homed color"
-msgstr ""
+msgstr "Домашний цвет"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:92
 msgid "Unhomed color"
-msgstr ""
+msgstr "Неприемлемый цвет"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:93
 msgid "Size"
-msgstr ""
+msgstr "Размер"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:94
 msgid "Digits"
-msgstr ""
+msgstr "Цифры"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:95
 msgid ""
 "toggle DRO mode\n"
 "clicking on the DRO"
 msgstr ""
+"включить режим DRO\n"
+"нажать на DRO"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:97
 msgid "<b>DRO</b>"
-msgstr ""
+msgstr "<b>DRO</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:98
 msgid "Grid size"
-msgstr ""
+msgstr "Размер сетки"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:99
 msgid "Show DRO"
-msgstr ""
+msgstr "Показать DRO"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:100
 msgid "Show offsets"
-msgstr ""
+msgstr "Показать отступы"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:101
 msgid "Show DTG"
-msgstr ""
+msgstr "Показать DTG"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:102
 msgid "<b>Mouse Button mode</b>"
-msgstr ""
+msgstr "<b>Режим кнопки мыши</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:103
 msgid "<b>Preview</b>"
-msgstr ""
+msgstr "<b>Предварительный просмотр</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:104
 msgid ""
 "current\n"
 "   file"
 msgstr ""
+"текущий\n"
+"файл"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:106
 msgid "none"
-msgstr ""
+msgstr "никто"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:107
 msgid "<b>File to load on start</b>"
-msgstr ""
+msgstr "<b>Файл для загрузки при запуске</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:108
 msgid "Select user dir"
-msgstr ""
+msgstr "Выберите каталог пользователя"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:109
 msgid "<b>Select jump to dir</b>"
-msgstr ""
+msgstr "<b>Выбрать переход в каталог</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:110
 msgid "Themes"
-msgstr ""
+msgstr "Темы"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:111
 msgid "Icon Theme"
-msgstr ""
+msgstr "Тема иконок"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:112
 msgid "Alert Audio"
-msgstr ""
+msgstr "Звуковое оповещение"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:113
 msgid "Warning Audio"
-msgstr ""
+msgstr "Предупреждение аудио"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:114
 msgid "Enable sound"
-msgstr ""
+msgstr "Включить звук"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:115
 msgid "<b>Themes and sound</b>"
-msgstr ""
+msgstr "<b>Темы и звук</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
 msgid "Appearance"
-msgstr ""
+msgstr "Оформление"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
 msgid "Scale jog velocity"
-msgstr ""
+msgstr "Масштабировать скорость толчка"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:118
 msgid "Scale rapid override"
-msgstr ""
+msgstr "Масштабное быстрое решение"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:119
 msgid "Scale feed override"
-msgstr ""
+msgstr "Переопределение подачи масштаба"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:120
 msgid "Scale spindle override"
-msgstr ""
+msgstr "Отмена масштабирования шпинделя"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:121
 msgid "<b>Hardware MPG Scale</b>"
-msgstr ""
+msgstr "<b>Аппаратная шкала MPG</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:122
 msgid "Use keyboard shortcuts"
-msgstr ""
+msgstr "Используйте сочетания клавиш"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:123
 msgid "<b>Keyboard shortcuts</b>"
-msgstr ""
+msgstr "<b>Быстрые клавиши</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:124
 msgid "Use unlock code"
-msgstr ""
+msgstr "Использовать код разблокировки"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:125
 msgid "Do not use unlock code"
-msgstr ""
+msgstr "Не используйте код разблокировки"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:126
 msgid "Use hal pin to unlock"
-msgstr ""
+msgstr "Используйте hal pin, чтобы разблокировать"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:127
 msgid "<b>Unlock settings</b>"
-msgstr ""
+msgstr "<b>Разблокировать настройки</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:128
 msgid "Starting RPM"
-msgstr ""
+msgstr "Стартовая частота вращения"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:129
 msgid "Spindle bar min"
-msgstr ""
+msgstr "Шпиндель, мин"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:130
 msgid "Spindle bar max"
-msgstr ""
+msgstr "Шпиндель макс"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:131
 msgid "<b>Spindle</b>"
-msgstr ""
+msgstr "<b>Шпиндель</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:132
 msgid "Hide turtle Jog Button"
-msgstr ""
+msgstr "Кнопка Скрыть черепаху"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:133
 msgid "Turtle jog Factor"
-msgstr ""
+msgstr "Фактор бега черепахи"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:134
 msgid "<b>Turtle Jog</b>"
-msgstr ""
+msgstr "<b>Черепашья пробежка</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:135
 msgid "Hardware"
-msgstr ""
+msgstr "Оборудование"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:136
 msgid "Use auto tool measurement"
-msgstr ""
+msgstr "Использовать автоматическое измерение инструмента"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:137
 msgid "Z Pos."
-msgstr ""
+msgstr "Z Pos."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:138
 msgid "Max. Probe"
-msgstr ""
+msgstr "Макс. Зонд"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:139
 msgid "Probe Height"
-msgstr ""
+msgstr "Высота зонда"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:140
 msgid "0.000"
-msgstr ""
+msgstr "0.000"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:141
 msgid "<b>Probe Information</b>"
-msgstr ""
+msgstr "<b>Информация о зонде</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:142
 msgid "Search Vel."
-msgstr ""
+msgstr "Поиск Вел."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:143
 msgid "Probe Vel."
-msgstr ""
+msgstr "Зонд Ну."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:144
 msgid "<b>Probe velocitys</b>"
-msgstr ""
+msgstr "<b>Скорость зонда</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:145
 msgid ""
@@ -1256,14 +1330,19 @@ msgid ""
 "the WIKI to check how\n"
 "to configure the settings."
 msgstr ""
+"Нет допустимой конфигурации\n"
+"находится в вашем INI-файле,\n"
+"пожалуйста, взгляните на\n"
+"Вики, чтобы проверить, как\n"
+"для настройки параметров."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:150
 msgid "<b>Tool Measurement</b>"
-msgstr ""
+msgstr "<b>Измерение инструмента</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:151
 msgid "Reload Tool on Start"
-msgstr ""
+msgstr "Перезагрузить инструмент при запуске"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:152
 msgid ""
@@ -1273,6 +1352,11 @@ msgid ""
 "at start of the GUI. Also it's\n"
 "length offset will be reloaded.\n"
 msgstr ""
+"Если этот флажок установлен, инструмент в шпинделе\n"
+"будет сохраняться при каждом изменении\n"
+"и последний инструмент будет перезагружен\n"
+"в начале графического интерфейса. Также это\n"
+"смещение длины будет перезагружено."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:158
 msgid ""
@@ -1280,188 +1364,213 @@ msgid ""
 "so the reload of a tool at start\n"
 "is not possible."
 msgstr ""
+"Вы используете NO_FORCE_HOMING,\n"
+"поэтому перезагрузка инструмента при запуске\n"
+"это невозможно."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:161
 msgid "<b>Reload Tool</b>"
-msgstr ""
+msgstr "<b>Инструмент перезагрузки</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:162
 msgid "Do not use run from line"
-msgstr ""
+msgstr "Не используйте запуск из строки"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:163
 msgid "Use run from line"
-msgstr ""
+msgstr "Используйте запуск из строки"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:164
 msgid "<b>Run from line</b>"
-msgstr ""
+msgstr "<b>Бежать с линии</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:165
 msgid "X-position in pixel from top left corner of the screen"
-msgstr ""
+msgstr "X-позиция в пикселях от верхнего левого угла экрана"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:166
 msgid "Max. messages"
-msgstr ""
+msgstr "Макс. сообщения"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:167
 msgid "Font"
-msgstr ""
+msgstr "Шрифт"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:168
 msgid "Y-position in pixel from top left corner of the screen"
-msgstr ""
+msgstr "Позиция Y в пикселях от верхнего левого угла экрана"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:169
 msgid "The width of the messages"
-msgstr ""
+msgstr "Ширина сообщений"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:170
 msgid "The maximum messages you want to be shown\t"
-msgstr ""
+msgstr "Максимальное количество сообщений, которые вы хотите показать"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:171
 msgid "The font to use"
-msgstr ""
+msgstr "Шрифт для использования"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:172
 msgid "Use frames"
-msgstr ""
+msgstr "Используйте рамки"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:173
 msgid ""
 "If checked, the messages\n"
 "will be in a frame."
 msgstr ""
+"Если этот флажок установлен, сообщения\n"
+"будет в кадре."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:175
 msgid "Launch test message"
-msgstr ""
+msgstr "Запустить тестовое сообщение"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:176
 msgid ""
 "Push here to launch a test message\n"
 "to test your settings."
 msgstr ""
+"Нажмите здесь, чтобы запустить тестовое сообщение\n"
+"чтобы проверить ваши настройки."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:178
 msgid ""
 "<b>      gmoccapy message\n"
 " behavior and appearance </b>"
 msgstr ""
+"<b> сообщение gmoccapy\n"
+"  поведение и внешний вид </b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:180
 msgid ""
 "Advanced\n"
 " Settings"
 msgstr ""
+"Расширенные \n"
+"настройки"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:182
 msgid "Settings"
-msgstr ""
+msgstr "Настройки"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:183
 msgid "User tab 1"
-msgstr ""
+msgstr "Вкладка Пользователь 1"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:184
 msgid "User tabs"
-msgstr ""
+msgstr "Вкладки пользователя"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:185
 msgid ""
 "Estop the machine\n"
 "[F1]"
 msgstr ""
+"Остановите машину\n"
+"[Ф1]"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:187
 msgid ""
 "Turn the machine on/off\n"
 "[F2]"
 msgstr ""
+"Включите/выключите машину\n"
+"[Ф2]"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:189
 msgid ""
 "enter manual mode to jog axis by hand or touch off\n"
 "[F3]"
 msgstr ""
+"войдите в ручной режим для перемещения оси вручную или коснитесь\n"
+"[F3]"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:191
 msgid ""
 "enter MDI mode to launch G-code commands\n"
 "[F5]"
 msgstr ""
+"войти в режим MDI для запуска команд G-кода\n"
+"[F5]"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:193
 msgid "enter auto mode to run programs"
-msgstr ""
+msgstr "войти в автоматический режим для запуска программ"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:194
 msgid "show user tabs"
-msgstr ""
+msgstr "показать вкладки пользователя"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:195
 msgid "Enter the settings page, the default code is \"123\""
-msgstr ""
+msgstr "Войдите на страницу настроек, код по умолчанию “123\""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:196
 msgid "open homing button list"
-msgstr ""
+msgstr "открыть список кнопок возврата домой"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:197
 msgid "open touch off button list"
-msgstr ""
+msgstr "открыть список кнопок отключения сенсорного экрана"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:198
 msgid "Open the tooleditor page"
-msgstr ""
+msgstr "Откройте страницу редактора инструментов"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:199
 msgid ""
 "World\n"
 "Mode"
 msgstr ""
+"Мир\n"
+"режим"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:201
 msgid ""
 "Switch motion mode between Joint and World mode\n"
 "F12 or $ key does the same"
 msgstr ""
+"Переключение режима движения между режимами Joint и World\n"
+"Клавиша F12 или $ делает то же самое"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:203
 msgid "make the preview as large as possible"
-msgstr ""
+msgstr "сделайте предварительный просмотр как можно большим"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:204
 msgid "Close gmoccapy / leave the program"
-msgstr ""
+msgstr "Закройте gmoccapy/выйдите из программы"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:205
 msgid "Load a new program"
-msgstr ""
+msgstr "Загрузите новую программу"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:206
 msgid "Run the loaded program"
-msgstr ""
+msgstr "Запускаем загруженную программу"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:207
 msgid "Stop the running program"
-msgstr ""
+msgstr "Остановить работающую программу"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:208
 msgid "Pause the running program"
-msgstr ""
+msgstr "Приостановить работающую программу"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:209
 msgid "Run the  loaded program step by step"
-msgstr ""
+msgstr "Запустите загруженную программу шаг за шагом"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:210
 msgid ""
 "run the program from a certain line, attention, that is dangerous, because "
 "the previous lines will not checked!"
 msgstr ""
+"запускать программу с определенной строки, внимание, это опасно, так как "
+"предыдущие строки не будут проверены!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:211
 msgid ""
@@ -1469,182 +1578,195 @@ msgid ""
 "the optional blocks will not be machined. The button will indicate this by a "
 "yellow background."
 msgstr ""
+"Машина или не дополнительные блоки программы. Если кнопка нажата, "
+"дополнительные блоки не будут обработаны. Кнопка будет указывать это на "
+"желтом фоне."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:212
 msgid "Edit the loaded program"
-msgstr ""
+msgstr "Редактировать загруженную программу"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:213
 msgid "delete MDI history"
-msgstr ""
+msgstr "удалить историю MDI"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:214
 msgid ""
 "Delete\n"
 "MDI history"
 msgstr ""
+"удалить \n"
+"историю MDI"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:216
 msgid "Cl.-ladder"
-msgstr ""
+msgstr "кл.-лестница"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:217
 msgid "Open classicladder"
-msgstr ""
+msgstr "Открытая классическая лестница"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:218
 msgid "Hal-Scope"
-msgstr ""
+msgstr "Hal-Scope"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:219
 msgid "launch hal scope"
-msgstr ""
+msgstr "объем запуска хал"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:220
 msgid "Status"
-msgstr ""
+msgstr "Статус"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:221
 msgid "launch linuxcnc status"
-msgstr ""
+msgstr "состояние запуска linuxcnc"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:222
 msgid "Hal Meter"
-msgstr ""
+msgstr "HAL-метр"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:223
 msgid "launch hal meter"
-msgstr ""
+msgstr "запуск hal-метра"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:224
 msgid "Calibration"
-msgstr ""
+msgstr "Калибровка"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:225
 msgid "launch calibration"
-msgstr ""
+msgstr "запустить калибровку"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:226
 msgid "Halshow"
-msgstr ""
+msgstr "Хэлшоу"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:227
 msgid "opens the show hal tool"
-msgstr ""
+msgstr "открывает шоу hal инструмент"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:228
 msgid "save the file using the original name"
-msgstr ""
+msgstr "сохраните файл, используя исходное имя"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:229
 msgid "save the file with a new name"
-msgstr ""
+msgstr "сохраните файл под новым именем"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:230
 msgid "clear the edit field and make a new file"
-msgstr ""
+msgstr "очистите поле редактирования и создайте новый файл"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:231
 msgid "Show or hide the virtual keyboard"
-msgstr ""
+msgstr "Показать или скрыть виртуальную клавиатуру"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:232
 msgid "Go back to main button list"
-msgstr ""
+msgstr "Вернуться к основному списку кнопок"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:233
 msgid "Delete"
-msgstr ""
+msgstr "Удалить"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:234
 msgid "delete selected tool or tools"
-msgstr ""
+msgstr "удалить выбранный инструмент или инструменты"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:235
 msgid "Add"
-msgstr ""
+msgstr "Добавить"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:236
 msgid "add a new tool to tool table"
-msgstr ""
+msgstr "добавить новый инструмент к таблице инструментов"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:237
 msgid "Reload"
-msgstr ""
+msgstr "Перегрузка"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:238
 msgid "reload tool table from file"
-msgstr ""
+msgstr "перезагрузить таблицу инструментов из файла"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:239
 msgid "Apply"
-msgstr ""
+msgstr "Применить"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:240
 msgid ""
 "apply the changes you made, G43 will be executed only if it is active G-code"
 msgstr ""
+"примените внесенные вами изменения, G43 будет выполняться только в том "
+"случае, если активен G-код"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:241
 msgid "Select a tool by number"
-msgstr ""
+msgstr "Выберите инструмент по номеру"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:242
 msgid "change tool with the command M61 Q?, no machine move will be done"
 msgstr ""
+"смените инструмент с помощью команды M61 Q?, перемещение станка выполняться "
+"не будет"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:243
 msgid "change tool to the selected one"
-msgstr ""
+msgstr "изменить инструмент на выбранный"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:244
 msgid "touch off the tool and set the value to the tool table"
-msgstr ""
+msgstr "отключите инструмент и установите значение в таблицу инструментов"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:245
 msgid ""
 "touchoff\n"
 "tool x"
 msgstr ""
+"касание отключить\n"
+"инструмент х"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:247
 msgid ""
 "touchoff\n"
 "tool z"
 msgstr ""
+"касание отключить\n"
+"инструмент х"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:249
 msgid "Move to your home directory"
-msgstr ""
+msgstr "Переместить в свой домашний каталог"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:250
 msgid "Move to parent directory"
-msgstr ""
+msgstr "Переместить в родительский каталог"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:251
 msgid "Select the previous file"
-msgstr ""
+msgstr "Выберите предыдущий файл"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:252
 msgid "Select the next file"
-msgstr ""
+msgstr "Выберите следующий файл"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:253
 msgid "Jump to user defined directory"
-msgstr ""
+msgstr "Перейти к пользовательскому каталогу"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:254
 msgid "select the highlighted file and return the path"
-msgstr ""
+msgstr "выберите выделенный файл и верните путь"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:255
 msgid "Close without returning a file path"
-msgstr ""
+msgstr "Закрыть без возврата пути к файлу"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:256
 msgid "Load File"
-msgstr ""
+msgstr "Загрузить файл"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:257
 msgid "home joints"
-msgstr ""
+msgstr "домашние суставы"
