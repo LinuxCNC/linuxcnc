@@ -130,6 +130,7 @@ class _VCPWindow(QtWidgets.QMainWindow):
     def sync_qsettings(self):
         try:
             self.settings.sync()
+            log.debug('Qsettings sync called:')
         except Exception as e:
             log.debug('Error with Qsettings sync function:\n {}'.format(e))
 
