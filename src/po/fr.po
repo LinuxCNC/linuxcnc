@@ -1,12 +1,13 @@
 # nicolas <nicolas.camil@libertysurf.fr>, 2022, 2023.
 # Jérémie Tarot <silopolis@gmail.com>, 2023.
+# Xavier Soltner <soltner.xavier2@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
 "PO-Revision-Date: 2023-09-14 22:25+0000\n"
-"Last-Translator: nicolas <nicolas.camil@libertysurf.fr>\n"
+"Last-Translator: Xavier Soltner <soltner.xavier2@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "fr/>\n"
 "Language: fr\n"
@@ -151,10 +152,9 @@ msgid "H word with no G43 or G76 to use it"
 msgstr "Mot H sans G43 ou G76 l'utilisant"
 
 #: src/emc/rs274ngc/interp_check.cc:291
-#, fuzzy
 msgid ""
 "I word with no G2, G3, G5, G5.1, G6, G6.1, G10, G33.1, G76, or G87 to use it"
-msgstr "Mot I sans G2, G3, G5, G5.1, G10, G33.1, G76 ou G87 l'utilisant"
+msgstr "Paramètre I sans G2, G3, G5, G5.1, G10, G33.1, G76 ou G87 l'utilisant"
 
 #: src/emc/rs274ngc/interp_check.cc:298
 #, fuzzy
@@ -271,7 +271,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:373
 msgid "one plane must be selected for nurbs: XY, YZ, ZX"
-msgstr ""
+msgstr "Un plan doit être sélectionné pour des courbes nurbs: XY, YZ, ZX"
 
 #: src/emc/rs274ngc/interp_convert.cc:400
 msgid "Program the nurbs order P in the first block of instruction"
@@ -3403,9 +3403,8 @@ msgid "Display symbols"
 msgstr "Options d'affichage"
 
 #: src/hal/classicladder/classicladder_gtk.c:1042
-#, fuzzy
 msgid "Statusbar"
-msgstr "Statut:"
+msgstr "Statut"
 
 #: src/hal/classicladder/classicladder_gtk.c:1064
 msgid "Load"
@@ -3489,9 +3488,9 @@ msgid "Number of rungs (%d%c used)"
 msgstr "Nombre d'échelons (%d%c utilisés)      "
 
 #: src/hal/classicladder/config_gtk.c:131
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Bits"
-msgstr "Nombre de codeurs:"
+msgstr "Nombre de Bits:"
 
 #: src/hal/classicladder/config_gtk.c:135
 #, fuzzy, c-format
@@ -3569,9 +3568,9 @@ msgid "Number of floatout HAL pins"
 msgstr "Nombre de broches de sortie analogique (float)"
 
 #: src/hal/classicladder/config_gtk.c:200
-#, fuzzy, c-format
+#, c-format
 msgid "Current path/filename:"
-msgstr "le préambule courant"
+msgstr "Chemin/Fichier courrant :"
 
 #: src/hal/classicladder/config_gtk.c:327
 msgid "1st %I mapped"
@@ -4401,9 +4400,8 @@ msgid "Main/Sub-Routine"
 msgstr "Déployer le sous-programme"
 
 #: src/hal/classicladder/manager_gtk.c:423
-#, fuzzy
 msgid "Name"
-msgstr "Nom:"
+msgstr "Nom"
 
 #: src/hal/classicladder/manager_gtk.c:511
 msgid "Sections Manager"
@@ -6342,6 +6340,7 @@ msgid "Axis is not responding"
 msgstr "Axis ne répond pas"
 
 #: tcl/ngcgui.tcl:1872
+#, fuzzy
 msgid "Error: "
 msgstr "Erreur:"
 
@@ -6948,9 +6947,8 @@ msgid "directory: <%s> not writable"
 msgstr "répertoire <%s> protégé en écriture"
 
 #: tcl/tooledit.tcl:287
-#, fuzzy
 msgid "Current file:"
-msgstr "on current subfile"
+msgstr "Fichier courant:"
 
 #: tcl/tooledit.tcl:291
 #, fuzzy
@@ -7343,9 +7341,8 @@ msgid "Jog active axis or joint"
 msgstr "Télécommande de l'axe actif"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:202
-#, fuzzy
 msgid "Select Max velocity"
-msgstr "Vitesse maximale:"
+msgstr "Vitesse maximale sélectionnée"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:205
 msgid "Left, Right"
@@ -7719,9 +7716,8 @@ msgid "Run time:"
 msgstr "Run time:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1819
-#, fuzzy
 msgid "Tool Change List:"
-msgstr "Appel d'outil"
+msgstr "Liste de changement outil:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1820
 msgid "X bounds:"
@@ -7817,9 +7813,8 @@ msgstr ""
 "les axes n'acceptent pas de commande à distance pendant leur fonctionnement"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2304
-#, fuzzy
 msgid "File not Writable:"
-msgstr "fichier illisible"
+msgstr "Fichier non écribable:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2305
 msgid ""
@@ -11226,7 +11221,7 @@ msgstr "Nom de la machine:"
 #: src/emc/usr_intf/stepconf/base.glade:591
 #: src/emc/usr_intf/pncconf/base.glade:137
 msgid "Configuration directory:"
-msgstr "Répertoire de configuration: "
+msgstr "Répertoire de configuration:"
 
 #: src/emc/usr_intf/stepconf/base.glade:603
 msgid "_Axis configuration:"
