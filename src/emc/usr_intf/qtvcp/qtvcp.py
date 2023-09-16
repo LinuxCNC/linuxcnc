@@ -247,7 +247,7 @@ Pressing cancel will close linuxcnc.""" % target)
         global HAL
         HAL = self.halcomp
         # initialize the window
-        window = qt_makegui.VCPWindow(self.hal, self.PATH)
+        self.w = window = qt_makegui.VCPWindow(self.hal, self.PATH)
 
         # give reference to user command line options
         if opts.useropts:
@@ -446,6 +446,21 @@ Pressing cancel will close linuxcnc.""" % target)
     # This can be called by control c or an early error.
     # close out HAL pins
     def shutdown(self,signum=None,stack_frame=None):
+
+        from qtvcp.core import Status
+        s = Status()
+        LOG.debug('Status shutdown')
+        s.shutdown()
+
+        try:
+            self.w.sync_qsettings()
+        except:
+            pass
+        try:
+            self.w.panel_.shutdown()
+        except:
+            pass
+
         LOG.debug('Exiting HAL')
         HAL.exit()
 

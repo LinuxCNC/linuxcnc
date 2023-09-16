@@ -22,7 +22,7 @@ import json
 
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
 from PyQt5.QtCore import QProcess, QEvent, Qt
-from PyQt5.QtWidgets import QDialogButtonBox
+from PyQt5.QtWidgets import QDialogButtonBox, QAbstractSlider
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info, Path
@@ -491,11 +491,6 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
         l = QtWidgets.QVBoxLayout()
         t = QtWidgets.QTextEdit('Versa Probe Help')
         t.setReadOnly(True)
-        try:
-            self.next(t)
-        except Exception as e:
-                t.setText('Versa Probe Help file Unavailable:\n\n{}'.format(e))
-
         l.addWidget(t)
 
         buttons = QDialogButtonBox()
@@ -515,7 +510,19 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
         previousbutton.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/left-32.png'))
         previousbutton.clicked.connect(lambda : self.next(t,False))
 
+        self.pageStepUpbutton = QtWidgets.QPushButton()
+        self.pageStepUpbutton.setIconSize(QtCore.QSize(38, 38))
+        self.pageStepUpbutton.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/up-32.png'))
+        self.pageStepUpbutton.clicked.connect(lambda : self.pageStep(t,False))
+
+        self.pageStepDwnbutton = QtWidgets.QPushButton()
+        self.pageStepDwnbutton.setIconSize(QtCore.QSize(38, 38))
+        self.pageStepDwnbutton.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/down-32.png'))
+        self.pageStepDwnbutton.clicked.connect(lambda : self.pageStep(t,True))
+
         bBox = QDialogButtonBox(buttons)
+        bBox.addButton(self.pageStepUpbutton, QDialogButtonBox.ActionRole)
+        bBox.addButton(self.pageStepDwnbutton, QDialogButtonBox.ActionRole)
         bBox.addButton(previousbutton, QDialogButtonBox.ActionRole)
         bBox.addButton(nextbutton, QDialogButtonBox.ActionRole)
         bBox.addButton(closebutton, QDialogButtonBox.DestructiveRole)
@@ -523,6 +530,11 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
 
         l.addWidget(bBox)
         self.setLayout(l)
+
+        try:
+            self.next(t)
+        except Exception as e:
+                t.setText('Versa Probe Help file Unavailable:\n\n{}'.format(e))
 
     def next(self,t,direction=None):
             if direction is None:
@@ -543,11 +555,25 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
                 html = str(html, encoding='utf8')
                 html = html.replace("../images/probe_icons/","{}/probe_icons/".format(INFO.IMAGE_PATH))
                 t.setHtml(html)
+                if t.verticalScrollBar().isVisible():
+                    t.verticalScrollBar().setPageStep(20)
+                    self.pageStepDwnbutton.show()
+                    self.pageStepUpbutton.show()
+                else:
+                    self.pageStepDwnbutton.hide()
+                    self.pageStepUpbutton.hide()
+
             except Exception as e:
                 t.setText('Versa Probe Help file Unavailable:\n\n{}'.format(e))
             if direction is None:
                 return
             self.show()
+
+    def pageStep(self, t, state):
+        if state:
+            t.verticalScrollBar().triggerAction (QAbstractSlider.SliderPageStepAdd)
+        else:
+            t.verticalScrollBar().triggerAction (QAbstractSlider.SliderPageStepSub)
 
     # accept button applies presets and if line number given starts linuxcnc
     def close(self):
