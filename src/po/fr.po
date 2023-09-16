@@ -1,12 +1,12 @@
-# nicolas <nicolas.camil@libertysurf.fr>, 2022.
+# nicolas <nicolas.camil@libertysurf.fr>, 2022, 2023.
 # Jérémie Tarot <silopolis@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-03-14 19:56+0000\n"
-"Last-Translator: Jérémie Tarot <silopolis@gmail.com>\n"
+"PO-Revision-Date: 2023-09-14 22:25+0000\n"
+"Last-Translator: nicolas <nicolas.camil@libertysurf.fr>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "fr/>\n"
 "Language: fr\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.16.2-dev\n"
+"X-Generator: Weblate 5.0.1-dev\n"
 
 #: src/emc/task/emctaskmain.cc:869
 #, c-format
@@ -5398,7 +5398,6 @@ msgid "Add all sub-items to watch"
 msgstr "Ajouter les sous-items à la liste de watch"
 
 #: tcl/bin/halshow.tcl:1025 tcl/bin/halshow.tcl:1033 tcl/bin/halshow.tcl:1101
-#, fuzzy
 msgid "Set"
 msgstr "Envoyé"
 
@@ -12014,7 +12013,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
