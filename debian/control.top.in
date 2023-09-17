@@ -45,7 +45,7 @@ Build-Depends:
     tcl@TCLTK_VERSION@-dev,
     tclx,
     tk@TCLTK_VERSION@-dev,
-    xvfb,
+    xvfb <!nocheck>,
     yapps2
 Build-Depends-Indep:
     @DOC_DEPENDS@,
