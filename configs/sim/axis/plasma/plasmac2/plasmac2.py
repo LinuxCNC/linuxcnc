@@ -239,9 +239,8 @@ def getPrefs(prefs, section, option, default=False, typ=bool):
             try:
                 return m(prefs, section, option)
             except Exception as err:
-                title = _('Preference File Error')
                 msg0 = f'[{section}]{option} is invalid, default of {typ(default)} applied'
-                notifications.add('error', f'{title}:\n{msg0}\n')
+                notifications.add('error', f'{msg0}\n')
                 prefs.set(section, option, str(typ(default)))
                 prefs.write(open(prefs.fn, 'w'))
                 return typ(default)
@@ -469,9 +468,8 @@ def set_window_size(winSize=False):
     winSize = rC('winfo','geometry',root_window).split('+', 1)[0] if winSize == 'combo' else winSize
     size = pVars.winSize.get()
     if size not in ['default', 'last', 'fullscreen', 'maximized']:
-        title = _('WINDOW ERROR')
         msg0 = _('Invalid parameters in [GUI_OPTIONS]Window size in preferences file')
-        notifications.add('error', f'{title}:\n{msg0}\n')
+        notifications.add('error', f'{msg0}\n')
         return False
     else:
         if pVars.orient.get() == 'portrait':
@@ -1208,9 +1206,8 @@ def update_preview(clear=False):
 def user_manual():
     web = webbrowser.open_new_tab('https://phillc54.github.io/plasmac2-docs/plasmac2.html')
     if not web:
-        title = _('BROWSER ERROR')
         msg0 = _('Cannot open user manual web page')
-        notifications.add('error', f'{title}:\n{msg0}')
+        notifications.add('error', f'{msg0}')
 
 
 ##############################################################################
@@ -1340,14 +1337,13 @@ def touch_off_xy(state, x, y):
 def laser_button_toggled(state, button):
     global laserTimer, laserButtonState, laserText, laserOffsets
     global machineBounds, isIdleHomed
-    title = _('LASER ERROR')
     if state == '1': # button pressed
         if s.paused and not hal.get_value('plasmac.laser-recovery-state'):
             xPos = s.position[0] + laserOffsets['X']
             yPos = s.position[1] + laserOffsets['Y']
             if xPos < machineBounds['X-'] or xPos > machineBounds['X+'] or yPos < machineBounds['Y-'] or yPos > machineBounds['Y+']:
                 msg0 = _('Torch cannot move outside the machine boundary')
-                notifications.add('error', f'{title}:\n{msg0}')
+                notifications.add('error', f'{msg0}')
                 return
             hal.set_p('plasmac.laser-x-offset', f'{str(int(laserOffsets["X"] / hal.get_value("plasmac.offset-scale")))}')
             hal.set_p('plasmac.laser-y-offset', f'{str(int(laserOffsets["Y"] / hal.get_value("plasmac.offset-scale")))}')
@@ -1370,7 +1366,7 @@ def laser_button_toggled(state, button):
         yPos = s.position[1] - laserOffsets['Y']
         if xPos < machineBounds['X-'] or xPos > machineBounds['X+'] or yPos < machineBounds['Y-'] or yPos > machineBounds['Y+']:
             msg0 = _('Laser is outside the machine boundary')
-            notifications.add('error', f'{title}:\n{msg0}')
+            notifications.add('error', f'{msg0}')
             return
         if laserButtonState == 'laser':
             pVars.laserText.set(_('Mark'))
@@ -1899,10 +1895,9 @@ def reload_file(refilter=True):
 def task_run(*event):
     for button in togglePins:
         if togglePins[button]['runcritical'] and not togglePins[button]['state']:
-            title = _('RUN ERROR')
             msg0 = _('Cannot run program while critical button is not active')
             btn = rC(f'{fbuttons}.button{button}','cget','-text')
-            notifications.add('error', f'{title}:\n{msg0}: {btn}\n')
+            notifications.add('error', f'{msg0}: {btn}\n')
             return
     if run_warn(): return
     global program_start_line, program_start_line_last
@@ -1916,7 +1911,6 @@ def task_run(*event):
 def task_run_line():
     if vars.highlight_line.get() == 0:
         return
-    title = _('RUN FROM LINE ERROR')
     pVars.startLine.set(vars.highlight_line.get() - 1)
     if loaded_file != os.path.join(tmpPath, 'rfl.ngc'):
         rflIn = os.path.join(tmpPath, 'filtered_bkp.ngc')
@@ -1929,13 +1923,13 @@ def task_run_line():
     if setup['error']:
         if setup['compError']:
             msg0 = _('Cannot run from line while cutter compensation is active')
-            notifications.add('error', f'{title}:\n{msg0}\n')
+            notifications.add('error', f'{msg0}\n')
         if setup['subError']:
             msg0 = _('Cannot do run from line inside a subroutine')
             msg1 = ''
             for sub in setup['subError']:
                 msg1 += f' {sub}'
-                notifications.add('error', f'{title}:\n{msg0} {msg1}\n')
+                notifications.add('error', f'{msg0} {msg1}\n')
             pVars.rflActive = False
             pVars.startLine.set(0)
     else:
@@ -1956,7 +1950,7 @@ def task_run_line():
             if result['error']:
                 msg0 = _('Unable to calculate a leadin for this cut')
                 msg1 = _('Program will run from selected line with no leadin applied')
-                notifications.add('error', f'{title}:\n{msg0}\n{msg1}\n')
+                notifications.add('error', f'{msg0}\n{msg1}\n')
             # load rfl file
             if loaded_file != os.path.join(tmpPath, 'rfl.ngc'):
                 pVars.preRflFile.set(loaded_file)
@@ -2181,7 +2175,6 @@ def filter_program_new(program_filter, infilename, outfilename):
 # USER BUTTON FUNCTIONS                                                      #
 ##############################################################################
 def validate_hal_pin(halpin, button, usage):
-    title = _('HAL PIN ERROR')
     valid = pBit = False
     for pin in halPinList:
         if halpin in pin['NAME']:
@@ -2190,10 +2183,10 @@ def validate_hal_pin(halpin, button, usage):
             break
     if not valid:
         msg0 = _('does not exist for user button')
-        notifications.add('error', f'{title}:\n{halpin} {msg0} #{button}')
+        notifications.add('error', f'{halpin} {msg0} #{button}')
     elif not pBit:
         msg0 = _('must be a bit pin for user button')
-        notifications.add('error', f'{title}:\n{usage} {msg0} #{button}')
+        notifications.add('error', f'{usage} {msg0} #{button}')
         valid = False
     return valid
 
@@ -2420,9 +2413,8 @@ def user_button_setup():
             row += 1
         elif bName or bCode:
             if not parmError:
-                title = _('USER BUTTON ERROR')
                 msg0 = _('is invalid code for user button')
-                notifications.add('error', f'{title}:\n"{bCode}" {msg0} #{n}')
+                notifications.add('error', f'"{bCode}" {msg0} #{n}')
             bName = None
             outCode = {'code':None}
             invalidButtons.append(n)
@@ -2779,23 +2771,21 @@ def material_change_number_pin_changed(halpin):
 
 def material_change_timeout_pin_changed(halpin):
     if halpin:
-        title = _('MATERIALS ERROR')
         material = rC(f'{fruns}.material.materials','get').split(': ', 1)[0]
         msg0 = _('Material change timeout occurred for material')
-        notifications.add('error', f'{title}:\n{msg0} #{material}\n')
+        notifications.add('error', f'{msg0} #{material}\n')
         comp['material-change-number'] = material
         comp['material-change-timeout'] = 0
         hal.set_p('motion.digital-in-03','0')
 
 def material_temp_pin_changed(halpin):
     if halpin:
-        title = _('MATERIALS ERROR')
         TEMP.read(TEMP.fn)
         material = get_one_material(TEMP, f'MATERIAL_NUMBER_{halpin}', halpin)
         if not material['valid']:
             msg0 = _('Temporary material')
             msg1 = _('is invalid')
-            notifications.add('error', f'{title}:\n{msg0} #{halpin} {msg1}\n')
+            notifications.add('error', f'{msg0} #{halpin} {msg1}\n')
             return
         materialFileDict[halpin] = { \
                 'name': material['name'], \
@@ -2877,7 +2867,6 @@ def set_saved_material():
 
 def get_one_material(prefs, section, matnum):
     global notifications
-    title = _('MATERIALS ERROR')
     material = {}
     # we bring in some ints as floats so we can read QtPlasmaC material files
     material['name'] = getPrefs(prefs, section, 'NAME', 'Material', str)
@@ -2899,7 +2888,7 @@ def get_one_material(prefs, section, matnum):
         if not required[item]:
             material['valid'] = False
             msg0 = _('is missing from Material')
-            notifications.add('error',f'{title}:\n{item} {msg0} #{matnum}\n')
+            notifications.add('error',f'{item} {msg0} #{matnum}\n')
     return material
 
 def set_material_dict(materialFileDict, matnum, material):
@@ -2928,20 +2917,18 @@ def load_materials(display, keepTemp):
         materialFileDict = {}
     getMaterialBusy = True
     if not MATS.sections():
-        title = _('MATERIALS WARNING')
         msg0 = _('Creating new materials file')
-        notifications.add('error', f'{title}:\n{msg0}\n')
+        notifications.add('error', f'{msg0}\n')
         material = get_one_material(MATS, 'MATERIAL_NUMBER_0', 0)
         set_material_dict(materialFileDict, 0, material)
     else:
-        title = _('MATERIALS ERROR')
         for section in MATS.sections():
             matnum = int(section.rsplit('_', 1)[1].strip().strip(']'))
             if matnum >= 1000000:
                 msg0 = _('Material number')
                 msg1 = _('is invalid')
                 msg2 = _('Material numbers need to be less than 1000000')
-                notifications.add('error', f'{title}:\n{msg0} {matnum} {msg1}\n{msg2}\n')
+                notifications.add('error', f'{msg0} {matnum} {msg1}\n{msg2}\n')
                 continue
             material = get_one_material(MATS, section, matnum)
             if not material['valid']:
@@ -2949,7 +2936,7 @@ def load_materials(display, keepTemp):
             set_material_dict(materialFileDict, matnum, material)
         if not materialFileDict:
             msg0 = _('Materials file is empty or corrupt')
-            notifications.add('error', f'{title}:\n{msg0}\n')
+            notifications.add('error', f'{msg0}\n')
             return
     insert_materials()
     value = getPrefs(PREF, 'GUI_OPTIONS', 'Default material', materialNumList[0], int)
@@ -2957,11 +2944,10 @@ def load_materials(display, keepTemp):
     restoreSetup['matDefault'] = value
     if pVars.matDefault.get() not in materialNumList:
         mat = sorted(materialNumList)[0]
-        title = _('MATERIALS WARNING')
         msg0 = _('Default material')
         msg1 = _('was not found')
         msg2 = _('Changing default material to')
-        notifications.add('info', f'{title}:\n{msg0} #{pVars.matDefault.get()} {msg1}\n{msg2} #{mat}\n')
+        notifications.add('info', f'{msg0} #{pVars.matDefault.get()} {msg1}\n{msg2} #{mat}\n')
         pVars.matDefault.set(mat)
         putPrefs(PREF, 'GUI_OPTIONS', 'Default material', pVars.matDefault.get(), int)
     if display == -1 or get_displayed_material() not in materialNumList:
@@ -2983,10 +2969,9 @@ def material_exists(material):
         if materialAutoChange:
             comp['material-change'] = -1
             comp['material-change-number'] = rC(f'{fruns}.material.materials','get').split(':')[0]
-            title = _('MATERIALS ERROR')
             msg0 = _('Material')
             msg1 = _('not in material list')
-            notifications.add('error', f'{title}:\n{msg0} #{int(material)} {msg1}\n')
+            notifications.add('error', f'{msg0} #{int(material)} {msg1}\n')
         return False
 
 
@@ -2996,7 +2981,6 @@ def material_exists(material):
 def pmx485_check(port, periodic=False):
     if not comPorts:
         return False
-    title = _('PORT ERROR')
     msg1 = _('Powermax communications is disabled')
     ports = []
     for p in comPorts.comports():
@@ -3007,12 +2991,12 @@ def pmx485_check(port, periodic=False):
             sPort.close()
         except Exception as err:
             if not periodic:
-                notifications.add('error', f'{title}:\n{err}\n{msg1}')
+                notifications.add('error', f'{err}\n{msg1}')
             return False
     else:
         if not periodic:
             msg0 = _('cannot be found')
-            notifications.add('error', f'{title}:\n{port} {msg0}\n{msg1}')
+            notifications.add('error', f'{port} {msg0}\n{msg1}')
         return False
     return True
 
@@ -3026,13 +3010,12 @@ def pmx485_startup(port):
 
 def pmx485_load(port):
     import subprocess
-    title = _('COMMS ERROR')
     msg0 = _('PMX485 component is not able to be loaded,')
     msg1 = _('Powermax communications are not available')
     count = 0
     while not hal.component_exists('pmx485'):
         if count >= 3:
-            notifications.add('error', f'{title}:\n{msg0}\n{msg1}\n')
+            notifications.add('error', f'{msg0}\n{msg1}\n')
             rC(f'{fruns}.pmx.info','configure','-text',_('Comms Error'),'-bg','red')
             return 1
         subprocess.run(['halcmd', 'loadusr', '-Wn', 'pmx485', 'pmx485', f'{port}'])
@@ -3048,10 +3031,9 @@ def pmx485_enable_toggled():
             return
         # ensure valid parameters before trying to connect
         if pVars.cutMode.get() == 0 or pVars.cutAmps.get() == 0:
-            title = _('MATERIALS ERROR')
             msg0 = _('Invalid Cut Mode or Cut Amps')
             msg1 = _('cannot connect to Powermax')
-            notifications.add('error', f'{title}:\n{msg0}\n{msg1}\n')
+            notifications.add('error', f'{msg0}\n{msg1}\n')
             pVars.pmx485Enable.set(False)
             return
         # good to go
@@ -3129,9 +3111,7 @@ def pmx485_fault_changed(fault):
     if pmx485['connected']:
         faultRaw = f'{fault:04.0f}'
         pmx485['compFaultCode'] = f'{faultRaw[0]}-{faultRaw[1:3]}-{faultRaw[3]}'
-        title = _('POWERMAX ERROR')
         code = _('Fault Code')
-        text = _('Powermax error')
         if faultRaw == '0000':
             rC(f'{fruns}.pmx.info','configure','-text',_('Connected'),'-bg','green')
         elif faultRaw in pmx485FaultName.keys():
@@ -3143,12 +3123,12 @@ def pmx485_fault_changed(fault):
                 faultMsg = pmx485FaultName[faultRaw]
             rC(f'{fruns}.pmx.info','configure','-text',f'{code}: {pmx485["compFaultCode"]}','-bg','red')
             msg0 = _('Code')
-            notifications.add('error', f'{title}:\n{msg0}: {pmx485["compFaultCode"]}\n{faultMsg}\n')
+            notifications.add('error', f'{msg0}: {pmx485["compFaultCode"]}\n{faultMsg}\n')
         else:
             rC(f'{fruns}.pmx.info','configure','-text',f'{code}: {pmx485["compFaultCode"]}','-bg','red')
             pmx485['labelState'] = None
             msg0 = _('Unknown Powermax fault code')
-            notifications.add('error', f'{title}:\n{msg0}: {faultRaw}\n')
+            notifications.add('error', f'{msg0}: {faultRaw}\n')
 
 def pmx485_mesh_enable_toggled():
     global pmx485
@@ -3427,9 +3407,8 @@ def virtual_kb_changed():
     if pVars.useVirtKB.get():
         if not WHICH('onboard'):
             rC(f'{fsetup}.l.gui.useVirtKB','deselect')
-            title = _('VIRTUAL KEYBOARD ERROR')
             msg0 = _('a valid "onboard" virtual keyboard is not installed')
-            notifications.add('error', f'{title}:\n{msg0}\n')
+            notifications.add('error', f'{msg0}\n')
             return
         pVars.kbShortcuts.set(0)
         rC(f'{fsetup}.l.gui.kbShortcutsL','configure','-state','disabled')
@@ -5494,10 +5473,9 @@ def user_hal_pins():
                 pmx485_startup(pmPort)
         except:
             comPorts = None
-            title = _('MODULE ERROR')
             msg0 = _('python3-serial cannot be found')
             msg1 = _('Install python3-serial or linuxcnc-dev')
-            notifications.add('error', f'{title}:\n{msg0}\n{msg1}')
+            notifications.add('error', f'{msg0}\n{msg1}')
     # check preferences for a file to load
     addRecent = True
     openFile = getPrefs(PREF, 'GUI_OPTIONS','Open file', '', str)
@@ -5513,9 +5491,8 @@ def user_hal_pins():
             open_file_guts(openFile, False, addRecent)
             commands.set_view_z()
         else:
-            title = _('FILE ERROR')
             msg0 = _('does not exist')
-            notifications.add('error', f'{title}:\n"{os.path.realpath(openFile)}" {msg0}\n')
+            notifications.add('error', f'"{os.path.realpath(openFile)}" {msg0}\n')
     # run users custom hal commands if it exists
     uhFile = os.path.join(configPath, 'user_hal.py')
     if os.path.isfile(uhFile):
