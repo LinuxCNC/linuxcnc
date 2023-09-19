@@ -106,7 +106,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g92.1-g92.2,G92.1 G92.2>>  |Cancel G92 Offsets
 |<<gcode:g92.3,G92.3>>              |Restore G92 Offsets
 |<<gcode:g93-g94-g95,G93 G94 G95>>  |Feed Modes
-|<<gcode:g96-g97,G96>>              |Spindle Control Mode
+|<<gcode:g96-g97,G96 G97>>          |Spindle Control Mode
 |<<gcode:g98-g99,G98 G99>>          |Canned Cycle Z Retract Mode 
 |====================================================================
 
