@@ -1192,10 +1192,8 @@ def torch_enable():
     hal.set_p('plasmac.torch-enable',str(not hal.get_value('plasmac.torch-enable')))
     color_torch()
 
-#FIXME: KEEP THE PREVIEW UPDATING WHILE CODE IS BEING RUN
-# this is a kludge, cannot Esc to abort...
-# we probably don't need it, because we don't use it...
-def update_preview(clear):
+#FIXME: cannot Esc to abort
+def update_preview(clear=False):
     c.wait_complete(.25)
     s.poll()
     while s.interp_state != linuxcnc.INTERP_IDLE:
@@ -2199,38 +2197,47 @@ def validate_hal_pin(halpin, button, usage):
         valid = False
     return valid
 
-def validate_ini_param(code, button):
-    title = _('INI PARAMETER ERROR')
-    if '{' in code and '}' in code:
-        data = ['{', '}', ' ']
-        valid, code = get_ini_param(code, data)
-    if '#<_ini[' in code and '>' in code:
-        data = ['#<_ini[', '>', ']']
-        valid, code = get_ini_param(code, data)
-    if not valid:
-        msg0 = _('is an invalid ini parameter for user button')
-        notifications.add('error', f'{title}:\n{code} {msg0} #{button}')
-    return valid, code
-
-def get_ini_param(code, data):
-    valid = False
-    if code.count(data[0]) == code.count(data[1]):
-        for p in code.split(data[0])[1:]:
-            parm = p.split(data[1])[0]
-            section, option = parm.split(data[2], 1)
+def get_parameter_value(code, button):
+    param, start, mid, end = '', '', '', ''
+    error = False
+    while '{' in code or '#<_ini[' in code:
+        if '{' in code:
+            if not '}' in code:
+                msg0 = _('is missing for user button')
+                notifications.add('error', f'"}}" {msg0} #{button}')
+                code = ''
+                error = True
+                break
+            param = code.split('{', 1)[1].split('}', 1)[0]
+            start = '{'
+            mid = ' '
+            end = '}'
+        else:
+            if not '>' in code:
+                msg0 = _('is missing for user button')
+                notifications.add('error', f'">" {msg0} #{button}')
+                code = ''
+                error = True
+                break
+            param = code.split('#<_ini[', 1)[1].split('>', 1)[0].replace(']', ' ')
+            start = '#<_ini['
+            mid = ']'
+            end = '>'
+        if param:
+            section, option = param.split(' ', 1)
             if PREF.has_option(section, option):
                 value = getPrefs(PREF, section.upper(), option, '', str)
             elif inifile.find(section.upper(), option.upper()):
                 value = inifile.find(section.upper(), option.upper())
             else:
-                valid = False
-                code = f'[{parm.split(data[2])[0]}] {parm.split(data[2])[1]}'
+                msg0 = _('is invalid parameter for user button')
+                notifications.add('error', f'"{section} {option}" {msg0} #{button}')
+                code = ''
+                error = True
                 break
-            code = code.replace(f'{data[0]}{parm}{data[1]}', value)
-            valid = True
-    else:
-        valid = False
-    return valid, code
+            code = code.replace(f'{start}{section}{mid}{option}{end}', value)
+            param, start, mid, end = '', '', '', ''
+    return(error, code)
 
 def button_action(button, pressed):
     if int(pressed):
@@ -2254,6 +2261,8 @@ def user_button_setup():
         bCode = getPrefs(PREF, 'BUTTONS', f'{n} Code', '', str)
         outCode = {'code':None}
         parmError = False
+        if '{' in bCode or '#<_ini[' in bCode:
+            parmError, bCode = get_parameter_value(bCode, n)
         if bCode.strip() == 'ohmic-test' and not 'ohmic-test' in [(v['code']) for k, v in buttonCodes.items()]:
             outCode['code'] = 'ohmic-test'
         elif bCode.strip() == 'cut-type' and not 'cut-type' in buttonCodes:
@@ -2291,7 +2300,7 @@ def user_button_setup():
                     except:
                         outCode['code'] = None
         elif bCode.startswith('change-consumables') and not 'change-consumables' in [(v['code']) for k, v in buttonCodes.items()]:
-            codes = bCode.lower().strip().replace(' ','').replace('x',' x').replace('y',' y').replace('f',' f').split()
+            codes = bCode.lower().strip().replace('x',' x').replace('y',' y').replace('f',' f').split()
             if len(codes) > 1 and len(codes) < 5:
                 outCode = {'code':'change-consumables', 'X':None, 'Y':None, 'F':None}
                 for l in 'xyf':
@@ -2302,7 +2311,7 @@ def user_button_setup():
                                 outCode['XYF'['xyf'.index(l)]] = value
                             except:
                                 outCode['code'] = None
-                if not outCode['X'] and not outCode['Y']:
+                if outCode['X'] is None and outCode['Y'] is None:
                     outCode['code'] = None
                 else:
                     buff = 10 * hal.get_value('halui.machine.units-per-mm') # keep 10mm away from machine limits
@@ -2389,16 +2398,7 @@ def user_button_setup():
                 elif codes[cn][:2].lower() == 'o<':
                     outCode['code'].append(['ocode', codes[cn]])
                 elif codes[cn][0].lower() in 'gm':
-                    if not '{' in codes[cn] and not '#<_ini' in codes[cn]:
-                        outCode['code'].append(['gcode', codes[cn]])
-                    else:
-                        valid, code = validate_ini_param(codes[cn], n)
-                        if valid:
-                            outCode['code'].append(['gcode', code])
-                        else:
-                            parmError = True
-                            outCode = {'code': None}
-                            break
+                    outCode['code'].append(['gcode', codes[cn]])
                 else:
                     outCode = {'code': None}
                     break
@@ -2523,8 +2523,8 @@ def user_button_pressed(button, code):
             elif code['code'][n][0] in ['gcode', 'ocode']:
                 if manual_ok():
                     ensure_mode(linuxcnc.MODE_MDI)
-                    print(f'send MDI code: {code["code"][n][1]}')
-                    commands.send_mdi_command(code['code'][n][1])
+                    c.mdi(code['code'][n][1])
+                    update_preview()
 
 def user_button_released(button, code):
     global cutType, probePressed, torchPressed
