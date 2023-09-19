@@ -17,7 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-VER = '6'
+VER = '7'
 
 # suppress pylance undefined variable errors in vscode
 # pyright: reportUndefinedVariable=false
@@ -1190,16 +1190,15 @@ def torch_enable():
     hal.set_p('plasmac.torch-enable',str(not hal.get_value('plasmac.torch-enable')))
     color_torch()
 
-#FIXME: cannot Esc to abort
 def update_preview(clear=False):
     c.wait_complete(.25)
     s.poll()
     while s.interp_state != linuxcnc.INTERP_IDLE:
-        s.poll()
         o.tkRedraw()
         o.redraw_dro()
         o.update_idletasks()
-        root_window.update_idletasks()
+        root_window.update()
+        s.poll()
     if clear:
        live_plotter.clear()
 
