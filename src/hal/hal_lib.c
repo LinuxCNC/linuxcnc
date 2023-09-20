@@ -1378,6 +1378,17 @@ int hal_param_s32_new(const char *name, hal_param_dir_t dir, hal_s32_t * data_ad
     return hal_param_new(name, HAL_S32, dir, (void *) data_addr, comp_id);
 }
 
+int hal_param_u64_new(const char *name, hal_param_dir_t dir, hal_u64_t * data_addr,
+    int comp_id)
+{
+    return hal_param_new(name, HAL_U64, dir, (void *) data_addr, comp_id);
+}
+int hal_param_s64_new(const char *name, hal_param_dir_t dir, hal_s64_t * data_addr,
+    int comp_id)
+{
+    return hal_param_new(name, HAL_S64, dir, (void *) data_addr, comp_id);
+}
+
 static int hal_param_newfv(hal_type_t type, hal_param_dir_t dir,
 	void *data_addr, int comp_id, const char *fmt, va_list ap) {
     char name[HAL_NAME_LEN + 1];
@@ -1436,6 +1447,27 @@ int hal_param_s32_newf(hal_param_dir_t dir, hal_s32_t * data_addr,
     return ret;
 }
 
+int hal_param_u64_newf(hal_param_dir_t dir, hal_u64_t * data_addr,
+    int comp_id, const char *fmt, ...)
+{
+    va_list ap;
+    int ret;
+    va_start(ap, fmt);
+    ret = hal_param_newfv(HAL_U64, dir, (void*)data_addr, comp_id, fmt, ap);
+    va_end(ap);
+    return ret;
+}
+
+int hal_param_s64_newf(hal_param_dir_t dir, hal_s64_t * data_addr,
+    int comp_id, const char *fmt, ...)
+{
+    va_list ap;
+    int ret;
+    va_start(ap, fmt);
+    ret = hal_param_newfv(HAL_S64, dir, (void*)data_addr, comp_id, fmt, ap);
+    va_end(ap);
+    return ret;
+}
 
 /* this is a generic function that does the majority of the work. */
 
