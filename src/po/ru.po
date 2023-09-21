@@ -16,8 +16,8 @@ msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-09-16 17:24+0000\n"
-"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
+"PO-Revision-Date: 2023-09-21 18:45+0000\n"
+"Last-Translator: xXx <xxx_xxx_xxxxxxxxx@mail.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
 "Language: ru\n"
@@ -26,7 +26,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.0.2\n"
+"X-Generator: Weblate 5.1-dev\n"
 
 #: src/emc/task/emctaskmain.cc:869
 #, c-format
@@ -34,7 +34,8 @@ msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
 msgstr ""
-"команда (%s) не может быть исполнена пока станок на АВОСТе или выключен"
+"команда (%s) не может быть выполнена до тех пор, пока машина не выйдет из "
+"режима E-stop и не будет включена"
 
 #: src/emc/task/emctaskmain.cc:997
 #, c-format
@@ -142,8 +143,7 @@ msgstr "Между G5.2 и G5.3 кодами, допустимы только д
 #: src/emc/rs274ngc/interp_check.cc:261
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"
-msgstr ""
-"D-слово без G41, G41.1, G42, G42.1, G71, G71.1, G71.2 или G96 перед ним"
+msgstr "D слово без G41, G41.1, G42, G42.1, G71, G71.1, G71.2 или G96 перед ним"
 
 #: src/emc/rs274ngc/interp_check.cc:270
 msgid ""
@@ -159,7 +159,7 @@ msgstr "Слово E без G70, G76, M66, M67 или M68 для его испо
 
 #: src/emc/rs274ngc/interp_check.cc:282
 msgid "H word with no G43 or G76 to use it"
-msgstr "H-слово без G43 или G76"
+msgstr "H слово без G43 или G76"
 
 #: src/emc/rs274ngc/interp_check.cc:291
 msgid ""
@@ -183,7 +183,7 @@ msgid ""
 "L word with no G10, cutter compensation, canned cycle, digital/analog input, "
 "M98 or NURBS code"
 msgstr ""
-"L-слово без G10, компенсации инструмента, постоянного цикла, цифрового/"
+"L слово без G10, компенсации инструмента, постоянного цикла, цифрового/"
 "аналогового входа, M98 или NURBS кода перед ним"
 
 #: src/emc/rs274ngc/interp_check.cc:332
@@ -295,11 +295,11 @@ msgstr "число nurbs Q не является целым числом"
 #: src/emc/rs274ngc/interp_convert.cc:423
 msgid "Must specify positive nurbs weight R for every Control Point"
 msgstr ""
-"Необходимо указать положительный вес NURBS R для каждой контрольной точки"
+"Необходимо указать положительный вес nurbs R для каждой контрольной точки"
 
 #: src/emc/rs274ngc/interp_convert.cc:428
 msgid "Must specify nurbs K number for every Control Point"
-msgstr "Необходимо указать номер NURBS K для каждой контрольной точки"
+msgstr "Необходимо указать номер nurbs K для каждой контрольной точки"
 
 #: src/emc/rs274ngc/interp_convert.cc:432
 msgid "nurbs K number is not an integer"
@@ -361,7 +361,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:995
 #, c-format
 msgid "%c word missing in absolute center arc"
-msgstr "%c-слово отсутствует в абсолютном центре дуги"
+msgstr "Отсутствие слова %c в дуге абсолютного центра"
 
 #: src/emc/rs274ngc/interp_convert.cc:1222
 msgid ""
@@ -413,17 +413,17 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:2542
 #, c-format
 msgid "G%d.1 with no D word"
-msgstr "G%d.1 без D-слова"
+msgstr "G%d.1 без D слова"
 
 #: src/emc/rs274ngc/interp_convert.cc:2545
 #, c-format
 msgid "G%d.1 with L word, but plane is not G18"
-msgstr "G%d.1 с L-словом, но плоскость не G18"
+msgstr "G%d.1 с L словом, но плоскость не G18"
 
 #: src/emc/rs274ngc/interp_convert.cc:2556
 #, c-format
 msgid "G%d requires D word to be a whole number"
-msgstr "G%d требует D-слово как целое число"
+msgstr "G%d требует D слово как целое число"
 
 #: src/emc/rs274ngc/interp_convert.cc:2563
 #, c-format
@@ -483,7 +483,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:3801
 msgid "No valid P word with M62"
-msgstr "Нет корректного P-слова с M62"
+msgstr "Нет корректного P слова с M62"
 
 #: src/emc/rs274ngc/interp_convert.cc:3805
 msgid "Cannot set motion digital output with cutter radius compensation on"
@@ -508,16 +508,16 @@ msgstr "Нет корректного P-слова с M64"
 
 #: src/emc/rs274ngc/interp_convert.cc:3816
 msgid "No valid P word with M65"
-msgstr "Нет корректного P-слова с M65"
+msgstr "Нет корректного P слова с M65"
 
 #: src/emc/rs274ngc/interp_convert.cc:3847
 msgid "invalid P-word with M66"
-msgstr "Неверное P-слово с M66"
+msgstr "Неверное P слово с M66"
 
 #: src/emc/rs274ngc/interp_convert.cc:3862
 msgid "Cannot wait for digital input with cutter radius compensation on"
 msgstr ""
-"Не могу ждать цифровой вход при включенной компенсации радиуса инструмента"
+"Не удается дождаться цифрового ввода с включенной компенсацией радиуса резца"
 
 #: src/emc/rs274ngc/interp_convert.cc:3874
 msgid "Cannot wait for analog input with cutter radius compensation on"
@@ -554,8 +554,9 @@ msgid ""
 "Spindle ($) number out of range in M3 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
-"Номер шпинделя ($) вне диапазона в команде M3\n"
-"num_spindles =%i. $=%d\n"
+"Номер шпинделя ($) вне диапазона команды M3\n"
+"\n"
+"число_шпинделей =%i. $=%d"
 
 #: src/emc/rs274ngc/interp_convert.cc:3989
 #, c-format
@@ -563,8 +564,9 @@ msgid ""
 "Spindle ($) number out of range in M4 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
-"Номер шпинделя ($) вне диапазона в команде M4\n"
-"num_spindles =%i. $=%d\n"
+"Номер шпинделя ($) вне диапазона команды M4\n"
+"\n"
+"число_шпинделей =%i. $=%d"
 
 #: src/emc/rs274ngc/interp_convert.cc:4006
 #, c-format
@@ -572,8 +574,9 @@ msgid ""
 "Spindle ($) number out of range in M5 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
-"Номер шпинделя ($) вне диапазона в команде M5\n"
-"num_spindles =%i. $=%d\n"
+"Номер шпинделя ($) вне диапазона команды M5\n"
+"\n"
+"число_шпинделей =%i. $=%d"
 
 #: src/emc/rs274ngc/interp_convert.cc:4027
 msgid "Spindle ($) number out of range in M19 Command"
@@ -581,7 +584,7 @@ msgstr "Номер шпинделя ($) вне диапазона в коман�
 
 #: src/emc/rs274ngc/interp_convert.cc:4034
 msgid "Q word with M19 requires a value > 0"
-msgstr "Q-слову с M19 необходимо значение больше нуля"
+msgstr "Слово Q с M19 требует значения > 0"
 
 #: src/emc/rs274ngc/interp_convert.cc:4063
 msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
@@ -643,7 +646,7 @@ msgstr "G10 L1 без отступов не имеет эффекта"
 
 #: src/emc/rs274ngc/interp_convert.cc:4611
 msgid "Q number in G10 is not an integer"
-msgstr "Q-слово в G10 не целое значение"
+msgstr "Число Q в G10 не является целым числом"
 
 #: src/emc/rs274ngc/interp_convert.cc:4612
 msgid "Invalid tool orientation"
@@ -666,7 +669,7 @@ msgstr "R не разрешен в G10 L20"
 
 #: src/emc/rs274ngc/interp_convert.cc:5111
 msgid "Bug:  Reached convert_stop() from M99 as subprogram return"
-msgstr "Ошибка: Достигнут convert_stop() из M99 как возврат из подпрограммы"
+msgstr "Ошибка:  Достигнут convert_stop() из M99 как возврат из подпрограммы"
 
 #: src/emc/rs274ngc/interp_convert.cc:5390
 msgid "Invalid spindle ($) number in G33 move"
@@ -678,7 +681,7 @@ msgstr "Шпиндель не крутится при G33"
 
 #: src/emc/rs274ngc/interp_convert.cc:5405
 msgid "Invalid spindle ($) number in G33.1 move"
-msgstr "Неверный номер шпинделя ($) в G33.1 движении"
+msgstr "Недопустимый номер шпинделя ($) при перемещении G33.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:5410
 msgid "Spindle not turning in G33.1"
@@ -695,11 +698,11 @@ msgstr "Выбранный шпиндель (%i) не крутится при G7
 
 #: src/emc/rs274ngc/interp_convert.cc:5468
 msgid "BUG: An axis incorrectly moved along with an indexer"
-msgstr "Ошибка: движение по оси вместе с индексером"
+msgstr "BUG: Ось некорректно перемещается вместе с индексатором"
 
 #: src/emc/rs274ngc/interp_convert.cc:5481
 msgid "BUG: trying to index incorrect axis"
-msgstr "Ошибка: индексирование неверной оси"
+msgstr "BUG: попытка индексирования неправильной оси"
 
 #: src/emc/rs274ngc/interp_convert.cc:5576
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
@@ -754,7 +757,7 @@ msgstr "G43.2: Нельзя применять H и определения ос�
 
 #: src/emc/rs274ngc/interp_convert.cc:6253
 msgid "G43.2: No axes specified and H word missing"
-msgstr "G43.2: Нет заданных осей и отсутствует H-слово"
+msgstr "G43.2: Нет заданных осей и отсутствует H слово"
 
 #: src/emc/rs274ngc/interp_queue.cc:605
 #, c-format
@@ -762,7 +765,7 @@ msgid ""
 "BUG: cutter compensation has generated an invalid arc with mismatched radii "
 "r1 %f r2 %f\n"
 msgstr ""
-"Ошибка: компенсация радиуса создала неверную дугу с не совпадающими "
+"BUG: компенсация фрезы сгенерировала недопустимую дугу с несоответствующими "
 "радиусами r1 %f r2 %f\n"
 
 #: src/emc/rs274ngc/interp_queue.cc:627 src/emc/rs274ngc/interp_queue.cc:649
@@ -909,11 +912,11 @@ msgstr "Нельзя использовать полярные координа�
 
 #: src/emc/rs274ngc/interp_internal.cc:161
 msgid "Cannot specify both polar coordinate and X word"
-msgstr "Нельзя задавать вместе полярную координату и X-слово"
+msgstr "Невозможно указать как полярную координату, так и слово X"
 
 #: src/emc/rs274ngc/interp_internal.cc:162
 msgid "Cannot specify both polar coordinate and Y word"
-msgstr "Нельзя задавать вместе полярную координату и Y-слово"
+msgstr "Нельзя задавать вместе полярную координату и Y слово"
 
 #: src/emc/rs274ngc/interp_internal.cc:183
 #: src/emc/rs274ngc/interp_internal.cc:201
@@ -938,19 +941,19 @@ msgstr "%d: Ошибка:  Не M98/M99 M-код передан в read_o(): '%s
 
 #: src/emc/rs274ngc/interp_read.cc:1806
 msgid "Left bracket missing after 'while'"
-msgstr "Левая скобка отсутствует после 'while'"
+msgstr "Левая скобка отсутствует после 'пока'"
 
 #: src/emc/rs274ngc/interp_read.cc:1821
 msgid "Left bracket missing after 'repeat'"
-msgstr "Левая скобка отсутствует после 'repeat'"
+msgstr "Левая скобка отсутствует после 'повторить'"
 
 #: src/emc/rs274ngc/interp_read.cc:1836
 msgid "Left bracket missing after 'if'"
-msgstr "Левая скобка отсутствует после 'if'"
+msgstr "Левая скобка отсутствует после 'если'"
 
 #: src/emc/rs274ngc/interp_read.cc:1851
 msgid "Left bracket missing after 'elseif'"
-msgstr "Левая скобка отсутствует после 'elseif'"
+msgstr "Левая скобка отсутствует после 'иначе если'"
 
 #: src/emc/rs274ngc/interp_read.cc:2055
 msgid "Cannot read current position with cutter radius compensation on"
@@ -1078,7 +1081,7 @@ msgstr "Именованный ini-параметр #<%s> не найден в i
 #: src/emc/rs274ngc/interp_namedparams.cc:257
 #, c-format
 msgid "fetch_hal_param: hal_init(%s): %d"
-msgstr "выборка_hal _param: hal_init(%s): %d"
+msgstr "выборка_hal_param: hal_init(%s): %d"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:258
 #, c-format
@@ -1098,7 +1101,7 @@ msgstr "Не могу назначить параметр доступный т�
 #: src/emc/rs274ngc/interp_namedparams.cc:791
 #, c-format
 msgid "BUG: lookup_named_param(%s): unhandled index=%fn"
-msgstr "Ошибка: lookup_named_param(%s): unhandled index=%fn"
+msgstr "ОШИБКА: search_named_param(%s): необработанный индекс=%fn"
 
 #: src/emc/rs274ngc/rs274ngc_pre.cc:1452 src/emc/rs274ngc/rs274ngc_pre.cc:1527
 msgid "Queue is not empty after tool change"
@@ -1155,63 +1158,63 @@ msgstr "Плохой формат числа"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:30
 msgid "Bug bad g code modal group 0"
-msgstr "Ошибка: плохой G-код в модальной группе 0"
+msgstr "Ошибка плохой G-код в модальной группе 0"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:31
 msgid "Bug code not g0 or g1"
-msgstr "Ошибка: код не G0 или G1"
+msgstr "Ошибка код не G0 или G1"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:32
 msgid "Bug code not g17 g18 or g19"
-msgstr "Ошибка: код не G17, G18 или G19"
+msgstr "Ошибка код не G17, G18 или G19"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:33
 msgid "Bug code not g20 or g21"
-msgstr "Ошибка: код не G20 или G21"
+msgstr "Ошибка код не G20 или G21"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:34
 msgid "Bug code not g28 or g30"
-msgstr "Ошибка: код не G28 или G30"
+msgstr "Ошибка код не G28 или G30"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:35
 msgid "Bug code not g2 or g3"
-msgstr "Ошибка: код не G2 или G3"
+msgstr "Ошибка код не G2 или G3"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:37
 msgid "Bug code not g4 g10 g28 g30 g52 g53 or g92 series"
-msgstr "Ошибка: код не G4, G10, G28, G30, G52, G53 или G92 последовательность"
+msgstr "Ошибка код не G4, G10, G28, G30, G52, G53 или G92 последовательность"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:38
 msgid "Bug code not g61 g61.1 or g64"
-msgstr "Ошибка: код не G61, G61.1 или G64"
+msgstr "Ошибка код не G61, G61.1 или G64"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:39
 msgid "Bug code not g90 or g91"
-msgstr "Ошибка: код не G90 или G91"
+msgstr "Ошибка код не G90 или G91"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:40
 msgid "Bug code not g98 or g99"
-msgstr "Ошибка: код не G98 или G99"
+msgstr "Ошибка код не G98 или G99"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:41
 msgid "Bug code not in g52 or g92 series"
-msgstr "Ошибка: код не G52 или G92 последовательность"
+msgstr "Ошибка код не G52 или G92 последовательность"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:42
 msgid "Bug code not in range g54 to g593"
-msgstr "Ошибка: код не в диапазоне от G54 до G59.3"
+msgstr "Ошибка код не в диапазоне от G54 до G593"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:43
 msgid "Bug code not m0 m1 m2 m30 m60 m99"
-msgstr "Ошибка: код не M0, M1, M2, M30, M60 или M99"
+msgstr "Ошибка код не M0, M1, M2, M30, M60 или M99"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:44
 msgid "Bug distance mode not g90 or g91"
-msgstr "Ошибка: расстояние не G90 или G91"
+msgstr "Ошибка расстояние не G90 или G91"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:45
 msgid "Bug function should not have been called"
-msgstr "Ошибка: функция не должна вызываться"
+msgstr "Ошибка функция не должна вызываться"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:46
 msgid "Bug in tool radius comp"
@@ -1219,19 +1222,19 @@ msgstr "Ошибка с компенсацией радиуса"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:47
 msgid "Bug plane not xy yz or xz"
-msgstr "Ошибка: код не xy, yz или xz"
+msgstr "Ошибка код не xy, yz или xz"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:48
 msgid "Bug side not right or left"
-msgstr "Ошибка: сторона не левая или правая"
+msgstr "Ошибка сторона не левая или правая"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:49
 msgid "Bug unknown motion code"
-msgstr "Ошибка: неизвестный код движения"
+msgstr "Ошибка неизвестный код движения"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:50
 msgid "Bug unknown operation"
-msgstr "Ошибка: неизвестная операция"
+msgstr "Ошибка неизвестная операция"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:51
 msgid "Cannot change axis offsets with cutter radius comp"
@@ -1272,15 +1275,15 @@ msgstr "Не могу мерить с нулевой подачей"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:60
 msgid "Cannot put a b in canned cycle"
-msgstr "Не могу добавить B в цикл"
+msgstr "Не могу добавить b в цикл"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:61
 msgid "Cannot put a c in canned cycle"
-msgstr "Не могу добавить C в цикл"
+msgstr "Не могу добавить c в цикл"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:62
 msgid "Cannot put an a in canned cycle"
-msgstr "Не могу добавить A в цикл"
+msgstr "Не могу добавить a в цикл"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:63
 msgid "Cannot turn cutter radius comp on when on"
@@ -1545,7 +1548,7 @@ msgstr "Не целое число для целого аргумента"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:128
 msgid "Null missing after newline"
-msgstr "NULL отсутствует после конца строки"
+msgstr "Отсутствие нуля после новой строки"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:129
 msgid "Parameter file out of order"
@@ -1613,7 +1616,7 @@ msgstr "Шпиндель не крутится при G88"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:145
 msgid "Sscanf failed"
-msgstr "Sscanf не прошел"
+msgstr "Ошибка сканирования"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:146
 msgid "Start point too close to probe point"
@@ -1945,19 +1948,19 @@ msgstr "Выберите узел для показа"
 
 #: src/hal/utils/meter.c:616
 msgid " _Pins "
-msgstr " Ножки "
+msgstr " _Ножки "
 
 #: src/hal/utils/meter.c:617
 msgid " _Signals "
-msgstr " Сигналы "
+msgstr " _Сигналы "
 
 #: src/hal/utils/meter.c:618
 msgid " Para_meters "
-msgstr " Параметры "
+msgstr " _Параметры "
 
 #: src/hal/utils/meter.c:649
 msgid "_Close"
-msgstr "Закрыть"
+msgstr "_Закрыть"
 
 #: src/hal/utils/scope.c:132
 msgid ""
@@ -1965,7 +1968,7 @@ msgid ""
 "  halscope [-h] [-i infile] [-o outfile] [num_samples]\n"
 msgstr ""
 "Использование:\n"
-"  halscope [-h] [-i входной файл] [-o выходной файл] [количество точек]\n"
+"  halscope [-h] [-i входной файл] [-o выходной файл] [количество точек]\n"
 
 #: src/hal/utils/scope.c:476
 msgid "Open Configuration File:"
@@ -1975,11 +1978,11 @@ msgstr "Открыть файл конфигурации:"
 #: src/hal/utils/scope_horiz.c:808 src/hal/utils/scope_vert.c:700
 #: src/hal/utils/scope_vert.c:918 src/hal/utils/scope_trig.c:315
 msgid "_Cancel"
-msgstr "Отмена(_C)"
+msgstr "_Отмена"
 
 #: src/hal/utils/scope.c:479
 msgid "_Open"
-msgstr "Oткрыть"
+msgstr "_Oткрыть"
 
 #: src/hal/utils/scope.c:499
 msgid "Save Configuration File:"
@@ -1987,19 +1990,19 @@ msgstr "Сохранить файл конфигурации:"
 
 #: src/hal/utils/scope.c:502 src/hal/utils/scope_horiz.c:809
 msgid "_Save"
-msgstr "Сохранить"
+msgstr "_Сохранить"
 
 #: src/hal/utils/scope.c:533
 msgid "_Open Configuration..."
-msgstr "Открыть конфигурацию..."
+msgstr "_Открыть конфигурацию..."
 
 #: src/hal/utils/scope.c:539
 msgid "_Save Configuration..."
-msgstr "Сохранить конфигурацию..."
+msgstr "_Сохранить конфигурацию..."
 
 #: src/hal/utils/scope.c:548
 msgid "O_pen Log File"
-msgstr "Открыть Лог файл"
+msgstr "Файл журнала событий O_pen"
 
 #: src/hal/utils/scope.c:555
 msgid "S_ave Log File"
@@ -2007,19 +2010,19 @@ msgstr "Сохранить Лог файл"
 
 #: src/hal/utils/scope.c:564 share/axis/tcl/axis.tcl:102
 msgid "_Quit"
-msgstr "Выход"
+msgstr "_Выход"
 
 #: src/hal/utils/scope.c:570
 msgid "_About Halscope"
-msgstr "О Halscope"
+msgstr "_О Halscope"
 
 #: src/hal/utils/scope.c:576 share/axis/tcl/axis.tcl:470
 msgid "_File"
-msgstr "Файл"
+msgstr "_Файл"
 
 #: src/hal/utils/scope.c:580 share/axis/tcl/axis.tcl:482
 msgid "_Help"
-msgstr "Помощь"
+msgstr "_Помощь"
 
 #: src/hal/utils/scope.c:635
 msgid "HAL Oscilloscope"
@@ -2099,8 +2102,8 @@ msgid ""
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
 "HALSCOPE использует программу реального времени 'scope_rt'\n"
-"для чтения сигналов для показа. Она сейчас не запущена и попытки\n"
-"запустить ее автоматически не удались. Больше информации может\n"
+"для чтения сигналов для показа.  Она сейчас не запущена и попытки\n"
+"запустить ее автоматически не удались.  Больше информации может\n"
 "быть в терминале,из которого запущен halscope.\n"
 "\n"
 "Сделайте одно из следующего:\n"
@@ -2180,7 +2183,7 @@ msgstr ""
 #: src/hal/utils/scope_horiz.c:535 src/hal/utils/scope_vert.c:699
 #: src/hal/utils/scope_vert.c:917
 msgid "_OK"
-msgstr "Да"
+msgstr "_Да"
 
 #: src/hal/utils/scope_horiz.c:555
 msgid "Thread:"
@@ -2254,9 +2257,9 @@ msgid ""
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
 "HALSCOPE используеткод в HAL-треде реального времени\n"
-"для чтения сигналов для показа. HAL-тред(ы) не работают.\n"
+"для чтения сигналов для показа.  HAL-тред(ы) не работают.\n"
 "Эти треды обычно запускаются приложением, которое Вы\n"
-" пытаетесь использовать, или применить команду 'halcmd start'.\n"
+"пытаетесь использовать, или применить команду 'halcmd start'.\n"
 "\n"
 "Сделайте одно из следующего:\n"
 "\n"
@@ -2287,7 +2290,7 @@ msgid ""
 "record length that supports more channels."
 msgstr ""
 "Такая длина записи не поддерживаетвыбранные каналы.\n"
-"Выберите длину покороче, которая поддерживает\n"
+"  Выберите длину покороче, которая поддерживает\n"
 "больше каналов."
 
 #: src/hal/utils/scope_horiz.c:1067
@@ -2297,7 +2300,7 @@ msgid ""
 "per div"
 msgstr ""
 "%s\n"
-"на дел"
+"на деление"
 
 #: src/hal/utils/scope_horiz.c:1082
 #, c-format
@@ -2547,12 +2550,12 @@ msgstr "сочленение %d на ошибке ключа предела"
 #: src/emc/motion/control.c:821
 #, c-format
 msgid "joint %d amplifier fault"
-msgstr "Усилитель сочленения %d отказал"
+msgstr "совместная ошибка усилителя %d"
 
 #: src/emc/motion/control.c:830
 #, c-format
 msgid "joint %d following error"
-msgstr "Ошибка рассогласования сочленения %d"
+msgstr "совместная ошибка %d"
 
 #: src/emc/motion/control.c:843
 #, c-format
@@ -2562,30 +2565,32 @@ msgstr "Движение остановлено ошибкой %d"
 #: src/emc/motion/control.c:1346 src/emc/motion/control.c:1406
 #, c-format
 msgid "kinematicsInverse gave non-finite joint location on joint %d"
-msgstr "обратная кинематика выдала неточную позицию для сочленения %d"
+msgstr "kinematicsInverse дало неопределенное положение сустава на суставе %d"
 
 #: src/emc/motion/control.c:1363 src/emc/motion/control.c:1425
 msgid "kinematicsInverse failed"
-msgstr "kinematicsInverse неудачно"
+msgstr "КинематикаИнверсия не работает"
 
 #: src/emc/motion/control.c:1502
 #, c-format
 msgid "Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"
-msgstr "Превышен ОТРИЦАТЕЛЬНЫЙ программный предел (%.5f) на сочленении %d\n"
+msgstr "Превышен НЕГАТИВНЫЙ мягкий предел (%.5f) на суставе %d\n"
 
 #: src/emc/motion/control.c:1505 src/emc/motion/control.c:1514
 msgid "Joint must be unhomed, jogged into limits, rehomed"
-msgstr "Сочленение нужно сбросить, отвести на пределы и найти начала снова"
+msgstr ""
+"Суставы должны быть расконсервированы, приведены к предельным значениям, "
+"реконсервированы"
 
 #: src/emc/motion/control.c:1507 src/emc/motion/control.c:1516
 msgid "Hint: switch to joint mode to jog off soft limit"
 msgstr ""
-"Подсказка: переключитесь в режим сочленений для схода с мягкого предела"
+"Подсказка: переключитесь в режим суставов для отключения плавного ограничения"
 
 #: src/emc/motion/control.c:1511
 #, c-format
 msgid "Exceeded POSITIVE soft limit (%.5f) on joint %d\n"
-msgstr "Превышен ПОЛОЖИТЕЛЬНЫЙ программный предел (%.5f) на сочленении %d\n"
+msgstr "Превышен ПОЗИТИВНЫЙ мягкий предел (%.5f) на соединении %d\n"
 
 #: src/emc/motion/command.c:126
 #, c-format
@@ -2628,7 +2633,7 @@ msgstr "положительный"
 #: src/emc/motion/command.c:239
 #, c-format
 msgid "%s move on line %d fails kinematicsInverse"
-msgstr "%s движение на строке %d ломает kinematicsInverse"
+msgstr "%s перемещается по линии %d не удается выполнить обратную кинематику"
 
 #: src/emc/motion/command.c:254
 #, c-format
@@ -2701,11 +2706,11 @@ msgstr "Не могу добавить круговое движение в ст
 
 #: src/emc/motion/command.c:1210
 msgid "MOTION: can't STEP while already executing"
-msgstr "MOTION: не могу STEP когда уже исполняю"
+msgstr "ДВИЖЕНИЕ: не удается выполнить ШАГ во время выполнения"
 
 #: src/emc/motion/command.c:1312
 msgid "can't enable motion, enable input is false"
-msgstr "не могу разрешить движение, вход enable в нуле"
+msgstr "Невозможно включить движение, вход разрешения равен false"
 
 #: src/emc/motion/command.c:1356
 msgid "must be in joint mode to home"
@@ -2817,12 +2822,12 @@ msgstr ""
 
 #: src/emc/motion/motion.c:270
 msgid "MOTION: hal_init() failed\n"
-msgstr "MOTION: hal_init() неудачно\n"
+msgstr "МОТИВАЦИЯ: hal_init() не удалось\n"
 
 #: src/emc/motion/motion.c:275
 #, c-format
 msgid "MOTION: num_joints is %d, must be between 1 and %d\n"
-msgstr "MOTION: num_joints равно %d, должно быть между 1 и %d\n"
+msgstr "ДВИЖЕНИЕ: num_joints равно %d, должно быть от 1 до %d\n"
 
 #: src/emc/motion/motion.c:282
 #, c-format
@@ -2832,7 +2837,7 @@ msgid ""
 "\n"
 msgstr ""
 "\n"
-"MOTION: num_extrajoints равно %d, должно быть между 0 и %d\n"
+"ДВИЖЕНИЕ: num_extra суставов равно %d, должно быть от 0 до %d\n"
 "\n"
 
 #: src/emc/motion/motion.c:287
@@ -2842,7 +2847,7 @@ msgid ""
 "\n"
 msgstr ""
 "\n"
-"MOTION: не нулевое значение num_extrajoints требует KINEMATICS_BOTH\n"
+"ДВИЖЕНИЕ: ненулевое число дополнительных суставов требует кинематики ОБОИХ\n"
 "\n"
 
 #: src/emc/motion/motion.c:292
@@ -2855,100 +2860,102 @@ msgid ""
 "\n"
 msgstr ""
 "\n"
-"MOTION: кинематические соединения=%2d\n"
-"                дополнительные соединения = %2d\n"
-"                Всего соединений = %2d\n"
+"ДВИЖЕНИЕ: кинематические суставы=%2d\n"
+"            дополнительные суставы=%2d\n"
+"           Всего суставов=%2d\n"
 "\n"
 
 #: src/emc/motion/motion.c:299
 #, c-format
 msgid "MOTION: num_spindles is %d, must be between 0 and %d\n"
-msgstr "MOTION: num_spindles равно %d, должно быть между 0 и %d\n"
+msgstr "ДВИЖЕНИЕ: число_шпинделей равно %d, должно быть между 0 и %d\n"
 
 #: src/emc/motion/motion.c:306
 msgid "MOTION: Can't specify both names and number for digital pins\n"
-msgstr "MOTION: невозможно указать имена и номера для цифровых контактов.\n"
+msgstr ""
+"ДВИЖЕНИЕ: не удается указать как имена, так и номер для цифровых контактов\n"
 
 #: src/emc/motion/motion.c:320
 #, c-format
 msgid "MOTION: num_dio is %d, must be between 1 and %d\n"
-msgstr "MOTION: num_dio равно %d, должно быть между 1 и %d\n"
+msgstr "ДВИЖЕНИЕ: num_dio равно %d, должно быть между 1 и %d\n"
 
 #: src/emc/motion/motion.c:326
 msgid "MOTION: Can't specify both names and number for analog pins\n"
-msgstr "MOTION: невозможно указать имена и номера для аналоговых выводов.\n"
+msgstr ""
+"ДВИЖЕНИЕ: не удается указать как имена, так и номер аналоговых контактов\n"
 
 #: src/emc/motion/motion.c:339
 #, c-format
 msgid "MOTION: num_aio is %d, must be between 1 and %d\n"
-msgstr "MOTION: num_aio равно %d, должно быть между 1 и %d\n"
+msgstr "ДВИЖЕНИЕ: num_aio равно %d, должно быть между 1 и %d\n"
 
 #: src/emc/motion/motion.c:345
 msgid "MOTION: Can't specify both names and number for misc error\n"
-msgstr "MOTION: невозможно указать имена и номер для другой ошибки\n"
+msgstr "ДВИЖЕНИЕ: не удается указать оба имени и номер для ошибки разное\n"
 
 #: src/emc/motion/motion.c:358
 #, c-format
 msgid "MOTION: num_misc_error is %d, must be between 0 and %d\n"
-msgstr "MOTION: num_misc_error равно %d, должно быть между 0 и %d\n"
+msgstr "ДВИЖЕНИЕ: num_misc_error равно %d, должно быть между 0 и %d\n"
 
 #: src/emc/motion/motion.c:366
 msgid "MOTION: init_hal_io() failed\n"
-msgstr "MOTION: init_hal_io() неудачно\n"
+msgstr "ДВИЖЕНИЕ: не удалось выполнить init_hal_io()\n"
 
 #: src/emc/motion/motion.c:374
 msgid "MOTION: init_comm_buffers() failed\n"
-msgstr "MOTION: init_comm_buffers() неудачно\n"
+msgstr "ДВИЖЕНИЕ: не удалось выполнить init_comm_buffers()\n"
 
 #: src/emc/motion/motion.c:380
 msgid "MOTION: module_intfc() failed\n"
-msgstr "MOTION: module_intfc() неудачно\n"
+msgstr "ДВИЖЕНИЕ: ошибка module_interface()\n"
 
 #: src/emc/motion/motion.c:384
 msgid "MOTION: tp_init() failed\n"
-msgstr "MOTION: tp_init() неудачно\n"
+msgstr "ДВИЖЕНИЕ: ошибка tp_init()\n"
 
 #: src/emc/motion/motion.c:391
 msgid "MOTION: init_threads() failed\n"
-msgstr "MOTION: init_threads() неудачно\n"
+msgstr "ДВИЖЕНИЕ: ошибка init_threads()\n"
 
 #: src/emc/motion/motion.c:401
 msgid "MOTION: homing_init() failed\n"
-msgstr "MOTION: homing_init() неудачно\n"
+msgstr "ДВИЖЕНИЕ: не удалось выполнить homing_init()\n"
 
 #: src/emc/motion/motion.c:426
 #, c-format
 msgid "MOTION: hal_stop_threads() failed, returned %d\n"
-msgstr "MOTION: hal_stop_threads() неудачно, вернул %d\n"
+msgstr "ДВИЖЕНИЕ: ошибка hal_stop_threads(), возвращено %d\n"
 
 #: src/emc/motion/motion.c:432
 #, c-format
 msgid "MOTION: rtapi_shmem_delete() failed, returned %d\n"
-msgstr "MOTION: rtapi_shmem_delete() неудачно, вернул %d\n"
+msgstr "ДВИЖЕНИЕ: ошибка rtapi_shmem_delete(), возвращено %d\n"
 
 #: src/emc/motion/motion.c:438
 #, c-format
 msgid "MOTION: hal_exit() failed, returned %d\n"
-msgstr "MOTION: hal_exit() неудачно, вернул %d\n"
+msgstr "ДВИЖЕНИЕ: ошибка hal_exit(), возвращено %d\n"
 
 #: src/emc/motion/motion.c:467
 msgid "MOTION: emcmot_hal_data malloc failed\n"
-msgstr "MOTION: emcmot_hal_data ошибка выделения памяти\n"
+msgstr "ДВИЖЕНИЕ: emcmot_hal_data malloc не удалась\n"
 
 #: src/emc/motion/motion.c:664
 #, c-format
 msgid "MOTION: spindle %d pin export failed"
-msgstr "MOTION: шпиндель ошибка в экспорте %d контакта"
+msgstr "ДВИЖЕНИЕ: не удалось экспортировать штифт шпинделя %d"
 
 #: src/emc/motion/motion.c:674
 #, c-format
 msgid "MOTION: joint %d pin/param export failed\n"
-msgstr "MOTION: сочленение %d контакт/параметр ошибка экспорта\n"
+msgstr "ДВИЖЕНИЕ: сбой экспорта контакта/параметра соединения %d\n"
 
 #: src/emc/motion/motion.c:687
 #, c-format
 msgid "MOTION: ejoint %d pin/param export failed\n"
-msgstr "MOTION: ejoint %d контакт/параметр экспорт неудачен\n"
+msgstr "ДВИЖЕНИЕ: не удалось экспортировать вывод/параметр ejoint %d\n"
 
 #: src/emc/motion/homing.c:188
 #, c-format
@@ -3025,12 +3032,14 @@ msgid ""
 "invalid homing config: non-zero LATCH_VEL needs either SEARCH_VEL or "
 "USE_INDEX"
 msgstr ""
-"invalid homing config: не нулевая LATCH_VEL требует либо SEARCH_VEL либо "
-"USE_INDEX"
+"недопустимая конфигурация самонаведения: ненулевой LATCH_WELL требует либо "
+"SEARCH_WELL, либо USE_INDEX"
 
 #: src/emc/motion/homing.c:826
 msgid "invalid homing config: non-zero SEARCH_VEL needs LATCH_VEL"
-msgstr "invalid homing config: не нулевая SEARCH_VEL требует LATCH_VEL"
+msgstr ""
+"неверная конфигурация самонаведения: для ненулевого SEARCH_VEL требуется "
+"LATCH_WEL"
 
 #: src/emc/motion/homing.c:974
 #, c-format
@@ -3064,24 +3073,24 @@ msgstr ""
 #, c-format
 msgid "ERROR CLASSICLADDER-   Error initializing classicladder user module.\n"
 msgstr ""
-"ERROR CLASSICLADDER- Ошибка инициализации пользовательского модуля "
+"ОШИБКА CLASSICLADDER -   Ошибка инициализации пользовательского модуля "
 "classicladder.\n"
 
 #: src/hal/classicladder/classicladder.c:221
 msgid "Stopped program - press run button to continue."
-msgstr "Программа остановлена — нажмите кнопку запуска, чтобы продолжить."
+msgstr "Программа остановлена ‐ нажмите кнопку запуска, чтобы продолжить."
 
 #: src/hal/classicladder/classicladder.c:231
 msgid "Started program - press stop to pause."
-msgstr "Программа запущена – нажмите Стоп, чтобы поставить на паузу."
+msgstr "Программа запущена ‐ нажмите Стоп, чтобы поставить на паузу."
 
 #: src/hal/classicladder/classicladder.c:286
 msgid ""
 "INFO CLASSICLADDER-   No ladder GUI requested-Realtime runs till HAL "
 "closes.\n"
 msgstr ""
-"INFO CLASSICLADDER- Модуль ladder GUI не запрошен. Модуль реального времени "
-"работает до закрытия HAL.\n"
+"ИНФОРМАЦИЯ КЛАССИЧЕСКАЯЛЕСТНИЦА-   графический интерфейс лестницы не "
+"запрашивается - В режиме реального времени работает до половины закрытия.\n"
 
 #: src/hal/classicladder/classicladder.c:306
 msgid "Project loaded and running"
@@ -3100,12 +3109,12 @@ msgstr "GUI перезапущен с текущей ladder-программой
 msgid ""
 "INFO CLASSICLADDER-   Ladder GUI closed. Realtime runs till HAL closes\n"
 msgstr ""
-"INFO CLASSICLADDER- Ladder GUI закрылся. Модуль реального времени работает "
-"до закрытия HAL\n"
+"ИНФОРМАЦИЯ КЛАССИЧЕСКАЯЛЕСТНИЦА-   графический интерфейс лестницы закрыт. "
+"Запуск в реальном времени все еще наполовину закрыт\n"
 
 #: src/hal/classicladder/classicladder.c:331
 msgid "ERROR CLASSICLADDER-   Ladder memory allocation error\n"
-msgstr "ERROR CLASSICLADDER- Ошибка выделения памяти для Ladder\n"
+msgstr "ОШИБКА CLASSICLADDER-   ошибка выделения памяти по лестнице\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:496
 msgid "Load Error"
@@ -3208,7 +3217,7 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:651
 msgid "Reset logic data - Now running."
-msgstr "Сброс логических данных – работает."
+msgstr "Сброс логических данных ‐ работает."
 
 #: src/hal/classicladder/classicladder_gtk.c:651
 msgid "Reset logic data done."
@@ -3216,15 +3225,15 @@ msgstr "Сброс логических данных выполнен."
 
 #: src/hal/classicladder/classicladder_gtk.c:709
 msgid "About ClassicLadder"
-msgstr "О ClassicLadder"
+msgstr "О КлассическойЛестнице"
 
 #: src/hal/classicladder/classicladder_gtk.c:766
 msgid "Save SVG File"
-msgstr "Сохранить файл SVG"
+msgstr "Сохранить Файл SVG"
 
 #: src/hal/classicladder/classicladder_gtk.c:766
 msgid "Save PNG File"
-msgstr "Сохранить PNG-файл"
+msgstr "Сохранить PNG Файл"
 
 #: src/hal/classicladder/classicladder_gtk.c:839
 #: src/hal/classicladder/classicladder_gtk.c:1294
@@ -3385,7 +3394,7 @@ msgstr "Частичный показ %s"
 #: src/hal/classicladder/config_gtk.c:122
 #, c-format
 msgid "Rung Refresh Rate (milliseconds)"
-msgstr "Скорость обновления Рунга (миллисекунды)"
+msgstr "Частота обновления ступени (миллисекунды)"
 
 #: src/hal/classicladder/config_gtk.c:127
 #, c-format
@@ -3455,7 +3464,7 @@ msgstr "Количество таймеров"
 #: src/hal/classicladder/config_gtk.c:183
 #, c-format
 msgid "Number of Monostables"
-msgstr "Количество моностабилей"
+msgstr "Количество моностабилизаторов"
 
 #: src/hal/classicladder/config_gtk.c:188
 #, c-format
@@ -3506,7 +3515,7 @@ msgstr "Обнаружена ошибка переполнения для соп
 #: src/hal/classicladder/config_gtk.c:745
 #, c-format
 msgid "Serial port (blank = IP mode)"
-msgstr "Последовательный порт(пусто для IP режима)"
+msgstr "Последовательный порт (пусто = режим IP)"
 
 #: src/hal/classicladder/config_gtk.c:749
 #, c-format
@@ -3560,7 +3569,7 @@ msgstr "Уровень отладки"
 
 #: src/hal/classicladder/config_gtk.c:786
 msgid "QUIET"
-msgstr "МОЛЧА"
+msgstr "тихий"
 
 #: src/hal/classicladder/config_gtk.c:786
 msgid "LEVEL"
@@ -3633,7 +3642,7 @@ msgstr "НомерТаймера"
 #: src/hal/classicladder/editproperties_gtk.c:77
 #: src/hal/classicladder/editproperties_gtk.c:136
 msgid "Base"
-msgstr "Базовое значение"
+msgstr "База"
 
 #: src/hal/classicladder/edit.c:166 src/hal/classicladder/edit.c:175
 #: src/hal/classicladder/edit.c:183 src/hal/classicladder/edit.c:192
@@ -3718,11 +3727,11 @@ msgstr "Несовместимый тип переменной для индек
 
 #: src/hal/classicladder/edit.c:485
 msgid "Parser error for indexed variable !"
-msgstr "Ошибка синтаксического анализа индексированной переменной!"
+msgstr "Ошибка синтаксического анализа индексированной переменной !"
 
 #: src/hal/classicladder/edit.c:491
 msgid "You must select a boolean variable !"
-msgstr "Вы должны выбрать логическую переменную!"
+msgstr "Вы должны выбрать логическую переменную !"
 
 #: src/hal/classicladder/edit.c:500
 msgid "You must select a read/write variable for a coil!"
@@ -3766,7 +3775,7 @@ msgstr "Удалить"
 
 #: src/hal/classicladder/edit_gtk.c:208
 msgid "Do you really want to delete the current rung ?"
-msgstr "Вы действительно хотите удалить текущий рунг?"
+msgstr "Вы действительно хотите удалить текущий запуск?"
 
 #: src/hal/classicladder/edit_gtk.c:476
 #: lib/python/gladevcp/tooledit_gtk.glade:315
@@ -3888,7 +3897,8 @@ msgstr "Неизвестный тип элемента для Ele2"
 msgid ""
 "commonsearch: leftX=%d, rightX=%d, OffTransi=%d, StepsY=%d, TransiY=%d\n"
 msgstr ""
-"общий поиск: leftX=%d, rightX=%d, OffTransi=%d, StepsY=%d, TransiY=%d\n"
+"обычный поиск: влевоX=%d, вправоX=%d, Выключить Транс i=%d, ШагиY=%d, "
+"ТранзитY=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:537
 #: src/hal/classicladder/edit_sequential.c:582
@@ -3908,21 +3918,21 @@ msgstr "ШагДействиеДеакт++=%d\n"
 #: src/hal/classicladder/edit_sequential.c:624
 #, c-format
 msgid "having num transi linked=%d for transi=%d\n"
-msgstr "количество перемещений linked=%d для transi=%d\n"
+msgstr "отсутствие транзита linked=%d для транзита=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:627
 #, c-format
 msgid "->storing num transi linked=%d for transi=%d\n"
-msgstr "->сохраняем количество перемещений linked=%d для transi=%d\n"
+msgstr "-> номер сохранения транзита linked=%d для транзита=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:643
 #, c-format
 msgid "=>step to activ=%d, step to desactiv=%d\n"
-msgstr "=>шаг до activ=%d, шаг до desactiv=%d\n"
+msgstr "=> шаг к активации=%d, шаг к деактивации=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:652
 msgid "Not found at least 2 transitions linked..."
-msgstr "Не найдены хотя бы 2 связанных перехода..."
+msgstr "Не найдено по крайней мере 2 связанных переходов..."
 
 #: src/hal/classicladder/edit_sequential.c:776
 msgid "Sequential memory full for steps"
@@ -3948,9 +3958,7 @@ msgstr "Переход не может располагаться на нече�
 #: src/hal/classicladder/edit_sequential.c:837
 #, c-format
 msgid "nbr clicks=1!!! (posi=%s), wait next point to link...\n"
-msgstr ""
-"количество clicks=1!!! (posi=%s), подождите следующую точку для "
-"соединения...\n"
+msgstr "щелчки nbr=1!!! (posi=%s), дождитесь следующей точки для привязки...\n"
 
 #: src/hal/classicladder/edit_sequential.c:837
 #: src/hal/classicladder/edit_sequential.c:850
@@ -3981,7 +3989,7 @@ msgstr "Вы не выбрали шаг или переход по ссылке!
 #: src/hal/classicladder/edit_sequential.c:850
 #, c-format
 msgid "nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n"
-msgstr "nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n"
+msgstr "щелчки nbr=2!!! (posi=%s), ВведитеНазад=%d, ВведитеСейчас=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:856
 msgid "You haven't selected a transition and then the step to link!!!"
@@ -4002,12 +4010,13 @@ msgstr "Справа не хватает места ..."
 #: src/hal/classicladder/edit_sequential.c:923
 #, c-format
 msgid "DO_MANY_STEPS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
-msgstr "DO_MANY_STEPS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
+msgstr "DO_MANY_STEPS:щелчки nbr=2!!!, ВведитеНазад=%d, ВведитеСейчас=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:929
 #, c-format
 msgid "DO_MANY_TRANSITIONS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
-msgstr "DO_MANY_TRANSITIONS:количество кликов=2!!!, TypeBak=%d, TypeNow=%d\n"
+msgstr ""
+"DO_MANY_TRANSITIONS:щелчки nbr=2!!!, ВведитеНазад=%d, ВведитеСейчас=%d\n"
 
 #: src/hal/classicladder/editproperties_gtk.c:237
 msgid "Properties"
@@ -4020,11 +4029,11 @@ msgstr "Применить"
 
 #: src/hal/classicladder/emc_mods.c:60
 msgid "Error blank symbol name"
-msgstr "Ошибка: пустое символьное имя"
+msgstr "Ошибка пустое символьное имя"
 
 #: src/hal/classicladder/emc_mods.c:64
 msgid "Error unknown symbol name"
-msgstr "Ошибка, неизвестное имя символа"
+msgstr "Ошибка неизвестное имя символа"
 
 #: src/hal/classicladder/emc_mods.c:75 src/hal/classicladder/emc_mods.c:81
 #: src/hal/classicladder/emc_mods.c:89 src/hal/classicladder/emc_mods.c:97
@@ -4048,19 +4057,19 @@ msgstr "Отсутствует -Внутренняя Ошибка Статуса
 #: src/emc/usr_intf/touchy/emc_interface.py:441
 #: src/emc/usr_intf/pncconf/base.glade:505
 msgid "None"
-msgstr "Ничего"
+msgstr "Отсутствует"
 
 #: src/hal/classicladder/emc_mods.c:133
 msgid "error"
-msgstr "Ошибка"
+msgstr "ошибка"
 
 #: src/hal/classicladder/emc_mods.c:154
 msgid "no signal connected"
-msgstr "сигнал не подсоединен"
+msgstr "сигнал не подключен"
 
 #: src/hal/classicladder/emc_mods.c:158
 msgid "Conv. HAL signal ERROR"
-msgstr "Conv. ОШИБКА HAL сигнала"
+msgstr "Конв. Сигнал HAL ОШИБКА"
 
 #: src/hal/classicladder/emc_mods.c:180
 msgid "No expression"
@@ -4069,7 +4078,7 @@ msgstr "Нет выражения"
 #: src/hal/classicladder/emc_mods.c:196
 #, c-format
 msgid " %s (for %s)  Exprsn~ %s"
-msgstr "%s (для %s) Выражение~ %s"
+msgstr " %s (для %s)  Выражение~ %s"
 
 #: src/hal/classicladder/emc_mods.c:201
 msgid "first var. expression error"
@@ -4114,7 +4123,7 @@ msgstr "Загрузка файла : %s"
 #: src/hal/classicladder/files.c:310 src/hal/classicladder/files.c:336
 #: src/hal/classicladder/files.c:365
 msgid " - ok.\n"
-msgstr " - в порядке.\n"
+msgstr " - хорошо.\n"
 
 #: src/hal/classicladder/files.c:313 src/hal/classicladder/files.c:339
 msgid " - not found.\n"
@@ -4137,7 +4146,7 @@ msgstr "Использовано=%d\n"
 #: src/hal/classicladder/files.c:429
 #, c-format
 msgid "!!!Error in ConvBaseInMilliSecsToInt()\n"
-msgstr "!!!Ошибка в ConvBaseInMilliSecsToInt()\n"
+msgstr "!!!Ошибка в базеконввмиллисекундахкInt()\n"
 
 #: src/hal/classicladder/files.c:507 src/hal/classicladder/files.c:577
 #: src/hal/classicladder/files.c:701
@@ -4187,7 +4196,7 @@ msgstr "Символ: %s - %s - %s\n"
 #: src/hal/classicladder/files_project.c:86
 #, c-format
 msgid "ERROR with path directory given for project !!!\n"
-msgstr "ОШИБКА: неправильный путь к директории проекта !!!\n"
+msgstr "ОШИБКА неправильный путь к директории проекта !!!\n"
 
 #: src/hal/classicladder/files_project.c:185
 #, c-format
@@ -4254,7 +4263,7 @@ msgstr "Эта секция уже была выполнена первой !"
 
 #: src/hal/classicladder/manager_gtk.c:349
 msgid "This section is already executed the latest !"
-msgstr "Этот раздел уже выполнен последним!"
+msgstr "Этот раздел уже выполнен последним !"
 
 #: src/hal/classicladder/manager_gtk.c:421
 msgid "Language"
@@ -4275,7 +4284,7 @@ msgstr "Менеджер разделов"
 #: src/hal/classicladder/protocol_modbus_master.c:265
 #, c-format
 msgid "ERROR CLASSICLADDER-     MODBUS-EXCEPTION RECEIVED:%X (Excep=%X)\n"
-msgstr "ОШИБКА CLASSICLADDER‐ПОЛУЧЕНО ИСКЛЮЧЕНИЕ-MODBUS:%X (Excep=%X)\n"
+msgstr "ОШИБКА CLASSICLADDER‐     ПОЛУЧЕНО ИСКЛЮЧЕНИЕ-MODBUS:%X (Excep=%X)\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:271
 #, c-format
@@ -4283,8 +4292,8 @@ msgid ""
 "ERROR CLASSICLADDER-    MODBUS -Function code received from slave was not "
 "the same as requested!\n"
 msgstr ""
-"ERROR CLASSICLADDER-    MODBUS -Код функции полученный от ведомого не "
-"совпадает с запрошенным!\n"
+"ОШИБКА CLASSICLADDER-    MODBUS -Код функции, полученный от ведомого "
+"устройства, не совпадает с запрошенным!\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:364
 #, c-format
@@ -4292,20 +4301,20 @@ msgid ""
 "INFO CLASSICLADDER-   MODBUS -Echo back from slave #%s is correct "
 "(data=257).\n"
 msgstr ""
-"INFO CLASSICLADDER-   MODBUS -Эхо от ведомого устройства #%s является "
-"правильным (data=257).\n"
+"ИНФОРМАЦИЯ CLASSICLADDER-   MODBUS -Echo обратно от ведомого устройства #%s "
+"верна (данные=257).\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:413
 #, c-format
 msgid "INFO CLASSICLADDER-   MODBUS function code not recognized"
-msgstr "INFO CLASSICLADDER-   MODBUS код функции не распознан"
+msgstr "ИНФОРМАЦИЯ CLASSICLADDER-   код функции MODBUS не распознан"
 
 #: src/hal/classicladder/protocol_modbus_master.c:417
 #, c-format
 msgid "INFO CLASSICLADDER-   MODBUS Length we should receive=%d (+3)\n"
 msgstr ""
-"INFO CLASSICLADDER-   MODBUS Длина которую мы должны получить receive=%d "
-"(+3)\n"
+"ИНФОРМАЦИЯ CLASSICLADDER-    длина MODBUS, которую мы должны получить=%d (+3)"
+"\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:551
 #, c-format
@@ -4313,8 +4322,9 @@ msgid ""
 "INFO CLASSICLADDER-   Modbus I/O to send (Hex):\n"
 "    Length=%d bytes -> "
 msgstr ""
-"INFO CLASSICLADDER — ввод-вывод Modbus для отправки (шестнадцатеричный):\n"
-"     Длина=%d байт ->"
+"ИНФОРМАЦИЯ CLASSICLADDER-   Ввод-вывод Modbus для отправки "
+"(шестнадцатеричный)\n"
+"    Длина=%d байт ->"
 
 #: src/hal/classicladder/protocol_modbus_master.c:555
 #: src/hal/classicladder/protocol_modbus_master.c:626
@@ -4339,8 +4349,8 @@ msgid ""
 "INFO CLASSICLADDER-   Modbus I/O received (Hex):\n"
 "    Length=%d bytes <- "
 msgstr ""
-"INFO CLASSICLADDER – получен ввод/вывод Modbus (шестнадцатеричный):\n"
-"     Длина=%d байт <-"
+"ИНФОРМАЦИЯ CLASSICLADDER-   Получен ввод-вывод Modbus (шестнадцатеричный):\n"
+"    Длина=%d байт <- "
 
 #: src/hal/classicladder/protocol_modbus_master.c:628
 #, c-format
@@ -4352,13 +4362,13 @@ msgstr "Функция: %X Данные: "
 msgid ""
 "ERROR CLASSICLADDER-   MODBUS-INCORRECT RESPONSE RECEIVED FROM SLAVE!!!\n"
 msgstr ""
-"ERROR CLASSICLADDER-   MODBUS-ПОЛУЧЕН НЕПРАВИЛЬНЫЙ ОТВЕТ ОТ ВЕДОМОГО "
+"ОШИБКА CLASSICLADDER-   MODBUS-ПОЛУЧЕН НЕПРАВИЛЬНЫЙ ОТВЕТ ОТ ВЕДОМОГО "
 "УСТРОЙСТВА!!!\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:676
 #, c-format
 msgid "ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n"
-msgstr "ERROR CLASSICLADDER-   MODBUS-ОШИБКА НИЗКОГО УРОВНЯ В ОТВЕТЕ!!!\n"
+msgstr "ОШИБКА CLASSICLADDER-   MODBUS-ОШИБКА НИЗКОГО УРОВНЯ В ОТВЕТЕ!!!\n"
 
 #: src/hal/classicladder/serial_linux.c:140
 #, c-format
@@ -4415,7 +4425,7 @@ msgstr "Принудительной сброс данных в буфере п�
 #, c-format
 msgid "ERROR CLASSICLADDER-   Failed to create thread I/O Modbus master...\n"
 msgstr ""
-"ОШИБКА CLASSICLADDER. Не удалось создать поток ввода-вывода ведущего "
+"ОШИБКА CLASSICLADDER‐   Не удалось создать поток ввода-вывода ведущего "
 "устройства Modbus...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:128
@@ -4466,7 +4476,7 @@ msgstr "Не удалось получить IP-адрес в таблице Mod
 #: src/hal/classicladder/socket_modbus_master.c:234
 #, c-format
 msgid "Failed  to connect to I/O module\n"
-msgstr "Не удалось подключиться к модулю I/O\n"
+msgstr "Не удалось  подключиться к модулю I/O\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:240
 #, c-format
@@ -4475,24 +4485,23 @@ msgstr "Слишком много IP соединений запущено...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:257
 msgid "INFO CLASSICLADDER-   Sending frame to I/O module...\n"
-msgstr "INFO CLASSICLADDER-   Посылаю кадр модулю I/O...\n"
+msgstr "INFO CLASSICLADDER-   Посылаю кадр модулю I/O...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:263
 #, c-format
 msgid "ERROR CLASSICLADDER-  FAILED TO SEND ON SOCKET !!!(LgtSend=%d)\n"
 msgstr ""
-"ERROR CLASSICLADDER-  НЕ УДАЛОСЬ ОТПРАВИТЬ ЧЕРЕЗ СОКЕТ !!!(LgtSend=%d)\n"
+"ОШИБКА CLASSICLADDER-  НЕ УДАЛОСЬ ОТПРАВИТЬ ЧЕРЕЗ СОКЕТ !!!(LgtSend=%d)\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:286
 #, c-format
 msgid "INFO CLASSICLADDER-   waiting for slave response...\n"
-msgstr "INFO CLASSICLADDER-   ждем ответа от ведомых устройств...\n"
+msgstr "INFO CLASSICLADDER-   ждем ответа от ведомых устройств...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:320
 #, c-format
 msgid "INFO CLASSICLADDER---I/O Modbus master closed!\n"
-msgstr ""
-"INFO CLASSICLADDER --- Ведущее устройство ввода-вывода Modbus закрыто!\n"
+msgstr "INFO CLASSICLADDER---Ведущее устройство ввода-вывода Modbus закрыто!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:375
 #, c-format
@@ -4502,7 +4511,7 @@ msgstr "INFO CLASSICLADDER- после посылки ждем...%i миллис
 #: src/hal/classicladder/socket_modbus_master.c:385
 #, c-format
 msgid "ERROR CLASSICLADDER-  MODBUS NO RESPONSE (Errs=%d/%d) !?\n"
-msgstr "ERROR CLASSICLADDER-  MODBUS НЕТ ОТВЕТА (Errs=%d/%d) !?\n"
+msgstr "ОШИБКА CLASSICLADDER-  MODBUS НЕТ ОТВЕТА (Errs=%d/%d) !?\n"
 
 #: src/hal/classicladder/socket_server.c:87
 #, c-format
@@ -4518,22 +4527,19 @@ msgstr "ERROR CLASSICLADDER--- Не удалось открыть сокет с�
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to bind socket server...(error=%s)\n"
 msgstr ""
-"ERROR CLASSICLADDER--- Вызов bind() для сокета сервера завершился с "
-"ошибкой...(error=%s)\n"
+"ОШИБКА CLASSICLADDER--- Не удалось привязать сервер сокетов...(ошибка=%s)\n"
 
 #: src/hal/classicladder/socket_server.c:113
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to listen socket server...(error=%s)\n"
 msgstr ""
-"ERROR CLASSICLADDER--- Вызов listen() для сокета сервера завершился с "
-"ошибкой...(error=%s)\n"
+"ОШИБКА CLASSICLADDER--- Не удалось прослушать сервер сокетов...(ошибка = %s)"
+"\n"
 
 #: src/hal/classicladder/socket_server.c:132
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to create thread socket server...\n"
-msgstr ""
-"ERROR CLASSICLADDER--- Создание потока pthread_create() завершилось с "
-"ошибкой...\n"
+msgstr "ОШИБКА CLASSICLADDER--- Не удалось создать сервер сокетов потоков...\n"
 
 #: src/hal/classicladder/socket_server.c:137
 #, c-format
@@ -4585,16 +4591,17 @@ msgstr "Окно состояния бита"
 #: src/hal/classicladder/spy_vars_gtk.c:222
 msgid "Offset for vars displayed below (press return to apply)"
 msgstr ""
-"Смещение для переменных, отображаемых ниже (нажмите Enter, чтобы применить)"
+"Смещение для переменных, отображаемых ниже (нажмите клавишу return, чтобы "
+"применить)"
 
 #: src/hal/classicladder/spy_vars_gtk.c:522
 msgid "Watch Window"
-msgstr "Окно просмотра"
+msgstr "Окно Просмотра"
 
 #: src/hal/classicladder/symbols_gtk.c:132
 #, c-format
 msgid "A variable name always start with '%' character !"
-msgstr "Имя переменной всегда начинается с символа '%'!"
+msgstr "Имя переменной всегда начинается с символа «%»!"
 
 #: src/hal/classicladder/symbols_gtk.c:191
 msgid "opened SYMBOLS window. Press again to close"
@@ -4686,7 +4693,7 @@ msgid ""
 msgstr ""
 "Нет разрешения на запись.\n"
 "\n"
-"Скопируйте конфигурацию к себе и работайте там."
+"  Скопируйте конфигурацию к себе и работайте там."
 
 #: tcl/bin/emccalib.tcl:522 tcl/bin/genedit.tcl:211 tcl/bin/halconfig.tcl:1242
 #: tcl/bin/pickconfig.tcl:907 tcl/bin/pickconfig.tcl:918
@@ -4753,7 +4760,7 @@ msgstr "Oткрыть..."
 
 #: tcl/bin/genedit.tcl:84
 msgid "Save As..."
-msgstr "Сохранить как..."
+msgstr "Сохранить Как..."
 
 #: tcl/bin/genedit.tcl:87 tcl/bin/halconfig.tcl:165 tcl/bin/halshow.tcl:231
 #: tcl/tklinuxcnc.tcl:763 tcl/ngcgui.tcl:1335 tcl/ngcgui.tcl:3853
@@ -4801,7 +4808,7 @@ msgstr "Найти..."
 
 #: tcl/bin/genedit.tcl:135
 msgid "Renumber File..."
-msgstr "Перенумеровать..."
+msgstr "Перенумеровать Файл..."
 
 #: tcl/bin/genedit.tcl:140 tcl/tklinuxcnc.tcl:775
 msgid "Settings"
@@ -4821,7 +4828,7 @@ msgstr "Скрипты"
 
 #: tcl/bin/genedit.tcl:177
 msgid "About TkEditor"
-msgstr "О TkEditor"
+msgstr "О РедактореТК"
 
 #: tcl/bin/genedit.tcl:179
 msgid ""
@@ -4831,15 +4838,15 @@ msgid ""
 "\n"
 "GPL Version 2"
 msgstr ""
-"TkEditor\n"
+"ТкРедактор\n"
 "\n"
-"Простой Tcl/Tk текстовый редактор\n"
+"Простой Текстовый Редактор Tcl/Tk\n"
 "\n"
 "GPL версия 2"
 
 #: tcl/bin/genedit.tcl:267
 msgid "Find"
-msgstr "найти"
+msgstr "Найти"
 
 #: tcl/bin/genedit.tcl:270
 msgid "Find:"
@@ -4851,19 +4858,19 @@ msgstr "Заменить:"
 
 #: tcl/bin/genedit.tcl:282
 msgid "Find All"
-msgstr "Найти все"
+msgstr "Найти Все"
 
 #: tcl/bin/genedit.tcl:285
 msgid "Replace All"
-msgstr "Заменить все"
+msgstr "Заменить Все"
 
 #: tcl/bin/genedit.tcl:288
 msgid "Skip This"
-msgstr "Пропустить"
+msgstr "Пропустить Это"
 
 #: tcl/bin/genedit.tcl:291
 msgid "Replace This"
-msgstr "Заменить"
+msgstr "Заменить Это"
 
 #: tcl/bin/genedit.tcl:297
 msgid "Clear"
@@ -4907,7 +4914,7 @@ msgstr "Двойной пробел"
 
 #: tcl/bin/genedit.tcl:447
 msgid "Tab Space"
-msgstr "Табуляция"
+msgstr "Пространство табуляции"
 
 #: tcl/bin/genedit.tcl:453
 msgid "Next Number:"
@@ -4919,27 +4926,27 @@ msgstr "Перенумеровать"
 
 #: tcl/bin/halconfig.tcl:88
 msgid "HAL Configuration"
-msgstr "Установки HAL"
+msgstr "Конфигурация HAL"
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Would you like to save your configuration before you exit?"
-msgstr "Сохранить изменения перед выходом?"
+msgstr "Хотите сохранить конфигурацию перед выходом?"
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Save All"
-msgstr "Сохранить всё"
+msgstr "Сохранить Всё"
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Save Tune"
-msgstr "Сохранить настройку"
+msgstr "Сохранить Настройку"
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Save as Netlist"
-msgstr "Сохранить как нетлист"
+msgstr "Сохранить как Сетевойлист"
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Don't Save"
-msgstr "Не сохранять"
+msgstr "Не Сохранять"
 
 #: tcl/bin/halconfig.tcl:132
 msgid "Show"
@@ -4959,7 +4966,7 @@ msgstr "Сохранить HAL INI"
 
 #: tcl/bin/halconfig.tcl:161
 msgid "Save HAL Net"
-msgstr "Сохранить HAL Net"
+msgstr "Сохранить сеть HAL"
 
 #: tcl/bin/halconfig.tcl:163
 msgid "Save and Exit"
@@ -4995,7 +5002,7 @@ msgstr "Очистить слежение"
 
 #: tcl/bin/halconfig.tcl:476
 msgid "Enter HAL command :"
-msgstr "Введите HAL-команду:"
+msgstr "Введите HAL команду :"
 
 #: tcl/bin/halconfig.tcl:479 tcl/bin/halconfig.tcl:528 tcl/bin/halshow.tcl:673
 msgid "Execute"
@@ -5014,10 +5021,10 @@ msgid ""
 " has changed. \n"
 " Really quit?"
 msgstr ""
-"Параметр HAL\n"
-"%s\n"
-"был изменен.\n"
-"Действительно выходим?"
+"Параметр HAL \n"
+"  %s \n"
+" изменился. \n"
+" Действительно выйти из системы?"
 
 #: tcl/bin/halconfig.tcl:943 tcl/bin/halshow.tcl:778
 msgid "Select a node to show."
@@ -5036,12 +5043,14 @@ msgstr "Нажмите на подсвеченном пункте куда до�
 
 #: tcl/bin/halconfig.tcl:1092
 msgid "Nothing to be done for parameters here. Try the tuning page"
-msgstr "Нечего делать для параметров. Посмотрите страницу настройки"
+msgstr ""
+"Для параметров здесь ничего не нужно делать. Попробуйте зайти на страницу "
+"настройки"
 
 #: tcl/bin/halconfig.tcl:1124
 #, tcl-format
 msgid "%s is not a leaf, try again"
-msgstr "%s не крайний, попробуйте снова"
+msgstr "%s не является листом, повторите попытку"
 
 #: tcl/bin/halconfig.tcl:1281
 msgid ""
@@ -5054,14 +5063,14 @@ msgid ""
 "This script carries no warranty or liability for its use to the extent "
 "allowed by law."
 msgstr ""
-"Копирайт Raymond E Henry. 2006\n"
-"Лицензия: GPL Version 2\n"
+"Авторские права Раймонд Э. Генри. 2006 г.\n"
+"Лицензия: GPL Версия 2\n"
 "\n"
-"Halconfig это средство конфигурации LinuxCNC. Он требует запущенный "
-"экзэмпляр linuxcnc.\n"
+"Halconfig это инструмент настройки LinuxCNC.  Для этого требуется, чтобы вы "
+"запустили экземпляр linuxcnc.\n"
 "\n"
-"Этот скрипт не несет никакой гарантии или возмещения за свое использование в "
-"пределах закона."
+"Этот скрипт не несет никаких гарантий или ответственности за его "
+"использование в пределах, разрешенных законом."
 
 #: tcl/bin/halshow.tcl:108
 msgid "Halshow"
@@ -5069,43 +5078,43 @@ msgstr "Хэлшоу"
 
 #: tcl/bin/halshow.tcl:177
 msgid " SHOW "
-msgstr " Показать "
+msgstr " ПОКАЗАТЬ "
 
 #: tcl/bin/halshow.tcl:178
 msgid " WATCH "
-msgstr " Следить "
+msgstr " СЛЕДИТЬ "
 
 #: tcl/bin/halshow.tcl:179
 msgid " SETTINGS "
-msgstr "НАСТРОЙКИ"
+msgstr " НАСТРОЙКИ "
 
 #: tcl/bin/halshow.tcl:223
 msgid "Load Watch List"
-msgstr "Загрузить Watch List"
+msgstr "Загрузить Список Наблюдения"
 
 #: tcl/bin/halshow.tcl:225
 msgid "Save Watch List"
-msgstr "Сохранить Watch List"
+msgstr "Сохранить Список Наблюдения"
 
 #: tcl/bin/halshow.tcl:226
 msgid "Save Watch List (multiline)"
-msgstr "Сохранить список наблюдения (многострочный)"
+msgstr "Сохранить Список Наблюдения (многострочный)"
 
 #: tcl/bin/halshow.tcl:243 tcl/bin/halshow.tcl:364
 msgid "Tree View"
-msgstr "Вид дерева"
+msgstr "Вид Дерева"
 
 #: tcl/bin/halshow.tcl:245
 msgid "Expand All"
-msgstr "Развернуть все"
+msgstr "Развернуть Все"
 
 #: tcl/bin/halshow.tcl:247
 msgid "Collapse All"
-msgstr "Свернуть все"
+msgstr "Свернуть Все"
 
 #: tcl/bin/halshow.tcl:257
 msgid "Reload tree view"
-msgstr "Перезагрузить tree вид"
+msgstr "Перезагрузить древовидную структуру"
 
 #: tcl/bin/halshow.tcl:263
 msgid "Add pin"
@@ -5133,7 +5142,7 @@ msgstr "Параметр"
 
 #: tcl/bin/halshow.tcl:270
 msgid "Reload Watch"
-msgstr "Перегрузить Watch"
+msgstr "Перезагрузить Часы"
 
 #: tcl/bin/halshow.tcl:275
 msgid "Watchlist cleared"
@@ -5157,7 +5166,7 @@ msgstr "Дерево фильтров"
 
 #: tcl/bin/halshow.tcl:663
 msgid "HAL command :"
-msgstr "HAL команда:"
+msgstr "HAL команда :"
 
 #: tcl/bin/halshow.tcl:723
 msgid "Update interval (in ms)"
@@ -5184,8 +5193,8 @@ msgid ""
 "Always on top\n"
 "(Note: May not working with all desktop environments)"
 msgstr ""
-"Всегда на вершине\n"
-"(Примечание: может работать не со всеми средами рабочего стола)"
+"Всегда сверху\n"
+"(Примечание: может работать не со всеми окружениями рабочего стола)"
 
 #: tcl/bin/halshow.tcl:733
 msgid "Remember watchlist"
@@ -5281,7 +5290,7 @@ msgstr "Плавающее значение (отключено аргумент
 
 #: tcl/bin/halshow.tcl:1319
 msgid "\"--noprefs\" option set. Settings will not be saved!"
-msgstr "Установлена опция “--noprefs“. Настройки не сохранятся!"
+msgstr "Установлена опция \"--noprefs\". Настройки не будут сохранены!"
 
 #: tcl/bin/pickconfig.tcl:99
 msgid ""
@@ -5289,9 +5298,9 @@ msgid ""
 "install \n"
 "it with sudo apt-get install bwidget."
 msgstr ""
-"Не могу найти пакет bwidget 1.7. В Дебиане есть пакетbwidget, установите его "
-"командой\n"
-"'sudo apt-get install bwidget'."
+"Не могу найти пакет виджета 1.7.  Существует пакет виджетов debian; "
+"установить \n"
+"это с помощью sudo apt-get install bwidget."
 
 #: tcl/bin/pickconfig.tcl:158
 msgid "LinuxCNC Configuration Selector"
@@ -5327,7 +5336,7 @@ msgstr "Примеры"
 #: tcl/bin/pickconfig.tcl:575
 #, tcl-format
 msgid "ERROR: no configurations found in path '%s'"
-msgstr "Ошибка: нет конфигурации по пути '%s'"
+msgstr "ОШИБКА: по пути «%s» не найдено конфигураций"
 
 #: tcl/bin/pickconfig.tcl:625
 msgid "Copy Configuration?"
@@ -5364,7 +5373,7 @@ msgid ""
 "A shortcut to this configuration file has been created on your desktop.  You "
 "can use it to automatically launch this configuration."
 msgstr ""
-"Ссылка на эту конфигурацию была добавлена на ваш рабочий стол. Вы можете "
+"Ссылка на эту конфигурацию была добавлена на ваш рабочий стол.  Вы можете "
 "использовать ее для автоматического запуска этой конфигурации."
 
 #: tcl/bin/pickconfig.tcl:870
@@ -5373,39 +5382,39 @@ msgstr "Сделать ссылку на рабочий стол"
 
 #: tcl/bin/tkbackplot.tcl:110
 msgid "TkLinuxCNC BackPlot"
-msgstr "TkLinuxCNC плоттер"
+msgstr "ОбратнаяСхема TkLinuxCNC"
 
 #: tcl/bin/tkbackplot.tcl:125
 msgid "SETUP"
-msgstr "Настройки"
+msgstr "УСТАНОВКА"
 
 #: tcl/bin/tkbackplot.tcl:127
 msgid "RESET"
-msgstr "Сброс"
+msgstr "ПЕРЕЗАГРУЗИТЬ"
 
 #: tcl/bin/tkbackplot.tcl:129
 msgid "CANCEL"
-msgstr "Отменить"
+msgstr "ОТМЕНИТЬ"
 
 #: tcl/bin/tkbackplot.tcl:250
 msgid "AXIS"
-msgstr "Оси"
+msgstr "ОСЬ"
 
 #: tcl/bin/tkbackplot.tcl:251
 msgid "OFFSET"
-msgstr "Отступ"
+msgstr "СМЕЩЕНИЕ"
 
 #: tcl/bin/tkbackplot.tcl:252
 msgid "ANGLE"
-msgstr "Угол"
+msgstr "УГОЛ"
 
 #: tcl/bin/tkbackplot.tcl:253
 msgid "DIRECTION"
-msgstr "Направление"
+msgstr "УПРАВЛЕНИЕ"
 
 #: tcl/bin/tkbackplot.tcl:270
 msgid "SIZE :"
-msgstr "Размер:"
+msgstr "РАЗМЕР :"
 
 #: tcl/show_errors.tcl:78
 msgid "LinuxCNC Errors"
@@ -5416,7 +5425,7 @@ msgid ""
 "LinuxCNC terminated with an error.  When reporting problems, please create a "
 "report file and include in your message."
 msgstr ""
-"LinuxCNC завершился с ошибкой. При сообщении о проблеме, пожалуйста вложите "
+"LinuxCNC завершился с ошибкой.  При сообщении о проблеме, пожалуйста вложите "
 "все следующие сведения."
 
 #: tcl/show_errors.tcl:107
@@ -5442,7 +5451,7 @@ msgstr "безымянный"
 
 #: tcl/tklinuxcnc.tcl:213
 msgid "Load Parameter File"
-msgstr "Загрузить файл параметров"
+msgstr "Загрузить Файл Параметров"
 
 #: tcl/tklinuxcnc.tcl:262
 msgid "LinuxCNC Diagnostics"
@@ -5462,7 +5471,7 @@ msgstr "Команда:"
 
 #: tcl/tklinuxcnc.tcl:272 tcl/tklinuxcnc.tcl:295 tcl/tklinuxcnc.tcl:318
 msgid "Command #:"
-msgstr "Номер команды:"
+msgstr "Команда #:"
 
 #: tcl/tklinuxcnc.tcl:275 tcl/tklinuxcnc.tcl:298 tcl/tklinuxcnc.tcl:321
 msgid "Status:"
@@ -5470,7 +5479,7 @@ msgstr "Статус:"
 
 #: tcl/tklinuxcnc.tcl:287
 msgid "Io"
-msgstr "Io"
+msgstr "этот"
 
 #: tcl/tklinuxcnc.tcl:310
 msgid "Motion"
@@ -5488,15 +5497,15 @@ msgid ""
 "\n"
 "GPL Version 2 (2012)"
 msgstr ""
-"TkLinuxCNC\n"
+"TkLinuxcnc\n"
 "\n"
-"Tcl/Tk GUI for LinuxCNC\n"
+"Графический интерфейс Tcl/Tk для LinuxCNC\n"
 "\n"
-"GPL Version 2 (2012)"
+"GPL версия 2 (2012)"
 
 #: tcl/tklinuxcnc.tcl:400
 msgid "Set Tool Offset"
-msgstr "Установить отступ инструмента"
+msgstr "Установить Смещение Инструмента"
 
 #: tcl/tklinuxcnc.tcl:405 tcl/tklinuxcnc.tcl:934
 msgid "Tool:"
@@ -5519,7 +5528,7 @@ msgstr "NC файлы"
 #: src/emc/usr_intf/gscreen/gscreen.glade:2049
 #: src/emc/usr_intf/gscreen/gscreen.glade:2061
 msgid "continuous"
-msgstr "Постоянный"
+msgstr "постоянно"
 
 #: tcl/tklinuxcnc.tcl:751
 msgid "Edit..."
@@ -5527,15 +5536,15 @@ msgstr "Изменить..."
 
 #: tcl/tklinuxcnc.tcl:756
 msgid "Tool Table Editor..."
-msgstr "Редактор таблицы инструментов..."
+msgstr "Редактор Таблицы Инструментов..."
 
 #: tcl/tklinuxcnc.tcl:759 src/emc/usr_intf/touchy/touchy.glade:1379
 msgid "Reload Tool Table"
-msgstr "Загрузить таблицу инструментов"
+msgstr "Загрузить Таблицу Инструментов"
 
 #: tcl/tklinuxcnc.tcl:769
 msgid "Offsets and Variables..."
-msgstr "Отступы и переменные..."
+msgstr "Смещения и Переменные..."
 
 #: tcl/tklinuxcnc.tcl:770
 msgid "Diagnostics..."
@@ -5543,7 +5552,7 @@ msgstr "Диагностика..."
 
 #: tcl/tklinuxcnc.tcl:771
 msgid "Backplot..."
-msgstr "Плоттер..."
+msgstr "Заднийплан..."
 
 #: tcl/tklinuxcnc.tcl:776
 msgid "Calibration..."
@@ -5606,15 +5615,15 @@ msgstr "Утилиты"
 
 #: tcl/tklinuxcnc.tcl:792
 msgid "Hal Scope"
-msgstr "HAL-скоп"
+msgstr "Область Применения"
 
 #: tcl/tklinuxcnc.tcl:806
 msgid "Set Coordinates"
-msgstr "Установить координаты"
+msgstr "Установить Координаты"
 
 #: tcl/tklinuxcnc.tcl:814
 msgid "HAL Show"
-msgstr "Показать HAL"
+msgstr "Выставка HAL"
 
 #: tcl/tklinuxcnc.tcl:815
 msgid "HAL Config"
@@ -5626,15 +5635,15 @@ msgstr "Помощь..."
 
 #: tcl/tklinuxcnc.tcl:821
 msgid "Balloon help"
-msgstr "Подсказки"
+msgstr "Помощь с воздушным шаром"
 
 #: tcl/tklinuxcnc.tcl:844
 msgid "Estop on"
-msgstr "АВОСТ вкл"
+msgstr "Estop вкл"
 
 #: tcl/tklinuxcnc.tcl:845
 msgid "Estop off"
-msgstr "АВОСТ выкл"
+msgstr "Estop выкл"
 
 #: tcl/tklinuxcnc.tcl:847
 msgid "Machine on"
@@ -5646,7 +5655,7 @@ msgstr "Станок выкл"
 
 #: tcl/tklinuxcnc.tcl:855 src/emc/usr_intf/touchy/touchy.glade:1551
 msgid "Manual"
-msgstr "Ручной"
+msgstr "Справочник"
 
 #: tcl/tklinuxcnc.tcl:857 tcl/tklinuxcnc.tcl:2105
 #: src/emc/usr_intf/touchy/touchy.glade:1264
@@ -5699,7 +5708,7 @@ msgstr "Тормоз выкл"
 
 #: tcl/tklinuxcnc.tcl:919
 msgid "ABORT"
-msgstr "Отменить"
+msgstr "ПРЕРВАТЬ"
 
 #: tcl/tklinuxcnc.tcl:936
 msgid "Offset:"
@@ -5707,39 +5716,39 @@ msgstr "Отступ:"
 
 #: tcl/tklinuxcnc.tcl:942
 msgid "Work Offsets:"
-msgstr "Рабочий отступ:"
+msgstr "Рабочий Отступ:"
 
 #: tcl/tklinuxcnc.tcl:1126
 msgid "override limits"
-msgstr "Игнорировать пределы"
+msgstr "отменить ограничения"
 
 #: tcl/tklinuxcnc.tcl:1132
 msgid "relative"
-msgstr "Относительная"
+msgstr "относительно"
 
 #: tcl/tklinuxcnc.tcl:1133
 msgid "machine"
-msgstr "Абсолютная"
+msgstr "машина"
 
 #: tcl/tklinuxcnc.tcl:1135
 msgid "actual"
-msgstr "Настоящая"
+msgstr "актуально"
 
 #: tcl/tklinuxcnc.tcl:1136
 msgid "commanded"
-msgstr "Заданная"
+msgstr "по команде"
 
 #: tcl/tklinuxcnc.tcl:1139
 msgid "joint"
-msgstr "Сочленение"
+msgstr "совместный"
 
 #: tcl/tklinuxcnc.tcl:1140
 msgid "world"
-msgstr "Координаты"
+msgstr "мир"
 
 #: tcl/tklinuxcnc.tcl:1167 src/emc/usr_intf/pncconf/private_data.py:469
 msgid "home"
-msgstr "начало"
+msgstr "дом"
 
 #: tcl/tklinuxcnc.tcl:1222
 msgid "Set axis value:"
@@ -5747,43 +5756,43 @@ msgstr "Установить значение оси:"
 
 #: tcl/tklinuxcnc.tcl:1280
 msgid "Set Jog Speed"
-msgstr "Скорость перемещений"
+msgstr "Установка Скорости Движения"
 
 #: tcl/tklinuxcnc.tcl:1293
 msgid "Set jog speed:"
-msgstr "Скорость быстрого хода:"
+msgstr "Установить скорость толчкового движения:"
 
 #: tcl/tklinuxcnc.tcl:1318
 msgid "Set Feed Override"
-msgstr "Переопределить подачу"
+msgstr "Настроить отмену подачи"
 
 #: tcl/tklinuxcnc.tcl:1324
 msgid "Set feed override:"
-msgstr "Изменить подачу:"
+msgstr "Установить перекрытие подачи:"
 
 #: tcl/tklinuxcnc.tcl:1349
 msgid "Set Spindle Override"
-msgstr "Переопределить обороты шпинделя"
+msgstr "Установить запрет Вращения Шпинделя"
 
 #: tcl/tklinuxcnc.tcl:1355
 msgid "Set spindle speed override:"
-msgstr "Изменить обороты шпинделя:"
+msgstr "Установите коррекцию скорости шпинделя:"
 
 #: tcl/tklinuxcnc.tcl:1410
 msgid "Linear Jog Speed"
-msgstr "Скорость линейного хода"
+msgstr "Скорость Линейного Перемещения"
 
 #: tcl/tklinuxcnc.tcl:1441
 msgid "Angular Jog Speed (deg)/min:"
-msgstr "Скорость углового хода (deg)/min:"
+msgstr "Скорость углового толчка (град.)/мин:"
 
 #: tcl/tklinuxcnc.tcl:1465 share/axis/tcl/axis.tcl:1491
 msgid "Feed Override:"
-msgstr "Изменить подачу:"
+msgstr "Переключение подачи:"
 
 #: tcl/tklinuxcnc.tcl:1485
 msgid "Spindle speed Override:"
-msgstr "Обороты шпинделя:"
+msgstr "Переключение скорости Шпинделя:"
 
 #: tcl/tklinuxcnc.tcl:1509
 msgid "MDI:"
@@ -5795,26 +5804,26 @@ msgstr "Программа: "
 
 #: tcl/tklinuxcnc.tcl:1536
 msgid "  -  Status: "
-msgstr "  -- Статус: "
+msgstr "  -  Состояние: "
 
 #: tcl/tklinuxcnc.tcl:1547 src/emc/usr_intf/stepconf/main_page.glade:292
 #: src/emc/usr_intf/pncconf/dialogs.glade:3734
 #: src/emc/usr_intf/gscreen/gscreen.glade:4137
 msgid "Run"
-msgstr "Запустить"
+msgstr "Запуск"
 
 #: tcl/tklinuxcnc.tcl:1548 src/emc/usr_intf/pncconf/dialogs.glade:3651
 #: src/emc/usr_intf/gscreen/gscreen.glade:4153
 msgid "Pause"
-msgstr "Пауза"
+msgstr "Приостановить"
 
 #: tcl/tklinuxcnc.tcl:1549
 msgid "Resume"
-msgstr "Продолжить"
+msgstr "Резюме"
 
 #: tcl/tklinuxcnc.tcl:1550
 msgid "Step"
-msgstr "Шаг"
+msgstr "Ступень"
 
 #: tcl/tklinuxcnc.tcl:1551
 msgid "Verify"
@@ -5822,11 +5831,11 @@ msgstr "Проверить"
 
 #: tcl/tklinuxcnc.tcl:1552
 msgid "Optional Stop"
-msgstr "Останов по запросу"
+msgstr "Дополнительная Остановка"
 
 #: tcl/tklinuxcnc.tcl:1945 tcl/ngcgui_ttt.tcl:47
 msgid "Set Font"
-msgstr "Установить шрифт"
+msgstr "Задать Шрифт"
 
 #: tcl/tklinuxcnc.tcl:1954 tcl/ngcgui_ttt.tcl:284
 msgid "Font"
@@ -5842,11 +5851,11 @@ msgstr "Стиль"
 
 #: tcl/tklinuxcnc.tcl:2016 tcl/tklinuxcnc.tcl:2115
 msgid "MANUAL"
-msgstr "Ручной"
+msgstr "РУКОВОДСТВО"
 
 #: tcl/tklinuxcnc.tcl:2086 share/axis/tcl/axis.tcl:1771
 msgid "ESTOP"
-msgstr "АВОСТ"
+msgstr "ОСТАНАВИТЬСЯ"
 
 #: tcl/tklinuxcnc.tcl:2088 tcl/ngcgui.tcl:3000 share/axis/tcl/axis.tcl:1773
 msgid "ON"
@@ -5854,35 +5863,35 @@ msgstr "ВКЛ"
 
 #: tcl/tklinuxcnc.tcl:2090
 msgid "ESTOP RESET"
-msgstr "Сбросить АВОСТ"
+msgstr "СТОП СБРОС"
 
 #: tcl/tklinuxcnc.tcl:2096
 msgid "AUTO"
-msgstr "Авто"
+msgstr "АВТО"
 
 #: tcl/tklinuxcnc.tcl:2128
 msgid "MIST ON"
-msgstr "Включить туман"
+msgstr "ВКЛЮЧИТЬ ТУМАН"
 
 #: tcl/tklinuxcnc.tcl:2130
 msgid "MIST OFF"
-msgstr "Выключить туман"
+msgstr "ТУМАН ВЫКЛЮЧЕН"
 
 #: tcl/tklinuxcnc.tcl:2132
 msgid "MIST ?"
-msgstr "Туман?"
+msgstr "ТУМАН ?"
 
 #: tcl/tklinuxcnc.tcl:2136
 msgid "FLOOD ON"
-msgstr "Включить струю"
+msgstr "НАПЛЫВ ВКЛЮЧЕН"
 
 #: tcl/tklinuxcnc.tcl:2138
 msgid "FLOOD OFF"
-msgstr "Выключить струю"
+msgstr "НАПЛЫВ ВЫКЛЮЧЕН"
 
 #: tcl/tklinuxcnc.tcl:2140
 msgid "FLOOD ?"
-msgstr "Струя?"
+msgstr "НАПЛЫВ ?"
 
 #: tcl/tklinuxcnc.tcl:2144
 msgid "LUBE ON"
@@ -5894,80 +5903,80 @@ msgstr "СМАЗКА ВЫКЛ"
 
 #: tcl/tklinuxcnc.tcl:2148
 msgid "LUBE ?"
-msgstr "СМАЗКА?"
+msgstr "СМАЗКА ?"
 
 #: tcl/tklinuxcnc.tcl:2152
 msgid "SPINDLE FORWARD"
-msgstr "Шпиндель вперед"
+msgstr "ШПИНДЕЛЬ ВПЕРЕД"
 
 #: tcl/tklinuxcnc.tcl:2154
 msgid "SPINDLE REVERSE"
-msgstr "Шпиндель назад"
+msgstr "РЕВЕРС ШПИНДЕЛЯ"
 
 #: tcl/tklinuxcnc.tcl:2156
 msgid "SPINDLE OFF"
-msgstr "Выключить шпиндель"
+msgstr "ШПИНДЕЛЬ ВЫКЛ"
 
 #: tcl/tklinuxcnc.tcl:2158
 msgid "SPINDLE INCREASE"
-msgstr "Шпиндель быстрее"
+msgstr "УВЕЛИЧЕНИЕ ШПИНДЕЛЯ"
 
 #: tcl/tklinuxcnc.tcl:2160
 msgid "SPINDLE DECREASE"
-msgstr "Шпиндель медленнее"
+msgstr "УМЕНЬШЕНИЕ ЧИСЛА ОБОРОТОВ ШПИНДЕЛЯ"
 
 #: tcl/tklinuxcnc.tcl:2162
 msgid "SPINDLE ?"
-msgstr "Шпиндель?"
+msgstr "ШПИНДЕЛЬ ?"
 
 #: tcl/tklinuxcnc.tcl:2166
 msgid "BRAKE ON"
-msgstr "Включить тормоз"
+msgstr "ВКЛЮЧИТЬ ТОРМОЗ"
 
 #: tcl/tklinuxcnc.tcl:2168
 msgid "BRAKE OFF"
-msgstr "Выключить тормоз"
+msgstr "ТОРМОЗ ВЫКЛЮЧЕН"
 
 #: tcl/tklinuxcnc.tcl:2170
 msgid "BRAKE ?"
-msgstr "Тормоз?"
+msgstr "ТОРМОЗ ?"
 
 #: tcl/scripts/Set_Coordinates.tcl:23
 msgid "LinuxCNC Set Coordinate"
-msgstr "LinuxCNC Установить координату"
+msgstr "LinuxCNC Установить Координату"
 
 #: tcl/scripts/Set_Coordinates.tcl:26
 msgid "Coordinate System Control Window"
-msgstr "Окно управления координатной системой"
+msgstr "Окно Управления Координатной Системой"
 
 #: tcl/scripts/Set_Coordinates.tcl:83
 #: src/emc/usr_intf/axis/scripts/axis.py:3647
 msgid "Axis "
-msgstr "Ось "
+msgstr "Ось "
 
 #: tcl/scripts/Set_Coordinates.tcl:84
 msgid "Var # "
-msgstr "Пер № "
+msgstr "Был # "
 
 #: tcl/scripts/Set_Coordinates.tcl:85
 msgid "Offset Value "
-msgstr "Значение отступа "
+msgstr "Значение смещения "
 
 #: tcl/scripts/Set_Coordinates.tcl:86
 msgid "What to Teach"
-msgstr "Чему учить"
+msgstr "Чему Научить"
 
 #: tcl/scripts/Set_Coordinates.tcl:95
 msgid "Teach"
-msgstr "Научить"
+msgstr "Обучение"
 
 #: tcl/scripts/Set_Coordinates.tcl:105
 msgid "Set Old"
-msgstr "Установить старое"
+msgstr "Установить Старый"
 
 #: tcl/scripts/Set_Coordinates.tcl:106
 msgid "Set Zero"
-msgstr "Установить ноль"
+msgstr "Установить Ноль"
 
 #: tcl/scripts/Set_Coordinates.tcl:108
 msgid "Write"
@@ -5975,7 +5984,7 @@ msgstr "Записать"
 
 #: tcl/ngcgui.tcl:443 tcl/ngcgui.tcl:859
 msgid "Need non-null file name"
-msgstr "Требуется ненулевое имя файла"
+msgstr "Требуется не‐нулевое имя файла"
 
 #: tcl/ngcgui.tcl:487
 msgid "Disallowed use of ngcgui generated file as Subfile"
@@ -5993,7 +6002,7 @@ msgstr ""
 #: tcl/ngcgui.tcl:507 tcl/ngcgui.tcl:526 tcl/ngcgui.tcl:548 tcl/ngcgui.tcl:561
 #: tcl/ngcgui.tcl:581 tcl/ngcgui.tcl:686
 msgid "bogus"
-msgstr "фальшивый"
+msgstr "фиктивный"
 
 #: tcl/ngcgui.tcl:509
 msgid "can not include subroutines within ngcgui subfile"
@@ -6005,7 +6014,7 @@ msgstr "Использование нескольких подпрограмм �
 
 #: tcl/ngcgui.tcl:528
 msgid "sub label"
-msgstr "субэтикетка"
+msgstr "подложка"
 
 #: tcl/ngcgui.tcl:528 tcl/ngcgui.tcl:583
 msgid "does not match subroutine file name"
@@ -6013,11 +6022,11 @@ msgstr "не совпадает с названием файла подпрог�
 
 #: tcl/ngcgui.tcl:543 tcl/ngcgui.tcl:544
 msgid "ignoring M2 after endsub"
-msgstr "игнорирование M2 после endsub"
+msgstr "игнорирование M2 после завершения работы"
 
 #: tcl/ngcgui.tcl:549
 msgid "file contains lines after subend"
-msgstr "файл содержит строки после субэнда"
+msgstr "файл содержит строки после subend"
 
 #: tcl/ngcgui.tcl:562
 msgid "file contains lines before sub"
@@ -6033,15 +6042,15 @@ msgstr "позиционный параметр вне последовател�
 
 #: tcl/ngcgui.tcl:688
 msgid "expected"
-msgstr "ожидал"
+msgstr "ожидается"
 
 #: tcl/ngcgui.tcl:739
 msgid "no 'sub' found in file"
-msgstr "'подпрограммы' не найдена в файле"
+msgstr "В файле не найдено ни одного слова 'sub'"
 
 #: tcl/ngcgui.tcl:742
 msgid "no 'endsub' found in file"
-msgstr "в файле не найден 'endsub'"
+msgstr "В файле не найдено ни одного слова 'endsub'"
 
 #: tcl/ngcgui.tcl:814
 msgid "Cannot find gcmc executable"
@@ -6049,15 +6058,15 @@ msgstr "Не могу найти исполняемый файл gcmc"
 
 #: tcl/ngcgui.tcl:815
 msgid "Please Install in path"
-msgstr "Пожалуйста, установите по пути"
+msgstr "Пожалуйста, установите в путь"
 
 #: tcl/ngcgui.tcl:823
 msgid "not embedded, deriving outdir from:"
-msgstr "не встроен, полученный из outdir:"
+msgstr "не встраивается, а выводится за пределы:"
 
 #: tcl/ngcgui.tcl:1051
 msgid "Choose Files"
-msgstr "Выберите файлы"
+msgstr "Выберите Файлы"
 
 #: tcl/ngcgui.tcl:1191
 msgid "Controls"
@@ -6065,7 +6074,7 @@ msgstr "Управление"
 
 #: tcl/ngcgui.tcl:1200
 msgid "Preamble"
-msgstr "Преамбула"
+msgstr "Предисловие"
 
 #: tcl/ngcgui.tcl:1213
 msgid "Subfile"
@@ -6073,7 +6082,7 @@ msgstr "Подфайл"
 
 #: tcl/ngcgui.tcl:1225
 msgid "Postamble"
-msgstr "Постамбула"
+msgstr "Постамент"
 
 #: tcl/ngcgui.tcl:1242
 msgid "Retain values on Subfile read"
@@ -6081,7 +6090,7 @@ msgstr "Сохранять значения при чтении подфайла
 
 #: tcl/ngcgui.tcl:1250
 msgid "Expand subroutine"
-msgstr "Раскрыть подпрограмму"
+msgstr "Развернуть подпрограмму"
 
 #: tcl/ngcgui.tcl:1260 tcl/ngcgui.tcl:2592
 msgid "Autosend"
@@ -6089,16 +6098,16 @@ msgstr "Авторассылка"
 
 #: tcl/ngcgui.tcl:1270
 msgid "Verbose ngcfile"
-msgstr "Подробный ngcfile"
+msgstr "Развернутое сообщение ngcfile"
 
 #: tcl/ngcgui.tcl:1280 tcl/ngcgui.tcl:2414 tcl/ngcgui.tcl:2437
 #: tcl/ngcgui.tcl:2467
 msgid "Create Feature"
-msgstr "Создать объект"
+msgstr "Создать Функцию"
 
 #: tcl/ngcgui.tcl:1286 tcl/ngcgui.tcl:3079
 msgid "MakeFile"
-msgstr "Создать файл"
+msgstr "СоздатьФайл"
 
 #: tcl/ngcgui.tcl:1287 tcl/ngcgui.tcl:3076
 msgid "Finalize"
@@ -6110,11 +6119,11 @@ msgstr "Перечитать"
 
 #: tcl/ngcgui.tcl:1313 src/emc/usr_intf/gscreen/gscreen.glade:390
 msgid "Restart"
-msgstr "Рестарт"
+msgstr "Перезапуск"
 
 #: tcl/ngcgui.tcl:1323
 msgid "SendFileToAxis"
-msgstr "Отправить файл на ось"
+msgstr "ОтправитьФайлНаОсь"
 
 #: tcl/ngcgui.tcl:1366
 msgid "Unrecoverable problem"
@@ -6122,7 +6131,7 @@ msgstr "Неустранимая проблема"
 
 #: tcl/ngcgui.tcl:1444
 msgid "Postamble file"
-msgstr "Файл постамбулы"
+msgstr "Файл послесловия"
 
 #: tcl/ngcgui.tcl:1494
 msgid "Subroutine file"
@@ -6130,19 +6139,19 @@ msgstr "Файл подпрограммы"
 
 #: tcl/ngcgui.tcl:1558
 msgid "Positional Parameters"
-msgstr "Параметры позиций"
+msgstr "Параметры Позиций"
 
 #: tcl/ngcgui.tcl:1707
 msgid "No Subfile specified"
-msgstr "Подфайл не указан"
+msgstr "Подфайл Не указан"
 
 #: tcl/ngcgui.tcl:1709
 msgid "No parameters yet"
-msgstr "Еще нет параметров"
+msgstr "Пока нет параметров"
 
 #: tcl/ngcgui.tcl:1718
 msgid "Missing value for parm"
-msgstr "Отсутствует значение параметра"
+msgstr "Недостающее значение для параметра parm"
 
 #: tcl/ngcgui.tcl:1739
 msgid "Output file"
@@ -6150,11 +6159,11 @@ msgstr "Выходной файл"
 
 #: tcl/ngcgui.tcl:1854
 msgid "Multiple Tabs with Features"
-msgstr "Несколько вкладок с функциями"
+msgstr "Несколько Вкладок с Характеристиками"
 
 #: tcl/ngcgui.tcl:1855
 msgid "Finalize all Tabs?"
-msgstr "Завершить все вкладки?"
+msgstr "Завершить все Вкладки?"
 
 #: tcl/ngcgui.tcl:1855
 msgid "Order"
@@ -6162,7 +6171,7 @@ msgstr "Заказ"
 
 #: tcl/ngcgui.tcl:1857
 msgid "No, just this page"
-msgstr "Нет, только эта страница"
+msgstr "Нет, только на этой странице"
 
 #: tcl/ngcgui.tcl:1871
 msgid "Axis is not responding"
@@ -6178,23 +6187,23 @@ msgstr "Автоотправка отключена, Ctrl-A переключае
 
 #: tcl/ngcgui.tcl:1876
 msgid "File saving enabled -- Finalize to save"
-msgstr "Сохранение файлов включено -- Завершить для сохранения"
+msgstr "Включено сохранение файлов -- Завершение работы для сохранения"
 
 #: tcl/ngcgui.tcl:1892
 msgid "Require .ngc suffix for filename"
-msgstr "Требуется .ngc суффикс в имени файла"
+msgstr "Требуется суффикс .ngc для имени файла"
 
 #: tcl/ngcgui.tcl:1902
 msgid "Disallowed overwrite of"
-msgstr "Запрещена перезапись"
+msgstr "Запрет на перезапись"
 
 #: tcl/ngcgui.tcl:1930
 msgid "FEATURE"
-msgstr "ОСОБЕННОСТИ"
+msgstr "ПОДРОБНЕЕ"
 
 #: tcl/ngcgui.tcl:1937
 msgid "feature line added"
-msgstr "добавлена функциональная строка"
+msgstr "добавлена линейка функций"
 
 #: tcl/ngcgui.tcl:1941
 msgid "remaining_features line added"
@@ -6202,7 +6211,7 @@ msgstr "добавлена строка remaining_features"
 
 #: tcl/ngcgui.tcl:1953
 msgid "line added"
-msgstr "добавлена строка"
+msgstr "добавлена линия"
 
 #: tcl/ngcgui.tcl:1953
 msgid "activated"
@@ -6210,11 +6219,11 @@ msgstr "активирован"
 
 #: tcl/ngcgui.tcl:1955
 msgid "restores"
-msgstr "восстанавливает"
+msgstr "восстановление"
 
 #: tcl/ngcgui.tcl:1994
 msgid "NOTREACHED mode"
-msgstr "Режим НЕДОСТИЖЕН"
+msgstr "Режим НЕДОСТИГНУТ"
 
 #: tcl/ngcgui.tcl:2010
 msgid "Positional parameters for"
@@ -6226,7 +6235,7 @@ msgstr "расширенный файл"
 
 #: tcl/ngcgui.tcl:2032
 msgid "call subroutine file"
-msgstr "вызвать файл подпрограмм"
+msgstr "вызов файла подпрограммы"
 
 #: tcl/ngcgui.tcl:2415
 msgid "Enter parms for 1st feature"
@@ -6234,71 +6243,71 @@ msgstr "Введите параметры для первой функции"
 
 #: tcl/ngcgui.tcl:2422
 msgid "New Outfile"
-msgstr "новый файл вывода"
+msgstr "Новый Исходящий файл"
 
 #: tcl/ngcgui.tcl:2424
 msgid "Ready to make New Outfile"
-msgstr "Готово создать новый выходной файл"
+msgstr "Готовность к созданию нового выходного файла"
 
 #: tcl/ngcgui.tcl:2440 tcl/ngcgui.tcl:2473
 msgid "Enter parms for feature "
-msgstr "Введите параметры для функции"
+msgstr "Введите параметры для функции "
 
 #: tcl/ngcgui.tcl:2460
 msgid "feature"
-msgstr "особенность"
+msgstr "характеристика"
 
 #: tcl/ngcgui.tcl:2465
 msgid "Create Next"
-msgstr "Создать следующий"
+msgstr "Создать Следующий"
 
 #: tcl/ngcgui.tcl:2470
 msgid "Created feature "
-msgstr "Созданная функция"
+msgstr "Созданная характеристика "
 
 #: tcl/ngcgui.tcl:2494
 msgid "option"
-msgstr "вариант"
+msgstr "опция"
 
 #: tcl/ngcgui.tcl:2505
 msgid "Missing parameters"
-msgstr "отсутствующие параметры"
+msgstr "Отсутствующие параметры"
 
 #: tcl/ngcgui.tcl:2509
 msgid "Parse Error"
-msgstr "Ошибка разбора"
+msgstr "Ошибка Разбора"
 
 #: tcl/ngcgui.tcl:2516
 msgid "Null Preamble"
-msgstr "Пустая преамбула"
+msgstr "Нулевое Предисловие"
 
 #: tcl/ngcgui.tcl:2521
 msgid "Read Preamble"
-msgstr "Прочтите преамбулу"
+msgstr "Читать Предисловие"
 
 #: tcl/ngcgui.tcl:2525
 msgid "Preamble Error"
-msgstr "Ошибка преамбулы"
+msgstr "Ошибка Предисловия"
 
 #: tcl/ngcgui.tcl:2530
 msgid "Null Postamble"
-msgstr "Пустая постамбула"
+msgstr "Нулевая Постамбула"
 
 #: tcl/ngcgui.tcl:2535
 msgid "Read Postamble"
-msgstr "Читать Postamble"
+msgstr "Читать Постамент"
 
 #: tcl/ngcgui.tcl:2539
 msgid "Postamble Error"
-msgstr "Ошибка постамбулы"
+msgstr "Ошибка Постамента"
 
 #: tcl/ngcgui.tcl:2544
 msgid "Read Subfile"
-msgstr "Чтение подфайла"
+msgstr "Чтение Подфайла"
 
 #: tcl/ngcgui.tcl:2549
 msgid "Write Error"
-msgstr "Ошибка записи"
+msgstr "Ошибка Записи"
 
 #: tcl/ngcgui.tcl:2553
 msgid "Outfile set"
@@ -6306,7 +6315,7 @@ msgstr "Набор исходящих файлов"
 
 #: tcl/ngcgui.tcl:2558
 msgid "Finished"
-msgstr "Законченный"
+msgstr "Готовый"
 
 #: tcl/ngcgui.tcl:2563
 msgid "Canceled"
@@ -6314,11 +6323,11 @@ msgstr "Отмена"
 
 #: tcl/ngcgui.tcl:2569
 msgid "Sent"
-msgstr "Отправил"
+msgstr "Отправлено"
 
 #: tcl/ngcgui.tcl:2573
 msgid "SendFileToAxis failed"
-msgstr "Ошибка SendFileToAxis"
+msgstr "ОтправитьФайлНаОсь не удалось"
 
 #: tcl/ngcgui.tcl:2577
 msgid "Ctrl-k for Key bindings"
@@ -6326,7 +6335,7 @@ msgstr "Ctrl-k для привязок клавиш"
 
 #: tcl/ngcgui.tcl:2581
 msgid "Expand sub"
-msgstr "Раскрыть подпрограмму"
+msgstr "Развернуть подраздел"
 
 #: tcl/ngcgui.tcl:2585
 msgid "Retain values"
@@ -6342,7 +6351,7 @@ msgstr "Завершение отменено"
 
 #: tcl/ngcgui.tcl:2732 tcl/ngcgui.tcl:2888 tcl/tooledit.tcl:933
 msgid "Dismiss"
-msgstr "Увольнять"
+msgstr "Отклонить"
 
 #: tcl/ngcgui.tcl:2737
 msgid "ngcgui Error"
@@ -6358,7 +6367,7 @@ msgstr "Вам следует обновить linuxcnc до >= linuxcnc2.5"
 
 #: tcl/ngcgui.tcl:2805
 msgid "pre2.4_send_file_to_axis:error"
-msgstr "до2.4_отправить_файл_на_ось: ошибка"
+msgstr "до2.4_отправить_файл_на_ось:ошибка"
 
 #: tcl/ngcgui.tcl:2999 share/axis/tcl/axis.tcl:1772
 msgid "OFF"
@@ -6366,15 +6375,15 @@ msgstr "ВЫКЛ"
 
 #: tcl/ngcgui.tcl:3002
 msgid "Toggle autosend"
-msgstr "Включить автопосылку"
+msgstr "Переключить автоотправку"
 
 #: tcl/ngcgui.tcl:3003 tcl/ngcgui.tcl:3210
 msgid "Clear entries"
-msgstr "Очистить вложения"
+msgstr "Очистить записи"
 
 #: tcl/ngcgui.tcl:3004
 msgid "Set entries to default values"
-msgstr "Установите для записей значения по умолчанию"
+msgstr "Установить значения по умолчанию"
 
 #: tcl/ngcgui.tcl:3005 tcl/ngcgui.tcl:3019 tcl/ngcgui.tcl:3021
 msgid "Open editor specified by"
@@ -6406,15 +6415,15 @@ msgstr "Перезапустить (ожидается отмена)"
 
 #: tcl/ngcgui.tcl:3012
 msgid "(re)Read Preamble"
-msgstr "(пере)Читать преамбулу"
+msgstr "(пере)Читать Преамбулу"
 
 #: tcl/ngcgui.tcl:3013
 msgid "(re)Read Postamble"
-msgstr "Читать Postamble"
+msgstr "(повторное)Чтение Постамента"
 
 #: tcl/ngcgui.tcl:3014
 msgid "(re)Read Subfile"
-msgstr "(пере)Читать подфайл"
+msgstr "(пере)Читать Подфайл"
 
 #: tcl/ngcgui.tcl:3015
 msgid "toggle retain values"
@@ -6442,7 +6451,7 @@ msgstr "по текущей преамбуле"
 
 #: tcl/ngcgui.tcl:3025
 msgid " Escape Return to Preview page"
-msgstr "Escape Вернуться на страницу предварительного просмотра"
+msgstr " Escape Вернуться на страницу предварительного просмотра"
 
 #: tcl/ngcgui.tcl:3102
 msgid "Editing requires setting for environmental variable VISUAL"
@@ -6462,7 +6471,7 @@ msgstr "Файл недоступен для редактирования"
 
 #: tcl/ngcgui.tcl:3151
 msgid "Status items"
-msgstr "части статус"
+msgstr "Элементы статуса"
 
 #: tcl/ngcgui.tcl:3164
 msgid "All-page opt items"
@@ -6494,7 +6503,7 @@ msgstr "удалять"
 
 #: tcl/ngcgui.tcl:3611 tcl/ngcgui.tcl:3617
 msgid "move"
-msgstr "двигаться"
+msgstr "переместить"
 
 #: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:4109
 #: src/emc/usr_intf/pncconf/pncconf.py:4215
@@ -6508,7 +6517,7 @@ msgstr "Проблема с созданием страницы"
 
 #: tcl/ngcgui.tcl:3758
 msgid "entrykeybindings not available"
-msgstr "привязки клавиш для входа недоступны"
+msgstr "привязкиклавишдлявхода недоступны"
 
 #: tcl/ngcgui.tcl:3802
 msgid "Found multiple matches for"
@@ -6573,7 +6582,7 @@ msgstr "Попытка продолжить"
 
 #: tcl/ngcgui.tcl:3858
 msgid "Ngcgui Configuration File Not Found"
-msgstr "NGCGUI файл конфигурации не найден"
+msgstr "Файл Конфигурации Ngcgui Не Найден"
 
 #: tcl/ngcgui.tcl:4135
 msgid "ini file"
@@ -6585,15 +6594,15 @@ msgstr "не найден"
 
 #: tcl/ngcgui_ttt.tcl:68
 msgid "found truetype-tracer v4 -OK"
-msgstr "найден истинный тип—трассировщик v4 —ОК"
+msgstr "найден истинныйтип‐трассировщик v4 ‐ОК"
 
 #: tcl/ngcgui_ttt.tcl:71
 msgid "Note truetype-tracer v4 is required"
-msgstr "Обратите внимание на истинный тип-требуется трассировщик v4"
+msgstr "Обратите внимание на истинныйтип-требуется трассировщик v4"
 
 #: tcl/ngcgui_ttt.tcl:72
 msgid "Note: truetype-tracer v4 is required"
-msgstr "Обратите внимание на истинный тип-требуется трассировщик v4"
+msgstr "Примечание: истинныйтип-требуется трассировщик v4"
 
 #: tcl/ngcgui_ttt.tcl:82
 msgid "ngcgui_app.tcl must be loaded before"
@@ -6601,7 +6610,8 @@ msgstr "ngcgui_app.tcl должен быть загружен раньше"
 
 #: tcl/ngcgui_ttt.tcl:90
 msgid "Create a subroutine file from truetype-tracer (V4 reqd)"
-msgstr "Создайте файл подпрограммы из truetype — трассировщика (чтение V4)"
+msgstr ""
+"Создание файла подпрограмм из истинноготипа‐трассировщика (требуется V4)"
 
 #: tcl/ngcgui_ttt.tcl:103 tcl/ngcgui_ttt.tcl:116
 msgid "problem with"
@@ -6613,7 +6623,7 @@ msgstr "Нет записи для"
 
 #: tcl/ngcgui_ttt.tcl:110
 msgid "wrong version of truetype-tracer"
-msgstr "неправильная версия истинного типа — трассировщик"
+msgstr "неправильная версия истинноготипа‐трассировщик"
 
 #: tcl/ngcgui_ttt.tcl:126
 msgid "not writable, using"
@@ -6657,7 +6667,7 @@ msgstr "дата"
 
 #: tcl/ngcgui_ttt.tcl:250
 msgid "fontname"
-msgstr "имя шрифта"
+msgstr "имяшрифта"
 
 #: tcl/ngcgui_ttt.tcl:263
 msgid "Switches"
@@ -6669,7 +6679,7 @@ msgstr "Юникод"
 
 #: tcl/ngcgui_ttt.tcl:276
 msgid "Allow Rotation"
-msgstr "Разрешить вращение"
+msgstr "Разрешить Вращение"
 
 #: tcl/ngcgui_ttt.tcl:296
 msgid "Make ngcgui-compatible subfile and new tab page"
@@ -6681,7 +6691,7 @@ msgstr "Пустой текст"
 
 #: tcl/ngcgui_ttt.tcl:385
 msgid "Using truetype-tracer default font"
-msgstr "Использование истинного типа — шрифт трассировки по умолчанию"
+msgstr "Использование истинноготипа‐шрифт трассировки по умолчанию"
 
 #: tcl/ngcgui_ttt.tcl:389
 msgid "no such file"
@@ -6717,7 +6727,7 @@ msgstr "LinuxCNC"
 
 #: tcl/ngcgui_app.tcl:51 tcl/ngcgui_app.tcl:71
 msgid "for LinuxCNC 2.5.xxx, Do not include tkapp.py in the ini file"
-msgstr "для LinuxCNC 2.5.xxx: не включайте tkapp.py в ini-файл"
+msgstr "для LinuxCNC 2.5.xxx, не включайте tkapp.py в ini файл"
 
 #: tcl/ngcgui_app.tcl:70
 msgid "LinuxCNC version"
@@ -6730,7 +6740,7 @@ msgstr "Проблема прочитать ~/.tooleditrc"
 #: tcl/tooledit.tcl:82
 #, tcl-format
 msgid "Note: Ignoring duplicate column name: %s"
-msgstr "Примечание. Игнорирование повторяющегося имени столбца: %s"
+msgstr "Примечание: Игнорирование повторяющегося имени столбца: %s"
 
 #: tcl/tooledit.tcl:93
 #, tcl-format
@@ -6831,19 +6841,19 @@ msgstr "Удалить"
 
 #: tcl/tooledit.tcl:521
 msgid "ReLoadTable"
-msgstr "ПереЗагрузить таблицу"
+msgstr "ПереЗагрузитьТаблицу"
 
 #: tcl/tooledit.tcl:526
 msgid "SaveFile"
-msgstr "Сохранить файл"
+msgstr "СохранитьФайл"
 
 #: tcl/tooledit.tcl:531
 msgid "ReRead"
-msgstr "Перечитать"
+msgstr "ПереЧитать"
 
 #: tcl/tooledit.tcl:533
 msgid "AddTool"
-msgstr "Добавить Инструмент"
+msgstr "ДобавитьИнструмент"
 
 #: tcl/tooledit.tcl:583
 #, tcl-format
@@ -6881,7 +6891,7 @@ msgstr "Фальшивые строки в файле игнорируются"
 
 #: tcl/tooledit.tcl:591
 msgid "File errors -- Check Entries"
-msgstr "Ошибки файлов – проверьте записи"
+msgstr "Ошибки файлов ‐‐ Проверьте Записи"
 
 #: tcl/tooledit.tcl:592
 msgid "Warning: File changed by another process"
@@ -6927,7 +6937,7 @@ msgstr "Инструмент %s: <Ориентация> должна быть ц
 #: tcl/tooledit.tcl:875
 #, tcl-format
 msgid "Tool %s: <%s> must be between -360 and 360"
-msgstr "Инструмент %s: <%s> должно быть между -360 и 360 "
+msgstr "Инструмент %s: <%s> должно быть между -360 и 360"
 
 #: tcl/tooledit.tcl:890
 #, tcl-format
@@ -6972,7 +6982,7 @@ msgstr "Для автономного использования, вызывае
 
 #: tcl/tooledit.tcl:983
 msgid "tool_table_filename"
-msgstr "таблица_инструмента_имя_файла"
+msgstr "таблица_инструмента_имяфайла"
 
 #: tcl/tooledit.tcl:1003
 #, tcl-format
@@ -6988,8 +6998,8 @@ msgstr "Сохраненная геометрия (обновляется при
 msgid ""
 "%s: Axis inifile specifies multiple inifile items for: [EMCIO]TOOL_TABLE"
 msgstr ""
-"%s: ini-файл оси указывает несколько элементов ini-файла для: [EMCIO] "
-"ИНСТРУМЕНТ _ ТАБЛИЦА"
+"%s: iniфайл оси указывает несколько элементов iniфайла для: "
+"[EMCIO]ИНСТРУМЕНТ_ТАБЛИЦА"
 
 #: tcl/tooledit.tcl:1028
 #, tcl-format
@@ -7012,12 +7022,13 @@ msgstr ""
 
 #: tcl/tooledit.tcl:1043
 msgid "Axis is Running"
-msgstr "Ось работает"
+msgstr "Ось Работает"
 
 #: tcl/tooledit.tcl:1058
 msgid "Must be On and Idle to reload tool table"
 msgstr ""
-"Должен быть включен и простаивать, чтобы перезагрузить таблицу инструментов"
+"Для перезагрузки таблицы инструментов она должна быть включена и находиться "
+"в состоянии покоя"
 
 #: tcl/tooledit.tcl:1147
 msgid "Usage"
@@ -7138,7 +7149,7 @@ msgstr "Обнулить G54 отступ для активной оси"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:199
 msgid "End"
-msgstr "End"
+msgstr "Конец"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:199
 msgid "Set G54 offset for active axis"
@@ -7228,7 +7239,7 @@ msgstr "Приблизить"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:216
 msgid "Wheel Button"
-msgstr "Колёсико"
+msgstr "Кнопка Колеса"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:216
 msgid "Rotate view"
@@ -7467,7 +7478,7 @@ msgstr "Постоянный"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1750
 msgid "T    Tool Table"
-msgstr "T Таблица инструментов"
+msgstr "T    Таблица инструментов"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1760
 #: src/emc/usr_intf/axis/scripts/axis.py:2054
@@ -7606,7 +7617,7 @@ msgstr "%d секунд"
 #: src/emc/usr_intf/axis/scripts/axis.py:2082
 #, python-format
 msgid "%(a)f to %(b)f = %(diff)f %(units)s"
-msgstr "%(a)f к %(b)f = %(diff)f %(units)s"
+msgstr "От %(a)f до %(b)f = %(diff)f %(единиц)s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2084
 msgid "G-Code Properties"
@@ -7676,11 +7687,11 @@ msgid ""
 msgstr ""
 "\n"
 "Возвращение в исходное положение по отдельной оси запрещено из-за "
-"повторяющейся буквы: <%s>"
+"повторяющейся буквы: <%s> "
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2715
 msgid "This joint is already homed, are you sure you want to re-home?"
-msgstr "Это заведение уже размещено. Вы уверены, что хотите вернуться домой?"
+msgstr "Это заведение уже размещено вы уверены, что хотите вернуться домой?"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2753
 msgid "Touch Off (system)"
@@ -7868,7 +7879,7 @@ msgid ""
 "This window is part of the AXIS manual toolchanger.  It is safe to close or "
 "iconify this window, or it will close automatically after a few seconds."
 msgstr ""
-"Это окно является частью ручной смены инструмента AXIS. Его можно закрыть "
+"Это окно является частью ручной смены инструмента AXIS.  Его можно закрыть "
 "или спрятать, или оно исчезнет само через несколько секунд."
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:514
@@ -7989,11 +8000,11 @@ msgstr "Размер пикселя"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:665
 msgid "Depth (units)"
-msgstr "Глубина"
+msgstr "Глубина (единицы измерения)"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:666
 msgid "Tolerance (units)"
-msgstr "Точность"
+msgstr "Допуск (единицы измерения)"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:667
 msgid "Stepover (pixels)"
@@ -8110,19 +8121,19 @@ msgstr "  * Эта опция может быть разрешена тольк�
 
 #: share/axis/tcl/axis.tcl:58
 msgid "_Open..."
-msgstr "Oткрыть..."
+msgstr "_Oткрыть..."
 
 #: share/axis/tcl/axis.tcl:62
 msgid "Recent _Files"
-msgstr "Недавние файлы"
+msgstr "Недавние _Файлы"
 
 #: share/axis/tcl/axis.tcl:66
 msgid "_Edit..."
-msgstr "Изменить..."
+msgstr "_Изменить..."
 
 #: share/axis/tcl/axis.tcl:71
 msgid "_Reload"
-msgstr "Перегрузить"
+msgstr "_Перегрузить"
 
 #: share/axis/tcl/axis.tcl:76
 msgid "_Save G-code as..."
@@ -8130,35 +8141,35 @@ msgstr "_Сохранить G-код как..."
 
 #: share/axis/tcl/axis.tcl:80
 msgid "_Properties..."
-msgstr "Свойства..."
+msgstr "_Свойства..."
 
 #: share/axis/tcl/axis.tcl:86
 msgid "Edit _tool data..."
-msgstr "Изменить параметры инструментов..."
+msgstr "Изменить_параметры инструментов..."
 
 #: share/axis/tcl/axis.tcl:90
 msgid "Reload tool _data"
-msgstr "Перегрузить параметры инструментов"
+msgstr "Перегрузить _параметры инструментов"
 
 #: share/axis/tcl/axis.tcl:96
 msgid "_Ladder Editor..."
-msgstr "PLC редактор..."
+msgstr "_Редактор лестниц..."
 
 #: share/axis/tcl/axis.tcl:108
 msgid "Toggle _Emergency Stop"
-msgstr "Аварийный стоп"
+msgstr "Переключить _аварийную остановку"
 
 #: share/axis/tcl/axis.tcl:113
 msgid "Toggle _Machine Power"
-msgstr "Питание станка"
+msgstr "Переключить _Мощность машины"
 
 #: share/axis/tcl/axis.tcl:120
 msgid "_Run program"
-msgstr "Исполнить программу"
+msgstr "_Исполнить программу"
 
 #: share/axis/tcl/axis.tcl:124
 msgid "Ru_n from selected line"
-msgstr "Исполнить с выделенной строки"
+msgstr "Ру_н из выбранной строки"
 
 #: share/axis/tcl/axis.tcl:129
 msgid "S_tep"
@@ -8166,7 +8177,7 @@ msgstr "Шаг"
 
 #: share/axis/tcl/axis.tcl:134
 msgid "_Pause"
-msgstr "Пауза"
+msgstr "_Пауза"
 
 #: share/axis/tcl/axis.tcl:139
 msgid "Re_sume"
@@ -8174,7 +8185,7 @@ msgstr "Продолжить"
 
 #: share/axis/tcl/axis.tcl:149
 msgid "Stop at M_1"
-msgstr "Остановить на M1"
+msgstr "Остановить на M_1"
 
 #: share/axis/tcl/axis.tcl:154
 msgid "Skip lines with '_/'"
@@ -8194,7 +8205,7 @@ msgstr "Скопировать в журнал MDI"
 
 #: share/axis/tcl/axis.tcl:175
 msgid "_Calibration"
-msgstr "Калибровка"
+msgstr "_Калибровка"
 
 #: share/axis/tcl/axis.tcl:179
 msgid "Show _Hal Configuration"
@@ -8222,19 +8233,19 @@ msgstr "Поиск начала"
 
 #: share/axis/tcl/axis.tcl:205
 msgid "_Unhoming"
-msgstr "Сброс начала"
+msgstr "_Сброс начала"
 
 #: share/axis/tcl/axis.tcl:209
 msgid "_Zero coordinate system"
-msgstr "Обнулить координаты"
+msgstr "_Нулевая система координат"
 
 #: share/axis/tcl/axis.tcl:213
 msgid "P1  G5_4"
-msgstr "P1  G5_4"
+msgstr "P1   G5_4"
 
 #: share/axis/tcl/axis.tcl:217
 msgid "P2  G5_5"
-msgstr "P2  G5_5"
+msgstr "P2  G5_5"
 
 #: share/axis/tcl/axis.tcl:221
 msgid "P3  G5_6"
@@ -8278,23 +8289,23 @@ msgstr "Касание инструмента к крепежу"
 
 #: share/axis/tcl/axis.tcl:271
 msgid "_Top view"
-msgstr "Вид сверху"
+msgstr "_Вид сверху"
 
 #: share/axis/tcl/axis.tcl:278
 msgid "_Rotated Top view"
-msgstr "Повернутый вид сверху"
+msgstr "_Повернутый вид сверху"
 
 #: share/axis/tcl/axis.tcl:285
 msgid "_Side view"
-msgstr "Вид сбоку"
+msgstr "_Вид сбоку"
 
 #: share/axis/tcl/axis.tcl:292
 msgid "_Front view"
-msgstr "Вид спереди"
+msgstr "_Вид спереди"
 
 #: share/axis/tcl/axis.tcl:299
 msgid "_Perspective view"
-msgstr "Вид в перспективе"
+msgstr "_Вид в перспективе"
 
 #: share/axis/tcl/axis.tcl:308
 msgid "Display _Inches"
@@ -8330,7 +8341,7 @@ msgstr "Показать размеры"
 
 #: share/axis/tcl/axis.tcl:351
 msgid "_Grid"
-msgstr "Сетка"
+msgstr "_Сетка"
 
 #: share/axis/tcl/axis.tcl:356
 msgid "Show o_ffsets"
@@ -8354,7 +8365,7 @@ msgstr "Крупный шрифт"
 
 #: share/axis/tcl/axis.tcl:381
 msgid "_Clear live plot"
-msgstr "Очистить исполненное"
+msgstr "_Очистить исполненное"
 
 #: share/axis/tcl/axis.tcl:385
 msgid "Ctrl-E"
@@ -8386,15 +8397,15 @@ msgstr "Режим координат"
 
 #: share/axis/tcl/axis.tcl:443
 msgid "_Off"
-msgstr "Отключена"
+msgstr "_Отключена"
 
 #: share/axis/tcl/axis.tcl:449
 msgid "_Custom"
-msgstr "Выборочно"
+msgstr "_Выборочно"
 
 #: share/axis/tcl/axis.tcl:460
 msgid "_About AXIS"
-msgstr "О AXIS"
+msgstr "_О AXIS"
 
 #: share/axis/tcl/axis.tcl:464
 msgid "Quick _Reference"
@@ -8402,11 +8413,11 @@ msgstr "Быстрая справка"
 
 #: share/axis/tcl/axis.tcl:474
 msgid "_Machine"
-msgstr "Станок"
+msgstr "_Станок"
 
 #: share/axis/tcl/axis.tcl:478
 msgid "_View"
-msgstr "Вид"
+msgstr "_Вид"
 
 #: share/axis/tcl/axis.tcl:491
 msgid "Toggle Emergency Stop [F1]"
@@ -8434,11 +8445,11 @@ msgstr "Исполнить следующую строку·[T]"
 
 #: share/axis/tcl/axis.tcl:545
 msgid "Pause [P] / resume [S] execution"
-msgstr "Приостановить·[P]·/·продолжить·[S]·исполнение"
+msgstr "Приостановить [P] / продолжить [S] исполнение"
 
 #: share/axis/tcl/axis.tcl:560
 msgid "Stop program execution [ESC]"
-msgstr "Остановить исполнение программы·[ESC]"
+msgstr "Остановить исполнение программы [ESC]"
 
 #: share/axis/tcl/axis.tcl:570
 msgid "Toggle skip lines with '/' [Alt-M /]"
@@ -11610,7 +11621,7 @@ msgstr "Полная частота (кГц)"
 #: src/emc/usr_intf/stepconf/thcad.glade:131
 #: src/emc/usr_intf/pncconf/thcad.glade:116
 msgid "F Jumper"
-msgstr "Джемпер F"
+msgstr "F Перемычка"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:143
 #: src/emc/usr_intf/pncconf/thcad.glade:128
@@ -12076,9 +12087,11 @@ msgid ""
 "Existing pyvcp-panel.xml will be renamed and added to 'backups' folder\n"
 "Clicking 'existing custom program' will avoid this warning. "
 msgstr ""
-"OK to replace existing custom pyvcp panel?\n"
-"Existing pyvcp-panel.xml will be renamed and added to 'backups' folder\n"
-"Clicking 'existing custom program' will avoid this warning. "
+"Хорошо ли заменить существующую пользовательскую панель pyvcp?\n"
+"Существующий файл pyvcp-panel.xml будет переименован и добавлен в папку "
+"'Резервные копии'\n"
+"Если нажать 'Существующая пользовательская программа', это предупреждение "
+"исчезнет. "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3734
 #: src/emc/usr_intf/pncconf/private_data.py:555
@@ -14905,46 +14918,37 @@ msgid ""
 msgstr ""
 "Пример отдельных домашних и концевых выключателей\n"
 "\n"
-"    Отрицательное и положительное направления основаны на перемещении "
+"    Отрицательное и положительное направления основаны на перемещении "
 "инструмента, которое может быть различным\n"
-"    затем собственно движение машины. т.е. на фрезерном станке обычно "
+"    затем собственно движение машины. т.е. на фрезерном станке обычно "
 "перемещается стол, а не инструмент.\n"
 "\n"
+"    Программные ограничения находятся внутри области концевого выключателя.\n"
 "\n"
-"    Программные ограничения находятся внутри области концевого выключателя.\n"
-"\n"
-"    (При использовании самонаведения на основе переключателя) "
+"    (При использовании самонаведения на основе переключателя) "
 "самонаводящиеся переключатели используют концевые выключатели (общий дом / "
 "концевой выключатель)\n"
-"\n"
-"    или находятся в зоне действия концевого выключателя при использовании "
+"    или находятся в зоне действия концевого выключателя при использовании "
 "отдельного домашнего выключателя.\n"
 "\n"
-"\n"
-"    Нулевое начало машины G53 обычно находится в зоне мягких ограничений, но "
+"    Нулевое начало машины G53 обычно находится в зоне мягких ограничений, но "
 "не обязательно.\n"
 "\n"
-"\n"
-"    При использовании отдельного переключателя самонаведения можно запустить "
+"    При использовании отдельного переключателя самонаведения можно запустить "
 "самонаведение не с той стороны переключателя home,\n"
 "что в сочетании с параметром HOME_IGNORE_LIMITS приведет к серьезному сбою.\n"
+"    Вы можете избежать этого, заставив переключатель home переключать его "
+"состояние, когда собака-поводырь находится на определенной стороне, до тех "
+"пор, пока она снова не вернется к точке срабатывания.\n"
+"    Другими словами, состояние переключателя home должно представлять "
+"положение собаки относительно переключателя (т.е. до или после переключателя)"
 "\n"
-"    Вы можете избежать этого, заставив переключатель home переключать его "
-"состояние, когда собачка находится на определенной стороне, до тех пор, пока "
-"она снова не вернется к точке отключения.\n"
+"и должно оставаться таким, даже если собака проходит мимо переключателя в "
+"том же направлении.\n"
 "\n"
-"    Другими словами, состояние переключателя home должно отражать положение "
-"собаки относительно переключателя (т.е. до или после переключателя)\n"
-"\n"
-"    и должно оставаться таким, даже если собака проходит мимо переключателя "
-"в том же направлении.\n"
-"\n"
-"\n"
-"\n"
-"    В этом примере расстояние между концевыми выключателями и мягкими "
+"    В этом примере расстояние между концевыми выключателями и плавными "
 "ограничителями (-L<->A и D<-+L) увеличено\n"
-"\n"
-"    Обратите внимание, что между концевыми выключателями и фактическим "
+"    Обратите внимание, что между концевыми выключателями и фактическим "
 "физическим жестким контактом имеется расстояние для наката после отключения "
 "усилителя.\n"
 
@@ -16350,7 +16354,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:58895
 #: src/emc/usr_intf/pncconf/mesa1.glade:58910
 msgid " "
-msgstr " "
+msgstr " "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:8728
 #: src/emc/usr_intf/pncconf/mesa1.glade:8728
@@ -18284,7 +18288,7 @@ msgstr "Параллельный порт"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:45
 msgid "--epp"
-msgstr "--эпп"
+msgstr "--epp"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:117
 #: src/emc/usr_intf/pncconf/dialogs.glade:472
@@ -18307,7 +18311,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:164
 msgid "Ethernet Address:"
-msgstr "Адрес езернет:"
+msgstr "Адрес Ethernet:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:176
 msgid "192.168.1.121"
@@ -18323,7 +18327,7 @@ msgstr "Чтение PIN-файла хоста mot2. На вкладке вво�
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:233
 msgid "Mesa Board Discovery<"
-msgstr "Открытие доски Меса<"
+msgstr "Открытие платы Mesa <"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:303
 #: src/emc/usr_intf/pncconf/dialogs.glade:329
@@ -18338,7 +18342,7 @@ msgstr "hm2_pci"
 #: src/emc/usr_intf/pncconf/dialogs.glade:310
 #: src/emc/usr_intf/pncconf/dialogs.glade:336
 msgid "Parallel Port -7i43"
-msgstr "Параллельный порт - 7i43"
+msgstr "Параллельный порт-7i43"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:311
 #: src/emc/usr_intf/pncconf/dialogs.glade:337
@@ -18541,7 +18545,7 @@ msgstr "Зубья шкивов (Энкодер:Винт):"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2664
 msgid "                    "
-msgstr "                    "
+msgstr "                    "
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2705
 msgid "encoder pulses per unit:"
@@ -18627,11 +18631,11 @@ msgstr "Оригинал"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4225
 msgid "DeadBand"
-msgstr "Дедбэнд"
+msgstr "Мертвая зона"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4300
 msgid "PID Tuning"
-msgstr "Настройка ПИД"
+msgstr "Настройка PID"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4739
 msgid "Step Time:"
@@ -18710,7 +18714,7 @@ msgstr "Есть звуковое оповещение!"
 msgid ""
 "No audio alerts are available - Is gir1.2-gstreamer-1.0 package installed?"
 msgstr ""
-"Звуковые оповещения недоступны. Установлен ли пакет gir1.2-gstreamer-1.0?"
+"Звуковые оповещения недоступны - Установлен ли пакет gir1.2-gstreamer-1.0?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:286
 #: src/emc/usr_intf/gscreen/gscreen.py:290
@@ -18735,7 +18739,7 @@ msgstr "Добавление каталога импорта {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:448
 msgid "Module '{}' skipped - import error: {}"
-msgstr "Модуль '{}' пропущен – ошибка импорта: {}"
+msgstr "Модуль '{}' пропущен ‐ ошибка импорта: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:450
 msgid "Module '{}' imported OK"
@@ -18749,7 +18753,7 @@ msgstr "Модуль '{}': найдена функция '{}'"
 #: src/emc/usr_intf/gscreen/gscreen.py:466
 msgid "Module '{}': no '{}' function - registering only functions as callbacks"
 msgstr ""
-"Модуль «{}»: нет функции «{}» — регистрация только функций в качестве "
+"Модуль «{}»: нет функции «{}» ‐ регистрация только функций в качестве "
 "обратных вызовов"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:470
@@ -18766,7 +18770,7 @@ msgstr "Название скина = {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:528
 msgid "INI file path missing from Gscreen launch command"
-msgstr "Путь к INI-файлу отсутствует в команде запуска Gscreen"
+msgstr "В команде запуска экрана G отсутствует путь к INI-файлу"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:536
 msgid "Custom locale name = {}"
@@ -18802,11 +18806,12 @@ msgstr "Ошибка с XML файлом экрана 2: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:589
 msgid "No Screen 2 glade file present"
-msgstr "Файл поляны экрана 2 отсутствует"
+msgstr "Отсутствует файл поляны экрана 2"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:600
 msgid "Audio test failed - Is gstreamer0.10-plugins-base installed?"
-msgstr "Аудиотест не пройден. Установлен ли gstreamer0.10-plugins-base?"
+msgstr ""
+"Не удалось выполнить аудиотест - Установлен ли gstreamer0.10-plugins-base?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:615
 msgid "No coordinates entry found in [TRAJ] of INI file"
@@ -18814,7 +18819,7 @@ msgstr "В [TRAJ] INI-файла не найдена запись о коорд�
 
 #: src/emc/usr_intf/gscreen/gscreen.py:633
 msgid "No UNITS entry found in [TRAJ] or [AXIS_X] of INI file"
-msgstr "Не найдена запись UNITS в [TRAJ] или [AXIS_X] INI-файла"
+msgstr "Не найдено записи единиц измерения в [TRAJ] или [AXIS_X] INI-файла"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:646
 msgid "Asking for a HAL component using a name that already exists"
@@ -18830,7 +18835,9 @@ msgstr "Путь к файлу предпочтений: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:717
 msgid "No default jog increments entry found in [DISPLAY] of INI file"
-msgstr "В [DISPLAY] INI файла не найдена запись о шагах по умолчанию"
+msgstr ""
+"В [ОТОБРАЖЕНИИ] INI файла не найдено записи о приращениях пробежки по "
+"умолчанию"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:730
 msgid "No default angular jog increments entry found in [DISPLAY] of INI file"
@@ -18888,7 +18895,7 @@ msgstr "В [DISPLAY] INI-файла не найдена запись MIN_SPINDLE
 
 #: src/emc/usr_intf/gscreen/gscreen.py:801
 msgid "No MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file"
-msgstr "В [DISPLAY] INI-файла не найдена запись MAX_FEED_OVERRIDE"
+msgstr "В [ОТОБРАЖЕНИИ] INI-файла не найдена запись MAX_FEED_OVERRIDE"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:806
 msgid "This screen will be orientated for Lathe options"
@@ -18944,7 +18951,7 @@ msgstr "Размер окна установлен на {}x{}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1475
 msgid "Invalid window size specified '{}', defaulted to {}x{}"
-msgstr "Указан недопустимый размер окна «{}», по умолчанию — {}x{}"
+msgstr "Указан недопустимый размер окна «{}», по умолчанию {}x{}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1477
 msgid "Using default window size: {}x{}"
@@ -19046,11 +19053,11 @@ msgstr "Classicladder компонент реального времени не 
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2446
 msgid "ladder not available - is the realtime component loaded?"
-msgstr "лестница недоступна – загружен ли компонент реального времени?"
+msgstr "лестница недоступна ‐ загружен ли компонент реального времени?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2452
 msgid "Estopping and killing gscreen"
-msgstr "Остановить и убить gscreen"
+msgstr "Остановить и убить экран g"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2597
 msgid "Override Entry"
@@ -19062,7 +19069,7 @@ msgstr "Машина включена"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2646
 msgid "Machine Estopped!"
-msgstr "Станок на АВОСТе!"
+msgstr "Машинное производство!"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2652
 #: lib/python/gladevcp/calculator.glade:33
@@ -19112,7 +19119,7 @@ msgstr "Ручное управление шпинделем"
 #: src/emc/usr_intf/gscreen/gscreen.py:3150
 msgid "Error with launching on-screen keyboard program - cannot find program"
 msgstr ""
-"Ошибка при запуске программы экранной клавиатуры — не могу найти программу"
+"Ошибка при запуске программы экранной клавиатуры ‐ не могу найти программу"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3160
 msgid "Keyboard"
@@ -19239,9 +19246,7 @@ msgstr "Ни одна ось не выбрана для перемещения"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4351
 msgid "Can't home multiple axis - select HOME ALL instead"
-msgstr ""
-"Невозможно привести несколько осей в исходное положение. Вместо этого "
-"выберите HOME ALL"
+msgstr "Невозможно разместить несколько осей - вместо этого выберите HOME ALL"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4354
 msgid "No axis selected to home"
@@ -19331,11 +19336,11 @@ msgstr "S 1000"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:114
 msgid "FWD"
-msgstr "Прямое"
+msgstr "FWD"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:160
 msgid "REV"
-msgstr "Обратное"
+msgstr "ОБОРОТ"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:228
 msgid "Data Entry"
@@ -19423,7 +19428,7 @@ msgstr "0000.0000"
 #: src/emc/usr_intf/gscreen/gscreen.glade:1447
 #: src/emc/usr_intf/gscreen/gscreen.glade:1570
 msgid "REL"
-msgstr "REL"
+msgstr "ОТНОСИТЕЛЬНЫЙ"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:617
 #: src/emc/usr_intf/gscreen/gscreen.glade:741
@@ -19688,7 +19693,7 @@ msgid ""
 "Unhome \n"
 "All"
 msgstr ""
-"Недомой \n"
+"Нежилое помещение \n"
 "Все"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3050
@@ -19713,7 +19718,7 @@ msgid ""
 "Jogging\n"
 "Mode"
 msgstr ""
-"Жонглирование\n"
+"Бег трусцой\n"
 "Режим"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3108
@@ -19754,7 +19759,7 @@ msgid ""
 "Block\n"
 "Delete"
 msgstr ""
-" Удалить\n"
+"Удалить\n"
 "Блоки"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3348
@@ -19866,7 +19871,7 @@ msgid ""
 "Rotate\n"
 "Vertical"
 msgstr ""
-" Вращать\n"
+"Вращать\n"
 "Вертикально"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3666
@@ -19898,7 +19903,7 @@ msgid ""
 "Reload\n"
 "Program"
 msgstr ""
-" Перезагрузить\n"
+"Перезагрузить\n"
 "программу"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3763
@@ -19927,7 +19932,7 @@ msgstr "расчет"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4019
 msgid "Zero Origin"
-msgstr " Обнулить начало"
+msgstr "Обнулить начало"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4084
 msgid "Tool Setting"
