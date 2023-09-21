@@ -1872,27 +1872,6 @@ def get_max_jog_speed_map(a):
         a = "XYZABCUVW".index(axis_letter)
     return get_max_jog_speed(a)
 
-def run_warn():
-    warnings = []
-    if o.canon:
-        machine_limit_min, machine_limit_max = soft_limits()
-        for i in range(3): # Does not enforce angle limits
-            if not(s.axis_mask & (1<<i)): continue
-            if o.canon.min_extents_notool[i] + to_internal_linear_unit(o.last_tool_offset[i]) < machine_limit_min[i]:
-                warnings.append(_("Program exceeds machine minimum on axis %s")
-                    % "XYZABCUVW"[i])
-            if o.canon.max_extents_notool[i] + to_internal_linear_unit(o.last_tool_offset[i]) > machine_limit_max[i]:
-                warnings.append(_("Program exceeds machine maximum on axis %s")
-                    % "XYZABCUVW"[i])
-    if warnings:
-        text = "\n".join(warnings)
-        return int(root_window.tk.call("nf_dialog", ".error",
-            _("Program exceeds machine limits"),
-            text,
-            "warning",
-            1, _("Run Anyway"), _("Cancel")))
-    return 0
-
 def reload_file(refilter=True):
     if running(): return
     s.poll()
@@ -2341,8 +2320,6 @@ class TclCommands(nf.TclCommands):
             root_window.tk.call("exec", *e)
 
     def task_run(*event):
-        if run_warn(): return
-
         global program_start_line, program_start_line_last
         program_start_line_last = program_start_line;
         ensure_mode(linuxcnc.MODE_AUTO)
@@ -2354,7 +2331,6 @@ class TclCommands(nf.TclCommands):
     def task_step(*event):
         if s.task_mode != linuxcnc.MODE_AUTO or s.interp_state != linuxcnc.INTERP_IDLE:
             o.set_highlight_line(None)
-            if run_warn(): return
         ensure_mode(linuxcnc.MODE_AUTO)
         c.auto(linuxcnc.AUTO_STEP)
 
