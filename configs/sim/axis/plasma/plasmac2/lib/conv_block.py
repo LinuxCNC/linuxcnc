@@ -29,7 +29,7 @@ for f in sys.path:
         if '/usr' in f:
             localeDir = 'usr/share/locale'
         else:
-            localeDir = os.path.join(f'{f.split("/lib")[0]}','share','locale')
+            localeDir = os.path.join(f"{f.split('/lib')[0]}",'share','locale')
         break
 gettext.install('linuxcnc', localedir=localeDir)
 
@@ -103,17 +103,17 @@ def get_parameters(self):
         for line in inCode:
             line = line.strip().lower()
             if line.startswith('#<array_x_offset>'):
-                self.coValue.set(f'{float(line.split("=")[1].strip()):0.4f}')
+                self.coValue.set(f"{float(line.split('=')[1].strip()):0.4f}")
             elif line.startswith('#<array_y_offset>'):
-                self.roValue.set(f'{float(line.split("=")[1].strip()):0.4f}')
+                self.roValue.set(f"{float(line.split('=')[1].strip()):0.4f}")
             elif line.startswith('#<array_columns>'):
                 self.cnValue.set(line.split('=')[1].strip())
             elif line.startswith('#<array_rows>'):
                 self.rnValue.set(line.split('=')[1].strip())
             elif line.startswith('#<origin_x_offset>'):
-                self.xsValue.set(f'{float(line.split("=")[1].strip()):0.4f}')
+                self.xsValue.set(f"{float(line.split('=')[1].strip()):0.4f}")
             elif line.startswith('#<origin_y_offset>'):
-                self.ysValue.set(f'{float(line.split("=")[1].strip()):0.4f}')
+                self.ysValue.set(f"{float(line.split('=')[1].strip()):0.4f}")
             elif line.startswith('#<array_angle>'):
                 self.aValue.set(line.split('=')[1].strip())
             elif line.startswith('#<blk_scale>'):

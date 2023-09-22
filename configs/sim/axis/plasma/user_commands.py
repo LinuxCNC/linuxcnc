@@ -2,4 +2,4 @@
 # see the file customizing.html for some tips
 
 # example to hide the height override frame
-#rE(f'grid forget {foverride}')
+#rE(f"grid forget {foverride}")
