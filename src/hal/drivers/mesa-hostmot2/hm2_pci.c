@@ -127,6 +127,14 @@ static struct rtapi_pci_device_id hm2_pci_tbl[] = {
         .subdevice = HM2_PCI_SSDEV_5I25,
     },
 
+    // 5i25t
+    {
+        .vendor =  HM2_PCI_VENDORID_MESA,
+        .device = HM2_PCI_DEV_MESA5I25T,
+        .subvendor = HM2_PCI_VENDORID_MESA,
+        .subdevice = HM2_PCI_SSDEV_5I25T,
+    },
+
     // 6i25
     {
         .vendor =  HM2_PCI_VENDORID_MESA,
@@ -552,6 +560,26 @@ static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_devic
             break;
         }
 
+        case HM2_PCI_SSDEV_5I25T:
+        case HM2_PCI_SSDEV_6I25T: {
+            if (dev->subsystem_device == HM2_PCI_SSDEV_5I25T) {
+                LL_PRINT("discovered 5i25t at %s\n", rtapi_pci_name(dev));
+                rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i25.%d", num_5i25);
+                num_5i25 ++;
+            } else {
+                LL_PRINT("discovered 6i25t at %s\n", rtapi_pci_name(dev));
+                rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_6i25.%d", num_6i25);
+                num_6i25 ++;
+            }
+            board->llio.num_ioport_connectors = 2;
+            board->llio.pins_per_connector = 17;
+            board->llio.ioport_connector_name[0] = "P3";
+            board->llio.ioport_connector_name[1] = "P2";
+            board->llio.fpga_part_number = "t20f256";
+            board->llio.num_leds = 2;
+            break;
+        }
+
         case HM2_PCI_SSDEV_4I68:
         case HM2_PCI_SSDEV_4I68_OLD: {
             if (dev->subsystem_device == HM2_PCI_SSDEV_4I68_OLD) {
@@ -672,7 +700,9 @@ static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_devic
 
         case HM2_PCI_DEV_MESA5I24:
         case HM2_PCI_DEV_MESA5I25:
-        case HM2_PCI_DEV_MESA6I25: {
+        case HM2_PCI_DEV_MESA5I25T:
+        case HM2_PCI_DEV_MESA6I25:
+        case HM2_PCI_DEV_MESA6I25T: {
               // BAR 0 is 64K mem (32 bit)
             board->len = rtapi_pci_resource_len(dev, 0);
             board->base = rtapi_pci_ioremap_bar(dev, 0);
