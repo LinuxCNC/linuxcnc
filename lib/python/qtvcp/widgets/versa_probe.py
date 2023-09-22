@@ -320,7 +320,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             STATUS.unblock_error_polling()
             ACTION.SET_ERROR_MESSAGE('Versa Probe process finished in error')
         elif "PROBE_ROUTINES" in line:
-            if LOG.getEffectiveLevel() < LOG.INFO:
+            if LOG.getEffectiveLevel() < logger.INFO:
                 print(line)
         elif "INFO" in line:
             pass
