@@ -1,17 +1,24 @@
-# Makefile
+# Compiler and flags
+CC = gcc
+CFLAGS = -Wall -g
 
-CC=gcc
-CFLAGS=-Wall 
-LIBS=-lsqlite3
+# Linker flags, e.g., for linking with SQLite
+LDFLAGS = -lsqlite3
 
-all: tool_loader
+# Source and object files
+SRC = backend_interface.c sql_interface.c
+OBJS = $(SRC:.c=.o)
 
-tool_loader: tool_loader.o
-	$(CC) $(CFLAGS) -o tool_loader tool_loader.o $(LIBS)
+# Target executable
+TARGET = tool_loader
 
-tool_loader.o: tool_loader.c
-	$(CC) $(CFLAGS) -c tool_loader.c
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET) $(LDFLAGS)
+
+%.o: %.c tooldb.h
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f tool_loader.o tool_loader
-
+	rm -f $(OBJS) $(TARGET)
