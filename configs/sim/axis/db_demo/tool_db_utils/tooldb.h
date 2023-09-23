@@ -10,7 +10,8 @@
 #include <signal.h>
 #include <errno.h>
 
-#define DB_FILENAME "tools_database.db"
+//#define DB_FILENAME "tools_database.db"
+#define DB_FILENAME "new-db"
 
 extern char theline[256];
 extern int* tools;

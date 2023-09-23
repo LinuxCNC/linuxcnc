@@ -39,8 +39,7 @@ int get_tool_count() {
     return count;
 }
 
-
-
+/*
 char* fetch_tool_from_db(int toolno) {
     sqlite3* db;
     sqlite3_stmt* stmt;
@@ -83,6 +82,57 @@ char* fetch_tool_from_db(int toolno) {
     sqlite3_close(db);
     return NULL;
 }
+*/
+char* fetch_tool_from_db(int toolno) {
+    sqlite3* db;
+    sqlite3_stmt* stmt;
+    char formatted_tool_data[256];
+    int rc;
+
+    rc = sqlite3_open(DB_FILENAME, &db);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return NULL;
+    }
+
+    // Updated SQL to use JOINs to get the data from new structure
+    char sql[] = 
+    "SELECT t.toolID, t.T_number, o.D, o.Z, g.description "
+    "FROM tools t "
+    "JOIN geometries g ON t.geom = g.geomID "
+    "JOIN offsets o ON o.D = t.distance "
+    "WHERE t.T_number = ?";
+
+    rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Failed to fetch data: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return NULL;
+    }
+
+    sqlite3_bind_int(stmt, 1, toolno);
+
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        int tool_number = sqlite3_column_int(stmt, 1);
+int pocket = sqlite3_column_int(stmt, 0);
+double diameter = sqlite3_column_double(stmt, 2);
+double z_offset = sqlite3_column_double(stmt, 3);
+const unsigned char* tool_name = sqlite3_column_text(stmt, 4);
+
+        format_tool_data(formatted_tool_data, tool_number, pocket, diameter, z_offset, (const char*)tool_name);
+
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
+
+        return strdup(formatted_tool_data);
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+    return NULL;
+}
+
 
 char* get_tool(int toolno) {
     // This loop checks if the tool is in your in-memory `tools` array. 
@@ -221,7 +271,6 @@ void tool_cmd(char cmd, const char* params) {
         free(reply);
     }
 }
-
 void format_tool_data(char* output, int tool_number, int pocket, double diameter, double z_offset, const char* tool_name) {
     time_t t;
     struct tm* tm_info;
@@ -237,3 +286,4 @@ void format_tool_data(char* output, int tool_number, int pocket, double diameter
         sprintf(output, "T%d P%d D%.2f Z%.2f ;Tool_%d %s", tool_number, pocket, diameter, z_offset, tool_number, current_time);
     }
 }
+
