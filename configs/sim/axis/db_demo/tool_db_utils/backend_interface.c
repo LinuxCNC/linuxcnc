@@ -120,21 +120,32 @@ void handle_interrupt(int sig) {
     flag = 1;
 }
 
-
 int main() {
-    fprintf(stderr, "v2.1\n");
+//    fprintf(stderr, "v2.1\n");
 
     tooldb_callbacks(get_tool, put_tool, load_spindle, unload_spindle);
 
-    int list[19];
-    for (int i = 0; i < 19; i++) {
+    int toolCount = get_tool_count(); 
+    if (toolCount == -1) {
+        fprintf(stderr, "Failed to get tool count.\n");
+        return 1;
+    }
+
+    int* list = malloc(toolCount * sizeof(int));
+    if (list == NULL) {
+        fprintf(stderr, "Memory allocation failed.\n");
+        return 1;
+    }
+
+    for (int i = 0; i < toolCount; i++) {
         list[i] = i;
     }
-    tooldb_tools(list, 19);
+    tooldb_tools(list, toolCount);
 
     while (1) {
         if (flag) {
             printf("\nExiting tool loader...\n");
+            free(list);  // Free the allocated memory
             break;
         }
 

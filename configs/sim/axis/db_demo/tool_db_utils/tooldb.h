@@ -16,7 +16,7 @@ extern char theline[256];
 extern int* tools;
 extern int tools_count;
 extern int debug;
-
+int get_tool_count();
 void do_reply(const char* msg);
 void saveline(const char* line);
 const char* currentline();
@@ -45,4 +45,3 @@ void tooldb_loop();
 void handle_interrupt(int sig);
 
 #endif // TOOLDB_H
-

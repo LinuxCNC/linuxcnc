@@ -9,6 +9,36 @@ char* string_to_upper(char* s) {
     return s;
 }
 
+int get_tool_count() {
+    sqlite3* db;
+    sqlite3_stmt* stmt;
+    int rc;
+    int count = 0;
+
+    rc = sqlite3_open(DB_FILENAME, &db);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return -1; // Return -1 to indicate an error
+    }
+
+    char sql[] = "SELECT COUNT(*) FROM tools";
+    rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Failed to fetch data: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return -1;
+    }
+
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        count = sqlite3_column_int(stmt, 0);
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+    return count;
+}
+
 
 
 char* fetch_tool_from_db(int toolno) {
@@ -207,4 +237,3 @@ void format_tool_data(char* output, int tool_number, int pocket, double diameter
         sprintf(output, "T%d P%d D%.2f Z%.2f ;Tool_%d %s", tool_number, pocket, diameter, z_offset, tool_number, current_time);
     }
 }
-
