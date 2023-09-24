@@ -222,7 +222,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         elif "INFO" in line:
             pass
         elif "PROBE_ROUTINES" in line:
-            if LOG.getEffectiveLevel() < LOG.INFO:
+            if LOG.getEffectiveLevel() < logger.INFO:
                 print(line)
         elif "COMPLETE" in line:
             STATUS.unblock_error_polling()
