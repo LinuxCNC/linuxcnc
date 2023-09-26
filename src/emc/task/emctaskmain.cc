@@ -1563,12 +1563,6 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC::WAITING_FOR_MOTION;
 	break;
 
-    case EMC_EXEC_PLUGIN_CALL_TYPE:
-    case EMC_IO_PLUGIN_CALL_TYPE:
-	return EMC_TASK_EXEC::DONE;
-	break;
-
-
     default:
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
@@ -2316,14 +2310,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = 0;
 	break;
 
-    case EMC_EXEC_PLUGIN_CALL_TYPE:
-	retval =  emcPluginCall( (EMC_EXEC_PLUGIN_CALL *) cmd);
-	break;
-
-    case EMC_IO_PLUGIN_CALL_TYPE:
-	retval =  emcIoPluginCall( (EMC_IO_PLUGIN_CALL *) cmd);
-	break;
-
      default:
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
@@ -2433,11 +2419,6 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_MOTION_SET_AOUT_TYPE:
     case EMC_MOTION_SET_DOUT_TYPE:
     case EMC_MOTION_ADAPTIVE_TYPE:
-	return EMC_TASK_EXEC::DONE;
-	break;
-
-    case EMC_EXEC_PLUGIN_CALL_TYPE:
-    case EMC_IO_PLUGIN_CALL_TYPE:
 	return EMC_TASK_EXEC::DONE;
 	break;
 
@@ -3282,9 +3263,6 @@ int main(int argc, char *argv[])
 	emctask_shutdown();
 	exit(1);
     }
-
-    // this is the place to run any post-HAL-creation halcmd files
-    emcRunHalFiles(emc_inifile);
 
     // initialize everything
     if (0 != emctask_startup()) {

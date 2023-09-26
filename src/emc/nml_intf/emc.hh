@@ -160,8 +160,6 @@ struct PM_CARTESIAN;
 // even before emccanon issues the move to toolchange position
 #define EMC_TOOL_START_CHANGE_TYPE                   ((NMLTYPE) 1110)
 
-#define EMC_EXEC_PLUGIN_CALL_TYPE                   ((NMLTYPE) 1112)
-#define EMC_IO_PLUGIN_CALL_TYPE                   ((NMLTYPE) 1113)
 #define EMC_TOOL_STAT_TYPE                           ((NMLTYPE) 1199)
 
 // EMC_AUX type declarations

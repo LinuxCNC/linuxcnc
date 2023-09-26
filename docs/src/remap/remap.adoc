@@ -1122,8 +1122,6 @@ The Python plugin serves both the interpreter, and `task` if so configured, and 
     Reload the 'TOPLEVEL' script if the file was changed.
     Handy for debugging but currently incurs some runtime overhead.
     Turn this off for production configurations.
-  `PYTHON_TASK =` [0|1];;
-    Start the Python task plug in. Experimental. See xxx.
 
 [[remap:executing-python-statements]]
 === Executing Python statements from the interpreter
@@ -1140,13 +1138,6 @@ Note that the interpreter instance is available here as `self`, so you could als
 
 ----
 ;py,print(self.tool_table[0].toolno)
-----
-
-The `emcStatus` structure is accessible, too:
-
-----
-;py,from emctask import *
-;py,print(emcstat.io.aux.estop)
 ----
 
 [[remap:programming-embedded-python]]
@@ -1167,9 +1158,6 @@ The namespace is expected to be laid out as follows:
 `namedparams`::
   Python functions in this module extend or redefine the namespace of predefined named parameters,
   see <<remap:adding-predefined-named-parameters,adding predefined parameters>>.
-
-`task`::
-  Task-related callables are expected here.
 
 === The Interpreter as seen from Python
 
@@ -1509,10 +1497,6 @@ The following modules are built in:
 `emccanon`::
   Exposes most calls of  `src/emc/task/emccanon.cc`.
 
-`emctask`::
-  Exposes the `emcStatus` class instance. See `src/emc/task/taskmodule.cc`.
-  Not present when using the `gcode` module used for user interfaces - only present in the milltask instance of the interpreter.
-
 [[remap:adding-predefined-named-parameters]]
 == Adding Predefined Named Parameters
 
@@ -1704,7 +1688,6 @@ m|EMC_DEBUG_OWORD       m|0x00002000 |traces execution of O-word subroutines
 m|EMC_DEBUG_REMAP       m|0x00004000 |traces execution of remap-related code
 m|EMC_DEBUG_PYTHON      m|0x00008000 |calls to the Python plug in
 m|EMC_DEBUG_NAMEDPARAM  m|0x00010000 |trace named parameter access
-m|EMC_DEBUG_PYTHON_TASK m|0x00040000 |trace the task Python plug in
 m|EMC_DEBUG_USER1       m|0x10000000 |user-defined - not interpreted by LinuxCNC
 m|EMC_DEBUG_USER2       m|0x20000000 |user-defined - not interpreted by LinuxCNC
 |===
@@ -1983,48 +1966,6 @@ All M-codes from `M100` to `M199` are user-defined M-codes already, and should n
 
 All M-codes from `M200` to `M999` are available for remapping.
 
-=== readahead time and execution time
-
-FIXME Write missing information
-
-=== plugin/pickle hack
-
-FIXME Write missing information
-
-=== Module, methods, classes, etc reference
-
-FIXME Write missing information
-
-== Introduction: Extending Task Execution
-
-FIXME Write missing information
-
-=== Why would you want to change Task Execution?
-
-FIXME Write missing information
-
-=== A diagram: `task`, `interp`, `iocontrol`, `UI` (??)
-
-FIXME Write missing information
-
-== Models of Task execution
-
-FIXME Write missing information
-
-=== Traditional `iocontrol`/`iocontrolv2` execution
-
-FIXME Write missing information
-
-=== Redefining IO procedures
-
-FIXME Write missing information
-
-=== Execution-time Python procedures
-
-FIXME Write missing information
-
-// setup examples
-
 == A short survey of LinuxCNC program execution
 
 To understand remapping of codes it might be helpful to survey the execution of `task` and interpreter as far as it relates to remapping.
@@ -2186,15 +2127,6 @@ The interpreter's perception of the tool currently loaded for instance is access
 ----
 ;py,from interpreter import *
 ;py,print(this.tool_table[0])
-----
-
-To see fields in the global emcStatus structure, try this:
-
-----
-;py,from emctask import *
-;py,print(emcstat.io.tool.pocketPrepped)
-;py,print(emcstat.io.tool.toolInSpindle)
-;py,print(emcstat.io.tool.toolTable[0])
 ----
 
 You need to have LinuxCNC started from a terminal window to see the results.
