@@ -16,8 +16,8 @@ msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-09-24 18:25+0000\n"
-"Last-Translator: xXx <xxx_xxx_xxxxxxxxx@mail.ru>\n"
+"PO-Revision-Date: 2023-09-26 03:50+0000\n"
+"Last-Translator: Ilya Koubatkin <ilya@kubatkin.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
 "Language: ru\n"
@@ -34,65 +34,69 @@ msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
 msgstr ""
-"команда ( %s ) не может быть выполнено, пока машина не выйдет из режима "
-"аварийного останова и не включится"
+"Команда (%s) не может быть выполнена до тех пор, пока аппарат не выйдет из "
+"режима аварийного останова и не будет включен"
 
 #: src/emc/task/emctaskmain.cc:997
 #, c-format
 msgid "can't do that (%s:%d) in manual mode"
-msgstr "не могу делать это (%s:%d) в ручном режиме"
+msgstr "это (%s:%d) не может быть сделано в ручном режиме"
 
 #: src/emc/task/emctaskmain.cc:1104
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
-msgstr "не могу делать это (%s) в авто режиме с остановленным интерпретатором"
+msgstr ""
+"это (%s) не может быть сделано в авто режиме с простаивающим интерпретатором"
 
 #: src/emc/task/emctaskmain.cc:1173
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
-msgstr "не могу делать это (%s) в авто режиме с читающим интерпретатором"
+msgstr "это (%s) не может быть сделано в авто режиме с читающим интерпретатором"
 
 #: src/emc/task/emctaskmain.cc:1260
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
 msgstr ""
-"не могу делать это (%s) в авто режиме с приостановленным интерпретатором"
+"это (%s) не может быть сделано в авто режиме с приостановленным "
+"интерпретатором"
 
 #: src/emc/task/emctaskmain.cc:1331
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
-msgstr "не могу делать это (%s) в авто режиме с ждущим интерпретатором"
+msgstr ""
+"это (%s) не может быть сделано в авто режиме с ожидающим интерпретатором"
 
 #: src/emc/task/emctaskmain.cc:1452
 #, c-format
 msgid "can't do that (%s:%d) in MDI mode"
-msgstr "не могу делать это (%s:%d) в MDI режиме"
+msgstr "это (%s:%d) нельзя сделать в MDI режиме"
 
 #: src/emc/task/emctaskmain.cc:2109
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
-msgstr "Не могу переключить режим из авто при не остановленном интерпретаторе"
+msgstr ""
+"Невозможно переключить режим пока режим АВТО и не приостановлен интерпретатор"
 
 #: src/emc/task/emctaskmain.cc:2162
 msgid "failed to close file"
-msgstr "Не могу закрыть файл"
+msgstr "Не удалось закрыть файл"
 
 #: src/emc/task/emctaskmain.cc:2176 tcl/bin/genedit.tcl:197
 #: tcl/tklinuxcnc.tcl:452
 #, c-format, tcl-format
 msgid "can't open %s"
-msgstr "не могу открыть %s"
+msgstr "Невозможно открыть %s"
 
 #: src/emc/task/emctaskmain.cc:2188
 msgid "Can't issue MDI command when not homed"
-msgstr "Не могу исполнить команду MDI если не найдены начала"
+msgstr "Невозможно исполнить команду MDI когда не в исходной позиции"
 
 #: src/emc/task/emctaskmain.cc:2193
 msgid "Must be in MDI mode to issue MDI command"
-msgstr "Должен быть в MDI режиме для исполнения команд MDI"
+msgstr "Для исполнения команд MDI должен быть режим MDI"
 
 #: src/emc/task/emctaskmain.cc:2275
 msgid "Can't run a program when not homed"
-msgstr "Не могу исполнить программу если не найдены начала"
+msgstr "Невозможно запустить программу когда не в исходной позиции"
 
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
 #, c-format
@@ -124,26 +128,28 @@ msgstr "Строка с G10 не имеет L0, L1, L10, L11, L2 или L20"
 
 #: src/emc/rs274ngc/interp_check.cc:93
 msgid "P value not an integer with G10"
-msgstr "Значение P не целое для G10"
+msgstr "Значение P не является целым числом с G10"
 
 #: src/emc/rs274ngc/interp_check.cc:94
 #, c-format
 msgid "P value out of range (0-9) with G10 L%d"
-msgstr "Значение P вне диапазона (0-9) для G10 L%d"
+msgstr "Значение P вне диапазона (0-9) с G10 L%d"
 
 #: src/emc/rs274ngc/interp_check.cc:95
 #, c-format
 msgid "P value out of range with G10 L%d"
-msgstr "Значение P вне диапазона для G10 L%d"
+msgstr "Значение P вне диапазона с G10 L%d"
 
 #: src/emc/rs274ngc/interp_check.cc:99
 msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
-msgstr "Между G5.2 и G5.3 кодами, допустимы только дополнительные G5.2 коды."
+msgstr "Между кодами G5.2 и G5.3 допустимы только дополнительные G5.2 коды."
 
 #: src/emc/rs274ngc/interp_check.cc:261
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"
-msgstr "D слово без G41, G41.1, G42, G42.1, G71, G71.1, G71.2 или G96 перед ним"
+msgstr ""
+"Слово D без G41, G41.1, G42, G42.1, G71, G71.1, G71.2 или G96 для его "
+"использования"
 
 #: src/emc/rs274ngc/interp_check.cc:270
 msgid ""
@@ -555,7 +561,6 @@ msgid ""
 "num_spindles =%i. $=%d\n"
 msgstr ""
 "Номер шпинделя ($) вне диапазона команды M3\n"
-"\n"
 "число_шпинделей =%i. $=%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:3989
@@ -4599,7 +4604,7 @@ msgstr "Окно Просмотра"
 #: src/hal/classicladder/symbols_gtk.c:132
 #, c-format
 msgid "A variable name always start with '%' character !"
-msgstr "Имя переменной всегда начинается с символа «%»!"
+msgstr "Имя переменной всегда начинается с символа '%' !"
 
 #: src/hal/classicladder/symbols_gtk.c:191
 msgid "opened SYMBOLS window. Press again to close"
@@ -7615,7 +7620,7 @@ msgstr "%d секунд"
 #: src/emc/usr_intf/axis/scripts/axis.py:2082
 #, python-format
 msgid "%(a)f to %(b)f = %(diff)f %(units)s"
-msgstr "%(a)f к %(b)f = %(разница)f %(единицы измерения)s"
+msgstr "%(a)f to %(b)f = %(diff)f %(units)s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2084
 msgid "G-Code Properties"
@@ -9306,7 +9311,7 @@ msgstr "<b>Страница</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2294
 msgid "<span foreground=\"blue\" weight=\"bold\">Start Point</span>"
-msgstr "<span переднийплан=\"синий\" вес=\"жирный\">Начальная точка</span>"
+msgstr "<span foreground=\"blue\" weight=\"bold\">Начальная точка</span>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2432
 msgid "<b>Loaded File</b>"
