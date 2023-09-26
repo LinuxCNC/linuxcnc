@@ -143,8 +143,10 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
                 self.setChecked(True)
             self._safecheck(not STATUS.estop_is_clear())
             return
-
-        speed = STATUS.get_spindle_speed()
+        try:
+            speed = STATUS.get_spindle_speed()
+        except:
+            speed = 0
         if self.spindle_down and self.isCheckable():
             if speed == 0 or speed < 0:
                 self._safecheck(not self.isChecked())
