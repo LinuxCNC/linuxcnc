@@ -325,8 +325,6 @@ iocontrol's HAL pins are turned on and off in non-realtime context.  If you have
 * 'iocontrol.0.coolant-flood' (bit, out) TRUE when flood coolant is requested.
 * 'iocontrol.0.coolant-mist' (bit, out) TRUE when mist coolant is requested.
 * 'iocontrol.0.emc-enable-in' (bit, in) Should be driven FALSE when an external E-Stop condition exists.
-* 'iocontrol.0.lube' (bit, out) TRUE when lube is commanded.
-* 'iocontrol.0.lube_level' (bit, in) Should be driven TRUE when lube level is high enough.
 * 'iocontrol.0.tool-change' (bit, out) TRUE when a tool change is requested.
 * 'iocontrol.0.tool-changed' (bit, in) Should be driven TRUE when a tool change is completed.
 * 'iocontrol.0.tool-number' (s32, out) The current tool number.
