@@ -16,8 +16,8 @@ msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-09-21 20:33+0000\n"
-"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
+"PO-Revision-Date: 2023-09-22 11:12+0000\n"
+"Last-Translator: xXx <xxx_xxx_xxxxxxxxx@mail.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
 "Language: ru\n"
@@ -34,8 +34,8 @@ msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
 msgstr ""
-"команда (%s) не может быть выполнена до тех пор, пока машина не выйдет из "
-"режима E-stop и не будет включена"
+"команда ( %s ) не может быть выполнено, пока машина не выйдет из режима "
+"аварийного останова и не включится"
 
 #: src/emc/task/emctaskmain.cc:997
 #, c-format
@@ -549,31 +549,31 @@ msgid "Need non-negative Q-word to specify tool number with M61"
 msgstr "Нужно положительное Q-слово для обозначения номера инструмента с M61"
 
 #: src/emc/rs274ngc/interp_convert.cc:3972
-#, c-format, fuzzy
+#, c-format
 msgid ""
 "Spindle ($) number out of range in M3 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
 "Номер шпинделя ($) вне диапазона команды M3\n"
-"число_шпинделей =%i. $=%d"
+"число_шпинделей =%i. $=%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:3989
-#, c-format, fuzzy
+#, c-format
 msgid ""
 "Spindle ($) number out of range in M4 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
 "Номер шпинделя ($) вне диапазона команды M4\n"
-"число_шпинделей =%i. $=%d"
+"число_шпинделей =%i. $=%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:4006
-#, c-format, fuzzy
+#, c-format
 msgid ""
 "Spindle ($) number out of range in M5 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
 "Номер шпинделя ($) вне диапазона команды M5\n"
-"число_шпинделей =%i. $=%d"
+"число_шпинделей =%i. $=%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:4027
 msgid "Spindle ($) number out of range in M19 Command"
@@ -7612,9 +7612,9 @@ msgid "%d seconds"
 msgstr "%d секунд"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2082
-#, fuzzy, python-format
+#, python-format
 msgid "%(a)f to %(b)f = %(diff)f %(units)s"
-msgstr "От %(a)f до %(b)f = %(diff)f %(units)s"
+msgstr "%(a)f к %(b)f = %(разница)f %(единицы измерения)s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2084
 msgid "G-Code Properties"
@@ -8057,7 +8057,7 @@ msgstr "Съём за проход"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:747
 msgid "image-to-gcode: User pressed cancel"
-msgstr "image-to-gcode: Отмена пользователем"
+msgstr "преобразование изображения в gcode: Пользователь нажал кнопку отмена"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:762
 msgid "Depth images"
@@ -8114,7 +8114,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:82
 msgid "  * This option can only be enabled in the inifile"
-msgstr "  * Эта опция может быть разрешена только в .INI-файле"
+msgstr "  * Эта опция может быть разрешена только в INIфайле"
 
 #: share/axis/tcl/axis.tcl:58
 msgid "_Open..."
@@ -8238,7 +8238,7 @@ msgstr "_Нулевая система координат"
 
 #: share/axis/tcl/axis.tcl:213
 msgid "P1  G5_4"
-msgstr "P1   G5_4"
+msgstr "P1  G5_4"
 
 #: share/axis/tcl/axis.tcl:217
 msgid "P2  G5_5"
@@ -8402,11 +8402,11 @@ msgstr "_Выборочно"
 
 #: share/axis/tcl/axis.tcl:460
 msgid "_About AXIS"
-msgstr "_О AXIS"
+msgstr "_Об ОСИ"
 
 #: share/axis/tcl/axis.tcl:464
 msgid "Quick _Reference"
-msgstr "Быстрая справка"
+msgstr "Быстрая _Справка"
 
 #: share/axis/tcl/axis.tcl:474
 msgid "_Machine"
@@ -8663,27 +8663,28 @@ msgid ""
 "\n"
 "Visit the LinuxCNC web site: "
 msgstr ""
-"LinuxCNC/AXIS версия $version\n"
+"Версия LinuxCNC/AXIS $версия\n"
 "\n"
-"Копирайт (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, "
-"2014, 2015, 2016 Jeff Epler и Chris Radek.\n"
+"Авторское право (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, "
+"2013, 2014, 2015, 2016 Джефф Эплер и Крис Радек.\n"
 "\n"
-"Это бесплатная программа, и Вы можете копировать ее на определенных "
-"условиях. Смотрите файл COPYING, поставляемый вместе с LinuxCNC.\n"
+"Это свободное программное обеспечение, и вы можете распространять его при "
+"определенных условиях.  Смотрите раздел \"Копирование файлов\", входящий в "
+"состав LinuxCNC.\n"
 "\n"
-"Посетите веб-сайт LinuxCNC: "
+"Посетите веб-сайт LinuxCNC: "
 
 #: share/axis/tcl/axis.tcl:1599
 msgid "About AXIS"
-msgstr "О AXIS"
+msgstr "О ОСИ"
 
 #: share/axis/tcl/axis.tcl:1628
 msgid "AXIS Quick Reference"
-msgstr "Быстрая справка AXIS"
+msgstr "Краткое руководство по оси"
 
 #: share/axis/tcl/axis.tcl:1756
 msgid "AXIS $::version on $::machine"
-msgstr "AXIS $::version на $::machine"
+msgstr "ОСЬ $::версия на $::станке"
 
 #: share/axis/tcl/axis.tcl:1758
 msgid "(no file)"
@@ -8715,19 +8716,19 @@ msgstr "Заданная"
 
 #: share/axis/tcl/axis.tcl:1910 share/axis/tcl/axis.tcl:2110
 msgid "Joint:"
-msgstr "Ось:"
+msgstr "Соединение:"
 
 #: share/axis/tcl/axis.tcl:2230
 msgid "_Clear Recents List"
-msgstr "Очистить список недавних"
+msgstr "_ Очистить список последних событий"
 
 #: share/axis/tcl/axis.tcl:2250
 msgid "Turn spindle counterclockwise [F10]"
-msgstr "Вращать шпиндель назад·[F10]"
+msgstr "Поверните шпиндель против часовой стрелки [F10]"
 
 #: share/axis/tcl/axis.tcl:2251
 msgid "Turn spindle clockwise [F9]"
-msgstr "Вращать шпиндель вперед·[F9]"
+msgstr "Поверните шпиндель по часовой стрелке [F9]"
 
 #: share/axis/tcl/axis.tcl:2252
 msgid "Stop spindle [F9/F10]"
@@ -8747,19 +8748,19 @@ msgstr "Включить тормоз шпинделя·[Shift-B]·или вык
 
 #: share/axis/tcl/axis.tcl:2256
 msgid "Turn flood on or off [F8]"
-msgstr "Включить охлаждение струей·[F8]"
+msgstr "Включить или выключить потоковую передачу [F8]"
 
 #: share/axis/tcl/axis.tcl:2257
 msgid "Turn mist on or off [F7]"
-msgstr "Охлаждение туманом·[F7]"
+msgstr "Включение или выключение тумана [F7]"
 
 #: share/axis/tcl/axis.tcl:2258
 msgid "Send active axis home [Home]"
-msgstr "Поставить активную ось в начало·[Home]"
+msgstr "Отправить активную ось домой [ Главная ]"
 
 #: share/axis/tcl/axis.tcl:2259
 msgid "Set G54 offset for active axis [End]"
-msgstr "Установить отступ G54 для активной оси·[End]"
+msgstr "Установить смещение G54 для активной оси [Конец]"
 
 #: share/axis/tcl/axis.tcl:2260
 msgid "Set tool offset for loaded tool [Ctrl-End]"
@@ -8855,26 +8856,26 @@ msgstr "Настройки"
 
 #: src/emc/usr_intf/touchy/mdi.py:68 src/emc/usr_intf/gscreen/mdi.py:64
 msgid "Spindle synchronized feed"
-msgstr "Подача синхронно со шпинделем"
+msgstr "Синхронизированная подача шпинделя"
 
 #: src/emc/usr_intf/touchy/mdi.py:69 src/emc/usr_intf/gscreen/mdi.py:65
 msgid "Rigid tap"
-msgstr "Жидкий кран"
+msgstr "Жесткий метчик"
 
 #: src/emc/usr_intf/touchy/mdi.py:70 src/emc/usr_intf/touchy/mdi.py:71
 #: src/emc/usr_intf/touchy/mdi.py:72 src/emc/usr_intf/touchy/mdi.py:73
 #: src/emc/usr_intf/gscreen/mdi.py:66 src/emc/usr_intf/gscreen/mdi.py:67
 #: src/emc/usr_intf/gscreen/mdi.py:68 src/emc/usr_intf/gscreen/mdi.py:69
 msgid "Probe"
-msgstr "Щуп"
+msgstr "Зонд"
 
 #: src/emc/usr_intf/touchy/mdi.py:74 src/emc/usr_intf/gscreen/mdi.py:70
 msgid "Radius compensation left"
-msgstr "Осталась компенсация \"Радиус\""
+msgstr "Осталась компенсация Радиус"
 
 #: src/emc/usr_intf/touchy/mdi.py:75 src/emc/usr_intf/gscreen/mdi.py:71
 msgid "Radius compensation right"
-msgstr "Компенсационное право \" Радиус \""
+msgstr "Право на компенсацию радиуса"
 
 #: src/emc/usr_intf/touchy/mdi.py:76 src/emc/usr_intf/gscreen/mdi.py:72
 msgid "Radius compensation left, immediate"
@@ -8886,23 +8887,23 @@ msgstr "Компенсация радиуса справа, немедленна
 
 #: src/emc/usr_intf/touchy/mdi.py:78 src/emc/usr_intf/gscreen/mdi.py:74
 msgid "Tool length offset"
-msgstr "Отступ длины инструмента"
+msgstr "Коррекция длины инструмента"
 
 #: src/emc/usr_intf/touchy/mdi.py:79 src/emc/usr_intf/gscreen/mdi.py:75
 msgid "Tool length offset immediate"
-msgstr "Отступ длины инструмента мгновенный"
+msgstr "Немедленная коррекция длины инструмента"
 
 #: src/emc/usr_intf/touchy/mdi.py:80
 msgid "Tool length offset additional"
-msgstr "Отступ длины инструмента дополнительный"
+msgstr "Дополнительная коррекция длины инструмента"
 
 #: src/emc/usr_intf/touchy/mdi.py:81 src/emc/usr_intf/gscreen/mdi.py:76
 msgid "Motion in unoffset coordinates"
-msgstr "Движение в координатах без отступов"
+msgstr "Движение в несмещенных координатах"
 
 #: src/emc/usr_intf/touchy/mdi.py:82 src/emc/usr_intf/gscreen/mdi.py:77
 msgid "Continuous mode"
-msgstr "Постоянный ход"
+msgstr "Непрерывный режим"
 
 #: src/emc/usr_intf/touchy/mdi.py:84 src/emc/usr_intf/gscreen/mdi.py:79
 msgid "Drill"
@@ -8922,7 +8923,7 @@ msgstr "Стружколомное сверло"
 
 #: src/emc/usr_intf/touchy/mdi.py:88 src/emc/usr_intf/gscreen/mdi.py:83
 msgid "Bore"
-msgstr "Расточка"
+msgstr "Отверстие"
 
 #: src/emc/usr_intf/touchy/mdi.py:89 src/emc/usr_intf/gscreen/mdi.py:84
 msgid "Bore with dwell"
@@ -9080,7 +9081,7 @@ msgstr "wd"
 
 #: src/emc/usr_intf/touchy/touchy.glade:458
 msgid "Estop Reset"
-msgstr "АВОСТ сброс"
+msgstr "Стоп Сброс"
 
 #: src/emc/usr_intf/touchy/touchy.glade:469
 #: src/emc/usr_intf/stepconf/pport1.glade:21
@@ -9089,12 +9090,12 @@ msgstr "АВОСТ сброс"
 #: src/emc/usr_intf/pncconf/pport2.glade:26
 #: src/emc/usr_intf/gscreen/gscreen.glade:3914
 msgid "Estop"
-msgstr "АВОСТ"
+msgstr "Останавливаться"
 
 #: src/emc/usr_intf/touchy/touchy.glade:485
 #: src/emc/usr_intf/gscreen/gscreen.py:2640
 msgid "Machine On"
-msgstr "Станок вкл"
+msgstr "Машина включена"
 
 #: src/emc/usr_intf/touchy/touchy.glade:500
 #: src/emc/usr_intf/gscreen/gscreen.py:2645
@@ -9119,7 +9120,7 @@ msgstr "Забыть начало активной оси"
 
 #: src/emc/usr_intf/touchy/touchy.glade:632
 msgid "<b>Homing</b>"
-msgstr "<b>Поиск начала</b>"
+msgstr "<b>Самонаведение</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:648
 msgid "Startup"
@@ -9131,7 +9132,7 @@ msgstr "Установить инструмент"
 
 #: src/emc/usr_intf/touchy/touchy.glade:678
 msgid "Set Origin"
-msgstr "Установить начало"
+msgstr "Установить начало координат"
 
 #: src/emc/usr_intf/touchy/touchy.glade:693
 msgid "Macro"
@@ -9304,7 +9305,7 @@ msgstr "<b>Страница</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2294
 msgid "<span foreground=\"blue\" weight=\"bold\">Start Point</span>"
-msgstr "<span foreground=\"blue\" weight=\"bold\">Start Point </span>"
+msgstr "<span переднийплан=\"синий\" вес=\"жирный\">Начальная точка</span>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2432
 msgid "<b>Loaded File</b>"
@@ -9429,7 +9430,7 @@ msgstr "G92 Отступ:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2918
 msgid "Loaded file lines:"
-msgstr "Строки загруженного файла :"
+msgstr "Строки загруженного файла:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2947
 msgid "Pockets:"
@@ -9632,7 +9633,8 @@ msgid ""
 "troubleshooting:\n"
 "\n"
 msgstr ""
-"Stepconf·обнаружил ошибку.··Эта информация может помочь:\n"
+"Stepconf обнаружил ошибку.   Следующая информация может быть полезна при "
+"устранении неполадок:\n"
 "\n"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:141
@@ -9668,7 +9670,7 @@ msgstr "Опции"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:144
 msgid "HALUI"
-msgstr "ХАЛУИ"
+msgstr "ПРИСОЕДИНИТЬСЯ"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:145
 #: src/emc/usr_intf/pncconf/private_data.py:43
@@ -9764,12 +9766,12 @@ msgstr "PMDX-150"
 #: src/emc/usr_intf/stepconf/pport1.glade:43
 #: src/emc/usr_intf/pncconf/private_data.py:1171
 msgid "Sherline"
-msgstr "Шерлайн"
+msgstr "Шерлин"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:165
 #: src/emc/usr_intf/pncconf/private_data.py:1172
 msgid "Xylotex 8S-3"
-msgstr "Хилотех 8S-3"
+msgstr "Ксилотекс 8S-3"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:166
 #: src/emc/usr_intf/pncconf/private_data.py:1173
@@ -9882,11 +9884,11 @@ msgstr "Струя"
 #: src/emc/usr_intf/stepconf/stepconf.py:223
 #: src/emc/usr_intf/pncconf/private_data.py:516
 msgid "ESTOP Out"
-msgstr "АВОСТ выход"
+msgstr "ЭСТОП Выход"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:223
 msgid "Amplifier Enable"
-msgstr "Усилитель разрешение"
+msgstr "Включение усилителя"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:224
 #: src/emc/usr_intf/pncconf/private_data.py:518
@@ -9948,7 +9950,7 @@ msgstr "Не подключен"
 #: src/emc/usr_intf/stepconf/stepconf.py:229
 #: src/emc/usr_intf/pncconf/private_data.py:440
 msgid "ESTOP In"
-msgstr "АВОСТ вход"
+msgstr "ЭСТОП В"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:229
 #: src/emc/usr_intf/pncconf/private_data.py:440
