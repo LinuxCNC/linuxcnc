@@ -1852,7 +1852,7 @@ Discovery option requires the advanced options checked on this page."""%self._p.
                 self.widgets[key].set_active(False)
             else:
                 self.widgets[key].set_active(True)
-                self.widgets[key+"button"].set_color(gdk.color_parse(data))
+                self.widgets[key+"button"].set_color(Gdk.color_parse(data))
         self.widgets.touchyforcemax.set_active(bool(prefs.getpref('window_force_max')))
 
     def set_touchy_preference(self, value, default, type):
@@ -4312,7 +4312,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             w[axis+"homesearchvel"].set_text("%d" % (d[axis+"homesearchvel"]*60))
             w[axis+"homelatchvel"].set_text("%d" % (d[axis+"homelatchvel"]*60))
             w[axis+"homefinalvel"].set_text("%d" % (d[axis+"homefinalvel"]*60))
-            w[axis+"homesequence"].set_text("%d" % abs(d[axis+"homesequence"]))
+            set_active("homesequence")
             set_active("searchdir")
             set_active("latchdir")
             set_active("usehomeindex")
@@ -4503,7 +4503,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             d[axis + "homesearchvel"] = (get_value(w[axis + "homesearchvel"])/60)
             d[axis + "homelatchvel"] = (get_value(w[axis + "homelatchvel"])/60)
             d[axis + "homefinalvel"] = (get_value(w[axis + "homefinalvel"])/60)
-            d[axis+"homesequence"] = (abs(get_value(w[axis+"homesequence"])))
+            get_active("homesequence")
             get_active("searchdir")
             get_active("latchdir")
             get_active("usehomeindex")
