@@ -42,12 +42,12 @@ BOOST_PYTHON_MODULE(emccanon) {
         "Canon access & introspection\n"
         ;
     enum_<CANON_PLANE>("CANON_PLANE")
-            .value("CANON_PLANE_XY", CANON_PLANE_XY)
-            .value("CANON_PLANE_YZ", CANON_PLANE_YZ)
-            .value("CANON_PLANE_XZ", CANON_PLANE_XZ)
-            .value("CANON_PLANE_UV", CANON_PLANE_UV)
-            .value("CANON_PLANE_VW", CANON_PLANE_VW)
-            .value("CANON_PLANE_UW", CANON_PLANE_UW)
+            .value("CANON_PLANE_XY", CANON_PLANE::XY)
+            .value("CANON_PLANE_YZ", CANON_PLANE::YZ)
+            .value("CANON_PLANE_XZ", CANON_PLANE::XZ)
+            .value("CANON_PLANE_UV", CANON_PLANE::UV)
+            .value("CANON_PLANE_VW", CANON_PLANE::VW)
+            .value("CANON_PLANE_UW", CANON_PLANE::UW)
             .export_values();
 
     enum_<CANON_UNITS>("CANON_UNITS")
@@ -116,8 +116,6 @@ BOOST_PYTHON_MODULE(emccanon) {
     def("ENABLE_FEED_HOLD",&ENABLE_FEED_HOLD);
     def("ENABLE_FEED_OVERRIDE",&ENABLE_FEED_OVERRIDE);
     def("ENABLE_SPEED_OVERRIDE",&ENABLE_SPEED_OVERRIDE);
-    def("PLUGIN_CALL",&PLUGIN_CALL);
-    def("IO_PLUGIN_CALL",&IO_PLUGIN_CALL);
     def("FINISH",&FINISH);
     def("ON_RESET", &ON_RESET);
     def("FLOOD_OFF",&FLOOD_OFF);

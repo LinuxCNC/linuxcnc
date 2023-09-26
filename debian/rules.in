@@ -13,7 +13,9 @@
 # Uncomment this to turn on verbose mode.
 export DH_VERBOSE=1
 
-include /usr/share/dpkg/pkg-info.mk
+# see EXAMPLES in dpkg-buildflags(1) and read /usr/share/dpkg/*
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/default.mk
 
 # Support more robust code and makes code modifications more difficult
 # Compare https://wiki.debian.org/Hardening
@@ -31,15 +33,18 @@ export TIME=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%T')
 kernel_version = @KERNEL_VERSION@
 configure_realtime_arg = @CONFIGURE_REALTIME_ARG@
 enable_build_documentation = @ENABLE_BUILD_DOCUMENTATION@
+SRCDIR = $(CURDIR)/src
 DESTDIR=$(CURDIR)/debian/tmp
 DEV_PACKAGE_NAME=@MAIN_PACKAGE_NAME@-dev
 
+export PYTHON=/usr/bin/python3
+
 %:
-	dh $@
+	dh $@ -D$(SRCDIR)
 
 override_dh_auto_configure:
 	cd src && ./autogen.sh
-	cd src && PYTHON=/usr/bin/python3 ./configure \
+	cd src && ./configure \
 	    --prefix=/usr --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
 	    $(configure_realtime_arg) \
@@ -47,24 +52,20 @@ override_dh_auto_configure:
 	    --disable-check-runtime-deps
 
 override_dh_auto_build-arch:
-	$(MAKE) PYTHON=/usr/bin/python3 -C src build-software
+	dh_auto_build -- build-software
 
 override_dh_auto_build-indep:
 ifneq "$(enable_build_documentation)" ""
-	$(MAKE) PYTHON=/usr/bin/python3 -C src manpages
-	$(MAKE) PYTHON=/usr/bin/python3 -C src translateddocs
-	$(MAKE) PYTHON=/usr/bin/python3 -C src docs
+	dh_auto_build -- manpages
+	dh_auto_build -- translateddocs
+	dh_auto_build -- docs
 endif
 
 override_dh_auto_clean:
-	dh_auto_clean
-	py3clean .
-	if [ -r src/Makefile.inc -a -r src/config.status ]; then $(MAKE) -C src clean -s; fi
-	rm -f Makefile.inc
-	rm -f src/config.log src/config.status
-	rm -f $(for i in $(find . -name "*.in"); do basename $i .in; done)
-	dh_clean
-
+	if [ -r src/Makefile.inc -a -r src/config.status ]; then \
+	dh_auto_clean; \
+	py3clean .; \
+	fi
 
 override_dh_auto_install-arch:
 	# Install all architecture-dependent libraries and executables
@@ -73,7 +74,7 @@ override_dh_auto_install-arch:
 	py3clean .
 
 	desktop-file-validate $(shell find debian/extras/ share/applications/ -name *.desktop);
-	
+
 	# some clean-up
 	rm -f $(DESTDIR)/usr/share/doc/@MAIN_PACKAGE_NAME@/examples/sample-configs/*/*position*.txt
 
@@ -85,7 +86,7 @@ override_dh_installdocs-arch:
 	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=@MAIN_PACKAGE_NAME@
 	mkdir -p debian/@MAIN_PACKAGE_NAME@/usr/share/doc/linuxcnc
 	mv debian/@MAIN_PACKAGE_NAME@/usr/share/doc/@MAIN_PACKAGE_NAME@/examples debian/@MAIN_PACKAGE_NAME@/usr/share/doc/linuxcnc
-	
+
 	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=@MAIN_PACKAGE_NAME@-dev
 
 
@@ -108,21 +109,16 @@ override_dh_installdocs-indep:
 	dh_installdocs --doc-main-package=linuxcnc-uspace --package=linuxcnc-doc-de
 	mv debian/linuxcnc-doc-de/usr/share/doc/linuxcnc-uspace/gcode.html debian/linuxcnc-doc-de/usr/share/doc/linuxcnc-uspace/gcode_de.html
 	mv debian/linuxcnc-doc-de/usr/share/doc/linuxcnc-uspace debian/linuxcnc-doc-de/usr/share/doc/linuxcnc
-	
+
 	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-en
 	mv debian/linuxcnc-doc-en/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-en/usr/share/doc/linuxcnc
-	
-	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-es
-	mv debian/linuxcnc-doc-es/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode.html debian/linuxcnc-doc-es/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode_es.html
-	mv debian/linuxcnc-doc-es/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-es/usr/share/doc/linuxcnc
-	
-	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-fr
-	mv debian/linuxcnc-doc-fr/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode.html debian/linuxcnc-doc-fr/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode_fr.html
-	mv debian/linuxcnc-doc-fr/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-fr/usr/share/doc/linuxcnc
-	
-	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-zh-cn
-	mv debian/linuxcnc-doc-zh-cn/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode.html debian/linuxcnc-doc-zh-cn/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode_zh_CN.html
-	mv debian/linuxcnc-doc-zh-cn/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-zh-cn/usr/share/doc/linuxcnc
+
+# Remove files for translations created where we do not want Debian packages.
+	for l in ar es fr ru zh_CN; do \
+		$(RM) debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_*_$$l.pdf; \
+	done
+	$(RM) debian/tmp/usr/share/doc/linuxcnc/*_es.adoc
+
 
 
 override_dh_compress:

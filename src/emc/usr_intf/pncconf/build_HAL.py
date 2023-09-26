@@ -348,18 +348,18 @@ class HAL:
         if chargepump:
             steppinname = self.a.make_pinname(chargepump, substitution = self.d.useinisubstitution)
             print(file=file)
-            print(_("# ---Chargepump StepGen: 0.25 velocity = 10Khz square wave output---"), file=file)
+            print(_("# ---Chargepump StepGen: 10000 velocity-cmd = 10Khz square wave output---"), file=file)
             print(file=file)
             print("setp   " + steppinname + ".dirsetup        100", file=file)
             print("setp   " + steppinname + ".dirhold         100", file=file)
             print("setp   " + steppinname + ".steplen         100", file=file)
             print("setp   " + steppinname + ".stepspace       100", file=file)
-            print("setp   " + steppinname + ".position-scale  10000", file=file)
             print("setp   " + steppinname + ".step_type       2", file=file)
             print("setp   " + steppinname + ".control-type    1", file=file)
             print("setp   " + steppinname + ".maxaccel        0", file=file)
             print("setp   " + steppinname + ".maxvel          0", file=file)
-            print("setp   " + steppinname + ".velocity-cmd    0.25", file=file)
+            print("setp   " + steppinname + ".position-scale  1", file=file)
+            print("setp   " + steppinname + ".velocity-cmd    10000", file=file)
             print(file=file)
             print("net x-enable                                 => " + steppinname +".enable", file=file)
 
@@ -1687,11 +1687,14 @@ class HAL:
                                 comment = "#qtplasmac uses digital output %s:\n#" % p
                             print("%snet %s  =>     %s"% (comment,p,temp), file=file)
                     if i: # invert pin
-                        if "sserial" in pname:
-                            ending = "-invert"
-                        elif "parport" in pinname: ending = "-invert"
-                        else: ending = ".invert_output"
-                        print("setp %s true"%  (pinname + ending ), file=file)
+                        if t in (_PD.SSR0,_PD.OUTM0):
+                            print("setp %s true"%  (pinname.replace('.out-', '.invert-')), file=file)
+                        else:
+                            if "sserial" in pname:
+                                ending = "-invert"
+                            elif "parport" in pinname: ending = "-invert"
+                            else: ending = ".invert_output"
+                            print("setp %s true"%  (pinname + ending ), file=file)
 
             # for pwm pins
             elif t in (_PD.PWMP,_PD.PDMP,_PD.UDMU):

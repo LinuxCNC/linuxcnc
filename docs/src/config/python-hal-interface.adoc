@@ -1,0 +1,221 @@
+:lang: en
+:toc:
+
+[[cha:python-hal-interface]]
+= The HAL Python module
+
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
+This documentation describes the `hal` python module, which provides
+a Python API for creating and accessing HAL pins and signals.
+
+
+== Basic usage
+
+
+[source,python]
+----
+#!/usr/bin/env python3
+import hal, time
+h = hal.component("passthrough")
+h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("out", hal.HAL_FLOAT, hal.HAL_OUT)
+h.ready()
+----
+
+== Functions
+
+
+*component*:: +
+The component itself is created by a call to the constructor `hal.component`.
+The arguments are the HAL component name and (optionally) the
+prefix used for pin and parameter names. If the prefix is not
+specified, the component name is used. +
+.Example
+[source,python]
+----
+h = hal.component("passthrough")
+----
+
+*newpin*:: +
+Create new pin. +
+Arguments: pin name suffix, pin type, and pin direction. For
+parameters, the arguments are: parameter name suffix, parameter type,
+and parameter direction. +
+.Example:
+[source,python]
+----
+h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
+----
+
+
+*ready* ::
+Tells the HAL system the component is initialized. Locks out adding pins.
+
+*unready* ::
+Allows a component to add pins after 'ready()' has been called.
+One should call 'ready()' on the component after.
+
+*component_exists* ::
+Does the specified component exist at this time.
+
+.Example
+----
+hal.component_exists("testpanel")
+----
+
+*component_is_ready* ::
+Is the specified component ready at this time.
+
+.Example
+----
+hal.component_is_ready("testpanel")
+----
+
+*get_msg_level* ::
+Get the current Realtime msg level.
+
+*set_msg_level* ::
+Set the current Realtime msg level.
+used for debugging information.
+
+*connect* ::
+Connect a pin to a signal.
+
+.Example
+----
+hal.connect("pinname","signal_name")
+----
+
+*disconnect* ::
+Disconnect a pin from a signal.
+
+.Example
+----
+hal.disconnect("pinname")
+----
+
+*get_value* ::
+Read a pin, param, or signal directly.
+
+.Example
+[source,python]
+----
+value = hal.get_value("iocontrol.0.emc-enable-in")
+----
+
+*get_info_pins()* ::
+Returns a list of dicts of all system pins.
+
+[source,python]
+----
+listOfDicts = hal.get_info_pins()
+pinName1 = listOfDicts[0].get('NAME')
+pinValue1 = listOfDicts[0].get('VALUE')
+pinType1 = listOfDicts[0].get('TYPE')
+pinDirection1 = listOfDicts[0].get('DIRECTION')
+----
+
+*get_info_signals()* ::
+Returns a list of dicts of all system signals.
+
+[source,python]
+----
+listOfDicts = hal.get_info_signals()
+signalName1 = listOfDicts[0].get('NAME')
+signalValue1 = listOfDicts[0].get('VALUE')
+driverPin1 = listOfDicts[0].get('DRIVER')
+----
+
+*get_info_params()* ::
+Returns a list of dicts of all system parameters.
+
+[source,python]
+----
+listOfDicts = hal.get_info_params()
+paramName1 = listOfDicts[0].get('NAME')
+paramValue1 = listOfDicts[0].get('VALUE')
+paramDirection1 = listOfDicts[0].get('DIRECTION')
+----
+
+*new_sig* ::
+Create a new signal of the type specified.
+
+.Example
+[source,python]
+----
+hal.new_sig("signalname",hal.HAL_BIT)
+----
+
+*pin_has_writer* ::
+Does the specified pin have a driving pin connected. +
+Returns True or False.
+
+----
+h.in.pin_has_writer()
+----
+
+*get_name* ::
+Get the HAL object name. +
+Return a string.
+
+----
+h.in.get_name()
+----
+
+*get_type* ::
+Get the HAL object's type. +
+Returns an integer.
+
+----
+h.in.get_type()
+----
+
+*get_dir* ::
+Get the HAL object direction type. +
+Returns an integer.
+
+----
+h.in.get_dir()
+----
+
+*get* ::
+Get the HAL object value.
+
+----
+h.in.get()
+----
+
+*set* ::
+Set the HAL object value.
+
+----
+h.out.set(10)
+----
+
+*is_pin* ::
+Is the object a pin or parameter? +
+Returns True or False.
+
+----
+h.in.is_pin()
+----
+
+*sampler_base* ::
+TODO
+
+*stream_base* ::
+TODO
+
+*stream* ::
+TODO
+
+*set_p* ::
+Set a pin value of any pin in the HAL system.
+
+.Example
+----
+hal.set_p("pinname","10")
+----

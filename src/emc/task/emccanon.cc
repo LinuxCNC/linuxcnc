@@ -63,6 +63,7 @@
 #include <rtapi_string.h>
 #include "modal_state.hh"
 #include "tooldata.hh"
+#include <algorithm>
 
 //#define EMCCANON_DEBUG
 
@@ -96,30 +97,6 @@ void UPDATE_TAG(StateTag tag) {
     canon_debug("--Got UPDATE_TAG: %d--\n",tag.fields[GM_FIELD_LINE_NUMBER]);
     _tag = tag;
 }
-
-#ifndef MIN
-#define MIN(a,b) ((a)<(b)?(a):(b))
-#endif
-
-#ifndef MIN3
-#define MIN3(a,b,c) (MIN(MIN((a),(b)),(c)))
-#endif
-
-#ifndef MAX
-#define MAX(a,b) ((a)>(b)?(a):(b))
-#endif
-
-#ifndef MAX3
-#define MAX3(a,b,c) (MAX(MAX((a),(b)),(c)))
-#endif
-
-#ifndef MAX4
-#define MAX4(a,b,c,d) (MAX(MAX((a),(b)),MAX((c),(d))))
-#endif
-
-#ifndef MAX9
-#define MAX9(a,b,c,d,e,f,g,h,i) (MAX3((MAX3(a,b,c)),(MAX3(d,e,f)),(MAX3(g,h,i))))
-#endif
 
 /* macros for converting internal (mm/deg) units to external units */
 #define TO_EXT_LEN(mm) ((mm) * GET_EXTERNAL_LENGTH_UNITS())
@@ -678,8 +655,8 @@ static AccelData getStraightAcceleration(double x, double y, double z,
 	tu = du? (du / FROM_EXT_LEN(emcAxisGetMaxAcceleration(6))): 0.0;
 	tv = dv? (dv / FROM_EXT_LEN(emcAxisGetMaxAcceleration(7))): 0.0;
 	tw = dw? (dw / FROM_EXT_LEN(emcAxisGetMaxAcceleration(8))): 0.0;
-        out.tmax = MAX3(tx, ty ,tz);
-        out.tmax = MAX4(tu, tv, tw, out.tmax);
+        out.tmax = std::max({tx, ty ,tz});
+        out.tmax = std::max({tu, tv, tw, out.tmax});
 
         if(dx || dy || dz)
             out.dtot = sqrt(dx * dx + dy * dy + dz * dz);
@@ -695,7 +672,7 @@ static AccelData getStraightAcceleration(double x, double y, double z,
 	ta = da? (da / FROM_EXT_ANG(emcAxisGetMaxAcceleration(3))): 0.0;
 	tb = db? (db / FROM_EXT_ANG(emcAxisGetMaxAcceleration(4))): 0.0;
 	tc = dc? (dc / FROM_EXT_ANG(emcAxisGetMaxAcceleration(5))): 0.0;
-        out.tmax = MAX3(ta, tb, tc);
+        out.tmax = std::max({ta, tb, tc});
 
 	out.dtot = sqrt(da * da + db * db + dc * dc);
 	if (out.tmax > 0.0) {
@@ -713,9 +690,9 @@ static AccelData getStraightAcceleration(double x, double y, double z,
 	tu = du? (du / FROM_EXT_LEN(emcAxisGetMaxAcceleration(6))): 0.0;
 	tv = dv? (dv / FROM_EXT_LEN(emcAxisGetMaxAcceleration(7))): 0.0;
 	tw = dw? (dw / FROM_EXT_LEN(emcAxisGetMaxAcceleration(8))): 0.0;
-        out.tmax = MAX9(tx, ty, tz,
+        out.tmax = std::max({tx, ty, tz,
                     ta, tb, tc,
-                    tu, tv, tw);
+                    tu, tv, tw});
 
         if(debug_velacc)
             printf("getStraightAcceleration t^2 tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n",
@@ -807,8 +784,8 @@ static VelData getStraightVelocity(double x, double y, double z,
 	tu = du? fabs(du / FROM_EXT_LEN(emcAxisGetMaxVelocity(6))): 0.0;
 	tv = dv? fabs(dv / FROM_EXT_LEN(emcAxisGetMaxVelocity(7))): 0.0;
 	tw = dw? fabs(dw / FROM_EXT_LEN(emcAxisGetMaxVelocity(8))): 0.0;
-        out.tmax = MAX3(tx, ty ,tz);
-        out.tmax = MAX4(tu, tv, tw, out.tmax);
+        out.tmax = std::max({tx, ty ,tz});
+        out.tmax = std::max({tu, tv, tw, out.tmax});
 
         if(dx || dy || dz)
             out.dtot = sqrt(dx * dx + dy * dy + dz * dz);
@@ -826,7 +803,7 @@ static VelData getStraightVelocity(double x, double y, double z,
 	ta = da? fabs(da / FROM_EXT_ANG(emcAxisGetMaxVelocity(3))): 0.0;
 	tb = db? fabs(db / FROM_EXT_ANG(emcAxisGetMaxVelocity(4))): 0.0;
 	tc = dc? fabs(dc / FROM_EXT_ANG(emcAxisGetMaxVelocity(5))): 0.0;
-        out.tmax = MAX3(ta, tb, tc);
+        out.tmax = std::max({ta, tb, tc});
 
 	out.dtot = sqrt(da * da + db * db + dc * dc);
 	if (out.tmax <= 0.0) {
@@ -846,9 +823,9 @@ static VelData getStraightVelocity(double x, double y, double z,
 	tu = du? fabs(du / FROM_EXT_LEN(emcAxisGetMaxVelocity(6))): 0.0;
 	tv = dv? fabs(dv / FROM_EXT_LEN(emcAxisGetMaxVelocity(7))): 0.0;
 	tw = dw? fabs(dw / FROM_EXT_LEN(emcAxisGetMaxVelocity(8))): 0.0;
-        out.tmax = MAX9(tx, ty, tz,
+        out.tmax = std::max({tx, ty, tz,
                     ta, tb, tc,
-                    tu, tv, tw);
+                    tu, tv, tw});
 
         if(debug_velacc)
             printf("getStraightVelocity times tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n",
@@ -1309,10 +1286,6 @@ static double chord_deviation(double sx, double sy, double ex, double ey, double
 
 /* Spline and NURBS additional functions; */
 
-static double max(double a, double b) {
-    if(a < b) return b;
-    return a;
-}
 static void unit(double *x, double *y) {
     double h = hypot(*x, *y);
     if(h != 0) { *x/=h; *y/=h; }
@@ -1334,28 +1307,28 @@ arc(int lineno, double x0, double y0, double x1, double y1, double dx,
 		double i = dy * r, j = -dx * r;
 		double cx = x0 + i, cy = y0 + j;
 
-		if (canon.activePlane == CANON_PLANE_XY) {
+		if (canon.activePlane == CANON_PLANE::XY) {
 			ARC_FEED(lineno, x1, y1, cx, cy, r < 0 ? 1 : -1,
 				 p.z, p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		if (canon.activePlane == CANON_PLANE_YZ) {
+		if (canon.activePlane == CANON_PLANE::YZ) {
 			ARC_FEED(lineno, x1, y1, cx, cy, r < 0 ? 1 : -1,
 				 p.x, p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		if (canon.activePlane == CANON_PLANE_XZ) {
+		if (canon.activePlane == CANON_PLANE::XZ) {
 			ARC_FEED(lineno, x1, y1, cx, cy, r < 0 ? 1 : -1,
 				 p.y, p.a, p.b, p.c, p.u, p.v, p.w);
 		}
 	} else {
-		if (canon.activePlane == CANON_PLANE_XY) {
+		if (canon.activePlane == CANON_PLANE::XY) {
 			STRAIGHT_FEED(lineno, x1, y1, p.z, p.a, p.b, p.c,
 				      p.u, p.v, p.w);
 		}
-		if (canon.activePlane == CANON_PLANE_YZ) {
+		if (canon.activePlane == CANON_PLANE::YZ) {
 			STRAIGHT_FEED(lineno, p.x, x1, y1, p.a, p.b, p.c,
 				      p.u, p.v, p.w);
 		}
-		if (canon.activePlane == CANON_PLANE_XZ) {
+		if (canon.activePlane == CANON_PLANE::XZ) {
 			STRAIGHT_FEED(lineno, y1, p.y, x1, p.a, p.b, p.c,
 				      p.u, p.v, p.w);
 		}
@@ -1387,7 +1360,7 @@ biarc(int lineno, double p0x, double p0y, double tsx, double tsy,
 		return 0;
 	}
 
-	double beta = max(beta1, beta2);
+	double beta = std::max(beta1, beta2);
 	double aa = 1, bb = 0, cc;
 	cc = aa / bb;		//cc=inf
 	//if(beta1 == cc || beta2 == cc) { // original Lo Valvo
@@ -1418,7 +1391,7 @@ biarc(int lineno, double p0x, double p0y, double tsx, double tsy,
 void NURBS_G5_FEED(int lineno,
 		   std::vector < NURBS_CONTROL_POINT >
 		   nurbs_control_points, unsigned int nurbs_order,
-		   int plane)
+		   CANON_PLANE plane)
 {
 	flush_segments();
 
@@ -1498,15 +1471,15 @@ void NURBS_FEED_G6_2_WITH_LINEAR_MOTION(int lineno,
 	A6 = nurbs_G6_Nmix_creator(knot_vector[0], k, n + 1, knot_vector);
 	P1 = nurbs_G6_pointx(knot_vector[0], k, nurbs_control_points,
 			     knot_vector, A6);
-	if (canon.activePlane == CANON_PLANE_XY) {
+	if (canon.activePlane == CANON_PLANE::XY) {
 		STRAIGHT_FEED(lineno, P1.NURBS_X, P1.NURBS_Y, p.z, p.a,
 			      p.b, p.c, p.u, p.v, p.w);
 	}
-	if (canon.activePlane == CANON_PLANE_YZ) {
+	if (canon.activePlane == CANON_PLANE::YZ) {
 		STRAIGHT_FEED(lineno, p.x, P1.NURBS_X, P1.NURBS_Y, p.a,
 			      p.b, p.c, p.u, p.v, p.w);
 	}
-	if (canon.activePlane == CANON_PLANE_XZ) {
+	if (canon.activePlane == CANON_PLANE::XZ) {
 		STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X, p.a,
 			      p.b, p.c, p.u, p.v, p.w);
 	}
@@ -1524,20 +1497,20 @@ void NURBS_FEED_G6_2_WITH_LINEAR_MOTION(int lineno,
 				    nurbs_G6_point_x(u_l, k,
 						     nurbs_control_points,
 						     knot_vector);
-				if (canon.activePlane == CANON_PLANE_XY) {
+				if (canon.activePlane == CANON_PLANE::XY) {
 					STRAIGHT_FEED(lineno, P1x.NURBS_X,
 						      P1x.NURBS_Y, p.z,
 						      p.a, p.b, p.c, p.u,
 						      p.v, p.w);
 				}
-				if (canon.activePlane == CANON_PLANE_YZ) {
+				if (canon.activePlane == CANON_PLANE::YZ) {
 					STRAIGHT_FEED(lineno, p.x,
 						      P1x.NURBS_X,
 						      P1x.NURBS_Y, p.a,
 						      p.b, p.c, p.u, p.v,
 						      p.w);
 				}
-				if (canon.activePlane == CANON_PLANE_XZ) {
+				if (canon.activePlane == CANON_PLANE::XZ) {
 					STRAIGHT_FEED(lineno, P1x.NURBS_Y,
 						      p.y, P1x.NURBS_X,
 						      p.a, p.b, p.c, p.u,
@@ -1550,20 +1523,20 @@ void NURBS_FEED_G6_2_WITH_LINEAR_MOTION(int lineno,
 				    nurbs_G6_point_x(u_l, k,
 						     nurbs_control_points,
 						     knot_vector);
-				if (canon.activePlane == CANON_PLANE_XY) {
+				if (canon.activePlane == CANON_PLANE::XY) {
 					STRAIGHT_FEED(lineno, P1x.NURBS_X,
 						      P1x.NURBS_Y, p.z,
 						      p.a, p.b, p.c, p.u,
 						      p.v, p.w);
 				}
-				if (canon.activePlane == CANON_PLANE_YZ) {
+				if (canon.activePlane == CANON_PLANE::YZ) {
 					STRAIGHT_FEED(lineno, p.x,
 						      P1x.NURBS_X,
 						      P1x.NURBS_Y, p.a,
 						      p.b, p.c, p.u, p.v,
 						      p.w);
 				}
-				if (canon.activePlane == CANON_PLANE_XZ) {
+				if (canon.activePlane == CANON_PLANE::XZ) {
 					STRAIGHT_FEED(lineno, P1x.NURBS_Y,
 						      p.y, P1x.NURBS_X,
 						      p.a, p.b, p.c, p.u,
@@ -1577,15 +1550,15 @@ void NURBS_FEED_G6_2_WITH_LINEAR_MOTION(int lineno,
 		P1 = nurbs_G6_pointx(knot_vector[n + k], k,
 				     nurbs_control_points, knot_vector,
 				     A6);
-		if (canon.activePlane == CANON_PLANE_XY) {
+		if (canon.activePlane == CANON_PLANE::XY) {
 			STRAIGHT_FEED(lineno, P1.NURBS_X, P1.NURBS_Y, p.z,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		if (canon.activePlane == CANON_PLANE_YZ) {
+		if (canon.activePlane == CANON_PLANE::YZ) {
 			STRAIGHT_FEED(lineno, p.x, P1.NURBS_X, P1.NURBS_Y,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		if (canon.activePlane == CANON_PLANE_XZ) {
+		if (canon.activePlane == CANON_PLANE::XZ) {
 			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
@@ -1607,19 +1580,19 @@ void NURBS_FEED_G6_2_WITH_LINEAR_MOTION(int lineno,
 				P1 = nurbs_G6_pointx(u_l, k,
 						     nurbs_control_points,
 						     knot_vector, A6);
-				if (canon.activePlane == CANON_PLANE_XY) {
+				if (canon.activePlane == CANON_PLANE::XY) {
 					STRAIGHT_FEED(lineno, P1.NURBS_X,
 						      P1.NURBS_Y, p.z, p.a,
 						      p.b, p.c, p.u, p.v,
 						      p.w);
 				}
-				if (canon.activePlane == CANON_PLANE_YZ) {
+				if (canon.activePlane == CANON_PLANE::YZ) {
 					STRAIGHT_FEED(lineno, p.x,
 						      P1.NURBS_X,
 						      P1.NURBS_Y, p.a, p.b,
 						      p.c, p.u, p.v, p.w);
 				}
-				if (canon.activePlane == CANON_PLANE_XZ) {
+				if (canon.activePlane == CANON_PLANE::XZ) {
 					STRAIGHT_FEED(lineno, P1.NURBS_Y,
 						      p.y, P1.NURBS_X, p.a,
 						      p.b, p.c, p.u, p.v,
@@ -1633,19 +1606,19 @@ void NURBS_FEED_G6_2_WITH_LINEAR_MOTION(int lineno,
 				P1 = nurbs_G6_pointx(u_l, k,
 						     nurbs_control_points,
 						     knot_vector, A6);
-				if (canon.activePlane == CANON_PLANE_XY) {
+				if (canon.activePlane == CANON_PLANE::XY) {
 					STRAIGHT_FEED(lineno, P1.NURBS_X,
 						      P1.NURBS_Y, p.z, p.a,
 						      p.b, p.c, p.u, p.v,
 						      p.w);
 				}
-				if (canon.activePlane == CANON_PLANE_YZ) {
+				if (canon.activePlane == CANON_PLANE::YZ) {
 					STRAIGHT_FEED(lineno, p.x,
 						      P1.NURBS_X,
 						      P1.NURBS_Y, p.a, p.b,
 						      p.c, p.u, p.v, p.w);
 				}
-				if (canon.activePlane == CANON_PLANE_XZ) {
+				if (canon.activePlane == CANON_PLANE::XZ) {
 					STRAIGHT_FEED(lineno, P1.NURBS_Y,
 						      p.y, P1.NURBS_X, p.a,
 						      p.b, p.c, p.u, p.v,
@@ -1658,15 +1631,15 @@ void NURBS_FEED_G6_2_WITH_LINEAR_MOTION(int lineno,
 		P1 = nurbs_G6_pointx(knot_vector[n + k], k,
 				     nurbs_control_points, knot_vector,
 				     A6);
-		if (canon.activePlane == CANON_PLANE_XY) {
+		if (canon.activePlane == CANON_PLANE::XY) {
 			STRAIGHT_FEED(lineno, P1.NURBS_X, P1.NURBS_Y, p.z,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		if (canon.activePlane == CANON_PLANE_YZ) {
+		if (canon.activePlane == CANON_PLANE::YZ) {
 			STRAIGHT_FEED(lineno, p.x, P1.NURBS_X, P1.NURBS_Y,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		if (canon.activePlane == CANON_PLANE_XZ) {
+		if (canon.activePlane == CANON_PLANE::XZ) {
 			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
@@ -1726,15 +1699,15 @@ void NURBS_FEED_G6_2_WITH_CIRCULAR_MOTION(int lineno,
 	A6 = nurbs_G6_Nmix_creator(knot_vector[0], k, n + 1, knot_vector);
 	P1 = nurbs_G6_pointx(knot_vector[0], k, nurbs_control_points,
 			     knot_vector, A6);
-	if (canon.activePlane == CANON_PLANE_XY) {
+	if (canon.activePlane == CANON_PLANE::XY) {
 		STRAIGHT_FEED(lineno, P1.NURBS_X, P1.NURBS_Y, p.z, p.a,
 			      p.b, p.c, p.u, p.v, p.w);
 	}
-	if (canon.activePlane == CANON_PLANE_YZ) {
+	if (canon.activePlane == CANON_PLANE::YZ) {
 		STRAIGHT_FEED(lineno, p.x, P1.NURBS_X, P1.NURBS_Y, p.a,
 			      p.b, p.c, p.u, p.v, p.w);
 	}
-	if (canon.activePlane == CANON_PLANE_XZ) {
+	if (canon.activePlane == CANON_PLANE::XZ) {
 		STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X, p.a,
 			      p.b, p.c, p.u, p.v, p.w);
 	}
@@ -1790,15 +1763,15 @@ void NURBS_FEED_G6_2_WITH_CIRCULAR_MOTION(int lineno,
 		P1 = nurbs_G6_pointx(knot_vector[n + k], k,
 				     nurbs_control_points, knot_vector,
 				     A6);
-		if (canon.activePlane == CANON_PLANE_XY) {
+		if (canon.activePlane == CANON_PLANE::XY) {
 			STRAIGHT_FEED(lineno, P1.NURBS_X, P1.NURBS_Y, p.z,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		if (canon.activePlane == CANON_PLANE_YZ) {
+		if (canon.activePlane == CANON_PLANE::YZ) {
 			STRAIGHT_FEED(lineno, p.x, P1.NURBS_X, P1.NURBS_Y,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		if (canon.activePlane == CANON_PLANE_XZ) {
+		if (canon.activePlane == CANON_PLANE::XZ) {
 			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
@@ -1819,19 +1792,19 @@ void NURBS_FEED_G6_2_WITH_CIRCULAR_MOTION(int lineno,
 				P1 = nurbs_G6_pointx(u_l, k,
 						     nurbs_control_points,
 						     knot_vector, A6);
-				if (canon.activePlane == CANON_PLANE_XY) {
+				if (canon.activePlane == CANON_PLANE::XY) {
 					STRAIGHT_FEED(lineno, P1.NURBS_X,
 						      P1.NURBS_Y, p.z, p.a,
 						      p.b, p.c, p.u, p.v,
 						      p.w);
 				}
-				if (canon.activePlane == CANON_PLANE_YZ) {
+				if (canon.activePlane == CANON_PLANE::YZ) {
 					STRAIGHT_FEED(lineno, p.x,
 						      P1.NURBS_X,
 						      P1.NURBS_Y, p.a, p.b,
 						      p.c, p.u, p.v, p.w);
 				}
-				if (canon.activePlane == CANON_PLANE_XZ) {
+				if (canon.activePlane == CANON_PLANE::XZ) {
 					STRAIGHT_FEED(lineno, P1.NURBS_Y,
 						      p.y, P1.NURBS_X, p.a,
 						      p.b, p.c, p.u, p.v,
@@ -1845,19 +1818,19 @@ void NURBS_FEED_G6_2_WITH_CIRCULAR_MOTION(int lineno,
 				P1 = nurbs_G6_pointx(u_l, k,
 						     nurbs_control_points,
 						     knot_vector, A6);
-				if (canon.activePlane == CANON_PLANE_XY) {
+				if (canon.activePlane == CANON_PLANE::XY) {
 					STRAIGHT_FEED(lineno, P1.NURBS_X,
 						      P1.NURBS_Y, p.z, p.a,
 						      p.b, p.c, p.u, p.v,
 						      p.w);
 				}
-				if (canon.activePlane == CANON_PLANE_YZ) {
+				if (canon.activePlane == CANON_PLANE::YZ) {
 					STRAIGHT_FEED(lineno, p.x,
 						      P1.NURBS_X,
 						      P1.NURBS_Y, p.a, p.b,
 						      p.c, p.u, p.v, p.w);
 				}
-				if (canon.activePlane == CANON_PLANE_XZ) {
+				if (canon.activePlane == CANON_PLANE::XZ) {
 					STRAIGHT_FEED(lineno, P1.NURBS_Y,
 						      p.y, P1.NURBS_X, p.a,
 						      p.b, p.c, p.u, p.v,
@@ -1871,15 +1844,15 @@ void NURBS_FEED_G6_2_WITH_CIRCULAR_MOTION(int lineno,
 		P1 = nurbs_G6_pointx(knot_vector[n + k], k,
 				     nurbs_control_points, knot_vector,
 				     A6);
-		if (canon.activePlane == CANON_PLANE_XY) {
+		if (canon.activePlane == CANON_PLANE::XY) {
 			STRAIGHT_FEED(lineno, P1.NURBS_X, P1.NURBS_Y, p.z,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		if (canon.activePlane == CANON_PLANE_YZ) {
+		if (canon.activePlane == CANON_PLANE::YZ) {
 			STRAIGHT_FEED(lineno, p.x, P1.NURBS_X, P1.NURBS_Y,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		if (canon.activePlane == CANON_PLANE_XZ) {
+		if (canon.activePlane == CANON_PLANE::XZ) {
 			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
@@ -1920,15 +1893,15 @@ void NURBS_FEED_G6_2_WITH_BIARCH_DU_CONST(int lineno,
 		P1 = nurbs_G6_pointx(knot_vector[0], k,
 				     nurbs_control_points, knot_vector,
 				     A6);
-		if (canon.activePlane == CANON_PLANE_XY) {
+		if (canon.activePlane == CANON_PLANE::XY) {
 			STRAIGHT_FEED(lineno, P1.NURBS_X, P1.NURBS_Y, p.z,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		if (canon.activePlane == CANON_PLANE_YZ) {
+		if (canon.activePlane == CANON_PLANE::YZ) {
 			STRAIGHT_FEED(lineno, p.x, P1.NURBS_X, P1.NURBS_Y,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		if (canon.activePlane == CANON_PLANE_XZ) {
+		if (canon.activePlane == CANON_PLANE::XZ) {
 			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
@@ -1954,15 +1927,15 @@ void NURBS_FEED_G6_2_WITH_BIARCH_DU_CONST(int lineno,
 		A6 = nurbs_G6_Nmix_creator(umax, k, n + 1, knot_vector);
 		P1 = nurbs_G6_pointx(umax, k, nurbs_control_points,
 				     knot_vector, A6);
-		if (canon.activePlane == CANON_PLANE_XY) {
+		if (canon.activePlane == CANON_PLANE::XY) {
 			STRAIGHT_FEED(lineno, P1.NURBS_X, P1.NURBS_Y, p.z,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		if (canon.activePlane == CANON_PLANE_YZ) {
+		if (canon.activePlane == CANON_PLANE::YZ) {
 			STRAIGHT_FEED(lineno, p.x, P1.NURBS_X, P1.NURBS_Y,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		if (canon.activePlane == CANON_PLANE_XZ) {
+		if (canon.activePlane == CANON_PLANE::XZ) {
 			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
@@ -1979,15 +1952,15 @@ void NURBS_FEED_G6_2_WITH_BIARCH_DU_CONST(int lineno,
 		P1 = nurbs_G6_pointx(knot_vector[0], k,
 				     nurbs_control_points, knot_vector,
 				     A6);
-		if (canon.activePlane == CANON_PLANE_XY) {
+		if (canon.activePlane == CANON_PLANE::XY) {
 			STRAIGHT_FEED(lineno, P1.NURBS_X, P1.NURBS_Y, p.z,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		if (canon.activePlane == CANON_PLANE_YZ) {
+		if (canon.activePlane == CANON_PLANE::YZ) {
 			STRAIGHT_FEED(lineno, p.x, P1.NURBS_X, P1.NURBS_Y,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		if (canon.activePlane == CANON_PLANE_XZ) {
+		if (canon.activePlane == CANON_PLANE::XZ) {
 			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
@@ -1995,17 +1968,17 @@ void NURBS_FEED_G6_2_WITH_BIARCH_DU_CONST(int lineno,
 		for (u = du; u <= (umax - du); u = u + du) {
 			P1 = nurbs_G6_point_x(u, k, nurbs_control_points,
 					      knot_vector);
-			if (canon.activePlane == CANON_PLANE_XY) {
+			if (canon.activePlane == CANON_PLANE::XY) {
 				STRAIGHT_FEED(lineno, P1.NURBS_X,
 					      P1.NURBS_Y, p.z, p.a, p.b,
 					      p.c, p.u, p.v, p.w);
 			}
-			if (canon.activePlane == CANON_PLANE_YZ) {
+			if (canon.activePlane == CANON_PLANE::YZ) {
 				STRAIGHT_FEED(lineno, p.x, P1.NURBS_X,
 					      P1.NURBS_Y, p.a, p.b, p.c,
 					      p.u, p.v, p.w);
 			}
-			if (canon.activePlane == CANON_PLANE_XZ) {
+			if (canon.activePlane == CANON_PLANE::XZ) {
 				STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y,
 					      P1.NURBS_X, p.a, p.b, p.c,
 					      p.u, p.v, p.w);
@@ -2016,15 +1989,15 @@ void NURBS_FEED_G6_2_WITH_BIARCH_DU_CONST(int lineno,
 		P1 = nurbs_G6_pointx(knot_vector[n + k], k,
 				     nurbs_control_points, knot_vector,
 				     A6);
-		if (canon.activePlane == CANON_PLANE_XY) {
+		if (canon.activePlane == CANON_PLANE::XY) {
 			STRAIGHT_FEED(lineno, P1.NURBS_X, P1.NURBS_Y, p.z,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		if (canon.activePlane == CANON_PLANE_YZ) {
+		if (canon.activePlane == CANON_PLANE::YZ) {
 			STRAIGHT_FEED(lineno, p.x, P1.NURBS_X, P1.NURBS_Y,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		if (canon.activePlane == CANON_PLANE_XZ) {
+		if (canon.activePlane == CANON_PLANE::XZ) {
 			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
@@ -2232,7 +2205,7 @@ void NURBS_FEED_NO_SUBDIVISION(int lineno,
 void NURBS_G6_FEED(int lineno,
 		   std::vector < NURBS_G6_CONTROL_POINT >
 		   nurbs_control_points, unsigned int nurbs_order,
-		   double feedrate, int Q_option, int plane)
+		   double feedrate, int Q_option, CANON_PLANE plane)
 {				// (L_option: NICU, NICL, NICC see publication from Lo Valvo and Drago) 
 	int n = nurbs_control_points.size() - 1 - nurbs_order;
 	std::vector < double >knot_vector =
@@ -2366,7 +2339,7 @@ void ARC_FEED(int line_number,
 	canon_debug("line = %d\n", line_number);
 	canon_debug("first_end = %f, second_end = %f\n", first_end,second_end);
 
-    if( canon.activePlane == CANON_PLANE_XY && canon.motionMode == CANON_CONTINUOUS) {
+    if( canon.activePlane == CANON_PLANE::XY && canon.motionMode == CANON_CONTINUOUS) {
 		double mx, my;
 		double lx, ly, lz;
 		double unused = 0;
@@ -2428,18 +2401,18 @@ void ARC_FEED(int line_number,
     // KLUDGE CANON_PLANE is 1-indexed, hence the subtraction here to make a 0-index value
     int shift_ind = 0;
     switch(canon.activePlane) {
-        case CANON_PLANE_XY:
+        case CANON_PLANE::XY:
             shift_ind = 0;
             break;
-        case CANON_PLANE_XZ:
+        case CANON_PLANE::XZ:
             shift_ind = -2;
             break;
-        case CANON_PLANE_YZ:
+        case CANON_PLANE::YZ:
             shift_ind = -1;
             break;
-        case CANON_PLANE_UV:
-        case CANON_PLANE_VW:
-        case CANON_PLANE_UW:
+        case CANON_PLANE::UV:
+        case CANON_PLANE::VW:
+        case CANON_PLANE::UW:
             CANON_ERROR("Can't set plane in UVW axes, assuming XY");
             break;
     }
@@ -2589,14 +2562,14 @@ void ARC_FEED(int line_number,
     // Get planar velocity bounds
     double v1 = FROM_EXT_LEN(emcAxisGetMaxVelocity(axis1));
     double v2 = FROM_EXT_LEN(emcAxisGetMaxVelocity(axis2));
-    double v_max_axes = MIN(v1, v2);
+    double v_max_axes = std::min(v1, v2);
 
     // Get planar acceleration bounds
     double a1 = FROM_EXT_LEN(emcAxisGetMaxAcceleration(axis1));
     double a2 = FROM_EXT_LEN(emcAxisGetMaxAcceleration(axis2));
-    double a_max_axes = MIN(a1, a2);
+    double a_max_axes = std::min(a1, a2);
 
-    if(canon.xy_rotation && canon.activePlane != CANON_PLANE_XY) {
+    if(canon.xy_rotation && canon.activePlane != CANON_PLANE::XY) {
         // also consider the third plane's constraint, which may get
         // involved since we're rotated.
 
@@ -2604,8 +2577,8 @@ void ARC_FEED(int line_number,
         if (axis_valid(axis3)) {
             double v3 = FROM_EXT_LEN(emcAxisGetMaxVelocity(axis3));
             double a3 = FROM_EXT_LEN(emcAxisGetMaxAcceleration(axis3));
-            v_max_axes = MIN(v3, v_max_axes);
-            a_max_axes = MIN(a3, a_max_axes);
+            v_max_axes = std::min(v3, v_max_axes);
+            a_max_axes = std::min(a3, a_max_axes);
         }
     }
 
@@ -2618,7 +2591,7 @@ void ARC_FEED(int line_number,
     canon_debug("v_max_radial = %f\n", v_max_radial);
 
     // Restrict our maximum velocity in-plane if need be
-    double v_max_planar = MIN(v_max_radial, v_max_axes);
+    double v_max_planar = std::min(v_max_radial, v_max_axes);
     canon_debug("v_max_planar = %f\n", v_max_planar);
 
     // Find the equivalent maximum velocity for a linear displacement
@@ -2665,7 +2638,7 @@ void ARC_FEED(int line_number,
     double a_max = total_xyz_length / tt_max;
 
     // Limit velocity by maximum
-    double vel = MIN(canon.linearFeedRate, v_max);
+    double vel = std::min(canon.linearFeedRate, v_max);
     canon_debug("current F = %f\n",canon.linearFeedRate);
     canon_debug("vel = %f\n",vel);
 
@@ -3238,7 +3211,6 @@ void MESSAGE(char *s)
     EMC_OPERATOR_DISPLAY operator_display_msg;
 
     flush_segments();
-    operator_display_msg.id = 0;
     strncpy(operator_display_msg.display, s, LINELEN);
     operator_display_msg.display[LINELEN - 1] = 0;
     interp_list.append(operator_display_msg);
@@ -3441,7 +3413,7 @@ void INIT_CANON()
     canon.g92Offset.u = 0.0;
     canon.g92Offset.v = 0.0;
     canon.g92Offset.w = 0.0;
-    SELECT_PLANE(CANON_PLANE_XY);
+    SELECT_PLANE(CANON_PLANE::XY);
     canonUpdateEndPoint(0, 0, 0, 0, 0, 0, 0, 0, 0);
     SET_NAIVECAM_TOLERANCE(0);
     for (int s = 0; s < EMCMOT_MAX_SPINDLES; s++) {
@@ -3488,7 +3460,6 @@ void CANON_ERROR(const char *fmt, ...)
 
     flush_segments();
 
-    operator_error_msg.id = 0;
     if (fmt != NULL) {
 	va_start(ap, fmt);
 	vsnprintf(operator_error_msg.error,sizeof(operator_error_msg.error), fmt, ap);
@@ -4207,38 +4178,3 @@ int LOCK_ROTARY(int line_number, int joint_num) {
     return 0;
 }
 
-/* PLUGIN_CALL queues a Python tuple for execution by task
- * the tuple is expected to be already pickled
- * The tuple format is: (callable,tupleargs,keywordargs)
- */
-void PLUGIN_CALL(int len, const char *call)
-{
-    EMC_EXEC_PLUGIN_CALL call_msg;
-    if (len > (int) sizeof(call_msg.call)) {
-	// really should call it quits here, this is going to fail
-	printf("PLUGIN_CALL: message size exceeded actual=%d max=%zd\n",len,sizeof(call_msg.call));
-    }
-    memset(call_msg.call, 0, sizeof(call_msg.call));
-    memcpy(call_msg.call, call, len > (int) sizeof(call_msg.call) ? sizeof(call_msg.call) : len);
-    call_msg.len = len;
-
-    printf("canon: PLUGIN_CALL(arglen=%zd)\n",strlen(call));
-
-    interp_list.append(call_msg);
-}
-
-void IO_PLUGIN_CALL(int len, const char *call)
-{
-    EMC_IO_PLUGIN_CALL call_msg;
-    if (len > (int) sizeof(call_msg.call)) {
-	// really should call it quits here, this is going to fail
-	printf("IO_PLUGIN_CALL: message size exceeded actual=%d max=%zd\n",len,sizeof(call_msg.call));
-    }
-    memset(call_msg.call, 0, sizeof(call_msg.call));
-    memcpy(call_msg.call, call, len > (int) sizeof(call_msg.call) ? sizeof(call_msg.call) : len);
-    call_msg.len = len;
-
-    printf("canon: IO_PLUGIN_CALL(arglen=%d)\n",len);
-
-    interp_list.append(call_msg);
-}

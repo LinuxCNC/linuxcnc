@@ -60,7 +60,7 @@ EMC_TRAJ_STAT_MSG(EMC_TRAJ_STAT_TYPE, sizeof(EMC_TRAJ_STAT)),
     cycleTime = 0.0;
     joints = 1;
     axis_mask = 1;
-    mode = EMC_TRAJ_MODE_FREE;
+    mode = EMC_TRAJ_MODE::FREE;
     enabled = OFF;
     inpos = ON;
     queue = 0;
@@ -117,10 +117,10 @@ EMC_TASK_STAT_MSG(EMC_TASK_STAT_TYPE, sizeof(EMC_TASK_STAT))
 {
     int t;
 
-    mode = EMC_TASK_MODE_MANUAL;
-    state = EMC_TASK_STATE_ESTOP;
-    execState = EMC_TASK_EXEC_DONE;
-    interpState = EMC_TASK_INTERP_IDLE;
+    mode = EMC_TASK_MODE::MANUAL;
+    state = EMC_TASK_STATE::ESTOP;
+    execState = EMC_TASK_EXEC::DONE;
+    interpState = EMC_TASK_INTERP::IDLE;
     callLevel = 0;
     motionLine = 0;
     currentLine = 0;
@@ -193,13 +193,6 @@ EMC_COOLANT_STAT::EMC_COOLANT_STAT():EMC_COOLANT_STAT_MSG(EMC_COOLANT_STAT_TYPE,
 {
     mist = 0;
     flood = 0;
-}
-
-EMC_LUBE_STAT::EMC_LUBE_STAT():
-EMC_LUBE_STAT_MSG(EMC_LUBE_STAT_TYPE, sizeof(EMC_LUBE_STAT))
-{
-    on = 0;
-    level = 1;
 }
 
 // overload = , since class has array elements

@@ -974,7 +974,7 @@ In that case there are no sub-widgets in it, so comparing to the `widget.parent(
 
 == Read Command Line Load Time Options
 
-Some panels need information at load time for setup/options. Qtvcp covers this requirement with '-o' options. +
+Some panels need information at load time for setup/options. QtVCP covers this requirement with '-o' options. +
 The '-o' argument is good for a few, relatively short options, that can be added to the loading command line. +
 For more involved information, reading an INI or preference file is probably a better idea. +
 

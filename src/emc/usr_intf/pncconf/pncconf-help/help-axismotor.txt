@@ -49,12 +49,12 @@ Analog Scale:
     The 5i25 spindle/analog outputs use these three settings to scale and range
     the output voltage.
     Min Limit is the minimum output eg -10 or 0 volts.
-    Max Limit is the Maximuim output eg 10 volts.
-    Scale sets the user units based on the maximuim output of 10 volts.
+    Max Limit is the Maximum output eg 10 volts.
+    Scale sets the user units based on the maximum output of 10 volts.
     If you wish the units to be voltage then set the scale to 10
     If you wish the units to be RPM (of say a VDF spindle) set the scale to the
-    maximuim RPM of the spindle with a 10 volt signal.
-    For an axis setting the scale at maximuim axis velocity (machine units per 
+    maximum RPM of the spindle with a 10 volt signal.
+    For an axis setting the scale at maximum axis velocity (machine units per 
     second) would make sense.
 
     eg. scale to voltage, range of +- 10
@@ -108,7 +108,7 @@ Open loop servo test Button:
     the axis a known distance and noting the encoder count. The encoder
     should function with out the amp enabled depending how it is powered.
     The limit switches are not functional during this test.
-    The fast-dac / slow-dac options are preselect options so it is convienant
+    The fast-dac / slow-dac options are preselect options so it is convenient
     to switch between slow speed and fast speed. Set them to what you like - 
     remember there is no ramping.
     Bias - used to add / subtract a constant value to the dac. It can only be 
@@ -130,7 +130,7 @@ Spindle-at-speed settings:
     There is the option of percent or RPM range.
     If you leave percent at 100 then set the RPM difference that is acceptable.
     Other wise set the RPM difference to 0 and set the percent that is acceptable.
-    The default is a difference of +-200 RPM. Maximuim is 500 RPM.
+    The default is a difference of +-200 RPM. Maximum is 500 RPM.
 
 Spindle display filter gain:
     If a spindle speed display was chosen, this sets the filter

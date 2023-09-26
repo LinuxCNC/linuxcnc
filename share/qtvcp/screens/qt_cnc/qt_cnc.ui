@@ -140,6 +140,9 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      <property name="joint_number" stdset="0">
       <number>2</number>
      </property>
+     <property name="axis_letter" stdset="0">
+      <string>Z</string>
+     </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_2">
      <property name="geometry">
@@ -161,6 +164,9 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      </property>
      <property name="joint_number" stdset="0">
       <number>1</number>
+     </property>
+     <property name="axis_letter" stdset="0">
+      <string>Y</string>
      </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_3">
@@ -186,6 +192,9 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      </property>
      <property name="joint_number" stdset="0">
       <number>0</number>
+     </property>
+     <property name="axis_letter" stdset="0">
+      <string>X</string>
      </property>
     </widget>
    </widget>
@@ -572,13 +581,13 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      <double>0.300000000000000</double>
     </property>
     <property name="circle_diameter" stdset="0">
-     <double>10.000000000000000</double>
+     <number>10</number>
     </property>
     <property name="right_edge_offset" stdset="0">
-     <double>3.000000000000001</double>
+     <number>3</number>
     </property>
     <property name="top_edge_offset" stdset="0">
-     <double>3.000000000000001</double>
+     <number>3</number>
     </property>
     <property name="corner_radius" stdset="0">
      <double>4.000000000000000</double>
@@ -774,13 +783,13 @@ p, li { white-space: pre-wrap; }
      <double>0.300000000000000</double>
     </property>
     <property name="circle_diameter" stdset="0">
-     <double>10.000000000000000</double>
+     <number>10</number>
     </property>
     <property name="right_edge_offset" stdset="0">
-     <double>3.000000000000000</double>
+     <number>3</number>
     </property>
     <property name="top_edge_offset" stdset="0">
-     <double>3.000000000000000</double>
+     <number>3</number>
     </property>
     <property name="corner_radius" stdset="0">
      <double>4.000000000000000</double>
@@ -976,13 +985,13 @@ p, li { white-space: pre-wrap; }
      <double>0.300000000000000</double>
     </property>
     <property name="circle_diameter" stdset="0">
-     <double>10.000000000000000</double>
+     <number>10</number>
     </property>
     <property name="right_edge_offset" stdset="0">
-     <double>3.000000000000000</double>
+     <number>3</number>
     </property>
     <property name="top_edge_offset" stdset="0">
-     <double>3.000000000000000</double>
+     <number>3</number>
     </property>
     <property name="corner_radius" stdset="0">
      <double>4.000000000000000</double>
@@ -2560,9 +2569,6 @@ file</string>
      <property name="is_limits_overridden_status" stdset="0">
       <bool>true</bool>
      </property>
-     <property name="is_limits_overridden_status" stdset="0">
-      <bool>true</bool>
-     </property>
     </widget>
     <widget class="ActionButton" name="button_estop">
      <property name="geometry">
@@ -2621,10 +2627,10 @@ file</string>
       <double>0.300000000000000</double>
      </property>
      <property name="circle_diameter" stdset="0">
-      <double>15.000000000000000</double>
+      <number>15</number>
      </property>
      <property name="right_edge_offset" stdset="0">
-      <double>2.000000000000000</double>
+      <number>2</number>
      </property>
      <property name="corner_radius" stdset="0">
       <double>3.000000000000000</double>
@@ -2822,10 +2828,10 @@ file</string>
       <double>0.300000000000000</double>
      </property>
      <property name="circle_diameter" stdset="0">
-      <double>15.000000000000000</double>
+      <number>15</number>
      </property>
      <property name="right_edge_offset" stdset="0">
-      <double>2.000000000000000</double>
+      <number>2</number>
      </property>
      <property name="corner_radius" stdset="0">
       <double>3.000000000000000</double>
@@ -3536,13 +3542,13 @@ View</string>
       <double>0.300000000000000</double>
      </property>
      <property name="circle_diameter" stdset="0">
-      <double>10.000000000000000</double>
+      <number>10</number>
      </property>
      <property name="right_edge_offset" stdset="0">
-      <double>0.000000000000000</double>
+      <number>0</number>
      </property>
      <property name="top_edge_offset" stdset="0">
-      <double>0.000000000000000</double>
+      <number>0</number>
      </property>
      <property name="corner_radius" stdset="0">
       <double>5.000000000000000</double>
@@ -4457,9 +4463,31 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
  </widget>
  <customwidgets>
   <customwidget>
+   <class>IndicatedPushButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>LED</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.led_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>StateEnableGridLayout</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.container_widgets</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>GCodeGraphics</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.gcode_graphics</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DROLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.dro_widget</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -4469,24 +4497,9 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>StateLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.state_label</header>
-  </customwidget>
-  <customwidget>
-   <class>LED</class>
+   <class>GcodeEditor</class>
    <extends>QWidget</extends>
-   <header>qtvcp.widgets.led_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>StateLED</class>
-   <extends>LED</extends>
-   <header>qtvcp.widgets.state_led</header>
-  </customwidget>
-  <customwidget>
-   <class>StateEnableGridLayout</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.container_widgets</header>
+   <header>qtvcp.widgets.gcode_editor</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -4496,9 +4509,40 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>JogIncrements</class>
-   <extends>QComboBox</extends>
-   <header>qtvcp.widgets.jog_increments</header>
+   <class>WidgetSwitcher</class>
+   <extends>QStackedWidget</extends>
+   <header>qtvcp.widgets.widget_switcher</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StateLED</class>
+   <extends>LED</extends>
+   <header>qtvcp.widgets.state_led</header>
+  </customwidget>
+  <customwidget>
+   <class>StatusLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.status_label</header>
+  </customwidget>
+  <customwidget>
+   <class>StateLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.state_label</header>
+  </customwidget>
+  <customwidget>
+   <class>ActionButton</class>
+   <extends>IndicatedPushButton</extends>
+   <header>qtvcp.widgets.action_button</header>
+  </customwidget>
+  <customwidget>
+   <class>RoundButton</class>
+   <extends>ActionButton</extends>
+   <header>qtvcp.widgets.action_button_round</header>
+  </customwidget>
+  <customwidget>
+   <class>StatusAdjustmentBar</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.adjustment_bar</header>
   </customwidget>
   <customwidget>
    <class>ScreenOptions</class>
@@ -4507,42 +4551,9 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>StatusAdjustmentBar</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.adjustment_bar</header>
-  </customwidget>
-  <customwidget>
-   <class>StatusLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.status_label</header>
-  </customwidget>
-  <customwidget>
-   <class>DROLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.dro_widget</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>RoundButton</class>
-   <extends>ActionButton</extends>
-   <header>qtvcp.widgets.action_button_round</header>
-  </customwidget>
-  <customwidget>
-   <class>WidgetSwitcher</class>
-   <extends>QStackedWidget</extends>
-   <header>qtvcp.widgets.widget_switcher</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>GcodeEditor</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.gcode_editor</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ActionButton</class>
-   <extends>QPushButton</extends>
-   <header>qtvcp.widgets.action_button</header>
+   <class>JogIncrements</class>
+   <extends>QComboBox</extends>
+   <header>qtvcp.widgets.jog_increments</header>
   </customwidget>
  </customwidgets>
  <resources/>

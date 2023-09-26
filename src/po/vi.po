@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-03 08:16+0200\n"
+"POT-Creation-Date: 2023-07-04 21:28+0200\n"
 "PO-Revision-Date: 2022-07-04 12:42+0000\n"
 "Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
 "Language-Team: none\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Weblate 4.13.1-dev\n"
 
-#: src/emc/task/emctaskmain.cc:875
+#: src/emc/task/emctaskmain.cc:869
 #, c-format
 msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
@@ -26,66 +26,66 @@ msgid ""
 msgstr ""
 "lệnh (%s) không thể được thực hiện cho đến khi nút dừng khẩn cấp được bật lên"
 
-#: src/emc/task/emctaskmain.cc:1005
+#: src/emc/task/emctaskmain.cc:997
 #, c-format
 msgid "can't do that (%s:%d) in manual mode"
 msgstr "không thể thực hiện việc đó (%s:%d) trong chế độ bằng tay"
 
-#: src/emc/task/emctaskmain.cc:1112
+#: src/emc/task/emctaskmain.cc:1104
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
 msgstr ""
 "không thể thực hiện việc đó (%s) trong chế độ tự động với bộ phiên dịch nghỉ"
 
-#: src/emc/task/emctaskmain.cc:1181
+#: src/emc/task/emctaskmain.cc:1173
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
 msgstr ""
 "không thể thực hiện việc đó (%s) trong chế độ tự động với bộ phiên đang đọc"
 
-#: src/emc/task/emctaskmain.cc:1268
+#: src/emc/task/emctaskmain.cc:1260
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
 msgstr ""
 "không thể thực hiện việc đó (%s) trong chế độ tự động với bộ phiên đang tạm "
 "dừng"
 
-#: src/emc/task/emctaskmain.cc:1339
+#: src/emc/task/emctaskmain.cc:1331
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr ""
 "không thể thực hiện việc đó (%s) trong chế độ tự động với bộ phiên đang đợi"
 
-#: src/emc/task/emctaskmain.cc:1460
+#: src/emc/task/emctaskmain.cc:1452
 #, c-format
 msgid "can't do that (%s:%d) in MDI mode"
 msgstr "không thể thực hiện việc đó (%s:%d) trong chế độ MDI"
 
-#: src/emc/task/emctaskmain.cc:2131
+#: src/emc/task/emctaskmain.cc:2109
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
 msgstr ""
 "Không thể chuyển chế độ trong khi chế độ là TỰ ĐỘNG và bộ phiên dịch đang "
 "NGHỈ"
 
-#: src/emc/task/emctaskmain.cc:2184
+#: src/emc/task/emctaskmain.cc:2162
 msgid "failed to close file"
 msgstr "gặp lỗi khi đóng tập tin"
 
-#: src/emc/task/emctaskmain.cc:2198 tcl/bin/genedit.tcl:197
+#: src/emc/task/emctaskmain.cc:2176 tcl/bin/genedit.tcl:197
 #: tcl/tklinuxcnc.tcl:452
 #, c-format, tcl-format
 msgid "can't open %s"
 msgstr "không thể mở %s"
 
-#: src/emc/task/emctaskmain.cc:2210
+#: src/emc/task/emctaskmain.cc:2188
 msgid "Can't issue MDI command when not homed"
 msgstr "Không phát lệnh MDI khi chưa về gốc máy"
 
-#: src/emc/task/emctaskmain.cc:2215
+#: src/emc/task/emctaskmain.cc:2193
 msgid "Must be in MDI mode to issue MDI command"
 msgstr "Phải trong chế độ MDI mới có thể phát lệnh MDI"
 
-#: src/emc/task/emctaskmain.cc:2297
+#: src/emc/task/emctaskmain.cc:2275
 msgid "Can't run a program when not homed"
 msgstr "Không thể chạy chương trình khi chưa về gốc máy"
 
@@ -353,7 +353,7 @@ msgid "Cannot do an arc in planes G17.1, G18.1, or G19.1"
 msgstr "Không thể thực hiện cung tròn trong mặt phẳng G17.1, G18.1, hay G19.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:948
-#: src/emc/rs274ngc/interp_convert.cc:5329
+#: src/emc/rs274ngc/interp_convert.cc:5330
 msgid "Cannot feed with zero spindle speed in feed per rev mode"
 msgstr ""
 "Không thể cấp dao với tốc độ trục chính bằng không trong chế độ cấp dao theo "
@@ -393,9 +393,9 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:1615
 #: src/emc/rs274ngc/interp_convert.cc:1619
 #: src/emc/rs274ngc/interp_convert.cc:1623
-#: src/emc/rs274ngc/interp_convert.cc:4746
-#: src/emc/rs274ngc/interp_convert.cc:4749
-#: src/emc/rs274ngc/interp_convert.cc:4752 src/emc/rs274ngc/interp_find.cc:99
+#: src/emc/rs274ngc/interp_convert.cc:4748
+#: src/emc/rs274ngc/interp_convert.cc:4751
+#: src/emc/rs274ngc/interp_convert.cc:4754 src/emc/rs274ngc/interp_find.cc:99
 #, c-format
 msgid "Invalid absolute position %5.2f for wrapped rotary axis %c"
 msgstr ""
@@ -560,167 +560,167 @@ msgstr ""
 "Số trục chính ($) nằm ngoài phạm vị trong lệnh M5\n"
 "num_spindles =%i. $=%d\n"
 
-#: src/emc/rs274ngc/interp_convert.cc:4025
+#: src/emc/rs274ngc/interp_convert.cc:4027
 msgid "Spindle ($) number out of range in M19 Command"
 msgstr "Số trục chính ($) nằm ngoài phạm vị trong lệnh M19"
 
-#: src/emc/rs274ngc/interp_convert.cc:4032
+#: src/emc/rs274ngc/interp_convert.cc:4034
 msgid "Q word with M19 requires a value > 0"
 msgstr "Từ Q với M19 cần giá trị > 0"
 
-#: src/emc/rs274ngc/interp_convert.cc:4061
+#: src/emc/rs274ngc/interp_convert.cc:4063
 msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4102
-#: src/emc/rs274ngc/interp_convert.cc:4123
-#: src/emc/rs274ngc/interp_convert.cc:4143
-#: src/emc/rs274ngc/interp_convert.cc:4165
-#: src/emc/rs274ngc/interp_convert.cc:4179
+#: src/emc/rs274ngc/interp_convert.cc:4104
+#: src/emc/rs274ngc/interp_convert.cc:4125
+#: src/emc/rs274ngc/interp_convert.cc:4145
+#: src/emc/rs274ngc/interp_convert.cc:4167
+#: src/emc/rs274ngc/interp_convert.cc:4181
 msgid "Cannot enable overrides with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4111
-#: src/emc/rs274ngc/interp_convert.cc:4128
-#: src/emc/rs274ngc/interp_convert.cc:4152
-#: src/emc/rs274ngc/interp_convert.cc:4170
-#: src/emc/rs274ngc/interp_convert.cc:4184
+#: src/emc/rs274ngc/interp_convert.cc:4113
+#: src/emc/rs274ngc/interp_convert.cc:4130
+#: src/emc/rs274ngc/interp_convert.cc:4154
+#: src/emc/rs274ngc/interp_convert.cc:4172
+#: src/emc/rs274ngc/interp_convert.cc:4186
 msgid "Cannot disable overrides with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4138
+#: src/emc/rs274ngc/interp_convert.cc:4140
 msgid "Invalid spindle ($) number in M51 command"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4301
-#: src/emc/rs274ngc/interp_convert.cc:4302
 #: src/emc/rs274ngc/interp_convert.cc:4303
+#: src/emc/rs274ngc/interp_convert.cc:4304
+#: src/emc/rs274ngc/interp_convert.cc:4305
 #, c-format
 msgid "Indexing axis %c can only be moved with G0"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4310
 #: src/emc/rs274ngc/interp_convert.cc:4312
 #: src/emc/rs274ngc/interp_convert.cc:4314
+#: src/emc/rs274ngc/interp_convert.cc:4316
 #, c-format
 msgid "Indexing axis %c can only be moved alone"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4421
+#: src/emc/rs274ngc/interp_convert.cc:4423
 msgid "Cannot probe with feed per rev mode"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4469
+#: src/emc/rs274ngc/interp_convert.cc:4471
 msgid "Cannot change retract mode with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4503
+#: src/emc/rs274ngc/interp_convert.cc:4505
 msgid "G10 L1 without offsets has no effect"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4609
+#: src/emc/rs274ngc/interp_convert.cc:4611
 msgid "Q number in G10 is not an integer"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4610
+#: src/emc/rs274ngc/interp_convert.cc:4612
 msgid "Invalid tool orientation"
 msgstr "Hướng dụng cụ không hợp lệ"
 
-#: src/emc/rs274ngc/interp_convert.cc:4734
+#: src/emc/rs274ngc/interp_convert.cc:4736
 msgid "I J words not allowed with G10 L2"
 msgstr "Không cho phép I J với G10 L2"
 
-#: src/emc/rs274ngc/interp_convert.cc:4755
+#: src/emc/rs274ngc/interp_convert.cc:4757
 msgid ""
 "Cannot change the active coordinate system with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4763
+#: src/emc/rs274ngc/interp_convert.cc:4765
 msgid "R not allowed in G10 L20"
 msgstr "Không cho phép R trong G10 L20"
 
-#: src/emc/rs274ngc/interp_convert.cc:5109
+#: src/emc/rs274ngc/interp_convert.cc:5111
 msgid "Bug:  Reached convert_stop() from M99 as subprogram return"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5389
+#: src/emc/rs274ngc/interp_convert.cc:5390
 msgid "Invalid spindle ($) number in G33 move"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5394
+#: src/emc/rs274ngc/interp_convert.cc:5395
 msgid "Spindle not turning in G33"
 msgstr "Trục chính không quay trong G33"
 
-#: src/emc/rs274ngc/interp_convert.cc:5404
+#: src/emc/rs274ngc/interp_convert.cc:5405
 msgid "Invalid spindle ($) number in G33.1 move"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5409
+#: src/emc/rs274ngc/interp_convert.cc:5410
 msgid "Spindle not turning in G33.1"
 msgstr "Trục chính không quay trong G33.1"
 
-#: src/emc/rs274ngc/interp_convert.cc:5424
+#: src/emc/rs274ngc/interp_convert.cc:5425
 msgid "Invalid D-number in G76 cycle"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5429
+#: src/emc/rs274ngc/interp_convert.cc:5430
 #, c-format
 msgid "Chosen spindle (%i) not turning in G76"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5467
+#: src/emc/rs274ngc/interp_convert.cc:5468
 msgid "BUG: An axis incorrectly moved along with an indexer"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5480
+#: src/emc/rs274ngc/interp_convert.cc:5481
 msgid "BUG: trying to index incorrect axis"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5575
+#: src/emc/rs274ngc/interp_convert.cc:5576
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5578
+#: src/emc/rs274ngc/interp_convert.cc:5579
 msgid "In G76, I must not be 0"
 msgstr "Trong G76, I phải khác 0"
 
-#: src/emc/rs274ngc/interp_convert.cc:5580
+#: src/emc/rs274ngc/interp_convert.cc:5581
 msgid "In G76, J must be greater than 0"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5582
+#: src/emc/rs274ngc/interp_convert.cc:5583
 msgid "In G76, K must be greater than J"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5725
+#: src/emc/rs274ngc/interp_convert.cc:5726
 msgid ""
 "Length of cutter compensation entry move is not greater than the tool radius"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5944
+#: src/emc/rs274ngc/interp_convert.cc:5945
 msgid "Zero degree inside corner is invalid for cutter compensation"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5982
-#: src/emc/rs274ngc/interp_convert.cc:5990
+#: src/emc/rs274ngc/interp_convert.cc:5983
+#: src/emc/rs274ngc/interp_convert.cc:5991
 msgid ""
 "Arc to straight motion makes a corner the compensated tool can't fit in "
 "without gouging"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:6074
+#: src/emc/rs274ngc/interp_convert.cc:6075
 msgid "Cannot change tools with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:6198
+#: src/emc/rs274ngc/interp_convert.cc:6199
 msgid "Cannot change tool offset with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:6249
+#: src/emc/rs274ngc/interp_convert.cc:6250
 msgid "G43.2: Can not have both H and axis words"
 msgstr "G43.2: Không thể có cả hai từ H và trục"
 
-#: src/emc/rs274ngc/interp_convert.cc:6252
+#: src/emc/rs274ngc/interp_convert.cc:6253
 msgid "G43.2: No axes specified and H word missing"
 msgstr "G43.2: Chưa đưa ra trục và từ H còn thiếu"
 
@@ -2279,7 +2279,7 @@ msgstr "kHz"
 msgid "MHz"
 msgstr "MHz"
 
-#: src/hal/utils/scope_vert.c:413 src/hal/utils/scope_vert.c:1112
+#: src/hal/utils/scope_vert.c:413 src/hal/utils/scope_vert.c:1117
 #, c-format
 msgid ""
 "Offset\n"
@@ -2499,60 +2499,60 @@ msgstr ""
 msgid "Exceeded POSITIVE soft limit (%.5f) on joint %d\n"
 msgstr ""
 
-#: src/emc/motion/command.c:124
+#: src/emc/motion/command.c:126
 #, c-format
 msgid "Can't jog invalid joint number %d."
 msgstr ""
 
-#: src/emc/motion/command.c:128
+#: src/emc/motion/command.c:130
 #, c-format
 msgid "Can't jog joint %d further past max hard limit."
 msgstr ""
 
-#: src/emc/motion/command.c:133
+#: src/emc/motion/command.c:135
 #, c-format
 msgid "Can't jog joint %d further past min hard limit."
 msgstr ""
 
-#: src/emc/motion/command.c:139
+#: src/emc/motion/command.c:141
 #, c-format
 msgid "Can't jog joint %d further past max soft limit."
 msgstr ""
 
-#: src/emc/motion/command.c:144
+#: src/emc/motion/command.c:146
 #, c-format
 msgid "Can't jog joint %d further past min soft limit."
 msgstr ""
 
-#: src/emc/motion/command.c:214 src/emc/motion/command.c:219
+#: src/emc/motion/command.c:216 src/emc/motion/command.c:221
 #, c-format
 msgid "%s move on line %d would exceed %c's %s limit"
 msgstr ""
 
-#: src/emc/motion/command.c:215
+#: src/emc/motion/command.c:217
 msgid "negative"
 msgstr "âm"
 
-#: src/emc/motion/command.c:220
+#: src/emc/motion/command.c:222
 msgid "positive"
 msgstr "dương"
 
-#: src/emc/motion/command.c:237
+#: src/emc/motion/command.c:239
 #, c-format
 msgid "%s move on line %d fails kinematicsInverse"
 msgstr ""
 
-#: src/emc/motion/command.c:252
+#: src/emc/motion/command.c:254
 #, c-format
 msgid "%s move on line %d gave non-finite joint location on joint %d"
 msgstr ""
 
-#: src/emc/motion/command.c:259
+#: src/emc/motion/command.c:261
 #, c-format
 msgid "%s move on line %d would exceed joint %d's positive limit"
 msgstr ""
 
-#: src/emc/motion/command.c:265
+#: src/emc/motion/command.c:267
 #, c-format
 msgid "%s move on line %d would exceed joint %d's negative limit"
 msgstr ""
@@ -2617,101 +2617,101 @@ msgstr ""
 msgid "can't enable motion, enable input is false"
 msgstr ""
 
-#: src/emc/motion/command.c:1376
+#: src/emc/motion/command.c:1356
 msgid "must be in joint mode to home"
 msgstr ""
 
-#: src/emc/motion/command.c:1380
+#: src/emc/motion/command.c:1360
 #, c-format
 msgid "Homing denied by motion.homing-inhibit joint=%d\n"
 msgstr ""
 
-#: src/emc/motion/command.c:1400
+#: src/emc/motion/command.c:1380
 msgid "must be in joint mode or disabled to unhome"
 msgstr ""
 
-#: src/emc/motion/command.c:1420
+#: src/emc/motion/command.c:1400
 msgid "need to be enabled, in coord mode for probe move"
 msgstr ""
 
-#: src/emc/motion/command.c:1430
+#: src/emc/motion/command.c:1410
 msgid "can't do probe move with limits exceeded"
 msgstr ""
 
-#: src/emc/motion/command.c:1444
+#: src/emc/motion/command.c:1424
 msgid "Probe is already clear when starting G38.4 or G38.5 move"
 msgstr ""
 
-#: src/emc/motion/command.c:1446
+#: src/emc/motion/command.c:1426
 msgid "Probe is already tripped when starting G38.2 or G38.3 move"
 msgstr ""
 
-#: src/emc/motion/command.c:1467
+#: src/emc/motion/command.c:1447
 msgid "can't add probe move"
 msgstr ""
 
-#: src/emc/motion/command.c:1489
+#: src/emc/motion/command.c:1469
 msgid "need to be enabled, in coord mode for rigid tap move"
 msgstr ""
 
-#: src/emc/motion/command.c:1499
+#: src/emc/motion/command.c:1479
 msgid "can't do rigid tap move with limits exceeded"
 msgstr ""
 
-#: src/emc/motion/command.c:1518
+#: src/emc/motion/command.c:1498
 #, c-format
 msgid "can't add rigid tap move at line %d, error code %d"
 msgstr ""
 
-#: src/emc/motion/command.c:1563
+#: src/emc/motion/command.c:1543
 msgid "Attempt to configure non-existent spindle"
 msgstr ""
 
-#: src/emc/motion/command.c:1581
+#: src/emc/motion/command.c:1561
 msgid "Attempt to start non-existent spindle"
 msgstr ""
 
-#: src/emc/motion/command.c:1632
+#: src/emc/motion/command.c:1612
 #, c-format
 msgid "Attempt to stop non-existent spindle <%d>"
 msgstr ""
 
-#: src/emc/motion/command.c:1663
+#: src/emc/motion/command.c:1643
 #, c-format
 msgid "Attempt to orient non-existent spindle <%d>"
 msgstr ""
 
-#: src/emc/motion/command.c:1709
+#: src/emc/motion/command.c:1689
 #, c-format
 msgid "Attempt to increase non-existent spindle <%d>"
 msgstr ""
 
-#: src/emc/motion/command.c:1733
+#: src/emc/motion/command.c:1713
 #, c-format
 msgid "Attempt to decrease non-existent spindle <%d>."
 msgstr ""
 
-#: src/emc/motion/command.c:1757
+#: src/emc/motion/command.c:1737
 #, c-format
 msgid "Attempt to engage brake of non-existent spindle <%d>"
 msgstr ""
 
-#: src/emc/motion/command.c:1779
+#: src/emc/motion/command.c:1759
 #, c-format
 msgid "Attempt to release brake of non-existent spindle <%d>"
 msgstr ""
 
-#: src/emc/motion/command.c:1801
+#: src/emc/motion/command.c:1781
 #, c-format
 msgid "joint %d: too many compensation entries"
 msgstr ""
 
-#: src/emc/motion/command.c:1807
+#: src/emc/motion/command.c:1787
 #, c-format
 msgid "joint %d: compensation values must increase"
 msgstr ""
 
-#: src/emc/motion/command.c:1885
+#: src/emc/motion/command.c:1865
 #, c-format
 msgid "unrecognized command %d"
 msgstr ""
@@ -6332,9 +6332,9 @@ msgstr "gỡ bỏ"
 msgid "move"
 msgstr "di chuyển"
 
-#: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:4108
-#: src/emc/usr_intf/pncconf/pncconf.py:4214
-#: src/emc/usr_intf/pncconf/pncconf.py:4378
+#: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:4109
+#: src/emc/usr_intf/pncconf/pncconf.py:4215
+#: src/emc/usr_intf/pncconf/pncconf.py:4379
 msgid "Custom"
 msgstr "Tùy chọn"
 
@@ -11767,167 +11767,167 @@ msgid ""
 "Clicking 'existing custom program' will avoid this warning. "
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3733
+#: src/emc/usr_intf/pncconf/pncconf.py:3734
 #: src/emc/usr_intf/pncconf/private_data.py:555
 msgid "Unused Channel"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4008
+#: src/emc/usr_intf/pncconf/pncconf.py:4009
 msgid "You can not have both steppers and pwm signals for spindle control\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4012
+#: src/emc/usr_intf/pncconf/pncconf.py:4013
 #, python-format
 msgid "You forgot to designate a stepper or pwm signal for axis %s\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4015
+#: src/emc/usr_intf/pncconf/pncconf.py:4016
 #, python-format
 msgid "You forgot to designate an encoder /resolver signal for axis %s servo\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4018
+#: src/emc/usr_intf/pncconf/pncconf.py:4019
 #, python-format
 msgid "You forgot to designate a pwm signal or stepper signal for axis %s\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4021
+#: src/emc/usr_intf/pncconf/pncconf.py:4022
 #, python-format
 msgid "You can not have both steppers and pwm signals for axis %s\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4024
+#: src/emc/usr_intf/pncconf/pncconf.py:4025
 #, python-format
 msgid ""
 "If using a tandem axis stepper, you must select a master stepgen for axis "
 "%s\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4032
+#: src/emc/usr_intf/pncconf/pncconf.py:4033
 msgid "Touchy require an external cycle start signal\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4035
+#: src/emc/usr_intf/pncconf/pncconf.py:4036
 msgid "Touchy require an external abort signal\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4038
+#: src/emc/usr_intf/pncconf/pncconf.py:4039
 msgid "Touchy require an external single-step signal\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4041
+#: src/emc/usr_intf/pncconf/pncconf.py:4042
 msgid ""
 "Touchy require an external multi handwheel MPG encoder signal on the mesa "
 "page\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4044
+#: src/emc/usr_intf/pncconf/pncconf.py:4045
 msgid ""
 "Touchy require 'external mpg jogging' to be selected on the external control "
 "page\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4047
+#: src/emc/usr_intf/pncconf/pncconf.py:4048
 msgid ""
 "Touchy require the external mpg to be in 'shared mpg' mode on the external "
 "controls page\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4050
+#: src/emc/usr_intf/pncconf/pncconf.py:4051
 msgid ""
 "Touchy require selectable increments to be unchecked on the external "
 "controls page\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4063
+#: src/emc/usr_intf/pncconf/pncconf.py:4064
 msgid ""
 "The 7i29 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4066
+#: src/emc/usr_intf/pncconf/pncconf.py:4067
 msgid ""
 "The 7i30 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4069
+#: src/emc/usr_intf/pncconf/pncconf.py:4070
 msgid ""
 "The 7i33 daughter board requires PDM type generators and a PDM base "
 "frequency of 6 Mhz\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4072
+#: src/emc/usr_intf/pncconf/pncconf.py:4073
 msgid ""
 "The 7i40 daughter board requires PWM type generators and a PWM base "
 "frequency of 50 khz\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4075
+#: src/emc/usr_intf/pncconf/pncconf.py:4076
 msgid ""
 "The 7i48 daughter board requires UDM type generators and a PWM base "
 "frequency of 24 khz\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4223
+#: src/emc/usr_intf/pncconf/pncconf.py:4224
 msgid "Gearbox Reduction Ratio"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4226
+#: src/emc/usr_intf/pncconf/pncconf.py:4227
 msgid "Reduction Ratio"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4229
+#: src/emc/usr_intf/pncconf/pncconf.py:4230
 msgid "Leadscrew Pitch"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4232
+#: src/emc/usr_intf/pncconf/pncconf.py:4233
 #: src/emc/usr_intf/pncconf/dialogs.glade:1991
 #: src/emc/usr_intf/pncconf/dialogs.glade:2360
 msgid "Leadscrew TPI"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4236
 #: src/emc/usr_intf/pncconf/pncconf.py:4237
+#: src/emc/usr_intf/pncconf/pncconf.py:4238
 msgid "("
 msgstr "("
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4238
-#: src/emc/usr_intf/pncconf/pncconf.py:4248
+#: src/emc/usr_intf/pncconf/pncconf.py:4239
 #: src/emc/usr_intf/pncconf/pncconf.py:4249
 #: src/emc/usr_intf/pncconf/pncconf.py:4250
+#: src/emc/usr_intf/pncconf/pncconf.py:4251
 msgid " / min"
 msgstr " / min"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4239
+#: src/emc/usr_intf/pncconf/pncconf.py:4240
 msgid " / sec²"
 msgstr " / giây²"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4242
+#: src/emc/usr_intf/pncconf/pncconf.py:4243
 msgid " / Step"
 msgstr " / Bước"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4243
+#: src/emc/usr_intf/pncconf/pncconf.py:4244
 msgid "Steps / "
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4245
+#: src/emc/usr_intf/pncconf/pncconf.py:4246
 msgid " / encoder pulse"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4246
+#: src/emc/usr_intf/pncconf/pncconf.py:4247
 msgid "Encoder pulses / "
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4254
+#: src/emc/usr_intf/pncconf/pncconf.py:4255
 msgid "Resolver Scale:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4592
+#: src/emc/usr_intf/pncconf/pncconf.py:4593
 msgid "Spindle Scale Calculation"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4704
+#: src/emc/usr_intf/pncconf/pncconf.py:4705
 msgid "Axis Scale Calculation"
 msgstr ""
 
@@ -17696,8 +17696,9 @@ msgstr "hm2_4i43"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:314
 #: src/emc/usr_intf/pncconf/dialogs.glade:340
-msgid "Parellel Port- 7i90"
-msgstr ""
+#, fuzzy
+msgid "Parallel Port- 7i90"
+msgstr "Cổng song song 1"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:315
 #: src/emc/usr_intf/pncconf/dialogs.glade:341

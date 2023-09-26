@@ -18,10 +18,12 @@
 import sys
 import os
 import json
-from PyQt5.QtCore import QProcess, QRegExp, QFile
-from PyQt5 import QtGui, QtWidgets, uic
+from PyQt5.QtCore import QProcess, QRegExp, QFile, Qt
+from PyQt5 import QtGui, QtWidgets, uic, QtCore
+from PyQt5.QtWidgets import QDialogButtonBox, QAbstractSlider
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Action, Status, Info, Path
+from qtvcp.widgets.dialogMixin import GeometryMixin
 from qtvcp import logger
 
 ACTION = Action()
@@ -60,10 +62,6 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.dialog = uic.loadUi(self.filename)
         except AttributeError as e:
             LOG.critical(e)
-        self.helpPages = ['basic_help.html','basic_help1.html','basic_help2.html',
-                        'basic_help3.html','basic_help4.html','basic_help5.html',
-                        'basic_help6.html','basic_help7.html']
-        self.currentHelpPage = 0
 
         self.probe_list = ["OUTSIDE CORNERS", "INSIDE CORNERS", "EDGE ANGLE", "BOSS and POCKETS",
                            "RIDGE and VALLEY", "CALIBRATE"]
@@ -103,9 +101,6 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.cal_buttonGroup.buttonClicked.connect(self.cal_btn_clicked)
         self.clear_buttonGroup.buttonClicked.connect(self.clear_results_clicked)
         self.btn_probe_help.clicked.connect(self.probe_help_clicked)
-        self.dialog.probe_help_close.clicked.connect(self.help_close_clicked)
-        self.dialog.probe_help_prev.clicked.connect(self.help_prev_clicked)
-        self.dialog.probe_help_next.clicked.connect(self.help_next_clicked)
 
         self.cmb_probe_select.clear()
         self.cmb_probe_select.addItems(self.probe_list)
@@ -125,6 +120,10 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
 
         # must directly initialize
         self.statuslabel_motiontype.hal_init()
+        self.led_probe.hal_init()
+        self.statelabel_machineUnits.hal_init()
+        self.help = HelpDialog(self.QTVCP_INSTANCE_)
+        self.help.hal_init(HAL_NAME='_basic_help')
 
         if self.PREFS_:
             self.lineEdit_probe_tool.setText(self.PREFS_.getpref('Probe tool', '0', str, 'PROBE OPTIONS'))
@@ -223,7 +222,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         elif "INFO" in line:
             pass
         elif "PROBE_ROUTINES" in line:
-            if LOG.getEffectiveLevel() < LOG.INFO:
+            if LOG.getEffectiveLevel() < logger.INFO:
                 print(line)
         elif "COMPLETE" in line:
             STATUS.unblock_error_polling()
@@ -250,44 +249,10 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
 
 # Main button handler routines
     def probe_help_clicked(self):
-        self.dialog.show()
-        self.update_help_page()
-
-    def help_close_clicked(self):
-        self.dialog.hide()
-
-    def help_prev_clicked(self):
-        self.currentHelpPage -=1
-        if self.currentHelpPage < 0:
-            self.currentHelpPage = 0
-        self.update_help_page()
-
-    def help_next_clicked(self):
-        self.currentHelpPage +=1
-        if self.currentHelpPage > len(self.helpPages)-1:
-            self.currentHelpPage = len(self.helpPages)-1
-        self.update_help_page()
+        self.help.showDialog()
 
     def cmb_probe_select_changed(self, index):
         self.stackedWidget_probe_buttons.setCurrentIndex(index)
-
-    def update_help_page(self):
-
-            try:
-                pagePath = os.path.join(HELP, self.helpPages[self.currentHelpPage])
-                if not os.path.exists(pagePath): raise Exception("Missing File: {}".format(pagePath)) 
-                file = QFile(pagePath)
-                file.open(QFile.ReadOnly)
-                html = file.readAll()
-                html = str(html, encoding='utf8')
-                html = html.replace("../images/widgets/","{}/widgets/".format(INFO.IMAGE_PATH))
-                self.dialog.html_textEdit.setHtml(html)
-            except Exception as e:
-                print(e)
-                self.dialog.html_textEdit.setHtml('''
-<h1 style=" margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" font-size:xx-large; font-weight:600;">Basic Probe Help not available</span> </h1>
-{}
-'''.format(e))
 
     def probe_btn_clicked(self, button):
         cmd = button.property('probe')
@@ -350,7 +315,10 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def show_results(self, line):
         for key in self.status_list:
-            self['status_' + key].setText(line[key])
+            if line[key] != 'None':
+                self['status_' + key].setText(line[key])
+            else:
+                self['status_' + key].setText('')
 
     ##############################
     # required class boiler code #
@@ -360,6 +328,129 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def __setitem__(self, item, value):
         return setattr(self, item, value)
+
+class HelpDialog(QtWidgets.QDialog, GeometryMixin):
+    def __init__(self, parent=None):
+        super(HelpDialog, self).__init__(parent)
+        self._title = 'Basic Probe Help'
+        self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.Dialog | Qt.WindowStaysOnTopHint |
+                            Qt.WindowSystemMenuHint)
+        self.currentHelpPage=-1
+        self.setMinimumWidth(600)
+        self.setMinimumHeight(600)
+        self.helpPages = ['basic_help.html','basic_help1.html','basic_help2.html',
+                        'basic_help3.html','basic_help4.html','basic_help5.html',
+                        'basic_help6.html','basic_help7.html','basic_help8.html']
+
+    def _hal_init(self):
+        self.buildWidget()
+        self.set_default_geometry()
+        self.read_preference_geometry('basicProbeHelpDialog-geometry')
+
+    def buildWidget(self):
+
+        l = QtWidgets.QVBoxLayout()
+        t = QtWidgets.QTextEdit('Basic Probe Help')
+        t.setReadOnly(True)
+        l.addWidget(t)
+
+        buttons = QDialogButtonBox()
+
+        closebutton = QtWidgets.QPushButton()
+        closebutton.setIconSize(QtCore.QSize(38, 38))
+        closebutton.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/standardbutton-cancel-128.png'))
+        closebutton.clicked.connect(lambda : self.close())
+
+        nextbutton = QtWidgets.QPushButton()
+        nextbutton.setIconSize(QtCore.QSize(38, 38))
+        nextbutton.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/right-32.png'))
+        nextbutton.clicked.connect(lambda : self.next(t,True))
+
+        previousbutton = QtWidgets.QPushButton()
+        previousbutton.setIconSize(QtCore.QSize(38, 38))
+        previousbutton.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/left-32.png'))
+        previousbutton.clicked.connect(lambda : self.next(t,False))
+
+        self.pageStepUpbutton = QtWidgets.QPushButton()
+        self.pageStepUpbutton.setIconSize(QtCore.QSize(38, 38))
+        self.pageStepUpbutton.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/up-32.png'))
+        self.pageStepUpbutton.clicked.connect(lambda : self.pageStep(t,False))
+
+        self.pageStepDwnbutton = QtWidgets.QPushButton()
+        self.pageStepDwnbutton.setIconSize(QtCore.QSize(38, 38))
+        self.pageStepDwnbutton.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/down-32.png'))
+        self.pageStepDwnbutton.clicked.connect(lambda : self.pageStep(t,True))
+
+        bBox = QDialogButtonBox(buttons)
+        bBox.addButton(self.pageStepUpbutton, QDialogButtonBox.ActionRole)
+        bBox.addButton(self.pageStepDwnbutton, QDialogButtonBox.ActionRole)
+        bBox.addButton(previousbutton, QDialogButtonBox.ActionRole)
+        bBox.addButton(nextbutton, QDialogButtonBox.ActionRole)
+        bBox.addButton(closebutton, QDialogButtonBox.DestructiveRole)
+        bBox.rejected.connect(self.reject)
+
+        l.addWidget(bBox)
+        self.setLayout(l)
+
+        try:
+            self.next(t)
+        except Exception as e:
+                t.setText('Basic Probe Help file Unavailable:\n\n{}'.format(e))
+
+    def next(self,t,direction=None):
+            if direction is None:
+                self.currentHelpPage = 0
+            elif direction:
+                self.currentHelpPage +=1
+                if self.currentHelpPage > len(self.helpPages)-1:
+                    self.currentHelpPage = len(self.helpPages)-1
+            else:
+                self.currentHelpPage -=1
+                if self.currentHelpPage < 0:
+                    self.currentHelpPage = 0
+            try:
+                pagePath = os.path.join(HELP, self.helpPages[self.currentHelpPage])
+                file = QtCore.QFile(pagePath)
+                file.open(QtCore.QFile.ReadOnly)
+                html = file.readAll()
+                html = str(html, encoding='utf8')
+                html = html.replace("../images/widgets/","{}/widgets/".format(INFO.IMAGE_PATH))
+                t.setHtml(html)
+                if t.verticalScrollBar().isVisible():
+                    t.verticalScrollBar().setPageStep(100)
+                    self.pageStepDwnbutton.show()
+                    self.pageStepUpbutton.show()
+                else:
+                    self.pageStepDwnbutton.hide()
+                    self.pageStepUpbutton.hide()
+
+            except Exception as e:
+                t.setHtml('''
+<h1 style=" margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" font-size:xx-large; font-weight:600;">Basic Probe Help not available</span> </h1>
+{}
+'''.format(e))
+            if direction is None:
+                return
+            self.show()
+
+    def pageStep(self, t, state):
+        if state:
+            t.verticalScrollBar().triggerAction (QAbstractSlider.SliderPageStepAdd)
+        else:
+            t.verticalScrollBar().triggerAction (QAbstractSlider.SliderPageStepSub)
+
+    # accept button applies presets and if line number given starts linuxcnc
+    def close(self):
+        self.record_geometry()
+        super(HelpDialog, self).close()
+
+    def showDialog(self):
+        self.setWindowTitle(self._title);
+        self.set_geometry()
+        retval = self.exec_()
+        LOG.debug('Value of pressed button: {}'.format(retval))
+
 
     #############################
     # Testing                   #

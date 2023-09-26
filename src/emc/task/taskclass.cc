@@ -1,8 +1,3 @@
-// this is a slide-in replacement for the functions in iotaskintf.cc
-// iotaskintf functions are made into class methods and are the default
-// methods of TaskClass which may be overridden by Python methods
-
-
 /********************************************************************
 * Description: iotaskintf.cc
 *   NML interface functions for IO
@@ -32,13 +27,6 @@
 #include "python_plugin.hh"
 #include "taskclass.hh"
 #include <rtapi_string.h>
-
-#define BOOST_PYTHON_MAX_ARITY 4
-#include <boost/python/dict.hpp>
-#include <boost/python/extract.hpp>
-#include <boost/python/object.hpp>
-#include <boost/python/tuple.hpp>
-namespace bp = boost::python;
 
 #include "tooldata.hh"
 #include "hal.h"
@@ -265,15 +253,6 @@ void Task::hal_init_pins(void)
     *(iocontrol_data->tool_change)=0;        /* output, notifies a tool-change should happen (emc should be in the tool-change position) */
 }
 
-
-// Python plugin interface
-#define TASK_MODULE "task"
-#define TASK_VAR "pytask"
-#define PLUGIN_CALL "plugin_call"
-
-extern PythonPlugin *python_plugin;  // exported by python_plugin.cc
-#define PYUSABLE (((python_plugin) != NULL) && (python_plugin->usable()))
-extern int return_int(const char *funcname, bp::object &retval);
 Task *task_methods;
 
 // global status structure
@@ -284,14 +263,7 @@ EMC_IO_STAT *emcIoStatus = 0;
 int emcIoInit() { return task_methods->emcIoInit(); }
 
 int emcIoHalt() {
-    try {
 	return task_methods->emcIoHalt();
-    } catch( bp::error_already_set &) {
-	std::string msg = handle_pyerror();
-	rcs_print("emcIoHalt(): %s\n", msg.c_str());
-	PyErr_Clear();
-	return -1;
-    }
 }
 
 
@@ -302,8 +274,6 @@ int emcCoolantMistOn() { return task_methods->emcCoolantMistOn(); }
 int emcCoolantMistOff() { return task_methods->emcCoolantMistOff(); }
 int emcCoolantFloodOn() { return task_methods->emcCoolantFloodOn(); }
 int emcCoolantFloodOff() { return task_methods->emcCoolantFloodOff(); }
-int emcLubeOn() { return task_methods->emcLubeOn(); }
-int emcLubeOff() { return task_methods->emcLubeOff(); }
 int emcToolPrepare(int tool) { return task_methods->emcToolPrepare(tool); }
 int emcToolStartChange() { return task_methods->emcToolStartChange(); }
 int emcToolLoad() { return task_methods->emcToolLoad(); }
@@ -314,134 +284,16 @@ int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
     return task_methods->emcToolSetOffset( pocket,  toolno,  offset,  diameter,
 					   frontangle,  backangle,  orientation); }
 int emcToolSetNumber(int number) { return task_methods->emcToolSetNumber(number); }
-int emcIoPluginCall(EMC_IO_PLUGIN_CALL *call_msg) { return task_methods->emcIoPluginCall(call_msg->len,
-											   call_msg->call); }
-static const char *instance_name = "task_instance";
 
 int emcTaskOnce(const char *filename, EMC_IO_STAT &emcioStatus)
 {
-    // initialize the Python plugin singleton
-    // Interp is already instantiated but not yet fully configured
-    // both Task and Interp use it - first to call configure() instantiates the Python part
-    // NB: the interpreter.this global will appear only after Interp.init()
-
-    extern struct _inittab builtin_modules[];
-    if (!PythonPlugin::instantiate(builtin_modules)) {
-	rcs_print("emcTaskOnce: can\'t instantiate Python plugin\n");
-	goto no_pytask;
-    }
-    if (python_plugin->configure(filename, "PYTHON") == PLUGIN_OK) {
-	if (emc_debug & EMC_DEBUG_PYTHON_TASK) {
-	    rcs_print("emcTaskOnce: Python plugin configured\n");
-	}
-    } else {
-	goto no_pytask;
-    }
-    if (PYUSABLE) {
-	// extract the instance of Python Task()
-	try {
-	    bp::object task_namespace =  python_plugin->main_namespace[TASK_MODULE].attr("__dict__");;
-	    bp::object result = task_namespace[TASK_VAR];
-	    bp::extract<Task *> typetest(result);
-	    if (typetest.check()) {
-		task_methods = bp::extract< Task * >(result);
-	    } else {
-		rcs_print("can\'t extract a Task instance out of '%s'\n", instance_name);
-		task_methods = NULL;
-	    }
-	} catch(bp::error_already_set &) {
-	    std::string msg = handle_pyerror();
-	    if (emc_debug & EMC_DEBUG_PYTHON_TASK) {
-		// this really just means the task python backend wasn't configured.
-		rcs_print("emcTaskOnce: extract(%s): %s\n", instance_name, msg.c_str());
-	    }
-	    PyErr_Clear();
-	}
-    }
- no_pytask:
-    if (task_methods == NULL) {
-	if (emc_debug & EMC_DEBUG_PYTHON_TASK) {
-	    rcs_print("emcTaskOnce: no Python Task() instance available, using default iocontrol-based task methods\n");
-	}
 	task_methods = new Task(emcioStatus);
     if (int res = task_methods->iocontrol_hal_init()) {
         return res;
     }
-    }
     return 0;
 }
 
-// If using a Python-based HAL module in task, normal HAL_FILE's are run too early.
-// Execute those here if specified via POSTTASK_HALFILE in INI.
-int emcRunHalFiles(const char *filename)
-{
-    IniFile inifile;
-    const char *inistring;
-    int lineno,status;
-    int n = 1;
-    pid_t pid;
-
-    if (inifile.Open(filename) == false) {
-	return -1;
-    }
-    while (NULL != (inistring = inifile.Find("POSTTASK_HALFILE", "HAL",
-					     n, &lineno))) {
-	if ((pid = vfork()) < 0)
-	    perror("vfork()");
-	else if (pid == 0) {
-	    execlp("halcmd", "halcmd","-i",filename,"-f",inistring, NULL);
-	    perror("execlp halcmd");
-	} else {
-	    if ((waitpid (pid, &status, 0) == pid) &&  WEXITSTATUS(status))
-		rcs_print("'halcmd -i %s -f %s' exited with  %d\n",
-		       filename, inistring, WEXITSTATUS(status));
-	}
-	n++;
-    }
-    return 0;
-}
-
-// task callables are expected to return an int.
-// extract it, and return that
-// else complain.
-// Also fail with an operator error if we caused an exception.
-int return_int(const char *funcname, PyObject *retval)
-{
-    int status = python_plugin->plugin_status();
-
-    if (status == PLUGIN_EXCEPTION) {
-	emcOperatorError(status,"return_int(%s): %s",
-			 funcname, python_plugin->last_exception().c_str());
-	return -1;
-    }
-    if ((retval != Py_None) &&
-    (PyLong_Check(retval))) {
-    return PyLong_AsLong(retval);
-    } else {
-	emcOperatorError(0, "return_int(%s): expected int return value, got '%s' (%s)",
-			 funcname,
-            PyBytes_AsString(retval),
-            Py_TYPE(retval)->tp_name);
-	Py_XDECREF(retval);
-	return -1;
-    }
-}
-
-int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg)
-{
-    if (PYUSABLE) {
-	bp::object retval;
-	bp::object arg = bp::make_tuple(bp::object(call_msg->call));
-	bp::dict kwarg;
-
-	python_plugin->call(TASK_MODULE, PLUGIN_CALL, arg, kwarg, retval);
-	return return_int(PLUGIN_CALL, retval.ptr());
-
-    } else {
-	emcOperatorError(0, "emcPluginCall: Python plugin not initialized");
-	return -1;
-    }
-}
 
 extern "C" PyObject* PyInit_interpreter(void);
 extern "C" PyObject* PyInit_emccanon(void);
@@ -475,7 +327,7 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
     tool_mmap_user();
     // initialize database tool finder:
 #endif //}
-    emcioStatus.status = RCS_DONE;//TODO??
+    emcioStatus.status = RCS_STATUS::DONE;//TODO??
     tooldata_init(random_toolchanger);
     emcioStatus.tool.pocketPrepped = -1;
     if(!random_toolchanger) {
@@ -606,7 +458,7 @@ void Task::load_tool(int idx) {
         }
 
         if (0 != tooldata_save(tooltable_filename)) {
-            emcioStatus.status = RCS_ERROR;
+            emcioStatus.status = RCS_STATUS::ERROR;
         }
     } else if(idx == 0) {
         // on non-random tool-changers, asking for pocket 0 is the secret
@@ -727,20 +579,6 @@ int Task::emcCoolantFloodOff()
     return 0;
 }
 
-int Task::emcLubeOn()
-{
-    emcioStatus.lube.on = 1;
-    *(iocontrol_data->lube) = 1;
-    return 0;
-}
-
-int Task::emcLubeOff()
-{
-    emcioStatus.lube.on = 0;
-    *(iocontrol_data->lube) = 0;
-    return 0;
-}
-
 int Task::emcToolPrepare(int toolno)
 {
     int idx = 0;
@@ -794,7 +632,7 @@ int Task::emcToolPrepare(int toolno)
     // the feedback logic is done inside read_hal_inputs()
     // we only need to set RCS_EXEC if RCS_DONE is not already set by the above logic
     if (tool_status != 10) //set above to 10 in case PREP already finished (HAL loopback machine)
-        emcioStatus.status = RCS_EXEC;
+        emcioStatus.status = RCS_STATUS::EXEC;
     return 0;
 }
 
@@ -831,7 +669,7 @@ int Task::emcToolLoad()//EMC_TOOL_LOAD_TYPE
         if (tool_status != 11)
             // set above to 11 in case LOAD already finished (HAL
             // loopback machine)
-            emcioStatus.status = RCS_EXEC;
+            emcioStatus.status = RCS_STATUS::EXEC;
     }
     return 0;
 }
@@ -881,7 +719,7 @@ int Task::emcToolSetOffset(int idx, int toolno, EmcPose offset, double diameter,
         UNEXPECTED_MSG;
     }
     if (0 != tooldata_save(tooltable_filename)) {
-        emcioStatus.status = RCS_ERROR;
+        emcioStatus.status = RCS_STATUS::ERROR;
     }
     //TODO
     // if (io_db_mode == DB_ACTIVE) {
@@ -942,7 +780,7 @@ int Task::read_tool_inputs(void)
     if (*iocontrol_data->tool_prepare && *iocontrol_data->tool_prepared) {
         emcioStatus.tool.pocketPrepped = *iocontrol_data->tool_prep_index; //check if tool has been (idx) prepared
         *(iocontrol_data->tool_prepare) = 0;
-        emcioStatus.status = RCS_DONE;  // we finally finished to do tool-changing, signal task with RCS_DONE
+        emcioStatus.status = RCS_STATUS::DONE;  // we finally finished to do tool-changing, signal task with RCS_DONE
         return 10; //prepped finished
     }
 
@@ -969,7 +807,7 @@ int Task::read_tool_inputs(void)
         *(iocontrol_data->tool_prep_pocket) = 0; //likewise in HAL
         *(iocontrol_data->tool_prep_index)  = 0; //likewise in HAL
         *(iocontrol_data->tool_change) = 0; //also reset the tool change signal
-        emcioStatus.status = RCS_DONE;        // we finally finished to do tool-changing, signal task with RCS_DONE
+        emcioStatus.status = RCS_STATUS::DONE;        // we finally finished to do tool-changing, signal task with RCS_DONE
         return 11; //change finished
     }
     return 0;
@@ -981,14 +819,4 @@ void Task::run(){ // called periodically from emctaskmain.cc
         emcioStatus.aux.estop = 1;
     else
         emcioStatus.aux.estop = 0;
-
-    emcioStatus.lube.level = *(iocontrol_data->lube_level);        //check for lube_level from HW
-}
-
-int Task::emcIoPluginCall(int len, const char *msg)
-{
-    if (emc_debug & EMC_DEBUG_PYTHON_TASK) {
-	rcs_print("emcIoPluginCall(%d,%s) - no Python handler set\n",len,msg);
-    }
-    return 0;
 }

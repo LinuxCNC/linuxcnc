@@ -65,8 +65,6 @@ public:
     virtual int emcCoolantMistOff();
     virtual int emcCoolantFloodOn();
     virtual int emcCoolantFloodOff();
-    virtual int emcLubeOn();
-    virtual int emcLubeOff();
     virtual int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
 				 double frontangle, double backangle, int orientation);
     virtual int emcToolPrepare(int tool);
@@ -75,7 +73,6 @@ public:
     virtual int emcToolUnload();
     virtual int emcToolSetNumber(int number);
 
-    virtual int emcIoPluginCall(int len, const char *msg);
     int iocontrol_hal_init(void);
     void reload_tool_number(int toolno);
     void load_tool(int idx);

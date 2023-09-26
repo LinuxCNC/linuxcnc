@@ -17,7 +17,7 @@ from . import logger
 log = logger.getLogger(__name__)
 # log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL, VERBOSE
 
-# The order of these classes is importanr, otherwise - cirular imports.
+# The order of these classes is importanr, otherwise - circular imports.
 # the some of the later classes reference the earlier classes
 
 ################################################################

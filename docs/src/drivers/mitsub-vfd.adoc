@@ -12,16 +12,16 @@
 
 :hal: {basebackend@docbook:'':hal}
 
-This is a non-realtime HAL program, written in Python, to control VFD's from
+This is a non-realtime HAL program, written in Python, to control VFDs from
 Mitsubishi. +
 Specifically the A500 F500 E500 A500 D700 E700 F700 series - others may work. +
 mitsub_vfd supports serial control using the RS485 protocol. +
 Conversion from USB or serial port to RS485 requires special hardware. +
 [NOTE]
-Since this is a non-realtime program it can be affected by computer loading and
-latency. It is possible to lose control of the VFDs. It is optional to set the
-VFD to stop if it loses communication if that is desirable. One should always
-have an Estop circuit that kills the power to the unit in case of emergency.
+Since this is a non-realtime program it can be affected by computer loading and latency.
+It is possible to lose control of the VFDs.
+It is optional to set the VFD to stop if it loses communication if that is desirable.
+One should always have an Estop circuit that kills the power to the unit in case of emergency.
 
 This component is loaded using the halcmd "loadusr" command:
 
@@ -67,9 +67,7 @@ Where <n> is +mitsub_vfd+ or the name given during loading.
    when drive is at commanded speed (speed-tolerance is set on vfd)
 
  * '<n>.monitor' (bit, in)
-   some models (eg E500) cannot monitor status -set the monitor pin to
-   false in this case pins such as up-to-speed, amps, alarm and status
-   bits are not updated.
+   some models (eg E500) cannot monitor status - set the monitor pin to false in this case pins such as up-to-speed, amps, alarm and status bits are not updated.
 
  * '<n>.motor-cmd' (float, in)
    commanded speed to the VFD (scaled to hertz by default).
@@ -99,9 +97,9 @@ Where <n> is +mitsub_vfd+ or the name given during loading.
    puts the VFD into emergency-stopped status.
 
  * '<n>.status-bit-N' (bit, out)
-   N = 0 to 7, Status bits are user configurable on the VFD. bit 3
-   should be set to at speed and bit 7 should be set to alarm. others
-   are free to be set as required.
+   N = 0 to 7, status bits are user configurable on the VFD.
+   Bit 3 should be set to at speed and bit 7 should be set to alarm.
+   Others are free to be set as required.
 
 == HAL example
 
@@ -154,8 +152,7 @@ RS485.
 
 Referenced manuals:
 
-'communication option reference manual' and 'A500 technical manual' for
-500 series. +
+'communication option reference manual' and 'A500 technical manual' for 500 series. +
 'Fr-A700 F700 E700 D700 technical manual' for the 700 series
 
 The VFD must have PR settings adjusted manually for serial communication. +
@@ -180,7 +177,7 @@ One must power cycle the VFD for some of these to register eg PR 79
    '-no parity'
 
  * 'PR 121' set to 1-10
-   '-if 10 (maximuim) COM errors then VFD faults.'
+   '-if 10 (maximum) COM errors then VFD faults.'
 
  * 'PR 122' tested with 9999
    '-if communication is lost VFD will not error.'

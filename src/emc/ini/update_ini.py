@@ -67,7 +67,7 @@ if dialogs:
                            "This version of LinuxCNC separates the concepts of Axes and "
                            "Joints which necessitates changes to the INI and HAL files. "
                            "The changes required are described here:\n"
-                           "http://linuxcnc.org/docs/devel/html/ in the section "
+                           "http://linuxcnc.org/docs/2.9/html/ in the section "
                            "'Getting Started with LinuxCNC' -> 'Updating LinuxCNC'\n"
                            "The [EMC]VERSION data in your INI file indicates that your "
                            "configuration requires update.\n"

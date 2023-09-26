@@ -247,7 +247,7 @@ Pressing cancel will close linuxcnc.""" % target)
         global HAL
         HAL = self.halcomp
         # initialize the window
-        window = qt_makegui.VCPWindow(self.hal, self.PATH)
+        self.w = window = qt_makegui.VCPWindow(self.hal, self.PATH)
 
         # give reference to user command line options
         if opts.useropts:
@@ -298,9 +298,14 @@ Pressing cancel will close linuxcnc.""" % target)
             self.INFO.USER_COMMAND_FILE = self.INFO.USER_COMMAND_FILE.replace('CONFIGFOLDER',self.PATH.CONFIGPATH)
             self.INFO.USER_COMMAND_FILE = self.INFO.USER_COMMAND_FILE.replace('WORKINGFOLDER',self.PATH.WORKINGDIR)
 
+            # TODO: what about embedded panels override files?
+            # TODO: could listed them like this: for i in reversed(window._VCPWindowList):
             window.handler_instance.call_user_command_(window.handler_instance, self.INFO.USER_COMMAND_FILE)
+            if "after_override__" in dir(window.handler_instance):
+                LOG.debug('''Calling the handler file's after_override__ function''')
+                window.handler_instance.after_override__()
 
-        # All Widgets should be added now - synch them to linuxcnc
+        # All Widgets should be added now - sync them to linuxcnc
         self.STATUS.forced_update()
 
         # call a HAL file after widgets built
@@ -396,13 +401,20 @@ Pressing cancel will close linuxcnc.""" % target)
         signal.signal(signal.SIGTERM, self.shutdown)
         signal.signal(signal.SIGINT, self.shutdown)
 
-        # check for handler file and if it has 'before_loop' function
+        # check for handler file and if it has 'before_loop' function in
+        # ineach screen/embedded panel. (screen should be last)
         # last chance to change anything before event loop.
-        if opts.usermod and "before_loop__" in dir(window.handler_instance):
-            LOG.debug('''Calling the handler file's before_loop__ function''')
-            window.handler_instance.before_loop__()
+        for i in reversed(window._VCPWindowList):
+            try:
+                if "before_loop__" in dir(i.handler_instance):
+                    LOG.debug('''Calling handler file's before_loop__ function in object'''+str(i))
+                    i.handler_instance.before_loop__()
+            # probably panel with no handler file
+            except:
+                pass
 
         LOG.info('Preference path: yellow<{}>'.format(self.PATH.PREFS_FILENAME))
+
         # start loop
         global _app
         _app = APP.exec()
@@ -434,6 +446,21 @@ Pressing cancel will close linuxcnc.""" % target)
     # This can be called by control c or an early error.
     # close out HAL pins
     def shutdown(self,signum=None,stack_frame=None):
+
+        from qtvcp.core import Status
+        s = Status()
+        LOG.debug('Status shutdown')
+        s.shutdown()
+
+        try:
+            self.w.sync_qsettings()
+        except:
+            pass
+        try:
+            self.w.panel_.shutdown()
+        except:
+            pass
+
         LOG.debug('Exiting HAL')
         HAL.exit()
 

@@ -20,7 +20,7 @@ This stops unwanted jumps in output between transitions of input but makes in00 
 
 .TP
 .B mux\-gen.\fINN\fB.debounce\-us\fR unsigned in \fR
-sets debouce time in microseconds, e.g. 100000 = a tenth of a second.
+sets debounce time in microseconds, e.g. 100000 = a tenth of a second.
 The selection inputs must be stable this long before the output changes.
 This helps to ignore 'noisy' switches.
 
@@ -71,6 +71,13 @@ Be wary that float datatypes can be very, very, close to zero and not actually b
 Each mux has its own HAL function and must be added to a thread separately. 
 If neither input nor output is of type float then the function is base-thread (non floating-point) safe.
 Any mux_generic with a floating point input or output can only be added to a floating-point thread. 
+
+.SH SEE ALSO
+
+\fBmux2\fR(9),
+\fBmux4\fR(9),
+\fBmux8\fR(9),
+\fBmux16\fR(9).
 
 .SH AUTHOR
 Andy Pugh

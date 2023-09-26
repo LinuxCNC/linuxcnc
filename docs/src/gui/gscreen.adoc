@@ -13,15 +13,13 @@
 == Introduction
 
 Gscreen is an infrastructure to display a custom screen to control LinuxCNC.
-Gscreen borrows heavily from GladeVCP. GladeVCP uses the GTK widget editor
-GLADE to build virtual control panels (VCP) by point and click. Gscreen
-combines this with Python programming to create a GUI screen for running a
-CNC machine.
+Gscreen borrows heavily from GladeVCP. GladeVCP uses the GTK widget editor GLADE to build virtual control panels (VCP) by point and click.
+Gscreen combines this with Python programming to create a GUI screen for running a CNC machine.
 
-Gscreen is customizable if you want different buttons and status LEDs. Gscreen
-supports GladeVCP which is used to add controls and indicators. To customize
-Gscreen you use the Glade editor. Gscreen is not restricted to adding a custom
-panel on the right or a custom tab it is fully editable.
+Gscreen is customizable if you want different buttons and status LEDs.
+Gscreen supports GladeVCP which is used to add controls and indicators.
+To customize Gscreen you use the Glade editor.
+Gscreen is not restricted to adding a custom panel on the right or a custom tab it is fully editable.
 
 .Gscreen Default Screen
 image::images/gscreen-mill.png["Gscreen Mill Based Screen",align="center"]
@@ -38,83 +36,70 @@ image::images/gaxis.png["Gscreen Gaxis Screen",align="center"]
 .Gscreen Industrial Screen
 image::images/industrial.png["Gscreen Industrial Screen",align="center"]
 
-Gscreen is based on 'Glade' (the editor), 'PyGTK' (the widget toolkit), and
-'GladeVCP' (LinuxCNC's connection to Glade and PyGTK). GladeVCP has some
-special widgets and actions added just for LinuxCNC A widget is just the
-generic name used for the buttons, sliders, labels etc of the PyGTK toolkit.
+Gscreen is based on 'Glade' (the editor), 'PyGTK' (the widget toolkit), and 'GladeVCP' (LinuxCNC's connection to Glade and PyGTK).
+GladeVCP has some special widgets and actions added just for LinuxCNC A widget is just the generic name used for the buttons, sliders, labels etc of the PyGTK toolkit.
 
 === Glade File
 
-A Glade file is a text file organized in the XML standard that describes the
-layout and the widgets of the screen. PyGTK uses this file to actually display
-and react to those widgets. The Glade editor makes it relatively easy to build
-and edit this file You must use the Glade 3.38.2 editor that uses the GTK3
-widgets.
+A Glade file is a text file organized in the XML standard that describes the layout and the widgets of the screen.
+PyGTK uses this file to actually display and react to those widgets.
+The Glade editor makes it relatively easy to build and edit this file You must use the Glade 3.38.2 editor that uses the GTK3 widgets.
 
 === PyGTK
 
-PyGTK is the Python binding to GTK. GTK is the 'toolkit' of visual widgets,
-it's programmed in C. PyGTK uses Python to 'bind' with GTK.
+PyGTK is the Python binding to GTK. GTK is the 'toolkit' of visual widgets, it is programmed in C.
+PyGTK uses Python to 'bind' with GTK.
 
 == GladeVCP
 
 <<cha:glade-vcp,GladeVCP>> binds LinuxCNC, HAL, PyGTK and Glade all together.
-LinuxCNC requires some special widgets so GladeVCP supplies them. Many are just
-HAL extensions to existing PyGTK widgets. GladeVCP creates the HAL pins for the special widgets described in the Glade file.
+LinuxCNC requires some special widgets so GladeVCP supplies them.
+Many are just HAL extensions to existing PyGTK widgets.
+GladeVCP creates the HAL pins for the special widgets described in the Glade file.
 GladeVCP also allows one to add Python commands to interact with the widgets, to make them do things not available in their default form.
 If you can build a GladeVCP panel you can customize Gscreen!
 
 === Overview
 
-There are two files that can be used, individually or in combination to add
-customizations. Local Glade files and handler files. Normally Gscreen uses
-the stock Glade file and possibly a handler file (if using a sample 'skin').
-You can specify Gscreen to use 'local' Glade and handler files. Gscreen looks
-in the folder that holds all the configuration files for the configuration you
-selected.
+There are two files that can be used, individually or in combination to add customizations.
+Local Glade files and handler files.
+Normally Gscreen uses the stock Glade file and possibly a handler file (if using a sample 'skin').
+You can specify Gscreen to use 'local' Glade and handler files.
+Gscreen looks in the folder that holds all the configuration files for the configuration you selected.
 
 .Local Glade Files
-If present, local Glade files in the configuration folder will be loaded instead
-of the stock Glade files. Local Glade files allow you to use your customized
-designs rather then the default screens. There is a switch in the INI file to
-set set the base name: -c name so Gscreen looks for MYNAME.glade and
-MYNAME_handler.py.
+If present, local Glade files in the configuration folder will be loaded instead of the stock Glade files.
+Local Glade files allow you to use your customized designs rather then the default screens.
+There is a switch in the INI file to set set the base name: -c name so Gscreen looks for MYNAME.glade and MYNAME_handler.py.
 
-You can tell Gscreen to just load the Glade file and not connect it's internal
-signals to it. This allows gscreen to load any GTK builder saved Glade file
-This means you can display a completely custom screen, but also requires you to
-use a handler file. Gscreen uses the Glade file to define the widgets, so it can
-show and interact with them. Many of them have specific names, others have Glade
-given generic names. If the widget will be displayed but never changed then a
-generic name is fine. If one needs to control or interact with the widget then
-a hopefully purposeful name is given (all names must be unique). Widgets can
-also have signals defined for them in the GLADE editor. It defines what signal
-is given and what method to call.
+You can tell Gscreen to just load the Glade file and not connect its internal signals to it.
+This allows gscreen to load any GTK builder saved Glade file.
+This means you can display a completely custom screen, but also requires you to use a handler file.
+Gscreen uses the Glade file to define the widgets, so it can show and interact with them.
+Many of them have specific names, others have Glade given generic names.
+If the widget will be displayed but never changed then a generic name is fine.
+If one needs to control or interact with the widget then a hopefully purposeful name is given (all names must be unique).
+Widgets can also have signals defined for them in the GLADE editor.
+It defines what signal is given and what method to call.
 
 .Modifying Stock Skins
-If you change the name of a widget, Gscreen might not be able to find it. If
-this widget is referenced to from Python code, at best this makes the widget
-not work anymore at worst it will cause an error when loading Gscreen's default
-screens don't use many signals defined in the editor, it defines them in the
-Python code. If you move (cut and paste) a widget with signals, the signals
-will not be copied. You must add them again manually.
+If you change the name of a widget, Gscreen might not be able to find it.
+If this widget is referenced to from Python code,
+at best this makes the widget not work anymore at worst it will cause an error when loading Gscreen's default screens don't use many signals defined in the editor,
+it defines them in the Python code.
+If you move (cut and paste) a widget with signals, the signals will not be copied. You must add them again manually.
 
 .Handler Files
-A handler file is a file containing Python code, which Gscreen adds to it's
-default routines. A handler file allows one to modify defaults, or add logic
-to a Gscreen skin without having to modify Gscreen proper. You can combine new
-functions with Gscreen's function to modify behavior as you like. You can
-completely bypass all of Gscreen's functions and make if work completely
-differently. If present a handler file named gscreen_handler.py (or
-MYNAME_handler.py if using the INI switch) will be loaded and registered only
-one file is allowed Gscreen looks for the handler file, if found it will look
-for specific function names and call them instead of the default ones. If
-adding widgets you can set up signal calls from the Glade editor to call
-routines you have written in the handler file. In this way you can have custom
-behavior. Handler routines can call Gscreen's default routines, either before
-or after running it's own code. In this way you can tack on extra behavior
-such as adding a sound. Please see the <<cha:glade-vcp,GladeVCP Chapter>> for
-the basics to GladeVCP handler files. Gscreen uses a very similar technique.
+A handler file is a file containing Python code, which Gscreen adds to its default routines.
+A handler file allows one to modify defaults, or add logic to a Gscreen skin without having to modify Gscreen proper.
+You can combine new functions with Gscreen's function to modify behavior as you like.
+You can completely bypass all of Gscreen's functions and make if work completely differently.
+If present a handler file named gscreen_handler.py (or MYNAME_handler.py if using the INI switch) will be loaded and registered only one file is allowed Gscreen looks for the handler file,
+if found it will look for specific function names and call them instead of the default ones.
+If adding widgets you can set up signal calls from the Glade editor to call routines you have written in the handler file.
+In this way you can have custom behavior. Handler routines can call Gscreen's default routines, either before or after running its own code.
+In this way you can tack on extra behavior such as adding a sound. Please see the <<cha:glade-vcp,GladeVCP Chapter>> for the basics to GladeVCP handler files.
+Gscreen uses a very similar technique.
 
 .Themes
 Gscreen uses the PyGTK toolkit to display the screen.
@@ -142,104 +127,78 @@ https://wiki.gnome.org/Attic/GnomeArt/Tutorials/GtkEngines/PixmapEngine[Pixmap T
 
 === Build a GladeVCP Panel
 
-Gscreen is just a big complicated GladeVCP panel, with Python code to control
-it. To customize it we need the Glade file loaded in the Glade editor.
+Gscreen is just a big complicated GladeVCP panel, with Python code to control it.
+To customize it we need the Glade file loaded in the Glade editor.
 
 .Installed LinuxCNC
-If you have LinuxCNC 2.6+ installed on Ubuntu 10.04 just start the Glade editor
-from the applications menu or from the terminal. Newer versions of Linux will
-require you to install Glade 3.8.0 - 3.8.6 (you may need to compile it yourself).
+If you have LinuxCNC 2.6+ installed on Ubuntu 10.04 just start the Glade editor from the applications menu or from the terminal.
+Newer versions of Linux will require you to install Glade 3.8.0 - 3.8.6 (you may need to compile it yourself).
 
 .RIP compiled commands
-Using a compiled from source version of
-https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Installing_LinuxCNC[LinuxCNC] open
-a terminal and <<faq:cd,cd>> to the top of the LinuxCNC folder. Set up the
-environment by entering '. ./scripts/rip-environment' now enter 'glade', you
-see a bunch of warnings in the terminal that you can ignore and the editor
-should open. The stock Gscreen Glade file is in: src/emc/usr_intf/gscreen/
-sample skins are in /share/gscreen/skins/. This should be copied to a
-configuration folder. Or you can make a clean-sheet Glade file by saving it in
-a configuration folder.
+Using a compiled from source version of https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Installing_LinuxCNC[LinuxCNC] open a terminal and <<faq:cd,cd>> to the top of the LinuxCNC folder.
+Set up the environment by entering '. ./scripts/rip-environment' now enter 'glade', you see a bunch of warnings in the terminal that you can ignore and the editor should open.
+The stock Gscreen Glade file is in: src/emc/usr_intf/gscreen/ sample skins are in /share/gscreen/skins/.
+This should be copied to a configuration folder.
+Or you can make a clean-sheet Glade file by saving it in a configuration folder.
 
-Ok you have loaded the stock Glade file and now can edit it. The first thing
-you notice is it does not look in the editor like what it's displayed like
-Gscreen uses some tricks, such as hiding all boxes of buttons except one and
-changing that one depending on the mode. The same goes for notebooks, some
-screens use notebooks with the tabs not shown. To change pages in the editor
-you need to temporarily show those tabs.
+Ok you have loaded the stock Glade file and now can edit it.
+The first thing you notice is it does not look in the editor like what it is displayed like Gscreen uses some tricks, such as hiding all boxes of buttons except one and changing that one depending on the mode.
+The same goes for notebooks, some screens use notebooks with the tabs not shown.
+To change pages in the editor you need to temporarily show those tabs.
 
-When making changes it is far easier to add widgets then subtract widgets and
-still have the screen work properly making objects 'not visible' is one way to
-change the display without getting errors. This won't always work some widgets
-will be set visible again. Changing the names of Gscreen's regular widgets is
-probably not gonna work well without changing the Python code, but moving a
-widget while keeping the name is usually workable.
+When making changes it is far easier to add widgets then subtract widgets and still have the screen work properly making objects 'not visible' is one way to change the display without getting errors.
+This won't always work some widgets will be set visible again.
+Changing the names of Gscreen's regular widgets is probably not gonna work well without changing the Python code, but moving a widget while keeping the name is usually workable.
 
-Gscreen leverages GladeVCP widgets as much as possible, to avoid adding Python
-code. Learning about <<cha:glade-vcp,GladeVCP>> widgets is a prerequisite.
-If the existing widgets give you the function you want or need then no Python
-code needs be added, just save the Glade file in your configuration folder.
+Gscreen leverages GladeVCP widgets as much as possible, to avoid adding Python code.
+Learning about <<cha:glade-vcp,GladeVCP>> widgets is a prerequisite.
+If the existing widgets give you the function you want or need then no Python code needs be added, just save the Glade file in your configuration folder.
 If you need something more custom then you must do some Python programming.
 The name of the parent window needs to be window1. Gscreen assumes this name.
 
-Remember, if you use a custom screen option YOU are responsible for fixing it
-(if required) when updating LinuxCNC.
+Remember, if you use a custom screen option YOU are responsible for fixing it (if required) when updating LinuxCNC.
 
 == Building a simple clean-sheet custom screen
 
 image::images/tester.png["Gscreen simple usable screen",align="center"]
 
-Lets build a simple usable screen. Build this in the Glade editor (if using a
-RIP package run it from a terminal after using . scripts/rip-environment ).
+Lets build a simple usable screen. Build this in the Glade editor (if using a RIP package run it from a terminal after using . scripts/rip-environment ).
 
 .Things to note:
-* The top level window must be called the default name, 'window1' - Gscreen
-  relies on this.
-* Add actions by right clicking, and selecting 'add as toplevel widget'
-  they don't add anything visual to the window but are added to the
-  right most action list. Add all the ones you see on the top right.
-* After adding the actions we must link the buttons to the actions for them to
-  work (see below).
-* The gremlin widget doesn't have a default size so setting a requested size is
-  helpful (see below).
-* The sourceview widget will try to use the whole window so adding it to a
-  scrolled window will cover this (This is already been done in the example).
-* The buttons will expand as the window is made larger which is ugly so we will
-  set the box they are in, to not expand (see below).
-* The button types to use depend on the VCP_action used -eg vcp_toggle_action
-  usually require toggle buttons (Follow the example for now).
-* The buttons in this example are regular buttons not HAL buttons. We don't
-  need the HAL pins.
+* The top level window must be called the default name, 'window1' - Gscreen relies on this.
+* Add actions by right clicking, and selecting 'add as toplevel widget' they don't add anything visual to the window but are added to the right most action list.
+  Add all the ones you see on the top right.
+* After adding the actions we must link the buttons to the actions for them to work (see below).
+* The gremlin widget doesn't have a default size so setting a requested size is helpful (see below).
+* The sourceview widget will try to use the whole window so adding it to a scrolled window will cover this. (This is already done in the example.)
+* The buttons will expand as the window is made larger which is ugly so we will set the box they are in, to not expand (see below).
+* The button types to use depend on the VCP_action used -eg vcp_toggle_action usually require toggle buttons (Follow the example for now).
+* The buttons in this example are regular buttons not HAL buttons. We don't need the HAL pins.
 
 image::images/tester_editor.png["Glade editor tester.glade",align="center"]
 
-In this screen we are using VCP_actions to communicate to LinuxCNC the actions
-we want. This allows us standard functions without adding Python code in the
-handler file. Let's link the estop toggle button to the estop action Select the
-estop toggle button and under the general tab look for 'Related Action' and
-click the button beside it. Now select the toggle estop action. Now the button
-will toggle estop on and off when clicked. Under the general tab you can change
-the text of the button's label to describe it's function. Do this for all the
-buttons.
+In this screen we are using VCP_actions to communicate to LinuxCNC the actions we want.
+This allows us standard functions without adding Python code in the handler file.
+Let's link the estop toggle button to the estop action Select the estop toggle button and under the general tab look for 'Related Action' and click the button beside it.
+Now select the toggle estop action.
+Now the button will toggle estop on and off when clicked. Under the general tab you can change the text of the button's label to describe its function.
+Do this for all the buttons.
 
-Select the gremlin widget click the common tab and set the requested height to
-100 and click the checkbox beside it.
+Select the gremlin widget click the common tab and set the requested height to 100 and click the checkbox beside it.
 
-Click the horizontal box that holds the buttons. Click the packing tab and
-click 'expand' to 'No'.
+Click the horizontal box that holds the buttons.
+Click the packing tab and click 'expand' to 'No'.
 
-Save it as tester.glade and save it in sim/gscreen/gscreen_custom/ folder. Now
-launch LinuxCNC and click to sim/gscreen/gscreen_custom/tester and start it.
-If all goes well our screen will pop up and the buttons will do their job This
-works because the tester.ini tells gscreen to look for and load tester.glade
-and tester_handler.py. The tester_handler.py file is included in that folder
-and is coded just show the screen and not much else. Since the special widgets
-directly communicate with LinuxCNC you can still do useful things. If your
-screen needs are covered by the available special widgets then this is as far
-as you need to go to build a screen. If you want something more there are still
-many tricks available from just adding 'function calls' to get canned behaviour.
-To coding your own Python code to customize exactly what you want. But that
-means learning about handler files.
+Save it as tester.glade and save it in sim/gscreen/gscreen_custom/ folder.
+Now launch LinuxCNC and click to sim/gscreen/gscreen_custom/tester and start it.
+If all goes well our screen will pop up and the buttons will do their job.
+This works because the tester.ini tells gscreen to look for and load tester.glade and tester_handler.py.
+The tester_handler.py file is included in that folder and is coded just show the screen and not much else.
+Since the special widgets directly communicate with LinuxCNC you can still do useful things.
+If your screen needs are covered by the available special widgets then this is as far as you need to go to build a screen.
+If you want something more there are still many tricks available from just adding 'function calls' to get canned behaviour.
+To coding your own Python code to customize exactly what you want.
+But that means learning about handler files.
 
 == Handler file example
 
@@ -247,43 +206,32 @@ There are special functions Gscreen checks the handler file for.
 If you add these in you handler file Gscreen will call them instead of gscreen's internal same-named functions.
 
 * initialize_preferences(self): You can install new preference routines.
-* initialize_keybindings(self) You can install new keybinding routines. In
-  most cases you won't want to do this, you will want to override the
-  individual keybinding calls. You can also add more keybindings that will
-  call an arbitrary function.
+* initialize_keybindings(self) You can install new keybinding routines.
+  In most cases you won't want to do this, you will want to override the individual keybinding calls.
+  You can also add more keybindings that will call an arbitrary function.
 * initialize_pins(self): makes / initializes HAL pins
-* connect_signals(self,handlers): If you are using a completely different
-  screen the default Gscreen you must add this or gscreen will try to connect
-  signals to widgets that are not there. Gscreen's default function is called
-  with self.gscreen.connect_signals(handlers) If you wish to just add extra
-  signals to your screen but still want the default ones call this first then
-  add more signals. If you signals are simple (no user data passed) then you
-  can also use the Glade signal selection in the Glade editor.
-* initialize_widgets(self): You can use this to set up any widgets. Gscreen
-  usually calls 'self.gscreen.initialize_widgets()' which actually calls
-  many separate functions. If you wish to incorporate some of those widgets
-  then just call those functions directly. or add
-  self.gscreen.init_show_windows() so widgets are just shown. Then if
-  desired, initialize/adjust your new widgets.
-* initialize_manual_toolchange(self): allows a complete revamp of the manual
-  toolchange system.
+* connect_signals(self,handlers):
+  If you are using a completely different screen the default Gscreen you must add this or gscreen will try to connect signals to widgets that are not there.
+  Gscreen's default function is called with self.gscreen.connect_signals(handlers).
+  If you wish to just add extra signals to your screen but still want the default ones call this first then add more signals.
+  If you signals are simple (no user data passed) then you can also use the Glade signal selection in the Glade editor.
+* initialize_widgets(self): You can use this to set up any widgets.
+  Gscreen usually calls 'self.gscreen.initialize_widgets()' which actually calls many separate functions.
+  If you wish to incorporate some of those widgets then just call those functions directly. Or add self.gscreen.init_show_windows() so widgets are just shown.
+  Then if desired, initialize/adjust your new widgets.
+* initialize_manual_toolchange(self): allows a complete revamp of the manual toolchange system.
 * set_restart_line(self.line):
-* timer_interrupt(self): allows one to complete redefine the interrupt
-  routine This is used for calling periodic() and checking for errors from
-  linuxcnc.status.
+* timer_interrupt(self): allows one to complete redefine the interrupt routine.
+  This is used for calling periodic() and checking for errors from linuxcnc.status.
 * check_mode(self): used to check what mode the screen is in. Returns a list[]
   0 -manual 1- mdi 2- auto 3- jog.
-* on_tool_change(self,widget): You can use this to override the manual tool
-  change dialog -this is called when 'gscreen.tool-change' changes state.
-* dialog_return(self,dialog_widget,displaytype,pinname): Use this to override
-  any user message or manual tool change dialog. Called when the dialog is
-  closed.
-* periodic(self): This is called every (default 100) milliseconds. Use it to
-  update your widgets/HAL pins. You can call Gscreen regular periodic
-  afterwards too, self.gscreen.update_position() or just add pass to not
-  update anything. Gscreen's update_position() actually calls many separate
-  functions. If you wish to incorporate some of those widgets then just call
-  those functions directly.
+* on_tool_change(self,widget): You can use this to override the manual tool change dialog -this is called when 'gscreen.tool-change' changes state.
+* dialog_return(self,dialog_widget,displaytype,pinname): Use this to override any user message or manual tool change dialog.
+  Called when the dialog is closed.
+* periodic(self): This is called every (default 100) milliseconds.
+  Use it to update your widgets/HAL pins. You can call Gscreen regular periodic afterwards too, self.gscreen.update_position() or just add pass to not update anything.
+  Gscreen's update_position() actually calls many separate functions.
+  If you wish to incorporate some of those widgets then just call those functions directly.
 
 You can also add you own functions to be called in this file. Usually you
 would add a signal to a widget to call your function.
@@ -382,7 +330,7 @@ self.update_filepath(self, obj, path):
 ----
 
 When LinuxCNC loads a new file, Gstat will send a callback message to the function 'update_filepath'.
-In this example we update a label with that path name (assuming there is a label nammed 'my_path_label') in the GLADE file.
+In this example we update a label with that path name (assuming there is a label named 'my_path_label') in the GLADE file.
 
 === Jogging Keys
 
@@ -424,58 +372,39 @@ interact with it.
 
 . Gscreen reads the options it was started with.
 . Gscreen sets the debug mode and set the optional skin name.
-. Gscreen checks to see if there are 'local' XML, handler and/or locale files in the
-  configuration folder. It will use them instead of the default ones
-  (in share/gscreen/skins/) (There can be two separate screens displayed).
-. The main screen is loaded and translations set up. If present the second
-  screen will be loaded and translations set up.
+. Gscreen checks to see if there are 'local' XML, handler and/or locale files in the configuration folder.
+  It will use them instead of the default ones (in share/gscreen/skins/) (There can be two separate screens displayed).
+. The main screen is loaded and translations set up.
+  If present the second screen will be loaded and translations set up.
 . Optional Audio is initialized if available.
-. It reads some of the INI file to initialize the units, and the number/type
-  of axes.
-. Initializes Python's binding to HAL to build a non-realtime component with the
-  Gscreen name.
-. GladeVCP's makepins is called to parse the XML file to build HAL pins for
-  the HAL widgets and register the LinuxCNC connected widgets.
-. Checks for a 'local' handler file in the configuration folder or else uses
-  the stock one from the skin folder.
-. If there is a handler file gscreen parses it, and registers the function
-  calls into Gscreen's namespace.
-. Glade matches/registers all signal calls to functions in gscreen and the
-  handler file.
-. Gscreen checks the INI file for an option preference file name otherwise it
-  uses '.gscreen_preferences' =.
-. Gscreen checks to see if there is a preference function call
-  ('initialize_preferences(self)') in the handler file otherwise it uses the
-  stock Gscreen one.
+. It reads some of the INI file to initialize the units, and the number/type of axes.
+. Initializes Python's binding to HAL to build a non-realtime component with the Gscreen name.
+. GladeVCP's makepins is called to parse the XML file to build HAL pins for the HAL widgets and register the LinuxCNC connected widgets.
+. Checks for a 'local' handler file in the configuration folder or else uses the stock one from the skin folder.
+. If there is a handler file gscreen parses it, and registers the function calls into Gscreen's namespace.
+. Glade matches/registers all signal calls to functions in gscreen and the handler file.
+. Gscreen checks the INI file for an option preference file name otherwise it uses '.gscreen_preferences' =.
+. Gscreen checks to see if there is a preference function call ('initialize_preferences(self)') in the handler file otherwise it uses the stock Gscreen one.
 . Gscreen checks for ClassicLadder realtime component.
 . Gscreen checks for the system wide GTK theme.
 . Gscreen collects the jogging increments from the INI file.
 . Gscreen collects the angular jogging increments from the INI file.
 . Gscreen collects the default and max jog rate from the INI.
 . Gscreen collects the max velocity of any axes from the INI's TRAJ section.
-. Gscreen checks to see if there is angular axes then collects the default and
-  max velocity from the INI file.
+. Gscreen checks to see if there is angular axes then collects the default and max velocity from the INI file.
 . Gscreen collect all the override setting from the INI.
 . Gscreen checks if its a lathe configuration from the INI file.
-. Gscreen finds the name of the tool_table,tool editor and param file from the
-  INI.
-. Gscreen checks the handler file for keybindings function
-  ('initialize_keybindings(self)') or else use Gscreen stock one.
-. Gscreen checks the handler file for pins function ('initialize_pins(self)')
-  or else use Gscreen stock one.
-. Gscreen checks the handler file for manual_toolchange function
-  ('initialize_manual_toolchange(self)') or else use Gscreen stock one.
-. Gscreen checks the handler file for connect_signals function
-  ('initialize_connect_signals(self)') or else use Gscreen stock one.
-. Gscreen checka the handler file for widgets function
-  ('initialize_widgets(self)') or else use Gscreen stock one.
+. Gscreen finds the name of the tool_table,tool editor and param file from the INI.
+. Gscreen checks the handler file for keybindings function ('initialize_keybindings(self)') or else use Gscreen stock one.
+. Gscreen checks the handler file for pins function ('initialize_pins(self)') or else use Gscreen stock one.
+. Gscreen checks the handler file for manual_toolchange function ('initialize_manual_toolchange(self)') or else use Gscreen stock one.
+. Gscreen checks the handler file for connect_signals function ('initialize_connect_signals(self)') or else use Gscreen stock one.
+. Gscreen checka the handler file for widgets function ('initialize_widgets(self)') or else use Gscreen stock one.
 . Gscreen set up messages specified in the INI file.
-. Gscreen tells HAL the Gscreen HAL component is finished making pins and is
-  ready. If there is a terminal widget in the screen it will print all the
-  Gscreen pins to it.
+. Gscreen tells HAL the Gscreen HAL component is finished making pins and is ready.
+  If there is a terminal widget in the screen it will print all the Gscreen pins to it.
 . Gscreen sets the display cycle time based on the INI file.
-. Gscreen checks the handler file for 'timer_interupt(self)' function call
-  otherwise use Gscreen's default function call.
+. Gscreen checks the handler file for 'timer_interupt(self)' function call otherwise use Gscreen's default function call.
 
 == INI Settings
 
@@ -489,12 +418,11 @@ DISPLAY = gscreen -c tester
    -v verbose debugging on
 ----
 
-The -c switch allows one to select a 'skin'. Gscreen assumes the Glade file and
-the handler file use this same name. The optional second screen will be the
-same name with a 2 (eg. tester2.glade) There is no second handler file allowed.
-It will only be loaded if it is present. Gscreen will search the LinuxCNC
-configuration file that was launched first for the files, then in the system
-skin folder.
+The -c switch allows one to select a 'skin'. Gscreen assumes the Glade file and the handler file use this same name.
+The optional second screen will be the same name with a 2 (e.g., tester2.glade).
+There is no second handler file allowed.
+It will only be loaded if it is present.
+Gscreen will search the LinuxCNC configuration file that was launched first for the files, then in the system skin folder.
 
 == User Dialog Messages
 
@@ -511,7 +439,7 @@ MESSAGE_TYPE:: specifies whether its a yes/no, ok, or status message
     - require no user intervention.
   * ok messages
     - require the user to click ok to close the dialog.
-    - have one HAL pin to launch the dialog and one to signify it's waiting for response.
+    - have one HAL pin to launch the dialog and one to signify it is waiting for response.
   * yes/no messages
     - require the user to select yes or no buttons to close the dialog.
     - have three HAL pins:
@@ -548,16 +476,11 @@ MESSAGE_PINNAME = bothtest
 
 === Copy the Stock Handler/Glade File For Modification
 
-If you wish to use a stock screen but modify it's handler file, you need to
-copy the stock file to your config file folder.
-Gscreen will see this and use the
-copied file.
-But where is the original file? If using a RIP LinuxCNC the
-sample skins are in /share/gscreen/skins/'SCREENNAME'
-Installed versions of LinuxCNC have them in slightly different places depending
-on the distribution used.
-An easy way to find the location is to open a terminal
-and start the sim screen you wish to use.
+If you wish to use a stock screen but modify its handler file, you need to copy the stock file to your config file folder.
+Gscreen will see this and use the copied file.
+But where is the original file?
+If using a RIP LinuxCNC the sample skins are in /share/gscreen/skins/'SCREENNAME' Installed versions of LinuxCNC have them in slightly different places depending on the distribution used.
+An easy way to find the location is to open a terminal and start the sim screen you wish to use.
 In the terminal the file locations will be printed.
 It may help to add the -d switch to the gscreen load line in the INI.
 

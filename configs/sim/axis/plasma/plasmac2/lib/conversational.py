@@ -45,7 +45,7 @@ for f in sys.path:
         if '/usr' in f:
             localeDir = 'usr/share/locale'
         else:
-            localeDir = os.path.join(f'{f.split("/lib")[0]}','share','locale')
+            localeDir = os.path.join(f"{f.split('/lib')[0]}",'share','locale')
         break
 gettext.install("linuxcnc", localedir=localeDir)
 
@@ -54,7 +54,7 @@ class Conv(tk.Tk):
                  imagePath, tmpPath, pVars, unitsPerMm, comp, prefs, getprefs, \
                  putprefs, fileOpener, wcs_rotation, conv_toggle, color_change, plasmacPopUp):
         self.r = root
-        self.rC = self.r.tk.call
+        self.rE = root.tk.eval
         self.toolFrame = toolFrame
         self.convFrame = convFrame
         self.unitsPerMm = unitsPerMm
@@ -79,19 +79,19 @@ class Conv(tk.Tk):
         self.module = None
         self.oldModule = None
         if self.unitsPerMm == 1:
-            gCode = '21'
-            tolerance = '0.25'
-            self.smallHoleSet = 32
+            smallHole = 32
+            leadin = 5
+            preAmble = 'G21 G64P0.25'
         else:
-            gCode = '20'
-            tolerance = '0.01'
-            self.smallHoleSet = 1.26
-        self.ambles = f'G{gCode} G64P{tolerance} G40 G49 G80 G90 G92.1 G94 G97'
+            smallHole = 1.25
+            leadin = 0.2
+            preAmble = 'G20 G64P0.01'
+        preAmble = f"{preAmble} G40 G49 G80 G90 G92.1 G94 G97"
         self.xOrigin = 0.000
         self.yOrigin = 0.000
         if self.comp['development']:
             reload(CONVSET)
-        CONVSET.load(self)
+        CONVSET.load(self, preAmble, leadin, smallHole, preAmble)
         if convFirstRun or self.comp['development']:
             self.create_widgets(imagePath)
             self.show_common_widgets()
@@ -139,7 +139,10 @@ class Conv(tk.Tk):
         for m in self.materials:
             values = [str(m) + ': ' + self.materials[m]['name'] for m in self.materials]
             self.matCombo['values'] = values
-        self.matCombo.setvalue(f'@{self.matIndex}')
+        self.matCombo.setvalue(f"@{self.matIndex}")
+        longest = max(values, key=len)
+        tmpLabel = tk.Label(text=longest)
+        self.matCombo['listboxwidth'] = tmpLabel.winfo_reqwidth() + 20
         if self.oldConvButton:
             self.toolButton[self.convShapes.index(self.oldConvButton)].select()
             self.shape_request(self.oldConvButton)
@@ -200,7 +203,7 @@ class Conv(tk.Tk):
 
     def auto_preview(self, event):
         # this stops focus moving to the root when return pressed
-        self.rC('after','5','focus',event.widget)
+        self.rE(f"after 5 focus {event.widget}")
         # we have no interest in these
         if event.keysym in ['Return', 'Tab']:
             return
@@ -273,7 +276,7 @@ class Conv(tk.Tk):
             title = _('Unsaved Shape')
             msg0 = _('You have an unsaved, unsent, or active previewed shape')
             msg1 = _('If you continue it will be deleted')
-            if not self.plasmacPopUp('yesno', title, f'{msg0}\n\n{msg1}\n').reply:
+            if not self.plasmacPopUp('yesno', title, f"{msg0}\n\n{msg1}\n").reply:
                 return
         if self.oldConvButton == 'line':
             if self.lineCombo.get() == _('LINE POINT ~ POINT'):
@@ -422,8 +425,8 @@ class Conv(tk.Tk):
                 self.spbValue.set(_('CENTER'))
             else:
                 self.spbValue.set(_('BTM LEFT'))
-            self.liValue.set(f'{self.leadIn}')
-            self.loValue.set(f'{self.leadOut}')
+            self.liValue.set(f"{self.leadIn}")
+            self.loValue.set(f"{self.leadOut}")
         self.module.widgets(self)
         self.settingsExited = False
 
@@ -446,7 +449,7 @@ class Conv(tk.Tk):
             child.deselect()
         title = _('Active Preview')
         msg0 = _('Cannot continue with an active previewed shape')
-        reply = self.plasmacPopUp('warn', title, f'{msg0}\n').reply
+        reply = self.plasmacPopUp('warn', title, f"{msg0}\n").reply
         if self.oldConvButton:
             self.toolButton[self.convShapes.index(self.oldConvButton)].select()
         self.module = self.oldModule
@@ -479,12 +482,12 @@ class Conv(tk.Tk):
                 name = os.path.basename(self.existingFile)
                 msg0 = _('The original file will be loaded')
                 msg1 = _('If you continue all changes will be deleted')
-                if not self.plasmacPopUp('yesno', title, f'{msg0}:\n\n{name}\n\n{msg1}\n').reply:
+                if not self.plasmacPopUp('yesno', title, f"{msg0}:\n\n{name}\n\n{msg1}\n").reply:
                     return(True)
             else:
                 msg0 = _('An empty file will be loaded')
                 msg1 = _('If you continue all changes will be deleted')
-                if not self.plasmacPopUp('yesno', title, f'{msg0}\n\n{msg1}\n').reply:
+                if not self.plasmacPopUp('yesno', title, f"{msg0}\n\n{msg1}\n").reply:
                     return(True)
             if self.existingFile:
                 COPY(self.existingFile, self.fNgcBkp)
@@ -536,8 +539,8 @@ class Conv(tk.Tk):
             self.convLine['convAddSegment'] = self.convLine['gcodeLine']
             self.convLine['xLineStart'] = self.convLine['xLineEnd']
             self.convLine['yLineStart'] = self.convLine['yLineEnd']
-            self.l1Value.set(f'{self.convLine["xLineEnd"]:0.3f}')
-            self.l2Value.set(f'{self.convLine["yLineEnd"]:0.3f}')
+            self.l1Value.set(f"{self.convLine['xLineEnd']:0.3f}")
+            self.l2Value.set(f"{self.convLine['yLineEnd']:0.3f}")
             self.convLine['addSegment'] = 1
             self.module.line_type_changed(self, True)
             self.addC['state'] = 'disabled'
@@ -563,7 +566,7 @@ class Conv(tk.Tk):
                 elif child.winfo_name() == str(getattr(self, 'scEntry')).rsplit('.',1)[1]:
                     self.scValue.set('1.0')
                 elif child.winfo_name() == str(getattr(self, 'ocEntry')).rsplit('.',1)[1]:
-                    self.ocValue.set(f'{4 * self.unitsPerMm}')
+                    self.ocValue.set(f"{4 * self.unitsPerMm}")
             child.grid_remove()
         self.show_common_widgets()
 

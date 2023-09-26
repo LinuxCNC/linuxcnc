@@ -102,7 +102,7 @@ void STRAIGHT_FEED(int lineno,
     printf("-> %.1f %.1f\n", x, y);
 }
 
-void NURBS_G5_FEED(int lineno, std::vector<NURBS_CONTROL_POINT> nurbs_control_points, unsigned int k, int plane) {
+void NURBS_G5_FEED(int lineno, std::vector<NURBS_CONTROL_POINT> nurbs_control_points, unsigned int k, CANON_PLANE plane) {
     double u = 0.0;
     unsigned int n = nurbs_control_points.size() - 1;
     double umax = n - k + 2;
@@ -120,7 +120,7 @@ void NURBS_G5_FEED(int lineno, std::vector<NURBS_CONTROL_POINT> nurbs_control_po
     knot_vector.clear();
 }
 
-void NURBS_G6_FEED(int lineno, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, unsigned int k, double feedrate, int L_option, int plane) { // (L_option: NICU, NICL, NICC see publication from Lo Valvo and Drago) 
+void NURBS_G6_FEED(int lineno, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, unsigned int k, double feedrate, int L_option, CANON_PLANE plane) { // (L_option: NICU, NICL, NICC see publication from Lo Valvo and Drago) 
 	}
 
 void RIGID_TAP(int lineno,
@@ -179,10 +179,10 @@ void NURB_CONTROL_POINT(int i, double x, double y, double z,
 			       double w) {}
 void NURB_FEED(double sStart, double sEnd) {}
 void SET_BLOCK_DELETE(bool enabled) {}
-bool GET_BLOCK_DELETE(void) {}
+bool GET_BLOCK_DELETE(void) { return false; }
 void OPTIONAL_PROGRAM_STOP() {}
 void SET_OPTIONAL_PROGRAM_STOP(bool state) {}
-bool GET_OPTIONAL_PROGRAM_STOP() {}
+bool GET_OPTIONAL_PROGRAM_STOP() { return false; }
 void PROGRAM_END() {}
 void PROGRAM_STOP() {}
 void SET_MOTION_OUTPUT_BIT(int index) {}
@@ -194,76 +194,74 @@ void SET_AUX_OUTPUT_VALUE(int index, double value) {}
 int WAIT(int index, 
 		int input_type, 
 	        int wait_type, 
-                double timeout) {} 
-int UNLOCK_ROTARY(int line_no, int axis) {}
-int LOCK_ROTARY(int line_no, int axis) {}
-double GET_EXTERNAL_FEED_RATE() {}
-int GET_EXTERNAL_FLOOD() {}
-CANON_UNITS GET_EXTERNAL_LENGTH_UNIT_TYPE() {}
-double GET_EXTERNAL_LENGTH_UNITS() {}
-double GET_EXTERNAL_ANGLE_UNITS() {}
-int GET_EXTERNAL_MIST() {}
-CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() {}
-double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() {}
+                double timeout) { return 0; }
+int UNLOCK_ROTARY(int line_no, int axis) { return 0; }
+int LOCK_ROTARY(int line_no, int axis) { return 0; }
+double GET_EXTERNAL_FEED_RATE() { return 0.0; }
+int GET_EXTERNAL_FLOOD() { return 0; }
+CANON_UNITS GET_EXTERNAL_LENGTH_UNIT_TYPE() { return CANON_UNITS_MM; }
+double GET_EXTERNAL_LENGTH_UNITS() { return 0.0; }
+double GET_EXTERNAL_ANGLE_UNITS() { return 0.0; }
+int GET_EXTERNAL_MIST() { return 0; }
+CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() { return CANON_EXACT_STOP; }
+double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return 0.0; }
 
 extern void SET_PARAMETER_FILE_NAME(const char *name) {}
-double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE() {}
+double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE() { return 0.0; }
 void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size) {
     snprintf(filename, max_size, "%s", "rs274ngc.var");
 }
-CANON_PLANE GET_EXTERNAL_PLANE() {}
-double GET_EXTERNAL_POSITION_A() {}
-double GET_EXTERNAL_POSITION_B() {}
-double GET_EXTERNAL_POSITION_C() {}
-double GET_EXTERNAL_POSITION_X() {}
-double GET_EXTERNAL_POSITION_Y() {}
-double GET_EXTERNAL_POSITION_Z() {}
-double GET_EXTERNAL_POSITION_U() {}
-double GET_EXTERNAL_POSITION_V() {}
-double GET_EXTERNAL_POSITION_W() {}
-double GET_EXTERNAL_PROBE_POSITION_A() {}
-double GET_EXTERNAL_PROBE_POSITION_B() {}
-double GET_EXTERNAL_PROBE_POSITION_C() {}
-double GET_EXTERNAL_PROBE_POSITION_X() {}
-double GET_EXTERNAL_PROBE_POSITION_Y() {}
-double GET_EXTERNAL_PROBE_POSITION_Z() {}
-double GET_EXTERNAL_PROBE_POSITION_U() {}
-double GET_EXTERNAL_PROBE_POSITION_V() {}
-double GET_EXTERNAL_PROBE_POSITION_W() {}
-double GET_EXTERNAL_PROBE_VALUE() {}
-int GET_EXTERNAL_PROBE_TRIPPED_VALUE() {}
-int GET_EXTERNAL_QUEUE_EMPTY() {}
-double GET_EXTERNAL_SPEED(int spindle) {}
-CANON_DIRECTION GET_EXTERNAL_SPINDLE(int spindle) {}
-double GET_EXTERNAL_TOOL_LENGTH_XOFFSET() {}
-double GET_EXTERNAL_TOOL_LENGTH_YOFFSET() {}
-double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET() {}
-double GET_EXTERNAL_TOOL_LENGTH_AOFFSET() {}
-double GET_EXTERNAL_TOOL_LENGTH_BOFFSET() {}
-double GET_EXTERNAL_TOOL_LENGTH_COFFSET() {}
-double GET_EXTERNAL_TOOL_LENGTH_UOFFSET() {}
-double GET_EXTERNAL_TOOL_LENGTH_VOFFSET() {}
-double GET_EXTERNAL_TOOL_LENGTH_WOFFSET() {}
-int GET_EXTERNAL_TOOL_SLOT() {}
-int GET_EXTERNAL_SELECTED_TOOL_SLOT() {}
-CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {}
-int GET_EXTERNAL_TC_FAULT() {}
-int GET_EXTERNAL_TC_REASON() {}
-double GET_EXTERNAL_TRAVERSE_RATE() {}
-int GET_EXTERNAL_FEED_OVERRIDE_ENABLE() {}
-int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(int spindle) {}
-int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE() {}
-int GET_EXTERNAL_FEED_HOLD_ENABLE() {}
-int GET_EXTERNAL_DIGITAL_INPUT(int index, int def) {}
-double GET_EXTERNAL_ANALOG_INPUT(int index, double def) {}
+CANON_PLANE GET_EXTERNAL_PLANE() { return CANON_PLANE::XY; }
+double GET_EXTERNAL_POSITION_A() { return 0.0; }
+double GET_EXTERNAL_POSITION_B() { return 0.0; }
+double GET_EXTERNAL_POSITION_C() { return 0.0; }
+double GET_EXTERNAL_POSITION_X() { return 0.0; }
+double GET_EXTERNAL_POSITION_Y() { return 0.0; }
+double GET_EXTERNAL_POSITION_Z() { return 0.0; }
+double GET_EXTERNAL_POSITION_U() { return 0.0; }
+double GET_EXTERNAL_POSITION_V() { return 0.0; }
+double GET_EXTERNAL_POSITION_W() { return 0.0; }
+double GET_EXTERNAL_PROBE_POSITION_A() { return 0.0; }
+double GET_EXTERNAL_PROBE_POSITION_B() { return 0.0; }
+double GET_EXTERNAL_PROBE_POSITION_C() { return 0.0; }
+double GET_EXTERNAL_PROBE_POSITION_X() { return 0.0; }
+double GET_EXTERNAL_PROBE_POSITION_Y() { return 0.0; }
+double GET_EXTERNAL_PROBE_POSITION_Z() { return 0.0; }
+double GET_EXTERNAL_PROBE_POSITION_U() { return 0.0; }
+double GET_EXTERNAL_PROBE_POSITION_V() { return 0.0; }
+double GET_EXTERNAL_PROBE_POSITION_W() { return 0.0; }
+double GET_EXTERNAL_PROBE_VALUE() { return 0.0; }
+int GET_EXTERNAL_PROBE_TRIPPED_VALUE() { return 0; }
+int GET_EXTERNAL_QUEUE_EMPTY() { return 0; }
+double GET_EXTERNAL_SPEED(int spindle) { return 0.0; }
+CANON_DIRECTION GET_EXTERNAL_SPINDLE(int spindle) { return CANON_STOPPED; }
+double GET_EXTERNAL_TOOL_LENGTH_XOFFSET() { return 0.0; }
+double GET_EXTERNAL_TOOL_LENGTH_YOFFSET() { return 0.0; }
+double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET() { return 0.0; }
+double GET_EXTERNAL_TOOL_LENGTH_AOFFSET() { return 0.0; }
+double GET_EXTERNAL_TOOL_LENGTH_BOFFSET() { return 0.0; }
+double GET_EXTERNAL_TOOL_LENGTH_COFFSET() { return 0.0; }
+double GET_EXTERNAL_TOOL_LENGTH_UOFFSET() { return 0.0; }
+double GET_EXTERNAL_TOOL_LENGTH_VOFFSET() { return 0.0; }
+double GET_EXTERNAL_TOOL_LENGTH_WOFFSET() { return 0.0; }
+int GET_EXTERNAL_TOOL_SLOT() { return 0; }
+int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
+CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) { CANON_TOOL_TABLE retval; memset(&retval, 0, sizeof(retval)); return retval; }
+int GET_EXTERNAL_TC_FAULT() { return 0; }
+int GET_EXTERNAL_TC_REASON() { return 0; }
+double GET_EXTERNAL_TRAVERSE_RATE() { return 0.0; }
+int GET_EXTERNAL_FEED_OVERRIDE_ENABLE() { return 0; }
+int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(int spindle) { return 0; }
+int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE() { return 0; }
+int GET_EXTERNAL_FEED_HOLD_ENABLE() { return 0; }
+int GET_EXTERNAL_DIGITAL_INPUT(int index, int def) { return 0; }
+double GET_EXTERNAL_ANALOG_INPUT(int index, double def) { return 0.0; }
 int GET_EXTERNAL_AXIS_MASK() { return 7; }
 void FINISH(void) {}
 void ON_RESET(void) {}
 void CANON_ERROR(const char *fmt, ...) {}
-void PLUGIN_CALL(int len, const char *call) {}
-void IO_PLUGIN_CALL(int len, const char *call) {}
 void UPDATE_TAG(StateTag tag) {}
 USER_DEFINED_FUNCTION_TYPE
     USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM];
-int GET_EXTERNAL_OFFSET_APPLIED() {};
-EmcPose GET_EXTERNAL_OFFSETS(){};
+int GET_EXTERNAL_OFFSET_APPLIED() { return 0; };
+EmcPose GET_EXTERNAL_OFFSETS(){ EmcPose retval; ZERO_EMC_POSE(retval); return retval; };

@@ -105,14 +105,6 @@ net MistOn => iocontrol.0.coolant-mist
 net FloodOn <= stg.out-12
 net FloodOn => iocontrol.0.coolant-flood
 
-# connect lube motor run to I/O controller
-net LubeOn <= stg.out-13
-net LubeOn => iocontrol.0.lube
-
-# connect lube level to I/O controller
-net LubeLevel <= stg.in-13
-net LubeLevel => iocontrol.0.lube_level
-
 # create signals for tool loading loopback
 net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed

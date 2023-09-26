@@ -294,7 +294,7 @@ class Widgets:
 # here we initialize the data
 class Data:
     def __init__(self):
-        # constants for mode idenity
+        # constants for mode identity
         self._MAN = 0
         self._MDI = 1
         self._AUTO = 2
@@ -919,7 +919,7 @@ class Gscreen:
         function signature would be written in python.
 
         :param method: a python method
-        :return: A string similar describing the pythong method signature.
+        :return: A string similar describing the python method signature.
         eg: "my_method(first_argArg, second_arg=42, third_arg='something')"
         """
 

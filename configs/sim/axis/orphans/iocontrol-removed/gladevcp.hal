@@ -16,7 +16,6 @@ net start-change	iocontrol.0.start-change  iocontrol.0.start-change-ack gladevcp
 net tool-lock   motion.digital-out-00 gladevcp.tool-lock-led
 net tool-flush  motion.digital-out-01 gladevcp.tool-flush-led
 
-net lube        iocontrol.0.lube              gladevcp.lube
 net mist        iocontrol.0.coolant-mist      gladevcp.mist
 net flood       iocontrol.0.coolant-flood     gladevcp.flood
 net tool-prep-pocket	iocontrol.0.tool-prep-pocket  gladevcp.tool-prep-pocket

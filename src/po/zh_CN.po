@@ -4,13 +4,14 @@
 # whatawhiz <pink0floyd@vip.qq.com>, 2022, 2023.
 # Jeff Epler <jepler@gmail.com>, 2022.
 # zhuxunyu <wuzhi_01@163.com>, 2023.
+# taotieren <admin@taotieren.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC EMC2.8.0\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-03 08:16+0200\n"
-"PO-Revision-Date: 2023-03-13 09:40+0000\n"
-"Last-Translator: zhuxunyu <wuzhi_01@163.com>\n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
+"POT-Creation-Date: 2023-07-04 21:28+0200\n"
+"PO-Revision-Date: 2023-07-18 06:06+0000\n"
+"Last-Translator: taotieren <admin@taotieren.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -18,71 +19,71 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.16.2-dev\n"
+"X-Generator: Weblate 5.0-dev\n"
 "X-Poedit-Language: Chinese\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
-#: src/emc/task/emctaskmain.cc:875
+#: src/emc/task/emctaskmain.cc:869
 #, c-format
 msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
 msgstr "在解除急停开关及开启设备电源之前，无法执行此操作(%s)"
 
-#: src/emc/task/emctaskmain.cc:1005
+#: src/emc/task/emctaskmain.cc:997
 #, c-format
 msgid "can't do that (%s:%d) in manual mode"
 msgstr "手动模式下无法执行此操作(%s:%d) "
 
-#: src/emc/task/emctaskmain.cc:1112
+#: src/emc/task/emctaskmain.cc:1104
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
 msgstr "自动模式下解释器空闲时，无法在执行此操作(%s)"
 
-#: src/emc/task/emctaskmain.cc:1181
+#: src/emc/task/emctaskmain.cc:1173
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
 msgstr "自动模式下解释器读取时，无法在执行此操作(%s)"
 
-#: src/emc/task/emctaskmain.cc:1268
+#: src/emc/task/emctaskmain.cc:1260
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
 msgstr "自动模式下解释器暂停时，无法在执行此操作 (%s)"
 
-#: src/emc/task/emctaskmain.cc:1339
+#: src/emc/task/emctaskmain.cc:1331
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr "自动模式下解释器等待时，无法在执行此操作 (%s)"
 
-#: src/emc/task/emctaskmain.cc:1460
+#: src/emc/task/emctaskmain.cc:1452
 #, c-format
 msgid "can't do that (%s:%d) in MDI mode"
 msgstr "MDI模式下，无法执行此操作(%s:%d)"
 
-#: src/emc/task/emctaskmain.cc:2131
+#: src/emc/task/emctaskmain.cc:2109
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
 msgstr "自动模式下解释器不空闲时无法切换至其他模式"
 
-#: src/emc/task/emctaskmain.cc:2184
+#: src/emc/task/emctaskmain.cc:2162
 msgid "failed to close file"
 msgstr "关闭文件时发生错误"
 
-#: src/emc/task/emctaskmain.cc:2198 tcl/bin/genedit.tcl:197
+#: src/emc/task/emctaskmain.cc:2176 tcl/bin/genedit.tcl:197
 #: tcl/tklinuxcnc.tcl:452
 #, c-format, tcl-format
 msgid "can't open %s"
 msgstr "无法打开%s"
 
-#: src/emc/task/emctaskmain.cc:2210
+#: src/emc/task/emctaskmain.cc:2188
 msgid "Can't issue MDI command when not homed"
 msgstr "未返回原点时无法发出MDI指令"
 
-#: src/emc/task/emctaskmain.cc:2215
+#: src/emc/task/emctaskmain.cc:2193
 msgid "Must be in MDI mode to issue MDI command"
 msgstr "必须在MDI模式下才能发出MDI指令"
 
-#: src/emc/task/emctaskmain.cc:2297
+#: src/emc/task/emctaskmain.cc:2275
 msgid "Can't run a program when not homed"
 msgstr "未返回原点时无法运行程序"
 
@@ -153,20 +154,17 @@ msgid "H word with no G43 or G76 to use it"
 msgstr "H指令 没有与 G43、G76 配合使用"
 
 #: src/emc/rs274ngc/interp_check.cc:291
-#, fuzzy
 msgid ""
 "I word with no G2, G3, G5, G5.1, G6, G6.1, G10, G33.1, G76, or G87 to use it"
-msgstr "I指令 没有与 G2、 G3、 G5、 G5.1、 G10、 G33.1、 G76、G87 配合使用"
+msgstr "I 指令 没有与 G2、 G3、 G5、 G5.1、 G10、 G33.1、 G76、G87 配合使用"
 
 #: src/emc/rs274ngc/interp_check.cc:298
-#, fuzzy
 msgid "J word with no G2, G3, G5, G5.1, G6, G6.1, G10, G76 or G87 to use it"
-msgstr "J指令 沒有与 G2、G3、G5、G5.1、G10、G76、G87 配合使用"
+msgstr "J 指令 沒有与 G2、G3、G5、G5.1、G10、G76、G87 配合使用"
 
 #: src/emc/rs274ngc/interp_check.cc:303
-#, fuzzy
 msgid "K word with no G2, G3, G6.2, G33, G33.1, G76, or G87 to use it"
-msgstr "K指令 没有与 G2、G3、G33、G33.1、G76、G87 配合使用"
+msgstr "K 指令 没有与 G2、G3、G33、G33.1、G76、G87 配合使用"
 
 #: src/emc/rs274ngc/interp_check.cc:315
 msgid ""
@@ -175,13 +173,12 @@ msgid ""
 msgstr "L字，无G10，刀具补偿，固定循环，数字/模拟输入或M98和NURBS代码"
 
 #: src/emc/rs274ngc/interp_check.cc:332
-#, fuzzy
 msgid ""
 "P word with no G2 G3 G4 G10 G64 G5 G5.2 G6, G6.2, G76 G82 G86 G88 G89 or M50 "
 "M51 M52 M53 M62 M63 M64 M65 M66 M98 or user M code to use it"
 msgstr ""
 "P 参数没有与 G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 或 M50 M51 M52 M53 "
-"M62 M63 M64 M65 M66 M98 或者用户自定义M命令一起使用"
+"M62 M63 M64 M65 M66 M98 或者用户自定义 M 命令一起使用"
 
 #: src/emc/rs274ngc/interp_check.cc:338
 msgid "P value not an integer with M19 G2 or G3"
@@ -196,12 +193,11 @@ msgid "P value should be 1 or greater with G2 or G3"
 msgstr "G2或G3，P值应为1或更大"
 
 #: src/emc/rs274ngc/interp_check.cc:353
-#, fuzzy
 msgid ""
 "Q word with no G5, G6, G10, G64, G73, G76, G83, M19, M66, M67, M68 or user M "
 "code that uses it"
-msgstr ""
-"没有G5，G10，G64，G73，G76，G83，M19，M66，M67，M68或使用它的用户M代码的Q字"
+msgstr "没有 G5，G10，G64，G73，G76，G83，M19，M66，M67，M68 或使用它的用户 M 代码的 "
+"Q 指令"
 
 #: src/emc/rs274ngc/interp_check.cc:366
 msgid "R value must be within 0..360 with M19"
@@ -218,25 +214,21 @@ msgstr "可以在没有X和Y的情况下指定P，仅用于第一个控制点"
 
 #: src/emc/rs274ngc/interp_convert.cc:199
 #: src/emc/rs274ngc/interp_convert.cc:387
-#, fuzzy
 msgid "You must specify both Y and Z coordinates for Control Points"
-msgstr "您必须为控制点指定X和Y坐标"
+msgstr "您必须为控制点指定 Y 和 Z 坐标"
 
 #: src/emc/rs274ngc/interp_convert.cc:204
-#, fuzzy
 msgid "Can specify P without Y and Z only for the first control point"
-msgstr "可以在没有X和Y的情况下指定P，仅用于第一个控制点"
+msgstr "可以在没有 Y 和 Z 的情况下指定 P，仅用于第一个控制点"
 
 #: src/emc/rs274ngc/interp_convert.cc:211
 #: src/emc/rs274ngc/interp_convert.cc:394
-#, fuzzy
 msgid "You must specify both X and Z coordinates for Control Points"
-msgstr "您必须为控制点指定X和Y坐标"
+msgstr "您必须为控制点指定 X 和 Z 坐标"
 
 #: src/emc/rs274ngc/interp_convert.cc:216
-#, fuzzy
 msgid "Can specify P without X and Z only for the first control point"
-msgstr "可以在没有X和Y的情况下指定P，仅用于第一个控制点"
+msgstr "可以在没有 X 和 Z 的情况下指定 P，仅用于第一个控制点"
 
 #: src/emc/rs274ngc/interp_convert.cc:222
 msgid "Must specify positive weight P for every Control Point"
@@ -259,16 +251,15 @@ msgstr "您必须指定至少等于L = %d的控制点数"
 
 #: src/emc/rs274ngc/interp_convert.cc:373
 msgid "one plane must be selected for nurbs: XY, YZ, ZX"
-msgstr ""
+msgstr "必须为 nurbs 选择一个平面： XY, YZ, ZX"
 
 #: src/emc/rs274ngc/interp_convert.cc:400
 msgid "Program the nurbs order P in the first block of instruction"
-msgstr ""
+msgstr "在第一个指令块中对 nurbs 命令 P 进行编程"
 
 #: src/emc/rs274ngc/interp_convert.cc:404
-#, fuzzy
 msgid "nurbs order P number is not an integer"
-msgstr "G10中的Q号不是一个整数"
+msgstr "nurbs 阶数 P 非整数"
 
 #: src/emc/rs274ngc/interp_convert.cc:410
 msgid ""
@@ -345,7 +336,7 @@ msgid "Cannot do an arc in planes G17.1, G18.1, or G19.1"
 msgstr "在平面G17.1，G18.1或G19.1中不能做圆弧"
 
 #: src/emc/rs274ngc/interp_convert.cc:948
-#: src/emc/rs274ngc/interp_convert.cc:5329
+#: src/emc/rs274ngc/interp_convert.cc:5330
 msgid "Cannot feed with zero spindle speed in feed per rev mode"
 msgstr "每转进给模式下无法以主轴转速进给"
 
@@ -383,9 +374,9 @@ msgstr "圆弧到圆弧运动使拐角补偿的刀具无法适应没有刨削槽
 #: src/emc/rs274ngc/interp_convert.cc:1615
 #: src/emc/rs274ngc/interp_convert.cc:1619
 #: src/emc/rs274ngc/interp_convert.cc:1623
-#: src/emc/rs274ngc/interp_convert.cc:4746
-#: src/emc/rs274ngc/interp_convert.cc:4749
-#: src/emc/rs274ngc/interp_convert.cc:4752 src/emc/rs274ngc/interp_find.cc:99
+#: src/emc/rs274ngc/interp_convert.cc:4748
+#: src/emc/rs274ngc/interp_convert.cc:4751
+#: src/emc/rs274ngc/interp_convert.cc:4754 src/emc/rs274ngc/interp_find.cc:99
 #, c-format
 msgid "Invalid absolute position %5.2f for wrapped rotary axis %c"
 msgstr "绝对位置 %5.2f 无效，旋转轴%c"
@@ -546,167 +537,167 @@ msgstr ""
 "M5命令中的主轴 ($) 编号超出范围\n"
 "num_spindles =%i. $=%d\n"
 
-#: src/emc/rs274ngc/interp_convert.cc:4025
+#: src/emc/rs274ngc/interp_convert.cc:4027
 msgid "Spindle ($) number out of range in M19 Command"
 msgstr "M19命令中的主轴 ($) 编号超出范围"
 
-#: src/emc/rs274ngc/interp_convert.cc:4032
+#: src/emc/rs274ngc/interp_convert.cc:4034
 msgid "Q word with M19 requires a value > 0"
 msgstr "Q字与M19需要值> 0"
 
-#: src/emc/rs274ngc/interp_convert.cc:4061
+#: src/emc/rs274ngc/interp_convert.cc:4063
 msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
 msgstr "无法从无效堆栈帧恢复上下文 - 缺少M70 / M73?"
 
-#: src/emc/rs274ngc/interp_convert.cc:4102
-#: src/emc/rs274ngc/interp_convert.cc:4123
-#: src/emc/rs274ngc/interp_convert.cc:4143
-#: src/emc/rs274ngc/interp_convert.cc:4165
-#: src/emc/rs274ngc/interp_convert.cc:4179
+#: src/emc/rs274ngc/interp_convert.cc:4104
+#: src/emc/rs274ngc/interp_convert.cc:4125
+#: src/emc/rs274ngc/interp_convert.cc:4145
+#: src/emc/rs274ngc/interp_convert.cc:4167
+#: src/emc/rs274ngc/interp_convert.cc:4181
 msgid "Cannot enable overrides with cutter radius compensation on"
 msgstr "使用刀具半径补偿时无法启用超速"
 
-#: src/emc/rs274ngc/interp_convert.cc:4111
-#: src/emc/rs274ngc/interp_convert.cc:4128
-#: src/emc/rs274ngc/interp_convert.cc:4152
-#: src/emc/rs274ngc/interp_convert.cc:4170
-#: src/emc/rs274ngc/interp_convert.cc:4184
+#: src/emc/rs274ngc/interp_convert.cc:4113
+#: src/emc/rs274ngc/interp_convert.cc:4130
+#: src/emc/rs274ngc/interp_convert.cc:4154
+#: src/emc/rs274ngc/interp_convert.cc:4172
+#: src/emc/rs274ngc/interp_convert.cc:4186
 msgid "Cannot disable overrides with cutter radius compensation on"
 msgstr "使用刀具半径补偿时无法禁用超速"
 
-#: src/emc/rs274ngc/interp_convert.cc:4138
+#: src/emc/rs274ngc/interp_convert.cc:4140
 msgid "Invalid spindle ($) number in M51 command"
 msgstr "M51指令中的主轴($) 编号无效"
 
-#: src/emc/rs274ngc/interp_convert.cc:4301
-#: src/emc/rs274ngc/interp_convert.cc:4302
 #: src/emc/rs274ngc/interp_convert.cc:4303
+#: src/emc/rs274ngc/interp_convert.cc:4304
+#: src/emc/rs274ngc/interp_convert.cc:4305
 #, c-format
 msgid "Indexing axis %c can only be moved with G0"
 msgstr "索引轴%c只能用G0移动"
 
-#: src/emc/rs274ngc/interp_convert.cc:4310
 #: src/emc/rs274ngc/interp_convert.cc:4312
 #: src/emc/rs274ngc/interp_convert.cc:4314
+#: src/emc/rs274ngc/interp_convert.cc:4316
 #, c-format
 msgid "Indexing axis %c can only be moved alone"
 msgstr "索引轴%c只能单独移动 "
 
-#: src/emc/rs274ngc/interp_convert.cc:4421
+#: src/emc/rs274ngc/interp_convert.cc:4423
 msgid "Cannot probe with feed per rev mode"
 msgstr "使用每转进给模式时无法探测"
 
-#: src/emc/rs274ngc/interp_convert.cc:4469
+#: src/emc/rs274ngc/interp_convert.cc:4471
 msgid "Cannot change retract mode with cutter radius compensation on"
 msgstr "开启刀具半径补偿后，无法更改退刀模式"
 
-#: src/emc/rs274ngc/interp_convert.cc:4503
+#: src/emc/rs274ngc/interp_convert.cc:4505
 msgid "G10 L1 without offsets has no effect"
 msgstr "无偏移的G10 L1无效"
 
-#: src/emc/rs274ngc/interp_convert.cc:4609
+#: src/emc/rs274ngc/interp_convert.cc:4611
 msgid "Q number in G10 is not an integer"
 msgstr "G10中的Q号不是一个整数"
 
-#: src/emc/rs274ngc/interp_convert.cc:4610
+#: src/emc/rs274ngc/interp_convert.cc:4612
 msgid "Invalid tool orientation"
 msgstr "无效的刀具定位"
 
-#: src/emc/rs274ngc/interp_convert.cc:4734
+#: src/emc/rs274ngc/interp_convert.cc:4736
 msgid "I J words not allowed with G10 L2"
 msgstr "G10 L2不允许使用I J字"
 
-#: src/emc/rs274ngc/interp_convert.cc:4755
+#: src/emc/rs274ngc/interp_convert.cc:4757
 msgid ""
 "Cannot change the active coordinate system with cutter radius compensation on"
 msgstr "开启刀具半径补偿功能后，不能改变活动坐标系"
 
-#: src/emc/rs274ngc/interp_convert.cc:4763
+#: src/emc/rs274ngc/interp_convert.cc:4765
 msgid "R not allowed in G10 L20"
 msgstr "R不允许在G10 L20中使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:5109
+#: src/emc/rs274ngc/interp_convert.cc:5111
 msgid "Bug:  Reached convert_stop() from M99 as subprogram return"
 msgstr "错误:从M99到达convert_stop() 作为子程序返回"
 
-#: src/emc/rs274ngc/interp_convert.cc:5389
+#: src/emc/rs274ngc/interp_convert.cc:5390
 msgid "Invalid spindle ($) number in G33 move"
 msgstr "G33移动中的主轴($) 编号无效"
 
-#: src/emc/rs274ngc/interp_convert.cc:5394
+#: src/emc/rs274ngc/interp_convert.cc:5395
 msgid "Spindle not turning in G33"
 msgstr "在 G33 中主轴未转动"
 
-#: src/emc/rs274ngc/interp_convert.cc:5404
+#: src/emc/rs274ngc/interp_convert.cc:5405
 msgid "Invalid spindle ($) number in G33.1 move"
 msgstr "G33.1移动中的主轴($) 编号无效"
 
-#: src/emc/rs274ngc/interp_convert.cc:5409
+#: src/emc/rs274ngc/interp_convert.cc:5410
 msgid "Spindle not turning in G33.1"
 msgstr "在 G33.1 中主轴未转动"
 
-#: src/emc/rs274ngc/interp_convert.cc:5424
+#: src/emc/rs274ngc/interp_convert.cc:5425
 msgid "Invalid D-number in G76 cycle"
 msgstr "G76循环中的D编号无效"
 
-#: src/emc/rs274ngc/interp_convert.cc:5429
+#: src/emc/rs274ngc/interp_convert.cc:5430
 #, c-format
 msgid "Chosen spindle (%i) not turning in G76"
 msgstr "选择的主轴(%i)未在G76中转动"
 
-#: src/emc/rs274ngc/interp_convert.cc:5467
+#: src/emc/rs274ngc/interp_convert.cc:5468
 msgid "BUG: An axis incorrectly moved along with an indexer"
 msgstr "错误: 一个轴不正确地与一个索引器一起移动"
 
-#: src/emc/rs274ngc/interp_convert.cc:5480
+#: src/emc/rs274ngc/interp_convert.cc:5481
 msgid "BUG: trying to index incorrect axis"
 msgstr "错误: 试图索引不正确的轴"
 
-#: src/emc/rs274ngc/interp_convert.cc:5575
+#: src/emc/rs274ngc/interp_convert.cc:5576
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
 msgstr "不能使用G76螺紋週期當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:5578
+#: src/emc/rs274ngc/interp_convert.cc:5579
 msgid "In G76, I must not be 0"
 msgstr "在 G76，I 不能为 0"
 
-#: src/emc/rs274ngc/interp_convert.cc:5580
+#: src/emc/rs274ngc/interp_convert.cc:5581
 msgid "In G76, J must be greater than 0"
 msgstr "在 G76，J 必须大于 0"
 
-#: src/emc/rs274ngc/interp_convert.cc:5582
+#: src/emc/rs274ngc/interp_convert.cc:5583
 msgid "In G76, K must be greater than J"
 msgstr "在 G76，K 必须大于 J"
 
-#: src/emc/rs274ngc/interp_convert.cc:5725
+#: src/emc/rs274ngc/interp_convert.cc:5726
 msgid ""
 "Length of cutter compensation entry move is not greater than the tool radius"
 msgstr "刀具补偿进刀移动的长度不大于刀具半径"
 
-#: src/emc/rs274ngc/interp_convert.cc:5944
+#: src/emc/rs274ngc/interp_convert.cc:5945
 msgid "Zero degree inside corner is invalid for cutter compensation"
 msgstr "零度内角对刀具补偿无效"
 
-#: src/emc/rs274ngc/interp_convert.cc:5982
-#: src/emc/rs274ngc/interp_convert.cc:5990
+#: src/emc/rs274ngc/interp_convert.cc:5983
+#: src/emc/rs274ngc/interp_convert.cc:5991
 msgid ""
 "Arc to straight motion makes a corner the compensated tool can't fit in "
 "without gouging"
 msgstr "弧到直线运动做的角,刀具补偿不合适会做成刨削槽"
 
-#: src/emc/rs274ngc/interp_convert.cc:6074
+#: src/emc/rs274ngc/interp_convert.cc:6075
 msgid "Cannot change tools with cutter radius compensation on"
 msgstr "使用刀具半径补偿时无法更换刀具"
 
-#: src/emc/rs274ngc/interp_convert.cc:6198
+#: src/emc/rs274ngc/interp_convert.cc:6199
 msgid "Cannot change tool offset with cutter radius compensation on"
 msgstr "使用刀具半径补偿时不能改变刀具偏置"
 
-#: src/emc/rs274ngc/interp_convert.cc:6249
+#: src/emc/rs274ngc/interp_convert.cc:6250
 msgid "G43.2: Can not have both H and axis words"
 msgstr "G43.2: 不能同时有 H 编号和轴编号"
 
-#: src/emc/rs274ngc/interp_convert.cc:6252
+#: src/emc/rs274ngc/interp_convert.cc:6253
 msgid "G43.2: No axes specified and H word missing"
 msgstr "G43.2:未指定轴且缺失 H 编号"
 
@@ -1010,14 +1001,14 @@ msgid "Named parameter #<%s> not defined"
 msgstr "命名参数 #<%s> 没有定义"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:215
-#, fuzzy, c-format
+#, c-format
 msgid "can't open INI file '%s'"
-msgstr "无法打开ini文件 '%s'"
+msgstr "无法打开 INI 文件'%s'"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:232
-#, fuzzy, c-format
+#, c-format
 msgid "Named INI parameter #<%s> not found in INI file '%s': error=0x%x"
-msgstr "在ini文件 '%s'中找不到命名的ini参数#<%s>:错误=0x%x"
+msgstr "在 INI 文件 '%s' 中未发现命名的 INI 参数 #<%s>: error=0x%x"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:257
 #, c-format
@@ -2302,7 +2293,7 @@ msgstr "千赫兹"
 msgid "MHz"
 msgstr "兆赫"
 
-#: src/hal/utils/scope_vert.c:413 src/hal/utils/scope_vert.c:1112
+#: src/hal/utils/scope_vert.c:413 src/hal/utils/scope_vert.c:1117
 #, c-format
 msgid ""
 "Offset\n"
@@ -2371,9 +2362,9 @@ msgstr ""
 "要么缩短记录长度以允许更多通道"
 
 #: src/hal/utils/scope_vert.c:912
-#, fuzzy, c-format
+#, c-format
 msgid "Select Channel %d Source"
-msgstr "选择通道来源"
+msgstr "选择通道 %d 信号源"
 
 #: src/hal/utils/scope_vert.c:935
 msgid "Pins"
@@ -2528,60 +2519,60 @@ msgstr "提示:切换到关节模式，点动软限位"
 msgid "Exceeded POSITIVE soft limit (%.5f) on joint %d\n"
 msgstr "正向软限位 (%.5f) 在关节 %d 上已超程\n"
 
-#: src/emc/motion/command.c:124
+#: src/emc/motion/command.c:126
 #, c-format
 msgid "Can't jog invalid joint number %d."
 msgstr "不能点动，无效的关节号码 %d."
 
-#: src/emc/motion/command.c:128
+#: src/emc/motion/command.c:130
 #, c-format
 msgid "Can't jog joint %d further past max hard limit."
 msgstr "不能点动关节 %d 超出正向硬极限。"
 
-#: src/emc/motion/command.c:133
+#: src/emc/motion/command.c:135
 #, c-format
 msgid "Can't jog joint %d further past min hard limit."
 msgstr "不能点动关节 %d 超出负向硬极限。"
 
-#: src/emc/motion/command.c:139
+#: src/emc/motion/command.c:141
 #, c-format
 msgid "Can't jog joint %d further past max soft limit."
 msgstr "不能点动关节 %d 超出正向软极限。"
 
-#: src/emc/motion/command.c:144
+#: src/emc/motion/command.c:146
 #, c-format
 msgid "Can't jog joint %d further past min soft limit."
 msgstr "不能点动关节 %d 超出负向软极限。"
 
-#: src/emc/motion/command.c:214 src/emc/motion/command.c:219
+#: src/emc/motion/command.c:216 src/emc/motion/command.c:221
 #, c-format
 msgid "%s move on line %d would exceed %c's %s limit"
 msgstr "%s在行%d将超过%c的%s极限"
 
-#: src/emc/motion/command.c:215
+#: src/emc/motion/command.c:217
 msgid "negative"
 msgstr "负向"
 
-#: src/emc/motion/command.c:220
+#: src/emc/motion/command.c:222
 msgid "positive"
 msgstr "正向"
 
-#: src/emc/motion/command.c:237
+#: src/emc/motion/command.c:239
 #, c-format
 msgid "%s move on line %d fails kinematicsInverse"
 msgstr "%s在行%d运动学逆向失败"
 
-#: src/emc/motion/command.c:252
+#: src/emc/motion/command.c:254
 #, c-format
 msgid "%s move on line %d gave non-finite joint location on joint %d"
 msgstr "%s在行%d关节%d上给出非有限关节位置"
 
-#: src/emc/motion/command.c:259
+#: src/emc/motion/command.c:261
 #, c-format
 msgid "%s move on line %d would exceed joint %d's positive limit"
 msgstr "%s移动在行%d将超过关节%d's的正极限"
 
-#: src/emc/motion/command.c:265
+#: src/emc/motion/command.c:267
 #, c-format
 msgid "%s move on line %d would exceed joint %d's negative limit"
 msgstr "%s移动在行%d将超过关节%d's的负极限"
@@ -2646,101 +2637,101 @@ msgstr "动作: 在执行时不能STEP "
 msgid "can't enable motion, enable input is false"
 msgstr "无法启用运动，使能输入为false "
 
-#: src/emc/motion/command.c:1376
+#: src/emc/motion/command.c:1356
 msgid "must be in joint mode to home"
 msgstr "必须以关节模式回零 "
 
-#: src/emc/motion/command.c:1380
+#: src/emc/motion/command.c:1360
 #, c-format
 msgid "Homing denied by motion.homing-inhibit joint=%d\n"
 msgstr "回零被motion.homing-inhibit joint=%d拒绝\n"
 
-#: src/emc/motion/command.c:1400
+#: src/emc/motion/command.c:1380
 msgid "must be in joint mode or disabled to unhome"
 msgstr "必须处于关节模式或禁用才可以消零"
 
-#: src/emc/motion/command.c:1420
+#: src/emc/motion/command.c:1400
 msgid "need to be enabled, in coord mode for probe move"
 msgstr "需要启用，在坐标模式下进行探头移动"
 
-#: src/emc/motion/command.c:1430
+#: src/emc/motion/command.c:1410
 msgid "can't do probe move with limits exceeded"
 msgstr "超出限制不能做探头移动"
 
-#: src/emc/motion/command.c:1444
+#: src/emc/motion/command.c:1424
 msgid "Probe is already clear when starting G38.4 or G38.5 move"
 msgstr "在启动G38.4或G38.5时，探头已经清除"
 
-#: src/emc/motion/command.c:1446
+#: src/emc/motion/command.c:1426
 msgid "Probe is already tripped when starting G38.2 or G38.3 move"
 msgstr "探头在启动G38.2或G38.3时已经跳闸"
 
-#: src/emc/motion/command.c:1467
+#: src/emc/motion/command.c:1447
 msgid "can't add probe move"
 msgstr "不能添加探头移动"
 
-#: src/emc/motion/command.c:1489
+#: src/emc/motion/command.c:1469
 msgid "need to be enabled, in coord mode for rigid tap move"
 msgstr "需要启用，在坐标模式下进行刚性攻丝移动"
 
-#: src/emc/motion/command.c:1499
+#: src/emc/motion/command.c:1479
 msgid "can't do rigid tap move with limits exceeded"
 msgstr "超出限制不能做刚性攻丝移动"
 
-#: src/emc/motion/command.c:1518
+#: src/emc/motion/command.c:1498
 #, c-format
 msgid "can't add rigid tap move at line %d, error code %d"
 msgstr "不能在%d行添加刚性攻丝移动，错误代码 %d"
 
-#: src/emc/motion/command.c:1563
+#: src/emc/motion/command.c:1543
 msgid "Attempt to configure non-existent spindle"
 msgstr "尝试设置不存在的主轴"
 
-#: src/emc/motion/command.c:1581
+#: src/emc/motion/command.c:1561
 msgid "Attempt to start non-existent spindle"
 msgstr "尝试启动不存在的主轴"
 
-#: src/emc/motion/command.c:1632
+#: src/emc/motion/command.c:1612
 #, c-format
 msgid "Attempt to stop non-existent spindle <%d>"
 msgstr "尝试停止不存在的主轴 <%d>"
 
-#: src/emc/motion/command.c:1663
+#: src/emc/motion/command.c:1643
 #, c-format
 msgid "Attempt to orient non-existent spindle <%d>"
 msgstr "尝试定位不存在的主轴 <%d>"
 
-#: src/emc/motion/command.c:1709
+#: src/emc/motion/command.c:1689
 #, c-format
 msgid "Attempt to increase non-existent spindle <%d>"
 msgstr "尝试增加不存在的主轴 <%d>"
 
-#: src/emc/motion/command.c:1733
+#: src/emc/motion/command.c:1713
 #, c-format
 msgid "Attempt to decrease non-existent spindle <%d>."
 msgstr "尝试减少不存在的主轴 <%d>。"
 
-#: src/emc/motion/command.c:1757
+#: src/emc/motion/command.c:1737
 #, c-format
 msgid "Attempt to engage brake of non-existent spindle <%d>"
 msgstr "尝试吸合不存在的主轴制动器 <%d>"
 
-#: src/emc/motion/command.c:1779
+#: src/emc/motion/command.c:1759
 #, c-format
 msgid "Attempt to release brake of non-existent spindle <%d>"
 msgstr "尝试释放不存在的主轴制动器 <%d>"
 
-#: src/emc/motion/command.c:1801
+#: src/emc/motion/command.c:1781
 #, c-format
 msgid "joint %d: too many compensation entries"
 msgstr "关节 %d: 补偿项目太多"
 
-#: src/emc/motion/command.c:1807
+#: src/emc/motion/command.c:1787
 #, c-format
 msgid "joint %d: compensation values must increase"
 msgstr "关节 %d: 补偿值必须增加"
 
-#: src/emc/motion/command.c:1885
+#: src/emc/motion/command.c:1865
 #, c-format
 msgid "unrecognized command %d"
 msgstr "无法识别的指令 %d"
@@ -3640,7 +3631,7 @@ msgstr "变量类型不兼容(必须是整数!)"
 
 #: src/hal/classicladder/edit.c:485
 msgid "Parser error for indexed variable !"
-msgstr "索引变量区分错误"
+msgstr "索引变量的解析器错误 ！"
 
 #: src/hal/classicladder/edit.c:491
 msgid "You must select a boolean variable !"
@@ -3668,7 +3659,7 @@ msgstr "没有更多可用的此类型自由功能块。。。"
 
 #: src/hal/classicladder/edit.c:1262
 msgid "No more free arithmetic expression for this type available..."
-msgstr "这种类型变量没有其它算式"
+msgstr "该类型没有更多可用的自由算术表达式..."
 
 #: src/hal/classicladder/edit.c:1425
 msgid "You clicked outside of the current rung actually selected..."
@@ -6374,9 +6365,9 @@ msgstr "删除"
 msgid "move"
 msgstr "移动"
 
-#: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:4108
-#: src/emc/usr_intf/pncconf/pncconf.py:4214
-#: src/emc/usr_intf/pncconf/pncconf.py:4378
+#: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:4109
+#: src/emc/usr_intf/pncconf/pncconf.py:4215
+#: src/emc/usr_intf/pncconf/pncconf.py:4379
 msgid "Custom"
 msgstr "自定义"
 
@@ -11501,7 +11492,8 @@ msgstr "反向"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -11894,167 +11886,167 @@ msgstr ""
 "现有的pyvcp-panel.xml将被重命名并添加到”备份“文件夹中\n"
 "单击”现有的自定义程序“将会避免此警告。 "
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3733
+#: src/emc/usr_intf/pncconf/pncconf.py:3734
 #: src/emc/usr_intf/pncconf/private_data.py:555
 msgid "Unused Channel"
 msgstr "选择通道"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4008
+#: src/emc/usr_intf/pncconf/pncconf.py:4009
 msgid "You can not have both steppers and pwm signals for spindle control\n"
 msgstr "您不能同时使用步进和pwm信号进行主轴控制\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4012
+#: src/emc/usr_intf/pncconf/pncconf.py:4013
 #, python-format
 msgid "You forgot to designate a stepper or pwm signal for axis %s\n"
 msgstr "您没有为轴%s指定步进或pwm信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4015
+#: src/emc/usr_intf/pncconf/pncconf.py:4016
 #, python-format
 msgid "You forgot to designate an encoder /resolver signal for axis %s servo\n"
 msgstr "您没有为%s轴伺服器指定编码器/旋转变压器信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4018
+#: src/emc/usr_intf/pncconf/pncconf.py:4019
 #, python-format
 msgid "You forgot to designate a pwm signal or stepper signal for axis %s\n"
 msgstr "您没有为%s轴指定pwm信号或步进信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4021
+#: src/emc/usr_intf/pncconf/pncconf.py:4022
 #, python-format
 msgid "You can not have both steppers and pwm signals for axis %s\n"
 msgstr "您不能同时使用步进和pwm信号控制%s轴。\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4024
+#: src/emc/usr_intf/pncconf/pncconf.py:4025
 #, python-format
 msgid ""
 "If using a tandem axis stepper, you must select a master stepgen for axis "
 "%s\n"
 msgstr "如果使用串联式步进电机，则必须为%s轴选择主步进电机\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4032
+#: src/emc/usr_intf/pncconf/pncconf.py:4033
 msgid "Touchy require an external cycle start signal\n"
 msgstr "Touchy需要一个外部循环启动信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4035
+#: src/emc/usr_intf/pncconf/pncconf.py:4036
 msgid "Touchy require an external abort signal\n"
 msgstr "Touchy需要一个外部中断信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4038
+#: src/emc/usr_intf/pncconf/pncconf.py:4039
 msgid "Touchy require an external single-step signal\n"
 msgstr "Touchy需要一个外部的单步信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4041
+#: src/emc/usr_intf/pncconf/pncconf.py:4042
 msgid ""
 "Touchy require an external multi handwheel MPG encoder signal on the mesa "
 "page\n"
 msgstr "Touchy在Mesa页面上需要一个外部多手轮MPG编码器信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4044
+#: src/emc/usr_intf/pncconf/pncconf.py:4045
 msgid ""
 "Touchy require 'external mpg jogging' to be selected on the external control "
 "page\n"
 msgstr "Touchy需要在外部控制页面上选择“外部手轮点动”\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4047
+#: src/emc/usr_intf/pncconf/pncconf.py:4048
 msgid ""
 "Touchy require the external mpg to be in 'shared mpg' mode on the external "
 "controls page\n"
 msgstr "Touchy要求外部控制页面上的外部手轮处于“共享手轮”模式\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4050
+#: src/emc/usr_intf/pncconf/pncconf.py:4051
 msgid ""
 "Touchy require selectable increments to be unchecked on the external "
 "controls page\n"
 msgstr "Touchy需要可选的增量在外部控制页面上取消选中\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4063
+#: src/emc/usr_intf/pncconf/pncconf.py:4064
 msgid ""
 "The 7i29 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
 msgstr "7i29子板需要PWM型发生器，PWM基频为20 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4066
+#: src/emc/usr_intf/pncconf/pncconf.py:4067
 msgid ""
 "The 7i30 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
 msgstr "7i30子板需要PWM型发生器，PWM基频为20 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4069
+#: src/emc/usr_intf/pncconf/pncconf.py:4070
 msgid ""
 "The 7i33 daughter board requires PDM type generators and a PDM base "
 "frequency of 6 Mhz\n"
 msgstr "7i33子板需要PDM型发生器，PDM基频为6 Mhz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4072
+#: src/emc/usr_intf/pncconf/pncconf.py:4073
 msgid ""
 "The 7i40 daughter board requires PWM type generators and a PWM base "
 "frequency of 50 khz\n"
 msgstr "7i40子板需要PWM型发生器，PWM基频为50 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4075
+#: src/emc/usr_intf/pncconf/pncconf.py:4076
 msgid ""
 "The 7i48 daughter board requires UDM type generators and a PWM base "
 "frequency of 24 khz\n"
 msgstr "7i48子板需要UDM型发生器，PWM基频为24 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4223
+#: src/emc/usr_intf/pncconf/pncconf.py:4224
 msgid "Gearbox Reduction Ratio"
 msgstr "减速机减速比"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4226
+#: src/emc/usr_intf/pncconf/pncconf.py:4227
 msgid "Reduction Ratio"
 msgstr "减速比"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4229
+#: src/emc/usr_intf/pncconf/pncconf.py:4230
 msgid "Leadscrew Pitch"
 msgstr "丝杆螺距"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4232
+#: src/emc/usr_intf/pncconf/pncconf.py:4233
 #: src/emc/usr_intf/pncconf/dialogs.glade:1991
 #: src/emc/usr_intf/pncconf/dialogs.glade:2360
 msgid "Leadscrew TPI"
 msgstr "丝杆TPI"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4236
 #: src/emc/usr_intf/pncconf/pncconf.py:4237
+#: src/emc/usr_intf/pncconf/pncconf.py:4238
 msgid "("
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4238
-#: src/emc/usr_intf/pncconf/pncconf.py:4248
+#: src/emc/usr_intf/pncconf/pncconf.py:4239
 #: src/emc/usr_intf/pncconf/pncconf.py:4249
 #: src/emc/usr_intf/pncconf/pncconf.py:4250
+#: src/emc/usr_intf/pncconf/pncconf.py:4251
 msgid " / min"
 msgstr "/分钟"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4239
+#: src/emc/usr_intf/pncconf/pncconf.py:4240
 msgid " / sec²"
 msgstr "/秒²"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4242
+#: src/emc/usr_intf/pncconf/pncconf.py:4243
 msgid " / Step"
 msgstr "/步"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4243
+#: src/emc/usr_intf/pncconf/pncconf.py:4244
 msgid "Steps / "
 msgstr "步 / "
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4245
+#: src/emc/usr_intf/pncconf/pncconf.py:4246
 msgid " / encoder pulse"
 msgstr "/编码器脉冲"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4246
+#: src/emc/usr_intf/pncconf/pncconf.py:4247
 msgid "Encoder pulses / "
 msgstr "编码器脉冲/"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4254
+#: src/emc/usr_intf/pncconf/pncconf.py:4255
 msgid "Resolver Scale:"
 msgstr "解析器比例:"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4592
+#: src/emc/usr_intf/pncconf/pncconf.py:4593
 msgid "Spindle Scale Calculation"
 msgstr "主轴比例计算"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4704
+#: src/emc/usr_intf/pncconf/pncconf.py:4705
 msgid "Axis Scale Calculation"
 msgstr "轴比例计算"
 
@@ -18029,7 +18021,8 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:314
 #: src/emc/usr_intf/pncconf/dialogs.glade:340
-msgid "Parellel Port- 7i90"
+#, fuzzy
+msgid "Parallel Port- 7i90"
 msgstr "并行接口- 7i90"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:315
@@ -18369,25 +18362,20 @@ msgstr ""
 "https://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:122
-#, fuzzy
 msgid "Desktop notifications are available"
-msgstr ""
-"桌面\n"
-"通知"
+msgstr "桌面通知"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:124
-#, fuzzy
 msgid "Desktop notifications are not available"
-msgstr "设备名称不可用\n"
+msgstr "桌面通知不可用"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:126
 msgid "There was a problem initializing the notification module"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:133
-#, fuzzy
 msgid "Audio alerts are available!"
-msgstr "引脚名称不可用\n"
+msgstr "提供音频警报！"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:136
 msgid ""
@@ -18443,14 +18431,12 @@ msgid "Trouble looking for handlers in '{}': {}"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:515
-#, fuzzy
 msgid "Skin name = {}"
-msgstr "部件名称   "
+msgstr "皮肤名称 = {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:528
-#, fuzzy
 msgid "INI file path missing from Gscreen launch command"
-msgstr "**** GSCREEN 错误:Gscreen启动命令中缺少INI文件路径 ****\n"
+msgstr "Gscreen 启动命令中缺少 INI 文件路径"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:536
 msgid "Custom locale name = {}"
@@ -18473,27 +18459,20 @@ msgid "Using stock glade file from: {}"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:576
-#, fuzzy
 msgid "With main screen xml file: {}"
-msgstr "**** Gscreen GLADE 错误:    主屏幕xml文件: %s"
+msgstr "使用主屏幕 xml 文件: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:581
-#, fuzzy
 msgid "Screen 2 - Using custom glade file from {}"
-msgstr ""
-"\n"
-"**** GSCREEN 信息:  屏幕2 -使用自定义 glade 文件 %s ****"
+msgstr "屏幕 2 - 使用来自 {} 的自定义 glade 文件"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:587
 msgid "Error with screen 2's xml file: {}"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:589
-#, fuzzy
 msgid "No Screen 2 glade file present"
-msgstr ""
-"\n"
-"**** GSCREEN 信息:  当前没有屏幕2的glade文件"
+msgstr "没有 2 号屏幕文件"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:600
 msgid "Audio test failed - Is gstreamer0.10-plugins-base installed?"
@@ -18509,9 +18488,8 @@ msgid "No UNITS entry found in [TRAJ] or [AXIS_X] of INI file"
 msgstr "在INI文件的[TRAJ]或[AXIS_X]中找不到UNITS"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:646
-#, fuzzy
 msgid "Asking for a HAL component using a name that already exists"
-msgstr "*** Gscreen 错误:    使用已经存在的名称询问HAL组件。"
+msgstr "使用已经存在的名称查询HAL组件"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:661
 msgid "Handler file path: {}"
@@ -18591,14 +18569,14 @@ msgid "Ready For Homing"
 msgstr "准备回零"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1381
-#, fuzzy
 msgid ""
 "Could not initialize Vte terminal:\n"
 "                  Is libvte-2.91-0 package installed?\n"
 "                  Is a 'terminal_window' widget in the GLADE file?"
 msgstr ""
-"**** 警告GSCREEN：无法初始化vte终端-是否安装了软件包vte？widget: "
-"terminal_window是否在GLADE文件中？"
+"无法初始化Vte终端：\n"
+"                  是否安装了 libvte-2.91-0 软件包？\n"
+"                  GLADE 文件中是否有 \"terminal_window \" 部件？"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1389
 msgid ""
@@ -18789,9 +18767,8 @@ msgstr "手动主轴控制"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3149
 #: src/emc/usr_intf/gscreen/gscreen.py:3150
-#, fuzzy
 msgid "Error with launching on-screen keyboard program - cannot find program"
-msgstr "启动屏幕键盘程序错误 - 无法找到程序。"
+msgstr "启动屏幕键盘程序时出错 - 找不到程序"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3160
 msgid "Keyboard"
@@ -18999,9 +18976,8 @@ msgid " mm "
 msgstr "毫米"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4789
-#, fuzzy
 msgid "Postgui filename: {}"
-msgstr "文件名称:"
+msgstr "Postgui 文件名: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:38
 msgid "S 1000"
@@ -19138,9 +19114,8 @@ msgid "G-code"
 msgstr "G 代码"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1869
-#, fuzzy
 msgid "<b>Active Codes</b>"
-msgstr "当前插补指令集:"
+msgstr "<b>有效代码</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1925
 msgid "MV:100%"

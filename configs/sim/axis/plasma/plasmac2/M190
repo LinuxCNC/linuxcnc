@@ -32,14 +32,14 @@ def get_material():
     return int(response.stdout.decode())
 
 def set_material(material):
-    RUN(['halcmd', 'setp', 'axisui.material-change-number', f'{material}'])
+    RUN(['halcmd', 'setp', 'axisui.material-change-number', f"{material}"])
 
 def get_change():
     response = RUN(['halcmd', 'getp', 'axisui.material-change'], capture_output = True)
     return int(response.stdout.decode())
 
 def set_change(value):
-    RUN(['halcmd', 'setp', 'axisui.material-change', f'{value}'])
+    RUN(['halcmd', 'setp', 'axisui.material-change', f"{value}"])
 
 def set_timeout():
     RUN(['halcmd', 'setp', 'axisui.material-change-timeout', 1])

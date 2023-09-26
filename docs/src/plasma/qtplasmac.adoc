@@ -262,7 +262,7 @@ The the <<plasma:mesa-thcad,dedicated section on Mesa THCAD>> for more informati
 
 When the configuration is complete, the wizard will save a copy of the configuration that may be loaded and edited at a later time, a working QtPlasmaC configuration will be created in the following directory: ~/linuxcnc/configs/_<machine_name>_.
 
-The way the newly created QtPlasmaC configuration can be run from the command line slightly differs depending the way LinuxCNC was installed:
+The way the newly created QtPlasmaC configuration can be run from the terminal command line slightly differs depending the way LinuxCNC was installed:
 
 For a package installation (Buildbot):
 ----
@@ -598,7 +598,7 @@ After a successful QtPlasmaC installation, the following files are created in th
 |Filename               |Function
 |_<machine_name>_.ini   |Configuration file for the machine.
 |_<machine_name>_.hal   |HAL for the machine.
-|_<machine_name>_.prefs |configuration file for QtPlasmaC specific parameters and preferences.
+|_<machine_name>_.prefs |Configuration file for QtPlasmaC specific parameters and preferences.
 |custom.hal             |HAL file for user customization.
 |custom_postgui.hal     |HAL file for user customization which is run after the GUI has initialized.
 |shutdown.hal           |HAL file which is run during the shutdown sequence.
@@ -802,10 +802,10 @@ Some functions/features are only used for particular modes and are not displayed
 //[grid=none,frame=ends]
 |===
 |Name |Description
-|ESTOP |If ESTOP_TYPE = 0 in the _<machine_name>_.prefs file, this button becomes an indicator of the hardware E-stop's status only. +
-If ESTOP_TYPE = 1 in the _<machine_name>_.prefs file, this button will not be visible. +
-If ESTOP_TYPE = 2 in the _<machine_name>_.prefs file, this button will act as a GUI E-stop. +
-If ESTOP_TYPE is omitted from the _<machine_name>_.prefs file, this button will default to being an indicator of the hardware E-stop's status only.
+|ESTOP |Adding the option ESTOP_TYPE = 0 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will change this button to an indicator of the hardware E-stop's status only. +
+Adding the option ESTOP_TYPE = 1 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will hide this button. +
+Adding the option ESTOP_TYPE = 2 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will enable this button to act as a GUI E-stop. +
+If the ESTOP_TYPE option is omitted from the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, this button will default to being an indicator of the hardware E-stop's status only.
 |POWER |This button turns the GUI on and allows QtPlasmaC/LinuxCNC to control the hardware. +
 Pressing and holding the *POWER* button for longer than two seconds will bring up a dialog to exit the QtPlasmaC application.
 |CYCLE START |This button starts the cycle for any loaded G-code file.
@@ -852,10 +852,6 @@ The main purpose of this is to allow a quick test for a shorted torch tip.
 |NORMAL CUT |This button will toggle between <<plasma:cut-types,Cut Types>> (NORMAL CUT and PIERCE ONLY).
 |TORCH PULSE |This button will initiate a <<plasma:button-torch,Torch Pulse>>.
 |===
-
-The *EDIT* and *MDI* buttons are permanent, all other buttons are user programmable in the _<machine_name>_.prefs file.
-
-See <<plasma:custom-user-buttons,custom user buttons>> for detailed information on custom user buttons.
 
 .*ARC*
 [cols="6,2,14",options="header"]
@@ -904,7 +900,7 @@ For more information see <<plasma:ignore-ok,Ignore Arc Ok>>.
 |OHMIC PROBE |0, 1, 2 |This box enables or disables the ohmic probe input. +
 If the Ohmic Probe input is disabled, the Ohmic Probe LED will still show the status of the probe input, but the Ohmic Probe results will be ignored.
 |RS485  |0, 1, 2 |This box will enable or disable the communications to a PowerMax.
-This button is only visible if a PM_PORT is configured in the `[POWERMAX]` section of the _<machine_name>_.prefs file.
+This button is only visible if a PM_PORT option is configured in the `[POWERMAX]` section of the _<machine_name>_.prefs file.
 |Status |0, 1, 2 |When PowerMax communications are enabled, this will display one of the following: +
 *CONNECTING*, *CONNECTED*, *COMMS ERROR*, or a *Fault Code*. +
 For more information, see the <<plasma:pm_comms,PowerMax Communications>> section.
@@ -978,6 +974,8 @@ This value displayed below MOVE represents the Kerf Width of the currently selec
 |===
 |Name   |Description
 |CLEAR  |This button will clear the currently opened program. +
+If a file is open, the default material will be selected. +
+If no file is open, the <<sub:qt-preview-views,preview>> will be reset to a top down full table view. +
 The torch (T0) will be selected if it was not the active tool.
 |OPEN   |This button will open a FILE OPEN panel over the PREVIEW WINDOW.
 |RELOAD |This button will reload the currently loaded G-code File.
@@ -1026,7 +1024,7 @@ The <<plasma:conversational-tab,CONVERSATIONAL Tab>> enables the user to quickly
 
 See <<plasma:shape-library,Conversational Shape Library>> for detailed information on the Conversational feature.
 
-It is possible to disable this tab so the conversational feature cannot be used by an operator. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
+It is possible to hide this tab so the conversational feature cannot be used by an operator. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
 
 [source,{hal}]
 ----
@@ -1044,7 +1042,7 @@ Some functions/features are only used for particular modes and are not displayed
 
 This tab is used to display configuration parameters that are modified infrequently.
 
-It is possible to disable this tab so machine settings cannot be modified by unauthorized personnel. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
+It is possible to hide this tab so machine settings cannot be modified by unauthorized personnel. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
 
 [source,{hal}]
 ----
@@ -1222,7 +1220,7 @@ image::images/qtplasmac_settings.png[width=800,align="center"]
 
 This tab is used to display GUI configuration parameters, button text, and shutdown text that are modified infrequently as well as some utility buttons.
 
-It is possible to disable this tab so machine settings cannot be modified by unauthorized personnel. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
+It is possible to hide this tab so machine settings cannot be modified by unauthorized personnel. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
 
 [source,{hal}]
 ----
@@ -1255,7 +1253,7 @@ In addition to the standard jog keys, a list of the additional shortcuts is avai
 |View Material |This radio button allows the user to enable or disable the addition of a visual reference showing key material cut settings to the Preview Windows of the <<plasma:main-tab,MAIN>> and <<plasma:conversational-tab,CONVERSATIONAL>> tabs. +
 Examples are:  Feed Rate, Pierce Height, Pierce Delay, and Cut Height. Cut Amps will be shown if PowerMax communications are enabled.
 |Exit Warning |This radio button allows the user to enable or disable whether a warning will always be displayed during shutdown. +
-It is possible to add a custom message to the warning by editing the <<plasma:exit-warning,EXIT WARNING MESSAGE>> in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file. +
+It is possible to add a custom message to the warning by editing the <<plasma:exit-warning,EXIT WARNING MESSAGE>> option in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file. +
 The custom message can be made multi-line by adding a "\" between lines.
 |Optional Stop |This radio button allows the user to enable or disable whether or not a running program will pause at an *M1* command.
 |Run From Line |This radio button allows the user to enable or disable <<plasma:run-from-line,Run From Line>>. If enabled, the user can click on a line of G-code and have the program start from that line.
@@ -1545,6 +1543,9 @@ M3 $0 S1
 M5 $0
 ----
 
+[NOTE]
+Returning to the default material prior to the end of the program is possible with the code *M190 P-1*.
+
 [[plasma:magic-comments]]
 === Material Addition Via Magic Comments In G-code
 
@@ -1682,58 +1683,14 @@ image::images/qtplasmac_material_manual_dialog.png[width=150,align="center"]
 [NOTE]
 If the user selects ~/linuxcnc/configs/__<machine_name>___material.cfg and the file already exists, it will be overwritten.
 
-[[plasma:camera]]
-=== CAMERA
-
-image::images/qtplasmac_camview.png[width=800,align="center"]
-
-QtPlasmaC has the ability to use a USB camera to set the origin with or without rotation compensation. The CAMERA button will be enabled after the machine is homed.
-
-To use this feature, the user must set the camera's offset from the torch center by following the procedure described in <<peripheral-offsets,Peripheral Offsets>>.
-
-To modify the offsets manually, the user could edit either or both the following axes lines in the *[CAMERA_OFFSET]* section of the _<machine_name>_.prefs file:
-
-[source,{ini}]
-----
-X axis = n.n
-Y axis = n.n
-Camera port = 0
-----
-
-where _n.n_ is distance from the center line of the torch to the camera's cross hairs.
-
-*To set the origin with zero rotation:*
-
-. Jog until the cross hairs are on top of the desired origin point.
-. Press *MARK EDGE*. The *MARK EDGE* button label will change to *SET ORIGIN* and the *GOTO ORIGIN* button will be disabled.
-. Press *SET ORIGIN*. The *SET ORIGIN* button label will change to *MARK EDGE* and the *GOTO ORIGIN* button will be enabled.
-. The torch will now move to the X0 Y0 position.
-. The offset is now successful set.
-
-*To set the origin with rotation:*
-
-. Jog until the cross hairs are at the edge of the material a suitable distance away from the desired origin point.
-. Press *MARK EDGE*. The *MARK EDGE* button label will change to *SET ORIGIN* and the *GOTO ORIGIN* button will be disabled.
-. Jog until the cross hairs are at the origin point of the material.
-. Press *SET ORIGIN*. The *SET ORIGIN* button label will change to *MARK EDGE* and the *GOTO ORIGIN* button will be enabled.
-. The torch will now move to the X0 Y0 position.
-. The offset is now successfully set.
-
-In the CAMVIEW panel, the mouse can affect the cross hairs and the zoom level as follows:
-
-* Mouse Wheel Scroll - Change cross hair diameter.
-* Mouse Wheel Button Double Click - Restores cross hair diameter to default.
-* Mouse Left Button Clicked + Wheel Scroll - Changes camera zoom level.
-* Mouse Left Button Clicked + Wheel Button Double Click - Restores default camera zoom level.
-
 [[plasma:laser]]
 === LASER
 
-QtPlasmaC has the ability to use a laser to set the origin with or without rotation compensation. The LASER button will be enabled after the machine is homed.
+QtPlasmaC has the ability to use a laser to set the origin with or without rotation compensation. Rotation compensation can be used to align the work offset to a sheet of material with edge(s) that are not parallel to the machine's X/Y axes. The LASER button will be enabled after the machine is homed.
 
 To use this feature, the user must set the laser's offset from the torch center by following the procedure described in <<peripheral-offsets,Peripheral Offsets>>.
 
-To modify the offsets manually, the user could edit either or both the following lines in the *[LASER_OFFSET]* section of the _<machine_name>_.prefs file:
+To modify the offsets manually, the user could edit either or both the following options in the *[LASER_OFFSET]* section of the _<machine_name>_.prefs file:
 
 [source,{ini}]
 ----
@@ -1778,6 +1735,50 @@ qtplasmac.laser_on
 . Release the *LASER* button.
 
 If an alignment laser has been set up then it is possible to use the laser during <<plasma:cut-recovery,CUT RECOVERY>> for accurate positioning of the new start coordinates.
+
+[[plasma:camera]]
+=== CAMERA
+
+image::images/qtplasmac_camview.png[width=800,align="center"]
+
+QtPlasmaC has the ability to use a USB camera to set the origin with or without rotation compensation. Rotation compensation can be used to align the work offset to a sheet of material with edge(s) that are not parallel to the machine's X/Y axes. The CAMERA button will be enabled after the machine is homed.
+
+To use this feature, the user must set the camera's offset from the torch center by following the procedure described in <<peripheral-offsets,Peripheral Offsets>>.
+
+To modify the offsets manually, the user could edit either or both the following axes options in the *[CAMERA_OFFSET]* section of the _<machine_name>_.prefs file:
+
+[source,{ini}]
+----
+X axis = n.n
+Y axis = n.n
+Camera port = 0
+----
+
+where _n.n_ is distance from the center line of the torch to the camera's cross hairs.
+
+*To set the origin with zero rotation:*
+
+. Jog until the cross hairs are on top of the desired origin point.
+. Press *MARK EDGE*. The *MARK EDGE* button label will change to *SET ORIGIN* and the *GOTO ORIGIN* button will be disabled.
+. Press *SET ORIGIN*. The *SET ORIGIN* button label will change to *MARK EDGE* and the *GOTO ORIGIN* button will be enabled.
+. The torch will now move to the X0 Y0 position.
+. The offset is now successful set.
+
+*To set the origin with rotation:*
+
+. Jog until the cross hairs are at the edge of the material a suitable distance away from the desired origin point.
+. Press *MARK EDGE*. The *MARK EDGE* button label will change to *SET ORIGIN* and the *GOTO ORIGIN* button will be disabled.
+. Jog until the cross hairs are at the origin point of the material.
+. Press *SET ORIGIN*. The *SET ORIGIN* button label will change to *MARK EDGE* and the *GOTO ORIGIN* button will be enabled.
+. The torch will now move to the X0 Y0 position.
+. The offset is now successfully set.
+
+In the CAMVIEW panel, the mouse can affect the cross hairs and the zoom level as follows:
+
+* Mouse Wheel Scroll - Change cross hair diameter.
+* Mouse Wheel Button Double Click - Restores cross hair diameter to default.
+* Mouse Left Button Clicked + Wheel Scroll - Changes camera zoom level.
+* Mouse Left Button Clicked + Wheel Button Double Click - Restores default camera zoom level.
 
 [[plasma:path-tolerance]]
 === Path Tolerance
@@ -2017,7 +2018,7 @@ If the probe is mechanically deployed then it needs to extend/retract rather qui
 
 To use this feature, the user must set the probe's offset from the torch center by following the procedure described in <<peripheral-offsets,Peripheral Offsets>>.
 
-To modify the offsets manually, the user could edit either or both the following lines in the *[OFFSET_PROBING]* section of the _<machine_name>_.prefs file:
+To modify the offsets manually, the user could edit either or both the following options in the *[OFFSET_PROBING]* section of the _<machine_name>_.prefs file:
 
 [source,{ini}]
 ----
@@ -2288,7 +2289,7 @@ It is possible to use near-end-of-life consumables for piercing and then they ca
 .*Puddle Jump*
 
 *Puddle Jump* is the height that the torch will move to after piercing and prior to moving to *Cut Height* and is expressed as a percentage of *Pierce Height*.
-This allows the torch to clear any puddle of molten material tht may be caused by piercing.
+This allows the torch to clear any puddle of molten material that may be caused by piercing.
 The maximum allowable height is 200% of the *Pierce Height*
 
 Setting for *Puddle Jump* are described in <<plasma:material,cut parameters>>
@@ -2856,7 +2857,7 @@ In addition, QtPlasmaC will alert the user that an error has been sent to the ma
 
 The user may opt to disable the Operator Error popup window,
 and view the error messages by going to the <<plasma:statistics-tab,STATISTICS Tab>>
-by changing the following preference to *False* in the *[SCREEN_OPTIONS]* of the _<machine_name>_.prefs file in the _<machine_name>_ directory:
+by changing the following option to *False* in the *[SCREEN_OPTIONS]* of the _<machine_name>_.prefs file in the _<machine_name>_ directory:
 
 ----
 desktop_notify
@@ -2865,7 +2866,7 @@ desktop_notify
 [NOTE]
 _<machine_name>_.prefs must be edited with QtPlasmaC closed or any changes will be overwritten on exit.
 
-Additionally, it is possible for *ERROR SENT TO MACHINE LOG* to flash to get the user's attention by adding or editing the following line in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file:
+Additionally, it is possible for *ERROR SENT TO MACHINE LOG* to flash to get the user's attention by adding or editing the following option in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file:
 
 [source,{ini}]
 ----
@@ -3046,7 +3047,7 @@ This would be done with the following code in qtplasmac_custom.qss:
 
 === Create A New Style
 
-Custom stylesheets are enable by a setting in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file giving the filename of the stylesheet.
+Custom stylesheets are enabled by setting the following option in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file. This option must be set to the filename of the stylesheet as shown below.
 
 [source,{ini}]
 ----
@@ -3115,12 +3116,12 @@ The user may return to the default styling at any time by following the followin
 . Delete qtplasmac_custom.qss from the machine config directory (if it exists).
 . Open _<machine_name>_.prefs file.
 . Delete the *[COLOR_OPTIONS]* section.
-. Delete the Custom style line from the *[GUI_OPTIONS]* section.
+. Delete the Custom style option from the *[GUI_OPTIONS]* section.
 . Save the file.
 
 The next time QtPlasmaC is loaded all custom styling will be removed and the default styling will return.
 
-Below is an example of the section to be deleted from _<machine_name>_.prefs:
+Below is an example of the section and options to be deleted from _<machine_name>_.prefs:
 
 ----
 [COLOR_OPTIONS]
@@ -3138,17 +3139,70 @@ Preview = #000000
 === Custom Python Code
 
 It is possible to add custom Python code to change some existing functions or to add new ones.
-Custom code can be added in two different way, a user command file or a user periodic file.
+Custom code can be added in two different ways:  a user command file or a user periodic file.
 
-A user command file is specified in the DISPLAY section of the _<machine_name>_.ini file and contains Python code that is processed during startup.
+A user command file is specified in the DISPLAY section of the _<machine_name>_.ini file and contains Python code that is processed only once during startup.
 
 [source,{ini}]
 ----
-n USER_COMMAND_FILE = my_custom_code.py
+USER_COMMAND_FILE = my_custom_code.py
 ----
 
-A user periodic file must be named user_periodic.py and must be loated in the machines config directory.
-This file is processed every cycle (usually 100 ms) and is used for functions that require regular updating.
+A user periodic file must be named user_periodic.py and must be loaded in the machines config directory.
+This file is processed every cycle (usually 100 ms) and is used for functions that require regular updating.
+
+=== Custom G-code Filter
+
+All incoming G-code is parsed by a G-code filter to ensure it is suitable for QtPlasmaC.
+It is possible to extend this filter with custom python code executed from a file in the configuration directory to aid in converting different flavours of G-code to a format suitable for QtPlasmaC.
+
+The name of this file is custom_filter.py and it will be automatically used if it exists.
+
+There are three preset methods available for use:
+
+[cols="1,4",options="header"]
+|===
+|Name | Function
+|custom_pre_process |This does basic processing of each line before any processing is done in the filter.
+|custom_pre_parse |This parses any G-code from a line *before* any parsing done in the filter.
+|custom_post_parse |This parses any G-code from a line *after* any parsing done in the filter.
+|===
+
+These methods are applied by the following procedure:
+
+- Define the method with an argument for the incoming data.
+- Add any required code to manipulate the data.
+- Return the resultant data.
+- Attach the new method.
+
+For example to remove any code beginning with 'G71' and change 'M2' to 'M5 $0' and 'M2':
+
+[source,python]
+----
+def custom_pre_parse(data):
+    if data[:3] == 'G71':
+        return(None)
+    if data == 'M2':
+        return(f'M5 $0\n\n{data}')
+    return(data)
+self.custom_pre_parse = custom_pre_parse
+----
+
+In addition to these it is also possible to override any existing method in the filter the same way.
+This requires defining the same number of arguments as the existing method, noting that 'self' in the original does not constitute an argument.
+
+[source,python]
+----
+def new_method_name(data):
+    if data[:3] == 'G71':
+        return(None)
+    return(data)
+self.old_method_name = new_method_name
+----
+
+[NOTE]
+The existing filter code may be observed in the file /bin/qtplasmac_gcode +
+The file sim/qtplasmac/custom_filter.py has example skeleton code for custom filtering
 
 == QtPlasmaC Advanced Topics
 
@@ -3212,6 +3266,7 @@ Buttons can run the following:
 . <<plasma:button-mancut,Begin/End a manual cut>>
 . <<plasma:button-offsets,Display/Hide an offsets viewer>>
 . <<plasma:button-latest,Load the latest modified NGC file found in a directory>>
+. <<plasma:button-umanual,Display/Hide the online HTML user manual>>
 
 [[plasma:button-cmds]]
 .External Commands
@@ -3260,8 +3315,16 @@ n Code = G0 X#<_ini[joint_0]home> Y1
 n Code = G53 G0 Z[#<_ini[axis_z]max_limit> - 1.001]
 ----
 
-[NOTE]
-The original method of entering _<machine_name>_.ini file variables by enclosing in braces is deprecated and may be removed in the future.
+_<machine_name>_.prefs file variables and also _<machine_name>_.ini variables can be entered by enclosing each option in *{}* .
+You must put a space after each *}* if there are any following characters.
+If expressions are included then they need to be surrounded by brackets.
+
+[source,{ini}]
+----
+BUTTON_n_CODE = G0 X{LASER_OFFSET X axis} Y{LASER_OFFSET Y axis}
+BUTTON_n_CODE = G0 X{JOINT_0 HOME} Y1
+BUTTON_n_CODE = G53 G0 Z[{AXIS_Z MAX_LIMIT} - 1.001]
+----
 
 Multiple codes can be run by separating the codes with a "\" (backslash) character.
 The exception is the special commands which are required to be a single command per button.
@@ -3328,7 +3391,7 @@ The following code would allow the user to use a button to invert the current st
 
 [source,{ini}]
 ----
-n Code = G0 {QTPLASMAC LASER_TOUCHOFF} \ toggle-laser
+n Code = G0 X{LASER_OFFSET X axis} Y{LASER_OFFSET Y axis} \ toggle-laser
 ----
 
 The position of the "toggle-laser" command is not important as it is always the first command actioned regardless of position.
@@ -3404,9 +3467,11 @@ n Code = cut-type
 
 Pressing this button moves the torch to the specified coordinates when the machine is paused to allow the user easy access to change the torch consumables.
 
-Valid entries are X__nnn__ Y__nnn__ F__nnn__. Feed Rate (F) is mandatory and at least one of the X or Y coordinates are required.
+Valid entries are X__nnn__ Y__nnn__ F__nnn__. At least one of the X or Y coordinates are required, Feed Rate (F) is optional.
 
 The X and Y coordinates are in absolute machine coordinates. If X or Y are missing then the current coordinate for that axis will be used.
+
+Feed Rate (F) is optional, if it is missing or invalid then the feed rate of the current material will be used.
 
 There are three methods to return to the previous coordinates:
 
@@ -3547,7 +3612,8 @@ n Code = manual-cut
 [[plasma:button-offsets]]
 .Offset Viewer
 
-This allows the showing/hiding of an offset viewing screen that displays all machine offsets. All relative offsets can be edited and the G54 ~ G59.3 work system coordinates are able to be given custom names.
+This allows the showing/hiding of an offset viewing screen that displays all machine offsets.
+All relative offsets can be edited and the G54 ~ G59.3 work system coordinates are able to be given custom names.
 
 [source,{ini}]
 ----
@@ -3557,12 +3623,23 @@ n Code = offsets-view
 [[plasma:button-latest]]
 .Load Latest File
 
-this allows the loading of the last modified file in a directory.
+This allows the loading of the last modified file in a directory.
 The directory name is optional and if omitted will default to the last directory a file was loaded from.
 
 [source,{ini}]
 ----
 n Code = latest-file /home/me/linuxcnc/nc_files/qtplasmac-test
+----
+
+[[plasma:button-umanual]]
+.User Manual
+
+This allows the showing/hiding of the online HTML user manual specific to the version of LinuxCNC currently running.
+Note that internet access is required for this functionality.
+
+[source,{ini}]
+----
+n Code = user-manual
 ----
 
 [[peripheral-offsets]]
@@ -3640,6 +3717,7 @@ The following HAL bit pins are always created. The HAL pin has the identical beh
 |Abort the loaded G-code program m|qtplasmac.ext_abort |CYCLE STOP
 |Touchoff X & Y axes to zero m|qtplasmac.ext_touchoff |X0Y0
 |Use a laser to set an origin with or without rotation m|qtplasmac.ext_laser_touchoff |LASER
+|Toggle qtplasmac.laser_on pin m|qtplasmac.ext_laser_toggle |N/A
 |Run/Pause/Resume the loaded G-code program m|qtplasmac.ext_run_pause |CYCLE START, CYCLE PAUSE, CYCLE RESUME in sequence
 |Torch height override plus m|qtplasmac.ext_height_ovr_plus |OVERRIDE + 
 |Torch height override minus m|qtplasmac.ext_height_ovr_minus |OVERRIDE -
@@ -3705,7 +3783,7 @@ The following HAL bit output pins are always created and can be used by either t
 === Hide Program Buttons
 
 If the user has external buttons and/or a pendant that emulates any of the program buttons, CYCLE START, CYCLE PAUSE, or CYCLE STOP
-then it is possible to hide any or all of these GUI program buttons by adding the following code to the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file:
+then it is possible to hide any or all of these GUI program buttons by adding the following options to the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file:
 
 [source,{ini}]
 ----
@@ -3837,7 +3915,7 @@ If using only a touchscreen to navigate the QtPlasmaC GUI, there is no way to st
 
 It is possible to override the jog inhibit by using the GUI or keyboard to jog in the Z+ direction rather than checking the Override Jog box on the <<plasma:settings-tab,SETTINGS Tab>>.
 
-This is done by changing the following preference to *True* in the *[GUI_OPTIONS]* of the _<machine_name>_.prefs file in the _<machine_name>_ folder: +
+This is done by changing the following option to *True* in the *[GUI_OPTIONS]* of the _<machine_name>_.prefs file in the _<machine_name>_ folder: +
 `Override jog inhibit via Z+`
 
 === QtPlasmaC State Outputs
@@ -4397,7 +4475,7 @@ with the following exceptions when autorepeat is allowed with the <<plasma:main-
 G-code editor is active, MDI is active. When QtPlasmaC is shut down, the Operating System's autorepeat feature will be enabled for all keys.
 
 If the user wishes to prevent QtPlasmaC from changing the Operating System's autorepeat settings,
-enter the following in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file:
+enter the following option in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file:
 
 [source,{ini}]
 ----

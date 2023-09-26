@@ -109,7 +109,7 @@ int nochange = 0x40;
 int rowshift;
 int ncols = 8;
 int nrows = 8;
-int rollover = 2; //maximuim number of simultaneous keys presses recongnised
+int rollover = 2; //maximum number of simultaneous keys presses recognised
 int s = 0; //key press state argument to pass to python
 int r; //row argument passed to python
 int c; //column argument passed to python

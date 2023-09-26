@@ -61,7 +61,7 @@ class HALLabel(ScaledLabel, _HalWidgetBase):
             else:
                 self.hal_pin.value_changed.connect(lambda data: self._changeText(data))
 
-    # display formated text
+    # display formatted text
     def _setText(self, data):
         try:
             tmpl = lambda s: str(self._textTemplate) % s
@@ -77,7 +77,7 @@ class HALLabel(ScaledLabel, _HalWidgetBase):
             self._setText(self._multi_label_list[data])
 
     # one can connect signals to this widget to
-    # feed an input that gets formated by this widget.
+    # feed an input that gets formatted by this widget.
     @pyqtSlot(float)
     @pyqtSlot(int)
     @pyqtSlot(bool)

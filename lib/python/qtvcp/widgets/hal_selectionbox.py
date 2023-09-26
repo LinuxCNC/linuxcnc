@@ -195,7 +195,7 @@ class HALSelectionBox(TreeComboBox, _HalWidgetBase):
       types = [HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32], \
       driven = [True, False]):
         ''' Sets the pin type: HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32
-            and what tyoe of signals (driven by a pin, not or both).
+            and what type of signals (driven by a pin, not or both).
             True being driven and False being un-driven signals 
             combobox.setSignalTypes([combobox.HAL_BIT], direction = [True,False])'''
         self.SIGTYPE = types

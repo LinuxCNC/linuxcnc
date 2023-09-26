@@ -20,7 +20,7 @@
 //
 // Register map:
 //
-// OutM: Simple output module to allow renumbering pins and simplyfying hal setup
+// OutM: Simple output module to allow renumbering pins and simplifying hal setup
 // both have debounce filtering with an option of long or
 // short time on a per input basis. Up to 4 MPG encoder counters are provided
 //

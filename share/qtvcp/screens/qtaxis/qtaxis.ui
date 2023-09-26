@@ -2456,6 +2456,7 @@
     <addaction name="actionTopView"/>
     <addaction name="actionRotatedView"/>
     <addaction name="actionClearPlot"/>
+    <addaction name="actionLargeDRO"/>
     <addaction name="actionShowOffsets"/>
     <addaction name="actionShow_G53_in_DRO"/>
     <addaction name="menuGridSize"/>
@@ -2972,6 +2973,14 @@
    </property>
    <property name="toolTip">
     <string>Mpde to Control Axes</string>
+   </property>
+  </action>
+  <action name="actionLargeDRO">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Large DRO</string>
    </property>
   </action>
  </widget>

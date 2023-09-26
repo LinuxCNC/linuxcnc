@@ -82,7 +82,7 @@
                    (It now uses the first Z position in the g-code for the z-safe for probe moves before a z position is specified.)
 
     Version 0.21 - Added option to disable the g-code path display (might speed things up for large g-code files
-                 - Fixed handling of G43 commands with G0 moves mixed in on the same line (whos writes g-code like that anyway...)
+                 - Fixed handling of G43 commands with G0 moves mixed in on the same line (who writes g-code like that anyway...)
                  - Bounding box now displays when in auto-probe mode 
 
     Version 0.22 - Added support for DDCS probing to file
@@ -753,7 +753,7 @@ class Application(Frame):
         self.WriteRoundButton = Button(self.master,text="Stock Rounding",
                                       command=self.STOCK_Round_Window)
 
-        ## Define "Export" mode input feilds here
+        ## Define "Export" mode input fields here
         self.Label_Gcode_Export_Properties = Label(self.master,text="Export Properties:",\
                                            anchor=W)
 
@@ -3435,7 +3435,7 @@ class Application(Frame):
         self.MAXZ=maxz
         self.MINZ=minz
 
-        # Reset Staus Bar and Entry Fields
+        # Reset Status Bar and Entry Fields
 
         self.entry_set(self.Entry_GscaleXY,   self.Entry_GscaleXY_Check() ,1)
         self.entry_set(self.Entry_GscaleZ,    self.Entry_GscaleZ_Check()  ,1)
@@ -5482,7 +5482,7 @@ class G_Code_Rip:
         g_code.append("0")
         g_code.append("ENDSEC")
         
-        #This block section is not necessary but apperantly it's good form to include one anyway.
+        #This block section is not necessary but apparently it's good form to include one anyway.
         #The following is an empty block section.
         g_code.append("0")
         g_code.append("SECTION")
@@ -6129,9 +6129,9 @@ class G_Code_Rip:
         ###  While there are still brackets "[...]" keep processing   ###
         #################################################################
         while s != -1:
-            ##############################################################
-            ### Find the first occurence of "]" after the current "["  ###
-            ##############################################################
+            ###############################################################
+            ### Find the first occurrence of "]" after the current "["  ###
+            ###############################################################
             e=-1
             for cnt in range(len(line)-1,s,-1):
                 if line[cnt] == ']':

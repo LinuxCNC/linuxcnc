@@ -1059,6 +1059,17 @@ This command now attempts to jog the zeroth joint (Joint0) provided
 the mode is free (not teleop).  To jog the X axis, the mode
 must be teleop and the corresponding command is: 'set jog x 1.234'.
 
+== Glade Virtual Control Panels
+
+In LinuxCNC 2.8 the Glade VCPs are loaded after the `POSTGUI_HALFILE` is loaded.
+So connecting the pins which are created by GladeVCP
+in the `POSTGUI_HALFILE` is not possible any more in 2.8.
+Instead, they need to be connected in a separate HAL file passed to the `gladevcp` command like this:
+
+----
+EMBED_TAB_COMMAND = gladevcp -H my_vcp_connect.hal -x {XID} my_vcp.glade
+----
+
 == Tools
 
 === Calibration (emccalib.tcl)

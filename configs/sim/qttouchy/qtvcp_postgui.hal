@@ -10,7 +10,10 @@ net tool-change hal_manualtoolchange.change iocontrol.0.tool-change
 net tool-changed hal_manualtoolchange.changed iocontrol.0.tool-changed
 net tool-prep-number hal_manualtoolchange.number iocontrol.0.tool-prep-number
 
-loadusr -Wn sim_panel qtvcp -a -d sim_panel.ui
+
+# load sim panel for basic controls/hide the selection buttons we don't need
+
+loadusr -Wn sim_panel qtvcp -a -d -o hide=groupBoxSelection sim_panel.ui
 show pin sim_panel
 
 net cs-sig            sim_panel.cyclestart     qttouchy.cycle-start-in

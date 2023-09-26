@@ -1032,7 +1032,7 @@ if TOOL_CHANGE_AT_G30=1 is in the [EMCIO] section of the INI file.
 .G30 Example Line
 [source,{ngc}]
 ----
-G30 Z2.5 (rapid to Z2.5 then to the Z location specified in #5i83)
+G30 Z2.5 (rapid to Z2.5 then to the Z location specified in #5183)
 ----
 
 It is an error if :
@@ -1833,19 +1833,15 @@ image::images/g76-threads_en.svg["G76 Threading",align="center"]
 
 * 'Drive Line' - A line through the initial X position parallel to the Z.
 * 'P-' - The 'thread pitch' in distance per revolution.
-* 'Z-' - The final position of threads. At the end of the cycle the tool
-  will be at this Z position.
+* 'Z-' - The final position of threads. At the end of the cycle the tool will be at this Z position.
 
 [NOTE]
-When G7 'Lathe Diameter Mode' is in force the values for 'I', 'J' and 'K'
-are diameter measurements. When G8 'Lathe Radius Mode' is in force the
-values for 'I', 'J' and 'K' are radius measurements.
+When G7 'Lathe Diameter Mode' is in force the values for 'I', 'J' and 'K' are diameter measurements.
+When G8 'Lathe Radius Mode' is in force the values for 'I', 'J' and 'K' are radius measurements.
 
 * 'I-' - The 'thread peak' offset from the 'drive line'.
-  Negative 'I' values are external threads, and positive 'I' values are
-  internal threads.
-  Generally the material has been turned to this size before the 'G76'
-  cycle.
+  Negative 'I' values are external threads, and positive 'I' values are internal threads.
+  Generally the material has been turned to this size before the 'G76' cycle.
 * 'J-' - A positive value specifying the 'initial cut depth'.
   The first threading cut will be 'J' beyond the 'thread peak' position.
 * 'K-' - A positive value specifying the 'full thread depth'.
@@ -1853,41 +1849,29 @@ values for 'I', 'J' and 'K' are radius measurements.
 
 Optional settings
 
-* '$-' - The spindle number to which the motion will be synchronised
-  (default 0).
-  For example is $1 is programmed then the motion will begin on the
-  reset od spindle.1.index-enable and proceed in synchrony with the
-  value of spindle.1.revs
-* 'R-' - The 'depth degression'. 'R1.0' selects constant depth on
-  successive threading passes. 'R2.0' selects constant area.
+* '$-' - The spindle number to which the motion will be synchronised (default 0).
+  For example if $1 is programmed then the motion will begin on the reset of `spindle.1.index-enable` and proceed in synchrony with the value of `spindle.1.revs`.
+* 'R-' - The 'depth degression'. 'R1.0' selects constant depth on successive threading passes. 'R2.0' selects constant area.
   Values between 1.0 and 2.0 select decreasing depth but increasing area.
   Values above 2.0 select decreasing area.
-  Beware that unnecessarily high degression values will cause a large
-  number of passes to be used. (degression = a descent by stages or
-  steps.)
+  Beware that unnecessarily high degression values will cause a large number of passes to be used.
+  (degression = a descent by stages or steps.)
 
 [WARNING]
-Unnecessarily high degression values will produce an unnecessarily high
-number of passes. (degressing = dive in stages)
+Unnecessarily high degression values will produce an unnecessarily high number of passes. (degressing = dive in stages)
 
-* 'Q-' - The 'compound slide angle' is the angle (in degrees) describing
-  to what extent successive passes should be offset along the drive line.
-  This is used to cause one side of the tool to remove more material than
-  the other. A positive 'Q' value causes the leading edge of the tool to
-  cut more heavily.
-  Typical values are 29, 29.5 or 30.
+* 'Q-' - The 'compound slide angle' is the angle (in degrees) describing to what extent successive passes should be offset along the drive line.
+  This is used to cause one side of the tool to remove more material than the other.
+  A positive 'Q' value causes the leading edge of the tool to cut more heavily.  Typical values are 29, 29.5 or 30.
 * 'H-' - The number of 'spring passes'.
   Spring passes are additional passes at full thread depth.
   If no additional passes are desired, program 'H0'.
 
-Thread entries and exits can be programmed tapered with the 'E'
-and 'L' values.
+Thread entries and exits can be programmed tapered with the 'E' and 'L' values.
 
 * 'E-' - Specifies the distance along the drive line used for the taper.
-  The angle of the taper will be so the last pass tapers to the thread
-  crest over the distance specified with E.
-  'E0.2' will give a taper for the first/last 0.2 length units along the
-  thread.
+  The angle of the taper will be so the last pass tapers to the thread crest over the distance specified with E.
+  'E0.2' will give a taper for the first/last 0.2 length units along the thread.
   For a 45 degree taper program E the same as K.
 * 'L-' - Specifies which ends of the thread get the taper.
   Program 'L0' for no taper (the default), 'L1' for entry taper, 'L2'

@@ -21,7 +21,8 @@
 #scribe_config, #spotting_config, #utility_frame,
 #gui_frame, #materials_frame, #camview_frame,
 #conv_frame, #stats_frame, #pmx_stats_frame,
-#machinelog_frame, #ub_frame, #sd_frame {
+#machinelog_frame, #ub_frame, #sd_frame,
+#webview_frame {
     border: 1px solid frames;
     background: backgnd;
     border-radius: 4px }
@@ -53,13 +54,13 @@ QToolTip {
     padding: 4 }
 
 /****** MATERIAL LABEL ************/
-#material_label{
+#material_label {
     color: backgnd;
     background: frames;
     border-top-left-radius: 2px }
 
 /****** VELOCITY LABELS ************/
-#velocity_label{
+#velocity_label {
     color: backgnd;
     background: frames }
 
@@ -528,8 +529,12 @@ QComboBox#material_selector {
     background: frames;
     border: none;
     border-radius: 0;
-    height: 16px;
-    }
+    height: 16px }
+
+QComboBox#default_material {
+    height: 24px;
+    font: 11pt;
+    padding-left: 60px }
 
 QComboBox::drop-down {
     width: 0;
@@ -618,16 +623,19 @@ QHeaderView::section {
 
 /****** ORIGIN OFFSET VIEW ************/
 /* this also uses QHeaderView from FILEMANAGER */
+#originoffsetview QHeaderView::section {
+    padding-top: 0;
+    padding-left: 4;
+    height: 30px;
+    width: 60px }
 
 #originoffsetview {
-    font: 11pt 'DejaVuSans';
+    font: 11pt 'Mono';
     border: 1px solid foregnd;
     border-radius: 4px;
     alternate-background-color: backgnd;
     padding: 2px;
-    gridline-color: backalt }
-
-#originoffsetview {
+    gridline-color: backalt;
     qproperty-styleColorHighlight: backalt }
 
 #originoffsetview::item:selected:active {
@@ -781,23 +789,22 @@ QPlainTextEdit {
     qproperty-background_color: prevu }
 
 /****** GCODE EDITOR & GCODE DISPLAY ************/
-
 EditorBase#lexer {
     height: 44 }
 
-/*QTableView::item{
+/*QTableView::item {
     height: 44 }*/
 
 EditorBase {
     qproperty-styleColorBackground: backgnd;
-    qproperty-styleColor0: foregnd;
-    qproperty-styleColor1: foregnd;
-    qproperty-styleColor2: foregnd;
-    qproperty-styleColor3: foregnd;
-    qproperty-styleColor4: foregnd;
-    qproperty-styleColor5: foregnd;
-    qproperty-styleColor6: foregnd;
-    qproperty-styleColor7: foregnd;
+    qproperty-styleColor0: foregnd;   /* parameters */
+    qproperty-styleColor1: foregnd;   /* comments */
+    qproperty-styleColor2: foregnd;   /* g codes */
+    qproperty-styleColor3: foregnd;   /* m codes */
+    qproperty-styleColor4: foregnd;   /* axes */
+    qproperty-styleColor5: foregnd;   /* non axes */
+    qproperty-styleColor6: foregnd;   /* axes values */
+    qproperty-styleColor7: foregnd;   /* non axes values */
     qproperty-styleColorMarginText: foregnd;
     qproperty-styleColorMarginBackground: backgnd;
     qproperty-styleFont0: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
@@ -842,12 +849,12 @@ EditorBase {
     height: 40px }
 
 /****** MESSAGE BOX ************/
-QMessageBox{
+QMessageBox {
     border: 1px solid foregnd;
     border-radius: 4px;
     margin: 2 }
 
-QMessageBox QLabel{
+QMessageBox QLabel {
     font: 11pt }
 
 QMessageBox QPushButton {
@@ -856,15 +863,15 @@ QMessageBox QPushButton {
     font: 11pt }
 
 /****** INPUT DIALOG ************/
-QInputDialog{
+QInputDialog {
     border: 1px solid foregnd;
     border-radius: 4px;
     margin: 2 }
 
-QInputDialog QLabel{
+QInputDialog QLabel {
     font: 11pt }
 
-QInputDialog QLineEdit{
+QInputDialog QLineEdit {
     background: backalt;
     border: 1px solid foregnd;
     border-radius: 4px;
@@ -890,6 +897,25 @@ Calculator QLineEdit {
     font: 20pt }
 
 /****** KEYBOARD ************/
-KeyboardDialog QLineEdit{
+KeyboardDialog QLineEdit {
     font: 20pt;
     height: 36px }
+
+/****** WEBVIEW ************/
+QWebView {
+    color: black;
+    background: white }
+
+#webview_back, #webview_reload, #webview_forward {
+    color: backgnd;
+    background: foregnd;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px }
+
+#webview_back {
+    border-top-left-radius: 2px }
+
+#webview_forward {
+    border-top-right-radius: 2px }

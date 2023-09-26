@@ -25,6 +25,11 @@ STYLEEDITOR = SSE()
 WRITER = writer.Main()
 QHAL = Qhal()
 
+try:
+    from PyQt5.QtWebEngineWidgets import QWebEnginePage
+except:
+    LOG.warning('QtDragon Warning with loading QtWebEngineWidget - is python3-pyqt5.qtwebengine installed?')
+
 # constants for tab pages
 TAB_MAIN = 0
 TAB_FILE = 1
@@ -70,6 +75,7 @@ class HandlerClass:
         KEYBIND.add_call('Key_Less','on_keycall_angular_jograte',0)
 
         # some global variables
+        self._spindle_wait = False
         self.probe = None
         self.default_setup = os.path.join(PATH.CONFIGPATH, "default_setup.html")
         self.docs = os.path.join(PATH.SCREENDIR, PATH.BASEPATH,'docs/getting_started.html')
@@ -85,16 +91,19 @@ class HandlerClass:
         self.reload_tool = 0
         self.last_loaded_program = ""
         self.first_turnon = True
+        self._maintab_cycle = 1
         self.lineedit_list = ["work_height", "touch_height", "sensor_height", "laser_x", "laser_y",
                               "sensor_x", "sensor_y", "camera_x", "camera_y",
                               "search_vel", "probe_vel", "max_probe", "eoffset_count"]
         self.onoff_list = ["frame_program", "frame_tool", "frame_dro", "frame_override", "frame_status"]
-        self.auto_list = ["chk_eoffsets", "cmb_gcode_history"]
-        self.axis_a_list = ["label_axis_a", "dro_axis_a", "action_zero_a", "axistoolbutton_a",
-                            "dro_button_stack_a", "widget_jog_angular", "widget_increments_angular",
-                            "a_plus_jogbutton", "a_minus_jogbutton"]
+        self.auto_list = ["chk_eoffsets", "cmb_gcode_history","lineEdit_eoffset_count"]
+        self.axis_4_list = ["label_axis_4", "dro_axis_4", "action_zero_4", "axistoolbutton_4",
+                            "dro_button_stack_4", "plus_jogbutton_4", "minus_jogbutton_4"]
+        self.axis_5_list = ["label_axis_5", "dro_axis_5", "action_zero_5", "axistoolbutton_5",
+                            "dro_button_stack_5",
+                            "plus_jogbutton_5", "minus_jogbutton_5"]
         self.button_response_list = ["btn_start", "btn_home_all", "btn_home_x", "btn_home_y",
-                            "btn_home_z", "action_home_a", "btn_reload_file", "macrobutton0", "macrobutton1",
+                            "btn_home_z", "action_home_4","action_home_5", "btn_reload_file", "macrobutton0", "macrobutton1",
                             "macrobutton2", "macrobutton3", "macrobutton4", "macrobutton5", "macrobutton6",
                             "macrobutton7", "macrobutton8", "macrobutton9"]
         self.statusbar_reset_time = 10000 # ten seconds
@@ -117,7 +126,7 @@ class HandlerClass:
         STATUS.connect('file-loaded', self.file_loaded)
         STATUS.connect('all-homed', self.all_homed)
         STATUS.connect('not-all-homed', self.not_all_homed)
-        STATUS.connect('periodic', lambda w: self.update_runtimer())
+        STATUS.connect('periodic', lambda w: self.periodic_update())
         STATUS.connect('command-stopped', lambda w: self.stop_timer())
         STATUS.connect('progress', lambda w,p,t: self.updateProgress(p,t))
         STATUS.connect('override-limits-changed', lambda w, state, data: self._check_override_limits(state, data))
@@ -130,7 +139,8 @@ class HandlerClass:
 <body>
 <h1>Setup Tab</h1>
 <p>If you select a file with .html as a file ending, it will be shown here..</p>
-<li><a href="http://linuxcnc.org/docs/devel/html/">Documents online</a></li>
+<li><a href="http://linuxcnc.org/docs/2.9/html/">Documents online</a></li>
+<li><a href="http://linuxcnc.org/docs/2.9/html/gui/qtdragon.html">QtDragon online</a></li>
 <li><a href="file://%s">Local files</a></li>
 <img src="file://%s" alt="lcnc_swoop" />
 <hr />
@@ -138,7 +148,6 @@ class HandlerClass:
 </html>
 """ %(  os.path.expanduser('~/linuxcnc'),
         os.path.join(paths.IMAGEDIR,'lcnc_swoop.png'))
-
 
     def class_patch__(self):
         # override file manager load button
@@ -162,20 +171,59 @@ class HandlerClass:
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
         self.w.filemanager_usb.showMediaDir(quiet = True)
 
-    # hide widgets for A axis if not present
-        if "A" not in INFO.AVAILABLE_AXES:
-            for i in self.axis_a_list:
+    # hide or initiate 4th/5th AXIS dro/jog
+        flag = False
+        flag4 = True
+        num = 4
+        for temp in ('A','B','C','U','V','W'):
+            if temp in INFO.AVAILABLE_AXES:
+                if temp in ('A','B','C'):
+                    flag = True
+                self.initiate_axis_dro(num,temp)
+                num +=1
+                if num ==6:
+                    break
+        # no 5th axis
+        if num < 6:
+            for i in self.axis_5_list:
                 self.w[i].hide()
-            self.w.lbl_increments_linear.setText("INCREMENTS")
+        # no 4th axis
+        if num < 5 :
+            for i in self.axis_4_list:
+                self.w[i].hide()
+        # angular increment controls
+        if flag:
+           self.w.lbl_increments_linear.setText("INCREMENTS")
+        else:
+            self.w.widget_jog_angular.hide()
+            self.w.widget_increments_angular.hide()
+
     # set validators for lineEdit widgets
         for val in self.lineedit_list:
             self.w['lineEdit_' + val].setValidator(self.valid)
+        self.w.lineEdit_eoffset_count.setValidator(QtGui.QIntValidator(0,100))
     # check for default setup html file
         try:
             # web view widget for SETUP page
-            if self.w.web_view:
+            if self.w.webwidget:
                 self.toolBar = QtWidgets.QToolBar(self.w)
                 self.w.tabWidget_setup.setCornerWidget(self.toolBar)
+
+                self.zoomBtn = QtWidgets.QPushButton(self.w)
+                self.zoomBtn.setEnabled(True)
+                self.zoomBtn.setMinimumSize(64, 40)
+                self.zoomBtn.setIconSize(QtCore.QSize(38, 38))
+                self.zoomBtn.setIcon(QtGui.QIcon(QtGui.QPixmap(':/buttons/images/zoom.png')))
+                self.zoomBtn.clicked.connect(self.zoomWeb)
+                self.toolBar.addWidget(self.zoomBtn)
+
+                self.homeBtn = QtWidgets.QPushButton(self.w)
+                self.homeBtn.setEnabled(True)
+                self.homeBtn.setMinimumSize(64, 40)
+                self.homeBtn.setIconSize(QtCore.QSize(38, 38))
+                self.homeBtn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/up-32.png'))
+                self.homeBtn.clicked.connect(self.homeWeb)
+                self.toolBar.addWidget(self.homeBtn)
 
                 self.backBtn = QtWidgets.QPushButton(self.w)
                 self.backBtn.setEnabled(True)
@@ -199,11 +247,12 @@ class HandlerClass:
                 self.writeBtn.clicked.connect(self.writer)
                 self.toolBar.addWidget(self.writeBtn)
 
-                self.w.layout_HTML.addWidget(self.w.web_view)
                 if os.path.exists(self.default_setup):
-                    self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.default_setup))
+                    self.w.webwidget.load(QtCore.QUrl.fromLocalFile(self.default_setup))
                 else:
-                    self.w.web_view.setHtml(self.html)
+                    self.w.webwidget.setHtml(self.html)
+                self.w.webwidget.page().urlChanged.connect(self.onLoadFinished)
+
         except Exception as e:
             print("No default setup file found - {}".format(e))
 
@@ -231,6 +280,13 @@ class HandlerClass:
         self.facing = Facing()
         self.w.layout_facing.addWidget(self.facing)
 
+        try:
+            from qtvcp.lib.gcode_utility.hole_enlarge import Hole_Enlarge
+            self.hole_enlarge = Hole_Enlarge()
+            ACTION.ADD_WIDGET_TO_TAB(self.w.tabWidget_utilities,self.hole_enlarge, 'Hole Enlarge')
+        except Exception as e:
+            LOG.info("Utility hole enlarge unavailable: {}".format(e))
+
         from qtvcp.lib.gcode_utility.hole_circle import Hole_Circle
         self.hole_circle = Hole_Circle()
         self.w.layout_hole_circle.addWidget(self.hole_circle)
@@ -248,19 +304,31 @@ class HandlerClass:
         # spindle control pins
         pin = QHAL.newpin("spindle-amps", QHAL.HAL_FLOAT, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_pwr_changed)
+
         pin = QHAL.newpin("spindle-volts", QHAL.HAL_FLOAT, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_pwr_changed)
-        pin = QHAL.newpin("spindle-fault", QHAL.HAL_U32, QHAL.HAL_IN)
+
+        pin = QHAL.newpin("spindle-fault-u32", QHAL.HAL_U32, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_fault_changed)
-        pin = QHAL.newpin("spindle-modbus-errors", QHAL.HAL_U32, QHAL.HAL_IN)
+        pin = QHAL.newpin("spindle-fault", QHAL.HAL_S32, QHAL.HAL_IN)
+        pin.value_changed.connect(self.spindle_fault_changed)
+
+        pin = QHAL.newpin("spindle-modbus-errors-u32", QHAL.HAL_U32, QHAL.HAL_IN)
         pin.value_changed.connect(self.mb_errors_changed)
+        pin = QHAL.newpin("spindle-modbus-errors", QHAL.HAL_S32, QHAL.HAL_IN)
+        pin.value_changed.connect(self.mb_errors_changed)
+
         pin = QHAL.newpin("spindle-modbus-connection", QHAL.HAL_BIT, QHAL.HAL_IN)
         pin.value_changed.connect(self.mb_connection_changed)
+
         QHAL.newpin("spindle-inhibit", QHAL.HAL_BIT, QHAL.HAL_OUT)
+
         # external offset control pins
         QHAL.newpin("eoffset-enable", QHAL.HAL_BIT, QHAL.HAL_OUT)
         QHAL.newpin("eoffset-clear", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        self.h['eoffset-clear'] = True
         QHAL.newpin("eoffset-spindle-count", QHAL.HAL_S32, QHAL.HAL_OUT)
+
         # total external offset
         pin = QHAL.newpin("eoffset-value", QHAL.HAL_FLOAT, QHAL.HAL_IN)
 
@@ -284,7 +352,7 @@ class HandlerClass:
         self.w.lineEdit_max_probe.setText(str(self.w.PREFS_.getpref('Max Probe', 10, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_retract_distance.setText(str(self.w.PREFS_.getpref('Retract Distance', 10, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_z_safe_travel.setText(str(self.w.PREFS_.getpref('Z Safe Travel', 10, float, 'CUSTOM_FORM_ENTRIES')))
-        self.w.lineEdit_eoffset_count.setText(str(self.w.PREFS_.getpref('Eoffset count', 0, float, 'CUSTOM_FORM_ENTRIES')))
+        self.w.lineEdit_eoffset_count.setText(str(self.w.PREFS_.getpref('Eoffset count', 0, int, 'CUSTOM_FORM_ENTRIES')))
         self.w.chk_eoffsets.setChecked(self.w.PREFS_.getpref('External offsets', False, bool, 'CUSTOM_FORM_ENTRIES'))
         self.w.chk_reload_program.setChecked(self.w.PREFS_.getpref('Reload program', False, bool,'CUSTOM_FORM_ENTRIES'))
         self.w.chk_reload_tool.setChecked(self.w.PREFS_.getpref('Reload tool', False, bool,'CUSTOM_FORM_ENTRIES'))
@@ -316,7 +384,7 @@ class HandlerClass:
         self.w.PREFS_.putpref('Max Probe', self.w.lineEdit_max_probe.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Retract Distance', self.w.lineEdit_retract_distance.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Z Safe Travel', self.w.lineEdit_z_safe_travel.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
-        self.w.PREFS_.putpref('Eoffset count', self.w.lineEdit_eoffset_count.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Eoffset count', self.w.lineEdit_eoffset_count.text().encode('utf-8'), int, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('External offsets', self.w.chk_eoffsets.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Reload program', self.w.chk_reload_program.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Reload tool', self.w.chk_reload_tool.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
@@ -356,6 +424,8 @@ class HandlerClass:
             self.w.lbl_laser_offset.setText('INCH')
             self.w.lbl_camera_offset.setText('INCH')
             self.w.lbl_touchheight_units.setText('INCH')
+            self.w.lbl_retract_dist_units.setText('INCH')
+            self.w.lbl_z_safe_travel_units.setText('INCH')
 
         #set up gcode list
         self.gcodes.setup_list()
@@ -467,12 +537,11 @@ class HandlerClass:
         self.w.lbl_spindle_power.setText(pwr)
 
     def spindle_fault_changed(self, data):
-        fault = hex(self.h['spindle-fault'])
+        fault = hex(data)
         self.w.lbl_spindle_fault.setText(fault)
 
     def mb_errors_changed(self, data):
-        errors = self.h['spindle-modbus-errors']
-        self.w.lbl_mb_errors.setText(str(errors))
+        self.w.lbl_mb_errors.setText(str(data))
 
     def mb_connection_changed(self, data):
         if data:
@@ -607,6 +676,8 @@ class HandlerClass:
         elif index == self.w.stackedWidget_mainTab.currentIndex():
             self.w.stackedWidget_dro.setCurrentIndex(0)
 
+            if index == TAB_MAIN and STATUS.is_auto_mode():
+                self._maintab_cycle +=1
         if index is None: return
 
         # adjust the stack widgets depending on modes
@@ -681,17 +752,23 @@ class HandlerClass:
         # set external offsets to lift spindle
             self.h['eoffset-clear'] = False
             self.h['eoffset-enable'] = self.w.chk_eoffsets.isChecked()
-            fval = float(self.w.lineEdit_eoffset_count.text())
+            fval = int(self.w.lineEdit_eoffset_count.text())
             self.h['eoffset-spindle-count'] = int(fval)
             self.h['spindle-inhibit'] = True
             self.add_status("Spindle stopped and raised {}".format(fval))
         else:
             self.h['spindle-inhibit'] = False
             self.add_status('Spindle re-started')
-        # instantiate warning box
-            info = "Wait for spindle at speed signal before resuming"
-            mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_resume_', 'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
-            ACTION.CALL_DIALOG(mess)
+            # If spindle at speed is connected use it lower spindle
+            if self.h.hal.pin_has_writer('spindle.0.at-speed'):
+                self._spindle_wait=True
+                return
+            else:
+            # or wait for dialog to close before lowering spindle
+            # instantiate warning box
+                info = "Wait for spindle at speed signal before resuming"
+                mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_resume_', 'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
+                ACTION.CALL_DIALOG(mess)
         
     # override frame
     def slow_button_clicked(self, state):
@@ -820,7 +897,8 @@ class HandlerClass:
             return
         # instantiate dialog box
         sensor = self.w.sender().property('sensor')
-        info = "Ensure tooltip is within {} mm of tool sensor and click OK".format(self.w.lineEdit_max_probe.text())
+        unit = "mm" if INFO.MACHINE_IS_METRIC else "in"
+        info = "Ensure tooltip is within {} {} of tool sensor and click OK".format(self.w.lineEdit_max_probe.text(),unit)
         mess = {'NAME':'MESSAGE', 'ID':sensor, 'MESSAGE':'TOOL TOUCHOFF', 'MORE':info, 'TYPE':'OKCANCEL'}
         ACTION.CALL_DIALOG(mess)
         
@@ -903,6 +981,29 @@ class HandlerClass:
     def btn_zoomout_clicked(self):
         self.w.gcode_viewer.editor.zoomOut()
 
+    def btn_spindle_z_up_clicked(self):
+        fval = int(self.w.lineEdit_eoffset_count.text())
+        if INFO.MACHINE_IS_METRIC:
+            fval += 5
+        else:
+            fval += 1
+        self.w.lineEdit_eoffset_count.setText(str(fval))
+        if self.h['eoffset-clear'] != True:
+            self.h['eoffset-spindle-count'] = int(fval)
+    def btn_spindle_z_down_clicked(self):
+        fval = int(self.w.lineEdit_eoffset_count.text())
+        if INFO.MACHINE_IS_METRIC:
+            fval -= 5
+        else:
+            fval -= 1
+        if fval <0: fval = 0
+        self.w.lineEdit_eoffset_count.setText(str(fval))
+        if self.h['eoffset-clear'] != True:
+            self.h['eoffset-spindle-count'] = int(fval)
+
+    def btn_pause_clicked(self, data):
+        self.disable_spindle_pause()
+
     #####################
     # GENERAL FUNCTIONS #
     #####################
@@ -928,12 +1029,14 @@ class HandlerClass:
 
             # adjust ending to check for related HTML setup files
             fname = filename+'.html'
-            if os.path.exists(fname):
-                self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
-                self.add_status("Loaded HTML file : {}".format(fname), CRITICAL)
-            else:
-                self.w.web_view.setHtml(self.html)
-
+            try:
+                if os.path.exists(fname):
+                    self.w.webwidget.loadFile(fname)
+                    self.add_status("Loaded HTML file : {}".format(fname), CRITICAL)
+                else:
+                    self.w.webwidget.setHtml(self.html)
+            except Exception as e:
+                self.add_status("Error loading HTML file {} : {}".format(fname,e))
             # look for PDF setup files
             # load it with system program
             fname = filename+'.pdf'
@@ -949,18 +1052,24 @@ class HandlerClass:
 
         if file_extension == ".html":
             try:
-                self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
+                self.w.webwidget.loadFile(fname)
                 self.add_status("Loaded HTML file : {}".format(fname))
                 self.w.stackedWidget_mainTab.setCurrentIndex(TAB_SETUP)
                 self.w.stackedWidget.setCurrentIndex(0)
+                self.w.tabWidget_setup.setCurrentIndex(1)
                 self.w.btn_setup.setChecked(True)
                 self.w.jogging_frame.hide()
             except Exception as e:
-                print("Error loading HTML file : {}".format(e))
+                self.add_status("Error loading HTML file {} : {}".format(fname,e))
         else:
             if os.path.exists(fname):
                 self.PDFView.loadView(fname)
                 self.add_status("Loaded PDF file : {}".format(fname))
+                self.w.stackedWidget_mainTab.setCurrentIndex(TAB_SETUP)
+                self.w.stackedWidget.setCurrentIndex(0)
+                self.w.tabWidget_setup.setCurrentIndex(1)
+                self.w.btn_setup.setChecked(True)
+                self.w.jogging_frame.hide()
 
     # NGCGui library overridden function
     # adds an error message to status
@@ -1017,16 +1126,23 @@ class HandlerClass:
         else:
             self.add_status("Unknown touchoff routine specified", CRITICAL)
             return
-        self.add_status("Touchoff to {} started".format(selector))
+
         max_probe = self.w.lineEdit_max_probe.text()
         search_vel = self.w.lineEdit_search_vel.text()
         probe_vel = self.w.lineEdit_probe_vel.text()
         retract = self.w.lineEdit_retract_distance.text()
         safe_z = self.w.lineEdit_z_safe_travel.text()
+        self.add_status("Touchoff to {} started with {} {} {} {} {} {}".format(selector,
+                search_vel, probe_vel, max_probe, 
+                z_offset, retract, safe_z))
         rtn = ACTION.TOUCHPLATE_TOUCHOFF(search_vel, probe_vel, max_probe, 
-                z_offset, retract, safe_z)
+                z_offset, retract, safe_z, self.touchoff_return)
         if rtn == 0:
             self.add_status("Touchoff routine is already running", CRITICAL)
+
+    def touchoff_return(self, data):
+        self.add_status("Touchplate touchoff routine returned successfully")
+        self.add_status("Touchplate returned: "+data, CRITICAL)
 
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
         ACTION.SET_MANUAL_MODE()
@@ -1059,13 +1175,15 @@ class HandlerClass:
     def enable_auto(self, state):
         for widget in self.auto_list:
             self.w[widget].setEnabled(state)
+        # need to let adjust stack function know the mode changed
+        # not auto
         if state is True:
-            if self.w.stackedWidget_mainTab.currentIndex() != TAB_SETUP:
-                self.adjust_stacked_widgets(self.w.stackedWidget_mainTab.currentIndex())
+            self.adjust_stacked_widgets(self.w.stackedWidget_mainTab.currentIndex(),mode_change = True)
+        # auto mode
         else:
-            if self.w.stackedWidget_mainTab.currentIndex() != TAB_PROBE:
-                self.w.btn_main.setChecked(True)
-                self.adjust_stacked_widgets(TAB_MAIN)
+            self.w.btn_main.setChecked(True)
+            self.adjust_stacked_widgets(TAB_MAIN,mode_change = True)
+
 
     def enable_onoff(self, state):
         if state:
@@ -1109,6 +1227,18 @@ class HandlerClass:
             self.w.lbl_spindle_set.style().unpolish(self.w.lbl_spindle_set)
             self.w.lbl_spindle_set.style().polish(self.w.lbl_spindle_set)
 
+    def periodic_update(self):
+        # if waiting and up to speed, lower spindle
+        if self._spindle_wait:
+            if bool(self.h.hal.get_value('spindle.0.at-speed')):
+                self.h['eoffset-spindle-count'] = 0
+                self.h['eoffset-clear'] = True
+                self.add_status('Spindle lowered')
+                self.h['eoffset-clear'] = False
+                self._spindle_wait = False
+
+        self.update_runtimer()
+
     def update_runtimer(self):
         if not self.timer_on or STATUS.is_auto_paused():
             return
@@ -1122,6 +1252,7 @@ class HandlerClass:
         minutes, seconds = divmod(remainder, 60)
         self.w.lbl_runtime.setText("{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds))
 
+
     def start_timer(self):
         self.run_time = 0
         self.timer_on = True
@@ -1132,14 +1263,70 @@ class HandlerClass:
         if STATUS.is_auto_mode():
             self.add_status("Run timer stopped at {}".format(self.w.lbl_runtime.text()))
 
-    def back(self):
-        if os.path.exists(self.default_setup):
-            self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.default_setup))
-        else:
-            self.w.web_view.setHtml(self.html)
+    # web page zoom
+    def zoomWeb(self):
+        # webview
+        try:
+            f = self.w.webwidget.zoomFactor() +.5
+            if f > 2:f = 1
+            self.w.webwidget.setZoomFactor(f)
+        except:
+            pass
 
+        # PDF
+        try:
+            f = self.PDFView.zoomFactor() +.5
+            if f > 2:f = 1
+            self.PDFView.setZoomFactor(f)
+        except:
+            pass
+        
+    # go directly the default HTML page
+    def homeWeb(self):
+        try:
+            if os.path.exists(self.default_setup):
+                self.w.webwidget.load(QtCore.QUrl.fromLocalFile(self.default_setup))
+            else:
+                self.w.webwidget.setHtml(self.html)
+        except:
+            pass
+    # setup tab's web page back button
+    def back(self):
+        try:
+            try:
+                self.w.webwidget.page().triggerAction(QWebEnginePage.Back)
+            except:
+                if os.path.exists(self.default_setup):
+                    self.w.webwidget.load(QtCore.QUrl.fromLocalFile(self.default_setup))
+                else:
+                    self.w.webwidget.setHtml(self.html)
+        except:
+            pass
+
+    # setup tab's web page forward button
     def forward(self):
-        self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.docs))
+        try:
+            try:
+                self.w.webwidget.page().triggerAction(QWebEnginePage.Forward)
+            except:
+                self.w.webwidget.load(QtCore.QUrl.fromLocalFile(self.docs))
+        except:
+            pass
+
+    # setup tab's web page - enable/disable buttons
+    def onLoadFinished(self):
+        try:
+            if self.w.webwidget.history().canGoBack():
+                self.backBtn.setEnabled(True)
+            else:
+                self.backBtn.setEnabled(False)
+
+            if self.w.webwidget.history().canGoForward():
+                self.forBtn.setEnabled(True)
+            else:
+                self.forBtn.setEnabled(False)
+        except:
+            pass
 
     def writer(self):
         WRITER.show()
@@ -1164,41 +1351,44 @@ class HandlerClass:
         self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(255, 144, 0);color: rgb(0,0,0)")   #orange
         self.endcolor()
 
-    def adjust_stacked_widgets(self,requestedIndex):
+    def adjust_stacked_widgets(self,requestedIndex,mode_change=False):
         IGNORE = -1
         SHOW_DRO = 0
-        premode = ['','','Auto','MDI'][STATUS.get_previous_mode()]
         mode = ['','','Auto','MDI'][STATUS.get_current_mode()]
+        if mode_change:
+            premode = ['','','Auto','MDI'][STATUS.get_previous_mode()]
+        else:
+            premode=mode
         currentIndex = self.w.stackedWidget_mainTab.currentIndex()
         indexList = ['main','file','offsets','tool','status','probe','cam',
                     'gcode','setup','settings','util','user']
 
         if mode == 'Auto':
-            seq = {TAB_MAIN: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_FILE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_OFFSETS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_TOOL: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_STATUS: (requestedIndex,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_PROBE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
-                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
-                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
-                    TAB_SETTINGS: (requestedIndex,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_UTILITIES: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
-                    TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE) }
+            seq = {TAB_MAIN: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_FILE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_OFFSETS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_TOOL: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_STATUS: (requestedIndex,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_PROBE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,False),
+                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,False),
+                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,False),
+                    TAB_SETTINGS: (requestedIndex,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_UTILITIES: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO,False),
+                    TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE,False) }
         else:
-            seq = {TAB_MAIN: (requestedIndex,PAGE_GCODE,True,SHOW_DRO),
-                    TAB_FILE: (requestedIndex,PAGE_FILE,True,IGNORE),
-                    TAB_OFFSETS: (requestedIndex,PAGE_OFFSET,True,IGNORE),
-                    TAB_TOOL: (requestedIndex,PAGE_TOOL,True,IGNORE),
-                    TAB_STATUS: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO),
-                    TAB_PROBE: (requestedIndex,PAGE_GCODE,True,SHOW_DRO),
-                    TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,True,IGNORE),
-                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
-                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,IGNORE),
-                    TAB_SETTINGS: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
-                    TAB_UTILITIES: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO),
-                    TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE) }
+            seq = {TAB_MAIN: (requestedIndex,PAGE_GCODE,True,SHOW_DRO,True),
+                    TAB_FILE: (requestedIndex,PAGE_FILE,True,IGNORE,True),
+                    TAB_OFFSETS: (requestedIndex,PAGE_OFFSET,True,IGNORE,True),
+                    TAB_TOOL: (requestedIndex,PAGE_TOOL,True,IGNORE,True),
+                    TAB_STATUS: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO,True),
+                    TAB_PROBE: (requestedIndex,PAGE_GCODE,True,SHOW_DRO,True),
+                    TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,True,IGNORE,True),
+                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,True),
+                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,IGNORE,True),
+                    TAB_SETTINGS: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,True),
+                    TAB_UTILITIES: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO,True),
+                    TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE,True) }
 
         rtn =  seq.get(requestedIndex)
 
@@ -1208,8 +1398,9 @@ class HandlerClass:
             stacked_index = 0
             show_JogControls = True
             show_dro = 0
+            show_macro = True
         else:
-            main_index,stacked_index,show_JogControls,show_dro = rtn
+            main_index,stacked_index,show_JogControls,show_dro,show_macro = rtn
 
         # user tab button covers multiple tabs so adjust name
         # for extra user tabs
@@ -1236,6 +1427,12 @@ class HandlerClass:
         if show_dro > IGNORE:
             self.w.stackedWidget_dro.setCurrentIndex(0)
 
+        # macros can only be run in manual or mdi mode
+        if show_macro:
+            self.w.frame_macro_buttons.show()
+        else:
+            self.w.frame_macro_buttons.hide()
+
         # show ngcgui info tab if utilities tab is selected
         # but only if the utilities tab has ngcgui selected
         if main_index == TAB_UTILITIES:
@@ -1253,8 +1450,11 @@ class HandlerClass:
             num = 1
         else:
             num = 0
-        for i in INFO.AVAILABLE_AXES:
-            self.w['dro_button_stack_%s'%i.lower()].setCurrentIndex(num)
+        for n,i in enumerate(INFO.AVAILABLE_AXES):
+            if n >2:
+                self.w['dro_button_stack_%s'%(n+1)].setCurrentIndex(num)
+            else:
+                self.w['dro_button_stack_%s'%i.lower()].setCurrentIndex(num)
 
         # user tabs button cycles between all user tabs
         main_current = self.w.stackedWidget_mainTab.currentIndex()
@@ -1281,6 +1481,28 @@ class HandlerClass:
             tabId = 'user{}'.format(cur - len(indexList))
         else:
             tabId = indexList[cur]
+
+        # if in auto mode and the main tab button is pressed
+        # cycle between full gcode, split and pull graphics
+        if main_index == TAB_MAIN and mode =='Auto':
+            if self._maintab_cycle >3: self._maintab_cycle = 1
+            if self._maintab_cycle == 2:
+                self.w.frame_top_left.hide()
+                self.w.frm_backplot.show()
+                return
+            elif self._maintab_cycle == 3:
+                self.w.frame_top_left.show()
+                self.w.frm_backplot.hide()
+                return
+            else:
+                self.w.frame_top_left.show()
+                self.w.frm_backplot.show()
+        else:
+            self.w.frame_top_left.show()
+            self.w.frm_backplot.show()
+
+        # adjust window splitter size as per saved adjustments
+
         name = 'splitterSettings-{}{}'.format(tabId,mode)
         #print ('NOW:',name)
         # restore new qsplitter setting
@@ -1292,6 +1514,39 @@ class HandlerClass:
                 self.w.splitter_h.restoreState(QtCore.QByteArray(splitterSetting))
             except Exception as e:
                 print(e)
+
+    # set axis 4/5 dro widgets to the proper axis
+    # TODO do this with all the axes for more flexibility
+    def initiate_axis_dro(self, num, axis):
+        self.w['label_axis_{}'.format(num)].setText(axis)
+        jnum = INFO.GET_JOG_FROM_NAME.get(axis)
+        # DRO uses axis index
+        index = "XYZABCUVW".index(axis)
+        self.w['dro_axis_{}'.format(num)].setProperty('Qjoint_number',index)
+        self.w['action_zero_{}'.format(num)].setProperty('axis_letter',axis)
+        self.w['axistoolbutton_{}'.format(num)].setProperty('axis_letter',axis)
+        self.w['axistoolbutton_{}'.format(num)].setText('REF {}'.format(axis))
+        self.w['action_home_{}'.format(num)].setProperty('axis_letter',axis)
+        self.w['action_home_{}'.format(num)].setProperty('joint_number_status',jnum)
+        self.w['action_home_{}'.format(num)].setProperty('joint',index)
+        self.w['offsettoolbutton_{}'.format(num)].setProperty('axis_letter',axis)
+        self.w['plus_jogbutton_{}'.format(num)].setProperty('axis_letter',axis)
+        self.w['plus_jogbutton_{}'.format(num)].setProperty('joint_number',jnum)
+        a = axis.lower()
+        try:
+            icn = QtGui.QIcon(QtGui.QPixmap(':/buttons/images/{}_plus_jog_button.png'.format(a)))
+            if icn.isNull(): raise Exception
+            self.w['plus_jogbutton_{}'.format(num)].setIcon(icn)
+        except Exception as e:
+            self.w['plus_jogbutton_{}'.format(num)].setProperty('text','{}+'.format(axis))
+        self.w['minus_jogbutton_{}'.format(num)].setProperty('axis_letter',axis)
+        self.w['minus_jogbutton_{}'.format(num)].setProperty('joint_number',jnum)
+        try:
+            icn = QtGui.QIcon(QtGui.QPixmap(':/buttons/images/{}_minus_jog_button.png'.format(a)))
+            if icn.isNull(): raise Exception
+            self.w['minus_jogbutton_{}'.format(num)].setIcon(icn)
+        except Exception as e:
+            self.w['minus_jogbutton_{}'.format(num)].setProperty('text','{}-'.format(axis))
 
     #####################
     # KEY BINDING CALLS #

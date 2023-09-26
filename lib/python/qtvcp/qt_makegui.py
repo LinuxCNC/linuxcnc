@@ -130,6 +130,7 @@ class _VCPWindow(QtWidgets.QMainWindow):
     def sync_qsettings(self):
         try:
             self.settings.sync()
+            log.debug('Qsettings sync called:')
         except Exception as e:
             log.debug('Error with Qsettings sync function:\n {}'.format(e))
 
@@ -346,17 +347,18 @@ Python Error:\n {}'''.format(str(e))
     # this is the function that is injected into the handler file to read an override file
     # this will be called from qtvcp.py later
     def call_user_command_(self, klass, rcfile = "~/.qtvcprc"):
-        #user_command_file = inifile.find("DISPLAY", "USER_COMMAND_FILE") or ""
-        #if user_command_file:
-        #    rcfile = user_command_file
+        # substitute for any keywords
+        rcfile.replace('CONFIGFOLDER',self.PATHS.CONFIGPATH)
+        rcfile.replace('WORKINGFOLDER',self.PATHS.WORKINGDIR)
         rcfile = os.path.expanduser(rcfile)
+
         if os.path.exists(rcfile):
             log.info('Handler Override file found at: yellow<{}>'.format(rcfile))
             try:
                 local = {'self': klass, 'rcfile': rcfile}
                 exec(compile(open(rcfile, "rb").read(), rcfile, 'exec'),local)
             except Exception as e:
-                log.warning(e)
+                log.exception(e)
         else:
             log.info('No Handler Override file at: yellow<{}>'.format(rcfile))
 

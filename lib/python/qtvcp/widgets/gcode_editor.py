@@ -591,6 +591,8 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.auto_show_manual = False
         self.auto_show_preference = True
         self.last_line = 0
+        # keep track of vertical scroll setting in auto mode
+        self._last_auto_scroll = 0
 
     def _hal_init(self):
         self.cursorPositionChanged.connect(self.line_changed)
@@ -600,6 +602,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
             STATUS.connect('mode-auto', self.reload_last)
             STATUS.connect('move-text-lineup', self.select_lineup)
             STATUS.connect('move-text-linedown', self.select_linedown)
+            STATUS.connect('mode-manual', self.load_manual)
         if self.auto_show_manual:
             STATUS.connect('mode-manual', self.load_manual)
             STATUS.connect('machine-log-changed', self.load_manual)
@@ -624,22 +627,36 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.setCursorPosition(0, 0)
         self.markerDeleteHandle(self.currentHandle)
         self.setModified(False)
+        self._lastUserLine = 0
 
     # when switching from MDI to AUTO we need to reload the
     # last (linuxcnc loaded) program.
     def reload_last(self, w):
         self.load_text(STATUS.old['file'])
         self.setCursorPosition(0, 0)
+        # keep track of vertical scroll bar setting
+        self.verticalScrollBar().setValue(self._last_auto_scroll)
+        #  and margin marker if it is showing
+        if self._lastUserLine >0:
+            self.markerAdd(self._lastUserLine, self.USER_MARKER_NUM)
 
     # With the auto_show__mdi option, MDI history is shown
     def load_mdi(self, w):
+        # record scroll position in auto mode's gcode
+        if STATUS.get_previous_mode() == STATUS.AUTO: 
+            self._last_auto_scroll = self.verticalScrollBar().value()
+
         self.load_text(INFO.MDI_HISTORY_PATH)
         self._last_filename = INFO.MDI_HISTORY_PATH
         self.setCursorPosition(self.lines(), 0)
 
     # With the auto_show__mdi option, MDI history is shown
     def load_manual(self, w):
-        if STATUS.is_man_mode():
+        # record scroll position in auto mode's gcode
+        if STATUS.get_previous_mode() == STATUS.AUTO: 
+            self._last_auto_scroll = self.verticalScrollBar().value()
+
+        if self.auto_show_manual and STATUS.is_man_mode():
             self.load_text(INFO.MACHINE_LOG_HISTORY_PATH)
             self.setCursorPosition(self.lines(), 0)
 
@@ -1042,7 +1059,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
     def getSaveFileName(self):
         mess = {'NAME':self.save_dialog_code,'ID':'%s__' % self.objectName(),
-            'TITLE':'Save Editor'}
+            'TITLE':'Save Editor', 'FILENAME':self.editor._last_filename}
         STATUS.emit('dialog-request', mess)
 
     # process the STATUS return message
@@ -1068,7 +1085,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
             return False
 
     def emit_percent(self, percent):
-        self.percentDone.emit(percent)
+        self.percentDone.emit(int(percent))
 
     def select_lineup(self):
         self.editor.select_lineup(None)

@@ -130,6 +130,7 @@ The following parameters can be set either programmatically or via the Qt Design
 
 +
 If this option is not set, then `value` and `setpoint` must be connected programmatically, i.e., in the handler file.
+
 *`max_reading`*::
   This value determines the _highest number displayed_ on the gauge face.
 *`max_value`*::
@@ -165,6 +166,46 @@ They can be set via HAL pins, programmatically or via signals from other widgets
 *`setpoint`*::
   This is a value that determines the location of a small _marker on the gauge face_.
   It must be set to a value between 0 and the maximum value.
+
+=== 'HalBar' - HAL Bar Level Indicator
+
+.QtVCP `HalBar`: Panel demonstrating the HAL Bar Level Indicator
+image::images/qthalbar.png["QtVCP HalBar: Panel demonstrating the HAL Bar Level Indicator ",scale="25%"]
+
+This widget is used to indicate level or value, usually of a HAL s32/float pin. +
+you can also disable the HAL pin and use Qt signals or python commands to change the level. +
+
+==== Bar Properties:
+HalBar is a subclass of the Bar widget, so it inherits these properties  + 
+
+* 'stepColorList': a list of color strings, the number of colors defines the number of bars.
+* 'backgroundColor': a QColor definition of the background color.
+* 'setMaximum': an integer that defines the maximum level of indication.
+* 'setMinimum': an integer that defines the lowest level of indication.
+
+==== halBar Properties:
+
+* 'pinType': to select *HAL pins type*:
+** `NONE` no HAL pin will be added
+** `S32` A S32 integer pin will be added
+** `FLOAT` A Float pin will be added
+
+* 'pinName': to change the *HAL pin name* otherwise the widget base name is used.
+
+==== HalBar style sheets
+The above Bar properties could be set in _styles sheets_. +
+pinType and pinName properties can not be changed in stylesheets.
+
+[NOTE]
+In style sheets, stepColorList is a single string of color names separated by commas.
+
+[source,{css}]
+----
+HalBar{
+    qproperty-backgroundColor: #000;
+    qproperty-stepColorList: 'green,green,#00b600,#00b600,#00d600,#00d600,yellow,yellow,red,red';
+}
+----
 
 [[sub:qtvcp:widgets:halpad]]
 === `HALPad` - HAL Buttons Joypad
@@ -598,7 +639,7 @@ The recorded position will be remembered at shutdown if a preference file option
 Due to programming limitations, the recorded position may not show exactly the same.
 Particularly, if you pan zoomed out and pan zoomed in again while setting the desired view. +
 _Best practice_ is to select a main view, modify as desired, record, then immediately click the button to switch to the recorded position.
-If it is not as you like, modify it's existing position and re-record.
+If it is not as you like, modify its existing position and re-record.
 
 [[sub:qtvcp:widgets:roundbutton]]
 === `RoundButton` - Round Shapped `ActionButton` Widget
@@ -627,9 +668,15 @@ If you press and hold the button a pop up menu will show allowing one to:
 * Set the axis arbitrarily
 * Reset the axis to the last number recorded
 
-You select the axis by setting the joint number.
+You must have selected an entry dialog that corresponds to the dialog_code_string,
+usually this is selected from the screenOptions widget.
 
-You can select a `halpin` option that is set true when the axis is selected.
+You can select the property 'halpin_option', it will then set a HAL pin true when the axis is selected.
+The property 'joint_number' should be set to the appropriate joint number.
+The property 'axis_letter' should be set to the appropriate axis letter.
+
+The property 'dialog_code_string' can be changed to 'ENTRY' or 'CALCULATOR'
+to call a typing only entry dialog or a touch/typing calculator type entry dialog.
 
 It is based on PyQt's _QToolButton_.
 
@@ -796,11 +843,23 @@ image::images/qtvcp_gcodeGraphics.png["QtVCP GcodeGraphics: G-code Graphic Backp
 This *displays the current G-code in a graphical form*.
 
 .Stylesheets Properties
+*`dro-font/dro-large-font`* _(string)_::
+  Sets the small and large DRO font properties +
+  Here we reference with the widget base name; GCodeGraphics
+[source,{css}]
+----
+GCodeGraphics{
+    qproperty-dro_font:"monospace  bold 12";
+}
+GCodeGraphics{
+    qproperty-dro_large_font:"Times 25";
+}
+----
 
 *`_view`* _(string)_::
   Sets the _default view orientation_ on GUI load. +
   Valid choices for a lathe are p, y, y2. For other screens, valid choices are p, x, y, z, z2. +
-  The following shows an example of how to set this property:
+  The following shows an example of how to set this property (referenced using the widget user selected name):
 +
 [source,{css}]
 ----
@@ -1039,6 +1098,8 @@ The `ACTION` library can control the G-code graphics widget.
   * `Y2`
   * `Z`
   * `Z2`
+  * 'set-large-dro'
+  * 'set-small-dro'
 *`ACTION.ADJUST_PAN(_X,Y_)`*::
   Directly set the relative pan of view in x and y direction.
 *`ACTION.ADJUST_ROTATE(_X,Y_)`*::
@@ -1879,9 +1940,9 @@ To use `MDITouchy`:
   On the left will show the entry fields that can be filled out.
 * Then press `Next` and `Back` to navigate between fields.
 * `Calc` will pop up a calculator dialog.
-* `Clear` clears the ecurrent entry.
+* `Clear` clears the current entry.
 * `Set Tool` will call for a tool change.
-* `Set Origin` will allow setting the origin of the current G6x systen.
+* `Set Origin` will allow setting the origin of the current G6x system.
 * `Macro` will call any available macro ngc programs.
 
 The widget _requires an explicit call to MDITouchy Python code_ to _actually run the MDI command_:
@@ -2068,7 +2129,7 @@ It has a the ability to scroll the names with hardware such as a MPG.
 
 One can class patch the function `load(self,fname)` to customize file loading.
 
-The function `getCurrentSelected()` will return a Python tuple, containing the file path and whether it's a file.
+The function `getCurrentSelected()` will return a Python tuple, containing the file path and whether it is a file.
 
 [source,python]
 ----
@@ -2661,10 +2722,16 @@ self.w.joypadename.setProperty('true_color','green')
 self.w.joypadename.setProperty('false_color','red')
 ----
 
+=== 'WebWidget'
+This widget will create a html/pdf viewing page using the QtWebKit or 
+QtWebEngine libraries. The newer QtWebEngine is preferred if both are on the system. +
+If the QtWebEngine library is used with the QtDesigner editor, a placeholder QWidget will show in Qesigner.
+This will be replaced with thw QtWebEngine widget at run time.
+
 [[sec:qtvcp:widgets:baseclass-mixin]]
 == BaseClass/Mixin Widgets
 
-These widgets are used *combine different properties and behaviours into other widgets*.
+These widgets are used to *combine different properties and behaviours into other widgets*.
 
 You will see them as a collapsible header in the Qt Designer properties column.
 
@@ -2807,7 +2874,7 @@ You can select multiple properties for combined requirements.
 ==== Text Changes On State
 
 //FIXME What is a 'checkable' button ? A checkbox ?
-Choosing the *`checked_state_text_option`* allows a 'checkable' button to _change the text based on it's checked state_.
+Choosing the *`checked_state_text_option`* allows a 'checkable' button to _change the text based on its checked state_.
 
 It uses the following properties to specify the text for each state:
 
@@ -2829,8 +2896,7 @@ ActionButton #action_aux{
 [[sub:qtvcp:widgets:indicatedpushbutton:python-command]]
 ==== Call Python Commands On State
 
-The *`python_command_option`* allow small snippets of Python code to be run from the push of a button,
-without having to edit the handler file.
+The *`python_command_option`* allow small snippets of Python code to be run from the push of a button, without having to edit the handler file.
 Though, it can call functions in the handler file.
 
 When using the `command_string` properties.
@@ -2893,8 +2959,9 @@ QtVCP's version of NGC subroutine selector (Shown as used in QtDragon).
 
 ==== INI settings
 
-Linuxcnc needs to know where to look to run the subroutines. +
+LinuxCNC needs to know where to look to run the subroutines. +
 If the subroutine calls other subroutines or custom M codes, those paths must be added too.
+
 [source,{ini}]
 ----
 [RS274NGC]
@@ -2918,17 +2985,17 @@ NGCGUI_SUBFILE = qpocket.ngc
 
 ==== Buttons
 
-* 'NEW TAB' -adds a new blank tab to ngcgui
-* 'SELECT PREAMBLE' -select a file that add preamble G-code
-* 'SELECT SUBFILE' -select a ngcgui subroutine file
-* 'SELECT POST' -select a file that add post G-code
-* 'REREAD FILE' -reload the subroutine file
-* 'CREATE FEATURE' -add feature to the list
+* 'NEW TAB' - add new blank tab to NGCGUI
+* 'SELECT PREAMBLE' - select a file that add preamble G-code
+* 'SELECT SUBFILE' - select a NGCGUI subroutine file
+* 'SELECT POST' - select a file that add post G-code
+* 'REREAD FILE' - reload the subroutine file
+* 'CREATE FEATURE' - add feature to the list
 * 'RESTART FEATURE' - remove all features from the list
-* 'FINALIZE GCODE' -create the full G-code and send it to LinuxCNC/a file
+* 'FINALIZE GCODE' - create the full G-code and send it to LinuxCNC/a file
 
 ==== Adding Custom Subroutines
-You can create your own subroutines for use with ngcgui.
+You can create your own subroutines for use with NGCGUI.
 They must follow these rules:
 
 * For creating a subroutine for use with NGCGUI, the filename and the subroutine name must be the same.
@@ -2937,7 +3004,7 @@ They must follow these rules:
 * The subroutine must be surrounded by the sub and endsub tags.
 * The variables used must be numbered variables and must not skip number.
 * Comments and presets may be included.
-* if an image file of the same name is in the folder, it will be shown.
+* If an image file of the same name is in the folder, it will be shown.
 
 [source,{css}]
 ----

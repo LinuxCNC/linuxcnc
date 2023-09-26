@@ -19,6 +19,7 @@ Hide pause = False
 Hide abort = False
 DRO position = bottom
 Custom style = None
+Default material = 0
 
 [LASER_OFFSET]
 X axis = -25.0
@@ -46,8 +47,8 @@ Camera port = 0
 7 Code = change-consumables X100 Y100 F3000
 8 Name = GOTO\HOME
 8 Code = G53 G0 X#<_ini[joint_0]home> Y#<_ini[joint_1]home> Z#<_ini[joint_3]home>
-9 Name = 
-9 Code = 
+9 Name = USER\MANUAL
+9 Code = user-manual
 10 Name = 
 10 Code = 
 11 Name = 
@@ -131,20 +132,6 @@ THC Sample Counts = 50
 THC Sample Threshold = 1
 THC Threshold = 1
 
-[DEFAULT MATERIAL]
-Kerf width = 1
-Pierce height = 3
-Pierce delay = 0
-Puddle jump height = 0
-Puddle jump delay = 0
-Cut height = 1
-Cut feed rate = 4000
-Cut amps = 45
-Cut volts = 99
-Pause at end = 0
-Gas pressure = 0
-Cut mode = 1
-
 [OFFSET_PROBING]
 X axis = 0
 Y axis = 0
@@ -153,3 +140,12 @@ Delay = 0
 [POWERMAX]
 Port = 
 
+[CONVERSATIONAL]
+Preamble = G21 G64P0.25 G40 G49 G80 G90 G92.1 G94 G97
+Postamble = G21 G64P0.25 G40 G49 G80 G90 G92.1 G94 G97
+Origin = 0
+Leadin = 0
+Leadout = 0
+Hole diameter = 32
+Hole speed = 60
+Grid Size = 0

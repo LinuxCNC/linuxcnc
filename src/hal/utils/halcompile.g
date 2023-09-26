@@ -1227,7 +1227,7 @@ def main():
             elif f.endswith(".py") and mode == INSTALL:
                 lines = open(f).readlines()
                 if lines[0].startswith("#!"): del lines[0]
-                lines[0] = "#!%s\n" % sys.executable
+                lines.insert(0, "#!%s\n" % sys.executable)
                 outfile = os.path.join(BINDIR, basename)
                 try: os.unlink(outfile)
                 except os.error: pass

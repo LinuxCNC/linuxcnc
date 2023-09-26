@@ -304,13 +304,6 @@ class GetIniInfo:
             LOG.warning("No MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file")
         return float(temp)
 
-    def get_max_rapid_override(self):
-        temp = self.inifile.find("DISPLAY", "MAX_RAPID_OVERRIDE")
-        if not temp:
-            temp = 1.0
-            LOG.warning("No MAX_RAPID_OVERRIDE entry found in [DISPLAY] of INI file. Default settings 100 % applied!")
-        return float(temp)
-
     def get_embedded_tabs(self):
         # Check INI file for embed commands
         # NAME is used as the tab label if a notebook is used

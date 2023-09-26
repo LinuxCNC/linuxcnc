@@ -301,7 +301,7 @@ Note that while many combinations of argspec options are possible, not all of th
 
 `argspec=`__<words>__ `ngc=`__<procname>__ `modalgroup=`___<group>__::
   The recommended way to call an NGC procedure with a standard argspec parameter conversion.
-  Used if argspec is good enough. Note it's not good enough for remapping the `Tx` and `M6`/`M61` tool change codes.
+  Used if argspec is good enough. Note, it is not good enough for remapping the `Tx` and `M6`/`M61` tool change codes.
 
 `prolog=`__<pythonprolog>__ `ngc=`__<procname>__ `epilog=`__<pythonepilog>__ `modalgroup=`__<group>__::
   Call a Python prolog function to take any preliminary steps, then call the NGC procedure.
@@ -391,7 +391,7 @@ and `m400.ngc` looks as follows:
 [source,{ngc}]
 ----------------------------------------------------------------------------------
 o<m400> sub
-(P is required since it's uppercase in the argspec)
+(P is required since it is uppercase in the argspec)
 (debug, P word=#<P>)
 (the q argspec is optional since its lowercase in the argspec. Use as follows:)
 o100 if [EXISTS[#<q>]]
@@ -458,7 +458,7 @@ Try this with out with:
 
 You'll notice the gradual introduction of the embedded Python environment - see <<remap:programming-embedded-python,here>> for details.
 Note that with Python remapping functions,
-it make no sense to have Python prolog or epilog functions since it's executing a Python function in the first place.
+it make no sense to have Python prolog or epilog functions since it is executing a Python function in the first place.
 
 .Advanced example: Remapped codes in pure Python
 
@@ -1032,7 +1032,7 @@ NOTE: INI and HAL variable expansion is optional and can be disabled in the <<su
 
 If more fine grained recovery action is needed, use the idiom laid out in the previous example:
 
-- Define an epilog function, even if it's just to signal an error condition,
+- Define an epilog function, even if it is just to signal an error condition,
 - pass a negative value from the handler to signal the error,
 - inspect the return value in the epilog function,
 - take any recovery action needed,
@@ -1122,8 +1122,6 @@ The Python plugin serves both the interpreter, and `task` if so configured, and 
     Reload the 'TOPLEVEL' script if the file was changed.
     Handy for debugging but currently incurs some runtime overhead.
     Turn this off for production configurations.
-  `PYTHON_TASK =` [0|1];;
-    Start the Python task plug in. Experimental. See xxx.
 
 [[remap:executing-python-statements]]
 === Executing Python statements from the interpreter
@@ -1140,13 +1138,6 @@ Note that the interpreter instance is available here as `self`, so you could als
 
 ----
 ;py,print(self.tool_table[0].toolno)
-----
-
-The `emcStatus` structure is accessible, too:
-
-----
-;py,from emctask import *
-;py,print(emcstat.io.aux.estop)
 ----
 
 [[remap:programming-embedded-python]]
@@ -1168,14 +1159,11 @@ The namespace is expected to be laid out as follows:
   Python functions in this module extend or redefine the namespace of predefined named parameters,
   see <<remap:adding-predefined-named-parameters,adding predefined parameters>>.
 
-`task`::
-  Task-related callables are expected here.
-
 === The Interpreter as seen from Python
 
 The interpreter is an existing C++ class ('Interp') defined in 'src/emc/rs274ngc'.
 Conceptually all `oword.<function>` and `remap.<function>` Python calls are methods of this Interp class,
-although there is no explicit Python definition of this class (it's a 'Boost.Python' wrapper instance)
+although there is no explicit Python definition of this class (it is a 'Boost.Python' wrapper instance)
 and hence receive the as the first parameter `self` which can be used to access internals.
 
 === The Interpreter `__init__` and `__delete__` functions
@@ -1509,10 +1497,6 @@ The following modules are built in:
 `emccanon`::
   Exposes most calls of  `src/emc/task/emccanon.cc`.
 
-`emctask`::
-  Exposes the `emcStatus` class instance. See `src/emc/task/taskmodule.cc`.
-  Not present when using the `gcode` module used for user interfaces - only present in the milltask instance of the interpreter.
-
 [[remap:adding-predefined-named-parameters]]
 == Adding Predefined Named Parameters
 
@@ -1704,7 +1688,6 @@ m|EMC_DEBUG_OWORD       m|0x00002000 |traces execution of O-word subroutines
 m|EMC_DEBUG_REMAP       m|0x00004000 |traces execution of remap-related code
 m|EMC_DEBUG_PYTHON      m|0x00008000 |calls to the Python plug in
 m|EMC_DEBUG_NAMEDPARAM  m|0x00010000 |trace named parameter access
-m|EMC_DEBUG_PYTHON_TASK m|0x00040000 |trace the task Python plug in
 m|EMC_DEBUG_USER1       m|0x10000000 |user-defined - not interpreted by LinuxCNC
 m|EMC_DEBUG_USER2       m|0x20000000 |user-defined - not interpreted by LinuxCNC
 |===
@@ -1725,7 +1708,7 @@ To use this approach:
 - Setup the LinuxCNC source tree as an Eclipse project.
 - Start the Pydev Debug Server in Eclipse.
 - Make sure the embedded Python code can find the `pydevd.py` module which comes with that plug in -
-  it's buried somewhere deep under the Eclipse install directory.
+  it is buried somewhere deep under the Eclipse install directory.
   Set the the `pydevd` variable in `util.py` to reflect this directory location.
 - Add `import pydevd` to your Python module - see example `util.py` and `remap.py`.
 - Call `pydevd.settrace()` in your module at some point to connect to the Eclipse Python debug server -
@@ -1758,7 +1741,7 @@ Now assume that your remap procedure contains a G38 probe operation, for example
 If the probe fails, that would clearly be an error, so you'd display a message and abort the program.
 
 Now, what about preview of this procedure?
-At preview time, of course it's not known whether the probe succeeds or fails -
+At preview time, of course it is not known whether the probe succeeds or fails -
 but you would likely want to see what the maximum depth of the probe is,
 and assume it succeeds and continues execution to preview further movements.
 Also, there is no point in displaying a 'probe failed' message and aborting *during preview*.
@@ -1983,48 +1966,6 @@ All M-codes from `M100` to `M199` are user-defined M-codes already, and should n
 
 All M-codes from `M200` to `M999` are available for remapping.
 
-=== readahead time and execution time
-
-FIXME Write missing information
-
-=== plugin/pickle hack
-
-FIXME Write missing information
-
-=== Module, methods, classes, etc reference
-
-FIXME Write missing information
-
-== Introduction: Extending Task Execution
-
-FIXME Write missing information
-
-=== Why would you want to change Task Execution?
-
-FIXME Write missing information
-
-=== A diagram: `task`, `interp`, `iocontrol`, `UI` (??)
-
-FIXME Write missing information
-
-== Models of Task execution
-
-FIXME Write missing information
-
-=== Traditional `iocontrol`/`iocontrolv2` execution
-
-FIXME Write missing information
-
-=== Redefining IO procedures
-
-FIXME Write missing information
-
-=== Execution-time Python procedures
-
-FIXME Write missing information
-
-// setup examples
-
 == A short survey of LinuxCNC program execution
 
 To understand remapping of codes it might be helpful to survey the execution of `task` and interpreter as far as it relates to remapping.
@@ -2099,7 +2040,7 @@ N95 M2
 ----
 
 To pre-compute the move in N90, the interpreter would need to know where the machine is after line N80 -
-and that depends on whether the probe command succeeded or not, which is not known until it's actually executed.
+and that depends on whether the probe command succeeded or not, which is not known until it is actually executed.
 
 So, some operations are incompatible with further read-ahead.
 These are called _queue busters_, and they are:
@@ -2161,7 +2102,7 @@ Task makes sure to synchronize the world model, and continue parsing and executi
 [[remap:how-tool-change-currently-works]]
 === How tool change currently works
 
-The actions happening in LinuxCNC are a bit involved, but it's necessary to get the overall idea what currently happens,
+The actions happening in LinuxCNC are a bit involved, but it is necessary to get the overall idea what currently happens,
 before you set out to adapt those workings to your own needs.
 
 Note that remapping an existing code completely disables all internal processing for that code.
@@ -2186,15 +2127,6 @@ The interpreter's perception of the tool currently loaded for instance is access
 ----
 ;py,from interpreter import *
 ;py,print(this.tool_table[0])
-----
-
-To see fields in the global emcStatus structure, try this:
-
-----
-;py,from emctask import *
-;py,print(emcstat.io.tool.pocketPrepped)
-;py,print(emcstat.io.tool.toolInSpindle)
-;py,print(emcstat.io.tool.toolTable[0])
 ----
 
 You need to have LinuxCNC started from a terminal window to see the results.

@@ -217,13 +217,6 @@
   With no arg, returns the flood setting as "on" or "off". Otherwise,
   sends a flood on or off command.
 
-  lube (none) | on | off
-  With no arg, returns the lubricant pump setting as "on" or "off".
-  Otherwise, sends a lube on or off command.
-
-  lube_level
-  Returns the lubricant level sensor reading as "ok" or "low".
-
   spindle (none) | forward | reverse | increase | decrease | constant | off
   With no arg, returns the value of the spindle state as "forward",
   "reverse", "increase", "decrease", or "off". With arg, sends the spindle
@@ -429,7 +422,7 @@ typedef enum {
   scEcho, scVerbose, scEnable, scConfig, scCommMode, scCommProt, scIniFile,
   scPlat, scIni, scDebug, scSetWait, scWait, scSetTimeout, scUpdate, scError,
   scOperatorDisplay, scOperatorText, scTime, scEStop, scMachine, scMode,
-  scMist, scFlood, scLube, scLubeLevel, scSpindle, scBrake, scTool, scToolOffset,
+  scMist, scFlood, scSpindle, scBrake, scTool, scToolOffset,
   scLoadToolTable, scHome, scJogStop, scJog, scJogIncr, scFeedOverride,
   scAbsCmdPos, scAbsActPos, scRelCmdPos, scRelActPos, scJointPos, scPosOffset,
   scJointLimit, scJointFault, scJointHomed, scMDI, scTskPlanInit, scOpen, scRun,
@@ -477,7 +470,7 @@ int maxSessions = -1;
 const char *setCommands[] = {
   "ECHO", "VERBOSE", "ENABLE", "CONFIG", "COMM_MODE", "COMM_PROT", "INIFILE", "PLAT", "INI", "DEBUG",
   "SET_WAIT", "WAIT", "TIMEOUT", "UPDATE", "ERROR", "OPERATOR_DISPLAY", "OPERATOR_TEXT",
-  "TIME", "ESTOP", "MACHINE", "MODE", "MIST", "FLOOD", "LUBE", "LUBE_LEVEL",
+  "TIME", "ESTOP", "MACHINE", "MODE", "MIST", "FLOOD",
   "SPINDLE", "BRAKE", "TOOL", "TOOL_OFFSET", "LOAD_TOOL_TABLE", "HOME",
   "JOG_STOP", "JOG", "JOG_INCR", "FEED_OVERRIDE", "ABS_CMD_POS", "ABS_ACT_POS",
   "REL_CMD_POS", "REL_ACT_POS", "JOINT_POS", "POS_OFFSET", "JOINT_LIMIT",
@@ -931,16 +924,6 @@ static cmdResponseType setFlood(char *s, connectionRecType *context)
    return rtNoError;
 }
 
-static cmdResponseType setLube(char *s, connectionRecType *context)
-{
-   switch (checkOnOff(s)) {
-     case -1: return rtStandardError;
-     case 0: sendLubeOn(); break;
-     case 1: sendLubeOff();
-     }
-   return rtNoError;
-}
-
 static cmdResponseType setSpindle(char *s, connectionRecType *context)
 {
 	int spindle = 0;
@@ -1331,7 +1314,7 @@ int commandSet(connectionRecType *context)
     snprintf(context->outBuf, sizeof(context->outBuf), setCmdNakStr, pch);
     return write(context->cliSock, context->outBuf, strlen(context->outBuf));
     }
-  if ((cmd > scMachine) && (emcStatus->task.state != EMC_TASK_STATE_ON)) {
+  if ((cmd > scMachine) && (emcStatus->task.state != EMC_TASK_STATE::ON)) {
 //  Extra check in the event of an undetected change in Machine state resulting in
 //  sending a set command when the machine state is off. This condition is detected
 //  and appropriate error messages are generated, however erratic behavior has been
@@ -1363,8 +1346,6 @@ int commandSet(connectionRecType *context)
     case scMode: ret = setMode(strtok(NULL, delims), context); break;
     case scMist: ret = setMist(strtok(NULL, delims), context); break;
     case scFlood: ret = setFlood(strtok(NULL, delims), context); break;
-    case scLube: ret = setLube(strtok(NULL, delims), context); break;
-    case scLubeLevel: ret = rtStandardError; break;
     case scSpindle: ret = setSpindle(pch, context); break;
     case scBrake: ret = setBrake(pch, context); break;
     case scTool: ret = rtStandardError; break;
@@ -1527,7 +1508,7 @@ static cmdResponseType getEStop(char *s, connectionRecType *context)
 {
   const char *pEStopStr = "ESTOP %s";
   
-  if (emcStatus->task.state == EMC_TASK_STATE_ESTOP)
+  if (emcStatus->task.state == EMC_TASK_STATE::ESTOP)
     snprintf(context->outBuf, sizeof(context->outBuf), pEStopStr, "ON");
   else snprintf(context->outBuf, sizeof(context->outBuf), pEStopStr, "OFF");
   return rtNoError;
@@ -1601,7 +1582,7 @@ static cmdResponseType getMachine(char *s, connectionRecType *context)
 {
   const char *pMachineStr = "MACHINE %s";
   
-  if (emcStatus->task.state == EMC_TASK_STATE_ON)
+  if (emcStatus->task.state == EMC_TASK_STATE::ON)
     snprintf(context->outBuf, sizeof(context->outBuf), pMachineStr, "ON");
   else snprintf(context->outBuf, sizeof(context->outBuf), pMachineStr, "OFF");
   return rtNoError; 
@@ -1612,9 +1593,9 @@ static cmdResponseType getMode(char *s, connectionRecType *context)
   const char *pModeStr = "MODE %s";
   
   switch (emcStatus->task.mode) {
-    case EMC_TASK_MODE_MANUAL: snprintf(context->outBuf, sizeof(context->outBuf), pModeStr, "MANUAL"); break;
-    case EMC_TASK_MODE_AUTO: snprintf(context->outBuf, sizeof(context->outBuf), pModeStr, "AUTO"); break;
-    case EMC_TASK_MODE_MDI: snprintf(context->outBuf, sizeof(context->outBuf), pModeStr, "MDI"); break;
+    case EMC_TASK_MODE::MANUAL: snprintf(context->outBuf, sizeof(context->outBuf), pModeStr, "MANUAL"); break;
+    case EMC_TASK_MODE::AUTO: snprintf(context->outBuf, sizeof(context->outBuf), pModeStr, "AUTO"); break;
+    case EMC_TASK_MODE::MDI: snprintf(context->outBuf, sizeof(context->outBuf), pModeStr, "MDI"); break;
     default: snprintf(context->outBuf, sizeof(context->outBuf), pModeStr, "?");
     }
   return rtNoError; 
@@ -1637,26 +1618,6 @@ static cmdResponseType getFlood(char *s, connectionRecType *context)
   if (emcStatus->io.coolant.flood == 1)
     snprintf(context->outBuf, sizeof(context->outBuf), pFloodStr, "ON");
   else snprintf(context->outBuf, sizeof(context->outBuf), pFloodStr, "OFF");
-  return rtNoError; 
-}
-
-static cmdResponseType getLube(char *s, connectionRecType *context)
-{
-  const char *pLubeStr = "LUBE %s";
-  
-  if (emcStatus->io.lube.on == 0)
-    snprintf(context->outBuf, sizeof(context->outBuf), pLubeStr, "OFF");
-  else snprintf(context->outBuf, sizeof(context->outBuf), pLubeStr, "ON");
-  return rtNoError; 
-}
-
-static cmdResponseType getLubeLevel(char *s, connectionRecType *context)
-{
-  const char *pLubeLevelStr = "LUBE_LEVEL %s";
-  
-  if (emcStatus->io.lube.level == 0)
-    snprintf(context->outBuf, sizeof(context->outBuf), pLubeLevelStr, "LOW");
-  else snprintf(context->outBuf, sizeof(context->outBuf), pLubeLevelStr, "OK");
   return rtNoError; 
 }
 
@@ -2072,9 +2033,9 @@ static cmdResponseType getProgramStatus(char *s, connectionRecType *context)
   const char *pProgramStatus = "PROGRAM_STATUS %s";
   
   switch (emcStatus->task.interpState) {
-      case EMC_TASK_INTERP_READING:
-      case EMC_TASK_INTERP_WAITING: snprintf(context->outBuf, sizeof(context->outBuf), pProgramStatus, "RUNNING"); break;
-      case EMC_TASK_INTERP_PAUSED: snprintf(context->outBuf, sizeof(context->outBuf), pProgramStatus, "PAUSED"); break;
+      case EMC_TASK_INTERP::READING:
+      case EMC_TASK_INTERP::WAITING: snprintf(context->outBuf, sizeof(context->outBuf), pProgramStatus, "RUNNING"); break;
+      case EMC_TASK_INTERP::PAUSED: snprintf(context->outBuf, sizeof(context->outBuf), pProgramStatus, "PAUSED"); break;
       default: snprintf(context->outBuf, sizeof(context->outBuf), pProgramStatus, "IDLE"); break;
     }
   return rtNoError;
@@ -2336,7 +2297,7 @@ static cmdResponseType getTeleopEnable(char *s, connectionRecType *context)
 {
   const char *pTeleopEnable = "TELEOP_ENABLE %s";
   
-  if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP)
+  if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP)
     snprintf(context->outBuf, sizeof(context->outBuf), pTeleopEnable, "YES");  
    else snprintf(context->outBuf, sizeof(context->outBuf), pTeleopEnable, "NO");
   return rtNoError;
@@ -2434,8 +2395,6 @@ int commandGet(connectionRecType *context)
     case scMode: ret = getMode(pch, context); break;
     case scMist: ret = getMist(pch, context); break;
     case scFlood: ret = getFlood(pch, context); break;
-    case scLube: ret = getLube(pch, context); break;
-    case scLubeLevel: ret = getLubeLevel(pch, context); break;
     case scSpindle: ret = getSpindle(pch, context); break;
     case scBrake: ret = getBrake(pch, context); break;
     case scTool: ret = getTool(pch, context); break;
@@ -2584,8 +2543,6 @@ static int helpGet(connectionRecType *context)
   rtapi_strxcat(context->outBuf, "    Joint_units\n\r");
   rtapi_strxcat(context->outBuf, "    Kinematics_type\n\r");
   rtapi_strxcat(context->outBuf, "    Linear_unit_conversion\n\r");
-  rtapi_strxcat(context->outBuf, "    Lube\n\r");
-  rtapi_strxcat(context->outBuf, "    Lube_level\n\r");
   rtapi_strxcat(context->outBuf, "    Machine\n\r");
   rtapi_strxcat(context->outBuf, "    Mist\n\r");
   rtapi_strxcat(context->outBuf, "    Mode\n\r");
@@ -2647,7 +2604,6 @@ static int helpSet(connectionRecType *context)
   rtapi_strxcat(context->outBuf, "    Jog_stop\n\r");
   rtapi_strxcat(context->outBuf, "    Linear_unit_conversion <Inch | CM | MM | Auto | Custom>\n\r");
   rtapi_strxcat(context->outBuf, "    Load_tool_table <Table name>\n\r");
-  rtapi_strxcat(context->outBuf, "    Lube <On | Off>\n\r");
   rtapi_strxcat(context->outBuf, "    Machine <On | Off>\n\r");
   rtapi_strxcat(context->outBuf, "    MDI <MDI String>\n\r");
   rtapi_strxcat(context->outBuf, "    Mist <On | Off>\n\r");

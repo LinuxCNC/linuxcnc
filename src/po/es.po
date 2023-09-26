@@ -8,9 +8,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
-"POT-Creation-Date: 2023-05-03 08:16+0200\n"
-"PO-Revision-Date: 2023-05-10 23:53+0000\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-07-04 21:28+0200\n"
+"PO-Revision-Date: 2023-05-23 17:52+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 4.18-dev\n"
 
-#: src/emc/task/emctaskmain.cc:875
+#: src/emc/task/emctaskmain.cc:869
 #, c-format
 msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
@@ -30,61 +30,61 @@ msgstr ""
 "el comando (%s) no se puede ejecutar hasta que la máquina salga de Estop y "
 "esté encendida"
 
-#: src/emc/task/emctaskmain.cc:1005
+#: src/emc/task/emctaskmain.cc:997
 #, c-format
 msgid "can't do that (%s:%d) in manual mode"
 msgstr "no se puede hacer (%s:%d) en modo manual"
 
-#: src/emc/task/emctaskmain.cc:1112
+#: src/emc/task/emctaskmain.cc:1104
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
 msgstr "no se puede hacer (%s) en modo auto con el intérprete inactivo"
 
-#: src/emc/task/emctaskmain.cc:1181
+#: src/emc/task/emctaskmain.cc:1173
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
 msgstr "no se puede hacer (%s) en modo auto con la lectura del intérprete"
 
-#: src/emc/task/emctaskmain.cc:1268
+#: src/emc/task/emctaskmain.cc:1260
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
 msgstr "no se puede hacer (%s) en modo auto con el intérprete en pausa"
 
-#: src/emc/task/emctaskmain.cc:1339
+#: src/emc/task/emctaskmain.cc:1331
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr "no se puede hacer (%s) en modo auto con el intérprete en espera"
 
-#: src/emc/task/emctaskmain.cc:1460
+#: src/emc/task/emctaskmain.cc:1452
 #, c-format
 msgid "can't do that (%s:%d) in MDI mode"
 msgstr "no se puede hacer (%s:%d) en modo MDI"
 
-#: src/emc/task/emctaskmain.cc:2131
+#: src/emc/task/emctaskmain.cc:2109
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
 msgstr ""
 "No se puede cambiar el modo mientras el modo es AUTO y el intérprete no está "
 "inactivo"
 
-#: src/emc/task/emctaskmain.cc:2184
+#: src/emc/task/emctaskmain.cc:2162
 msgid "failed to close file"
 msgstr "no se pudo cerrar el archivo"
 
-#: src/emc/task/emctaskmain.cc:2198 tcl/bin/genedit.tcl:197
+#: src/emc/task/emctaskmain.cc:2176 tcl/bin/genedit.tcl:197
 #: tcl/tklinuxcnc.tcl:452
 #, c-format, tcl-format
 msgid "can't open %s"
 msgstr "no se puede abrir %s"
 
-#: src/emc/task/emctaskmain.cc:2210
+#: src/emc/task/emctaskmain.cc:2188
 msgid "Can't issue MDI command when not homed"
 msgstr "No se puede emitir el comando MDI sin homed"
 
-#: src/emc/task/emctaskmain.cc:2215
+#: src/emc/task/emctaskmain.cc:2193
 msgid "Must be in MDI mode to issue MDI command"
 msgstr "Debe estar en modo MDI para emitir un comando MDI"
 
-#: src/emc/task/emctaskmain.cc:2297
+#: src/emc/task/emctaskmain.cc:2275
 msgid "Can't run a program when not homed"
 msgstr "Falta homing. No se puede ejecutar el programa"
 
@@ -286,7 +286,8 @@ msgstr "el número Q de nurbs no es un entero"
 
 #: src/emc/rs274ngc/interp_convert.cc:423
 msgid "Must specify positive nurbs weight R for every Control Point"
-msgstr "Debe especificar un peso de nurbs positivo R para cada punto de control"
+msgstr ""
+"Debe especificar un peso de nurbs positivo R para cada punto de control"
 
 #: src/emc/rs274ngc/interp_convert.cc:428
 msgid "Must specify nurbs K number for every Control Point"
@@ -341,7 +342,7 @@ msgid "Cannot do an arc in planes G17.1, G18.1, or G19.1"
 msgstr "No se puede hacer un arco en los planos G17.1, G18.1 o G19.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:948
-#: src/emc/rs274ngc/interp_convert.cc:5329
+#: src/emc/rs274ngc/interp_convert.cc:5330
 msgid "Cannot feed with zero spindle speed in feed per rev mode"
 msgstr ""
 "No se puede alimentar con velocidad de husillo cero en modo avancepor "
@@ -389,9 +390,9 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:1615
 #: src/emc/rs274ngc/interp_convert.cc:1619
 #: src/emc/rs274ngc/interp_convert.cc:1623
-#: src/emc/rs274ngc/interp_convert.cc:4746
-#: src/emc/rs274ngc/interp_convert.cc:4749
-#: src/emc/rs274ngc/interp_convert.cc:4752 src/emc/rs274ngc/interp_find.cc:99
+#: src/emc/rs274ngc/interp_convert.cc:4748
+#: src/emc/rs274ngc/interp_convert.cc:4751
+#: src/emc/rs274ngc/interp_convert.cc:4754 src/emc/rs274ngc/interp_find.cc:99
 #, c-format
 msgid "Invalid absolute position %5.2f for wrapped rotary axis %c"
 msgstr "Posición absoluta inválida %5.2f para eje giratorio %c"
@@ -575,163 +576,163 @@ msgstr ""
 "Número de husillo ($) fuera de rango en el comando M5\n"
 "nº husillos =%i. $ =%d\n"
 
-#: src/emc/rs274ngc/interp_convert.cc:4025
+#: src/emc/rs274ngc/interp_convert.cc:4027
 msgid "Spindle ($) number out of range in M19 Command"
 msgstr "Número de husillo ($) fuera de rango en el comando M19"
 
-#: src/emc/rs274ngc/interp_convert.cc:4032
+#: src/emc/rs274ngc/interp_convert.cc:4034
 msgid "Q word with M19 requires a value > 0"
 msgstr "La palabra Q con M19 requiere un valor > 0"
 
-#: src/emc/rs274ngc/interp_convert.cc:4061
+#: src/emc/rs274ngc/interp_convert.cc:4063
 msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
 msgstr ""
 "No se puede restaurar el contexto desde un marco de pila inválido - falta "
 "M70 / M73?"
 
-#: src/emc/rs274ngc/interp_convert.cc:4102
-#: src/emc/rs274ngc/interp_convert.cc:4123
-#: src/emc/rs274ngc/interp_convert.cc:4143
-#: src/emc/rs274ngc/interp_convert.cc:4165
-#: src/emc/rs274ngc/interp_convert.cc:4179
+#: src/emc/rs274ngc/interp_convert.cc:4104
+#: src/emc/rs274ngc/interp_convert.cc:4125
+#: src/emc/rs274ngc/interp_convert.cc:4145
+#: src/emc/rs274ngc/interp_convert.cc:4167
+#: src/emc/rs274ngc/interp_convert.cc:4181
 msgid "Cannot enable overrides with cutter radius compensation on"
 msgstr ""
 "No se pueden habilitar ajustes con la compensación del radio de corte activo"
 
-#: src/emc/rs274ngc/interp_convert.cc:4111
-#: src/emc/rs274ngc/interp_convert.cc:4128
-#: src/emc/rs274ngc/interp_convert.cc:4152
-#: src/emc/rs274ngc/interp_convert.cc:4170
-#: src/emc/rs274ngc/interp_convert.cc:4184
+#: src/emc/rs274ngc/interp_convert.cc:4113
+#: src/emc/rs274ngc/interp_convert.cc:4130
+#: src/emc/rs274ngc/interp_convert.cc:4154
+#: src/emc/rs274ngc/interp_convert.cc:4172
+#: src/emc/rs274ngc/interp_convert.cc:4186
 msgid "Cannot disable overrides with cutter radius compensation on"
 msgstr ""
 "No se pueden desactivar ajustes con la compensación de radio de corte activa"
 
-#: src/emc/rs274ngc/interp_convert.cc:4138
+#: src/emc/rs274ngc/interp_convert.cc:4140
 msgid "Invalid spindle ($) number in M51 command"
 msgstr "Número de husillo ($) no válido en el comando M51"
 
-#: src/emc/rs274ngc/interp_convert.cc:4301
-#: src/emc/rs274ngc/interp_convert.cc:4302
 #: src/emc/rs274ngc/interp_convert.cc:4303
+#: src/emc/rs274ngc/interp_convert.cc:4304
+#: src/emc/rs274ngc/interp_convert.cc:4305
 #, c-format
 msgid "Indexing axis %c can only be moved with G0"
 msgstr "El eje indexado %c solo se puede mover con G0"
 
-#: src/emc/rs274ngc/interp_convert.cc:4310
 #: src/emc/rs274ngc/interp_convert.cc:4312
 #: src/emc/rs274ngc/interp_convert.cc:4314
+#: src/emc/rs274ngc/interp_convert.cc:4316
 #, c-format
 msgid "Indexing axis %c can only be moved alone"
 msgstr "El eje indexado %c solo se puede mover solitario"
 
-#: src/emc/rs274ngc/interp_convert.cc:4421
+#: src/emc/rs274ngc/interp_convert.cc:4423
 msgid "Cannot probe with feed per rev mode"
 msgstr "No se puede sondear con modo de alimentación por revolucion"
 
-#: src/emc/rs274ngc/interp_convert.cc:4469
+#: src/emc/rs274ngc/interp_convert.cc:4471
 msgid "Cannot change retract mode with cutter radius compensation on"
 msgstr ""
 "No se puede cambiar el modo de retracción con la compensación del radio de "
 "corte activa"
 
-#: src/emc/rs274ngc/interp_convert.cc:4503
+#: src/emc/rs274ngc/interp_convert.cc:4505
 msgid "G10 L1 without offsets has no effect"
 msgstr "G10 L1 sin offsets no tiene efecto"
 
-#: src/emc/rs274ngc/interp_convert.cc:4609
+#: src/emc/rs274ngc/interp_convert.cc:4611
 msgid "Q number in G10 is not an integer"
 msgstr "El número Q en G10 no es un entero"
 
-#: src/emc/rs274ngc/interp_convert.cc:4610
+#: src/emc/rs274ngc/interp_convert.cc:4612
 msgid "Invalid tool orientation"
 msgstr "Orientación inválida de herramienta inválida"
 
-#: src/emc/rs274ngc/interp_convert.cc:4734
+#: src/emc/rs274ngc/interp_convert.cc:4736
 msgid "I J words not allowed with G10 L2"
 msgstr "No se permiten palabras I o J con G10 L2"
 
-#: src/emc/rs274ngc/interp_convert.cc:4755
+#: src/emc/rs274ngc/interp_convert.cc:4757
 msgid ""
 "Cannot change the active coordinate system with cutter radius compensation on"
 msgstr ""
 "No se puede cambiar el sistema de coordenadas activo con la compensación de "
 "radio de corte activa"
 
-#: src/emc/rs274ngc/interp_convert.cc:4763
+#: src/emc/rs274ngc/interp_convert.cc:4765
 msgid "R not allowed in G10 L20"
 msgstr "R no permitido en G10 L20"
 
-#: src/emc/rs274ngc/interp_convert.cc:5109
+#: src/emc/rs274ngc/interp_convert.cc:5111
 msgid "Bug:  Reached convert_stop() from M99 as subprogram return"
 msgstr "Error: Alcanzado convert_stop() desde M99 como retorno de subprograma"
 
-#: src/emc/rs274ngc/interp_convert.cc:5389
+#: src/emc/rs274ngc/interp_convert.cc:5390
 msgid "Invalid spindle ($) number in G33 move"
 msgstr "Número de husillo ($) no válido en G33"
 
-#: src/emc/rs274ngc/interp_convert.cc:5394
+#: src/emc/rs274ngc/interp_convert.cc:5395
 msgid "Spindle not turning in G33"
 msgstr "El husillo no gira en G33"
 
-#: src/emc/rs274ngc/interp_convert.cc:5404
+#: src/emc/rs274ngc/interp_convert.cc:5405
 msgid "Invalid spindle ($) number in G33.1 move"
 msgstr "Número de husillo inválido ($) en G33.1"
 
-#: src/emc/rs274ngc/interp_convert.cc:5409
+#: src/emc/rs274ngc/interp_convert.cc:5410
 msgid "Spindle not turning in G33.1"
 msgstr "El husillo no gira en G33.1"
 
-#: src/emc/rs274ngc/interp_convert.cc:5424
+#: src/emc/rs274ngc/interp_convert.cc:5425
 msgid "Invalid D-number in G76 cycle"
 msgstr "Número D inválido en ciclo G76"
 
-#: src/emc/rs274ngc/interp_convert.cc:5429
+#: src/emc/rs274ngc/interp_convert.cc:5430
 #, c-format
 msgid "Chosen spindle (%i) not turning in G76"
 msgstr "El husillo elegido (%i) no gira en G76"
 
-#: src/emc/rs274ngc/interp_convert.cc:5467
+#: src/emc/rs274ngc/interp_convert.cc:5468
 msgid "BUG: An axis incorrectly moved along with an indexer"
 msgstr "ERROR: Un eje incorrectamente movido junto con un indexador"
 
-#: src/emc/rs274ngc/interp_convert.cc:5480
+#: src/emc/rs274ngc/interp_convert.cc:5481
 msgid "BUG: trying to index incorrect axis"
 msgstr "ERROR: intentando indexar un eje incorrecto"
 
-#: src/emc/rs274ngc/interp_convert.cc:5575
+#: src/emc/rs274ngc/interp_convert.cc:5576
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
 msgstr ""
 "No se puede usar el ciclo de roscado G76 con la compensación del radio de "
 "corte activa"
 
-#: src/emc/rs274ngc/interp_convert.cc:5578
+#: src/emc/rs274ngc/interp_convert.cc:5579
 msgid "In G76, I must not be 0"
 msgstr "En G76, I no debe ser 0"
 
-#: src/emc/rs274ngc/interp_convert.cc:5580
+#: src/emc/rs274ngc/interp_convert.cc:5581
 msgid "In G76, J must be greater than 0"
 msgstr "En G76, J debe ser mayor que 0"
 
-#: src/emc/rs274ngc/interp_convert.cc:5582
+#: src/emc/rs274ngc/interp_convert.cc:5583
 msgid "In G76, K must be greater than J"
 msgstr "En G76, K debe ser mayor que J"
 
-#: src/emc/rs274ngc/interp_convert.cc:5725
+#: src/emc/rs274ngc/interp_convert.cc:5726
 msgid ""
 "Length of cutter compensation entry move is not greater than the tool radius"
 msgstr ""
 "La longitud del movimiento de entrada de compensación del cortador no es "
 "mayor que el radio de la herramienta"
 
-#: src/emc/rs274ngc/interp_convert.cc:5944
+#: src/emc/rs274ngc/interp_convert.cc:5945
 msgid "Zero degree inside corner is invalid for cutter compensation"
 msgstr ""
 "La esquina interior de cero grados no es válida para compensación del "
 "cortador"
 
-#: src/emc/rs274ngc/interp_convert.cc:5982
-#: src/emc/rs274ngc/interp_convert.cc:5990
+#: src/emc/rs274ngc/interp_convert.cc:5983
+#: src/emc/rs274ngc/interp_convert.cc:5991
 msgid ""
 "Arc to straight motion makes a corner the compensated tool can't fit in "
 "without gouging"
@@ -739,23 +740,23 @@ msgstr ""
 "El movimiento arco a recto hace una esquina en la que la herramienta "
 "compensada no puede caber sin socavar"
 
-#: src/emc/rs274ngc/interp_convert.cc:6074
+#: src/emc/rs274ngc/interp_convert.cc:6075
 msgid "Cannot change tools with cutter radius compensation on"
 msgstr ""
 "No se pueden cambiar las herramientas con la compensación del radio de corte "
 "activa"
 
-#: src/emc/rs274ngc/interp_convert.cc:6198
+#: src/emc/rs274ngc/interp_convert.cc:6199
 msgid "Cannot change tool offset with cutter radius compensation on"
 msgstr ""
 "No se puede cambiar el offset de herramienta con compensación de radio de "
 "corte activa"
 
-#: src/emc/rs274ngc/interp_convert.cc:6249
+#: src/emc/rs274ngc/interp_convert.cc:6250
 msgid "G43.2: Can not have both H and axis words"
 msgstr "G43.2: No puede usarse con palabra H y eje simultáneamente."
 
-#: src/emc/rs274ngc/interp_convert.cc:6252
+#: src/emc/rs274ngc/interp_convert.cc:6253
 msgid "G43.2: No axes specified and H word missing"
 msgstr "G43.2: Sin especificación de ejes y falta la palabra H"
 
@@ -2382,7 +2383,7 @@ msgstr "kHz"
 msgid "MHz"
 msgstr "MHz"
 
-#: src/hal/utils/scope_vert.c:413 src/hal/utils/scope_vert.c:1112
+#: src/hal/utils/scope_vert.c:413 src/hal/utils/scope_vert.c:1117
 #, c-format
 msgid ""
 "Offset\n"
@@ -2611,64 +2612,64 @@ msgstr ""
 msgid "Exceeded POSITIVE soft limit (%.5f) on joint %d\n"
 msgstr "Límite soft POSITIVO excedido (%.5f) en la articulacion %d\n"
 
-#: src/emc/motion/command.c:124
+#: src/emc/motion/command.c:126
 #, c-format
 msgid "Can't jog invalid joint number %d."
 msgstr "No jog en número de articulacion inválido %d."
 
-#: src/emc/motion/command.c:128
+#: src/emc/motion/command.c:130
 #, c-format
 msgid "Can't jog joint %d further past max hard limit."
 msgstr "No jog de articulación %d más allá del límite hard máximo."
 
-#: src/emc/motion/command.c:133
+#: src/emc/motion/command.c:135
 #, c-format
 msgid "Can't jog joint %d further past min hard limit."
 msgstr "No jog de articulación %d más allá del límite hard mínimo."
 
-#: src/emc/motion/command.c:139
+#: src/emc/motion/command.c:141
 #, c-format
 msgid "Can't jog joint %d further past max soft limit."
 msgstr "No jog de articulación %d más allá del límite soft máximo."
 
-#: src/emc/motion/command.c:144
+#: src/emc/motion/command.c:146
 #, c-format
 msgid "Can't jog joint %d further past min soft limit."
 msgstr "No jog de articulación %d más allá del límite soft min."
 
-#: src/emc/motion/command.c:214 src/emc/motion/command.c:219
+#: src/emc/motion/command.c:216 src/emc/motion/command.c:221
 #, c-format
 msgid "%s move on line %d would exceed %c's %s limit"
 msgstr "el movimiento %s en la línea %d excedería el límite %s de %c"
 
-#: src/emc/motion/command.c:215
+#: src/emc/motion/command.c:217
 msgid "negative"
 msgstr "negativo"
 
-#: src/emc/motion/command.c:220
+#: src/emc/motion/command.c:222
 msgid "positive"
 msgstr "positivo"
 
-#: src/emc/motion/command.c:237
+#: src/emc/motion/command.c:239
 #, c-format
 msgid "%s move on line %d fails kinematicsInverse"
 msgstr "el movimiento %s en la línea %d falla en cinemática Inversa"
 
-#: src/emc/motion/command.c:252
+#: src/emc/motion/command.c:254
 #, c-format
 msgid "%s move on line %d gave non-finite joint location on joint %d"
 msgstr ""
 "El movimiento %s en la línea %d proporcionó una ubicación no finita en la "
 "articulacion %d"
 
-#: src/emc/motion/command.c:259
+#: src/emc/motion/command.c:261
 #, c-format
 msgid "%s move on line %d would exceed joint %d's positive limit"
 msgstr ""
 "el movimiento %s en la línea %d excedería el límite positivo de la "
 "articulacion %d"
 
-#: src/emc/motion/command.c:265
+#: src/emc/motion/command.c:267
 #, c-format
 msgid "%s move on line %d would exceed joint %d's negative limit"
 msgstr ""
@@ -2741,105 +2742,105 @@ msgid "can't enable motion, enable input is false"
 msgstr ""
 "no se puede habilitar el movimiento, la entrada de habilitación es falsa"
 
-#: src/emc/motion/command.c:1376
+#: src/emc/motion/command.c:1356
 msgid "must be in joint mode to home"
 msgstr "debe estar en modo articulacion para home"
 
-#: src/emc/motion/command.c:1380
+#: src/emc/motion/command.c:1360
 #, c-format
 msgid "Homing denied by motion.homing-inhibit joint=%d\n"
 msgstr "Homing negado por motion.homing-inhibit joint=%d\n"
 
-#: src/emc/motion/command.c:1400
+#: src/emc/motion/command.c:1380
 msgid "must be in joint mode or disabled to unhome"
 msgstr "debe estar en modo articulacion o deshabilitado para unhome"
 
-#: src/emc/motion/command.c:1420
+#: src/emc/motion/command.c:1400
 msgid "need to be enabled, in coord mode for probe move"
 msgstr "necesita estar habilitado, en modo coord para mover la sonda"
 
-#: src/emc/motion/command.c:1430
+#: src/emc/motion/command.c:1410
 msgid "can't do probe move with limits exceeded"
 msgstr "no se puede mover la sonda con los límites excedidos"
 
-#: src/emc/motion/command.c:1444
+#: src/emc/motion/command.c:1424
 msgid "Probe is already clear when starting G38.4 or G38.5 move"
 msgstr "La sonda ya está libre al iniciar el movimiento G38.4 o G38.5"
 
-#: src/emc/motion/command.c:1446
+#: src/emc/motion/command.c:1426
 msgid "Probe is already tripped when starting G38.2 or G38.3 move"
 msgstr "La sonda ya está disparada al iniciar el movimiento G38.2 o G38.3"
 
-#: src/emc/motion/command.c:1467
+#: src/emc/motion/command.c:1447
 msgid "can't add probe move"
 msgstr "no se puede agregar movimiento de sonda"
 
-#: src/emc/motion/command.c:1489
+#: src/emc/motion/command.c:1469
 msgid "need to be enabled, in coord mode for rigid tap move"
 msgstr ""
 "necesita estar habilitado, en modo coord para el movimiento de roscado rígido"
 
-#: src/emc/motion/command.c:1499
+#: src/emc/motion/command.c:1479
 msgid "can't do rigid tap move with limits exceeded"
 msgstr ""
 "no se puede hacer un movimiento de roscado rígido con límites excedidos"
 
-#: src/emc/motion/command.c:1518
+#: src/emc/motion/command.c:1498
 #, c-format
 msgid "can't add rigid tap move at line %d, error code %d"
 msgstr ""
 "no se puede agregar un movimiento de roscado rígido en la línea %d, código "
 "de error %d"
 
-#: src/emc/motion/command.c:1563
+#: src/emc/motion/command.c:1543
 msgid "Attempt to configure non-existent spindle"
 msgstr "Intento de configurar un husillo inexistente"
 
-#: src/emc/motion/command.c:1581
+#: src/emc/motion/command.c:1561
 msgid "Attempt to start non-existent spindle"
 msgstr "Intento de iniciar un husillo inexistente"
 
-#: src/emc/motion/command.c:1632
+#: src/emc/motion/command.c:1612
 #, c-format
 msgid "Attempt to stop non-existent spindle <%d>"
 msgstr "Intento de detener el husillo inexistente <%d>"
 
-#: src/emc/motion/command.c:1663
+#: src/emc/motion/command.c:1643
 #, c-format
 msgid "Attempt to orient non-existent spindle <%d>"
 msgstr "Intento de orientar el husillo inexistente <%d>"
 
-#: src/emc/motion/command.c:1709
+#: src/emc/motion/command.c:1689
 #, c-format
 msgid "Attempt to increase non-existent spindle <%d>"
 msgstr "Intento de aumentar revs. en husillo inexistente <%d>"
 
-#: src/emc/motion/command.c:1733
+#: src/emc/motion/command.c:1713
 #, c-format
 msgid "Attempt to decrease non-existent spindle <%d>."
 msgstr "Intento de disminuir husillo inexistente <%d>."
 
-#: src/emc/motion/command.c:1757
+#: src/emc/motion/command.c:1737
 #, c-format
 msgid "Attempt to engage brake of non-existent spindle <%d>"
 msgstr "Intento de activar el freno de husillo inexistente <%d>"
 
-#: src/emc/motion/command.c:1779
+#: src/emc/motion/command.c:1759
 #, c-format
 msgid "Attempt to release brake of non-existent spindle <%d>"
 msgstr "Intento de liberar el freno de husillo inexistente <%d>"
 
-#: src/emc/motion/command.c:1801
+#: src/emc/motion/command.c:1781
 #, c-format
 msgid "joint %d: too many compensation entries"
 msgstr "articulacion %d: demasiadas entradas de compensación"
 
-#: src/emc/motion/command.c:1807
+#: src/emc/motion/command.c:1787
 #, c-format
 msgid "joint %d: compensation values must increase"
 msgstr "articulacion %d: los valores de compensación deben aumentar"
 
-#: src/emc/motion/command.c:1885
+#: src/emc/motion/command.c:1865
 #, c-format
 msgid "unrecognized command %d"
 msgstr "comando no reconocido %d"
@@ -6534,9 +6535,9 @@ msgstr "eliminar"
 msgid "move"
 msgstr "mover"
 
-#: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:4108
-#: src/emc/usr_intf/pncconf/pncconf.py:4214
-#: src/emc/usr_intf/pncconf/pncconf.py:4378
+#: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:4109
+#: src/emc/usr_intf/pncconf/pncconf.py:4215
+#: src/emc/usr_intf/pncconf/pncconf.py:4379
 msgid "Custom"
 msgstr "Personalizado"
 
@@ -11727,9 +11728,7 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid ""
-"_:"
-""
+msgid "_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12143,37 +12142,37 @@ msgstr ""
 "Al hacer clic en 'programa personalizado existente' evitará esta "
 "advertencia. "
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3733
+#: src/emc/usr_intf/pncconf/pncconf.py:3734
 #: src/emc/usr_intf/pncconf/private_data.py:555
 msgid "Unused Channel"
 msgstr "Canal no utilizado"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4008
+#: src/emc/usr_intf/pncconf/pncconf.py:4009
 msgid "You can not have both steppers and pwm signals for spindle control\n"
 msgstr "No puede tener señales paso a paso y pwm para el control del cabezal\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4012
+#: src/emc/usr_intf/pncconf/pncconf.py:4013
 #, python-format
 msgid "You forgot to designate a stepper or pwm signal for axis %s\n"
 msgstr "Olvidó designar una señal paso a paso o pwm para el eje %s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4015
+#: src/emc/usr_intf/pncconf/pncconf.py:4016
 #, python-format
 msgid "You forgot to designate an encoder /resolver signal for axis %s servo\n"
 msgstr ""
 "Olvidó designar una señal de codificador / resolutor para el eje %s servo\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4018
+#: src/emc/usr_intf/pncconf/pncconf.py:4019
 #, python-format
 msgid "You forgot to designate a pwm signal or stepper signal for axis %s\n"
 msgstr "Olvidó designar una señal pwm o una señal paso a paso para el eje %s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4021
+#: src/emc/usr_intf/pncconf/pncconf.py:4022
 #, python-format
 msgid "You can not have both steppers and pwm signals for axis %s\n"
 msgstr "No puede tener señales paso a paso y pwm para el eje %s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4024
+#: src/emc/usr_intf/pncconf/pncconf.py:4025
 #, python-format
 msgid ""
 "If using a tandem axis stepper, you must select a master stepgen for axis "
@@ -12182,19 +12181,19 @@ msgstr ""
 "Si utiliza un stepper de eje en tándem, debe seleccionar un stepgen maestro "
 "para el eje%s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4032
+#: src/emc/usr_intf/pncconf/pncconf.py:4033
 msgid "Touchy require an external cycle start signal\n"
 msgstr "Touchy requiere una señal externa de inicio de ciclo\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4035
+#: src/emc/usr_intf/pncconf/pncconf.py:4036
 msgid "Touchy require an external abort signal\n"
 msgstr "Touchy requiere una señal externa de cancelación\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4038
+#: src/emc/usr_intf/pncconf/pncconf.py:4039
 msgid "Touchy require an external single-step signal\n"
 msgstr "Touchy requiere una señal externa de paso-sencillo\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4041
+#: src/emc/usr_intf/pncconf/pncconf.py:4042
 msgid ""
 "Touchy require an external multi handwheel MPG encoder signal on the mesa "
 "page\n"
@@ -12202,7 +12201,7 @@ msgstr ""
 "Touchy requiere una señal externa de codificador MPG con volante manual "
 "múltiple en la mesa página\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4044
+#: src/emc/usr_intf/pncconf/pncconf.py:4045
 msgid ""
 "Touchy require 'external mpg jogging' to be selected on the external control "
 "page\n"
@@ -12210,7 +12209,7 @@ msgstr ""
 "Touchy requiere 'jogging externo mpg' para ser seleccionado en la pagina "
 "externa del control\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4047
+#: src/emc/usr_intf/pncconf/pncconf.py:4048
 msgid ""
 "Touchy require the external mpg to be in 'shared mpg' mode on the external "
 "controls page\n"
@@ -12218,7 +12217,7 @@ msgstr ""
 "Touchy requiere que el mpg externo esté en modo 'mpg compartido' en la "
 "página externa del control\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4050
+#: src/emc/usr_intf/pncconf/pncconf.py:4051
 msgid ""
 "Touchy require selectable increments to be unchecked on the external "
 "controls page\n"
@@ -12226,7 +12225,7 @@ msgstr ""
 "Touchy requiere que los incrementos seleccionables no estén marcados en la "
 "página externa del contro\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4063
+#: src/emc/usr_intf/pncconf/pncconf.py:4064
 msgid ""
 "The 7i29 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
@@ -12234,7 +12233,7 @@ msgstr ""
 "La placa secundaria 7i29 requiere generadores de tipo PWM y una base "
 "PWMfrecuencia de 20 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4066
+#: src/emc/usr_intf/pncconf/pncconf.py:4067
 msgid ""
 "The 7i30 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
@@ -12242,7 +12241,7 @@ msgstr ""
 "La placa secundaria 7i30 requiere generadores tipo PWM y una base "
 "PWMfrecuencia de 20 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4069
+#: src/emc/usr_intf/pncconf/pncconf.py:4070
 msgid ""
 "The 7i33 daughter board requires PDM type generators and a PDM base "
 "frequency of 6 Mhz\n"
@@ -12250,7 +12249,7 @@ msgstr ""
 "La placa secundaria 7i33 requiere generadores de tipo PDM y una base "
 "PDMfrecuencia de 6 Mhz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4072
+#: src/emc/usr_intf/pncconf/pncconf.py:4073
 msgid ""
 "The 7i40 daughter board requires PWM type generators and a PWM base "
 "frequency of 50 khz\n"
@@ -12258,7 +12257,7 @@ msgstr ""
 "La placa secundaria 7i40 requiere generadores de tipo PWM y una base "
 "PWMfrecuencia de 50 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4075
+#: src/emc/usr_intf/pncconf/pncconf.py:4076
 msgid ""
 "The 7i48 daughter board requires UDM type generators and a PWM base "
 "frequency of 24 khz\n"
@@ -12266,65 +12265,65 @@ msgstr ""
 "La placa secundaria 7i48 requiere generadores de tipo UDM y una base "
 "PWMfrecuencia de 24 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4223
+#: src/emc/usr_intf/pncconf/pncconf.py:4224
 msgid "Gearbox Reduction Ratio"
 msgstr "Relación de reducción de la caja de cambios"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4226
+#: src/emc/usr_intf/pncconf/pncconf.py:4227
 msgid "Reduction Ratio"
 msgstr "Relación de reducción"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4229
+#: src/emc/usr_intf/pncconf/pncconf.py:4230
 msgid "Leadscrew Pitch"
 msgstr "Paso de husillo"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4232
+#: src/emc/usr_intf/pncconf/pncconf.py:4233
 #: src/emc/usr_intf/pncconf/dialogs.glade:1991
 #: src/emc/usr_intf/pncconf/dialogs.glade:2360
 msgid "Leadscrew TPI"
 msgstr "Leadscrew TPI"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4236
 #: src/emc/usr_intf/pncconf/pncconf.py:4237
+#: src/emc/usr_intf/pncconf/pncconf.py:4238
 msgid "("
 msgstr "("
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4238
-#: src/emc/usr_intf/pncconf/pncconf.py:4248
+#: src/emc/usr_intf/pncconf/pncconf.py:4239
 #: src/emc/usr_intf/pncconf/pncconf.py:4249
 #: src/emc/usr_intf/pncconf/pncconf.py:4250
+#: src/emc/usr_intf/pncconf/pncconf.py:4251
 msgid " / min"
 msgstr "/ min"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4239
+#: src/emc/usr_intf/pncconf/pncconf.py:4240
 msgid " / sec²"
 msgstr "/ sec²"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4242
+#: src/emc/usr_intf/pncconf/pncconf.py:4243
 msgid " / Step"
 msgstr "/ Paso"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4243
+#: src/emc/usr_intf/pncconf/pncconf.py:4244
 msgid "Steps / "
 msgstr "Pasos /"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4245
+#: src/emc/usr_intf/pncconf/pncconf.py:4246
 msgid " / encoder pulse"
 msgstr "/ pulso codificador"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4246
+#: src/emc/usr_intf/pncconf/pncconf.py:4247
 msgid "Encoder pulses / "
 msgstr "Pulsos de codificador /"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4254
+#: src/emc/usr_intf/pncconf/pncconf.py:4255
 msgid "Resolver Scale:"
 msgstr "Escala de resolución:"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4592
+#: src/emc/usr_intf/pncconf/pncconf.py:4593
 msgid "Spindle Scale Calculation"
 msgstr "Cálculo de escala de husillo"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4704
+#: src/emc/usr_intf/pncconf/pncconf.py:4705
 msgid "Axis Scale Calculation"
 msgstr "Cálculo de escala de eje"
 
@@ -18408,7 +18407,8 @@ msgstr "hm2_4i43"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:314
 #: src/emc/usr_intf/pncconf/dialogs.glade:340
-msgid "Parellel Port- 7i90"
+#, fuzzy
+msgid "Parallel Port- 7i90"
 msgstr "Puerto Parellel- 7i90"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:315
@@ -18772,8 +18772,8 @@ msgstr "¡Alertas de audio disponibles!"
 msgid ""
 "No audio alerts are available - Is gir1.2-gstreamer-1.0 package installed?"
 msgstr ""
-"No hay alertas de audio disponibles - ¿Está instalado el paquete gir1."
-"2-gstreamer-1.0?"
+"No hay alertas de audio disponibles - ¿Está instalado el paquete gir1.2-"
+"gstreamer-1.0?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:286
 #: src/emc/usr_intf/gscreen/gscreen.py:290
@@ -18873,7 +18873,8 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:615
 msgid "No coordinates entry found in [TRAJ] of INI file"
-msgstr "No se encontró ninguna entrada de coordenadas en [TRAJ] del archivo INI"
+msgstr ""
+"No se encontró ninguna entrada de coordenadas en [TRAJ] del archivo INI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:633
 msgid "No UNITS entry found in [TRAJ] or [AXIS_X] of INI file"
@@ -19021,32 +19022,31 @@ msgstr "Tamaño de ventana especificado no válido '{}', predeterminado a {}x{}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1477
 msgid "Using default window size: {}x{}"
-msgstr ""
+msgstr "Utilizando el tamaño de ventana por defecto: {}x{}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1607
 msgid "Control powered up and initialized"
 msgstr "Control encendido e inicializado"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1630
-#, fuzzy
 msgid "Unlock code #{}"
-msgstr "Usar código de desbloqueo"
+msgstr "Código de desbloqueo #{}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1933
 msgid "Key {} ({}) was pressed state: {} last: {}"
-msgstr ""
+msgstr "La tecla {} ({}) fue pulsada estado: {} último: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1936
 msgid "Control was being held down"
-msgstr ""
+msgstr "Control se mantenía presionado"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1939
 msgid "Alt was being held down"
-msgstr ""
+msgstr "Alt se mantenía presionado"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1942
 msgid "Shift was being held down"
-msgstr ""
+msgstr "Shift se mantenía presionado"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1974
 msgid "Cycle start pressed in AUTO mode"
@@ -19124,7 +19124,7 @@ msgstr "ladder no disponible: ¿está cargado el componente en tiempo real?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2452
 msgid "Estopping and killing gscreen"
-msgstr ""
+msgstr "Paro de emergencia y matando gscreen"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2597
 msgid "Override Entry"
@@ -19167,12 +19167,16 @@ msgid ""
 "Cannot set focus to hal_mdihistory when Onboard launched - Is this widget "
 "name in glade file?"
 msgstr ""
+"No se puede establecer el foco en hal_mdihistory cuando se inicia Onboard - "
+"¿Este nombre de widget está en el archivo glade?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2937
 msgid ""
 "Cannot set focus to gcode_view when Onboard launched - Is this widget name "
 "in glade file?"
 msgstr ""
+"No se puede establecer el foco a gcode_view cuando Onboard lanzado - ¿Es "
+"este nombre de widget en el archivo glade?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3069
 msgid "Manual Spindle Control"
@@ -19180,36 +19184,30 @@ msgstr "Control Manual del husillo"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3149
 #: src/emc/usr_intf/gscreen/gscreen.py:3150
-#, fuzzy
 msgid "Error with launching on-screen keyboard program - cannot find program"
 msgstr ""
-"Error al iniciar el programa de teclado en pantalla: no se puede encontrar "
-"el programa."
+"Error al iniciar el programa de teclado en pantalla - no se encuentra el "
+"programa"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3160
 msgid "Keyboard"
 msgstr "Teclado"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3194
-#, fuzzy
 msgid "Error with launching 'Onboard' on-screen keyboard program {}"
-msgstr "Error al iniciar el programa de teclado en pantalla 'Onboard' %s"
+msgstr "Error al iniciar el programa de teclado en pantalla 'Onboard' {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3343
-#, fuzzy
 msgid "Overriding internal signal call to '{}'"
-msgstr ""
-"**** INFORMACIÓN GSCREEN: anulación de la llamada de señal interna a %s"
+msgstr "Anulación de la llamada de señal interna a '{}'"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3364
-#, fuzzy
 msgid "Could not connect '{}' to '{}'"
-msgstr "No se pudo traducir {0} a número"
+msgstr "No se ha podido conectar '{}' a '{}'"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3397
-#, fuzzy
 msgid "No widget named '{}' to sensitize"
-msgstr "**** Ningún widget llamado: {0} para sensibilizar ****"
+msgstr "No hay widget llamado '{}' para sensibilizar"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3777
 msgid ""
@@ -19237,37 +19235,31 @@ msgid "Offset Origin"
 msgstr "Offset de Origen"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3798
-#, fuzzy
 msgid ""
 "Invalid message configuration (missing text or type) in INI File [DISPLAY] "
 "section"
 msgstr ""
-"**** ERROR de Gscreen: configuración de mensaje no válida (falta texto o "
-"tipo)en la sección del archivo INI [DISPLAY]"
+"Configuración de mensajes inválida (falta texto o tipo) en la sección "
+"[DISPLAY] del archivo INI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3800
-#, fuzzy
 msgid ""
 "Invalid message configuration (missing pinname) in INI File [DISPLAY] section"
 msgstr ""
-"**** ERROR de Gscreen: configuración de mensaje no válida (falta el pinname) "
-"enSección del archivo INI [DISPLAY]"
+"Configuración de mensajes inválida (falta nombre de pin) en la sección "
+"[DISPLAY] del archivo INI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3802
-#, fuzzy
 msgid ""
 "Invalid message configuration (missing boldtext) in INI File [DISPLAY] "
 "section"
 msgstr ""
-"**** Gscreen ERROR: configuración de mensaje no válida (falta texto en "
-"negrita) enSección del archivo INI [DISPLAY]"
+"Configuración de mensajes inválida (falta texto en negrita) en la sección "
+"[DISPLAY] del archivo INI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3806
-#, fuzzy
 msgid "Invalid message type ({})in INI File [DISPLAY] section"
-msgstr ""
-"**** ERROR de Gscreen: tipo de mensaje no válido (%s) en la sección "
-"[DISPLAY] del archivo INI"
+msgstr "Tipo de mensaje inválido ({}) en la sección [DISPLAY] del archivo INI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3840
 msgid "Dialog error - Is the dialog handler missing from the handler file?"
@@ -19405,9 +19397,8 @@ msgid " mm "
 msgstr "mm"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4789
-#, fuzzy
 msgid "Postgui filename: {}"
-msgstr "nombre de archivo:"
+msgstr "Nombre de archivo Postgui: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:38
 msgid "S 1000"
@@ -19542,9 +19533,8 @@ msgid "G-code"
 msgstr "Código G"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1869
-#, fuzzy
 msgid "<b>Active Codes</b>"
-msgstr "Códigos G activos:"
+msgstr "<b>Códigos activos</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1925
 msgid "MV:100%"

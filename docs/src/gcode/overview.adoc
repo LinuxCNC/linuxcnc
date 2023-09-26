@@ -704,11 +704,10 @@ false, and any non-zero number is equivalent to logical true.
 
 == Equality and floating-point values
 
-The RS274/NGC language only supports floating-point values of finite
-precision. Therefore, testing for equality or inequality of two
-floating-point values is inherently problematic. The interpreter
-solves this problem by considering values equal if their absolute
-difference is less than 0.0001 (this value is defined as
+Testing for equality or inequality of two
+double-precision floating-point values is inherently problematic.
+The interpreter solves this problem by considering values equal if
+their absolute difference is less than 1e-6 (this value is defined as
 'TOLERANCE_EQUAL' in src/emc/rs274ngc/interp_internal.hh).
 
 [[gcode:functions]]

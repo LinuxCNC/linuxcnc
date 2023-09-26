@@ -29,7 +29,7 @@ Consider using MB2HAL if:
 * You have more than one device to connect. MB2HAL is very efficiently managing multiple devices, transactions and links.
   Currently I am monitoring two axis drivers using a Rs232 port, a VFD driver using another Rs232 port, and a remote I/O using TCP/IP.
 * You want a protocol to connect your Arduino to HAL.
-  Look the included sample configuration file, sketch and library for Arduino Modbus. 
+  Look the included sample configuration file, sketch and library for Arduino Modbus.
 
 == Usage
 

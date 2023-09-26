@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:python-interface]]
-= Python Interface
+= The LinuxCNC Python module
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
@@ -15,8 +15,7 @@ a Python API for talking to LinuxCNC.
 constants are located in src/emc/usr_intf/axis/extensions/emcmodule.cc
 ////
 
-== The `linuxcnc` Python module
-
+== Introduction
 User interfaces control LinuxCNC activity by sending
 NML messages to the LinuxCNC task controller, and monitor results by
 observing the LinuxCNC status structure, as well as the error reporting channel.
@@ -257,12 +256,6 @@ machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS INI value.
 
 *linear_units*:: '(returns float)' -
   machine linear units per mm, reflects [TRAJ]LINEAR_UNITS INI value.
-
-*lube*:: '(returns integer)' -
-  'lube on' flag.
-
-*lube_level*:: '(returns integer)' -
-  reflects 'iocontrol.0.lube_level'.
 
 *max_acceleration*:: '(returns float)' -
   maximum  acceleration. Reflects [TRAJ]MAX_ACCELERATION.
@@ -534,7 +527,7 @@ For each joint, the following dictionary keys are available:
   current velocity.
 
 [[sec:the-spindle-dictionary]]
-== The `spindle` dictionary
+=== The `spindle` dictionary
 
 *brake*:: '(returns integer)' -
   value of the spindle brake flag.

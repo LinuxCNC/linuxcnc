@@ -321,14 +321,6 @@ int main(int argc, char* argv[]) {
                 update_motion_state();
                 break;
 
-            case EMCMOT_JOINT_ENABLE_AMPLIFIER:
-                log_print("ENABLE_AMPLIFIER\n");
-                break;
-
-            case EMCMOT_JOINT_DISABLE_AMPLIFIER:
-                log_print("DISABLE_AMPLIFIER\n");
-                break;
-
             case EMCMOT_ENABLE_WATCHDOG:
                 log_print("ENABLE_WATCHDOG\n");
                 break;

@@ -77,9 +77,6 @@ static int axis_mask = 0;
     FIELD(hal_bit_t,flood_on) /* pin for starting flood */ \
     FIELD(hal_bit_t,flood_off) /* pin for stopping flood */ \
     FIELD(hal_bit_t,flood_is_on) /* pin for flood is on */ \
-    FIELD(hal_bit_t,lube_on) /* pin for starting lube */ \
-    FIELD(hal_bit_t,lube_off) /* pin for stopping lube */ \
-    FIELD(hal_bit_t,lube_is_on) /* pin for lube is on */ \
 \
     FIELD(hal_bit_t,program_is_idle) /* pin for notifying user that program is idle */ \
     FIELD(hal_bit_t,program_is_running) /* pin for notifying user that program is running */ \
@@ -249,7 +246,7 @@ static double maxFeedOverride=1;
 static double maxMaxVelocity=1;
 static double minSpindleOverride=0.0;
 static double maxSpindleOverride=1.0;
-static EMC_TASK_MODE_ENUM halui_old_mode = EMC_TASK_MODE_MANUAL;
+static EMC_TASK_MODE halui_old_mode = EMC_TASK_MODE::MANUAL;
 static int halui_sent_mdi = 0;
 
 // the NML channels to the EMC task
@@ -433,11 +430,11 @@ static int emcCommandWaitDone()
 	    return 0;
 	}
 
-	if (emcStatus->status == RCS_DONE) {
+	if (emcStatus->status == RCS_STATUS::DONE) {
 	    return 0;
 	}
 
-	if (emcStatus->status == RCS_ERROR) {
+	if (emcStatus->status == RCS_STATUS::ERROR) {
 	    return -1;
 	}
 
@@ -611,8 +608,6 @@ int halui_hal_init(void)
     if (retval < 0) return retval;
     retval = halui_export_pin_OUT_bit(&(halui_data->flood_is_on), "halui.flood.is-on");
     if (retval < 0) return retval;
-    retval = halui_export_pin_OUT_bit(&(halui_data->lube_is_on), "halui.lube.is-on");
-    if (retval < 0) return retval;
     retval = halui_export_pin_OUT_bit(&(halui_data->program_is_idle), "halui.program.is-idle");
     if (retval < 0) return retval;
     retval = halui_export_pin_OUT_bit(&(halui_data->program_is_running), "halui.program.is-running");
@@ -782,10 +777,6 @@ int halui_hal_init(void)
     if (retval < 0) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->flood_off), "halui.flood.off");
     if (retval < 0) return retval;
-    retval = halui_export_pin_IN_bit(&(halui_data->lube_on), "halui.lube.on");
-    if (retval < 0) return retval;
-    retval = halui_export_pin_IN_bit(&(halui_data->lube_off), "halui.lube.off");
-    if (retval < 0) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->program_run), "halui.program.run");
     if (retval < 0) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->program_pause), "halui.program.pause");
@@ -952,7 +943,7 @@ static int sendMachineOn()
 {
     EMC_TASK_SET_STATE state_msg;
 
-    state_msg.state = EMC_TASK_STATE_ON;
+    state_msg.state = EMC_TASK_STATE::ON;
     return emcCommandSend(state_msg);
 }
 
@@ -960,7 +951,7 @@ static int sendMachineOff()
 {
     EMC_TASK_SET_STATE state_msg;
 
-    state_msg.state = EMC_TASK_STATE_OFF;
+    state_msg.state = EMC_TASK_STATE::OFF;
     return emcCommandSend(state_msg);
 }
 
@@ -968,7 +959,7 @@ static int sendEstop()
 {
     EMC_TASK_SET_STATE state_msg;
 
-    state_msg.state = EMC_TASK_STATE_ESTOP;
+    state_msg.state = EMC_TASK_STATE::ESTOP;
     return emcCommandSend(state_msg);
 }
 
@@ -976,7 +967,7 @@ static int sendEstopReset()
 {
     EMC_TASK_SET_STATE state_msg;
 
-    state_msg.state = EMC_TASK_STATE_ESTOP_RESET;
+    state_msg.state = EMC_TASK_STATE::ESTOP_RESET;
     return emcCommandSend(state_msg);
 }
 
@@ -984,11 +975,11 @@ static int sendManual()
 {
     EMC_TASK_SET_MODE mode_msg;
 
-    if (emcStatus->task.mode == EMC_TASK_MODE_MANUAL) {
+    if (emcStatus->task.mode == EMC_TASK_MODE::MANUAL) {
         return 0;
     }
 
-    mode_msg.mode = EMC_TASK_MODE_MANUAL;
+    mode_msg.mode = EMC_TASK_MODE::MANUAL;
     return emcCommandSend(mode_msg);
 }
 
@@ -996,11 +987,11 @@ static int sendAuto()
 {
     EMC_TASK_SET_MODE mode_msg;
 
-    if (emcStatus->task.mode == EMC_TASK_MODE_AUTO) {
+    if (emcStatus->task.mode == EMC_TASK_MODE::AUTO) {
         return 0;
     }
 
-    mode_msg.mode = EMC_TASK_MODE_AUTO;
+    mode_msg.mode = EMC_TASK_MODE::AUTO;
     return emcCommandSend(mode_msg);
 }
 
@@ -1008,11 +999,11 @@ static int sendMdi()
 {
     EMC_TASK_SET_MODE mode_msg;
 
-    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
+    if (emcStatus->task.mode == EMC_TASK_MODE::MDI) {
         return 0;
     }
 
-    mode_msg.mode = EMC_TASK_MODE_MDI;
+    mode_msg.mode = EMC_TASK_MODE::MDI;
     return emcCommandSend(mode_msg);
 }
 
@@ -1032,7 +1023,7 @@ static int sendMdiCommand(int n)
     }
 
     // switch to MDI mode if needed
-    if (emcStatus->task.mode != EMC_TASK_MODE_MDI) {
+    if (emcStatus->task.mode != EMC_TASK_MODE::MDI) {
 	if (sendMdi() != 0) {
             rtapi_print("halui: %s: failed to Set Mode MDI\n", __func__);
             return -1;
@@ -1041,8 +1032,8 @@ static int sendMdiCommand(int n)
             rtapi_print("halui: %s: failed to update status\n", __func__);
 	    return -1;
 	}
-	if (emcStatus->task.mode != EMC_TASK_MODE_MDI) {
-            rtapi_print("halui: %s: switched mode, but got %d instead of mdi\n", __func__, emcStatus->task.mode);
+	if (emcStatus->task.mode != EMC_TASK_MODE::MDI) {
+            rtapi_print("halui: %s: switched mode, but got %d instead of mdi\n", __func__, (int)emcStatus->task.mode);
 	    return -1;
 	}
     }
@@ -1103,20 +1094,6 @@ static int sendFloodOff()
     EMC_COOLANT_FLOOD_OFF emc_coolant_flood_off_msg;
 
     return emcCommandSend(emc_coolant_flood_off_msg);
-}
-
-static int sendLubeOn()
-{
-    EMC_LUBE_ON emc_lube_on_msg;
-
-    return emcCommandSend(emc_lube_on_msg);
-}
-
-static int sendLubeOff()
-{
-    EMC_LUBE_OFF emc_lube_off_msg;
-
-    return emcCommandSend(emc_lube_off_msg);
 }
 
 // programStartLine is the saved valued of the line that
@@ -1273,8 +1250,8 @@ static void sendJogStop(int ja, int jjogmode)
 {
     EMC_JOG_STOP emc_jog_stop_msg;
 
-    if (   ( (jjogmode == JOGJOINT) && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) )
-        || ( (jjogmode == JOGTELEOP ) && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) )
+    if (   ( (jjogmode == JOGJOINT) && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP) )
+        || ( (jjogmode == JOGTELEOP ) && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP) )
        ) {
        return;
     }
@@ -1293,9 +1270,9 @@ static void sendJogCont(int ja, double speed, int jjogmode)
 {
     EMC_JOG_CONT emc_jog_cont_msg;
 
-    if (emcStatus->task.state != EMC_TASK_STATE_ON) { return; }
-    if (   ( (jjogmode == JOGJOINT) && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) )
-        || ( (jjogmode == JOGTELEOP ) && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) )
+    if (emcStatus->task.state != EMC_TASK_STATE::ON) { return; }
+    if (   ( (jjogmode == JOGJOINT) && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP) )
+        || ( (jjogmode == JOGTELEOP ) && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP) )
        ) {
        return;
     }
@@ -1315,9 +1292,9 @@ static void sendJogIncr(int ja, double speed, double incr, int jjogmode)
 {
     EMC_JOG_INCR emc_jog_incr_msg;
 
-    if (emcStatus->task.state != EMC_TASK_STATE_ON) { return; }
-    if (   ( (jjogmode == JOGJOINT) && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) )
-        || ( (jjogmode == JOGTELEOP ) && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) )
+    if (emcStatus->task.state != EMC_TASK_STATE::ON) { return; }
+    if (   ( (jjogmode == JOGJOINT) && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP) )
+        || ( (jjogmode == JOGTELEOP ) && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP) )
        ) {
        return;
     }
@@ -1686,12 +1663,6 @@ static void check_hal_changes()
 
     if (check_bit_changed(new_halui_data.flood_off, old_halui_data.flood_off) != 0)
 	sendFloodOff();
-
-    if (check_bit_changed(new_halui_data.lube_on, old_halui_data.lube_on) != 0)
-	sendLubeOn();
-
-    if (check_bit_changed(new_halui_data.lube_off, old_halui_data.lube_off) != 0)
-	sendLubeOff();
 
     if (check_bit_changed(new_halui_data.program_run, old_halui_data.program_run) != 0)
 	sendProgramRun(0);
@@ -2116,65 +2087,65 @@ static void modify_hal_pins()
     int joint;
     int spindle;
 
-    if (emcStatus->task.state == EMC_TASK_STATE_ON) {
+    if (emcStatus->task.state == EMC_TASK_STATE::ON) {
 	*(halui_data->machine_is_on)=1;
     } else {
 	*(halui_data->machine_is_on)=0;
     }
 
-    if (emcStatus->task.state == EMC_TASK_STATE_ESTOP) {
+    if (emcStatus->task.state == EMC_TASK_STATE::ESTOP) {
 	*(halui_data->estop_is_activated)=1;
     } else {
 	*(halui_data->estop_is_activated)=0;
     }
 
     if (halui_sent_mdi) { // we have an ongoing MDI command
-	if (emcStatus->status == 1) { //which seems to have finished
+	if (emcStatus->status == RCS_STATUS::DONE) { //which seems to have finished
 	    halui_sent_mdi = 0;
 	    switch (halui_old_mode) {
-		case EMC_TASK_MODE_MANUAL: sendManual();break;
-		case EMC_TASK_MODE_MDI: break;
-		case EMC_TASK_MODE_AUTO: sendAuto();break;
+		case EMC_TASK_MODE::MANUAL: sendManual();break;
+		case EMC_TASK_MODE::MDI: break;
+		case EMC_TASK_MODE::AUTO: sendAuto();break;
 		default: sendManual();break;
 	    }
 	}
     }
 	
 
-    if (emcStatus->task.mode == EMC_TASK_MODE_MANUAL) {
+    if (emcStatus->task.mode == EMC_TASK_MODE::MANUAL) {
 	*(halui_data->mode_is_manual)=1;
     } else {
 	*(halui_data->mode_is_manual)=0;
     }
 
-    if (emcStatus->task.mode == EMC_TASK_MODE_AUTO) {
+    if (emcStatus->task.mode == EMC_TASK_MODE::AUTO) {
 	*(halui_data->mode_is_auto)=1;
     } else {
 	*(halui_data->mode_is_auto)=0;
     }
 
-    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
+    if (emcStatus->task.mode == EMC_TASK_MODE::MDI) {
 	*(halui_data->mode_is_mdi)=1;
     } else {
 	*(halui_data->mode_is_mdi)=0;
     }
 
-    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) {
+    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP) {
 	*(halui_data->mode_is_teleop)=1;
     } else {
 	*(halui_data->mode_is_teleop)=0;
     }
 
-    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_FREE) {
+    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::FREE) {
 	*(halui_data->mode_is_joint)=1;
     } else {
 	*(halui_data->mode_is_joint)=0;
     }
 
-    *(halui_data->program_is_paused) = emcStatus->task.interpState == EMC_TASK_INTERP_PAUSED;
-    *(halui_data->program_is_running) = emcStatus->task.interpState == EMC_TASK_INTERP_READING ||
-                                        emcStatus->task.interpState == EMC_TASK_INTERP_WAITING;
-    *(halui_data->program_is_idle) = emcStatus->task.interpState == EMC_TASK_INTERP_IDLE;
+    *(halui_data->program_is_paused) = emcStatus->task.interpState == EMC_TASK_INTERP::PAUSED;
+    *(halui_data->program_is_running) = emcStatus->task.interpState == EMC_TASK_INTERP::READING ||
+                                        emcStatus->task.interpState == EMC_TASK_INTERP::WAITING;
+    *(halui_data->program_is_idle) = emcStatus->task.interpState == EMC_TASK_INTERP::IDLE;
     *(halui_data->program_os_is_on) = emcStatus->task.optional_stop_state;
     *(halui_data->program_bd_is_on) = emcStatus->task.block_delete_state;
 
@@ -2184,7 +2155,6 @@ static void modify_hal_pins()
 
     *(halui_data->mist_is_on) = emcStatus->io.coolant.mist;
     *(halui_data->flood_is_on) = emcStatus->io.coolant.flood;
-    *(halui_data->lube_is_on) = emcStatus->io.lube.on;
 
     *(halui_data->tool_number) = emcStatus->io.tool.toolInSpindle;
     *(halui_data->tool_length_offset_x) = emcStatus->task.toolOffset.tran.x;

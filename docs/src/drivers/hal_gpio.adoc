@@ -1,0 +1,145 @@
+:lang: en
+:toc:
+
+[[cha:hal_gpio-driver]]
+
+= Generic driver for any GPIO supported by gpiod.
+
+This driver has been tested on the Pi, and should also work on Bananapi, Beaglebone, Pine64 (et al) and other SBCs and potentially on other platforms.  
+
+== Purpose
+
+This driver allows the use of GPIO pins in a way analagous to the parallel port driver on x86 PCs. It can use the same step generators, encoder counters and similar components.
+
+== Usage
+
+----
+loadrt hal_gpio inputs=GPIO5,GPIO6,GPIO12,GPIO13,GPIO16,GPIO17,GPIO18,GPIO19 \
+				outputs=GPIO20,GPIO21,GPIO22,GPIO23,GPIO24,GPIO25,GPIO26,GPIO27 \
+				invert=GPIO20,GPIO27 \
+				reset=GPIO21,GPIO22
+----
+
+This driver relies on the libgpiod-dev library and the gpiod package, which contains a number of utilities for configuring and querying GPIO. 
+The GPIO pin names in the "loadrt" line of the HAL given above should be the names given by the "gpioinfo" command.
+
+Sample output (truncated):
+
+----
+$ gpioinfo
+gpiochip0 - 54 lines:
+	line   0:     "ID_SDA"       unused   input  active-high
+	line   1:     "ID_SCL"       unused   input  active-high
+	line   2:       "SDA1"       unused   input  active-high
+	line   3:       "SCL1"       unused   input  active-high
+	line   4:  "GPIO_GCLK"       unused   input  active-high
+	line   5:      "GPIO5"       unused   input  active-high
+	line   6:      "GPIO6"       unused   input  active-high
+	line   7:  "SPI_CE1_N"       unused   input  active-high
+	line   8:  "SPI_CE0_N"       unused   input  active-high
+	line   9:   "SPI_MISO"       unused   input  active-high
+	line  10:   "SPI_MOSI"       unused   input  active-high
+	line  11:   "SPI_SCLK"       unused   input  active-high
+	line  12:     "GPIO12"       unused   input  active-high
+	line  13:     "GPIO13"       unused   input  active-high
+	line  14:       "TXD1"       unused   input  active-high
+	line  15:       "RXD1"       unused   input  active-high
+	line  16:     "GPIO16"       unused   input  active-high
+	line  17:     "GPIO17"       unused   input  active-high
+	line  18:     "GPIO18"       unused   input  active-high
+	line  19:     "GPIO19"       unused   input  active-high
+	line  20:     "GPIO20"       unused  output  active-high
+...
+----
+
+A list of input and/or output pins should be specified as shown in the sample above. (the \ character is used for line continuation in HAL, and is used to improve readability. The pin names are case-sensitive and there must be no spaces in the strings, either beteen the comma-separated pins lists of the "=" signs.
+
+Additional modifiers are:
+*invert* (valid for outputs only). Inverts the sense of the physical pin relative to the value in HAL.
+
+*reset* (valid for outputs only). If any pins are allocated to the "reset" list than a HAL parameter *hal_gpio.reset_ns* will be created. This will have no effect unless the *hal_gpio.reset* function is added to a realtime thread. This should be placed after the *hal_gpio.write* function and must be in the same thread. The behaviour of this function is equivalent to the same function in the *hal_parport* driver, and it allows a step pulse every thread cycle. If the *hal_gpio.reset_ns* time is set longer than 1/4 of the period of the thread that it is added to, then the value will be reduced to 1/4 the thread period. There is a lower limit to how long the pulse can be. With 8 pins in the output list the pulse width can not reduce lower than 5000ns on a Pi4, for example.
+
+The following functions are accepted in all versions, but are only effective if a version of libgpiod_dev >= 1.6 is installed.
+They should be used in the same way as the parameters described above, and will alter the electrical paramters of the GPIO pins *if* this is supported by the hardware.
+
+*opendrain*
+
+*opensource*
+
+*biasdisable*
+
+*pulldown*
+
+*pullup*
+
+The version of libgpiod-dev installed can be determined by the command "gpioinfo -v"
+
+== Pins
+
+* hal_gpio.NAME-in - HAL_OUT The value of an input pin presented in to HAL
+* hal_gpio.NAME-in-not - HAL_OUT An inverted version of the above, for convenience
+* hal_gpio.NAME-out - HAL_IN use this pin to transfer a HAL bit value to a physical output
+
+
+== Parameters
+
+* hal_gpio.reset_ns - HAL_RW - "setp" this parameter to control the pulse length of pins added to the "reset" list. The value will be limited between 0 and thread-period / 4.
+
+
+== Functions
+
+* 'hal_gpio.read' - Add this to the base thread to update the HAL pin values to match the physical input values.
+
+* 'hal_gpio.write' - Add this to the base thread to update the physical pins to match the HAL values.
+
+* 'hal_gpio.reset' - Only exported if there are pins defined in the reset list. This should be placed after the "write" function, and should be in the same thread.
+
+Typically the 'read' function will be early in the call list, before any encoder counters and the 'write' function will be later in the call list, after stepgen.make-pulses.
+
+
+== Pin Identification
+
+Use the pin names returned by the "gpioinfo" utility. This uses the device-tree data. If the installed OS does not have a device-tree database then the pins will all be called "unnamed" (or similar) and this driver can not be used.
+
+A further update to this driver might allow access by index number, but this is not currently supported.
+
+== Troubleshooting permissions problems.
+
+If "access denied" messages are returned on loading the driver, try the following recipe:
+(Should not be needed for Raspian, and will need to be modified to match the actual GPIO chip name on non-Pi platforms)
+
+1) Create a new group "gpio" with the command
+
+ sudo groupadd gpio
+
+2) Create a file called 90-gpio-access with the following contents (this
+is copied from the Raspbian install) 
+
+````
+SUBSYSTEM=="bcm2835-gpiomem", GROUP="gpio", MODE="0660"
+SUBSYSTEM=="gpio", GROUP="gpio", MODE="0660"
+SUBSYSTEM=="gpio*", PROGRAM="/bin/sh -c '\
+	chown -R root:gpio /sys/class/gpio && chmod -R 770 /sys/class/gpio;\
+	chown -R root:gpio /sys/devices/virtual/gpio && chmod -R 770 /sys/devices/virtual/gpio;\
+	chown -R root:gpio /sys$devpath && chmod -R 770 /sys$devpath\
+'"
+
+SUBSYSTEM=="pwm*", PROGRAM="/bin/sh -c '\
+	chown -R root:gpio /sys/class/pwm && chmod -R 770 /sys/class/pwm;\
+	chown -R root:gpio /sys/devices/platform/soc/*.pwm/pwm/pwmchip* && chmod -R 770 /sys/devices/platform/soc/*.pwm/pwm/pwmchip*\
+'"
+````
+
+3) Add the user who runs LinuxCNC to the "gpio" group with
+
+sudo usermod -aG gpio the_username
+
+== Author
+
+Andy Pugh
+
+
+== Known Bugs
+
+None at this time.
+

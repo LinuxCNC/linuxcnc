@@ -8,32 +8,31 @@ o<qt_auto_probe_tool> sub
 ; or preview will break, so test for '#<_task>' which is 1 for 
 ; the milltask interpreter and 0 in the UI's
 O100 if [#<_task> EQ 0]
-        (debug, Task ist Null)
+        (debug, Task is Null)
 O100     return [999]
 O100 endif
 
-; adjust back off distance if metric/imperial based machine
-O150 if [#<_metric_machine>]
-    O175 if [#<_imperial>]
+; check we are in right mode
+O110 if [#<_metric_machine>]
+    O115 if [#<_imperial>]
        (MSG, Auto Tool probe error: not in G21 mode )
-    O175 return [-3] ; indicate probe contact failure to epilog
-    O175 endif
-
-    #<backoff> = 4.0
-O150 else
-    O175 if [#<_imperial> EQ 0]
+    O115 return [-3] ; indicate probe contact failure to epilog
+    O115 endif
+O110 else
+    O115 if [#<_imperial> EQ 0]
        (MSG, Auto Tool probe error: not in G20 mode )
-    O175 return [-3] ; indicate probe contact failure to epilog
-    O175 endif
-
-    #<backoff> = 0.200
-O150  endif
+    O115 return [-3] ; indicate probe contact failure to epilog
+    O115 endif
+O110 endif
 
 ;first go up
 F #<_hal[qtversaprobe.searchvel]>
-G53 G1 Z[#<_ini[CHANGE_POSITION]Z>]
-; then move to change position
-G53 G0 X[#<_ini[CHANGE_POSITION]X>] Y[#<_ini[CHANGE_POSITION]Y>]
+G53 G0 Z[#<_ini[CHANGE_POSITION]Z>]
+
+O125 if [#<_current_tool>  NE #<tool>]
+    ; then move to change position
+    G53 G0 X[#<_ini[CHANGE_POSITION]X>] Y[#<_ini[CHANGE_POSITION]Y>]
+O125 endif
 
 ; cancel tool offset
 G49
@@ -43,6 +42,7 @@ M6
 
 O200 if [#<_hal[qtversaprobe.enable]> EQ 0]
    (MSG, Auto Tool probe disabled )
+    G43
 O200 return [3] ; indicate no tool measurement 
 O200 endif
 
@@ -61,12 +61,12 @@ O400 endif
 
 F #<_hal[qtversaprobe.searchvel]>
 G91
-G38.2 Z #<_ini[VERSA_TOOLSETTER]MAXPROBE>
-G0 Z2
+G38.2 Z- #<_ini[VERSA_TOOLSETTER]MAXPROBE>
+G0 Z #<_hal[qtversaprobe.backoffdist]>
 
 ;reprobe at probe speed
 F #<_hal[qtversaprobe.probevel]>
-G38.2 Z-#<backoff>
+G38.2 Z- [#<_hal[qtversaprobe.backoffdist]> *1.2]
 
 O500 if [#5070 EQ 0]
 G90

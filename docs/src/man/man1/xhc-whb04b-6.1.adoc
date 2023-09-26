@@ -402,7 +402,7 @@ MDI_COMMAND=(debug,macro16)
 
 Exercise caution if using copy and paste of this example code from the online web docs.
 Certain characters are incompatibly encoded by the web site (minus becomes em-dash).
-It is safer to copy and paste from https://raw.githubusercontent.com/LinuxCNC/linuxcnc/2.8/src/hal/user_comps/xhc-whb04b-6/example-configuration.md[].
+It is safer to copy and paste from https://raw.githubusercontent.com/LinuxCNC/linuxcnc/devel/src/hal/user_comps/xhc-whb04b-6/example-configuration.md[].
 
 ----
 #
@@ -473,7 +473,7 @@ net pdnt.axis.z.jog-vel-mode              whb.axis.z.jog-vel-mode               
 
 # macro buttons to MDI commands
 net pdnt.macro-1                          whb.button.macro-1                    halui.mdi-command-01             # use MDI command from main.ini
-net pdnt.macro-2                          whb.button.macro-2                    halui.mdi-command-02             # use MDI command from main.ini or used for Hardcoded lube on/off
+net pdnt.macro-2                          whb.button.macro-2                    halui.mdi-command-02             # use MDI command from main.ini
 net pdnt.reserved.for.spindle+            whb.button.macro-3                                                     # Hardcoded for spindle+ whb.halui.spindle.increase
 net pdnt.reserved.for.spindle-            whb.button.macro-4                                                     # Hardcoded for spindle- whb.halui.spindle.decrease
 net pdnt.macro-5                          whb.button.macro-5                    halui.mdi-command-05             # use MDI command from main.ini
@@ -499,11 +499,6 @@ net  pdnt.flood.on                        whb.halui.flood.on                    
 net  pdnt.mist.is-on                      whb.halui.mist.is-on                  halui.mist.is-on                 #return signal is on or off
 net  pdnt.mist.off                        whb.halui.mist.off                    halui.mist.off                   #reserved whb.button.macro-16
 net  pdnt.mist.on                         whb.halui.mist.on                     halui.mist.on                    #reserved whb.button.macro-16
-
-#net  pdnt.lube.is-on                      whb.halui.lube.is-on                  halui.lube.is-on                 #return signal is on or off
-#net  pdnt.lube.off                        whb.halui.lube.off                    halui.lube.off                   #reserved whb.button.macro-2
-#net  pdnt.lube.on                         whb.halui.lube.on                     halui.lube.on                    #reserved whb.button.macro-2
-
 
 # default function button signals
 net pdnt.button.m-home                    whb.button.m-home                     halui.home-all                   # Homeing use built-in halui home all

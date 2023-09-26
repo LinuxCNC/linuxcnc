@@ -1,9 +1,0 @@
-Document: linuxcnc-doc-fr
-Title: LinuxCNC Documentation French
-Section: Science/Engineering
-
-Format: PDF
-Files: 
- /usr/share/doc/linuxcnc/LinuxCNC_Documentation_fr.pdf
- /usr/share/doc/linuxcnc/LinuxCNC_Getting_Started_fr.pdf
- /usr/share/doc/linuxcnc/LinuxCNC_Integrator_fr.pdf

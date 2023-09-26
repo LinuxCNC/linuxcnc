@@ -18,23 +18,20 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+# helps confirm designer is set up with right paths
 print('Qtvcp python plugin found:',__file__)
+
 # HAL only widgets
 from qtvcp.plugins.simplewidgets_plugin import *
 from qtvcp.plugins.led_plugin import LEDPlugin
 from qtvcp.plugins.hal_label_plugin import HALLabelPlugin
 from qtvcp.plugins.detach_tabs_plugin import DetachTabWidgetPlugin
 from qtvcp.plugins.round_progress_bar_plugin import RoundProgressBarPlugin
-from PyQt5.QtCore import PYQT_VERSION_STR
-try:
-    v = PYQT_VERSION_STR.split('.')
-    if int(v[1]) > 10:
-        from qtvcp.plugins.joypad_plugin import *
-except:
-    print('PyQt version {} to old for JoyPad widget'.format(PYQT_VERSION_STR))
+from qtvcp.plugins.joypad_plugin import *
 
 # plain widgets
 from qtvcp.plugins.nurbs_editor_plugin import NurbsEditorPlugin
+from qtvcp.plugins.web_widget_plugin import WebWidgetPlugin
 
 # Linuxcnc widgets
 from qtvcp.plugins.container_plugin import StateEnableGridLayoutPlugin
@@ -58,3 +55,4 @@ from qtvcp.plugins.basic_probe_plugin import BasicProbePlugin
 from qtvcp.plugins.tab_widget_plugin import TabWidgetPlugin
 from qtvcp.plugins.virtualkeyboard_plugin import VirtualKeyboardPlugin
 from qtvcp.plugins.round_gauge_plugin import GaugePlugin
+from qtvcp.plugins.bar_plugin import HalBarPlugin

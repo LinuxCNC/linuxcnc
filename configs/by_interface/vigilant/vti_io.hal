@@ -123,13 +123,3 @@ addf vti.do-write servo-thread -1
 #linksp MistOn => iocontrol.0.coolant-mist
 #linksp FloodOn <= vti.out-12
 #linksp FloodOn => iocontrol.0.coolant-flood
-
-# connect lube motor run to I/O controller
-#newsig LubeOn bit
-#linksp LubeOn <= vti.out-13
-#linksp LubeOn => iocontrol.0.lube
-
-# connect lube level to I/O controller
-#newsig LubeLevel bit
-#linksp LubeLevel <= vti.in-13
-#linksp LubeLevel => iocontrol.0.lube_level

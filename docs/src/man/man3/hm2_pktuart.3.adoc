@@ -31,62 +31,44 @@ hm2_pktuart - functions to access the Mesa FPGA card packeted UARTs
 
 == DESCRIPTION
 
-In this context a "Packeted UART" sends data as a burst of bytes
-separated by blank space, and receives packets of bytes similarly
-delimited. Each "packet" of N bytes is sent from, or stored in 32-bit
-"frames" inside 16-deep FIFOs in the FPGA code.
+In this context a "Packeted UART" sends data as a burst of bytes separated by blank space, and receives packets of bytes similarly delimited.
+Each "packet" of N bytes is sent from, or stored in 32-bit "frames" inside 16-deep FIFOs in the FPGA code.
 
-Unlike the other hostmot2 functions, the hostmot2 uart and pktuart do not
-create any HAL pins or usable driver code when hostmot2 is loaded.
+Unlike the other hostmot2 functions, the hostmot2 uart and pktuart do not create any HAL pins or usable driver code when hostmot2 is loaded.
 Instead interfaxes are created to allow secondary drivers to use them.
 
 In LinuxCNC v2.8 and earlier the PktUART driver was entirely inactive.
-In LinuxCNC v2.9 onwards the driver polls the Rx and Tx status registers
-every servo thread, and these can be read with the functions
-rtapi_u32 hm2_pktuart_get_rx_status() and
-rtapi_u32 hm2_pktuart_get_tx_status().
+In LinuxCNC v2.9 onwards the driver polls the Rx and Tx status registers every servo thread, and these can be read with the functions rtapi_u32 hm2_pktuart_get_rx_status() and rtapi_u32 hm2_pktuart_get_tx_status().
 
-=== Acessing the UARTs ===
+=== Accessing the UARTs ===
 
-The UART functions above can be included in your driver code by
-``#include "hostmot2-serial.h"``
+The UART functions above can be included in your driver code by ``#include "hostmot2-serial.h"``
 This will make the functions above available for use in your own C code.
 
-The UARTs are accessed by name, and the names will be printed to the
-terminal (or dmesg in the case of RTAI kernel realtime) when the board
-driver (hm2_eth, hm2_pci etc) is loaded.
-Internally the UARTs are addressed by index, but the indices are per-card
-so not unambiguous. Internally the functions all use the private
-*hm2_get_pktuart" function which returns the index of the UART _and_ the
-low level driver instance it belongs to.[These functions are not hard-
-private, you can **#include "hostmot2.h"** if you need the lower-level
-functions, but then need to track the board instances yourself]
+The UARTs are accessed by name, and the names will be printed to the terminal (or dmesg in the case of RTAI kernel realtime) when the board driver (hm2_eth, hm2_pci etc) is loaded.
+Internally the UARTs are addressed by index, but the indices are per-card so not unambiguous.
+Internally the functions all use the private *hm2_get_pktuart" function which returns the index of the UART _and_ the low level driver instance it belongs to. [These functions are not hard- private, you can **#include "hostmot2.h"** if you need the lower-level functions, but then need to track the board instances yourself.]
 
 === Configuring the UART ===
 
-You should refer to the Hostmot2 "regmap" file for up-to-date register
-setup information. The latest version will normally be found at
-http://freeby.mesanet.com/regmap.
+You should refer to the Hostmot2 "regmap" file for up-to-date register setup information.
+The latest version will normally be found at http://freeby.mesanet.com/regmap.
 
-You should use the function **hm2_pktuart_get_version()** to
-check the module version loaded to the FPGA board. This documentation
-is valid for Rx v0 / v1 and Tx v0. The return value of the function is
-16 * Tx + Rx. If viewed in Hex then 0x01 would indicate Tx v0 and Rx v1
-(The latest at the time of writing)
+You should use the function **hm2_pktuart_get_version()** to check the module version loaded to the FPGA board.
+This documentation is valid for Rx v0 / v1 and Tx v0.
+The return value of the function is 16 * Tx + Rx.
+If viewed in Hex then 0x01 would indicate Tx v0 and Rx v1. (The latest at the time of writing.)
 
-When reading the Regmap file it should be considered that to an FPGA
-read and write addresses are not the same. You will see that there are
-overlaps, in that some bits in the registers have different functions
-when read or written.
+When reading the Regmap file it should be considered that to an FPGA read and write addresses are not the same.
+You will see that there are overlaps, in that some bits in the registers have different functions when read or written.
 
 To configure the UART use
 
 *int hm2_pktuart_setup(name, bitrate, tx_mode, rx_mode, txclear, rxclear)*
 
-**bitrate** is simply the bitrate. (eg 9600, 115200 etc).
+**bitrate** is simply the bitrate (e.g. 9600, 115200 etc).
 
-**txmode** is built up from the following bits (directly copied from the
-regmap)
+**txmode** is built up from the following bits (directly copied from the regmap)
 
 ----
     Bit  17        Parity enable WO
@@ -95,10 +77,8 @@ regmap)
     Bit  6         Drive Enable bit (enables external RS-422/485 Driver when set) RW
     Bit  5         Drive enable Auto (Automatic external drive enable) RW
                    Drive Enable Auto has priority over Drive Enable (bit 6 is a no-op if bit 5 is set)
-    Bits 3..0      Drive enable delay (delay from asserting drive enable
-                   to start of data transmit. In Clock Low periods RW
-                   Drive enable delay is important to avoid start bit timing errors
-                   at high baud rates in RS-485 (half duplex) modes
+    Bits 3..0      Drive enable delay (delay from asserting drive enable to start of data transmit.
+                   In Clock Low periods RW Drive enable delay is important to avoid start bit timing errors at high baud rates in RS-485 (half duplex) modes.
 ----
 
 A reasonable starting value for txmode is **0x00000A20**
@@ -108,8 +88,7 @@ A reasonable starting value for txmode is **0x00000A20**
 **rxmode** is built from the following:
 
     Bits 29..22    RX data digital filter (in ClockLow periods)
-                   Should be set to 1/2 bit time
-                   (or max=255 if it cannot be set long enough)
+                   Should be set to 1/2 bit time (or max=255 if it cannot be set long enough)
     Bit  17        Parity enable WO
     Bit  18        Odd Parity  WO  (1=odd, 0=even)
     Bits 15..8     InterFrame delay in bit times RW
@@ -117,14 +96,12 @@ A reasonable starting value for txmode is **0x00000A20**
     Bit  3	       RXEnable (must be set to receive packets) RW 
     Bit  2	       RXMask Enable (enables input data masking when transmitting) RW
 ----
-For low baudrates **0x3FC0140C** will generally work, but the filter bits
-should really be set according to the actual baudrate.
+For low baud rates **0x3FC0140C** will generally work, but the filter bits should really be set according to the actual baud rate.
 
-The function **int hm2_pktuart_get_clock(name)** is provided to
-enable calculation of the required filter period. It returns units of Hz.
+The function **int hm2_pktuart_get_clock(name)** is provided to enable calculation of the required filter period.
+It returns units of Hz.
 
-[Note] It is expected that v2 of Rx will extend the number of bits in
-the filter definition for better behaviour at low bitrates.
+[Note] It is expected that v2 of Rx will extend the number of bits in the filter definition for better behaviour at low bitrates.
 
 === Direct reads and writes ===
 
@@ -138,25 +115,21 @@ However:
 
 *int hm2_pktuart_read()*
 
-Will force an immediate read transaction. It may be used in setup and
-teardown code, but should not be called in the realtime functions as
-this will cause extra packets to be transmitted.
+Will force an immediate read transaction.
+It may be used in setup and teardown code, but should not be called in the realtime functions as this will cause extra packets to be transmitted.
 This may be acceptable for PCI cards, but should otherwise be avoided.
 
 === Queued Reads and Writes ===
 
-In the realtime threads the queued reads and writes should be used. This
-means that most transactions will be spread over more than one thread
-period.
+In the realtime threads the queued reads and writes should be used.
+This means that most transactions will be spread over more than one thread period.
 
 *rtapi_u32 hm2_pktuart_get_rx_status(name)*
 
 *rtapi_u32 hm2_pktuart_get_tx_status(name)*
 
-These functions will always return the latest status from the most
-recent data packet from the FPGA. The status should be used to check if
-any new data has been recieved, or if the UART has completed the recent
-transmissions.
+These functions will always return the latest status from the most recent data packet from the FPGA.
+The status should be used to check if any new data has been received, or if the UART has completed the recent transmissions.
 
 The Tx status is encoded as:
 
@@ -182,34 +155,24 @@ Bit  1	       Overrun error (no stop bit when expected) (sticky) RW
 Bit  0	       False Start bit error (sticky) RW
 ----
 
-Based on the status of the Rx and Tx components reads or writes from the
-FPGA can then be set up. This is typically a multi-step process:
+Based on the status of the Rx and Tx components reads or writes from the FPGA can then be set up.
+This is typically a multi-step process:
 
-1) rxstatus indicates that there are packets of data, but at this point
-we need to know how big each packet is (and reading two much or two
-little data from the FIFOs will cause problems).
+1) rxstatus indicates that there are packets of data, but at this point we need to know how big each packet is (and reading two much or two little data from the FIFOs will cause problems).
 2) Queue a read of the frame sizes. **hm2_pktuart_queue_get_frame_sizes(name, fsizes[])**
-On return, the fsizes[] array will have been loaded with the frame sizes
-(size in bytes). If fsizes are [8] [7] [6] and you only read 1 frame from
-the data FIFO then on the next call to get_frame_sizes the returned array
-would be [7] [6].
-3) Wait one thread cycle to get the data. Note that there is no serial
-latency here, the data is already on the FPGA but we can only know how
-much data to request once we know the packet size
-4) Queue enough data reads to get all the data frames that the packet
-is spread over. **int hm2_pktuart_queue_read_data(name, data, bytes)**
-On return the data[] array will have been loaded with enough 32-bit
-frames to include "bytes" bytes.
+On return, the fsizes[] array will have been loaded with the frame sizes (size in bytes).
+If fsizes are [8] [7] [6] and you only read 1 frame from the data FIFO then on the next call to get_frame_sizes the returned array would be [7] [6].
+3) Wait one thread cycle to get the data.  Note that there is no serial latency here, the data is already on the FPGA but we can only know how much data to request once we know the packet size
+4) Queue enough data reads to get all the data frames that the packet is spread over.
+**int hm2_pktuart_queue_read_data(name, data, bytes)**
+On return the data[] array will have been loaded with enough 32-bit frames to include "bytes" bytes.
 5) Parse the data.
 
 === Data Formats ===
 
-Both the Tx and Rx pack the bytes that are to be read or written in
-32-bit "frames" stored in a 16-deep FIFO.
+Both the Tx and Rx pack the bytes that are to be read or written in 32-bit "frames" stored in a 16-deep FIFO.
 
-To send the sequence 01, 02, 03, 04, 05, 06  folowed by the sequence
-F1, F2, F3, F3, F5, F6, F7 the registers
-would be loaded with:
+To send the sequence 01, 02, 03, 04, 05, 06  followed by the sequence F1, F2, F3, F3, F5, F6, F7 the registers would be loaded with:
 
     0x04030201
     0xXXXX0605
@@ -218,15 +181,11 @@ would be loaded with:
 
 (Where X indicates data that will be ignored).
 
-ie, the data is filled right-to-left and right-justified with
-consecutive packets not sharing a 32-bit frame.
+I.e., the data is filled right-to-left and right-justified with consecutive packets not sharing a 32-bit frame.
 
 === Typical Usage ===
 
-Because the transactions are necessarily split over multiple reads, and
-some steps will have serial-port latency delays it is recommended to use
-a state machine in the realtime code where waiting on input is not
-possible.
+Because the transactions are necessarily split over multiple reads, and some steps will have serial-port latency delays it is recommended to use a state machine in the realtime code where waiting on input is not possible.
 
 [source, C]
 ----
@@ -296,15 +255,12 @@ The functions / hostmot2 component do not create any HAL pins.
 
 == EXAMPLE
 
-See inuxcnc-dev/src/hal/components/mesa_pktgyro_test.comp for a simple
-example (which might not work, and uses the deprecated direct reads and
-writes. **mesa_modbus** is a better example, but significantly more
-complex and less instructive because of that.
+See inuxcnc-dev/src/hal/components/mesa_pktgyro_test.comp for a simple example (which might not work, and uses the deprecated direct reads and writes.
+**mesa_modbus** is a better example, but significantly more complex and less instructive because of that.
 
 == Testing ==
 
-The PktUART can be tested using low-level register writes outside the
-realtime context using mesaflash. Here is an example bash script:
+The PktUART can be tested using low-level register writes outside the realtime context using mesaflash. Here is an example bash script:
 
 [source, bash]
 ----

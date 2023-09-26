@@ -8,10 +8,10 @@
 
 // < explanation of the difference between a realtime and a non-realtime component >
 
-Most of the commands in the following list have their own dedicated man pages. 
-Some will have expanded descriptions, some will have limited descriptions. 
+Most of the commands in the following list have their own dedicated man pages.
+Some will have expanded descriptions, some will have limited descriptions.
 From this list you know what components exist, and you can use `man` _name_ on your UNIX command line to get additional information.
-To view the information in the man page, in a terminal window type: 
+To view the information in the man page, in a terminal window type:
 
 ----
 man axis
@@ -31,16 +31,16 @@ To search in the man pages, use the UNIX tool `apropos`.
 ==== Machine Control
 [{tab_options}]
 |===
-| link:../man/man1/axis.1.html[axis]               |AXIS LinuxCNC (The Enhanced Machine Controller) GUI       ||
-| link:../man/man1/axis-remote.1.html[axis-remote] |AXIS Remote Interface                                     ||
-| link:../man/man1/gmoccapy.1.html[gmoccapy]       |Touchy LinuxCNC Graphical User Interface                  ||
-| link:../man/man1/gscreen.1.html[gscreen]         |Touchy LinuxCNC Graphical User Interface                  ||
-| link:../man/man1/halui.1.html[halui]             |Observe HAL pins and command LinuxCNC through NML         ||
-| link:../man/man1/mdro.1.html[mdro]               |manual only Digital Read Out (DRO)                        ||
+| link:../man/man1/axis.1.html[axis]               |AXIS LinuxCNC (The Enhanced Machine Controller) GUI              ||
+| link:../man/man1/axis-remote.1.html[axis-remote] |AXIS Remote Interface                                            ||
+| link:../man/man1/gmoccapy.1.html[gmoccapy]       |Touchy LinuxCNC Graphical User Interface                         ||
+| link:../man/man1/gscreen.1.html[gscreen]         |Touchy LinuxCNC Graphical User Interface                         ||
+| link:../man/man1/halui.1.html[halui]             |Observe HAL pins and command LinuxCNC through NML                ||
+| link:../man/man1/mdro.1.html[mdro]               |manual only Digital Read Out (DRO)                               ||
 | link:../man/man1/ngcgui.1.html[ngcgui]           |Framework for conversational G-code generation on the controller ||
-| link:../man/man1/panelui.1.html[panelui]         |Short description                                         ||
-| link:../man/man1/pyngcgui.1.html[pyngcgui]       |Python implementation of NGCGUI                           ||
-| link:../man/man1/touchy.1.html[touchy]           |AXIS - TOUCHY LinuxCNC Graphical User Interface           ||
+| link:../man/man1/panelui.1.html[panelui]         |Short description                                                ||
+| link:../man/man1/pyngcgui.1.html[pyngcgui]       |Python implementation of NGCGUI                                  ||
+| link:../man/man1/touchy.1.html[touchy]           |AXIS - TOUCHY LinuxCNC Graphical User Interface                  ||
 |===
 
 ==== Virtual Control Panels (VCP)
@@ -79,7 +79,7 @@ To search in the man pages, use the UNIX tool `apropos`.
 | link:../man/man1/io.1.html[io]               |iocontrol - interacts with HAL or G-code in non-realtime                   ||
 | link:../man/man1/iocontrol.1.html[iocontrol] |Interacts with HAL or G-code in non-realtime                               ||
 | link:../man/man1/iov2.1.html[iov2]           |Interacts with HAL or G-code in non-realtime                               ||
-| link:../man/man1/mdi.1.html[mdi]             |Send G-code commands from the terminal to the running LinuxCNC instance ||
+| link:../man/man1/mdi.1.html[mdi]             |Send G-code commands from the terminal to the running LinuxCNC instance    ||
 | link:../man/man1/milltask.1.html[milltask]   |Non-realtime task controller for LinuxCNC                                  ||
 |===
 
@@ -87,24 +87,24 @@ To search in the man pages, use the UNIX tool `apropos`.
 ==== VFD & Communication Interfaces (non-realtime)
 [{tab_options}]
 |===
-| link:../man/man1/elbpcom.1.html[elbpcom] |Communicate with Mesa ethernet cards ||
-| link:../man/man1/gs2_vfd.1.html[gs2_vfd] |HAL non-realtime component for Automation Direct GS2 VFDs ||
-| link:../man/man1/hy_gt_vfd.1.html[hy_gt_vfd] |HAL non-realtime component for Huanyang GT-series VFDs ||
-| link:../man/man1/hy_vfd.1.html[hy_vfd] |HAL non-realtime component for Huanyang VFDs ||
+| link:../man/man1/elbpcom.1.html[elbpcom] |Communicate with Mesa ethernet cards                                                                                                   ||
+| link:../man/man1/gs2_vfd.1.html[gs2_vfd] |HAL non-realtime component for Automation Direct GS2 VFDs                                                                              ||
+| link:../man/man1/hy_gt_vfd.1.html[hy_gt_vfd] |HAL non-realtime component for Huanyang GT-series VFDs                                                                             ||
+| link:../man/man1/hy_vfd.1.html[hy_vfd] |HAL non-realtime component for Huanyang VFDs                                                                                             ||
 | link:../man/man1/mb2hal.1.html[mb2hal] | MB2HAL is a generic non-realtime HAL component to communicate with one or more Modbus devices. Modbus RTU and Modbus TCP are supported. ||
-| link:../man/man1/mitsub_vfd.1.html[mitsub_vfd] |HAL non-realtime component for Mitsubishi A500 F500 E500 A500 D700 E700 F700-series VFDs (others may work) ||
-| link:../man/man1/monitor-xhc-hb04.1.html[monitor-xhc-hb04] |Monitors the XHC-HB04 pendant and warns of disconnection ||
-| link:../man/man1/pi500_vfd.1.html[pi500_vfd] |Powtran PI500 modbus driver ||
-| link:../man/man1/pmx485.1.html[pmx485] |Modbus communications with a Powermax Plasma Cutter ||
-| link:../man/man1/pmx485-test.1.html[pmx485-test] |Modbus communications testing with a Powermax Plasma Cutter ||
-| link:../man/man1/shuttle.1.html[shuttle] |control HAL pins with the ShuttleXpress, ShuttlePRO, and ShuttlePRO2 device made by Contour Design ||
-| link:../man/man1/svd-ps_vfd.1.html[svd-ps_vfd] |HAL non-realtime component for SVD-P(S) VFDs ||
-| link:../man/man1/vfdb_vfd.1.html[vfdb_vfd] |HAL non-realtime component for Delta VFD-B Variable Frequency Drives ||
-| link:../man/man1/vfs11_vfd.1.html[vfs11_vfd] |HAL non-realtime component for Toshiba-Schneider VF-S11 Variable Frequency Drives ||
-| link:../man/man1/wj200_vfd.1.html[wj200_vfd] |Hitachi wj200 modbus driver ||
-| link:../man/man1/xhc-hb04.1.html[xhc-hb04] |Non-realtime HAL component for the xhc-hb04 pendant ||
-| link:../man/man1/xhc-hb04-accels.1.html[xhc-hb04-accels] |Obsolete script for jogging wheel ||
-| link:../man/man1/xhc-whb04b-6.1.html[xhc-whb04b-6] |Non-realtime jog dial HAL component for the wireless XHC WHB04B-6 USB device ||
+| link:../man/man1/mitsub_vfd.1.html[mitsub_vfd] |HAL non-realtime component for Mitsubishi A500 F500 E500 A500 D700 E700 F700-series VFDs (others may work)                       ||
+| link:../man/man1/monitor-xhc-hb04.1.html[monitor-xhc-hb04] |Monitors the XHC-HB04 pendant and warns of disconnection                                                             ||
+| link:../man/man1/pi500_vfd.1.html[pi500_vfd] |Powtran PI500 modbus driver                                                                                                        ||
+| link:../man/man1/pmx485.1.html[pmx485] |Modbus communications with a Powermax Plasma Cutter                                                                                      ||
+| link:../man/man1/pmx485-test.1.html[pmx485-test] |Modbus communications testing with a Powermax Plasma Cutter                                                                    ||
+| link:../man/man1/shuttle.1.html[shuttle] |control HAL pins with the ShuttleXpress, ShuttlePRO, and ShuttlePRO2 device made by Contour Design                                     ||
+| link:../man/man1/svd-ps_vfd.1.html[svd-ps_vfd] |HAL non-realtime component for SVD-P(S) VFDs                                                                                     ||
+| link:../man/man1/vfdb_vfd.1.html[vfdb_vfd] |HAL non-realtime component for Delta VFD-B Variable Frequency Drives                                                                 ||
+| link:../man/man1/vfs11_vfd.1.html[vfs11_vfd] |HAL non-realtime component for Toshiba-Schneider VF-S11 Variable Frequency Drives                                                  ||
+| link:../man/man1/wj200_vfd.1.html[wj200_vfd] |Hitachi wj200 modbus driver                                                                                                        ||
+| link:../man/man1/xhc-hb04.1.html[xhc-hb04] |Non-realtime HAL component for the xhc-hb04 pendant                                                                                  ||
+| link:../man/man1/xhc-hb04-accels.1.html[xhc-hb04-accels] |Obsolete script for jogging wheel                                                                                      ||
+| link:../man/man1/xhc-whb04b-6.1.html[xhc-whb04b-6] |Non-realtime jog dial HAL component for the wireless XHC WHB04B-6 USB device                                                 ||
 |===
 
 === Mesa and other I/O Cards (Realtime)
@@ -211,9 +211,9 @@ Smart-serial remote parameters can now be set in the HAL file in the normal way.
 | link:../man/man9/knob2float.9.html[knob2float] |Converts counts (probably from an encoder) to a float value. ||
 | link:../man/man9/lowpass.9.html[lowpass]   |Low-pass filter | |
 | link:../man/man9/limit1.9.html[limit1]     |Limits the output signal to fall between min and max. footnote:[When the input is a position, this means that the 'position' is limited.] ||
-| link:../man/man9/limit2.9.html[limit2]     |Limits the output signal to fall between min and max.  Limit its slew rate to less than maxv per second. 
+| link:../man/man9/limit2.9.html[limit2]     |Limits the output signal to fall between min and max.  Limit its slew rate to less than maxv per second.
 footnote:[When the input is a position, this means that 'position' and 'velocity' are limited.] ||
-| link:../man/man9/limit3.9.html[limit3]     |Limit the output signal to fall between min and max. 
+| link:../man/man9/limit3.9.html[limit3]     |Limit the output signal to fall between min and max.
 Limit its slew rate to less than maxv per second. Limit its second derivative to less than MaxA per second squared footnote:[When
 the input is a position, this means that the 'position', 'velocity', and 'acceleration' are limited.]. ||
 | link:../man/man9/lincurve.9.html[lincurve] |One-dimensional lookup table ||

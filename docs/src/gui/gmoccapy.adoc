@@ -33,14 +33,9 @@ GMOCCAPY offers a separate settings page to configure most settings of the GUI w
 
 GMOCCAPY can be localized very easy, because the corresponding files are separated from the linuxcnc.po files,
 so there is no need to translate unneeded stuff.
-The files are placed in */src/po/gmoccapy*.
-You could just copy the gmoccapy.pot file to something like it.po and translate that file with gtranslator or poedit.
-After rebuilding, you'd get the GUI in your preference language.
-To facilitate the sharing of the translation,
-GMOCCAPY is available on the https://hosted.weblate.org/projects/linuxcnc/gmocappy/[Weblate web interface].
-GMOCCAPY is currently available in English, German, Spanish, Polish, Serbian and Hungarian.
-Feel free to help me to introduce more languages, be it locally or via the web.
-If you need help, don't hesitate to contact me on *nieson@web.de*.
+If you want to contribute a translation, please use the
+link:https://hosted.weblate.org/projects/linuxcnc/gmocappy/[web based
+translation editor Weblate]. For more information see the section <<sec:contributing-translations,Translations>>
 
 image:images/gmoccapy_5_axis_mid.png[align="left",link="images/gmoccapy_5_axis.png"]
 
@@ -318,6 +313,7 @@ All you have to take care of, is that you include for every tab or side panel th
 ** *box_custom_2*             (will introduce your glade file left of cooling_frame)
 ** *box_custom_3*             (will introduce your glade file left of spindle_frame)
 ** *box_custom_4*             (will introduce your glade file right of spindle_frame)
+** *box_dro_side*             (will introduce your glade file right of the DRO)
 
 [NOTE]
 See also the included sample INI files to see the differences.
@@ -439,12 +435,13 @@ A configuration-specific Python file may be specified with an INI file setting
 [DISPLAY]
 USER_COMMAND_FILE=filename.py
 ----
-If this file is specified, this file is sourced just after the AXIS GUI is displayed
+If this file is specified, this file is sourced just after the GMOCCAPY GUI is displayed
 *instead* of `~/.gmoccapyrc`.
 
 
 The following example changes the size of the vertical buttons:
-.Example of .axisrc file
+.Example of .gmoccapyrc file
+[source,python]
 -----
 self.widgets.vbtb_main.set_size_request(85,-1)
 BB_SIZE = (70, 70) # default = (90, 56)
@@ -463,7 +460,7 @@ The widget names can the looked up in the /usr/share/gmoccapy.glade file
 === User CSS File
 
 Similar to the User command file it's possible to influence the appearance by cascading style sheets (CSS).
-If a file `~/.gmoccapy_css` exists, its contents are loaded into the stylesheet provider and are so beeing applied to the GUI.
+If a file `~/.gmoccapy_css` exists, its contents are loaded into the stylesheet provider and are so being applied to the GUI.
 
 A configuration-specific CSS file may be specified with an INI file setting
 [source,{ini}]
@@ -520,7 +517,7 @@ You can specify where to save the log file:
 [DISPLAY]
 LOG_FILE = gmoccapy.log
 ----
-If `LOG_FILE` is not set, logging happens to `$HOME/<base_log_name>.log`
+If `LOG_FILE` is not set, logging happens to `$HOME/<base_log_name>.log`.
 
 
 == HAL Pins
@@ -956,8 +953,7 @@ Tool Measurement in GMOCCAPY is done a little bit different to many other GUIs.
 You should follow these steps:
 
 . Touch off your workpiece in X and Y.
-. Measure the height of your block from the base where your tool switch is
-  located, to the upper face of the block (including chuck etc.).
+. Measure the height of your block from the base where your tool switch is located, to the upper face of the block (including chuck etc.).
 . Push the button block height and enter the measured value.
 . Go to auto mode and start your program.
 
@@ -1129,15 +1125,16 @@ You have three options:
 * _Start as window_  - If you select start as window the spinboxes to set the position and size will get active.
   One time set, the GUI will start every time on the place and with the size selected.
   Nevertheless the user can change the size and position using the mouse, but that will not have any influence on the settings.
-* _hide the cursor_ - Does allow to hide the cursor, what is very useful if you use a touch screen.
+* _Window decorated_ - Allows the title bar to be hidden. (default: title bar visible)
+* _hide cursor_ - Does allow to hide the cursor, what is very useful if you use a touch screen.
+* _hide tooltips_ - Hides the tool tips.
 
 .Keyboard
 
 The checkboxes allow the user to select if he wants the on board keyboard to be shown immediately,
-when entering the MDI Mode, when entering the offset page, the tooledit widget or when open a program
-in the EDIT mode. The keyboard button on the bottom button list will not be affected by these settings,
-so you are able to show or hide the keyboard by pressing the button. The default behavior will be set by
-the checkboxes.
+when entering the MDI Mode, when entering the offset page, the tooledit widget or when open a program in the EDIT mode.
+The keyboard button on the bottom button list will not be affected by these settings, so you are able to show or hide the keyboard by pressing the button.
+The default behavior will be set by the checkboxes.
 
 Default are :
 

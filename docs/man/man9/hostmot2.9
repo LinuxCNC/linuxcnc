@@ -42,7 +42,6 @@ The board interfaces with the computer via PCI, Ethernet, SPI, or EPP, and inter
 such as servos and stepper motors via I/O pins on the board.
 
 Each I/O pin can be configured, at board-driver load time, to serve one of two purposes:
-either as a particular I/O pin of a particular Module instance (encoder, pwmgen, stepgen etc),
 Either as a particular I/O pin of a particular Module instance (encoder, pwmgen, stepgen etc), or as a general purpose digital I/O pin.
 By default all Module instances are enabled, and all the board's pins are used by the Module instances.
 
@@ -289,6 +288,14 @@ Number of encoder counts since the previous reset.
 .TP
 (float out) position
 Encoder position in position units (count / scale).
+
+.TP
+(float out) position-interpolated
+Encoder interpolated position in position units (count / scale).
+Only valid  when velocity is approximately constant and the time 
+between counts is less than the velocity timeout parameter value.  
+Do not use for position control. Useful for spindle synchronized
+moves with low resolution encoders.
 
 .TP
 (float out) position-latched
@@ -725,7 +732,7 @@ The first three pins are the high side drivers, the second three are their compl
 The enable bit is intended to control the servo amplifier.
 The input bit is a fault bit, typically wired to over-current detection.
 When set the PWM generator is disabled.  The three phase duty-cycles are individually controllable from \-Scale to +Scale.
-Note that 0 corresponds to a 50% duty cycle and this is the inialization value.
+Note that 0 corresponds to a 50% duty cycle and this is the initialization value.
 
 Pins:
 

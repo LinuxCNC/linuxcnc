@@ -126,9 +126,15 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
 
     # Estop button behaviour works different then most buttons.
     # The visual cue is set by linuxcnc E-state not button state.
-    # We catch the tsate change here and reset it to linuxcnc state
-    # only if the button is an estop button and is a checkable.
+    # We catch the state change here and reset it to linuxcnc state
+    # only if the button is an estop button and is checkable.
     # This behaviour is consistent with AXIS ans users are used to it.
+
+    # spindle up/down also have odd behaviour and are caught here.
+    # if the spindle is already running, pressing the opposite button
+    # should not change the check state (only change the spindle speed)
+    # but if the spindle is running or stopped then the check state
+    # should change (and the spindle speed - done in other code)
     def nextCheckState (self):
         if self.estop and self.isCheckable():
             if STATUS.estop_is_clear():
@@ -136,6 +142,18 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
             else:
                 self.setChecked(True)
             self._safecheck(not STATUS.estop_is_clear())
+            return
+        try:
+            speed = STATUS.get_spindle_speed()
+        except:
+            speed = 0
+        if self.spindle_down and self.isCheckable():
+            if speed == 0 or speed < 0:
+                self._safecheck(not self.isChecked())
+        elif self.spindle_up and self.isCheckable():
+            if speed == 0 or speed > 0:
+                self._safecheck(not self.isChecked())
+
         else:
             self.setChecked(not self.isChecked())
 
@@ -209,11 +227,17 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
                 ACTION.TOGGLE_LIMITS_OVERRIDE()
 
         def spindle_control_test(e,d):
+            # this can happen if these fwd/rev properties are
+            # changed to up/down in stylesheets - this callback is
+            # still called
+            if self.spindle_up or self.spindle_down:
+                return
+
             if self.spindle_fwd:
                 if d in(0,-1):
                     self._safecheck(False)
                     return
-            else:
+            elif self.spindle_rev:
                 if d in(0,1):
                     self._safecheck(False)
                     return
@@ -351,6 +375,8 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
             if self.spindle_fwd or self.spindle_rev:
                 STATUS.connect('spindle-control-changed', lambda w, num, e, d, upto: spindle_control_test(e,d))
         elif self.spindle_stop:
+            STATUS.connect('mode-manual', lambda w: self.setEnabled(True))
+            STATUS.connect('mode-mdi', lambda w: self.setEnabled(True))
             STATUS.connect('mode-auto', lambda w: self.setEnabled(False))
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
@@ -483,11 +509,15 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
         elif self.tool_offset_dialog:
             STATUS.emit('dialog-request', {'NAME':'TOOLOFFSET', 'ID':'_%s_'% self.objectName()})
         elif self.zero_axis:
-            j = "XYZABCUVW"
-            try:
-                axis = j[self.joint]
-            except IndexError:
-                LOG.error("can't zero origin for specified joint {}".format(self.joint))
+            axis = self.axis
+            if axis == '':
+                # TODO remove this 2.9 workaround in the future
+                LOG.warning("{} should use axis property not joint".format(self.objectName()))
+                j = "XYZABCUVW"
+                try:
+                    axis = j[self.joint]
+                except IndexError:
+                    LOG.error("can't zero origin for specified joint {}".format(self.joint))
             ACTION.SET_AXIS_ORIGIN(axis, 0)
         elif self.zero_g5x:
             ACTION.ZERO_G5X_OFFSET(0)
@@ -582,7 +612,10 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
                 b = self.joint +1
             for i in range(a,b):
                 if STATUS.is_spindle_on(i):
-                    ACTION.SET_SPINDLE_FASTER(i)
+                    if STATUS.get_spindle_speed(i) >= 0:
+                        ACTION.SET_SPINDLE_FASTER(i)
+                    else:
+                        ACTION.SET_SPINDLE_SLOWER(i)
                 else:
                     ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_FORWARD,
                          INFO['DEFAULT_SPINDLE_{}_SPEED'.format(i)],i)
@@ -595,7 +628,11 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
                 b = self.joint +1
             for i in range(a,b):
                 if STATUS.is_spindle_on(i):
-                    ACTION.SET_SPINDLE_SLOWER(i)
+                    if STATUS.get_spindle_speed(i) <= 0:
+                        ACTION.SET_SPINDLE_FASTER(i)
+                    else:
+                        ACTION.SET_SPINDLE_SLOWER(i)
+
                 else:
                     ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_REVERSE,
                          INFO['DEFAULT_SPINDLE_{}_SPEED'.format(i)],i)

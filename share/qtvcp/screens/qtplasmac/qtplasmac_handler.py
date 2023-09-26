@@ -1,4 +1,4 @@
-VERSION = '1.235.273'
+VERSION = '1.236.290'
 
 '''
 qtplasmac_handler.py
@@ -33,6 +33,7 @@ import time
 import tarfile
 import math
 import glob
+import webbrowser
 import linuxcnc
 import hal
 from OpenGL.GL import glTranslatef
@@ -129,6 +130,8 @@ class HandlerClass:
             if os.path.realpath(m190Path) != os.path.realpath(self.PATHS.CONFIGPATH):
                 COPY(os.path.join(m190Path, 'M190'), os.path.join(self.PATHS.CONFIGPATH, 'M190'))
         self.machineName = self.iniFile.find('EMC', 'MACHINE')
+        self.prefsFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')
+        self.materialFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '_material.cfg')
         self.unitsPerMm = 1
         self.units = self.iniFile.find('TRAJ', 'LINEAR_UNITS')
         if self.units == 'inch':
@@ -136,13 +139,15 @@ class HandlerClass:
             self.unitsPerMm = 0.03937
         # open prefs file so we can use it for updates
         # it will not exist prior to V1.222.170 2022/03/08
-        if os.path.isfile(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')):
-            self.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
+        if os.path.isfile(self.prefsFile):
+            self.PREFS = Access(self.prefsFile)
         else:
             self.PREFS = None
         self.updateIni = []
+        self.updateData = []
         self.update_check()
-        self.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
+        self.PREFS = Access(self.prefsFile)
+        self.MATS = Access(self.materialFile)
         self.STYLEEDITOR = SSE(widgets, paths)
         self.GCODES = GCodes(widgets)
         self.IMAGES = os.path.join(self.PATHS.IMAGEDIR, 'qtplasmac/images/')
@@ -150,6 +155,14 @@ class HandlerClass:
         if os.path.basename(self.PATHS.XML) == 'qtplasmac_9x16.ui':
             self.landscape = False
         self.upFile = os.path.join(self.PATHS.CONFIGPATH, 'user_periodic.py')
+        major = linuxcnc.version.split('.')[0]
+        minor = linuxcnc.version.split('.')[1]
+        # this will need changing whenever the development branch changes versions
+        if major == '2' and minor == '10':
+            umVer = 'devel'
+        else:
+            umVer = '{}.{}'.format(major, minor)
+        self.umUrl = QUrl('http://linuxcnc.org/docs/{}/html/plasma/qtplasmac.html'.format(umVer))
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_F9','on_keycall_F9')
         KEYBIND.add_call('Key_Plus', 'on_keycall_PLUS')
@@ -197,11 +210,7 @@ class HandlerClass:
         self.jogFast = False
         self.jogSlow = False
         self.lastLoadedProgram = 'None'
-        self.estopOnList = []
-        self.idleList = ['file_clear', 'file_open', 'file_reload']
-        self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
-        self.idleHomedList = ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_b', 'touch_xy', \
-                              'mdi_show', 'height_lower', 'height_raise', 'wcs_button', 'set_offsets']
+        self.set_interlock_defaults()
         self.pausedValidList= []
         self.jogButtonList = ['jog_x_plus', 'jog_x_minus', 'jog_y_plus', 'jog_y_minus', 'jog_z_plus', \
                               'jog_z_minus', 'jog_a_plus', 'jog_a_minus', 'jog_b_plus', 'jog_b_minus']
@@ -223,13 +232,8 @@ class HandlerClass:
         self.tmpPath = '/tmp/qtplasmac/'
         if not os.path.isdir(self.tmpPath):
             os.mkdir(self.tmpPath)
-        self.materialFile = '{}_material.cfg'.format(self.machineName)
-        self.tmpMaterialFile = '{}{}'.format(self.tmpPath, self.materialFile.replace('.cfg','.tmp'))
-        self.tmpMaterialFileGCode = '{}{}'.format(self.tmpPath, self.materialFile.replace('.cfg','.gcode'))
+        self.tmpMaterialGcode = '{}{}_material.gcode'.format(self.tmpPath, self.machineName)
         self.gcodeErrorFile = '{}gcode_errors.txt'.format(self.tmpPath)
-        self.materialFileDict = {}
-        self.materialDict = {}
-        self.materialNumList = []
         self.materialUpdate = False
         self.autoChange = False
         self.pmx485Exists = False
@@ -258,11 +262,6 @@ class HandlerClass:
         self.preRflFile = ''
         self.preClearFile = ''
         self.rflActive = False
-        self.ccButton, self.otButton, self.ptButton, self.tpButton = '', '', '', ''
-        self.ctButton, self.scButton, self.frButton, self.mcButton = '', '', '', ''
-        self.ovButton, self.llButton, self.tlButton = '', '', ''
-        self.halTogglePins = {}
-        self.halPulsePins = {}
         self.torchOn = False
         self.progRun = False
         self.rapidOn = False
@@ -278,6 +277,8 @@ class HandlerClass:
         self.extLaserButton = False
         self.virtualMachine = False
         self.realTimeDelay = False
+        self.preSingleCutMaterial = None
+        self.preFileSaveMaterial = None
         # plasmac states
         self.IDLE           =  0
         self.PROBE_HEIGHT   =  1
@@ -307,6 +308,25 @@ class HandlerClass:
         self.CUT_REC_ON     = 25
         self.CUT_REC_OFF    = 26
         self.DEBUG          = 27
+        # main tab widget tab indexes
+        self.MAIN = 0
+        self.CONVERSATIONAL = 1
+        self.PARAMETERS = 2
+        self.SETTINGS = 3
+        self.STATISTICS = 4
+        # preview stack indexes
+        self.PREVIEW = 0
+        self.OPEN = 1
+        self.EDIT = 2
+        self.CAMERA = 3
+        self.OFFSETS = 4
+        self.USER_MANUAL = 5
+        # gcode stack indexes
+        self.GCODE = 0
+        self.MDI = 1
+        # jog stack indexes
+        self.JOG = 0
+        self.CUT_RECOVERY = 1
 
 # called by qtvcp.py
     def initialized__(self):
@@ -328,9 +348,9 @@ class HandlerClass:
         self.load_plasma_parameters()
         self.set_mode()
         self.user_button_setup()
-        self.set_buttons_state([self.estopOnList], True)
-        self.check_material_file()
-        self.load_materials()
+        self.set_buttons_state([self.alwaysOnList], True)
+        self.get_main_tab_widgets()
+        self.load_material_file()
         self.offset_peripherals()
         self.set_probe_offset_pins()
         self.wcs_rotation('get')
@@ -399,6 +419,25 @@ class HandlerClass:
         self.w.mdihistory.MDILine.spindle_inhibit(True)
         if self.updateIni:
             self.update_iniwrite()
+        updateLog = os.path.join(self.PATHS.CONFIGPATH, 'update_log.txt')
+        if self.updateData:
+            restart = False
+            msgType = linuxcnc.OPERATOR_TEXT
+            msgText = ''
+            with open(updateLog, 'a') as f:
+                for update in self.updateData:
+                    if update[2]:
+                        f.write('{} {}\n'.format(time.strftime('%y-%m-%d'), update[2]))
+                        msgText += '{}\n'.format(update[2])
+                        if update[0]: restart = True
+                        if update[1]: msgType = linuxcnc.OPERATOR_ERROR
+            STATUS.emit('error', msgType, msgText)
+            if restart:
+                STATUS.emit('error', linuxcnc.OPERATOR_TEXT, 'Due to configuration changes a restart is required')
+
+        if not os.path.isfile(updateLog):
+            with open(updateLog, 'w') as f:
+                f.write('{} Initial    V{}\n'.format(time.strftime('%y-%m-%d'), VERSION))
         self.startupTimer.start(250)
 
 # called by qtvcp.py, can override qtvcp settings or qtvcp allowed user options (via INI)
@@ -415,11 +454,31 @@ class HandlerClass:
 #########################################################################################################################
 # called by qtvcp.py
     def class_patch__(self):
+        self.file_manager_patch()
         self.gcode_editor_patch()
         self.camview_patch()
         self.offset_table_patch()
         self.qt5_graphics_patch()
         self.screen_options_patch()
+
+# patched file manager functions
+    def file_manager_patch(self):
+        self.old_load = FILE_MAN.load
+        FILE_MAN.load = self.new_load
+
+    # remove temporary materials before loading a file
+    def new_load(self, fname=None):
+        try:
+            if fname is None:
+                self.w.filemanager._getPathActivated()
+                return
+            self.w.filemanager.recordBookKeeping()
+            self.remove_temp_materials()
+            ACTION.OPEN_PROGRAM(fname)
+            STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
+        except Exception as e:
+            LOG.error("Load file error: {}".format(e))
+            STATUS.emit('error', linuxcnc.NML_ERROR, "Load file error: {}".format(e))
 
 # patched gcode editor functions
     def gcode_editor_patch(self):
@@ -445,38 +504,38 @@ class HandlerClass:
         if saved is not None:
             self.w.gcode_editor.editor.setModified(False)
             if saved[-3:] in ['ngc', '.nc', 'tap']:
+                self.preFileSaveMaterial = int(self.w.materials_box.currentText().split(': ', 1)[0])
                 if self.rflActive:
                     self.clear_rfl()
+                self.remove_temp_materials()
                 ACTION.OPEN_PROGRAM(saved)
 
     # open a non gcode file and don't load it into linuxcnc
     def new_openReturn(self, filename):
         if filename[-3:] in ['ngc', '.nc', 'tap']:
+            self.remove_temp_materials()
             ACTION.OPEN_PROGRAM(filename)
         else:
             self.w.gcode_editor.editor.load_text(filename)
         self.w.gcode_editor.editor.setModified(False)
 
     # modify the closing of the gcode editor
-    def new_exitCall(self):
-        if self.w.gcode_editor.editor.isModified():
-            head = _translate('HandlerClass', 'Unsaved Changes')
-            msg0 = _translate('HandlerClass', 'Unsaved changes will be lost')
-            msg1 = _translate('HandlerClass', 'Do you want to exit')
-            if not self.dialog_show_yesno(QMessageBox.Question, head, '\n{}\n\n{}?\n'.format(msg0, msg1)):
-                return
-        self.w.preview_stack.setCurrentIndex(0)
-        if self.fileOpened == True and self.w.gcode_editor.editor.isModified():
-            self.file_reload_clicked()
-        elif self.fileOpened == True and not self.w.gcode_editor.editor.isModified():
-            self.set_run_button_state()
-        elif self.fileOpened == False:
-            self.w.gcode_editor.editor.new_text()
-            self.w.gcode_editor.editor.setModified(False)
-            self.view_t_pressed()
-        self.w.gcode_editor.editMode()
-        self.vkb_hide()
-        ACTION.SET_MANUAL_MODE()
+    def new_exitCall(self, index):
+        proceed = self.editor_close_check()
+        if proceed:
+            self.w.preview_stack.setCurrentIndex(self.PREVIEW)
+            if self.fileOpened == True and self.w.gcode_editor.editor.isModified():
+                self.w.gcode_editor.editor.setModified(False)
+                self.file_reload_clicked()
+            elif self.fileOpened == True and not self.w.gcode_editor.editor.isModified():
+                self.set_run_button_state()
+            elif self.fileOpened == False:
+                self.w.gcode_editor.editor.new_text()
+                self.w.gcode_editor.editor.setModified(False)
+                self.view_t_pressed()
+            self.w.gcode_editor.editMode()
+            self.vkb_hide()
+            ACTION.SET_MANUAL_MODE()
 
     # we don't use lexer colors
     def new_gcodeLexerCall(self):
@@ -509,7 +568,7 @@ class HandlerClass:
 
     # load the qtplasmac preferences file rather than the qtvcp preferences file
     def new_load_preference(self, w):
-        self.w.gcode_editor.editor.load_text(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
+        self.w.gcode_editor.editor.load_text(self.prefsFile)
         self.w.gcode_editor.editor.setCursorPosition(self.w.gcode_editor.editor.lines(), 0)
 
     # dont highlight lines selected from the editor in the preview window
@@ -701,6 +760,7 @@ class HandlerClass:
         self.extJogSlowPin = self.h.newpin('ext_jog_slow', hal.HAL_BIT, hal.HAL_IN)
 #        self.extKerfCrossEnablePin = self.h.newpin('ext_kerfcross_enable', hal.HAL_BIT, hal.HAL_IN)
         self.extLaserTouchOffPin = self.h.newpin('ext_laser_touchoff', hal.HAL_BIT, hal.HAL_IN)
+        self.extLaserTogglePin = self.h.newpin('ext_laser_toggle', hal.HAL_BIT, hal.HAL_IN)
         self.extMeshModePin = self.h.newpin('ext_mesh_mode', hal.HAL_BIT, hal.HAL_IN)
         self.extOhmicPin = self.h.newpin('ext_ohmic', hal.HAL_BIT, hal.HAL_IN)
         self.extOhmicProbeEnablePin = self.h.newpin('ext_ohmic_probe_enable', hal.HAL_BIT, hal.HAL_IN)
@@ -868,8 +928,8 @@ class HandlerClass:
         self.w.chk_exit_warning.setChecked(self.PREFS.getpref('Exit warning', True, bool, 'GUI_OPTIONS'))
         self.exitMessage = self.PREFS.getpref('Exit warning text', '', str, 'GUI_OPTIONS')
         self.w.cone_size.setValue(self.PREFS.getpref('Preview cone size', 0.5, float, 'GUI_OPTIONS'))
-        self.w.grid_size.setValue(self.PREFS.getpref('Preview grid size', 0, float, 'GUI_OPTIONS'))
-        self.w.table_zoom_scale.setValue(self.PREFS.getpref('T view zoom scale', 1, float, 'GUI_OPTIONS'))
+        self.w.grid_size.setValue(self.PREFS.getpref('Preview grid size', 0.0, float, 'GUI_OPTIONS'))
+        self.w.table_zoom_scale.setValue(self.PREFS.getpref('T view zoom scale', 1.0, float, 'GUI_OPTIONS'))
         self.zPlusOverrideJog = self.PREFS.getpref('Override jog inhibit via Z+', False, bool, 'GUI_OPTIONS')
         self.w.color_foregrnd.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Foreground', '#ffee06', str, 'COLOR_OPTIONS')))
         self.w.color_foregalt.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Highlight', '#ffee06', str, 'COLOR_OPTIONS')))
@@ -906,10 +966,11 @@ class HandlerClass:
             self.w[lay].insertWidget(0,self.w.dro_frame)
         text = _translate('HandlerClass', 'CONTINUOUS')
         self.w.jogincrements.setItemText(0, text)
-        self.w.main_tab_widget.setCurrentIndex(0)
-        self.w.preview_stack.setCurrentIndex(0)
-        self.w.gcode_stack.setCurrentIndex(0)
-        self.w.jog_stack.setCurrentIndex(0)
+        self.w.main_tab_widget.setCurrentIndex(self.MAIN)
+        self.w.preview_stack.setCurrentIndex(self.PREVIEW)
+        self.prevPreviewIndex = self.PREVIEW
+        self.w.gcode_stack.setCurrentIndex(self.GCODE)
+        self.w.jog_stack.setCurrentIndex(self.JOG)
         self.w.chk_override_limits.setChecked(False)
         self.w.chk_override_limits.setEnabled(False)
         self.w.chk_override_jog.setChecked(False)
@@ -963,13 +1024,13 @@ class HandlerClass:
         self.w.conv_material.view().setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.w.materials_box.view().setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.w.materials_box.view().setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.w.gcode_display.set_margin_width(3)
+        self.w.gcode_display.set_margin_metric(3)
         self.w.gcode_display.setBraceMatching(False)
         self.w.gcode_display.setCaretWidth(0)
         self.w.gcode_display.setCornerWidget(QLabel())
         self.w.gcode_editor.topBox.setContentsMargins(4,4,4,4)
         self.w.gcode_editor.bottomBox.setContentsMargins(4,4,4,4)
-        self.w.gcode_editor.set_margin_width(3)
+        self.w.gcode_editor.set_margin_metric(3)
         self.w.gcode_editor.editor.setBraceMatching(False)
         self.w.gcode_editor.editor.setCaretWidth(4)
         self.w.gcode_editor.editor.setCornerWidget(QLabel())
@@ -1059,36 +1120,34 @@ class HandlerClass:
         head = _translate('HandlerClass', 'Prefs File Error')
         # laser
         try:
-            self.laserOffsetX = self.PREFS.getpref('X axis', 0, float, 'LASER_OFFSET')
-            self.laserOffsetY = self.PREFS.getpref('Y axis', 0, float, 'LASER_OFFSET')
+            self.laserOffsetX = self.PREFS.getpref('X axis', 0.0, float, 'LASER_OFFSET')
+            self.laserOffsetY = self.PREFS.getpref('Y axis', 0.0, float, 'LASER_OFFSET')
         except:
             self.w.laser.hide()
             msg0 = _translate('HandlerClass', 'Invalid entry for laser offset')
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
         if self.laserOffsetX or self.laserOffsetY:
-            self.idleHomedList.append('laser')
             self.w.laser.setEnabled(False)
         else:
             self.w.laser.hide()
         # camera
         try:
-            self.camOffsetX = self.PREFS.getpref('X axis', 0, float, 'CAMERA_OFFSET')
-            self.camOffsetY = self.PREFS.getpref('Y axis', 0, float, 'CAMERA_OFFSET')
+            self.camOffsetX = self.PREFS.getpref('X axis', 0.0, float, 'CAMERA_OFFSET')
+            self.camOffsetY = self.PREFS.getpref('Y axis', 0.0, float, 'CAMERA_OFFSET')
         except:
             self.w.camera.hide()
             msg0 = _translate('HandlerClass', 'Invalid entry for camera offset')
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
         if self.camOffsetX or self.camOffsetY:
             self.w.camview.set_camnum(self.camNum)
-            self.idleHomedList.append('camera')
             self.w.camera.setEnabled(False)
         else:
             self.w.camera.hide()
         # probing
         try:
-            self.probeOffsetX = self.PREFS.getpref('X axis', 0, float, 'OFFSET_PROBING')
-            self.probeOffsetY = self.PREFS.getpref('Y axis', 0, float, 'OFFSET_PROBING')
-            self.probeDelay = self.PREFS.getpref('Delay', 0, float, 'OFFSET_PROBING')
+            self.probeOffsetX = self.PREFS.getpref('X axis', 0.0, float, 'OFFSET_PROBING')
+            self.probeOffsetY = self.PREFS.getpref('Y axis', 0.0, float, 'OFFSET_PROBING')
+            self.probeDelay = self.PREFS.getpref('Delay', 0.0, float, 'OFFSET_PROBING')
         except:
             msg0 = _translate('HandlerClass', 'Invalid entry for probe offset')
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
@@ -1178,7 +1237,7 @@ class HandlerClass:
                 if isinstance(receiver2, OFFSETVIEW):
                     flag = True
                     break
-                if self.w.main_tab_widget.currentIndex() == 1 and \
+                if self.w.main_tab_widget.currentIndex() == self.CONVERSATIONAL and \
                    (isinstance(receiver2, QtWidgets.QLineEdit) or \
                    isinstance(receiver2, QtWidgets.QComboBox) or \
                    isinstance(receiver2, QtWidgets.QPushButton) or \
@@ -1186,7 +1245,7 @@ class HandlerClass:
                     conversational = True
                     flag = True
                     break
-                if self.w.main_tab_widget.currentIndex() == 3:
+                if self.w.main_tab_widget.currentIndex() == self.SETTINGS:
                     flag = True
                     break
                 receiver2 = receiver2.parent()
@@ -1288,7 +1347,7 @@ class HandlerClass:
     def power_state(self, state):
         if state:
             self.w.power.setChecked(True)
-            self.set_buttons_state([self.idleOnList], True)
+            self.set_buttons_state([self.machineOnList, self.idleOnList], True)
             if self.tpButton and not self.w.torch_enable.isChecked():
                 self.w[self.tpButton].setEnabled(False)
             if self.otButton and not self.w.ohmic_probe_enable.isChecked():
@@ -1304,7 +1363,7 @@ class HandlerClass:
                 STATUS.emit('update-machine-log', log, 'TIME')
         else:
             self.w.power.setChecked(False)
-            self.set_buttons_state([self.idleOnList, self.idleHomedList], False)
+            self.set_buttons_state([self.machineOnList, self.idleOnList, self.idleHomedList], False)
             if self.ptButton and hal.get_value('plasmac.probe-test'):
                 self.probe_test(False)
             if not self.firstRun:
@@ -1318,6 +1377,7 @@ class HandlerClass:
         if self.single_cut_request:
             self.single_cut_request = False
             if self.oldFile and self.fileOpened:
+                self.remove_temp_materials()
                 ACTION.OPEN_PROGRAM(self.oldFile)
             else:
                 self.fileOpened = True
@@ -1341,7 +1401,7 @@ class HandlerClass:
                 self.set_buttons_state([self.idleHomedList], False)
         else:
             self.set_buttons_state([self.idleOnList, self.idleHomedList], False)
-        self.w.jog_stack.setCurrentIndex(0)
+        self.w.jog_stack.setCurrentIndex(self.JOG)
         self.w.abort.setEnabled(False)
         if self.ccButton:
             self.button_normal(self.ccButton)
@@ -1362,8 +1422,6 @@ class HandlerClass:
         if STATUS.machine_is_on() and STATUS.is_all_homed() and \
            STATUS.is_interp_idle() and not self.offsetsActivePin.get() and \
            self.plasmacStatePin.get() == 0 and not self.boundsError['loaded'] and not self.fileClear:
-            if int(self.w.materials_box.currentText().split(': ', 1)[0]) >= 1000000:
-                self.w.materials_box.setCurrentIndex(0)
             if self.w.gcode_display.lines() > 1:
                 self.w.run.setEnabled(True)
                 if self.frButton:
@@ -1409,8 +1467,8 @@ class HandlerClass:
         self.w.height_lower.setEnabled(True)
         self.w.height_raise.setEnabled(True)
         self.w.height_reset.setEnabled(True)
-        if STATUS.is_auto_mode() and self.w.gcode_stack.currentIndex() != 0:
-            self.w.gcode_stack.setCurrentIndex(0)
+        if STATUS.is_auto_mode() and self.w.gcode_stack.currentIndex() != self.GCODE:
+            self.w.gcode_stack.setCurrentIndex(self.GCODE)
         self.set_tab_jog_states(False)
         self.set_jog_button_state()
 
@@ -1449,7 +1507,7 @@ class HandlerClass:
             log = _translate('HandlerClass', 'Cycle paused')
             STATUS.emit('update-machine-log', log, 'TIME')
         else:
-            self.w.jog_stack.setCurrentIndex(0)
+            self.w.jog_stack.setCurrentIndex(self.JOG)
             if self.ccButton:
                 self.w[self.ccButton].setEnabled(False)
             if self.tpButton and STATUS.is_auto_running():
@@ -1489,17 +1547,16 @@ class HandlerClass:
             return
         if filename is not None:
             self.overlayProgress.setValue(0)
-            self.lastLoadedProgram = filename
-            if not self.cameraOn and self.w.preview_stack.currentIndex() != 4:
-                self.w.preview_stack.setCurrentIndex(0)
-                self.vkb_hide()
+            if not any(name in filename for name in ['qtplasmac_program_clear', 'single_cut']):
+                self.lastLoadedProgram = filename
+            if not self.cameraOn:
+                self.preview_index_return(self.w.preview_stack.currentIndex())
             self.w.file_open.setText(os.path.basename(filename))
-            if not self.single_cut_request:
-                self.fileOpened = True
+            self.fileOpened = True
             text = _translate('HandlerClass', 'EDIT')
             self.w.edit_label.setText('{}: {}'.format(text, filename))
-            if self.w.gcode_stack.currentIndex() != 0:
-                self.w.gcode_stack.setCurrentIndex(0)
+            if self.w.gcode_stack.currentIndex() != self.GCODE:
+                self.w.gcode_stack.setCurrentIndex(self.GCODE)
             self.w.file_reload.setEnabled(True)
         self.w.gcodegraphics.logger.clear()
         self.w.gcodegraphics.clear_highlight()
@@ -1523,6 +1580,7 @@ class HandlerClass:
             if self.single_cut_request:
                 self.single_cut_request = False
                 if self.oldFile and not 'single_cut' in self.oldFile:
+                    self.remove_temp_materials()
                     ACTION.OPEN_PROGRAM(self.oldFile)
                     self.set_run_button_state()
                 self.w[self.scButton].setEnabled(True)
@@ -1541,18 +1599,34 @@ class HandlerClass:
                 self.w.gcode_editor.editor.new_text()
                 self.w.gcode_editor.editor.setModified(False)
                 self.w.gcode_display.new_text()
-                self.w.gcode_display.set_margin_width(3)
-                self.w.gcode_editor.set_margin_width(3)
+                self.w.gcode_display.set_margin_metric(3)
+                self.w.gcode_editor.set_margin_metric(3)
         ACTION.SET_MANUAL_MODE()
         if not len(self.w.gcode_display.text()):
             self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        if self.w.main_tab_widget.currentIndex():
-            self.w.main_tab_widget.setCurrentIndex(0)
+        if self.w.main_tab_widget.currentIndex() != self.MAIN:
+            self.w.main_tab_widget.setCurrentIndex(self.MAIN)
+        # forces the view to remain "table view" if T is checked when a file is loaded
         if self.fileOpened:
-            if not (self.w.view_p.isChecked() or self.w.view_z.isChecked()):
+            if self.w.view_t.isChecked():
                 self.view_t_pressed()
         else:
             self.view_t_pressed()
+        if not 'single_cut.ngc' in filename:
+            self.preSingleCutMaterial = None
+        # remove unused temporary materials from comboboxes
+        self.getMaterialBusy = True
+        if int(self.w.materials_box.currentText().split(": ", 1)[0]) not in self.materialList:
+            self.change_material(self.defaultMaterial)
+        for idx in range(self.w.materials_box.count() - 1, -1, -1):
+            matNum = int(self.w.materials_box.itemText(idx).split(': ', 1)[0])
+            if matNum < 1000000:
+                break
+            if matNum not in self.materialList:
+                self.w.materials_box.removeItem(idx)
+                self.w.material_selector.removeItem(idx)
+                self.w.conv_material.removeItem(idx)
+        self.getMaterialBusy = False
 
     def joints_all_homed(self, obj):
         self.interp_idle(None)
@@ -1719,6 +1793,10 @@ class HandlerClass:
                 self.extLaserButton = False
                 self.laser_clicked()
 
+    def ext_laser_toggle(self, state):
+        if self.w.laser.isVisible() and state:
+            self.laserOnPin.set(not self.laserOnPin.get())
+
     def ext_jog_slow(self, state):
         if self.w.jog_slow.isEnabled() and state:
             self.jog_slow_pressed(True)
@@ -1798,6 +1876,7 @@ class HandlerClass:
                     # load rfl file
                     if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
                         self.preRflFile = ACTION.prefilter_path or self.lastLoadedProgram
+                    self.remove_temp_materials()
                     ACTION.OPEN_PROGRAM(rflFile)
                     ACTION.prefilter_path = self.preRflFile
                     self.set_run_button_state()
@@ -1849,7 +1928,7 @@ class HandlerClass:
 
     def pause_pressed(self):
         if hal.get_value('plasmac.cut-recovering'):
-            self.w.jog_stack.setCurrentIndex(0)
+            self.w.jog_stack.setCurrentIndex(self.JOG)
             self.laserOnPin.set(0)
         self.cancelWait = False
         self.w.laser.setEnabled(False)
@@ -1942,7 +2021,7 @@ class HandlerClass:
     def set_offsets_clicked(self):
         if self.developmentPin.get():
             reload(OFFSETS)
-        self.w.main_tab_widget.setCurrentIndex(0)
+        self.w.main_tab_widget.setCurrentIndex(self.MAIN)
         if STATUS.stat.rotation_xy:
             ACTION.CALL_MDI_WAIT('G10 L2 P0 R0')
             ACTION.SET_MANUAL_MODE()
@@ -2029,47 +2108,55 @@ class HandlerClass:
 
     def gcode_display_loaded(self):
         gcodeLines = len(str(self.w.gcode_display.lines()))
-        self.w.gcode_display.set_margin_width(gcodeLines)
-        self.w.gcode_editor.set_margin_width(gcodeLines)
+        self.w.gcode_display.set_margin_metric(gcodeLines)
+        self.w.gcode_editor.set_margin_metric(gcodeLines)
 
     def file_clear_clicked(self):
-        if self.fileOpened:
-            self.fileClear = True
-            if self.rflActive:
-                self.clear_rfl()
-            clearFile = '{}qtplasmac_program_clear.ngc'.format(self.tmpPath)
-            with open(clearFile, 'w') as outFile:
-                outFile.write('m2')
-            if ACTION.prefilter_path:
-                if 'single_cut' in ACTION.prefilter_path:
-                    self.preClearFile = self.oldFile
-                else:
-                    if self.lastLoadedProgram != 'None':
-                        self.preClearFile = ACTION.prefilter_path or self.lastLoadedProgram
-            ACTION.OPEN_PROGRAM(clearFile)
-            ACTION.prefilter_path = self.preClearFile
-            self.w.material_selector.setCurrentIndex(0)
-            self.w.conv_material.setCurrentIndex(0)
-            if self.w.lbl_tool.text() != 'TORCH' and STATUS.is_on_and_idle() and STATUS.is_all_homed():
-                ACTION.CALL_MDI_WAIT('T0 M6')
-                ACTION.CALL_MDI_WAIT('G43 H0')
-                ACTION.SET_MANUAL_MODE()
-            log = _translate('HandlerClass', 'Program cleared')
-            STATUS.emit('update-machine-log', log, 'TIME')
-        else:
-            self.view_t_pressed()
+        proceed = self.editor_close_check()
+        if proceed:
+            self.w.preview_stack.setCurrentIndex(self.PREVIEW)
+            self.w.gcode_editor.editor.new_text()
+            self.w.gcode_editor.editor.setModified(False)
+            if self.fileOpened:
+                self.fileClear = True
+                if self.rflActive:
+                    self.clear_rfl()
+                clearFile = '{}qtplasmac_program_clear.ngc'.format(self.tmpPath)
+                with open(clearFile, 'w') as outFile:
+                    outFile.write('m2')
+                if ACTION.prefilter_path:
+                    if 'single_cut' in ACTION.prefilter_path:
+                        self.preClearFile = self.oldFile
+                    else:
+                        if self.lastLoadedProgram != 'None':
+                            self.preClearFile = ACTION.prefilter_path or self.lastLoadedProgram
+                        self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
+                        self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
+                        self.w.conv_material.setCurrentIndex(self.w.materials_box.currentIndex())
+                self.remove_temp_materials()
+                ACTION.OPEN_PROGRAM(clearFile)
+                ACTION.prefilter_path = self.preClearFile
+                if self.w.lbl_tool.text() != 'TORCH' and STATUS.is_on_and_idle() and STATUS.is_all_homed():
+                    ACTION.CALL_MDI_WAIT('T0 M6')
+                    ACTION.CALL_MDI_WAIT('G43 H0')
+                    ACTION.SET_MANUAL_MODE()
+                log = _translate('HandlerClass', 'Program cleared')
+                STATUS.emit('update-machine-log', log, 'TIME')
+            else:
+                self.view_t_pressed()
 
     def file_open_clicked(self):
-        self.w.preview_stack.setCurrentIndex(1)
-        self.vkb_hide()
-        self.w.filemanager.table.setFocus()
+        if self.w.preview_stack.currentIndex() != self.OPEN:
+            self.w.preview_stack.setCurrentIndex(self.OPEN)
+        else:
+            self.preview_index_return(self.w.preview_stack.currentIndex())
 
     def file_edit_clicked(self):
-        if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE and self.w.preview_stack.currentIndex() != 2:
-            self.w.preview_stack.setCurrentIndex(2)
+        if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE and self.w.preview_stack.currentIndex() != self.EDIT:
+            self.w.preview_stack.setCurrentIndex(self.EDIT)
             self.w.run.setEnabled(False)
             self.w.gcode_editor.editor.setFocus()
-            if self.fileOpened:
+            if self.fileOpened and not self.w.gcode_editor.editor.isModified():
                 self.w.gcode_editor.editor.load_text(ACTION.prefilter_path)
                 text = _translate('HandlerClass', 'EDIT')
                 self.w.edit_label.setText('{}: {}'.format(text, ACTION.prefilter_path))
@@ -2086,21 +2173,19 @@ class HandlerClass:
                     pass
             self.vkb_show()
         else:
-            self.new_exitCall()
+            self.new_exitCall(self.PREVIEW)
 
     def mdi_show_clicked(self):
-        if STATUS.is_on_and_idle() and STATUS.is_all_homed() and self.w.gcode_stack.currentIndex() != 1:
-            self.w.gcode_stack.setCurrentIndex(1)
+        if STATUS.is_on_and_idle() and STATUS.is_all_homed() and self.w.gcode_stack.currentIndex() != self.MDI:
+            self.w.gcode_stack.setCurrentIndex(self.MDI)
             self.vkb_show()
         else:
-            self.w.gcode_stack.setCurrentIndex(0)
+            self.w.gcode_stack.setCurrentIndex(self.GCODE)
             ACTION.SET_MANUAL_MODE()
             self.vkb_hide()
 
     def file_cancel_clicked(self):
-        self.w.preview_stack.setCurrentIndex(0)
-        self.vkb_hide()
-        ACTION.SET_MANUAL_MODE()
+        self.preview_index_return(self.w.preview_stack.currentIndex())
 
     def cone_size_changed(self, data):
         self.w.gcodegraphics.set_cone_basesize(data)
@@ -2114,14 +2199,14 @@ class HandlerClass:
         t = time.time() + 0.01
         while time.time() < t:
             QApplication.processEvents()
-        if tab == 0:
-            if self.w.preview_stack.currentIndex() == 2:
+        if tab == self.MAIN:
+            if self.w.preview_stack.currentIndex() == self.OPEN:
                 self.vkb_show()
             else:
                 self.vkb_hide()
-            if self.w.gcode_stack.currentIndex() == 0 and self.w.preview_stack.currentIndex() == 0:
+            if self.w.gcode_stack.currentIndex() == self.GCODE and self.w.preview_stack.currentIndex() == self.PREVIEW:
                 self.autorepeat_keys(False)
-        elif tab == 1:
+        elif tab == self.CONVERSATIONAL:
             self.w.conv_preview.logger.clear()
             self.w.conv_preview.set_current_view()
             if self.developmentPin.get():
@@ -2129,13 +2214,13 @@ class HandlerClass:
             self.CONV.conv_setup(self, self.w)
             self.vkb_show(True)
             self.autorepeat_keys(True)
-        elif tab == 2:
+        elif tab == self.PARAMETERS:
             self.vkb_show(True)
             self.autorepeat_keys(True)
-        elif tab == 3:
+        elif tab == self.SETTINGS:
             self.vkb_show()
             self.autorepeat_keys(True)
-        if self.w.main_tab_widget.currentIndex() == self.w.main_tab_widget.count() - 1:
+        elif tab == self.STATISTICS:
             self.vkb_hide()
             self.w.machinelog.moveCursor(QTextCursor.End)
             self.w.machinelog.setCursorWidth(0)
@@ -2188,20 +2273,23 @@ class HandlerClass:
             self.set_jog_button_state()
 
     def file_reload_clicked(self):
-        if self.rflActive:
-            self.clear_rfl()
-            self.set_run_button_state()
-        if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
-            file = ACTION.prefilter_path or self.lastLoadedProgram
-            if os.path.exists(file):
-                self.overlayProgress.setValue(0)
-                ACTION.OPEN_PROGRAM(file)
-                log = _translate('HandlerClass', 'Reloaded')
-                STATUS.emit('update-machine-log', '{}: {}'.format(log, file), 'TIME')
-            else:
-                head = _translate('HandlerClass', 'File Error')
-                msg0 = _translate('HandlerClass', 'does not exist')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {}\n'.format(head, file, msg0))
+        proceed = self.editor_close_check()
+        if proceed:
+            if self.rflActive:
+                self.clear_rfl()
+                self.set_run_button_state()
+            if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
+                file = ACTION.prefilter_path or self.lastLoadedProgram
+                if os.path.exists(file):
+                    self.overlayProgress.setValue(0)
+                    self.remove_temp_materials()
+                    ACTION.OPEN_PROGRAM(file)
+                    log = _translate('HandlerClass', 'Reloaded')
+                    STATUS.emit('update-machine-log', '{}: {}'.format(log, file), 'TIME')
+                else:
+                    head = _translate('HandlerClass', 'File Error')
+                    msg0 = _translate('HandlerClass', 'does not exist')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {}\n'.format(head, file, msg0))
 
     def jog_slow_pressed(self, external=False):
         if self.w.jog_slow.isChecked():
@@ -2224,24 +2312,6 @@ class HandlerClass:
         if state:
             ACTION.TOGGLE_LIMITS_OVERRIDE()
 
-    def param_tab_changed(self, state):
-        if state:
-            self.w.main_tab_widget.setTabEnabled(2, False)
-        else:
-            self.w.main_tab_widget.setTabEnabled(2, True)
-
-    def settings_tab_changed(self, state):
-        if state:
-            self.w.main_tab_widget.setTabEnabled(3, False)
-        else:
-            self.w.main_tab_widget.setTabEnabled(3, True)
-
-    def conv_tab_changed(self, state):
-        if state:
-            self.w.main_tab_widget.setTabEnabled(1, False)
-        else:
-            self.w.main_tab_widget.setTabEnabled(1, True)
-
     def save_shutdown_message_clicked(self):
         self.PREFS.putpref('Exit warning text', self.w.sd_text.text(), str, 'GUI_OPTIONS')
         self.exitMessage = self.w.sd_text.text()
@@ -2250,24 +2320,15 @@ class HandlerClass:
         self.w.sd_text.setText(self.PREFS.getpref('Exit warning text', '', str, 'GUI_OPTIONS'))
 
     def save_user_button_clicked(self):
-        self.estopOnList = []
-        self.idleList = ['file_clear', 'file_open', 'file_reload']
-        self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
-        self.idleHomedList = ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_b', 'touch_xy', \
-                              'mdi_show', 'height_lower', 'height_raise', 'wcs_button', 'set_offsets']
-        self.ccButton, self.otButton, self.ptButton, self.tpButton = '', '', '', ''
-        self.ctButton, self.scButton, self.frButton, self.mcButton = '', '', '', ''
-        self.ovButton, self.llButton, self.tlButton = '', '', ''
-        self.halTogglePins = {}
-        self.halPulsePins = {}
+        self.set_interlock_defaults()
         for n in range(1, 21):
             self.PREFS.putpref('{} Name'.format(n), self.w['ub_name_{}'.format(n)].text(), str, 'BUTTONS')
             self.PREFS.putpref('{} Code'.format(n), self.w['ub_code_{}'.format(n)].text(), str, 'BUTTONS')
         self.user_button_setup()
-        self.set_buttons_state([self.estopOnList], True)
-        if STATUS.is_interp_idle():
-            self.set_buttons_state([self.idleList], True)
-            if STATUS.machine_is_on():
+        self.set_buttons_state([self.alwaysOnList, self.idleList], True)
+        if STATUS.machine_is_on():
+            self.set_buttons_state([self.machineOnList], True)
+            if STATUS.is_interp_idle():
                 self.set_buttons_state([self.idleOnList], True)
                 if STATUS.is_all_homed():
                     self.set_buttons_state([self.idleHomedList], True)
@@ -2276,13 +2337,22 @@ class HandlerClass:
             else:
                 self.set_buttons_state([self.idleOnList, self.idleHomedList], False)
         else:
-            self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], False)
+            self.set_buttons_state([self.machineOnList, self.idleOnList, self.idleHomedList], False)
 
     def reload_user_button_clicked(self):
         for n in range(1, 21):
             self.w['ub_name_{}'.format(n)].clear()
             self.w['ub_code_{}'.format(n)].clear()
         self.user_button_setup()
+
+    def web_back_pressed(self):
+        self.w.webview.back()
+
+    def web_forward_pressed(self):
+        self.w.webview.forward()
+
+    def web_reload_pressed(self):
+        self.w.webview.load(self.umUrl)
 
 
 #########################################################################################################################
@@ -2328,60 +2398,96 @@ class HandlerClass:
         # if any writing to the INI file is required then that needs
         # to be done later in the update_iniwrite function
         halfiles = self.iniFile.findall('HAL', 'HALFILE') or None
-        machinePrefsFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')
         qtvcpPrefsFile = os.path.join(self.PATHS.CONFIGPATH, 'qtvcp.prefs')
+        self.restart = False
         # use qtplasmac_comp.hal for component connections (pre V1.221.154 2022/01/18)
         if halfiles and not [f for f in halfiles if 'plasmac.tcl' in f] and not \
             [f for f in halfiles if 'qtplasmac_comp.hal' in f]:
-            UPDATER.add_component_hal_file(self.PATHS.CONFIGPATH, halfiles)
+            restart, error, text = UPDATER.add_component_hal_file(self.PATHS.CONFIGPATH, halfiles)
+            self.updateData.append([restart, error, text])
+            if error:
+                return
             self.updateIni.append(154)
         # split out qtplasmac specific prefs into a separate file (pre V1.222.170 2022/03/08)
-        if not os.path.isfile(machinePrefsFile):
+        if not os.path.isfile(self.prefsFile):
             old = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs')
             if os.path.isfile(old):
-                UPDATER.split_prefs_file(old, qtvcpPrefsFile, machinePrefsFile)
-            self.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
+                restart, error, text = UPDATER.split_prefs_file(old, qtvcpPrefsFile, self.prefsFile)
+                self.updateData.append([restart, error, text])
+                if error:
+                    return
+            self.PREFS = Access(self.prefsFile)
         # move conversational prefs from qtvcp.prefs to <machine_name>.prefs (pre V1.222.187 2022/05/03)
-        if os.path.isfile(qtvcpPrefsFile) and os.path.isfile(machinePrefsFile):
+        if os.path.isfile(qtvcpPrefsFile) and os.path.isfile(self.prefsFile):
             with open(qtvcpPrefsFile, 'r') as inFile:
                 data = inFile.readlines()
                 if [line for line in data if '[CONVERSATIONAL]' in line]:
-                    UPDATER.move_prefs(qtvcpPrefsFile, machinePrefsFile)
+                    restart, error, text = UPDATER.move_prefs(qtvcpPrefsFile, self.prefsFile)
+                    self.updateData.append([restart, error, text])
+                    if error:
+                        return
         # change RS274 startup parameters from a subroutine (pre V1.224.207 2022/06/22)
         startupCode = self.iniFile.find('RS274NGC', 'RS274NGC_STARTUP_CODE')
         if 'metric_startup' in startupCode or 'imperial_startup' in startupCode:
             self.updateIni.append(207)
         # remove the qtplasmac link from the config directory (pre V1.225.208 2022/06/29)
-        if os.path.lexists(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
+        if os.path.islink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
             # stage 1: set up for unlinking on the next run of qtplasmac
             if 'code.py' in self.iniFile.find('FILTER', 'ngc'):
                 self.updateIni.append(208)
             # stage 2: remove the qtplasmac link
             else:
-                if os.path.islink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
-                    os.unlink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
-                else:
-                    os.rmdir(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
+                os.unlink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
         # move qtplasmac options from INI file to prefs file pre V1.227.219 2022/07/14)
         if not self.PREFS.has_section('BUTTONS'):
-            UPDATER.move_options_to_prefs_file(self.iniFile, self.PREFS)
+            restart, error, text = UPDATER.move_options_to_prefs_file(self.iniFile, self.PREFS)
+            self.updateData.append([restart, error, text])
+            if error:
+                return
             self.updateIni.append(219)
         # move port info from [GUI_OPTIONS] section (if it was moved via V1.227.219 update) to [POWERMAX] section
-        with open(machinePrefsFile, 'r') as inFile:
-            data = inFile.read()
-            if data.count('Port') > 1:
-                UPDATER.move_port(self.PREFS)
+        if self.PREFS.has_option('GUI_OPTIONS', 'Port'):
+            restart, error, text = UPDATER.move_port(self.PREFS)
+            self.updateData.append([restart, error, text])
+            if error:
+                return
+        # move default material from prefs file to material 0 in materials file (pre V1.236.278 2023/07/07)
+        if self.PREFS.has_section('DEFAULT MATERIAL'):
+            restart, error, text = UPDATER.move_default_material(self.PREFS, self.materialFile, self.unitsPerMm)
+            self.updateData.append([restart, error, text])
+            if error:
+                return
 
     def update_iniwrite(self):
         # this is for updates that write to the INI file
         if 154 in self.updateIni:
-            UPDATER.add_component_hal_file_iniwrite(INIPATH)
+            restart, error, text = UPDATER.add_component_hal_file_iniwrite(INIPATH)
+            if restart:
+                self.restart = True
+            self.updateData.append([self.restart, error, text])
+            if error:
+                return
         if 207 in self.updateIni:
-            UPDATER.rs274ngc_startup_code_iniwrite(INIPATH)
+            restart, error, text = UPDATER.rs274ngc_startup_code_iniwrite(INIPATH)
+            if restart:
+                self.restart = True
+            self.updateData.append([self.restart, error, text])
+            if error:
+                return
         if 208 in self.updateIni:
-            UPDATER.remove_qtplasmac_link_iniwrite(INIPATH)
+            restart, error, text = UPDATER.remove_qtplasmac_link_iniwrite(INIPATH)
+            if restart:
+                self.restart = True
+            self.updateData.append([self.restart, error, text])
+            if error:
+                return
         if 219 in self.updateIni:
-            UPDATER.move_options_to_prefs_file_iniwrite(INIPATH)
+            restart, error, text = UPDATER.move_options_to_prefs_file_iniwrite(INIPATH)
+            if restart:
+                self.restart = True
+            self.updateData.append([self.restart, error, text])
+            if error:
+                return
 
     def motion_type_changed(self, value):
         if value == 0 and STATUS.is_mdi_mode():
@@ -2397,6 +2503,80 @@ class HandlerClass:
             if self.currentRotation != STATUS.stat.rotation_xy:
                 self.w.gcodegraphics.set_current_view()
             ACTION.SET_MANUAL_MODE()
+
+    def set_interlock_defaults(self):
+        self.alwaysOnList = []
+        self.machineOnList = []
+        self.idleList = ['file_clear', 'file_open', 'file_reload', 'file_edit']
+        self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
+        self.idleHomedList = ['camera', 'laser', 'touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_b', 'touch_xy', \
+                              'mdi_show', 'height_lower', 'height_raise', 'wcs_button', 'set_offsets']
+        self.ccButton, self.otButton, self.ptButton, self.tpButton = '', '', '', ''
+        self.ctButton, self.scButton, self.frButton, self.mcButton = '', '', '', ''
+        self.ovButton, self.llButton, self.tlButton, self.umButton = '', '', [], ''
+        self.halTogglePins = {}
+        self.halPulsePins = {}
+
+    def get_main_tab_widgets(self):
+        # 1 of 2 this is a work around for pyqt5.11 not having setTabVisible(index, bool) that is present in pyqt5.15
+        self.widgetMain = self.w.main_tab_widget.findChild(QWidget, 'main_tab')
+        self.widgetConversational = self.w.main_tab_widget.findChild(QWidget, 'conv_tab')
+        self.widgetParameters = self.w.main_tab_widget.findChild(QWidget, 'param_tab')
+        self.widgetSettings = self.w.main_tab_widget.findChild(QWidget, 'settings_tab')
+        self.widgetStatistics = self.w.main_tab_widget.findChild(QWidget, 'stats_tab')
+
+    def disable_tabs(self):
+        # remove all tabs, then add them back based on their pin state (this keeps them in order)
+        # 2 of 2 this is a work around for pyqt5.11 not having setTabVisible(index, bool) that is present in pyqt5.15
+        while self.w.main_tab_widget.count() > 1:
+            self.w.main_tab_widget.removeTab(1)
+        if not self.convTabDisable.get():
+            self.w.main_tab_widget.insertTab(1, self.widgetConversational, 'CONVERSATIONAL')
+        if not self.paramTabDisable.get():
+            self.w.main_tab_widget.insertTab(2, self.widgetParameters, 'PARAMETERS')
+        if not self.settingsTabDisable.get():
+            self.w.main_tab_widget.insertTab(3, self.widgetSettings, 'SETTINGS')
+        self.w.main_tab_widget.insertTab(4, self.widgetStatistics, 'STATISTICS')
+        # reorder the indexes to account for any missing tabs, any missing will be -1 (which doesn't matter)
+        self.CONVERSATIONAL = self.w.main_tab_widget.indexOf(self.widgetConversational)
+        self.PARAMETERS = self.w.main_tab_widget.indexOf(self.widgetParameters)
+        self.SETTINGS = self.w.main_tab_widget.indexOf(self.widgetSettings)
+        self.STATISTICS = self.w.main_tab_widget.indexOf(self.widgetStatistics)
+
+    def preview_index_return(self, index):
+        if self.w.gcode_editor.editor.isModified():
+            self.new_exitCall(index)
+        else:
+            if index == self.PREVIEW:
+                pass
+            elif index == self.OPEN:
+                self.vkb_hide()
+                ACTION.SET_MANUAL_MODE()
+            elif index == self.EDIT:
+                pass
+            elif index == self.CAMERA:
+                self.button_normal('camera')
+                self.w.touch_xy.setEnabled(True)
+                self.w.laser.setEnabled(True)
+                self.cameraOn = False
+                self.vkb_hide()
+                ACTION.SET_MANUAL_MODE()
+            elif index == self.OFFSETS:
+                pass
+            elif index == self.USER_MANUAL:
+                pass
+            self.w.preview_stack.setCurrentIndex(self.PREVIEW)
+
+    def editor_close_check(self):
+        if self.w.gcode_editor.editor.isModified():
+            head = _translate('HandlerClass', 'Unsaved Editor Changes')
+            msg0 = _translate('HandlerClass', 'Unsaved changes will be lost')
+            msg1 = _translate('HandlerClass', 'Do you want to proceed')
+            if not self.dialog_show_yesno(QMessageBox.Question, head, '\n{}\n\n{}?\n'.format(msg0, msg1)):
+                self.w.preview_stack.setCurrentIndex(self.EDIT)
+                self.w.gcode_editor.editor.setFocus()
+                return False
+        return True
 
     def set_buttons_state(self, buttonLists, state):
         for buttonList in buttonLists:
@@ -2539,35 +2719,35 @@ class HandlerClass:
     def load_plasma_parameters(self):
         self.w.setup_feed_rate.setValue(self.PREFS.getpref('Setup Feed Rate', self.thcFeedRate * 0.8, float, 'PLASMA_PARAMETERS'))
         self.w.probe_feed_rate.setMaximum(self.w.setup_feed_rate.value())
-        self.w.arc_fail_delay.setValue(self.PREFS.getpref('Arc Fail Timeout', 3, float, 'PLASMA_PARAMETERS'))
-        self.w.arc_ok_high.setValue(self.PREFS.getpref('Arc OK High', 250, float, 'PLASMA_PARAMETERS'))
-        self.w.arc_ok_low.setValue(self.PREFS.getpref('Arc OK Low', 60, float, 'PLASMA_PARAMETERS'))
+        self.w.arc_fail_delay.setValue(self.PREFS.getpref('Arc Fail Timeout', 3.0, float, 'PLASMA_PARAMETERS'))
+        self.w.arc_ok_high.setValue(self.PREFS.getpref('Arc OK High', 250.0, float, 'PLASMA_PARAMETERS'))
+        self.w.arc_ok_low.setValue(self.PREFS.getpref('Arc OK Low', 60.0, float, 'PLASMA_PARAMETERS'))
         self.w.arc_max_starts.setValue(self.PREFS.getpref('Arc Maximum Starts', 3, int, 'PLASMA_PARAMETERS'))
-        self.w.arc_voltage_offset.setValue(self.PREFS.getpref('Arc Voltage Offset', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.arc_voltage_scale.setValue(self.PREFS.getpref('Arc Voltage Scale', 1, float, 'PLASMA_PARAMETERS'))
-        self.w.cornerlock_threshold.setValue(self.PREFS.getpref('Velocity Anti Dive Threshold', 90, float, 'PLASMA_PARAMETERS'))
+        self.w.arc_voltage_offset.setValue(self.PREFS.getpref('Arc Voltage Offset', 0.0, float, 'PLASMA_PARAMETERS'))
+        self.w.arc_voltage_scale.setValue(self.PREFS.getpref('Arc Voltage Scale', 1.0, float, 'PLASMA_PARAMETERS'))
+        self.w.cornerlock_threshold.setValue(self.PREFS.getpref('Velocity Anti Dive Threshold', 90.0, float, 'PLASMA_PARAMETERS'))
         self.w.float_switch_travel.setValue(self.PREFS.getpref('Float Switch Travel', round(1.5 * self.unitsPerMm, 2), float, 'PLASMA_PARAMETERS'))
         self.w.height_per_volt.setValue(self.PREFS.getpref('Height Per Volt', round(0.1 * self.unitsPerMm, 3), float, 'PLASMA_PARAMETERS'))
         self.w.voidlock_slope.setValue(self.PREFS.getpref('Void Sense Slope', 500, int, 'PLASMA_PARAMETERS'))
         self.w.ohmic_max_attempts.setValue(self.PREFS.getpref('Ohmic Maximum Attempts', 0, int, 'PLASMA_PARAMETERS'))
-        self.w.ohmic_probe_offset.setValue(self.PREFS.getpref('Ohmic Probe Offset', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.pid_p_gain.setValue(self.PREFS.getpref('Pid P Gain', 10, float, 'PLASMA_PARAMETERS'))
-        self.w.pid_d_gain.setValue(self.PREFS.getpref('Pid D Gain', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.pid_i_gain.setValue(self.PREFS.getpref('Pid I Gain', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.probe_feed_rate.setValue(self.PREFS.getpref('Probe Feed Rate', round(300 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
-        self.w.probe_start_height.setValue(self.PREFS.getpref('Probe Start Height', round(25 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
-        self.w.arc_restart_delay.setValue(self.PREFS.getpref('Arc Restart Delay', 1, float, 'PLASMA_PARAMETERS'))
-        self.w.safe_height.setValue(self.PREFS.getpref('Safe Height', round(25 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
+        self.w.ohmic_probe_offset.setValue(self.PREFS.getpref('Ohmic Probe Offset', 0.0, float, 'PLASMA_PARAMETERS'))
+        self.w.pid_p_gain.setValue(self.PREFS.getpref('Pid P Gain', 10.0, float, 'PLASMA_PARAMETERS'))
+        self.w.pid_d_gain.setValue(self.PREFS.getpref('Pid D Gain', 0.0, float, 'PLASMA_PARAMETERS'))
+        self.w.pid_i_gain.setValue(self.PREFS.getpref('Pid I Gain', 0.0, float, 'PLASMA_PARAMETERS'))
+        self.w.probe_feed_rate.setValue(self.PREFS.getpref('Probe Feed Rate', round(300.0 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
+        self.w.probe_start_height.setValue(self.PREFS.getpref('Probe Start Height', round(25.0 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
+        self.w.arc_restart_delay.setValue(self.PREFS.getpref('Arc Restart Delay', 1.0, float, 'PLASMA_PARAMETERS'))
+        self.w.safe_height.setValue(self.PREFS.getpref('Safe Height', round(25.0 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
         self.w.setup_feed_rate.setValue(self.PREFS.getpref('Setup Feed Rate', self.thcFeedRate * 0.8, float, 'PLASMA_PARAMETERS'))
-        self.w.scribe_arm_delay.setValue(self.PREFS.getpref('Scribe Arming Delay', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.scribe_on_delay.setValue(self.PREFS.getpref('Scribe On Delay', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.skip_ihs_distance.setValue(self.PREFS.getpref('Skip IHS Distance', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.spotting_threshold.setValue(self.PREFS.getpref('Spotting Threshold', 1, float, 'PLASMA_PARAMETERS'))
-        self.w.spotting_time.setValue(self.PREFS.getpref('Spotting Time', 0, float, 'PLASMA_PARAMETERS'))
+        self.w.scribe_arm_delay.setValue(self.PREFS.getpref('Scribe Arming Delay', 0.0, float, 'PLASMA_PARAMETERS'))
+        self.w.scribe_on_delay.setValue(self.PREFS.getpref('Scribe On Delay', 0.0, float, 'PLASMA_PARAMETERS'))
+        self.w.skip_ihs_distance.setValue(self.PREFS.getpref('Skip IHS Distance', 0.0, float, 'PLASMA_PARAMETERS'))
+        self.w.spotting_threshold.setValue(self.PREFS.getpref('Spotting Threshold', 1.0, float, 'PLASMA_PARAMETERS'))
+        self.w.spotting_time.setValue(self.PREFS.getpref('Spotting Time', 0.0, float, 'PLASMA_PARAMETERS'))
         self.w.thc_delay.setValue(self.PREFS.getpref('THC Delay', 0.5, float, 'PLASMA_PARAMETERS'))
         self.w.thc_sample_counts.setValue(self.PREFS.getpref('THC Sample Counts', 50, int, 'PLASMA_PARAMETERS'))
-        self.w.thc_sample_threshold.setValue(self.PREFS.getpref('THC Sample Threshold', 1, float, 'PLASMA_PARAMETERS'))
-        self.w.thc_threshold.setValue(self.PREFS.getpref('THC Threshold', 1, float, 'PLASMA_PARAMETERS'))
+        self.w.thc_sample_threshold.setValue(self.PREFS.getpref('THC Sample Threshold', 1.0, float, 'PLASMA_PARAMETERS'))
+        self.w.thc_threshold.setValue(self.PREFS.getpref('THC Threshold', 1.0, float, 'PLASMA_PARAMETERS'))
 
     def set_signal_connections(self):
         self.w.power.pressed.connect(lambda:self.power_button("pressed", True))
@@ -2616,6 +2796,7 @@ class HandlerClass:
         self.w.materials_box.currentIndexChanged.connect(lambda w:self.material_changed(w))
         self.w.material_selector.currentIndexChanged.connect(lambda w:self.selector_changed(w))
         self.w.conv_material.currentIndexChanged.connect(lambda w:self.conv_material_changed(w))
+        self.w.default_material.currentIndexChanged.connect(lambda w:self.default_material_changed(w))
         self.w.sd_save.clicked.connect(self.save_shutdown_message_clicked)
         self.w.sd_reload.clicked.connect(self.reload_shutdown_message_clicked)
         self.w.ub_save.clicked.connect(self.save_user_button_clicked)
@@ -2732,9 +2913,9 @@ class HandlerClass:
         self.w.feed_label.pressed.connect(self.feed_label_pressed)
         self.w.rapid_label.pressed.connect(self.rapid_label_pressed)
         self.w.jogs_label.pressed.connect(self.jogs_label_pressed)
-        self.paramTabDisable.value_changed.connect(lambda v:self.param_tab_changed(v))
-        self.settingsTabDisable.value_changed.connect(lambda v:self.settings_tab_changed(v))
-        self.convTabDisable.value_changed.connect(lambda v:self.conv_tab_changed(v))
+        self.paramTabDisable.value_changed.connect(self.disable_tabs)
+        self.settingsTabDisable.value_changed.connect(self.disable_tabs)
+        self.convTabDisable.value_changed.connect(self.disable_tabs)
         self.w.cut_time_reset.pressed.connect(lambda:self.statistic_reset('cut_time', 'Cut time'))
         self.w.probe_time_reset.pressed.connect(lambda:self.statistic_reset('probe_time', 'Probe time'))
         self.w.paused_time_reset.pressed.connect(lambda:self.statistic_reset('paused_time', 'Paused time'))
@@ -2750,6 +2931,7 @@ class HandlerClass:
         self.extAbortPin.value_changed.connect(lambda v:self.ext_abort(v))
         self.extTouchOffPin.value_changed.connect(lambda v:self.ext_touch_off(v))
         self.extLaserTouchOffPin.value_changed.connect(lambda v:self.ext_laser_touch_off(v))
+        self.extLaserTogglePin.value_changed.connect(lambda v:self.ext_laser_toggle(v))
         self.extRunPausePin.value_changed.connect(lambda v:self.ext_run_pause(v))
         self.extHeightOvrPlusPin.value_changed.connect(lambda v:self.height_ovr_pressed(v,1))
         self.extHeightOvrMinusPin.value_changed.connect(lambda v:self.height_ovr_pressed(v,-1))
@@ -2809,6 +2991,9 @@ class HandlerClass:
         self.zOffsetPin.value_changed.connect(lambda v:self.z_offset_changed(v))
         self.laserRecStatePin.value_changed.connect(lambda v:self.laser_recovery_state_changed(v))
         self.ohmicLedInPin.value_changed.connect(lambda v:self.ohmic_sensed(v))
+        self.w.webview_back.pressed.connect(self.web_back_pressed)
+        self.w.webview_forward.pressed.connect(self.web_forward_pressed)
+        self.w.webview_reload.pressed.connect(self.web_reload_pressed)
 
     def conv_call(self, operation):
         if self.developmentPin.get():
@@ -2972,9 +3157,9 @@ class HandlerClass:
             self.w.gcode_editor.editor.SendScintilla(QsciScintilla.SCI_SETEXTRAASCENT, 4)
             self.w.gcode_editor.editor.SendScintilla(QsciScintilla.SCI_SETEXTRADESCENT, 4)
             self.vkb_check()
-            if self.w.main_tab_widget.currentIndex() == 2:
+            if self.w.main_tab_widget.currentIndex() == self.PARAMETERS:
                 self.vkb_show(True)
-            elif self.w.main_tab_widget.currentIndex() == 3:
+            elif self.w.main_tab_widget.currentIndex() == self.SETTINGS:
                 self.vkb_show()
             self.w.chk_keyboard_shortcuts.setChecked(False)
             self.w.chk_keyboard_shortcuts.setEnabled(False)
@@ -3109,7 +3294,6 @@ class HandlerClass:
         else:
             return {'cancel':True}
 
-
     def invert_pin_state(self, halpin):
         if 'qtplasmac.ext_out_' in halpin:
             pin = 'out{}Pin'.format(halpin.split('out_')[1])
@@ -3136,10 +3320,11 @@ class HandlerClass:
                 if color != self.w.color_backgrnd.palette().color(QPalette.Background):
                     self.button_normal(self.halPulsePins[halpin][0])
         if self.tlButton:
-            if self.laserOnPin.get():
-                self.button_active(self.tlButton)
-            else:
-                self.button_normal(self.tlButton)
+            for button in self.tlButton:
+                if self.laserOnPin.get():
+                    self.button_active(button)
+                else:
+                    self.button_normal(button)
 
 
     def run_critical_check(self):
@@ -3162,28 +3347,78 @@ class HandlerClass:
             return False
 
     def preview_stack_changed(self):
-        if self.w.preview_stack.currentIndex() == 2:
+        if self.w.preview_stack.currentIndex() == self.PREVIEW:
+            self.w.file_clear.setEnabled(True)
+            self.w.file_reload.setEnabled(True)
+            self.autorepeat_keys(False)
+            self.w.jog_frame.setEnabled(True)
+            self.set_run_button_state()
+            if STATUS.is_interp_idle():
+                self.set_buttons_state([self.idleList], True)
+                if STATUS.machine_is_on():
+                    self.set_buttons_state([self.idleOnList], True)
+                    if STATUS.is_all_homed():
+                        self.set_buttons_state([self.idleHomedList], True)
+        elif self.w.preview_stack.currentIndex() == self.OPEN:
+            self.button_active(self.w.file_open.objectName())
+            self.autorepeat_keys(True)
+            self.vkb_hide()
+            self.w.filemanager.table.setFocus()
+            self.set_buttons_state([self.idleOnList, self.idleHomedList], False)
+            self.w.jog_frame.setEnabled(False)
+            self.w.run.setEnabled(False)
+        elif self.w.preview_stack.currentIndex() == self.EDIT:
             self.button_active(self.w.file_edit.objectName())
             text0 = _translate('HandlerClass', 'EDIT')
             text1 = _translate('HandlerClass', 'CLOSE')
             self.w.file_edit.setText('{}\n{}'.format(text0, text1))
-            self.w.file_clear.setEnabled(False)
-            self.w.file_open.setEnabled(False)
-            self.w.file_reload.setEnabled(False)
             self.autorepeat_keys(True)
+            buttonList = [button for button in self.idleHomedList if button != 'mdi_show']
+            self.set_buttons_state([self.idleOnList, buttonList], False)
             self.w.jog_frame.setEnabled(False)
-        else:
+        elif self.w.preview_stack.currentIndex() == self.CAMERA:
+            self.button_active('camera')
+            self.w.run.setEnabled(False)
+            self.w.touch_xy.setEnabled(False)
+            self.w.laser.setEnabled(False)
+            self.cameraOn = True
+        elif self.w.preview_stack.currentIndex() == self.OFFSETS:
+            self.button_active(self.ovButton)
+            buttonList = [button for button in self.idleHomedList if button not in ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_b', 'touch_xy', \
+            'mdi_show', 'wcs_button', 'set_offsets']]
+            self.set_buttons_state([self.idleOnList, buttonList], False)
+            self.w.jog_frame.setEnabled(False)
+            self.w.run.setEnabled(False)
+            for row in range(self.w.originoffsetview.tablemodel.rowCount(self.w.originoffsetview)):
+                self.w.originoffsetview.resizeRowToContents(row)
+            for column in range(self.w.originoffsetview.tablemodel.rowCount(self.w.originoffsetview)-1):
+                self.w.originoffsetview.resizeColumnToContents(column)
+        elif self.w.preview_stack.currentIndex() == self.USER_MANUAL:
+            self.button_active(self.umButton)
+            self.autorepeat_keys(True)
+            buttonList = [button for button in self.idleHomedList if button != 'mdi_show']
+            self.set_buttons_state([self.idleOnList, buttonList], False)
+            self.w.jog_frame.setEnabled(False)
+            self.w.run.setEnabled(False)
+        if self.w.preview_stack.currentIndex() != self.OPEN or self.w.preview_stack.currentIndex() == self.PREVIEW:
+            self.button_normal(self.w.file_open.objectName())
+        if self.w.preview_stack.currentIndex() != self.EDIT or self.w.preview_stack.currentIndex() == self.PREVIEW:
             self.button_normal(self.w.file_edit.objectName())
             self.w.file_edit.setText(_translate('HandlerClass', 'EDIT'))
-            self.w.file_clear.setEnabled(True)
-            self.w.file_open.setEnabled(True)
-            self.w.file_reload.setEnabled(True)
-            if self.w.gcode_stack.currentIndex() != 1:
-                self.autorepeat_keys(False)
-                self.w.jog_frame.setEnabled(True)
+        if self.w.preview_stack.currentIndex() !=self.CAMERA or self.w.preview_stack.currentIndex() == self.PREVIEW:
+            self.button_normal('camera')
+        if self.w.preview_stack.currentIndex() != self.OFFSETS or self.w.preview_stack.currentIndex() == self.PREVIEW:
+            if self.ovButton:
+                self.button_normal(self.ovButton)
+        if self.w.preview_stack.currentIndex() != self.USER_MANUAL or self.w.preview_stack.currentIndex() == self.PREVIEW:
+            if self.prevPreviewIndex == self.EDIT:
+                buttonList = [button for button in self.idleList if button in [self.ovButton, 'file_open']]
+                self.set_buttons_state([buttonList], True)
+            if self.umButton:
+                self.button_normal(self.umButton)
 
     def gcode_stack_changed(self):
-        if self.w.gcode_stack.currentIndex() == 1:
+        if self.w.gcode_stack.currentIndex() == self.MDI:
             self.button_active(self.w.mdi_show.objectName())
             text0 = _translate('HandlerClass', 'MDI')
             text1 = _translate('HandlerClass', 'CLOSE')
@@ -3195,7 +3430,7 @@ class HandlerClass:
         else:
             self.button_normal(self.w.mdi_show.objectName())
             self.w.mdi_show.setText(_translate('HandlerClass', 'MDI'))
-            if self.w.preview_stack.currentIndex() != 2:
+            if self.w.preview_stack.currentIndex() != self.EDIT:
                 self.autorepeat_keys(False)
                 self.w.jog_frame.setEnabled(True)
 
@@ -3226,7 +3461,7 @@ class HandlerClass:
                     self.w.main_tab_widget.setTabEnabled(n, state)
         else:
             if self.tabsAlwaysEnabled.get():
-                self.w.main_tab_widget.setTabEnabled(1, state)
+                self.w.main_tab_widget.setTabEnabled(self.CONVERSATIONAL, state)
             else:
                 for n in range(self.w.main_tab_widget.count()):
                     if n != 0 and (not self.probeTest or n != self.w.main_tab_widget.currentIndex()):
@@ -3298,6 +3533,7 @@ class HandlerClass:
         except:
             pass
 
+
 #########################################################################################################################
 # TIMER FUNCTIONS #
 #########################################################################################################################
@@ -3349,7 +3585,7 @@ class HandlerClass:
                 self.w.pause.setText(_translate('HandlerClass', 'CYCLE RESUME'))
             else:
                 self.w.pause.setText('')
-        elif not self.w.jog_stack.currentIndex():
+        elif self.w.jog_stack.currentIndex() == self.JOG:
             self.w.pause.setText(_translate('HandlerClass', 'CYCLE PAUSE'))
         text = _translate('HandlerClass', 'FEED')
         if self.w.feed_slider.value() != 100:
@@ -3503,7 +3739,8 @@ class HandlerClass:
         self.cutType = 0
         self.single_cut_request = False
         self.oldFile = None
-        singleCodes = ['change-consumables', 'cut-type', 'framing', 'manual-cut', 'offsets-view', 'ohmic-test', 'probe-test', 'single-cut', 'torch-pulse']
+        singleCodes = ['change-consumables', 'cut-type', 'framing', 'manual-cut', 'offsets-view', \
+                       'ohmic-test', 'probe-test', 'single-cut', 'torch-pulse', 'user-manual', 'latest-file']
         head = _translate('HandlerClass', 'User Button Error')
         for bNum in range(1,21):
             self.w['button_{}'.format(str(bNum))].setEnabled(False)
@@ -3543,7 +3780,7 @@ class HandlerClass:
             self.w['button_{}'.format(str(bNum))].setText(bLabel)
             if 'change-consumables' in bCode:
                 self.ccParm = bCode.replace('change-consumables','').replace(' ','').lower() or None
-                if self.ccParm != None and ('x' in self.ccParm or 'y' in self.ccParm) and 'f' in self.ccParm:
+                if self.ccParm != None and ('x' in self.ccParm or 'y' in self.ccParm):
                     self.ccButton = 'button_{}'.format(str(bNum))
                     self.idleHomedList.append(self.ccButton)
                     self.pausedValidList.append(self.ccButton)
@@ -3651,7 +3888,7 @@ class HandlerClass:
                 else:
                     try:
                         hal.get_value(halpin)
-                        self.idleOnList.append('button_{}'.format(str(bNum)))
+                        self.machineOnList.append('button_{}'.format(str(bNum)))
                     except:
                         msg1 = _translate('HandlerClass', 'HAL pin')
                         msg2 = _translate('HandlerClass', 'does not exist')
@@ -3660,7 +3897,7 @@ class HandlerClass:
                 # halTogglePins format is: button name, run critical flag, button text
                 self.halTogglePins[halpin] = ['button_{}'.format(str(bNum)), critical, bLabel]
             elif 'toggle-laser' in bCode:
-                self.tlButton = 'button_{}'.format(str(bNum))
+                self.tlButton.append('button_{}'.format(str(bNum)))
                 self.idleHomedList.append('button_{}'.format(str(bNum)))
                 continue
             elif 'pulse-halpin' in bCode:
@@ -3689,7 +3926,7 @@ class HandlerClass:
                     else:
                         try:
                             hal.get_value(halpin)
-                            self.idleOnList.append('button_{}'.format(str(bNum)))
+                            self.machineOnList.append('button_{}'.format(str(bNum)))
                         except:
                             msg1 = _translate('HandlerClass', 'HAL pin')
                             msg2 = _translate('HandlerClass', 'does not exist')
@@ -3710,10 +3947,14 @@ class HandlerClass:
                     continue
             elif 'offsets-view' in bCode:
                 self.ovButton = 'button_{}'.format(str(bNum))
-                self.idleHomedList.append(self.ovButton)
+                self.idleList.append(self.ovButton)
             elif 'latest-file' in bCode:
                 self.llButton = 'button_{}'.format(str(bNum))
                 self.idleList.append(self.llButton)
+            elif 'user-manual' in bCode:
+                self.umButton = 'button_{}'.format(str(bNum))
+                self.idleList.append(self.umButton)
+                self.w.webview.load(self.umUrl)
             else:
                 for command in bCode.split('\\'):
                     command = command.strip()
@@ -3732,7 +3973,7 @@ class HandlerClass:
                             msg2 = _translate('HandlerClass', 'does not exist')
                             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}\n'.format(head, msg0, bNum, msg1, cmd, msg2))
                         else:
-                            self.estopOnList.append('button_{}'.format(str(bNum)))
+                            self.alwaysOnList.append('button_{}'.format(str(bNum)))
                     else:
                         head = _translate('HandlerClass', 'Code Error')
                         msg1 = self.w['button_{}'.format(str(bNum))].text().replace('\n',' ')
@@ -3772,6 +4013,7 @@ class HandlerClass:
         elif 'load' in commands.lower():
             lFile = '{}/{}'.format(self.programPrefix, commands.split('load', 1)[1].strip())
             self.overlayProgress.setValue(0)
+            self.remove_temp_materials()
             ACTION.OPEN_PROGRAM(lFile)
         elif 'toggle-halpin' in commands.lower():
             halpin = commands.lower().split('toggle-halpin')[1].split(' ')[1].strip()
@@ -3791,6 +4033,7 @@ class HandlerClass:
                 command = command.strip()
                 if command != 'toggle-laser':
                     self.user_button_command(bNum, command)
+            ACTION.SET_MANUAL_MODE()
         elif 'pulse-halpin' in commands.lower():
             head = _translate('HandlerClass', 'HAL Pin Error')
             msg1 = _translate('HandlerClass', 'Failed to pulse HAL pin')
@@ -3821,18 +4064,10 @@ class HandlerClass:
         elif 'manual-cut' in commands.lower():
             self.manual_cut()
         elif 'offsets-view' in commands.lower():
-            if self.w.preview_stack.currentIndex() == 4:
-                self.w.preview_stack.setCurrentIndex(0)
-                self.button_normal(self.ovButton)
-                self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
-                if self.w.gcode_display.lines() > 1:
-                    self.w.run.setEnabled(True)
+            if self.w.preview_stack.currentIndex() != self.OFFSETS:
+                self.w.preview_stack.setCurrentIndex(self.OFFSETS)
             else:
-                self.w.preview_stack.setCurrentIndex(4)
-                self.button_active(self.ovButton)
-                buttonList = [button for button in self.idleHomedList if button != self.ovButton]
-                self.set_buttons_state([self.idleList, self.idleOnList, buttonList], False)
-                self.w.run.setEnabled(False)
+                self.preview_index_return(self.w.preview_stack.currentIndex())
         elif 'latest-file' in commands.lower():
             try:
                 if len(commands.split()) == 2:
@@ -3842,11 +4077,19 @@ class HandlerClass:
                 files = glob.glob('{}/*.ngc'.format(dir))
                 latest = max(files, key = os.path.getctime)
                 self.overlayProgress.setValue(0)
+                self.remove_temp_materials()
                 ACTION.OPEN_PROGRAM(latest)
             except:
                 head = _translate('HandlerClass', 'File Error')
                 msg0 = _translate('HandlerClass', 'Cannot open latest file from user button')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n'.format(head, msg0, bNum))
+        elif 'user-manual' in commands.lower():
+            if self.w.preview_stack.currentIndex() != self.USER_MANUAL:
+                self.prevPreviewIndex = self.w.preview_stack.currentIndex()
+                self.w.preview_stack.setCurrentIndex(self.USER_MANUAL)
+            else:
+                self.w.preview_stack.setCurrentIndex(self.prevPreviewIndex)
+                self.prevPreviewIndex = self.USER_MANUAL
         else:
             self.reloadRequired = False
             for command in commands.split('\\'):
@@ -3854,9 +4097,6 @@ class HandlerClass:
                 self.user_button_command(bNum, command)
                 if command[0] == "%":
                     continue
-                while not STATUS.is_interp_idle():
-                    self.w.gcodegraphics.updateGL()
-                    QApplication.processEvents()
                 if command.lower().replace(' ', '').startswith('g10l20') and self.fileOpened:
                     self.reloadRequired = True
             if self.reloadRequired:
@@ -3874,8 +4114,28 @@ class HandlerClass:
                     if char == '{':
                         subCommand = ':'
                     elif char == '}':
-                        f1, f2 = subCommand.replace(':','').split()
-                        newCommand += self.iniFile.find(f1,f2)
+                        if len(subCommand.split()) > 1:
+                            section, option = subCommand.replace(':','').split(' ', 1)
+                        else:
+                            head = _translate('HandlerClass', 'Code Error')
+                            msg0 = _translate('HandlerClass', 'Value Error in user button')
+                            msg1 = self.w['button_{}'.format(str(bNum))].text().replace('\n',' ')
+                            errorCode = '{}'.format(subCommand.replace(':', '{')) + '}'
+                            msg2 = _translate('HandlerClass', 'Requires a valid section and option pair')
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{} ({}):\n"{}"\n{}\n'.format(head, msg0, bNum, msg1, errorCode, msg2))
+                            return
+                        if self.PREFS.has_option(section, option):
+                            newCommand += str(self.PREFS.get(section, option))
+                        elif self.iniFile.find(section, option):
+                            newCommand += self.iniFile.find(section, option)
+                        else:
+                            head = _translate('HandlerClass', 'Code Error')
+                            msg0 = _translate('HandlerClass', 'Invalid code in user button')
+                            msg1 = self.w['button_{}'.format(str(bNum))].text().replace('\n',' ')
+                            errorCode = '{}'.format(subCommand.replace(':', '{')) + '}'
+                            msg2 = _translate('HandlerClass', 'Provided section option pair does not exist')
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{} ({}):\n"{}"\n{}\n'.format(head, msg0, bNum, msg1, errorCode, msg2))
+                            return
                         subCommand = ''
                     elif subCommand.startswith(':'):
                         subCommand += char
@@ -3883,6 +4143,9 @@ class HandlerClass:
                         newCommand += char
                 command = newCommand
             ACTION.CALL_MDI(command)
+            while not STATUS.is_interp_idle():
+                self.w.gcodegraphics.updateGL()
+                QApplication.processEvents()
         elif command and command[0] == '%':
             command = command.lstrip('%').lstrip()
             if command[-3:] == '.py':
@@ -3970,7 +4233,7 @@ class HandlerClass:
                 self.w[self.otButton].setEnabled(False)
 
     def consumable_change_setup(self):
-        self.ccXpos = self.ccYpos = self.ccFeed = 'None'
+        self.ccXpos = self.ccYpos = self.ccFeed = None
         X = Y = F = ''
         ccAxis = [X, Y, F]
         ccName = ['x', 'y', 'f']
@@ -3996,6 +4259,11 @@ class HandlerClass:
                     self.ccYpos = float(ccAxis[loop])
                 elif ccName[loop] == 'f' and ccAxis[loop]:
                     self.ccFeed = float(ccAxis[loop])
+        if not self.ccFeed or self.ccFeed < 1:
+            msg0 = _translate('HandlerClass', 'Invalid feed rate for consumable change')
+            msg1 = _translate('HandlerClass', 'Defaulting to materials cut feed rate')
+            STATUS.emit('update-machine-log', '{}, {}'.format(msg0, msg1), 'TIME')
+            self.ccFeed = float(self.w.cut_feed_rate.text())
 
     def ext_change_consumables(self, state):
         if self.ccButton and self.w[self.ccButton].isEnabled():
@@ -4011,31 +4279,23 @@ class HandlerClass:
             self.w[self.ccButton].setEnabled(False)
         else:
             self.consumable_change_setup()
-            if self.ccFeed == 'None' or self.ccFeed < 1:
-                head = _translate('HandlerClass', 'User Button Error')
-                msg0 = _translate('HandlerClass', 'Feed rate for consumable change missing or less than 1')
-                msg1 = _translate('HandlerClass', 'Check arguments for "change-consumables" button code in')
-                msg2 = _translate('HandlerClass', '.prefs file')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n{}{}\n'.format(head, msg0, msg1, self.machineName, msg2))
-                return
-            else:
-                hal.set_p('plasmac.xy-feed-rate', str(float(self.ccFeed)))
             self.w.run.setEnabled(False)
             if self.frButton:
                 self.w[self.frButton].setEnabled(False)
             self.w.pause.setEnabled(False)
-            if self.ccXpos == 'None':
+            if not self.ccXpos:
                 self.ccXpos = STATUS.get_position()[0][0]
             if self.ccXpos < round(self.xMin, 6) + (10 * self.unitsPerMm):
                 self.ccXpos = round(self.xMin, 6) + (10 * self.unitsPerMm)
             elif self.ccXpos > round(self.xMax, 6) - (10 * self.unitsPerMm):
                 self.ccXpos = round(self.xMax, 6) - (10 * self.unitsPerMm)
-            if self.ccYpos == 'None':
+            if not self.ccYpos:
                 self.ccYpos = STATUS.get_position()[0][1]
             if self.ccYpos < round(self.yMin, 6) + (10 * self.unitsPerMm):
                 self.ccYpos = round(self.yMin, 6) + (10 * self.unitsPerMm)
             elif self.ccYpos > round(self.yMax, 6) - (10 * self.unitsPerMm):
                 self.ccYpos = round(self.yMax, 6) - (10 * self.unitsPerMm)
+            hal.set_p('plasmac.xy-feed-rate', str(float(self.ccFeed)))
             hal.set_p('plasmac.x-offset', '{:.0f}'.format((self.ccXpos - STATUS.get_position()[0][0]) / hal.get_value('plasmac.offset-scale')))
             hal.set_p('plasmac.y-offset', '{:.0f}'.format((self.ccYpos - STATUS.get_position()[0][1]) / hal.get_value('plasmac.offset-scale')))
             hal.set_p('plasmac.consumable-change', '1')
@@ -4270,8 +4530,10 @@ class HandlerClass:
         xEnd = STATUS.get_position()[0][0] + xLength.value()
         yEnd = STATUS.get_position()[0][1] + yLength.value()
         newFile = '{}single_cut.ngc'.format(self.tmpPath)
+        matNum = int(self.w.materials_box.currentText().split(': ', 1)[0])
         with open(newFile, 'w') as f:
             f.write('G90\n')
+            f.write('M190 P{}\n'.format(matNum))
             f.write('F#<_hal[plasmac.cut-feed-rate]>\n')
             f.write('G53 G0 X{:0.6f} Y{:0.6f}\n'.format(STATUS.get_position()[0][0], STATUS.get_position()[0][1]))
             f.write('M3 $0 S1\n')
@@ -4279,6 +4541,8 @@ class HandlerClass:
             f.write('M5 $0\n')
             f.write('M2\n')
         self.single_cut_request = True
+        if self.fileOpened:
+            self.preSingleCutMaterial = matNum
         ACTION.OPEN_PROGRAM(newFile)
 
     def manual_cut(self):
@@ -4311,11 +4575,18 @@ class HandlerClass:
                      .format(self.backColor, self.fore1Color, self.disabledColor))
 
     def button_normal(self, button):
-        self.w[button].setStyleSheet( \
-                    'QPushButton {{ color: {0}; background: {1} }} \
-                     QPushButton:pressed {{ color: {0}; background: {1} }} \
-                     QPushButton:disabled {{ color: {2}}}' \
-                     .format(self.foreColor, self.backColor, self.disabledColor))
+        if button == 'file_open':
+            self.w[button].setStyleSheet( \
+                        'QPushButton {{ color: {1}; background: {0} }} \
+                         QPushButton:pressed {{ color: {0}; background: {1} }} \
+                         QPushButton:disabled {{ color: {1}; background: {2} }}' \
+                         .format(self.foreColor, self.backColor, self.disabledColor))
+        else:
+            self.w[button].setStyleSheet( \
+                        'QPushButton {{ color: {0}; background: {1} }} \
+                         QPushButton:pressed {{ color: {0}; background: {1} }} \
+                         QPushButton:disabled {{ color: {2} }}' \
+                         .format(self.foreColor, self.backColor, self.disabledColor))
 
 
 #########################################################################################################################
@@ -4383,16 +4654,16 @@ class HandlerClass:
 # MATERIAL HANDLING FUNCTIONS #
 #########################################################################################################################
     def save_materials_clicked(self):
-        material = self.materialChangeNumberPin.get()
+        matNum = self.materialChangeNumberPin.get()
+        if matNum == -1:
+            matNum = self.defaultMaterial
         index = self.w.materials_box.currentIndex()
-        self.save_materials(material, index)
+        self.save_material_file(matNum, index)
 
     def reload_materials_clicked(self):
         self.materialUpdate = True
         index = self.w.materials_box.currentIndex()
-        self.materialFileDict = {}
-        self.materialNumList = []
-        self.load_materials()
+        self.load_material_file(True)
         self.w.materials_box.setCurrentIndex(index)
         self.materialUpdate = False
         self.materialReloadPin.set(0)
@@ -4405,25 +4676,25 @@ class HandlerClass:
         btn2 = _translate('HandlerClass', 'CANCEL')
         virtkb = 4
         while(1):
-            valid, num = self.dialog_input(virtkb, head, '{}:'.format(msgs), btn1, btn2)
+            valid, matNum = self.dialog_input(virtkb, head, '{}:'.format(msgs), btn1, btn2)
             if not valid:
                 return
             try:
-                num = int(num)
+                matNum = int(matNum)
             except:
-                if not num:
+                if not matNum:
                     msg0 = _translate('HandlerClass', 'A material number is required')
                     msgs = '{}.\n\n{}:'.format(msg0, msg1)
                 else:
                     msg0 = _translate('HandlerClass', 'is not a valid number')
-                    msgs = '{} {}.\n\n{}:'.format(num, msg0, msg1)
+                    msgs = '{} {}.\n\n{}:'.format(matNum, msg0, msg1)
                 continue
-            if num == 0 or num in self.materialNumList:
+            if matNum in self.materialNumList:
                 msg0 = _translate('HandlerClass', 'Material')
                 msg2 = _translate('HandlerClass', 'is in use')
-                msgs = '{} #{} {}.\n\n{}:'.format(msg0, num, msg2, msg1)
+                msgs = '{} #{} {}.\n\n{}:'.format(msg0, matNum, msg2, msg1)
                 continue
-            elif num >= 1000000:
+            elif matNum >= 1000000:
                 msg0 = _translate('HandlerClass', 'Material numbers need to be less than 1000000')
                 msgs = '{}.\n\n{}:'.format(msg0, msg1)
                 continue
@@ -4431,57 +4702,20 @@ class HandlerClass:
         msg1 = 'Enter New Material Name'
         virtkb = 3
         while(1):
-            valid, nam = self.dialog_input(virtkb, head, msg1, btn1, btn2)
+            valid, matNam = self.dialog_input(virtkb, head, msg1, btn1, btn2)
             if not valid:
                 return
-            if not nam:
+            if not matNam:
                 msg0 = _translate('HandlerClass', 'Material name is required')
                 msgs = '{}.\n\n{}:'.format(msg0, msg1)
                 continue
             break
-
-
-        material = self.w.materials_box.currentText().split(': ', 1)[0].lstrip('0')
-        material = int(material) if material else 0
-        COPY(self.materialFile, self.tmpMaterialFile)
-        with open(self.tmpMaterialFile, 'r') as inFile:
-            with open(self.materialFile, 'w') as outFile:
-                written = False
-                while 1:
-                    line = inFile.readline()
-                    if not written:
-                        if not line or \
-                           (line.startswith('[MATERIAL_NUMBER_') and \
-                           num < int(line.strip().split('NUMBER_')[1].rstrip(']'))):
-                            outFile.write('[MATERIAL_NUMBER_{}]\n'.format(num))
-                            outFile.write('NAME               = {}\n'.format(nam))
-                            outFile.write('KERF_WIDTH         = {}\n'.format(self.materialFileDict[material][1]))
-                            outFile.write('PIERCE_HEIGHT      = {}\n'.format(self.materialFileDict[material][2]))
-                            outFile.write('PIERCE_DELAY       = {}\n'.format(self.materialFileDict[material][3]))
-                            outFile.write('PUDDLE_JUMP_HEIGHT = {}\n'.format(self.materialFileDict[material][4]))
-                            outFile.write('PUDDLE_JUMP_DELAY  = {}\n'.format(self.materialFileDict[material][5]))
-                            outFile.write('CUT_HEIGHT         = {}\n'.format(self.materialFileDict[material][6]))
-                            outFile.write('CUT_SPEED          = {}\n'.format(self.materialFileDict[material][7]))
-                            outFile.write('CUT_AMPS           = {}\n'.format(self.materialFileDict[material][8]))
-                            outFile.write('CUT_VOLTS          = {}\n'.format(self.materialFileDict[material][9]))
-                            outFile.write('PAUSE_AT_END       = {}\n'.format(self.materialFileDict[material][10]))
-                            outFile.write('GAS_PRESSURE       = {}\n'.format(self.materialFileDict[material][11]))
-                            outFile.write('CUT_MODE           = {}\n\n'.format(self.materialFileDict[material][12]))
-                            outFile.write(line)
-                            written = True
-                        elif not line:
-                            break
-                        else:
-                            outFile.write(line)
-                    elif not line:
-                        break
-                    else:
-                        outFile.write(line)
+        mat = [matNum, matNam]
+        mat[2:] = self.materialDict[self.materialList[self.w.materials_box.currentIndex()]][1:]
+        self.write_one_material(mat)
         self.materialUpdate = True
-        self.materialFileDict = {}
-        self.materialNumList = []
-        self.load_materials()
-        self.w.materials_box.setCurrentIndex(self.materialList.index(num))
+        self.load_material_file(True)
+        self.w.materials_box.setCurrentIndex(self.materialList.index(matNum))
         self.materialUpdate = False
 
     def delete_material_clicked(self):
@@ -4492,89 +4726,86 @@ class HandlerClass:
         msgs = msg1
         virtkb = 4
         while(1):
-            valid, num = self.dialog_input(virtkb, head, '{}:'.format(msgs), btn1, btn2)
+            valid, matNum = self.dialog_input(virtkb, head, '{}:'.format(msgs), btn1, btn2)
             if not valid:
                 return
             try:
-                num = int(num)
+                matNum = int(matNum)
             except:
-                if not num:
+                if not matNum:
                     msg0 = _translate('HandlerClass', 'A material number is required')
                     msgs = '{}.\n\n\{}:'.format(msg0, msg1)
                 else:
                     msg0 = _translate('HandlerClass', 'is not a valid number')
-                    msgs = '{} {}.\n\n{}:'.format(num, msg0, msg1)
+                    msgs = '{} {}.\n\n{}:'.format(matNum, msg0, msg1)
                 continue
-            if num == 0:
+            if matNum == self.defaultMaterial:
                 msg0 = _translate('HandlerClass', 'Default material cannot be deleted')
                 msgs = '{}.\n\n{}:'
                 continue
-            if num not in self.materialNumList:
+            elif matNum >= 1000000 and matNum in self.materialList:
+                msg0 = _translate('HandlerClass', 'Temporary material')
+                msg3 = _translate('HandlerClass', 'cannot be deleted')
+                msgs = '{} #{} {}.\n\n{}:'.format(msg0, matNum, msg3, msg1)
+                continue
+            elif matNum not in self.materialNumList:
                 msg0 = _translate('HandlerClass', 'Material')
                 msg3 = _translate('HandlerClass', 'does not exist')
-                msgs = '{} #{} {}.\n\n{}:'.format(msg0, num, msg3, msg1)
+                msgs = '{} #{} {}.\n\n{}:'.format(msg0, matNum, msg3, msg1)
                 continue
             break
         head = _translate('HandlerClass', 'Delete Material')
         msg0 = _translate('HandlerClass', 'Do you really want to delete material')
-        if not self.dialog_show_yesno(QMessageBox.Question, '{}'.format(head), '\n{} #{}?\n'.format(msg0, num)):
+        if not self.dialog_show_yesno(QMessageBox.Question, '{}'.format(head), '\n{} #{}?\n'.format(msg0, matNum)):
             return
-        COPY(self.materialFile, self.tmpMaterialFile)
-        with open(self.tmpMaterialFile, 'r') as inFile:
-            with open(self.materialFile, 'w') as outFile:
-                while 1:
-                    line = inFile.readline()
-                    if not line: break
-                    elif line.startswith('[MATERIAL_NUMBER_') and \
-                         int(line.strip().strip(']').split('[MATERIAL_NUMBER_')[1]) == num:
-                        break
-                    else:
-                        outFile.write(line)
-                while 1:
-                    line = inFile.readline()
-                    if not line: break
-                    elif line.startswith('[MATERIAL_NUMBER_'):
-                        outFile.write(line)
-                        break
-                while 1:
-                    line = inFile.readline()
-                    if not line: break
-                    else:
-                        outFile.write(line)
+        self.MATS.remove_section('MATERIAL_NUMBER_{}'.format(matNum))
+        self.MATS.write(open(self.MATS.fn, 'w'))
         self.materialUpdate = True
-        self.materialFileDict = {}
-        self.materialNumList = []
-        self.load_materials()
+        self.load_material_file(True)
         self.materialUpdate = False
 
+    def remove_temp_materials(self):
+        mats = [m for m in self.materialList if m >= 1000000]
+        if mats:
+            for mat in mats:
+                self.materialDict.pop(mat)
+                self.materialList.remove(mat)
+
     def selector_changed(self, index):
+        if index == -1 or self.getMaterialBusy:
+            return
         if self.w.material_selector.currentIndex() != self.w.materials_box.currentIndex():
             self.w.materials_box.setCurrentIndex(index)
             self.w.conv_material.setCurrentIndex(index)
 
     def conv_material_changed(self, index):
+        if index == -1 or self.getMaterialBusy:
+            return
         if self.w.conv_material.currentIndex() != self.w.materials_box.currentIndex():
             self.w.materials_box.setCurrentIndex(index)
             self.w.material_selector.setCurrentIndex(index)
 
     def material_changed(self, index):
+        if index == -1 or self.getMaterialBusy:
+            return
         if self.w.materials_box.currentText():
             if self.getMaterialBusy:
-                self.materialChangePin.set(0)
+                self.materialChangePin.set(-1)
                 self.autoChange = False
                 return
-            material = int(self.w.materials_box.currentText().split(': ', 1)[0])
-            if material >= 1000000:
+            matNum = int(self.w.materials_box.currentText().split(': ', 1)[0])
+            if matNum >= 1000000:
                 self.w.save_material.setEnabled(False)
             else:
                 self.w.save_material.setEnabled(True)
             if self.autoChange:
                 hal.set_p('motion.digital-in-03','0')
-                self.change_material(material)
-                self.materialChangePin.set(2)
+                if self.preSingleCutMaterial is None and self.preFileSaveMaterial is None:
+                    self.change_material(matNum)
+                    self.materialChangePin.set(2)
                 hal.set_p('motion.digital-in-03','1')
             else:
-                self.change_material(material)
+                self.change_material(matNum)
             self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
             self.w.conv_material.setCurrentIndex(self.w.materials_box.currentIndex())
         self.autoChange = False
@@ -4588,23 +4819,32 @@ class HandlerClass:
             self.materialChangePin.set(0)
 
     def material_change_number_pin_changed(self, halpin):
-        if self.getMaterialBusy:
+        if halpin == -1:
+            halpin = self.defaultMaterial
+        if self.getMaterialBusy or halpin == int(self.w.materials_box.currentText().split(': ', 1)[0]):
             return
         if self.materialChangePin.get() == 1:
             self.autoChange = True
         if not self.material_exists(halpin):
             self.autoChange = False
             return
-        self.w.materials_box.setCurrentIndex(self.materialList.index(halpin))
+        if self.preSingleCutMaterial is not None:
+            self.materialChangeNumberPin.set(self.preSingleCutMaterial)
+            self.preSingleCutMaterial = None
+        elif self.preFileSaveMaterial is not None:
+            self.materialChangeNumberPin.set(self.preFileSaveMaterial)
+            self.preFileSaveMaterial = None
+        else:
+            self.w.materials_box.setCurrentIndex(self.materialList.index(halpin))
 
     def material_change_timeout_pin_changed(self, halpin):
         head = _translate('HandlerClass', 'Materials Error')
         if halpin:
             # should we stop or pause the program if a timeout occurs???
-            material = int(self.w.materials_box.currentText().split(': ', 1)[0])
+            matNum = int(self.w.materials_box.currentText().split(': ', 1)[0])
             msg0 = _translate('HandlerClass', 'Material change timeout occurred for material')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:{} #{}\n'.format(head, msg0, material))
-            self.materialChangeNumberPin.set(material)
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:{} #{}\n'.format(head, msg0, matNum))
+            self.materialChangeNumberPin.set(matNum)
             self.materialChangeTimeoutPin.set(0)
             hal.set_p('motion.digital-in-03','0')
 
@@ -4614,316 +4854,165 @@ class HandlerClass:
 
     def material_temp_pin_changed(self, halpin):
         if halpin:
-            t_name = 'Temporary {}'.format(halpin)
-            k_width, p_height, p_delay, pj_height, pj_delay, c_height, \
-            c_speed, c_amps, c_volts, pause, g_press, c_mode, t_item = \
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            with open(self.tmpMaterialFileGCode, 'r') as f_in:
+            mat = [halpin, 'Temporary {}'.format(halpin), 0,0,0,0,0,0,0,0,0,0,0,0]
+            with open(self.tmpMaterialGcode, 'r') as f_in:
                 for line in f_in:
                     if line.startswith('NAME'):
-                        t_name = line.split('=')[1].strip()
+                        mat[1] = line.split('=')[1].strip()
                     if line.startswith('KERF_WIDTH'):
-                        k_width = float(line.split('=')[1].strip())
+                        mat[2] = float(line.split('=')[1].strip())
                     elif line.startswith('PIERCE_HEIGHT'):
-                        p_height = float(line.split('=')[1].strip())
+                        mat[3] = float(line.split('=')[1].strip())
                     elif line.startswith('PIERCE_DELAY'):
-                        p_delay = float(line.split('=')[1].strip())
+                        mat[4] = float(line.split('=')[1].strip())
                     elif line.startswith('PUDDLE_JUMP_HEIGHT'):
-                        pj_height = float(line.split('=')[1].strip())
+                        mat[5] = float(line.split('=')[1].strip())
                     elif line.startswith('PUDDLE_JUMP_DELAY'):
-                        pj_delay = float(line.split('=')[1].strip())
+                        mat[6] = float(line.split('=')[1].strip())
                     elif line.startswith('CUT_HEIGHT'):
-                        c_height = float(line.split('=')[1].strip())
+                        mat[7] = float(line.split('=')[1].strip())
                     elif line.startswith('CUT_SPEED'):
-                        c_speed = float(line.split('=')[1].strip())
+                        mat[8] = float(line.split('=')[1].strip())
                     elif line.startswith('CUT_AMPS'):
-                        c_amps = float(line.split('=')[1].strip())
+                        mat[9] = float(line.split('=')[1].strip())
                     elif line.startswith('CUT_VOLTS'):
-                        c_volts = float(line.split('=')[1].strip())
+                        mat[10] = float(line.split('=')[1].strip())
                     elif line.startswith('PAUSE_AT_END'):
-                        pause = float(line.split('=')[1].strip())
+                        mat[11] = float(line.split('=')[1].strip())
                     elif line.startswith('GAS_PRESSURE'):
-                        g_press = float(line.split('=')[1].strip())
+                        mat[12] = float(line.split('=')[1].strip())
                     elif line.startswith('CUT_MODE'):
-                        c_mode = float(line.split('=')[1].strip())
-            self.write_materials(halpin, t_name, k_width, p_height, \
-                                 p_delay, pj_height, pj_delay, c_height, c_speed, \
-                                 c_amps, c_volts, pause, g_press, c_mode, t_item)
-            self.display_materials()
-            self.change_material(0)
-            self.w.materials_box.setCurrentIndex(0)
+                        mat[13] = float(line.split('=')[1].strip())
+            self.write_materials_to_dict(mat)
+            self.materialList.append(halpin)
+            exists = False
+            for n in range(self.w.materials_box.count()):
+                if self.w.materials_box.itemText(n) .startswith(str(halpin)):
+                    self.w.materials_box.setItemText(n, '{:05d}: {}'.format(halpin, self.materialDict[halpin][0]))
+                    self.w.material_selector.setItemText(n, '{:05d}: {}'.format(halpin, self.materialDict[halpin][0]))
+                    self.w.conv_material.setItemText(n, '{:05d}: {}'.format(halpin, self.materialDict[halpin][0]))
+                    exists = True
+            if not exists:
+                self.w.materials_box.addItem('{:05d}: {}'.format(halpin, self.materialDict[halpin][0]))
+                self.w.material_selector.addItem('{:05d}: {}'.format(halpin, self.materialDict[halpin][0]))
+                self.w.conv_material.addItem('{:05d}: {}'.format(halpin, self.materialDict[halpin][0]))#
+            if halpin == int(self.w.materials_box.currentText().split(': ', 1)[0]):
+                self.change_material(halpin)
+
+
+
             self.materialTempPin.set(0)
 
-    def save_materials(self, material, index):
-        if index == 0:
-            self.save_default_material()
-        self.save_material_file(material, index)
-
-    def load_materials(self):
-        self.load_default_material()
-        self.load_material_file()
-
-    def write_materials(self, *items):
-        mat = []
-        for item in items[1:]:
-            mat.append(item)
-        self.materialFileDict[items[0]] = mat
+    def write_materials_to_dict(self, matNum):
+        self.materialDict[matNum[0]] = matNum[1:]
 
     def display_materials(self):
         self.materialList = []
         self.w.materials_box.clear()
         self.w.material_selector.clear()
         self.w.conv_material.clear()
-        for key in sorted(self.materialFileDict):
-            self.w.materials_box.addItem('{:05d}: {}'.format(key, self.materialFileDict[key][0]))
-            self.w.material_selector.addItem('{:05d}: {}'.format(key, self.materialFileDict[key][0]))
-            self.w.conv_material.addItem('{:05d}: {}'.format(key, self.materialFileDict[key][0]))
+        for key in sorted(self.materialDict):
+            self.w.materials_box.addItem('{:05d}: {}'.format(key, self.materialDict[key][0]))
+            self.w.material_selector.addItem('{:05d}: {}'.format(key, self.materialDict[key][0]))
+            self.w.conv_material.addItem('{:05d}: {}'.format(key, self.materialDict[key][0]))
             self.materialList.append(key)
 
-    def change_material(self, material):
-            self.materialName = self.materialFileDict[material][0]
-            self.w.kerf_width.setValue(self.materialFileDict[material][1])
-            self.w.pierce_height.setValue(self.materialFileDict[material][2])
-            self.w.pierce_delay.setValue(self.materialFileDict[material][3])
-            self.w.puddle_jump_height.setValue(self.materialFileDict[material][4])
-            self.w.puddle_jump_delay.setValue(self.materialFileDict[material][5])
-            self.w.cut_height.setValue(self.materialFileDict[material][6])
-            self.w.cut_feed_rate.setValue(self.materialFileDict[material][7])
-            self.w.cut_amps.setValue(self.materialFileDict[material][8])
-            self.w.cut_volts.setValue(self.materialFileDict[material][9])
-            self.w.pause_at_end.setValue(self.materialFileDict[material][10])
-            self.w.gas_pressure.setValue(self.materialFileDict[material][11])
-            self.w.cut_mode.setValue(self.materialFileDict[material][12])
-            self.materialChangeNumberPin.set(material)
+    def change_material(self, matNum):
+        self.materialName = self.materialDict[matNum][0]
+        self.w.kerf_width.setValue(self.materialDict[matNum][1])
+        self.w.pierce_height.setValue(self.materialDict[matNum][2])
+        self.w.pierce_delay.setValue(self.materialDict[matNum][3])
+        self.w.puddle_jump_height.setValue(self.materialDict[matNum][4])
+        self.w.puddle_jump_delay.setValue(self.materialDict[matNum][5])
+        self.w.cut_height.setValue(self.materialDict[matNum][6])
+        self.w.cut_feed_rate.setValue(self.materialDict[matNum][7])
+        self.w.cut_amps.setValue(self.materialDict[matNum][8])
+        self.w.cut_volts.setValue(self.materialDict[matNum][9])
+        self.w.pause_at_end.setValue(self.materialDict[matNum][10])
+        self.w.gas_pressure.setValue(self.materialDict[matNum][11])
+        self.w.cut_mode.setValue(self.materialDict[matNum][12])
+        self.materialChangeNumberPin.set(matNum)
 
-    def save_material_file(self, material, index):
-        COPY(self.materialFile, self.tmpMaterialFile)
-        with open(self.tmpMaterialFile, 'r') as inFile:
-            with open(self.materialFile, 'w') as outFile:
-                while 1:
-                    line = inFile.readline()
-                    if not line: break
-                    elif line.startswith('[MATERIAL_NUMBER_') and \
-                         material == int(line.strip().strip(']').split('[MATERIAL_NUMBER_')[1]):
-                        outFile.write(line)
-                        break
-                    else:
-                        outFile.write(line)
-                while 1:
-                    line = inFile.readline()
-                    if not line: break
-                    elif line.startswith('[MATERIAL_NUMBER_'):
-                        outFile.write(line)
-                        break
-                    elif line.startswith('NAME'):
-                        outFile.write(line)
-                    elif line.startswith('KERF_WIDTH'):
-                        outFile.write('KERF_WIDTH         = {}\n'.format(self.w.kerf_width.value()))
-                    elif line.startswith('PIERCE_HEIGHT'):
-                        outFile.write('PIERCE_HEIGHT      = {}\n'.format(self.w.pierce_height.value()))
-                    elif line.startswith('PIERCE_DELAY'):
-                        outFile.write('PIERCE_DELAY       = {}\n'.format(self.w.pierce_delay.value()))
-                    elif line.startswith('PUDDLE_JUMP_HEIGHT'):
-                        outFile.write('PUDDLE_JUMP_HEIGHT = {}\n'.format(self.w.puddle_jump_height.value()))
-                    elif line.startswith('PUDDLE_JUMP_DELAY'):
-                        outFile.write('PUDDLE_JUMP_DELAY  = {}\n'.format(self.w.puddle_jump_delay.value()))
-                    elif line.startswith('CUT_HEIGHT'):
-                        outFile.write('CUT_HEIGHT         = {}\n'.format(self.w.cut_height.value()))
-                    elif line.startswith('CUT_SPEED'):
-                        outFile.write('CUT_SPEED          = {}\n'.format(self.w.cut_feed_rate.value()))
-                    elif line.startswith('CUT_AMPS'):
-                        outFile.write('CUT_AMPS           = {}\n'.format(self.w.cut_amps.value()))
-                    elif line.startswith('CUT_VOLTS'):
-                        outFile.write('CUT_VOLTS          = {}\n'.format(self.w.cut_volts.value()))
-                    elif line.startswith('PAUSE_AT_END'):
-                        outFile.write('PAUSE_AT_END       = {}\n'.format(self.w.pause_at_end.value()))
-                    elif line.startswith('GAS_PRESSURE'):
-                        outFile.write('GAS_PRESSURE       = {}\n'.format(self.w.gas_pressure.value()))
-                    elif line.startswith('CUT_MODE'):
-                        outFile.write('CUT_MODE           = {}\n'.format(self.w.cut_mode.value()))
-                    else:
-                         outFile.write(line)
-                while 1:
-                    line = inFile.readline()
-                    if not line: break
-                    outFile.write(line)
+    def save_material_file(self, matNum, index):
+        mat = [matNum]
+        mat.append(self.w.materials_box.currentText().split(': ', 1)[1].strip())
+        mat.append(self.w.kerf_width.value())
+        mat.append(self.w.pierce_height.value())
+        mat.append(self.w.pierce_delay.value())
+        mat.append(self.w.puddle_jump_height.value())
+        mat.append(self.w.puddle_jump_delay.value())
+        mat.append(self.w.cut_height.value())
+        mat.append(self.w.cut_feed_rate.value())
+        mat.append(self.w.cut_amps.value())
+        mat.append(self.w.cut_volts.value())
+        mat.append(self.w.pause_at_end.value())
+        mat.append(self.w.gas_pressure.value())
+        mat.append(self.w.cut_mode.value())
+        self.write_one_material(mat)
         self.materialUpdate = True
-        self.materialFileDict = {}
-        self.load_materials()
+        self.load_material_file(True)
         self.w.materials_box.setCurrentIndex(index)
         self.materialUpdate = False
         self.set_saved_material()
 
     def set_saved_material(self):
-        material = int(self.w.materials_box.currentText().split(': ', 1)[0])
-        self.materialFileDict[material][0] = self.materialName
-        self.materialFileDict[material][1] = self.w.kerf_width.value()
-        self.materialFileDict[material][2] = self.w.pierce_height.value()
-        self.materialFileDict[material][3] = self.w.pierce_delay.value()
-        self.materialFileDict[material][4] = self.w.puddle_jump_height.value()
-        self.materialFileDict[material][5] = self.w.puddle_jump_delay.value()
-        self.materialFileDict[material][6] = self.w.cut_height.value()
-        self.materialFileDict[material][7] = self.w.cut_feed_rate.value()
-        self.materialFileDict[material][8] = self.w.cut_amps.value()
-        self.materialFileDict[material][9] = self.w.cut_volts.value()
-        self.materialFileDict[material][10] = self.w.pause_at_end.value()
-        self.materialFileDict[material][11] = self.w.gas_pressure.value()
-        self.materialFileDict[material][12] = self.w.cut_mode.value()
+        mat = [int(self.w.materials_box.currentText().split(': ', 1)[0])]
+        mat.append(self.materialName)
+        mat.append(self.w.kerf_width.value())
+        mat.append(self.w.pierce_height.value())
+        mat.append(self.w.pierce_delay.value())
+        mat.append(self.w.puddle_jump_height.value())
+        mat.append(self.w.puddle_jump_delay.value())
+        mat.append(self.w.cut_height.value())
+        mat.append(self.w.cut_feed_rate.value())
+        mat.append(self.w.cut_amps.value())
+        mat.append(self.w.cut_volts.value())
+        mat.append(self.w.pause_at_end.value())
+        mat.append(self.w.gas_pressure.value())
+        mat.append(self.w.cut_mode.value())
+        self.write_materials_to_dict(mat)
 
-        self.write_materials( \
-                material, self.materialName , \
-                self.w.kerf_width.value(), \
-                self.w.pierce_height.value(), \
-                self.w.pierce_delay.value(), \
-                self.w.puddle_jump_height.value(), \
-                self.w.puddle_jump_delay.value(), \
-                self.w.cut_height.value(), \
-                self.w.cut_feed_rate.value(), \
-                self.w.cut_amps.value(), \
-                self.w.cut_volts.value(), \
-                self.w.pause_at_end.value(), \
-                self.w.gas_pressure.value(), \
-                self.w.cut_mode.value())
-
-    def load_material_file(self):
-        self.getMaterialBusy = 1
+    def load_material_file(self, keepTemp=False):
+        self.getMaterialBusy = True
+        # don't remove temporary materials unless required
+        if keepTemp:
+            pop = [key for key in self.materialDict if key < 1000000]
+            for e in pop:
+                self.materialDict.pop(e)
+        else:
+            self.materialDict = {}
+        self.materialNumList = []
+        # create a basic default material if no materials exist
+        if not self.MATS.sections():
+            if self.units == 'mm':
+                mat = [0,'Basic default Material',1,3,.1,0,0,1,1000,45,100,0,0,1]
+            else:
+                mat = [0,'Basic default Material',.04,.12,.1,0,0,.04,40,45,100,0,0,1]
+            self.write_one_material(mat)
         head = _translate('HandlerClass', 'Materials Error')
-        with open(self.materialFile, 'r') as f_in:
-            firstpass = True
-            material_error = False
-            t_item = 0
-            required = ['PIERCE_HEIGHT', 'PIERCE_DELAY', 'CUT_HEIGHT', 'CUT_SPEED']
-            received = []
-            for line in f_in:
-                try:
-                    if line.startswith('#'):
-                        continue
-                    elif line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
-                        if int(line.rsplit('_', 1)[1].strip().strip(']')) < 1000000:
-                            if not firstpass:
-                                self.write_materials(t_number,t_name,k_width,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
-                                for item in required:
-                                    if item not in received:
-                                        msg0 = _translate('HandlerClass', 'is missing from Material')
-                                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {} #{}\n'.format(head, item, msg0, t_number))
-                            firstpass = False
-                            t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
-                            self.materialNumList.append(t_number)
-                            t_name = k_width = p_height = p_delay = pj_height = pj_delay = c_height = c_speed = c_amps = c_volts =  pause = g_press = c_mode = 0.0
-                            t_item += 1
-                            received = []
-                        else:
-                            msg0 = _translate('HandlerClass', 'Line')
-                            msg1 = _translate('HandlerClass', 'is invalid')
-                            msg2 = _translate('HandlerClass', 'Material numbers need to be less than 1000000')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} "{}" {}\n{}\n'.format(head, msg0, line.strip(), msg1, msg2))
-                            continue
-                    elif line.startswith('NAME'):
-                        if line.split('=')[1].strip():
-                            t_name = line.split('=')[1].strip()
-                    elif line.startswith('KERF_WIDTH'):
-                        if line.split('=')[1].strip():
-                            k_width = float(line.split('=')[1].strip())
-                    elif line.startswith('PIERCE_HEIGHT'):
-                        received.append('PIERCE_HEIGHT')
-                        if line.split('=')[1].strip():
-                            p_height = float(line.split('=')[1].strip())
-                        elif t_number:
-                            msg0 = _translate('HandlerClass', 'No value for PIERCE_HEIGHT in Material')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n'.format(head, msg0, t_number))
-                    elif line.startswith('PIERCE_DELAY'):
-                        received.append('PIERCE_DELAY')
-                        if line.split('=')[1].strip():
-                            p_delay = float(line.split('=')[1].strip())
-                        else:
-                            msg0 = _translate('HandlerClass', 'No value for PIERCE_DELAY in Material')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n'.format(head, msg0, t_number))
-                    elif line.startswith('PUDDLE_JUMP_HEIGHT'):
-                        if line.split('=')[1].strip():
-                            pj_height = float(line.split('=')[1].strip())
-                    elif line.startswith('PUDDLE_JUMP_DELAY'):
-                        if line.split('=')[1].strip():
-                            pj_delay = float(line.split('=')[1].strip())
-                    elif line.startswith('CUT_HEIGHT'):
-                        received.append('CUT_HEIGHT')
-                        if line.split('=')[1].strip():
-                            c_height = float(line.split('=')[1].strip())
-                        else:
-                            msg0 = _translate('HandlerClass', 'No value for CUT_HEIGHT in Material')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n'.format(head, msg0, t_number))
-                    elif line.startswith('CUT_SPEED'):
-                        received.append('CUT_SPEED')
-                        if line.split('=')[1].strip():
-                            c_speed = float(line.split('=')[1].strip())
-                        else:
-                            msg0 = _translate('HandlerClass', 'No value for CUT_SPEED in Material')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n'.format(head, msg0, t_number))
-                    elif line.startswith('CUT_AMPS'):
-                        if line.split('=')[1].strip():
-                            c_amps = float(line.split('=')[1].strip().replace(' ',''))
-                    elif line.startswith('CUT_VOLTS'):
-                        if line.split('=')[1].strip():
-                            c_volts = float(line.split('=')[1].strip())
-                    elif line.startswith('PAUSE_AT_END'):
-                        if line.split('=')[1].strip():
-                            pause = float(line.split('=')[1].strip())
-                    elif line.startswith('GAS_PRESSURE'):
-                        if line.split('=')[1].strip():
-                            g_press = float(line.split('=')[1].strip())
-                    elif line.startswith('CUT_MODE'):
-                        if line.split('=')[1].strip():
-                            c_mode = float(line.split('=')[1].strip())
-                except:
-                    msg0 = _translate('HandlerClass', 'Material file processing was aborted')
-                    msg1 = _translate('HandlerClass', 'The following line in the material file')
-                    msg2 = _translate('HandlerClass', 'contains an erroneous character')
-                    msg3 = _translate('HandlerClass', 'Fix the line and reload the material file')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n{}:\n{}{}\n'.format(head, msg0, msg1, msg2, line, msg3))
-                    material_error = True
-                    break
-            if not firstpass and not material_error:
-                self.write_materials(t_number,t_name,k_width,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
-                for item in required:
-                    if item not in received:
-                        msg0 = _translate('HandlerClass', 'is missing from Material')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {} #{}\n'.format(head, item, msg0, t_number))
+        # read all the materials into the materials dict
+        for section in self.MATS.sections():
+            matNum = int(section.rsplit('_',1)[1])
+            if matNum >= 1000000:
+                msg0 = _translate('HandlerClass', 'Material number')
+                msg1 = _translate('HandlerClass', 'is invalid')
+                msg2 = _translate('HandlerClass', 'Material numbers need to be less than 1000000')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} "{}" {}\n{}\n'.format(head, msg0, matNum, msg1, msg2))
+                continue
+            mat = self.read_one_material(section)
+            self.materialNumList.append(matNum)
+            self.write_materials_to_dict(mat)
         self.display_materials()
-        self.change_material(0)
-        self.getMaterialBusy = 0
+        self.defaultMaterial = self.PREFS.getpref('Default material', self.materialNumList[0], int, 'GUI_OPTIONS')
+        self.change_material(self.defaultMaterial)
+        self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
+        self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
+        self.w.conv_material.setCurrentIndex(self.w.materials_box.currentIndex())
+        self.set_default_material()
+        self.getMaterialBusy = False
 
-    def check_material_file(self):
-        # create a new material file if it doesn't exist
-        if not os.path.exists(self.materialFile):
-            if os.path.exists('{}_material.cfg'.format(self.machineName.lower())):
-                MOVE('{}_material.cfg'.format(self.machineName.lower()), self.materialFile)
-                return
-            with open(self.materialFile, 'w') as f_out:
-                f_out.write(\
-                    '# plasmac material file\n'\
-                    '# example only, may be deleted\n'\
-                    '# items marked * are mandatory\n'\
-                    '# other items are optional and will default to 0\n'\
-                    '#[MATERIAL_NUMBER_1]\n'\
-                    '#NAME               = \n'\
-                    '#KERF_WIDTH         = \n'\
-                    '#PIERCE_HEIGHT      = *\n'\
-                    '#PIERCE_DELAY       = *\n'\
-                    '#PUDDLE_JUMP_HEIGHT = \n'\
-                    '#PUDDLE_JUMP_DELAY  = \n'\
-                    '#CUT_HEIGHT         = *\n'\
-                    '#CUT_SPEED          = *\n'\
-                    '#CUT_AMPS           = \n'\
-                    '#CUT_VOLTS          = \n'\
-                    '#PAUSE_AT_END       = \n'\
-                    '#GAS_PRESSURE       = \n'\
-                    '#CUT_MODE           = \n'\
-                    '\n')
-            head = _translate('HandlerClass', 'Materials Setup')
-            msg0 = _translate('HandlerClass', 'Creating New Material File')
-            STATUS.emit('error', linuxcnc.OPERATOR_DISPLAY, '{}:\n{}: {}\n'.format(head, msg0, self.materialFile))
-
-    def material_exists(self, material):
-        if int(material) in self.materialList:
+    def material_exists(self, matNum):
+        if int(matNum) in self.materialList:
             return True
         else:
             if self.autoChange:
@@ -4932,39 +5021,57 @@ class HandlerClass:
                 head = _translate('HandlerClass', 'Materials Error')
                 msg0 = _translate('HandlerClass', 'Material #')
                 msg1 = _translate('HandlerClass', 'not in material list')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{} {}\n'.format(head, msg0, int(material),msg1))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{} {}\n'.format(head, msg0, int(matNum),msg1))
             return False
 
-    def save_default_material(self):
-        self.PREFS.putpref('Kerf width', self.w.kerf_width.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Pierce height',self.w.pierce_height.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Pierce delay',self.w.pierce_delay.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Puddle jump height',self.w.puddle_jump_height.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Puddle jump delay',self.w.puddle_jump_delay.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Cut height',self.w.cut_height.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Cut feed rate',self.w.cut_feed_rate.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Cut amps',self.w.cut_amps.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Cut volts',self.w.cut_volts.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Pause at end',self.w.pause_at_end.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Gas pressure',self.w.gas_pressure.value(), float, 'DEFAULT MATERIAL')
-        self.PREFS.putpref('Cut mode',self.w.cut_mode.value(), float, 'DEFAULT MATERIAL')
+    def read_one_material(self, section):
+        mat = [int(section.rsplit('_',1)[1])]
+        mat.append(self.MATS.getpref('NAME', 'Material', str, section))
+        mat.append(self.MATS.getpref('KERF_WIDTH', 1.0 / self.unitsPerMm, float, section))
+        mat.append(self.MATS.getpref('PIERCE_HEIGHT', 3.0 / self.unitsPerMm, float, section))
+        mat.append(self.MATS.getpref('PIERCE_DELAY', 0.2, float, section))
+        mat.append(self.MATS.getpref('PUDDLE_JUMP_HEIGHT', 0.0, float, section))
+        mat.append(self.MATS.getpref('PUDDLE_JUMP_DELAY', 0.0, float, section))
+        mat.append(self.MATS.getpref('CUT_HEIGHT', 1.0 / self.unitsPerMm, float, section))
+        mat.append(self.MATS.getpref('CUT_SPEED', 2000.0 / self.unitsPerMm, float, section))
+        mat.append(self.MATS.getpref('CUT_AMPS', 45.0, float, section))
+        mat.append(self.MATS.getpref('CUT_VOLTS', 100, float, section))
+        mat.append(self.MATS.getpref('PAUSE_AT_END', 0.0, float, section))
+        mat.append(self.MATS.getpref('GAS_PRESSURE', 0.0, float, section))
+        mat.append(self.MATS.getpref('CUT_MODE', 1.0, float, section))
+        return(mat)
 
-    def load_default_material(self):
-        self.write_materials( \
-                0, 'DEFAULT' , \
-                self.PREFS.getpref('Kerf width', round(1 * self.unitsPerMm, 2), float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Pierce height', round(3 * self.unitsPerMm, 2), float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Pierce delay', 0, float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Puddle jump height', 0, float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Puddle jump delay', 0, float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Cut height', round(1 * self.unitsPerMm, 2), float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Cut feed rate', round(4000 * self.unitsPerMm, 0), float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Cut amps', 45, float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Cut volts', 99, float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Pause at end', 0, float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Gas pressure', 0, float, 'DEFAULT MATERIAL'), \
-                self.PREFS.getpref('Cut mode', 1, float, 'DEFAULT MATERIAL'),\
-                0)
+    def write_one_material(self, mat):
+        section = 'MATERIAL_NUMBER_{}'.format(mat[0])
+        self.MATS.putpref('NAME', mat[1], str, section)
+        self.MATS.putpref('KERF_WIDTH', mat[2], float, section)
+        self.MATS.putpref('PIERCE_HEIGHT', mat[3], float, section)
+        self.MATS.putpref('PIERCE_DELAY', mat[4], float, section)
+        self.MATS.putpref('PUDDLE_JUMP_HEIGHT', mat[5], float, section)
+        self.MATS.putpref('PUDDLE_JUMP_DELAY', mat[6], float, section)
+        self.MATS.putpref('CUT_HEIGHT', mat[7], float, section)
+        self.MATS.putpref('CUT_SPEED', mat[8], float, section)
+        self.MATS.putpref('CUT_AMPS', mat[9], float, section)
+        self.MATS.putpref('CUT_VOLTS', mat[10], float, section)
+        self.MATS.putpref('PAUSE_AT_END', mat[11], float, section)
+        self.MATS.putpref('GAS_PRESSURE', mat[12], float, section)
+        self.MATS.putpref('CUT_MODE', mat[13], float, section)
+
+    def set_default_material(self):
+        self.getMaterialBusy = True
+        self.w.default_material.clear()
+        for n in self.materialNumList:
+            self.w.default_material.addItem(str(n))
+        self.getMaterialBusy = False
+        self.w.default_material.setCurrentIndex(self.materialList.index(self.defaultMaterial))
+
+    def default_material_changed(self, index):
+        if self.getMaterialBusy:
+            return
+        self.defaultMaterial = self.materialList[index]
+        self.change_material(self.defaultMaterial)
+        self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
+        self.PREFS.putpref('Default material', self.defaultMaterial, int, 'GUI_OPTIONS')
 
 
 #########################################################################################################################
@@ -4972,20 +5079,10 @@ class HandlerClass:
 #########################################################################################################################
     def camera_pressed(self):
         self.w.camview.rotation = STATUS.stat.rotation_xy
-        if self.w.preview_stack.currentIndex() != 3:
-            self.w.preview_stack.setCurrentIndex(3)
-            self.button_active('camera')
-            self.w.touch_xy.setEnabled(False)
-            self.w.laser.setEnabled(False)
-            self.cameraOn = True
+        if self.w.preview_stack.currentIndex() != self.CAMERA:
+            self.w.preview_stack.setCurrentIndex(self.CAMERA)
         else:
-            self.w.preview_stack.setCurrentIndex(0)
-            self.button_normal('camera')
-            self.w.touch_xy.setEnabled(True)
-            self.w.laser.setEnabled(True)
-            self.cameraOn = False
-            ACTION.SET_MANUAL_MODE()
-            self.vkb_hide()
+            self.preview_index_return(self.w.preview_stack.currentIndex())
 
     def laser_recovery_state_changed(self, value):
         hal.set_p('plasmac.laser-recovery-start', '0')
@@ -5143,26 +5240,26 @@ class HandlerClass:
         self.statistics_load()
 
     def statistics_save(self, reset=False):
-        self.PREFS.putpref('Cut time', '{:0.2f}'.format(self.statsSaved['cut'] + hal.get_value('plasmac.cut-time')) , float,'STATISTICS')
-        self.PREFS.putpref('Paused time', '{:0.2f}'.format(self.statsSaved['paused'] + hal.get_value('plasmac.paused-time')) , float,'STATISTICS')
-        self.PREFS.putpref('Probe time', '{:0.2f}'.format(self.statsSaved['probe'] + hal.get_value('plasmac.probe-time')) , float,'STATISTICS')
-        self.PREFS.putpref('Program run time', '{:0.2f}'.format(self.statsSaved['run'] + hal.get_value('plasmac.run-time')) , float,'STATISTICS')
-        self.PREFS.putpref('Torch on time', '{:0.2f}'.format(self.statsSaved['torch'] + hal.get_value('plasmac.torch-time')) , float,'STATISTICS')
-        self.PREFS.putpref('Rapid time', '{:0.2f}'.format(self.statsSaved['rapid'] + hal.get_value('plasmac.rapid-time')) , float,'STATISTICS')
-        self.PREFS.putpref('Cut length', '{:0.2f}'.format(self.statsSaved['length'] + hal.get_value('plasmac.cut-length')) , float,'STATISTICS')
-        self.PREFS.putpref('Pierce count', '{:d}'.format(self.statsSaved['pierce'] + hal.get_value('plasmac.pierce-count')) , int,'STATISTICS')
+        self.PREFS.putpref('Cut time', '{:0.2f}'.format(self.statsSaved['cut'] + hal.get_value('plasmac.cut-time')), float,'STATISTICS')
+        self.PREFS.putpref('Paused time', '{:0.2f}'.format(self.statsSaved['paused'] + hal.get_value('plasmac.paused-time')), float,'STATISTICS')
+        self.PREFS.putpref('Probe time', '{:0.2f}'.format(self.statsSaved['probe'] + hal.get_value('plasmac.probe-time')), float,'STATISTICS')
+        self.PREFS.putpref('Program run time', '{:0.2f}'.format(self.statsSaved['run'] + hal.get_value('plasmac.run-time')), float,'STATISTICS')
+        self.PREFS.putpref('Torch on time', '{:0.2f}'.format(self.statsSaved['torch'] + hal.get_value('plasmac.torch-time')), float,'STATISTICS')
+        self.PREFS.putpref('Rapid time', '{:0.2f}'.format(self.statsSaved['rapid'] + hal.get_value('plasmac.rapid-time')), float,'STATISTICS')
+        self.PREFS.putpref('Cut length', '{:0.2f}'.format(self.statsSaved['length'] + hal.get_value('plasmac.cut-length')), float,'STATISTICS')
+        self.PREFS.putpref('Pierce count', '{:d}'.format(self.statsSaved['pierce'] + hal.get_value('plasmac.pierce-count')), int,'STATISTICS')
         self.statistics_load()
         self.jobRunning = False
 
     def statistics_load(self):
-        self.statsSaved['cut'] = self.PREFS.getpref('Cut time', 0 , float,'STATISTICS')
-        self.statsSaved['paused'] = self.PREFS.getpref('Paused time', 0 , float,'STATISTICS')
-        self.statsSaved['probe'] = self.PREFS.getpref('Probe time', 0 , float,'STATISTICS')
-        self.statsSaved['run'] = self.PREFS.getpref('Program run time', 0 , float,'STATISTICS')
-        self.statsSaved['torch'] = self.PREFS.getpref('Torch on time', 0 , float,'STATISTICS')
-        self.statsSaved['rapid'] = self.PREFS.getpref('Rapid time', 0 , float,'STATISTICS')
-        self.statsSaved['length'] = self.PREFS.getpref('Cut length', 0 , float,'STATISTICS')
-        self.statsSaved['pierce'] = self.PREFS.getpref('Pierce count', 0 , int,'STATISTICS')
+        self.statsSaved['cut'] = self.PREFS.getpref('Cut time', 0.0, float,'STATISTICS')
+        self.statsSaved['paused'] = self.PREFS.getpref('Paused time', 0.0, float,'STATISTICS')
+        self.statsSaved['probe'] = self.PREFS.getpref('Probe time', 0.0, float,'STATISTICS')
+        self.statsSaved['run'] = self.PREFS.getpref('Program run time', 0.0, float,'STATISTICS')
+        self.statsSaved['torch'] = self.PREFS.getpref('Torch on time', 0.0, float,'STATISTICS')
+        self.statsSaved['rapid'] = self.PREFS.getpref('Rapid time', 0.0, float,'STATISTICS')
+        self.statsSaved['length'] = self.PREFS.getpref('Cut length', 0.0, float,'STATISTICS')
+        self.statsSaved['pierce'] = self.PREFS.getpref('Pierce count', 0, int,'STATISTICS')
         for stat in ['cut', 'paused', 'probe', 'run', 'torch', 'rapid']:
             self.display_hms('{}_time_t'.format(stat), self.statsSaved['{}'.format(stat)])
         self.w.cut_length_t.setText('{:0.2f}'.format(self.statsSaved['length'] / self.statsDivisor))
@@ -5180,7 +5277,7 @@ class HandlerClass:
             self.w.cut_length.setText('0.00')
         elif stat == 'pierce_count':
             self.w.pierce_count.setText('0')
-        self.PREFS.putpref(statT, 0 , float,'STATISTICS')
+        self.PREFS.putpref(statT, 0.0, float,'STATISTICS')
         self.statistics_load()
 
     def statistics_reset(self):
@@ -5190,8 +5287,8 @@ class HandlerClass:
         self.w.pierce_count.setText('0')
         for stat in ['Cut time', 'Paused time', 'Probe time', 'Program run time', 'Torch on time', \
                      'Rapid time', 'Cut length']:
-            self.PREFS.putpref(stat, 0 , float,'STATISTICS')
-        self.PREFS.putpref('Pierce count', 0 , int ,'STATISTICS')
+            self.PREFS.putpref(stat, 0.0, float,'STATISTICS')
+        self.PREFS.putpref('Pierce count', 0, int,'STATISTICS')
         self.statistics_load()
 
     def statistics_init(self):
@@ -5507,10 +5604,10 @@ class HandlerClass:
 #########################################################################################################################
     def set_cut_recovery(self):
         if hal.get_value('plasmac.cut-recovering'):
-            self.w.jog_stack.setCurrentIndex(1)
+            self.w.jog_stack.setCurrentIndex(self.CUT_RECOVERY)
             self.cancelWait = True
             return
-        self.w.jog_stack.setCurrentIndex(1)
+        self.w.jog_stack.setCurrentIndex(self.CUT_RECOVERY)
         self.cancelWait = False
         self.w.cut_rec_cancel.setEnabled(False)
         self.cutrec_speed_changed(self.w.cut_rec_speed.value())
@@ -5783,7 +5880,7 @@ class HandlerClass:
         return self.keyboard_shortcuts() and state and not event.isAutoRepeat()
 
     def jog_is_valid(self, key, event):
-        return self.keyboard_shortcuts() and not event.isAutoRepeat() and not self.w.main_tab_widget.currentIndex() and self.w['jog_{}'.format(key)].isEnabled()
+        return self.keyboard_shortcuts() and not event.isAutoRepeat() and self.w.main_tab_widget.currentIndex() == self.MAIN and self.w['jog_{}'.format(key)].isEnabled()
 
     def on_keycall_ESTOP(self, event, state, shift, cntrl):
         if self.key_is_valid(event, state) and self.w.estopButton == 2:
@@ -5798,21 +5895,21 @@ class HandlerClass:
             self.abort_pressed()
 
     def on_keycall_HOME(self, event, state, shift, cntrl):
-        if self.key_is_valid(event, state) and cntrl and not shift and not self.w.main_tab_widget.currentIndex() and STATUS.is_on_and_idle() and self.w.home_all.isEnabled():
+        if self.key_is_valid(event, state) and cntrl and not shift and self.w.main_tab_widget.currentIndex() == self.MAIN and STATUS.is_on_and_idle() and self.w.home_all.isEnabled():
             if STATUS.is_all_homed():
                 ACTION.SET_MACHINE_UNHOMED(-1)
             else:
                 ACTION.SET_MACHINE_HOMING(-1)
 
     def on_keycall_RUN(self, event, state, shift, cntrl):
-        if self.key_is_valid(event, state) and cntrl and not shift and not self.w.main_tab_widget.currentIndex():
+        if self.key_is_valid(event, state) and cntrl and not shift and self.w.main_tab_widget.currentIndex() == self.MAIN:
             if self.w.run.isEnabled():
                 self.run_clicked()
             elif self.w.pause.isEnabled():
                 ACTION.PAUSE()
 
     def on_keycall_PAUSE(self, event, state, shift, cntrl):
-        if self.key_is_valid(event, state) and not shift and not self.w.main_tab_widget.currentIndex():
+        if self.key_is_valid(event, state) and not shift and self.w.main_tab_widget.currentIndex() == self.MAIN:
             if cntrl:
                 if self.w.screen_options.desktop_notify:
                     self.w.screen_options.QTVCP_INSTANCE_._NOTICE.external_close()
@@ -5821,12 +5918,12 @@ class HandlerClass:
                 ACTION.PAUSE()
 
     def on_keycall_OPEN(self, event, state, shift, cntrl):
-        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex() and \
+        if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN and \
            self.w.file_open.isEnabled():
             self.file_open_clicked()
 
     def on_keycall_LOAD(self, event, state, shift, cntrl):
-        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex() and \
+        if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN and \
            self.w.file_reload.isEnabled():
             self.file_reload_clicked()
 
@@ -5835,7 +5932,7 @@ class HandlerClass:
             self.STYLEEDITOR.load_dialog()
 
     def on_keycall_F9(self, event, state, shift, cntrl):
-        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex() \
+        if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN \
            and not self.probeTest and not self.torchPulse and not self.framing and STATUS.is_interp_idle():
             self.manual_cut()
 
@@ -5912,23 +6009,23 @@ class HandlerClass:
                 self.kb_jog(state, 4, -1, shift)
 
     def on_keycall_PLUS(self, event, state, shift, cntrl):
-        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex() and self.jogSlow and self.w.jog_slider.isEnabled():
+        if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN and self.jogSlow and self.w.jog_slider.isEnabled():
             return
-        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex():
+        if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN:
             self.jogFast = True
         else:
             self.jogFast = False
 
     def on_keycall_MINUS(self, event, state, shift, cntrl):
-        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex() and self.jogFast and self.w.jog_slider.isEnabled():
+        if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN and self.jogFast and self.w.jog_slider.isEnabled():
             return
-        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex():
+        if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN:
             self.jogSlow = True
         else:
             self.jogSlow = False
 
     def on_keycall_NUMBER(self, event, state, shift, cntrl, number):
-        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex():
+        if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN:
             if shift and cntrl:
                 pass
             elif shift and not cntrl:
@@ -5954,11 +6051,11 @@ class HandlerClass:
                         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL)
 
     def on_keycall_END(self, event, state, shift, cntrl):
-        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex() and self.w.touch_xy.isEnabled():
+        if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN and self.w.touch_xy.isEnabled():
             self.touch_xy_clicked()
 
     def on_keycall_DELETE(self, event, state, shift, cntrl):
-        if self.keyboard_shortcuts() and not self.w.main_tab_widget.currentIndex() and self.w.laser.isVisible():
+        if self.keyboard_shortcuts() and self.w.main_tab_widget.currentIndex() == self.MAIN and self.w.laser.isVisible():
             if state and not event.isAutoRepeat():
                 self.extLaserButton = True
                 self.laser_pressed()
@@ -5967,15 +6064,15 @@ class HandlerClass:
                 self.laser_clicked()
 
     def on_keycall_ALTRETURN(self, event, state, shift, cntrl):
-        if self.key_is_valid(event, state) and not cntrl and not shift and not self.w.main_tab_widget.currentIndex() and self.w.mdi_show.isEnabled():
+        if self.key_is_valid(event, state) and not cntrl and not shift and self.w.main_tab_widget.currentIndex() == self.MAIN and self.w.mdi_show.isEnabled():
             self.mdi_show_clicked()
 
     def on_keycall_RETURN(self, event, state, shift, cntrl):
-        if self.key_is_valid(event, state) and not cntrl and not shift and not self.w.main_tab_widget.currentIndex() and self.w.gcode_stack.currentIndex() and self.w.mdi_show.isEnabled():
+        if self.key_is_valid(event, state) and not cntrl and not shift and self.w.main_tab_widget.currentIndex() == self.MAIN and self.w.gcode_stack.currentIndex() == self.MDI and self.w.mdi_show.isEnabled():
             self.mdi_show_clicked()
 
     def on_keycall_QUOTELEFT(self, event, state, shift, cntrl):
-        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex():
+        if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN:
             if shift and cntrl:
                 pass
             elif cntrl and not shift:

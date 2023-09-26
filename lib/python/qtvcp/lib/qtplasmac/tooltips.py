@@ -204,7 +204,7 @@ def set_tool_tips(W):
     W.file_edit.setToolTip(_translate('ToolTips', 'Toggles the use of the G-Code file editor'))
     W.mdi_show.setToolTip(_translate('ToolTips', 'Toggles the use of Manual Data Input mode'))
     text0 = _translate('ToolTips', 'User button')
-    text1 = _translate('ToolTips', 'configured in the INI file')
+    text1 = _translate('ToolTips', 'configured in the SETTINGS tab')
     for b in range(1,21):
         W['button_{}'.format(b)].setToolTip(_translate('ToolTips', '{} #{} {}'.format(text0, b, text1)))
 

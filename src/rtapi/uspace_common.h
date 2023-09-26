@@ -65,19 +65,21 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
   rtapi_shmem_handle *shmem;
   int i;
 
-  for(i=0 ; i < MAX_SHM; i++) {
-    if(shmem_array[i].magic == SHMEM_MAGIC && shmem_array[i].key == key) {
-      shmem_array[i].count ++;
-      return i;
+  for (i=0,shmem=0 ; i < MAX_SHM; i++) {
+    if(shmem_array[i].magic == SHMEM_MAGIC) {
+      if (shmem_array[i].key == key) {
+        shmem_array[i].count ++;
+        return i;
+      }
     }
-    if(shmem_array[i].magic != SHMEM_MAGIC) break;
+    else if (!shmem) {
+      shmem = &shmem_array[i];
+    }
   }
-  if(i == MAX_SHM)
-  {
+  if (!shmem) {
     rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to MAX_SHM\n");
     return -ENOMEM;
   }
-  shmem = &shmem_array[i];
 
   /* now get shared memory block from OS */
   int shmget_retries = 5;
@@ -156,7 +158,7 @@ shmget_again:
   shmem->count = 1;
 
   /* return handle to the caller */
-  return i;
+  return shmem - shmem_array;
 }
 
 

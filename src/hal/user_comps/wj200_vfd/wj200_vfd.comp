@@ -146,7 +146,7 @@ bool wj200_getStatus(modbus_t* ctx, wj200_status* status)
 
 void print_modbus_error(struct __comp_state *__comp_inst, const char* msg)
 {
-	fprintf(stderr, 
+	fprintf(stderr,
 		"Error: wj200_vfd slave(%d): %s - Modbus error (%d) -  %s\n",
 		mbslaveaddr,
 		msg,
@@ -175,7 +175,7 @@ void userinit(int argc, char **argv)
 		{"stopbits", required_argument, 0, 0 },
 		{"device", required_argument, 0, 0 },
 		{0, 0, 0, 0}
-	};	
+	};
 
 	while(1) {
 		c = getopt_long(argc, argv, "", options, &opt_index);
@@ -189,8 +189,8 @@ void userinit(int argc, char **argv)
 
 				if(baud == 0)
 				{
-					fprintf(stderr, 
-						"Invalid argument: baud must be a number. Given '%s'\n", 
+					fprintf(stderr,
+						"Invalid argument: baud must be a number. Given '%s'\n",
 						optarg);
 					exit(1);
 				}
@@ -213,8 +213,8 @@ void userinit(int argc, char **argv)
 
 				if(data_bits == 0)
 				{
-					fprintf(stderr, 
-						"Invalid argument: databits must be a number. Given '%s'\n", 
+					fprintf(stderr,
+						"Invalid argument: databits must be a number. Given '%s'\n",
 						optarg);
 					exit(1);
 				}
@@ -222,11 +222,11 @@ void userinit(int argc, char **argv)
 
 			case 3:
 				stop_bits = atoi(optarg);
-		
+
 				if(stop_bits == 0)
 				{
-					fprintf(stderr, 
-						"Invalid argument: stopbits must be a number. Given '%s'\n", 
+					fprintf(stderr,
+						"Invalid argument: stopbits must be a number. Given '%s'\n",
 						optarg);
 					exit(1);
 				}
@@ -253,16 +253,16 @@ void userinit(int argc, char **argv)
 	ctx = modbus_new_rtu(device, baud, parity, data_bits, stop_bits);
 
 	if (ctx == NULL) {
-		fprintf(stderr, 
-			"ERROR: wj200_vfd unable to create libmodbus context. - %s\n", 
+		fprintf(stderr,
+			"ERROR: wj200_vfd unable to create libmodbus context. - %s\n",
 			modbus_strerror(errno));
 		fprintf(stderr, "Check your commandline!\n");
-		exit(1);	
+		exit(1);
 	}
-	
+
 	if (modbus_connect(ctx)) {
-		fprintf(stderr, 
-			"ERROR: wj200_vfd unable to create libmodbus connection. - %s\n", 
+		fprintf(stderr,
+			"ERROR: wj200_vfd unable to create libmodbus connection. - %s\n",
 			modbus_strerror(errno));
 		exit(1);
 	}
@@ -271,6 +271,7 @@ void userinit(int argc, char **argv)
 void user_mainloop(void) {
 	wj200_status status;
 	uint16_t calculated_frequency;
+    bool last_enable_state = FALSE;
 
 	while(1) {
 	FOR_ALL_INSTS() {
@@ -283,7 +284,7 @@ void user_mainloop(void) {
 		*/
 		if(mbslaveaddr == 0) {
 			sleep(1);
-			continue; 
+			continue;
 		}
 
 		modbus_set_slave(ctx, mbslaveaddr);
@@ -297,10 +298,19 @@ void user_mainloop(void) {
 		  pin won't change until we make it all the way through
 		  the loop.
                 */
-		if(!wj200_getStatus(ctx, &status)) {	
-			print_modbus_error(__comp_inst, "failed to get status");
-			continue;
-		}
+
+        if(!wj200_getStatus(ctx, &status)) {
+            /*
+               Only want to list 'failed to get status' once
+               any time enable changes - don't spam the output.
+               A wink is as good as a nod.
+            */
+            if (last_enable_state != enable) {
+                print_modbus_error(__comp_inst, "failed to get status");
+            }
+            last_enable_state = enable;
+            continue;
+        }
 
 		is_running = status.running;
 		is_at_speed = status.at_speed;
@@ -318,7 +328,7 @@ void user_mainloop(void) {
 		else {
 			calculated_frequency = (uint16_t)(fabs(commanded_frequency) * 100);
 
-			if(calculated_frequency != status.frequency 
+			if(calculated_frequency != status.frequency
 			   && !wj200_setFrequency(ctx, calculated_frequency)) {
 				print_modbus_error(__comp_inst, "failed to set frequency");
 				continue;
