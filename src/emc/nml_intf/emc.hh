@@ -147,7 +147,6 @@ struct PM_CARTESIAN;
 
 // EMC_TOOL type declarations
 
-#define EMC_TOOL_INIT_TYPE                           ((NMLTYPE) 1101)
 #define EMC_TOOL_HALT_TYPE                           ((NMLTYPE) 1102)
 #define EMC_TOOL_ABORT_TYPE                          ((NMLTYPE) 1103)
 #define EMC_TOOL_PREPARE_TYPE                        ((NMLTYPE) 1104)
@@ -163,8 +162,6 @@ struct PM_CARTESIAN;
 #define EMC_TOOL_STAT_TYPE                           ((NMLTYPE) 1199)
 
 // EMC_AUX type declarations
-#define EMC_AUX_ESTOP_ON_TYPE                         ((NMLTYPE) 1206)
-#define EMC_AUX_ESTOP_OFF_TYPE                        ((NMLTYPE) 1207)
 #define EMC_AUX_INPUT_WAIT_TYPE                       ((NMLTYPE) 1209)
 
 #define EMC_AUX_STAT_TYPE                             ((NMLTYPE) 1299)
@@ -446,9 +443,6 @@ extern int emcCoolantFloodOff();
 extern int emcIoInit();
 extern int emcIoHalt();
 extern int emcIoAbort(int reason);
-extern int emcIoSetDebug(int debug);
-
-extern int emcIoUpdate(EMC_IO_STAT * stat);
 
 // implementation functions for EMC aggregate types
 

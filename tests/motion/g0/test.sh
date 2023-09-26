@@ -33,16 +33,8 @@ samplerpid=$!
     echo hello EMC mt 1.0
     echo set enable EMCTOO
 
-    echo set mode manual
     echo set estop off
     echo set machine on
-
-    echo set home 0
-    echo set home 1
-    echo set home 2
-
-    # Wait for homing to complete
-    wait_for_pin motion.is-all-homed TRUE
 
     echo set mode mdi
     dist=1

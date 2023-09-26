@@ -830,7 +830,7 @@ static int emcTaskPlan(void)
 	    case EMC_MOTION_SET_AOUT_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
-	    case EMC_SET_DEBUG_TYPE:
+		case EMC_SET_DEBUG_TYPE:
 		retval = emcTaskIssueCommand(emcCommand);
 		break;
 
@@ -945,7 +945,7 @@ static int emcTaskPlan(void)
 	    case EMC_MOTION_ADAPTIVE_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
-	    case EMC_SET_DEBUG_TYPE:
+		case EMC_SET_DEBUG_TYPE:
 		retval = emcTaskIssueCommand(emcCommand);
 		break;
 
@@ -1288,7 +1288,7 @@ static int emcTaskPlan(void)
 		case EMC_TRAJ_PROBE_TYPE:
 		case EMC_AUX_INPUT_WAIT_TYPE:
 	        case EMC_TRAJ_RIGID_TAP_TYPE:
-		case EMC_SET_DEBUG_TYPE:
+			case EMC_SET_DEBUG_TYPE:
                 case EMC_COOLANT_MIST_ON_TYPE:
                 case EMC_COOLANT_MIST_OFF_TYPE:
                 case EMC_COOLANT_FLOOD_ON_TYPE:
@@ -1380,7 +1380,7 @@ static int emcTaskPlan(void)
 	    case EMC_MOTION_SET_AOUT_TYPE:
 	    case EMC_MOTION_ADAPTIVE_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
-	    case EMC_SET_DEBUG_TYPE:
+		case EMC_SET_DEBUG_TYPE:
 		retval = emcTaskIssueCommand(emcCommand);
 		break;
 
@@ -1920,8 +1920,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_SET_DEBUG_TYPE:
 	/* set the debug level here */
 	emc_debug = ((EMC_SET_DEBUG *) cmd)->debug;
-	/* and in IO and motion */
-	emcIoSetDebug(emc_debug);
+	/* and motion */
 	emcMotionSetDebug(emc_debug);
 	/* and reflect it in the status-- this isn't updated continually */
 	emcStatus->debug = emc_debug;
@@ -2390,7 +2389,7 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_SPINDLE_ON_TYPE:
     case EMC_SPINDLE_OFF_TYPE:
     case EMC_SPINDLE_ORIENT_TYPE:
-    case EMC_COOLANT_MIST_ON_TYPE:
+	case EMC_COOLANT_MIST_ON_TYPE:
     case EMC_COOLANT_MIST_OFF_TYPE:
     case EMC_COOLANT_FLOOD_ON_TYPE:
     case EMC_COOLANT_FLOOD_OFF_TYPE:
@@ -2924,26 +2923,6 @@ static int emctask_startup()
 	return -1;
     }
 
-    end = RETRY_TIME;
-    good = 0;
-    do {
-	if (0 == emcIoUpdate(&emcStatus->io)) {
-	    good = 1;
-	    break;
-	}
-	esleep(RETRY_INTERVAL);
-	end -= RETRY_INTERVAL;
-	if (done) {
-	    emctask_shutdown();
-	    exit(1);
-	}
-    } while (end > 0.0);
-    if (!good) {
-	rcs_print_error("can't read IO status\n");
-	return -1;
-    }
-
-
     // now motion
 
     end = RETRY_TIME;
@@ -3246,16 +3225,14 @@ int main(int argc, char *argv[])
     // moved up from emc_startup so we can expose it in Python right away
     emcStatus = new EMC_STAT;
 
-#ifdef TOOL_NML //{
-    tool_nml_register( (CANON_TOOL_TABLE*)&emcStatus->io.tool.toolTable);
-#else //}{
-    tool_mmap_user();
-    // initialize database tool finder:
-#endif //}
     // get the Python plugin going
 
     // inistantiate task methods object, too
-    emcTaskOnce(emc_inifile);
+	if (emcTaskOnce(emc_inifile, emcStatus->io)) {
+		rcs_print_error("can't initialize task object / HAL\n");
+		emctask_shutdown();
+		exit(1);
+	}
     rtapi_strxcpy(emcStatus->task.ini_filename, emc_inifile);
     if (task_methods == NULL) {
 	set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// restore diag
@@ -3310,7 +3287,6 @@ int main(int argc, char *argv[])
 	}
 	// update subordinate status
 
-	emcIoUpdate(&emcStatus->io);
 	emcMotionUpdate(&emcStatus->motion);
 	// synchronize subordinate states
 	if (emcStatus->io.aux.estop) {
@@ -3495,6 +3471,7 @@ int main(int argc, char *argv[])
 	} else {
 	    timer->wait();
 	}
+	task_methods->run();
     }
     // end of while (! done)
 
