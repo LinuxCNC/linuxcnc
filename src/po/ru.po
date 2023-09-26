@@ -16,8 +16,8 @@ msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-09-22 19:44+0000\n"
-"Last-Translator: Ilya Koubatkin <ilya@kubatkin.ru>\n"
+"PO-Revision-Date: 2023-09-24 18:25+0000\n"
+"Last-Translator: xXx <xxx_xxx_xxxxxxxxx@mail.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
 "Language: ru\n"
@@ -9875,26 +9875,26 @@ msgstr "Шпиндель тормоз"
 #: src/emc/usr_intf/stepconf/stepconf.py:223
 #: src/emc/usr_intf/pncconf/private_data.py:515
 msgid "Coolant Mist"
-msgstr "Туман"
+msgstr "Охлаждающая жидкость"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:223
 #: src/emc/usr_intf/pncconf/private_data.py:515
 msgid "Coolant Flood"
-msgstr "Струя"
+msgstr "Залив охлаждающей жидкости"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:223
 #: src/emc/usr_intf/pncconf/private_data.py:516
 msgid "ESTOP Out"
-msgstr "ЭСТОП Выход"
+msgstr "Выход ESTOP"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:223
 msgid "Amplifier Enable"
-msgstr "Включение усилителя"
+msgstr "Разрешение усилителя"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:224
 #: src/emc/usr_intf/pncconf/private_data.py:518
 msgid "Charge Pump"
-msgstr "Пульс"
+msgstr "Насос подкачки"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:225
 #: src/emc/usr_intf/pncconf/private_data.py:519
@@ -9951,7 +9951,7 @@ msgstr "Не подключен"
 #: src/emc/usr_intf/stepconf/stepconf.py:229
 #: src/emc/usr_intf/pncconf/private_data.py:440
 msgid "ESTOP In"
-msgstr "ЭСТОП В"
+msgstr "ESTOP В"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:229
 #: src/emc/usr_intf/pncconf/private_data.py:440
@@ -10343,7 +10343,8 @@ msgid ""
 "You need to use kernel:"
 msgstr ""
 "Вы используете версию LinuxCNC реального времени, но не загрузили ядро "
-"реального времени, поэтому тестирование/настройка оборудования недоступна.\n"
+"реального времени, поэтому тестирование/настройка "
+"оборудования                 недоступна.\n"
 "Возможно, это связано с тем, что вы обновили ОС, и она больше не загружает "
 "ядро RTAI автоматически.\n"
 "Вы используете ядро {}.\n"
@@ -10372,7 +10373,7 @@ msgstr "Продолжить? "
 #: src/emc/usr_intf/stepconf/stepconf.py:663
 #: src/emc/usr_intf/pncconf/data.py:902
 msgid "yY"
-msgstr "дД"
+msgstr "yY"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:748
 #: src/emc/usr_intf/pncconf/data.py:1074
@@ -10544,19 +10545,19 @@ msgstr "# добавьте команды halui MDI сюда (max 64) "
 #: src/emc/usr_intf/stepconf/build_HAL.py:294
 #: src/emc/usr_intf/pncconf/build_HAL.py:766
 msgid "# **** Setup for external estop ladder program -START ****"
-msgstr "# ****Установки для программы внешнего АВОСТ -START ****"
+msgstr "# **** Настройка внешней лестничной программы estop -START ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:301
 #: src/emc/usr_intf/pncconf/build_HAL.py:773
 msgid "# **** Setup for external estop ladder program -END ****"
-msgstr "# ****Установки для программы внешнего АВОСТ -END ****"
+msgstr "# **** Настройка программы внешней лестницы estop -END ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:332
 msgid ""
 "# Load Classicladder with Modbus master included (GUI must run for Modbus)"
 msgstr ""
-"# Загрузка классической схемы с включенным ведущим устройством Modbus (для "
-"Modbus должен быть запущен графический интерфейс)"
+"# Загрузить Classicladder с включенным ведущим устройством Modbus (для "
+"работы с Modbus должен быть запущен графический интерфейс)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:335
 #: src/emc/usr_intf/pncconf/build_HAL.py:846
@@ -10591,15 +10592,16 @@ msgid ""
 "# **** spindle-velocity-feedback-rps bounces around so we filter it with "
 "lowpass"
 msgstr ""
-"# **** spindle-velocity-feedback-rps прыгает, поэтому используем lowpass"
+"# **** шпиндель-скорость-обратная связь-обороты скачут, поэтому мы фильтруем "
+"их с помощью низкочастотного фильтра"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:386
 msgid ""
 "# **** spindle-velocity-feedback-rps is signed so we use absolute component "
 "to remove sign"
 msgstr ""
-"# **** spindle-velocity-feedback-rps имеет знак, поэтому используем "
-"absolute, чтобы убрать знак"
+"# **** шпиндель-скорость обратная связь-обороты подписаны, поэтому мы "
+"используем абсолютную составляющую, чтобы убрать знак"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:387
 msgid "# **** ACTUAL velocity is in RPS not RPM so we scale it."
@@ -10607,7 +10609,7 @@ msgstr "# **** НАСТОЯЩАЯ скорость в об/сек, а не в о
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:396
 msgid "# **** set up spindle at speed indicator ****"
-msgstr "# **** Настройка индикатора spindle-at-speed ****"
+msgstr "# **** установить шпиндель на индикатор частоты вращения ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:409
 msgid ""
@@ -10703,13 +10705,13 @@ msgid ""
 "# For mode 0 Arc-OK only, the number of consecutive readings within the "
 "threshold that are required to set the Arc-OK signal."
 msgstr ""
-"# Только для режима 0 «Дуга – ОК» — количество последовательных показаний в "
-"пределах порога, необходимое для установки сигнала «Дуга – ОК»."
+"# Только для режима 0 «Дуга‐ОК» количество последовательных показаний в "
+"пределах порога, необходимое для установки сигнала «Дуга‐ОК»."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:751
 #: src/emc/usr_intf/pncconf/build_HAL.py:1917
 msgid "# default = 6"
-msgstr "# по-умолчанию = 6"
+msgstr "# значение по умолчанию = 6"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:753
 #: src/emc/usr_intf/pncconf/build_HAL.py:1919
@@ -10717,9 +10719,8 @@ msgid ""
 "# For mode 0 Arc-OK only, the maximum voltage deviation that is allowed for "
 "a valid voltage to set the Arc OK signal."
 msgstr ""
-"# Только для режима 0 «Дуга — ОК»: максимальное отклонение напряжения, "
-"которое допускается для действительного напряжения для установки сигнала «"
-"Дуга ОК»."
+"# Только для режима 0 «Дуга‐ОК» максимальное отклонение напряжения, которое "
+"допускается для действительного напряжения для установки сигнала «Дуга ОК»."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:754
 #: src/emc/usr_intf/pncconf/build_HAL.py:1920
@@ -10765,11 +10766,11 @@ msgstr "# по-умолчанию = 2"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:770
 msgid "# Include your custom_postgui HAL commands here"
-msgstr "# Добавляйте измененные custom_postgui команды HALсюда"
+msgstr "# Включите сюда свои пользовательские команды_postgui HAL"
 
 #: src/emc/usr_intf/stepconf/import_mach.py:32
 msgid "Mach configuration files"
-msgstr "Mach3 файлы профилей"
+msgstr "Конфигурационные файлы машины"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:23
 #: src/emc/usr_intf/pncconf/main_page.glade:35
@@ -10876,7 +10877,7 @@ msgstr "XYZA"
 
 #: src/emc/usr_intf/stepconf/base.glade:24
 msgid "XZ (Lathe)"
-msgstr "XZ (Токарный)"
+msgstr "XZ (токарный станок)"
 
 #: src/emc/usr_intf/stepconf/base.glade:27
 msgid "XYUV (Foam)"
@@ -10972,7 +10973,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/base.glade:654
 msgid "Base Period Maximum _Jitter:"
-msgstr "Максимальный джиттер базового периода:"
+msgstr "Максимальный базовый период _Джиттер:"
 
 #: src/emc/usr_intf/stepconf/start.glade:10
 #: src/emc/usr_intf/pncconf/start.glade:111
@@ -10991,21 +10992,21 @@ msgstr "Изменить конфигурацию уже созданую это
 
 #: src/emc/usr_intf/stepconf/start.glade:56
 msgid "Import a Mach file"
-msgstr "Импортировать Mach3 xml файл"
+msgstr "Импортировать файл Mach"
 
 #: src/emc/usr_intf/stepconf/start.glade:73
 msgid "Create a desktop _shortcut (symlink) to configuration files."
-msgstr "Создать ссылку на конфигурационные файлы."
+msgstr "Создать на рабочем столе_ярлык (symlink) на файлы конфигурации."
 
 #: src/emc/usr_intf/stepconf/start.glade:89
 msgid "Create a desktop _launcher to start LinuxCNC with this configuration."
 msgstr ""
-"Создать на рабочем столе ссылку для быстрого запуска LinuxCNC с этой "
+"Создайте на рабочем столе _пусковую установку для запуска LinuxCNC с данной "
 "конфигурацией."
 
 #: src/emc/usr_intf/stepconf/start.glade:105
 msgid "Create simulated hardware configuration."
-msgstr "Создать новую конфигурацию симулятора."
+msgstr "Создать имитацию конфигурации оборудования."
 
 #: src/emc/usr_intf/stepconf/start.glade:129
 #: src/emc/usr_intf/pncconf/start.glade:63
@@ -11091,7 +11092,7 @@ msgstr " Ножка _9:"
 #: src/emc/usr_intf/pncconf/pport1.glade:1480
 #: src/emc/usr_intf/pncconf/pport2.glade:1483
 msgid "_Pin 14:"
-msgstr "Ножка 14:"
+msgstr "_Ножка 14:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:654
 #: src/emc/usr_intf/stepconf/pport2.glade:646
@@ -11192,7 +11193,7 @@ msgstr "Вход"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:29
 msgid "_PWM 1:"
-msgstr "ШИМ 1:"
+msgstr "_ШИМ 1:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:43
 msgid "P_WM 2:"
@@ -11208,7 +11209,7 @@ msgstr "Частота ШИМ:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:150
 msgid "_Speed 1:"
-msgstr "Скорость 1:"
+msgstr "_Скорость 1:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:164
 msgid "S_peed 2:"
@@ -11224,7 +11225,7 @@ msgstr "12345"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:271
 msgid "_Cycles per revolution:"
-msgstr "Циклы на оборот:"
+msgstr "_Цикл на оборот:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:285
 msgid "Speed display filter gain:"
@@ -11268,7 +11269,7 @@ msgstr "Формат экрана:"
 #: src/emc/usr_intf/stepconf/options.glade:140
 #: src/emc/usr_intf/pncconf/screen.glade:3294
 msgid "Estop Button:"
-msgstr "АВОСТ кнопка:"
+msgstr "Кнопка Estop:"
 
 #: src/emc/usr_intf/stepconf/options.glade:156
 #: src/emc/usr_intf/pncconf/screen.glade:3325
@@ -11313,7 +11314,7 @@ msgstr "Верх"
 #: src/emc/usr_intf/stepconf/options.glade:465
 #: src/emc/usr_intf/pncconf/screen.glade:3621
 msgid "Powermax Port:"
-msgstr "Powermax порт:"
+msgstr "Максимальнаямощность порта:"
 
 #: src/emc/usr_intf/stepconf/options.glade:493
 #: src/emc/usr_intf/pncconf/screen.glade:3649
@@ -11387,7 +11388,7 @@ msgid ""
 "sample\n"
 "panel"
 msgstr ""
-"Показать\n"
+"_Показать\n"
 "пример\n"
 "панели"
 
@@ -11406,12 +11407,12 @@ msgstr "Количество цифровых входов:"
 
 #: src/emc/usr_intf/stepconf/options.glade:964
 msgid "Number of digital  out pins:"
-msgstr "Количество цифровых выходов:"
+msgstr "Количество цифровых  выходов:"
 
 #: src/emc/usr_intf/stepconf/options.glade:979
 #: src/emc/usr_intf/pncconf/options.glade:638
 msgid " Number of analog (s32) in pins:"
-msgstr " Количество аналоговых (s32) входов:"
+msgstr " Количество аналоговых (s32) входов:"
 
 #: src/emc/usr_intf/stepconf/options.glade:995
 #: src/emc/usr_intf/pncconf/options.glade:655
@@ -11463,11 +11464,11 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:1281
 msgid "Set Ladder Options"
-msgstr "Установить опции LADDER"
+msgstr "Установка параметров лестницы"
 
 #: src/emc/usr_intf/stepconf/options.glade:1297
 msgid "Include Halui user interface component"
-msgstr "Добавить компоненту HALUI интерфейсa"
+msgstr "Включение компонента пользовательского интерфейса Halui"
 
 #: src/emc/usr_intf/stepconf/halui_page.glade:24
 msgid "Insert here some commands to put after MDI_COMMAND"
@@ -11876,17 +11877,16 @@ msgstr ""
 "\n"
 "Если LinuxCNC зависает,\n"
 "то нужно уменьшить максимальную скорость,\n"
-"что приведет к повышению BASE_PERIOD.\n"
+"что приведет к повышению BASE_PERIOD.\n"
 "\n"
 "Если вы замечаете пропущенные шаги при работе LinuxCNC:\n"
 "-сначала проверьте правильность времен для ШД.\n"
-"- проведите более тщательный тест задержек по описанию на linuxcnc.org "
-"wiki.\n"
+"- проведите более тщательный тест задержек по описанию на linuxcnc.org wiki."
+"\n"
 " http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting\n"
 "\n"
-"Если вы получили сообщение \"Unexpected Realtime Delay\", \n"
-"-проведите более тщательный тест задержек по описанию на linuxcnc.org "
-"wiki: \n"
+"Если вы получили сообщение \"Unexpected Realtime Delay\",\n"
+"-проведите более тщательный тест задержек по описанию на linuxcnc.org wiki:\n"
 " http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting"
 
 #: src/emc/usr_intf/stepconf/finished.glade:55
@@ -11902,9 +11902,10 @@ msgid ""
 "LinuxCNC Version:  %s\n"
 "\n"
 msgstr ""
-"PNCconf·обнаружил ошибку.··Эта информация может помочь:\n"
+"PNCconf столкнулся с ошибкой.  Следующая информация может быть полезна при "
+"поиске неисправностей:\n"
 "\n"
-"LinuxCNC Version:  %s\n"
+"LinuxCNC Version:  %s\n"
 "\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:172
@@ -12037,7 +12038,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1437
 msgid "Discovery is  unavailable\n"
-msgstr "Поиск не доступен\n"
+msgstr "Поиск не  доступен\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1652
 msgid "The pasted PIN file may be an invalid format"
@@ -12053,7 +12054,7 @@ msgstr "Поиск информации об USB-устройстве"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1742
 msgid "USB device  page is unavailable\n"
-msgstr "Страница USB устройств не доступна\n"
+msgstr "Страница USB  устройств не доступна\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1815
 #: src/emc/usr_intf/pncconf/tests.py:90
@@ -12230,7 +12231,7 @@ msgstr "Шаг ходового винта"
 #: src/emc/usr_intf/pncconf/dialogs.glade:1991
 #: src/emc/usr_intf/pncconf/dialogs.glade:2360
 msgid "Leadscrew TPI"
-msgstr "TPI(об/дюйм) ходового винта"
+msgstr "Ведущий винт TPI"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4237
 #: src/emc/usr_intf/pncconf/pncconf.py:4238
@@ -12258,23 +12259,23 @@ msgstr "шаг/ "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4246
 msgid " / encoder pulse"
-msgstr " / пульс энкодера"
+msgstr " / импульс датчика"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4247
 msgid "Encoder pulses / "
-msgstr "Пульсы энкодера / "
+msgstr "Импульсы датчика / "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4255
 msgid "Resolver Scale:"
-msgstr "Множитель резольвера:"
+msgstr "Масштаб решателя:"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4593
 msgid "Spindle Scale Calculation"
-msgstr "Вычисление множителя шпинделя"
+msgstr "Расчет шкалы шпинделя"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4705
 msgid "Axis Scale Calculation"
-msgstr "Вычисление множителя оси"
+msgstr "Расчет масштаба оси"
 
 #: src/emc/usr_intf/pncconf/pages.py:246 src/emc/usr_intf/pncconf/pages.py:297
 #, python-format
@@ -12420,7 +12421,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/build_HAL.py:351
 msgid "# ---Chargepump StepGen: 0.25 velocity = 10Khz square wave output---"
 msgstr ""
-"# ---Шаговый генератор зарядового насоса: скорость 0,25 = выходной сигнал "
+"# ---ШаговыйГенератор зарядовогоНасоса: скорость 0,25 = выходной сигнал "
 "прямоугольной формы 10 кГц ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:439
@@ -12449,7 +12450,7 @@ msgstr "# ---сигналы кнопок jog---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:494
 msgid "# ---USB device jog button signals---"
-msgstr "# --- Сигналы jog кнопок с USB устройства ---"
+msgstr "# ---Сигналы толчковой кнопки USB-устройства---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:496
 msgid "# connect selectable mpg jog speeds "
@@ -12457,26 +12458,26 @@ msgstr "# подключить выбираемую скорость пробе�
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:526
 msgid "# ---jogwheel signals to mesa encoder - shared MPG---"
-msgstr "# --- сигналы поворотного колеса для кодера Mesa - общий MPG ---"
+msgstr "# ---сигналы поворотного колеса для кодера Mesa - общий MPG---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:535
 #: src/emc/usr_intf/pncconf/build_HAL.py:561
 msgid "#  ---mpg signals---"
-msgstr "#  --- Сигналы штурвала РГИ ---"
+msgstr "#  ---mpg сигналы---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:540
 #, python-format
 msgid "#       for axis %s MPG"
-msgstr "# для оси %s MPG"
+msgstr "#       для оси %s MPG"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:553
 #, python-format
 msgid "# ---jogwheel signals to mesa encoder - %s axis MPG---"
-msgstr "# --- сигналы поворотного колеса для энкодера Mesa - ось %s MPG ---"
+msgstr "# ---сигналы поворотного колеса для энкодера Mesa - ось %s MPG---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:572
 msgid "# connect selectable mpg jog increments "
-msgstr "# Подключение выбираемых приращений перемещения для РГИ "
+msgstr "# подключить выбираемые приращения толчка mpg "
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:596
 msgid "# ---feed override signals to mesa encoder - mpg---"
@@ -12509,7 +12510,7 @@ msgstr "# ---сигналы отмены шпинделя для кодера me
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:709
 msgid "# connect spindle override increments - MPG"
-msgstr "# Подключение приращений корректора шпинделя - РГИ "
+msgstr "# подключить приращения переключения шпинделя - MPG"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:724
 msgid "# connect spindle override increments "
@@ -12517,32 +12518,32 @@ msgstr "# Подключение приращений корректора шп�
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:743
 msgid "#  ---motion control signals---"
-msgstr "#  --- Сигналы для управления движением ---"
+msgstr "#  ---Сигналы для управления движением---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:748
 msgid "#  ---digital in / out signals---"
-msgstr "#  --- Сигналы цифровых входов / выходов ---"
+msgstr "#  ---Сигналы цифровых входов / выходов---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:761
 msgid "#  ---estop signals---"
-msgstr "#  --- Сигналы АВОСТ ---"
+msgstr "#  ---остановить сигналы---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:782
 msgid "#  ---manual tool change signals---"
-msgstr "#  --- Сигналы ручной смены инструмента ---"
+msgstr "#  ---Сигналы ручной смены инструмента---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:790
 msgid "#  ---Use external manual tool change dialog---"
 msgstr ""
-"#  --- Сигналы смены инструмента для индивидуального сменщика инструмента ---"
+"#  ---Сигналы смены инструмента для индивидуального сменщика инструмента---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:802
 msgid "#  ---manual tool change signals to gmoccapy's dialog---"
-msgstr "#  --- Сигналы ручной смены инструмента для диалога gmoccapy ---"
+msgstr "#  ---Сигналы ручной смены инструмента для диалога gmoccapy---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:812
 msgid "#  ---manual tool change signals to qtdragon's dialog---"
-msgstr "#  --- Сигналы ручной смены инструмента для диалога qtdragon ---"
+msgstr "#  ---Сигналы ручной смены инструмента для диалога qtdragon---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:819
 msgid "#  ---ignore tool prepare requests---"
@@ -12551,7 +12552,7 @@ msgstr "# ---игнорировать запросы на подготовку �
 #: src/emc/usr_intf/pncconf/build_HAL.py:824
 msgid "#  ---toolchange signals for custom tool changer---"
 msgstr ""
-"#  --- Сигналы смены инструмента для индивидуального сменщика инструмента ---"
+"#  ---Сигналы смены инструмента для индивидуального сменщика инструмента---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:835
 msgid ""
@@ -12571,7 +12572,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/build_HAL.py:852
 msgid "#  --- Classicladder signals for Z axis Auto touch off program---"
 msgstr ""
-"#  --- Сигналы Classicladder для программы автоматического касания оси Z ---"
+"#  --- Сигналы Classicladder для программы автоматического касания оси Z---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:871
 msgid "# These files are loaded post gladeVCP, in the order they appear"
@@ -12627,23 +12628,23 @@ msgstr "# Эти команды необходимы для Touchy GUI"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1045
 msgid "#    Automation Direct GS2 VFD for spindle control"
-msgstr "# Автоматизация Direct GS2 VFD для управления шпинделем"
+msgstr "#    Автоматизация Direct GS2 VFD для управления шпинделем"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1047
 msgid "#    The communications switches must be set to RS-232C"
-msgstr "# Переключатели связи должны быть установлены на RS-232C"
+msgstr "#    Переключатели связи должны быть установлены на RS-232C"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1048
 msgid "#    The motor parameters must be set to match the motor"
 msgstr ""
-"# Параметры двигателя должны быть установлены в соответствии с двигателем"
+"#    Параметры двигателя должны быть установлены в соответствии с двигателем"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1049
 msgid ""
 "#    P3.00 (Source of Operation Command) must be set to Operation determined "
 "by RS-485 interface, 03 or 04"
 msgstr ""
-"# P3.00 (Источник рабочей команды) должен быть установлен на Операцию, "
+"#    P3.00 (Источник рабочей команды) должен быть установлен на Операцию, "
 "определяемую интерфейсом RS-485, 03 или 04"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1050
@@ -12651,14 +12652,14 @@ msgid ""
 "#    P4.00 (Source of Frequency Command) must be set to Frequency determined "
 "by RS232C/RS485 communication interface, 05"
 msgstr ""
-"# P4.00 (Источник задания частоты) должен быть установлен на частоту, "
+"#    P4.00 (Источник задания частоты) должен быть установлен на частоту, "
 "определяемую интерфейсом связи RS232C/RS485, 05"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1051
 msgid ""
 "#    P9.01 (Transmission Speed) must be set to the specified baud, 9600 = 01"
 msgstr ""
-"# P9.01 (Скорость передачи) должен быть установлен на указанную скорость, "
+"#    P9.01 (Скорость передачи) должен быть установлен на указанную скорость, "
 "9600 = 01"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1052
@@ -12666,12 +12667,12 @@ msgid ""
 "#    P9.02 (Communication Protocol) must be set to \"Modbus RTU mode, 8 data "
 "bits, no parity, 2 stop bits\", 03"
 msgstr ""
-"# P9.02 (Протокол связи) должен быть установлен на “Режим Modbus RTU, 8 бит "
-"данных, без четности, 2 стоповых бита“, 03"
+"#    P9.02 (Протокол связи) должен быть установлен на “Режим Modbus RTU, 8 "
+"бит данных, без четности, 2 стоповых бита“, 03"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1065
 msgid "#    Misubishi FR VFD for spindle control"
-msgstr "# Mitsubishi FR VFD для управления шпинделем"
+msgstr "#    Mitsubishi FR VFD для управления шпинделем"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1071
 #, python-format
@@ -12728,7 +12729,7 @@ msgstr "# -- Настройка BLDC --"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1323
 msgid "# ---TPPWM Generator signals/setup---"
-msgstr "# --- Сигналы/настройка трёхфазного ШИМ генератора ---"
+msgstr "# ---TPPWM-генератор сигналов/настройка---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1325
 msgid "# six output 3pwg"
@@ -12744,7 +12745,7 @@ msgstr "# TODO написать несколько команд!"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1331
 msgid "# ---8i20 amplifier card signals/setup---"
-msgstr "# --- Сигналы/настройка платы-усилителя 8i20 ---"
+msgstr "# ---8i20 усилительная плата сигналы/настройка---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1341
 msgid "# ---digital potentiometer output signals/setup---"
@@ -12752,7 +12753,7 @@ msgstr "# ---выходные сигналы/настройка цифровог
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1358
 msgid "# ---PWM Generator signals/setup---"
-msgstr "# --- Сигналы/настройка ШИМ генератора ---"
+msgstr "# ---Сигналы/настройка ШИМ генератора---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1383
 msgid "# enable _all_ sserial pwmgens"
@@ -12760,11 +12761,11 @@ msgstr "# включить _все_ генераторы последовате�
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1413
 msgid "# Step Gen signals/setup for tandem axis"
-msgstr "# --- Сигналы/настройка шагового генератора для тандемной оси ---"
+msgstr "# Сигналы/настройка шагового генератора для тандемной оси"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1415
 msgid "# Step Gen signals/setup"
-msgstr "# --- Сигналы/настройка шагового генератора ---"
+msgstr "# Сигналы/настройка шагового генератора"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1442
 msgid "# ---closedloop stepper signals---"
@@ -12772,45 +12773,45 @@ msgstr "# ---сигналы шагового двигателя с обратн�
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1456
 msgid "# ---Encoder feedback signals/setup---"
-msgstr "# --- Сигналы/настройка обратной связи энкодера ---"
+msgstr "# ---Сигналы/настройка обратной связи энкодера---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1479
 msgid "# ---Resolver feedback signals/setup---"
-msgstr "# --- Сигналы/настройка обратной связи резольвера ---"
+msgstr "# ---Сигналы/настройка обратной связи резольвера---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1498
 msgid "# ---setup spindle control signals---"
-msgstr "# --- Настройка сигналов для управления шпинделем ---"
+msgstr "# ---Настройка сигналов для управления шпинделем---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1514
 msgid "# ---Setup spindle at speed signals---"
-msgstr "# --- Настройка сигналов шпиндель на скорости ---"
+msgstr "# ---Настройка сигналов шпиндель на скорости---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1535
 msgid "#  Use ACTUAL spindle velocity from spindle encoder"
 msgstr ""
-"# Использовать ACTUAL скорость шпинделя, полученную от энкодера шпинделя"
+"# Использовать АКТУАЛЬНУЮ скорость шпинделя, полученную от энкодера шпинделя"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1536
 msgid "#  spindle-velocity bounces around so we filter it with lowpass"
 msgstr ""
-"# скорость вращения шпинделя колеблется, поэтому мы фильтруем ее с помощью "
+"#  скорость вращения шпинделя колеблется, поэтому мы фильтруем ее с помощью "
 "низких частот"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1537
 msgid ""
 "#  spindle-velocity is signed so we use absolute component to remove sign"
 msgstr ""
-"# скорость шпинделя имеет знак, поэтому мы используем абсолютную "
+"#  скорость шпинделя имеет знак, поэтому мы используем абсолютную "
 "составляющую для удаления знака"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1538
 msgid "#  ACTUAL velocity is in RPS not RPM so we scale it."
-msgstr "# ФАКТИЧЕСКАЯ скорость в об/сек, а не в об/мин, мы масштабируем её."
+msgstr "#  ФАКТИЧЕСКАЯ скорость в об/сек, а не в об/мин, мы масштабируем её."
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1554
 msgid "# ---setup home / limit switch signals---"
-msgstr "# --- Настройка сигналов концевиков начал/пределов ---"
+msgstr "# ---Настройка сигналов концевиков начал/пределов---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1562
 msgid "# external input signals"
@@ -12826,7 +12827,7 @@ msgid ""
 "# ---PLASMA INPUT DEBOUNCE---"
 msgstr ""
 "\n"
-"# --- Антидребезг входа плазмы ---"
+"# ---ПЛАЗМЕННЫЙ ВХОДНОЙ ДРЕБЕЗГ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1819
 msgid "#values for these are in custom.hal"
@@ -12838,7 +12839,7 @@ msgid ""
 "# ---JOINT ASSOCIATED WITH THE Z AXIS---"
 msgstr ""
 "\n"
-"# --- Сочленение связанное с осью Z ---"
+"# ---Сочленение связанное с осью Z---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1836
 msgid ""
@@ -12846,24 +12847,24 @@ msgid ""
 "# ---PLASMA INPUTS---"
 msgstr ""
 "\n"
-"# --- Входы плазмы ---"
+"# ---ПЛАЗМЕННЫЕ ВВОДЫ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1837
 #: src/emc/usr_intf/pncconf/build_HAL.py:1850
 msgid "# ---all modes---"
-msgstr "# --- все режимы ---"
+msgstr "# ---все режимы---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1842
 msgid "# ---modes 0 & 1"
-msgstr "# --- режимы 0 и 1"
+msgstr "# ---режимы 0 и 1"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1844
 msgid "# ---modes 1 & 2"
-msgstr "# --- режимы 1 и 2"
+msgstr "# ---режимы 1 и 2"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1846
 msgid "# ---mode 2"
-msgstr "# --- режим 2"
+msgstr "# ---режим 2"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1849
 msgid ""
@@ -12871,7 +12872,7 @@ msgid ""
 "# ---PLASMA OUTPUTS---"
 msgstr ""
 "\n"
-"# --- Выходы плазмы ---"
+"# ---Выходы плазмы---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1875
 msgid ""
@@ -12879,7 +12880,7 @@ msgid ""
 "# ---ARC VOLTAGE ENCODER---"
 msgstr ""
 "\n"
-"# --- Счётчик энкодера для напряжения дуги ---"
+"# ---ДАТЧИК ДУГОВОГО НАПРЯЖЕНИЯ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1885
 msgid ""
@@ -12887,7 +12888,7 @@ msgid ""
 "# ---OHMIC SENSE LINK---"
 msgstr ""
 "\n"
-"# ---ОМИЧЕСКАЯ СЕНСИЯ---"
+"# ---ОМИЧЕСКАЯ СЕНСОРНАЯ СВЯЗЬ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1893
 msgid ""
@@ -12895,7 +12896,7 @@ msgid ""
 "# ---COMMON PLASMAC DEBOUNCE---"
 msgstr ""
 "\n"
-"# --- Общий антидребезг PLASMAC ---"
+"# ---Общий антидребезг PLASMAC---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1894
 msgid "# for the float and ohmic inputs each increment in delay is"
@@ -12904,7 +12905,7 @@ msgstr "# для плавающего и омического входов ка�
 #: src/emc/usr_intf/pncconf/build_HAL.py:1895
 msgid "# is a 0.001mm (0.00004\") increase in any probed height result"
 msgstr ""
-"# — увеличение на 0,001 мм (0,00004 дюйма) любого результата измерения высоты"
+"# увеличение на 0,001 мм (0,00004 дюйма) любого результата измерения высоты"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1898
 #: src/emc/usr_intf/pncconf/build_HAL.py:1943
@@ -13112,47 +13113,47 @@ msgstr "Генератор шагов A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
 msgid "Dir Gen-B"
-msgstr "Режиссер Gen-B"
+msgstr "Генеральный директор В"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
 msgid "StepGen Phase-C"
-msgstr "Шаг поколения, фаза C"
+msgstr "StepGen Фаза-C"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
 msgid "StepGen Phase-D"
-msgstr "Шаг поколения Фаза-D"
+msgstr "StepGen Фаза-D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:136
 msgid "StepGen Phase-E"
-msgstr "Шаг поколения Фаза-E"
+msgstr "StepGen Фаза-E"
 
 #: src/emc/usr_intf/pncconf/private_data.py:136
 msgid "StepGen Phase-F"
-msgstr "Шаг поколения, фаза F"
+msgstr "StepGen Фаза-F"
 
 #: src/emc/usr_intf/pncconf/private_data.py:138
 msgid "PWM Gen-P"
-msgstr "ШИМ генератор P"
+msgstr "ШИМ поколения-P"
 
 #: src/emc/usr_intf/pncconf/private_data.py:138
 msgid "PWM Gen-D"
-msgstr "ШИМ генератор D"
+msgstr "ШИМ поколения-D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:138
 msgid "PWM Gen-E"
-msgstr "ШИМ генератор E"
+msgstr "ШИМ поколения-E"
 
 #: src/emc/usr_intf/pncconf/private_data.py:139
 msgid "PDM Gen-P"
-msgstr "PDM генератор P"
+msgstr "PDM Покаления-P"
 
 #: src/emc/usr_intf/pncconf/private_data.py:139
 msgid "PDM Gen-D"
-msgstr "PDM генератор D"
+msgstr "PDM поколения-D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:139
 msgid "PDM Gen-E"
-msgstr "PDM генератор E"
+msgstr "PDM поколения‐E"
 
 #: src/emc/usr_intf/pncconf/private_data.py:140
 msgid "UDM -Up"
@@ -13208,7 +13209,7 @@ msgstr "S СЕРИЙНЫЙ -P0-RX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:157
 msgid "SSERIAL-P0-EN"
-msgstr "СЕРИЙНЫЙ-P0-EN"
+msgstr "SСЕРИЙНЫЙ -P0-EN"
 
 #: src/emc/usr_intf/pncconf/private_data.py:158
 msgid "SSERIAL-P1-TX"
@@ -13348,119 +13349,119 @@ msgstr "Все начала"
 
 #: src/emc/usr_intf/pncconf/private_data.py:411
 msgid "X2 Tandem Home"
-msgstr "Начало Тандем-X2"
+msgstr "Тандемный дом X2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:411
 msgid "Y2 Tandem Home"
-msgstr "Начало Тандем-Y2"
+msgstr "Тандемный дом Y2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:411
 msgid "Z2 Tandem Home"
-msgstr "Начало Тандем-Z2"
+msgstr "Тандемный дом Z2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:411
 msgid "A2 Tandem Home"
-msgstr "Начало Тандем-A2"
+msgstr "Тандемный дом A2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:412
 msgid "X Minimum Limit + Home"
-msgstr "Меньший предел + начало X"
+msgstr "X Минимальный лимит + Дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:413
 msgid "Y Minimum Limit + Home"
-msgstr "Меньший предел + начало Y"
+msgstr "Y Минимальный лимит + Дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:413
 msgid "Z Minimum Limit + Home"
-msgstr "Меньший предел + начало Z"
+msgstr "Z Минимальный лимит + Дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:414
 msgid "A Minimum Limit + Home"
-msgstr "Меньший предел + начало A"
+msgstr "A Минимальный лимит + Дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:414
 msgid "X Maximum Limit + Home"
-msgstr "Больший предел + начало X"
+msgstr "X Максимальный лимит + дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:415
 msgid "Y Maximum Limit + Home"
-msgstr "Больший предел + начало Y"
+msgstr "Y Максимальный лимит + дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:415
 msgid "Z Maximum Limit + Home"
-msgstr "Больший предел + начало Z"
+msgstr "Z Максимальный лимит + дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:416
 msgid "A Maximum Limit + Home"
-msgstr "Больший предел + начало A"
+msgstr "A Максимальный лимит + дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:416
 msgid "X Both Limit + Home"
-msgstr "Оба предела + начало X"
+msgstr "X Оба предела + дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:417
 msgid "Y Both Limit + Home"
-msgstr "Оба предела + начало Y"
+msgstr "Y Оба предела + дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:417
 msgid "Z Both Limit + Home"
-msgstr "Оба предела + начало Z"
+msgstr "Z Оба предела + дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:418
 msgid "A Both Limit + Home"
-msgstr "Оба предела + начало A"
+msgstr "A Оба предела + дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:418
 msgid "All Limits + Home"
-msgstr "Все пределы + начала"
+msgstr "Все пределы + дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:419
 msgid "X2 Minimum Limit + Home"
-msgstr "Меньший предел + начало X2"
+msgstr "X2 Минимальный лимит + Дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:420
 msgid "Y2 Minimum Limit + Home"
-msgstr "Меньший предел + начало Y2"
+msgstr "Y2 Минимальный лимит + Дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:420
 msgid "Z2 Minimum Limit + Home"
-msgstr "Меньший предел + начало Z2"
+msgstr "Z2 Минимальный лимит + Дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:421
 msgid "A2 Minimum Limit + Home"
-msgstr "Меньший предел + начало A2"
+msgstr "A2 Минимальный лимит + Дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:421
 msgid "X2 Maximum Limit + Home"
-msgstr "Больший предел + начало X2"
+msgstr "X2 Максимальный лимит + Дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:422
 msgid "Y2 Maximum Limit + Home"
-msgstr "Больший предел + начало Y2"
+msgstr "Y2 Максимальный лимит + Дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:422
 msgid "Z2 Maximum Limit + Home"
-msgstr "Больший предел + начало Z2"
+msgstr "Z2 Максимальный лимит + Дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:423
 msgid "A2 Maximum Limit + Home"
-msgstr "Больший предел + начало A2"
+msgstr "A2 Максимальный лимит + Дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:423
 msgid "X2 Both Limit + Home"
-msgstr "Оба предела + начало X2"
+msgstr "X2 Оба лимита + Дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:424
 msgid "Y2 Both Limit + Home"
-msgstr "Оба предела + начало Y2"
+msgstr "Y2 Оба лимита + Дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:424
 msgid "Z2 Both Limit + Home"
-msgstr "Оба предела + начало Z2"
+msgstr "Z2 Оба лимита + Дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:425
 msgid "A2 Both Limit + Home"
-msgstr "Оба предела + начало A2"
+msgstr "A2 Оба лимита + Дом"
 
 #: src/emc/usr_intf/pncconf/private_data.py:428
 msgid "Joint select A"
@@ -14021,19 +14022,19 @@ msgstr "Индивидуальные сигналы"
 
 #: src/emc/usr_intf/pncconf/private_data.py:477
 msgid "X2 Tandem PWM"
-msgstr "ШИМ Тандем-X2"
+msgstr "X2 Тандемный ШИМ"
 
 #: src/emc/usr_intf/pncconf/private_data.py:477
 msgid "Y2 Tandem PWM"
-msgstr "ШИМ Тандем-Y2"
+msgstr "Y2 Тандемный ШИМ"
 
 #: src/emc/usr_intf/pncconf/private_data.py:478
 msgid "Z2 Tandem PWM"
-msgstr "ШИМ Тандем-Z2"
+msgstr "Z2 Тандемный ШИМ"
 
 #: src/emc/usr_intf/pncconf/private_data.py:478
 msgid "A2 Tandem PWM"
-msgstr "ШИМ Тандем-A2"
+msgstr "A2 Тандемный ШИМ"
 
 #: src/emc/usr_intf/pncconf/private_data.py:479
 msgid "X Axis PWM"
@@ -14061,23 +14062,23 @@ msgstr "ШИМ оси"
 
 #: src/emc/usr_intf/pncconf/private_data.py:486
 msgid "X Axis StepGen"
-msgstr "Генератор шагов X"
+msgstr "Генератор шагов оси X"
 
 #: src/emc/usr_intf/pncconf/private_data.py:487
 msgid "Y Axis StepGen"
-msgstr "Генератор шагов Y"
+msgstr "Генератор шагов оси Y"
 
 #: src/emc/usr_intf/pncconf/private_data.py:487
 msgid "Z Axis StepGen"
-msgstr "Генератор шагов Z"
+msgstr "Генератор шагов оси Z"
 
 #: src/emc/usr_intf/pncconf/private_data.py:488
 msgid "A Axis StepGen"
-msgstr "Генератор шагов A"
+msgstr "Генератор шагов оси A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:489
 msgid "X2 Tandem StepGen"
-msgstr "Генератор шагов Тандем-X2"
+msgstr "X2 Тандемный StepGen"
 
 #: src/emc/usr_intf/pncconf/private_data.py:489
 msgid "Y2 Tandem StepGen"
@@ -14133,23 +14134,23 @@ msgstr "Энкодер Тандем-A2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:502
 msgid "X Hand Wheel"
-msgstr "Штурвал РГИ X"
+msgstr "X Ручной штурвал"
 
 #: src/emc/usr_intf/pncconf/private_data.py:502
 msgid "Y Hand Wheel"
-msgstr "Штурвал РГИ Y"
+msgstr "Y Ручной штурвал"
 
 #: src/emc/usr_intf/pncconf/private_data.py:503
 msgid "Z Hand Wheel"
-msgstr "Штурвал РГИ Z"
+msgstr "Z Ручной штурвал"
 
 #: src/emc/usr_intf/pncconf/private_data.py:503
 msgid "A Hand Wheel"
-msgstr "Штурвал РГИ A"
+msgstr "A Ручной штурвал"
 
 #: src/emc/usr_intf/pncconf/private_data.py:504
 msgid "Multi Hand Wheel"
-msgstr "Общий штурвал РГИ"
+msgstr "Многофункциональный ручной штурвал"
 
 #: src/emc/usr_intf/pncconf/private_data.py:505
 msgid "Feed Override"
@@ -14297,11 +14298,11 @@ msgstr "Выход шпинделя"
 
 #: src/emc/usr_intf/pncconf/private_data.py:550
 msgid "Unused TPPWM Gen"
-msgstr "Неиспользованный 3Ф-ШИМ генератор"
+msgstr "Неиспользуемый генератор TPPWM"
 
 #: src/emc/usr_intf/pncconf/private_data.py:550
 msgid "X Axis BL Driver"
-msgstr "BL Драйвер оси X"
+msgstr "Драйвер оси X BL"
 
 #: src/emc/usr_intf/pncconf/private_data.py:551
 msgid "Y Axis BL Driver"
@@ -14645,7 +14646,7 @@ msgid ""
 " You must designate a ENCODER / RESOLVER signal and an ANALOG SPINDLE signal "
 "for this axis test"
 msgstr ""
-"Для этого теста оси необходимо назначить сигнал ЭНКОДЕР/РЕЗОЛЬВЕР и сигнал "
+" Для этого теста оси необходимо назначить сигнал ЭНКОДЕР/РЕЗОЛЬВЕР и сигнал "
 "АНАЛОГОВОГО ШПИНДЕЛЯ"
 
 #: src/emc/usr_intf/pncconf/tests.py:923
@@ -14653,7 +14654,7 @@ msgid ""
 " You must designate a ENCODER / RESOLVER signal and a PWM signal for this "
 "axis test"
 msgstr ""
-"Для этого теста оси необходимо назначить сигнал ЭНКОДЕР/РЕЗОЛЬВЕР и сигнал "
+" Для этого теста оси необходимо назначить сигнал ЭНКОДЕР/РЕЗОЛЬВЕР и сигнал "
 "ШИМ"
 
 #: src/emc/usr_intf/pncconf/tests.py:1212
@@ -14738,7 +14739,7 @@ msgstr ""
 "токарных станков, подключенных к карте Mesa Card.\n"
 "\n"
 "Рекомендуется начать с самых простых опций осей, заставить их работать, а "
-"затем вернуться и добавить другие опции, такие как управление шпинделем с "
+"затем вернуться и добавить другие опции, такие как управление  шпинделем с "
 "ЧРП или расширенное ограничение/исходное управление и т.д."
 
 #: src/emc/usr_intf/pncconf/main_page.glade:315
@@ -14839,47 +14840,44 @@ msgid ""
 "  Note this is an example, Many other combinations are \n"
 "  possible"
 msgstr ""
-"Ось Х:\n"
-"   Всего путешествий = 10\n"
-"   Смещение исходной точки = Расстояние переключения между исходной точкой и "
+"  Ось Х:\n"
+"  Всего путешествий = 10\n"
+"  Смещение исходной точки = Расстояние переключения между исходной точкой и "
 "исходной точкой = 0\n"
-"   Отрицательное расстояние перемещения = От начала до отрицательного "
+"  Отрицательное расстояние перемещения = От начала до отрицательного "
 "предельного расстояния = 0\n"
-"   Pos Расстояние перемещения = Общее расстояние перемещения - отрицательное "
+"  Pos Расстояние перемещения = Общее расстояние перемещения - отрицательное "
 "расстояние перемещения = 10\n"
-"   Исходная позиция = Расстояние от исходной позиции до исходной позиции = "
-"6\n"
+"  Исходная позиция = Расстояние от исходной позиции до исходной позиции = 6\n"
 "\n"
-"   Ось Y:\n"
-"   Всего путешествий = 8\n"
-"   Смещение исходной точки = Расстояние переключения между исходной точкой и "
+"  Ось Y:\n"
+"  Всего путешествий = 8\n"
+"  Смещение исходной точки = Расстояние переключения между исходной точкой и "
 "исходной точкой = 0\n"
-"   Отрицательное расстояние перемещения = от начала до отрицательного "
+"  Отрицательное расстояние перемещения = от начала до отрицательного "
 "предельного расстояния = -8\n"
-"   Pos Расстояние перемещения = Общее расстояние перемещения - отрицательное "
+"  Pos Расстояние перемещения = Общее расстояние перемещения - отрицательное "
 "расстояние перемещения = 0\n"
-"   Исходная позиция = Расстояние от исходной позиции до исходной позиции = "
-"0\n"
+"  Исходная позиция = Расстояние от исходной позиции до исходной позиции = 0\n"
 "\n"
-"   Ось Z:\n"
-"   Всего путешествий = 12\n"
-"   Смещение исходной точки = Расстояние переключения между исходной точкой и "
+"  Ось Z:\n"
+"  Всего путешествий = 12\n"
+"  Смещение исходной точки = Расстояние переключения между исходной точкой и "
 "исходной точкой = 0\n"
-"   Отрицательное расстояние перемещения = от начала до отрицательного "
+"  Отрицательное расстояние перемещения = от начала до отрицательного "
 "предельного расстояния = -12.\n"
-"   Pos Расстояние перемещения = Общее расстояние перемещения - отрицательное "
+"  Pos Расстояние перемещения = Общее расстояние перемещения - отрицательное "
 "расстояние перемещения = 0\n"
-"   Исходная позиция = Расстояние от исходной позиции до исходной позиции = "
-"0\n"
+"  Исходная позиция = Расстояние от исходной позиции до исходной позиции = 0\n"
 "\n"
-"   Обратите внимание, что указатели поворотов в правом верхнем углу "
+"  Обратите внимание, что указатели поворотов в правом верхнем углу "
 "показывают\n"
-"   движение ИНСТРУМЕНТА и на самом станке,\n"
-"   часто на самом деле движется стол. В этом случае\n"
-"   направления противоположны показанным.\n"
+"  движение ИНСТРУМЕНТА и на самом станке,\n"
+"  часто на самом деле движется стол. В этом случае\n"
+"  направления противоположны показанным.\n"
 "\n"
-"   Обратите внимание, что это пример. Многие другие комбинации\n"
-"   возможный"
+"  Обратите внимание, что это пример. Многие другие комбинации\n"
+"  возможный"
 
 #: src/emc/usr_intf/pncconf/help.glade:54
 msgid ""
@@ -14972,19 +14970,19 @@ msgid ""
 "  This is just a sample reference other switch combinations are\n"
 "  possible."
 msgstr ""
-"Всего путешествий = 4 + 6 = 10\n"
-"   Смещение исходной точки Z = расстояние переключения от начала до исходной "
+"  Всего путешествий = 4 + 6 = 10\n"
+"  Смещение исходной точки Z = расстояние переключения от начала до исходной "
 "точки = 10\n"
-"   Z Отрицательное расстояние перемещения = От начала до отрицательного "
+"  Z Отрицательное расстояние перемещения = От начала до отрицательного "
 "предельного расстояния = 0\n"
-"   Z Pos Расстояние перемещения = Общее расстояние перемещения - "
+"  Z Pos Расстояние перемещения = Общее расстояние перемещения - "
 "отрицательное расстояние перемещения = 10\n"
-"   Z Исходное положение = Расстояние от начала координат до исходного "
+"  Z Исходное положение = Расстояние от начала координат до исходного "
 "положения = 4\n"
 "\n"
-"   Ось X будет аналогичной, но для ясности показана не полностью.\n"
-"   Это всего лишь примерный образец других комбинаций переключателей.\n"
-"   возможный."
+"  Ось X будет аналогичной, но для ясности показана не полностью.\n"
+"  Это всего лишь примерный образец других комбинаций переключателей.\n"
+"  возможный."
 
 #: src/emc/usr_intf/pncconf/help.glade:235
 msgid "Lathe"
@@ -15211,7 +15209,7 @@ msgid ""
 "   Board\n"
 "Discovery"
 msgstr ""
-"Доска\n"
+"   Доска\n"
 "Открытие"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:886
@@ -15220,8 +15218,8 @@ msgid ""
 "Configuration\n"
 "     Page"
 msgstr ""
-"Страница\n"
-"установок"
+"Конфигурация\n"
+"     Страница"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1124
 #: src/emc/usr_intf/pncconf/mesa0.glade:1389
@@ -16182,7 +16180,7 @@ msgid ""
 "      I/O\n"
 "Connector 1"
 msgstr ""
-"ввод/вывод\n"
+"      ввод/вывод\n"
 "Разъем 1"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:4897
@@ -16191,7 +16189,7 @@ msgid ""
 "      I/O\n"
 "Connector 2"
 msgstr ""
-"ввод/вывод\n"
+"      ввод/вывод\n"
 "Разъем 2"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:6823
@@ -16200,7 +16198,7 @@ msgid ""
 "       I/O\n"
 " Connector 3"
 msgstr ""
-"ввод/вывод\n"
+"       ввод/вывод\n"
 "Разъем 3"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:8579
@@ -16354,7 +16352,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:58895
 #: src/emc/usr_intf/pncconf/mesa1.glade:58910
 msgid " "
-msgstr " "
+msgstr " "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:8728
 #: src/emc/usr_intf/pncconf/mesa1.glade:8728
@@ -16362,8 +16360,8 @@ msgid ""
 "       I/O\n"
 " Connector 4"
 msgstr ""
-"ввод/вывод\n"
-"Разъем 4"
+"       ввод/вывод\n"
+" Разъем 4"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:10655
 #: src/emc/usr_intf/pncconf/mesa1.glade:10655
@@ -16371,8 +16369,8 @@ msgid ""
 "       I/O\n"
 " Connector 5"
 msgstr ""
-"ввод/вывод\n"
-"Разъем 5"
+"       ввод/вывод\n"
+" Разъем 5"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:12580
 #: src/emc/usr_intf/pncconf/mesa1.glade:12580
@@ -16380,7 +16378,7 @@ msgid ""
 "      I/O\n"
 "Connector 6"
 msgstr ""
-"ввод/вывод\n"
+"      ввод/вывод\n"
 "Разъем 6"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:14505
@@ -16389,7 +16387,7 @@ msgid ""
 "      I/O\n"
 "Connector 7"
 msgstr ""
-"ввод/вывод\n"
+"      ввод/вывод\n"
 "Разъем 7"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:16430
@@ -16398,7 +16396,7 @@ msgid ""
 "      I/O\n"
 "Connector 8"
 msgstr ""
-"ввод/вывод\n"
+"      ввод/вывод\n"
 "Разъем 8"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:18355
@@ -16407,8 +16405,8 @@ msgid ""
 "      I/O\n"
 " Connector 9"
 msgstr ""
-"ввод/вывод\n"
-"Разъем 9"
+"      ввод/вывод\n"
+" Разъем 9"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:22137
 #: src/emc/usr_intf/pncconf/mesa0.glade:27343
@@ -16534,7 +16532,7 @@ msgstr "/dev/ttyS0"
 
 #: src/emc/usr_intf/pncconf/external.glade:389
 msgid "<b>Serial VFD</b>"
-msgstr "<b>Последовательный ПЧ</b>"
+msgstr "<b>Серийный VFD</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:431
 msgid "<b>External Button Jogging</b>"
@@ -16748,7 +16746,7 @@ msgstr " bcd)"
 #: src/emc/usr_intf/pncconf/external.glade:4193
 #: src/emc/usr_intf/pncconf/external.glade:5136
 msgid " acd)"
-msgstr "acd)"
+msgstr " acd)"
 
 #: src/emc/usr_intf/pncconf/external.glade:1741
 #: src/emc/usr_intf/pncconf/external.glade:3319
@@ -16848,13 +16846,13 @@ msgstr "размер шага"
 
 #: src/emc/usr_intf/pncconf/external.glade:2534
 msgid "MPG"
-msgstr "РГИ"
+msgstr "MPG"
 
 #: src/emc/usr_intf/pncconf/external.glade:2547
 #: src/emc/usr_intf/pncconf/external.glade:3490
 #: src/emc/usr_intf/pncconf/external.glade:4433
 msgid "Use MPG "
-msgstr "Использовать РГИ "
+msgstr "Использовать MPG "
 
 #: src/emc/usr_intf/pncconf/external.glade:2562
 #: src/emc/usr_intf/pncconf/external.glade:3505
@@ -16898,11 +16896,11 @@ msgstr "VFD с последовательным подключением"
 
 #: src/emc/usr_intf/pncconf/external.glade:5388
 msgid "Mitsubishi FR Spindle VFD"
-msgstr "ПЧ шпинделя Mitsubishi FR"
+msgstr "Mitsubishi FR Шпиндель VFD"
 
 #: src/emc/usr_intf/pncconf/external.glade:5401
 msgid "GS2 Spindle VFD"
-msgstr "ПЧ шпинделя GS2"
+msgstr "GS2 Шпиндель VFD"
 
 #: src/emc/usr_intf/pncconf/external.glade:5429
 msgid "Deacceleration Time"
@@ -16962,15 +16960,15 @@ msgstr "Фактический период сервопривода:     �
 
 #: src/emc/usr_intf/pncconf/base.glade:404
 msgid "Recommend servo period:    1000000"
-msgstr "Рекомендуемый период сервопривода: 1000000"
+msgstr "Рекомендуемый период сервопривода:    1000000"
 
 #: src/emc/usr_intf/pncconf/base.glade:414
 msgid ""
 " Test Base\n"
 "Period Jitter "
 msgstr ""
-"Испытательная база\n"
-"Периодический джиттер"
+" Испытательная база\n"
+"Периодический джиттер "
 
 #: src/emc/usr_intf/pncconf/base.glade:445
 msgid "<b>Computer Response Time</b>"
@@ -16994,7 +16992,7 @@ msgstr "Принудительное индивидуальное ручное �
 
 #: src/emc/usr_intf/pncconf/base.glade:660
 msgid "Random position toolchanger "
-msgstr "Устройство смены инструмента произвольного положения"
+msgstr "Инструментальный станок с произвольным положением "
 
 #: src/emc/usr_intf/pncconf/base.glade:676
 msgid "Require homing before MDI / Running"
@@ -17078,7 +17076,7 @@ msgstr "Максимальная скорость"
 
 #: src/emc/usr_intf/pncconf/screen.glade:812
 msgid "Default Angular velocity "
-msgstr "Угловая скорость по умолчанию"
+msgstr "Угловая скорость по умолчанию "
 
 #: src/emc/usr_intf/pncconf/screen.glade:852
 msgid "gedit"
@@ -17159,7 +17157,8 @@ msgstr "Начальные настройки AXIS"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1570
 msgid "Force Touchy to Maximize after positioning"
-msgstr "Заставить Touchy максимизировать после позиционирования"
+msgstr ""
+"Принудительное касание для максимального увеличения после позиционирования"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1773
 #: src/emc/usr_intf/pncconf/screen.glade:2970
@@ -17226,7 +17225,7 @@ msgstr "Pyvcp подробности"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:486
 msgid "Sample display  "
-msgstr "Пример отображения"
+msgstr "Пример отображения  "
 
 #: src/emc/usr_intf/pncconf/vcp.glade:674
 msgid "Standalone Panel"
@@ -17386,7 +17385,7 @@ msgstr "Использовать компенсацию люфта:"
 #: src/emc/usr_intf/pncconf/z_axis.glade:274
 #: src/emc/usr_intf/pncconf/a_axis.glade:274
 msgid "Final Home Position location   (Offset from machine zero Origin):"
-msgstr "Конечное исходное положение (смещение от нулевой точки станка):"
+msgstr "Конечное исходное положение   (смещение от нулевой точки станка):"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:291
 #: src/emc/usr_intf/pncconf/y_axis.glade:291
@@ -17394,8 +17393,8 @@ msgstr "Конечное исходное положение (смещение �
 #: src/emc/usr_intf/pncconf/a_axis.glade:291
 msgid "Negative Travel Distance  (Machine zero Origin to end of - travel): "
 msgstr ""
-"Отрицательное расстояние перемещения   (от начала координат машины до конца "
-"перемещения): "
+"Отрицательное расстояние перемещения  (от начала координат машины до конца "
+"перемещения): "
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:307
 #: src/emc/usr_intf/pncconf/y_axis.glade:307
@@ -17403,7 +17402,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_axis.glade:307
 msgid "Tandem Home Switch location   (Offset from machine zero Origin):"
 msgstr ""
-"Расположение тандемного исходного переключателя (смещение от нулевой точки "
+"Расположение тандемного исходного переключателя   (смещение от нулевой точки "
 "станка):"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:323
@@ -17419,8 +17418,8 @@ msgstr "Максимальная скорость поиска начала:"
 #: src/emc/usr_intf/pncconf/a_axis.glade:338
 msgid "Positive Travel Distance  (Machine zero Origin to end of + travel): "
 msgstr ""
-"Положительное расстояние перемещения   (от начала координат машины до конца +"
-" перемещение): "
+"Положительное расстояние перемещения  (от начала координат машины до конца + "
+"перемещение): "
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:354
 #: src/emc/usr_intf/pncconf/y_axis.glade:354
@@ -17435,7 +17434,7 @@ msgstr "Последовательность поиска начала:"
 #: src/emc/usr_intf/pncconf/a_axis.glade:369
 msgid "Home Switch location   (offset from machine zero Origin):"
 msgstr ""
-"Расположение исходного переключателя (смещение от нулевой точки станка):"
+"Расположение исходного переключателя   (смещение от нулевой точки станка):"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:184
 #: src/emc/usr_intf/pncconf/y_motor.glade:184
@@ -17723,7 +17722,7 @@ msgstr "Принудительный режим трапеции"
 #: src/emc/usr_intf/pncconf/a_motor.glade:1248
 #: src/emc/usr_intf/pncconf/s_motor.glade:1456
 msgid "Emulate feedback "
-msgstr "Эмулируйте обратную связь"
+msgstr "Эмулируйте обратную связь "
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1322
 #: src/emc/usr_intf/pncconf/y_motor.glade:1316
@@ -17843,7 +17842,7 @@ msgstr "Подробности"
 #: src/emc/usr_intf/pncconf/a_motor.glade:1635
 #: src/emc/usr_intf/pncconf/s_motor.glade:1866
 msgid "<b>Use BLDC Motor Commutation Control</b>"
-msgstr "<b>Использовать управление коммутацией BLDC мотора</b>"
+msgstr "<b>Использование управления коммутацией двигателя BLDC</b>"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1762
 #: src/emc/usr_intf/pncconf/y_motor.glade:1756
@@ -18003,7 +18002,7 @@ msgstr "Инфо по выходному напряжению"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:1176
 msgid "Slave number:"
-msgstr "Номер слейва:"
+msgstr "Номер подчиненного:"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:1197
 msgid "Serial Spindle VFD Info"
@@ -18139,7 +18138,7 @@ msgstr "мультиплексор16"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:277
 msgid "lowpass"
-msgstr "ФНЧ"
+msgstr "низкочастотный"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:348
 msgid "Base Thread"
@@ -18259,9 +18258,9 @@ msgid ""
 "  Search"
 msgstr ""
 "Дополнительный PCI\n"
-"   Парпорт\n"
-"   Адрес\n"
-"   Поиск"
+"  Парпорт\n"
+"  Адрес \n"
+"  Поиск"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:1712
 #: src/emc/usr_intf/pncconf/pport2.glade:1715
@@ -18401,9 +18400,9 @@ msgid ""
 "      Warning limits switches \n"
 "          Will not be obeyed</b>"
 msgstr ""
-"<b> Тестирование энкодера двигателя с разомкнутым контуром\n"
-"       Предупреждающие концевые выключатели\n"
-"           Не будут подчиняться</b>"
+"<b>  Тестирование энкодера двигателя с разомкнутым контуром\n"
+"      Предупреждающие концевые выключатели \n"
+"          Не будут подчиняться</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:833
 msgid "Slow Dac Speed"
@@ -18469,7 +18468,7 @@ msgstr "Передача червяка 2(Вход:Выход)"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1575
 msgid "      <b>MOTOR</b> RPM at Max Voltage"
-msgstr "<b>МОТОР</b> Число оборотов в минуту при максимальном напряжении"
+msgstr "      <b>МОТОР</b> Число оборотов в минуту при максимальном напряжении"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1606
 msgid "<b>Spindle Drive Motor</b>"
@@ -18493,12 +18492,14 @@ msgstr "<b>Множитель энкодера:</b>"
 #: src/emc/usr_intf/pncconf/dialogs.glade:1735
 msgid "Spindle RPM at Max Motor Speed -gear 1:"
 msgstr ""
-"Число оборотов шпинделя при максимальной скорости двигателя – передача 1:"
+"Число оборотов шпинделя при максимальной частоте вращения двигателя -"
+"редуктор 1:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1742
 msgid "Spindle RPM at Max Motor Speed -gear 2:"
 msgstr ""
-"Число оборотов шпинделя при максимальной скорости двигателя – передача 2:"
+"Число оборотов шпинделя при максимальной частоте вращения двигателя -"
+"редуктор 2:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1753
 msgid "500"
@@ -18545,7 +18546,7 @@ msgstr "Зубья шкивов (Энкодер:Винт):"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2664
 msgid "                    "
-msgstr "                    "
+msgstr "                    "
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2705
 msgid "encoder pulses per unit:"
@@ -18677,21 +18678,22 @@ msgid ""
 "-Run a more thorough latency test as described on the linuxcnc.org wiki: \n"
 "https://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting"
 msgstr ""
-"Вся необходимая информация уже собрана.\n"
+"Вся необходимая информация уже собрана. \n"
 "Нажмите «Готово», чтобы записать файлы конфигурации на диск.\n"
 "\n"
 "Если у вас возникают зависания при работе LinuxCNC:\n"
 "-Уменьшите максимальную скорость, что приведет к увеличению BASE_PERIOD.\n"
 "\n"
 "Если вы теряете шаги при работе с LinuxCNC:\n"
-"-Сначала убедитесь, что вы ввели правильные тайминги для шаговых драйверов.\n"
+"-Сначала убедитесь, что вы ввели правильные тайминги для шаговых драйверов. "
+"\n"
 "-Затем запустите более тщательный тест задержки, как описано на вики linuxcnc"
 ".org.\n"
 "https://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting\n"
 "\n"
 "Если вы видите сообщение «Неожиданная задержка в реальном времени»:\n"
 "- Запустите более тщательный тест задержки, как описано на вики linuxcnc.org:"
-"\n"
+" \n"
 "https://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:122
@@ -19212,7 +19214,7 @@ msgstr "Перезапустить запись"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3895
 msgid "_Up     "
-msgstr "_Вверх"
+msgstr "_Вверх     "
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3897
 msgid "_Down"
@@ -19319,7 +19321,7 @@ msgstr "%4.2f DPM"
 #: src/emc/usr_intf/gscreen/gscreen.py:4728
 #, python-format
 msgid "%(n)s   View -%(v)s               %(t)s"
-msgstr "%(n)s Просмотр -%(v)s %(t)s"
+msgstr "%(n)s   Просмотр -%(v)s               %(t)s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4737
 #: src/emc/usr_intf/gscreen/gscreen.py:4738
@@ -19515,7 +19517,7 @@ msgid ""
 "Replace\n"
 "All"
 msgstr ""
-"Заменить \n"
+"Заменить\n"
 "всё"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2256
@@ -19592,8 +19594,8 @@ msgid ""
 "Show\n"
 "Offsets"
 msgstr ""
-" Показать\n"
-" отступы"
+"Показать\n"
+"отступы"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2603
 msgid ""
@@ -19669,7 +19671,7 @@ msgid ""
 "LinuxCNC\n"
 "Status"
 msgstr ""
-"LinuxCNC \n"
+"LinuxCNC\n"
 "статус"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2859
@@ -19791,8 +19793,8 @@ msgid ""
 "Feed\n"
 "Override"
 msgstr ""
-"Кормить\n"
-"Переопределить"
+"Подача\n"
+"Переопределение"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3448
 msgid ""
@@ -19951,7 +19953,7 @@ msgid ""
 "Change \n"
 "View"
 msgstr ""
-"Изменение\n"
+"Изменение \n"
 "Вид"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4297
@@ -20057,12 +20059,12 @@ msgstr "Ошибка MDI в смещении вращения виджета с�
 
 #: lib/python/gladevcp/offsetpage_widget.py:515
 msgid "offsetpage_widget error: cannot select coordinate system"
-msgstr "Ошибка offsetpage_widget: невозможно выбрать систему координат"
+msgstr "Ошибка смещениястраницы_виджета: невозможно выбрать систему координат"
 
 #: lib/python/gladevcp/tooledit_widget.py:228
 msgid "tooledit_widget error: cannot select tool number"
 msgstr ""
-"ошибка редактирования инструмента _ виджета: невозможно выбрать номер "
+"ошибка редактированияинструмента_виджета: невозможно выбрать номер "
 "инструмента"
 
 #: lib/python/gladevcp/tooledit_widget.py:258
