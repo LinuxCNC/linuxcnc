@@ -268,7 +268,6 @@ int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
 					   frontangle,  backangle,  orientation); }
 int emcToolSetNumber(int number) { return task_methods->emcToolSetNumber(number); }
 int emcIoUpdate(EMC_IO_STAT * stat) { return task_methods->emcIoUpdate(stat); }
-static const char *instance_name = "task_instance";
 
 int emcTaskOnce(const char *filename)
 {
