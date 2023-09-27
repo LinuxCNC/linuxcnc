@@ -2891,30 +2891,9 @@ static int emctask_startup()
     // initialize the subsystems
 
     // IO first
-
-    if (!(emc_debug & EMC_DEBUG_NML)) {
-	set_rcs_print_destination(RCS_PRINT_TO_NULL);	// inhibit diag
-	// messages
-    }
-    end = RETRY_TIME;
-    good = 0;
-    do {
-	if (0 == emcIoInit()) {
-	    good = 1;
-	    break;
-	}
-	esleep(RETRY_INTERVAL);
-	end -= RETRY_INTERVAL;
-	if (done) {
-	    emctask_shutdown();
-	    exit(1);
-	}
-    } while (end > 0.0);
-    set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// restore diag
-    // messages
-    if (!good) {
-	rcs_print_error("can't initialize IO\n");
-	return -1;
+    if (emcIoInit() != 0) {
+        rcs_print_error("can't initialize IO\n");
+        return -1;
     }
 
     // now motion
