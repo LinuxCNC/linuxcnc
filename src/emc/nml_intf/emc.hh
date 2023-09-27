@@ -441,7 +441,6 @@ extern int emcCoolantFloodOff();
 // implementation functions for EMC_IO types
 
 extern int emcIoInit();
-extern int emcIoHalt();
 extern int emcIoAbort(int reason);
 
 // implementation functions for EMC aggregate types

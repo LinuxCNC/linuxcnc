@@ -261,12 +261,6 @@ EMC_IO_STAT *emcIoStatus = 0;
 // glue
 
 int emcIoInit() { return task_methods->emcIoInit(); }
-
-int emcIoHalt() {
-	return task_methods->emcIoHalt();
-}
-
-
 int emcIoAbort(int reason) { return task_methods->emcIoAbort(reason); }
 int emcAuxEstopOn()  { return task_methods->emcAuxEstopOn(); }
 int emcAuxEstopOff() { return task_methods->emcAuxEstopOff(); }
@@ -509,12 +503,6 @@ int Task::emcIoInit()//EMC_TOOL_INIT
     if (0 != iniTool(emc_inifile)) {
 	return -1;
     }
-    return 0;
-}
-
-int Task::emcIoHalt()
-{
-
     return 0;
 }
 

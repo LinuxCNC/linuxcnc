@@ -56,7 +56,6 @@ public:
     virtual ~Task();
 
     virtual int emcIoInit();
-    virtual int emcIoHalt();
     virtual int emcIoAbort(int reason);
     virtual int emcToolStartChange();
     virtual int emcAuxEstopOn();
