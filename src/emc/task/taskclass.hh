@@ -30,8 +30,6 @@ struct iocontrol_str {
     hal_bit_t *user_request_enable;        /* output, used to reset ENABLE latch */
     hal_bit_t *coolant_mist;        /* coolant mist output pin */
     hal_bit_t *coolant_flood;        /* coolant flood output pin */
-    hal_bit_t *lube;                /* lube output pin */
-    hal_bit_t *lube_level;        /* lube level input pin */
 
     // the following pins are needed for toolchanging
     //tool-prepare
