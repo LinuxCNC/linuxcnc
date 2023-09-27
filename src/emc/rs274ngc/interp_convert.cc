@@ -6149,7 +6149,7 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
       settings->w_current = w_end;
   }
 
-  CHANGE_TOOL(settings->selected_pocket);
+  CHANGE_TOOL();
 
   settings->current_pocket = settings->selected_pocket;
   // tool change can move the controlled point.  reread it:

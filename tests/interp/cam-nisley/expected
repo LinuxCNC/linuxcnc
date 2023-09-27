@@ -50,7 +50,7 @@
  N..... COMMENT("set up the tool")
  N..... SELECT_TOOL(1)
  N..... STOP_SPINDLE_TURNING(0)
- N..... CHANGE_TOOL(1)
+ N..... CHANGE_TOOL()
  N..... COMMENT("-----------------")
  N..... MESSAGE("Verify METRIC Sherline.tbl file!")
  N..... MESSAGE("Align XY=0 at center, Z=0 at surface, spindle to match S value, hit [Run]")

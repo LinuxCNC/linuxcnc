@@ -2900,7 +2900,7 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
 }
 
 /* CHANGE_TOOL results from M6 */
-void CHANGE_TOOL(int slot)
+void CHANGE_TOOL()
 {
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
     linearMoveMsg.feed_mode = canon.feed_mode;

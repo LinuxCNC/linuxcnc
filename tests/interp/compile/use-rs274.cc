@@ -146,7 +146,7 @@ void USE_NO_SPINDLE_FORCE() {}
 void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diameter,
                                  double frontangle, double backangle, int orientation) {}
 void USE_TOOL_LENGTH_OFFSET(EmcPose offset) {}
-void CHANGE_TOOL(int slot) {}	
+void CHANGE_TOOL() {}	
 void SELECT_TOOL(int tool) {}	
 void CHANGE_TOOL_NUMBER(int number) {}
 void RELOAD_TOOLDATA() {}

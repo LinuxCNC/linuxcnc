@@ -8,7 +8,7 @@ executing
     7 N..... MESSAGE(" before introspect: call_level= 0.000000")
     8 N..... SELECT_TOOL(3)
     9 N..... STOP_SPINDLE_TURNING(0)
-   10 N..... CHANGE_TOOL(3)
+   10 N..... CHANGE_TOOL()
    11 N..... SET_FEED_RATE(200.0000)
    12 N..... SET_SPINDLE_SPEED(0, 3000.0000)
    13 N..... START_SPINDLE_CLOCKWISE(0)

@@ -635,7 +635,7 @@ extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double 
                                  double frontangle, double backangle, int orientation);
 extern void USE_TOOL_LENGTH_OFFSET(EmcPose offset);
 
-extern void CHANGE_TOOL(int slot);	/* slot is slot number */
+extern void CHANGE_TOOL();
 
 /* It is assumed that each cutting tool in the machine is assigned to a
 slot (intended to correspond to a slot number in a tool carousel).

@@ -552,15 +552,15 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
          offset.tran.x, offset.tran.y, offset.tran.z, offset.a, offset.b, offset.c, offset.u, offset.v, offset.w);
 }
 
-void CHANGE_TOOL(int slot)
+void CHANGE_TOOL()
 {
-  PRINT("CHANGE_TOOL(%d)\n", slot);
-  _sai._active_slot = slot;
+  PRINT("CHANGE_TOOL()\n");
+  _sai._active_slot = _sai._selected_tool;
 #ifdef TOOL_NML //{
   _sai._tools[0] = _sai._tools[slot];
 #else //}{
     CANON_TOOL_TABLE tdata;
-    if (tooldata_get(&tdata,slot) != IDX_OK) {
+    if (tooldata_get(&tdata,_sai._selected_tool) != IDX_OK) {
         UNEXPECTED_MSG;
     }
     _sai._tools[0] = tdata;
@@ -571,7 +571,10 @@ void CHANGE_TOOL(int slot)
 }
 
 void SELECT_TOOL(int tool)//TODO: fix slot number
-{PRINT("SELECT_TOOL(%d)\n", tool);}
+{
+  PRINT("SELECT_TOOL(%d)\n", tool);
+  _sai._selected_tool = tool;
+}
 
 void CHANGE_TOOL_NUMBER(int tool)
 {
@@ -1136,6 +1139,7 @@ void reset_internals()
 StandaloneInterpInternals::StandaloneInterpInternals() :
   _active_plane(CANON_PLANE::XY),
   _active_slot(1),
+  _selected_tool(0),
   _feed_mode(0),
   _feed_rate(0.0),
   _flood(0),
