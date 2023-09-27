@@ -76,17 +76,12 @@ static struct SpindleConfig_t SpindleConfig[EMCMOT_MAX_SPINDLES];
 
 static emcmot_command_t emcmotCommand;
 
-__attribute__ ((unused))
-static int emcmotIoInited = 0;	// non-zero means io called init
 static int emcmotion_initialized = 0;	// non-zero means both
 						// emcMotionInit called.
 
 // local status data, not provided by emcmot
 static int localMotionCommandType = 0;
 static int localMotionEchoSerialNumber = 0;
-
-//FIXME-AJ: see if needed
-//static double localEmcAxisUnits[EMCMOT_MAX_AXIS];
 
 // axes and joints are numbered 0..NUM-1
 
@@ -599,7 +594,7 @@ static int JointOrTrajInited(void)
         }
     }
     if (TrajConfig.Inited) {
-	return 1;
+    return 1;
     }
     return 0;
 }
