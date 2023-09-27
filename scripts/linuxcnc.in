@@ -824,6 +824,9 @@ fi
 # 4.3.3. export the location of the HAL realtime modules so that
 # "halcmd loadrt" can find them
 export HAL_RTMOD_DIR=$LINUXCNC_RTLIB_DIR
+echo "$(basename $0) TPMOD=$TPMOD HOMEMOD=$HOMEMOD EMCMOT=${EMCMOT%.*}"
+eval $HALCMD loadrt "$TPMOD"
+eval $HALCMD loadrt "$HOMEMOD"
 
 # 4.3.7. Run task in background
 echo "Starting TASK program: $EMCTASK" >>$PRINT_FILE
@@ -847,10 +850,6 @@ if [ -n "$HALUI" ] ; then
 fi
 
 # 4.3.6. execute HALCMD config files (if any)
-
-echo "$(basename $0) TPMOD=$TPMOD HOMEMOD=$HOMEMOD EMCMOT=${EMCMOT%.*}"
-eval $HALCMD loadrt "$TPMOD"
-eval $HALCMD loadrt "$HOMEMOD"
 
 TWOPASS=`$INIVAR -ini "$INIFILE" -var TWOPASS -sec HAL -num 1 2> /dev/null`
 if [ -n "$TWOPASS" ] ; then
