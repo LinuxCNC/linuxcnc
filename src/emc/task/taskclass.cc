@@ -101,16 +101,6 @@ int Task::iocontrol_hal_init(void)
         hal_exit(comp_id);
         return -1;
     }
-    // lube
-    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->lube), comp_id,
-                              "iocontrol.%d.lube", n);
-    if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "IOCONTROL: ERROR: iocontrol %d pin lube export failed with err=%i\n",
-                        n, retval);
-        hal_exit(comp_id);
-        return -1;
-    }
     // tool-prepare
     retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->tool_prepare), comp_id,
                               "iocontrol.%d.tool-prepare", n);
@@ -215,16 +205,6 @@ int Task::iocontrol_hal_init(void)
         hal_exit(comp_id);
         return -1;
     }
-    // lube_level
-    retval = hal_pin_bit_newf(HAL_IN, &(iocontrol_data->lube_level), comp_id,
-                             "iocontrol.%d.lube_level", n);
-    if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "IOCONTROL: ERROR: iocontrol %d pin lube_level export failed with err=%i\n",
-                        n, retval);
-        hal_exit(comp_id);
-        return -1;
-    }
     *(iocontrol_data->tool_number) = emcioStatus.tool.toolInSpindle;
     hal_ready(comp_id);
     return 0;
@@ -244,7 +224,6 @@ void Task::hal_init_pins(void)
     *(iocontrol_data->user_request_enable)=0;/* output, used to reset HAL latch */
     *(iocontrol_data->coolant_mist)=0;       /* coolant mist output pin */
     *(iocontrol_data->coolant_flood)=0;      /* coolant flood output pin */
-    *(iocontrol_data->lube)=0;               /* lube output pin */
     *(iocontrol_data->tool_prepare)=0;       /* output, pin that notifies HAL it needs to prepare a tool */
     *(iocontrol_data->tool_prep_number)=0;   /* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
     *(iocontrol_data->tool_prep_pocket)=0;   /* output, pin that holds the pocketno for the tool to be prepared, only valid when tool-prepare=TRUE */
