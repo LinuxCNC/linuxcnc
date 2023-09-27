@@ -6077,7 +6077,6 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
        (_("Cannot change tools with cutter radius compensation on")));
 
-  START_CHANGE(); // indicate start of change operation
   if (!settings->tool_change_with_spindle_on) {
 	  for (int s = 0; s < settings->num_spindles; s++){
 		  STOP_SPINDLE_TURNING(s);

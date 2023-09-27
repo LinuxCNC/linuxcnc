@@ -269,7 +269,6 @@ int emcCoolantMistOff() { return task_methods->emcCoolantMistOff(); }
 int emcCoolantFloodOn() { return task_methods->emcCoolantFloodOn(); }
 int emcCoolantFloodOff() { return task_methods->emcCoolantFloodOff(); }
 int emcToolPrepare(int tool) { return task_methods->emcToolPrepare(tool); }
-int emcToolStartChange() { return task_methods->emcToolStartChange(); }
 int emcToolLoad() { return task_methods->emcToolLoad(); }
 int emcToolUnload()  { return task_methods->emcToolUnload(); }
 int emcToolLoadToolTable(const char *file) { return task_methods->emcToolLoadToolTable(file); }
@@ -623,13 +622,6 @@ int Task::emcToolPrepare(int toolno)
         emcioStatus.status = RCS_STATUS::EXEC;
     return 0;
 }
-
-
-int Task::emcToolStartChange()//EMC_TOOL_START_CHANGE_TYPE
-{
-    return 0;
-}
-
 
 int Task::emcToolLoad()//EMC_TOOL_LOAD_TYPE
 {

@@ -57,7 +57,6 @@ public:
 
     virtual int emcIoInit();
     virtual int emcIoAbort(int reason);
-    virtual int emcToolStartChange();
     virtual int emcAuxEstopOn();
     virtual int emcAuxEstopOff();
     virtual int emcCoolantMistOn();

@@ -19,7 +19,7 @@ enum queued_canon_type {QSTRAIGHT_TRAVERSE, QSTRAIGHT_FEED, QARC_FEED, QSET_FEED
                                 QMIST_ON, QMIST_OFF, QFLOOD_ON, QFLOOD_OFF,
                                 QSTART_SPINDLE_CLOCKWISE, QSTART_SPINDLE_COUNTERCLOCKWISE, QSTOP_SPINDLE_TURNING,
                                 QSET_SPINDLE_MODE, QSET_SPINDLE_SPEED,
-			QCOMMENT, QM_USER_COMMAND,QSTART_CHANGE, 
+			QCOMMENT, QM_USER_COMMAND, 
 			QORIENT_SPINDLE, QWAIT_ORIENT_SPINDLE_COMPLETE};
 
 struct straight_traverse {
@@ -137,7 +137,6 @@ void enqueue_ARC_FEED(setup_pointer settings, int l,
                       double a, double b, double c,
                       double u, double v, double w);
 void enqueue_M_USER_COMMAND(int index,double p_number,double q_number);
-void enqueue_START_CHANGE(void);
 void enqueue_ORIENT_SPINDLE(int spindle, double orientation, int mode);
 void enqueue_WAIT_ORIENT_SPINDLE_COMPLETE(int spindle, double timeout);
 void dequeue_canons(setup_pointer settings);

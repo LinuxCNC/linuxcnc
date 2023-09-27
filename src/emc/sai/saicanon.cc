@@ -1077,11 +1077,6 @@ void ON_RESET(void)
     PRINT("ON_RESET()\n");
 }
 
-void START_CHANGE(void) {
-    PRINT("START_CHANGE()\n");
-}
-
-
 int GET_EXTERNAL_TC_FAULT()
 {
     return _sai._toolchanger_fault;

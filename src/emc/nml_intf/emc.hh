@@ -155,9 +155,6 @@ struct PM_CARTESIAN;
 #define EMC_TOOL_LOAD_TOOL_TABLE_TYPE                ((NMLTYPE) 1107)
 #define EMC_TOOL_SET_OFFSET_TYPE                     ((NMLTYPE) 1108)
 #define EMC_TOOL_SET_NUMBER_TYPE                     ((NMLTYPE) 1109)
-// the following message is sent to io at the very start of an M6
-// even before emccanon issues the move to toolchange position
-#define EMC_TOOL_START_CHANGE_TYPE                   ((NMLTYPE) 1110)
 
 #define EMC_TOOL_STAT_TYPE                           ((NMLTYPE) 1199)
 
@@ -409,7 +406,6 @@ extern int emcToolLoadToolTable(const char *file);
 extern int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
                             double frontangle, double backangle, int orientation);
 extern int emcToolSetNumber(int number);
-extern int emcToolStartChange();
 
 // implementation functions for EMC_AUX types
 
