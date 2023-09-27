@@ -112,7 +112,7 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
 	}
 	esleep(25e-6);
     }
-    rcs_print("USRMOT: ERROR: command timeout\n");
+    rcs_print("USRMOT: ERROR: command %u timeout\n", c->command);
     return EMCMOT_COMM_ERROR_TIMEOUT;
 }
 
