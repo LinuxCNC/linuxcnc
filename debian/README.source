@@ -1,107 +1,165 @@
 Debian packaging of LinuxCNC
 ============================
 
+
+Introduction
+------------
+
+LinuxCNC is packaged in two different ways: a simple way for the builds
+on the LinxuCNC buildbot CI system (<http://buildbot.linuxcnc.org>),
+and a different (more complicated) way for official debian.org packages.
+
+Packaging by the LinuxCNC CI system is not covered in this document, see
+<http://linuxcnc.org/docs/devel/html/code/building-linuxcnc.html#_building_debian_packages>
+for a brief description on that.
+
+This document describes the official packaging for debian.org.
+Packaging of LinuxCNC for debian.org is split between linuxcnc.git
+(in <https://github.com/LinuxCNC/linuxcnc.git>) and linuxcnc-gbp.git
+(in <https://github.com/LinuxCNC/linuxcnc-gbp.git>).
+
+
 debian/copyright
 ----------------
 
 Automated tools to check licenses within the source tree will likely find
 CC-2.5 referenced. But this refers only to some image files that were
-not adopted by the source tree, only the README describing them was 
+not adopted by the source tree, only the README describing them was
 intentionally left unchanged.
 
-Steps
------
 
-The following steps were performed to transform Upstream's git repository
-into
- - a source tarball and
- - a debian subdirectory
-for Debian's main distribution.
+Build a new DSC for upload to debian.org
+----------------------------------------
 
-LinuxCNC is used across a wide span of releases, now supporting from
-Squeeze up to the latest version of Ubuntu. Not too many changes are
-required for Debian unstable.
 
-1. Generate the source tarball, This will use the version as specified
-   in the first line of the debian/changelog file. And maybe remove
-   anything outdated, just to avoid confusions:
+Make the new orig tarball
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   If this is not the original tarball but an interim git tag/snapshot,
-   then set the version in debian/changelog. For git checkout, the
-   version stated in debian/changelog receives the suffix +gitYYYYMMDD.githash
+Do this step in `linuxcnc.git`.
 
-   VERSION=$(head -n1 debian/changelog |cut -f2 -d' ' | tr -d "()" | sed -e 's/^[0-9]://' )
+```
+git checkout ${COMMIT}  # check out the commit you want
+git reset --hard
+git clean -fdx .
+VERSION=$(head -n1 debian/changelog |cut -f2 -d' ' | tr -d "()" | sed -e 's/^[0-9]://' )
+VERSION=$(git log --date=format:%Y%m%d --pretty=${VERSION}+git%cd.%h| head -n1)
+echo ${VERSION} | tee VERSION
 
-   If the current source tree is not the regular release but git checkout also
-   create the fitting tarball:
+# We use `--exclude=.git` instead of `--exclude-vcs` because the linuxcnc
+# git repo uses .gitignore to keep otherwise-empty directories around,
+# and the build system is too lazy to mkdir them as needed.
+tar --create --xz --exclude=.git --exclude=.github --transform "flags=r;s|^./|linuxcnc-${VERSION}/|" --file ../debian-packaging/linuxcnc_${VERSION}.orig.tar.xz .
+```
 
-   echo -n "I: Version: $VERSION -> "
-   VERSION=$(git log --date=format:%Y%m%d --pretty=${VERSION}+git%cd.%h| head -n1)
-   echo $VERSION
-   foldername=$(basename $(pwd))
-   if [ -d debian/patches ]; then quilt pop -a && rm -rf .pc; fi
-   echo "I: taring up CWD into linuxcnc_${VERSION}.orig.tar.xz - this will take a minute or two"
-   (cd .. && tar --exclude=.git* --exclude=.pc -cJf "linuxcnc_${VERSION}.orig.tar.xz" "$foldername")
-   du -sh ../$foldername
-   echo "I: Please inspect with 'tar Jtf ../linuxcnc_${VERSION}.orig.tar.xz'"
 
-2. Prepare shell to work in temp directory
+Start the new gbp version
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   export VERSION
-   export WORKDIR=$(mktemp -d)
-   mv "../linuxcnc_${VERSION}.orig.tar.xz" ${WORKDIR}/ && \
-   pushd $WORKDIR && bash
-   echo -n "I: Now working in "; pwd
+Do this step in `linuxcnc-gbp.git`.
 
-3. Unpack
+Import the new orig tarball into gbp `upstream` branch, but *don't*
+let gbp auto-merge it into `debian/unstable`.
 
-   echo -n "I: Unpacking source tree to build from newly generated orig.tar.xz"
-   tar xJvf linuxcnc_*.orig.tar.xz
-   cd linuxcnc
+```
+git fetch
 
-4. Configure debian directory for the "uspace" packages that are
-   prepared for the Non-RTAI but preempt realtime kernels that are
-   distributed with Debian.
+git checkout upstream
+git merge --ff-only origin/upstream
 
-   debian/configure
+git checkout debian/unstable
+git merge --ff-only origin/debian/unstable
 
-5. Slightly adapt for upload to d/unstable
+gbp import-orig --no-merge ../linuxcnc_${VERSION}.orig.tar.xz
+git merge --no-commit upstream
+# verify contents of debian/*, especially changelog
+git commit
+```
 
-   mkdir -p debian/source
-   echo "3.0 (quilt)" > debian/source/format
 
-   # dch is from the devscripts package
-   dch -b -m -v "$VERSION" --distribution unstable  "New upstream version."
+Update the debian/ files
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-6a. build Debian package if in doubt - optional
+Do this step in `linuxcnc-gbp.git`.
 
-   dpkg-buildpackage
+Run `debian/configure` in a clean, minimal instance of the distro we're
+building for:
 
-6b. build Debian source package, which is what is uploaded to Debian upon acceptance and for updates
+```
+export IMAGE="debian:bookworm"
+docker pull ${IMAGE}
+docker run --rm --interactive --tty --volume ${PWD}:${PWD} --workdir ${PWD} ${IMAGE}
+apt-get --quiet update
+apt-get --quiet --yes install --no-install-recommends --no-install-suggests \
+    git \
+    lsb-release \
+    python3
+debian/configure
+exit
+```
 
-   dpkg-buildpackage -S
+Update d/changelog (preserve entries from previous debs), include "New
+upstream version", close any fixed bugs:
 
-7. test build in cowbuilder
+```
+gbp dch
+dch -e
+```
 
-   sudo cowbuilder --update
-   sudo cowbuilder --build ../linuxcnc_*.dsc
+Commit all changes to the debian/ directory:
 
-8. check that nothing avoidable slipped through
+```
+git commit
+```
 
-   lintian -i /var/cache/pbuilder/results/linuxcnc_*.changes
 
-8. get all the files just created
+Test the new debian package
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   exit
-   mv ${WORKDIR}/linuxcnc_* ..
+`gbp buildpackage` should work in a minimal installation of the target
+distro:
 
-Above sketched differences are not impeding routine workflows of Debian
-packaging. For instance we found that the routine-update script (from the
-Debian Science team) deals with these adaptations just fine.
+```
+docker run --rm --interactive --tty --volume ${PWD}:${PWD} --workdir ${PWD} ${IMAGE}
+apt-get --quiet update
+apt-get --quiet --yes install --no-install-recommends --no-install-suggests git-buildpackage
+apt-get --quiet --yes build-dep .
+gbp buildpackage --build=full --no-sign
+```
+
+In addition to `--build=full` (build source, architecture-specific,
+and architecture-independent packages), `--build=any`
+(build architecture-specific packages) and `--build=all` (build
+architecture-independent packages) should also build from scratch in a
+clean minimal environment.
+
+(The docker build environment described above is just one option, other
+possibilities are cowbuilder, pbuilder, etc etc.)
+
+Run lintian to verify the build products:
+
+```
+apt-get --quiet --yes install lintian
+lintian -i ../linuxcnc_*.changes
+```
+
+
+Release
+~~~~~~~
+
+```
+gbp dch --release
+gbp tag
+
+git push --tags origin debian/unstable upstream
+```
+
+Build & sign the dsc:
+
+`dpkg-buildpackage --build=source -k${KEY_ID}`
 
 
 How to contribute
 -----------------
 
-LinuxCNC does not have a representation on salsa.debian.org. 
+LinuxCNC does not have a representation on salsa.debian.org.
 Please join us on https://github.com/LinuxCNC/linuxcnc/ .
