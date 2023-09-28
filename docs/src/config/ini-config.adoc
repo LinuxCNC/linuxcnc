@@ -218,6 +218,7 @@ Do _not_ use a file extension of '.ini' for included files.
   You can put whatever you want here as long as you make it a single line long.
 * `DEBUG = 0` - Debug level 0 means no messages will be printed when LinuxCNC is run from a <<faq:terminal,terminal>>.
   Debug flags are usually only useful to developers. See src/emc/nml_intf/debugflags.h for other settings.
+* `NML_FILE = /usr/share/linuxcnc/linuxcnc.nml` - Set this if you want to use a non-default NML configuration file.
 
 [[sub:ini:sec:display]]
 === [DISPLAY] Section(((INI File,Sections,[DISPLAY] Section)))
