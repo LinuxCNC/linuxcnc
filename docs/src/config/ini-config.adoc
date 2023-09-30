@@ -684,6 +684,7 @@ For more information see the <<cha:hal-twopass,HAL TWOPASS>> chapter.
 
 * `MDI_COMMAND = G53 G0 X0 Y0 Z0` -
   An MDI command can be executed by using `halui.mdi-command-00`. Increment the number for each command listed in the [HALUI] section.
+  It is also possible to start subroutines. `MDI_COMMAND = o<yoursub> CALL [#<yourvariable>]` 
 
 [[sub:ini:sec:applications]]
 === [APPLICATIONS] Section(((INI File,Sections,[APPLICATIONS] Section)))
