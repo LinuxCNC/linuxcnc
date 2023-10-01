@@ -2898,7 +2898,7 @@ static int emctask_startup()
     }
 
     if (ini_hal_init(joints)) {
-        rcs_print_error("%s: ini_hal_init failed\n");
+        rcs_print_error("%s: ini_hal_init failed\n", __PRETTY_FUNCTION__);
         return -1;
     }
 
@@ -2922,7 +2922,7 @@ static int emctask_startup()
     }
 
 	if (ini_hal_init_pins(joints)) {
-        rcs_print_error("%s: ini_hal_init_pins failed\n");
+        rcs_print_error("%s: ini_hal_init_pins failed\n", __PRETTY_FUNCTION__);
         return -1;
     }
 
