@@ -98,7 +98,7 @@ double strtod(char* ptr, char **endptr){
     return val;
 }
 #else
-include <stdlib.h>;
+#include <stdlib.h>
 #endif
 
 #define epsilon 0.0001
