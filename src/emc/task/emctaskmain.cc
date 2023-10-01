@@ -137,6 +137,7 @@ int done;
 static int emctask_shutdown(void);
 extern void backtrace(int signo);
 int _task = 1; // control preview behaviour when remapping
+static int joints = 0;
 
 // for operator display on iocontrol signalling a toolchanger fault if io.fault is set
 // %d receives io.reason
@@ -2896,7 +2897,10 @@ static int emctask_startup()
         return -1;
     }
 
-    // now motion
+    if (setup_inihal(joints) != 0) {
+        rcs_print_error("%s: failed to setup inihal\n", __FUNCTION__);
+        return -1;
+    }
 
     end = RETRY_TIME;
     good = 0;
@@ -2914,11 +2918,6 @@ static int emctask_startup()
     } while (end > 0.0);
     if (!good) {
 	rcs_print_error("can't initialize motion\n");
-	return -1;
-    }
-
-    if (setup_inihal() != 0) {
-	rcs_print_error("%s: failed to setup inihal\n", __FUNCTION__);
 	return -1;
     }
 
@@ -3013,6 +3012,16 @@ static int iniLoad(const char *filename)
     // open it
     if (inifile.Open(filename) == false) {
 	return -1;
+    }
+
+	if (NULL != (inistring = inifile.Find("JOINTS", "KINS"))) {
+	// copy to global
+	if (1 != sscanf(inistring, "%i", &joints)) {
+	    joints = 0;
+	}
+    } else {
+	// not found, use default
+	joints = 0;
     }
 
     if (NULL != (inistring = inifile.Find("DEBUG", "EMC"))) {

@@ -76,9 +76,6 @@ static struct SpindleConfig_t SpindleConfig[EMCMOT_MAX_SPINDLES];
 
 static emcmot_command_t emcmotCommand;
 
-static int emcmotion_initialized = 0;	// non-zero means both
-						// emcMotionInit called.
-
 // local status data, not provided by emcmot
 static int localMotionCommandType = 0;
 static int localMotionEchoSerialNumber = 0;
@@ -667,10 +664,6 @@ int emcJointHalt(int joint)
 	return 0;
     }
     /*! \todo FIXME-- refs global emcStatus; should make EMC_JOINT_STAT an arg here */
-    if (NULL != emcStatus && emcmotion_initialized
-	&& JointConfig[joint].Inited) {
-	//dumpJoint(joint, emc_inifile, &emcStatus->motion.joint[joint]);
-    }
     JointConfig[joint].Inited = 0;
 
     if (!JointOrTrajInited()) {
@@ -1618,20 +1611,13 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 }
 
 
-int setup_inihal(void) {
-    // Must be called after emcTrajInit(), which loads the number of
-    // joints from the INI file.
-    if (emcmotion_initialized != 1) {
-        rcs_print_error("%s: emcMotionInit() has not completed, can't setup inihal\n", __FUNCTION__);
-        return -1;
-    }
-
-    if (ini_hal_init(TrajConfig.Joints)) {
+int setup_inihal(int joints) {
+    if (ini_hal_init(joints)) {
         rcs_print_error("%s: ini_hal_init(%d) failed\n", __FUNCTION__, TrajConfig.Joints);
         return -1;
     }
 
-    if (ini_hal_init_pins(TrajConfig.Joints)) {
+    if (ini_hal_init_pins(joints)) {
         rcs_print_error("%s: ini_hal_init_pins(%d) failed\n", __FUNCTION__, TrajConfig.Joints);
         return -1;
     }
@@ -1738,9 +1724,6 @@ int emcMotionInit()
 
     // Ignore errors from emcPositionLoad(), because what are you going to do?
     (void)emcPositionLoad();
-
-    emcmotion_initialized = 1;
-
     return 0;
 }
 
@@ -1760,7 +1743,6 @@ int emcMotionHalt()
     r3 = emcTrajHalt();
     r4 = emcPositionSave();
     r5 = ini_hal_exit();
-    emcmotion_initialized = 0;
 
     return (r1 == 0 && r2 == 0 && r3 == 0 && r4 == 0 && r5 == 0) ? 0 : -1;
 }
