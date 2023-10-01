@@ -5,13 +5,14 @@
 #
 #
 # WaldiS <sto@tutanota.de>, 2023.
+# Eryk Michalak <gnu.ewm@protonmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-06-30 10:37+0000\n"
-"Last-Translator: WaldiS <sto@tutanota.de>\n"
+"PO-Revision-Date: 2023-09-30 15:44+0000\n"
+"Last-Translator: Eryk Michalak <gnu.ewm@protonmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "pl/>\n"
 "Language: pl\n"
@@ -20,7 +21,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.0-dev\n"
+"X-Generator: Weblate 5.1-dev\n"
 
 #: src/emc/task/emctaskmain.cc:869
 #, c-format
@@ -2279,11 +2280,11 @@ msgstr ""
 
 #: src/hal/utils/scope_horiz.c:1189
 msgid "µs"
-msgstr ""
+msgstr "µs"
 
 #: src/hal/utils/scope_horiz.c:1193
 msgid "ms"
-msgstr ""
+msgstr "ms"
 
 #: src/hal/utils/scope_horiz.c:1197 src/emc/usr_intf/stepconf/axisx.glade:345
 #: src/emc/usr_intf/stepconf/axisy.glade:343
@@ -2292,7 +2293,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisv.glade:345
 #: src/emc/usr_intf/stepconf/axisa.glade:343
 msgid "s"
-msgstr ""
+msgstr "s"
 
 #: src/hal/utils/scope_horiz.c:1214 src/emc/usr_intf/stepconf/spindle.glade:112
 #: src/emc/usr_intf/stepconf/axisx.glade:359
@@ -2308,15 +2309,15 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:443
 #: src/emc/usr_intf/pncconf/mesa1.glade:456
 msgid "Hz"
-msgstr ""
+msgstr "Hz"
 
 #: src/hal/utils/scope_horiz.c:1217
 msgid "kHz"
-msgstr ""
+msgstr "kHz"
 
 #: src/hal/utils/scope_horiz.c:1221
 msgid "MHz"
-msgstr ""
+msgstr "MHz"
 
 #: src/hal/utils/scope_vert.c:413 src/hal/utils/scope_vert.c:1117
 #, c-format
@@ -3057,7 +3058,7 @@ msgstr ""
 #: src/hal/classicladder/manager_gtk.c:466
 #: src/emc/usr_intf/axis/scripts/axis.py:1603
 msgid "Ok"
-msgstr ""
+msgstr "Ok"
 
 #: src/hal/classicladder/classicladder_gtk.c:500
 msgid "Project loaded (stopped)."
@@ -3108,7 +3109,7 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:619
 msgid "Sure?"
-msgstr ""
+msgstr "Na pewno?"
 
 #: src/hal/classicladder/classicladder_gtk.c:619
 msgid ""
@@ -3162,7 +3163,7 @@ msgstr "Zapisz do pliku"
 #: src/hal/classicladder/edit.c:416 tcl/bin/halshow.tcl:101
 #: tcl/tklinuxcnc.tcl:1885 tcl/tooledit.tcl:937
 msgid "Error"
-msgstr ""
+msgstr "Błąd"
 
 #: src/hal/classicladder/classicladder_gtk.c:856 tcl/bin/pickconfig.tcl:625
 #: src/emc/usr_intf/axis/scripts/axis.py:155
@@ -3208,7 +3209,7 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:908
 msgid "Confirm!"
-msgstr ""
+msgstr "Potwierdź!"
 
 #: src/hal/classicladder/classicladder_gtk.c:908
 msgid "Do you really want to quit ?\n"
@@ -3260,7 +3261,7 @@ msgstr "Zapisz jako..."
 
 #: src/hal/classicladder/classicladder_gtk.c:1079 tcl/tklinuxcnc.tcl:761
 msgid "Reset"
-msgstr ""
+msgstr "Przywróć domyślne"
 
 #: src/hal/classicladder/classicladder_gtk.c:1089
 msgid "Vars"
@@ -3279,12 +3280,12 @@ msgstr "Edytor"
 
 #: src/hal/classicladder/classicladder_gtk.c:1110
 msgid "Symbols"
-msgstr ""
+msgstr "Symbole"
 
 #: src/hal/classicladder/classicladder_gtk.c:1115
 #: src/hal/classicladder/config_gtk.c:1070
 msgid "Config"
-msgstr ""
+msgstr "Konfiguracja"
 
 #: src/hal/classicladder/classicladder_gtk.c:1137 share/axis/tcl/axis.tcl:1301
 msgid "Preview"
@@ -3292,7 +3293,7 @@ msgstr "Podgląd"
 
 #: src/hal/classicladder/classicladder_gtk.c:1142
 msgid "Print"
-msgstr ""
+msgstr "Drukuj"
 
 #: src/hal/classicladder/classicladder_gtk.c:1213
 #, c-format
@@ -3544,7 +3545,7 @@ msgstr ""
 
 #: src/hal/classicladder/edit.c:149 src/hal/classicladder/edit_sequential.c:72
 msgid "Variable"
-msgstr ""
+msgstr "Zmienna"
 
 #: src/hal/classicladder/edit.c:152
 msgid "JumpToLabel"
@@ -3564,13 +3565,13 @@ msgstr ""
 #: src/hal/classicladder/editproperties_gtk.c:77
 #: src/hal/classicladder/editproperties_gtk.c:136
 msgid "Base"
-msgstr ""
+msgstr "Baza"
 
 #: src/hal/classicladder/edit.c:166 src/hal/classicladder/edit.c:175
 #: src/hal/classicladder/edit.c:183 src/hal/classicladder/edit.c:192
 #: src/emc/usr_intf/stepconf/pport1.glade:1319
 msgid "Preset"
-msgstr ""
+msgstr "Szablon"
 
 #: src/hal/classicladder/edit.c:171
 msgid "MonostNbr"
@@ -3696,7 +3697,7 @@ msgstr "_Edytuj..."
 #: src/hal/classicladder/edit_gtk.c:208 src/hal/classicladder/edit_gtk.c:486
 #: tcl/tooledit.tcl:536 lib/python/gladevcp/tooledit_gtk.glade:300
 msgid "Delete"
-msgstr ""
+msgstr "Usuń"
 
 #: src/hal/classicladder/edit_gtk.c:208
 msgid "Do you really want to delete the current rung ?"
@@ -3705,11 +3706,11 @@ msgstr ""
 #: src/hal/classicladder/edit_gtk.c:476
 #: lib/python/gladevcp/tooledit_gtk.glade:315
 msgid "Add"
-msgstr ""
+msgstr "Dodaj"
 
 #: src/hal/classicladder/edit_gtk.c:481
 msgid "Insert"
-msgstr ""
+msgstr "Wstaw"
 
 #: src/hal/classicladder/edit_gtk.c:491 tcl/bin/halconfig.tcl:134
 msgid "Modify"
@@ -3753,7 +3754,7 @@ msgstr ""
 #: src/hal/classicladder/edit_sequential.c:201
 #, c-format
 msgid "found=%d!!!\n"
-msgstr ""
+msgstr "znaleziono=%d!!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:173
 #, c-format
@@ -3949,7 +3950,7 @@ msgstr "Właściwości..."
 #: src/hal/classicladder/editproperties_gtk.c:289 tcl/bin/halshow.tcl:734
 #: lib/python/gladevcp/tooledit_gtk.glade:345
 msgid "Apply"
-msgstr ""
+msgstr "Zastosuj"
 
 #: src/hal/classicladder/emc_mods.c:60
 msgid "Error blank symbol name"
@@ -4026,7 +4027,7 @@ msgstr ""
 
 #: src/hal/classicladder/emc_mods.c:280
 msgid "Counter"
-msgstr ""
+msgstr "Licznik"
 
 #: src/hal/classicladder/emc_mods.c:285
 #, fuzzy
@@ -4068,7 +4069,7 @@ msgstr ""
 #: src/hal/classicladder/files.c:375
 #, c-format
 msgid "Used=%d\n"
-msgstr ""
+msgstr "Użyto=%d\n"
 
 #: src/hal/classicladder/files.c:429
 #, c-format
@@ -11645,7 +11646,9 @@ msgstr "Dodatnie"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -16196,7 +16199,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:58895
 #: src/emc/usr_intf/pncconf/mesa1.glade:58910
 msgid " "
-msgstr ""
+msgstr " "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:8728
 #: src/emc/usr_intf/pncconf/mesa1.glade:8728
@@ -18373,7 +18376,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2664
 msgid "                    "
-msgstr ""
+msgstr "                    "
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2705
 msgid "encoder pulses per unit:"
@@ -19545,7 +19548,7 @@ msgstr "Ciągły"
 #: src/emc/usr_intf/gscreen/gscreen.glade:3275
 #: src/emc/usr_intf/gscreen/gscreen.glade:4284
 msgid "\n"
-msgstr ""
+msgstr "\n"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3322
 #, fuzzy
