@@ -60,9 +60,45 @@ function _;
 license "GPL";
 
 include <rtapi_math.h>;
-include <stdlib.h>;
 
 ;;
+
+#if !defined(__KERNEL__)
+include <stdlib.h>;
+#else
+// These should use kstrtol etc really but the endptrs are used
+long strtol(char *ptr, char **endptr, int base){
+    return simple_strtol(ptr, endptr, base);
+}
+
+long strtoul(char *ptr, char **endptr, int base){
+    return simple_strtoul(ptr, endptr, base);
+}
+
+double strtod(char* ptr, char **endptr){
+    double val = 0;
+    float f1 = 10.0;
+    float f2 = 1.0;
+    float sign = 1;
+
+    while(*ptr){
+        if (*ptr >= '0' && *ptr <= '9'){
+                val *= f1;
+                val += (double)((*ptr) - '0') * f2;
+                if (f2 < 1) f2 /= 10;
+        } else if (*ptr == '.' || *ptr == ','){
+            f1 = 1;
+            f2 = .1;
+        } else if (*ptr == '-'){
+            sign = -1;
+        }
+        ptr++;
+    }
+    val *= sign;
+    *endptr = ptr;
+    return val;
+}
+#endif
 
 #define epsilon 0.0001
 
