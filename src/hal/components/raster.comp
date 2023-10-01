@@ -63,10 +63,9 @@ include <rtapi_math.h>;
 
 ;;
 
-#if !defined(__KERNEL__)
-include <stdlib.h>;
-#else
-// These should use kstrtol etc really but the endptrs are used
+#include "config.h"
+#if defined(RTAPI_RTAI)
+// These should use kstrtol etc really but the endptrs are used on return
 long strtol(char *ptr, char **endptr, int base){
     return simple_strtol(ptr, endptr, base);
 }
@@ -98,6 +97,8 @@ double strtod(char* ptr, char **endptr){
     *endptr = ptr;
     return val;
 }
+#else
+include <stdlib.h>;
 #endif
 
 #define epsilon 0.0001
