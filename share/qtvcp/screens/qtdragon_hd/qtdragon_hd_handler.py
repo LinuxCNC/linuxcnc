@@ -358,8 +358,7 @@ class HandlerClass:
         self.w.tooloffsetview.setShowGrid(False)
         self.w.offset_table.setShowGrid(False)
         self.w.divider_line.hide()
-        # move clock to statusbar
-        self.w.statusbar.addPermanentWidget(self.w.lbl_clock)
+
         #set up gcode list
         self.gcodes.setup_list()
 
@@ -377,30 +376,33 @@ class HandlerClass:
                 self.zoomBtn.setIcon(QtGui.QIcon(QtGui.QPixmap(':/buttons/images/zoom.png')))
                 self.zoomBtn.clicked.connect(self.zoomWeb)
                 self.toolBar.addWidget(self.zoomBtn)
-
+    
                 self.homeBtn = QtWidgets.QPushButton(self.w)
                 self.homeBtn.setEnabled(True)
-                self.homeBtn.setIconSize(QtCore.QSize(48, 38))
+                self.homeBtn.setMinimumSize(64, 40)
+                self.homeBtn.setIconSize(QtCore.QSize(38, 38))
                 self.homeBtn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/up-32.png'))
                 self.homeBtn.clicked.connect(self.homeWeb)
                 self.toolBar.addWidget(self.homeBtn)
 
                 self.backBtn = QtWidgets.QPushButton(self.w)
                 self.backBtn.setEnabled(True)
-                self.backBtn.setIconSize(QtCore.QSize(48, 38))
+                self.backBtn.setMinimumSize(64, 40)
+                self.backBtn.setIconSize(QtCore.QSize(38, 38))
                 self.backBtn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/left-32.png'))
                 self.backBtn.clicked.connect(self.back)
                 self.toolBar.addWidget(self.backBtn)
 
                 self.forBtn = QtWidgets.QPushButton(self.w)
                 self.forBtn.setEnabled(True)
-                self.forBtn.setIconSize(QtCore.QSize(48, 38))
+                self.forBtn.setMinimumSize(64, 40)
+                self.forBtn.setIconSize(QtCore.QSize(38, 38))
                 self.forBtn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/right-32.png'))
                 self.forBtn.clicked.connect(self.forward)
                 self.toolBar.addWidget(self.forBtn)
 
                 self.writeBtn = QtWidgets.QPushButton('SetUp\n Writer',self.w)
-                self.writeBtn.setMinimumSize(48,38)
+                self.writeBtn.setMinimumSize(64, 40)
                 self.writeBtn.setEnabled(True)
                 self.writeBtn.clicked.connect(self.writer)
                 self.toolBar.addWidget(self.writeBtn)
@@ -1232,7 +1234,7 @@ class HandlerClass:
             self.set_style_warning()
         else:
             self.set_style_critical()
-        self.w.statusbar.showMessage(message)
+        self.w.statusbar.setText(message)
         STATUS.emit('update-machine-log', message, 'TIME')
 
     def enable_auto(self, state):
@@ -1384,7 +1386,7 @@ class HandlerClass:
 
     def clear_status_bar(self):
         self.set_style_default()
-        self.w.statusbar.showMessage('')
+        self.w.statusbar.setText('')
 
     # change Status bar text color
     def set_style_default(self):
