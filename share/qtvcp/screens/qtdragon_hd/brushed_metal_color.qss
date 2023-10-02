@@ -108,11 +108,6 @@ QLabel {
     color: black;
 }
 
-QLabel#lbl_jog_angular{
-    font: 18pt "Lato Heavy";
-    color: black;
-}
-
 QLabel#label_axis_x {
     border: 2px solid black;
     border-radius: 4px;
