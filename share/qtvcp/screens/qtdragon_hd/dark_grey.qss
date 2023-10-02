@@ -125,7 +125,8 @@ QLabel {
 QLabel#label_axis_x,
 QLabel#label_axis_y,
 QLabel#label_axis_z,
-QLabel#label_axis_a {
+QLabel#label_axis_4,
+QLabel#label_axis_5 {
     border: 1px solid #e0e0e0;
     border-radius: 4px;
     font: 12pt "Lato Heavy";
