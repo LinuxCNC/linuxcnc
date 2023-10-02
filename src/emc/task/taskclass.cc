@@ -81,6 +81,7 @@ void Task::hal_init_pins(void)
     iocontrol_data.tool_from_pocket=0;   /* output, always 0 at startup */
     iocontrol_data.tool_prep_index=0;      /* output, pin that holds the internal index (idx) of the tool to be prepared, for debug */
     iocontrol_data.tool_change=0;        /* output, notifies a tool-change should happen (emc should be in the tool-change position) */
+    iocontrol_data.tool_number = emcioStatus.tool.toolInSpindle;
 }
 
 Task *task_methods;
