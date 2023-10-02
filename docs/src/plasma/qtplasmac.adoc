@@ -4171,7 +4171,7 @@ over cut length = 4 mm (0.157")
  #<holes> = 1-4. |`#<h_diameter> =` _n_ +
 (_n_ is the diameter, use the same units system as the rest of the G-code file)
 |Specify <<plasma:hole-cutting,hole>> velocity for +
- #<holes>=1-4. |`#<h_velocity> =` _n_ +
+ #<holes> = 1-4. |`#<h_velocity> =` _n_ +
 (_n_ is the percentage, set the percentage of the current feed rate)
 |Specify <<plasma:overcut,over cut>> length. |`#<oclength> =` _n_ +
 (_n_ is the length, use the same units system as the rest of the G-code file)
