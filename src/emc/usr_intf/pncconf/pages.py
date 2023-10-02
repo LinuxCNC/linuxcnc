@@ -312,6 +312,14 @@ class Pages:
             self.page_set_state('%s_motor'%let,state)
             self.page_set_state('s_axis',self.d.include_spindle)
             self.page_set_state('s_motor',self.d.include_spindle)
+            # adjust home sequence model
+            model = self.w['%shomesequence_store'%let]
+            model.clear()
+            for count, i in enumerate(('1','2','3','4')):
+                if count == len(self.d.available_axes)-1:
+                    break
+                else:
+                    model.append((i,))
         i = self.w.mesa0_checkbutton.get_active()
         j = self.w.mesa1_checkbutton.get_active()
         self.d.number_mesa = int(i)+int(j)
