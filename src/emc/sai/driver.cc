@@ -674,7 +674,21 @@ usage:
           exit(1);
         }
     }
+  _sai._external_length_units =  0.03937007874016;
   if (inifile!= 0) {
+      const char *inistring;
+      IniFile ini;
+      // open it
+      if (ini.Open(inifile) == false) {
+	    fprintf(stderr, "could not open supplied INI file %s\n", inifile);
+        exit(1);
+      }
+
+      if (NULL != (inistring = ini.Find("LINEAR_UNITS", "TRAJ"))) {
+          if (!strcmp(inistring, "mm")) {
+             _sai._external_length_units = 1.0;
+          }
+      }
       setenv("INI_FILE_NAME",inifile,1);
   } else
       unsetenv("INI_FILE_NAME");
