@@ -2826,7 +2826,6 @@ int Interp::gen_settings(
 
     // F, S
     for (i = 0; i < ACTIVE_SETTINGS; i++) {
-	printf("%i saved %f v current %f\n", i,float_saved[i],float_current[i]);
 	// "if" masked to address https://github.com/LinuxCNC/linuxcnc/issues/1987
 	// The setting value is correct, but seems to be mislaid downstream
 	//if (float_saved[i] != float_current[i]) {
@@ -2937,7 +2936,6 @@ int Interp::gen_settings(
 		float_saved[GM_FIELD_FLOAT_NAIVE_CAM_TOLERANCE]);
 	cmd += buf;
     }
-	printf("Command buffer %s\n", cmd.c_str());
     return INTERP_OK;
 }
 
