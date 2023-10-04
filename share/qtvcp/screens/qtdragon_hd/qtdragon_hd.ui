@@ -15069,7 +15069,7 @@ ZERO</string>
                     <bool>false</bool>
                    </property>
                    <property name="joint_number" stdset="0">
-                    <number>1</number>
+                    <number>-1</number>
                    </property>
                    <property name="axis_letter" stdset="0">
                     <string>Y</string>
@@ -15149,7 +15149,7 @@ ZERO</string>
                     <bool>false</bool>
                    </property>
                    <property name="joint_number" stdset="0">
-                    <number>1</number>
+                    <number>-1</number>
                    </property>
                    <property name="axis_letter" stdset="0">
                     <string>Y</string>
@@ -15229,7 +15229,7 @@ ZERO</string>
                     <bool>false</bool>
                    </property>
                    <property name="joint_number" stdset="0">
-                    <number>0</number>
+                    <number>-1</number>
                    </property>
                    <property name="axis_letter" stdset="0">
                     <string>X</string>
@@ -15306,7 +15306,7 @@ ZERO</string>
                     <bool>true</bool>
                    </property>
                    <property name="joint_number" stdset="0">
-                    <number>2</number>
+                    <number>-1</number>
                    </property>
                    <property name="axis_letter" stdset="0">
                     <string>Z</string>
@@ -15353,7 +15353,7 @@ ZERO</string>
                     <bool>false</bool>
                    </property>
                    <property name="joint_number" stdset="0">
-                    <number>0</number>
+                    <number>-1</number>
                    </property>
                    <property name="axis_letter" stdset="0">
                     <string>X</string>
@@ -15430,7 +15430,7 @@ ZERO</string>
                     <bool>true</bool>
                    </property>
                    <property name="joint_number" stdset="0">
-                    <number>2</number>
+                    <number>-1</number>
                    </property>
                    <property name="axis_letter" stdset="0">
                     <string>Z</string>
@@ -15464,7 +15464,7 @@ ZERO</string>
                     <bool>true</bool>
                    </property>
                    <property name="joint_number" stdset="0">
-                    <number>5</number>
+                    <number>-1</number>
                    </property>
                    <property name="axis_letter" stdset="0">
                     <string>C</string>
@@ -15504,7 +15504,7 @@ ZERO</string>
                     <bool>true</bool>
                    </property>
                    <property name="joint_number" stdset="0">
-                    <number>5</number>
+                    <number>-1</number>
                    </property>
                    <property name="axis_letter" stdset="0">
                     <string>C</string>
@@ -15541,7 +15541,7 @@ ZERO</string>
                     <bool>true</bool>
                    </property>
                    <property name="joint_number" stdset="0">
-                    <number>3</number>
+                    <number>-1</number>
                    </property>
                    <property name="axis_letter" stdset="0">
                     <string>A</string>
@@ -15578,7 +15578,7 @@ ZERO</string>
                     <bool>true</bool>
                    </property>
                    <property name="joint_number" stdset="0">
-                    <number>3</number>
+                    <number>-1</number>
                    </property>
                    <property name="axis_letter" stdset="0">
                     <string>A</string>
@@ -16859,7 +16859,7 @@ ANGULAR</string>
          <number>2</number>
         </property>
         <property name="text">
-         <string>06:05:42 PM</string>
+         <string>09:51:41 PM</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>

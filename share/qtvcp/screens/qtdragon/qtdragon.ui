@@ -7,7 +7,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1631</width>
+    <width>1280</width>
     <height>933</height>
    </rect>
   </property>
@@ -8752,7 +8752,7 @@ LOG</string>
                           <bool>true</bool>
                          </property>
                          <property name="joint_number" stdset="0">
-                          <number>3</number>
+                          <number>-1</number>
                          </property>
                          <property name="axis_letter" stdset="0">
                           <string>A</string>
@@ -8799,7 +8799,7 @@ LOG</string>
                           <bool>false</bool>
                          </property>
                          <property name="joint_number" stdset="0">
-                          <number>1</number>
+                          <number>-1</number>
                          </property>
                          <property name="axis_letter" stdset="0">
                           <string>Y</string>
@@ -8889,7 +8889,7 @@ LOG</string>
                           <bool>true</bool>
                          </property>
                          <property name="joint_number" stdset="0">
-                          <number>2</number>
+                          <number>-1</number>
                          </property>
                          <property name="axis_letter" stdset="0">
                           <string>Z</string>
@@ -8936,7 +8936,7 @@ LOG</string>
                           <bool>false</bool>
                          </property>
                          <property name="joint_number" stdset="0">
-                          <number>0</number>
+                          <number>-1</number>
                          </property>
                          <property name="axis_letter" stdset="0">
                           <string>X</string>
@@ -9016,7 +9016,7 @@ LOG</string>
                           <bool>false</bool>
                          </property>
                          <property name="joint_number" stdset="0">
-                          <number>0</number>
+                          <number>-1</number>
                          </property>
                          <property name="axis_letter" stdset="0">
                           <string>X</string>
@@ -9099,7 +9099,7 @@ LOG</string>
                           <bool>true</bool>
                          </property>
                          <property name="joint_number" stdset="0">
-                          <number>3</number>
+                          <number>-1</number>
                          </property>
                          <property name="axis_letter" stdset="0">
                           <string>A</string>
@@ -9137,7 +9137,7 @@ LOG</string>
                           <bool>true</bool>
                          </property>
                          <property name="joint_number" stdset="0">
-                          <number>2</number>
+                          <number>-1</number>
                          </property>
                          <property name="axis_letter" stdset="0">
                           <string>Z</string>
@@ -9178,7 +9178,7 @@ LOG</string>
                           <bool>false</bool>
                          </property>
                          <property name="joint_number" stdset="0">
-                          <number>1</number>
+                          <number>-1</number>
                          </property>
                          <property name="axis_letter" stdset="0">
                           <string>Y</string>
@@ -9271,7 +9271,7 @@ LOG</string>
                           <bool>true</bool>
                          </property>
                          <property name="joint_number" stdset="0">
-                          <number>5</number>
+                          <number>-1</number>
                          </property>
                          <property name="axis_letter" stdset="0">
                           <string>C</string>
@@ -9311,7 +9311,7 @@ LOG</string>
                           <bool>true</bool>
                          </property>
                          <property name="joint_number" stdset="0">
-                          <number>5</number>
+                          <number>-1</number>
                          </property>
                          <property name="axis_letter" stdset="0">
                           <string>C</string>
@@ -17416,7 +17416,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>10:42:51 PM</string>
+            <string>09:50:49 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
