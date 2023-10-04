@@ -1,3 +1,242 @@
+linuxcnc (2.9.0) unstable; urgency=medium
+
+  * Add firmware 7i96d_1pwm for 7i96 for PNCconf
+  * add GTK and Qt backends to the OpenGL wayland workaround
+  * Add new Mesa card support from Master to 2.9
+  * Add OutM simple output module support
+  * Add preliminary 7I96S support
+  * add sample hm2 stepper & servo configs for a couple of eth boards
+  * add tests for mb2hal
+  * Added user space HAL component for publishing HAL values to a MQTT broker.
+  * Adding Limit_Axis Component
+  * adding new Icons for manual and Linuxcnc
+  * Axis Limits check: Revert bad fix, add "re-check"
+  * axis.py: Address jog issue with missing axes. #2445
+  * FixBug #2169: Issue with arcs immediately after homing
+  * carousel.comp: Add direct position control for stepgen and encoder modes
+  * clean up handling of canterp
+  * docs - Hundreds of updates
+  * docs29: small changes while translating
+  * encoder.c: Fix bug 2535 - missing tooth unreliable at low speed
+  * enum: Add a HAL component to handle enumerated types
+  * Fix "userspace" vs "realtime" nomenclature
+  * fix a race in communication between Task and Motion
+  * Fix for https://github.com/LinuxCNC/linuxcnc/issues/2410
+  * Fix for issue 2516: make sure the entire list is scanned when searching
+  * Fix for issue 2530 G95, G96 and G97 with a $ to choose spindle
+  * Fix gremlin commandline program to run again
+  * fix halcompile test to work both rip and installed
+  * Fix wonky filechooser behavior at first program load
+  * gladevcp: - Many Updates
+  * glcannon - Many Updates
+  * gmoccapy - Many, Many Updates
+  * hal_glib - Several Updates
+  * hal_gpio: Generic GPIO driver for any platform supporting libgpiod
+  * halcompile: Add command line arguments to provide compile and link flags
+  * halscope: Several updats
+  * hm2_eth: add support for 7i96
+  * hm2_pktuart: Support changes in Rx and Tx modules
+  * homing: Fix for #2169 introduced #2308.
+  * homing.c: Apply suggested fix for #2629 and #2388 Fix suggested by  yuyue2013
+  * homing.c: More conventional syntax for bitmasking
+  * hostmot2 bspi: sanity-check that channel echo enable matches receive buffer present
+  * interpmodule: add interpreter.active_spindle property
+  * interpmodule: fix `speed` property
+  * Issue #1232: Fixed
+  * Issue #1747: Fixed
+  * Issue #2169: Fixed
+  * Issue #2483. Partially ficed
+  * limit_axis:  - New component
+  * Manually apply PR #2133 to 2.9 Original Author: luz paz <luzpaz@pm.me>
+  * mb2hal Several Updates
+  * Merge pull request #1976 from phillc54/phillc54/outm_for_2.8_pncconf
+  * Merge pull request #1991 from smoe/docs_plasma
+  * Merge pull request #2051 from hansu/docs-links
+  * Merge pull request #2057 from hansu/gmoccapy-fix-missing-startup-code
+  * Merge pull request #2069 from zz912/patch-11
+  * Merge pull request #2120 from hansu/issue-2111
+  * Merge pull request #2139 from smoe/docs_misc_mac_2
+  * Merge pull request #2141 from petterreinholdtsen/doc-https-shorter
+  * Merge pull request #2144 from smoe/docs_misc_mac_3
+  * Merge pull request #2147 from petterreinholdtsen/debian-unstable-testing-supported
+  * Merge pull request #2148 from smoe/docs_misc_mac_4
+  * Merge pull request #2153 from adamlouis/2.8-fix-get-program
+  * Merge pull request #2155 from smoe/docs29_mac_1
+  * Merge pull request #2159 from smoe/docs29_mac_6_was_equiv_against_master
+  * Merge pull request #2160 from smoe/docs29_mac_2
+  * Merge pull request #2161 from smoe/docs29_mac_5_equiv_to_PR_against_master
+  * Merge pull request #2163 from petterreinholdtsen/2.9-man-adoc-authors
+  * Merge pull request #2164 from petterreinholdtsen/2.9-rtapi-ioperm
+  * Merge pull request #2165 from petterreinholdtsen/2.9-man-rtapi-io
+  * Merge pull request #2167 from hansu/fix-mb2hal-pin-names
+  * Merge pull request #2172 from petterreinholdtsen/i2gc-url
+  * Merge pull request #2181 from smoe/2.8
+  * Merge pull request #2183 from smoe/docs_29_mac_11
+  * Merge pull request #2187 from smoe/docs_man_reformatting_xhc
+  * Merge pull request #2190 from smoe/docs_misc_10
+  * Merge pull request #2192 from AlexmagToast/2.9
+  * Merge pull request #2194 from hansu/gmoccapy-3-4-1
+  * Merge pull request #2195 from smoe/netcat_build_deps
+  * Merge pull request #2196 from LinuxCNC/find-zombies
+  * Merge pull request #2207 from smoe/docs29_misc_pc_1
+  * Merge pull request #2208 from smoe/docs29_misc_pc_2
+  * Merge pull request #2216 from smoe/docs29_misc_pc_3
+  * Merge pull request #2220 from smoe/docs29_misc_lenovo_1
+  * Merge pull request #2223 from smoe/debian_build-indep
+  * Merge pull request #2224 from smoe/docs29_misc_lenovo_2
+  * Merge pull request #2232 from hansu/docs-halshow
+  * Merge pull request #2233 from LinuxCNC/linuxcnc-module-docs
+  * Merge pull request #2234 from LinuxCNC/log-jjogmode
+  * Merge pull request #2235 from smoe/docs29_mac_14
+  * Merge pull request #2238 from smoe/docs29_mac_12
+  * Merge pull request #2239 from LinuxCNC/prettier-errors
+  * Merge pull request #2241 from smoe/docs29_mac_11
+  * Merge pull request #2242 from LinuxCNC/stricter-pluggable-interp
+  * Merge pull request #2244 from LinuxCNC/canterp
+  * Merge pull request #2246 from LinuxCNC/python2-to-3-in-sim-configs
+  * Merge pull request #2248 from LinuxCNC/interpmodule-speed-type-2.8
+  * Merge pull request #2249 from LinuxCNC/fix-xyzab-tdr-packaging
+  * Merge pull request #2253 from petterreinholdtsen/comp-mqtt-client
+  * Merge pull request #2255 from LinuxCNC/merge-2.8-into-2.9
+  * Merge pull request #2256 from LinuxCNC/andypugh/halcompile_opts
+  * Merge pull request #2265 from smoe/gmoccapy_suggests_installing_onboard
+  * Merge pull request #2270 from sensille/mb2hal_fix_2.9
+  * Merge pull request #2272 from hansu/document-r-option
+  * Merge pull request #2274 from hansu/add-mb2hal-tests
+  * Merge pull request #2278 from sensille/mb2hal_v1
+  * Merge pull request #2280 from petterreinholdtsen/2.9-man-motion-spindle
+  * Merge pull request #2283 from hansu/merge-2.8-into-2.9
+  * Merge pull request #2284 from smoe/docs29_misc_15
+  * Merge pull request #2288 from LinuxCNC/hm2-bspi-fixes
+  * Merge pull request #2289 from LinuxCNC/2.8
+  * Merge pull request #2290 from hansu/add-mb2hal-v1.1-test
+  * Merge pull request #2291 from hansu/merge-2.8-into-2.9
+  * Merge pull request #2293 from hansu/docs-move-halmodule
+  * Merge pull request #2295 from hansu/docs-qtvcp-man-page
+  * Merge pull request #2296 from LinuxCNC/halcompile-permissions
+  * Merge pull request #2298 from sensille/mb2hal_v4
+  * Merge pull request #2302 from jepler/channel-valid
+  * Merge pull request #2309 from petterreinholdtsen/2.9-adoc-indent-warnings
+  * Merge pull request #2311 from cradek/2.9
+  * Merge pull request #2313 from jepler/no-glut
+  * Merge pull request #2314 from LinuxCNC/pyopengl-glx
+  * Merge pull request #2315 from LinuxCNC/fix-halcompile-tests
+  * Merge pull request #2320 from Sigma1912/patch-1
+  * Merge pull request #2322 from smoe/docs_hal_revisited
+  * Merge pull request #2323 from LinuxCNC/gmoccapy_logging
+  * Merge pull request #2324 from smoe/docs_hal_basics
+  * Merge pull request #2328 from LinuxCNC/jepler-fix-glBitmap
+  * Merge pull request #2330 from LinuxCNC/gmoccapy-3-4-2
+  * Merge pull request #2333 from hansu/iconview-logging
+  * Merge pull request #2334 from smoe/patch-12
+  * Merge pull request #2336 from hansu/gmoccapy-notification-attribute-errors
+  * Merge pull request #2345 from smoe/docs29_ini_config
+  * Merge pull request #2346 from LinuxCNC/fix-glBitmap-again
+  * Merge pull request #2350 from phillc54/phillc54/gmoccapy
+  * Merge pull request #2356 from phillc54/phillc54/gscreen
+  * Merge pull request #2357 from smoe/docs29_misc_16
+  * Merge pull request #2360 from LinuxCNC/refresh-hm2-configs
+  * Merge pull request #2362 from zz912/patch-13
+  * Merge pull request #2366 from satiowadahc/patch-6
+  * Merge pull request #2369 from LinuxCNC/dgarr/2.9vismach_fix
+  * Merge pull request #2370 from LinuxCNC/hm2-rpspi-error-handling
+  * Merge pull request #2373 from phillc54/phillc54/gladevcp
+  * Merge pull request #2381 from phillc54/phillc54/gladevcp
+  * Merge pull request #2383 from hansu/gmoccapy-3-4-2-1
+  * Merge pull request #2389 from LinuxCNC/little-doc-fixes
+  * Merge pull request #2391 from LinuxCNC/hal_parport-is-realtime
+  * Merge pull request #2396 from phillc54/phillc54/glade
+  * Merge pull request #2397 from hansu/docs-gcode-properties
+  * Merge pull request #2403 from hansu/docs-linunxcnc-stat-feedrate
+  * Merge pull request #2406 from phillc54/phillc54/gladevcp
+  * Merge pull request #2409 from smoe/docs29_misc_17
+  * Merge pull request #2421 from hansu/halscope-channel-selection
+  * Merge pull request #2422 from LinuxCNC/libeditreadline
+  * Merge pull request #2425 from LinuxCNC/fix-elbpcom
+  * Merge pull request #2427 from havardAasen/haava/halscope-select-channel-dialog
+  * Merge pull request #2428 from hansu/gladevcp-icons
+  * Merge pull request #2430 from smoe/docs29_lenovo_100
+  * Merge pull request #2434 from hansu/gladevcp-window1
+  * Merge pull request #2438 from satiowadahc/cw-m5default
+  * Merge pull request #2439 from LinuxCNC/fix-lintian
+  * Merge pull request #2441 from hansu/gladevcp-icons-2
+  * Merge pull request #2449 from mrbubble62/mqtt-publisher
+  * Merge pull request #2451 from zz912/patch-16
+  * Merge pull request #2452 from LinuxCNC/2.8-github-ci
+  * Merge pull request #2456 from LinuxCNC/fix-mb2hal-tests-on-rtai
+  * Merge pull request #2457 from hansu/docs-add-writing-tests
+  * Merge pull request #2458 from LinuxCNC/fix-mb2hal-shutdown-segfaults
+  * Merge pull request #2459 from LinuxCNC/fix-more-mb2hal-test-variability
+  * Merge pull request #2461 from hansu/gmoccapy-3-4-3
+  * Merge pull request #2472 from snowgoer540/gregc/debqtvcp
+  * Merge pull request #2475 from LinuxCNC/little-doc-fixes
+  * Merge pull request #2477 from LinuxCNC/halscope-fix-vert-scale
+  * Merge pull request #2479 from LinuxCNC/fix-2386-task-motion-race
+  * Merge pull request #2493 from LinuxCNC/oneshot-fix
+  * Merge pull request #2494 from LinuxCNC/python3-gcode-generators
+  * Merge pull request #2517 from LinuxCNC/mux_generic-headers
+  * Merge pull request #2518 from LinuxCNC/fix-rtapi_shmem_new-issue-2516
+  * Merge pull request #2519 from LinuxCNC/fix-single-step-test
+  * Merge pull request #2521 from LinuxCNC/backport-clang-fixes-from-master
+  * Merge pull request #2522 from rodw-au/2.9
+  * Merge pull request #2525 from snowgoer540/gregc/floating-point
+  * Merge pull request #2526 from petterreinholdtsen/2.8-motion-man-pin-names
+  * Merge pull request #2529 from dpslwk/patch-1
+  * Merge pull request #2533 from petterreinholdtsen/axis-lube-2.9
+  * Merge pull request #2534 from petterreinholdtsen/docs-man-bugs
+  * Merge pull request #2537 from smoe/docs29_mac_102
+  * Merge pull request #2541 from petterreinholdtsen/docs-g30-typo
+  * Merge pull request #2548 from luzpaz/config-typos-2.9
+  * Merge pull request #2550 from luzpaz/typos-docs
+  * Merge pull request #2555 from smoe/docs29_mac_101
+  * Merge pull request #2556 from luzpaz/typos-lib
+  * Merge pull request #2557 from petterreinholdtsen/2.9-man-mux-crossref
+  * Merge pull request #2558 from LinuxCNC/suggest-libeditreadline
+  * Merge pull request #2560 from luzpaz/typos-src-2.9
+  * Merge pull request #2563 from luzpaz/docs-typos
+  * Merge pull request #2574 from petterreinholdtsen/2.9-iocontrol-pindesc-sync
+  * Merge pull request #2578 from smoe/docs29_mac_103
+  * Merge pull request #2582 from luzpaz/typos-various-2.9
+  * Merge pull request #2592 from smoe/docs29_mac_104
+  * Merge pull request #2594 from petterreinholdtsen/2.9-sid-gcc-13
+  * Merge pull request #2595 from rodw-au/rodw-au-getting-linuxcnc-update
+  * Merge pull request #2597 from phillc54/phillc54/halcomp
+  * Merge pull request #2603 from The-going/parallel-building-2.9
+  * Merge pull request #2606 from smoe/configure.ac_source_beautification
+  * Merge pull request #2638 from itaib/rigid_tap_fix
+  * Merge pull request #2659 from LinuxCNC/spindle_ini_fix
+  * Merge pull request #2660 from phillc54/phillc54/pncconf
+  * Merge pull request #2673 from petterreinholdtsen/2.9-test-g71-issues-707
+  * Mesa abs encoders: Fix config parsing error Found whilst checking for bug.
+  * mesa_modbus: New Driver
+  * mesa_pktgyro_test.comp Allow use of uarts > 0
+  * mesa-7i65: fix a bug with stale data in fifo
+  * message: Update HAL component docs to match behavior
+  * Motion Type: Set the motion-type of rigid tap to 2 to match other spindle-sync cycles
+  * ohmic.comp - fix bugs
+  * pncconf - Many updates
+  * qt_istat.py: Fix typos
+  * qt5_graphics - Several Updates
+  * qtaxis - Several Updates
+  * qtdagon - 100+ Updates
+  * qtplasmac  - 100+ Updates
+  * qttouchy -fix sample config loading error, remove MPG selection buttons
+  * qtvcp - 200+ updates
+  * Revert "update pot files"
+  * RS274: M5 default to all spindles.
+  * sai: Fix https://github.com/LinuxCNC/linuxcnc/issues/1279
+  * sims: fix startup issues in axis sims
+  * sims: fix startup issues in qtvcp sims
+  * sims: update and tidy qtplasmac sims
+  * spindle INI -fix non working M4 in some situations
+  * tooldata Added a tool database interface
+  * wj200: only complain once about "failed to get status"
+  * wj200: whitespace cleanup, no behavior change
+  * xhc-hb04.tcl accept upper or lowercase keywords
+  * xyzab_tdr sim config fix wrong sign in fwd kins
+
+ -- andypugh <andy@bodgesoc.org>  Wed, 4 Oct 2023 12:07:00 +0100
+
 linuxcnc (1:2.9.0~pre1) UNRELEASED; urgency=medium
 
   * githelper.sh: New master glob
