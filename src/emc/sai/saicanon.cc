@@ -557,7 +557,7 @@ void CHANGE_TOOL()
   PRINT("CHANGE_TOOL()\n");
   _sai._active_slot = _sai._selected_tool;
 #ifdef TOOL_NML //{
-  _sai._tools[0] = _sai._tools[slot];
+  _sai._tools[0] = _sai._tools[_sai._active_slot];
 #else //}{
     CANON_TOOL_TABLE tdata;
     if (tooldata_get(&tdata,_sai._selected_tool) != IDX_OK) {
