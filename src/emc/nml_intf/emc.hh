@@ -147,7 +147,6 @@ struct PM_CARTESIAN;
 
 // EMC_TOOL type declarations
 
-#define EMC_TOOL_INIT_TYPE                           ((NMLTYPE) 1101)
 #define EMC_TOOL_HALT_TYPE                           ((NMLTYPE) 1102)
 #define EMC_TOOL_ABORT_TYPE                          ((NMLTYPE) 1103)
 #define EMC_TOOL_PREPARE_TYPE                        ((NMLTYPE) 1104)
@@ -156,17 +155,10 @@ struct PM_CARTESIAN;
 #define EMC_TOOL_LOAD_TOOL_TABLE_TYPE                ((NMLTYPE) 1107)
 #define EMC_TOOL_SET_OFFSET_TYPE                     ((NMLTYPE) 1108)
 #define EMC_TOOL_SET_NUMBER_TYPE                     ((NMLTYPE) 1109)
-// the following message is sent to io at the very start of an M6
-// even before emccanon issues the move to toolchange position
-#define EMC_TOOL_START_CHANGE_TYPE                   ((NMLTYPE) 1110)
 
-#define EMC_EXEC_PLUGIN_CALL_TYPE                   ((NMLTYPE) 1112)
-#define EMC_IO_PLUGIN_CALL_TYPE                   ((NMLTYPE) 1113)
 #define EMC_TOOL_STAT_TYPE                           ((NMLTYPE) 1199)
 
 // EMC_AUX type declarations
-#define EMC_AUX_ESTOP_ON_TYPE                         ((NMLTYPE) 1206)
-#define EMC_AUX_ESTOP_OFF_TYPE                        ((NMLTYPE) 1207)
 #define EMC_AUX_INPUT_WAIT_TYPE                       ((NMLTYPE) 1209)
 
 #define EMC_AUX_STAT_TYPE                             ((NMLTYPE) 1299)
@@ -403,8 +395,6 @@ extern int emcMotionUpdate(EMC_MOTION_STAT * stat);
 
 extern int emcAbortCleanup(int reason,const char *message = "");
 
-int setup_inihal(void);
-
 // implementation functions for EMC_TOOL types
 
 extern int emcToolPrepare(int tool);
@@ -414,7 +404,6 @@ extern int emcToolLoadToolTable(const char *file);
 extern int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
                             double frontangle, double backangle, int orientation);
 extern int emcToolSetNumber(int number);
-extern int emcToolStartChange();
 
 // implementation functions for EMC_AUX types
 
@@ -446,11 +435,7 @@ extern int emcCoolantFloodOff();
 // implementation functions for EMC_IO types
 
 extern int emcIoInit();
-extern int emcIoHalt();
 extern int emcIoAbort(int reason);
-extern int emcIoSetDebug(int debug);
-
-extern int emcIoUpdate(EMC_IO_STAT * stat);
 
 // implementation functions for EMC aggregate types
 

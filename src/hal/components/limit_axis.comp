@@ -49,7 +49,7 @@ pin out bit error-limit-## [10:personality] = 1 "Error bit indicating that the m
 ;;
 
 FUNCTION(_){
-
+  int i;
   // Check sticky bit
   if(sticky(current_range)){
     if (min_range(current_range) <= fb &&
@@ -64,7 +64,7 @@ FUNCTION(_){
   }
 
   // Check all ranges
-  for (int i = 0; i < personality; i++){
+  for (i = 0; i < personality; i++){
     if (max_range(i) < min_range(i)){
       if(! enable(i)){
         continue;

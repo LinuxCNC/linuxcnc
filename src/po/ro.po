@@ -1,16 +1,17 @@
 # "Sob Data (HeavenlyChaos)" <sobdatag@gmail.com>, 2023.
+# Denis96 <denis96.c@proton.me>, 2023.
 msgid ""
 msgstr ""
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-03-04 00:49+0000\n"
-"Last-Translator: \"Sob Data (HeavenlyChaos)\" <sobdatag@gmail.com>\n"
+"PO-Revision-Date: 2023-09-09 16:54+0000\n"
+"Last-Translator: Denis96 <denis96.c@proton.me>\n"
 "Language: ro\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2;\n"
-"X-Generator: Weblate 4.16.2-dev\n"
+"X-Generator: Weblate 5.0.1-dev\n"
 
 #: src/emc/task/emctaskmain.cc:869
 #, c-format
@@ -18,38 +19,38 @@ msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
 msgstr ""
-"Comanda (%s) nu poate fi executată până când mașina nu iese din E-stop și e "
+"comanda (%s) nu poate fi executată până când mașina nu iese din E-stop și e "
 "pornită"
 
 #: src/emc/task/emctaskmain.cc:997
 #, c-format
 msgid "can't do that (%s:%d) in manual mode"
-msgstr "nu poți face (%s:%d) in modul manual"
+msgstr "nu poți face (%s:%d) în modul manual"
 
 #: src/emc/task/emctaskmain.cc:1104
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
-msgstr "nu poti face (%s) in modul auto cu interpretul inactiv"
+msgstr "nu poți face (%s) în modul auto cu interpretul inactiv"
 
 #: src/emc/task/emctaskmain.cc:1173
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
-msgstr ""
+msgstr "nu poți face (%s) în modul auto cu interpretul citind"
 
 #: src/emc/task/emctaskmain.cc:1260
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
-msgstr ""
+msgstr "nu poți face (%s) în modul auto cu interpretul oprit"
 
 #: src/emc/task/emctaskmain.cc:1331
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
-msgstr ""
+msgstr "nu poți face (%s) în modul auto cu interpretul așteptând"
 
 #: src/emc/task/emctaskmain.cc:1452
 #, c-format
 msgid "can't do that (%s:%d) in MDI mode"
-msgstr ""
+msgstr "nu poți face (%s:%d) în modul MDI"
 
 #: src/emc/task/emctaskmain.cc:2109
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
@@ -57,7 +58,7 @@ msgstr ""
 
 #: src/emc/task/emctaskmain.cc:2162
 msgid "failed to close file"
-msgstr ""
+msgstr "nu am putut închide fișierul"
 
 #: src/emc/task/emctaskmain.cc:2176 tcl/bin/genedit.tcl:197
 #: tcl/tklinuxcnc.tcl:452
@@ -11857,7 +11858,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249

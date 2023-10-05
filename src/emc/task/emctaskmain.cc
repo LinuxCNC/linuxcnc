@@ -137,6 +137,7 @@ int done;
 static int emctask_shutdown(void);
 extern void backtrace(int signo);
 int _task = 1; // control preview behaviour when remapping
+static int joints = 0;
 
 // for operator display on iocontrol signalling a toolchanger fault if io.fault is set
 // %d receives io.reason
@@ -830,7 +831,7 @@ static int emcTaskPlan(void)
 	    case EMC_MOTION_SET_AOUT_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
-	    case EMC_SET_DEBUG_TYPE:
+		case EMC_SET_DEBUG_TYPE:
 		retval = emcTaskIssueCommand(emcCommand);
 		break;
 
@@ -945,7 +946,7 @@ static int emcTaskPlan(void)
 	    case EMC_MOTION_ADAPTIVE_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
-	    case EMC_SET_DEBUG_TYPE:
+		case EMC_SET_DEBUG_TYPE:
 		retval = emcTaskIssueCommand(emcCommand);
 		break;
 
@@ -1288,7 +1289,7 @@ static int emcTaskPlan(void)
 		case EMC_TRAJ_PROBE_TYPE:
 		case EMC_AUX_INPUT_WAIT_TYPE:
 	        case EMC_TRAJ_RIGID_TAP_TYPE:
-		case EMC_SET_DEBUG_TYPE:
+			case EMC_SET_DEBUG_TYPE:
                 case EMC_COOLANT_MIST_ON_TYPE:
                 case EMC_COOLANT_MIST_OFF_TYPE:
                 case EMC_COOLANT_FLOOD_ON_TYPE:
@@ -1380,7 +1381,7 @@ static int emcTaskPlan(void)
 	    case EMC_MOTION_SET_AOUT_TYPE:
 	    case EMC_MOTION_ADAPTIVE_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
-	    case EMC_SET_DEBUG_TYPE:
+		case EMC_SET_DEBUG_TYPE:
 		retval = emcTaskIssueCommand(emcCommand);
 		break;
 
@@ -1499,7 +1500,6 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 
     case EMC_TOOL_LOAD_TYPE:
     case EMC_TOOL_UNLOAD_TYPE:
-    case EMC_TOOL_START_CHANGE_TYPE:
     case EMC_COOLANT_MIST_ON_TYPE:
     case EMC_COOLANT_MIST_OFF_TYPE:
     case EMC_COOLANT_FLOOD_ON_TYPE:
@@ -1562,12 +1562,6 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_MOTION_ADAPTIVE_TYPE:
 	return EMC_TASK_EXEC::WAITING_FOR_MOTION;
 	break;
-
-    case EMC_EXEC_PLUGIN_CALL_TYPE:
-    case EMC_IO_PLUGIN_CALL_TYPE:
-	return EMC_TASK_EXEC::DONE;
-	break;
-
 
     default:
 	// unrecognized command
@@ -1926,8 +1920,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_SET_DEBUG_TYPE:
 	/* set the debug level here */
 	emc_debug = ((EMC_SET_DEBUG *) cmd)->debug;
-	/* and in IO and motion */
-	emcIoSetDebug(emc_debug);
+	/* and motion */
 	emcMotionSetDebug(emc_debug);
 	/* and reflect it in the status-- this isn't updated continually */
 	emcStatus->debug = emc_debug;
@@ -2004,10 +1997,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TOOL_PREPARE_TYPE:
 	tool_prepare_msg = (EMC_TOOL_PREPARE *) cmd;
 	retval = emcToolPrepare(tool_prepare_msg->tool);
-	break;
-
-    case EMC_TOOL_START_CHANGE_TYPE:
-        retval = emcToolStartChange();
 	break;
 
     case EMC_TOOL_LOAD_TYPE:
@@ -2316,14 +2305,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = 0;
 	break;
 
-    case EMC_EXEC_PLUGIN_CALL_TYPE:
-	retval =  emcPluginCall( (EMC_EXEC_PLUGIN_CALL *) cmd);
-	break;
-
-    case EMC_IO_PLUGIN_CALL_TYPE:
-	retval =  emcIoPluginCall( (EMC_IO_PLUGIN_CALL *) cmd);
-	break;
-
      default:
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
@@ -2397,14 +2378,13 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TOOL_LOAD_TYPE:
     case EMC_TOOL_UNLOAD_TYPE:
     case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
-    case EMC_TOOL_START_CHANGE_TYPE:
     case EMC_TOOL_SET_OFFSET_TYPE:
     case EMC_TOOL_SET_NUMBER_TYPE:
     case EMC_SPINDLE_SPEED_TYPE:
     case EMC_SPINDLE_ON_TYPE:
     case EMC_SPINDLE_OFF_TYPE:
     case EMC_SPINDLE_ORIENT_TYPE:
-    case EMC_COOLANT_MIST_ON_TYPE:
+	case EMC_COOLANT_MIST_ON_TYPE:
     case EMC_COOLANT_MIST_OFF_TYPE:
     case EMC_COOLANT_FLOOD_ON_TYPE:
     case EMC_COOLANT_FLOOD_OFF_TYPE:
@@ -2433,11 +2413,6 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_MOTION_SET_AOUT_TYPE:
     case EMC_MOTION_SET_DOUT_TYPE:
     case EMC_MOTION_ADAPTIVE_TYPE:
-	return EMC_TASK_EXEC::DONE;
-	break;
-
-    case EMC_EXEC_PLUGIN_CALL_TYPE:
-    case EMC_IO_PLUGIN_CALL_TYPE:
 	return EMC_TASK_EXEC::DONE;
 	break;
 
@@ -2917,53 +2892,15 @@ static int emctask_startup()
     // initialize the subsystems
 
     // IO first
-
-    if (!(emc_debug & EMC_DEBUG_NML)) {
-	set_rcs_print_destination(RCS_PRINT_TO_NULL);	// inhibit diag
-	// messages
-    }
-    end = RETRY_TIME;
-    good = 0;
-    do {
-	if (0 == emcIoInit()) {
-	    good = 1;
-	    break;
-	}
-	esleep(RETRY_INTERVAL);
-	end -= RETRY_INTERVAL;
-	if (done) {
-	    emctask_shutdown();
-	    exit(1);
-	}
-    } while (end > 0.0);
-    set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// restore diag
-    // messages
-    if (!good) {
-	rcs_print_error("can't initialize IO\n");
-	return -1;
+    if (emcIoInit() != 0) {
+        rcs_print_error("can't initialize IO\n");
+        return -1;
     }
 
-    end = RETRY_TIME;
-    good = 0;
-    do {
-	if (0 == emcIoUpdate(&emcStatus->io)) {
-	    good = 1;
-	    break;
-	}
-	esleep(RETRY_INTERVAL);
-	end -= RETRY_INTERVAL;
-	if (done) {
-	    emctask_shutdown();
-	    exit(1);
-	}
-    } while (end > 0.0);
-    if (!good) {
-	rcs_print_error("can't read IO status\n");
-	return -1;
+    if (ini_hal_init(joints)) {
+        rcs_print_error("%s: ini_hal_init failed\n", __PRETTY_FUNCTION__);
+        return -1;
     }
-
-
-    // now motion
 
     end = RETRY_TIME;
     good = 0;
@@ -2984,9 +2921,9 @@ static int emctask_startup()
 	return -1;
     }
 
-    if (setup_inihal() != 0) {
-	rcs_print_error("%s: failed to setup inihal\n", __FUNCTION__);
-	return -1;
+	if (ini_hal_init_pins(joints)) {
+        rcs_print_error("%s: ini_hal_init_pins failed\n", __PRETTY_FUNCTION__);
+        return -1;
     }
 
     end = RETRY_TIME;
@@ -3037,7 +2974,6 @@ static int emctask_shutdown(void)
 	emcTaskHalt();
 	emcTaskPlanExit();
 	emcMotionHalt();
-	emcIoHalt();
     }
     // delete the timer
     if (0 != timer) {
@@ -3081,6 +3017,16 @@ static int iniLoad(const char *filename)
     // open it
     if (inifile.Open(filename) == false) {
 	return -1;
+    }
+
+	if (NULL != (inistring = inifile.Find("JOINTS", "KINS"))) {
+	// copy to global
+	if (1 != sscanf(inistring, "%i", &joints)) {
+	    joints = 0;
+	}
+    } else {
+	// not found, use default
+	joints = 0;
     }
 
     if (NULL != (inistring = inifile.Find("DEBUG", "EMC"))) {
@@ -3265,16 +3211,14 @@ int main(int argc, char *argv[])
     // moved up from emc_startup so we can expose it in Python right away
     emcStatus = new EMC_STAT;
 
-#ifdef TOOL_NML //{
-    tool_nml_register( (CANON_TOOL_TABLE*)&emcStatus->io.tool.toolTable);
-#else //}{
-    tool_mmap_user();
-    // initialize database tool finder:
-#endif //}
     // get the Python plugin going
 
     // inistantiate task methods object, too
-    emcTaskOnce(emc_inifile);
+	if (emcTaskOnce(emc_inifile, emcStatus->io)) {
+		rcs_print_error("can't initialize task object / HAL\n");
+		emctask_shutdown();
+		exit(1);
+	}
     rtapi_strxcpy(emcStatus->task.ini_filename, emc_inifile);
     if (task_methods == NULL) {
 	set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// restore diag
@@ -3282,9 +3226,6 @@ int main(int argc, char *argv[])
 	emctask_shutdown();
 	exit(1);
     }
-
-    // this is the place to run any post-HAL-creation halcmd files
-    emcRunHalFiles(emc_inifile);
 
     // initialize everything
     if (0 != emctask_startup()) {
@@ -3332,7 +3273,6 @@ int main(int argc, char *argv[])
 	}
 	// update subordinate status
 
-	emcIoUpdate(&emcStatus->io);
 	emcMotionUpdate(&emcStatus->motion);
 	// synchronize subordinate states
 	if (emcStatus->io.aux.estop) {
@@ -3517,6 +3457,7 @@ int main(int argc, char *argv[])
 	} else {
 	    timer->wait();
 	}
+	task_methods->run();
     }
     // end of while (! done)
 

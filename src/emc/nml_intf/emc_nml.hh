@@ -1228,16 +1228,6 @@ class EMC_TOOL_CMD_MSG:public RCS_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_TOOL_INIT:public EMC_TOOL_CMD_MSG {
-  public:
-    EMC_TOOL_INIT():EMC_TOOL_CMD_MSG(EMC_TOOL_INIT_TYPE,
-				     sizeof(EMC_TOOL_INIT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
 class EMC_TOOL_HALT:public EMC_TOOL_CMD_MSG {
   public:
     EMC_TOOL_HALT():EMC_TOOL_CMD_MSG(EMC_TOOL_HALT_TYPE,
@@ -1332,16 +1322,6 @@ class EMC_TOOL_SET_NUMBER:public EMC_TOOL_CMD_MSG {
     int tool; //number to use for currently loaded tool
 };
 
-class EMC_TOOL_START_CHANGE:public EMC_TOOL_CMD_MSG {
-  public:
-    EMC_TOOL_START_CHANGE():EMC_TOOL_CMD_MSG(EMC_TOOL_START_CHANGE_TYPE,
-					     sizeof(EMC_TOOL_START_CHANGE)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
 // EMC_TOOL status base class
 class EMC_TOOL_STAT_MSG:public RCS_STAT_MSG {
   public:
@@ -1377,26 +1357,6 @@ class EMC_TOOL_STAT:public EMC_TOOL_STAT_MSG {
 class EMC_AUX_CMD_MSG:public RCS_CMD_MSG {
   public:
     EMC_AUX_CMD_MSG(NMLTYPE t, size_t s):RCS_CMD_MSG(t, s) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_AUX_ESTOP_ON:public EMC_AUX_CMD_MSG {
-  public:
-    EMC_AUX_ESTOP_ON():EMC_AUX_CMD_MSG(EMC_AUX_ESTOP_ON_TYPE,
-				       sizeof(EMC_AUX_ESTOP_ON)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_AUX_ESTOP_OFF:public EMC_AUX_CMD_MSG {
-  public:
-    EMC_AUX_ESTOP_OFF():EMC_AUX_CMD_MSG(EMC_AUX_ESTOP_OFF_TYPE,
-					sizeof(EMC_AUX_ESTOP_OFF)) {
     };
 
     // For internal NML/CMS use only.
@@ -1670,16 +1630,6 @@ class EMC_COOLANT_STAT:public EMC_COOLANT_STAT_MSG {
 
 // EMC_IO is aggregate of all EMC IO-related status classes
 
-// EMC_IO command base class
-class EMC_IO_CMD_MSG:public RCS_CMD_MSG {
-  public:
-    EMC_IO_CMD_MSG(NMLTYPE t, size_t s):RCS_CMD_MSG(t, s) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
 // EMC_IO status base class
 class EMC_IO_STAT_MSG:public RCS_STAT_MSG {
   public:
@@ -1718,37 +1668,6 @@ class EMC_CMD_MSG:public RCS_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 };
-
-/** queue a call to a task-time Python plugin method
- * call is expected to be a tuple of (method,pickled posargs,pickled kwargs)
- */
-class EMC_EXEC_PLUGIN_CALL:public EMC_CMD_MSG {
-  public:
-    EMC_EXEC_PLUGIN_CALL():EMC_CMD_MSG(EMC_EXEC_PLUGIN_CALL_TYPE,
-				    sizeof(EMC_EXEC_PLUGIN_CALL)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-    int len;
-    char call[900]; // MAX_NML_COMMAND_SIZE-100;
-};
-
-/** queue a call to a task-time Io Task Python plugin method
- * call is expected to be a tuple of (method,pickled posargs,pickled kwargs)
- */
-class EMC_IO_PLUGIN_CALL:public EMC_CMD_MSG {
-  public:
-    EMC_IO_PLUGIN_CALL():EMC_CMD_MSG(EMC_IO_PLUGIN_CALL_TYPE,
-				    sizeof(EMC_IO_PLUGIN_CALL)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-    int len;
-    char call[900]; // MAX_NML_COMMAND_SIZE-100;
-};
-
 
 // EMC status base class
 

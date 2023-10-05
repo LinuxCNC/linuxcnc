@@ -562,6 +562,8 @@ static void base_do_home_joint(int jno) {
 static void base_do_cancel_homing(int jno) {
     if (H[jno].homing) {
         H[jno].home_state = HOME_ABORT;
+    }else if(H[jno].joint_in_sequence){
+        H[jno].home_state = HOME_ABORT;
     }
 }
 

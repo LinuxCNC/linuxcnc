@@ -301,8 +301,8 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         if self.suppress > 0: return
         self.first_move = False
         l = self.rotate_and_translate(x,y,z,0,0,0,0,0,0)[:3]
-        l += [self.lo[3], self.lo[4], self.lo[5],
-               self.lo[6], self.lo[7], self.lo[8]]
+        l += (self.lo[3], self.lo[4], self.lo[5],
+               self.lo[6], self.lo[7], self.lo[8])
         self.feed_append((self.lineno, self.lo, l, self.feedrate, (self.xo, self.yo, self.zo)))
 #        self.dwells_append((self.lineno, self.colors['dwell'], x + self.offset_x, y + self.offset_y, z + self.offset_z, 0))
         self.feed_append((self.lineno, l, self.lo, self.feedrate, (self.xo, self.yo, self.zo)))
@@ -391,9 +391,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
 
     def draw(self, for_selection=0, no_traverse=True):
         if not no_traverse:
-            glEnable(GL_LINE_STIPPLE)
             self.colored_lines('traverse', self.traverse, for_selection)
-            glDisable(GL_LINE_STIPPLE)
         else:
             self.colored_lines('straight_feed', self.feed, for_selection, len(self.traverse))
 
@@ -477,6 +475,7 @@ class GlCanonDraw:
         'arc_feed_alpha_uv': 1/3.,
         'axis_y': (1.00, 0.20, 0.20),
         'grid': (0.15, 0.15, 0.15),
+        'limits': (1.0, 0.0, 0.0),
     }
     def __init__(self, s=None, lp=None, g=None):
         self.stat = s
@@ -1299,9 +1298,7 @@ class GlCanonDraw:
         if self.get_show_limits():
             glTranslatef(*[-x for x in self.to_internal_units(s.tool_offset)[:3]])
             glLineWidth(1)
-            glColor3f(1.0,0.0,0.0)
-            glLineStipple(1, 0x1111)
-            glEnable(GL_LINE_STIPPLE)
+            glColor3f(*self.colors['limits'])
             glBegin(GL_LINES)
 
             glVertex3f(machine_limit_min[0], machine_limit_min[1], machine_limit_max[2])
@@ -1343,8 +1340,6 @@ class GlCanonDraw:
             glVertex3f(machine_limit_max[0], machine_limit_min[1], machine_limit_max[2])
 
             glEnd()
-            glDisable(GL_LINE_STIPPLE)
-            glLineStipple(2, 0x5555)
             glTranslatef(*self.to_internal_units(s.tool_offset)[:3])
 
         if self.get_show_live_plot():

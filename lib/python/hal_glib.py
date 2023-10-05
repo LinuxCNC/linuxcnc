@@ -178,6 +178,7 @@ class _GStat(GObject.GObject):
         'm-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'g-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'f-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        's-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
         'blend-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT, GObject.TYPE_FLOAT)),
 
         'metric-mode-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
@@ -395,6 +396,7 @@ class _GStat(GObject.GObject):
         self.old['tool-info']  = self.stat.tool_table[0]
         settings = self.stat.settings
         self.old['f-code'] = settings[1]
+        self.old['s-code'] = settings[2]
         self.old['blend-tolerance-code'] = settings[3]
         self.old['nativecam-tolerance-code'] = settings[4]
 
@@ -722,6 +724,12 @@ class _GStat(GObject.GObject):
         if f_code_new != f_code_old:
             self.emit('f-code-changed',f_code_new)
 
+        # s code
+        s_code_old = old.get('s-code', None)
+        s_code_new = self.old['s-code']
+        if s_code_new != s_code_old:
+            self.emit('s-code-changed',f_code_new)
+
         # g53 blend code
         blend_code_old = old.get('blend-tolerance-code', None)
         blend_code_new = self.old['blend-tolerance-code']
@@ -845,6 +853,10 @@ class _GStat(GObject.GObject):
         # feed code
         f_code_new = self.old['f-code']
         self.emit('f-code-changed',f_code_new)
+
+        # s code
+        s_code_new = self.old['s-code']
+        self.emit('s-code-changed',f_code_new)
 
         # g53 blend code
         blend_code_new = self.old['blend-tolerance-code']

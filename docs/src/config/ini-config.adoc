@@ -218,6 +218,7 @@ Do _not_ use a file extension of '.ini' for included files.
   You can put whatever you want here as long as you make it a single line long.
 * `DEBUG = 0` - Debug level 0 means no messages will be printed when LinuxCNC is run from a <<faq:terminal,terminal>>.
   Debug flags are usually only useful to developers. See src/emc/nml_intf/debugflags.h for other settings.
+* `NML_FILE = /usr/share/linuxcnc/linuxcnc.nml` - Set this if you want to use a non-default NML configuration file.
 
 [[sub:ini:sec:display]]
 === [DISPLAY] Section(((INI File,Sections,[DISPLAY] Section)))
@@ -283,6 +284,7 @@ Descriptions of the interfaces are in the Interfaces section of the User Manual.
   An under powered CPU may see improvement with a longer setting.
   Usually the default is fine.
 * `PREVIEW_TIMEOUT = 5` - Timeout (in seconds) for loading graphical preview of G-code. Currently AXIS only.
+* `HOMING_PROMPT = TRUE` - Show prompt message with homing request, when the Power On button is pressed in AXIS GUI. Pressing the "Ok" button in prompt message is equivalent to pressing the "Home All" button(or the Ctrl-HOME key).
 
 [NOTE]
 The following [DISPLAY] items are used by GladeVCP and PyVCP,
@@ -682,6 +684,7 @@ For more information see the <<cha:hal-twopass,HAL TWOPASS>> chapter.
 
 * `MDI_COMMAND = G53 G0 X0 Y0 Z0` -
   An MDI command can be executed by using `halui.mdi-command-00`. Increment the number for each command listed in the [HALUI] section.
+  It is also possible to start subroutines. `MDI_COMMAND = o<yoursub> CALL [#<yourvariable>]` 
 
 [[sub:ini:sec:applications]]
 === [APPLICATIONS] Section(((INI File,Sections,[APPLICATIONS] Section)))
@@ -1293,28 +1296,38 @@ image::images/encoder-scale.png[align="center"]
 [[sub:ini:sec:spindle-num]]
 === [SPINDLE_<num>] Section(s)(((INI File,Sections,[SPINDLE_<num>] Section(s))))
 
-The _<num>_ specifies the spindle number 0 ... (num_spindles-1)
-The value of _num_spindles_ is set by `[TRAJ]SPINDLES=` .
+The _<num>_ specifies the spindle number 0 ... (num_spindles-1) +
+The value of _num_spindles_ is set by `[TRAJ]SPINDLES=` . +
+By default maximum velocity of the spindle in forward and reverse is approximately
+  2147483000 RPM. +
+By default minimum velocity of the spindle in forward and reverse is 0 RPM. +
+By default the increment is 100 RPM. +
+You change these default by setting the following INI variables:
 
-* `MAX_VELOCITY = 20000`
+[NOTE]
+These settings are for the motion controller component. Control screens can limit
+ these settings further. 
+
+* `MAX_FORWARD_VELOCITY = 20000`
   The maximum spindle speed (in rpm) for the specified spindle. Optional.
-* `MIN_VELOCITY = 3000`
+  This will also set MIN_FORWARD_VELOCITY to the negative value unless overridden.
+* `MIN_FORWARD_VELOCITY = 3000`
   The minimum spindle speed (in rpm) for the specified spindle. Optional.
   Many spindles have a minimum speed below which they should not be run.
   Any spindle speed command below this limit will be /increased/ to this limit.
 * `MAX_REVERSE_VELOCITY = 20000`
-  This setting will default to `MAX_VELOCITY` if omitted.
+  This setting will default to `MAX_FORWARD_VELOCITY` if omitted.
   It can be used in cases where the spindle speed is limited in reverse.
   Set to zero for spindles which must not be run in reverse.
   In this context "max" refers to the absolute magnitude of the spindle speed.
 * `MIN_REVERSE_VELOCITY = 3000``
-  This setting is equivalent to `MIN_VELOCITY` but for reverse spindle rotation.
-  It will default to the MIN_VELOCITY if omitted.
+  This setting is equivalent to `MIN_FORWARD_VELOCITY` but for reverse spindle rotation.
+  It will default to the MIN_FORWARD_VELOCITY if omitted.
 * `INCREMENT = 200`
   Sets the step size for spindle speed increment / decrement commands.
   This can have a different value for each spindle.
   This setting is effective with AXIS and Touchy but note that some
-  GUIs may handle things differently.
+  control screens may handle things differently.
 * `HOME_SEARCH_VELOCITY = 100` - FIXME: Spindle homing not yet working.
   Sets the homing speed (rpm) for the spindle.
   The spindle will rotate at this velocity during the homing sequence until the spindle index is located, at which point the spindle position will be set to zero.

@@ -167,6 +167,7 @@ static PyTypeObject LineCodeType = {
 static PyObject *callback;
 static int interp_error;
 static int last_sequence_number;
+static int selected_tool = 0;
 static bool metric;
 static double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w;
 EmcPose tool_offset;
@@ -427,11 +428,11 @@ void SET_FEED_MODE(int spindle, int mode) {
 #endif
 }
 
-void CHANGE_TOOL(int pocket) {
+void CHANGE_TOOL() {
     maybe_new_line();
     if(interp_error) return;
     PyObject *result = 
-        callmethod(callback, "change_tool", "i", pocket);
+        callmethod(callback, "change_tool", "i", selected_tool);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 }
@@ -528,10 +529,9 @@ void PROGRAM_END() {}
 void FINISH() {}
 void ON_RESET() {}
 void PALLET_SHUTTLE() {}
-void SELECT_TOOL(int tool) {}
+void SELECT_TOOL(int tool) {selected_tool = tool;}
 void UPDATE_TAG(StateTag tag) {}
 void OPTIONAL_PROGRAM_STOP() {}
-void START_CHANGE() {}
 int  GET_EXTERNAL_TC_FAULT() {return 0;}
 int  GET_EXTERNAL_TC_REASON() {return 0;}
 
@@ -581,8 +581,6 @@ void TURN_PROBE_OFF() {}
 int UNLOCK_ROTARY(int line_no, int joint_num) {return 0;}
 int LOCK_ROTARY(int line_no, int joint_num) {return 0;}
 void INTERP_ABORT(int reason,const char *message) {}
-void PLUGIN_CALL(int len, const char *call) {}
-void IO_PLUGIN_CALL(int len, const char *call) {}
 
 void STRAIGHT_PROBE(int line_number, 
                     double x, double y, double z, 

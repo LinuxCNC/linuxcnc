@@ -99,6 +99,7 @@ All halui pins are also documented in the halui man page:
 ----
 $ man halui
 ----
+Or see http://linuxcnc.org/docs/stable/html/man/man1/halui.1.html
 
 === Abort
 

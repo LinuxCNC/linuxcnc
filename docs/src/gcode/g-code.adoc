@@ -1690,6 +1690,10 @@ It is an error if:
 [[gcode:g71-g72]]
 == G71 G72 Lathe roughing cycles(((G71 G72 Lathe roughing cycles)))
 
+[NOTE]
+The G71 and G72 cycles are currently somewhat fragile. See issues #707
+and #1146
+
 [source,{ngc}]
 ----
 G71   Q- <X-> <Z-> <D-> <I-> <R->

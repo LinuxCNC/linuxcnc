@@ -3367,7 +3367,9 @@ int Interp::gen_settings(
 
     // F, S
     for (i = 0; i < ACTIVE_SETTINGS; i++) {
-	if (float_saved[i] != float_current[i]) {
+	// "if" masked to address https://github.com/LinuxCNC/linuxcnc/issues/1987
+	// The setting value is correct, but seems to be mislaid downstream
+	//if (float_saved[i] != float_current[i]) {
 	    switch (i) {
 	    case GM_FIELD_FLOAT_LINE_NUMBER:
 		// sequence_number - no point in restoring
@@ -3385,8 +3387,8 @@ int Interp::gen_settings(
 		// G64 special case; see below
 		g64_changed = 1;
 		break;
-	    }
-	}
+	   }
+	//}
     }
 
     // G-codes
@@ -3475,7 +3477,6 @@ int Interp::gen_settings(
 		float_saved[GM_FIELD_FLOAT_NAIVE_CAM_TOLERANCE]);
 	cmd += buf;
     }
-
     return INTERP_OK;
 }
 
@@ -6077,7 +6078,6 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
        (_("Cannot change tools with cutter radius compensation on")));
 
-  START_CHANGE(); // indicate start of change operation
   if (!settings->tool_change_with_spindle_on) {
 	  for (int s = 0; s < settings->num_spindles; s++){
 		  STOP_SPINDLE_TURNING(s);
@@ -6150,7 +6150,7 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
       settings->w_current = w_end;
   }
 
-  CHANGE_TOOL(settings->selected_pocket);
+  CHANGE_TOOL();
 
   settings->current_pocket = settings->selected_pocket;
   // tool change can move the controlled point.  reread it:

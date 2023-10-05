@@ -635,7 +635,7 @@ extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double 
                                  double frontangle, double backangle, int orientation);
 extern void USE_TOOL_LENGTH_OFFSET(EmcPose offset);
 
-extern void CHANGE_TOOL(int slot);	/* slot is slot number */
+extern void CHANGE_TOOL();
 
 /* It is assumed that each cutting tool in the machine is assigned to a
 slot (intended to correspond to a slot number in a tool carousel).
@@ -679,11 +679,6 @@ toolnumber before shutdown isn't currently written, there is no provision
 to allow emc2 to safely restart knowing what tool is in the spindle.
 Using CHANGE_TOOL_NUMBER one can tell emc2 (without any physical action)
 to set the mapping of the currently loaded tool to a certain number */
-
-extern void START_CHANGE(void);
-/* executed at the very start of an M6 command before any movements,
-spindle stop or quill up have been issued, to speed up toolchanging
-process. Passed through to iocontrol to drive a pin. */
 
 /* Miscellaneous Functions */
 
@@ -1046,12 +1041,6 @@ extern void ON_RESET(void);
 // expose CANON_ERROR
 extern void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
-// queue a call to a task-time Python plugin method
-// call is expected to be a tuple of (method,pickled posargs,pickled kwargs)
-extern void PLUGIN_CALL(int len, const char *call);
-
-// same for IoTask context
-extern void IO_PLUGIN_CALL(int len, const char *call);
 extern int     GET_EXTERNAL_OFFSET_APPLIED();
 extern EmcPose GET_EXTERNAL_OFFSETS();
 extern void UPDATE_TAG(StateTag tag);

@@ -146,11 +146,10 @@ void USE_NO_SPINDLE_FORCE() {}
 void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diameter,
                                  double frontangle, double backangle, int orientation) {}
 void USE_TOOL_LENGTH_OFFSET(EmcPose offset) {}
-void CHANGE_TOOL(int slot) {}	
+void CHANGE_TOOL() {}	
 void SELECT_TOOL(int tool) {}	
 void CHANGE_TOOL_NUMBER(int number) {}
 void RELOAD_TOOLDATA() {}
-void START_CHANGE(void) {}
 void CLAMP_AXIS(CANON_AXIS axis) {}
 void COMMENT(const char *s) { puts(s); }
 void DISABLE_ADAPTIVE_FEED() {}
@@ -260,8 +259,6 @@ int GET_EXTERNAL_AXIS_MASK() { return 7; }
 void FINISH(void) {}
 void ON_RESET(void) {}
 void CANON_ERROR(const char *fmt, ...) {}
-void PLUGIN_CALL(int len, const char *call) {}
-void IO_PLUGIN_CALL(int len, const char *call) {}
 void UPDATE_TAG(StateTag tag) {}
 USER_DEFINED_FUNCTION_TYPE
     USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM];

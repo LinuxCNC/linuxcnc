@@ -391,10 +391,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 answer = True
             # system shutdown
             if answer == QtWidgets.QMessageBox.DestructiveRole:
-                self.QTVCP_INSTANCE_.settings.sync()
                 self.QTVCP_INSTANCE_.shutdown()
-                self.QTVCP_INSTANCE_.panel_.shutdown()
-                STATUS.shutdown()
                 try:
                     HANDLER = self.QTVCP_INSTANCE_.handler_instance
                     if 'system_shutdown_request__' in dir(HANDLER):
@@ -411,10 +408,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             elif answer:
                 if self.PREFS_ and self.play_sounds and self.shutdown_play_sound:
                     STATUS.emit('play-sound', self.shutdown_exit_sound_type)
-                self.QTVCP_INSTANCE_.settings.sync()
                 self.QTVCP_INSTANCE_.shutdown()
-                self.QTVCP_INSTANCE_.panel_.shutdown()
-                STATUS.shutdown()
                 event.accept()
             # cancel
             elif answer == False:

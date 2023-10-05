@@ -110,7 +110,7 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
 
         self.toggle_float = False
         self._toggle_state = 0
-        self.joint = 0
+        self.joint = -1
         self.axis = ''
         self.jog_incr_imperial = .010
         self.jog_incr_mm = .025
@@ -143,8 +143,10 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
                 self.setChecked(True)
             self._safecheck(not STATUS.estop_is_clear())
             return
-
-        speed = STATUS.get_spindle_speed()
+        try:
+            speed = STATUS.get_spindle_speed()
+        except:
+            speed = 0
         if self.spindle_down and self.isCheckable():
             if speed == 0 or speed < 0:
                 self._safecheck(not self.isChecked())
@@ -736,6 +738,9 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
     def jog_action(self, direction):
         if STATUS.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE:
             actuator = self.joint
+            # joint number less then 0 means convert axis name to joint number
+            if self.joint <0:
+                actuator = INFO.GET_JOG_FROM_NAME[self.axis]
         else:
             actuator = self.axis
         if direction == 0:

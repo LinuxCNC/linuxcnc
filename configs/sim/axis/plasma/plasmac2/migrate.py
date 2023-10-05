@@ -45,7 +45,7 @@ class Dialog(Toplevel):
         f.grid(row=0, column=1, padx=1, pady=1)
         t = Label(f, text=title)
         t.grid(row=0, column=0, columnspan=3, sticky='ew')
-        l = Label(f, text=f'{text}\n', justify=justify)
+        l = Label(f, text=f"{text}\n", justify=justify)
         l.grid(row=1, column=0, columnspan=3, padx=8, pady=(8,0))
         if entry:
             e = Entry(f, textvariable=self.value, justify='center')
@@ -72,7 +72,7 @@ class Dialog(Toplevel):
             b0.grid(row=3, column=2, sticky='e', padx=(0,8), pady=(0,8))
         else:
             b1.grid(row=3, column=1, padx=(0,8), pady=(0,8))
-        parent.eval(f'tk::PlaceWindow {self} center')
+        parent.eval(f"tk::PlaceWindow {self} center")
 
     def on_button(self, button):
         if button == 2:
@@ -81,7 +81,7 @@ class Dialog(Toplevel):
             with open(self.parent.logFile, 'r') as inFile:
                 for line in inFile:
                     text += line
-            Dialog(self.parent, title, f'{text}').show()
+            Dialog(self.parent, title, text).show()
             self.reply = 'log'
         elif button and self.entry:
             self.reply = self.value.get()
@@ -99,7 +99,7 @@ class Migrate(Tk):
     def __init__(self):
         super().__init__()
         icon = PhotoImage(file=iconPath)
-        self.eval(f'wm iconphoto . {icon}')
+        self.eval(f"wm iconphoto . {icon}")
         self.title('plasmac2 Migrate')
         text  = _('Migration utility for plasmac2')
         l = Label(self, text=text)
@@ -121,18 +121,18 @@ class Migrate(Tk):
             msg2 = _('It needs to have been created by LinuxCNC')
             msg3 = _('and have a working QtPlasmaC configuration')
             msg4 = _('to ensure that the structure is correct')
-            Dialog(self, title, f'{msg1}.\n{msg2}\n{msg3}\n{msg4}.\n').show()
+            Dialog(self, title, f"{msg1}.\n{msg2}\n{msg3}\n{msg4}.\n").show()
             raise SystemExit
         if 'root' in self.lcnc:
             title = _('User Error')
             msg = _('plasmac2 setup can not be run as a root user')
-            Dialog(self, title, f'{msg}.\n').show()
+            Dialog(self, title, f"{msg}.\n").show()
             raise SystemExit
         self.configDir = os.path.join(self.lcnc, 'configs')
         self.currentDir = os.path.dirname(__file__)
         self.prefs = configparser.ConfigParser()
         self.prefs.optionxform=str
-        self.eval(f'tk::PlaceWindow {self} center')
+        self.eval(f"tk::PlaceWindow {self} center")
         self.bind('<m>', lambda e:self.migrate())
         self.bind('<q>', lambda e:self.shutdown())
 
@@ -147,22 +147,22 @@ class Migrate(Tk):
         iniFile = os.path.basename(ini)
         self.oldDir = os.path.dirname(ini)
         path, base = self.oldDir.rsplit('/',1)
-        newBase = f'{base}_plasmac2'
+        newBase = f"{base}_plasmac2"
         title = _('Directory Name')
         msg1 = _('The new directory name will be')
         msg2 = _('If you change it to the same name as the QtPlasmaC config')
         msg3 = _('then the QtPlasmaC config directory wil be renamed to:')
         msg4 = _('Accept it or change it then accept')
-        reply = Dialog(self, title, f'{msg1}: {newBase}\n\n{msg2}\n{msg3}\n{base}_qtplasmac\n\n{msg4}\n', buttons=2, entry=newBase).show()
+        reply = Dialog(self, title, f"{msg1}: {newBase}\n\n{msg2}\n{msg3}\n{base}_qtplasmac\n\n{msg4}\n", buttons=2, entry=newBase).show()
         if reply == base:
             try:
                 orgDir = self.oldDir
-                self.oldDir = f'{self.oldDir}_qtplasmac'
+                self.oldDir = f"{self.oldDir}_qtplasmac"
                 os.rename(orgDir, self.oldDir)
             except Exception as e:
                 title = 'Directory Error'
                 msg1 = _('Error while renaming')
-                Dialog(self, title, f'{msg1}: {orgDir}\n\nto: {self.oldDir}\n\n{e}').show()
+                Dialog(self, title, f"{msg1}: {orgDir}\n\nto: {self.oldDir}\n\n{e}").show()
                 return
         elif not reply:
             return
@@ -176,7 +176,7 @@ class Migrate(Tk):
             title = _('Directory Exists')
             msg1 = _('already exists')
             msg2 = _('Overwrite')
-            reply = Dialog(self, title, f'{self.newDir} {msg1}\n\n{msg2}?\n', buttons=2).show()
+            reply = Dialog(self, title, f"{self.newDir} {msg1}\n\n{msg2}?\n", buttons=2).show()
             if not reply:
                 return
             if os.path.isfile(self.newDir) or os.path.islink(self.newDir):
@@ -207,7 +207,7 @@ class Migrate(Tk):
             title = _('Migration Complete')
             msg1 = _('The INI file for the plasmac2 config is')
             msg2 = _('Copy Command will copy the complete command required to run LinuxCNC using this config')
-            msg  = f'{msg1}:\n\n{path}\n\n{msg2}.\n'
+            msg  = f"{msg1}:\n\n{path}\n\n{msg2}.\n"
             clip = False
             btns = 2
             if self.log:
@@ -218,7 +218,7 @@ class Migrate(Tk):
                 msg2 = _('Some hal files contain references to qtplasmac and they were commented out in the file')
                 msg3 = _('There is a log of these files in')
                 msg4 = _('in the new config directory')
-                msg += f'\n{msg1}\n\n{msg2}.\n\n{msg3} {os.path.basename(self.logFile)} {msg4}.\n'
+                msg += f"\n{msg1}\n\n{msg2}.\n\n{msg3} {os.path.basename(self.logFile)} {msg4}.\n"
                 btns = 3
             while 1:
                 reply = Dialog(self, title, msg, buttons=btns, insType=INSTYPE[0]).show()
@@ -227,19 +227,19 @@ class Migrate(Tk):
                         text1 = _('Warning')
                         text2 = _('The copied command will be removed from the')
                         text3 = _('system clipboard when this window is closed')
-                        self.label['text'] = f'{text1}:\n{text2}\n{text3}.\n'
+                        self.label['text'] = f"{text1}:\n{text2}\n{text3}.\n"
                     break
                 elif reply == 0:
                     clip = True
                     self.clipboard_clear()
-                    self.clipboard_append(f'{INSTYPE[1]} {path}')
+                    self.clipboard_append(f"{INSTYPE[1]} {path}")
                     self.update()
         except Exception as e:
             title = _('Migration error')
             line = sys.exc_info()[-1].tb_lineno
             msg1 = _('Migration was unsuccessful')
             msg2 = _('Error in line')
-            Dialog(self, title, f'{msg1}.\n\n{msg2}: {line}\n{str(e)}').show()
+            Dialog(self, title, f"{msg1}.\n\n{msg2}: {line}\n{str(e)}").show()
 
     def do_ini_file(self):
         with open(self.newIni, 'r') as inFile:
@@ -300,7 +300,7 @@ class Migrate(Tk):
         for lNum in section:
             if section[lNum].startswith('USER_M_PATH') and 'u' not in done:
                 mPath = config[lNum].split('=')[1].strip()
-                config[lNum] = f'USER_M_PATH = ./plasmac2:{mPath}\n'
+                config[lNum] = f"USER_M_PATH = ./plasmac2:{mPath}\n"
                 done.append('u')
         for option in ['u']:
             if option == 'u' and option not in done:
@@ -382,7 +382,7 @@ class Migrate(Tk):
             app1 = '[APPLICATIONS]'
             app2 = 'DELAY = 2'
             app3 = 'APP = plasmac2/lib/sim/sim_panel.py'
-            config.insert(0, f'{app1}\n{app2}\n{app3}\n\n')
+            config.insert(0, f"{app1}\n{app2}\n{app3}\n\n")
         # write the ini file
         with open(self.newIni, 'w') as outFile:
             for line in config:
@@ -401,16 +401,16 @@ class Migrate(Tk):
                 for lNum in range(len(config)):
                     if 'qtplasmac.ext_' in config[lNum]:
                         for pin in validPins:
-                            if f'qtplasmac.ext_{pin}' in config[lNum]:
-                                config[lNum] = config[lNum].replace(f'qtplasmac.ext_{pin}', f'axisui.ext.{pin}')
+                            if f"qtplasmac.ext_{pin}" in config[lNum]:
+                                config[lNum] = config[lNum].replace(f"qtplasmac.ext_{pin}", f"axisui.ext.{pin}")
                                 edit = True
                     if 'qtplasmac' in config[lNum] or 'sim-torch' in config[lNum]:
-                        config[lNum] = f'# MIGRATION: {config[lNum]}'
+                        config[lNum] = f"# MIGRATION: {config[lNum]}"
                         edit = True
                         if not logged:
-                            self.log.append(f'\n{file}\n')
+                            self.log.append(f"\n{file}\n")
                             logged = True
-                        self.log.append(f'{lNum+1} - {config[lNum]}')
+                        self.log.append(f"{lNum+1} - {config[lNum]}")
             # write the hal fil
             if edit:
                 with open(halFile, 'w') as outFile:
@@ -418,7 +418,7 @@ class Migrate(Tk):
                         outFile.write(line)
 
     def do_prefs_file(self):
-        prefsFile = os.path.join(self.newDir, f'{self.machineName}.prefs')
+        prefsFile = os.path.join(self.newDir, f"{self.machineName}.prefs")
         with open(prefsFile, 'r') as inFile:
             config = inFile.readlines()
         # [BUTTONS] section
@@ -432,15 +432,15 @@ class Migrate(Tk):
             if 'Name =' in section[lNum]:
                 name, value = config[lNum].split('=')
                 value = value.replace('\\',' ').replace('&&', '& ')
-                config[lNum] = f'{name}={value}'
+                config[lNum] = f"{name}={value}"
                 edit = True
             if 'Code =' in section[lNum] and 'offsets-view' in section[lNum]:
-                config[lNum-1] = f'{config[lNum-1].split("=")[0]}= \n'
-                config[lNum] = f'{config[lNum].split("=")[0]}= \n'
-                self.log.append(f'\n{self.machineName}.prefs\n')
+                config[lNum-1] = f"{config[lNum-1].split('=')[0]}= \n"
+                config[lNum] = f"{config[lNum].split('=')[0]}= \n"
+                self.log.append(f"\n{self.machineName}.prefs\n")
                 text1 = _('is not available in plasmac2')
                 text2 = _('it has been removed from the prefs file')
-                self.log.append(f'{lNum} & {lNum+1} - offsets-view {text1}, {text2}.\n')
+                self.log.append(f"{lNum} & {lNum+1} - offsets-view {text1}, {text2}.\n")
                 edit = True
             elif 'qtplasmac.ext_' in config[lNum]:
                 config[lNum] = config[lNum].replace('qtplasmac.ext_','axisui.ext.')
@@ -453,13 +453,13 @@ class Migrate(Tk):
 
     def copy_custom_files(self, dir):
         for f in ['commands', 'hal', 'periodic']:
-            src = os.path.join(self.currentDir, 'lib/custom', f'user_{f}.py')
+            src = os.path.join(self.currentDir, 'lib/custom', f"user_{f}.py")
             copy(src, os.path.join(dir, '.'))
 
     def migrate_text(self):
         text1 = _('Makes a copy of an existing working QtPlasmaC config')
         text2 = _('Then converts that copy to a working plasmac2 config')
-        self.label['text'] = f'{text1}.\n\n{text2}.\n'
+        self.label['text'] = f"{text1}.\n\n{text2}.\n"
 
     def shutdown(self):
         raise SystemExit

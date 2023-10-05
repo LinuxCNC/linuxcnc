@@ -424,10 +424,7 @@ int Canterp::execute(const char *line) {
     }
 
     if (!strcmp(the_command_name, "CHANGE_TOOL")) {
-	if (1 != sscanf(the_command_args, "%d", &i1)) {
-	    return INTERP_ERROR;
-	}
-	CHANGE_TOOL(i1);
+	CHANGE_TOOL();
 	return 0;
     }
 

@@ -147,6 +147,7 @@ param r  float  timer "Shows the value of the internal timer";
 param r signed motor-dir "Internal tag for search direction";
 param r signed counts-offset "Internal offset of index pin";
 param rw unsigned debounce "How many thread cycles to wait for the position to stabilise";
+param r signed target "Current target pocket, debug";
 
 option count_function;
 option extra_setup;
@@ -161,7 +162,6 @@ variable int inst_code;
 variable int inst_parity;
 variable int old_index = 0;
 param r signed base_counts = 0;
-variable int target;
 variable int old_unhome = 0;
 function _ ;
 
@@ -315,6 +315,7 @@ FUNCTION(_){
                 break;
             }
             target = current_position + jog_fwd - jog_rev;
+            counts_target += scale * (target - current_position);
             if (target > inst_pockets ) target = 1;
             if (target < 1) target = inst_pockets;
             if (jog_fwd){

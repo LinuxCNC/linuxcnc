@@ -1867,6 +1867,7 @@ def get_max_jog_speed(a):
         else:
             return vars.max_aspeed.get()
 def get_max_jog_speed_map(a):
+    if a >= len(jog_order): return 0
     if not get_jog_mode():
         axis_letter = jog_order[a]
         a = "XYZABCUVW".index(axis_letter)
@@ -1878,10 +1879,10 @@ def run_warn():
         machine_limit_min, machine_limit_max = soft_limits()
         for i in range(3): # Does not enforce angle limits
             if not(s.axis_mask & (1<<i)): continue
-            if o.canon.min_extents_notool[i] + to_internal_linear_unit(o.last_tool_offset[i]) < machine_limit_min[i]:
+            if o.canon.min_extents_notool[i] < machine_limit_min[i]:
                 warnings.append(_("Program exceeds machine minimum on axis %s")
                     % "XYZABCUVW"[i])
-            if o.canon.max_extents_notool[i] + to_internal_linear_unit(o.last_tool_offset[i]) > machine_limit_max[i]:
+            if o.canon.max_extents_notool[i] > machine_limit_max[i]:
                 warnings.append(_("Program exceeds machine maximum on axis %s")
                     % "XYZABCUVW"[i])
     if warnings:
@@ -1890,7 +1891,7 @@ def run_warn():
             _("Program exceeds machine limits"),
             text,
             "warning",
-            1, _("Run Anyway"), _("Cancel")))
+            1, _("Re-Check"), _("Run Anyway"), _("Cancel"))) + 1
     return 0
 
 def reload_file(refilter=True):
@@ -2222,6 +2223,11 @@ class TclCommands(nf.TclCommands):
         s.poll()
         if s.task_state == linuxcnc.STATE_ESTOP_RESET:
             c.state(linuxcnc.STATE_ON)
+            homing_prompt = bool(inifile.find("DISPLAY", "HOMING_PROMPT"))
+            if homing_prompt:
+                run_homing = prompt_areyousure(_("Homing request"),_("After turning On the machine power,\nYou need find axes origins.\n\n            Run homing process?"))
+                if run_homing:
+                    commands.home_all_joints()
         else:
             c.state(linuxcnc.STATE_OFF)
 
@@ -2341,7 +2347,13 @@ class TclCommands(nf.TclCommands):
             root_window.tk.call("exec", *e)
 
     def task_run(*event):
-        if run_warn(): return
+        res = 1
+        while res == 1:
+            res = run_warn()
+            if res == 2: break
+            if res == 3: return
+            print("reload file")
+            reload_file()
 
         global program_start_line, program_start_line_last
         program_start_line_last = program_start_line;
