@@ -1610,22 +1610,6 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     return 0;
 }
 
-
-int setup_inihal(int joints) {
-    if (ini_hal_init(joints)) {
-        rcs_print_error("%s: ini_hal_init(%d) failed\n", __FUNCTION__, TrajConfig.Joints);
-        return -1;
-    }
-
-    if (ini_hal_init_pins(joints)) {
-        rcs_print_error("%s: ini_hal_init_pins(%d) failed\n", __FUNCTION__, TrajConfig.Joints);
-        return -1;
-    }
-
-    return 0;
-}
-
-
 int emcPositionLoad() {
     double positions[EMCMOT_MAX_JOINTS];
     IniFile ini;

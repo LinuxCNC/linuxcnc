@@ -1589,7 +1589,7 @@ int tpAddRigidTap(TP_STRUCT * const tp,
      * */
     tcInit(&tc,
             TC_RIGIDTAP,
-            0,
+            2,
             tp->cycleTime,
             enables,
             1);

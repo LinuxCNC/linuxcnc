@@ -60,7 +60,7 @@ function _;
 license "GPL";
 
 include <rtapi_math.h>;
-include <stdlib.h>;
+include "hal/components/raster.h";
 
 ;;
 

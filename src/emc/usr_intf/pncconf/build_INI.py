@@ -335,8 +335,8 @@ class INI:
         ##############################################################
         # self.d.axes:
         # 0 = xyz
-        # 1 = xz
-        # 2 = xyza
+        # 1 = xyza
+        # 2 = xz
         # todo: simplify hardcoding for trivkins sequential joint no.s
 
         jnum = 0
@@ -530,7 +530,8 @@ class INI:
 
         # if  user doesn't request manual individual homing, add the sequence number:
         if not self.d.individual_homing:
-            seqnum = int(get("homesequence"))
+            # start home sequences at 1 because tandem axes cannot be 0
+            seqnum = int(get("homesequence")) + 1
             # if a tandem joint we wish to finish the home sequence together
             if tandemflag: wait ='-'
             else: wait = ''

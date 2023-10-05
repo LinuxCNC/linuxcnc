@@ -2897,8 +2897,8 @@ static int emctask_startup()
         return -1;
     }
 
-    if (setup_inihal(joints) != 0) {
-        rcs_print_error("%s: failed to setup inihal\n", __FUNCTION__);
+    if (ini_hal_init(joints)) {
+        rcs_print_error("%s: ini_hal_init failed\n", __PRETTY_FUNCTION__);
         return -1;
     }
 
@@ -2919,6 +2919,11 @@ static int emctask_startup()
     if (!good) {
 	rcs_print_error("can't initialize motion\n");
 	return -1;
+    }
+
+	if (ini_hal_init_pins(joints)) {
+        rcs_print_error("%s: ini_hal_init_pins failed\n", __PRETTY_FUNCTION__);
+        return -1;
     }
 
     end = RETRY_TIME;

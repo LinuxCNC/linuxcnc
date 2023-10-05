@@ -2,7 +2,7 @@
 # maintainer: when adding items update three places:
 #             usage(), show_all(), and show_item()
 #
-# note: report LINUXCNVERSION=$EMC2VERSION (as does linuxcnc.in)
+# note: report LINUXCNCVERSION=$EMC2VERSION (as does linuxcnc.in)
 
 # Copyright: 2014
 # Author:    Dewey Garrett <dgarrett@panix.com>
