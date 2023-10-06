@@ -57,7 +57,7 @@ fi
     echo set mdi m100 p-3 q-4
 
     echo shutdown
-) | nc -v localhost 5007 > linuxcncrsh-output
+) | nc -v localhost 5007 > telnet-output
 
 
 # wait for linuxcnc to finish
