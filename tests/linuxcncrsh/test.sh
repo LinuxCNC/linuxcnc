@@ -34,7 +34,7 @@ fi
     # ask linuxcncrsh to not read the next command until it's done running
     # the current one
     echo set set_wait done
-    echo get set_wait_done
+    echo get set_wait
 
     echo set mode manual
     echo get mode
