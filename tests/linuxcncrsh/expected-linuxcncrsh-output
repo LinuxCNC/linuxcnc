@@ -1,6 +1,16 @@
 HELLO ACK EMCNETSVR 1.1
+ENABLE ON
+GET SET_WAIT_DONE NAK
+
 SET MODE NAK
-0
+MODE MANUAL
+ESTOP OFF
+MACHINE ON
+MODE MDI
+100 p70 q0
+set mdi m100 p71 q0
+set mdi m100 p72 q0
+set mdi m100 p73 q0
 set mdi m100 p74 q0
 set mdi m100 p75 q0
 set mdi m100 p76 q0
