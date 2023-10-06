@@ -45,6 +45,13 @@ fi
     echo set machine on
     echo get machine
 
+    # test spindle command
+    echo set spindle -1 forward     # turn on all spindles
+    echo get spindle -1
+    echo set spindle off            # turn off all spindles
+    echo get spindle
+
+    # prepare g-code sending
     echo set mode mdi
     echo get mode
 
