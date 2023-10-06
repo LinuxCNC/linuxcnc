@@ -48,11 +48,10 @@ fi
     echo set mdi m100 p-3 q-4
 
     echo shutdown
-) | nc localhost 5007
+) | nc -v localhost 5007 > linuxcncrsh-output
 
 
 # wait for linuxcnc to finish
 wait
 
 exit 0
-
