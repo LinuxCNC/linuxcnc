@@ -1303,7 +1303,7 @@ Some standard LinuxCNC utilities are provided as an aid in the diagnosis of issu
 - link:../hal/halshow.html#cha:halshow[Halshow]
 - link:../hal/tutorial.html#sec:tutorial-halscope[Halscope]
 - link:../hal/tutorial.html#sec:tutorial-halmeter[Halmeter]
-- link:../getting-started/updating-linuxcnc.html#_calibration_emccalib_tcl[Calibration]
+- link:../man/man1/emccalib.tcl.1.html[Calibration]
 - link:../man/man1/linuxcnctop.1.html[Status]
 
 In addition the following two QtPlasmaC specific utilities are provided:
