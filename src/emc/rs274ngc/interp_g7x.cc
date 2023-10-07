@@ -1191,8 +1191,24 @@ int Interp::convert_g7x(int mode,
     try {
 	switch(cycle) {
 	case 70: path.do_g70(&motion,x,z,d,e,p); break;
-	case 71: path.do_g71(&motion,subcycle,x,z,u,w,d,i,r); break;
-	case 72: path.do_g72(&motion,subcycle,x,z,u,w,d,i,r); break;
+	case 71:
+	    if(x!=imag(start)) {
+		std::complex<double> end{real(start),x};
+		path.emplace_back(std::make_unique<straight_segment>(
+		    start, end
+		));
+	    }
+	    path.do_g71(&motion,subcycle,x,z,u,w,d,i,r);
+	    break;
+	case 72:
+	    if(z!=real(start)) {
+		std::complex<double> end{z,imag(start)};
+		path.emplace_back(std::make_unique<straight_segment>(
+		    start, end
+		));
+	    }
+	    path.do_g72(&motion,subcycle,x,z,u,w,d,i,r);
+	    break;
 	}
     } catch(std::string &s) {
 	ERS("G7X error: %s", s.c_str());
