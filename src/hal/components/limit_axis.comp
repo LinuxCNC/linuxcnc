@@ -1,4 +1,4 @@
-component limit_axis;
+component limit_axis "Dynamic range based axis limits";
 
 description """limit_axis.c
 

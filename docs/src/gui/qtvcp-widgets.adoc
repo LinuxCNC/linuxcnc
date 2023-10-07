@@ -1876,7 +1876,7 @@ Enter any of these _case sensitive_ commands to load the respective program or a
   link:../man/man1/linuxcnctop.1.html[`status`] utility.
 *`CALIBRATION`*::
   Starts LinuxCNC
-  emccalib_tcl[calibration] utility.
+  link:../man/man1/emccalib.1.html[Calibration]
 *`CLASSICLADDER`*::
   Starts the link:../ladder/classic-ladder.html[ClassicLadder GUI] if the _ClassicLadder realtime HAL component_ was loaded by the machine's config files.
 *`PREFERENCE`*::

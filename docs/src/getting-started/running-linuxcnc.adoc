@@ -40,14 +40,18 @@ The sim configurations are often the most useful starting point for
 new users and are organized around supported GUIs:
 
 * 'axis' - Keyboard and Mouse GUI
+* 'craftsman' - Touch Screen GUI (no longer maintained ???)
 * 'gmoccapy' - Touch Screen GUI
 * 'gscreen' - Touch Screen GUI
-* 'low_graphics' - Keyboard GUI
-* 'pyvcp_demo' - Paneles de Control Virtuales Python
-* 'qtvcp_screens' - Guis diseñadas con Qt5 y Python
-* 'tklinuxcnc' - Keyboard and Mouse Gui(no longer maintained)
+* 'pyvcp_demo' - Python Virtual Control Panel
+* 'qtaxis' - Touch Screen GUI, axis lookalike
+* 'qtdragon' - Touch Screen GUI
+* 'qtdragon_hd' - Touch Screen GUI, high definition
+* 'qtplasmac' - Touch Screen GUI, for plasma tables
+* 'qttouchy' - Touch Screen GUI
+* 'tklinuxcnc' - Keyboard and Mouse Gui (no longer maintained)
 * 'touchy' - Touch Screen GUI
-
+* 'woodpecker' - Touch Screen GUI
 A GUI configuration directory may contain subdirectories with
 configurations that illustrate special situations or the embedding
 of other applications.
@@ -72,7 +76,6 @@ systems like:
 
 * boss
 * cooltool
-* plasmac
 * scortbot erIII
 * sherline
 * smithy
@@ -80,17 +83,19 @@ systems like:
 
 A complete system may be required to use these configurations.
 
-The 'apps items' are typically 1) utilities that don't require starting
-linuxcnc or 2) demonstrations of applications that can be used with
-linuxcnc:
+The 'apps items' are typically either:
+
+. utilities that don't require starting linuxcnc
+. demonstrations of applications that can be used with linuxcnc
 
 * info - creates a file with system information that may be useful for problem diagnosis.
 * gladevcp - Example GladeVCP applications.
 * halrun  - Starts halrun in an <<faq:terminal,terminal>>.
 * latency - Applications to investigate latency
+** latency-histogram-1 - histogram for single servo thread
+** latency-histogram - histogram
 ** latency-test - standard test
 ** latency-plot - stripchart
-** latency-histogram - histogram
 * parport - Applications to test parport.
 * pyvcp - Example pyvcp applications.
 * xhc-hb04 - Applications to test an xhc-hb04 USB wireless MPG
