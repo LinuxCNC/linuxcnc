@@ -728,7 +728,7 @@ class _GStat(GObject.GObject):
         s_code_old = old.get('s-code', None)
         s_code_new = self.old['s-code']
         if s_code_new != s_code_old:
-            self.emit('s-code-changed',f_code_new)
+            self.emit('s-code-changed',s_code_new)
 
         # g53 blend code
         blend_code_old = old.get('blend-tolerance-code', None)
@@ -856,7 +856,7 @@ class _GStat(GObject.GObject):
 
         # s code
         s_code_new = self.old['s-code']
-        self.emit('s-code-changed',f_code_new)
+        self.emit('s-code-changed',s_code_new)
 
         # g53 blend code
         blend_code_new = self.old['blend-tolerance-code']
