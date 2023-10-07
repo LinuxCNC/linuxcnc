@@ -26,13 +26,13 @@ extern "C" {
 #include <sys/types.h>		/* key_t */
 #include <errno.h>		// errno
 #include <string.h>		/* strchr(), memcpy(), memset() */
-#include <rtapi_string.h>	/* rtapi_strlcpy */
 #include <stdlib.h>		/* strtod */
 #include <physmem.hh>           /* PHYSMEM_HANDLE */
 
 #ifdef __cplusplus
 }
 #endif
+#include <rtapi_string.h>	/* rtapi_strlcpy */
 #include "rcs_print.hh"		/* rcs_print_error() */
 #include "cms.hh"		/* class CMS */
 #include "shmem.hh"		/* class SHMEM */

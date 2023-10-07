@@ -27,7 +27,6 @@ extern "C" {
 #endif
 
 #include <string.h>		// memset(), strerror()
-#include <rtapi_string.h>	// rtapi_strlcpy
 #include <stdlib.h>		// malloc(), free()
 #include <unistd.h>
 #include <sys/socket.h>
@@ -38,6 +37,8 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
+#include <rtapi_string.h>	// rtapi_strlcpy
 
 #include <sys/types.h>
 #include <sys/wait.h>		// waitpid

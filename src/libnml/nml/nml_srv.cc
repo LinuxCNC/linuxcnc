@@ -17,7 +17,6 @@ extern "C" {
 #endif
 
 #include <string.h>		// memcpy()
-#include <rtapi_string.h>	// rtapi_strlcpy()
 
 #include <signal.h>		// kill()
 #include <sys/types.h>
@@ -28,6 +27,7 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+#include <rtapi_string.h>	// rtapi_strlcpy()
 #include "nml.hh"
 #include "nmlmsg.hh"
 #include "cms.hh"
