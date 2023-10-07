@@ -171,17 +171,16 @@ class NML:public virtual CMS_USER {
 
     /* Constructors and destructors. */
       NML(NML_FORMAT_PTR f_ptr,
-	const char *, const char *, const char *, int set_to_server = 0, int set_to_master = 0);
-      NML(NML *, int set_to_server = 0, int set_to_master = 0);
-      NML(const char *buffer_line, const char *proc_line);
+	const char * const, const char * const, const char * const, const int set_to_server = 0, const int set_to_master = 0);
+      NML(NML *, const int set_to_server = 0, const int set_to_master = 0);
+      NML(const char * const buffer_line, const char * const proc_line);
       virtual ~ NML();
     int reset();
 
     int queue_length;
     int print_queue_info();
     int set_error();
-    void print_info(const char *bufname = NULL, const char *procname = NULL,
-	    const char *cfg_file = NULL);
+    void print_info(const char * const bufname = NULL, const char * const procname = NULL, const char * const cfg_file = NULL);
   protected:
 
     int fast_mode;
@@ -217,10 +216,9 @@ extern "C" {
 //    extern void nml_wipeout_lists();
     extern void set_default_nml_config_file(const char *);
     extern const char *get_default_nml_config_file();
-    extern NML *nmlWaitOpen(NML_FORMAT_PTR fPtr, char *buffer,
-	char *name, char *file, double sleepTime);
+    extern NML *nmlWaitOpen(NML_FORMAT_PTR fPtr, char *buffer, char *name, char *file, double sleepTime);
 
-    extern void nmlSetHostAlias(const char *hostName, const char *hostAlias);
+    extern void nmlSetHostAlias(const char * const hostName, const char * const hostAlias);
     extern void nmlClearHostAliases();
     extern void nmlAllowNormalConnection();
     extern void nmlForceRemoteConnection();

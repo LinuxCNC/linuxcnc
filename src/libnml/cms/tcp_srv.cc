@@ -26,7 +26,8 @@
 extern "C" {
 #endif
 
-#include <string.h>		/* memset(), strerror() */
+#include <string.h>		// memset(), strerror()
+#include <rtapi_string.h>	// rtapi_strlcpy
 #include <stdlib.h>		// malloc(), free()
 #include <unistd.h>
 #include <sys/socket.h>
@@ -964,7 +965,7 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 	    if (NULL != namereply) {
 		putbe32(temp_buffer, _client_tcp_port->serial_number);
 		putbe32(temp_buffer + 4, namereply->status);
-		strncpy(temp_buffer + 8, namereply->name, 31);
+		rtapi_strlcpy(temp_buffer + 8, namereply->name, 31);
 		if (sendn
 		    (_client_tcp_port->socket_fd, temp_buffer, 40, 0,
 			dtimeout) < 0) {

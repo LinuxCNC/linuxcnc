@@ -273,9 +273,7 @@ NML_MODULE::setCmdChannel (RCS_CMD_CHANNEL * cmd_channel)
     {
       if (NULL != commandIn->cms->ProcessName)
 	{
-	  proc_name =
-	    (char *) malloc (strlen (commandIn->cms->ProcessName) + 1);
-	  strcpy (proc_name, commandIn->cms->ProcessName);
+	  proc_name = strndup (commandIn->cms->ProcessName, 10000);
 	}
     }
 }
@@ -818,7 +816,7 @@ NML_MODULE::write_status_out ()
   statusOutData->source_line = source_line;
   if (NULL != source_file)
     {
-      strncpy (statusOutData->source_file, source_file, 64);
+      rtapi_strlcpy (statusOutData->source_file, source_file, 64);
     }
 
   // write STATUS

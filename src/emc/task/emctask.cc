@@ -14,7 +14,7 @@
 ********************************************************************/
 
 #include <stdlib.h>
-#include <string.h>		// strncpy()
+#include <rtapi_string.h>	// rtapi_strlcpy()
 #include <sys/stat.h>		// struct stat
 #include <unistd.h>		// stat()
 #include <limits.h>		// PATH_MAX
@@ -34,7 +34,6 @@
 #include "python_plugin.hh"
 #include "taskclass.hh"
 #include "motion.h"
-#include <rtapi_string.h>
 
 #define USER_DEFINED_FUNCTION_MAX_DIRS 5
 #define MAX_M_DIRS (USER_DEFINED_FUNCTION_MAX_DIRS+1)
@@ -123,14 +122,14 @@ int emcTaskInit()
 
     // Identify user_defined_function directories
     if (NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY"))) {
-        strncpy(mdir[0],inistring, sizeof(mdir[0]));
+        rtapi_strlcpy(mdir[0],inistring, sizeof(mdir[0]));
         if (mdir[0][sizeof(mdir[0])-1] != '\0') {
             rcs_print("[DISPLAY]PROGRAM_PREFIX too long (max len %zu)\n", sizeof(mdir[0]));
             return -1;
         }
     } else {
         // default dir if no PROGRAM_PREFIX
-        strncpy(mdir[0],"nc_files", sizeof(mdir[0]));
+        rtapi_strlcpy(mdir[0],"nc_files", sizeof(mdir[0]));
         if (mdir[0][sizeof(mdir[0])-1] != '\0') {
             rcs_print("default nc_files too long (max len %zu)\n", sizeof(mdir[0]));
             return -1;
@@ -146,7 +145,7 @@ int emcTaskInit()
 
         for (dct=1; dct < MAX_M_DIRS; dct++) mdir[dct][0] = 0;
 
-        strncpy(tmpdirs,inistring, sizeof(tmpdirs));
+        rtapi_strlcpy(tmpdirs,inistring, sizeof(tmpdirs));
         if (tmpdirs[sizeof(tmpdirs)-1] != '\0') {
             rcs_print("[RS274NGC]USER_M_PATH too long (max len %zu)\n", sizeof(tmpdirs));
             return -1;
@@ -156,7 +155,7 @@ int emcTaskInit()
         dct = 1;
         while (dct < MAX_M_DIRS) {
             if (nextdir == NULL) break; // no more tokens
-            strncpy(mdir[dct],nextdir, sizeof(mdir[dct]));
+            rtapi_strlcpy(mdir[dct],nextdir, sizeof(mdir[dct]));
             if (mdir[dct][sizeof(mdir[dct])-1] != '\0') {
                 rcs_print("[RS274NGC]USER_M_PATH component (%s) too long (max len %zu)\n", nextdir, sizeof(mdir[dct]));
                 return -1;
