@@ -494,6 +494,10 @@ struct option longopts[] = {
   {"path", 1, NULL, 'd'},
   {0,0,0,0}};
 
+// helper macro to process errors
+static cmdResponseType getError(connectionRecType *context);
+#define HANDLE_NML_ERROR { getError(context); return rtStandardError; }
+
 /* static char *skipWhite(char *s)
 {
     while (isspace(*s)) {
@@ -601,14 +605,14 @@ static int commandHello(connectionRecType *context)
 
   s = strtok(NULL, delims);
   if (s == NULL) return -1;
-  strncpy(context->hostName, s, sizeof(context->hostName));
+  strncpy(context->hostName, s, sizeof(context->hostName)-1);
   if (context->hostName[sizeof(context->hostName)-1] != '\0') {
     return -1;
   }
 
   s = strtok(NULL, delims);
   if (s == NULL) return -1;
-  strncpy(context->version, s, sizeof(context->version));
+  strncpy(context->version, s, sizeof(context->version)-1);
   if (context->version[sizeof(context->version)-1] != '\0') {
     return -1;
   }
@@ -938,41 +942,143 @@ static cmdResponseType setFlood(connectionRecType *context)
 
 static cmdResponseType setSpindle(connectionRecType *context)
 {
-	int spindle = 0;
-	char *s = strtok(NULL, delims);
-	if (sscanf(s, "%d", &spindle) > 0){// there is a spindle number
-		s = strtok(NULL, delims);
-	} else {
-		spindle = -1;
-	}
-	switch (checkSpindleStr(s)) {
-     	 case -1: return rtStandardError;
-     	 case 0: sendSpindleForward(spindle); break;
-     	 case 1: sendSpindleReverse(spindle); break;
-     	 case 2: sendSpindleIncrease(spindle); break;
-     	 case 3: sendSpindleDecrease(spindle); break;
-     	 case 4: sendSpindleConstant(spindle); break;
-     	 case 5: sendSpindleOff(spindle);
-	}
+    // handle no spindle present
+    if (emcStatus->motion.traj.spindles == 0) {
+        dprintf(context->cliSock, "error: no spindles configured\n");
+        return rtStandardError;
+    }
+
+    // get cmd string: forward|reverse|increase|decrease|constant|off
+    char *cmd_s = strtok(NULL, delims);
+    // get spindle number string
+    char *spindle_s = strtok(NULL, delims);
+    // use all spindles by default (-1 means all)
+    int spindle = -1;
+    // try to parse a spindle number
+    if (spindle_s) {
+        if (sscanf(spindle_s, "%d", &spindle) <= 0) {
+            dprintf(context->cliSock, "error: failed to parse decimal: %s\n", spindle_s);
+            return rtStandardError;
+        }
+        // validate
+        if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
+            dprintf(
+                context->cliSock,
+                "error: invalid spindle: %d (valid: -1 - %d)\n",
+                spindle, emcStatus->motion.traj.spindles
+            );
+            return rtStandardError;
+        }
+    }
+    // walk all spindles
+    for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
+        // process this spindle?
+        if (n != spindle && spindle != -1)
+            continue;
+
+        switch (checkSpindleStr(cmd_s)) {
+            case 0:
+                if(sendSpindleForward(n) != 0)
+                    HANDLE_NML_ERROR;
+                break;
+
+            case 1:
+                if(sendSpindleReverse(n) != 0)
+                    HANDLE_NML_ERROR;
+                break;
+
+            case 2:
+                if(sendSpindleIncrease(n) != 0)
+                    HANDLE_NML_ERROR;
+                break;
+
+            case 3:
+                if(sendSpindleDecrease(n) != 0)
+                    HANDLE_NML_ERROR;
+                break;
+
+            case 4:
+                if(sendSpindleConstant(n) != 0)
+                    HANDLE_NML_ERROR;
+                break;
+
+            case 5:
+                if(sendSpindleOff(n) != 0)
+                    HANDLE_NML_ERROR;
+                break;
+
+            default:
+                dprintf(
+                    context->cliSock,
+                    "error: invalid command \"%s\" (valid: forward, "
+                    "reverse, increase, decrease, constant, off)\n",
+                    cmd_s
+                );
+                return rtStandardError;
+        }
+    }
+
 	return rtNoError;
 }
 
 static cmdResponseType setBrake(connectionRecType *context)
 {
-	int spindle = 0;
-	char *s = strtok(NULL, delims);
-	if (sscanf(s, "%d", &spindle) > 0){// there is a spindle number
-		if (spindle < 0 || spindle > EMCMOT_MAX_SPINDLES) return rtStandardError;
-		s = strtok(NULL, delims);
-	} else {
-		spindle = -1;
-	}
-	switch (checkOnOff(s)) {
-     	 case -1: return rtStandardError;
-     	 case 0: sendBrakeEngage(spindle); break;
-     	 case 1: sendBrakeRelease(spindle);
-     }
-   return rtNoError;
+    // handle no spindle present
+    if (emcStatus->motion.traj.spindles == 0) {
+        dprintf(context->cliSock, "error: no spindles configured\n");
+        return rtStandardError;
+    }
+
+    // get brake state string: on|off
+    char *state_s = strtok(NULL, delims);
+    // get spindle number string
+    char *spindle_s = strtok(NULL, delims);
+    // use all spindles by default (-1 means all)
+    int spindle = -1;
+    // try to parse a spindle number
+    if (spindle_s) {
+        if (sscanf(spindle_s, "%d", &spindle) <= 0) {
+            dprintf(context->cliSock, "error: failed to parse decimal: %s\n", spindle_s);
+            return rtStandardError;
+        }
+        // validate
+        if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
+            dprintf(
+                context->cliSock,
+                "error: invalid spindle: %d (valid: -1 - %d)\n",
+                spindle, emcStatus->motion.traj.spindles
+            );
+            return rtStandardError;
+        }
+    }
+    // walk all spindles
+    for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
+        // process this spindle?
+        if (n != spindle && spindle != -1)
+            continue;
+
+        switch (checkOnOff(state_s)) {
+            case 0:
+                if(sendBrakeEngage(n) != 0)
+                    HANDLE_NML_ERROR;
+                break;
+
+            case 1:
+                if(sendBrakeRelease(n) != 0)
+                    HANDLE_NML_ERROR;
+                break;
+
+            default:
+                dprintf(
+                    context->cliSock,
+                    "error: invalid state: \"%s\" (valid: on, off)",
+                    state_s
+                );
+                return rtStandardError;
+        }
+    }
+
+    return rtNoError;
 }
 
 static cmdResponseType setLoadToolTable(connectionRecType *context)
@@ -1161,7 +1267,7 @@ static cmdResponseType setOpen(connectionRecType *context)
   char *s = strtok(NULL, delims);
   if (s == NULL) return rtStandardError;
 
-  strncpy(context->progName, s, sizeof(context->progName));
+  strncpy(context->progName, s, sizeof(context->progName)-1);
   if (context->progName[sizeof(context->progName) - 1] != '\0') {
     fprintf(stderr, "linuxcncrsh: 'set open' filename too long for context (got %lu bytes, max %lu)", (unsigned long)strlen(s), (unsigned long)sizeof(context->progName));
     return rtStandardError;
@@ -1280,19 +1386,60 @@ static cmdResponseType setProbeClear(connectionRecType *context)
 
 static cmdResponseType setSpindleOverride(connectionRecType *context)
 {
+    // handle no spindle present
+    if (emcStatus->motion.traj.spindles == 0) {
+        dprintf(context->cliSock, "error: no spindles configured\n");
+        return rtStandardError;
+    }
+
+    // get override percentage string
+    char *percent_s = strtok(NULL, delims);
+    // get spindle number string
+    char *spindle_s = strtok(NULL, delims);
+    // use all spindles by default (-1 means all)
+    int spindle = -1;
+    // try to parse a spindle number
+    if (spindle_s) {
+        if (sscanf(spindle_s, "%d", &spindle) <= 0) {
+            dprintf(context->cliSock, "error: failed to parse decimal: %s\n", spindle_s);
+            return rtStandardError;
+        }
+        // validate
+        if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
+            dprintf(
+                context->cliSock,
+                "error: invalid spindle: %d (valid: -1 - %d)\n",
+                spindle, emcStatus->motion.traj.spindles
+            );
+            return rtStandardError;
+        }
+    }
+    // try to parse override percentage
+    if(!percent_s) {
+        dprintf(context->cliSock, "error: missing parameter");
+        return rtStandardError;
+    }
 	int percent;
-	int spindle = 0;
-	char *s = strtok(NULL, delims);
-	if (sscanf(s, "%d", &spindle) > 0){// there is at least one number
-		s = strtok(NULL, delims);
-		if (sscanf(s, "%d", &percent) < 0){ // no second number
-			percent = spindle;
-			spindle = -1;
-		}
-	} else {
-		return rtStandardError;
-	}
-	sendSpindleOverride(spindle, ((double) percent) / 100.0);
+    if(sscanf(percent_s, "%d", &percent) <= 0) {
+        dprintf(context->cliSock, "error: parsing \"%s\" (%s)", percent_s, strerror(errno));
+        return rtStandardError;
+    }
+    // validate
+    if(!(0 <= percent || percent <= 100)) {
+        dprintf(context->cliSock, "error: invalid: %d (valid: 0-100)", percent);
+        return rtStandardError;
+    }
+
+    // walk all spindles
+    for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
+        // process this spindle?
+        if (n != spindle && spindle != -1)
+            continue;
+
+        if(sendSpindleOverride(n, ((double) percent) / 100.0) != 0)
+            HANDLE_NML_ERROR;
+    }
+
 	return rtNoError;
 }
 
@@ -1320,7 +1467,7 @@ int commandSet(connectionRecType *context)
   strupr(s);
   cmd = lookupSetCommand(s);
   if ((cmd >= scIniFile) && (context->cliSock != enabledConn)) {
-    snprintf(context->outBuf, sizeof(context->outBuf), setCmdNakStr, s);
+    snprintf(context->outBuf, sizeof(context->outBuf)-1, setCmdNakStr, s);
     return write(context->cliSock, context->outBuf, strlen(context->outBuf));
     }
   if ((cmd > scMachine) && (emcStatus->task.state != EMC_TASK_STATE::ON)) {
@@ -1631,45 +1778,97 @@ static cmdResponseType getFlood(connectionRecType *context)
 
 static cmdResponseType getSpindle(connectionRecType *context)
 {
-  const char *pSpindleStr = "SPINDLE %d %s";
-  int spindle = -1;
-  int n;
-  char *s = strtok(NULL, delims);
-  if (sscanf(s, "%d", &spindle) < 0) spindle = -1; // no spindle number given return all
-  for (n = 0; n < emcStatus->motion.traj.spindles; n++){
-	  if (n == spindle || spindle == -1){
-		  if (emcStatus->motion.spindle[n].increasing > 0)
-			snprintf(context->outBuf, sizeof(context->outBuf), pSpindleStr, n, "INCREASE");
-		  else
-			if (emcStatus->motion.spindle[n].increasing < 0)
-			  snprintf(context->outBuf, sizeof(context->outBuf), pSpindleStr, n, "DECREASE");
-			else
-			  if (emcStatus->motion.spindle[n].direction > 0)
-				snprintf(context->outBuf, sizeof(context->outBuf), pSpindleStr, n, "FORWARD");
-			  else
-				if (emcStatus->motion.spindle[n].direction < 0)
-				  snprintf(context->outBuf, sizeof(context->outBuf), pSpindleStr, n, "REVERSE");
-			else snprintf(context->outBuf, sizeof(context->outBuf), pSpindleStr, n, "OFF");
-	  }
-  }
-  return rtNoError; 
+    // handle no spindle present
+    if (emcStatus->motion.traj.spindles == 0) {
+        dprintf(context->cliSock, "error: no spindles configured\n");
+        return rtStandardError;
+    }
+
+    // get spindle number string
+    char *spindle_s = strtok(NULL, delims);
+    // use all spindles by default (-1 means all)
+    int spindle = -1;
+    // try to parse a spindle number
+    if (spindle_s) {
+        if (sscanf(spindle_s, "%d", &spindle) <= 0) {
+            dprintf(context->cliSock, "error: failed to parse decimal: %s\n", spindle_s);
+            return rtStandardError;
+        }
+        // validate
+        if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
+            dprintf(
+                context->cliSock,
+                "error: invalid spindle: %d (valid: -1 - %d)\n",
+                spindle, emcStatus->motion.traj.spindles
+            );
+            return rtStandardError;
+        }
+    }
+
+    // walk all spindles
+    const char *pSpindleStr = "SPINDLE %d %s";
+    for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
+        // process this spindle?
+        if (n != spindle && spindle != -1)
+            continue;
+
+        if (emcStatus->motion.spindle[n].increasing > 0)
+            snprintf(context->outBuf, sizeof(context->outBuf), pSpindleStr, n, "INCREASE");
+        else if (emcStatus->motion.spindle[n].increasing < 0)
+            snprintf(context->outBuf, sizeof(context->outBuf), pSpindleStr, n, "DECREASE");
+        else if (emcStatus->motion.spindle[n].direction > 0)
+            snprintf(context->outBuf, sizeof(context->outBuf), pSpindleStr, n, "FORWARD");
+        else if (emcStatus->motion.spindle[n].direction < 0)
+            snprintf(context->outBuf, sizeof(context->outBuf), pSpindleStr, n, "REVERSE");
+        else snprintf(context->outBuf, sizeof(context->outBuf), pSpindleStr, n, "OFF");
+    }
+
+    return rtNoError;
 }
 
 static cmdResponseType getBrake(connectionRecType *context)
 {
-  const char *pBrakeStr = "BRAKE %s";
-  int spindle;
-  int n;
-  char *s = strtok(NULL, delims);
-  if (sscanf(s, "%d", &spindle) < 0) spindle = -1; // no spindle number return all
-  for (n = 0; n < emcStatus->motion.traj.spindles; n++){
-	  if (n == spindle || spindle == -1){
-		  if (emcStatus->motion.spindle[spindle].brake == 1)
-			snprintf(context->outBuf, sizeof(context->outBuf),pBrakeStr, "ON");
-		  else snprintf(context->outBuf, sizeof(context->outBuf),pBrakeStr, "OFF");
-	  }
-  }
-  return rtNoError; 
+    // handle no spindle present
+    if (emcStatus->motion.traj.spindles == 0) {
+        dprintf(context->cliSock, "error: no spindles configured\n");
+        return rtStandardError;
+    }
+
+    // get spindle number string
+    char *spindle_s = strtok(NULL, delims);
+    // use all spindles by default (-1 means all)
+    int spindle = -1;
+    // try to parse a spindle number
+    if (spindle_s) {
+        if (sscanf(spindle_s, "%d", &spindle) <= 0) {
+            dprintf(context->cliSock, "error: failed to parse decimal: %s\n", spindle_s);
+            return rtStandardError;
+        }
+        // validate
+        if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
+            dprintf(
+                context->cliSock,
+                "error: invalid spindle: %d (valid: -1 - %d)\n",
+                spindle, emcStatus->motion.traj.spindles
+            );
+            return rtStandardError;
+        }
+    }
+
+    // walk all spindles
+    const char *pBrakeStr = "BRAKE %s";
+    for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
+        // process this spindle?
+        if (n != spindle && spindle != -1)
+            continue;
+
+        if (emcStatus->motion.spindle[spindle].brake == 1)
+            snprintf(context->outBuf, sizeof(context->outBuf),pBrakeStr, "ON");
+        else
+            snprintf(context->outBuf, sizeof(context->outBuf),pBrakeStr, "OFF");
+    }
+
+    return rtNoError;
 }
 
 static cmdResponseType getTool(connectionRecType *context)
@@ -2349,18 +2548,44 @@ static cmdResponseType getIniFile(connectionRecType *context)
 
 static cmdResponseType getSpindleOverride(connectionRecType *context)
 {
-  const char *pSpindleOverride = "SPINDLE_OVERRIDE %d %d";
-  int percent;
-  int spindle;
-  int n;
-  char *s = strtok(NULL, delims);
-  if (sscanf(s, "%d", &spindle) < 0) spindle = -1; // no spindle number return all
-  for (n = 0; n < emcStatus->motion.traj.spindles; n++){
-	  if (n == spindle || spindle == -1){
-		  percent = (int)floor(emcStatus->motion.spindle[n].spindle_scale * 100.0 + 0.5);
-		  snprintf(context->outBuf, sizeof(context->outBuf),pSpindleOverride, n, percent);
-	  }
+    // handle no spindle present
+    if (emcStatus->motion.traj.spindles == 0) {
+        dprintf(context->cliSock, "error: no spindles configured\n");
+        return rtStandardError;
+    }
+
+    // get spindle number string
+    char *spindle_s = strtok(NULL, delims);
+    // use all spindles by default (-1 means all)
+    int spindle = -1;
+    // try to parse a spindle number
+    if (spindle_s) {
+        if (sscanf(spindle_s, "%d", &spindle) <= 0) {
+            dprintf(context->cliSock, "error: failed to parse decimal: %s\n", spindle_s);
+            return rtStandardError;
+        }
+        // validate
+        if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
+            dprintf(
+                context->cliSock,
+                "error: invalid spindle: %d (valid: -1 - %d)\n",
+                spindle, emcStatus->motion.traj.spindles
+            );
+            return rtStandardError;
+        }
+    }
+
+    // walk all spindles
+    const char *pSpindleOverride = "SPINDLE_OVERRIDE %d %d";
+    for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
+        // process this spindle?
+        if (n != spindle && spindle != -1)
+            continue;
+
+		int percent = (int)floor(emcStatus->motion.spindle[n].spindle_scale * 100.0 + 0.5);
+		snprintf(context->outBuf, sizeof(context->outBuf),pSpindleOverride, n, percent);
   }
+
   return rtNoError;
 }
 
@@ -2540,7 +2765,7 @@ static int helpGet(connectionRecType *context)
   rtapi_strxcat(context->outBuf, "    Abs_act_pos\n\r");
   rtapi_strxcat(context->outBuf, "    Abs_cmd_pos\n\r");
   rtapi_strxcat(context->outBuf, "    Angular_unit_conversion\n\r");
-  rtapi_strxcat(context->outBuf, "    Brake\n\r");
+  rtapi_strxcat(context->outBuf, "    Brake {<Spindle>}\n\r");
   rtapi_strxcat(context->outBuf, "    Comm_mode\n\r");
   rtapi_strxcat(context->outBuf, "    Comm_prot\n\r");
   rtapi_strxcat(context->outBuf, "    Debug\n\r");
@@ -2582,8 +2807,8 @@ static int helpGet(connectionRecType *context)
   rtapi_strxcat(context->outBuf, "    Rel_act_pos\n\r");
   rtapi_strxcat(context->outBuf, "    Rel_cmd_pos\n\r");
   rtapi_strxcat(context->outBuf, "    Set_wait\n\r");
-  rtapi_strxcat(context->outBuf, "    Spindle\n\r");
-  rtapi_strxcat(context->outBuf, "    Spindle_override\n\r");
+  rtapi_strxcat(context->outBuf, "    Spindle {<Spindle>}\n\r");
+  rtapi_strxcat(context->outBuf, "    Spindle_override {<Spindle>}\n\r");
   rtapi_strxcat(context->outBuf, "    Teleop_enable\n\r");
   rtapi_strxcat(context->outBuf, "    Time\n\r");
   rtapi_strxcat(context->outBuf, "    Timeout\n\r");
@@ -2611,7 +2836,7 @@ static int helpSet(connectionRecType *context)
   rtapi_strxcat(context->outBuf, "  The set commands requiring control enabled are:\n\r");
   rtapi_strxcat(context->outBuf, "    Abort\n\r");
   rtapi_strxcat(context->outBuf, "    Angular_unit_conversion <Deg | Rad | Grad | Auto | Custom>\n\r");
-  rtapi_strxcat(context->outBuf, "    Brake <On | Off>\n\r");
+  rtapi_strxcat(context->outBuf, "    Brake <On | Off> {<Spindle>}\n\r");
   rtapi_strxcat(context->outBuf, "    Debug <Debug level>\n\r");
   rtapi_strxcat(context->outBuf, "    EStop <On | Off>\n\r");
   rtapi_strxcat(context->outBuf, "    Feed_override <Percent>\n\r");
@@ -2635,8 +2860,8 @@ static int helpSet(connectionRecType *context)
   rtapi_strxcat(context->outBuf, "    Resume\n\r");
   rtapi_strxcat(context->outBuf, "    Run <Line No>\n\r");
   rtapi_strxcat(context->outBuf, "    SetWait <Time>\n\r");
-  rtapi_strxcat(context->outBuf, "    Spindle <Increase | Decrease | Forward | Reverse | Constant | Off>\n\r");
-  rtapi_strxcat(context->outBuf, "    Spindle_override <percent>\n\r");
+  rtapi_strxcat(context->outBuf, "    Spindle <Increase | Decrease | Forward | Reverse | Constant | Off> {<Spindle>}\n\r");
+  rtapi_strxcat(context->outBuf, "    Spindle_override <percent> {<Spindle>}\n\r");
   rtapi_strxcat(context->outBuf, "    Step\n\r");
   rtapi_strxcat(context->outBuf, "    Task_plan_init\n\r");
   rtapi_strxcat(context->outBuf, "    Teleop_enable\n\r");
