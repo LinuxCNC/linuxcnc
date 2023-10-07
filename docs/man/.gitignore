@@ -6,6 +6,7 @@ cat1/
 cat3/
 cat9/
 
+man1/emccalib.tcl.1
 man1/halstreamer.1
 man1/hy_gt_vfd.1
 man1/linuxcnc.1
@@ -192,6 +193,8 @@ man9/xhc_hb04_util.9
 man9/xor2.9
 man9/xyzab_tdr_kins.9
 # Ignore po4a-generated files for other languages
+ar/*
+bg/*
 cs/*
 da/*
 de/*
@@ -201,10 +204,12 @@ hu/*
 it/*
 ka/*
 nb/*
+pl/*
 pt/*
 pt_BR/*
 ru/*
 sk/*
+sv/*
 tr/*
 uk/*
 vi/*
