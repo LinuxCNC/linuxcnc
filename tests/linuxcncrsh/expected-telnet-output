@@ -5,10 +5,13 @@ SET MODE ACK
 MODE MANUAL
 ESTOP OFF
 MACHINE ON
-SPINDLE 0 OFF
+SPINDLE 0 FORWARD
 SPINDLE 0 OFF
 MODE MDI
-70 q0
+m100 p67 q0
+set mdi m100 p68 q0
+set mdi m100 p69 q0
+set mdi m100 p70 q0
 set mdi m100 p71 q0
 set mdi m100 p72 q0
 set mdi m100 p73 q0
