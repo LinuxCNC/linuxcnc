@@ -59,7 +59,7 @@
 	turn.sf = 60.0
 	thread.sf = 60.0
 	radius.fo = False
-	turn.angle = 0.0
+	turn.angle = 4.0
 	thread.coolant = False
 	bore.cut = 1.0
 	radius.fi = True
@@ -68,4 +68,4 @@
 	radius.tool = 1.0
 	bore.angle = 0.0
 	chamfer.coolant = False
-# last update  by gladevcp.persistence.save_state() on Tue Jul 12 23:00:12 2022 
+# last update  by gladevcp.persistence.save_state() on Sat Oct  7 15:22:57 2023 

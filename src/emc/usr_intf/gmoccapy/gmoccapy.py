@@ -359,32 +359,6 @@ class gmoccapy(object):
         self.widgets.fontbutton_popup.set_font(self.prefs.getpref("message_font", "sans 10", str))
         self.widgets.chk_use_frames.set_active(self.prefs.getpref("use_frames", True, bool))
 
-        # this sets the background colors of several buttons
-        # the colors are different for the states of the button
-#         self.widgets.tbtn_on.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
-#         self.widgets.tbtn_estop.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FF0000"))
-#         self.widgets.tbtn_estop.modify_bg(Gtk.StateFlags.NORMAL, Gdk.color_parse("#00FF00"))
-#         self.widgets.rbt_manual.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
-#         self.widgets.rbt_mdi.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
-#         self.widgets.rbt_auto.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
-#         self.widgets.tbtn_setup.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
-#         self.widgets.rbt_forward.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#00FF00"))
-#         self.widgets.rbt_reverse.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#00FF00"))
-#         self.widgets.rbt_stop.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
-#         self.widgets.rbt_view_p.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
-#         self.widgets.rbt_view_x.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
-#         self.widgets.rbt_view_y.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
-#         self.widgets.rbt_view_y2.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
-#         self.widgets.rbt_view_z.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
-#         self.widgets.tbtn_flood.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#00FF00"))
-#         self.widgets.tbtn_fullsize_preview0.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
-#         self.widgets.tbtn_fullsize_preview1.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
-#         self.widgets.tbtn_mist.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#00FF00"))
-#         self.widgets.tbtn_optional_blocks.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
-#         self.widgets.tbtn_user_tabs.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
-#         self.widgets.tbtn_view_dimension.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
-#         self.widgets.tbtn_view_tool_path.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
-#         self.widgets.tbtn_switch_mode.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
 
         # should the tool in spindle be reloaded on startup?
         self.widgets.chk_reload_tool.set_active(self.prefs.getpref("reload_tool", True, bool))
@@ -3495,6 +3469,12 @@ class gmoccapy(object):
 #                 self.diameter_mode = True
 
     def _update_toolinfo(self, tool):
+        LOG.debug("Tool is now %s".format(tool))
+        if "G43" in self.active_gcodes:
+            LOG.debug("G43 is active")
+        else:
+            LOG.debug("G43 is not active")
+
         toolinfo = self.widgets.tooledit1.get_toolinfo(tool)
         if toolinfo:
             # Doku
@@ -4780,9 +4760,6 @@ class gmoccapy(object):
     def on_grid_size_value_changed(self, widget, data=None):
         self.widgets.gremlin.set_property('grid_size', widget.get_value())
         self.prefs.putpref('grid_size', widget.get_value(), float)
-
-    def on_tbtn_log_actions_toggled(self, widget, data=None):
-        self.prefs.putpref("log_actions", widget.get_active())
 
     def on_chk_show_dro_toggled(self, widget, data=None):
         state = widget.get_active()
