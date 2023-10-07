@@ -149,6 +149,7 @@ usr/share/man/man1/axis.1
 usr/share/man/man1/axis-remote.1
 usr/share/man/man1/debuglevel.1
 usr/share/man/man1/elbpcom.1
+usr/share/man/man1/emccalib.1
 usr/share/man/man1/gladevcp.1
 usr/share/man/man1/gladevcp_demo.1
 usr/share/man/man1/gmoccapy.1
