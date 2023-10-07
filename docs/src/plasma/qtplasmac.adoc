@@ -1303,7 +1303,7 @@ Some standard LinuxCNC utilities are provided as an aid in the diagnosis of issu
 - link:../hal/halshow.html#cha:halshow[Halshow]
 - link:../hal/tutorial.html#sec:tutorial-halscope[Halscope]
 - link:../hal/tutorial.html#sec:tutorial-halmeter[Halmeter]
-- link:../getting-started/updating-linuxcnc.html#_calibration_emccalib_tcl[Calibration]
+- Calibration assistant (emccalib.tcl).
 - link:../man/man1/linuxcnctop.1.html[Status]
 
 In addition the following two QtPlasmaC specific utilities are provided:
@@ -4188,7 +4188,7 @@ over cut length = 4 mm (0.157")
  #<holes> = 1-4. |`#<h_diameter> =` _n_ +
 (_n_ is the diameter, use the same units system as the rest of the G-code file)
 |Specify <<plasma:hole-cutting,hole>> velocity for +
- #<holes>=1-4. |`#<h_velocity> =` _n_ +
+ #<holes> = 1-4. |`#<h_velocity> =` _n_ +
 (_n_ is the percentage, set the percentage of the current feed rate)
 |Specify <<plasma:overcut,over cut>> length. |`#<oclength> =` _n_ +
 (_n_ is the length, use the same units system as the rest of the G-code file)

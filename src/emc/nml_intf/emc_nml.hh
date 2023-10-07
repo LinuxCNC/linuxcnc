@@ -1630,16 +1630,6 @@ class EMC_COOLANT_STAT:public EMC_COOLANT_STAT_MSG {
 
 // EMC_IO is aggregate of all EMC IO-related status classes
 
-// EMC_IO command base class
-class EMC_IO_CMD_MSG:public RCS_CMD_MSG {
-  public:
-    EMC_IO_CMD_MSG(NMLTYPE t, size_t s):RCS_CMD_MSG(t, s) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
 // EMC_IO status base class
 class EMC_IO_STAT_MSG:public RCS_STAT_MSG {
   public:
