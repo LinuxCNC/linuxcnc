@@ -275,7 +275,10 @@ ton
 
 A framework for controlling ModBus devices using the serial ports on
 many Mesa cards has been introduced.
+http://linuxcnc.org/docs/2.9/html/drivers/mesa_modbus.html
 
 A new GPIO driver for any GPIO which is supported by the gpiod library
 is now included:
+http://linuxcnc.org/docs/2.9/html/drivers/hal_gpio.html
+
 
