@@ -170,7 +170,7 @@ void NML::operator delete(void *nml_space)
 *  later if the constructor returned before creating the objects
 *  the pointers are intended to point at.
 ******************************************************************/
-NML::NML(NML_FORMAT_PTR f_ptr, const char * const buf, const char * const proc, const char * const file,
+NML::NML(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc, const char *file,
     const int set_to_server, const int set_to_master)
 {
     registered_with_server = 0;
@@ -182,9 +182,11 @@ NML::NML(NML_FORMAT_PTR f_ptr, const char * const buf, const char * const proc, 
     rtapi_strlcpy(bufname, buf, 40);
     rtapi_strlcpy(procname, proc, 40);
     if (NULL == file) {
-	file = default_nml_config_file;
+	rtapi_strlcpy(cfgfilename, default_nml_config_file, 160);
     }
-    rtapi_strlcpy(cfgfilename, file, 160);
+    else {
+    	rtapi_strlcpy(cfgfilename, file, 160);
+    }
 
     if (rcs_errors_printed >= max_rcs_errors_to_print
 	&& max_rcs_errors_to_print > 0 && nml_reset_errors_printed) {
@@ -196,7 +198,7 @@ NML::NML(NML_FORMAT_PTR f_ptr, const char * const buf, const char * const proc, 
     already_deleted = 0;
     channel_type = NML_GENERIC_CHANNEL_TYPE;
 
-    reconstruct(f_ptr, buf, proc, file, set_to_server, set_to_master);
+    reconstruct(f_ptr, buf, proc, cfgfilename, set_to_server, set_to_master);
 
     if (NULL != cms) {
 	char *forced_type_eq = strstr(cms->buflineupper, "FORCE_TYPE=");
@@ -220,7 +222,7 @@ int NML::login(const char *name, const char *passwd)
 }
 
 void NML::reconstruct(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc,
-    const char *file, int set_to_server, int set_to_master)
+    const char *file, const int set_to_server, const int set_to_master)
 {
 
     cms = (CMS *) NULL;
@@ -252,8 +254,7 @@ void NML::reconstruct(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc,
 	    print_info(buf, proc, file);
 	}
 	if (NULL != cms) {
-	    rcs_print_debug(PRINT_NML_DESTRUCTORS, " delete (CMS *) %p;\n",
-		cms);
+	    rcs_print_debug(PRINT_NML_DESTRUCTORS, " delete (CMS *) %p;\n", cms);
 	    delete cms;
 	    cms = (CMS *) NULL;
 	}
@@ -337,8 +338,8 @@ void NML::reconstruct(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc,
 * the format_chain is constructed. (This may be done by
 * derived classes. )
 ******************************************************************/
-NML::NML(const char *buf, const char *proc, const char *file, int set_to_server,
-    int set_to_master)
+NML::NML(const char *buf, const char *proc, const char *file, const int set_to_server,
+    const int set_to_master)
 {
     if (NULL == file) {
 	file = default_nml_config_file;
@@ -456,7 +457,7 @@ NML::NML(const char *buf, const char *proc, const char *file, int set_to_server,
 * the format_chain is constructed. (This may be done by
 * derived classes. )
 ******************************************************************/
-NML::NML(const char * const buffer_line, const char * const proc_line)
+NML::NML(const char * buffer_line, const char * proc_line)
 {
     registered_with_server = 0;
     cms_for_msg_string_conversions = 0;
@@ -602,7 +603,7 @@ void NML::register_with_server()
 *  later if the constructor returned before creating the objects
 *  the pointers are intended to point at.
 *************************************************************/
-NML::NML(NML * nml_ptr, int set_to_server, int set_to_master)
+NML::NML(NML * nml_ptr, const int set_to_server, const int set_to_master)
 {
     registered_with_server = 0;
     cms_for_msg_string_conversions = 0;
