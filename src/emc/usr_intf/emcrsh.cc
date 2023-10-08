@@ -858,13 +858,21 @@ static cmdResponseType setMachine(connectionRecType *context)
 
 static cmdResponseType setEStop(connectionRecType *context)
 {
-   char *s = strtok(NULL, delims);
-   switch (checkOnOff(s)) {
-     case -1: return rtStandardError;
-     case 0: sendEstop(); break;
-     case 1: sendEstopReset();
-     }
-   return rtNoError;
+    char *state = strtok(NULL, delims);
+    switch (checkOnOff(state)) {
+        case 0:
+            if(sendEstop() != 0) HANDLE_NML_ERROR;
+            break;
+
+        case 1:
+            if(sendEstopReset() != 0) HANDLE_NML_ERROR;
+            break;
+
+        default:
+            return rtStandardError;
+    }
+
+    return rtNoError;
 }
 
 static cmdResponseType setWait(connectionRecType *context)
@@ -978,28 +986,23 @@ static cmdResponseType setSpindle(connectionRecType *context)
 
         switch (checkSpindleStr(cmd_s)) {
             case 0:
-                if(sendSpindleForward(n) != 0)
-                    HANDLE_NML_ERROR;
+                if(sendSpindleForward(n) != 0) HANDLE_NML_ERROR;
                 break;
 
             case 1:
-                if(sendSpindleReverse(n) != 0)
-                    HANDLE_NML_ERROR;
+                if(sendSpindleReverse(n) != 0) HANDLE_NML_ERROR;
                 break;
 
             case 2:
-                if(sendSpindleIncrease(n) != 0)
-                    HANDLE_NML_ERROR;
+                if(sendSpindleIncrease(n) != 0) HANDLE_NML_ERROR;
                 break;
 
             case 3:
-                if(sendSpindleDecrease(n) != 0)
-                    HANDLE_NML_ERROR;
+                if(sendSpindleDecrease(n) != 0) HANDLE_NML_ERROR;
                 break;
 
             case 4:
-                if(sendSpindleConstant(n) != 0)
-                    HANDLE_NML_ERROR;
+                if(sendSpindleConstant(n) != 0) HANDLE_NML_ERROR;
                 break;
 
             case 5:
@@ -1059,13 +1062,11 @@ static cmdResponseType setBrake(connectionRecType *context)
 
         switch (checkOnOff(state_s)) {
             case 0:
-                if(sendBrakeEngage(n) != 0)
-                    HANDLE_NML_ERROR;
+                if(sendBrakeEngage(n) != 0) HANDLE_NML_ERROR;
                 break;
 
             case 1:
-                if(sendBrakeRelease(n) != 0)
-                    HANDLE_NML_ERROR;
+                if(sendBrakeRelease(n) != 0) HANDLE_NML_ERROR;
                 break;
 
             default:
