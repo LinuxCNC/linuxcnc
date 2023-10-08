@@ -1,3 +1,20 @@
+linuxcnc (1:2.9.1) unstable; urgency=medium
+
+  * Add 7I94T, 7I97T, 7I76EU card support
+  * docs: Add manpage for emccalib
+  * Merge pull request #2684 from petterreinholdtsen/2.9-whatis-limit_axis
+  * Merge pull request #2611 from phillc54/phillc54/docs
+  * gmoccapy - deleted unused code
+  * halcompile: Accept hal pins of type "port"
+  * G71 - G72 tests
+  * G71 and G72 cycle fix. Addresses #707 and #1146
+  * Merge pull request #2675 from LinuxCNC/c-morley-patch-1
+  * Update hal_glib.py
+  * docs: minor changes to suit sim configs
+
+
+ -- Andy Pugh <andy@bodgesoc.org>  Sun, 08 Oct 2023 10:39:03 +0100
+
 linuxcnc (2.9.0) unstable; urgency=medium
 
   * Add firmware 7i96d_1pwm for 7i96 for PNCconf
@@ -222,6 +239,7 @@ linuxcnc (2.9.0) unstable; urgency=medium
   * qtplasmac  - 100+ Updates
   * qttouchy -fix sample config loading error, remove MPG selection buttons
   * qtvcp - 200+ updates
+  * qtvcp --mdi_line: fix multi axes movement Addresses Closes: #1053251
   * Revert "update pot files"
   * RS274: M5 default to all spindles.
   * sai: Fix https://github.com/LinuxCNC/linuxcnc/issues/1279
