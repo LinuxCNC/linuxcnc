@@ -14,15 +14,25 @@ set -e
 
 usage () {
     P=${0##*/}
-    cat <<EOF
+    cat 1>&2 <<EOF
 $P: Set up debian/ files to build for a particular kernel
 
 Usage:
   $P [no-docs]
 
   Extra options:
-    no-docs
-        Skip building documentation
+
+    no-docs|nodocs
+        Skip building documentation.
+        Debian packaging will not know about documentation to exist at all.
+        If configured regularly but with the intent not to build the docs,
+        run "DEB_BUILD_OPTIONS=nodocs dpkg-buildpackage".
+
+    sim|uspace|noauto
+        Accepted for compatibility, but now ignored.
+
+    -h|--help|help
+	Show this help.
 EOF
 }
 
@@ -47,8 +57,12 @@ ENABLE_BUILD_DOCUMENTATION=--enable-build-documentation=pdf
 while test $# -ne 0; do
     case "$1" in
     sim|uspace|noauto) echo "$1 is accepted for compatibility, but ignored";;
-    no-docs) unset ENABLE_BUILD_DOCUMENTATION ;;
-    *) echo 1>&2 "Unknown option: $1"; exit 99 ;;
+    help|-h|--help) usage; exit 0 ;;
+    no-docs|nodocs) unset ENABLE_BUILD_DOCUMENTATION ;;
+    *)  echo 1>&2 "Unknown option: $1"
+        echo 1>&2
+	usage
+        exit 99 ;;
     esac
     shift
 done
@@ -195,4 +209,15 @@ fi
 
 
 rm -f ../build-stamp
-echo "successfully configured for '$DISTRIB_NAME'.."
+echo "I: Successfully configured for '$DISTRIB_NAME'."
+
+echo "I: You can now start the build of LinuxCNC Debian packages."
+echo "   To build and test everything: fakeroot debian/rules binary"
+echo "   To build the executables and man pages only: fakeroot debian/rules binary-arch"
+echo "   To avoid tests: DEB_BUILD_OPTIONS=nocheck debian/rules binary"
+if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
+    echo "   To avoid documentation: DEB_BUILD_OPTIONS=nodocs fakeroot debian/rules binary"
+else
+    echo "   Building of documentation is disabled."
+fi
+echo "   The DEB_BUILD_OPTIONS environment variable also works with dpkg-buildpackage."
