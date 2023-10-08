@@ -1365,13 +1365,13 @@ static cmdResponseType setProbe(connectionRecType *context)
   if (sscanf(s, "%f", &x) <= 0) return rtStandardError;
 
   s = strtok(NULL, delims);
-fprintf(stderr,"1_probe %s\n",s);
   if (s == NULL) return rtStandardError;
+  fprintf(stderr,"1_probe %s\n",s);
   if (sscanf(s, "%f", &y) <= 0) return rtStandardError;
 
   s = strtok(NULL, delims);
-fprintf(stderr,"2_probe %s\n",s);
   if (s == NULL) return rtStandardError;
+  fprintf(stderr,"2_probe %s\n",s);
   if (sscanf(s, "%f", &z) <= 0) return rtStandardError;
   
   sendProbe(x, y, z);
@@ -1425,7 +1425,7 @@ static cmdResponseType setSpindleOverride(connectionRecType *context)
         return rtStandardError;
     }
     // validate
-    if(!(0 <= percent || percent <= 100)) {
+    if(percent < 0 || percent > 100) {
         dprintf(context->cliSock, "error: invalid: %d (valid: 0-100)", percent);
         return rtStandardError;
     }
