@@ -1,5 +1,0 @@
-loadusr -W ./craftsman_toolchange
-net tool-change iocontrol.0.tool-change => craftsman_toolchange.change
-net tool-changed iocontrol.0.tool-changed <= craftsman_toolchange.changed
-net tool-number iocontrol.0.tool-prep-number => craftsman_toolchange.number
-net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared

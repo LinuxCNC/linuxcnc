@@ -1,9 +1,0 @@
-( touch y plus  - CraftsmanCNC )
-o<m105> sub
-M102
-G38.3 f50 Y20
-G92 Y-3.17
-G0 Y-15
-M103
-o<m105> endsub
-
