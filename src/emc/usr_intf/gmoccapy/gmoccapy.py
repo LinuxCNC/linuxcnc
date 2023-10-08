@@ -76,7 +76,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.4.4"
+_RELEASE = " 3.4.6"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -742,8 +742,6 @@ class gmoccapy(object):
         children = self.widgets.hbtb_ref.get_children()
         for child in children:
             self.ref_button_dic[child.get_property("name")] = child
-
-        self.widgets.hbtb_ref.show_all()
 
     def _get_space_label(self, name):
         lbl = Gtk.Label.new("")
@@ -5264,6 +5262,8 @@ class gmoccapy(object):
             else:
                 self.alert_sound = file
                 self.prefs.putpref("audio_alert", file)
+            self.audio.set_sound(file)
+            self.audio.run()
 
     def on_tbtn_switch_mode_toggled(self, widget, data=None):
         if widget.get_active():
