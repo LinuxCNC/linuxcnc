@@ -1686,6 +1686,28 @@ static cmdResponseType getTime(connectionRecType *context)
   return rtNoError;
 }
 
+static cmdResponseType getUpdate(connectionRecType *context)
+{
+    const char *pUpdateStr = "GET_UPDATE %s";
+
+    const char *stateStr;
+    switch(emcUpdateType) {
+        case EMC_UPDATE_NONE:
+            stateStr = "NONE";
+            break;
+
+        case EMC_UPDATE_AUTO:
+            stateStr = "AUTO";
+            break;
+
+        default:
+            stateStr = "UNKNOWN";
+            break;
+    }
+    snprintf(context->outBuf, sizeof(context->outBuf), pUpdateStr, stateStr);
+    return rtNoError;
+}
+
 static cmdResponseType getError(connectionRecType *context)
 {
   const char *pErrorStr = "ERROR %s";
@@ -2629,7 +2651,7 @@ int commandGet(connectionRecType *context)
     case scSetWait: ret = getSetWait(context); break;
     case scWait: break;
     case scSetTimeout: ret = getTimeout(context); break;
-    case scUpdate: break;
+    case scUpdate: ret = getUpdate(context); break;
     case scError: ret = getError(context); break;
     case scOperatorDisplay: ret = getOperatorDisplay(context); break;
     case scOperatorText: ret = getOperatorText(context); break;
@@ -2815,6 +2837,7 @@ static int helpGet(connectionRecType *context)
   rtapi_strxcat(context->outBuf, "    Timeout\n\r");
   rtapi_strxcat(context->outBuf, "    Tool\n\r");
   rtapi_strxcat(context->outBuf, "    Tool_offset\n\r");
+  rtapi_strxcat(context->outBuf, "    Update\n\r");
   rtapi_strxcat(context->outBuf, "    User_angular_units\n\r");
   rtapi_strxcat(context->outBuf, "    User_linear_units\n\r");
   rtapi_strxcat(context->outBuf, "    Verbose\n\r");
