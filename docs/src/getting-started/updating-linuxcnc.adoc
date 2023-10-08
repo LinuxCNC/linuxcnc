@@ -11,7 +11,7 @@
 :ngc: {basebackend@docbook:'':ngc}
 
 Updating LinuxCNC to a new minor release (ie to a new version in
-the same stable series, for example from 2.9.0 to 2.9.1) is an
+the same stable series, for example from 2.9.1 to 2.9.2) is an
 automatic process if your PC is connected to the internet. You will
 see an update prompt after a minor release along with other software
 updates. If you don't have an internet connection to your PC see
@@ -20,7 +20,7 @@ updates. If you don't have an internet connection to your PC see
 == Upgrade to the new version
 
 This section describes how to upgrade LinuxCNC from version 2.8 to the
-new 2.9.0 version.  It assumes that you have an existing 2.8 install that you
+new 2.9.1 version.  It assumes that you have an existing 2.8 install that you
 want to update.
 
 To upgrade LinuxCNC from a version older than 2.8, you have to first

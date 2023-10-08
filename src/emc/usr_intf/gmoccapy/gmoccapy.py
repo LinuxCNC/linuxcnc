@@ -76,7 +76,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.4.3"
+_RELEASE = " 3.4.6"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -742,8 +742,6 @@ class gmoccapy(object):
         children = self.widgets.hbtb_ref.get_children()
         for child in children:
             self.ref_button_dic[child.get_property("name")] = child
-
-        self.widgets.hbtb_ref.show_all()
 
     def _get_space_label(self, name):
         lbl = Gtk.Label.new("")
@@ -5271,6 +5269,8 @@ class gmoccapy(object):
             else:
                 self.alert_sound = file
                 self.prefs.putpref("audio_alert", file)
+            self.audio.set_sound(file)
+            self.audio.run()
 
     def on_tbtn_switch_mode_toggled(self, widget, data=None):
         if widget.get_active():
@@ -5487,6 +5487,14 @@ class gmoccapy(object):
         if self.lathe_mode:
             self.widgets.lbl_blockheight.hide()
 
+    def _optional_blocks(self, pin):
+        LOG.debug("Received a signal from pin {0} with state = {1}".format(pin.name, pin.get()))
+        self.widgets["tbtn_optional_blocks"].set_active(pin.get())
+
+    def _blockdelete(self, pin):
+        LOG.debug("Received a signal from pin {0} with state = {1}".format(pin.name, pin.get()))
+        self.command.set_optional_stop(pin.get())
+
 # =========================================================
 # The actions of the buttons
     def _button_pin_changed(self, pin):
@@ -5696,6 +5704,13 @@ class gmoccapy(object):
         # make a pin to set ignore limits
         pin = self.halcomp.newpin("ignore-limits", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._ignore_limits)
+
+        # make pins to set optinal stops and block delete
+        pin = self.halcomp.newpin("optional-stop", hal.HAL_BIT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._optional_blocks)
+        pin = self.halcomp.newpin("blockdelete", hal.HAL_BIT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._blockdelete)
+
 
 # Hal Pin Handling End
 # =========================================================
