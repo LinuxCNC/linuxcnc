@@ -144,10 +144,11 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
 	if ((t = inifile.Find("TOOL_TABLE", "EMCIO")) != NULL)
 	    tooltable_filename = strdup(t);
     }
-	tool_mmap_creator((EMC_TOOL_STAT*)&(emcioStatus.tool), random_toolchanger);
+	    
 #ifdef TOOL_NML //{
     tool_nml_register( (CANON_TOOL_TABLE*)&emcStatus->io.tool.toolTable);
 #else //}{
+    tool_mmap_creator((EMC_TOOL_STAT*)&(emcioStatus.tool), random_toolchanger);
     tool_mmap_user();
     // initialize database tool finder:
 #endif //}
