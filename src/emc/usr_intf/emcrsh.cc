@@ -494,6 +494,8 @@ struct option longopts[] = {
   {"path", 1, NULL, 'd'},
   {0,0,0,0}};
 
+// helper macro
+#define CUSTOM_ERROR(...) snprintf(context->outBuf, sizeof(context->outBuf), __VA_ARGS__) ; return rtCustomError
 
 /* static char *skipWhite(char *s)
 {
@@ -571,12 +573,6 @@ static int initSockets()
 static void sigQuit(int sig)
 {
     thisQuit();
-}
-
-static int sockWrite(connectionRecType *context)
-{
-   rtapi_strxcat(context->outBuf, "\r\n");
-   return write(context->cliSock, context->outBuf, strlen(context->outBuf));
 }
 
 static setCommandType lookupSetCommand(char *s)
@@ -949,8 +945,7 @@ static cmdResponseType setSpindle(connectionRecType *context)
 {
     // handle no spindle present
     if (emcStatus->motion.traj.spindles == 0) {
-        dprintf(context->cliSock, "error: no spindles configured\n");
-        return rtStandardError;
+        CUSTOM_ERROR("no spindles configured");        
     }
 
     // get cmd string: forward|reverse|increase|decrease|constant|off
@@ -962,17 +957,14 @@ static cmdResponseType setSpindle(connectionRecType *context)
     // try to parse a spindle number
     if (spindle_s) {
         if (sscanf(spindle_s, "%d", &spindle) <= 0) {
-            dprintf(context->cliSock, "error: failed to parse decimal: %s\n", spindle_s);
-            return rtStandardError;
+            CUSTOM_ERROR("failed to parse decimal: %s", spindle_s);
         }
         // validate
         if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
-            dprintf(
-                context->cliSock,
-                "error: invalid spindle: %d (valid: -1 - %d)\n",
+            CUSTOM_ERROR(
+                "invalid spindle: %d (valid: -1 - %d)",
                 spindle, emcStatus->motion.traj.spindles
-            );
-            return rtStandardError;
+            );            
         }
     }
     // walk all spindles
@@ -1007,13 +999,11 @@ static cmdResponseType setSpindle(connectionRecType *context)
                 break;
 
             default:
-                dprintf(
-                    context->cliSock,
-                    "error: invalid command \"%s\" (valid: forward, "
-                    "reverse, increase, decrease, constant, off)\n",
+                CUSTOM_ERROR(
+                    "invalid command \"%s\" (valid: forward, "
+                    "reverse, increase, decrease, constant, off)",
                     cmd_s
-                );
-                return rtStandardError;
+                );                
         }
     }
 
@@ -1024,8 +1014,7 @@ static cmdResponseType setBrake(connectionRecType *context)
 {
     // handle no spindle present
     if (emcStatus->motion.traj.spindles == 0) {
-        dprintf(context->cliSock, "error: no spindles configured\n");
-        return rtStandardError;
+        CUSTOM_ERROR("no spindles configured");
     }
 
     // get brake state string: on|off
@@ -1037,17 +1026,14 @@ static cmdResponseType setBrake(connectionRecType *context)
     // try to parse a spindle number
     if (spindle_s) {
         if (sscanf(spindle_s, "%d", &spindle) <= 0) {
-            dprintf(context->cliSock, "error: failed to parse decimal: %s\n", spindle_s);
-            return rtStandardError;
+            CUSTOM_ERROR("failed to parse decimal: %s", spindle_s);
         }
         // validate
         if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
-            dprintf(
-                context->cliSock,
-                "error: invalid spindle: %d (valid: -1 - %d)\n",
+            CUSTOM_ERROR(
+                "invalid spindle: %d (valid: -1 - %d)",
                 spindle, emcStatus->motion.traj.spindles
             );
-            return rtStandardError;
         }
     }
     // walk all spindles
@@ -1066,12 +1052,7 @@ static cmdResponseType setBrake(connectionRecType *context)
                 break;
 
             default:
-                dprintf(
-                    context->cliSock,
-                    "error: invalid state: \"%s\" (valid: on, off)",
-                    state_s
-                );
-                return rtStandardError;
+                CUSTOM_ERROR("invalid state: \"%s\" (valid: on, off)", state_s);
         }
     }
 
@@ -1385,8 +1366,7 @@ static cmdResponseType setSpindleOverride(connectionRecType *context)
 {
     // handle no spindle present
     if (emcStatus->motion.traj.spindles == 0) {
-        dprintf(context->cliSock, "error: no spindles configured\n");
-        return rtStandardError;
+        CUSTOM_ERROR("no spindles configured");
     }
 
     // get override percentage string
@@ -1398,33 +1378,27 @@ static cmdResponseType setSpindleOverride(connectionRecType *context)
     // try to parse a spindle number
     if (spindle_s) {
         if (sscanf(spindle_s, "%d", &spindle) <= 0) {
-            dprintf(context->cliSock, "error: failed to parse decimal: %s\n", spindle_s);
-            return rtStandardError;
+            CUSTOM_ERROR("failed to parse decimal: %s", spindle_s);
         }
         // validate
         if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
-            dprintf(
-                context->cliSock,
-                "error: invalid spindle: %d (valid: -1 - %d)\n",
+            CUSTOM_ERROR(
+                "invalid spindle: %d (valid: -1 - %d)",
                 spindle, emcStatus->motion.traj.spindles
             );
-            return rtStandardError;
         }
     }
     // try to parse override percentage
     if(!percent_s) {
-        dprintf(context->cliSock, "error: missing parameter");
-        return rtStandardError;
+        CUSTOM_ERROR("missing parameter");
     }
 	int percent;
     if(sscanf(percent_s, "%d", &percent) <= 0) {
-        dprintf(context->cliSock, "error: parsing \"%s\" (%s)", percent_s, strerror(errno));
-        return rtStandardError;
+        CUSTOM_ERROR("parsing \"%s\" (%s)", percent_s, strerror(errno));
     }
     // validate
     if(percent < 0 || percent > 100) {
-        dprintf(context->cliSock, "error: invalid: %d (valid: 0-100)", percent);
-        return rtStandardError;
+        CUSTOM_ERROR("invalid: %d (valid: 0-100)", percent);
     }
 
     // walk all spindles
@@ -1459,21 +1433,19 @@ int commandSet(connectionRecType *context)
   // parse subcommand
   char *s = strtok(NULL, delims);
   if (s == NULL) {
-    return write(context->cliSock, setNakStr, strlen(setNakStr));
+    return dprintf(context->cliSock, setNakStr);
     }
   strupr(s);
   cmd = lookupSetCommand(s);
   if ((cmd >= scIniFile) && (context->cliSock != enabledConn)) {
-    snprintf(context->outBuf, sizeof(context->outBuf)-1, setCmdNakStr, s);
-    return write(context->cliSock, context->outBuf, strlen(context->outBuf));
+    return dprintf(context->cliSock, setCmdNakStr, s);    
     }
   if ((cmd > scMachine) && (emcStatus->task.state != EMC_TASK_STATE::ON)) {
 //  Extra check in the event of an undetected change in Machine state resulting in
 //  sending a set command when the machine state is off. This condition is detected
 //  and appropriate error messages are generated, however erratic behavior has been
 //  seen when doing certain set commands when the Machine state is other than 'On'.
-    snprintf(context->outBuf, sizeof(context->outBuf), setCmdNakStr, s);
-    return write(context->cliSock, context->outBuf, strlen(context->outBuf));
+    return dprintf(context->cliSock, setCmdNakStr, s);    
     }
   switch (cmd) {
     case scEcho: ret = setEcho(context); break;
@@ -1554,18 +1526,16 @@ int commandSet(connectionRecType *context)
   switch (ret) {
     case rtNoError:  
       if (context->verbose) {
-        snprintf(context->outBuf, sizeof(context->outBuf), ackStr, s);
-        return write(context->cliSock, context->outBuf, strlen(context->outBuf));
+        return dprintf(context->cliSock, ackStr, s);        
         }
       break;
     case rtHandledNoError: // Custom ok response already handled, take no action
       break; 
     case rtStandardError:
-      snprintf(context->outBuf, sizeof(context->outBuf), setCmdNakStr, s);
-      return write(context->cliSock, context->outBuf, strlen(context->outBuf));
+      return dprintf(context->cliSock, setCmdNakStr, s);      
       break;
     case rtCustomError: // Custom error response entered in buffer
-      return write(context->cliSock, context->outBuf, strlen(context->outBuf));
+      return dprintf(context->cliSock, "error: %s\r\n", context->outBuf);
       break;
     case rtCustomHandledError: ;// Custom error response handled, take no action
     }
@@ -1799,8 +1769,7 @@ static cmdResponseType getSpindle(connectionRecType *context)
 {
     // handle no spindle present
     if (emcStatus->motion.traj.spindles == 0) {
-        dprintf(context->cliSock, "error: no spindles configured\n");
-        return rtStandardError;
+        CUSTOM_ERROR("no spindles configured");
     }
 
     // get spindle number string
@@ -1810,17 +1779,14 @@ static cmdResponseType getSpindle(connectionRecType *context)
     // try to parse a spindle number
     if (spindle_s) {
         if (sscanf(spindle_s, "%d", &spindle) <= 0) {
-            dprintf(context->cliSock, "error: failed to parse decimal: %s\n", spindle_s);
-            return rtStandardError;
+            CUSTOM_ERROR("failed to parse decimal: %s", spindle_s);
         }
         // validate
         if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
-            dprintf(
-                context->cliSock,
-                "error: invalid spindle: %d (valid: -1 - %d)\n",
+            CUSTOM_ERROR(
+                "invalid spindle: %d (valid: -1 - %d)",
                 spindle, emcStatus->motion.traj.spindles
             );
-            return rtStandardError;
         }
     }
 
@@ -1849,8 +1815,7 @@ static cmdResponseType getBrake(connectionRecType *context)
 {
     // handle no spindle present
     if (emcStatus->motion.traj.spindles == 0) {
-        dprintf(context->cliSock, "error: no spindles configured\n");
-        return rtStandardError;
+        CUSTOM_ERROR("no spindles configured");
     }
 
     // get spindle number string
@@ -1860,17 +1825,14 @@ static cmdResponseType getBrake(connectionRecType *context)
     // try to parse a spindle number
     if (spindle_s) {
         if (sscanf(spindle_s, "%d", &spindle) <= 0) {
-            dprintf(context->cliSock, "error: failed to parse decimal: %s\n", spindle_s);
-            return rtStandardError;
+            CUSTOM_ERROR("failed to parse decimal: %s", spindle_s);
         }
         // validate
         if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
-            dprintf(
-                context->cliSock,
-                "error: invalid spindle: %d (valid: -1 - %d)\n",
+            CUSTOM_ERROR(
+                "invalid spindle: %d (valid: -1 - %d)",
                 spindle, emcStatus->motion.traj.spindles
             );
-            return rtStandardError;
         }
     }
 
@@ -2569,8 +2531,7 @@ static cmdResponseType getSpindleOverride(connectionRecType *context)
 {
     // handle no spindle present
     if (emcStatus->motion.traj.spindles == 0) {
-        dprintf(context->cliSock, "error: no spindles configured\n");
-        return rtStandardError;
+        CUSTOM_ERROR("no spindles configured");
     }
 
     // get spindle number string
@@ -2580,17 +2541,14 @@ static cmdResponseType getSpindleOverride(connectionRecType *context)
     // try to parse a spindle number
     if (spindle_s) {
         if (sscanf(spindle_s, "%d", &spindle) <= 0) {
-            dprintf(context->cliSock, "error: failed to parse decimal: %s\n", spindle_s);
-            return rtStandardError;
+            CUSTOM_ERROR("failed to parse decimal: %s", spindle_s);
         }
         // validate
         if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
-            dprintf(
-                context->cliSock,
-                "error: invalid spindle: %d (valid: -1 - %d)\n",
+            CUSTOM_ERROR(
+               "invalid spindle: %d (valid: -1 - %d)",
                 spindle, emcStatus->motion.traj.spindles
-            );
-            return rtStandardError;
+            );            
         }
     }
 
@@ -2626,7 +2584,7 @@ int commandGet(connectionRecType *context)
   
   pch = strtok(NULL, delims);
   if (pch == NULL) {
-    return write(context->cliSock, setNakStr, strlen(setNakStr));
+    return dprintf(context->cliSock, setNakStr);
     }
   if (emcUpdateType == EMC_UPDATE_AUTO) updateStatus();
   strupr(pch);
@@ -2712,17 +2670,16 @@ int commandGet(connectionRecType *context)
     }
   switch (ret) {
     case rtNoError: // Standard ok response, just write value in buffer
-      sockWrite(context);
+      dprintf(context->cliSock, "%s\r\n", context->outBuf);
       break;
     case rtHandledNoError: // Custom ok response already handled, take no action
       break; 
     case rtStandardError: // Standard error response
-      snprintf(context->outBuf, sizeof(context->outBuf), setCmdNakStr, pch); 
-      sockWrite(context);
+      dprintf(context->cliSock, setCmdNakStr, pch);
       break;
     case rtCustomError: // Custom error response entered in buffer
-      sockWrite(context);
-      break;
+      dprintf(context->cliSock, "error: %s\r\n", context->outBuf);
+      break;    
     case rtCustomHandledError: ;// Custom error response handled, take no action
     }
   return 0;
@@ -2747,177 +2704,190 @@ int commandShutdown(connectionRecType *context)
 
 static int helpGeneral(connectionRecType *context)
 {
-  snprintf(context->outBuf, sizeof(context->outBuf), "Available commands:\n\r");
-  rtapi_strxcat(context->outBuf, "  Hello <password> <client name> <protocol version>\n\r");
-  rtapi_strxcat(context->outBuf, "  Get <LinuxCNC command>\n\r");
-  rtapi_strxcat(context->outBuf, "  Set <LinuxCNC command>\n\r");
-  rtapi_strxcat(context->outBuf, "  Shutdown\n\r");
-  rtapi_strxcat(context->outBuf, "  Help <command>\n\r");
-  sockWrite(context);
+  dprintf(
+    context->cliSock,
+    "Available commands:\n\r"
+    "  Hello <password> <client name> <protocol version>\n\r"
+    "  Get <LinuxCNC command>\n\r"
+    "  Set <LinuxCNC command>\n\r"
+    "  Shutdown\n\r"
+    "  Help <command>\n\r"
+  );
   return 0;
 }
 
 static int helpHello(connectionRecType *context)
 {
-  snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\r");
-  rtapi_strxcat(context->outBuf, "  Hello <Password> <Client Name> <Protocol Version>\n\rWhere:\n\r");
-  rtapi_strxcat(context->outBuf, "  Password is the connection password to allow communications with the CNC server.\n\r");
-  rtapi_strxcat(context->outBuf, "  Client Name is the name of client trying to connect, typically the network name of the client.\n\r");
-  rtapi_strxcat(context->outBuf, "  Protocol Version is the version of the protocol with which the client wishes to use.\n\r\n\r");
-  rtapi_strxcat(context->outBuf, "  With valid password, server responds with:\n\r");
-  rtapi_strxcat(context->outBuf, "  Hello Ack <Server Name> <Protocol Version>\n\rWhere:\n\r");
-  rtapi_strxcat(context->outBuf, "  Ack is acknowledging the connection has been made.\n\r");
-  rtapi_strxcat(context->outBuf, "  Server Name is the name of the LinuxCNC Server to which the client has connected.\n\r");
-  rtapi_strxcat(context->outBuf, "  Protocol Version is the client requested version or latest version support by server if");
-  rtapi_strxcat(context->outBuf, "  the client requests a version later than that supported by the server.\n\r\n\r");
-  rtapi_strxcat(context->outBuf, "  With invalid password, the server responds with:\n\r");
-  rtapi_strxcat(context->outBuf, "  Hello Nak\n\r");
-  sockWrite(context);
+  dprintf(
+    context->cliSock,
+    "Usage:\n\r"
+    "  Hello <Password> <Client Name> <Protocol Version>\n\rWhere:\n\r"
+    "  Password is the connection password to allow communications with the CNC server.\n\r"
+    "  Client Name is the name of client trying to connect, typically the network name of the client.\n\r"
+    "  Protocol Version is the version of the protocol with which the client wishes to use.\n\r\n\r"
+    "  With valid password, server responds with:\n\r"
+    "  Hello Ack <Server Name> <Protocol Version>\n\rWhere:\n\r"
+    "  Ack is acknowledging the connection has been made.\n\r"
+    "  Server Name is the name of the LinuxCNC Server to which the client has connected.\n\r"
+    "  Protocol Version is the client requested version or latest version support by server if"
+    "  the client requests a version later than that supported by the server.\n\r\n\r"
+    "  With invalid password, the server responds with:\n\r"
+    "  Hello Nak\n\r"
+  );
   return 0;
 }
 
 static int helpGet(connectionRecType *context)
 {
-  snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\rGet <LinuxCNC command>\n\r");
-  rtapi_strxcat(context->outBuf, "  Get commands require that a hello has been successfully negotiated.\n\r");
-  rtapi_strxcat(context->outBuf, "  LinuxCNC command may be one of:\n\r");
-  rtapi_strxcat(context->outBuf, "    Abs_act_pos\n\r");
-  rtapi_strxcat(context->outBuf, "    Abs_cmd_pos\n\r");
-  rtapi_strxcat(context->outBuf, "    Angular_unit_conversion\n\r");
-  rtapi_strxcat(context->outBuf, "    Brake {<Spindle>}\n\r");
-  rtapi_strxcat(context->outBuf, "    Comm_mode\n\r");
-  rtapi_strxcat(context->outBuf, "    Comm_prot\n\r");
-  rtapi_strxcat(context->outBuf, "    Debug\n\r");
-  rtapi_strxcat(context->outBuf, "    Display_angular_units\n\r"); 
-  rtapi_strxcat(context->outBuf, "    Display_linear_units\n\r");
-  rtapi_strxcat(context->outBuf, "    Echo\n\r");
-  rtapi_strxcat(context->outBuf, "    Enable\n\r");
-  rtapi_strxcat(context->outBuf, "    Error\n\r");
-  rtapi_strxcat(context->outBuf, "    EStop\n\r");
-  rtapi_strxcat(context->outBuf, "    Feed_override\n\r");
-  rtapi_strxcat(context->outBuf, "    Flood\n\r");
-  rtapi_strxcat(context->outBuf, "    Inifile\n\r");
-  rtapi_strxcat(context->outBuf, "    Joint_fault\n\r");
-  rtapi_strxcat(context->outBuf, "    Joint_homed\n\r");
-  rtapi_strxcat(context->outBuf, "    Joint_limit\n\r");
-  rtapi_strxcat(context->outBuf, "    Joint_pos\n\r");
-  rtapi_strxcat(context->outBuf, "    Joint_type\n\r");
-  rtapi_strxcat(context->outBuf, "    Joint_units\n\r");
-  rtapi_strxcat(context->outBuf, "    Kinematics_type\n\r");
-  rtapi_strxcat(context->outBuf, "    Linear_unit_conversion\n\r");
-  rtapi_strxcat(context->outBuf, "    Machine\n\r");
-  rtapi_strxcat(context->outBuf, "    Mist\n\r");
-  rtapi_strxcat(context->outBuf, "    Mode\n\r");
-  rtapi_strxcat(context->outBuf, "    Operator_display\n\r");
-  rtapi_strxcat(context->outBuf, "    Operator_text\n\r");
-  rtapi_strxcat(context->outBuf, "    Optional_stop\n\r");
-  rtapi_strxcat(context->outBuf, "    Override_limits\n\r");
-  rtapi_strxcat(context->outBuf, "    Plat\n\r");
-  rtapi_strxcat(context->outBuf, "    Pos_offset\n\r");
-  rtapi_strxcat(context->outBuf, "    Probe_tripped\n\r");
-  rtapi_strxcat(context->outBuf, "    Probe_value\n\r");
-  rtapi_strxcat(context->outBuf, "    Program\n\r");
-  rtapi_strxcat(context->outBuf, "    Program_angular_units\n\r"); 
-  rtapi_strxcat(context->outBuf, "    Program_codes\n\r");
-  rtapi_strxcat(context->outBuf, "    Program_line\n\r");
-  rtapi_strxcat(context->outBuf, "    Program_linear_units\n\r");
-  rtapi_strxcat(context->outBuf, "    Program_status\n\r");
-  rtapi_strxcat(context->outBuf, "    Program_units\n\r");
-  rtapi_strxcat(context->outBuf, "    Rel_act_pos\n\r");
-  rtapi_strxcat(context->outBuf, "    Rel_cmd_pos\n\r");
-  rtapi_strxcat(context->outBuf, "    Set_wait\n\r");
-  rtapi_strxcat(context->outBuf, "    Spindle {<Spindle>}\n\r");
-  rtapi_strxcat(context->outBuf, "    Spindle_override {<Spindle>}\n\r");
-  rtapi_strxcat(context->outBuf, "    Teleop_enable\n\r");
-  rtapi_strxcat(context->outBuf, "    Time\n\r");
-  rtapi_strxcat(context->outBuf, "    Timeout\n\r");
-  rtapi_strxcat(context->outBuf, "    Tool\n\r");
-  rtapi_strxcat(context->outBuf, "    Tool_offset\n\r");
-  rtapi_strxcat(context->outBuf, "    Update\n\r");
-  rtapi_strxcat(context->outBuf, "    User_angular_units\n\r");
-  rtapi_strxcat(context->outBuf, "    User_linear_units\n\r");
-  rtapi_strxcat(context->outBuf, "    Verbose\n\r");
-//  rtapi_strxcat(context->outBuf, "CONFIG\n\r");
-  sockWrite(context);
+  dprintf(
+    context->cliSock,
+    "Usage:\n\rGet <LinuxCNC command>\n\r"
+    "  Get commands require that a hello has been successfully negotiated.\n\r"
+    "  LinuxCNC command may be one of:\n\r"
+    "    Abs_act_pos\n\r"
+    "    Abs_cmd_pos\n\r"
+    "    Angular_unit_conversion\n\r"
+    "    Brake {<Spindle>}\n\r"
+    "    Comm_mode\n\r"
+    "    Comm_prot\n\r"
+    "    Debug\n\r"
+    "    Display_angular_units\n\r" 
+    "    Display_linear_units\n\r"
+    "    Echo\n\r"
+    "    Enable\n\r"
+    "    Error\n\r"
+    "    EStop\n\r"
+    "    Feed_override\n\r"
+    "    Flood\n\r"
+    "    Inifile\n\r"
+    "    Joint_fault\n\r"
+    "    Joint_homed\n\r"
+    "    Joint_limit\n\r"
+    "    Joint_pos\n\r"
+    "    Joint_type\n\r"
+    "    Joint_units\n\r"
+    "    Kinematics_type\n\r"
+    "    Linear_unit_conversion\n\r"
+    "    Machine\n\r"
+    "    Mist\n\r"
+    "    Mode\n\r"
+    "    Operator_display\n\r"
+    "    Operator_text\n\r"
+    "    Optional_stop\n\r"
+    "    Override_limits\n\r"
+    "    Plat\n\r"
+    "    Pos_offset\n\r"
+    "    Probe_tripped\n\r"
+    "    Probe_value\n\r"
+    "    Program\n\r"
+    "    Program_angular_units\n\r" 
+    "    Program_codes\n\r"
+    "    Program_line\n\r"
+    "    Program_linear_units\n\r"
+    "    Program_status\n\r"
+    "    Program_units\n\r"
+    "    Rel_act_pos\n\r"
+    "    Rel_cmd_pos\n\r"
+    "    Set_wait\n\r"
+    "    Spindle {<Spindle>}\n\r"
+    "    Spindle_override {<Spindle>}\n\r"
+    "    Teleop_enable\n\r"
+    "    Time\n\r"
+    "    Timeout\n\r"
+    "    Tool\n\r"
+    "    Tool_offset\n\r"
+    "    Update\n\r"
+    "    User_angular_units\n\r"
+    "    User_linear_units\n\r"
+    "    Verbose\n\r"
+  );
+  //    "CONFIG\n\r"
   return 0;
 }
 
 static int helpSet(connectionRecType *context)
 {
-  snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\r  Set <LinuxCNC command>\n\r");
-  rtapi_strxcat(context->outBuf, "  Set commands require that a hello has been successfully negotiated,\n\r");
-  rtapi_strxcat(context->outBuf, "  in most instances requires that control be enabled by the connection.\n\r");
-  rtapi_strxcat(context->outBuf, "  The set commands not requiring control enabled are:\n\r");
-  rtapi_strxcat(context->outBuf, "    Comm_mode <mode>\n\r");
-  rtapi_strxcat(context->outBuf, "    Comm_prot <protocol>\n\r");
-  rtapi_strxcat(context->outBuf, "    Echo <On | Off>\n\r");
-  rtapi_strxcat(context->outBuf, "    Enable <Pwd | Off>\n\r");
-  rtapi_strxcat(context->outBuf, "    Verbose <On | Off>\n\r\n\r");
-  rtapi_strxcat(context->outBuf, "  The set commands requiring control enabled are:\n\r");
-  rtapi_strxcat(context->outBuf, "    Abort\n\r");
-  rtapi_strxcat(context->outBuf, "    Angular_unit_conversion <Deg | Rad | Grad | Auto | Custom>\n\r");
-  rtapi_strxcat(context->outBuf, "    Brake <On | Off> {<Spindle>}\n\r");
-  rtapi_strxcat(context->outBuf, "    Debug <Debug level>\n\r");
-  rtapi_strxcat(context->outBuf, "    EStop <On | Off>\n\r");
-  rtapi_strxcat(context->outBuf, "    Feed_override <Percent>\n\r");
-  rtapi_strxcat(context->outBuf, "    Flood <On | Off>\n\r");
-  rtapi_strxcat(context->outBuf, "    Home <Axis No>\n\r");
-  rtapi_strxcat(context->outBuf, "    Jog <Axis No, Speed>\n\r");
-  rtapi_strxcat(context->outBuf, "    Jog_incr <Axis No, Speed, Distance>\n\r");
-  rtapi_strxcat(context->outBuf, "    Jog_stop\n\r");
-  rtapi_strxcat(context->outBuf, "    Linear_unit_conversion <Inch | CM | MM | Auto | Custom>\n\r");
-  rtapi_strxcat(context->outBuf, "    Load_tool_table <Table name>\n\r");
-  rtapi_strxcat(context->outBuf, "    Machine <On | Off>\n\r");
-  rtapi_strxcat(context->outBuf, "    MDI <MDI String>\n\r");
-  rtapi_strxcat(context->outBuf, "    Mist <On | Off>\n\r");
-  rtapi_strxcat(context->outBuf, "    Mode <Manual | Auto | MDI>\n\r");
-  rtapi_strxcat(context->outBuf, "    Open <File path / name>\n\r");
-  rtapi_strxcat(context->outBuf, "    Optional_stop <none | 0 | 1>\n\r");
-  rtapi_strxcat(context->outBuf, "    Override_limits <On | Off>\n\r");
-  rtapi_strxcat(context->outBuf, "    Pause\n\r");
-  rtapi_strxcat(context->outBuf, "    Probe\n\r");
-  rtapi_strxcat(context->outBuf, "    Probe_clear\n\r");
-  rtapi_strxcat(context->outBuf, "    Resume\n\r");
-  rtapi_strxcat(context->outBuf, "    Run <Line No>\n\r");
-  rtapi_strxcat(context->outBuf, "    SetWait <Time>\n\r");
-  rtapi_strxcat(context->outBuf, "    Spindle <Increase | Decrease | Forward | Reverse | Constant | Off> {<Spindle>}\n\r");
-  rtapi_strxcat(context->outBuf, "    Spindle_override <percent> {<Spindle>}\n\r");
-  rtapi_strxcat(context->outBuf, "    Step\n\r");
-  rtapi_strxcat(context->outBuf, "    Task_plan_init\n\r");
-  rtapi_strxcat(context->outBuf, "    Teleop_enable\n\r");
-  rtapi_strxcat(context->outBuf, "    Timeout <Time>\n\r");
-  rtapi_strxcat(context->outBuf, "    Tool_offset <Offset>\n\r");
-  rtapi_strxcat(context->outBuf, "    Update <On | Off>\n\r");
-  rtapi_strxcat(context->outBuf, "    Wait <Time>\n\r");
-  
-  sockWrite(context);
+  dprintf(
+    context->cliSock,
+    "Usage:\n\r  Set <LinuxCNC command>\n\r"
+    "  Set commands require that a hello has been successfully negotiated,\n\r"
+    "  in most instances requires that control be enabled by the connection.\n\r"
+    "  The set commands not requiring control enabled are:\n\r"
+    "    Comm_mode <mode>\n\r"
+    "    Comm_prot <protocol>\n\r"
+    "    Echo <On | Off>\n\r"
+    "    Enable <Pwd | Off>\n\r"
+    "    Verbose <On | Off>\n\r\n\r"
+    "  The set commands requiring control enabled are:\n\r"
+    "    Abort\n\r"
+    "    Angular_unit_conversion <Deg | Rad | Grad | Auto | Custom>\n\r"
+    "    Brake <On | Off> {<Spindle>}\n\r"
+    "    Debug <Debug level>\n\r"
+    "    EStop <On | Off>\n\r"
+    "    Feed_override <Percent>\n\r"
+    "    Flood <On | Off>\n\r"
+    "    Home <Axis No>\n\r"
+    "    Jog <Axis No, Speed>\n\r"
+    "    Jog_incr <Axis No, Speed, Distance>\n\r"
+    "    Jog_stop\n\r"
+    "    Linear_unit_conversion <Inch | CM | MM | Auto | Custom>\n\r"
+    "    Load_tool_table <Table name>\n\r"
+    "    Machine <On | Off>\n\r"
+    "    MDI <MDI String>\n\r"
+    "    Mist <On | Off>\n\r"
+    "    Mode <Manual | Auto | MDI>\n\r"
+    "    Open <File path / name>\n\r"
+    "    Optional_stop <none | 0 | 1>\n\r"
+    "    Override_limits <On | Off>\n\r"
+    "    Pause\n\r"
+    "    Probe\n\r"
+    "    Probe_clear\n\r"
+    "    Resume\n\r"
+    "    Run <Line No>\n\r"
+    "    SetWait <Time>\n\r"
+    "    Spindle <Increase | Decrease | Forward | Reverse | Constant | Off> {<Spindle>}\n\r"
+    "    Spindle_override <percent> {<Spindle>}\n\r"
+    "    Step\n\r"
+    "    Task_plan_init\n\r"
+    "    Teleop_enable\n\r"
+    "    Timeout <Time>\n\r"
+    "    Tool_offset <Offset>\n\r"
+    "    Update <On | Off>\n\r"
+    "    Wait <Time>\n\r"
+  );
   return 0;
 }
 
 static int helpQuit(connectionRecType *context)
 {
-  snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\r");
-  rtapi_strxcat(context->outBuf, "  The quit command has the server initiate a disconnect from the client,\n\r");
-  rtapi_strxcat(context->outBuf, "  the command has no parameters and no requirements to have negotiated\n\r");
-  rtapi_strxcat(context->outBuf, "  a hello, or be in control.");
-  sockWrite(context);
+  dprintf(
+    context->cliSock,
+    "Usage:\n\r"
+    "  The quit command has the server initiate a disconnect from the client,\n\r"
+    "  the command has no parameters and no requirements to have negotiated\n\r"
+    "  a hello, or be in control."
+  );
   return 0;
 }
 
 static int helpShutdown(connectionRecType *context)
 {
-  snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\r");
-  rtapi_strxcat(context->outBuf, "  The shutdown command terminates the connection with all clients,\n\r");
-  rtapi_strxcat(context->outBuf, "  and initiates a shutdown of LinuxCNC. The command has no parameters, and\n\r");
-  rtapi_strxcat(context->outBuf, "  can only be issued by the connection having control.\n\r");
-  sockWrite(context);
+  dprintf(
+    context->cliSock,
+    "Usage:\n\r"
+    "  The shutdown command terminates the connection with all clients,\n\r"
+    "  and initiates a shutdown of LinuxCNC. The command has no parameters, and\n\r"
+    "  can only be issued by the connection having control.\n\r"
+  );
   return 0;
 }
 
 static int helpHelp(connectionRecType *context)
 {
-  snprintf(context->outBuf, sizeof(context->outBuf), "If you need help on help, it is time to look into another line of work.\n\r");
-  sockWrite(context);
+  dprintf(
+    context->cliSock,
+    "If you need help on help, it is time to look into another line of work.\n\r"
+  );
   return 0;
 }
 
@@ -2932,8 +2902,7 @@ int commandHelp(connectionRecType *context)
   if (strcmp(s, "QUIT") == 0) return (helpQuit(context));
   if (strcmp(s, "SHUTDOWN") == 0) return (helpShutdown(context));
   if (strcmp(s, "HELP") == 0) return (helpHelp(context));
-  snprintf(context->outBuf, sizeof(context->outBuf), "%s is not a valid command.", s);
-  sockWrite(context);
+  dprintf(context->cliSock, "%s is not a valid command.", s);
   return 0;
 }
 
@@ -2957,28 +2926,27 @@ int parseCommand(connectionRecType *context)
 {
   int ret = 0;
   char *pch;
-  char s[64];
   static const char *helloNakStr = "HELLO NAK\r\n";
   static const char *shutdownNakStr = "SHUTDOWN NAK\r\n";
   static const char *helloAckStr = "HELLO ACK %s 1.1\r\n";
   static const char *setNakStr = "SET NAK\r\n";
     
   pch = strtok(context->inBuf, delims);
-  snprintf(s, sizeof(s), helloAckStr, serverName);
+  
   if (pch != NULL) {
     strupr(pch);
     switch (lookupToken(pch)) {
       case cmdHello: 
         if (commandHello(context) == -1)
-          ret = write(context->cliSock, helloNakStr, strlen(helloNakStr));
-        else ret = write(context->cliSock, s, strlen(s));
+          ret = dprintf(context->cliSock, helloNakStr);
+        else ret = dprintf(context->cliSock, helloAckStr, serverName);
         break;
       case cmdGet: 
         ret = commandGet(context);
         break;
       case cmdSet:
         if (!context->linked)
-	  ret = write(context->cliSock, setNakStr, strlen(setNakStr));
+	  ret = dprintf(context->cliSock, setNakStr);
         else ret = commandSet(context);
         break;
       case cmdQuit: 
@@ -2987,7 +2955,7 @@ int parseCommand(connectionRecType *context)
       case cmdShutdown:
         ret = commandShutdown(context);
         if(ret ==0){
-          ret = write(context->cliSock, shutdownNakStr, strlen(shutdownNakStr));
+          ret = dprintf(context->cliSock, shutdownNakStr);
         }
 	break;
       case cmdHelp:
