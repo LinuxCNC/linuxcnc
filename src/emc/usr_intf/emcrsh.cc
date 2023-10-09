@@ -811,7 +811,9 @@ static cmdResponseType setDebug(connectionRecType *context)
   pLevel = strtok(NULL, delims);
   if (pLevel == NULL) return rtStandardError;
   if (sscanf(pLevel, "%i", &level) < 1) return rtStandardError;
-  else sendDebug(level);
+  else {
+      if(sendDebug(level) != 0) return rtStandardError;
+  }
   return rtNoError;
 }
 
@@ -842,8 +844,12 @@ static cmdResponseType setMachine(connectionRecType *context)
    char *s = strtok(NULL, delims);
    switch (checkOnOff(s)) {
      case -1: return rtStandardError;
-     case 0: sendMachineOn(); break;
-     case 1: sendMachineOff();
+     case 0:
+        if(sendMachineOn() != 0) return rtStandardError;
+        break;
+     case 1:
+        if(sendMachineOff() != 0) return rtStandardError;
+        break;
      }
    return rtNoError;
 }
@@ -910,9 +916,15 @@ static cmdResponseType setMode(connectionRecType *context)
 {
   char *s = strtok(NULL, delims);
   switch (checkManualAutoMDI(s)) {
-    case 0: sendManual(); break;
-    case 1: sendAuto(); break;
-    case 2: sendMdi(); break;
+    case 0:
+        if(sendManual() != 0) return rtStandardError;
+        break;
+    case 1:
+        if(sendAuto() != 0) return rtStandardError;
+        break;
+    case 2:
+        if(sendMdi() != 0) return rtStandardError;
+        break;
     default: return rtStandardError;
     }
   return rtNoError;
@@ -923,8 +935,12 @@ static cmdResponseType setMist(connectionRecType *context)
    char *s = strtok(NULL, delims);
    switch (checkOnOff(s)) {
      case -1: return rtStandardError;
-     case 0: sendMistOn(); break;
-     case 1: sendMistOff();
+     case 0:
+        if(sendMistOn() != 0) return rtStandardError;
+        break;
+     case 1:
+        if(sendMistOff() != 0) return rtStandardError;
+        break;
      }
    return rtNoError;
 }
@@ -934,8 +950,12 @@ static cmdResponseType setFlood(connectionRecType *context)
    char *s = strtok(NULL, delims);
    switch (checkOnOff(s)) {
      case -1: return rtStandardError;
-     case 0: sendFloodOn(); break;
-     case 1: sendFloodOff();
+     case 0:
+        if(sendFloodOn() != 0) return rtStandardError;
+        break;
+     case 1:
+        if(sendFloodOff() != 0) return rtStandardError;
+        break;
      }
    return rtNoError;
 }
@@ -1112,7 +1132,7 @@ static cmdResponseType setHome(connectionRecType *context)
   if (sscanf(s, "%d", &joint) < 1) return rtStandardError;
   // joint == -1 means "Home All", any other negative is wrong
   if ((joint < -1) || (joint > EMCMOT_MAX_JOINTS)) return rtStandardError;
-  sendHome(joint);
+  if(sendHome(joint) != 0) return rtStandardError;
   return rtNoError;
 }
 
@@ -1192,7 +1212,7 @@ static cmdResponseType setFeedOverride(connectionRecType *context)
   char *s = strtok(NULL, delims);
   if (s == NULL) return rtStandardError;
   if (sscanf(s, "%d", &percent) < 1) return rtStandardError;
-  sendFeedOverride(((double) percent) / 100.0);
+  if(sendFeedOverride(((double) percent) / 100.0) != 0) return rtStandardError;
   return rtNoError;
 }
 
@@ -1326,8 +1346,12 @@ static cmdResponseType setTeleopEnable(connectionRecType *context)
    char *s = strtok(NULL, delims);
    switch (checkOnOff(s)) {
      case -1: return rtStandardError;
-     case 0: sendSetTeleopEnable(1); break;
-     case 1: sendSetTeleopEnable(0);
+     case 0:
+        if(sendSetTeleopEnable(1) != 0) return rtStandardError;
+        break;
+     case 1:
+        if(sendSetTeleopEnable(0) != 0) return rtStandardError;
+        break;
      }
    return rtNoError;
 }
@@ -1351,13 +1375,13 @@ static cmdResponseType setProbe(connectionRecType *context)
   fprintf(stderr,"2_probe %s\n",s);
   if (sscanf(s, "%f", &z) < 1) return rtStandardError;
   
-  sendProbe(x, y, z);
+  if(sendProbe(x, y, z) != 0) return rtStandardError;
   return rtNoError;
 }
 
 static cmdResponseType setProbeClear(connectionRecType *context)
 {
-  sendClearProbeTrippedFlag();
+  if(sendClearProbeTrippedFlag() != 0) return rtStandardError;
   return rtNoError;
 }
 
