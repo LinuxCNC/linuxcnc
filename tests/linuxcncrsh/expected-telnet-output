@@ -68,9 +68,9 @@ SPINDLE 0 FORWARD
 SET SPINDLE ACK
 SPINDLE 0 OFF
 error: invalid spindle: 99 (valid: -1 - 1)
-BRAKE OFF
+BRAKE ON
 SET BRAKE ACK
-BRAKE OFF
+BRAKE ON
 SET BRAKE ACK
 BRAKE OFF
 error: invalid spindle: 99 (valid: -1 - 1)
