@@ -53,7 +53,7 @@ fi
     echo get spindle
     echo set spindle forward
     echo get spindle
-    echo set spindle -1 off
+    echo set spindle off -1
     echo get spindle -1
 
     echo set mode mdi
