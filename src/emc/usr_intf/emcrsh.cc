@@ -2824,7 +2824,7 @@ static int helpSet(connectionRecType *context)
     "    Home <Axis No>\r\n"
     "    Jog <Axis No, Speed>\r\n"
     "    Jog_incr <Axis No, Speed, Distance>\r\n"
-    "    Jog_stop\r\n"
+    "    Jog_stop <Joint No|Axis letter>\r\n"
     "    Linear_unit_conversion <Inch | CM | MM | Auto | Custom>\r\n"
     "    Load_tool_table <Table name>\r\n"
     "    Machine <On | Off>\r\n"
