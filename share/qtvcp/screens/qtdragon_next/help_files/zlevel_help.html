@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Z Level Compensation</title>
+  <link href="help.css" rel="stylesheet">
+</head>
+<body>
+<h1>Z LEVEL COMPENSATION</h1>
+<p>Z level compensation is a bed levelling/distortion correction function typically used in 3D printing or engraving.
+It uses a HAL user space component which utilizes the external offsets feature of LinuxCNC. The <i>loadusr</i> command
+in the handler_postgui file specifies an interpolation type, which must be one of <i>nearest, linear</i> or <i>cubic</i>.
+If none is specified or if an invalid word is specified, the default will set to <i>nearest</i>.</p>
+<p>When Z LEVEL COMP is enabled:</p>
+<ul>
+    <li>the compensation component reads a probe data file, which must be called <i>probe_points.txt</i></li>
+    <li>a 3d height map image is created and the HAL map-ready pin is set True</li>
+    <li>the height map image is shown in the UTILS page -> Z Level Comp tab</li>
+</ul>
+<p>The <i>probe_points.txt</i> file can be updated at any time while compensation is disabled. When next enabled, the file will be reread
+and the compensation map is recalculated.</p>
+<p>The necessary HAL connections are as follows:</p>
+<div class="code-block">
+    <pre class="hal">net xpos-cmd         compensate.x-pos <= axis.x.pos-cmd</pre>
+    <pre class="hal">net ypos-cmd         compensate.x-pos <= axis.y.pos-cmd</pre>
+    <pre class="hal">net zpos-cmd         compensate.x-pos <= halui.axis.z.pos-relative</pre>
+    <pre class="hal">net compensate-on    compensate.enable-in <= qtdragon.comp-on<</pre>
+    <pre class="hal">net eoffset-clr2     compensate.clear  => or2_1.in1</pre>
+    <pre class="hal">net comp-count       compensate.counts => qtdragon.comp-count</pre>
+    <pre class="hal">net map-ready        compensate.map-ready => qtdragon.map-ready</pre>
+    <pre class="hal">setp compensate.fade-height 0.0</pre>
+    <pre class="hal">setp axis.z.eoffset-enable True</pre>
+</div>
+<h2>Workflow</h2>
+<ul>
+    <li>from the FILE page, open the gcode program which needs to be level compensated</li>
+    <li>enter the X and Y dimensions shown in the preview frame into the X and Y size fields</li>
+    <li>enter the number of probe points and other probe parameters</li>
+    <li>ensure that the selected zero reference point is the same as that of the gcode program</li>
+    <li>press SAVE AS PROGRAM or SEND TO LINUXCNC - this checks the validity of the input parameters and creates the gcode 
+    probing routine</li>
+</ul>
+<h2>Interpolation Method</h2>
+<p>The following diagrams show the effect of the different interpolation methods when an L shaped piece of 6 mm metal was probed.</p>
+<center>
+    <figure>
+    <img src="images/nearest.png" alt="comp method nearest"></img>
+    <figcaption>Compensation Map with Nearest Interpolation</figcaption>
+    </figure>
+</center>
+<center>
+    <figure><img src="images/linear.png" alt="comp method linear">
+    <figcaption>Compensation Map with Linear Interpolation</figcaption>
+    </figure>
+</center>
+<center>
+    <figure>
+    <img src="images/cubic.png" alt="comp method cubic">
+    <figcaption>Compensation Map with Cubic Interpolation</figcaption>
+    </figure>
+</center>
+</body>
+</html>

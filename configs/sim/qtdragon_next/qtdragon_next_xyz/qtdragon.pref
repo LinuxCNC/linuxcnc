@@ -1,0 +1,166 @@
+[DIALOG_GEOMETRY]
+AboutDialog-geometry = half
+LncMessage-geometry = 633 369 340 102
+ToolChangeDialog-geometry = default
+basicProbeHelpDialog-geometry = default
+
+[DIALOG_OPTIONS]
+EntryDialog_play_sound = True
+EntryDialog_sound_type = READY
+toolDialog_play_sound = True
+toolDialog_speak = True
+toolDialog_sound_type = READY
+fileDialog_play_sound = True
+fileDialog_sound_type = READY
+CalculatorDialog_play_sound = True
+CalculatorDialog_sound_type = READY
+MachineLogDialog_play_sound = True
+MachineLogDialog_sound_type = READY
+RunFromLineDialog_play_sound = True
+RunFromLineDialog_sound_type = READY
+KeyboardDialog_play_sound = True
+KeyboardDialog_sound_type = READY
+
+[BOOK_KEEPING]
+last_loaded_directory = /home/chris/linuxcnc/nc_files/examples
+last_loaded_file = /home/chris/linuxcnc/nc_files/examples/3D_Chips.ngc
+style_QSS_Path = /home/chris/emc/share/qtvcp/screens/qtdragon_hd/dark_grey.qss
+RecentPath_0 = /home/chris/linuxcnc/nc_files/examples/3D_Chips.ngc
+
+[ORIGINOFFSET_SYSTEM_NAMES]
+__dialogOffsetViewWidget-G54 = User System 1
+__dialogOffsetViewWidget-G55 = User System 2
+__dialogOffsetViewWidget-G56 = User System 3
+__dialogOffsetViewWidget-G57 = User System 4
+__dialogOffsetViewWidget-G58 = User System 5
+__dialogOffsetViewWidget-G59 = User System 6
+__dialogOffsetViewWidget-G59.1 = User System 7
+__dialogOffsetViewWidget-G59.2 = User System 8
+__dialogOffsetViewWidget-G59.3 = User System 9
+offset_table-G54 = User System 1
+offset_table-G55 = User System 2
+offset_table-G56 = User System 3
+offset_table-G57 = User System 4
+offset_table-G58 = User System 5
+offset_table-G59 = User System 6
+offset_table-G59.1 = User System 7
+offset_table-G59.2 = User System 8
+offset_table-G59.3 = User System 9
+
+[SCREEN_OPTIONS]
+catch_errors = True
+desktop_notify = True
+notify_max_msgs = 10
+shutdown_check = True
+sound_player_on = False
+MainWindow-geometry = 211 -88 1920 1056
+
+[MCH_MSG_OPTIONS]
+mchnMsg_play_sound = True
+mchnMsg_speak_errors = False
+mchnMsg_speak_text = True
+mchnMsg_sound_type = ATTENTION
+
+[USR_MSG_OPTIONS]
+usermsg_play_sound = True
+userMsg_sound_type = ATTENTION
+userMsg_use_focusOverlay = True
+
+[SHUTDOWN_OPTIONS]
+shutdown_play_sound = True
+shutdown_alert_sound_type = READY
+shutdown_exit_sound_type = LOGOUT
+shutdown_msg_title = Do you want to Shutdown now?
+shutdown_msg_focus_text = 
+shutdown_msg_detail = 
+
+[NOTIFY_OPTIONS]
+notify_start_greeting = False
+notify_start_title = Welcome
+notify_start_detail = This option can be changed in the preference file
+notify_start_timeout = 5
+
+[FILEMANAGER_JUMPLIST]
+
+[SCREEN_CONTROL_LAST_SETTING]
+gcodegraphics-user-view = p
+gcodegraphics-user-zoom = 10.0
+gcodegraphics-user-panx = 0.0
+gcodegraphics-user-pany = 0.0
+gcodegraphics-user-lat = 0.0
+gcodegraphics-user-lon = 0.0
+adj_maxv_ovr-hi-value = 75
+adj_maxv_ovr-low-value = 25
+adj_rapid_ovr-hi-value = 75
+adj_rapid_ovr-low-value = 25
+adj_spindle_ovr-hi-value = 75
+adj_spindle_ovr-low-value = 25
+adj_linear_jog-hi-value = 75
+adj_linear_jog-low-value = 25
+adj_angular_jog-hi-value = 75
+adj_angular_jog-low-value = 25
+adj_feed_ovr-hi-value = 75
+adj_feed_ovr-low-value = 25
+
+[CUSTOM_FORM_ENTRIES]
+Tool to load = 0
+Laser X = 100.0
+Laser Y = -20.0
+Sensor X = 10.0
+Sensor Y = 10.0
+Camera X = 10.0
+Camera Y = 10.0
+Work Height = 20.0
+Touch Height = 40.0
+Sensor Height = 40.0
+Search Velocity = 40.0
+Probe Velocity = 10.0
+Max Probe = 10.0
+Retract Distance = 10.0
+Z Safe Travel = 10.0
+Eoffset count = 0
+External offsets = False
+Reload program = False
+Reload tool = False
+Use keyboard = False
+Use tool sensor = False
+Use tool touchplate = False
+Run from line = False
+Use virtual keyboard = False
+Use camera = False
+Use alpha display mode = False
+Inhibit display mouse selection = True
+Probe X = 0.0
+Probe Y = 0.0
+Sensor Location X = 20.0
+Sensor Location Y = 20.0
+Rotary Height = 10.0
+Max Spindle Power = 0
+Spindle Delay = 2
+Use MPG jog = False
+Use MDI Keyboard = False
+Use program joypad = False
+
+[PROBE OPTIONS]
+Probe tool = 0
+Probe diameter = 4
+Probe rapid = 10
+Probe feed = 10
+Probe search = 10
+Probe max travel = 10
+Probe max z = 2
+Probe extra depth = 0
+Probe step off = 10
+Probe xy clearance = 10
+Probe z clearance = 10
+Probe edge width = 10
+Calibration offset = 0
+Cal x width = 0
+Cal y width = 0
+Cal diameter = 0
+Adjust X = 0.0
+Adjust Y = 0.0
+Adjust Z = 0
+Adjust angle = 0
+Cal offset = 0
+

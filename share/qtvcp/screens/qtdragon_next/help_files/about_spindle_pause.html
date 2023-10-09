@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QtDragon Documentation</title>
+  <link href="help.css" rel="stylesheet">
+</head>
+<body>
+<h1>SPINDLE PAUSE</h1>
+<p>When a running program is paused while PAUSE SPINDLE button is enabled, the spindle will stop and move up by a distance 
+determined by the SPINDLE PAUSE OFFSET value on the SETTINGS page. This allows the operator to clear chips or whatever without 
+having the spindle running. A message box will pop up warning the user to wait for the AT_SPEED LED before pressing the RESUME 
+button on the program control joypad. Pressing the OK button on the message box willturn the spindle on and wait SPINDLE PAUSE DELAY 
+before lowering it to the position it was at before the pause. This allows the spindle to resume it's operating speed before making 
+contact with the workpiece. A message on the statusbar will indicate when the program can be resumed.</p>
+<p>When ready to resume, press the RESUME button. If the LIMIT LED lights up, the Z axis didn’t move the full distance due to axis 
+travel limitations. However, it will still return to the proper Z level when the program is resumed.</p>
+<p>The spindle pause function requires the following HAL connections:</p>
+
+<div class="code-block">
+    <pre class="hal">net spindle-pause    qtdragon.spindle_inhibit => spindle.0.inhibit</pre>
+    <pre class="hal">net eoffset-clr1     qtdragon.eoffset-clear => or2_1.in0</pre>
+    <pre class="hal">net eoffset          qtdragon.eoffset-value <= axis.z.eoffset</pre>
+</div>
+
+</body>
+</html>

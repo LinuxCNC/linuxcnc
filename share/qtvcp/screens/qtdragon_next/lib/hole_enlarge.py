@@ -17,7 +17,7 @@ import tempfile
 import atexit
 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QFileDialog
 from qtvcp.core import Info, Status, Action, Tool, Path
 
 INFO = Info()
@@ -26,15 +26,16 @@ ACTION = Action()
 TOOL = Tool()
 PATH = Path()
 HERE = os.path.dirname(os.path.abspath(__file__))
-HELP = os.path.join(HERE, "help_files")
+HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 
 
 class Hole_Enlarge(QtWidgets.QWidget):
-    def __init__(self, parent=None, *args, **kwards):
-        super(Hole_Enlarge, self).__init__(parent)
-        self.tool_db = parent
+    def __init__(self, tooldb, parent=None, *args, **kwards):
+        super(Hole_Enlarge, self).__init__()
+        self.tool_db = tooldb
+        self.parent = parent
+        self.helpfile = 'hole_enlarge_help.html'
         self.units_text = ""
-        self.units_gcode = 'G21'
         self.angle_inc = 4
         self.line_num = 0
         self.tool = 0
@@ -57,31 +58,18 @@ class Hole_Enlarge(QtWidgets.QWidget):
         except AttributeError as e:
             print("Error: ", e)
 
-        self.lineEdit_tool.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,5}')))
-        self.lineEdit_spindle.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,5}')))
-        self.lineEdit_feed.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,4}')))
-        self.lineEdit_tool_dia.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,3}[.][0-9]{0,4}')))
-        self.lineEdit_start_dia.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,5}[.][0-9]{0,4}')))
-        self.lineEdit_final_dia.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,5}[.][0-9]{0,4}')))
-        self.lineEdit_loops.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,2}')))
-        self.lineEdit_cut_depth.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,4}[.][0-9]{0,4}')))
-        self.lineEdit_z_safe.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,4}')))
+        self.lineEdit_tool.setValidator(QtGui.QIntValidator(0, 19999))
+        self.lineEdit_spindle.setValidator(QtGui.QIntValidator(0, 99999))
+        self.lineEdit_feed.setValidator(QtGui.QIntValidator(0, 9999))
+        self.lineEdit_tool_dia.setValidator(QtGui.QDoubleValidator(0, 99.9, 4))
+        self.lineEdit_start_dia.setValidator(QtGui.QDoubleValidator(0.0, 999.9, 4))
+        self.lineEdit_final_dia.setValidator(QtGui.QDoubleValidator(0.0, 999.9, 4))
+        self.lineEdit_loops.setValidator(QtGui.QIntValidator(0, 99))
+        self.lineEdit_cut_depth.setValidator(QtGui.QDoubleValidator(0.0, 99.9, 4))
+        self.lineEdit_z_safe.setValidator(QtGui.QDoubleValidator(0.0, 999.9, 4))
 
         self.red_border = "border: 2px solid red;"
         self.black_border = "border: 2px solid black;"
-        if not self.validate():
-            self.lineEdit_status.setText("Enter valid data into input parameters")
-
-        # set up Help messagebox
-        help_path = os.path.join(HERE, "hole_enlarge_help.html")
-        with open(help_path) as file:
-            help_text = file.read()
-        self.mb = QMessageBox()
-        self.mb.setIcon(QMessageBox.Information)
-        self.mb.setWindowTitle("Hole Enlarge Help")
-        self.mb.setTextFormat(QtCore.Qt.RichText)
-        self.mb.setText(help_text)
-        self.mb.setStandardButtons(QMessageBox.Ok)
 
         # signal connections
         STATUS.connect('metric-mode-changed', lambda w, mode: self.units_changed(mode))
@@ -92,7 +80,7 @@ class Hole_Enlarge(QtWidgets.QWidget):
         self.btn_preview.pressed.connect(self.preview_program)
         self.btn_create.pressed.connect(self.create_program)
         self.btn_send.pressed.connect(self.send_program)
-        self.btn_help.pressed.connect(lambda : self.mb.show())
+        self.btn_help.pressed.connect(self.show_help)
 
     def create_program(self):
         if not self.validate(): return
@@ -167,10 +155,6 @@ class Hole_Enlarge(QtWidgets.QWidget):
             if self.start_dia <= 0.0:
                 self.lineEdit_start_dia.setStyleSheet(self.red_border)
                 self.lineEdit_status.setText("Warning - Start diameter must be > 0.0")
-                valid = False
-            if self.start_dia <= self.tool_dia:
-                self.lineEdit_start_dia.setStyleSheet(self.red_border)
-                self.lineEdit_status.setText("Warning - Start diameter must be > tool diameter")
                 valid = False
         except:
             self.lineEdit_start_dia.setStyleSheet(self.red_border)
@@ -263,26 +247,10 @@ class Hole_Enlarge(QtWidgets.QWidget):
         if self.tool > 0:
             info = TOOL.GET_TOOL_INFO(self.tool)
             dia = info[11]
-            if STATUS.is_metric_mode():
-                dia = INFO.convert_machine_to_metric(dia)
-            else:
-                dia = INFO.convert_machine_to_imperial(dia)
-
             self.lineEdit_tool_dia.setText(f"{dia:8.3f}")
-            # TODO integrate tool database
-            try:
-                rpm = self.tool_db.get_rpm(self.tool)
-            except:
-                rpm = self.minimum_speed
+            rpm = self.tool_db.get_rpm(self.tool)
             self.lineEdit_spindle.setText(str(rpm))
-            # TODO integrate tool database
-            try:
-                feed = self.tool_db.get_feed(self.tool)
-            except:
-                if STATUS.is_metric_mode():
-                    feed = 25
-                else:
-                    feed = 1
+            feed = self.tool_db.get_feed(self.tool)
             self.lineEdit_feed.setText(str(feed))
             self.lineEdit_tool.setStyleSheet(self.black_border)
         self.validate()
@@ -300,14 +268,12 @@ class Hole_Enlarge(QtWidgets.QWidget):
         self.file.write(f"({self.units_text})")
         self.file.write("\n")
         self.next_line(f"G40 G49 G64 P0.03 M6 T{self.tool}")
-        self.next_line("G17 G90")
-        self.next_line(f"{self.units_gcode}")
+        self.next_line("G17")
         if self.chk_mist.isChecked():
             self.next_line("M7")
         if self.chk_flood.isChecked():
             self.next_line("M8")
         self.next_line(f"G0 Z{self.z_safe}")
-        self.next_line(f'G0 X0 Y0')
         offset = (self.start_dia - self.tool_dia) / 2
         self.next_line(f"G0 X{offset} Y0")
         self.next_line(f"M3 S{self.spindle}")
@@ -326,11 +292,10 @@ class Hole_Enlarge(QtWidgets.QWidget):
         offset = (self.final_dia - self.tool_dia) / 2
         direction = "G3" if self.chk_direction.isChecked() else "G2"
         self.file.write("(Profile pass)\n")
-        self.next_line(f"{direction} I-{offset} F{self.feed}")
+        self.next_line(f"{direction} I-{offset:8.4f} F{self.feed}")
         # closing postamble
         self.next_line("G90")
         self.next_line(f"G0 Z{self.z_safe}")
-        self.next_line(f'G0 X0 Y0')
         self.next_line("M9")
         self.next_line("M5")
         self.next_line("M2")
@@ -339,7 +304,6 @@ class Hole_Enlarge(QtWidgets.QWidget):
 
     def units_changed(self, mode):
         text = "MM" if mode else "IN"
-        self.units_gcode = 'G21' if mode else 'G20'
         self.lbl_feed_unit.setText(text + "/MIN")
         self.lbl_tool_dia_unit.setText(text)
         self.lbl_start_dia_unit.setText(text)
@@ -347,7 +311,6 @@ class Hole_Enlarge(QtWidgets.QWidget):
         self.lbl_cut_depth_unit.setText(text)
         self.lbl_z_safe_unit.setText(text)
         self.units_text = (f"**NOTE - All units are in {text}")
-        self.load_tool()
 
     def direction_changed(self, state):
         text = "CCW" if state else "CW"
@@ -364,6 +327,10 @@ class Hole_Enlarge(QtWidgets.QWidget):
     def next_line(self, text):
         self.file.write(f"N{self.line_num} " + text + "\n")
         self.line_num += 5
+
+    def show_help(self):
+        fname = os.path.join(HELP, self.helpfile)
+        self.parent.show_help_page(fname)
 
     def make_temp(self):
         _tmp = tempfile.mkstemp(prefix='spindle_warmup', suffix='.ngc')

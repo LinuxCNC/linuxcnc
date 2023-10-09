@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QtDragon Documentation</title>
+  <link href="help.css" rel="stylesheet">
+</head>
+<body>
+<h1>ROTARY AXIS</h1>
+<p>Some CAM tools provide a function to create wrapped toolpaths to enable machining on a cylinder. The wrapped axis is generally 
+assigned to the A axis. However, feedrate commands in the gcode apply to linear and angular axes alike. This can make for very slow
+movements of the A, or rotary, axis. To remedy this, QtDragon provides a utility in the UTILS page to convert gcodes from G94 (distance
+per unit time) to G93 (inverse time mode). This allows the rotary gcode movements to travel at the same rate as linear moves.</p>
+<p>In the SETTINGS page under TOUCHOFF tab is a parameter called Rotary Axis Height. This is the height from the machine table to the 
+centerline of the rotary axis, assuming the rotary axis is mounted on the machine table. Normally, this would be the Z0 value. </p>
+<p>As it is not convenient to touch off a tool to a cyclindrical object, tool touchoff is accomplished by touching off to the tool sensor
+while placed on the machine table and setting the workpiece height to the rotary height. This sets the tool endpoint to be Z0 at the rotary
+axis height.</p>
+<center><img src="images/rotary_axis.png" alt="rotary_axis" width="500"></img></center>
+</body>
+</html>

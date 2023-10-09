@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Facing Help</title>
+</head>
+<body>
+<h1>FACING UTILITY</h1>
+<p>This program creates a gcode file that can be loaded into linuxnc to run a rectangular facing operation.
+The actual area covered will be Size_x by Size_y plus half the diameter of the tool on all 4 sides.
+This means that the facing routine will not work in a pocket unless the tool diameter is taken into account.</p>
+<p>The machine should be X and Y zeroed at the lower left corner of the workpiece.</p>
+<p>The program is designed to run the selected raster pattern at a Z value of 0 in machine units.</p>
+<p>The feedrate for Z travel defaults to 1/2 the feedrate entered for X and Y.</p>
+<p>The parameter units are set to whatever mode the machine is currently in, either metric or imperial.</p>
+<h2>Validation of Inputs</h2>
+<ul>
+    <li>checks that there are no blank entries</li>
+    <li>checks that stepover is not larger than tool diameter</li>
+    <li>checks that Size X and Size Y are at least 2x stepover value</li>
+    <li>checks that the spindle RPM > 0</li>
+    <li>checks that the feedrate > 0</li>
+    <li>checks that safe Z travel > 0</li>
+    <li>checks that the tool diameter > 0</li>
+</ul>
+<h2>SAVE AS PROGRAM</h2>
+<ul>
+    <li>checks for valid input fields</li>
+    <li>creates a gcode program according to the Raster setting</li>
+    <li>opens a dialog window to get a file to save to</li>
+    <li>invalid parameters are shown with a red border and the program will not be created</li>
+</ul>
+<h2>SEND TO LINUXCNC</h2>
+<ul>
+    <li>checks for valid input fields</li>
+    <li>creates a gcode program according to the Raster setting</li>
+    <li>creates a temporary file and loads it to linuxcnc</li>
+    <li>invalid parameters are shown with a red border and the program will not be created</li>
+    <li>the temporary file is automatically deleted when linuxcnc exits</li>
+</ul>
+</body>
+</html>

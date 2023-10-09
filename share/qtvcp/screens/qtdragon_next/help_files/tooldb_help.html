@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tool Database Help</title>
+</head>
+<body>
+<h1>TOOL DATABASE</h1>
+<p>The tool database utility enables the user to store additional information about the tools listed in the linuxcnc tool.tbl file.
+This extra information is kept in a SQLITE database. On startup, the program checks if the database exists and creates one if needed.
+If the database exists, it is updated with any new information in the tool.tbl file. If the tool.tbl contains tools not in the database,
+they are added. If the database contains tools not in the tool.tbl, they are deleted.</p>
+
+<h2>Usage</h2>
+    <ul>
+    <li>At startup, a list of available tool icons is generated from any .png files found in the <i>tool_icons</i> folder.</li>
+    <li>The <i>tool_icons</i> must be .png images. This enables them to have transparent backgrounds.</li>
+    <li>The preferred icon size is 160 x 270 pixels.</li>
+    <li>If ENABLE EDIT is checked, clicking on a table cell brings up a dialog box to enter new data.</li>
+    <li>If a cell under the ICON header is selected, a combobox appears to select the desired icon.</li>
+    <li>EXPORT TABLE creates an HTML file of TOOL table. The filename is selected via a file chooser dialog.</li>
+    <li>Adding or deleting a tool in the linuxcnc tool table is reflected in the database table.</li>
+    </ul>
+
+<p>The tool database file in the config directory is called <i>tool_database.db</i>. It is advised to maintain regular backups of this
+file. If it becomes lost or corrupted, all information the user has entered may be lost and will have to be re-entered in a new database.</p>
+</body>
+</html>

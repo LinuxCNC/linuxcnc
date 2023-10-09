@@ -20,7 +20,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 IMAGES = os.path.join(INFO.IMAGE_PATH, 'gcode_utility')
 
 class Facing(QtWidgets.QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, *args, **kwards):
         super(Facing, self).__init__(parent)
         # Load the widgets UI file:
         self.filename = os.path.join(HERE, 'facing.ui')

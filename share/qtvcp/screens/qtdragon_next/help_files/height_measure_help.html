@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auto Height Measure</title>
+</head>
+<body>
+<h1>HEIGHT MEASURE</h1>
+<p>This program probes 2 user specified locations in the Z axis and calculates the difference in heights.</p>
+<h2>Enable Probe Position Set Buttons</h2>
+<ul>
+    <li>when checked, the SET buttons are enabled</li>
+    <li>this allows the user to automatically fill in the X, Y and Z parameters with the current position as displayed on the DROs.</li>
+</ul>
+<h2>Autofill Workpiece Height on Main Screen</h2>
+<ul>
+    <li>when checked, the calculated height is automatically transferred to the Workpice Height field in the main screen.</li>
+</ul>
+<h2>Workpiece Probe At</h2>
+<ul>
+    <li>the X, Y and Z coordinates specify where the first probing routine should start, in current WCS</li>
+    <li>if the first point is higher than the second, the calculated height will be a positive number.</li>
+</ul>
+<h2>Machine Probe At</h2>
+<ul>
+    <li>the X, Y and Z coordinates specify where the second probing routine should start, in current WCS</li>
+    <li>if the first point is lower than the second, the calculated height will be a negative number.</li>
+</ul>
+<h2>Z Safe Travel Height</h2>
+<ul>
+    <li>the machine is raised to the Z safe travel height before jogging to the X and Y coordinates</li>
+    <li>the spindle then lowers to the specified Z coordinate</li>
+    <li>it should be selected so that the tool clears all obstructions while jogging</li>
+</ul>
+<h2>START button</h2>
+<ul>
+    <li>input parameter fields are checked for validity</li>
+    <li>the machine will jog to the first location and then probe down</li>
+    <li>the machine then jogs to the second location and probes down again</li>
+    <li>the difference in probed values is reported as Calculated Workpiece Height</li>
+    <li>the parameters for search velocity, probe velocity, maximum probe distance and return distance are read from the main GUI Settings page.</li>
+</ul>
+<h2>ABORT button</h2>
+<ul>
+    <li>causes all jog and probe routines currently executing to stop</li>
+</ul>
+
+</body>
+</html>

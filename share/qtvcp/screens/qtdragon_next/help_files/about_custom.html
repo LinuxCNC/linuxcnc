@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QtDragon Documentation</title>
+  <link href="help.css" rel="stylesheet">
+</head>
+<body>
+<h1>ADDING CUSTOM PANELS</h1>
+<p>Custom panels can be added to the UTILS tab by modifying the setup_utils.py module in the lib directory. Utilities are typically
+custom widgets that can be created progammatically with python or graphically with QtDesigner. In either case, some python support 
+software will be required.</p>
+<p>Example code to insert a custom widget (panel) is:</p>
+<div class='code-block'>
+<ul class='no-bullets'>
+    <li>from lib.module_name import module_class</li>
+    <li>self.module_name = module_class()</li>
+    <li>self.stackedWidget_utils.addWidget(self.module_name)</li>
+    <li>self.make_button('module_name', 'DESIRED BUTTON TEXT')</li>
+</ul>
+</div>
+<p>If the module is required to be known to the main handler file, then a reference to the module object needs to be passed to
+the handler. This is done with:</p>
+<div class='code-block'>
+<ul class='no-bullets'>
+    <li>self.parent.module_name = self.module_name</li>
+</ul>
+</div>
+<p>Of course, the qtdragon_handler.py file must contain an empty object in the __init__ section.</p>
+<div class='code-block'>
+<ul class='no-bullets'>
+    <li>self.module_name = None</li>
+</ul>
+</div>
+<p>The self.module_name object will be updated when the handler executes the setup_utils module.</p>
+<p>The setup_utils.py module provides several instances of utilities added to QtDragon that can be used as a guide.</p>

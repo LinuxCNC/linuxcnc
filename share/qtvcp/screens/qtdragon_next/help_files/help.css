@@ -1,0 +1,35 @@
+body {
+    font-family: "Lato", sans-serif;
+}
+
+ul.no-bullets {
+    list-style-type: none;
+    margin-left: 30px;
+}
+
+button.ui {
+    background: #E0E0E0;
+    font-size: 14px;
+    height: 40px;
+}
+
+pre.hal {
+    margin: 0px 0px 0px 0px;
+    font-size: 14px;
+}
+
+div.admonition {
+    border: 1px solid grey;
+    background: #E0E0E0;
+    padding: 8px;
+}
+
+div.code-block {
+    border: 1px solid grey;
+    background: #E0E0E0;
+    padding: 8px;
+}
+
+th, td {
+    padding-left: 20px;
+}

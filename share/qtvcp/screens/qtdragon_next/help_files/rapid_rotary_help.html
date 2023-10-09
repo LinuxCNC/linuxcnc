@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rapid Rotary Help</title>
+</head>
+<body>
+<h1>RAPID ROTARY UTILITY</h1>
+<p>This program converts G-code from G94 (units per minute feed rate mode) to G93 (Inverse time mode). 
+The main difference between these two modes is that in G93, for every linear or arc move (G1, G2, or G3), that command must also specify 
+how much time it should take to make that move. Using G93 is advantageous when a move has both linear and rotary components. 
+The reason is that linear moves have units of distance while rotary moves are measured in degrees and many CAM software packages only 
+specify feed rates in distance units. However, if you had a rotation move at the same time as a linear move, the controller (e.g., LinuxCNC) 
+would move both axes at the same rate. For this reason, inverse time mode is used. </p>
+<p>This application does not alter any of the positions in the G-code movement commands. Instead, it converts from G94 to G93 by 
+calculating the distance the tool travels for each line and using the last feed rate specified to calculate the time it should take 
+the tool to complete that movement.  For rotary moves, the program uses the Z-axis position (as the radius value) to convert from 
+rotational units (angles) to distance. This allows for constant tool tip feed rates even for complex geometries and results in 
+slower A-axis rotations when machining larger diameter sections of a part and faster A-axis rotations when machining smaller diameter 
+sections.</p>
+<h2>Typical Workflow</h2>
+<ul>
+    <li>Generate the g-code (.ngc) for your part using your CAM software with a compatible post processor.</li>
+    <li>In the Rapid Rotary utility, select the input file and output file by clicking on the filename fields.</li>
+    <li>If the Z0 point is the A axis, set Z0 offset to 0. If the Z0 point is the surface of the cylindrical workpiece, set the Z0 offset
+        to the diameter of the workpiece.</li>
+    <li>Select either IMPERIAL or METRIC in the units combobox.</li>
+    <li>Select the wrap conversion type from the conversion type combobox</li>
+    <li>If all input parameters are valid, the CONVERT button will be enabled</li>
+    <li>Press the CONVERT TO G93 button</li>
+    <li>If the conversion succeeded with no errors, the converted file is saved and the SEND TO LINUXCNC button is enabled.</li>
+    <li>The converted file can be opened from the FILE page of the main menu or by pressing SEND TO LINUXCNC</li>
+    <li>Manually inspect and/or test the output .ngc to be sure there are no errors or bugs in the converted file and that it is 
+        safe to run on your machine.</li>
+</ul>
+<h2>Features</h2>
+<ul>
+    <li>Supports up to four axes (X,Y,Z,A)</li>
+    <li>Supports G01, G02, G03 movement commands (G02 and G03 are not typically used in rotary jobs however)</li>
+</ul>
+<h2>Limitations</h2>
+<ul>
+    <li>Requires a space between X, Y, Z, A, I, J entities in the G-code (e.g, X12Y34 is not supported, it must be X12 Y34)
+    [this can be configured in your post processor</li>
+    <li>Requires the input file to use G94 (units per minute feed rate mode) and it must be specified in the preamble section</li>
+    <li>Requires G17, G18 or G19 (plane select) to be specified in the preamble section of the input file</li>
+    <li>If a comment is found on a line, denoted by '(' the rest of the line is ignored and the comment is copied into the output file</li>
+</ul>
+</body>
+</html>

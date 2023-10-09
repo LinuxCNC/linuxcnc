@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Basic Probe Help Files</title>
+  <link href="help.css" rel="stylesheet">
+</head>
+<body>
+<div class = "main">
+<style>
+    p, li {
+    color: black;
+    font-size: 12pt;
+}
+</style>
+<h1>BASIC PROBE EXAMPLE</h1>
+<center><img src="help_files/images/back_right_corner_inside.png" alt="back right corner inside"></center>
+<p>Demo of inside corner probing using the top right button in Basic Probe Inside Measurements tab.</p>
+<p>While all probe entries must be correct, the most important settings to change for each probe sequence are:</p>
+<ul>
+    <li>STEP OFF - distance away from edge before rough probing</li>
+    <li>Z CLEARANCE  - distance from probe to top of material</li>
+    <li>EXTRA DEPTH  - distance to lower probe from top of material</li>
+    <li>EDGE WIDTH   - distance along edge wall (away from corner) to start probing</li>
+</ul>
+<p>NOTE : These distances are always to be set in 'machine units' (mm for metric machine, inch for imperial machine)</p>
+<p>Manually set the probe at the intersection of the edges (ie corner) of material as described by the purple dot on the button.
+ Set it to Z CLEARANCE above the top of material. These can be done by eye.</p>
+<p>Set EXTRA DEPTH to a value that you want the probe to go below the <b>top</b>top of material. (So the probe will move from it's start position down
+ Z Clearance + Extra Depth distance)</p>
+<p>Set STEP OFF to a value that definitely gives clearance from the wall so that when the probe goes down, it doesn't hit anything.</p>
+<p>Set EDGE WIDTH to a value that describes the distance measured from the corner, along the wall to where you wish to probe. This edge distance will be used
+ along the X wall and then the Y wall.</p>
+<p>Sequence after pressing the probe button:</p>
+<ul>
+    <li>rapid to EDGE WIDTH distance away from corner at the same time moving STEP OFF away from edge. So this is a slightly diagonal move.</li>
+    <li>move probe down by Z CLEARANCE + EXTRA DEPTH + PROBE DIA (probe tip diameter)</li>
+    <li>probe wall twice (rough and fine)</li>
+    <li>move diagonally to the other wall as set by EDGE WIDTH and STEP OFF</li>
+    <li>probe wall twice  (rough and fine)</li>
+    <li>raise probe up by Z CLEARANCE + EXTRA DEPTH + PROBE DIA (returns to starting height)</li>
+    <li>rapid back to calculated corner</li>
+    <li>if auto zero button is enabled, set X and Y of the current user system to zero</li>
+</ul>
+<p></p>
+</body>
+</html>
