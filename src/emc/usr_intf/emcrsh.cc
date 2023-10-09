@@ -1425,27 +1425,24 @@ static cmdResponseType setOptionalStop(connectionRecType *context)
 
 int commandSet(connectionRecType *context)
 {
-  static const char *setNakStr = "SET NAK\r\n";
-  static const char *setCmdNakStr = "SET %s NAK\r\n";
-  static const char *ackStr = "SET %s ACK\r\n";
   setCommandType cmd;
   cmdResponseType ret = rtNoError;
   // parse subcommand
   char *s = strtok(NULL, delims);
   if (s == NULL) {
-    return dprintf(context->cliSock, setNakStr);
+    return dprintf(context->cliSock, "SET NAK\r\n");
     }
   strupr(s);
   cmd = lookupSetCommand(s);
   if ((cmd >= scIniFile) && (context->cliSock != enabledConn)) {
-    return dprintf(context->cliSock, setCmdNakStr, s);    
+    return dprintf(context->cliSock, "SET %s NAK\r\n", s);
     }
   if ((cmd > scMachine) && (emcStatus->task.state != EMC_TASK_STATE::ON)) {
 //  Extra check in the event of an undetected change in Machine state resulting in
 //  sending a set command when the machine state is off. This condition is detected
 //  and appropriate error messages are generated, however erratic behavior has been
 //  seen when doing certain set commands when the Machine state is other than 'On'.
-    return dprintf(context->cliSock, setCmdNakStr, s);    
+    return dprintf(context->cliSock, "SET %s NAK\r\n", s);
     }
   switch (cmd) {
     case scEcho: ret = setEcho(context); break;
@@ -1526,13 +1523,13 @@ int commandSet(connectionRecType *context)
   switch (ret) {
     case rtNoError:  
       if (context->verbose) {
-        return dprintf(context->cliSock, ackStr, s);        
+        return dprintf(context->cliSock, "SET %s ACK\r\n", s);
         }
       break;
     case rtHandledNoError: // Custom ok response already handled, take no action
       break; 
     case rtStandardError:
-      return dprintf(context->cliSock, setCmdNakStr, s);      
+      return dprintf(context->cliSock, "SET %s NAK\r\n", s);
       break;
     case rtCustomError: // Custom error response entered in buffer
       return dprintf(context->cliSock, "error: %s\r\n", context->outBuf);
@@ -2576,7 +2573,6 @@ static cmdResponseType getOptionalStop(connectionRecType *context)
 
 int commandGet(connectionRecType *context)
 {
-  const static char *setNakStr = "GET NAK\r\n";
   const static char *setCmdNakStr = "GET %s NAK\r\n";
   setCommandType cmd;
   char *pch;
@@ -2584,7 +2580,7 @@ int commandGet(connectionRecType *context)
   
   pch = strtok(NULL, delims);
   if (pch == NULL) {
-    return dprintf(context->cliSock, setNakStr);
+    return dprintf(context->cliSock, "GET NAK\r\n");
     }
   if (emcUpdateType == EMC_UPDATE_AUTO) updateStatus();
   strupr(pch);
@@ -2926,10 +2922,6 @@ int parseCommand(connectionRecType *context)
 {
   int ret = 0;
   char *pch;
-  static const char *helloNakStr = "HELLO NAK\r\n";
-  static const char *shutdownNakStr = "SHUTDOWN NAK\r\n";
-  static const char *helloAckStr = "HELLO ACK %s 1.1\r\n";
-  static const char *setNakStr = "SET NAK\r\n";
     
   pch = strtok(context->inBuf, delims);
   
@@ -2938,15 +2930,15 @@ int parseCommand(connectionRecType *context)
     switch (lookupToken(pch)) {
       case cmdHello: 
         if (commandHello(context) == -1)
-          ret = dprintf(context->cliSock, helloNakStr);
-        else ret = dprintf(context->cliSock, helloAckStr, serverName);
+          ret = dprintf(context->cliSock, "HELLO NAK\r\n");
+        else ret = dprintf(context->cliSock, "HELLO ACK %s 1.1\r\n", serverName);
         break;
       case cmdGet: 
         ret = commandGet(context);
         break;
       case cmdSet:
         if (!context->linked)
-	  ret = dprintf(context->cliSock, setNakStr);
+	  ret = dprintf(context->cliSock, "SET NAK\r\n");
         else ret = commandSet(context);
         break;
       case cmdQuit: 
@@ -2955,7 +2947,7 @@ int parseCommand(connectionRecType *context)
       case cmdShutdown:
         ret = commandShutdown(context);
         if(ret ==0){
-          ret = dprintf(context->cliSock, shutdownNakStr);
+          ret = dprintf(context->cliSock, "SHUTDOWN NAK\r\n");
         }
 	break;
       case cmdHelp:
