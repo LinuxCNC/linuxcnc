@@ -2848,7 +2848,7 @@ static int helpSet(connectionRecType *context)
     "    Teleop_enable\r\n"
     "    Timeout <Time>\r\n"
     "    Tool_offset <Offset>\r\n"
-    "    Update <On | Off>\r\n"
+    "    Update <None | Auto>\r\n"
     "    Wait <Time>\r\n"
   );
   return 0;
