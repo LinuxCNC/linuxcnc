@@ -811,7 +811,7 @@ static cmdResponseType setDebug(connectionRecType *context)
   
   pLevel = strtok(NULL, delims);
   if (pLevel == NULL) return rtStandardError;
-  if (sscanf(pLevel, "%i", &level) == -1) return rtStandardError;
+  if (sscanf(pLevel, "%i", &level) < 1) return rtStandardError;
   else sendDebug(level);
   return rtNoError;
 }
@@ -956,7 +956,7 @@ static cmdResponseType setSpindle(connectionRecType *context)
     int spindle = -1;
     // try to parse a spindle number
     if (spindle_s) {
-        if (sscanf(spindle_s, "%d", &spindle) <= 0) {
+        if (sscanf(spindle_s, "%d", &spindle) < 1) {
             CUSTOM_ERROR("failed to parse decimal: %s", spindle_s);
         }
         // validate
@@ -1025,7 +1025,7 @@ static cmdResponseType setBrake(connectionRecType *context)
     int spindle = -1;
     // try to parse a spindle number
     if (spindle_s) {
-        if (sscanf(spindle_s, "%d", &spindle) <= 0) {
+        if (sscanf(spindle_s, "%d", &spindle) < 1) {
             CUSTOM_ERROR("failed to parse decimal: %s", spindle_s);
         }
         // validate
@@ -1074,13 +1074,13 @@ static cmdResponseType setToolOffset(connectionRecType *context)
   
   char *s = strtok(NULL, delims);
   if (s == NULL) return rtStandardError;
-  if (sscanf(s, "%d", &tool) <= 0) return rtStandardError;
+  if (sscanf(s, "%d", &tool) < 1) return rtStandardError;
   s = strtok(NULL, delims);
   if (s == NULL) return rtStandardError;
-  if (sscanf(s, "%f", &length) <= 0) return rtStandardError;
+  if (sscanf(s, "%f", &length) < 1) return rtStandardError;
   s = strtok(NULL, delims);
   if (s == NULL) return rtStandardError;
-  if (sscanf(s, "%f", &diameter) <= 0) return rtStandardError;
+  if (sscanf(s, "%f", &diameter) < 1) return rtStandardError;
   
   if (sendToolSetOffset(tool, length, diameter) != 0) return rtStandardError;
   return rtNoError;
@@ -1110,7 +1110,7 @@ static cmdResponseType setHome(connectionRecType *context)
   
   char *s = strtok(NULL, delims);
   if (s == NULL) return rtStandardError;
-  if (sscanf(s, "%d", &joint) <= 0) return rtStandardError;
+  if (sscanf(s, "%d", &joint) < 1) return rtStandardError;
   // joint == -1 means "Home All", any other negative is wrong
   if ((joint < -1) || (joint > EMCMOT_MAX_JOINTS)) return rtStandardError;
   sendHome(joint);
@@ -1181,7 +1181,7 @@ static cmdResponseType setJog(connectionRecType *context)
 
   s = strtok(NULL, delims);
   if (s == NULL) return rtStandardError;
-  if (sscanf(s, "%f", &speed) <= 0) return rtStandardError; 
+  if (sscanf(s, "%f", &speed) < 1) return rtStandardError; 
 
   if (sendJogCont(ja, jjogmode, speed) != 0) return rtStandardError;
   return rtNoError;
@@ -1192,7 +1192,7 @@ static cmdResponseType setFeedOverride(connectionRecType *context)
   int percent;
   char *s = strtok(NULL, delims);
   if (s == NULL) return rtStandardError;
-  if (sscanf(s, "%d", &percent) <= 0) return rtStandardError;
+  if (sscanf(s, "%d", &percent) < 1) return rtStandardError;
   sendFeedOverride(((double) percent) / 100.0);
   return rtNoError;
 }
@@ -1224,11 +1224,11 @@ static cmdResponseType setJogIncr(connectionRecType *context)
   s = strtok(NULL, delims);
   if (s == NULL) return rtStandardError;
 
-  if (sscanf(s, "%f", &speed) <= 0) return rtStandardError; 
+  if (sscanf(s, "%f", &speed) < 1) return rtStandardError; 
   s = strtok(NULL, delims);
 
   if (s == NULL) return rtStandardError;
-  if (sscanf(s, "%f", &incr) <= 0) return rtStandardError; 
+  if (sscanf(s, "%f", &incr) < 1) return rtStandardError; 
 
   if (sendJogIncr(ja, jjogmode, speed, incr) != 0) return rtStandardError;
   return rtNoError;
@@ -1264,7 +1264,7 @@ static cmdResponseType setRun(connectionRecType *context)
     else ;
   else
     { // run from line number
-      if (sscanf(s, "%d", &lineNo) <= 0) return rtStandardError;
+      if (sscanf(s, "%d", &lineNo) < 1) return rtStandardError;
       if (sendProgramRun(lineNo) != 0) return rtStandardError;
     }
   return rtNoError;
@@ -1340,17 +1340,17 @@ static cmdResponseType setProbe(connectionRecType *context)
   char *s = strtok(NULL, delims);
   if (s == NULL) return rtStandardError;
   fprintf(stderr,"0_probe %s\n",s);
-  if (sscanf(s, "%f", &x) <= 0) return rtStandardError;
+  if (sscanf(s, "%f", &x) < 1) return rtStandardError;
 
   s = strtok(NULL, delims);
   if (s == NULL) return rtStandardError;
   fprintf(stderr,"1_probe %s\n",s);
-  if (sscanf(s, "%f", &y) <= 0) return rtStandardError;
+  if (sscanf(s, "%f", &y) < 1) return rtStandardError;
 
   s = strtok(NULL, delims);
   if (s == NULL) return rtStandardError;
   fprintf(stderr,"2_probe %s\n",s);
-  if (sscanf(s, "%f", &z) <= 0) return rtStandardError;
+  if (sscanf(s, "%f", &z) < 1) return rtStandardError;
   
   sendProbe(x, y, z);
   return rtNoError;
@@ -1377,7 +1377,7 @@ static cmdResponseType setSpindleOverride(connectionRecType *context)
     int spindle = -1;
     // try to parse a spindle number
     if (spindle_s) {
-        if (sscanf(spindle_s, "%d", &spindle) <= 0) {
+        if (sscanf(spindle_s, "%d", &spindle) < 1) {
             CUSTOM_ERROR("failed to parse decimal: %s", spindle_s);
         }
         // validate
@@ -1393,7 +1393,7 @@ static cmdResponseType setSpindleOverride(connectionRecType *context)
         CUSTOM_ERROR("missing parameter");
     }
 	int percent;
-    if(sscanf(percent_s, "%d", &percent) <= 0) {
+    if(sscanf(percent_s, "%d", &percent) < 1) {
         CUSTOM_ERROR("parsing \"%s\" (%s)", percent_s, strerror(errno));
     }
     // validate
@@ -1778,7 +1778,7 @@ static cmdResponseType getSpindle(connectionRecType *context)
     int spindle = -1;
     // try to parse a spindle number
     if (spindle_s) {
-        if (sscanf(spindle_s, "%d", &spindle) <= 0) {
+        if (sscanf(spindle_s, "%d", &spindle) < 1) {
             CUSTOM_ERROR("failed to parse decimal: %s", spindle_s);
         }
         // validate
@@ -1824,7 +1824,7 @@ static cmdResponseType getBrake(connectionRecType *context)
     int spindle = -1;
     // try to parse a spindle number
     if (spindle_s) {
-        if (sscanf(spindle_s, "%d", &spindle) <= 0) {
+        if (sscanf(spindle_s, "%d", &spindle) < 1) {
             CUSTOM_ERROR("failed to parse decimal: %s", spindle_s);
         }
         // validate
@@ -2540,7 +2540,7 @@ static cmdResponseType getSpindleOverride(connectionRecType *context)
     int spindle = -1;
     // try to parse a spindle number
     if (spindle_s) {
-        if (sscanf(spindle_s, "%d", &spindle) <= 0) {
+        if (sscanf(spindle_s, "%d", &spindle) < 1) {
             CUSTOM_ERROR("failed to parse decimal: %s", spindle_s);
         }
         // validate
