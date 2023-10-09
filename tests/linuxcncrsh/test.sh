@@ -27,31 +27,35 @@ fi
 
 
 (
+    # initialize
     echo hello EMC mt 1.0
     echo set enable EMCTOO
     echo get enable
-    
+
     # ask linuxcncrsh to not read the next command until it's done running
     # the current one
     echo set set_wait done
     echo get set_wait
 
+    # test commands failing for machine not running
+    echo set mode manual
+    echo set machine on
+
+    # prepare machine
+    echo set estop off
+    echo get estop
+    echo set machine on
+    echo get machine
     echo set mode manual
     echo get mode
 
-    echo set estop off
-    echo get estop
-
-    echo set machine on
-    echo get machine
-
     # test spindle command
-    echo set spindle forward -1    # turn on all spindles
-    echo get spindle -1
-    echo set spindle off            # turn off all spindles
     echo get spindle
+    echo set spindle forward
+    echo get spindle
+    echo set spindle -1 off
+    echo get spindle -1
 
-    # prepare g-code sending
     echo set mode mdi
     echo get mode
 
