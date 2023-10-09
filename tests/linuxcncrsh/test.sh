@@ -38,6 +38,9 @@ fi
     echo set set_wait done
     echo get set_wait
 
+    # check default global settings
+    echo get plat
+
     # test commands failing for machine not running
     echo set mode manual
     echo set machine on
