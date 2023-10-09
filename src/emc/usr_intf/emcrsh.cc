@@ -798,7 +798,6 @@ static cmdResponseType setCommMode(connectionRecType *context)
 static cmdResponseType setCommProt(connectionRecType *context)
 {
   char *pVersion = strtok(NULL, delims);
-  pVersion = strtok(NULL, delims);
   if (pVersion == NULL) return rtStandardError;
   rtapi_strxcpy(context->version, pVersion);
   return rtNoError;
