@@ -1635,7 +1635,7 @@ static cmdResponseType getEStop(connectionRecType *context)
 
 static cmdResponseType getTimeout(connectionRecType *context)
 {
-  const char *pTimeoutStr = "SET_TIMEOUT %f";
+  const char *pTimeoutStr = "TIMEOUT %f";
   
   snprintf(context->outBuf, sizeof(context->outBuf), pTimeoutStr, emcTimeout);
   return rtNoError;
