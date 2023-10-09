@@ -44,7 +44,6 @@ fi
     # check default global settings
     echo get plat
     echo get update
-    echo get inifile
 
     # test commands failing for machine not running
     echo set mode mdi
