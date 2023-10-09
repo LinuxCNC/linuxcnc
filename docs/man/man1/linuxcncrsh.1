@@ -312,14 +312,14 @@ returned as "forward", "reverse", "increase", "decrease", or "off".
 With set, sets the spindle as specified.
 Note that "increase" and "decrease" will cause a speed change in the corresponding direction
 until a "constant" command is sent.
-If "spindle" is omitted or -1, all spindles are selected.
+If "spindle" is omitted, spindle 0 is selected. If -1, all spindles are selected.
 .RE
 .P
 \fBbrake {on|off} {<spindle>}\fR
 .RS
 With get, any parameter is ignored and the current brake setting is returned.
 With set, the brake is set as specified.
-If "spindle" is omitted or -1, all spindles are selected.
+If "spindle" is omitted, spindle 0 is selected. If -1, all spindles are selected.
 .RE
 .P
 \fBtool\fR
@@ -373,7 +373,7 @@ With set, sets the feed override as specified.
 .RS
 With get, any parameter is ignored and the current spindle override is returned (as a percentage of commanded speed).
 With set, sets the spindle override as specified.
-If "spindle" is omitted or -1, all spindles are selected.
+If "spindle" is omitted, spindle 0 is selected. If -1, all spindles are selected.
 .RE
 .P
 \fBabs_cmd_pos [{0|1|...}]\fR

@@ -952,8 +952,8 @@ static cmdResponseType setSpindle(connectionRecType *context)
     char *cmd_s = strtok(NULL, delims);
     // get spindle number string
     char *spindle_s = strtok(NULL, delims);
-    // use all spindles by default (-1 means all)
-    int spindle = -1;
+    // use first spindle by default
+    int spindle = 0;
     // try to parse a spindle number
     if (spindle_s) {
         if (sscanf(spindle_s, "%d", &spindle) < 1) {
@@ -1021,8 +1021,8 @@ static cmdResponseType setBrake(connectionRecType *context)
     char *state_s = strtok(NULL, delims);
     // get spindle number string
     char *spindle_s = strtok(NULL, delims);
-    // use all spindles by default (-1 means all)
-    int spindle = -1;
+    // use first spindle by default
+    int spindle = 0;
     // try to parse a spindle number
     if (spindle_s) {
         if (sscanf(spindle_s, "%d", &spindle) < 1) {
@@ -1373,8 +1373,8 @@ static cmdResponseType setSpindleOverride(connectionRecType *context)
     char *percent_s = strtok(NULL, delims);
     // get spindle number string
     char *spindle_s = strtok(NULL, delims);
-    // use all spindles by default (-1 means all)
-    int spindle = -1;
+    // use first spindle by default
+    int spindle = 0;
     // try to parse a spindle number
     if (spindle_s) {
         if (sscanf(spindle_s, "%d", &spindle) < 1) {
@@ -1771,8 +1771,8 @@ static cmdResponseType getSpindle(connectionRecType *context)
 
     // get spindle number string
     char *spindle_s = strtok(NULL, delims);
-    // use all spindles by default (-1 means all)
-    int spindle = -1;
+    // use first spindle by default
+    int spindle = 0;
     // try to parse a spindle number
     if (spindle_s) {
         if (sscanf(spindle_s, "%d", &spindle) < 1) {
@@ -1817,8 +1817,8 @@ static cmdResponseType getBrake(connectionRecType *context)
 
     // get spindle number string
     char *spindle_s = strtok(NULL, delims);
-    // use all spindles by default (-1 means all)
-    int spindle = -1;
+    // use first spindle by default
+    int spindle = 0;
     // try to parse a spindle number
     if (spindle_s) {
         if (sscanf(spindle_s, "%d", &spindle) < 1) {
@@ -2533,8 +2533,8 @@ static cmdResponseType getSpindleOverride(connectionRecType *context)
 
     // get spindle number string
     char *spindle_s = strtok(NULL, delims);
-    // use all spindles by default (-1 means all)
-    int spindle = -1;
+    // use first spindle by default
+    int spindle = 0;
     // try to parse a spindle number
     if (spindle_s) {
         if (sscanf(spindle_s, "%d", &spindle) < 1) {
