@@ -117,6 +117,7 @@ int emcTaskInit()
     struct stat buf;
     IniFile inifile;
     const char *inistring;
+    ZERO_EMC_POSE(emcStatus->task.toolOffset);
 
     inifile.Open(emc_inifile);
 
