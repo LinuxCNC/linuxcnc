@@ -184,7 +184,6 @@ function testGet() {
     testSet optional_stop 1                # <none | 0 | 1>
     testSet override_limits off            # <On | Off>
     #testSet run <Line No>
-    testSet setWait 1                      # <Time>
     testSet step
     testSet task_plan_init
     testSet teleop_enable
