@@ -968,15 +968,15 @@ static cmdResponseType setSpindle(connectionRecType *context)
     }
 
     // get cmd string: forward|reverse|increase|decrease|constant|off
-    char *cmd_s = strtok(NULL, delims);
+    char *cmdStr = strtok(NULL, delims);
     // get spindle number string
-    char *spindle_s = strtok(NULL, delims);
+    char *spindleStr = strtok(NULL, delims);
     // use first spindle by default
     int spindle = 0;
     // try to parse a spindle number
-    if (spindle_s) {
-        if (sscanf(spindle_s, "%d", &spindle) < 1) {
-            CUSTOM_ERROR("failed to parse decimal: %s", spindle_s);
+    if (spindleStr) {
+        if (sscanf(spindleStr, "%d", &spindle) < 1) {
+            CUSTOM_ERROR("failed to parse decimal: %s", spindleStr);
         }
         // validate
         if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
@@ -992,7 +992,7 @@ static cmdResponseType setSpindle(connectionRecType *context)
         if (n != spindle && spindle != -1)
             continue;
 
-        switch (checkSpindleStr(cmd_s)) {
+        switch (checkSpindleStr(cmdStr)) {
             case 0:
                 if(sendSpindleForward(n) != 0) return rtStandardError;
                 break;
@@ -1021,7 +1021,7 @@ static cmdResponseType setSpindle(connectionRecType *context)
                 CUSTOM_ERROR(
                     "invalid command \"%s\" (valid: forward, "
                     "reverse, increase, decrease, constant, off)",
-                    cmd_s
+                    cmdStr
                 );                
         }
     }
@@ -1037,15 +1037,15 @@ static cmdResponseType setBrake(connectionRecType *context)
     }
 
     // get brake state string: on|off
-    char *state_s = strtok(NULL, delims);
+    char *stateStr = strtok(NULL, delims);
     // get spindle number string
-    char *spindle_s = strtok(NULL, delims);
+    char *spindleStr = strtok(NULL, delims);
     // use first spindle by default
     int spindle = 0;
     // try to parse a spindle number
-    if (spindle_s) {
-        if (sscanf(spindle_s, "%d", &spindle) < 1) {
-            CUSTOM_ERROR("failed to parse decimal: %s", spindle_s);
+    if (spindleStr) {
+        if (sscanf(spindleStr, "%d", &spindle) < 1) {
+            CUSTOM_ERROR("failed to parse decimal: %s", spindleStr);
         }
         // validate
         if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
@@ -1061,7 +1061,7 @@ static cmdResponseType setBrake(connectionRecType *context)
         if (n != spindle && spindle != -1)
             continue;
 
-        switch (checkOnOff(state_s)) {
+        switch (checkOnOff(stateStr)) {
             case 0:
                 if(sendBrakeEngage(n) != 0) return rtStandardError;
                 break;
@@ -1071,7 +1071,7 @@ static cmdResponseType setBrake(connectionRecType *context)
                 break;
 
             default:
-                CUSTOM_ERROR("invalid state: \"%s\" (valid: on, off)", state_s);
+                CUSTOM_ERROR("invalid state: \"%s\" (valid: on, off)", stateStr);
         }
     }
 
@@ -1393,15 +1393,15 @@ static cmdResponseType setSpindleOverride(connectionRecType *context)
     }
 
     // get override percentage string
-    char *percent_s = strtok(NULL, delims);
+    char *percentStr = strtok(NULL, delims);
     // get spindle number string
-    char *spindle_s = strtok(NULL, delims);
+    char *spindleStr = strtok(NULL, delims);
     // use first spindle by default
     int spindle = 0;
     // try to parse a spindle number
-    if (spindle_s) {
-        if (sscanf(spindle_s, "%d", &spindle) < 1) {
-            CUSTOM_ERROR("failed to parse decimal: %s", spindle_s);
+    if (spindleStr) {
+        if (sscanf(spindleStr, "%d", &spindle) < 1) {
+            CUSTOM_ERROR("failed to parse decimal: %s", spindleStr);
         }
         // validate
         if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
@@ -1412,12 +1412,12 @@ static cmdResponseType setSpindleOverride(connectionRecType *context)
         }
     }
     // try to parse override percentage
-    if(!percent_s) {
+    if(!percentStr) {
         CUSTOM_ERROR("missing parameter");
     }
 	int percent;
-    if(sscanf(percent_s, "%d", &percent) < 1) {
-        CUSTOM_ERROR("parsing \"%s\" (%s)", percent_s, strerror(errno));
+    if(sscanf(percentStr, "%d", &percent) < 1) {
+        CUSTOM_ERROR("parsing \"%s\" (%s)", percentStr, strerror(errno));
     }
     // validate
     if(percent < 0 || percent > 100) {
@@ -1793,13 +1793,13 @@ static cmdResponseType getSpindle(connectionRecType *context)
     }
 
     // get spindle number string
-    char *spindle_s = strtok(NULL, delims);
+    char *spindleStr = strtok(NULL, delims);
     // use first spindle by default
     int spindle = 0;
     // try to parse a spindle number
-    if (spindle_s) {
-        if (sscanf(spindle_s, "%d", &spindle) < 1) {
-            CUSTOM_ERROR("failed to parse decimal: %s", spindle_s);
+    if (spindleStr) {
+        if (sscanf(spindleStr, "%d", &spindle) < 1) {
+            CUSTOM_ERROR("failed to parse decimal: %s", spindleStr);
         }
         // validate
         if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
@@ -1839,13 +1839,13 @@ static cmdResponseType getBrake(connectionRecType *context)
     }
 
     // get spindle number string
-    char *spindle_s = strtok(NULL, delims);
+    char *spindleStr = strtok(NULL, delims);
     // use first spindle by default
     int spindle = 0;
     // try to parse a spindle number
-    if (spindle_s) {
-        if (sscanf(spindle_s, "%d", &spindle) < 1) {
-            CUSTOM_ERROR("failed to parse decimal: %s", spindle_s);
+    if (spindleStr) {
+        if (sscanf(spindleStr, "%d", &spindle) < 1) {
+            CUSTOM_ERROR("failed to parse decimal: %s", spindleStr);
         }
         // validate
         if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
@@ -2555,13 +2555,13 @@ static cmdResponseType getSpindleOverride(connectionRecType *context)
     }
 
     // get spindle number string
-    char *spindle_s = strtok(NULL, delims);
+    char *spindleStr = strtok(NULL, delims);
     // use first spindle by default
     int spindle = 0;
     // try to parse a spindle number
-    if (spindle_s) {
-        if (sscanf(spindle_s, "%d", &spindle) < 1) {
-            CUSTOM_ERROR("failed to parse decimal: %s", spindle_s);
+    if (spindleStr) {
+        if (sscanf(spindleStr, "%d", &spindle) < 1) {
+            CUSTOM_ERROR("failed to parse decimal: %s", spindleStr);
         }
         // validate
         if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
