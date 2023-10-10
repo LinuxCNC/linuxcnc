@@ -25,111 +25,173 @@ if [  $TOGO -eq 0 ]; then
     exit 1
 fi
 
+# test set command by
+# - getting the key's old value before setting
+# - setting the new value
+# - getting the new value
+# - collect possible error from linuxcncsvr
+function testSet() {
+    # get before value
+    echo "get $1"
+    # set cmd
+    echo "set $@"
+    # get after value
+    echo "get $1"
+    # get error from server (or OK)
+    echo "get error"
+}
+
+# get command with collecting possible error from linuxcncsvr
+function testGet() {
+    cmd="$@"
+    echo "get $@"
+    echo "get error"
+}
 
 (
     # initialize
     echo hello EMC mt 1.0
-    echo set enable EMCTOO
-    echo get enable
-    echo get debug
-    echo set verbose on
-    echo get verbose
-    echo set echo off
-    echo get echo
+    testSet enable EMCTOO
+    testGet debug
+    testSet verbose on
+    testSet echo off
     # ask linuxcncrsh to not read the next command until it's done running
     # the current one
-    echo set set_wait done
-    echo get set_wait
+    testSet set_wait done
 
     # check default global settings
-    echo get plat
-    echo get update
+    testGet plat
+    testGet update
 
     # test commands failing for machine not running
-    echo set mode mdi
-
-    # test misc. get commands
-    echo get abs_act_pos
-    echo get abs_cmd_pos
-    echo get angular_unit_conversion
-    echo get comm_mode
-    echo get comm_prot
-    echo get display_angular_units
-    echo get display_linear_units
-    echo get error
-    echo get feed_override
-    echo get flood
-    echo get joint_fault
-    echo get joint_homed
-    echo get joint_limit
-    echo get joint_pos
-    echo get joint_type
-    echo get joint_units
-    echo get kinematics_type
-    echo get linear_unit_conversion
-    echo get mist
-    echo get operator_display
-    echo get operator_text
-    echo get optional_stop
-    echo get override_limits
-    echo get pos_offset
-    echo get probe_tripped
-    echo get probe_value
-    echo get program
-    echo get program_angular_units
-    echo get program_codes
-    echo get program_line
-    echo get program_linear_units
-    echo get program_status
-    echo get program_units
-    echo get rel_act_pos
-    echo get rel_cmd_pos
-    echo get set_wait
-    echo get teleop_enable
-    echo get timeout
-    echo get tool
-    echo get tool_offset
-    echo get update
-    echo get user_angular_units
-    echo get user_linear_units
+    testSet mode mdi
 
     # prepare machine
-    echo get estop
-    echo set estop off
-    echo get estop
-    echo get machine
-    echo set machine on
-    echo get machine
-    echo get mode
-    echo set mode manual
-    echo get mode
+    testSet estop off
+    testSet machine on
+    testSet mode manual
+
+    # test probing in manual mode
+    testSet mode mdi
+    testGet pos_offset
+    testGet probe_tripped
+    testGet probe_value
+    testGet probe_clear
+    testSet probe 0 0 0                    # <x> <y> <z>
+    testSet probe_clear
+
+    # test probing before homing
+    testSet probe 0 0 0                    # <x> <y> <z>
+    testSet probe_clear
+
+    # do homing
+    testSet home 0                         # <Axis No>
+    testSet home 1
+    testSet home 2
+    testSet home 3
+    testSet home 4
+    testSet home 5
+
+    # test probing
+    testSet probe 0 0 0                    # <x> <y> <z>
+    testSet probe_clear
+    testSet mode manual
 
     # test spindle command
-    echo get spindle                # default setting
-    echo set spindle forward        # turn on all w/o param
-    echo get spindle                # check all w/o param
-    echo set spindle off -1         # turn off all w/param
-    echo get spindle -1             # check all w/param
-    echo set spindle forward 99     # turn on illegal spindle
+    testSet spindle forward                # turn on all w/o param
+    testSet spindle off -1                 # turn off all w/param
+    testGet spindle -1                     # check all w/param
+    testSet spindle forward 99             # turn on illegal spindle
 
     # test brake command
-    echo get brake                  # default setting
-    echo set brake on               # turn on all w/o param
-    echo get brake                  # check all w/o param
-    echo set brake off -1           # turn off all w/param
-    echo get brake -1               # check all w/param
-    echo set brake forward 99       # turn on illegal spindle
+    testSet brake on                       # turn on all w/o param
+    testSet brake off -1                   # turn off all w/param
+    testGet brake -1                       # check all w/param
+    testSet brake forward 99               # turn on illegal spindle
 
+    # test pause
+    testSet set_wait received             # otherwise pause will stall
+    testSet pause
+    testSet set_wait done
+    testSet resume
+
+    # test g-code
     echo set mode mdi
-    echo get mode
-
     echo set mdi m100 p-1 q-2
     sleep 1
 
     # here comes a big blob
     dd bs=4096 if=lots-of-gcode
-
     echo set mdi m100 p-3 q-4
+
+    # test misc. get commands
+    testGet error
+    testGet abs_act_pos
+    testGet abs_cmd_pos
+    testGet angular_unit_conversion
+    testGet comm_mode
+    testGet comm_prot
+    testGet display_angular_units
+    testGet display_linear_units
+    testGet error
+    testGet feed_override
+    testGet flood
+    testGet joint_fault
+    testGet joint_homed
+    testGet joint_limit
+    testGet joint_pos
+    testGet joint_type
+    testGet joint_units
+    testGet kinematics_type
+    testGet linear_unit_conversion
+    testGet mist
+    testGet operator_display
+    testGet operator_text
+    testGet optional_stop
+    testGet override_limits
+    testGet program
+    testGet program_angular_units
+    testGet program_codes
+    testGet program_line
+    testGet program_linear_units
+    testGet program_status
+    testGet program_units
+    testGet rel_act_pos
+    testGet rel_cmd_pos
+    testGet set_wait
+    testGet teleop_enable
+    testGet timeout
+    testGet tool
+    testGet tool_offset
+    testGet update
+    testGet user_angular_units
+    testGet user_linear_units
+
+    # test misc. set commands
+    testSet comm_mode ascii                # <Ascii | Binary>
+    testSet comm_prot 1.0
+    testSet abort
+    testSet angular_unit_conversion deg    # <Deg | Rad | Grad | Auto | Custom>
+    testSet feed_override 100              # <Percent>
+    testSet flood on                       # <On | Off>
+    testSet jog 0 1                        # <Axis No, Speed>
+    testSet jog_incr 0 1 1                 # <Axis No, Speed, Distance>
+    testSet jog_stop 0                     # <Joint No|Axis letter>
+    testSet linear_unit_conversion mm      # <Inch | CM | MM | Auto | Custom>
+    #testSet load_tool_table <Table name>
+    testSet mist on                        # <On | Off>
+    #testSet Open <File path / name>
+    testSet optional_stop 1                # <none | 0 | 1>
+    testSet override_limits off            # <On | Off>
+    #testSet run <Line No>
+    testSet setWait 1                      # <Time>
+    testSet step
+    testSet task_plan_init
+    testSet teleop_enable
+    testSet timeout 10
+    testSet tool_offset 1
+    testSet update auto                    # <None | Auto>
+    testSet wait 1                         # <Time>
 
     echo shutdown
 ) | nc -v localhost 5007 > telnet-output
