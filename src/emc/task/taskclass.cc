@@ -41,21 +41,21 @@
 ********************************************************************/
 int Task::iocontrol_hal_init(void)
 {
-    hal_comp iocontrol("iocontrol.0");
-    iocontrol.add_pin(iocontrol_data.user_enable_out, "user-enable-out");
-    iocontrol.add_pin(iocontrol_data.emc_enable_in, "emc-enable-in");
-    iocontrol.add_pin(iocontrol_data.user_request_enable, "user-request-enable");
-    iocontrol.add_pin(iocontrol_data.coolant_mist, "coolant-mist");
-    iocontrol.add_pin(iocontrol_data.coolant_flood, "coolant-flood");
-    iocontrol.add_pin(iocontrol_data.tool_prep_pocket, "tool-prep-pocket");
-    iocontrol.add_pin(iocontrol_data.tool_from_pocket, "tool-from-pocket");
-    iocontrol.add_pin(iocontrol_data.tool_prep_index, "tool-prep-index");
-    iocontrol.add_pin(iocontrol_data.tool_prep_number, "tool-prep-number");
-    iocontrol.add_pin(iocontrol_data.tool_number, "tool-number");
-    iocontrol.add_pin(iocontrol_data.tool_prepare, "tool-prepare");
-    iocontrol.add_pin(iocontrol_data.tool_prepared, "tool-prepared");
-    iocontrol.add_pin(iocontrol_data.tool_change, "tool-change");
-    iocontrol.add_pin(iocontrol_data.tool_changed, "tool-changed");
+    iocontrol.add_pin("user-enable-out", hal_dir::OUT, iocontrol_data.user_enable_out);
+    iocontrol.add_pin("emc-enable-in", hal_dir::IN, iocontrol_data.emc_enable_in);
+    iocontrol.add_pin("user-request-enable", hal_dir::OUT, iocontrol_data.user_request_enable);
+    iocontrol.add_pin("coolant-mist", hal_dir::OUT, iocontrol_data.coolant_mist);
+    iocontrol.add_pin("coolant-flood", hal_dir::OUT, iocontrol_data.coolant_flood);
+    iocontrol.add_pin("tool-prep-pocket", hal_dir::OUT, iocontrol_data.tool_prep_pocket);
+    iocontrol.add_pin("tool-from-pocket", hal_dir::OUT, iocontrol_data.tool_from_pocket);
+    iocontrol.add_pin("tool-prep-index", hal_dir::OUT, iocontrol_data.tool_prep_index);
+    iocontrol.add_pin("tool-prep-number", hal_dir::OUT, iocontrol_data.tool_prep_number);
+    iocontrol.add_pin("tool-number", hal_dir::OUT, iocontrol_data.tool_number);
+    iocontrol.add_pin("tool-prepare", hal_dir::OUT, iocontrol_data.tool_prepare);
+    iocontrol.add_pin("tool-prepared", hal_dir::IN, iocontrol_data.tool_prepared);
+    iocontrol.add_pin("tool-change", hal_dir::OUT, iocontrol_data.tool_change);
+    iocontrol.add_pin("tool-changed", hal_dir::IN, iocontrol_data.tool_changed);
+    iocontrol.ready();
     if (iocontrol.error < 0)
         return -1;
     return 0;
@@ -131,7 +131,8 @@ struct _inittab builtin_modules[] = {
 Task::Task(EMC_IO_STAT & emcioStatus_in) :
     emcioStatus(emcioStatus_in),
     random_toolchanger(0),
-    ini_filename(emc_inifile)
+    ini_filename(emc_inifile),
+    iocontrol("iocontrol.0")
     {
 
     IniFile inifile;
