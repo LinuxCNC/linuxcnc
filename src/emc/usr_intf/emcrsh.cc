@@ -1127,9 +1127,9 @@ static cmdResponseType setHome(connectionRecType *context)
 {
   int joint;
   
-  char *s = strtok(NULL, delims);
-  if (s == NULL) return rtStandardError;
-  if (sscanf(s, "%d", &joint) < 1) return rtStandardError;
+  char *jointStr = strtok(NULL, delims);
+  if (jointStr == NULL) return rtStandardError;
+  if (sscanf(jointStr, "%d", &joint) < 1) return rtStandardError;
   // joint == -1 means "Home All", any other negative is wrong
   if ((joint < -1) || (joint > EMCMOT_MAX_JOINTS)) return rtStandardError;
   if(sendHome(joint) != 0) return rtStandardError;
