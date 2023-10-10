@@ -2863,7 +2863,7 @@ static int helpSet(connectionRecType *context)
     "    Probe_clear\r\n"
     "    Resume\r\n"
     "    Run <Line No>\r\n"
-    "    SetWait <Time>\r\n"
+    "    Set_wait <None | Received | Done>\r\n"
     "    Spindle <Increase | Decrease | Forward | Reverse | Constant | Off> {<Spindle>}\r\n"
     "    Spindle_override <percent> {<Spindle>}\r\n"
     "    Step\r\n"
