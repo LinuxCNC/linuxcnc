@@ -1249,6 +1249,24 @@ If the probing operation failed, G38.2 and G38.4 will signal an error
 by posting an message on screen if the selected GUI supports that.
 And by halting program execution.
 
+Here is an example formula to probe tool height with conversion from a
+local coordinate system Z offset to machine coordinates which is
+stored in the tool table.  The existing tool height compensation is
+first cancelled with G49 to avoid including it in the calculation of
+height, and the new height is loaded from the tool table.  The start
+position must be high enough above the tool height probe to compensate
+for the use of G49.
+
+.G38.2 Example
+[source,{ngc}]
+----
+G49
+G38.2 Z-100 F100
+#<zworkoffset> = [#[5203 + #5220 * 20] + #5213 * #5210]
+G10 L1 P#5400 Z#<zworkoffset> (set new tool offset)
+G43
+----
+
 A comment of the form '(PROBEOPEN filename.txt)' will open
 'filename.txt' and store the 9-number coordinate consisting of
 XYZABCUVW of each successful straight probe in it.
