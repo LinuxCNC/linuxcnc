@@ -265,6 +265,11 @@ void hm2_pwmgen_force_write(hostmot2_t *hm2) {
         }
 
         hm2->pwmgen.pwm_mode_reg[i] |= (double_buffered << 5);
+        if (hm2->pwmgen.instance[i].hal.param.dither) { 
+            hm2->pwmgen.pwm_mode_reg[i] |= (1 << 6);
+        }    
+         
+
     }
 
 
@@ -287,6 +292,7 @@ void hm2_pwmgen_force_write(hostmot2_t *hm2) {
     for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
         hm2->pwmgen.instance[i].written_output_type = hm2->pwmgen.instance[i].hal.param.output_type;
         hm2->pwmgen.instance[i].written_offset_mode = hm2->pwmgen.instance[i].hal.param.offset_mode;
+        hm2->pwmgen.instance[i].written_dither = hm2->pwmgen.instance[i].hal.param.dither;
         hm2->pwmgen.instance[i].written_enable = *hm2->pwmgen.instance[i].hal.pin.enable;
     }
 
@@ -309,7 +315,7 @@ void hm2_pwmgen_write(hostmot2_t *hm2) {
     // check output type
     for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
         if (hm2->pwmgen.instance[i].hal.param.output_type != hm2->pwmgen.instance[i].written_output_type) {
-            goto force_write;
+           goto force_write;
         }
     }	
     // check offset mode
@@ -318,6 +324,13 @@ void hm2_pwmgen_write(hostmot2_t *hm2) {
             goto force_write;
         }
     } 
+    
+    // update dither?
+    for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
+        if (hm2->pwmgen.instance[i].hal.param.dither != hm2->pwmgen.instance[i].written_dither) {
+            goto force_write;
+        }
+
     // check pwm & pdm frequency
     if (hm2->pwmgen.hal->param.pwm_frequency != hm2->pwmgen.written_pwm_frequency) goto force_write;
     if (hm2->pwmgen.hal->param.pdm_frequency != hm2->pwmgen.written_pdm_frequency) goto force_write;
@@ -328,6 +341,8 @@ void hm2_pwmgen_write(hostmot2_t *hm2) {
             goto force_write;
         }
     }
+
+}
 
     return;
 
@@ -346,12 +361,17 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     // 
     // some standard sanity checks
     //
-
-    if (!hm2_md_is_consistent_or_complain(hm2, md_index, 0, 5, 4, 0x0003)) {
-        HM2_ERR("inconsistent Module Descriptor!\n");
-        return -EINVAL;
-    }
-
+    hm2->pwmgen.firmware_supports_dither = 0;
+    if (hm2_md_is_consistent(hm2, md_index, 0, 5, 4, 0x0003)) {
+        // OK, standard old firmware
+    } else if (hm2_md_is_consistent(hm2, md_index, 1, 5, 4, 0x0003)) {
+        // OK, firmware with dither capability
+        hm2->pwmgen.firmware_supports_dither = 1;
+    } else {
+         HM2_ERR("Unsupported PWM firmware version");
+         return -EINVAL;
+    }     
+    
     if (hm2->pwmgen.num_instances != 0) {
         HM2_ERR(
             "found duplicate Module Descriptor for %s (inconsistent firmware), not loading driver\n",
@@ -477,7 +497,7 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
-
+ 
             // parameters
             rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.offset-mode", hm2->llio->name, i);
             r = hal_param_bit_new(name, HAL_RW, &(hm2->pwmgen.instance[i].hal.param.offset_mode), hm2->llio->comp_id);
@@ -485,7 +505,14 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             }
-
+            if (hm2->pwmgen.firmware_supports_dither) {
+                rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.dither", hm2->llio->name, i);
+                r = hal_param_bit_new(name, HAL_RW, &(hm2->pwmgen.instance[i].hal.param.dither), hm2->llio->comp_id);
+                if (r < 0) {
+                     HM2_ERR("error adding param '%s', aborting\n", name);
+                    goto fail1;
+                }
+            }
             rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.scale", hm2->llio->name, i);
             r = hal_param_float_new(name, HAL_RW, &(hm2->pwmgen.instance[i].hal.param.scale), hm2->llio->comp_id);
             if (r < 0) {
@@ -509,11 +536,13 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
             // init hal objects
             *(hm2->pwmgen.instance[i].hal.pin.enable) = 0;
             *(hm2->pwmgen.instance[i].hal.pin.value) = 0.0;
-            hm2->pwmgen.instance[i].hal.param.scale = 1.0;
+            hm2->pwmgen.instance[i].hal.param.dither = 0;  
+            hm2->pwmgen.instance[i].hal.param.scale = 1.0;        
             hm2->pwmgen.instance[i].hal.param.offset_mode = 0;
             hm2->pwmgen.instance[i].hal.param.output_type = HM2_PWMGEN_OUTPUT_TYPE_PWM;
             hm2->pwmgen.instance[i].written_output_type = -666;  // force an update at the start
             hm2->pwmgen.instance[i].written_enable = -666;       // force an update at the start
+            hm2->pwmgen.instance[i].written_dither = -666;       // force an update at the start
         }
     }
 
@@ -576,12 +605,13 @@ void hm2_pwmgen_print_module(hostmot2_t *hm2) {
 
 void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2) {
     int i;
-
+    double topdrop;
     if (hm2->pwmgen.num_instances <= 0) return;
 
     for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
         double scaled_value;
         double abs_duty_cycle;
+        double register_value;
         int bits;
 
         scaled_value = *hm2->pwmgen.instance[i].hal.pin.value / hm2->pwmgen.instance[i].hal.param.scale;
@@ -609,7 +639,15 @@ void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2) {
 	        } else {
 	            bits = hm2->pwmgen.pwm_bits;
 	        }
-	        hm2->pwmgen.pwm_value_reg[i] = abs_duty_cycle * (double)((1 << bits) - 1);
+	        // With normal PWM, the max PWM register value is 0xNFF.X 
+	        // but for dithered PWM the max value is 0xNFE.F
+	        // the topdrop value is chosen to generate these max values  	
+	        if (hm2->pwmgen.instance[i].hal.param.dither == 0) {
+	            topdrop = 1; 
+	        } else {
+	            topdrop = 1.0625; 
+	        } 
+	       register_value = abs_duty_cycle * (double)((1 << bits) - topdrop);
 
 	} else {
 	     // offset PWM/PDM modes where 0 PWM value = 50% duty cycle	also choose active low
@@ -618,9 +656,17 @@ void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2) {
 	        } else {
 	            bits = hm2->pwmgen.pwm_bits -1;
 	        }
-	        hm2->pwmgen.pwm_value_reg[i] = scaled_value * (double)(((1 << bits) - 1))+ (1 << bits);
+	        // With normal PWM, the max PWM register value is 0xNFF.X 
+	        // but for dithered PWM the max value is 0xNFE.F
+	        // the topdrop value is chosen to generate these max values  	
+	        if (hm2->pwmgen.instance[i].hal.param.dither == 0) {
+	            topdrop = 1; 
+	        } else {
+	            topdrop = 1.0625; 
+	        } 
+	        register_value = scaled_value * (double)(((1 << bits) - topdrop))+ (1 << bits);
 	}
-        hm2->pwmgen.pwm_value_reg[i] <<= 16;
+        hm2->pwmgen.pwm_value_reg[i] = register_value * 65536;
         if (scaled_value < 0) {
             hm2->pwmgen.pwm_value_reg[i] |= (1 << 31);
         }
