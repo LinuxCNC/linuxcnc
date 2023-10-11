@@ -569,7 +569,6 @@ void EMC_TASK_PLAN_CLOSE::update(CMS * cms)
 */
 void EMC_IO_STAT::update(CMS * cms)
 {
-    cms->update(cycleTime);
     cms->update(debug);
     tool.update(cms);
     coolant.update(cms);

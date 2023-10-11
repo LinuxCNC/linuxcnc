@@ -1646,7 +1646,6 @@ class EMC_IO_STAT:public EMC_IO_STAT_MSG {
     void update(CMS * cms);
 
     // top-level stuff
-    double cycleTime;
     int debug;			// copy of EMC_DEBUG global
     int reason;			// to communicate abort/fault cause
     int fault;                  //  0 on success, 1 on fault during M6
