@@ -1,9 +1,0 @@
-( touch x plus  - CraftsmanCNC )
-o<m103> sub
-M102
-G38.3 f50 X20
-G92 X-3.17
-G0 X-15
-M103
-o<m103> endsub
-

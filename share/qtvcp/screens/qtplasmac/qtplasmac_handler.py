@@ -1,4 +1,4 @@
-VERSION = '1.236.291'
+VERSION = '1.236.292'
 
 '''
 qtplasmac_handler.py
@@ -2508,7 +2508,7 @@ class HandlerClass:
         self.alwaysOnList = []
         self.machineOnList = []
         self.idleList = ['file_clear', 'file_open', 'file_reload', 'file_edit']
-        self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
+        self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_b', 'home_all']
         self.idleHomedList = ['camera', 'laser', 'touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_b', 'touch_xy', \
                               'mdi_show', 'height_lower', 'height_raise', 'wcs_button', 'set_offsets']
         self.ccButton, self.otButton, self.ptButton, self.tpButton = '', '', '', ''

@@ -584,6 +584,7 @@ typedef struct {
     rtapi_u32 enable_reg;  // one register for the whole Function
 } hm2_pwmgen_t;
 
+
 //
 // oneshot
 // 

@@ -8176,6 +8176,9 @@ HOME ALL</string>
                       <property name="text">
                        <string notr="true">0</string>
                       </property>
+                      <property name="popupMode">
+                       <enum>QToolButton::InstantPopup</enum>
+                      </property>
                       <property name="joint_number" stdset="0">
                        <number>4</number>
                       </property>
@@ -14480,7 +14483,7 @@ HOME ALL</string>
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>101</width>
+                      <width>706</width>
                       <height>636</height>
                      </rect>
                     </property>
@@ -17255,7 +17258,7 @@ CONFIG</string>
   </customwidget>
   <customwidget>
    <class>WebWidget</class>
-   <extends>QWebView</extends>
+   <extends>QWidget</extends>
    <header>qtvcp.widgets.web_widget</header>
   </customwidget>
   <customwidget>
@@ -17328,11 +17331,6 @@ CONFIG</string>
    <class>SystemToolButton</class>
    <extends>QToolButton</extends>
    <header>qtvcp.widgets.system_tool_button</header>
-  </customwidget>
-  <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header location="global">QtWebKitWidgets/QWebView</header>
   </customwidget>
  </customwidgets>
  <tabstops>
