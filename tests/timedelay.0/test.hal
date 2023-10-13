@@ -1,0 +1,20 @@
+loadrt sampler cfg=bb depth=100
+loadrt timedelay
+loadrt not
+loadrt threads name1=thread period1=1953125
+
+# Thread period is 1/512 second.
+# on-delay is 1/128 + 1/1024 second, or 4.5 periods.
+# off-delay is 1/64 + 1/1024 second, or 8.5 periods.
+setp timedelay.0.on-delay 0.0087890625
+setp timedelay.0.off-delay 0.0166015625
+
+net square not.0.out => timedelay.0.in sampler.0.pin.0
+net delayed timedelay.0.out => not.0.in sampler.0.pin.1
+
+addf not.0 thread
+addf timedelay.0 thread
+addf sampler.0 thread
+
+start
+loadusr -w halsampler -t -n 64

@@ -1,0 +1,41 @@
+# sample file pulls all load commands into a single file
+# when emc2 starts it loads iocontrol
+
+# kinematics
+loadrt [KINS]KINEMATICS
+# motion controller, get name and thread periods from ini file
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+
+# next load the PID module, for four PID loops
+loadrt pid num_chan=4
+
+# install driver
+#if the stepper controller is not connected to the standard parallel port
+# at address 0x378, add port_addr="0x1234" to the following line after a space
+# on LinuxCNC versions 2.7.9 and above, a parameter allows you to change the
+#    way the EPP port is controlled.  For PCIe cards using the NetMos 990x
+#    chips, append epp_dir=1 to the end of the following line
+
+loadrt hal_ppmc
+
+# make some signals for the scope for tuning.
+loadrt ddt count=4
+# add components for E-stop logic
+loadrt estop_latch count=1
+loadrt and2 count=1
+
+# set up the realtime thread
+# read inputs first
+addf ppmc.0.read servo-thread
+# then run the motion controller
+addf motion-command-handler servo-thread
+addf and2.0 servo-thread
+addf estop-latch.0 servo-thread
+addf motion-controller servo-thread
+# then the PID loops
+addf pid.0.do-pid-calcs servo-thread
+addf pid.1.do-pid-calcs servo-thread
+addf pid.2.do-pid-calcs servo-thread
+addf pid.3.do-pid-calcs servo-thread
+# write outputs last
+addf ppmc.0.write servo-thread

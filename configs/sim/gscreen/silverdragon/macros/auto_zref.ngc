@@ -1,0 +1,55 @@
+o<auto_zref> sub
+o100 if [#<_task> EQ 0]
+        (debug, Task is Null)
+o100     return [999]
+o100 endif
+
+o200 if [#<selected_tool> EQ 0]
+o200     return [1]
+o200 endif
+
+M6 (use builtin behaviour)
+
+o300 if [#<_hal[gscreen.use_autozref]> EQ 0]
+o300     return [1]
+o300 endif
+
+o400 if [#<_hal[gscreen.search_vel]> LE 0]
+o400 return [-1] ; indicate search_vel <= 0 
+o400 endif
+
+o500 if [#<_hal[gscreen.probe_vel]> LE 0]
+o500 return [-2] ; indicate probe_vel <= 0 
+o500 endif
+
+G21 (use metric units)
+G49 (cancel tool offset)
+G10 L2 P0 Z0 (clear current offsets)
+
+(go to tool sensor location)
+G53 G0 X[#<_ini[TOOLSENSOR]X>] Y[#<_ini[TOOLSENSOR]Y>]
+G53 G0 Z[#<_ini[TOOLSENSOR]Z>]
+
+(switch to incremental mode)
+G91
+(this section commented out for sim)
+;G38.2 Z#<_ini[TOOLSENSOR]MAXPROBE> F#<_hal[gscreen.search_vel]>
+;G0 Z4 (move up 4)
+;G38.2 Z-4.1 F#<_hal[gscreen.probe_vel]>
+
+;o600 if [#5070 EQ 0]
+;     G90
+;o600 return [-3] ; indicate probe contact failure to epilog
+;o600 endif
+
+(this section is used for sim)
+G0 Z#<_ini[TOOLSENSOR]MAXPROBE> F#<_hal[gscreen.search_vel]>
+(pretend that probe contact has been made)
+G10 L20 P0 Z[#<_hal[gscreen.sensor_height]> - #<_hal[gscreen.block_height]>]
+G90
+G53 G0 Z#<_ini[CHANGE_POSITION]Z>
+
+(signal success by returning a value > 0:)
+o<auto_zref> endsub [1]
+M2
+

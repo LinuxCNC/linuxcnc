@@ -1,0 +1,17 @@
+loadrt updown names=zctr
+addf   zctr   servo-thread
+
+net  E:z-plus   <= pyvcp.z-plus            => zctr.countup
+net  E:z-minus  <= pyvcp.z-minus           => zctr.countdown
+net  E:z-counts <= zctr.count              => axis.z.eoffset-counts
+net  E:z-scale  <= pyvcp.z-scale           => axis.z.eoffset-scale
+net  E:z-offset <= axis.z.eoffset          => pyvcp.z-offset-f
+net  E:limited  <= motion.eoffset-limited  => pyvcp.limited
+net  E:active   <= motion.eoffset-active   => pyvcp.eoffset-active
+net  E:paused   <= halui.program.is-paused => axis.z.eoffset-enable
+net  E:paused                              => pyvcp.paused
+
+net  E:clearall <= pyvcp.clearall
+net  E:clearall => axis.x.eoffset-clear
+net  E:clearall => axis.y.eoffset-clear
+net  E:clearall => axis.z.eoffset-clear

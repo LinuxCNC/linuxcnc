@@ -1,0 +1,61 @@
+# 1extrajoint demo
+# immediate homing -- jog joint4 to make a motor-offset before homing
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+
+net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+net J0:loop <= joint.0.motor-pos-cmd
+net J0:loop => joint.0.motor-pos-fb
+
+net J1:loop <= joint.1.motor-pos-cmd
+net J1:loop => joint.1.motor-pos-fb
+
+net J2:loop <= joint.2.motor-pos-cmd
+net J2:loop => joint.2.motor-pos-fb
+
+net J3:loop <= joint.3.motor-pos-cmd
+net J3:loop => joint.3.motor-pos-fb
+#--------------------------------------------
+# extra joint (joint4)
+
+# For simulation just connect pos-cmd to pos-fb:
+net J4:loop <= joint.4.motor-pos-cmd
+net J4:loop => joint.4.motor-pos-fb
+
+# NOTE: For a stepgen in position control mode:
+#       net J4:loop <= joint.4.motor-pos-cmd
+#       net J4:loop => joint.4.motor-pos-fb
+#       net J4:loop => stepgen_position_command
+
+# NOTE: A stepgen can be also used in velocity control mode
+#       with a PID loop but it is not necessarily required
+#       and position mode control is much simpler
+
+# NOTE: For a pid motor controller (motor/amplifier/encoder):
+#       net J4:cmd <= joint.4.motor-pos-cmd
+#       net J4:cmd => pid_command_input
+#       net J4:fb  <= encoder_measurement_output
+#       net J4:fb  => joint.4.motor-pos-fb
+
+#-----------------------------------------------------------
+# motion planner for extra joint (joint4)
+loadrt limit3 names=j4.limit3
+
+# These constraints apply to homing managed by
+# LinuxCNC and post-homing managed by the limit3 component:
+setp j4.limit3.min    [JOINT_4]MIN_LIMIT
+setp j4.limit3.max    [JOINT_4]MAX_LIMIT
+setp j4.limit3.maxv   [JOINT_4]MAX_VELOCITY
+setp j4.limit3.maxa   [JOINT_4]MAX_ACCELERATION
+
+addf j4.limit3 servo-thread
+
+net  J4:out <= j4.limit3.out
+net  J4:out => joint.4.posthome-cmd
+
+net  J4:enable <= joint.4.homed
+net  J4:enable => j4.limit3.enable

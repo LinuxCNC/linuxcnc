@@ -1,0 +1,20 @@
+;dng-- designed with the axis gui in mind
+;      but not very intuitive with touchy
+;      so changed message and remove mandatory stop
+;      for touchy testing
+
+;helper routine to prompt setting of spindle speed
+;use after giving operator message for example
+;   1) prompt user to continue
+;   2) M110 clears axis notifications (requires emc2.4)
+
+o<spin> sub
+(not_a_subfile)
+        #<rpm> = #1
+o<l0>   if [#<_feature:> LT 1]
+          ;(debug, S to continue: Spindle rpm=#<rpm>)
+          ;m0   (mandatory stop)
+          (debug, Spindle rpm = #<rpm>)
+          M110 (axisui.notifications-clear)
+o<l0>   endif
+o<spin> endsub

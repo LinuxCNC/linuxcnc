@@ -1,0 +1,3 @@
+/home/user/XCreator/vendor/OCCT/samples/glfw/build/CMakeFiles/rebuild_cache.dir
+/home/user/XCreator/vendor/OCCT/samples/glfw/build/CMakeFiles/edit_cache.dir
+/home/user/XCreator/vendor/OCCT/samples/glfw/build/CMakeFiles/glfwocct.dir

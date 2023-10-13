@@ -1,0 +1,58 @@
+/*******************************************************
+The following //comment lines identify ngcgui inputs:
+
+example option:
+//ngcgui: --precision 6
+
+info message (appears on ngcgui tab page):
+//ngcgui: info: gcmc drill example
+
+variables with defaults:
+//ngcgui: umode = 1;      //, units: 1:mm, 0:inch
+//ngcgui: nx=4;           //
+//ngcgui: ny=3;           //
+//ngcgui: xstart=1;       //
+//ngcgui: ystart=1;       //
+//ngcgui: xspacing=0.5;   //
+//ngcgui: yspacing=1.0;   //
+//ngcgui: retract=0.1;    //
+//ngcgui: increment=0.5;  //
+//ngcgui: repeatct=1;     //
+//ngcgui: fr=10,feedrate; //
+
+variable with comment text:
+//ngcgui: zdepth=0 , z(neg typ)
+//ngcgui: verbose = 0; //precede ensure_units
+*******************************************************/
+include("ensure_units.gcmc"); //avoid preamble conflict
+
+if (umode == 1) {
+  zero = 0.0mm;
+} else {
+  zero = 0.0in;
+}
+// ngcgui entries are unitless so these additions are used
+// to ensure 1) floatingpoint and 2) units per umode setting
+   xstart = zero + xstart;
+   ystart = zero + ystart;
+ xspacing = zero + xspacing;
+ yspacing = zero + yspacing;
+  retract = zero + retract;
+increment = zero + increment;
+       fr = zero + fr;
+
+feedrate(fr);
+
+x=xstart;
+y=ystart;
+sign = 1;
+
+for (i = 0; i < nx ; i++) {
+  for (j = 0; j < ny; j++) {
+    drill([x, y, zdepth], retract, increment, repeatct);
+    y = y + sign * yspacing;
+  }
+  y = y - sign * yspacing;
+  sign = -1 *sign;
+  x = x + xspacing;
+}

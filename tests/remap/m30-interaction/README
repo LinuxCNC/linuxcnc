@@ -1,0 +1,2 @@
+M30 and M02 reset the interpreter's `remap_level`.  This test checks
+for interaction of remapped commands with those M codes.

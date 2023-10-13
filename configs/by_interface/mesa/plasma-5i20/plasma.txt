@@ -1,0 +1,99 @@
+[175654.344093] I-pipe: Domain RTAI registered.
+[175654.344104] RTAI[hal]: <3.6.1> mounted over IPIPE-NOTHREADS 2.0-04.
+[175654.344107] RTAI[hal]: compiled with gcc version 4.2.4 (Ubuntu 4.2.4-1ubuntu3).
+[175654.344115] RTAI[hal]: mounted (IPIPE-NOTHREADS, IMMEDIATE (INTERNAL IRQs DISPATCHED), ISOL_CPUS_MASK: 0).
+[175654.344118] PIPELINE layers:
+[175654.344121] e0af4000 9ac15d93 RTAI 200
+[175654.344123] c0383180 0 Linux 100
+[175654.361183] RTAI[malloc]: global heap size = 2097152 bytes, <BSD>.
+[175654.361575] RTAI[sched]: loaded (IMMEDIATE, UP, USER/KERNEL SPACE: <with RTAI OWN KTASKs>, kstacks pool size = 524288 bytes.
+[175654.361582] RTAI[sched]: hard timer type/freq = 8254-PIT/1193180(Hz); default timing: periodic; linear timed lists.
+[175654.361586] RTAI[sched]: Linux timer freq = 250 (Hz), CPU freq = 2400241000 hz.
+[175654.361589] RTAI[sched]: timer setup = 2010 ns, resched latency = 2689 ns.
+[175654.472379] RTAI[math]: loaded.
+[175654.509879] RTAPI: Init
+[175654.509934] RTAPI: Init complete
+[175654.523048] HAL_LIB: loading kernel lib
+[175654.523055] RTAPI: initing module HAL_LIB
+[175654.523059] RTAPI: module 'HAL_LIB' loaded, ID: 1
+[175654.523407] RTAPI: shmem 01 created by module 01, key: 1212238898, size: 262000
+[175654.523416] HAL_LIB: kernel lib installed successfully
+[175654.615892] config string '0x378'
+[175654.629887] hm2: loading Mesa HostMot2 driver version 0.15
+[175654.635022] hm2_pci: loading Mesa AnyIO HostMot2 driver version 0.6
+[175654.637533] hm2_pci: discovered 5i20 at 0000:02:03.0
+[175654.769217] hm2/hm2_5i20.0: 72 I/O Pins used:
+[175654.769224] hm2/hm2_5i20.0:     IO Pin 000 (P2-01): IOPort
+[175654.769227] hm2/hm2_5i20.0:     IO Pin 001 (P2-03): IOPort
+[175654.769231] hm2/hm2_5i20.0:     IO Pin 002 (P2-05): Encoder #0, pin B (Input)
+[175654.769235] hm2/hm2_5i20.0:     IO Pin 003 (P2-07): Encoder #0, pin A (Input)
+[175654.769239] hm2/hm2_5i20.0:     IO Pin 004 (P2-09): IOPort
+[175654.769242] hm2/hm2_5i20.0:     IO Pin 005 (P2-11): Encoder #0, pin Index (Input)
+[175654.769246] hm2/hm2_5i20.0:     IO Pin 006 (P2-13): IOPort
+[175654.769249] hm2/hm2_5i20.0:     IO Pin 007 (P2-15): IOPort
+[175654.769252] hm2/hm2_5i20.0:     IO Pin 008 (P2-17): IOPort
+[175654.769255] hm2/hm2_5i20.0:     IO Pin 009 (P2-19): IOPort
+[175654.769258] hm2/hm2_5i20.0:     IO Pin 010 (P2-21): IOPort
+[175654.769262] hm2/hm2_5i20.0:     IO Pin 011 (P2-23): IOPort
+[175654.769265] hm2/hm2_5i20.0:     IO Pin 012 (P2-25): IOPort
+[175654.769268] hm2/hm2_5i20.0:     IO Pin 013 (P2-27): IOPort
+[175654.769271] hm2/hm2_5i20.0:     IO Pin 014 (P2-29): IOPort
+[175654.769274] hm2/hm2_5i20.0:     IO Pin 015 (P2-31): IOPort
+[175654.769277] hm2/hm2_5i20.0:     IO Pin 016 (P2-33): IOPort
+[175654.769280] hm2/hm2_5i20.0:     IO Pin 017 (P2-35): IOPort
+[175654.769283] hm2/hm2_5i20.0:     IO Pin 018 (P2-37): IOPort
+[175654.769287] hm2/hm2_5i20.0:     IO Pin 019 (P2-39): IOPort
+[175654.769290] hm2/hm2_5i20.0:     IO Pin 020 (P2-41): IOPort
+[175654.769293] hm2/hm2_5i20.0:     IO Pin 021 (P2-43): IOPort
+[175654.769296] hm2/hm2_5i20.0:     IO Pin 022 (P2-45): IOPort
+[175654.769299] hm2/hm2_5i20.0:     IO Pin 023 (P2-47): IOPort
+[175654.769302] hm2/hm2_5i20.0:     IO Pin 024 (P3-01): IOPort
+[175654.769305] hm2/hm2_5i20.0:     IO Pin 025 (P3-03): IOPort
+[175654.769308] hm2/hm2_5i20.0:     IO Pin 026 (P3-05): IOPort
+[175654.769311] hm2/hm2_5i20.0:     IO Pin 027 (P3-07): IOPort
+[175654.769315] hm2/hm2_5i20.0:     IO Pin 028 (P3-09): IOPort
+[175654.769318] hm2/hm2_5i20.0:     IO Pin 029 (P3-11): IOPort
+[175654.769321] hm2/hm2_5i20.0:     IO Pin 030 (P3-13): IOPort
+[175654.769324] hm2/hm2_5i20.0:     IO Pin 031 (P3-15): IOPort
+[175654.769327] hm2/hm2_5i20.0:     IO Pin 032 (P3-17): IOPort
+[175654.769330] hm2/hm2_5i20.0:     IO Pin 033 (P3-19): IOPort
+[175654.769333] hm2/hm2_5i20.0:     IO Pin 034 (P3-21): IOPort
+[175654.769336] hm2/hm2_5i20.0:     IO Pin 035 (P3-23): IOPort
+[175654.769339] hm2/hm2_5i20.0:     IO Pin 036 (P3-25): IOPort
+[175654.769342] hm2/hm2_5i20.0:     IO Pin 037 (P3-27): IOPort
+[175654.769346] hm2/hm2_5i20.0:     IO Pin 038 (P3-29): IOPort
+[175654.769349] hm2/hm2_5i20.0:     IO Pin 039 (P3-31): IOPort
+[175654.769352] hm2/hm2_5i20.0:     IO Pin 040 (P3-33): IOPort
+[175654.769355] hm2/hm2_5i20.0:     IO Pin 041 (P3-35): IOPort
+[175654.769358] hm2/hm2_5i20.0:     IO Pin 042 (P3-37): IOPort
+[175654.769361] hm2/hm2_5i20.0:     IO Pin 043 (P3-39): IOPort
+[175654.769364] hm2/hm2_5i20.0:     IO Pin 044 (P3-41): IOPort
+[175654.769367] hm2/hm2_5i20.0:     IO Pin 045 (P3-43): IOPort
+[175654.769370] hm2/hm2_5i20.0:     IO Pin 046 (P3-45): IOPort
+[175654.769373] hm2/hm2_5i20.0:     IO Pin 047 (P3-47): IOPort
+[175654.769377] hm2/hm2_5i20.0:     IO Pin 048 (P4-01): StepGen #0, pin Step (Output)
+[175654.769381] hm2/hm2_5i20.0:     IO Pin 049 (P4-03): StepGen #0, pin Direction (Output)
+[175654.769385] hm2/hm2_5i20.0:     IO Pin 050 (P4-05): IOPort
+[175654.769388] hm2/hm2_5i20.0:     IO Pin 051 (P4-07): IOPort
+[175654.769391] hm2/hm2_5i20.0:     IO Pin 052 (P4-09): IOPort
+[175654.769394] hm2/hm2_5i20.0:     IO Pin 053 (P4-11): IOPort
+[175654.769398] hm2/hm2_5i20.0:     IO Pin 054 (P4-13): StepGen #1, pin Step (Output)
+[175654.769402] hm2/hm2_5i20.0:     IO Pin 055 (P4-15): StepGen #1, pin Direction (Output)
+[175654.769406] hm2/hm2_5i20.0:     IO Pin 056 (P4-17): IOPort
+[175654.769409] hm2/hm2_5i20.0:     IO Pin 057 (P4-19): IOPort
+[175654.769412] hm2/hm2_5i20.0:     IO Pin 058 (P4-21): IOPort
+[175654.769415] hm2/hm2_5i20.0:     IO Pin 059 (P4-23): IOPort
+[175654.769419] hm2/hm2_5i20.0:     IO Pin 060 (P4-25): StepGen #2, pin Step (Output)
+[175654.769423] hm2/hm2_5i20.0:     IO Pin 061 (P4-27): StepGen #2, pin Direction (Output)
+[175654.769427] hm2/hm2_5i20.0:     IO Pin 062 (P4-29): IOPort
+[175654.769430] hm2/hm2_5i20.0:     IO Pin 063 (P4-31): IOPort
+[175654.769433] hm2/hm2_5i20.0:     IO Pin 064 (P4-33): IOPort
+[175654.769436] hm2/hm2_5i20.0:     IO Pin 065 (P4-35): IOPort
+[175654.769439] hm2/hm2_5i20.0:     IO Pin 066 (P4-37): IOPort
+[175654.769442] hm2/hm2_5i20.0:     IO Pin 067 (P4-39): IOPort
+[175654.769445] hm2/hm2_5i20.0:     IO Pin 068 (P4-41): IOPort
+[175654.769448] hm2/hm2_5i20.0:     IO Pin 069 (P4-43): IOPort
+[175654.769451] hm2/hm2_5i20.0:     IO Pin 070 (P4-45): IOPort
+[175654.769455] hm2/hm2_5i20.0:     IO Pin 071 (P4-47): IOPort
+[175654.769637] hm2/hm2_5i20.0: registered
+[175654.769640] hm2_5i20.0: initialized AnyIO board at 0000:02:03.0

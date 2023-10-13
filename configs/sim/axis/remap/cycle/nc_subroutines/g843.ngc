@@ -1,0 +1,13 @@
+o<g843> sub
+
+(debug, in g843 x=#<x>  y=#<y>  z=#<z>  p=#<p>  q=#<q>)
+
+O100 if [exists[#<p>] NE 1.]
+     (debug, the P word was not set)
+O100 endif
+
+; signal success be returning a value > 0:
+o<g843> endsub [1]
+
+m2
+

@@ -1,0 +1,27 @@
+*Togl.back: white
+*Togl.dwell: #008000
+*Togl.m1xx: #008080
+
+*Togl.straight_feed: black
+*Togl.arc_feed: black
+*Togl.traverse: #0000f0
+
+*Togl.backplotjog: #b0b0b0
+*Togl.backplotfeed: #c04040
+*Togl.backplotarc: #c04000
+*Togl.backplottraverse: #404080
+
+*Togl.selected: #08246b
+
+*Togl.overlay_foreground: black
+*Togl.overlay_background: white
+
+*Togl.small_origin: #008080
+*Togl.axis_x: #208020
+*Togl.axis_y: #802020
+*Togl.axis_z: #202080
+
+*Togl.cone: #08246b
+
+*Togl.label_ok: #004444
+*Togl.label_limit: #cc4444

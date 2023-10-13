@@ -1,0 +1,11 @@
+
+Use this page to load an existing configuration 
+or build a new one
+
+Check the option boxes to put a system-link 
+(shortcut) to the config files and / or startup Icon
+on your Desktop. 
+
+Pncconf writes a hidden file to remember your last
+choice. If you press the 'output' tab, you will see 
+a copy of the raw file.

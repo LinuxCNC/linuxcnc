@@ -1,0 +1,130 @@
+maintainer.txt:
+
+Notas generales para el directorio de configuraciones, root/configs.
+'root' se refiere al nivel superior del árbol de linuxcnc en git.
+
+-------------------------------------------------------
+
+El directorio config contiene una jerarquía de configuraciones,
+cada una con uno o más archivos ini, que están destinadas a:
+
+
+  1) ejecutarse tal cual en una compilación RIP (ejecución en el lugar)
+  2) ejecutarse cuando se copia al directorio de usuario ~/linuxcnc
+     por el selector de configuración (pickconfig.tcl)
+
+Nota: Casos especiales.
+      Cualquier archivo llamado _panelui.ini es ignorado
+
+Adicionalmente, los scripts de demostración identificados por un archivo
+con extensión .demo, puede ejecutarse de forma independiente para mostrar
+funcionalidades relacionadas con linuxcnc sin necesidad de arrancar linuxcnc.
+Un directorio configs no debe contener archivos .ini y .demo a la vez.
+
+Se ofrecen directorios para aplicaciones .demo por defecto para copiar a
+un directorio de usuario. Algunas aplicaciones no son útiles al copiarlas
+por lo que un directorio que contiene archivos .demo (y no archivos .ini)
+no se copiarán si el directorio incluye un archivo llamado 'nodemocopy'.
+
+Cuando se crea un acceso directo de escritorio para una aplicación .demo
+copiada, el acceso directo ejecutará el archivo .demo. El entorno para
+archivos ejecutados por archivos .desktop es limitado, por lo que se debe 
+tener un cuidado especial para garantizar que un acceso directo de escritorio 
+creado para un archivo .demo sea utilizable.
+
+-------------------------------------------------------
+
+El selector de configuración (pickconfig.tcl) recorre las
+configuraciones _de usuario_ existentes en ~/linuxcnc/configs y /configs del
+directorio raíz  de la distribución. Presenta ambas
+configuraciones existentes; configuraciones de usuario y de muestra.
+Cuando se selecciona una configuración de muestra, el selector de configuración:
+
+  1) crea un directorio en ~/linuxcnc/configs para el
+     elemento seleccionado y copia todos los archivos y directorios
+     relevantes al directorio recién creado. Cuando se produce una 
+     duplicación de nombres, el selector agrega un número al nombre 
+     del directorio para que sea distinto.
+
+  2) crea un directorio ~/linuxcnc/nc_files (si no existe). Crea 
+     enlaces en este directorio a las ubicaciones de ejemplos y bibliotecas
+     en el sistema (examples, ngcgui_lib, gladevcp_lib)
+
+  3) edita todos los archivos ini que se copian haciendo que
+     [DISPLAY]PROGRAM_PREFIX = ~/linuxcnc/nc_files.
+
+Un proceso similar ocurre para los archivos de demostración (.demo) cuando
+se copian los directorios de los archivos .demo (solo cuando no hay ningún archivo
+con el nombre 'nodemocopy').
+
+La mayoría de los scripts de demostración de propósito general pueden ser localizados
+en el directorio root/configs/apps y su subdirectorios.
+
+-------------------------------------------------------
+
+Un directorio de configuración puede contener subdirectorios.
+
+Si un subdirectorio contiene un archivo con un sufijo .ini o 
+.demo, se considera un directorio de configuración seleccionable
+y se incluirá en el árbol de selección proporcionado por
+el selector de configuraciones.
+
+Los subdirectorios requeridos para otros fines no deben contener 
+archivos con sufijo .ini o .demo.
+
+Cuando un subdirectorio requiere recursos de otro archivo o directorio
+que son compartidos por otras configuraciones, debería usar un
+enlace simbólico al archivo o directorio padres. El selector de 
+configuraciones copia el archivo o directorio al que hace referencia
+el enlace simbólico. De esta manera, el uso de enlaces simbólicos reduce
+el número de archivos reales en el árbol git.
+
+-------------------------------------------------------
+
+Se anticipa la reubicación ocasional de directorios de configuración dentro
+del árbol root/configs. Para minimizar la edición de archivos requeridos
+para tales movimientos, se aplican las siguientes pautas:
+
+Es posible que los archivos .ini deban hacer referencia a los recursos de 
+root/nc_files. El caso más común, [DISPLAY]PROGRAM_PREFIX, se maneja como 
+se describió anteriormente. Otros ejemplos incluyen elementos de ruta como:
+
+   [RS274NGC]SUBROUTINE_PATH =
+   [RS274NGC]USER_M_PATH =
+
+Los elementos como estos deben referirse a ../../nc_files y usar
+enlaces simbólicos apropiados dentro del directorio de configuración.
+
+Ejemplo:
+   Una configuración llamada: root/configs/sim/axis/ngcgui podría, por 
+   ejemplo, referirse a:
+   [RS274NGC]SUBROUTINE_PATH = ../../nc_files/ngcgui_lib:../../nc_files/ngcgui_lib/utilitysubs
+
+   El directorio root/configs/sim debe contener un enlace simbólico:
+      root/configs/sim/nc_files --> ../../nc_files
+   para que la referencia del archivo ini funcione en compilaciones RIP.
+
+Estas convenciones funcionan porque:
+
+   1) Las configuraciones de usuario copiadas
+      tienen configuraciones ubicadas en --------- ~/linuxcnc/configs/
+      y nc_files ubicados como ------------------- ~/linuxcnc/nc_files/
+
+      Así que si los archivos ini siempre se refieren a root/nc_files como
+        ../../nc_files
+      no requerirán modificaciones cuando se copien a
+      directorios de usuarios ni cuando se muevan dentro del
+      árbol de distribución
+
+  2) Los enlaces simbólicos generalmente requieren hacer que ../../nc_files
+     resuelva a root/nc_files (para uso RIP).
+
+     Debido a esto, los enlaces simbólicos para nc_files nunca se copian
+     a los directorios de usuario.
+
+
+--------------------------------------------------------
+Cualquier directorio de configuración puede incluir un archivo llamado
+mantainer.txt para incluir comentarios o detalles sobre el mantenimiento de la
+configuración. Estos archivos no serán copiados al directorio de
+configuración del usuario.

@@ -1,0 +1,30 @@
+# use limit3 for motion planning:
+loadrt limit3 names=j4.limit3,j5.limit3
+
+# These constraints apply to homing managed by
+# LinuxCNC and post-homing managed by the limit3 component:
+setp j4.limit3.min    [JOINT_4]MIN_LIMIT
+setp j4.limit3.max    [JOINT_4]MAX_LIMIT
+setp j4.limit3.maxv   [JOINT_4]MAX_VELOCITY
+setp j4.limit3.maxa   [JOINT_4]MAX_ACCELERATION
+
+addf j4.limit3 servo-thread
+
+net  J4:out <= j4.limit3.out
+net  J4:out => joint.4.posthome-cmd
+
+net  J4.enable <= joint.4.homed
+net  J4.enable => j4.limit3.enable
+
+setp j5.limit3.min    [JOINT_5]MIN_LIMIT
+setp j5.limit3.max    [JOINT_5]MAX_LIMIT
+setp j5.limit3.maxv   [JOINT_5]MAX_VELOCITY
+setp j5.limit3.maxa   [JOINT_5]MAX_ACCELERATION
+
+addf j5.limit3 servo-thread
+
+net  J5:out <= j5.limit3.out
+net  J5:out => joint.5.posthome-cmd
+
+net  J5.enable <= joint.5.homed
+net  J5.enable => j5.limit3.enable

@@ -1,0 +1,27 @@
+The TEMPORARY xyzb directory contains standalone, simplified xyzb ini examples
+to test:
+
+  a) wheel jogging for IDENTITY kins configs where the hal pins
+     for joints and axes jogging  are connected together
+  b) omitted axis letters
+  c) duplicated axis letters (ref: some gantry configs do this)
+  d) locking indexer on AXIS_B (the joint number depends on the configuration
+  e) automatically set mode to teleop after homing
+
+The configs start additional applications:
+ 1) sim_pin gui to demonstrate wheel jogging for joints and axes
+     Signal j:x is jog-counts for  axis x AND joint 0
+     Signal j:y is jog-counts for  axis y AND joint 1
+     Signal j:z is jog-counts for  axis z AND joint 2
+     Signal j:b is jog-counts for  axis b AND joint 3
+ 2) halshow app to show relevant hal pins
+
+xyzb.ini   trivkins with omitted axis letter (a)
+xyyzb.ini  trivkins with omitted axis letter (a)
+                                   and  duplicated axis letter (y)
+                                   and  auto teleop after homing
+
+The xyyzb.ini uses the trivkins kinstype option
+to set the kinematics type to KINEMATICS_BOTH to demonstrate
+jogging and teleop jogging.
+

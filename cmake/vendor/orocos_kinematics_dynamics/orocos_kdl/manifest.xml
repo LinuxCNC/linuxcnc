@@ -1,0 +1,22 @@
+<package>
+<description brief="The Kinematics and Dynamics Library (latest)">
+
+This package contains a recent version of the Kinematics and Dynamics
+Library (KDL), distributed by the Orocos Project. 
+
+</description>
+<author>Ruben Smits, Erwin Aertbelien, Orocos Developers</author>
+<license>LGPL</license>
+<review status="reviewed" notes=""/>
+<url>http://www.orocos.org/kdl</url>
+<export>
+  <cpp cflags="-I${prefix}/install_dir/include `pkg-config --cflags eigen3`" lflags="-Wl,-rpath,${prefix}/install_dir/lib  -L${prefix}/install_dir/lib -lorocos-kdl"/>
+  <doxymaker external="http://www.orocos.org/kdl" />
+</export>
+
+<rosdep name="cppunit"/>
+<rosdep name="pkg-config"/>
+<rosdep name="eigen"/>
+
+</package>
+

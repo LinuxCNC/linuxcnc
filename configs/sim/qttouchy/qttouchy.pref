@@ -1,0 +1,80 @@
+[DIALOG_OPTIONS]
+EntryDialog_play_sound = True
+EntryDialog_sound_type = READY
+toolDialog_play_sound = True
+toolDialog_speak = True
+toolDialog_sound_type = READY
+CalculatorDialog_play_sound = True
+CalculatorDialog_sound_type = READY
+
+[DIALOG_GEOMETRY]
+ToolChangeDialog-geometry = 790 530 301 233
+LncMessage-geometry = 650 435 301 147
+AboutDialog-geometry = half
+
+[SCREEN_OPTIONS]
+overlay_play_sound = False
+overlay_sound_type = RING
+catch_errors = True
+desktop_notify = True
+notify_max_msgs = 10
+shutdown_check = True
+sound_player_on = True
+mainwindow_geometry = 277 247 923 697
+MainWindow-geometry = 59 110 917 698
+
+[ORIGINOFFSET_SYSTEM_NAMES]
+__dialogOffsetViewWidget-G54 = User System 1
+__dialogOffsetViewWidget-G55 = User System 2
+__dialogOffsetViewWidget-G56 = User System 3
+__dialogOffsetViewWidget-G57 = User System 4
+__dialogOffsetViewWidget-G58 = User System 5
+__dialogOffsetViewWidget-G59 = User System 6
+__dialogOffsetViewWidget-G59.1 = User System 7
+__dialogOffsetViewWidget-G59.2 = User System 8
+__dialogOffsetViewWidget-G59.3 = User System 9
+
+[MCH_MSG_OPTIONS]
+mchnMsg_play_sound = True
+mchnMsg_speak_errors = True
+mchnMsg_sound_type = RING
+mchnMsg_speak_text = True
+
+[USR_MSG_OPTIONS]
+usermsg_play_sound = True
+userMsg_sound_type = RING
+userMsg_use_focusOverlay = True
+
+[SHUTDOWN_OPTIONS]
+shutdown_play_sound = True
+shutdown_alert_sound_type = READY
+shutdown_exit_sound_type = LOGOUT
+shutdown_msg_title = Do you want to Shutdown now?
+shutdown_msg_detail = 
+shutdown_msg_focus_text = 
+
+[NOTIFY_OPTIONS]
+notify_start_greeting = False
+notify_start_title = Welcome
+notify_start_detail = This option can be changed in the preference file
+notify_start_timeout = 5
+
+[BOOK_KEEPING]
+last_loaded_directory = /home/chris/emc/configs/sim/nc_files
+style_QSS_Path = DEFAULT
+RecentPath_0 = /home/chris/emc/configs/sim/nc_files/3D_Chips.ngc
+
+[FILEMANAGER_JUMPLIST]
+
+[CUSTOM_FORM_ENTRIES]
+DRO_Font = Ubuntu,10,-1,5,50,0,0,0,0,0
+DRO_Color = #000000
+
+[SCREEN_CONTROL_LAST_SETTING]
+gcodegraphics-user-view = p
+gcodegraphics-user-zoom = 10.0
+gcodegraphics-user-panx = 0.0
+gcodegraphics-user-pany = 0.0
+gcodegraphics-user-lat = 0.0
+gcodegraphics-user-lon = 0.0
+

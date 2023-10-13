@@ -1,0 +1,30 @@
+# connections for gladevcp panel, example embed command:
+# EMBED_TAB_COMMAND=halcmd loadusr -Wn gladevcp8 gladevcp -c gladevcp8  -x {XID} ./moveoff_gladevcp_8.ui
+# note the expected name prefix is 'gladevcp8' (specified with -Wn arg and -c arg)
+
+# connect to signals created by moveoff_external.hal
+# to inputs from gladevcp panel:
+net external_enable       <= gladevcp8.enable-offset
+net external_offset_0     <= gladevcp8.x-offset-f
+net external_offset_1     <= gladevcp8.y-offset-f
+net external_offset_2     <= gladevcp8.z-offset-f
+net external_backtrack_en <= gladevcp8.enable-backtrack
+
+# connect signal provided by moveoff_gui to gladevcp led:
+net mvoff_gui:apply_offsets gladevcp8.led-apply
+
+# connect for gladevcp status items:
+net led-offset-applied         mv.offset-applied        => gladevcp8.led-active
+net led-waypoint-limeit        mv.waypoint-limit        => gladevcp8.led-waypoint-limit
+net show_waypoint-percent-used mv.waypoint-percent-used => gladevcp8.waypoint-percent-used
+
+# connect for gladevcp display of current offsets:
+net current_offset_0 <= mv.offset-current-0
+net current_offset_0 => gladevcp8.x-offset-current
+
+net current_offset_1 <= mv.offset-current-1
+net current_offset_1 => gladevcp8.y-offset-current
+
+net current_offset_2 <= mv.offset-current-2
+net current_offset_2 => gladevcp8.z-offset-current
+

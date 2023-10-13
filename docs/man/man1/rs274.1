@@ -1,0 +1,98 @@
+.\" Copyright (c) 2020 andypugh
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.\"
+.\"
+.\"
+.TH RS274 "1"  "2020-08-26" "LinuxCNC Documentation" "The Enhanced Machine Controller"
+.SH NAME
+rs274 \- standalone G-code interpreter
+.SH SYNOPSIS
+.B rs274 \fR[-p interp.so] [-t tool.tbl] [-v var-file.var] [-n 0|1|2]
+          [-b] [-s] [-g] [input file [output file]]
+
+.SH DESCRIPTION
+\fBrs274\fR Standalone G-code interpreter interface
+
+Usage: rs274 [-p interp.so] [-t tool.tbl] [-v var-file.var] [-n 0|1|2]
+          [-b] [-s] [-g] [input file [output file]]
+
+    -p: Specify the pluggable interpreter to use
+    -t: Specify the .tbl (tool table) file to use
+    -v: Specify the .var (parameter) file to use
+    -n: Specify the continue mode:
+           0: continue
+           1: enter MDI mode
+           2: stop (default)
+    -b: Toggle the 'block delete' flag (default: OFF)
+    -s: Toggle the 'print stack' flag (default: OFF)
+    -g: Toggle the 'go (batch mode)' flag (default: OFF)
+    -i: specify the .ini file (default: no ini file)
+    -T: call task_init()
+    -l: specify the log_level (default: -1)
+
+.SH Example
+
+To see the output of a loop for example we can run rs274 on the following file
+and see that the loop never ends. To break out of the loop use Ctrl Z. The
+following two files are needed to run the example.
+
+test.ngc
+ ----
+ #<test> = 123.352
+ o101 while [[#<test> MOD 60 ] NE 0]
+ (debug,#<test>)
+    #<test> = [#<test> + 1]
+ 101 endwhile
+ M2
+ ----
+
+test.tbl
+ ----
+ T1 P1 Z0.511 D0.125 ;1/8 end mill
+ T2 P2 Z0.1 D0.0625 ;1/16 end mill
+ T3 P3 Z1.273 D0.201 ;#7 tap drill
+ ----
+
+command
+ ----
+ rs274 -g test.ngc -t test.tbl
+ ----
+
+
+.SH "SEE ALSO"
+\fBLinuxCNC(1)\fR
+
+Much more information about LinuxCNC and HAL is available in the LinuxCNC
+and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
+
+.SH BUGS
+None known at this time. 
+.PP
+.SH AUTHOR
+This man page written by andypugh, as part of the LinuxCNC project.
+.SH REPORTING BUGS
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues
+.SH COPYRIGHT
+Copyright \(co 2020 andypugh.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

@@ -1,0 +1,167 @@
+/* demo for using gcmc file with [py]ngcgui
+
+//ngcgui: info: WHEELS (gcmc G-Code Meta Compiler)
+
+//ngcgui: umode = 1; //, units: 1:mm, 0:inch
+//ngcgui: r1=10;     //,Radius 1 (10mm = .39370 in)
+//ngcgui: r2= 5;     //,Radius 2 ( 5mm = .19685 in)
+//ngcgui: r3= 3.333; //,Radius 3 ( 3.333mm = .13122 in)
+
+//ngcgui: s1= 1     ,Speed 1 (ratio, nounits)
+//ngcgui: s2= 7     ,Speed 2 (ratio, nounits)
+//ngcgui: s3= -17   ,Speed 3 (ratio, nounits)
+
+//ngcgui: p1=  0    ,Phase 1 (angle, degrees)
+//ngcgui: p2=  0    ,Phase 2 (angle, degrees)
+//ngcgui: p3= 90    ,Phase 3 (angle, degrees)
+
+//ngcgui: zsafe =  1; //, zsafe
+//ngcgui: zcut  = -1; //, zcut (neg)
+
+//ngcgui: xoffset = 0;
+//ngcgui: yoffset = 0;
+
+//ngcgui: scalex = 5;
+//ngcgui: scaley = 5;
+//ngcgui: scalez = 1;
+//ngcgui: frate = 60; //, feedrate
+//ngcgui: verbose = 0; // precede ensure_units
+*/
+include("ensure_units.gcmc"); //avoid preamble conflict
+
+/*
+  Copyright: 2013
+  Author:    Alan Battersby <alan.battersby@virginmedia.com>
+ 
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+ 
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+ 
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
+/********************************************************/
+/* Code to produce wheels paths				*/
+/* Using GCMC Compiler					*/
+/* Author: Alan Battersby				*/
+/* Version: 1.0						*/
+/********************************************************/
+
+/********************************************************/
+/* Each wheel is a vector of three components           */
+/* Radius - The radius of the wheel                     */
+/* Speed  - The speed of the wheel                      */
+/* Phase  - The phase of the wheel                      */
+
+function Radius(wheel)
+{
+	return wheel[0];
+}
+
+function Speed(wheel)
+{
+	return wheel[1];
+}
+
+function Phase(wheel)
+{
+	return wheel[2];
+}
+
+function CreateWheel(r, s, p)
+{
+	return [r,s,p];
+}
+
+/* Wheels are held in global vector list called wheels	*/
+
+function CalcPoint(wheels, angle)
+{
+	local at, posn, r, s, p, w;
+
+	posn = [0, 0];
+
+	foreach (wheels; w)
+	{
+		r = Radius(w);
+		s = Speed(w);
+		p = Phase(w);
+		at = s * angle + p;
+		posn += [r * cos(at), r * sin(at) ];
+	}
+
+	return posn;
+}
+
+function CutPath(wheels, start, inc, end, cdepth, scale)
+{
+	local angle, point;
+	/* move to first point at safe height */
+	for(angle = start; angle <= end; angle += inc)
+	{
+		if (angle == start)
+		{
+		  /* we should be at safe height */
+		  /* so move to cutting depth    */
+			point = scale(CalcPoint(wheels, angle), scale);
+			goto(point + theoffset);
+			goto([-,-,cdepth * scale[2]]);
+		}
+		else
+		{
+			point = scale(CalcPoint(wheels, angle), scale);
+			move(point + theoffset);
+		}
+	}
+}
+/******************* Library ****************************/
+function GoAtSafeHeight(x,y)
+{
+	goto([-,-,safeheight]);
+	goto([x,y,safeheight]);
+}
+
+/******************* main program ***********************/
+if (umode == 1) {
+  zero = 0.0mm;
+} else {
+  zero = 0.0in;
+}
+// ngcgui entries are unitless so these additions are used
+// to ensure 1) floatingpoint and 2) units per umode setting
+
+xoffset = zero + xoffset;
+yoffset = zero + yoffset;
+  zsafe = zero + zsafe;
+   zcut = zero + zcut;
+     r1 = zero + r1;
+     r2 = zero + r2;
+     r3 = zero + r3;
+
+     s1 = 0.0 + s1;  //angular speed ratio (unitless)
+     s2 = 0.0 + s2;  //angular speed ratio (unitless)
+     s3 = 0.0 + s3;  //angular speed ratio (unitless)
+
+    theoffset = [xoffset, yoffset];
+   safeheight = zsafe;
+ cuttingdepth = zcut;
+
+svec = [scalex, scaley ,scalez ];
+wheels = {
+	CreateWheel(r1, s1, p1 * 1deg),
+	CreateWheel(r2, s2, p2 * 1deg),
+	CreateWheel(r3, s3, p3 * 1deg)
+};
+feedrate(frate);
+GoAtSafeHeight(0, 0);
+CutPath(wheels, 0deg, 0.01deg, 360deg, cuttingdepth, svec);
+GoAtSafeHeight(0, 0);
+

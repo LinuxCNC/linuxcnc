@@ -1,0 +1,63 @@
+Nota sobre los cambios API de los manejadores de clase y persistence.py:
+
+Handlers de clase:
+=====================
+
+El parámetro 'panel' se eliminó de get_handlers() ya que no es necesario.
+En consecuencia, el handler del método __init__() no recibe este
+parámetro:
+
+class HandlerClass:
+    ...
+    def __init__(self, halcomp,builder,useropts):
+        self.halcomp = halcomp
+        self.builder = builder
+
+def get_handlers(halcomp,builder,useropts):
+
+    return [HandlerClass(halcomp,builder,useropts)]
+
+Acceso a widgets en handlers de clases:
+==========================================
+
+Para un widget con nombre, use:
+    w = self.builder.get_object("widgetname")
+
+Para recuperar una lista de todos los widgets en el archivo UI, use:
+    wl = self.builder.get_objects()
+
+Esto funciona independientemente de si la interfaz de usuario está en formato libglade o GtkBuilder.
+
+persistence.py
+==============
+El manejo del parámetro builder se ha simplificado. Se elimina
+de los métodos save_state y restore_state, y se agrega en su lugar al método
+IniFile.__init__(). Por lo tanto, utilicelo de la siguiente manera:
+
+class HandlerClass:
+    ...
+
+    def on_destroy(self,obj,data=None):
+        # note: save_state(<object to fetch attributes from>) only:
+        self.ini.save_state(self)
+
+
+    def __init__(self, halcomp,builder,useropts):
+        self.halcomp = halcomp
+        self.builder = builder
+
+        self.ini_filename = __name__ + '.ini'
+        self.defaults = {  IniFile.vars: dict(),
+                           IniFile.widgets : widget_defaults(select_widgets(self.builder.get_objects(), hal_only=False,output_only = True))
+                        }
+        # notese parámetro extra self.builder
+        self.ini = IniFile(self.ini_filename, self.defaults, self.builder)
+        # nota: solo se pasa el objeto que obtiene el conjunto de atributos:
+        self.ini.restore_state(self)
+
+
+Todos los ejemplos y plantillas se han adaptado en consecuencia.
+
+
+Michael Haberler 19 de diciembre de 2010
+

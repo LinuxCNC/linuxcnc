@@ -1,0 +1,8 @@
+Esta configuración es para una máquina de corte por plasma con control "paso a paso", junto con conexiones ClassicLadder a algunas de las IO de LinuxCNC.
+
+Se basa en la configuración de muestra de classicladder, pero también incluye una bomba de carga y un sistema de control de altura de antorcha para los sistemas de Bob Cambells THC300 y CandCNC THC.
+
+Los pinouts paso a paso son para tarjetas breakout/combo estándar provista por Bob Campbell.
+
+Esta configuración está desactualizada y no se ejecutará sin actualización, ya que
+utiliza freqgen, que se ha eliminado desde Linuxcnc 2.6.

@@ -1,0 +1,16 @@
+Los archivos de configuración simtcl utilizan el lenguaje tcl para la configuración en lugar de los archivos ".hal" más comunes.
+
+Las configuraciones en este directorio también demuestran el uso de un método de dos pasos para procesar archivos ".hal" y ".tcl". Este método está habilitado por la configuración del archivo ini de [HAL] TWOPASS= . Con el procesamiento de dos pasos, los especificadores loadrt para un módulo se pueden especificar en varios lugares.
+
+o twopass_compat
+  verificar compatibilidad con halfiles .hal
+
+o twopass_basic
+  usar LIB de ejemplo basic_sim
+
+Notas:
+
+Convencionalmente, hal se configura con archivos ".hal" que contienen instrucciones en el lenguaje halcmd. Con los archivos ".tcl", también hay disponibles recursos de programación comunes como bucles y pruebas.
+
+Los archivos de configuración Hal se especifican mediante elementos ini file [HAL]HALFILE que pueden nombrar archivos ".hal" o ".tcl".
+

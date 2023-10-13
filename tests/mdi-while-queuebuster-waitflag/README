@@ -1,0 +1,3 @@
+This test tries to hit a race condition where an MDI command is
+executed when a queue buster is waiting to be restarted after
+INTERP_EXEC_FINISH.

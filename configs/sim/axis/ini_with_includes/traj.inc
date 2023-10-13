@@ -1,0 +1,8 @@
+[TRAJ]
+NO_FORCE_HOMING     = 1
+COORDINATES         = X Y Z
+LINEAR_UNITS        = inch
+ANGULAR_UNITS       = degree
+DEFAULT_LINEAR_VELOCITY = 10
+POSITION_FILE       = position.txt
+MAX_LINEAR_VELOCITY = 10

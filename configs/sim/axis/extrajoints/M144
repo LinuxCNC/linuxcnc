@@ -1,0 +1,35 @@
+#!/usr/bin/tclsh
+
+# M144 demo for extra joints 
+# Usage: M144 [Pjoint_num] [Qposition]
+
+# Mcodes substitute "-1.000000" for omitted p,q values
+# so these are handled as special cases
+# Note: this also disallows a q value of -1 (sigh)
+
+set min_joint_num  4
+set max_joint_num 15
+
+proc fail {msg} {
+  puts "\nFAIL:  $::argv0 $msg"
+  puts "Usage: $::argv0 P<jointnumber> Q<position>"
+  exit 1
+}
+
+set p [lindex $::argv 0]
+set q [lindex $::argv 1]
+
+if {"$p" == "-1.000000"} {fail "Missing Pvalue"}
+if {"$q" == "-1.000000"} {fail "Missing Qvalue (or -1)"}
+
+set p [expr int($p)]
+if {$p < $min_joint_num || $p > $max_joint_num} {
+  fail "Bad Pvalue (extra joint number) <$p>"
+}
+
+set cmd "halcmd setp j${p}.limit3.in $q"
+if [catch {eval exec $cmd} msg] {
+  fail "Command:$cmd\n$msg"
+}
+puts "\nOK: $::argv0: $cmd"
+exit 0

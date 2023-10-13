@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=Latency Histogram (run-in-place)
+Comment=Show histogram of your machine's latency
+Type=Application
+Exec=/home/user/linuxcnc/scripts/latency-histogram
+Icon=/home/user/linuxcnc/linuxcncicon.png
+X-GNOME-DocPath=
+Terminal=false
+StartupNotify=false
+X-AppStream-Ignore=true
+Categories=Science;Utility;Engineering;X-CNC;
+Keywords=cnc;linuxcnc;cncprog;benchmark;

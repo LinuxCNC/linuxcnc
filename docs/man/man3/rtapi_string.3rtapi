@@ -1,0 +1,49 @@
+.\" Copyright (c) 2014 Jeff Epler
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.TH funct "3rtapi" "2014-06-28" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_string.h \- RTAPI wrappers for linux kernel functionality
+
+.SH SYNTAX
+.HP
+#include <rtapi_string.h>
+.HP
+char **rtapi_argv_split(rtapi_gfp_t g, const char *argstr, int *argc);
+.HP
+void rtapi_argv_free(char **argv);
+.HP
+char *rtapi_kstrdup(const char *s, rtapi_gfp_t t);
+.SH DESCRIPTION
+In kernel space, each rtapi_xxx or RTAPI_XXX identifier is mapped to the
+underlying kernel functionality, if available.
+
+In userspace, or in kernels where the underlying functionality is not provided
+by a kernel, generally another implementation--possibly with reduced
+functionality--is provided.  (For example, the userspace implementation for
+rtapi_device_register always succeeds)
+.SH REALTIME CONSIDERATIONS
+Call only from within init/cleanup code, not from realtime tasks.  This
+function is not available from non-realtime code.
+.SH RETURN VALUE
+As in Linux.
+.SH SEE ALSO

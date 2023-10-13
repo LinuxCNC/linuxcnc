@@ -1,0 +1,63 @@
+setexact_for_test_suite_only
+
+loadrt limit3
+
+# These pos/vel/accel limits are just a hair above the limits of the
+# input sine wave.
+setp limit3.0.min -150
+setp limit3.0.max 50
+setp limit3.0.maxv 630
+setp limit3.0.maxa 4000
+
+
+loadrt siggen
+setp siggen.0.amplitude 50
+setp siggen.0.offset -50
+
+
+loadrt ddt names=ddt.in-accel,ddt.in-vel,ddt.out-accel,ddt.out-vel
+
+
+loadrt sampler depth=2000 cfg=ffffff
+
+
+# We use the cosine signal as the input so that the velocity and
+# acceleration start out at 0, and we offset it by the negative of the
+# amplitude so that position start out at 0 too.
+net input <= siggen.0.cosine
+net input => limit3.0.in
+net input => ddt.in-vel.in
+net input => sampler.0.pin.0
+
+net in-vel <= ddt.in-vel.out
+net in-vel => ddt.in-accel.in
+net in-vel => sampler.0.pin.1
+
+net in-accel <= ddt.in-accel.out
+net in-accel => sampler.0.pin.2
+
+net output <= limit3.0.out
+net output => ddt.out-vel.in
+net output => sampler.0.pin.3
+
+net out-vel <= ddt.out-vel.out
+net out-vel => ddt.out-accel.in
+net out-vel => sampler.0.pin.4
+
+net out-accel <= ddt.out-accel.out
+net out-accel => sampler.0.pin.5
+
+
+loadrt threads name1=t period1=1000000 fp1=1
+
+addf siggen.0.update t
+addf limit3.0        t
+addf ddt.in-vel      t
+addf ddt.in-accel    t
+addf ddt.out-vel     t
+addf ddt.out-accel   t
+addf sampler.0       t
+
+start
+
+loadusr -w halsampler -t -n 4000

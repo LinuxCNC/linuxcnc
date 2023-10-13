@@ -1,0 +1,6 @@
+Etch-servo acciona dos servomotores utilizando un circuito simple conectado a un puerto paralelo. 'pwmgen' produce una forma de onda habilitada para activar los servomotores a una velocidad variable, y 'encoder' lee las entradas de cuadratura de nivel TTL para cerrar el bucle.
+
+El circuito utiliza un controlador de puente completo doble L298 para controlar dos servomotores.
+
+Más información sobre el circuito está disponible:
+    http://emergent.unpy.net/projects/01142347802

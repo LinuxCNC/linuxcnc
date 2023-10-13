@@ -1,0 +1,14 @@
+%
+(1" square with rounded corners)
+G90 G54 G20
+G64
+G0 X0 Y.25 Z0
+G1 Y.75 F50
+G2 X.25 Y1 I.25
+G1 X.75
+G2 X1 Y.75 J-.25
+G1 Y.25
+G2 X.75 Y0 I-.25
+G1 X.25
+G2 X0 Y.25 J.25
+M30

@@ -1,0 +1,81 @@
+.\" Copyright (c) 2014 Jeff Epler
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.TH HM2_SPI "9" "2008-05-13" "LinuxCNC Documentation" "HAL Component"
+
+.SH NAME
+hm2_spi \- LinuxCNC HAL driver for the Mesa Electronics SPI Anything IO boards, with HostMot2 firmware.
+.SH SYNOPSIS
+
+.HP
+.B loadrt hm2_spi [config=\fI"str[,str...]"\fB] [spidev_path=path[,path...]\fB] [spidev_rate=\fIrate[,rate...]\fB]
+.RS 4
+.TP
+\fBconfig\fR [default: ""]
+HostMot2 config strings, described in the hostmot2(9) manpage.
+.TP
+\fBspidev_path\fR [default: "/dev/spidev1.0"]
+The path to the spi device node, a character special device in /dev
+.TP
+\fBspidev_rate\fR [default: 24000]
+The desired rate of the SPI clock in kHz.  If the exact specified clock is not
+available, a lower clock is used.  Due to shortcomings in the spidev API, it is
+not possible for hal to report the actual clock used.
+.SH DESCRIPTION
+
+hm2_spi is a device driver that interfaces Mesa's SPI
+based Anything I/O boards (with the HostMot2 firmware) to the LinuxCNC
+HAL.
+
+The supported boards are: 7I90HD.
+
+The board must have a compatible firmware loaded on the board by the
+mesaflash(1) program.
+
+hm2_spi is only available when LinuxCNC is configured with "uspace" realtime.
+
+.SH INTERFACE CONFIGURATION
+
+It is possible for one SPI bus to connect several devices; in this
+configuration, a master device has several chip select lines.  In order to meet
+realtime deadlines,  hm2_spi should be used on a dedicated SPI interface not
+shared with any other slaves.
+
+.SH REALTIME PERFORMANCE OF LINUX SPIDEV DRIVERS
+
+As of kernel 3.8, most or all kernel SPI drivers do not achieve the high
+realtime response rate required for a typical LinuxCNC configuration.  The
+driver was tested with a modified version of the spi\-s3c64xx SPI driver on the
+Odroid U3 platform.  The patched kernel resides
+.UR https://github.com/jepler/odroid\-linux/tree/odroid\-3.8.13\-rt
+on github
+.UE .
+
+.SH SPI CLOCK RATES
+The maximum SPI clock of the 7i90 is documented as 50MHz.  Other elements of
+the data path between HAL and the 7i90 may impose other limitations.
+
+.SH SEE ALSO
+
+hostmot2(9)
+.SH LICENSE
+
+GPL

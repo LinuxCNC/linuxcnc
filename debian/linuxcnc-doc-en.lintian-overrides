@@ -1,0 +1,5 @@
+linuxcnc-doc-en: desktop-command-not-in-package xdg-open [usr/share/applications/linuxcnc-documentation.desktop]
+linuxcnc-doc-en: desktop-command-not-in-package x-www-browser [usr/share/applications/linuxcnc-gcoderef.desktop]
+linuxcnc-doc-en: desktop-command-not-in-package xdg-open [usr/share/applications/linuxcnc-gettingstarted.desktop]
+linuxcnc-doc-en: desktop-command-not-in-package xdg-open [usr/share/applications/linuxcnc-integratorinfo.desktop]
+linuxcnc-doc-en: desktop-command-not-in-package xdg-open [usr/share/applications/linuxcnc-manualpages.desktop]

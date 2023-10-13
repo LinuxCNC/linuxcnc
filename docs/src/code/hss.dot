@@ -1,0 +1,14 @@
+digraph net {
+  IDLE;
+  START_JOINTS;
+  START;
+  WAIT_JOINTS;
+
+  IDLE -> START [label="on EMCMOT_HOME(-1)"];
+  START -> START_JOINTS;
+  START_JOINTS -> WAIT_JOINTS;
+  WAIT_JOINTS -> START_JOINTS [label="all joints in this\nsequence reached home"];
+  START_JOINTS -> IDLE [label="if no joints left"];
+  WAIT_JOINTS -> IDLE [label="a joint had an error\non its way home"];
+  WAIT_JOINTS -> WAIT_JOINTS;
+}

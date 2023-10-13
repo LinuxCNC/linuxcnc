@@ -1,0 +1,3 @@
+#!/usr/bin/python3.9
+import gremlin_view
+gremlin_view.standalone_gremlin_view()

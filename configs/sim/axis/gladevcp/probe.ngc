@@ -1,0 +1,57 @@
+; caveat - this changes feed and abs/relative mode
+
+O<probe> SUB
+
+(print, _Probe_Axis= #<_Probe_Axis>)
+(print, _Probe_Speed = #<_Probe_Speed>)
+(print, _Probe_Retract = #<_Probe_Retract>)
+(print, _Probe_Distance = #<_Probe_Distance>)
+(print, _Probe_Diameter = #<_Probe_Diameter>)
+(print, _Probe_System = #<_Probe_System>)
+
+
+O<xaxis> if [#<_Probe_Axis> eq 0]
+
+    G91 G38.3 X#<_Probe_Distance> F#<_Probe_Speed>
+    O<xresult> if [#5070]
+       (MSG, probe succeeded)
+       G10 L20 P#<_Probe_System> X#<_Probe_Diameter>
+        G90 G0 X#<_Probe_Retract>
+    O<xresult> else
+        (MSG,probe failed)
+        G91 G0 X[0 - #<_Probe_Distance>]
+    O<xresult> endif
+    G90
+O<xaxis> endif
+
+O<yaxis> if [#<_Probe_Axis> eq 1]
+
+    G91 G38.3 y#<_Probe_Distance> F#<_Probe_Speed>
+    O<yresult> if [#5070]
+       (MSG, probe succeeded)
+       G10 L20 P#<_Probe_System> y#<_Probe_Diameter>
+        G90 G0 y#<_Probe_Retract>
+    O<yresult> else
+        (MSG,probe failed)
+        G91 G0 y[0 - #<_Probe_Distance>]
+    O<yresult> endif
+    G90
+O<yaxis> endif
+
+O<zaxis> if [#<_Probe_Axis> eq 2]
+
+    G91 G38.3 z#<_Probe_Distance> F#<_Probe_Speed>
+    O<zresult> if [#5070]
+       (MSG, probe succeeded)
+       G10 L20 P#<_Probe_System> z#<_Probe_Diameter>
+        G90 G0 z#<_Probe_Retract>
+    O<zresult> else
+        (MSG,probe failed)
+        G91 G0 z[0 - #<_Probe_Distance>]
+    O<zresult> endif
+    G90
+O<zaxis> endif
+
+O<probe> endsub
+
+M2

@@ -1,0 +1,9 @@
+%
+( Fanuc 'O...' sub must be called with M98 )
+
+O1 call
+
+O1
+(PRINT,X FANUC)
+M99
+%

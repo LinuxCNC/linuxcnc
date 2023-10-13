@@ -1,0 +1,82 @@
+#!/bin/sh
+# the next line restarts using wish \
+exec ${LINUXCNC_EMCSH-wish} "$0" "$@"
+
+###############################################################
+# Description:  popimage
+#               A Tcl/Tk script that displays the image listed  
+#               in the relevant ini file for the time listed in
+#               that file.
+#
+#  Derived from a work by Fred Proctor & Will Shackleford
+#  Author: 
+#  License: GPL Version 2
+#
+#  Copyright (c) 2005 All rights reserved.
+#
+#  Last change:
+###############################################################
+#  INI variables include
+#  [DISPLAY]
+#  Introductory graphic
+#  INTRO_GRAPHIC = emc2.gif
+#  INTRO_TIME = 5
+#  If time is set to zero no image is used
+###############################################################
+
+
+if {$argc < 1} {
+  puts stderr "syntax: popimage <image file>"
+  exit
+}
+
+load [file join [file dirname [info script]] .. linuxcnc.so]
+
+. configure -borderwidth 0 -highlightthickness 0
+
+set img [lindex $argv 0]
+
+set imgtime 5
+if {$argc > 1} {
+  set imgtime [lindex $argv 1]
+}
+if {$imgtime <= 0} {
+  set imgtime 5
+}
+# now convert imgtime to milliseconds
+set imgtime [expr {int($imgtime * 1000)}]
+
+if {! [file exists $img]} {
+  puts stderr "can't find file $img"
+  exit
+}
+
+if {[catch {image create photo -file $img} image]} {
+  puts stderr "bad image file $img"
+  exit
+}
+
+set w [image width $image]
+set h [image height $image]
+canvas .c -width $w -height $h -borderwidth 0 -highlightthickness 0
+.c create image 0 0 -anchor nw -image $image
+.c create text 4 [expr $h-4] -anchor sw \
+    -text $env(LINUXCNCVERSION) -fill white -font {Helvetica 18}
+
+pack .c
+
+# Center popup in screen.
+
+set si [lindex [multihead] 0]
+set x0 [lindex $si 0]
+set y0 [lindex $si 1]
+set x1 [lindex $si 2]
+set y1 [lindex $si 3]
+set cx [expr {($x0+$x1)/2}]
+set cy [expr {($y0+$y1)/2}]
+set x [expr {$cx-$w/2}]
+set y [expr {$cy-$h/2}]
+wm geometry . "+$x+$y"
+wm overrideredirect . 1
+
+after $imgtime exit

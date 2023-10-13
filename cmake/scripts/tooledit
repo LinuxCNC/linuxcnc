@@ -1,0 +1,3 @@
+#!/usr/bin/tclsh8.6
+source /home/user/linuxcnc/tcl/tooledit.tcl
+standalone_tooledit

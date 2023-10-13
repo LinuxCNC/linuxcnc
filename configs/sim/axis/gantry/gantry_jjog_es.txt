@@ -1,0 +1,56 @@
+Configuracion sim gantry_jjog
+
+o Configuración predeterminada que sincroniza el
+  movimiento final de homing para múltiples articulaciones
+  no permitiendo jog individual de tales articulaciones ya
+  que tales movimientos invitan al operador al error y a 
+  desviaciones del pórtico. Esta configuración más 
+  compleja demuestra:
+
+Jogging individual en modo articulación para joint1
+y joint3
+
+Jogging sincronizado en modo articulación para joint1
+y joint3
+
+
+Procedimiento de ejemplo:
+
+ 1) Estop-Off (F1)
+ 2) Máquina-On (F2)
+ 3) Establecer halscope en "Roll" y redimensionar.
+ 4) Panel "J1,3 JOGGING": establecer ENABLE en ON
+    para permitir jogging de joint1 y joint3
+ 5) usar COUNTS para jog tanto de joint1 y 
+    joint3 SINCRÓNICAMENTE en tiempo real
+ 6) usar los botones radio del número de jog de 
+    axisgui y los botones más (+) y menos (-) para
+    jog INDIVIDUAL de cualquier articulación.
+    NOTA: esto DESVIARA un pórtico de motores tandem.
+ 7) Panel "J1,3 JOGGING": establezca ENABLE en OFF
+    para permitir homing
+ 8) HOME Todos (Ctrl-Inicio) para dar home a todas 
+    las articulaciones (puede ser necesario mover 
+    primero todas las articulaciones cerca de cero para 
+    simular correctamente los interruptores home)
+ 9) Usar los botones radio axisgui X, Y, Z
+    y los botones más (+) y menos (-)
+    para jog a cualquier coordenada
+10) Regrese al modo articulacion usando la tecla $
+
+Notas:
+a) Utilice trivkins coordinates=XYZY kinstype=BOTH
+b) El panel "J1,3 JOGGING" hace conexiones hal y
+   altera la configuracion de ini.[13].home_sequence y 
+   motion.homing-inhibit para permitir el jogging de 
+   articulaciones que usan homing sincronizado.
+c) El widget "J1,3 JOGGING" COUNTS simula
+   los recuentos que normalmente se proporcionarían
+   por un generador de pulso manual (MPG o volante de jog).
+d) El widget SCALE "J1,3 JOGGING" establece la distancia
+   en unidades de máquina para cada recuento
+e) En el modo articulacion, la interfaz gráfica de usuario 
+   Axis muestra los números y las posiciones de articulaciones 
+   correctamente, pero la interpretación gráfica puede
+   ser engañosa.
+

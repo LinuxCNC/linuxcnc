@@ -1,0 +1,53 @@
+STEPCONF_MODULES = pages build_INI build_HAL import_mach 
+
+STEPCONF_GLADEFILES := \
+	main_page.glade \
+	base.glade \
+	start.glade \
+	pport1.glade \
+	pport2.glade \
+	spindle.glade \
+	options.glade \
+	halui_page.glade \
+	ubuttons.glade \
+	thcad.glade \
+	axisx.glade \
+	axisy.glade \
+	axisz.glade \
+	axisu.glade \
+	axisv.glade \
+	axisa.glade \
+	finished.glade \
+
+PYTARGETS += ../bin/stepconf  ../lib/python/stepconf/__init__.py ../share/linuxcnc/linuxcnc-wizard.gif $(patsubst %,../lib/python/stepconf/%.py,$(STEPCONF_MODULES)) \
+	$(patsubst %, ../share/linuxcnc/stepconf/%, $(STEPCONF_GLADEFILES)) \
+
+PYI18NSRCS += emc/usr_intf/stepconf/stepconf.py $(patsubst %,emc/usr_intf/stepconf/%.py,$(STEPCONF_MODULES)) \
+	$(patsubst %, emc/usr_intf/stepconf/%, $(STEPCONF_GLADEFILES)) \
+
+../lib/python/stepconf/__init__.py:
+	$(ECHO) building python init $(notdir $@)
+	$(Q)mkdir -p ../lib/python/stepconf
+	$(Q)touch $@
+
+../lib/python/stepconf/%.py: emc/usr_intf/stepconf/%.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -m py_compile $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)mkdir -p ../lib/python/stepconf
+	$(Q)cp $< $@
+
+../share/linuxcnc/stepconf/%.glade: emc/usr_intf/stepconf/%.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/linuxcnc-wizard.gif: ../linuxcnc-wizard.gif
+	$(ECHO) Copying $(notdir $@)
+	$(Q)cp $< $@
+
+../bin/stepconf: emc/usr_intf/stepconf/stepconf.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -m py_compile $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@

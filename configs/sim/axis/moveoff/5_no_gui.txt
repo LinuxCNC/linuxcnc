@@ -1,0 +1,16 @@
+moveoff no_gui
+
+This demonstration provides no gui support but pops up several general-purpose utilities to show behavior for a single axis (2 => z).
+
+The sim_pin utility is used to set pin values that would normally be connected to a gui or set to fixed values according to inifile settings:
+
+The utility sim_pin is used to set pins to control the component.
+
+A halshow application widget shows a watch panel for pins associated with the z-axis offset.  See the file moveoff.hal for connections.
+
+A halscope session is started (select 'Roll' to start) to show behavior of important moveoff inputs and outputs
+
+These utilities can be augmented or disabled using the inifile settings:
+ [APPLICATIONS]APP = program_name
+
+Note: This is a Hal-only implementation and the offset positions are NOT shown on the axis gui preview.

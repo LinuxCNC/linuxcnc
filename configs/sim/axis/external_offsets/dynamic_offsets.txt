@@ -1,0 +1,32 @@
+dynamic_offsets
+
+A sinewave is applied to the Z coordinate external offset
+
+The waveform amplitdude and frequency are set by pyvcp panel spinboxes.
+
+The Z coordinate max acceleration and max velocity settings (from the ini file) can be modified with pyvcp panel spinboxes.
+
+Usage:
+  1) Estop OFF  (F1)
+  2) Machine ON (F2)
+  3) HOME All   (Ctrl-Home)
+  4) A halscope application is started to
+     show the offset waveforms and the
+     z coordinate response 
+  5) Enable the dynamic offset waveform
+     with the panel 'Z enable' checkbox
+  5) Use the panel to adjust:
+       Waveform:     amplitude, frequency
+       Z Coordinate: max accel, max vel
+
+Notes:
+  The dynamic waveform is applied with and without
+  running a program.
+
+  MDI cannot be started with non-zero external
+  offsets -- disable the Z offsets and toggle
+  the machine On/Off to zero offsets.
+
+  Changes to the Z max accel, max vel are not
+  made while a program or mdi move is in progress.
+  

@@ -1,0 +1,326 @@
+//    Copyright (C) 2007 Jeff Epler
+//
+//    This program is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation; either version 2 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program; if not, write to the Free Software
+//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
+component pluto_step """Hardware driver and firmware for the Pluto-P parallel-port FPGA, for use with stepper machines.
+
+.B loadrt pluto_step ioaddr=\\fIaddr\\fB ioaddr_hi=\\fIaddr\\fB epp_wide=\\fI[0|1]\\fB
+
+.RS 4
+.TP
+\\fBioaddr\\fR [default: 0x378]
+The base address of the parallel port.
+
+.TP
+\\fBioaddr_hi\\fR [default: 0]
+The secondary address of the parallel port, used to set EPP
+mode.  0 means to use ioaddr + 0x400.  -1 means there is no
+secondary address.
+
+.TP
+\\fBepp_wide\\fR [default: 1]
+Set to zero to disable "wide EPP mode".  "Wide" mode allows 16- and 32-bit EPP
+transfers, which can reduce the time spent in the read and write functions.
+However, this mode may not work on all EPP parallel ports.
+
+.TP
+\\fBwatchdog\\fR [default: 1]
+Set to zero to disable the "hardware watchdog".  "Watchdog" will tristate all
+outputs approximately 6ms after the last execution of
+\\fBpluto-step.write\\fR, which adds some protection in the case of LinuxCNC
+crashes.
+
+.TP
+\\fBspeedrange\\fR [default: 0]
+Selects one of four speed ranges:
+.RS
+.RS 4
+.TQ
+0: Top speed 312.5kHz; minimum speed 610Hz
+.TQ
+1: Top speed 156.25kHz; minimum speed 305Hz
+.TQ
+2: Top speed 78.125kHz; minimum speed 153Hz
+.TQ
+3: Top speed 39.06kHz; minimum speed 76Hz
+.RE
+Choosing the smallest maximum speed that is above the maximum for any one axis
+may give improved step regularity at low step speeds.
+.RE
+.RE""";
+
+description """
+Pluto_step is a LinuxCNC software driver and associated firmware that allow the Pluto-P board to be used to control a stepper-based CNC machine.
+
+The driver has 4 step+direction channels, 14 dedicated digital outputs, and 16
+dedicated digital inputs.
+
+.SS Step generators
+The step generator takes a position input and output.
+
+The step waveform includes step length/space and direction hold/setup time.
+Step length and direction setup/hold time is enforced in the FPGA.  Step space
+is enforced by a velocity cap in the driver.
+
+\\fI(all the following numbers are subject to change)\\fR
+In \\fIspeedrange=0\\fR, the maximum step rate is 312.5kHz.  For position
+feedback to be accurate, the maximum step rate is 512 pulses per servo cycle
+(so a 1kHz servo cycle does not impose any additional limitation).  The maximum
+step rate may be lowered by the step length and space parameters, which are
+rounded up to the nearest multiple of 1600ns.
+
+In successive speedranges the maximum step rate is divided in half, as is the
+maximum steps per servo cycle, and the minimum nonzero step rate.
+
+.SS Digital I/O
+The digital output pins conform to the `canonical digital output' interface
+described in the HAL manual.
+
+The digital input pins conform to the `canonical digital input' interface
+described in the HAL manual.
+""";
+pin in float stepgen.#.position-cmd[4];
+pin out float stepgen.#.velocity-fb[4];
+pin out float stepgen.#.position-fb[4];
+pin out s32 stepgen.#.counts[4];
+pin in bit stepgen.#.enable[4];
+pin in bit stepgen.#.reset[4] "When TRUE, reset position-fb to 0";
+param rw float stepgen.#.scale[4] = 1.0;
+param rw float stepgen.#.maxvel[4] = 0;
+param rw bit stepgen.step_polarity;
+
+param rw u32 stepgen.steplen "Step length in ns.";
+param rw u32 stepgen.stepspace "Step space in ns";
+param rw u32 stepgen.dirtime "Dir hold/setup in ns.  Refer to the pdf documentation for a diagram of what these timings mean.";
+
+pin in bit dout.##[14]
+"""dout.\\fIMM\\fR corresponds to the pin labeled
+OUT\\fIM\\fR on the pinout diagram.""";
+param rw bit dout.##-invert[14]
+"If TRUE, the output on the corresponding \\fBdout.\\fIMM\\fR is inverted.";
+
+pin out bit din.##[16];
+pin out bit din.##_not[16]
+"""din.\\fIMM\\fR corresponds to the pin labeled
+IN\\fIM\\fR on the pinout diagram.""";
+
+param rw u32 communication_error """Incremented each time 
+pluto-step.read detects an error code in the EPP status register.  While
+this register is nonzero, new values are not being written to the Pluto-P
+board, and the status of digital outputs and the PWM duty cycle of the PWM
+outputs will remain unchanged.  If the hardware watchdog is enabled, it will
+activate shortly after the communication error is detected by LinuxCNC.  To continue
+after a communication error, set this parameter back to zero.""";
+
+param rw s32 debug_0;
+param rw s32 debug_1;
+param rw float debug_2=.5;
+param rw float debug_3=2.0
+ """Registers that hold debugging information of interest to developers""";
+
+option singleton;
+option extra_setup;
+option extra_cleanup;
+
+option data internal;
+
+function read "Read all the inputs from the pluto-step board";
+function write "Write all the outputs on the pluto-step board";
+
+see_also """The \\fIpluto_step\\fR section in the HAL User Manual, which shows the location of each physical pin on the pluto board.""";
+
+license "GPL";
+include "rtapi_math.h";
+include "hal/drivers/pluto_common.h";
+;;
+
+static int speedrange=0;
+RTAPI_MP_INT(speedrange, "Speed range 0..3");
+
+#define PLUTO_SPEED_NS (1600)
+#define PLUTO_SPEED    (PLUTO_SPEED_NS * 1e-9)
+#define PLUTO_FREQ     (1e9 / PLUTO_SPEED_NS)
+#define TMAX           ((1<<5)-1)
+
+#define W 10
+#define F 11
+#define MODULO ((1<<(W+F))-1)
+#define MASK ((1<<(W+F))-1)
+#define MAXDELTA (MASK/2)
+
+typedef struct {
+    int64_t last_count[4];
+    int64_t reset_count[4];
+    double old_position_cmd[4];
+    double old_velocity_cmd[4];
+} internal;
+
+#define ONE (1<<F)
+#define MAX_STEP_RATE (1<<(F-1))
+FUNCTION(write) {
+    int r = 0;
+    int i;
+    int stepspace_ticks = stepgen_stepspace/PLUTO_SPEED_NS;
+    int steplen_ticks = stepgen_steplen/PLUTO_SPEED_NS;
+    int dirtime_ticks = stepgen_dirtime/PLUTO_SPEED_NS;
+    int rate, maxrate = MAX_STEP_RATE;
+    double fmax;
+
+    if(steplen_ticks > TMAX) {
+        steplen_ticks = TMAX;
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "Requested step length %dns decreased to %dns "
+            "due to hardware limitations\n",
+            stepgen_steplen, TMAX * PLUTO_SPEED_NS);
+        stepgen_steplen = TMAX * PLUTO_SPEED_NS;
+    }
+
+    if(dirtime_ticks > TMAX) {
+        dirtime_ticks = TMAX;
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "Requested direction change time %dns decreased to %dns "
+            "due to hardware limitations\n",
+            stepgen_dirtime, TMAX * PLUTO_SPEED_NS);
+        stepgen_dirtime = TMAX * PLUTO_SPEED_NS;
+    }
+
+    // Speed limits come from several sources
+    // First limit: step waveform timings
+    fmax = 1. / PLUTO_SPEED / (2 + steplen_ticks + stepspace_ticks);
+    // Second limit: highest speed command
+    if(fmax > PLUTO_FREQ / (2<<speedrange))
+        fmax = PLUTO_SPEED * (2<<speedrange);
+    // Third limit: max sign-extenable counts per period
+    if(fmax > MAXDELTA / fperiod / (1<<speedrange))
+        fmax = MAXDELTA / fperiod / (1<<speedrange);
+
+    if(communication_error) return;
+
+    EPP_ADDR(0);
+
+    for(i=0; i<4; i++) {
+	double new_position_cmd = stepgen_position_cmd(i);
+	double v = new_position_cmd - data.old_position_cmd[i];
+	double est_err = stepgen_position_fb(i) + data.old_velocity_cmd[i] * fperiod - new_position_cmd;
+        double actual_max;
+	double scale_abs = fabs(stepgen_scale(i));
+
+	v = v - debug_2 * est_err / fperiod;
+        if(v > 0) v = v + .5/scale_abs;
+        else if(v < 0) v = v - .5/scale_abs;
+
+	data.old_position_cmd[i] = new_position_cmd;
+	data.old_velocity_cmd[i] = v;
+        actual_max = fmax / scale_abs;
+        if(stepgen_maxvel(i) < 0) stepgen_maxvel(i) = -stepgen_maxvel(i);
+        if(stepgen_maxvel(i) != 0 && stepgen_maxvel(i) > actual_max) {
+            static int message_printed[4] = {0,0,0,0};
+            if(!message_printed[i]) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "Requested step rate %dHz decreased to %dHz "
+                    "due to hardware or timing limitations\n",
+                    (int)(stepgen_maxvel(i) * scale_abs),
+                    (int)(fmax));
+                message_printed[i] = 1;
+            }
+            stepgen_maxvel(i) = actual_max;
+        }
+
+        if(stepgen_maxvel(i) == 0) {
+            if(v < -actual_max) v = -actual_max;
+            if(v > actual_max) v = actual_max;
+        } else {
+            if(v < -stepgen_maxvel(i)) v = -stepgen_maxvel(i);
+            if(v > stepgen_maxvel(i)) v = stepgen_maxvel(i);
+        }
+	rate = v * stepgen_scale(i) * ONE * PLUTO_SPEED / (1<<speedrange);
+
+	if(rate > maxrate) rate = maxrate;
+	if(rate < -maxrate) rate = -maxrate;
+
+	if(!stepgen_enable(i)) rate = 0;
+        if(i == 0) debug_1 = rate;
+	write16(rate);
+    }
+
+    r = 0;
+    for(i=0; i<14; i++) {
+        if(!dout(i) ^ !dout_invert(i)) r |= (1<<i);
+    }
+    write16(r);
+
+    r = steplen_ticks | (dirtime_ticks << 8);
+    if (stepgen_step_polarity) r |= 0x8000;
+    write16(r);
+}
+
+
+FUNCTION(read) {
+    int i;
+    __u32 ppdata;
+
+    EPP_ADDR(0);
+    EPP_DIR_READ();
+
+    for(i=0; i<4; i++) {
+        int64_t count;
+        double fcount;
+	int newlow;
+        int reset;
+        ppdata = read32();
+        reset = stepgen_reset(i);
+        if(i == 0) {
+            int status = inb(ioaddr+1) & 1;
+            if(status) {
+                communication_error ++;
+		pluto_clear_error_register();
+            }
+            if(communication_error) { EPP_DIR_WRITE(); return; }
+        }
+
+	newlow = ppdata & MASK;
+
+        count = extend(data.last_count[i], newlow, W+F);
+	stepgen_velocity_fb(i) = (count - data.last_count[i]) / stepgen_scale(i) / fperiod / (1 << F);
+        data.last_count[i] = count;
+        if(reset) data.reset_count[i] = count;
+        fcount = (count - data.reset_count[i]) * 1. / (1<<F);
+        stepgen_counts(i) = fcount;
+        stepgen_position_fb(i) = fcount / stepgen_scale(i);
+
+        if(i == 0) { debug_0 = ppdata; }
+    }
+
+    ppdata = read32();
+
+    for(i=0; i<16; i++) {
+        int b = ppdata & (1<<i);
+        din(i) = !!b; din_not(i) = !b;
+    }
+
+    EPP_DIR_WRITE();
+}
+
+#include "hal/drivers/pluto_step_rbf.h"
+
+EXTRA_SETUP() {
+    return pluto_setup(firmware);
+}
+
+EXTRA_CLEANUP() {
+    pluto_cleanup();
+}
+
+// vim:sts=4:sw=4:et

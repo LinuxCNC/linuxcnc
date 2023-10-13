@@ -1,0 +1,31 @@
+ifdef HAVE_LIBMODBUS3
+
+WJ200_SRCS = hal/user_comps/wj200_vfd/wj200_vfd.c
+WJ200_CFLAGS = -DDEBUG $(LIBMODBUS_CFLAGS)
+WJ200_LIBS = $(LIBMODBUS_LIBS)
+
+$(call TOOBJSDEPS, $(WJ200_SRCS)) : EXTRAFLAGS += $(WJ200_CFLAGS)
+
+USERSRCS += $(WJ200_SRCS)
+
+../bin/wj200_vfd: $(call TOOBJS, $(WJ200_SRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(WJ200_LIBS) 
+
+hal/user_comps/wj200_vfd/wj200_vfd.c: hal/user_comps/wj200_vfd/wj200_vfd.comp ../bin/halcompile
+	$(ECHO) "Preprocessing wj200_vfd.comp"
+	$(Q)../bin/halcompile -U --preprocess $<
+
+../docs/man/man1/wj200_vfd.1: hal/user_comps/wj200_vfd/wj200_vfd.comp ../bin/halcompile
+	$(Q)../bin/halcompile -U -u --document $<
+	$(Q)install --mode=0644 hal/user_comps/wj200_vfd/wj200_vfd.1 $@
+
+clean: wj200_clean
+wj200_clean:
+	-rm -f hal/user_comps/wj200_vfd/wj200_vfd.c
+	-rm -f hal/user_comps/wj200_vfd/wj200_vfd.1
+
+TARGETS += ../bin/wj200_vfd
+GENERATED_MANPAGES += ../docs/man/man1/wj200_vfd.1
+endif
+

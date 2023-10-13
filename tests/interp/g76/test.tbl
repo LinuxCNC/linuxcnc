@@ -1,0 +1,5 @@
+T1 P1 Z0.5 D0.0625;first tool
+T2 P2 Z0.7 D0.125;
+T3 P3 Z0.5 D0.25;
+T4 P4 Z0.7 D1.0;
+T32 P32 Z0.5 D0.0;last tool

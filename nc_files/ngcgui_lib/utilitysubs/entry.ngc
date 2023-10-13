@@ -1,0 +1,84 @@
+(compute a quarter-arc preentry and radius vector to a point x,y)
+(return: _entry:prex,prey == preentry point)
+(        _entry:vx,vy     == vector from start x,y to center xctr,yctr)
+
+(Usage: for entry to a point on an arc of a circle:)
+( o<entry> call [inside][dir][tooldiam][x][y][xctr][yctr])
+( then preentry point is: prex = #<_entry:prex>)
+(                         prey = #<_entry:prey>)
+( and the entry arc is:   g2|3 x #<x> y #<y> i #<_entry:vx> j #<_entry:vy>)
+
+
+o<entry> sub
+(not_a_subfile)
+#<inside>     =  #1 (1:in, 0:out)
+#<dir>        =  #2 (2:cw, 3:ccw)
+#<tooldiam>   =  #3
+#<x>          =  #4
+#<y>          =  #5
+#<xctr>       =  #6
+#<yctr>       =  #7
+
+#<delx> = [#<x> - #<xctr>]
+#<dely> = [#<y> - #<yctr>]
+
+o<l20>  if [[#<inside> NE 0] AND [#<inside> NE 1]]
+          (debug, entry: bad inside specifier #<inside> -- EXITING)
+          (print, entry: bad inside specifier #<inside> -- EXITING)
+          (AXIS,notify, entry: bad inside specifier -- EXITING)
+          m2
+o<l20>  endif
+o<l30>  if [[#<dir> NE 2] AND [#<dir> NE 3]]
+          (debug, entry: bad dir specifier #<dir> -- EXITING)
+          (print, entry: bad dir specifier #<dir> -- EXITING)
+          (AXIS,notify, entry: bad dir specifier #<inside> -- EXITING)
+          m2
+o<l30>  endif
+
+        #<rt>      = [#<tooldiam> / 2.0]
+        #<epsilon> = 0.000001
+
+o<l40> if [ABS[#<delx>] GT #<epsilon>]
+         #<phi> = ATAN[#<dely>]/[#<delx>]
+o<l40> else
+o<l50>   if [#<dely> GE 0]
+           #<phi> =  90
+o<l50>   else
+           #<phi> = -90
+o<l50>   endif
+o<l40> endif
+
+       (compute pre-entry px,py for 1/4 circle with radius rt)
+       (and vector from start x,y to center of circle)
+o<l60> if [#<inside> EQ 1]
+o<l70>   if [#<dir> EQ 2]  (cw)
+           #<px> = [#<delx> - #<rt>*sin[#<phi>] - #<rt>*cos[#<phi>]]
+           #<py> = [#<dely> + #<rt>*cos[#<phi>] - #<rt>*sin[#<phi>]]
+           #<vx> = [0       + #<rt>*sin[#<phi>]]
+           #<vy> = [0       - #<rt>*cos[#<phi>]]
+o<l70>   else  (ccw)
+           #<px> = [#<delx> + #<rt>*sin[#<phi>] - #<rt>*cos[#<phi>]]
+           #<py> = [#<dely> - #<rt>*cos[#<phi>] - #<rt>*sin[#<phi>]]
+           #<vx> = [0       - #<rt>*sin[#<phi>]]
+           #<vy> = [0       + #<rt>*cos[#<phi>]]
+o<l70>   endif
+o<l60> else
+o<l80>   if [#<dir> EQ 2] (cw)
+           #<px> = [#<delx> - #<rt>*sin[#<phi>] + #<rt>*cos[#<phi>]]
+           #<py> = [#<dely> + #<rt>*cos[#<phi>] + #<rt>*sin[#<phi>]]
+           #<vx> = [0       + #<rt>*sin[#<phi>]]
+           #<vy> = [0       - #<rt>*cos[#<phi>]]
+o<l80>   else (ccw)
+           #<px> = [#<delx> + #<rt>*sin[#<phi>] + #<rt>*cos[#<phi>]]
+           #<py> = [#<dely> - #<rt>*cos[#<phi>] + #<rt>*sin[#<phi>]]
+           #<vx> = [0       - #<rt>*sin[#<phi>]]
+           #<vy> = [0       + #<rt>*cos[#<phi>]]
+o<l80>   endif
+o<l60> endif
+
+#<_entry:prex> = [#<px> + #<xctr>]
+#<_entry:prey> = [#<py> + #<yctr>]
+#<_entry:vx>   = #<vx>
+#<_entry:vy>   = #<vy>
+
+o<entry> endsub

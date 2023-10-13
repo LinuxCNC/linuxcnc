@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ ! -z "$EMC2_HOME" ]; then
+    source $EMC2_HOME/scripts/githelper.sh
+else
+    source $(git rev-parse --show-toplevel)/scripts/githelper.sh
+fi
+
+githelper $1
+
+echo $DEB_COMPONENT
+

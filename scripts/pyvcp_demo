@@ -1,0 +1,127 @@
+#!/bin/bash
+
+# This file is used for scripts that demonstrate pyvcp
+# The scripts typically use an extension of .demo
+# 1) start realtime
+# 2) run pyvcp with supplied xml and hal files
+# 3) stop realtime
+
+# Copyright: 2014
+# Author:    Dewey Garrett <dgarrett@panix.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+prog=$(basename $0)
+
+function usage () {
+  cat <<EOF
+Usage:
+      $prog filename1.xml filename2.hal [compname]
+
+If not provided, use compname == pyvcp
+
+EOF
+  exit 1
+} ;# usage
+
+function popup () {
+  msg="$*"
+  wish <<EOF &
+  wm withdraw .
+  tk_messageBox \
+    -title "$prog" \
+    -message "$msg" \
+    -icon error \
+    -type ok
+  destroy .
+EOF
+} ;# popup
+
+# begin----------------------------------------------------
+REALTIME=$(linuxcnc_var REALTIME)
+$REALTIME status >/dev/null
+status=$?
+if [ $status = 0 ] ; then
+  msg="$prog: Realtime is already active"
+  echo "$msg"
+  popup "$msg"
+  exit 1
+else
+  $REALTIME start
+fi
+
+case $# in
+  0|1) usage;;
+    2) XMLFILE=${1}
+       HALFILE=${2}
+       COMPNAME=pyvcp
+       ;;
+    3) XMLFILE=${1}
+       HALFILE=${2}
+       COMPNAME=${3}
+       ;;
+    *) usage;;
+esac
+
+if [ ! -z "$debug" ] ; then
+  echo debug=$debug
+  echo REALTIME=$REALTIME
+  echo XMLFILE=$XMLFILE
+  echo HALFILE=$HALFILE
+  echo COMPNAME=$COMPNAME
+fi
+
+cd $(dirname "$XMLFILE") ;# to allow relative includes
+pyvcp -c $COMPNAME $XMLFILE &
+pyvcpjob=$!
+ct=0
+# wait for pins to be created before creating signals
+while true ; do
+   halcmd show|grep "${COMPNAME}.*ready" >/dev/null 2>&1
+   status=$?
+   sleep 1
+   if [ $status == 0 ] ; then
+      #echo "ready after ct=$ct"
+      break
+   fi
+   if [ $ct -ge 10 ] ; then
+      echo "$0: hal-pyvcp startup failed"
+      exit 1
+   fi
+   ct=$(($ct+1))
+done
+
+cd $(dirname "$HALFILE") ;# so HALFILE can source relative files
+
+halmsg=/tmp/pyvcp_demo_halcmd.err
+>|$halmsg
+halcmd -f $HALFILE >$halmsg 2>&1
+halstatus=$?
+if [ $halstatus != 0 ] ; then
+  IFS=$'\n' # split lines
+  newmsg=
+  # put extra blank line between lines of output
+  for line in $(cat $halmsg) ; do
+newmsg="$newmsg
+$line
+"
+  done
+  popup "$newmsg"
+  kill $pyvcpjob
+  halrun -U
+  exit 1
+fi
+wait $pyvcpjob
+halrun -U
+exit 0

@@ -1,0 +1,18 @@
+net Xmax eztrol.x-positive-limit
+net Xmin eztrol.x-negative-limit
+net Zmax eztrol.z-positive-limit
+net Zmin eztrol.z-negative-limit
+loadrt mux2
+unlinkp motion.spindle-speed-out
+unlinkp lowpass.0.in
+net spd-mux mux2.0.out lowpass.0.in
+net encodervelocity hm2_5i20.0.encoder.00.velocity eztrol.spindle-rps-reading
+net spd-motion motion.spindle-speed-out mux2.0.in0
+net spd-eztrol eztrol.spindle-rpm-control mux2.0.in1
+net speed-select halui.mode.is-manual mux2.0.sel
+addf mux2.0 servo-thread
+#eztrol.estop
+#eztrol.in-manual-mode
+#eztrol.limit-override
+#eztrol.spindle-max-rpm
+

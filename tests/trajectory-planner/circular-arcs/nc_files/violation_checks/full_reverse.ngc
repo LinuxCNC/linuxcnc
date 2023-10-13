@@ -1,0 +1,14 @@
+G20 G90
+F1000
+G0 X0 Y0 Z0
+G1 X1
+G1 X0
+G1 X1
+(Angle should be slightly higher than TP angle epsilon)
+G1 X0 Y0.0000030
+(Pad the motion queue to force tangency checks)
+G1 X.1
+G1 X.2
+G1 X.3
+G1 X0
+M2

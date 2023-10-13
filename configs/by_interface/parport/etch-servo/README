@@ -1,0 +1,6 @@
+Etch-servo drives two servo motors using a simple parallel-port-attached circuit.  'pwmgen' produces an enable waveform to turn the servo motors at a variable speed, and 'encoder' reads TTL-level quadrature inputs to close the loop.
+
+The circuit uses an L298 dual full-bridge driver to control two servo motors.
+
+More information on the circuit is available:
+    http://emergent.unpy.net/projects/01142347802

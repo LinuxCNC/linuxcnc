@@ -1,0 +1,55 @@
+This is a Vismach simulator config intended for testing out tool-changer configurations
+The Vismach model combined with the sim_vmc.hal file features three axes
+with home and limit switches, a carousel with both gray-code and pulse/index outputs, 
+a locking bar and a power drawbar. 
+There are two alternative configs, one demonstrating gray-code carousel coding and the other demonstrating
+pulse/index.
+Note that the carousel component also supports straight-binary and individual sensors. 
+
+The "virtual" VMC is created by the sim_vmc.hal file and defines the following signals
+that my be used in the other HAL files
+
+Axis positions
+x-pos
+y-pos
+z-pos
+
+Axis limits
+x-pos-lim
+x-neg-lim
+y-pos-lim
+y-neg-llm
+z-pos-lim
+z-neg-lim
+
+Simulated Spindle
+spindle-cmd - set spindle speed in rpm, negative for reverse
+spindle-pos - the simulated spindle position (revs)
+spindle-vel - the simulated spindle speed out
+
+Toolchanger arm
+arm-act - actuate the arm
+arm-in - arm in limit switch
+arm-out - arm out limit switch
+
+Carousel lock
+car-lock - activate the lock
+car-locked
+car-unlocked - limit switches
+
+Drawbar
+tool-release
+tool-released
+tool-locked
+
+Carousel
+car-fwd rotate clockwise
+car-rev rotate anticlockwise
+bit0
+bit1
+bit2
+bit3
+bit4 - Gray-coded carousel position 
+
+
+

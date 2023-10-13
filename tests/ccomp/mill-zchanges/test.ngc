@@ -1,0 +1,81 @@
+g20 f60
+
+(arc entry)
+(uncomp)
+g0x0y.5z.25
+g1x.25
+g41 g2 d0 x.5 y.75 i.25 
+g1 x.75 
+g40 x1 
+x1.25 z.25
+
+(comp)
+g0x0y.5z.25
+g1x.25 z0
+g41 g2 d2 x.5 y.75 i.25 
+g1 x.75 
+g40 x1 
+x1.25 z.25
+
+g0x0y.5z.25
+g1x.25
+g41 g2 d2 x.5 y.75 i.25 z0
+g1 x.75 
+g40 x1 
+x1.25 z.25
+
+g0x0y.5z.25
+g1x.25
+g41 g2 d2 x.5 y.75 i.25 
+g1 x.75 z0
+g40 x1 
+x1.25 z.25
+
+g0x0y.5z.25
+g1x.25
+g41 g2 d2 x.5 y.75 i.25
+g1 x.75 
+g40 x1 z0
+x1.25 z.25
+
+
+(line entry)
+(uncomp)
+g0x0y-.5z.25
+g1x.25
+g41 g1 d0 x.5 y-.25
+g1 x.75 
+g40 x1 
+x1.25 z.25
+
+(comp)
+g0x0y-.5z.25
+g1x.25 z0
+g41 g1 d2 x.5 y-.25
+g1 x.75 
+g40 x1 
+x1.25 z.25
+
+g0x0y-.5z.25
+g1x.25
+g41 g1 d2 x.5 y-.25 z0
+g1 x.75 
+g40 x1 
+x1.25 z.25
+
+g0x0y-.5z.25
+g1x.25
+g41 g1 d2 x.5 y-.25
+g1 x.75 z0
+g40 x1 
+x1.25 z.25
+
+g0x0y-.5z.25
+g1x.25
+g41 g1 d2 x.5 y-.25
+g1 x.75 
+g40 x1 z0
+x1.25 z.25
+
+
+m2

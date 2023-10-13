@@ -1,0 +1,4 @@
+T1 P11 D0.125000 Z+0.511000 ;1/8 end mill
+T2 P12 D0.062500 Z+0.100000 ;1/16 end mill
+T3 P13 D0.201000 Z+1.273000 ;#7 tap drill
+T4 P14 D0.345 Z+1.11 ;#random drill

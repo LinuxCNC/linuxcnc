@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=Latency Test (run-in-place)
+Comment=Measure your machine's latency
+Type=Application
+Exec=/home/user/linuxcnc/scripts/latency-test
+Icon=/home/user/linuxcnc/linuxcncicon.png
+X-GNOME-DocPath=
+Terminal=false
+StartupNotify=false
+X-AppStream-Ignore=true
+Categories=Science;Utility;Engineering;X-CNC;
+Keywords=cnc;linuxcnc;cncprog;benchmark;

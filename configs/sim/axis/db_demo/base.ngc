@@ -1,0 +1,17 @@
+%
+#<toolno>  = 10
+#<ct>      =  0
+#<howmany> =  5
+
+g49
+o100 while [[#<ct> lt #<howmany>] and [#<_task> ne 0]]
+       #<ct> = [#<ct> +1]
+       t#<toolno> m6 g43
+       (debug,ct=#<ct> zoff=#5403)
+       g4p[0.05*60] ;approx 0.05 minutes
+       t0m6
+       g10l0 ; reload tooldata (apply_db_rules)
+o100 endwhile
+g49
+(debug, fini)
+%

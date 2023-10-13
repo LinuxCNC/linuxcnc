@@ -1,0 +1,166 @@
+#!/bin/bash
+
+PATH=@EMC2_BIN_DIR@:$PATH
+REALTIME=@REALTIME@
+THIS=$(basename $0)
+
+export HAL_RTMOD_DIR=@EMC2_RTLIB_DIR@
+
+help () {
+halcmd -h
+cat <<EOF
+
+$THIS Usage:
+
+  $THIS [-I] [halcmd_opts] [filename[.hal|.tcl]]
+  $THIS  -T  [halcmd_opts] [filename[.hal|.tcl]]
+
+  $THIS  -h  this help
+  $THIS  -U  forcibly cause the realtime environment to exit
+
+  filename[.hal|.tcl] may also be specified as '-f filename[.hal|.tcl]'
+  halcmd_opts apply for .hal files only
+
+  Interactive if: no filename (runs halcmd)
+              or  -I          (runs halcmd)
+              or  -T          (runs haltcl)
+
+EOF
+}
+
+INTERACTIVE=""
+inifile=""
+theargs=""
+while getopts "ef:hi:kqsvIRQTUV" opt ; do
+  case $opt in
+    h) help; exit 0;;
+
+    U) halcmd -R
+       halcmd stop
+       halcmd unload all
+       $REALTIME stop
+       exit 0;;
+
+    f) filename=$OPTARG;;
+    i) inifile=$OPTARG;;
+
+    I) INTERACTIVE="halcmd -kf";;
+    T) INTERACTIVE="haltcl";;
+
+    e) theargs="$theargs -$opt";;
+    k) theargs="$theargs -$opt";;
+    q) theargs="$theargs -$opt";;
+    s) theargs="$theargs -$opt";;
+    v) theargs="$theargs -$opt";;
+    R) theargs="$theargs -$opt";;
+    Q) theargs="$theargs -$opt";;
+    V) theargs="$theargs -$opt";;
+   \?) echo ""
+       echo "For usage try: $THIS -h"
+       exit 1;;
+  esac
+done
+shift $(($OPTIND - 1))
+
+if [ $# -gt 1 ] ; then
+  echo "$THIS: too many arguments <$*>"
+  exit 1
+fi
+
+# filename can be specified two ways:
+#    as parameter for -f ('f filename')
+# or as trailing parameter
+if [ $# -gt 0 ] ; then
+  if [ "X$filename" = "X" ] ; then
+    filename=$1
+    shift
+  else
+    echo "$THIS: Error: Specified '-f $1' and also <$filename>"
+    exit 1
+  fi
+fi
+
+if $REALTIME status > /dev/null; then
+    echo "$THIS: Realtime already running.  Use 'halrun -U' to stop existing realtime session." 1>&2
+    exit 1
+fi
+
+HAVEFILE=false
+IS_HALTCL=false
+IS_INI=false
+case $filename in
+  *.hal) HAVEFILE=true
+         if [ -n "$inifile" ] ; then
+           theargs="$theargs -i $inifile"
+         fi
+         # halcmd uses all $theargs:
+         set -- "$theargs -f $filename";;
+  *.tcl) HAVEFILE=true
+         IS_HALTCL=true
+         # haltcl uses only -i arg
+         if [ -n "$inifile" ] ; then
+           tclargs="-i $inifile"
+         else
+           tclargs=""
+         fi
+         # haltcl only uses inifilename and filename:
+         set -- "$tclargs $filename";;
+  *.ini) HAVEFILE=true
+         IS_INI=true
+         ;;
+     "") # for nil filename, support interactive halcmd
+         # or haltcl if -T was used
+         if [ "$INTERACTIVE" != "haltcl" ] ; then
+            INTERACTIVE="halcmd $theargs -kf"
+         fi
+         ;;
+      *) echo "$THIS: Unknown file extension for filename=<$filename>"
+         exit 1
+         ;;
+esac
+
+case "$INTERACTIVE" in
+  halcmd*) if [ -n "$inifile" ] ; then
+             INTERACTIVE="$INTERACTIVE -i $inifile"
+           fi
+           ;;
+  haltcl)  if $IS_HALTCL ; then
+             if [  "$theargs" != "" ] ; then
+               echo "$THIS: args not accepted for haltcl <$theargs>"
+               exit 1
+             fi
+           else
+             # allowed -T (tcl interactive) with startup .hal file
+             :
+           fi
+           if [ -n "$inifile" ] ; then
+             INTERACTIVE="haltcl -i $inifile"
+           fi
+           ;;
+esac
+
+$REALTIME start || exit $?
+
+if $HAVEFILE ; then
+  if $IS_INI; then
+    if ! inivar -ini "$filename" -sec HAL -var TWOPASS > /dev/null 2>&1 ; then
+        echo "$THIS: An INI file may only be used if it specifies [HAL]TWOPASS"
+        result=1
+    else
+        halcmd_twopass "$filename"; result=$?    
+    fi
+  elif $IS_HALTCL; then
+    haltcl $@; result=$?
+  else
+    halcmd $@; result=$?
+  fi
+fi
+
+if [ ! -z "$INTERACTIVE" ]; then $INTERACTIVE; fi
+
+halcmd stop || result=$?
+halcmd unload all || result=$?
+
+$REALTIME stop || result=$?
+
+exit $result

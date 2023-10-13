@@ -1,0 +1,72 @@
+This folder contains a number of simulated lathe configs.
+
+the "lathemacro" config offers a number of simple macros to perform
+the most common lathe operations.
+
+The GUI that controls the macros can be viewed by clicking the "Cycles"
+tab top left of the graphical preview window.
+
+There are two load-time options to control the tab behaviour:
+1) norun will hide the action button, use this if you want to use only
+a physical button (connected to gladevcp.cycle-start) to start the macros
+(Strongly recommended, especially with Touchy)
+2) notouch will allow keyboard editing of the spinboxes. Otherwise the
+custom numeric keyboard will be shown.
+
+An example loadrt line, as used here in the Gmoccapy demo is:
+
+[DISPLAY]
+EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -U notouch=1 -U norun=0 -u lathehandler.py -x {XID} lathemacro.ui
+
+The window will resize slowly if you grab the corner and move the mouse
+inside the window. It's not as bad as it was, but still needs work. 
+You may need to click the unmaximise button in the toolbar to get a
+window border to be able to use the resize handles. 
+
+Notes on the keyboard:
+As well as the obvious functions and unit conversions, it can be used to
+enter fractions. For example if you type 1.1/2 it will automatically
+update to display 1.5000 and 16.17/64 will show 16.2656.
+This can be used in a limited way to halve the onscreen value eg for
+entering radius instead of diameter.
+However it only works for whole numbers: 100/2 will become 50 but
+3.14149/2 is interpreted as 3 and 14 thousand halves so won't work.
+
+Notes on adding your own cycles:
+Create a new G-code subroutine in the same format as the existing ones.
+In Glade add a new tab to the 'tabs1' notebook and give it a name matching
+the new cycle.
+Edit the action button (inside an eventbox) to call the new G-code sub.
+Rename the action button to match the tab name and append '.action' eg
+MyCycle.action
+
+Create new artwork. I used Fusion360, the models are here:
+https://a360.co/3uFPZNv
+and the drawings are here:
+https://a360.co/3uFPZNv
+Esport the drawing page as PDF and import into the lathemacro.svg file in 
+Inkscape. You will need to resize. Add your own arrows and annotations.
+
+Save the new layer in a layer named "layerN" (lower case) where N is the
+tab number, starting at zero. You will need to invoke the XML editor for
+this (Shift-Cmd-X on Mac)
+
+The entry boxes are positioned relative to a 1500 x 1000 image; the
+original size of the SVG. So you can hover your mouse over the image in
+Inkscape to determine the coordinates. 
+In the in the case of on-drawing controls the coordinates are entered as
+an XML comment in the Tooltip for the control in x,y format (The surface speed,
+tool and coolant do not need this, they are in a fixed table)
+
+An example:
+
+<!--300,711->Peck distance
+
+Make sure the comment has "use markup" selected for the tooltip. 
+Also ensure that the control has the "show_keyb" function allocated for
+the Widget->button_press event. If you copy-paste a tab and copy-paste
+extra controls this should be automatic. 
+_All_ your new spinboxes will need their own new Adjustment, or they will
+change value when you alter the original spinbox that they are a copy of. 
+
+

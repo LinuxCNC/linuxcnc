@@ -1,0 +1,19 @@
+; demonstrate iov2 in v2 mode
+t3
+; assuming toolchanger-faulted = 1,
+; the M6 below will behave as follows depending on toolchanger-reason:
+;
+; toolchanger-reason < 0 : the program will abort an operator error message
+; shows the value of toolchanger-reason using the printf-style template
+; in HAL/IO_ERROR
+;
+; toolchanger-reason = 0 : the program will abort but no operator error message
+;
+; toolchanger-reason > 0 : the program will continue,
+; 		       	   parameter 5600 is set to 1.0
+;			   parameter 5601 reflects toolchanger-reason
+;
+m6
+(DEBUG,"tc fault=" #5600)
+(DEBUG,"tc reason=" #5601)
+m2

@@ -1,0 +1,7 @@
+T1 P1 Z1.1   D3        ;3mm end mill
+T2 P2 Z2.2   D1.5      ;1.5mm  end mill
+T3 P5 Z3.3   D5        ;5mm tap drill
+T4 P3 Z4.4   D16       ;16 mm mill
+T5 P6 Z5.5   D25       ;25mm mill
+T6 P4 Z6.6   D1        ;1mm drill
+T7 P7 Z7.7   D2.5

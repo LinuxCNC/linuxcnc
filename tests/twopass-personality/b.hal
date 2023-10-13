@@ -1,0 +1,5 @@
+loadrt logic names=gateC personality=0x503
+list pin
+list param
+list funct
+list sig

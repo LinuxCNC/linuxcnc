@@ -1,0 +1,84 @@
+component xhc_hb04_util "xhc-hb04 convenience utility";
+description """Provides logic for a start/pause button and an interface
+to \\fBhalui.program.is_paused\\fR, \\fBis_idle\\fR, \\fBis_running\\fR to generate outputs for \\fBhalui.program.pause\\fR, \\fBresume\\fR, \\fBrun\\fR.
+
+Includes 4 simple lowpass filters with \\fBcoef\\fR and \\fBscale\\fR pins.  The coef value should
+be 0 <= coef <=1, smaller coef values slow response.  See the lowpass manpage for
+calculating the filter time constant ($ man lowpass).
+
+""";
+
+pin in bit start_or_pause;
+pin in bit is_paused;
+pin in bit is_idle;
+pin in bit is_running;
+pin out bit pause;
+pin out bit resume;
+pin out bit run;
+
+// integer low pass filters (see ilowpass.comp)
+pin in s32 in0;
+pin in s32 in1;
+pin in s32 in2;
+pin in s32 in3;
+pin out s32 out0;
+pin out s32 out1;
+pin out s32 out2;
+pin out s32 out3;
+pin in float scale0 = 1.0;
+pin in float scale1 = 1.0;
+pin in float scale2 = 1.0;
+pin in float scale3 = 1.0;
+pin in float coef0 = 1.0;
+pin in float coef1 = 1.0;
+pin in float coef2 = 1.0;
+pin in float coef3 = 1.0;
+
+pin in  float divide_by_k_in;
+pin out float divide_by_k_out;
+pin in  float k = 1.0;
+
+option data xhc_data;
+
+variable double value0;
+variable double value1;
+variable double value2;
+variable double value3;
+
+function _;
+license "GPL";
+author "Dewey Garrett";
+;;
+#include <rtapi_math.h>
+
+typedef struct { int old_start_or_pause; } xhc_data;
+
+FUNCTION(_) {
+
+    if (k == 0) {
+      divide_by_k_out = 1e99;
+    } else {
+      divide_by_k_out = divide_by_k_in / k;
+    }
+
+    // protect so that 0 <= coef <= 1
+    value0 += (in0 - value0) * (fabs(coef0) < 1 ? fabs(coef0) : 1);
+    value1 += (in1 - value1) * (fabs(coef1) < 1 ? fabs(coef1) : 1);
+    value2 += (in2 - value2) * (fabs(coef2) < 1 ? fabs(coef2) : 1);
+    value3 += (in3 - value3) * (fabs(coef3) < 1 ? fabs(coef3) : 1);
+
+    out0 =  ceil(value0 * scale0 - .5);
+    out1 =  ceil(value1 * scale1 - .5);
+    out2 =  ceil(value2 * scale2 - .5);
+    out3 =  ceil(value3 * scale3 - .5);
+
+    if (data.old_start_or_pause == start_or_pause) return;
+    data.old_start_or_pause = start_or_pause;
+    if (!start_or_pause) {
+        pause = run = resume = 0;
+        return;
+    }
+    if (is_paused)  {pause = 0; run = 0; resume = 1; }
+    if (is_running) {pause = 1; run = 0; resume = 0; }
+    if (is_idle)    {pause = 0; run = 1; resume = 0; }
+}

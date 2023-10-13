@@ -1,0 +1,17 @@
+.TH funct "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
+
+funct \- one-line description of funct
+
+.SH SYNTAX
+.HP
+void funct(\fIsignature\fR)
+
+.SH  ARGUMENTS
+.IP \fIrtapi_id\fR
+An RTAPI module identifier returned by an earlier call to \fBrtapi_init\fR.
+.SH DESCRIPTION
+.SH REALTIME CONSIDERATIONS
+.SH RETURN VALUE
+An RTAPI status code.
+.SH SEE ALSO

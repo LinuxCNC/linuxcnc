@@ -1,0 +1,6 @@
+INCLUDES += libnml/buffer
+
+$(patsubst ./libnml/buffer/%,../include/%,$(wildcard ./libnml/buffer/*.h)): ../include/%.h: ./libnml/buffer/%.h
+	cp $^ $@
+$(patsubst ./libnml/buffer/%,../include/%,$(wildcard ./libnml/buffer/*.hh)): ../include/%.hh: ./libnml/buffer/%.hh
+	cp $^ $@

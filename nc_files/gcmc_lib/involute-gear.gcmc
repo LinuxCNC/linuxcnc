@@ -1,0 +1,240 @@
+/*
+ * G-code meta compiler
+ *
+ * Copyright (C) 2014  B. Stultiens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ * Gear example
+ * ------------
+ * This example is by no means a complete or correct implementation of gears in
+ * any generic form. It is primarily for inspiration and to show what gcmc can
+ * do with relatively little coding. You may use this script as inspiration to
+ * create a better implementation if you like.
+ *
+ * Please note: The below parameters will shift the examples with an XY offset
+ * as indicated by the options. These are passed on the command-line when the
+ * examples are generated.
+ *
+ * @@@--svg-toolwidth 0.1 --svg-opacity 1 --svg-no-movelayer -x 110 -y 70@@@
+ */
+
+
+/*
+ * Gear terms:
+ * N	- Number of Teeth
+ * Pa	- Pressure Angle
+ * D	- Pitch	Diameter	- D = N/P = Do - 2/P	(Gear radius at center of the teeth)
+ * P	- Diametral Pitch	- P = N/D
+ * p	- Circular Pitch	- p = pi() / P
+ * Db	- Base Diameter		- Db = D * cos(Pa)	(Bottom of teeth insertion)
+ * Dr	- Root Diameter		- Dr = D - 2b		(Bottom of tooth cutout)
+ * Do	- Outside Diameter	- Do = D + 2a
+ * a	- Addendum		- a = 1/P
+ * b	- Dedendum		- b = ht - a
+ * ht	- Whole Depth (Pa<20)	- 2.157/P
+ * ht	- Whole Depth (Pa>=20)	- 2.2/P + 0.05mm	(Total depth from outer dia to bottom)
+ * t	- Tooth Thickness	- t = pi()/(2*P)	(Thinckness at Pitch Diameter)
+ */
+
+__ang_step = 2.0deg;	/* Trace interval for curves */
+
+/*
+ * Point on involute curve at specified angle, see https://en.wikipedia.org/wiki/Involute
+ * Cartesian:
+ *	x = a * ( cos(t) + t * sin(t))
+ *	y = a * ( sin(t) - t * cos(t))
+ * Polar:
+ *	r   = a * sqrt(1 + t^2) = sqrt(a^2 + (a*t)^2)
+ *	phi = t - atan(t)
+ * where:
+ * - a = circle radius
+ * - t = angle (radians)
+ *
+ * For angle from circle radius: t^2 = (r/a)^2 - 1
+ */
+function involute_point(angle, radius)
+{
+	angle = to_rad(angle);	/* Multiplication must be in radians */
+	return radius * [cos(angle) + to_none(angle) * sin(angle), sin(angle) - to_none(angle) * cos(angle)];
+}
+
+function involute_angle(radius, outrad)
+{
+	return to_rad(sqrt(pow(outrad/radius, 2.0) - 1));
+}
+
+/*
+ * Make a gear with:
+ * - nteeth		Number of teeth
+ * - pressure_angle	Teeth contact pressure angle
+ * - diametral_pitch	Diametral pitch (teets/length)
+ *
+ * Return a vectorlist with outer points of the gear centered at [0,0]
+ */
+function gear_P(nteeth, pressure_angle, diametral_pitch)
+{
+	/* The routine gets is serious trouble if you make the pressure angle
+	 * too large or too small. Warn the user if such case occurs.
+	 */
+	if(pressure_angle > 24.6deg) {
+		warning("Pressure angle (", pressure_angle, ") too large, cannot fit teeth inside the set outside diameter");
+	}
+	if(pressure_angle < 12.0deg) {
+		warning("Pressure angle (", pressure_angle, ") too small, teeth may get stuck at pitch radius");
+	}
+	local i;
+	local pitch_diameter = nteeth / diametral_pitch;
+	local base_diameter = pitch_diameter * cos(pressure_angle);
+	local addendum = 1.0/diametral_pitch;
+	local ht = 2.157 / diametral_pitch;
+	local dedendum = ht - addendum;
+	local outside_diameter = pitch_diameter + 2.0*addendum;
+	local root_diameter = base_diameter - 2.0*dedendum;
+	local work_diameter = outside_diameter - 4.0*addendum;
+
+	local tooth = {};	// The curve for one tooth
+
+	/*
+	 * message("nteeth=", nteeth, " pressure_angle=", pressure_angle, " diametral_pitch=", diametral_pitch);
+	 * message("addendum=", addendum, " dedendum=", dedendum, " ht=", ht);
+	 * message("pitch_diameter=", pitch_diameter);
+	 * message("base_diameter=", base_diameter);
+	 * message("outside_diameter=", outside_diameter);
+	 * message("root_diameter=", root_diameter);
+	 * message("work_diameter=", work_diameter);
+	 */
+
+	/*
+	 * Show the different diameters:
+	 * hole([0, 0], pitch_diameter/2.0);
+	 * hole([0, 0], base_diameter/2.0);
+	 * hole([0, 0], outside_diameter/2.0);
+	 * hole([0, 0], root_diameter/2.0);
+	 * hole([0, 0], work_diameter/2.0);
+	*/
+
+	// Fillet radius is approx. Will not reach root exactly, but close enough
+	// Otherwise need to calculate intersection with root-circle
+	local filletrad = (base_diameter - root_diameter)/8.0;
+
+	// Center of the fillet arc, involute makes a ~240deg angle with fillet arc
+	// The fillet arc runs from the root to the working depth of the gear
+	local center = rotate_xy([-filletrad, 0.0mm], 60.0deg) + [work_diameter/2.0, 0];
+
+	// Trace the fillet arc from ~root-circle to working depth at involute arc starting Y-level
+	for(i = 180.0deg; i > 60.0deg; i -= __ang_step*2.5) {
+		tooth += { [cos(i), sin(i)] * filletrad + center };
+	}
+	if(i != 60.0deg) {
+		// Add the last point if we did not reach the working depth
+		tooth += { [cos(60.0deg), sin(60.0deg)] * filletrad + center };
+	}
+
+	// Calculate the maximum involute angle to intersect at the outside radius
+	local max_a = involute_angle(base_diameter/2.0, outside_diameter/2.0);
+
+	// Trace the involute arc from the base up to outside radius
+	for(i = 0.0deg; i < max_a; i += __ang_step) {
+		tooth += { involute_point(i, base_diameter/2.0)};
+	}
+	if(i != max_a) {
+		// Add the last point if we did not reach the outside radius
+		tooth += { involute_point(max_a, base_diameter/2.0)};
+	}
+
+	// We now have one side of the tooth. Rotate to be at tooth-symmetry on X-axis
+	tooth = rotate_xy(tooth, -90.0deg / nteeth);
+
+	// Add the same curve mirrored to make the other side of the tooth
+	// Coordinates reverse to have them all in one direction only
+	tooth += reverse(scale(tooth, [1, -1]));
+
+	// Create all teeth of the gear by adding each tooth at correct angle
+	local gear = {};
+	repeat(nteeth; i) {
+		gear += rotate_xy(tooth, 360.0deg * i / nteeth);
+	}
+
+	return gear;
+}
+
+/* -------------------- Helper Functions -------------------- */
+
+/*
+ * Trace a path at given offset
+ */
+function trace(path, offset)
+{
+	goto(path[-1] + offset);
+	foreach(path; v) {
+		move(v + offset);
+	}
+}
+
+/*
+ * Make a hole at center point with given radius
+ */
+function hole(point, radius)
+{
+	goto(point - [radius]);
+	circle_cw_r([radius, 0]);
+}
+
+/* -------------------- Main Program -------------------- */
+
+//ngcgui: info: Involute-gear example
+
+//ngcgui: umode = 1;   //, units: 1:mm, 0:inch
+//ngcgui: D = 100.0;   //, Pitch Dia
+//ngcgui: HD = 6.0;    //, Hole Dia
+//ngcgui: N = 9;	   //, Number of teeth
+//ngcgui: PA = 20.0;   //, Pressure Angle (deg)
+//ngcgui: frate = 600; //, Feedrate
+//ngcgui: xoffset = 0;
+//ngcgui: yoffset = 0;
+//ngcgui: howmany = 1; //, howmany (1 | 2)
+//ngcgui: verbose = 0;
+include("ensure_units.gcmc"); //avoid preamble conflict
+
+if (umode == 1) {
+  zero = 0.0mm;
+} else {
+  zero = 0.0in;
+}
+// ngcgui entries are unitless so these additions are used
+// to ensure 1) floatingpoint and 2) units per umode setting
+frate = frate + zero;
+   HD = HD    + zero;
+    D = D     + zero;
+   PA = PA    + 0.0deg;
+
+P = N/D;	// Diametral pitch
+
+feedrate(frate);
+location = [xoffset,yoffset];
+
+if (howmany == 1) {
+  hole(location, HD/2.0);
+  trace(gear_P(N, PA, P), location);
+} elif (howmany == 2) {
+  hole(location + [D/2.0, 0.0mm], HD/2.0);
+  trace(gear_P(N, PA, P), location + [D/2.0, 0.0mm]);
+  hole(location + [-D/2.0, 0.0mm], HD/2.0);
+  trace(gear_P(N, PA, P), location + [-D/2, 0.0mm]);
+} else {
+  error("howmany must be 1 or 2");
+}
+

@@ -1,0 +1,196 @@
+/* renamed from cc_hole.gcmc for clarity
+ *
+ * G-code meta compiler
+ *
+ * Copyright (C) 2014  B. Stultiens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ * Hole milling example
+ * --------------------
+ * Mill a hole in continuous curvature movements. Not a single straight line is
+ * required to mill an arbitrary large hole from any size milling bit.
+ * Continuous curvature milling reduces the stress on the mill, bit and object
+ * by preventing any jerking.
+ *
+ * A hole is milled at a given center and depth with a target radius. The
+ * milling-bit radius and the cutting step define how many turning cycles are
+ * required to finish the hole. The mill is retracted with a helical move back
+ * to the center and starting Z-position.
+ *
+ * @@@--svg-toolwidth 6.0 --svg-opacity 0.2@@@
+ */
+
+feedrate(600mm);
+
+function cc_hole(center, targetradius, toolradius, cutstep, cutz)
+{
+	local mkunitsum = ismodemm() ? 0.0mm : 0.0in;
+	local oldz = position()[2];
+	if(!isvector(center) || count(center) < 1) {
+		error("Center argument must be a vector and must have at least one X or Y coordinate");
+		return;
+	}
+	if(count(center) > 3) {
+		error("Center argument has more than 3 axes defined, may cause unforeseen problems");
+		return;
+	}
+	if(count(center) > 2 && !isundef(center[2])) {
+		warning("Center argument has a Z-coordinate, ignoring to prevent plowing into object");
+		center = head(center, 2);
+	}
+	if((count(center) == 1 && isundef(center[0])) || (count(center) > 1 && isundef(center[0]) && isundef(center[1]))) {
+		warning("Center argument has neither X nor Y coordinate, using current position");
+		center = head(position(), 2);
+	}
+	if(!isscalar(targetradius)) {
+		error("Target radius argument must be scalar");
+		return;
+	}
+	if(!isnone(targetradius) && !isdistance(targetradius)) {
+		error("Target radius argument must be a distance");
+		return;
+	}
+	targetradius += mkunitsum;	// Make sure we have units
+	if(targetradius <= 0.0mm) {
+		error("Target radius argument must be larger than zero");
+		return;
+	}
+	if(!isscalar(toolradius)) {
+		error("Tool radius argument must be scalar");
+		return;
+	}
+	if(!isnone(toolradius) && !isdistance(toolradius)) {
+		error("Tool radius argument must be a distance");
+		return;
+	}
+	toolradius += mkunitsum;	// Make sure we have units
+	if(toolradius <= 0.0mm) {
+		error("Tool radius argument must be larger than zero");
+		return;
+	}
+	if(targetradius <= toolradius) {
+		error("Hole target radius (", targetradius, ") must be larger than tool radius (", toolradius, ")");
+		return;
+	}
+	if(!isscalar(cutstep)) {
+		error("Cutting step argument must be scalar");
+		return;
+	}
+	if(!isnone(cutstep) && !isdistance(cutstep)) {
+		error("Cutting step must be a distance");
+		return;
+	}
+	cutstep += mkunitsum;	// Make sure we have units
+	if(cutstep <= 0.0mm) {
+		error("Cutting step argument must be larger than zero");
+		return;
+	}
+	if(!isscalar(cutz)) {
+		error("Cutting depth argument must be scalar");
+		return;
+	}
+	if(!isnone(cutz) && !isdistance(cutz)) {
+		error("Cutting depth must be a distance");
+		return;
+	}
+	cutz += mkunitsum;	// Make sure we have units
+	if(cutstep > 2.0*toolradius) {
+		warning("Cutting step is larger than twice the tool radius, not all material will be removed");
+	} elif(cutstep == 2.0*toolradius) {
+		warning("Cutting step is exactly twice the tool radius, material may be left at the inner edge");
+	}
+
+	comment("-- cc_hole center=", center, " targetradius=", targetradius, " toolradius=", toolradius, " cutstep=", cutstep, " cutz=", cutz, " --");
+
+	goto(center);		// Center of the hole
+	move([-, -, cutz]);	// Start the initial cut at the center; r = toolradius
+
+	local r = toolradius;	// Keep track how big the hole is
+	local n = 1;
+	local dir = -1.0;	// Alternating end-point tracking (=> (-1)^n sign shift)
+	local p;		// endpoint for new arc into next hole circle
+
+	// We have to circle 1..n times to make the hole
+	while(r < targetradius) {
+		if(targetradius - r >= cutstep) {
+			// Take a full cutting step because space allows
+			p = (2*n-1) * cutstep;
+			r += cutstep;
+		} else {
+			// Last cut is under cutstep in size
+			p = (2*n-2) * cutstep + targetradius - r;
+			r += targetradius - r;
+		}
+		arc_cw_r([0.0mm, dir * p], p/2.0);	// Arc into the next circle
+		circle_cw(center);			// Widen the hole
+		n++;
+		dir = -dir;				// Arc endpoint alternate
+	}
+
+	// Curve _out_ of the hole by helical arc move back to center and oldz
+	arc_cw_r([0.0mm, dir * (targetradius - toolradius), oldz-cutz], (targetradius - toolradius)/2.0);
+
+	comment("-- end cc_hole --");
+	return;
+}
+
+/* -------------------- Main Program -------------------- */
+
+//ngcgui: info: Circular pocket with continuous curvature movements
+
+//ngcgui: umode = 1;          //, units: 1:mm, 0:inch
+//ngcgui: xctr = 0;           //, x center
+//ngcgui: yctr = 0;           //, y center
+//ngcgui: diameter = 10;      //, diameter
+//ngcgui: tool_diameter = 2;  //, tool_diameter
+//ngcgui: step = 1;           //, step
+//ngcgui: cutdepth = -1;      //, cutdepth
+//ngcgui: xfinal = 0;          //
+//ngcgui: yfinal = 0;          //
+//ngcgui: zfinal = 1;          //
+//ngcgui: verbose = 0;        //  precede ensure_units
+include("ensure_units.gcmc"); //  avoid preamble conflict
+
+if (umode == 1) {
+  zero = 0.0mm;
+} else {
+  zero = 0.0in;
+}
+// ngcgui entries are unitless so these additions are used
+// to ensure 1) floatingpoint and 2) units per umode setting
+
+         xctr = zero + xctr;
+         yctr = zero + yctr;
+     diameter = zero + diameter;
+tool_diameter = zero + tool_diameter;
+         step = zero + step;
+     cutdepth = zero + cutdepth;
+       xfinal = zero + xfinal;
+       yfinal = zero + xfinal;
+       zfinal = zero + xfinal;
+
+
+location = [xctr,yctr];
+FINALPOS = [xfinal,yfinal,zfinal];
+goto(FINALPOS);
+if(!issvg()) {
+	move(FINALPOS);	// To visualize subsequent rapids in LinuxCNC
+}
+
+//      Center    R_hole      R_tool           Step  Cutting-Z
+cc_hole(location, diameter/2, tool_diameter/2, step, cutdepth);
+
+goto(FINALPOS);

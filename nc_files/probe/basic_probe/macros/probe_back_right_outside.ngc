@@ -1,0 +1,105 @@
+(author: Chris P)
+(version: 0.1)
+(date: 04/23/19)
+
+(Probe back right top corner for x,y,z 0,0,0 position)
+(Start probe position is over back right corner of stock)
+(inside the step off width square and within max z distance)
+(ensure all settings have been set properly according to help diagrams)
+
+o<probe_back_right_outside> sub
+
+  (uses NGCGUI style arg spec)
+  (number after "=" in comment is default value)
+  #<probe_tool_number> = #1    (=99)
+  #<max_z_distance> = #2       (=0.5000)
+  #<max_xy_distance> = #3      (=0.5000)
+  #<xy_clearance> = #4         (=0.1000)
+  #<z_clearance> = #5          (=0.1000)
+  #<step_off_width> = #6       (=0.5000)
+  #<extra_probe_depth> = #7    (=0.0000)
+  #<probe_slow_fr> = #8        (=0.0)
+  #<probe_fast_fr> = #9        (=10.0)
+  #<calibration_offset> = #10  (=0.0000)
+  #<x_hint> = #11              (=1.0000)
+  #<y_hint> = #12              (=1.0000)
+  #<diameter_hint> = #13       (=1.0000)
+  #<edge_width> = #14          (=0.5000)
+  #<probe_mode> = #15          (=0)
+
+  (Cancel G92 offsets)
+  G92.1
+
+  #<workspace_x> = #[5201 + [20 * #5220]]
+  #<workspace_y> = #[5202 + [20 * #5220]]
+
+  (Probe Tool Safety Check)
+  o<110> if [#5400 NE #<probe_tool_number>]
+  (MSG, Specified probe tool #<probe_tool_number> not in spindle, aborting)
+   o<probe_back_right_outside> return
+  o<110> endif
+
+  (Probe Diameter)
+  #<probe_diameter> = #5410
+
+  (Probing depth from the z probed clearance height, used for z moves)
+  #<z_probe_stack> = [#<z_clearance> + #<probe_diameter> + #<extra_probe_depth>]
+
+  (Probe X Positioning Move, Step Off Width)
+  G91
+  G0 X[#<step_off_width>]
+
+  (Probe X Positioning Move, to Probing Depth)
+  F[#<probe_fast_fr>]
+  G1 Z-[#<z_probe_stack>]
+
+  (Call sub "probe_x_minus" to Probe x- side of Workpiece)
+  o<probe_x_minus> call [#1][#3][#4][#8][#9][#10]
+
+  #<x_minus_zero_edge> = #<_value>
+
+  (value returned safety check, aborts if no value returned)
+  o<120> if [#<probe_mode> EQ 1 AND #<_value_returned> NE 1]
+    (MSG, Missing X Sub returned edge parameter, aborting)
+    o<probe_back_right_outside> return
+  o<120> endif
+
+  (Probe Y Positioning Move, up to Z clearance plane)
+  G91
+  G0 Z[#<z_probe_stack>]
+  (Probe Y Positioning Move)
+  G0 X-[#<step_off_width>] Y[#<step_off_width>]
+
+  (Probe Y Positioning Move,to Probing Depth)
+  F[#<probe_fast_fr>]
+  G1 Z-[#<z_probe_stack>]
+
+  (Call sub "probe_y_minus" to Probe y- side of Workpiece)
+  o<probe_y_minus> call [#1][#3][#4][#8][#9][#10]
+
+  #<y_minus_zero_edge> = #<_value>
+
+  (value returned safety check, aborts if no value returned)
+  o<130> if [#<probe_mode> EQ 1 AND #<_value_returned> NE 1]
+    (MSG, Missing Y Sub returned edge parameter, aborting)
+    o<probe_back_right_outside> return
+  o<130> endif
+
+  (Probe Completion Move to Z Clearance Plane, and XY Zero)
+  G91
+  G0 Z[#<z_probe_stack>]
+  G90
+  G0 X[#<x_minus_zero_edge>] Y[#<y_minus_zero_edge>]
+
+  (probe mode rules for WCO or probe position measuring only)
+  o<140> if [#<probe_mode> EQ 0]
+    (Record Zero in selected axes and WCO)
+    G10 L2 P#5220 X[#<x_minus_zero_edge> + #<workspace_x>]
+    G10 L2 P#5220 Y[#<y_minus_zero_edge> + #<workspace_y>]
+    o<probe_back_right_outside> return
+  o<140> endif
+
+o<probe_back_right_outside> endsub
+
+M2 (end program)
+

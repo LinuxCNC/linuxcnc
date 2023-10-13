@@ -1,0 +1,5 @@
+Configuraciones Básicas para Drives Gecko 
+
+Configuración de Gecko_540B3 para una máquina de 3 ejes con ejes XYZ. Para utilizar la bomba de carga en un G540, su período base debe establecerse en 50,000 o menos. De lo contrario, desactive la función de bomba de carga.
+
+Configuración de Gecko_540B4 para una máquina de 4 ejes con ejes X Y Z A. Para utilizar la bomba de carga en un G540, su período base debe establecerse en 50,000 o menos. De lo contrario, desactive la función de bomba de carga.

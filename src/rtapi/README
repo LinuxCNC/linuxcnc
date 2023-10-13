@@ -1,0 +1,281 @@
+README for RTAPI
+
+RTAPI is a wrapper API that allows realtime programs to use either
+RTLinux or RTAI with no code changes.
+
+Files:
+
+Makefile        : the Makefile
+README          : this file
+rtapi.h         : decls for the generic RTAPI functions.
+rtapi_app.h     : decls for the kernel modules
+rtapi_common.h  : Collection of typedefs, etc,  used internally by RTAPI.
+procfs_macros.h : Macros used to implement the /proc interface
+rtapi_proc.h    : more stuff implementing the /proc interface
+rtai_rtapi.c    : implementation of real-time API, for RTAI
+rtai_ulapi.c    : implementation of user-level API, for RTAI
+uspace_rtapi.c  : implementation of real-time API, for POSIX RTOS
+uspace_ulapi.c  : implementation of user-level API, for POSIX RTOS
+
+
+../../Makefile.inc    : contains compile-time flags, etc.
+../../configure       : script that creates Makefile.inc
+
+The Build Process
+-----------------
+The build process follows the standard Linux convention:
+
+./configure
+make
+
+The configure script and make are intended to be run from the
+root of the emc2 tree, to make the entire emc2 project.  See the
+README in that directory for more details.
+
+To run the examples:
+
+1. Open a shell window, and begin watching the kernel log:
+
+tail -f /var/log/messages
+
+leave this running, and go back to your original shell window
+you should be in the emc2 directory
+
+2. Load the RTOS and RTAPI modules:
+
+Note: for this and most of the following steps you will need
+to be root, or use 'su -c "<command>"'
+
+scripts/load_rtapi
+
+See a number of messages pop up in the kernel log as components
+of the RTOS are installed...
+One of the last ones will be:
+
+<date> <time> <host> kernel: RTAPI: Init complete
+
+This means that the rtapi module (rtai_rtapi.o) is loaded.
+
+3. Run the timer task example:
+
+/sbin/insmod rtlib/timertask.o
+
+A few messages will pop up in the kernel log as the task
+is created and started:
+
+<date> <time> <host> kernel: timertask init: desired clock 10000000, actual 10000168
+<date> <time> <host> kernel: timertask init: started timer task
+<date> <time> <host> kernel: timertask init: max delay = 2500042
+
+Wait a few seconds, then remove the module:
+
+/sbin/rmmod timertask
+
+A couple more messages from timertask:
+
+<date> <time> <host> kernel: timertask exit: timer count is 8174
+
+This means that 8174 calls to the task were made. (I let it
+run for about 8 seconds.)
+
+4. Run the parallel port interrupt example:
+
+/sbin/insmod rtlib/extint.o
+
+Short pin 10 to pin 25 on the parallel port a couple of times to
+generate some interrupts, then view the count in the kernel log:
+
+/sbin/rmmod extint
+
+Again, you'll get messages from the extint module:
+
+<date> <time> <host> kernel: extint: interrupt count is 2522
+
+This means 2,522 interrupts occurred, many for a single short
+of pin 10 due to contact noise.
+
+5. Run the shared memory example:
+
+/sbin/insmod rtlib/shmemtask.o
+
+bin/shmemusr
+
+See the shared memory heartbeat incrementing.
+Use crtl-C to break out of shmemusr.
+Then remove the realtime task
+
+/sbin/rmmod shmemtask
+
+6. Run the semaphore example:
+
+/sbin/insmod rtlib/master.o
+
+The master task will start giving the semaphore once per
+second, printing to the log when it does.
+
+/sbin/insmod rtlib/slave.o
+
+The slave attempts to get the semaphore, and prints each
+time it succeeds.  Since the master has already given the
+semaphore several times, and it is a counting semaphore,
+the slave will run several times in a row.  Once it catches
+up with the master, it will run right after the master runs.
+Stop the tasks in reverse order:
+
+/sbin/rmmod slave
+/sbin/rmmod master
+
+7. Run the FIFO example:
+
+/sbin/insmod rtlib/fifotask.o
+
+The realtime fifotask will begin writing strings to the
+fifo once per second, and echoing the strings to the log
+file.
+
+bin/fifousr
+
+The user mode program will read strings from the fifo and
+and print them out.
+
+Use ctrl-c to exit fifousr, and stop the task:
+
+/sbin/rmmod fifotask
+
+
+8. More elaborate tests:
+
+In theory, you should be able to run any or all of the
+above tests at the same time, doing insmod's and rmmod's
+in any order.
+
+9. Shutting down.
+
+To remove the rtapi and the rest of the RTOS modules:
+
+scripts/unload_rtapi
+
+If any tasks are still running, the script should print
+the module names and refuse to proceed.  Shut down the
+modules (rmmod) and try again.
+
+The /proc/rtapi Interface
+-------------------------
+
+Various files in /proc/rtapi provide information on the internal status
+of RTAPI. In order, these are:
+
+  debug   : Shows which message types will be printed to /var/log/messages.
+            This can be altered by writing a digit to debug. See rtapi.h
+	    for the relevant values.
+
+  fifos   : Lists the fifos currently in use, and by which process ID.
+
+  modules : Lists the loaded module names, IDs, and the type
+            (realtime or user space).
+
+  sems    : Lists the semaphores currently in use.
+
+  shmem   : Lists the shared memory allocated and the size.
+
+  status  : Provides information about the number of tasks, and timer status.
+
+  tasks   : Lists task ID, priority, etc.
+
+For a quick look at the status of the rtapi, do "cat /proc/rtapi/*"
+
+The Uninstall Process
+---------------------
+
+make clean
+
+Code Layout
+-----------
+
+The code is split among src/ and example/ directories, each with its
+own Makefile. There is also a top-level Makefile and a Makefile.inc
+that is included by each of the src/ Makefiles. The 'configure' script
+creates Makefile.inc based on some heuristics that determine whether
+you have RTL or RTAI, and defines compiler flags accordingly. The
+config script is a shell script (/bin/sh), which gives great
+flexibility in what can be done. 'config' currently checks to see what
+real-time Linux installations exist, using 'find' and checking for
+"rtl.mk" and ".buildvars" as the telltale signs. If found, RTDIR is set
+to the associated parent directory.
+ Alternatively, RTDIR can be set via a command line argument as described
+in "The Build Process". This gives us the flexibility to cross-compile on
+a system not running a realtime kernel.
+
+If an installation is found, then symbols for the RT Linux type,
+compile flags, etc. are included in the Makefile.inc. If an invalid
+directory is specified, or the correct marker file is not found, configure
+will exit with a "Usage" message.
+
+
+Makefiles
+---------
+The general form for a makefile entry is:
+
+target : dependencies
+	rules
+
+where <target> is what you want made, <dependencies> are the things
+the target depends on, and <rules> are how to build the target from the
+dependencies. Lines can be continued with the \ backslash character at
+the end of the line to be continued. Each line of the rules must begin
+with a TAB character. In general a makefile entry looks more like
+this: 
+
+target : dependency_1 dependency_2 \
+	... \
+	dependency_n
+[TAB]	rule_1
+[TAB]	long rule \
+	rest of long rule
+[TAB]	...
+[TAB]	rule_n
+
+You can only have one target per entry, but as many dependencies and
+rules as you need. You can also have multiple different entries for
+the same target; you can see this at the end of the Makefiles with the
+header file dependencies generated by 'makedepend', after the "DO NOT
+REMOVE THIS LINE" line.
+
+In order to minimize the number of files, each src/ Makefile compiles
+directly into the lib/ or bin/ directories. Thus, the targets and
+rules aren't as simple as this:
+
+foo.o : foo.c
+	gcc -c foo.c -o foo.o
+
+but look like this:
+
+LIB_DIR = ../../lib
+
+$(LIB_DIR)/foo.o : foo.c
+	gcc -c foo.c -o $(LIB_DIR)/foo.o
+
+This means that the resulting .o file doesn't lie around in the
+current directory, but is generated directly in the ../../lib
+directory.
+
+The actual rules are a little more complicated since we like to use
+make's shorthand variables. These are:
+
+$@	for the target
+$<	for the first dependency
+$^	for all the dependencies
+
+The preceding example would then be
+
+LIB_DIR = ../../lib
+
+$(LIB_DIR)/foo.o : foo.c
+	gcc -c $< -o $@
+
+
+Configuration Notes
+-------------------
+chmod a+rw /dev/rtai_shm, for RTAI
+chmod a+rw /dev/mem, for mbuff
+

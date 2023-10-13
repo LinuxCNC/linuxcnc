@@ -1,0 +1,14 @@
+# This are notes to run some git commands from terminal. 
+
+git init
+git config --global init.defaultBranch main
+git remote add origin https://github.com/grotius-cnc/linuxcnc.git
+git add .
+git branch -M main
+git push -u origin main
+
+git add .
+git commit -m "commit"
+
+git push -u origin main
+

@@ -1,0 +1,15 @@
+pin+anglejog.enable-in
+pin+anglejog.enable-out
+pin+anglejog.active
+pin+anglejog.scale-in
+pin+anglejog.current-scale
+pin+anglejog.current-scale-out
+pin+anglejog.angle-degrees-in
+pin+anglejog.current-angle-degrees
+pin+anglejog.counts-in
+pin+anglejog.coscounts
+pin+anglejog.sincounts
+pin+anglejog.cos-accel-fraction
+pin+anglejog.sin-accel-fraction
+pin+anglejog.current-mag
+pin+anglejog.current-vel

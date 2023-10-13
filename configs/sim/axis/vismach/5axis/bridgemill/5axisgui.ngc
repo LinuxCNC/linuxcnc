@@ -1,0 +1,53 @@
+        #<r>  =   60 ; sphere radius
+  #<rdelta>   =    5 ; safe distance
+#<drilldepth> =   -5
+    #<zstart> =    0
+    #<bctmax> =    8
+    #<cctmax> =   16
+    #<toolno> =  100
+    #<frate>  = 1000
+
+#<bct>    = 0
+#<cct>    = 0
+#<cdelta> = [360/#<cctmax>]
+#<bdelta> = [90/#<bctmax>]
+
+g49
+t#<toolno>m6g43
+
+g53 g0 x0y0z#<zstart>b0c0 w0
+g10l20 p0 x0 y0 z[#<r>+#<rdelta>] b0 c0 w0
+g0 z0
+f#<frate>
+o100 while [#<bct> lt #<bctmax>]
+       #<b> = [#<bct>*#<bdelta>]
+       #<rnow> = [[#<r>+#<rdelta>]*[cos[#<b>]]]
+       #<x> = [#<rnow>]
+       #<y> = 0
+       #<z> = [-#<rnow>]
+       g0 x#<x> y#<y>
+       m66e0l0 ; force sync
+       g0 z#<z>
+       g0b[-90+#<b>]
+       #<cct> = 0
+o200   while [#<cct> lt #<cctmax>]
+o210      if [[#<bct> mod 2] eq 0]
+              #<c> = [#<cct> * #<cdelta>]
+o210      else
+              #<c> = [360 - [1+ #<cct>] * #<cdelta>]
+o210      endif
+          #<x> = [#<rnow>*[cos[#<c>]]]
+          #<y> = [#<rnow>*[sin[#<c>]]]
+          g0 x#<x> y#<y> z#<z>  c#<c>
+          f#<frate>
+          g1 w[ #<drilldepth> - #<rdelta>]
+          g0 w0
+          m66e0l0 ;force sync
+          #<cct> = [#<cct>+1]
+o200   endwhile
+       #<bct> = [#<bct>+1]
+o100 endwhile
+
+g0x0y0z0b0c0w0
+g53 g0 x0y0z0
+m2

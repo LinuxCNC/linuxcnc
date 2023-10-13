@@ -1,0 +1,7 @@
+(debug, before M400: call_level= #<_call_level> remap_level=#<_remap_level>)
+M400
+(this should NOT execute because the failed epilog is supposed to abort!)
+
+(debug, after failed M400: call_level= #<_call_level> remap_level=#<_remap_level>)
+M2
+

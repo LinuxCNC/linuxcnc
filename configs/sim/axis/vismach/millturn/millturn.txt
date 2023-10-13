@@ -1,0 +1,34 @@
+millturn usage:
+
+For additional information see the README in the millturn folder.
+
+1) startup (after homing) the simulation is in mill mode as configured in millturn.ini (mm-based) with 3 cartesian linear joints (XYZ) and 1 rotary joint (A).
+
+2) pyvcp buttons are provided to switch between mill and turn kinematics. The buttons issue remapped commands M428,M429.
+
+These commands
+a) set the motion.switchkins-type pin and
+b) force a synchronization using a motion input read command.
+c) set softlimits according to values set in millturn.ini [AXIS_X] and [AXIS_Z] section.
+
+3) when set for mill, default assignments are:
+
+   x : joint0
+   y : joint1
+   z : joint2
+   a : joint3
+
+so the gcode commands:
+   'g0x10' moves joint0
+   'g0z10' moves joint2
+
+4) when set for turn, assignments are:
+
+   x :  joint2
+   y : -joint1
+   z :  joint0
+   a :  joint3
+
+so the gcode commands:
+   'g0x10' moves joint2
+   'g0z10' moves joint0

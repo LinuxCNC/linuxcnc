@@ -1,0 +1,30 @@
+GCC_GTEQ_470 := $(shell $(CC) --version | head -n1 | grep gcc >/dev/null && (expr `($(CC) -dumpfullversion 2>/dev/null || $(CC) -dumpversion) | awk -F '.' '{print $$1*10000+$$2*100+$$3}'` \>= 40700 || true) || echo 1)
+ifeq "$(GCC_GTEQ_470)" "1"
+ifdef HAVE_LIBUSB10
+
+XHC_WHB04B6_LIB_DEPENDENCIES = ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
+XHC_WHB04B6_SRC = hal/user_comps/xhc-whb04b-6/hal.cc \
+                  hal/user_comps/xhc-whb04b-6/usb.cc \
+                  hal/user_comps/xhc-whb04b-6/pendant-types.cc \
+                  hal/user_comps/xhc-whb04b-6/pendant.cc \
+                  hal/user_comps/xhc-whb04b-6/xhc-whb04b6.cc \
+                  hal/user_comps/xhc-whb04b-6/main.cc
+
+XHC_WHB04B6_DEBUG = -g -funwind-tables
+XHC_WHB04B6_CFLAGS += $(LIBUSB10_CFLAGS) $(XHC_WHB04B6_DEBUG) -Wall
+XHC_WHB04B6_LIBS = -lm $(LIBUSB10_LIBS)
+
+$(call TOOBJSDEPS, $(XHC_WHB04B6_SRC)) : EXTRAFLAGS += $(XHC_WHB04B6_CFLAGS)
+
+USERSRCS += $(XHC_WHB04B6_SRC)
+../bin/xhc-whb04b-6 xhc-whb04b-6.d : $(call TOOBJS, $(XHC_WHB04B6_SRC)) $(XHC_WHB04B6_LIB_DEPENDENCIES)
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ $(XHC_WHB04B6_LIBS)
+
+TARGETS += ../bin/xhc-whb04b-6
+
+endif # HAVE_LIBUSB10
+
+else
+$(info Compiler version: "$(shell $(CC) --version | head -n1)" is too old: skipping hal/user_comps/xhc-whb04b-6)
+endif # GCC VERSION CHECK

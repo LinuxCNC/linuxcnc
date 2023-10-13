@@ -1,0 +1,44 @@
+melfa-switchkins usage:
+
+1) startup (after homing) is in
+genserkins mode configured like
+melfa-switchkins.ini as an mm-based machine
+with 6 revolute joints.
+
+2) pyvcp buttons are provided to switch
+between genserkins and identity
+kinematics.  The buttons issue remapped
+commands M428,M429.  These commands a)
+set the motion.switchkins-type pin and
+b) force a synchronization using a
+motion input read command.
+
+3) when set for identity kins, default
+assignments are:
+
+   x : joint0
+   y : joint1
+   z : joint2
+   a : joint3
+   b : joint4
+   c : joint5
+so the gcode commands:
+   'g0x10' moves joint0
+   'g0c10' moves joint5
+
+4) the ordering can be altered using the
+genser-switchkins kinematics module
+parameter 'coordinates'.  For example,
+
+KINEMATICS=genser-switchkins coordinates=abcxyz
+
+assigns:
+   a : joint0
+   b : joint1
+   c : joint2
+   x : joint3
+   y : joint4
+   z : joint5
+so the gcode commands:
+   'g0x10' moves joint3
+   'g0c10' moves joint2

@@ -1,0 +1,86 @@
+.\" Man page for hal_manualtoolchange non-realtime component.
+.\" Written 05 APR 2017 by Joe Hildreth (joeh@threerivershospital.com)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.TH hal_manualtoolchange 1 "04 APR 2017" "LinuxCNC Documentation" "HAL Non-realtime Component"
+.SH NAME
+hal_manualtoolchange \- HAL non-realtime component to enable manual tool changes.
+.SH SYNOPSIS
+loadusr hal_manualtoolchange
+.SH DESCRIPTION
+hal_manualtoolchange is a LinuxCNC non-realtime component that allows users with machines lacking automatic tool changers to make manual tool changes.
+In use when a M6 tool change is encountered, the motion component will stop the spindle and pause the program.
+The hal_manualtoolchange component will then receive a signal from the motion component causing it to display a tool change window prompting the user which tool number to load based on the last T\- number programmed.
+The dialog will stay active until the "continue" button is pressed.  When the "continue" button is pressed, hal_manualtoolchange will then signal the motion component that the tool change is complete thus allowing motion to turn the spindle back on and resume program execution.
+.PP
+Additionally, the hal_manualtoolchange component includes a hal pin for a button that can be connected to a physical button to complete the tool change and remove the window prompt (hal_manualtoolchange.change_button).
+.PP
+hal_manualtoolchange can be used even when AXIS is not used as the GUI.
+This component is most useful if you have presettable tools and you use the tool table.
+.SH PINS
+.TP
+.B hal_manualtoolchange.number\fR s32 in\fR
+Receives last programmed T\- number.
+.TP
+.B hal_manualtoolchange.change\fR bit in\fR
+Receives signal to do tool change.
+.TP
+.B hal_manualtoolchange.changed\fR bit out\fR
+Signifies that the tool change is complete.
+.TP
+.B hal_manualtoolchange.change_button\fR bit in\fR
+Pin to allow an external switch to signify that the tool change is complete.
+.SH USAGE
+Normal usage is to load the component in your HAL file and net the appropriate pins from the\fI motion\fR and\fI io\fR components.
+The following lines are typical in a HAL file when using the hal_manualtoolchange non-realtime component.
+.TP
+.B loadusr \-W hal_manualtoolchange
+This will load the hal_manualtoolchange non-realtime component waiting for the component to be ready before continuing.
+.TP
+.B net tool\-change iocontrol.0.tool\-change => hal_manualtoolchange.change
+When an M6 code is run, motion sets \fI iocontrol.0.tool\-change \fR to high indicating a tool change.
+This pin should be netted to \fI hal_manualtoolchange.change\fR.
+This causes the Tool change dialog to be displayed on screen and wait for the user to either click the continue button on the dialog or press an externally connected button.
+.TP
+.B net tool\-changed iocontrol.0.tool\-changed <= hal_manualtoolchange.changed
+When the Tool change dialog's continue button is pressed, it will set the
+.I hal_manualtoolchange.changed
+pin to high, this should be netted to the
+.I iocontrol.0.tool\-changed
+pin, indicating to the motion controller that the tool change has been completed and can continue with the execution of the G-code program.
+.TP
+.B net tool\-number iocontrol.0.tool\-prep\-number => hal_manualtoolchange.number
+When a T\- command is executed in a G-code program, the tool number will held in the
+.I iocontrol.0.tool\-prep\-number\fR.  \fR
+This pin should be netted to
+.I hal_manualtoolchange.number\fR.  \fR
+The value of this pin, the tool number is displayed in the tool change dialog to let the user know which tool should be loaded.
+.TP
+.B net tool\-prepare\-loopback iocontrol.0.tool\-prepare => iocontrol.0.tool\-prepared
+The \fI iocontrol.0.tool\-prepare \fR pin will go true when a T\fIn\fR tool prepare is requested.
+Since there is not automated tool changer this pin should be netted to \fI iocontrol.0.tool\-prepared \fR to indocate that the tool has been prepared.
+.PP
+If you wish to use an external button to signal the hal_manualtoolchange component that the tool change is complete simply bring the button into HAL (via a parport input pin or a hostmot2 gpio input or similar), and wire it directly to the \fI hal_manualtoolchange.change_button \fR pin.
+For Example:
+.PP
+.B net tool\-changed\-btn hal_manualtoolchange.change_button <= parport.0.pin\-15\-in
+.SH SEE ALSO
+motion(1), iocontrol(1), halcmd(1).

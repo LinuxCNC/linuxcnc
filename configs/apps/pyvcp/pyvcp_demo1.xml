@@ -1,0 +1,467 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+    <labelframe text="Spinboxes linked to scales/number displays, shows initval and param_pin usage">
+    <font>("Helvetica",10)</font>
+    <bd>3</bd>
+    <relief>SUNKEN</relief>
+    <hbox>
+        <!-- stack of 3 spinboxes -->
+        <vbox>
+            <hbox>
+                <spinbox>
+                    <halpin>"spinbox0"</halpin>
+                    <min_>-12</min_>
+                    <max_>33</max_>
+                    <initval>10</initval>
+                    <resolution>0.1</resolution>
+                    <format>"2.3f"</format>
+                    <font>("Arial",16)</font>
+                    <param_pin>1</param_pin>
+                </spinbox>
+            </hbox>
+            <hbox>
+                <spinbox>
+                    <halpin>"spinbox1"</halpin>
+                    <min_>-12</min_>
+                    <max_>33</max_>
+                    <initval>20</initval>
+                    <resolution>0.1</resolution>
+                    <format>"2.3f"</format>
+                    <font>("Arial",16)</font>
+                    <param_pin>1</param_pin>
+                </spinbox>
+            </hbox>
+            <hbox>
+                <spinbox>
+                    <halpin>"spinbox2"</halpin>
+                    <min_>-12</min_>
+                    <max_>33</max_>
+                    <initval>30</initval>
+                    <resolution>0.1</resolution>
+                    <format>"2.3f"</format>
+                    <font>("Arial",16)</font>
+                    <param_pin>1</param_pin>
+                </spinbox>
+            </hbox>
+        </vbox>
+        <!-- stack of 3 horizontal scales in same hbox -->
+        <vbox>
+            <hbox>
+                <scale>
+                    <font>("Helvetica",16)</font>
+                    <width>"30"</width>
+                    <halpin>"scale0"</halpin>
+                    <resolution>1</resolution>
+                    <orient>HORIZONTAL</orient>
+                    <initval>5</initval>
+                    <min_>0</min_>
+                    <max_>100</max_>
+                    <param_pin>1</param_pin>
+                </scale>
+            </hbox>
+            <hbox>
+                <scale>
+                    <font>("Helvetica",16)</font>
+                    <width>"30"</width>
+                    <halpin>"scale1"</halpin>
+                    <resolution>1</resolution>
+                    <orient>HORIZONTAL</orient>
+                    <initval>15</initval>
+                    <min_>0</min_>
+                    <max_>100</max_>
+                    <param_pin>1</param_pin>
+                </scale>
+            </hbox>
+            <hbox>
+                <scale>
+                    <font>("Helvetica",16)</font>
+                    <width>"30"</width>
+                    <halpin>"scale2"</halpin>
+                    <resolution>1</resolution>
+                    <orient>HORIZONTAL</orient>
+                    <initval>25</initval>
+                    <min_>0</min_>
+                    <max_>100</max_>
+                    <param_pin>1</param_pin>
+                </scale>
+            </hbox>
+        </vbox>
+
+        <!-- stack of 3 number displays in same hbox -->
+        <vbox>
+            <hbox>
+                <number>
+                    <halpin>"number0"</halpin>
+                    <font>("Helvetica",16)</font>
+                    <format>"+4.4f"</format>
+                </number>
+            </hbox>
+            <hbox>
+                <number>
+                    <halpin>"number1"</halpin>
+                    <font>("Helvetica",16)</font>
+                    <format>"+4.4f"</format>
+                </number>
+            </hbox>
+            <hbox>
+                <number>
+                    <halpin>"number2"</halpin>
+                    <font>("Helvetica",16)</font>
+                    <format>"+4.4f"</format>
+                </number>
+            </hbox>
+        </vbox>
+
+    </hbox>
+    </labelframe>
+
+    <!-- new hbox with 3 dials -->
+    <labelframe text="Dials linked to scales, showing initval and param_pin usage">
+    <font>("Helvetica",10)</font>
+    <bd>3</bd>
+    <relief>RAISED</relief>
+    <hbox>
+        <dial>
+            <size>150</size>
+            <cpr>100</cpr>
+            <min_>0</min_>
+            <max_>100</max_>
+            <text>"Dial0"</text>
+            <initval>10</initval>
+            <resolution>0.01</resolution>
+            <halpin>"dial0"</halpin>
+            <dialcolor>"yellow"</dialcolor>
+            <edgecolor>"green"</edgecolor>
+            <dotcolor>"black"</dotcolor>
+            <param_pin>1</param_pin>
+        </dial>
+
+        <dial>
+            <size>150</size>
+            <cpr>100</cpr>
+            <min_>0</min_>
+            <max_>100</max_>
+            <text>"Dial1"</text>
+            <initval>12</initval>
+            <resolution>0.1</resolution>
+            <halpin>"dial1"</halpin>
+            <dialcolor>"green"</dialcolor>
+            <edgecolor>"red"</edgecolor>
+            <dotcolor>"black"</dotcolor>
+            <param_pin>1</param_pin>
+        </dial>
+
+        <dial>
+            <size>150</size>
+               <cpr>100</cpr>
+            <min_>0</min_>
+            <max_>100</max_>
+            <text>"Dial2"</text>
+            <initval>5</initval>
+            <resolution>1</resolution>
+            <halpin>"dial2"</halpin>
+            <dialcolor>"yellow"</dialcolor>
+            <edgecolor>"green"</edgecolor>
+            <dotcolor>"black"</dotcolor>
+            <param_pin>1</param_pin>
+        </dial>
+    </hbox>
+    <!-- new hbox with 3 scales, spaced to sit under dials -->
+    <hbox>
+        <scale>
+            <font>("Helvetica",16)</font>
+            <width>"25"</width>
+            <halpin>"scale3"</halpin>
+            <resolution>0.01</resolution>
+            <orient>VERTICAL</orient>
+            <initval>1</initval>
+            <min_>0</min_>
+            <max_>100</max_>
+            <param_pin>1</param_pin>
+        </scale>
+
+        <!-- label used as a spacer -->
+        <label>
+            <text>"                "</text>
+        </label>
+
+        <scale>
+            <font>("Helvetica",16)</font>
+            <width>"25"</width>
+            <halpin>"scale4"</halpin>
+            <resolution>0.1</resolution>
+            <orient>VERTICAL</orient>
+            <initval>10</initval>
+            <min_>0</min_>
+            <max_>100</max_>
+            <param_pin>1</param_pin>
+        </scale>
+
+        <!-- label used as a spacer -->
+        <label>
+            <text>"                "</text>
+        </label>
+
+        <scale>
+            <font>("Helvetica",16)</font>
+            <width>"25"</width>
+            <halpin>"scale5"</halpin>
+            <resolution>1</resolution>
+            <orient>VERTICAL</orient>
+            <initval>20</initval>
+            <min_>0</min_>
+            <max_>100</max_>
+            <param_pin>1</param_pin>
+        </scale>
+    </hbox>
+    </labelframe>
+
+    <!-- new hbox with 3 dials -->
+    <labelframe text="Radio buttons linked to multi_labels showing legend selection">
+    <font>("Helvetica",10)</font>
+    <bd>3</bd>
+    <relief>FLAT</relief>
+    <hbox>
+        <hbox>
+            <vbox>
+                <radiobutton>
+                    <choices>["one","two","three"]</choices>
+                    <halpin>"radio0"</halpin>
+                    <initval>0</initval>
+                </radiobutton>
+            </vbox>
+            <vbox>
+                <radiobutton>
+                    <choices>["four","five","six"]</choices>
+                    <halpin>"radio1"</halpin>
+                    <initval>1</initval>
+                </radiobutton>
+            </vbox>
+        </hbox>
+        <hbox>
+            <vbox>
+                <multilabel>
+                    <legends>["Radio1-Selected","Now Radio2-Selected","And Now Radio3-Selected"]</legends>
+                    <font>("Helvetica", 10)</font>
+                    <disable_pin>True</disable_pin>
+                    <initval>0</initval>
+                </multilabel>
+
+                <multilabel>
+                    <legends>["Radio4-Selected","Now Radio5-Selected","And Now Radio6-Selected"]</legends>
+                    <font>("Helvetica", 10)</font>
+                    <disable_pin>True</disable_pin>
+                    <initval>1</initval>
+                </multilabel>
+            </vbox>
+        </hbox>
+    </hbox>
+    </labelframe>
+
+    <labelframe text="Checkbuttons showing initval setting / led operation and remote toggling of value">
+    <font>("Helvetica",10)</font>
+    <bd>3</bd>
+    <relief>GROOVE</relief>
+    <hbox>
+        <hbox>
+            <vbox>
+                <checkbutton>
+                    <halpin>"checkbutton0"</halpin>
+                    <text>"Button 0"</text>
+                    <initval>1</initval>
+                </checkbutton>
+                <checkbutton>
+                    <halpin>"checkbutton1"</halpin>
+                    <text>"Button 1"</text>
+                    <initval>0</initval>
+                    </checkbutton>
+                <checkbutton>
+                    <halpin>"checkbutton2"</halpin>
+                    <text>"Button 2"</text>
+                    <initval>0</initval>
+                </checkbutton>
+            </vbox>
+        </hbox>
+        <hbox>
+            <vbox>
+                <checkbutton>
+                    <halpin>"checkbutton3"</halpin>
+                    <text>"Button 3"</text>
+                    <initval>0</initval>
+                </checkbutton>
+                <checkbutton>
+                    <halpin>"checkbutton4"</halpin>
+                    <text>"Button 4"</text>
+                    <initval>1</initval>
+                </checkbutton>
+                <checkbutton>
+                    <halpin>"checkbutton5"</halpin>
+                    <text>"Button 5"</text>
+                    <initval>0</initval>
+                </checkbutton>
+            </vbox>
+        </hbox>
+        <!-- hbox of labels used as a spacer -->
+        <hbox>
+            <vbox>
+                <label>
+                    <text>"       "</text>
+                </label>
+                <label>
+                    <text>"       "</text>
+                </label>
+                <label>
+                    <text>"       "</text>
+                </label>
+            </vbox>
+        </hbox>
+        <hbox>
+            <vbox>
+                <button>
+                    <halpin>"toggle-button0"</halpin>
+                    <text>"Toggle Checkbox 0"</text>
+                </button>
+                <!-- label used as a spacer -->
+                <label>
+                    <text>"                "</text>
+                </label>
+                <button>
+                    <halpin>"toggle-button1"</halpin>
+                    <text>"Toggle Checkbox 5"</text>
+                </button>
+            </vbox>
+        </hbox>
+
+        <!-- hbox of labels used as a spacer -->
+        <hbox>
+            <vbox>
+                <label>
+                    <text>"       "</text>
+                </label>
+                <label>
+                    <text>"       "</text>
+                </label>
+                <label>
+                    <text>"       "</text>
+                </label>
+            </vbox>
+        </hbox>
+
+        <hbox>
+            <vbox>
+                <led>
+                    <halpin>"led0"</halpin>
+                    <size>30</size>
+                    <on_color>"green"</on_color>
+                    <off_color>"red"</off_color>
+                </led>
+                <led>
+                    <halpin>"led1"</halpin>
+                    <size>30</size>
+                    <on_color>"green"</on_color>
+                    <off_color>"red"</off_color>
+                </led>
+                <led>
+                    <halpin>"led2"</halpin>
+                    <size>30</size>
+                    <on_color>"green"</on_color>
+                    <off_color>"red"</off_color>
+                </led>
+            </vbox>
+        </hbox>
+
+        <hbox>
+            <vbox>
+                <led>
+                    <halpin>"led3"</halpin>
+                    <size>30</size>
+                    <on_color>"green"</on_color>
+                    <off_color>"red"</off_color>
+                </led>
+                <led>
+                    <halpin>"led4"</halpin>
+                    <size>30</size>
+                    <on_color>"green"</on_color>
+                    <off_color>"red"</off_color>
+                </led>
+                <led>
+                    <halpin>"led5"</halpin>
+                    <size>30</size>
+                    <on_color>"green"</on_color>
+                    <off_color>"red"</off_color>
+                </led>
+            </vbox>
+        </hbox>
+
+
+     </hbox>
+     </labelframe>
+
+    <labelframe text="Bar with ranges of different colours activated by scale / labels">
+    <font>("Helvetica",10)</font>
+    <bd>3</bd>
+    <relief>RIDGE</relief>
+    <hbox>
+        <hbox>
+            <bar>
+                <halpin>"my-bar"</halpin>
+                <min_>0</min_>
+                <max_>150</max_>
+                <bgcolor>"grey"</bgcolor>
+                 <range1>(0,100,"green")</range1>
+                <range2>(101,129,"orange")</range2>
+                <range3>(130,150,"red")</range3>
+                <fillcolor>"green"</fillcolor>
+             </bar>
+        </hbox>
+
+        <hbox>
+            <scale>
+                <font>("Helvetica",16)</font>
+                <width>"25"</width>
+                <halpin>"my-hscale"</halpin>
+                <resolution>1</resolution>
+                <orient>HORIZONTAL</orient>
+                <initval>0</initval>
+                <min_>0</min_>
+                <max_>150</max_>
+            </scale>
+        </hbox>
+
+        <!-- hbox of labels used as a spacer -->
+        <hbox>
+            <vbox>
+                <label>
+                    <text>"       "</text>
+                </label>
+                <label>
+                    <text>"       "</text>
+                </label>
+                <label>
+                    <text>"       "</text>
+                </label>
+            </vbox>
+        </hbox>
+
+        <hbox>
+            <vbox>
+                <label>
+                    <relief>FLAT</relief>
+                    <text>"I am a borderless label"</text>
+                </label>
+                <label>
+                    <bd>3</bd>
+                    <relief>RAISED</relief>
+                    <text>"I am a raised label"</text>
+                </label>
+                <label>
+                    <bd>3</bd>
+                    <relief>SUNKEN</relief>
+                    <text>"I am a sunken label"</text>
+                </label>
+            </vbox>
+        </hbox>
+    </hbox>
+    </labelframe>
+
+</pyvcp>

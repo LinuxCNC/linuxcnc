@@ -1,0 +1,20 @@
+#!/usr/bin/bash
+cd ../../../
+
+cd rtlib
+rm -rf motmod.so
+cd ..
+
+cd cmake/build/
+make install
+cd ../../
+
+cd scripts 
+. ./rip-environment
+./halrun -U
+
+# Starting linuxcnc with scurve profile in auto and mdi mode.
+# linuxcnc -t sc_tp /home/user/linuxcnc/configs/sim/axis/axis_mm.ini
+
+# Just start linuxcnc to test the jog in manual mode.
+linuxcnc

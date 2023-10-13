@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+    echo -e '\nlocale is missing\n'
+    exit
+elif [ ${#1} -ne 2 ]; then
+    echo -e '\nlocale needs to be two characters\n'
+    exit
+fi
+
+echo -e '\ncreating language translation file qtplasmac_'$1'.ts\n'
+
+pylupdate5 *.py ../*.py ../../../../../lib/python/qtvcp/lib/qtplasmac/*.py -ts qtplasmac_$1.ts

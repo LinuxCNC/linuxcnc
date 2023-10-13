@@ -1,0 +1,91 @@
+[EMC]
+VERSION = 1.1
+MACHINE = trivkins xyzx KINEMATICS_BOTH
+  DEBUG = 0
+
+[KINS]
+ KINEMATICS = trivkins coordinates=xyzx kinstype=BOTH
+     JOINTS = 4
+
+[DISPLAY]
+         JOG_AXES = XYZX
+          DISPLAY = axis
+  POSITION_OFFSET = RELATIVE
+POSITION_FEEDBACK = ACTUAL
+       CYCLE_TIME =   0.100
+MAX_FEED_OVERRIDE =   1.2
+
+[TASK]
+      TASK = milltask
+CYCLE_TIME = 0.001
+[RS274NGC]
+PARAMETER_FILE = xyzx.var
+[EMCMOT]
+      EMCMOT = motmod
+COMM_TIMEOUT =       1.0
+SERVO_PERIOD = 1000000
+[EMCIO]
+     EMCIO = io
+CYCLE_TIME = 0.100
+[TRAJ]
+            NO_FORCE_HOMING = 1
+                COORDINATES = X Y Z X
+               LINEAR_UNITS = inch
+              ANGULAR_UNITS = degree
+    DEFAULT_LINEAR_VELOCITY =  10.0
+DEFAULT_LINEAR_ACCELERATION = 200.0
+        MAX_LINEAR_VELOCITY =  10.0
+    MAX_LINEAR_ACCELERATION = 200.0
+
+[AXIS_X]
+       MAX_LIMIT =   1e10
+       MIN_LIMIT =  -1e10
+    MAX_VELOCITY =  10
+MAX_ACCELERATION = 200
+[AXIS_Y]
+       MAX_LIMIT =   1e10
+       MIN_LIMIT =  -1e10
+    MAX_VELOCITY =  10
+MAX_ACCELERATION = 200
+[AXIS_Z]
+       MAX_LIMIT =   1e10
+       MIN_LIMIT =  -1e10
+    MAX_VELOCITY =  10
+MAX_ACCELERATION = 200
+
+[JOINT_0]
+            TYPE = LINEAR
+       MAX_LIMIT =   1e10
+       MIN_LIMIT =  -1e10
+    MAX_VELOCITY =  10
+MAX_ACCELERATION = 200.0
+ HOME_SEARCH_VEL =   0
+   HOME_SEQUENCE =   0
+
+[JOINT_1]
+            TYPE = LINEAR
+       MAX_LIMIT =   1e10
+       MIN_LIMIT =  -1e10
+    MAX_VELOCITY =  10
+MAX_ACCELERATION = 200.0
+ HOME_SEARCH_VEL =   0
+   HOME_SEQUENCE =   0
+
+[JOINT_2]
+            TYPE = LINEAR
+       MAX_LIMIT =   1e10
+       MIN_LIMIT =  -1e10
+    MAX_VELOCITY =  10
+MAX_ACCELERATION = 200.0
+ HOME_SEARCH_VEL =   0
+   HOME_SEQUENCE =   0
+
+[JOINT_3]
+            TYPE = LINEAR
+       MAX_LIMIT =   1e10
+       MIN_LIMIT =  -1e10
+    MAX_VELOCITY =  10
+MAX_ACCELERATION = 200.0
+ HOME_SEARCH_VEL =   0
+   HOME_SEQUENCE =   0
+

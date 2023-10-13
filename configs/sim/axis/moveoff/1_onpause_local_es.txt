@@ -1,0 +1,33 @@
+Demo moveoff
+
+Opciones Moveoff_gui:
+
+  onpause - offsets cuando el programa está en pausa
+  local - controles locales
+
+Componente Moveoff instalado y conectado usando:
+
+  [HAL]HALFILE = LIB:hookup_moveoff.tcl
+
+Para información adicional:
+
+   man moveoff ------- componente moveoff
+   man moveoff_gui --- GUI de muestra de moveoff
+
+-------------------------------------------------- -
+Uso de demostración:
+ 1) Inicie linuxcnc usando la configuración 1_onpause_local.
+ 2) Establezca halscope en modo ROLL.
+ 3) <F1> (ESTOP off)
+ 4) <F2> (máquina on)
+ 5) <HOME> (home todos los ejes)
+ 6) <R> (Ejecuta el programa)
+ 7) <P> (Pausa el programa)
+ 8) Habilite los offsets con el botón de verificación Activar Offsets.
+ 9) Cambie los controles deslizantes de offsets x, y, z y observe
+    en halscope
+10) Desmarque el botón Activar Offsets para eliminar
+    offsets y permitir la reanudación del programa.
+11) Repita los pasos 6) a 9) pero modifique el retroceso del punto de referencia
+    con el botón Habilitar Retroceso.
+

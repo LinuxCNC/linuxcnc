@@ -1,0 +1,31 @@
+This is a simulated configuration to demonstrate the panelui component.
+
+This example shows:
+rapid jogging, MPG axis selection, MPG jog rate selection and spindle control buttons.
+The spindle on buttons will turn the spindle on in the desired direction (if off) or if already on,
+will increase or decrease the speed.
+by changing the panelui.ini file one can change the effects of the buttons.
+
+Panelui allows an integrator to connect an operator panel, whether in software or hardware to a
+ HAL only or full linuxcnc systems.
+
+It allows different styles of buttons including:
+
+momentary
+    -true output or 'true' command is only given when pushed and held
+    -False output or 'false' command is only given when released
+toggle
+    -true output or 'true' command is only given on first push
+    -False output or 'false' command is only given on second push
+radio
+    -each button can have its own set of pins/commands similar to toggle buttons
+    -has a group association with it's own pins/commands that changes depending on which
+        button in the group is active.
+
+There are a number of built in commands available, that allow a button press to control linuxcnc.
+such as spindle control, machine on, arbrtrary MDI commands etc.
+
+By adding a handler file written in python, one could add any arbitrary commands or modify the existing ones.
+
+Panelui is configured using an INI style text file that would be placed in the config folder.
+

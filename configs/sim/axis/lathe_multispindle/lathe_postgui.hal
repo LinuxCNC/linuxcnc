@@ -1,0 +1,4 @@
+net spindle-rpm-filtered.0 => pyvcp.spindle.0.speed
+net spindle-at-speed.0 => pyvcp.spindle.0.at-speed
+net spindle-rpm-filtered.1 => pyvcp.spindle.1.speed
+net spindle-at-speed.1 => pyvcp.spindle.1.at-speed

@@ -1,0 +1,136 @@
+(outside traverse arbitrary quadrangle)
+(computes direction for polygon cw or ccw and swaps if required)
+
+(info: oquad: outside quadrilateral, specify four x,y points)
+o<oquad>  sub
+
+#<toolno>   =  #1 (=1)
+#<rpm>      =  #2 (=1)
+#<dir>      =  #3 (=2 2conv|3climb)
+#<feedrate> =  #4 (=10)
+#<cutdepth> =  #5
+#<zincr>    =  #6
+#<zsafe>    =  #7 (=0.2)
+#<zstart>   =  #8 (=0)
+#<x1>       =  #9
+#<y1>       = #10
+#<x2>       = #11
+#<y2>       = #12
+#<x3>       = #13
+#<y3>       = #14
+#<x4>       = #15
+#<y4>       = #16
+#<scale>    = #17 (=1)
+#<rotate>   = #18 (=0)
+#<xoff>     = #19 (=0)
+#<yoff>     = #20 (=0)
+#<spin_notify> = #21 (=0)
+#<use_g43>     = #22 (=1)
+#<h_for_g43>   = #23 (=0)
+#<verbose>     = #24 (=0)
+
+o<i0> if [#<scale> EQ 0]
+        #<scale> = 1.0
+        (debug, scale was 0, setting #<scale>)
+o<i0> endif
+
+o<loadtool> call [#<toolno>][#<use_g43>][#<h_for_g43>][#<verbose>]
+#<tooldiam> = [#5410 + .001]
+
+o<l00> if [[#<dir> NE 2] AND [#<dir> NE 3]]
+         (debug, oquad: bogus direction #<dir> - EXITING)
+         (print, oquad: bogus direction #<dir> - EXITING)
+         (AXIS,notify, oquad: bogus direction - EXITING)
+         m2
+o<l00> endif
+
+       (determine direction eg cw or ccw of points)
+o<dir> call [4][#<x1>][#<y1>][#<x2>][#<y2>][#<x3>][#<y3>][#<x4>][#<y4>]
+       #<pointsdir> = #<_dir:>
+
+o<l20> if [#<pointsdir> NE #<dir>]
+         (swap 1234 --> 1432)
+         #<xt> = #<x2>
+         #<yt> = #<y2>
+         #<x2> = #<x4>
+         #<y2> = #<y4>
+         #<x4> = #<xt>
+         #<y4> = #<yt>
+o<l20> endif
+
+(apply scale, rotate, then offset to all input points)
+o<move> call [#<x1>][#<y1>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x1>      = #<_move:x>
+#<y1>      = #<_move:y>
+o<move> call [#<x2>][#<y2>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x2>      = #<_move:x>
+#<y2>      = #<_move:y>
+o<move> call [#<x3>][#<y3>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x3>      = #<_move:x>
+#<y3>      = #<_move:y>
+o<move> call [#<x4>][#<y4>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x4>      = #<_move:x>
+#<y4>      = #<_move:y>
+
+#<r>        = [#<tooldiam>/2]
+#<cutdepth> = [0 - #<cutdepth>]
+#<zincr>    = [0 - #<zincr>]
+
+(get lengths and angles for connecting lines)
+o<line> call [#<x1>][#<y1>][#<x2>][#<y2>]
+#<phi12>    = #<_line:phi>
+
+         g40 (cutter radius compensation off)
+         f #<feedrate>
+         s #<rpm> m3 (spindle cw)
+o<if1>   if [#<spin_notify> GT 0]
+o<spin>    call [#<rpm>]
+o<if1>   endif
+         g0 z#<zsafe>
+         #<zcurrent> = #<zstart>
+         #<pass>     = 1
+
+o<wh010> while [#<zcurrent> GT #<cutdepth>]
+           #<zcurrent> = [#<zcurrent> + #<zincr>]
+o<wh020>   if [#<zcurrent> LT #<cutdepth>]
+             #<zcurrent> = #<cutdepth>
+o<wh020>   endif
+o<wh030>   if [#<pass> GT 100]
+             (debug, oquad: too many passes - EXITING)
+             (print, oquad: too many passes - EXITING)
+             (AXIS,notify, oquad: too many passes - EXITING)
+             m2
+o<wh030>   endif
+
+o<pas00>   if [#<pass> EQ 1]
+o<dir00>     if [#<dir> EQ 2]
+               #<bx>  = [#<x1> -  #<r> * sin[#<phi12>] - #<r> * cos[#<phi12>]]
+               #<by>  = [#<y1> +  #<r> * cos[#<phi12>] - #<r> * sin[#<phi12>]]
+               #<vx>  = [         #<r> * cos[#<phi12>]] (b to arc center)
+               #<vy>  = [         #<r> * sin[#<phi12>]]
+               g0  x #<bx> y #<by>
+/              g41 (cutter radius comp left of path)
+               g3  x #<x1> y #<y1> i #<vx> j #<vy> (arc entry)
+o<dir00>     else (dir EQ 3 CCW)
+               #<bx>  = [#<x1> +  #<r> * sin[#<phi12>] - #<r> * cos[#<phi12>]]
+               #<by>  = [#<y1> -  #<r> * cos[#<phi12>] - #<r> * sin[#<phi12>]]
+               #<vx>  = [         #<r> * cos[#<phi12>]] (b to arc center)
+               #<vy>  = [         #<r> * sin[#<phi12>]]
+               g0  x #<bx> y #<by>
+/              g42 (cutter radius comp right of path)
+               g2  x #<x1> y #<y1> i #<vx> j #<vy> (arc entry)
+o<dir00>     endif
+             #<xfinal> = #<x2>
+             #<yfinal> = #<y2>
+             g1 z #<zstart> (plunge to start height todo:g0)
+o<pas00>   endif
+           x #<x2> y #<y2> z#<zcurrent> (ramp down to zcurrent)
+           x #<x3> y #<y3>
+           x #<x4> y #<y4>
+           x #<x1> y #<y1>
+           #<pass> = [#<pass> + 1]
+o<wh010> endwhile
+         g1  x #<xfinal> y #<yfinal>
+         g0  z #<zsafe>
+         g40
+o<oquad> endsub

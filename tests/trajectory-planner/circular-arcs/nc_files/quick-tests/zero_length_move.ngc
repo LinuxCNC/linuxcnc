@@ -1,0 +1,10 @@
+(Test for go-no go of zero length moves)
+G90 G17 G40 G80 G00 G20
+G0 x0 y0 z0
+g0 x.1 y0 z0
+G0 x0 y0 z0
+G1 x0.000000001 F100
+g1 x0
+G1 x0.0000000001 F100
+M30
+

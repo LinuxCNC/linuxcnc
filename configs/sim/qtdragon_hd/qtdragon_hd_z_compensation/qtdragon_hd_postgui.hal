@@ -1,0 +1,57 @@
+# load components
+########################################################################
+
+loadrt logic names=logic-and personality=0x102
+addf logic-and servo-thread
+
+# load a summing component for adding spindle lift and Z compensation
+loadrt scaled_s32_sums
+addf scaled-s32-sums.0 servo-thread
+
+loadusr -Wn z_level_compensation z_level_compensation
+# method parameter must be one of nearest(2), linear(1), cubic (0)
+setp z_level_compensation.fade-height 0.0
+setp z_level_compensation.method 1
+
+# connect signals
+########################################################################
+
+net spindle-speed-limited  =>  spindle.0.speed-out-rps => spindle.0.speed-in
+
+# the unlink pin commands are only used, because they are connected 
+# in core_sim.hal and we use this file to simulate
+unlinkp iocontrol.0.tool-change
+unlinkp iocontrol.0.tool-changed
+unlinkp iocontrol.0.tool-prep-number
+
+net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change 
+net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
+net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
+
+net eoffset-clear    axis.z.eoffset-clear
+net eoffset-counts   axis.z.eoffset-counts
+setp axis.z.eoffset-scale .001
+net eoffset-total          axis.z.eoffset
+net eoffset-total          qtdragon.eoffset-value
+setp axis.z.eoffset-enable True
+
+## external offsets for spindle pause function
+##################################################
+net eoffset-clear     qtdragon.eoffset-clear
+net eoffset-spindle-count   <= qtdragon.eoffset-spindle-count    
+net spindle-pause     qtdragon.spindle-inhibit spindle.0.inhibit
+
+## Z level compensation
+####################################################
+net eoffset-clr2            z_level_compensation.clear      => logic-and.in-01
+net xpos-cmd                z_level_compensation.x-pos      <= axis.x.pos-cmd
+net ypos-cmd                z_level_compensation.y-pos      <= axis.y.pos-cmd
+net zpos-cmd                z_level_compensation.z-pos      <= axis.z.pos-cmd
+net z_compensation_on       z_level_compensation.enable-in  <= qtdragon.comp-on
+net eoffset-zlevel-count    z_level_compensation.counts     => qtdragon.eoffset-zlevel-count
+
+net eoffset-spindle-count   scaled-s32-sums.0.in0
+net eoffset-zlevel-count    scaled-s32-sums.0.in1
+setp scaled-s32-sums.0.scale0 1000
+net eoffset-counts          scaled-s32-sums.0.out-s
+

@@ -1,0 +1,140 @@
+#!/usr/bin/env python3
+
+import sys, os, re, math
+
+
+def near(a, b):
+    fudge_factor = 0.001
+    error = abs(a-b)
+    allowance = abs(a * fudge_factor)
+    if error <= allowance:
+        return True
+    return False
+
+
+def must_decel_to_avoid_pos_violation(sample, out, vel):
+    """Returns True if maximum deceleration is needed NOW to avoid
+    violating position constraints."""
+
+    # Keep going one cycle without any acceleration.
+    next_out = out + (vel * 0.001) # Assume a 1 ms period.
+
+    # v = v0 + at
+    # 0 = v0 + at
+    # t = v0/a
+    seconds_to_stop = abs(vel) / params['maxa']
+
+    # figure out which direction we need to accelerate in
+    if vel > 0:
+        accel_sign = -1
+    else:
+        accel_sign = 1
+
+    # r = r0 + v0t + 1/2 at^2
+    pos_at_stop = next_out + (vel * seconds_to_stop) + (accel_sign * 0.5 * params['maxa'] * math.pow(seconds_to_stop, 2))
+    print("sample=%d, next_out=%.6f, vel=%.6f, seconds_to_stop=%.6f, pos_at_stop=%.6f, min=%.6f, max=%.6f" % \
+            (sample, next_out, vel, seconds_to_stop, pos_at_stop, params['min'], params['max']))
+    if pos_at_stop > (params['max'] * 1.01) or pos_at_stop < (params['min'] * 1.01):
+        return True
+
+    return False
+
+
+halfile = os.path.join(os.path.dirname(__file__),"test.hal")
+param_re = re.compile(r'^setp\s+limit3.0.([^\s]+)\s+([-0-9]+)$')
+params = {}
+params['min'] = -1e20
+params['max'] = 1e20
+params['maxv'] = 1e20
+params['maxa'] = 1e20
+with open(halfile, 'r') as f:
+    for line in f:
+        m = param_re.match(line)
+        if m is None:  continue
+        params[m.group(1)] = float(m.group(2))
+
+result_filename = sys.argv[1]
+result_file = open(result_filename, 'r')
+
+retval = 0
+
+for line in result_file.readlines():
+    (sample, in_val, out, vel, acc) = line.split()[:5]
+    sample = int(sample)
+    in_val = float(in_val)
+    out = float(out)
+    vel = float(vel)
+    acc = float(acc)
+
+    #
+    # See if we've violated any constraints.
+    #
+
+    if float(out) > params['max']:
+        print("max=%.3f, in=%.3f, out=%.3f, max violation on sample %s" % \
+            (params['max'], float(in_val), out, sample))
+        retval = 1
+
+    if float(out) < params['min']:
+        print("min=%.3f, in=%.3f, out=%.3f, min violation on sample %s" % \
+            (params['min'], float(in_val), out, sample))
+        retval = 1
+
+    if abs(vel) > params['maxv']:
+        print("maxv=%.3f, vel=%.3f, velocity violation on sample %s" % \
+            (params['maxv'], vel, sample))
+        retval = 1
+
+    if abs(acc) > params['maxa']:
+        print("maxa=%.3f, acc=%.3f, acceleration violation on sample %s" % \
+            (params['maxa'], acc, sample))
+        retval = 1
+
+
+    #
+    # See if we're accelerating too sluggishly.
+    #
+
+    if abs(acc) < params['maxa']:
+        # Why aren't we accelerating at the max rate?
+        if abs(vel) == params['maxv']:
+            # We've already maxed out vel.
+            pass
+        elif near(out, params['min']) or near(out, params['max']):
+            # We're at our position limit.
+            pass
+        elif near(out, in_val):
+            # We're already near our target.
+            pass
+        else:
+            # We have no good reason for not accelerating hard, so fail this test.
+            print("maxa=%.3f, acc=%.3f, sluggish acceleration on sample %s" % \
+                (params['maxa'], acc, sample))
+            retval = 1
+
+
+    #
+    # See if our velocity is too sluggish.
+    #
+
+    if abs(vel) < params['maxv']:
+        # Why aren't we moving at the max rate?
+        if abs(acc) == params['maxa']:
+            # We're still accelerating.
+            pass
+        elif near(out, params['min']) or near(out, params['max']):
+            # We're at our position limit.
+            pass
+        elif near(out, in_val):
+            # We've already reached our target.
+            pass
+        elif must_decel_to_avoid_pos_violation(sample, out, vel):
+            # We're slowing down to avoid violating position constraints.
+            pass
+        else:
+            # We have no good reason for not going fast, so fail this test.
+            print("maxv=%.3f, vel=%.3f, sluggish velocity on sample %s" % \
+                (params['maxv'], vel, sample))
+            retval = 1
+
+sys.exit(retval)

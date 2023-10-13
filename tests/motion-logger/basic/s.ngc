@@ -1,0 +1,27 @@
+; the G0 commands here are just to see the sequencing of commands coming out of task
+g0 x1
+; this will update the spindle speed via SPINDLE_ON with state False
+s123
+
+g0 x1.5
+; this will update the spindle speed via another SPINDLE_ON with state False
+s234
+
+g0 x2
+; this M3 will result in the SPINDLE_ON sent to Motion with state True
+m3
+
+g0 x3
+; this will update the spindle speed via another SPINDLE_ON with state True
+s321
+s432
+
+g0 x4
+; this will update the spindle via SPINDLE_OFF
+m5
+
+; this will update the spindle speed via SPINDLE_ON with state False
+s1234
+
+g0 x5
+m2

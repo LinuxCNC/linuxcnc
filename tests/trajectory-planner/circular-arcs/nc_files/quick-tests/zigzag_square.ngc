@@ -1,0 +1,19 @@
+(Square-wave shape)
+G20 G90 G61
+G0 X0 Y0 Z0
+G64
+G1 X1 F9999
+Y1
+X2
+Y0
+X3
+Y1
+X4
+Y0
+X5
+Y1
+X6
+G0 Z1
+X0 Y0
+Z0
+M30

@@ -1,0 +1,51 @@
+#!/bin/sh
+echo "copy python scripts to ~/bin folder"
+cd scripts
+cp -rf * ../../bin
+cd ..
+
+echo "run check and set scripts. \n"
+cd ..
+cd src
+./autogen.sh
+./configure --enable-non-distributable=yes
+cd ..
+
+echo "Copying header files into the include directory to use with halcompile \n"
+cd src/rtapi
+cp *.h ../../include
+cd ..
+cd hal
+cp *.h ../../include
+cd ..
+cd ..
+
+echo "building & installing components needed by the axis gui. \nBuilding with halcompile. \n"
+cd scripts
+./rip-environment halcompile --install ../src/hal/components/ddt.comp
+./rip-environment halcompile --install ../src/hal/components/hypot.comp
+./rip-environment halcompile --install ../src/hal/components/sim_spindle.comp
+./rip-environment halcompile --install ../src/hal/components/limit2.comp
+./rip-environment halcompile --install ../src/hal/components/lowpass.comp
+./rip-environment halcompile --install ../src/hal/components/near.comp
+./rip-environment halcompile --install ../src/hal/components/scale.comp
+./rip-environment halcompile --install ../src/hal/components/or2.comp
+./rip-environment halcompile --install ../src/hal/components/comp.comp
+./rip-environment halcompile --install ../src/hal/components/and2.comp
+cd ..
+
+echo "building linuxcnc with cmake. \n"
+cd cmake
+mkdir -p build
+cd build
+cmake ..
+make
+make install
+cd ..
+cd ..
+
+echo "start linuxcnc \n"
+cd scripts
+./rip-environment linuxcnc ../configs/sim/axis/axis_mm.ini
+
+

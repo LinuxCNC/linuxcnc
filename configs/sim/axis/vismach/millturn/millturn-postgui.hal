@@ -1,0 +1,7 @@
+net :mill-button   <= pyvcp.mill-button   => halui.mdi-command-00
+net :turn-button   <= pyvcp.turn-button   => halui.mdi-command-01
+
+net :kinstype.is-0 <= kinstype.is-0       => pyvcp.multilabel.0.legend0
+net :kinstype.is-1 <= kinstype.is-1       => pyvcp.multilabel.0.legend1
+
+net :vismach-clear <= pyvcp.vismach-clear => vismach.plotclear

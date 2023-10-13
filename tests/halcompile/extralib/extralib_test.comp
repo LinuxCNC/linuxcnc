@@ -1,0 +1,13 @@
+component extralib_test;
+pin in float theta;
+pin out float sin_;
+license "GPL";
+option userspace;
+option extra_link_args "-lm";
+;;
+#include <math.h>
+void user_mainloop(void) {
+    while(1) {
+        FOR_ALL_INSTS() sin_ = sin(theta);
+    }
+}

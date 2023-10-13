@@ -1,0 +1,62 @@
+# HAL config file for vismach simulation of vertical milling machine
+# This file deomstrates closed-loop spindle control in both position and 
+# Velocity modes. 
+
+# see http://wiki.linuxcnc.org/cgi-bin/wiki.pl?SpindleOrient for a diagram
+
+# Note that the connections of the signals to "hardware" are all in the 
+# sim_vmc.hal file rather than here
+
+# First load 2x pid components. These would normally have to be loaded at
+# the same time as the Axis PID components
+
+loadrt pid num_chan=2 
+addf pid.0.do-pid-calcs servo-thread # Velocity
+addf pid.1.do-pid-calcs servo-thread # Position
+
+loadrt orient
+addf orient.0 servo-thread
+
+#loadrt mux2 -- This has already been loaded in the sim_vmc.hal
+addf mux2.0 servo-thread # chooses which pid output goes to the spindle speed control
+
+net spindle-pos pid.1.feedback orient.0.position
+
+net spindle-vel 	pid.0.feedback # & encoder.3.velocity for a real machine
+net spindle-vel-cmd 	spindle.0.speed-out pid.0.command
+net spindle-vel-pid 	pid.0.output mux2.0.in0
+
+net spindle-pos 	pid.1.feedback orient.0.position near.0.in1 # & encoder.3.position for a real machine
+net spindle-pos-cmd 	orient.0.command pid.1.command near.0.in2
+net spindle-angle 	spindle.0.orient-angle orient.0.angle
+net spindle-pos-pid 	pid.1.output mux2.0.in1
+net spindle-in-pos 	orient.0.is-oriented  spindle.0.is-oriented
+
+# this switches modes
+net orient-mode 	spindle.0.orient orient.0.enable pid.1.enable mux2.0.sel
+net velocity-mode	spindle.0.on pid.0.enable #pwmgen.0.enable 
+net orient-dir		spindle.0.orient-mode orient.0.mode
+
+# this is simple for the simulated spindle.
+net spindle-cmd 	mux2.0.out
+
+#for a real spindle run by a VFD
+# loadrt abs
+# addf abs.0.servo-thread
+# net spindle-cmd 	mux2.0.out abs.0.in
+# net spindle-cmd-abs 	abs.0.out pwmgen.0.value
+# net spindle-pwm 	pwmgen.0.pwm parport.0.pin-NN-out
+# net spindle-fwd 	abs.0.is-positive parport.0.pin-NN-out
+# net spindle-rev 	abs.0.is-negative parport.0.pin-NN-out
+
+# Tune the PID from the INI values
+setp pid.0.Pgain [SPINDLE]PGAIN_V
+setp pid.0.Igain [SPINDLE]IGAIN_V
+setp pid.0.Dgain [SPINDLE]DGAIN_V
+setp pid.0.FF0	 [SPINDLE]FF0_V
+setp pid.0.FF1   [SPINDLE]FF1_V
+setp pid.1.Pgain [SPINDLE]PGAIN_P
+setp pid.1.Igain [SPINDLE]IGAIN_P
+setp pid.1.Dgain [SPINDLE]DGAIN_P
+setp pid.1.FF0	 [SPINDLE]FF0_P
+setp pid.1.FF1   [SPINDLE]FF1_P

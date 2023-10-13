@@ -1,0 +1,14 @@
+.TH GANTRYKINS "9" "" "LinuxCNC Documentation" "Kinematics Module"
+
+.SH NAME
+
+gantrykins \- \fBSuperseded\fR by the general purpose \fBtrivkins\fR kinematics module.
+
+To specify a gantry with non-identity kinematics: use trivkins with
+the kinstype parameter set for KINEMATICS_BOTH.  Example:
+
+.PP
+  loadrt trivkins coordinates=xyyz \fBkinstypes=BOTH\fR
+
+.SH SEE ALSO
+\fBtrivkins\fR(9)

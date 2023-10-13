@@ -1,0 +1,4 @@
+This test exposes limit3 to an input signal that it is capable of
+following perfectly (but just barely), and verifies that the output
+follows the input very closely, while not violating position, velocity,
+and acceleration constraints.

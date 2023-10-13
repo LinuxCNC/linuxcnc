@@ -1,0 +1,34 @@
+Moveoff demo -- external controls with pvyvcp panel
+                moveoff_gui display disabled
+----------------------------------------------------
+Moveoff_gui options:
+(Note: the moveoff_gui is used in the -no_display mode)
+
+  onpause  -- offsets when program paused
+  external -- external controls in pyvcp panel
+
+Moveoff component installed and connected using:
+
+  [HAL]HALFILE = LIB:hookup_moveoff.tcl
+
+For additional info:
+
+   man moveoff  ------ moveoff component
+   man moveoff_gui --- moveoff sample gui
+
+----------------------------------------------------
+Demo usage:
+ 1) Start linuxcnc using the 7_pyvcp config.
+ 2) <F1>   (remove ESTOP)
+ 3) <F2>   (turn on machine)
+ 4) <HOME> (home all axes)
+ 5) <R>    (Run the program)
+ 6) <P>    (Pause the program)
+ 7) Set halscope to ROLL mode and then enable offsets
+    with the Enable Offsets checkbutton.
+ 8) Change the x,y,z offsets sliders and observe
+    on halscope
+ 9) Uncheck the Enable Offsets checkbutton to remove
+    offsets and allow program resumption.
+10) Repeat steps 6) thru 9) but alter waypoint
+    backtracking with the Enable Backtrack checkbutton.

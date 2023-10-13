@@ -1,0 +1,126 @@
+//
+//   This is a thermistor temperature estimator component for LinuxCNC.
+//   Copyright 2015-2016 Sebastian Kuzminsky <seb@highlab.com>
+//
+//   This program is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation; either version 2 of the License, or
+//   (at your option) any later version.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+//
+
+component thermistor "compute temperature indicated by a thermistor";
+license "GPL";
+option userspace yes;
+option userinit;
+option extra_link_args "-lm";
+
+description """This component computes the temperature indicated by a
+thermistor in a voltage-divider ladder.  It uses the Beta-parameter
+variant of the Steinhart-Hart equation, described here:
+
+    http://en.wikipedia.org/wiki/Thermistor""";
+
+include <unistd.h>;
+include <rtapi_math.h>;
+
+pin in float t0_c """Reference temperature of the thermistor, in degrees
+Celsius (typically 25 C).  This must be set before the component can
+compute the thermistor temperature.  The reference temperature information
+is supplied by the thermistor manufacturer.""";
+
+pin in float r0 """Resistance of the thermistor at the reference
+temperature.  This must be set before the component can compute the
+thermistor temperature.  The reference resistance information is supplied
+by the thermistor manufacturer.""";
+
+pin in float beta """Beta parameter of the thermistor (sometimes
+just called B).  This must be set before the component can compute the
+thermistor temperature.  The Beta parameter is supplied by the thermistor
+manufacturer.""";
+
+pin in float r_other """Resistance of the other resistor in the
+voltage-divider ladder.  This must be set before the component can
+compute the thermistor temperature.""";
+
+pin in float v_total "Supply voltage of the voltage-divider ladder.";
+pin in float v_thermistor "Voltage drop across the termistor.";
+
+pin out float temperature_c "Temperature sensed by the thermistor, in degrees Celsius.";
+pin out float temperature_k "Temperature sensed by the thermistor, in Kelvins.";
+pin out float temperature_f "Temperature sensed by the thermistor, in degrees Fahrenheit.";
+
+pin out float resistance "Computed resistance of the thermistor.";
+
+;;
+
+#include <signal.h>
+
+int should_exit = 0;
+
+void sigterm_handler(int signo) {
+    should_exit = 1;
+}
+
+static void userinit(int argc, char **argv) {
+    signal(SIGTERM, sigterm_handler);
+}
+
+void user_mainloop(void) {
+    while (!should_exit) {
+        FOR_ALL_INSTS() {
+            hal_float_t t0_k = t0_c + 273.15;
+            hal_float_t r_inf;
+            hal_float_t current;
+
+            if (t0_k <= 0.0) {
+                goto problem;
+            }
+
+            if (r_other <= 0.0) {
+                goto problem;
+            }
+
+            r_inf = r0 * exp(-beta/t0_k);
+            if (r_inf <= 0.0) {
+                goto problem;
+            }
+
+            current = (v_total - v_thermistor) / r_other;
+            if (current <= 0.0) {
+                goto problem;
+            }
+
+            resistance = v_thermistor / current;
+            if (isnan(resistance) || isinf(resistance) || (resistance <= 0.0)) {
+                goto problem;
+            }
+
+            temperature_k = beta / log(resistance/r_inf);
+            if (isnan(temperature_k) || isinf(temperature_k) || (temperature_k < 0.0)) {
+                goto problem;
+            }
+
+            // no problems found
+            goto ok;
+
+problem:
+            // override problematic output pins with bogus but not invalid values
+            resistance = 0;
+            temperature_k = 9999;
+
+ok:
+            temperature_c = temperature_k - 273.15;
+            temperature_f = (temperature_c * 9.0 / 5.0) + 32.0;
+        }
+        usleep(100 * 1000);
+    }
+}

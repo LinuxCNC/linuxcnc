@@ -1,0 +1,31 @@
+#5599 = 1
+
+
+#<n> = 1
+o10 do
+(debug,t3.ngc: Using M61 n=#<n>)
+M61Q#<n>G43
+g4p1
+G49
+#<n> = [[#<n>] + 1]
+o10 while [[#<n>] LT 4] ;was LT 24
+
+#<n> = 1
+o100 do
+(debug,t3.ngc: Using M6 n=#<n>)
+t#<n>m6G43
+g4p2
+G49
+#<n> = [[#<n>] + 1]
+
+o100 while [[#<n>] LT 4] ; was LT 24
+;f123s350m6m4m8m49g18g21g94t1
+;m75p2q47
+;g88.1X1Y2Z3f200
+;m75p2q47
+;g88.1X1Y2Z3f200
+;g88.1X1Y2Z3f200
+;
+;o<myfunc>call [23] [45]
+;(debug,value=#<_value>)
+m2

@@ -1,0 +1,20 @@
+o<tool_sensor> sub
+G21 (use metric units)
+G49 (cancel tool offset)
+G10 L20 P0 Z0 (clear current offsets)
+G91 (switch to incremental mode)
+
+; this section commented out for sim
+;G38.2 Z[#<_hal[gscreen.maxprobe]>] F[#<_hal[gscreen.search_vel]>] (probe down)
+;G1 Z4.0 (move up 4 mm)
+;G4 P0.5 (pause for 0.5 sec.)
+;G38.2 Z-6.0 F[#<_hal[gscreen.probe_vel]>] (probe down slower)
+
+; this section used for sim, comment out otherwise
+G1 Z-10 F[#<_hal[gscreen.search_vel]>]
+
+G10 L20 P0 Z[#<_hal[gscreen.sensor_height]> - #<_hal[gscreen.block_height]>]
+G90 (absolute distance mode)
+G53 G0 Z0 (move Z up to 0)
+o<tool_sensor> endsub
+M2

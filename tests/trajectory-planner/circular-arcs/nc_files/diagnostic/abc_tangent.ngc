@@ -1,0 +1,20 @@
+G20 G90 G17
+
+G0 Z1
+G0 X0 Y0 A0
+G0 Z0
+(Constant A displacement wrt XYZ arc length)
+G1 X1 A100 F100
+G1 Y1 A200 F100
+G1 Z1 A300 F100
+G1 Z2 A400 F100
+G0 X0 Y0 Z0
+(Tangent lines along XYZA)
+G1 X1 A100
+G1 X2 A200
+G1 X3 A300
+G1 X4 A300
+
+G0 X0 Y0 Z0 A0
+M2
+

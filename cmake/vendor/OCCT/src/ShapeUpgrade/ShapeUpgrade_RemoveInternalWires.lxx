@@ -1,0 +1,75 @@
+// Copyright (c) 1999-2014 OPEN CASCADE SAS
+//
+// This file is part of Open CASCADE Technology software library.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License version 2.1 as published
+// by the Free Software Foundation, with special exception defined in the file
+// OCCT_LGPL_EXCEPTION.txt. Consult the file LICENSE_LGPL_21.txt included in OCCT
+// distribution for complete text of the license and disclaimer of any warranty.
+//
+// Alternatively, this file may be used under the terms of Open CASCADE
+// commercial license or contractual agreement.
+
+#include <ShapeExtend.hxx>
+
+//=======================================================================
+//function : MinArea
+//purpose  : 
+//=======================================================================
+
+inline Standard_Real& ShapeUpgrade_RemoveInternalWires::MinArea() 
+{
+  return myMinArea;
+}
+
+ 
+//=======================================================================
+//function : RemoveFaceMode
+//purpose  : 
+//=======================================================================
+
+inline Standard_Boolean& ShapeUpgrade_RemoveInternalWires::RemoveFaceMode() 
+{
+  return myRemoveFacesMode;
+}
+
+//=======================================================================
+//function : RemovedFaces
+//purpose  : 
+//=======================================================================
+
+inline const TopTools_SequenceOfShape& ShapeUpgrade_RemoveInternalWires::RemovedFaces() const
+{
+  return myRemovedFaces;
+}
+
+//=======================================================================
+//function : RemovedWires
+//purpose  : 
+//=======================================================================
+
+inline const TopTools_SequenceOfShape& ShapeUpgrade_RemoveInternalWires::RemovedWires() const
+{
+  return myRemoveWires;
+}
+
+//=======================================================================
+//function : GetResult
+//purpose  : 
+//=======================================================================
+
+inline TopoDS_Shape ShapeUpgrade_RemoveInternalWires::GetResult() const
+{
+  return myResult;
+}
+
+//=======================================================================
+//function : Status
+//purpose  : 
+//=======================================================================
+
+inline Standard_Boolean ShapeUpgrade_RemoveInternalWires::Status(const ShapeExtend_Status theStatus) const
+{
+  return ShapeExtend::DecodeStatus ( myStatus, theStatus );
+}

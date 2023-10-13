@@ -1,0 +1,702 @@
+# Edited for LinuxCNC (gscreen-indrustrial) by tjamscad and Chris Morley
+
+#
+# Buttons
+#
+
+style "checkradiobutton" {
+  engine "pixmap" {
+    image 
+      {
+        function        = FLAT_BOX
+	recolorable     = TRUE
+	file            = "blank.png"
+	border          = { 0,0,0,0 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = CHECK
+	recolorable     = TRUE
+	shadow          = OUT
+	overlay_file    = "check1.png"
+	overlay_stretch = FALSE
+      }
+    image 
+      {
+        function        = CHECK
+	recolorable     = TRUE
+	shadow          = IN
+	overlay_file    = "check2.png"
+	overlay_stretch = FALSE
+      }
+    image 
+      {
+        function        = OPTION
+	recolorable     = TRUE
+	shadow          = OUT
+	overlay_file    = "radio1.png"
+	overlay_border  = { 0, 0, 0, 0 }
+	overlay_stretch = FALSE
+      }
+    image 
+      {
+        function        = OPTION
+	recolorable     = TRUE
+	shadow          = IN
+	overlay_file    = "radio2.png"
+	overlay_border  = { 0, 0, 0, 0 }
+	overlay_stretch = FALSE
+      }
+  }
+}
+
+class "GtkRadioButton" style "checkradiobutton"
+class "GtkCheckButton" style "checkradiobutton"
+
+style "button"
+{
+
+  engine "pixmap" 
+    {
+
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	state           = NORMAL
+	shadow          = IN
+	file            = "default.png"
+	border          = { 7,7,7,7 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	state		= INSENSITIVE
+	file            = "button3.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	state		= PRELIGHT
+	file            = "button2.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	state		= ACTIVE
+	file            = "button2.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	shadow 		= IN
+	state		= SELECTED
+	file            = "button2.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	file            = "button1.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+   }
+}
+
+class "GtkButton" style "button"
+
+# modified estop button colors
+# The button must be named properly for this to work
+style "estop button fix"
+{
+
+  engine "pixmap" 
+    {
+
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	state           = NORMAL
+	shadow          = IN
+	file            = "button3.png"
+	border          = { 7,7,7,7 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	state		= INSENSITIVE
+	file            = "button3.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	state		= PRELIGHT
+	file            = "yellow_button2.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	state		= ACTIVE
+	file            = "red_button2.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	shadow 		= IN
+	state		= SELECTED
+	file            = "red_button2.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	file            = "green_button2.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+   }
+}
+
+widget "*.*.button_estop" style "estop button fix"
+
+# modified power button colors
+# The button must be named properly for this to work
+style "control_on button fix"
+{
+
+  engine "pixmap" 
+    {
+
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	state           = NORMAL
+	shadow          = IN
+	file            = "button3.png"
+	border          = { 7,7,7,7 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	state		= INSENSITIVE
+	file            = "button3.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	state		= PRELIGHT
+	file            = "yellow_button2.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	state		= ACTIVE
+	file            = "green_button2.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	shadow 		= IN
+	state		= SELECTED
+	file            = "green_button2.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	shadow 		= OUT
+	state		= SELECTED
+	file            = "red_button2.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	file            = "red_button2.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+   }
+}
+
+widget "*.button_machine_on" style "control_on button fix"
+
+style "notebook"
+{
+  engine "pixmap" 
+    {
+    image 
+      {
+        function        = EXTENSION
+	recolorable     = TRUE
+	state		= ACTIVE
+	file            = "button1.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+
+    image 
+      {
+        function        = EXTENSION
+	recolorable     = TRUE
+	file            = "button2.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX_GAP
+	recolorable     = TRUE
+	file            = "up.png"
+	border          = { 2,2,2,2 }
+	stretch         = TRUE
+	gap_file        = "blank.png"
+	gap_border      = { 0, 0, 0, 0 }
+	gap_start_file  = "blank.png"
+	gap_start_border= { 0, 0, 0, 0 }
+	gap_end_file    = "blank.png"
+	gap_end_border  = { 0, 0, 0, 0 }
+      }
+  }
+}
+
+class "GtkNotebook" style "notebook"
+
+style "menuitem"
+{
+  engine "pixmap" {
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	file            = "button2.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+  }
+}
+
+class "GtkMenuItem" style "menuitem"
+
+style "optionmenu"
+{
+  engine "pixmap" {
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	state           = INSENSITIVE
+	file            = "obutton2.png"
+	border          = { 6,20,6,6 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	file            = "obutton1.png"
+	border          = { 6,20,6,6 }
+	stretch         = TRUE
+      }
+    image 
+      {
+	state		= INSENSITIVE
+        function        = TAB
+	recolorable     = TRUE
+	overlay_file    = "option2.png"
+	overlay_stretch = FALSE
+      }
+    image 
+      {
+        function        = TAB
+	recolorable     = TRUE
+	overlay_file    = "option1.png"
+	overlay_stretch = FALSE
+      }
+  }
+}
+
+class "GtkOptionMenu" style "optionmenu"
+
+style "scrollbar"
+{
+  engine "pixmap" 
+   {
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	detail		= "trough"
+	file            = "trough.png"
+	border          = { 7,7,7,7 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = SLIDER
+	recolorable     = TRUE
+	state		= INSENSITIVE
+	file            = "button4.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = SLIDER
+	recolorable     = TRUE
+	file            = "button2.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	state		= INSENSITIVE
+	file            = "button3.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	state		= PRELIGHT
+	file            = "button2.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	shadow          = IN
+	file            = "button2.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	file            = "button1.png"
+	border          = { 6,6,6,6 }
+	stretch         = TRUE
+      }
+    }
+}
+
+class "GtkScrollbar" style "scrollbar"
+class "GtkRange" style "scrollbar"
+class "GtkProgressBar" style "scrollbar"
+
+style "spin"
+{
+  xthickness = 20
+  ythickness = 20
+  engine "pixmap" 
+   {
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	state		= PRELIGHT
+	file            = "spin2.png"
+	border          = { 4,5,4,5 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	shadow          = IN
+	file            = "spin2.png"
+	border          = { 4,5,4,5 }
+	stretch         = TRUE
+      }
+
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	state		= INSENSITIVE
+	file            = "spin3.png"
+	border          = { 4,5,4,5 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = BOX
+	recolorable     = TRUE
+	file            = "spin1.png"
+	border          = { 4,5,4,5 }
+	stretch         = TRUE
+      }
+    }
+}
+
+class "GtkSpin*" style "spin"
+
+style "default"
+{
+  GtkRange::slider_width = 50
+  GtkScrollbar::min_slider_length = 50
+
+  font = "-*-helvetica-medium-r-normal--*-120-*-*-*-*-*-*"
+
+  fg[SELECTED]      = "#ff0000" #not used
+  fg[SELECTED]      = "#ff0000" #not used
+  fg[ACTIVE]        = "#000000" #Selected button text 
+  fg[PRELIGHT]      = "#000000" #Highlighted button text
+  fg[INSENSITIVE]   = "#d7d7d7" #Not selectable button text
+
+  bg[NORMAL]        = "#d7d7d7" #Background
+  bg[SELECTED]      = "#ff0000" #not used
+  bg[ACTIVE]        = "#ff0000" #not used
+  bg[PRELIGHT]      = "#000000" #Themes, warning audio,alert audio |(pipe) highlight
+  bg[INSENSITIVE]   = "#999999" #program gcode line number, themes scroll not selectable
+
+  base[NORMAL]      = "#ffffff" #MDI-command,tool edit, offset, grid size starting rpm
+  base[SELECTED]    = "#aab6ff" #This is for MDI-command, tooledit and offset edit it will highlight the selected
+  base[ACTIVE]      = "#d7d7d7" #This is for MDI-command, tooledit and offset edit it will highlight the last line that was selected
+  base[PRELIGHT]    = "#ff0000" #not used
+  base[INSENSITIVE] = "#d7d7d7" #gcode number line background
+
+  text[NORMAL]      = "#000000" #This is for MDI-command, tooledit, offset edit, grid size, starting rpm and themes normal text color
+  text[SELECTED]    = "#000000" #This is for MDI-command, tooledit and offset edit it will change the selected text color
+  text[ACTIVE]      = "#000000" #This is for MDI-command, tooledit and offset edit it will highlight the last line text that was selected
+  text[PRELIGHT]    = "#000000" #This is for initial theme text highlight before selecting 
+  text[INSENSITIVE] = "#ff0000" #not used
+
+  engine "pixmap" 
+  {
+    image 
+      {
+        function        = FOCUS
+	recolorable     = TRUE
+	overlay_file    = "blank.png"
+	overlay_border  = { 0,0,0,0 }
+	overlay_stretch = TRUE
+      }
+    image 
+      {
+        function        = ARROW
+	recolorable     = TRUE
+	state           = NORMAL
+	file            = "arrow_up1.png"
+	stretch         = TRUE
+	arrow_direction = UP
+      }
+    image 
+      {
+        function        = ARROW
+	recolorable     = TRUE
+	state           = PRELIGHT
+	file            = "arrow_up1.png"
+	stretch         = TRUE
+	arrow_direction = UP
+      }
+    image 
+      {
+        function        = ARROW
+	recolorable     = TRUE
+        shadow          = IN
+	file            = "arrow_up1.png"
+	stretch         = TRUE
+	arrow_direction = UP
+      }
+    image 
+      {
+        function        = ARROW
+	recolorable     = TRUE
+	state           = INSENSITIVE
+	file            = "arrow_up2.png"
+	stretch         = TRUE
+	arrow_direction = UP
+      }
+
+    image 
+      {
+        function        = ARROW
+	recolorable     = TRUE
+	state           = NORMAL
+	file            = "arrow_down1.png"
+	stretch         = TRUE
+	arrow_direction = DOWN
+      }
+    image 
+      {
+        function        = ARROW
+	recolorable     = TRUE
+	state           = PRELIGHT
+	file            = "arrow_down1.png"
+	stretch         = TRUE
+	arrow_direction = DOWN
+      }
+    image 
+      {
+        function        = ARROW
+	recolorable     = TRUE
+        shadow          = IN
+	file            = "arrow_down1.png"
+	stretch         = TRUE
+	arrow_direction = DOWN
+      }
+    image 
+      {
+        function        = ARROW
+	recolorable     = TRUE
+	state		= INSENSITIVE
+	file            = "arrow_down2.png"
+	stretch         = TRUE
+	arrow_direction = DOWN
+      }
+
+    image 
+      {
+        function        = ARROW
+	recolorable     = TRUE
+	state           = NORMAL
+	file            = "arrow_left1.png"
+	stretch         = TRUE
+	arrow_direction = LEFT
+      }
+    image 
+      {
+        function        = ARROW
+	recolorable     = TRUE
+	state           = PRELIGHT
+	file            = "arrow_left1.png"
+	stretch         = TRUE
+	arrow_direction = LEFT
+      }
+    image 
+      {
+        function        = ARROW
+	recolorable     = TRUE
+        shadow          = IN
+	file            = "arrow_left1.png"
+	stretch         = TRUE
+	arrow_direction = LEFT
+      }
+    image 
+      {
+        function        = ARROW
+	recolorable     = TRUE
+	state           = INSENSITIVE
+	file            = "arrow_left2.png"
+	stretch         = TRUE
+	arrow_direction = LEFT
+      }
+
+    image 
+      {
+        function        = ARROW
+	recolorable     = TRUE
+	state           = NORMAL
+	file            = "arrow_right1.png"
+	stretch         = TRUE
+	arrow_direction = RIGHT
+      }
+    image 
+      {
+        function        = ARROW
+	recolorable     = TRUE
+	state           = PRELIGHT
+	file            = "arrow_right1.png"
+	stretch         = TRUE
+	arrow_direction = RIGHT
+      }
+    image 
+      {
+        function        = ARROW
+	recolorable     = TRUE
+        shadow          = IN
+	file            = "arrow_right1.png"
+	stretch         = TRUE
+	arrow_direction = RIGHT
+      }
+    image 
+      {
+        function        = ARROW
+	recolorable     = TRUE
+	state           = INSENSITIVE
+	file            = "arrow_right2.png"
+	stretch         = TRUE
+	arrow_direction = RIGHT
+      }
+    image 
+      {
+        function        = SHADOW
+	recolorable     = TRUE
+	shadow		= OUT
+	file            = "up.png"
+	border		= { 2,2,2,2 }
+	stretch         = TRUE
+      }
+    image 
+      {
+        function        = SHADOW
+	recolorable     = TRUE
+	shadow		= IN
+	file            = "in.png"
+	border		= { 2,2,2,2 }
+	stretch         = TRUE
+      }
+   }
+}
+
+
+# common default
+class "GtkWidget" style "default"
+
+
+
+

@@ -1,0 +1,49 @@
+ifneq ($(GTK_VERSION),)
+CLASSICLADDERSRCS := $(addprefix hal/classicladder/, \
+	arithm_eval.c \
+	arrays.c \
+	calc.c \
+	calc_sequential.c \
+	classicladder.c \
+	classicladder_gtk.c \
+	config_gtk.c \
+	drawing.c \
+	drawing_sequential.c \
+	edit.c \
+	edit_copy.c \
+	edit_gtk.c \
+	edit_sequential.c \
+	editproperties_gtk.c \
+	emc_mods.c \
+	files.c \
+	files_project.c \
+	files_sequential.c \
+	manager.c \
+	manager_gtk.c \
+	menu_and_toolbar_gtk.c \
+	print_gtk.c \
+	protocol_modbus_master.c \
+	protocol_modbus_slave.c \
+	serial_linux.c \
+	socket_modbus_master.c \
+	socket_server.c \
+	spy_vars_gtk.c \
+	symbols.c \
+	symbols_gtk.c \
+	vars_names.c \
+	vars_access.c \
+        )
+
+GTK_CFLAGS += -DGTK_INTERFACE
+
+$(call TOOBJSDEPS,$(CLASSICLADDERSRCS)) : EXTRAFLAGS = $(GTK_CFLAGS) -DGDK_DISABLE_DEPRECATION_WARNINGS -DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER
+$(call TOOBJS, $(CLASSICLADDERSRCS)): Makefile.inc
+
+USERSRCS += $(CLASSICLADDERSRCS)
+
+../bin/classicladder: $(call TOOBJS, $(CLASSICLADDERSRCS)) ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	@$(CC) $(LDFLAGS) $(CFLAGS) $(ULFLAGS) -o $@ $^ $(GTK_LIBS) -lpthread
+
+TARGETS += ../bin/classicladder
+endif

@@ -1,0 +1,79 @@
+@startuml
+@startsalt
+
+{#
+| . | 1 | 2 | 3 
+| A | {
+ .|. | <&signal>| <&battery-empty>  <&media-stop>|  STP: 1.0 
+  . | <&star>|X:|+1234|.4561
+  .      |.|Y:|-1470|.9632
+  .      |. |Z:|+0|.0000   |.
+} |
+{
+ .|. | <&signal>| <&battery-empty>  <&media-stop>|  CONT 30% 
+  . | <&star>|X:|+1234|.4561
+  .      |.|Y:|-1470|.9632
+  .      |. |Z:|+0|.0000   |.
+} |
+{
+ .|. | <&signal>| <&battery-empty>  <&media-stop>|  CON:30% 
+  . | <&star>|X:|+1234|.4561
+  .      |.|Y:|-1470|.9632
+  .      |. |Z:|+0|.0000   |.
+}
+
+| B |
+{
+ .|. | <&signal>| <&battery-empty>  <&media-stop>|  MPG 30% 
+  . | <&star>|X:|+1234|.4561
+  .      |.|Y:|-1470|.9632
+  .      |. |Z:|+0|.0000   |.|.
+} |
+{
+ .|. | <&signal>| <&battery-empty>  <&media-stop>|  F:120  
+  . | <&star>|X:|+1234|.4561
+  .      |.|Y:|-1470|.9632
+  .      |. |Z:|+0|.0000   |.|.|.|.|.|.
+} |
+{
+ .|. | <&signal>| <&battery-empty>  <&media-stop>|  S:1200 
+  . | <&star>|X:|+1234|.4561
+  .      |.|Y:|-1470|.9632
+  .      |. |Z:|+0|.0000   |.|.|.|.
+}
+
+| C |
+{
+ .|. | <&signal>| <&battery-empty>  <&media-stop>|  S:1200 
+  . | <&star>|X:|+1234|.4561
+  .      |.|Y:|-1470|.9632
+  .      |. |Z:|+0|.0000   |.|.|.|.
+} |
+{
+ .|. | <&signal>| <&battery-empty>  <&media-stop>|  RESET 
+  . | <&star>|X:|+1234|.4561
+  .      |.|Y:|-1470|.9632
+  .      |. |Z:|+0|.0000   |.|.|.|.|.
+} |
+{
+ .|. | <&signal>| <&battery-empty>  <&media-stop>|  CONT 30% 
+  . | <&star>|X1:|+1234|.4561
+  .      |.|Y1:|-1470|.9632
+  .      |. |Z1:|+0|.0000   
+}
+
+| D | 
+{
+ .|. | <&signal>| <&battery-empty>  <&media-stop>|  CONT 30% 
+  . | . |A1:|+1234|.4561
+  .      |.|B1:|-1470|.9632
+  .      |<&star> |C1:|+0|.0000   
+} {
+<&signal> ... signal strength | X,Y-C ... machine coord.
+<&star> ... selected axis     | X1,Y1-C1 ... workpiece coord.
+<&battery-empty> ... battery level
+<&media-stop> ... tx indicator
+} |* |
+}
+@endsalt
+@enduml

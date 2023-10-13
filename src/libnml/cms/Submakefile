@@ -1,0 +1,6 @@
+INCLUDES += emc libnml/cms
+
+$(patsubst ./libnml/cms/%,../include/%,$(wildcard ./libnml/cms/*.h)): ../include/%.h: ./libnml/cms/%.h
+	cp $^ $@
+$(patsubst ./libnml/cms/%,../include/%,$(wildcard ./libnml/cms/*.hh)): ../include/%.hh: ./libnml/cms/%.hh
+	cp $^ $@

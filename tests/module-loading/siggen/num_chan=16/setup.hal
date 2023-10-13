@@ -1,0 +1,4 @@
+
+loadrt siggen num_chan=16
+show pin
+

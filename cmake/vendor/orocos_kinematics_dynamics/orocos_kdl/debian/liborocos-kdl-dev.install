@@ -1,0 +1,6 @@
+usr/include/kdl/*.hpp
+usr/include/kdl/*.inl
+usr/include/kdl/utilities/*.hpp
+usr/include/kdl/utilities/*.h
+usr/lib/liborocos-kdl.so
+usr/lib/pkgconfig/orocos-kdl.pc

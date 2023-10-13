@@ -1,0 +1,20 @@
+(Program showing the effects of Naive CAM on a direction reversal)
+G20 G90
+F1000
+G64 P0.1 Q0.1
+G0 X0 Z0
+Y0 
+X.5 
+G1 X2 
+X2.09
+X1
+G0 X0
+G64 P0.1 Q0
+G0 X0 Z0
+Y.1 
+X.5 
+G1 X2 
+X2.09
+X1
+G0 X0
+M2

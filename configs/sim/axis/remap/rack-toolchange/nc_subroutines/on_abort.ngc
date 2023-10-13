@@ -1,0 +1,12 @@
+; if aborted during a toolchange, disable pins
+
+o<on_abort> sub
+
+(print, on_abort executing)
+M65 P #<_ini[pins]lock> ; drop lock pin
+M65 P #<_ini[pins]flush> ; drop flush pin
+
+o<reset_state> call
+
+o<on_abort> endsub
+m2

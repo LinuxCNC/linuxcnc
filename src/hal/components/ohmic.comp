@@ -1,0 +1,87 @@
+component ohmic "LinuxCNC HAL component that uses a Mesa THCAD for ohmic sensing";
+
+description
+"""
+Mesa THCAD Card component to scale input and outputs from the Mesa THCAD2, THCAD5, THCAD10, and THCAD300 cards.
+.br
+Allows user configurable voltage thresholds for ohmic sensing.
+
+Output pins are provided for:
+.br
+ohmic-volts -the voltage sensed on ohmic sensing.
+.br
+thcad-volts -the actual voltage measured by the THCAD.
+.br
+ohmic-on    -true if ohmic-volts >= ohmic-threshold, false if ohmic-volts <= ohmic-low.
+
+A THCAD-5 would often be used for ohmic sensing in conjunction with a 24 Volt isolated power supply and a 390 kΩ series resistor resulting in a voltage divider of 4.9.
+.br
+This would result in a full scale reading of 24.5 Volts which is above the power supply output voltage.
+.br
+The circuit will remain protected by the THCAD's ability to tolerate a 500 Volt over-voltage indefinitely.
+.br
+It is optional that power to the ohmic sensing circuit be disconnected unless probing is in progress.
+""";
+
+examples """
+.br
+The below HAL example assumes a THCAD5 card using a 1/32 frequency setting and a voltage divider internal to the plasma cutter with range extended to 24.5 volts by a series 390K external resistor as per the manual.
+Additional information and wiring diagram is contained in the Plasma Primer in the LinuxCNC documentation.
+.br
+Example Calibration Data: 0V = 122.9 kHz, 10V = 925.7 kHz should be entered as 122900 and 925700.
+
+loadrt ohmic names=ohmicsense
+.br
+addf ohmicsense servo-thread
+.br
+setp ohmicsense.thcad-0-volt-freq    122900
+.br
+setp ohmicsense.thcad-max-volt-freq  925700
+.br
+setp ohmicsense.thcad-divide         32
+.br
+setp ohmicsense.thcad-fullscale      5
+.br
+setp ohmicsense.volt-divider         4.9
+.br
+setp ohmicsense.threshold            22
+.br
+setp ohmicsense.ohmic-low            21
+.br
+net ohmic-vel    ohmicsense.velocity-in <= hm2_7i76e.0.encoder.00.velocity
+.br
+net ohmic-enable ohmicsense.is_probing  <= plasmac.ohmic-enable
+.br
+net ohmic-true   ohmicsense.ohmic-on    => plasmac.ohmic-probe
+""";
+
+author "Rod Webster";
+
+pin in  bit   is_probing                 "True if probing";
+pin in  float ohmic_low = 21             "The threshold volts below which ohmic sensing is set to be false";
+pin in  float ohmic_threshold = 22       "The threshold volts above which ohmic sensing is set to be true";
+pin in  float thcad_0_volt_freq          "0 volt calibration data for THCAD card in Hz";
+pin in  float thcad_divide = 32          "THCAD divider set by links on THCAD board (1, 32, 64, or 128)";
+pin in  float thcad_fullscale = 5        "THCAD full scale in Volt (5, 10, or 300 Volt)";
+pin in  float thcad_max_volt_freq        "Full scale calibration data for THCAD Card in Hz";
+pin in  float velocity_in                "The velocity returned from the THCAD and read by the Mesa encoder input";
+pin in  float volt_divider = 4.9         "The divide ratio";
+pin out bit   ohmic_on                   "True if ohmic circuit is closed (material is sensed)";
+pin out float ohmic_volts                "Calculated ohmic voltage";
+
+function _;
+license "GPL";
+;;
+#include <rtapi_math.h>
+
+FUNCTION(_) {
+    double thcad_vel_scale = 1/((thcad_max_volt_freq - thcad_0_volt_freq)/thcad_fullscale/thcad_divide);
+    double thcad_scale_offset = thcad_0_volt_freq/thcad_divide;
+
+    ohmic_volts = (velocity_in - thcad_scale_offset) * thcad_vel_scale * volt_divider;
+    if(is_probing)
+        ohmic_on = (ohmic_volts >= ohmic_threshold ? 1 : 0);
+    else
+        if(ohmic_volts <= ohmic_low)
+            ohmic_on = 0;
+}

@@ -1,0 +1,123 @@
+#!/usr/bin/env python3
+#
+# This script returns 0 when run on a platform supported by the current
+# branch of LinuxCNC, and 1 when run on an unsupported platform.  It is
+# intended to guide build automation on whether or not to try to build.
+#
+# Copyright: 2014, 2016
+# Author:    Sebastian Kuzminsky <seb@highlab.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+import os
+import sys
+import subprocess
+import re
+
+if sys.version_info.minor < 7:
+    raise SystemExit("System Python is too old")
+
+supported_oses = [ 'linux' ]
+supported_cpus = [ 'amd64', 'i386', 'arm' ]
+supported_kernel_flavors = [ 'rtai', 'rtpreempt', 'vanilla' ]
+
+
+def detect_os():
+    return os.uname()[0].lower()
+
+
+def detect_kernel_flavor(uname):
+    try:
+        f = open("/boot/config-%s" % uname)
+    except IOError:
+        print("no kernel configuration found for %s, assuming vanilla" % uname)
+        return 'vanilla'
+    l = f.read(-1)
+    f.close()
+
+    config_ipipe = re.search('^CONFIG_IPIPE', l, re.MULTILINE)
+    config_xeno = re.search('^CONFIG_XENO_', l, re.MULTILINE)
+    config_rtpreempt = re.search('^CONFIG_PREEMPT_RT', l, re.MULTILINE)
+
+    if config_ipipe and not config_xeno and not config_rtpreempt:
+        return 'rtai'
+    elif config_ipipe and config_xeno and not config_rtpreempt:
+        return 'xenomai'
+    elif not config_ipipe and not config_xeno and config_rtpreempt:
+        return 'rtpreempt'
+    else:
+        return 'vanilla'
+
+
+os = detect_os()
+
+if os == 'linux':
+    cpu = subprocess.check_output(['dpkg-architecture', '-qDEB_HOST_ARCH_CPU']).strip().decode()
+    distributor = subprocess.check_output(['lsb_release', '--id', '--short']).strip().decode()
+    release = subprocess.check_output(['lsb_release', '--release', '--short']).strip().decode()
+    try:
+        major, minor = re.split('\.', release)
+    except ValueError as e:
+        major = release
+        minor = "0"
+    try:
+        release_major = int(major)
+        release_minor = int(minor)
+    except ValueError as e:
+	# Debian Unstable and Testing do not have a release number, the value is 'n/a'
+        release_major = 666
+        release_minor = 0
+
+    uname = subprocess.check_output(['uname', '-r']).strip().decode()
+    kernel_flavor = detect_kernel_flavor(uname)
+
+else:
+    print("unknown OS:", os)
+    sys.exit(1)
+
+
+print("os =", os)
+print("cpu =", cpu)
+print("distributor =", distributor)
+print("release =", release)
+print("    major =", release_major)
+print("    minor =", release_minor)
+print("uname = %s (%s)" % (uname, kernel_flavor))
+
+if os not in supported_oses:
+    print("unsupported OS!")
+    sys.exit(1)
+
+if cpu not in supported_cpus:
+    print("unsupported CPU!")
+    sys.exit(1)
+
+if distributor == 'Ubuntu':
+    if release_major < 20:
+        print("release is too old!")
+        sys.exit(1)
+
+if distributor == 'Debian':
+    if release_major < 10:
+        print("release is too old!")
+        sys.exit(1)
+
+if kernel_flavor not in supported_kernel_flavors:
+    print("unsupported kernel flavor")
+    sys.exit(1)
+
+print("this platform is supported!")
+sys.exit(0)
+

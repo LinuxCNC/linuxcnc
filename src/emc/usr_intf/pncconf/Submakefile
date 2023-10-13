@@ -1,0 +1,205 @@
+PNCCONF_MODULES = pages build_INI build_HAL private_data tests data
+
+PYTARGETS += ../bin/pncconf  ../lib/python/pncconf/__init__.py $(patsubst %,../lib/python/pncconf/%.py,$(PNCCONF_MODULES)) \
+	../share/linuxcnc/pncconf/main_page.glade \
+	../share/linuxcnc/pncconf/help.glade \
+	../share/linuxcnc/pncconf/mesa0.glade \
+	../share/linuxcnc/pncconf/mesa1.glade \
+	../share/linuxcnc/pncconf/start.glade \
+	../share/linuxcnc/pncconf/external.glade \
+	../share/linuxcnc/pncconf/base.glade \
+	../share/linuxcnc/pncconf/screen.glade \
+	../share/linuxcnc/pncconf/vcp.glade \
+	../share/linuxcnc/pncconf/ubuttons.glade \
+	../share/linuxcnc/pncconf/thcad.glade \
+	../share/linuxcnc/pncconf/x_axis.glade \
+	../share/linuxcnc/pncconf/x_motor.glade \
+	../share/linuxcnc/pncconf/y_axis.glade \
+	../share/linuxcnc/pncconf/y_motor.glade \
+	../share/linuxcnc/pncconf/z_axis.glade \
+	../share/linuxcnc/pncconf/z_motor.glade \
+	../share/linuxcnc/pncconf/a_axis.glade \
+	../share/linuxcnc/pncconf/a_motor.glade \
+	../share/linuxcnc/pncconf/s_motor.glade \
+	../share/linuxcnc/pncconf/options.glade \
+	../share/linuxcnc/pncconf/realtime.glade \
+	../share/linuxcnc/pncconf/pport1.glade \
+	../share/linuxcnc/pncconf/pport2.glade \
+	../share/linuxcnc/pncconf/dialogs.glade \
+	../share/linuxcnc/pncconf/finished.glade
+
+PYI18NSRCS += emc/usr_intf/pncconf/pncconf.py $(patsubst %,emc/usr_intf/pncconf/%.py,$(PNCCONF_MODULES)) \
+	emc/usr_intf/pncconf/main_page.glade \
+	emc/usr_intf/pncconf/help.glade \
+	emc/usr_intf/pncconf/mesa0.glade \
+	emc/usr_intf/pncconf/mesa1.glade \
+	emc/usr_intf/pncconf/start.glade \
+	emc/usr_intf/pncconf/external.glade \
+	emc/usr_intf/pncconf/base.glade \
+	emc/usr_intf/pncconf/screen.glade \
+	emc/usr_intf/pncconf/vcp.glade \
+	emc/usr_intf/pncconf/ubuttons.glade \
+	emc/usr_intf/pncconf/thcad.glade \
+	emc/usr_intf/pncconf/x_axis.glade \
+	emc/usr_intf/pncconf/x_motor.glade \
+	emc/usr_intf/pncconf/y_axis.glade \
+	emc/usr_intf/pncconf/y_motor.glade \
+	emc/usr_intf/pncconf/z_axis.glade \
+	emc/usr_intf/pncconf/z_motor.glade \
+	emc/usr_intf/pncconf/a_axis.glade \
+	emc/usr_intf/pncconf/a_motor.glade \
+	emc/usr_intf/pncconf/s_motor.glade \
+	emc/usr_intf/pncconf/options.glade \
+	emc/usr_intf/pncconf/realtime.glade \
+	emc/usr_intf/pncconf/pport1.glade \
+	emc/usr_intf/pncconf/pport2.glade \
+	emc/usr_intf/pncconf/dialogs.glade \
+	emc/usr_intf/pncconf/finished.glade
+
+../lib/python/pncconf/__init__.py:
+	$(ECHO) building python init $(notdir $@)
+	@mkdir -p ../lib/python/pncconf
+	@touch $@
+
+../lib/python/pncconf/%: emc/usr_intf/pncconf/%
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -m py_compile $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)mkdir -p ../lib/python/pncconf
+	$(Q)cp $< $@
+
+../share/linuxcnc/pncconf/main_page.glade: emc/usr_intf/pncconf/main_page.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/mesa0.glade: emc/usr_intf/pncconf/mesa0.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/mesa1.glade: emc/usr_intf/pncconf/mesa1.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/finished.glade: emc/usr_intf/pncconf/finished.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/start.glade: emc/usr_intf/pncconf/start.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/external.glade: emc/usr_intf/pncconf/external.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/base.glade: emc/usr_intf/pncconf/base.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/screen.glade: emc/usr_intf/pncconf/screen.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/vcp.glade: emc/usr_intf/pncconf/vcp.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/ubuttons.glade: emc/usr_intf/pncconf/ubuttons.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/thcad.glade: emc/usr_intf/pncconf/thcad.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/x_axis.glade: emc/usr_intf/pncconf/x_axis.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/x_motor.glade: emc/usr_intf/pncconf/x_motor.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/y_axis.glade: emc/usr_intf/pncconf/y_axis.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/y_motor.glade: emc/usr_intf/pncconf/y_motor.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/z_axis.glade: emc/usr_intf/pncconf/z_axis.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/z_motor.glade: emc/usr_intf/pncconf/z_motor.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/a_axis.glade: emc/usr_intf/pncconf/a_axis.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/a_motor.glade: emc/usr_intf/pncconf/a_motor.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/s_motor.glade: emc/usr_intf/pncconf/s_motor.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/options.glade: emc/usr_intf/pncconf/options.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/help.glade: emc/usr_intf/pncconf/help.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/realtime.glade: emc/usr_intf/pncconf/realtime.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/pport1.glade: emc/usr_intf/pncconf/pport1.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/pport2.glade: emc/usr_intf/pncconf/pport2.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/dialogs.glade: emc/usr_intf/pncconf/dialogs.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../bin/pncconf: emc/usr_intf/pncconf/pncconf.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -m py_compile $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@

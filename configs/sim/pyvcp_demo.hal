@@ -1,0 +1,7 @@
+loadusr -W pyvcp -c pyvcp pyvcp_demo.xml
+show pin
+net bit1 pyvcp.button-sample => pyvcp.led-sample
+net float1 pyvcp.scale-sample-f => pyvcp.number-sample
+net float2 pyvcp.spinbox.0 => pyvcp.bar-sample
+loadusr -w echo Type 'exit' to leave the pyvcp demo
+loadusr -w halcmd -kf

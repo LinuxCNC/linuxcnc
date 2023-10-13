@@ -1,0 +1,6 @@
+component names_match;
+license "GPL";
+pin out bit out;
+function _ nofp;
+;;
+FUNCTION(_) {}

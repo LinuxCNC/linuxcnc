@@ -1,0 +1,12 @@
+o<test1> sub
+
+; add extra space HERE
+o100 if [ #1 GT 5]
+    (print, true)
+o100 else
+    (print, false)
+o100 endif
+(print, test RAN)
+
+o<test1> endsub
+M2

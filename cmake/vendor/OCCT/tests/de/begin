@@ -1,0 +1,15 @@
+pload DCAF
+pload TOPTEST
+pload XDE
+
+cpulimit 1000
+
+# Create a new document and set UndoLimit
+NewDocument D BinXCAF
+UndoLimit D 100
+
+# Local length unit value
+set lengthunit_start ""
+
+# Open a transaction
+NewCommand D

@@ -1,0 +1,4 @@
+
+loadrt siggen names=siggen0,siggen1,siggen2,siggen3,siggen4,siggen5,siggen6,siggen7,siggen8,siggen9,siggen10,siggen11,siggen12,siggen13,siggen14,siggen15,siggen16
+show pin
+

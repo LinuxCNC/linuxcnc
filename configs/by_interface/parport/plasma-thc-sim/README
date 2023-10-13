@@ -1,0 +1,7 @@
+This is a config for a gantry style plasma cutting machine using stepper motors.
+
+The configuration includes a Torch Height Control system which should be compatible with systems from SoundLogic, CandCNC and Bob Campbell.
+
+The stepper and limit pinouts are compatible with Breakout Combo boards from Bob Campbell. This configuration is identical to plasma-thc except all input/output signals are simulated.
+
+Don't forget to home the simulator before running a program, it needs to home before starting, otherwise there will be limit errors

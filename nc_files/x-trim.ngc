@@ -1,0 +1,16 @@
+; This is an example file for the plasma-5i20 configuration
+; it requires the touchoff.ngc subroutine
+G20 (Units: Inches)
+G40 (Cancel Cutter Comp)
+G90 (Absolute Mode)
+G64 P0.005 (Continuous mode + path tolerance)
+G92 X0 Y0
+o<touchoff> call [0.100] [0] [0.08] (Touchoff and start cutting)
+F135
+G1 X48.125
+M5 (Torch Off)
+G0 Z0.500
+X0.000
+G92.1 (Cancel offsets and set to zero)
+G0 Z0
+M2

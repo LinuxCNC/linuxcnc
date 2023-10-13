@@ -1,0 +1,60 @@
+########################################################################
+# Button
+########################################################################
+
+style "button"
+{
+	engine "pixmap" 
+    {
+### Button ### 
+
+## Normal
+		image 
+		{
+			function = BOX
+			state = NORMAL
+			file = "button/button.png"
+			border = {8, 8, 8, 8}
+			stretch = TRUE
+		}
+## Prelight
+		image 
+		{
+			function = BOX
+			state = PRELIGHT
+			file = "button/button-light.png"
+			border = {8, 8, 8, 8}
+			stretch = TRUE
+		}
+
+## Insensitive
+		image 
+		{
+			function = BOX
+			state = INSENSITIVE
+			file = "button/button-ins.png"
+			border = {8, 8, 8, 8}
+			stretch = TRUE
+		}
+
+## Active
+		image 
+		{
+			function = BOX
+			state = ACTIVE
+			file = "button/button-pressed.png"
+			border = {8, 8, 8, 8}
+			stretch = TRUE
+		}
+
+### Focus ###
+		image 
+		{
+			function = FOCUS
+			file = "null.png"
+		}
+    }
+}
+
+class "GtkButton*" style "button"
+

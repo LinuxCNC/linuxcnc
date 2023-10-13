@@ -1,0 +1,72 @@
+# halfile to connect a moveoff.comp for axis gui examples
+# This halfile modifies the connections made in core_sim.hal
+# to add a moveoff component and addfs its functions
+
+# This halfile must follow core_sim.hal
+
+# moveoff offsetting component (use names=mv is required):
+loadrt moveoff names=mv
+# addf the moveoff funcs in correct sequence:
+addf mv.write-outputs servo-thread 3
+addf mv.read-inputs   servo-thread 1
+
+# modify connections set in core_sim.hal
+unlinkp joint.0.motor-pos-cmd
+unlinkp joint.1.motor-pos-cmd
+unlinkp joint.2.motor-pos-cmd
+
+unlinkp joint.0.motor-pos-fb
+unlinkp joint.1.motor-pos-fb
+unlinkp joint.2.motor-pos-fb
+
+# connect motor-pos-cmd pins to the component:
+net Xpos joint.0.motor-pos-cmd => mv.pos-0
+net Ypos joint.1.motor-pos-cmd => mv.pos-1
+net Zpos joint.2.motor-pos-cmd => mv.pos-2
+
+# generated positions with offsets ADDED are
+# 'short circuited' to the feedback input pins:
+net mx:plus mv.pos-plusoffset-0 => mv.fb-0
+net my:plus mv.pos-plusoffset-1 => mv.fb-1
+net mz:plus mv.pos-plusoffset-2 => mv.fb-2
+
+# synthesized feedback values with offsets SUBTRACTED
+# are sent back to motion:
+net mx:fb mv.fb-minusoffset-0 => joint.0.motor-pos-fb
+net my:fb mv.fb-minusoffset-1 => joint.1.motor-pos-fb
+net mz:fb mv.fb-minusoffset-2 => joint.2.motor-pos-fb
+
+# example setting global inputs from ini file:
+setp mv.epsilon              [MOVEOFF]EPSILON
+setp mv.waypoint-sample-secs [MOVEOFF]WAYPOINT_SAMPLE_SECS
+setp mv.waypoint-threshold   [MOVEOFF]WAYPOINT_THRESHOLD
+
+# offset rates from ini file:
+setp mv.offset-vel-0 [MOVEOFF_0]MAX_VELOCITY
+setp mv.offset-vel-1 [MOVEOFF_1]MAX_VELOCITY
+setp mv.offset-vel-2 [MOVEOFF_2]MAX_VELOCITY
+
+# offset accels from ini file:
+setp mv.offset-accel-0 [MOVEOFF_0]MAX_ACCELERATION
+setp mv.offset-accel-1 [MOVEOFF_1]MAX_ACCELERATION
+setp mv.offset-accel-2 [MOVEOFF_2]MAX_ACCELERATION
+
+# offset min, max limits
+setp mv.offset-min-0 [MOVEOFF_0]MIN_LIMIT
+setp mv.offset-min-1 [MOVEOFF_1]MIN_LIMIT
+setp mv.offset-min-2 [MOVEOFF_2]MIN_LIMIT
+
+setp mv.offset-max-0 [MOVEOFF_0]MAX_LIMIT
+setp mv.offset-max-1 [MOVEOFF_1]MAX_LIMIT
+setp mv.offset-max-2 [MOVEOFF_2]MAX_LIMIT
+
+# overall enable for the component:
+# 1 ==> enabled as soon as apply-offsets asserted
+# 0 ==> external control of move-enable required
+setp mv.move-enable 0
+
+# offset values (set as required with your gui)
+setp mv.offset-in-0 0
+setp mv.offset-in-1 0
+setp mv.offset-in-2 0
+

@@ -1,0 +1,6 @@
+{'signal': [
+  {name: 'in', wave:  'lHx.l.Hx.l'},
+  {name: 'on', wave: 'lh.l......' }, 
+  {name: 'off', wave: 'l.....h.l.' }, 
+  {name: 'is-on', wave: 'l..h....l.' }, 
+]}

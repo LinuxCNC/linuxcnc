@@ -1,0 +1,104 @@
+// Created on: 1995-11-15
+// Created by: Christophe MARION
+// Copyright (c) 1995-1999 Matra Datavision
+// Copyright (c) 1999-2014 OPEN CASCADE SAS
+//
+// This file is part of Open CASCADE Technology software library.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License version 2.1 as published
+// by the Free Software Foundation, with special exception defined in the file
+// OCCT_LGPL_EXCEPTION.txt. Consult the file LICENSE_LGPL_21.txt included in OCCT
+// distribution for complete text of the license and disclaimer of any warranty.
+//
+// Alternatively, this file may be used under the terms of Open CASCADE
+// commercial license or contractual agreement.
+
+//=======================================================================
+//function : Show
+//purpose  : 
+//=======================================================================
+
+inline void HLRTest_DrawablePolyEdgeTool::Show()
+{ myHideMode = Standard_False; }
+
+//=======================================================================
+//function : Hide
+//purpose  : 
+//=======================================================================
+
+inline void HLRTest_DrawablePolyEdgeTool::Hide()
+{ myHideMode = Standard_True; }
+
+//=======================================================================
+//function : DisplayRg1Line
+//purpose  : 
+//=======================================================================
+
+inline void 
+HLRTest_DrawablePolyEdgeTool::DisplayRg1Line (const Standard_Boolean B)
+{ myDispRg1 = B; }
+
+//=======================================================================
+//function : DisplayRg1Line
+//purpose  : 
+//=======================================================================
+
+inline Standard_Boolean 
+HLRTest_DrawablePolyEdgeTool::DisplayRg1Line () const
+{ return myDispRg1; }
+
+//=======================================================================
+//function : DisplayRgNLine
+//purpose  : 
+//=======================================================================
+
+inline void
+HLRTest_DrawablePolyEdgeTool::DisplayRgNLine(const Standard_Boolean B)
+{ myDispRgN = B; }
+
+//=======================================================================
+//function : DisplayRgNLine
+//purpose  : 
+//=======================================================================
+
+inline Standard_Boolean 
+HLRTest_DrawablePolyEdgeTool::DisplayRgNLine () const
+{ return myDispRgN; }
+
+//=======================================================================
+//function : DisplayHidden
+//purpose  : 
+//=======================================================================
+
+inline void
+HLRTest_DrawablePolyEdgeTool::DisplayHidden(const Standard_Boolean B)
+{ myDispHid = B; }
+
+//=======================================================================
+//function : DisplayHidden
+//purpose  : 
+//=======================================================================
+
+inline Standard_Boolean 
+HLRTest_DrawablePolyEdgeTool::DisplayHidden () const
+{ return myDispHid; }
+
+//=======================================================================
+//function : Debug
+//purpose  : 
+//=======================================================================
+
+inline void
+HLRTest_DrawablePolyEdgeTool::Debug(const Standard_Boolean B)
+{ myDebug = B; }
+
+//=======================================================================
+//function : Debug
+//purpose  : 
+//=======================================================================
+
+inline Standard_Boolean 
+HLRTest_DrawablePolyEdgeTool::Debug () const
+{ return myDebug; }
+

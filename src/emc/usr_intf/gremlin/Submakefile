@@ -1,0 +1,20 @@
+PYTARGETS += ../bin/gremlin ../lib/python/gremlin.py ../lib/python/qt5_graphics.py
+PYI18NSRCS += emc/usr_intf/gremlin/gremlin.py
+
+../lib/python/%: emc/usr_intf/gremlin/%
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -m py_compile $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)cp $< $@
+
+../lib/python/%: emc/usr_intf/qt5_graphics/%
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -m py_compile $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)cp $< $@
+
+../bin/gremlin: emc/usr_intf/gremlin/gremlin-run
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -m py_compile $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@

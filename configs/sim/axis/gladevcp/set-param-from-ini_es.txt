@@ -1,0 +1,8 @@
+set-param-from-ini: establecer widgets HAL por programacion
+
+Ficheros:
+set-param-from-ini.ini fichero ini con [METER]MAX
+set-param-from-ini.txt (esto)
+set-param-from-ini.tcl arrancar gladevcp y sim_pin
+meter_scale.py         fichero gladevcp
+meter_scale.ui         fichero gladevcp

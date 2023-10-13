@@ -1,0 +1,75 @@
+# HAL config file for Vital Systems MOTENC-100 PCI board
+#
+# Install driver.
+loadrt hal_motenc
+
+# Add functions to servo thread so they will be evaluated
+# every servo period.
+# inputs get read at the beginning of the thread
+addf motenc.0.encoder-read servo-thread 1
+
+# outputs get updated at the end of the thread
+addf motenc.0.dac-write servo-thread -1
+
+# Connect position feedback signals to encoders.
+net Xpos-fb <= motenc.0.enc-00-position
+net Ypos-fb <= motenc.0.enc-01-position
+net Zpos-fb <= motenc.0.enc-02-position
+
+# Get feedback scaling from ini file.
+setp motenc.0.enc-00-scale [JOINT_0]INPUT_SCALE 
+setp motenc.0.enc-01-scale [JOINT_1]INPUT_SCALE 
+setp motenc.0.enc-02-scale [JOINT_2]INPUT_SCALE 
+
+# Connect PID output signals to DACs.
+net Xoutput => motenc.0.dac-00-value
+net Youtput => motenc.0.dac-01-value
+net Zoutput => motenc.0.dac-02-value
+
+# Set output scaling from ini file.
+setp motenc.0.dac-00-gain [JOINT_0]OUTPUT_SCALE
+setp motenc.0.dac-01-gain [JOINT_1]OUTPUT_SCALE
+setp motenc.0.dac-02-gain [JOINT_2]OUTPUT_SCALE
+
+# Set output offset from ini file.
+setp motenc.0.dac-00-offset [JOINT_0]OUTPUT_OFFSET
+setp motenc.0.dac-01-offset [JOINT_1]OUTPUT_OFFSET
+setp motenc.0.dac-02-offset [JOINT_2]OUTPUT_OFFSET
+
+# Get tuning params from ini file.
+setp pid.0.deadband [JOINT_0]DEADBAND
+setp pid.0.Pgain [JOINT_0]P
+setp pid.0.Igain [JOINT_0]I
+setp pid.0.Dgain [JOINT_0]D
+setp pid.0.FF0 [JOINT_0]FF0
+setp pid.0.FF1 [JOINT_0]FF1
+setp pid.0.FF2 [JOINT_0]FF2
+setp pid.0.bias [JOINT_0]BIAS
+
+setp pid.1.deadband [JOINT_1]DEADBAND
+setp pid.1.Pgain [JOINT_1]P
+setp pid.1.Igain [JOINT_1]I
+setp pid.1.Dgain [JOINT_1]D
+setp pid.1.FF0 [JOINT_1]FF0
+setp pid.1.FF1 [JOINT_1]FF1
+setp pid.1.FF2 [JOINT_1]FF2
+setp pid.1.bias [JOINT_1]BIAS
+
+setp pid.2.deadband [JOINT_2]DEADBAND
+setp pid.2.Pgain [JOINT_2]P
+setp pid.2.Igain [JOINT_2]I
+setp pid.2.Dgain [JOINT_2]D
+setp pid.2.FF0 [JOINT_2]FF0
+setp pid.2.FF1 [JOINT_2]FF1
+setp pid.2.FF2 [JOINT_2]FF2
+setp pid.2.bias [JOINT_2]BIAS
+
+# Get maximum (and minimum) output volts from ini file.
+setp pid.0.maxoutput [JOINT_0]MAX_OUTPUT
+setp pid.1.maxoutput [JOINT_1]MAX_OUTPUT
+setp pid.2.maxoutput [JOINT_2]MAX_OUTPUT
+
+# Connect index pulses to motion controller.
+net Xindex motenc.0.enc-00-index-enable <=> joint.0.index-enable pid.0.index-enable
+net Yindex motenc.0.enc-01-index-enable <=> joint.1.index-enable pid.1.index-enable
+net Zindex motenc.0.enc-02-index-enable <=> joint.2.index-enable pid.2.index-enable

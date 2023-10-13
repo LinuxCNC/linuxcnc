@@ -1,0 +1,48 @@
+Moveoff demo -- fixed retract on single axis (Z)
+
+Demo:
+  1) Start linuxcnc using the 6_zretract config
+  2) A pyvpcp panel includes a checkbutton
+     to enable fixed offsets on program
+     pause.
+  3) Start program
+  4) Pause program
+  5) A moveoff_gui display (with no controls) will
+     appear showing the current Z offset.  If the
+     checkbtton was set to enable offsets, the
+     offset will be applied immediately.  If the
+     checkbutton was not set, enable the checkbutton
+     to apply the offset.
+  6) Toggle the checkbutton to OFF to
+     remove the fixed offset and resume the program.
+  7) The fixed offset will be removed after
+     a delay to allow for spindle reactivation.
+     Typically, the spindle would be gated
+     off for the duration the mv.offset-applied pin.
+     The delay allows time for the spindle to resume
+     speed.
+  8) Toggle the sim_pin external_enable switch to
+     1 (ON) to allow offsetting at the next program
+     pause -- or leave it OFF to require its
+     activation on the next program pause.
+
+The ini file sets:
+  1) offset amount and its velocity and acceleration
+  2) state of the external-enable signal at startup
+  3) autoresume delay interval
+  4) location and size of the moveoff_gui display
+
+----------------------------------------------------
+Moveoff_gui options:
+
+  onpause  -- offsets when program paused
+  local    -- local controls
+
+Moveoff component installed and connected using:
+
+  [HAL]HALFILE = LIB:hookup_moveoff.tcl
+
+For additional info:
+
+   man moveoff  ------ moveoff component
+   man moveoff_gui --- moveoff sample gui       

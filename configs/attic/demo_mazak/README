@@ -1,0 +1,5 @@
+Demo_mazak is a complex set of HAL drivers.  These include the Motenc-Lite motion card, a PMDX parport card, and a general purpose ISA slot IO card.  This setup is used for the Mazak V5 at Cardinal Engineering and is included here as an example of a way to spread HAL abilities across a number of devices.
+
+This demo includes an example of using a parallel port to read a handwheel encoder.  It brings in ClassicLadder to handle most of the machine logic for gear and tool change.
+
+Don't expect to be able to run this as is unless you have a matching set of hardware.  Without the exact set of devices you can still study the hal files to see how many of these things are accomplished.

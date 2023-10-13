@@ -1,0 +1,24 @@
+;
+; demo for stopping interpreter readahead
+;
+; assuming the G70 line is commented out, what would happen is:
+;
+; the interpreter parses and queues the msg commands, then encounters abort
+; and immediately flushes the interpreter queue
+; consequence: the message from (msg,xx) dont appear since they are flushed before they can be executed by
+; task and the gui.
+;
+; if G70 is active, this means interpreter readahead stops at that very line until all preceding
+; commands have been executed 
+; hence the messages appear in that case
+
+(msg,one)
+(msg,two)
+(msg,three)
+
+G70 (dont lookahead further)
+
+(abort, aborting)
+m2
+
+

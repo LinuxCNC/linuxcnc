@@ -1,0 +1,35 @@
+# #########################################
+# Example hal file showing some linkages
+# of pyvcp_widgets
+
+# top row of scales and spinboxes
+net scale2spin1 pyvcp.scale0-f => pyvcp.spinbox.0.param_pin => pyvcp.number0
+net scale2spin3 pyvcp.scale1-f => pyvcp.spinbox.1.param_pin => pyvcp.number1
+net scale2spin5 pyvcp.scale2-f => pyvcp.spinbox.2.param_pin => pyvcp.number2
+
+# second row of dials and scales
+net dial2scale0 pyvcp.scale.3.param_pin <= pyvcp.dial0
+net dial2scale2 pyvcp.scale.4.param_pin <= pyvcp.dial1
+net dial2scale4 pyvcp.scale.5.param_pin <= pyvcp.dial2
+
+# third row of label and led activating radio buttons
+net 1pressed pyvcp.multilabel.0.legend0 <= pyvcp.radio0.one
+net 2pressed pyvcp.multilabel.0.legend1 <= pyvcp.radio0.two
+net 3pressed pyvcp.multilabel.0.legend2 <= pyvcp.radio0.three
+net 4pressed pyvcp.multilabel.1.legend0 <= pyvcp.radio1.four
+net 5pressed pyvcp.multilabel.1.legend1 <= pyvcp.radio1.five
+net 6pressed pyvcp.multilabel.1.legend2 <= pyvcp.radio1.six
+
+net cb0active pyvcp.checkbutton0 => pyvcp.led0
+net cb1active pyvcp.checkbutton1 => pyvcp.led1
+net cb2active pyvcp.checkbutton2 => pyvcp.led2
+net cb3active pyvcp.checkbutton3 => pyvcp.led3
+net cb4active pyvcp.checkbutton4 => pyvcp.led4
+net cb5active pyvcp.checkbutton5 => pyvcp.led5
+
+# fourth row checkboxes with checkbox0 toggled by push button
+net toggle0 pyvcp.checkbutton0.changepin <= pyvcp.toggle-button0
+net toggle1 pyvcp.checkbutton5.changepin <= pyvcp.toggle-button1
+
+# sixth row 3 colour bar activated by slider
+net bar1 pyvcp.my-bar <= pyvcp.my-hscale-f

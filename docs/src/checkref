@@ -1,0 +1,49 @@
+#!/bin/bash
+#set -x
+
+WARN_ON_FAILURE=0
+if [ "$1" = "--warn-on-failure" ]; then
+    WARN_ON_FAILURE=1
+    shift
+fi
+
+LANGUAGE="$1"
+shift
+
+FILES="$@"
+
+if [ -z $(which linuxcnc-checklink) ]; then
+    echo "ERROR: checklink not found, install w3c-linkchecker for HTML link validation" 1>&2
+    exit 1
+fi
+
+
+BAD_LINKS=0
+for F in $FILES; do
+    OUT=.checklink.$LANGUAGE.$(basename $F).tmp
+    rm -f $OUT
+    linuxcnc-checklink --quiet --exclude "(http|https|irc)://" $F  2>&1 | tee $OUT
+    egrep -q 'List of (broken links and other issues|duplicate and empty anchors)' $OUT
+    if [ $? -ne 1 ]; then
+        BAD_LINKS=1
+    fi
+    rm -f $OUT
+done
+
+if [ $BAD_LINKS -eq 1 ]; then
+    RET_VAL=1
+    echo "***" 1>&2
+    echo "*** warning: bad links found in $LANGUAGE docs!" 1>&2
+    if [ $WARN_ON_FAILURE -eq 1 ]; then
+        echo "*** oh well, continuing anyway" 1>&2
+        RET_VAL=0
+    fi
+    echo "***" 1>&2
+    exit $RET_VAL
+else
+    echo "###"
+    echo "### language: $LANGUAGE"
+    echo "### all links are good!"
+    echo "###"
+fi
+

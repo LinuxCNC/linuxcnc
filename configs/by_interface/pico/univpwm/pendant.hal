@@ -1,0 +1,35 @@
+loadrt mux4 count=1
+loadrt ilowpass
+loadrt encoder num_chan=1
+
+setp ilowpass.0.scale 100
+setp ilowpass.0.gain 0.01
+
+addf mux4.0 servo-thread
+addf ilowpass.0 servo-thread
+addf encoder.update-counters servo-thread
+addf encoder.capture-position servo-thread
+
+net jog-x ppmc.0.din.06.in => axis.0.jog-enable
+net jog-y ppmc.0.din.07.in => axis.1.jog-enable
+net jog-z ppmc.0.din.08.in => axis.2.jog-enable
+
+net x10   ppmc.0.din.09.in => mux4.0.sel0
+net x100  ppmc.0.din.10.in => mux4.0.sel1
+
+setp mux4.0.in1 .00000025
+setp mux4.0.in0 .0000025
+setp mux4.0.in2 .000025
+setp mux4.0.in3 0
+
+net jogscale mux4.0.out => axis.0.jog-scale
+net jogscale            => axis.1.jog-scale
+net jogscale            => axis.2.jog-scale
+
+net mpg-a      ppmc.0.din.04.in => encoder.0.phase-A 
+net mpg-b      ppmc.0.din.05.in => encoder.0.phase-B
+net mpg-out encoder.0.rawcounts => ilowpass.0.in
+ 
+net jogcounts ilowpass.0.out          => axis.0.jog-counts
+net jogcounts                         => axis.1.jog-counts
+net jogcounts                         => axis.2.jog-counts

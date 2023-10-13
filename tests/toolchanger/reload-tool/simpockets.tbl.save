@@ -1,0 +1,16 @@
+T3  P0  D2.250000 Z-6.595331 ;2-1/4 face mill
+T10 P6  Z-3.406343 ;other big jacobs chuck
+T16 P3  ;little jacobs chuck
+T12 P9  Z-4.596806 ;1/2 2fl long em
+T6  P51  Z-0.950266 ;big jacobs chuck
+T2  P46 D0.750000 Z-6.366394 ;3/4 2 flute
+T1  P37 D0.750000 Z-5.319396 ;3/4 roughing
+T7  P28 Z-2.979905 ;big albrecht drill chuck .25 drill
+T11 P19 D0.125000 Z-6.307857 ;1/8 2fl end mill
+T15 P5  Z-3.730620 ;little albrecht chuck spot drill
+T0  P2  ;no tool
+T14 P11 Z-5.305736 ;
+T8  P54 Z-7.213145 ;V engraving tool
+T9  P44 Z-6.163994 ;90 deg 3/8 mill-drill
+T5  P35 Z-2.825524 ;long ER40 collet chuck
+T4  P26 D0.375000 Z-5.307185 ;3/8 4fl carbide

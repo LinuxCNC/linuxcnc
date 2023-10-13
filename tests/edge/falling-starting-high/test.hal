@@ -1,0 +1,25 @@
+setexact_for_test_suite_only
+
+loadrt threads name1=fast period1=100000
+loadrt edge
+
+loadrt sampler cfg=bbb depth=500
+loadrt streamer cfg=b depth=500
+
+net in         streamer.0.pin.0  => sampler.0.pin.0 edge.0.in
+net out        edge.0.out        => sampler.0.pin.1
+net out-invert edge.0.out-invert => sampler.0.pin.2
+
+addf streamer.0 fast
+addf edge.0     fast
+addf sampler.0  fast
+
+# look for falling edges
+setp edge.0.in-edge True
+
+# keep the .out pin high for 25,000 ns, rounded up to the nearest thread period
+setp edge.0.out-width-ns 25000
+
+loadusr -w sh runstreamer
+start
+loadusr -w halsampler -n 10

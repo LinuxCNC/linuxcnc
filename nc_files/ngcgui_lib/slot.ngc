@@ -1,0 +1,93 @@
+(adapted from useful-subroutines.ngc)
+(Original file is Copyright 2006 Chris Radek and released under the GPL v2.)
+
+(info: slot: specify x1,y1 and x2,y2, applies radius compensation)
+o<slot> sub
+
+#<toolno>    =  #1 (=1)
+#<rpm>       =  #2 (=2000)
+#<feedrate>  =  #3 (=10)
+#<zincr>     =  #4
+#<cutdepth>  =  #5
+#<zsafe>     =  #6 (=0.5)
+#<zstart>    =  #7 (=0.005)
+#<x1>        =  #8 (x1 center)
+#<y1>        =  #9 (y1 center)
+#<x2>        = #10 (x2 center)
+#<y2>        = #11 (y2 center)
+#<width>     = #12
+#<scale>     = #13 (=1)
+#<rotate>    = #14 (=0)
+#<xoff>      = #15 (=0)
+#<yoff>      = #16 (=0)
+#<spin_notify> = #17 (=0)
+#<use_g43>     = #18 (=1)
+#<h_for_g43>   = #19 (=0)
+#<verbose>     = #20 (=0)
+
+o<i0> if [#<scale> EQ 0]
+        #<scale> = 1.0
+        (debug, scale was 0, setting #<scale>)
+o<i0> endif
+
+#<width> = [#<width> * #<scale>]
+
+o<loadtool> call [#<toolno>][#<use_g43>][#<h_for_g43>][#<verbose>]
+#<tooldiam>   = [#5410 + .001]
+
+o<move> call [#<x1>][#<y1>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x1>      = #<_move:x>
+#<y1>      = #<_move:y>
+#<len1>    = #<_move:len>
+#<phi1>    = #<_move:phi>
+o<move> call [#<x2>][#<y2>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x2>      = #<_move:x>
+#<y2>      = #<_move:y>
+#<len2>    = #<_move:len>
+#<phi2>    = #<_move:phi>
+
+
+#<radius>=[#<width>/2] (radius)
+#<backdir>=[[atan [#<y2>-#<y1>]/[#<x2>-#<x1>]] + 180] ("backward" direction)
+#<rtdir>=[#<backdir> + 90] ("right" side direction)
+#<rcos_bd>=[#<radius> * [cos [#<backdir>]]]
+#<rsin_bd>=[#<radius> * [sin [#<backdir>]]]
+#<rcos_rd>=[#<radius> * [cos [#<rtdir>]]]
+#<rsin_rd>=[#<radius> * [sin [#<rtdir>]]]
+
+
+        s #<rpm> m3
+o<if1>   if [#<spin_notify> GT 0]
+o<spin>    call [#<rpm>]
+o<if1>   endif
+        f#<feedrate>
+
+        g0 z#<zsafe>
+        g0 x[#<x1>+#<rcos_bd>+#<rcos_rd>] y[#<y1>+#<rsin_bd>+#<rsin_rd>]
+
+        g41 g1 x[#<x1>+#<rcos_rd>] y[#<y1>+#<rsin_rd>]
+        g1 z#<zstart>
+
+        (#<dpercut>=[#<tooldiam>/2] rule-of-thumb)
+        #<dpercut>=#<zincr>
+
+        #<znow>=[#<zstart>-#<dpercut>] (z)
+        (down toward the specified depth a bit at a time)
+
+o201    while [#<znow> GT [0-#<cutdepth>]]
+         g1 x[#<x2>+#<rcos_rd>] y[#<y2>+#<rsin_rd>] z#<znow>
+         g3 x[#<x2>-#<rcos_rd>] y[#<y2>-#<rsin_rd>] r#<radius>
+         g1 x[#<x1>-#<rcos_rd>] y[#<y1>-#<rsin_rd>]
+         g3 x[#<x1>+#<rcos_rd>] y[#<y1>+#<rsin_rd>] r#<radius>
+         #<znow>=[#<znow>-#<dpercut>]
+o201    endwhile
+         (down to the actual depth and one more cut)
+         g1 x[#<x2>+#<rcos_rd>] y[#<y2>+#<rsin_rd>] z[0-#<cutdepth>]
+         g3 x[#<x2>-#<rcos_rd>] y[#<y2>-#<rsin_rd>] r#<radius>
+         g1 x[#<x1>-#<rcos_rd>] y[#<y1>-#<rsin_rd>]
+         g3 x[#<x1>+#<rcos_rd>] y[#<y1>+#<rsin_rd>] r#<radius>
+         g1 x[#<x2>+#<rcos_rd>] y[#<y2>+#<rsin_rd>]
+
+         g0 z#<zsafe>
+         g40
+o<slot> endsub

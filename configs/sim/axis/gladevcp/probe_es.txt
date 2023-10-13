@@ -1,0 +1,27 @@
+Probe: un ejemplo de interacción con linuxcnc
+
+Ficheros:
+probe.ini  fichero de configuracion 
+probe.ui   fichero gladevcp 
+probe.hal  fichero gladevcp 
+probe.py   fichero gladevcp 
+probe.ngc  subrutina gcode 
+probe.tcl  arranca gladevcp and simulate_probe
+probe.txt  (esto)
+
+probe.save generado por probe
+
+Uso:
+  F1          (cancelar Estop)
+  F2          (Máquina On)
+  Ctrl-Inicio (Home todos)
+ 
+  Establecer parámetros en gui probe separada
+  Poner probe en motion (X+ por ejemplo)
+  Activar probe con gui simulate_probe
+
+-----------------------
+Nota: para obtener una gran cantidad de resultados de depuración sobre 
+lo que están haciendo gladevcp y probe.py:
+
+  gladevcp -d -d -u probe.py -U debug=3 -H probe.hal probe.ui

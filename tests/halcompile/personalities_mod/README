@@ -1,0 +1,8 @@
+Verify that personalities are used modulo 2 when
+using halcompile --personalities=2
+
+Test in-tree components:
+     lincurve
+     logic
+     bitslice
+

@@ -1,0 +1,21 @@
+; how to use polar coordinates:  
+; use the format @radius^angle in place of specifying X,Y words
+
+G20 G90
+G0 X0 Y0 Z0
+
+; drill three bolt holes on a 5" diameter
+G0 X2.5 Y0
+G81 R.1 Z-0.5 F60
+^120
+^240
+
+G90 @1 ^33
+; drill a row of holes 1" apart along a 33 degree feature
+G91 G81 @1 R.1 Z-0.5 L5
+
+G90 G0 X2 Y0
+; drill 17 evenly-spaced bolt holes on a 4" diameter
+G91 G81 ^[360/17] R.1 Z-0.5 L17
+
+M2

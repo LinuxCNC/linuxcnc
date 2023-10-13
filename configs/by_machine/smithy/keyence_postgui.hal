@@ -1,0 +1,29 @@
+loadusr -W hal_manualtoolchange
+
+# in case they were linked already
+unlinkp iocontrol.0.tool-change
+unlinkp iocontrol.0.tool-changed
+
+net tool-change hal_manualtoolchange.change iocontrol.0.tool-change 
+net tool-changed hal_manualtoolchange.changed iocontrol.0.tool-changed
+net tool-prep-number hal_manualtoolchange.number iocontrol.0.tool-prep-number
+
+#configure the encoder input for the Keyence sensor
+setp hm2_5i20.0.encoder.00.scale 25641.025641026
+
+#connect the encoder position to an analog input of the motion controller for the Keyence sensor
+net keyence_position hm2_5i20.0.encoder.00.position motion.analog-in-00
+
+#connect pyvcp signals for the keyence sensor interface
+net keyence_position pyvcp.keyence_position
+
+#connect the encoder reset signal to a [yvcp button for the Keyence sensor
+net keyence_reset hm2_5i20.0.encoder.00.reset pyvcp.keyence_reset
+
+#connect the pyvcp scale wigit to an analog input of the motion controller
+net adjustment pyvcp.adjustment-f motion.analog-in-01
+
+#connect the pyvcp scale wigit to an analog input of the motion controller
+net center_height pyvcp.center_height motion.analog-out-00
+net gap pyvcp.gap motion.analog-out-01
+

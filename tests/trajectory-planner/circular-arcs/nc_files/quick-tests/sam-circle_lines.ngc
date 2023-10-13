@@ -1,0 +1,12 @@
+g20 g64 g90
+
+g0 z.1
+g0 x1 y0
+g1 z-.1 f999
+
+o100 repeat [370]
+g91 g1 @-.0025 ^4.5
+o100 endrepeat
+
+g90 g0 z.1
+m2

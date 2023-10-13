@@ -1,0 +1,46 @@
+//   This is a component for LinuxCNC HAL
+//   Copyright 2006 Jeff Epler <jepler@unpythonic.net>
+//
+//   This program is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation; either version 2 of the License, or
+//   (at your option) any later version.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+component ddt "Compute the derivative of the input function";
+author "Jeff Epler";
+
+description """
+For every function call from the real time thread, calculate the
+difference between the old and current input value divided by the
+timer elapsed since the last call.
+""";
+
+notes """
+
+As this only work on two consecutive input values, it will only work
+well if the input change every function call, and not work so well if
+the rate of change is very low and the input change do not happen
+every time the real time function is called.
+
+""";
+
+
+pin in float in;
+pin out float out;
+
+variable double old;
+
+function _;
+license "GPL";
+;;
+double tmp = in;
+out = (tmp - old) / (period * 1e-9);
+old = tmp;

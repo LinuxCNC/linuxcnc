@@ -1,0 +1,3 @@
+#!/usr/bin/python3.9
+import pyngcgui
+pyngcgui.standalone_pyngcgui()

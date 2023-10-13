@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<interface>
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-requires gladevcp 0.0 -->
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="window1">
+    <child>
+      <object class="GtkTable" id="table1">
+        <property name="visible">True</property>
+        <property name="n_rows">3</property>
+        <property name="n_columns">3</property>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <object class="HAL_Graph" id="hal_graph_vel_x">
+            <property name="visible">True</property>
+            <property name="bg_color">#ffffffffffff</property>
+            <property name="label">X Velocity</property>
+            <property name="fg_color">#ffff00000000</property>
+            <property name="autoscale">True</property>
+            <property name="tick">100</property>
+          </object>
+        </child>
+        <child>
+          <object class="HAL_Graph" id="hal_graph_vel_y">
+            <property name="visible">True</property>
+            <property name="label">Y Velocity</property>
+            <property name="bg_color">#ffffffffffff</property>
+            <property name="fg_color">#0000ffff0000</property>
+            <property name="autoscale">True</property>
+            <property name="tick">100</property>
+          </object>
+          <packing>
+            <property name="top_attach">1</property>
+            <property name="bottom_attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Graph" id="hal_graph_vel_z">
+            <property name="visible">True</property>
+            <property name="label">Z Velocity</property>
+            <property name="bg_color">#ffffffffffff</property>
+            <property name="fg_color">#00000000ffff</property>
+            <property name="autoscale">True</property>
+            <property name="tick">100</property>
+          </object>
+          <packing>
+            <property name="top_attach">2</property>
+            <property name="bottom_attach">3</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

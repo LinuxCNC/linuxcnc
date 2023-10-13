@@ -1,0 +1,4 @@
+o<mustbecalled>sub
+(debug, I should complain if I weren't called but I guess I can not do that)
+o<mustbecalled>endsub
+m2

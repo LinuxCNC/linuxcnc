@@ -1,0 +1,123 @@
+/* demo for using gcmc file with [py]ngcgui
+
+ngcgui tags follow: 
+
+info: message to appear on ngcgui tab page:
+format is: ^//ngcgui: info: info text
+//ngcgui: info: STAR (gcmc G-Code Meta Compiler)
+
+gcmc options (start with hyphen): 
+format is: ^//ngcgui: -optioname [optionvalue] 
+//ngcgui: --precision 5
+
+Variables to present in ngcgui with optional default value and comment
+format is ^//ngcgui: vname [= value , [comment text]]
+//ngcgui: umode = 1; //, units: 1:mm, 0:inch
+//ngcgui: feedr=100,Feed Rate
+//ngcgui: zsafe = 1 ; //,zsafe
+//ngcgui: zcut = -1 ; //,zcut (neg typ)
+//ngcgui: x1=0,Xoffset
+//ngcgui: y1=0,Yoffset
+
+//ngcgui: myscale=1,scale
+//ngcgui: n_erodes = 4; //, Erodes
+//ngcgui: erode_width = 2; //,width (+/-)
+//ngcgui: verbose = 0; //precede ensure_units
+*/
+include("ensure_units.gcmc"); //avoid preamble conflict
+
+
+//example below derived from: http://www.vagrearg.org/content/gcmc#running
+
+/*
+  Copyright: 2013
+  Author:    Bertho Stultiens <bertho@vagrearg.org>
+ 
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+ 
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+ 
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
+
+/* Return new path from 'srcpath' traced internally offset by 'width' */
+function erode(srcpath, width)
+{
+    local n, i, pp, pc, pn, v1, v2, bisect, newpoint, crossp, res;
+    n = count(srcpath);
+    res = {};
+    for(i = 0; i < n; i++) {
+        pp = srcpath[(i-1+n)%n];    /* Previous point */
+        pc = srcpath[i];        /* Current point */
+        pn = srcpath[(i+1+n)%n];    /* Next point */
+        v1 = normalize(pp - pc);
+        v2 = normalize(pn - pc);
+        bisect = width * normalize(v1 + v2);
+        newpoint = bisect + pc;
+        if(i > 0) {
+            /* Check convex polygon interior angle */
+            crossp = v1[0] * v2[1] - v1[1] * v2[0];
+            if(crossp < 0.0) {
+                newpoint = -bisect + pc;
+            }
+        }
+        res += { newpoint };
+    }
+    return res;
+}
+
+/* Trace the path at offset */
+function tracepath(path, offset)
+{
+    move(path[count(path)-1] + offset);
+    dwell(0);
+    foreach(path; p) {
+        move(p + offset);
+        dwell(0);
+    }
+}
+
+/* A nice star */
+starpath = {
+    [ 1,  1], [ 0,  3],
+    [-1,  1], [-3,  0],
+    [-1, -1], [ 0, -3],
+    [ 1, -1], [ 3,  0]
+};
+
+if (umode == 1) {
+  fix = 0.0mm;
+} else {
+  fix = 0.0in;
+}
+         x1 = fix + x1;
+         y1 = fix + y1;
+      frate = fix + feedr;
+      zsafe = fix + zsafe;
+       zcut = fix + zcut;
+erode_width = fix + erode_width;
+
+theoffset = [x1,y1];
+/******************** Program start ********************/
+feedrate(feedr);
+
+goto([-,-,zsafe]);                  /* Safe Z */
+starpath *= myscale*10.0;           /* Scale the star */
+goto(starpath[count(starpath)-1]);  /* First coordinate */
+move([-,-,zcut]);                   /* Goto cutting depth */
+
+/* Cut the stars smaller and smaller */
+for(i = 0; i < n_erodes; i++) {
+    tracepath(erode(starpath, erode_width * -i), theoffset);
+}
+
+move([-,-,zsafe]);            /* Back to safe Z */

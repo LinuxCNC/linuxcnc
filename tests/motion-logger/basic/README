@@ -1,0 +1,14 @@
+
+This directory uses the "motion-logger" test program to log the Motion
+commands that come out of Task, as a result of running various ngc
+G-code files.
+
+Each test consists of a file named "$TEST.ngc" and a matching file named
+"expected.$TEST".  The $TEST.ngc file is run, and the resulting Motion
+commands are logged to a file named "result.$TEST".  If there is any
+discrepancy, the test fails.
+
+In between running each .ngc file, a special file named "reset.ngc"
+is run, intending to restore Task, Interp, and the Canon interface to
+their default startup state, to be ready to run the next .ngc file.
+

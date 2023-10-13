@@ -1,0 +1,8 @@
+This is a gscreen based operator screen for mills.
+This was designed by a user, Chris Brady for his project and given back to 
+the linuxcnc project.
+
+It requires some hardware buttons to operate such as a cycle start button.
+
+This is a simulated machine example - some adaption of files will be required.
+

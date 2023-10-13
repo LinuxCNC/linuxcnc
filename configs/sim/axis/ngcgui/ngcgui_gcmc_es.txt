@@ -1,0 +1,15 @@
+ngcgui incrustado como pestaña de Axis
+
+con soporte para archivos .gcmc (G-Code Meta Compiler)
+
+Los archivos .ngc y .gcmc se pueden mezclar con
+líneas de archivo ini como:
+
+NGCGUI_SUBFILE = drill.gcmc
+NGCGUI_SUBFILE = wheels.gcmc
+NGCGUI_SUBFILE = star.gcmc
+NGCGUI_SUBFILE = simp.ngc
+NGCGUI_SUBFILE = ""
+
+Ver el archivo ini para detalles de ejemplo
+

@@ -1,0 +1,41 @@
+EMCSHSRCS := emc/usr_intf/emcsh.cc \
+             emc/usr_intf/shcom.cc
+EMCRSHSRCS := emc/usr_intf/emcrsh.cc \
+              emc/usr_intf/shcom.cc
+EMCSCHEDSRCS := emc/usr_intf/schedrmt.cc \
+              emc/usr_intf/emcsched.cc \
+              emc/usr_intf/shcom.cc
+EMCLCDSRCS := emc/usr_intf/emclcd.cc \
+              emc/usr_intf/shcom.cc \
+              emc/usr_intf/sockets.c
+
+HALUISRCS := emc/usr_intf/halui.cc
+
+USERSRCS += $(EMCSHSRCS) $(EMCRSHSRCS) $(EMCSCHEDSRCS) $(EMCLCDSRCS) $(USRMOTSRCS) $(HALUISRCS)
+
+$(call TOOBJSDEPS, $(EMCSHSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS) -fPIC
+
+../tcl/linuxcnc.so: $(call TOOBJS, $(EMCSHSRCS)) ../lib/liblinuxcnc.a ../lib/liblinuxcncini.so.0 ../lib/libnml.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CXX) -shared $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS) -lXinerama
+TARGETS += ../tcl/linuxcnc.so
+
+../bin/linuxcncrsh: $(call TOOBJS, $(EMCRSHSRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CXX) -o $@ $(ULFLAGS) $^ -lpthread $(LDFLAGS)
+TARGETS += ../bin/linuxcncrsh
+
+../bin/schedrmt: $(call TOOBJS, $(EMCSCHEDSRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CXX) -o $@ $(ULFLAGS) $^ -lpthread $(LDFLAGS)
+TARGETS += ../bin/schedrmt
+
+../bin/linuxcnclcd: $(call TOOBJS, $(EMCLCDSRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CXX) -o $@ $(ULFLAGS) $^ $(LDFLAGS)
+TARGETS += ../bin/linuxcnclcd
+
+../bin/halui: $(call TOOBJS, $(HALUISRCS)) ../lib/liblinuxcnc.a ../lib/liblinuxcncini.so.0 ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0 ../lib/libtooldata.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CXX) $(CXXFLAGS) -o $@ $(ULFLAGS) $^ $(LDFLAGS)
+TARGETS += ../bin/halui

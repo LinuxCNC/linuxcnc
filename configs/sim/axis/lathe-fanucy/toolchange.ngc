@@ -1,0 +1,12 @@
+O<toolchange> sub
+(debug, Tool requested = #<tool>)
+#<wear> = [10000 + FIX[ #<tool>  / 100]]
+#<tool> = [#<tool> MOD 100]
+M6 T#<tool>
+G43 H#<tool>
+O100 IF [#<wear> GT 10000]
+    G43.2 H#<wear>
+O100 ENDIF
+#<pocket> = #<tool>
+(debug, tool = #<tool> wear = #<wear>)
+O<toolchange> endsub [0]

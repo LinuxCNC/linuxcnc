@@ -1,0 +1,42 @@
+(info: tests for values of [xyz]-rot-point)
+o<centering>sub
+#<xstart> = #1 (=-2.5)
+#<ystart> = #2 (=-2.5)
+  #<xlen> = #3 (= 5)
+  #<ylen> = #4 (= 5)
+#<zfinal> = #5 (=60)
+     #<n> = #6 (=12)
+     #<f> = #7 (=1000 feed)
+#<angle> = 0
+#<delta_angle> = [360/#<n>]
+
+o1 if [exists [#<_hal[xyzac-trt-kins.x-rot-point]>]]
+     (debug,x-rot-point=#<_hal[xyzac-trt-kins.x-rot-point]>)
+     (debug,y-rot-point=#<_hal[xyzac-trt-kins.y-rot-point]>)
+     (debug,z-rot-point=#<_hal[xyzac-trt-kins.z-rot-point]>)
+o1 endif
+o2 if [exists [#<_hal[xyzbc-trt-kins.x-rot-point]>]]
+     (debug,x-rot-point=#<_hal[xyzbc-trt-kins.x-rot-point]>)
+     (debug,y-rot-point=#<_hal[xyzbc-trt-kins.y-rot-point]>)
+     (debug,z-rot-point=#<_hal[xyzac-trt-kins.z-rot-point]>)
+o2 endif
+
+M429 ;Identity kinematics
+g0 x#<xstart> y#<ystart> z0 c0
+M428 ;tcp
+
+g61
+o10 while [#<angle> le 360]
+     g1 f#<f>
+     #<angle> = [#<angle> + #<delta_angle>]
+     g0 c#<angle>
+     g1 x[#<xstart> + #<xlen>]
+     g1 y[#<ystart> + #<ylen>]
+     g1 x[#<xstart> + 0      ]
+     g1 y[#<ystart> + 0      ]
+o10 endwhile
+
+
+M429 ;Identity kinematics
+g0 x0 y0 z#<zfinal> c0
+o<centering>endsub

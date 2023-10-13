@@ -1,0 +1,28 @@
+# adapted from work by J Thornton
+
+loadrt threads name1=porttest period1=1000000
+addf parport.0.read porttest
+addf parport.0.write porttest
+
+net pin01 PortTest.btn01 parport.0.pin-01-out PortTest.led-01
+net pin02 PortTest.btn02 parport.0.pin-02-out PortTest.led-02
+net pin03 PortTest.btn03 parport.0.pin-03-out PortTest.led-03
+net pin04 PortTest.btn04 parport.0.pin-04-out PortTest.led-04
+net pin05 PortTest.btn05 parport.0.pin-05-out PortTest.led-05
+net pin06 PortTest.btn06 parport.0.pin-06-out PortTest.led-06
+net pin07 PortTest.btn07 parport.0.pin-07-out PortTest.led-07
+net pin08 PortTest.btn08 parport.0.pin-08-out PortTest.led-08
+net pin09 PortTest.btn09 parport.0.pin-09-out PortTest.led-09
+net pin14 PortTest.btn14 parport.0.pin-14-out PortTest.led-14
+net pin16 PortTest.btn16 parport.0.pin-16-out PortTest.led-16
+net pin17 PortTest.btn17 parport.0.pin-17-out PortTest.led-17
+
+
+net pin10 parport.0.pin-10-in PortTest.led-10
+net pin11 parport.0.pin-11-in PortTest.led-11
+net pin12 parport.0.pin-12-in PortTest.led-12
+net pin13 parport.0.pin-13-in PortTest.led-13
+net pin15 parport.0.pin-15-in PortTest.led-15
+
+start
+

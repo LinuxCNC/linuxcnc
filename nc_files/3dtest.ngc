@@ -1,0 +1,54 @@
+n099	(This is a test plot nc program to be run on backplot)
+n100	(Author Ray Henry 10-Feb-2000)
+n101	g20
+n102	g0 x0 y0 z0 f30
+n103	x1 y1(start xy circle)
+n104	g17 g02 i.5 j.5
+n106	g0 z.1 (add xy lettering)
+n107	y1.75
+n108	z0
+n109	g1 y1.25 x1.4
+n110	y1.5 x1.2
+n111	y1.25 x1
+n112	y1.75 x1.4
+n113	g0 z.1
+n114	y1.75 x1.6
+n115	z0
+n116	g1 y1.5 x1.8
+n117	y1.75 x2
+n118	y1.5 x1.8
+n119	y1.25
+n120	g0 x0 y0 z0
+n121	x1 z1(start xz circle)
+n122	g18 g02 i.5 k.5
+n124	g0 y.1 (add xz lettering)
+n125	z1.75
+n126	y0
+n127	g1 z1.25 x1.4
+n128	z1.5 x1.2
+n129	z1.25 x1
+n130	z1.75 x1.4
+n131	g0 y.1
+n132	z1.75 x1.6
+n133	y0
+n134	g1 x2
+n135	z1.25 x1.6
+n136	x2
+n137	g0 x0 y0 z0
+n138	y1 z1 (start yz circle)
+n139	g19 g02 j.5 k.5
+n141	g0 x.1 (add yz lettering)
+n142	z1.75
+n143	x0
+n144	g1 z1.5 y1.2
+n145	z1.75 y1.4
+n146	z1.5 y1.2
+n147	z1.25
+n148	g0 x.1
+n149	z1.75 y1.6
+n150	x0
+n151	g1 y2
+n152	z1.25 y1.6
+n153	y2
+n154	g0 x0 y0 z0
+n155	m2

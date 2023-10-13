@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+  <vbox>
+    <checkbutton>
+      <halpin>"enable_offset"</halpin>
+      <text>"Enable Fixed Offset\non Pause"</text>
+      <initval>0</initval>
+    </checkbutton>
+  </vbox>
+</pyvcp>

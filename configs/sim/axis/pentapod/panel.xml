@@ -1,0 +1,93 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+<labelframe text="Iterations">
+  <font>("Helvetica",14)</font>
+  <vbox>
+   <hbox>
+    <label>
+      <text>"max:"</text>
+      <font>("Helvetica",14)</font>
+    </label>
+    <u32>
+      <halpin>"max-iter"</halpin>
+      <font>("Helvetica",14)</font>
+      <format>"3d"</format>
+      <width>3</width>
+    </u32>
+   </hbox>
+   <hbox>
+    <label>
+      <text>"last: "</text>
+      <font>("Helvetica",14)</font>
+    </label>
+    <u32>
+      <halpin>"last-iter"</halpin>
+      <font>("Helvetica",14)</font>
+      <format>"3d"</format>
+      <width>3</width>
+    </u32>
+   </hbox>
+  </vbox>
+</labelframe>
+<vbox>
+<labelframe text="Joints values">
+  <font>("Helvetica",14)</font>
+  <hbox>
+   <label>
+      <text>"0: "</text>
+      <font>("Helvetica",14)</font>
+   </label>
+   <number>
+      <halpin>"joint0"</halpin>
+      <font>("Helvetica",14)</font>
+      <format>"4.4f"</format>
+     </number>
+  </hbox>
+  <hbox>
+   <label>
+      <text>"1: "</text>
+      <font>("Helvetica",14)</font>
+   </label>
+   <number>
+      <halpin>"joint1"</halpin>
+      <font>("Helvetica",14)</font>
+      <format>"4.4f"</format>
+     </number>
+  </hbox>
+  <hbox>
+   <label>
+      <text>"2: "</text>
+      <font>("Helvetica",14)</font>
+   </label>
+   <number>
+      <halpin>"joint2"</halpin>
+      <font>("Helvetica",14)</font>
+      <format>"4.4f"</format>
+     </number>
+  </hbox>
+  <hbox>
+   <label>
+      <text>"3: "</text>
+      <font>("Helvetica",14)</font>
+   </label>
+   <number>
+      <halpin>"joint3"</halpin>
+      <font>("Helvetica",14)</font>
+      <format>"4.4f"</format>
+     </number>
+  </hbox>
+  <hbox>
+   <label>
+      <text>"4: "</text>
+      <font>("Helvetica",14)</font>
+   </label>
+   <number>
+      <halpin>"joint4"</halpin>
+      <font>("Helvetica",14)</font>
+      <format>"4.4f"</format>
+     </number>
+  </hbox>
+</labelframe>
+</vbox>
+
+</pyvcp>

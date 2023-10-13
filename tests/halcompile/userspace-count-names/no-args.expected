@@ -1,0 +1,6 @@
+count=0
+argc=1
+argv[0]=userspace_count_names
+argv[1]=(null)
+userspace-count-names.0.out
+

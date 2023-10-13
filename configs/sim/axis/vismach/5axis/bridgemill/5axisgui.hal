@@ -1,0 +1,32 @@
+loadusr -W 5axisgui
+# to set different pivot_len, use:
+#   'loadusr -W 5axisgui pivot_len=value'
+
+net :jx  joint.0.pos-fb 5axisgui.jx
+net :jy  joint.1.pos-fb 5axisgui.jy
+net :jz  joint.2.pos-fb 5axisgui.jz
+net :jb  joint.3.pos-fb 5axisgui.jb
+net :jc  joint.4.pos-fb 5axisgui.jc
+net :jw  joint.5.pos-fb
+net :jy2 joint.6.pos-fb
+
+# Note: no joint or motor connections are used
+# for the w coordinate
+
+# compute pivot-length needed for 5axiskins
+# according to gui pivot_len and tool z offset
+loadrt sum2 names=pivotsum
+addf pivotsum servo-thread
+
+net :gui-pivot-len <= 5axisgui.pivot_len
+net :gui-pivot-len => pivotsum.in0
+
+net :tool-len <= motion.tooloffset.z
+net :tool-len => pivotsum.in1
+net :tool-len => 5axisgui.tool_length
+
+net :pivot-len <= pivotsum.out
+net :pivot-len => 5axiskins.pivot-length
+
+net :tool-diam <= halui.tool.diameter
+net :tool-diam => 5axisgui.tool_diam

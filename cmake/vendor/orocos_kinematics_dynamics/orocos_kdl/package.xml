@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<?xml-model
+  href="http://download.ros.org/schema/package_format3.xsd"
+  schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>orocos_kdl</name>
+  <version>1.4.0</version>
+  <description>
+    This package contains a recent version of the Kinematics and Dynamics
+    Library (KDL), distributed by the Orocos Project.
+  </description>
+  <maintainer email="ruben@intermodalics.eu">Ruben Smits</maintainer>
+  <url>http://wiki.ros.org/orocos_kdl</url>
+  <license>LGPL</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>eigen</build_depend>
+
+  <exec_depend>catkin</exec_depend>
+  <exec_depend>eigen</exec_depend>
+  <exec_depend>pkg-config</exec_depend>
+
+  <test_depend>cppunit</test_depend>
+
+  <doc_depend>doxygen</doc_depend>
+
+  <export>
+    <build_type>cmake</build_type>
+  </export>
+
+</package>

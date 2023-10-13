@@ -1,0 +1,31 @@
+#!/usr/bin/bash
+
+cd ../../../../
+echo $(pwd)
+PWD_DIR=$(pwd)
+
+cd scripts
+./halclean
+cd ..
+cd bin
+
+./halcmd stop
+./halcmd loadrt threads name1=base-thread fp1=0 period1=30000 name2=servo-thread period2=1000000
+
+# Unix command to load the ethercat .xml config
+# Note: The ethercat-conf.xml file could be copied to the rtdir.
+$PWD_DIR/rtlib/./lcec_conf $PWD_DIR/src/hal/components/ethercat/ethercat-conf.xml &
+./halcmd loadrt lcec
+
+./halcmd net ec-slaves-responding <= lcec.slaves-responding
+./halcmd net ec-link-up <= lcec.link-up
+./halcmd net ec-all-op <= lcec.all-op
+
+./halcmd addf lcec.read-all base-thread
+./halcmd addf lcec.write-all base-thread
+
+./halcmd start
+
+./halcmd show
+
+

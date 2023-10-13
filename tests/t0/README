@@ -1,0 +1,15 @@
+
+nonrandom toolchanger:
+
+    T0 is special and means "no tool".  T0 should not appear in the tool
+    table, if T0 is defined there is ignored.
+
+
+random toolchanger:
+
+    T0 is a normal tool like any other, totally devoid of special meaning.
+    In practice T0 is usually(?) used to track an empty pocket in the
+    tool changer hardware.
+
+    Tool number -1 is used to indicate "unknown tool".
+

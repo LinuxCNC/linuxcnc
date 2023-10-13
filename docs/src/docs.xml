@@ -1,0 +1,108 @@
+<docs>
+
+<docgroup lang="en" index="index.html">
+<doc name="html_gcode" title="G-code quick reference"/>
+
+<doc name="common_emc2-intro" title="Overleaf Image"/>
+<doc name="common_overleaf" title="Overleaf Text"/>
+<doc name="common_System_Requirements" title="System Requirements"/>
+<doc name="common_Getting_EMC" title="Getting LinuxCNC"/>
+<doc name="common_Updating_EMC" title="Updating LinuxCNC"/>
+<doc name="quickstart_stepper_quickstart" title="Stepper Quickstart"/>
+<doc name="config_stepconf" title="Configuration Wizard for Stepper-Based Machines"/>
+<doc name="config_pncconf" title="Point and Click Configuration Wizard (for Machines using Mesa)"/>
+<doc name="config_copy_and_run" title="Copy and Run"/>
+<doc name="common_Linux_FAQ" title="Linux FAQ"/>
+<doc name="common_GPLD_Copyright" title="Copyright and Documentation License"/>
+
+<doc name="common_overleaf" title="Overleaf Text"/>
+<doc name="common_user-foreword" title="Foreword"/>
+<doc name="common_user-intro" title="Introduction"/>
+<doc name="common_user-concepts" title="Important User Concepts"/>
+<doc name="gui_axis" title="GUI: Axis"/>
+<doc name="gui_touchy" title="GUI: Touchy"/>
+<doc name="gui_ngcgui" title="GUI: NGCGUI"/>
+<doc name="gui_tklinuxcnc" title="GUI: TkLinuxCNC"/>
+<doc name="gui_mini" title="GUI: Mini"/>
+<doc name="common_machining_center" title="Machining Center Info"/>
+<doc name="gcode_overview" title="G-code Overview"/>
+<doc name="gcode_coordinates" title="G-code Coordinates"/>
+<doc name="gcode_tool-compensation" title="G-code Tool Compensation"/>
+<doc name="gcode_main" title="The LinuxCNC G-code Language"/>
+<doc name="gcode_mill_canned" title="G-code Mill Canned Cycle Examples"/>
+<doc name="lathe_lathe-user" title="Lathe User Information"/>
+<doc name="plasma_qtplasmac" title="GUI: QtPlasmaC"/>
+<doc name="plasma_plasma-cnc-primer" title="Plasma CNC Primer"/>
+<doc name="gcode_rs274ngc" title="RS-274/NGC G-code"/>
+<doc name="examples_gcode" title="G-code Examples"/>
+<doc name="gui_image-to-gcode" title="Image to G-code"/>
+<doc name="common_glossary" title="Glossary"/>
+<doc name="common_GPLD_Copyright" title="Copyright and Documentation License"/>
+
+<doc name="common_overleaf" title="Overleaf Text"/>
+<doc name="hal_intro" title="Introduction"/>
+<doc name="hal_tutorial" title="HAL Advanced Tutorial"/>
+<doc name="hal_general-ref" title="General Reference"/>
+<doc name="hal_tools" title="HAL Tools"/>
+<doc name="hal_basic-hal" title="Basic HAL Info"/>
+<doc name="hal_halshow" title="Halshow"/>
+<doc name="hal_components" title="HAL Components"/>
+<doc name="hal_parallel_port" title="Parallel Port Drivers"/>
+<doc name="gui_halui" title="HAL User Interface"/>
+<doc name="hal_hal-examples" title="HAL Examples"/>
+<doc name="hal_comp" title="Comp: a tool for creating HAL components"/>
+<doc name="hal_halmodule" title="Creating Userspace Python Components with the 'hal' module"/>
+<doc name="drivers_ax5214h" title="AX5214H Driver"/>
+<doc name="drivers_gs2" title="GS2 Driver"/>
+<doc name="drivers_hostmot2" title="HostMot2 Driver"/>
+<doc name="drivers_motenc" title="Motenc Driver"/>
+<doc name="drivers_opto22" title="Opto22 Driver"/>
+<doc name="drivers_pico-ppmc" title="Pico PPMC Driver"/>
+<doc name="drivers_pluto-p" title="Pluto-P Driver"/>
+<doc name="drivers_servo-to-go" title="Servo-To-Go Driver"/>
+<doc name="drivers_gm" title="General Mechatronics GM6-PCI Driver"/>
+<doc name="common_gpld-copyright" title="Copyright and Documentation License"/>
+
+<doc name="common_overleaf" title="Overleaf Text"/>
+<doc name="common_integrator-concepts" title="Important Integrator Concepts"/>
+<doc name="install_Latency_Test" title="Latency Test"/>
+<doc name="config_ini-config" title="Basic Configuration"/>
+<doc name="config_ini-homing" title="Homing Configuration"/>
+<doc name="config_lathe-config" title="Lathe Configuration"/>
+<doc name="config_core-components" title="LinuxCNC interface to HAL"/>
+<doc name="config_stepper" title="Stepper Configuration"/>
+<doc name="hal_pyvcp" title="Python Virtual Control Panels (pyVCP)"/>
+<doc name="hal_pyvcp-examples" title="pyVCP Examples"/>
+<doc name="gui_gladevcp" title="Glade Virtual Control Panel"/>
+<doc name="gui_gscreen" title="Gscreen"/>
+<doc name="gui_qtvcp" title="QTvcp"/>
+<doc name="gui_qtvcp-vcp-panels" title="QTvcp VCP Panels"/>
+<doc name="gui_qtvcp-widgets" title="QTvcp Widgets"/>
+<doc name="gui_qtvcp-libraries" title="QTvcp Libraries"/>
+<doc name="gui_qtvcp-vismach" title="QTvcp Vismach"/>
+<doc name="gui_qtvcp-custom-widgets" title="QTvcp Custom Widgets"/>
+<doc name="gui_qtvcp-code-snippets" title="QTvcp Code Snippets"/>
+<doc name="gui_qtvcp-development" title="QTvcp Development"/>
+<doc name="motion_kinematics" title="Kinematics"/>
+<doc name="motion_tweaking_steppers" title="Tweaking Steppers"/>
+<doc name="motion_pid_theory" title="PID theory"/>
+<doc name="ladder_ladder_intro" title="Ladder Introduction"/>
+<doc name="examples_pci-parallel-port" title="PCI Parallel Port"/>
+<doc name="examples_spindle" title="Spindle Example"/>
+<doc name="examples_mpg" title="MPG Example"/>
+<doc name="examples_gs2-example" title="GS2 Example"/>
+<doc name="common_stepper-diagnostics" title="Stepper Quickstart"/>
+<doc name="common_Linux_FAQ" title="Linux FAQ"/>
+<doc name="common_glossary" title="Glossary"/>
+<doc name="common_gpld-copyright" title="Copyright and Documentation License"/>
+
+<doc name="common_overleaf" title="Overleaf Text"/>
+<doc name="code_code-notes" title="Code Notes"/>
+<doc name="code_nml-messages" title="NML Messages"/>
+<doc name="code_style-guide" title="Style Guide"/>
+<doc name="common_Glossary" title="Glossary"/>
+<doc name="common_gpld-copyright" title="Copyright and Documentation License"/>
+
+<doc name="xref" title="Cross Reference Index"/>
+</docgroup>
+</docs>

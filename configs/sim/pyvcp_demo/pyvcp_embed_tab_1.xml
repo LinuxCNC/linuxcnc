@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+    <vbox>
+        <label>
+            <text>"Embedded Tab #1"</text>
+            <font>("Helvetica",14)</font>
+            <pady>8</pady>
+        </label>
+        <hbox>
+            <labelframe>
+                <bd>2</bd>
+                <relief>RAISED</relief>
+                <hbox>
+                    <dial>
+                        <size>100</size>
+                        <cpr>100</cpr>
+                        <min_>0</min_>
+                        <max_>100</max_>
+                        <text>"Dial 0"</text>
+                        <initval>50</initval>
+                        <resolution>1</resolution>
+                        <halpin>"dial0"</halpin>
+                        <dialcolor>"red"</dialcolor>
+                        <edgecolor>"yellow"</edgecolor>
+                        <dotcolor>"black"</dotcolor>
+                        <param_pin>1</param_pin>
+                    </dial>
+                    <scale>
+                        <width>"15"</width>
+                        <halpin>"scale0"</halpin>
+                        <resolution>1</resolution>
+                        <orient>VERTICAL</orient>
+                        <initval>50</initval>
+                        <min_>0</min_>
+                        <max_>100</max_>
+                        <param_pin>1</param_pin>
+                    </scale>
+                    </hbox>
+            </labelframe>
+            <label>
+                <text>"   "</text>
+            </label>
+            <labelframe>
+                <bd>2</bd>
+                <relief>RAISED</relief>
+                <hbox>
+                    <dial>
+                        <size>100</size>
+                        <cpr>100</cpr>
+                        <min_>0</min_>
+                        <max_>10</max_>
+                        <text>"Dial 1"</text>
+                        <initval>5</initval>
+                        <resolution>0.1</resolution>
+                        <halpin>"dial1"</halpin>
+                        <dialcolor>"green"</dialcolor>
+                        <edgecolor>"cyan"</edgecolor>
+                        <dotcolor>"black"</dotcolor>
+                        <param_pin>1</param_pin>
+                    </dial>
+                    <scale>
+                        <width>"15"</width>
+                        <halpin>"scale1"</halpin>
+                        <resolution>0.1</resolution>
+                        <orient>VERTICAL</orient>
+                        <initval>5</initval>
+                        <min_>0</min_>
+                        <max_>10</max_>
+                        <param_pin>1</param_pin>
+                    </scale>
+                </hbox>
+            </labelframe>
+        </hbox>
+    </vbox>
+</pyvcp>
+
+

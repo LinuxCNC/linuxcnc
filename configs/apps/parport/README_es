@@ -1,0 +1,19 @@
+﻿Prueba de puerto paralelo usando pyvcp
+
+parport_0x278  test port 0x278 < parallel port 1 (no típico)
+parport_0x378  test port 0x378 < parallel port 0
+
+Para encontrar la dirección del puerto paralelo, abra una terminal y escriba:
+
+cat /proc/ioports | grep parport
+
+normalmente sera parport0
+
+0378-037a: parport0
+
+Para averiguar la dirección de un puerto paralelo PCI:
+
+lspci -v
+
+Nota: Para el simulador, se puede mostrar un mensaje de 'acceso root requerido'.
+No se recomienda usar root para ejecutar linuxcnc.

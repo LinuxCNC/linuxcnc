@@ -1,0 +1,21 @@
+############### Torch Height Control Python Widgets #################### 
+
+# Hook up PyVCP pins using the net command
+net CHLThreshold pyvcp.Scale-CHLThreshold-f => scale.0.in
+net CHLEnable pyvcp.Check-CHLEnable => and2.0.in1
+net TravelHeight pyvcp.Spin-TravelHeight => sum2.3.in0
+net PierceDelay pyvcp.Spin-PierceDelay => oneshot.0.width
+net THCStepSize pyvcp.Spin-THCStepSize => mult2.0.in0
+net PierceGap pyvcp.Spin-PierceGap => sum2.0.in1
+net SwitchTravel pyvcp.Spin-SwitchTravel => sum2.0.in0
+net Autostart pyvcp.Check-AutoStart and2.8.in1
+
+# Hook up pins connecting to PyVCP objects
+net MoveDown => pyvcp.Led-MoveDown
+net MoveUp => pyvcp.Led-MoveUp
+net FloatSwitch => pyvcp.Led-FloatSwitch
+net ArcOK => pyvcp.Led-ArcOK
+net LockHeight => pyvcp.Led-HeightLocked
+net TorchOn => pyvcp.Led-TorchOn
+net ExtEStop => pyvcp.Led-ExtEStop
+net PierceDelayTimer oneshot.0.time-left =>  pyvcp.Num-PierceDelayTimer 

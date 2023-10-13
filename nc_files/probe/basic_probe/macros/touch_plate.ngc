@@ -1,0 +1,31 @@
+o<touch_plate> sub
+
+#<max_probe> = #<_ini[TOOLSENSOR]maxprobe>
+#<search_vel> = #<_ini[TOOLSENSOR]search_vel>
+#<probe_vel> = #<_ini[TOOLSENSOR]probe_vel>
+#<touch_height> = #<_ini[TOOLSENSOR]touch>
+
+(print, max_probe is #<max_probe>)
+(print, search vel is #<search_vel>)
+(print, probe vel is #<probe_vel>)
+(print, touch height is #<touch_height>)
+
+G21 (use metric units)
+G49 (cancel tool offset)
+G10 L20 P0 Z0 (clear current offsets)
+G91 (switch to incremental mode)
+
+; this section commented out for sim
+;G38.2 Z[-#<max_probe>] F#<search_vel>  (probe down)
+;G1 Z1.0  (go up 1 mm)
+;G4 P0.5 (pause 0.5 sec.)
+;G38.2 Z-2 F#<probe_vel> (probe down slower)
+
+; this section used for sim, comment out otherwise
+G1 Z-10 F#<search_vel>
+
+G10 L20 P0 Z#<touch_height>  (store offset in offset table)
+G90 (absolute distance mode)
+G53 G0 Z0 (move Z up to 0)
+o<touch_plate> endsub
+M2

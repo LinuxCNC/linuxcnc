@@ -1,0 +1,15 @@
+# Include your custom HAL commands here
+# This file will not be overwritten when you run PNCconf again
+
+# ---COMMON PLASMAC DEBOUNCE---
+# for the float and ohmic inputs each increment in delay is
+# is a 0.001mm (0.00004") increase in any probed height result
+setp db_float.delay     5
+setp db_ohmic.delay     5
+setp db_breakaway.delay 5
+setp db_arc-ok.delay    5
+
+# ---ARC VOLTAGE LOWPASS FILTER---
+# Only use this if comprehensive testing shows that it is required
+#setp plasmac.lowpass-frequency 0
+

@@ -1,0 +1,15 @@
+*.var
+*.var.bak
+*/core_*.hal
+!/cooltool/core_stepper4.hal
+!/hexapod-sim/core_sim_6.hal
+!/sim/core_sim_noio.hal
+!/sim/core_sim_noiocontrol.hal
+!/sim/core_sim_test.hal
+
+*/axis_manualtoolchange.hal
+position*.txt
+!common/*.hal
+*.ini.expanded
+hallib
+*_cmds.hal

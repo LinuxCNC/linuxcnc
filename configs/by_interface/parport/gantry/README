@@ -1,0 +1,10 @@
+Stepper Gantry basic configurations.
+
+It is very important for gantry machines to set initial home switch positions before first homing so they reach home switches at a very similar time. To remove any skewing on the gantry adjust the home offset of one joint. After homing the configuration will switch from joint mode to world mode.
+
+gantry_joints.ini uses the same .hal file but uses kinstype=BOTH which requires independently homing each joint axis.
+
+gantry.ini implements a dual Y motor gantry. This is the configuration to use after you verify the directions and speeds of the individual joints using gantry_joints.ini.
+
+These configs use switches for min-home on the X,Y,Y2 axis and max-home for Z. Pay attention to the parallel input pin assignment for the switches.
+

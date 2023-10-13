@@ -1,0 +1,38 @@
+
+EMCMODULESRCS := emc/usr_intf/axis/extensions/emcmodule.cc
+TOGLMODULESRCS := emc/usr_intf/axis/extensions/_toglmodule.c
+PYSRCS += $(EMCMODULESRCS) $(TOGLMODULESRCS)
+
+EMCMODULE := ../lib/python/linuxcnc.so
+TOGLMODULE := ../lib/python/_togl.so
+
+$(call TOOBJSDEPS, $(TOGLMODULESRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
+
+$(call TOOBJSDEPS, $(EMCMODULESRCS)) : Makefile.inc
+
+$(EMCMODULE): $(call TOOBJS, $(EMCMODULESRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 \
+              ../lib/liblinuxcncini.so ../lib/libtooldata.so.0
+	$(ECHO) Linking python module $(notdir $@)
+	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib -lm -lepoxy
+
+$(TOGLMODULE): $(call TOOBJS, $(TOGLMODULESRCS))
+	$(ECHO) Linking python module $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -shared -o $@ $(TCL_CFLAGS) $^ -L/usr/X11R6/lib -lX11 -lepoxy -lXmu $(TCL_LIBS)
+
+PYTARGETS += $(EMCMODULE) $(TOGLMODULE)
+
+PYSCRIPTS := axis.py axis-remote.py linuxcnctop.py hal_manualtoolchange.py \
+	mdi.py image-to-gcode.py lintini.py debuglevel.py teach-in.py tracking-test.py
+PYBIN := $(patsubst %.py,../bin/%,$(PYSCRIPTS))
+PYTARGETS += $(PYBIN)
+
+
+$(PYBIN): ../bin/%: emc/usr_intf/axis/scripts/%.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -m py_compile $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+
+PYI18NSRCS += $(addprefix emc/usr_intf/axis/scripts/, $(PYSCRIPTS))  \
+	../lib/python/propertywindow.py \
+	../share/axis/tcl/axis.tcl

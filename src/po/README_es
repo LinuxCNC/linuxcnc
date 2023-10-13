@@ -1,0 +1,35 @@
+Nota para los traductores de los archivos pot:
+==============================================
+
+Haga una copia del archivo .pot cambiándole el nombre para reflejar el 
+idioma en que se encuentra. Por ejemplo, para una traducción española 
+de linuxcnc.pot, su archivo de trabajo sería es.po. Si el archivo no 
+existe dentro del repositorio de origen, cree uno a partir de la plantilla
+linuxcnc.pot:
+
+    cp linuxcnc.pot es.pot
+
+Para actualizar el archivo .po de un idioma desde su archivo .pot, use el
+comando "msgmerge". Debido a que hacer esto crea innecesariamente muchas 
+revisiones de archivos .po en el historial, esto no se hace automáticamente 
+por "make". En su lugar, se hace ejecutando explícitamente "make pofiles". 
+
+Si está trabajando a mano, también puede actualizar un solo archivo .po:
+
+    msgmerge -U xx.po linuxcnc.pot
+
+Cuando haya terminado, haga un "git commit" del nuevo archivo .po. Si tiene 
+acceso push, haga "git push". De lo contrario, formatee sus cambios como un 
+parche con "git format-patch" y envíelo a la lista de correo de emc-developers.
+
+Herramientas gráficas para editar archivos .po
+==============================================
+En Dapper (y otros) parece que hay dos interfaces gráficas para editar 
+archivos .po; gtranslator (una parte del escritorio de Gnome) y 
+kbabel (parte de KDE. (N.T. sustituido por lokalize)).
+
+
+Versiones requeridas de xgettext y msgmerge
+==========================================
+configure intentará detectar varios problemas con xgettext y msgmerge.
+Se sabe que la versión 0.14.5 funciona correctamente.

@@ -1,0 +1,20 @@
+# first load realtime portion of classicladder, and create a 1mS thread
+loadrt classicladder_rt period=1000000
+
+# hook functions to realtime thread
+addf classicladder.0.refresh classicladder.thread 1
+
+# create some I/O signals
+
+# connect I/O signals to classicladder
+net I0 => classicladder.0.in-00
+net I1 => classicladder.0.in-01
+net I2 => classicladder.0.in-02
+net Q0 <= classicladder.0.out-00
+net Q1 <= classicladder.0.out-01
+net Q2 <= classicladder.0.out-02
+
+# set the input signals
+sets I0 0
+sets I1 0
+sets I2 0

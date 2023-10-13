@@ -1,0 +1,2 @@
+The ethercat output is not tested on real hardware
+

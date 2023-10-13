@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+
+import sys
+import math
+
+max_value = 0.0
+min_value = -100.0
+
+max_vel = 315
+max_accel = 1975
+
+result_filename = sys.argv[1]
+result_file = open(result_filename, 'r')
+
+retval = 0
+
+for line in result_file.readlines():
+    (line, in_value, in_vel, in_accel, out_value, out_vel, out_accel) = line.split()
+    in_value = float(in_value)
+    in_vel = float(in_vel)
+    in_accel = float(in_accel)
+    out_value = float(out_value)
+    out_vel = float(out_vel)
+    out_accel = float(out_accel)
+
+
+    #
+    # constraints
+    #
+
+    if out_value > max_value:
+        print(("max=%.3f, out=%.3f, position violation on line %s" % (max_value, out_value, line)))
+        retval = 1
+
+    if out_value < min_value:
+        print(("min=%.3f, out=%.3f, position violation on line %s" % (min_value, out_value, line)))
+        retval = 1
+
+    if math.fabs(out_vel) > max_vel:
+        print(("max_vel=%.3f, out_vel=%.3f, velocity violation on line %s" % (max_vel, out_vel, line)))
+        retval = 1
+
+    if math.fabs(out_accel) > max_accel:
+        print(("max_accel=%.3f, out_accel=%.3f, acceleration violation on line %s" % (max_accel, out_accel, line)))
+        retval = 1
+
+
+    #
+    # input -> output following
+    # 
+
+    error = math.fabs(in_value - out_value)
+    if error > 0.0:
+        print(("input=%.6f, output=%.6f, error=%.6f, threshold=%.6f, following failure on line %s" % (in_value, out_value, error, threshold, line)))
+        retval = 1
+
+sys.exit(retval)

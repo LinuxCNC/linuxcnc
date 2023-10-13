@@ -1,0 +1,5 @@
+SET_LINE x=1, y=2, z=3, a=4, b=5, c=6, u=7, v=8, w=9, id=2, motion_type=2, vel=0.0166667, ini_maxvel=1.66296, acc=415.74, turn=-1
+SET_LINE x=0.1, y=2, z=0.3, a=0.4, b=5, c=0.6, u=0.7, v=8, w=0.9, id=3, motion_type=2, vel=0.0333333, ini_maxvel=1.40546, acc=351.364, turn=-1
+SET_LINE x=10, y=2, z=0.3, a=10, b=5, c=0.6, u=10, v=8, w=0.9, id=5, motion_type=2, vel=0.00166667, ini_maxvel=4, acc=1000, turn=-1
+SET_SPINDLESYNC sync=0.000000, flags=0x00000000
+SPINDLE_OFF

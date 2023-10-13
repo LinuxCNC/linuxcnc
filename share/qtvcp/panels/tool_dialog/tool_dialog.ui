@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>315</width>
+    <height>150</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="ScreenOptions" name="screen_options">
+      <property name="notify_option" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="catch_close_option" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="catch_errors_option" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="play_sounds_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="use_pref_file_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="pref_filename_string" stdset="0">
+       <string>CONFIGFOLDER/.qtvcp_toolchange_preferences</string>
+      </property>
+      <property name="embedded_program_option" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="messageDialog_option" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="closeDialog_option" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="entryDialogSoftkey_option" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="toolDialog_option" stdset="0">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>315</width>
+     <height>27</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ScreenOptions</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.screen_options</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

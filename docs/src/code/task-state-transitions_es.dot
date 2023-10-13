@@ -1,0 +1,14 @@
+digraph "task-state-transition-es" {
+    "E-stop" [style=bold];
+    "E-stop Reset";
+    "Maquina On";
+
+    "E-stop" -> "E-stop Reset" [label="Estop Reset"];
+
+    "E-stop Reset" -> "E-stop" [label="Estop"];
+    "E-stop Reset" -> "Maquina On" [label="Maquina On"];
+
+    "Maquina On" -> "E-stop" [label="Estop"];
+    "Maquina On" -> "E-stop Reset" [label="Maquina Off"];
+}
+

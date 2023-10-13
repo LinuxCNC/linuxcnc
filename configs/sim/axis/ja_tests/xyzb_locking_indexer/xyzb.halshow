@@ -1,0 +1,18 @@
+# halshow watchlist created Wed Mar 09 18:54:13 MST 2016
+
+pin+motion.teleop-mode
+pin+joint.0.jog-counts
+pin+joint.1.jog-counts
+pin+joint.2.jog-counts
+pin+joint.3.jog-counts
+pin+joint.4.jog-counts
+pin+axis.x.jog-counts
+pin+axis.y.jog-counts
+pin+axis.z.jog-counts
+pin+axis.b.jog-counts
+pin+joint.3.unlock
+pin+joint.3.is-unlocked
+pin+joint.3.homed
+pin+joint.4.unlock
+pin+joint.4.is-unlocked
+pin+joint.4.homed

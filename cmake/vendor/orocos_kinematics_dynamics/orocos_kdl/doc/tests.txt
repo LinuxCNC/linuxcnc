@@ -1,0 +1,70 @@
+Goal of the tests in KDL :
+==========================
+
+All numerical calculations that are non-trivial should be tested by
+a testprogram.  This is important because these kinds of errors are difficult to trace 
+when they occur in an application.  
+
+The tests are run automatically when using "make check".
+
+Test programs should give a short message on std::cerr  and a long log of their activities on std::cout.
+Test programs should exit with a non-zero status number if an error occurred.
+
+(make check > log   , if you want the log into a file.)
+
+
+
+
+Description of the tests in KDL:
+================================
+
+framestest.cpp :    
+   - consistency of the objects Frame,Vector,Twist and Wrench and 
+     all of their mathematical operations.
+   - e.g.  R*R.Inverse() == Frame::Identity, or (R*(R*v))=(R*R)*v
+   - many other equalities are checked.
+
+frameveltest.cpp doubleveltest.cpp :
+    - similar consistency checks on  framestest, but for FrameVel,VectorVel,TwistVel, WrenchVel,
+        doubleVel, FrameAcc,VectorAcc,TwistAcc,WrenchAcc, doubleAcc and all of their mathematical 
+        operations.
+
+jacobianframetests.cpp  jacobiandoubletests.cpp jacobiantests.hpp :
+    - tests the Jacobian<X> classes for X=Frame,Vector,Wrench,Twist,double
+      and ALL unary and binary operations on Jacobian<X>.
+    - The checks are done by generating random instances of these classes 
+      and checking the Jacobian with numerical differentiation.
+
+
+iotest.cpp:
+    - tests the I/O by output of a kinematic family and reading it back in.
+
+
+serialchaintest.cpp :
+    - The following routines for testing are provided :
+        - CompareFamilies(kinematicfamily1, kinematicfamily2) 
+                compares jnt2cartpos transformation for two kf's.
+        - TestForwardAndInverse
+                checks whether jnt2cartpos and cartpos2jnt are consistent.
+        - TestForwardPosAndJac
+                compares jnt2cartpos and jnt2jac by numerical differentiation.
+        - TestCartVelAndJac
+                checks whether jnt2cartvel and jnt2jac are consistent.
+        - TestCartVelAndInverse
+                checks whether jnt2cartvel and cartvel2jnt are consistent.
+
+    - These routines are used on :
+            - SerialChain 
+            - A SerialChain with joint index offset and a LinearTransmission.
+            - ZXXZXZ (featherstone) kinematic family 
+            - A SerialChain requested from the ZXXZXZ (featherstone) kinematic family.
+
+featherstonetest.cpp :
+    - tests the transformations for the featherstone kinematic family for all 8 configurations.
+      and tests the set/getConfiguration(enum) set/getConfiguration(jointvalues) routines.
+    - transformations tested are : Jnt2CartPos and CartPos2Jnt.
+
+
+        
+treetest.cpp :
+    - work in progress..

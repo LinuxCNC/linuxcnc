@@ -1,0 +1,361 @@
+<pyvcp>
+
+
+<hbox>
+
+<labelframe text="Inputs">
+     <hbox>
+        <label>
+            <text>""</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <halpin>"led.2"</halpin>
+            <disable_pin>True</disable_pin>
+        </led>
+        <label>
+            <text>"Input pin 2"</text>
+            <halpin>"led_text.2"</halpin>
+            <disable_pin>True</disable_pin>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <halpin>"led.3"</halpin> 
+            <disable_pin>True</disable_pin>
+        </led>
+        <label>
+            <text>"Input pin 3"</text>
+            <halpin>"led_text.3"</halpin>
+            <disable_pin>True</disable_pin>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <halpin>"led.4"</halpin>
+            <disable_pin>True</disable_pin>
+        </led>
+        <label>
+            <text>"Input pin 4"</text>
+            <halpin>"led_text.4"</halpin>
+            <disable_pin>True</disable_pin>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <halpin>"led.5"</halpin>
+            <disable_pin>True</disable_pin>
+        </led>
+        <label>
+            <text>"Input pin 5"</text>
+            <halpin>"led_text.5"</halpin>
+            <disable_pin>True</disable_pin>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <halpin>"led.6"</halpin>
+            <disable_pin>True</disable_pin>
+        </led>
+        <label>
+            <text>"Input pin 6"</text>
+            <halpin>"led_text.6"</halpin>
+            <disable_pin>True</disable_pin>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <halpin>"led.7"</halpin>
+            <disable_pin>True</disable_pin>
+        </led>
+        <label>
+            <text>"Input pin 7"</text>
+            <halpin>"led_text.7"</halpin>
+            <disable_pin>True</disable_pin>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <halpin>"led.8"</halpin>
+            <disable_pin>True</disable_pin>
+        </led>
+        <label>
+            <text>"Input pin 8"</text>
+            <halpin>"led_text.8"</halpin>
+            <disable_pin>True</disable_pin>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <halpin>"led.9"</halpin>
+            <disable_pin>True</disable_pin>
+        </led>
+        <label>
+            <text>"Input pin 9"</text>
+            <halpin>"led_text.9"</halpin>
+            <disable_pin>True</disable_pin>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <halpin>"led.10"</halpin>
+            <disable_pin>True</disable_pin>
+        </led>
+        <label>
+            <text>"Input pin 10"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <halpin>"led.11"</halpin>
+            <disable_pin>True</disable_pin>
+        </led>
+        <label>
+            <text>"Input pin 11"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <halpin>"led.12"</halpin>
+            <disable_pin>True</disable_pin>
+        </led>
+        <label>
+            <text>"Input pin 12"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <halpin>"led.13"</halpin>
+            <disable_pin>True</disable_pin>
+        </led>
+        <label>
+            <text>"Input pin 13"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <halpin>"led.15"</halpin>
+            <disable_pin>True</disable_pin>
+        </led>
+        <label>
+            <text>"Input pin 15"</text>
+        </label>
+    </hbox>
+</labelframe>
+
+<labelframe text="Outputs">
+   
+    <hbox>
+        <label>
+            <text>"Output pin 1 "</text>
+        </label>
+        <button>
+            <halpin>"button.1"</halpin>
+            <disable_pin>True</disable_pin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"checkbutton.1"</halpin>
+            <text>"Latch"</text>
+            <font>("Helvetica",8)</font>
+        </checkbutton>      
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 2 "</text>
+            <halpin>"button_text.2"</halpin>
+            <disable_pin>True</disable_pin>   
+        </label>
+        <button>
+            <halpin>"button.2"</halpin>
+            <disable_pin>True</disable_pin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"checkbutton.2"</halpin>
+            <text>"Latch"</text>
+            <font>("Helvetica",8)</font>
+        </checkbutton>       
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 3 "</text>
+            <halpin>"button_text.3"</halpin>
+            <disable_pin>True</disable_pin> 
+        </label>
+        <button>
+            <halpin>"button.3"</halpin>
+            <disable_pin>True</disable_pin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"checkbutton.3"</halpin>
+            <text>"Latch"</text>
+            <font>("Helvetica",8)</font>
+        </checkbutton>
+    </hbox>
+    
+    <hbox>
+        <label>
+            <text>"Output pin 4 "</text>
+            <halpin>"button_text.4"</halpin>
+            <disable_pin>True</disable_pin> 
+        </label>
+        <button>
+            <halpin>"button.4"</halpin>
+            <disable_pin>True</disable_pin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"checkbutton.4"</halpin>
+            <text>"Latch"</text>
+            <font>("Helvetica",8)</font>
+        </checkbutton>      
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 5 "</text>
+            <halpin>"button_text.5"</halpin>
+            <disable_pin>True</disable_pin> 
+        </label>
+        <button>
+            <halpin>"button.5"</halpin>
+            <disable_pin>True</disable_pin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"checkbutton.5"</halpin>
+            <text>"Latch"</text>
+            <font>("Helvetica",8)</font>
+        </checkbutton>
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 6 "</text>
+            <halpin>"button_text.6"</halpin>
+            <disable_pin>True</disable_pin> 
+        </label>
+        <button>
+            <halpin>"button.6"</halpin>
+            <disable_pin>True</disable_pin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"checkbutton.6"</halpin>
+            <font>("Helvetica",8)</font>
+            <text>"Latch"</text>
+        </checkbutton>      
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 7 "</text>
+            <halpin>"button_text.7"</halpin>
+            <disable_pin>True</disable_pin> 
+        </label>
+        <button>
+            <halpin>"button.7"</halpin>
+            <disable_pin>True</disable_pin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"checkbutton.7"</halpin>
+            <font>("Helvetica",8)</font>
+            <text>"Latch"</text>
+        </checkbutton>     
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 8 "</text>
+            <halpin>"button_text.8"</halpin>
+            <disable_pin>True</disable_pin> 
+        </label>
+        <button>
+            <halpin>"button.8"</halpin>
+            <disable_pin>True</disable_pin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"checkbutton.8"</halpin>
+            <font>("Helvetica",8)</font>
+            <text>"Latch"</text>
+        </checkbutton>     
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 9 "</text>
+            <halpin>"button_text.9"</halpin>
+            <disable_pin>True</disable_pin> 
+        </label>
+        <button>
+            <halpin>"button.9"</halpin>
+            <disable_pin>True</disable_pin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"checkbutton.9"</halpin>
+            <text>"Latch"</text>
+            <font>("Helvetica",8)</font>
+        </checkbutton>      
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 14"</text>
+        </label>
+        <button>
+            <halpin>"button.14"</halpin>
+            <disable_pin>True</disable_pin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"checkbutton.14"</halpin>
+            <font>("Helvetica",8)</font>
+            <text>"Latch"</text>
+        </checkbutton>
+    </hbox>
+    
+    <hbox>
+        <label>
+            <text>"Output pin 16"</text>
+        </label>
+        <button>
+            <halpin>"button.16"</halpin>
+            <disable_pin>True</disable_pin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"checkbutton.16"</halpin>
+            <font>("Helvetica",8)</font>
+            <text>"Latch"</text>
+        </checkbutton>    
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 17"</text>
+        </label>
+        <button>
+            <halpin>"button.17"</halpin>
+            <disable_pin>True</disable_pin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"checkbutton.17"</halpin>
+            <font>("Helvetica",8)</font>
+            <text>"Latch"</text>
+        </checkbutton>
+    </hbox>   
+</labelframe>
+
+</hbox>
+
+
+</pyvcp>

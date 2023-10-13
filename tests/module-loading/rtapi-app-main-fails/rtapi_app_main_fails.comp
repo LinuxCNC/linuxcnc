@@ -1,0 +1,17 @@
+component rtapi_app_main_fails "rtapi_app_main error test";
+pin out bit boo;
+option rtapi_app no;
+function _ nofp;
+license "GPL";
+
+;;
+
+int rtapi_app_main(void) {
+    return -ERANGE;
+}
+
+void rtapi_app_exit(void) {
+    return;
+}
+
+FUNCTION(_) { boo ^= 0x1; }

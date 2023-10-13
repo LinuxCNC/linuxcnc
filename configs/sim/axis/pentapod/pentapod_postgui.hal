@@ -1,0 +1,15 @@
+# This file adds joints values and iterations number to PyVCP panel.
+
+net last-iter pentakins.last-iterations pyvcp.last-iter
+net max-iter pentakins.max-iterations pyvcp.max-iter
+net j0 pyvcp.joint0
+net j1 pyvcp.joint1
+net j2 pyvcp.joint2
+net j3 pyvcp.joint3
+net j4 pyvcp.joint4
+
+net j0 joint.0.pos-fb
+net j1 joint.1.pos-fb
+net j2 joint.2.pos-fb
+net j3 joint.3.pos-fb
+net j4 joint.4.pos-fb

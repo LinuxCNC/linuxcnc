@@ -1,0 +1,112 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+  <vbox>
+    <label>
+      <text>"Eoffsets"</text>
+      <font>"bold"</font>
+    </label>
+    <vbox>
+      <relief>"sunken"</relief>
+      <bd>3</bd>
+      <hbox>
+        <label>
+          <padx>0</padx>
+          <font>"monospace"</font>
+        </label>
+          <led>
+          <halpin>"paused"</halpin>
+           <size>15</size>
+           <on_color>"springgreen"</on_color>
+           <off_color>"#d9d9d9"</off_color>
+         </led>
+         <label>
+           <text>" Paused"</text>
+           <anchor>"w"</anchor>
+         </label>
+      </hbox>
+
+      <hbox>
+        <label>
+          <padx>0</padx>
+          <font>"monospace"</font>
+        </label>
+        <led>
+          <halpin>"limited"</halpin>
+            <size>15</size>
+            <on_color>"red"</on_color>
+            <off_color>"#d9d9d9"</off_color>
+        </led>
+        <label>
+          <text>" Offset Limited"</text>
+          <anchor>"w"</anchor>
+        </label>
+      </hbox>
+
+      <hbox>
+        <label>
+          <padx>0</padx>
+          <font>"monospace"</font>
+        </label>
+          <led>
+          <halpin>"eoffset-active"</halpin>
+           <size>15</size>
+           <on_color>"gold"</on_color>
+           <off_color>"#d9d9d9"</off_color>
+         </led>
+         <label>
+           <text>" OffsetActive"</text>
+           <anchor>"w"</anchor>
+         </label>
+      </hbox>
+
+      <hbox>
+        <number>
+          <halpin>"z-offset-f"</halpin>
+          <format>"+8.4f"</format>
+          <width>"13"</width>
+          <bg>"black"</bg>
+          <fg>"gold"</fg>
+          <font>"bold"</font>
+        </number>
+      </hbox>
+      <hbox>
+        <label>
+          <anchor>"w"</anchor>
+          <text>"Scale:"</text>
+          <font>"bold"</font>
+        </label>
+        <spinbox>
+          <halpin>"z-scale"</halpin>
+          <min_>0.0</min_>
+          <max_>1.0</max_>
+          <width>6</width>
+          <initval>0.01</initval>
+          <resolution>0.01</resolution>
+          <format>"8.2f"</format>
+          <font>"bold"</font>
+          <param_pin>1</param_pin>
+        </spinbox>
+      </hbox>
+      <button>
+        <halpin>"z-plus"</halpin>
+        <text>"+ Incr"</text>
+        <bd>4</bd>
+        <font>"bold",10</font>
+      </button>
+      <button>
+        <halpin>"z-minus"</halpin>
+        <bd>4</bd>
+        <width>1</width>
+        <text>"- Decr"</text>
+        <font>"bold",10</font>
+      </button>
+      <button>
+        <halpin>"clearall"</halpin>
+        <bd>4</bd>
+        <width>1</width>
+        <text>"Clear"</text>
+        <font>"bold",10</font>
+      </button>
+    </vbox>
+  </vbox>
+</pyvcp>

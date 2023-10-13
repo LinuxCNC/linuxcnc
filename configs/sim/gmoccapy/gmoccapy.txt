@@ -1,0 +1,4 @@
+Standard GMOCCAPY configuration for a XYZ mill including example macros.
+
+
+

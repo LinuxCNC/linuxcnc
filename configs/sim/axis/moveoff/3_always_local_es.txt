@@ -1,0 +1,27 @@
+Demo Moveoff
+
+Opciones de Moveoff_gui:
+
+  always - offsets siempre disponibles
+  local  - controles locales
+
+Componente Moveoff instalado y conectado usando:
+
+  [HAL]HALFILE = LIB:hookup_moveoff.tcl
+
+Para información adicional:
+
+   man moveoff ------- componente moveoff
+   man moveoff_gui --- GUI de muestra de moveoff
+
+-------------------------------------------------- -
+Uso de demostración:
+ 1) Inicie linuxcnc usando la configuración 3_always_local.
+ 2) Establezca halscope en modo ROLL.
+ 2) <F1> (ESTOP off)
+ 3) <F2> (máquina on)
+           Los offsets están disponibles continuamente.
+ 4) Aplicar offsets usando los botones +/-
+ 5) Desactiva los offsets desmarcando el botón de control
+    Activar Offsets
+   

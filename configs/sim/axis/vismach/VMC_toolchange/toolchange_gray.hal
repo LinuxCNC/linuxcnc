@@ -1,0 +1,31 @@
+loadrt carousel pockets=10 dir=1 encoding=gray num_sense=4
+#loadrt conv_float_s32 (Already loaded in sim_vmc.hal)
+addf carousel.0 servo-thread
+addf conv-float-s32.2 servo-thread # G-code analogue outputs are float-type
+
+setp carousel.0.fwd-dc 0.002
+net car-enable motion.digital-out-00 carousel.0.enable
+net car-ready carousel.0.ready motion.digital-in-00
+net car-vel carousel.0.motor-vel
+net car-pos-req motion.analog-out-00 conv-float-s32.2.in
+net car-pos-s32 conv-float-s32.2.out carousel.0.pocket-number
+net bit0 carousel.0.sense-0
+net bit1 carousel.0.sense-1
+net bit2 carousel.0.sense-2
+net bit3 carousel.0.sense-3
+
+net car-lock motion.digital-out-01
+net car-locked motion.digital-in-01
+
+net arm-act motion.digital-out-02
+net arm-in motion.digital-in-02
+net arm-out motion.digital-in-04
+
+net tool-release motion.digital-out-03
+net tool-released motion.digital-in-03
+
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
+
+loadusr sim_pin carousel.0.jog-fwd
+

@@ -1,0 +1,34 @@
+# Include your customized HAL commands here
+# The commands in this file are run after the AXIS GUI (including PyVCP panel) starts
+
+# HAL connections for Panel Display
+net hy-RPM <= spindle-vfd.Rott => pyvcp.spindle-speed
+net hy-AMPS <= spindle-vfd.OutA => pyvcp.amp-meter
+net hy-Base-Freq <= spindle-vfd.base-freq => pyvcp.base-freq
+net hy-Max-Freq <= spindle-vfd.max-freq => pyvcp.max-freq
+net hy-Freq-Lower <= spindle-vfd.freq-lower-limit => pyvcp.freq-lower-limit
+net hy-Motor-Voltage <= spindle-vfd.rated-motor-voltage => pyvcp.rated-motor-voltage
+net hy-Motor-Current <= spindle-vfd.rated-motor-current => pyvcp.rated-motor-current
+net hy-Motor-Poles <= spindle-vfd.motor-pole-number => pyvcp.motor-pole-number
+net hy-Motor-Rev <= spindle-vfd.rated-motor-rev => pyvcp.rated-motor-rev
+net hy-Modbus-OK <= spindle-vfd.modbus-ok => pyvcp.modbus-ok
+#net hy-Freq-Cmd <= spindle-vfd.frequency-command => pyvcp.frequency-command
+
+net hy-CNST-Run <= spindle-vfd.CNST-run => pyvcp.CNST-run
+net hy-CNST-Jog <= spindle-vfd.CNST-jog => pyvcp.CNST-jog
+net hy-CNST-Command-rf <= spindle-vfd.CNST-command-rf => pyvcp.CNST-command-rf
+net hy-CNST-Runnning <= spindle-vfd.CNST-running => pyvcp.CNST-running
+net hy-CNST-Jogging <= spindle-vfd.CNST-jogging => pyvcp.CNST-jogging
+net hy-CNST-Running-rf <= spindle-vfd.CNST-running-rf => pyvcp.CNST-running-rf
+net hy-CNST-Bracking <= spindle-vfd.CNST-bracking => pyvcp.CNST-bracking
+net hy-CNST-Track-Start <= spindle-vfd.CNST-track-start => pyvcp.CNST-track-start
+
+# now enable the VFD after EMC is up and running
+setp spindle-vfd.enable 1
+
+# DRO connections
+net DRO-Xpos <= axis.0.joint-pos-cmd => pyvcp.Xdisplay
+net DRO-Ypos <= axis.1.joint-pos-cmd => pyvcp.Ydisplay
+net DRO-Zpos <= axis.2.joint-pos-cmd => pyvcp.Zdisplay
+
+

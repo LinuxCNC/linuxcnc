@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+#    Copyright 2009 Alex Joni
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+from vismach import *
+import hal
+
+c = hal.component("vmcgui")
+c.newpin("X", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("Y", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("Z", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("arm", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("carousel", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("spindle", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("drawbar", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("lock", hal.HAL_FLOAT, hal.HAL_IN)
+c.ready()
+
+
+floor = Collection([Box(-50,-50,-3,50,50,0)])
+floor = Color([0,1,0,0],[floor])
+
+work = Capture()
+
+#tool goes here.. maybe later
+tool = Capture()
+
+# "tooltip" for backplot will be the tip of the tool, for now head
+tooltip = Capture()
+tool = Collection([tooltip, tool])
+
+#Drive dogs
+dogs = Collection([Box(-6,-3,94,6,3,100)])
+dogs = Color([1,1,1,1],[dogs])
+dogs = HalRotate([dogs],c,"spindle",360,0,0,1)
+dogs = Translate([dogs],-1,49,0)
+
+#Drawbar
+draw = CylinderZ(120,3,125,3)
+draw = Color([1,0,.5,1],[draw])
+draw = Translate([draw],-1,49,0)
+draw = HalTranslate([draw],c,"drawbar",0,0,1)
+
+# head/spindle
+head = AsciiSTL(filename="./head.stl")
+head = Color([0.3,0.3,0.3,1],[head])
+head = Translate([head],0,0,4)
+head = Collection([head, tool, dogs, draw])
+head = HalTranslate([head],c,"Z",0,0,0.1)
+
+# base
+base = AsciiSTL(filename="./base.stl")
+base = Color([0.5,0.5,0.5,1],[base]) 
+# mount head on it
+base = Collection([head, base])
+
+# table
+table = AsciiSTL(filename="./table.stl")
+table = Color([0.8,0.8,0.8,1],[table])
+table = Translate([table],0,8,0)
+table = HalTranslate([table],c,"X",0.1,0,0)
+
+# saddle
+saddle = AsciiSTL(filename="./saddle.stl")
+saddle = Color([0.2,0.8,0.8,1],[saddle])
+saddle = Translate([saddle],0,7,0)
+saddle = Collection([table, saddle])
+saddle = HalTranslate([saddle],c,"Y",0,0.1,0)
+
+#Lock Pin
+lock = Box(20,42,85,18,48,90)
+lock = Color([1,1,0,1],[lock])
+lock = HalTranslate([lock],c,"lock",0,1,0)
+
+# carousel
+carousel = AsciiSTL(filename="./carousel.stl")
+carousel = Color([0.6,0.2,0,1],[carousel])
+#move the model to the origin
+carousel = Translate([carousel],-19.689,-43.93,0)
+carousel = HalRotate([carousel],c,"carousel",36,0,0,1)
+#move it back
+carousel = Translate([carousel],19.689,43.93,0)
+
+# carousel arm
+arm = AsciiSTL(filename="./arm.stl")
+arm = Color([1,0,1,.2],[arm])
+arm = Collection([arm, carousel, lock])
+arm = HalRotate([arm],c,"arm",1,0,0,1)
+
+vmc = Collection([base, saddle, arm])
+model = Collection([tooltip, vmc, floor, work])
+main(model, tooltip, work, 150, lat=-75, lon=215)

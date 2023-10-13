@@ -1,0 +1,55 @@
+
+# standard directories for derived files in CASROOT
+/.adm
+/lin
+/mac
+/wnt
+/doc
+/inc
+/work
+
+# standard names of directories for objects and binaries on Windows
+win32
+win64
+
+# project files and artifacts
+/adm/msvc
+/adm/wnt
+/adm/lin
+/adm/mac
+/adm/make
+*.vcproj*user
+*.vcxproj*user
+*.csproj*user
+*.ncb
+*.suo
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+*.ipch
+*.aps
+
+# test results
+/results*
+
+# Emacs backup files
+*~
+
+# Generated files
+/*.am
+/*.m4
+/*.ac
+/*.sh
+/codeblocks.bat
+/custom.bat
+/autom4te.cache
+/build_configure
+/configure
+/make
+/config.*
+/Makefile
+/libtool
+/stamp*
+/build*
+/install

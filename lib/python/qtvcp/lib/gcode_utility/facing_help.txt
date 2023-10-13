@@ -1,0 +1,23 @@
+This program creates a gcode file that can be loaded into linuxnc to run a rectangular facing operation.
+
+Validate Inputs
+    - checks that there are no blank entries.
+    - checks that stepover is not larger than tool diameter
+    - checks that Size X and Size Y are at least 2x stepover value
+    - checks that the spindle RPM is not 0
+    - checks that the feedrate is not 0
+    - checks that the tool diameter is not 0
+
+Create Program
+    - checks for valid input fields
+    - creates a gcode program according to the Raster setting
+    - if a red X remains in the display, the program will not be created
+
+The machine should be X and Y zeroed at the lower left corner of the workpiece.
+
+The program is designed to run the selected raster pattern at a Z value of 0 in machine units.
+The safe travel Z level defaults to 20 mm for metric or 1 inch in imperial. These can be modified by modifying the source code.
+
+The feedrate for Z travel defaults to 1/2 the feedrate entered for X and Y.
+
+**NB** It is up to the user to ensure that all entered parameters are compatible with the machine settings that the program will run on.

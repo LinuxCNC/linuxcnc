@@ -1,0 +1,30 @@
+xx xxxxx COMMENT(this is a comment)
+xx xxxxx COMMENT(first two columns are ignored)
+
+xx xxxxx COMMENT(see canterp.cc for possible commands)
+
+00 N____ USE_LENGTH_UNITS(CANON_UNITS_MM)
+00 N____ SET_FEED_REFERENCE(CANON_XYZ)
+00 N____ MIST_OFF()
+00 N____ FLOOD_OFF()
+00 N____ SET_FEED_RATE(50.0)
+00 N____ SET_SPINDLE_SPEED(0, 3000)
+00 N____ START_SPINDLE_CLOCKWISE(0)
+00 N____ STRAIGHT_TRAVERSE( 5 5 5   0 0 0  0 0 0)
+00 N____ STRAIGHT_TRAVERSE( 0 0 0   0 0 0  0 0 0)
+
+00 N____ MIST_OFF()
+00 N____ FLOOD_OFF()
+00 N____ SET_FEED_RATE(50.0)
+00 N____ SET_SPINDLE_SPEED(0, 3000)
+00 N____ START_SPINDLE_CLOCKWISE(0)
+
+00 N____ STRAIGHT_FEED(10 00 00  0 0 0  0 0 0)
+00 N____ STRAIGHT_FEED(10 10 00  0 0 0  0 0 0)
+00 N____ STRAIGHT_FEED(10 10 10  0 0 0  0 0 0)
+00 N____ STRAIGHT_FEED(10 10 10  0 0 0  0 0 0)
+00 N____ STRAIGHT_FEED(10 10 00  0 0 0  0 0 0)
+00 N____ STRAIGHT_FEED(10 00 00  0 0 0  0 0 0)
+
+00 N____ COMMENT(lines below not working)
+00 N____ COMMENT(ARC_FEED(1.0704, 3.3450, 2.0000, 2.0000, 1, 1.6875)))

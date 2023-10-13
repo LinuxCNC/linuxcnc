@@ -1,0 +1,23 @@
+ini_with_includes
+
+Demostración para usar directiva(s) #INCLUDE en un archivo ini
+
+Ejemplos:
+1) especificación de archivo relativa (relativa al directorio del ini):
+#INCLUDE nombre_archivo.inc
+#INCLUDE ./nombre_de_archivo.inc
+#INCLUDE ../nombre_de_archivo.inc
+
+2) especificación absoluta del archivo:
+#INCLUDE /tmp/nombre_de_archivo.inc
+#INCLUDE /home/myname/inc/nombre_de_archivo.inc
+
+3) especificación tilde del archivo :
+#INCLUDE ~/linuxcnc/myincludes/nombre_de_archivo.inc
+
+Nota:
+
+Se recomienda el sufijo .inc para los archivos incluidos.
+
+El uso de un sufijo .ini permitiría erróneamente que el archivo parcial aparezca como una opción de configuración.
+

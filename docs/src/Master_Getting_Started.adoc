@@ -1,0 +1,31 @@
+:lang: en
+:lversion: {sys: cat ../VERSION}
+:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file ../debian/changelog -S timestamp)" '+%d %b %Y'}
+:ascii-ids:
+:masterdir: {indir}
+:revdate: 2021-10-28
+= Getting Started V{lversion}, {date}
+
+The LinuxCNC Team
+
+:leveloffset: 1
+
+image::common/images/emc2-intro.png[]
+
+include::common/overleaf.adoc[]
+
+include::getting-started/about-linuxcnc.adoc[]
+
+include::getting-started/system-requirements.adoc[]
+
+include::getting-started/getting-linuxcnc.adoc[]
+
+include::getting-started/running-linuxcnc.adoc[]
+
+include::getting-started/updating-linuxcnc.adoc[]
+
+include::common/glossary.adoc[]
+
+include::common/gpld-copyright.adoc[]
+
+// vim: set syntax=asciidoc:

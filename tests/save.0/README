@@ -1,0 +1,3 @@
+Checks that 'halcmd save' produces the expected output, including
+loadable module parameters, parameter settings, linked pins, and thread
+functions.

@@ -1,0 +1,32 @@
+moveoff.comp es un método 'solo de Hal' para proporcionar offsets hasta en nueve ejes (x, y, z, a, b, c, u, v, w).
+
+El componente moveoff.comp proporciona límites mínimos, máximos, de velocidad y de aceleración para cada eje (similar al componente limit3).
+
+Vea la página del manual para más información:
+
+  $ man moveoff
+
+Las configuraciones de demostración muestran:
+
+  o moveoff_gui
+    una gui simple
+
+  o hookup_moveoff.tcl
+    un script para conectar un componente moveoff
+
+  o moveoff.halscope
+    configuraciones de halscope para ilustrar el movimiento
+    (GUIs para no mostrar offsets de movimientos solo de Hal)
+
+Configuraciones de demostración:
+
+   demostración      modo         control
+  ---------------- --------  ------------------
+1 onpause_local    en pausa  local
+2 onpause_external en pausa  externo (simulado)
+3 always_local     siempre   local
+4 siempre_externo  siempre   externo (simulado)
+5 no_gui           NA        NA
+6 zretract         en pausa  panel pyvcp
+7 pyvcp            en pausa  panel pyvcp
+8 gladevcp         en pausa  panel gladevcp

@@ -1,0 +1,82 @@
+// Created on: 1997-04-17
+// Created by: Christophe MARION
+// Copyright (c) 1997-1999 Matra Datavision
+// Copyright (c) 1999-2014 OPEN CASCADE SAS
+//
+// This file is part of Open CASCADE Technology software library.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License version 2.1 as published
+// by the Free Software Foundation, with special exception defined in the file
+// OCCT_LGPL_EXCEPTION.txt. Consult the file LICENSE_LGPL_21.txt included in OCCT
+// distribution for complete text of the license and disclaimer of any warranty.
+//
+// Alternatively, this file may be used under the terms of Open CASCADE
+// commercial license or contractual agreement.
+
+//=======================================================================
+//function : HLRBRep_ShapeBounds
+//purpose  : 
+//=======================================================================
+
+inline HLRBRep_ShapeBounds::HLRBRep_ShapeBounds ()
+: myNbIso(0),
+  myVertStart(0),
+  myVertEnd(0),
+  myEdgeStart(0),
+  myEdgeEnd(0),
+  myFaceStart(0),
+  myFaceEnd(0)
+{
+}
+
+//=======================================================================
+//function : Shape
+//purpose  : 
+//=======================================================================
+
+inline void 
+HLRBRep_ShapeBounds::Shape (const Handle(HLRTopoBRep_OutLiner)& S)
+{ myShape = S; }
+
+//=======================================================================
+//function : Shape
+//purpose  : 
+//=======================================================================
+
+inline const Handle(HLRTopoBRep_OutLiner) &
+HLRBRep_ShapeBounds::Shape () const
+{ return myShape; }
+
+//=======================================================================
+//function : ShapeData
+//purpose  : 
+//=======================================================================
+
+inline void HLRBRep_ShapeBounds::
+ShapeData (const Handle(Standard_Transient)& SD)
+{ myShapeData = SD; }
+
+//=======================================================================
+//function : ShapeData
+//purpose  : 
+//=======================================================================
+
+inline const Handle(Standard_Transient) & HLRBRep_ShapeBounds::ShapeData () const
+{ return myShapeData; }
+
+//=======================================================================
+//function : NbOfIso
+//purpose  : 
+//=======================================================================
+
+inline void HLRBRep_ShapeBounds::NbOfIso (const Standard_Integer nbIso)
+{ myNbIso = nbIso; }
+
+//=======================================================================
+//function : NbOfIso
+//purpose  : 
+//=======================================================================
+
+inline Standard_Integer HLRBRep_ShapeBounds::NbOfIso () const
+{ return myNbIso; }

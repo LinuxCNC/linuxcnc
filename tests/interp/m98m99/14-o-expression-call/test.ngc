@@ -1,0 +1,21 @@
+%
+; test calling subprograms with expressions
+
+; call sub O100:  use variable in expression with rs274ngc O-sub
+#2 = 10
+O[#2 * 10] call
+
+; call sub O200:  use expression in M98 P-word
+M98 P[5 * 5 * 2 * 2 + 100]
+
+M30
+
+O100 sub ; rs274ngc subroutine
+(print,In sub 100)
+O100 endsub
+
+O200     ; numbered subprogram
+(print,In sub 200)
+M99
+
+%

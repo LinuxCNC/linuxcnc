@@ -1,0 +1,35 @@
+// gcmc include file
+// ensure gcmc units mode agrees with g20,g21 at runtime
+// in case a preamble conflicts with gcmc program
+
+if (ismodemm()) {
+  if (isdefined("verbose") && verbose == 1) {
+     literal("\
+             o1 if [#<_metric> ne 1]\n\
+                (debug, !!!ensure_units.gcmc: set g21)\n\
+                g21\n\
+             o1 endif\n\
+             ");
+  } else {
+     literal("\
+             o1 if [#<_metric> ne 1]\n\
+                g21\n\
+             o1 endif\n\
+             ");
+  }
+} else {
+  if (isdefined("verbose") && verbose == 1) {
+     literal("\
+             o1 if [#<_imperial> ne 1]\n\
+                (debug, !!!ensure_units.gcmc: set g20)\n\
+                g20\n\
+             o1 endif\n\
+             ");
+  } else {
+     literal("\
+             o1 if [#<_imperial> ne 1]\n\
+                g20\n\
+             o1 endif\n\
+             ");
+  }
+}

@@ -1,0 +1,6 @@
+La configuración sim es un conjunto de archivos
+que dan una demostración de algunos de los widgets de pyvcp
+Nota:
+El widget de barra cambia de color en ciertos rangos de valores.
+El valor de los spinboxs y los diales se puede cambiar usando señales HAL.
+El multilabel cambiará el texto según la señal HAL.

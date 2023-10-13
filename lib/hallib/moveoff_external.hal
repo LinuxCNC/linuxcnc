@@ -1,0 +1,28 @@
+# moveoff_external.hal (for use with moveoff_gui)
+
+# This halfile demonstrates how a connection to 
+#  mv.move-enable
+# allows moveoff_gui to interface with other connections that control:
+#   mv.move-enable
+#   mv.offset-in-M
+
+# This halfile should follow halfiles which loadrt the moveoff component
+#-----------------------------------------------------------------------
+
+# Overall enable for the component:
+# 0 ==> external control of mv.move-enable required
+setp mv.move-enable 0
+
+# When the mv.move-enable pin is connected to a signal, moveoff_gui
+# will provide display but no controls.
+# An external app must connect the mv.move-enable pin to control:
+net external_enable    mv.move-enable
+
+# An external app must connect to the mv.offset-in-M pins to control:
+net external_offset_0 mv.offset-in-0
+net external_offset_1 mv.offset-in-1
+net external_offset_2 mv.offset-in-2
+
+# An external app may optionally connect the mv.backtrack-enable pin
+# to manage backtracking:
+net external_backtrack_en mv.backtrack-enable

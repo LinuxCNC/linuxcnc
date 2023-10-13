@@ -1,0 +1,39 @@
+(comp-g1.ngc)
+(This is the program shows a G1 straight feed entry and exit move)
+(with cutter radius compensation from the tool table)
+(tool 4 is 1" in diameter and must be defined in the tool table)
+(this file needs X-4 to X5 travel and Y-3 to Y5 travel)
+
+G20 (set units to inches)
+F60 (set feed to 60 IPM)
+
+(first, no compensation so we can see the part outline)
+G0 Z1
+G0 X2 Y3
+G1 Z0
+G2 X3 Y2 J-1 (part outline)
+G1 Y-1
+G2 X2 Y-2 I-1
+G1 X-3
+G1 X1.4 Y2.8
+G2 X2 Y3 I.6 J-.8
+
+(with compensation)
+T4 M6 (change tool)
+G0 Z1
+(straight line entries must not form a concave path or it is an error)
+G0 X0 Y3.5 (change Y3.5 to Y4 to see the concave entry error)
+G1 Z0
+G41 (turn cutter comp left on)
+G1 X2 Y3 (entry move)
+G2 X3 Y2 J-1 (same path as above)
+G1 Y-1
+G2 X2 Y-2 I-1
+G1 X-3
+G1 X1.4 Y2.8
+G2 X2 Y3 i.6 J-.8
+G40 (turn cutter comp off)
+G1 X3 Y3.5 (exit move can be any angle)
+T0 M6 (remove tool)
+
+M2

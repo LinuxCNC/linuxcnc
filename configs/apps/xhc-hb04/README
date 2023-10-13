@@ -1,0 +1,12 @@
+xhc-hbo4 standalone tests
+
+
+Use to test button layouts for a USB wireless xhc-hb04 pendant.
+
+xhc-hb04-layout1.demo  -- test with layout1 (16 buttons)
+
+xhc-hb04-layout2.demo  -- test with layout2 (18 buttons)
+
+xhc-hb04.demo  -test with no predefined button layout
+
+(Connect a xhc-hb04 pendant and turn it on to use these programs)

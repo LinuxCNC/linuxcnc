@@ -1,0 +1,32 @@
+Switchable Table Rotary/Tilting (trt) Sim configs
+
+xyzac-trt-switchkins
+xyzbc-trt-switchkins
+
+Demonstrations:
+  demos/xyzac_switchkins.ngc
+  demos/xyzac_switchkins_test_1.ngc
+  demos/xyzac_switchkins_test_2.ngc
+  demos/xyzac_switchkins_test_3.ngc
+  demos/boat-xyzac.ngc
+  demos/impeller-7bl-xyzac.ngc
+
+  demos/xyzbc_switchkins.ngc
+  demos/boat-xyzbc.ngc
+
+***********************************************
+Note: IMPORTANT ini file requirements:
+
+[HAL]
+HALCMD = net :kinstype-select <= motion.analog-out-0N => motion.switchkins-type
+
+[RS274NGC]
+SUBROUTINE_PATH = ./remap_subs
+          REMAP = M428  modalgroup=10  ngc=428remap
+          REMAP = M429  modalgroup=10  ngc=429remap
+
+[HALUI]
+MDI_COMMAND = M429
+MDI_COMMAND = M428
+MDI_COMMAND = M430
+***********************************************

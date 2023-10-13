@@ -1,0 +1,39 @@
+Source: orocos-kdl
+Priority: extra
+Maintainer: Ruben Smits <ruben.smits@mech.kuleuven.be>
+Build-Depends: debhelper (>= 5), cmake (>=2.6.0), pkg-config, python-all-dev(>=2.3.5-11), python-sip4-dev (>=4.4.5), python-sip4, python-support, sip4, libeigen2-dev 
+Standards-Version: 3.7.2
+Section: libs
+
+Package: liborocos-kdl-dev
+Section: libdevel
+Architecture: any
+Depends: liborocos-kdl (= ${Source-Version})
+Description: Kinematics and Dynamics Library development files
+ Orocos project to supply RealTime usable kinematics and dynamics code,
+ it contains code for rigid body kinematics calculations and
+ representations for kinematic structures and their inverse and forward
+ kinematic solvers.
+
+Package: liborocos-kdl
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: Kinematics and Dynamics Library runtime
+ Orocos project to supply RealTime usable kinematics and dynamics code,
+ it contains code for rigid body kinematics calculations and
+ representations for kinematic structures and their inverse and forward
+ kinematic solvers.
+
+Package: python-orocos-kdl
+Section: libs
+Architecture: any
+Depends: ${python:Depends}, python, liborocos-kdl
+XS-Python-Version: current
+XB-Python-Version:${python:Versions}
+Description: Kinematics and Dynamics Library python binding
+ Orocos project to supply RealTime usable kinematics and dynamics code,
+ it contains code for rigid body kinematics calculations and
+ representations for kinematic structures and their inverse and forward
+ kinematic solvers.
+

@@ -1,0 +1,66 @@
+#BOOST_DEBUG_FLAGS= -DBOOST_DEBUG_PYTHON -g -O0
+BOOST_DEBUG_FLAGS=
+
+INCLUDES += emc emc/rs274ngc
+
+LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
+	interp_arc.cc \
+	interp_array.cc \
+	interp_base.cc \
+	interp_check.cc \
+	interp_convert.cc \
+	interp_queue.cc \
+	interp_cycles.cc \
+	interp_execute.cc \
+	interp_find.cc \
+	interp_internal.cc \
+	interp_inverse.cc \
+	interp_read.cc \
+	interp_write.cc \
+	interp_o_word.cc \
+	interp_g7x.cc \
+	modal_state.cc \
+	nurbs_additional_functions.cc \
+	interp_namedparams.cc \
+	interp_python.cc \
+	interp_remap.cc \
+	interp_setup.cc \
+	canonmodule.cc \
+	pyparamclass.cc \
+	pyemctypes.cc \
+	pyinterp1.cc \
+	pyblock.cc \
+	pyarrays.cc \
+	interpmodule.cc \
+	rs274ngc_pre.cc \
+	interp_inspection.cc)
+USERSRCS += $(LIBRS274SRCS)
+
+$(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS+=-fPIC $(BOOST_DEBUG_FLAGS)
+$(call TOOBJSDEPS, emc/rs274ngc/pyinterp1.cc emc/rs274ngc/pyparamclass.cc emc/rs274ngc/pyinterp1.cc emc/rs274ngc/pyblock.cc emc/rs274ngc/pyarrays.cc emc/rs274ngc/interpmodule.cc): EXTRAFLAGS += $(SILENCE_BOOST_INTERNAL_DIAGNOSTICS_FLAGS)
+
+TARGETS += ../lib/librs274.so ../lib/librs274.so.0
+
+../lib/librs274.so.0: $(patsubst %.cc,objects/%.o,$(LIBRS274SRCS)) \
+	../lib/liblinuxcncini.so ../lib/libpyplugin.so ../lib/liblinuxcnchal.so.0 \
+    ../lib/libtooldata.so.0
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(CXX) -g $(LDFLAGS) $(PYTHON_EXTRA_LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lstdc++ $(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(PYTHON_EXTRA_LIBS)
+
+$(patsubst ./emc/rs274ngc/%,../include/%,$(wildcard ./emc/rs274ngc/*.h)): ../include/%.h: ./emc/rs274ngc/%.h
+	cp $^ $@
+$(patsubst ./emc/rs274ngc/%,../include/%,$(wildcard ./emc/rs274ngc/*.hh)): ../include/%.hh: ./emc/rs274ngc/%.hh
+	cp $^ $@
+
+GCODEMODULESRCS := emc/rs274ngc/gcodemodule.cc
+PYSRCS += $(GCODEMODULESRCS)
+
+GCODEMODULE := ../lib/python/gcode.so
+$(GCODEMODULE): $(call TOOBJS, $(GCODEMODULESRCS)) ../lib/librs274.so.0
+	$(ECHO) Linking python module $(notdir $@)
+	$(CXX) $(LDFLAGS) -shared -o $@ $^ -lstdc++
+
+
+PYTARGETS += $(GCODEMODULE)

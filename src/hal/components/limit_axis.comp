@@ -1,0 +1,130 @@
+component limit_axis "Dynamic range based axis limits";
+
+description """limit_axis.c
+
+Limit axis to certain limits at varying inputs
+For example on a spindle with C rotation, to avoid hitting a
+gantry when the height is above Z-10
+ - Use Z axis as feedback
+ - Use 2 ranges (0,-10) (-10, -40)
+ - When Z is above 10, C rotation is limited to range 0
+ - When Z is below 10, C rotation is limited to range 1
+
+ Usage:
+ loadrt limit_axis count=3 personality=2,3,2
+ or
+ loadrt limit_axis names=limit_x,limit_y,limit_z personality=2,3,2
+
+ The "personality" argument defines how many ranges are supported by each instance.
+ (Note that no spaces can be used in the names= and personality= parameters)
+
+ Caveats
+ - Searches ranges from 0 to 9 and will take the first range that matches
+ - Ranges are inclusive min_range <= feedback <= max_range
+ - Max can not be less than minimum for any group
+ - Sticky indicates, to not check other ranges if the feedback is still in the current range
+ - Enable allows for a range to be turned on/off, for cases such as avoiding a tool changer, but allowing sometimes""";
+
+author "Chad Woitas";
+license "GPL";
+
+option extra_setup 1;
+
+function _;
+
+pin out bit error-no-range "error pin indicating that no range matches the fb";
+pin out float min-output "Minimum limit output";
+pin out float max-output "Maximum limit output";
+pin in float fb "Feedback pin, the value of this pin determines which range is active";
+pin out unsigned current-range "Indicates which range is currently active";
+pin in float min-limit-## [10:personality] "The array of minimum limits to select from";
+pin in float max-limit-## [10:personality] "The array of macimum limits";
+pin in float min-range-## [10:personality] "Defines the range of values with which the fb is compared to set the range";
+pin in float max-range-## [10:personality] "Defines the range of values with which the fb is compared to set the range";
+pin in bit enable-## [10:personality] "Used to enable and disable a specific range";
+pin in bit sticky-## [10:personality] "Used to make specific range 'sticky' or not";
+pin out bit error-range-## [10:personality] = 1 "Error bit indicating that the fb pin falls outside all ranges";
+pin out bit error-limit-## [10:personality] = 1 "Error bit indicating that the max limit is not larger than the min limit";
+
+;;
+
+FUNCTION(_){
+  int i;
+  // Check sticky bit
+  if(sticky(current_range)){
+    if (min_range(current_range) <= fb &&
+        fb <= max_range(current_range) &&
+        enable(current_range)) {
+
+      max_output = max_limit(current_range);
+      min_output = min_limit(current_range);
+
+      return;
+    }
+  }
+
+  // Check all ranges
+  for (i = 0; i < personality; i++){
+    if (max_range(i) < min_range(i)){
+      if(! enable(i)){
+        continue;
+      }
+
+      // Throw Error and skip this range
+      if (! error_range(i) ){
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "limit_axis: Error in range %d settings! Min: %f > Max: %f \n",
+                        i,
+                        max_range(i),
+                        min_range(i));
+        error_range(i) = 1;
+      }
+      continue;
+    }
+    // If we made it to here clear the error
+    error_range(i) = 0;
+
+    if (max_limit(i) < min_limit(i)){
+      // Throw Error and skip this range
+      if (! error_limit(i)){
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "limit_axis: Error in limit %d settings! Min: %f > Max: %f \n",
+                        i,
+                        max_limit(i),
+                        min_limit(i));
+        error_limit(i) = 1;
+      }
+      continue;
+    }
+    // If we made it to here clear the error
+    error_limit(i) = 0;
+
+    // Check position, take first range that it fits in.
+    if(min_range(i) <= fb && fb <= max_range(i)) {
+      max_output = max_limit(i);
+      min_output = min_limit(i);
+      // Found our limits, stop looking
+      error_no_range = 0;
+      if (i != current_range){
+        rtapi_print_msg(RTAPI_MSG_INFO, "limit_axis: Switching to Range %d\n", i);
+        current_range = i;
+      }
+      return;
+    }
+  }
+
+  // If we've looked through all our ranges, then it's not there
+  if (!error_no_range){
+    error_no_range = 1;
+    rtapi_print_msg(RTAPI_MSG_ERR,
+                    "limit_axis: No Range found corresponding to feedback");
+
+  }
+
+}
+
+EXTRA_SETUP(){
+    if (personality > 10) personality = 10;
+    if (personality < 2) personality = 2;
+    return 0;
+}

@@ -1,0 +1,10 @@
+An example of combining the G43.2 compound offset idea with remapping to create
+a toolchange similar to Fanuc. 
+
+T1 = select and load tool 1, and apply the base offset for tool 1
+T0101 = select and load tool 1 and apply offsets 1 and 10001
+T0201 = select and load tool 1 and apply offsets 1 and 10002
+
+This might not exactly match Fanuc, but the behaviour is easy to change
+by editing toolchange.ngc
+

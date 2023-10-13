@@ -1,0 +1,4 @@
+Exercise remap sequencing of one G and 4 M-codes per line (MAX_EMS limit)
+
+regardless of ordering of codes on the line the execution order
+must reflect an ascending sequence

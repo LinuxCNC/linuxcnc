@@ -1,0 +1,5 @@
+puma_cube.ini -- Config file for a PUMA type robot using the puma-specific kinematics module pumakins.  This configuration provides a startup gcode file ([DISPLAY]OPEN)FILE) that sets usable coordinate offsets to trace a cube outline.  Velocity, acceleration and positional limits are set large for convenience and are not representative of a real machine.
+
+puma.ini -- Config file for a PUMA type robot using the puma-specific kinematics module pumakins ($ man pumakins).   Positional limits are not enforced.  System coordinate offsets need to be set by user.
+
+puma560.ini -- Config file for a PUMA 560 type robot using the generalized serial kinematics of the genserkins module ($ man genserkins).  Genserkins uses an interactive solution for inverse kinematics and may require that [JOINT_n]HOME locations are consistent with [TRAJ]HOME settings.

@@ -1,0 +1,18 @@
+
+# sample where motion tells us to go
+
+loadrt sampler depth=1000 cfg=fffffffff
+
+addf sampler.0              servo-thread
+
+net Xpos => sampler.0.pin.0
+net Ypos => sampler.0.pin.1
+net Zpos => sampler.0.pin.2
+net Xvel => sampler.0.pin.3
+net Yvel => sampler.0.pin.4
+net Zvel => sampler.0.pin.5
+net Xacc => sampler.0.pin.6
+net Yacc => sampler.0.pin.7
+net Zacc => sampler.0.pin.8
+
+loadusr halsampler -t motion-samples.log

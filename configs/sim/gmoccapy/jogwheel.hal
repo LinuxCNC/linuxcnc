@@ -1,0 +1,16 @@
+# connect encoder count, select the one you need
+net jog-spindle  jogwheel.jog-wheel-spindle => gmoccapy.spindle-override-counts 
+net jog-feed     jogwheel.jog-wheel-feed => gmoccapy.feed-override-counts 
+net jog-max-vel  jogwheel.jog-wheel-max => gmoccapy.max-vel-counts 
+net jog-jog      jogwheel.jog-wheel-jog => gmoccapy.jog-speed-counts
+
+net jog-x        jogwheel.jog-wheel-x => axis.0.jog-counts
+net jog-y        jogwheel.jog-wheel-y => axis.1.jog-counts
+net jog-z        jogwheel.jog-wheel-z => axis.2.jog-counts
+
+setp axis.0.jog-enable 1
+setp axis.1.jog-enable 1
+setp axis.2.jog-enable 1
+
+net scale axis.2.jog-scale <= axis.1.jog-scale <= axis.0.jog-scale <= gmoccapy.jog-increment
+

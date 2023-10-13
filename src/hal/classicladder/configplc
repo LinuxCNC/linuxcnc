@@ -1,0 +1,11 @@
+### This file is needed to signal Classicladder to initialize modbus master/server
+### and can be used to set the following items:
+
+### if serial port name is blank => IP mode used
+MODBUS_MASTER_SERIAL_PORT=/dev/ttyS0
+###MODBUS_MASTER_SERIAL_PORT=
+MODBUS_MASTER_SERIAL_SPEED=38400
+MODBUS_MASTER_SERIAL_USE_RTS_TO_SEND=0
+MODBUS_MASTER_TIME_INTER_FRAME=200
+MODBUS_MASTER_TIME_OUT_RECEIPT=500
+MODBUS_MASTER_TIME_AFTER_TRANSMIT=0

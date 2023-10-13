@@ -1,0 +1,16 @@
+
+%
+; 1.  Set G55 offset
+G55
+
+; 2.  Make some moves; execution should be aborted in this section
+G0 X0 Y0 Z0
+G1 X5 Y-5 F1
+
+; 3.  Interp will read ahead:  set G56 offset and throw a queue buster;
+;     execution will never reach this point
+G56
+M66 P0 L0 (queue buster)
+
+%
+

@@ -1,0 +1,32 @@
+.TH hal_pin_alias "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
+.SH NAME
+
+hal_pin_alias \- creates an alternate name for a pin
+
+.SH SYNTAX
+.HP
+int
+.BR hal_pin_alias "(const char *" original_name ", const char *" alias );
+
+.SH  ARGUMENTS
+.IP \fIoriginal_name\fR
+The original name of the pin
+
+.IP \fIalias\fR
+The alternate name that may be used to refer to the pin, or NULL to remove
+any alternate name.
+
+.SH DESCRIPTION
+A pin may have two names: the original name (the one that was passed to a
+\fBhal_pin_new\fR function) and an alias.
+
+Usually, aliases are for the convenience of users and should be created
+and destroyed via halcmd.  However, in some cases it is sensible to create
+aliases directly in a component.  These cases include the case where a pin is
+renamed, to preserve compatibility with old versions.
+
+.SH RETURN VALUE
+Returns a HAL status code.
+
+.SH SEE ALSO
+.BR hal_param_alias (3)

@@ -1,0 +1,129 @@
+(info:dir determine direction for polygon described by ordered points)
+(minimum 3 points, up to 6 points)
+
+(return: #<_dir:> == 2 for CW, 3 for CCW, -1 for undetermined)
+(return: #<_dir:area>)
+(return: #<_dir:cx>, #<_dir:cy> centroid)
+
+o<dir> sub
+#<n>  =  #1 (=4 N neg:verbose)
+#<x1> =  #2
+#<y1> =  #3
+#<x2> =  #4
+#<y2> =  #5
+#<x3> =  #6
+#<y3> =  #7
+#<x4> =  #8 (=0)
+#<y4> =  #9 (=0)
+#<x5> = #10 (=0)
+#<y5> = #11 (=0)
+#<x6> = #12 (=0)
+#<y6> = #13 (=0)
+
+        #<verbose> = 0
+o<i0>   if [#<n> LT 0]
+          #<n> = [ABS[#<n>]]
+          #<verbose> = 1
+o<i0>   endif
+
+o<i1>   if [[#<n> GE 7] or [#<n> LE 2]]
+           (print, dir: problem bad n=#<n>)
+           (debug, dir: problem bad n=#<n>)
+           #<_dir:> = -1 ;undetermined with message, caller must handle
+o<i1>   endif
+
+        #<a>  = 0
+        #<cx> = 0
+        #<cy> = 0
+
+        #<del> = [#<x1> * #<y2> - #<x2> * #<y1>]
+        #<a>   = [#<a>  + #<del>]
+        #<cx>  = [#<cx> + [#<x2> + #<x1>] * #<del>]
+        #<cy>  = [#<cy> + [#<y2> + #<y1>] * #<del>]
+
+        #<del> = [#<x2> * #<y3> - #<x3> * #<y2>]
+        #<a>   = [#<a>  + #<del>]
+        #<cx>  = [#<cx> + [#<x3> + #<x2>] * #<del>]
+        #<cy>  = [#<cy> + [#<y3> + #<y2>] * #<del>]
+
+o<if3>  if [#<n> eq 3]
+          #<del> = [#<x3> * #<y1> - #<x1> * #<y3>]
+          #<a>   = [#<a>  + #<del>]
+          #<cx>  = [#<cx> + [#<x1> + #<x3>] * #<del>]
+          #<cy>  = [#<cy> + [#<y1> + #<y3>] * #<del>]
+o<if3>  endif
+o<if4>  if [#<n> eq 4]
+          #<del> = [#<x3> * #<y4> - #<x4> * #<y3>]
+          #<a>   = [#<a>  + #<del>]
+          #<cx>  = [#<cx> + [#<x4> + #<x3>] * #<del>]
+          #<cy>  = [#<cy> + [#<y4> + #<y3>] * #<del>]
+
+          #<del> = [#<x4> * #<y1> - #<x1> * #<y4>]
+          #<a>   = [#<a>  + #<del>]
+          #<cx>  = [#<cx> + [#<x1> + #<x4>] * #<del>]
+          #<cy>  = [#<cy> + [#<y1> + #<y4>] * #<del>]
+o<if4>  endif
+o<if5>  if [#<n> eq 5]
+          #<del> = [#<x3> * #<y4> - #<x4> * #<y3>]
+          #<a>   = [#<a>  + #<del>]
+          #<cx>  = [#<cx> + [#<x4> + #<x3>] * #<del>]
+          #<cy>  = [#<cy> + [#<y4> + #<y3>] * #<del>]
+
+          #<del> = [#<x4> * #<y5> - #<x5> * #<y4>]
+          #<a>   = [#<a>  + #<del>]
+          #<cx>  = [#<cx> + [#<x5> + #<x4>] * #<del>]
+          #<cy>  = [#<cy> + [#<y5> + #<y4>] * #<del>]
+
+          #<del> = [#<x5> * #<y1> - #<x1> * #<y5>]
+          #<a>   = [#<a>  + #<del>]
+          #<cx>  = [#<cx> + [#<x1> + #<x5>] * #<del>]
+          #<cy>  = [#<cy> + [#<y1> + #<y5>] * #<del>]
+o<if5>  endif
+o<if6>  if [#<n> eq 6]
+          #<del> = [#<x3> * #<y4> - #<x4> * #<y3>]
+          #<a>   = [#<a>  + #<del>]
+          #<cx>  = [#<cx> + [#<x4> + #<x3>] * #<del>]
+          #<cy>  = [#<cy> + [#<y4> + #<y3>] * #<del>]
+
+          #<del> = [#<x4> * #<y5> - #<x5> * #<y4>]
+          #<a>   = [#<a>  + #<del>]
+          #<cx>  = [#<cx> + [#<x5> + #<x4>] * #<del>]
+          #<cy>  = [#<cy> + [#<y5> + #<y4>] * #<del>]
+
+          #<del> = [#<x5> * #<y6> - #<x6> * #<y5>]
+          #<a>   = [#<a>  + #<del>]
+          #<cx>  = [#<cx> + [#<x6> + #<x5>] * #<del>]
+          #<cy>  = [#<cy> + [#<y6> + #<y5>] * #<del>]
+
+          #<del> = [#<x6> * #<y1> - #<x1> * #<y6>]
+          #<a>   = [#<a>  + #<del>]
+          #<cx>  = [#<cx> + [#<x1> + #<x6>] * #<del>]
+          #<cy>  = [#<cy> + [#<y1> + #<y6>] * #<del>]
+o<if6>  endif
+
+        #<_dir:cx>   = [#<cx> / #<a> / 3] ; signed area reqd here
+        #<_dir:cy>   = [#<cy> / #<a> / 3] ; signed area reqd here
+        #<_dir:area> = [ABS[#<a>]/2]      ; return unsigned area
+
+o<f0>   if [#<a> GT 0]
+          #<_dir:> = 3 (ccw)
+o<f0>   else
+o<f1>     if [#<a> LT 0]
+            #<_dir:> = 2 (cw)
+o<f1>     else
+            #<_dir:> = -1 ;undetermined
+o<f1>     endif
+o<f0>   endif
+
+o<f2>   if [#<verbose> GT 0]
+o<f3>     if [#<_dir:> eq 2]
+            (debug, dir:  CW #<_dir:> area=#<_dir:area> cx=#<_dir:cx> cy=#<_dir:cy>)
+o<f3>     else
+            (debug, dir: CCW #<_dir:> area=#<_dir:area> cx=#<_dir:cx> cy=#<_dir:cy>)
+o<f3>     endif
+o<f2>   endif
+
+o<dir> endsub
+; ref: many sources for polygons on the web, for example:
+; http://paulbourke.net/geometry/polyarea/
+

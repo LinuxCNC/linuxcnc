@@ -1,0 +1,25 @@
+The pentapod machine configuration is a set of files that makes up a basic LinuxCNC pentapod.
+
+Start the machine, toggle E-Stop and Machine power, press Home all button, switch to world mode ($) and you can move the effector in world coordinates.
+
+
+pentapod.ini
+---------------
+Config file for a general pentapod.
+If you change the HOME location in TRAJ, make sure you change the appropriate HOME locations of the AXES as well, and make sure the position match (when run through the kinematics).
+
+kinematics.hal
+--------------
+Defines base and effector joints coordinates.
+
+basic_sim.tcl
+--------------
+Defines simulated joints, no real hardware attached in this config.
+
+panel.xml
+---------
+Adds PyVCP panel.
+
+pentapod_postgui.hal
+------------------
+Adds joints values and iterations number to PyVCP panel.

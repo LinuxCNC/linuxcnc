@@ -1,0 +1,5 @@
+pyngcgui config for touchy lathe config
+
+Demonstrate gladevcp apps:
+   pyngcgui     -- subroutine app
+   gremlin_view -- gremlin with some buttons

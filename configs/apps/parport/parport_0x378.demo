@@ -1,0 +1,6 @@
+#!/bin/bash
+
+thisfile=$(readlink -f "$0")
+thisdir=$(dirname "$thisfile")
+
+pyvcp_demo "$thisdir"/parport_test.xml "$thisdir"/parport_0x378.hal PortTest

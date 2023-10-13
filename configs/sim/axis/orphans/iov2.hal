@@ -1,0 +1,7 @@
+
+# jumper iocontrolv2 pins
+net emc-abort-loop iocontrol.0.emc-abort iocontrol.0.emc-abort-ack
+net start-change-loop iocontrol.0.start-change iocontrol.0.start-change-ack
+
+
+setp iocontrol.0.toolchanger-reason 134

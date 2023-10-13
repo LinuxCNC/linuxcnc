@@ -1,0 +1,24 @@
+#!/usr/bin/tclsh
+# change axis limits to TURN limits
+set switchkins_pin 3     ;# agree with inifile
+set coords "x y z"       ;# axis declared must provide MIN_LIMIT_TURN and MAX_LIMIT_TURN in inifile
+
+package require Linuxcnc ;# must be before Hal
+emc_init -quick
+package require Hal
+parse_ini $::env(INI_FILE_NAME)
+
+# Check if correct kinematic is active
+if {[hal getp kinstype.is-1] == "FALSE"} {
+   puts "kinematic does not match! Are you calling M129 instead of M429?"
+   exit 1
+}
+
+# RESTORE INI axis limits
+foreach l $coords {
+  set L [string toupper $l]
+  catch {hal setp ini.$l.min_limit        [set ::AXIS_[set L](MIN_LIMIT_TURN)]}
+  catch {hal setp ini.$l.max_limit        [set ::AXIS_[set L](MAX_LIMIT_TURN)]}
+  catch {hal setp ini.$l.min_velocity     [set ::AXIS_[set L](MAX_VELOCITY)]}
+  catch {hal setp ini.$l.max_acceleration [set ::AXIS_[set L](MAX_ACCELERATION)]}
+}

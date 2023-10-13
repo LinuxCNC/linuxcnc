@@ -1,0 +1,10 @@
+Esta es una simulación de una fresadora de puente de 5 ejes XYZBCW.
+
+Configuration for XYZBCWY (7 joints total)
+J0: X
+J1: Y
+J2: Z
+J3: B
+J4: C
+J5: W
+J6: Y

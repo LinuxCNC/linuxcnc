@@ -1,0 +1,10 @@
+prefix=${pcfiledir}/../..
+libdir=${prefix}/lib@LIB_SUFFIX@
+includedir=${prefix}/include
+
+Name: orocos-kdl
+Description: The Orocos Kinematics and Dynamics Library 
+Requires: 
+Version: @KDL_VERSION@
+Libs: -L${libdir} -lorocos-kdl
+Cflags: -I${includedir} @KDL_CFLAGS@

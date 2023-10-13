@@ -1,0 +1,8 @@
+PYTARGETS += ../bin/mdro
+PYI18NSRCS += emc/usr_intf/mdro/mdro.py
+
+../bin/mdro: emc/usr_intf/mdro/mdro.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -m py_compile $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@

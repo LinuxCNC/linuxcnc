@@ -1,0 +1,43 @@
+<pyvcp>
+    <label>
+        <text>"Sensor Position:"</text>
+    </label>
+    <number>
+        <halpin>"keyence_position"</halpin>
+        <font>("Helvetica",12)</font>
+        <format>"1.4f"</format>
+        <width>6</width>
+    </number>
+    <button>
+        <halpin>"keyence_reset"</halpin>
+        <text>"SET SENSOR = 0.0"</text>
+    </button>
+    <scale>
+        <font>("Helvetica",12)</font>
+        <width>"50"</width>
+        <halpin>"adjustment"</halpin>
+        <resolution>.0001</resolution>
+        <orient>VERTICAL</orient>
+        <min_>.025</min_>
+        <max_>-.025</max_>
+    </scale>
+    <label>
+        <text>"Center Electrode Height:"</text>
+    </label>
+    <number>
+        <halpin>"center_height"</halpin>
+        <font>("Helvetica",12)</font>
+        <format>"1.4f"</format>
+        <width>6</width>
+    </number>
+    <label>
+        <text>"Center Electrode to Post Height:"</text>
+    </label>
+    <number>
+        <halpin>"gap"</halpin>
+        <font>("Helvetica",12)</font>
+        <format>"1.4f"</format>
+        <width>6</width>
+    </number>
+</pyvcp>
+

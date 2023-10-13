@@ -1,0 +1,48 @@
+# connect encoder count, select the one you need
+net jog-counts       pendant.jog-wheel-counts
+net jog-counts       axis.x.jog-counts 
+net jog-counts       axis.y.jog-counts 
+net jog-counts       axis.z.jog-counts
+ 
+net jog-x   axis.x.jog-enable   <=   pendant.jog-x
+net jog-y   axis.y.jog-enable   <=   pendant.jog-y
+net jog-z   axis.z.jog-enable   <=   pendant.jog-z
+
+# Set the scales per count / Faktor je count setzen
+# we could set them to fix value like
+# setp axis.z.jog-scale   0.05
+# setp axis.y.jog-scale   0.05
+# setp axis.x.jog-scale   0.05
+# but also better do connect them to the jog- increments of gmoccapy. 
+net scale axis.z.jog-scale   <=   axis.y.jog-scale   <=   axis.x.jog-scale   <=   gmoccapy.jog.jog-increment
+
+# Connect all counts to Jogwheel-counts / Alle count san Jogwheel-counts anbinden
+net override-counts       pendant.override-wheel-counts
+net override-counts       gmoccapy.rapid.rapid-override.counts
+net override-counts       gmoccapy.feed.feed-override.counts
+net override-counts       gmoccapy.spindle.spindle-override.counts
+net override-counts       gmoccapy.jog.jog-velocity.counts
+
+# the scales of the counts are set on the settings page of the GUI, not here
+# this is different from using halui pin!!
+
+# jog velocity mode on (1) or off(0) / Geschwindigkeitsmodus an (1) oder aus (0)
+# 0 is default / 0 ist Standardwert
+# Mode 0 : after spinning the dial, axis may go on moving, because counts are still pending, Mode 1 will ignore pending steps
+# Mode 0 : Nach dem drehen des Handrades kann die Achse noch weiterlaufen, da noch Schritte auszuführen sind. Mode 1 hält sofort an
+setp axis.x.jog-vel-mode 1
+setp axis.y.jog-vel-mode 1
+setp axis.z.jog-vel-mode 1
+
+net feed           gmoccapy.feed.feed-override.count-enable         <=   pendant.feed
+net spindle        gmoccapy.spindle.spindle-override.count-enable   <=   pendant.spindle
+net maxvel         gmoccapy.rapid.rapid-override.count-enable       <=   pendant.rapid
+net jogvel         gmoccapy.jog.jog-velocity.count-enable           <=   pendant.jogvel 
+
+net incr-0         gmoccapy.jog.jog-inc-0    <=    pendant.rbt_incr_0
+net incr-1         gmoccapy.jog.jog-inc-1    <=    pendant.rbt_incr_1
+net incr-2         gmoccapy.jog.jog-inc-2    <=    pendant.rbt_incr_2
+net incr-3         gmoccapy.jog.jog-inc-3    <=    pendant.rbt_incr_3
+net incr-4         gmoccapy.jog.jog-inc-4    <=    pendant.rbt_incr_4
+net incr-5         gmoccapy.jog.jog-inc-5    <=    pendant.rbt_incr_5
+

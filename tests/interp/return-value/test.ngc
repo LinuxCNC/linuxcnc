@@ -1,0 +1,55 @@
+; test that #<_value> is accessible and is 0
+
+; test for proper initialization of #<_value> if program is re-run
+; see note at end of program
+#<expect> = 0
+(debug,line #<_line>: _value: - expected #<expect>, got #<_value>)
+o200 if [#<_value> NE 0]
+     (debug, fail: _value=#<_value> - expecting 0)
+o200 endif
+
+
+o1000 sub
+o1010 if [#1 GT 0]
+o1010    return [123*[#1]]
+o1010 endif
+
+o1020 if [#1 LT 0]
+o1020    return
+o1020 endif
+
+o1000 endsub [4712]
+
+
+; test returning value via 'return'
+#<arg> = 2
+#<expect> = 246
+o1000 call [#<arg>]
+(debug,line #<_line>: call with arg1=#<arg> expect #<expect>, got #<_value>)
+o3000 if [#<_value> NE #<expect>]
+     (debug,line #<_line>: 'return' return value=#<_value> - expected #<expect>)
+o3000 endif
+
+; test returning no value at all - plain old style 'return'
+#<arg> = -1
+#<expect> = 0
+o1000 call [#<arg>]
+(debug,line #<_line>: call with arg1=#<arg> expect #<expect>, got #<_value>)
+o4000 if [#<_value> NE #<expect>]
+     (debug,line #<_line>: 'plain return' return value=#<_value> - expected #<expect>)
+o4000 endif
+
+
+; test returning value via 'endsub'
+#<arg> = 0
+#<expect> = 4712
+o1000 call [#<arg>]
+(debug,line #<_line>: call with arg1=#<arg> expect #<expect>, got #<_value>)
+o2000 if [#<_value> NE #<expect>]
+     (debug,line #<_line>: 'endsub' return value=#<_value> - expected #<expect>)
+o2000 endif
+
+; note #<_value> is 4712 at this point.
+(debug,line #<_line>: _value=#<_value> - expected #<expect>)
+
+m2

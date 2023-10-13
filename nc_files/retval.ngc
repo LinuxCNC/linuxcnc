@@ -1,0 +1,29 @@
+; demonstrate optional return values from endsub and return
+
+o1000 sub
+o1010 if [#1 GT 0]
+o1010    return [123*[#1]]
+o1010 endif
+
+o1020 if [#1 LT 0]
+o1020    return
+o1020 endif
+
+o1000 endsub [4712]
+
+o1000 call [0]
+(debug,call with arg1=0 return #<_value>)
+
+; #<_value> is 4712.0
+
+o1000 call [2]
+(debug,call with arg1=2 return #<_value>)
+
+; #<_value> is 246.0
+
+o1000 call [-1]
+(debug,call with arg1=-1 return #<_value>)
+
+; #<_value> is 0.0
+
+m2

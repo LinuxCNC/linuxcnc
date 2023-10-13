@@ -1,0 +1,26 @@
+
+net mdi-0 <= python-ui.mdi-0
+net mdi-0 => halui.mdi-command-00
+
+net mdi-1 <= python-ui.mdi-1
+net mdi-1 => halui.mdi-command-01
+
+net mdi-2 <= python-ui.mdi-2
+net mdi-2 => halui.mdi-command-02
+
+net mdi-3 <= python-ui.mdi-3
+net mdi-3 => halui.mdi-command-03
+
+net Xpos => python-ui.joint-0-position
+net Ypos => python-ui.joint-1-position
+net Zpos => python-ui.joint-2-position
+
+net halui-mode-is-manual <= halui.mode.is-manual
+net halui-mode-is-manual => python-ui.is-manual
+
+net halui-mode-is-auto <= halui.mode.is-auto
+net halui-mode-is-auto => python-ui.is-auto
+
+net halui-mode-is-mdi <= halui.mode.is-mdi
+net halui-mode-is-mdi => python-ui.is-mdi
+

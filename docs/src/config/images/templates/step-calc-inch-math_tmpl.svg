@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="570"
+   height="30"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="step-calc-inch-math_tmpl.svg">
+  <defs
+     id="defs" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4958738"
+     inkscape:cx="283.83338"
+     inkscape:cy="5.0861607"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer_Text-black"
+     showgrid="true"
+     inkscape:window-width="1280"
+     inkscape:window-height="930"
+     inkscape:window-x="0"
+     inkscape:window-y="31"
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2985"
+       empspacing="5"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="true"
+       originx="-0.0073433px"
+       originy="-39.503906px" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>tseufl</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:publisher>
+          <cc:Agent>
+            <dc:title>LinuxCNC</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Draw black"
+     inkscape:groupmode="layer"
+     id="layer_Draw-black"
+     transform="translate(-0.0073433,-982.85826)"
+     style="display:inline"
+     sodipodi:insensitive="true">
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 0,997.36217 105,0"
+       id="path3191"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 120,997.36217 90,0"
+       id="path3193"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 225,997.36217 98,0"
+       id="path3193-6"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 337.00001,997.36217 98,0"
+       id="path3193-6-0"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 452.00002,997.36217 114.99998,0"
+       id="path3193-6-0-2"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer_Text-black"
+     inkscape:label="Text black"
+     style="display:inline">
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:150%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+       x="52.496094"
+       y="9.8063354"
+       id="text_200-motor-steps-1-motor-rev"
+       sodipodi:linespacing="150%"><tspan
+         sodipodi:role="line"
+         id="tspan_200-motor-steps-1-motor-rev_1"
+         x="52.496094"
+         y="9.8063354">XXX xxx xxx</tspan><tspan
+         sodipodi:role="line"
+         x="52.496094"
+         y="27.806335"
+         id="tspan_200-motor-steps-1-motor-rev_2">XXX xxx xxx</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:150%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+       x="112.99265"
+       y="19.503906"
+       id="text_X-10-microsteps-1-motor-step"
+       sodipodi:linespacing="150%"><tspan
+         sodipodi:role="line"
+         id="tspan_X-10-microsteps-1-motor-step"
+         x="112.99265"
+         y="19.503906">X</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:150%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+       x="164.99266"
+       y="9.5039062"
+       id="text_10-microsteps-1-motor-step"
+       sodipodi:linespacing="150%"><tspan
+         sodipodi:role="line"
+         id="tspan_10-microsteps-1-motor-step_1"
+         x="164.99266"
+         y="9.5039062">XXX xxx</tspan><tspan
+         sodipodi:role="line"
+         x="164.99266"
+         y="27.503906"
+         id="tspan_10-microsteps-1-motor-step_2">XXX xxx xxx</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:150%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+       x="216.99266"
+       y="19.503906"
+       id="text_X-2-motor-revs-1-leadscrew-rev"
+       sodipodi:linespacing="150%"><tspan
+         sodipodi:role="line"
+         id="tspan_X-2-motor-revs-1-leadscrew-rev"
+         x="216.99266"
+         y="19.503906">X</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:150%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+       x="272.99265"
+       y="9.5039062"
+       id="text_2-motor-revs-1-leadscrew-rev"
+       sodipodi:linespacing="150%"><tspan
+         sodipodi:role="line"
+         id="tspan_2-motor-revs-1-leadscrew-rev_1"
+         x="272.99265"
+         y="9.5039062">XXX xxx xxx</tspan><tspan
+         sodipodi:role="line"
+         x="272.99265"
+         y="27.503906"
+         id="tspan_2-motor-revs-1-leadscrew-rev_2">XXX xxx xxx</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:150%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+       x="329.99265"
+       y="19.503906"
+       id="text_X-1-leadscrew-rev-0-2-inch"
+       sodipodi:linespacing="150%"><tspan
+         sodipodi:role="line"
+         id="tspan_X-1-leadscrew-rev-0-2-inch"
+         x="329.99265"
+         y="19.503906">X</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:150%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+       x="384.99265"
+       y="9.5039062"
+       id="text_1-leadscrew-rev-0-2-inch"
+       sodipodi:linespacing="150%"><tspan
+         sodipodi:role="line"
+         x="384.99265"
+         y="9.5039062"
+         id="tspan_1-leadscrew-rev-0-2-inch_1">XXX xxx xxx</tspan><tspan
+         sodipodi:role="line"
+         x="384.99265"
+         y="27.503906"
+         id="tspan_1-leadscrew-rev-0-2-inch_2">XXX xxx</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:150%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+       x="443.99265"
+       y="18.503906"
+       id="text_=20000-microsteps-inch"
+       sodipodi:linespacing="150%"><tspan
+         sodipodi:role="line"
+         id="tspan_=20000-microsteps-inch"
+         x="443.99265"
+         y="18.503906">=</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:150%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+       x="509.99265"
+       y="9.5039062"
+       id="text_20000-microsteps-inch"
+       sodipodi:linespacing="150%"><tspan
+         sodipodi:role="line"
+         x="509.99265"
+         y="9.5039062"
+         id="tspan_20000-microsteps-inch_1">XXX xxx</tspan><tspan
+         sodipodi:role="line"
+         x="509.99265"
+         y="27.503906"
+         id="tspan_20000-microsteps-inch_2">xxx</tspan></text>
+  </g>
+</svg>

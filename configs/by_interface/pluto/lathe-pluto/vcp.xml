@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+
+<label><text>"X PID"</text></label>
+<bar><halpin>"xpid-bar"</halpin><min_>-26</min_><max_>26</max_></bar>
+
+<label><text>"Z PID"</text></label>
+<bar><halpin>"zpid-bar"</halpin><min_>-26</min_><max_>26</max_></bar>
+
+<label><text>"Spindle"</text></label>
+<bar><halpin>"spindle-bar"</halpin><min_>0</min_><max_>1500</max_></bar>
+
+</pyvcp>

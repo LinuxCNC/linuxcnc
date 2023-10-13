@@ -1,0 +1,31 @@
+ifdef HAVE_LIBMODBUS3
+
+PI500_SRCS = hal/user_comps/pi500_vfd/pi500_vfd.c
+PI500_CFLAGS = -DDEBUG $(LIBMODBUS_CFLAGS)
+PI500_LIBS = $(LIBMODBUS_LIBS)
+
+$(call TOOBJSDEPS, $(PI500_SRCS)) : EXTRAFLAGS += $(PI500_CFLAGS)
+
+USERSRCS += $(PI500_SRCS)
+
+../bin/pi500_vfd: $(call TOOBJS, $(PI500_SRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(PI500_LIBS) 
+
+hal/user_comps/pi500_vfd/pi500_vfd.c: hal/user_comps/pi500_vfd/pi500_vfd.comp ../bin/halcompile
+	$(ECHO) "Preprocessing pi500_vfd.comp"
+	$(Q)../bin/halcompile -U --preprocess $<
+
+../docs/man/man1/pi500_vfd.1: hal/user_comps/pi500_vfd/pi500_vfd.comp ../bin/halcompile
+	$(Q)../bin/halcompile -U -u --document $<
+	$(Q)install --mode=0644 hal/user_comps/pi500_vfd/pi500_vfd.1 $@
+
+clean: pi500_clean
+pi500_clean:
+	-rm -f hal/user_comps/pi500_vfd/pi500_vfd.c
+	-rm -f hal/user_comps/pi500_vfd/pi500_vfd.1
+
+TARGETS += ../bin/pi500_vfd
+GENERATED_MANPAGES += ../docs/man/man1/pi500_vfd.1
+endif
+

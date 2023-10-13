@@ -1,0 +1,31 @@
+loadrt flipflop names=ff1
+addf   ff1      servo-thread
+setp   ff1.data 0
+
+net P:wave-start     <= pyvcp.wave-start
+net P:wave-start     => ff1.set
+
+net P:wave-stop      <= pyvcp.wave-stop
+net P:wave-stop      => ff1.clk
+
+net P:limited        <= motion.eoffset-limited
+net P:limited        => pyvcp.eoffset-limited
+
+net P:paused         <= halui.program.is-paused
+net P:paused         => pyvcp.paused
+
+#----------------------------------------------
+# signals created in opa.hal
+net E:enable-in      <= ff1.out
+net E:enable-in      => pyvcp.waveon
+
+net E:fnum           <= pyvcp.fnum-i
+net E:rfraction      <= pyvcp.rfraction
+net E:fmult          <= pyvcp.fmult
+net E:start-angle    <= pyvcp.start-angle
+
+net E:is-off         => ff1.reset
+net E:eoffset-enable => pyvcp.eoffset-enable
+net E:x-eoffset      => pyvcp.x-offset-f
+net E:radius-ref     => pyvcp.radius-ref
+net E:active         => pyvcp.eoffset-active

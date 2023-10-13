@@ -1,0 +1,6 @@
+#!/bin/sh
+DASHI="" INIARG=""
+HALLIB_DIR=@HALLIB_DIR@; export HALLIB_DIR
+LINUXCNC_TCL_DIR=@EMC2_TCL_DIR@; export LINUXCNC_TCL_DIR
+if [ $# -ne 1 ]; then echo 1>&2 Usage: "$0" inifile; exit 1; fi
+exec haltcl -i "$1" @EMC2_TCL_LIB_DIR@/twopass.tcl

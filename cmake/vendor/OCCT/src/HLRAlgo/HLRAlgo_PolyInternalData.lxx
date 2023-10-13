@@ -1,0 +1,139 @@
+// Created on: 1993-01-11
+// Created by: Christophe MARION
+// Copyright (c) 1993-1999 Matra Datavision
+// Copyright (c) 1999-2014 OPEN CASCADE SAS
+//
+// This file is part of Open CASCADE Technology software library.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License version 2.1 as published
+// by the Free Software Foundation, with special exception defined in the file
+// OCCT_LGPL_EXCEPTION.txt. Consult the file LICENSE_LGPL_21.txt included in OCCT
+// distribution for complete text of the license and disclaimer of any warranty.
+//
+// Alternatively, this file may be used under the terms of Open CASCADE
+// commercial license or contractual agreement.
+
+#include <TColStd_HArray1OfInteger.hxx>
+#include <TColStd_HArray1OfBoolean.hxx>
+#include <TColStd_HArray1OfReal.hxx>
+#include <TColgp_HArray1OfPnt.hxx>
+#include <TColgp_HArray1OfPnt2d.hxx>
+#include <TColgp_HArray1OfDir.hxx>
+#include <HLRAlgo_HArray1OfTData.hxx>
+#include <HLRAlgo_HArray1OfPISeg.hxx>
+#include <HLRAlgo_HArray1OfPINod.hxx>
+
+//=======================================================================
+//function : DecTData
+//purpose  : 
+//=======================================================================
+
+inline void HLRAlgo_PolyInternalData::DecTData ()
+{ myNbTData--; }
+
+//=======================================================================
+//function : DecPISeg
+//purpose  : 
+//=======================================================================
+
+inline void HLRAlgo_PolyInternalData::DecPISeg ()
+{ myNbPISeg--; }
+
+//=======================================================================
+//function : DecPINod
+//purpose  : 
+//=======================================================================
+
+inline void HLRAlgo_PolyInternalData::DecPINod ()
+{ myNbPINod--; }
+
+//=======================================================================
+//function : NbTData
+//purpose  : 
+//=======================================================================
+
+inline Standard_Integer
+HLRAlgo_PolyInternalData::NbTData () const
+{ return myNbTData; }
+
+//=======================================================================
+//function : NbPISeg
+//purpose  : 
+//=======================================================================
+
+inline Standard_Integer
+HLRAlgo_PolyInternalData::NbPISeg () const
+{ return myNbPISeg; }
+
+//=======================================================================
+//function : NbPINod
+//purpose  : 
+//=======================================================================
+
+inline Standard_Integer
+HLRAlgo_PolyInternalData::NbPINod () const
+{ return myNbPINod; }
+
+//=======================================================================
+//function : Planar
+//purpose  : 
+//=======================================================================
+
+inline Standard_Boolean
+HLRAlgo_PolyInternalData::Planar () const
+{ return myPlanar; }
+
+//=======================================================================
+//function : Planar
+//purpose  : 
+//=======================================================================
+
+inline void
+HLRAlgo_PolyInternalData::Planar (const Standard_Boolean B)
+{ myPlanar = B; }
+
+//=======================================================================
+//function : IntOutL
+//purpose  : 
+//=======================================================================
+
+inline Standard_Boolean
+HLRAlgo_PolyInternalData::IntOutL () const
+{ return myIntOutL; }
+
+//=======================================================================
+//function : IntOutL
+//purpose  : 
+//=======================================================================
+
+inline void
+HLRAlgo_PolyInternalData::IntOutL (const Standard_Boolean B)
+{ myIntOutL = B; }
+
+//=======================================================================
+//function : TData
+//purpose  : 
+//=======================================================================
+
+inline HLRAlgo_Array1OfTData &
+HLRAlgo_PolyInternalData::TData () const
+{ return myTData->ChangeArray1(); }
+
+//=======================================================================
+//function : PINod
+//purpose  : 
+//=======================================================================
+
+inline HLRAlgo_Array1OfPINod &
+HLRAlgo_PolyInternalData::PINod () const
+{ return myPINod->ChangeArray1(); }
+
+//=======================================================================
+//function : PISeg
+//purpose  : 
+//=======================================================================
+
+inline HLRAlgo_Array1OfPISeg &
+HLRAlgo_PolyInternalData::PISeg () const
+{ return myPISeg->ChangeArray1(); }

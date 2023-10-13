@@ -1,0 +1,6 @@
+#!/bin/bash
+
+thisfile=$(readlink -f "$0")
+thisdir=$(dirname "$thisfile")
+
+pyvcp_demo "$thisdir"/pyvcp_demo1.xml "$thisdir"/pyvcp_demo1.hal pyvcp

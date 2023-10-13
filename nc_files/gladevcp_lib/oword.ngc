@@ -1,0 +1,14 @@
+
+; this is called from gladevcp MDI action with the following
+; MDI command:
+; O<oword> call [${spin-f}] [${check}] [${toggle}] [${scale-f}] [${spin-f}]
+
+O<oword> sub
+
+(DEBUG, oword.ngc: spin-f=#1 check=#2)
+(DEBUG, toggle=#3 scale=#4)
+(DEBUG, spin-f=#5 combo-s=#6)
+
+O<oword> endsub
+
+m2

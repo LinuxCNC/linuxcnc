@@ -1,0 +1,63 @@
+component toggle2nist "toggle button to nist logic";
+
+description
+"""
+Toggle2nist can be used with a momentary push button 
+to control a device that has separate on and off inputs
+and an is-on output. 
+
+\[bu] On a rising edge on pin \\fIin\\fR when \\fIis-on\\fR is low: It sets \\fIon\\fR until \\fIis-on\\fR becomes high.
+
+\[bu] On a rising edge on pin \\fIin\\fR when \\fIis-on\\fR is high: It sets \\fIoff\\fR until \\fIis-on\\fR becomes low.
+
+
+       ┐     ┏─────xxxxxxxxxxxx┐           ┏─────xxxxxxxxxxxx┐     
+.br
+in   : └─────┛     xxxxxxxxxxxx└───────────┛     xxxxxxxxxxxx└─────
+.br
+       ┐     ┌───────────┐                                         
+.br
+on   : └─────┘           └─────────────────────────────────────────
+       ┐                                   ┌───────────┐           
+.br
+off  : └───────────────────────────────────┘           └───────────
+.br
+       ┐                 ┌─────────────────────────────┐           
+.br
+is-on: └─────────────────┘                             └───────────
+
+""";
+
+pin in  bit in;
+pin in  bit is_on;
+pin out bit on;
+pin out bit off;
+variable int old_in;
+variable int to_state=0;
+function _ nofp;
+license "GPL";
+author "Anders Wallin";
+;;
+FUNCTION(_)  {
+if (in!=old_in) /* a toggle has occurred */ {
+    if (is_on) {   /* turn OFF if it's on */
+        on=0;
+        off=1;
+        to_state=0;
+    }
+    else if (!is_on) { /* turn ON if it's off */
+        on=1;
+        off=0;
+        to_state=1;
+    }
+}
+else {
+/* reset pins when we see the desired state */
+    if (to_state==is_on) {
+        on=0;
+        off=0;
+    }
+}
+old_in=in;
+}
+

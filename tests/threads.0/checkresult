@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+import sys
+
+l = [int(line.strip()) for line in open(sys.argv[1])]
+if len(l) != 3500:
+    print("result contained %d lines, not the expected 3500 lines!" % (len(l)))
+    raise SystemExit(1) # failure
+
+lineno = 1
+
+got_reset = 0
+expected = 1
+for i in l:
+    if i == 1:
+        if expected != 1: got_reset = 1
+        expected = i + 1
+        lineno = lineno + 1
+        continue
+
+    if i != expected:
+        if expected == 1: 
+            print("line %d: got %d, expected %d" % (lineno, i, expected))
+        else:
+            print("line %d: got %d, expected %d or 1" % (lineno, i, expected))
+        raise SystemExit(1) # failure
+
+    expected = i + 1
+    lineno = lineno + 1
+
+if got_reset:
+    raise SystemExit(0) # success
+
+print("no reset in %d lines!" % (lineno-1))
+raise SystemExit(1) # failure
+

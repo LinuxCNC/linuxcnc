@@ -1,0 +1,165 @@
+Debian packaging of LinuxCNC
+============================
+
+
+Introduction
+------------
+
+LinuxCNC is packaged in two different ways: a simple way for the builds
+on the LinxuCNC buildbot CI system (<http://buildbot.linuxcnc.org>),
+and a different (more complicated) way for official debian.org packages.
+
+Packaging by the LinuxCNC CI system is not covered in this document, see
+<http://linuxcnc.org/docs/devel/html/code/building-linuxcnc.html#_building_debian_packages>
+for a brief description on that.
+
+This document describes the official packaging for debian.org.
+Packaging of LinuxCNC for debian.org is split between linuxcnc.git
+(in <https://github.com/LinuxCNC/linuxcnc.git>) and linuxcnc-gbp.git
+(in <https://github.com/LinuxCNC/linuxcnc-gbp.git>).
+
+
+debian/copyright
+----------------
+
+Automated tools to check licenses within the source tree will likely find
+CC-2.5 referenced. But this refers only to some image files that were
+not adopted by the source tree, only the README describing them was
+intentionally left unchanged.
+
+
+Build a new DSC for upload to debian.org
+----------------------------------------
+
+
+Make the new orig tarball
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Do this step in `linuxcnc.git`.
+
+```
+git checkout ${COMMIT}  # check out the commit you want
+git reset --hard
+git clean -fdx .
+VERSION=$(head -n1 debian/changelog |cut -f2 -d' ' | tr -d "()" | sed -e 's/^[0-9]://' )
+VERSION=$(git log --date=format:%Y%m%d --pretty=${VERSION}+git%cd.%h| head -n1)
+echo ${VERSION} | tee VERSION
+
+# We use `--exclude=.git` instead of `--exclude-vcs` because the linuxcnc
+# git repo uses .gitignore to keep otherwise-empty directories around,
+# and the build system is too lazy to mkdir them as needed.
+tar --create --xz --exclude=.git --exclude=.github --transform "flags=r;s|^./|linuxcnc-${VERSION}/|" --file ../debian-packaging/linuxcnc_${VERSION}.orig.tar.xz .
+```
+
+
+Start the new gbp version
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Do this step in `linuxcnc-gbp.git`.
+
+Import the new orig tarball into gbp `upstream` branch, but *don't*
+let gbp auto-merge it into `debian/unstable`.
+
+```
+git fetch
+
+git checkout upstream
+git merge --ff-only origin/upstream
+
+git checkout debian/unstable
+git merge --ff-only origin/debian/unstable
+
+gbp import-orig --no-merge ../linuxcnc_${VERSION}.orig.tar.xz
+git merge --no-commit upstream
+# verify contents of debian/*, especially changelog
+git commit
+```
+
+
+Update the debian/ files
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Do this step in `linuxcnc-gbp.git`.
+
+Run `debian/configure` in a clean, minimal instance of the distro we're
+building for:
+
+```
+export IMAGE="debian:bookworm"
+docker pull ${IMAGE}
+docker run --rm --interactive --tty --volume ${PWD}:${PWD} --workdir ${PWD} ${IMAGE}
+apt-get --quiet update
+apt-get --quiet --yes install --no-install-recommends --no-install-suggests \
+    git \
+    lsb-release \
+    python3
+debian/configure
+exit
+```
+
+Update d/changelog (preserve entries from previous debs), include "New
+upstream version", close any fixed bugs:
+
+```
+gbp dch
+dch -e
+```
+
+Commit all changes to the debian/ directory:
+
+```
+git commit
+```
+
+
+Test the new debian package
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`gbp buildpackage` should work in a minimal installation of the target
+distro:
+
+```
+docker run --rm --interactive --tty --volume ${PWD}:${PWD} --workdir ${PWD} ${IMAGE}
+apt-get --quiet update
+apt-get --quiet --yes install --no-install-recommends --no-install-suggests git-buildpackage
+apt-get --quiet --yes build-dep .
+gbp buildpackage --build=full --no-sign
+```
+
+In addition to `--build=full` (build source, architecture-specific,
+and architecture-independent packages), `--build=any`
+(build architecture-specific packages) and `--build=all` (build
+architecture-independent packages) should also build from scratch in a
+clean minimal environment.
+
+(The docker build environment described above is just one option, other
+possibilities are cowbuilder, pbuilder, etc etc.)
+
+Run lintian to verify the build products:
+
+```
+apt-get --quiet --yes install lintian
+lintian -i ../linuxcnc_*.changes
+```
+
+
+Release
+~~~~~~~
+
+```
+gbp dch --release
+gbp tag
+
+git push --tags origin debian/unstable upstream
+```
+
+Build & sign the dsc:
+
+`dpkg-buildpackage --build=source -k${KEY_ID}`
+
+
+How to contribute
+-----------------
+
+LinuxCNC does not have a representation on salsa.debian.org.
+Please join us on https://github.com/LinuxCNC/linuxcnc/ .

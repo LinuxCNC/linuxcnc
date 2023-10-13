@@ -1,0 +1,89 @@
+# removeshort.hal
+# (for use following core_sim.hal and simulated_home.hal)
+# (this halfile should follow core_sim.hal)
+
+# Demonstrate that hookup_moveoff.tcl works with
+# non-shortcircuit hal configurations (like a servo)
+
+# Also: use sample-hold (mux2) to simulate a system
+# with encoder measuring output when power off too
+
+# remove usual sim signals
+delsig Xpos
+delsig Ypos
+delsig Zpos
+
+# add pid components, and addf in right sequence
+loadrt pid names=xpid,ypid,zpid
+addf xpid.do-pid-calcs servo-thread 3
+addf ypid.do-pid-calcs servo-thread 3
+addf zpid.do-pid-calcs servo-thread 3
+
+# add mux2 for sample-hold on output, and addf in right sequence
+# to simulate system with encoder measuring output
+loadrt mux2 names=xmux,ymux,zmux
+addf xmux servo-thread 6
+addf ymux servo-thread 6
+addf zmux servo-thread 6
+
+# note: pid has default PGain=1, Dgain=Igain=FF0=FF1=FF2=0
+setp xpid.Pgain 0
+setp ypid.Pgain 0
+setp zpid.Pgain 0
+
+# pass thru input to output by using FF0=1
+setp xpid.FF0 1
+setp ypid.FF0 1
+setp zpid.FF0 1
+
+# enable pid in usual manner
+net xenable joint.0.amp-enable-out => xpid.enable
+net yenable joint.1.amp-enable-out => ypid.enable
+net zenable joint.2.amp-enable-out => zpid.enable
+
+# connect without a shortcircuit using pass-thru pid
+net Xpos-cmd <= joint.0.motor-pos-cmd
+net Xpos-cmd => xpid.command
+
+# sample-hold
+net sample <= motion.motion-enabled
+net sample => xmux.sel
+net sample => ymux.sel
+net sample => zmux.sel
+#---------------------------------------
+net Xonposition <= xpid.output
+net Xonposition => xmux.in1
+
+# hold position when power off (in0):
+net Xpos-fb  => xmux.in0
+
+net Xpos-fb  <= xmux.out
+net Xpos-fb  => joint.0.motor-pos-fb
+net Xpos-fb  => comp_x.in1
+net Xpos-fb  => ddt_x.in
+#---------------------------------------
+net Yonposition <= ypid.output
+net Yonposition => ymux.in1
+
+# hold position when power off (in0):
+net Ypos-fb  => ymux.in0
+
+net Ypos-fb  <= ymux.out
+net Ypos-cmd <= joint.1.motor-pos-cmd
+net Ypos-cmd => ypid.command
+net Ypos-fb  => joint.1.motor-pos-fb
+net Ypos-fb  => comp_y.in1
+net Ypos-fb  => ddt_y.in
+#---------------------------------------
+net Zonposition <= zpid.output
+net Zonposition => zmux.in1
+
+# hold position when power off (in0):
+net Zpos-fb  => zmux.in0
+
+net Zpos-fb  <= zmux.out
+net Zpos-cmd <= joint.2.motor-pos-cmd
+net Zpos-cmd => zpid.command
+net Zpos-fb  => joint.2.motor-pos-fb
+net Zpos-fb  => comp_z.in1
+net Zpos-fb  => ddt_z.in

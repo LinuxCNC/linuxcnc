@@ -1,0 +1,64 @@
+G54 G18 G21
+F400
+
+
+O100 SUB
+	G0Z-12X14
+	G1Z-10X14
+	G1 X10 Z-10
+	G3 K5 I0 X5 Z-5
+	G1 X5 Z0
+	X-1
+	Z2
+O100 ENDSUB
+
+G70 Q100 X15 Z4 D1 P1
+G71 Q100 X-5 Z-14 D0.5 I1 R0.3
+G72 Q100 X15 Z4 D0.5 I1 R0.3
+
+#<_distance>=20
+O101 SUB
+	G0 X-1 Z[2+#<_distance>]
+	G1 X-1 Z[0+#<_distance>]
+	G1 X5 Z[0+#<_distance>]
+	G1 X5 Z[-5+#<_distance>]
+	G2 I5 K0 X10 Z[-10+#<_distance>]
+	G1 X14 Z[-10+#<_distance>]
+	G0 X14 Z[-12+#<_distance>]
+O101 ENDSUB
+
+G72 Q101 X-5 Z[-14+#<_distance>] D0.5 I1 R0.3
+G71 Q101 X15 Z[4+#<_distance>] D0.5 I1 R0.3
+G70 Q101 X15 Z[4+#<_distance>] D1 P1
+
+#<_distance>=[#<_distance>+12]
+O102 SUB
+	G0Z[12+#<_distance>]X14
+	G1Z[10+#<_distance>]X14
+	G1 X10 Z[10+#<_distance>]
+	G2 K-5 I0 X5 Z[5+#<_distance>]
+	G1 X5 Z[0+#<_distance>]
+	X-1
+	Z[-2+#<_distance>]
+O102 ENDSUB
+
+G71 Q102 X-5 Z[14+#<_distance>] D0.5 I1 R0.3
+G72 Q102 X15 Z[-4+#<_distance>] D0.5 I1 R0.3
+G70 Q102 X15 Z[-4+#<_distance>] D1 P1
+
+#<_distance>=[#<_distance>+20]
+O103 SUB
+	G0 X-1 Z[-2+#<_distance>]
+	G1 X-1 Z[-0+#<_distance>]
+	G1 X5 Z[-0+#<_distance>]
+	G1 X5 Z[5+#<_distance>]
+	G3 I5 K0 X10 Z[10+#<_distance>]
+	G1 X14 Z[10+#<_distance>]
+	G0 X14 Z[12+#<_distance>]
+O103 ENDSUB
+
+G72 Q103 X-5 Z[14+#<_distance>] D0.5 I1 R0.3
+G71 Q103 X15 Z[-4+#<_distance>] D0.5 I1 R0.3
+G70 Q103 X15 Z[-4+#<_distance>] D1 P1
+
+M2

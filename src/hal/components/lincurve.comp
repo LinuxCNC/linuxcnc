@@ -1,0 +1,69 @@
+component lincurve "one-dimensional lookup table";
+description """This component can be used to map any floating-point input to a
+floating-point output. Typical uses would include linearisation of
+thermocouples, defining PID gains that vary with external factors or to
+substitute for any mathematical function where absolute accuracy is not
+required.
+
+The component can be thought of as a 2-dimensional graph of points in (x,y)
+space joined by straight lines. The input value is located on the x axis,
+followed up until it touches the line, and the output of the component is set
+to the corresponding y-value.
+
+The (x,y) points are defined by the x-val-NN and y-val-NN parameters which need
+to be set in the HAL file using "setp" commands.
+
+The maximum number if (x,y) points supported is 16.
+
+For input values less than the x-val-00 breakpoint the y-val-00 is returned. 
+For x greater than the largest x-val-NN the yval corresponding to x-max is
+returned (ie, no extrapolation is performed.)
+
+Sample usage: loadrt lincurve count=3 personality=4,4,4 
+for a set of three 4-element graphs.
+ """;
+
+param rw float x-val-##[16 : personality] "axis breakpoints";
+param rw float y-val-##[16 : personality] "output values to be interpolated";
+
+pin in float in_ "The input value";
+pin out float out_ "The output value";
+pin io float out-io "The output value, compatible with PID gains";
+
+variable unsigned i = 0;
+
+option extra_setup 1;
+
+author "Andy Pugh";
+license "GPL";
+
+function _;
+
+;;
+
+FUNCTION(_){
+    double f, x;
+    x = in_;
+    if (x >= x_val(personality-1)) {
+        out_ = y_val(personality-1);
+        out_io = out_;
+        return;
+    }
+    if (x <= x_val(0)) {
+        out_ = y_val(0);
+        out_io = out_;
+        return;
+    }
+    while (x > x_val(i+1)) { i++;}
+    while (x < (x_val(i))) { i--;}
+    
+    f = (x - x_val(i))/(x_val(i+1)-x_val(i));
+    out_ = y_val(i) + f * (y_val(i+1) - y_val(i));
+    out_io = out_;
+}
+
+EXTRA_SETUP(){
+	if (personality > 16) personality = 16;
+	if (personality < 2) personality = 2;
+	return 0;
+}

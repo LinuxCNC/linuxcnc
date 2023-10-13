@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+
+    <labelframe text="Gripper">
+        <vbox>
+            <scale>
+                <halpin>"gripper"</halpin>
+                <resolution>1</resolution>
+                <orient>HORIZONTAL</orient>
+                <initval>0</initval>
+                <min_>-200</min_>
+                <max_>200</max_>
+            </scale>
+        </vbox>
+    </labelframe>
+
+</pyvcp>

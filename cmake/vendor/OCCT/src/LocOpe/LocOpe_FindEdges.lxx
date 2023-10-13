@@ -1,0 +1,93 @@
+// Created on: 1996-02-15
+// Created by: Jacques GOUSSARD
+// Copyright (c) 1996-1999 Matra Datavision
+// Copyright (c) 1999-2014 OPEN CASCADE SAS
+//
+// This file is part of Open CASCADE Technology software library.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License version 2.1 as published
+// by the Free Software Foundation, with special exception defined in the file
+// OCCT_LGPL_EXCEPTION.txt. Consult the file LICENSE_LGPL_21.txt included in OCCT
+// distribution for complete text of the license and disclaimer of any warranty.
+//
+// Alternatively, this file may be used under the terms of Open CASCADE
+// commercial license or contractual agreement.
+
+#include <TopoDS.hxx>
+
+//=======================================================================
+//function : LocOpe_FindEdges
+//purpose  : 
+//=======================================================================
+
+inline LocOpe_FindEdges::LocOpe_FindEdges()
+{}
+
+//=======================================================================
+//function : LocOpe_FindEdges
+//purpose  : 
+//=======================================================================
+
+inline LocOpe_FindEdges::LocOpe_FindEdges(const TopoDS_Shape& FFrom,
+					  const TopoDS_Shape& FTo)
+{
+  Set(FFrom,FTo);
+}
+
+
+//=======================================================================
+//function : InitIterator
+//purpose  : 
+//=======================================================================
+
+inline void LocOpe_FindEdges::InitIterator ()
+{
+  myItFrom.Initialize(myLFrom);
+  myItTo.Initialize(myLTo);
+}
+
+
+//=======================================================================
+//function : More
+//purpose  : 
+//=======================================================================
+
+inline Standard_Boolean LocOpe_FindEdges::More() const
+{
+  return myItFrom.More();
+}
+
+
+//=======================================================================
+//function : EdgeFrom
+//purpose  : 
+//=======================================================================
+
+inline const TopoDS_Edge& LocOpe_FindEdges::EdgeFrom() const
+{
+  return TopoDS::Edge(myItFrom.Value());
+}
+
+
+//=======================================================================
+//function : EdgeTo
+//purpose  : 
+//=======================================================================
+
+inline const TopoDS_Edge& LocOpe_FindEdges::EdgeTo() const
+{
+  return TopoDS::Edge(myItTo.Value());
+}
+
+
+//=======================================================================
+//function : Next
+//purpose  : 
+//=======================================================================
+
+inline void LocOpe_FindEdges::Next()
+{
+  myItFrom.Next();
+  myItTo.Next();
+}

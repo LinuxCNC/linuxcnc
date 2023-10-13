@@ -1,0 +1,25 @@
+INCLUDES += libnml/inifile
+
+$(patsubst ./libnml/inifile/%,../include/%,$(wildcard ./libnml/inifile/*.h)): ../include/%.h: ./libnml/inifile/%.h
+	cp $^ $@
+$(patsubst ./libnml/inifile/%,../include/%,$(wildcard ./libnml/inifile/*.hh)): ../include/%.hh: ./libnml/inifile/%.hh
+	cp $^ $@
+
+LIBINISRCS := libnml/inifile/inifile.cc
+$(call TOOBJSDEPS, $(LIBINISRCS)) : EXTRAFLAGS=-fPIC
+
+INIFILESRCS := libnml/inifile/inivar.cc
+
+USERSRCS += $(INIFILESRCS) $(LIBINISRCS)
+TARGETS += ../lib/liblinuxcncini.so ../lib/liblinuxcncini.so.0
+
+../lib/liblinuxcncini.so.0: $(call TOOBJS,$(LIBINISRCS))
+	$(ECHO) Creating shared library $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(Q)$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
+
+../bin/inivar: $(call TOOBJS, $(INIFILESRCS)) ../lib/liblinuxcncini.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ 
+TARGETS += ../bin/inivar

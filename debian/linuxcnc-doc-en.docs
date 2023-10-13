@@ -1,0 +1,15 @@
+usr/share/doc/linuxcnc/LinuxCNC_Developer.pdf
+usr/share/doc/linuxcnc/LinuxCNC_Documentation.pdf
+usr/share/doc/linuxcnc/LinuxCNC_Getting_Started.pdf
+usr/share/doc/linuxcnc/LinuxCNC_Integrator.pdf
+usr/share/doc/linuxcnc/LinuxCNC_Manual_Pages.pdf
+
+usr/share/doc/linuxcnc/AUTHORS
+usr/share/doc/linuxcnc/INSTALL.adoc
+usr/share/doc/linuxcnc/README.adoc
+usr/share/doc/linuxcnc/README.axis
+usr/share/doc/linuxcnc/axis_light_background
+usr/share/doc/linuxcnc/rtfaults.adoc
+usr/share/doc/linuxcnc/tklinuxcnc.adoc
+
+docs/html/gcode.html

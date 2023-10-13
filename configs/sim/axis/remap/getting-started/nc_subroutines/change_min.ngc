@@ -1,0 +1,12 @@
+o<change_min> sub
+(debug, change_min: loaded tool=#<current_tool> selected_pocket=#<selected_pocket>)
+
+; show aborting a change on tool 2 by returning a negative value
+;	o100 if [#<tool> EQ 2]
+;           o100 return [-1]
+;	o100 endif
+
+; succeed by returning a positive value
+; which will inspected by the epilog handler
+o<change_min> endsub [1]
+m2

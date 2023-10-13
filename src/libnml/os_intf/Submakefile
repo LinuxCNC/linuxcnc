@@ -1,0 +1,6 @@
+INCLUDES += libnml/os_intf
+
+$(patsubst ./libnml/os_intf/%,../include/%,$(wildcard ./libnml/os_intf/*.h)): ../include/%.h: ./libnml/os_intf/%.h
+	cp $^ $@
+$(patsubst ./libnml/os_intf/%,../include/%,$(wildcard ./libnml/os_intf/*.hh)): ../include/%.hh: ./libnml/os_intf/%.hh
+	cp $^ $@

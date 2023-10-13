@@ -1,0 +1,28 @@
+Esta configuración es para mi (petev) Bridgeport BOSS6. Muestra cómo usar el componente boss_plc. Está destinado a máquinas servo con tarjeta Motenc-100 o Motenc-Lite de Vitalsystems (www.vsi99.com).
+
+Puede tener un conexionado estándar o puede hacer uno nuevo que se adapte a su propio cableado personalizado. Los cambios se realizan en HAL (la capa de abstracción de hardware), que es muy flexible (lea más sobre esto en http://wiki.linuxcnc.org/)
+
+La configuración estándar asume que la tarjeta está instalada con el jumper de identificación de placa establecido en 0. Si se producen errores, intente ajustar el jumper.
+
+Se admiten varias tarjetas al leer la configuración de jumpers de identificación de la placa y usarlas como <boardId> en los nombres de HAL exportados. Hay dos jumpers en J3 de la placa motenc-100 que se definen como la identificación de la placa. La instalación de un puente hace que el bit correspondiente se lea como cero. Como hay dos puentes de identificación de placa, se admiten hasta cuatro tarjetas. El uso de la identificación de la placa permite que la configuración sea independiente de la ranura PCI a la que está conectada la tarjeta.
+
+Descripción detallada:
+
+* archivos nml
+
+-- utiliza un archivo nml predeterminado (que se encuentra en configs/common/linuxcnc.nml)
+
+* archivos hal
+
+-- boss.hal - este es el archivo hal principal para Motenc, carga el controlador del motor y establece los enlaces de movimiento y de E/S (como el número de pin donde está el interruptor de límite X, o donde está conectado el pin de arranque del husillo); está bastante bien comentado, por lo que debería ser fácil de leer/modificar. Esta configuración servo es principalmente para máquinas serias, por lo que ESTOP debería planearse/implementarse adecuadamente (eso significa usar una cadena ESTOP externa, y dejar que LinuxCNC lo sepa, y también que interrumpa la cadena externa). Lea más sobre esto en la wiki en http://wiki.linuxcnc.org/
+
+* archivos adicionales
+
+-- boss.tbl: este es el archivo de la tabla de herramientas y contiene las definiciones de las herramientas utilizadas, junto con los tamaños de herramienta para la compensación (longitud y diámetro de la herramienta)
+
+-- boss.var - el archivo de variables. El intérprete utiliza este archivo para guardar las variables internas cuando LinuxCNC se apaga y las vuelve a leer en el siguiente inicio.
+
+Más información específica se puede encontrar en la wiki de LinuxCNC:
+http://wiki.linuxcnc.org/
+
+

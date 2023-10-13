@@ -1,0 +1,3 @@
+ini_hal_demo
+
+Gui Axis que arranca una aplicacion sim_pin para demostrar como alterar valores ini soportados usando pines hal.

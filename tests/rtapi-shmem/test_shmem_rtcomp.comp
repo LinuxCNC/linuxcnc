@@ -1,0 +1,119 @@
+//  Copyright 2022 Sebastian Kuzminsky <seb@highlab.com>
+//
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of version 2 of the GNU General
+//  Public License as published by the Free Software Foundation.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+component test_shmem_rtcomp "Validate rtapi's shmem initialization behavior";
+
+option extra_setup;
+option extra_cleanup;
+option singleton;
+
+pin out bit ready = 0 "Goes true when shmem is initialized";
+
+function _;
+license "GPL";
+
+;;
+
+#include <rtapi.h>
+
+#define SHMEM_KEY 9999
+#define SHMEM_SIZE (4096 * 100) // in bytes
+
+int shmem_id = -1;
+void *mem = NULL;
+
+int shmem_alloc(void) {
+    int i;
+    int r;
+    uint8_t *p;
+
+    rtapi_print_msg(RTAPI_MSG_ERR, "allocating shmem\n");
+
+    shmem_id = rtapi_shmem_new(SHMEM_KEY, comp_id, SHMEM_SIZE);
+    if (shmem_id < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "failed to make new rtapi shmem\n");
+        return -EINVAL;
+    }
+
+    r = rtapi_shmem_getptr(shmem_id, &mem);
+    if (r < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "failed to get new rtapi shmem\n");
+        return -EINVAL;
+    }
+    if (mem == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "new rtapi shmem is NULL??\n");
+        return -EINVAL;
+    }
+
+    p = mem;
+    for (i = 0; i < SHMEM_SIZE; ++i) {
+        if (p[i] != 0x00) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "shmem is not initialized to 0x00!\n");
+            return -EINVAL;
+        }
+    }
+
+    rtapi_print_msg(RTAPI_MSG_ERR, "allocated shmem came initialized to all bytes zero\n");
+
+    return 0;
+}
+
+
+void shmem_free(void) {
+    if (shmem_id >= 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "freeing shmem\n");
+        rtapi_shmem_delete(shmem_id, comp_id);
+    }
+}
+
+
+EXTRA_SETUP() {
+    int i;
+    int r;
+    uint8_t *p;
+
+    r = shmem_alloc();
+    if (r < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "failed to alloc shmem\n");
+        return -EINVAL;
+    }
+
+    // dirty the shmem
+    p = mem;
+    for (i = 0; i < SHMEM_SIZE; ++i) {
+        p[i] = i % 256;
+    }
+
+    shmem_free();
+
+    r = shmem_alloc();
+    if (r < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "failed to alloc shmem\n");
+        return -EINVAL;
+    }
+
+    return 0;
+}
+
+
+EXTRA_CLEANUP() {
+    shmem_free();
+}
+
+
+FUNCTION(_) {
+    ready = 1;
+}
+

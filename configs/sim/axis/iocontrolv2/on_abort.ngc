@@ -1,0 +1,67 @@
+; superseded: nc_files/remap_lib/common_nc_subs/on_abort.ngc
+
+
+; This oword sub is called on IoAborts if so defined in the ini file
+;
+; to activate, incantate as follows:
+;
+; [RS274NGC]
+; # handler gsub called on IoAborts - to cleanup HAL pins etc
+; ON_ABORT_COMMAND=o<on_abort>call
+;
+; the reason code is passed as parameter #1 and is taken from
+; the below enum in src/emc/nml_intf/emc.hh :
+;
+; // types for emcIoAbort() reasons
+; enum EMC_IO_ABORT_REASON_ENUM {
+;    EMC_ABORT_TASK_EXEC_ERROR = 1,
+;    EMC_ABORT_AUX_ESTOP = 2,
+;    EMC_ABORT_MOTION_OR_IO_RCS_ERROR = 3,
+;    EMC_ABORT_TASK_STATE_OFF = 4,
+;    EMC_ABORT_TASK_STATE_ESTOP_RESET = 5,
+;    EMC_ABORT_TASK_STATE_ESTOP = 6,
+;    EMC_ABORT_TASK_STATE_NOT_ON = 7,
+;    EMC_ABORT_TASK_ABORT = 8,
+;    EMC_ABORT_USER = 100  // user-defined abort codes start here
+; };
+; see src/emc/emc/task/emctask.cc and emctaskmain.cc for context where this 
+; is called
+;
+O<on_abort> sub
+ (DEBUG, on_abort called, reason = [#1])
+o<if1> if [#1 EQ 1] 
+          (DEBUG, on_abort called: EMC_ABORT_TASK_EXEC_ERROR)
+o<if1> endif
+o<if2> if [#1 EQ 2] 
+          (DEBUG, on_abort called: EMC_ABORT_AUX_ESTOP)
+o<if2> endif
+o<if3> if [#1 EQ 3] 
+          (DEBUG, on_abort called: EMC_ABORT_MOTION_OR_IO_RCS_ERROR)
+o<if3> endif
+o<if4> if [#1 EQ 4] 
+          (DEBUG, on_abort called: EMC_ABORT_TASK_STATE_OFF)
+o<if4> endif
+o<if5> if [#1 EQ 5] 
+          (DEBUG, on_abort called: EMC_ABORT_TASK_STATE_ESTOP_RESET)
+o<if5> endif
+o<if6> if [#1 EQ 6] 
+          (DEBUG, on_abort called: EMC_ABORT_TASK_STATE_ESTOP)
+o<if6> endif
+o<if7> if [#1 EQ 7] 
+          (DEBUG, on_abort called: EMC_ABORT_TASK_STATE_NOT_ON)
+o<if7> endif
+o<if8> if [#1 EQ 8] 
+          (DEBUG, on_abort called: EMC_ABORT_TASK_ABORT)
+o<if8> endif
+; (DEBUG, deasserting motion.digital-out-00 as iocontrol.tool-prepare)
+;
+M65 P0
+
+; assert the equivalent of the iocontrol.tool-change pin
+; which is now motion.digital-out-01
+;(DEBUG, deasserting motion.digital-out-01)
+M65 P1
+g0 ; see if this syncs motion
+;
+O<on_abort> endsub
+;

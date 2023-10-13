@@ -1,0 +1,9 @@
+# #########################################
+# Example hal file showing some linkages
+# of pyvcp_widgets
+
+# second row of dials and scales
+net dial2scale0 pyvcp.scale.0.param_pin <= pyvcp.dial0
+net dial2scale1 pyvcp.scale.1.param_pin <= pyvcp.dial1
+net dial2scale2 pyvcp.scale.2.param_pin <= pyvcp.dial2
+net dial2scale3 pyvcp.scale.3.param_pin <= pyvcp.dial3

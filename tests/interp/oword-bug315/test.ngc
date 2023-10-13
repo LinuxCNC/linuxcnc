@@ -1,0 +1,14 @@
+o123 sub
+o200 if [5 le 0.01]
+o123 return
+o200 endif
+o124 while [1]
+(debug,breaking out of sub)
+o124 break
+o124 endwhile
+o123 endsub
+
+(debug,running sub)
+o123 call
+(debug,done)
+m02

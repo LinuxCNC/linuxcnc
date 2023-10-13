@@ -1,0 +1,581 @@
+#!/usr/bin/wish
+
+if [catch {package require Hal} msg] {
+  puts "\nProblem: $msg"
+  puts "Is linuxcnc installed?"
+  puts "If using Run-In-Place build, source scripts/rip-environment first"
+  exit 1
+}
+
+proc usage {} {
+  puts "
+  Usage:
+         $::SP(progname) \[Options\] name1 \[name2 ...\] &
+
+  Options:
+         --help                (this text)
+         --title title_string  (window title, default: $::SP(progname))
+
+  Note:  LinuxCNC (or a standalone Hal application) must be running
+         A named item can specify a pin, param, or signal
+         The item must be writable, e.g.:
+            pin:    IN or I/O (and not connected to a signal with a writer)
+            param:  RW
+            signal: connected to a writable pin
+
+         Hal item types bit,s32,u32,float are supported
+
+         When a bit item is specified, a pushbutton is created
+         to manage the item in one of three manners specified
+         by radio buttons:
+             toggle: Toggle value when button pressed
+             pulse:  Pulse item to 1 once when button pressed
+             hold:   Set to 1 while button pressed
+         The bit pushbutton mode can be specified on the command
+         line by formatting the item name:
+             namei/mode=\[toggle | pulse | hold\]
+         If the bit item mode begins with an uppercase letter,
+         the radio buttons for selecting other modes are not shown
+"
+  exit 1
+} ;# usage
+
+proc add_item_to_gui {id itemname} {
+  set l [split $itemname /]
+  set itemname [lindex $l 0]
+  set itemargs [lindex $l 1]
+  set ::SP($id,onemode) 0
+  if { [string first "mode=" "$itemargs"] == 0} {
+    set themode [lindex [split $itemargs =] 1]
+    set firstchar [string range "$themode" 0 0]
+    if {[string first "$firstchar" "PTH"] >= 0} {
+      set ::SP($id,onemode) 1
+    }
+    set ::SP($id,mode) [string tolower $themode]
+  } else {
+    set ::SP($id,mode) "default"
+  }
+
+  set ::SP($id,itemname) $itemname
+  if ![item_info $itemname $id] {
+    puts "$::SP(message)"
+    return 0
+  } else {
+    puts "$::SP(message)"
+  }
+
+  if {   ![info exists ::SP(vframe)] \
+      || ($::SP(vframe,ct) >= $::SP(vframe,vct)) } {
+    set ::SP(vframe,ct) 0
+    incr ::SP(vframe,column)
+    set ::SP(vframe) [frame .vf-$::SP(vframe,column)]
+    pack $::SP(vframe) -side left -fill both -expand 1
+  }
+  incr ::SP(vframe,ct)
+
+  set vf $::SP(vframe)
+  set f [frame ${vf}.f$id -borderwidth 3 -relief ridge]
+  pack [label $f.hdr -bg lightgray -fg blue \
+       -borderwidth 0 -relief raised \
+       -text "$::SP($id,itemname)"] \
+       -fill x -expand 1
+
+  switch $::SP($id,itemtype) {
+    bit   {add_bit_item_to_gui $f $id}
+    s32 -
+    u32   {add_number_item_to_gui $f $id 1}
+    float {add_number_item_to_gui $f $id 0}
+    default {return -code error \
+        "add_item_to_gui: unexpected itemtype <$::SP($id,itemtype)>"
+    }
+  }
+  return 1
+} ;# add_item_to_gui
+
+proc add_bit_item_to_gui {f id} {
+  switch -nocase $::SP($id,mode) {
+    pulse   -
+    hold    -
+    toggle  {}
+    default {
+      if {"$::SP($id,mode)" != "default"} {
+        puts "$::SP($id,itemname): unknown </mode=$::SP($id,mode)>,\
+              using /mode=$::SP(bit,mode,default)"
+      }
+      set ::SP($id,mode) $::SP(bit,mode,default)
+    }
+  }
+  set value [get_item $id]
+  set color lightgray
+  if $value {set color magenta}
+  pack [label $f.b \
+       -text "$::SP($::SP($id,mode),text)" \
+       -borderwidth 4 -relief raised ] \
+       -fill x -expand 1
+  set ::SP($id,button) $f.b
+  bind $::SP($id,button) <ButtonRelease-1> [list b_release $id]
+  bind $::SP($id,button) <ButtonPress-1>   [list b_press   $id]
+
+  set ::SP($id,ivalue) "$value"
+  pack [label $f.l -bg $color -fg black \
+       -text "$::SP(iprefix)$::SP($id,ivalue) $::SP(prefix)$value"] \
+       -fill x -expand 1
+  set ::SP($id,label) $f.l
+
+  if {!$::SP($id,onemode)} {
+    pack [radiobutton $f.p -text OnePulse \
+         -anchor w \
+         -value "pulse" \
+         -command [list bit_mode $id] \
+         -variable ::SP($id,mode)] \
+         -fill x -expand 0
+    pack [radiobutton $f.t -text ToggleValue \
+         -anchor w \
+         -value "toggle" \
+         -command [list bit_mode $id] \
+         -variable ::SP($id,mode)] \
+         -fill x -expand 0
+    pack [radiobutton $f.h -text "1 WhilePressed" \
+         -anchor w \
+         -value "hold" \
+         -command [list bit_mode $id] \
+         -variable ::SP($id,mode)] \
+         -fill x -expand 0
+  }
+  pack $f -side top -fill x -expand 0
+} ;# add_bit_item_to_gui
+
+proc add_number_item_to_gui {f id enable_plusminus} {
+  set value [get_item $id]
+  set color lightgray
+  pack [frame $f.one] -fill x -expand 1
+  pack [button $f.one.b  -bg $color -fg black \
+       -text "Set    " \
+       -relief raised -bd 3 \
+       -command [list b_press $id] ]\
+       -side left -fill x -expand 1
+
+  if $enable_plusminus {
+    pack [button $f.one.m  -bg $color -fg black \
+       -text "-" \
+       -relief raised -bd 3 \
+       -command [list minus_number_item $id] ]\
+       -side left -fill x -expand 1
+
+    pack [button $f.one.p  -bg $color -fg black \
+       -text "+" \
+       -relief raised -bd 3 \
+       -command [list plus_number_item $id] ]\
+       -side left -fill x -expand 1
+  }
+
+  pack [button $f.one.r  -bg $color -fg black \
+       -text "Reset" \
+       -relief raised -bd 3 \
+       -command [list reset_number_item $id] ]\
+       -side left -fill x -expand 1
+  set e [entry $f.e \
+       -justify right \
+       -textvariable ::SP($id,entry)]
+  pack $e -fill x -expand 0
+  bind $e <Return> [list b_press $id]
+
+  set ::SP($id,ivalue) "$value"
+  pack [label $f.l -bg $color -fg black \
+       -anchor w \
+       -text "$::SP(iprefix)$::SP($id,ivalue) $::SP(prefix)$value"] \
+       -fill x -expand 1
+  set ::SP($id,label) $f.l
+  if {$::SP($id,itemtype) == "u32"} {
+    pack [label $f.hexl -bg $color -fg black \
+         -anchor w \
+         -text "$::SP(iprefix)[format %#X $::SP($id,ivalue)] \
+                 $::SP(prefix)[format %#X $value]"] \
+         -fill x -expand 1
+    set ::SP($id,hexlabel) $f.hexl
+  }
+  pack $f -side top -fill x -expand 0
+} ;# add_number_item_to_gui
+
+proc exact_name {name line} {
+  set idx [string first $name $line]
+  if {$idx < 0} {return 0}
+  if {0 == [string compare $name [string range $line $idx end]]} {
+    return 1
+  }
+  return 0
+} ;# exact_name
+
+proc connected_to {name line} {
+  # check if an input pin is already connected to a signal
+  # since it does not necessarily have a writer
+  set idx [string first $name $line]
+  if {$idx < 0} {return ""}
+  # check if pin is an input
+  if {-1 != [string first "$name <==" [string range $line $idx end]]} {
+    set idx [string first "<==" $line]
+    set signame [string range $line [expr 4 + $idx] end]
+    return  "$signame"
+  }
+  return ""
+} ;# connected_to
+
+proc item_info {itemname id} {
+  set fmt "sim_pin: %-30s %5s %3s %s"
+  set theitem "-----"
+  set dir "---"
+  set found 0
+
+  # try pin:
+  set answer [hal show pin "$itemname"]
+  set lines [split $answer \n]
+  set lines [lreplace $lines 0 1] ;# discard header lines
+  # look for exact match (hal show will present all matching leading part)
+  foreach line $lines {
+    if {"$line" == ""} continue
+    if [exact_name $itemname $line] {
+      set found 1
+      set theitem "PIN"
+      break
+    }
+    set signame [connected_to $itemname $line]
+    if {"" !=  "$signame"} {
+      puts "pin <$itemname> is already connected, trying signal:<$signame>"
+      set itemname $signame
+      set ::SP($id,itemname) $itemname
+    }
+  }
+  if !$found {
+    # try param:
+    set answer [hal show param "$itemname"]
+    set lines [split $answer \n]
+    set lines [lreplace $lines 0 1] ;# discard header lines
+    # look for exact match (hal show will present all matching leading part)
+    foreach line $lines {
+      if {"$line" == ""} continue
+      if [exact_name $itemname $line] {
+        set found 1
+        set theitem "PARAM"
+        break
+      }
+    }
+  }
+  if !$found {
+    # try signal:
+    set answer [hal show signal "$itemname"]
+    set lines [split $answer \n]
+    set lines [lreplace $lines 0 1] ;# discard header lines
+    # look for exact match (hal show will present all matching leading part)
+    foreach line $lines {
+      if {"$line" == ""} continue
+      if [exact_name $itemname $line] {
+        set found 1
+        scan $line "%s %s" sigtype other
+        switch $sigtype {
+          bit -
+          u32 -
+          s32 -
+          float {set theitem SIG}
+          default {
+            set ::SP(message) \
+                "Unknown type for signal item <$id $::SP($id,itemname) $sigtype>"
+            return 0
+          }
+        }
+        break
+      }
+    }
+  }
+  if !$found {
+    set ::SP(message) "Unknown item: $::SP($id,itemname)"
+    return 0
+  }
+  switch $theitem {
+    PIN -
+    PARAM {
+      scan $line "%d %s %s %s %s %s %s" owner type dir value name arrows signalname
+      if {    ("$dir" == "IN") || ("$dir" == "I/O") || "$dir" == "RW"} {
+        if [info exists arrows] {
+          set ::SP(message) [format $fmt \
+              $itemname $theitem $dir "not writable (connected to signal)"]
+          return 0
+        } else {
+          #puts "OK <$dir> $line"
+        }
+      } else {
+        set ::SP(message) [format $fmt \
+            $itemname $theitem $dir "not writable"]
+        return 0
+      }
+    }
+    SIG {
+      set sig_header_ct 0
+      foreach line $lines {
+        if {   ([string first "<==" $line] < 0) \
+            && ([string first "==>" $line] < 0) \
+        } {
+          incr sig_header_ct
+        }
+        if {[string first "<==" $line] >= 0} {
+           set has_writer 1
+        }
+      }
+      if {$sig_header_ct > 4} {
+        # wild cards not supported:
+        set ::SP(message) "Unknown item: $::SP($id,itemname)"
+        return 0
+      }
+      if [info exists has_writer] {
+        set ::SP(message) [format $fmt \
+            $itemname $theitem $dir "signal has writer"]
+        return 0
+      } else {
+        set theitem "SIG"
+        set is_signal 1
+      }
+    }
+  }
+
+  if [info exists is_signal] {
+    set ::SP($id,itemtype) $sigtype
+    set ::SP($id,set_cmd) sets
+    set ::SP($id,get_cmd) gets
+  } else {
+    set ::SP($id,itemtype) [hal ptype $itemname]
+    set ::SP($id,set_cmd) setp
+    set ::SP($id,get_cmd) getp
+  }
+  set ::SP(message) [format $fmt $itemname $theitem $dir ""]
+  return 1 ;# ok
+} ;# item_info
+
+proc bit_mode {id} {
+  switch -nocase $::SP($id,mode) {
+    pulse   {$::SP($id,button) config -text Pulse}
+    hold    {$::SP($id,button) config -text "1 while pressed"}
+    toggle  -
+    default {$::SP($id,button) config -text Toggle}
+  }
+} ;# bit_mode
+
+proc item_set {id {new_value 0}} {
+  if [catch {
+    switch $::SP($id,itemtype) {
+      bit {hal $::SP($id,set_cmd) $::SP($id,itemname) 1}
+      s32 -
+      u32 -
+      float {hal $::SP($id,set_cmd) $::SP($id,itemname) $new_value}
+    }
+  } msg ] {
+    popup $msg
+    return
+  }
+  item_show $id
+} ;# item_set
+
+proc item_unset {id} {
+  if [catch {hal $::SP($id,set_cmd) $::SP($id,itemname) 0} msg] {
+    popup $msg
+  }
+  set value [get_item $id]
+  set color lightgray
+  if $value {set color magenta}
+  $::SP($id,label) configure -bg $color -fg black \
+       -text "$::SP(iprefix)$::SP($id,ivalue) $::SP(prefix)$value"
+} ;# item_unset
+
+proc item_show {id} {
+  set value [get_item $id]
+  set color lightgray
+  if {$value != $::SP($id,ivalue)}  {set color magenta}
+  switch $::SP($id,itemtype) {
+    bit {
+          $::SP($id,label) configure -bg $color \
+       -text "$::SP(iprefix)$::SP($id,ivalue) $::SP(prefix)$value"
+    }
+    s32 - \
+    u32 - \
+    float {$::SP($id,label) configure -bg $color -fg black \
+       -text "$::SP(iprefix)$::SP($id,ivalue) $::SP(prefix)$value"
+    }
+  }
+  if {$::SP($id,itemtype) == "u32"} {
+    $::SP($id,hexlabel) configure -bg $color -fg black \
+       -text "$::SP(iprefix)[format %#X $::SP($id,ivalue)] \
+               $::SP(prefix)[format %#X $value]"
+  }
+} ;# item_show
+
+proc b_press {id} {
+  set value [get_item $id]
+  switch $::SP($id,itemtype) {
+    bit {switch -nocase $::SP($id,mode) {
+          "hold"   {item_set $id}
+          "toggle" {   if $value {
+                         item_unset $id
+                       } else {
+                         item_set $id
+                       }
+                   }
+          "pulse"  {item_set $id; after $::SP(pulse,ms) [list b_release $id]}
+          }
+        }
+    s32 - \
+    u32 - \
+    float {
+      set e $::SP($id,entry)
+      if ![isnumber $e] {
+        if [catch {set e [expr $::SP($id,entry)]} msg] {
+          popup "Invalid Expression (<$e>)"
+          set ::SP($id,entry) ""
+          return
+        } else {
+          switch $e {
+            Inf - NaN {
+              popup "Bad expr result: <$e>"
+              set ::SP($id,entry) ""
+              return
+            }
+          }
+        }
+      }
+
+      # Note: halcmd rejects numbers formatted 'nEmm' for s32, u32
+
+      if {   (($::SP($id,itemtype) == "s32") || ($::SP($id,itemtype) == "u32")) \
+          && ![isinteger $e]} {
+        popup "Integer required for u32,s32 entry (not <$e>)"
+        return
+      }
+      if {   ($::SP($id,itemtype) == "u32") \
+          && [isnegative $e]} {
+        popup "Nonnegative Integer required for u32 entry (not <$e>)"
+        return
+      }
+      item_set $id $e
+    }
+    default {return -code error \
+        "b_press: unknown pin type <$::SP($id,itemtype)> for $::SP($id,itemname)"
+    }
+  }
+} ;# b_press
+
+proc b_release {id} {
+  switch -nocase $::SP($id,mode) {
+    "hold"   {item_unset $id}
+    "toggle" {}
+    "pulse"  {item_unset $id}
+  }
+} ;# b_release
+
+proc reset_number_item {id} {
+  item_set $id $::SP($id,ivalue)
+} ;# reset_number_item
+
+proc plus_number_item {id} {
+  item_set $id [expr 1 + [get_item $id]]
+} ;# plus_number_item
+
+proc minus_number_item {id} {
+  item_set $id [expr -1 + [get_item $id]]
+} ;# minus_number_item
+
+proc get_item {id} {
+  set value [hal $::SP($id,get_cmd) $::SP($id,itemname)]
+  switch $::SP($id,itemtype) {
+    bit {
+      switch $value {
+        FALSE {return 0}
+        TRUE  {return 1}
+      }
+    }
+    s32 -
+    u32 -
+    float   {return $value}
+    default {return -code error \
+        "get_item: unknown item type <$::SP($id,itemtype)> for $::SP($id,itemname)"
+    }
+  }
+} ;# get_item
+
+proc update_current_values {} {
+  for {set id 0} {$id < $::SP(id)} {incr id} {
+     item_show $id
+  }
+  after $::SP(update,ms) update_current_values
+} ;# update_current_values
+
+proc isinteger {v} {
+  if ![isnumber $v]            {return 0}
+  if {[string first . $v] >=0} {return 0}
+  if {[string first e [string tolower $v]] >= 0} {return 0}
+  return 1
+} ;# isinteger
+
+proc isnumber {v} {
+  if [catch {format %f $v}] {
+    return 0
+  } else {
+    return 1
+  }
+} ;# isnumber
+
+proc isnegative {v} {
+  # Note:check with isnumber before this
+  if {[format %f $v] < 0} {return 1}
+  return 0
+} ;# isnegative
+
+proc popup msg {
+  tk_messageBox \
+    -type ok \
+    -title "$::SP(progname): Problem" \
+    -message $msg
+} ;# popup
+
+if [catch {
+  if {[info exists ::argv0] && [info script] == $::argv0} {
+    set ::SP(progname) [file tail $::argv0]
+    set ::SP(update,ms) 300
+    if {$::argv == ""} {usage}
+
+    set ::SP(bit,mode,default) toggle
+    # button text for bit item modes:
+    set ::SP(pulse,text)  "Pulse"
+    set ::SP(hold,text)   "1 while Pressed"
+    set ::SP(toggle,text) "Toggle"
+
+    set ::SP(id) 0
+    set ::SP(vframe,column) 0
+    set ::SP(vframe,vct) 4         ;# howmany items in a column
+    set ::SP(iprefix) "Initial="   ;# initial value prefix
+    set ::SP(prefix) "Current="    ;# current value prefix
+    set ::SP(pulse,ms) 200         ;# pulse duration
+    set ::SP(title) $::SP(progname)
+
+    set currentarg [lindex $::argv 0]
+    while {[string first "-" $currentarg] == 0} {
+      switch -- $currentarg {
+        --help  {usage}
+        --title {set ::SP(title) [lindex $::argv 1]
+                 set ::argv [lreplace $::argv 0 0]
+                }
+      }
+      set ::argv [lreplace $::argv 0 0]
+      set currentarg [lindex $::argv 0]
+    }
+
+    foreach itemname $::argv {
+      if [add_item_to_gui $::SP(id) $itemname] {
+        incr ::SP(id)
+      }
+    }
+
+    wm title . $::SP(title)
+    if {$::SP(id) < 1} usage
+    update_current_values
+  }
+} msg] {
+  puts "\nError: $msg"
+  usage
+}

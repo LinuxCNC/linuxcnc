@@ -1,0 +1,21 @@
+.TH hal_set_lock "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
+.SH NAME
+
+hal_set_lock, hal_get_lock \- Set or get the HAL lock level
+
+.SH SYNTAX
+.HP
+int hal_set_lock(unsigned char \fIlock_type\fR)
+
+.HP
+int hal_get_lock()
+
+.SH  ARGUMENTS
+.IP \fIlock_type\fR
+The desired lock type, which may be a bitwise combination of: \fBHAL_LOCK_LOAD\fR, \fBHAL_LOCK_CONFIG\fR, \fBHAL_LOCK_PARAMS\fR, or \fBHAL_LOCK_PARAMS\fR.  \fBHAL_LOCK_NONE\fR or 0 locks nothing, and \fBHAL_LOCK_ALL\fB locks everything.
+
+.SH DESCRIPTION
+
+.SH RETURN VALUE
+\fBhal_set_lock\fR Returns a HAL status code.  \fBhal_get_lock\fR returns the
+current HAL lock level or a HAL status code.

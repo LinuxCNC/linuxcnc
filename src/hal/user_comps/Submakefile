@@ -1,0 +1,112 @@
+USER_COMP_PY = pyvcp hal_input gladevcp scorbot-er-3 mitsub_vfd pmx485 sim-torch z_level_compensation mqtt-publisher
+
+USER_COMPS := $(sort $(wildcard hal/user_comps/*.comp))
+USER_COMP_BINS := $(patsubst hal/user_comps/%.comp, ../bin/%, $(USER_COMPS))
+USER_COMP_MANPAGES := $(patsubst hal/user_comps/%.comp, ../docs/man/man1/%.1, $(USER_COMPS))
+USER_COMP_SRCS := $(patsubst %.comp, objects/%.c, $(USER_COMPS))
+GENERATED_MANPAGES += $(USER_COMP_MANPAGES)
+USERSRCS += $(USER_COMP_SRCS)
+
+$(patsubst %, ../bin/%, $(USER_COMP_PY)) : ../bin/%: hal/user_comps/%.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -m py_compile $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+
+PYTARGETS += $(patsubst %, ../bin/%, $(USER_COMP_PY))
+
+
+ifdef HAVE_LIBMODBUS3
+
+GS2_SRCS := hal/user_comps/gs2_vfd.c
+GS2_LDFLAGS := $(GLIB_LIBS) $(LIBMODBUS_LIBS)
+GS2_CCFLAGS := $(GLIB_CFLAGS) $(LIBMODBUS_CFLAGS)
+
+$(call TOOBJSDEPS, $(GS2_SRCS)) : EXTRAFLAGS += $(GS2_CCFLAGS)
+
+../bin/gs2_vfd: $(call TOOBJS, $(GS2_SRCS)) ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(GS2_LDFLAGS)
+
+USERSRCS += $(GS2_SRCS)
+TARGETS += ../bin/gs2_vfd
+
+HY_GT_SRCS := hal/user_comps/hy_gt_vfd.c
+HY_GT_LDFLAGS := $(LIBMODBUS_LIBS)
+HY_GT_CCFLAGS := $(LIBMODBUS_CFLAGS)
+
+$(call TOOBJSDEPS, $(HY_GT_SRCS)) : EXTRAFLAGS += $(HY_GT_CCFLAGS)
+
+../bin/hy_gt_vfd: $(call TOOBJS, $(HY_GT_SRCS)) ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(HY_GT_LDFLAGS)
+
+USERSRCS += $(HY_GT_SRCS)
+TARGETS += ../bin/hy_gt_vfd
+
+SVD_PS_SRCS := hal/user_comps/svd-ps_vfd.c
+SVD_PS_LDFLAGS := $(LIBMODBUS_LIBS)
+SVD_PS_CCFLAGS := $(LIBMODBUS_CFLAGS)
+
+$(call TOOBJSDEPS, $(SVD_PS_SRCS)) : EXTRAFLAGS += $(SVD_PS_CCFLAGS)
+
+../bin/svd-ps_vfd: $(call TOOBJS, $(SVD_PS_SRCS)) ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(SVD_PS_LDFLAGS)
+
+USERSRCS += $(SVD_PS_SRCS)
+TARGETS += ../bin/svd-ps_vfd
+
+endif # HAVE_LIBMODBUS
+
+
+ifeq ($(HIDRAW_H_USABLE),yes)
+SHUTTLE_SRC = hal/user_comps/shuttle.c
+USERSRCS += $(SHUTTLE_SRC)
+../bin/shuttle: $(call TOOBJS, $(SHUTTLE_SRC)) ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^
+TARGETS += ../bin/shuttle
+endif
+
+ifdef HAVE_LIBUSB10
+XHC_HB04_SRC = hal/user_comps/xhc-hb04.cc
+USERSRCS += $(XHC_HB04_SRC)
+$(call TOOBJSDEPS, $(XHC_HB04_SRC)) : EXTRAFLAGS += $(LIBUSB10_CFLAGS)
+../bin/xhc-hb04: $(call TOOBJS, $(XHC_HB04_SRC)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ -lm $(LIBUSB10_LIBS)
+TARGETS += ../bin/xhc-hb04
+endif # HAVE_LIBUSB10
+
+SENDKEYS_SRC = hal/user_comps/sendkeys.c
+USERSRCS += $(SENDKEYS_SRC)
+../bin/sendkeys: $(call TOOBJS, $(SENDKEYS_SRC)) ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^
+TARGETS += ../bin/sendkeys
+
+$(patsubst ./hal/user_comps/%,../include/%,$(wildcard ./hal/user_comps/*.h)): ../include/%.h: ./hal/user_comps/%.h
+	cp $^ $@
+$(patsubst ./hal/user_comps/%,../include/%,$(wildcard ./hal/user_comps/*.hh)): ../include/%.hh: ./hal/user_comps/%.hh
+	cp $^ $@
+
+$(USER_COMP_MANPAGES): ../docs/man/man1/%.1: hal/user_comps/%.comp ../bin/halcompile
+	$(ECHO) Making halcompile manpage $(notdir $@)
+	@mkdir -p $(dir $@)
+	$(Q)../bin/halcompile -U --userspace --document -o $@ $<
+
+$(USER_COMP_SRCS): objects/%.c: %.comp ../bin/halcompile
+	$(ECHO) "Preprocessing $(notdir $<)"
+	@mkdir -p $(dir $@)
+	$(Q)../bin/halcompile -U --userspace --require-license -o $@ $<
+
+$(USER_COMP_BINS): ../bin/%: objects/objects/hal/user_comps/%.o ../lib/liblinuxcnchal.so
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lm -lstdc++
+
+.PHONY: user-comps
+user-comps: $(USER_COMP_BINS)
+
+TARGETS += $(patsubst %.comp, ../bin/%, $(notdir $(USER_COMPS)))
+#modules: $(patsubst %.comp, objects/%.c, $(COMPS) $(COMP_DRIVERS))

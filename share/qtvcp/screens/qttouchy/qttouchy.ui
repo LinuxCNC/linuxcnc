@@ -1,0 +1,3953 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>917</width>
+    <height>698</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="ScreenOptions" name="screen_options">
+      <property name="focusOverlay_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="entryDialog_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="entryDialogSoftkey_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="toolDialog_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="toolOffsetDialog_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="originOffsetDialog_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="calculatorDialog_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <layout class="QGridLayout" name="gridLayout_6">
+           <item row="3" column="0">
+            <widget class="StatusImageSwitcher" name="statusimageswitcher_2">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="pixmap">
+              <pixmap>../../images/ref_all_not_22x22.png</pixmap>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="image_list" stdset="0">
+              <stringlist>
+               <string>ref_all_not_22x22.png</string>
+               <string>clear_22x22.png</string>
+              </stringlist>
+             </property>
+             <property name="watch_all_homed" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="watch_axis_homed" stdset="0">
+              <bool>true</bool>
+             </property>
+             <property name="axis_letter" stdset="0">
+              <string>Y</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="StatusImageSwitcher" name="statusimageswitcher_3">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="pixmap">
+              <pixmap>../../images/ref_all_not_22x22.png</pixmap>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="image_list" stdset="0">
+              <stringlist>
+               <string>ref_all_not_22x22.png</string>
+               <string>clear_22x22.png</string>
+              </stringlist>
+             </property>
+             <property name="watch_all_homed" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="watch_axis_homed" stdset="0">
+              <bool>true</bool>
+             </property>
+             <property name="axis_letter" stdset="0">
+              <string>Z</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="DROLabel" name="dro_label_6">
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="Qjoint_number" stdset="0">
+              <number>1</number>
+             </property>
+             <property name="Qreference_type" stdset="0">
+              <number>1</number>
+             </property>
+             <property name="metric_template" stdset="0">
+              <string>Y %10.3f</string>
+             </property>
+             <property name="imperial_template" stdset="0">
+              <string>Y %9.4f</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="DROLabel" name="dro_label_2">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;X &lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;%10.3f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="Qjoint_number" stdset="0">
+              <number>0</number>
+             </property>
+             <property name="Qreference_type" stdset="0">
+              <number>1</number>
+             </property>
+             <property name="metric_template" stdset="0">
+              <string>X %10.3f</string>
+             </property>
+             <property name="imperial_template" stdset="0">
+              <string>X %9.4f</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="DROLabel" name="dro_label_4">
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="Qjoint_number" stdset="0">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="2">
+            <widget class="DROLabel" name="dro_label_7">
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="Qjoint_number" stdset="0">
+              <number>2</number>
+             </property>
+             <property name="Qreference_type" stdset="0">
+              <number>1</number>
+             </property>
+             <property name="metric_template" stdset="0">
+              <string>Z %10.3f</string>
+             </property>
+             <property name="imperial_template" stdset="0">
+              <string>Z %9.4f</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="3">
+            <widget class="DROLabel" name="dro_label_8">
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="Qjoint_number" stdset="0">
+              <number>1</number>
+             </property>
+             <property name="Qreference_type" stdset="0">
+              <number>2</number>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="3">
+            <widget class="DROLabel" name="dro_label_9">
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="Qjoint_number" stdset="0">
+              <number>2</number>
+             </property>
+             <property name="Qreference_type" stdset="0">
+              <number>2</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="StatusLabel" name="statuslabel_7">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; color:#000000;&quot;&gt;G100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="textTemplate" stdset="0">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; color:#000000;&quot;&gt;G%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="user_system_status" stdset="0">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="StatusImageSwitcher" name="statusimageswitcher">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="pixmap">
+              <pixmap>../../images/ref_all_not_22x22.png</pixmap>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="image_list" stdset="0">
+              <stringlist>
+               <string>ref_all_not_22x22.png</string>
+               <string>clear_22x22.png</string>
+              </stringlist>
+             </property>
+             <property name="watch_all_homed" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="watch_axis_homed" stdset="0">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="DROLabel" name="dro_label_5">
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="Qjoint_number" stdset="0">
+              <number>2</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLabel" name="label_4">
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
+             </property>
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;DTG&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="scaledContents">
+              <bool>true</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="label_3">
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
+             </property>
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Absolute&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="DROLabel" name="dro_label_1">
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="metric_template" stdset="0">
+              <string>%10.3f</string>
+             </property>
+             <property name="imperial_template" stdset="0">
+              <string>%9.4f</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="DROLabel" name="dro_label_3">
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="Qjoint_number" stdset="0">
+              <number>0</number>
+             </property>
+             <property name="Qreference_type" stdset="0">
+              <number>2</number>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="2">
+            <widget class="JointEnableWidget" name="jointEnableWidget_3">
+             <layout class="QVBoxLayout" name="verticalLayout_28">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="DROLabel" name="dro_label_11">
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="Qjoint_number" stdset="0">
+                 <number>3</number>
+                </property>
+                <property name="Qreference_type" stdset="0">
+                 <number>1</number>
+                </property>
+                <property name="metric_template" stdset="0">
+                 <string>A %10.3f</string>
+                </property>
+                <property name="imperial_template" stdset="0">
+                 <string>A %9.4f</string>
+                </property>
+                <property name="angular_template" stdset="0">
+                 <string>%A 9.2f</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="5" column="3">
+            <widget class="JointEnableWidget" name="jointEnableWidget">
+             <layout class="QVBoxLayout" name="verticalLayout_27">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="DROLabel" name="dro_label_10">
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="Qjoint_number" stdset="0">
+                 <number>3</number>
+                </property>
+                <property name="Qreference_type" stdset="0">
+                 <number>2</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="JointEnableWidget" name="jointEnableWidget_5">
+             <property name="only_in_joint_mode" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="only_if_axis_available" stdset="0">
+              <bool>true</bool>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_30">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="StatusImageSwitcher" name="statusimageswitcher_4">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="pixmap">
+                 <pixmap>../../images/ref_all_not_22x22.png</pixmap>
+                </property>
+                <property name="scaledContents">
+                 <bool>false</bool>
+                </property>
+                <property name="image_list" stdset="0">
+                 <stringlist>
+                  <string>ref_all_not_22x22.png</string>
+                  <string>clear_22x22.png</string>
+                 </stringlist>
+                </property>
+                <property name="watch_all_homed" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="watch_axis_homed" stdset="0">
+                 <bool>true</bool>
+                </property>
+                <property name="axis_letter" stdset="0">
+                 <string>A</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="JointEnableWidget" name="jointEnableWidget_4">
+             <layout class="QVBoxLayout" name="verticalLayout_29">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="DROLabel" name="dro_label_12">
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="Qjoint_number" stdset="0">
+                 <number>3</number>
+                </property>
+                <property name="Qreference_type" stdset="0">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="TabWidget" name="mainTab">
+           <property name="tabPosition">
+            <enum>QTabWidget::South</enum>
+           </property>
+           <property name="tabShape">
+            <enum>QTabWidget::Rounded</enum>
+           </property>
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <property name="documentMode">
+            <bool>true</bool>
+           </property>
+           <property name="tabsClosable">
+            <bool>false</bool>
+           </property>
+           <property name="movable">
+            <bool>false</bool>
+           </property>
+           <property name="tabBarAutoHide">
+            <bool>false</bool>
+           </property>
+           <widget class="QWidget" name="tab_start">
+            <attribute name="title">
+             <string>Start</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <item>
+              <spacer name="verticalSpacer_6">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="groupBox">
+               <property name="title">
+                <string>Power</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_4">
+                <item>
+                 <layout class="QGridLayout" name="gridLayout_2">
+                  <item row="0" column="5">
+                   <spacer name="horizontalSpacer_10">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="0" column="6">
+                   <widget class="ActionButton" name="actionbutton_21">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>85</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>  Exit  </string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="indicator_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="indicator_HAL_pin_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="checked_state_text_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="python_command_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="on_color" stdset="0">
+                     <color>
+                      <red>255</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </property>
+                    <property name="off_color" stdset="0">
+                     <color>
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </property>
+                    <property name="indicator_size" stdset="0">
+                     <double>0.150000000000000</double>
+                    </property>
+                    <property name="true_python_cmd_string" stdset="0">
+                     <string>print&quot;true command&quot;</string>
+                    </property>
+                    <property name="false_python_cmd_string" stdset="0">
+                     <string>print&quot;false command&quot;</string>
+                    </property>
+                    <property name="limits_override_action" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="exit_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="template_label_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>0.150000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>P</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>%1.3f in</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>%1.2f mm</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <spacer name="horizontalSpacer_5">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="ActionButton" name="actionbutton_12">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>85</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>Estop</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="indicator_option" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="on_color" stdset="0">
+                     <color>
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </property>
+                    <property name="off_color" stdset="0">
+                     <color>
+                      <red>255</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </property>
+                    <property name="indicator_size" stdset="0">
+                     <double>0.150000000000000</double>
+                    </property>
+                    <property name="estop_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="template_label_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>P</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>%1.3f in</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>%1.2f mm</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="4">
+                   <widget class="ActionButton" name="actionbutton_16">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>85</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>Override
+ Limits</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="indicator_option" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="indicator_size" stdset="0">
+                     <double>0.150000000000000</double>
+                    </property>
+                    <property name="limits_override_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="template_label_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>P</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>%1.3f in</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>%1.2f mm</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="2">
+                   <widget class="ActionButton" name="actionbutton_14">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>85</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>Machine On</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="indicator_option" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="indicator_size" stdset="0">
+                     <double>0.150000000000000</double>
+                    </property>
+                    <property name="machine_on_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="template_label_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>P</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>%1.3f in</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>%1.2f mm</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="3">
+                   <spacer name="horizontalSpacer_4">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="groupBox_2">
+               <property name="title">
+                <string>Homing</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_5">
+                <item>
+                 <layout class="QGridLayout" name="gridLayout_3">
+                  <item row="0" column="4">
+                   <widget class="ActionButton" name="actionbutton_20">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>Home 
+ Selected</string>
+                    </property>
+                    <property name="indicator_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="indicator_HAL_pin_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="checked_state_text_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="python_command_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="on_color" stdset="0">
+                     <color>
+                      <red>255</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </property>
+                    <property name="off_color" stdset="0">
+                     <color>
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </property>
+                    <property name="indicator_size" stdset="0">
+                     <double>0.300000000000000</double>
+                    </property>
+                    <property name="true_python_cmd_string" stdset="0">
+                     <string>print&quot;true command&quot;</string>
+                    </property>
+                    <property name="false_python_cmd_string" stdset="0">
+                     <string>print&quot;false command&quot;</string>
+                    </property>
+                    <property name="estop_action" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="home_action" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="home_select_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="template_label_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>0.300000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>P</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>%1.3f in</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>%1.2f mm</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="ActionButton" name="actionbutton_19">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>Unhome</string>
+                    </property>
+                    <property name="unhome_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="template_label_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>-1</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>P</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>%1.3f in</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>%1.2f mm</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="ActionButton" name="actionbutton_18">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>Home All</string>
+                    </property>
+                    <property name="indicator_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="home_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="template_label_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>-1</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>P</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>%1.3f in</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>%1.2f mm</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="2">
+                   <spacer name="horizontalSpacer_3">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="0" column="3">
+                   <widget class="ActionButton" name="actionbutton_17">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>UnHome
+ Selected</string>
+                    </property>
+                    <property name="indicator_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="indicator_HAL_pin_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="checked_state_text_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="python_command_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="on_color" stdset="0">
+                     <color>
+                      <red>255</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </property>
+                    <property name="off_color" stdset="0">
+                     <color>
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </property>
+                    <property name="indicator_size" stdset="0">
+                     <double>0.300000000000000</double>
+                    </property>
+                    <property name="true_python_cmd_string" stdset="0">
+                     <string>print&quot;true command&quot;</string>
+                    </property>
+                    <property name="false_python_cmd_string" stdset="0">
+                     <string>print&quot;false command&quot;</string>
+                    </property>
+                    <property name="estop_action" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="unhome_select_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="template_label_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>0.300000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>P</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>%1.3f in</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>%1.2f mm</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="tab_mdi">
+            <attribute name="title">
+             <string>MDI</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_12">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="MDITouchy" name="mditouchy"/>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="tab_manual">
+            <attribute name="title">
+             <string>Manual</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_9">
+             <item>
+              <spacer name="verticalSpacer_7">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Expanding</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_6">
+               <item>
+                <widget class="QGroupBox" name="groupBox_3">
+                 <property name="title">
+                  <string>Coolant</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_8">
+                  <item>
+                   <layout class="QGridLayout" name="gridLayout_4">
+                    <item row="0" column="1">
+                     <widget class="ActionButton" name="actionbutton_24">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="text">
+                       <string>Mist</string>
+                      </property>
+                      <property name="checkable">
+                       <bool>true</bool>
+                      </property>
+                      <property name="indicator_option" stdset="0">
+                       <bool>true</bool>
+                      </property>
+                      <property name="indicator_size" stdset="0">
+                       <double>0.150000000000000</double>
+                      </property>
+                      <property name="machine_on_action" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="mist_action" stdset="0">
+                       <bool>true</bool>
+                      </property>
+                      <property name="template_label_option" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="joint_number" stdset="0">
+                       <number>0</number>
+                      </property>
+                      <property name="incr_imperial_number" stdset="0">
+                       <double>0.010000000000000</double>
+                      </property>
+                      <property name="incr_mm_number" stdset="0">
+                       <double>0.025000000000000</double>
+                      </property>
+                      <property name="incr_angular_number" stdset="0">
+                       <double>-1.000000000000000</double>
+                      </property>
+                      <property name="toggle_float_option" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="float_num" stdset="0">
+                       <double>100.000000000000000</double>
+                      </property>
+                      <property name="float_alt_num" stdset="0">
+                       <double>50.000000000000000</double>
+                      </property>
+                      <property name="view_type_string" stdset="0">
+                       <string>P</string>
+                      </property>
+                      <property name="command_text_string" stdset="0">
+                       <string/>
+                      </property>
+                      <property name="ini_mdi_number" stdset="0">
+                       <number>0</number>
+                      </property>
+                      <property name="textTemplate" stdset="0">
+                       <string>%1.3f in</string>
+                      </property>
+                      <property name="alt_textTemplate" stdset="0">
+                       <string>%1.2f mm</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="0">
+                     <widget class="ActionButton" name="actionbutton_22">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="text">
+                       <string>Flood</string>
+                      </property>
+                      <property name="checkable">
+                       <bool>true</bool>
+                      </property>
+                      <property name="indicator_option" stdset="0">
+                       <bool>true</bool>
+                      </property>
+                      <property name="indicator_size" stdset="0">
+                       <double>0.150000000000000</double>
+                      </property>
+                      <property name="estop_action" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="flood_action" stdset="0">
+                       <bool>true</bool>
+                      </property>
+                      <property name="template_label_option" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="joint_number" stdset="0">
+                       <number>0</number>
+                      </property>
+                      <property name="incr_imperial_number" stdset="0">
+                       <double>0.010000000000000</double>
+                      </property>
+                      <property name="incr_mm_number" stdset="0">
+                       <double>0.025000000000000</double>
+                      </property>
+                      <property name="incr_angular_number" stdset="0">
+                       <double>-1.000000000000000</double>
+                      </property>
+                      <property name="toggle_float_option" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="float_num" stdset="0">
+                       <double>100.000000000000000</double>
+                      </property>
+                      <property name="float_alt_num" stdset="0">
+                       <double>50.000000000000000</double>
+                      </property>
+                      <property name="view_type_string" stdset="0">
+                       <string>P</string>
+                      </property>
+                      <property name="command_text_string" stdset="0">
+                       <string/>
+                      </property>
+                      <property name="ini_mdi_number" stdset="0">
+                       <number>0</number>
+                      </property>
+                      <property name="textTemplate" stdset="0">
+                       <string>%1.3f in</string>
+                      </property>
+                      <property name="alt_textTemplate" stdset="0">
+                       <string>%1.2f mm</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_7">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="groupBox_7">
+                 <property name="title">
+                  <string>Offsets</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_17">
+                  <item>
+                   <layout class="QGridLayout" name="gridLayout_9">
+                    <item row="0" column="0">
+                     <widget class="ActionButton" name="actionbutton_44">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="text">
+                       <string>Tool Offsets</string>
+                      </property>
+                      <property name="checkable">
+                       <bool>false</bool>
+                      </property>
+                      <property name="indicator_option" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="indicator_size" stdset="0">
+                       <double>0.150000000000000</double>
+                      </property>
+                      <property name="origin_offset_dialog_action" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="tool_offset_dialog_action" stdset="0">
+                       <bool>true</bool>
+                      </property>
+                      <property name="limits_override_action" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="template_label_option" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="joint_number" stdset="0">
+                       <number>0</number>
+                      </property>
+                      <property name="incr_imperial_number" stdset="0">
+                       <double>0.010000000000000</double>
+                      </property>
+                      <property name="incr_mm_number" stdset="0">
+                       <double>0.025000000000000</double>
+                      </property>
+                      <property name="incr_angular_number" stdset="0">
+                       <double>-1.000000000000000</double>
+                      </property>
+                      <property name="toggle_float_option" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="float_num" stdset="0">
+                       <double>100.000000000000000</double>
+                      </property>
+                      <property name="float_alt_num" stdset="0">
+                       <double>50.000000000000000</double>
+                      </property>
+                      <property name="view_type_string" stdset="0">
+                       <string>P</string>
+                      </property>
+                      <property name="command_text_string" stdset="0">
+                       <string/>
+                      </property>
+                      <property name="ini_mdi_number" stdset="0">
+                       <number>0</number>
+                      </property>
+                      <property name="textTemplate" stdset="0">
+                       <string>%1.3f in</string>
+                      </property>
+                      <property name="alt_textTemplate" stdset="0">
+                       <string>%1.2f mm</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="ActionButton" name="actionbutton_45">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="text">
+                       <string>Origin Offsets</string>
+                      </property>
+                      <property name="checkable">
+                       <bool>false</bool>
+                      </property>
+                      <property name="indicator_option" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="indicator_size" stdset="0">
+                       <double>0.150000000000000</double>
+                      </property>
+                      <property name="origin_offset_dialog_action" stdset="0">
+                       <bool>true</bool>
+                      </property>
+                      <property name="limits_override_action" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="template_label_option" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="joint_number" stdset="0">
+                       <number>0</number>
+                      </property>
+                      <property name="incr_imperial_number" stdset="0">
+                       <double>0.010000000000000</double>
+                      </property>
+                      <property name="incr_mm_number" stdset="0">
+                       <double>0.025000000000000</double>
+                      </property>
+                      <property name="incr_angular_number" stdset="0">
+                       <double>-1.000000000000000</double>
+                      </property>
+                      <property name="toggle_float_option" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="float_num" stdset="0">
+                       <double>100.000000000000000</double>
+                      </property>
+                      <property name="float_alt_num" stdset="0">
+                       <double>50.000000000000000</double>
+                      </property>
+                      <property name="view_type_string" stdset="0">
+                       <string>P</string>
+                      </property>
+                      <property name="command_text_string" stdset="0">
+                       <string/>
+                      </property>
+                      <property name="ini_mdi_number" stdset="0">
+                       <number>0</number>
+                      </property>
+                      <property name="textTemplate" stdset="0">
+                       <string>%1.3f in</string>
+                      </property>
+                      <property name="alt_textTemplate" stdset="0">
+                       <string>%1.2f mm</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="groupBox_4">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>200</height>
+                </size>
+               </property>
+               <property name="title">
+                <string>Spindle</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_10">
+                <item>
+                 <layout class="QGridLayout" name="gridLayout_5">
+                  <item row="0" column="2">
+                   <widget class="ActionButton" name="actionbutton_29">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>Faster</string>
+                    </property>
+                    <property name="machine_on_action" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="spindle_up_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="template_label_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>P</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>%1.3f in</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>%1.2f mm</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="ActionButton" name="actionbutton_28">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>Stop</string>
+                    </property>
+                    <property name="spindle_stop_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="template_label_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>P</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>%1.3f in</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>%1.2f mm</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="ActionButton" name="actionbutton_27">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>Forward</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="indicator_option" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="estop_action" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="spindle_fwd_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="template_label_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>P</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>%1.3f in</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>%1.2f mm</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="ActionButton" name="actionbutton">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>Reverse</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="indicator_option" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="spindle_rev_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="template_label_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>P</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>%1.3f in</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>%1.2f mm</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="2">
+                   <widget class="ActionButton" name="actionbutton_26">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>Slower</string>
+                    </property>
+                    <property name="spindle_down_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="template_label_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>P</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>%1.3f in</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>%1.2f mm</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="2">
+                   <widget class="StatusLabel" name="statuslabel_spindle">
+                    <property name="text">
+                     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Times'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;RPM: &lt;/span&gt;&lt;span style=&quot; font-weight:600; color:#ff0e0e;&quot;&gt;200&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Times'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;RPM: &lt;/span&gt;&lt;span style=&quot; font-weight:600; color:#ff0e0e;&quot;&gt;%d&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>None</string>
+                    </property>
+                    <property name="index_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="actual_spindle_speed_status" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="3">
+                   <spacer name="horizontalSpacer_8">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="tab_auto">
+            <attribute name="title">
+             <string>Auto</string>
+            </attribute>
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_6">
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_7"/>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="GcodeEditor" name="gcode_editor"/>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="tab_graphics">
+            <attribute name="title">
+             <string>View</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_23">
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_5">
+               <item>
+                <widget class="QGroupBox" name="groupBox_8">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="title">
+                  <string>View Controls</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_24">
+                  <item>
+                   <widget class="ActionButton" name="actionbutton_31">
+                    <property name="text">
+                     <string>Clear</string>
+                    </property>
+                    <property name="view_change_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="template_label_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>Clear</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>%1.3f in</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>%1.2f mm</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="ActionButton" name="actionbutton_32">
+                    <property name="text">
+                     <string>Reload</string>
+                    </property>
+                    <property name="view_change_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="template_label_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>reload</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>%1.3f in</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>%1.2f mm</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="ActionButton" name="actionbutton_30">
+                    <property name="text">
+                     <string>View P</string>
+                    </property>
+                    <property name="view_change_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="template_label_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>P</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>%1.3f in</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>%1.2f mm</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="ActionButton" name="actionbutton_23">
+                    <property name="text">
+                     <string>View X</string>
+                    </property>
+                    <property name="view_change_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="template_label_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>X</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>%1.3f in</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>%1.2f mm</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="ActionButton" name="actionbutton_35">
+                    <property name="text">
+                     <string>View Y</string>
+                    </property>
+                    <property name="view_change_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="template_label_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>Y</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>%1.3f in</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>%1.2f mm</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="ActionButton" name="actionbutton_36">
+                    <property name="text">
+                     <string>View Z</string>
+                    </property>
+                    <property name="view_change_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="template_label_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>Z</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>%1.3f in</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>%1.2f mm</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QGroupBox" name="groupBox_9">
+                    <property name="title">
+                     <string>Scroll Controls</string>
+                    </property>
+                    <layout class="QVBoxLayout" name="verticalLayout_32">
+                     <property name="leftMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>9</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="QPushButton" name="zoom">
+                       <property name="text">
+                        <string>Zoom</string>
+                       </property>
+                       <property name="checkable">
+                        <bool>true</bool>
+                       </property>
+                       <property name="checked">
+                        <bool>true</bool>
+                       </property>
+                       <property name="autoExclusive">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="rotate">
+                       <property name="text">
+                        <string>Rotate</string>
+                       </property>
+                       <property name="checkable">
+                        <bool>true</bool>
+                       </property>
+                       <property name="autoExclusive">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="panV">
+                       <property name="text">
+                        <string>Pan V</string>
+                       </property>
+                       <property name="checkable">
+                        <bool>true</bool>
+                       </property>
+                       <property name="autoExclusive">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="panH">
+                       <property name="text">
+                        <string>Pan H</string>
+                       </property>
+                       <property name="checkable">
+                        <bool>true</bool>
+                       </property>
+                       <property name="autoExclusive">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                    <zorder>rotate</zorder>
+                    <zorder>rotate</zorder>
+                    <zorder>panH</zorder>
+                    <zorder>panV</zorder>
+                    <zorder>zoom</zorder>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="verticalSpacer_5">
+                    <property name="orientation">
+                     <enum>Qt::Vertical</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>40</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="GCodeGraphics" name="gcodegraphics">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="tab_files">
+            <attribute name="title">
+             <string>Files</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_13">
+             <item>
+              <widget class="FileManager" name="filemanager"/>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="tab__status">
+            <attribute name="title">
+             <string>Status</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_16">
+             <item>
+              <layout class="QGridLayout" name="gridLayout_7">
+               <item row="14" column="0">
+                <widget class="QLabel" name="label_20">
+                 <property name="text">
+                  <string>Tool Length:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="0">
+                <widget class="QLabel" name="label_13">
+                 <property name="text">
+                  <string>Delay:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="0">
+                <widget class="QLabel" name="label_15">
+                 <property name="text">
+                  <string>Spindle Direction:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="0">
+                <widget class="QLabel" name="label_14">
+                 <property name="text">
+                  <string>On Limit Switch:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="1">
+                <widget class="StatusLabel" name="statuslabel_3">
+                 <property name="current_feedrate_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0">
+                <widget class="QLabel" name="label_10">
+                 <property name="text">
+                  <string>G92 Offset:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="StatusLabel" name="statuslabel_2">
+                 <property name="filepath_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="0">
+                <widget class="QLabel" name="label_11">
+                 <property name="text">
+                  <string>Distance:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="12" column="0">
+                <widget class="QLabel" name="label_18">
+                 <property name="text">
+                  <string>Loaded Tool;</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="13" column="0">
+                <widget class="QLabel" name="label_19">
+                 <property name="text">
+                  <string>Prepared Tool:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="label">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>Loaded File:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="15" column="0">
+                <widget class="QLabel" name="label_21">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>Active Code:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_8">
+                 <property name="text">
+                  <string>XY ROtation:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="1">
+                <widget class="StatusLabel" name="statuslabel_6">
+                 <property name="actual_spindle_speed_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="0">
+                <widget class="QLabel" name="label_12">
+                 <property name="text">
+                  <string>Velocity:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="label_9">
+                 <property name="text">
+                  <string>G54 Offset:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="15" column="1">
+                <widget class="StatusLabel" name="statuslabel_4">
+                 <property name="gcodes_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_7">
+                 <property name="text">
+                  <string>Running Line:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="11" column="0">
+                <widget class="QLabel" name="label_17">
+                 <property name="text">
+                  <string>Pockets:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="16" column="1">
+                <widget class="StatusLabel" name="statuslabel_5">
+                 <property name="mcodes_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="0">
+                <widget class="QLabel" name="label_16">
+                 <property name="text">
+                  <string>Spindle Speed:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="16" column="0">
+                <widget class="QLabel" name="label_22">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="tab_preference">
+            <attribute name="title">
+             <string>Prefs</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_15">
+             <item>
+              <spacer name="verticalSpacer_8">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_4">
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_22">
+                 <item>
+                  <widget class="QPushButton" name="pushButton_dro_color">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>DRO Color</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButton">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>DRO Font</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_2">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_25">
+                 <item>
+                  <widget class="ActionButton" name="actionbutton_5">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>Status</string>
+                   </property>
+                   <property name="launch_status_action" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="template_label_option" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="joint_number" stdset="0">
+                    <number>0</number>
+                   </property>
+                   <property name="incr_imperial_number" stdset="0">
+                    <double>0.010000000000000</double>
+                   </property>
+                   <property name="incr_mm_number" stdset="0">
+                    <double>0.025000000000000</double>
+                   </property>
+                   <property name="incr_angular_number" stdset="0">
+                    <double>-1.000000000000000</double>
+                   </property>
+                   <property name="toggle_float_option" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="float_num" stdset="0">
+                    <double>100.000000000000000</double>
+                   </property>
+                   <property name="float_alt_num" stdset="0">
+                    <double>50.000000000000000</double>
+                   </property>
+                   <property name="view_type_string" stdset="0">
+                    <string>P</string>
+                   </property>
+                   <property name="command_text_string" stdset="0">
+                    <string/>
+                   </property>
+                   <property name="ini_mdi_number" stdset="0">
+                    <number>0</number>
+                   </property>
+                   <property name="textTemplate" stdset="0">
+                    <string>%1.3f in</string>
+                   </property>
+                   <property name="alt_textTemplate" stdset="0">
+                    <string>%1.2f mm</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="ActionButton" name="actionbutton_11">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>Halmeter</string>
+                   </property>
+                   <property name="launch_halmeter_action" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="launch_status_action" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="template_label_option" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="joint_number" stdset="0">
+                    <number>0</number>
+                   </property>
+                   <property name="incr_imperial_number" stdset="0">
+                    <double>0.010000000000000</double>
+                   </property>
+                   <property name="incr_mm_number" stdset="0">
+                    <double>0.025000000000000</double>
+                   </property>
+                   <property name="incr_angular_number" stdset="0">
+                    <double>-1.000000000000000</double>
+                   </property>
+                   <property name="toggle_float_option" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="float_num" stdset="0">
+                    <double>100.000000000000000</double>
+                   </property>
+                   <property name="float_alt_num" stdset="0">
+                    <double>50.000000000000000</double>
+                   </property>
+                   <property name="view_type_string" stdset="0">
+                    <string>P</string>
+                   </property>
+                   <property name="command_text_string" stdset="0">
+                    <string/>
+                   </property>
+                   <property name="ini_mdi_number" stdset="0">
+                    <number>0</number>
+                   </property>
+                   <property name="textTemplate" stdset="0">
+                    <string>%1.3f in</string>
+                   </property>
+                   <property name="alt_textTemplate" stdset="0">
+                    <string>%1.2f mm</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="PushButton" name="pushbutton">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Hide Pointer</string>
+                 </property>
+                 <property name="checkable">
+                  <bool>true</bool>
+                 </property>
+                 <property name="indicator_option" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="indicator_size" stdset="0">
+                  <double>0.150000000000000</double>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,1">
+               <item>
+                <widget class="QGroupBox" name="groupBox_6">
+                 <property name="title">
+                  <string>Tool Setting</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_20">
+                  <item>
+                   <layout class="QVBoxLayout" name="verticalLayout_18">
+                    <item>
+                     <widget class="ActionButton" name="actionbutton_10">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="text">
+                       <string>Work Piece</string>
+                      </property>
+                      <property name="checkable">
+                       <bool>true</bool>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                      <property name="autoExclusive">
+                       <bool>true</bool>
+                      </property>
+                      <property name="indicator_option" stdset="0">
+                       <bool>true</bool>
+                      </property>
+                      <property name="indicator_HAL_pin_option" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="checked_state_text_option" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="python_command_option" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="on_color" stdset="0">
+                       <color>
+                        <red>255</red>
+                        <green>0</green>
+                        <blue>0</blue>
+                       </color>
+                      </property>
+                      <property name="off_color" stdset="0">
+                       <color>
+                        <red>0</red>
+                        <green>0</green>
+                        <blue>0</blue>
+                       </color>
+                      </property>
+                      <property name="indicator_size" stdset="0">
+                       <double>0.300000000000000</double>
+                      </property>
+                      <property name="true_python_cmd_string" stdset="0">
+                       <string>print&quot;true command&quot;</string>
+                      </property>
+                      <property name="false_python_cmd_string" stdset="0">
+                       <string>print&quot;false command&quot;</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="ActionButton" name="actionbutton_9">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="text">
+                       <string>Fixture</string>
+                      </property>
+                      <property name="checkable">
+                       <bool>true</bool>
+                      </property>
+                      <property name="autoExclusive">
+                       <bool>true</bool>
+                      </property>
+                      <property name="indicator_option" stdset="0">
+                       <bool>true</bool>
+                      </property>
+                      <property name="indicator_HAL_pin_option" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="checked_state_text_option" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="python_command_option" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="on_color" stdset="0">
+                       <color>
+                        <red>255</red>
+                        <green>0</green>
+                        <blue>0</blue>
+                       </color>
+                      </property>
+                      <property name="off_color" stdset="0">
+                       <color>
+                        <red>0</red>
+                        <green>0</green>
+                        <blue>0</blue>
+                       </color>
+                      </property>
+                      <property name="indicator_size" stdset="0">
+                       <double>0.300000000000000</double>
+                      </property>
+                      <property name="true_python_cmd_string" stdset="0">
+                       <string>print&quot;true command&quot;</string>
+                      </property>
+                      <property name="false_python_cmd_string" stdset="0">
+                       <string>print&quot;false command&quot;</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_6">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="groupBox_5">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="title">
+                  <string>Progrm Options</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_21">
+                  <item>
+                   <layout class="QGridLayout" name="gridLayout_10">
+                    <item row="0" column="1">
+                     <widget class="ActionButton" name="actionbutton_4">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="text">
+                       <string>Optional Stop</string>
+                      </property>
+                      <property name="checkable">
+                       <bool>true</bool>
+                      </property>
+                      <property name="indicator_option" stdset="0">
+                       <bool>true</bool>
+                      </property>
+                      <property name="indicator_size" stdset="0">
+                       <double>0.150000000000000</double>
+                      </property>
+                      <property name="optional_stop_action" stdset="0">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="0">
+                     <widget class="ActionButton" name="actionbutton_2">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="text">
+                       <string>Block Delete</string>
+                      </property>
+                      <property name="checkable">
+                       <bool>true</bool>
+                      </property>
+                      <property name="indicator_option" stdset="0">
+                       <bool>true</bool>
+                      </property>
+                      <property name="indicator_size" stdset="0">
+                       <double>0.150000000000000</double>
+                      </property>
+                      <property name="block_delete_action" stdset="0">
+                       <bool>true</bool>
+                      </property>
+                      <property name="template_label_option" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="joint_number" stdset="0">
+                       <number>0</number>
+                      </property>
+                      <property name="incr_imperial_number" stdset="0">
+                       <double>0.010000000000000</double>
+                      </property>
+                      <property name="incr_mm_number" stdset="0">
+                       <double>0.025000000000000</double>
+                      </property>
+                      <property name="incr_angular_number" stdset="0">
+                       <double>-1.000000000000000</double>
+                      </property>
+                      <property name="toggle_float_option" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="float_num" stdset="0">
+                       <double>100.000000000000000</double>
+                      </property>
+                      <property name="float_alt_num" stdset="0">
+                       <double>50.000000000000000</double>
+                      </property>
+                      <property name="view_type_string" stdset="0">
+                       <string>P</string>
+                      </property>
+                      <property name="command_text_string" stdset="0">
+                       <string/>
+                      </property>
+                      <property name="ini_mdi_number" stdset="0">
+                       <number>0</number>
+                      </property>
+                      <property name="textTemplate" stdset="0">
+                       <string>%1.3f in</string>
+                      </property>
+                      <property name="alt_textTemplate" stdset="0">
+                       <string>%1.2f mm</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QWidget" name="widget" native="true">
+         <layout class="QVBoxLayout" name="verticalLayout_11" stretch="0,0,0,0,0,0,0,0,0,0">
+          <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="PushButton" name="pushbutton_fo">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>FO</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="autoExclusive">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="PushButton" name="pushbutton_so">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>SO</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="autoExclusive">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="PushButton" name="pushbutton_ro">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>RO</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="autoExclusive">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="PushButton" name="pushbutton_jog">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>JOG</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="autoExclusive">
+             <bool>true</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_HAL_pin_option" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_size" stdset="0">
+             <double>0.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="PushButton" name="pushbutton_scroll">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>SCROLL</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="autoExclusive">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QWidget" name="widget_6" native="true">
+            <layout class="QVBoxLayout" name="verticalLayout_19">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <layout class="QGridLayout" name="gridLayout_8">
+               <property name="sizeConstraint">
+                <enum>QLayout::SetDefaultConstraint</enum>
+               </property>
+               <item row="2" column="0">
+                <widget class="ActionButton" name="actionbutton_7">
+                 <property name="checkable">
+                  <bool>true</bool>
+                 </property>
+                 <property name="autoExclusive">
+                  <bool>true</bool>
+                 </property>
+                 <property name="jog_incr_action" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="template_label_option" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="joint_number" stdset="0">
+                  <number>0</number>
+                 </property>
+                 <property name="incr_imperial_number" stdset="0">
+                  <double>0.100000000000000</double>
+                 </property>
+                 <property name="incr_mm_number" stdset="0">
+                  <double>0.250000000000000</double>
+                 </property>
+                 <property name="incr_angular_number" stdset="0">
+                  <double>10.000000000000000</double>
+                 </property>
+                 <property name="toggle_float_option" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="float_num" stdset="0">
+                  <double>100.000000000000000</double>
+                 </property>
+                 <property name="float_alt_num" stdset="0">
+                  <double>50.000000000000000</double>
+                 </property>
+                 <property name="view_type_string" stdset="0">
+                  <string>P</string>
+                 </property>
+                 <property name="command_text_string" stdset="0">
+                  <string/>
+                 </property>
+                 <property name="ini_mdi_number" stdset="0">
+                  <number>0</number>
+                 </property>
+                 <property name="textTemplate" stdset="0">
+                  <string>%1.3f in</string>
+                 </property>
+                 <property name="alt_textTemplate" stdset="0">
+                  <string>%1.2f mm</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="ActionButton" name="actionbutton_6">
+                 <property name="checkable">
+                  <bool>true</bool>
+                 </property>
+                 <property name="autoExclusive">
+                  <bool>true</bool>
+                 </property>
+                 <property name="jog_incr_action" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="template_label_option" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="joint_number" stdset="0">
+                  <number>0</number>
+                 </property>
+                 <property name="incr_imperial_number" stdset="0">
+                  <double>0.001000000000000</double>
+                 </property>
+                 <property name="incr_mm_number" stdset="0">
+                  <double>0.002500000000000</double>
+                 </property>
+                 <property name="incr_angular_number" stdset="0">
+                  <double>-1.000000000000000</double>
+                 </property>
+                 <property name="toggle_float_option" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="float_num" stdset="0">
+                  <double>100.000000000000000</double>
+                 </property>
+                 <property name="float_alt_num" stdset="0">
+                  <double>50.000000000000000</double>
+                 </property>
+                 <property name="view_type_string" stdset="0">
+                  <string>P</string>
+                 </property>
+                 <property name="command_text_string" stdset="0">
+                  <string/>
+                 </property>
+                 <property name="ini_mdi_number" stdset="0">
+                  <number>0</number>
+                 </property>
+                 <property name="textTemplate" stdset="0">
+                  <string>%1.3f in</string>
+                 </property>
+                 <property name="alt_textTemplate" stdset="0">
+                  <string>%1.2f mm</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="ActionButton" name="actionbutton_8">
+                 <property name="checkable">
+                  <bool>true</bool>
+                 </property>
+                 <property name="autoExclusive">
+                  <bool>true</bool>
+                 </property>
+                 <property name="jog_incr_action" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="template_label_option" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="joint_number" stdset="0">
+                  <number>0</number>
+                 </property>
+                 <property name="incr_imperial_number" stdset="0">
+                  <double>0.010000000000000</double>
+                 </property>
+                 <property name="incr_mm_number" stdset="0">
+                  <double>0.025000000000000</double>
+                 </property>
+                 <property name="incr_angular_number" stdset="0">
+                  <double>-1.000000000000000</double>
+                 </property>
+                 <property name="toggle_float_option" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="float_num" stdset="0">
+                  <double>100.000000000000000</double>
+                 </property>
+                 <property name="float_alt_num" stdset="0">
+                  <double>50.000000000000000</double>
+                 </property>
+                 <property name="view_type_string" stdset="0">
+                  <string>P</string>
+                 </property>
+                 <property name="command_text_string" stdset="0">
+                  <string/>
+                 </property>
+                 <property name="ini_mdi_number" stdset="0">
+                  <number>0</number>
+                 </property>
+                 <property name="textTemplate" stdset="0">
+                  <string>%1.3f in</string>
+                 </property>
+                 <property name="alt_textTemplate" stdset="0">
+                  <string>%1.2f mm</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QWidget" name="widget_5" native="true">
+            <layout class="QVBoxLayout" name="verticalLayout_14">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <layout class="QGridLayout" name="gridLayout">
+               <property name="sizeConstraint">
+                <enum>QLayout::SetDefaultConstraint</enum>
+               </property>
+               <item row="3" column="0">
+                <widget class="JointEnableWidget" name="jointenablewidget">
+                 <layout class="QVBoxLayout" name="verticalLayout_26">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="AxisToolButton" name="axistoolbutton_4">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>30</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>A</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>false</bool>
+                    </property>
+                    <property name="popupMode">
+                     <enum>QToolButton::MenuButtonPopup</enum>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>3</number>
+                    </property>
+                    <property name="axis_letter" stdset="0">
+                     <string>A</string>
+                    </property>
+                    <property name="dialog_code_string" stdset="0">
+                     <string>CALCULATOR</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="AxisToolButton" name="axistoolbutton_3">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>30</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Z</string>
+                 </property>
+                 <property name="checkable">
+                  <bool>true</bool>
+                 </property>
+                 <property name="autoExclusive">
+                  <bool>false</bool>
+                 </property>
+                 <property name="popupMode">
+                  <enum>QToolButton::MenuButtonPopup</enum>
+                 </property>
+                 <property name="joint_number" stdset="0">
+                  <number>2</number>
+                 </property>
+                 <property name="axis_letter" stdset="0">
+                  <string>Z</string>
+                 </property>
+                 <property name="dialog_code_string" stdset="0">
+                  <string>CALCULATOR</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="AxisToolButton" name="axistoolbutton_2">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>30</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Y</string>
+                 </property>
+                 <property name="checkable">
+                  <bool>true</bool>
+                 </property>
+                 <property name="autoExclusive">
+                  <bool>false</bool>
+                 </property>
+                 <property name="popupMode">
+                  <enum>QToolButton::MenuButtonPopup</enum>
+                 </property>
+                 <property name="joint_number" stdset="0">
+                  <number>1</number>
+                 </property>
+                 <property name="axis_letter" stdset="0">
+                  <string>Y</string>
+                 </property>
+                 <property name="dialog_code_string" stdset="0">
+                  <string>CALCULATOR</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="AxisToolButton" name="axistoolbutton">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>30</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>X</string>
+                 </property>
+                 <property name="checkable">
+                  <bool>true</bool>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                 <property name="autoExclusive">
+                  <bool>false</bool>
+                 </property>
+                 <property name="popupMode">
+                  <enum>QToolButton::MenuButtonPopup</enum>
+                 </property>
+                 <property name="axis_letter" stdset="0">
+                  <string>X</string>
+                 </property>
+                 <property name="dialog_code_string" stdset="0">
+                  <string>CALCULATOR</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>917</width>
+     <height>27</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GCodeGraphics</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.gcode_graphics</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AxisToolButton</class>
+   <extends>QToolButton</extends>
+   <header>qtvcp.widgets.axis_tool_button</header>
+  </customwidget>
+  <customwidget>
+   <class>ScreenOptions</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.screen_options</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>StatusLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.status_label</header>
+  </customwidget>
+  <customwidget>
+   <class>TabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>qtvcp.widgets.tab_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ImageSwitcher</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.image_switcher</header>
+  </customwidget>
+  <customwidget>
+   <class>DROLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.dro_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FileManager</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.file_manager</header>
+  </customwidget>
+  <customwidget>
+   <class>GcodeEditor</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.gcode_editor</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StatusImageSwitcher</class>
+   <extends>ImageSwitcher</extends>
+   <header>qtvcp.widgets.image_switcher</header>
+  </customwidget>
+  <customwidget>
+   <class>JointEnableWidget</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.container_widgets</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ActionButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.action_button</header>
+  </customwidget>
+  <customwidget>
+   <class>MDITouchy</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.mdi_touchy</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>fontDialog()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>87</x>
+     <y>463</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>38</x>
+     <y>27</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>togglePointer(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>778</x>
+     <y>464</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>760</x>
+     <y>28</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton_jog</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>updateJogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>889</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>911</x>
+     <y>250</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>axistoolbutton_3</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>updateJogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>852</x>
+     <y>608</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>908</x>
+     <y>616</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>axistoolbutton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>updateJogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>888</x>
+     <y>575</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>912</x>
+     <y>573</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>axistoolbutton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>updateJogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>888</x>
+     <y>539</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>909</x>
+     <y>540</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_dro_color</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>colorDialog()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>100</x>
+     <y>396</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>63</x>
+     <y>31</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton_scroll</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>updateJogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>856</x>
+     <y>283</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>913</x>
+     <y>284</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton_ro</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>updateJogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>875</x>
+     <y>200</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>913</x>
+     <y>200</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton_so</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>updateJogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>878</x>
+     <y>156</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>913</x>
+     <y>159</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton_fo</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>updateJogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>874</x>
+     <y>117</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>911</x>
+     <y>118</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>axistoolbutton_4</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>updateJogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>859</x>
+     <y>636</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>914</x>
+     <y>649</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>jogToggled(bool)</slot>
+  <slot>incrementToggled()</slot>
+  <slot>colorDialog()</slot>
+  <slot>fontDialog()</slot>
+  <slot>togglePointer(bool)</slot>
+  <slot>updateJogState()</slot>
+ </slots>
+</ui>

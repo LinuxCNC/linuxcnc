@@ -1,0 +1,48 @@
+; Author: jthornton
+
+(info: outside diameter - lathe turning)
+o<od> sub
+#<Material_Dia> =  #1 (=0.260 Material Diameter)
+   #<Final_Dia> =  #2 (=0.180 Final Diameter)
+   #<Depth_Cut> =  #3 (=0.010 Depth of Cut)
+   #<Final_Cut> =  #4 (=0.000 Final Cut)
+#<SurfaceSpeed> =  #5 (=100 Surface Speed)
+    #<FeedRate> =  #6 (=2 Feed Rate)
+     #<Max_RPM> =  #7 (=1500 Max Spindle RPM)
+  #<Z_EndOfCut> =  #8 (=-0.5 End of Cut)
+#<Z_StartOfCut> =  #9 (=0.100 Start of Cut)
+ #<RToolNumber> = #10 (=6 Roughing Tool)
+ #<FToolNumber> = #11 (=6 Finishing Tool)
+     #<Coolant> = #12 (=8 Flood=8, Off=9)
+
+T#<RToolNumber> M6
+; G43: toolength offset
+; G7:  diameter mode
+; G96: constant surface speed
+G43 G7 G96 D#<Max_RPM> S#<SurfaceSpeed>
+
+; Turn the OD
+M3 M#<Coolant> ; spindle cw, coolant on/off
+G0 X#<Material_Dia> Z#<Z_StartOfCut>
+#<Current_Dia>=#<Material_Dia>
+
+o100 while [#<Current_Dia> gt #<Final_Dia>]
+
+O101   if [#<Current_Dia>-#<Depth_Cut> gt #<Final_Dia>]
+         #<Current_Dia>=[#<Current_Dia>-#<Depth_Cut>]
+O101   else
+         #<Current_Dia>=#<Final_Dia>
+O101   endif
+
+       X#<Current_Dia>
+       G1 Z#<Z_EndOfCut> F#<FeedRate>
+       G0 X[#<Current_Dia>+0.025]
+       Z#<Z_StartOfCut>
+o100 endwhile
+
+G0 X[#<Current_Dia>+0.025]
+M5 M9               ; stop spindle, all coolant off
+Z#<Z_StartOfCut>
+G49                 ; cancel tool length offset compensation
+G53 G0 X0 Z0        ; move in machine coordinates
+o<od> endsub

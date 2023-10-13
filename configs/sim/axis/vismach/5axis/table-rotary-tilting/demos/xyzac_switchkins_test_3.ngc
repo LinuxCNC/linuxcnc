@@ -1,0 +1,15 @@
+;# enable optional stop for m1
+m429 ;trivkins
+G0 X0 Y0 Z0 A0 C0
+G0 C90 X10 Y0
+G1 F1000 Z2
+(debug,A expect: 10   0 2) m1
+(debug,B expect: 10   0 2) m1
+m428 ;tcp
+(debug,C expect:  0 -10 2) m1
+g1f1000 z0
+(debug,D expect:  0 -10 0) m1
+(debug,E expect:  0 -10 0) m1
+m429 ;trivkins
+(debug,F expect: 10 0 0)
+m2

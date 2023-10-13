@@ -1,0 +1,4 @@
+Test remapped commands that `yield INTERP_EXECUTE_FINISH` in python.
+
+Python may be used for the body, prolog or epilog.
+

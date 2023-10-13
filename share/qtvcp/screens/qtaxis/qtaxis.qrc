@@ -1,0 +1,51 @@
+<RCC>
+  <qresource prefix="toolbar">
+    <file>images/editor.png</file>
+    <file>images/down.png</file>
+    <file>images/resume_inhibit.gif</file>
+    <file>images/rightarrow.xbm</file>
+    <file>images/spindle_ccw.gif</file>
+    <file>images/leftarrow.xbm</file>
+    <file>images/spindle_cw.gif</file>
+    <file>images/std_error.gif</file>
+    <file>images/std_info.gif</file>
+    <file>images/std_warning.gif</file>
+    <file>images/tool_axis_p.gif</file>
+    <file>images/tool_axis_x.gif</file>
+    <file>images/tool_axis_y.gif</file>
+    <file>images/tool_blockdelete.gif</file>
+    <file>images/tool_axis_z.gif</file>
+    <file>images/tool_axis_y2.png</file>
+    <file>images/tool_axis_z2.gif</file>
+    <file>images/tool_blockdelete.xcf</file>
+    <file>images/tool_clear.gif</file>
+    <file>images/tool_estop.gif</file>
+    <file>images/tool_open.gif</file>
+    <file>images/tool_optpause.gif</file>
+    <file>images/tool_pause.gif</file>
+    <file>images/tool_optpause.xcf</file>
+    <file>images/tool_power.gif</file>
+    <file>images/tool_reload.gif</file>
+    <file>images/tool_rotate.gif</file>
+    <file>images/tool_run.gif</file>
+    <file>images/tool_step.gif</file>
+    <file>images/tool_stop.gif</file>
+    <file>images/tool_verify.gif</file>
+    <file>images/tool_zoomin.gif</file>
+    <file>images/tool_zoomout.gif</file>
+    <file>images/uparrow.xbm</file>
+    <file>images/axis-16x16.png</file>
+    <file>images/axis-24x24.png</file>
+    <file>images/axis-32x32.png</file>
+    <file>images/axis-48x48.png</file>
+    <file>images/axis-48x48.xcf</file>
+    <file>images/close.gif</file>
+    <file>images/downarrow.xbm</file>
+  </qresource>
+  <qresource prefix="buttons">
+    <file>images/coolant_flood_active.png</file>
+    <file>images/coolant_flood_inactive.png</file>
+    <file>images/coolant_mist_active.png</file>
+    <file>images/coolant_mist_inactive.png</file>
+  </qresource>
+</RCC>

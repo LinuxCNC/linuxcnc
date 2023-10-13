@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QtDragon Documentation</title>
+  <link href="help.css" rel="stylesheet">
+</head>
+<body>
+<div class="sidenav">
+    <img src="images/WoodPecker.png" alt="Qt_WoodPecker">
+    <ul style="list-style-type:none">
+    <li><a href="hole_circle_utility.html">HOLE CIRCLE UTILITY</a></li>
+    <li><a href="facing_utility.html">FACING UTILITY</a></li>
+    <li><a href="ngcgui.html">NGCGUI</a></li>
+    <li><a href="using_a_vfd.html">USING A VFD</a></li>
+    <li><a href="spindle_pause.html">SPINDLE PAUSE</a></li>
+    <li><a href="z_level_comp.html">Z LEVEL COMPENSATION</a></li>
+    <li><a href="using_a_mpg.html">USING A MPG</a></li>
+    <li><a href="probing.html">PROBING</a></li>
+    <li><a href="runfromline.html">RUN FROM LINE</a></li>
+    <li><a href="stylesheets.html">STYLESHEETS</a></li>
+    <li><a href="about.html">ABOUT</a></li>
+    </ul>
+</div>
+        
+<div class = "main">
+<h1>SPINDLE PAUSE</h1>
+<button class = 'ui'>PAUSE SPINDLE</button>
+<p>When a running program is paused and this button is enabled, 
+the spindle will stop and move up by a distance determined by the SPINDLE LIFT HEIGHT value on the SETTINGS page.
+This allows the operator to clear chips or whatever without having the spindle running. A message box will pop up warning the user to
+wait for the AT_SPEED LED before pressing the RESUME button on the program control joypad. Pressing the OK button on the message box will
+turn the spindle on while lowering it to the position it was at before the pause.</p>
+<p>When ready to resume, press the RESUME button. If the LIMIT LED lights up, the Z axis didn’t move the full distance due to axis travel limitations.
+However, it will still return to the proper Z level when the program is resumed.</p>
+<p>The SPINDLE PAUSE and ENABLE COMP buttons are mutually exclusive, meaning only 1 can be active at a time since they share the Z axis eoffset component.</p>
+<p>The spindle pause function requires the following HAL connections:</p>
+
+<div class="code-block">
+    <pre class="hal">net spindle-pause    woodpecker.spindle_inhibit => spindle.0.inhibit</pre>
+    <pre class="hal">net eoffset-clr1     woodpecker.eoffset-clear => or2_1.in0</pre>
+    <pre class="hal">net eoffset          woodpecker.eoffset-value <= axis.z.eoffset</pre>
+</div>
+
+</body>
+</html>

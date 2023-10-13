@@ -1,0 +1,13 @@
+Esta es una simulación de una fresadora con ejes XYZ y también un torno.
+
+Esta pantalla se basa en el diseño de moccagui, una GUI codificada en FreePascal.
+
+gmoccapy utiliza Python en su lugar.
+
+gmoccapy está diseñado para brindar la sensación de los controles industriales a los usuarios de LinuxCNC.
+La mayoría de los controles se pueden usar con una pantalla táctil y son accesibles a través de
+pines hal, por lo que se puede utilizar hardware real.
+
+Siéntase libre de enviar cualquier comentario a
+
+gmoccapy@web.de

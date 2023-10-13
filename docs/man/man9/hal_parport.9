@@ -1,0 +1,209 @@
+.\" Man page for hal_parport realtime component.
+.\" Written 12 APR 2017 by Joe Hildreth (joeh@threerivershospital.com)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.TH hal_parport 9 "12 APR 2017" "LinuxCNC Documentation" "HAL Realtime Component"
+.SH NAME
+hal_parport \- Realtime HAL component to communicate with one or more pc parallel ports.
+.SH SYNOPSIS
+.B loadrt hal_parport cfg="\fIport_addr \fR[\fItype\fR] [[\fIport_addr \fR[\fItype\fR] ...]\fB"
+.SH DESCRIPTION
+The hal_parport component is a realtime component that provides connections from HAL via halpins to the physical pins of one or more parallel ports.  It provides a read and write function to send and receive data to the attached parallel port(s).
+.PP
+The hal_parport component supports up to \fB8 \fRphysical parallel ports.
+.SH OPTIONS
+.TP
+.B cfg="port_addr [type] [[port_addr [type] ...]"
+
+The cfg string tells hal_parport the address(es) of the parallel port(s) and whether the port(s) is/are used as an input or output port(s).
+Up to eight parallel ports are supported by the component.
+
+The \fBport_addr \fRparameter of the configuration string may be either the physical base address of a parallel port or specified as the detected parallel port via Linux parport_pc driver.
+In which case, a \fBport_addr \fRof \fI0 \fRis the first parallel port detected on the system, \fI1 \fRis the next, and so on.
+
+The \fBtype \fRparameter of the configuration string determines how the I/O bits of the port are used.
+There are four possible options and if none is specified will default to out.
+
+\fIin \fR\- Sets the 8 bits of the data port to input.
+In this mode the parallel port has a total of 13 input pins and 4 output pins.
+
+\fIout \fR\- Sets the 8 bits of the data port to output.
+In this mode the parallel port has a total of 5 input pins and 12 output pins.
+
+\fIepp \fR\- This option is the same as setting to out, but can cause the computer to change the electrical characteristics of the port, see USAGE below.
+
+\fIx \fR\- The option allows ports with open collectorts on the control group pins to be configured as inputs resulting in 8 output pins and 9 input pins, see USAGE below.
+.SH PINS
+.TP
+The pins created by the hal_parport component depends on how it is configured in the \fBcfg="" \fRstring passed to it, see OPTIONS.
+
+\fBparport.<p>.pin\-<n>\-out (bit) \fRDrives a physical output pin.
+
+\fBparport.<p>.pin\-<n>\-in (bit) \fRTracks a physical input pin.
+
+\fBparport.<p>.pin\-<n>\-in\-not (bit) \fRTracks a physical input pin, but inverted.
+
+For each pin created, \fB<p> \fRis the port number, and \fB<n> \fRis the physical pin number in the 25 pin D\-shell connector.
+
+For each physical output pin, the driver creates a single HAL pin, for example: \fBparport.0.pin\-14\-out\fR.
+
+For each physical input pin, the driver creates two HAL pins, for example: \fBparport.0.pin\-12\-in \fRand \fBparport.0.pin\-12\-in\-not\fR.
+
+The \fB\-in \fRHAL pin is TRUE if the physical pin is high, and FALSE if the physical pin is low. The \fB\-in\-not \fRHAL pin is inverted and is FALSE if the physical pin is high.
+
+The following lists the input and output pins by the type setting used in the cfg="" string.
+
+\fBin\fR: Pins 2,3,4,5,6,7,8,9,10,11,12,13,15 are input pins and pins 1,14,16 and 17 are output pins.
+
+\fBout/epp\fR: Pins 10,11,12,13 and 15 are input pins and pins 1,2,3,4,5,6,7,8,9,14,16 and 17 are output pins.
+
+\fBx\fR: Pins 1,10,11,12,13,14,15,16 and 17 are input pins and pins 2,3,4,5,6,7,8,9 are output pins. (\fISee USAGE section\fR.)
+.SH PARAMETERS
+.TP
+\fBparport.<p>.pin\-<n>\-out\-invert (bit)
+\fRInverts an output pin.
+.TP
+\fBparport.<p>.pin\-<n>\-out\-reset (bit)
+\fR(only for out pins) TRUE if this pin should be reset when the .reset function is executed.
+.TP
+\fBparport.<p>.reset\-time' (U32)
+\fRThe time (in nanoseconds) between a pin is set by write and reset by the reset function if it is enabled.
+.SH FUNCTIONS
+.TP
+\fBparport.<p>.read(funct)
+\fRReads physical input pins of port <portnum> and updates HAL \-in and \-in\-not pins.
+.TP
+\fBparport.read\-all (funct)
+Reads physical input pins of all ports and updates HAL \-in and \-in\-not pins.
+.TP
+\fBparport.<p>.write (funct)
+Reads HAL \-out pins of port <p> and updates that port's physical output pins.
+.TP
+\fBparport.write\-all (funct)
+Reads HAL \-out pins of all ports and updates all physical output pins.
+.TP
+\fBparport.<p>.reset (funct)
+Waits until \fIreset\-time \fRhas elapsed since the associated write, then resets pins to values indicated by \fI\-out\-reset \fRand \fI\-out\-invert \fRsettings. 
+Reset must be later in the same thread as write. 'If '\fI\-out\-reset \fRis TRUE, then the reset function will set the pin to the value of \fI\-out\-invert\fR.
+This can be used in conjunction with stepgen's doublefreq to produce one step per period.
+The stepgen stepspace for that pin must be set to 0 to enable doublefreq.
+.SH USAGE
+The hal_parport component is a driver for the traditional PC parallel port.
+The port has a total of 25 physical pins of which 17 are used for signals.
+The original parallel port divided those pins into three groups: data, control, and status.
+The data group consists of 8 output pins, the control group consists of 4 output pins, and the status group consists of 5 input pins.
+
+In the early 1990's, the bidirectional parallel port was introduced, which allows the data group to be used for output or input.
+The HAL driver supports the bidirectional port, and allows the user to set the data group as either input or output.
+If configured as \fIout\fR, a port provides a total of 12 outputs and 5 inputs.
+If configured as \fIin\fR, it provides 4 outputs and 13 inputs.
+
+In some parallel ports, the control group pins are open collectors, which may also be driven low by an external gate.
+On a board with open collector control pins, if configured as \fIx\fR, it provides 8 outputs, and 9 inputs.
+
+In some parallel ports, the control group has push-pull drivers and cannot be used as an input.
+.TP
+\fBNote: HAL and Open Collectors
+HAL cannot automatically determine if the x mode bidirectional pins are actually open collectors (OC).
+If they are not, they cannot be used as inputs, and attempting to drive them LOW from an external source can damage the hardware.
+
+To determine whether your port has open collector pins, load hal_parport in x mode.
+With no device attached, HAL should read the pin as TRUE.
+Next, insert a 470 ohm resistor from one of the control pins to GND.
+If the resulting voltage on the control pin is close to 0V, and HAL now reads the pin as FALSE, then you have an OC port.
+If the resulting voltage is far from 0V, or HAL does not read the pin as FALSE, then your port cannot be used in x mode.
+
+The external hardware that drives the control pins should also use open collector gates (e.g., 74LS05).
+
+On some computers, BIOS settings may affect whether x mode can be used. SPP mode is most likely to work.
+.PP
+No other combinations are supported, and a port cannot be changed from input to output once the driver is installed.
+
+The parport driver can control up to 8 ports (defined by MAX_PORTS in hal_parport.c).
+The ports are numbered starting at zero.
+.TP
+\fBLoading the hal_parport component
+
+The hal_parport driver is a real time component so it must be loaded into the real time thread with loadrt.
+The configuration string describes the parallel ports to be used, and (optionally) their types.
+If the configuration string does not describe at least one port, it is an error.
+
+\fBloadrt hal_parport cfg="port [type] [port [type] ...]"
+.TP
+\fBSpecifying the Port
+
+Numbers below 16 refer to parallel ports detected by the system.
+This is the simplest way to configure the hal_parport driver, and cooperates with the Linux parport_pc driver if it is loaded.
+A port of 0 is the first parallel port detected on the system, 1 is the next, and so on.
+.TP
+\fBBasic configuration
+
+This will use the first parallel port Linux detects:
+
+      \fBloadrt hal_parport cfg="0"
+.TP
+\fBUsing the Port Address
+
+Instead, the port address may be specified using the hex notation 0x then the address.
+
+      \fBloadrt hal_parport cfg="0x378"
+.TP
+\fBSpecifying a port Type
+
+For each parallel port handled by the hal_parport driver, a type can optionally be specified. The type is one of in, out, epp, or x.
+
+If the type is not specified, the default is out.
+
+A type of epp is the same as out, but the hal_parport driver requests that the port switch into EPP mode.
+The hal_parport driver does not use the EPP bus protocol, but on some systems EPP mode changes the electrical characteristics of the port in a way that may make some marginal hardware work better.
+The Gecko G540's charge pump is known to require this on some parallel ports.
+
+See the Note above about mode x.
+.TP
+\fBExample with two parallel ports
+
+This will enable two system-detected parallel ports, the first in output mode and the second in input mode:
+
+      \fBloadrt hal_parport cfg="0 out 1 in"
+.TP
+\fBFunctions single port
+
+You must also direct LinuxCNC to run the read and write functions.
+
+      \fBaddf parport.read\-all base\-thread
+      \fBaddf parport.write\-all base\-thread
+.TP
+\fBFunctions multiple ports
+
+You can direct LinuxCNC to run the read and write functions for all the attached ports.
+
+      \fBaddf parport.0.read base\-thread
+      \fBaddf parport.0.write base\-thread
+
+\fRThe individual functions are provided for situations where one port needs to be updated in a very fast thread, but other ports can be updated in a slower thread to save CPU time.
+It is probably not a good idea to use both an \-all function and an individual function at the same time.
+.SH SEE ALSO
+Parallel Port Driver (Hardware Drivers Section of LinuxCNC Docs),
+.BR PCI Parallel Port Example (Hardware Examples Section of LinuxCNC Docs)
+.SH AUTHOR
+This man page written by Joe Hildreth as part of the LinuxCNC project.
+Most of this information was taken from the parallel-port docs located in the Hardware Drivers section of the documentation.
+To the best of my knowledge that documentation was written by Sebastian Kuzminsky and Chris Radek.

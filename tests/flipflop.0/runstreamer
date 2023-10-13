@@ -1,0 +1,13 @@
+#!/bin/sh
+halstreamer << EOF
+1 1 0 0   # Test loading 1 into the FF
+1 0 0 0
+0 1 0 0   # Test loading 0
+0 0 0 0
+1 1 0 0   # Test that it is edge sensitive, not level
+0 1 0 0
+0 0 1 0   # Test that reset works
+1 1 1 0
+0 1 1 1   # Test that reset overrides set
+0 1 0 1   # Test that set works
+EOF

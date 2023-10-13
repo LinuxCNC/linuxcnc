@@ -1,0 +1,202 @@
+component limit3 """Follow input signal while obeying limits
+Limit the output signal to fall between min and max, limit its slew
+rate to less than maxv per second, and limit its second derivative to
+less than maxa per second squared.  When the signal is a position,
+this means that the position, velocity, and acceleration are limited.""";
+pin in float in;
+pin in bit enable = 1 "1: out follows in, 0: out returns to 0 (always per constraints)";
+pin out float out;
+pin in bit load=0
+    """When TRUE, immediately set \\fBout\\fB to \\fBin\\fR, ignoring maxv
+and maxa""";
+pin in float min_=-1e20;
+pin in float max_=1e20;
+pin in float maxv=1e20;
+pin in float maxa=1e7 """Max Acceleration. Note that the component becomes
+unstable with maxa greater than about 1e7 in a 1kHz thread""";
+pin in u32 smooth_steps=2
+    """Smooth out acceleration this many periods before reaching input or
+max/min limit.  Higher values avoid oscillation, but will accelerate
+slightly more slowly.""";
+variable double in_pos_old;
+variable double out_old;
+function _;
+license "GPL";
+author "John Kasunich";
+;;
+
+#include "rtapi_math.h"
+
+#define SET_NEXT_STATE(_out, _in)			\
+    do {						\
+	out_old = out;					\
+	out = _out;					\
+	in_pos_old = _in;				\
+	return;						\
+    } while (0)
+
+#define VALID_NEXT(pos) ((pos) <= max_pos && (pos) >= min_pos)
+
+// Distance = avg. velocity * time
+#define S_GIVEN_VI_VF_T(vi,vf,t) (((vf) + (vi))/2 * (t))
+// Time = chg. velocity / acceleration
+#define T_GIVEN_VI_VF_A(vi,vf,a) (((vf) - (vi)) / (a))
+// Final velocity = initial velocity + acceleration * time
+#define VF_GIVEN_VI_A_T(vi,a,t) ((vi) + (a)*(t))
+// A fudge amount for division errors
+#define EPSILON 1e-9
+
+FUNCTION(_) {
+    double invalue;
+    double in_pos_lim, in_vel;
+    double min_vel, max_vel, min_pos, max_pos;
+    double stop_pos_max, stop_pos_min;
+    double stop_time_max, stop_time_min;
+    double in_vel_time_max, in_vel_time_min;
+    double out_pos_max, out_pos_min, in_pos_max, in_pos_min;
+    double ach_pos_min, ach_pos_max;
+
+    double out_vel = (out-out_old)/fperiod;
+    double goal_pos_min, goal_pos_max, goal_pos_cur;
+    double pos_diff, vel_diff, goal_pos_prev;
+    double t, ti, a, v, s;
+
+    if (enable) {
+        invalue = in; // out pin follows in pin per limits
+    } else {
+        invalue = 0;  // out pin returns to 0 per limits
+                      // so steady-state out==0
+    }
+
+    if (load) {
+	// Apply first order limit
+	in_pos_lim = fmin(max_, fmax(min_, invalue));
+	SET_NEXT_STATE(in_pos_lim, in_pos_lim);
+	return;
+    }
+
+    // Principal of operation:
+    // 
+    // 1. Calculate shortest distance (at max acceleration) to
+    //    stop (i.e. reach vel=0) and to match the input velocity
+    // 2. Compare our projected positions and choose whether to worry
+    //    about the max/min limits or to follow the input signal
+    // 3. Adjust acceleration according to decision and return
+
+    // 1.  Calculate distances and times to stop and match input velocity
+    //
+    // Input and output velocity
+    in_vel = (invalue - in_pos_old) / fperiod;
+    out_vel = (out - out_old) / fperiod;
+    //
+    // Most negative/positive velocity reachable in one period
+    min_vel = fmax(VF_GIVEN_VI_A_T(out_vel, -maxa, fperiod), -maxv);
+    max_vel = fmin(VF_GIVEN_VI_A_T(out_vel,  maxa, fperiod),  maxv);
+    // Most negative/positive position reachable in one period
+    // - cur. pos + (distance to reach min/max vel in one period)
+    min_pos = out + min_vel * fperiod;
+    max_pos = out + max_vel * fperiod;
+    //
+    // Shortest possible distance to stop
+    // - time to decel to 0; start from previous period
+    stop_time_max = fabs(T_GIVEN_VI_VF_A(max_vel, 0.0, maxa)) + fperiod;
+    stop_time_min = fabs(T_GIVEN_VI_VF_A(min_vel, 0.0, maxa)) + fperiod;
+    // - distance to stop from max_pos/min_pos
+    stop_pos_max = out + S_GIVEN_VI_VF_T(max_vel, 0.0, stop_time_max);
+    stop_pos_min = out + S_GIVEN_VI_VF_T(min_vel, 0.0, stop_time_min);
+    //
+    // Shortest possible distance to match input velocity
+    // - time to match input velocity from this period; out runs 1 period behind
+    in_vel_time_max = fabs(T_GIVEN_VI_VF_A(max_vel, in_vel, maxa)) - fperiod;
+    in_vel_time_min = fabs(T_GIVEN_VI_VF_A(min_vel, in_vel, maxa)) - fperiod;
+    // - output position after velocity match
+    out_pos_max = max_pos + S_GIVEN_VI_VF_T(max_vel, in_vel, in_vel_time_max);
+    out_pos_min = min_pos + S_GIVEN_VI_VF_T(min_vel, in_vel, in_vel_time_min);
+    // - input position after velocity match
+    in_pos_max = invalue + in_vel * in_vel_time_max;
+    in_pos_min = invalue + in_vel * in_vel_time_min;
+
+    // 2. Choose the current goal:  input signal, max limit or min limit
+    // 
+    // Min/Max limits:
+    // - assume we're stopping at a limit by default
+    vel_diff = -out_vel;
+    ach_pos_min = stop_pos_min;
+    ach_pos_max = stop_pos_max;
+    // - are we headed to crash into a min/max limit?
+    if (stop_pos_max > max_ + EPSILON && !VALID_NEXT(max_))
+	goal_pos_min = goal_pos_max = goal_pos_cur = goal_pos_prev = max_;
+    else if (stop_pos_min < min_ - EPSILON && !VALID_NEXT(min_))
+	goal_pos_min = goal_pos_max = goal_pos_cur = goal_pos_prev = min_;
+    // - if input is outside min/max limit but heading back in, is
+    //   there time to keep heading toward the limit before we need to
+    //   start running to meet the input signal?
+    else if (invalue >= max_ && in_pos_max > out_pos_max)
+	goal_pos_min = goal_pos_max = goal_pos_cur = goal_pos_prev = max_;
+    else if (invalue <= min_ && in_pos_min < out_pos_min)
+	goal_pos_min = goal_pos_max = goal_pos_cur = goal_pos_prev = min_;
+    //
+    // Input signal:
+    // - no min/max constraints; chase the input signal
+    else {
+	goal_pos_min = in_pos_min;
+	goal_pos_max = in_pos_max;
+	goal_pos_cur = invalue;
+	goal_pos_prev = in_pos_old;
+	vel_diff = out_vel - in_vel;
+	ach_pos_min = out_pos_min;
+	ach_pos_max = out_pos_max;
+    }
+
+    // 3.  Adjust acceleration
+    //
+    // - Difference in position, last cycle
+    pos_diff = out - goal_pos_prev;
+    // - Time to reach goal position and velocity with uniform acceleration
+    if (fabs(vel_diff) < EPSILON)
+	t = 0;
+    else
+	t = pos_diff / ((vel_diff + 0) / 2); // t = dp / (avg dv)
+
+    // - If current position and velocity are close enough to reach
+    //   goal position in this period, and maintaining goal velocity
+    //   in the next period doesn't violate acceleration constraints,
+    //   pass the input straight to the output
+    if (VALID_NEXT(goal_pos_cur) && fabs(t) <= fperiod)
+	    SET_NEXT_STATE(goal_pos_cur, invalue);
+
+    // - If no danger of overshoot, accel at max in direction of goal
+    if (ach_pos_max < goal_pos_max + EPSILON)
+	// Max pos. accel toward goal will still fall short
+	SET_NEXT_STATE(max_pos, invalue);
+    if (ach_pos_min > goal_pos_min - EPSILON)
+	// Max neg. accel toward goal will still fall short
+	SET_NEXT_STATE(min_pos, invalue);
+
+    // - If close to reaching goal, try to grease a landing; always
+    //   using max acceleration can result in oscillating around the
+    //   goal but never quite getting things right to 'lock' onto it
+    if (fabs(t) < fperiod * smooth_steps) {
+	// - Round up the magnitude of time to an integral number of periods
+#       define SIGN(n) (((n)>=0) ? 1 : -1)
+	ti = (int)((t - EPSILON*SIGN(t)) / fperiod + SIGN(t)) * fperiod;
+	// - Uniform acceleration to reach goal in time `ti`
+	a = (vel_diff - 0) / ti;
+	v = out_vel + a * fperiod;
+	s = v * fperiod;
+	// - Effect new position, within limits
+	SET_NEXT_STATE(fmin(max_pos, fmax(min_pos, out + s)), invalue);
+    }
+
+    // - If moving toward goal and in danger of overshoot, accelerate
+    //   at max in opposite direction of goal
+    if (goal_pos_max + EPSILON < ach_pos_max && goal_pos_prev > out)
+    	// Heading up from below
+	SET_NEXT_STATE(min_pos, invalue);
+    if (goal_pos_min - EPSILON > ach_pos_min && goal_pos_prev < out)
+    	// Heading down from above
+	SET_NEXT_STATE(max_pos, invalue);
+
+    // - Shouldn't get here; coast
+    SET_NEXT_STATE((min_pos+max_pos)/2, invalue);
+}

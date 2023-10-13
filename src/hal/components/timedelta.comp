@@ -1,0 +1,54 @@
+component timedelta "LinuxCNC HAL component that measures thread scheduling timing behavior";
+
+pin out s32 jitter=0 "Worst-case scheduling error (in ns).  This is the largest discrepancy between ideal thread period, and actual time between sequential runs of this component.  This uses the absolute value of the error, so 'got run too early' and 'got run too late' both show up as positive jitter.";
+
+pin out s32 current_jitter=0 "Scheduling error (in ns) of the current invocation.  This is the discrepancy between ideal thread period, and actual time since the previous run of this component.  This uses the absolute value of the error, so 'got run too early' and 'got run too late' both show up as positive jitter.";
+
+pin out s32 current_error=0 "Scheduling error (in ns) of the current invocation.  This is the discrepancy between ideal thread period, and actual time since the previous run of this component.  This does not use the absolute value of the error, so 'got run too early' shows up as negative error and 'got run too late' shows up as positive error.";
+
+pin out s32 min_=0 "Minimum time (in ns) between sequential runs of this component.";
+
+pin out s32 max_=0 "Maximum time (in ns) between sequential runs of this component.";
+
+pin in bit reset "Set this pin to True, then back to False, to reset some of the statistics.";
+
+pin out s32 out "Time (in ns) since the previous run of this component.  This should ideally be equal to the thread period.";
+
+pin out s32 err=0 "Cumulative time error (in ns).  Probably not useful.";
+
+pin out float avg_err=0 "The average scheduling error (in ns).";
+
+
+function _ nofp;
+variable rtapi_s64 last=0;
+variable int first=1;
+license "GPL";
+author "Jeff Epler";
+;;
+#undef max
+#define max(a,b) ((a)>(b)?(a):(b))
+
+rtapi_s64 now = rtapi_get_time();
+
+if(last != 0) {
+        rtapi_s64 del = (now - last);
+        out = del;
+
+	err = err + del - period;
+	if(first) {
+		first = 0;
+		min_ = max_ = del;
+		jitter = 0;
+	} else {
+		if(del < min_) min_ = del;
+		if(del > max_) max_ = del;
+		jitter = max(max_ - period, period - min_);
+		current_jitter = max(del - period, period - del);
+		current_error = del - period;
+	}
+	count++;
+	avg_err = err / (double)count;
+}
+
+if(reset) { first = 1; last = 0; out = 0; jitter = 0; max_ = 0; }
+else last = now;

@@ -1,0 +1,31 @@
+
+############### plasma hal pins #################### 
+
+# out pin
+# plasma.CHL-Threshold             (float)
+# plasma.enable-HeightLock         (bool)
+# plasma.enable-HeightLock-not     (bool)
+# plasma.hal-btn-torch-not         (bool)
+# plasma.hal-btn-torch             (bool)
+# plasma.Target-Voltage            (float)
+# plasma.THC-Speed                 (float)
+# plasma.Piercing-autostart-not    (bool)
+# plasma.Piercing-autostart        (bool)
+# plasma.Pierce-Gap                (float)
+# plasma.Pierce-Delay              (float)
+# plasma.G0-Gap                    (float)
+# plasma.Cut-Gap                   (float)
+
+# in pin
+# plasma.led-pos-limit             (bool)
+# plasma.led-neg-limit             (bool)
+# plasma.hal-lbl-corr              (float)
+# plasma.hal-lbl-cur-volt          (float)
+
+
+# Hook up plasma pins using the net command
+
+# for simulation mode we connect them directly
+net torch       plasma.hal-btn-torch    => signals.led-torch-on => signals.led-arc-ok
+net curvolt     plasma.Target-Voltage   => plasma.hal-lbl-cur-volt
+

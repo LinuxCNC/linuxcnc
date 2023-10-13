@@ -1,0 +1,115 @@
+// Created on: 1996-01-30
+// Created by: Jacques GOUSSARD
+// Copyright (c) 1996-1999 Matra Datavision
+// Copyright (c) 1999-2014 OPEN CASCADE SAS
+//
+// This file is part of Open CASCADE Technology software library.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License version 2.1 as published
+// by the Free Software Foundation, with special exception defined in the file
+// OCCT_LGPL_EXCEPTION.txt. Consult the file LICENSE_LGPL_21.txt included in OCCT
+// distribution for complete text of the license and disclaimer of any warranty.
+//
+// Alternatively, this file may be used under the terms of Open CASCADE
+// commercial license or contractual agreement.
+
+#include <StdFail_NotDone.hxx>
+
+
+//=======================================================================
+//function : LocOpe_Gluer
+//purpose  : 
+//=======================================================================
+
+inline LocOpe_Gluer::LocOpe_Gluer () : 
+   myDone(Standard_False),myOri(TopAbs_INTERNAL),myOpe(LocOpe_INVALID)
+{}
+
+
+//=======================================================================
+//function : LocOpe_Gluer
+//purpose  : 
+//=======================================================================
+
+inline LocOpe_Gluer::LocOpe_Gluer (const TopoDS_Shape& Sbase,
+			       const TopoDS_Shape& Snew) :
+   myDone(Standard_False),mySb(Sbase),mySn(Snew),myOri(TopAbs_INTERNAL),myOpe(LocOpe_INVALID)
+{}
+
+
+//=======================================================================
+//function : IsDone
+//purpose  : 
+//=======================================================================
+
+inline Standard_Boolean LocOpe_Gluer::IsDone() const
+{
+  return myDone;
+}
+
+
+//=======================================================================
+//function : ResultingShape
+//purpose  : 
+//=======================================================================
+
+inline const TopoDS_Shape& LocOpe_Gluer::ResultingShape () const
+{
+  if (!myDone) {
+    throw StdFail_NotDone();
+  }
+  return myRes;
+}
+
+//=======================================================================
+//function : BasisShape
+//purpose  : 
+//=======================================================================
+
+inline const TopoDS_Shape& LocOpe_Gluer::BasisShape () const
+{
+  return mySb;
+}
+
+//=======================================================================
+//function : GluedShape
+//purpose  : 
+//=======================================================================
+
+inline const TopoDS_Shape& LocOpe_Gluer::GluedShape () const
+{
+  return mySn;
+}
+
+//=======================================================================
+//function : OpeType
+//purpose  : 
+//=======================================================================
+
+inline LocOpe_Operation LocOpe_Gluer::OpeType() const
+{
+  return myOpe;
+}
+
+
+//=======================================================================
+//function : Edges
+//purpose  : 
+//=======================================================================
+
+inline const TopTools_ListOfShape& LocOpe_Gluer::Edges() const
+{
+  return myEdges;
+}
+
+
+//=======================================================================
+//function : TgtEdges
+//purpose  : 
+//=======================================================================
+
+inline const TopTools_ListOfShape& LocOpe_Gluer::TgtEdges() const
+{
+  return myTgtEdges;
+}

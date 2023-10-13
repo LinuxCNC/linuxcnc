@@ -1,0 +1,28 @@
+Configuraciones de muestra para códigos reasignados
+
+Esto es lo que hacen las configuraciones de ejemplo:
+
+Primeros pasos: introduce la definición de nuevos códigos en procedimientos NGC y Python
+
+extend-builtins: demuestra la reasignación de los builtins T, M6, M61, S, F. Este podría ser un punto de partida para su propia configuración. También muestra cómo referirse al comportamiento integrado de los códigos.
+
+manual-toolchange-with-tool-length-switch: extender M6 para que haga una sonda de longitud de herramienta después del cambio.
+
+rack-toolchange: intenta imitar el parche del cambiador rack de herramientas, sin parche, sino con códigos de reasignación
+
+cycles: una demostración de cómo se pueden crear nuevos códigos de ciclo con subrutinas O-word o en Python
+
+iocontrol-remove: una 'parte de investigación' de la rama de reasignación (ahora fusionada): demuestra cómo eliminar iocontrol por completo y reemplazarlo por un complemento de Python en la tarea. Aparte de eso, se utiliza el ejemplo de cambiador de herramientas de rack. Además, usa experimentalmente sqlite3 para el almacenamiento de la tabla de herramientas.
+
+>>>>>>>>>>> No recomendado para uso en producción. <<<<<<<<<<<<<<<<<<<<<<<<
+
+python-stdglue contiene código Python incrustado que admite los ejemplos anteriores. Esto eventualmente debería evolucionar hacia un código enlatado que los usuarios no necesitan tocar, excepto en circunstancias más exóticas. Tenga en cuenta que todos los ejemplos anteriores usan el mismo código glue de remap.py.
+
+common_nc_subs: contiene reset_state.ngc, que debe llamarse desde el procedimiento ON_ABORT. Tenga en cuenta que es particularmente importante restablecer el estado modal después de un procedimiento de reasignación fallido porque esto puede conducir a fallas posteriores (por ejemplo, ID de error 3437928). Las demostraciones usan su propio sub on_abort y llaman a reset_state.
+
+Reasignación de documentación:
+  http://www.linuxcnc.org/docs/devel/html/remap/structure.html
+
+ver también:
+  http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?RemappingStatus
+

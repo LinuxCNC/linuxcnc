@@ -1,0 +1,11 @@
+info: crear archivo de información del sistema
+
+Directorios:
+
+gladevcp -- widgets de demostración
+halrun ---- inicia halrun en xterm
+latency --- aplicaciones para investigar latencia
+parport --- pruebas de puerto paralelo
+pyvcp ----- demostraciones
+xhc-hbo4 -- prueba de colgante inalámbrico usb
+

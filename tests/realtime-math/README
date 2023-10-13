@@ -1,0 +1,6 @@
+
+This test verifies that all the realtime math functions declared in
+rtapi_math.h are available at link-time.
+
+This test should be kept in sync with src/rtapi/rtapi_math.h
+

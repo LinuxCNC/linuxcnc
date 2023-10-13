@@ -1,0 +1,24 @@
+# This is a skeleton makefile for a subdirectory
+
+# FOOSRCS is a nice way to collect some source file names.  Use $(patsubst) or
+# $(addprefix) if you are listing a bunch of files from a subdirectory and
+# would like to save a few keystrokes.
+FOOSRCS := \
+	path/src.cc
+USERSRCS += $(FOOSRCS)
+
+# This next line causes things in FOOSRCS to be compiled with an extra
+# preprocessor symbol defined.  EXTRAFLAGS can be used to specify any C
+# compiler flag.
+$(call TOOBJSDEPS, $(FOOSRCS)) : EXTRAFLAGS = -Dfoo
+
+# This is how the binary 'foo' is linked.
+../bin/foo: $(call TOOBJS, $(FOOSRCS)) ../lib/libemc.a ../lib/libnml.so.0
+	$(CXX) -o $@ $^ 
+userspace: ../bin/foo
+
+# See emc/rs274ngc/Submakefile for an example of creating a shared library
+# or allowing headers to be copied to ../include.
+
+# See rtapi/Submakefile for an example of how to make some other kind of
+# file (in this case, ../scripts/rtapi.conf)

@@ -1,0 +1,48 @@
+; Repeatedly move to 0,0,0 and 1,2,3 in machine coordinates,
+; but with different offsets in effect; check that in each case,
+; the values in #544x match the just-commanded g53 move
+o<coords> sub
+g53g0x0y0z0
+(debug,#<_abs_x> #<_abs_y> #<_abs_z>)
+g53g0x1y2z3
+(debug,#<_abs_x> #<_abs_y> #<_abs_z>)
+o<coords> endsub
+
+o<suite> sub
+g54
+g92.2
+g10l2p1x0y0z0r0
+o<coords> call
+
+g10l2p1x3y7z0r0
+o<coords> call
+
+g10l2p1x0y0r45
+o<coords> call
+
+g10l2p1x3y7z0r45
+o<coords> call
+
+g10l2p1x0y0z0r0
+g92x3y7
+o<coords> call
+g92.2
+
+g10l2p1x3y7z0r0
+g92x3y7
+o<coords> call
+g92.2
+
+g10l2p1x3y7z0r45
+g92x3y7
+o<coords> call
+g92.2
+o<suite> endsub
+
+g20
+o<suite> call
+
+g21
+o<suite> call
+
+m2

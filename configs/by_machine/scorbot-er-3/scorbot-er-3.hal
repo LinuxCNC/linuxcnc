@@ -1,0 +1,113 @@
+
+loadrt [KINS]KINEMATICS
+#autoconverted  scorbot-kins
+
+# motion controller, get name and thread periods from ini file
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+
+loadrt differential
+
+
+addf motion-command-handler                servo-thread
+addf motion-controller                     servo-thread
+addf differential.0                        servo-thread
+
+loadusr -W scorbot-er-3
+
+
+#
+# E-Stop
+#
+
+net estop-loop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
+
+
+#
+# Joint 0
+#
+
+net j0.cmd <= joint.0.motor-pos-cmd
+net j0.cmd => scorbot-er-3.joint0.motor-pos-cmd
+net j0.cmd => joint.0.motor-pos-fb
+
+net j0.limit <= scorbot-er-3.joint0.limit-sw
+net j0.limit => joint.0.home-sw-in
+net j0.limit => joint.0.neg-lim-sw-in
+net j0.limit => joint.0.pos-lim-sw-in
+
+setp scorbot-er-3.joint0.scale [JOINT_0]SCALE
+
+
+#
+# Joint 1
+#
+
+net j1.cmd <= joint.1.motor-pos-cmd
+net j1.cmd => scorbot-er-3.joint1.motor-pos-cmd
+net j1.cmd => joint.1.motor-pos-fb
+
+net j1.limit <= scorbot-er-3.joint1.limit-sw
+net j1.limit => joint.1.home-sw-in
+net j1.limit => joint.1.neg-lim-sw-in
+net j1.limit => joint.1.pos-lim-sw-in
+
+setp scorbot-er-3.joint1.scale [JOINT_1]SCALE
+
+
+#
+# Joint 2
+#
+
+net j2.cmd <= joint.2.motor-pos-cmd
+net j2.cmd => scorbot-er-3.joint2.motor-pos-cmd
+net j2.cmd => joint.2.motor-pos-fb
+
+net j2.limit <= scorbot-er-3.joint2.limit-sw
+net j2.limit => joint.2.home-sw-in
+net j2.limit => joint.2.neg-lim-sw-in
+net j2.limit => joint.2.pos-lim-sw-in
+
+setp scorbot-er-3.joint2.scale [JOINT_2]SCALE
+
+
+#
+# Joint 3
+# LinuxCNC commands "wrist pitch" on J3, this goes through the differential.
+#
+
+net wrist.pitch-cmd <= joint.3.motor-pos-cmd
+net wrist.pitch-cmd => differential.0.pitch-cmd
+
+net wrist.pitch-fb <= differential.0.pitch-fb
+net wrist.pitch-fb => joint.3.motor-pos-fb
+
+net j3.cmd <= differential.0.motor0-cmd
+net j3.cmd => scorbot-er-3.joint3.motor-pos-cmd
+net j3.cmd => differential.0.motor0-fb
+
+net wrist-pitch.limit <= scorbot-er-3.joint3.limit-sw
+net wrist-pitch.limit => joint.3.home-sw-in
+
+setp scorbot-er-3.joint3.scale [JOINT_3]SCALE
+
+
+#
+# Joint 4
+# LinuxCNC commands "wrist roll" on J4, this goes through the differential.
+#
+
+net wrist.roll-cmd <= joint.4.motor-pos-cmd
+net wrist.roll-cmd => differential.0.roll-cmd
+
+net wrist.roll-fb <= differential.0.roll-fb
+net wrist.roll-fb => joint.4.motor-pos-fb
+
+net j4.cmd <= differential.0.motor1-cmd
+net j4.cmd => scorbot-er-3.joint4.motor-pos-cmd
+net j4.cmd => differential.0.motor1-fb
+
+net wrist-roll.limit <= scorbot-er-3.joint4.limit-sw
+net wrist-roll.limit => joint.4.home-sw-in
+
+setp scorbot-er-3.joint4.scale [JOINT_4]SCALE
+

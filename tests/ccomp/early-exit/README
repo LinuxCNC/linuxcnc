@@ -1,0 +1,5 @@
+This test starts LinuxCNC, enables cutter comp (with G41.1), then
+immediately cancels cutter comp (with G40) and verifies that the next
+motion goes to the expected location.
+
+In 2.6.12 and 2.7.7 this test replicates Github Issue #160.

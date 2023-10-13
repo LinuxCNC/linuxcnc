@@ -1,0 +1,49 @@
+; for debugging, use mdi to set global #<_switchkins_debug>=1
+
+#<FRATE>=1000
+M429 ;Trivkins
+G64 P0.01
+S1500 M3
+G0 X0 Y0 Z5 A0 C0
+G1 F#<FRATE> Z0
+G1 X20 Y0 F#<FRATE>
+
+M428 ;XYZAC
+G1 C90
+G1 X20
+G1 Y20
+G1 X0
+G1 Y0
+G1 A20
+G1 X-20
+G1 Y-20
+G1 X0
+G1 Y0
+
+(-------)
+G1 C45
+G1 X-15
+G1 Y15
+G1 X0
+G1 Y0
+G1 Y-15
+G1 X15
+G1 Y0
+G1 X0
+
+(-------)
+G1 C90 X15
+G1 C180 Y15
+G1 C270 X0
+G1 C360 Y0
+G1 C0
+G1 C-90 X-15
+G1 C-180 Y-15
+G1 C-270 X0
+G1 C-360 Y0
+G1 Z5
+
+M429 ;Trivkins
+
+G1 X0 Y0 Z1 A0 C0
+M2

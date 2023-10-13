@@ -1,0 +1,11 @@
+o<change> sub
+(debug, change call_level= #<_call_level> remap_level=#<_remap_level>)
+(debug, change tool_in_spindle=#<tool_in_spindle> pocket=#<pocket>)
+
+; demonstrate aborting a change on pocket  3 by returning a negative value
+	o<testabort> if [#<pocket> EQ 3]
+		     o<testabort> return [-1]
+	o<testabort> endif
+
+o<change> endsub [1]
+m2

@@ -1,0 +1,6 @@
+* need to actually test some generated configs (max, zen, and maybe hermes?)
+* what about following error -- appropriate values?
+* how does estop chain work?
+* last page information
+* run latency test concurrently with configurator (or not)
+* flesh out "test an axis" dialog

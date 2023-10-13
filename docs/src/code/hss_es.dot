@@ -1,0 +1,14 @@
+digraph net {
+  IDLE;
+  START_JOINTS;
+  START;
+  WAIT_JOINTS;
+
+  IDLE -> START [label="EMCMOT_HOME(-1)"];
+  START -> START_JOINTS;
+  START_JOINTS -> WAIT_JOINTS;
+  WAIT_JOINTS -> START_JOINTS [label="todas las articulaciones\nen la secuencia\n han adquirido home"];
+  START_JOINTS -> IDLE [label="si no quedan\n articulaciones\nsin home"];
+  WAIT_JOINTS -> IDLE [label="la articulacion tiene error\n en su camino a home"];
+  WAIT_JOINTS -> WAIT_JOINTS;
+}

@@ -1,0 +1,20 @@
+%
+( A nested Fanuc subroutine example )
+
+#1 = 0
+(PRINT,X MAIN BEGIN:  1=#1)
+M98 P2 L5
+(PRINT,X MAIN END:  1=#1)
+M30
+
+O2
+M98 P1 L5
+#1 = [FIX[#1] + 1]
+(PRINT,X O2 END:  1=#1)
+M99
+
+O1
+#1 = [#1 + 0.1]
+(PRINT,X >>>> LOOP [O2.O1]:  #1)
+M99
+%

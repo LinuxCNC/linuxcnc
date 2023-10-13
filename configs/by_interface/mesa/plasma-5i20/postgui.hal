@@ -1,0 +1,16 @@
+
+# THC connections
+net thc-enable pyvcp.thc-enable thc.enable
+net thc-voltmeter pyvcp.actual-volts thc.volts
+net thc-voltset pyvcp.volts-requested thc.volts-requested
+net thc-req-vel thc.requested-vel <= motion.requested-vel
+net thc-cur-vel thc.current-vel <= motion.current-vel
+net thc-vel-status pyvcp.vel-status thc.vel-status
+net thc-vel-tol pyvcp.vel-tol thc.vel-tol
+
+#net thc-volts-tol pyvcp.volts-tolerance-i thc.volts-tol
+
+# MDI commands 
+# rapid to home button
+net remote-rapid-home halui.mdi-command-00 <= pyvcp.rapid-to-home
+

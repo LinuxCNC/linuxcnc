@@ -1,0 +1,15 @@
+G90 G20
+
+G64 P0.02 Q0.0
+
+#<dist>=.2
+#<ratio>=1.1
+#<radius>=[#<dist> * #<ratio> / 2]
+G0 X0 Y0
+G3 X#<dist> Z0 R#<radius> P3 F1000
+/G3 X[#<dist>*2] Z0 R#<radius> P3
+G1 Y2
+G1 Y[#<dist>+0.02]
+G2 Y[#<dist>+0.02] I-0.02
+M30
+

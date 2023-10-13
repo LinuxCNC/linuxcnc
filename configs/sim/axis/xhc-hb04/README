@@ -1,0 +1,259 @@
+These sim configurations demonstrate use of an XHC-HB04 wireless MPG pendant in LinuxCNC using a HAL module created by Frederic Rible (frible@teaser.fr) (Copyright (C) 2013).  Ref:
+
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Using_A_XHC-HB04_Wireless_MPG_Pendant
+
+The HAL module is designed for the XHC-HB04 V3.0 identified as USB device 10CE:EB70.
+Most of the pendant features are handled:
+- buttons converted to hal pins
+- jog wheel with variable scale (use stepsize-up or stepsize-down pin to change in sequence)
+- sequences provided include:
+     (0.001,0.010,0.100,1.000)  typ for mm-base machine
+     (0.001,0.005,0.010,0.020)  typ for inch-base machine
+- LCD screen displays machine and relative positions
+
+Sim configurations are provided for two known button configurations:
+
+layout1 -- 16 buttons
+layout2 -- 18 buttons (more common)
+
+The button names are defined in the files LIB:xhc-hb04-layout*.cfg in a stanza labeled XHC-HB04 with definitions as BUTTON=XX:name where XX is a hexadecimal code used by the device.
+
+Example:
+   [XHC-HB04]
+   BUTTON=01:button-stop
+   BUTTON=03:button-rewind
+   ...
+
+A hal pin (Type=bit, Dir=OUT) is created for each button, for example:
+   xhc-hb04.button-stop
+   xhc-hb04.button-rewind
+   ...
+
+If the configuration file includes buttons named:
+  button-zero
+  button-goto-zero
+  button-half
+then the driver creates additional buttons for these that are active only if the joint is selected by the rotary switch.  These synthesized buttons are:
+  button-zero-x
+  button-zero-y
+  button-zero-z
+  button-zero-a
+  button-goto-zero-x
+  button-goto-zero-y
+  button-goto-zero-z
+  button-goto-zero-a
+  button-half-x
+  button-half-y
+  button-half-z
+  button-half-a
+As with real buttons, the synthesized buttons have hal pins named:
+  xhc-hb04.button-zero-x
+  xhc-hb04.button-zero-y
+  etc.
+
+
+Additional hal pins are created by the xhc-hb04 driver and connected as required by the halfile included for the demo configurations.
+
+A working and connected xhc-hb04 device is required for the demonstration configurations.  If not connected, the sim configs will start without pendant functionality.
+
+----------------------------------
+A udev rules file is needed to give correct permissions for USB access.  With a deb install, the rules file is installed as /lib/udev/rules.d/99-xhc.rules
+
+If using a Run-In-Place (RIP) build, create a file in the location for user-installed rules: /etc/udev/rules.d/99-xhc.rules and include a rule to specify the applicable product and vendor codes and allows both read and write access to the user.
+
+Example udev rule:
+ATTR{idProduct}=="eb70", ATTR{idVendor}=="10ce", MODE="0666", OWNER="root", GROUP="plugdev"
+
+This rule uses mode 0666 to provide read and write access to owner,group,world -- e.g., everyone.
+
+----------------------------------
+The sim configurations use a single halfile: LIB:xhc-hb04.tcl.  This halfile uses a custom comp file (xhc_hb04_util.comp) and can be added to existing configurations by adding an ini file entry for:
+  [HAL]HALFILE = LIB:xhc-hb04.tcl
+
+This HALFILE entry should follow other HALFILE entries.
+
+Optional configuration ini file items and the defaults values are:
+
+[XHC_HB04_CONFIG]
+threadname = servo-thread (optional, default: servo-thread)
+layout     = 2            (optional, 1: 16 buttons | 2: 18 buttons, default: 2)
+coords     = x y z a      (optional, 4 max, default: x y z a)
+coefs      = 1 1 1 1      (optional, filter coefs 0 < coef < 1, default: 1 1 1 1)
+mpg_accels = 1 2 2 200    (optional: reduced accelerations for jogging)
+                          (in machine_units/sec/sec like:)
+                          ( [AXIS_L]MAX_ACCELERATION,[JOINT_n]MAX_ACCELERATION)
+scales     = 1 1 1 1      (optional, plus/minus factors, default: 1 1 1 1)
+require_pendant = yes     (optional, yes | no, default: yes)
+inch_or_mm = in           (optional, in | mm for display icon, default: mm)
+jogmode    = normal       (optional, normal | vnormal default: normal)
+sequence   = 1            (optional, 1 | 2 | 3 | 4 | 5, default: 1)
+                           1: 0.001,0.010,0.100,1.000 (typ for mm machine)
+                           2: 0.001,0.005,0.010,0.020 (typ for inch machine)
+                           3: 0.001,0.010,0.100
+                           4: 0.001,0.005,0.010,0.020,0.050,0.100
+                           5: 0.001,0.010,0.050,0.100,1.000
+
+The filter coefs can be used to slow the response to wheel steps but are usually not needed since the xhc-hb04 component implements smoothing.
+
+The movement per wheel increment is normally controlled by connecting the STEP button to the hal pin xhc-hb04.stepsize-up (or xhc-hb04.stepsize-down). Each press of the STEP button will cause the wheel increment to increase according to the sequence specified.  The sequence starts over after the maximum value is reached.
+
+The scale factor for each joint can be set with the scales item.
+
+When require_pendant = no, the xhc-hb04 hal pins will be created even if the pendant is not connected at startup.  A new connection, a disconnect, and a reconnect are supported.
+----------------------------------
+jogmodes:
+  normal: position mode, the joint will move exactly regardless of how long it takes.  Beware: the machine may keep moving after you stop rotating the jog wheel.
+
+  vnormal: velocity mode, the joint will stop when the wheel stops.  Beware: the amount moved per wheel detent may be less than specified if the machine velocity and acceleration cannot accomplish the move in time.
+
+----------------------------------
+sequence: Typically use 1 for mm-based machine, 2 for inch-based machine
+
+----------------------------------
+Pendant buttons are connected to hal pins with ini file items.
+Examples:
+[XHC_HB04_BUTTONS]
+stop        = halui.program.stop
+goto-zero   = halui.mdi-command-00
+step        = xhc-hb04.stepsize-up
+rewind      = halui.program.step
+macro-1     = halui.mdi-command-01
+mode        = ""  (placeholder)
+
+With the above items, connections are made as:
+  Signal_name       Source pin                   Destination pin
+  ----------------- ---------------------------- ------------------------
+  pendant:stop      <== xhc-hb04.button-stop      ==> halui.program.stop
+  pendant:goto-zero <== xhc-hb04.button-goto-zero ==> halui.mdi-command-00
+  pendant:step      <== xhc-hb04.button-step      ==> xhc-hb04.stepsize-up
+  etc ...
+
+
+Note: halui MDI commands are defined in a [HALUI] stanza:
+[HALUI]
+MDI_COMMAND = G0 X0 Y0 Z0
+MDI_COMMAND = M101
+
+The commands are assigned to pins (Type=bit, Dir=IN) named halui.mdi-command-nn where
+nn corresponds to their ordered appearance beginning with nn=00.  (man halui for more information)
+----------------------------------
+A application named monitor-xhc-hb04 is included to monitor disconnects and reconnects of the pendant.  This script runs in the background and will pop up a message when the pendant is disconnected or reconnected.  Usage is optional; if used it is specified with ini file entry:
+  [APPLICATIONS]APP = monitor-xhc-hb04
+
+(Note: when using require_pendant=1, disconnects are detected but reconnects are not supported)
+----------------------------------
+See the manpage for xhc-hb04 for details on the xhc-hb04 component
+----------------------------------
+
+The demo ini files are examples using the axis gui in a simulator configuration.
+These files use #INCLUDE directives to include files for the basic machine
+and for the pendant layout.
+
+For example, the organization for the xhc-hb04-layout2.ini file is:
+
+   #INCLUDE inch_base.inc     | Conventional items for an inch based sim
+   #INCLUDE layout2.inc       | All button items ([XHC_HB04_BUTTONS],[HALUI])
+
+   [EMC]                      | Machine identifier
+   MACHINE =                  |
+
+   [HAL]                      | HAL items
+   HALFILE =                  |
+   ...                        |
+   HALFILE =                  |
+   HALFILE = LIB:xhc-hb04.tcl | xhc-hb04 configuration script
+   HALUI   = halui            | Halui specifier
+
+   [XHC_HB04_CONFIG]          | All config items used by LIB:xhc-hb04.tcl
+   layout =                   |
+   coords =                   |
+   coefs =                    |
+   scales =                   |
+   jogmode =                  |
+   sequence =                 |
+   require_pendant =          |
+   inch_or_mm =               |
+   mpg_accels =               |
+
+   [APPLICATIONS]             | Optional auxiliary scripts
+   APP = monitor-xhc-hb04     | Connection monitor script
+
+----------------------------------
+
+Adding an xhc-hb04 to an existing configuration.
+
+Recommended procedure is to create a new configuration based on an existing configuration.
+
+  Copy all files from an existing (working) configuration directory
+  to a new directory and edit the configuration ini file to:
+    a) add [HAL]HALFILE = LIB:xhc-hb04.tcl
+       (this entry should follow other HALFILE entries)
+    b) (optional) add [APPLICATIONS]APP = monitor-xhc-hb04
+       to monitor disconnects/connects of pendant
+    c) add stanza [XHC_HB04_CONFIG] to configure pendant
+    d) include stanzas [XHC_HB04_BUTTONS] and [HALUI] to
+       define button actions (these may be in a separate
+       #INCLUDE file -- see the demo examples)
+
+   The entries in the new or updated stanzas should be customized for your machine.
+
+----------------------------------
+Note: For identity kinematics (trivkins), the LIB:xhc-hb04.tcl script connects
+axis and joint pins having a one-to-one correspondence to support jogging
+in both joint and teleop motion modes.
+
+For unknown kinematics (e.g., non-identity kinematics), the LIB:xhc-hb04
+script connects the axis coordinate specified by:
+   [XHC_HB04_CONFIG]coords=
+for world mode (teleop) jogging.  No connections are made for joint
+mode jogging of individual joints.
+
+If wheel jogging for joints in joint motion mode is wanted for configs with
+non-identity kinematics, use additional Hal connections to connect the
+appropriate joint jog pins.
+
+Example: non-identity kinematics having a rotary axis (c) that has a
+one-to-one correspondence to a single joint (3).  The LIB:xhc-hb04.tcl
+script makes Hal connections for axis c as:
+
+                  pendant:jog-c <= xhc-hb04.jog.enable-a
+                                => axis.c.jog-enable
+              pendant:jog-scale <= pendant_util.divide-by-k-out
+                                => axis.c.jog-scale
+pendant:wheel-counts-c-filtered <= pendant_util.out3
+                                => axis.c.jog-counts
+
+To add joint jogging for joint 3 (with scaling identical to world scaling),
+add supplemental hal commands:
+
+net                   pendant:jog-c => joint.3.jog-enable
+net               pendant:jog-scale => joint.3.jog-scale
+net pendant:wheel-counts-c-filtered => joint.3.jog-counts
+
+These connections could be added in an additional [HAL]HALFILE= or
+by using [HAL]HALCMD= lines in the ini file
+
+Similar connections could be made for other joints having a one-to-one
+correspondence to an axis coordinate.
+
+For joints having no direct correspondence to an axis coordinate, joint jog pin
+connections can be made as in the example above but altered connections may be
+required for proper scaling.  Make the joint jog pin connections using an axis
+coord letter for a position of the pendant rotary axis selector switch.  The
+joint jogging will occur for that switch position when LinuxCNC is in joint
+motion mode.
+
+----------------------------------
+Notes:
+
+ 1) In earlier versions of xhc-hb04.tcl, mpg_accels used a helper
+    script (xhc-hb04-accels) to multiplex reduced accel values during
+    world mode jogging.
+    The current implementation uses pins now provided by the motion
+    module:
+         axis.L.jog-accel-fraction
+         joint.N.jog-accel-fraction
+
+ 2) Support for spindle override is supported using the
+    halui pins: halui.spindle.0.override.* as applicable to
+    default single spindle usage.

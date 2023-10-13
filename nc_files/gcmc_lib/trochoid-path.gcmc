@@ -1,0 +1,198 @@
+/*
+ * G-code meta compiler
+ *
+ * Copyright (C) 2014  B. Stultiens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ * Trochoidal example
+ * ------------------
+ * Trochoidal movement for high-speed milling. A path is followed in a circular
+ * pattern with given radius and increment. Afterwards, a clean cut is
+ * performed to remove the residuals.
+ *
+ * NOTE: To take full advantage of trochoidal milling, you need to have a CNC
+ * program that can look ahead to keep the speed high. For LinuxCNC that means
+ * you will need the git version on branch circular-blend-arc-rc3 (or any later
+ * branch thereof, until it is merges into the master branch).
+ *
+ * @@@--svg-toolwidth 0.5 --svg-opacity 0.25@@@
+ */
+
+/*
+ * Trochoidal point calculation.
+ * See: https://en.wikipedia.org/wiki/Trochoid
+ */
+function trochoid_point(ang, a, b)
+{
+	ang = to_rad(ang);	// Trochoids are defined in radians
+	// The first part is the trochoid, the second part moves the first 180
+	// degree point at a relative "0, 0" location so we can scale in any
+	// way without having to do hard math
+	return [ a * to_none(ang) - b * sin(ang), b - b * cos(ang) ] - [a*pi(), 2.0*b];
+}
+
+/*
+ * Perform a move from startpoint to endpoint using a trochoidal path.
+ * - Cutting at depth cutz (returns to old Z)
+ * - Trochoid radius as specified
+ * - Increment for each turn as specified
+ */
+function trochoid_move(startpoint, endpoint, cutz, radius, increment)
+{
+	local min_ainc = .1deg;  // avoid too long compute times (and log( value<=1))
+	local min_rotations = 5; // avoid confusing appearance if too small
+	local i;
+	local a = increment/(2.0*pi());			// Trochoid step parameter
+	local ainc = log10(to_mm(radius)) * 5.0deg;	// Steps are logarithmic based on the radius to reduce small steps
+	local oldz = position()[2];
+	local vec = endpoint - startpoint;		// Vector denoting path to move
+
+	if (ainc < min_ainc) {
+		error("ainc too small: ",ainc," (try: increase trochoid radius)");
+		return;
+	}
+
+	// If we are not moving, it is an error
+	if(length(vec) <= zero) {
+		error("trochoid move is not going anywhere");
+		return;
+	}
+
+	comment("-- trochoid_move at ", cutz, " from ", startpoint, " to ", endpoint, " radius=", radius, " increment=", increment, " --");
+	// Calculate the number of *whole* rotations, rounded up, we need to make
+	local n = 2.0rad * pi() * to_none(ceil(length(vec) / increment));
+	local nrotations = n/(2.0rad * pi());
+	if (nrotations < min_rotations) {
+		error("too few rotations= ",nrotations," (try: decrease trochoid increment)");
+		return;
+	}
+	if (verbose) {
+		comment("debug, rotations= ",nrotations);
+		comment("debug, ainc= ",ainc);
+	}
+
+	// The path may be arbitrary angled, get the angle for rotating the trochoid
+	local rot = atan(vec[1], vec[0]);
+
+	// Go to the trochoid entry-point and move to cutting deph
+	goto(startpoint + rotate_xy(trochoid_point(0.0rad, a, radius), rot));
+	move([-, -, cutz]);
+
+	// Calculate each next point of the trochoid until we traversed the whole path to the endpoint
+	for(i = 0.0deg; i < n; i += ainc) {
+		move(startpoint + rotate_xy(trochoid_point(i, a, radius), rot));
+	}
+
+	// Return to old Z so we will not bump into stuff
+	goto([-, -, oldz]);
+	comment("-- trochoid_move end --");
+}
+
+/* -------------------- Main Program -------------------- */
+//ngcgui: info: troichoid-path example (mm or inch per parm#1 (units) setting, !! DEFAULTS are in mm !!)
+//ngcgui: umode = 1;         //, units: 1:mm, 0:inch
+//ngcgui: trochoid_r = 5;    //, trochoidal radius
+//ngcgui: trochoid_incr = 2; //, trochoidal increment
+//ngcgui: path_scale = 25;   //, path scale (all xi,yi)
+//ngcgui: xoffset =  0;      //, path x offset
+//ngcgui: yoffset =  0;      //, path y offset
+//ngcgui: x0 =  0;           //, path x0
+//ngcgui: y0 =  1;           //, path y0
+//ngcgui: x1 =  2;           //, path x1
+//ngcgui: y1 =  2;           //, path y1
+//ngcgui: x2 =  0;           //, path x2
+//ngcgui: y2 =  4;           //, path y2
+//ngcgui: x3 = -1;           //, path x3
+//ngcgui: y3 =  2;           //, path y3
+//ngcgui: cutdepth = -1;     //
+//ngcgui: safez = 5;         // z safe
+//ngcgui: x_return = 0;      // x return
+//ngcgui: y_return = 0;      // y return
+//ngcgui: fnormal = 300;     //, feed normal
+//ngcgui: fslow = 150;       //, feed slow
+//ngcgui: ffast = 3000;      //, feed fast
+//ngcgui: verbose = 1;
+
+include("ensure_units.gcmc"); //avoid preamble conflict
+if (umode == 1) {
+  zero = 0.0mm;
+} else {
+  zero = 0.0in;
+}
+// ngcgui entries are unitless so these additions are used
+// to ensure 1) floatingpoint and 2) units per umode setting
+   trochoid_r = zero + trochoid_r;
+trochoid_incr = zero + trochoid_incr;
+      xoffset = zero + xoffset;
+      yoffset = zero + yoffset;
+           x0 = zero + x0;
+           y0 = zero + y0;
+           x1 = zero + x1;
+           y1 = zero + y1;
+           x2 = zero + x2;
+           y2 = zero + y2;
+           x3 = zero + x3;
+           y3 = zero + y3;
+     cutdepth = zero + cutdepth;
+        safez = zero + safez;
+     x_return = zero + x_return;
+     y_return = zero + y_return;
+      fnormal = zero + fnormal;
+        fslow = zero + fslow;
+        ffast = zero + ffast;
+
+CUTZ = cutdepth;
+SAFEZ = safez;
+HOME = [x_return, y_return, safez];
+
+path = { [xoffset + x0, yoffset + y0],
+         [xoffset + x1, yoffset + y1],
+         [xoffset + x2, yoffset + y2],
+         [xoffset + x3, yoffset + y3] };
+path *= path_scale;  //path_scale is dimensionless
+
+feedrate(fnormal);
+if (verbose) {
+  comment("debug, feed normal= ",fnormal);
+}
+goto([-, -, SAFEZ]);
+move([-, -, SAFEZ]);
+goto(HOME);
+
+/* Trochoidal high-speed milling of the outline */
+if (verbose) {
+  comment("debug, feed fast= ",ffast);
+}
+feedrate(ffast);	// *Really* high-speed milling
+repeat(count(path); i) {
+	trochoid_move(path[i-2], path[i-1], CUTZ, trochoid_r, trochoid_incr);
+
+}
+
+/* Clean-cutting the object */
+if  (verbose) {
+  comment("debug, feed slow= ",fslow);
+}
+feedrate(fslow);	// "Finishing the edge" speed
+pathmode(1);		// Exact path mode so we hit the corners exactly
+move([-, -, CUTZ]);	// We are at the "outside" of the path, reenter cutting depth
+move(path[-1]);		// The first corner
+foreach(path; v) {
+	move(v);	// Trace the object
+}
+
+goto([-, -, SAFEZ]);
+goto(HOME);

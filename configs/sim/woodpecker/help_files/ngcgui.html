@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QtDragon Documentation</title>
+  <link href="help.css" rel="stylesheet">
+</head>
+<body>
+<div class="sidenav">
+    <img src="images/WoodPecker.png" alt="Qt_WoodPecker">
+    <ul style="list-style-type:none">
+    <li><a href="hole_circle_utility.html">HOLE CIRCLE UTILITY</a></li>
+    <li><a href="facing_utility.html">FACING UTILITY</a></li>
+    <li><a href="ngcgui.html">NGCGUI</a></li>
+    <li><a href="using_a_vfd.html">USING A VFD</a></li>
+    <li><a href="spindle_pause.html">SPINDLE PAUSE</a></li>
+    <li><a href="z_level_comp.html">Z LEVEL COMPENSATION</a></li>
+    <li><a href="using_a_mpg.html">USING A MPG</a></li>
+    <li><a href="probing.html">PROBING</a></li>
+    <li><a href="runfromline.html">RUN FROM LINE</a></li>
+    <li><a href="stylesheets.html">STYLESHEETS</a></li>
+    <li><a href="about.html">ABOUT</a></li>
+    </ul>
+</div>
+        
+<div class = "main">
+<h1>NGCGUI</h1>
+<p>NGCGUI provides a conversational interface with LinuxCNC. You can organize the subroutines in the order you need them
+to run and concatenate the subroutines into a single file for a complete part program. This version of NGCGUI only works when
+embedded into a qtvcp screen. For a standalone version, use the program that gets installed with LinuxCNC.</p>
+<h2>Using NGCGUI</h2>
+<ul>
+<li>Tabs are provided for each subroutine specified in the INI file.</li>
+<li>New subroutine pages can be added at any time.</li>
+<li>Each subroutine page provides entry boxes for all subroutine parameters.</li>
+<li>The entry boxes can have a default value and a label that are identified by special comments in the subroutine file.</li>
+<li>Subroutines can be concatenated to form a multiple step program. Tabs are read in order from left to right.</li>
+<li>The order of the subroutines can be adjusted by sliding the tabs to the desired order.</li>
+<li>Any single file GCode subroutine that conforms to ngcgui conventions can be used.</li>
+<li>Each subroutine can be specified to include a preamble and postamble helper file.</li>
+</ul>
+<h2>INI File Requirements</h2>
+<p>Any subroutines that are to have tabs automatically created must be specified in the [DISPLAY] section of the INI file.
+For example:</p>
+<div class = "code-block">
+    <pre class="hal">[DISPLAY]</pre>
+    <pre class="hal">NGCGUI_PREAMBLE = mm_std.ngc</pre>
+    <pre class="hal">NGCGUI_POSTAMBLE = post.ngc</pre>
+    <pre class="hal">NGCGUI_SUBFILE = db25.ngc</pre>
+    <pre class="hal">NGCGUI_SUBFILE = hole_circle.ngc</pre>
+</div>
+<p>The PREAMBLE and POSTAMBLE files are optional.</p>
+<p>The path to the subroutine files must be specified in the [RS274] section of the INI file. For example:</p>
+<div class = "code-block">
+    <pre class="hal">[RS274]</pre>
+    <pre class="hal">SUBROUTINE_PATH = ~/linuxcnc/nc_files/ngcgui_lib</pre>
+</div>
+<p>The SUBROUTINE_PATH line can specify multiple directories, seperated by a colon. The directory that contains the subroutine
+files must be the first in the list.</p>
+<h2>NGCGUI Options</h2>
+<p>There are a number of checkboxes on the UI panel that determine a specific behaviour of the ngcgui program.</p>
+<h3>Expand Sub</h3>
+<p>When checked, calls to other subroutines are expanded and written to the main subroutine.</p>
+<h3>Autosend</h3>
+<p>When checked, the finalized gcode will be sent to LinuxCNC after the FINALIZE GCODE button is pressed. If unchecked,
+the finalized gcode only exists as a temporary file in the /tmp directory of the filesystem. If the user subsequently wants
+to load it into LinuxCNC, he must get the filename from the status display and manually load it through the FILE page.</p>
+<h3>Add M2</h3>
+<p>When checked, an M2 command is appended to the end of a finalized gcode file.</p>
+<h3>Save Finalized GCODE to file</h3>
+<p>When checked, the user is prompted for a save filename. The finalized gcode is then saved to this file. If unchecked,
+the gcode file is only saved to a temporary file in the /tmp directory of the filesystem. This file is automatically deleted
+when LinuxCNC terminates.</p>
+</body>
+</html>

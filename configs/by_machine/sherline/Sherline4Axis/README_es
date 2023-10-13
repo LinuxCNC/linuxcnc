@@ -1,0 +1,7 @@
+Esta configuración de pasos está destinada a máquinas paso a paso de 4 ejes Sherline.
+
+Sherline4Axis_inch.ini
+   unidades imperiales
+
+Sherline4Axis_mm.ini
+   unidades metricas

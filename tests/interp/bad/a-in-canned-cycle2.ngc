@@ -1,0 +1,2 @@
+;Cannot put an a in canned cycle
+g81 x0 y0 z-1 r0 a90 f12

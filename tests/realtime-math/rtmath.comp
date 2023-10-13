@@ -1,0 +1,86 @@
+component rtmath "Test realtime math functions";
+
+pin in float sin-in;
+pin out float sin-out;
+
+pin in float cos-in;
+pin out float cos-out;
+
+pin in float tan-in;
+pin out float tan-out;
+
+pin in float sqrt-in;
+pin out float sqrt-out;
+
+pin in float fabs-in;
+pin out float fabs-out;
+
+pin in float atan-in;
+pin out float atan-out;
+
+pin in float atan2-in1;
+pin in float atan2-in2;
+pin out float atan2-out;
+
+pin in float asin-in;
+pin out float asin-out;
+
+pin in float acos-in;
+pin out float acos-out;
+
+pin in float pow-base;
+pin in float pow-exponent;
+pin out float pow-out;
+
+pin in float round-in;
+pin out float round-out;
+
+pin in float ceil-in;
+pin out float ceil-out;
+
+pin in float floor-in;
+pin out float floor-out;
+
+pin in float isnan-in;
+pin out bit isnan-out;
+
+pin in float isinf-in;
+pin out bit isinf-out;
+
+pin in float exp-in;
+pin out float exp-out;
+
+pin in float fmod-in;
+pin out float fmod-out;
+
+pin out float nan-out;
+
+function _;
+
+license "GPL";
+
+;;
+
+#include <rtapi_math.h>
+
+FUNCTION(_) {
+    sin_out = sin(sin_in);
+    cos_out = cos(cos_in);
+    tan_out = tan(tan_in);
+    sqrt_out = sqrt(sqrt_in);
+    fabs_out = fabs(fabs_in);
+    atan_out = atan(atan_in);
+    atan2_out = atan2(atan2_in1, atan2_in2);
+    asin_out = asin(asin_in);
+    acos_out = acos(acos_in);
+    pow_out = pow(pow_base, pow_exponent);
+    round_out = round(round_in);
+    ceil_out = ceil(ceil_in);
+    floor_out = floor(floor_in);
+    isnan_out = isnan(isnan_in);
+    isinf_out = isinf(isinf_in);
+    exp_out = exp(exp_in);
+    fmod_out = fmod(fmod_in,fmod_in);
+    nan_out = nan("");
+}
+

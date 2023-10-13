@@ -1,0 +1,125 @@
+#!/usr/bin/env python3
+from pyhal import *
+import os
+
+os.system("realtime start")
+
+c = component("hello")
+
+port_in = c.pinNew("port-in", halType.PORT, pinDir.IN)
+port_out = c.pinNew("port-out", halType.PORT, pinDir.OUT)
+
+in_s = c.pinNew("in-s", halType.SIGNED, pinDir.IN)
+out_s = c.pinNew("out-s", halType.SIGNED, pinDir.OUT)
+
+in_u = c.pinNew("in-u", halType.UNSIGNED, pinDir.IN)
+out_u = c.pinNew("out-u", halType.UNSIGNED, pinDir.OUT)
+
+in_f = c.pinNew("in-f", halType.FLOAT, pinDir.IN)
+out_f = c.pinNew("out-f", halType.FLOAT, pinDir.OUT)
+
+
+in_io = c.pinNew("in-io", halType.BIT, pinDir.IO)
+out_io = c.pinNew("out-io", halType.BIT, pinDir.IO)
+
+
+c.ready()
+
+
+
+
+
+#test signed in/out pins 
+c.sigNew("testSig-S", halType.SIGNED)
+c.sigLink("hello.in-s", "testSig-S")
+c.sigLink("hello.out-s", "testSig-S")
+out_s.value = -100
+assert in_s.value == -100, "in_s.value should be -100. got {0}".format(in_s.value)
+out_s.value = 34435
+assert in_s.value == 34435, "in_s.value should be 34435. got {0}".format(in_s.value)
+
+
+#test unsigned in/out pins
+c.sigNew("testSig-U", halType.UNSIGNED)
+c.sigLink("hello.in-u", "testSig-U")
+c.sigLink("hello.out-u", "testSig-U")
+out_u.value = 65535
+assert in_u.value == out_u.value, "in_u.value should be {0}. got {0}".format(out_u.value, in_u.value)
+
+
+#test float pins
+c.sigNew("testSig-F", halType.FLOAT)
+c.sigLink("hello.in-f", "testSig-F")
+os.system("halcmd sets testSig-F -1000.0")
+
+assert in_f.value == -1000.0
+c.sigLink("hello.out-f", "testSig-F")
+
+out_f.value = 333.333
+assert in_f.value == 333.333
+
+#test io bool
+c.sigNew("testSig-IO", halType.BIT)
+c.sigLink("hello.in-io", "testSig-IO")
+c.sigLink("hello.out-io", "testSig-IO")
+
+out_io.value = False
+assert in_io.value == False
+out_io.value = True
+assert in_io.value == True
+
+in_io.value = False
+assert out_io.value == False
+
+
+
+#now test hal port
+c.sigNew("testSig-PORT", halType.PORT)
+c.sigLink("hello.port-in", "testSig-PORT")
+c.sigLink("hello.port-out", "testSig-PORT")
+
+assert port_in.size() == 0
+assert port_out.size() == 0
+
+#make sure to allocate a port on the signal
+os.system('halcmd sets testSig-PORT 9')
+
+assert port_in.size() == 9
+assert port_out.size() == 9
+
+
+assert port_out.writable() == 8
+assert port_in.readable() == 0
+
+
+port_out.waitWritable(8)
+assert port_out.write("hello")
+assert port_out.writable() == 3
+
+assert port_in.readable() == 5
+assert port_in.read(2) == b"he"
+assert port_in.peek(10) == ""
+assert port_in.peek(3) == b"llo"
+assert port_in.readable() == 3
+assert port_in.read(3) == b"llo"
+
+assert port_in.readable() == 0
+assert port_out.write("hello")
+assert port_in.read(5) == b"hello"
+
+assert port_in.readable() == 0
+assert port_in.read(5) == ''
+
+
+assert port_out.writable() == 8
+
+assert port_out.write("12345678")
+
+assert port_in.readable() == 8
+assert port_out.writable() == 0
+
+assert port_in.read(8) == b"12345678"
+
+c.exit()
+os.system("halrun -U")
+exit(0)

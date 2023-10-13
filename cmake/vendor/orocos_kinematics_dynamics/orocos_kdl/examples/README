@@ -1,0 +1,3 @@
+To build one of the examples do:
+
+g++ -I<KDL_INCLUDE_DIR> -L<KDL_LIB_DIR> -lorocos-kdl <example.cpp> -o <example>

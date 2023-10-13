@@ -1,0 +1,8 @@
+(Test case for detecting tangent helix)
+G20 G90 G64 G17
+G0 X0 Y0 Z0
+G0 X0 Y0 Z-0.26794919243
+G1 X1 Z0  F9999
+G2 Z1.6835744289 J-1 
+G1 Y1
+M2

@@ -1,0 +1,19 @@
+# components
+loadrt wcomp count=1 
+loadrt or2 count=1 
+newinst or2 c
+newinst wcomp b
+newinst or2 a
+# signals
+# links
+# parameter values
+setp a.tmax           0 
+setp b.max  0.00000e+00
+setp b.min  0.00000e+00
+setp b.tmax           0 
+setp c.tmax           0 
+setp or2.0.tmax           0 
+setp wcomp.0.max  0.00000e+00
+setp wcomp.0.min  0.00000e+00
+setp wcomp.0.tmax           0 
+# realtime thread/function links

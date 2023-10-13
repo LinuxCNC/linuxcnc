@@ -1,0 +1,82 @@
+; MACROCOMMAND= Drill Diameter,Finish Depth,SFM,FPR,Tool Number,Peck Depth,Retract Depth
+; MACRODEFAULTS=1.0,-1.0,300.0,.007,1,0.2,.1
+; MACROSVG=LatheMacro.svg,6
+; O<drill> call [${drill.diameter-f}] [${drill.zdepth-f}] [${drill.sf-f}] [${drill.feed-f}] [${drill.tool-s}] [${drill.peck-f}] [${drill.retract-f}]
+
+; #1 drill diameter
+; #2 zdepth
+; #3 surface speed
+; #4 feed/rpm
+; #5 tool number
+; #6 peck amount
+; #7 peck retract amount - not used right now
+
+O<drill> sub
+
+O100 IF [#<_imperial>]
+    (MSG, IMPERIAL sizes)
+    #<diam> = [#1 * 25.4]
+    #<zDepth> = [#2 * 25.4]
+    #<surfaceSpeed> = [#3 * 304.8] ; sf/m to mm/m
+    #<fpr> = [#4 * 25.4]
+    #<peck> = [#6 * 25.4]
+    #<retract> = [#7 * 25.4]
+    #10 = [[#3 *12] / [3.1415 * #1]]	; RPM from sfm request
+
+    (debug, Expected Drilling Diameter %d#1)
+    (debug, Peck Increment %.2f#6)
+    (debug, Start Z %f#<_z>)
+    (debug, Finish Z %.2f#2)
+    (debug, Feed %.3f#4 IPM)
+    (debug, Tool %d#5)
+    (debug, %d#3 SFM @ RPM %d#10)
+O100  ELSE
+    (MSG, METRIC sizes)
+    #<diam> = #1
+    #<zDepth> = #2
+    #<surfaceSpeed> = #3 ;mm/m
+    #<fpr> = #4
+    #<peck> = #6
+    #<retract> = #7
+    #10 = [#<surfaceSpeed> / [3.1415 * #<diam>]]	; RPM from mm/m request
+
+    (debug, Drilling dia #<diam> mm, peck dist #<peck> mm)
+    (debug, startz #<_z> mm, depth #<zDepth> mm)
+    (debug, feed #<fpr> mm/rpm, tool #5)
+    (debug, Surface Speed #<surfaceSpeed> mm/m, rpm #10)
+O100  ENDIF
+
+M73 ; save state, restore on exit
+
+G7 ; diameter mode
+G17 ; XY Plane
+G21 ; Metric Units don't change units!
+G90 ; Absolute Distance
+
+#<zStart> = #<_z> (starting Z)
+
+(MSG, 100% %.4h Unpause To start Drilling Macro)
+m0
+
+M6 T#5 G43
+
+G97 S#10 ; Constant RPM mode
+M3 ;Start Spindle
+G95 F#<fpr> ; Feed-Per-Rev Mode
+
+g4p1 ; Wait to reach speed
+
+G0 X0 ; must drill from the centerline.  Tool should be zeroed here
+G00 Z #<zStart>
+G98
+G83 Z#<zDepth> R#<zStart> Q#<peck>
+G80
+
+G0 Z #<zStart>
+M5
+G7
+
+(MSG,Done Drilling Macro)
+O<drill> endsub
+
+M2

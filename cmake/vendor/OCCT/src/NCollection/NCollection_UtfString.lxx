@@ -1,0 +1,423 @@
+// Created on: 2013-01-28
+// Created by: Kirill GAVRILOV
+// Copyright (c) 2013-2014 OPEN CASCADE SAS
+//
+// This file is part of Open CASCADE Technology software library.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License version 2.1 as published
+// by the Free Software Foundation, with special exception defined in the file
+// OCCT_LGPL_EXCEPTION.txt. Consult the file LICENSE_LGPL_21.txt included in OCCT
+// distribution for complete text of the license and disclaimer of any warranty.
+//
+// Alternatively, this file may be used under the terms of Open CASCADE
+// commercial license or contractual agreement.
+
+// =======================================================================
+// function : GetChar
+// purpose  :
+// =======================================================================
+template<typename Type>
+Standard_Utf32Char NCollection_UtfString<Type>::GetChar (const Standard_Integer theCharIndex) const
+{
+  //Standard_ASSERT_SKIP (theCharIndex < myLength, "Out of range");
+  NCollection_UtfIterator<Type> anIter (myString);
+  for (; *anIter != 0; ++anIter)
+  {
+    if (anIter.Index() == theCharIndex)
+    {
+      return *anIter;
+    }
+  }
+  return 0;
+}
+
+// =======================================================================
+// function : GetCharBuffer
+// purpose  :
+// =======================================================================
+template<typename Type>
+const Type* NCollection_UtfString<Type>::GetCharBuffer (const Standard_Integer theCharIndex) const
+{
+  //Standard_ASSERT_SKIP(theCharIndex < myLength);
+  NCollection_UtfIterator<Type> anIter (myString);
+  for (; *anIter != 0; ++anIter)
+  {
+    if (anIter.Index() == theCharIndex)
+    {
+      return anIter.BufferHere();
+    }
+  }
+  return NULL;
+}
+
+// =======================================================================
+// function : Clear
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+void NCollection_UtfString<Type>::Clear()
+{
+  strFree (myString);
+  mySize   = 0;
+  myLength = 0;
+  myString = strAlloc (mySize);
+}
+
+// =======================================================================
+// function : NCollection_UtfString
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+NCollection_UtfString<Type>::NCollection_UtfString()
+: myString (strAlloc(0)),
+  mySize   (0),
+  myLength (0)
+{
+  //
+}
+
+// =======================================================================
+// function : NCollection_UtfString
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+NCollection_UtfString<Type>::NCollection_UtfString (const NCollection_UtfString& theCopy)
+: myString (strAlloc (theCopy.mySize)),
+  mySize   (theCopy.mySize),
+  myLength (theCopy.myLength)
+{
+  strCopy ((Standard_Byte* )myString, (const Standard_Byte* )theCopy.myString, mySize);
+}
+
+// =======================================================================
+// function : NCollection_UtfString
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+NCollection_UtfString<Type>::NCollection_UtfString (NCollection_UtfString&& theOther)
+: myString(theOther.myString),
+  mySize  (theOther.mySize),
+  myLength(theOther.myLength)
+{
+  theOther.myString = NULL;
+  theOther.mySize   = 0;
+  theOther.myLength = 0;
+}
+
+// =======================================================================
+// function : NCollection_UtfString
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+NCollection_UtfString<Type>::NCollection_UtfString (const char*            theCopyUtf8,
+                                                    const Standard_Integer theLength)
+: myString (NULL),
+  mySize   (0),
+  myLength (0)
+{
+  FromUnicode (theCopyUtf8, theLength);
+}
+
+// =======================================================================
+// function : NCollection_UtfString
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+NCollection_UtfString<Type>::NCollection_UtfString (const Standard_Utf16Char* theCopyUtf16,
+                                                    const Standard_Integer    theLength)
+: myString (NULL),
+  mySize   (0),
+  myLength (0)
+{
+  FromUnicode (theCopyUtf16, theLength);
+}
+
+// =======================================================================
+// function : NCollection_UtfString
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+NCollection_UtfString<Type>::NCollection_UtfString (const Standard_Utf32Char* theCopyUtf32,
+                                                    const Standard_Integer     theLength)
+: myString (NULL),
+  mySize   (0),
+  myLength (0)
+{
+  FromUnicode (theCopyUtf32, theLength);
+}
+
+#if !defined(_MSC_VER) || defined(_NATIVE_WCHAR_T_DEFINED) || (defined(_MSC_VER) && _MSC_VER >= 1900)
+// =======================================================================
+// function : NCollection_UtfString
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+NCollection_UtfString<Type>::NCollection_UtfString (const Standard_WideChar* theCopyUtfWide,
+                                                    const Standard_Integer   theLength)
+: myString (NULL),
+  mySize   (0),
+  myLength (0)
+{
+  FromUnicode (theCopyUtfWide, theLength);
+}
+#endif
+
+// =======================================================================
+// function : ~NCollection_UtfString
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+NCollection_UtfString<Type>::~NCollection_UtfString()
+{
+  strFree (myString);
+}
+
+// =======================================================================
+// function : Assign
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+const NCollection_UtfString<Type>& NCollection_UtfString<Type>::Assign (const NCollection_UtfString<Type>& theOther)
+{
+  if (this == &theOther)
+  {
+    return (*this);
+  }
+
+  strFree (myString);
+  mySize   = theOther.mySize;
+  myLength = theOther.myLength;
+  myString = strAlloc (mySize);
+  strCopy ((Standard_Byte* )myString, (const Standard_Byte* )theOther.myString, mySize);
+  return (*this);
+}
+
+// =======================================================================
+// function : Swap
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+void NCollection_UtfString<Type>::Swap (NCollection_UtfString<Type>& theOther)
+{
+  // Note: we could use std::swap() here, but prefer to not
+  // have dependency on <algorithm> header at that level
+  Type* aString = myString;
+  const Standard_Integer aSize   = mySize;
+  const Standard_Integer aLength = myLength;
+  myString = theOther.myString;
+  mySize   = theOther.mySize;
+  myLength = theOther.myLength;
+  theOther.myString = aString;
+  theOther.mySize   = aSize;
+  theOther.myLength = aLength;
+}
+
+#if !defined(__ANDROID__)
+//! Auxiliary conversion tool.
+class NCollection_UtfStringTool
+{
+public:
+  //! Empty constructor.
+  NCollection_UtfStringTool() : myWideBuffer (NULL) {}
+
+  //! Destructor for temporary resources.
+  Standard_EXPORT ~NCollection_UtfStringTool();
+
+  //! Convert the string from current locale into UNICODE (wide characters) using system APIs.
+  //! Returned pointer will be released by this tool.
+  Standard_EXPORT wchar_t* FromLocale (const char* theString);
+
+  //! Convert the UNICODE (wide characters) string into locale using system APIs.
+  Standard_EXPORT static bool ToLocale (const wchar_t*         theWideString,
+                                        char*                  theBuffer,
+                                        const Standard_Integer theSizeBytes);
+private:
+  wchar_t* myWideBuffer; //!< temporary variable
+};
+#endif
+
+// =======================================================================
+// function : FromLocale
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+void NCollection_UtfString<Type>::FromLocale (const char*            theString,
+                                              const Standard_Integer theLength)
+{
+#if defined(__ANDROID__)
+  // no locales on Android
+  FromUnicode (theString, theLength);
+#else
+  NCollection_UtfStringTool aConvertor;
+  wchar_t* aWideBuffer = aConvertor.FromLocale (theString);
+  if (aWideBuffer == NULL)
+  {
+    Clear();
+    return;
+  }
+  FromUnicode (aWideBuffer, theLength);
+#endif
+}
+
+// =======================================================================
+// function : ToLocale
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+bool NCollection_UtfString<Type>::ToLocale (char*                  theBuffer,
+                                            const Standard_Integer theSizeBytes) const
+{
+#if defined(__ANDROID__)
+  // no locales on Android
+  NCollection_UtfString<Standard_Utf8Char> anUtf8Copy (myString, myLength);
+  const Standard_Integer aSize = anUtf8Copy.Size() + 1;
+  if (theSizeBytes < aSize)
+  {
+    return false;
+  }
+  std::memcpy (theBuffer, anUtf8Copy.ToCString(), (Standard_Size )aSize);
+  return true;
+#else
+  NCollection_UtfString<wchar_t> aWideCopy (myString, myLength);
+  return NCollection_UtfStringTool::ToLocale (aWideCopy.ToCString(), theBuffer, theSizeBytes);
+#endif
+}
+
+// =======================================================================
+// function : operator=
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+const NCollection_UtfString<Type>& NCollection_UtfString<Type>::operator= (const char* theStringUtf8)
+{
+  FromUnicode (theStringUtf8);
+  return (*this);
+}
+
+// =======================================================================
+// function : operator=
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+const NCollection_UtfString<Type>& NCollection_UtfString<Type>::operator= (const Standard_WideChar* theStringUtfWide)
+{
+  FromUnicode (theStringUtfWide);
+  return (*this);
+}
+
+// =======================================================================
+// function : IsEqual
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+bool NCollection_UtfString<Type>::IsEqual (const NCollection_UtfString& theCompare) const
+{
+  return this == &theCompare
+      || strAreEqual (myString, mySize, theCompare.myString, theCompare.mySize);
+}
+
+// =======================================================================
+// function : operator!=
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+bool NCollection_UtfString<Type>::operator!= (const NCollection_UtfString& theCompare) const
+{
+  return (!NCollection_UtfString::operator== (theCompare));
+}
+
+// =======================================================================
+// function : operator+=
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+NCollection_UtfString<Type>& NCollection_UtfString<Type>::operator+= (const NCollection_UtfString<Type>& theAppend)
+{
+  if (theAppend.IsEmpty())
+  {
+    return (*this);
+  }
+
+  // create new string
+  Standard_Integer aSize = mySize + theAppend.mySize;
+  Type* aString = strAlloc (aSize);
+  strCopy ((Standard_Byte* )aString,          (const Standard_Byte* )myString,           mySize);
+  strCopy ((Standard_Byte* )aString + mySize, (const Standard_Byte* )theAppend.myString, theAppend.mySize);
+
+  strFree (myString);
+  mySize   = aSize;
+  myString = aString;
+  myLength += theAppend.myLength;
+  return (*this);
+}
+
+// =======================================================================
+// function : SubString
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+NCollection_UtfString<Type> NCollection_UtfString<Type>::SubString (const Standard_Integer theStart,
+                                                                    const Standard_Integer theEnd) const
+{
+  if (theStart >= theEnd)
+  {
+    return NCollection_UtfString<Type>();
+  }
+  for (NCollection_UtfIterator<Type> anIter(myString); *anIter != 0; ++anIter)
+  {
+    if (anIter.Index() >= theStart)
+    {
+      return NCollection_UtfString<Type> (anIter.BufferHere(), theEnd - theStart);
+    }
+  }
+  return NCollection_UtfString<Type>();
+}
+
+// =======================================================================
+// function : ToUtf8
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+const NCollection_UtfString<Standard_Utf8Char> NCollection_UtfString<Type>::ToUtf8() const
+{
+  NCollection_UtfString<Standard_Utf8Char> aCopy;
+  aCopy.FromUnicode (myString);
+  return aCopy;
+}
+
+// =======================================================================
+// function : ToUtf16
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+const NCollection_UtfString<Standard_Utf16Char> NCollection_UtfString<Type>::ToUtf16() const
+{
+  NCollection_UtfString<Standard_Utf16Char> aCopy;
+  aCopy.FromUnicode (myString);
+  return aCopy;
+}
+
+// =======================================================================
+// function : ToUtf32
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+const NCollection_UtfString<Standard_Utf32Char> NCollection_UtfString<Type>::ToUtf32() const
+{
+  NCollection_UtfString<Standard_Utf32Char> aCopy;
+  aCopy.FromUnicode (myString);
+  return aCopy;
+}
+
+// =======================================================================
+// function : ToUtfWide
+// purpose  :
+// =======================================================================
+template<typename Type> inline
+const NCollection_UtfString<Standard_WideChar> NCollection_UtfString<Type>::ToUtfWide() const
+{
+  NCollection_UtfString<Standard_WideChar> aCopy;
+  aCopy.FromUnicode (myString);
+  return aCopy;
+}

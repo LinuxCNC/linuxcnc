@@ -1,0 +1,6 @@
+This test checks that using only public header files, out-of-tree C++ code
+can use the rs274 interpreter.
+
+When changes are required in this test after a change in the interpreter,
+this is a breaking change; it should be avoided in stable releases if at
+all possible, and it should be documented whenever it occurs.

@@ -1,0 +1,16 @@
+Este es un ejemplo de cómo configurar un fondo de mapa de bits para la ventana de
+nivel superior gladevcp, y posicionamiento absoluto de los widgets HAL en ella.
+
+Es posible que necesite 'apt-get install python-cairo'
+
+------------------------------------------
+Para ejecutar de forma independiente:
+
+gladevcp -u cairodraw.py cairodraw.ui
+
+
+-psha & mah
+
+
+
+

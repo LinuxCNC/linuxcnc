@@ -1,0 +1,147 @@
+[GUI_OPTIONS]
+Mode = 0
+Font size = 10
+Exit warning = True
+Window size = default
+Preview cone size = 0.2
+Cut recovery speed % = 20
+Default material = 2
+Open file = 
+Exit warning text = Did I turn the gas off ?
+Window last = 983x562
+Jog speed = 300
+Table zoom = 1.3
+Version = 2.0
+Orientation = landscape
+GUI font = Sans
+Gcode font = Sans
+Foreground color = #000000
+Background color = #808080
+Disabled color = #a0a0a0
+Active color = #00cc00
+Warning color = #dd0000
+Voltage color = #ff8800
+Arc OK color = #ff8800
+LED color = #eeff00
+Trough color = #505050
+Popup location = pointer
+Use soft keyboard = False
+Use keyboard shortcuts = True
+
+[LASER_OFFSET]
+X axis = 1.23
+Y axis = 0.45
+
+[ENABLE_OPTIONS]
+THC enable = True
+Corner lock enable = True
+Kerf cross enable = False
+Use auto volts = True
+Ohmic probe enable = True
+THC auto = False
+Void lock enable = False
+
+[STATISTICS]
+Cut length = 0.0
+Pierce count = 0
+Rapid time = 0
+Probe time = 0
+Torch on time = 0
+Paused time = 0
+Cut time = 0
+Program run time = 0
+
+[PLASMA_PARAMETERS]
+Float Switch Travel = 0.06
+Probe Feed Rate = 18.0
+Probe Start Height = 0.6
+Ohmic Probe Offset = 0.0
+Ohmic Maximum Attempts = 0
+Skip IHS Distance = 0
+Setup Feed Rate = 114.0
+THC Delay = 0.5
+THC Threshold = 1.0
+Pid P Gain = 10
+Pid I Gain = 0
+Pid D Gain = 0
+Velocity Anti Dive Threshold = 90
+Void Sense Override = 100
+Safe Height = 0.75
+Arc Fail Timeout = 3.0
+Arc Maximum Starts = 3
+Arc Restart Delay = 3
+Arc Voltage Scale = 1.0
+Arc Voltage Offset = 0.0
+Ark OK High = 99999
+Arc OK Low = 60
+Height Per Volt = 0.004
+Scribe Arming Delay = 0.0
+Scribe On Delay = 0.0
+Spotting Threshold = 0
+Spotting Time = 0
+THC Sample Counts = 50
+THC Sample Threshold = 1
+Void Sense Slope = 500
+Arc OK High = 99999
+
+[POWERMAX]
+Port = 
+
+[BUTTONS]
+Torch enabled = Torch Enabled
+Torch disabled = Torch Disabled
+1 Name = Ohmic Test
+1 Code = ohmic-test
+2 Name = Probe Test
+2 Code = probe-test 10
+3 Name = Single Cut
+3 Code = single-cut
+4 Name = Pierce & Cut
+4 Code = cut-type
+5 Name = Torch Pulse
+5 Code = torch-pulse 0.5
+6 Name = Framing
+6 Code = framing F20 usecurrentzheight
+7 Name = Change Cons
+7 Code = change-consumables X4 Y4 F200
+8 Name = 
+8 Code = 
+9 Name = 
+9 Code = 
+10 Name = 
+10 Code = 
+11 Name = Z To Top
+11 Code = g53g0Z[{AXIS_Z MAX_LIMIT}-0.04]
+12 Name = 
+12 Code = 
+13 Name = 
+13 Code = 
+14 Name = 
+14 Code = 
+15 Name = 
+15 Code = 
+16 Name = 
+16 Code = 
+17 Name = 
+17 Code = 
+18 Name = 
+18 Code = 
+19 Name = HAL Show
+19 Code = %halshow
+20 Name = Clear Errors
+20 Code = pulse-halpin axisui.notifications-clear .25
+
+[CONVERSATIONAL]
+Preamble = G20 G64P0.01 G40 G49 G80 G90 G92.1 G94 G97
+Postamble = G20 G64P0.01 G40 G49 G80 G90 G92.1 G94 G97
+Origin = 0
+Leadin = 0.2
+Leadout = 0.0
+Hole diameter = 1.26
+Hole speed = 60
+
+[OFFSET_PROBING]
+X axis = 0
+Y axis = 0
+Delay = 0
+

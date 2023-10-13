@@ -1,0 +1,16 @@
+# Include your customized HAL commands here
+# The commands in this file are run after the GUI starts
+
+sets spindle-at-speed true
+setp gscreen.led_spindle_fault true
+setp gscreen.led_fault true
+setp gscreen.led_aux true
+
+net spindle-cw gscreen.led_spindle_fwd
+net spindle-ccw gscreen.led_spindle_rev spindle.0.reverse
+net spindle-cmd-rpm-abs gscreen.spindle-spd-disp
+
+net tool-change gscreen.change-tool iocontrol.0.tool-change 
+net tool-changed gscreen.tool-changed iocontrol.0.tool-changed
+net tool-prep-number gscreen.tool-number iocontrol.0.tool-prep-number
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared

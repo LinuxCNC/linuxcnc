@@ -1,0 +1,33 @@
+INCLUDES += emc emc/nml_intf
+
+LIBEMCSRCS := \
+    emc/nml_intf/emcglb.c \
+    emc/rs274ngc/modal_state.cc \
+    emc/nml_intf/emc.cc \
+    emc/nml_intf/emcpose.c \
+    emc/nml_intf/emcargs.cc \
+    emc/nml_intf/emcops.cc \
+    emc/nml_intf/canon_position.cc \
+    emc/ini/emcIniFile.cc \
+    emc/ini/iniaxis.cc \
+    emc/ini/inijoint.cc \
+    emc/ini/inispindle.cc \
+    emc/ini/initraj.cc \
+    emc/ini/inihal.cc \
+    emc/nml_intf/interpl.cc
+USERSRCS += $(LIBEMCSRCS)
+
+$(call TOOBJSDEPS, $(LIBEMCSRCS)) : EXTRAFLAGS=-fPIC
+
+TARGETS += ../lib/liblinuxcnc.a
+
+../lib/liblinuxcnc.a: $(call TOOBJS,$(LIBEMCSRCS))
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	@$(AR) $(ARFLAGS) $@ $^
+
+$(patsubst ./emc/nml_intf/%,../include/%,$(wildcard ./emc/nml_intf/*.h)): ../include/%.h: ./emc/nml_intf/%.h
+	cp $^ $@
+$(patsubst ./emc/nml_intf/%,../include/%,$(wildcard ./emc/nml_intf/*.hh)): ../include/%.hh: ./emc/nml_intf/%.hh
+	cp $^ $@

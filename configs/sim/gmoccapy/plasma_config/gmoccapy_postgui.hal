@@ -1,0 +1,10 @@
+###################################################################
+#        moccapy_postgui.hal file from Norbert Schechner          #
+###################################################################
+
+unlinkp iocontrol.0.tool-change
+unlinkp iocontrol.0.tool-changed
+
+net tool-change gmoccapy.toolchange-change iocontrol.0.tool-change 
+net tool-changed gmoccapy.toolchange-changed iocontrol.0.tool-changed
+net tool-prep-number gmoccapy.toolchange-number iocontrol.0.tool-prep-number

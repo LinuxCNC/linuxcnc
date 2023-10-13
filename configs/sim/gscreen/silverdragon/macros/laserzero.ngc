@@ -1,0 +1,8 @@
+O<laserzero> sub
+#1 = 3.12           (x offset)
+#2 = 1.0            (y offset)
+G10 L20 P0 x#1 y#2  (store offset in offset table)
+G90 G1 X0 Y0 F600   (go to 0,0)
+O<laserzero> endsub
+M2
+

@@ -1,0 +1,20 @@
+
+m7 (mist on)
+m8 (flood on)
+
+
+t2
+m6
+m61q3
+s300m3 f50
+
+g1x0.5 y1 (some move)
+
+(debug,before m1)
+/m1
+(debug,after m1)
+
+x1z0.5 (more random moves)
+g0x0y0z0
+
+m2

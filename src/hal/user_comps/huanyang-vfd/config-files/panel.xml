@@ -1,0 +1,351 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+	<labelframe text="DRO">
+	<font>("Helvetica",12)</font>
+	<table>
+		<tablerow/>
+    			<label>
+    				<text>""</text>
+    				<font>("Helvetica",2)</font>
+	    		</label>
+		<tablerow/>
+		    	<label>
+    				<text>""</text>
+    				<font>("Helvetica",2)</font>
+	    		</label>
+			<label>
+    				<text>"X"</text>
+				<font>("courier 10 pitch",30)</font>
+				<width>2</width>
+				<foreground>"#7FFF00"</foreground>
+				<background>"#000000"</background>
+	    		</label>
+			<number>
+				<halpin>"Xdisplay"</halpin>
+				<format>"+4.2f"</format>
+				<font>("courier 10 pitch",30)</font>
+				<width>8</width>
+				<foreground>"#7FFF00"</foreground>
+				<background>"#000000"</background>
+			</number>
+			<label>
+    				<text>""</text>
+    				<font>("Helvetica",2)</font>
+    				<width>1</width>
+	    		</label>
+	    		<tablesticky sticky="nsew" />
+			<button>
+				<text>"Zero"</text>
+				<halpin>"Xzerobutton"</halpin>
+			</button>
+			<label>
+    				<text>""</text>
+    				<font>("Helvetica",2)</font>
+	    		</label>
+		<tablerow/>
+			<label>
+    				<text>""</text>
+    				<font>("Helvetica",2)</font>
+	    		</label>
+			<label>
+    				<text>"Y"</text>
+				<font>("courier 10 pitch",30)</font>
+				<foreground>"#7FFF00"</foreground>
+				<background>"#000000"</background>
+	    		</label>
+			<number>
+				<halpin>"Ydisplay"</halpin>
+				<format>"+4.2f"</format>
+				<font>("courier 10 pitch",30)</font>
+				<foreground>"#7FFF00"</foreground>
+				<background>"#000000"</background>
+			</number>
+			<label>
+    				<text>""</text>
+    				<font>("Helvetica",2)</font>
+    				<width>1</width>
+	    		</label>
+			<tablesticky sticky="nsew" />
+			<button>
+				<text>"Zero"</text>
+				<halpin>"Yzerobutton"</halpin>
+			</button>
+		<tablerow/>
+		    	<label>
+    				<text>""</text>
+    				<font>("Helvetica",2)</font>
+	    		</label>
+			<label>
+    				<text>"Z"</text>
+				<font>("courier 10 pitch",30)</font>
+				<foreground>"#7FFF00"</foreground>
+				<background>"#000000"</background>
+	    		</label>
+			<number>
+				<halpin>"Zdisplay"</halpin>
+				<format>"+4.2f"</format>
+				<font>("courier 10 pitch",30)</font>
+				<foreground>"#7FFF00"</foreground>
+				<background>"#000000"</background>
+			</number>
+			<label>
+    				<text>""</text>
+    				<font>("Helvetica",2)</font>
+    				<width>1</width>
+	    		</label>
+			<tablesticky sticky="nsew" />
+			<button>
+				<text>"Zero"</text>
+				<halpin>"Zzerobutton"</halpin>
+			</button>
+		<tablerow/>
+    			<label>
+    				<text>""</text>
+    				<font>("Helvetica",2)</font>
+	    		</label>
+	</table>
+	</labelframe>
+	<labelframe text="Huanyang VFD">
+	<font>("Helvetica",12)</font>
+	<table>
+	    	<tablerow/>
+    			<tablespan columns="2"/>
+    			<tablesticky sticky="nsew" />
+    			<label>
+    				<text>" "</text>
+    				<font>("Helvetica",2)</font>
+	    		</label>
+    		<tablerow/>
+    			<tablespan columns="2"/>
+    			<tablesticky sticky="nsew" />
+    			<label>
+    				<text>"Drive Configuration"</text>
+    				<font>("Helvetica",10)</font>
+    				<width>35</width>
+	    		</label>
+	    	<tablerow/>
+    			<tablespan columns="2"/>
+    			<tablesticky sticky="nsew" />
+    			<label>
+    				<text>" "</text>
+    				<font>("Helvetica",2)</font>
+	    		</label>
+    		<tablerow/>
+		<tablerow/>
+			<tablesticky sticky="w" />
+			<label>
+				<text>"Base Frequency (hz): "</text>
+    			</label>
+    			<tablesticky sticky="e" />
+    			<number>
+    				<halpin>"base-freq"</halpin>
+   				<format>"4.2f"</format>
+			</number>
+		<tablerow/>
+			<tablesticky sticky="w" />
+			<label>
+				<text>"Max Frequency (hz): "</text>
+    			</label>
+    			<tablesticky sticky="e" />
+    			<number>
+    				<halpin>"max-freq"</halpin>
+   				<format>"4.2f"</format>
+			</number>
+		<tablerow/>
+			<tablesticky sticky="w" />
+			<label>
+				<text>"Frequency Lower Limit (hz): "</text>
+    			</label>
+    			<tablesticky sticky="e" />
+    			<number>
+    				<halpin>"freq-lower-limit"</halpin>
+   				<format>"4.2f"</format>
+			</number>
+		<tablerow/>
+			<tablesticky sticky="w" />
+			<label>
+				<text>"Rated Motor Voltage (V): "</text>
+    			</label>
+    			<tablesticky sticky="e" />
+    			<number>
+    				<halpin>"rated-motor-voltage"</halpin>
+   				<format>"4.0f"</format>
+			</number>
+		<tablerow/>
+			<tablesticky sticky="w" />
+			<label>
+				<text>"Rated Motor Current (A): "</text>
+    			</label>
+    			<tablesticky sticky="e" />
+    			<number>
+    				<halpin>"rated-motor-current"</halpin>
+   				<format>"4.1f"</format>
+			</number>
+		<tablerow/>
+			<tablesticky sticky="w" />
+			<label>
+				<text>"Motor Poles: "</text>
+    			</label>
+    			<tablesticky sticky="e" />
+    			<number>
+    				<halpin>"motor-pole-number"</halpin>
+   				<format>"4.0f"</format>
+			</number>
+		<tablerow/>
+			<tablesticky sticky="w" />
+			<label>
+				<text>"Rated Motor RPM: "</text>
+    			</label>
+    			<tablesticky sticky="e" />
+    			<number>
+    				<halpin>"rated-motor-rev"</halpin>
+   				<format>"4.0f"</format>
+			</number>
+		<tablerow/>
+			<tablesticky sticky="w" />
+			<label>
+				<text>"Modbus Communication:"</text>
+    			</label>
+    			<tablesticky sticky="e" />
+ 			<led>
+ 				<halpin>"modbus-ok"</halpin>
+ 				<size>"10"</size>
+ 				<on_color>"green"</on_color>
+ 				<off_color>"red"</off_color>
+ 			</led>
+		<tablerow/>
+			<label>
+				<text>"  "</text>
+    			</label>
+ 	</table>
+ 	<table>
+ 		<tablesticky sticky="nsew"/>
+  		<tablerow/>
+ 			<tablesticky sticky="nsew"/>
+ 		    	<label>
+	    			<text>"Spindle Speed (RPM)"</text>
+	    			<font>("Helvetica",10)</font>
+	    		</label>
+	    	<tablerow/>
+     			<tablesticky sticky="nsew"/>
+    			<label>
+    				<text>" "</text>
+    				<font>("Helvetica",2)</font>
+	    		</label>
+	    	<tablerow/>
+	    		<tablesticky sticky="nsew"/>	
+	    	    	<bar>
+	    			<halpin>"spindle-speed"</halpin>
+	    			<max_>1440</max_>
+	    		</bar>
+ 		<tablerow/>
+ 			<label>
+    				<text>"Spindle Amps (A)"</text>
+    				<font>("Helvetica",10)</font>
+    			</label>
+    		<tablerow/>
+    			<meter>
+			    	<halpin>"amp-meter"</halpin>
+			    	<size>200</size>
+			    	<min_>0</min_>
+			    	<max_>8</max_>
+			    	<majorscale>1</majorscale>
+			    	<minorscale>0.2</minorscale>
+			    	<region1>(7,8,"red")</region1>
+			    	<region2>(5,7,"yellow")</region2>
+			    	<region3>(0,5,"green")</region3>
+			</meter>
+ 	</table>
+ 	<table>
+ 		<tablesticky sticky="w" />
+ 		<tablerow/>
+ 			<label>
+ 				<text>"  Command Run  "</text>
+ 			</label>
+ 			<led>
+ 				<halpin>"CNST-run"</halpin>
+ 				<size>"10"</size>
+ 				<on_color>"green"</on_color>
+ 				<off_color>"red"</off_color>
+ 			</led>
+  			<label>
+ 				<text>"  Jogging  "</text>
+ 			</label>
+ 			<led>
+ 				<halpin>"CNST-jogging"</halpin>
+ 				<size>"10"</size>
+ 				<on_color>"green"</on_color>
+ 				<off_color>"red"</off_color>
+ 			</led>
+  			<label>
+ 				<text>"  "</text>
+  			</label>
+ 		<tablerow/>
+ 			<label>
+ 				<text>"  Command Jog  "</text>
+ 			</label>
+ 			<led>
+ 				<halpin>"CNST-jog"</halpin>
+ 				<size>"10"</size>
+ 				<on_color>"green"</on_color>
+ 				<off_color>"red"</off_color>
+ 			</led>
+ 			<label>
+ 				<text>"  Running r/f  "</text>
+ 			</label>
+ 			<led>
+ 				<halpin>"CNST-running-rf"</halpin>
+ 				<size>"10"</size>
+ 				<on_color>"green"</on_color>
+ 				<off_color>"red"</off_color>
+ 			</led>
+  			<label>
+ 				<text>"  "</text>
+  			</label>
+ 		<tablerow/>
+ 			<label>
+ 				<text>"  Command r/f  "</text>
+ 			</label>
+ 			<led>
+ 				<halpin>"CNST-command-rf"</halpin>
+ 				<size>"10"</size>
+ 				<on_color>"green"</on_color>
+ 				<off_color>"red"</off_color>
+ 			</led>
+ 			<label>
+ 				<text>"  Bracking  "</text>
+ 			</label>
+ 			<led>
+ 				<halpin>"CNST-bracking"</halpin>
+ 				<size>"10"</size>
+ 				<on_color>"green"</on_color>
+ 				<off_color>"red"</off_color>
+ 			</led>
+  			<label>
+ 				<text>"  "</text>
+  			</label>
+ 		<tablerow/>
+ 			<label>
+ 				<text>"  Running  "</text>
+ 			</label>
+ 			<led>
+ 				<halpin>"CNST-running"</halpin>
+ 				<size>"10"</size>
+ 				<on_color>"green"</on_color>
+ 				<off_color>"red"</off_color>
+ 			</led>
+ 			<label>
+ 				<text>"  Track Start  "</text>
+ 			</label>
+ 			<led>
+ 				<halpin>"CNST-track-start"</halpin>
+ 				<size>"10"</size>
+ 				<on_color>"green"</on_color>
+ 				<off_color>"red"</off_color>
+ 			</led>
+  			<label>
+ 				<text>"  "</text>
+  			</label>
+ 	</table>
+ 	</labelframe>
+</pyvcp>

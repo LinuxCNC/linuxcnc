@@ -1,0 +1,25 @@
+#!/bin/bash
+echo "setup opencascade library? type 'y' for yes, this process can take one hour or more.";
+read VAR
+str1=$VAR
+str2="y"
+
+flag1=""
+
+if [ "$str1" == "$str2" ]; then
+    echo "Ok install. Checking for dependencies now."
+      
+    sudo apt-get install libfreetype6-dev
+	sudo apt-get install doxygen cmake tcllib tklib tcl-dev tk-dev libx11-dev libgl1-mesa-dev libfreeimage-dev rapidjson-dev
+	# To enable loading pictures in opencascade libfreeimage is needed. Also set the flag in the cmakelists file ~Line 413 to enable libfreeimage, or use a cmake -- flag.
+	sudo apt-get install libxmu-dev libxi-dev libfreeimage3 libfreeimage-dev ffmpeg
+
+	mkdir build
+	cd build 
+	echo "Compiling from source, this will take some time, set enabled in OCCT -> freeimage (loading images support) & freetype (letter fonts)."
+	cmake .. -D USE_FREEIMAGE:BOOL=ON USE_FREETYPE:BOOL=ON && make -j2
+	cd ..
+
+else
+    echo "Exit, pass."
+fi

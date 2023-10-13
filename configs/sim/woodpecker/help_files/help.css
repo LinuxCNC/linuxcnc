@@ -1,0 +1,55 @@
+body {
+    font-family: "Lato", sans-serif;
+}
+
+.sidenav {
+    height: 100%;
+    width: 200px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #404040;
+    overflow-x: hidden;
+    padding-top: 20px;
+}
+        
+.sidenav a {
+    padding: 6px 6px 6px 6px;
+    text-decoration: none;
+    font-size: 14px;
+    color: #00AAFF;
+    display: block;
+}
+
+.sidenav a:hover {
+    color: #f0f0f0;
+}
+
+.main {
+    margin-left: 200px; /* Same as the width of the sidenav */
+    max-width: 700px;
+}
+
+button.ui {
+    background: #E0E0E0;
+    font-size: 14px;
+    height: 40px;
+}
+
+pre.hal {
+    margin: 0px 0px 0px 0px;
+    font-size: 14px;
+}
+
+div.admonition {
+    border: 1px solid grey;
+    background: #E0E0E0;
+    padding: 8px;
+}
+
+div.code-block {
+    border: 1px solid grey;
+    background: #E0E0E0;
+    padding: 8px;
+}

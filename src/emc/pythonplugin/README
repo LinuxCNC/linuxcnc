@@ -1,0 +1,2 @@
+spun out as separate class since it's used by interp and task
+no reason to keep it an interp method

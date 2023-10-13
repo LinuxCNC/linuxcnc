@@ -1,0 +1,344 @@
+/********************************************************************
+* Description:  spindle.comp
+*               Spindle HAL component.
+*
+* Author: Les Newell <les at sheetcam dot com>
+* License: GPL Version 2 or later
+*
+* Copyright (c) 2009 All rights reserved.
+*
+********************************************************************
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of version 2 or later of the GNU General
+ * Public License as published by the Free Software Foundation.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
+ *
+ * THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
+ * ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
+ * TO RELY ON SOFTWARE ALONE FOR SAFETY.  Any machinery capable of
+ * harming persons must have provisions for completely removing power
+ * from all motors, etc, before persons enter any danger area.  All
+ * machinery must be designed to comply with local and national safety
+ * codes, and the authors of this software can not, and do not, take
+ * any responsibility for such compliance.
+ *
+ * This code was written as part of the LinuxCNC HAL project.  For more
+ * information, go to www.linuxcnc.org.
+ *
+*************************************************************************/
+
+component spindle "Control a spindle with different acceleration and deceleration and optional gear change scaling";
+
+description """This component will control a spindle with adjustable acceleration and deceleration.
+
+ NOTE: This component is unfortunately named and creates pins with names very much like those created by the motion component.
+ In nearly every case this is not the documentation page that you are looking for.
+ See http://linuxcnc.org/docs/html/man/man9/motion.9.html instead.
+
+It is designed for use with non-servo spindle drives that have separate fwd/reverse inputs, such as DC drives and inverters.
+If a spindle encoder is available it is used to tailor the acceleration and deceleration to the spindle load.
+If not the spindle speed is simulated. The component allows for gearboxes with up to 16 gears.
+Each gear has individual control of speeds, acceleration, driver gain and direction.""";
+
+see_also "\\fBmotion\\fR(9)";
+
+pin in unsigned select-gear
+"""Select a gear. Must be in the range 0 -> number of available gears -1. If you use this, do not use the select.x input pins.""";
+
+pin in float commanded-speed "Commanded spindle speed (in RPM)";
+pin in float actual-speed """Actual spindle speed from a spindle encoder (in RPS).
+If you do not have a spindle encoder set the simulate_encoder parameter to 1.""";
+pin in bit simulate-encoder "If you do not have an encoder, set this to 1.";
+pin in bit enable "If FALSE, the spindle is stopped at the gear's maximum deceleration.";
+pin in float spindle-lpf """Smooth the spindle-rpm-abs output when at speed, 0 = disabled.
+Suitable values are probably between 1 and 20 depending on how stable your spindle is.""";
+
+pin out float spindle-rpm """Current spindle speed in RPM.+ve = forward, -ve = reverse.
+Uses the encoder input if available. If not, uses a simulated encoder speed.""";
+
+pin out float spindle-rpm-abs "Absolute spindle speed in RPM. Useful for spindle speed displays.";
+pin out float output "Scaled output";
+pin out unsigned current-gear "Currently selected gear.";
+
+pin out bit at-speed "TRUE when the spindle is at speed";
+pin out bit forward "TRUE for forward rotation";
+pin out bit reverse "TRUE for reverse rotation. Both forward and reverse are false when the spindle is stopped.";
+pin out bit brake "TRUE when decelerating";
+pin out bit zero-speed "TRUE when the spindle is stationary";
+pin out bit limited """TRUE when the commanded spindle speed is >max or <min.""";
+
+notes """
+.TP
+.B The following pins are created depending the 'numgears=' parameter.
+One of each pin is created for each gear. If no gears are specified then one gear will be created.
+For instance if you have gears=2 on your command line, you will have two scale pins:
+ \\fBspindle.\\fP\\fIN\\fB.scale.0\\fP
+ \\fBspindle.\\fP\\fIN\\fB.scale.1\\fP
+
+.TP
+\\fBspindle.\\fP\\fIN\\fB.scale.\\fPx float in
+Scale the output. For multiple gears you would use a different scale for each gear.
+If you need to reverse the output for some gears, use a negative scale.
+
+.TP
+\\fBspindle.\\fP\\fIN\\fB.min.\\fPx float in
+Set the minimum speed allowed (in RPM).
+The limit output will be TRUE while the commanded speed is between 0 RPM and the min speed.
+
+.TP
+\\fBspindle.\\fP\\fIN\\fB.max.\\fPx float in
+Set the maximum speed allowed (in RPM).
+The limit output will be TRUE while the commanded speed is above this value.
+
+.TP
+\\fBspindle.\\fP\\fIN\\fB.accel.\\fPx float in
+Set the maximum acceleration.
+If you do not have a spindle encoder this is in RPM/second.
+If you do have an encoder the output is the actual speed plus this value.
+This way the acceleration can be dependent on the spindle load.
+
+.TP
+\\fBspindle.\\fP\\fIN\\fB.decel.\\fPx float in
+Set the minimum deceleration. If you do not have a spindle encoder this is in RPM/second.
+If you do have an encoder the output is the actual speed minus this value.
+
+.TP
+\\fBspindle.\\fP\\fIN\\fB.speed-tolerance.\\fPx float in
+Tolerance for 'at-speed' signal (in RPM).
+Actual spindle speeds within this amount of the commanded speed will cause the at-speed signal to go TRUE.
+
+.TP
+\\fBspindle.\\fP\\fIN\\fB.zero-tolerance.\\fPx float in
+Tolerance for 'zero-speed' signal (in RPM).
+
+.TP
+\\fBspindle.\\fP\\fIN\\fB.offset.\\fPx float in
+The output command is offset by this amount (in RPM).
+
+.TP
+\\fBspindle.\\fP\\fIN\\fB.select.\\fPx bit in
+Selects this gear. If no select inputs are active, gear 0 is selected.
+If multiple select inputs are active then the highest is selected.
+""";
+
+variable float ngears;
+variable gear_t gears[16];
+
+function _ fp;
+license "GPL";
+author "Les Newell";
+option extra_setup yes;
+include "hal/components/spindle.h";
+
+;;
+
+int numgears[16] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+RTAPI_MP_ARRAY_INT(numgears, 16, "Number of gears");
+
+int add_gear(int index, char *prefix, gear_t * g);
+
+FUNCTION(_) {
+    int ct;
+    float cmdspeed;
+    float curspeed;
+    float diff;
+    float tmp;
+    bool limit = false;
+    bool reversing;
+
+    gear_t * thisgear = gears;
+    if(select_gear != 0){
+        current_gear = select_gear;
+        if(current_gear > 15) current_gear = 15;
+        thisgear = &gears[current_gear];
+    }else{
+        current_gear = 0;
+        for(ct = ngears-1; ct >= 0; ct--){
+            thisgear = &gears[ct];
+            if(*(thisgear->select)){
+                current_gear = ct;
+                break;
+            }
+        }
+    }
+    if(!simulate_encoder){
+        spindle_rpm = actual_speed * 60; /*RPS to RPM*/
+    }
+    curspeed = spindle_rpm;
+    if(enable){
+        cmdspeed = commanded_speed;
+    }else{
+        cmdspeed = 0;
+    }
+
+    if(curspeed >= 0){
+        tmp = curspeed;
+    }else{
+        tmp = -curspeed;
+    }
+    zero_speed = (tmp <= *(thisgear->zero_tolerance));
+    if(spindle_lpf >0 && at_speed){
+        spindle_rpm_abs += (tmp - spindle_rpm_abs) * spindle_lpf * fperiod;
+    }else{
+        spindle_rpm_abs = tmp;
+    }
+
+    reversing = (cmdspeed > 0 && curspeed < 0) || (cmdspeed < 0 && curspeed > 0);
+
+    diff = cmdspeed - curspeed;
+    if(diff <0) diff = -diff;
+    tmp = *(thisgear->speed_tolerance);
+    at_speed = (tmp >0 && tmp >= diff) && !reversing;
+
+    tmp = *(thisgear->min);
+    if(tmp > 0){
+        if(cmdspeed > 0){
+            if(cmdspeed < tmp){
+                cmdspeed = tmp;
+                limit = true;
+            }
+        }else if(cmdspeed < 0){
+            if(cmdspeed > -tmp){
+                cmdspeed = -tmp;
+                limit = true;
+            }
+        }
+    }
+    tmp = *(thisgear->max);
+    if(tmp > 0){
+        if(cmdspeed > 0 && cmdspeed > tmp){
+            cmdspeed = tmp;
+            limit = true;
+        }
+        if(cmdspeed < 0 && cmdspeed < -tmp){
+            cmdspeed = -tmp;
+            limit = true;
+        }
+    }
+
+    diff = cmdspeed - curspeed;
+
+    /* make sure we don't cross zero speed */
+    if(curspeed > 0 && diff < -curspeed) diff = -curspeed;
+    if(curspeed < 0 && diff > -curspeed) diff = -curspeed;
+
+    tmp = *(thisgear->accel);
+    if(tmp > 0 && !reversing){
+        if(simulate_encoder) tmp *= fperiod;
+        if(cmdspeed > 0 && diff > tmp){
+                diff = tmp;
+        }
+        if(cmdspeed < 0 && diff < -tmp){
+                diff = -tmp;
+        }
+    }
+
+    tmp = *(thisgear->decel);
+    if(tmp > 0){
+        if(simulate_encoder) tmp *= fperiod;
+        if(reversing){
+            if(cmdspeed >= 0 && diff > tmp) diff = tmp;
+            if(cmdspeed <= 0 && diff < -tmp) diff = -tmp;
+        }else{
+            if(cmdspeed >= 0 && diff < -tmp) diff = -tmp;
+            if(cmdspeed <= 0 && diff > tmp) diff = tmp;
+        }
+    }
+
+    if(at_speed){ /* stop hunting when at sped */
+        curspeed = cmdspeed;
+    }else{
+        curspeed += diff;
+    }
+
+    if(simulate_encoder){
+        spindle_rpm = curspeed;
+    }
+
+    if(cmdspeed !=0){
+        forward = (curspeed >0);
+        reverse = (curspeed <0);
+    }else{ /* don't try to move once stopped */
+        forward = (curspeed >0) && forward;
+        reverse = (curspeed <0) && forward;
+    }
+    if(curspeed < 0) curspeed = -curspeed;
+    output = (curspeed + (*(thisgear->offset))) * (*(thisgear->scale));
+    limited = limit;
+}
+
+EXTRA_SETUP(){
+    int ct;
+    int r;
+    ngears = numgears[extra_arg];
+    if(ngears < 1 || ngears > 16){
+        rtapi_print_msg(RTAPI_MSG_ERR,"Number of gears is out of range\n");
+        return(-EINVAL);
+    }
+    for(ct = 0; ct < ngears; ct++){
+        r = add_gear(ct, prefix,&gears[ct]);
+        if(r != 0) return r;
+    }
+    if(ngears ==1){
+        *(gears[0].select) = true;
+    }
+    return(0);
+}
+
+int add_gear(int index, char *prefix, gear_t * g)
+{
+    int r;
+    r = hal_pin_float_newf(HAL_IN, &(g->scale), comp_id,
+        "%s.scale.%i", prefix,index);
+    if(r != 0) return r;
+
+    r = hal_pin_float_newf(HAL_IN, &(g->min), comp_id,
+        "%s.min.%i", prefix,index);
+    if(r != 0) return r;
+
+    r = hal_pin_float_newf(HAL_IN, &(g->max), comp_id,
+        "%s.max.%i", prefix,index);
+    if(r != 0) return r;
+
+    r = hal_pin_float_newf(HAL_IN, &(g->accel), comp_id,
+        "%s.accel.%i", prefix,index);
+    if(r != 0) return r;
+
+    r = hal_pin_float_newf(HAL_IN, &(g->decel), comp_id,
+        "%s.decel.%i", prefix,index);
+    if(r != 0) return r;
+
+    r = hal_pin_float_newf(HAL_IN, &(g->speed_tolerance), comp_id,
+        "%s.speed-tolerance.%i", prefix,index);
+    if(r != 0) return r;
+
+    r = hal_pin_float_newf(HAL_IN, &(g->zero_tolerance), comp_id,
+        "%s.zero-tolerance.%i", prefix,index);
+    if(r != 0) return r;
+
+    r = hal_pin_float_newf(HAL_IN, &(g->offset), comp_id,
+        "%s.offset.%i", prefix,index);
+    if(r != 0) return r;
+
+    r = hal_pin_bit_newf(HAL_IN, &(g->select), comp_id,
+        "%s.select.%i", prefix,index);
+    if(r != 0) return r;
+    *g->scale = 1;
+    *g->min = 0;
+    *g->max = 0;
+    *g->accel = 0;
+    *g->decel = 0;
+    *g->speed_tolerance = 20;
+    *g->zero_tolerance = 20;
+    *g->offset = 0;
+    *g->select = false;
+    return(0);
+}

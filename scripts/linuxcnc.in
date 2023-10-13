@@ -1,0 +1,992 @@
+#!/bin/bash
+################################################################################
+# usage: linuxcnc [options] [<INI file>]
+#
+# options: see usage() function below
+#
+# this version calls pickconfig.tcl to pick an INI file if one
+# is not specified on the command line
+#
+################################################################################
+# Author:
+# License: GPL Version 2
+# System: Linux
+#    
+# Copyright (c) 2004-2009 All rights reserved.
+################################################################################
+
+# -1. Get all rip-environment items if we are RIP
+if test "xyes" = "x@RUN_IN_PLACE@"; then
+    if test "${EMC2_HOME:-}" != "@EMC2_HOME@"; then
+        exec @EMC2_HOME@/scripts/rip-environment linuxcnc "$@"
+    fi
+fi
+
+# Force pyopengl (python3-opengl) to use its GLX backend, even
+# if we're running on Wayland where it would normally use EGL.
+# Similar for the Gtk and Qt backends.
+if [[ ! -v LINUXCNC_OPENGL_PLATFORM || "${LINUXCNC_OPENGL_PLATFORM}" == "glx" ]]; then
+    export PYOPENGL_PLATFORM="x11"
+    export GDK_BACKEND="x11"
+    export QT_QPA_PLATFORM="xcb"
+fi
+
+################################################################################
+# 0. Values that come from configure
+################################################################################
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+PIDOF="@PIDOF@ -x"
+PS=@PS@
+AWK=@AWK@
+GREP=@GREP@
+IPCS=@IPCS@
+KILL=@KILL@
+
+LINUXCNC_HOME=@EMC2_HOME@; export LINUXCNC_HOME
+
+LINUXCNC_BIN_DIR=@EMC2_BIN_DIR@
+LINUXCNC_TCL_DIR=@EMC2_TCL_DIR@
+LINUXCNC_HELP_DIR=@EMC2_HELP_DIR@
+LINUXCNC_RTLIB_DIR=@EMC2_RTLIB_DIR@
+LINUXCNC_CONFIG_PATH="@LINUXCNC_CONFIG_PATH@"
+LINUXCNC_NCFILES_DIR=@EMC2_NCFILES_DIR@
+LINUXCNC_LANG_DIR=@EMC2_LANG_DIR@
+REALTIME=@REALTIME@
+LINUXCNC_IMAGEDIR=@EMC2_IMAGE_DIR@
+LINUXCNC_TCL_LIB_DIR=@EMC2_TCL_LIB_DIR@
+HALLIB_DIR=@HALLIB_DIR@; export HALLIB_DIR
+
+#HALLIB_PATH: see also -H option
+HALLIB_PATH=.:$HALLIB_DIR; export HALLIB_PATH
+
+# put ~.local/bin in PATH if missing. See:
+# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=839155
+if [ -d $HOME/.local/bin ]; then
+    if [[ "$PATH" != *".local/bin"* ]]; then
+        PATH=$HOME/.local/bin:$PATH
+    fi
+fi
+
+#put the LINUXCNC_BIN_DIR in PATH
+PATH=$LINUXCNC_BIN_DIR:$PATH
+#ditto scripts if not RIP
+[ -d $LINUXCNC_HOME/scripts ] && PATH=$LINUXCNC_HOME/scripts:$PATH
+
+if test "xyes" = "x@RUN_IN_PLACE@"; then
+	if [ -z "$LD_LIBRARY_PATH" ]; then
+	    LD_LIBRARY_PATH=$LINUXCNC_HOME/lib
+	else
+	    LD_LIBRARY_PATH=$LINUXCNC_HOME/lib:"$LD_LIBRARY_PATH"
+	fi
+	export LD_LIBRARY_PATH
+fi
+
+if [ -z "$PYTHONPATH" ]; then
+    PYTHONPATH=$LINUXCNC_HOME/lib/python
+else
+    PYTHONPATH=$LINUXCNC_HOME/lib/python:"$PYTHONPATH"
+fi
+export PYTHONPATH
+
+
+MODULE_EXT=@MODEXT@ # module extension, used when insmod'ing
+
+DEBUG_FILE=$(mktemp /tmp/linuxcnc.debug.XXXXXX)
+PRINT_FILE=$(mktemp /tmp/linuxcnc.print.XXXXXX)
+
+program_available () {
+    type -path "$1" > /dev/null 2>&1
+}
+
+usage () {
+    P=${0##*/}
+    cat <<EOF
+$P: Run LinuxCNC
+
+Usage:
+  $ $P -h
+    This help
+
+  $ $P [Options]
+    Choose the configuration INI file graphically
+
+  $ $P [Options] path/to/your_ini_file
+    Name the configuration INI file using its path
+
+  $ $P [Options] -l
+    Use the previously used configuration INI file
+
+Options:
+    -d: Turn on "debug" mode
+    -v: Turn on "verbose" mode
+    -r: Disable redirection of stdout and stderr to ~/linuxcnc_print.txt and
+        ~/linuxcnc_debug.txt when stdin is not a tty.
+        Used when running linuxcnc tests non-interactively.
+    -l: Use the last-used INI file
+    -k: Continue in the presence of errors in HAL files
+    -t "tpmodulename [parameters]"
+            specify custom trajectory_planning_module
+            overrides optional INI setting [TRAJ]TPMOD
+    -m "homemodulename [parameters]"
+            specify custom homing_module
+            overrides optional INI setting [EMCMOT]HOMEMOD
+    -H "dirname": search dirname for HAL files before searching
+                  INI directory and system library:
+                  $HALLIB_DIR
+Note:
+    The -H "dirname" option may be specified multiple times
+EOF
+
+}
+
+################################################################################
+# 1.1. strip and process command line options
+################################################################################
+while getopts "dvlhkrH:t:m:" opt
+do
+    case "$opt" in
+    d)
+        # enable echoing of script and command output
+        if tty -s; then
+            DEBUG_FILE=/dev/fd/2
+            echo "Debug mode on" >$DEBUG_FILE
+        fi
+        set -x;;
+    v)
+        # enable printing of verbose messages
+        if tty -s; then
+            PRINT_FILE=/dev/fd/1
+            echo "Verbose mode on" >$PRINT_FILE
+        fi;;
+    r)
+        RUNTESTS=yes
+        ;;
+    l)
+        USE_LAST_INIFILE=1;;
+    k)
+        DASHK=-k;;
+    h)
+        usage
+        exit 0;;
+    H)  # -H dirname: prepend dirname to HALLIB_PATH
+        if [ -d $OPTARG ]; then
+            HALLIB_PATH=$(cd $OPTARG;pwd):$HALLIB_PATH
+            echo "HALLIB_PATH = $HALLIB_PATH"
+        else
+            echo "Invalid dirname specified: -H $OPTARG"
+            exit 1
+        fi
+        ;;
+    t)  # -t modname: user-supplied trajectory planning module
+        # modname must conform to tpmod api,
+        # and be located in: $LINUXCNC_RTLIB_DIR
+        TPMOD=$OPTARG
+        ;;
+    m)  # -m modname: user-supplied homing module
+        # modname must conform to homing api,
+        # and be located in: $LINUXCNC_RTLIB_DIR
+        HOMEMOD=$OPTARG
+        ;;
+    *)
+        usage
+        exit 1
+    esac
+done
+shift $(($OPTIND-1))
+
+case "@KERNEL_VERS@" in
+"") ;;
+*)
+    if [ `uname -r` != "@KERNEL_VERS@" ]; then
+        if tty -s || [ -z "$DISPLAY" ]; then
+            echo "LinuxCNC requires the real-time kernel @KERNEL_VERS@ to run."
+            echo "Before running LinuxCNC, reboot and choose this kernel at the boot menu."
+        else
+            @WISH@ <<EOF
+                wm wi .
+                tk_messageBox -type ok \
+                    -title LinuxCNC -icon error -title "Realtime Kernel Required" \
+                    -message {LinuxCNC requires the real-time kernel @KERNEL_VERS@ to run.  Before running LinuxCNC, reboot and choose this kernel at the boot menu.}
+                exit
+EOF
+        fi
+        exit
+    fi
+esac
+
+if [ -z $RUNTESTS ]; then
+if ! tty -s; then
+    exec 2>> $DEBUG_FILE
+    exec >> $PRINT_FILE
+fi
+fi
+
+function ErrorCheck () {
+    result=$?
+    if [ ! -z "$DISPLAY" ]; then
+        echo "catch {send -async popimage destroy .}; destroy ." | @WISH@
+    fi
+
+    if [ $result -ne 0 ]; then
+        if tty -s || [ -z "$DISPLAY" ] ; then
+            if [ -f $DEBUG_FILE ]; then
+                cp $DEBUG_FILE $HOME/linuxcnc_debug.txt
+            else
+                echo "(debug information was sent to stderr)" \
+                    > $HOME/linuxcnc_debug.txt
+            fi
+
+            if [ -f $PRINT_FILE ]; then
+                cp $PRINT_FILE $HOME/linuxcnc_print.txt
+            else
+                echo "(print information was sent to stdout)" \
+                    > $HOME/linuxcnc_print.txt
+            fi
+
+            echo "\
+LinuxCNC terminated with an error.  You can find more information in the log:
+    $HOME/linuxcnc_debug.txt
+and
+    $HOME/linuxcnc_print.txt
+as well as in the output of the shell command 'dmesg' and in the terminal"
+        else
+            @WISH@ $LINUXCNC_TCL_DIR/show_errors.tcl $DEBUG_FILE $PRINT_FILE
+        fi
+    fi
+    rm -f $DEBUG_FILE $PRINT_FILE 2>/dev/null
+    exit $result
+}
+
+trap ErrorCheck EXIT
+
+################################################################################
+# 1.3. INIFILE                           find INI file to use                   #
+################################################################################
+
+if [ ! -z "$1" ]; then
+    case "$1" in
+      -)  USE_LAST_INIFILE=1;;
+      /*) INIFILE="$1" ;;
+      *)  INIFILE="`pwd`/$1";;
+    esac
+    shift
+fi
+EXTRA_ARGS="$@"
+
+# 1.3.1. Determine if we have run-in place or installed system
+RUN_IN_PLACE=@RUN_IN_PLACE@
+echo RUN_IN_PLACE=$RUN_IN_PLACE >>$PRINT_FILE
+
+LINUXCNCVERSION="@EMC2VERSION@"; export LINUXCNCVERSION
+
+# common from here..
+INIVAR=inivar
+HALCMD="halcmd $DASHK"
+PICKCONFIG="@WISH@ $LINUXCNC_TCL_DIR/bin/pickconfig.tcl"
+LINUXCNC_EMCSH=@WISH@
+
+echo LINUXCNC_DIR=$LINUXCNC_DIR >>$PRINT_FILE
+echo LINUXCNC_BIN_DIR=$LINUXCNC_BIN_DIR >>$PRINT_FILE
+echo LINUXCNC_TCL_DIR=$LINUXCNC_TCL_DIR >>$PRINT_FILE
+echo LINUXCNC_SCRIPT_DIR=$LINUXCNC_SCRIPT_DIR >>$PRINT_FILE
+echo LINUXCNC_RTLIB_DIR=$LINUXCNC_RTLIB_DIR >>$PRINT_FILE
+echo LINUXCNC_CONFIG_DIR=$LINUXCNC_CONFIG_DIR >>$PRINT_FILE
+echo LINUXCNC_LANG_DIR=$LINUXCNC_LANG_DIR >>$PRINT_FILE
+echo INIVAR=$INIVAR >>$PRINT_FILE
+echo HALCMD=$HALCMD >>$PRINT_FILE
+echo LINUXCNC_EMCSH=$LINUXCNC_EMCSH >>$PRINT_FILE
+
+#export some common directories, used by some of the GUI's
+export LINUXCNC_TCL_DIR
+export LINUXCNC_EMCSH
+export LINUXCNC_HELP_DIR
+export LINUXCNC_LANG_DIR
+export REALTIME
+export HALCMD
+export LINUXCNC_NCFILES_DIR
+
+[ -z $RUNTESTS ] && echo "LINUXCNC - $LINUXCNCVERSION" 
+
+# was an INI file specified on the command line?
+if [ ! -z "$USE_LAST_INIFILE" ]; then
+    INIFILE=$($INIVAR -ini ~/.linuxcncrc -var LAST_CONFIG -sec PICKCONFIG 2>>$DEBUG_FILE)
+    echo "Using previous INI file: $INIFILE" >> $PRINT_FILE
+fi
+
+if [ ! -n "$INIFILE" ] ; then
+    # nothing specified, get from the user
+    # it returns either a path, or nothing at all
+    INIFILE=$($PICKCONFIG)
+    # if name is xxxx.demo, then:
+    #    execute xxxx.demo in background and exit
+    if [ "${INIFILE%%.demo}".demo = "${INIFILE}" ] ; then
+      "${INIFILE}" &
+      exit 0
+    fi
+fi
+
+if [ ! -n "$INIFILE" ] ; then
+    # still nothing specified, exit
+    exit 0
+fi
+
+function handle_includes () {
+  hdr="# handle_includes():"
+  inifile="$1"
+  cd "$(dirname $inifile)" ;# for the function() subprocess only
+  $GREP "^#INCLUDE" "$inifile" >/dev/null
+  status=$?
+  if [ $status -ne 0 ] ; then
+    echo "$inifile" ;# just use the input
+    return 0 ;# ok
+  fi
+  outfile="$(dirname $inifile)/$(basename $inifile).expanded"
+  >|"$outfile"
+  echo "#*** $outfile" >>"$outfile"
+  echo "#*** Created: $(date)" >>"$outfile"
+  echo "#*** Autogenerated file with expanded #INCLUDEs" >>"$outfile"
+  echo "" >>"$outfile"
+  line=0
+  while read a b ; do
+    line=$((line + 1))
+    if [ "$a" = "#INCLUDE" ] ; then
+       if [ "X$b" = "X" ] ; then
+          msg="$hdr <$line> found #INCLUDE with no filename" >>"$outfile"
+          echo "$msg" >&2
+          echo "$msg" >>"$outfile"
+       else
+          # expand file name
+          breal=$(eval echo "$b")
+          # -r: readable
+          if  [ -r "$breal" ] ; then
+            echo "" >>"$outfile"
+            echo "#*** Begin #INCLUDE file: $breal" >>"$outfile"
+            cat "$breal" >>"$outfile"
+            echo "#*** End   #INCLUDE file: $breal" >>"$outfile"
+          else
+            msg="$hdr <$line> CANNOT READ $breal"
+            echo "$msg" >&2
+            echo "$msg" >>"$outfile"
+          fi
+       fi
+    else
+       echo "$a $b" >> "$outfile"
+    fi
+  done <"$inifile"
+  echo "$outfile" ;# use the expanded file
+  return 0 ;# ok
+}
+
+function split_app_items () {
+  app_name=$1
+  shift
+  app_args=$*
+}
+
+function run_applications () {
+    NUM=1
+    APPFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var APP -sec APPLICATIONS -num $NUM 2> /dev/null`
+    if [ -z "$APPFILE" ] ; then return ; fi
+    DEFAULT_APPLICATION_DELAY=0
+    GetFromIni DELAY APPLICATIONS
+    DELAY=${retval:-$DEFAULT_APPLICATION_DELAY}
+    while [ -n "$APPFILE" ] ; do
+       split_app_items $APPFILE # --> app_name app_args
+       # try all explicit specifications before trying PATH
+       case "$app_name" in
+         /*) # absolute pathname
+             exe_name=$app_name;;
+       \./*) # name relative to INI file directory
+             exe_name="$(pwd)/$app_name";;
+          *) # try local first then PATH
+             exe_name=$(pwd)/$app_name
+             if [ ! -x "$exe_name" ] ; then
+               exe_name=$(command -v $app_name)
+             fi
+       esac
+       if [ ! -f "$exe_name" ] ; then
+          echo "APP: Cannot find executable file for: <$app_name>"
+       else
+          if [ ! -x "$exe_name" ] ; then
+             echo "APP: File not executable: <$exe_name>"
+          else
+             echo "APP: $app_name found: <$exe_name>"
+             (sleep $DELAY; eval $exe_name $app_args) &
+          fi
+       fi
+       NUM=$(($NUM+1))
+       APPFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var APP -sec APPLICATIONS -num $NUM 2> /dev/null`
+    done
+}
+
+INIFILE="$(handle_includes "$INIFILE")"
+
+# delete directories from path, save name only
+INI_NAME="${INIFILE##*/}"
+INI_DIR="${INIFILE%/*}"
+CONFIG_DIR="${INIFILE%/*}"
+export CONFIG_DIR
+export PATH=$CONFIG_DIR/bin:$PATH
+
+[ -z $RUNTESTS ] && echo "Machine configuration directory is '$INI_DIR'"
+echo "Machine configuration file is '$INI_NAME'"
+
+# make sure INI file exists (the tcl script just did this, so we could 
+# eliminate this test, but it does no harm)
+
+if [ ! -f "$INIFILE" ] ; then
+    echo "Could not find INI file '$INIFILE'"
+    trap '' EXIT
+    exit -1
+fi
+echo INIFILE="$INIFILE" >>$PRINT_FILE
+
+################################################################################
+# 2.  extract info from the INI file that we will need later
+################################################################################
+retval=
+
+# 2.1. define helper function
+function GetFromIniQuiet {
+    #$1 var name   $2 - section name
+    name=$1
+    retval=`$INIVAR -ini "$INIFILE" -var $1 -sec $2 2> /dev/null`
+    if [ ! -n "$1" ] ; then
+	exit -1
+    fi
+    echo "$name=$retval" >>$PRINT_FILE
+}
+
+function GetFromIni {
+    #$1 var name   $2 - section name
+    name=$1
+    retval=`$INIVAR -ini "$INIFILE" -var $1 -sec $2 2>>$DEBUG_FILE`
+    if [ ! -n "$1" ] ; then
+	echo "Can't find variable $1 in section [$2] of file $INIFILE."
+	exit -1
+    fi
+    echo "$name=$retval" >>$PRINT_FILE
+}
+
+# Usage:
+#  GetFromIniEx VAR1 SEC1 [VAR2 SEC2...VARn SECn] [default]
+function GetFromIniEx {
+    original_var="[$2]$1"
+    while [ $# -ge 2 ]; do
+	if retval=`$INIVAR -ini "$INIFILE" -var "$1" -sec "$2" 2>/dev/null`; then return; fi
+	shift 2
+    done
+    if [ $# -eq 0 ]; then
+	echo "Can't find $original_var in $INIFILE."
+	exit -1
+    fi
+    retval="$1"
+}
+
+# 2.1.5 check version
+GetFromIni VERSION EMC
+if [ "$retval" != "1.1" ]; then
+    if [ -z "$DISPLAY" ]; then
+        echo "INI file [EMC]VERSION indicates update is needed, but the update GUI can't run without an X display"
+        exit 1
+    fi
+    update_ini -d "$INIFILE"
+    exitval=$?
+    case "$exitval" in
+    0) ;;
+    42) echo "update_ini cancelled by user" ; exit 0;;
+    *) echo "update script failed in an unexpected way."; exit $exitval ;;
+    esac
+fi
+
+# 2.1.6 check if PlasmaC config, if true it requires migration to QtPlasmaC
+if [ `$INIVAR -ini "$INIFILE" -var MODE -sec PLASMAC 2> /dev/null` ]; then
+    echo -e "\nThis is a PlasmaC configuration, it requires migrating to QtPlasmac.\n"
+    exitstr=$(qtplasmac-plasmac2qt "$INIFILE")
+    exitval=$?
+    case "$exitval" in
+        0) echo -e "$exitstr";;
+        2) echo -e "Migration cancelled by user.\nPlasmaC is not available in LinuxCNC 2.9 and later.\n";;
+        *) echo -e "QtPlasmaC migration failed with an unknown error.\n";;
+    esac
+    exit 0
+fi
+
+@TCLSH@ $HALLIB_DIR/check_config.tcl "$INIFILE"
+exitval=$?
+case "$exitval" in
+  0) ;;
+  1) echo "check_config validation failed"; exit $exitval ;;
+  *) echo "check_config validation failed in an unexpected way."; exit $exitval ;;
+esac
+# 2.2. get param file
+
+GetFromIni PARAMETER_FILE RS274NGC 
+RS274NGC_PARAMFILE=$retval
+
+# 2.3. get mot information
+GetFromIniEx MOT MOT EMCMOT EMCMOT motmod
+EMCMOT=$retval$MODULE_EXT # add module extension
+
+# commandline -t option supersedes INI file setting
+if [ -z "$TPMOD" ] ; then
+    GetFromIniQuiet TPMOD   TRAJ
+    TPMOD=${retval:-tpmod} #use default if not found
+fi
+# commandline -m option supersedes INI file setting
+if [ -z "$HOMEMOD" ] ; then
+    GetFromIniQuiet HOMEMOD EMCMOT
+    HOMEMOD=${retval:-homemod} #use default if not found
+fi
+
+# 2.5. get task information
+GetFromIni TASK TASK
+EMCTASK=$retval
+
+if [ "$EMCTASK" = emctask ]; then EMCTASK=linuxcnctask; fi
+
+# 2.6. we hardcode the server name, change if needed
+# linuxcncsvr now holds/creates all the NML channels,
+# so it needs to start by default, as the first process
+EMCSERVER=linuxcncsvr
+
+# 2.7. get halui information
+GetFromIniQuiet HALUI HAL
+HALUI=$retval
+
+# 2.8. get display information
+GetFromIni DISPLAY DISPLAY
+EMCDISPLAY=`(set -- $retval ; echo $1 )`
+EMCDISPLAYARGS=`(set -- $retval ; shift ; echo $* )`
+
+case $EMCDISPLAY in
+    tkemc) EMCDISPLAY=tklinuxcnc ;;
+esac
+
+# 2.9. get NML config information
+GetFromIniEx NML_FILE LINUXCNC NML_FILE EMC @DEFAULT_NMLFILE@
+NMLFILE=$retval
+export NMLFILE
+
+# 2.10. INI information that may be needed by other apps in process tree
+GetFromIni COORDINATES TRAJ
+TRAJ_COORDINATES=$retval
+export TRAJ_COORDINATES
+
+GetFromIni KINEMATICS KINS
+KINS_KINEMATICS=$retval
+export KINS_KINEMATICS
+
+################################################################################
+# 3. Done gathering information, define a few functions
+# Execution resumes after function definitions...
+################################################################################
+
+KILL_TASK=
+KILL_TIMEOUT=20
+
+################################################################################
+# 3.1. Kills a list of tasks with timeout
+# if it doesn't work, kill -9 is used
+################################################################################
+function KillTaskWithTimeout() {
+    if [ ! -n "$KILL_PIDS" ] ; then
+	KILL_PIDS=`$PIDOF $KILL_TASK`
+    fi
+    if [ ! -n "$KILL_PIDS" ] ; then
+	echo "Could not find pid(s) for task $KILL_TASK"
+	return -1
+    fi
+    local NPROCS
+    for KILL_PID in $KILL_PIDS ; do
+        if $PS -o stat= -o comm= $KILL_PID | $GREP -q '^Z'; then
+            echo "Skipping defunct task $KILL_TASK, PID=$KILL_PID" >>$PRINT_FILE
+            continue
+        fi
+	# first a "gentle" kill with signal TERM
+	$KILL $KILL_PID
+	WAIT=$KILL_TIMEOUT
+	# wait and see if it disappears
+	while [ $WAIT -gt 1 ] ; do
+	    # see if it's still alive
+            NPROCS=$($PS -o stat= -o comm= $KILL_PID | $GREP -v '^Z' | wc -l)
+            if [ $NPROCS -gt 0 ]; then
+		WAIT=$(($WAIT-1))
+		sleep .1
+	    else
+		WAIT=0
+	    fi
+	done
+	if [ $WAIT -gt 0 ] ; then
+	    # gentle didn't work, get serious
+	    echo "Timeout, trying kill -9" >>$PRINT_FILE
+	    $KILL -9 $KILL_PID
+	    WAIT=$KILL_TIMEOUT
+	    # wait and see if it disappears
+	    while [ $WAIT -gt 1 ] ; do
+		# see if it's still alive
+                NPROCS=$($PS -o stat= -o comm= $KILL_PID | $GREP -v '^Z' | wc -l)
+                if [ $NPROCS -gt 0 ]; then
+		    WAIT=$(($WAIT-1))
+		    sleep .1
+		else
+		    WAIT=0
+		fi
+	    done
+	fi
+	if [ $WAIT -gt 0 ] ; then
+	    echo "Could not kill task $KILL_TASK, PID=$KILL_PID"
+	fi
+    done
+    KILL_PIDS=
+    KILL_TASK=
+}
+
+
+################################################################################
+# 3.2. define the cleanup function
+#
+# this cleanup function doesn't know or care what was actually
+# loaded - it simply kills _any_ processes in its list of
+# components
+################################################################################
+function Cleanup() {
+
+    echo "Shutting down and cleaning up LinuxCNC..."
+    # Kill displays first - that should cause an orderly
+    #   shutdown of the rest of linuxcnc
+    for KILL_TASK in linuxcncpanel iosh linuxcncsh linuxcncrsh linuxcnctop mdi debuglevel gmoccapy gscreen; do
+	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
+	    KillTaskWithTimeout
+	fi
+    done
+
+    if program_available axis-remote ; then
+	if [ ! -z "$DISPLAY" ]; then
+	    axis-remote --ping && axis-remote --quit
+	fi
+    fi
+
+    if [ "$1" = "other" ]; then
+        echo -n "Waiting for other session to finish exiting..."
+	WAIT=$KILL_TIMEOUT
+	while [ $WAIT -gt 1 ]; do
+            if ! [ -f $LOCKFILE ]; then
+                echo " Ok"
+                return 0
+            fi
+            WAIT=$(($WAIT-1))
+            sleep .1
+        done
+        echo "lockfile still not removed"
+    fi
+
+    SHUTDOWN=`$INIVAR -ini "$INIFILE" -var SHUTDOWN -sec HAL 2> /dev/null`
+    if [ -n "$SHUTDOWN" ]; then
+	echo "Running HAL shutdown script"
+	$HALCMD -f $SHUTDOWN
+    fi
+
+    # now kill all the other user space components
+    for KILL_TASK in linuxcncsvr motion-logger milltask; do
+	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
+	    KillTaskWithTimeout
+	fi
+    done
+
+    echo "Stopping realtime threads" >> $DEBUG_FILE
+    $HALCMD stop
+    echo "Unloading hal components" >> $DEBUG_FILE
+    $HALCMD unload all
+
+    for i in `seq 10`; do
+        # (the one component is the halcmd itself)
+        if [ `$HALCMD list comp | wc -w` = 1 ]; then break; fi
+        sleep .2
+    done
+
+    echo "Removing HAL_LIB, RTAPI, and Real Time OS modules" >>$PRINT_FILE
+    $REALTIME stop
+
+    echo "Removing NML shared memory segments" >> $PRINT_FILE
+    while read b x t x x x x x x m x; do
+        case $b$t in
+            BSHMEM) ipcrm -M $m 2>/dev/null;;
+        esac
+    done < $NMLFILE
+
+
+    # remove lock file
+    if [ -f $LOCKFILE ] ; then
+	rm $LOCKFILE
+    fi
+}
+
+
+
+################################################################################
+# 4. done with function definitions, execution resumes here
+################################################################################
+
+# Name of lock file to check for that signifies that LinuxCNC is up,
+# to prevent multiple copies of controller
+LOCKFILE=/tmp/linuxcnc.lock
+
+# Check for lock file
+if [ -f $LOCKFILE ]; then
+  if tty -s; then
+    echo -n "LinuxCNC is still running.  Restart it? [Y/n] "
+    read input; [ -z $input ] && input=y
+  elif [ -z "$DISPLAY" ]; then
+    echo "No display, no tty, trying to clean up other instance automatically"
+    input=y
+  else
+    input=$(@WISH@ <<EOF
+wm wi .
+puts [tk_messageBox -title LinuxCNC -message "LinuxCNC is still running.  Restart it?" -type yesno]
+exit
+EOF
+)
+  fi
+  case $input in
+    y|Y|yes)
+      echo Cleaning up old LinuxCNC...
+      Cleanup other
+    ;;
+    *)
+      echo Not starting new LinuxCNC
+      exit 0
+    ;;
+  esac
+fi
+echo Starting LinuxCNC...
+
+# trap ^C so that it's called if user interrupts script
+trap 'Cleanup ; exit 0' SIGINT SIGTERM
+
+# go to the dir where the INI file is
+# either configs/<specific-config> when run-in-place, or
+# /usr/local/share/linuxcnc/configs/<specific-config> (wherever it was installed)
+cd "$INI_DIR"
+
+# Create the lock file
+touch $LOCKFILE
+
+################################################################################
+# 4.1. pop up intro graphic
+################################################################################
+img=`$INIVAR -ini "$INIFILE" -var INTRO_GRAPHIC -sec DISPLAY 2>>$DEBUG_FILE`
+imgtime=`$INIVAR -ini "$INIFILE" -var INTRO_TIME -sec DISPLAY 2>>$DEBUG_FILE`
+if [ "$imgtime" = "" ] ; then
+  imgtime=5
+fi
+if [ "$img" != "" ] ; then
+  if [ -e "$img" ]; then
+    true
+  elif [ -e "$INI_DIR/$img" ]; then
+    img="$INI_DIR/$img"
+  elif [ -e "$LINUXCNC_IMAGEDIR/$img" ]; then
+    img="$LINUXCNC_IMAGEDIR/$img"
+  else
+    img=
+  fi
+fi
+if [ "$img" != "" ] ; then
+    if [ -x $LINUXCNC_TCL_DIR/bin/popimage ] ; then
+        $LINUXCNC_TCL_DIR/bin/popimage $img $imgtime &
+    fi
+fi
+ 
+################################################################################
+# 4.2. Now we can finally start loading LinuxCNC
+################################################################################
+
+# 4.3.1. Run linuxcncserver in background, always (it owns/creates the NML buffers)
+echo "Starting LinuxCNC server program: $EMCSERVER" >>$PRINT_FILE
+if ! program_available $EMCSERVER; then
+    echo "Can't execute server program $EMCSERVER"
+    Cleanup
+    exit 1
+fi
+export INI_FILE_NAME="$INIFILE"
+$EMCSERVER -ini "$INIFILE"
+
+# 4.3.2. Start REALTIME
+echo "Loading Real Time OS, RTAPI, and HAL_LIB modules" >>$PRINT_FILE
+if ! $REALTIME start ; then
+    echo "Realtime system did not load"
+    Cleanup
+    exit -1
+fi
+
+# 4.3.3. export the location of the HAL realtime modules so that
+# "halcmd loadrt" can find them
+export HAL_RTMOD_DIR=$LINUXCNC_RTLIB_DIR
+echo "$(basename $0) TPMOD=$TPMOD HOMEMOD=$HOMEMOD EMCMOT=${EMCMOT%.*}"
+eval $HALCMD loadrt "$TPMOD"
+eval $HALCMD loadrt "$HOMEMOD"
+
+# 4.3.7. Run task in background
+echo "Starting TASK program: $EMCTASK" >>$PRINT_FILE
+if ! program_available $EMCTASK ; then
+    echo "Can't execute TASK program $EMCTASK"
+    Cleanup
+    exit 1
+fi
+
+halcmd loadusr -Wn inihal $EMCTASK -ini "$INIFILE"
+
+# 4.3.5. Run halui in background, if necessary
+if [ -n "$HALUI" ] ; then
+    echo "Starting HAL User Interface program: $HALUI" >>$PRINT_FILE
+    if ! program_available $HALUI ; then
+	echo "Can't execute halui program $HALUI"
+	Cleanup
+	exit 1
+    fi
+    $HALCMD loadusr -Wn halui $HALUI -ini "$INIFILE"
+fi
+
+# 4.3.6. execute HALCMD config files (if any)
+
+TWOPASS=`$INIVAR -ini "$INIFILE" -var TWOPASS -sec HAL -num 1 2> /dev/null`
+if [ -n "$TWOPASS" ] ; then
+  # 4.3.6.1. if [HAL]TWOPASS is defined, handle all [HAL]HALFILE entries here:
+  CFGFILE=@EMC2_TCL_LIB_DIR@/twopass.tcl
+  export PRINT_FILE # twopass can append to PRINT_FILE
+  if ! haltcl -i "$INIFILE" $CFGFILE && [ "$DASHK" = "" ]; then
+      Cleanup
+      exit -1
+  fi
+else
+    # 4.3.6.2. conventional execution of  HALCMD config files
+    # get first config file name from INI file
+    NUM=1
+    CFGFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
+    while [ -n "$CFGFILE" ] ; do
+        IFS='\ ' read CFGFILE CFGFILE_ARGS <<< "$CFGFILE" # separate args
+        foundmsg=""
+        saveIFS=$IFS; IFS=: # colon (:) path separator for HALLIB_PATH
+        explicit_file_in_hallib=${CFGFILE#LIB:} # strip leading 'LIB:'
+        if [ -z "$explicit_file_in_hallib" ] ; then
+           echo "ILLFORMED LIB:file:<$CFGFILE>"
+        fi
+        if [ "$explicit_file_in_hallib" !=  "$CFGFILE" ] ; then
+          foundfile="$HALLIB_DIR/$explicit_file_in_hallib"
+          if [ ! -r $foundfile ] ; then
+              echo "CANNOT READ LIB:file:$foundfile"
+          fi
+          foundmsg="Found file(LIB): $foundfile"
+        else
+          if [ "${CFGFILE:0:1}" = "/" ] ; then
+            foundfile=$CFGFILE ;# absolute path specified
+            foundmsg="Found file(ABS): $foundfile"
+          else 
+            for pathdir in $HALLIB_PATH ; do
+              foundfile=$pathdir/$CFGFILE
+              if [ -r $foundfile ] ; then
+                # use first file found in HALLIB_PATH
+                if [ "${pathdir:0:1}" = "." ] ; then
+                  foundmsg="Found file(REL): $foundfile"
+                else
+                  foundmsg="Found file(lib): $foundfile"
+                fi
+                break
+              fi
+            done
+          fi
+        fi
+        [ -d $foundfile ] && foundmsg=""
+        IFS=$saveIFS
+        if [ -z "$foundmsg" ] ; then
+          echo "CANNOT FIND FILE FOR:$CFGFILE"
+          Cleanup
+          exit -1
+        fi
+        echo "$foundmsg"
+        CFGFILE="$foundfile"
+        case $CFGFILE in
+        *.tcl)
+            if ! haltcl -i "$INIFILE" $CFGFILE $CFGFILE_ARGS \
+               && [ "$DASHK" = "" ]; then
+                Cleanup
+                exit -1
+            fi
+        ;;
+        *)
+            if ! $HALCMD -i "$INIFILE" -f $CFGFILE && [ "$DASHK" = "" ]; then
+                Cleanup
+                exit -1
+            fi
+        esac
+        # get next config file name from INI file
+        NUM=$(($NUM+1))
+        CFGFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
+    done
+fi
+
+# 4.3.8. execute discrete HAL commands from INI file (if any)
+# get first command from INI file
+NUM=1
+HALCOMMAND=`$INIVAR -ini "$INIFILE" -var HALCMD -sec HAL -num $NUM 2> /dev/null`
+while [ -n "$HALCOMMAND" ] ; do
+    if [ -n "$HALCOMMAND" ] ; then
+	echo "Running HAL command: $HALCOMMAND" >>$PRINT_FILE
+	if ! $HALCMD $HALCOMMAND && [ "$DASHK" = "" ]; then
+	    echo "INI file HAL command $HALCOMMAND failed."
+	    Cleanup
+	    exit -1
+	fi
+    fi
+    # get next command from INI file
+    NUM=$(($NUM+1))
+    HALCOMMAND=`$INIVAR -ini "$INIFILE" -var HALCMD -sec HAL -num $NUM 2> /dev/null`
+done
+
+# 4.3.9. start the realtime stuff ticking
+$HALCMD start
+
+# 4.3.10. run other applications
+run_applications
+
+# 4.3.11. Run display in foreground
+echo "Starting DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE
+result=0
+case $EMCDISPLAY in
+  tklinuxcnc)
+    # tklinuxcnc is in the tcl directory, not the bin directory
+    if [ ! -x $LINUXCNC_TCL_DIR/$EMCDISPLAY.tcl ] ; then
+	echo "Can't execute DISPLAY program $LINUXCNC_TCL_DIR/$EMCDISPLAY.tcl $EMCDISPLAYARGS"
+	Cleanup
+	exit 1
+    fi
+    $LINUXCNC_TCL_DIR/$EMCDISPLAY.tcl -ini "$INIFILE" $EMCDISPLAYARGS
+    result=$?
+  ;;
+  dummy)
+    # dummy display just waits for <ENTER>
+    echo "DUMMY DISPLAY MODULE, press <ENTER> to continue."
+    read foo;
+  ;;
+  linuxcncrsh)
+    $EMCDISPLAY $EMCDISPLAYARGS $EXTRA_ARGS -- -ini "$INIFILE"
+  ;;
+  *)
+    # all other displays are assumed to be commands on the PATH
+    if ! program_available $EMCDISPLAY; then
+        echo "Can't execute DISPLAY program $EMCDISPLAY $EMCDISPLAYARGS $EXTRA_ARGS"
+        Cleanup
+        exit 1
+    fi
+    $EMCDISPLAY -ini "$INIFILE" $EMCDISPLAYARGS $EXTRA_ARGS
+    result=$?
+  ;;
+esac
+
+# the display won't return until you shut it down,
+# so when you get here it's time to clean up
+Cleanup
+
+exit $result

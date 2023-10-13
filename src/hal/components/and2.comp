@@ -1,0 +1,28 @@
+component and2 "Two-input AND gate";
+pin in bit in0;
+pin in bit in1;
+pin out bit out """
+.P
+The \\fBout\\fR pin is computed from the value of the \\fBin0\\fR and
+\\fBin1\\fR pins according to the following rule:
+.RS
+.TP
+\\fBin0=TRUE in1=TRUE\\fB
+\\fBout=TRUE\\fR
+.TP
+Otherwise,
+\\fBout=FALSE\\fR
+.RE"""
+;
+function _ nofp;
+see_also """
+\\fBlogic\\fR(9),
+\\fBlut5\\fR(9),
+\\fBnot\\fR(9),
+\\fBor2\\fR(9),
+\\fBxor2\\fR(9).
+""";
+license "GPL";
+author "Jeff Epler";
+;;
+FUNCTION(_) { out = in0 && in1; }

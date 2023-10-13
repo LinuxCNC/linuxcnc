@@ -1,0 +1,8 @@
+#!/bin/bash
+
+thisfile=$(readlink -f "$0")
+thisdir=$(dirname "$thisfile")
+cd "$thisdir"
+
+# use default layout
+./xhc-hb04.sh

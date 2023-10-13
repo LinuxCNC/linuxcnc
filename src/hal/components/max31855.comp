@@ -1,0 +1,197 @@
+component max31855 "Support for the MAX31855 Thermocouple-to-Digital converter using bitbanged spi";
+
+description """The component requires at least 3 pins to bitbang spi protocol, for example:
+
+\\fB loadrt max31855 personality=1\\fR
+
+\\fB setp hm2_6i25.0.gpio.023.is_output true\\fR
+\\fB setp hm2_6i25.0.gpio.024.is_output true\\fR
+
+\\fB net spi.clk.in    hm2_6i25.0.gpio.023.out     max31855.0.clk.out\\fR
+\\fB net spi.cs.in     hm2_6i25.0.gpio.024.out     max31855.0.cs.out\\fR
+\\fB net spi.data0.in  hm2_6i25.0.gpio.033.in_not  max31855.0.data.0.in\\fR
+
+\\fB addf max31855.0.bitbang-spi servo-thread \\fR
+
+
+The MAX31855 supports a range of -270C to 1800C, however linearization data 
+is only available for the -200C to 1350C range, beyond which raw temperature is returned.
+
+Temperature pins are provided for readings in Celsius, Fahrenheit and Kelvin,
+temperature values are not updated while a fault condition is present.
+
+The personality parameter is used to indicate the number of sensors.
+Multiple sensors share the clk and cs pins, but connect to discrete data input pins.
+A maximum of 15 sensors are supported.
+
+""";
+
+pin in  bit data.#.in [15 : (personality & 0xf)]  "Pin(s) connected to data out.";
+pin out bit cs.out         "Pin connected to cs, pulled low to shift data, pulled high for data refresh.";
+pin out bit clk.out        "Pin connected to clk.";
+
+pin out float temp_celsius.# [15 : (personality & 0xf)] """Temperature output values in Celsius.""";
+pin out float temp_fahrenheit.# [15 : (personality & 0xf)] """Temperature in Fahrenheit.""";
+pin out float temp_kelvin.# [15 : (personality & 0xf)] """Temperature in Kelvin.""";
+
+pin out bit fault.# [15 : (personality & 0xf)]  "Fault condition detected.";
+pin out unsigned fault_flags.# [15 : (personality & 0xf)]  "Fault flags: 0x1  = open sensor, 0x2 short to gnd, 0x3 short to vcc.";
+
+variable unsigned data_frame [15];
+variable unsigned state = 1;
+
+function bitbang_spi fp;
+license "GPL";
+author "Joseph Calderon";
+
+;;
+
+#include "rtapi_math.h"
+
+static float accpoly(float *v, size_t n, float p) {
+  int i;
+  float ret = 0;
+  for (i = 0; i < n; i++) {
+    ret += v[i] * pow(p, i);
+  }
+  return ret;
+}
+
+static float to_kelvin(float celsius) {
+  return celsius + 273.15;
+}
+
+static float to_fahrenheit(float celsius) {
+  return celsius * 1.80 + 32.0;
+}
+
+static float read_celsius(int32_t v) {
+  if (v & 0x7) {
+    return nan(""); /* fault bit(s) set */
+  }
+
+  /* thermocouple temperature is in bits 31:18 */
+  if (v & 0x80000000) {
+    v = 0xffffc000 | ((v >> 18) & 0x0003ffff); /* extend sign bit */
+  } else {
+    v >>= 18;
+  }
+  return v / 4.0; /* 0.25 degree resolution */
+}
+
+static float read_internal(int32_t v) {
+  if (v & 0x7) {
+    return nan(""); /* fault bit(s) set */
+  }
+
+  /* internal temperature is in bits 15:4 */
+  v = 0x0000ffff & v;
+  if (v & 0x8000) {
+    v = 0xfffff000 | ((v >> 4) & 0x00000fff); /* extend sign bit */
+  } else {
+    v >>= 4;
+  }
+  return v / 16.0; /* 0.0625 degree resolution */
+}
+
+static float read_celsius_adjusted(int32_t sensor_data) {
+  float temp_raw = read_celsius(sensor_data);
+  float temp_internal = read_internal(sensor_data);
+  float voltage_internal = 0, voltage_thermocouple = 0, temp_corrected = 0;
+
+  if (isnan(temp_raw) || isnan(temp_internal))
+    return nan("");
+
+  /* NIST K-Type table (http://srdata.nist.gov/its90/download/type_k.tab) */
+  float coeff[][11] = {
+      {-0.0176004134, 0.0389212035, 1.85587705e-05, -9.94575942e-08,
+       3.18409465e-10, -5.60728439e-13, 5.60750581e-16, -3.20207199e-19,
+       9.71511487e-23, -1.21047216e-26, 0},
+      {0, 0.0394501276, 2.36223732e-05, -3.28589067e-07, -4.99048269e-09,
+       -6.75090608e-11, -5.74103265e-13, -3.10888726e-15, -1.0451609e-17,
+       -1.9889267e-20, -1.63226981e-23},
+      {0, 25.1734619, -1.16628778, -1.08336377, -0.897735417, -0.373423755,
+       -0.0866326466, -0.0104505979, -0.000519205758, 0, 0},
+      {0, 25.0835495, 0.0786010623, -0.250313103, 0.0831526965, -0.0122803403,
+       0.000980403624, -4.41302982e-05, 1.05773404e-06, -1.05275504e-08, 0},
+      {-131.805801, 48.3022194, -1.64603102, 0.0546473116, -0.000965071493,
+       8.80219341e-06, -3.1108101e-08, 0, 0, 0, 0}};
+  int coeff_cols = sizeof(coeff[0]) / sizeof(float);
+
+  /* determine thermocouple voltage by subtracting internal temp and adjusting
+   * for K-type thermocouple */
+  voltage_thermocouple = (temp_raw - temp_internal) * 0.041276;
+
+  if (temp_internal >= 0) {
+    float a[] = {0.118597597, -0.000118343203, 126.968597};
+    /* for positive temps additional exponential coefficients are needed */
+    voltage_internal += accpoly(coeff[0], coeff_cols, temp_internal);
+    voltage_internal += a[0] * exp(a[1] * pow((temp_internal - a[2]), 2));
+  } else if (temp_internal < 0) {
+    voltage_internal += accpoly(coeff[1], coeff_cols, temp_internal);
+  }
+
+  float voltage_total = voltage_thermocouple + voltage_internal;
+
+  /* linearize temperature depending on voltage range */
+  if (voltage_total < 0) {
+    /* Temperature is between -200 and 0C. */
+    temp_corrected += accpoly(coeff[2], coeff_cols, voltage_total);
+  } else if (voltage_total < 20.644) {
+    /* Temperature is between 0C and 500C. */
+    temp_corrected += accpoly(coeff[3], coeff_cols, voltage_total);
+  } else if (voltage_total < 54.886) {
+    /* Temperature is between 500C and 1372C. */
+    temp_corrected += accpoly(coeff[4], coeff_cols, voltage_total);
+  } else {
+    /* NIST only has data for K-type thermocouples from -200C to +1372C. */
+    temp_corrected = temp_raw;
+  }
+
+  return temp_corrected;
+}
+
+FUNCTION(bitbang_spi) {
+  int nbit = (state >> 1) & 0x3f;
+  int delay = (state >> 7) & 0x3ff;
+  int cs = state & 0x1;
+
+  clk_out ^= 0x1;
+  if (cs) {
+    /* data refreshes when cs is pulled high */
+    delay--;
+    if (delay <= 0) {
+      nbit = 32;
+      cs = 0;
+    }
+  } else {
+    int i, n = (personality > 15) ? 15 : personality;
+    /* with cs low pull data bits when clock is high */
+    if (clk_out) {
+      for (i = 0; i < n; i++) {
+        data_frame[i] |= (data_in(i) << nbit);
+      }
+      nbit--;
+    }
+    if (nbit < 0) {
+      for (i = 0; i < n; i++) {
+        float f = read_celsius_adjusted((int32_t)data_frame[i]);
+        fault(i) = (data_frame[i] & 0x7) ? TRUE : FALSE;
+        fault_flags(i) = data_frame[i] & 0x7;
+        if (isnan(f)) {
+          rtapi_print("max31855: sensor %d detected fault %x\n", i, data_frame[i] & 0x7);
+        } else {
+          temp_celsius(i) = f;
+          temp_fahrenheit(i) = to_fahrenheit(f);
+          temp_kelvin(i) = to_kelvin(f);
+        }
+        data_frame[i] = 0;
+      }
+      nbit = 0;
+      cs = 1;
+    }
+    delay++;
+  }
+  state = (delay << 7) | (nbit << 1) | cs;
+  cs_out = cs;
+}

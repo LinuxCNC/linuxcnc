@@ -1,0 +1,34 @@
+setexact_for_test_suite_only
+
+loadrt sampler cfg=ffff depth=3200
+loadrt streamer cfg=f depth=4096
+
+loadrt limit3
+setp limit3.0.min -50
+setp limit3.0.max 50
+setp limit3.0.maxv 4000
+setp limit3.0.maxa 10000
+
+net in <= streamer.0.pin.0
+net in => limit3.0.in
+net in => sampler.0.pin.0
+
+net out <= limit3.0.out
+net out => sampler.0.pin.1
+
+loadrt ddt names=vel,acc
+net out => vel.in
+net vel <= vel.out => sampler.0.pin.2 => acc.in
+net acc <= acc.out => sampler.0.pin.3
+
+loadrt threads name1=t period1=1000000
+
+addf streamer.0 t
+addf limit3.0 t
+addf vel t
+addf acc t
+addf sampler.0 t
+start
+
+loadusr halstreamer input
+loadusr -w halsampler -t -n 1500

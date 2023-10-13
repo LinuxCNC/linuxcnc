@@ -1,0 +1,111 @@
+
+#########################################################################
+#      		Loading real-time modules setup				#
+#########################################################################
+
+loadrt [KINS]KINEMATICS
+loadrt hal_gm
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+loadrt not
+loadusr halmeter
+#loadusr halscope -f
+
+#########################################################################
+# 			Adding functions				#
+#########################################################################
+
+addf gm.0.read servo-thread
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf gm.0.write servo-thread
+
+addf not.0 servo-thread
+addf gm.0.RS485 servo-thread
+
+#########################################################################
+#				card mgt				#
+#########################################################################
+
+setp gm.0.watchdog-enable 1
+setp gm.0.watchdog-timeout-ns 3000000
+
+net pwrEnable motion.motion-enabled => gm.0.power-enable
+
+# create power fault loopback
+net hw_fault gm.0.power-fault => not.0.in
+net estop not.0.out => iocontrol.0.emc-enable-in
+
+# connect enable signals for step generators
+net Xen joint.0.amp-enable-out => gm.0.stepgen.0.enable
+net Yen joint.1.amp-enable-out => gm.0.stepgen.1.enable
+net Zen joint.2.amp-enable-out => gm.0.stepgen.2.enable
+
+#########################################################################
+#				stepgen setup				#
+#########################################################################
+
+setp gm.0.stepgen.0.steplen 		5000	#5000 ns = 5 us
+setp gm.0.stepgen.0.stepspace 		5000	#5000 ns = 5 us
+setp gm.0.stepgen.0.dirdelay 		10000	#10000 ns = 10 us
+setp gm.0.stepgen.0.invert-step1 	0
+setp gm.0.stepgen.0.invert-step2 	0
+setp gm.0.stepgen.0.step-type 		0 	#0:StepDir, 1: UpDown, 2: Quad
+setp gm.0.stepgen.0.control-type 	0 	#0:position control, 1:velocity control
+setp gm.0.stepgen.0.maxvel 		0	#do not use the maxvel parameter, let interpolator interpolate
+setp gm.0.stepgen.0.position-scale 	[JOINT_0]SCALE
+setp gm.0.stepgen.0.maxaccel 		[JOINT_0]STEPGEN_MAXACCEL
+setp gm.0.stepgen.0.maxvel 		[JOINT_0]STEPGEN_MAXVEL
+
+setp gm.0.stepgen.1.steplen 		5000	#5000 ns = 5 us
+setp gm.0.stepgen.1.stepspace 		5000	#5000 ns = 5 us
+setp gm.0.stepgen.1.dirdelay 		10000	#10000 ns = 10 us
+setp gm.0.stepgen.1.invert-step1 	0
+setp gm.0.stepgen.1.invert-step2 	0
+setp gm.0.stepgen.1.step-type 		0	#0:StepDir, 1: UpDown, 2: Quad
+setp gm.0.stepgen.1.control-type 	0	#0:position control, 1:velocity control
+setp gm.0.stepgen.1.maxvel 		0	#do not use the maxvel parameter, let interpolator interpolate
+setp gm.0.stepgen.1.position-scale 	[JOINT_1]SCALE
+setp gm.0.stepgen.1.maxaccel 		[JOINT_1]STEPGEN_MAXACCEL
+setp gm.0.stepgen.1.maxvel 		[JOINT_1]STEPGEN_MAXVEL
+
+setp gm.0.stepgen.2.steplen		5000	#5000 ns = 5 us
+setp gm.0.stepgen.2.stepspace		5000	#5000 ns = 5 us
+setp gm.0.stepgen.2.dirdelay		10000	#10000 ns = 10 us
+setp gm.0.stepgen.2.invert-step1 	0
+setp gm.0.stepgen.2.invert-step2 	0
+setp gm.0.stepgen.2.step-type 		0	#0:StepDir, 1: UpDown, 2: Quad
+setp gm.0.stepgen.2.control-type	0	#0:position control, 1:velocity control
+setp gm.0.stepgen.2.maxvel		0	#do not use the maxvel parameter, let interpolator interpolate
+setp gm.0.stepgen.2.position-scale	[JOINT_2]SCALE
+setp gm.0.stepgen.2.maxaccel		[JOINT_2]STEPGEN_MAXACCEL
+setp gm.0.stepgen.2.maxvel		[JOINT_2]STEPGEN_MAXVEL
+
+#########################################################################
+#        	 position reference and feedback			#
+#########################################################################
+
+# connect position commands from motion module to step generator
+net Xpos-cmd joint.0.motor-pos-cmd => gm.0.stepgen.0.position-cmd
+net Ypos-cmd joint.1.motor-pos-cmd => gm.0.stepgen.1.position-cmd
+net Zpos-cmd joint.2.motor-pos-cmd => gm.0.stepgen.2.position-cmd
+
+# connect position feedback
+net Xpos-fb gm.0.stepgen.0.position-fb => joint.0.motor-pos-fb
+net Ypos-fb gm.0.stepgen.1.position-fb => joint.1.motor-pos-fb
+net Zpos-fb gm.0.stepgen.2.position-fb => joint.2.motor-pos-fb
+
+#########################################################################
+#		homing and limit switches				#
+#########################################################################
+
+net lim-sw-x-pos gm.0.joint.0.pos-lim-sw-in-not => joint.0.pos-lim-sw-in
+net lim-sw-x-neg gm.0.joint.0.neg-lim-sw-in-not => joint.0.neg-lim-sw-in
+net lim-sw-x-home gm.0.joint.0.home-sw-in-not => joint.0.home-sw-in
+
+net lim-sw-y-pos gm.0.joint.1.pos-lim-sw-in-not => joint.1.pos-lim-sw-in
+net lim-sw-y-neg gm.0.joint.1.neg-lim-sw-in-not => joint.1.neg-lim-sw-in
+net lim-sw-y-home gm.0.joint.1.home-sw-in-not => joint.1.home-sw-in
+
+net lim-sw-z-pos gm.0.joint.2.pos-lim-sw-in-not => joint.2.pos-lim-sw-in
+net lim-sw-z-neg gm.0.joint.2.neg-lim-sw-in-not => joint.2.neg-lim-sw-in
+net lim-sw-z-home gm.0.joint.2.home-sw-in-not => joint.2.home-sw-in

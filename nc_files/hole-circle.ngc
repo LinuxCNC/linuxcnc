@@ -1,0 +1,12 @@
+; drill a bolt hole circle for 6 bolts at diameter 3 inches
+
+G20 G17 G90
+
+; position over first hole, establishing our radius of 1.5
+; an equivalent command would be G0 @1.5 ^0 Z0
+G0 X1.5 Y0 Z0
+
+; drill six holes, incrementing 60 degrees each time
+G91 G81 R.1 Z-.5 ^60 L6 F10
+
+M2

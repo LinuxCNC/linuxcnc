@@ -1,0 +1,45 @@
+g19 ; do canned cycles in the YZ plane
+g99 ; "retract to R" mode
+
+g90 ; absolute coordinates mode
+g20 ; imperial
+
+M3 S1000
+f10
+
+; starting position
+g0 y0 z0 x2
+
+;
+; There are six possible orderings of X, OLD_X, and R, but the three that
+; have R < X are rejected by LinuxCNC.
+;
+
+(number 1: X[-1] < R[1] < OLD_X[2])
+g84 y1 z1 x-1 r1
+
+(number 2: X[0.5] < OLD_X[1] < R[3])
+g84 y1 z2 x0.5 r3
+
+(number 3: OLD_X[3] < X[4] < R[5])
+g84 y1 z3 x4 r5
+
+
+;
+; test with incremental motion and repeat cycles
+;
+
+(number 4: X[-1] < R[1] < OLD_X[2])
+g90 g0 y10 z0 x2
+g91 g84 y1 z1 x-2 r-1 l2
+
+(number 5: X[0.5] < OLD_X[2] < R[3])
+g90 g0 y20 z0 x2
+g91 g84 y1 z1 x-2.5 r1 l2
+
+(number 6: OLD_X[2] < X[4] < R[5])
+g90 g0 y30 z0 x2
+g91 g84 y1 z1 x-1 r3 l2
+
+(done)
+m2

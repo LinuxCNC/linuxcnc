@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<interface>
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-requires gladevcp 0.0 -->
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="window1">
+    <child>
+      <object class="GtkVBox" id="vbox1">
+        <property name="visible">True</property>
+        <child>
+          <object class="GtkHBox" id="hbox1">
+            <property name="visible">True</property>
+            <property name="spacing">4</property>
+            <child>
+              <object class="JogWheel" id="jog-wheel-spindle">
+                <property name="visible">True</property>
+                <property name="show_counts">False</property>
+                <property name="label">Spindle</property>
+                <property name="size">100</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="JogWheel" id="jog-wheel-feed">
+                <property name="visible">True</property>
+                <property name="show_counts">False</property>
+                <property name="label">Feed</property>
+                <property name="size">100</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox3">
+            <property name="visible">True</property>
+            <child>
+              <object class="JogWheel" id="jog-wheel-jog">
+                <property name="visible">True</property>
+                <property name="show_counts">False</property>
+                <property name="label">Jog. Vel.</property>
+                <property name="size">100</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="JogWheel" id="jog-wheel-max">
+                <property name="visible">True</property>
+                <property name="show_counts">False</property>
+                <property name="label">Max. Vel.</property>
+                <property name="size">100</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="JogWheel" id="jog-wheel-x">
+            <property name="visible">True</property>
+            <property name="label">Axis X</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="JogWheel" id="jog-wheel-y">
+            <property name="visible">True</property>
+            <property name="label">Axis Y</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="JogWheel" id="jog-wheel-z">
+            <property name="visible">True</property>
+            <property name="label">Axis Z</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">4</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

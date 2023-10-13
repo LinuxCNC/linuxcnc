@@ -1,0 +1,110 @@
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+loadrt sim_parport names=parport.0
+setp parport.0.reset-time 5000
+loadrt stepgen step_type=0,0,0
+loadrt encoder num_chan=1
+loadrt pwmgen output_type=1
+
+addf parport.0.read base-thread
+source sim_hardware.hal
+addf sim-encoder.make-pulses base-thread
+addf stepgen.make-pulses base-thread
+addf encoder.update-counters base-thread
+addf pwmgen.make-pulses base-thread
+addf parport.0.write base-thread
+addf parport.0.reset base-thread
+
+addf stepgen.capture-position servo-thread
+addf sim-hardware.update servo-thread
+addf sim-encoder.update-speed servo-thread
+addf encoder.capture-position servo-thread
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf stepgen.update-freq servo-thread
+addf pwmgen.update servo-thread
+
+net spindle-cmd-rpm => pwmgen.0.value
+net spindle-on <= spindle.0.on => pwmgen.0.enable
+net spindle-pwm <= pwmgen.0.pwm
+setp pwmgen.0.pwm-freq 100.0
+setp pwmgen.0.scale 1166.66666667
+setp pwmgen.0.offset 0.114285714286
+setp pwmgen.0.dither-pwm true
+net spindle-cmd-rpm     <= spindle.0.speed-out
+net spindle-cmd-rpm-abs <= spindle.0.speed-out-abs
+net spindle-cmd-rps     <= spindle.0.speed-out-rps
+net spindle-cmd-rps-abs <= spindle.0.speed-out-rps-abs
+net spindle-at-speed    => spindle.0.at-speed
+net spindle-cw <= spindle.0.forward
+
+setp encoder.0.position-scale 400.000000
+net spindle-position encoder.0.position => spindle.0.revs
+net spindle-velocity-feedback-rps encoder.0.velocity => spindle.0.speed-in
+net spindle-index-enable encoder.0.index-enable <=> spindle.0.index-enable
+net spindle-phase-a encoder.0.phase-A
+net spindle-phase-b encoder.0.phase-B
+net spindle-index encoder.0.phase-Z
+
+net estop-out       => parport.0.pin-01-out
+net xstep           => parport.0.pin-02-out
+setp parport.0.pin-02-out-reset 1
+net xdir            => parport.0.pin-03-out
+net ystep           => parport.0.pin-04-out
+setp parport.0.pin-04-out-reset 1
+net ydir            => parport.0.pin-05-out
+net zstep           => parport.0.pin-06-out
+setp parport.0.pin-06-out-reset 1
+net zdir            => parport.0.pin-07-out
+net astep           => parport.0.pin-08-out
+setp parport.0.pin-08-out-reset 1
+net adir            => parport.0.pin-09-out
+net spindle-cw      => parport.0.pin-14-out
+net spindle-pwm     => parport.0.pin-16-out
+net xenable         => parport.0.pin-17-out
+net spindle-index   <= parport.0.pin-10-in
+net spindle-phase-a <= parport.0.pin-11-in
+net spindle-phase-b <= parport.0.pin-12-in
+net all-home        <= parport.0.pin-13-in
+
+setp stepgen.0.position-scale [JOINT_0]SCALE
+setp stepgen.0.steplen 1
+setp stepgen.0.stepspace 0
+setp stepgen.0.dirhold 35000
+setp stepgen.0.dirsetup 35000
+setp stepgen.0.maxaccel [JOINT_0]STEPGEN_MAXACCEL
+net xpos-cmd joint.0.motor-pos-cmd => stepgen.0.position-cmd
+net xpos-fb stepgen.0.position-fb => joint.0.motor-pos-fb
+net xstep <= stepgen.0.step
+net xdir <= stepgen.0.dir
+net xenable joint.0.amp-enable-out => stepgen.0.enable
+net all-home => joint.0.home-sw-in
+
+setp stepgen.1.position-scale [JOINT_1]SCALE
+setp stepgen.1.steplen 1
+setp stepgen.1.stepspace 0
+setp stepgen.1.dirhold 35000
+setp stepgen.1.dirsetup 35000
+setp stepgen.1.maxaccel [JOINT_1]STEPGEN_MAXACCEL
+net ypos-cmd joint.1.motor-pos-cmd => stepgen.1.position-cmd
+net ypos-fb stepgen.1.position-fb => joint.1.motor-pos-fb
+net ystep <= stepgen.1.step
+net ydir <= stepgen.1.dir
+net yenable joint.1.amp-enable-out => stepgen.1.enable
+net all-home => joint.1.home-sw-in
+
+setp stepgen.2.position-scale [JOINT_2]SCALE
+setp stepgen.2.steplen 1
+setp stepgen.2.stepspace 0
+setp stepgen.2.dirhold 35000
+setp stepgen.2.dirsetup 35000
+setp stepgen.2.maxaccel [JOINT_2]STEPGEN_MAXACCEL
+net zpos-cmd joint.2.motor-pos-cmd => stepgen.2.position-cmd
+net zpos-fb stepgen.2.position-fb => joint.2.motor-pos-fb
+net zstep <= stepgen.2.step
+net zdir <= stepgen.2.dir
+net zenable joint.2.amp-enable-out => stepgen.2.enable
+net all-home => joint.2.home-sw-in
+
+net estop-out <= iocontrol.0.user-enable-out
+net estop-out => iocontrol.0.emc-enable-in

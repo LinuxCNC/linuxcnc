@@ -1,0 +1,30 @@
+Esta es una configuración simulada para demostrar el componente panelui.
+
+Este ejemplo muestra:
+jogging rápido, selección de eje en MPG, selección de velocidad de jog en MPG y botones de control del husillo.
+Los botones del husillo lo encenderán en la dirección deseada (si está apagado) o si ya está encendido,
+aumentarán o disminuirán la velocidad.
+cambiando el archivo panelui.ini se pueden cambiar los efectos de los botones.
+
+Panelui permite al integrador conectar un panel de operador, ya sea en software o hardware, a un
+sistema solo-HAL o linuxcnc completo.
+
+Permite diferentes estilos de botones que incluyen:
+
+momentáneo
+    -La salida verdadera o el comando 'true' solo se da cuando se presiona y se mantiene
+    -La salida falsa o el comando 'false' solo se dan cuando se liberan
+palanca
+    -La salida verdadera o el comando 'true' solo se da en la primera posicion
+    -La salida falsa o el comando 'false' solo se dan en la segunda posicion
+radio
+    -cada botón puede tener su propio conjunto de pines/comandos similares a los botones de palanca
+    -tiene una asociación de grupo con sus propios pines/comandos que cambian dependiendo de qué
+       botón del grupo está activo.
+
+Hay varios comandos incorporados disponibles, que permiten presionar un botón para controlar linuxcnc,
+tales como control de husillo, máquina encendida, comandos MDI arbitrarios, etc.
+
+Al agregar un archivo de controlador escrito en python, se podrían agregar comandos arbitrarios o modificar los existentes.
+
+Panelui se configura utilizando un archivo de texto de estilo INI que se colocaría en la carpeta de configuración.

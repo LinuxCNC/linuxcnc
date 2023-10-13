@@ -1,0 +1,4 @@
+o<on_abort> sub
+G64 P0.1
+o<on_abort> endsub
+m2

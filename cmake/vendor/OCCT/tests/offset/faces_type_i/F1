@@ -1,0 +1,15 @@
+puts "TODO OCC23748 ALL: ERROR. offsetperform operation not done."
+puts "TODO OCC23748 ALL: Error: The command cannot be built"
+puts "TODO OCC26556 ALL: Error : The offset cannot be built."
+
+ellipse w1 0 0 0 15 10
+mkedge w1 w1 0 pi/2
+trotate w1 0 0 0 1 0 0 90
+polyline w2 0 0 10 0 0 -10 25 0 -10 15 0 0
+wire w w1 w2
+mkplane w w
+revol s w 0 0 0 0 0 1 90
+
+OFFSETSHAPE -1 {s_4 s_5} $calcul $type
+
+checkprops result -v 0

@@ -1,0 +1,93 @@
+(This file is Copyright 2006 Chris Radek and released under the GPL v2.)
+
+(This is meant as a place to collect useful subroutines.  Please add any)
+(other general-purpose routines that you think are useful.  Put instructions)
+(for calling the subroutine at its beginning, and add it to the table of)
+(contents.  Use a different O number for each subroutine.  If you like, add)
+(a usage example at the end of this file.)
+
+(Table of contents:)
+(O100: "hole drilling" with an end mill)
+(O200: slot cutting)
+
+
+o100 sub
+  (helical hole milling, load tool and set feed first, then use like so:)
+  (o100 call [x pos] [y pos] [safety height] [hole depth] [hole dia] [tool dia])
+  (tool dia doesn't have to be specified exactly.)
+#4=[0 - #4]
+#7=[#6 / 2]  (#7 is depth per circle = half of tool diameter)
+#8=[#3 - #7] (#8 is current depth step)
+g0 z#3
+(start above and right so we make a convex corner for entry to the ccw arcs)
+g0 x[#1 + #6] y[#2 + [#5 / 2]] 
+g41 g0 x#1 y[#2 + [#5 / 2]]
+o101 while [#8 GT #4]
+(down toward the specified depth a bit at a time)
+g3 x#1 y[#2 + [#5 / 2]] i0 j[0 - [#5 / 2]] z#8
+#8=[#8 - #7]
+o101 endwhile
+(down to the actual depth)
+g3 x#1 y[#2 + [#5 / 2]] i0 j[0 - [#5 / 2]] z#4
+(full circle at the actual depth)
+g3 x#1 y[#2 + [#5 / 2]] i0 j[0 - [#5 / 2]]
+g0 z#3
+g40
+o100 endsub
+
+
+o200 sub
+  (slot cutting, load tool and set feed first, then use like so:)
+  (o200 call [x1] [y1] [x2] [y2] [width] [depth] [safety height] [tool dia])
+#10=[#5/2] (radius)
+#11=[[atan [#4-#2]/[#3-#1]] + 180] ("backward" direction)
+#12=[#11 + 90] ("right" side direction)
+#13=[#10 * [cos [#11]]]
+#14=[#10 * [sin [#11]]]
+#15=[#10 * [cos [#12]]]
+#16=[#10 * [sin [#12]]]
+g0 z#7
+g0 x[#1+#13+#15] y[#2+#14+#16]
+g41 g0x[#1+#15] y[#2+#16]
+#17=[#8/2] (depth per cut is half tool dia)
+#18=[#7-#17] (z)
+(down toward the specified depth a bit at a time)
+o201 while [#18 GT [0-#6]]
+g1 x[#3+#15] y[#4+#16] z#18
+g3 x[#3-#15] y[#4-#16] r#10
+g1 x[#1-#15] y[#2-#16]
+g3 x[#1+#15] y[#2+#16] r#10
+#18=[#18-#17]
+o201 endwhile
+(down to the actual depth and one more cut)
+g1 x[#3+#15] y[#4+#16] z[0-#6]
+g3 x[#3-#15] y[#4-#16] r#10
+g1 x[#1-#15] y[#2-#16]
+g3 x[#1+#15] y[#2+#16] r#10
+g1 x[#3+#15] y[#4+#16]
+g0 z#7
+g40
+o200 endsub
+
+
+g20 g64 g17 g90
+
+(here is the actual usage of o100: T1 is a 1/16th end mill)
+t1 m6
+s1000 m3
+f60
+o100 call [0] [0] [.01] [.125] [.125] [.0625]
+o100 call [.25] [0] [.01] [.0625] [.25] [.0625]
+m5
+t0 m6
+
+(here is the actual usage of o200: T1 is a 1/16th end mill)
+t1 m6
+s1000 m3
+f60
+o200 call [0] [.5] [1] [1] [.190] [.1] [.02] [.0625]
+o200 call [1] [0] [.5] [.5] [.190] [.1] [.02] [.0625]
+m5
+t0 m6
+
+m2

@@ -1,0 +1,8 @@
+to start lcnc movement :
+
+1. home
+2. start program
+3. set param sc-tp.done 1
+4. set param sc-tp.run 1
+
+program will interpolate every gcode line in 1000 steps.

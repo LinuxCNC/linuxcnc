@@ -1,0 +1,42 @@
+(for the simulated 5 axis machine)
+g21 g90 g94 g28
+
+o200 sub
+
+g0 b0 c0 (tool length change must happen with b,c=0)
+g91 g28 z0 (could also be done with tool change position)
+g90
+g43.1 z#1 (change tool length)
+g0z0 (move Z to apply new length)
+
+x-100 b-45 c-180
+g1 z-100 f2000
+
+#100=-180
+o100 while [ #100 le 180 ]
+    g1 x[100*cos[#100]] y[100*sin[#100]] c#100
+    #100=[#100+10]
+o100 endwhile
+g0 z0
+x0 y0 b0 c0
+o200 endsub
+
+(cut around the "cone" with different tool lengths)
+o200 call [50]
+o200 call [80]
+
+g61
+
+g0 x-100 b-45 c-180
+#100=-180
+o101 while [ #100 lt 180 ]
+    g0 x[150*cos[#100]] y[150*sin[#100]] z-100 c#100
+    g1 w100 f2000 (drill)
+    g0 w0
+    #100=[#100+45]
+o101 endwhile
+
+g28
+g49
+
+m2

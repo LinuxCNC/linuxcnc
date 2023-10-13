@@ -1,0 +1,46 @@
+Demo Moveoff
+
+Opciones de Moveoff_gui:
+
+  onpause - offsets cuando el programa está en pausa
+  externo - controles externos (simulados)
+
+Componente Moveoff instalado y conectado usando:
+
+  [HAL]HALFILE = LIB:hookup_moveoff.tcl
+
+Controles externos habilitados con conexiones en:
+
+  [HAL]HALFILE = LIB:moveoff_external.hal
+
+Controles externos simulados con sim_pin:
+
+  external_enable
+  external_backtrack_en
+  external_offset_0
+  external_offset_1
+  external_offset_2
+
+Para obtener información adicional, consulte las páginas de manual:
+
+   man sim_pin ------- utilidad para configurar pines
+   man moveoff ------- componente de movimiento
+   man moveoff_gui --- GUI de muestra de moveoff
+
+-------------------------------------------------- -
+Uso de demostración:
+ 1) Inicie linuxcnc usando la configuración 2_onpause_external.
+    (configure todos los botones sim_pin en el modo Alternar):
+ 2) Establezca halscope en modo ROLL
+ 3) <F1> (ESTOP off)
+ 4) <F2> (máquina on)
+ 5) <HOME> (home todos los ejes)
+ 6) <R> (Ejecuta el programa)
+ 7) <P> (Pausar el programa)
+ 8) Habilite offsets con el botón external_enable
+ 9) Cambia los offsets x, y, z (exernal_offset_0,1,2)
+    y observar en halscope
+10) Elimine offset con el botón external_enable
+    y permita la reanudación del programa.
+11) Repita los pasos 6) a 9) pero modifique el punto de referencia
+    retroceder con el botón external_backtrack_en.

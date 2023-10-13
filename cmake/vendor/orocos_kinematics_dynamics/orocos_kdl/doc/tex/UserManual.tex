@@ -1,0 +1,261 @@
+\documentclass[a4paper,10pt]{report}
+
+\title{User Manual \\ Kinematics \& Dynamics Library}
+\author{Ruben Smits, Herman Bruyninckx}
+
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{todo}
+\usepackage{hyperref}
+
+\begin{document}
+\lstset{language=c++}
+
+\maketitle
+
+\chapter{Introduction to KDL}
+\label{cha:introduction-kdl}
+
+\section{What is KDL?}
+\label{sec:what-kdl}
+Kinematics \& Dynamics Library is a c++ library that offers
+
+\begin{itemize}
+\item classes for geometric primitives and their operations
+\item classes for kinematic descriptions of chains (robots)
+\item (realtime) kinematic solvers for these kinematic chains
+\end{itemize}
+
+\section{Getting support - the Orocos community}
+\label{sec:gett-supp-oroc}
+
+\begin{itemize}
+\item This document!
+\item The website : \url{http://www.orocos.org/kdl}.
+\item The mailinglist. \todo{add link to mailinglist}
+\end{itemize}
+
+
+\section{Getting Orocos KDL}
+\label{sec:getting-orocos-kdl}
+
+First off all you need to successfully install the KDL-library. This is
+explained in the \textbf{Installation Manual}, it can be found on
+\url{http://www.orocos.org/kdl/Installation_Manual}
+
+
+\chapter{Tutorial}
+\label{cha:tutorial}
+
+\paragraph{Important remarks}
+\label{sec:important-remarks}
+\begin{itemize}
+\item All geometric primitives and there operations can be used in
+  realtime. None of the operations lead to dynamic memory allocations
+  and all of the operations are deterministic in time.
+\item All values are in [m] for translational components and [rad] for
+  rotational components.
+\end{itemize}
+
+\section{Geometric Primitives}
+\label{sec:geometric-primitives}
+
+\paragraph{Headers}
+\label{sec:headers}
+
+\begin{itemize}
+\item \lstinline$frames.hpp$: Definition of all geometric primitives
+  and there transformations/operators.
+\item \lstinline$frames_io.hpp$: Definition of the input/output
+  operators.
+\end{itemize}
+
+
+The following primitives are available:
+\begin{itemize}
+\item Vector~\ref{sec:vector}
+\item Rotation~\ref{sec:rotation}
+\item Frame~\ref{sec:frame}
+\item Twist~\ref{sec:twist}
+\item Wrench~\ref{sec:wrench}
+\end{itemize}
+
+\subsection{Vector}
+\label{sec:vector}
+Represents the 3D position of a point/object. It contains
+three values, representing the X,Y,Z position of the point/object with
+respect to the reference frame:
+
+$\mathrm{Vector} = \left[\begin{array}{c} x \\ y \\ z \end{array} \right]$
+
+\paragraph{Creating Vectors}
+\label{sec:creating-vectors}
+There are different ways to create a vector:
+\begin{lstlisting}
+  Vector v1; //The default constructor, X-Y-Z are initialized to zero
+  Vector v2(x,y,z); //X-Y-Z are initialized with the given values
+  Vector v3(v2); //The copy constructor
+  Vector v4=Vector::Zero(); //All values are set to zero
+\end{lstlisting}
+
+\paragraph{Get/Set individual elements}
+\label{sec:gets-indiv-elem}
+The operators \lstinline$[]$ and \lstinline$()$ use indices from 0..2,
+index checking is enabled/disabled by the DEBUG/NDEBUG definitions:
+\begin{lstlisting}
+  v1[0]=v2[1];//copy y value of v2 to x value of v1 
+  v2(1)=v3(3);//copy z value of v3 to y value of v2
+  v3.x( v4.y() );//copy y value of v4 to x value of v3
+\end{lstlisting}
+
+\paragraph{Multiply/Divide with a scalar}
+\label{sec:mult-with-scal}
+You can multiply or divide a Vector with a double using the operator
+\lstinline$*$ and \lstinline$/$:
+\begin{lstlisting}
+  v2=2*v1;
+  v3=v1/2;
+\end{lstlisting}
+
+\paragraph{Add and subtract vectors}
+\label{sec:add-subtract-vectors}
+You can add or subtract a vector with another vector:
+\begin{lstlisting}
+  v2+=v1;
+  v3-=v1;
+  v4=v1+v2;
+  v5=v2-v3;
+\end{lstlisting}
+
+\paragraph{Cross and scalar product}
+\label{sec:cross-scalar-product}
+You can calculate the cross product of two vectors, which results in
+new vector or calculate the scalar(dot) product of two vectors:
+\begin{lstlisting}
+  v3=v1*v2; //Cross product
+  double a=dot(v1,v2)//Scalar product
+\end{lstlisting}
+
+\paragraph{Resetting}
+\label{sec:resetting}
+You can reset the values of a vector to zero:
+\begin{lstlisting}
+  SetToZero(v1);
+\end{lstlisting}
+
+\paragraph{Comparing vectors}
+\label{sec:comparing-vectors}
+With or without giving an accuracy:
+\begin{lstlisting}
+  v1==v2;
+  v2!=v3;
+  Equal(v3,v4,eps);//with accuracy eps
+\end{lstlisting}
+
+\subsection{Rotation}
+\label{sec:rotation}
+
+Represents the 3D rotation of an object wrt the reference
+frame. Internally it is represented by a 3x3 matrix which is a
+non-minimal representation:
+
+$\mathrm{Rotation} =
+\left[\begin{array}{ccc} 
+    Xx&Yx&Zx\\
+    Xy&Yy&Zy\\
+    Xz&Yz&Zz
+  \end{array}\right]
+$
+
+\paragraph{Creating Rotations}
+\label{sec:creating-rotations}
+
+\subparagraph{Safe ways to create a Rotation}
+\label{sec:safe-ways-create}
+
+The following result always in consistent Rotations. This means the
+rows/columns are always normalized and orthogonal:
+
+\begin{lstlisting}
+  Rotation r1; //The default constructor, initializes to an 3x3 identity matrix
+  Rotation r1 = Rotation::Identity();//Identity Rotation = zero rotation
+  Rotation r2 = Rotation::RPY(roll,pitch,yaw); //Rotation build out off Roll-Pitch-Yaw angles
+  Rotation r3 = Rotation::EulerZYZ(alpha,beta,gamma); //Rotation build out off Euler Z-Y-Z angles
+  Rotation r4 = Rotation::EulerZYX(alpha,beta,gamma); //Rotation build out off Euler Z-Y-X angles
+  Rotation r5 = Rotation::Rot(vector,angle); //Rotation build out off an equivalent axis(vector) and an angle.
+\end{lstlisting}
+
+\subparagraph{Other ways}
+\label{sec:other-ways}
+The following should be used with care, they can result in
+inconsistent rotation matrices, since there is no checking if
+columns/rows are normalized or orthogonal
+\begin{lstlisting}
+  Rotation r6( Xx,Yx,Zx,Xy,Yy,Zy,Xz,Yz,Zz);//Give each individual element (Column-Major)
+  Rotation r7(vectorX,vectorY,vectorZ);//Give each individual column
+\end{lstlisting}
+
+\paragraph{Getting values}
+\label{sec:getting-values}
+Individual values, the indices go from 0..2: 
+
+\subsection{Frame}
+\label{sec:frame}
+
+\subsection{Twist}
+\label{sec:twist}
+
+\subsection{Wrench}
+\label{sec:wrench}
+
+
+\section{Kinematic Structures}
+\label{sec:kinematic-structures}
+
+\subsection{Joint}
+\label{sec:joint}
+
+\subsection{Segment}
+\label{sec:segment}
+
+\subsection{Chain}
+\label{sec:chain}
+
+\section{Kinematic Solvers}
+\label{sec:kinematic-solvers}
+
+\subsection{Forward position kinematics}
+\label{sec:forw-posit-kinem}
+
+\subsection{Forward velocity kinematics}
+\label{sec:forw-veloc-kinem}
+
+\subsection{Jacobian calculation}
+\label{sec:jacobian-calculation}
+
+\subsection{Inverse velocity kinematics}
+\label{sec:inverse-veloc-kinem}
+
+\subsection{Inverse position kinematics}
+\label{sec:inverse-posit-kinem}
+
+\section{Motion Specification Primitives}
+\label{sec:moti-spec-prim}
+
+\subsection{Path}
+\label{sec:path}
+
+\subsection{Velocity profile}
+\label{sec:velocity-profile}
+
+\subsection{Trajectory}
+\label{sec:trajectory}
+
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 

@@ -1,0 +1,28 @@
+Moveoff demo
+
+Moveoff_gui options:
+
+  always   -- offsets always available
+  external -- external controls (simulated)
+
+Moveoff component installed and connected using:
+
+  [HAL]HALFILE = LIB:hookup_moveoff.tcl
+
+External controls enabled with connections in:
+
+  [HAL]HALFILE = LIB:moveoff_external.hal
+
+External controls simulated with sim_pin:
+
+  external_enable
+  external_backtrack_en
+  external_offset_0
+  external_offset_1
+  external_offset_2
+
+For additional info, see the manpages:
+
+   man sim_pin  ------ utility for setting pins
+   man moveoff  ------ moveoff component
+   man moveoff_gui --- moveoff sample gui

@@ -1,0 +1,6 @@
+o<init> sub
+    G53 G0 X-1 Y-2 Z-3  ; some random gcode that will involve poking Motion
+    G4 P99              ; dwell (sleep) for 99 seconds, the Abort will come here
+    G53 G0 X1 Y2 Z3     ; some random gcode that will involve poking Motion
+o<init> endsub
+m2

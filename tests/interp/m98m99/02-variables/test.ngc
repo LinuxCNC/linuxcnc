@@ -1,0 +1,37 @@
+%
+( Fanuc params have global scope; rs274ngc params #1..#30 have local scope )
+
+; Fanuc-style:  Test that all params are globally changed
+#1 = 42.01
+#30 = 42.30
+#31 = 42.31
+(PRINT,Q MAIN/FANUC:  PRE-M98:  1=#1; 30=#30; 31=#31)
+M98 P1
+(PRINT,Q MAIN/FANUC:  POST-M98:  1=#1; 30=#30; 31=#31)
+
+; RS274NGC-style:  Test that params #1..#30 are not globally changed
+#1 = 42.01
+#30 = 42.30
+#31 = 42.31
+(PRINT,Q MAIN/RS274NGC:  PRE-O-CALL:  1=#1; 30=#30; 31=#31)
+O2 call
+(PRINT,Q MAIN/RS274NGC:  POST-O-CALL:  1=#1; 30=#30; 31=#31)
+M30
+
+O1  ; Fanuc-style
+(PRINT,Q O1:  START:  1=#1; 30=#30; 31=#31)
+#1 = 13.01
+#30 = 13.30
+#31 = 13.31
+(PRINT,Q O1:  END:  1=#1; 30=#30; 31=#31)
+M99
+
+O2 sub  ; rs274ngc-style
+(PRINT,Q O2:  START:  1=#1; 30=#30; 31=#31)
+#1 = 13.01
+#30 = 13.30
+#31 = 13.31
+(PRINT,Q O2:  END:  1=#1; 30=#30; 31=#31)
+O2 endsub
+
+%

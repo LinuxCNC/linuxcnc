@@ -1,0 +1,9 @@
+loadrt test_define1
+loadrt test_use1
+loadrt threads
+addf test-define1.0 thread1
+addf test-use1.0 thread1
+start
+loadusr -w sleep 1
+getp test-define1.0.out
+getp test-use1.0.out

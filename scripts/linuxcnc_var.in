@@ -1,0 +1,104 @@
+#!/bin/bash
+# maintainer: when adding items update three places:
+#             usage(), show_all(), and show_item()
+#
+# note: report LINUXCNCVERSION=$EMC2VERSION (as does linuxcnc.in)
+
+# Copyright: 2014
+# Author:    Dewey Garrett <dgarrett@panix.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+function usage () {
+  cat <<EOF
+
+Retrieve Linuxcnc Variables
+Usage:
+      $(basename $0) [ varname | all ]
+
+Varnames supported:
+         LINUXCNCVERSION
+         LINUXCNC_AUX_GLADEVCP
+         LINUXCNC_AUX_EXAMPLES
+         REALTIME
+         RTS
+         HALLIB_DIR
+         PYTHON
+
+Option 'all' returns varname=value for all supported varnames
+EOF
+exit 1
+}
+
+function show_all () {
+  echo "LINUXCNCVERSION=@EMC2VERSION@
+LINUXCNC_AUX_GLADEVCP=@LINUXCNC_AUX_GLADEVCP@
+LINUXCNC_AUX_EXAMPLES=@LINUXCNC_AUX_EXAMPLES@
+REALTIME=@REALTIME@
+RTS=@RTS@
+HALLIB_DIR=@HALLIB_DIR@
+PYTHON=@PYTHON@"
+}
+
+function show_item () {
+  case $1 in
+    LINUXCNCVERSION) echo @EMC2VERSION@;;
+    LINUXCNC_AUX_GLADEVCP) echo @LINUXCNC_AUX_GLADEVCP@;;
+    LINUXCNC_AUX_EXAMPLES) echo @LINUXCNC_AUX_EXAMPLES@;;
+    REALTIME) echo @REALTIME@;;
+    RTS) echo @RTS@;;
+    HALLIB_DIR) echo @HALLIB_DIR@;;
+    PYTHON) echo @PYTHON@;;
+    all) show_all;;
+    *) echo UNKNOWN; exit 1;;
+  esac
+}
+
+case $# in
+   0) usage;;
+   1) show_item $1;;
+   *) usage;;
+esac
+exit 0
+
+# Example shell usage to populate environment in a sourced script:
+# for line in $(linuxcnc_var all) ; do
+#   name=${line%%=*}
+#   value=${line##*=}
+#   echo "name=$name value=$value"
+#   export "$name"="$value"
+# done
+
+# Example tcl usage:
+# foreach line [exec linuxcnc_var all] {
+#   set l [split $line =]
+#   set name  [lindex $l 0]
+#   set value [lindex $l 1]
+#   set V($name) $value
+# }
+# parray V
+
+# Example python usage:
+# import subprocess
+# s   = subprocess.Popen(['linuxcnc_var','all']
+#                       ,stdout=subprocess.PIPE
+#                       ,stderr=subprocess.PIPE
+# p,e = s.communicate()
+# v={}
+# for line in p.split('\n'):
+#     if line == '': continue
+#     name = line.split('=')[0]
+#     value = line.split('=')[1]
+#     v[name] = value
+# print(v)

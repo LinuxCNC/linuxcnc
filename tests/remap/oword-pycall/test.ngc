@@ -1,0 +1,51 @@
+; introspection acrobatics
+
+;py,from interpreter import *
+;py,assert this.call_level  == 0
+
+o<square> call [25.0]
+;py,assert this.call_level  == 0
+;py,assert this.params["_value"] == 625.0
+;py,assert this.return_value == 625.0
+
+o<multiply> call [5] [6]
+;py,assert this.call_level  == 0
+;py,assert this.return_value == 30.0
+;py,assert this.params["_value"] == 30.0
+
+o<multiply> call [5] [6] [7]
+;py,assert this.call_level  == 0
+;py,assert this.return_value == 210.0
+;py,assert this.params["_value"] == 210.0
+
+
+G20
+; t1 p1 x10 y0 z20
+T1M6
+G43
+;py,assert equal(this.params[5400],1.0),"loaded tool number not 1: %f" % (this.params[5400])
+;py,assert equal(this.params[5410],10.0) # diameter from tt
+
+;py,assert this.params[5400] == this.tool_table[0].toolno
+;py,assert equal(this.tool_offset.x, 10.0)
+;py,assert equal(this.tool_offset.y, 0.0)
+;py,assert equal(this.tool_offset.z, 20.0)
+
+;py,assert equal(this.tool_offset.x, this.tool_table[0].offset.x)
+;py,assert equal(this.tool_offset.y, this.tool_table[0].offset.y)
+;py,assert equal(this.tool_offset.z, this.tool_table[0].offset.z)
+
+;py,assert equal(this.tool_offset.x, this.params[5401])
+;py,assert equal(this.tool_offset.y, this.params[5402])
+;py,assert equal(this.tool_offset.z, this.params[5403])
+
+G49
+G10 L1 P1 R10 X20 Y30 Z40
+G43
+
+;py,assert equal(this.tool_offset.x, 20.0)
+;py,assert equal(this.tool_offset.y, 30.0)
+;py,assert equal(this.tool_offset.z, 40.0)
+
+M2
+

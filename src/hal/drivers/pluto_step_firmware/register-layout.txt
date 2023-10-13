@@ -1,0 +1,62 @@
+Generalities
+============
+
+The register layout of the pluto-servo is an implementation detail and
+may vary from release to release of emc.
+
+The "address" is auto-incrementing after transfers.
+
+Multi-byte data is transferred least-significant-byte-first.
+
+
+Read registers
+==============
+
+The "read" registers (data transfer from pluto to PC) are each 4 bytes
+long and start at address 0.  Beginning a read within a register (e.g.,
+at address 2) results in undefined behavior.  Bits without an
+interpretation are undefined.
+
+Address		Bits	Interpretation
+0..3		0..20	Stepgen 0 position in 10.10 fixed-point notation
+4..7		0..20	Stepgen 1 position in 10.10 fixed-point notation
+8..11		0..20	Stepgen 2 position in 10.10 fixed-point notation
+12..15		0..20	Stepgen 3 position in 10.10 fixed-point notation
+16..19		0..15	Digital inputs 0..15
+
+
+Write registers
+===============
+
+The "write" registers (data transfer from pluto to PC) are each 2 bytes
+long and start at address 0.  Beginning a read within a register (e.g.,
+at address 1) results in undefined behavior.  Bits without an
+interpretation should be sent as 0.
+
+Address		Bits	Interpretation
+0..1		0..11	Stepgen 0 velocity in +-.10 fixed-point notation
+2..3		0..11	Stepgen 1 velocity in +-.10 fixed-point notation
+4..5		0..11	Stepgen 2 velocity in +-.10 fixed-point notation
+6..7		0..11	Stepgen 3 velocity in +-.10 fixed-point notation
+8..9		0..13	Digital outputs 0..13
+10..11		0..3	Step time in units of 1600ns
+		8..11	Direction setup/hold time in units of 1600ns
+		14	write 1 to enable watchdog and reset WDT
+		15	step polarity for stepgen 0..3
+
+
+
+Notes
+=====
+
+Watchdog
+========
+The watchdog consists of a 7-bit counter and a 1-bit enable which gives a
+watchdog period of approximately 6.5ms.  At power-up the enable is FALSE.  When
+bit 14 of register 8..9 is written TRUE, the counter is reset to 0 and enable
+is set to TRUE. (there is no provision for resetting the watchdog enable to
+FALSE) Every time the PWM counter overflows (approximately 51.2us) the watchdog
+counter is incremented if it is not already at its maximum.  When the watchdog
+counter is at its maximum, the dedicated digital outputs and PWM outputs are
+tristated.
+

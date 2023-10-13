@@ -1,0 +1,85 @@
+(author: Chris P)
+(version: 0.1)
+(date: 04/25/19)
+
+(Probe X plus direction and set X 0 in current WCO)
+(Start probe position to the left side edge of stock)
+(inside the max xy distance with the probe tip below the stock top edge)
+(ensure all settings have been set properly according to help diagrams)
+
+o<probe_x_plus> sub
+
+  (uses NGCGUI style arg spec)
+  (number after "=" in comment is default value)
+  #<probe_tool_number> = #1
+  #<max_xy_distance> = #2
+  #<xy_clearance> = #3
+  #<probe_slow_fr> = #4
+  #<probe_fast_fr> = #5
+  #<calibration_offset> = #6
+
+  (Cancel G92 offsets)
+  G92.1
+
+  (Probe Tool Safety Check)
+  o<110> if [#5400 NE #<probe_tool_number>]
+  (MSG, Specified probe tool #<probe_tool_number> not in spindle, aborting)
+   o<probe_x_plus> return
+  o<110> endif
+
+  (Probe Diameter)
+  #<probe_diameter> = #5410
+
+  (Probe Radius)
+  #<probe_radius> = [#<probe_diameter> / 2]
+
+  (Probe Centerline Offset)
+  #<probe_center_offset> = [#<probe_radius> - #<calibration_offset>]
+
+  (Current X Position including offsets in current program units)
+  #<x> = #5420
+
+  (Initiate Fast X+ Probe)
+  G91
+  F[#<probe_fast_fr>]
+  G38.2 X[#<max_xy_distance>]
+  #<x_plus_probed> = #5061
+
+  (Probe Error check, #5070 will be 0 if failed)
+  o<120> if [#5070 EQ 0]
+    (back to start point and feed)
+    G90
+    G0 X#<x>
+    F[#<probe_fast_fr>]
+    (return from sub)
+    o<probe_x_plus> return
+  o<120> endif
+
+  (Move to xy_clearance distance for slow probe)
+  G90
+  G0 X[#<x_plus_probed> - #<xy_clearance>]
+
+  (Slow Probe Rule, if Slow Probe FR is set to 0, Slow Probe is Bypassed)
+  o<130> if [#<probe_slow_fr> GT 0]
+    (Initiate Slow X+ Probe)
+    G91
+    F[#<probe_slow_fr>]
+    G38.2 X[#<xy_clearance> * 2]
+    #<x_plus_probed> = #5061
+;    (debug, Probed Pos: #5061 X Pos: #<_x>)
+    G90
+    G0 X[#<x_plus_probed> - #<xy_clearance>]
+  o<130> endif
+
+  #<x_plus_zero_edge> = [#<x_plus_probed> + #<probe_center_offset>]
+
+  (defines the edge as x_probed_position for DRO reporting)
+  #<x_plus_probed_position> = #<x_plus_zero_edge>
+
+  (analog aio output to gui DRO "X PROBED POSITION")
+  M68 E8 Q[#<x_plus_probed_position>]
+
+o<probe_x_plus> endsub [#<x_plus_zero_edge>]
+
+M2 (end program)
+

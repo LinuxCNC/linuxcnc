@@ -1,0 +1,4 @@
+
+loadrt sim_encoder num_chan=8
+show pin
+

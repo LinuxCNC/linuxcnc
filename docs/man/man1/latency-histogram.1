@@ -1,0 +1,120 @@
+.\" Copyright (c) 2020 andypugh
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.\"
+.\"
+.\"
+.TH LATENCY-HISTOGRAM "1"  "2021-08-14" "LinuxCNC Documentation" "The Enhanced Machine Controller"
+.SH NAME
+latency-histogram \- plot a histogram of machine latency
+.SH SYNOPSIS
+.B latency-histogram
+.RB [ \-?|\-\-help ]
+.RB [ \-\-base " " \fIns\fP ]
+.RB [ \-\-servo " " \fIns\fP ]
+.RB [ \-\-bbinsize " " \fIns\fP ]
+.RB [ \-\-sbinsize " " \fIns\fP ]
+.RB [ \-\-bbins " " \fIns\fP ]
+.RB [ \-\-sbins " " \fIns\fP ]
+.RB [ \-\-logscale " " \fI0|1\fP ]
+.RB [ \-\-text " " \fInote\fP ]
+.RB [ \-\-show ]
+.RB [ \-\-nobase ]
+.RB [ \-\-verbose ]
+.RB [ \-\-nox ]
+.SH DESCRIPTION
+The latency test is important when configuring a LinuxCNC system.
+An adjunct to the standard latency-test latency-histogram plots the distribution of latency.
+This can be useful to get a feel for how frequent the high latency excursions are.
+.PP
+LinuxCNC and HAL should not be running, stop with
+.IR "halrun \-U" .
+Large number of bins and/or small binsizes will slow updates.
+For single thread, specify
+.B \-\-nobase
+(and options for servo thread).
+Measured latencies outside of the +/\- bin range are reported with special end bars.
+Use
+.B \-\-show
+to show count for the off-chart [pos|neg] pin.
+.PP
+More details:
+\%https://linuxcnc.org/docs/html/install/latency-test.html
+.SH OPTIONS
+.TP
+.BR \-? ", " \-\-help
+Show options and exit.
+.TP
+.BI \-\-base " ns"
+base thread interval, default: 25000, min: 5000
+.TP
+.BI \-\-servo " ns"
+servo thread interval, default: 1000000, min: 25000
+.TP
+.BI \-\-bbinsize " ns"
+base bin size, default: 100
+.TP
+.BI \-\-sbinsize " ns"
+servo bin size, default: 100
+.TP
+.BI \-\-bbins " ns"
+base bins, default: 200
+.TP
+.BI \-\-sbins " ns"
+servo bins, default: 200
+.TP
+.BI \-\-logscale " 0|1"
+y axis log scale, default: 1
+.TP
+.BI \-\-text " note"
+additional note, default: ""
+.TP
+.BI \-\-show
+show count of undisplayed bins
+.TP
+.BI \-\-nobase
+servo thread only
+.TP
+.BI \-\-verbose
+progress and debug
+.TP
+.BI \-\-nox
+no GUI, display elapsed, min, max, sdev for each thread
+.SH "SEE ALSO"
+.BR latency-plot (1),
+.BR latency-test (1),
+.BR linuxcnc (1)
+.PP
+Much more information about LinuxCNC and HAL is available in the LinuxCNC
+and HAL User Manuals, found at
+.IR /usr/share/doc/linuxcnc/ .
+.SH BUGS
+None known at this time.
+.SH AUTHOR
+This man page written by andypugh, as part of the LinuxCNC project.
+.SH REPORTING BUGS
+Report bugs at
+\%https://github.com/LinuxCNC/linuxcnc/issues
+.SH COPYRIGHT
+Copyright \(co 2020 andypugh.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

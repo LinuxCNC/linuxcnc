@@ -1,0 +1,10 @@
+example demonstrating a simple user-defined callback
+-----------------------------------------------------
+
+callback.py defines as on_button_press() function which is connected to the widget tree as an event handler.
+See the glade Signals tab for hal_button1 how it is referred to.
+
+------------------------------------------
+To run independently:
+
+$ gladevcp  -u simplecallback.py simplecallback.ui

@@ -1,0 +1,37 @@
+g20
+g10 l2 p1 x1 y2 z-3 r10
+g10 l2 p2 x4 y5 z-6 r20
+g10 l2 p3 x7 y8 z-9 r30
+g10 l2 p4 x10 y11 z-12 r40
+g10 l2 p5 x13 y14 z-15 r50
+g10 l2 p6 x16 y17 z-18 r60
+g10 l2 p7 x19 y20 z-21 r70
+g10 l2 p8 x22 y23 z-24 r80
+
+; touch off fixture:
+g10 l2 p9 x25 y26 z-27 r0
+
+g54
+g0 g53 z-30
+g10 l11 p1 z0 ; length should be -3
+t1 m6
+(debug,#5403)
+g55
+g0 g53 z-30
+g10 l11 p1 z1 ; length should be -4
+(debug,#5403)
+
+g56
+g92 x33 y44 z55 ; add some g92 to all g5x: g92 shouldn't affect the tool touchoff fixture
+
+g54
+g0 g53 z-30
+g10 l11 p1 z0 ; ... so the length should still be -3
+t1 m6
+(debug,#5403)
+g55
+g0 g53 z-30
+g10 l11 p1 z1 ; ... so the length should still be -4
+(debug,#5403)
+
+m2

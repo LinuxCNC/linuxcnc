@@ -1,0 +1,197 @@
+// based on src/emc/motion/simple_tp.c Author: jmkasunich
+component anglejog """Jog two axes (or joints) at an angle
+
+This component accepts a dynamic counts-in input (typically from a
+manual pulse generator (MPG)) and static angle and scale factor
+settings.  It computes the counts and scale values required to jog two
+(M,N) axes (or joints) at an angle.  The corresponding output pins
+must be connected to the candidate axis.[MN].jog* (or joint.[MN].jog*)
+pins to create motion at the current angle.  HAL pins are provided to
+set the vector velocity and acceleration and to enable the
+computations.
+
+Notes:\n
+1. The max-vel, max-accel settings should be \\fBless than or
+equal\\fR to the smallest settings for both of the target axes.\n
+2. The scale-in pin is sampled only when the enable-in pin
+is false.  The value in use is output on the current-scale pin.\n
+3. The angle-degrees-in pin is sampled only when the enable-in
+pin is false.  The value in use is output on the current-angle-degrees
+pin.\n
+4. The value of the iscale-factor pin multiplies counts-in internally
+to support integer (s32) calculations for counting.  The current-scale-out
+is divided by the same amount.  The pin is sampled only when the
+enable-in pin is false.  The default value should work in most
+applications.\n
+5. For identity kins machines that support both world jogging (axis letter)
+and joint jogging (joint number), connections are needed for both the
+axis pins: axis.[MN].jog-enable,jog-scale,jog-counts and the corresponding
+joint pins: joint.[mn].jog-enable,jog-scale,jog-counts where [mn] are
+the joint numbers corresponding to the [MN] axis letters.
+6. The current-scale pin is for information, the required output scaling
+pin is current-scale-out as it depends on the iscale-factor setting.
+
+\\fBSimulation Config\\fR: configs/sim/axis/anglejog/anglejog.in
+""";
+
+pin in  bit   enable_in "enables motion (disables alteration of angle and scale)";
+pin in  s32   counts_in "MPG (wheel) counts";
+pin in  float angle_degrees_in "vector angle";
+pin in  s32   iscale_factor = 10000 "integer scaling factor (>1)";
+pin in  float scale_in "magnitude units/count (mag = counts * scale)";
+pin in  float max_vel "vector max velocity magnitude";
+pin in  float max_accel "vector max acceleration magnitude";
+pin in  float accel_fraction_in = 1 "acceleration fraction input";
+
+pin out bit   enable_out "to: axis.M.jog-enable AND axis.N.jog-enable";
+pin out float current_scale "effective scale (informational)";
+pin out float current_scale_out "to: axis.M.jog-scale AND axis.N.jog-scale";
+pin out s32   coscounts  "to: axis.M.jog-counts (cosine counts)";
+pin out s32   sincounts  "to: axis.N.jog-counts (sine   counts)";
+pin out float cos_accel_fraction "to: axis.M.jog-accel-fraction";
+pin out float sin_accel_fraction "to: axis.N.jog-accel-fraction";
+
+// output monitor pins:
+pin out bit   active "angle jog move in progress";
+pin out float current_angle_degrees "current angle";
+pin out float current_mag "current vector magnitude";
+pin out float current_vel "current vector speed";
+
+function _;
+license "GPL";
+author  "Dewey Garrett";
+;;
+#include "rtapi_math.h"
+#define TO_RAD M_PI/180
+// replicate simple_tp.h define for tiny magnitude delta:
+#define TINY_DP(max_accel,period) (max_accel*period*period*0.001)
+#define MIN_ISCALE_FACTOR     10
+#define MAX_ISCALE_FACTOR 100000
+
+FUNCTION(_) {
+static bool once = 1;
+static bool wait_for_count_change = 0;
+static int  tot_counts;
+static int  old_enable_in;
+static int  old_counts_in;
+static int  ifactor = 0;
+    double  max_dv, tiny_dp, mag_err, vel_req;
+    double  mag_cmd;
+    int     delta_counts = 0;
+    int     newcounts;
+
+    if (once) {
+        current_angle_degrees = angle_degrees_in;
+        current_scale     = scale_in;
+        current_scale_out = scale_in/iscale_factor;
+        ifactor = iscale_factor;
+        once = 0;
+    }
+
+    newcounts = ifactor*counts_in;
+    if (enable_in && !old_enable_in) { // enabling
+        newcounts = ifactor*counts_in;
+        old_counts_in = newcounts;
+        wait_for_count_change = 1;
+        tot_counts = current_mag/current_scale_out;
+    }
+    delta_counts  = newcounts - old_counts_in;
+    old_enable_in = enable_in;
+    old_counts_in = newcounts;
+    enable_out    = enable_in;
+
+    if (delta_counts!=0) {wait_for_count_change = 0;}
+    if (enable_in) { tot_counts = tot_counts + delta_counts;}
+    mag_cmd = tot_counts * current_scale_out;
+
+    active = 0;
+    /* compute max change in velocity per servo period */
+    max_dv = max_accel * fperiod;
+    /* compute a tiny magnitude range, to be treated as zero */
+    tiny_dp = TINY_DP(max_accel, fperiod);
+    /* calculate desired velocity */
+    if (enable_in && !wait_for_count_change) {
+        /* planner enabled, request a velocity that tends to drive
+           mag_err to zero, but allows for stopping without magnitude
+           overshoot */
+        mag_err = mag_cmd - current_mag;
+        /* positive and negative errors require some sign flipping to
+           avoid sqrt(negative) */
+        if (mag_err > tiny_dp) {
+            vel_req = -max_dv +
+                       sqrt(2.0 * max_accel * mag_err + max_dv * max_dv);
+            /* mark planner as active */
+            active = 1;
+        } else if (mag_err < -tiny_dp) {
+            vel_req =  max_dv -
+                       sqrt(-2.0 * max_accel * mag_err + max_dv * max_dv);
+            /* mark planner as active */
+            active = 1;
+        } else {
+            /* within 'tiny_dp' of desired mag, no need to move */
+            vel_req = 0.0;
+        }
+    } else {
+        /* planner disabled or wait_for_count_change, request zero velocity */
+        vel_req = 0.0;
+        /* and set command to present magnitude to avoid movement when
+           next enabled */
+        mag_cmd = current_mag;
+        //NOTE: changes allowed only when disabled:
+        if (!enable_in) {
+            static bool gave_msg = 0;
+            bool new_ifactor = 0;
+            if (ifactor != iscale_factor) {
+                if (   iscale_factor >= MIN_ISCALE_FACTOR
+                    && iscale_factor <= MAX_ISCALE_FACTOR) {
+                    ifactor = iscale_factor;
+                    rtapi_print("new ifactor=%d\n",ifactor);
+                    new_ifactor = 1;
+                    gave_msg = 0;
+                } else {
+                    if (!gave_msg) {
+                        rtapi_print("BOGUS iscale_factor=%d (min=%d max=%d)\n"
+                        ,ifactor,MIN_ISCALE_FACTOR,MAX_ISCALE_FACTOR);
+                        gave_msg = 1;
+                    }
+                }
+            }
+            current_angle_degrees = angle_degrees_in;
+            if (   current_scale_out != scale_in
+                || new_ifactor) {
+                current_scale      = scale_in;
+                current_scale_out  = scale_in/ifactor;
+                tot_counts = current_mag/current_scale_out;
+            }
+        }
+        if (wait_for_count_change) return;
+    }
+    /* limit velocity request */
+    if (vel_req > max_vel) {
+        vel_req = max_vel;
+    } else if (vel_req < -max_vel) {
+        vel_req = -max_vel;
+    }
+    /* ramp velocity toward request at accel limit */
+    if (vel_req > current_vel + max_dv) {
+        current_vel += max_dv;
+    } else if (vel_req < current_vel - max_dv) {
+        current_vel -= max_dv;
+    } else {
+        current_vel = vel_req;
+    }
+    /* check for still moving */
+    if (current_vel != 0.0) {
+        /* yes, mark planner active */
+        active = 1;
+    }
+    /* integrate velocity to get new magnitude */
+    current_mag += current_vel * fperiod;
+    double cos_angle,sin_angle;
+    cos_angle = cos(current_angle_degrees * TO_RAD);
+    sin_angle = sin(current_angle_degrees * TO_RAD);
+    coscounts = current_mag * cos_angle/current_scale_out;
+    sincounts = current_mag * sin_angle/current_scale_out;
+    cos_accel_fraction = accel_fraction_in * cos_angle;
+    sin_accel_fraction = accel_fraction_in * sin_angle;
+}

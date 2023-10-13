@@ -1,0 +1,10 @@
+pin+joint.0.motor-pos-cmd
+pin+joint.1.motor-pos-cmd
+pin+joint.2.motor-pos-cmd
+
+pin+motion.teleop-mode
+pin+motion.coord-mode
+
+pin+rosekins.bigtheta_degrees
+pin+rosekins.theta_degrees
+pin+rosekins.revolutions

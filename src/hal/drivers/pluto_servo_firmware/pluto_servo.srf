@@ -1,0 +1,2 @@
+{ "Warning" "WCPT_FEATURE_DISABLED_POST" "SignalProbe " "Warning: Feature SignalProbe is not available with your current license" {  } {  } 0 0 "Feature %1!s! is not available with your current license" 1 0}
+{ "Warning" "WSGN_DFF_NOT_FOUND_FROM_PIN" "epp_nReset " "Warning: Pin \"*\" has no register for Power-Up Level option" {  } { { "servo.v" "" { Text "Z:/emc2/src/hal/drivers/pluto_servo_firmware/servo.v" 26 -1 0 } }  } 0 0 "Pin \"%1!s!\" has no register for Power-Up Level option" 1 1}

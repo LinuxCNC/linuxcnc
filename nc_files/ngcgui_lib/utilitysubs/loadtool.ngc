@@ -1,0 +1,51 @@
+; loadtool: with options for G43 and H
+
+o<loadtool> sub
+(not_a_subfile)
+   #<toolno> = #1
+  #<use_g43> = #2
+#<h_for_g43> = #3
+  #<verbose> = #4
+
+o<l0>      if [#<toolno> EQ 0]
+             ;Uncomment next 4 lines to require a nonzero toolno
+             ;(print, loadtool: EXIT: toolno required not 0)
+             ;(debug, loadtool: EXIT: toolno required not 0)
+             ;(AXIS,notify, loadtool: EXIT: toolno required not 0)
+             ;m2 (quit)
+             (print, loadtool: Warning: toolno is 0)
+             (debug, loadtool: Warning: toolno is 0)
+o<l0>      endif
+
+o<l1>      if [#<use_g43> NE 0]
+o<l11>       if [#<h_for_g43> EQ 0]
+o<l12>         if [#<verbose> NE 0]
+                 (debug, loadtool:G43 noH)
+o<l12>         endif
+               T#<toolno> M6 G43
+o<l11>       else
+o<l13>         if [#<verbose> NE 0]
+                 (debug, loadtool:G43 H#<h_for_g43>)
+o<l13>         endif
+               T#<toolno> M6 G43 H#<h_for_g43>
+o<l11>       endif
+o<l1>      else
+o<l14>         if [#<verbose> NE 0]
+                 (debug, loadtool:no G43)
+o<l14>         endif
+               T#<toolno> M6
+o<l1>      endif
+
+o<loadtool> endsub
+;G43 without an H word uses the currently loaded tool from the last Tn M6.
+;G43 Hn uses the offset for tool n.
+;Note
+;    G43 H0 is a little special. Its behavior is different on random tool
+;    changer machines and nonrandom tool changer machines
+;
+;       On nonrandom tool changer machines, G43 H0 applies the TLO of the
+;       tool currently in the spindle, or a TLO of 0 if no tool is in the spindle.
+;
+;       On random tool changer machines, G43 H0 applies the TLO of the tool T0
+;       defined in the tool table file (or causes an error if T0 is not defined
+;       in the tool table).

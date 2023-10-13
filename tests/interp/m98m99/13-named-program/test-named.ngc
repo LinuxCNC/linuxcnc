@@ -1,0 +1,6 @@
+%
+(test-named.ngc:  Test named programs)
+O<MyProgram>
+(...program body)
+M30
+%

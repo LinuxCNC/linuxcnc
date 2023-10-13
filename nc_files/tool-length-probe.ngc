@@ -1,0 +1,51 @@
+(this program demonstrates how to measure tool lengths automatically using)
+(a switch hooked to the probe input.  this is useful for machines without)
+(tool holders, where the length of a tool is different every time it is)
+(inserted.)
+
+(g30 should already be set to a position safely above the switch)
+
+(start with the first tool loaded, and g54 work offsets set with it)
+(when you touch off the work with this reference tool, be sure length)
+(comp is off {use g49})
+
+g20 g90 
+g49
+g0 x0 y0 z1
+
+(measure reference tool)
+g30 (above switch)
+g38.2 z0 f15 (measure)
+g91 g0z.2 (off the switch)
+#1000=#5063 (save reference tool length)
+(print,reference length is #1000)
+g90 (done)
+
+(cut with first tool...)
+g0 x0 y0 z1
+g1 z0 f20
+g2 x0 y0 i0 j.05
+
+g0 z2
+(msg,insert another tool)
+(use TxM6 here if you want to be able to use radius comp too)
+m0
+
+(measure next tool)
+g30 (above switch)
+g49 (measure without the last tool's offset)
+g38.2 z0 f15 (measure)
+g91 g0 z.2 (off the switch)
+g43.1 z[#5063-#1000] (set new tool offset)
+(print,new length is #5063)
+g90 (done)
+
+(cut in the same place with this next tool...)
+g0 x0 y0 z1
+g1 z0 f20
+g2 x0 y0 i0 j.05
+
+g0 z1
+
+(exit with tool length offset still in effect, in case we want to use MDI)
+m2

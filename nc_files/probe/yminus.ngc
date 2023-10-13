@@ -1,0 +1,23 @@
+o<yminus> sub
+
+; #1 = [ps_searchvel]
+; #2 = [probe.ps_probe_max]
+; #3 = [ps_probe_latch]
+; #4 = [probe.ps_probevel]
+; #5 = [TOOLSENSOR]RAPID_SPEED]
+
+#<y>=#<_y> (save start Y position) 
+G91
+F #1
+G38.2 Y[-#2]
+G1 Y[#3] F#5
+F #4
+G4 P0.5
+G38.2 Y[-#3*2]
+(print, probe Y=#5062 )
+G90
+(back to start point)
+G1 Y#<y> F#5
+	
+o<yminus> endsub
+M2

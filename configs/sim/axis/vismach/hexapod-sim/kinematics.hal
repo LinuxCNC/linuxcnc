@@ -1,0 +1,66 @@
+# These values should be edited to represent the machine geometry
+
+# Base joints positions in base (world) coordinates
+setp genhexkins.base.0.x -22.950
+setp genhexkins.base.0.y  13.250
+setp genhexkins.base.0.z   0.000
+
+setp genhexkins.base.1.x  22.950
+setp genhexkins.base.1.y  13.250
+setp genhexkins.base.1.z   0.000
+
+setp genhexkins.base.2.x  22.950
+setp genhexkins.base.2.y  13.250
+setp genhexkins.base.2.z   0.000
+
+setp genhexkins.base.3.x   0.000
+setp genhexkins.base.3.y -26.500
+setp genhexkins.base.3.z   0.000
+
+setp genhexkins.base.4.x   0.000
+setp genhexkins.base.4.y -26.500
+setp genhexkins.base.4.z   0.000
+
+setp genhexkins.base.5.x -22.950
+setp genhexkins.base.5.y  13.250
+setp genhexkins.base.5.z   0.000
+
+# Platform joints positions in platform coordinates
+setp genhexkins.platform.0.x  -1.000
+setp genhexkins.platform.0.y  11.500
+setp genhexkins.platform.0.z   0.000
+
+setp genhexkins.platform.1.x   1.000
+setp genhexkins.platform.1.y  11.500
+setp genhexkins.platform.1.z   0.000
+
+setp genhexkins.platform.2.x  10.459
+setp genhexkins.platform.2.y  -4.884
+setp genhexkins.platform.2.z   0.000
+
+setp genhexkins.platform.3.x   9.459
+setp genhexkins.platform.3.y  -6.616
+setp genhexkins.platform.3.z   0.000
+
+setp genhexkins.platform.4.x  -9.459
+setp genhexkins.platform.4.y  -6.616
+setp genhexkins.platform.4.z   0.000
+
+setp genhexkins.platform.5.x -10.459
+setp genhexkins.platform.5.y  -4.884
+setp genhexkins.platform.5.z   0.000
+
+# Connect tool offset pin to motion
+net tool-offset genhexkins.tool-offset motion.tooloffset.z
+
+# Forward kinematics iterations control, uncomment to use
+# Normally not nesessary, use only if you know what you're doing
+
+# Minimum error value that ends iterations with found solution
+# setp genhexkins.convergence-criterion 1e-9
+
+# Limit of iterations, if exceeded iterations stop with no convergence
+# setp genhexkins.limit-iterations 120
+
+# Maximum error value, if exceeded iterations stop with no convergence
+# setp genhexkins.max-error 100.0

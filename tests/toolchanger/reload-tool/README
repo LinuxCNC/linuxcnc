@@ -1,0 +1,3 @@
+This test reproduces https://github.com/LinuxCNC/linuxcnc/issues/330.
+
+It tests the behavior for both random and non-random toolchanger machines.

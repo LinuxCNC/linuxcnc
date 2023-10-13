@@ -1,0 +1,2 @@
+#!/usr/bin/tclsh8.6
+source /home/user/linuxcnc/tcl/bin/halshow.tcl

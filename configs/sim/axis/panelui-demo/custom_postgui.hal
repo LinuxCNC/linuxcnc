@@ -1,0 +1,54 @@
+# Include your customized HAL commands here
+# The commands in this file are run after the AXIS GUI (including PyVCP panel) starts
+
+net spindle-cmd-rpm    => gladevcp.spindle-speed
+net spindle-at-speed => gladevcp.spindle-at-speed-led
+sets spindle-at-speed true
+
+
+
+#show pin panelui
+#show pin gladevcp
+
+# MPG jog rate selection
+net     mpg_large   panelui.mpg_large-state     gladevcp.select-high-light   
+net     mpg_med     panelui.mpg_med-state       gladevcp.select-med-light
+net     mpg_small   panelui.mpg_small-state     gladevcp.select-low-light
+
+# axis selection for MPG jogging
+net     select-x    panelui.select_x-state    gladevcp.select_x-light
+net     select-x    joint.0.jog-enable axis.x.jog-enable
+
+net     select-z    panelui.select_z    gladevcp.select_z-light
+net     select-z    joint.1.jog-enable  axis.z.jog-enable
+
+# connect pins for axis MPG jogging scale
+# note that z axis is scaled inversely so the turning direction is opposite
+net     mpg-counts  gladevcp.mpg
+net     mpg-counts  joint.0.jog-counts    joint.1.jog-counts
+net     mpg-counts  axis.x.jog-counts     axis.z.jog-counts
+net     mpg-scale-x  panelui.mpg_scale            joint.0.jog-scale axis.x.jog-scale
+net     mpg-scale-z  panelui.mpg_scale-not        joint.1.jog-scale axis.z.jog-scale
+
+#show pin sim-matrix
+
+# These are the connections for gladeVCP buttons to keycode converter component.
+# If using real hardware buttons and a MESA 7I73, one would skip these
+# and connect the 7I73 keyscan pin to the sampler component directly.
+net     sim-sel-z   sim-matrix-kb.0.button.c02.r04  gladevcp.select_z-button
+net     sim-sel-x   sim-matrix-kb.0.button.c02.r05  gladevcp.select_x-button
+
+net     sim-mpg-l   sim-matrix-kb.0.button.c03.r00  gladevcp.select-high-button
+net     sim-mpg-m   sim-matrix-kb.0.button.c02.r07  gladevcp.select-med-button
+net     sim-mpg-s   sim-matrix-kb.0.button.c02.r06  gladevcp.select-low-button
+
+net     sim-jog-x-pos   sim-matrix-kb.0.button.c02.r00  gladevcp.x_pos
+net     sim-jog-x-neg   sim-matrix-kb.0.button.c02.r02  gladevcp.x_neg
+net     sim-jog-z-pos   sim-matrix-kb.0.button.c02.r03  gladevcp.z_pos
+net     sim-jog-z-neg   sim-matrix-kb.0.button.c02.r01  gladevcp.z_neg
+
+net     sim-spindle-fwd   sim-matrix-kb.0.button.c03.r03  gladevcp.spindle_fwd
+net     sim-spindle-stop  sim-matrix-kb.0.button.c03.r01  gladevcp.spindle_stop
+net     sim-spindle-rev   sim-matrix-kb.0.button.c03.r02  gladevcp.spindle_rev
+
+net     sim-usr-msg       sim-matrix-kb.0.button.c05.r03  gladevcp.usr_msg

@@ -1,0 +1,185 @@
+# PID loop test HAL config file for servos
+#
+# Do not run this script while you are running emc!
+# Run it with:
+#    halrun -I motenc_pidtest.hal
+
+# first load the motenc driver
+loadrt hal_motenc
+# and create a 1mS thread
+loadrt threads name1=motenc.thread period1=1000000
+
+# then load the PID module, for three PID loops
+loadrt pid num_chan=3
+
+# and load the signal generator module
+loadrt siggen
+
+# hook functions to realtime thread
+addf motenc.0.encoder-read motenc.thread
+addf motenc.0.digital-in-read motenc.thread
+addf siggen.0.update motenc.thread
+addf pid.0.do-pid-calcs motenc.thread
+addf pid.1.do-pid-calcs motenc.thread
+addf pid.2.do-pid-calcs motenc.thread
+addf motenc.0.digital-out-write motenc.thread
+addf motenc.0.dac-write motenc.thread
+
+# create three position feedback signals
+
+# connect position feedback signals to encoders
+net Xpos-fb <= motenc.0.enc-00-position
+net Ypos-fb <= motenc.0.enc-01-position
+net Zpos-fb <= motenc.0.enc-02-position
+
+# set feedback scaling
+# this is just an example
+#   8192 counts/rev * 10 turns per inch = 81920 counts/in
+#
+setp motenc.0.enc-00-scale 81920
+setp motenc.0.enc-01-scale 81920
+setp motenc.0.enc-02-scale 81920
+
+# NOTE: you may want to comment out everything after here,
+# and run it... manually move the machine X axis by 1 inch
+# and verify that Xpos-fb changes by exactly 1 inch.  Then
+# do the same for Y and Z.  Change the scale factors above
+# as needed until it is right.  Once you know that the 
+# scaling is correct, uncomment the following stuff and
+# continue on.
+
+# connect position feedback to PID loop
+net Xpos-fb => pid.0.feedback
+net Ypos-fb => pid.1.feedback
+net Zpos-fb => pid.2.feedback
+
+# create PID to DAC output signals
+
+# connect output signals to DACs
+net Xoutput => motenc.0.dac-00-value
+net Youtput => motenc.0.dac-01-value
+net Zoutput => motenc.0.dac-02-value
+
+# set offset and scale so that +/-1.00 on output 
+# signals is +/-10V at the physical DAC pins
+setp motenc.0.dac-00-gain 10
+setp motenc.0.dac-01-gain 10
+setp motenc.0.dac-02-gain 10
+setp motenc.0.dac-00-offset 0
+setp motenc.0.dac-01-offset 0
+setp motenc.0.dac-02-offset 0
+
+# connect output signals to output of PID loops
+net Xoutput <= pid.0.output
+net Youtput <= pid.1.output
+net Zoutput <= pid.2.output
+
+# set PID loop output limits to +/-1.00
+setp pid.0.maxoutput 1
+setp pid.1.maxoutput 1
+setp pid.2.maxoutput 1
+
+# set PID loop gains
+# NOTE: eventually these will be non-zero values as
+# needed to tune the performance of each axis.  The
+# initial values shown here are extremely conservative
+# to prevent unexpected behavior.  After this file 
+# has been "executed" by halcmd, the gains can be
+# interactively adjusted using commands like
+# "halcmd setp pid.<channel>.Pgain <value>"
+# Once the axis has been tuned to your satisfaction, 
+# do "halcmd show param | grep pid" to get a listing 
+# of the tuning parameters, and enter those values here.
+
+setp pid.0.Pgain 0.01
+setp pid.0.Igain 0
+setp pid.0.Dgain 0
+setp pid.0.bias 0
+setp pid.0.FF0 0
+setp pid.0.FF1 0
+setp pid.0.FF2 0
+# deadband should be just over 1 count
+setp pid.0.deadband 0.000015
+
+setp pid.1.Pgain 0.01
+setp pid.1.Igain 0
+setp pid.1.Dgain 0
+setp pid.1.bias 0
+setp pid.1.FF0 0
+setp pid.1.FF1 0
+setp pid.1.FF2 0
+setp pid.1.deadband 0.000015
+
+setp pid.2.Pgain 0.01
+setp pid.2.Igain 0
+setp pid.2.Dgain 0
+setp pid.2.bias 0
+setp pid.2.FF0 0
+setp pid.2.FF1 0
+setp pid.2.FF2 0
+setp pid.2.deadband 0.000015
+
+# create three position command signals
+# eventually, these will come from EMC
+
+# connect position commands to PID input
+net Xpos-cmd => pid.0.command
+net Ypos-cmd => pid.1.command
+net Zpos-cmd => pid.2.command
+
+# connect the signal generator sine and cosine outputs
+# to X and Y position commands
+# this will make the machine move in a circle
+# Note that Z isn't connected to anything, so its position
+# command will be zero.
+# NOTE: once the PID loops are tuned, you might want to 
+# connect the position commands to the triangle or even
+# square wave outputs, to see how well the machine responds
+# to direction reversals (triangle) or step changes in 
+# position (square).  Note that step changes in position 
+# will in general run the motors full blast in an attempt
+# to get to the new position as quickly as possible.  
+# Proceed with caution, keep siggen.0.amplitude small 
+# until you know that the movement is stable, then increase
+# it in small increments only.
+net Xpos-cmd <= siggen.0.sine
+net Ypos-cmd <= siggen.0.cosine
+
+# set the siggen parameters for a 0.5" diameter circle, once every 10 seconds
+# once the PID loops are tuned, the size and/or speed can be increased
+setp siggen.0.frequency 0.1
+setp siggen.0.offset 0
+setp siggen.0.amplitude 0.25
+
+# create a bit signal to enable/disable the PID loops
+
+# connect the signal to all three PID blocks
+net pid-enable => pid.0.enable
+net pid-enable => pid.1.enable
+net pid-enable => pid.2.enable
+
+# you can either turn pid-enable on and off using the
+# "halcmd sets" command, or you can connect it to a 
+# digital input and turn it on and off with an external
+# switch
+# The line below sets the signal to 0 to ensure that the PID
+# loops are off until you explicitly turn them on.
+sets pid-enable 0
+
+# The line below connects the signal to a digital input.
+# Uncomment and change the input number if that's what you
+# want to do
+#linksp pid-enable <= motenc.0.in-00
+
+# load realtime portion of scope
+loadrt scope_rt
+# start up scope user interface
+loadusr halscope
+
+# start realtime execution
+start
+
+# end of halcmd file, at this point the motors are "live"
+# and if you ran this script with "halrun -I"
+# you can do tuning and other experimentation
+# to shut down and clean up, simply exit halcmd.

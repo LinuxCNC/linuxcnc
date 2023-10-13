@@ -1,0 +1,18 @@
+loadrt sampler depth=1000 cfg=fffffffffb
+
+net Xacc => sampler.0.pin.0
+net Yacc => sampler.0.pin.1
+net Zacc => sampler.0.pin.2
+net Xvel => sampler.0.pin.3
+net Yvel => sampler.0.pin.4
+net Zvel => sampler.0.pin.5
+net Xpos => sampler.0.pin.6
+net Ypos => sampler.0.pin.7
+net Zpos => sampler.0.pin.8
+
+net constraints-ok => sampler.0.pin.9
+
+net coord_mode <= motion.coord-mode => sampler.0.enable
+addf sampler.0 servo-thread
+
+loadusr halsampler -c 0 constraints.log

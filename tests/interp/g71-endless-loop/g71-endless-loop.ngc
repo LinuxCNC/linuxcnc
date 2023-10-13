@@ -1,0 +1,19 @@
+G21 G18 G54 (G21 metric, G54 coordinate system 1, G18 ZX plane, G54 coordinate system)
+G49 (G49 cancel tool length offset)
+G90 G92.1 (G90 abs dist mode, G92.1 Reset coord sys offset)
+G94 G64 p0.001 (G94 Feed Mode=Units per Minute, G64p Best Possible Speed p=Motion Blend Tolerance)
+G8 (Diameter Mode = 7, Radius Mode = 8)
+G91.1 (G91.1 = Relative Arc Offset Distance)
+
+O200 SUB
+;Change the next line from G01 X10 Z0 to G01 X5 Z0 and Axis works fine but this isn't the part profile I need.
+G01 X10 Z0
+G01 X10 Z-14
+G01 X3
+G01 X7 Z-22
+O200 ENDSUB
+
+F225
+G71.1 Q200 X15.0 Z0 D0.04 I0.5 R1
+G71.2 Q200 X15.0 Z0 D0.04 I0.5 R1
+M2

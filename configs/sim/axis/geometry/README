@@ -1,0 +1,14 @@
+xyzc.ini: [DISPLAY]GEOMETRY=!CXYZ
+
+The '!' specifies rotations respecting
+G5x,G92 offsets
+
+xyzc_origin.ini: [DISPLAY]GEOMETRY=CXYZ
+Show default behavior with
+rotations about machine origin
+
+
+demo file:
+[DISPLAY]OPEN_FILE=xyzc.ngc 
+demonstrates C rotations with and
+without G5x and G92 offsets

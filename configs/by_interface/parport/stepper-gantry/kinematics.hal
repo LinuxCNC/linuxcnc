@@ -1,0 +1,12 @@
+############################## Kinematics & Motion Controller ####################################
+# Kinematics
+loadrt [KINS]KINEMATICS
+
+# Settings for gantrykins
+setp gantrykins.joint-0 0
+setp gantrykins.joint-1 1
+setp gantrykins.joint-2 2
+setp gantrykins.joint-3 1
+
+# motion controller, get name and thread periods from ini file
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD

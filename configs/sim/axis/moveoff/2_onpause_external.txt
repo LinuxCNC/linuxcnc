@@ -1,0 +1,46 @@
+Moveoff demo
+
+Moveoff_gui options:
+
+  onpause  -- offsets when program paused
+  external -- external controls (simulated)
+
+Moveoff component installed and connected using:
+
+  [HAL]HALFILE = LIB:hookup_moveoff.tcl
+
+External controls enabled with connections in:
+
+  [HAL]HALFILE = LIB:moveoff_external.hal
+
+External controls simulated with sim_pin:
+
+  external_enable
+  external_backtrack_en
+  external_offset_0
+  external_offset_1
+  external_offset_2
+
+For additional info, see the manpages:
+
+   man sim_pin  ------ utility for setting pins
+   man moveoff  ------ moveoff component
+   man moveoff_gui --- moveoff sample gui
+
+----------------------------------------------------
+Demo usage:
+ 1) Start linuxcnc using the 2_onpause_external config.
+    (set all sim_pin buttons to Toggle mode):
+ 2) Set halscope to ROLL mode
+ 3) <F1>   (remove ESTOP)
+ 4) <F2>   (turn on machine)
+ 5) <HOME> (home all axes)
+ 6) <R>    (Run the program)
+ 7) <P>    (Pause the program)
+ 8) Enable offsets with the external_enable button
+ 9) Change the x,y,z offsets (exernal_offset_0,1,2)
+    and observe on halscope
+10) Remove offsets with the external_enable button
+    and allow program resumption.
+11) Repeat steps 6) thru 9) but alter waypoint
+    backtracking with the external_backtrack_en button.

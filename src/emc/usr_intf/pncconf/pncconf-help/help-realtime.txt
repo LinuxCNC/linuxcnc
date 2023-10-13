@@ -1,0 +1,26 @@
+HAL Component Page
+
+Use this page to load extra HAL components 
+    for custom HAL files
+
+    The first selection is components that pncconf
+        uses internally. You may configure pncconf to 
+        load extra instances of the components for
+        your custom HAL file. Select the number of
+        instances your custom file will need, pncconf
+        will add what it needs after them. Meaning
+        if you need 2 and pncconf needs 1 pncconf will 
+        load 3 instances and use the last one.
+
+Custom Component Commands:
+    This selection will allow you to load HAL 
+        components that pncconf does not use.
+        Add the loadrt or loadusr command, under the
+        heading 'loading command'
+        Add the addf command under the heading
+        'Thread command'. By adding these commands
+        to either the upper or lower boxes, you can
+        choose the thread speed.
+    The components will be added to the thread 
+        between reading of inputs and writing of 
+        outputs, in the order you write them.

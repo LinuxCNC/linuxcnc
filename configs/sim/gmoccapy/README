@@ -1,0 +1,13 @@
+A touch screen user interface for mills, lathes and plasma cutters.
+Based of the design of moccagui, a GUI coded in FreePascal.
+GMOCCAPY is using Python instead.
+
+GMOCCAPY is designed to bring the feel of industrial controls to LinuxCNC users,
+most controls can be used with a touch screen and also most are accessible through
+hal pins, so real hardware can be used.
+
+Feel free to send any comment to
+
+gmoccapy@web.de
+
+

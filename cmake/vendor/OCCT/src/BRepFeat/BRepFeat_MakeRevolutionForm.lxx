@@ -1,0 +1,54 @@
+// Created on: 1997-10-17
+// Created by: Olga KOULECHOVA
+// Copyright (c) 1997-1999 Matra Datavision
+// Copyright (c) 1999-2014 OPEN CASCADE SAS
+//
+// This file is part of Open CASCADE Technology software library.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License version 2.1 as published
+// by the Free Software Foundation, with special exception defined in the file
+// OCCT_LGPL_EXCEPTION.txt. Consult the file LICENSE_LGPL_21.txt included in OCCT
+// distribution for complete text of the license and disclaimer of any warranty.
+//
+// Alternatively, this file may be used under the terms of Open CASCADE
+// commercial license or contractual agreement.
+
+//=======================================================================
+//function : BRepFeat_MakeLinearForm
+//purpose  : 
+//=======================================================================
+
+inline BRepFeat_MakeRevolutionForm::BRepFeat_MakeRevolutionForm ()
+: myHeight1(0.0),
+  myHeight2(0.0),
+  mySliding(Standard_False),
+  myBnd(0.0),
+  myTol(0.0),
+  myAngle1(RealLast()),
+  myAngle2(RealLast())
+{
+}
+
+
+//=======================================================================
+//function : BRepFeat_MakePrism
+//purpose  : 
+//=======================================================================
+
+inline BRepFeat_MakeRevolutionForm::BRepFeat_MakeRevolutionForm (const TopoDS_Shape& Sbase,
+							 const TopoDS_Wire& W,
+							 const Handle(Geom_Plane)& P,
+							 const gp_Ax1& Axis,
+							 const Standard_Real H1,
+							 const Standard_Real H2,
+							 const Standard_Integer Fuse,
+							 Standard_Boolean& Sliding)
+					       
+{
+  Init(Sbase, W, P, Axis, H1, H2, Fuse, Sliding);
+}
+
+
+
+

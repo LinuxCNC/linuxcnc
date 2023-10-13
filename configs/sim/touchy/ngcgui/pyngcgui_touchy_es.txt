@@ -1,0 +1,7 @@
+pyngcgui_touchy
+
+Demostrar aplicaciones gladevcp:
+   pyngcgui      -- aplicación de subrutina
+   gremlin_view  -- gremlin con algunos botones
+
+

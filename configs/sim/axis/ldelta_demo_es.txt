@@ -1,0 +1,10 @@
+ldelta_demo
+
+Cinematica delta lineal (Rostock)
+
+La demo incluye popups simples para simular
+jogging usando pines HAL:
+
+Jogging articular (FREE)  (volante 012 y halui)
+
+Jogging de Ejes (TELEOP) (volante xyz y halui)

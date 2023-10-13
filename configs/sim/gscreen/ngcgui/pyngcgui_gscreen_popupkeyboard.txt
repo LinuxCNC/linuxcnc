@@ -1,0 +1,6 @@
+Demonstrates gladevcp apps in gscreen tabs:
+   
+ pyngcgui ------ subroutine utility 
+ gremlin_view -- gremlin with some buttons
+
+with a popupkeyboard for touchscreen use

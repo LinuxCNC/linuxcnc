@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<glade-catalog name="gtksourceview" library="gtksourceview-2.0" depends="gtk+">
+  <glade-widget-classes>
+    <glade-widget-class name="GtkSourceView" title="GtkSourceView" generic-name="gtksourceview">
+      <properties>
+        <property id="auto-indent" common="True" default="True" />
+        <property id="highlight-current-line" common="False" default="False" />
+        <property id="indent-on-tab" common="False" default="False" />
+        <property id="insert-spaces-instead-of-tabs" common="False" default="False" />
+        <property id="right-margin-position" common="False" default="80" />
+        <property id="show-line-marks" common="False" default="False" />
+        <property id="show-line-numbers" common="False" default="False" />
+        <property id="show-right-margin" common="False" default="False" />
+        <property id="smart-home-end" common="True" default="Disabled">
+          <displayable-values>
+            <value id="GTK_SOURCE_SMART_HOME_END_DISABLED" name="Disabled" />
+            <value id="GTK_SOURCE_SMART_HOME_END_BEFORE" name="Before" />
+           <value id="GTK_SOURCE_SMART_HOME_END_AFTER" name="After" />
+            <value id="GTK_SOURCE_SMART_HOME_END_ALWAYS" name="Always" />
+          </displayable-values>
+        </property>
+        <property id="tab-width" common="False" default="4" />
+      </properties>
+    </glade-widget-class>
+  </glade-widget-classes>
+
+  <glade-widget-group name="GtkSourceView" title="GtkSourceView">
+    <glade-widget-class-ref name="GtkSourceView" />
+  </glade-widget-group>
+</glade-catalog>

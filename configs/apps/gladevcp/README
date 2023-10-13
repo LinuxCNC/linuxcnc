@@ -1,0 +1,16 @@
+gladevcp demo apps:
+
+Apps:
+  glade-manual
+  gladevcp-test
+
+Directories:
+  animated-backdrop
+  by-widget
+  class-callback
+  colored-label
+  complex
+  helloWorld
+  mdi-command-examples
+  simple-callback
+  templates

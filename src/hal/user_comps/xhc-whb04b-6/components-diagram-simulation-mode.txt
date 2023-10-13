@@ -1,0 +1,22 @@
+@startuml
+
+agent WHB04B_6
+
+frame Whb_Component {
+ component WhbComponent
+
+
+   interface inputs
+   interface outputs
+
+
+ WhbComponent <-- inputs : r
+ WhbComponent --> outputs : w
+
+
+ WHB04B_6 <-->WhbComponent: USB i/o
+}
+
+caption Fig2: Components diagram in simulation mode usecase.
+
+@enduml

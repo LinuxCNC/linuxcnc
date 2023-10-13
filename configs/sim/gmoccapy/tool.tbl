@@ -1,0 +1,18 @@
+T1 P101 X0.0 Y0.0 Z-12.7129 A0.0 B0.0 C0.0 U0.0 V0.0 W0.0 D1.0 I0.0 J0.0 Q0.0 ;3/4 roughing 
+T2 P2 X0.0 Y0.0 Z-0.01 A0.0 B0.0 C0.0 U0.0 V0.0 W0.0 D2.0 I0.0 J0.0 Q0.0 ;3/4 2 flute 
+T3 P3 X0.0 Y0.0 Z33.3877 A0.0 B0.0 C0.0 U0.0 V0.0 W0.0 D3.0 I0.0 J0.0 Q0.0 ;2-1/4 face mill 
+T4 P4 X0.0 Y0.0 Z-10.1737 A0.0 B0.0 C0.0 U0.0 V0.0 W0.0 D4.0 I0.0 J0.0 Q0.0 ;3/8 4fl carbide 
+T5 P5 X0.0 Y0.0 Z-1.15 A0.0 B0.0 C0.0 U0.0 V0.0 W0.0 D5.0 I0.0 J0.0 Q0.0 ;long ER40 collet chuck 
+T6 P6 X0.0 Y0.0 Z-5.1252 A0.0 B0.0 C0.0 U0.0 V0.0 W0.0 D7.0 I0.0 J0.0 Q0.0 ;tool 6 
+T7 P7 X0.0 Y0.0 Z-1.07 A0.0 B0.0 C0.0 U0.0 V0.0 W0.0 D7.0 I0.0 J0.0 Q0.0 ;big albrecht drill chuck .25 drill 
+T8 P8 X0.0 Y0.0 Z-1.16 A0.0 B0.0 C0.0 U0.0 V0.0 W0.0 D8.0 I0.0 J0.0 Q0.0 ;V engraving tool 
+T9 P9 X0.0 Y0.0 Z-1.14 A0.0 B0.0 C0.0 U0.0 V0.0 W0.0 D9.0 I0.0 J0.0 Q0.0 ;90 deg 3/8 mill-drill 
+T10 P10 X0.0 Y0.0 Z-1.13 A0.0 B0.0 C0.0 U0.0 V0.0 W0.0 D10.0 I0.0 J0.0 Q0.0 ;other big jacobs chuck 
+T11 P11 X0.0 Y0.0 Z-0.09 A0.0 B0.0 C0.0 U0.0 V0.0 W0.0 D11.0 I0.0 J0.0 Q0.0 ;1/8 2fl end mill 
+T12 P12 X0.0 Y0.0 Z-1.12 A0.0 B0.0 C0.0 U0.0 V0.0 W0.0 D12.0 I0.0 J0.0 Q0.0 ;1/2 2fl long em 
+T13 P13 X0.0 Y0.0 Z-0.02 A0.0 B0.0 C0.0 U0.0 V0.0 W0.0 D13.0 I0.0 J0.0 Q0.0 ;Tool 13 
+T14 P14 X0.0 Y0.0 Z-0.04 A0.0 B0.0 C0.0 U0.0 V0.0 W0.0 D14.0 I0.0 J0.0 Q0.0 ;Tool 14 
+T15 P15 X0.0 Y0.0 Z-0.1 A0.0 B0.0 C0.0 U0.0 V0.0 W0.0 D15.0 I0.0 J0.0 Q0.0 ;little albrecht chuck spot drill 
+T16 P16 X0.0 Y0.0 Z-0.03 A0.0 B0.0 C0.0 U0.0 V0.0 W0.0 D16.0 I0.0 J0.0 Q0.0 ;little jacobs chuck 
+T18 P1 X0.0 Y0.0 Z-1.18 A0.0 B0.0 C0.0 U0.0 V0.0 W0.0 D18.0 I0.0 J0.0 Q0.0 ;big jacobs chuck 
+

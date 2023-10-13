@@ -1,0 +1,17 @@
+moveoff no_gui
+
+Esta demostración no proporciona soporte gui, pero muestra varias utilidades de uso general para mostrar el comportamiento de un solo eje (2 => z).
+
+La utilidad sim_pin se usa para establecer valores de pin que normalmente se conectarían a una gui o se establecerían en valores fijos de acuerdo con la configuración de archivos:
+
+La utilidad sim_pin se usa para establecer pines para controlar el componente.
+
+Un widget de la aplicación halshow muestra un panel de observación para los pines asociados con el desplazamiento del eje z. Vea el archivo moveoff.hal para las conexiones.
+
+Se inicia una sesión halscope (seleccione 'Roll' para comenzar) para mostrar el comportamiento de las entradas y salidas importantes de moveoff
+
+Estas utilidades pueden mostrarse o deshabilitarse usando la configuración inifile:
+ [APPLICATIONS]APP = nombre_programa
+
+Nota: Esta es una implementación solo de Hal y las posiciones de offset NO se muestran en la vista previa de la gui Axis.
+

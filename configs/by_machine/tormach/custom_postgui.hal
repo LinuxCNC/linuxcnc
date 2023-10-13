@@ -1,0 +1,9 @@
+# Include your customized HAL commands here
+# The commands in this file are run after the AXIS GUI (including PyVCP panel)
+# starts
+net togout toggle.0.out not.0.in gearchange.0.sel pyvcp.highgear-led
+net logear not.0.out pyvcp.lowgear-led
+net gearswap toggle.0.in pyvcp.gearchange-button
+net spindle-speed-raw pyvcp.spindle-speed-meter
+net spindle-speed-raw pyvcp.spindle-speed-number
+

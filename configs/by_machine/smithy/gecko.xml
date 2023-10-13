@@ -1,0 +1,12 @@
+<pyvcp>
+    <label>
+        <text>"RPM:"</text>
+    </label>
+    <number>
+        <halpin>"rpm"</halpin>
+        <font>("Helvetica",12)</font>
+        <format>"4d"</format>
+        <width>4</width>
+    </number>
+</pyvcp>
+

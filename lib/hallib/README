@@ -1,0 +1,70 @@
+This directory contains halfiles (*.hal and *.tcl) that are available
+using the LinuxCNC halfile search path or by an explicit directive.
+
+The HALLIB_PATH is '.:HALLIB_DIR'
+   The '.' specifies the directory containing the INI file.
+   HALIB_DIR specifies this directory.
+
+The explicit directive uses a prefix (LIB:) to identify halfiles:
+  [HAL]
+  HALFILE = LIB:filename.[hal|tcl]
+
+The LinuxCNC startup script (linuxcnc) finds each halfile using the
+HALLIB_PATH unless the explicit directive is used.
+
+Also included in this directory are files associated with included
+system halfiles.  For example, the button layout files
+(xhc-hb04-layout*.cfg) that are used with the halfile xhc-hb04.tcl.
+------------------------------------------------------------------------
+
+
+Hal files (*.hal)          Notes
+-----------------------    ---------------------------------------------
+axis_manualtoolchange.hal  setup for using hal_manualtoolchange
+                             (for axis or other guis)
+core_sim.hal               xyz simulator config
+core_servo.hal             xyz servo (pid) config
+core_sim9.hal              9 axis (xyzabcuvw) simulation config
+core_stepper.hal           xyz stepper config
+gantrysim.hal              gantrykins config, 4 joints: X Y Y Z
+lathe.hal                  simulate spindle with encoder,sim_encoder
+locking_indexer.hal        simulate locking rotary using timedelay comp
+wheeljogpins.tcl           enable wheel jog pins for joints & axes
+moveoff_external.hal       Simulate external control connections for
+                             a moveoff component
+servo_sim.hal              simulate servo (pid) xyz using lowpass comp
+sim_spindle_encoder.hal    simulate spindle with lowpass filter
+simulated-gantry-home.hal  simulate gantry home switches (4 joints)
+simulated_home.hal         simulate xyz home switches
+simulated_limits.hal       simulate xyz limit switches
+tripodsim.hal              simulated tripodkins system
+
+Haltcl Files (*.tcl)       Notes
+-----------------------    ---------------------------------------------
+basic_sim.tcl              set up a sim config (arbitrary no. of axes)
+var_show.tcl               show INI variables and context
+hookup_moveoff.tcl         make connections for a moveoff component
+plasmac.tcl                common connections for the plasmac component
+
+xhc-hb04.tcl               Configuration builder for xhc-hb04 pendant
+xhc-hb04-layout1.cfg         button layout 1 for xhc-hb04.tcl
+xhc-hb04-layout2.cfg         button layout 2 for xhc-hb04.tcl
+
+halcheck.tcl               Report: 1) functions without addf
+                                   2) signals with no inputs
+                                   3) signals with no output
+
+Haltcl libs (*_lib.tcl)    Notes
+-----------------------    ---------------------------------------------
+sim_lib.tcl                simulator config procedures
+                             procs:
+                               core_sim       (arbitrary axes)
+                               make-ddts      (arbitrary axes)
+                               simulated_home (arbitrary axes)
+                               use_hal_manualtoolchange
+                               sim_spindle
+util_lib.tcl               utility procedures
+                             procs:
+                               show_context (calling parms)
+                               show_ini     (INI file settings)
+                               show_env     (environmental vars)

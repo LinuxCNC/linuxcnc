@@ -1,0 +1,5 @@
+# help.hal: for use with halrun.demo
+# execute help statement to show commands
+# before going interactive
+
+help

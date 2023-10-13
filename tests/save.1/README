@@ -1,0 +1,2 @@
+Checks that 'halcmd save' produces the expected output, including
+items created with 'newinst'

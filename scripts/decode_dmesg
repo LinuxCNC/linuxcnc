@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+"""\
+This script decodes hex floats (e.g., in dmesg) into real floats.  In the
+future maybe it will do other emc2-specific dmesg decoding.
+
+Usage:
+	dmesg | decode_dmesg
+    cat /var/log/kern.log | decode_dmesg > output.txt
+"""
+
+import re
+import sys
+
+def repl(m):
+    s, w, f, e = m.group("s", "w", "f", "e")
+    f = f or "0"
+    v = long(w, 16) + long(f, 16) * (16 ** -len(f))
+    try:
+        v *= 2.0**long(e)
+    except OverflowError:
+        v = float("inf")
+    if s: v = -v
+    return "%g" % v
+
+pat = re.compile('(?i)(?P<s>-?)0[xX]'
+        '(?P<w>[0-9A-Fa-f])'
+        '(\\.(?P<f>[0-9A-Fa-f]*))?[Pp](?P<e>[+-]?[0-9]+)')
+
+for line in sys.stdin:
+    line = pat.sub(repl, line)
+    sys.stdout.write(line)
+
+#    Copyright 2010 Jeff Epler <jepler@unpythonic.net>
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.

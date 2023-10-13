@@ -1,0 +1,49 @@
+;drilling
+
+; Use T = 0 for tailstock drilling, then this just sets speed
+
+O<drilling> SUB
+
+G18 ; XZ Plane
+G21 ; Metric Units
+G90 ; Absolute Distance
+G91.1 ; but not for arcs
+
+#10 = [#2 * 1000 / [ #1 * 3.141592]]
+(debug, #10)
+O90 IF [#7 GT 0.5]
+    M8
+O90 ENDIF
+
+O100 IF [#6 LT 0.5]
+    G97 M3 S#10
+    O<drilling> RETURN
+O100 ENDIF
+
+M6 T#6 G43
+G0 X0
+
+O83 IF [#5 GT 0] ; Pecking
+    G17
+    G95 F#3 ; Feed-Per-Rev Mode
+    G97 M3 S#10
+    G98
+    G83 R#<_z> Q#5 Z#4
+    M5 M9 G18
+    O<drilling> RETURN
+O83 ENDIF
+
+O82 IF [1]; not pecking
+    G17
+    G95 F#3 ; Feed-Per-Rev Mode
+    G97 M3 S#10
+    G98
+    G82 R#<_z> P0.5 Z#4
+    M5 M9 G18
+O82 ENDIF
+
+O<drilling> ENDSUB
+
+O<drilling> call [10] [100] [0.03] [0] [2] [0] [1]
+
+M2

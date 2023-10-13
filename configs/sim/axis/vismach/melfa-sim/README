@@ -1,0 +1,3 @@
+This is modelled on a Mitsubishi RV6-SDL serial manipulator. A tutorial on how the required modified-DH-parameters were derived for this robot is available in the linuxcnc documentation.
+
+Note that due to "gimbal lock" it is normal that the inverse kinematic fails when moving near such a singular point while in cartesian mode (ie genserkins). To move across such points it is necessary to switch from cartesian to joint (trivial) kinematics.

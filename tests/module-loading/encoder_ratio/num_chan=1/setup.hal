@@ -1,0 +1,4 @@
+
+loadrt encoder_ratio num_chan=1
+show pin
+

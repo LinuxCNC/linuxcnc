@@ -1,0 +1,104 @@
+loadrt [KINS]KINEMATICS
+
+# core HAL config file for steppers
+
+# first load the stepper module
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD
+
+loadrt stepgen step_type=0,0,0,0,0,0
+
+# hook its functions to realtime threads
+addf stepgen.capture-position servo-thread
+addf stepgen.update-freq servo-thread
+addf stepgen.make-pulses base-thread 
+
+#add motion controller to the threads
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+
+
+# connect position commands from motion module to step generator
+net Xpos-cmd <= joint.0.motor-pos-cmd
+net Xpos-cmd => stepgen.0.position-cmd
+net Ypos-cmd <= joint.1.motor-pos-cmd
+net Ypos-cmd => stepgen.1.position-cmd
+net Zpos-cmd <= joint.2.motor-pos-cmd
+net Zpos-cmd => stepgen.2.position-cmd
+net Apos-cmd <= joint.3.motor-pos-cmd
+net Apos-cmd => stepgen.3.position-cmd
+net Bpos-cmd <= joint.4.motor-pos-cmd
+net Bpos-cmd => stepgen.4.position-cmd
+net Cpos-cmd <= joint.5.motor-pos-cmd
+net Cpos-cmd => stepgen.5.position-cmd
+
+# connect position feedback from step generators
+# to motion module
+net Xpos-fb <= stepgen.0.position-fb
+net Xpos-fb => joint.0.motor-pos-fb
+net Ypos-fb <= stepgen.1.position-fb
+net Ypos-fb => joint.1.motor-pos-fb
+net Zpos-fb <= stepgen.2.position-fb
+net Zpos-fb => joint.2.motor-pos-fb
+net Apos-fb <= stepgen.3.position-fb
+net Apos-fb => joint.3.motor-pos-fb
+net Bpos-fb <= stepgen.4.position-fb
+net Bpos-fb => joint.4.motor-pos-fb
+net Cpos-fb <= stepgen.5.position-fb
+net Cpos-fb => joint.5.motor-pos-fb
+
+# connect enable signals for step generators
+net Xen <= joint.0.amp-enable-out
+net Xen => stepgen.0.enable
+net Yen <= joint.1.amp-enable-out
+net Yen => stepgen.1.enable
+net Zen <= joint.2.amp-enable-out
+net Zen => stepgen.2.enable
+net Aen <= joint.3.amp-enable-out
+net Aen => stepgen.3.enable
+net Ben <= joint.4.amp-enable-out
+net Ben => stepgen.4.enable
+net Cen <= joint.5.amp-enable-out
+net Cen => stepgen.5.enable
+
+
+# connect signals to step pulse generator outputs
+net Xstep stepgen.0.step
+net Xdir stepgen.0.dir
+net Ystep stepgen.1.step
+net Ydir stepgen.1.dir
+net Zstep stepgen.2.step
+net Zdir stepgen.2.dir
+net Astep stepgen.3.step
+net Adir stepgen.3.dir
+net Bstep stepgen.4.step
+net Bdir stepgen.4.dir
+net Cstep stepgen.5.step
+net Cdir stepgen.5.dir
+
+# set stepgen module scaling - get values from ini file
+setp stepgen.0.position-scale [JOINT_0]INPUT_SCALE
+setp stepgen.1.position-scale [JOINT_1]INPUT_SCALE
+setp stepgen.2.position-scale [JOINT_2]INPUT_SCALE
+setp stepgen.3.position-scale [JOINT_3]INPUT_SCALE
+setp stepgen.4.position-scale [JOINT_4]INPUT_SCALE
+setp stepgen.5.position-scale [JOINT_5]INPUT_SCALE
+
+# set stepgen module velocity limits - get values from ini file
+setp stepgen.0.maxvel [JOINT_0]STEPGEN_MAXVEL
+setp stepgen.1.maxvel [JOINT_1]STEPGEN_MAXVEL
+setp stepgen.2.maxvel [JOINT_2]STEPGEN_MAXVEL
+setp stepgen.3.maxvel [JOINT_3]STEPGEN_MAXVEL
+setp stepgen.4.maxvel [JOINT_4]STEPGEN_MAXVEL
+setp stepgen.5.maxvel [JOINT_5]STEPGEN_MAXVEL
+
+# set stepgen module accel limits - get values from ini file
+setp stepgen.0.maxaccel [JOINT_0]STEPGEN_MAXACCEL
+setp stepgen.1.maxaccel [JOINT_1]STEPGEN_MAXACCEL
+setp stepgen.2.maxaccel [JOINT_2]STEPGEN_MAXACCEL
+setp stepgen.3.maxaccel [JOINT_3]STEPGEN_MAXACCEL
+setp stepgen.4.maxaccel [JOINT_4]STEPGEN_MAXACCEL
+setp stepgen.5.maxaccel [JOINT_5]STEPGEN_MAXACCEL
+
+# load realtime portion of scope, just to have it handy
+loadrt scope_rt
+

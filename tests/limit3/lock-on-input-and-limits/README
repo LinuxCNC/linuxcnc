@@ -1,0 +1,4 @@
+This test runs a triangle waveform clipped by max/min limits.
+
+This is an idealized case that will show weaknesses in locking onto
+the input and limits.

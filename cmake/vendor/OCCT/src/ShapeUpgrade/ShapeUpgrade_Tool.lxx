@@ -1,0 +1,115 @@
+// Created on: 1999-08-31
+// Created by: Pavel DURANDIN
+// Copyright (c) 1999-1999 Matra Datavision
+// Copyright (c) 1999-2014 OPEN CASCADE SAS
+//
+// This file is part of Open CASCADE Technology software library.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License version 2.1 as published
+// by the Free Software Foundation, with special exception defined in the file
+// OCCT_LGPL_EXCEPTION.txt. Consult the file LICENSE_LGPL_21.txt included in OCCT
+// distribution for complete text of the license and disclaimer of any warranty.
+//
+// Alternatively, this file may be used under the terms of Open CASCADE
+// commercial license or contractual agreement.
+
+//=======================================================================
+//function : SetContext
+//purpose  : 
+//=======================================================================
+
+inline void ShapeUpgrade_Tool::SetContext (const Handle(ShapeBuild_ReShape)& context) 
+{
+  myContext = context;
+}
+
+
+//=======================================================================
+//function : Context
+//purpose  : 
+//=======================================================================
+
+inline Handle(ShapeBuild_ReShape) ShapeUpgrade_Tool::Context() const
+{
+  return myContext;
+}
+
+
+//=======================================================================
+//function : SetPrecision
+//purpose  : 
+//=======================================================================
+
+inline void ShapeUpgrade_Tool::SetPrecision (const Standard_Real preci) 
+{
+  myPrecision = preci;
+  if(myMaxTol < myPrecision) myMaxTol = myPrecision;
+  if(myMinTol > myPrecision) myMinTol = myPrecision;
+}
+
+
+//=======================================================================
+//function : Precision
+//purpose  : 
+//=======================================================================
+
+inline Standard_Real ShapeUpgrade_Tool::Precision() const
+{
+  return myPrecision;
+}
+
+
+//=======================================================================
+//function : SetMinTolerance
+//purpose  : 
+//=======================================================================
+
+inline void ShapeUpgrade_Tool::SetMinTolerance (const Standard_Real mintol) 
+{
+  myMinTol = mintol;
+}
+
+
+//=======================================================================
+//function : MinTolerance
+//purpose  : 
+//=======================================================================
+
+inline Standard_Real ShapeUpgrade_Tool::MinTolerance() const
+{
+  return myMinTol;
+}
+
+
+//=======================================================================
+//function : SetMaxTolerance
+//purpose  : 
+//=======================================================================
+
+inline void ShapeUpgrade_Tool::SetMaxTolerance (const Standard_Real maxtol) 
+{
+  myMaxTol = maxtol;
+}
+
+
+//=======================================================================
+//function : MaxTolerance
+//purpose  : 
+//=======================================================================
+
+inline Standard_Real ShapeUpgrade_Tool::MaxTolerance() const
+{
+  return myMaxTol;
+}
+
+//=======================================================================
+//function : LimitTolerance
+//purpose  : 
+//=======================================================================
+
+inline Standard_Real ShapeUpgrade_Tool::LimitTolerance(const Standard_Real toler) const
+{
+  //only maximal restriction implemented.
+  return Min(myMaxTol,toler);
+}

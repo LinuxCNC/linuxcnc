@@ -1,0 +1,122 @@
+// Copyright (c) 1998-1999 Matra Datavision
+// Copyright (c) 1999-2014 OPEN CASCADE SAS
+//
+// This file is part of Open CASCADE Technology software library.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License version 2.1 as published
+// by the Free Software Foundation, with special exception defined in the file
+// OCCT_LGPL_EXCEPTION.txt. Consult the file LICENSE_LGPL_21.txt included in OCCT
+// distribution for complete text of the license and disclaimer of any warranty.
+//
+// Alternatively, this file may be used under the terms of Open CASCADE
+// commercial license or contractual agreement.
+
+#include <Standard_OutOfRange.hxx>
+#include <Standard_CString.hxx>
+
+// definition global methods for using in NCollection
+
+//! Computes a hash code for the given ASCII string, in the range [1, theUpperBound]
+//! @param theAsciiString the ASCII string which hash code is to be computed
+//! @param theUpperBound the upper bound of the range a computing hash code must be within
+//! @return a computed hash code, in the range [1, theUpperBound]
+inline Standard_Integer HashCode (const TCollection_AsciiString& theAsciiString, const Standard_Integer theUpperBound)
+{
+  return TCollection_AsciiString::HashCode (theAsciiString, theUpperBound);
+}
+
+
+//------------------------------------------------------------------------
+//  IsEqual
+//------------------------------------------------------------------------
+inline Standard_Boolean IsEqual(const TCollection_AsciiString& string1,
+						  const TCollection_AsciiString& string2)
+{
+  return TCollection_AsciiString::IsEqual(string1,string2);
+}
+
+
+
+// ----------------------------------------------------------------------------
+// ToCString
+// ----------------------------------------------------------------------------
+inline Standard_CString TCollection_AsciiString::ToCString()const
+{
+  return mystring;
+}
+
+// ----------------------------------------------------------------------------
+inline Standard_Integer TCollection_AsciiString::Length() const
+{
+ return mylength;
+}
+
+inline TCollection_AsciiString TCollection_AsciiString::Cat(const TCollection_AsciiString& other) const
+{
+  return TCollection_AsciiString( *this , other ) ;
+}
+
+inline TCollection_AsciiString TCollection_AsciiString::Cat(const Standard_CString other) const 
+{
+ return TCollection_AsciiString( *this , other ) ;
+}
+
+inline TCollection_AsciiString TCollection_AsciiString::Cat(const Standard_Character other) const 
+{
+ return TCollection_AsciiString( *this , other ) ;
+}
+
+inline TCollection_AsciiString TCollection_AsciiString::Cat(const Standard_Integer other) const 
+{
+
+ return TCollection_AsciiString( *this , TCollection_AsciiString(other) ) ;
+}
+
+inline TCollection_AsciiString TCollection_AsciiString::Cat(const Standard_Real other) const 
+{
+
+ return TCollection_AsciiString( *this , TCollection_AsciiString(other) ) ;
+}
+
+//============================================================================
+// function : HashCode
+// purpose  :
+//============================================================================
+inline Standard_Integer TCollection_AsciiString::HashCode (const TCollection_AsciiString& theAsciiString,
+                                                           const Standard_Integer         theUpperBound)
+{
+  return ::HashCode (theAsciiString.ToCString(), theAsciiString.Length(), theUpperBound);
+}
+
+
+//------------------------------------------------------------------------
+//  IsEqual
+//------------------------------------------------------------------------
+inline Standard_Boolean TCollection_AsciiString::IsEqual(const TCollection_AsciiString& string1,
+						  const TCollection_AsciiString& string2)
+{
+  return string1.IsEqual(string2);
+}
+
+//------------------------------------------------------------------------
+//  IsEqual
+//------------------------------------------------------------------------
+inline Standard_Boolean TCollection_AsciiString::IsEqual(const TCollection_AsciiString& string1,
+						  const Standard_CString string2)
+{
+  return string1.IsEqual( string2 );
+}
+
+// ----------------------------------------------------------------------------
+// SubString
+// ----------------------------------------------------------------------------
+inline TCollection_AsciiString TCollection_AsciiString::SubString(const Standard_Integer FromIndex,
+							   const Standard_Integer ToIndex) const
+{
+  // note the we are doing here weird casts just to suppress annoying and meaningless warning -Wstrict-overflow
+  Standard_OutOfRange_Always_Raise_if(FromIndex <= 0 || ToIndex <= 0 || (unsigned int)ToIndex > (unsigned int)mylength || (unsigned int)FromIndex > (unsigned int)ToIndex,
+                                      "TCollection_AsciiString::SubString() out of range");
+  return TCollection_AsciiString( &mystring [ FromIndex - 1 ] ,
+                                  ToIndex - FromIndex + 1 ) ;
+}

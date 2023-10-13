@@ -1,0 +1,35 @@
+########################################################################
+# Entry
+########################################################################
+
+style "entry"
+{
+	GtkWidget::interior_focus = 0
+  	GtkEntry::inner-border = {1, 1, 1, 1}
+	
+	engine "pixmap"
+	{
+### Entry ###
+		image
+		{
+			function = SHADOW
+			detail = "entry"
+			file = "entry/entry.png"
+			border = {2, 2, 2, 2}
+			stretch	= TRUE
+		}
+		
+### Focus ###
+		image
+    	{
+			function = FOCUS
+			detail = "entry"
+			file = "entry/entry-active.png"
+			border = {2, 2, 2, 2}
+			stretch	= TRUE
+    	}
+	}
+}
+
+class "GtkEntry*" style "entry"
+

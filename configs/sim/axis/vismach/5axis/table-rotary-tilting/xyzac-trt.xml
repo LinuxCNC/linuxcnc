@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+
+  <vbox>
+    <relief>"ridge"</relief>
+    <bd>5</bd>
+    <label>
+      <text>"SWITCHKINS"</text>
+      <relief>RIDGE</relief>
+      <bd>3</bd>
+    </label>
+    <multilabel>
+      <legends>["0:IDENTITY", "1: XYZAC  ", "2: USERK  "]</legends>
+      <font>("Helvetica",16)</font>
+      <bg>"black"</bg>
+      <fg>"yellow"</fg>
+    </multilabel>
+    <button>
+      <halpin>"type0-button"</halpin>
+      <text>"IDENTITY"</text>
+      <bd>3</bd>
+    </button>
+    <button>
+      <halpin>"type1-button"</halpin>
+      <text>"TCP:XYZAC"</text>
+      <bd>3</bd>
+    </button>
+    <button>
+      <halpin>"type2-button"</halpin>
+      <text>"userk  "</text>
+      <bd>3</bd>
+    </button>
+  </vbox>
+
+  <vbox>
+    <relief>"ridge"</relief>
+    <bd>5</bd>
+    <button>
+      <halpin>"vismach-clear"</halpin>
+      <text>"vismach-clear"</text>
+      <bd>3</bd>
+    </button>
+  </vbox>
+
+</pyvcp>

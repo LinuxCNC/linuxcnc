@@ -1,0 +1,23 @@
+This program creates a gcode file that can be loaded into linuxnc to run a hole circle operation.
+
+Validate Inputs
+    - checks that there are no blank entries.
+    - checks that spindle speed is greater than 0
+    - checks that circle radius is greater than 0
+    - checks that first hole angle is less than 360
+    - checks that Z travel height is greater than 0
+    - checks that hole start height is greater than 0
+    - checks that drill feedrate is greater than 0
+
+Create Program
+    - checks for valid input fields
+    - if MM button is checked, the gcode program will be run in G21 mode, otherwise G20 mode
+    - if a red X remains in the display, the program will not be created
+    - if a program is successfully created, it can be saved to a user selectable location
+
+The COMMENT field is simply a text line that will be inserted as a comment at the top of the gcode file.
+The machine should be X and Y zeroed at the center of the desired hole circle.
+The Z zero should be set to the top of the workpiece.
+The diagram on the right side shows a preview of the hole positions to be drilled.
+
+**NB** It is up to the user to ensure that all entered parameters are compatible with the machine settings that the program will run on.

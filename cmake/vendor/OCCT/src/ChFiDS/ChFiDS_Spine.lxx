@@ -1,0 +1,216 @@
+// Created on: 1993-11-18
+// Created by: Isabelle GRIGNON
+// Copyright (c) 1993-1999 Matra Datavision
+// Copyright (c) 1999-2014 OPEN CASCADE SAS
+//
+// This file is part of Open CASCADE Technology software library.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License version 2.1 as published
+// by the Free Software Foundation, with special exception defined in the file
+// OCCT_LGPL_EXCEPTION.txt. Consult the file LICENSE_LGPL_21.txt included in OCCT
+// distribution for complete text of the license and disclaimer of any warranty.
+//
+// Alternatively, this file may be used under the terms of Open CASCADE
+// commercial license or contractual agreement.
+
+#include <TopoDS.hxx>
+
+//=======================================================================
+//function : SetTypeOfConcavity
+//purpose  : 
+//=======================================================================
+
+inline void  ChFiDS_Spine::SetTypeOfConcavity(const ChFiDS_TypeOfConcavity theType)
+{
+  myTypeOfConcavity = theType;
+}
+
+//=======================================================================
+//function : SetFirstStatus
+//purpose  : 
+//=======================================================================
+
+inline void  ChFiDS_Spine::SetFirstStatus(const ChFiDS_State S)
+{
+  firstState = S;
+}
+
+
+//=======================================================================
+//function : SetLastStatus
+//purpose  : 
+//=======================================================================
+
+inline void  ChFiDS_Spine::SetLastStatus(const ChFiDS_State S)
+{
+  lastState = S;
+}
+
+//=======================================================================
+//function : GetTypeOfConcavity
+//purpose  : 
+//=======================================================================
+
+inline ChFiDS_TypeOfConcavity  ChFiDS_Spine::GetTypeOfConcavity()const 
+{
+  return myTypeOfConcavity;
+}
+
+//=======================================================================
+//function : FirstStatus
+//purpose  : 
+//=======================================================================
+
+inline ChFiDS_State  ChFiDS_Spine::FirstStatus()const 
+{
+  return firstState;
+}
+
+
+//=======================================================================
+//function : LastStatus
+//purpose  : 
+//=======================================================================
+
+inline ChFiDS_State  ChFiDS_Spine::LastStatus()const 
+{
+  return lastState;
+}
+
+
+//=======================================================================
+//function : SetStatus
+//purpose  : 
+//=======================================================================
+
+inline void  ChFiDS_Spine::SetStatus(const ChFiDS_State S,
+				     const Standard_Boolean IsFirst)
+{
+  if(IsFirst) firstState = S;
+  else lastState = S;
+}
+//=======================================================================
+//function : Status
+//purpose  : 
+//=======================================================================
+
+inline ChFiDS_State  ChFiDS_Spine::Status(const Standard_Boolean IsFirst)const 
+{
+  if (IsFirst) return firstState;
+  else return lastState;
+}
+
+//=======================================================================
+//function : SetTangencyExtremity
+//purpose  : 
+//=======================================================================
+
+inline void  ChFiDS_Spine::SetTangencyExtremity(const Standard_Boolean IsTangency,
+						const Standard_Boolean IsFirst)
+{
+  if(IsFirst)  firstistgt = IsTangency ;
+  else         lastistgt = IsTangency;
+}
+//=======================================================================
+//function : IsTangencyExtremity
+//purpose  : 
+//=======================================================================
+
+inline Standard_Boolean 
+ChFiDS_Spine::IsTangencyExtremity(const Standard_Boolean IsFirst)const 
+{
+  if (IsFirst) return firstistgt;
+  else return lastistgt;
+}
+
+//=======================================================================
+//function : NbEdges
+//purpose  : 
+//=======================================================================
+
+inline Standard_Integer  ChFiDS_Spine::NbEdges() const 
+{
+  return spine.Length();
+}
+
+
+//=======================================================================
+//function : Edges
+//purpose  : 
+//=======================================================================
+
+inline const TopoDS_Edge&  ChFiDS_Spine::Edges(const Standard_Integer I) const 
+{
+  return TopoDS::Edge(spine.Value(I));
+}
+
+//=======================================================================
+//function : OffsetEdges
+//purpose  : 
+//=======================================================================
+
+inline const TopoDS_Edge&  ChFiDS_Spine::OffsetEdges(const Standard_Integer I) const 
+{
+  return TopoDS::Edge(offsetspine.Value(I));
+}
+
+//=======================================================================
+//function : SetEdges
+//purpose  : 
+//=======================================================================
+
+inline void  ChFiDS_Spine::SetEdges(const TopoDS_Edge& E)
+{
+  spine.Append(E);
+}
+
+//=======================================================================
+//function : SetOffsetEdges
+//purpose  : 
+//=======================================================================
+
+inline void  ChFiDS_Spine::SetOffsetEdges(const TopoDS_Edge& E)
+{
+  offsetspine.Append(E);
+}
+
+//=======================================================================
+//function : PutInFirst
+//purpose  : 
+//=======================================================================
+
+inline void  ChFiDS_Spine::PutInFirst(const TopoDS_Edge& E)
+{
+  spine.InsertBefore(1,E);
+}
+
+//=======================================================================
+//function : PutInFirstOffset
+//purpose  : 
+//=======================================================================
+
+inline void  ChFiDS_Spine::PutInFirstOffset(const TopoDS_Edge& E)
+{
+  offsetspine.InsertBefore(1,E);
+}
+
+//=======================================================================
+//function : CurrentIndexOfElementarySpine
+//purpose  : 
+//=======================================================================
+inline Standard_Integer ChFiDS_Spine::CurrentIndexOfElementarySpine() const 
+{
+  return indexofcurve;
+}
+
+//=======================================================================
+//function : Mode
+//purpose  : 
+//=======================================================================
+
+inline ChFiDS_ChamfMode  ChFiDS_Spine::Mode() const
+{
+
+  return myMode;
+}

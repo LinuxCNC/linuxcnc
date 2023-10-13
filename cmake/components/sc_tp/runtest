@@ -1,0 +1,15 @@
+#!/usr/bin/bash
+cd ../../../
+
+cd rtlib
+rm -rf sc_tp.so
+cd ..
+
+cd cmake/build/
+make install
+cd ../../
+
+cd scripts 
+. ./rip-environment
+./halrun -U
+linuxcnc -t sc_tp /home/user/linuxcnc/configs/sim/axis/axis_mm.ini

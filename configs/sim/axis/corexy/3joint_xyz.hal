@@ -1,0 +1,104 @@
+# 3joint_xyz.hal
+
+# This halfile loads modules and makes connections
+# for use of any kinematics using xyz coordinates
+# implemented with 3 joints.  Such configs include:
+#  [KINS]KINEMATICS = trivkins coordinates=xyz
+#  [KINS]KINEMATICS = corexykins
+
+# Notes:
+# 1) stepgens are implemented but no connections are
+#    included for hardware
+# 2) home switches are simulated
+#----------------------------------------------------------
+
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT  base_period_nsec=[EMCMOT]BASE_PERIOD \
+                       servo_period_nsec=[EMCMOT]SERVO_PERIOD \
+                       num_joints=[KINS]JOINTS
+loadrt stepgen         step_type=0,0,0
+
+# simulated home switches:
+loadrt sim_home_switch names=j0home,j1home,j2home
+
+#----------------------------------------------------------
+setp stepgen.0.position-scale [JOINT_0]SCALE
+setp stepgen.0.maxaccel       [JOINT_0]STEPGEN_MAXACCEL
+setp stepgen.0.steplen        5000
+setp stepgen.0.stepspace      5000
+setp stepgen.0.dirhold       35000
+setp stepgen.0.dirsetup      35000
+
+setp stepgen.1.position-scale [JOINT_1]SCALE
+setp stepgen.1.maxaccel      [JOINT_1]STEPGEN_MAXACCEL
+setp stepgen.1.steplen        5000
+setp stepgen.1.stepspace      5000
+setp stepgen.1.dirhold       35000
+setp stepgen.1.dirsetup      35000
+
+setp stepgen.2.position-scale [JOINT_2]SCALE
+setp stepgen.2.maxaccel       [JOINT_2]STEPGEN_MAXACCEL
+setp stepgen.2.steplen        5000
+setp stepgen.2.stepspace      5000
+setp stepgen.2.dirhold       35000
+setp stepgen.2.dirsetup      35000
+#----------------------------------------------------------
+# simulated home motor positions:
+setp j0home.home-pos 0.2
+setp j1home.home-pos 0.2
+setp j2home.home-pos 0.1
+
+#----------------------------------------------------------
+addf stepgen.make-pulses      base-thread
+
+addf stepgen.capture-position servo-thread
+addf motion-command-handler   servo-thread
+addf motion-controller        servo-thread
+addf stepgen.update-freq      servo-thread
+addf j0home                   servo-thread
+addf j1home                   servo-thread
+addf j2home                   servo-thread
+#----------------------------------------------------------
+net j0enable  <= joint.0.amp-enable-out
+net j0enable  => stepgen.0.enable
+net j0pos-cmd <= joint.0.motor-pos-cmd
+net j0pos-cmd => stepgen.0.position-cmd
+net j0pos-cmd => j0home.cur-pos
+net j0pos-fb  <= stepgen.0.position-fb
+net j0pos-fb  => joint.0.motor-pos-fb
+net j0step    <= stepgen.0.step
+net j0dir     <= stepgen.0.dir
+net j0homesw  <= j0home.home-sw
+net j0homesw  => joint.0.home-sw-in
+
+net j1enable  <= joint.1.amp-enable-out
+net j1enable  => stepgen.1.enable
+net j1pos-cmd <= joint.1.motor-pos-cmd
+net j1pos-cmd => stepgen.1.position-cmd
+net j1pos-cmd => j1home.cur-pos
+net j1pos-fb  <= stepgen.1.position-fb
+net j1pos-fb  => joint.1.motor-pos-fb
+net j1step    <= stepgen.1.step
+net j1dir     <= stepgen.1.dir
+net j1homesw  <= j1home.home-sw
+net j1homesw  => joint.1.home-sw-in
+
+net j2enable  <= joint.2.amp-enable-out
+net j2enable  => stepgen.2.enable
+net j2pos-cmd <= joint.2.motor-pos-cmd
+net j2pos-cmd => stepgen.2.position-cmd
+net j2pos-cmd => j2home.cur-pos
+net j2pos-fb  <= stepgen.2.position-fb
+net j2pos-fb  => joint.2.motor-pos-fb
+net j2step    <= stepgen.2.step
+net j2dir     <= stepgen.2.dir
+net j2homesw  <= j2home.home-sw
+net j2homesw  => joint.2.home-sw-in
+#----------------------------------------------------------
+net estop-out <= iocontrol.0.user-enable-out
+net estop-out => iocontrol.0.emc-enable-in
+
+net tool-change-loopback  <= iocontrol.0.tool-change
+net tool-change-loopback  => iocontrol.0.tool-changed
+net tool-prepare-loopback <= iocontrol.0.tool-prepare
+net tool-prepare-loopback => iocontrol.0.tool-prepared

@@ -1,0 +1,16 @@
+# Include your customized HAL commands here
+# This file will not be overwritten when you run stepconf again
+
+# Load the Huanyang VFD user component
+loadusr -Wn spindle-vfd hy_vfd -n spindle-vfd
+
+# connect the spindle direction pins to the VFD
+net hy-fwd <= spindle.0.forward => spindle-vfd.spindle-fwd
+net hy-rev <= spindle.0.reverse => spindle-vfd.spindle-rev
+
+# connect the spindle on pin to the VFD
+net hy-on <= spindle.0.on => spindle-vfd.spindle-on
+
+# connect the spindle RPM to the VFD
+# Note: spindle-cmd created by stepconf wizard
+net spindle-cmd => spindle-vfd.speed-command

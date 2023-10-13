@@ -1,0 +1,11 @@
+
+#net orient-loop spindle.0.orient spindle.0.is-oriented
+
+net orient spindle.0.orient gladevcp.spindle-orient-led
+net oriented  gladevcp.spindle-is-oriented spindle.0.is-oriented gladevcp.spindle-is-oriented-led
+net locked spindle.0.locked gladevcp.spindle-locked-led
+
+net angle spindle.0.orient-angle gladevcp.spindle-orient-angle
+
+net brake spindle.0.brake  gladevcp.spindle-brake-led
+net fault gladevcp.spindle-orient-fault-s spindle.0.orient-fault 

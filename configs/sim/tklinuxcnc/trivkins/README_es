@@ -1,0 +1,15 @@
+Ejemplos trivkins
+
+xz.ini           KINEMATICS_IDENTITY
+
+xz_both.ini      KINEMATICS_BOTH
+
+NOTA:
+!!!  [TRAJ]COORDINATES DEBEN COINCIDIR CON KINS:
+!!!  [TRAJ]COORDINATES = xz
+
+xz.ini
+  [KINS]KINEMATICS=trivkins coordinates=xz
+
+xz_both.ini
+  KINEMATICS = trivkins coordinates=xz kinstype=BOTH

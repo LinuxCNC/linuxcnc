@@ -1,0 +1,18 @@
+TODO for the joints_axes branch
+
+* clean up joints/axes throughout the whole code (lots of parts already done)
+* define a unified jogging way (both for joints and axes)
+* implement joint-limits for cartesian moves (requires simulating the speed in userspace)
+* update configs
+(and many other probably..)
+
+TODO     sort out axis/joints issues: 
+	    * limits need to be imposed on joints (tricky with kins)
+	    * ini changes 
+	    * clean out code (on all different levels, when joints are involved, call them joints..)
+    -- this work is taking place on the joints_axes3 branch
+
+TODO     Convert all hardware drivers to use canonical homing, 
+
+Fixes in HAL modules:
+TODO     canonical interfaces and naming conventions

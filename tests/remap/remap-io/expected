@@ -1,0 +1,123 @@
+**********  Testing python remaps
+----Testing M62/M63 digital output w/motion----
+cmd: "M62 P1"
+    M62 remapping pre: motion dout0=0; hal d_out=0
+    M62 remapping post: motion dout0=1; hal d_out=1
+cmd: "M63 P1"
+    M63 remapping pre: motion dout0=1; hal d_out=1
+    M63 remapping post: motion dout0=0; hal d_out=0
+cmd: "M62 P1"
+    M62 remapping pre: motion dout0=0; hal d_out=0
+    M62 remapping post: motion dout0=1; hal d_out=1
+cmd: "M63 P1"
+    M63 remapping pre: motion dout0=1; hal d_out=1
+    M63 remapping post: motion dout0=0; hal d_out=0
+----Testing M64/M65 digital output, immediate----
+cmd: "M64 P1"
+    M64 remapping pre: motion dout0=0; hal d_out=0
+    M64 remapping post: motion dout0=1; hal d_out=1
+cmd: "M65 P1"
+    M65 remapping pre: motion dout0=1; hal d_out=1
+    M65 remapping post: motion dout0=0; hal d_out=0
+cmd: "M64 P1"
+    M64 remapping pre: motion dout0=0; hal d_out=0
+    M64 remapping post: motion dout0=1; hal d_out=1
+cmd: "M65 P1"
+    M65 remapping pre: motion dout0=1; hal d_out=1
+    M65 remapping post: motion dout0=0; hal d_out=0
+----Testing M66 digital input----
+cmd: "M66 P1"; input: 1.0000
+    M66 remapping pre:  5399=0.000000; 100=0.000000; ain0=0.00; din0=0
+    M66 remapping post:  5399=1.000000; 100=1.000000; ain0=0.00; din0=1
+cmd: "M66 P1"; input: 0.0000
+    M66 remapping pre:  5399=1.000000; 100=1.000000; ain0=0.00; din0=1
+    M66 remapping post:  5399=0.000000; 100=0.000000; ain0=0.00; din0=0
+----Testing M66 analog input----
+cmd: "M66 E1 L0"; input: 42.1300
+    M66 remapping pre:  5399=0.000000; 100=0.000000; ain0=0.00; din0=0
+    M66 remapping post:  5399=42.130000; 100=42.130000; ain0=42.13; din0=0
+cmd: "M66 E1 L0"; input: -13.4200
+    M66 remapping pre:  5399=42.130000; 100=42.130000; ain0=42.13; din0=0
+    M66 remapping post:  5399=-13.420000; 100=-13.420000; ain0=-13.42; din0=0
+----Testing M67 analog output w/motion----
+cmd: "M67 E1 Q42.13"
+    M67 remapping pre: motion aout0=0.00; hal a_out=0.00
+    M67 remapping post: motion aout0=42.13; hal a_out=42.13
+cmd: "M67 E1 Q-13.42"
+    M67 remapping pre: motion aout0=42.13; hal a_out=42.13
+    M67 remapping post: motion aout0=-13.42; hal a_out=-13.42
+cmd: "M67 E1 Q0.00"
+    M67 remapping pre: motion aout0=-13.42; hal a_out=-13.42
+    M67 remapping post: motion aout0=0.00; hal a_out=0.00
+----Testing M68 analog output, immediate----
+cmd: "M68 E1 Q42.13"
+    M68 remapping pre: motion aout0=0.00; hal a_out=0.00
+    M68 remapping post: motion aout0=42.13; hal a_out=42.13
+cmd: "M68 E1 Q-13.42"
+    M68 remapping pre: motion aout0=42.13; hal a_out=42.13
+    M68 remapping post: motion aout0=-13.42; hal a_out=-13.42
+cmd: "M68 E1 Q0.00"
+    M68 remapping pre: motion aout0=-13.42; hal a_out=-13.42
+    M68 remapping post: motion aout0=0.00; hal a_out=0.00
+
+**********  Testing ngc remaps
+----Testing M62/M63 digital output w/motion----
+cmd: "M62 P1"
+    M62 remapping pre: motion dout0=0; hal d_out=0
+    M62 remapping post: motion dout0=1; hal d_out=1
+cmd: "M63 P1"
+    M63 remapping pre: motion dout0=1; hal d_out=1
+    M63 remapping post: motion dout0=0; hal d_out=0
+cmd: "M62 P1"
+    M62 remapping pre: motion dout0=0; hal d_out=0
+    M62 remapping post: motion dout0=1; hal d_out=1
+cmd: "M63 P1"
+    M63 remapping pre: motion dout0=1; hal d_out=1
+    M63 remapping post: motion dout0=0; hal d_out=0
+----Testing M64/M65 digital output, immediate----
+cmd: "M64 P1"
+    M64 remapping pre: motion dout0=0; hal d_out=0
+    M64 remapping post: motion dout0=1; hal d_out=1
+cmd: "M65 P1"
+    M65 remapping pre: motion dout0=1; hal d_out=1
+    M65 remapping post: motion dout0=0; hal d_out=0
+cmd: "M64 P1"
+    M64 remapping pre: motion dout0=0; hal d_out=0
+    M64 remapping post: motion dout0=1; hal d_out=1
+cmd: "M65 P1"
+    M65 remapping pre: motion dout0=1; hal d_out=1
+    M65 remapping post: motion dout0=0; hal d_out=0
+----Testing M66 digital input----
+cmd: "M66 P1"; input: 1.0000
+    M66 remapping pre:  5399=0.000000; 100=0.000000; ain0=0.00; din0=0
+    M66 remapping post:  5399=1.000000; 100=1.000000; ain0=0.00; din0=1
+cmd: "M66 P1"; input: 0.0000
+    M66 remapping pre:  5399=1.000000; 100=1.000000; ain0=0.00; din0=1
+    M66 remapping post:  5399=0.000000; 100=0.000000; ain0=0.00; din0=0
+----Testing M66 analog input----
+cmd: "M66 E1 L0"; input: 42.1300
+    M66 remapping pre:  5399=0.000000; 100=0.000000; ain0=0.00; din0=0
+    M66 remapping post:  5399=42.130000; 100=42.130000; ain0=42.13; din0=0
+cmd: "M66 E1 L0"; input: -13.4200
+    M66 remapping pre:  5399=42.130000; 100=42.130000; ain0=42.13; din0=0
+    M66 remapping post:  5399=-13.420000; 100=-13.420000; ain0=-13.42; din0=0
+----Testing M67 analog output w/motion----
+cmd: "M67 E1 Q42.13"
+    M67 remapping pre: motion aout0=0.00; hal a_out=0.00
+    M67 remapping post: motion aout0=42.13; hal a_out=42.13
+cmd: "M67 E1 Q-13.42"
+    M67 remapping pre: motion aout0=42.13; hal a_out=42.13
+    M67 remapping post: motion aout0=-13.42; hal a_out=-13.42
+cmd: "M67 E1 Q0.00"
+    M67 remapping pre: motion aout0=-13.42; hal a_out=-13.42
+    M67 remapping post: motion aout0=0.00; hal a_out=0.00
+----Testing M68 analog output, immediate----
+cmd: "M68 E1 Q42.13"
+    M68 remapping pre: motion aout0=0.00; hal a_out=0.00
+    M68 remapping post: motion aout0=42.13; hal a_out=42.13
+cmd: "M68 E1 Q-13.42"
+    M68 remapping pre: motion aout0=42.13; hal a_out=42.13
+    M68 remapping post: motion aout0=-13.42; hal a_out=-13.42
+cmd: "M68 E1 Q0.00"
+    M68 remapping pre: motion aout0=-13.42; hal a_out=-13.42
+    M68 remapping post: motion aout0=0.00; hal a_out=0.00

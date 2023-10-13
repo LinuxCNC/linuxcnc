@@ -1,0 +1,11 @@
+; recursive function example
+; factorial
+o<factorial> sub
+o<factorialif> if [[#1] EQ 0]
+o<factorial> 	  return [1]
+o<factorialif> else
+o<factorial>      call [[#1] - 1]
+o<factorial>      return  [#<_value> * #1]
+o<factorialif> endif
+o<factorial> endsub
+m2

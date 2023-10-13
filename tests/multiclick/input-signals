@@ -1,0 +1,119 @@
+# one quick click on instance 0
+# .single-click goes high on the falling edge
+# then release the button and leave it up for 5 ms to clear the state
+0 1
+1 1
+0 1
+0 1
+0 1
+0 1
+0 1
+0 1
+0 1
+
+# chan 0: push and hold too long, then release and quick click
+# chan 1: single click
+1 1
+1 1
+1 1
+1 1
+1 1
+1 1
+0 1
+1 1
+1 0
+0 1
+0 1
+0 1
+0 1
+0 1
+0 1
+0 1
+
+# chan 0: double click
+# chan 1: triple click
+1 0
+1 1
+0 0
+0 1
+1 0
+1 1
+1 1
+0 1
+0 1
+0 1
+0 1
+0 1
+0 1
+0 1
+
+# chan 0: quick triple click
+# chan 1: one click then hold too long
+1 0
+0 1
+1 0
+0 0
+1 0
+0 0
+0 1
+0 1
+0 1
+0 1
+0 1
+0 1
+
+# push both buttons, make sure they expire at the right time
+1 0
+1 0
+1 0
+1 0
+1 0
+0 0
+0 0
+0 1
+0 1
+0 1
+0 1
+
+# slow clicks on button 0, fast clicks on button 1
+1 0
+1 1
+1 0
+0 1
+1 0
+1 1
+1 0
+0 1
+1 1
+1 1
+0 1
+0 1
+0 1
+0 1
+0 1
+0 1
+0 1
+0 1
+0 1
+
+# quad click on both buttons
+1 0
+0 0
+1 1
+0 1
+1 0
+0 0
+1 0
+0 1
+0 1
+0 0
+0 0
+0 1
+0 0
+0 0
+0 1
+0 1
+0 1
+0 1
+0 1
+

@@ -1,0 +1,2 @@
+net Xpos => test-ui.Xpos
+net Ypos => test-ui.Ypos

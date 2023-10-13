@@ -1,0 +1,110 @@
+// Created by: Peter KURNEV
+// Copyright (c) 1999-2014 OPEN CASCADE SAS
+//
+// This file is part of Open CASCADE Technology software library.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License version 2.1 as published
+// by the Free Software Foundation, with special exception defined in the file
+// OCCT_LGPL_EXCEPTION.txt. Consult the file LICENSE_LGPL_21.txt included in OCCT
+// distribution for complete text of the license and disclaimer of any warranty.
+//
+// Alternatively, this file may be used under the terms of Open CASCADE
+// commercial license or contractual agreement.
+
+#include <BRep_Builder.hxx>
+#include <BRep_Tool.hxx>
+
+#include <TopoDS_Edge.hxx>
+
+//=======================================================================
+//function : BOPAlgo_EdgeInfo
+//purpose  : 
+//=======================================================================
+class BOPAlgo_EdgeInfo {
+ public:
+  //
+  BOPAlgo_EdgeInfo() : 
+    myPassed(Standard_False),
+    myInFlag(Standard_False),
+    myIsInside (Standard_False),
+    myAngle (-1.)
+  {
+  };
+  //
+  void SetEdge(const TopoDS_Edge& theE) {
+    myEdge=theE;
+  };
+  //
+  const TopoDS_Edge& Edge() const{
+    return myEdge;
+  };
+  //
+  void SetPassed(const Standard_Boolean theFlag) {
+    myPassed=theFlag;
+  };
+  //
+  Standard_Boolean Passed()const {
+    return myPassed;
+  };
+  //
+  void SetInFlag(const Standard_Boolean theFlag) {
+    myInFlag=theFlag;
+  };
+  //
+  Standard_Boolean IsIn()const {
+    return myInFlag;
+  };
+  //
+  void SetAngle(const Standard_Real theAngle) {
+    myAngle=theAngle;
+  };
+  //
+  Standard_Real Angle()const {
+    return myAngle;
+  };
+  //
+  Standard_Boolean IsInside() const {
+    return myIsInside;
+  };
+  //
+  void SetIsInside (const Standard_Boolean theIsInside) {
+    myIsInside = theIsInside;
+  };
+  //
+ protected:
+  TopoDS_Edge myEdge;
+  Standard_Boolean myPassed;
+  Standard_Boolean myInFlag;
+  Standard_Boolean myIsInside;
+  Standard_Real myAngle;
+};
+
+
+#include <NCollection_List.hxx> 
+typedef NCollection_List<BOPAlgo_EdgeInfo> BOPAlgo_ListOfEdgeInfo; 
+typedef BOPAlgo_ListOfEdgeInfo::Iterator BOPAlgo_ListIteratorOfListOfEdgeInfo;  
+
+#include <NCollection_IndexedDataMap.hxx>
+#include <TopTools_ShapeMapHasher.hxx>
+
+typedef NCollection_IndexedDataMap<TopoDS_Shape, \
+  BOPAlgo_ListOfEdgeInfo, \
+  TopTools_ShapeMapHasher> BOPAlgo_IndexedDataMapOfShapeListOfEdgeInfo; 
+
+//=======================================================================
+//function : MakeWire
+//purpose  : 
+//=======================================================================
+  inline void BOPAlgo_WireSplitter::MakeWire(TopTools_ListOfShape& aLE, 
+                                             TopoDS_Wire& aWire)
+{
+  BRep_Builder aBB;
+  aBB.MakeWire(aWire);
+  //
+  TopTools_ListIteratorOfListOfShape aIt(aLE);
+  for (; aIt.More(); aIt.Next()){
+    aBB.Add(aWire, aIt.Value());
+  }
+  aWire.Closed(BRep_Tool::IsClosed(aWire));
+}

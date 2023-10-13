@@ -1,0 +1,70 @@
+\# Author Andy Pugh
+\# Issued under the terms of the GPL v2 License or any later version
+.TH hm2_bspi_setup_chan "3hm2" "2011-05-31" "LinuxCNC Documentation" "Hostmot2"
+.SH NAME
+
+hm2_bspi_setup_chan \- setup a Hostmot2 bspi channel
+
+.SH SYNTAX
+.nf
+.B #include <hostmot2-serial.h>
+.HP
+int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz, int delay, int cpol, int cpha, int noclear, int noecho)
+
+.SH DESCRIPTION
+\fBhm2_bspi_setup_chan\fR allows a realtime component to claim and configure a BSPI channel on a previously configured hostmot2 board.
+
+.IP name
+A unique string given to the BSPI channel during hostmot2 setup.
+The names of the available channels are printed to standard output during the driver loading process
+and take the form \fBhm2_\fIboard-name\fB.\fIboard-index\fB.bspi.\fIbspi-index\fR.
+For example, the first index on the first hm2_5i23 board would be called hm2_5i23.0.bspi.0.
+
+.IP chan
+Channels are numbered 0 to 15.
+The value on the chip-select lines is set by cs and need not match the channel number.
+
+.IP cs
+The chip select line(s) to assert when accessing this channel.
+BSPI supports 4 chip select lines, so the valid range for cs is 0-15.
+
+.IP bits
+sets the bit-length of the SPI packet.
+The maximum supported length is 64 bits but this will span two read FIFO entries and will need special handling
+(values 32 and below require no special handling).
+
+.IP mhz
+sets the chip communication rate.
+The maximum value for this is half the FPGA base frequency, so for example with a 48 MHz 5I23 the max SPI frequency is 24 MHz.
+Values in excess of the max supported will be silently rounded down.
+
+.IP delay
+sets the chip select valid delay (in ns)
+
+.IP cpha\ and\ cpol
+Set the clock phase and polarity (according to the device datasheet). 
+
+.IP noclear
+controls whether the frame clear bit is set after the 32 bit buffer transfer.
+This parameter should be set to 1 when the frame length is greater than 32 bits and the next data in the FIFO contains the other bits.
+
+.IP noecho
+Set to 1 for devices which do not return data (such as DACs).
+
+.IP samplelate
+Set to 1 to sample the received SPI data 1/2 SPI clock later than normal.
+This is useful when high clock rates or isolation cause significant delays from clock to received data.
+
+.SH REALTIME CONSIDERATIONS
+Call only from within realtime init/cleanup code or non-realtime components, not from realtime tasks.
+
+.SH RETURN VALUE
+Returns 0 on success and \-1 on failure.
+
+.SH SEE ALSO
+\fBhm2_allocate_bspi_tram(3hm2)\fR,
+\fBhm2_bspi_set_read_function(3hm2)\fR,
+\fBhm2_bspi_set_write_function(3hm2)\fR,
+\fBhm2_bspi_write_chan(3hm2)\fR,
+\fBhm2_tram_add_bspi_frame(3hm2)\fR,
+See src/hal/drivers mesa_7i65.comp for an example usage.

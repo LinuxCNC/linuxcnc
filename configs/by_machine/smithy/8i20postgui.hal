@@ -1,0 +1,32 @@
+net srpm pyvcp.command
+loadrt scale count=1
+addf scale.0 servo-thread
+setp scale.0.gain 60
+net fb scale.0.in
+net svel pyvcp.vel scale.0.out
+net machine-on pyvcp.enabled
+net init-done pyvcp.done
+
+net pid-out pyvcp.val
+net count hm2_5i20.0.encoder.00.count pyvcp.count
+net rotor_angle pyvcp.rotor_angle
+net phase_angle bldc.0.phase-angle pyvcp.phase_angle
+
+net current pyvcp.current
+net sa pyvcp.a
+net sb pyvcp.b
+net sc pyvcp.c
+net Sidx pyvcp.ie_led
+# 8i20 Pins:
+net comms hm2_5i20.0.8i20.0.0.comms pyvcp.comms
+net fault hm2_5i20.0.8i20.0.0.fault pyvcp.fault
+net status hm2_5i20.0.8i20.0.0.status pyvcp.status
+net temp hm2_5i20.0.8i20.0.0.temp pyvcp.temp
+net voltage hm2_5i20.0.8i20.0.0.voltage pyvcp.voltage
+# SSerial Pins:
+net fault-count hm2_5i20.0.sserial.port-0.fault-count pyvcp.faults
+net port_state hm2_5i20.0.sserial.port-0.port_state pyvcp.port_state
+net herr bldc.0.hall-error pyvcp.hall-error
+net at-speed pyvcp.at-speed
+net stall pyvcp.stall
+

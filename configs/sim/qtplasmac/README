@@ -1,0 +1,8 @@
+QtPlasmaC: a GUI for plasma cutting tables which utilises the plasmac component.
+
+QtPlasmaC is built using the QtVCP infrastructure included in LinuxCNC and is loosely based on a theme by user 'pinder' from the LinuxCNC forum.
+
+There are three screen formats available in both metric and imperial units:
+1. qtplasmac_l - 16:9 format, minimum resolution 1366x768
+2. qtplasmac_p - 9:16 format,minimum resolution 768x1366
+3. qtplasmac_s - 4:3 minimum resolution 1024x768

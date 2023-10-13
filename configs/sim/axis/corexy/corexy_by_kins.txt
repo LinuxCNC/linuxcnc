@@ -1,0 +1,22 @@
+corexy_by_kins.ini
+
+CoreXY simulation using the
+corexykins kinematics module
+
+$ man kins for more info
+
+Notes:
+
+1) Using corexykins requires home
+switches operating on motor
+positions for joints 0 and 1
+
+2) An alternative method for coreXY
+kinematics uses trivkins kinematics
+with a hal component:
+     (corexy_by_hal.comp)
+This method allows use of home
+switches aligned to x,y coordinate
+motion.
+
+See the demo: corexy_by_hal.ini

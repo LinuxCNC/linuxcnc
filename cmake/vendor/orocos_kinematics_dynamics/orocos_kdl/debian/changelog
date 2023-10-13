@@ -1,0 +1,11 @@
+orocos-kdl (1.0.0) UNRELEASED; urgency=low
+
+  * First major number release
+
+ -- Ruben Smits <ruben.smits@mech.kuleuven.be>  Mon, 29 Sep 2008 12:23:37 +0200
+
+orocos-kdl (0.99.0) UNRELEASED; urgency=low
+
+  * Initial release.
+
+ -- Ruben Smits <ruben.smits@mech.kuleuven.be>  Wed, 07 May 2008 13:49:51 +0200

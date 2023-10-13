@@ -1,0 +1,9 @@
+Standard GMOCCCPAY configuration for a XYZ mill,
+
+including
+
+- example macros
+- pyngcgui in embedded user tab
+
+
+

@@ -1,0 +1,75 @@
+component sim_home_switch "Home switch simulator";
+
+description
+"""
+After tripping home switch, travel in opposite direction is
+required (amount set by the hysteresis pin).
+A pin (index-enable) is provided for use when
+\\fB[JOINT_n]HOME_USE_INDEX\\fR is specified to reset
+the I/O pin \\fBjoint.N.index-enable\\fR.
+""";
+pin in float cur_pos "Current position (typically: joint.n.motor-pos-fb)";
+pin in float home_pos = 1 "Home switch position";
+pin in float hysteresis = 0.1"Travel required to backoff (hysteresis)";
+pin out bit  home_sw"Home switch activated";
+
+pin io  bit  index_enable "typ: connect to joint.N.index-enable";
+pin in float index_delay_ms = 10 "delay in msec to reset index-enable";
+
+variable int    old_index_enable;
+variable double index_timer_ms;
+
+function _ fp;
+license "GPL";
+author "Dewey Garrett";
+;;
+
+FUNCTION(_) {
+    // could be simplified but this style is meant to be easy-to-read
+    if (home_pos >= 0) {
+        // home switch is on positive side
+        if (cur_pos >= home_pos) {
+            home_sw = 1;
+        } else {
+            if (cur_pos <= (home_pos - hysteresis) ) {
+                home_sw = 0;
+            } else {
+                if (home_sw) {
+                    home_sw = 1;
+                } else {
+                    home_sw = 0;
+                }
+            }
+        }
+    } else {
+        // negative home switch location
+        if (cur_pos <= home_pos) {
+            home_sw = 1;
+        } else {
+            if (cur_pos >= (home_pos + hysteresis) ) {
+                home_sw = 0;
+            } else {
+                if (home_sw) {
+                    home_sw = 1;
+                } else {
+                    home_sw = 0;
+                }
+            }
+        }
+    }
+
+    // provision to reset I/O pin index-enable
+    if (index_timer_ms > 0) {
+       index_timer_ms -= period * 1e-6; // period is in nS
+       if (index_timer_ms <= 0) {
+           index_timer_ms = 0;
+           index_enable = 0;
+           return;
+       }
+    }
+    if (index_enable && !old_index_enable) {
+        index_timer_ms = index_delay_ms;
+    }
+    old_index_enable = index_enable;
+    return;
+}

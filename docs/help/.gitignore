@@ -1,0 +1,22 @@
+# Ignore po4a-generated files for other languages
+ar/*
+bg/*
+cs/*
+da/*
+de/*
+es/*
+fr/*
+hu/*
+it/*
+ka/*
+nb/*
+pl/*
+pt/*
+pt_BR/*
+ru/*
+sk/*
+sv/*
+tr/*
+uk/*
+vi/*
+zh_CN/*

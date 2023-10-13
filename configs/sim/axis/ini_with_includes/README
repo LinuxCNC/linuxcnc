@@ -1,0 +1,22 @@
+ini_with_includes
+
+Demo for using a #INCLUDE directive(s) in an ini file
+
+Examples:
+1) relative file spec (relative to ini dir):
+#INCLUDE filename.inc
+#INCLUDE ./filename.inc
+#INCLUDE ../filename.inc
+
+2) absolute file spec:
+#INCLUDE /tmp/filename.inc
+#INCLUDE /home/myname/inc/filename.inc
+
+3) tilde file spec:
+#INCLUDE ~/linuxcnc/myincludes/filename.inc
+
+Note:
+
+The .inc suffix is recommended for included files.
+
+Using a .ini suffix would mistakenly allow the partial file to appear as a config choice.

@@ -1,0 +1,47 @@
+Demo Moveoff - retracción fija en un solo eje (Z)
+
+Demo:
+  1) Inicie linuxcnc usando la configuración 6_zretract
+  2) Un panel pyvpcp incluye un botón de verificación
+     para habilitar offsets fijos en pausa del programa.
+  3) Iniciar programa
+  4) Pausa de programa
+  5) Una pantalla moveoff_gui (sin controles)
+     aparece mostrando el offset Z actual. Si el
+     botón de verificación se configuró para habilitar offsets,
+     se aplicarán de inmediato. Si el
+     el botón de verificación no se configuró, habilite el botón de verificación
+     para aplicar el offset.
+  6) Cambie el botón de verificación a APAGADO para
+     eliminar el offset fijo y reanude el programa.
+  7) El offset fijo se eliminará después de
+     un retraso para permitir la reactivación del husillo.
+     Normalmente, el husillo estaría
+     apagado durante la duración del pin aplicado mv.offset.
+     El retraso permite que el husillo se reanude
+     a su velocidad.
+  8) Cambie el interruptor sim_pin external_enable a
+     1 (ON) para permitir offsets en la siguiente pausa
+     de programa - o déjelo apagado para requerir su
+     activación en la próxima pausa del programa.
+
+El archivo ini establece:
+  1) cantidad compensada y su velocidad y aceleración
+  2) estado de la señal de habilitación externa en la parada
+  3) intervalo de demora de autoresume
+  4) ubicación y tamaño de la pantalla moveoff_gui
+
+-------------------------------------------------- -
+Opciones de Moveoff_gui:
+
+  onpause - compensa cuando el programa está en pausa
+  local - controles locales
+
+Componente Moveoff instalado y conectado usando:
+
+  [HAL]HALFILE = LIB:hookup_moveoff.tcl
+
+Para información adicional:
+
+   man moveoff ------ componente de movimiento
+   man moveoff_gui --- GUI de muestra de moveoff    

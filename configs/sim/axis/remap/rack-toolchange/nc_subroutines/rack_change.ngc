@@ -1,0 +1,46 @@
+
+
+
+o<rack_change> sub
+
+M73 (auto-restore modal settings on return)
+
+;(print, rack_change: loaded tool=#<_current_tool> current pocket: #<_current_pocket>)
+;(print, rack_change: selected tool=#<_selected_tool> selected pocket: #<_selected_pocket>)
+
+
+; unload previous tool
+o300 if [#<_current_pocket> GT 0]
+     o<tool_getput_move> call [#<_current_pocket>]  
+     M62 P #<_ini[pins]lock> ; set lock pin
+     G4  P #<_ini[dwell]lock_time> 
+     o<tool_holder_clear_move> call
+     G4 P #<_ini[dwell]mystery> ; unsure what this is for
+o300 endif
+
+; go to new tool
+o<tool_getput_move> call [#<_selected_pocket>]  
+M64 P #<_ini[pins]lock> ; set lock pin
+M64 P #<_ini[pins]flush> ; set flush pin
+G4  P #<_ini[dwell]new_tool> 
+M65 P #<_ini[pins]flush> ; drop flush pin
+
+; the purpose of this move is unclear to me
+; micges - please explain!
+o400 if [#<_absolute>]
+     G91
+     G0 Z-6 
+     G90
+o400 else
+     G0 Z-6
+o400 endif
+M65 P #<_ini[pins]lock> ; drop lock pin
+G4  P #<_ini[dwell]post_unlock> 
+
+; NB: this is reordered wrt micges patch:
+; tool_holder_clear_move came after load_tool_msg
+o<tool_holder_clear_move> call
+
+; succeed by returning a positive value
+o<rack_change> endsub [1]
+m2

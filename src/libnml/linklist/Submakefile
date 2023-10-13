@@ -1,0 +1,6 @@
+INCLUDES += libnml/linklist
+
+$(patsubst ./libnml/linklist/%,../include/%,$(wildcard ./libnml/linklist/*.h)): ../include/%.h: ./libnml/linklist/%.h
+	cp $^ $@
+$(patsubst ./libnml/linklist/%,../include/%,$(wildcard ./libnml/linklist/*.hh)): ../include/%.hh: ./libnml/linklist/%.hh
+	cp $^ $@

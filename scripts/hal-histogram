@@ -1,0 +1,917 @@
+#!/usr/bin/wish
+
+# For usage: hal-histogram --help
+
+#-----------------------------------------------------------------------
+# Copyright: 2015
+# Author:    Dewey Garrett <dgarrett@panix.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#-----------------------------------------------------------------------
+
+# library procs:
+# Note: use linuxcnc_var script since this program can be
+#       started without using the linuxcnc script and
+#       ::env(HALLIB_DIR) will not exist.
+source [file join [exec linuxcnc_var HALLIB_DIR] hal_procs_lib.tcl]
+
+proc threadname_for_pin {pinname} {
+  thread_info tmp
+  if { [llength $tmp(threadnames)] == 1 } {
+    return $tmp(threadnames)
+  }
+  # assume common form for functions and  pinnames
+  set idx [string last . $pinname]
+  set funcname [string range $pinname 0 [expr $idx -1]]
+  set tname [array names tmp *,$funcname]
+  if {[llength $tname] == 1} {
+    set idx [string first , $tname]
+    set tname [string range $tname 0 [expr $idx - 1]]
+    return "$tname"
+  } else {
+    # not all pins have a thread associated with a function
+    # e.g., axis.N.* pins, motion pins
+    set period 0; set tname ""
+    foreach thd $tmp(threadnames) {
+      if {$tmp($thd,period) > $period} {
+        set tname $thd
+        set period $tmp($thd,period)
+      }
+    }
+    puts "threadname_for_pin: <$pinname>: using longest period thread:$tname"
+    return "$tname"
+  }
+} ;# threadname_for_pin
+
+proc next_available_component_instance { functionname } {
+  # find component with users==0 for functionname (wildcard)
+  set ans [hal show funct $functionname]
+  set lines [split $ans \n]
+  set header_len 2
+  set lines [lreplace $lines 0 [expr $header_len -1]]
+  set lines [lreplace $lines end end]
+  set remainder ""
+  foreach line $lines {
+    set howmany [scan $line \
+                "%s %s %s %s %s %s" \
+                 owner codeaddr arg fp users name]
+    if {$howmany && "$users" == 0} {
+      if $::HH(opt,verbose) {
+        puts "$::HH(prog):next_available_component_instance:$name"
+      }
+      return $name
+    }
+  }
+  return ""
+} ;# next_available_component_instance
+
+proc round_number {x} {
+  # example; 12345.678 => 10000
+  if {$x == 0} {return 0}
+  set  sign [expr $x < 0 ? -1 : 1]
+  set   exp [expr int(log10(abs($x + .00001)))]
+  set first [lindex [split [expr abs($x)] ""] 0]
+  return    [expr int($sign*$first * pow(10,$exp))]
+} ;# round_number
+
+proc set_defaults {} {
+  wm withdraw .
+  wm protocol . WM_DELETE_WINDOW finish
+
+  # defaults for items which have cmdline options:
+  set ::HH(opt,verbose)        0
+  set ::HH(opt,show)           0
+  set ::HH(note,txt)          ""
+  set ::HH(y,logscale)         1
+  set ::HH(nbins)              50
+  set ::HH(minvalue)           0
+  set ::HH(binsize)            100
+  set ::HH(maxvalue)           0
+  set ::HH(pinname) motion-command-handler.time
+
+  # defaults for items with no cmdline opts:
+  set ::HH(color)                seagreen
+  set ::HH(signame,prefix,float) hhf
+  set ::HH(signame,prefix,s32)   hhs
+  set ::HH(signame,prefix,u32)   hhu
+  set ::HH(signame,prefix,bit)   hhb
+  set ::HH(max_histos)           5
+  set ::HH(guess,ct)             100
+  set ::HH(guess,factor)         10
+  set ::HH(dly,ms) 10 ;# initial delay for reading by index
+                       # 1 mS is minimum interval for after cmd
+                       # for 100bins *10mS = 1 sec update interval
+
+  # housekeeping
+  set ::HH(compname)            histobins
+  set ::HH(instancename,prefix) histo
+  set ::HH(nsamples)        0
+  set ::HH(info)           ""
+  set ::HH(warning_active)  0
+  set ::HH(reread,ct)       0
+  set ::HH(bump,ct)         0
+  set ::HH(after,repeat)   ""
+  set ::HH(after,monitor)  ""
+  set ::HH(p,more)          0
+  set ::HH(n,more)          0
+
+  set ::HH(start)      [clock seconds]
+  set ::HH(date)       [clock format [clock seconds] -format "%d%b%Y"]
+  set ::HH(prog,short) [file tail $::argv0]
+  set ::HH(prog)       $::argv0
+  set ::HH(title)      $::HH(prog)
+
+  set ::HH(dir,screenshot) /tmp/$::HH(prog,short)
+  if [catch {file mkdir $::HH(dir,screenshot)} msg] {
+    set ::HH(dir,screenshot) ~
+  }
+} ;# set_defaults
+
+proc config {} {
+  while {[llength $::argv] >0} {
+    # beware wish handling of reserved cmdline arguments
+    # lreplace shifts argv for no. of items for each iteration
+    # to use -h: use -- -h
+    set currentarg [lindex $::argv 0]
+    switch -- $currentarg {
+      --help -
+      -?     -
+      -h         {usage;exit 0}
+      --logscale {set t [lindex $::argv 1]
+                  set ::HH(y,logscale) $t
+                  set ::argv [lreplace $::argv 0 0]
+                 }
+      --pinname  {set t [lindex $::argv 1]
+                  set ::HH(pinname) $t
+                  set ::argv [lreplace $::argv 0 0]
+                 }
+      --minvalue {set t [lindex $::argv 1]
+                  set ::HH(minvalue) $t
+                  set ::argv [lreplace $::argv 0 0]
+                 }
+      --nbins    {set t [lindex $::argv 1]
+                  set ::HH(nbins) $t
+                  set ::argv [lreplace $::argv 0 0]
+                 }
+      --binsize  {set t [lindex $::argv 1]
+                  set ::HH(binsize) $t
+                  set ::argv [lreplace $::argv 0 0]
+                 }
+      --text     {set t [lindex $::argv 1]
+                  set ::HH(note,txt) $t
+                  set ::argv [lreplace $::argv 0 0]
+                 }
+      --show     {set ::HH(opt,show) 1 }
+      --verbose  {set ::HH(opt,verbose) 1 }
+      -*         {usage "Unknown args:$::argv"}
+      default    {  if {[llength $::argv] > 1} {
+                      usage "Too many pins were specified: <$::argv>"
+                    } else {
+                      set ::HH(pinname) $::argv
+                    }
+                 }
+    }
+    set ::argv [lreplace $::argv 0 0]
+  } ;# while
+
+  if ![pin_exists $::HH(pinname)] {
+    set msg "No pin named: <$::HH(pinname)>"
+    popup "$msg\n\nIs LinuxCNC (or another Hal application) active?"
+    usage $msg
+  }
+
+  set ::HH(pintype) [hal ptype $::HH(pinname)]
+  switch -exact "$::HH(pintype)" {
+    float   {}
+    s32     {}
+    u32     {}
+    bit     {
+             # ignore input args on startup:
+             set ::HH(minvalue) 0
+             set ::HH(binsize)  1
+             set ::HH(nbins)    2
+            }
+    default {
+      usage "Unsupported pintype <$::HH(pintype)> for pin $::HH(pinname)"
+    }
+  }
+  set ::HH(maxvalue) [compute_maxvalue]
+
+  set ::HH(pid) [pid]
+  set all_instances [exec pgrep $::HH(prog,short)]
+  if {[lsearch $all_instances $::HH(pid)] != 0} {
+    after 200 ;# guard for race in loadrt if simultaneous starts
+  }
+} ;# config
+
+proc load_packages {} {
+  if [catch {package require Tclx} msg] {
+    puts $msg
+    puts "To install: sudo apt-get install tclx"
+    exit 1
+  }
+  signal trap SIGINT finish ;# uses Tclx
+  if [catch {package require BLT} msg] {
+    puts $msg
+    puts "To install: sudo apt-get install blt"
+    exit 1
+  }
+
+  # augment ::auto_path for special case:
+  # 1) RIP build (no install)
+  # 2) linuxcnc script called from Application menu
+  if {   [info exists ::env(LINUXCNC_TCL_DIR)]
+      && ([lsearch $::auto_path $::env(LINUXCNC_TCL_DIR)] < 0)
+     } {
+     # prepend
+     set ::auto_path [lreplace $::auto_path 0 -1 $::env(LINUXCNC_TCL_DIR)]
+  }
+  if [catch {package require Hal} msg] {
+    puts $msg
+    puts "For a RIP linuxcnc build, source rip-environment in this shell"
+    exit 1
+  }
+  blt::bitmap define nbmap {
+   {8 8}
+   {0xc7,0x8f,0x1f,0x3e,0x7c, 0xf8,0xf1,0xe3}
+  }
+  blt::bitmap define pbmap {
+   {8 8}
+   {0xe3,0xf1,0xf8,0x7c, 0x3e,0x1f,0x8f,0xc7}
+  }
+} ;# load_packages
+
+proc make_gui { {w .} } {
+  wm title . "$::HH(title) ($::HH(instance))"
+
+  set f [frame ${w}fa]
+  pack $f -side top -fill x -expand 1
+  pack [label $f.l -anchor w -textvar ::HH(info)] -fill x -expand 1
+
+  set f [frame ${w}fb]
+  pack $f -side top -fill x -expand 1
+  pack [label $f.l -anchor w \
+       -text  "$::HH(date) \
+LinuxCNC: [exec linuxcnc_var LINUXCNCVERSION] \
+OS: $::tcl_platform(osVersion) [exec hostname]" \
+       ] -fill x -expand 1
+
+  set f [frame ${w}fc]
+  pack $f -side top -fill x -expand 1
+  pack [label $f.l -anchor w -textvar ::HH(note,txt)] -fill x -expand 1
+
+  set fmain [frame ${w}fmain]
+  pack $fmain -side top
+
+  set f1 [frame $fmain.f1 -relief groove -bd 2]
+  pack $f1 -side left
+
+  set f [frame $f1.t]
+  pack $f -side top
+
+  set ::HH(widget) $f.graph
+  catch {destroy $::HH(widget)}
+  blt::barchart $::HH(widget) \
+      -plotbackground honeydew1 \
+      -cursor arrow \
+      -title ""
+  pack $::HH(widget) -side left
+
+  xaxis
+  $::HH(widget) axis configure y -logscale $::HH(y,logscale)
+
+  set nwid 9 ;# numbers width
+  set pwid 8 ;# pos numbers width
+  #--------------------------------------------------------------------
+  if $::HH(opt,show) {
+    set f [frame $f1.extra -relief ridge -bd 1]
+    pack $f -side top -anchor w -fill x -expand 1
+    set e [entry $f.emin -textvariable ::HH(n,more) \
+         -state readonly -justify right -width 3]
+    pack $e -side left -anchor e
+    pack [label $f.min -text "<--off-chart neg bin ct"] \
+         -side left -anchor e
+    set ::HH(widget,negbins) $e
+
+    set e [entry $f.emax  -textvariable ::HH(p,more) \
+         -state readonly -justify right -width 3]
+    pack $e -side right -anchor e
+    pack [label $f.max -text "off-chart pos bin ct-->"] \
+         -side right -anchor e
+    set ::HH(widget,posbins) $e
+  } else {
+    set ::HH(widget,negbins) placeholder
+    set ::HH(widget,posbins) placeholder
+    proc placeholder {args} return
+  }
+
+  #--------------------------------------------------------------------
+  set f [frame $f1.minmax -relief ridge -bd 1]
+  pack $f -side top -anchor w -fill x -expand 1
+
+  pack [label $f.min -width 6 -anchor e -text "Min:"] \
+       -side left
+  set e [entry $f.emin -textvariable ::HH(input_min) \
+       -state readonly -justify right -width $nwid]
+  pack $e -side left -anchor e
+
+  pack [label $f.mean -width 5 -anchor e -text "Mean:"] \
+       -side left
+  set e [entry $f.emean  -textvariable ::HH(mean) \
+       -state readonly -justify right -width $nwid]
+  pack $e -side left -anchor e
+
+  pack [label $f.sdev -width 5 -anchor e -text "  Sdev:"] \
+       -side left
+  set e [entry $f.esdev  -textvariable ::HH(sdev) \
+       -state readonly -justify right -width $pwid]
+  pack $e -side left -anchor e
+
+  pack [label $f.max -width 6 -anchor e -text "Max:"] \
+       -side left -anchor e
+  set e [entry $f.emax  -textvariable ::HH(input_max) \
+       -state readonly -justify right -width $nwid]
+  pack $e -side right -anchor e
+
+  #--------------------------------------------------------------------
+  set f [frame $f1.nbins -relief ridge -bd 1 ]
+  pack $f -side top -anchor w -fill x -expand 1
+  set ::HH(new,nbins)    $::HH(nbins)
+  set ::HH(new,minvalue) $::HH(minvalue)
+  set ::HH(new,binsize)  $::HH(binsize)
+
+  pack [label $f.lmin -width 6 -anchor e -text "minval:" \
+       ] -side left
+  pack [entry $f.emin -textvariable ::HH(new,minvalue) \
+       -width $nwid -justify right \
+       ] -side left -expand 0
+
+  pack [label $f.lmax -width 5 -anchor e -text "bsize:" \
+       ] -side left
+  pack [entry $f.emax -textvariable ::HH(new,binsize) \
+       -width $nwid -justify right \
+       ] -side left -expand 1
+
+  pack [label $f.lbins -width 5 -anchor e -text "nbins:" \
+       ] -side left -expand 0
+  pack [entry $f.ebins -textvariable ::HH(new,nbins) \
+       -width $pwid -justify right \
+       ] -side left -expand 1
+
+  pack [label $f.el -width 6 -anchor e -text " maxval:"] -side left -anchor e
+  pack [entry $f.e -textvariable ::HH(maxvalue) \
+       -state readonly -justify right -width $nwid] \
+       -side left -expand 1 -anchor e
+
+
+  bind $f.emin  <Return> new_comp_settings
+  bind $f.emax  <Return> new_comp_settings
+  bind $f.ebins <Return> new_comp_settings
+  #--------------------------------------------------------------------
+  set f [frame ${w}bot -relief ridge  -bd 1]
+  pack $f -side bottom -anchor w -fill x -expand 1
+  pack [button $f.b -padx 0 -pady 0  -text Restart \
+       -command new_comp_settings] \
+       -side left -anchor w
+  pack [checkbutton $f.c -anchor w -text ylogscale \
+       -variable ::HH(y,logscale)] \
+       -side left
+
+  pack [button $f.exit  -padx 0 -pady 0 -text Exit -command finish ] \
+       -side right
+
+  pack [entry $f.e -textvariable ::HH(elapsed) \
+       -state readonly -justify right -width 6] \
+       -side right -anchor e
+  pack [label $f.el -anchor e -text "Elapsed Time:"] -side right -anchor e
+
+  pack [button $f.sshot -padx 0 -pady 0 -text Screenshot \
+       -command [list windowToFile .]] \
+       -side right -fill x -expand 1
+
+  wm deiconify .
+  wm resizable . 0 0
+} ;# make_gui
+
+proc finish {} {
+  after cancel [after info]
+  progress $::HH(title)\n
+  progress "Fini"
+  catch {
+    hal delf $::HH(instance) $::HH(threadname)
+    hal unlinkp $::HH(inputpinname)
+    if $::HH(signame_is_new) {
+      hal delsig $::HH(signame)
+    }
+  } ;# avoid some msgs on close
+  exit 0
+} ;# finish
+
+proc repeat {} {
+  after cancel $::HH(after,repeat)
+  set ::HH(elapsed) [expr [clock seconds] - $::HH(start)]
+  scan [time { update_chart }] "%d %s" tus notused
+  set tms [expr $tus/1000]
+  set ::HH(after,repeat) [after [expr 2*$tms] repeat] ;# nohogging
+} ;# repeat
+
+proc reset_data {} {
+  progress "Reset data"
+  if {$::HH(nsamples) > 0} {
+  puts "Reset $::HH(pinname): min $::HH(input_min)\
+max:$::HH(input_max) \
+mean:$::HH(mean) \
+sdev:$::HH(sdev) \
+nsamples:$::HH(nsamples)"
+  }
+  hal setp $::HH(instance).reset 1
+  $::HH(widget,posbins) conf -fg black
+  $::HH(widget,negbins) conf -fg black
+  set ::HH(input_min) ""
+  set ::HH(input_max) ""
+  set ::HH(mean) ""
+  set ::HH(sdev) ""
+  set ::HH(pextra) ""
+  set ::HH(nextra) ""
+  set ::HH(p,more) ""
+  set ::HH(n,more) ""
+  after 100
+  hal setp $::HH(instance).reset 0
+  set ::HH(start) [clock seconds]
+  set ::HH(elapsed) 0
+  make_chart
+  return
+} ;# reset_data
+
+proc check_inputs {minvalue binsize nbins} {
+  if {$binsize <= 0} {
+    return "Requested binsize <$binsize> is <= 0"
+  }
+  if {$nbins > $::HH(availablebins)} {
+    return "Requested bins <$nbins> is greater than availablebins <$::HH(availablebins)>"
+  }
+  if {$nbins <= 0} {
+    return "Requested nbins <$nbins> not allowed"
+  }
+
+  if { ![is_int $nbins]    } {return "nbins must be integer"}
+  switch -exact "$::HH(pintype)" {
+    float  {}
+    s32 -
+    u32 -
+    bit    {
+      if { ![is_int $minvalue]} {
+        return "minvalue must be integer <$minvalue> for type $::HH(pintype)"
+      }
+      if { ![is_int $binsize] } {return "binsize must be integer <$binsize>"}
+    }
+  }
+  return ""
+} ;# check_inputs
+
+proc new_comp_settings {} {
+  foreach item {minvalue binsize nbins} {
+    set tmp(restore,$item) $::HH($item)
+  }
+  set msg [check_inputs $::HH(new,minvalue) \
+                        $::HH(new,binsize) \
+                        $::HH(new,nbins)]
+  if {"" != "$msg"} {
+    popup $msg warning
+    foreach item {minvalue binsize nbins} {
+      set ::HH($item)     $tmp(restore,$item)
+      set ::HH(new,$item) $tmp(restore,$item)
+    }
+    return
+  }
+
+  after cancel $::HH(after,monitor) ;# avoid duplicate checks
+  foreach item {minvalue binsize nbins} {
+    if {"$::HH(new,$item)" != ""} {
+      set ::HH($item)                $::HH(new,$item)
+      hal setp $::HH(instance).$item $::HH($item)
+      set ::HH(new,$item)   [format %.3g $::HH(new,$item)]
+    }
+  }
+  after 100
+  set err [hal getp $::HH(instance).input-error]
+  if {$err} {
+    popup "input-error pin set\n\nRestoring prior settings" info
+    foreach item {minvalue binsize nbins} {
+      set ::HH($item) $tmp(restore,$item)
+      set ::HH(new,$item) $tmp(restore,$item)
+      hal setp $::HH(instance).$item $::HH($item)
+    }
+  }
+  set ::HH(maxvalue) [compute_maxvalue]
+  reset_data
+  xaxis
+  monitor
+} ;# new_comp_settings
+
+proc setup_hal {} {
+  if {[hal list funct $::HH(instancename,prefix)] == ""} {
+    set names ""
+    for {set i 0} {$i < $::HH(max_histos)} {incr i} {
+      set names "$names,$::HH(instancename,prefix)-$i"
+    }
+    set names [string trimleft $names ,]
+    hal loadrt  $::HH(compname) names=$names
+    set idx 0 ;# first one used
+  } else {
+    set ::HH(instance) \
+        [next_available_component_instance $::HH(instancename,prefix)]
+    if {"$::HH(instance)" == ""} {
+      set msg "$::HH(prog,short):setup_hal: no instance available"
+      set msg "$msg\nExceeded number ($::HH(max_histos))"
+      popup $msg
+      exit 1
+    }
+    set idx [string range $::HH(instance) \
+                    [expr [string first - $::HH(instance)] +1] end]
+  }
+  set ::HH(instance) $::HH(instancename,prefix)-$idx
+  set ::HH(availablebins) [hal getp $::HH(instance).availablebins]
+
+  set ::HH(threadname) [threadname_for_pin $::HH(pinname)]
+
+  thread_info tinfo
+  if !$tinfo($::HH(threadname),fp) {
+    usage \
+"\n$::HH(pinname) must be running on a thread with floating point enabled
+Use the loadrt motmod option: base_thread_fp=1"
+  }
+
+  if {[is_connected $::HH(pinname) signame] == "not_connected"} {
+    set ::HH(signame) $::HH(signame,prefix,$::HH(pintype))-$idx
+    set ::HH(signame_is_new) 1
+  } else {
+    set ::HH(signame) $signame
+    set ::HH(signame_is_new) 0
+  }
+
+  if [catch {
+    switch -exact "$::HH(pintype)" {
+      float   { set ::HH(inputpinname) $::HH(instance).input
+                hal setp $::HH(instance).pintype 0
+              }
+      s32     { set ::HH(inputpinname) $::HH(instance).input-s32
+                hal setp $::HH(instance).pintype 1
+              }
+      u32     { set ::HH(inputpinname) $::HH(instance).input-u32
+                hal setp $::HH(instance).pintype 2
+              }
+      bit     { set ::HH(inputpinname) $::HH(instance).input-bit
+                hal setp $::HH(instance).pintype 3
+              }
+      default { puts notdoneyet; exit 77 }
+    }
+    hal net $::HH(signame)   $::HH(pinname) $::HH(inputpinname)
+    hal addf $::HH(instance) $::HH(threadname)
+  } emsg] {
+    wm withdraw .
+    set msg "$::HH(prog,short):setup_hal:"
+    set msg "$msg\nPin:      $::HH(pinname)"
+    set msg "$msg\nInput:    $::HH(inputpinname)"
+    set msg "$msg\nSig:      $::HH(signame)"
+    set msg "$msg\nThread:   $::HH(threadname)"
+    set msg "$msg\nInstance: $::HH(instance)"
+    set msg "$msg\n\n"
+    set msg "$msg $emsg"
+    popup $msg
+    exit 1
+  }
+  set ::HH(info) "Pin: $::HH(pinname) Sig: $::HH(signame) ($::HH(instance))"
+} ;# setup_hal
+
+proc start_collection {} {
+  make_chart
+  new_comp_settings
+  set ::HH(elapsed) 0
+} ;# start_collection
+
+proc make_chart {} {
+  set w $::HH(widget)
+  $w legend configure -hide 1 ;# too many nbins for legend
+  for {set bin 0} {$bin <= $::HH(nbins)} {incr bin} {
+    lappend pxd [expr $::HH(minvalue) +(0.5 + $bin) * $::HH(binsize)]
+    lappend pyd 0
+  }
+  # create first time, if resetting then just configure
+  if [$w element exists pdata] {
+    set op configure
+  } else {
+    set op create
+  }
+  $w element $op pmindata \
+     -xdata $::HH(minvalue) \
+     -ydata 0 \
+     -fg $::HH(color) \
+     -relief solid \
+     -bd 0 -barwidth $::HH(binsize) \
+     -bg lightblue
+  $w element $op pdata -xdata $pxd \
+                       -ydata $pyd \
+                       -fg $::HH(color) \
+                       -relief solid \
+                       -bd 0 -barwidth $::HH(binsize) \
+                       -bg lightblue
+  $w element $op pmaxdata \
+     -xdata $::HH(maxvalue) \
+     -ydata 0 \
+     -fg $::HH(color) \
+     -relief solid \
+     -bd 0 -barwidth $::HH(binsize) \
+     -bg lightblue
+} ;# make_chart
+
+proc xaxis {} {
+  set nbins $::HH(nbins)
+  set binsize $::HH(binsize)
+  set tick_dividers {0  5 2 1}
+  foreach v $tick_dividers {
+    if {$v == 0} {
+      lappend ticklist $::HH(minvalue)
+    } else {
+      lappend ticklist [round_number \
+                       [expr $::HH(minvalue) + $nbins/$v*$binsize]]
+    }
+  }
+  set fullscale [expr $nbins * $binsize]
+  $::HH(widget) axis configure x \
+                -hide 0 \
+                -logscale  0 \
+                -showticks 1 \
+                -min [expr -1.0*$::HH(binsize) + $::HH(minvalue)] \
+                -max [expr +1.0*$::HH(binsize) + $::HH(maxvalue)] \
+                -majorticks $ticklist
+                #was: -min 0 -max $fullscale
+} ;# xaxis
+
+proc update_chart {} {
+  set w $::HH(widget)
+  set dly $::HH(dly,ms)
+  set pmore 0 ;# not currently used
+  set nmore 0 ;# not currently used
+  for {set bin 0} {$bin < $::HH(nbins)} {incr bin} {
+    hal setp $::HH(instance).index $bin
+    set ct 0
+    while 1 {
+      after $dly
+      set chk [hal getp $::HH(instance).check]
+      if {$bin == $chk} {
+        break
+      } else {
+        # retry (probably only needed for (irrelevant) non-realtime threads)
+        incr ct
+        set retry_ct 100
+        if {$ct > $retry_ct} {
+          parrah ::HH
+          puts "$::HH(prog):update_chart: retry exceeded $retry_ct"
+          puts [hal show funct $::HH(instancename)]
+          puts "EXITHERE"
+          finish
+        }
+        incr ::HH(reread,ct)
+        if {$ct > 1} {
+          incr dly
+          incr ::HH(bump,ct)
+        }
+      }
+    }
+    set pbin [hal getp $::HH(instance).binvalue]
+    # 1.1 value makes single unit nbins show as pips when using log y scale:
+    if {$pbin == 1} {set pbin 1.1}
+
+    lappend pxd [expr $::HH(minvalue) +(0.5 + $bin) * $::HH(binsize)]
+    lappend pyd $pbin
+  } ;# for bin
+
+  set ::HH(pextra) [hal getp $::HH(instance).pextra]
+  set ::HH(nextra) [hal getp $::HH(instance).nextra]
+
+  set ::HH(input_min) [format %.3g [hal getp $::HH(instance).input-min]]
+  set ::HH(input_max) [format %.3g [hal getp $::HH(instance).input-max]]
+
+  set nsamples [format %u [hal getp $::HH(instance).nsamples]]
+  set ::HH(nsamples) $nsamples
+
+  set mean     [hal getp $::HH(instance).mean]
+  set variance [hal getp $::HH(instance).variance]
+  set sdev     [expr sqrt($variance)]
+  set mean     [hal getp $::HH(instance).mean]
+# puts [format "m=%10.3f %8.3f s=%8.3f %d" \
+#                 $mean $variance $sdev $nsamples]
+  set ::HH(sdev) [format %.3g $sdev]
+  set ::HH(mean) [format %.3g $mean]
+
+  set ::HH(p,more) [expr $pmore + $::HH(pextra)]
+  set ::HH(n,more) [expr $nmore + $::HH(nextra)]
+  if {$::HH(p,more) == 1} {set ::HH(p,more) 1.1} ;# show as pip
+  if {$::HH(n,more) == 1} {set ::HH(n,more) 1.1} ;# show as pip
+
+  set pcolor $::HH(color)
+  set pmaxcolor white
+  if {$::HH(pextra) > 0} {
+    set pcolor red
+    set pmaxcolor $pcolor
+    $::HH(widget,posbins) conf -fg $pcolor
+  } elseif {$::HH(p,more) > 0} {
+    $::HH(widget,posbins) conf -fg $::HH(color)
+  } else {
+    $::HH(widget,posbins) conf -fg black
+  }
+
+  set ncolor $::HH(color)
+  set nmaxcolor white
+  if {$::HH(nextra) > 0} {
+    set ncolor blue
+    set nmaxcolor $ncolor
+    $::HH(widget,negbins) conf -fg $ncolor
+  } elseif {$::HH(n,more) > 0} {
+    $::HH(widget,negbins) conf -fg $::HH(color)
+  } else {
+    $::HH(widget,negbins) conf -fg black
+  }
+
+  set pyd_max_pos $::HH(p,more)
+  set nyd_max_pos $::HH(n,more)
+
+  # display fmt
+  set ::HH(p,more) [format %.0f $::HH(p,more)] ;# clear pip
+  set ::HH(n,more) [format %.0f $::HH(n,more)] ;# clear pip
+
+  $w element configure pmindata \
+     -xdata [expr -0.5*$::HH(binsize) + $::HH(minvalue)] \
+     -ydata $nyd_max_pos \
+     -stipple nbmap \
+     -fg $::HH(color) -bg $nmaxcolor
+  $w element configure pdata -xdata $pxd -ydata $pyd
+  $w element configure pmaxdata \
+     -xdata [expr +0.5*$::HH(binsize) + $::HH(maxvalue)]\
+     -ydata $pyd_max_pos \
+     -stipple pbmap \
+     -fg $::HH(color) -bg $pmaxcolor
+
+  # a y axis configure is needed, updates may fail without it
+  $::HH(widget) axis configure y -logscale $::HH(y,logscale)
+  update
+} ;# update_chart
+
+proc is_int {v} {
+  set v [format %.30g $v] ;# first: expand if v is in exponential format
+  if [catch {format %d $v}] { return 0 }
+  return 1
+} ;# is_int
+
+proc popup {msg {icon error} } { \
+  set title "$::HH(prog,short)"
+  if [info exists ::HH(instance)] {
+    set title "$title ($::HH(instance))"
+  }
+  set answer [tk_messageBox \
+     -parent . \
+     -icon $icon \
+     -type ok \
+     -title "$title" \
+     -message  "$msg" \
+     ]
+  puts $msg
+} ;# popup
+
+proc progress {txt} {
+  if !$::HH(opt,verbose) return
+  puts stderr "$::argv0: [expr [clock seconds] - $::HH(start)]s $txt"
+} ;# progress
+
+proc compute_maxvalue {} {
+  # avoid auto conversions to int
+  set minvalue [format %f $::HH(minvalue)]
+  set binsize  [format %f $::HH(binsize)]
+  set nbins    [format %f $::HH(nbins)]
+
+  if {   $binsize <= 0 \
+      || $nbins <= 0 } {
+    set msg "$::HH(prog,short): bad inputs"
+    set msg "$msg\n\npinname=$::HH(pinname)"
+    popup $msg
+    usage $msg
+    exit 1
+  }
+  set maxvalue [expr $::HH(minvalue) + $::HH(binsize) * $::HH(nbins)]
+  return [format %.3g $maxvalue]
+} ;# compute_maxvalue
+
+proc monitor {} {
+  # external changes to component minvalue,binsize,nbins may
+  # cause component input-error
+  # (changes may cause other problems but only input-error
+  #  is currently tested)
+  after cancel $::HH(after,monitor)
+  if [hal getp $::HH(instance).input-error] {
+    if !$::HH(warning_active) {
+      set ::HH(warning_active) 1
+      popup "
+$::HH(prog): input-error
+nbins=[hal getp $::HH(instance).nbins]
+minvalue=[hal getp $::HH(instance).minvalue]
+binsize=[hal getp $::HH(instance).binsize]
+\nUpdate settings required
+" warning
+    }
+  } else {
+    set ::HH(warning_active) 0
+  }
+  set ::HH(after,monitor) [after 1000 monitor] ;# reschedule
+} ;# monitor
+
+proc usage { {errtxt ""} } {
+  set prog $::HH(prog,short)
+  puts ""
+  puts "Usage:"
+  puts "   $prog --help | -?"
+  puts "or"
+  puts "   $prog \[Options\] \[pinname\]"
+  puts ""
+  puts "Options:"
+  puts "  --minvalue  minvalue (minimum bin, default: $::HH(minvalue))"
+  puts "  --binsize   binsize  (binsize, default: $::HH(binsize))"
+  puts "  --nbins     nbins    (number of bins, default: $::HH(nbins))"
+  puts ""
+  puts "  --logscale  0|1      (y axis log scale, default: $::HH(y,logscale))"
+  puts "  --text      note     (text display, default: \"$::HH(note,txt)\" )"
+  puts "  --show               (show count of undisplayed nbins, default off)"
+  puts "  --verbose            (progress and debug, default off)"
+
+  puts ""
+  puts "Notes:"
+  puts "  1) LinuxCNC (or another Hal application) must be running"
+  puts "  2) If no pinname is specified, default is: $::HH(pinname)"
+  puts "  3) This app may be opened for $::HH(max_histos) pins"
+  puts "  4) pintypes float, s32, u32, bit are supported"
+  puts "  5) The pin must be associated with a thread supporting floating point"
+  puts "     For a base thread, this may require using:"
+  puts "     loadrt motmod ... base_thread_fp=1"
+
+  if {"$errtxt" != ""} {
+    puts ""
+    puts "ERROR:"
+    puts "[file tail $::HH(prog)]: $errtxt"
+    exit 1
+  }
+  exit 0
+} ;# usage
+
+#------------------------------------------------------------------
+proc bltCaptureWindow { win } {
+  set image [image create photo]
+  blt::winop snap $win $image
+  return $image
+} ;# bltCaptureWindow
+
+proc windowToFile { win } {
+  set image [bltCaptureWindow $win]
+  set types {{"Image Files" {.png}}}
+  set ifile $::tcl_platform(user)-$::HH(date)-$::HH(elapsed).png
+  set filename [tk_getSaveFile -filetypes $types \
+      -initialfile  $ifile \
+      -initialdir $::HH(dir,screenshot) \
+      -defaultextension .png]
+  if {[llength $filename]} {
+    set ::HH(dir,screenshot) [file dirname $filename]
+    $image write -format png $filename
+  }
+  image delete $image
+} ;# windowToFile
+#------------------------------------------------------------------
+
+# allow re-sourcing for testing with tkcon
+if ![info exists ::HH(start)] {
+  set_defaults
+  progress "Loading packages"
+  load_packages
+  config
+  progress "setup hal"
+  setup_hal
+  progress "Making gui"
+  make_gui
+  progress "Start_collection"
+  start_collection
+  progress "Begin repeats"
+  repeat
+  monitor
+} else {
+  puts "$::argv0 already running"
+}

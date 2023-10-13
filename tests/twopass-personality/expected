@@ -1,0 +1,11 @@
+twopass:invoked with <> options
+twopass:found ./a.hal
+twopass:found ./b.hal
+
+
+
+
+gateA.and gateA.in-00 gateA.in-01 gateA.in-02 gateA.in-03 gateA.time gateB.in-00 gateB.in-01 gateB.or gateB.time gateC.and gateC.in-00 gateC.in-01 gateC.in-02 gateC.time gateC.xor 
+gateA.tmax gateA.tmax-increased gateB.tmax gateB.tmax-increased gateC.tmax gateC.tmax-increased 
+gateA gateB gateC 
+

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+cat << EOF
+#------------------------------------------------------------
+This obsolete script:
+   $(basename $0)
+should be removed from LinuxCNC ini files (effective 2.8~pre)
+
+xhc-hb04.tcl now controls reduced wheel jogging accels using
+the hal pins:
+  axis.L.jog-accel-fraction
+  joint.N.jog-accel-fraction
+#------------------------------------------------------------
+EOF
+
+exit 0

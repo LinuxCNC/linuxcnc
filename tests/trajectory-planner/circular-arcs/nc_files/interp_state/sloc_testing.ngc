@@ -1,0 +1,38 @@
+(Test program for stepping)
+(Should stop at every line when doing single block, except comments)
+G17
+G90
+G20
+G40
+G80
+G0 Z.25
+G0 X0 Y0
+(Tool Change)
+M6 T3
+(Spindle control)
+M3 S1000
+S300
+M5
+M4 S1000
+M5
+F10
+G54
+M8
+G1 X1 F50
+Y1
+X2
+Y2
+M9
+M6 T2
+M3 S500
+G55
+G1 X0 F50
+G1 X1 Y0
+G1 X2
+M9
+G54
+(Retract height)
+G0 Z1
+M5
+M2
+

@@ -1,0 +1,38 @@
+# connect joint and axis jog pins together for corresponding items
+net jog:x-0  axis.x.jog-counts
+net jog:x-0 joint.0.jog-counts
+
+net jog:y-1  axis.y.jog-counts
+net jog:y-1 joint.1.jog-counts
+
+net jog:z-2  axis.z.jog-counts
+net jog:z-2 joint.2.jog-counts
+
+net jog:3   joint.3.jog-counts
+
+net  jog:enable joint.0.jog-enable
+net  jog:enable joint.1.jog-enable
+net  jog:enable joint.2.jog-enable
+net  jog:enable joint.3.jog-enable
+net  jog:enable  axis.x.jog-enable
+net  jog:enable  axis.y.jog-enable
+net  jog:enable  axis.z.jog-enable
+sets jog:enable  1
+
+net  jog:scale joint.0.jog-scale
+net  jog:scale joint.1.jog-scale
+net  jog:scale joint.2.jog-scale
+net  jog:scale joint.3.jog-scale
+net  jog:scale  axis.x.jog-scale
+net  jog:scale  axis.y.jog-scale
+net  jog:scale  axis.z.jog-scale
+sets jog:scale  1
+
+net  jog:vmode joint.0.jog-vel-mode
+net  jog:vmode joint.1.jog-vel-mode
+net  jog:vmode joint.2.jog-vel-mode
+net  jog:vmode joint.3.jog-vel-mode
+net  jog:vmode  axis.x.jog-vel-mode
+net  jog:vmode  axis.y.jog-vel-mode
+net  jog:vmode  axis.z.jog-vel-mode
+sets jog:vmode  1

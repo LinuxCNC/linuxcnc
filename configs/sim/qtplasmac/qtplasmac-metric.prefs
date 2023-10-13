@@ -1,0 +1,151 @@
+[GUI_OPTIONS]
+Mode = 0
+Estop type = 0
+Autorepeat all = False
+Flash error = False
+Use keyboard shortcuts = False
+Use soft keyboard = False
+Show materials = True
+Run from line = True
+Tool tips = True
+Exit warning = True
+Exit warning text = 
+Preview cone size = 0.5
+Preview grid size = 0.0
+T view zoom scale = 1.0
+Override jog inhibit via Z+ = False
+Hide run = False
+Hide pause = False
+Hide abort = False
+DRO position = bottom
+Custom style = None
+Default material = 0
+
+[LASER_OFFSET]
+X axis = -25.0
+Y axis = 0.0
+
+[CAMERA_OFFSET]
+X axis = 25.0
+Y axis = 0.0
+Camera port = 0
+
+[BUTTONS]
+1 Name = OHMIC\TEST
+1 Code = ohmic-test
+2 Name = PROBE\TEST
+2 Code = probe-test 10
+3 Name = SINGLE\CUT
+3 Code = single-cut
+4 Name = NORMAL\CUT
+4 Code = cut-type
+5 Name = TORCH\PULSE
+5 Code = torch-pulse .5
+6 Name = FRAMING
+6 Code = framing f1000 usecurrentzheight
+7 Name = CHANGE\CONS
+7 Code = change-consumables X100 Y100 F3000
+8 Name = GOTO\HOME
+8 Code = G53 G0 X#<_ini[joint_0]home> Y#<_ini[joint_1]home> Z#<_ini[joint_3]home>
+9 Name = USER\MANUAL
+9 Code = user-manual
+10 Name = 
+10 Code = 
+11 Name = 
+11 Code = 
+12 Name = 
+12 Code = 
+13 Name = 
+13 Code = 
+14 Name = 
+14 Code = 
+15 Name = 
+15 Code = 
+16 Name = 
+16 Code = 
+17 Name = 
+17 Code = 
+18 Name = 
+18 Code = 
+19 Name = 
+19 Code = 
+20 Name = 
+20 Code = 
+
+[COLOR_OPTIONS]
+Foreground = #ffee06
+Highlight = #ffee06
+LED = #ffee06
+Background = #16160e
+Background Alt = #36362e
+Frames = #ffee06
+Estop = #ff0000
+Disabled = #b0b0b0
+Preview = #000000
+
+[ENABLE_OPTIONS]
+THC enable = True
+Corner lock enable = True
+Void lock enable = False
+Use auto volts = True
+Ohmic probe enable = False
+THC auto = False
+
+[STATISTICS]
+Cut time = 0
+Paused time = 0
+Probe time = 0
+Program run time = 0
+Torch on time = 0
+Rapid time = 0
+Cut length = 0
+Pierce count = 0
+
+[PLASMA_PARAMETERS]
+Setup Feed Rate = 2880.0
+Arc Fail Timeout = 3
+Arc OK High = 250
+Arc OK Low = 60
+Arc Maximum Starts = 3
+Arc Voltage Offset = 0
+Arc Voltage Scale = 1
+Velocity Anti Dive Threshold = 90
+Float Switch Travel = 1.5
+Height Per Volt = 0.1
+Void Sense Slope = 500
+Ohmic Maximum Attempts = 0
+Ohmic Probe Offset = 0
+Pid P Gain = 10
+Pid D Gain = 0
+Pid I Gain = 0
+Probe Feed Rate = 300
+Probe Start Height = 25
+Arc Restart Delay = 1
+Safe Height = 25
+Scribe Arming Delay = 0
+Scribe On Delay = 0
+Skip IHS Distance = 0
+Spotting Threshold = 1
+Spotting Time = 0
+THC Delay = 0.5
+THC Sample Counts = 50
+THC Sample Threshold = 1
+THC Threshold = 1
+
+[OFFSET_PROBING]
+X axis = 0
+Y axis = 0
+Delay = 0
+
+[POWERMAX]
+Port = 
+
+[CONVERSATIONAL]
+Preamble = G21 G64P0.25 G40 G49 G80 G90 G92.1 G94 G97
+Postamble = G21 G64P0.25 G40 G49 G80 G90 G92.1 G94 G97
+Origin = 0
+Leadin = 0
+Leadout = 0
+Hole diameter = 32
+Hole speed = 60
+Grid Size = 0

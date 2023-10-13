@@ -1,0 +1,91 @@
+# This file sets up simulated limits/home/spindle encoder hardware.
+# This is a generated file do not edit.
+
+loadrt sim_encoder names=sim-encoder
+setp sim-encoder.ppr 100
+setp sim-encoder.scale 1
+
+net spindle-cmd-rps            sim-encoder.speed
+net fake-spindle-phase-a       sim-encoder.phase-A
+net fake-spindle-phase-b       sim-encoder.phase-B
+net fake-spindle-index         sim-encoder.phase-Z
+
+loadrt sim_axis_hardware names=sim-hardware
+
+net Xjoint-pos-fb      joint.0.pos-fb      sim-hardware.Xcurrent-pos
+net Zjoint-pos-fb      joint.1.pos-fb      sim-hardware.Zcurrent-pos
+
+setp sim-hardware.Xmaxsw-upper 1000
+setp sim-hardware.Xmaxsw-lower [JOINT_0]MAX_LIMIT
+setp sim-hardware.Xminsw-upper [JOINT_0]MIN_LIMIT
+setp sim-hardware.Xminsw-lower -1000
+setp sim-hardware.Xhomesw-pos [JOINT_0]HOME_OFFSET
+
+setp sim-hardware.Zmaxsw-upper 1000
+setp sim-hardware.Zmaxsw-lower [JOINT_2]MAX_LIMIT
+setp sim-hardware.Zminsw-upper [JOINT_2]MIN_LIMIT
+setp sim-hardware.Zminsw-lower -1000
+setp sim-hardware.Zhomesw-pos [JOINT_2]HOME_OFFSET
+
+
+net fake-spindle-index   <= parport.0.pin-12-in-fake
+net fake-spindle-phase-a <= parport.0.pin-13-in-fake
+
+net fake-estop-out       => parport.0.pin-01-out-fake
+net fake-xstep           => parport.0.pin-02-out-fake
+net fake-xdir            => parport.0.pin-03-out-fake
+net fake-ystep           => parport.0.pin-04-out-fake
+net fake-ydir            => parport.0.pin-05-out-fake
+net fake-zstep           => parport.0.pin-06-out-fake
+net fake-zdir            => parport.0.pin-07-out-fake
+net fake-astep           => parport.0.pin-08-out-fake
+net fake-adir            => parport.0.pin-09-out-fake
+net fake-spindle-cw      => parport.0.pin-14-out-fake
+net fake-spindle-pwm     => parport.0.pin-16-out-fake
+net fake-xenable         => parport.0.pin-17-out-fake
+
+net fake-all-home          sim-hardware.homesw-all
+net fake-all-limit         sim-hardware.limitsw-all
+net fake-all-limit-home    sim-hardware.limitsw-homesw-all
+net fake-both-x            sim-hardware.Xbothsw-out
+net fake-max-x             sim-hardware.Xmaxsw-out
+net fake-min-x             sim-hardware.Xminsw-out
+net fake-both-y            sim-hardware.Ybothsw-out
+net fake-max-y             sim-hardware.Ymaxsw-out
+net fake-min-y             sim-hardware.Yminsw-out
+net fake-both-z            sim-hardware.Zbothsw-out
+net fake-max-z             sim-hardware.Zmaxsw-out
+net fake-min-z             sim-hardware.Zminsw-out
+net fake-both-a            sim-hardware.Abothsw-out
+net fake-max-a             sim-hardware.Amaxsw-out
+net fake-min-a             sim-hardware.Aminsw-out
+net fake-both-u            sim-hardware.Ubothsw-out
+net fake-max-u             sim-hardware.Umaxsw-out
+net fake-min-u             sim-hardware.Uminsw-out
+net fake-both-v            sim-hardware.Vbothsw-out
+net fake-max-v             sim-hardware.Vmaxsw-out
+net fake-min-v             sim-hardware.Vminsw-out
+net fake-home-x            sim-hardware.Xhomesw-out
+net fake-home-y            sim-hardware.Yhomesw-out
+net fake-home-z            sim-hardware.Zhomesw-out
+net fake-home-a            sim-hardware.Ahomesw-out
+net fake-home-u            sim-hardware.Uhomesw-out
+net fake-home-v            sim-hardware.Vhomesw-out
+net fake-both-home-x       sim-hardware.Xbothsw-homesw-out
+net fake-max-home-x        sim-hardware.Xmaxsw-homesw-out
+net fake-min-home-x        sim-hardware.Xminsw-homesw-out
+net fake-both-home-y       sim-hardware.Ybothsw-homesw-out
+net fake-max-home-y        sim-hardware.Ymaxsw-homesw-out
+net fake-min-home-y        sim-hardware.Yminsw-homesw-out
+net fake-both-home-z       sim-hardware.Zbothsw-homesw-out
+net fake-max-home-z        sim-hardware.Zmaxsw-homesw-out
+net fake-min-home-z        sim-hardware.Zminsw-homesw-out
+net fake-both-home-a       sim-hardware.Abothsw-homesw-out
+net fake-max-home-a        sim-hardware.Amaxsw-homesw-out
+net fake-min-home-a        sim-hardware.Aminsw-homesw-out
+net fake-both-home-u       sim-hardware.Ubothsw-homesw-out
+net fake-max-home-u        sim-hardware.Umaxsw-homesw-out
+net fake-min-home-u        sim-hardware.Uminsw-homesw-out
+net fake-both-home-v       sim-hardware.Vbothsw-homesw-out
+net fake-max-home-v        sim-hardware.Vmaxsw-homesw-out
+net fake-min-home-v        sim-hardware.Vminsw-homesw-out

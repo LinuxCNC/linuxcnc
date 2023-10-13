@@ -1,0 +1,36 @@
+There are three components to the radius error tolerance for center-format
+arcs.
+
+The "absolute error" is the difference between the radius at the starting
+point and the radius at the ending point.  The "relative error" is the
+absolute error divided by the maximum arc radius.
+
+The absolute error threshold for imperial arcs is:
+
+    2 * 0.001 inch * sqrt(2)
+
+The absolute error threshold for metric arcs is:
+
+    2 * 0.01 mm * sqrt(2)
+
+The relative error threshold for all arcs is 0.001 (0.1%)
+
+An arc fails the radius tolerance test if either of these conditions
+is true:
+
+    * The absolute error is greater than 100 * the absolute error
+      threshold,
+
+    OR
+
+    * The absolute error is greater than the absolute error
+      threshold AND the relative error is greater than the relative
+      error threshold.
+
+
+This yields three error regions:
+
+    r_big < t_abs/t_rel (2.828 inch or 28.28 mm ): r_small > r_big - t_abs
+    r_big < 100 t_abs/t_rel (282.8 inch or 2828 mm): r_small > (1-t_rel) r_big
+    r_big > 100 t_abs/t_rel: r_small > r_big - 100 t_abs
+

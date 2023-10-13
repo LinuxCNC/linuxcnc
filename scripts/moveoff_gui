@@ -1,0 +1,920 @@
+#!/usr/bin/tclsh
+
+# library procs
+# Note: use linuxcnc_var script since this program can be
+#       started without using the linuxcnc script and
+#       ::env(HALLIB_DIR) will not exist
+set hallib_dir [exec linuxcnc_var HALLIB_DIR]
+source [file join $hallib_dir hal_procs_lib.tcl]
+source [file join $hallib_dir util_lib.tcl]
+
+# A gui to demonstrate the use of the moveoff component for
+# applying Hal-only offsets.
+
+# For more info:
+# $ moveoff_gui --help  -- command line options
+# $ man moveoff_gui     -- additional info
+# $ man moveoff         -- about the moveoff component
+
+#-----------------------------------------------------------------------
+# Copyright: 2014
+# Authors:   Dewey Garrett <dgarrett@panix.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#-----------------------------------------------------------------------
+proc wmposition {top} {
+  set geo [wm geometry $top]
+  return [string range $geo [string first + $geo] end]
+} ;# wmposition
+
+proc wmrestore {w position} {
+  if {[wm state $w] == "withdrawn"} {
+    wm deiconify $w
+    wm geometry $w $position
+  }
+} ;# wmrestore
+
+proc wmcenter w {
+  wm withdraw $w
+  update idletasks
+  set x [expr [winfo screenwidth $w]/2 \
+            - [winfo reqwidth $w]/2  - [winfo vrootx [winfo parent $w]]]
+  set y [expr [winfo screenheight $w]/2 \
+            - [winfo reqheight $w]/2  - [winfo vrooty [winfo parent $w]]]
+  wm geom $w +$x+$y
+  wm deiconify $w
+} ;# wmcenter
+
+proc withdraw_with_save_loc {top} {
+  set ::MV(location) [wmposition $top]
+  wm withdraw $top
+} ;# withdraw_with_save_loc
+
+proc restore_using_save_loc {top} {
+  wmrestore $top $::MV(location)
+} ;# restore_using_save_loc $::MV(top)
+
+proc qid {} {
+  # unique identifier
+  if ![info exists ::MV(qid)] { set ::MV(qid) 0 }
+  return [incr ::MV(qid)]
+} ;# qid
+
+proc get_move_enable {} {
+  # special case boolean, used for setting
+  # ::MV(enable,offsets) which is  the -variable
+  # for the Enable checkbutton and may be
+  # managed externally
+  # ensure it is 1|0 for comparisons always
+  if {[hal getp $::m.move-enable]} {
+    return 1
+  } else {
+    return 0
+  }
+} ;# get_move_enable
+
+proc do_poll {} {
+  set ::MV(enable,offsets) [get_move_enable]
+  set apply_offsets        [hal getp $::m.apply-offsets]
+  set offset_applied       [hal getp $::m.offset-applied]
+  set at_limit             [hal getp $::m.waypoint-limit]
+
+  if {$apply_offsets != $::MV(old,apply_offsets)} {
+    if {$apply_offsets} {
+      if !$::MV(no_display) {restore_using_save_loc $::MV(top)}
+      if {   $::MV(control_move_enable) \
+          && $::MV(auto_enable_apply_offsets) \
+         } {
+        set ::MV(enable,offsets) 1; hal setp $::m.move-enable 1
+      }
+    } else {
+      # apply-offsets deasserted ==> moveoff component will remove offsets
+      zero_all_offset_inputs
+      withdraw_with_save_loc $::MV(top)
+    }
+  }
+
+  if {$::MV(enable,offsets) != $::MV(old,enable,offsets)} {
+    foreach aname $::MV(axes) {
+      if $::MV(enable,offsets) {
+        $::MV(button,apply,$aname) configure -state normal
+      } else {
+        $::MV(button,apply,$aname) configure -state disabled
+      }
+    }
+    if {   !$::MV(enable,offsets) \
+        && !$::MV(entry,keep_on_disable)} {
+        foreach letter {x y z a b c u v w} {
+          set ::MV(offset,$letter) [format "$::MV(offset,format)" 0]
+        }
+    }
+  }
+
+  set status_msg ""
+  if {$at_limit} {
+    set status_msg "Waypoint limit (Disable required)"; set bg orange
+  } else {
+    if $offset_applied {
+       if $::MV(enable,offsets) {
+         set status_msg "OFFSETS ACTIVE";   set bg red
+         $::MV(button,enable) conf -state normal
+       } else {
+         set status_msg "Removing offsets"; set bg yellow
+         $::MV(button,enable) conf -state disabled
+       }
+    } else {
+       if $::MV(enable,offsets) {
+         set status_msg "Offsets Enabled"
+         set bg cyan
+         $::MV(button,enable) conf -state normal
+       } else {
+         set status_msg "Offsets Disabled"; set bg green
+         $::MV(button,enable) conf -state normal
+       }
+    }
+  }
+
+  # move_enable deasserted while apply_offsets true
+  # Note: apply_offsets included in case external connection
+  #       deasserts it
+  if {   ($::MV(enable,offsets) != $::MV(old,enable,offsets)) \
+      && !$::MV(enable,offsets) \
+      &&  $::MV(opt,resume_withdelay) \
+      && ($::MV(old,enable,offsets) != -1) \
+      && $apply_offsets \
+     } {
+    # move_enable deasserted   ==> moveoff component will remove offsets
+    after 0 request_resume_after_delay
+  }
+
+  if { ![hal getp motion.motion-enabled]} {
+    set bg white
+    set status_msg "${status_msg} --- Motion Off"
+    if { $::MV(control_move_enable) } {
+      set ::MV(enable,offsets) 0; hal setp $::m.move-enable 0
+      $::MV(button,enable) conf -state disabled
+      zero_all_offset_inputs
+    }
+  }
+
+  if {"$status_msg" != $::MV(old,status_msg)} {
+    set ::MV(label,applied,text) $status_msg
+    $::MV(label,applied) configure -state normal -bg $bg
+    if { !$::MV(opt,no_resume_inhibit) } {
+      if $offset_applied {
+        disallow_resume
+      } else {
+        allow_resume
+      }
+    }
+  }
+
+  foreach aname $::MV(axes) {
+    set jnum $::MV($aname,jnum)
+    set ::MV(current,$aname) [format "$::MV(current,format)" \
+                             [hal getp $::m.offset-current-${jnum}]]
+  }
+
+  set waypoint_pct [hal getp $::m.waypoint-percent-used]
+  set waypoint_msg "Waypoint Usage: ${waypoint_pct} %"
+  set ::MV(label,message,text) "$waypoint_msg"
+
+  if {"$status_msg" != $::MV(old,waypoint_msg)} {
+    if {$waypoint_pct >= $::MV(waypoint,threshold,low)} {
+       pack $::MV(label,message,frame) -expand 1 -fill x
+       if {$waypoint_pct > $::MV(waypoint,threshold,high)} {
+         $::MV(label,message) conf -bg red
+       } else {
+         $::MV(label,message) conf -bg "#d9d9d9"
+       }
+    } else {
+       $::MV(label,message) conf -bg "#d9d9d9"
+       pack forget $::MV(label,message,frame)
+    }
+  }
+
+  set ::MV(old,apply_offsets) $apply_offsets
+  set ::MV(old,enable,offsets) $::MV(enable,offsets)
+  set ::MV(old,status_msg) $status_msg
+  set ::MV(old,waypoint_msg) $waypoint_msg
+
+  after $::MV(poll,ms) do_poll
+} ;# do_poll
+
+proc request_resume_after_delay {} {
+  if [get_move_enable] {
+    return ;# could get canceled by another writer
+  }
+  set offset_applied [hal getp $::m.offset-applied]
+  if { !$offset_applied} {
+    resume_after_delay
+  } else {
+    #reschedule
+    after $::MV(resume,delay,sample,ms) request_resume_after_delay
+  }
+} ;# request_resume_after_delay
+
+proc resume_after_delay {} {
+  withdraw_with_save_loc $::MV(top)
+  set dly [format %.1f $::MV(resume,delay,secs)]
+  set ::MV(resume,msg) "Auto Resume in $dly secs"
+
+  set t [toplevel .resuming]
+  set ::MV(resume,widget) $t
+  wm title $t "$::MV(prog) Auto Resume"
+  set msg_fsize $::MV(font,size)
+  pack [label $t.l  -textvar ::MV(resume,msg) \
+                    -font [list Helvetica $msg_fsize bold] \
+       ] -side top -fill both
+  set cancel_fsize [expr $::MV(font,size) + 8]
+  if !$::MV(opt,no_cancel_autoresume) {
+    pack [button $t.b -text "Cancel Auto Resume" -bd 5 \
+                      -font [list Helvetica $cancel_fsize bold] \
+                      -command cancel_auto_resume \
+         ] -expand 1 -fill both
+  }
+  if $::MV(no_display) {
+    # use window manager placement for auto resume cancel widget
+  } else {
+    # use the same geometry as the toplevel for the popup:
+    wm geometry $t [wm geometry $::MV(top)]
+  }
+
+  set ::MV(resume,delay,remaining,ms) [expr 1000 *$::MV(resume,delay,secs)]
+  after $::MV(resume,delay,sample,ms) pulse_resume_wait
+} ;# resume_after_delay
+
+proc pulse_resume_wait {} {
+  set dly_ms $::MV(resume,delay,remaining,ms)
+  if { ![hal getp halui.program.is-paused] } {
+    # some other actor resumed
+    after $::MV(resume,pulse,ms) clear_resume
+    return
+  }
+  if {$dly_ms <= 0} {
+    hal setp halui.program.resume 1
+    after $::MV(resume,pulse,ms) clear_resume
+    destroy $::MV(resume,widget)
+  } else {
+    set dly_secs [format %.1f [expr $dly_ms/1000.]]
+    set ::MV(resume,msg) "Auto resume in $dly_secs secs"
+    set ::MV(resume,delay,remaining,ms) [expr $dly_ms \
+                                        - $::MV(resume,delay,sample,ms)]
+    set ::MV(resume,cancel,id) \
+        [after $::MV(resume,delay,sample,ms) pulse_resume_wait]
+  }
+} ;# pulse_resume
+
+proc cancel_auto_resume {} {
+  catch {after cancel $::MV(resume,cancel,id)}
+  clear_resume
+  if !$::MV(no_display) {restore_using_save_loc $::MV(top)}
+  # no competing app connected to $::m.move-enable
+  if { $::MV(control_move_enable) } {
+    set ::MV(enable,offsets) 1; hal setp $::m.move-enable 1
+    zero_all_offset_inputs
+  }
+} ;# cancel_auto_resume
+
+proc clear_resume {} {
+  hal setp halui.program.resume 0
+  destroy $::MV(resume,widget)
+} ;# pulse_resume
+
+proc do_offset {aname} {
+  if { ![hal getp motion.motion-enabled] } {return}
+  set jnum $::MV($aname,jnum)
+  hal setp $::m.offset-in-${jnum} $::MV(offset,$aname)
+  set ::MV(offset,$aname) [format "$::MV(offset,format)" \
+                          $::MV(offset,$aname)]
+} ;# do_offset
+
+proc bump_offset {aname value} {
+  if { ![hal getp motion.motion-enabled] } {return}
+  set jnum $::MV($aname,jnum)
+  switch $value {
+    plus  {set ::MV(offset,$aname) [format "$::MV(offset,format)" \
+               [expr $::MV(offset,$aname) + $::MV(increment)]]
+          }
+    zero  {set ::MV(offset,$aname) 0
+          }
+    minus {set ::MV(offset,$aname) [format "$::MV(offset,format)" \
+               [expr $::MV(offset,$aname) - $::MV(increment)]]
+          }
+  }
+  hal setp $::m.offset-in-${jnum} $::MV(offset,$aname)
+} ;# bump_offset
+
+proc toggle_enable_backtrack {args} {
+  if {$::MV(enable,backtrack)} {
+     hal setp $::m.backtrack-enable 1
+  } else {
+     hal setp $::m.backtrack-enable 0
+  }
+} ;# toggle_enable_backtrack
+
+proc toggle_enable_offsets {args} {
+  if {$::MV(enable,offsets)} {
+     hal setp $::m.move-enable 1
+  } else {
+     hal setp $::m.move-enable 0
+  }
+  zero_all_offset_inputs
+} ;# toggle_enable_offsets
+
+proc zero_all_offset_inputs {} {
+  if {! $::MV(control_move_enable)} { return }
+  foreach aname $::MV(axes) {
+    set ::MV(offset,$aname) [format "$::MV(offset,format)" 0]
+    set jnum $::MV($aname,jnum)
+    hal setp $::m.offset-in-${jnum} 0.0
+  }
+} ;# zero_all_offset_inputs
+
+proc make_gui {} {
+  set t $::MV(top)
+  wm withdraw $::MV(top)
+
+  set f1 [frame $t.[qid] -relief groove -bd 4]
+  pack $f1 -fill x -expand 1 -side top
+  set ::MV(enable,offsets) [get_move_enable]
+  set ::MV(button,enable) noop ;# anticipate possible external control
+  if $::MV(control_move_enable) {
+    set f1a [frame $f1.[qid] -relief ridge -bd 2]
+    pack $f1a -fill x -expand 1 -side top
+    set ::MV(button,enable) [checkbutton $f1a.[qid] \
+                            -text "Enable Offsets" \
+                            -anchor w \
+                            -variable ::MV(enable,offsets) \
+                            -command toggle_enable_offsets]
+    pack $::MV(button,enable) -side left -fill x -expand 1 -anchor w
+
+    if {[llength $::MV(axes)] > 1} {
+      set ::MV(enable,backtrack) 1
+      set ::MV(button,backtrack) [checkbutton $f1a.[qid] \
+                                 -text "Backtrack" \
+                                 -anchor e \
+                                 -variable ::MV(enable,backtrack) \
+                                 -command toggle_enable_backtrack]
+      pack $::MV(button,backtrack) -side left -fill x -expand 1 -anchor w
+    } else {
+      set ::MV(enable,backtrack) 0 ;# no backtrack for single axis
+    }
+    hal setp $::m.backtrack-enable $::MV(enable,backtrack)
+
+    pack [label $f1.[qid] -text Increment:] -side left
+    set ::MV(increment) [lindex $::MV(increments) 0] ;# default
+    foreach inc $::MV(increments) {
+      pack [radiobutton  $f1.[qid] -variable ::MV(increment) \
+                                  -text $inc -value $inc \
+           ] -side left
+    }
+  }
+
+  foreach aname $::MV(axes) {
+    set jnum $::MV($aname,jnum)
+    set f2 [frame $t.[qid]]
+
+    pack $f2 -fill x -expand 1
+    set ::MV(button,apply,$aname) noop
+    set ::MV(entry,offset,$aname) noop
+
+    if $::MV(show,entry) {
+      set ::MV(button,apply,$aname) [button $f2.[qid] -bd 2 -padx 2 -pady 2\
+                                    -text "$aname Offset" \
+                                    -command [list do_offset $aname]]
+      pack $::MV(button,apply,$aname) -side left -anchor w
+      set ::MV(entry,offset,$aname) [entry $f2.[qid] \
+                                    -width 10 \
+                                    -textvariable ::MV(offset,$aname) \
+                                    -justify right \
+                                    ]
+      pack $::MV(entry,offset,$aname) -side left -anchor w -fill x
+      bind $::MV(entry,offset,$aname) <Return> [list do_offset $aname]
+    }
+    if $::MV(show,increments) {
+      set ::MV(bump,minus,$aname) [button $f2.[qid] -bd 2 \
+                                  -width $::MV(button,increment,width) \
+                                  -text "-" \
+                                  -command [list bump_offset $aname minus]]
+      pack $::MV(bump,minus,$aname) -side left
+
+      set ::MV(bump,zero,$aname) [button $f2.[qid] -bd 2 \
+                                 -width $::MV(button,increment,width) \
+                                 -text "0" \
+                                 -command [list bump_offset $aname zero]]
+      pack $::MV(bump,zero,$aname) -side left
+
+      set ::MV(bump,plus,$aname) [button $f2.[qid] -bd 2 \
+                                 -width $::MV(button,increment,width) \
+                                 -text "+" \
+                                 -command [list bump_offset $aname plus]]
+      pack $::MV(bump,plus,$aname) -side left
+    }
+    if !$::MV(show,entry) {
+      set Aname [string toupper $aname]
+      pack [label $f2.[qid] -text "Current $Aname Offset:"] -side left
+    }
+    set ::MV(label,current,$aname)  [label $f2.[qid] \
+                                    -width 10 -bd 0 \
+                                    -fg red -bg black\
+                                    -textvariable ::MV(current,$aname) \
+                                    -justify right \
+                                    ]
+     pack $::MV(label,current,$aname) -side left -anchor w -fill x -expand 1
+  }
+
+  set f3 [frame $t.[qid] -relief sunken -bd 4]
+  pack $f3 -fill x -expand 1
+  set ::MV(label,applied,text) ""
+  set ::MV(label,applied) [label $f3.l \
+                          -width 30 \
+                          -anchor w \
+                          -state normal \
+                          -textvariable ::MV(label,applied,text) ]
+  pack $::MV(label,applied) -side left -fill x -expand 1
+
+  set f4 [frame $t.[qid] -relief sunken -bd 4]
+  pack $f4 -fill x -expand 1
+  set ::MV(label,message,frame) $f4
+  pack forget $::MV(label,message,frame)
+  set ::MV(label,message,text) "Remove offsets before resuming"
+  set ::MV(label,message) [label $f4.l \
+                          -width 30 \
+                          -state normal \
+                          -textvariable ::MV(label,message,text) ]
+  pack $::MV(label,message) -side left -fill x -expand 1
+  if {$::MV(location) == "center"} {
+    set ::MV(location) [wmcenter $::MV(top)]
+  }
+  wm resizable $t 0 0
+} ;# make_gui
+
+proc noop {args} {
+} ;# noop
+
+proc bye {} {
+  if 0 {
+    set offset_applied [hal getp $::m.offset-applied]
+    if $offset_applied {
+      puts "$::MV(prog):Disallow window delete while offset applied"
+      return
+    }
+      set txt "Are you Sure?\n
+You probably should resume in the main GUI"
+      set ans [tk_messageBox -type okcancel \
+                    -title "Close $::MV(prog)" \
+                    -icon question \
+                    -message "$txt"
+              ]
+      if {"$ans" == "cancel"} return
+      destroy $::MV(top)
+      destroy .
+      return
+  }
+  puts "$::MV(prog):Disallow window delete"
+  return
+} ;# bye
+
+proc bitpin_exists {pattern} {
+  # return unique name iff unique bit pin matching pattern exists
+  set ans [string trim [hal list pin -tbit $pattern]]
+  if {[llength $ans] == 1} {return "$ans"}
+  return ""
+} ;# bitpin_exists
+
+proc connect_pin_to_sig {pinname new_signame} {
+  if {[is_connected $pinname existing_signame] != "not_connected"} {
+    set use_signame $existing_signame
+  } else {
+    set use_signame $new_signame
+  }
+  set msg ""
+  if {"$existing_signame" != ""} {
+    set msg "(attaching)"
+  }
+  puts "$::MV(prog):net $use_signame $pinname $msg"
+  hal net $use_signame $pinname
+  return "$use_signame"
+} ;# connect_pin_to_sig
+
+proc disallow_resume {} {
+  set resume_inhibit_pin [bitpin_exists *.resume-inhibit]
+  if {"$resume_inhibit_pin" == ""} return
+  hal setp $resume_inhibit_pin 1
+} ;# disallow_resume
+
+proc allow_resume {} {
+  set resume_inhibit_pin [bitpin_exists *.resume-inhibit]
+  if {"$resume_inhibit_pin" == ""} return
+  hal setp $resume_inhibit_pin 0
+} ;# allow_resume
+
+proc set_defaults {} {
+  # housekeeping:
+  set ::MV(control_move_enable) 1
+  set ::MV(no_display)          0
+  set ::MV(show,entry)          1
+  set ::MV(show,increments)     1
+
+  set ::m mv ;# expected name of the moveoff component
+              # (loadrt moveoff names=mv)
+  set ::MV(old,apply_offsets)    -1
+  set ::MV(old,enable,offsets)   -1
+  set ::MV(old,status_msg)       -1
+  set ::MV(old,waypoint_msg)     -1
+  set ::MV(offset,format)        "%g"
+  set ::MV(current,format) $::MV(offset,format)
+
+  # defaults:
+  set ::MV(parm,axes)   xyz ;# not a list,no spaces
+  set ::MV(font)        {Helvetica 14 bold}
+  set ::MV(font,family) [lindex $::MV(font) 0]
+  set ::MV(font,size)   [lindex $::MV(font) 1]
+  set ::MV(font,weight) [lindex $::MV(font) 2]
+  set ::MV(location)    center  ;# start position: center | +x+y (in pixels)
+                                # example set ::MV(location) +10+10
+                                # example set ::MV(location) center
+
+  foreach letter {x y z a b c u v w} {
+    set ::MV(offset,$letter) [format "$::MV(offset,format)" 0] ;# initial value
+  }
+
+  set  ::MV(increments) {0.001 0.01 0.10 1.0}  ;# increments for +/- buttons
+
+  set ::MV(opt,mode)             onpause
+  set ::MV(opt,debug)                  0
+  set ::MV(opt,resume_withdelay)       0
+  set ::MV(opt,noentry)                0
+  set ::MV(opt,no_resume_inhibit)      0
+  set ::MV(opt,no_pause_requirement)   0
+  set ::MV(opt,no_cancel_autoresume)   0
+  set ::MV(opt,no_display)             0
+  set ::MV(resume,pulse,ms)          100
+  set ::MV(resume,delay,sample,ms)   500
+  set ::MV(resume,delay,secs)          5
+
+  # defaults with no cmdline opts:
+  set ::MV(auto_enable_apply_offsets)   0 ;# for immediate enable
+  set ::MV(poll,ms)                  1000 ;# polling interval
+  set ::MV(button,increment,width)      3 ;# width in chars
+  set ::MV(waypoint,threshold,low)     50 ;# percent
+  set ::MV(waypoint,threshold,high)    80 ;# percent
+  set ::MV(entry,keep_on_disable)       0 ;# default 0 is remove them
+} ;# set_defaults
+
+proc verify_context {} {
+  # return "" if ok, else errtxt
+
+  if !$::MV(opt,no_pause_requirement) {
+    if {"" == [bitpin_exists halui.program.is-paused]} {
+      return "linuxcnc and halui must be running\n
+For info:\n$::MV(prog) --help | more"
+    }
+  }
+  if {"" == [bitpin_exists $::m.apply-offsets]} {
+    return "moveoff component must be loaded with name: $::m"
+  }
+
+  switch [is_connected $::m.apply-offsets sig] {
+    not_connected {}
+    is_input { return \
+              "$::MV(prog):$::m.apply-offsets must not be connected <$sig>"
+             }
+    default {return "is_connected:$::m.apply-offsets unexpected"}
+  }
+
+  switch [is_connected $::m.move-enable sig] {
+    not_connected {puts \
+      "$::MV(prog):$::m.move-enable not connected, Providing controls"
+      set ::MV(control_move_enable) 1
+      foreach name {apply-offsets backtrack-enable} {
+        if {[is_connected $::m.$name] != "not_connected"} {
+          return  "Error: $::M.$name is already connected"
+        }
+      }
+      foreach aname $::MV(axes) {
+        set jnum $::MV($aname,jnum)
+        set pname $::m.offset-in-${jnum}
+        if {[is_connected $pname] != "not_connected"} {
+          return "Error: $pname is already connected"
+        }
+      }
+    }
+    is_input {
+      set ::MV(control_move_enable) 0
+      set msg "$::m.move-enable already connected <$sig>, no controls"
+      if $::MV(opt,no_display) {
+        set ::MV(no_display) 1
+        set msg "${msg}, no_display"
+      }
+      puts "$::MV(prog): $msg"
+    }
+    default {return "is_connected:move-enable unexpected"}
+  }
+  if {   $::MV(opt,resume_withdelay) \
+      && ([is_connected halui.program.resume] != "not_connected") } {
+    return "halui.program.resume is connected cannot use -autoresume <$sig>"
+  }
+
+  return ""
+} ;# verify_context
+
+proc get_parms {} {
+  # return "" or errtxt
+  while {[llength $::argv] >0} {
+    # beware wish handling of reserved cmdline arguments
+    # to use -h: use -- -h,
+    # lreplace shifts argv for no. of items for each iteration
+    set opt [lindex $::argv 0]
+    switch -- $opt {
+      -h - -? -
+      --help {usage}
+
+      -noentry {set ::MV(opt,noentry) 1
+                set ::MV(show,entry)  0
+                set ::MV(show,increments) 1
+                set ::argv [lreplace $::argv 0 0]
+               }
+
+      -axes {set ::MV(parm,axes) [lindex $::argv 1]
+             set ::argv [lreplace $::argv 0 1]
+             }
+      -inc  {lappend incrlist [lindex $::argv 1]
+             set ::argv [lreplace $::argv 0 1]
+            }
+      -size {set ::MV(font) [list $::MV(font,family) \
+                            [lindex $::argv 1] $::MV(font,weight)]
+             set ::argv [lreplace $::argv 0 1]
+            }
+      -loc  {set ::MV(location) [lindex $::argv 1]
+             set ::argv [lreplace $::argv 0 1]
+            }
+
+      -autoresume {set ::MV(opt,resume_withdelay) 1
+                   set ::argv [lreplace $::argv 0 0]
+                  }
+      -delay {set ::MV(resume,delay,secs) [lindex $::argv 1]
+              set ::argv [lreplace $::argv 0 1]
+             }
+
+      -mode  {set ::MV(opt,mode) [lindex $::argv 1]
+              set ::argv [lreplace $::argv 0 1]
+            }
+
+      -no_resume_inhibit {set ::MV(opt,no_resume_inhibit) 1
+                          set ::argv [lreplace $::argv 0 0]
+                         }
+      -no_pause_requirement {set ::MV(opt,no_pause_requirement) 1
+                             set ::argv [lreplace $::argv 0 0]
+                            }
+      -no_cancel_autoresume {set ::MV(opt,no_cancel_autoresume) 1
+                             set ::argv [lreplace $::argv 0 0]
+                            }
+      -no_display           {set ::MV(opt,no_display) 1
+                             set ::argv [lreplace $::argv 0 0]
+                            }
+
+      -debug {set ::MV(opt,debug) 1
+              set ::argv [lreplace $::argv 0 0]
+             }
+
+      default {usage "Unknown option <$opt>"}
+    }
+  }
+  set debug_get_parms 0
+  if {$debug_get_parms} {
+    if [info exists incrlist] {puts "incrlist=$incrlist"}
+    puts "                axes=$::MV(parm,axes)"
+    puts "                font=$::MV(font)"
+    puts "                 loc=$::MV(location)"
+    puts "   resume,delay,secs=$::MV(resume,delay,secs)"
+    puts "opt,resume_withdelay=$::MV(opt,resume_withdelay)"
+    puts "         opt,noentry=$::MV(opt,noentry)"
+    puts "           opt,debug=$::MV(opt,debug)"
+    puts "            opt,mode=$::MV(opt,mode)"
+  }
+  if [info exists ::MV(font)] { option add *Font $::MV(font) }
+
+  if [info exists ::MV(parm,axes)] {
+    set ::MV(parm,axes) [string tolower $::MV(parm,axes)]
+    set plist [split $::MV(parm,axes) ""] ;# xQyz-->{x Q y z}
+    foreach letter $plist {
+       if {[string first $letter xyzabcuvw] < 0} {
+         return "unknown axis letter <$letter>"
+      }
+    }
+    # make a list in usual order: eg from xyz to {x y z}
+    foreach letter {x y z a b c u v w} {
+      if {[string first $letter $::MV(parm,axes)] >= 0} {
+        lappend ::MV(axes)  $letter
+      }
+    }
+  }
+  if {[llength $::MV(axes)] > 9} {
+    # size limit of the component
+    return "too many axes specified, limit is 9"
+  }
+  if [info exists incrlist] {
+    set ::MV(increments) [lsort -real -increasing $incrlist]
+  }
+  if {[llength $::MV(increments)] > 4} {
+    return "too many increments, limit is 4"
+  }
+  switch $::MV(opt,mode) {
+    onpause {}
+    always  { if $::MV(opt,resume_withdelay) {
+                puts "$::MV(prog):Incompatible -mode always and -autoresume"
+                puts "$::MV(prog):Disabling -autoresume"
+                #return "Incompatible -mode always and -autoresume"
+              }
+              set ::MV(opt,resume_withdelay)  0 ;# force for mode -always
+              set ::MV(opt,no_resume_inhibit) 1 ;# force for mode -always
+            }
+    default {return "Unknown mode <$::MV(opt,mode)>"}
+  }
+
+  return "" ;# ok
+} ;# get_parms
+
+proc set_restrictions_on_widgets {} {
+  foreach aname $::MV(axes) {
+    set ans [is_connected $::m.offset-in-$::MV($aname,jnum) sig]
+    if {$ans == "is_input"} {
+       puts "$::MV(prog):$aname input is already connected <$sig>"
+       set ::MV(show,entry) 0
+       set ::MV(show,increments) 0
+    }
+  }
+} ;# set_restrictions_on_widgets
+
+proc cross_reference {} {
+  # return "" or errtxt
+  foreach aname $::MV(axes) {
+    set jnum [joint_number_for_axis $aname]
+    set ::MV($aname,jnum) $jnum
+    set ::MV($jnum,aname) $aname ;# cross-ref
+    if [catch {hal getp $::m.offset-current-${jnum}} msg ] {
+      return "axis:$aname index=$jnum $msg"
+    }
+  }
+  return "" ;# ok
+} ;# cross_reference
+
+proc error_popup {msg} { \
+  set answer [tk_messageBox \
+     -parent . \
+     -icon error \
+     -type ok \
+     -title "$::MV(prog) Error" \
+     -message  "$msg" \
+     ]
+  puts "$msg"
+} ;# popup
+#-----------------------------------------------------------------------
+proc usage { {errtxt ""} } {
+  foreach item {resume_withdelay \
+                noentry \
+                no_resume_inhibit \
+                no_pause_requirement \
+                no_cancel_autoresume \
+                no_display \
+               } {
+    if $::MV(opt,$item) {
+      set default_$item inuse
+    } else {
+      set default_$item notused
+    }
+  }
+  puts stdout \
+"
+Usage:
+$::MV(prog) \[Options\]
+
+Options:
+    \[--help | -? | -- -h \]  (This text)
+
+    \[-mode \[onpause | always\]\]  (default: $::MV(opt,mode))
+                                  (onpause: show gui when program paused)
+                                  (always:  show gui always)
+
+    \[-axes axisnames\]       (default: $::MV(parm,axes) (no spaces))
+                              (letters from set of: x y z a b c u v w)
+                              (example: -axes z)
+                              (example: -axes xz)
+                              (example: -axes xyz)
+    \[-inc incrementvalue\]   (default: $::MV(increments) )
+                              (specify one per -inc (up to 4) )
+                              (example: -inc 0.001 -inc 0.01 -inc 0.1 )
+    \[-size integer\]         (default: $::MV(font,size)
+                              (Overall gui popup size is based on font size)
+    \[-loc center|+x+y\]      (default: $::MV(location))
+                              (example: -loc +10+200)
+    \[-autoresume\]           (default: $default_resume_withdelay)
+                              (resume program when move-enable deasserted)
+    \[-delay delay_secs\]     (default: $::MV(resume,delay,secs) (resume delay))
+
+Options for special cases:
+    \[-noentry\]              (default: $default_noentry)
+                              (don\'t create entry widgets)
+    \[-no_resume_inhibit\]    (default: $default_no_resume_inhibit)
+                              (do not use a resume-inhibit-pin)
+    \[-no_pause_requirement\] (default: $default_no_pause_requirement)
+                              (no check for halui.program.is-paused)
+    \[-no_cancel_autoresume\] (default: $default_no_cancel_autoresume)
+                              (useful for retracting offsets with simple)
+                              (external controls)
+    \[-no_display\]           (default: $default_no_display)
+                              (Use when both external controls and external)
+                              (displays are in use)
+
+Note: If the moveoff move-enable pin ($::m.move-enable) is connected when
+      $::MV(prog) is started, external controls are required and only
+      displays are provided.
+"
+#"vim
+
+  if $::MV(opt,debug) {parray ::MV}
+  if {"$errtxt" != ""} {
+    puts "$::MV(prog):$errtxt"
+    exit 1
+  }
+  exit 0
+} ;# usage
+
+#-----------------------------------------------------------------------
+# begin
+if ![info exists ::MV(top)] {
+  package require Tk
+  wm withdraw .
+  package require Hal
+  set ::MV(prog) [file tail $::argv0]
+  set_defaults
+
+  set errtxt [get_parms]
+  if {"$errtxt" != ""} {
+     error_popup "get_parms: $errtxt"
+     usage "$errtxt"
+  }
+
+  set errtxt [cross_reference]
+  if {"$errtxt" != ""} {
+     error_popup "cross_reference: $errtxt"
+     usage "$errtxt"
+  }
+
+  set errtxt [verify_context]
+  if {"$errtxt" != ""} {
+    error_popup "verify_context:\n$errtxt"
+    if $::MV(opt,debug) {parray ::MV}
+    exit 1
+  } else {
+    puts "$::MV(prog):verify_context: ok"
+  }
+
+  set_restrictions_on_widgets ;# conditionally disable some controls
+
+  # connect power-on (to existing signal if necessary)
+  set psigname [connect_pin_to_sig motion.motion-enabled mvoff_gui:power_on]
+  connect_pin_to_sig $::m.power-on $psigname
+
+  set titletxt "$::MV(prog) $::MV(opt,mode)"
+  if {$::MV(control_move_enable)} {
+    set titletxt "$titletxt local"
+  } else {
+    set titletxt "$titletxt external"
+  }
+  switch $::MV(opt,mode) {
+    always  { hal setp $::m.apply-offsets 1 }
+    onpause { set signame [connect_pin_to_sig halui.program.is-paused \
+                                              mvoff_gui:apply_offsets]
+              connect_pin_to_sig $::m.apply-offsets $signame
+              if {$::MV(opt,resume_withdelay)} {
+                set titletxt "$titletxt autoresume:on"
+              } else {
+                set titletxt "$titletxt autoresume:off"
+              }
+            }
+    default {puts "$::MV(prog):Unexpected mode: $::MV(opt,mode)"}
+  }
+  set ::MV(top) [toplevel .t]
+  wm title $::MV(top) "$titletxt"
+  wm protocol $::MV(top) WM_DELETE_WINDOW bye
+
+  make_gui
+  do_poll
+
+  if $::MV(opt,debug) {parray ::MV}
+}

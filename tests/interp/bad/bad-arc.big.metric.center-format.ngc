@@ -1,0 +1,6 @@
+;Radius to end of arc differs from radius to start: start=(X0.0000,Y0.0000) center=(X3001.4284,Y0.0000) end=(X6000.0000,Y0.0000) r1=3001.4284 r2=2998.5716 abs_err=2.857 rel_err=0.0952%
+
+g21
+f1
+g0x0y0z0
+g2 x6000 i[3000 + [100 * [0.0101 * sqrt[2]]]]

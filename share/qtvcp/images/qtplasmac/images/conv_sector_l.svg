@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   sodipodi:docname="conv_sector_l.svg"
+   width="196"
+   height="196"
+   viewBox="0 0 51.858332 51.858335"
+   version="1.1"
+   id="svg2193"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)">
+  <defs
+     id="defs2187" />
+  <sodipodi:namedview
+     inkscape:showpageshadow="false"
+     inkscape:guide-bbox="true"
+     showguides="true"
+     inkscape:window-maximized="1"
+     inkscape:window-y="-8"
+     inkscape:window-x="1912"
+     inkscape:window-height="1027"
+     inkscape:window-width="1920"
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="2.8"
+     inkscape:cx="150.67248"
+     inkscape:cy="123.45615"
+     inkscape:document-units="px"
+     inkscape:current-layer="text848-5"
+     inkscape:document-rotation="0"
+     showgrid="true"
+     units="px"
+     inkscape:snap-global="true">
+    <inkscape:grid
+       opacity="0.1254902"
+       color="#ff423f"
+       empspacing="14"
+       id="grid832"
+       type="xygrid" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata2190">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+        <dc:date>2020, 2021, 2022</dc:date>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Gregory D Carl/Phillip A Carter</dc:title>
+          </cc:Agent>
+        </dc:creator>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       transform="translate(-0.12340986,-0.02861327)"
+       style="font-size:50.8px;line-height:1.25;font-family:Stencil;-inkscape-font-specification:Stencil;stroke-width:0.264583"
+       id="text848-5"
+       aria-label="END">
+      <path
+         id="path900"
+         d="m 26.052577,30.72028 v 2.116667"
+         style="fill:#000000;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         id="path902"
+         d="M 27.11091,31.778613 H 24.994243"
+         style="fill:#000000;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <text
+         id="text906"
+         y="35.541866"
+         x="26.322489"
+         style="font-size:50.8px;line-height:1.25;font-family:monospace;-inkscape-font-specification:'monospace, Normal';fill:#000000;stroke:#000000;stroke-width:0.119062;stroke-miterlimit:4;stroke-dasharray:none"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.175px;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke:#000000;stroke-width:0.119062;stroke-miterlimit:4;stroke-dasharray:none"
+           y="35.541866"
+           x="26.322489"
+           id="tspan904"
+           sodipodi:role="line">START</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-size:50.8px;line-height:1.25;font-family:monospace;-inkscape-font-specification:'monospace, Normal';fill:#000000;stroke:#000000;stroke-width:0.119062;stroke-miterlimit:4;stroke-dasharray:none"
+         x="21.603724"
+         y="20.9944"
+         id="text906-4"
+         transform="rotate(30.884715)"
+         inkscape:transform-center-x="-0.13363477"
+         inkscape:transform-center-y="-1.0690781"><tspan
+           sodipodi:role="line"
+           id="tspan904-0"
+           x="21.603724"
+           y="20.9944"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.175px;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke:#000000;stroke-width:0.119062;stroke-miterlimit:4;stroke-dasharray:none">RADIUS</tspan></text>
+      <path
+         style="fill:none;stroke:#000000;stroke-width:0.264583;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none"
+         id="path3619"
+         sodipodi:type="arc"
+         sodipodi:cx="26.052578"
+         sodipodi:cy="31.359119"
+         sodipodi:rx="21.386017"
+         sodipodi:ry="21.386017"
+         sodipodi:start="3.6651914"
+         sodipodi:end="5.7595865"
+         sodipodi:arc-type="arc"
+         d="M 7.5317438,20.666112 A 21.386017,21.386017 0 0 1 26.052578,9.9731026 21.386017,21.386017 0 0 1 44.573412,20.66611"
+         sodipodi:open="true" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="M 44.573409,20.666113 26.052576,31.778612 7.5317428,20.666113"
+         id="path846" />
+      <path
+         id="path1002"
+         d="m 26.052577,31.778613 h 21.49096"
+         style="font-size:50.8px;line-height:1.25;font-family:Stencil;-inkscape-font-specification:Stencil;fill:#000000;stroke:#000000;stroke-width:0.264583;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:1.5875, 0.264583;stroke-dashoffset:0;stroke-opacity:1" />
+      <text
+         xml:space="preserve"
+         style="font-size:50.8px;line-height:1.25;font-family:monospace;-inkscape-font-specification:'monospace, Normal';fill:#000000;stroke:#000000;stroke-width:0.119062;stroke-miterlimit:4;stroke-dasharray:none"
+         x="39.649586"
+         y="28.946466"
+         id="text906-1"><tspan
+           sodipodi:role="line"
+           id="tspan904-9"
+           x="39.649586"
+           y="28.946466"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.175px;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke:#000000;stroke-width:0.119062;stroke-miterlimit:4;stroke-dasharray:none">ANGLE</tspan></text>
+      <path
+         d="m 37.648061,25.073707 a 64.651085,36.157482 0 0 1 1.051616,6.474211"
+         sodipodi:arc-type="arc"
+         sodipodi:open="true"
+         sodipodi:end="6.2826089"
+         sodipodi:start="6.1025726"
+         sodipodi:ry="36.157482"
+         sodipodi:rx="64.651085"
+         sodipodi:cy="31.56876"
+         sodipodi:cx="-25.951397"
+         sodipodi:type="arc"
+         id="path1948"
+         style="font-size:50.8px;line-height:1.25;font-family:Stencil;-inkscape-font-specification:Stencil;opacity:1;fill:none;stroke:#000000;stroke-width:0.264583;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0"
+         transform="matrix(0.99999652,0.00263689,-0.00843069,0.99996446,0,0)" />
+      <path
+         style="font-size:50.8px;line-height:1.25;font-family:Stencil;-inkscape-font-specification:Stencil;fill:#000000;stroke:#000000;stroke-width:0.264581px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 38.095992,25.995883 -0.670968,-0.827178 -0.08459,1.061727"
+         id="path2885-6-0"
+         inkscape:transform-center-x="0.074429329"
+         inkscape:transform-center-y="0.61077415" />
+      <path
+         style="font-size:50.8px;line-height:1.25;font-family:Stencil;-inkscape-font-specification:Stencil;fill:#000000;stroke:#000000;stroke-width:0.264581px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 38.06095,30.482721 0.340047,1.009351 0.449862,-0.965424"
+         id="path2885-8" />
+      <path
+         sodipodi:open="true"
+         d="m 14.443726,24.795812 a 13.147364,13.003386 0 0 1 11.385952,-6.501693 13.147364,13.003386 0 0 1 11.38595,6.501692"
+         sodipodi:arc-type="arc"
+         sodipodi:end="5.7595865"
+         sodipodi:start="3.6651914"
+         sodipodi:ry="13.003386"
+         sodipodi:rx="13.147364"
+         sodipodi:cy="31.297504"
+         sodipodi:cx="25.829678"
+         sodipodi:type="arc"
+         id="path3619-4"
+         style="font-size:50.8px;line-height:1.25;font-family:Stencil;-inkscape-font-specification:Stencil;fill:none;stroke:#000000;stroke-width:0.264583;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none" />
+      <path
+         inkscape:transform-center-y="-0.69973139"
+         inkscape:transform-center-x="0.10434683"
+         id="path2885-6-0-7"
+         d="m 36.413794,24.261819 0.871979,0.611617 -0.209631,-1.044258"
+         style="font-size:50.8px;line-height:1.25;font-family:Stencil;-inkscape-font-specification:Stencil;fill:#000000;stroke:#000000;stroke-width:0.264581px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         style="font-size:50.8px;line-height:1.25;font-family:Stencil;-inkscape-font-specification:Stencil;fill:#000000;stroke:#000000;stroke-width:0.264581px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 14.699564,23.6279 -0.220346,1.042051 0.878213,-0.602629"
+         id="path2885-6-0-7-8"
+         inkscape:transform-center-x="-0.73261219"
+         inkscape:transform-center-y="-0.28568888" />
+      <text
+         id="text906-1-8"
+         y="17.400522"
+         x="17.007269"
+         style="font-size:50.8px;line-height:1.25;font-family:monospace;-inkscape-font-specification:'monospace, Normal';fill:#000000;stroke:#000000;stroke-width:0.119062;stroke-miterlimit:4;stroke-dasharray:none"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.175px;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke:#000000;stroke-width:0.119062;stroke-miterlimit:4;stroke-dasharray:none"
+           y="17.400522"
+           x="17.007269"
+           id="tspan904-9-7"
+           sodipodi:role="line">SEC ANGLE</tspan></text>
+      <path
+         d="m 46.820171,50.257898 a 3.968755,3.968755 0 0 1 -3.666651,-2.449979 3.968755,3.968755 0 0 1 0.860318,-4.32511 3.968755,3.968755 0 0 1 4.32511,-0.860318 3.968755,3.968755 0 0 1 2.449978,3.666652"
+         sodipodi:arc-type="arc"
+         sodipodi:open="true"
+         sodipodi:end="0"
+         sodipodi:start="1.5707963"
+         sodipodi:ry="3.968755"
+         sodipodi:rx="3.968755"
+         sodipodi:cy="46.289143"
+         sodipodi:cx="46.820171"
+         sodipodi:type="arc"
+         id="path1007"
+         style="font-size:50.8px;line-height:1.25;font-family:Stencil;-inkscape-font-specification:Stencil;opacity:1;fill:none;stroke:#000000;stroke-width:0.264581;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0" />
+      <path
+         style="font-size:50.8px;line-height:1.25;font-family:Stencil;-inkscape-font-specification:Stencil;fill:#000000;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 46.78258,50.727313 1.313867,-0.551254 -1.331597,-0.50693"
+         id="path2885-0" />
+      <path
+         style="font-size:50.8px;line-height:1.25;font-family:Stencil;-inkscape-font-specification:Stencil;fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="M 5.5031361,24.514621 6.5979322,22.636993"
+         id="path3472" />
+      <path
+         style="font-size:50.8px;line-height:1.25;font-family:Stencil;-inkscape-font-specification:Stencil;fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 23.581967,35.362518 1.085982,-1.816843"
+         id="path3474" />
+      <path
+         style="font-size:50.8px;line-height:1.25;font-family:Stencil;-inkscape-font-specification:Stencil;fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="M 6.0510708,23.577175 24.013177,34.335403"
+         id="path3476" />
+      <path
+         style="font-size:50.8px;line-height:1.25;font-family:Stencil;-inkscape-font-specification:Stencil;fill:#000000;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 22.680177,34.14792 1.407999,0.218346 -0.869009,-1.129138"
+         id="path2885-6-3-8-7" />
+      <path
+         id="path2885-6-3-8-7-6"
+         d="m 7.5523556,23.857762 -1.4025427,-0.251013 0.8425298,1.14903"
+         style="font-size:50.8px;line-height:1.25;font-family:Stencil;-inkscape-font-specification:Stencil;fill:#000000;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <text
+         xml:space="preserve"
+         style="font-size:50.8px;line-height:1.25;font-family:monospace;-inkscape-font-specification:'monospace, Normal';white-space:pre;fill:#000000;stroke:#000000;stroke-width:0.119062;stroke-miterlimit:4;stroke-dasharray:none"
+         x="43.48819"
+         y="47.069389"
+         id="text906-6-7"><tspan
+           id="tspan1351-8"
+           x="43.48819"
+           y="47.069389"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.11667px;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke:#000000;stroke-width:0.119062;stroke-miterlimit:4;stroke-dasharray:none">CCW+</tspan></text>
+    </g>
+  </g>
+</svg>

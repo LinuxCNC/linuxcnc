@@ -1,0 +1,6 @@
+INCLUDES += emc/tp
+
+$(patsubst ./emc/tp/%,../include/%,$(wildcard ./emc/tp/*.h)): ../include/%.h: ./emc/tp/%.h
+	cp $^ $@
+$(patsubst ./emc/tp/%,../include/%,$(wildcard ./emc/tp/*.hh)): ../include/%.hh: ./emc/tp/%.hh
+	cp $^ $@

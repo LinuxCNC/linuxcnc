@@ -1,0 +1,10 @@
+prefix=${pcfiledir}/../..
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: orocos-kdl
+Description: The Orocos Kinematics and Dynamics Library 
+Requires: 
+Version: 1.4.0
+Libs: -L${libdir} -lorocos-kdl
+Cflags: -I${includedir}  -I/usr/include/eigen3
