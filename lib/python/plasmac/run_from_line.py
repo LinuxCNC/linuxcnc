@@ -23,9 +23,9 @@ import math
 
 def run_from_line_get(file, startLine):
     preData,postData,newData,params,material = [],[],[],[],[]
-    codes = {'g2':'','g4':'','g6':'','g9':'','g9arc':'','d3':'','d2':'','a3':'','x1':'','y1':'','x2':'','y2':''}
+    codes = {'g2_':'','g4_':'','g6_':'','g9_':'','g9arc':'','d3':'','d2':'','a3':'','x1':'','y1':'','x2':'','y2':''}
     codes['last'] = {'feed':'', 'code':''}
-    codes['move'] = {'isSet':False, 'isG0':False}
+    codes['move'] = {'isSet':False, 'isG00':False}
     codes['spindle'] = {'code':False, 'line':None}
     oSub = []
     cutComp = False
@@ -46,17 +46,17 @@ def run_from_line_get(file, startLine):
                         material.append(line.strip())
                 # find the type of first move
                 if not codes['move']['isSet'] and not 'g53g0' in line and not 'g20' in line and not 'g21' in line:
-                    if 'g0' in line:
+                    if 'g00' in line:
                         codes['move']['isSet'] = True
-                        codes['move']['isG0'] = True
+                        codes['move']['isG00'] = True
                         codes['x2'] = get_rfl_pos(line.strip(), codes['x2'], 'x')
                         codes['y2'] = get_rfl_pos(line.strip(), codes['y2'], 'y')
-                    if 'g1' in line or 'g2' in line or 'g3' in line:
+                    if 'g01' in line or 'g02' in line or 'g03' in line:
                         codes['move']['isSet'] = True
-                        codes['move']['isG0'] = False
+                        codes['move']['isG00'] = False
                         codes['x2'] = get_rfl_pos(line.strip(), codes['x2'], 'x')
                         codes['y2'] = get_rfl_pos(line.strip(), codes['y2'], 'y')
-                    if 'm3$' in line.replace(' ',''):
+                    if 'm03' in line:#                        print('SPINDLE FOUND')
                         if not codes['spindle']['line']:
                             codes['spindle']['line'] = line.lower().strip()
                             continue
@@ -81,15 +81,15 @@ def run_from_line_get(file, startLine):
         for t1 in ['g20','g21','g40','g41.1','g42.1','g61','g61.1','g64','g90','g90.1','g91','g91.1']:
             if t1 in line:
                 if t1[1] == '2':
-                    codes['g2'] = t1
+                    codes['g2_'] = t1
                 elif t1[1] == '4':
-                    codes['g4'] = t1
+                    codes['g4_'] = t1
                     if t1 != 'g40':
                         cutComp = True
                     else:
                         cutComp = False
                 elif t1[1] == '6':
-                    codes['g6'] = t1
+                    codes['g6_'] = t1
                     if t1 == 'g64':
                         tmp = line.split('64')[1]
                         if tmp[0] == 'p':
@@ -101,34 +101,34 @@ def run_from_line_get(file, startLine):
                                     tmp = tmp[1:]
                                 else:
                                     break
-                            codes['g6'] = 'g64p{}'.format(p)
+                            codes['g6_'] = 'g64p{}'.format(p)
                 elif t1 == 'g90' and not 'g90.1' in line:
-                    codes['g9'] = 'g90'
+                    codes['g9_'] = 'g90'
                 elif t1 == 'g91' and not 'g91.1' in line:
-                    codes['g9'] = 'g91'
+                    codes['g9_'] = 'g91'
                 elif t1 == 'g90.1' in line:
                     codes['g9arc'] = 'g90.1'
                 elif t1 == 'g91.1' in line:
                     codes['g9arc'] = 'g91.1'
-        if 'g0' in line and not 'g53g0' in line:
+        if 'g00' in line and not 'g53g00' in line:
             codes['last']['code'] = 'g0'
-        if 'g1' in line:
-            tmp = line.split('g1')[1]
+        if 'g01' in line:
+            tmp = line.split('g01')[1]
             if tmp[0] not in '0123456789':
-                codes['last']['code'] = 'g1'
-        if 'g2' in line:
-            tmp = line.split('g2')[1]
+                codes['last']['code'] = 'g01'
+        if 'g02' in line:
+            tmp = line.split('g02')[1]
             if tmp[0] not in '0123456789':
-                codes['last']['code'] = 'g2'
-        if 'g3' in line:
-            tmp = line.split('g3')[1]
+                codes['last']['code'] = 'g02'
+        if 'g03' in line:
+            tmp = line.split('g03')[1]
             if tmp[0] not in '0123456789':
-                codes['last']['code'] = 'g3'
+                codes['last']['code'] = 'g03'
         if 'x' in line:
             codes['x1'] = get_rfl_pos(line.strip(), codes['x1'], 'x')
         if 'y' in line:
             codes['y1'] = get_rfl_pos(line.strip(), codes['y1'], 'y')
-        if 'm3$' in line.replace(' ','') and not codes['spindle']['line']:
+        if 'm03$' in line.replace(' ','') and not codes['spindle']['line']:
             codes['spindle']['line'] = line.strip()
         if 'm62p3' in line.replace(' ',''):
             codes['d3'] = 'm62p3 (Disable Torch)'
@@ -213,25 +213,25 @@ def run_from_line_set(rflFile, data, leadin, unitsPerMm):
     scale = 1
     zMax = ''
     if unitsPerMm == 1:
-        if data['codes']['g2'] == 'g20':
+        if data['codes']['g2_'] == 'g20':
             scale = 0.03937
-            zMax = 'g53 g0z[[#<_ini[axis_z]max_limit> - 5] * 0.03937]'
+            zMax = 'g53 g00z[[#<_ini[axis_z]max_limit> - 5] * 0.03937]'
         else:
-            zMax = 'g53 g0z[#<_ini[axis_z]max_limit> - 5]'
+            zMax = 'g53 g00z[#<_ini[axis_z]max_limit> - 5]'
     else:
-        if data['codes']['g2'] == 'g21':
+        if data['codes']['g2_'] == 'g21':
             scale = 25.4
-            zMax = 'g53 g0z[[#<_ini[axis_z]max_limit> * 25.4] - 5]'
+            zMax = 'g53 g00z[[#<_ini[axis_z]max_limit> * 25.4] - 5]'
         else:
-            zMax = 'g53 g0z[#<_ini[axis_z]max_limit> - 0.02]'
-    if data['codes']['g2']:
-        data['newData'].append(data['codes']['g2'])
-    if data['codes']['g4']:
-        data['newData'].append(data['codes']['g4'])
-    if data['codes']['g6']:
-        data['newData'].append(data['codes']['g6'])
-    if data['codes']['g9']:
-        data['newData'].append(data['codes']['g9'])
+            zMax = 'g53 g00z[#<_ini[axis_z]max_limit> - 0.02]'
+    if data['codes']['g2_']:
+        data['newData'].append(data['codes']['g2_'])
+    if data['codes']['g4_']:
+        data['newData'].append(data['codes']['g4_'])
+    if data['codes']['g6_']:
+        data['newData'].append(data['codes']['g6_'])
+    if data['codes']['g9_']:
+        data['newData'].append(data['codes']['g9_'])
     if data['codes']['g9arc']:
         data['newData'].append(data['codes']['g9arc'])
     data['newData'].append('m52 p1')
@@ -248,8 +248,8 @@ def run_from_line_set(rflFile, data, leadin, unitsPerMm):
             data['newData'].append(line)
     if data['codes']['last']['feed']:
         data['newData'].append(data['codes']['last']['feed'])
-    # if g0 is not the first motion command after selected line set x and y coordinates
-    if not data['codes']['move']['isG0']:
+    # if g00 is not the first motion command after selected line set x and y coordinates
+    if not data['codes']['move']['isG00']:
         if leadin['do']:
             error, xL, yL = set_leadin_coordinates(data['codes']['x1'], data['codes']['y1'], scale, leadin['length'], leadin['angle'])
         else:
@@ -265,15 +265,15 @@ def run_from_line_set(rflFile, data, leadin, unitsPerMm):
     # add all the code from the selected line to the end
     for line in data['postData']:
         # if we have the first spindle code we don't need it again
-        if 'm3$' in line.replace(' ','') and data['codes']['spindle']['code']:
+        if 'm03$' in line.replace(' ','') and data['codes']['spindle']['code']:
             data['codes']['spindle']['code'] = False
             continue
-        # if g0 is the first motion command after the selected line
-        if data['codes']['move']['isG0']:
+        # if g00 is the first motion command after the selected line
+        if data['codes']['move']['isG00']:
             # if g0 is the current motion command
-            if 'g0' in line:
+            if 'g00' in line:
                 # no need to process a g53g0 command]
-                if 'g53g0' in line or 'g20' in line or 'g21' in line:
+                if 'g53g00' in line or 'g20' in line or 'g21' in line:
                     data['newData'].append(line.strip())
                     continue
                 if leadin['do']:
@@ -282,8 +282,8 @@ def run_from_line_set(rflFile, data, leadin, unitsPerMm):
                     xL = data['codes']['x2']
                     yL = data['codes']['y2']
                 data['codes']['spindle']['code'] = set_spindle_start(xL, yL, data['codes']['x2'], data['codes']['y2'], data['codes']['spindle']['line'], data['newData'], True)
-                # no need to process any more g0 commands
-                data['codes']['move']['isG0'] = False
+                # no need to process any more g00 commands
+                data['codes']['move']['isG00'] = False
                 continue
         data['newData'].append(line.strip())
     # create the rfl file
@@ -309,20 +309,20 @@ def set_leadin_coordinates(x, y, scale, length, angle):
 def set_spindle_start(xL, yL, x, y, line, newData, reply):
     leadIn = {}
     if xL != x and yL != y:
-        newData.append('g0x{}y{}'.format(xL, yL))
+        newData.append('g00x{}y{}'.format(xL, yL))
         leadIn['x'] = x
         leadIn['y'] = y
     else:
         if x and y:
-            newData.append('g0x{}y{}'.format(x, y))
+            newData.append('g00x{}y{}'.format(x, y))
         elif x:
-            newData.append('g0x{}'.format(x))
+            newData.append('g00x{}'.format(x))
         elif y:
-            newData.append('g0y{}'.format(y))
+            newData.append('g00y{}'.format(y))
     if line:
         newData.append(line)
     if leadIn:
-        newData.append('g1x{}y{} (leadin)'.format(leadIn['x'], leadIn['y']))
+        newData.append('g01x{}y{} (leadin)'.format(leadIn['x'], leadIn['y']))
     return reply
 
 def get_rfl_pos(line, axisPos, axisLetter):

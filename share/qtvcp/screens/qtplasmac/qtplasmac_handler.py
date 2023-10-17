@@ -1,4 +1,4 @@
-VERSION = '1.236.292'
+VERSION = '1.236.293'
 
 '''
 qtplasmac_handler.py
@@ -1876,7 +1876,6 @@ class HandlerClass:
                     # load rfl file
                     if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
                         self.preRflFile = ACTION.prefilter_path or self.lastLoadedProgram
-                    self.remove_temp_materials()
                     ACTION.OPEN_PROGRAM(rflFile)
                     ACTION.prefilter_path = self.preRflFile
                     self.set_run_button_state()
