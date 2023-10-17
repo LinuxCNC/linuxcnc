@@ -13012,7 +13012,7 @@ msgid ""
 "# ---JOINT ASSOCIATED WITH THE Z AXIS---"
 msgstr ""
 "\n"
-"---GELENK VERBUNDEN MIT DER Z-ACHSE---"
+"# ---GELENK VERBUNDEN MIT DER Z-ACHSE---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1836
 msgid ""

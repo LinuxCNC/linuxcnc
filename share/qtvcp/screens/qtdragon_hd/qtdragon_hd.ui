@@ -1827,21 +1827,21 @@ View</string>
                         <bool>true</bool>
                        </property>
                        <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                          <horstretch>0</horstretch>
                          <verstretch>0</verstretch>
                         </sizepolicy>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>70</width>
-                         <height>45</height>
+                         <width>72</width>
+                         <height>53</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>70</width>
-                         <height>45</height>
+                         <width>72</width>
+                         <height>63</height>
                         </size>
                        </property>
                        <property name="baseSize">
@@ -1912,27 +1912,27 @@ View</string>
                        </property>
                       </widget>
                      </item>
-                     <item alignment="Qt::AlignHCenter">
+                     <item>
                       <widget class="ActionButton" name="macrobutton1">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
                        <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                          <horstretch>0</horstretch>
                          <verstretch>0</verstretch>
                         </sizepolicy>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>70</width>
-                         <height>45</height>
+                         <width>72</width>
+                         <height>53</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>70</width>
-                         <height>45</height>
+                         <width>72</width>
+                         <height>63</height>
                         </size>
                        </property>
                        <property name="baseSize">
@@ -2003,27 +2003,27 @@ View</string>
                        </property>
                       </widget>
                      </item>
-                     <item alignment="Qt::AlignHCenter">
+                     <item>
                       <widget class="ActionButton" name="macrobutton2">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
                        <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                          <horstretch>0</horstretch>
                          <verstretch>0</verstretch>
                         </sizepolicy>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>70</width>
-                         <height>45</height>
+                         <width>72</width>
+                         <height>53</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>70</width>
-                         <height>45</height>
+                         <width>72</width>
+                         <height>63</height>
                         </size>
                        </property>
                        <property name="baseSize">
@@ -2091,27 +2091,27 @@ View</string>
                        </property>
                       </widget>
                      </item>
-                     <item alignment="Qt::AlignHCenter">
+                     <item>
                       <widget class="ActionButton" name="macrobutton3">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
                        <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                          <horstretch>0</horstretch>
                          <verstretch>0</verstretch>
                         </sizepolicy>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>70</width>
-                         <height>45</height>
+                         <width>72</width>
+                         <height>53</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>70</width>
-                         <height>45</height>
+                         <width>72</width>
+                         <height>63</height>
                         </size>
                        </property>
                        <property name="baseSize">
@@ -2179,27 +2179,27 @@ View</string>
                        </property>
                       </widget>
                      </item>
-                     <item alignment="Qt::AlignHCenter">
+                     <item>
                       <widget class="ActionButton" name="macrobutton4">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
                        <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                          <horstretch>0</horstretch>
                          <verstretch>0</verstretch>
                         </sizepolicy>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>70</width>
-                         <height>45</height>
+                         <width>72</width>
+                         <height>53</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>70</width>
-                         <height>45</height>
+                         <width>72</width>
+                         <height>63</height>
                         </size>
                        </property>
                        <property name="baseSize">
@@ -2267,27 +2267,27 @@ View</string>
                        </property>
                       </widget>
                      </item>
-                     <item alignment="Qt::AlignHCenter">
+                     <item>
                       <widget class="ActionButton" name="macrobutton5">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
                        <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                          <horstretch>0</horstretch>
                          <verstretch>0</verstretch>
                         </sizepolicy>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>70</width>
-                         <height>45</height>
+                         <width>72</width>
+                         <height>53</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>70</width>
-                         <height>45</height>
+                         <width>72</width>
+                         <height>63</height>
                         </size>
                        </property>
                        <property name="baseSize">
@@ -2355,27 +2355,27 @@ View</string>
                        </property>
                       </widget>
                      </item>
-                     <item alignment="Qt::AlignHCenter">
+                     <item>
                       <widget class="ActionButton" name="macrobutton6">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
                        <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                          <horstretch>0</horstretch>
                          <verstretch>0</verstretch>
                         </sizepolicy>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>70</width>
-                         <height>45</height>
+                         <width>72</width>
+                         <height>53</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>70</width>
-                         <height>45</height>
+                         <width>72</width>
+                         <height>63</height>
                         </size>
                        </property>
                        <property name="baseSize">
@@ -2449,27 +2449,27 @@ View</string>
                        </property>
                       </widget>
                      </item>
-                     <item alignment="Qt::AlignHCenter">
+                     <item>
                       <widget class="ActionButton" name="macrobutton7">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
                        <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                          <horstretch>0</horstretch>
                          <verstretch>0</verstretch>
                         </sizepolicy>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>70</width>
-                         <height>45</height>
+                         <width>72</width>
+                         <height>53</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>70</width>
-                         <height>45</height>
+                         <width>72</width>
+                         <height>63</height>
                         </size>
                        </property>
                        <property name="baseSize">
@@ -2543,27 +2543,27 @@ View</string>
                        </property>
                       </widget>
                      </item>
-                     <item alignment="Qt::AlignHCenter">
+                     <item>
                       <widget class="ActionButton" name="macrobutton8">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
                        <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                          <horstretch>0</horstretch>
                          <verstretch>0</verstretch>
                         </sizepolicy>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>70</width>
-                         <height>45</height>
+                         <width>72</width>
+                         <height>53</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>70</width>
-                         <height>45</height>
+                         <width>72</width>
+                         <height>63</height>
                         </size>
                        </property>
                        <property name="baseSize">
@@ -2631,27 +2631,27 @@ View</string>
                        </property>
                       </widget>
                      </item>
-                     <item alignment="Qt::AlignHCenter">
+                     <item>
                       <widget class="ActionButton" name="macrobutton9">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
                        <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                          <horstretch>0</horstretch>
                          <verstretch>0</verstretch>
                         </sizepolicy>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>70</width>
-                         <height>45</height>
+                         <width>72</width>
+                         <height>53</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>70</width>
-                         <height>45</height>
+                         <width>72</width>
+                         <height>63</height>
                         </size>
                        </property>
                        <property name="baseSize">
@@ -2724,10 +2724,13 @@ View</string>
                        <property name="orientation">
                         <enum>Qt::Vertical</enum>
                        </property>
+                       <property name="sizeType">
+                        <enum>QSizePolicy::Expanding</enum>
+                       </property>
                        <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
-                         <height>40</height>
+                         <height>0</height>
                         </size>
                        </property>
                       </spacer>
@@ -16228,6 +16231,12 @@ ANGULAR</string>
                </property>
                <item>
                 <widget class="QWidget" name="widget_spindle_control" native="true">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <layout class="QVBoxLayout" name="verticalLayout_33">
                   <property name="spacing">
                    <number>8</number>
@@ -16753,13 +16762,13 @@ ANGULAR</string>
        <number>2</number>
       </property>
       <property name="topMargin">
-       <number>2</number>
+       <number>0</number>
       </property>
       <property name="rightMargin">
        <number>4</number>
       </property>
       <property name="bottomMargin">
-       <number>2</number>
+       <number>0</number>
       </property>
       <item>
        <widget class="QLineEdit" name="statusbar">
@@ -16772,13 +16781,13 @@ ANGULAR</string>
         <property name="minimumSize">
          <size>
           <width>746</width>
-          <height>28</height>
+          <height>27</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>1800</width>
-          <height>28</height>
+          <width>1685</width>
+          <height>27</height>
          </size>
         </property>
         <property name="focusPolicy">
@@ -16799,17 +16808,30 @@ ANGULAR</string>
        </widget>
       </item>
       <item>
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
        <widget class="QLabel" name="label_45">
         <property name="minimumSize">
          <size>
           <width>50</width>
-          <height>28</height>
+          <height>27</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>20</width>
-          <height>28</height>
+          <height>27</height>
          </size>
         </property>
         <property name="text">
@@ -16831,13 +16853,13 @@ ANGULAR</string>
         <property name="minimumSize">
          <size>
           <width>93</width>
-          <height>28</height>
+          <height>27</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>20</width>
-          <height>28</height>
+          <height>27</height>
          </size>
         </property>
         <property name="font">
@@ -16859,7 +16881,7 @@ ANGULAR</string>
          <number>2</number>
         </property>
         <property name="text">
-         <string>09:51:41 PM</string>
+         <string>06:07:54 PM</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>

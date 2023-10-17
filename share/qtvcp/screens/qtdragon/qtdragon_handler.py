@@ -75,6 +75,7 @@ class HandlerClass:
         KEYBIND.add_call('Key_Less','on_keycall_angular_jograte',0)
 
         # some global variables
+        self.factor = 1.0
         self._spindle_wait = False
         self.probe = None
         self.default_setup = os.path.join(PATH.CONFIGPATH, "default_setup.html")

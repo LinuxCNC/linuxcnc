@@ -56,7 +56,9 @@ QLabel {
 QLabel#label_axis_x,
 QLabel#label_axis_y, 
 QLabel#label_axis_z, 
-QLabel#label_axis_a {
+QLabel#label_axis_a,
+QLabel#label_axis_4,
+QLabel#label_axis_5 {
     border: 2px solid black;
     border-radius: 4px;
     font: 20pt "Lato Heavy";
@@ -105,6 +107,12 @@ QComboBox {
     min-width: 120px;
     font: 10pt "Lato Heavy";
     color: black;    
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    padding: 0 3px;
+    color: black;
 }
 
 QGroupBox {
@@ -229,3 +237,4 @@ QCheckBox::indicator:unchecked {
     height: 25px;
     width: 25px;
 }
+
