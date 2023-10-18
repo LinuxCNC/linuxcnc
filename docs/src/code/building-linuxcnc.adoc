@@ -13,10 +13,13 @@ though then you also have the option of just installing Debian packages from the
 distribution (https://tracker.debian.org/pkg/linuxcnc).
 Admittedly, this section also exists since LinuxCNC is a community effort.
 and you are encouraged to contribute to the development of LinuxCNC.
-You want to compile LinuxCNC yourself for The exchange of new developments,
-or you may be porting LinuxCNC to some new Linux disribution
-or developer reacts to you reporting a problem that you want to test
-but any such change will see no buildbot to help, or that help is delayed,
+Generally, you want to compile LinuxCNC yourself for immediate functional access
+ * to a new development of LinuxCNC or
+ * a new development you perhaps want to contribute to LinuxCNC or help other completing it.
+
+You may for instance be porting LinuxCNC to some new Linux distribution
+or, and this common, a developer reacts to you reporting a problem whose fix you want to test.
+Any such change will see no buildbot to help, or that help is delayed,
 pending someone else's review that you do not want to wait for or you are
 the only other individual with a particular hardware to test the code.
 
@@ -27,7 +30,7 @@ online on https://linuxcnc.org/documents/.
 If you want to contribute to LinuxCNC but are uncertain about where to start,
 please seriously consider to contribute to the documentation.
 Everyone always finds something to improve - and if you only leave
-a "FIXME: with a comment" in the text as a reference for your self
+a "FIXME: with a comment" in the text as a reference for yourself
 and others to revisit a section later. Also, translations to languages
 other than English are very likely to benefit from your scrutiny at
 https://hosted.weblate.org/projects/linuxcnc/ .
