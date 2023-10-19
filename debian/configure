@@ -250,7 +250,7 @@ case $TARGET in
         EXTRA_RECOMMENDS="$EXTRA_RECOMMENDS, linux-image-rt-amd64 [linux-amd64], linux-image-rt-686-pae [linux-i386]"
         CONFIGURE_REALTIME_ARG=--with-realtime=uspace
     ;;
-    2.6.32-122-rtai|3.4-9-rtai-686-pae|3.16.0-9-rtai-*)
+    4.14.174-rtai-amd64|4.19.195-rtai-amd64|5.4.258-rtai-amd64)
         CONFIGURE_REALTIME_ARG=--with-realtime=/usr/realtime-$KERNEL_VERSION
     ;;
     *)
