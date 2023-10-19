@@ -59,7 +59,6 @@ number of characters allowed on a line.
 . an optional block delete character, which is a slash '/'.
 . an optional line number.
 . Any number of: 
-[.indent]
 1. words,
 2. parameter settings, 
 3. subroutine codes, and 
