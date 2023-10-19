@@ -206,6 +206,12 @@ def dlg_probe_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn1
         prefs.putpref('Delay', P.probeDelay, float, 'OFFSET_PROBING')
         P.set_probe_offset_pins()
         P.offsetSetProbePin.set(0)
+        if P.probeOffsetX or P.probeOffsetY:
+            W.offset_feed_rate.show()
+            W.offset_feed_rate_lbl.show()
+        else:
+            W.offset_feed_rate.hide()
+            W.offset_feed_rate_lbl.hide()
         head = _translate('HandlerClass', 'Probe Offsets')
         msg0 = _translate('HandlerClass', 'Probe offsets have been saved')
         P.dialog_show_ok(QMessageBox.Information, '{}'.format(head), '\n{}\n'.format(msg0))

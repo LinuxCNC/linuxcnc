@@ -27,9 +27,9 @@ _translate = QCoreApplication.translate
 #########################################################################################################################
 # TOOL TIP FUNCTIONS #
 #########################################################################################################################
-def tool_tips_changed(W):
+def tool_tips_changed(P, W):
     if W.chk_tool_tips.isChecked():
-        set_tool_tips(W)
+        set_tool_tips(P, W)
     else:
         clear_tool_tips(W)
 
@@ -97,8 +97,8 @@ def clear_tool_tips(W):
     'thc_delay','thc_threshold','pid_p_gain','pid_i_gain','pid_d_gain',
     'cornerlock_threshold','voidlock_slope','float_switch_travel',
     'probe_feed_rate','probe_start_height','ohmic_probe_offset',
-    'ohmic_max_attempts','skip_ihs_distance','safe_height','scribe_arm_delay',
-    'scribe_on_delay','spotting_threshold','spotting_time',
+    'ohmic_max_attempts','skip_ihs_distance','offset_feed_rate','safe_height',
+    'scribe_arm_delay','scribe_on_delay','spotting_threshold','spotting_time',
     'max_offset_velocity_in','setup_feed_rate','save_plasma','reload_plasma']
 
     parameters_material_widgets = [
@@ -168,7 +168,7 @@ def clear_tool_tips(W):
     for widget in statistics_widgets:
         W[widget].setToolTip('')
 
-def set_tool_tips(W):
+def set_tool_tips(P, W):
     # main widgets
     W.statusbar.setToolTip(_translate('ToolTips', 'Shows active G- and M-Codes'))
 
@@ -366,6 +366,7 @@ def set_tool_tips(W):
     W.ohmic_probe_offset.setToolTip(_translate('ToolTips', 'Distance above material Z should move after an ohmic probe'))
     W.ohmic_max_attempts.setToolTip(_translate('ToolTips', 'Number of retry attempts before defaulting to float switch'))
     W.skip_ihs_distance.setToolTip(_translate('ToolTips', 'Initial Height Sense distance, refer to user guide for detailed explanation'))
+    W.offset_feed_rate.setToolTip(_translate('ToolTips', 'Feed rate for offset probe moves in the X and Y axes, maximum = {}'.format(int(P.offsetFeedRate))))
     W.safe_height.setToolTip(_translate('ToolTips', 'Height above material the torch will retract to before rapid moves'))
     W.scribe_arm_delay.setToolTip(_translate('ToolTips', 'Delay from scribe command to activation of scribe (seconds)'))
     W.scribe_on_delay.setToolTip(_translate('ToolTips', 'Delay from scribe activation to XY motion (seconds)'))

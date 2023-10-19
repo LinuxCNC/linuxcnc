@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.236
+1.237
 
 .I SUMMARY:
 .br
@@ -83,6 +83,7 @@ pin in  s32     motion_type                 "motion type, connect to motion.moti
 pin in  bit     move_down                   "external thc down switch [mode 2]";
 pin in  bit     move_up                     "external thc up switch [mode 2]";
 pin in  bit     multi_tool = 1              "allows the use of multiple tools";
+pin in  float   offset_feed_rate            "probe offset velocity (machine units per minute)";
 pin in  float   offset_probe_delay          "wait for probe to deploy (seconds)";
 pin in  float   offset_probe_x              "X axis offset for offset probe (machine units)";
 pin in  float   offset_probe_y              "Y axis offset for offset probe (machine units)";
@@ -243,6 +244,7 @@ variable float  offset_probe_timer;         /* offset probe deployment delay tim
 variable bool   offset_probing;             /* offset probing is enabled */
 variable int    offset_res;                 /* resolution for comparing offset move to target*/
 variable bool   offset_set;                 /* probe or scribe is being offset*/
+variable int    offset_velocity;            /* velocity for probe offset moves */
 variable int    ohmic_attempts;             /* current ohmic probe attempts */
 variable bool   ohmic_detected;             /* true if ohmic probe detected */
 variable int    ohmic_sense_counts;         /* ohmic sense debounce counter */
@@ -550,6 +552,7 @@ FUNCTION(_) {
 
     /* convert feed rates to velocity */
     setup_velocity = setup_feed_rate * velocity_scale;
+    offset_velocity = offset_feed_rate * velocity_scale;
     if(probe_feed_rate < setup_feed_rate){
         probe_velocity = probe_feed_rate * velocity_scale;
     }else{
@@ -1013,8 +1016,8 @@ FUNCTION(_) {
                                 /* offset probing setup if required */
                                 if(offset_probing){
                                     op_xy_angle = atan2(-offset_probe_y, -offset_probe_x);
-                                    op_x_velocity = fabs(setup_velocity * cos(op_xy_angle));
-                                    op_y_velocity = fabs(setup_velocity * sin(op_xy_angle));
+                                    op_x_velocity = fabs(offset_velocity * cos(op_xy_angle));
+                                    op_y_velocity = fabs(offset_velocity * sin(op_xy_angle));
                                     op_x_target = x_offset_counts + (offset_probe_x / offset_scale);
                                     op_y_target = y_offset_counts + (offset_probe_y / offset_scale);
                                     op_x_start = x_offset_counts;
@@ -1048,7 +1051,7 @@ FUNCTION(_) {
                                         break;
                                     }
                                 }
-                                /* clear any laser recovey offset */
+                                /* clear any laser recovery offset */
                                 if(laser_recovery_state > OFF && laser_recovery_state < RESET){
                                     laser_recovery_state = RESET;
                                 }else if(laser_recovery_state == RESET){
