@@ -3052,13 +3052,15 @@ static int iniLoad(const char *filename)
 	    strncpy(version, "unknown", LINELEN-1);
 	}
 
-	if (NULL != (inistring = inifile.Find("MACHINE", "EMC"))) {
-	    strncpy(machine, inistring, LINELEN-1);
-	} else {
-	    strncpy(machine, "unknown", LINELEN-1);
-	}
-	rcs_print("task: machine: '%s'  version '%s'\n", machine, version);
     }
+
+    if (NULL != (inistring = inifile.Find("MACHINE", "EMC"))) {
+	strncpy(machine, inistring, LINELEN-1);
+    } else {
+	strncpy(machine, "unknown", LINELEN-1);
+    }
+    rcs_print("task: machine: '%s'  version '%s'\n", machine, version);
+
 
     if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
 	// copy to global
