@@ -41,18 +41,59 @@ static int iniLoad(const char *filename)
 	return -1;
     }
 
+    // EMC debugging flags
+    emc_debug = 0;  // disabled by default
     if (NULL != (inistring = inifile.Find("DEBUG", "EMC"))) {
-	// copy to global
-	if (1 != sscanf(inistring, "%x", &emc_debug)) {
-	    emc_debug = 0;
-	}
-    } else {
-	// not found, use default
-	emc_debug = 0;
+        // parse to global
+        if (sscanf(inistring, "%x", &emc_debug) < 1) {
+            perror("failed to parse [EMC] DEBUG");
+        }
     }
-    if (emc_debug & EMC_DEBUG_RCS) {
-	set_rcs_print_flag(PRINT_EVERYTHING);
-	max_rcs_errors_to_print = -1;
+
+    // set output for RCS messages
+    set_rcs_print_destination(RCS_PRINT_TO_STDOUT);   // use stdout by default
+    if (NULL != (inistring = inifile.Find("RCS_DEBUG_DEST", "EMC"))) {
+        static RCS_PRINT_DESTINATION_TYPE type;
+        if (!strcmp(inistring, "STDOUT")) {
+            type = RCS_PRINT_TO_STDOUT;
+        } else if (!strcmp(inistring, "STDERR")) {
+            type = RCS_PRINT_TO_STDERR;
+        } else if (!strcmp(inistring, "FILE")) {
+            type = RCS_PRINT_TO_FILE;
+        } else if (!strcmp(inistring, "LOGGER")) {
+            type = RCS_PRINT_TO_LOGGER;
+        } else if (!strcmp(inistring, "MSGBOX")) {
+            type = RCS_PRINT_TO_MESSAGE_BOX;
+        } else if (!strcmp(inistring, "NULL")) {
+            type = RCS_PRINT_TO_NULL;
+        } else {
+             type = RCS_PRINT_TO_STDOUT;
+        }
+        set_rcs_print_destination(type);
+    }
+
+    // NML/RCS debugging flags
+    set_rcs_print_flag(0);  // (disabled by default)
+    // enable all debug messages by default if RCS or NML debugging is enabled
+    if ((emc_debug & EMC_DEBUG_RCS) || (emc_debug & EMC_DEBUG_NML)) {
+        // output all RCS debug messages
+        set_rcs_print_flag(PRINT_EVERYTHING);
+    }
+
+    // set flags if RCS_DEBUG in ini file
+    if (NULL != (inistring = inifile.Find("RCS_DEBUG", "EMC"))) {
+        static long int flags;
+        if (sscanf(inistring, "%lx", &flags) < 1) {
+            perror("failed to parse [EMC] RCS_DEBUG");
+        }
+        set_rcs_print_flag(flags);
+    }
+    // output infinite RCS errors by default
+    max_rcs_errors_to_print = -1;
+    if (NULL != (inistring = inifile.Find("RCS_MAX_ERR", "EMC"))) {
+        if (sscanf(inistring, "%d", &max_rcs_errors_to_print) < 1) {
+            perror("failed to parse [EMC] RCS_MAX_ERR");
+        }
     }
 
     if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
@@ -109,8 +150,6 @@ int main(int argc, char *argv[])
     // get configuration information
     iniLoad(emc_inifile);
 
-    set_rcs_print_destination(RCS_PRINT_TO_NULL);
-
     rcs_print("after iniLoad()\n");
 
 
@@ -152,7 +191,6 @@ int main(int argc, char *argv[])
 	esleep(0.200);
     }
 
-    set_rcs_print_destination(RCS_PRINT_TO_STDERR);
 
     if (NULL == emcCommandChannel) {
 	emcCommandChannel =
