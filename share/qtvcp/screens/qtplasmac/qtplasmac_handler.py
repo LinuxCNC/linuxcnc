@@ -1,4 +1,4 @@
-VERSION = '1.236.294'
+VERSION = '1.236.295'
 
 '''
 qtplasmac_handler.py
@@ -330,6 +330,9 @@ class HandlerClass:
 
 # called by qtvcp.py
     def initialized__(self):
+        ucFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.py')
+        if os.path.isfile(ucFile):
+            exec(compile(open(ucFile, 'rb').read(), ucFile, 'exec'))
         # ensure we get all startup errors
         STATUS.connect('error', self.error_update)
         STATUS.connect('graphics-gcode-error', lambda o, e:self.error_update(o, linuxcnc.OPERATOR_ERROR, e))
@@ -1326,20 +1329,12 @@ class HandlerClass:
     def estop_state(self, state):
         if state:
             self.w.power.setChecked(False)
-            self.w.power.setStyleSheet(' \
-                    QPushButton {{ color: {2}; background: {1}; border-color: {2} }} \
-                    QPushButton:pressed {{ color: {2}; background: {1}; border-color: {0} }}' \
-                    .format(self.foreColor, self.backColor, self.disabledColor))
+            self.w.power.setEnabled(False)
             if not self.firstRun:
                 log = _translate('HandlerClass', 'Emergency stop pressed')
                 STATUS.emit('update-machine-log', log, 'TIME')
         else:
-            self.w.power.setStyleSheet(' \
-                    QPushButton {{ color: {0}; background: {1}; border-color: {0} }} \
-                    QPushButton:pressed {{ color: {1}; background: {3}; border-color: {0} }} \
-                    QPushButton:checked {{ color: {1}; background: {3}; border-color: {0} }} \
-                    QPushButton:checked:pressed {{ color: {0}; background: {1}; border-color: {0} }}' \
-                    .format(self.foreColor, self.backColor, self.disabledColor, self.fore1Color))
+            self.w.power.setEnabled(True)
             if not self.firstRun:
                 log = _translate('HandlerClass', 'Emergency stop cleared')
                 STATUS.emit('update-machine-log', log, 'TIME')
