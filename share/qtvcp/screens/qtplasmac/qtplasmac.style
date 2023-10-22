@@ -182,6 +182,24 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
     background: e-stop;
     border-color: e-stop }
 
+/****** POWER BUTTON ************/
+#power,
+#power:checked:pressed {
+    color: foregnd;
+    background: backgnd;
+    border-color: foregnd }
+
+#power:disabled {
+    color: inactive;
+    background: backgnd;
+    border-color: inactive }
+
+#power:pressed,
+#power:checked {
+    color: backgnd;
+    background: foregnd;
+    border-color: foregnd }
+
 /****** ERROR LABEL ************/
 #error_label {
     color: e-stop;
