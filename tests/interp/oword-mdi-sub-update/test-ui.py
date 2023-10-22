@@ -29,7 +29,7 @@ def wait_for_linuxcnc_startup(status, timeout=10.0):
             or (status.max_velocity == 0.0) \
             or (status.program_units == 0.0) \
             or (status.rapidrate == 0.0) \
-            or (status.state != linuxcnc.STATE_ESTOP) \
+            or (status.state != linuxcnc.RCS_DONE) \
             or (status.task_state != linuxcnc.STATE_ESTOP):
             time.sleep(0.1)
         else:
