@@ -73,7 +73,7 @@ static int iniLoad(const char *filename)
     }
 
     // NML/RCS debugging flags
-    set_rcs_print_flag(0);  // (disabled by default)
+    set_rcs_print_flag(PRINT_RCS_ERRORS);  // only print errors by default
     // enable all debug messages by default if RCS or NML debugging is enabled
     if ((emc_debug & EMC_DEBUG_RCS) || (emc_debug & EMC_DEBUG_NML)) {
         // output all RCS debug messages
