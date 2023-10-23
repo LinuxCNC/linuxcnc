@@ -17,7 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-VER = '8'
+VER = '10'
 
 ##############################################################################
 # the next line suppresses undefined variable errors in VSCode               #
@@ -4285,7 +4285,7 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     matButtons   = ['delete','new','reload','save']
     maxUserButtons = 20
     # allow right-click to select start from line
-    o.bind('<Button-3>', rClicker)
+    o.bind('<Button-3>', rClicker, '+')
     # hijacked functions from axis.py
     #   vupdate
     #   get_coordinate_font
