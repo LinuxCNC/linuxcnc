@@ -349,7 +349,7 @@ There is a QtVCP panel to help with this:
 * Open a terminal and run the following command:
 +
 ----
-qtvcp copy_dialog
+qtvcp copy
 ----
 
 * Select the screen and destination folder in the dialog
