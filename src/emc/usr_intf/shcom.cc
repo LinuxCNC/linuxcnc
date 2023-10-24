@@ -1194,6 +1194,7 @@ int iniLoad(const char *filename)
 {
     IniFile inifile;
     const char *inistring;
+    char version[LINELEN], machine[LINELEN];
     char displayString[LINELEN] = "";
     int t;
     int i;
@@ -1257,6 +1258,19 @@ int iniLoad(const char *filename)
             perror("failed to parse [EMC] RCS_MAX_ERR");
         }
     }
+
+    if (NULL != (inistring = inifile.Find("VERSION", "EMC"))) {
+	    if(sscanf(inistring, "$Revision: %s", version) != 1) {
+            strncpy(version, "unknown", LINELEN-1);
+	    }
+    }
+
+    if (NULL != (inistring = inifile.Find("MACHINE", "EMC"))) {
+	    strncpy(machine, inistring, LINELEN-1);
+    } else {
+	    strncpy(machine, "unknown", LINELEN-1);
+    }
+    rcs_print("task: machine: '%s'  version '%s'\n", machine, version);
 
     if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
 	// copy to global
