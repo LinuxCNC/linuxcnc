@@ -126,7 +126,7 @@ class _PStat(object):
             LOG.debug("Checking for default handler file in: yellow<{}>".format(default_handler_path))
             if os.path.exists(default_handler_path):
                 self.HANDLER = default_handler_path
-                LOG.debug("Using DEFAULT handler file path: yellow<{}>".format(self.HANDLER))
+                LOG.info("Using DEFAULT handler file path: yellow<{}>".format(self.HANDLER))
             else:
                 self.HANDLER = None
                 LOG.info("No handler file found.")
@@ -158,7 +158,7 @@ class _PStat(object):
         else:
             LOG.debug("Checking for .ui in: yellow<{}>".format(defaultui))
             if os.path.exists(defaultui):
-                LOG.debug("Using DEFAULT ui file from: yellow<{}>".format(defaultui))
+                LOG.info("Using DEFAULT ui file from: yellow<{}>".format(defaultui))
                 self.XML = defaultui
             else:
                 # error
@@ -363,7 +363,7 @@ class _PStat(object):
         else:
             LOG.debug("(embed) Checking for .ui in: yellow<{}>".format(defaultui))
             if os.path.exists(defaultui):
-                LOG.debug("(embed) Using DEFAULT ui file from: yellow<{}>".format(defaultui))
+                LOG.info("(embed) Using DEFAULT ui file from: yellow<{}>".format(defaultui))
                 XML = defaultui
                 return XML
             else:
@@ -393,7 +393,7 @@ class _PStat(object):
             LOG.debug("(embed) Checking for default handler file in: yellow<{}>".format(default_handler_path))
             if os.path.exists(default_handler_path):
                 HANDLER = default_handler_path
-                LOG.debug("(embed) Using DEFAULT handler file path: yellow<{}>".format(HANDLER))
+                LOG.info("(embed) Using DEFAULT handler file path: yellow<{}>".format(HANDLER))
                 return HANDLER
             else:
                 HANDLER = None
@@ -414,4 +414,8 @@ class _PStat(object):
             if file.endswith(".py"):
                 if not file in ('__init__.py', 'qt_vismach.py', 'primitives.py'):
                     tmp.append(file)
+            elif os.path.isdir(os.path.join(self.VISMACHDIR, file)):
+                if 'obj' in file:
+                    tmp.append(file)
+
         return tmp
