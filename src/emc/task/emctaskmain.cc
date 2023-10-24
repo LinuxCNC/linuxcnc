@@ -3071,13 +3071,10 @@ static int iniLoad(const char *filename)
         }
     }
 
-    if (emc_debug & EMC_DEBUG_VERSIONS) {
-	if (NULL != (inistring = inifile.Find("VERSION", "EMC"))) {
-	    if(sscanf(inistring, "$Revision: %s", version) != 1) {
-		strncpy(version, "unknown", LINELEN-1);
-	    }
-	} else {
-	    strncpy(version, "unknown", LINELEN-1);
+
+    if (NULL != (inistring = inifile.Find("VERSION", "EMC"))) {
+	if(sscanf(inistring, "$Revision: %s", version) != 1) {
+            strncpy(version, "unknown", LINELEN-1);
 	}
     }
 
