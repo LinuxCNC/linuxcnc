@@ -7,24 +7,6 @@
 #include <memory>
 #include <complex>
 
-#if __cplusplus <= 199711L
-#define override /* NOTHING */
-#endif
-
-////////////////////////////////////////////////////////////////////////////////
-// Ancient compiler workarounds
-////////////////////////////////////////////////////////////////////////////////
-
-#if __cplusplus < 201402L
-    namespace std {
-	template<typename T, typename... Args>
-	std::unique_ptr<T> make_unique(Args&&... args)
-	{
-	    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-	}
-    }
-#endif
-
 constexpr std::complex<double> I(0,1);
 
 template <class T>
