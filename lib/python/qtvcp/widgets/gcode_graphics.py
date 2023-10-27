@@ -53,7 +53,8 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
 
         self.colors['overlay_background'] = (0.0, 0.0, 0.0)  # blue
         self._overlayColor = QColor(0, 0, 0, 0)
-
+        self.colors['overlay_alpha'] = 0.75
+        self._overlayAlpha = 0.75
         self.colors['back'] = (0.0, 0.0, 0.75)  # blue
         self._backgroundColor = QColor(0, 0, 191, 150)
         self._jogColor = QColor(0, 0, 0, 0)
@@ -403,6 +404,16 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def resetOverlayColor(self):
         self._overlayColor = QColor(0, 0, 191, 150)
     overlay_color = pyqtProperty(QColor, getOverlayColor, setOverlayColor, resetOverlayColor)
+
+    def getOverlayAlpha(self):
+        return self._overlayAlpha
+    def setOverlayAlpha(self, value):
+        self._overlayAlpha = value
+        self.colors['overlay_alpha'] = value
+        self.updateGL()
+    def resetOverlayAlpha(self):
+        self._overlayAlpha = 0.75
+    overlay_alpha = pyqtProperty(float, getOverlayAlpha, setOverlayAlpha, resetOverlayAlpha)
 
     def getBackgroundColor(self):
         return self._backgroundColor

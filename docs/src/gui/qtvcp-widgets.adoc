@@ -945,6 +945,17 @@ GCodeGraphics{
 }
 ----
 
+*`overlay_alpha`* _(float)_::
+  Sets the _default overlay alpha value_. This affects the opacity of the overlay when set between 0.0 and 1.0. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
+----
+#gcodegraphics{
+    qproperty-overlay_color: 0.15;
+}
+----
+
 *`background_color`* _(primary, secondary, or RGBA formatted color)_::
   Sets the _default background color_. +
   The following shows an example of how to set this property:
@@ -1466,16 +1477,6 @@ self.w.screen_options.setProperty('play_sounds_option',False)
 /* the # sign is used to refer to Qt Designer defined widget name */
 /* matches/applied to only this named widget */
 #screen_options {
-  qproperty-close_overlay_color: rgba(0, 255, 0, 0.75)
-}
-----
-+
-[source,{css}]
-----
-/* red, green, blue 0-255, alpha 0-100% or 0.0 to 1.0 */
-/* use widget class name */
-/* matches/applied to all widgets of this class */
-ScreenOptions {
   qproperty-close_overlay_color: rgba(0, 255, 0, 0.75)
 }
 ----
