@@ -149,6 +149,7 @@ extern "C" {
         EMCMOT_SET_MAX_FEED_OVERRIDE,
         EMCMOT_SETUP_ARC_BLENDS,
 
+	EMCMOT_SET_PROBE_ERR_INHIBIT,
 	EMCMOT_ENABLE_WATCHDOG,         /* enable watchdog sound, parport */
 	EMCMOT_DISABLE_WATCHDOG,        /* enable watchdog sound, parport */
 	EMCMOT_JOG_CONT,	/* continuous jog */
@@ -248,6 +249,8 @@ extern "C" {
                                  |1 = suppress error, report in # instead
                                  ~2 = move until probe trips (ngc default)
                                  |2 = move until probe clears */
+    int probe_jog_err_inhibit;  // setting to inhibit probe tripped while jogging error.
+    int probe_home_err_inhibit;  // setting to inhibit probe tripped while homeing error.
     EmcPose tool_offset;        /* TLO */
     double  orientation;    /* angle for spindle orient */
     int state; /*spindle state*/
@@ -719,6 +722,8 @@ Suggestion: Split this in to an Error and a Status flag register..
         double arcBlendRampFreq;
         double arcBlendTangentKinkRatio;
         double maxFeedScale;
+        int inhibit_probe_jog_error;
+        int inhibit_probe_home_error;
     } emcmot_config_t;
 
 /* error structure - A ring buffer used to pass formatted printf strings to usr space */
