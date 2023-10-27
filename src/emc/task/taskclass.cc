@@ -495,7 +495,7 @@ int Task::emcToolUnload()//EMC_TOOL_UNLOAD_TYPE
 
 int Task::emcToolLoadToolTable(const char *file)//EMC_TOOL_LOAD_TOOL_TABLE_TYPE
 {
-    //error handler?
+    if(!strlen(file)) file = tooltable_filename;//use filename from ini if none is provided
     tooldata_load(file);
     reload_tool_number(emcioStatus.tool.toolInSpindle);
     return 0;
