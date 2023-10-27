@@ -871,8 +871,6 @@ LinuxCNC will not know your joint travel limits when using `NO_FORCE_HOMING = 1`
   The `TPMOD` variable is optional.  If specified, use a specified (user-built) module instead of the default (tpmod).
   Module parameters (tp_parms) may be included if supported by the named module.
   The setting may be overridden from the command line using the -t option ($ linuxcnc -h).
-* `NO_PROBE_JOG_ERROR = 0` - Allow to bypass probe tripped check when you jog manually.
-* `NO_PROBE_HOME_ERROR = 0` - Allow to bypass probe tripped check when homing is in progress.
 
 
 [[sub:ini:sec:kins]]

@@ -2049,13 +2049,6 @@ int emcSetMaxFeedOverride(double maxFeedScale) {
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcSetProbeErrorInhibit(int j_inhibit, int h_inhibit) {
-    emcmotCommand.command = EMCMOT_SET_PROBE_ERR_INHIBIT;
-    emcmotCommand.probe_jog_err_inhibit = j_inhibit;
-    emcmotCommand.probe_home_err_inhibit = h_inhibit;
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
 int emcGetExternalOffsetApplied(void) {
     return emcmotStatus.external_offsets_applied;
 }
