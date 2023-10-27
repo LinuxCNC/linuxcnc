@@ -952,7 +952,7 @@ GCodeGraphics{
 [source,{css}]
 ----
 #gcodegraphics{
-    qproperty-overlay_color: 0.15;
+    qproperty-overlay_alpha: 0.15;
 }
 ----
 
