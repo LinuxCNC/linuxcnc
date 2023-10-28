@@ -1,4 +1,4 @@
-VERSION = '1.236.296'
+VERSION = '1.237.297'
 
 '''
 qtplasmac_handler.py
@@ -3105,13 +3105,13 @@ class HandlerClass:
             self.w.kerf_width.setRange(0.0, 1.0)
             self.w.kerf_width.setDecimals(3)
             self.w.kerf_width.setSingleStep(0.001)
-#            self.w.cut_feed_rate.setRange(0.0, 999.0)
+            self.w.cut_feed_rate.setRange(0.0, 999.0)
             self.w.cut_feed_rate.setDecimals(1)
             self.w.cut_feed_rate.setSingleStep(0.1)
-#            self.w.cut_height.setRange(0.0, 1.0)
+            self.w.cut_height.setRange(0.0, 1.0)
             self.w.cut_height.setDecimals(3)
             self.w.cut_height.setSingleStep(0.001)
-#            self.w.pierce_height.setRange(0.0, 1.0)
+            self.w.pierce_height.setRange(0.0, 1.0)
             self.w.pierce_height.setDecimals(3)
             self.w.pierce_height.setSingleStep(0.001)
         else:
