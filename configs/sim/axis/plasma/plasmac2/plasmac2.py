@@ -17,7 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-VER = '10'
+VER = '11'
 
 ##############################################################################
 # the next line suppresses undefined variable errors in VSCode               #
@@ -249,16 +249,14 @@ def getPrefs(prefs, section, option, default=False, typ=bool):
         else:
             prefs.set(section, option, str(typ(default)))
             prefs.write(open(prefs.fn, 'w'))
-            if comp['development']:
-                print(f"Preferences file, adding {option} to [{section}] section")
+            print(f"Preferences file, adding {option} to [{section}] section")
             return typ(default)
     else:
         prefs.add_section(section)
         prefs.set(section, option, str(typ(default)))
         prefs.write(open(prefs.fn, 'w'))
-        if comp['development']:
-            print(f"Preferences file, adding [{section}] section")
-            print(f"Preferences file, adding {option} to [{section}] section")
+        print(f"Preferences file, adding [{section}] section")
+        print(f"Preferences file, adding {option} to [{section}] section")
         return typ(default)
 
 def putPrefs(prefs, section, option, value, typ=bool):
@@ -1140,10 +1138,16 @@ def laser_button_enable():
         rE(f"grid forget {fjogf}.zerohome.laser")
         rE(f"grid forget {fcrbuttons}.laser")
 
-def set_probe_offset_pins():
+def offset_probe_setup():
     hal.set_p('plasmac.offset-probe-x', f"{probeOffsets['X']}")
     hal.set_p('plasmac.offset-probe-y', f"{probeOffsets['Y']}")
     hal.set_p('plasmac.offset-probe-delay', f"{probeOffsets['Delay']}")
+    if probeOffsets['X'] or probeOffsets['Y']:
+        rE(f"grid {fparam}.c1.probe.offset-feed-rateL -column 0 -row 6 -sticky e -padx {{4 0}} -pady {{4 0}}")
+        rE(f"grid {fparam}.c1.probe.offset-feed-rate -column 1 -row 6 -sticky e -padx {{0 4}} -pady {{4 0}}")
+    else:
+        rE(f"grid forget {fparam}.c1.probe.offset-feed-rateL")
+        rE(f"grid forget {fparam}.c1.probe.offset-feed-rate")
 
 def set_toggle_pins(button):
     togglePins[button]['state'] = hal.get_value(togglePins[button]['pin'])
@@ -1715,7 +1719,7 @@ def offsets_probe_clicked():
         putPrefs(PREF, 'OFFSET_PROBING', 'X axis', probeOffsets['X'], float)
         putPrefs(PREF, 'OFFSET_PROBING', 'Y axis', probeOffsets['Y'], float)
         putPrefs(PREF, 'OFFSET_PROBING', 'Delay', probeOffsets['Delay'], float)
-        set_probe_offset_pins()
+        offset_probe_setup()
         comp['offset-set-probe'] = False
         title = _('PROBE OFFSETS')
         msg = _('Probe offsets have been saved')
@@ -4218,6 +4222,9 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
             }
     read_colors()
     thcFeedRate = round((float(inifile.find('AXIS_Z', 'MAX_VELOCITY')) * float(inifile.find('AXIS_Z', 'OFFSET_AV_RATIO'))) * 60, 3)
+    offsetFeedRate = min(float(inifile.find('AXIS_X', 'MAX_VELOCITY')) * 30, \
+                         float(inifile.find('AXIS_Y', 'MAX_VELOCITY')) * 30, \
+                         float(inifile.find('TRAJ', 'MAX_LINEAR_VELOCITYs') or 100000))
     maxHeight = round(hal.get_value('ini.z.max_limit') - hal.get_value('ini.z.min_limit'), 3)
     unitsPerMm = hal.get_value('halui.machine.units-per-mm')
     isIdle = False
@@ -4920,7 +4927,8 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
               [f"{fparam}.c1.probe",'ohmic-probe-offset',2,0,-25,+25,0.01,'Ohmic Z Offset','Ohmic Probe Offset'], \
               [f"{fparam}.c1.probe",'ohmic-max-attempts',0,0,0,10,1,'Ohmic Retries','Ohmic Maximum Attempts'], \
               [f"{fparam}.c1.probe",'skip-ihs-distance',0,0,0,999,1,'Skip IHS','Skip IHS Distance'], \
-              [f"{fparam}.c1.motion",'setup-feed-rate',0,int(thcFeedRate * 0.8),1,thcFeedRate,1,'Setup Speed','Setup Feed Rate'], \
+              [f"{fparam}.c1.probe",'offset-feed-rate',0,offsetFeedRate*0.8,0,offsetFeedRate,1,'Offset Speed','Offset Feed Rate'], \
+              [f"{fparam}.c1.motion",'setup-feed-rate',0,int(thcFeedRate * 0.8),1000,thcFeedRate,1,'Setup Speed','Setup Feed Rate'], \
               [f"{fparam}.c2.thc",'thc-delay',1,0.5,0,9,0.1,'Start Delay','THC Delay'], \
               [f"{fparam}.c2.thc",'thc-sample-counts',0,50,10,1000,1,'Auto Counts','THC Sample Counts'], \
               [f"{fparam}.c2.thc",'thc-sample-threshold',1,1,0.1,9,0.1,'Auto Threshold (V)','THC Sample Threshold'], \
@@ -4958,6 +4966,8 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
                 cpItem[2:7] = [3,0,-1,1,0.001]
             elif cpItem[1] == 'skip-ihs-distance':
                 cpItem[2:7] = [1,0,0,99,.1]
+            elif cpItem[1] == 'offset-feed-rate':
+                cpItem[2:7] = [1,offsetFeedRate * 0.8,40,offsetFeedRate,.1]
             elif cpItem[1] == 'setup-feed-rate':
                 cpItem[2:7] = [1,int(thcFeedRate * 0.8),0.1,thcFeedRate,0.1]
             elif cpItem[1] == 'safe-height':
@@ -5351,7 +5361,7 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     pVars.runJ.set('00:00:00')
     pVars.runT.set(secs_to_hms(pVars.runS.get()))
     laser_button_enable()
-    set_probe_offset_pins()
+    offset_probe_setup()
     for widget in wLeds:
         rE(f"{widget} configure -state disabled")
         widgetValues[widget] = 0
