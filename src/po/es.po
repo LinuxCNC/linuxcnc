@@ -5,13 +5,14 @@
 # Billy Soto <cromatronix@gmail.com>, 2022.
 # Ulices <dev.n47os@aleeas.com>, 2022, 2023.
 # Roman Jesus Castañeda <rojecas@gmail.com>, 2023.
+# gallegonovato <fran-carro@hotmail.es>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-05-23 17:52+0000\n"
-"Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
+"PO-Revision-Date: 2023-10-22 20:27+0000\n"
+"Last-Translator: gallegonovato <fran-carro@hotmail.es>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
 "Language: es\n"
@@ -19,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.18-dev\n"
+"X-Generator: Weblate 5.1\n"
 
 #: src/emc/task/emctaskmain.cc:869
 #, c-format
@@ -11728,7 +11729,8 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -18407,9 +18409,8 @@ msgstr "hm2_4i43"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:314
 #: src/emc/usr_intf/pncconf/dialogs.glade:340
-#, fuzzy
 msgid "Parallel Port- 7i90"
-msgstr "Puerto Parellel- 7i90"
+msgstr "Puerto paralelo - 7i90"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:315
 #: src/emc/usr_intf/pncconf/dialogs.glade:341

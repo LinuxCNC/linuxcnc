@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-09-14 22:25+0000\n"
+"PO-Revision-Date: 2023-10-27 08:59+0000\n"
 "Last-Translator: Xavier Soltner <soltner.xavier2@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "fr/>\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.0.1-dev\n"
+"X-Generator: Weblate 5.2-dev\n"
 
 #: src/emc/task/emctaskmain.cc:869
 #, c-format
@@ -12010,6 +12010,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
 msgid ""
 "_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -14658,7 +14659,7 @@ msgstr "Toucher"
 
 #: src/emc/usr_intf/pncconf/private_data.py:530
 msgid "Laser On"
-msgstr ""
+msgstr "Allumer Laser"
 
 #: src/emc/usr_intf/pncconf/private_data.py:532
 msgid "Unused Output"
@@ -14995,6 +14996,11 @@ msgid ""
 "\n"
 "- = move on negative side of start position"
 msgstr ""
+"± = bouger de chaque côté de la position de départ\n"
+"\n"
+"+ = bouger du côté positif de la position de départ\n"
+"\n"
+"- = bouger du côté négatif de la position de départ"
 
 #: src/emc/usr_intf/pncconf/tests.py:498
 msgid "Servo tuning is not tested in PNCconf yet\n"
@@ -15136,7 +15142,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/main_page.glade:47
 msgid "PNCconf - Mesa Card Configuration Wizard"
-msgstr ""
+msgstr "PNCconf - Assistant de configuration carte Mesa"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:177
 #, fuzzy
@@ -15154,6 +15160,12 @@ msgid ""
 "functional then go back and add other options such as VFD spindle control  "
 "or advanced limit/home control etc."
 msgstr ""
+"Ce programme crée les fichier de configuration (INI et HAL) pour des "
+"fraiseuses et tours connectés a des cartes Mesa.\n"
+"\n"
+"Il est recommandé de commencer avec des options d'axes basiques, les faires "
+"fonctionner correctement, puis de rajouter d'avantage d'option comme le "
+"contrôle de broche VFD, limite d'axe avancé, contrôle de mise à zéro etc."
 
 #: src/emc/usr_intf/pncconf/main_page.glade:315
 #: src/emc/usr_intf/pncconf/mesa0.glade:20243
