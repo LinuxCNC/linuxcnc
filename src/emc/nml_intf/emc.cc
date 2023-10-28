@@ -570,6 +570,8 @@ void EMC_TASK_PLAN_CLOSE::update(CMS * cms)
 void EMC_IO_STAT::update(CMS * cms)
 {
     cms->update(debug);
+    cms->update(reason);
+    cms->update(fault);
     tool.update(cms);
     coolant.update(cms);
     aux.update(cms);
@@ -1030,12 +1032,18 @@ void EMC_SPINDLE_STAT::update(CMS * cms)
 
     EMC_SPINDLE_STAT_MSG::update(cms);
     cms->update(speed);
+    cms->update(spindle_scale);
+    cms->update(css_maximum);
+    cms->update(css_factor);
+    cms->update(state);
     cms->update(direction);
     cms->update(brake);
     cms->update(increasing);
     cms->update(enabled);
     cms->update(orient_state);
     cms->update(orient_fault);
+    cms->update(spindle_override_enabled);
+    cms->update(homed);
 }
 
 /*
@@ -1300,6 +1308,7 @@ void EMC_AXIS_STAT::update(CMS * cms)
     EMC_AXIS_STAT_MSG::update(cms);
     cms->update(minPositionLimit);
     cms->update(maxPositionLimit);
+    cms->update(velocity);
 
 }
 
@@ -1403,21 +1412,25 @@ void EMC_TASK_STAT::update(CMS * cms)
     cms->update(motionLine);
     cms->update(currentLine);
     cms->update(readLine);
+    cms->update(optional_stop_state);
+    cms->update(block_delete_state);
+    cms->update(input_timeout);
     cms->update(file, 256);
     cms->update(command, 256);
     cms->update(ini_filename, 256);
     EmcPose_update(cms, &g5x_offset);
-    EmcPose_update(cms, &g92_offset);
-    EmcPose_update(cms, &toolOffset);
     cms->update(g5x_index);
+    EmcPose_update(cms, &g92_offset);
+    cms->update(rotation_xy);
+    EmcPose_update(cms, &toolOffset);
     cms->update(activeGCodes, ACTIVE_G_CODES);
     cms->update(activeMCodes, ACTIVE_M_CODES);
     cms->update(activeSettings, ACTIVE_SETTINGS);
     cms->update((int *) &programUnits, 1);
     cms->update(interpreter_errcode);
-    cms->update(input_timeout);
-    cms->update(rotation_xy);
-
+    cms->update(task_paused);
+    cms->update(delayLeft);
+    cms->update(queuedMDIcommands);
 }
 
 /*
@@ -1721,6 +1734,8 @@ void EMC_TRAJ_STAT::update(CMS * cms)
     cms->update(linearUnits);
     cms->update(angularUnits);
     cms->update(cycleTime);
+    cms->update(joints);
+    cms->update(spindles);
     cms->update(axis_mask);
     cms->update((int *) &mode, 1);
     cms->update(enabled);
@@ -1731,6 +1746,7 @@ void EMC_TRAJ_STAT::update(CMS * cms)
     cms->update(id);
     cms->update(paused);
     cms->update(scale);
+    cms->update(rapid_scale);
     EmcPose_update(cms, &position);
     EmcPose_update(cms, &actualPosition);
     cms->update(velocity);
@@ -1743,7 +1759,12 @@ void EMC_TRAJ_STAT::update(CMS * cms)
     cms->update(probeval);
     cms->update(kinematics_type);
     cms->update(motion_type);
-
+    cms->update(distance_to_go);
+    EmcPose_update(cms, &dtg);
+    cms->update(current_vel);
+    cms->update(feed_override_enabled);
+    cms->update(adaptive_feed_enabled);
+    cms->update(feed_hold_enabled);
 }
 
 /*
@@ -1849,11 +1870,27 @@ void EMC_MOTION_STAT::update(CMS * cms)
 {
     traj.update(cms);
     for (int i_joint = 0; i_joint < EMCMOT_MAX_JOINTS; i_joint++)
-	joint[i_joint].update(cms);
+	    joint[i_joint].update(cms);
+    for (int i_axis = 0; i_axis < EMCMOT_MAX_AXIS; i_axis++)
+        axis[i_axis].update(cms);
+    for (int i_spindle = 0; i_spindle < EMCMOT_MAX_SPINDLES; i_spindle++)
+        spindle[i_spindle].update(cms);
+    for (int i_synch_di = 0; i_synch_di < EMCMOT_MAX_AIO; i_synch_di++)
+        cms->update(synch_di[i_synch_di]);
+    for (int i_synch_do = 0; i_synch_do < EMCMOT_MAX_AIO; i_synch_do++)
+        cms->update(synch_do[i_synch_do]);
+    for (int i_analog_input = 0; i_analog_input < EMCMOT_MAX_AIO; i_analog_input++)
+        cms->update(analog_input[i_analog_input]);
+    for (int i_analog_output = 0; i_analog_output < EMCMOT_MAX_AIO; i_analog_output++)
+        cms->update(analog_output[i_analog_output]);
+    for (int i_misc_error = 0; i_misc_error < EMCMOT_MAX_MISC_ERROR; i_misc_error++)
+        cms->update(misc_error[i_misc_error]);
     cms->update(debug);
-
-    // spindle.update(cms); //FIXME - is this needed ? Let's see. andypugh 13/6/16
-
+    cms->update(on_soft_limit);
+    cms->update(external_offsets_applied);
+    EmcPose_update(cms, &eoffset_pose);
+    cms->update(numExtraJoints);
+    cms->update(jogging_active);
 }
 
 /*
