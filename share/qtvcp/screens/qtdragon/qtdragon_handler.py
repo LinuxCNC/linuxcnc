@@ -266,9 +266,14 @@ class HandlerClass:
         flag = True
         for b in range(0,10):
             button = self.w['macrobutton{}'.format(b)]
-            num = button.property('ini_mdi_number')
+            # prefer named INI MDI commands
+            key = button.property('ini_mdi_key')
+            if key == '' or INFO.get_ini_mdi_command(key) is None:
+                # fallback to legacy nth line
+                key = button.property('ini_mdi_number')
             try:
-                code = INFO.MDI_COMMAND_LIST[num]
+                code = INFO.get_ini_mdi_command(key)
+                if code is None: raise Exception
                 flag = False
             except:
                 button.hide()

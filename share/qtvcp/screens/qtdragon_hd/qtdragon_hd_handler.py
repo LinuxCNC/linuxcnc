@@ -213,21 +213,16 @@ class HandlerClass:
 
         # Show assigned macrobuttons define in INI under [MDI_COMMAND_LIST]
         flag = True
-        macro_button_list = [self.w.macrobutton0, 
-                             self.w.macrobutton1, 
-                             self.w.macrobutton2, 
-                             self.w.macrobutton3, 
-                             self.w.macrobutton4, 
-                             self.w.macrobutton5, 
-                             self.w.macrobutton6, 
-                             self.w.macrobutton7, 
-                             self.w.macrobutton8,
-                             self.w.macrobutton9
-                             ]
-        for button in (macro_button_list):
-            num = button.property('ini_mdi_number')
+        for b in range(0,10):
+            button = self.w['macrobutton{}'.format(b)]
+            # prefer named INI MDI commands
+            key = button.property('ini_mdi_key')
+            if key == '' or INFO.get_ini_mdi_command(key) is None:
+                # fallback to legacy nth line
+                key = button.property('ini_mdi_number')
             try:
-                code = INFO.MDI_COMMAND_LIST[num]
+                code = INFO.get_ini_mdi_command(key)
+                if code is None: raise Exception
                 flag = False
             except:
                 button.hide()

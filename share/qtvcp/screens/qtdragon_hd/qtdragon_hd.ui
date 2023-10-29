@@ -1904,6 +1904,9 @@ View</string>
                        <property name="ini_mdi_number" stdset="0">
                         <number>0</number>
                        </property>
+                       <property name="ini_mdi_key" stdset="0">
+                        <string>MACRO0</string>
+                       </property>
                        <property name="textTemplate" stdset="0">
                         <string>%1.3f in</string>
                        </property>
@@ -1995,6 +1998,9 @@ View</string>
                        <property name="ini_mdi_number" stdset="0">
                         <number>1</number>
                        </property>
+                       <property name="ini_mdi_key" stdset="0">
+                        <string>MACRO1</string>
+                       </property>
                        <property name="textTemplate" stdset="0">
                         <string>%1.3f in</string>
                        </property>
@@ -2082,6 +2088,9 @@ View</string>
                        </property>
                        <property name="ini_mdi_number" stdset="0">
                         <number>2</number>
+                       </property>
+                       <property name="ini_mdi_key" stdset="0">
+                        <string>MACRO2</string>
                        </property>
                        <property name="textTemplate" stdset="0">
                         <string>%1.3f in</string>
@@ -2171,6 +2180,9 @@ View</string>
                        <property name="ini_mdi_number" stdset="0">
                         <number>3</number>
                        </property>
+                       <property name="ini_mdi_key" stdset="0">
+                        <string>MACRO3</string>
+                       </property>
                        <property name="textTemplate" stdset="0">
                         <string>%1.3f in</string>
                        </property>
@@ -2259,6 +2271,9 @@ View</string>
                        <property name="ini_mdi_number" stdset="0">
                         <number>4</number>
                        </property>
+                       <property name="ini_mdi_key" stdset="0">
+                        <string>MACRO4</string>
+                       </property>
                        <property name="textTemplate" stdset="0">
                         <string>%1.3f in</string>
                        </property>
@@ -2346,6 +2361,9 @@ View</string>
                        </property>
                        <property name="ini_mdi_number" stdset="0">
                         <number>5</number>
+                       </property>
+                       <property name="ini_mdi_key" stdset="0">
+                        <string>MACRO5</string>
                        </property>
                        <property name="textTemplate" stdset="0">
                         <string>%1.3f in</string>
@@ -2441,6 +2459,9 @@ View</string>
                        <property name="ini_mdi_number" stdset="0">
                         <number>6</number>
                        </property>
+                       <property name="ini_mdi_key" stdset="0">
+                        <string>MACRO6</string>
+                       </property>
                        <property name="textTemplate" stdset="0">
                         <string>%1.3f in</string>
                        </property>
@@ -2535,6 +2556,9 @@ View</string>
                        <property name="ini_mdi_number" stdset="0">
                         <number>7</number>
                        </property>
+                       <property name="ini_mdi_key" stdset="0">
+                        <string>MACRO7</string>
+                       </property>
                        <property name="textTemplate" stdset="0">
                         <string>%1.3f in</string>
                        </property>
@@ -2623,6 +2647,9 @@ View</string>
                        <property name="ini_mdi_number" stdset="0">
                         <number>8</number>
                        </property>
+                       <property name="ini_mdi_key" stdset="0">
+                        <string>MACRO8</string>
+                       </property>
                        <property name="textTemplate" stdset="0">
                         <string>%1.3f in</string>
                        </property>
@@ -2710,6 +2737,9 @@ View</string>
                        </property>
                        <property name="ini_mdi_number" stdset="0">
                         <number>9</number>
+                       </property>
+                       <property name="ini_mdi_key" stdset="0">
+                        <string>MACRO9</string>
                        </property>
                        <property name="textTemplate" stdset="0">
                         <string>%1.3f in</string>
@@ -16881,7 +16911,7 @@ ANGULAR</string>
          <number>2</number>
         </property>
         <property name="text">
-         <string>06:07:54 PM</string>
+         <string>11:46:50 PM</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
