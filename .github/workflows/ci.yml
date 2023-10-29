@@ -23,7 +23,7 @@ jobs:
       with:
         submodules: true
         fetch-depth: 0
-    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
+    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
     - name: Build RIP & test
       run: |
         set -x
@@ -49,7 +49,7 @@ jobs:
       with:
         submodules: true
         fetch-depth: 0
-    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
+    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
     - name: Clang build RIP & test
       run: |
         set -x
@@ -76,7 +76,7 @@ jobs:
       with:
         submodules: true
         fetch-depth: 0
-    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
+    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
     - name: Build HTML docmentation
       run: |
         ./scripts/travis-install-build-deps.sh
