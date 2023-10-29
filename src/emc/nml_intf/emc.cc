@@ -557,9 +557,7 @@ const char *emc_symbol_lookup(uint32_t type)
 */
 void EMC_TASK_PLAN_CLOSE::update(CMS * cms)
 {
-
     EMC_TASK_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -604,8 +602,7 @@ void EMC_CMD_MSG::update(CMS * cms)
 */
 void EMC_OPERATOR_DISPLAY::update(CMS * cms)
 {
-    cms->update(display, 256);
-
+    cms->update(display, LINELEN);
 }
 
 /*
@@ -615,7 +612,7 @@ void EMC_OPERATOR_DISPLAY::update(CMS * cms)
 */
 void EMC_SYSTEM_CMD::update(CMS * cms)
 {
-    cms->update(string, 256);
+    cms->update(string, EMC_SYSTEM_CMD_LEN);
 }
 
 /*
@@ -625,9 +622,7 @@ void EMC_SYSTEM_CMD::update(CMS * cms)
 */
 void EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -637,7 +632,6 @@ void EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG::update(CMS * cms)
 */
 void EMC_TOOL_STAT::update(CMS * cms)
 {
-
     EMC_TOOL_STAT_MSG::update(cms);
     cms->update(pocketPrepped); // idx
     cms->update(toolInSpindle);
@@ -657,10 +651,9 @@ void EMC_TOOL_STAT::update(CMS * cms)
 */
 void EMC_SPINDLE_CONSTANT::update(CMS * cms)
 {
-
     EMC_SPINDLE_CMD_MSG::update(cms);
+    cms->update(spindle);
     cms->update(speed);
-
 }
 
 /*
@@ -670,7 +663,7 @@ void EMC_SPINDLE_CONSTANT::update(CMS * cms)
 */
 void EMC_SPINDLE_CMD_MSG::update(CMS * cms)
 {
-
+    cms->update(spindle);
 }
 
 /*
@@ -680,10 +673,8 @@ void EMC_SPINDLE_CMD_MSG::update(CMS * cms)
 */
 void EMC_TRAJ_DELAY::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
     cms->update(delay);
-
 }
 
 /*
@@ -691,7 +682,6 @@ void EMC_TRAJ_DELAY::update(CMS * cms)
 */
 void EMC_JOG_ABS::update(CMS * cms)
 {
-
     EMC_JOG_CMD_MSG::update(cms);
     cms->update(pos);
     cms->update(vel);
@@ -704,10 +694,8 @@ void EMC_JOG_ABS::update(CMS * cms)
 */
 void EMC_JOG_STOP::update(CMS * cms)
 {
-
     EMC_JOG_CMD_MSG::update(cms);
     cms->update(jjogmode);
-
 }
 
 /*
@@ -717,10 +705,8 @@ void EMC_JOG_STOP::update(CMS * cms)
 */
 void EMC_TOOL_PREPARE::update(CMS * cms)
 {
-
     EMC_TOOL_CMD_MSG::update(cms);
     cms->update(tool);
-
 }
 
 /*
@@ -730,9 +716,8 @@ void EMC_TOOL_PREPARE::update(CMS * cms)
 */
 void EMC_SPINDLE_OFF::update(CMS * cms)
 {
-
     EMC_SPINDLE_CMD_MSG::update(cms);
-
+    cms->update(spindle);
 }
 
 /*
@@ -742,9 +727,7 @@ void EMC_SPINDLE_OFF::update(CMS * cms)
 */
 void EMC_TASK_PLAN_SYNCH::update(CMS * cms)
 {
-
     EMC_TASK_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -764,9 +747,7 @@ void EMC_COOLANT_CMD_MSG::update(CMS * cms)
 */
 void EMC_TOOL_LOAD::update(CMS * cms)
 {
-
     EMC_TOOL_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -776,9 +757,7 @@ void EMC_TOOL_LOAD::update(CMS * cms)
 */
 void EMC_JOINT_OVERRIDE_LIMITS::update(CMS * cms)
 {
-
     EMC_JOINT_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -791,7 +770,6 @@ void PmCartesian_update(CMS * cms, PmCartesian * x)
     cms->update(x->x);
     cms->update(x->y);
     cms->update(x->z);
-
 }
 
 /*
@@ -801,10 +779,8 @@ void PmCartesian_update(CMS * cms, PmCartesian * x)
 */
 void EMC_JOINT_SET_FERROR::update(CMS * cms)
 {
-
     EMC_JOINT_CMD_MSG::update(cms);
     cms->update(ferror);
-
 }
 
 /*
@@ -814,10 +790,8 @@ void EMC_JOINT_SET_FERROR::update(CMS * cms)
 */
 void EMC_JOINT_SET_MIN_POSITION_LIMIT::update(CMS * cms)
 {
-
     EMC_JOINT_CMD_MSG::update(cms);
     cms->update(limit);
-
 }
 
 /*
@@ -827,11 +801,9 @@ void EMC_JOINT_SET_MIN_POSITION_LIMIT::update(CMS * cms)
 */
 void EMC_TRAJ_SET_VELOCITY::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
     cms->update(velocity);
     cms->update(ini_maxvel);
-
 }
 
 /*
@@ -841,9 +813,7 @@ void EMC_TRAJ_SET_VELOCITY::update(CMS * cms)
 */
 void EMC_TASK_ABORT::update(CMS * cms)
 {
-
     EMC_TASK_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -853,9 +823,7 @@ void EMC_TASK_ABORT::update(CMS * cms)
 */
 void EMC_TASK_PLAN_INIT::update(CMS * cms)
 {
-
     EMC_TASK_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -865,10 +833,8 @@ void EMC_TASK_PLAN_INIT::update(CMS * cms)
 */
 void EMC_TRAJ_SET_ACCELERATION::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
     cms->update(acceleration);
-
 }
 
 /*
@@ -878,10 +844,8 @@ void EMC_TRAJ_SET_ACCELERATION::update(CMS * cms)
 */
 void EMC_AUX_STAT::update(CMS * cms)
 {
-
     EMC_AUX_STAT_MSG::update(cms);
     cms->update(estop);
-
 }
 
 /*
@@ -892,7 +856,6 @@ void EMC_AUX_STAT::update(CMS * cms)
 void EMC_TASK_STAT_MSG::update(CMS * cms)
 {
     cms->update(heartbeat);
-
 }
 
 /*
@@ -903,14 +866,12 @@ void EMC_TASK_STAT_MSG::update(CMS * cms)
 void EMC_JOINT_CMD_MSG::update(CMS * cms)
 {
     cms->update(joint);
-
 }
 
 
 void EMC_JOG_CMD_MSG::update(CMS * cms)
 {
     cms->update(joint_or_axis);
-
 }
 
 /*
@@ -920,13 +881,11 @@ void EMC_JOG_CMD_MSG::update(CMS * cms)
 */
 void EMC_STAT::update(CMS * cms)
 {
-
     EMC_STAT_MSG::update(cms);
     task.update(cms);
     motion.update(cms);
     io.update(cms);
     cms->update(debug);
-
 }
 
 /*
@@ -934,11 +893,9 @@ void EMC_STAT::update(CMS * cms)
 */
 void EMC_JOG_CONT::update(CMS * cms)
 {
-
     EMC_JOG_CMD_MSG::update(cms);
     cms->update(vel);
     cms->update(jjogmode);
-
 }
 
 /*
@@ -948,13 +905,11 @@ void EMC_JOG_CONT::update(CMS * cms)
 */
 void EMC_MOTION_SET_AOUT::update(CMS * cms)
 {
-
     EMC_MOTION_CMD_MSG::update(cms);
     cms->update(index);
     cms->update(start);
     cms->update(end);
     cms->update(now);
-
 }
 
 /*
@@ -974,9 +929,7 @@ void EMC_COOLANT_STAT_MSG::update(CMS * cms)
 */
 void EMC_TRAJ_RESUME::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -986,9 +939,7 @@ void EMC_TRAJ_RESUME::update(CMS * cms)
 */
 void EMC_TRAJ_ABORT::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -998,7 +949,6 @@ void EMC_TRAJ_ABORT::update(CMS * cms)
 */
 void EMC_TOOL_SET_OFFSET::update(CMS * cms)
 {
-
     EMC_TOOL_CMD_MSG::update(cms);
     cms->update(pocket);
     cms->update(toolno);
@@ -1017,7 +967,6 @@ void EMC_TOOL_SET_OFFSET::update(CMS * cms)
 */
 void EMC_TOOL_SET_NUMBER::update(CMS * cms)
 {
-
     EMC_TOOL_CMD_MSG::update(cms);
     cms->update(tool);
 }
@@ -1029,7 +978,6 @@ void EMC_TOOL_SET_NUMBER::update(CMS * cms)
 */
 void EMC_SPINDLE_STAT::update(CMS * cms)
 {
-
     EMC_SPINDLE_STAT_MSG::update(cms);
     cms->update(speed);
     cms->update(spindle_scale);
@@ -1053,10 +1001,8 @@ void EMC_SPINDLE_STAT::update(CMS * cms)
 */
 void EMC_JOINT_SET_MAX_POSITION_LIMIT::update(CMS * cms)
 {
-
     EMC_JOINT_CMD_MSG::update(cms);
     cms->update(limit);
-
 }
 
 /*
@@ -1066,9 +1012,7 @@ void EMC_JOINT_SET_MAX_POSITION_LIMIT::update(CMS * cms)
 */
 void EMC_COOLANT_MIST_ON::update(CMS * cms)
 {
-
     EMC_COOLANT_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -1080,7 +1024,6 @@ void EMC_COOLANT_MIST_ON::update(CMS * cms)
 */
 void EMC_TRAJ_LINEAR_MOVE::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
     EmcPose_update(cms, &end);
     cms->update(type);
@@ -1100,7 +1043,6 @@ void EMC_TRAJ_LINEAR_MOVE::update(CMS * cms)
 */
 void EMC_TRAJ_CIRCULAR_MOVE::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
     EmcPose_update(cms, &end);
     cms->update(center);
@@ -1111,7 +1053,6 @@ void EMC_TRAJ_CIRCULAR_MOVE::update(CMS * cms)
     cms->update(ini_maxvel);
     cms->update(acc);
     cms->update(feed_mode);
-
 }
 
 /*
@@ -1121,11 +1062,9 @@ void EMC_TRAJ_CIRCULAR_MOVE::update(CMS * cms)
 */
 void EMC_TRAJ_SET_TERM_COND::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
     cms->update(cond);
     cms->update(tolerance);
-
 }
 
 void EMC_TRAJ_SET_SPINDLESYNC::update(CMS * cms)
@@ -1142,10 +1081,8 @@ void EMC_TRAJ_SET_SPINDLESYNC::update(CMS * cms)
 */
 void EMC_TASK_PLAN_RUN::update(CMS * cms)
 {
-
     EMC_TASK_CMD_MSG::update(cms);
     cms->update(line);
-
 }
 
 /*
@@ -1165,9 +1102,7 @@ void EMC_TOOL_CMD_MSG::update(CMS * cms)
 */
 void EMC_TASK_PLAN_RESUME::update(CMS * cms)
 {
-
     EMC_TASK_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -1197,8 +1132,7 @@ void EMC_TRAJ_STAT_MSG::update(CMS * cms)
 */
 void EMC_OPERATOR_TEXT::update(CMS * cms)
 {
-    cms->update(text, 256);
-
+    cms->update(text, LINELEN);
 }
 
 /*
@@ -1208,9 +1142,7 @@ void EMC_OPERATOR_TEXT::update(CMS * cms)
 */
 void EMC_COOLANT_MIST_OFF::update(CMS * cms)
 {
-
     EMC_COOLANT_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -1220,9 +1152,7 @@ void EMC_COOLANT_MIST_OFF::update(CMS * cms)
 */
 void EMC_TOOL_HALT::update(CMS * cms)
 {
-
     EMC_TOOL_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -1232,10 +1162,9 @@ void EMC_TOOL_HALT::update(CMS * cms)
 */
 void EMC_SPINDLE_DECREASE::update(CMS * cms)
 {
-
     EMC_SPINDLE_CMD_MSG::update(cms);
+    cms->update(spindle);
     cms->update(speed);
-
 }
 
 /*
@@ -1270,7 +1199,6 @@ void EMC_TOOL_STAT_MSG::update(CMS * cms)
 */
 void EMC_JOINT_STAT::update(CMS * cms)
 {
-
     EMC_JOINT_STAT_MSG::update(cms);
     cms->update(jointType);
     cms->update(units);
@@ -1304,12 +1232,10 @@ void EMC_JOINT_STAT::update(CMS * cms)
 */
 void EMC_AXIS_STAT::update(CMS * cms)
 {
-
     EMC_AXIS_STAT_MSG::update(cms);
     cms->update(minPositionLimit);
     cms->update(maxPositionLimit);
     cms->update(velocity);
-
 }
 
 /*
@@ -1329,18 +1255,14 @@ void EMC_AXIS_STAT_MSG::update(CMS * cms)
 */
 void EMC_TRAJ_SET_SCALE::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
     cms->update(scale);
-
 }
 
 void EMC_TRAJ_SET_RAPID_SCALE::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
     cms->update(scale);
-
 }
 
 /*
@@ -1350,10 +1272,9 @@ void EMC_TRAJ_SET_RAPID_SCALE::update(CMS * cms)
 */
 void EMC_TRAJ_SET_SPINDLE_SCALE::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
+    cms->update(spindle);
     cms->update(scale);
-
 }
 
 /*
@@ -1363,10 +1284,8 @@ void EMC_TRAJ_SET_SPINDLE_SCALE::update(CMS * cms)
 */
 void EMC_TRAJ_SET_FO_ENABLE::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
     cms->update(mode);
-
 }
 
 /*
@@ -1376,10 +1295,9 @@ void EMC_TRAJ_SET_FO_ENABLE::update(CMS * cms)
 */
 void EMC_TRAJ_SET_SO_ENABLE::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
+    cms->update(spindle);
     cms->update(mode);
-
 }
 
 /*
@@ -1389,10 +1307,8 @@ void EMC_TRAJ_SET_SO_ENABLE::update(CMS * cms)
 */
 void EMC_TRAJ_SET_FH_ENABLE::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
     cms->update(mode);
-
 }
 
 /*
@@ -1402,7 +1318,6 @@ void EMC_TRAJ_SET_FH_ENABLE::update(CMS * cms)
 */
 void EMC_TASK_STAT::update(CMS * cms)
 {
-
     EMC_TASK_STAT_MSG::update(cms);
     cms->update((int *) &mode, 1);
     cms->update((int *) &state, 1);
@@ -1415,9 +1330,9 @@ void EMC_TASK_STAT::update(CMS * cms)
     cms->update(optional_stop_state);
     cms->update(block_delete_state);
     cms->update(input_timeout);
-    cms->update(file, 256);
-    cms->update(command, 256);
-    cms->update(ini_filename, 256);
+    cms->update(file, LINELEN);
+    cms->update(command, LINELEN);
+    cms->update(ini_filename, LINELEN);
     EmcPose_update(cms, &g5x_offset);
     cms->update(g5x_index);
     EmcPose_update(cms, &g92_offset);
@@ -1440,9 +1355,8 @@ void EMC_TASK_STAT::update(CMS * cms)
 */
 void EMC_TOOL_ABORT::update(CMS * cms)
 {
-
     EMC_TOOL_CMD_MSG::update(cms);
-
+    cms->update(reason);
 }
 
 /*
@@ -1452,10 +1366,8 @@ void EMC_TOOL_ABORT::update(CMS * cms)
 */
 void EMC_TOOL_LOAD_TOOL_TABLE::update(CMS * cms)
 {
-
     EMC_TOOL_CMD_MSG::update(cms);
-    cms->update(file, 256);
-
+    cms->update(file, LINELEN);
 }
 
 /*
@@ -1465,10 +1377,8 @@ void EMC_TOOL_LOAD_TOOL_TABLE::update(CMS * cms)
 */
 void EMC_TASK_SET_STATE::update(CMS * cms)
 {
-
     EMC_TASK_CMD_MSG::update(cms);
     cms->update((int *) &state, 1);
-
 }
 
 /*
@@ -1478,9 +1388,8 @@ void EMC_TASK_SET_STATE::update(CMS * cms)
 */
 void EMC_SPINDLE_BRAKE_RELEASE::update(CMS * cms)
 {
-
     EMC_SPINDLE_CMD_MSG::update(cms);
-
+    cms->update(spindle);
 }
 
 /*
@@ -1491,7 +1400,6 @@ void EMC_SPINDLE_BRAKE_RELEASE::update(CMS * cms)
 void EMC_JOINT_STAT_MSG::update(CMS * cms)
 {
     cms->update(joint);
-
 }
 
 /*
@@ -1501,11 +1409,9 @@ void EMC_JOINT_STAT_MSG::update(CMS * cms)
 */
 void EMC_JOINT_LOAD_COMP::update(CMS * cms)
 {
-
     EMC_JOINT_CMD_MSG::update(cms);
-    cms->update(file, 256);
+    cms->update(file, LINELEN);
     cms->update(type);
-
 }
 
 /*
@@ -1525,10 +1431,8 @@ void EMC_STAT_MSG::update(CMS * cms)
 */
 void EMC_TASK_SET_MODE::update(CMS * cms)
 {
-
     EMC_TASK_CMD_MSG::update(cms);
     cms->update((int *) &mode, 1);
-
 }
 
 /*
@@ -1536,12 +1440,10 @@ void EMC_TASK_SET_MODE::update(CMS * cms)
 */
 void EMC_JOG_INCR::update(CMS * cms)
 {
-
     EMC_JOG_CMD_MSG::update(cms);
     cms->update(incr);
     cms->update(vel);
     cms->update(jjogmode);
-
 }
 
 /*
@@ -1551,8 +1453,8 @@ void EMC_JOG_INCR::update(CMS * cms)
 */
 void EMC_SPINDLE_ON::update(CMS * cms)
 {
-
     EMC_SPINDLE_CMD_MSG::update(cms);
+    cms->update(spindle);
     cms->update(speed);
     cms->update(factor);
     cms->update(xoffset);
@@ -1566,12 +1468,11 @@ void EMC_SPINDLE_ON::update(CMS * cms)
 */
 void EMC_SPINDLE_SPEED::update(CMS * cms)
 {
-
     EMC_SPINDLE_CMD_MSG::update(cms);
+    cms->update(spindle);
     cms->update(speed);
     cms->update(factor);
     cms->update(xoffset);
-
 }
 
 /*
@@ -1581,8 +1482,8 @@ void EMC_SPINDLE_SPEED::update(CMS * cms)
 */
 void EMC_SPINDLE_ORIENT::update(CMS * cms)
 {
-
     EMC_SPINDLE_CMD_MSG::update(cms);
+    cms->update(spindle);
     cms->update(orientation);
     cms->update(mode);
 }
@@ -1594,8 +1495,8 @@ void EMC_SPINDLE_ORIENT::update(CMS * cms)
 */
 void EMC_SPINDLE_WAIT_ORIENT_COMPLETE::update(CMS * cms)
 {
-
     EMC_SPINDLE_CMD_MSG::update(cms);
+    cms->update(spindle);
     cms->update(timeout);
 }
 
@@ -1606,9 +1507,7 @@ void EMC_SPINDLE_WAIT_ORIENT_COMPLETE::update(CMS * cms)
 */
 void EMC_TASK_PLAN_END::update(CMS * cms)
 {
-
     EMC_TASK_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -1618,10 +1517,8 @@ void EMC_TASK_PLAN_END::update(CMS * cms)
 */
 void EMC_TRAJ_SET_OFFSET::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
     EmcPose_update(cms, &offset);
-
 }
 
 /*
@@ -1641,8 +1538,7 @@ void EMC_TRAJ_CMD_MSG::update(CMS * cms)
 */
 void EMC_OPERATOR_ERROR::update(CMS * cms)
 {
-    cms->update(error, 256);
-
+    cms->update(error, LINELEN);
 }
 
 /*
@@ -1653,7 +1549,6 @@ void EMC_OPERATOR_ERROR::update(CMS * cms)
 void EMC_SET_DEBUG::update(CMS * cms)
 {
     cms->update(debug);
-
 }
 
 /*
@@ -1663,9 +1558,7 @@ void EMC_SET_DEBUG::update(CMS * cms)
 */
 void EMC_TASK_PLAN_STEP::update(CMS * cms)
 {
-
     EMC_TASK_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -1674,10 +1567,8 @@ void EMC_TASK_PLAN_STEP::update(CMS * cms)
 */
 void EMC_JOINT_SET_BACKLASH::update(CMS * cms)
 {
-
     EMC_JOINT_CMD_MSG::update(cms);
     cms->update(backlash);
-
 }
 
 /*
@@ -1687,27 +1578,21 @@ void EMC_JOINT_SET_BACKLASH::update(CMS * cms)
 */
 void EMC_TRAJ_SET_G5X::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
     cms->update(g5x_index);
     EmcPose_update(cms, &origin);
-
 }
 
 void EMC_TRAJ_SET_G92::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
     EmcPose_update(cms, &origin);
-
 }
 
 void EMC_TRAJ_SET_ROTATION::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
     cms->update(rotation);
-
 }
 
 /*
@@ -1717,9 +1602,8 @@ void EMC_TRAJ_SET_ROTATION::update(CMS * cms)
 */
 void EMC_SPINDLE_BRAKE_ENGAGE::update(CMS * cms)
 {
-
     EMC_SPINDLE_CMD_MSG::update(cms);
-
+    cms->update(spindle);
 }
 
 /*
@@ -1729,7 +1613,6 @@ void EMC_SPINDLE_BRAKE_ENGAGE::update(CMS * cms)
 */
 void EMC_TRAJ_STAT::update(CMS * cms)
 {
-
     EMC_TRAJ_STAT_MSG::update(cms);
     cms->update(linearUnits);
     cms->update(angularUnits);
@@ -1774,16 +1657,12 @@ void EMC_TRAJ_STAT::update(CMS * cms)
 */
 void EMC_JOINT_HOME::update(CMS * cms)
 {
-
     EMC_JOINT_CMD_MSG::update(cms);
-
 }
 
 void EMC_JOINT_UNHOME::update(CMS * cms)
 {
-
     EMC_JOINT_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -1793,10 +1672,9 @@ void EMC_JOINT_UNHOME::update(CMS * cms)
 */
 void EMC_SPINDLE_INCREASE::update(CMS * cms)
 {
-
     EMC_SPINDLE_CMD_MSG::update(cms);
+    cms->update(spindle);
     cms->update(speed);
-
 }
 
 
@@ -1817,10 +1695,8 @@ void EMC_AUX_CMD_MSG::update(CMS * cms)
 */
 void EMC_JOINT_SET_MIN_FERROR::update(CMS * cms)
 {
-
     EMC_JOINT_CMD_MSG::update(cms);
     cms->update(ferror);
-
 }
 
 /*
@@ -1840,9 +1716,7 @@ void EMC_NULL::update(CMS * cms)
 */
 void EMC_COOLANT_FLOOD_OFF::update(CMS * cms)
 {
-
     EMC_COOLANT_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -1900,9 +1774,7 @@ void EMC_MOTION_STAT::update(CMS * cms)
 */
 void EMC_TRAJ_PAUSE::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -1922,10 +1794,8 @@ void EMC_AUX_STAT_MSG::update(CMS * cms)
 */
 void EMC_TRAJ_SET_MAX_VELOCITY::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
     cms->update(velocity);
-
 }
 
 /*
@@ -1935,7 +1805,6 @@ void EMC_TRAJ_SET_MAX_VELOCITY::update(CMS * cms)
 */
 void EMC_TASK_PLAN_OPEN::update(CMS * cms)
 {
-
     EMC_TASK_CMD_MSG::update(cms);
     cms->update(file, LINELEN);
     cms->update(remote_filesize);
@@ -1949,7 +1818,6 @@ void EMC_TASK_PLAN_OPEN::update(CMS * cms)
 */
 void EMC_JOINT_SET_HOMING_PARAMS::update(CMS * cms)
 {
-
     EMC_JOINT_CMD_MSG::update(cms);
     cms->update(home);
     cms->update(offset);
@@ -1957,10 +1825,13 @@ void EMC_JOINT_SET_HOMING_PARAMS::update(CMS * cms)
     cms->update(search_vel);
     cms->update(latch_vel);
     cms->update(use_index);
+    cms->update(encoder_does_not_reset);
     cms->update(ignore_limits);
+    cms->update(is_shared);
+    cms->update(home_sequence);
     cms->update(volatile_home);
     cms->update(locking_indexer);
-
+    cms->update(absolute_encoder);
 }
 
 /*
@@ -1970,10 +1841,8 @@ void EMC_JOINT_SET_HOMING_PARAMS::update(CMS * cms)
 */
 void EMC_TRAJ_SET_MODE::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
     cms->update((int *) &mode, 1);
-
 }
 
 /*
@@ -1983,10 +1852,8 @@ void EMC_TRAJ_SET_MODE::update(CMS * cms)
 */
 void EMC_TASK_PLAN_EXECUTE::update(CMS * cms)
 {
-
     EMC_TASK_CMD_MSG::update(cms);
-    cms->update(command, 256);
-
+    cms->update(command, LINELEN);
 }
 
 /*
@@ -1996,9 +1863,7 @@ void EMC_TASK_PLAN_EXECUTE::update(CMS * cms)
 */
 void EMC_COOLANT_FLOOD_ON::update(CMS * cms)
 {
-
     EMC_COOLANT_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -2008,11 +1873,9 @@ void EMC_COOLANT_FLOOD_ON::update(CMS * cms)
 */
 void EMC_COOLANT_STAT::update(CMS * cms)
 {
-
     EMC_COOLANT_STAT_MSG::update(cms);
     cms->update(mist);
     cms->update(flood);
-
 }
 
 /*
@@ -2022,10 +1885,8 @@ void EMC_COOLANT_STAT::update(CMS * cms)
 */
 void EMC_TRAJ_SET_TELEOP_ENABLE::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
     cms->update(enable);
-
 }
 
 /*
@@ -2035,9 +1896,7 @@ void EMC_TRAJ_SET_TELEOP_ENABLE::update(CMS * cms)
 */
 void EMC_JOINT_HALT::update(CMS * cms)
 {
-
     EMC_JOINT_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -2047,9 +1906,7 @@ void EMC_JOINT_HALT::update(CMS * cms)
 */
 void EMC_TASK_PLAN_PAUSE::update(CMS * cms)
 {
-
     EMC_TASK_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -2059,11 +1916,8 @@ void EMC_TASK_PLAN_PAUSE::update(CMS * cms)
 */
 void EMC_TASK_PLAN_SET_OPTIONAL_STOP::update(CMS * cms)
 {
-
     EMC_TASK_CMD_MSG::update(cms);
-
     cms->update(state);
-    
 }
 
 /*
@@ -2073,11 +1927,8 @@ void EMC_TASK_PLAN_SET_OPTIONAL_STOP::update(CMS * cms)
 */
 void EMC_TASK_PLAN_SET_BLOCK_DELETE::update(CMS * cms)
 {
-
     EMC_TASK_CMD_MSG::update(cms);
-
     cms->update(state);
-    
 }
 
 /*
@@ -2087,9 +1938,7 @@ void EMC_TASK_PLAN_SET_BLOCK_DELETE::update(CMS * cms)
 */
 void EMC_TASK_PLAN_OPTIONAL_STOP::update(CMS * cms)
 {
-
     EMC_TASK_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -2099,7 +1948,6 @@ void EMC_TASK_PLAN_OPTIONAL_STOP::update(CMS * cms)
 */
 void EMC_TRAJ_PROBE::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
     EmcPose_update(cms, &pos);
     cms->update(type);
@@ -2116,13 +1964,11 @@ void EMC_TRAJ_PROBE::update(CMS * cms)
 */
 void EMC_AUX_INPUT_WAIT::update(CMS * cms)
 {
-
     EMC_AUX_CMD_MSG::update(cms);
     cms->update(index);
     cms->update(input_type);
     cms->update(wait_type);
     cms->update(timeout);
-
 }
 
 
@@ -2133,13 +1979,12 @@ void EMC_AUX_INPUT_WAIT::update(CMS * cms)
 */
 void EMC_TRAJ_RIGID_TAP::update(CMS * cms)
 {
-
     EMC_TRAJ_CMD_MSG::update(cms);
     EmcPose_update(cms, &pos);
     cms->update(vel);
     cms->update(ini_maxvel);
     cms->update(acc);
-
+    cms->update(scale);
 }
 
 /*
@@ -2149,9 +1994,7 @@ void EMC_TRAJ_RIGID_TAP::update(CMS * cms)
 */
 void EMC_TOOL_UNLOAD::update(CMS * cms)
 {
-
     EMC_TOOL_CMD_MSG::update(cms);
-
 }
 
 /*
@@ -2161,13 +2004,11 @@ void EMC_TOOL_UNLOAD::update(CMS * cms)
 */
 void EMC_MOTION_SET_DOUT::update(CMS * cms)
 {
-
     EMC_MOTION_CMD_MSG::update(cms);
     cms->update(index);
     cms->update(start);
     cms->update(end);
     cms->update(now);
-
 }
 
 
@@ -2178,10 +2019,8 @@ void EMC_MOTION_SET_DOUT::update(CMS * cms)
 */
 void EMC_MOTION_ADAPTIVE::update(CMS * cms)
 {
-
     EMC_MOTION_CMD_MSG::update(cms);
     cms->update(status);
-
 }
 
 
