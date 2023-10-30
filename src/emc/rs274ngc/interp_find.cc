@@ -756,3 +756,19 @@ int Interp::find_tool_pocket(setup_pointer settings, int toolno, int *pocket)
     return INTERP_OK;
 }
 
+
+int Interp::find_tool_diameter(int toolno, double *diameter)
+{
+    int idx = tooldata_find_index_for_tool(toolno);
+    *diameter = 0.0; // in case tool was not found
+
+    if (idx == -1) return INTERP_OK; 
+
+    CANON_TOOL_TABLE tdata = tooldata_entry_init();
+    if (tooldata_get(&tdata,idx) != IDX_OK) {
+        fprintf(stderr,"UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
+    }
+    *diameter = tdata.diameter;
+
+    return INTERP_OK;
+}

@@ -1474,6 +1474,9 @@ int Interp::read_operation_unary(char *line,     //!< string: line of RS274/NGC 
     if ((line[*counter] == 'a') && (line[(*counter) + 1] == 'n')) {
       *operation = TAN;
       *counter = (*counter + 2);
+    } else if (line[*counter] == 'd') {
+      *operation = TOOL_DIA;
+      *counter = (*counter + 1);
     } else
       ERS(NCE_UNKNOWN_WORD_STARTING_WITH_T);
     break;

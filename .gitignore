@@ -56,5 +56,10 @@ position.txt
 *.*-stamp
 # Ignore VSCode settings
 .vscode/settings.json
-# autoreconf cache from debian/configure
-/autom4te.cache/
+# Ignore po4a-generated files for other languages
+docs/help/es/*
+docs/help/fr/*
+docs/help/hu/*
+docs/help/nb/*
+docs/help/vi/*
+docs/help/zh_CN/*

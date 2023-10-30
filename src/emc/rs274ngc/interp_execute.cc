@@ -414,6 +414,10 @@ int Interp::execute_unary(double *double_ptr,    //!< pointer to the operand
   case TAN:
     *double_ptr = tan((*double_ptr * M_PIl) / 180.0);
     break;
+  case TOOL_DIA:
+    // int toolno = (int)(*double_ptr);
+    find_tool_diameter((int)(*double_ptr), double_ptr);
+    break;
   default:
     ERS(NCE_BUG_UNKNOWN_OPERATION);
   }

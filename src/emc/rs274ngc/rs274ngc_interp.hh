@@ -152,6 +152,7 @@ public:
     remap_pointer remapping(const char letter, int number = -1);
  int find_tool_pocket(setup_pointer settings, int toolno, int *pocket);
  int find_tool_index(setup_pointer settings, int toolno, int *index);
+ int find_tool_diameter(int toolno, double *diameter);
 
 /* Function prototypes for all  functions */
 
