@@ -734,22 +734,30 @@ static void process_probe_inputs(void)
                 continue;
             }
 
-            // abort any homing
-            if(get_homing(i)) {
-                do_cancel_homing(i);
-                aborted=1;
+            // inhibit_probe_home_error is set by [TRAJ]->NO_PROBE_HOME_ERROR in the ini file
+            if (!emcmotConfig->inhibit_probe_home_error) {
+                // abort any homing
+                if(get_homing(i)) {
+                    do_cancel_homing(i);
+                    aborted=1;
+                }
             }
 
-            // abort any joint jogs
-            if(joint->free_tp.enable == 1) {
-                joint->free_tp.enable = 0;
-                // since homing uses free_tp, this protection of aborted
-                // is needed so the user gets the correct error.
-                if(!aborted) aborted=2;
+            // inhibit_probe_jog_error is set by [TRAJ]->NO_PROBE_JOG_ERROR in the ini file
+            if (!emcmotConfig->inhibit_probe_jog_error) {
+                // abort any joint jogs
+                if(joint->free_tp.enable == 1) {
+                    joint->free_tp.enable = 0;
+                    // since homing uses free_tp, this protection of aborted
+                    // is needed so the user gets the correct error.
+                    if(!aborted) aborted=2;
+                }
             }
         }
-        if (axis_jog_abort_all(1)) {
-            aborted = 3;
+        if (!emcmotConfig->inhibit_probe_jog_error) {
+            if (axis_jog_abort_all(1)) {
+                aborted = 3;
+            }
         }
 
         if(aborted == 1) {
