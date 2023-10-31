@@ -632,9 +632,48 @@ class Filter():
                     self.firstMove = False
                     self.scribePierce= False
                 return None
+            # set offsets for pierce X/Y coordinates
             if data[:3] == 'G00':
+                idx, brackets, start, end = 0, 0, 0, 0
+                tmp = ''
+                for axis in 'XY':
+                    if axis in data:
+                        if GUI == 'axis':
+                            offset = f"[#<_hal[axisui.{axis.lower()}-pierce-offset]> * {self.unitMultiplier}]"
+                        else:
+                            offset = f"[#<_hal[qtplasmac.{axis.lower()}_pierce_offset-f]> * {self.unitMultiplier}]"
+                        start = data.index(axis)
+                        tmp = data[:start]
+                        idx = start + 1
+                        while data[idx] == ' ':
+                            idx += 1
+                        if data[idx] == '[':
+                            while 1:
+                                if data[idx] == '[':
+                                    brackets += 1
+                                elif data[idx] == ']':
+                                    brackets -= 1
+                                if not brackets:
+                                    end = idx
+                                    break
+                                idx += 1
+                                if idx == len(data):
+                                    break
+                            data = f"{tmp}{data[start]}[{data[start+1:end+1]} + {offset}]{data[end+1:]}"
+                        else:
+                            while 1:
+                                if data[idx] in 'XYZABC ':
+                                    if '2.3652' in data:
+                                        print(f';idx:{idx}   char:{data[idx]}')
+                                    break
+                                idx += 1
+                                if idx == len(data):
+                                    break
+                            end = idx
+                            data = f"{tmp}{data[start]}[{data[start+1:end]} + {offset}]{data[end:]}"
                 self.rapidLine = data
                 return None
+            # create the pierce only gcode
             elif data[:3] == 'M03':
                 self.pierces += 1
                 self.gcodeList.append(f'(Pierce #{self.pierces})')
@@ -645,7 +684,7 @@ class Filter():
                 self.gcodeList.append('G90\nM05 $0')
                 self.rapidLine = ''
                 return None
-            if not self.pierces or data.startswith('o') or data.startswith('#'):
+            if not self.pierces or data.startswith('O') or data.startswith('#'):
                 self.gcodeList.append(data)
             return None
 

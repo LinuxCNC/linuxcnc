@@ -1119,12 +1119,20 @@ This allows the scribe to reach surface of the material before activating the sc
 |Time On   |This sets the length of time (in milliseconds) the torch is on after threshold voltage is reached.
 |===
 
+.*CONFIGURATION - PIERCE ONLY*
+[cols="4,16",options="header"]
+//[frame=ends,grid=none]
+|===
+|Name        |Description
+|X Offset |Moves the pierce point this distance along the X axis when piercing in Pierce Only mode.
+|Y Offset |Moves the pierce point this distance along the Y axis when piercing in Pierce Only mode.
+|===
+
 .*CONFIGURATION - MOTION*
 [cols="4,16",options="header"]
 //[frame=ends,grid=none]
 |===
 |Name        |Description
-|Max. Speed  |Displays the maximum velocity the Z axis is capable of (this is controlled by the _<machine_name>_.ini file).
 |Setup Speed |The Z axis velocity for setup moves (movements to Probe Height, Pierce Height, Cut Height, etc.).
 |===
 
@@ -2048,7 +2056,7 @@ IMPORTANT: PROBE HEIGHT NEEDS TO BE SET ABOVE THE TOP OF THE MATERIAL FOR OFFSET
 QtPlasmaC allows two different cut modes:
 
 . *NORMAL CUT* - runs the loaded G-code program to pierce then cut.
-. *PIERCE ONLY* - only pierces the material at each cut start position, useful prior to a *NORMAL CUT* on <<plasma:thick-materials,thick materials>>
+. <<plasma:pierce-only,*PIERCE ONLY*>> - only pierces the material at each cut start position, useful prior to a *NORMAL CUT* on <<plasma:thick-materials,thick materials>>
 
 There are two ways of enabling this feature:
 
@@ -2279,6 +2287,7 @@ Cutting thick materials can be problematic in that the large amount of molten me
 
 The are two functions built into QtPlasmaC to help alleviate these issues.
 
+[[plasma:pierce-only]]
 .*Pierce Only*
 
 *Pierce Only* mode converts the loaded G-code program and then runs the program to pierce the material at the start position of each cut. Scribe and Spotting commands will be ignored and no pierce will take place in those locations.
@@ -2286,6 +2295,9 @@ The are two functions built into QtPlasmaC to help alleviate these issues.
 This mode is useful for thick materials which may produce enough dross on the material surface from piercing to interfere with the torch while cutting. The entire sheet can pierced and then cleaned off prior to cutting.
 
 It is possible to use near-end-of-life consumables for piercing and then they can be swapped out for good consumables to be used while cutting.
+
+The pierce location during *Pierce Only* mode may be offset in the X and/or Y axes to ensure that the arc is able to transfer correctly when piercing after returning to the *Normal Cut* mode.
+The parameters for the X and Y Offsets are in the PIERCE ONLY frame of the CONFIGURATION section of the <<plasma:parameters-tab,PARAMETERS Tab>>
 
 *Pierce Only* is one of two different <<plasma:cut-types,cut types>>
 

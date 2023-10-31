@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>1348</width>
-    <height>702</height>
+    <height>866</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -9152,7 +9152,7 @@ HOME ALL</string>
                   <number>4</number>
                  </property>
                  <property name="bottomMargin">
-                  <number>4</number>
+                  <number>0</number>
                  </property>
                  <item>
                   <widget class="QFrame" name="frame_12">
@@ -9249,7 +9249,7 @@ HOME ALL</string>
                            <number>4</number>
                           </property>
                           <property name="verticalSpacing">
-                           <number>8</number>
+                           <number>7</number>
                           </property>
                           <item row="0" column="0">
                            <widget class="DoubleScale" name="arc_fail_delay">
@@ -9896,7 +9896,7 @@ HOME ALL</string>
                            <number>4</number>
                           </property>
                           <property name="verticalSpacing">
-                           <number>8</number>
+                           <number>7</number>
                           </property>
                           <item row="4" column="1">
                            <widget class="QLabel" name="thc_sample_threshold_lbl">
@@ -10559,7 +10559,7 @@ HOME ALL</string>
                       <property name="sizeHint" stdset="0">
                        <size>
                         <width>20</width>
-                        <height>40</height>
+                        <height>5</height>
                        </size>
                       </property>
                      </spacer>
@@ -10662,7 +10662,7 @@ HOME ALL</string>
                            <number>4</number>
                           </property>
                           <property name="verticalSpacing">
-                           <number>8</number>
+                           <number>7</number>
                           </property>
                           <item row="5" column="0">
                            <widget class="DoubleScale" name="skip_ihs_distance">
@@ -11229,7 +11229,7 @@ HOME ALL</string>
                            <number>4</number>
                           </property>
                           <property name="verticalSpacing">
-                           <number>8</number>
+                           <number>7</number>
                           </property>
                           <item row="0" column="0">
                            <widget class="DoubleScale" name="safe_height">
@@ -11376,7 +11376,7 @@ HOME ALL</string>
                            <number>4</number>
                           </property>
                           <property name="verticalSpacing">
-                           <number>8</number>
+                           <number>7</number>
                           </property>
                           <item row="0" column="0">
                            <widget class="DoubleScale" name="scribe_arm_delay">
@@ -11597,7 +11597,7 @@ HOME ALL</string>
                            <number>4</number>
                           </property>
                           <property name="verticalSpacing">
-                           <number>8</number>
+                           <number>7</number>
                           </property>
                           <item row="0" column="0">
                            <widget class="DoubleScale" name="spotting_threshold">
@@ -11748,6 +11748,230 @@ HOME ALL</string>
                      </widget>
                     </item>
                     <item>
+                     <widget class="QFrame" name="pierce_config">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="frameShape">
+                       <enum>QFrame::NoFrame</enum>
+                      </property>
+                      <property name="frameShadow">
+                       <enum>QFrame::Raised</enum>
+                      </property>
+                      <layout class="QVBoxLayout" name="verticalLayout_62">
+                       <property name="spacing">
+                        <number>4</number>
+                       </property>
+                       <property name="leftMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>4</number>
+                       </property>
+                       <item>
+                        <widget class="QLabel" name="pierce_conf_lbl">
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>16</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>16</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>PIERCE ONLY</string>
+                         </property>
+                         <property name="alignment">
+                          <set>Qt::AlignCenter</set>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QFrame" name="pierce_grid">
+                         <property name="frameShape">
+                          <enum>QFrame::NoFrame</enum>
+                         </property>
+                         <property name="frameShadow">
+                          <enum>QFrame::Raised</enum>
+                         </property>
+                         <layout class="QGridLayout" name="gridLayout_16">
+                          <property name="leftMargin">
+                           <number>4</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>4</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="horizontalSpacing">
+                           <number>4</number>
+                          </property>
+                          <property name="verticalSpacing">
+                           <number>7</number>
+                          </property>
+                          <item row="0" column="0">
+                           <widget class="DoubleScale" name="x_pierce_offset">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                             <size>
+                              <width>120</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>160</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="wrapping">
+                             <bool>true</bool>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                            </property>
+                            <property name="buttonSymbols">
+                             <enum>QAbstractSpinBox::PlusMinus</enum>
+                            </property>
+                            <property name="accelerated">
+                             <bool>true</bool>
+                            </property>
+                            <property name="decimals">
+                             <number>1</number>
+                            </property>
+                            <property name="maximum">
+                             <double>5.000000000000000</double>
+                            </property>
+                            <property name="singleStep">
+                             <double>0.100000000000000</double>
+                            </property>
+                            <property name="value">
+                             <double>1.600000000000000</double>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="0" column="1">
+                           <widget class="QLabel" name="label_63">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                             <size>
+                              <width>90</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>130</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="text">
+                             <string>X Offset</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="1" column="0">
+                           <widget class="DoubleScale" name="y_pierce_offset">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                             <size>
+                              <width>120</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>160</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="wrapping">
+                             <bool>true</bool>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                            </property>
+                            <property name="buttonSymbols">
+                             <enum>QAbstractSpinBox::PlusMinus</enum>
+                            </property>
+                            <property name="decimals">
+                             <number>1</number>
+                            </property>
+                            <property name="maximum">
+                             <double>5.000000000000000</double>
+                            </property>
+                            <property name="singleStep">
+                             <double>0.100000000000000</double>
+                            </property>
+                            <property name="value">
+                             <double>0.000000000000000</double>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="1" column="1">
+                           <widget class="QLabel" name="label_66">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                             <size>
+                              <width>90</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>130</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="text">
+                             <string>Y Offset</string>
+                            </property>
+                           </widget>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                    <item>
                      <widget class="QFrame" name="motion_config">
                       <property name="frameShape">
                        <enum>QFrame::NoFrame</enum>
@@ -11773,6 +11997,18 @@ HOME ALL</string>
                        </property>
                        <item>
                         <widget class="QLabel" name="motion_conf_lbl">
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>16</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>16</height>
+                          </size>
+                         </property>
                          <property name="text">
                           <string>MOTION</string>
                          </property>
@@ -11806,9 +12042,9 @@ HOME ALL</string>
                            <number>4</number>
                           </property>
                           <property name="verticalSpacing">
-                           <number>8</number>
+                           <number>7</number>
                           </property>
-                          <item row="1" column="0">
+                          <item row="0" column="0">
                            <widget class="DoubleScale" name="setup_feed_rate">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -11854,32 +12090,7 @@ HOME ALL</string>
                             </property>
                            </widget>
                           </item>
-                          <item row="0" column="1">
-                           <widget class="QLabel" name="label_62">
-                            <property name="sizePolicy">
-                             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                              <horstretch>0</horstretch>
-                              <verstretch>0</verstretch>
-                             </sizepolicy>
-                            </property>
-                            <property name="minimumSize">
-                             <size>
-                              <width>90</width>
-                              <height>0</height>
-                             </size>
-                            </property>
-                            <property name="maximumSize">
-                             <size>
-                              <width>130</width>
-                              <height>16777215</height>
-                             </size>
-                            </property>
-                            <property name="text">
-                             <string>Max. Speed</string>
-                            </property>
-                           </widget>
-                          </item>
-                          <item row="1" column="1">
+                          <item row="0" column="2">
                            <widget class="QLabel" name="label_61">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
@@ -11904,28 +12115,6 @@ HOME ALL</string>
                             </property>
                            </widget>
                           </item>
-                          <item row="0" column="0">
-                           <widget class="QLabel" name="max_offset_velocity_in">
-                            <property name="minimumSize">
-                             <size>
-                              <width>128</width>
-                              <height>0</height>
-                             </size>
-                            </property>
-                            <property name="maximumSize">
-                             <size>
-                              <width>128</width>
-                              <height>16777215</height>
-                             </size>
-                            </property>
-                            <property name="text">
-                             <string/>
-                            </property>
-                            <property name="alignment">
-                             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                            </property>
-                           </widget>
-                          </item>
                          </layout>
                         </widget>
                        </item>
@@ -11940,7 +12129,7 @@ HOME ALL</string>
                       <property name="sizeHint" stdset="0">
                        <size>
                         <width>20</width>
-                        <height>40</height>
+                        <height>4</height>
                        </size>
                       </property>
                      </spacer>
@@ -14548,8 +14737,8 @@ HOME ALL</string>
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>706</width>
-                      <height>636</height>
+                      <width>720</width>
+                      <height>695</height>
                      </rect>
                     </property>
                     <property name="sizePolicy">

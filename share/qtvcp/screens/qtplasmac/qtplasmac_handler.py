@@ -1,4 +1,4 @@
-VERSION = '1.237.297'
+VERSION = '1.237.298'
 
 '''
 qtplasmac_handler.py
@@ -2719,6 +2719,8 @@ class HandlerClass:
         self.PREFS.putpref('THC Sample Counts', self.w.thc_sample_counts.value(), int, 'PLASMA_PARAMETERS')
         self.PREFS.putpref('THC Sample Threshold', self.w.thc_sample_threshold.value(), float, 'PLASMA_PARAMETERS')
         self.PREFS.putpref('THC Threshold', self.w.thc_threshold.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('X Pierce Offset', self.w.x_pierce_offset.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Y Pierce Offset', self.w.y_pierce_offset.value(), float, 'PLASMA_PARAMETERS')
 
     def load_plasma_parameters(self):
         self.w.arc_fail_delay.setValue(self.PREFS.getpref('Arc Fail Timeout', 3.0, float, 'PLASMA_PARAMETERS'))
@@ -2751,6 +2753,8 @@ class HandlerClass:
         self.w.thc_sample_threshold.setValue(self.PREFS.getpref('THC Sample Threshold', 1.0, float, 'PLASMA_PARAMETERS'))
         self.w.thc_threshold.setValue(self.PREFS.getpref('THC Threshold', 1.0, float, 'PLASMA_PARAMETERS'))
         self.w.voidlock_slope.setValue(self.PREFS.getpref('Void Sense Slope', 500, int, 'PLASMA_PARAMETERS'))
+        self.w.x_pierce_offset.setValue(self.PREFS.getpref('X Pierce Offset', round(1.6 * self.unitsPerMm, 2), float, 'PLASMA_PARAMETERS'))
+        self.w.y_pierce_offset.setValue(self.PREFS.getpref('Y Pierce Offset', 0.0, float, 'PLASMA_PARAMETERS'))
 
     def set_signal_connections(self):
         self.w.power.pressed.connect(lambda:self.power_button("pressed", True))
@@ -2764,7 +2768,7 @@ class HandlerClass:
         self.w.chk_soft_keyboard.stateChanged.connect(self.soft_keyboard)
         self.w.chk_override_limits.stateChanged.connect(self.chk_override_limits_changed)
         self.w.chk_overlay.stateChanged.connect(self.overlay_update)
-        self.w.chk_tool_tips.stateChanged.connect(lambda:TOOLTIPS.tool_tips_changed(self.w))
+        self.w.chk_tool_tips.stateChanged.connect(lambda:TOOLTIPS.tool_tips_changed(self, self.w))
         self.w.torch_enable.stateChanged.connect(lambda w:self.torch_enable_changed(w))
         self.w.ohmic_probe_enable.stateChanged.connect(lambda w:self.ohmic_probe_enable_changed(w))
         self.w.thc_auto.stateChanged.connect(lambda w:self.thc_auto_changed(w))
@@ -3073,7 +3077,6 @@ class HandlerClass:
                 self.w.pid_p_gain_lbl.setText(_translate('HandlerClass', 'Speed %'))
 
     def set_spinbox_parameters(self):
-        self.w.max_offset_velocity_in.setText('{}'.format(int(self.thcFeedRate)))
         if self.units == 'in':
             self.w.setup_feed_rate.setRange(4.0, int(self.thcFeedRate))
             self.w.setup_feed_rate.setDecimals(1)
@@ -3114,6 +3117,12 @@ class HandlerClass:
             self.w.pierce_height.setRange(0.0, 1.0)
             self.w.pierce_height.setDecimals(3)
             self.w.pierce_height.setSingleStep(0.001)
+            self.w.x_pierce_offset.setDecimals(2)
+            self.w.x_pierce_offset.setRange(0, 0.2)
+            self.w.x_pierce_offset.setSingleStep(0.01)
+            self.w.y_pierce_offset.setDecimals(2)
+            self.w.y_pierce_offset.setRange(0, 0.2)
+            self.w.y_pierce_offset.setSingleStep(0.01)
         else:
             self.w.setup_feed_rate.setMaximum(int(self.thcFeedRate))
             self.w.safe_height.setMaximum(int(self.maxHeight))

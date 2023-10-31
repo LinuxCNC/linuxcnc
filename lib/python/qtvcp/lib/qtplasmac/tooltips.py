@@ -99,7 +99,7 @@ def clear_tool_tips(W):
     'probe_feed_rate','probe_start_height','ohmic_probe_offset',
     'ohmic_max_attempts','skip_ihs_distance','offset_feed_rate','safe_height',
     'scribe_arm_delay','scribe_on_delay','spotting_threshold','spotting_time',
-    'max_offset_velocity_in','setup_feed_rate','save_plasma','reload_plasma']
+    'setup_feed_rate','save_plasma','reload_plasma']
 
     parameters_material_widgets = [
     'kerf_width','pierce_height','pierce_delay','cut_height','cut_feed_rate',
@@ -374,8 +374,7 @@ def set_tool_tips(P, W):
     text1 = _translate('ToolTips', 'Setting to 0V will start the Time On counter upon torch activation')
     W.spotting_threshold.setToolTip(_translate('ToolTips', '{}\n{}'.format(text0, text1)))
     W.spotting_time.setToolTip(_translate('ToolTips', 'Length of time torch is on after spotting threshold is met (milliseconds)'))
-    W.max_offset_velocity_in.setToolTip(_translate('ToolTips', 'Shows the maximum velocity of the Z axis'))
-    W.setup_feed_rate.setToolTip(_translate('ToolTips', 'Z axis velocity for setup moves (Probe Height, Pierce Height, Cut Height)'))
+    W.setup_feed_rate.setToolTip(_translate('ToolTips', 'Z axis velocity for setup moves (Probe Height, Pierce Height, Cut Height), maximum = {}'.format(int(P.thcFeedRate))))
     W.save_plasma.setToolTip(_translate('ToolTips', 'Saves the configuration changes'))
     W.reload_plasma.setToolTip(_translate('ToolTips', 'Discards the configuration changes and reloads the configuration'))
 
