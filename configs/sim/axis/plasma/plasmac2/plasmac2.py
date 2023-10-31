@@ -17,7 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-VER = '11'
+VER = '12'
 
 ##############################################################################
 # the next line suppresses undefined variable errors in VSCode               #
@@ -911,6 +911,9 @@ def param_changed(widget, value):
             pmx485_pressure_changed(float(value))
     elif item == 'cut-speed':
         hal.set_p('plasmac.cut-feed-rate',f"{value}")
+    elif item[1:] == '-pierce-offset':
+        if extHalPins:
+            comp[item] = value
     else:
         hal.set_p(f"plasmac.{item}",f"{value}")
 
@@ -3256,7 +3259,6 @@ pmx485FaultName = {
 # called during setup
 def ext_hal_create():
     global extHalPins
-    extHalPins = {}
     for pin in ['abort', 'power', 'run', 'pause', 'run-pause', 'touchoff',
                 'probe','pulse', 'frame-job']:
         comp.newpin(f"ext.{pin}", hal.HAL_BIT, hal.HAL_IN)
@@ -3264,6 +3266,9 @@ def ext_hal_create():
     # external pins for user button toggle and pulse
     for pin in range(3):
         comp.newpin(f"ext.out_{pin}", hal.HAL_BIT, hal.HAL_OUT)
+    # pins for pierce only offsets
+    for pin in 'xy':
+        comp.newpin(f"{pin}-pierce-offset", hal.HAL_FLOAT, hal.HAL_OUT)
 
 # called every cycle by user_live_update
 def ext_hal_watch():
@@ -4100,6 +4105,7 @@ orientStart = False
 configPath = os.getcwd()
 p2Path = os.path.join(configPath, 'plasmac2')
 if os.path.isdir(os.path.join(p2Path, 'lib')):
+    extHalPins = {}
     import sys
     libPath = os.path.join(p2Path, 'lib')
     sys.path.append(libPath)
@@ -4912,10 +4918,11 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     rE(f"frame {fparam}.c3")
     rE(f"labelframe {fparam}.c1.probe -text {{{_('Probing')}}} -relief groove")
     rE(f"labelframe {fparam}.c1.motion -text {{{_('Motion')}}} -relief groove")
-    rE(f"labelframe {fparam}.c2.thc -text {{{_('THC')}}} -relief groove")
     rE(f"labelframe {fparam}.c1.safety -text {{{_('Safety')}}} -relief groove")
-    rE(f"labelframe {fparam}.c3.arc -text {{{_('Arc')}}} -relief groove")
+    rE(f"labelframe {fparam}.c2.thc -text {{{_('THC')}}} -relief groove")
     rE(f"labelframe {fparam}.c2.scribe -text {{{_('Scribe')}}} -relief groove")
+    rE(f"labelframe {fparam}.c2.pierce -text {{{_('Pierce Only')}}} -relief groove")
+    rE(f"labelframe {fparam}.c3.arc -text {{{_('Arc')}}} -relief groove")
     rE(f"labelframe {fparam}.c3.spotting -text {{{_('Spotting')}}} -relief groove")
     rE(f"label {fparam}.c2.thc.thc-autoL -text {{{_('Auto')}}} -width 15 -anchor e")
     rE(f"checkbutton {fparam}.c2.thc.thc-auto -width 2 -anchor w -indicatoron 0")
@@ -4929,6 +4936,7 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
               [f"{fparam}.c1.probe",'skip-ihs-distance',0,0,0,999,1,'Skip IHS','Skip IHS Distance'], \
               [f"{fparam}.c1.probe",'offset-feed-rate',0,offsetFeedRate*0.8,0,offsetFeedRate,1,'Offset Speed','Offset Feed Rate'], \
               [f"{fparam}.c1.motion",'setup-feed-rate',0,int(thcFeedRate * 0.8),1000,thcFeedRate,1,'Setup Speed','Setup Feed Rate'], \
+              [f"{fparam}.c1.safety",'safe-height',0,20,0,maxHeight,1,'Safe Height','Safe Height'], \
               [f"{fparam}.c2.thc",'thc-delay',1,0.5,0,9,0.1,'Start Delay','THC Delay'], \
               [f"{fparam}.c2.thc",'thc-sample-counts',0,50,10,1000,1,'Auto Counts','THC Sample Counts'], \
               [f"{fparam}.c2.thc",'thc-sample-threshold',1,1,0.1,9,0.1,'Auto Threshold (V)','THC Sample Threshold'], \
@@ -4938,7 +4946,10 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
               [f"{fparam}.c2.thc",'pid-d-gain',0,0,0,1000,1,'PID D Gin','Pid D Gain'], \
               [f"{fparam}.c2.thc",'cornerlock-threshold',0,90,1,99,1,'VAD Threshold (%)','Velocity Anti Dive Threshold'], \
               [f"{fparam}.c2.thc",'voidlock-slope',0,500,1,10000,1,'Void Slope (V/sec)','Void Sense Slope'], \
-              [f"{fparam}.c1.safety",'safe-height',0,20,0,maxHeight,1,'Safe Height','Safe Height'], \
+              [f"{fparam}.c2.scribe",'scribe-arm-delay',1,0,0,9,0.1,'Arm Delay','Scribe Arming Delay'], \
+              [f"{fparam}.c2.scribe",'scribe-on-delay',1,0,0,9,0.1,'On delay','Scribe On Delay'], \
+              [f"{fparam}.c2.pierce",'x-pierce-offset',1,1.6,0,5,0.1,'X Offset','X Pierce Offset'], \
+              [f"{fparam}.c2.pierce",'y-pierce-offset',1,0,0,5,0.1,'Y Offset','Y Pierce Offset'], \
               [f"{fparam}.c3.arc",'arc-fail-delay',1,3,0.1,60,0.1,'Fail Timeout','Arc Fail Timeout'], \
               [f"{fparam}.c3.arc",'arc-max-starts',0,3,1,9,1,'Max. Attempts','Arc Maximum Starts'], \
               [f"{fparam}.c3.arc",'restart-delay',0,3,1,60,1,'Retry Delay','Arc Restart Delay'], \
@@ -4947,8 +4958,6 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
               [f"{fparam}.c3.arc",'arc-ok-high',0,99999,0,99999,1,'OK High Volts','Arc OK High'], \
               [f"{fparam}.c3.arc",'arc-ok-low',0,60,0,100,1,'OK Low Volts','Arc OK Low'], \
               [f"{fparam}.c3.arc",'height-per-volt',3,0.1,0.025,0.5,0.01,'Height Per Volt','Height Per Volt'], \
-              [f"{fparam}.c2.scribe",'scribe-arm-delay',1,0,0,9,0.1,'Arm Delay','Scribe Arming Delay'], \
-              [f"{fparam}.c2.scribe",'scribe-on-delay',1,0,0,9,0.1,'On delay','Scribe On Delay'], \
               [f"{fparam}.c3.spotting",'spotting-threshold',0,1,0,199,1,'Threshold (V)','Spotting Threshold'], \
               [f"{fparam}.c3.spotting",'spotting-time',0,0,0,9999,1,'On Time (mS)','Spotting Time'], \
              ]
@@ -4974,6 +4983,10 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
                 cpItem[2:7] = [2,0.75,0,maxHeight,0.01]
             elif cpItem[1] == 'height-per-volt':
                 cpItem[2:7] = [4,0.004,0.001,0.020,0.001]
+            elif cpItem[1] == 'x-pierce-offset':
+                cpItem[2:7] = [2,0.06,0,0.20,0.01]
+            elif cpItem[1] == 'y-pierce-offset':
+                cpItem[2:7] = [2,0,0,0.20,0.01]
         if cpItem[0] != cpFrame:
             cpFrame = cpItem[0]
             cpRow = 0
@@ -5002,6 +5015,7 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     rE(f"grid {fparam}.c1.safety -column 0 -row 2 -sticky new -padx {{4 2}} -pady {{4 0}} -ipady 4")
     rE(f"grid {fparam}.c2.thc -column 0 -row 0 -sticky new -padx {{2 2}} -pady {{4 0}} -ipady 4")
     rE(f"grid {fparam}.c2.scribe -column 0 -row 1 -sticky new -padx {{2 2}} -pady {{4 0}} -ipady 4")
+    rE(f"grid {fparam}.c2.pierce -column 0 -row 2 -sticky new -padx {{2 2}} -pady {{4 0}} -ipady 4")
     rE(f"grid {fparam}.c3.arc -column 0 -row 0 -sticky new -padx {{2 2}} -pady {{4 0}} -ipady 4")
     rE(f"grid {fparam}.c3.spotting -column 0 -row 1 -sticky new -padx {{2 2}} -pady {{4 0}} -ipady 4")
     rE(f"grid {fparam}.c1 -column 0 -row 0 -sticky n")
@@ -5529,10 +5543,13 @@ def user_live_update():
     # don't do any updates until first run is complete.
     if firstRun:
         # test this last command in axis to see if we are loaded
-        if widgets.numbers_text.bind():
+        if widgets.numbers_text.bind() and extHalPins:
             upFile = os.path.join(configPath, 'user_periodic.py')
             # setup the colors
             color_change()
+            # set the pierce offset hal pins
+            comp['x-pierce-offset'] = widgetValues['.param.c2.pierce.x-pierce-offset']
+            comp['y-pierce-offset'] = widgetValues['.param.c2.pierce.y-pierce-offset']
             firstRun = None
         return
     if orientStart:
