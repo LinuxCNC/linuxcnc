@@ -1,4 +1,4 @@
-VERSION = '1.236.296'
+VERSION = '1.236.297'
 
 '''
 qtplasmac_handler.py
@@ -4878,7 +4878,8 @@ class HandlerClass:
                     elif line.startswith('CUT_MODE'):
                         mat[13] = float(line.split('=')[1].strip())
             self.write_materials_to_dict(mat)
-            self.materialList.append(halpin)
+            if halpin not in self.materialList:
+                self.materialList.append(halpin)
             exists = False
             for n in range(self.w.materials_box.count()):
                 if self.w.materials_box.itemText(n) .startswith(str(halpin)):
