@@ -402,8 +402,8 @@ This image was updated to the final 6.3 kernel on 1 May 2023 and may be updated 
 Only try installing it if you have exhausted all options by following the steps below:
 
 . Download the 2 deb files (image, source) from
-FIX_ME - can these be hosted on a LinuxCNC server?
-https://drive.google.com/drive/folders/1NzQIHnf9M_cHzuZCqSldVFGschOOxaER?usp=sharing
+  https://drive.google.com/drive/folders/1NzQIHnf9M_cHzuZCqSldVFGschOOxaER?usp=sharing
+  (FIXME - can these be hosted on a LinuxCNC server?)
 . The link above is to  the latest kernel versions that have been built following the final release of 6.3 kernel and the matching preempt_rt patches.
 
 . Navigate to your Downloads folder and open a new Terminal session. Install the debs as follows (pressing tab auto completes the command)

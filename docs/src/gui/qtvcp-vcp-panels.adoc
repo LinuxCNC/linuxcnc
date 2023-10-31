@@ -91,7 +91,7 @@ loadusr qtvcp spindle_belts
 Customizing the panel: +
 
 * Copy the files located in /user/share/qtvcp/qtdragon/panels/belts to:
-~/linuxcnc/configs/<my_configuration_folder>/qtvcp/panels/belts (you can use the copy dialog panel to do this)
+  ~/linuxcnc/configs/<my_configuration_folder>/qtvcp/panels/belts (you can use the copy dialog panel to do this)
 
 * Edit belts.ui with designer.
 * Edit belts_handler.py with a text editor

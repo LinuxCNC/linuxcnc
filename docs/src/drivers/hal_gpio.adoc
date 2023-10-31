@@ -113,7 +113,7 @@ If "access denied" messages are returned on loading the driver, try the followin
  sudo groupadd gpio
 
 2) Create a file called 90-gpio-access with the following contents (this
-is copied from the Raspbian install) 
+   is copied from the Raspbian install)
 
 ````
 SUBSYSTEM=="bcm2835-gpiomem", GROUP="gpio", MODE="0660"
