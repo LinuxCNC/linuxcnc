@@ -15339,6 +15339,9 @@ ZERO</string>
                              <property name="spindle_over_action" stdset="0">
                               <bool>true</bool>
                              </property>
+                             <property name="joint_number" stdset="0">
+                              <number>0</number>
+                             </property>
                              <property name="float_num" stdset="0">
                               <double>50.000000000000000</double>
                              </property>
@@ -15424,6 +15427,9 @@ ZERO</string>
                              </property>
                              <property name="spindle_over_action" stdset="0">
                               <bool>true</bool>
+                             </property>
+                             <property name="joint_number" stdset="0">
+                              <number>0</number>
                              </property>
                             </widget>
                            </item>
@@ -17416,7 +17422,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>09:50:49 PM</string>
+            <string>06:31:29 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -18496,7 +18502,7 @@ ZERO</string>
   <slot>btn_pause_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
