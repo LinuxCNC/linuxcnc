@@ -2791,10 +2791,6 @@ static int emctask_startup()
     // emcStatus = new EMC_STAT;
 
     // get the NML command buffer
-    if (!(emc_debug & EMC_DEBUG_NML)) {
-	set_rcs_print_destination(RCS_PRINT_TO_NULL);	// inhibit diag
-	// messages
-    }
     end = RETRY_TIME;
     good = 0;
     do {
@@ -2815,8 +2811,7 @@ static int emctask_startup()
 	    exit(1);
 	}
     } while (end > 0.0);
-    set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// restore diag
-    // messages
+
     if (!good) {
 	rcs_print_error("can't get emcCommand buffer\n");
 	return -1;
@@ -2825,10 +2820,6 @@ static int emctask_startup()
     emcCommand = emcCommandBuffer->get_address();
 
     // get the NML status buffer
-    if (!(emc_debug & EMC_DEBUG_NML)) {
-	set_rcs_print_destination(RCS_PRINT_TO_NULL);	// inhibit diag
-	// messages
-    }
     end = RETRY_TIME;
     good = 0;
     do {
@@ -2849,17 +2840,13 @@ static int emctask_startup()
 	    exit(1);
 	}
     } while (end > 0.0);
-    set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// restore diag
-    // messages
+
     if (!good) {
 	rcs_print_error("can't get emcStatus buffer\n");
 	return -1;
     }
 
-    if (!(emc_debug & EMC_DEBUG_NML)) {
-	set_rcs_print_destination(RCS_PRINT_TO_NULL);	// inhibit diag
-	// messages
-    }
+    // get the NML error buffer
     end = RETRY_TIME;
     good = 0;
     do {
@@ -2879,8 +2866,7 @@ static int emctask_startup()
 	    exit(1);
 	}
     } while (end > 0.0);
-    set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// restore diag
-    // messages
+
     if (!good) {
 	rcs_print_error("can't get emcError buffer\n");
 	return -1;
@@ -2902,6 +2888,7 @@ static int emctask_startup()
         return -1;
     }
 
+    // initialize motion
     end = RETRY_TIME;
     good = 0;
     do {
@@ -3029,36 +3016,78 @@ static int iniLoad(const char *filename)
 	joints = 0;
     }
 
+    // EMC debugging flags
+    emc_debug = 0;  // disabled by default
     if (NULL != (inistring = inifile.Find("DEBUG", "EMC"))) {
-	// copy to global
-	if (1 != sscanf(inistring, "%i", &emc_debug)) {
-	    emc_debug = 0;
+        // parse to global
+        if (sscanf(inistring, "%x", &emc_debug) < 1) {
+            perror("failed to parse [EMC] DEBUG");
+        }
+    }
+
+    // set output for RCS messages
+    set_rcs_print_destination(RCS_PRINT_TO_STDOUT);   // use stdout by default
+    if (NULL != (inistring = inifile.Find("RCS_DEBUG_DEST", "EMC"))) {
+        static RCS_PRINT_DESTINATION_TYPE type;
+        if (!strcmp(inistring, "STDOUT")) {
+            type = RCS_PRINT_TO_STDOUT;
+        } else if (!strcmp(inistring, "STDERR")) {
+            type = RCS_PRINT_TO_STDERR;
+        } else if (!strcmp(inistring, "FILE")) {
+            type = RCS_PRINT_TO_FILE;
+        } else if (!strcmp(inistring, "LOGGER")) {
+            type = RCS_PRINT_TO_LOGGER;
+        } else if (!strcmp(inistring, "MSGBOX")) {
+            type = RCS_PRINT_TO_MESSAGE_BOX;
+        } else if (!strcmp(inistring, "NULL")) {
+            type = RCS_PRINT_TO_NULL;
+        } else {
+             type = RCS_PRINT_TO_STDOUT;
+        }
+        set_rcs_print_destination(type);
+    }
+
+    // NML/RCS debugging flags
+    set_rcs_print_flag(PRINT_RCS_ERRORS);  // only print errors by default
+    // enable all debug messages by default if RCS or NML debugging is enabled
+    if ((emc_debug & EMC_DEBUG_RCS) || (emc_debug & EMC_DEBUG_NML)) {
+        // output all RCS debug messages
+        set_rcs_print_flag(PRINT_EVERYTHING);
+    }
+
+    // set flags if RCS_DEBUG in ini file
+    if (NULL != (inistring = inifile.Find("RCS_DEBUG", "EMC"))) {
+        static long int flags;
+        if (sscanf(inistring, "%lx", &flags) < 1) {
+            perror("failed to parse [EMC] RCS_DEBUG");
+        }
+        // clear all flags
+        clear_rcs_print_flag(PRINT_EVERYTHING);
+        // set parsed flags
+        set_rcs_print_flag(flags);
+    }
+    // output infinite RCS errors by default
+    max_rcs_errors_to_print = -1;
+    if (NULL != (inistring = inifile.Find("RCS_MAX_ERR", "EMC"))) {
+        if (sscanf(inistring, "%d", &max_rcs_errors_to_print) < 1) {
+            perror("failed to parse [EMC] RCS_MAX_ERR");
+        }
+    }
+
+
+    if (NULL != (inistring = inifile.Find("VERSION", "EMC"))) {
+	if(sscanf(inistring, "$Revision: %s", version) != 1) {
+            strncpy(version, "unknown", LINELEN-1);
 	}
+    }
+
+    if (NULL != (inistring = inifile.Find("MACHINE", "EMC"))) {
+	strncpy(machine, inistring, LINELEN-1);
     } else {
-	// not found, use default
-	emc_debug = 0;
+	strncpy(machine, "unknown", LINELEN-1);
     }
-    if (emc_debug & EMC_DEBUG_RCS) {
-	// set_rcs_print_flag(PRINT_EVERYTHING);
-	max_rcs_errors_to_print = -1;
-    }
+    rcs_print("task: machine: '%s'  version '%s'\n", machine, version);
 
-    if (emc_debug & EMC_DEBUG_VERSIONS) {
-	if (NULL != (inistring = inifile.Find("VERSION", "EMC"))) {
-	    if(sscanf(inistring, "$Revision: %s", version) != 1) {
-		strncpy(version, "unknown", LINELEN-1);
-	    }
-	} else {
-	    strncpy(version, "unknown", LINELEN-1);
-	}
-
-	if (NULL != (inistring = inifile.Find("MACHINE", "EMC"))) {
-	    strncpy(machine, inistring, LINELEN-1);
-	} else {
-	    strncpy(machine, "unknown", LINELEN-1);
-	}
-	rcs_print("task: machine: '%s'  version '%s'\n", machine, version);
-    }
 
     if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
 	// copy to global
@@ -3184,6 +3213,7 @@ int main(int argc, char *argv[])
 
     // set print destination to stdout, for console apps
     set_rcs_print_destination(RCS_PRINT_TO_STDOUT);
+
     // process command line args
     if (0 != emcGetArgs(argc, argv)) {
 	rcs_print_error("error in argument list\n");
@@ -3221,7 +3251,6 @@ int main(int argc, char *argv[])
 	}
     rtapi_strxcpy(emcStatus->task.ini_filename, emc_inifile);
     if (task_methods == NULL) {
-	set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// restore diag
 	rcs_print_error("can't initialize Task methods\n");
 	emctask_shutdown();
 	exit(1);

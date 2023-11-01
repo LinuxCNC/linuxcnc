@@ -218,6 +218,10 @@ Do _not_ use a file extension of '.ini' for included files.
   You can put whatever you want here as long as you make it a single line long.
 * `DEBUG = 0` - Debug level 0 means no messages will be printed when LinuxCNC is run from a <<faq:terminal,terminal>>.
   Debug flags are usually only useful to developers. See src/emc/nml_intf/debugflags.h for other settings.
+* `RCS_DEBUG = 1` RCS debug messages to show. Print only errors (1) by default if EMC_DEBUG_RCS and EMC_DEBUG_RCS bits in
+  `DEBUG` are unset, otherwise print all (-1). Use this to select RCS debug messages. See src/libnml/rcs/rcs_print.hh for all MODE flags.
+* `RCS_DEBUG_DEST = STDOUT` - how to output RCS_DEBUG messages (NULL, STDOUT, STDERR, FILE, LOGGER, MSGBOX).
+* `RCS_MAX_ERR = -1` - Number after which RCS errors are not reported anymore (-1 = infinite).
 * `NML_FILE = /usr/share/linuxcnc/linuxcnc.nml` - Set this if you want to use a non-default NML configuration file.
 
 [[sub:ini:sec:display]]
