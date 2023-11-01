@@ -1,4 +1,4 @@
-VERSION = '1.237.298'
+VERSION = '1.237.299'
 
 '''
 qtplasmac_handler.py
@@ -3118,10 +3118,10 @@ class HandlerClass:
             self.w.pierce_height.setDecimals(3)
             self.w.pierce_height.setSingleStep(0.001)
             self.w.x_pierce_offset.setDecimals(2)
-            self.w.x_pierce_offset.setRange(0, 0.2)
+            self.w.x_pierce_offset.setRange(-0.2, 0.2)
             self.w.x_pierce_offset.setSingleStep(0.01)
             self.w.y_pierce_offset.setDecimals(2)
-            self.w.y_pierce_offset.setRange(0, 0.2)
+            self.w.y_pierce_offset.setRange(-0.2, 0.2)
             self.w.y_pierce_offset.setSingleStep(0.01)
         else:
             self.w.setup_feed_rate.setMaximum(int(self.thcFeedRate))
