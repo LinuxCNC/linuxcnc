@@ -524,16 +524,16 @@ class _IStat(object):
                     # order of commands doesn't matter in the INI
                     try:
                         temp = self.INI.find("MDI_COMMAND_LIST",key)
-                        number = (key.strip('MDI_COMMAND'))
+                        name = (key.replace('MDI_COMMAND_',''))
                         mdidatadict = {}
                         for num,k in enumerate(temp.split(',')):
                             if num == 0:
                                 mdidatadict['cmd'] = k
-                                if len(i.split(',')) <2:
+                                if len(temp.split(',')) <2:
                                     mdidatadict['label'] = None
                             else:
                                 mdidatadict['label'] = k
-                        self.MDI_COMMAND_DICT[number] = mdidatadict
+                        self.MDI_COMMAND_DICT[name] = mdidatadict
                     except Exception as e:
                         log.error('INI MDI command parse error:{}'.format(e))
         except Exception as e:
