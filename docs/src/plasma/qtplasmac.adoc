@@ -4007,7 +4007,7 @@ If pyserial is not installed an error message will be displayed.
 
 To install pyserial, enter the following command into a terminal window:
 ----
-sudo apt install python-serial
+sudo apt install python3-serial
 ----
 
 A typical <<plasma:rs485_connections,connection diagram>> is shown in the appendix of this document as well as confirmed working interfaces.
