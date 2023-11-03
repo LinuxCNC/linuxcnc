@@ -282,7 +282,7 @@ static int argvize(const char *src, char *dst, char *argv[], int len)
     char inquote;
     char looking;
 
-    strncpy(dst, src, len-1);
+    strncpy(dst, src, len);
     dst[len - 1] = 0;
     bufptr = dst;
     inquote = 0;
@@ -837,9 +837,8 @@ static int emcTaskPlan(void)
 		break;
 
 	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE: {
-			auto cmd = std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(emcCommand));
 			// send to IO
-			emcTaskQueueCommand(std::move(cmd));
+			emcTaskQueueCommand(std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(emcCommand)));
 			// signify no more reading
 			emcTaskPlanSetWait();
 			// then resynch interpreter
@@ -847,9 +846,8 @@ static int emcTaskPlan(void)
 			break;
 		}
 	    case EMC_TOOL_SET_OFFSET_TYPE: {
-			auto cmd = std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(emcCommand));
 			// send to IO
-			emcTaskQueueCommand(std::move(cmd));
+			emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(emcCommand)));
 			// signify no more reading
 			emcTaskPlanSetWait();
 			// then resynch interpreter
@@ -858,9 +856,8 @@ static int emcTaskPlan(void)
 		}
 
 	    case EMC_TOOL_SET_NUMBER_TYPE: {
-			auto cmd = std::make_unique<EMC_TOOL_SET_NUMBER>(*static_cast<EMC_TOOL_SET_NUMBER*>(emcCommand));
 			// send to IO
-			emcTaskQueueCommand(std::move(cmd));
+			emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_NUMBER>(*static_cast<EMC_TOOL_SET_NUMBER*>(emcCommand)));
 			// signify no more reading
 			emcTaskPlanSetWait();
 			// then resynch interpreter
@@ -969,9 +966,8 @@ static int emcTaskPlan(void)
 		break;
 
 	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE: {
-			auto cmd = std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(emcCommand));
 			// send to IO
-			emcTaskQueueCommand(std::move(cmd));
+			emcTaskQueueCommand(std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(emcCommand)));
 			// signify no more reading
 			emcTaskPlanSetWait();
 			// then resynch interpreter
@@ -979,9 +975,8 @@ static int emcTaskPlan(void)
 			break;
 		}
 	    case EMC_TOOL_SET_OFFSET_TYPE: {
-			auto cmd = std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(emcCommand));
 			// send to IO
-			emcTaskQueueCommand(std::move(cmd));
+			emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(emcCommand)));
 			// signify no more reading
 			emcTaskPlanSetWait();
 			// then resynch interpreter
@@ -990,9 +985,8 @@ static int emcTaskPlan(void)
 		}
 
 	    case EMC_TOOL_SET_NUMBER_TYPE: {
-			auto cmd = std::make_unique<EMC_TOOL_SET_NUMBER>(*static_cast<EMC_TOOL_SET_NUMBER*>(emcCommand));
 			// send to IO
-			emcTaskQueueCommand(std::move(cmd));
+			emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_NUMBER>(*static_cast<EMC_TOOL_SET_NUMBER*>(emcCommand)));
 			// signify no more reading
 			emcTaskPlanSetWait();
 			// then resynch interpreter
@@ -1097,9 +1091,8 @@ static int emcTaskPlan(void)
 		    break;
 
 	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE: {
-			auto cmd = std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(emcCommand));
 			// send to IO
-			emcTaskQueueCommand(std::move(cmd));
+			emcTaskQueueCommand(std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(emcCommand)));
 			// signify no more reading
 			emcTaskPlanSetWait();
 			// then resynch interpreter
@@ -1107,9 +1100,8 @@ static int emcTaskPlan(void)
 			break;
 		}
 	    case EMC_TOOL_SET_OFFSET_TYPE: {
-			auto cmd = std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(emcCommand));
 			// send to IO
-			emcTaskQueueCommand(std::move(cmd));
+			emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(emcCommand)));
 			// signify no more reading
 			emcTaskPlanSetWait();
 			// then resynch interpreter
@@ -1443,9 +1435,8 @@ static int emcTaskPlan(void)
                 break;
 
 	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE: {
-			auto cmd = std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(emcCommand));
 			// send to IO
-			emcTaskQueueCommand(std::move(cmd));
+			emcTaskQueueCommand(std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(emcCommand)));
 			// signify no more reading
 			emcTaskPlanSetWait();
 			// then resynch interpreter
@@ -1453,9 +1444,8 @@ static int emcTaskPlan(void)
 			break;
 		}
 	    case EMC_TOOL_SET_OFFSET_TYPE: {
-			auto cmd = std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(emcCommand));
 			// send to IO
-			emcTaskQueueCommand(std::move(cmd));
+			emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(emcCommand)));
 			// signify no more reading
 			emcTaskPlanSetWait();
 			// then resynch interpreter

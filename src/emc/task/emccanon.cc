@@ -2700,81 +2700,52 @@ void SET_SPINDLE_MODE(int spindle, double css_max) {
    canon.spindle[spindle].css_maximum = fabs(css_max);
 }
 
+template <class MSG=EMC_SPINDLE_ON>
+auto SPINDLE_SPEED_(int s, int dir, double speed)
+{
+    auto emc_spindle_msg = std::make_unique<MSG>();
+
+    flush_segments();
+    if (dir != 0)
+        canon.spindle[s].dir = dir;
+    if (speed != 0)
+    	canon.spindle[s].speed = fabs(speed); // interp will never send negative anyway ...
+
+    emc_spindle_msg->spindle = s;
+    if(canon.spindle[s].css_maximum) {
+        if(canon.lengthUnits == CANON_UNITS_INCHES){
+            canon.spindle[s].css_factor = 12 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(25.4);
+        } else {
+            canon.spindle[s].css_factor = 1000 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(1);
+		}
+		emc_spindle_msg->speed = canon.spindle[s].dir * canon.spindle[s].css_maximum;
+		emc_spindle_msg->factor = canon.spindle[s].dir * canon.spindle[s].css_factor;
+		emc_spindle_msg->xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
+    } else {
+        emc_spindle_msg->speed = canon.spindle[s].dir * canon.spindle[s].speed;
+     //   canon.css_numerator = 0; FIXME: Do we need this?
+    }
+
+    return std::move(emc_spindle_msg);
+}
+
 void START_SPINDLE_CLOCKWISE(int s, int wait_for_atspeed)
 {
-    auto emc_spindle_on_msg = std::make_unique<EMC_SPINDLE_ON>();
-
-    flush_segments();
-    canon.spindle[s].dir = 1;
-    emc_spindle_on_msg->spindle = s;
-    if(canon.spindle[s].css_maximum) {
-        if(canon.lengthUnits == CANON_UNITS_INCHES){
-            canon.spindle[s].css_factor = 12 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(25.4);
-        } else {
-            canon.spindle[s].css_factor = 1000 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(1);
-		}
-		emc_spindle_on_msg->speed = canon.spindle[s].dir * canon.spindle[s].css_maximum;
-		emc_spindle_on_msg->factor = canon.spindle[s].dir * canon.spindle[s].css_factor;
-		emc_spindle_on_msg->xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
-    } else {
-        emc_spindle_on_msg->speed = canon.spindle[s].dir * canon.spindle[s].speed;
-     //   canon.css_numerator = 0; FIXME: Do we need this?
-    }
-    emc_spindle_on_msg->wait_for_spindle_at_speed = wait_for_atspeed;
-    interp_list.append(std::move(emc_spindle_on_msg));
+    auto msg = SPINDLE_SPEED_<>(s, 1, 0);
+    msg->wait_for_spindle_at_speed = wait_for_atspeed;
+    interp_list.append(std::move(msg));
 }
 
-// RS: TODO: extract common code with START_SPINDLE_CLOCKWISE
 void START_SPINDLE_COUNTERCLOCKWISE(int s, int wait_for_atspeed)
 {
-    auto emc_spindle_on_msg = std::make_unique<EMC_SPINDLE_ON>();
-
-    flush_segments();
-    canon.spindle[s].dir = -1;
-    emc_spindle_on_msg->spindle = s;
-    if(canon.spindle[s].css_maximum) {
-        if(canon.lengthUnits == CANON_UNITS_INCHES){
-            canon.spindle[s].css_factor = 12 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(25.4);
-        } else {
-            canon.spindle[s].css_factor = 1000 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(1);
-		}
-		emc_spindle_on_msg->speed = canon.spindle[s].dir * canon.spindle[s].css_maximum;
-		emc_spindle_on_msg->factor = canon.spindle[s].dir * canon.spindle[s].css_factor;
-		emc_spindle_on_msg->xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
-    } else {
-        emc_spindle_on_msg->speed = canon.spindle[s].dir * canon.spindle[s].speed;
-     //   canon.css_numerator = 0; FIXME: Do we need this?
-    }
-    emc_spindle_on_msg->wait_for_spindle_at_speed = wait_for_atspeed;
-    interp_list.append(std::move(emc_spindle_on_msg));
+    auto msg = SPINDLE_SPEED_<>(s, -1, 0);
+    msg->wait_for_spindle_at_speed = wait_for_atspeed;
+    interp_list.append(std::move(msg));
 }
 
-// RS: TODO: extract common code with START_SPINDLE_CLOCKWISE
-void SET_SPINDLE_SPEED(int s, double r)
+void SET_SPINDLE_SPEED(int s, double speed_rpm)
 {
-    // speed is in RPMs everywhere
-
-	canon.spindle[s].speed = fabs(r); // interp will never send negative anyway ...
-
-    auto emc_spindle_speed_msg = std::make_unique<EMC_SPINDLE_SPEED>();
-
-    flush_segments();
-
-    emc_spindle_speed_msg->spindle = s;
-    if(canon.spindle[s].css_maximum) {
-		if(canon.lengthUnits == CANON_UNITS_INCHES){
-			canon.spindle[s].css_factor = 12 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(25.4);
-		} else {
-			canon.spindle[s].css_factor = 1000 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(1);
-		}
-		emc_spindle_speed_msg->speed =  canon.spindle[s].dir * canon.spindle[s].css_maximum;
-		emc_spindle_speed_msg->factor =  canon.spindle[s].dir * canon.spindle[s].css_factor;
-		emc_spindle_speed_msg->xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
-	} else {
-        emc_spindle_speed_msg->speed = canon.spindle[s].dir * canon.spindle[s].speed;
-		//   canon.css_numerator = 0; FIXME: Do we need this?
-    }
-    interp_list.append(std::move(emc_spindle_speed_msg));
+    interp_list.append(SPINDLE_SPEED_<EMC_SPINDLE_SPEED>(s, 0, speed_rpm));
 }
 
 void STOP_SPINDLE_TURNING(int s)
@@ -3089,42 +3060,44 @@ void COMMENT(const char *comment)
 }
 
 // refers to feed rate
-void DISABLE_FEED_OVERRIDE()
+void FEED_OVERRIDE_ENABLE_(int mode)
 {
     auto set_fo_enable_msg = std::make_unique<EMC_TRAJ_SET_FO_ENABLE>();
     flush_segments();
     
-    set_fo_enable_msg->mode = 0;
+    set_fo_enable_msg->mode = mode;
     interp_list.append(std::move(set_fo_enable_msg));
+}
+
+void DISABLE_FEED_OVERRIDE()
+{
+    FEED_OVERRIDE_ENABLE_(0);
 }
 
 void ENABLE_FEED_OVERRIDE()
 {
-    auto set_fo_enable_msg = std::make_unique<EMC_TRAJ_SET_FO_ENABLE>();
-    flush_segments();
-    
-    set_fo_enable_msg->mode = 1;
-    interp_list.append(std::move(set_fo_enable_msg));
+    FEED_OVERRIDE_ENABLE_(1);
 }
 
 
 //refers to adaptive feed override (HAL input, useful for EDM for example)
-void DISABLE_ADAPTIVE_FEED()
+void ADAPTIVE_FEED_ENABLE_(int status)
 {
     auto emcmotAdaptiveMsg = std::make_unique<EMC_MOTION_ADAPTIVE>();
     flush_segments();
 
-    emcmotAdaptiveMsg->status = 0;
+    emcmotAdaptiveMsg->status = status;
     interp_list.append(std::move(emcmotAdaptiveMsg));
+}
+
+void DISABLE_ADAPTIVE_FEED()
+{
+    ADAPTIVE_FEED_ENABLE_(0);
 }
 
 void ENABLE_ADAPTIVE_FEED()
 {
-    auto emcmotAdaptiveMsg = std::make_unique<EMC_MOTION_ADAPTIVE>();
-    flush_segments();
-
-    emcmotAdaptiveMsg->status = 1;
-    interp_list.append(std::move(emcmotAdaptiveMsg));
+    ADAPTIVE_FEED_ENABLE_(1);
 }
 
 void SPEED_OVERRIDE_(int spindle, int mode)
@@ -3168,12 +3141,10 @@ void DISABLE_FEED_HOLD()
 template <typename T, bool flush_segments_ = true>
 void SIMPLE_COMMAND_()
 {
-    auto msg = std::make_unique<T>();
-
     if (flush_segments_)
         flush_segments();
 
-    interp_list.append(std::move(msg));
+    interp_list.append(std::make_unique<T>());
 }
 
 void FLOOD_OFF()
