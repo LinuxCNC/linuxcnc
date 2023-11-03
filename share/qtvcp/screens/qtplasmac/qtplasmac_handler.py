@@ -1,4 +1,4 @@
-VERSION = '1.237.300'
+VERSION = '1.237.301'
 
 '''
 qtplasmac_handler.py
@@ -2519,6 +2519,7 @@ class HandlerClass:
         self.ovButton, self.llButton, self.tlButton, self.umButton = '', '', [], ''
         self.halTogglePins = {}
         self.halPulsePins = {}
+        self.dualCodeButtons = {}
 
     def get_main_tab_widgets(self):
         # 1 of 2 this is a work around for pyqt5.11 not having setTabVisible(index, bool) that is present in pyqt5.15
@@ -3764,6 +3765,7 @@ class HandlerClass:
         head = _translate('HandlerClass', 'User Button Error')
         for bNum in range(1,21):
             self.w['button_{}'.format(str(bNum))].setEnabled(False)
+            self.w['button_{}'.format(str(bNum))].setCheckable(False)
             bName = self.PREFS.getpref('{} Name'.format(bNum), '', str, 'BUTTONS') or None
             bCode = self.PREFS.getpref('{} Code'.format(bNum), '', str, 'BUTTONS') or None
             if bName or bCode:
@@ -3980,7 +3982,28 @@ class HandlerClass:
                 self.idleList.append(self.umButton)
                 self.w.webview.load(self.umUrl)
             else:
-                for command in bCode.split('\\'):
+                if 'dual-code' in bCode:
+                    # incoming code is: "dual-code" ;; code1 ;; label1 ;; code2 ;; checked (optional = true)
+                    data = bCode.split(';;')
+                    if len(data) not in [4, 5]:
+                        head = _translate('HandlerClass', 'User Button Error')
+                        msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
+                        code = halpin = delay = ''
+                        msg0 += " 1111 "
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
+                        continue
+                    else:
+                        if len(data) == 5 and data[4].strip().lower() == 'true':
+                            self.w['button_{}'.format(str(bNum))].setCheckable(True)
+                            checked = True
+                        else:
+                            checked = True
+                        self.dualCodeButtons[bNum] = [data[1], data[2], data[3], bLabel, checked]
+                        # dualCodeButtons format is: code1 ;; label1 ;; code2 ;; label2 ;; checked
+                    commands = f"{data[1]}\{data[3]}"
+                else:
+                    commands = bCode
+                for command in commands.split('\\'):
                     command = command.strip()
                     if command and command[0].lower() in 'xyzabgmfsto' and command.replace(' ','')[1] in '0123456789<':
                         if 'button_{}'.format(str(bNum)) not in self.idleHomedList:
@@ -4116,6 +4139,16 @@ class HandlerClass:
                 self.prevPreviewIndex = self.USER_MANUAL
         else:
             self.reloadRequired = False
+            if 'dual-code' in commands:
+                # dualCodeButtons format is: code1 ;; label1 ;; code2 ;; label2 ;; checked
+                if self.w[f'button_{bNum}'].text() == self.dualCodeButtons[bNum][3]:
+                    commands = self.dualCodeButtons[bNum][0]
+                    self.w[f'button_{bNum}'].setText(self.dualCodeButtons[bNum][1])
+                    self.w[f'button_{bNum}'].setChecked(True)
+                else:
+                    commands = self.dualCodeButtons[bNum][2]
+                    self.w[f'button_{bNum}'].setText(self.dualCodeButtons[bNum][3])
+                    self.w[f'button_{bNum}'].setChecked(False)
             for command in commands.split('\\'):
                 command = command.strip()
                 self.user_button_command(bNum, command)

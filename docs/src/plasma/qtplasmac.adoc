@@ -3267,6 +3267,7 @@ Buttons can run the following:
 . <<plasma:button-cmds,External commands>>
 . <<plasma:button-py,External python scripts>>
 . <<plasma:button-code,G-code commands>>
+. <<plasma:button-dual,Dual code>>
 . <<plasma:button-toggle,Toggle a HAL pin>>
 . <<plasma:button-laser,Toggle the alignment laser HAL pin>>
 . <<plasma:button-pulse,Pulse a HAL pin>>
@@ -3355,6 +3356,37 @@ External commands and G-code may be mixed on the same button.
 ----
 n Code = %halshow \ g0x.5y.5 \ %halmeter
 ----
+
+[[plasma:button-dual]]
+.*Dual Code*
+
+Dual Code allows the running of two code snippets alternately each button press.
+The button text may also alternate each button press and the indicator light may be optionally enabled.
+
+It is mandatory to specify "dual-code", the first code, the alternate button text, and the second code separated by double semicolons.
+If the indicator is required then optionally add ";; true" at the end.
+
+[source,{ini}]
+----
+n Code = dual-code ;; code1 ;; name1 ;; code2 ;; true
+----
+
+On the first button press, code1 will be run, the button text will change to name1, and if "true" is specified the indicator will light.
+
+On the second button press, code2 will be run, the button text will change to n Name, and the indicator will extinguish if lit.
+
+code1 and code2 both follow the rule of the preceding code explanations, <<plasma:button-cmds,External commands>>, <<plasma:button-py,Python code>>, and <<plasma:button-code,G-code>>. Multiple codes as well as mixing codes are allowed.
+
+The following code will allow the user to use a single button to run two code snippets alternately each button press:
+
+[source,{ini}]
+----
+n Name = X+10
+n Code = dual-code ;; G91\G0X10\G90 ;; X-10 ;; G91\G0X-10\G90
+----
+
+The original label will be X+10, when pressed the torch will move positive 10 in the X axis and the label will change to X-10.
+When pressed again the torch will move negative 10 in the X axis and the label will change to X+10.
 
 [[plasma:button-toggle]]
 .*Toggle HAL Pin*
