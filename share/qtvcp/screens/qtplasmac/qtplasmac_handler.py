@@ -3324,9 +3324,13 @@ class HandlerClass:
             if hal.get_value(halpin):
                 if color != self.w.color_foregalt.palette().color(QPalette.Background):
                     self.button_active(self.halTogglePins[halpin][0])
+                text = 3
             else:
                 if color != self.w.color_backgrnd.palette().color(QPalette.Background):
                     self.button_normal(self.halTogglePins[halpin][0])
+                text = 2
+            if self.halTogglePins[halpin][3]:
+                self.w[self.halTogglePins[halpin][0]].setText('{}'.format(self.halTogglePins[halpin][text].replace('\\', '\n')))
         for halpin in self.halPulsePins:
             color = self.w[self.halPulsePins[halpin][0]].palette().color(QtGui.QPalette.Background)
             if hal.get_value(halpin):
@@ -3883,6 +3887,10 @@ class HandlerClass:
                 self.idleOnList.append('button_{}'.format(str(bNum)))
             elif 'toggle-halpin' in bCode:
                 head = _translate('HandlerClass', 'HAL Pin Error')
+                altLabel = None
+                if ';;' in bCode:
+                    altLabel = bCode[bCode.index(';;') + 2:].strip()
+                    bCode = bCode[:bCode.index(';;')].strip()
                 if len(bCode.split()) == 3 and 'runcritical' in bCode.lower():
                     critical = True
                 elif len(bCode.split()) == 2:
@@ -3910,8 +3918,8 @@ class HandlerClass:
                         msg2 = _translate('HandlerClass', 'does not exist')
                         STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}\n'.format(head, msg0, bNum, msg1, halpin, msg2))
                         continue
-                # halTogglePins format is: button name, run critical flag, button text
-                self.halTogglePins[halpin] = ['button_{}'.format(str(bNum)), critical, bLabel]
+                # halTogglePins format is: button name, run critical flag, button text, alt button text
+                self.halTogglePins[halpin] = ['button_{}'.format(str(bNum)), critical, bLabel, altLabel]
             elif 'toggle-laser' in bCode:
                 self.tlButton.append('button_{}'.format(str(bNum)))
                 self.idleHomedList.append('button_{}'.format(str(bNum)))
