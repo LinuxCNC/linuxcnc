@@ -93,7 +93,7 @@ std::unique_ptr<NMLmsg> NML_INTERP_LIST::get()
 
 void NML_INTERP_LIST::clear()
 {
-    if (true /*emc_debug & EMC_DEBUG_INTERP_LIST*/) {
+    if (emc_debug & EMC_DEBUG_INTERP_LIST) {
         rcs_print("NML_INTERP_LIST(%p)::clear(): discarding %lu items\n", this, linked_list.size());
     }
     linked_list.clear();
