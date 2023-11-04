@@ -4,13 +4,15 @@
 # This file is distributed under the same license package as rs274ngc.pot.
 # Ernesto Lo Valvo <ernesto.lovalvo@unipa.it>, 2019.
 # Frankie McEyes <mceyes@protonmail.com>, 2023.
+# elovalvoc047faba7aa1427f <ernesto.lovalvo@unipa.it>, 2023.
+# Petter Reinholdtsen <pere-weblate@hungry.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: it_rs274_err\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-10-17 01:40+0000\n"
-"Last-Translator: Frankie McEyes <mceyes@protonmail.com>\n"
+"PO-Revision-Date: 2023-11-04 05:48+0000\n"
+"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/it/>\n"
 "Language: it\n"
@@ -18,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.1\n"
+"X-Generator: Weblate 5.2-dev\n"
 
 #: src/emc/task/emctaskmain.cc:869
 #, c-format
@@ -149,40 +151,38 @@ msgid ""
 msgstr "D senza G41, G41.1, G42, G42.1, G71, G71.1, G71.2 o G96 per usarlo"
 
 #: src/emc/rs274ngc/interp_check.cc:270
-#, fuzzy
 msgid ""
 "$ (spindle selection) word with no M3, M4, M5, M19, M51, G33, G33.1, G76, "
 "G95, G96 or G97 to use it"
 msgstr ""
-"Parametro D senza funzioni G41, G41.1,G42, G42.1, G76, G95 o G96 che lo usino"
+"$ (spindle selection) parola senza M3, M4, M5, M19, M51, G33, G33.1, G76, "
+"G95, G96 o G97 per usarlo"
 
 #: src/emc/rs274ngc/interp_check.cc:277
-#, fuzzy
 msgid "E word with no G70, G76, M66, M67 or M68 to use it"
-msgstr ""
-"Parametro E senza funzioni G76, M3,M4, M19, M51, M66, M67 o M68 che lo usino"
+msgstr "Word E senza nessun G70, G76, M66, M67 o M68 per usarlo"
 
 #: src/emc/rs274ngc/interp_check.cc:282
 msgid "H word with no G43 or G76 to use it"
 msgstr "Parametro H senza funzioni G43 o G76 che lo usino"
 
 #: src/emc/rs274ngc/interp_check.cc:291
-#, fuzzy
 msgid ""
 "I word with no G2, G3, G5, G5.1, G6, G6.1, G10, G33.1, G76, or G87 to use it"
 msgstr ""
-"Parametro I senza funzioni G2, G3, G5, G5.1, G33.1, G76 o G87 che lo usino"
+"Parametro J senza funzioni G2, G3, G5, G5.1, G6, G6.1, G10, G76 o G87 che lo "
+"usino"
 
 #: src/emc/rs274ngc/interp_check.cc:298
-#, fuzzy
 msgid "J word with no G2, G3, G5, G5.1, G6, G6.1, G10, G76 or G87 to use it"
 msgstr ""
-"Parametro J senza funzioni G2, G3, G5, G5.1, G10, G76 o G87 che lo usino"
+"Parametro J senza funzioni G2, G3, G5, G5.1, G6, G6.1, G10, G76 o G87 che lo "
+"usino"
 
 #: src/emc/rs274ngc/interp_check.cc:303
-#, fuzzy
 msgid "K word with no G2, G3, G6.2, G33, G33.1, G76, or G87 to use it"
-msgstr "Parametro K senza funzioni G2, G3, G33, G331.1, G76 o G87 che lo usino"
+msgstr ""
+"Parametro K senza funzioni G2, G3, G6.2, G33, G33.1, G76 o G87 che lo usino"
 
 #: src/emc/rs274ngc/interp_check.cc:315
 msgid ""
@@ -193,13 +193,12 @@ msgstr ""
 "digitale/analogico, M98 o codice NURBS"
 
 #: src/emc/rs274ngc/interp_check.cc:332
-#, fuzzy
 msgid ""
 "P word with no G2 G3 G4 G10 G64 G5 G5.2 G6, G6.2, G76 G82 G86 G88 G89 or M50 "
 "M51 M52 M53 M62 M63 M64 M65 M66 M98 or user M code to use it"
 msgstr ""
-"Parametro P senza funzioni G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 o "
-"M50 M51 M52 M53 M62 M63 M64 M65 M66 M98 o codice M utente che lo usino"
+"Parametro P senza G2 G3 G4 G10 G64 G5 G5.2 G6 G6.2 G76 G82 G86 G88 G89 o M50 "
+"M51 M52 M53 M62 M63 M64 M65 M66 M98 o codice M utente che lo usino"
 
 #: src/emc/rs274ngc/interp_check.cc:338
 msgid "P value not an integer with M19 G2 or G3"
@@ -214,13 +213,12 @@ msgid "P value should be 1 or greater with G2 or G3"
 msgstr "Valore P deve essere 1 o maggiore con G2 o G3"
 
 #: src/emc/rs274ngc/interp_check.cc:353
-#, fuzzy
 msgid ""
 "Q word with no G5, G6, G10, G64, G73, G76, G83, M19, M66, M67, M68 or user M "
 "code that uses it"
 msgstr ""
-"Parametro Q senza funzioni G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 o "
-"codice M utente che lo usino"
+"Parametro Q senza funzioni G5, G6, G10, G64, G73, G76, G83, M19, M66, M67, "
+"M68 o codice M utente che lo usino"
 
 #: src/emc/rs274ngc/interp_check.cc:366
 msgid "R value must be within 0..360 with M19"
@@ -237,25 +235,21 @@ msgstr "Puoi specificare P senza X e Y solo sul primo punto di controllo"
 
 #: src/emc/rs274ngc/interp_convert.cc:199
 #: src/emc/rs274ngc/interp_convert.cc:387
-#, fuzzy
 msgid "You must specify both Y and Z coordinates for Control Points"
-msgstr "Bisogna specificare nei Punti di Controllo sia X che Y"
+msgstr "Bisogna specificare nei Punti di Controllo sia le coordinate X ed Y"
 
 #: src/emc/rs274ngc/interp_convert.cc:204
-#, fuzzy
 msgid "Can specify P without Y and Z only for the first control point"
-msgstr "Puoi specificare P senza X e Y solo sul primo punto di controllo"
+msgstr "Puoi specificare P senza Y e Z solo sul primo punto di controllo"
 
 #: src/emc/rs274ngc/interp_convert.cc:211
 #: src/emc/rs274ngc/interp_convert.cc:394
-#, fuzzy
 msgid "You must specify both X and Z coordinates for Control Points"
-msgstr "Bisogna specificare nei Punti di Controllo sia X che Y"
+msgstr "Bisogna specificare nei Punti di Controllo entrambe le coordinate X e Z"
 
 #: src/emc/rs274ngc/interp_convert.cc:216
-#, fuzzy
 msgid "Can specify P without X and Z only for the first control point"
-msgstr "Puoi specificare P senza X e Y solo sul primo punto di controllo"
+msgstr "Puoi specificare P senza X e Z solo sul primo punto di controllo"
 
 #: src/emc/rs274ngc/interp_convert.cc:222
 msgid "Must specify positive weight P for every Control Point"
@@ -284,71 +278,64 @@ msgstr "è necessario selezionare un piano per le nurbs: XY, YZ, ZX"
 
 #: src/emc/rs274ngc/interp_convert.cc:400
 msgid "Program the nurbs order P in the first block of instruction"
-msgstr ""
+msgstr "Programma l'ordine P della nurbs nel primo blocco di istruzioni"
 
 #: src/emc/rs274ngc/interp_convert.cc:404
-#, fuzzy
 msgid "nurbs order P number is not an integer"
-msgstr "Il numero Q in G10 non è intero"
+msgstr "ordine P della nurbs non è intero"
 
 #: src/emc/rs274ngc/interp_convert.cc:410
 msgid ""
 "Program the nurbs Q value (1,2,3) in the first block of nurbs instruction"
-msgstr ""
+msgstr "Programmare i nubi Q valore (1,2,3) nel primo blocco di istruzioni nubi"
 
 # Anmerkung:FJ: g593 ???? WM: wahrscheinlich g59.3
 #: src/emc/rs274ngc/interp_convert.cc:415
-#, fuzzy
 msgid "nurbs Q value not in range 1 to 3"
-msgstr "Errore: Codice programma non compreso tra G54 e G593"
+msgstr "Valore Q nurbs non in range da 1 a 3"
 
 #: src/emc/rs274ngc/interp_convert.cc:417
-#, fuzzy
 msgid "nurbs Q number is not an integer"
-msgstr "Il numero Q in G10 non è intero"
+msgstr "Numero Q della nurbs non è intero"
 
 #: src/emc/rs274ngc/interp_convert.cc:423
-#, fuzzy
 msgid "Must specify positive nurbs weight R for every Control Point"
-msgstr "Bisogna specificare un peso P positivo per ogni Punto di Controllo"
+msgstr ""
+"Bisogna specificare un peso nurbs R positivo per ogni Punto di Controllo"
 
 #: src/emc/rs274ngc/interp_convert.cc:428
-#, fuzzy
 msgid "Must specify nurbs K number for every Control Point"
-msgstr "Bisogna specificare un peso P positivo per ogni Punto di Controllo"
+msgstr ""
+"Bisogna specificare un numero K nurbs positivo per ogni Punto di Controllo"
 
 #: src/emc/rs274ngc/interp_convert.cc:432
-#, fuzzy
 msgid "nurbs K number is not an integer"
-msgstr "Il numero Q in G10 non è intero"
+msgstr "il numero K nurbs non è intero"
 
 #: src/emc/rs274ngc/interp_convert.cc:437
-#, fuzzy
 msgid "Cannot make a nurbs with 0 feedrate"
-msgstr "Impossibile eseguire NURBS con avanzamento nullo"
+msgstr "Impossibile eseguire una nurbs con avanzamento 0"
 
 #: src/emc/rs274ngc/interp_convert.cc:503
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "You must specify a number of control points at least equal to the order P = "
 "%d"
 msgstr ""
 "Bisogna specificare un numero di punti di controllo almeno uguale all'ordine "
-"L = %d"
+"P = %d"
 
 #: src/emc/rs274ngc/interp_convert.cc:567
 msgid "Cannot convert spline with cutter radius compensation"
 msgstr "Impossibile convertire spline con compensazione raggio utensile"
 
 #: src/emc/rs274ngc/interp_convert.cc:579
-#, fuzzy
 msgid "Splines may not have motion in A, B, or C"
-msgstr "Le spline non possono avere movimenti in Z, A, B, o C"
+msgstr "Le spline non possono avere movimenti in A, B, o C"
 
 #: src/emc/rs274ngc/interp_convert.cc:586
-#, fuzzy
 msgid "Must specify both I and J with G5.1 or G6.1"
-msgstr "Bisogna specificare sia I e J con G5.1"
+msgstr "Bisogna specificare sia I e J con G5.1 o G6.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:691
 msgid "Must specify both I and J, or neither"
@@ -1101,14 +1088,14 @@ msgid "Named parameter #<%s> not defined"
 msgstr "Parametro nominato #<%s> non definito"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:215
-#, fuzzy, c-format
+#, c-format
 msgid "can't open INI file '%s'"
-msgstr "impossibile aprire file ini '%s'"
+msgstr "impossibile aprire file INI '%s'"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:232
-#, fuzzy, c-format
+#, c-format
 msgid "Named INI parameter #<%s> not found in INI file '%s': error=0x%x"
-msgstr "Parametro ini nominato #<%s> non definito in inifile '%s': error=0x%x"
+msgstr "Parametro INI nominato #<%s> non definito in INI file '%s': errore=0x%x"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:257
 #, c-format
@@ -1980,7 +1967,7 @@ msgstr ""
 
 #: src/hal/utils/meter.c:243 tcl/tklinuxcnc.tcl:793
 msgid "Hal Meter"
-msgstr "Hal Meter"
+msgstr "HalMeter"
 
 #: src/hal/utils/meter.c:292
 msgid "_Select"
@@ -2114,7 +2101,7 @@ msgstr "Singolo"
 
 #: src/hal/utils/scope.c:702
 msgid "Roll"
-msgstr "Roll"
+msgstr " Roll"
 
 #: src/hal/utils/scope_horiz.c:139 src/emc/usr_intf/gscreen/gscreen.glade:3587
 msgid "Zoom"
@@ -2485,9 +2472,9 @@ msgstr ""
 "la lunghezza del record così da utilizzare più canali"
 
 #: src/hal/utils/scope_vert.c:912
-#, fuzzy, c-format
+#, c-format
 msgid "Select Channel %d Source"
-msgstr "Selezionare Sorgente Canale"
+msgstr "Selezionare Sorgente Canale %d"
 
 #: src/hal/utils/scope_vert.c:935
 msgid "Pins"
@@ -3007,14 +2994,14 @@ msgid "MOTION: ejoint %d pin/param export failed\n"
 msgstr "MOTION: ejoint %d pin/param export fallito\n"
 
 #: src/emc/motion/homing.c:188
-#, fuzzy, c-format
+#, c-format
 msgid "j%d hit limit in home state %d"
-msgstr "raggiunto limite in stato home %d"
+msgstr "j%d raggiunto limite in stato home %d"
 
 #: src/emc/motion/homing.c:197
-#, fuzzy, c-format
+#, c-format
 msgid "j%d end of move in home state %d"
-msgstr "fine movimento in stato home%d"
+msgstr "j%d fine movimento in stato home %d"
 
 #: src/emc/motion/homing.c:236
 msgid "HOMING: all_joints_home_data_t malloc failed\n"
@@ -3036,9 +3023,9 @@ msgid "Cannot unhome extrajoint <%d> with motion enabled"
 msgstr "Impossibile dis-azzerare extrajoint <%d> con movimento abilitato"
 
 #: src/emc/motion/homing.c:366
-#, fuzzy, c-format
+#, c-format
 msgid "homing.c Unexpected joint=%d jseq=%d current_seq=%d\n"
-msgstr "homing.c Giunto imprevisto=%d jsequence=%d seq=%d\n"
+msgstr "homing.c Giunto imprevisto=%d jseq=%d current_seq=%d\n"
 
 #: src/emc/motion/homing.c:482
 #, c-format
@@ -3046,29 +3033,29 @@ msgid "unknown state '%d' during homing sequence"
 msgstr "stato '%d' sconosciuto durante sequenza azzeramento"
 
 #: src/emc/motion/homing.c:576
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome invalid joint %d (max %d)\n"
-msgstr "Impossibile dis-azzerare asse invalido %d (max %d)"
+msgstr "Impossibile dis-azzerare asse invalido %d (max %d)\n"
 
 #: src/emc/motion/homing.c:583
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome extrajoint <%d> with motion enabled\n"
-msgstr "Impossibile dis-azzerare extrajoint <%d> con movimento abilitato"
+msgstr "Impossibile dis-azzerare extrajoint <%d> con movimento abilitato\n"
 
 #: src/emc/motion/homing.c:590
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome while homing, joint %d\n"
-msgstr "Impossibile dis-azzerare durante azzeramento, asse %d"
+msgstr "Impossibile dis-azzerare durante azzeramento, asse %d\n"
 
 #: src/emc/motion/homing.c:595
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome while moving, joint %d\n"
-msgstr "Impossibile dis-azzerare durante movimento, asse %d"
+msgstr "Impossibile dis-azzerare durante movimento, asse %d\n"
 
 #: src/emc/motion/homing.c:601
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome inactive joint %d\n"
-msgstr "Impossibile dis-azzerare asse %d inattivo"
+msgstr "Impossibile dis-azzerare asse %d inattivo\n"
 
 #: src/emc/motion/homing.c:757
 #, c-format
@@ -3123,15 +3110,12 @@ msgstr ""
 "classicladder.\n"
 
 #: src/hal/classicladder/classicladder.c:221
-#, fuzzy
 msgid "Stopped program - press run button to continue."
-msgstr ""
-"Programma ladder interrotto - premere il pulsante Esegui per continuare."
+msgstr "Programma interrotto - premere il pulsante Esegui per continuare."
 
 #: src/hal/classicladder/classicladder.c:231
-#, fuzzy
 msgid "Started program - press stop to pause."
-msgstr "Programma Ladder avviato - premere Stop per mettere in pausa."
+msgstr "Programma avviato - premere stop per mettere in pausa."
 
 #: src/hal/classicladder/classicladder.c:286
 msgid ""
@@ -3267,27 +3251,23 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:651
 msgid "Reset logic data - Now running."
-msgstr ""
+msgstr "Reset dati logici - Ora in esecuzione."
 
 #: src/hal/classicladder/classicladder_gtk.c:651
-#, fuzzy
 msgid "Reset logic data done."
-msgstr "Reset dati ladder "
+msgstr "Reset dati logici eseguito."
 
 #: src/hal/classicladder/classicladder_gtk.c:709
-#, fuzzy
 msgid "About ClassicLadder"
-msgstr "Apri classicladder"
+msgstr "Informazioni su ClassicLadder"
 
 #: src/hal/classicladder/classicladder_gtk.c:766
-#, fuzzy
 msgid "Save SVG File"
-msgstr "Salvare su File"
+msgstr "Salvare SVG File"
 
 #: src/hal/classicladder/classicladder_gtk.c:766
-#, fuzzy
 msgid "Save PNG File"
-msgstr "Salvare su File"
+msgstr "Salvare PNG File"
 
 #: src/hal/classicladder/classicladder_gtk.c:839
 #: src/hal/classicladder/classicladder_gtk.c:1294
@@ -3356,18 +3336,16 @@ msgstr ""
 " Vuoi davvero smettere?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:943
-#, fuzzy
 msgid "ClassicLadder Section Display"
-msgstr "Progetti ClassicLadder"
+msgstr "Visualizza Sezione ClassicLadder"
 
 #: src/hal/classicladder/classicladder_gtk.c:971
 msgid "Label of the current selected rung"
 msgstr "Label del rung corrente selezionato"
 
 #: src/hal/classicladder/classicladder_gtk.c:980
-#, fuzzy
 msgid "Comment of the current selected ladder rung or sequential page"
-msgstr "Commento del rung selezionato corrente"
+msgstr "Commento dell'attuale rung ladder selezionato o pagina sequenziale"
 
 #: src/hal/classicladder/classicladder_gtk.c:983
 msgid "Display symbols"
@@ -3451,104 +3429,102 @@ msgid "Rung Refresh Rate (milliseconds)"
 msgstr "Rung Refresh Rate (millisecondi)"
 
 #: src/hal/classicladder/config_gtk.c:127
-#, fuzzy, c-format
+#, c-format
 msgid "Number of rungs (%d%c used)"
-msgstr "Numero di rungs (%d%c in uso      "
+msgstr "Numero di rungs (%d%c in uso)"
 
 #: src/hal/classicladder/config_gtk.c:131
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Bits"
-msgstr "Numero di rami"
+msgstr "Numero di Bits"
 
 #: src/hal/classicladder/config_gtk.c:135
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Words"
-msgstr "Numero di rami"
+msgstr "Numero di Words"
 
 #: src/hal/classicladder/config_gtk.c:139
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Counters"
-msgstr "Numero di rami"
+msgstr "Numero di Contatori"
 
 #: src/hal/classicladder/config_gtk.c:143
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Timers IEC"
-msgstr "Numero di Timers IEC            "
+msgstr "Numero di Timers IEC"
 
 #: src/hal/classicladder/config_gtk.c:147
-#, fuzzy, c-format
+#, c-format
 msgid "Number of BIT Inputs HAL pins"
-msgstr "Numero di pin HAL BIT Inputs           "
+msgstr "Numero di pin HAL BIT Inputs"
 
 #: src/hal/classicladder/config_gtk.c:151
-#, fuzzy, c-format
+#, c-format
 msgid "Number of BIT Outputs HAL pins"
-msgstr "Numero di pin HAL BIT Outputs          "
+msgstr "Numero di pin HAL BIT Outputs"
 
 #: src/hal/classicladder/config_gtk.c:155
-#, fuzzy, c-format
+#, c-format
 msgid "Number of S32in HAL pins"
-msgstr "Numero di pin HAL S32in             "
+msgstr "Numero di pin HAL S32in"
 
 #: src/hal/classicladder/config_gtk.c:159
-#, fuzzy, c-format
+#, c-format
 msgid "Number of S32out HAL pins"
-msgstr "Numero di pin HAL S32out            "
+msgstr "Numero di pin HAL S32out"
 
 #: src/hal/classicladder/config_gtk.c:164
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Arithmetic Expressions"
-msgstr "Numero di Espressioni Aritmetiche "
+msgstr "Numero di Espressioni Aritmetiche"
 
 #: src/hal/classicladder/config_gtk.c:169
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Sections (%d%c used)"
-msgstr "Numero di Sezioni (%d%c in uso)   "
+msgstr "Numero di Sezioni (%d%c in uso)"
 
 #: src/hal/classicladder/config_gtk.c:174
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Symbols"
-msgstr "Numero di Sezioni"
+msgstr "Numero di Simboli"
 
 #: src/hal/classicladder/config_gtk.c:179
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Timers"
-msgstr "Numero di rami"
+msgstr "Numero di Timers"
 
 #: src/hal/classicladder/config_gtk.c:183
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Monostables"
-msgstr "Numero di Monostables            "
+msgstr "Numero di Monostables"
 
 #: src/hal/classicladder/config_gtk.c:188
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Error Bits"
-msgstr "Numero di Bits Errore                  "
+msgstr "Numero di Bits Errore"
 
 #: src/hal/classicladder/config_gtk.c:192
-#, fuzzy, c-format
+#, c-format
 msgid "Number of floatin HAL pins"
-msgstr "Numero di pin HAL floatin             "
+msgstr "Numero di pin HAL floatin"
 
 #: src/hal/classicladder/config_gtk.c:196
-#, fuzzy, c-format
+#, c-format
 msgid "Number of floatout HAL pins"
-msgstr "Numero di pin HAL floatout            "
+msgstr "Numero di pin HAL floatout"
 
 #: src/hal/classicladder/config_gtk.c:200
-#, fuzzy, c-format
+#, c-format
 msgid "Current path/filename:"
-msgstr "File corrente"
+msgstr "Cartella/File corrente:"
 
 #: src/hal/classicladder/config_gtk.c:327
-#, fuzzy
 msgid "1st %I mapped"
-msgstr "1a Variabile mappata"
+msgstr "1a %I mappata"
 
 #: src/hal/classicladder/config_gtk.c:327
-#, fuzzy
 msgid "1st %Q mapped"
-msgstr "1a Variabile mappata"
+msgstr "1a %Q mappata"
 
 #: src/hal/classicladder/config_gtk.c:367
 #: src/hal/classicladder/config_gtk.c:566
@@ -3556,18 +3532,17 @@ msgid "Inverted"
 msgstr "Invertito"
 
 #: src/hal/classicladder/config_gtk.c:662
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Error in I/O modbus conf: overflow for I,Q,B,IQ, or WQ mapping detected..."
 "ASKED=%i,MAX=%i\n"
 msgstr ""
-"Errore nel modbus conf di I/O: rilevato overflow per il mapping I,B,Q,IQ o "
+"Errore nel modbus conf di I/O: rilevato overflow per il mapping I,Q,B,IQ o "
 "WQ... RICHIESTA: %i, MAX%i\n"
 
 #: src/hal/classicladder/config_gtk.c:664
-#, fuzzy
 msgid "Overflow error for I,Q,B,IQ,WQ or W mapping detected..."
-msgstr "Rilevato errore di overflow per il mapping I, B,Q, IQ o WQ..."
+msgstr "Rilevato errore di overflow per il mapping I,Q,B,IQ o WQ..."
 
 #: src/hal/classicladder/config_gtk.c:745
 #, c-format
@@ -3580,19 +3555,19 @@ msgid "Serial baud rate"
 msgstr "Baud rate Seriale"
 
 #: src/hal/classicladder/config_gtk.c:753
-#, fuzzy, c-format
+#, c-format
 msgid "Serial data bits"
-msgstr "Baud rate Seriale"
+msgstr "Bit dati seriali"
 
 #: src/hal/classicladder/config_gtk.c:757
-#, fuzzy, c-format
+#, c-format
 msgid "Serial parity"
-msgstr "Baud rate Seriale"
+msgstr "Parità Seriale"
 
 #: src/hal/classicladder/config_gtk.c:761
 #, c-format
 msgid "Serial stop bits"
-msgstr ""
+msgstr "Bits di stop della seriale"
 
 #: src/hal/classicladder/config_gtk.c:765
 #, c-format
@@ -3629,18 +3604,17 @@ msgid "QUIET"
 msgstr "QUIET"
 
 #: src/hal/classicladder/config_gtk.c:786
-#, fuzzy
 msgid "LEVEL"
-msgstr "LEVEL 1"
+msgstr "LIVELLO"
 
 #: src/hal/classicladder/config_gtk.c:786
 msgid "VERBOSE"
-msgstr ""
+msgstr "VERBOSO"
 
 #: src/hal/classicladder/config_gtk.c:789
-#, fuzzy, c-format
+#, c-format
 msgid "Read inputs map to"
-msgstr "Lettura Bobine/input mappa per"
+msgstr "Leggi la mappa degli input per"
 
 #: src/hal/classicladder/config_gtk.c:793
 #, c-format
@@ -3653,9 +3627,9 @@ msgid "Write Coils map from"
 msgstr "Scrivi Coils mappa da"
 
 #: src/hal/classicladder/config_gtk.c:801
-#, fuzzy, c-format
+#, c-format
 msgid "Read input registers map to"
-msgstr "Leggi registro/contiene la mappa per"
+msgstr "Leggi registro mappa ingressi la mappa per"
 
 #: src/hal/classicladder/config_gtk.c:805
 #, c-format
@@ -3663,9 +3637,9 @@ msgid "Read register/holding map to"
 msgstr "Leggi registro/contiene la mappa per"
 
 #: src/hal/classicladder/config_gtk.c:809
-#, fuzzy, c-format
+#, c-format
 msgid "Write hold registers map from"
-msgstr "Scrivi mappa registri da"
+msgstr "Scrivi la mappa dei registri da"
 
 #: src/hal/classicladder/config_gtk.c:1075
 msgid "Period/object info"
@@ -3676,9 +3650,8 @@ msgid "Modbus communication setup"
 msgstr "Setup comunicazione Modbus"
 
 #: src/hal/classicladder/config_gtk.c:1086
-#, fuzzy
 msgid "Modbus I/O register setup"
-msgstr "Configurazione del registro  Modbus I/O "
+msgstr "Configurazione del registro Modbus I/O"
 
 #: src/hal/classicladder/edit.c:149 src/hal/classicladder/edit_sequential.c:72
 msgid "Variable"
@@ -3781,22 +3754,21 @@ msgid "Expression too long"
 msgstr "Espressione troppo lunga"
 
 #: src/hal/classicladder/edit.c:479
-#, fuzzy
 msgid "Incompatible type of variable for index (must be an integer!)"
-msgstr "Tipo incompatibile di variabile (deve essere un numero intero!)"
+msgstr "Tipo di variabile incompatibile per l'indice (deve essere un intero!)"
 
 #: src/hal/classicladder/edit.c:485
 msgid "Parser error for indexed variable !"
-msgstr ""
+msgstr "Errore del paraser per variabile indicizzata!"
 
 #: src/hal/classicladder/edit.c:491
 msgid "You must select a boolean variable !"
 msgstr "Bisogna selezionare una variabile booleana!"
 
 #: src/hal/classicladder/edit.c:500
-#, fuzzy
 msgid "You must select a read/write variable for a coil!"
-msgstr "Bisogna selezionare una variabile booleana!"
+msgstr ""
+"È necessario selezionare una variabile di lettura/scrittura per una bobina!"
 
 #: src/hal/classicladder/edit.c:516 src/hal/classicladder/edit_sequential.c:99
 #: src/hal/classicladder/spy_vars_gtk.c:481
@@ -3810,18 +3782,17 @@ msgid "!!!Abnormal current type=%d in rung...(file %s,line %d)\n"
 msgstr "!!! Tipo di corrente anormale: %d nel rung... (file %s,riga %d)\n"
 
 #: src/hal/classicladder/edit.c:1250
-#, fuzzy
 msgid "No more free function block of this type available..."
-msgstr ""
-"Niente più blocchi funzione gratuiti disponibili... si prega di eliminare!"
+msgstr "Niente più blocchi funzione gratuiti disponibili..."
 
 #: src/hal/classicladder/edit.c:1262
 msgid "No more free arithmetic expression for this type available..."
-msgstr ""
+msgstr "Non è più disponibile espressione aritmetica libera per questo tipo..."
 
 #: src/hal/classicladder/edit.c:1425
 msgid "You clicked outside of the current rung actually selected..."
 msgstr ""
+"Hai fatto clic al di fuori del corrente rung effettivamente selezionato..."
 
 #: src/hal/classicladder/edit_gtk.c:143
 msgid "Current rung in edit mode..."
@@ -3926,12 +3897,16 @@ msgid ""
 "There is already a step to deactivate for this transition (clicked on top "
 "part)..."
 msgstr ""
+"C'è già un passo per disattivare questa transizione (cliccato sulla parte "
+"superiore)..."
 
 #: src/hal/classicladder/edit_sequential.c:418
 msgid ""
 "There is already a step to activate for this transition (clicked on bottom "
 "part)..."
 msgstr ""
+"C'è già un passo da attivare per questa transizione (cliccato sulla parte "
+"inferiore)..."
 
 #: src/hal/classicladder/edit_sequential.c:433
 msgid "Not selected first and last transitions to be joined !!??"
@@ -4036,20 +4011,20 @@ msgstr "sotto"
 
 #: src/hal/classicladder/edit_sequential.c:842
 msgid "Now select the transition."
-msgstr ""
+msgstr "Ora selezionare la transizione."
 
 #: src/hal/classicladder/edit_sequential.c:844
 msgid "Now select the step that will be deactivated by this transition."
 msgstr ""
+"Ora selezionare il passaggio che verrà disattivato da questa transizione."
 
 #: src/hal/classicladder/edit_sequential.c:844
 msgid "Now select the step that will be activated by this transition."
-msgstr ""
+msgstr "Ora selezionare il passaggio che verrà attivato da questa transizione."
 
 #: src/hal/classicladder/edit_sequential.c:846
-#, fuzzy
 msgid "You haven't selected a step or a transition to link!!!"
-msgstr "Le prime e le ultime transizioni selezionate da unire !!??"
+msgstr "Non hai selezionato un passo o una transizione da unire !!!"
 
 #: src/hal/classicladder/edit_sequential.c:850
 #, c-format
@@ -4058,7 +4033,7 @@ msgstr "nbr fa clic su 2!!! (posi ,%s), TypeBak , %d, TypeNow , %d\n"
 
 #: src/hal/classicladder/edit_sequential.c:856
 msgid "You haven't selected a transition and then the step to link!!!"
-msgstr ""
+msgstr "Non hai selezionato una transizione e poi la fase di collegamento!!!"
 
 #: src/hal/classicladder/edit_sequential.c:891
 msgid "Sequential memory full for comments"
@@ -4096,9 +4071,8 @@ msgid "Error blank symbol name"
 msgstr "Nome simbolo vuoto errore"
 
 #: src/hal/classicladder/emc_mods.c:64
-#, fuzzy
 msgid "Error unknown symbol name"
-msgstr "Nome simbolo vuoto errore"
+msgstr "Errore sconosciuto nel nome del simbolo"
 
 #: src/hal/classicladder/emc_mods.c:75 src/hal/classicladder/emc_mods.c:81
 #: src/hal/classicladder/emc_mods.c:89 src/hal/classicladder/emc_mods.c:97
@@ -4290,7 +4264,6 @@ msgid "Ladder"
 msgstr "Ladder"
 
 #: src/hal/classicladder/manager_gtk.c:183
-#, fuzzy
 msgid "This section name already exists or is incorrect !!!"
 msgstr "Il nome di questa sezione esiste già o non è corretto !!!"
 
@@ -4305,17 +4278,15 @@ msgstr "Impossibile aggiungere una nuova sezione. Completo?"
 #: src/hal/classicladder/manager_gtk.c:236
 #: src/hal/classicladder/manager_gtk.c:306
 msgid "Not possible when program running..."
-msgstr ""
+msgstr "Non è possibile quando il programma funziona..."
 
 #: src/hal/classicladder/manager_gtk.c:247
-#, fuzzy
 msgid "Add a new section..."
-msgstr "Aggiungi una sezione..."
+msgstr "Aggiungi una nuova sezione..."
 
 #: src/hal/classicladder/manager_gtk.c:278
-#, fuzzy
 msgid "Modify current section"
-msgstr "sul subfile corrente"
+msgstr "Modifica della sezione corrente"
 
 #: src/hal/classicladder/manager_gtk.c:315
 msgid "Do you really want to delete the section ?"
@@ -4330,9 +4301,8 @@ msgid "This section is already executed the first !"
 msgstr "Questa sezione è già eseguita la prima !"
 
 #: src/hal/classicladder/manager_gtk.c:349
-#, fuzzy
 msgid "This section is already executed the latest !"
-msgstr "Questa sezione è già eseguita la prima !"
+msgstr "Questa sezione è già eseguita l'ultima!"
 
 #: src/hal/classicladder/manager_gtk.c:421
 msgid "Language"
@@ -4436,9 +4406,9 @@ msgid "ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n"
 msgstr "ERRORE CLASSICLADDER- MODBUS-LOW LEVEL ERRORE SULLA RISPOSTA!!!\n"
 
 #: src/hal/classicladder/serial_linux.c:140
-#, fuzzy, c-format
+#, c-format
 msgid "Serial speed value %d not found for serial\n"
-msgstr "Valore di velocità non trovato per il numero seriale\n"
+msgstr "Valore di velocità %d non trovato per la seriale\n"
 
 #: src/hal/classicladder/serial_linux.c:145
 #, c-format
@@ -4486,24 +4456,24 @@ msgid "Serial flush all!\n"
 msgstr "Svuota tutta la seriale!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:111
-#, fuzzy, c-format
+#, c-format
 msgid "ERROR CLASSICLADDER-   Failed to create thread I/O Modbus master...\n"
 msgstr ""
-"ERRORE CLASSICLADDER- Impossibile creare il master di modbus di I/O del "
+"ERRORE CLASSICLADDER- Impossibile creare il master di Modbus di I/O del "
 "thread…\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:128
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "INFO CLASSICLADDER---I/O Modbus master Data bits %i Stop bits %i Parity %i\n"
 msgstr ""
-"INFO CLASSICLADDER---Io modbus master Bit dati %i Bit di arresto %i Parità "
-"%i\n"
+"INFO CLASSICLADDER---I/O Modbus master bit Dati %i Bit di arresto %i Parità %"
+"i\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:131
-#, fuzzy, c-format
+#, c-format
 msgid "INFO CLASSICLADDER---I/O Modbus master (%s) init ok !\n"
-msgstr "INFO CLASSICLADDER---I/O modbus master (%s) avvio ok !\n"
+msgstr "INFO CLASSICLADDER---I/O Modbus master (%s) avvio ok !\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:131
 msgid "Serial"
@@ -4532,10 +4502,10 @@ msgid "Connecting I/O module...\n"
 msgstr "Collegamento del modulo I/O in corso…\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:229
-#, fuzzy, c-format
+#, c-format
 msgid "Not able to retrieve IP address in Modbus table, huhh?!!!\n"
 msgstr ""
-"Non è in grado di recuperare l'indirizzo IP nella tabella modbus, huhh?!!!\n"
+"Non è in grado di recuperare l'indirizzo IP nella tabella Modbus, huhh?!!!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:234
 #, c-format
@@ -4562,9 +4532,9 @@ msgid "INFO CLASSICLADDER-   waiting for slave response...\n"
 msgstr "INFO CLASSICLADDER- in attesa della risposta degli schiavi...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:320
-#, fuzzy, c-format
+#, c-format
 msgid "INFO CLASSICLADDER---I/O Modbus master closed!\n"
-msgstr "INFO CLASSICLADDER--modbus I/O master chiuso!\n"
+msgstr "INFO CLASSICLADDER--Modbus I/O master chiuso!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:375
 #, c-format
@@ -4651,9 +4621,8 @@ msgid "Bit Status Window"
 msgstr "Finestra Stato Bit"
 
 #: src/hal/classicladder/spy_vars_gtk.c:222
-#, fuzzy
 msgid "Offset for vars displayed below (press return to apply)"
-msgstr "Offset per vars visualizzato di seguito (ritorno da applicare)"
+msgstr "Offset per i vars visualizzati di seguito (premere invio per applicare)"
 
 #: src/hal/classicladder/spy_vars_gtk.c:522
 msgid "Watch Window"
@@ -5173,9 +5142,8 @@ msgid "Collapse All"
 msgstr "Comprimi tutto"
 
 #: tcl/bin/halshow.tcl:257
-#, fuzzy
 msgid "Reload tree view"
-msgstr "Ruota vista"
+msgstr "Ricaricare la vista dell'albero"
 
 #: tcl/bin/halshow.tcl:263
 msgid "Add pin"
@@ -5219,12 +5187,11 @@ msgstr "aggiunto"
 
 #: tcl/bin/halshow.tcl:332
 msgid "Full path (regex)"
-msgstr ""
+msgstr "Percorso completo (regex)"
 
 #: tcl/bin/halshow.tcl:336 tcl/bin/halshow.tcl:349
-#, fuzzy
 msgid "Filter tree"
-msgstr "Filtro fallito"
+msgstr "Albero filtrante"
 
 #: tcl/bin/halshow.tcl:663
 msgid "HAL command :"
@@ -5279,9 +5246,8 @@ msgid "Unlink pin"
 msgstr "Scollega pin"
 
 #: tcl/bin/halshow.tcl:964
-#, fuzzy
 msgid "Show in Tree"
-msgstr "Mostra puntatore"
+msgstr "Mostra in Albero"
 
 #: tcl/bin/halshow.tcl:965
 msgid "Remove"
@@ -5300,9 +5266,8 @@ msgid "Add as Param(s)"
 msgstr "Aggiungi come parametro(i)"
 
 #: tcl/bin/halshow.tcl:989
-#, fuzzy
 msgid "Add all sub-items to watch"
-msgstr "Aggiungi per guardare"
+msgstr "Aggiungi tutti i sotto-item per guardare"
 
 #: tcl/bin/halshow.tcl:1025 tcl/bin/halshow.tcl:1033 tcl/bin/halshow.tcl:1101
 msgid "Set"
@@ -5333,9 +5298,8 @@ msgid "loaded"
 msgstr "caricato"
 
 #: tcl/bin/halshow.tcl:1229
-#, fuzzy
 msgid "saved backup for old watchlist in"
-msgstr "Salva la lista controllo corrente"
+msgstr "backup salvato per la vecchia watchlist"
 
 #: tcl/bin/halshow.tcl:1240
 msgid "Save current watch list"
@@ -5355,7 +5319,7 @@ msgstr "Float (disabilitato dall'argomento \"--fformat\")"
 
 #: tcl/bin/halshow.tcl:1319
 msgid "\"--noprefs\" option set. Settings will not be saved!"
-msgstr ""
+msgstr "Set di opzioni \"-noprefs\". Le impostazioni non verranno salvate!"
 
 #: tcl/bin/pickconfig.tcl:99
 msgid ""
@@ -6820,19 +6784,16 @@ msgid "NEW"
 msgstr "NUOVO"
 
 #: tcl/tooledit.tcl:232
-#, fuzzy
 msgid "Problem"
-msgstr "Sonda"
+msgstr "Problemi"
 
 #: tcl/tooledit.tcl:233
-#, fuzzy
 msgid "Bad Entry"
-msgstr "Inserimento dati"
+msgstr "Immissione Errata"
 
 #: tcl/tooledit.tcl:234
-#, fuzzy
 msgid "(must be a number)"
-msgstr "%s deve essere un numero"
+msgstr "(deve essere un numero)"
 
 #: tcl/tooledit.tcl:242
 #, tcl-format
@@ -6850,16 +6811,12 @@ msgid "directory: <%s> not writable"
 msgstr "directory: <%s> not scrivibile"
 
 #: tcl/tooledit.tcl:287
-#, fuzzy
 msgid "Current file:"
-msgstr ""
-"file\n"
-" corrente"
+msgstr "File corrente:"
 
 #: tcl/tooledit.tcl:291
-#, fuzzy
 msgid "Tooledit already running"
-msgstr "Progetto caricato ed in esecuzione"
+msgstr "Tooledit già in esecuzione"
 
 #: tcl/tooledit.tcl:335
 #, tcl-format
@@ -7082,9 +7039,9 @@ msgid "%s: Using: %s"
 msgstr "%s: Uso: %s"
 
 #: tcl/tooledit.tcl:1039
-#, fuzzy, tcl-format
+#, tcl-format
 msgid "%s"
-msgstr "s"
+msgstr "%s"
 
 #: tcl/tooledit.tcl:1040
 #, tcl-format
@@ -7092,11 +7049,12 @@ msgid ""
 "differs from the the ini specified file:\n"
 "%s"
 msgstr ""
+"differisce dal file ini specificato:\n"
+"%s"
 
 #: tcl/tooledit.tcl:1043
-#, fuzzy
 msgid "Axis is Running"
-msgstr "Axis non risponde"
+msgstr "Axis è in esecuzione"
 
 #: tcl/tooledit.tcl:1058
 msgid "Must be On and Idle to reload tool table"
@@ -7322,9 +7280,8 @@ msgid "Rotate Wheel"
 msgstr "Rotella mouse"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:218
-#, fuzzy
 msgid "Ctrl+Left Button"
-msgstr "Control+Bottone sinistro"
+msgstr "Pulsante Ctrl+Left"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:221
 msgid "Manual control"
@@ -7508,7 +7465,7 @@ msgstr "Utensile %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1098
 msgid "G-code preview loading timed out"
-msgstr ""
+msgstr "Time-out di caricamento anteprima G-code"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1125
 msgid "Filtering..."
@@ -7612,9 +7569,8 @@ msgid "Run time:"
 msgstr "Tempo lavorazione:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1819
-#, fuzzy
 msgid "Tool Change List:"
-msgstr "Cambio utensile"
+msgstr "Lista Cambio Utensile:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1820
 msgid "X bounds:"
@@ -7668,13 +7624,13 @@ msgid "generated from %s"
 msgstr "generato da %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2046
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "%(size)s bytes\n"
 "%(lines)s G-code lines"
 msgstr ""
 "%(size)s bytes\n"
-"%(lines)s linee gcode"
+"%(lines)s linee G-code"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2072
 #, python-format
@@ -7905,9 +7861,8 @@ msgid "toggle PYVCP panel visibility"
 msgstr "alternare la visibilità del pannello PYVCP"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3933 share/axis/tcl/axis.tcl:387
-#, fuzzy
 msgid "Show PyVCP pan_el"
-msgstr "Mostra pan_el pyVCP"
+msgstr "Mostra pann_ello PyVCP"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:4219
 msgid "Error in ~/.axisrc"
@@ -7953,14 +7908,13 @@ msgstr ""
 "dopo qualche secondo."
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:514
-#, fuzzy, python-format
+#, python-format
 msgid "%s: Image to G-code"
-msgstr "%s: Image to gcode (dall'immagine al codice G)"
+msgstr "%s: Da immagine a G-code "
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:515
-#, fuzzy
 msgid "Image to G-code"
-msgstr "Image to gcode (dall'immagine al codice G)"
+msgstr "Dall'immagine al G-code"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:525
 #, python-format
@@ -8207,9 +8161,8 @@ msgid "_Reload"
 msgstr "_Ricarica"
 
 #: share/axis/tcl/axis.tcl:76
-#, fuzzy
 msgid "_Save G-code as..."
-msgstr "_Salva g-code con nome..."
+msgstr "_Salva G-code con nome..."
 
 #: share/axis/tcl/axis.tcl:80
 msgid "_Properties..."
@@ -8504,7 +8457,6 @@ msgid "Open G-Code file [O]"
 msgstr "Apre file G-code [O]"
 
 #: share/axis/tcl/axis.tcl:519
-#, fuzzy
 msgid "Reopen current file [Ctrl-R]"
 msgstr "Ricarica file corrente [Control-R]"
 
@@ -8739,14 +8691,14 @@ msgid ""
 "\n"
 "Visit the LinuxCNC web site: "
 msgstr ""
-"LinuxCNC/AXIS versione $version \n"
+"LinuxCNC/AXIS versione $version\n"
 "\n"
 "Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, "
 "2014, 2015, 2016 Jeff Epler and Chris Radek.\n"
 "\n"
 "Questo software è gratuito, ed è possibile ridistribuirlo sotto alcune "
-"condizioni.  Vedi il file COPYING, incluso in LinuxCNC.\n"
-"Traduzione italiana: E. Lo Valvo (ernesto.lovalvo@unipa.it) \n"
+"condizioni. Vedi il file COPYING, incluso in LinuxCNC. Traduzione italiana: "
+"E. Lo Valvo (elovalvo@gmail.com)\n"
 "\n"
 "Visita il sito web di LinuxCNC: "
 
@@ -8839,7 +8791,6 @@ msgid "Set G54 offset for active axis [End]"
 msgstr "Imposta offset G54 per asse corrente [End]"
 
 #: share/axis/tcl/axis.tcl:2260
-#, fuzzy
 msgid "Set tool offset for loaded tool [Ctrl-End]"
 msgstr "Imposta tool offset per utensile corrente [Ctrl-End]"
 
@@ -10427,7 +10378,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:293
 msgid "my-mill"
-msgstr "my-mill"
+msgstr "mia-fresa"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:641
 #, python-format
@@ -10629,11 +10580,10 @@ msgid "# **** Setup for external estop ladder program -END ****"
 msgstr "# **** Setup per programma ladder estop esterno -FINE ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:332
-#, fuzzy
 msgid ""
 "# Load Classicladder with Modbus master included (GUI must run for Modbus)"
 msgstr ""
-"# Carica Classicladder con modbus master incluso (GUI deve girare per Modbus)"
+"# Carica Classicladder con Modbus master incluso (GUI deve girare per Modbus)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:335
 #: src/emc/usr_intf/pncconf/build_HAL.py:846
@@ -10924,17 +10874,16 @@ msgid "Back"
 msgstr "Indietro"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:642
-#, fuzzy
 msgid ""
 "This program creates configuration files (INI and HAL) for \"step and "
 "direction\" milling machines and lathes connected to the PC parallel port.\n"
 "\n"
 "Stepconf requires a minimum 800 X 600 display resolution."
 msgstr ""
-"Questo programma crea files di configurazione (.ini e .hal) per fresatrici "
+"Questo programma crea files di configurazione (INI e HAL) per fresatrici "
 "\"step e direzione\" e torni connessi alla porta parallela del PC.\n"
 "\n"
-"Stepconf richiede almeno una risoluzione video 800 x 600."
+"Stepconf richiede una risoluzione video almeno 800 x 600."
 
 #: src/emc/usr_intf/stepconf/main_page.glade:675
 msgid "Page 1"
@@ -11511,9 +11460,8 @@ msgstr "imposta numero di pin esterni"
 
 #: src/emc/usr_intf/stepconf/options.glade:1074
 #: src/emc/usr_intf/pncconf/options.glade:732
-#, fuzzy
 msgid "Include Modbus master support"
-msgstr "Include supporto master modbus"
+msgstr "Include supporto master Modbus"
 
 #: src/emc/usr_intf/stepconf/options.glade:1125
 #: src/emc/usr_intf/pncconf/options.glade:925
@@ -11527,9 +11475,8 @@ msgstr "Estop programma ladder"
 
 #: src/emc/usr_intf/stepconf/options.glade:1155
 #: src/emc/usr_intf/pncconf/options.glade:971
-#, fuzzy
 msgid "Serial Modbus program"
-msgstr "Programma modbus seriale"
+msgstr "Programma Modbus seriale"
 
 #: src/emc/usr_intf/stepconf/options.glade:1240
 #: src/emc/usr_intf/pncconf/options.glade:1057
@@ -11678,13 +11625,13 @@ msgstr "128"
 #: src/emc/usr_intf/pncconf/thcad.glade:39
 #: src/emc/usr_intf/pncconf/thcad.glade:162
 msgid "2 (W1 down)"
-msgstr ""
+msgstr "2 (W1 giù)"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:59
 #: src/emc/usr_intf/pncconf/thcad.glade:42
 #: src/emc/usr_intf/pncconf/thcad.glade:163
 msgid "2 (W1 up)"
-msgstr ""
+msgstr "2 (W1 su)"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:68
 #: src/emc/usr_intf/pncconf/thcad.glade:51
@@ -11762,6 +11709,7 @@ msgstr "Opposta"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
 msgid ""
 "_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12038,58 +11986,65 @@ msgid ""
 "doesn't require firmware to be loaded at run time.\n"
 "Discovery option requires the advanced options checked on this page."
 msgstr ""
+"Alcune vecchie schede richiedono il firmware.\n"
+"Non hai alcun firmware hostmot2 scaricato nella cartella:\n"
+"%s\n"
+"PNCconf userà campioni di dati del firmware interni in modo da poter "
+"continuare.\n"
+"Si potrebbe anche provare l'opzione di scoperta se la scheda è collegata e "
+"non richiede il firmware per essere caricato durante l'esecuzione.\n"
+"L'opzione Discovery richiede le opzioni avanzate controllate in questa "
+"pagina."
 
 #: src/emc/usr_intf/pncconf/pncconf.py:948
 msgid "LinuxCNC 'PNCconf' configuration files"
 msgstr "File configurazioni 'PNCconf' LinuxCNC"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:981
-#, fuzzy
 msgid ""
 "It seems data in this file is from too old of a version of PNCConf to "
 "continue."
 msgstr ""
 "I dati presenti in questo file sono riferiti ad una versione troppo vecchia "
-"di PNCConf per potere continuare.\n"
-"."
+"di PNCConf per potere continuare."
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1342
 msgid "PIN file is empty:\n"
-msgstr ""
+msgstr "Il file PIN è vuoto:\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1343
 msgid "To use PIN file discovery mode, the contents of the"
-msgstr ""
+msgstr "Per usare la modalità di scoperta del file PIN, il contenuto del"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1344
 msgid "cards PIN file needs to be pasted into the Input tab"
-msgstr ""
+msgstr "il file PIN deve essere copiato nella scheda Input"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1345
 msgid "of the Help window before clicking Board Discovery"
-msgstr ""
+msgstr "della finestra Aiuto prima di cliccare Board Discovery"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1354
 msgid "Address is required for ethernet card"
-msgstr ""
+msgstr "Per la scheda ethernet è richiesto l'indirizzo"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1362
-#, fuzzy, python-format
+#, python-format
 msgid "%s board was not found"
-msgstr "Nessuna scheda trovata\n"
+msgstr "Scheda %s non trovata"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1364
 msgid "Is the address correct?"
-msgstr ""
+msgstr "L'indirizzo è corretto?"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1368
 #, python-format
 msgid "%s is an unsupported device"
-msgstr ""
+msgstr "%s è un dispositivo non supportato"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1381
 msgid "Unspecified Error with Discovery option"
-msgstr ""
+msgstr "Errore non specificato con opzione Discovery"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1423
 #, python-format
@@ -12112,11 +12067,11 @@ msgstr "Discovery non disponibile\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1652
 msgid "The pasted PIN file may be an invalid format"
-msgstr ""
+msgstr "Il file PIN incollato può essere in un formato non valido"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1654
 msgid "The data returned from discovery is invalid"
-msgstr ""
+msgstr "I dati riportati dalla controllo non sono validi"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1728
 msgid "USB device Info Search"
@@ -13117,14 +13072,12 @@ msgid "SSR Output"
 msgstr "Output SSR"
 
 #: src/emc/usr_intf/pncconf/private_data.py:119
-#, fuzzy
 msgid "OUTM Output"
-msgstr "Output POT"
+msgstr "Output OUTM "
 
 #: src/emc/usr_intf/pncconf/private_data.py:121
-#, fuzzy
 msgid "INM Input"
-msgstr "Input GPIO"
+msgstr "Input INM"
 
 #: src/emc/usr_intf/pncconf/private_data.py:124
 msgid "Quad Enc-A"
@@ -13195,24 +13148,20 @@ msgid "Dir Gen-B"
 msgstr "Dir Gen-B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
-#, fuzzy
 msgid "StepGen Phase-C"
-msgstr "Passo Gen-A"
+msgstr "StepGen Fase-C"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
-#, fuzzy
 msgid "StepGen Phase-D"
-msgstr "Passo Gen-A"
+msgstr "StepGen Fase-D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:136
-#, fuzzy
 msgid "StepGen Phase-E"
-msgstr "Passo Gen-A"
+msgstr "StepGen Fase-E"
 
 #: src/emc/usr_intf/pncconf/private_data.py:136
-#, fuzzy
 msgid "StepGen Phase-F"
-msgstr "Passo Gen-A"
+msgstr "StepGen Fase- F"
 
 #: src/emc/usr_intf/pncconf/private_data.py:138
 msgid "PWM Gen-P"
@@ -14791,9 +14740,8 @@ msgstr ""
 "fatti fuori da PNCconf."
 
 #: src/emc/usr_intf/pncconf/data.py:901
-#, fuzzy
 msgid "Continue? (y/n)"
-msgstr "Continuo? "
+msgstr "Continua? (s/n)"
 
 #: src/emc/usr_intf/pncconf/data.py:1078
 msgid "Desktop Launcher for LinuxCNC config made by PNCconf"
@@ -14812,7 +14760,6 @@ msgstr ""
 "Dati"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:286
-#, fuzzy
 msgid ""
 "This program creates configuration files (INI and HAL) for milling machines "
 "and lathes connected to a Mesa Card.\n"
@@ -14821,7 +14768,7 @@ msgid ""
 "functional then go back and add other options such as VFD spindle control  "
 "or advanced limit/home control etc."
 msgstr ""
-"Questo programma crea file di configurazione (. ini e. Hal) per fresatrici e "
+"Questo programma crea file di configurazione (INI e HAL) per fresatrici e "
 "torni collegati ad una scheda Mesa.\n"
 "\n"
 "Si tratta di un strategia raccomandata per iniziare con opzioni di base per "
@@ -14954,7 +14901,6 @@ msgstr ""
 "combinazioni"
 
 #: src/emc/usr_intf/pncconf/help.glade:54
-#, fuzzy
 msgid ""
 "Separate Home and Limit Switches Example\n"
 "\n"
@@ -16550,15 +16496,13 @@ msgstr "Smart Serial 5"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:54744
 #: src/emc/usr_intf/pncconf/mesa1.glade:54744
-#, fuzzy
 msgid "Smart Serial 6"
-msgstr "Smart Serial 0"
+msgstr "Smart Seriale 6"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:59908
 #: src/emc/usr_intf/pncconf/mesa1.glade:59908
-#, fuzzy
 msgid "Smart Serial 7"
-msgstr "Smart Serial 0"
+msgstr "Smart Seriale 7"
 
 #: src/emc/usr_intf/pncconf/start.glade:27
 msgid "Create a desktop launcher to start LinuxCNC with this configuration."
@@ -16631,7 +16575,6 @@ msgid "<b>USB Jogging</b>"
 msgstr "<b>Movimento USB</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:711
-#, fuzzy
 msgid ""
 "Use the checkboxes to enable options.\n"
 "Press the corresponding info button to\n"
@@ -16767,7 +16710,7 @@ msgstr "Controllo Analogico"
 
 #: src/emc/usr_intf/pncconf/external.glade:1475
 msgid "Joy Jog"
-msgstr "Joy Jog"
+msgstr "Jog Joy"
 
 #: src/emc/usr_intf/pncconf/external.glade:1489
 msgid "shared buttons for all axis"
@@ -17743,7 +17686,7 @@ msgstr "Sensori di Hall"
 #: src/emc/usr_intf/pncconf/a_motor.glade:1123
 #: src/emc/usr_intf/pncconf/s_motor.glade:1326
 msgid "Fanuc Red Cap "
-msgstr "Fanuc Red Cap "
+msgstr "Tasto Rosso Fanuc "
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1192
 #: src/emc/usr_intf/pncconf/y_motor.glade:1186
@@ -18419,7 +18362,6 @@ msgstr "hm2_4i43"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:314
 #: src/emc/usr_intf/pncconf/dialogs.glade:340
-#, fuzzy
 msgid "Parallel Port- 7i90"
 msgstr "Porta Parallela - 7i90"
 
@@ -18763,35 +18705,32 @@ msgstr ""
 "https://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:122
-#, fuzzy
 msgid "Desktop notifications are available"
-msgstr ""
-"  Notifica\n"
-"Scrivania"
+msgstr "Le notifiche desktop sono disponibili"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:124
-#, fuzzy
 msgid "Desktop notifications are not available"
-msgstr "Nomi dispositivi non disponibili.\n"
+msgstr "Le notifiche desktop non sono disponibili"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:126
 msgid "There was a problem initializing the notification module"
-msgstr ""
+msgstr "C'era un problema inizializzando il modulo di notifica"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:133
-#, fuzzy
 msgid "Audio alerts are available!"
-msgstr "Nomi pin non disponibili.\n"
+msgstr "Sono disponibili avvisi audio!"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:136
 msgid ""
 "No audio alerts are available - Is gir1.2-gstreamer-1.0 package installed?"
 msgstr ""
+"Non sono disponibili avvisi audio - è installato il pacchetto gir1."
+"2-gstreamer-1.0?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:286
 #: src/emc/usr_intf/gscreen/gscreen.py:290
 msgid "No widget '{}'"
-msgstr ""
+msgstr "Nessun widget '{} '"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:328
 msgid "Manual Mode"
@@ -18806,119 +18745,102 @@ msgid "Auto Mode"
 msgstr "Modo Auto"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:444
-#, fuzzy
 msgid "Adding import dir {}"
-msgstr "aggiungere dir importazione %s"
+msgstr "Aggiunta dir import {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:448
 msgid "Module '{}' skipped - import error: {}"
-msgstr ""
+msgstr "Modulo '{}' saltato - errore di importazione: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:450
-#, fuzzy
 msgid "Module '{}' imported OK"
-msgstr "modulo '%s' importazione OK"
+msgstr "Modulo '{}' importato OK"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:456
 #: src/emc/usr_intf/gscreen/gscreen.py:461
 msgid "Module '{}': '{}' function found"
-msgstr ""
+msgstr "Modulo '{}': funzione '{} trovata"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:466
 msgid "Module '{}': no '{}' function - registering only functions as callbacks"
 msgstr ""
+"Modulo '{}': no '{}' funzione - registrazione solo funzioni come callback"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:470
 msgid "Registering handlers in module '{}' object '{}'"
-msgstr ""
+msgstr "Handlers di registrazione nel modulo '{}' oggetto '{} '"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:482
 msgid "Trouble looking for handlers in '{}': {}"
-msgstr ""
+msgstr "Problemi alla ricerca di handlers in '{}': {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:515
-#, fuzzy
 msgid "Skin name = {}"
-msgstr "Nome Sezione   "
+msgstr "Nome Sezione = {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:528
-#, fuzzy
 msgid "INI file path missing from Gscreen launch command"
-msgstr ""
-"**** ERRORE GSCREEN: percorso file INI mancante dal comando di avvio GSCREEN "
-"****\n"
+msgstr "Percorso file INI mancante dal comando di lancio Gscreen"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:536
 msgid "Custom locale name = {}"
-msgstr ""
+msgstr "Nome locale personalizzato = {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:542
 msgid "Skin locale name = {}"
-msgstr ""
+msgstr "Nome locale della vista = {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:554
 msgid "Using custom glade file from {}"
-msgstr ""
+msgstr "Utilizzo del file glade personalizzato da {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:559
 msgid " Using skin glade file from {}"
-msgstr ""
+msgstr " Utilizzazione del file di glade della mappa da {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:562
 msgid "Using stock glade file from: {}"
-msgstr ""
+msgstr "Utilizzo del file glade stock da: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:576
-#, fuzzy
 msgid "With main screen xml file: {}"
-msgstr ""
-"**** Gscreen Glade errore: con il file XML dello schermo principale: %s"
+msgstr "Con lo schermo principale file xml: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:581
-#, fuzzy
 msgid "Screen 2 - Using custom glade file from {}"
-msgstr ""
-"\n"
-"**** GSCREEN INFO: schermo 2-utilizzo di file Glade CUSTOM da %s ****"
+msgstr "Schermo 2 - Utilizzo di file custom glade da {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:587
 msgid "Error with screen 2's xml file: {}"
-msgstr ""
+msgstr "Errore con file xml dello schermo 2: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:589
-#, fuzzy
 msgid "No Screen 2 glade file present"
-msgstr ""
-"\n"
-"**** GSCREEN INFO: Nessun file di glade Screen 2 presente"
+msgstr "Nessun file di glade Screen 2 presente"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:600
 msgid "Audio test failed - Is gstreamer0.10-plugins-base installed?"
-msgstr ""
+msgstr "Test audio fallito - gstreamer0.10-plugins-base è installato?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:615
-#, fuzzy
 msgid "No coordinates entry found in [TRAJ] of INI file"
-msgstr "Nessuna voce UNITS trovata in [TRAJ o [AXIS_X] del file INI"
+msgstr "Nessuna voce di coordinate trovata in [TRAJ] del file INI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:633
 msgid "No UNITS entry found in [TRAJ] or [AXIS_X] of INI file"
 msgstr "Nessuna voce UNITS trovata in [TRAJ o [AXIS_X] del file INI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:646
-#, fuzzy
 msgid "Asking for a HAL component using a name that already exists"
-msgstr ""
-"*** Gscreen ERROR: richiesta di un componente HAL utilizzando un nome già "
-"esistente."
+msgstr "Richiesta di un componente HAL utilizzando un nome già esistente"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:661
 msgid "Handler file path: {}"
-msgstr ""
+msgstr "Percorso del file Handler: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:668
 msgid "Preference file path: {}"
-msgstr ""
+msgstr "Percorso file di riferimento: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:717
 msgid "No default jog increments entry found in [DISPLAY] of INI file"
@@ -19005,20 +18927,22 @@ msgid "Ready For Homing"
 msgstr "Pronto per Azzeramento"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1381
-#, fuzzy
 msgid ""
 "Could not initialize Vte terminal:\n"
 "                  Is libvte-2.91-0 package installed?\n"
 "                  Is a 'terminal_window' widget in the GLADE file?"
 msgstr ""
-"**** AVVISO GSCREEN: Impossibile inizializzare vte terminale - è il "
-"pacchetto vte installato? È widget: terminal_window nel file GLADE?"
+"Non potrebbe inizializzare Terminale Vte:\n"
+"È installato il pacchetto libvte-2.91-0?\n"
+"È un widget 'terminal_window' nel file GLADE?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1389
 msgid ""
 "Exception while writing to terminal:\n"
 "{}"
 msgstr ""
+"Eccezione durante la scrittura al terminale:\n"
+"{}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1406
 #: src/emc/usr_intf/gscreen/gscreen.py:1411
@@ -19028,48 +18952,48 @@ msgstr "Tema Configurazione Locale"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1463
 msgid "Window size is fullscreen"
-msgstr ""
+msgstr "La dimensione della finestra è a schermo intero"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1466
 msgid "Window size is maximized"
-msgstr ""
+msgstr "La dimensione della finestra è massimizzata"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1473
 msgid "Window size set to {}x{}"
-msgstr ""
+msgstr "Dimensione della finestra impostata su {}x{}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1475
 msgid "Invalid window size specified '{}', defaulted to {}x{}"
 msgstr ""
+"Dimensione della finestra non valida specificata '{}', predefinita per {}x{}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1477
 msgid "Using default window size: {}x{}"
-msgstr ""
+msgstr "Uso la dimensione della finestra predefinita: {}x{}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1607
 msgid "Control powered up and initialized"
 msgstr "Controllo acceso e inizializzato"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1630
-#, fuzzy
 msgid "Unlock code #{}"
-msgstr "Usa codice sblocco"
+msgstr "Codice sblocco #{}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1933
 msgid "Key {} ({}) was pressed state: {} last: {}"
-msgstr ""
+msgstr "Il tasto {} ({}) è stato premuto stato: {} ultimo: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1936
 msgid "Control was being held down"
-msgstr ""
+msgstr "Il controllo è stato bloccato"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1939
 msgid "Alt was being held down"
-msgstr ""
+msgstr "Alt era stato premuto"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1942
 msgid "Shift was being held down"
-msgstr ""
+msgstr "Maiusc era stato premuto"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1974
 msgid "Cycle start pressed in AUTO mode"
@@ -19147,7 +19071,7 @@ msgstr "ladder non disponibile - il componente realtime è caricato?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2452
 msgid "Estopping and killing gscreen"
-msgstr ""
+msgstr "Estopping e chiudere gscreen"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2597
 msgid "Override Entry"
@@ -19190,12 +19114,16 @@ msgid ""
 "Cannot set focus to hal_mdihistory when Onboard launched - Is this widget "
 "name in glade file?"
 msgstr ""
+"Non può impostare la messa a fuoco di hal_mdihistory quando Onboard lanciato "
+"- Questo nome widget è in file glade?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2937
 msgid ""
 "Cannot set focus to gcode_view when Onboard launched - Is this widget name "
 "in glade file?"
 msgstr ""
+"Non è possibile impostare la messa a fuoco gcode_view quando Onboard "
+"lanciato - Questo nome widget è in file glade?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3069
 msgid "Manual Spindle Control"
@@ -19203,36 +19131,31 @@ msgstr "Controllo Mandrino Manuale"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3149
 #: src/emc/usr_intf/gscreen/gscreen.py:3150
-#, fuzzy
 msgid "Error with launching on-screen keyboard program - cannot find program"
 msgstr ""
-"Errore durante l'avvio del programma di tastiera su schermo -Impossibile "
-"trovare il programma."
+"Errore durante l'avvio del programma di tastiera su schermo - Impossibile "
+"trovare il programma"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3160
 msgid "Keyboard"
 msgstr "Tastiera"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3194
-#, fuzzy
 msgid "Error with launching 'Onboard' on-screen keyboard program {}"
 msgstr ""
-"Errore durante l'avvio del programma di tastiera su schermo 'Onboard' %s"
+"Errore durante l'avvio del programma di tastiera su schermo 'Onboard' {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3343
-#, fuzzy
 msgid "Overriding internal signal call to '{}'"
-msgstr "GSCREEN INFO: Chiamata del segnale interno a %s"
+msgstr "Superamento chiamata del segnale interno a '{} '"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3364
-#, fuzzy
 msgid "Could not connect '{}' to '{}'"
-msgstr "Impossibile trasformare {0} in numero"
+msgstr "Non posso collegare '{}' a '{} '"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3397
-#, fuzzy
 msgid "No widget named '{}' to sensitize"
-msgstr "**** Nessun widget chiamato: {0} per sensibilizzare ****"
+msgstr "Nessun widget chiamato '{}' per sensibilizzare"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3777
 msgid ""
@@ -19260,37 +19183,31 @@ msgid "Offset Origin"
 msgstr "Offset Origine"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3798
-#, fuzzy
 msgid ""
 "Invalid message configuration (missing text or type) in INI File [DISPLAY] "
 "section"
 msgstr ""
-"Gscreen ERROR: Configurazione del messaggio non valida (testo o tipo "
-"mancante) nella sezione File INI [DISPLAY]"
+"Configurazione dei messaggi non validi (manca testo o tipo) nella sezione "
+"INI File [DISPLAY]"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3800
-#, fuzzy
 msgid ""
 "Invalid message configuration (missing pinname) in INI File [DISPLAY] section"
 msgstr ""
-"**** Errore Gscreen: configurazione del messaggio non valida (pinname "
-"mancante) nella sezione FILE INI [DISPLAY]"
+"Configurazione dei messaggi non validi (mancante nome pin) nella sezione INI "
+"File [DISPLAY]"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3802
-#, fuzzy
 msgid ""
 "Invalid message configuration (missing boldtext) in INI File [DISPLAY] "
 "section"
 msgstr ""
-"**** ERRORE Gscreen:   configurazione del messaggio non valida (grassetto "
-"mancante) nella sezione File INI [DISPLAY]"
+"Configurazione del messaggio non valida (grassetto mancante) nella sezione "
+"File INI [DISPLAY]"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3806
-#, fuzzy
 msgid "Invalid message type ({})in INI File [DISPLAY] section"
-msgstr ""
-"**** ERRORE Gscreen: tipo di messaggio non valido (%s)nella sezione File INI "
-"[DISPLAY]"
+msgstr "Tipo di messaggio non valido ({}) nella sezione INI File [DISPLAY]"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3840
 msgid "Dialog error - Is the dialog handler missing from the handler file?"
@@ -19428,23 +19345,20 @@ msgid " mm "
 msgstr " mm "
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4789
-#, fuzzy
 msgid "Postgui filename: {}"
-msgstr "nomefile:"
+msgstr "Nomefile postgui: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:38
 msgid "S 1000"
 msgstr "S 1000"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:114
-#, fuzzy
 msgid "FWD"
-msgstr " FWD"
+msgstr "FWD"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:160
-#, fuzzy
 msgid "REV"
-msgstr " REV"
+msgstr "REV"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:228
 msgid "Data Entry"
@@ -19477,21 +19391,19 @@ msgstr ""
 "direttamente."
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:447
-#, fuzzy
 msgid ""
 "Line\n"
 "Up"
 msgstr ""
 "Linea\n"
-" Sopra"
+"Sopra"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:474
-#, fuzzy
 msgid ""
 "Line\n"
 "Down"
 msgstr ""
-" Linea\n"
+"Linea\n"
 "Sotto"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:562
@@ -19569,28 +19481,24 @@ msgid "G-code"
 msgstr "G-code"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1869
-#, fuzzy
 msgid "<b>Active Codes</b>"
-msgstr "Codici G attivi:"
+msgstr "<b>Codici attivi</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1925
 msgid "MV:100%"
 msgstr "MV:100%"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1958
-#, fuzzy
 msgid "Flood "
-msgstr " Refrigerante "
+msgstr "Refrigerante "
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2009
-#, fuzzy
 msgid "At Speed "
-msgstr " Velocità raggiunta "
+msgstr "Velocità raggiunta "
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2022
-#, fuzzy
 msgid "Jog mode"
-msgstr " Modo joint"
+msgstr "Modo joint"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2073
 msgid "10 DPM"
@@ -19605,38 +19513,36 @@ msgid "<b>Status</b>"
 msgstr "<b>Stato</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2180
-#, fuzzy
 msgid ""
 "Search\n"
 "Text:"
 msgstr ""
 "Ricerca\n"
-"  Testo:"
+"Testo:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2217
-#, fuzzy
 msgid ""
 "Replace\n"
 "Text:"
 msgstr ""
 "Sostituisci\n"
-" Testo:"
+"Testo:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2241
-#, fuzzy
 msgid ""
 "Replace\n"
 "All"
-msgstr "Sostituisci Tutto"
+msgstr ""
+"Sostituisci\n"
+"Tutto"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2256
-#, fuzzy
 msgid ""
 "Ignore\n"
 "Case"
 msgstr ""
 "Ignora\n"
-" Maiuscolo"
+"Maiuscolo"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2286
 msgid "<b>Mode</b>"
@@ -19679,36 +19585,32 @@ msgid "Starting RPM"
 msgstr "Avvio RPM"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2552
-#, fuzzy
 msgid "Metric"
-msgstr "Metrico\n"
+msgstr "Metrico"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2564
-#, fuzzy
 msgid ""
 "Display\n"
 "Aux Screen"
 msgstr ""
-"   Visualizza\n"
+"Visualizza\n"
 "Schermo Aux"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2577
-#, fuzzy
 msgid ""
 "Diameter\n"
 "Mode"
 msgstr ""
 "Diametro\n"
-"   Modalità"
+"Modalità"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2590
 #: src/emc/usr_intf/gscreen/gscreen.glade:3202
-#, fuzzy
 msgid ""
 "Show\n"
 "Offsets"
 msgstr ""
-" Mostra\n"
+"Mostra\n"
 "Limiti"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2603
@@ -19720,30 +19622,27 @@ msgstr ""
 "DTG"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2616
-#, fuzzy
 msgid ""
 "Gscreen\n"
 "Fullscreen"
 msgstr ""
-" Gscreen\n"
+"Gscreen\n"
 "Schermo intero"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2642
-#, fuzzy
 msgid ""
 "On M7 Use\n"
 "Aux Coolant"
 msgstr ""
-" Con M7 Usa\n"
+"Con M7 Usa\n"
 "Raffreddamento Aux"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2655
-#, fuzzy
 msgid ""
 "On M8 Use\n"
 "Aux Coolant"
 msgstr ""
-" Con M8 Usa\n"
+"Con M8 Usa\n"
 "Raffreddamento Aux"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2668
@@ -19751,12 +19650,11 @@ msgid "Hide Pointer"
 msgstr "Nascondi Puntatore"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2680
-#, fuzzy
 msgid ""
 "Desktop\n"
 "Notification"
 msgstr ""
-"  Notifica\n"
+"Notifica\n"
 "Scrivania"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2750
@@ -19769,12 +19667,11 @@ msgid "Alarm History"
 msgstr "Storia Allarmi"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2805
-#, fuzzy
 msgid ""
 "Launch\n"
 "Halshow"
 msgstr ""
-" Lancio\n"
+"Lancio\n"
 "Halshow"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2819
@@ -19783,47 +19680,47 @@ msgstr "Calibrazione"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2832
 msgid "Halmeter"
-msgstr "Halmeter"
+msgstr "HalMeter"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2845
-#, fuzzy
 msgid ""
 "LinuxCNC\n"
 "Status"
-msgstr "Stato LinuxCNC"
+msgstr ""
+"LinuxCNC\n"
+"Stato"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2859
 msgid "Halscope"
-msgstr "Halscope"
+msgstr "HalScope"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2925
 msgid "Tooleditor"
 msgstr "Editore Tabella Utensili"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2945
-#, fuzzy
 msgid ""
 "Offset\n"
 "Page"
 msgstr ""
 "Offset:\n"
-" Pagina"
+"Pagina"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3036
-#, fuzzy
 msgid ""
 "Unhome \n"
 "All"
-msgstr "Dis-Azzera tutto"
+msgstr ""
+"Dis-Azzera\n"
+"Tutto"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3050
-#, fuzzy
 msgid ""
 "Unhome\n"
 "Axis"
 msgstr ""
 "Dis-Azzera\n"
-" Asse"
+"Asse"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3064
 #: src/emc/usr_intf/gscreen/gscreen.glade:3188
@@ -19835,31 +19732,28 @@ msgstr ""
 " ON/OFF"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3093
-#, fuzzy
 msgid ""
 "Jogging\n"
 "Mode"
 msgstr ""
 "Movimento\n"
-" Rapido"
+"Rapido"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3108
-#, fuzzy
 msgid ""
 "coordinate\n"
 "System"
 msgstr ""
-"coordinate\n"
-" Sistema"
+"Sistema\n"
+"coordinate"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3160
-#, fuzzy
 msgid ""
 "Index\n"
 "Tool"
 msgstr ""
 "Indice\n"
-" Utensile"
+"Utensile"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3174
 msgid ""
@@ -19879,45 +19773,44 @@ msgid "Open"
 msgstr "Apri"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3334
-#, fuzzy
 msgid ""
 "Block\n"
 "Delete"
 msgstr ""
-" Blocco\n"
-"Cancella"
+"Cancella\n"
+"Blocco"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3348
-#, fuzzy
 msgid ""
 "Optional\n"
 "Stop"
-msgstr "Stop Opzionale"
+msgstr ""
+"Stop\n"
+"Opzionale"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3362
-#, fuzzy
 msgid ""
 "Full\n"
 "View"
 msgstr ""
-" Vista\n"
+"Vista\n"
 "Completa"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3409
-#, fuzzy
 msgid ""
 "Next\n"
 "Tab"
 msgstr ""
 "Valore\n"
-" Seguente"
+"Seguente"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3434
-#, fuzzy
 msgid ""
 "Feed\n"
 "Override"
-msgstr "Incr. avanzamento"
+msgstr ""
+"Incremento\n"
+"Avanzamento"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3448
 msgid ""
@@ -19928,29 +19821,28 @@ msgstr ""
 "Superamento limite"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3462
-#, fuzzy
 msgid ""
 "Rapid\n"
 "Override"
 msgstr ""
-"  Rapido\n"
+"Rapido\n"
 "Superamento limite"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3487
-#, fuzzy
 msgid ""
 "Jog\n"
 "Speed"
 msgstr ""
-"   Jog\n"
+"Jog\n"
 "Velocità"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3501
-#, fuzzy
 msgid ""
 "Jog\n"
 "Increments"
-msgstr "Incrementi"
+msgstr ""
+"Asse\n"
+"Incrementi"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3518
 msgid ""
@@ -19969,58 +19861,52 @@ msgstr ""
 "  Vista"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3600
-#, fuzzy
 msgid ""
 "Pan\n"
 "Vertical"
 msgstr ""
-"   Pan\n"
+"Pan\n"
 "Verticale"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3614
-#, fuzzy
 msgid ""
 "Pan\n"
 "Horizontal"
 msgstr ""
-"     Pan\n"
+"Pan\n"
 "Orizzontale"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3628
-#, fuzzy
 msgid ""
 "Rotate\n"
 "Horiontal"
 msgstr ""
-"  Rotazione\n"
+"Rotazione\n"
 "Orizzontale"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3642
-#, fuzzy
 msgid ""
 "Rotate\n"
 "Vertical"
 msgstr ""
-" Rotazione\n"
+"Rotazione\n"
 "Verticale"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3666
-#, fuzzy
 msgid ""
 "Search\n"
 "Bwd"
 msgstr ""
 "Ricerca\n"
-" Indietro"
+"Indietro"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3680
-#, fuzzy
 msgid ""
 "Search\n"
 "Fwd"
 msgstr ""
 "Ricerca\n"
-" Avanti"
+"Avanti"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3694
 msgid "Undo"
@@ -20031,30 +19917,27 @@ msgid "Redo"
 msgstr "Riesegui"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3748
-#, fuzzy
 msgid ""
 "Reload\n"
 "Program"
 msgstr ""
-" Ricarica\n"
+"Ricarica\n"
 "Programma"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3763
-#, fuzzy
 msgid ""
 "Replace\n"
 "Text"
 msgstr ""
 "Sostituisci\n"
-" Testo"
+"Testo"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3807
-#, fuzzy
 msgid ""
 "Clear\n"
 "status"
 msgstr ""
-" Cancella\n"
+"Cancella\n"
 "stato"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3841
@@ -20074,27 +19957,24 @@ msgid "Tool Setting"
 msgstr "Impostazioni Utensile"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4179
-#, fuzzy
 msgid ""
 "Run At\n"
 "Line"
 msgstr ""
 "Parti alla\n"
-"  Linea"
+"Linea"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4193
-#, fuzzy
 msgid ""
 "Change \n"
 "View"
 msgstr ""
 "Cambia \n"
-"  Vista"
+"Vista"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4297
-#, fuzzy
 msgid "Homing"
-msgstr "Azzeramento\n"
+msgstr "Azzeramento"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4321
 msgid ""
@@ -20105,18 +19985,16 @@ msgstr ""
 "Limiti"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4356
-#, fuzzy
 msgid ""
 "Set\n"
 "Override"
 msgstr ""
-"    Imposta\n"
-" Incr. Avanzamento"
+"Imposta\n"
+"Incr. Avanzamento"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4370
-#, fuzzy
 msgid "Graphics"
-msgstr "Grafica\n"
+msgstr "Grafica"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4383
 msgid ""
@@ -20127,12 +20005,11 @@ msgstr ""
 "Menù"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4396
-#, fuzzy
 msgid ""
 "Launch\n"
 "Keyboard"
 msgstr ""
-"  Avvio\n"
+"Avvio\n"
 "Tastiera"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4414
@@ -20214,9 +20091,8 @@ msgstr "Errore int del widget Tooledit"
 
 #: lib/python/gladevcp/tooledit_widget.py:307
 #: lib/python/gladevcp/tooledit_widget.py:312
-#, fuzzy
 msgid "Tooledit widget float error"
-msgstr "Errore float di Tooledit_widget"
+msgstr "Errore float di widget Tooledit"
 
 #: lib/python/gladevcp/tooledit_widget.py:359
 msgid "Reloading tooltable into linuxcnc failed"
