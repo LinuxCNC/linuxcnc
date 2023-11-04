@@ -497,47 +497,50 @@ class _IStat(object):
         # here we separate them to two lists (legacy) and one dict
         # action_button takes it from there.
         self.MDI_COMMAND_DICT={}
-        try:
-            for key in self.parser['MDI_COMMAND_LIST']:  
-                if key == 'MDI_COMMAND':
+        # suppress error message is there is no section at all
+        if self.parser.has_section('MDI_COMMAND_LIST'):
+            try:
+                for key in self.parser['MDI_COMMAND_LIST']:
+
                     # legacy way: list of repeat 'MDI_COMMAND=XXXX'
                     # in this case order matters in the INI
-                    log.warning("INI file's MDI_COMMAND_LIST is using legacy 'MDI_COMMAND =' entries")
-                    self.MDI_COMMAND_LIST = []
-                    self.MDI_COMMAND_LABEL_LIST = []
-                    temp = (self.INI.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
-                    if temp is None:
-                        self.MDI_COMMAND_LABEL_LIST.append(None)
-                        self.MDI_COMMAND_LABEL_LIST.append(None)
-                    else:
-                        for i in temp:
-                            for num,k in enumerate(i.split(',')):
-                                if num == 0:
-                                    self.MDI_COMMAND_LIST.append(k)
-                                    if len(i.split(',')) <2:
-                                        self.MDI_COMMAND_LABEL_LIST.append(None)
-                                else:
-                                    self.MDI_COMMAND_LABEL_LIST.append(k)
+                    if key == 'MDI_COMMAND':
+                        log.warning("INI file's MDI_COMMAND_LIST is using legacy 'MDI_COMMAND =' entries")
+                        self.MDI_COMMAND_LIST = []
+                        self.MDI_COMMAND_LABEL_LIST = []
+                        temp = (self.INI.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
+                        if temp is None:
+                            self.MDI_COMMAND_LABEL_LIST.append(None)
+                            self.MDI_COMMAND_LABEL_LIST.append(None)
+                        else:
+                            for i in temp:
+                                for num,k in enumerate(i.split(',')):
+                                    if num == 0:
+                                        self.MDI_COMMAND_LIST.append(k)
+                                        if len(i.split(',')) <2:
+                                            self.MDI_COMMAND_LABEL_LIST.append(None)
+                                    else:
+                                        self.MDI_COMMAND_LABEL_LIST.append(k)
 
-                else:
                     # new way: 'MDI_COMMAND_SSS = XXXX' (SSS being any string)
                     # order of commands doesn't matter in the INI
-                    try:
-                        temp = self.INI.find("MDI_COMMAND_LIST",key)
-                        name = (key.replace('MDI_COMMAND_',''))
-                        mdidatadict = {}
-                        for num,k in enumerate(temp.split(',')):
-                            if num == 0:
-                                mdidatadict['cmd'] = k
-                                if len(temp.split(',')) <2:
-                                    mdidatadict['label'] = None
-                            else:
-                                mdidatadict['label'] = k
-                        self.MDI_COMMAND_DICT[name] = mdidatadict
-                    except Exception as e:
-                        log.error('INI MDI command parse error:{}'.format(e))
-        except Exception as e:
-            log.error('INI MDI command parse error:{}'.format(e))
+                    else:
+                        try:
+                            temp = self.INI.find("MDI_COMMAND_LIST",key)
+                            name = (key.replace('MDI_COMMAND_',''))
+                            mdidatadict = {}
+                            for num,k in enumerate(temp.split(',')):
+                                if num == 0:
+                                    mdidatadict['cmd'] = k
+                                    if len(temp.split(',')) <2:
+                                        mdidatadict['label'] = None
+                                else:
+                                    mdidatadict['label'] = k
+                            self.MDI_COMMAND_DICT[name] = mdidatadict
+                        except Exception as e:
+                            log.error('INI MDI command parse error:{}'.format(e))
+            except Exception as e:
+                log.error('INI MDI command parse error:{}'.format(e))
 
         self.TOOL_FILE_PATH = self.get_error_safe_setting("EMCIO", "TOOL_TABLE")
         self.POSTGUI_HALFILE_PATH = (self.INI.findall("HAL", "POSTGUI_HALFILE")) or None
