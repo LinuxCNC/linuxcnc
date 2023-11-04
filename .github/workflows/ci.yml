@@ -34,6 +34,7 @@ jobs:
         eatmydata ./scripts/travis-install-build-deps.sh
         eatmydata curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
         sudo eatmydata apt install --yes ./po4a_0.67-2_all.deb
+        sudo eatmydata apt --quiet --yes upgrade
         cd src
         eatmydata ./autogen.sh
         eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps
@@ -61,6 +62,7 @@ jobs:
         sudo eatmydata apt-get install -y clang
         eatmydata curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
         sudo eatmydata apt install --yes ./po4a_0.67-2_all.deb
+        sudo eatmydata apt --quiet --yes upgrade
         cd src
         eatmydata ./autogen.sh
         CC=clang CXX=clang++ eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps
@@ -85,7 +87,8 @@ jobs:
         ./scripts/travis-install-build-deps.sh
         sudo apt-get install -y eatmydata
         curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
-        sudo apt install --yes ./po4a_0.67-2_all.deb
+        sudo eatmydata apt install --yes ./po4a_0.67-2_all.deb
+        sudo eatmydata apt --quiet --yes upgrade
         cd src
         eatmydata ./autogen.sh
         eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps --enable-build-documentation=html
@@ -116,7 +119,10 @@ jobs:
         set -e
         set -x
         apt-get --quiet update
-        apt-get --yes --quiet install eatmydata
+        apt-get --yes --quiet install eatmydata curl
+        eatmydata curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
+        eatmydata apt install --yes ./po4a_0.67-2_all.deb
+        eatmydata apt --quiet --yes upgrade
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
         eatmydata apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
 
@@ -158,8 +164,6 @@ jobs:
         eatmydata debian/update-dch-from-git
         eatmydata scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
         eatmydata git diff
-        eatmydata curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
-        eatmydata apt install --yes ./po4a_0.67-2_all.deb
         eatmydata apt-get --yes --quiet build-dep --arch-only .
         eatmydata debuild -us -uc --build=any
     - name: Test debian packages
@@ -199,7 +203,10 @@ jobs:
         set -e
         set -x
         apt-get --quiet update
-        apt-get --yes --quiet install eatmydata
+        apt-get --yes --quiet install eatmydata curl
+        eatmydata curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
+        eatmydata apt install --yes ./po4a_0.67-2_all.deb
+        eatmydata apt --quiet --yes upgrade
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
         eatmydata apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
 
@@ -241,8 +248,6 @@ jobs:
         eatmydata debian/update-dch-from-git
         eatmydata scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
         eatmydata git diff
-        eatmydata curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
-        eatmydata apt install --yes ./po4a_0.67-2_all.deb
         eatmydata apt-get --yes --quiet build-dep --indep-only .
         eatmydata debuild -us -uc --build=all
     - name: Test install debian packages
