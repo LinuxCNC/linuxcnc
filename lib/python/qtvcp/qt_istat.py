@@ -43,8 +43,10 @@ class _IStat(object):
         self.INI = linuxcnc.ini(INIPATH)
         # use configParser so we can iter thru header
         self.parser = PARSER(strict=False)
-        self.parser.read(filenames=INIPATH)
-
+        try:
+            self.parser.read(filenames=INIPATH)
+        except:
+            pass
         self.MDI_HISTORY_PATH = '~/.axis_mdi_history'
         self.QTVCP_LOG_HISTORY_PATH = '~/qtvcp.log'
         self.MACHINE_LOG_HISTORY_PATH = '~/.machine_log_history'
