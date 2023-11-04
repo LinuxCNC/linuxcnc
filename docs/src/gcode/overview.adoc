@@ -2,8 +2,8 @@
 :toc:
 :toclevels: 3
 
-[[cha:overview-of-g-coding]]
-= Overview of G-Coding
+[[cha:overview-of-g-code-programming]]
+= Overview of G-Code Programming
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
