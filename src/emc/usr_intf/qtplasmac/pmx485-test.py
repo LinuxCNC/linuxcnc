@@ -54,7 +54,7 @@ class App(QWidget):
         if not sMod:
             msg = '\npyserial module not available\n'\
                   '\nto install, open a terminal and enter:\n'\
-                  '\nsudo apt-get install python-serial\n'
+                  '\nsudo apt-get install python3-serial\n'
             response = QMessageBox()
             response.setText(msg)
             response.exec_()
