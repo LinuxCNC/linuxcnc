@@ -17,8 +17,8 @@ are two versions of LinuxCNC which work with these kernels. See the table
 below for details.
 
 Fresh installs of LinuxCNC are most easily created using the Live/Install
-Image.  This is a hybrid ISO filesystem image that can be written to a
-USB storage device or a DVD and used to boot a computer.  At boot time you
+Image. This is a hybrid ISO filesystem image that can be written to a
+USB storage device or a DVD and used to boot a computer. At boot time you
 will be given a choice of booting the "Live" system (to run LinuxCNC
 without making any permanent changes to your computer) or booting the
 Installer (to install LinuxCNC and its operating system onto your
@@ -242,7 +242,9 @@ during the boot up.
 The easiest, preferred way to install LinuxCNC is to use the Live/Install
 Image as described above.  That method is as simple and reliable as we
 can make it, and is suitable for novice users and experienced users alike.
-However, this will typically replace any existing operating system.
+However, this will typically replace any existing operating system. If
+you have files on the target PC that you want to keep, then use one of
+the methods in this section.
 
 In addition, for experienced users who are familiar with Debian system
 administration (finding install images, manipulating apt sources, changing
@@ -254,12 +256,13 @@ run on any 64-bit x86 system)
 |===
 | Distribution    | Architecture  | Kernel     | Package name    | Typical use
 | Debian Bookworm | amd64 & arm64 | preempt-rt | linuxcnc-uspace | machine control & simulation
+| Debian Boolworm | amd64         | RTAI       | linuxcnc        | machine control
 | Debian Bullseye | amd64         | preempt-rt | linuxcnc-uspace | machine control & simulation
 | Debian Buster   | amd64 & arm64 | preempt-rt | linuxcnc-uspace | machine control & simulation
 | Debian Buster   | amd64         | RTAI       | linuxcnc        | machine control
 |===
 
-NOTE: LinuxCNC v2.9is not supported on Debian 9 or older.
+NOTE: LinuxCNC v2.9 is not supported on Debian 9 or older.
 
 .Preempt-RT kernels
 
@@ -283,7 +286,7 @@ there are very few surviving systems that can not run a 64-bit OS.
 === Installing on Debian Bookworm (with Preempt-RT kernel)
 
 . Install Debian Buster (Debian 12), amd64 verison.
-You can download the installer here:
+  You can download the installer here:
   https://www.debian.org/releases/buster/
 
 . After burning the iso and booting up if you don't want Gnome desktop select
@@ -300,6 +303,10 @@ be able to complete the following steps.
 sudo apt-get update
 sudo apt-get dist-upgrade
 ----
+
+NOTE: It is possible to download a version of LinuxCNC directly from Debian
+but this will install an old pre-release version, and is not recommended
+at this time.
 
 . Install the Preempt-RT kernel and modules
 +
@@ -326,58 +333,26 @@ uname -v
   grub boot configuration changes will be needed beyond the scope of this
   document.
 
-. Add the LinuxCNC Archive Signing Key to your apt keyring by running
-+
+. Add the LinuxCNC Archive Signing Key to your apt keyring by downloading
+  [the LinuxCNC installer script](https://www.linuxcnc.org/linuxcnc-install.sh)
+  You will need to make the script executable to run it:
 ----
-sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
-Alternate keyserver: keyserver.ubuntu.com
+chmod +x linuxcnc-install.sh
 ----
-
-. Add the apt repository:
-+
+  Then you can run the installer:
 ----
- echo deb http://linuxcnc.org/ bookworm base 2.9-uspace | sudo tee /etc/apt/sources.list.d/linuxcnc.list
- echo deb-src http://linuxcnc.org/ bookworm base 2.9-uspace | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
-----
-
-. Update the package list from linuxcnc.org
-+
-----
-sudo apt-get update
-----
-
-. Install uspace (a reboot may be required prior to installing uspace)
-+
-----
-sudo apt-get install linuxcnc-uspace
-----
-
-. Optionally you can install mesaflash if your using a Mesa card.
-+
-----
-sudo apt install mesaflash
+sudo ./linuxcnc-install.sh
 ----
 
 [[cha:Installing-RTAI]]
 === Installing on Debian Bookworm (with experimental RTAI kernel)
 
 . This kernel and LinuxCNC version can be installed on top of the LiveDVD
-  install, or alternatively on a fresh Install of Debian Buster 64-bit
+  install, or alternatively on a fresh Install of Debian Bookworm 64-bit
   as described above
-. Add the LinuxCNC Archive Signing Key to your apt keyring (Not
-  necessary if switching the realtime mode of a LinuxCNC Live-CD image)
-+
-----
-sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
-Alternate keyserver: keyserver.ubuntu.com
-----
-
-. Add the apt repository:
-+
-----
- echo deb http://linuxcnc.org/ buster base 2.9-rt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
- echo deb-src http://linuxcnc.org/ buster base 2.9-rt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
-----
+. You can add the LinuxCNC Archive signing key and repository information
+  by downloading and running the installer script as decribed above. If
+  an RTAI kernel is detected it will stop before installing any packages. 
 
 . Update the package list from linuxcnc.org
 +
@@ -389,101 +364,14 @@ sudo apt-get update
 ----
 sudo apt-get install linuxcnc
 ----
-Reboot the machine, ensuring that the system boots from the new 4.19.195-rtai kernel.
+Reboot the machine, ensuring that the system boots from the new 5.4.258-rtai
+kernel.
 
-=== Installing on Raspbian 10
+=== Installing on Raspbian 12
 
-. Download a stock Raspbian image to an SD card and install in the
-  https://www.raspberrypi.org/documentation/installation/installing-images/README.md[usual way]
-. Boot the Pi and open a terminal
-. Add the LinuxCNC Archive Signing Key to your apt keyring
-+
-----
-sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
-Alternate keyserver: keyserver.ubuntu.com
-----
-. Add the apt repository:
-+
------
- echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
------
-. Update the package list from linuxcnc.org
-+
-----
-sudo apt-get update
-----
-. install the realtime kernel
-+
-----
-sudo apt-get install linux-image-4.19.71-rt24-v7l+
-----
-. Install linuxcnc (a reboot may be required prior to installing)
-+
-----
-sudo apt-get install linuxcnc-uspace
-----
-
-
-=== Installing on Ubuntu Precise
-
-. Install Ubuntu Precise 12.04 x86 (32-bit). Any flavor should
-  work (regular Ubuntu, Xubuntu, Lubuntu, etc). 64-bit (AMD64)
-  is currently not supported. You can download the installer here:
-  http://releases.ubuntu.com/precise/
-  Note the warnings that this release is out of support. But is is a way
-  to install LinuxCNC with a well-tested RTAI kernel.
-
-. Run the following to  bring the machine up to date with the latest packages
-  in Ubuntu Precise.
-+
-----
-sudo apt-get update
-sudo apt-get dist-upgrade
-----
-
-. Add the LinuxCNC Archive Signing Key to your apt keyring by running
-+
-----
-sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
-Alternate keyserver: keyserver.ubuntu.com
-----
-
-. Add a new apt source
-+
-----
-sudo add-apt-repository "deb http://linuxcnc.org/ precise base 2.8-rt"
-----
-
-. Fetch the package list from linuxcnc.org.
-+
-----
-sudo apt-get update
-----
-
-. Install the RTAI kernel and modules by running
-+
-----
-sudo apt-get install linux-image-3.4-9-rtai-686-pae rtai-modules-3.4-9-rtai-686-pae
-----
-
-. If you want to be able to build LinuxCNC from source using the git repo,
-  also run
-+
-----
-sudo apt-get install linux-headers-3.4-9-rtai-686-pae
-----
-
-. Reboot, and make sure you boot into the rtai kernel. When you log in,
-  verify that the kernel name is 3.4-9-rtai-686-pae.
-+
-----
-uname -r
-----
-
-. Run
-+
-----
-sudo apt-get install linuxcnc
-----
+. Download a stock Raspbian image to an SD card and install using the
+  [Raspberry Pi Imager App](https://www.raspberrypi.com/software/)
+. Boot the Pi and open a terminal. Download and run the linuxcnc installer
+  script as described above.
 
 // vim: set syntax=asciidoc:
