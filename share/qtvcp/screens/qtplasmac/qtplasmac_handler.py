@@ -1,4 +1,4 @@
-VERSION = '1.237.301'
+VERSION = '1.237.302'
 
 '''
 qtplasmac_handler.py
@@ -24,7 +24,6 @@ with this program; if not, write to the Free Software Foundation, Inc
 import os
 import sys
 from shutil import copy as COPY
-from shutil import move as MOVE
 from subprocess import Popen, PIPE
 from subprocess import run as RUN
 from subprocess import call as CALL
@@ -33,7 +32,6 @@ import time
 import tarfile
 import math
 import glob
-import webbrowser
 import linuxcnc
 import hal
 from OpenGL.GL import glTranslatef
@@ -64,7 +62,7 @@ from qtvcp.widgets.status_label import StatusLabel as STATLABEL
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 from plasmac import run_from_line as RFL
-from rs274.glcanon import GlCanonDraw
+from rs274.glcanon import GlCanonDraw as DRAW
 from qt5_graphics import Lcnc_3dGraphics as DRO
 
 LOG = logger.getLogger(__name__)
@@ -466,6 +464,7 @@ class HandlerClass:
         self.offset_table_patch()
         self.qt5_graphics_patch()
         self.screen_options_patch()
+        self.glcanon_patch()
 
 # patched file manager functions
     def file_manager_patch(self):
@@ -727,6 +726,18 @@ class HandlerClass:
                     STATUS.emit('play-sound', 'SPEAK %s ' % text)
         STATUS.emit('update-machine-log', text, 'TIME')
 
+# patched glcanon functions
+    def glcanon_patch(self):
+        self.old_draw_grid = DRAW.draw_grid
+        DRAW.draw_grid = self.new_draw_grid
+
+    # allows grid to be drawn in P view
+    def new_draw_grid(self):
+        rotation = math.radians(STATUS.stat.rotation_xy % 90)
+        permutation = lambda x_y_z2: (x_y_z2[0], x_y_z2[1], x_y_z2[2])  # XY Z
+        inverse_permutation = lambda x_y_z3: (x_y_z3[0], x_y_z3[1], x_y_z3[2])  # XY Z
+        self.w.gcodegraphics.draw_grid_permuted(rotation, permutation,
+                inverse_permutation)
 
 #########################################################################################################################
 # SPECIAL FUNCTIONS SECTION #
@@ -2053,7 +2064,7 @@ class HandlerClass:
         while time.time() < t:
             QApplication.processEvents()
         self.w.gcodegraphics.set_view('Z')
-        mid, size = GlCanonDraw.extents_info(self.w.gcodegraphics)
+        mid, size = DRAW.extents_info(self.w.gcodegraphics)
         if self.gcodeProps:
             mult = 1
             if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
@@ -5385,7 +5396,7 @@ class HandlerClass:
                     return False
             else:
                 if not periodic:
-                    msg0 = _translate('cannot be found')
+                    msg0 = _translate('HandlerClass', 'cannot be found')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {}\n{}'.format(head, port, msg0, msg1))
                 return False
         except:
