@@ -35,7 +35,7 @@ build-stamp:
 ifeq "$(kernel_version)" "uspace"
 	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=uspace --enable-build-documentation=pdf --disable-check-runtime-deps
 else
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version) --enable-build-documentation=no --disable-check-runtime-deps
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version) --enable-build-documentation=pdf --disable-check-runtime-deps
 endif
 	(cd src; $(MAKE) $(MAKEFLAGS) && $(MAKE) $(MAKEFLAGS) docs)
 	touch build-stamp
@@ -49,7 +49,7 @@ clean: debian/control
 ifeq "$(kernel_version)" "uspace"
 	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=uspace --enable-build-documentation=pdf --disable-check-runtime-deps
 else
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version) --enable-build-documentation=no --disable-check-runtime-deps
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version) --enable-build-documentation=pdf --disable-check-runtime-deps
 endif
 	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
@@ -80,15 +80,15 @@ install: build
 	mkdir -p debian/tmp/usr/share/doc/linuxcnc-dev
 #	cp docs/LinuxCNC_Developer.pdf debian/tmp/usr/share/doc/linuxcnc-dev/
 #	cp docs/LinuxCNC_Developer_*.pdf debian/tmp/usr/share/doc/linuxcnc-dev/
-	cp docs/html/gcode*.html debian/tmp/usr/share/doc/linuxcnc/
+	cp docs/html/gcod*.html debian/tmp/usr/share/doc/linuxcnc/
 	cp docs/README.adoc debian/tmp/usr/share/doc/linuxcnc/
-	 
 #	rm -rf debian/tmp/usr/share/doc/linuxcnc/html
 	-rm debian/tmp/linuxcnc*.files
 	-rm -f debian/tmp/usr/share/doc/linuxcnc/examples/sample-configs/*/*position*.txt
 	(cd debian/tmp/usr/share/doc/linuxcnc/examples; \
 	    ln -sf ../../../linuxcnc/ncfiles ./nc_files)
-	cp scripts/realtime debian/tmp/usr/lib/linuxcnc
+	rm debian/tmp/usr/lib/linuxcnc
+	mkdir -p debian/tmp/usr/lib/linuxcnc && cp scripts/realtime debian/tmp/usr/lib/linuxcnc/
 	dh_movefiles
 	if [ `find debian/tmp -type f | wc -c` != 0 ]; then \
 		echo "Files exist in debian/tmp, but should not:"; \

@@ -58,7 +58,6 @@ Package: @MAIN_PACKAGE_NAME@-dev
 Architecture: any
 Conflicts: linuxcnc-sim-dev, @OTHER_MAIN_PACKAGE_NAME@-dev
 Depends: ${misc:Depends},
-         ${python3:Depends},
          @KERNEL_HEADERS@,
          python3-serial,
          @MAIN_PACKAGE_NAME@ (= ${binary:Version}),
