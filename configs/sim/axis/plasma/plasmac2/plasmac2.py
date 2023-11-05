@@ -17,7 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-VER = '12'
+VER = '13'
 
 ##############################################################################
 # the next line suppresses undefined variable errors in VSCode               #
@@ -1156,11 +1156,13 @@ def set_toggle_pins(button):
     togglePins[button]['state'] = hal.get_value(togglePins[button]['pin'])
     if togglePins[button]['state']:
         rE(f"{fbuttons}.button{button} configure -bg {colorActive}")
+        rE(f"{fbuttons}.button{button} configure -text {{{togglePins[button]['ontext']}}}")
     else:
         if togglePins[button]['runcritical']:
             rE(f"{fbuttons}.button{button} configure -bg {colorWarn}")
         else:
             rE(f"{fbuttons}.button{button} configure -bg {colorBack}")
+        rE(f"{fbuttons}.button{button} configure -text {{{togglePins[button]['offtext']}}}")
 
 def jog_default_changed(value):
     set_jog_slider(int(value) / (vars.max_speed.get() * 60))
@@ -2395,19 +2397,37 @@ def user_button_setup():
                 else:
                     parmError = True
         elif bCode.startswith('toggle-halpin '):
-            if len(bCode.split()) > 1 and len(bCode.split()) < 4:
+            if len(bCode.split()) > 1:
+                ontext = bCode.split(';;')[1] if ';;' in bCode else ''
+                ontext = ontext if ontext else bName
                 codes = bCode.strip().split()
                 if validate_hal_pin(codes[1], n, 'toggle-halpin'):
-                    outCode = {'code':'toggle-halpin', 'pin':codes[1], 'critical':False}
+                    outCode = {'code':'toggle-halpin', 'pin':codes[1], 'critical':False, 'ontext':ontext}
                     outCode['pin'] = codes[1]
                     if len(codes) == 3 and codes[2] == 'runcritical':
                         outCode['critical'] = True
                         criticalButtons.append(n)
-                    togglePins[str(n)] = {'pin':outCode['pin'], 'state':hal.get_value(outCode['pin']), 'runcritical':outCode['critical']}
+                    togglePins[str(n)] = {'pin':outCode['pin'], 'state':hal.get_value(outCode['pin']), \
+                                          'runcritical':outCode['critical'], 'ontext':outCode['ontext'], \
+                                          'offtext':bName}
                 else:
                     parmError = True
         elif bCode and bCode not in singleCodes:
-            codes = bCode.strip().split('\\')
+            if 'dual-code' in bCode:
+                # incoming code is: "dual-code" ;; code1 ;; label1 ;; code2 ;; checked (optional = true)
+                data = bCode.split(';;')
+                if len(data) not in [4, 5]:
+                    outCode = {'code':None}
+                    continue
+                else:
+                    if len(data) == 5 and data[4].strip().lower() == 'true':
+                        checked = True
+                    else:
+                        checked = False
+                    dualCodes[str(n)] = {'ontext':data[2].strip(), 'offtext':bName.strip(), 'checked':checked}
+                codes = [code for code in data[1].split('\\') + ['dual-code'] + data[3].split('\\')]
+            else:
+                codes = bCode.strip().split('\\')
             codes = [x.strip() for x in codes]
             outCode['code'] = []
             for cn in range(len(codes)):
@@ -2427,9 +2447,15 @@ def user_button_setup():
                     outCode['code'].append(['ocode', codes[cn]])
                 elif codes[cn][0].lower() in 'gm':
                     outCode['code'].append(['gcode', codes[cn]])
+                elif codes[cn] == 'dual-code':
+                    outCode['code'].append(codes[cn])
                 else:
                     outCode = {'code': None}
                     break
+            if 'dual-code' in bCode:
+                dualCodes[str(n)]['oncode'] = outCode['code'][:outCode['code'].index('dual-code')]
+                dualCodes[str(n)]['offcode'] = outCode['code'][outCode['code'].index('dual-code')+1:]
+                outCode['code'] = 'dual-code'
         else:
             outCode = {'code':None}
         if rE(f"winfo exists {fbuttons}.button{n}") == '0':
@@ -2542,6 +2568,16 @@ def user_button_pressed(button, code):
         else:
             hal.set_p(code['pin'], str(not hal.get_value(code['pin'])))
     else:
+        if button in dualCodes:
+            if rE(f"{fbuttons}.button{button} cget -text") == dualCodes[button]['offtext']:
+                rE(f"{fbuttons}.button{button} configure -text {{{dualCodes[button]['ontext']}}}")
+                code['code'] = dualCodes[button]['oncode']
+                if dualCodes[button]['checked']:
+                    rE(f"{fbuttons}.button{button} configure -bg {colorActive}")
+            else:
+                rE(f"{fbuttons}.button{button} configure -text {{{dualCodes[button]['offtext']}}}")
+                code['code'] = dualCodes[button]['offcode']
+                rE(f"{fbuttons}.button{button} configure -bg {colorBack}")
         for n in range(len(code['code'])):
             if code['code'][n][0] == 'python3':
                 cmd = f"python3 {code['code'][n][1]}"
@@ -4253,6 +4289,7 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     cutType = 0
     togglePins = {}
     pulsePins = {}
+    dualCodes = {}
     currentTool = None
     manualCut = {'state':False, 'feed':vars.jog_speed.get()}
     singleCut = {'state':False, 'G91':False}
@@ -4948,8 +4985,8 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
               [f"{fparam}.c2.thc",'voidlock-slope',0,500,1,10000,1,'Void Slope (V/sec)','Void Sense Slope'], \
               [f"{fparam}.c2.scribe",'scribe-arm-delay',1,0,0,9,0.1,'Arm Delay','Scribe Arming Delay'], \
               [f"{fparam}.c2.scribe",'scribe-on-delay',1,0,0,9,0.1,'On delay','Scribe On Delay'], \
-              [f"{fparam}.c2.pierce",'x-pierce-offset',1,1.6,0,5,0.1,'X Offset','X Pierce Offset'], \
-              [f"{fparam}.c2.pierce",'y-pierce-offset',1,0,0,5,0.1,'Y Offset','Y Pierce Offset'], \
+              [f"{fparam}.c2.pierce",'x-pierce-offset',1,1.6,-5,5,0.1,'X Offset','X Pierce Offset'], \
+              [f"{fparam}.c2.pierce",'y-pierce-offset',1,0,-5,5,0.1,'Y Offset','Y Pierce Offset'], \
               [f"{fparam}.c3.arc",'arc-fail-delay',1,3,0.1,60,0.1,'Fail Timeout','Arc Fail Timeout'], \
               [f"{fparam}.c3.arc",'arc-max-starts',0,3,1,9,1,'Max. Attempts','Arc Maximum Starts'], \
               [f"{fparam}.c3.arc",'restart-delay',0,3,1,60,1,'Retry Delay','Arc Restart Delay'], \
@@ -4984,9 +5021,9 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
             elif cpItem[1] == 'height-per-volt':
                 cpItem[2:7] = [4,0.004,0.001,0.020,0.001]
             elif cpItem[1] == 'x-pierce-offset':
-                cpItem[2:7] = [2,0.06,0,0.20,0.01]
+                cpItem[2:7] = [2,0.06,-0.2,0.2,0.01]
             elif cpItem[1] == 'y-pierce-offset':
-                cpItem[2:7] = [2,0,0,0.20,0.01]
+                cpItem[2:7] = [2,0,-0.2,0.2,0.01]
         if cpItem[0] != cpFrame:
             cpFrame = cpItem[0]
             cpRow = 0
@@ -5279,6 +5316,7 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
             notifications.add(n[0], n[1])
     update_title()
     o.show_overlay = False
+    o.colors['overlay_alpha'] = 0
     pVars.jogMultiplier.set(1)
     hal.set_p('plasmac.mode', f"{pVars.plasmacMode.get()}")
     hal.set_p('plasmac.torch-enable', '0')
@@ -5526,12 +5564,11 @@ def user_hal_pins():
     install_kb_text(root_window)
     install_kp_text(root_window)
     # setup the about text
-    rE('text .about.message1 -borderwidth 0 -relief flat -width 40 -height 5 -wrap word')
-    rE('.about.message1 insert end {\nplasmac2 extensions v{VER}\nCopyright (C) 2022\nPhillip A Carter and Gregory D Carl}')
-    rE('.about.message1 configure -state disabled')
-    rE('pack forget .about.ok')
-    rE('pack .about.message1 -expand 1 -fill both')
-    rE('pack .about.ok')
+    rE('.about.message configure -height 14')
+    text = f"\n\nplasmac2 extensions v{VER}\nCopyright (C) 2022, 2023\nPhillip A Carter and Gregory D Carl"
+    rE('.about.message configure -state normal')
+    rE(f".about.message insert end {{{text}}}")
+    rE('.about.message configure -state disabled')
     previewSize = {'w':rE(f"winfo width {tabs_preview}"), 'h':rE(f"winfo height {tabs_preview}")}
 
 
