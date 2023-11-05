@@ -78,7 +78,7 @@ public:
     void hal_init_pins(void);
 
     EMC_IO_STAT &emcioStatus;
-    int random_toolchanger;
+    int random_toolchanger {0};
     iocontrol_str iocontrol_data;
     hal_comp iocontrol;
     const char *ini_filename;
