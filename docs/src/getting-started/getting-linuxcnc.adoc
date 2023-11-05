@@ -285,7 +285,7 @@ there are very few surviving systems that can not run a 64-bit OS.
 
 === Installing on Debian Bookworm (with Preempt-RT kernel)
 
-. Install Debian Buster (Debian 12), amd64 verison.
+. Install Debian Bookworm (Debian 12), amd64 version.
   You can download the installer here:
   https://www.debian.org/releases/buster/
 
