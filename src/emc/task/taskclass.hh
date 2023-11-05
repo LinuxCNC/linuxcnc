@@ -81,7 +81,7 @@ public:
     iocontrol_str iocontrol_data;
     hal_comp iocontrol;
     const char *ini_filename;
-    const char *tooltable_filename;
+    const char *tooltable_filename {};
     int tool_status;
 };
 
