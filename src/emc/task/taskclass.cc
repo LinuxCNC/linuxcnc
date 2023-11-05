@@ -140,12 +140,12 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
     ini_filename = emc_inifile;
 
     if (inifile.Open(ini_filename)) {
-	inifile.Find(&random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
-	const char *t;
-	if ((t = inifile.Find("TOOL_TABLE", "EMCIO")) != NULL)
-	    tooltable_filename = strdup(t);
+        inifile.Find(&random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
+        const char *t;
+        if ((t = inifile.Find("TOOL_TABLE", "EMCIO")) != NULL)
+            tooltable_filename = strdup(t);
     }
-	    
+
 #ifdef TOOL_NML //{
     tool_nml_register( (CANON_TOOL_TABLE*)&emcStatus->io.tool.toolTable);
 #else //}{
