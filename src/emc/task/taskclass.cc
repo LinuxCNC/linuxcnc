@@ -144,6 +144,7 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
         const char *t;
         if ((t = inifile.Find("TOOL_TABLE", "EMCIO")) != NULL)
             tooltable_filename = strdup(t);
+        inifile.Close();
     }
 
 #ifdef TOOL_NML //{
