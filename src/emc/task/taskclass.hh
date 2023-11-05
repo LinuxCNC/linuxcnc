@@ -21,6 +21,7 @@
 #include "emc.hh"
 #include "inifile.hh"
 #include "hal.hh"
+#include "tooldata.hh"
 
 #define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
 
@@ -82,6 +83,8 @@ public:
     hal_comp iocontrol;
     const char *ini_filename;
     const char *tooltable_filename {};
+    char db_program[LINELEN] {};
+    tooldb_t db_mode {tooldb_t::DB_NOTUSED};
     int tool_status;
 };
 
