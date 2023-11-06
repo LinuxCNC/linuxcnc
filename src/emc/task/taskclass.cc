@@ -129,13 +129,11 @@ struct _inittab builtin_modules[] = {
 
 Task::Task(EMC_IO_STAT & emcioStatus_in) :
     emcioStatus(emcioStatus_in),
-    ini_filename(emc_inifile),
-    iocontrol("iocontrol.0")
+    iocontrol("iocontrol.0"),
+    ini_filename(emc_inifile)
     {
 
     IniFile inifile;
-
-    ini_filename = emc_inifile;
 
     if (inifile.Open(ini_filename)) {
         inifile.Find(&random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
