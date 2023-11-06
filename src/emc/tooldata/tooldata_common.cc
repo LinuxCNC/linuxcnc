@@ -300,7 +300,8 @@ int tooldata_load(const char *filename)
 
     // open tool table file
     if (NULL == (fp = fopen(filename, "r"))) {
-        // can't open file
+        fprintf(stderr, "%s, %d: Failed to open tool table file '%s': %s\n",
+                __FILE__, __LINE__, filename, strerror(errno));
         return -1;
     }
 
@@ -385,7 +386,8 @@ int tooldata_save(const char *filename)
 
     // open tool table file
     if (NULL == (fp = fopen(filename, "w"))) {
-        // can't open file
+        fprintf(stderr, "%s, %d: Failed to open tool table file '%s': %s\n",
+                __FILE__, __LINE__, filename, strerror(errno));
         return -1;
     }
 

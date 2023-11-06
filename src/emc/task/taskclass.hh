@@ -21,6 +21,7 @@
 #include "emc.hh"
 #include "inifile.hh"
 #include "hal.hh"
+#include "tooldata.hh"
 
 #define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
 
@@ -77,11 +78,13 @@ public:
     void hal_init_pins(void);
 
     EMC_IO_STAT &emcioStatus;
-    int random_toolchanger;
+    int random_toolchanger {0};
     iocontrol_str iocontrol_data;
     hal_comp iocontrol;
     const char *ini_filename;
-    const char *tooltable_filename;
+    const char *tooltable_filename {};
+    char db_program[LINELEN] {};
+    tooldb_t db_mode {tooldb_t::DB_NOTUSED};
     int tool_status;
 };
 

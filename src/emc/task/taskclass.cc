@@ -28,7 +28,6 @@
 #include "taskclass.hh"
 #include <rtapi_string.h>
 
-#include "tooldata.hh"
 #include "hal.hh"
 
 /********************************************************************
@@ -130,22 +129,31 @@ struct _inittab builtin_modules[] = {
 
 Task::Task(EMC_IO_STAT & emcioStatus_in) :
     emcioStatus(emcioStatus_in),
-    random_toolchanger(0),
-    ini_filename(emc_inifile),
-    iocontrol("iocontrol.0")
+    iocontrol("iocontrol.0"),
+    ini_filename(emc_inifile)
     {
 
     IniFile inifile;
 
-    ini_filename = emc_inifile;
-
     if (inifile.Open(ini_filename)) {
-	inifile.Find(&random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
-	const char *t;
-	if ((t = inifile.Find("TOOL_TABLE", "EMCIO")) != NULL)
-	    tooltable_filename = strdup(t);
+        inifile.Find(&random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
+        const char *t;
+        if ((t = inifile.Find("TOOL_TABLE", "EMCIO")) != NULL)
+            tooltable_filename = strdup(t);
+
+        if ((t = inifile.Find("DB_PROGRAM", "EMCIO")) != NULL) {
+            db_mode = tooldb_t::DB_ACTIVE;
+            tooldata_set_db(db_mode);
+            strncpy(db_program, t, LINELEN - 1);
+        }
+
+        if (tooltable_filename != NULL && db_program[0] != '\0') {
+            fprintf(stderr,"DB_PROGRAM active: IGNORING tool table file %s\n",
+                    tooltable_filename);
+        }
+        inifile.Close();
     }
-	    
+
 #ifdef TOOL_NML //{
     tool_nml_register( (CANON_TOOL_TABLE*)&emcStatus->io.tool.toolTable);
 #else //}{
@@ -153,9 +161,19 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
     tool_mmap_user();
     // initialize database tool finder:
 #endif //}
-    emcioStatus.status = RCS_STATUS::DONE;//TODO??
+
     tooldata_init(random_toolchanger);
+    if (db_mode == tooldb_t::DB_ACTIVE) {
+        if (0 != tooldata_db_init(db_program, random_toolchanger)) {
+            rcs_print_error("can't initialize DB_PROGRAM.\n");
+            db_mode = tooldb_t::DB_NOTUSED;
+            tooldata_set_db(db_mode);
+        }
+    }
+
+    emcioStatus.status = RCS_STATUS::DONE;//TODO??
     emcioStatus.tool.pocketPrepped = -1;
+
     if(!random_toolchanger) {
         CANON_TOOL_TABLE tdata = tooldata_entry_init();
         tdata.pocketno =  0; //nonrandom init
@@ -164,6 +182,7 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
             UNEXPECTED_MSG;
         }
     }
+
     if (0 != tooldata_load(tooltable_filename)) {
         rcs_print_error("can't load tool table.\n");
     }
