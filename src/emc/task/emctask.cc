@@ -19,6 +19,7 @@
 #include <unistd.h>		// stat()
 #include <limits.h>		// PATH_MAX
 #include <dlfcn.h>
+#include <memory>
 
 #include "rcs.hh"		// INIFILE
 #include "emc.hh"		// EMC NML
@@ -98,15 +99,15 @@ static void user_defined_add_m_code(int num, double arg1, double arg2)
 {
     // num      is the m_code number, typically 00-99 corresponding to M100-M199
     char fmt[EMC_SYSTEM_CMD_LEN];
-    EMC_SYSTEM_CMD system_cmd;
+    auto system_cmd = std::make_unique<EMC_SYSTEM_CMD>();
 
     //we call FINISH() to flush any linked motions before the M1xx call, 
     //otherwise they would mix badly
     FINISH();
     rtapi_strxcpy(fmt, user_defined_fmt[user_defined_function_dirindex[num]]);
     rtapi_strxcat(fmt, " %f %f");
-    snprintf(system_cmd.string, sizeof(system_cmd.string), fmt, num, arg1, arg2);
-    interp_list.append(system_cmd);
+    snprintf(system_cmd->string, sizeof(system_cmd->string), fmt, num, arg1, arg2);
+    interp_list.append(std::move(system_cmd));
 }
 
 int emcTaskInit()
@@ -226,6 +227,12 @@ int emcTaskStateRestore()
     return res;
 }
 
+void emcTaskQueueTaskPlanSynchCmd()
+{
+    auto taskPlanSynchCmd = std::make_unique<EMC_TASK_PLAN_SYNCH>();
+    emcTaskQueueCommand(std::move(taskPlanSynchCmd));
+}
+
 int emcTaskAbort()
 {
     emcMotionAbort();
@@ -247,8 +254,7 @@ int emcTaskAbort()
     steppingWait = 0;
 
     // now queue up command to resynch interpreter
-    EMC_TASK_PLAN_SYNCH taskPlanSynchCmd;
-    emcTaskQueueCommand(&taskPlanSynchCmd);
+    emcTaskQueueTaskPlanSynchCmd();
 
     // without emcTaskPlanClose(), a new run command resumes at
     // aborted line-- feature that may be considered later
