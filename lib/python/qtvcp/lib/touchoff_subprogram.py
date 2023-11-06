@@ -93,9 +93,9 @@ class TouchOffSubprog(QObject):
                                 sys.stdout.write("ERROR Touchoff returned with error from cmd:{}\n".format(cmd))
                         else:
                             self.collect_status()
-                            sys.stdout.write("{} COMPLETE {}\n".format(cmd.rstrip().split('$')[0], self.string_to_send))
+                            sys.stdout.write("{} COMPLETE$ {}\n".format(cmd.rstrip().split('$')[0], self.string_to_send))
                     else:
-                        sys.stdout.write("COMPLETE returned FROM COMMAND:{}\n".format(cmd))
+                        sys.stdout.write("COMPLETE$ returned FROM COMMAND:{}\n".format(cmd))
                     sys.stdout.flush()
             except KeyboardInterrupt:
                     break
@@ -206,7 +206,7 @@ class TouchOffSubprog(QObject):
 
         error = self.probe_down()
         ACTION.CALL_MDI("G90")
-        if error != 0: return error
+        if error != 1: return error
 
         pos = STATUS.get_probed_position_with_offsets()
         self.status_z1 = float(pos[2])

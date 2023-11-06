@@ -133,13 +133,13 @@ class Auto_Measure(QtWidgets.QWidget):
         self.parse_input(line)
 
     def process_finished(self, exitCode, exitStatus):
-        LOG.info(("Probe Process finished - exitCode {} exitStatus {}".format(exitCode, exitStatus)))
+        LOG.verbose(("Probe Process finished - exitCode {} exitStatus {}".format(exitCode, exitStatus)))
         self.add_status("Height measurement process finished")
         self.proc = None
 
     def parse_input(self, line):
         line = line.decode("utf-8")
-        print(line)
+        LOG.verbose("Raw returned Line={}".format(line))
         if "INFO" in line:
             pass
 #            print(line)
@@ -183,12 +183,14 @@ class Auto_Measure(QtWidgets.QWidget):
             self.lineEdit_pos_x1.setText(format(xyz[0], '.3f'))
             self.lineEdit_pos_y1.setText(format(xyz[1], '.3f'))
             self.lineEdit_pos_z1.setText(format(xyz[2], '.3f'))
-            self.add_status("Probe position 1 set")
+            self.add_status("Probe position 1 set (X {} Y {} Z {})".format(
+                format(xyz[0], '.3f'),format(xyz[1], '.3f'),format(xyz[2], '.3f')))
         elif btn == "mp":
             self.lineEdit_pos_x2.setText(format(xyz[0], '.3f'))
             self.lineEdit_pos_y2.setText(format(xyz[1], '.3f'))
             self.lineEdit_pos_z2.setText(format(xyz[2], '.3f'))
-            self.add_status("Probe position 2 set")
+            self.add_status("Probe position 2 set (X {} Y {} Z {})".format(
+                format(xyz[0], '.3f'),format(xyz[1], '.3f'),format(xyz[2], '.3f')))
 
     def start(self):
         if float(self.lineEdit_z_safe_travel.text()) <= float(self.lineEdit_pos_z1.text()):
@@ -212,7 +214,7 @@ class Auto_Measure(QtWidgets.QWidget):
         self.lineEdit_height.setText(format(diff, '.3f'))
         if self.chk_autofill.isChecked():
             self.w.lineEdit_work_height.setText(format(diff, '.3f'))
-        self.add_status("Height measurement successfully completed")
+        self.add_status("Height measurement successfully completed with {}".format(format(diff, '.3f')))
 
     def add_status(self, message):
         self.lbl_status.setText(message)

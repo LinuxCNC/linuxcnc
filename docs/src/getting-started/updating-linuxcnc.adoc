@@ -54,7 +54,7 @@ Codename:       Buster
 ----
 
 You should be running on Debian Buster, Bullseye or Bookworm or Ubuntu
-20.04 "Focal Fossa" or newer. LinuxCNC will not run on older distributions
+20.04 "Focal Fossa" or newer. LinuxCNC 2.9.x will not run on older distributions
 than these. 
 
 You will also need to check which realtime kernel is being used:
@@ -69,9 +69,8 @@ preempt-rt kernel and should install the "uspace" version of LinuxCNC.
 You should also install uspace for "sim" configs on non-realtime kernels
 
 If you see `-rtai-` in the kernel name then you are running RTAI
-realtime. See below for the LinuxCNC version to install.
-At this moment there are (tmporariliy) no RTAI packages for LinuxCNC
-2.9.0 but it is possible to build from source. 
+realtime. See below for the LinuxCNC version to install. RTAI packages
+are available for Bookworm and Buster but not currently for Bullseye.
 
 [[_setting_apt_sources]]
 === Apt Sources Configuration
@@ -104,11 +103,13 @@ At this moment there are (tmporariliy) no RTAI packages for LinuxCNC
 [options="header"]
 |===
 | Debian Buster - preempt   | `deb https://linuxcnc.org buster base 2.9-rtpreempt`
+| Debian Buster - RTAI      | `deb https://linuxcnc.org buster base 2.9-rt`
 | Debian Bullseye - preempt | `deb https://linuxcnc.org bullseye base 2.9-uspace`
 | Debian Bookworm - preempt | `deb https://linuxcnc.org bookworm base 2.9-uspace`
+| Debian Bookworm - RTAI    | `deb https://linuxcnc.org bookworm base 2.9-rt`
 |===
 
-image::images/upgrading-to-2.8.png["Setting apt sources",align="center"]
+image::images/upgrading-to-2.9.png["Setting apt sources",align="center"]
 
 * Click `Add Source`, then `Close` in the Software Sources window.
   If it pops up a window informing you that the information about
@@ -160,7 +161,7 @@ to find the release name of your OS.
 ----
 > lsb_release -ic
 Distributor ID: Debian
-Codename:       buster
+Codename:       bullseye
 ----
 
 Pick the OS from the list then pick the major version you want like
@@ -173,11 +174,11 @@ Next pick the version you want from the bottom of the list like
 'linuxcnc-uspace_2.8.0_amd64.deb' (choose the latest by date).
 Download the deb and copy it to your home directory. You can rename the
 file to something a bit shorter with the file manager like
-'linuxcnc_2.8.0.deb' then open a terminal and install it with the
+'linuxcnc_2.9.1.deb' then open a terminal and install it with the
 package manager with this command:
 
 ----
-sudo dpkg -i linuxcnc_2.9.0.deb
+sudo dpkg -i linuxcnc_2.9.1.deb
 ----
 
 

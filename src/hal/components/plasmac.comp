@@ -3,11 +3,11 @@ component plasmac "A plasma cutter controller";
 description
 """
 
-A plasma cutting table control component for use with the LinuxCNC V2.8 or later.
+A plasma cutting table control component for use with the LinuxCNC 2.10.
 
 .I VERSION:
 .br
-1.237
+001
 
 .I SUMMARY:
 .br
