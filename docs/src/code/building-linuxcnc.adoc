@@ -59,7 +59,7 @@ $ git clone https://github.com/LinuxCNC/linuxcnc.git linuxcnc-source-dir
   This is called a "clone" of the LinuxCNC repository.
   The advantage is that this local clone supports the communication about changes you may decide to perform on the source tree.
 
-GitHub offers to perform a clone for you and have that instance made publicly available.
+GitHub is an infrastructure on its own and explained in depth elsewhere. Just to get you motivated if you do not know it already.offers to perform a clone for you and have that instance made publicly available.
 GitHub refers to such an additional instance of another repository as a "fork".
 You can easily (and at no cost) create a fork of the LinuxCNC git repository at GitHub, and use that to track and publish your changes.
 After creating your own GitHub fork of LinuxCNC, clone it to your development machine and proceed with your hacking as usual.
@@ -365,13 +365,13 @@ If you happen to run into difficulties while compiling, check the LinuxCNC forum
 Currently emerging is the support for the DEB_BUILD_OPTIONS environment variable.
 Set it to
 
-`nodocs`:: to skip building the documentation. This is yet mostly untested, the `-b` flag to dpkg-buildpackage has the same effect, albeit formally a different semantics.
+`nodocs`:: to skip building the documentation, preferably instead use the `-B` flag to dpkg-buildpackage.
 
 `nocheck`:: to skip self-tests of the LinuxCNC build process. This saves some time and reduces the demand for a few software packages that may not be available for your system, i.e. the xvfb in particular. You should not set this option for some extra confidence in your build to perform as expected unless running into difficulties with the dependencies.
 
 An environment variable can be set together with the execution of the command, e.g.
 ----
-DEB_BUILD_OPTIONS=nodocs,nocheck dpkg-buildpackage -uc -b
+DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -uc -B
 ----
 would combine all the options introduced in this section.
 
@@ -379,7 +379,7 @@ would combine all the options introduced in this section.
 
 A Debian package can be recognised by its .deb extension.
 The tool installing it, `dpkg` is part of every Debian installation.
-The .deb files created by `dpkg-buildpacakge` are found in the directoy above the linuxcnc-source-dir, i.e. in `..`.
+The .deb files created by `dpkg-buildpackage` are found in the directoy above the linuxcnc-source-dir, i.e. in `..`.
 To see what files are provided in a package, run
 
 ----
