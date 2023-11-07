@@ -122,6 +122,9 @@ static int iniLoad(const char *filename)
     // close it
     inifile.Close();
 
+    if(emc_debug & EMC_DEBUG_CONFIG)
+        rcs_print("config file \"%s\" loaded successfully.\n", filename);
+
     return 0;
 }
 
@@ -166,9 +169,6 @@ int main(int argc, char *argv[])
     }
     // get configuration information
     iniLoad(emc_inifile);
-
-    rcs_print("after iniLoad()\n");
-
 
     start_time = etime();
 
