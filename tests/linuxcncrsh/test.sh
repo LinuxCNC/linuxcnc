@@ -25,30 +25,97 @@ if [  $TOGO -eq 0 ]; then
     exit 1
 fi
 
+# test set command by
+# - getting the key's old value before setting
+# - setting the new value
+# - getting the new value
+# - collect possible error from linuxcncsvr
+function testSet() {
+    # get before value
+    echo "get $1"
+    # set cmd
+    echo "set $@"
+    # get after value
+    echo "get $1"
+    # get error from server (or OK)
+    echo "get error"
+}
+
+# get command with collecting possible error from linuxcncsvr
+function testGet() {
+    cmd="$@"
+    echo "get $@"
+    echo "get error"
+}
 
 (
+    # initialize
     echo hello EMC mt 1.0
-    echo set enable EMCTOO
-    echo get enable
-    
+    testSet enable EMCTOO
+    testGet debug
+    testSet verbose on
+    testSet echo off
     # ask linuxcncrsh to not read the next command until it's done running
     # the current one
     testSet wait_mode done
+    # test deprecation mode of set_wait -> wait_mode rename
+    testSet set_wait done
 
-    echo set mode manual
-    echo get mode
+    # check default global settings
+    testGet plat
+    testGet update
 
-    echo set estop off
-    echo get estop
+    # check default global settings
+    echo get plat
 
-    echo set machine on
-    echo get machine
+    # test commands that fail when machine not running
+    testSet mode mdi
+
+    # prepare machine
+    testSet estop off
+    testSet machine on
+
+    # test if probing in manual mode fails
+    testSet mode manual
+    testGet pos_offset
+    testGet probe_tripped
+    testGet probe_value
+    testGet probe_clear
+    testSet probe 0 0 0                    # <x> <y> <z>
+    testSet probe_clear
+
+    # test if probing before homing fails
+    testSet mode mdi
+    testSet probe 0 0 0                    # <x> <y> <z>
+    testSet probe_clear
+
+    # do homing
+    testSet mode manual
+    testSet home 0                         # <Axis No>
+    testSet home 1
+    testSet home 2
+    testSet home 3
+    testSet home 4
+    testSet home 5
+
+    # test if probing without teleop fails
+    testSet mode mdi
+    testSet probe 0 0 0                    # <x> <y> <z>
+    testSet probe_clear
+
+    # test probing
+    testSet mode manual
+    testSet teleop_enable on
+    testSet mode mdi
+    testSet probe 0 0 0                    # <x> <y> <z>
+    testSet probe_clear
 
     # test spindle command
-    echo set spindle forward -1    # turn on all spindles
-    echo get spindle -1
-    echo set spindle off            # turn off all spindles
-    echo get spindle
+    testSet mode manual
+    testSet spindle forward                # turn on all w/o param
+    testSet spindle off -1                 # turn off all w/param
+    testGet spindle -1                     # check all w/param
+    testSet spindle forward 99             # turn on illegal spindle
 
     # test brake command
     testSet brake on                       # turn on all w/o param
@@ -64,14 +131,11 @@ fi
 
     # test g-code
     echo set mode mdi
-    echo get mode
-
     echo set mdi m100 p-1 q-2
     sleep 1
 
     # here comes a big blob
     dd bs=4096 if=lots-of-gcode
-
     echo set mdi m100 p-3 q-4
 
     # test misc. get commands
@@ -87,7 +151,7 @@ fi
     testGet feed_override
     testGet flood
     testGet joint_fault
-    #testGet joint_homed    currently doesn't block due to bug
+    #testGet joint_homed
     testGet joint_limit
     testGet joint_pos
     testGet joint_type
@@ -99,7 +163,6 @@ fi
     testGet operator_text
     testGet optional_stop
     testGet override_limits
-    testGet pos_offset
     testGet program
     testGet program_angular_units
     testGet program_codes
