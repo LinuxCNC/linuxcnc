@@ -177,13 +177,13 @@ int main(int argc, char *argv[])
 	    || emcErrorChannel == NULL)
 	) {
 	if (NULL == emcCommandChannel) {
-	    rcs_print("emcCommandChannel==NULL, attempt to create\n");
+	    rcs_print_debug(PRINT_NML_CONSTRUCTORS, "emcCommandChannel==NULL, attempt to create\n");
 	    emcCommandChannel =
 		new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "emcsvr",
 				    emc_nmlfile);
 	}
 	if (NULL == emcStatusChannel) {
-	    rcs_print("emcStatusChannel==NULL, attempt to create\n");
+	    rcs_print_debug(PRINT_NML_CONSTRUCTORS, "emcStatusChannel==NULL, attempt to create\n");
 	    emcStatusChannel =
 		new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "emcsvr",
 				     emc_nmlfile);
