@@ -256,7 +256,7 @@ run on any 64-bit x86 system)
 |===
 | Distribution    | Architecture  | Kernel     | Package name    | Typical use
 | Debian Bookworm | amd64 & arm64 | preempt-rt | linuxcnc-uspace | machine control & simulation
-| Debian Boolworm | amd64         | RTAI       | linuxcnc        | machine control
+| Debian Bookworm | amd64         | RTAI       | linuxcnc        | machine control
 | Debian Bullseye | amd64         | preempt-rt | linuxcnc-uspace | machine control & simulation
 | Debian Buster   | amd64 & arm64 | preempt-rt | linuxcnc-uspace | machine control & simulation
 | Debian Buster   | amd64         | RTAI       | linuxcnc        | machine control
