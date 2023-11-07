@@ -199,7 +199,7 @@ class Filter():
                 if line[0] in 'nN':
                     line = self.remove_line_numbers(line)
                 # if any obvious illegal characters then comment the line
-                if self.illegal_character(line):
+                if line[0] != ';' and self.illegal_character(line):
                     continue
                 # check for material edit
                 if line[:3] == '(o=':
@@ -218,7 +218,7 @@ class Filter():
                         self.gcodeList.append(line)
                     continue
                 # full line comments - only remove line numbers
-                if line[0] in ';(' and not line[:3] == '(o=)':
+                elif line[0] in ';(':
                     if len(line) > 1:
                         l0 = line[0]
                         tmp = line[1:].strip()
