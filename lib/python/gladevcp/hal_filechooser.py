@@ -72,7 +72,7 @@ class FilterProgram:
 
     def finish(self):
         # .. might be something left on stderr
-        for line in self.p.stderr:
+        for line in self.p.stderr.read().decode():
             m = progress_re.match(line)
             if not m:
                 self.stderr_text.append(line)
