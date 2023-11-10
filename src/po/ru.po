@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-10-01 17:06+0000\n"
+"PO-Revision-Date: 2023-11-10 07:25+0000\n"
 "Last-Translator: Ilya Koubatkin <ilya@kubatkin.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
@@ -26,7 +26,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.1-dev\n"
+"X-Generator: Weblate 5.2-dev\n"
 
 #: src/emc/task/emctaskmain.cc:869
 #, c-format
@@ -186,7 +186,6 @@ msgstr ""
 "K слово без G2, G3, G6.2, G33, G33.1, G76 или G87 чтобы его использовать"
 
 #: src/emc/rs274ngc/interp_check.cc:315
-#, fuzzy
 msgid ""
 "L word with no G10, cutter compensation, canned cycle, digital/analog input, "
 "M98 or NURBS code"
@@ -238,7 +237,6 @@ msgstr "Можно задать P без X и Y только для первой
 
 #: src/emc/rs274ngc/interp_convert.cc:199
 #: src/emc/rs274ngc/interp_convert.cc:387
-#, fuzzy
 msgid "You must specify both Y and Z coordinates for Control Points"
 msgstr "Вы должны указать координаты Y и Z для контрольных точек"
 
@@ -284,9 +282,8 @@ msgid "Program the nurbs order P in the first block of instruction"
 msgstr "Запрограммируйте порядок nurbs P в первом блоке инструкций"
 
 #: src/emc/rs274ngc/interp_convert.cc:404
-#, fuzzy
 msgid "nurbs order P number is not an integer"
-msgstr "номер P порядка nurbs не является целым числом"
+msgstr "число P порядка nurbs не является целым числом"
 
 #: src/emc/rs274ngc/interp_convert.cc:410
 msgid ""
@@ -312,7 +309,6 @@ msgid "Must specify nurbs K number for every Control Point"
 msgstr "Необходимо указать K номер nurbs для каждой контрольной точки"
 
 #: src/emc/rs274ngc/interp_convert.cc:432
-#, fuzzy
 msgid "nurbs K number is not an integer"
 msgstr "Число K nurbs не является целым числом"
 
@@ -321,7 +317,7 @@ msgid "Cannot make a nurbs with 0 feedrate"
 msgstr "Невозможно создать nurbs с нулевой скоростью подачи"
 
 #: src/emc/rs274ngc/interp_convert.cc:503
-#, c-format, fuzzy
+#, c-format
 msgid ""
 "You must specify a number of control points at least equal to the order P = "
 "%d"
@@ -371,7 +367,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:980
 #: src/emc/rs274ngc/interp_convert.cc:989
 #: src/emc/rs274ngc/interp_convert.cc:995
-#, c-format, fuzzy
+#, c-format
 msgid "%c word missing in absolute center arc"
 msgstr "Слово %c отсутствует в абсолютной центральной дуге"
 
@@ -2563,7 +2559,7 @@ msgid "joint %d amplifier fault"
 msgstr "Неисправность усилителя сочленения%d"
 
 #: src/emc/motion/control.c:830
-#, c-format, fuzzy
+#, c-format
 msgid "joint %d following error"
 msgstr "сочленение %d ошибка FE"
 
@@ -2579,7 +2575,6 @@ msgstr ""
 "kinematicsInverse дало неопределенное положение сочленения на сочленении %d"
 
 #: src/emc/motion/control.c:1363 src/emc/motion/control.c:1425
-#, fuzzy
 msgid "kinematicsInverse failed"
 msgstr "Неисправность kinematicsInverse "
 
