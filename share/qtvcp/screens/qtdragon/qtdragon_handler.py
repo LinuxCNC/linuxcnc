@@ -56,6 +56,8 @@ DEFAULT = 0
 WARNING = 1
 CRITICAL = 2
 
+VERSION ='1.0'
+
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
         self.h = halcomp
@@ -280,6 +282,10 @@ class HandlerClass:
         # no buttons hide frame
         if flag:
             self.w.frame_macro_buttons.hide()
+
+        message = "--- QtDragon Version {} on Linuxcnc {} ---".format(
+            VERSION, STATUS.get_linuxcnc_version())
+        STATUS.emit('update-machine-log', message, None)
 
     def init_utils(self):
         from qtvcp.lib.gcode_utility.facing import Facing
@@ -979,6 +985,8 @@ class HandlerClass:
             self.w.stackedWidget.setCurrentIndex(PAGE_GCODE)
 
     def btn_about_clicked(self):
+        self.add_status("QtDragon Version {} on Linuxcnc {} ".format(
+            VERSION, STATUS.get_linuxcnc_version()), CRITICAL)
         info = ACTION.GET_ABOUT_INFO()
         self.w.aboutDialog_.showdialog()
 

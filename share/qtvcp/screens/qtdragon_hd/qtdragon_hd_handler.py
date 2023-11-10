@@ -59,6 +59,8 @@ DEFAULT = 0
 WARNING = 1
 CRITICAL = 2
 
+VERSION ='1.0'
+
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
         self.h = halcomp
@@ -229,6 +231,10 @@ class HandlerClass:
         # no buttons hide frame
         if flag:
             self.w.frame_macro_buttons.hide()
+
+        message = "--- QtDragon_hd Version {} on Linuxcnc {} ---".format(
+            VERSION, STATUS.get_linuxcnc_version())
+        STATUS.emit('update-machine-log', message, None)
 
     #############################
     # SPECIAL FUNCTIONS SECTION #
@@ -1040,6 +1046,8 @@ class HandlerClass:
         AUX_PRGM.load_gcode_ripper()
 
     def btn_about_clicked(self):
+        self.add_status("QtDragon_hd Version {} on Linuxcnc {} ".format(
+            VERSION, STATUS.get_linuxcnc_version()), CRITICAL)
         info = ACTION.GET_ABOUT_INFO()
         self.w.aboutDialog_.showdialog()
 
