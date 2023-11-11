@@ -763,9 +763,11 @@ class _Lcnc_Action(object):
         STATUS.emit('error', STATUS.TEMPARARY_MESSAGE, msg)
 
     def TOUCHPLATE_TOUCHOFF(self, search_vel, probe_vel, max_probe,
-            z_offset, retract_distance, z_safe_travel, rtn_method=None):
+            z_offset, retract_distance, z_safe_travel, rtn_method=None, error_rtn = None):
+
         # if not none will be called with returned data
         self._touchoff_return = rtn_method
+        self._touchoff_error_return = error_rtn
 
         if self.proc is not None:
             return 0
@@ -999,7 +1001,11 @@ class _Lcnc_Action(object):
             # remove preceding text 'ERROR'
             s = line[line.find('ERROR')+6:]
             s = s[s.find(']')+1:]
-            self.SET_ERROR_MESSAGE(s)
+            if self._touchoff_return is None:
+                self.SET_ERROR_MESSAGE(s)
+            else:
+                self._touchoff_error_return(s)
+
         elif "DEBUG" in line: # must set DEBUG level on LOG in top of this file
             LOG.debug(line[line.find('DEBUG')+6:])
 
@@ -1012,6 +1018,7 @@ class _Lcnc_Action(object):
         STATUS.unblock_error_polling()
         # clean up return method variable
         self._touchoff_return = None
+        self._touchoff_error_return = None
 
     #------- boiler code
 
