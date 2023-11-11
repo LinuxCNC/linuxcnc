@@ -1150,13 +1150,17 @@ class HandlerClass:
                 search_vel, probe_vel, max_probe, 
                 z_offset, retract, safe_z))
         rtn = ACTION.TOUCHPLATE_TOUCHOFF(search_vel, probe_vel, max_probe, 
-                z_offset, retract, safe_z, self.touchoff_return)
+                z_offset, retract, safe_z, self.touchoff_return,self.touchoff_error)
         if rtn == 0:
             self.add_status("Touchoff routine is already running", CRITICAL)
 
     def touchoff_return(self, data):
         self.add_status("Touchplate touchoff routine returned successfully")
         self.add_status("Touchplate returned: "+data, CRITICAL)
+
+    def touchoff_error(self, data):
+        ACTION.SET_ERROR_MESSAGE(data)
+        self.add_status(data, CRITICAL)
 
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
         ACTION.SET_MANUAL_MODE()
