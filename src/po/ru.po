@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-11-10 07:25+0000\n"
+"PO-Revision-Date: 2023-11-11 19:50+0000\n"
 "Last-Translator: Ilya Koubatkin <ilya@kubatkin.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
@@ -9787,7 +9787,7 @@ msgstr "Ксилотекс 8S-3"
 #: src/emc/usr_intf/stepconf/stepconf.py:166
 #: src/emc/usr_intf/pncconf/private_data.py:1173
 msgid "Parker-Compumotor oem750"
-msgstr "Parker-Compumotor OEM750"
+msgstr "Parker-Compumotor oem750"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:167
 #: src/emc/usr_intf/pncconf/private_data.py:1174
