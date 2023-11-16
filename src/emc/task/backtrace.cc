@@ -21,6 +21,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <signal.h>
+#include "config.h"
 
 extern int done;
 extern int emcOperatorError(const char *fmt, ...);
@@ -34,7 +35,7 @@ void backtrace(int signo)
 
     signal(signo, SIG_IGN); // prevent multiple invocations on same signal
     snprintf(pid_buf, sizeof(pid_buf), "%d", getpid());
-    snprintf(filename, sizeof(filename),"/tmp/backtrace.%s", pid_buf);
+    snprintf(filename, sizeof(filename), EMC2_TMP_DIR "/backtrace.%s", pid_buf);
 
     name_buf[readlink("/proc/self/exe", name_buf, 511)]=0;
     int child_pid = fork();
