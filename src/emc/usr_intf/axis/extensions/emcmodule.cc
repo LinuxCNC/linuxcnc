@@ -1271,6 +1271,56 @@ static PyObject *program_open(pyCommandChannel *s, PyObject *o) {
         return NULL;
     }
     strcpy(m.file, file);
+    /* clear optional fields */
+    m.remote_buffersize = 0;
+    m.remote_filesize = 0;
+
+    /* send file in chunks to linuxcnc via remote_buffer for remote processes */
+    if(s->s->cms->ProcessType == CMS_REMOTE_TYPE && strcmp(s->s->cms->ProcessName, "emc") != 0) {
+        /* open file */
+        FILE *fd;
+        if(!(fd = fopen(file, "r"))) {
+            PyErr_Format(PyExc_OSError, "fopen(%s) error: %s", file, strerror(errno));
+            return PyErr_SetFromErrno(PyExc_OSError);
+        }
+        /* get filesize */
+        if(fseek(fd, 0L, SEEK_END) != 0) {
+            fclose(fd);
+            PyErr_Format(PyExc_OSError, "fseek(%s) error: %s", file, strerror(errno));
+            return PyErr_SetFromErrno(PyExc_OSError);
+        }
+        if((m.remote_filesize = ftell(fd)) < 0) {
+            fclose(fd);
+            PyErr_Format(PyExc_OSError, "ftell(%s) error: %s", file, strerror(errno));
+            return PyErr_SetFromErrno(PyExc_OSError);
+        }
+        if(fseek(fd, 0L, SEEK_SET) != 0) {
+            fclose(fd);
+            PyErr_Format(PyExc_OSError, "fseek(%s) error: %s", file, strerror(errno));
+            return PyErr_SetFromErrno(PyExc_OSError);
+        }
+
+        /* send complete file content in chunks of sizeof(msg.remote_buffer) */
+        while(!(feof(fd))) {
+            size_t bytes_read = fread(&m.remote_buffer, 1, sizeof(m.remote_buffer), fd);
+            /* read error? */
+            if(bytes_read <= 0 && ferror(fd)) {
+                PyErr_Format(PyExc_OSError, "fread(%s) error: %s", file, strerror(errno));
+                return PyErr_SetFromErrno(PyExc_OSError);
+            }
+            /* save amount of bytes written to buffer */
+            m.remote_buffersize = bytes_read;
+            /* send chunk */
+            if(emcSendCommand(s, m) < 0) {
+                 PyErr_Format(PyExc_OSError, "emcSendCommand() error: %s");
+                 return PyErr_SetFromErrno(PyExc_OSError);
+            }
+        }
+        fclose(fd);
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
     return Py_None;

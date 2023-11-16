@@ -1630,6 +1630,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 {
     int retval = 0;
     int execRetval = 0;
+    static char remote_tmpfilename[LINELEN];   // path to temporary file received from remote process
 
     if (0 == cmd) {
         if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
@@ -2148,10 +2149,62 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	} else {
 	    retval = 0;
         }
+        /* delete temporary copy of remote file if it exists */
+	if(remote_tmpfilename[0])
+            unlink(remote_tmpfilename);
         break;
 
     case EMC_TASK_PLAN_OPEN_TYPE:
-	open_msg = (EMC_TASK_PLAN_OPEN *) cmd;
+        open_msg = (EMC_TASK_PLAN_OPEN *) cmd;
+
+        /* receive file in chunks from remote process via open_msg->remote_buffer */
+        if(open_msg->remote_filesize > 0) {
+            static size_t received;             // amount of bytes of file received, yet
+            static int fd;                      // temporary file
+
+            /* got empty chunk? */
+	    if(open_msg->remote_buffersize == 0) {
+		rcs_print_error("EMC_TASK_PLAN_OPEN received empty chunk from remote process.\n");
+		retval = -1;
+		break;
+	    }
+
+	    /* this chunk belongs to a new file? */
+	    if(received == 0) {
+                /* create new tempfile */
+		snprintf(remote_tmpfilename, LINELEN, EMC2_TMP_DIR "/%s.XXXXXX", basename(open_msg->file));
+		if((fd = mkstemp(remote_tmpfilename)) < 0) {
+                    rcs_print_error("mkstemp(%s) error: %s", remote_tmpfilename, strerror(errno));
+		    retval = -1;
+		    break;
+		}
+	    }
+
+	    /* write chunk to tempfile */
+            size_t bytes_written = write(fd, open_msg->remote_buffer, open_msg->remote_buffersize);
+	    if(bytes_written < open_msg->remote_buffersize) {
+		rcs_print_error("fwrite(%s) error: %s", remote_tmpfilename, strerror(errno));
+		retval = -1;
+		break;
+	    }
+	    /* record data written */
+	    received += bytes_written;
+
+	    /* not the last chunk? */
+	    if(received < open_msg->remote_filesize) {
+		/* we're done here for now */
+		retval = 0;
+		break;
+	    }
+	    /* all chunks received - reset byte counter */
+	    received = 0;
+	    /* close file */
+	    close(fd);
+	    /* change filename to newly written local tmp file */
+	    rtapi_strxcpy(open_msg->file, remote_tmpfilename);
+	}
+
+	/* open local file */
 	retval = emcTaskPlanOpen(open_msg->file);
 	if (retval > INTERP_MIN_ERROR) {
 	    retval = -1;
@@ -3273,6 +3326,16 @@ int main(int argc, char *argv[])
     if (done) {
 	emctask_shutdown();
 	exit(1);
+    }
+
+    // create EMC2_TMP_DIR if it's not existing, yet
+    struct stat s = {0};
+    if (stat(EMC2_TMP_DIR, &s) != 0) {
+        if(mkdir(EMC2_TMP_DIR, 0700) != 0) {
+		rcs_print_error("mkdir(%s): %s", EMC2_TMP_DIR, strerror(errno));
+		emctask_shutdown();
+		exit(1);
+	}
     }
 
     // get our status data structure
