@@ -134,7 +134,7 @@ def read_register(reg):
 
 # set machine to local mode
 def close_machine():
-    mode = write_register(rMode, f'{0:04X}'.)
+    mode = write_register(rMode, f'{0:04X}')
     current = write_register(rCurrent, f'{0:04X}')
     pressure = write_register(rPressure, f'{0:04X}')
 
