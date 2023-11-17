@@ -1444,7 +1444,12 @@ static int iniLoad(const char *filename)
     } else {
 	    strncpy(machine, "unknown", LINELEN-1);
     }
-    rcs_print("task: machine: '%s'  version '%s'\n", machine, version);
+
+    extern char *program_invocation_short_name;
+    rcs_print(
+        "%s (%d) halui: machine '%s'  version '%s'\n",
+        program_invocation_short_name, getpid(), machine, version
+    );
 
     if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
 	// copy to global
