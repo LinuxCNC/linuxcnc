@@ -1,8 +1,8 @@
 '''
 conv_triangle.py
 
-Copyright (C) 2020, 2021, 2022  Phillip A Carter
-Copyright (C) 2020, 2021, 2022  Gregory D Carl
+Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
+Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -30,9 +30,9 @@ def preview(P, W, Conv):
     if P.dialogError:
         return
     if not W.xsEntry.text():
-        W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
+        W.xsEntry.setText(f'{P.xOrigin:0.3f}')
     if not W.ysEntry.text():
-        W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
+        W.ysEntry.setText(f'{P.yOrigin:0.3f}')
     error = TRIANGLE.preview(Conv, P.fTmp, P.fNgc, P.fNgcBkp, \
             int(W.conv_material.currentText().split(':')[0]), \
             W.conv_material.currentText().split(':')[1].strip(), \

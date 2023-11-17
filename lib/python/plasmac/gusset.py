@@ -1,8 +1,8 @@
 '''
 gusset.py
 
-Copyright (C) 2020, 2021, 2022  Phillip A Carter
-Copyright (C) 2020, 2021, 2022  Gregory D Carl
+Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
+Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -29,7 +29,7 @@ for f in sys.path:
         if '/usr' in f:
             localeDir = 'usr/share/locale'
         else:
-            localeDir = os.path.join('{}'.format(f.split('/lib')[0]),'share','locale')
+            localeDir = os.path.join(f'{f.split("/lib")[0]}','share','locale')
         break
 gettext.install("linuxcnc", localedir=localeDir)
 
@@ -46,55 +46,55 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
     valid, xOffset = Conv.conv_is_float(xOffset)
     if not valid and xOffset:
         msg0 = _('X ORIGIN')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, yOffset = Conv.conv_is_float(yOffset)
     if not valid and yOffset:
         msg0 = _('Y ORIGIN')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, leadinLength = Conv.conv_is_float(leadinLength)
     if not valid and leadinLength :
         msg0 = _('LEAD IN')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, leadoutLength = Conv.conv_is_float(leadoutLength)
     if not valid and leadoutLength:
         msg0 = _('LEAD OUT')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, width = Conv.conv_is_float(width)
     if not valid and width:
         msg0 = _('WIDTH')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, height = Conv.conv_is_float(height)
     if not valid and height:
         msg0 = _('HEIGHT')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, radius = Conv.conv_is_float(radius)
     if not valid and radius:
-        error += '{} {}\n\n'.format(rButton, msg1)
+        error += f'{rButton} {msg1}\n\n'
     valid, angle = Conv.conv_is_float(angle)
     if not valid and angle:
         msg0 = _(' ANGLE')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, kerfWidth = Conv.conv_is_float(kerfWidth)
     if not valid:
         msg = _('Invalid Kerf Width entry in material')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     if error:
         return error
     if width == 0:
         msg = _('WIDTH cannot be zero')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     if height == 0:
         msg = _('HEIGHT cannot be zero')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     if angle == 0:
         msg = _('ANGLE cannot be zero')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     if radius > width: # this needs a real calculation in the future *********
         msg = _('must be less than WIDTH')
-        error += '{} {}\n\n'.format(rButton, msg)
+        error += f'{rButton} {msg}\n\n'
     if radius > height: # this needs a real calculation in the future *********
         msg = _('must be less than HEIGHT')
-        error += '{} {}\n\n'.format(rButton, msg)
+        error += f'{rButton} {msg}\n\n'
     if error:
         return error
     angle = math.radians(angle)
@@ -151,9 +151,9 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
             if('\\n') in preAmble:
                 outNgc.write('(preamble)\n')
                 for l in preAmble.split('\\n'):
-                    outNgc.write('{}\n'.format(l))
+                    outNgc.write(f'{l}\n')
             else:
-                outNgc.write('\n{} (preamble)\n'.format(preAmble))
+                outNgc.write(f'\n{preAmble} (preamble)\n')
             break
         elif '(postamble)' in line:
             break
@@ -161,8 +161,8 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
             continue
         outNgc.write(line)
     outTmp.write('\n(conversational gusset)\n')
-    outTmp.write(';using material #{}: {}\n'.format(matNumber, matName))
-    outTmp.write('M190 P{}\n'.format(matNumber))
+    outTmp.write(f';using material #{matNumber}: {matName}\n')
+    outTmp.write(f'M190 P{matNumber}\n')
     outTmp.write('M66 P3 L3 Q1\n')
     outTmp.write('f#<_hal[plasmac.cut-feed-rate]>\n')
     if leadInOffset > 0:
@@ -170,51 +170,51 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
         ylCentre = yS + (leadInOffset * math.sin(hypotAngle - dir[0]))
         xlStart = xlCentre + (leadInOffset * math.cos(hypotAngle - dir[1]))
         ylStart = ylCentre + (leadInOffset * math.sin(hypotAngle - dir[1]))
-        outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xlStart, ylStart))
+        outTmp.write(f'g0 x{xlStart:.6f} y{ylStart:.6f}\n')
         outTmp.write('m3 $0 s1\n')
-        outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xS, yS , xlCentre - xlStart, ylCentre - ylStart))
+        outTmp.write(f'g3 x{xS:.6f} y{yS:.6f} i{xlCentre - xlStart:.6f} j{ylCentre - ylStart:.6f}\n')
     else:
-        outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xS, yS))
+        outTmp.write(f'g0 x{xS:.6f} y{yS:.6f}\n')
         outTmp.write('m3 $0 s1\n')
     if isExternal:
-        outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x1, y1))
+        outTmp.write(f'g1 x{x1:.6f} y{y1:.6f}\n')
         if radius > 0:
             x3 = x0 + radius
             y3 = y0
-            outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x3, y3))
+            outTmp.write(f'g1 x{x3:.6f} y{y3:.6f}\n')
             x4 = x0 + radius * math.cos(angle)
             y4 = y0 + radius * math.sin(angle)
             if rButton.startswith(_('RADIUS')):
                 if y2 >= y0:
-                    outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(x4, y4 , x0 - x3, y0 - y3))
+                    outTmp.write(f'g3 x{x4:.6f} y{y4:.6f} i{x0 - x3:.6f} j{y0 - y3:.6f}\n')
                 else:
-                    outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(x4, y4 , x0 - x3, y0 - y3))
+                    outTmp.write(f'g2 x{x4:.6f} y{y4:.6f} i{x0 - x3:.6f} j{y0 - y3:.6f}\n')
             else:
-                outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x4, y4))
+                outTmp.write(f'g1 x{x4:.6f} y{y4:.6f}\n')
         else:
-            outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x0, y0))
-        outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x2, y2))
-        outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xS, yS))
+            outTmp.write(f'g1 x{x0:.6f} y{y0:.6f}\n')
+        outTmp.write(f'g1 x{x2:.6f} y{y2:.6f}\n')
+        outTmp.write(f'g1 x{xS:.6f} y{yS:.6f}\n')
     else:
-        outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x2, y2))
+        outTmp.write(f'g1 x{x2:.6f} y{y2:.6f}\n')
         if radius > 0:
             x3 = x0 + radius
             y3 = y0
             x4 = x0 + radius * math.cos(angle)
             y4 = y0 + radius * math.sin(angle)
-            outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x4, y4))
+            outTmp.write(f'g1 x{x4:.6f} y{y4:.6f}\n')
             if rButton.startswith(_('RADIUS')):
                 if y2 >= y0:
-                    outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(x3, y3 , x0 - x4, y0 - y4))
+                    outTmp.write(f'g2 x{x3:.6f} y{y3:.6f} i{x0 - x4:.6f} j{y0 - y4:.6f}\n')
                 else:
-                    outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(x3, y3 , x0 - x4, y0 - y4))
+                    outTmp.write(f'g3 x{x3:.6f} y{y3:.6f} i{x0 - x4:.6f} j{y0 - y4:.6f}\n')
             else:
-                outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x3, y3))
+                outTmp.write(f'g1 x{x3:.6f} y{y3:.6f}\n')
         else:
-            outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x0, y0))
-        outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x1, y1))
-        outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xS, yS))
-    outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xS, yS))
+            outTmp.write(f'g1 x{x0:.6f} y{y0:.6f}\n')
+        outTmp.write(f'g1 x{x1:.6f} y{y1:.6f}\n')
+        outTmp.write(f'g1 x{xS:.6f} y{yS:.6f}\n')
+    outTmp.write(f'g1 x{xS:.6f} y{yS:.6f}\n')
     if leadOutOffset > 0:
         if isExternal:
             if y2 >= y0:
@@ -230,7 +230,7 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
         ylCentre = yS + (leadOutOffset * math.sin(hypotAngle - dir[0]))
         xlEnd = xlCentre + (leadOutOffset * math.cos(hypotAngle - dir[1]))
         ylEnd = ylCentre + (leadOutOffset * math.sin(hypotAngle - dir[1]))
-        outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xlEnd, ylEnd , xlCentre - xS, ylCentre - yS))
+        outTmp.write(f'g3 x{xlEnd:.6f} y{ylEnd:.6f} i{xlCentre - xS:.6f} j{ylCentre - yS:.6f}\n')
     outTmp.write('m5 $0\n')
     outTmp.close()
     outTmp = open(fTmp, 'r')
@@ -240,9 +240,9 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
     if('\\n') in postAmble:
         outNgc.write('(postamble)\n')
         for l in postAmble.split('\\n'):
-            outNgc.write('{}\n'.format(l))
+            outNgc.write(f'{l}\n')
     else:
-        outNgc.write('\n{} (postamble)\n'.format(postAmble))
+        outNgc.write(f'\n{postAmble} (postamble)\n')
     outNgc.write('m2\n')
     outNgc.close()
     return None

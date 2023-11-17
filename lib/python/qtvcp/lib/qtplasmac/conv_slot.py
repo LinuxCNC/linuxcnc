@@ -1,8 +1,8 @@
 '''
 conv_slot.py
 
-Copyright (C) 2020, 2021, 2022  Phillip A Carter
-Copyright (C) 2020, 2021, 2022  Gregory D Carl
+Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
+Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -30,9 +30,9 @@ def preview(P, W, Conv):
     if P.dialogError:
         return
     if not W.xsEntry.text():
-        W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
+        W.xsEntry.setText(f'{P.xOrigin:0.3f}')
     if not W.ysEntry.text():
-        W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
+        W.ysEntry.setText(f'{P.yOrigin:0.3f}')
     origin = W.centLeft.text() == 'CENTER'
     error = SLOT.preview(Conv, P.fTmp, P.fNgc, P.fNgcBkp, \
             int(W.conv_material.currentText().split(':')[0]), \
@@ -127,9 +127,9 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.aLabel, 8, 0)
         W.entries.addWidget(W.aEntry, 8, 1)
         for r in [9,10,11]:
-            W['s{}'.format(r)] = QLabel('')
-            W['s{}'.format(r)].setFixedHeight(24)
-            W.entries.addWidget(W['s{}'.format(r)], r, 0)
+            W[f's{r}'] = QLabel('')
+            W[f's{r}'].setFixedHeight(24)
+            W.entries.addWidget(W[f's{r}'], r, 0)
         W.entries.addWidget(W.preview, 12, 0)
         W.entries.addWidget(W.add, 12, 2)
         W.entries.addWidget(W.undo, 12, 4)

@@ -2,8 +2,8 @@
 '''
 pmx_test.py
 
-Copyright (C) 2020, 2021 Phillip A Carter
-Copyright (C) 2020, 2021  Gregory D Carl
+Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
+Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -126,7 +126,7 @@ class App(QWidget):
         if reg == rMode:
             mode = self.modeSet.currentIndex() + 1
             self.pressureSet.setValue(0)
-            if not self.write_to_register(rMode, '{:04x}'.format(mode)): return
+            if not self.write_to_register(rMode, f'{mode:04x}'): return
             self.mode_changed()
             return
         elif reg == rPressure:
@@ -140,9 +140,9 @@ class App(QWidget):
                     widget.setValue(self.minPressure)
                 elif widget.value() == self.minPressure - 1:
                     widget.setValue(0)
-            data = ('{:04X}'.format(int(widget.value() * multiplier))).upper()
+            data = (f'{int(widget.value() * multiplier):04X}').upper()
         elif reg == rCurrent:
-            data = ('{:04X}'.format(int(widget.value() * multiplier))).upper()
+            data = (f'{int(widget.value() * multiplier):04X}').upper()
         self.write_to_register(reg , data)
 
     def get_lrc(self, data):
@@ -154,13 +154,13 @@ class App(QWidget):
             except:
                 print('broken packet in get_lrc')
                 return '00'
-        lrc = ('{:02X}'.format((((lrc ^ 255) + 1) & 255))).upper()
+        lrc = (f'{(((lrc ^ 255) + 1) & 255):02X}').upper()
         return lrc
 
     def write_to_register(self, reg, data):
-        data = '{}{}{}{}'.format(address, regWrite, reg, data)
+        data = f'{address}{regWrite}{reg}{data}'
         lrc = self.get_lrc(data)
-        packet = ':{}{}\r\n'.format(data, lrc)
+        packet = f':{data}{lrc}\r\n'
         errors = 0
         while 1:
             try:
@@ -185,9 +185,9 @@ class App(QWidget):
         return True
 
     def read_from_register(self, reg):
-        data = '{}{}{}0001'.format(address, regRead, reg)
+        data = f'{address}{regRead}{reg}0001'
         lrc =self.get_lrc(data)
-        packet = ':{}{}\r\n'.format(data, lrc)
+        packet = f':{data}{lrc}\r\n'
         reply = ''
         self.openPort.write(packet.encode())
         reply = self.openPort.readline().decode()
@@ -209,8 +209,8 @@ class App(QWidget):
             return
         if result:
             if int(result.strip(), 16) >= 0:
-                if result[:6] == '{}{}'.format(address, validRead):
-                    lrc = self.get_lrc('{}'.format(result[:10]))
+                if result[:6] == f'{address}{validRead}':
+                    lrc = self.get_lrc(f'{result[:10]}')
                     if lrc == result[10:12]:
                         if reg == rMode:
                             data = int(result[6:10])
@@ -218,64 +218,64 @@ class App(QWidget):
                             return data
                         elif reg == rCurrent:
                             data = float(int(result[6:10], 16) / 64.0)
-                            self.currentValue.setText('{:.0f}'.format(data))
+                            self.currentValue.setText(f'{data:.0f}')
                             return data
                         elif reg == rPressure:
                             data = float(int(result[6:10], 16) / 128.0)
                             if self.pressureType == 'bar':
-                                self.pressureValue.setText('{:.1f}'.format(data))
+                                self.pressureValue.setText(f'{data:.1f}')
                             else:
-                                self.pressureValue.setText('{:.0f}'.format(data))
+                                self.pressureValue.setText(f'{data:.0f}')
                             return 1
                         elif reg == rFault:
                             fault = int(result[6:10], 16)
-                            code = '{:04d}'.format(fault)
+                            code = f'{fault:04d}'
                             if fault > 0:
                                 self.faultLabel.setText('FAULT')
-                                self.faultValue.setText('{}-{}-{}'.format(code[0], code[1:3], code[3]))
+                                self.faultValue.setText(f'{code[0]}-{code[1:3]}-{code[3]}')
                             else:
                                 self.faultLabel.setText('')
                                 self.faultValue.setText('')
                             if fault == 210:
                                 if float(self.currentMax.text()) >110:
-                                    self.faultName.setText('{}'.format(faultCode[code][1]))
+                                    self.faultName.setText(f'{faultCode[code][1]}')
                                 else:
-                                    self.faultName.setText('{}'.format(faultCode[code][1]))
+                                    self.faultName.setText(f'{faultCode[code][1]}')
                             else:
                                 try:
-                                    self.faultName.setText('{}'.format(faultCode[code]))
+                                    self.faultName.setText(f'{faultCode[code]}')
                                 except:
                                     self.faultName.setText('UNKNOWN FAULT CODE')
                             return code
                         elif reg == rCurrentMin:
                             data = float(int(result[6:10], 16) / 64.0)
-                            self.currentMin.setText('{:.0f}'.format(data))
+                            self.currentMin.setText(f'{data:.0f}')
                             return data
                         elif reg == rCurrentMax:
                             data = float(int(result[6:10], 16) / 64.0)
-                            self.currentMax.setText('{:.0f}'.format(data))
+                            self.currentMax.setText(f'{data:.0f}')
                             return data
                         elif reg == rPressureMin:
                             data = float(int(result[6:10], 16) / 128.0)
                             self.minimumPressure = data
                             if data < 15:
                                 self.pressureType = 'bar'
-                                self.pressureMin.setText('{:.1f}'.format(data))
+                                self.pressureMin.setText(f'{data:.1f}')
                                 self.pressure.setSingleStep(0.1)
                                 self.pressure.setDecimals(1)
                             else:
                                 self.pressureType = 'psi'
-                                self.pressureMin.setText('{:.0f}'.format(data))
+                                self.pressureMin.setText(f'{data:.0f}')
                                 self.pressureSet.setSingleStep(1)
                                 self.pressureSet.setDecimals(0)
                             return data
                         elif reg == rPressureMax:
                             data = float(int(result[6:10], 16) / 128.0)
                             if self.pressureType == 'bar':
-                                self.pressureMax.setText('{:.1f}'.format(data))
+                                self.pressureMax.setText(f'{data:.1f}')
                                 self.pressureSet.setMaximum(data)
                             else:
-                                self.pressureMax.setText('{:.0f}'.format(data))
+                                self.pressureMax.setText(f'{data:.0f}')
                                 self.pressureSet.setMaximum(data)
                             return data
                         elif reg == rArcTimeLow:
@@ -305,10 +305,10 @@ class App(QWidget):
                     return
             self.portName.setEnabled = False
             mode = self.modeSet.currentIndex() + 1
-            if not self.write_to_register(rMode, '{:04x}'.format(mode)): return
-            data = '{:04X}'.format(int(self.currentSet.value() * 64))
+            if not self.write_to_register(rMode, f'{mode:04x}'): return
+            data = f'{int(self.currentSet.value() * 64):04X}'
             if not self.write_to_register(rCurrent, data): return
-            data = '{:04X}'.format(int(self.pressureSet.value() * 128))
+            data = f'{int(self.pressureSet.value() * 128):04X}'
             if not self.write_to_register(rPressure, data): return
             self.mode_changed()
             self.timer.start(100)
@@ -327,7 +327,7 @@ class App(QWidget):
             ArcTime = int((ArcTimeHigh + ArcTimeLow), 16)
             m, s = divmod(ArcTime, 60)
             h, m = divmod(m, 60)
-            self.arctimeValue.setText('{:.0f}:{:02.0f}:{:02.0f}'.format(h,m,s))
+            self.arctimeValue.setText(f'{h:.0f}:{m:02.0f}:{s:02.0f}')
         self.pressureSet.setRange((0),float(self.pressureMax.text()))
         self.minPressure = float(self.pressureMin.text())
         self.maxPressure = float(self.pressureMax.text())
@@ -369,12 +369,12 @@ class App(QWidget):
                     stopbits = 1,
                     timeout = 0.1
                     )
-            print('\n{} is open...\n'.format(self.portName.currentText()))
+            print(f'\n{self.portName.currentText()} is open...\n')
         except:
             self.dialog_ok(
                     QMessageBox.Warning,\
                     'Error',\
-                    '\nCould not open {}\n'.format(self.portName.currentText()))
+                    f'\nCould not open {self.portName.currentText()}\n')
             return
         self.usePanel.setEnabled(True)
         self.useComms.setEnabled(True)

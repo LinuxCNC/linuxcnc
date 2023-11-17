@@ -2,8 +2,8 @@
 '''
 qtplasmac_sim_handler.py
 
-Copyright (C) 2020, 2021, 2022  Phillip A Carter
-Copyright (C) 2020, 2021, 2022  Gregory D Carl
+Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
+Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -43,7 +43,7 @@ class HandlerClass:
                               QtCore.Qt.WindowStaysOnTopHint )
         self.machineName = self.iniFile.find('EMC', 'MACHINE')
         self.prefs = Access(os.path.join(self.paths.CONFIGPATH, self.machineName + '.prefs'))
-        self.styleFile = '{}/qtplasmac_sim.qss'.format(paths.CONFIGPATH)
+        self.styleFile = f'{paths.CONFIGPATH}/qtplasmac_sim.qss'
         self.set_estop()
         self.set_style()
 
@@ -101,7 +101,7 @@ class HandlerClass:
         hal.set_p('estop_or.in0', '1')
         self.height = 5 if hal.get_value('halui.machine.units-per-mm') == 1 else 0.2
         self.materialPin.set(self.height)
-        self.w.estop.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.estopColor))
+        self.w.estop.setStyleSheet(f'color: {self.foreColor}; background: {self.estopColor}')
         self.floatLatched = False
         self.ohmicLatched = False
 
@@ -119,61 +119,60 @@ class HandlerClass:
         with open(self.styleFile, 'w') as outFile:
             outFile.write(
             '\n/****** DEFAULT ************/\n'\
-            '* {{\n'\
-            '    color: {0};\n'\
-            '    background: {1};\n'\
-            '    font: 10pt DejaVuSans }}\n'\
+            f'* {{\n'\
+            f'    color: {self.foreColor};\n'\
+            f'    background: {self.backColor};\n'\
+            f'    font: 10pt DejaVuSans }}\n'\
             '\n/****** BUTTONS ************/\n'\
-            'QPushButton {{\n'\
-            '    color: {0};\n'\
-            '    background: {1};\n'\
-            '    border: 1px solid {0};\n'\
+            f'QPushButton {{\n'\
+            f'    color: {self.foreColor};\n'\
+            f'    background: {self.backColor};\n'\
+            f'    border: 1px solid {self.foreColor};\n'\
             '    border-radius: 4px;\n'\
-            '}}\n'\
+            f'}}\n'\
             '\n/****** SLIDER ************/\n'\
-            'QSlider::groove:horizontal {{\n'\
+            f'QSlider::groove:horizontal {{\n'\
             '    background: gray;\n'\
             '    border-radius: 4px;\n'\
-            '    height: 20px }}\n'\
-            '\nQSlider::handle:horizontal {{\n'\
-            '    background: {0};\n'\
-            '    border: 0px solid {0};\n'\
+            f'    height: 20px }}\n'\
+            f'\nQSlider::handle:horizontal {{\n'\
+            f'    background: {self.foreColor};\n'\
+            f'    border: 0px solid {self.foreColor};\n'\
             '    border-radius: 4px;\n'\
-            '    width: 24px }}\n'\
-            '\nQSlider::handle:horizontal:disabled {{\n'\
-            '    background: {1} }}\n'\
-            '\nQSlider::add-page:horizontal {{\n'\
-            '    background: {2};\n'\
-            '    border: 1px solid {2};\n'\
-            '    border-radius: 4px }}\n'\
-            '\nQSlider::sub-page:horizontal {{\n'\
-            '    background: {2};\n'\
-            '    border: 1px solid {2};\n'\
-            '    border-radius: 4px }}\n'\
-            '\nLine {{\n'\
+            f'    width: 24px }}\n'\
+            f'\nQSlider::handle:horizontal:disabled {{\n'\
+            f'    background: {self.backColor} }}\n'\
+            f'\nQSlider::add-page:horizontal {{\n'\
+            f'    background: {self.backAlt};\n'\
+            f'    border: 1px solid {self.backAlt};\n'\
+            f'    border-radius: 4px }}\n'\
+            f'\nQSlider::sub-page:horizontal {{\n'\
+            f'    background: {self.backAlt};\n'\
+            f'    border: 1px solid {self.backAlt};\n'\
+            f'    border-radius: 4px }}\n'\
+            f'\nLine {{\n'\
             '    color: red;\n'\
-            '    background: red }}\n'\
-            '\nQCheckBox {{\n'\
-            '    spacing: 20px }}\n'\
-            '\nQCheckBox::indicator {{\n'\
-            '    border: 1px solid {0};\n'\
+            f'    background: red }}\n'\
+            f'\nQCheckBox {{\n'\
+            f'    spacing: 20px }}\n'\
+            f'\nQCheckBox::indicator {{\n'\
+            f'    border: 1px solid {self.foreColor};\n'\
             '    border-radius: 4px;\n'\
             '    width: 20px;\n'\
-            '    height: 20px }}\n'\
-            '\nQCheckBox::indicator:pressed {{\n'\
-            '    background: {0} }}\n'\
-            '\nQCheckBox::indicator:checked {{\n'\
-            '    background: {0} }}\n'\
-            '\nQCheckBox::indicator:checked:pressed {{\n'\
-            '    background: {1} }}\n'\
-            .format(self.foreColor, self.backColor, self.backAlt, self.estopColor)
+            f'    height: 20px }}\n'\
+            f'\nQCheckBox::indicator:pressed {{\n'\
+            f'    background: {self.foreColor} }}\n'\
+            f'\nQCheckBox::indicator:checked {{\n'\
+            f'    background: {self.foreColor} }}\n'\
+            f'\nQCheckBox::indicator:checked:pressed {{\n'\
+            f'    background: {self.foreColor} }}\n'\
             )
 
     def arc_ok_clicked(self):
         if self.w.arc_ok.isChecked():
-            self.w.arc_ok.setStyleSheet('color: {}; background: {}'.format(self.backColor, self.foreColor))
+            self.w.arc_ok.setStyleSheet(f'color: {self.backColor}; background: {self.foreColor}')
         else:
-            self.w.arc_ok.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
+            self.w.arc_ok.setStyleSheet(f'color: {self.foreColor}; background: {self.backColor}')
 
     def float_timer_done(self):
         if self.below_material():
@@ -194,7 +193,7 @@ class HandlerClass:
     def break_timer_done(self):
         if not self.w.sensor_brk.isDown():
             self.breakPin.set(0)
-            self.w.sensor_brk.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
+            self.w.sensor_brk.setStyleSheet(f'color: {self.foreColor}; background: {self.backColor}')
 
     def float_pressed(self):
         if self.fTimer.isActive():
@@ -224,19 +223,19 @@ class HandlerClass:
 
     def float_set(self):
         self.floatPin.set(1)
-        self.w.sensor_flt.setStyleSheet('color: {}; background: {}'.format(self.backColor, self.foreColor))
+        self.w.sensor_flt.setStyleSheet(f'color: {self.backColor}; background: {self.foreColor}')
 
     def float_reset(self):
         self.floatPin.set(0)
-        self.w.sensor_flt.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
+        self.w.sensor_flt.setStyleSheet(f'color: {self.foreColor}; background: {self.backColor}')
 
     def ohmic_set(self):
         self.ohmicPin.set(1)
-        self.w.sensor_ohm.setStyleSheet('color: {}; background: {}'.format(self.backColor, self.foreColor))
+        self.w.sensor_ohm.setStyleSheet(f'color: {self.backColor}; background: {self.foreColor}')
 
     def ohmic_reset(self):
         self.ohmicPin.set(0)
-        self.w.sensor_ohm.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
+        self.w.sensor_ohm.setStyleSheet(f'color: {self.foreColor}; background: {self.backColor}')
 
     def auto_float_pressed(self):
         if self.w.auto_ohm.isChecked:
@@ -250,24 +249,24 @@ class HandlerClass:
         if self.bTimer.isActive():
             self.bTimer.stop()   # stop timer so next click can start it again
             self.breakPin.set(1)
-            self.w.sensor_brk.setStyleSheet('color: {}; background: {}'.format(self.backColor, self.foreColor))
+            self.w.sensor_brk.setStyleSheet(f'color: {self.backColor}; background: {self.foreColor}')
         else:
             if self.breakPin.get():
                 self.bTimer.stop()
                 self.breakPin.set(0)
-                self.w.sensor_brk.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
+                self.w.sensor_brk.setStyleSheet(f'color: {self.foreColor}; background: {self.backColor}')
             else:
                 self.breakPin.set(1)
-                self.w.sensor_brk.setStyleSheet('color: {}; background: {}'.format(self.backColor, self.foreColor))
+                self.w.sensor_brk.setStyleSheet(f'color: {self.backColor}; background: {self.foreColor}')
                 self.bTimer.start()
 
     def estop_pressed(self):
         if hal.get_value('estop_or.in0') == 0:
             hal.set_p('estop_or.in0', '1')
-            self.w.estop.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.estopColor))
+            self.w.estop.setStyleSheet(f'color: {self.foreColor}; background: {self.estopColor}')
         else:
             hal.set_p('estop_or.in0', '0')
-            self.w.estop.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
+            self.w.estop.setStyleSheet(f'color: {self.foreColor}; background: {self.backColor}')
 
     def set_mode(self, mode):
         mode0 = [self.w.sensor_line, \
@@ -299,7 +298,7 @@ class HandlerClass:
 
     def arc_volts_offset_changed(self, value):
             self.arcVoltsOffsetPin.set(value * 0.1)
-            self.w.offset_label.setText('{:0.1f} V'.format(self.arcVoltsOffsetPin.get()))
+            self.w.offset_label.setText(f'{self.arcVoltsOffsetPin.get():0.1f} V')
 
     def plasmac_state_changed(self, state):
         if state == 11 and self.torchPin.get():

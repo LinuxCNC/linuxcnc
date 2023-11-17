@@ -1,8 +1,8 @@
 '''
 conv_settings.py
 
-Copyright (C) 2020, 2021, 2022  Phillip A Carter
-Copyright (C) 2020, 2021, 2022  Gregory D Carl
+Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
+Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -34,23 +34,23 @@ def save(P, W, Conv):
     valid, P.leadIn = Conv.conv_is_float(W.liEntry.text())
     if not valid:
         msg = _translate('Conversational', 'Invalid LEAD IN entry detected')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     valid, P.leadOut = Conv.conv_is_float(W.loEntry.text())
     if not valid:
         msg = _translate('Conversational', 'Invalid LEAD OUT entry detected')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     valid, P.holeDiameter = Conv.conv_is_float(W.shEntry.text())
     if not valid:
         msg = _translate('Conversational', 'Invalid DIAMETER entry detected')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     valid, P.holeSpeed = Conv.conv_is_float(W.hsEntry.text())
     if not valid:
         msg = _translate('Conversational', 'Invalid SPEED % entry detected')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     valid, P.gridSize = Conv.conv_is_float(W.gsEntry.text())
     if not valid:
         msg = _translate('Conversational', 'Invalid GRID SIZE entry detected')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     if error:
         P.dialogError = True
         P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Settings Error'), error)
@@ -98,11 +98,11 @@ def load(P, W):
 def show(P, W):
     W.preEntry.setText(P.preAmble)
     W.pstEntry.setText(P.postAmble)
-    W.liEntry.setText('{}'.format(P.leadIn))
-    W.loEntry.setText('{}'.format(P.leadOut))
-    W.shEntry.setText('{}'.format(P.holeDiameter))
-    W.hsEntry.setText('{}'.format(P.holeSpeed))
-    W.gsEntry.setText('{}'.format(P.gridSize))
+    W.liEntry.setText(f'{P.leadIn}')
+    W.loEntry.setText(f'{P.leadOut}')
+    W.shEntry.setText(f'{P.holeDiameter}')
+    W.hsEntry.setText(f'{P.holeSpeed}')
+    W.gsEntry.setText(f'{P.gridSize}')
     if P.origin:
         W.centLeft.setText('CENTER')
     else:
@@ -177,9 +177,9 @@ def widgets(P, W, Conv):
     W.entries.addWidget(W.gsLabel, 9, 0)
     W.entries.addWidget(W.gsEntry, 9, 1)
     for r in (10,11):
-        W['s{}'.format(r)] = QLabel('')
-        W['s{}'.format(r)].setFixedHeight(24)
-        W.entries.addWidget(W['s{}'.format(r)], r, 0)
+        W[f's{r}'] = QLabel('')
+        W[f's{r}'].setFixedHeight(24)
+        W.entries.addWidget(W[f's{r}'], r, 0)
     W.entries.addWidget(W.save, 12, 0)
     W.entries.addWidget(W.reload, 12, 2)
     W.entries.addWidget(W.cExit, 12, 4)
