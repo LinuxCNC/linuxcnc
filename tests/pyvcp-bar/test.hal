@@ -1,0 +1,20 @@
+# #########################################
+# 19nob test file pbar01.hal
+# #########################################
+
+loadusr -Wn pbar01 pyvcp -c pbar01 /home/tomp/linuxcnc-barwidgets/tests/pyvcp-bar/pbar01.xml
+loadrt siggen
+
+# automatically get 'servc-thread'
+loadrt threads name1=fast period1=50000 name2=slow period2=1000000
+
+setp siggen.0.frequency 40 #10 OK SLOW  100 FAST JERKY  21-29 have beat freq avoid with ranges
+setp siggen.0.amplitude 5
+setp siggen.0.offset 105
+
+addf siggen.0.update fast
+
+net sinsig siggen.0.sine    pbar01.proc01
+
+start
+
