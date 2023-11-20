@@ -1262,11 +1262,11 @@ int iniLoad(const char *filename)
         }
     }
 
+    strncpy(version, "unknown", LINELEN-1);
     if (NULL != (inistring = inifile.Find("VERSION", "EMC"))) {
-	    if(sscanf(inistring, "$Revision: %s", version) != 1) {
-            strncpy(version, "unknown", LINELEN-1);
-	    }
+	    strncpy(version, inistring, LINELEN-1);
     }
+
 
     if (NULL != (inistring = inifile.Find("MACHINE", "EMC"))) {
 	    strncpy(machine, inistring, LINELEN-1);
