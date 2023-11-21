@@ -1,4 +1,4 @@
-#  this file ius found in /home/tomp/linuxnc-barwidgets/configs/tomp/nuPyvcpBars
+# this file ius found in /home/tomp/linuxnc-barwidgets/configs/tomp/nuPyvcpBars
 # fname is   pyvcp_widgets18nov2023.py
 # ot is the only src
 # it needs to be stored in 2 plavces
