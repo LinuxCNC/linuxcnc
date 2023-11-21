@@ -212,7 +212,7 @@ Do _not_ use a file extension of '.ini' for included files.
 [[sub:ini:sec:emc]]
 === [EMC] Section(((INI File,Sections,[EMC] Section)))
 
-* `VERSION = 1.1` - The version number for the configuration.
+* `VERSION = 1.1` - The format version of this configuration.
   Any value other than 1.1 will cause the configuration checker to run and try to update the configuration to the new style joint axes type of configuration.
 * `MACHINE = My Controller` - This is the name of the controller, which is printed out at the top of most graphical interfaces.
   You can put whatever you want here as long as you make it a single line long.
