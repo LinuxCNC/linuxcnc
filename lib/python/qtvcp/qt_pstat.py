@@ -100,7 +100,7 @@ class _PStat(object):
         local = []
         if self.IS_SCREEN:
             # builtin screen folder
-            default_handler_path = os.path.join(self.SCREENDIR, self.BASEPATH, handler_fn)
+            self._default_handler_path = os.path.join(self.SCREENDIR, self.BASEPATH, handler_fn)
             # relative to configuration folder
             local.append( os.path.join(self.CONFIGPATH, handler_fn))
             # in standard folder
@@ -113,7 +113,7 @@ class _PStat(object):
             # relative to configuration folder
             local.append( os.path.join(self.WORKINGDIR, handler_fn))
             # builtin panel folder
-            default_handler_path = os.path.join(self.PANELDIR, self.BASEPATH, handler_fn)
+            self._default_handler_path = os.path.join(self.PANELDIR, self.BASEPATH, handler_fn)
 
         for local_handler_path in local:
             LOG.debug("Checking for handler file in: yellow<{}>".format(local_handler_path))
@@ -123,9 +123,9 @@ class _PStat(object):
                 break
         # if no break
         else:
-            LOG.debug("Checking for default handler file in: yellow<{}>".format(default_handler_path))
-            if os.path.exists(default_handler_path):
-                self.HANDLER = default_handler_path
+            LOG.debug("Checking for default handler file in: yellow<{}>".format(self._default_handler_path))
+            if os.path.exists(self._default_handler_path):
+                self.HANDLER = self._default_handler_path
                 LOG.info("Using DEFAULT handler file path: yellow<{}>".format(self.HANDLER))
             else:
                 self.HANDLER = None
@@ -419,3 +419,43 @@ class _PStat(object):
                     tmp.append(file)
 
         return tmp
+
+    def isUsingDefaultHandler(self):
+        return bool(self.HANDLER == self._default_handler_path)
+
+    def getQSSPaths(self):
+        '''
+        Search for qss files in default builtin directories,
+        in the configuration expected directory CONFIG DIR/qtvcp/screen/SCREEN NAME, or 
+        CONFIG DIR/qtvcp/panel/PANEL NAME or finally the legacy location in the configuration directory.
+        Returns two lists of a list of directory/filename pairs. The first list is default 
+        builtin paths, the second is local configuration paths
+        '''
+        local = []
+        if self.IS_SCREEN:
+            default = os.path.join(self.SCREENDIR, self.BASEPATH)
+            local.append( os.path.join(self.CONFIGPATH))
+            local.append( os.path.join(self.CONFIGPATH, 'qtvcp/screens',self.BASEPATH))
+            local.append( os.path.join(self.CONFIGPATH, self.BASEPATH))
+        else:
+            local.append( os.path.join(self.WORKINGDIR, 'qtvcp/panels',self.BASEPATH))
+            local.append( os.path.join(self.WORKINGDIR))
+            default = os.path.join(self.PANELDIR, self.BASEPATH)
+
+        temp = []
+        for group in ([default],local):
+            child = []
+            for qsspath in group:
+                if not os.path.exists(qsspath):
+                    continue
+                try:
+                    fileNames= [f for f in os.listdir(qsspath) if f.endswith('.qss')]
+                    for i in fileNames:
+                        child.append([qsspath,i])
+
+                except Exception as e:
+                    print(e)
+            temp.append(child)
+
+        return temp[0], temp[1]
+
