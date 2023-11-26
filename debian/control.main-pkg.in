@@ -2,7 +2,6 @@ Package: @MAIN_PACKAGE_NAME@
 Conflicts:
     linuxcnc-sim,
     @OTHER_MAIN_PACKAGE_NAME@
-
 Architecture: any
 Depends:
     ${misc:Depends},
