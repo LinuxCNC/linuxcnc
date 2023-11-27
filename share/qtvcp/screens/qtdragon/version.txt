@@ -1,0 +1,5 @@
+Qtdragon
+
+version 1.0 released in linuxcnc 2.9.1
+
+version 1.1 fix probe routines: spindle starts on error or abort
