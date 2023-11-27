@@ -1,3 +1,5 @@
+#22nov allowed range color chganges to border when dwgf or imgf are used
+#
 # this file ius found in /home/tomp/linuxnc-barwidgets/configs/tomp/nuPyvcpBars
 # fname is   pyvcp_widgets18nov2023.py
 # ot is the only src
@@ -75,10 +77,7 @@ from hal import *
 import math
 import bwidget
 import time
-
-#22oct2023 TJP add impoirtlib  to aid loading custom 'thumbs' for class 'bar'
 import importlib
-#15nov add os to check if file exists 
 import os
 # -------------------------------------------
 
@@ -1462,11 +1461,11 @@ class pyvcp_bar(Canvas):
         #
         #
         # ###########################################
-        #  common tes size calcs    
+        #  common text size calcs    
         #  determin pixel width of texts
         #   bounding box method should be exact correct 
         #   but i had to resort to paddings 
-        #   i tested many fonts and heights
+        #   I tested many fonts and heights
         # ###########################################
         p = self.tlen(min_)
         twMin = p[2]-p[0] # min_ text width
@@ -1478,7 +1477,7 @@ class pyvcp_bar(Canvas):
         #
         twVal = twMaxW # use txMaxW , the width can vary, value is dynamic, seems to work
         # ###########################################
-        # end commontext size calcs
+        # end common text size calcs
         # ###########################################
         #
         # ###########################################        
@@ -1491,9 +1490,6 @@ class pyvcp_bar(Canvas):
         # ###########################################        
         # IF layout == 0 AND ( dwgf XOR imgf)
         # ###########################################        
-        # 12nov origin is not important when dwgf or imgf is used
-        #   when there is a rect thumb, then origin matters
-        #   when a marker ( dwgf or imgf ) is used, origin is not used
         #
         if(self.layout == "0" )and((imgf!=None)!=(dwgf!=None)): 
             pycomp.newpin(halpin+".minpin", HAL_FLOAT, HAL_OUT)
@@ -1505,28 +1501,20 @@ class pyvcp_bar(Canvas):
             pycomp[halpin+'.refpin']=self.origin
             #
             self.border_coords()
-            border=self.create_rectangle(
+            #22nov keep reference in obj, previously was 'border = self...', so not available to other code
+            self.border=self.create_rectangle(
               self.borderX0,
               self.borderY0,
               self.borderX1,
               self.borderY1,
               fill=bgcolor
             )
-            # add origin graphic if origin !=None
-            # TODO i think a simple line is better than the rect 
+            # add origin graphic if origin !=None ( just a thinline thru canvas)
+            #
             # CREATE ORIGIN MARKER
             self.thumb_coords()
             if(origin !=None):
                 if(orient == 'Vert'):
-                    """
-                    orgMarker=self.create_rectangle(
-                      0,
-                      self.thumbY0-2,# what ius origin inpic=xles?  thumbY0
-                      self.cw,
-                      self.thumbY0+2,
-                      fill=None
-                    )
-                    """
                     orgMarker=self.create_line(
                       0,
                       self.thumbY0,
@@ -1535,15 +1523,6 @@ class pyvcp_bar(Canvas):
                       fill=None
                     )
                 else:# else orient == Horz
-                    """
-                    orgMarker=self.create_rectangle(
-                      self.thumbX0-2,
-                      0,
-                      self.thumbX0+2,
-                      self.ch,
-                      fill=None
-                    )
-                    """
                     orgMarker=self.create_line(
                       self.thumbX0,
                       0,
@@ -1556,19 +1535,15 @@ class pyvcp_bar(Canvas):
             #   only layout 0 allows dwgf OR imgf thumbs ( not mandetory)
             # ###########################################        
             #
-            # if no text wanted and no imf and no dw=gf, then show rect thumb
+            # if no text wanted (layout==0) and (no imf and no dwgf), t0hen show rect thumb
             # ###########################################        
             #
-            
-            
-            
-            #10nov TODO add try/except to photo creation
             # ###########################################        
             #   for layout 0 with an img thumb
             # ###########################################        
             if( self.dwgf == None ) and ( self.imgf != None ):
                 imagefile = self.imgf
-                # 15 nov trap error open or existinmg or wrinmg ftype
+                # trap error open or existinmg or wrinmg ftype
                 try:
                     photo = PhotoImage(file=imagefile)
                 except IndexError : #damn! file not found is an indexerror not an ioerror
@@ -1577,17 +1552,26 @@ class pyvcp_bar(Canvas):
                 #
                 self.imgID=self.create_image(self.cw/2,(self.ch/2), image=photo)
                 self.image = photo# DAMN! this is necc  else not vix!
-                
-                
-                
-            #10nov TODO add try/except to photo creation
+                #
+                #22nov allow dwgs to be fileed accord to range
+                if((range1!=None)or(range2!=None)or(range3!=None)):
+                    if((self.origin!=self.min_)and(self.origin!=self.max_)):
+                        print("ranges require origin be min_, max_, or None")
+                        sys.exit(1)
+                #
+                if( (origin == min_ ) or ( origin == max_)):
+                    if range1!=None and range2!=None and range3!=None:
+                        self.range1 = range1
+                        self.range2 = range2
+                        self.range3 = range3
+                        self.ranges = True
             # ###########################################        
             #   for layout 0 with an dwg thumb  a dwgf file is python.tkinter cmds to draw
             # ###########################################        
             if( self.dwgf != None ) and ( self.imgf == None ):
                 try:
-                    # 18nov allow user to store dwgf files anywher
-                    # but they must use fulkl file spec less .py in tag <dwgf> of xml
+                    # 18nov allow user to store dwgf files anywhere
+                    # but they must use fqfn file spec less .py in tag <dwgf> of xml
                     dwgfparts = self.dwgf.rsplit('/',1)
                     dwgfpath = dwgfparts[0]
                     dwgfnames=dwgfparts[1].split('.py')
@@ -1599,16 +1583,25 @@ class pyvcp_bar(Canvas):
                     print("Error importing ",self.dwgf)
                     sys.exit(1)
                 #
+                #22nov allow dwgs to be fileed accord to range
+                if((range1!=None)or(range2!=None)or(range3!=None)):
+                    if((self.origin!=self.min_)and(self.origin!=self.max_)):
+                        print("ranges require origin be min_, max_, or None")
+                        sys.exit(1)
+                #
+                if( (origin == min_ ) or ( origin == max_)):
+                    if range1!=None and range2!=None and range3!=None:
+                        self.range1 = range1
+                        self.range2 = range2
+                        self.range3 = range3
+                        self.ranges = True
+                #
                 if( self.orient == 'Vert'):
                     self.value = self.max_ # i think do this ALWAYS
                     self.thumb.createMarker(self)#,self.cw,self.bh,self.max_,self.min_,self.value)
                 else:# for HORZ initl marker begins dwg at x=origin, y= ch/2
-                    #elf.thumb.createMarker(self,self.ch,self.bw,self.max_,self.min_,self.value)
-                    # ng vvv err out of ramge 
-                    # self.value = self.pxPadHorz #12nov  initial posn is at left edge of bar(0)
-                    #12nov use self.min_ becuz its similar to Vert with self.max_ ( both 0 )
                     self.value = self.min_ # i think do this ALWAYS
-                    self.thumb.createMarker(self)#,self.cw,self.bh,self.max_,self.min_,self.value)
+                    self.thumb.createMarker(self)
             #
         else:
             # #############################################
@@ -1618,8 +1611,6 @@ class pyvcp_bar(Canvas):
             # the tag 'orient' can be 'Vert' or 'Horz' or None ( deaults to Horz)
             # re bars: lielty arcs can be done, but I stop dev for now 25oct2023
             #
-            #13nov add pins in layout 0 AND (neither imgf nor dwgf wanted)
-            #    do this for orient == vert and horz 
             #15 make all pins allways ( any orient any layout)
             if(self.layout == "0" )and((imgf==None)and(dwgf==None)): 
                 pycomp.newpin(halpin+".minpin", HAL_FLOAT, HAL_OUT)
@@ -1637,7 +1628,8 @@ class pyvcp_bar(Canvas):
                 #  VERT orient BORDER   coords and fill
                 # #############################################
                 self.border_coords()
-                border=self.create_rectangle(
+                #2nov keep the reference in parent obj
+                self.border=self.create_rectangle(
                   self.borderX0,
                   self.borderY0,
                   self.borderX1,
@@ -1648,18 +1640,7 @@ class pyvcp_bar(Canvas):
                 #  VERT orient THUMB COORDS
                 # ########################################
                 self.thumb_coords()
-                #15nov
                 # CREATE ORIGIN MARKER
-                """
-                if(origin !=None):
-                    orgMarker=self.create_rectangle(
-                      0,
-                      self.thumbY0-2,# what ius origin inpic=xles?  thumbY0
-                      self.cw,
-                      self.thumbY0+2,
-                      fill=None
-                    )
-                """
                 if(origin !=None):
                     orgMarker=self.create_line(
                       0,
@@ -1706,27 +1687,13 @@ class pyvcp_bar(Canvas):
                     #   create VERT TEXTS  IF layout !=0
                     # #################################
                     #
-                    #14nivv move min and max to ctr of bar
-                    # 14nov add text for origin
-                    #15nov un do 13th
-                    """
-                    txMin2=self.cw/2
-                    tyorigintext=self.thumbY0
-                    org_text=self.create_text(
-                      txMin,
-                      tyorigintext,
-                      text=str(self.nformat % origin),
-                      font=self.font
-                    )
-                    """
-                    #14nov domt show min max  never
                     start_text=self.create_text(
                       txMin,
                       tystarttext,
                       text=str(self.nformat % min_),
                       font=self.font
                     )
-                    #txMax2=txMin2
+                    #
                     end_text=self.create_text(
                       txMax,
                       tyendtext, 
@@ -1735,9 +1702,6 @@ class pyvcp_bar(Canvas):
                     )
                     # Q why would val_text be a chiild of self?
                     # A so its accessible to other funcs  like thumb coords()
-                    #14nov put valk text at top of bar ( maybe allow top or bot later)
-                    #txVal2=txMin2
-                    #tyvaltext2= self.pxPadVert + (.5*self.font[1])
                     self.val_text=self.create_text(
                       txMin,
                       tyvaltext,
@@ -1745,6 +1709,8 @@ class pyvcp_bar(Canvas):
                       font=self.font
                     )
                 # endVert,  if layout != 0
+                else:
+                    print(1749,"layout == 0")
             else: #  else  Horz
                 # **********************************
                 # ******* orient == Horz **********
@@ -1752,7 +1718,8 @@ class pyvcp_bar(Canvas):
                 #  begin HORZ orient BORDER   coords and fill
                 # ########################################
                 self.border_coords()
-                border=self.create_rectangle(
+                #2nov keep the reference in parent obj
+                self.border=self.create_rectangle(
                   self.borderX0,
                   self.borderY0,
                   self.borderX1,
@@ -1764,18 +1731,7 @@ class pyvcp_bar(Canvas):
                 # ########################################
                 self.thumb_coords()
                 # CREATE ORIGIN MARKER IF org != None
-                #15nov
-                #print(1717)
                 if(origin != None):
-                    """
-                    orgMarker=self.create_rectangle(
-                      self.thumbX0-2,
-                      0,
-                      self.thumbX0+2,
-                      self.ch,
-                      fill=None
-                    )
-                    """
                     orgMarker=self.create_line(
                       self.thumbX0,
                       0,
@@ -1784,12 +1740,6 @@ class pyvcp_bar(Canvas):
                       fill=None
                     )
                 #
-                #09nov CREATE THUMB unless imgf == None AND dwgf == None
-                #10nov thumb is not bar, thuumb moves inside var (aka elevator)
-                #  so ALWAYS create bar, sometrimes create thumb
-                #
-                # 13nov terrible names!  whats is called self.bar IS the thumb!
-                #   and the elevator shaft is the 'border;
                 self.bar=self.create_rectangle(self.thumbX0, self.thumbY0, self.thumbX1, self.thumbY1, fill=fillcolor)
                 # ########################################
                 # HORZ orient TEXT WIDTHs & COORDS
@@ -1818,14 +1768,7 @@ class pyvcp_bar(Canvas):
                     # #################################
                     #   create HORZ TEXTS  already layout !=0
                     # #################################
-                    #14non thers no room to display origin,
-                    #  so i turn 2 displays vert  min and max at ends(this is Horzbar), 
-                    #   & have othe 2 horzm ctrd, aboive and below bar
-                    #     value below and origin on top with txt 'org='
                     #
-                    #
-                    #txMin2=(.5*tyH)
-                    #tytext=self.ch/2
                     start_text=self.create_text(
                       txMin,
                       tytext,
@@ -1833,17 +1776,14 @@ class pyvcp_bar(Canvas):
                       font=self.font
                     )
                     #
-                    #txMax2=self.cw-(.5*tyH)
                     end_text=self.create_text(
                       txMax,
                       tytext,
                       text=str(self.nformat % max_),
                       font=self.font
                     )
-                    #
                     # Q why would this be a child? 
                     # A so its accessible to thumbn_coords by passimg self
-                    #tytext2=self.pxPadVert - (.5*tyH)
                     self.val_text=self.create_text(
                       txVal,
                       tytext,
@@ -1851,17 +1791,6 @@ class pyvcp_bar(Canvas):
                       font=self.font
                     )
                     #
-                    """
-                    txOrg2=self.thumbX0
-                    tyOrg2=self.ch-(.5*tyH)
-                    self.org_text=self.create_text(
-                      txOrg2,
-                      tyOrg2,
-                      text=str(self.nformat % self.origin),
-                      font=self.font
-                    )
-                    """
-                    
                 # end Horz and layout !-0
                 #
             #
@@ -1875,22 +1804,13 @@ class pyvcp_bar(Canvas):
             #    THUMB COLOR accortdcing to RANGE
             # ############################################
             #
-            
-            
             # ############################################
-            #         RANGES  only allow ranges if origin is min_ or max_ AND layout !=0
+            #         RANGES  only allow ranges if origin is min_ or max_ 
             # ############################################
             # self.ranges defaultrs to False
             #
             #15niov disallow any ranges unless origin is at min or max or None
             if((range1!=None)or(range2!=None)or(range3!=None)):
-                #18nov remove prints 5 lines
-                #print("all ranges not None")
-                #if(self.origin == self.min_):
-                #    print("origin == min_")
-                #if(self.origin == self.max_):
-                #    print("origin == max_")
-                #
                 if((self.origin!=self.min_)and(self.origin!=self.max_)):
                     print("ranges require origin be min_, max_, or None")
                     sys.exit(1)
@@ -1926,12 +1846,6 @@ class pyvcp_bar(Canvas):
         newvalue=pycomp[self.halpin]
         if newvalue != self.value: #  if data changed
             self.value = newvalue # store it
-            #
-            # 13nov
-            #if(self.value>self.max_):
-            #    self.value = self.max_
-            #if(self.value<self.min_):
-            #    self.value = self.min_
             #
             # value out of bounds is unliukely but maybe a value src can malfunction...
             try: 
@@ -1979,7 +1893,6 @@ class pyvcp_bar(Canvas):
                     #
                     # end if(self.origin == self.min_):
                 else:
-                    # else if(self.origin != self.min_):  so is max_ or someplace in middle
                     #
                     if(self.origin == self.max_):
                         self.thumbY1 =int( ( ( self.max_ - self.value ) / ( fRange ) ) * self.bh)
@@ -1993,7 +1906,6 @@ class pyvcp_bar(Canvas):
                             if(self.value - littlebit <= self.min_):
                                 self.thumbY1 = self.bh
                             else:
-                                # else:    self.value is BETWEEN max_ and min_
                                 fRangeBlo = self.origin - self.min_
                                 fRangeAbv = fRange - fRangeBlo
                                 pxTopToOrigin = int( ( (self.max_ - self.origin) / fRange ) * self.bh)
@@ -2077,7 +1989,7 @@ class pyvcp_bar(Canvas):
             #  soL  use (caseA) != (vaseB) to get 'xor' equiv
             #
             if(self.layout=="0")and( (self.dwgf != None)!=(self.imgf!=None) ): #
-                # IF dwgf
+                #
                 if( self.dwgf != None ) and ( self.imgf == None ):
                     # IF dwgf AND Vert
                     if(self.orient == 'Vert'):
@@ -2090,8 +2002,6 @@ class pyvcp_bar(Canvas):
                         #
                 else:
                     # IF there is a imgf
-                    #10nov this v vv test is redumndant
-                    #if( self.dwgf == None ) and ( self.imgf != None ):
                     if self.imgf != None :
                         if(self.orient == "Horz"):
                             xpos = int(((self.max_-self.value)/(self.max_-self.min_))*(self.bw))
@@ -2119,36 +2029,35 @@ class pyvcp_bar(Canvas):
     #      set_file, get elevator bg color, maybe dyn chg according to range
     # #####################################
     def set_fill(self, range1triplet, range2triplet, range3triplet ): #NOTHERE
+        # only call this if ranges == True
         (start1, end1, color1) = range1triplet
         (start2, end2, color2) = range2triplet
         (start3, end3, color3) = range3triplet
         #
         # 15novb imgf and dwghf rqrs layout 0
-        if(self.dwgf==None)and(self.imgf==None):
+        #
+        # 22 nov beware thumb fill color == border color makes thunm imvisible!
+        # force thumb fill color to white? to com,pliment of bordercolor?
+        # advise use to use diuff  colors for rnage1,2,3 and fill color?
+        #
+        #22nov always chg bar fill if ranges is true ( ramges is True if here)
+        #
+        # if dwgf then fill dwgf and fill border 
+        if (self.dwgf != None) or ( self.imgf!=None):
+            # decide which color to fill border with
             if (self.value >= start1) and (self.value <= end1):
-                self.itemconfig(self.bar,fill=color1)
+                # TODO chg to c= color1/2/3 and singa;; call call to itemconfig at end
+                #self.itemconfig(self.border,fill=color1)
+                c=color1
             else:
                 if (self.value > start2) and (self.value <= end2):
-                    self.itemconfig(self.bar,fill=color2)
+                    #self.itemconfig(self.border,fill=color2)
+                    c=color2
                 else:
                     if (self.value > start3) and (self.value <= end3):
-                        self.itemconfig(self.bar,fill=color3)
-        else: # if custom thumb AND ranges, then chg thumb fioll color
-            # horz increases min_(left) to max_(right) so complemenmt the value!
-            # vert incresaes min_ (bot) to max_(top)
-            if (self.orient == 'Horz'): 
-                tmp = self.max_ - self.value 
-            else:
-                tmp = self.value 
-            #
-            if (tmp >= start1) and (tmp <= end1):
-                self.itemconfig(self.marker,fill=color1)
-            else:
-                if (tmp > start2) and (tmp < end2):
-                    self.itemconfig(self.marker,fill=color2)
-                else:
-                    if (tmp > start3) and (tmp <= end3):
-                        self.itemconfig(self.marker,fill=color3)
+                        #self.itemconfig(self.border,fill=color3)
+                        c=color3
+            self.itemconfig(self.border,fill=c)
     # #####################################
     #      tlen, the pixel width of a string, aids in alignment
     # #####################################
@@ -2315,10 +2224,6 @@ class pyvcp_rectled(Canvas):
 
 
 # -------------------------------------------
-
-## ArcEye - the initval field is missing from the docs, so few people aware it can be preselected
-## 12022014 added changepin which allows toggling of value from HAL without GUI action
-
 class pyvcp_checkbutton(Checkbutton):
 
     """ (control) a check button 
@@ -2368,11 +2273,6 @@ class pyvcp_checkbutton(Checkbutton):
 
 
 # -------------------------------------------
-
-
-
-
-
 class pyvcp_button(Button):
     """ (control) a button 
         halpin is 1 when button pressed, 0 otherwise 

@@ -1,5 +1,0 @@
-###########################################
-# 20nob test file lbl.hal
-# #########################################
-loadusr -Wn fred pyvcp -c fred lbl.xml
-start
