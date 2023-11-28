@@ -102,7 +102,7 @@ are available for Bookworm and Buster but not currently for Bullseye.
 
 [options="header"]
 |===
-| Debian Buster - preempt   | `deb https://linuxcnc.org buster base 2.9-rtpreempt`
+| Debian Buster - preempt   | `deb https://linuxcnc.org buster base 2.9-uspace`
 | Debian Buster - RTAI      | `deb https://linuxcnc.org buster base 2.9-rt`
 | Debian Bullseye - preempt | `deb https://linuxcnc.org bullseye base 2.9-uspace`
 | Debian Bookworm - preempt | `deb https://linuxcnc.org bookworm base 2.9-uspace`
