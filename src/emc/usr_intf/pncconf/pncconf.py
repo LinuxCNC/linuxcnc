@@ -5250,9 +5250,9 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             elif not "5i25" in board1 and not '7i90' in board1:
                 firmstring1 = "firmware=hm2/%s/%s.BIT " % (directory1, firm1)
 
-            # TODO fix this hardcoded hack: only one serialport
-            ssconfig0 = ssconfig1 = resolver0 = resolver1 = temp = ""
-            if self.d.mesa0_numof_sserialports:
+            ssport0 = ssport1 = resolver0 = resolver1 = ""
+            for p in range(0, self.d.mesa0_numof_sserialports):
+                temp = ""
                 for i in range(1,_PD._NUM_CHANNELS+1):
                     if i <= self.d.mesa0_numof_sserialchannels:
                         # m number in the name signifies the required sserial mode
@@ -5263,19 +5263,22 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         else: temp = temp + "0" # default case
                     else:
                         temp = temp + "x"
-                ssconfig0 = " sserial_port_0=%s"% temp
-            if self.d.number_mesa == 2 and self.d.mesa1_numof_sserialports:
-                for i in range(1,_PD._NUM_CHANNELS+1):
-                    if i <= self.d.mesa1_numof_sserialchannels:
-                        # m number in the name signifies the required sserial mode
-                        for j in ("123456789"):
-                            if ("m"+j) in self.d["mesa1sserial0_%dsubboard"% (i-1)]:
-                                temp = temp + j
-                                break
-                        else: temp = temp + "0" # default case
-                    else:
-                        temp = temp + "x"
-                ssconfig1 = " sserial_port_0=%s"% temp
+                ssport0 += " sserial_port_{}={}".format(p, temp)
+
+            if self.d.number_mesa == 2:
+                for p in range(0, self.d.mesa01numof_sserialports):
+                    for i in range(1,_PD._NUM_CHANNELS+1):
+                        if i <= self.d.mesa1_numof_sserialchannels:
+                            # m number in the name signifies the required sserial mode
+                            for j in ("123456789"):
+                                if ("m"+j) in self.d["mesa1sserial0_%dsubboard"% (i-1)]:
+                                    temp = temp + j
+                                    break
+                            else: temp = temp + "0" # default case
+                        else:
+                            temp = temp + "x"
+                ssport1 += " sserial_port_{}={}".format(p, temp)
+
             if self.d.mesa0_numof_resolvers:
                 resolver0 = " num_resolvers=%d"% self.d.mesa0_numof_resolvers
             if self.d.mesa1_numof_resolvers:
@@ -5289,25 +5292,25 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 load_cmnds.append( """loadrt%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
                     driver0, board0_ip, mesa0_ioaddr,
                     firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, mesa0_3pwm, self.d.mesa0_numof_stepgens,
-                    ssconfig0, resolver0))
+                    ssport0, resolver0))
             elif self.d.number_mesa == 2 and (driver0 == driver1):
                 loadstring  = """loadrt%s%s%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s,""" % (
                     driver0, board0_ip, board1_ip, mesa0_ioaddr, mesa1_ioaddr,
                     firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, mesa0_3pwm, self.d.mesa0_numof_stepgens,
-                    ssconfig0, resolver0)
+                    ssport0, resolver0)
                 loadstring += """ %snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
                     firmstring1, self.d.mesa1_numof_encodergens, self.d.mesa1_numof_pwmgens, mesa1_3pwm, self.d.mesa1_numof_stepgens,
-                    ssconfig1, resolver1)
+                    ssport1, resolver1)
                 load_cmnds.append(loadstring)
             elif self.d.number_mesa == 2:
                 load_cmnds.append( """loadrt%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
                     driver0, board0_ip, mesa0_ioaddr,
                     firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, mesa0_3pwm, self.d.mesa0_numof_stepgens,
-                    ssconfig0, resolver0 ))
+                    ssport0, resolver0 ))
                 load_cmnds.append( """loadrt%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
                     driver1, board1_ip, mesa1_ioaddr,
                     firmstring1, self.d.mesa1_numof_encodergens, self.d.mesa1_numof_pwmgens, mesa1_3pwm, self.d.mesa1_numof_stepgens,
-                    ssconfig1, resolver1 ))
+                    ssport1, resolver1 ))
             for boardnum in range(0,int(self.d.number_mesa)):
                 if boardnum == 1 and (board0 == board1):
                     halnum = 1
