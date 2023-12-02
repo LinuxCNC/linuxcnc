@@ -5513,9 +5513,6 @@ class gmoccapy(object):
             return
 
         number = int(pin.name[-1])
-        if number is not number:
-            LOG.debug("Could not translate {0} to number".format(pin.name))
-            return
 
         button = self._get_child_button(location, number)
         if not button:
