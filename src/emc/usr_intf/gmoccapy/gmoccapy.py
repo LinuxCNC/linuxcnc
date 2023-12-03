@@ -5505,8 +5505,9 @@ class gmoccapy(object):
             LOG.debug("Received a not classified signal from pin {0}".format(pin.name))
             return
 
-        number = int(pin.name[-1])
-        if number is not number:
+        try:
+            number = int(pin.name[-1])
+        except:
             LOG.debug("Could not translate {0} to number".format(pin.name))
             return
 
