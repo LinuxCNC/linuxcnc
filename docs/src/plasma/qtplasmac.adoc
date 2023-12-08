@@ -60,24 +60,27 @@ It is possible to install and run LinuxCNC on a variety of Linux distributions h
 
 Installation instructions are available from link:../getting-started/getting-linuxcnc.html[here].
 
-Following these instructions will yield a machine with the current stable branch (v2.8) of LinuxCNC on Debian Buster.
+Following these instructions will yield a machine with the current stable branch of LinuxCNC (v2.9) on Debian 12 (Bookworm).
 
-=== Package Installation (Buildbot) If The User Has Linux with LinuxCNC v2.8
+=== Package Installation (Buildbot) If The User Has Linux on Debian 12 (Bookworm)
 
-A package installation (Buildbot) uses prebuilt packages from the LinuxCNC Buildbot, instructions for upgrading from 2.8 to 2.9 or later are available at: http://buildbot.linuxcnc.org
+Follow the instructions from the Updating LinuxCNC on Debian Bookworm section from link:../getting-started/getting-linuxcnc.html[here].
 
-Following these instructions by using the below stanzas will upgrade the machine to the last LinuxCNC Buildbot build of LinuxCNC v2.9. This may not always be the latest version though, as from time to time the LinuxCNC Buildbot may stop due to errors.
+=== Package Installation (Buildbot) If The User Has Linux on Debian 11 (Bullseye) or Debian 10 (Buster)
+
+A package installation (Buildbot) uses prebuilt packages from the http://buildbot2.highlab.com[LinuxCNC Buildbot].
+
+Add the GPG keys and add the repository to the sources list to suit the Debian version.
+
+The below stanza would add the 2.9 Bullseye repository.
 
 ----
-deb     http://buildbot.linuxcnc.org/ buster 2.9-rtpreempt
-deb-src http://buildbot.linuxcnc.org/ buster 2.9-rtpreempt
+deb     http://buildbot2.highlab.com/ bookworm 2.9-uspace
 ----
 
-=== Run In Place Installation If The User Has Linux with LinuxCNC v2.8
+=== Run In Place Installation If The User Has Linux Installed
 
 A run in place installation runs LinuxCNC from a locally compiled version usually located at ~/linuxcnc-dev, instructions for building a run in place installation are available from link:../code/building-linuxcnc.html[here].
-
-Following these instructions will install the latest master branch (v2.10) of LinuxCNC.
 
 == Creating A QtPlasmaC Configuration
 
@@ -4007,7 +4010,7 @@ If pyserial is not installed an error message will be displayed.
 
 To install pyserial, enter the following command into a terminal window:
 ----
-sudo apt install python-serial
+sudo apt install python3-serial
 ----
 
 A typical <<plasma:rs485_connections,connection diagram>> is shown in the appendix of this document as well as confirmed working interfaces.

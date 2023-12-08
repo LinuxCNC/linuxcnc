@@ -23,7 +23,7 @@ import os
 from shutil import copy as COPY
 
 ###########################################################################################################
-# move default material from prefs file to material 0 in materials file (pre V1.236.278 2023/07/07)       #
+# move default material from prefs file to material 0 in materials file (pre V2.9-236.278 2023/07/07)       #
 ###########################################################################################################
 def move_default_material(prefs, materials, unitsPerMm):
     if os.path.isfile(materials):
@@ -60,11 +60,11 @@ def move_default_material(prefs, materials, unitsPerMm):
                         f_out.write(line)
     prefs.remove_section('DEFAULT MATERIAL')
     prefs.write(open(prefs.fn, 'w'))
-    return(False, False, 'Updated to V1.236.278')
+    return(False, False, 'Updated to V2.9-236.278')
 
 
 ###########################################################################################################
-# move port info from [GUI_OPTIONS] section (if it was moved via V1.227.219 update) to [POWERMAX] section #
+# move port info from [GUI_OPTIONS] section (if it was moved via V2.9-227.219 update) to [POWERMAX] section #
 ###########################################################################################################
 def move_port(prefs):
     if not prefs.has_option('POWERMAX', 'Port'):
@@ -72,11 +72,11 @@ def move_port(prefs):
         prefs.putpref('Port', data, str, 'POWERMAX')
     prefs.removepref('Port', 'GUI_OPTIONS')
     prefs.write(open(prefs.fn, 'w'))
-    return(False, False, 'Updated to V1.232.240')
+    return(False, False, 'Updated to V2.9-232.240')
 
 
 ###########################################################################################################
-# move qtplasmac options from INI file to prefs file (pre V1.227.219 2022/07/14)                          #
+# move qtplasmac options from INI file to prefs file (pre V2.9-227.219 2022/07/14)                          #
 ###########################################################################################################
 def move_options_to_prefs_file(inifile, prefs):
     try:
@@ -193,7 +193,7 @@ def get_offsets(data, oType):
 
 
 ###########################################################################################################
-# remove the qtplasmac link from the config directory (pre V1.225.208 2022/06/29)                         #
+# remove the qtplasmac link from the config directory (pre V2.9-225.208 2022/06/29)                         #
 ###########################################################################################################
 def remove_qtplasmac_link_iniwrite(inifile):
     try:
@@ -215,11 +215,11 @@ def remove_qtplasmac_link_iniwrite(inifile):
             os.remove(tmpFile)
     except Exception as e:
         return(False, True, e)
-    return(True, False, 'Updated to V1.225.208')
+    return(True, False, 'Updated to V2.9-225.208')
 
 
 ###########################################################################################################
-# change startup parameters from a subroutine (pre V1.224.207 2022/06/22)                                 #
+# change startup parameters from a subroutine (pre V2.9-225.207 2022/06/22)                                 #
 ###########################################################################################################
 def rs274ngc_startup_code_iniwrite(inifile):
     try:
@@ -236,11 +236,11 @@ def rs274ngc_startup_code_iniwrite(inifile):
             os.remove(tmpFile)
     except Exception as e:
         return(False, True, e)
-    return(True, False, 'Updated to V1.225.207')
+    return(True, False, 'Updated to V2.9-225.207')
 
 
 ###########################################################################################################
-# move [CONVERSATIONAL] prefs from qtvcp.prefs to <machine_name>.prefs (pre V1.222.187 2022/05/03)        #
+# move [CONVERSATIONAL] prefs from qtvcp.prefs to <machine_name>.prefs (pre V2.9-222.187 2022/05/03)        #
 ###########################################################################################################
 def move_prefs(qtvcp, machine):
     try:
@@ -270,11 +270,11 @@ def move_prefs(qtvcp, machine):
                         qtvcpFile.write(line)
     except Exception as e:
         return(False, True, e)
-    return(False, False, 'Updated to V1.222.187')
+    return(False, False, 'Updated to V2.9-222.187')
 
 
 ###########################################################################################################
-# split out qtplasmac.prefs into <machine_name>.prefs and qtvcp.prefs (pre V1.222.170 2022/03/08)         #
+# split out qtplasmac.prefs into <machine_name>.prefs and qtvcp.prefs (pre V2.9-222.170 2022/03/08)         #
 ###########################################################################################################
 def split_prefs_file(old, new, prefs):
     try:
@@ -312,11 +312,11 @@ def split_prefs_file(old, new, prefs):
             os.remove(old)
     except Exception as e:
         return(False, True, e)
-    return(False, False, 'Updated to V1.222.170')
+    return(False, False, 'Updated to V2.9-222.170')
 
 
 ###########################################################################################################
-# use qtplasmac_comp.hal for component connections (pre V1.221.154 2022/01/18)                            #
+# use qtplasmac_comp.hal for component connections (pre V2.9-221.154 2022/01/18)                            #
 ###########################################################################################################
 def add_component_hal_file(path, halfiles):
     try:
@@ -401,4 +401,4 @@ def add_component_hal_file_iniwrite(inifile):
             os.remove(tmpFile)
     except Exception as e:
         return(False, True, e)
-    return(True, False, 'Updated to V1.221.154')
+    return(True, False, 'Updated to V2.9-221.154')

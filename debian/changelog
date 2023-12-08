@@ -12,10 +12,9 @@ linuxcnc (1:2.9.1) unstable; urgency=medium
   * Update hal_glib.py
   * docs: minor changes to suit sim configs
 
-
  -- Andy Pugh <andy@bodgesoc.org>  Sun, 08 Oct 2023 10:39:03 +0100
 
-linuxcnc (2.9.0) unstable; urgency=medium
+linuxcnc (1:2.9.0) unstable; urgency=medium
 
   * Add firmware 7i96d_1pwm for 7i96 for PNCconf
   * add GTK and Qt backends to the OpenGL wayland workaround
