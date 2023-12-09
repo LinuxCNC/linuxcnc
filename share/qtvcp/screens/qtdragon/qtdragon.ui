@@ -118,6 +118,9 @@
       <property name="pref_filename_string" stdset="0">
        <string>~/linuxcnc/configs/qtdragon/qtdragon.pref</string>
       </property>
+      <property name="use_receive_zmq_option" stdset="0">
+       <bool>true</bool>
+      </property>
       <property name="embedded_program_option" stdset="0">
        <bool>true</bool>
       </property>
