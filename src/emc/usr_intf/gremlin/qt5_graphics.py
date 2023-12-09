@@ -193,8 +193,8 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             s = self.colors[s]
             return [int(x * 255) for x in s + (a,)]
         # requires linuxcnc running before loading this widget
-        inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
-
+        inifile = os.environ.get('INI_FILE_NAME', '/home/chris/Downloads/NativeCAM-master/configs/sim/axis/ncam_demo/mill-mm.ini')
+        print('Display INI:',inifile)
         # if status is not available then we are probably
         # displaying in designer so fake it
         stat = linuxcnc.stat()
@@ -317,6 +317,10 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         # base units of config. updated by subclass (gcode_graphics)
         self.mach_units = 'Metric'
 
+    def setINI(self, path):
+        print( 'New INI path:',path)
+        self.inifile = linuxcnc.ini(path)
+
     # add a 100ms timer to poll linuxcnc stats
     # this may be overridden in sub widgets
     def addTimer(self):
@@ -396,6 +400,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             if parameter:
                 shutil.copy(parameter, temp_parameter)
             canon.parameter_file = temp_parameter
+            print('qt5_graphics param file',temp_parameter)
             unitcode = "G%d" % (20 + (s.linear_units == 1))
             initcode = ""
             result, seq = self.load_preview(filename, canon, unitcode, initcode)
@@ -405,7 +410,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                        self.from_internal_linear_unit(self.get_foam_w()))
             self.calculate_gcode_properties(canon)
         except Exception as e:
-            print (e)
+            print ('qt5_graphics:',e)
             self.gcode_properties = None
             load_result = False
         finally:
