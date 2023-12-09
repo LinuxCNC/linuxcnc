@@ -1,0 +1,147 @@
+o<rectangle_create> sub
+(author : Fernand Veilleux)
+(calc all the points of a rectangle center being X0, Y0 either cw or ccw starting at X0, Y-#3)
+(CALL ptr[1], width[2], height[3], corner radius[4], corner type[5], dir[6], final width[7], final height[8], pocket[9])
+(corner type None=0:Rounded=1:Chamfered=2:Inverted Round=3)
+
+	#[#1]            =  0
+	#<half_width>    = [#2 / 2]
+	#<half_height>   = [#3 / 2]
+	#<corner_radius> = #4
+	#<corner_style>  = #5
+	#<dir>           = #6
+	
+	#<half_width_f>  = [#7 / 2]
+	#<half_height_f> = [#8 / 2]
+	#<e2c>           = [#<half_height_f> - #<half_height>]
+
+	o<if012> if [#<corner_style> EQ 3] (Inverted Round)
+		#<corner_dir> = [6 / #<dir>]
+		#<corner_cx>  = #<half_width_f>
+		#<corner_cy>  = -#<half_height_f>
+		#<hyp>        = [#<corner_radius> + #<e2c>]
+		
+		o<if027> if [#<hyp> GT #<e2c>]
+			#<vcr>          = SQRT[#<hyp> * #<hyp> - #<e2c> * #<e2c>]
+			#<half_width_m> = [#<half_width_f> - #<vcr>]
+			
+			o<if030> if [#<half_width_m> GT #<half_width>]
+				#<half_height_m> = #<half_height>
+				#<half_width_m>  = #<half_width>
+				#<corner_style>  = 0
+			o<if030> elseif [#<half_width_m> LT 0]
+				#<half_width_m>  = 0
+				#<hyp>           = SQRT[#<half_width_f> * #<half_width_f> + #<e2c> * #<e2c>]
+				#<vcr>           = SQRT[#<hyp> * #<hyp> - #<half_height_f> * #<half_height_f>]
+				#<half_width>    = [#<half_width_f> - #<vcr>]
+				#<half_height_m> = 0
+			o<if030> elseif [#<vcr> LE #<half_height_f>]
+				#<half_height_m> = [#<half_height_f> - #<vcr>]
+			o<if030> else
+				#<half_height_m> = 0
+				#<vcr>           = SQRT[#<hyp> * #<hyp> - #<half_height_f> * #<half_height_f>]
+				#<half_width>    = [#<half_width_f> - #<vcr>]
+			o<if030> endif
+			
+		o<if027> else
+			#<half_height_m> = #<half_height>
+			#<half_width_m>  = #<half_width>
+		o<if027> endif
+
+	o<if012> elseif [#<corner_style> EQ 1] (Rounded)
+		#<corner_dir>        = #<dir>
+		
+		o<if034> if [#9]
+			#<corner_radius> = [#<corner_radius> - #5410 / 2]
+		o<if034> endif
+		
+		o<if031> if [#<corner_radius> LE 0]
+			#<corner_style>  = 0
+			#<corner_radius> = 0
+		o<if031> endif
+
+		#<half_height_m> = [#<half_height_f> - #<corner_radius> - TAN[45] * #<e2c>]
+		#<half_width_m>  = [#<half_width_f>  - #<corner_radius> - TAN[45] * #<e2c>]
+		
+		o<if032> if [#<half_height_m> LT 0]
+			#<half_width>    = [#<half_width> + #<half_height_m>]
+			#<half_height_m> = 0
+		o<if032> elseif [#<half_height_m> GT #<half_height>]
+			#<half_width_m>  = #<half_width>
+			#<half_height_m> = #<half_height>
+		o<if032> endif
+		
+		o<if033> if [#<half_width_m> LT 0]
+			#<half_width>    = [#<half_width> - #<half_width_m>]
+			#<half_width_m>  = 0
+		o<if033> endif
+		
+		#<corner_cx>     =  [#<half_width_m>]
+		#<corner_cy>     = -[#<half_height_m>]
+		
+	o<if012> elseif [#<corner_style> EQ 2] (Chamfered)
+		#<corner_dir>    = 1
+		#<corner_cx>     = 0
+		#<corner_cy>     = 0
+		#<half_height_m> = [#<half_height_f> - #<corner_radius> - TAN[22.5] * #<e2c>]
+		#<half_width_m>  = [#<half_width_f>  - #<corner_radius> - TAN[22.5] * #<e2c>]
+		
+		o<if0321> if [#<half_height_m> LT 0]
+			#<half_width>    = [#<half_width> + #<half_height_m>]
+			#<half_height_m> = 0
+		o<if0321> elseif [#<half_height_m> GT #<half_height>]
+			#<half_width_m>  = #<half_width>
+			#<half_height_m> = #<half_height>
+		o<if0321> endif
+		
+		o<if0331> if [#<half_width_m> LT 0]
+			#<half_width>    = [#<half_width> - #<half_width_m>]
+			#<half_width_m>  = 0
+		o<if0331> endif
+
+	o<if012> else
+		#<half_height_m> = #<half_height>
+		#<half_width_m>  = #<half_width>
+	o<if012> endif
+	
+	o<if01> if [#<dir> EQ 2]
+		#<half_width>   = -#<half_width>
+		#<half_width_m> = -#<half_width_m>
+		#<corner_cx>    = -#<corner_cx>
+	o<if01> endif
+
+	#<master_counter> = 0
+	o<loop0master> while [#<master_counter> LE 1]
+		o<if022> if [#<half_width_m> NE 0]
+			o<add_cut_data> CALL [#1] [#<half_width_m>] [-#<half_height>] [1]
+		o<if022> endif
+	
+		(corner 0 and 2)
+		o<if06>if [#<corner_style> GT 0]
+			o<add_cut_data> CALL [#1] [#<half_width>] [-#<half_height_m>] [#<corner_dir>] [#<corner_cx>] [#<corner_cy>]
+		o<if06> endif
+
+		o<if021> if [#<half_height_m> NE 0]
+			o<add_cut_data> CALL [#1] [#<half_width>] [#<half_height_m>] [1]
+		o<if021> endif
+
+		(corner 1 and 3)
+		o<if08>if [#<corner_style> GT 0]
+			o<add_cut_data> CALL [#1] [#<half_width_m>] [#<half_height>] [#<corner_dir>] [#<corner_cx>] [-#<corner_cy>]
+		o<if08> endif
+
+		o<if023> if [#<half_width_m> NE 0]
+			o<add_cut_data> CALL [#1] [0] [#<half_height>] [1]
+		o<if023> endif
+
+		(reverse for second half)
+		#<half_width>    = -#<half_width>
+		#<half_width_m>  = -#<half_width_m>
+		#<half_height>   = -#<half_height>
+		#<half_height_m> = -#<half_height_m>
+		#<corner_cx>     = -#<corner_cx>
+		#<corner_cy>     = -#<corner_cy>
+		#<master_counter> = [#<master_counter> + 1]
+	o<loop0master> endwhile
+	
+o<rectangle_create> endsub

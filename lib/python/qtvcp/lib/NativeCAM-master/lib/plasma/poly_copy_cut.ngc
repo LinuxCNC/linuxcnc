@@ -1,0 +1,36 @@
+(copy ready polyline data to mill memory)
+(author : Fernand Veilleux)
+o<poly_copy_cut> sub
+(CALL without params)
+
+	#[#<_mill_data_start>] = 0
+	#<src>                 = [4981 - #5000 * 11]
+	#<src_count>           = #[#<src>]
+	#10                    = [#<src> - 9]
+	
+	o11 repeat [#<src_count>]
+		o<add_cut_data> CALL [#<_mill_data_start>] [#[#10]] [#[#10 + 1]] [#[#10 + 2]] [#[#10 + 3]] [#[#10 + 4]] [#[#10 + 5]] [#[#10 + 6]] [#[#10 + 7]] [#[#10 + 8]]
+		#10 = [#10 - 8]
+	o11 endrepeat
+ 
+	#<dir> = #[#<_mill_data_start> + 3]
+	#<x1>  = #[#<_mill_data_start> + 1]
+	#<y1>  = #[#<_mill_data_start> + 2]
+	#<cx>  = #[#<_mill_data_start> + 4]
+	#<cy>  = #[#<_mill_data_start> + 5]
+	#<x0>  = #[#<_mill_data_start> - 7 + [#<src_count>] * 8]
+	#<y0>  = #[#<_mill_data_start> - 6 + [#<src_count>] * 8]
+
+	o12 if [#[#<_mill_data_start> - 5 + [#<src_count>] * 8] GE 1]
+		o13 if [#<dir> EQ 1]
+			o<add_cut_data> CALL [#<_mill_data_start>] [[#<x1> + #<x0>] / 2] [[#<y1> + #<y0>] / 2] [1]
+			
+		o13 elseif [#<dir> GE 2]
+			o<angle> CALL [#<x0>] [#<y0>] [#<cx>] [#<cy>] [#<x1>] [#<y1>] ;[1]
+			o<select> CALL [63] [#<dir> - 2] [-360] [0]
+			o<rotate_xy> CALL [#<x0>] [#<y0>] [#<cx>] [#<cy>] [[#<_angle_phi> - #63] / 2]
+			o<add_cut_data> CALL [#<_mill_data_start>] [#<_rotated_x>] [#<_rotated_y>] [#<dir>] [#<cx>] [#<cy>]
+		o13 endif
+	o12 endif
+
+o<poly_copy_cut> endsub

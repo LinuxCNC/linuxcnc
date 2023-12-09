@@ -1,0 +1,26 @@
+o<trace> sub
+(author : Fernand Veilleux)
+(#1 is where data starts, #2 is dir, #3 is cut_opt, #4 is cut_start)
+(for data offsets, view add_cut_data.ngc)
+
+	o<lead_in> CALL [#1] [#2] [#3] [#4]
+	
+	#<pointer>   = [#1 + 1] (item pointer)
+	#<rec_count> = #[#1] (record count)
+
+	#<counter> = 0
+	o<loop01> while [#<counter> LT #<rec_count>]
+		#<counter> = [#<counter> + 1]
+		o10 if [#[#<pointer> + 2] EQ 1]
+			G1 X#[#<pointer>] Y#[#<pointer> + 1]
+		o10 elseif [#[#<pointer> + 2] GT 1]
+			G#[#<pointer> + 2] X#[#<pointer>] Y#[#<pointer> + 1] I[#[#<pointer> + 3] - #<_cut_current_x>] J[#[#<pointer> + 4] - #<_cut_current_y>]
+		o10 endif
+		#<_cut_current_x> = #[#<pointer>]
+		#<_cut_current_y> = #[#<pointer> + 1]
+		#<pointer> = [#<pointer> + 8]
+	o<loop01> endwhile
+	
+	o<lead_out> CALL [#1]
+	M5
+o<trace> endsub

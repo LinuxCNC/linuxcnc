@@ -1,0 +1,59 @@
+.\" Manpage for nativecam.
+.\" Contact fernveilleux@gmail.com to correct errors or typos.
+
+.TH nativecam "1" "NativeCAM"
+.SH NAME
+    nativecam \- A GUI to create gcode for LinuxCNC
+    note: ncam is shorthand for nativecam (symlink)
+    
+.SH SYNOPSIS
+    standalone :
+      nativecam [-h, --help] [-i, --ini= inifilename] [-c, --catalog= catalog_name]
+    embedded :
+      run standalone with [-i, --ini= inifilename] [-c, --catalog= catalog_name]
+      to automatically convert the inifile depending on axis or gmoccapy interface
+      then run : linuxcnc inifilename
+      
+    valid catalog_name are : mill, plasma, lathe
+    
+.SH DESCRIPTION
+    nativecam will use parameters you enter with the supplied gcode files to create
+    simple or arrays of basic and semi-complex shapes for milling and plasma cutting
+    systems.  Mill catalog will also provide gcode for drilling and probing.
+    
+.SH EXAMPLES
+    Raw material must be selected first, then tool for cutting/milling params.
+    Then add the shapes you want.  To show the material and help lines, you must toggle
+    the 'skip block' button.  That button must also be toggled to 'skip block' before
+    starting operations.  There is a safety feature to stop if not turned off.
+    
+.SH SEE ALSO
+    There are no other related commands or functions.
+    
+.SH BUGS
+    None known.
+    
+.SH AUTHOR
+    Fernand Veilleux <fernveilleux@gmail.com>
+   
+.SH COPYRIGHT
+    NativeCAM is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    *****************************************************************
+
+    Notice : NativeCAM is covered by the GNU General Public License
+    version 2 as published by the Free Software Foundation.
+
+    Much of NativeCAM is derived from LinuxCNC-Features, a work of 
+    Nick Drobchenko and others.  It was used as the basis of NativeCAM,
+    but received extensive modifications.  NativeCAM is NOT public domain.
+    Anyone wishing to use the public domain code in a way that is not
+    compatible with the (L)GPL must locate the original LinuxCNC-Features
+    code - they may NOT use NativeCAM.
+
+    *****************************************************************
+
+    The complete text of GPL version 2 can be found in the file
+    /usr/share/common-licenses/GPL-2 on Debian systems.

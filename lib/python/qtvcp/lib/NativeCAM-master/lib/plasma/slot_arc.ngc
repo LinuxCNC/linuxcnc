@@ -1,0 +1,63 @@
+(info: rectangle is also used for straight slot)
+o<slot_arc> sub
+(CALL [cx] [cy] radius [<w>] start_angle extend [#opt] [#dir] [#cutstart] [#<surface>] bottom [#preview] end_style)
+(Author : Fernand Veilleux)
+
+(set local params values)
+	#<cx>          =  #1
+	#<cy>          =  #2
+	#<radius>      =  #3
+	#<final_w>     =  #4
+	#<start_angle> =  #5
+	o<get_max> CALL [42] [2] [0.001] [#6] (#<extend_angle> = #42)
+	
+	#<cut_opt>     =  #7 (Inside=0:On the line=2:Outside=3)
+	#<dir>         =  #8 (Clockwise=2:Counter-Clockwise=3)
+	#<cut_start>   = [#9 + #10]
+	#<surface>     = #10
+	#<bottom>      = #11
+	#<preview>     = #12
+	#<end_style>   = #13
+
+(change coords system to offset/rotate)
+	#<old_coord_system> = [#<_coord_system> / 10]
+	o<get_offsets> CALL
+	#<saved_offset_x> = #<_offsets_x>
+	#<saved_offset_y> = #<_offsets_y>
+	#<saved_offset_z> = #<_offsets_z>
+	#<saved_offset_r> = #<_offsets_r>
+
+	(change coords system)
+	G#<_off_rot_coord_system>
+	o<rotate_xy> CALL [#<_offsets_x> + #<cx>] [#<_offsets_y> + #<cy>] [#<_offsets_x>] [#<_offsets_y>] [#<_offsets_r>]
+	o13 if [#<_has_z_axis>]
+		G10 L2 P#5220 X#<_rotated_x> Y#<_rotated_y> Z#<_offsets_z> R[#<_offsets_r> + #<start_angle> + #42 / 2]
+	o13 else
+		G10 L2 P#5220 X#<_rotated_x> Y#<_rotated_y> R[#<_offsets_r> + #<start_angle> + #42 / 2]
+	o13 endif
+
+	o<slot_arc_create> CALL [#<_mill_data_start>] [#<radius>] [#<final_w>] [#42] [#<dir>] [#<end_style>]
+	o<trace> CALL [#<_mill_data_start>] [#<dir>] [#<cut_opt>] [#<cut_start>]
+
+(draw reference lines)
+	/o<preview> if [#<_show_final_cuts> AND #<preview>]
+		/o<pv_b> if [#<_has_Z_axis> AND #<_show_bottom_cut>]
+			/o<trace> CALL [#<_mill_data_start>] [#<dir>] [2] [#<bottom>]
+		/o<pv_b> endif
+		/o<trace> CALL [#<_mill_data_start>] [#<dir>] [2] [#<surface>]
+	/o<preview> endif
+
+(exit)
+	o12 if [#<_has_Z_axis>]
+		G0 Z#<_rapid_z>
+	o12 endif
+	G40
+
+(restore coordinate system)
+	G#<old_coord_system>
+	o14 if [#<_has_z_axis>]
+		G10 L2 P#5220 X#<saved_offset_x> Y#<saved_offset_y> Z#<saved_offset_z> R#<saved_offset_r>
+	o14 else
+		G10 L2 P#5220 X#<saved_offset_x> Y#<saved_offset_y> R#<saved_offset_r>
+	o14 endif
+o<slot_arc> endsub

@@ -1,0 +1,60 @@
+o<isect_lines> sub
+(from : http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect)
+(CALL line1 x1[1], line1 y1[2], line1 x2[3], l1ne1 y2[4], line2 x1[5], line2 y1[6], line2 x2[7], l1ne2 y2[8], extend lines[9], debug[10], result x[11], result y[12])
+
+	#<p0_x> = #1
+	#<p0_y> = #2
+	#<p1_x> = #3
+	#<p1_y> = #4
+	#<p2_x> = #5
+	#<p2_y> = #6
+	#<p3_x> = #7
+	#<p3_y> = #8
+	#<exten> = #9 (#<exten> states that lines or extension do intersect if 0 and if 1 segments MUST intersect)
+	
+	#<s1_x> = [#<p1_x> - #<p0_x>]
+	#<s1_y> = [#<p1_y> - #<p0_y>]
+	#<s2_x> = [#<p3_x> - #<p2_x>]
+	#<s2_y> = [#<p3_y> - #<p2_y>]
+
+	#<test> = [#<s1_x> * #<s2_y> - #<s2_x> * #<s1_y>]
+	o10 if [#<test> EQ 0]
+		#<_isect_count> = 0
+		
+		o12 if [#10]
+			(print,)
+			(print,#1 #2 #3 #4 #5 #6 #7 #8 #9)
+			(print,isect_lines : lines are parallel)
+		o12 endif
+		
+	o10 else 
+		#<s> = [[-#<s1_y> * [#<p0_x> - #<p2_x>] + #<s1_x> * [#<p0_y> - #<p2_y>]] / #<test>]
+		#<t> = [[ #<s2_x> * [#<p0_y> - #<p2_y>] - #<s2_y> * [#<p0_x> - #<p2_x>]] / #<test>]
+
+		o11 if [[[#<exten> EQ 0] AND [#<s> NE #<t>]] OR [[#<exten> NE 0] AND [#<s> GE 0] AND [#<s> LE 1] AND [#<t> GE 0] AND [#<t> LE 1]]]
+			(Collision detected)
+			#<_isect_count> = 1
+			#<_isect_x>     = [#<p0_x> + #<t> * #<s1_x>]
+			#<_isect_y>     = [#<p0_y> + #<t> * #<s1_y>]
+			
+			o13 if [#10]
+				(print,)
+				(print,isect_lines : lines intersect at X#<_isect_x> Y#<_isect_y>)
+			o13 endif
+			
+			o<if02> if [[#11 GT 30] AND [#12 GT 30]]
+				#[#11] = #<_isect_x>
+				#[#12] = #<_isect_y>
+			o<if02> endif
+
+		o11 else
+			#<_isect_count> = 0
+			
+			o14 if [#10]
+				(print,)
+				(print,isect_lines : line segments do not intersect)
+			o14 endif
+			
+		o11 endif
+	o10 endif
+o<isect_lines> endsub

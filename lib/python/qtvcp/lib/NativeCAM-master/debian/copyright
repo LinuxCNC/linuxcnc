@@ -1,0 +1,36 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+
+Files: *
+License: GPL-2
+Copyright: 2017 Fernand Veilleux <fernveilleux@gmail.com>
+Comment:
+ NativeCAM is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ .
+ *****************************************************************
+ Much of NativeCAM is derived from LinuxCNC-Features, a work of 
+ Nick Drobchenko and others.  It was used as the basis of NativeCAM,
+ but received extensive modifications.  NativeCAM is NOT public domain.
+ Anyone wishing to use the public domain code in a way that is not
+ compatible with the (L)GPL must locate the original LinuxCNC-Features
+ code - they may NOT use NativeCAM.
+ *****************************************************************
+
+License: GPL-2
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License along
+ with this program; if not, write to the Free Software Foundation, Inc.,
+ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ .
+ On Debian systems, the full text of the GNU General Public License
+ version 2 can be found in the file `/usr/share/common-licenses/GPL-2'.

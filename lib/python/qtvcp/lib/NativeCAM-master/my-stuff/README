@@ -1,0 +1,17 @@
+Use this sub-directory for all your custom
+files of type *.cfg, *.ngc or else but not projects
+
+Only this file could be modified in the future,
+none of yours
+
+If you have ngc files, modify your
+inifile [SUBROUTINE_PATH]
+to include this sub-directory to be
+the first one i.e
+	ncam/my-stuff:ncam/lib/mill:ncam/lib/utilities
+
+or have NativeCAM do it for you by running stand-alone
+specifying the ini file you want modified i.e
+	ncam -i your_inifile
+
+To modify menu.xml, read catalogs/customize

@@ -1,0 +1,30 @@
+o<circle_create> sub
+(author : Fernand Veilleux)
+(calc all the points of a circle around X0, Y0 either cw or ccw starting at X#2, Y0)
+(#1 is where to store data)
+(#2 is radius)
+(#3 is flat)
+(#4 is dir)
+
+	#[#1]     =  0
+	#<radius> = #2
+	#<flat>   = #3
+	#<dir>    = #4
+	
+	o<if04> if [#<flat> EQ 0]
+		o<select> CALL [41] [#<dir> - 2] [#<radius>] [-#<radius>]
+		o<add_cut_data> CALL [#1] [0]         [#41]   [#<dir>]
+		o<add_cut_data> CALL [#1] [#<radius>] [0]     [#<dir>]
+		o<add_cut_data> CALL [#1] [0]         [-#41]  [#<dir>]
+	o<if04> else
+		#<angle> = ACOS[[#<radius> - #<flat>] / #<radius>]
+		#<x>     = [COS[#<angle>] * #<radius>]
+		o<select> CALL [41] [#<dir> - 2] [SIN[#<angle>] * #<radius>] [-SIN[#<angle>] * #<radius>]
+		
+		o<add_cut_data> CALL [#1] [#<x>] [ #41] [#<dir>]
+		o<add_cut_data> CALL [#1] [#<x>] [   0] [1]
+		o<add_cut_data> CALL [#1] [#<x>] [-#41] [1]
+	o<if04> endif
+	o<add_cut_data> CALL [#1] [-#<radius>] [0] [#<dir>]
+	
+o<circle_create> endsub

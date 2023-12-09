@@ -1,0 +1,69 @@
+(This subroutine limits the amount of dive into workpiece to the ratio defined by #<_ramp_down_ratio> and does the cut)
+(CALL to_x, to_y, dir, i, j, debug_and_track)
+(Author : Fernand Veilleux)
+o<g123> sub
+	#<to_x>  = #1
+	#<to_y>  = #2
+	#<dir>   = #3
+	#<i>     = #4
+	#<j>     = #5
+	#<len>   = #6
+	#<feed>  = #7
+	#<speed> = #8
+	#<debug> = #9
+
+	o<cut_if_0> if [#<dir> EQ 0]
+;		G0 X#<to_x> Y#<to_y>
+	
+	o<cut_if_0> else
+		o<dbg00> if [#<debug>]
+			(print,)
+			(print,"g123" CALL,  tracking = #<debug>)
+			(print,  from x,y = #<_cut_current_x>,#<_cut_current_y>,  to x,y = #1,#2)
+			(print,  dir = #3  i,j = #4,#5)
+			(print,  current z = #<_cut_current_z>  target final loop z = #<_cut_loop_final_z>)
+		o<dbg00> endif
+	
+		o<cut_00> if [#<_cut_current_z> GT #<_cut_loop_final_z>] (need go deeper)
+			o<if001> if [#<len> EQ 0]
+				o<cut_dir1> if [#<dir> EQ 1] (straight line)
+					o<line> CALL [#<_cut_current_x>] [#<_cut_current_y>] [#<to_x>] [#<to_y>]
+					#<len> = #<_line_len>
+				o<cut_dir1> else
+					o<get_arc_len> CALL [#<_cut_current_x>] [#<_cut_current_y>] [#<_cut_current_x> + #<i>] [#<_cut_current_y> + #<j>] [#<to_x>] [#<to_y>] [-1] [#<dir>] [FIX[#<_ccomp> / 10]]
+					#<len> = #<_arc_len>
+						
+					o<dbg01> if [#<debug>]
+						(print,  arc length = #<len>  arc angle = #<_arc_rotation>)
+					o<dbg01> endif
+				o<cut_dir1> endif
+			o<if001> endif
+			
+			#<_cut_current_z> = [#<_cut_current_z> - #<len> * #<_ramp_down_ratio>]
+			o<cut_02a> if [#<_cut_current_z> LT #<_cut_loop_final_z>]
+				#<_cut_current_z> = #<_cut_loop_final_z>
+			o<cut_02a> endif
+			
+			o<dbg04> if [#<debug>]
+				(print,  new current_z = #<_cut_current_z>)
+			o<dbg04> endif
+		o<cut_00> endif
+		
+		o<if002> if [#<feed> GT 0]
+			F[#<_feed_normal> * [#<feed> MOD 1]]
+		o<if002> endif
+		
+		o<if003> if [#<speed> GT 0]
+			S[#<_rpm_normal>  * [#<speed> MOD 1]]
+		o<if003> endif
+		
+		o<cut_10> if [#<dir> EQ 1]
+			G#<dir> X#<to_x> Y#<to_y> Z#<_cut_current_z>
+		o<cut_10> else
+			G#<dir> X#<to_x> Y#<to_y> Z#<_cut_current_z> I#<i> J#<j>
+		o<cut_10> endif
+	o<cut_if_0> endif
+	#<_cut_current_x> = #<to_x>
+	#<_cut_current_y> = #<to_y>
+	
+o<g123> endsub

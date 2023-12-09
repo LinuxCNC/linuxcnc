@@ -1,0 +1,12 @@
+o<get_min> sub
+(author : Fernand Veilleux)
+(returns minimum to #[#1])
+	#[#1] = #3
+	#<index> = 4
+	o<min_loop> repeat [#2 - 1]
+		o<min_test> if [#[#<index>] LT #[#1]]
+			#[#1] = #[#<index>]
+		o<min_test> endif
+		#<index> = [#<index> + 1]
+	o<min_loop> endrepeat
+o<get_min> endsub

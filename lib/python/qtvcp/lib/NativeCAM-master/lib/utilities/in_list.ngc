@@ -1,0 +1,14 @@
+o<in_list> sub
+(find if value #1 is in list of values)
+(author : Fernand Veilleux)
+(CALL with [value] [number of items] [v1] [v2] [...])
+	#<_in_list> = 0
+	#<count> = 0
+	o<loop00> repeat [#2]
+		o11 if [#1 EQ #[3 + #<count>]]
+			#<_in_list> = 1
+			o<in_list> return
+		o11 endif
+		#<count> = [#<count> + 1]
+	o<loop00> endrepeat	
+o<in_list> endsub

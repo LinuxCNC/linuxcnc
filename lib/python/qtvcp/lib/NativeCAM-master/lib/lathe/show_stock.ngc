@@ -1,0 +1,54 @@
+o<show_stock> sub
+(author : Fernand Veilleux)
+(CALL [#param_z] [#param_l])
+
+	#<z> = #1
+	#<l> = #2
+
+	o01 if [#<_metric>]
+		#<zstep> = 4
+	o01 else
+		#<zstep> = 0.2
+	o01 endif
+	#<xstep> = #<zstep>
+	#<zsteps> = FUP[#<l> / 2 / #<zstep>]
+	#<xsteps> = FUP[#<_wp_dia_od> / 2 / #<zstep>]
+
+	G0 X[0] Z[#<z>] F10
+	#<pass> = 1
+	#<t> = #<xstep>
+	o11 while [#<pass> LE #<xsteps>]
+		G1 X#<t>
+		#<t> = [#<t> + #<xstep>]
+		G0 X#<t>
+		#<t> = [#<t> + #<xstep>]
+		#<pass> = [#<pass> + 1]
+	o11 endwhile
+	
+	G0 X[#<_wp_dia_od>]
+	#<pass> = 1
+	#<t> = [#<z> - #<zstep>]
+	o12 while [#<pass> LE #<zsteps>]
+		G1 Z#<t>
+		#<t> = [#<t> - #<zstep>]
+		G0 Z#<t>
+		#<t> = [#<t> - #<zstep>]
+		#<pass> = [#<pass> + 1]
+	o12 endwhile
+	
+	o21 if [#<_wp_dia_id> GT 0]
+		G0 Z[#<z>]
+		G0 X[#<_wp_dia_id>]
+		#<pass> = 1
+		#<t> = -#<zstep>
+		o13 while [#<pass> LE #<zsteps>]
+			G1 Z#<t>
+			#<t> = [#<t> - #<zstep>]
+			G0 Z#<t>
+			#<t> = [#<t> - #<zstep>]
+			#<pass> = [#<pass> + 1]
+		o13 endwhile
+	o21 endif
+	G0 X[#<_wp_dia_od>] Z#<z>
+	
+o<show_stock> endsub

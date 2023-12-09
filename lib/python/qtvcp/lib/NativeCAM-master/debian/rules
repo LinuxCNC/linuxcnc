@@ -1,0 +1,98 @@
+#!/usr/bin/make -f
+#export DH_VERBOSE=1
+
+# Requires compatible LinuxCNC install (deb or rip)
+# Use the script linuxcnc_var to identify required system dirs:
+#     linuxcnc_var LINUXCNC_AUX_GLADEVCP
+#     linuxcnc_var LINUXCNC_AUX_EXAMPLES
+AUX_DIR="/usr/share/linuxcnc/aux_gladevcp/NativeCAM"
+EXAMPLES_DIR="/usr/share/linuxcnc/aux_examples/NativeCAM"
+
+%:
+	@echo "AUX_DIR=$(AUX_DIR)"
+	@echo "EXAMPLES_DIR=$(EXAMPLES_DIR)"
+	dh $@ --with-python
+
+override_dh_install:
+	# Auxiliary gladevcp application files & directories:
+	mkdir -p debian/tmp/$(AUX_DIR)
+	cp -pr catalogs/ \
+		cfg/ \
+		lib/ \
+		defaults/ \
+		examples/ \
+		my-stuff/ \
+		ncam.py \
+		ncam.ui \
+		ncam.glade \
+		ncam_pref.glade \
+		pref_edit.py \
+		ttt \
+		debian/tmp/$(AUX_DIR)
+		
+	# copy only the graphic files, not the source
+	mkdir -p debian/tmp/$(AUX_DIR)/graphics
+	cp -p graphics/*.* \
+		debian/tmp/$(AUX_DIR)/graphics
+		
+	# Examples for Configuration Selector:
+	mkdir -p debian/tmp/$(EXAMPLES_DIR)/2.7/axis
+	cp -pr configs/sim/axis/ncam_demo/* \
+	       debian/tmp/$(EXAMPLES_DIR)/2.7/axis
+	cp -pr configs/common/* \
+	       debian/tmp/$(EXAMPLES_DIR)/2.7/axis
+	       
+	mkdir -p debian/tmp/$(EXAMPLES_DIR)/2.7/gmoccapy
+	cp -pr configs/sim/gmoccapy/ncam_demo/* \
+	       debian/tmp/$(EXAMPLES_DIR)/2.7/gmoccapy
+	cp -pr configs/common/* \
+	       debian/tmp/$(EXAMPLES_DIR)/2.7/gmoccapy
+	       
+	mkdir -p debian/tmp/$(EXAMPLES_DIR)/2.7/gscreen
+	cp -pr configs/sim/gscreen/ncam_demo/* \
+	       debian/tmp/$(EXAMPLES_DIR)/2.7/gscreen
+	cp -pr configs/common/* \
+	       debian/tmp/$(EXAMPLES_DIR)/2.7/gscreen
+	
+	# Examples for 2.8 (joints_axes)
+	mkdir -p debian/tmp/$(EXAMPLES_DIR)/2.8/axis
+	cp -pr configs/sim/axis/ncam_demo.2.8/* \
+	       debian/tmp/$(EXAMPLES_DIR)/2.8/axis
+	cp -pr configs/common/* \
+	       debian/tmp/$(EXAMPLES_DIR)/2.8/axis
+
+	mkdir -p debian/tmp/$(EXAMPLES_DIR)/2.8/gmoccapy
+	cp -pr configs/sim/gmoccapy/ncam_demo.2.8/* \
+	       debian/tmp/$(EXAMPLES_DIR)/2.8/gmoccapy
+	cp -pr configs/common/* \
+	       debian/tmp/$(EXAMPLES_DIR)/2.8/gmoccapy
+	
+	mkdir -p debian/tmp/$(EXAMPLES_DIR)/2.8/gscreen
+	cp -pr configs/sim/gscreen/ncam_demo.2.8/* \
+	       debian/tmp/$(EXAMPLES_DIR)/2.8/gscreen
+	cp -pr configs/common/* \
+	       debian/tmp/$(EXAMPLES_DIR)/2.8/gscreen
+
+	# Manpage:
+	$ mkdir -p debian/tmp/usr/share/man/man1/
+	cp -pr man/man1/* debian/tmp/usr/share/man/man1/
+	
+	# Make link for standalone (ncam shortname forconvenience):
+	mkdir -p debian/tmp/usr/bin/
+	(cd debian/tmp/usr/bin; \
+	    ln -sf ../../$(AUX_DIR)/ncam.py ./nativecam; \
+	    ln -sf ../../$(AUX_DIR)/ncam.py ./ncam; \
+	)
+	
+	mkdir -p debian/tmp/usr/share/locale/fr/LC_MESSAGES
+	cp -pr locale/fr/LC_MESSAGES/nativecam.mo \
+		debian/tmp/usr/share/locale/fr/LC_MESSAGES
+		
+	mkdir -p debian/tmp/usr/share/locale/de/LC_MESSAGES
+	cp -pr locale/de/LC_MESSAGES/nativecam.mo \
+		debian/tmp/usr/share/locale/de/LC_MESSAGES
+		
+	# Remove extraneous vcs-control files:
+	find debian/tmp -iname .gitignore -exec rm {} \;
+	# Install:
+	dh_install debian/tmp/usr /

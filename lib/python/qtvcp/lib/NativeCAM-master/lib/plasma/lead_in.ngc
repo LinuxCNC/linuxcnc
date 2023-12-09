@@ -1,0 +1,97 @@
+(will set compensation and bring cutter to pre_entry_x, pre_entry_y then z, issue M3, then move to entry_x, entry_y)
+(author : Fernand Veilleux)
+o<lead_in> sub
+(CALL with data ptr[1], dir[2], comp or opt[3], cut_start[4])
+
+	#<ptr>            = [#1 + #[#1] * 8 - 7]
+	#<dir>            = #2 (2:cw, 3:ccw)
+	#<opt>            = #3 (Inside = 0, On the line = 2 or 40, Outside = 3, left = 41, right = 42)
+	#<cut_start>      = #4 (this is Z cut_start)
+
+	#<_cut_current_x> = #[#<ptr>] (entry x)
+	#<_cut_current_y> = #[#<ptr> + 1] (entry y)
+	
+	#<to_x>           = #[#1 + 1]
+	#<to_y>           = #[#1 + 2]
+	#<to_dir>         = #[#1 + 3]
+	#<to_cx>          = #[#1 + 4]
+	#<to_cy>          = #[#1 + 5]
+
+	F#<_feed_normal>
+	o<comp0> if [#<_has_Z_axis> AND [#<_z> LT #<_rapid_z>]]
+		G0 Z#<_rapid_z>
+	o<comp0> endif	
+	G40
+	
+	#<in_radius> = [#5410 * #<_in_kerf_factor>] (lead_in radius)
+	
+	o16 if [[#<opt> EQ 2] OR [#<in_radius> EQ 0]] (on the line)
+		#<opt> = 40
+			
+	o16 elseif [#<opt> LE 1] (inside)
+		o17 if [#<dir> EQ 2] (cw)
+			#<opt> = 42 (right)
+		o17 else
+			#<opt> = 41 (left)
+		o17 endif
+		
+	o16 elseif [#<opt> EQ 3] (outside)
+		o18 if [#<dir> EQ 2] (cw)
+			#<opt> = 41 (left)
+		o18 else
+			#<opt> = 42 (right)
+		o18 endif
+		
+	o16 endif
+	
+	o<comp00> if [#<opt> EQ 40] (no compensation)
+		#<entry_dir> = 0
+		G0 X#<_cut_current_x> Y#<_cut_current_y>
+
+	o<comp00> else
+		o12 if [#<to_dir> EQ 1]
+			o<line> CALL [#<_cut_current_x>] [#<_cut_current_y>] [#<to_x>] [#<to_y>] ;[-11]
+			#<i> = [#<in_radius> * #<_line_cos>]
+			#<j> = [#<in_radius> * #<_line_sin>]
+
+		o12 elseif [#<to_dir> EQ 2]
+			o<line> CALL [#<_cut_current_x>] [#<_cut_current_y>] [#<to_cx>] [#<to_cy>] ;[-1203]
+			#<i> = [#<in_radius> * COS[#<_line_phi> + 90]]
+			#<j> = [#<in_radius> * SIN[#<_line_phi> + 90]]
+			
+		o12 else (to_dir == 3)
+			o<line> CALL [#<_cut_current_x>] [#<_cut_current_y>] [#<to_cx>] [#<to_cy>] ;[-1203]
+			#<i> = [#<in_radius> * COS[#<_line_phi> - 90]]
+			#<j> = [#<in_radius> * SIN[#<_line_phi> - 90]]
+		o12 endif
+		
+		(compute pre-entry points)
+		o26 if [#<opt> EQ 41]
+			#<px>  = [#<_cut_current_x> - #<i> - #<j>]
+			#<py>  = [#<_cut_current_y> + #<i> - #<j>]
+			#<entry_dir> = 3
+		o26 else
+			#<px>  = [#<_cut_current_x> - #<i> + #<j>]
+			#<py>  = [#<_cut_current_y> - #<i> - #<j>]
+			#<entry_dir> = 2
+		o26 endif
+		
+		G0 X#<px> Y#<py>  (preentry)
+
+	o<comp00> endif
+	
+	o15 if [#<_has_Z_axis>]
+		G0 Z[#<cut_start> + #<_z_clear>]
+		G1 Z#<cut_start> F#<_feed_vertical>
+	o15 endif
+	G#<opt> F#<_feed_normal>
+
+	o29 if [#<_plasma_test_mode> EQ 0]
+		M3 S100
+	o29 endif
+	G4 P#<_pierce_delay>
+	
+	o25 if [#<entry_dir> GE 2]
+		G#<entry_dir> X#<_cut_current_x> Y#<_cut_current_y> I#<i> J#<j>
+	o25 endif
+o<lead_in> endsub

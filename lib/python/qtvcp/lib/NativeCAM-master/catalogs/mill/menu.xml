@@ -1,0 +1,104 @@
+<ncam_ui>
+    <menu>
+        <menu action='basics' name=_('Basic Shapes')_ icon="basic.png">
+            <menuitem action='rectangle' name=_('Rectangle')_ tool_tip=_('Create a rectangle with optional corner types')_ icon="center-rect.png" src="mill/rectangle.cfg"/>
+            <separator/>
+            <menuitem action='circle' name=_('Circle')_ tool_tip=_('Create a circle with optional D flat')_ icon="circle.png" src="mill/circle.cfg"/>
+            <menuitem action='circle2' name=_('Circle From 2 Points')_ tool_tip=_('Define ends of diameter')_ icon="circle-2.png" src="mill/circle-2.cfg"/>
+            <separator/>
+            <menuitem action='slot1' name=_('Slot/Oval From 1 Point')_ tool_tip=_('Define a point, angle and length')_ icon="slot.png" src="mill/slot.cfg"/>
+            <menuitem action='slot2' name=_('Slot/Oval From 2 Points')_ tool_tip=_('Define center of ends')_ icon="slot-2.png" src="mill/slot-2.cfg"/>
+            <menuitem action='radial_slot' name=_('Radial Slot')_ tool_tip=_('Create a radial slot')_ icon="radial-slot.png" src="mill/slot-arc.cfg"/>
+            <separator/>
+            <menuitem action='ellipse' name=_('Ellipse')_ tool_tip=_('Create an ellipse')_ icon="ellipse.png" src="mill/ellipse.cfg"/>
+            <menuitem action='polygon' name=_('Polygon')_ tool_tip=_('Polygon of N edges')_ icon="hexagon.png" src="mill/polygon.cfg"/>
+            <separator/>
+            <menuitem action='surf_finish' name=_('Surface Finishing')_ tool_tip=_('Uni or Bi-directional')_ icon="rect-pocket.png" src="mill/surf_finish.cfg"/>
+        </menu>
+        <menu action='advanced' name=_('Advanced')_ icon='advanced.png'>
+            <menu action='polyline' name=_('Polyline')_ icon="polyline.png">
+                <menuitem action='poly_start' name=_('Start')_ tool_tip=_('Starts a polyline')_ icon="polyline.png" src="mill/polyline.cfg"/>
+                <separator/>
+                <menuitem action='polyline_to' name=_('Line To')_ tool_tip=_('Relative or absolute position')_ icon="line-to.png" src="mill/polyline-to.cfg"/>
+                <menuitem action='polyline_pol' name=_('Line Polar')_ tool_tip=_('Define angle and length')_ icon="line-polar.png" src="mill/polyline-polar.cfg"/>
+                <separator/>
+                <menuitem action='poly_arc_ij' name=_('Arc I,J')_ tool_tip=_('Defined center by offsets or absolute position')_ icon="arc-to-ij.png" src="mill/polyline-arc-ij.cfg"/>
+                <menuitem action='poly_arc_pol_ctr' name=_('Arc Polar Center')_ tool_tip=_('Define center at angle and distance')_ icon="arc-polar-ctr.png" src="mill/polyline-arc-polar.cfg"/>
+                <menuitem action='poly_arc_coords' name=_('Arc To Coords')_ tool_tip=_('Define end point, arc height or radius')_ icon="arc-to-coords.png" src="mill/polyline-arc-to.cfg"/>
+                <menuitem action='poly_arc_to_pol' name=_('Arc To Polar')_ tool_tip=_('Define end point, arc height or radius')_ icon="arc-polar.png" src="mill/polyline-arc-top.cfg"/>
+                <menuitem action='poly_bisector' name=_('Arc Mirror End')_ tool_tip=_('Define I,J and mirror line')_ icon="arc-bisector.png" src="mill/polyline-arc-m.cfg"/>
+                <separator/>
+                <menuitem action='poly_repeat' name=_('Repeat Items')_ tool_tip=_('Repeat a group of polyline items')_ icon="poly-repeat-items.png" src="mill/polyline-repeat.cfg"/>
+                <menuitem action='poly_mir_itms' name=_('Mirror Items')_ tool_tip=_('Duplicate and reverse polyline items')_ icon="polyline-mirror-items.png" src="mill/polyline-mirror-i.cfg"/>
+                <separator/>
+                <menuitem action='poly_mirror' name=_('Mirror Polyline')_ tool_tip=_('Create a reversed polyline from previous one')_ icon="polyline-mirrored.png" src="mill/polyline-mirror-p.cfg"/>
+            </menu>
+            <menu action='countebore' name=_('Counterbore')_ tool_tip=_('For Socket Head Cap Screw')_ icon='counterbore.png' >
+                <menuitem action='cb_single' name=_('Single Hole')_ tool_tip=_('No slot')_ icon="shcs-hole.png" src="mill/SHCS.cfg"/>
+                <menuitem action='cb_slot1' name=_('Slot From 1 Point')_ tool_tip=_('Define a point, angle and length')_ icon="shcs-slot.png" src="mill/SHCS_slot.cfg"/>
+                <menuitem action='cb_slot2' name=_('Slot From 2 Points')_ tool_tip=_('Define 2 points')_ icon="shcs-slot2.png" src="mill/SHCS_slot2.cfg"/>
+                <menuitem action='cb_arc' name=_('Radial Slot')_ tool_tip=_('Create a radial slot')_ icon="shcs-arc.png" src="mill/SHCS_slot-arc.cfg"/>
+            </menu>
+            <menuitem action='thread_milling' name=_('Thread Milling')_ tool_tip=_('True thread mill needed')_ icon="threading-v.png" src="mill/thread-milling.cfg"/>
+            <menuitem action='ttengraving' name=_('TrueType Engraving')_ tool_tip=_('TrueType Engraving')_ icon="truetype.png" src="mill/ttt.cfg"/>
+			<menuitem action='circle-k' name=_('Circle w/ key')_ tool_tip=_('Create a circle for a key/keyway')_ icon="circle-k.png" src="mill/circle-k.cfg"/>
+        </menu>
+        <menu action='drilling' name=_('Drilling')_ icon="drills.png">
+            <menuitem action='drill_single' name=_('Single Hole')_ tool_tip=_('Drill a single hole')_ icon="drill-single.png" src="mill/drill-single.cfg"/>
+            <menuitem action='drill_arr' name=_('Array Of Holes')_ tool_tip=_('Drill lines of holes')_ icon="drill-array.png" src="mill/drill-array.cfg"/>
+            <menuitem action='drill_circle' name=_('Regular Circle')_ tool_tip=_('Create a regular spaced holes circle')_ icon="drill-circle.png" src="mill/drill-circle.cfg"/>
+            <menuitem action='drill_circle_irr' name=_('Irregular Circle')_ tool_tip=_('Create a hole circle of different angle spacing')_ icon="drill-irr-circle.png" src="mill/drill-circle-irr.cfg"/>
+        </menu>
+        <menu action='groups' name=_('Group, Offset And Rotation')_ icon="group.png">
+            <menuitem action='group_std' name=_('Standard Group')_ tool_tip=_('Group subroutines')_ icon="group.png" src="group.cfg"/>
+            <menuitem action='group_off' name=_('Offset/Rotate')_ tool_tip=_('Group subroutines, offset and rotate')_ icon="group-offset.png" src="group-off.cfg"/>
+            <separator/>
+            <menuitem action='group_radial' name=_('Radial Array')_ tool_tip=_('Define diameter or distance between groups')_ icon="circular-array.png" src="circular-array.cfg"/>
+            <menuitem action='group_arr' name=_('Rectangular Array')_ tool_tip=_('Array of rows and columns')_ icon="rect-array.png" src="rectangular-array.cfg"/>
+            <separator/>
+			<menuitem action='group_index' name=_('Index A Axis')_ tool_tip=_('Rotate A axis')_ icon="axis-a.png" src="mill/index-axisA.cfg"/>
+        </menu>
+        <menu action='tool_chng' name=_('Change Tool')_ icon="tool-change.png">
+			<menuitem action='chng_end_mill' name=_('End Mill')_ tool_tip=_('Select end mill and set parameters')_ icon="tool-01.png" src="mill/sel-end-mill.cfg"/>
+			<menuitem action='chng_drill' name=_('Drill or Reamer')_ tool_tip=_('Select drill and set parameters')_ icon="drill.png" src="mill/sel-drill.cfg"/>
+			<menuitem action='chng_thread_mill' name=_('Thread Mill')_ tool_tip=_('Select thread mill and set parameters')_ icon="tool-change.png" src="mill/sel-thread-mill.cfg"/>
+        </menu>
+        <menu action='probing' name=_('Probing')_ icon="probe.png">
+            <menuitem action='probe_edge' name=_('Probe Edges')_ tool_tip=_('Find workpiece edges')_ icon="probe-edge.png" src="mill/probe-edge.cfg"/>
+            <menuitem action='probe_stock' name=_('Probe Stock')_ tool_tip=_('Find the center of a cube or cylinder')_ icon="probe-stock.png" src="mill/probe-stock.cfg"/>
+            <menuitem action='probe_arr' name=_('Probe Array')_ tool_tip=_('Probe a array of points and save to file')_ icon="probe-grid.png" src="mill/probe-array.cfg"/>
+            <menuitem action='probe_z' name=_('Probe Surface')_ tool_tip=_('Find Z position with a probe')_ icon="probe-down.png" src="mill/probe-surface.cfg"/>
+            <menuitem action='probe_hole' name=_('Probe Hole')_ tool_tip=_('Find center of a hole')_ icon="probe-hole.png" src="mill/probe-hole.cfg"/>
+        </menu>
+        <menu action='misc' name=_('Miscellaneous')_ icon='misc.png'>
+            <menuitem action='stock' name=_('Raw Material')_ tool_tip=_('Show a temporary image of rough material')_ icon="stock.png" src="mill/material.cfg"/>
+            <menuitem action='gcode' name=_('Custom G Code')_ tool_tip=_('Write custom gcode')_ icon="gcode.png" src="gcode.cfg"/>
+            <menuitem action='gcode_file' name=_('Insert a G Code File')_ tool_tip=_('Include a custom gcode file')_ icon="file-gcode.png" src="i_gcode.cfg"/>
+            <menuitem action='comment' name=_('Comment')_ tool_tip=_('Add comments')_ icon="comment.png" src="comment.cfg"/>
+            <menuitem action='prjdesc' name=_('Project Notes')_ tool_tip=_('View project name and note')_ icon="prj-desc.png" src="proj_desc.cfg"/>
+        </menu>
+    </menu>
+
+    
+    <toolbar>
+        <toolitem action='chng_end_mill' />
+        <toolitem action='circle' />
+        <toolitem action='rectangle' />
+        <toolitem action='slot1' />
+        <toolitem action='radial_slot' />
+        <separator/>
+        <toolitem action='group_std' />
+        <toolitem action='group_radial' />
+        <toolitem action='group_arr' />
+        <separator/>
+        <toolitem action='chng_drill' />
+        <toolitem action='drill_single' />
+        <toolitem action='drill_arr' />
+        <toolitem action='drill_circle' />
+        <toolitem action='drill_circle_irr' />
+        <separator/>
+        <toolitem action='cb_single' />
+        <toolitem action='cb_slot1' />
+        <toolitem action='stock' />
+    </toolbar >
+</ncam_ui>
