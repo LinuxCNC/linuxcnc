@@ -2080,9 +2080,6 @@ class NCam(NCamWindow):
         self.build_add_menu()
         self.addDisplayWidget()
 
-        #self.pop_up = self.uimanager.get_widget("/PopupMenu")
-        #self.pop_up2 = self.uimanager.get_widget("/PopupMenu2")
-
         #self.create_add_dialog()
 
         #self.builder.connect_signals(self)
@@ -2093,6 +2090,7 @@ class NCam(NCamWindow):
 
         self.load_currentWork()
         self.get_selected_feature('init')
+
         #self.show_all()
         #self.actionCurrent.set_visible(not self.pref.autosave)
         #self.addVBox.hide()
@@ -4122,24 +4120,13 @@ class NCam(NCamWindow):
             self.display_proj_name()
 
     def action_loadCfg(self, *arg) :
-        filechooserdialog = gtk.FileChooserDialog(_("Open a cfg file"), None, \
-                    gtk.FILE_CHOOSER_ACTION_OPEN, \
-                    (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                     gtk.STOCK_OK, gtk.RESPONSE_OK))
-        try:
-            filt = gtk.FileFilter()
-            filt.set_name(_("Config files"))
-            filt.add_mime_type("text/xml")
-            filt.add_pattern("*.cfg")
-            filechooserdialog.add_filter(filt)
-            filechooserdialog.set_current_folder(os.path.join(NCAM_DIR, CUSTOM_DIR))
-            filechooserdialog.set_keep_above(True)
-            filechooserdialog.set_transient_for(self.get_toplevel())
-
-            if filechooserdialog.run() == gtk.RESPONSE_OK:
-                self.add_feature(None, filechooserdialog.get_filename())
-        finally :
-            filechooserdialog.destroy()
+        dlg_title = _("Open project")
+        flt_name = _("NativeCAM projects")
+        dir_ = os.path.join(NCAM_DIR, CUSTOM_DIR)
+        fltr = "{} *.cfg;;All Files (*);;Text Files (*.txt)".format(_("Config files"))
+        filename = self.openDialog(title=dlg_title, directory=dir_, extfilter=fltr)
+        if not filename is None:
+            self.add_feature(None, filename)
 
 def verify_ini(fname, ctlog, in_tab) :
     path2ui = os.path.join(SYS_DIR, 'ncam.ui')
