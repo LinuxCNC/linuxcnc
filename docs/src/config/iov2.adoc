@@ -53,18 +53,13 @@ INI file options:
 .[EMCIO] section
 PROTOCOL_VERSION = 2 :: Defaults to 2. Setting to 1 will emulate old iocontrol behaviour.
 
-EMCIO = iov2 -support-start-change :: You need to explicitly enable the start-change protocol by adding the
-  -support-start-change option; otherwise the start-change pin remains
-  low and   start-change-ack is ignored. The reason for this is better
-  backwards compatibility.
+EMCIO = iov2 -support-start-change :: You need to explicitly enable the start-change protocol by adding the -support-start-change option; otherwise the start-change pin remains low and   start-change-ack is ignored. The reason for this is better backwards compatibility.
 
 .[TASK] section
-IO_ERROR :: Printf-style template for operator error display (negative toolchanger fault codes).
-  No quoting needed. Example: `IO_ERROR = Toolchanger fault %d`. Default: toolchanger error %d.
+IO_ERROR :: Printf-style template for operator error display (negative toolchanger fault codes).  No quoting needed. Example: `IO_ERROR = Toolchanger fault %d`. Default: toolchanger error %d.
 
 .[EMC] section +
-DEBUG :: To get a (quite detailed) trace,
-  set either the RCS debugging flag (0x00000200) to turn on RCS debugging messages all over LinuxCNC or use the new iocontrol debugging bit (0x00001000) only for iov2 messages.
+DEBUG :: To get a (quite detailed) trace, set either the RCS debugging flag (0x00000200) to turn on RCS debugging messages all over LinuxCNC or use the new iocontrol debugging bit (0x00001000) only for iov2 messages.
 
 == Pins
 
