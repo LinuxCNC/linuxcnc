@@ -206,7 +206,6 @@ int build_chips_collection(char *name, hal_gpio_bulk_t **ptr, int *count){
 int rtapi_app_main(void){
     int retval = 0;
     int i, c;
-    char hal_name[HAL_NAME_LEN];
     const char *line_name;
 
 #ifdef __KERNEL__
@@ -277,16 +276,13 @@ int rtapi_app_main(void){
 	}
     }
 
-    rtapi_snprintf(hal_name, HAL_NAME_LEN, "hal_gpio.read");
-    retval += hal_export_funct(hal_name, hal_gpio_read, gpio, 0, 0, comp_id);
-    rtapi_snprintf(hal_name, HAL_NAME_LEN, "hal_gpio.write");
-    retval += hal_export_funct(hal_name, hal_gpio_write, gpio, 0, 0, comp_id);
+    retval += hal_export_funct("hal_gpio.read", hal_gpio_read, gpio, 0, 0, comp_id);
+    retval += hal_export_funct("hal_gpio.write", hal_gpio_write, gpio, 0, 0, comp_id);
 
     if (reset_active){
 	gpio->reset_ns = hal_malloc(sizeof(hal_u32_t));
-	rtapi_snprintf(hal_name, HAL_NAME_LEN, "hal_gpio.reset");
 	retval += hal_param_u32_newf(HAL_RW, gpio->reset_ns, comp_id, "hal_gpio.reset_ns");
-	retval += hal_export_funct(hal_name, hal_gpio_reset, gpio, 0, 0, comp_id);
+	retval += hal_export_funct("hal_gpio.reset", hal_gpio_reset, gpio, 0, 0, comp_id);
     }
     if (retval < 0){
 	rtapi_print_msg(RTAPI_MSG_ERR, "hal_gpio: failed to export functions\n");
