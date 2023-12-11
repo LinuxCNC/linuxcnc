@@ -416,7 +416,7 @@ typedef enum {
   scProgramAngularUnits, scUserLinearUnits, scUserAngularUnits, scDisplayLinearUnits,
   scDisplayAngularUnits, scLinearUnitConversion,  scAngularUnitConversion, scProbeClear, 
   scProbeTripped, scProbeValue, scProbe, scTeleopEnable, scKinematicsType, scOverrideLimits, 
-  scSpindleOverride, scOptionalStop, scUnknown
+  scSpindleOverride, scOptionalStop, scSetWait, scUnknown
   } cmdTokenType;
   
 typedef enum {
@@ -465,7 +465,7 @@ const char *cmdTokens[] = {
   "USER_LINEAR_UNITS", "USER_ANGULAR_UNITS", "DISPLAY_LINEAR_UNITS", "DISPLAY_ANGULAR_UNITS", 
   "LINEAR_UNIT_CONVERSION", "ANGULAR_UNIT_CONVERSION", "PROBE_CLEAR", "PROBE_TRIPPED", 
   "PROBE_VALUE", "PROBE", "TELEOP_ENABLE", "KINEMATICS_TYPE", "OVERRIDE_LIMITS", 
-  "SPINDLE_OVERRIDE", "OPTIONAL_STOP", ""};
+  "SPINDLE_OVERRIDE", "OPTIONAL_STOP", "SET_WAIT", ""};
 
 const char *commands[] = {"HELLO", "SET", "GET", "QUIT", "SHUTDOWN", "HELP", ""};
 
@@ -774,6 +774,13 @@ static cmdResponseType setWaitMode(connectionRecType *context)
     }
   }
   return rtNoError;
+}
+
+/* compatibility wrapper to deprecate set_wait command token - @todo remove at some point */
+static cmdResponseType setSetWait(connectionRecType *context)
+{
+  dprintf(context->cliSock, "WARNING: \"set_wait\" command is depreciated and will be removed in the future. Please use \"wait_mode\" instead.\n");
+  return setWaitMode(context);
 }
 
 static cmdResponseType setMachine(connectionRecType *context)
@@ -1457,6 +1464,7 @@ int commandSet(connectionRecType *context)
     case scPlat: break;
     case scIni: break;
     case scDebug: ret = setDebug(context); break;
+    case scSetWait: ret = setSetWait(context); break;     // remove this: deprecation alias for scWaitMode.
     case scWaitMode: ret = setWaitMode(context); break;
     case scWait: ret = setWait(context); break;
     case scSetTimeout: ret = setTimeout(context); break;
@@ -1609,6 +1617,13 @@ static cmdResponseType getWaitMode(connectionRecType *context)
     default: return rtStandardError;
   }
   return rtNoError;
+}
+
+/* compatibility wrapper to deprecate set_wait command token  - @todo remove at some point */
+static cmdResponseType getSetWait(connectionRecType *context)
+{
+  dprintf(context->cliSock, "WARNING: \"set_wait\" command is depreciated and will be removed in the future. Please use \"wait_mode\" instead.\n");
+  return getWaitMode(context);
 }
 
 static cmdResponseType getPlat(connectionRecType *context)
@@ -2579,6 +2594,7 @@ int commandGet(connectionRecType *context)
     case scPlat: ret = getPlat(context); break;
     case scIni: break;
     case scDebug: ret = getDebug(context); break;
+    case scSetWait: ret = getSetWait(context); break;         // remove this: deprecation alias for scWaitMode.
     case scWaitMode: ret = getWaitMode(context); break;
     case scWait: break;
     case scSetTimeout: ret = getTimeout(context); break;
