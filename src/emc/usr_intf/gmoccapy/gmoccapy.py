@@ -3649,7 +3649,7 @@ class gmoccapy(object):
     def on_chk_turtle_jog_toggled(self, widget, data=None):
         state = widget.get_active()
         self.prefs.putpref("hide_turtle_jog_button", state)
-        self.widgets.tbl_turtle_jog_factor.set_sensitive(not state)
+        self.widgets.grid_turtle_jog_factor.set_sensitive(not state)
         if state:
             self.widgets.tbtn_turtle_jog.hide()
         else:
