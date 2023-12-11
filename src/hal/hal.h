@@ -739,6 +739,14 @@ extern int hal_get_param_value_by_name(
 extern int hal_export_funct(const char *name, void (*funct) (void *, long),
     void *arg, int uses_fp, int reentrant, int comp_id);
 
+/** hal_export_functf is similar to hal_export_funct except that it also does
+    printf-style formatting to compute the function name.
+    If successful, it returns 0.
+    On failure it returns a negative error code.
+*/
+extern int hal_export_functf(void (*funct) (void *, long),
+    void *arg, int uses_fp, int reentrant, int comp_id, const char *fmt, ...);
+
 /** hal_create_thread() establishes a realtime thread that will
     execute one or more HAL functions periodically.
     'name' is the name of the thread, which must be unique in

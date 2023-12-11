@@ -197,7 +197,6 @@ int rtapi_app_main(void)
 {
     char *cp;
     char *argv[MAX_TOK];
-    char name[HAL_NAME_LEN + 1];
     int n, retval;
 
 
@@ -250,33 +249,27 @@ rtapi_print ( "config string '%s'\n", cfg );
     }
     /* export functions for each port */
     for (n = 0; n < num_ports; n++) {
-	/* make read function name */
-	rtapi_snprintf(name, sizeof(name), "parport.%d.read", n);
 	/* export read function */
-	retval = hal_export_funct(name, read_port, &(port_data_array[n]),
-	    0, 0, comp_id);
+	retval = hal_export_functf(read_port, &(port_data_array[n]),
+	    0, 0, comp_id, "parport.%d.read", n);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PARPORT: ERROR: port %d read funct export failed\n", n);
 	    hal_exit(comp_id);
 	    return -1;
 	}
-	/* make write function name */
-	rtapi_snprintf(name, sizeof(name), "parport.%d.write", n);
 	/* export write function */
-	retval = hal_export_funct(name, write_port, &(port_data_array[n]),
-	    0, 0, comp_id);
+	retval = hal_export_functf(write_port, &(port_data_array[n]),
+	    0, 0, comp_id, "parport.%d.write", n);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PARPORT: ERROR: port %d write funct export failed\n", n);
 	    hal_exit(comp_id);
 	    return -1;
 	}
-	/* make reset function name */
-	rtapi_snprintf(name, sizeof(name), "parport.%d.reset", n);
 	/* export write function */
-	retval = hal_export_funct(name, reset_port, &(port_data_array[n]),
-	    0, 0, comp_id);
+	retval = hal_export_functf(reset_port, &(port_data_array[n]),
+	    0, 0, comp_id, "parport.%d.reset", n);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PARPORT: ERROR: port %d reset funct export failed\n", n);

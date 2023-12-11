@@ -159,7 +159,6 @@ static void update_supply(void *arg, long l)
 static int export_supply(int num, hal_supply_t * addr)
 {
     int retval;
-    char buf[HAL_NAME_LEN + 1];
 
     /* export pins */
     retval = hal_pin_bit_newf(HAL_OUT, &(addr->q), comp_id, "supply.%d.q", num);
@@ -195,10 +194,9 @@ static int export_supply(int num, hal_supply_t * addr)
     *(addr->d) = 0;
     *(addr->value) = 0.0;
     /* export function for this loop */
-    rtapi_snprintf(buf, sizeof(buf), "supply.%d.update", num);
     retval =
-	hal_export_funct(buf, update_supply, &(supply_array[num]), 1, 0,
-	comp_id);
+	hal_export_functf(update_supply, &(supply_array[num]), 1, 0,
+	comp_id, "supply.%d.update", num);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SUPPLY: ERROR: update funct export failed\n");

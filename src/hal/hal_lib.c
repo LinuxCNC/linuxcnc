@@ -1878,6 +1878,32 @@ int hal_get_param_value_by_name(
 
 #ifdef RTAPI
 
+static int hal_export_functfv(void (*funct) (void *, long),
+    void *arg, int uses_fp, int reentrant, int comp_id, const char *fmt, va_list ap)
+{
+    char name[HAL_NAME_LEN + 1];
+    int sz;
+    sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
+    if(sz == -1 || sz > HAL_NAME_LEN) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+	    "hal_export_functfv: length %d too long for name starting '%s'\n",
+	    sz, name);
+        return -ENOMEM;
+    }
+    return hal_export_funct(name, funct, arg, uses_fp, reentrant, comp_id);
+}
+
+int hal_export_functf(void (*funct) (void *, long),
+    void *arg, int uses_fp, int reentrant, int comp_id, const char *fmt, ...)
+{
+    va_list ap;
+    int ret;
+    va_start(ap, fmt);
+    ret = hal_export_functfv(funct, arg, uses_fp, reentrant, comp_id, fmt, ap);
+    va_end(ap);
+    return ret;
+}
+
 int hal_export_funct(const char *name, void (*funct) (void *, long),
     void *arg, int uses_fp, int reentrant, int comp_id)
 {
@@ -4361,6 +4387,7 @@ EXPORT_SYMBOL(hal_param_set);
 EXPORT_SYMBOL(hal_set_constructor);
 
 EXPORT_SYMBOL(hal_export_funct);
+EXPORT_SYMBOL(hal_export_functf);
 
 EXPORT_SYMBOL(hal_create_thread);
 

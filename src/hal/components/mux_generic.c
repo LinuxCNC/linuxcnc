@@ -168,12 +168,8 @@ int rtapi_app_main(void){
             inst->out_type = inst->in_type;
         }
 
-        retval = rtapi_snprintf(hal_name, HAL_NAME_LEN, "mux-gen.%02i", i);
-        if (retval >= HAL_NAME_LEN) {
-            goto fail0;
-        }
         if (inst->in_type == HAL_FLOAT || inst->out_type == HAL_FLOAT) {
-            retval = hal_export_funct(hal_name, write_fp, inst, 1, 0, comp_id);
+            retval = hal_export_functf(write_fp, inst, 1, 0, comp_id, "mux-gen.%02i", i);
             if (retval < 0) {
                 rtapi_print_msg(RTAPI_MSG_ERR, "mux_generic: ERROR: function export"
                         " failed\n");
@@ -182,7 +178,7 @@ int rtapi_app_main(void){
         }
         else
         {
-            retval = hal_export_funct(hal_name, write_nofp, inst, 0, 0, comp_id);
+            retval = hal_export_functf(write_nofp, inst, 0, 0, comp_id, "mux-gen.%02i", i);
             if (retval < 0) {
                 rtapi_print_msg(RTAPI_MSG_ERR, "mux_generic: ERROR: function export"
                         " failed\n");

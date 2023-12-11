@@ -277,7 +277,6 @@ static void calc_siggen(void *arg, long period)
 static int export_siggen(int num, hal_siggen_t * addr,char* prefix)
 {
     int retval;
-    char buf[HAL_NAME_LEN + 1];
 
     /* export pins */
     retval = hal_pin_float_newf(HAL_OUT, &(addr->square), comp_id,
@@ -342,10 +341,9 @@ static int export_siggen(int num, hal_siggen_t * addr,char* prefix)
     *(addr->offset) = 0.0;
     addr->index = 0.0;
     /* export function for this loop */
-    rtapi_snprintf(buf, sizeof(buf), "%s.update", prefix);
     retval =
-	hal_export_funct(buf, calc_siggen, &(siggen_array[num]), 1, 0,
-	comp_id);
+	hal_export_functf(calc_siggen, &(siggen_array[num]), 1, 0,
+	comp_id, "%s.update", prefix);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SIGGEN: ERROR: update funct export failed\n");
