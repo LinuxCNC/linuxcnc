@@ -1900,8 +1900,10 @@ void EMC_TASK_PLAN_OPEN::update(CMS * cms)
 {
 
     EMC_TASK_CMD_MSG::update(cms);
-    cms->update(file, 256);
-
+    cms->update(file, LINELEN);
+    cms->update(remote_filesize);
+    cms->update(remote_buffersize);
+    cms->update(remote_buffer, sizeof(remote_buffer));
 }
 
 /*

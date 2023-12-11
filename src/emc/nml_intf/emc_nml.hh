@@ -1012,7 +1012,14 @@ class EMC_TASK_PLAN_OPEN:public EMC_TASK_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
+    // (local) path to file
     char file[LINELEN];
+    // total size of file in bytes (if issued from remote process, 0 otherwise)
+    size_t remote_filesize;
+    // amount of bytes currently in buffer (if issued from remote process, 0 otherwise)
+    size_t remote_buffersize;
+    // buffer used to transfer send a chunk of file contents (if loaded from remote process)
+    char remote_buffer[4096];
 };
 
 class EMC_TASK_PLAN_RUN:public EMC_TASK_CMD_MSG {

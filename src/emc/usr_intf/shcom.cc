@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <math.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <inttypes.h>
 
@@ -934,20 +935,74 @@ static char lastProgramFile[LINELEN] = "";
 
 int sendProgramOpen(char *program)
 {
-    EMC_TASK_PLAN_OPEN emc_task_plan_open_msg;
+    int res = 0;
+    EMC_TASK_PLAN_OPEN msg;
 
-    // save this to run again
+    /* save this to run again */
     rtapi_strxcpy(lastProgramFile, program);
+    /* store filename in message */
+    rtapi_strxcpy(msg.file, program);
+    /* clear optional fields */
+    msg.remote_buffersize = 0;
+    msg.remote_filesize = 0;
+    /* if we are a remote process, we send file in chunks to linuxcnc via remote_buffer */
+    if(emcCommandBuffer->cms->ProcessType == CMS_REMOTE_TYPE && strcmp(emcCommandBuffer->cms->ProcessName, "emc") != 0) {
+        /* open file */
+        FILE *fd;
+        if(!(fd = fopen(program, "r"))) {
+            rcs_print_error("fopen(%s) error: %s\n", program, strerror(errno));
+            return -1;
+        }
+        /* get filesize */
+        if(fseek(fd, 0L, SEEK_END) != 0) {
+            fclose(fd);
+            rcs_print_error("fseek(%s) error: %s\n", program, strerror(errno));
+            return -1;
+        }
+        if((msg.remote_filesize = ftell(fd)) < 0) {
+            fclose(fd);
+            rcs_print_error("ftell(%s) error: %s\n", program, strerror(errno));
+            return -1;
+        }
+        if(fseek(fd, 0L, SEEK_SET) != 0) {
+            fclose(fd);
+            rcs_print_error("fseek(%s) error: %s\n", program, strerror(errno));
+            return -1;
+        }
 
-    rtapi_strxcpy(emc_task_plan_open_msg.file, program);
-    emcCommandSend(emc_task_plan_open_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
+        /* send complete file content in chunks of sizeof(msg.remote_buffer) */
+        while(!(feof(fd))) {
+            size_t bytes_read = fread(&msg.remote_buffer, 1, sizeof(msg.remote_buffer), fd);
+            /* read error? */
+            if(bytes_read <= 0 && ferror(fd)) {
+                rcs_print_error("fread(%s) error: %s\n", program, strerror(errno));
+                res = -1;
+                break;
+            }
+            /* save amount of bytes written to buffer */
+            msg.remote_buffersize = bytes_read;
+            /* send chunk */
+            emcCommandSend(msg);
+            /* error happened? */
+            if(emcCommandWaitDone() != 0) {
+                rcs_print_error("emcCommandSend() error\n");
+                res = -1;
+                break;
+            }
+        }
+        fclose(fd);
+        return res;
     }
 
-    return 0;
+    /* local process, just send filename */
+    emcCommandSend(msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+        return emcCommandWaitReceived();
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+        return emcCommandWaitDone();
+    }
+
+    return res;
 }
 
 int sendProgramRun(int line)
