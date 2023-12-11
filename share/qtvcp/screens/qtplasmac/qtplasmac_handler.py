@@ -1,4 +1,4 @@
-VERSION = '001.012'
+VERSION = '001.013'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -327,10 +327,10 @@ class HandlerClass:
 
 # called by qtvcp.py
     def initialized__(self):
-        if linuxcnc.version.rsplit('.', 1)[0] != LCNCVER:
+        if '.'.join(linuxcnc.version.split('.')[:2]) != LCNCVER:
             msg0 = _translate('HandlerClass', 'LinuxCNC version should be')
             msg1 = _translate('HandlerClass', 'The detected version is')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{msg0} {LCNCVER}\n{msg1} {linuxcnc.version.rsplit(".", 1)[0]}')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{msg0} {LCNCVER}\n{msg1} {linuxcnc.version.split(".")[:2]}')
             quit()
         ucFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.py')
         if os.path.isfile(ucFile):
