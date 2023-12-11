@@ -350,7 +350,7 @@ class Combi_DRO(Gtk.Box):
                 if code >= 540 and code <= 590:
                     return "G%s" % int((code / 10))
                 elif code > 590 and code <= 593:
-                    return "G%s" % int((code / 10.0))
+                    return "G%s" % (code / 10.0)
             return "Rel"
 
     # Get the units used according to gcode
