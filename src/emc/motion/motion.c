@@ -346,8 +346,8 @@ int rtapi_app_main(void)
     return -1;
   }
   else if(names_misc_errors[0]){
-    num_misc_error = count_names(names_dout);
-    num_misc_error = (num_misc_error > count_names(names_din)) ? num_misc_error : count_names(names_din);
+    num_misc_error = count_names(names_misc_errors);
+    num_misc_error = (num_misc_error > count_names(names_misc_errors)) ? num_misc_error : count_names(names_misc_errors);
   }
   else if(!num_misc_error){
     num_misc_error = DEFAULT_MISC_ERROR;
