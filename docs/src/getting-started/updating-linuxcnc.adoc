@@ -197,7 +197,7 @@ Versions of LinuxCNC before 2.9.0 used to handle an incorrect
 `[TASK]INTERPRETER` setting by automatically falling back to using the
 default G-code interpreter.
 
-As of 2.9.0, an incorrect `[TASK]INTERPRETER` value will cause
+Since 2.9.0, an incorrect `[TASK]INTERPRETER` value will cause
 LinuxCNC to refuse to start up.  Fix this condition by deleting the
 `[TASK]INTERPRETER` setting from your INI file, so that LinuxCNC will
 use the default G-code interpreter.
