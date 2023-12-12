@@ -17,7 +17,7 @@ Packaging of LinuxCNC for debian.org is split between:
 
 linuxcnc.git (in <https://github.com/LinuxCNC/linuxcnc.git>)::
   This is the regular LinuxCNC repository. This already provides instructions
-  to build a Debian package in the subdirectory "debian/". 
+  to build a Debian package in the subdirectory "debian/".
   Branches for this repository reflect the ongoing developments for LinuxCNC.
 linuxcnc-gbp.git (in <https://github.com/LinuxCNC/linuxcnc-gbp.git>)::
   This repository has the same content as the release version, just that
@@ -28,7 +28,7 @@ linuxcnc-gbp.git (in <https://github.com/LinuxCNC/linuxcnc-gbp.git>)::
   uploads to Debian are sligtly different, so that multiple revisions of the
   Debian package is possible for the same release of LinuxCNC.
 ```
-moeller@x230:~/Github/linuxcnc-gbp$ git branch
+$ git branch
 * debian/unstable
   upstream
 ```
