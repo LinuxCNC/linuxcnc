@@ -1,4 +1,4 @@
-VERSION = '001.011'
+VERSION = '001.012'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -4013,7 +4013,7 @@ class HandlerClass:
                             checked = True
                         self.dualCodeButtons[bNum] = [data[1], data[2], data[3], bLabel, checked]
                         # dualCodeButtons format is: code1 ;; label1 ;; code2 ;; label2 ;; checked
-                    commands = f"{data[1]}\{data[3]}"
+                    commands = f"{data[1]}\\{data[3]}"
                 else:
                     commands = bCode
                 for command in commands.split('\\'):
@@ -4801,7 +4801,7 @@ class HandlerClass:
             except:
                 if not matNum:
                     msg0 = _translate('HandlerClass', 'A material number is required')
-                    msgs = f'{msg0}.\n\n\{msg1}:'
+                    msgs = f'{msg0}.\n\n{msg1}:'
                 else:
                     msg0 = _translate('HandlerClass', 'is not a valid number')
                     msgs = f'{matNum} {msg0}.\n\n{msg1}:'
