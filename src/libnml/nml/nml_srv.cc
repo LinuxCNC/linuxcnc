@@ -16,29 +16,30 @@
 extern "C" {
 #endif
 
-#include <string.h>		/* memcpy() */
+#include <string.h>		// memcpy()
 
-#include <signal.h>		/* kill() */
+#include <signal.h>		// kill()
 #include <sys/types.h>
-#include <unistd.h>		/* getpid() */
-#include <sys/wait.h>		/* waitpid() */
-#include <stdlib.h>		/* atexit() */
+#include <unistd.h>		// getpid()
+#include <sys/wait.h>		// waitpid()
+#include <stdlib.h>		// atexit()
 
 #ifdef __cplusplus
 }
 #endif
+#include <rtapi_string.h>	// rtapi_strlcpy()
 #include "nml.hh"
 #include "nmlmsg.hh"
 #include "cms.hh"
 #include "nml_srv.hh"
-#include "rem_msg.hh"		/* struct REMOTE_READ_REQUEST, */
-#include "rcs_print.hh"		/* rcs_print_error() */
+#include "rem_msg.hh"		// struct REMOTE_READ_REQUEST
+#include "rcs_print.hh"		// rcs_print_error()
 #include "timer.hh"		// esleep()
 #include "rcs_exit.hh"		// rcs_exit
 #include "linklist.hh"
 #include "physmem.hh"
 #include "cmsdiag.hh"
-#include "cmd_msg.hh" // layering violation ahoy
+#include "cmd_msg.hh"		// layering violation ahoy
 NML_SERVER::NML_SERVER(NML * _nml, int _set_to_master):CMS_SERVER()
 {
     NML_SERVER_LOCAL_PORT *new_local_port = NULL;
@@ -321,8 +322,8 @@ set_diag_info(REMOTE_SET_DIAG_INFO_REQUEST * _req)
 	orig_info = new CMS_DIAG_PROC_INFO();
 	*orig_info = *dpi;
     }
-    strncpy(dpi->name, _req->process_name, 16);
-    strncpy(dpi->host_sysinfo, _req->host_sysinfo, 32);
+    rtapi_strlcpy(dpi->name, _req->process_name, 16);
+    rtapi_strlcpy(dpi->host_sysinfo, _req->host_sysinfo, 32);
     if (cms->total_connections > _req->c_num && _req->c_num >= 0) {
 	cms->connection_number = _req->c_num;
     }

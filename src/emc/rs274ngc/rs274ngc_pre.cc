@@ -89,7 +89,7 @@ include an option for suppressing superfluous commands.
 #include <set>
 #include <stdexcept>
 #include <new>
-#include <rtapi_string.h>
+#include <rtapi_string.h>	// rtapi_strlcpy()
 
 #include "rtapi.h"
 #include "inifile.hh"		// INIFILE
@@ -2492,7 +2492,7 @@ int Interp::ini_load(const char *filename)
 
     char parameter_file_name[LINELEN]={};
     if (NULL != (inistring = inifile.Find("PARAMETER_FILE", "RS274NGC"))) {
-        strncpy(parameter_file_name, inistring, LINELEN);
+        rtapi_strlcpy(parameter_file_name, inistring, LINELEN);
 
         if (parameter_file_name[LINELEN-1] != '\0') {
             logDebug("%s:[RS274NGC]PARAMETER_FILE is too long (max len %d)", filename, LINELEN-1);

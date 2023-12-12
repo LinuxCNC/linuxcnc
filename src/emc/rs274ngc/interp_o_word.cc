@@ -34,7 +34,7 @@
 #include "rs274ngc_interp.hh"
 #include "python_plugin.hh"
 #include "interp_python.hh"
-#include <rtapi_string.h>
+#include <rtapi_string.h>	// rtapi_strlcpy()
 
 namespace bp = boost::python;
 
@@ -60,7 +60,7 @@ int Interp::findFile( // ARGUMENTS
     snprintf(targetPath, PATH_MAX, "%s/%s", direct, target);
     file = fopen(targetPath, "r");
     if (file) {
-        strncpy(foundFileDirect, direct, PATH_MAX);
+        rtapi_strlcpy(foundFileDirect, direct, PATH_MAX);
         fclose(file);
         return INTERP_OK;
     }
@@ -71,8 +71,8 @@ int Interp::findFile( // ARGUMENTS
 
     while ((aFile = readdir(aDir))) {
         if (aFile->d_type == DT_DIR &&
-	    (0 != strcmp(aFile->d_name, "..")) &&
-	    (0 != strcmp(aFile->d_name, "."))) {
+	    (0 != strncmp(aFile->d_name, "..", 3)) &&
+	    (0 != strncmp(aFile->d_name, ".", 2))) {
 
             char path[PATH_MAX+1];
             snprintf(path, PATH_MAX, "%s/%s", direct, aFile->d_name);
@@ -561,7 +561,7 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 	    newFP = fopen(op->filename, "r");
 	    // set the line number
 	    settings->sequence_number = 0;
-            strncpy(settings->filename, op->filename, sizeof(settings->filename));
+            rtapi_strlcpy(settings->filename, op->filename, sizeof(settings->filename));
             if (settings->filename[sizeof(settings->filename)-1] != '\0') {
                 fclose(settings->file_pointer);
                 logOword("filename too long: %s", op->filename);
@@ -597,7 +597,7 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 	if (settings->file_pointer)
 	    fclose(settings->file_pointer);
 	settings->file_pointer = newFP;
-        strncpy(settings->filename, newFileName, sizeof(settings->filename));
+        rtapi_strlcpy(settings->filename, newFileName, sizeof(settings->filename));
         if (settings->filename[sizeof(settings->filename)-1] != '\0') {
             logOword("new filename '%s' is too long (max len %zu)\n", newFileName, sizeof(settings->filename)-1);
             settings->filename[sizeof(settings->filename)-1] = '\0'; // oh well, truncate the filename

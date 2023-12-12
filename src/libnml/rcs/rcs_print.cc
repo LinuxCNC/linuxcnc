@@ -308,7 +308,7 @@ int rcs_vprint(const char *_fmt, va_list _args, int save_string)
 	}
 	last_error_buf_filled++;
 	last_error_buf_filled %= 4;
-	strncpy(last_error_bufs[last_error_buf_filled], temp_string, 99);
+	rtapi_strlcpy(last_error_bufs[last_error_buf_filled], temp_string, 99);
     }
     return (rcs_fputs(temp_string));
 }
