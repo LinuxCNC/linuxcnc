@@ -193,11 +193,11 @@ interpreter is, then this section does not affect you.
 A seldom-used feature of LinuxCNC is support for pluggable interpreters,
 controlled by the undocumented `[TASK]INTERPRETER` INI setting.
 
-Versions of LinuxCNC before 2.9.0 used to handle an incorrect
+Versions of LinuxCNC before 2.9.1 used to handle an incorrect
 `[TASK]INTERPRETER` setting by automatically falling back to using the
 default G-code interpreter.
 
-As of 2.9.0, an incorrect `[TASK]INTERPRETER` value will cause
+As of 2.9.1, an incorrect `[TASK]INTERPRETER` value will cause
 LinuxCNC to refuse to start up.  Fix this condition by deleting the
 `[TASK]INTERPRETER` setting from your INI file, so that LinuxCNC will
 use the default G-code interpreter.
