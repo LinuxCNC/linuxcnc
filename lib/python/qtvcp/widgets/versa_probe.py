@@ -54,9 +54,9 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.tool_number = None
         STATUS.connect('tool-info-changed', lambda w, data: self._tool_info(data))
         if INFO.MACHINE_IS_METRIC:
-            self.valid = QtGui.QRegExpValidator(QtCore.QRegExp('^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$'))
+            self.valid = QtGui.QRegExpValidator(QtCore.QRegExp(r'^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$'))
         else:
-            self.valid = QtGui.QRegExpValidator(QtCore.QRegExp('^((\d{1,3}(\.\d{1,4})?)|(\.\d{1,4}))$'))
+            self.valid = QtGui.QRegExpValidator(QtCore.QRegExp(r'^((\d{1,3}(\.\d{1,4})?)|(\.\d{1,4}))$'))
         self.setMinimumSize(600, 420)
         # Load the widgets UI file will use local file if available:
         self.filename = PATH.find_widget_path('versa_probe.ui')
