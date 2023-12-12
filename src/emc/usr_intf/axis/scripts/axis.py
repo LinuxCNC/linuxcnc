@@ -1179,8 +1179,6 @@ def open_file_guts(f, filtered=False, addrecent=True):
     if addrecent:
         add_recent_file(f)
     if not filtered:
-        global loaded_file
-        loaded_file = f
         program_filter = get_filter(f)
         if program_filter:
             tempfile = os.path.join(tempdir, "filtered-" + os.path.basename(f))
@@ -2267,6 +2265,8 @@ class TclCommands(nf.TclCommands):
         return ""
 
     def open_file_name(f):
+        global loaded_file
+        loaded_file = f
         open_file_guts(f)
         if str(widgets.view_x['relief']) == "sunken":
             commands.set_view_x()
