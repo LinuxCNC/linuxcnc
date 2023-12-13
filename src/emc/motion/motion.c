@@ -213,16 +213,12 @@ static void emc_message_handler(msg_level_t level, const char *fmt, va_list ap)
     va_end(apc);
 }
 
-int count_names(char *names[]){
-  int namecount = 0;
-  int i;
-  for (i = 0; i < MAX_IO; i++) {
-    if (((names[i] == NULL) || (*names[i] == 0))){
-      break;
-    }
-    namecount = i + 1;
-  }
-  return namecount;
+int count_names(char *names[])
+{
+    int count = 0;
+    while (count < MAX_IO && names[count] && *names[count])
+        count++;
+    return count;
 }
 
 static int module_intfc() {
