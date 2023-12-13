@@ -112,7 +112,7 @@ static void user_defined_add_m_code(int num, double arg1, double arg2)
 
 int emcTaskInit()
 {
-    char mdir[MAX_M_DIRS][PATH_MAX+1];
+    char mdir[MAX_M_DIRS][PATH_MAX];
     int num,dct,dmax;
     char path[EMC_SYSTEM_CMD_LEN];
     struct stat buf;
@@ -123,18 +123,14 @@ int emcTaskInit()
 
     // Identify user_defined_function directories
     if (NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY"))) {
-        strncpy(mdir[0],inistring, sizeof(mdir[0]));
-        if (mdir[0][sizeof(mdir[0])-1] != '\0') {
+        if (strlen(inistring) >= sizeof(mdir[0])) {
             rcs_print("[DISPLAY]PROGRAM_PREFIX too long (max len %zu)\n", sizeof(mdir[0]));
             return -1;
         }
+        strncpy(mdir[0], inistring, sizeof(mdir[0]));
     } else {
         // default dir if no PROGRAM_PREFIX
-        strncpy(mdir[0],"nc_files", sizeof(mdir[0]));
-        if (mdir[0][sizeof(mdir[0])-1] != '\0') {
-            rcs_print("default nc_files too long (max len %zu)\n", sizeof(mdir[0]));
-            return -1;
-        }
+        strncpy(mdir[0], "nc_files", sizeof(mdir[0]));
     }
     dmax = 1; //one directory mdir[0],  USER_M_PATH specifies additional dirs
 
@@ -146,21 +142,22 @@ int emcTaskInit()
 
         for (dct=1; dct < MAX_M_DIRS; dct++) mdir[dct][0] = 0;
 
-        strncpy(tmpdirs,inistring, sizeof(tmpdirs));
-        if (tmpdirs[sizeof(tmpdirs)-1] != '\0') {
+        if (strlen(inistring) >= sizeof(tmpdirs)) {
             rcs_print("[RS274NGC]USER_M_PATH too long (max len %zu)\n", sizeof(tmpdirs));
             return -1;
         }
+        strncpy(tmpdirs, inistring, sizeof(tmpdirs));
 
         nextdir = strtok(tmpdirs,":");  // first token
         dct = 1;
         while (dct < MAX_M_DIRS) {
             if (nextdir == NULL) break; // no more tokens
-            strncpy(mdir[dct],nextdir, sizeof(mdir[dct]));
-            if (mdir[dct][sizeof(mdir[dct])-1] != '\0') {
-                rcs_print("[RS274NGC]USER_M_PATH component (%s) too long (max len %zu)\n", nextdir, sizeof(mdir[dct]));
+            if (strlen(nextdir) >= sizeof(mdir[dct])) {
+                rcs_print("[RS274NGC]USER_M_PATH component (%s) too long (max len %zu)\n",
+                          nextdir, sizeof(mdir[dct]));
                 return -1;
             }
+            strncpy(mdir[dct], nextdir, sizeof(mdir[dct]));
             nextdir = strtok(NULL,":");
             dct++;
         }

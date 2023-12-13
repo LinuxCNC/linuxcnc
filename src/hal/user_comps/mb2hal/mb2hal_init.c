@@ -696,7 +696,11 @@ retCode init_mb_links()
             this_mb_link->lp_link_type = this_mb_tx->cfg_link_type;
 
             if (this_mb_link->lp_link_type == linkRTU) { //serial
-                strncpy(this_mb_link->lp_serial_device, this_mb_tx->cfg_serial_device, MB2HAL_MAX_DEVICE_LENGTH-1);
+                if (strlen(this_mb_tx->cfg_serial_device) >= MB2HAL_MAX_DEVICE_LENGTH) {
+                    ERR(gbl.init_dbg, "serial_device name to long [%s]", this_mb_tx->cfg_serial_device);
+                    return retERR;
+                }
+                strncpy(this_mb_link->lp_serial_device, this_mb_tx->cfg_serial_device, MB2HAL_MAX_DEVICE_LENGTH);
                 this_mb_link->lp_serial_baud=this_mb_tx->cfg_serial_baud;
 
                 if (strcasecmp(this_mb_tx->cfg_serial_parity, "even") == 0) {
@@ -723,7 +727,11 @@ retCode init_mb_links()
                 }
             }
             else { //tcp
-                strncpy(this_mb_link->lp_tcp_ip, this_mb_tx->cfg_tcp_ip, sizeof(this_mb_tx->cfg_tcp_ip)-1);
+                if (strlen(this_mb_tx->cfg_tcp_ip) >= sizeof(this_mb_link->lp_tcp_ip)) {
+                    ERR(gbl.init_dbg, "tcp_ip too long [%s]", this_mb_tx->cfg_tcp_ip);
+                    return retERR;
+                }
+                strncpy(this_mb_link->lp_tcp_ip, this_mb_tx->cfg_tcp_ip, sizeof(this_mb_tx->cfg_tcp_ip));
                 this_mb_link->lp_tcp_port=this_mb_tx->cfg_tcp_port;
 
                 this_mb_link->modbus = modbus_new_tcp(this_mb_link->lp_tcp_ip, this_mb_link->lp_tcp_port);
