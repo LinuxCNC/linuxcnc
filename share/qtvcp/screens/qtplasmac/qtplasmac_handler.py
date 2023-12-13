@@ -1,4 +1,4 @@
-VERSION = '001.013'
+VERSION = '001.014'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -4002,7 +4002,6 @@ class HandlerClass:
                         head = _translate('HandlerClass', 'User Button Error')
                         msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
                         code = halpin = delay = ''
-                        msg0 += " 1111 "
                         STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n')
                         continue
                     else:
@@ -4013,7 +4012,7 @@ class HandlerClass:
                             checked = True
                         self.dualCodeButtons[bNum] = [data[1], data[2], data[3], bLabel, checked]
                         # dualCodeButtons format is: code1 ;; label1 ;; code2 ;; label2 ;; checked
-                    commands = f"{data[1]}\\{data[3]}"
+                    commands = f'{data[1]}\\{data[3]}'
                 else:
                     commands = bCode
                 for command in commands.split('\\'):
@@ -4751,30 +4750,31 @@ class HandlerClass:
             except:
                 if not matNum:
                     msg0 = _translate('HandlerClass', 'A material number is required')
-                    msgs = f'{msg0}.\n\n{msg1}:'
+                    msgs = f'{msg0}.\n\n{msg1}'
                 else:
                     msg0 = _translate('HandlerClass', 'is not a valid number')
-                    msgs = f'{matNum} {msg0}.\n\n{msg1}:'
+                    msgs = f'{matNum} {msg0}.\n\n{msg1}'
                 continue
             if matNum in self.materialNumList:
                 msg0 = _translate('HandlerClass', 'Material')
                 msg2 = _translate('HandlerClass', 'is in use')
-                msgs = f'{msg0} #{matNum} {msg2}.\n\n{msg1}:'
+                msgs = f'{msg0} #{matNum} {msg2}.\n\n{msg1}'
                 continue
             elif matNum >= 1000000:
                 msg0 = _translate('HandlerClass', 'Material numbers need to be less than 1000000')
-                msgs = f'{msg0}.\n\n{msg1}:'
+                msgs = f'{msg0}.\n\n{msg1}'
                 continue
             break
-        msg1 = 'Enter New Material Name'
+        msg1 = _translate('HandlerClass', 'Enter New Material Name')
+        msgs = msg1
         virtkb = 3
         while(1):
-            valid, matNam = self.dialog_input(virtkb, head, msg1, btn1, btn2)
+            valid, matNam = self.dialog_input(virtkb, head, f'{msgs}:', btn1, btn2)
             if not valid:
                 return
             if not matNam:
                 msg0 = _translate('HandlerClass', 'Material name is required')
-                msgs = f'{msg0}.\n\n{msg1}:'
+                msgs = f'{msg0}.\n\n{msg1}'
                 continue
             break
         mat = [matNum, matNam]
@@ -4801,24 +4801,24 @@ class HandlerClass:
             except:
                 if not matNum:
                     msg0 = _translate('HandlerClass', 'A material number is required')
-                    msgs = f'{msg0}.\n\n{msg1}:'
+                    msgs = f'{msg0}.\n\n{msg1}'
                 else:
                     msg0 = _translate('HandlerClass', 'is not a valid number')
-                    msgs = f'{matNum} {msg0}.\n\n{msg1}:'
+                    msgs = f'{matNum} {msg0}.\n\n{msg1}'
                 continue
             if matNum == self.defaultMaterial:
                 msg0 = _translate('HandlerClass', 'Default material cannot be deleted')
-                msgs = '{}.\n\n{}:'
+                msgs = f'{msg0}.\n\n{msg1}'
                 continue
             elif matNum >= 1000000 and matNum in self.materialList:
                 msg0 = _translate('HandlerClass', 'Temporary material')
                 msg3 = _translate('HandlerClass', 'cannot be deleted')
-                msgs = f'{msg0} #{matNum} {msg3}.\n\n{msg1}:'
+                msgs = f'{msg0} #{matNum} {msg3}.\n\n{msg1}'
                 continue
             elif matNum not in self.materialNumList:
                 msg0 = _translate('HandlerClass', 'Material')
                 msg3 = _translate('HandlerClass', 'does not exist')
-                msgs = f'{msg0} #{matNum} {msg3}.\n\n{msg1}:'
+                msgs = f'{msg0} #{matNum} {msg3}.\n\n{msg1}'
                 continue
             break
         head = _translate('HandlerClass', 'Delete Material')
