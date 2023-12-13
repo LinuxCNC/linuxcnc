@@ -958,13 +958,19 @@ int Interp::init()
 	  _setup.wizard_root[0] = 0;
           if(auto inistring = inifile.Find("WIZARD_ROOT", "WIZARD"))
           {
-	    logDebug("[WIZARD]WIZARD_ROOT:%s", inistring->c_str());
-            if (realpath(inistring->c_str(), _setup.wizard_root) == NULL) {
+            char expandinistring[LINELEN];
+            if (inifile.TildeExpansion(inistring->c_str(),expandinistring,sizeof(expandinistring))) {
+                   logDebug("TildeExpansion failed for: %s",inistring);
+            }
+            printf("Tried WHIZ ini:%s\n",expandinistring);
+            logDebug("[WIZARD]WIZARD_ROOT:%s", expandinistring);
+            if (realpath(expandinistring, _setup.wizard_root) == NULL) {
         	//realpath didn't find the file
-		logDebug("realpath failed to find wizard_root:%s:", inistring->c_str());
+            logDebug("realpath failed to find wizard_root:%s:", expandinistring);
             }
           }
-          logDebug("_setup.wizard_root:%s:", _setup.wizard_root);
+            printf("Tried WHIZ realpath:%s\n",_setup.wizard_root);
+           logDebug("_setup.wizard_root:%s:", _setup.wizard_root);
 
 	  _setup.program_prefix[0] = 0;
           if(auto inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY"))
@@ -2697,12 +2703,16 @@ int Interp::on_abort(int reason, const char *message)
 // 1) checks if path is already the full path
 // 2) tries adding the INI defined program prefix to path
 // 3) tries adding the INI defined subroutine prefix to path
-// 4) tries adding the INI defined whizard prefix to path
+// 4) tries adding the INI defined wizard prefix to path
 FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *foundhere )
 {
     FILE *newFP = NULL;
     char tmpFileName[PATH_MAX+1];
     char newFileName[PATH_MAX+1];
+    char messFileName1[PATH_MAX+1];
+    char messFileName2[PATH_MAX+1];
+    char messFileName3[10][PATH_MAX+1];
+    char messFileName4[PATH_MAX+1];
     char foundPlace[PATH_MAX+1];
     int  dct;
     wordexp_t exp_result;
@@ -2716,9 +2726,9 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
 
     // copy to newFileName - in case this is the one...
     size_t chk = snprintf(newFileName, sizeof(newFileName), "%s", tmpFileName);
-
     // found a file we can open?
     if (chk < sizeof(newFileName)){
+        snprintf(messFileName1, sizeof(messFileName1), "%s", newFileName);
         newFP = fopen(newFileName, "r");
     }
 
@@ -2728,9 +2738,9 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
         // expand '~' into user path
         wordexp(settings->program_prefix, &exp_result, 0);
         chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", exp_result.we_wordv[0], tmpFileName);
-
          // found a file we can open?
         if (chk < sizeof(newFileName)){
+            snprintf(messFileName2, sizeof(messFileName2), "%s", newFileName);
             newFP = fopen(newFileName, "r");
         }
     }
@@ -2744,9 +2754,9 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
             // expand '~' into user path
             wordexp(settings->subroutines[dct], &exp_result, 0);
             chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", exp_result.we_wordv[0], tmpFileName);
-
             // found a file we can open?
             if (chk <  sizeof(newFileName)){
+                snprintf(messFileName3[dct], sizeof(messFileName3[dct]), "%s", newFileName);
                 newFP = fopen(newFileName, "r");
                 if (newFP) {
                 // logOword("fopen: |%s|", newFileName);
@@ -2760,6 +2770,7 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
     // Wiz directory already expands the '~' to user path
     if (!newFP) {
         int ret;
+        printf("W HIZ start path:%s\n",settings->wizard_root);
 
         // walks the directory hierarchy ? 
         ret = findFile(settings->wizard_root, tmpFileName, foundPlace);
@@ -2771,15 +2782,29 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
 
             // found a file we can open?
             if (chk < sizeof(newFileName)){
-            newFP = fopen(newFileName, "r");
+
+                newFP = fopen(newFileName, "r");
             }
+        }else{
+            snprintf(messFileName4, sizeof(messFileName4), "%s/", settings->wizard_root);
         }
     }
 
     // pass what we found
-    if (foundhere && (newFP != NULL)) 
+    if (foundhere && (newFP != NULL)) {
         strcpy(foundhere, newFileName);
-
+        printf("path found!:%s\n\n",newFileName);
+    }else{
+        printf("no path found\n");
+        printf("Tried as full path:%s\n",messFileName1);
+        printf("Tried PROG path:%s\n",messFileName2);
+        for (dct = 0; dct < MAX_SUB_DIRS; dct++) {
+            if (!settings->subroutines[dct])
+            continue;
+            printf("Tried SUB path:%s\n",messFileName3[dct]);
+        }
+        printf("Tried walking up WIZ base path:%s\n",messFileName4);
+    }
     // Not sure this is needed but the internet told me
     wordfree(&exp_result);
     return newFP;

@@ -59,6 +59,7 @@ int Interp::findFile( // ARGUMENTS
 
     snprintf(targetPath, PATH_MAX, "%s/%s", direct, target);
     file = fopen(targetPath, "r");
+
     if (file) {
         rtapi_strlcpy(foundFileDirect, direct, PATH_MAX);
         fclose(file);
@@ -70,10 +71,10 @@ int Interp::findFile( // ARGUMENTS
     }
 
     while ((aFile = readdir(aDir))) {
-        if (aFile->d_type == DT_DIR &&
-	    (0 != strncmp(aFile->d_name, "..", 3)) &&
-	    (0 != strncmp(aFile->d_name, ".", 2))) {
-
+        /*if a directory or link, but not dir . or dir ..*/
+        if (((aFile->d_type == DT_DIR) | (aFile->d_type == DT_LNK)) &&
+	    (0 != strcmp(aFile->d_name, "..")) &&
+	    (0 != strcmp(aFile->d_name, "."))) {
             char path[PATH_MAX+1];
             snprintf(path, PATH_MAX, "%s/%s", direct, aFile->d_name);
             if (INTERP_OK == findFile(path, target, foundFileDirect)) {
@@ -83,6 +84,7 @@ int Interp::findFile( // ARGUMENTS
         }
     }
     closedir(aDir);
+    printf("search WIZ path Not Found:%s\n",target);
     ERS(NCE_FILE_NOT_OPEN);
 }
 
