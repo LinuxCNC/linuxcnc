@@ -354,90 +354,6 @@ def mess_with_buttons(mess, buttons, title = ""):
 class copymode:  # 'enum' items
     one_at_a_time, yes_to_all, no_to_all = list(range(3))
 
-def copy_dir_recursive(fromdir, todir,
-                       update_ct = 0,
-                       mode = copymode.one_at_a_time,
-                       overwrite = False,
-                       verbose = False) :
-    if not os.path.isdir(todir) :
-        os.makedirs(todir, 0o755)
-
-    for p in os.listdir(fromdir) :
-        frompath = os.path.join(fromdir, p)
-        topath = os.path.join(todir, p)
-        if os.path.isdir(frompath) :
-            mode, update_ct = copy_dir_recursive(frompath, topath,
-                                      update_ct = update_ct,
-                                      mode = mode,
-                                      overwrite = overwrite,
-                                      verbose = verbose)
-            continue
-
-        # copy files
-        if not os.path.isfile(topath) or overwrite :
-            shutil.copy(frompath, topath)
-            update_ct += 1
-            continue
-        else :  # local file exists and not overwrite
-            if (hashlib.md5(open(frompath, 'rb').read()).digest()
-                 == hashlib.md5(open(topath, 'rb').read()).digest()) :
-                # files are same
-                if verbose :
-                    print("NOT copying %s to %s" % (p, todir))
-            else :  # files are different
-                if (os.path.getctime(frompath) < os.path.getctime(topath)) :
-                    # different and local file most recent
-                    if verbose :
-                        print(_('Keeping modified local file %(filename)s') % {"filename":p})
-                    pass
-                else :  # different and system file is most recent
-                    if mode == copymode.yes_to_all :
-                        if verbose :
-                            print("copying %s to %s" % (p, todir))
-                        shutil.copy(frompath, topath)
-                        update_ct += 1
-                        continue
-                    if mode == copymode.no_to_all :
-                        os.utime(topath, None)  # touch it
-                        continue
-
-                    buttons = (gtk.STOCK_YES, gtk.RESPONSE_YES,
-                             gtk.STOCK_NO, gtk.RESPONSE_NO,
-                             gtk.STOCK_REFRESH, gtk.RESPONSE_ACCEPT,
-                             gtk.STOCK_CANCEL, gtk.RESPONSE_NONE)
-                    msg = (_('\nAn updated system file is available:\n\n%(frompath)s\n\n'
-                        'YES     -> Use new system file\n'
-                        'NO      -> Keep local file\n'
-                        'Refresh -> Accept all new system files (don\'t ask again)\n'
-                        'Cancel  -> Keep all local files (don\'t ask again)\n') \
-                        % {'frompath':frompath})
-                    ans = mess_with_buttons(msg, buttons,
-                                            title = _("NEW file version available"))
-
-                    # set copymode
-                    if ans == gtk.RESPONSE_YES :
-                        pass
-                    elif ans == gtk.RESPONSE_ACCEPT :
-                        mode = copymode.yes_to_all
-                    elif ans == gtk.RESPONSE_NONE :
-                        mode = copymode.no_to_all
-                    elif ans == gtk.RESPONSE_NO :
-                        pass
-                    else :
-                        ans = gtk.RESPONSE_NO  # anything else (window close etc)
-
-                    # copy or touch
-                    if ans == gtk.RESPONSE_YES or mode == copymode.yes_to_all :
-                        if verbose:
-                            print("copying %s to %s" % (p, todir))
-                        shutil.copy(frompath, topath)
-                        update_ct += 1
-
-                    if ans == gtk.RESPONSE_NO or mode == copymode.no_to_all :
-                        os.utime(topath, None)  # touch it (update timestamp)
-
-    return mode, update_ct
-
 def err_exit(errtxt):
     print(errtxt)
     mess_dlg(errtxt)
@@ -2112,6 +2028,88 @@ class NCam(NCamWindow):
         if not self.mess_yesno(msg, title = _("NativeCAM CREATE")) :
             sys.exit(0)
 
+    def copy_dir_recursive(self, fromdir, todir,
+                       update_ct = 0,
+                       mode = copymode.one_at_a_time,
+                       overwrite = False,
+                       verbose = False) :
+
+        NO, YES, CANCEL, REFRESH = list(range(4))
+
+        if not os.path.isdir(todir) :
+            os.makedirs(todir, 0o755)
+
+        for p in os.listdir(fromdir) :
+            frompath = os.path.join(fromdir, p)
+            topath = os.path.join(todir, p)
+            if os.path.isdir(frompath) :
+                mode, update_ct = self.copy_dir_recursive(frompath, topath,
+                                      update_ct = update_ct,
+                                      mode = mode,
+                                      overwrite = overwrite,
+                                      verbose = verbose)
+                continue
+
+            # copy files
+            if not os.path.isfile(topath) or overwrite :
+                shutil.copy(frompath, topath)
+                update_ct += 1
+                continue
+            else :  # local file exists and not overwrite
+                if (hashlib.md5(open(frompath, 'rb').read()).digest()
+                     == hashlib.md5(open(topath, 'rb').read()).digest()) :
+                    # files are same
+                    if verbose :
+                        print("NOT copying %s to %s" % (p, todir))
+                else :  # files are different
+                    if (os.path.getctime(frompath) < os.path.getctime(topath)) :
+                        # different and local file most recent
+                        if verbose :
+                            print(_('Keeping modified local file %(filename)s') % {"filename":p})
+                        pass
+                    else :  # different and system file is most recent
+                        if mode == copymode.yes_to_all :
+                            if verbose :
+                                print("copying %s to %s" % (p, todir))
+                            shutil.copy(frompath, topath)
+                            update_ct += 1
+                            continue
+                        if mode == copymode.no_to_all :
+                            os.utime(topath, None)  # touch it
+                            continue
+
+                        msg = (_('\nAn updated system file is available:\n\n%(frompath)s\n\n'
+                            'YES     -> Use new system file\n'
+                            'NO      -> Keep local file\n'
+                            'Refresh -> Accept all new system files (don\'t ask again)\n'
+                            'Cancel  -> Keep all local files (don\'t ask again)\n') \
+                            % {'frompath':frompath})
+                        ans = self.mes_update_sys(msg,_("NEW file version available"))
+
+                        # set copymode
+                        if ans == YES : # yes
+                            pass
+                        elif ans == REFRESH : # refresh
+                            mode = copymode.yes_to_all
+                        elif ans == CANCEL : # cancel
+                            mode = copymode.no_to_all
+                        elif ans == NO :# No
+                            pass
+                        else :
+                            ans = No  # anything else (window close etc)
+
+                        # copy or touch
+                        if ans == YES or mode == copymode.yes_to_all :
+                            if verbose:
+                                print("copying %s to %s" % (p, todir))
+                            shutil.copy(frompath, topath)
+                            update_ct += 1
+
+                        if ans == NO or mode == copymode.no_to_all :
+                            os.utime(topath, None)  # touch it (update timestamp)
+
+        return mode, update_ct
+
     def update_user_tree(self, fromdirs, todir):
 
         if not os.path.isdir(NCAM_DIR) :
@@ -2131,7 +2129,7 @@ class NCam(NCamWindow):
         for d in fromdirs:
             update_ct = 0
             dir_exists = os.path.isdir(os.path.join(NCAM_DIR, d))
-            mode, update_ct = copy_dir_recursive(os.path.join(SYS_DIR, d), os.path.join(todir, d),
+            mode, update_ct = self.copy_dir_recursive(os.path.join(SYS_DIR, d), os.path.join(todir, d),
                                       update_ct = 0,
                                       mode = mode,
                                       overwrite = False,

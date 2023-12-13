@@ -699,7 +699,7 @@ class NCamWindow(QMainWindow):
         dlg = QMessageBox()
         dlg.setTextFormat(Qt.RichText)
         dlg.setText('<b>{}</b>'.format(title))
-        dlg.setText(mess)
+        dlg.setInformativeText(mess)
         dlg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         dlg.setIcon(QMessageBox.Question)
         dlg.show()
@@ -711,6 +711,42 @@ class NCamWindow(QMainWindow):
             return True
         else:
             return False
+
+    def mes_update_sys(self, mess, title = "Nativecam"):
+        NO, YES, CANCEL, REFRESH = list(range(4))
+        def forceDetailsOpen(dlg):
+          try:
+            # force the details box open on first time display
+            for i in dlg.buttons():
+                if dlg.buttonRole(i) == QMessageBox.ActionRole:
+                    for j in dlg.children():
+                        for k in j.children():
+                            if isinstance( k, QTextEdit):
+                                #i.hide()
+                                if not k.isVisible():
+                                    i.click()
+          except:
+            pass
+        dlg = QMessageBox()
+        dlg.setTextFormat(Qt.RichText)
+        dlg.setText('<b>{}</b>'.format(title))
+        #dlg.setText(mess)
+        dlg.setInformativeText(mess)
+        dlg.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel | QMessageBox.RestoreDefaults)
+        dlg.setIcon(QMessageBox.Question)
+        dlg.show()
+        forceDetailsOpen(dlg)
+
+        button = dlg.exec()
+
+        if button == QMessageBox.No:
+            return NO
+        elif button == QMessageBox.Yes:
+            return YES
+        elif button == QMessageBox.Cancel:
+            return CANCEL
+        elif button == QMessageBox.Apply:
+            return REFRESH
 
 #############
 # statusbar
