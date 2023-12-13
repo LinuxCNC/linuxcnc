@@ -1713,7 +1713,7 @@ static cmdResponseType getTool(char *s, connectionRecType *context)
 
 static cmdResponseType getToolOffset(char *s, connectionRecType *context)
 {
-  const char *pToolOffsetStr = "TOOL_OFFSET %d";
+  const char *pToolOffsetStr = "TOOL_OFFSET %f";
   
   snprintf(context->outBuf, sizeof(context->outBuf), pToolOffsetStr, emcStatus->task.toolOffset.tran.z);
   return rtNoError; 
