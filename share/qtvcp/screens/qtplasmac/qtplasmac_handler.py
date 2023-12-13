@@ -1,4 +1,4 @@
-VERSION = '236.300'
+VERSION = '236.301'
 LCNCVER = '2.9'
 DOCSVER = LCNCVER
 
@@ -324,10 +324,10 @@ class HandlerClass:
 
 # called by qtvcp.py
     def initialized__(self):
-        if linuxcnc.version.rsplit('.', 1)[0] != LCNCVER:
+        if '.'.join(linuxcnc.version.split('.')[:2]) != LCNCVER:
             msg0 = _translate('HandlerClass', 'LinuxCNC version should be')
             msg1 = _translate('HandlerClass', 'The detected version is')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{} {}\n{} {}'.format(msg0, LCNCVER, msg1, linuxcnc.version.rsplit('.', 1)[0]))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{} {}\n{} {}'.format(msg0, LCNCVER, msg1, linuxcnc.version.split('.')[:2]))
             quit()
         ucFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.py')
         if os.path.isfile(ucFile):
@@ -4690,30 +4690,31 @@ class HandlerClass:
             except:
                 if not matNum:
                     msg0 = _translate('HandlerClass', 'A material number is required')
-                    msgs = '{}.\n\n{}:'.format(msg0, msg1)
+                    msgs = '{}.\n\n{}'.format(msg0, msg1)
                 else:
                     msg0 = _translate('HandlerClass', 'is not a valid number')
-                    msgs = '{} {}.\n\n{}:'.format(matNum, msg0, msg1)
+                    msgs = '{} {}.\n\n{}'.format(matNum, msg0, msg1)
                 continue
             if matNum in self.materialNumList:
                 msg0 = _translate('HandlerClass', 'Material')
                 msg2 = _translate('HandlerClass', 'is in use')
-                msgs = '{} #{} {}.\n\n{}:'.format(msg0, matNum, msg2, msg1)
+                msgs = '{} #{} {}.\n\n{}'.format(msg0, matNum, msg2, msg1)
                 continue
             elif matNum >= 1000000:
                 msg0 = _translate('HandlerClass', 'Material numbers need to be less than 1000000')
-                msgs = '{}.\n\n{}:'.format(msg0, msg1)
+                msgs = '{}.\n\n{}'.format(msg0, msg1)
                 continue
             break
-        msg1 = 'Enter New Material Name'
+        msg1 = _translate('HandlerClass', 'Enter New Material Name')
+        msgs = msg1
         virtkb = 3
         while(1):
-            valid, matNam = self.dialog_input(virtkb, head, msg1, btn1, btn2)
+            valid, matNam = self.dialog_input(virtkb, head, '{}:'.format(msgs), btn1, btn2)
             if not valid:
                 return
             if not matNam:
                 msg0 = _translate('HandlerClass', 'Material name is required')
-                msgs = '{}.\n\n{}:'.format(msg0, msg1)
+                msgs = '{}.\n\n{}'.format(msg0, msg1)
                 continue
             break
         mat = [matNum, matNam]
@@ -4740,24 +4741,24 @@ class HandlerClass:
             except:
                 if not matNum:
                     msg0 = _translate('HandlerClass', 'A material number is required')
-                    msgs = '{}.\n\n\{}:'.format(msg0, msg1)
+                    msgs = '{}.\n\n{}'.format(msg0, msg1)
                 else:
                     msg0 = _translate('HandlerClass', 'is not a valid number')
-                    msgs = '{} {}.\n\n{}:'.format(matNum, msg0, msg1)
+                    msgs = '{} {}.\n\n{}'.format(matNum, msg0, msg1)
                 continue
             if matNum == self.defaultMaterial:
                 msg0 = _translate('HandlerClass', 'Default material cannot be deleted')
-                msgs = '{}.\n\n{}:'
+                msgs = '{}.\n\n{}'.format(msg0, msg1)
                 continue
             elif matNum >= 1000000 and matNum in self.materialList:
                 msg0 = _translate('HandlerClass', 'Temporary material')
                 msg3 = _translate('HandlerClass', 'cannot be deleted')
-                msgs = '{} #{} {}.\n\n{}:'.format(msg0, matNum, msg3, msg1)
+                msgs = '{} #{} {}.\n\n{}'.format(msg0, matNum, msg3, msg1)
                 continue
             elif matNum not in self.materialNumList:
                 msg0 = _translate('HandlerClass', 'Material')
                 msg3 = _translate('HandlerClass', 'does not exist')
-                msgs = '{} #{} {}.\n\n{}:'.format(msg0, matNum, msg3, msg1)
+                msgs = '{} #{} {}.\n\n{}'.format(msg0, matNum, msg3, msg1)
                 continue
             break
         head = _translate('HandlerClass', 'Delete Material')
