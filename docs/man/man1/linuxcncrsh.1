@@ -225,12 +225,12 @@ With set, sends a command to the EMC to set the new debug level, and sets the EM
 This will make the two values the same, since they really ought to be the same.
 .RE
 .P
-\fBset_wait {received|done}\fR
+\fBwait_mode {received|done}\fR
 .RS
-The set_wait setting controls the wait after receiving a command.
+The wait_mode setting controls the wait after receiving a command.
 It can be "received" (after the command was sent and received) or "done" (after the command was done).
-With get, any parameter is ignored and the current set_wait setting is returned.
-With set, set the set_wait setting to the specified value.
+With get, any parameter is ignored and the current wait_mode setting is returned.
+With set, set the wait_mode setting to the specified value.
 .RE
 .P
 \fBwait {received|done}\fR
@@ -305,19 +305,21 @@ With get, ignores any parameters and returns the current flood coolant setting.
 With set, sets the flood setting as specified.
 .RE
 .P
-\fBspindle {forward|reverse|increase|decrease|constant|off}\fR
+\fBspindle {forward|reverse|increase|decrease|constant|off} {<spindle>}\fR
 .RS
 With get, any parameter is ignored and the current spindle state is
 returned as "forward", "reverse", "increase", "decrease", or "off".
 With set, sets the spindle as specified.
 Note that "increase" and "decrease" will cause a speed change in the corresponding direction
 until a "constant" command is sent.
+If "spindle" is omitted, spindle 0 is selected. If -1, all spindles are selected.
 .RE
 .P
-\fBbrake {on|off}\fR
+\fBbrake {on|off} {<spindle>}\fR
 .RS
 With get, any parameter is ignored and the current brake setting is returned.
 With set, the brake is set as specified.
+If "spindle" is omitted, spindle 0 is selected. If -1, all spindles are selected.
 .RE
 .P
 \fBtool\fR
@@ -343,22 +345,22 @@ With set, homes the indicated joint or, if -1, homes all joints.
 \fBjog_stop joint_number|axis_letter\fR
 .RS
 With set, stop any in-progress jog on the specified joint or axis.
-If TELEOP_ENABLE is  NO, use joint_number;
-If TELEOP_ENABLE is YES, use axis_letter.
+If TELEOP_ENABLE is OFF, use joint_number;
+If TELEOP_ENABLE is  ON, use axis_letter.
 .RE
 .P
 \fBjog joint_number|axis_letter <speed>\fR
 .RS
 With set, jog the specified joint or axis at <speed>; sign of speed is direction.
-If TELEOP_ENABLE is  NO, use joint_number;
-If TELEOP_ENABLE is YES, use axis_letter.
+If TELEOP_ENABLE is OFF, use joint_number;
+If TELEOP_ENABLE is  ON, use axis_letter.
 .RE
 .P
 \fBjog_incr jog_number|axis_letter <speed> <incr>\fR
 .RS
 With set, jog the indicated joint or axis by increment <incr> at the <speed>; sign of speed is direction.
-If TELEOP_ENABLE is  NO, use joint_number;
-If TELEOP_ENABLE is YES, use axis_letter.
+If TELEOP_ENABLE is OFF, use joint_number;
+If TELEOP_ENABLE is  ON, use axis_letter.
 .RE
 .P
 \fBfeed_override <percent>\fR
@@ -367,10 +369,11 @@ With get, any parameter is ignored and the current feed override is returned (as
 With set, sets the feed override as specified.
 .RE
 .P
-\fBspindle_override <percent>\fR
+\fBspindle_override <percent> {<spindle>}\fR
 .RS
 With get, any parameter is ignored and the current spindle override is returned (as a percentage of commanded speed).
 With set, sets the spindle override as specified.
+If "spindle" is omitted, spindle 0 is selected. If -1, all spindles are selected.
 .RE
 .P
 \fBabs_cmd_pos [{0|1|...}]\fR
@@ -570,7 +573,7 @@ With get, return the probe state - has the probe tripped since the last clear?
 With get, return the current value of the probe signal.
 .RE
 .P
-\fBprobe\fR
+\fBprobe <x> <y> <z>\fR
 .RS
 With set, move toward a certain location.
 If the probe is tripped on the way stop motion, record the position and raise the probe tripped flag.
