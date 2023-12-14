@@ -167,6 +167,8 @@ class Private_Data:
                             ["jvlsmd41", _("JVL-SMD41 or 42"), 500, 500, 2500, 2500],
                             ["hobbycnc", _("Hobbycnc Pro Chopper"), 2000, 2000, 2000, 2000],
                             ["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
+                            ["dm860tv10", _("DM860T v1.0"), 5000, 5000, 5000, 5000],
+                            ["dm860tv30", _("DM860T v3.0"), 5000, 5000, 5000, 5000],
                             ]
 
         (   self.XSTEP, self.XDIR, self.YSTEP, self.YDIR,

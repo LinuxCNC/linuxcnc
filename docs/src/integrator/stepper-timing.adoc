@@ -81,6 +81,8 @@ nanoseconds (ns)
 |Leadshine USA |Brushless servo ACS306 30V 15A |2500 |2500 |10000 |5000 |Rising Edge |http://leadshine.com/UploadFile/Down/ACS306hm.pdf | 
 |Leadshine USA |Brushless servo ACS606 60V 15A |850 |850 |6700 |5000 |Rising Edge |http://leadshineusa.com/UploadFile/Down/ACS606m.pdf | 
 |Leadshine USA |Brushless servo ACS806 80V 20A |850 |850 |6700 |5000 |Rising Edge |http://leadshineusa.com/UploadFile/Down/ACS806m.pdf | 
+|StepperOnline |Digital DM860T v1.0 80VAC/110VDC 7.2A |5000 |5000 |5000 |5000 |Rising Edge |https://www.omc-stepperonline.com/download/DM860T.pdf | 
+|StepperOnline |Digital DM860T v3.0 80VAC/110VDC 7.2A |5000 |5000 |5000 |5000 |Rising Edge |https://www.omc-stepperonline.com/download/DM860T_V3.0.pdf | 
 |Pololu |A4988 Stepper Motor Driver Carrier |1000 |1000 |200 |200 |Rising Edge |http://www.pololu.com/catalog/product/1182/| 
 |Pololu |DRV8825 Stepper Motor Driver Carrier |1900 |1900 |650 |650 |Rising Edge |http://www.pololu.com/catalog/product/2132/| 
 |cnc4you |[[CW5045]]|2000 |8000 |5000 |5000 |Rising Edge |http://cnc4you.co.uk/resources/CW5045.pdf |  
