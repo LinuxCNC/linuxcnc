@@ -110,6 +110,11 @@ int load_nml_config_file(const char *file)
 
     CONFIG_FILE_INFO *info = new CONFIG_FILE_INFO();
     info->lines_list = new LinkedList();
+    if (strlen(file) >= 80) {
+        rcs_print_error("cms_config: file name too long\n");
+        loading_config_file = 0;
+        return -1;
+    }
     strncpy(info->file_name, file, 80);
     FILE *fp;
     fp = fopen(file, "r");

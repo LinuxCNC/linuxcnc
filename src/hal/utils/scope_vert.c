@@ -765,7 +765,7 @@ static void offset_changed(GtkEditable * editable, struct offset_data *data)
 
     /* maybe user typed something, save it in the buffer */
     text = gtk_entry_get_text(GTK_ENTRY(ctrl_usr->vert.offset_entry));
-    strncpy(data->buf, text, BUFLEN);
+    snprintf(data->buf, BUFLEN, "%s", text);
 }
 
 /*

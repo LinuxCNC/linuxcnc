@@ -217,8 +217,7 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 
 	char capName[LINELEN];
 
-	strncpy(capName, nameBuf, n);
-	capName[n] = '\0';
+	snprintf(capName, LINELEN, "%s", nameBuf);
 	for (char *p = capName; *p != 0; p++)
 	    *p = toupper(*p);
 	capName[closeBracket] = '\0';
