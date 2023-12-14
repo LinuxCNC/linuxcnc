@@ -178,12 +178,12 @@ NML::NML(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc, const char *fi
     blocking_read_poll_interval = -1.0;
     forced_type = 0;
 
-    strncpy(bufname, buf, 40);
-    strncpy(procname, proc, 40);
+    snprintf(bufname, 40, "%s", buf);
+    snprintf(procname, 40, "%s", proc);
     if (NULL == file) {
 	file = default_nml_config_file;
     }
-    strncpy(cfgfilename, file, 160);
+    snprintf(cfgfilename, 160, "%s", file);
 
     if (rcs_errors_printed >= max_rcs_errors_to_print
 	&& max_rcs_errors_to_print > 0 && nml_reset_errors_printed) {
@@ -344,9 +344,9 @@ NML::NML(const char *buf, const char *proc, const char *file, int set_to_server,
     }
     registered_with_server = 0;
     cms_for_msg_string_conversions = 0;
-    strncpy(bufname, buf, 40);
-    strncpy(procname, proc, 40);
-    strncpy(cfgfilename, file, 160);
+    snprintf(bufname, 40 , "%s", buf);
+    snprintf(procname, 40, "%s", proc);
+    snprintf(cfgfilename, 160, "%s", file);
     blocking_read_poll_interval = -1.0;
     info_printed = 0;
     forced_type = 0;
@@ -2132,9 +2132,9 @@ void NML::print_info(const char *bufname, const char *procname, const char *cfg_
 	    && !strncmp(cfg_file, last_cfg_file, 40)) {
 	    return;
 	}
-	strncpy(last_bufname, bufname, 10);
-	strncpy(last_procname, procname, 10);
-	strncpy(last_cfg_file, cfg_file, 40);
+	snprintf(last_bufname, 10, "%s", bufname);
+	snprintf(last_procname, 10, "%s", procname);
+	snprintf(last_cfg_file, 40, "%s", cfg_file);
     }
     if (!info_message_printed) {
 	rcs_print
@@ -2449,8 +2449,8 @@ void nmlSetHostAlias(const char *hostName, const char *hostAlias)
 	cmsHostAliases = new LinkedList;
     }
     CMS_HOST_ALIAS_ENTRY entry;
-    strncpy(entry.host, hostName, 64);
-    strncpy(entry.alias, hostAlias, 64);
+    snprintf(entry.host, 64, "%s", hostName);
+    snprintf(entry.alias, 64,  "%s", hostAlias);
     cmsHostAliases->store_at_tail(&entry, sizeof(entry), 1);
 }
 

@@ -818,7 +818,7 @@ NML_MODULE::write_status_out ()
   statusOutData->source_line = source_line;
   if (NULL != source_file)
     {
-      strncpy (statusOutData->source_file, source_file, 64);
+      snprintf(statusOutData->source_file, 64, "%s", source_file);
     }
 
   // write STATUS

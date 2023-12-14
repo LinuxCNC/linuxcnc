@@ -294,7 +294,7 @@ int Interp::add_parameters(setup_pointer settings,
     while (*s) {
 	errored = true;
 	char c  = toupper(*s);
-	strncat(tail,&c,1);
+	strncat(tail,&c,2);
 	if (*(s+1)) rtapi_strxcat(tail,",");
 	s++;
     }
