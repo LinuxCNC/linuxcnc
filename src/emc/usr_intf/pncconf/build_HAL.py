@@ -1433,7 +1433,7 @@ class HAL:
                    print("setp   " + steppinname + ".direction.invert_output   true", file=file)
             if let == "s":
                 print(file=file)
-                print("net spindle-enable          =>  " + steppinname + ".enable", file=file)
+                print("net machine-is-on           =>  " + steppinname + ".enable", file=file)
                 print("net spindle-vel-cmd-rps     =>  "+ steppinname + ".velocity-cmd", file=file)
                 if not encoderpinname and not resolverpinname:
                     print("net spindle-vel-fb-rps         <=  "+ steppinname + ".velocity-fb", file=file)

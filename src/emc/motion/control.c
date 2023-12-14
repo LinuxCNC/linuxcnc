@@ -1906,7 +1906,7 @@ static void output_to_hal(void)
 	*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_abs) = fabs(speed);
 	*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps_abs) = fabs(speed / 60);
 	*(emcmot_hal_data->spindle[spindle_num].spindle_on) = 
-        ((emcmotStatus->spindle_status[spindle_num].state * speed) !=0) ? 1 : 0;
+        ((emcmotStatus->spindle_status[spindle_num].state) !=0) ? 1 : 0;
 	*(emcmot_hal_data->spindle[spindle_num].spindle_forward) = (speed > 0) ? 1 : 0;
 	*(emcmot_hal_data->spindle[spindle_num].spindle_reverse) = (speed < 0) ? 1 : 0;
 	*(emcmot_hal_data->spindle[spindle_num].spindle_brake) =

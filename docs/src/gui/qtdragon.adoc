@@ -72,8 +72,7 @@ DISPLAY = qtvcp qtdragon
 
 To keep track of preferences, QtDragon looks for a preference text file.
 Add the following entry under the `[DISPLAY]` heading. +
-It can use `~` for home directory or `WORKINGFOLDER` or `CONFIGFOLDER`
- to represent QtVCP's idea of those directories: +
+It can use `~` for home directory or `WORKINGFOLDER` or `CONFIGFOLDER` to represent QtVCP's idea of those directories: +
 This example will save the file in the config folder of the launch screen.
 (Other options are possible see the QtVCP's screenoption widget docs.)
 

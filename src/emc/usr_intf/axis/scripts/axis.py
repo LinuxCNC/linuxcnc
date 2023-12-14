@@ -2350,9 +2350,8 @@ class TclCommands(nf.TclCommands):
         res = 1
         while res == 1:
             res = run_warn()
-            if res == 2: break
+            if res in [0, 2]: break
             if res == 3: return
-            print("reload file")
             reload_file()
 
         global program_start_line, program_start_line_last
