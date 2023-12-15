@@ -14,9 +14,10 @@ import gcode
 from message import Message
 from custom_widgets import MetaClass, TreeItem, tv_select, ComboDelegate, treeModel, ToolButton
 from qt5_graphics import Lcnc_3dGraphics
-from qtvcp.core import Info
+from qtvcp.core import Info, Status
 
 INFO = Info()
+STATUS = Status()
 ############################################################
 
 GENERATED_FILE = "ncam.ngc" #TODO from qtnccam file, Does it change?
@@ -65,9 +66,11 @@ class NCamWindow(QMainWindow):
         emptyfile = open(self.emptypath, "w")
         print(("m2"), file=emptyfile)
         emptyfile.close()
-
+        print('INI->',STATUS.stat.ini_filename)
+        # add INI file path for grahics
+        os.environ["INI_FILE_NAME"] = STATUS.stat.ini_filename
         self.graphics = Lcnc_3dGraphics()
-        self.graphics.setINI('/home/chris/Downloads/NativeCAM-master/configs/sim/axis/ncam_demo/mill-mm.ini')
+        #self.graphics.setINI('/home/chris/Downloads/NativeCAM-master/configs/sim/axis/ncam_demo/mill-mm.ini')
         self.setGraphicsDisplay()
 
         self.loadDisplay(self.emptypath)
@@ -79,12 +82,12 @@ class NCamWindow(QMainWindow):
         self.graphics.report_gcode_error = self.report_gcode_error
         # reset traverse color so other displays don't change
         self.defaultColor = self.graphics.colors['traverse']
-        self.graphics.current_view = 'z'
+        self.graphics.current_view = 'p'
         self.graphics.metric_units = INFO.MACHINE_IS_METRIC
         self.graphics.use_gradient_background = True
         self.graphics.show_tool = False
         self.graphics.grid_size = 2
-        self.graphics.cancel_rotate = True
+        #self.graphics.cancel_rotate = True
 
     def loadDisplay(self,fn):
         print('Load Display from:',fn)

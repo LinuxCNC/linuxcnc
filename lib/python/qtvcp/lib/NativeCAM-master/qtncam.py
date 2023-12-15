@@ -439,9 +439,9 @@ def get_short_id():
     return str(UNIQUE_ID)
 
 def create_M_file() :
-    return
     p = os.path.join(NCAM_DIR, NGC_DIR, 'M123')
-    with open(p, 'wb') as f :
+    print('make M123 at {}'.format(p))
+    with open(p, 'wt') as f :
         f.write('#!/usr/bin/env python\n# coding: utf-8\n')
 
         f.write("import gtk\nimport os\nimport pygtk\npygtk.require('2.0')\nfrom gtk import gdk\n\n")
