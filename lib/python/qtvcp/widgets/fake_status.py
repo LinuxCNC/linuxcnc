@@ -63,6 +63,7 @@ class fakeStatus():
         self.gcodes = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         self.homed = (0, 0, 0, 0, 0, 0, 0, 0, 0)
         self.motion_id = 0
+        self.ini_filename = ''
         self.inpos = False
         self.input_timeout = False
         self.interp_state = 0
