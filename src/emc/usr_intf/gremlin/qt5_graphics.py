@@ -193,8 +193,8 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             s = self.colors[s]
             return [int(x * 255) for x in s + (a,)]
         # requires linuxcnc running before loading this widget
-        inifile = os.environ.get('INI_FILE_NAME', '/home/chris/Downloads/NativeCAM-master/configs/sim/axis/ncam_demo/mill-mm.ini')
-        print('Display INI:',inifile)
+        inipath = os.environ.get('INI_FILE_NAME', '/dev/null')
+        print('Display INI:',inipath)
         # if status is not available then we are probably
         # displaying in designer so fake it
         stat = linuxcnc.stat()
@@ -203,8 +203,9 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         except:
             #LOG.warning('linuxcnc status failed, Assuming linuxcnc is not running so using fake status for a XYZ machine')
             stat = fakeStatus()
+            stat.ini_filename = inipath
 
-        self.inifile = linuxcnc.ini(inifile)
+        self.inifile = linuxcnc.ini(inipath)
         self.foam_option = bool(self.inifile.find("DISPLAY", "FOAM"))
         try:
             trajcoordinates = self.inifile.find("TRAJ", "COORDINATES").lower().replace(" ","")
@@ -395,12 +396,18 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                                 progress, arcdivision)
             # monkey patched function to call ours
             canon.output_notify_message = self.output_notify_message
+
             parameter = self.inifile.find("RS274NGC", "PARAMETER_FILE")
+            inibase = os.path.split(s.ini_filename)[0]
+            parambase = os.path.split(parameter)[1]
+            fullparampath =  os.path.join(inibase,parambase)
+
             temp_parameter = os.path.join(td, os.path.basename(parameter or "linuxcnc.var"))
             if parameter:
-                shutil.copy(parameter, temp_parameter)
+                shutil.copy(fullparampath, temp_parameter)
             canon.parameter_file = temp_parameter
-            print('qt5_graphics param file',temp_parameter)
+            print('qt5_graphics param file',fullparampath)
+            print('qt5_graphics temp param file',temp_parameter)
             unitcode = "G%d" % (20 + (s.linear_units == 1))
             initcode = ""
             result, seq = self.load_preview(filename, canon, unitcode, initcode)
