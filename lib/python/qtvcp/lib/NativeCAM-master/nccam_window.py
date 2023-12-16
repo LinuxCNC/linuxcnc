@@ -45,6 +45,7 @@ class NCamWindow(QMainWindow):
 
         self._model = treeModel()
         self._model.dataChanged.connect(lambda :self.update_do_btns(True))
+        self._model.iconBasePath = os.path.join(current_dir, 'graphics')
         tv = self.treeView
 
         # for combobox in treeview
@@ -274,7 +275,6 @@ class NCamWindow(QMainWindow):
             toolbar.addSeparator()
         else :
             if items[3] is not None :
-                print('{}/{}'.format(self.DATA.GRAPHICS_DIR,items[3]))
                 icon = QIcon('{}/{}'.format(self.DATA.GRAPHICS_DIR,items[3]))
                 action = toolbar.addAction(icon, items[0])
             else :
@@ -351,16 +351,17 @@ class NCamWindow(QMainWindow):
                     if p.tag.lower() in ["menu", "menuitem", "group", "sub"] :
                         name = p.get("name") if "name" in p.keys() else ""
                         icon = p.get('icon')
+                        iconPath =  '{}/{}'.format(self.DATA.GRAPHICS_DIR, icon)
                         tooltip = _(p.get("tool_tip")) if "tool_tip" in p.keys() else None
                         src = p.get('src')
 
                         if p.tag.lower() in ['menu', "group"] :
-                            sub = self.actionMenuAdd.addMenu(QIcon('{}/{}'.format(self.DATA.GRAPHICS_DIR,icon)), name)
+                            sub = self.actionMenuAdd.addMenu(QIcon(iconPath), name)
                             add_to_menu(sub, p)
 
                             # add toolbutton to groupbox
                             try:
-                                btn = ToolButton(name, icon, _(tooltip), src)
+                                btn = ToolButton(name, iconPath, _(tooltip), src)
                                 self.iconGridLayout.addWidget(btn, self._row, self._col)
                                 self._col +=1
                                 if self._col > 2:
@@ -369,7 +370,7 @@ class NCamWindow(QMainWindow):
                             except:
                                 pass
                         else:
-                            act = grp_menu.addAction(QIcon('{}/{}'.format(self.DATA.GRAPHICS_DIR,icon)),name)
+                            act = grp_menu.addAction(QIcon(iconPath),name)
                             act.triggered.connect( lambda s, src=src: self.add_feature(None,src))
 
                     elif p.tag.lower() == "separator":

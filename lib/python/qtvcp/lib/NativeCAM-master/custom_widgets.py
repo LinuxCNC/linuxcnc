@@ -256,6 +256,7 @@ class treeModel(QAbstractItemModel):
         super(treeModel, self).__init__(parent)
         self.rootItem = TreeItem(None, MetaClass(None, 'Root Item', False, False), "ROOT")
         self.parents = {None:self.rootItem}
+        self.iconBasePath = 'graphics'
 
     def clear(self):
         self.beginResetModel()
@@ -325,7 +326,7 @@ class treeModel(QAbstractItemModel):
 
         elif role == Qt.DecorationRole and item.meta and index.column() == 0:
             value =  item.meta.get_icon(16)
-            return QIcon('graphics/{}'.format(value))
+            return QIcon('{}/{}'.format(self.iconBasePath, value))
 
         elif role == Qt.CheckStateRole and item.meta and index.column() == 1:
             if item.meta.find_attr('type') == 'bool':
@@ -613,7 +614,7 @@ class ToolButton(QWidget):
         lay = QVBoxLayout(self)
         toolButton = QToolButton()
         if path_icon is not None :
-            toolButton.setIcon(QIcon('graphics/{}'.format(path_icon)))
+            toolButton.setIcon(QIcon(path_icon))
             toolButton.setIconSize(QSize(64, 64))
         if (tooltip is not None) and (tooltip != '') :
             toolbutton.setToolTip(tooltip)
