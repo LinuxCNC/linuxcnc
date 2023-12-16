@@ -592,9 +592,8 @@ class GlCanonDraw:
 
             try:
                 buffer = glRenderMode(GL_RENDER)
-            except OverflowError:
-                self.select_buffer_size *= 2
-                continue
+            except:
+                buffer = []
             break
 
         if buffer:
