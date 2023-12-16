@@ -293,32 +293,7 @@ def search_path(warn, f, *argsl) :
         print(_("Can not find file %(filename)s") % {"filename":f})
 
     if warn == search_warning.dialog :
-        mess_dlg(_("Can not find file %(filename)s") % {"filename":f})
-    return None
-
-def get_pixbuf(icon, size) :
-    if size < 16 :
-        size = 16
-    if ((icon is None) or (icon.strip() == "")) :
-        if DEFAULT_USE_NO_ICON:
-            return None
-        else :
-            icon = NO_ICON_FILE
-
-    icon_id = icon + str(size)
-
-    if (icon_id) in PIXBUF_DICT :
-        return PIXBUF_DICT[icon_id]
-
-    icon_fname = search_path(search_warning.none, icon, GRAPHICS_DIR)
-    if icon_fname is not None :
-        try :
-            pix_buf = gdk.pixbuf_new_from_file_at_size(icon_fname, size, size)
-            PIXBUF_DICT[icon_id] = pix_buf
-            return pix_buf
-        except gdk.PixbufError as err :
-            print(err)
-            PIXBUF_DICT[icon_id] = None
+        self.mess_dlg(_("Can not find file %(filename)s") % {"filename":f})
     return None
 
 def translate(fstring):
@@ -354,48 +329,13 @@ def mess_with_buttons(mess, buttons, title = ""):
 class copymode:  # 'enum' items
     one_at_a_time, yes_to_all, no_to_all = list(range(3))
 
-def err_exit(errtxt):
-    print(errtxt)
-    mess_dlg(errtxt)
-    sys.exit(1)
 
 if platform.system() != 'Windows' :
     try :
         import linuxcnc
     except ImportError as detail :
-        err_exit(detail)
+        self.err_exit(detail)
 
-def require_ini_items(fname, ini_instance):
-    global NCAM_DIR, NGC_DIR
-
-    val = ini_instance.find('DISPLAY', 'NCAM_DIR')
-    if val is None :
-        err_exit(_('Ini file <%(inifilename)s>\n'
-                    'must have entry for [DISPLAY]NCAM_DIR')
-                % {'inifilename':fname})
-
-    val = os.path.expanduser(val)
-    if os.path.isabs(val) :
-        NCAM_DIR = val
-    else :
-        NCAM_DIR = (os.path.realpath(os.path.dirname(fname) + '/' + val))
-
-    val = ini_instance.find('DISPLAY', 'PROGRAM_PREFIX')
-    if val is None :
-        msg = _("There is no PROGRAM_PREFIX in ini file\n"
-            "Edit to add in DISPLAY section\n\n"
-            "PROGRAM_PREFIX = abs or relative path to scripts directory\n"
-            "i.e. PROGRAM_PREFIX = ./scripts or ~/ncam/scripts")
-        err_exit(msg)
-    else :
-        if ':' in val :
-            val = val.split(':')[0]
-
-    val = os.path.expanduser(val)
-    if os.path.isabs(val) :
-        NGC_DIR = val
-    else :
-        NGC_DIR = (os.path.realpath(os.path.dirname(fname) + '/' + val))
 
 def require_ncam_lib(fname, ini_instance):
     # presumes already checked:[DISPLAY]NCAM_DIR
@@ -406,7 +346,7 @@ def require_ncam_lib(fname, ini_instance):
     try :
         subroutine_path = ini_instance.find('RS274NGC', 'SUBROUTINE_PATH')
         if subroutine_path is None :
-            err_exit(_('Required lib missing:\n\n'
+            self.err_exit(_('Required lib missing:\n\n'
                        '[RS274NGC]SUBROUTINE_PATH'))
 
         print("[RS274NGC]SUBROUTINE_PATH = %s\n  Real paths:" % subroutine_path)
@@ -425,13 +365,13 @@ def require_ncam_lib(fname, ini_instance):
         print("")
 
         if not found_lib_dir :
-            err_exit (_('\nThe required NativeCAM lib directory :\n<%(lib)s>\n\n'
+            self.err_exit (_('\nThe required NativeCAM lib directory :\n<%(lib)s>\n\n'
                       'is not in [RS274NGC]SUBROUTINE_PATH:\n'
                       '<%(path)s>\n\nEdit ini and correct\n'
                     % {'lib':require_lib, 'path':subroutine_path}))
 
     except Exception as detail :
-        err_exit(_('Required NativeCAM lib\n%(err_details)s') % {'err_details':detail})
+        self.err_exit(_('Required NativeCAM lib\n%(err_details)s') % {'err_details':detail})
 
 def get_short_id():
     global UNIQUE_ID
@@ -469,7 +409,7 @@ def create_M_file() :
         f.write('exit(0)\n')
 
     os.chmod(p, 0o755)
-    mess_dlg(_('LinuxCNC needs to be restarted now'))
+    self.mess_dlg(_('LinuxCNC needs to be restarted now'))
 
 
 class Tools(object):
@@ -934,8 +874,6 @@ class Parameter(object) :
 
     def get_icon(self, icon_size) :
         return(self.get_attr("icon"))
-        icon = self.get_attr("icon")
-        return get_pixbuf(icon, icon_size)
 
     def get_value(self, editor = False) :
         if self.get_type() == 'float' :
@@ -1107,7 +1045,6 @@ class Feature(object):
 
     def get_icon(self, icon_size) :
         return(self.get_attr("icon"))
-        return get_pixbuf(self.get_attr("icon"), icon_size)
 
     def get_value(self):
         return self.attr["value"] if "value" in self.attr else ""
@@ -1348,7 +1285,7 @@ class Feature(object):
                          'e= %(e)s\n') \
                          % {'errcode':e.returncode, 'output':e.output, 'e':e}
                 print(msg)
-                mess_dlg(msg)
+                self.mess_dlg(msg)
                 return ''
 
         def import_callback(m) :
@@ -1807,7 +1744,7 @@ class NCam(NCamWindow):
             optlist, arg = getopt.getopt(sys.argv[arg_start:], opt, optl)
             optlist = dict(optlist)
         except getopt.GetoptError as err:
-            err_exit(err)
+            self.err_exit(err)
 
         self.USER_SUBROUTINES = USER_SUBROUTINES
         # initialize class variables
@@ -1890,14 +1827,14 @@ class NCam(NCamWindow):
                 inifilename = os.path.abspath(ini)
                 ini_instance = linuxcnc.ini(ini)
             except Exception as detail :
-                err_exit(_("Open fails for ini file : %(inifilename)s\n\n%(detail)s") % \
+                self.err_exit(_("Open fails for ini file : %(inifilename)s\n\n%(detail)s") % \
                            {'inifilename':inifilename, 'detail':detail})
 
-            require_ini_items(inifilename, ini_instance)
+            self.require_ini_items(inifilename, ini_instance)
 
             val = ini_instance.find('DISPLAY', 'DISPLAY')
             if val not in ['axis', 'gmoccapy', 'gscreen'] :
-                mess_dlg(_("DISPLAY can only be 'axis', 'gmoccapy' or 'gscreen'"))
+                self.mess_dlg(_("DISPLAY can only be 'axis', 'gmoccapy' or 'gscreen'"))
                 sys.exit(-1)
 
             val = ini_instance.find('DISPLAY', 'GLADEVCP')
@@ -2028,6 +1965,42 @@ class NCam(NCamWindow):
         if not self.mess_yesno(msg, title = _("NativeCAM CREATE")) :
             sys.exit(0)
 
+    def err_exit(self, errtxt):
+        self.mess_dlg(errtxt)
+        sys.exit(1)
+
+    def require_ini_items(self, fname, ini_instance):
+        global NCAM_DIR, NGC_DIR
+
+        val = ini_instance.find('DISPLAY', 'NCAM_DIR')
+        if val is None :
+            self.err_exit(_('Ini file <%(inifilename)s>\n'
+                        'must have entry for [DISPLAY]NCAM_DIR')
+                    % {'inifilename':fname})
+
+        val = os.path.expanduser(val)
+        if os.path.isabs(val) :
+            NCAM_DIR = val
+        else :
+            NCAM_DIR = (os.path.realpath(os.path.dirname(fname) + '/' + val))
+
+        val = ini_instance.find('DISPLAY', 'PROGRAM_PREFIX')
+        if val is None :
+            msg = _("There is no PROGRAM_PREFIX in ini file\n"
+                "Edit to add in DISPLAY section\n\n"
+                "PROGRAM_PREFIX = abs or relative path to scripts directory\n"
+                "i.e. PROGRAM_PREFIX = ./scripts or ~/ncam/scripts")
+            self,err_exit(msg)
+        else :
+            if ':' in val :
+                val = val.split(':')[0]
+
+        val = os.path.expanduser(val)
+        if os.path.isabs(val) :
+            NGC_DIR = val
+        else :
+            NGC_DIR = (os.path.realpath(os.path.dirname(fname) + '/' + val))
+
     def copy_dir_recursive(self, fromdir, todir,
                        update_ct = 0,
                        mode = copymode.one_at_a_time,
@@ -2154,7 +2127,7 @@ class NCam(NCamWindow):
                         try :
                             shutil.copy(os.path.join(srcdir, f), dst)
                         except Exception as error :
-                            mess_dlg(_("Error copying file : %(f)s\nCode : %(c)s") \
+                            self.mess_dlg(_("Error copying file : %(f)s\nCode : %(c)s") \
                                      % {'f':f, 'c':error})
 
             # create links to examples directories
@@ -2172,7 +2145,7 @@ class NCam(NCamWindow):
                     try :
                         os.symlink(srcdir, dst)
                     except Exception as err :
-                        mess_dlg(_("Error creating link : %(s)s -> %(d)s\nCode : %(c)s") \
+                        self.mess_dlg(_("Error creating link : %(s)s -> %(d)s\nCode : %(c)s") \
                                  % {'s':srcdir, 'd':dst, 'c':err})
 
         def move_files(dir_processed) :
@@ -3445,7 +3418,7 @@ class NCam(NCamWindow):
             xml = etree.Element(XML_TAG)
             xml.append(f.to_xml())
         else :
-            mess_dlg(_("'%(source_file)s' is not a valid cfg or xml file") % {'source_file':src_file})
+            self.mess_dlg(_("'%(source_file)s' is not a valid cfg or xml file") % {'source_file':src_file})
             return
         self.import_xml(xml)
 
@@ -3964,7 +3937,7 @@ class NCam(NCamWindow):
                 self.import_xml(xml)
                 self.file_changed = True
             except etree.ParseError as err :
-                mess_dlg(err, _("Import project"))
+                self.mess_dlg(err, _("Import project"))
 
     # will update with new features version and keep the previous values
     def update_features(self, xml_i):
@@ -4156,7 +4129,7 @@ def verify_ini(fname, ctlog, in_tab) :
 
             dp = parser.get('DISPLAY', 'DISPLAY').lower()
             if dp not in ['gmoccapy', 'axis', 'gscreen'] :
-                mess_dlg(_("DISPLAY can only be 'axis', 'gmoccapy' or 'gscreen'"))
+                self.mess_dlg(_("DISPLAY can only be 'axis', 'gmoccapy' or 'gscreen'"))
                 sys.exit(-1)
 
             try :
@@ -4268,7 +4241,7 @@ def verify_ini(fname, ctlog, in_tab) :
                 print(_('Success in modifying inifile :\n  %s') % fname)
 
         except Exception as detail :
-            err_exit(_('Error modifying ini file\n%(err_details)s') % {'err_details':detail})
+            self.err_exit(_('Error modifying ini file\n%(err_details)s') % {'err_details':detail})
 
 def usage():
     print("""

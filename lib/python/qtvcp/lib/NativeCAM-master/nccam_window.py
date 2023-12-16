@@ -33,7 +33,8 @@ class NCamWindow(QMainWindow):
     def __init__(self, parent=None):
         super(NCamWindow, self).__init__(parent)
         try:
-            self.filename = './ncam.ui'
+            current_dir =  os.path.dirname(__file__)
+            self.filename = os.path.abspath(os.path.join(current_dir, 'ncam.ui'))
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
             LOG.critical(e)
@@ -66,11 +67,8 @@ class NCamWindow(QMainWindow):
         emptyfile = open(self.emptypath, "w")
         print(("m2"), file=emptyfile)
         emptyfile.close()
-        print('INI->',STATUS.stat.ini_filename)
-        # add INI file path for grahics
-        os.environ["INI_FILE_NAME"] = STATUS.stat.ini_filename
-        self.graphics = Lcnc_3dGraphics()
-        #self.graphics.setINI('/home/chris/Downloads/NativeCAM-master/configs/sim/axis/ncam_demo/mill-mm.ini')
+
+        self.graphics = Lcnc_3dGraphics(inipath=STATUS.stat.ini_filename)
         self.setGraphicsDisplay()
 
         self.loadDisplay(self.emptypath)
