@@ -184,7 +184,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     zRotationChanged = pyqtSignal(int)
     rotation_vectors = [(1.,0.,0.), (0., 0., 1.)]
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None,inipath = None):
         super(Lcnc_3dGraphics,self).__init__(parent)
         glnav.GlNavBase.__init__(self)
 
@@ -192,9 +192,17 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             a = self.colors[s + "_alpha"]
             s = self.colors[s]
             return [int(x * 255) for x in s + (a,)]
+
         # requires linuxcnc running before loading this widget
-        inipath = os.environ.get('INI_FILE_NAME', '/dev/null')
+        # if inipath is None then it was not included in the __init__ arguments
+        # see if it's in the environment variables
+        print('->',inipath)
+        if inipath is None or inipath == '':
+            inipath = os.environ.get('INI_FILE_NAME', '/dev/null')
         print('Display INI:',inipath)
+
+        self.inifile = linuxcnc.ini(inipath)
+
         # if status is not available then we are probably
         # displaying in designer so fake it
         stat = linuxcnc.stat()
@@ -205,7 +213,6 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             stat = fakeStatus()
             stat.ini_filename = inipath
 
-        self.inifile = linuxcnc.ini(inipath)
         self.foam_option = bool(self.inifile.find("DISPLAY", "FOAM"))
         try:
             trajcoordinates = self.inifile.find("TRAJ", "COORDINATES").lower().replace(" ","")
@@ -318,10 +325,6 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         # base units of config. updated by subclass (gcode_graphics)
         self.mach_units = 'Metric'
 
-    def setINI(self, path):
-        print( 'New INI path:',path)
-        self.inifile = linuxcnc.ini(path)
-
     # add a 100ms timer to poll linuxcnc stats
     # this may be overridden in sub widgets
     def addTimer(self):
@@ -360,8 +363,12 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         elif not filename and not s.file:
             return False
 
-        if not os.path.exists(filename):
-            return False
+        # TODO removed for ncam update. is needed?
+        #if not os.path.exists(filename):
+        #    return False
+
+        if not os.environ.get('INI_FILE_NAME'):
+            os.environ["INI_FILE_NAME"] = s.ini_filename
 
         lines = open(filename).readlines()
         progress = Progress(2, len(lines))
