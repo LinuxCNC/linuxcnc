@@ -589,6 +589,67 @@ class NCamWindow(QMainWindow):
         self.actionShowF.setEnabled(self.selected_feature is not None and \
                                        self.selected_feature.has_hidden_fields())
 
+###################
+#
+###################
+    def create_M_file(self, NCAM_DIR, NGC_DIR, CATALOGS_DIR, GRAPHICS_DIR) :
+        p = os.path.join(NCAM_DIR, NGC_DIR, 'M123')
+        print('make M123 at {}'.format(p))
+        with open(p, 'wt') as f :
+
+
+            f.write('#!/usr/bin/env python3\n# coding: utf-8\n')
+            f.write('import os, sys\n')
+            f.write('from PyQt5.QtWidgets import QMessageBox, QTextEdit, QApplication\n')
+            f.write('from PyQt5.QtCore import Qt\n')
+            f.write('from PyQt5.QtGui import QPixmap\n')
+            f.write('app = QApplication(sys.argv)\n')
+            f.write("fname = '%s'\n" % os.path.join(NCAM_DIR, CATALOGS_DIR, 'no_skip_dlg.conf'))
+            f.write('if os.path.isfile(fname) :\n    exit(0)\n\n')
+            f.write("msg = '%s'\n" % _('1) Stop this LinuxCNC program,\\n2) toggle the optional stop button\\n3) rerun this program'))
+            f.write("title = '%s'\n" % _('Optional block not active'))
+            f.write("info = '%s'\n" % _('Pressing abort will stop this program'))
+            f.write("iconName = '%s'\n\n" % os.path.join(NCAM_DIR, GRAPHICS_DIR, 'skip_block.png'))
+
+            f.write('''
+def forceDetailsOpen(dlg):
+  try:
+    # force the details box open on first time display
+    for i in dlg.buttons():
+        if dlg.buttonRole(i) == QMessageBox.ActionRole:
+            for j in dlg.children():
+                for k in j.children():
+                    if isinstance( k, QTextEdit):
+                        if not k.isVisible():
+                            i.click()
+  except:
+    pass
+
+dlg = QMessageBox()
+dlg.setTextFormat(Qt.RichText)
+dlg.setText('<b>{}</b>'.format(title))
+dlg.setInformativeText(info)
+dlg.setDetailedText(msg)
+dlg.setStandardButtons(QMessageBox.Abort)
+dlg.addButton('Do not ask again', QMessageBox.YesRole)
+dlg.setIconPixmap(QPixmap(iconName))
+dlg.setWindowFlags(dlg.windowFlags() | Qt.WindowStaysOnTopHint)
+dlg.show()
+forceDetailsOpen(dlg)
+
+button = dlg.exec()
+
+if button == QMessageBox.Abort:
+    exit(1)
+else:
+    open(fname, 'w').close()
+    exit(1)
+
+''')
+        #f.write("if cb.get_active() :\n    open(fname, 'w').close()\n")
+        os.chmod(p, 0o755)
+        self.mess_dlg(_('LinuxCNC needs to be restarted now'))
+
 #############
 # dialogs
 #############
@@ -754,6 +815,7 @@ class NCamWindow(QMainWindow):
 ###############
     def status(self, text):
         self.statusbar.showMessage(text)
+
 #############
 # Dummy
 #############

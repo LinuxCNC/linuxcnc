@@ -378,39 +378,6 @@ def get_short_id():
     UNIQUE_ID += 1
     return str(UNIQUE_ID)
 
-def create_M_file() :
-    p = os.path.join(NCAM_DIR, NGC_DIR, 'M123')
-    print('make M123 at {}'.format(p))
-    with open(p, 'wt') as f :
-        f.write('#!/usr/bin/env python\n# coding: utf-8\n')
-
-        f.write("import gtk\nimport os\nimport pygtk\npygtk.require('2.0')\nfrom gtk import gdk\n\n")
-
-        f.write("fname = '%s'\n" % os.path.join(NCAM_DIR, CATALOGS_DIR, 'no_skip_dlg.conf'))
-        f.write('if os.path.isfile(fname) :\n    exit(0)\n\n')
-
-        f.write("msg = '%s'\n" % _('Stop LinuxCNC program,&#10;toggle the shown button,&#10;then restart'))
-        f.write("msg1 = '%s'\n" % _('Skip block not active'))
-        f.write("icon_fname = '%s'\n\n" % os.path.join(NCAM_DIR, GRAPHICS_DIR, 'skip_block.png'))
-
-        f.write('dlg = gtk.MessageDialog(parent = None, flags = gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, type = gtk.MESSAGE_WARNING, buttons = gtk.BUTTONS_NONE, message_format = msg1)\n\n')
-
-        f.write("dlg.set_title('NativeCAM')\ndlg.format_secondary_markup(msg)\n\n")
-
-        f.write('dlg.set_image(gtk.Image())\n')
-        f.write('dlg.get_image().set_from_pixbuf(gdk.pixbuf_new_from_file_at_size(icon_fname, 80, 80))\n\n')
-
-        f.write('cb = gtk.CheckButton(label = "%s")\n' % _("Do not show again"))
-        f.write('dlg.get_content_area().pack_start(cb, True, True, 0)\n')
-        f.write('dlg.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK).grab_focus()\n\n')
-
-        f.write('dlg.set_keep_above(True)\ndlg.show_all()\n\ndlg.run()\n')
-        f.write("if cb.get_active() :\n    open(fname, 'w').close()\n")
-        f.write('exit(0)\n')
-
-    os.chmod(p, 0o755)
-    self.mess_dlg(_('LinuxCNC needs to be restarted now'))
-
 
 class Tools(object):
 
@@ -1939,7 +1906,7 @@ class NCam(NCamWindow):
         self.set_preferences()
 
         if not os.path.isfile(os.path.join(NCAM_DIR, NGC_DIR, 'M123')):
-            create_M_file()
+            self.create_M_file(NCAM_DIR, NGC_DIR, CATALOGS_DIR, GRAPHICS_DIR)
 
         self.load_currentWork()
         self.get_selected_feature('init')
