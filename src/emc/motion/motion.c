@@ -25,6 +25,8 @@
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
 
+#define NOT_INITIALIZED -1
+
 /***********************************************************************
 *                    KERNEL MODULE PARAMETERS                          *
 ************************************************************************/
@@ -55,7 +57,7 @@ static int num_joints = EMCMOT_MAX_JOINTS;	/* default number of joints present *
 RTAPI_MP_INT(num_joints, "number of joints used in kinematics");
 static int num_extrajoints = 0;	/* default number of extra joints present */
 RTAPI_MP_INT(num_extrajoints, "number of extra joints (not used in kinematics)");
-static int num_dio = 0;	/* default number of motion synched DIO */
+static int num_dio = NOT_INITIALIZED;
 RTAPI_MP_INT(num_dio, "number of digital inputs/outputs");
 
 #define MAX_IO 64
@@ -64,7 +66,7 @@ RTAPI_MP_ARRAY_STRING(names_din, MAX_IO, "names of digital inputs");
 static char *names_dout[MAX_IO] = {0,};
 RTAPI_MP_ARRAY_STRING(names_dout, MAX_IO, "names of digital outputs");
 
-static int num_aio = 0;	/* default number of motion synched AIO */
+static int num_aio = NOT_INITIALIZED;
 RTAPI_MP_INT(num_aio, "number of analog inputs/outputs");
 
 
@@ -72,7 +74,7 @@ static char *names_ain[MAX_IO] = {0,};
 RTAPI_MP_ARRAY_STRING(names_ain, MAX_IO, "names of analog inputs");
 static char *names_aout[MAX_IO] = {0,};
 RTAPI_MP_ARRAY_STRING(names_aout, MAX_IO, "names of analog outputs");
-static int num_misc_error = DEFAULT_MISC_ERROR;	/* default number of misc errors */
+static int num_misc_error = NOT_INITIALIZED;
 RTAPI_MP_INT(num_misc_error, "number of misc error inputs");
 
 static char *names_misc_errors[MAX_IO] = {0,};
@@ -298,15 +300,14 @@ int rtapi_app_main(void)
     }
     motion_num_spindles = num_spindles;
 
-    if(num_dio && (names_dout[0] || names_din[0])){
+    if (num_dio != NOT_INITIALIZED && (names_dout[0] || names_din[0])) {
       rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: Can't specify both names and number for digital pins\n"));
       return -1;
     }
-    else if(names_dout[0] || names_din[0]){
+    if (names_dout[0] || names_din[0]) {
       num_dio = count_names(names_dout);
       num_dio = (num_dio > count_names(names_din)) ? num_dio : count_names(names_din);
-    }
-    else if(!num_dio){
+    } else if (num_dio == NOT_INITIALIZED) {
       num_dio = DEFAULT_DIO;
     }
 
@@ -318,15 +319,14 @@ int rtapi_app_main(void)
 	return -1;
     }
 
-  if(num_aio && (names_aout[0] || names_ain[0])){
+  if (num_aio != NOT_INITIALIZED && (names_aout[0] || names_ain[0])) {
     rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: Can't specify both names and number for analog pins\n"));
     return -1;
   }
-  else if(names_aout[0] || names_ain[0]){
+  if (names_aout[0] || names_ain[0]) {
     num_aio = count_names(names_aout);
     num_aio = (num_aio > count_names(names_ain)) ? num_aio : count_names(names_ain);
-  }
-  else if(!num_aio){
+  } else if (num_aio == NOT_INITIALIZED) {
     num_aio = DEFAULT_AIO;
   }
 
@@ -337,15 +337,13 @@ int rtapi_app_main(void)
 	return -1;
     }
 
-  if(num_misc_error && (names_misc_errors[0])){
+  if (num_misc_error != NOT_INITIALIZED && (names_misc_errors[0])) {
     rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: Can't specify both names and number for misc error\n"));
     return -1;
   }
-  else if(names_misc_errors[0]){
-    num_misc_error = count_names(names_dout);
-    num_misc_error = (num_misc_error > count_names(names_din)) ? num_misc_error : count_names(names_din);
-  }
-  else if(!num_misc_error){
+  if (names_misc_errors[0]) {
+    num_misc_error = count_names(names_misc_errors);
+  } else if (num_misc_error == NOT_INITIALIZED) {
     num_misc_error = DEFAULT_MISC_ERROR;
   }
 
