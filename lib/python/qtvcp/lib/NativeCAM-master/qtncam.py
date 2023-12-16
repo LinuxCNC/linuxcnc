@@ -336,47 +336,63 @@ if platform.system() != 'Windows' :
     except ImportError as detail :
         self.err_exit(detail)
 
-
-def require_ncam_lib(fname, ini_instance):
-    # presumes already checked:[DISPLAY]NCAM_DIR
-    # ini file must specify a [RS274NGC]SUBROUTINE_PATH that
-    # includes NCAM_DIR + LIB_DIR (typ: [DISPLAY]NCAM_DIR/lib)
-    require_lib = os.path.join(NCAM_DIR, LIB_DIR)
-    found_lib_dir = False
-    try :
-        subroutine_path = ini_instance.find('RS274NGC', 'SUBROUTINE_PATH')
-        if subroutine_path is None :
-            self.err_exit(_('Required lib missing:\n\n'
-                       '[RS274NGC]SUBROUTINE_PATH'))
-
-        print("[RS274NGC]SUBROUTINE_PATH = %s\n  Real paths:" % subroutine_path)
-
-        for i, d in enumerate(subroutine_path.split(":")):
-            d = os.path.expanduser(d)
-            if os.path.isabs(d) :
-                thedir = d
-            else :
-                thedir = os.path.join(os.path.realpath(os.path.dirname(fname)), d)
-            if os.path.isdir(thedir) :
-                print("   %s" % (os.path.realpath(thedir)))
-                if not found_lib_dir :
-                    found_lib_dir = thedir.find(require_lib) == 0
-
-        print("")
-
-        if not found_lib_dir :
-            self.err_exit (_('\nThe required NativeCAM lib directory :\n<%(lib)s>\n\n'
-                      'is not in [RS274NGC]SUBROUTINE_PATH:\n'
-                      '<%(path)s>\n\nEdit ini and correct\n'
-                    % {'lib':require_lib, 'path':subroutine_path}))
-
-    except Exception as detail :
-        self.err_exit(_('Required NativeCAM lib\n%(err_details)s') % {'err_details':detail})
-
 def get_short_id():
     global UNIQUE_ID
     UNIQUE_ID += 1
     return str(UNIQUE_ID)
+
+
+class Data(object):
+    _instance = None
+    current_dir =  os.path.dirname(__file__)
+
+    # directories
+    CFG_DIR = 'cfg'
+    PROJECTS_DIR = 'projects'
+    LIB_DIR = 'lib'
+    NGC_DIR = 'scripts'
+    EXAMPLES_DIR = 'examples'
+    CATALOGS_DIR = 'catalogs'
+    GRAPHICS_DIR =  os.path.abspath(os.path.join(current_dir, 'graphics'))
+    DEFAULTS_DIR = 'defaults'
+    CUSTOM_DIR = 'my-stuff'
+
+    # files
+    DEFAULT_TEMPLATE = 'default_template.xml'
+    USER_DEFAULT_FILE = 'custom_defaults.conf'
+    EXCL_MSG_FILE = 'excluded_msg.conf'
+    CURRENT_WORK = "current_work.xml"
+    PREFERENCES_FILE = "default.conf"
+    CONFIG_FILE = 'ncam.conf'
+    TOOLBAR_FNAME = "toolbar.conf"
+    TOOLBAR_CUSTOM_FNAME = "toolbar-custom.conf"
+    GENERATED_FILE = "ncam.ngc"
+
+    CURRENT_PROJECT = ''
+
+    DEFAULT_EDITOR = 'gedit'
+
+    SUPPORTED_DATA_TYPES = ['sub-header', 'header', 'bool', 'boolean', 'int', 'gc-lines',
+                        'tool', 'gcode', 'text', 'list', 'float', 'string', 'engrave',
+                        'combo', 'combo-user', 'items', 'filename', 'prjname']
+    NUMBER_TYPES = ['float', 'int']
+    NO_ICON_TYPES = ['sub-header', 'header']
+    GROUP_HEADER_TYPES = ['items', 'sub-header', 'header']
+
+    XML_TAG = "lcnc-ncam"
+
+    HOME_PAGE = 'https://github.com/FernV/NativeCAM'
+
+    def __init__(self):
+        # only initialize once for all instances
+        if not self.__class__._instance is None:
+            return
+
+    def __new__(cls):
+        if cls._instance is None:
+            print('Creating the object')
+            cls._instance = super(Data, cls).__new__(cls)
+        return cls._instance
 
 
 class Tools(object):
@@ -1701,6 +1717,7 @@ class NCam(NCamWindow):
 
     def __init__(self, parent=None):
         super(NCam, self).__init__(parent)
+        self.DATA = Data()
 
         global NCAM_DIR, default_metric, NGC_DIR, SYS_DIR, no_ini, TOOL_TABLE, \
             GLOBAL_PREF, machine_metric
@@ -1799,10 +1816,10 @@ class NCam(NCamWindow):
 
             self.require_ini_items(inifilename, ini_instance)
 
-            val = ini_instance.find('DISPLAY', 'DISPLAY')
-            if val not in ['axis', 'gmoccapy', 'gscreen'] :
-                self.mess_dlg(_("DISPLAY can only be 'axis', 'gmoccapy' or 'gscreen'"))
-                sys.exit(-1)
+            #val = ini_instance.find('DISPLAY', 'DISPLAY')
+            #if val not in ['axis', 'gmoccapy', 'gscreen',] :
+            #    self.mess_dlg(_("DISPLAY can only be 'axis', 'gmoccapy' or 'gscreen'"))
+            #    sys.exit(-1)
 
             val = ini_instance.find('DISPLAY', 'GLADEVCP')
             if val is None :
@@ -1852,7 +1869,7 @@ class NCam(NCamWindow):
             self.update_user_tree(fromdirs, NCAM_DIR)
 
         if ini is not None :
-            require_ncam_lib(inifilename, ini_instance)
+            self.require_ncam_lib(inifilename, ini_instance)
 
         TOOL_TABLE.load_table()
 
@@ -1883,13 +1900,6 @@ class NCam(NCamWindow):
 
         self.on_scale_change_value(self)
 
-        # create treestore and treeview
-        #self.treestore = gtk.TreeStore(object, str, bool, bool)
-        #self.master_filter = self.treestore.filter_new()
-
-        #self.details_filter = self.treestore.filter_new()
-        #self.details_filter.set_visible_column(3)
-
         self.create_treeview()
 
         # create actions, uimanager and add menu and toolbars
@@ -1900,13 +1910,10 @@ class NCam(NCamWindow):
         self.build_add_menu()
         self.addDisplayWidget()
 
-        #self.create_add_dialog()
-
-        #self.builder.connect_signals(self)
         self.set_preferences()
 
         if not os.path.isfile(os.path.join(NCAM_DIR, NGC_DIR, 'M123')):
-            self.create_M_file(NCAM_DIR, NGC_DIR, CATALOGS_DIR, GRAPHICS_DIR)
+            self.create_M_file(NCAM_DIR, NGC_DIR, CATALOGS_DIR, self.DATA.GRAPHICS_DIR)
 
         self.load_currentWork()
         self.get_selected_feature('init')
@@ -1941,15 +1948,18 @@ class NCam(NCamWindow):
 
         val = ini_instance.find('DISPLAY', 'NCAM_DIR')
         if val is None :
-            self.err_exit(_('Ini file <%(inifilename)s>\n'
+            self.mess_dlg(_('Ini file <%(inifilename)s>\n'
                         'must have entry for [DISPLAY]NCAM_DIR')
                     % {'inifilename':fname})
+            NCAM_DIR = os.path.expanduser('~/nativecam')
+            NGC_DIR = NCAM_DIR + '/' + NGC_DIR
 
-        val = os.path.expanduser(val)
-        if os.path.isabs(val) :
-            NCAM_DIR = val
-        else :
-            NCAM_DIR = (os.path.realpath(os.path.dirname(fname) + '/' + val))
+        else:
+            val = os.path.expanduser(val)
+            if os.path.isabs(val) :
+                NCAM_DIR = val
+            else :
+                NCAM_DIR = (os.path.realpath(os.path.dirname(fname) + '/' + val))
 
         val = ini_instance.find('DISPLAY', 'PROGRAM_PREFIX')
         if val is None :
@@ -1967,6 +1977,42 @@ class NCam(NCamWindow):
             NGC_DIR = val
         else :
             NGC_DIR = (os.path.realpath(os.path.dirname(fname) + '/' + val))
+
+    def require_ncam_lib(self, fname, ini_instance):
+        # presumes already checked:[DISPLAY]NCAM_DIR
+        # ini file must specify a [RS274NGC]SUBROUTINE_PATH that
+        # includes NCAM_DIR + LIB_DIR (typ: [DISPLAY]NCAM_DIR/lib)
+        require_lib = os.path.join(NCAM_DIR, LIB_DIR)
+        found_lib_dir = False
+        try :
+            subroutine_path = ini_instance.find('RS274NGC', 'SUBROUTINE_PATH')
+            if subroutine_path is None :
+                self.err_exit(_('Required lib missing:\n\n'
+                           '[RS274NGC]SUBROUTINE_PATH'))
+
+            print("[RS274NGC]SUBROUTINE_PATH = %s\n  Real paths:" % subroutine_path)
+
+            for i, d in enumerate(subroutine_path.split(":")):
+                d = os.path.expanduser(d)
+                if os.path.isabs(d) :
+                    thedir = d
+                else :
+                    thedir = os.path.join(os.path.realpath(os.path.dirname(fname)), d)
+                if os.path.isdir(thedir) :
+                    print("   %s" % (os.path.realpath(thedir)))
+                    if not found_lib_dir :
+                        found_lib_dir = thedir.find(require_lib) == 0
+
+            print("")
+
+            if not found_lib_dir :
+                self.mess_dlg (_('\nThe required NativeCAM lib directory :\n<%(lib)s>\n\n'
+                          'is not in [RS274NGC]SUBROUTINE_PATH:\n'
+                          '<%(path)s>\n\nEdit ini and correct\n'
+                        % {'lib':require_lib, 'path':subroutine_path}))
+
+        except Exception as detail :
+            self.err_exit(_('Required NativeCAM lib\n%(err_details)s') % {'err_details':detail})
 
     def copy_dir_recursive(self, fromdir, todir,
                        update_ct = 0,
@@ -4094,10 +4140,10 @@ def verify_ini(fname, ctlog, in_tab) :
         try :
             parser.readfp(io.BytesIO(txt1))
 
-            dp = parser.get('DISPLAY', 'DISPLAY').lower()
-            if dp not in ['gmoccapy', 'axis', 'gscreen'] :
-                self.mess_dlg(_("DISPLAY can only be 'axis', 'gmoccapy' or 'gscreen'"))
-                sys.exit(-1)
+            #dp = parser.get('DISPLAY', 'DISPLAY').lower()
+            #if dp not in ['gmoccapy', 'axis', 'gscreen', 'qtdragon'] :
+            #    self.mess_dlg(_("DISPLAY can only be 'axis', 'gmoccapy' or 'gscreen'"))
+            #    sys.exit(-1)
 
             try :
                 old_sub_path = ':' + parser.get('RS274NGC', 'SUBROUTINE_PATH')

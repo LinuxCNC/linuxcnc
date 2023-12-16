@@ -1,3 +1,5 @@
+import os
+
 from PyQt5.QtWidgets import QMainWindow, QAction,\
          QToolBar, QMessageBox,QTreeWidget, QTreeWidgetItem
 from PyQt5 import uic
@@ -7,9 +9,11 @@ from PyQt5.QtGui import QColor, QIcon, QFont, QImage
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 
-import os
-
 import gcode
+# Set up logging
+from qtvcp import logger
+LOG = logger.getLogger(__name__)
+LOG.error('lOGGING WORKS')
 
 from message import Message
 from custom_widgets import MetaClass, TreeItem, tv_select, ComboDelegate, treeModel, ToolButton
@@ -139,7 +143,7 @@ class NCamWindow(QMainWindow):
                 if not iconName is None:
                     if isinstance(iconName, str):
                         try:
-                            icon = QIcon('graphics/{}'.format(iconName))
+                            icon = QIcon('{}/{}'.format(self.DATA.GRAPHICS_DIR,iconName))
 
                         except:
                             icon = QIcon.fromTheme(iconName)
@@ -270,7 +274,8 @@ class NCamWindow(QMainWindow):
             toolbar.addSeparator()
         else :
             if items[3] is not None :
-                icon = QIcon('graphics/{}'.format(items[3]))
+                print('{}/{}'.format(self.DATA.GRAPHICS_DIR,items[3]))
+                icon = QIcon('{}/{}'.format(self.DATA.GRAPHICS_DIR,items[3]))
                 action = toolbar.addAction(icon, items[0])
             else :
                 action = toolbar.addAction(items[0])
@@ -350,7 +355,7 @@ class NCamWindow(QMainWindow):
                         src = p.get('src')
 
                         if p.tag.lower() in ['menu', "group"] :
-                            sub = self.actionMenuAdd.addMenu(QIcon('graphics/{}'.format(icon)), name)
+                            sub = self.actionMenuAdd.addMenu(QIcon('{}/{}'.format(self.DATA.GRAPHICS_DIR,icon)), name)
                             add_to_menu(sub, p)
 
                             # add toolbutton to groupbox
@@ -364,7 +369,7 @@ class NCamWindow(QMainWindow):
                             except:
                                 pass
                         else:
-                            act = grp_menu.addAction(QIcon('graphics/{}'.format(icon)),name)
+                            act = grp_menu.addAction(QIcon('{}/{}'.format(self.DATA.GRAPHICS_DIR,icon)),name)
                             act.triggered.connect( lambda s, src=src: self.add_feature(None,src))
 
                     elif p.tag.lower() == "separator":
@@ -590,7 +595,7 @@ class NCamWindow(QMainWindow):
                                        self.selected_feature.has_hidden_fields())
 
 ###################
-#
+# create safety M123 code
 ###################
     def create_M_file(self, NCAM_DIR, NGC_DIR, CATALOGS_DIR, GRAPHICS_DIR) :
         p = os.path.join(NCAM_DIR, NGC_DIR, 'M123')
@@ -735,7 +740,7 @@ else:
         dlg.setTextFormat(Qt.RichText)
         dlg.setText('<b>{}</b>'.format(title))
         dlg.setInformativeText(info)
-        dlg.setStandardButtons(QMessageBox.Ok)
+        dlg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         dlg.setIcon(icon)
         dlg.setDetailedText(mess)
         dlg.show()
