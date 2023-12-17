@@ -188,7 +188,8 @@ IniFile::Find(double *result, StrDoublePair *pPair,
 
    @param num (optionally) the Nth occurrence of the tag.
 
-   @return pointer to the the variable after the '=' delimiter */
+   @return pointer to the variable after the '=' delimiter, or @c NULL if not
+           found */
 const char *
 IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
 {
