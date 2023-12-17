@@ -23,7 +23,7 @@ Build-Depends:
     intltool,
     libboost-python-dev,
     libepoxy-dev,
-    libgl1-mesa-dev | libgl1-mesa-swx11-dev,
+    libgl-dev | libgl1-mesa-dev,
     libglu1-mesa-dev,
     libgtk2.0-dev,
     libgtk-3-dev,
