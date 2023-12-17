@@ -348,7 +348,7 @@ int rtapi_app_main(void)
   else if(names_misc_errors[0]){
     num_misc_error = count_names(names_misc_errors);
   }
-  else {
+  else if (num_misc_error < 0) {
     num_misc_error = DEFAULT_MISC_ERROR;
   }
 
