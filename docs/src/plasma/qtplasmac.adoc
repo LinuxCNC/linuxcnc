@@ -3187,8 +3187,8 @@ self.old_method_name = new_method_name
 ----
 
 [NOTE]
-The existing filter code may be observed in the file /bin/qtplasmac_gcode +
-The file sim/qtplasmac/custom_filter.py has example skeleton code for custom filtering
+The existing filter code may be observed in the file /bin/qtplasmac_gcode. +
+The file sim/qtplasmac/custom_filter.py has example skeleton code for custom filtering.
 
 == QtPlasmaC Advanced Topics
 

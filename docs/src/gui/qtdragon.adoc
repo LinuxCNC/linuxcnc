@@ -829,7 +829,7 @@ Sequence after pressing the probe button: +
 . probe wall twice (rough and fine),
 . move diagonally to the other wall as set by EDGE WIDTH and XY CLEARANCE,
 . probe wall twice,
-. raise probe up by Z CLEARANCE + EXTRA DEPTH 9returns to starting height),
+. raise probe up by Z CLEARANCE + EXTRA DEPTH (returns to starting height),
 . rapid back to starting corner (now calculated using the probed walls),
 . if auto zero button is enabled, set X and Y of the current user system to zero.
 
