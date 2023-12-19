@@ -7,20 +7,21 @@
 #
 #
 # Bruno Lualdi <blibr68@gmail.com>, 2022.
+# Edval Vitor da Silva Filho <edval.vitor@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Emc2-axis cvs-head to 2.1\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2022-08-15 16:24+0000\n"
-"Last-Translator: Bruno Lualdi <blibr68@gmail.com>\n"
+"PO-Revision-Date: 2023-12-19 03:10+0000\n"
+"Last-Translator: Edval Vitor da Silva Filho <edval.vitor@gmail.com>\n"
 "Language-Team: Portuguese/Brazil <none>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.14-dev\n"
+"X-Generator: Weblate 5.3\n"
 
 #: src/emc/task/emctaskmain.cc:869
 #, c-format
@@ -32,9 +33,9 @@ msgstr ""
 "STOP e ligada"
 
 #: src/emc/task/emctaskmain.cc:997
-#, fuzzy, c-format
+#, c-format
 msgid "can't do that (%s:%d) in manual mode"
-msgstr "impossível realizar (%s) no modo manual"
+msgstr "impossível realizar (%s:%d) no modo manual"
 
 #: src/emc/task/emctaskmain.cc:1104
 #, c-format
@@ -59,9 +60,9 @@ msgstr ""
 "impossível realizar (%s) no modo automático com o interpretador esperando"
 
 #: src/emc/task/emctaskmain.cc:1452
-#, fuzzy, c-format
+#, c-format
 msgid "can't do that (%s:%d) in MDI mode"
-msgstr "impossível realizar (%s) no modo MDI"
+msgstr "impossível realizar (%s:%d) no modo MDI"
 
 #: src/emc/task/emctaskmain.cc:2109
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
@@ -116,7 +117,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_check.cc:89
 msgid "G4 not allowed with G2 or G3 because they both use P"
-msgstr ""
+msgstr "G4 não permitido com G2 ou G3 porque ambos usam P"
 
 #: src/emc/rs274ngc/interp_check.cc:92
 #, fuzzy
@@ -129,14 +130,14 @@ msgid "P value not an integer with G10"
 msgstr "Parâmetro P não é um inteiro com G10 L2"
 
 #: src/emc/rs274ngc/interp_check.cc:94
-#, fuzzy, c-format
+#, c-format
 msgid "P value out of range (0-9) with G10 L%d"
-msgstr "Parâmetro P fora dos limites com G10 L2"
+msgstr "Parâmetro P fora dos limites (0-9) com G10 L%d"
 
 #: src/emc/rs274ngc/interp_check.cc:95
-#, fuzzy, c-format
+#, c-format
 msgid "P value out of range with G10 L%d"
-msgstr "Parâmetro P fora dos limites com G10 L2"
+msgstr "Parâmetro P fora dos limites com G10 L%d"
 
 #: src/emc/rs274ngc/interp_check.cc:99
 msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
@@ -234,32 +235,38 @@ msgstr "Parâmetro P fora dos limites com G10 L2"
 #: src/emc/rs274ngc/interp_convert.cc:380
 msgid "You must specify both X and Y coordinates for Control Points"
 msgstr ""
+"Você deve especificar ambas as coordenadas X e Y para Pontos de Controle"
 
 #: src/emc/rs274ngc/interp_convert.cc:192
 msgid "Can specify P without X and Y only for the first control point"
 msgstr ""
+"Permitido especificar P sem X e Y apenas para o primeiro ponto de controle"
 
 #: src/emc/rs274ngc/interp_convert.cc:199
 #: src/emc/rs274ngc/interp_convert.cc:387
 msgid "You must specify both Y and Z coordinates for Control Points"
 msgstr ""
+"Você deve especificar ambas as coordenadas Y e Z para Pontos de Controle"
 
 #: src/emc/rs274ngc/interp_convert.cc:204
 msgid "Can specify P without Y and Z only for the first control point"
 msgstr ""
+"Permitido especificar P sem Y e Z apenas para o primeiro Ponto de Controle"
 
 #: src/emc/rs274ngc/interp_convert.cc:211
 #: src/emc/rs274ngc/interp_convert.cc:394
 msgid "You must specify both X and Z coordinates for Control Points"
 msgstr ""
+"Você deve especificar ambas as coordenadas X e Z para Pontos de Controle"
 
 #: src/emc/rs274ngc/interp_convert.cc:216
 msgid "Can specify P without X and Z only for the first control point"
 msgstr ""
+"Permitido especificar P sem X e Z apenas para o primeiro Ponto de Controle"
 
 #: src/emc/rs274ngc/interp_convert.cc:222
 msgid "Must specify positive weight P for every Control Point"
-msgstr ""
+msgstr "Deve-se especificar o peso positivo P para cada Ponto de controle"
 
 #: src/emc/rs274ngc/interp_convert.cc:225
 #, fuzzy
@@ -283,20 +290,21 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:373
 msgid "one plane must be selected for nurbs: XY, YZ, ZX"
-msgstr ""
+msgstr "um plano deve ser selecionado para nurbs: XY, YZ, ZX"
 
 #: src/emc/rs274ngc/interp_convert.cc:400
 msgid "Program the nurbs order P in the first block of instruction"
-msgstr ""
+msgstr "Programe a ordem do nurbs P no primeiro bloco de instrução"
 
 #: src/emc/rs274ngc/interp_convert.cc:404
 msgid "nurbs order P number is not an integer"
-msgstr ""
+msgstr "numero de ordem do arco P não é um inteiro"
 
 #: src/emc/rs274ngc/interp_convert.cc:410
 msgid ""
 "Program the nurbs Q value (1,2,3) in the first block of nurbs instruction"
 msgstr ""
+"Programe o nurbs valor Q (1,2,3) no primeiro bloco de instrução do nurbs"
 
 #: src/emc/rs274ngc/interp_convert.cc:415
 #, fuzzy
@@ -305,19 +313,19 @@ msgstr "Parâmetro P não é um inteiro com G10 L2"
 
 #: src/emc/rs274ngc/interp_convert.cc:417
 msgid "nurbs Q number is not an integer"
-msgstr ""
+msgstr "arco número Q não é um inteiro"
 
 #: src/emc/rs274ngc/interp_convert.cc:423
 msgid "Must specify positive nurbs weight R for every Control Point"
-msgstr ""
+msgstr "Deve-se especificar o nurbs positivo peso R para cada Ponto de Controle"
 
 #: src/emc/rs274ngc/interp_convert.cc:428
 msgid "Must specify nurbs K number for every Control Point"
-msgstr ""
+msgstr "Deve-se especificar nurbs número K para cada Ponto de Controle"
 
 #: src/emc/rs274ngc/interp_convert.cc:432
 msgid "nurbs K number is not an integer"
-msgstr ""
+msgstr "arco número K não é um inteiro"
 
 #: src/emc/rs274ngc/interp_convert.cc:437
 #, fuzzy
@@ -339,19 +347,19 @@ msgstr "Impossível converter spline com compensação de raio ligada"
 
 #: src/emc/rs274ngc/interp_convert.cc:579
 msgid "Splines may not have motion in A, B, or C"
-msgstr ""
+msgstr "Estrias não devem ter movimento em A, B, ou C"
 
 #: src/emc/rs274ngc/interp_convert.cc:586
 msgid "Must specify both I and J with G5.1 or G6.1"
-msgstr ""
+msgstr "Deve-se especificar ambos I e J com G5.1 ou G6.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:691
 msgid "Must specify both I and J, or neither"
-msgstr ""
+msgstr "Deve-se especificar ambos I e J, ou nenhum"
 
 #: src/emc/rs274ngc/interp_convert.cc:745
 msgid "Must specify both P and Q with G5"
-msgstr ""
+msgstr "Deve-se especificar ambos P e Q com G5"
 
 #: src/emc/rs274ngc/interp_convert.cc:928
 msgid ""
@@ -363,11 +371,14 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:936
 msgid "Cannot do an arc in planes G17.1, G18.1, or G19.1"
 msgstr ""
+"Não é permitido fazer um arco em superfícies planas G17.1, G18.1, ou G19.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:948
 #: src/emc/rs274ngc/interp_convert.cc:5330
 msgid "Cannot feed with zero spindle speed in feed per rev mode"
 msgstr ""
+"Não é possivel alimentar a velocidade do spindle com zero no modo avanço por "
+"giro"
 
 #: src/emc/rs274ngc/interp_convert.cc:959
 #: src/emc/rs274ngc/interp_convert.cc:965
@@ -383,6 +394,8 @@ msgstr "Parâmetro F faltando com movimento em arco no modo de tempo inverso"
 msgid ""
 "Radius of cutter compensation entry arc is not greater than the tool radius"
 msgstr ""
+"O raio do arco de entrada de compensação da fresa não é maior que o raio da "
+"ferramenta"
 
 #: src/emc/rs274ngc/interp_convert.cc:1441
 #: src/emc/rs274ngc/interp_convert.cc:1451 src/emc/rs274ngc/interp_queue.cc:607
@@ -458,38 +471,40 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:3564
 #, c-format
 msgid "gen_restore G20/G21 failed: '%s'"
-msgstr ""
+msgstr "gen_restore G20/G21 falhou: '%s'"
 
 #: src/emc/rs274ngc/interp_convert.cc:3614
 #, c-format
 msgid ""
 "BUG: cannot restore from a lower call level (%d) to a higher call level (%d)"
 msgstr ""
+"ERRO: não é possível restaurar uma chamada de baixo nível (%d) para uma "
+"chamada de alto nível (%d)"
 
 #: src/emc/rs274ngc/interp_convert.cc:3615
 #, c-format
 msgid "BUG: restore from level %d !?"
-msgstr ""
+msgstr "ERRO: restaurar do nível %d !?"
 
 #: src/emc/rs274ngc/interp_convert.cc:3616
 #, c-format
 msgid "BUG: restore to level %d !?"
-msgstr ""
+msgstr "ERRO: restaurar para o nível %d !?"
 
 #: src/emc/rs274ngc/interp_convert.cc:3635
 #, c-format
 msgid "M7x: restore_settings G20/G21 failed: '%s'"
-msgstr ""
+msgstr "M7x: restore_settings G20/G21 falhou: '%s'"
 
 #: src/emc/rs274ngc/interp_convert.cc:3660
 #, c-format
 msgid "M7x: restore_settings failed executing: '%s': %s"
-msgstr ""
+msgstr "M7x: restore_settings falha na execução: '%s': %s"
 
 #: src/emc/rs274ngc/interp_convert.cc:3729
 #, c-format
 msgid "Failed to restore interp state on abort '%s': %s"
-msgstr ""
+msgstr "Falha ao restaurar estado de interposição ao abortar '%s':%s"
 
 #: src/emc/rs274ngc/interp_convert.cc:3800
 msgid "Cannot set motion output with cutter radius compensation on"
@@ -575,6 +590,8 @@ msgid ""
 "Spindle ($) number out of range in M3 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
+"Número do Spindle ($) fora do alcance em M3 Command\n"
+"num_spindles =%i. $=%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:3989
 #, c-format
@@ -582,6 +599,8 @@ msgid ""
 "Spindle ($) number out of range in M4 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
+"Número do Spindle ($) fora do alcance em M4 Command\n"
+"num_spindles =%i. $=%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:4006
 #, c-format
@@ -589,18 +608,22 @@ msgid ""
 "Spindle ($) number out of range in M5 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
+"Número do Spindle ($) fora do alcance em M5 Command\n"
+"num_spindles =%i. $=%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:4027
 msgid "Spindle ($) number out of range in M19 Command"
-msgstr ""
+msgstr "Número do Spindle ($) fora do alcance em M19 Command"
 
 #: src/emc/rs274ngc/interp_convert.cc:4034
 msgid "Q word with M19 requires a value > 0"
-msgstr ""
+msgstr "Palavra Q com M19 requer um valor > 0"
 
 #: src/emc/rs274ngc/interp_convert.cc:4063
 msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
 msgstr ""
+"Não foi possível restaurar o contexto de uma estrutura de pilhas inválida - "
+"falta M70/M73?"
 
 #: src/emc/rs274ngc/interp_convert.cc:4104
 #: src/emc/rs274ngc/interp_convert.cc:4125
@@ -624,21 +647,21 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:4140
 msgid "Invalid spindle ($) number in M51 command"
-msgstr ""
+msgstr "Número do Spindle ($) inválido no comando M51"
 
 #: src/emc/rs274ngc/interp_convert.cc:4303
 #: src/emc/rs274ngc/interp_convert.cc:4304
 #: src/emc/rs274ngc/interp_convert.cc:4305
 #, c-format
 msgid "Indexing axis %c can only be moved with G0"
-msgstr ""
+msgstr "Eixo indexado %c só pode ser movido com G0"
 
 #: src/emc/rs274ngc/interp_convert.cc:4312
 #: src/emc/rs274ngc/interp_convert.cc:4314
 #: src/emc/rs274ngc/interp_convert.cc:4316
 #, c-format
 msgid "Indexing axis %c can only be moved alone"
-msgstr ""
+msgstr "Eixo indexado %c só pode ser movido sozinho"
 
 #: src/emc/rs274ngc/interp_convert.cc:4423
 #, fuzzy
@@ -653,15 +676,15 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:4505
 msgid "G10 L1 without offsets has no effect"
-msgstr ""
+msgstr "G10 L1 sem compensações não tem efeito"
 
 #: src/emc/rs274ngc/interp_convert.cc:4611
 msgid "Q number in G10 is not an integer"
-msgstr ""
+msgstr "Número Q em G10 não é um inteiro"
 
 #: src/emc/rs274ngc/interp_convert.cc:4612
 msgid "Invalid tool orientation"
-msgstr ""
+msgstr "Orientação de ferramenta Inválida"
 
 #: src/emc/rs274ngc/interp_convert.cc:4736
 msgid "I J words not allowed with G10 L2"
@@ -682,11 +705,11 @@ msgstr "Parâmetros I J não permitidos com G10 L2"
 
 #: src/emc/rs274ngc/interp_convert.cc:5111
 msgid "Bug:  Reached convert_stop() from M99 as subprogram return"
-msgstr ""
+msgstr "Erro:    Alcançado convert_stop() de M99 como retorno do subprograma"
 
 #: src/emc/rs274ngc/interp_convert.cc:5390
 msgid "Invalid spindle ($) number in G33 move"
-msgstr ""
+msgstr "Número do spindle ($) inválido no movimento G33"
 
 #: src/emc/rs274ngc/interp_convert.cc:5395
 #, fuzzy
@@ -695,7 +718,7 @@ msgstr "Spindle não está girando em G86"
 
 #: src/emc/rs274ngc/interp_convert.cc:5405
 msgid "Invalid spindle ($) number in G33.1 move"
-msgstr ""
+msgstr "Número do Spindle ($) inválido no movimento G33.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:5410
 #, fuzzy
@@ -704,7 +727,7 @@ msgstr "Spindle não está girando em G86"
 
 #: src/emc/rs274ngc/interp_convert.cc:5425
 msgid "Invalid D-number in G76 cycle"
-msgstr ""
+msgstr "D-number inválido no ciclo G76"
 
 #: src/emc/rs274ngc/interp_convert.cc:5430
 #, fuzzy, c-format
@@ -713,11 +736,11 @@ msgstr "Spindle não está girando em G86"
 
 #: src/emc/rs274ngc/interp_convert.cc:5468
 msgid "BUG: An axis incorrectly moved along with an indexer"
-msgstr ""
+msgstr "ERRO: um eixo foi movido incorretamente junto a indexador"
 
 #: src/emc/rs274ngc/interp_convert.cc:5481
 msgid "BUG: trying to index incorrect axis"
-msgstr ""
+msgstr "ERRO: tentando indexar um eixo incorreto"
 
 #: src/emc/rs274ngc/interp_convert.cc:5576
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
@@ -741,6 +764,8 @@ msgstr "Em G76, K precisa ser maior que J"
 msgid ""
 "Length of cutter compensation entry move is not greater than the tool radius"
 msgstr ""
+"O comprimento do movimento de entrada de compensação da fresa não é maior "
+"que o raio da ferramenta"
 
 #: src/emc/rs274ngc/interp_convert.cc:5945
 msgid "Zero degree inside corner is invalid for cutter compensation"
@@ -769,11 +794,11 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:6250
 msgid "G43.2: Can not have both H and axis words"
-msgstr ""
+msgstr "G43.2: Não é possível ter ambas as palavras H e eixo"
 
 #: src/emc/rs274ngc/interp_convert.cc:6253
 msgid "G43.2: No axes specified and H word missing"
-msgstr ""
+msgstr "G43.2: não há eixos especificados e palavra H faltando"
 
 #: src/emc/rs274ngc/interp_queue.cc:605
 #, c-format
@@ -781,11 +806,13 @@ msgid ""
 "BUG: cutter compensation has generated an invalid arc with mismatched radii "
 "r1 %f r2 %f\n"
 msgstr ""
+"ERRO: compensação da fresadora gerou um arco inválido com raio "
+"dessincronizado r1 %f r2 %f\n"
 
 #: src/emc/rs274ngc/interp_queue.cc:627 src/emc/rs274ngc/interp_queue.cc:649
 #: src/emc/rs274ngc/interp_queue.cc:690
 msgid "BUG: Unsupported plane in cutter compensation"
-msgstr ""
+msgstr "ERRO: plano não suportado na compensação de corte"
 
 #: src/emc/rs274ngc/interp_queue.cc:637
 msgid ""
@@ -798,7 +825,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_queue.cc:667
 #, c-format
 msgid "BUG: Unsupported plane [%d] in cutter compensation"
-msgstr ""
+msgstr "Erro: plano não suportado [%d] na compensação de corte"
 
 #: src/emc/rs274ngc/interp_queue.cc:678
 msgid ""
@@ -825,7 +852,7 @@ msgstr "Spindle não está girando em sentido horário em G84"
 #: src/emc/rs274ngc/interp_cycles.cc:283
 #, c-format
 msgid "Spindle state unknown for %s"
-msgstr ""
+msgstr "Estado do Spindle desconhecido para %s"
 
 #: src/emc/rs274ngc/interp_cycles.cc:724
 #, fuzzy
@@ -856,7 +883,7 @@ msgstr "Ciclo pré-formado G17 não é possível em máquina sem eixo Z"
 #: src/emc/rs274ngc/interp_cycles.cc:2105
 #: src/emc/rs274ngc/interp_cycles.cc:2129
 msgid "Invalid spindle ($) number in G74/G84 cycle"
-msgstr ""
+msgstr "Numero do Spindle ($) inválido no ciclo G74/G84"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1131
 msgid "G17.1 canned cycle is not possible on a machine without W axis"
@@ -876,7 +903,7 @@ msgstr "Ciclo G18 não é possível em máquina sem eixo Y"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1882
 msgid "Invalid E-number in G74/G84 cycle"
-msgstr ""
+msgstr "E-number inválido no ciclo G74/G84"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1988
 msgid "G18.1 canned cycle is not possible on a machine without V axis"
@@ -884,15 +911,15 @@ msgstr "Ciclo G18.1 não é possível em máquina sem eixo V"
 
 #: src/emc/rs274ngc/interp_execute.cc:250
 msgid "Invalid spindle ($) number in Spindle Mode command"
-msgstr ""
+msgstr "Número do Spindle ($) inválido no comando Modo Spindle"
 
 #: src/emc/rs274ngc/interp_execute.cc:260
 msgid "Invalid spindle ($) number in Spindle Feed command"
-msgstr ""
+msgstr "Número do Spindle ($) inválido no comando Alimentação do Spindle"
 
 #: src/emc/rs274ngc/interp_execute.cc:284
 msgid "Invalid spindle ($) number in Spindle speed command"
-msgstr ""
+msgstr "Número do Spindle ($) inválido no comando Velocidade do Spindle"
 
 #: src/emc/rs274ngc/interp_find.cc:174
 msgid "Cannot use polar coordinates with G53"
@@ -994,34 +1021,34 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_read.cc:2070
 msgid "Expected # reading parameter"
-msgstr ""
+msgstr "Esperado # parâmetro de leitura"
 
 #: src/emc/rs274ngc/interp_read.cc:2072
 msgid "Expected ] reading bracketed parameter"
-msgstr ""
+msgstr "esperado ] lendo parâmetro entre colchetes"
 
 #: src/emc/rs274ngc/interp_read.cc:2744
 #, c-format
 msgid "bad number format (conversion failed) parsing '%s'"
-msgstr ""
+msgstr "formato de número incorreto (conversão falhou) analisando '%s'"
 
 #: src/emc/rs274ngc/interp_read.cc:2745
 #, c-format
 msgid "bad number format (trailing characters) parsing '%s'"
-msgstr ""
+msgstr "formato de numero incorreto (caracteres à direita) analisando '%s'"
 
 #: src/emc/rs274ngc/interp_read.cc:2835
 msgid "Calculation resulted in 'not a number'"
-msgstr ""
+msgstr "O cálculo resultou em 'não é um número'"
 
 #: src/emc/rs274ngc/interp_read.cc:2837
 msgid "Calculation resulted in 'infinity'"
-msgstr ""
+msgstr "O cálculo resultou em \"infinito\""
 
 #: src/emc/rs274ngc/interp_read.cc:3130
 #, c-format
 msgid "EOF in file:%s seeking o-word: o<%s> from line: %d"
-msgstr ""
+msgstr "EOF no arquivo:%s procurando o-word: o<%s> na linha: %d"
 
 #: src/emc/rs274ngc/interp_read.cc:3242
 msgid "Multiple U words on one line"
@@ -1038,12 +1065,12 @@ msgstr "Múltiplos parâmetros W em uma linha"
 #: src/emc/rs274ngc/interp_o_word.cc:104
 #, c-format
 msgid "File:%s line:%d sub: o|%s| found in illegal location"
-msgstr ""
+msgstr "Arquivo:%s linha:%d sub:|%s| encontrado em um local não autorizado"
 
 #: src/emc/rs274ngc/interp_o_word.cc:108
 #, c-format
 msgid "File:%s line:%d redefining sub: o|%s| already defined in file:%s"
-msgstr ""
+msgstr "Arquivo:%s linha:%d redefinindo sub: o|%s| já definido no arquivo:%s"
 
 #: src/emc/rs274ngc/interp_o_word.cc:825
 #, fuzzy, c-format
@@ -1053,12 +1080,12 @@ msgstr "Não existe na definição da subrotina"
 #: src/emc/rs274ngc/interp_o_word.cc:874 src/emc/rs274ngc/interp_o_word.cc:924
 #, c-format
 msgid "%d: duplicate O-word label: '%s' - defined in line %d"
-msgstr ""
+msgstr "%d: etiqueta O-word duplicada: '%s' - definida na linha %d"
 
 #: src/emc/rs274ngc/interp_o_word.cc:977
 #, c-format
 msgid "%d: duplicate O-word label - already defined in line %d: '%s'"
-msgstr ""
+msgstr "%d: etiqueta O-word duplicada - já definida na linha %d: '%s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1001
 #: src/emc/rs274ngc/interp_o_word.cc:1059
@@ -1068,29 +1095,29 @@ msgstr ""
 #: src/emc/rs274ngc/interp_o_word.cc:1153
 #, c-format
 msgid "%d: undefined O-word label: '%s'"
-msgstr ""
+msgstr "%d: etiqueta O-word indefinida: '%s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1004
 #: src/emc/rs274ngc/interp_o_word.cc:1062
 #, c-format
 msgid "%d: no matching 'if' label: '%s' (found '%s' in line %d)"
-msgstr ""
+msgstr "%d: não coincide com a etiqueta 'if': '%s' (encontrou '%s' na linha %d)"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1096
 #, c-format
 msgid "%d: no matching label: '%s' (found '%s' in line %d): '%s'"
-msgstr ""
+msgstr "%d: etiqueta não coincide: '%s' (encontrado '%s' na linha %d): '%s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1114
 #: src/emc/rs274ngc/interp_o_word.cc:1131
 #, c-format
 msgid "%d: no matching while/do label: '%s' (found '%s' in line %d)"
-msgstr ""
+msgstr "%d: etiqueta while/do não conincide: '%s' (encontrado '%s' na linha %d)"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1157
 #, c-format
 msgid "%d: no matching label: '%s' (found '%s' in line %d)"
-msgstr ""
+msgstr "%d: etiqueta não coincide: '%s' (encontrado '%s' na linha %d)"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:185
 #, c-format
@@ -1108,14 +1135,14 @@ msgid "Named INI parameter #<%s> not found in INI file '%s': error=0x%x"
 msgstr "Parâmetro nomeado #<%s> não definido"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:257
-#, c-format
+#, c-format, fuzzy
 msgid "fetch_hal_param: hal_init(%s): %d"
-msgstr ""
+msgstr "fetch_hal_param: hal_init(%s): %d"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:258
-#, c-format
+#, c-format, fuzzy
 msgid "fetch_hal_param: hal_ready(): %d"
-msgstr ""
+msgstr "fetch_hal_param: hal_ready(): %d"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:422
 #, c-format
@@ -1125,12 +1152,12 @@ msgstr "Erro interno: impossível atribuir #<%s>"
 #: src/emc/rs274ngc/interp_namedparams.cc:430
 #, c-format
 msgid "Cannot assign to read-only parameter #<%s>"
-msgstr ""
+msgstr "Não é possível assinar o parâmetro de somente leitura #<%s>"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:791
-#, c-format
+#, c-format, fuzzy
 msgid "BUG: lookup_named_param(%s): unhandled index=%fn"
-msgstr ""
+msgstr "BUG: lookup_named_param(%s): unhandled index=%fn"
 
 #: src/emc/rs274ngc/rs274ngc_pre.cc:1452 src/emc/rs274ngc/rs274ngc_pre.cc:1527
 msgid "Queue is not empty after tool change"
@@ -1143,7 +1170,7 @@ msgstr "Impossível abrir arquivo"
 
 #: src/emc/rs274ngc/rs274ngc_pre.cc:2514
 msgid "Parameter file name is missing"
-msgstr ""
+msgstr "Nome do arquivo de parâmetro está faltando"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:19
 msgid "A file is already open"
@@ -1188,83 +1215,83 @@ msgstr "Formato de número inválido"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:30
 msgid "Bug bad g code modal group 0"
-msgstr ""
+msgstr "Erro de código no grupo modal 0"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:31
 msgid "Bug code not g0 or g1"
-msgstr ""
+msgstr "Erro: código sem g0 ou g1"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:32
 msgid "Bug code not g17 g18 or g19"
-msgstr ""
+msgstr "Erro: código sem g17 g18 ou g19"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:33
 msgid "Bug code not g20 or g21"
-msgstr ""
+msgstr "Erro: código sem g20 ou g21"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:34
 msgid "Bug code not g28 or g30"
-msgstr ""
+msgstr "Erro: código sem g28 ou g30"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:35
 msgid "Bug code not g2 or g3"
-msgstr ""
+msgstr "Erro: código sem g2 ou g3"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:37
 msgid "Bug code not g4 g10 g28 g30 g52 g53 or g92 series"
-msgstr ""
+msgstr "Erro: código sem g4 g10 g28 g30 g52 g53 ou g92"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:38
 msgid "Bug code not g61 g61.1 or g64"
-msgstr ""
+msgstr "Erro: código sem g61.1 ou g64"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:39
 msgid "Bug code not g90 or g91"
-msgstr ""
+msgstr "Erro: código sem g90 ou g91"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:40
 msgid "Bug code not g98 or g99"
-msgstr ""
+msgstr "Erro: código sem g98 ou g99"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:41
 msgid "Bug code not in g52 or g92 series"
-msgstr ""
+msgstr "Erro: sem código nas séries g52 ou g92"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:42
 msgid "Bug code not in range g54 to g593"
-msgstr ""
+msgstr "Erro: sem código entre g54 a g593"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:43
 msgid "Bug code not m0 m1 m2 m30 m60 m99"
-msgstr ""
+msgstr "Erro: sem código m0 m1 m2 m30 m60 m99"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:44
 msgid "Bug distance mode not g90 or g91"
-msgstr ""
+msgstr "Erro: modo distância sem g90 ou g91"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:45
 msgid "Bug function should not have been called"
-msgstr ""
+msgstr "Erro: função não deveria ser chamada"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:46
 msgid "Bug in tool radius comp"
-msgstr ""
+msgstr "Erro no raio da ferramenta de compensação"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:47
 msgid "Bug plane not xy yz or xz"
-msgstr ""
+msgstr "Erro: plano sem xy yz ou xz"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:48
 msgid "Bug side not right or left"
-msgstr ""
+msgstr "Erro: lado nem direito nem esquerdo"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:49
 msgid "Bug unknown motion code"
-msgstr ""
+msgstr "Erro: código de movimento desconhecido"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:50
 msgid "Bug unknown operation"
-msgstr ""
+msgstr "Erro: operação desconhecida"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:51
 msgid "Cannot change axis offsets with cutter radius comp"
@@ -1828,7 +1855,7 @@ msgstr "Número de níveis de subrotina muito grande"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:187
 msgid "Bug: call stack underrun"
-msgstr ""
+msgstr "Erro: pilha de chamadas insuficiente"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:188
 msgid "Unknown control command in o word"
@@ -1858,7 +1885,7 @@ msgstr "Arquivo não aberto"
 #: src/emc/rs274ngc/rs274ngc_return.hh:194
 #, c-format
 msgid "cannot reopen file %s - removed or renamed? (%s)"
-msgstr ""
+msgstr "não é possível reabrir o arquivo %s - removido ou renomeado? (%s)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:195
 msgid "Need tool prepared -Txx- for toolchange"
@@ -2139,8 +2166,9 @@ msgid "Zoom"
 msgstr "Aproxima zoom [+]"
 
 #: src/hal/utils/scope_horiz.c:140
+#, fuzzy
 msgid " Pos "
-msgstr ""
+msgstr " Pos "
 
 #: src/hal/utils/scope_horiz.c:175
 #, fuzzy
@@ -2168,6 +2196,17 @@ msgid ""
 "or\n"
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
+"HALSCOPE utiliza um componente em tempo real chamado scope_rt'\n"
+"para mostrar sinais em sua visualização. Não está carregado e a\n"
+"tentativa de carrega-lo falhou automaticamente. Mais informações\n"
+"podem estar disponíveis no terminal onde halscope foi iniciado.\n"
+"\n"
+"Por favor, faça uma das seguintes ações:\n"
+"\n"
+"Carregue o componente (utilizando 'halcmd loadrt scope_rt'), então clique "
+"'OK'\n"
+"ou\n"
+"Clique em 'Sair' para sair do HALSCOPE"
 
 #: src/hal/utils/scope_horiz.c:485 src/hal/utils/scope_horiz.c:762
 #: tcl/bin/emccalib.tcl:276 tcl/bin/emcdebug.tcl:201 tcl/bin/genedit.tcl:180
@@ -2236,8 +2275,9 @@ msgid "_OK"
 msgstr "OK"
 
 #: src/hal/utils/scope_horiz.c:555
+#, fuzzy
 msgid "Thread:"
-msgstr ""
+msgstr "Thread:"
 
 #: src/hal/utils/scope_horiz.c:564
 #, fuzzy
@@ -2251,8 +2291,9 @@ msgstr "Taxa de amostragem:"
 
 #: src/hal/utils/scope_horiz.c:589 src/emc/usr_intf/touchy/mdi.py:83
 #: src/emc/usr_intf/gscreen/mdi.py:78
+#, fuzzy
 msgid "Thread"
-msgstr ""
+msgstr "Thread"
 
 #: src/hal/utils/scope_horiz.c:590
 msgid "Period"
@@ -2316,7 +2357,7 @@ msgstr "Número de canais insuficiente"
 
 #: src/hal/utils/scope_horiz.c:796
 msgid "You need to choose at least one channel."
-msgstr ""
+msgstr "Você precisa escolher ao menos um canal."
 
 #: src/hal/utils/scope_horiz.c:806
 msgid "Pick log file to write to:"
@@ -2332,6 +2373,9 @@ msgid ""
 "that are currently enabled.  Pick a shorter\n"
 "record length that supports more channels."
 msgstr ""
+"O comprimento de registro não pode lidar com os canais\n"
+"que estão atualmente habilitados.    Estabeleça um comprimento\n"
+"de gravação que suporte mais canais."
 
 #: src/hal/utils/scope_horiz.c:1067
 #, c-format
@@ -2360,15 +2404,15 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:470
 #: src/emc/usr_intf/pncconf/base.glade:385
 msgid "ns"
-msgstr ""
+msgstr "ns"
 
 #: src/hal/utils/scope_horiz.c:1189
 msgid "µs"
-msgstr ""
+msgstr "µs"
 
 #: src/hal/utils/scope_horiz.c:1193
 msgid "ms"
-msgstr ""
+msgstr "ms"
 
 #: src/hal/utils/scope_horiz.c:1197 src/emc/usr_intf/stepconf/axisx.glade:345
 #: src/emc/usr_intf/stepconf/axisy.glade:343
@@ -2377,7 +2421,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisv.glade:345
 #: src/emc/usr_intf/stepconf/axisa.glade:343
 msgid "s"
-msgstr ""
+msgstr "s"
 
 #: src/hal/utils/scope_horiz.c:1214 src/emc/usr_intf/stepconf/spindle.glade:112
 #: src/emc/usr_intf/stepconf/axisx.glade:359
@@ -2393,15 +2437,15 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:443
 #: src/emc/usr_intf/pncconf/mesa1.glade:456
 msgid "Hz"
-msgstr ""
+msgstr "Hz"
 
 #: src/hal/utils/scope_horiz.c:1217
 msgid "kHz"
-msgstr ""
+msgstr "kHz"
 
 #: src/hal/utils/scope_horiz.c:1221
 msgid "MHz"
-msgstr ""
+msgstr "MHz"
 
 #: src/hal/utils/scope_vert.c:413 src/hal/utils/scope_vert.c:1117
 #, c-format
@@ -2409,6 +2453,8 @@ msgid ""
 "Offset\n"
 "%s"
 msgstr ""
+"Offset\n"
+"%s"
 
 #: src/hal/utils/scope_vert.c:602
 #, fuzzy
@@ -2416,8 +2462,9 @@ msgid "Gain"
 msgstr "Ganho"
 
 #: src/hal/utils/scope_vert.c:615 src/hal/utils/scope_trig.c:257
+#, fuzzy
 msgid "Pos"
-msgstr ""
+msgstr "Pos"
 
 #: src/hal/utils/scope_vert.c:630 tcl/ngcgui_ttt.tcl:215
 #: src/emc/usr_intf/pncconf/x_motor.glade:1672
@@ -2435,6 +2482,8 @@ msgid ""
 "Offset\n"
 "----"
 msgstr ""
+"Offset\n"
+"----"
 
 #: src/hal/utils/scope_vert.c:693
 #, c-format
@@ -2451,7 +2500,7 @@ msgstr "Alterar Offset"
 
 #: src/hal/utils/scope_vert.c:716
 msgid "AC Coupled"
-msgstr ""
+msgstr "AC acoplado"
 
 #: src/hal/utils/scope_vert.c:819
 #, fuzzy
@@ -2495,7 +2544,7 @@ msgstr "Descendo"
 #: src/hal/utils/scope_trig.c:117 src/hal/utils/scope_trig.c:281
 #, c-format
 msgid "Rising"
-msgstr ""
+msgstr "Subindo"
 
 #: src/hal/utils/scope_trig.c:124 src/hal/utils/scope_trig.c:289
 msgid ""
@@ -2517,7 +2566,7 @@ msgstr ""
 #: src/hal/utils/scope_trig.c:203 tcl/tklinuxcnc.tcl:856
 #: src/emc/usr_intf/touchy/touchy.glade:2443
 msgid "Auto"
-msgstr ""
+msgstr "Auto"
 
 #: src/hal/utils/scope_trig.c:205
 msgid "Force"
@@ -2605,16 +2654,18 @@ msgstr "erro de cálculo de movimentação no eixo %d"
 #: src/emc/motion/control.c:843
 #, c-format
 msgid "Motion Stopped by misc error %d"
-msgstr ""
+msgstr "Movimento parou por erro miscelâneo %d"
 
 #: src/emc/motion/control.c:1346 src/emc/motion/control.c:1406
 #, c-format
 msgid "kinematicsInverse gave non-finite joint location on joint %d"
 msgstr ""
+"kinematicsInverse retornou uma posição de articulação não finita na "
+"articulação %d"
 
 #: src/emc/motion/control.c:1363 src/emc/motion/control.c:1425
 msgid "kinematicsInverse failed"
-msgstr ""
+msgstr "kinematicsInverse falhou"
 
 #: src/emc/motion/control.c:1502
 #, fuzzy, c-format
@@ -2630,6 +2681,8 @@ msgstr ""
 #: src/emc/motion/control.c:1507 src/emc/motion/control.c:1516
 msgid "Hint: switch to joint mode to jog off soft limit"
 msgstr ""
+"Dica: mude para o modo de articulação para permitir o comando depois do "
+"limite de software"
 
 #: src/emc/motion/control.c:1511
 #, fuzzy, c-format
@@ -2679,12 +2732,13 @@ msgstr "Positivo"
 #: src/emc/motion/command.c:239
 #, c-format
 msgid "%s move on line %d fails kinematicsInverse"
-msgstr ""
+msgstr "%s movimento na linha %d falha no kinematicsInverse"
 
 #: src/emc/motion/command.c:254
 #, c-format
 msgid "%s move on line %d gave non-finite joint location on joint %d"
 msgstr ""
+"O movimento %s na linha %d retornou uma posição não finita na articulação %d"
 
 #: src/emc/motion/command.c:261
 #, c-format
@@ -2709,7 +2763,7 @@ msgstr "Impossível efetuar jog no eixo quando não habilitado"
 #: src/emc/motion/command.c:782 src/emc/motion/command.c:850
 #: src/emc/motion/command.c:929
 msgid "Cannot jog while jog-inhibit is active."
-msgstr ""
+msgstr "Não se pode avançar enquanto a inibição estiver ativa."
 
 #: src/emc/motion/command.c:786 src/emc/motion/command.c:933
 msgid "Can't jog any joints while homing."
@@ -2728,7 +2782,7 @@ msgstr "precisa estar habilitado, no modo coordenado, para movimento linear"
 
 #: src/emc/motion/command.c:1003
 msgid "invalid params in linear command"
-msgstr ""
+msgstr "parâmetros inválidos no comando linear"
 
 #: src/emc/motion/command.c:1009
 msgid "can't do linear move with limits exceeded"
@@ -2768,7 +2822,7 @@ msgstr "precisa estar em modo JOINT para efetuar processo de homing"
 #: src/emc/motion/command.c:1360
 #, c-format
 msgid "Homing denied by motion.homing-inhibit joint=%d\n"
-msgstr ""
+msgstr "Posição de origem negada per motion.homing-inhibit joint=%d\n"
 
 #: src/emc/motion/command.c:1380
 msgid "must be in joint mode or disabled to unhome"
@@ -2814,22 +2868,22 @@ msgstr "Tentativa de calcular potência não inteira de um número negativo"
 
 #: src/emc/motion/command.c:1561
 msgid "Attempt to start non-existent spindle"
-msgstr ""
+msgstr "Tentativa de iniciar spindle não existente"
 
 #: src/emc/motion/command.c:1612
 #, c-format
 msgid "Attempt to stop non-existent spindle <%d>"
-msgstr ""
+msgstr "Tentativa de parar um spindle não existente <%d>"
 
 #: src/emc/motion/command.c:1643
 #, c-format
 msgid "Attempt to orient non-existent spindle <%d>"
-msgstr ""
+msgstr "Tentativa de orientar um spindle não existente <%d>"
 
 #: src/emc/motion/command.c:1689
 #, c-format
 msgid "Attempt to increase non-existent spindle <%d>"
-msgstr ""
+msgstr "Tentativa de aumentar um spindle não existente <%d>"
 
 #: src/emc/motion/command.c:1713
 #, fuzzy, c-format
@@ -2839,7 +2893,7 @@ msgstr "Tentativa de calcular potência não inteira de um número negativo"
 #: src/emc/motion/command.c:1737
 #, c-format
 msgid "Attempt to engage brake of non-existent spindle <%d>"
-msgstr ""
+msgstr "Tentativa de ativar o freio de um spindle inexistente <%d>"
 
 #: src/emc/motion/command.c:1759
 #, fuzzy, c-format
@@ -2891,6 +2945,9 @@ msgid ""
 "MOTION: nonzero num_extrajoints requires KINEMATICS_BOTH\n"
 "\n"
 msgstr ""
+"\n"
+"MOVIMENTO: nonzero num_extrajoints requer KINEMATICS_BOTH\n"
+"\n"
 
 #: src/emc/motion/motion.c:292
 #, c-format
@@ -2901,6 +2958,11 @@ msgid ""
 "           Total joints=%2d\n"
 "\n"
 msgstr ""
+"\n"
+"Movimento: kinematicjoints=%2d\n"
+"            extrajoints=%2d\n"
+"           Total joints=%2d\n"
+"\n"
 
 #: src/emc/motion/motion.c:299
 #, fuzzy, c-format
@@ -2910,6 +2972,8 @@ msgstr "MOTION: num_joints é %d, precisa ser entre 1 e %d\n"
 #: src/emc/motion/motion.c:306
 msgid "MOTION: Can't specify both names and number for digital pins\n"
 msgstr ""
+"Movimento: não foi possível especificar os nomes e os números dos pinos "
+"digitais\n"
 
 #: src/emc/motion/motion.c:320
 #, c-format
@@ -2919,6 +2983,8 @@ msgstr "MOTION: num_dio é %d, precisa ser entre 1 e %d\n"
 #: src/emc/motion/motion.c:326
 msgid "MOTION: Can't specify both names and number for analog pins\n"
 msgstr ""
+"Movimento: não foi possível especificar os nomes e o numero de um pino "
+"analógico\n"
 
 #: src/emc/motion/motion.c:339
 #, c-format
@@ -2928,6 +2994,7 @@ msgstr "MOTION: num_aio é %d, precisa ser entre 1 e %d\n"
 #: src/emc/motion/motion.c:345
 msgid "MOTION: Can't specify both names and number for misc error\n"
 msgstr ""
+"Movimento: não foi possível especificar o nome e o número do erro diverso\n"
 
 #: src/emc/motion/motion.c:358
 #, fuzzy, c-format
@@ -3028,7 +3095,7 @@ msgstr "Impossível efetuar jog no eixo quando não habilitado"
 #: src/emc/motion/homing.c:366
 #, c-format
 msgid "homing.c Unexpected joint=%d jseq=%d current_seq=%d\n"
-msgstr ""
+msgstr "homing.c Inesperado joint=%d jseq=%d current_seq=%d\n"
 
 #: src/emc/motion/homing.c:482
 #, c-format
@@ -3110,50 +3177,55 @@ msgstr "Estado desconhecido durante sequência de homing: %d"
 #, c-format
 msgid "ERROR CLASSICLADDER-   Error initializing classicladder user module.\n"
 msgstr ""
+"ERROR CLASSICLADDER-   Erro iniciando o modulo de usuário classicladder.\n"
 
 #: src/hal/classicladder/classicladder.c:221
 msgid "Stopped program - press run button to continue."
-msgstr ""
+msgstr "Programa parou - pressione o botão executar para continuar."
 
 #: src/hal/classicladder/classicladder.c:231
 msgid "Started program - press stop to pause."
-msgstr ""
+msgstr "Programa iniciado - pressione parar para pausar."
 
 #: src/hal/classicladder/classicladder.c:286
 msgid ""
 "INFO CLASSICLADDER-   No ladder GUI requested-Realtime runs till HAL "
 "closes.\n"
 msgstr ""
+"INFO CLASSICLADDER-   Nenhuma Ladder GUI solicitada-Tempo real é executado "
+"até que o HAL seja fechado.\n"
 
 #: src/hal/classicladder/classicladder.c:306
 msgid "Project loaded and running"
-msgstr ""
+msgstr "Projeto carregado e executando"
 
 #: src/hal/classicladder/classicladder.c:306
 #: src/hal/classicladder/classicladder_gtk.c:500
 msgid "Project failed to load..."
-msgstr ""
+msgstr "Falha no carregamento do projeto..."
 
 #: src/hal/classicladder/classicladder.c:317
 msgid "GUI reloaded with existing ladder program"
-msgstr ""
+msgstr "GUI recarregada com o programa Ladder existente"
 
 #: src/hal/classicladder/classicladder.c:325
 msgid ""
 "INFO CLASSICLADDER-   Ladder GUI closed. Realtime runs till HAL closes\n"
 msgstr ""
+"INFO CLASSICLADDER-   Ladder GUI encerrada. Tempo real executando até que "
+"HAL seja fechado\n"
 
 #: src/hal/classicladder/classicladder.c:331
 msgid "ERROR CLASSICLADDER-   Ladder memory allocation error\n"
-msgstr ""
+msgstr "ERROR CLASSICLADDER-   Erro na alocação de memória ladder\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:496
 msgid "Load Error"
-msgstr ""
+msgstr "Erro na leitura"
 
 #: src/hal/classicladder/classicladder_gtk.c:496
 msgid "Failed to load the project file..."
-msgstr ""
+msgstr "Falha ao carregar o arquivo do projeto..."
 
 #: src/hal/classicladder/classicladder_gtk.c:496
 #: src/hal/classicladder/classicladder_gtk.c:511
@@ -3166,11 +3238,11 @@ msgstr ""
 #: src/hal/classicladder/manager_gtk.c:466
 #: src/emc/usr_intf/axis/scripts/axis.py:1603
 msgid "Ok"
-msgstr ""
+msgstr "Ok"
 
 #: src/hal/classicladder/classicladder_gtk.c:500
 msgid "Project loaded (stopped)."
-msgstr ""
+msgstr "Projeto carregado (parou)."
 
 #: src/hal/classicladder/classicladder_gtk.c:511
 #: src/hal/classicladder/classicladder_gtk.c:519
@@ -3181,59 +3253,61 @@ msgstr "Erro do AXIS"
 #: src/hal/classicladder/classicladder_gtk.c:511
 #: src/hal/classicladder/classicladder_gtk.c:519
 msgid "Failed to save the project file..."
-msgstr ""
+msgstr "Falha ao gravar o arquivo do projeto..."
 
 #: src/hal/classicladder/classicladder_gtk.c:525
 #, c-format
 msgid "SAVE %s %d\n"
-msgstr ""
+msgstr "Guardar %s %d\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:533
 #, c-format
 msgid "LOAD %s %d\n"
-msgstr ""
+msgstr "Carregar %s %d\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:561
 msgid "Old directories projects"
-msgstr ""
+msgstr "Diretório de projetos antigos"
 
 #: src/hal/classicladder/classicladder_gtk.c:565
 msgid "ClassicLadder projects"
-msgstr ""
+msgstr "Projetos ClassicLadder"
 
 #: src/hal/classicladder/classicladder_gtk.c:609
 #: src/hal/classicladder/classicladder_gtk.c:1059
 #: src/hal/classicladder/manager_gtk.c:315 tcl/bin/genedit.tcl:78
 msgid "New"
-msgstr ""
+msgstr "Novo"
 
 #: src/hal/classicladder/classicladder_gtk.c:609
 msgid "Do you really want to clear all data ?"
-msgstr ""
+msgstr "Você realmente deseja limpar todos os dados?"
 
 #: src/hal/classicladder/classicladder_gtk.c:613
 msgid "Please select the project to load"
-msgstr ""
+msgstr "Por favor, selecione um projeto para carregar"
 
 #: src/hal/classicladder/classicladder_gtk.c:619
 msgid "Sure?"
-msgstr ""
+msgstr "Certeza?"
 
 #: src/hal/classicladder/classicladder_gtk.c:619
 msgid ""
 "Do you really want to load another project ?\n"
 "If not saved, all modifications on the current project will be lost  \n"
 msgstr ""
+"Você realmente deseja carregar outro projeto?\n"
+"Se não for salvo, todas as modificações do atual projeto serão perdidas    \n"
 
 #: src/hal/classicladder/classicladder_gtk.c:626
 msgid "Please select the project to save"
-msgstr ""
+msgstr "Por favor, selecione o projeto para guardar"
 
 #: src/hal/classicladder/classicladder_gtk.c:632
 #: src/hal/classicladder/classicladder_gtk.c:904
 #: src/hal/classicladder/classicladder_gtk.c:910
 msgid "Warning!"
-msgstr ""
+msgstr "Atenção!"
 
 #: src/hal/classicladder/classicladder_gtk.c:632
 msgid ""
@@ -3241,18 +3315,21 @@ msgid ""
 "can cause unexpected behavior\n"
 " Do you really want to reset?"
 msgstr ""
+"Reiniciar um programa em execução\n"
+"pode causar um comportamento inesperado\n"
+"Você realmente deseja reiniciar?"
 
 #: src/hal/classicladder/classicladder_gtk.c:651
 msgid "Reset logic data - Now running."
-msgstr ""
+msgstr "Reiniciar dados lógicos - Executando agora."
 
 #: src/hal/classicladder/classicladder_gtk.c:651
 msgid "Reset logic data done."
-msgstr ""
+msgstr "Reinicialização de dados lógicos feita."
 
 #: src/hal/classicladder/classicladder_gtk.c:709
 msgid "About ClassicLadder"
-msgstr ""
+msgstr "Sobre ClassicLadder"
 
 #: src/hal/classicladder/classicladder_gtk.c:766
 #, fuzzy
@@ -3269,7 +3346,7 @@ msgstr "_Arquivo"
 #: src/hal/classicladder/edit.c:416 tcl/bin/halshow.tcl:101
 #: tcl/tklinuxcnc.tcl:1885 tcl/tooledit.tcl:937
 msgid "Error"
-msgstr ""
+msgstr "Erro"
 
 #: src/hal/classicladder/classicladder_gtk.c:856 tcl/bin/pickconfig.tcl:625
 #: src/emc/usr_intf/axis/scripts/axis.py:155
@@ -3287,7 +3364,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_axis.glade:33
 #: src/emc/usr_intf/pncconf/a_axis.glade:33
 msgid "Yes"
-msgstr ""
+msgstr "Sim"
 
 #: src/hal/classicladder/classicladder_gtk.c:857
 #: src/emc/usr_intf/axis/scripts/axis.py:155
@@ -3312,20 +3389,24 @@ msgid ""
 "If not saved, all modifications will be lost.\n"
 "Do you really want to quit ?\n"
 msgstr ""
+"Se não foi salvo, todas as modificações serão perdidas.\n"
+"Você realmente deseja sair?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:908
 msgid "Confirm!"
-msgstr ""
+msgstr "Confirmar!"
 
 #: src/hal/classicladder/classicladder_gtk.c:908
 msgid "Do you really want to quit ?\n"
-msgstr ""
+msgstr "Você realmente deseja sair?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:910
 msgid ""
 "MODBUS will stop if you quit.\n"
 " Do you really want to quit ?\n"
 msgstr ""
+"MODBUS será parado se você sair.\n"
+"Você realmente deseja sair?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:943
 #, fuzzy
@@ -3334,11 +3415,11 @@ msgstr "Selecione o item para exibir"
 
 #: src/hal/classicladder/classicladder_gtk.c:971
 msgid "Label of the current selected rung"
-msgstr ""
+msgstr "Etiqueta do atual rung selecionado"
 
 #: src/hal/classicladder/classicladder_gtk.c:980
 msgid "Comment of the current selected ladder rung or sequential page"
-msgstr ""
+msgstr "Comentário do atual Ladder Rung selecionado ou página sequencial"
 
 #: src/hal/classicladder/classicladder_gtk.c:983
 #, fuzzy
@@ -3352,17 +3433,17 @@ msgstr "Mostra _limites"
 
 #: src/hal/classicladder/classicladder_gtk.c:1064
 msgid "Load"
-msgstr ""
+msgstr "Carregar"
 
 #: src/hal/classicladder/classicladder_gtk.c:1069 tcl/bin/emccalib.tcl:123
 #: tcl/bin/genedit.tcl:82 tcl/bin/halconfig.tcl:155
 #: src/emc/usr_intf/axis/scripts/axis.py:2313
 msgid "Save"
-msgstr ""
+msgstr "Salvar"
 
 #: src/hal/classicladder/classicladder_gtk.c:1074
 msgid "Save As"
-msgstr ""
+msgstr "Salvar como"
 
 #: src/hal/classicladder/classicladder_gtk.c:1079 tcl/tklinuxcnc.tcl:761
 #, fuzzy
@@ -3371,7 +3452,7 @@ msgstr "_Retomar"
 
 #: src/hal/classicladder/classicladder_gtk.c:1089
 msgid "Vars"
-msgstr ""
+msgstr "Variáveis"
 
 #: src/hal/classicladder/classicladder_gtk.c:1099 tcl/bin/halconfig.tcl:194
 #: src/emc/usr_intf/pncconf/help.glade:511
@@ -3383,16 +3464,16 @@ msgstr "Sobre o AXIS"
 #: src/hal/classicladder/edit_gtk.c:470
 #: src/emc/usr_intf/pncconf/screen.glade:839
 msgid "Editor"
-msgstr ""
+msgstr "Editor"
 
 #: src/hal/classicladder/classicladder_gtk.c:1110
 msgid "Symbols"
-msgstr ""
+msgstr "Símbolos"
 
 #: src/hal/classicladder/classicladder_gtk.c:1115
 #: src/hal/classicladder/config_gtk.c:1070
 msgid "Config"
-msgstr ""
+msgstr "Configuração"
 
 #: src/hal/classicladder/classicladder_gtk.c:1137 share/axis/tcl/axis.tcl:1301
 #, fuzzy
@@ -3401,20 +3482,20 @@ msgstr "Vista lateral"
 
 #: src/hal/classicladder/classicladder_gtk.c:1142
 msgid "Print"
-msgstr ""
+msgstr "Imprimir"
 
 #: src/hal/classicladder/classicladder_gtk.c:1213
 #, c-format
 msgid "%d µs"
-msgstr ""
+msgstr "%d µs"
 
 #: src/hal/classicladder/classicladder_gtk.c:1270
 msgid "Config hardware error occurred!"
-msgstr ""
+msgstr "Erro na configuração do hardware!"
 
 #: src/hal/classicladder/classicladder_gtk.c:1294
 msgid "Failed MODBUS communications"
-msgstr ""
+msgstr "Comunicação do MODBUS falhou"
 
 #: src/hal/classicladder/classicladder_gtk.c:1320
 #, fuzzy, c-format
@@ -3424,7 +3505,7 @@ msgstr "Selecione o item para exibir"
 #: src/hal/classicladder/config_gtk.c:122
 #, c-format
 msgid "Rung Refresh Rate (milliseconds)"
-msgstr ""
+msgstr "Taxa de atualização Rung (milissegundos)"
 
 #: src/hal/classicladder/config_gtk.c:127
 #, fuzzy, c-format
@@ -3454,12 +3535,12 @@ msgstr "Número de canais insuficiente"
 #: src/hal/classicladder/config_gtk.c:147
 #, c-format
 msgid "Number of BIT Inputs HAL pins"
-msgstr ""
+msgstr "Número de pinos HAL em entradas BIT"
 
 #: src/hal/classicladder/config_gtk.c:151
 #, c-format
 msgid "Number of BIT Outputs HAL pins"
-msgstr ""
+msgstr "Numero de pinos HAL de saídas BIT"
 
 #: src/hal/classicladder/config_gtk.c:155
 #, fuzzy, c-format
@@ -3518,11 +3599,11 @@ msgstr "Recarrega Código G [Control-R]"
 
 #: src/hal/classicladder/config_gtk.c:327
 msgid "1st %I mapped"
-msgstr ""
+msgstr "1a %I mapeado"
 
 #: src/hal/classicladder/config_gtk.c:327
 msgid "1st %Q mapped"
-msgstr ""
+msgstr "1a %Q mapeada"
 
 #: src/hal/classicladder/config_gtk.c:367
 #: src/hal/classicladder/config_gtk.c:566
@@ -3536,15 +3617,17 @@ msgid ""
 "Error in I/O modbus conf: overflow for I,Q,B,IQ, or WQ mapping detected..."
 "ASKED=%i,MAX=%i\n"
 msgstr ""
+"Erro na configuração I/O do modbus: desdobramento do mapeamento para "
+"I,Q,B,IQ, or WQ detectado...ASKED=%i,MAX=%i\n"
 
 #: src/hal/classicladder/config_gtk.c:664
 msgid "Overflow error for I,Q,B,IQ,WQ or W mapping detected..."
-msgstr ""
+msgstr "Erro no desdobramento do mapeamento de I,Q,B,IQ,WQ ou W detectado..."
 
 #: src/hal/classicladder/config_gtk.c:745
 #, c-format
 msgid "Serial port (blank = IP mode)"
-msgstr ""
+msgstr "Porta serial (branco = modo IP)"
 
 #: src/hal/classicladder/config_gtk.c:749
 #, fuzzy, c-format
@@ -3564,114 +3647,117 @@ msgstr "Recarrega o programa"
 #: src/hal/classicladder/config_gtk.c:761
 #, c-format
 msgid "Serial stop bits"
-msgstr ""
+msgstr "Bits de porta serial"
 
 #: src/hal/classicladder/config_gtk.c:765
 #, c-format
 msgid "After transmit pause - milliseconds"
-msgstr ""
+msgstr "Pausa após transmissão - milissegundos"
 
 #: src/hal/classicladder/config_gtk.c:769
 #, c-format
 msgid "After receive pause - milliseconds"
-msgstr ""
+msgstr "Pausa após recebimento - milissegundos"
 
 #: src/hal/classicladder/config_gtk.c:773
 #, c-format
 msgid "Request Timeout length - milliseconds"
-msgstr ""
+msgstr "Tempo de espera da solicitação - milissegundos"
 
 #: src/hal/classicladder/config_gtk.c:777
 #, c-format
 msgid "Use RTS to send"
-msgstr ""
+msgstr "Use RTS para enviar"
 
 #: src/hal/classicladder/config_gtk.c:781
 #, c-format
 msgid "Modbus element offset"
-msgstr ""
+msgstr "Offset do elemento Modbus"
 
 #: src/hal/classicladder/config_gtk.c:785
 #, c-format
 msgid "Debug level"
-msgstr ""
+msgstr "Nível de depuração"
 
 #: src/hal/classicladder/config_gtk.c:786
 msgid "QUIET"
-msgstr ""
+msgstr "SILENCIOSO"
 
 #: src/hal/classicladder/config_gtk.c:786
 msgid "LEVEL"
-msgstr ""
+msgstr "NÍVEL"
 
 #: src/hal/classicladder/config_gtk.c:786
 msgid "VERBOSE"
-msgstr ""
+msgstr "VERBOSO"
 
 #: src/hal/classicladder/config_gtk.c:789
 #, c-format
 msgid "Read inputs map to"
-msgstr ""
+msgstr "Entradas de leitura mapeia para"
 
 #: src/hal/classicladder/config_gtk.c:793
 #, c-format
 msgid "Read Coils/inputs map to"
-msgstr ""
+msgstr "Leitura de Bobinas/entradas em"
 
 #: src/hal/classicladder/config_gtk.c:797
 #, c-format
 msgid "Write Coils map from"
-msgstr ""
+msgstr "Escrever mapa de bobinas de"
 
 #: src/hal/classicladder/config_gtk.c:801
 #, c-format
 msgid "Read input registers map to"
-msgstr ""
+msgstr "Registros de entrada de leitura mapeiam para"
 
 #: src/hal/classicladder/config_gtk.c:805
 #, c-format
 msgid "Read register/holding map to"
-msgstr ""
+msgstr "Leitura de registro/retenção em"
 
 #: src/hal/classicladder/config_gtk.c:809
 #, c-format
 msgid "Write hold registers map from"
-msgstr ""
+msgstr "Registros de retenção de escritura atribuídos de"
 
 #: src/hal/classicladder/config_gtk.c:1075
 msgid "Period/object info"
-msgstr ""
+msgstr "Informação de Período/Objeto"
 
 #: src/hal/classicladder/config_gtk.c:1084
 msgid "Modbus communication setup"
-msgstr ""
+msgstr "Configuração da comunicação Modbus"
 
 #: src/hal/classicladder/config_gtk.c:1086
 msgid "Modbus I/O register setup"
-msgstr ""
+msgstr "Configuração do registro I/O Modbus"
 
 #: src/hal/classicladder/edit.c:149 src/hal/classicladder/edit_sequential.c:72
 msgid "Variable"
-msgstr ""
+msgstr "Variável"
 
 #: src/hal/classicladder/edit.c:152
+#, fuzzy
 msgid "JumpToLabel"
-msgstr ""
+msgstr "JumpToLabel"
 
 #: src/hal/classicladder/edit.c:156
 msgid "Sub-Routine"
-msgstr ""
+msgstr "Sub-rotina"
 
 #: src/hal/classicladder/edit.c:162 src/hal/classicladder/edit.c:188
+#, fuzzy
 msgid "TimerNbr"
-msgstr ""
+msgstr "TimerNbr"
 
 #: src/hal/classicladder/edit.c:164 src/hal/classicladder/edit.c:173
 #: src/hal/classicladder/edit.c:190
 #: src/hal/classicladder/editproperties_gtk.c:77
 #: src/hal/classicladder/editproperties_gtk.c:136
+#, fuzzy
 msgid "Base"
-msgstr ""
+msgstr "Base"
 
 #: src/hal/classicladder/edit.c:166 src/hal/classicladder/edit.c:175
 #: src/hal/classicladder/edit.c:183 src/hal/classicladder/edit.c:192
@@ -3681,12 +3767,14 @@ msgid "Preset"
 msgstr "_Retomar"
 
 #: src/hal/classicladder/edit.c:171
+#, fuzzy
 msgid "MonostNbr"
-msgstr ""
+msgstr "MonostNbr"
 
 #: src/hal/classicladder/edit.c:181
+#, fuzzy
 msgid "CounterNbr"
-msgstr ""
+msgstr "CounterNbr"
 
 #: src/hal/classicladder/edit.c:194
 #: src/hal/classicladder/editproperties_gtk.c:89
@@ -3703,51 +3791,51 @@ msgstr "Expressão não fechada"
 #: src/hal/classicladder/edit.c:229
 #, c-format
 msgid "Variable: %s    Hal sig: %s"
-msgstr ""
+msgstr "Variável: %s    Hal sig: %s"
 
 #: src/hal/classicladder/edit.c:235
 #, c-format
 msgid "Label: %s"
-msgstr ""
+msgstr "Etiqueta: %s"
 
 #: src/hal/classicladder/edit.c:238
 #, c-format
 msgid "Sub-Routine: %d"
-msgstr ""
+msgstr "Sub-rotina: %d"
 
 #: src/hal/classicladder/edit.c:243
-#, c-format
+#, c-format, fuzzy
 msgid "%cT%d: Preset=%d Base=%s"
-msgstr ""
+msgstr "%cT%d: Preset=%d Base=%s"
 
 #: src/hal/classicladder/edit.c:247
-#, c-format
+#, c-format, fuzzy
 msgid "%cM%d: Preset=%d Base=%s"
-msgstr ""
+msgstr "%cM%d: Preset=%d Base=%s"
 
 #: src/hal/classicladder/edit.c:252
-#, c-format
+#, c-format, fuzzy
 msgid "%cC%d: Preset=%d"
-msgstr ""
+msgstr "%cC%d: Preset=%d"
 
 #: src/hal/classicladder/edit.c:256
-#, c-format
+#, c-format, fuzzy
 msgid "%cTM%d: Preset=%d Base=%s Mode=%s"
-msgstr ""
+msgstr "%cTM%d: Preset=%d Base=%s Mode=%s"
 
 #: src/hal/classicladder/edit.c:260
-#, c-format
+#, c-format, fuzzy
 msgid "HAL sig: %s"
-msgstr ""
+msgstr "HAL sig: %s"
 
 #: src/hal/classicladder/edit.c:359
 msgid "Incompatible type of variable (must be an integer!)"
-msgstr ""
+msgstr "Tipo de variável imcompatível (deve ser um inteiro!)"
 
 #: src/hal/classicladder/edit.c:397
 #, c-format
 msgid "New expr=%s\n"
-msgstr ""
+msgstr "Nova expr=%s\n"
 
 #: src/hal/classicladder/edit.c:399
 #, fuzzy
@@ -3756,46 +3844,46 @@ msgstr "Comando muito longo"
 
 #: src/hal/classicladder/edit.c:479
 msgid "Incompatible type of variable for index (must be an integer!)"
-msgstr ""
+msgstr "Tipo de variável imcompatível com índice (deve ser um inteiro!)"
 
 #: src/hal/classicladder/edit.c:485
 msgid "Parser error for indexed variable !"
-msgstr ""
+msgstr "Erro de analisador para a variável indicada !"
 
 #: src/hal/classicladder/edit.c:491
 msgid "You must select a boolean variable !"
-msgstr ""
+msgstr "Você deve selecionar uma variável booleana !"
 
 #: src/hal/classicladder/edit.c:500
 msgid "You must select a read/write variable for a coil!"
-msgstr ""
+msgstr "Você deve selecionar uma variável de leitura/escrita para uma bobina!"
 
 #: src/hal/classicladder/edit.c:516 src/hal/classicladder/edit_sequential.c:99
 #: src/hal/classicladder/spy_vars_gtk.c:481
 #: src/hal/classicladder/symbols_gtk.c:151
 msgid "Unknown variable..."
-msgstr ""
+msgstr "Variável desconhecida..."
 
 #: src/hal/classicladder/edit.c:1155
 #, c-format
 msgid "!!!Abnormal current type=%d in rung...(file %s,line %d)\n"
-msgstr ""
+msgstr "!!!Tipo anormal=%d in rung...(file %s,line %d)\n"
 
 #: src/hal/classicladder/edit.c:1250
 msgid "No more free function block of this type available..."
-msgstr ""
+msgstr "Sem blocos de função livres para esse tipo de variável..."
 
 #: src/hal/classicladder/edit.c:1262
 msgid "No more free arithmetic expression for this type available..."
-msgstr ""
+msgstr "Não há mais expressões aritméticas livres para esse tipo de variável..."
 
 #: src/hal/classicladder/edit.c:1425
 msgid "You clicked outside of the current rung actually selected..."
-msgstr ""
+msgstr "Você clicou fora do rung atual efetivamente selecionado..."
 
 #: src/hal/classicladder/edit_gtk.c:143
 msgid "Current rung in edit mode..."
-msgstr ""
+msgstr "Rung atual no modo de edição..."
 
 #: src/hal/classicladder/edit_gtk.c:143
 #, fuzzy
@@ -3805,24 +3893,24 @@ msgstr "Modo Joint"
 #: src/hal/classicladder/edit_gtk.c:208 src/hal/classicladder/edit_gtk.c:486
 #: tcl/tooledit.tcl:536 lib/python/gladevcp/tooledit_gtk.glade:300
 msgid "Delete"
-msgstr ""
+msgstr "Eliminar"
 
 #: src/hal/classicladder/edit_gtk.c:208
 msgid "Do you really want to delete the current rung ?"
-msgstr ""
+msgstr "Você realmente deseja eliminar o rung atual?"
 
 #: src/hal/classicladder/edit_gtk.c:476
 #: lib/python/gladevcp/tooledit_gtk.glade:315
 msgid "Add"
-msgstr ""
+msgstr "Adicionar"
 
 #: src/hal/classicladder/edit_gtk.c:481
 msgid "Insert"
-msgstr ""
+msgstr "Inserir"
 
 #: src/hal/classicladder/edit_gtk.c:491 tcl/bin/halconfig.tcl:134
 msgid "Modify"
-msgstr ""
+msgstr "Modificar"
 
 #: src/hal/classicladder/edit_gtk.c:500 tcl/bin/emccalib.tcl:278
 #: tcl/bin/emcdebug.tcl:202 tcl/bin/genedit.tcl:294 tcl/bin/halconfig.tcl:103
@@ -3855,120 +3943,123 @@ msgstr "Comandada"
 #: src/hal/classicladder/edit_sequential.c:155
 #, c-format
 msgid "step search posiX=%d, posiY=%d ; "
-msgstr ""
+msgstr "busca por passo posiX=%d, posiY=%d ; "
 
 #: src/hal/classicladder/edit_sequential.c:165
 #: src/hal/classicladder/edit_sequential.c:183
 #: src/hal/classicladder/edit_sequential.c:201
 #, c-format
 msgid "found=%d!!!\n"
-msgstr ""
+msgstr "encontrado=%d!!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:173
 #, c-format
 msgid "transi search posiX=%d, posiY=%d ; "
-msgstr ""
+msgstr "busca transi posiX=%d, posiY=%d ; "
 
 #: src/hal/classicladder/edit_sequential.c:191
 #, c-format
 msgid "comment search posiX=%d, posiY=%d ; "
-msgstr ""
+msgstr "busca de comentário posiX=%d, posiY=%d ; "
 
 #: src/hal/classicladder/edit_sequential.c:220
 #, c-format
 msgid "found free step=%d!!!\n"
-msgstr ""
+msgstr "encontrou passo livre=%d!!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:238
 #, c-format
 msgid "found free transi=%d!!!\n"
-msgstr ""
+msgstr "encontrou transi livre=%d!!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:257
 #, c-format
 msgid "found free comment=%d!!!\n"
-msgstr ""
+msgstr "encontrou comentário livre=%d!!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:405
 #, c-format
 msgid "Do link : transi=%d (top=%d), step=%d\n"
-msgstr ""
+msgstr "Fazer ligação: transi=%d (top=%d), step=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:411
 msgid ""
 "There is already a step to deactivate for this transition (clicked on top "
 "part)..."
 msgstr ""
+"Já existe um passo para desativar esta transição (clicou na parte "
+"superior)..."
 
 #: src/hal/classicladder/edit_sequential.c:418
 msgid ""
 "There is already a step to activate for this transition (clicked on bottom "
 "part)..."
 msgstr ""
+"Já existe um passo para ativar essa transição (clicou na parte inferior)..."
 
 #: src/hal/classicladder/edit_sequential.c:433
 msgid "Not selected first and last transitions to be joined !!??"
-msgstr ""
+msgstr "Não selecionou as primeiras e ultimas transições para serem unidas !!??"
 
 #: src/hal/classicladder/edit_sequential.c:450
 msgid "Unknown element type for Ele1"
-msgstr ""
+msgstr "Tipo de elemento desconhecido para Ele1"
 
 #: src/hal/classicladder/edit_sequential.c:464
 msgid "First and last steps selected are not on the same line !!??"
-msgstr ""
+msgstr "Primeiro e último passo selecionado não estão na mesma linha !!??"
 
 #: src/hal/classicladder/edit_sequential.c:481
 msgid "First and last transitions selected are not on the same line !!??"
-msgstr ""
+msgstr "Primeira e última transição selecionada não estão na mesma linha !!??"
 
 #: src/hal/classicladder/edit_sequential.c:488
 msgid "Unknown element type for Ele2"
-msgstr ""
+msgstr "Tipo de elemento desconhecido para Ele2"
 
 #: src/hal/classicladder/edit_sequential.c:507
 #, c-format
 msgid ""
 "commonsearch: leftX=%d, rightX=%d, OffTransi=%d, StepsY=%d, TransiY=%d\n"
-msgstr ""
+msgstr "busca comum: leftX=%d, rightX=%d, OffTransi=%d, StepsY=%d, TransiY=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:537
 #: src/hal/classicladder/edit_sequential.c:582
 msgid "Error in selection or not possible..."
-msgstr ""
+msgstr "Erro na seleção ou não é possível..."
 
 #: src/hal/classicladder/edit_sequential.c:545
-#, c-format
+#, c-format, fuzzy
 msgid "DO ACT/DESACT STEPS x1=%d, x2=%d, y=%d\n"
-msgstr ""
+msgstr "DO ACT/DESACT STEPS x1=%d, x2=%d, y=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:565
-#, c-format
+#, c-format, fuzzy
 msgid "StepActDesact++=%d\n"
-msgstr ""
+msgstr "StepActDesact++=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:624
 #, c-format
 msgid "having num transi linked=%d for transi=%d\n"
-msgstr ""
+msgstr "havendo num transi vinculado=%d por transi=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:627
 #, c-format
 msgid "->storing num transi linked=%d for transi=%d\n"
-msgstr ""
+msgstr "->armazenando num transi vinculado=%d for transi=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:643
 #, c-format
 msgid "=>step to activ=%d, step to desactiv=%d\n"
-msgstr ""
+msgstr "=>passo para activ=%d, passo para desactiv=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:652
 msgid "Not found at least 2 transitions linked..."
-msgstr ""
+msgstr "Não foram encontradas ao menos 2 transições vinculadas..."
 
 #: src/hal/classicladder/edit_sequential.c:776
 msgid "Sequential memory full for steps"
-msgstr ""
+msgstr "Memoria sequencia cheia para passos"
 
 #: src/hal/classicladder/edit_sequential.c:781
 #: src/hal/classicladder/edit_sequential.c:821
@@ -3977,20 +4068,20 @@ msgstr "Um arquivo já está aberto!"
 
 #: src/hal/classicladder/edit_sequential.c:788
 msgid "A step can't be placed on even lines"
-msgstr ""
+msgstr "Um passo não pode ser colocado em linhas pares"
 
 #: src/hal/classicladder/edit_sequential.c:816
 msgid "Sequential memory full for transition"
-msgstr ""
+msgstr "Memoria sequencial cheia para transição"
 
 #: src/hal/classicladder/edit_sequential.c:828
 msgid "A transition can't be placed on odd lines"
-msgstr ""
+msgstr "Uma transição não pode ser colocada em linhas ímpares"
 
 #: src/hal/classicladder/edit_sequential.c:837
 #, c-format
 msgid "nbr clicks=1!!! (posi=%s), wait next point to link...\n"
-msgstr ""
+msgstr "nbr clicks=1!!! (posi=%s), espere pelo próximo ponto para vincular...\n"
 
 #: src/hal/classicladder/edit_sequential.c:837
 #: src/hal/classicladder/edit_sequential.c:850
@@ -4001,54 +4092,54 @@ msgstr "Parar"
 #: src/hal/classicladder/edit_sequential.c:837
 #: src/hal/classicladder/edit_sequential.c:850
 msgid "bottom"
-msgstr ""
+msgstr "abaixo"
 
 #: src/hal/classicladder/edit_sequential.c:842
 msgid "Now select the transition."
-msgstr ""
+msgstr "Agora selecione a transição."
 
 #: src/hal/classicladder/edit_sequential.c:844
 msgid "Now select the step that will be deactivated by this transition."
-msgstr ""
+msgstr "Agora selecione o passo que será desativado pela transição."
 
 #: src/hal/classicladder/edit_sequential.c:844
 msgid "Now select the step that will be activated by this transition."
-msgstr ""
+msgstr "Agora selecione o passo que será ativado pela transição."
 
 #: src/hal/classicladder/edit_sequential.c:846
 msgid "You haven't selected a step or a transition to link!!!"
-msgstr ""
+msgstr "Você não selecionou um passo ou transição para vincular!!!"
 
 #: src/hal/classicladder/edit_sequential.c:850
-#, c-format
+#, c-format, fuzzy
 msgid "nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n"
-msgstr ""
+msgstr "nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:856
 msgid "You haven't selected a transition and then the step to link!!!"
-msgstr ""
+msgstr "Você não selecionou uma transição e então o passo para vincular!!!"
 
 #: src/hal/classicladder/edit_sequential.c:891
 msgid "Sequential memory full for comments"
-msgstr ""
+msgstr "Memória sequencial cheia de comentários"
 
 #: src/hal/classicladder/edit_sequential.c:896
 msgid "There is already an element on 4 horizontal blocks required!"
-msgstr ""
+msgstr "Já existe um elemento em 4 blocos horizontais requeridos!"
 
 #: src/hal/classicladder/edit_sequential.c:901
 msgid "Not enough room on the right here..."
-msgstr ""
+msgstr "Não há espaço suficiente à direita..."
 
 #: src/hal/classicladder/edit_sequential.c:923
-#, c-format
+#, c-format, fuzzy
 msgid "DO_MANY_STEPS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
-msgstr ""
+msgstr "DO_MANY_STEPS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:929
-#, c-format
+#, c-format, fuzzy
 msgid "DO_MANY_TRANSITIONS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
-msgstr ""
+msgstr "DO_MANY_TRANSITIONS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
 
 #: src/hal/classicladder/editproperties_gtk.c:237
 #, fuzzy
@@ -4058,15 +4149,15 @@ msgstr "_Propriedades."
 #: src/hal/classicladder/editproperties_gtk.c:289 tcl/bin/halshow.tcl:734
 #: lib/python/gladevcp/tooledit_gtk.glade:345
 msgid "Apply"
-msgstr ""
+msgstr "Aplicar"
 
 #: src/hal/classicladder/emc_mods.c:60
 msgid "Error blank symbol name"
-msgstr ""
+msgstr "Erro: nome do símbolo em branco"
 
 #: src/hal/classicladder/emc_mods.c:64
 msgid "Error unknown symbol name"
-msgstr ""
+msgstr "Erro: nome do símbolo desconhecido"
 
 #: src/hal/classicladder/emc_mods.c:75 src/hal/classicladder/emc_mods.c:81
 #: src/hal/classicladder/emc_mods.c:89 src/hal/classicladder/emc_mods.c:97
@@ -4074,15 +4165,15 @@ msgstr ""
 #: src/hal/classicladder/emc_mods.c:117 src/hal/classicladder/emc_mods.c:121
 #: src/hal/classicladder/emc_mods.c:125
 msgid "out of bounds variable number"
-msgstr ""
+msgstr "número de variáveis fora do limite"
 
 #: src/hal/classicladder/emc_mods.c:118 src/hal/classicladder/emc_mods.c:122
 msgid "None -Internal Memory"
-msgstr ""
+msgstr "Nenhum -Memória Interna"
 
 #: src/hal/classicladder/emc_mods.c:126
 msgid "None -Internal Error Status"
-msgstr ""
+msgstr "Nenhum -Estado de Erro Interno"
 
 #: src/hal/classicladder/emc_mods.c:131
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:618
@@ -4099,11 +4190,11 @@ msgstr "Erro do AXIS"
 
 #: src/hal/classicladder/emc_mods.c:154
 msgid "no signal connected"
-msgstr ""
+msgstr "sem sinal conectado"
 
 #: src/hal/classicladder/emc_mods.c:158
 msgid "Conv. HAL signal ERROR"
-msgstr ""
+msgstr "Cov. ERRO de sinal HAL"
 
 #: src/hal/classicladder/emc_mods.c:180
 #, fuzzy
@@ -4111,17 +4202,17 @@ msgid "No expression"
 msgstr "Expressão não fechada"
 
 #: src/hal/classicladder/emc_mods.c:196
-#, c-format
+#, c-format, fuzzy
 msgid " %s (for %s)  Exprsn~ %s"
-msgstr ""
+msgstr " %s (for %s)  Exprsn~ %s"
 
 #: src/hal/classicladder/emc_mods.c:201
 msgid "first var. expression error"
-msgstr ""
+msgstr "erro na primeira variável de expressão"
 
 #: src/hal/classicladder/emc_mods.c:265
 msgid "Old Timer"
-msgstr ""
+msgstr "Temporizador antigo"
 
 #: src/hal/classicladder/emc_mods.c:270
 #, fuzzy
@@ -4129,20 +4220,21 @@ msgid "New Timer"
 msgstr "Roda uma linha do programa"
 
 #: src/hal/classicladder/emc_mods.c:275
+#, fuzzy
 msgid "One-shot"
-msgstr ""
+msgstr "One-shot"
 
 #: src/hal/classicladder/emc_mods.c:280
 msgid "Counter"
-msgstr ""
+msgstr "Contador"
 
 #: src/hal/classicladder/emc_mods.c:285
 msgid "Error Flag Bit"
-msgstr ""
+msgstr "Bandeira de erro de Bit"
 
 #: src/hal/classicladder/emc_mods.c:288
 msgid "Cannot auto assign symbol names-wrong variable name"
-msgstr ""
+msgstr "Não se pode assinar nome de símbolo - nome de variável errada"
 
 #: src/hal/classicladder/files.c:213
 #, fuzzy, c-format
@@ -4156,57 +4248,58 @@ msgstr "Sem ferramenta"
 
 #: src/hal/classicladder/files.c:310 src/hal/classicladder/files.c:336
 #: src/hal/classicladder/files.c:365
+#, fuzzy
 msgid " - ok.\n"
-msgstr ""
+msgstr " - ok.\n"
 
 #: src/hal/classicladder/files.c:313 src/hal/classicladder/files.c:339
 msgid " - not found.\n"
-msgstr ""
+msgstr " - não encontrado.\n"
 
 #: src/hal/classicladder/files.c:363
 #, c-format
 msgid "Saving file : %s"
-msgstr ""
+msgstr "Salvando arquivo : %s"
 
 #: src/hal/classicladder/files.c:367
 msgid " - failed.\n"
-msgstr ""
+msgstr " - Falhou.\n"
 
 #: src/hal/classicladder/files.c:375
 #, c-format
 msgid "Used=%d\n"
-msgstr ""
+msgstr "Usado=%d\n"
 
 #: src/hal/classicladder/files.c:429
 #, c-format
 msgid "!!!Error in ConvBaseInMilliSecsToInt()\n"
-msgstr ""
+msgstr "!!!Erro em ConvBaseInMilliSecsToInt()\n"
 
 #: src/hal/classicladder/files.c:507 src/hal/classicladder/files.c:577
 #: src/hal/classicladder/files.c:701
 #, c-format
 msgid "!!! Error loading parameter base in %s\n"
-msgstr ""
+msgstr "!!! Erro lendo parâmetro de base em %s\n"
 
 #: src/hal/classicladder/files.c:510
 #, c-format
 msgid "Timer => Base = %d , Preset = %d\n"
-msgstr ""
+msgstr "Temporizador=> Base = %d , Preestabelecido= %d\n"
 
 #: src/hal/classicladder/files.c:542
 #, c-format
 msgid " - result=%d\n"
-msgstr ""
+msgstr " - resultado=%d\n"
 
 #: src/hal/classicladder/files.c:580
 #, c-format
 msgid "Monostable => Base = %d , Preset = %d\n"
-msgstr ""
+msgstr "monoestável => Base = %d , Preestabelecido= %d\n"
 
 #: src/hal/classicladder/files.c:828
 #, c-format
 msgid "Sections file version not supported...\n"
-msgstr ""
+msgstr "Versão do arquivo de seções não suportada...\n"
 
 #: src/hal/classicladder/files.c:852
 #, c-format
@@ -4214,31 +4307,33 @@ msgid ""
 "Section %d => Name=%s, Language=%d, SRnbr=%d, FirstRung=%d, LastRung=%d, "
 "SequentialPage=%d\n"
 msgstr ""
+"Seção %d => Nome=%s, Idioma=%d, SRnbr=%d, FirstRung=%d, LastRung=%d, "
+"PáginaSequencial=%d\n"
 
 #: src/hal/classicladder/files.c:1084
 #, c-format
 msgid "Symbols file version not supported...\n"
-msgstr ""
+msgstr "Versão do arquivo de símbolos não suportada...\n"
 
 #: src/hal/classicladder/files.c:1097
 #, c-format
 msgid "Symbol: %s - %s - %s\n"
-msgstr ""
+msgstr "Simbolo: %s - %s - %s\n"
 
 #: src/hal/classicladder/files_project.c:86
 #, c-format
 msgid "ERROR with path directory given for project !!!\n"
-msgstr ""
+msgstr "ERRO com o caminho do diretório dado para o projeto !!!\n"
 
 #: src/hal/classicladder/files_project.c:185
 #, c-format
 msgid "Save project '%s' from tmp dir=%s\n"
-msgstr ""
+msgstr "Salvar projeto '%s' de tmp dir=%s\n"
 
 #: src/hal/classicladder/files_sequential.c:97
 #, c-format
 msgid "Sequential version not supported...\n"
-msgstr ""
+msgstr "Versão sequencial não suportada...\n"
 
 #: src/hal/classicladder/manager_gtk.c:94
 #: src/hal/classicladder/manager_gtk.c:454 tcl/bin/halconfig.tcl:196
@@ -4249,30 +4344,31 @@ msgstr "Máquina"
 #: src/hal/classicladder/manager_gtk.c:108
 #: src/hal/classicladder/manager_gtk.c:444
 msgid "Sequential"
-msgstr ""
+msgstr "Sequencial"
 
 #: src/hal/classicladder/manager_gtk.c:108
 #: src/hal/classicladder/manager_gtk.c:442
 #: src/emc/usr_intf/gscreen/gscreen.glade:2872
+#, fuzzy
 msgid "Ladder"
-msgstr ""
+msgstr "Ladder"
 
 #: src/hal/classicladder/manager_gtk.c:183
 msgid "This section name already exists or is incorrect !!!"
-msgstr ""
+msgstr "Esse nome de sessão já existe ou é incorreto !!!"
 
 #: src/hal/classicladder/manager_gtk.c:212
 msgid "This sub-routine number for calls is already defined !!!"
-msgstr ""
+msgstr "Esse número de sub-rotina para chamadas já foi definido !!!"
 
 #: src/hal/classicladder/manager_gtk.c:220
 msgid "Failed to add a new section. Full?"
-msgstr ""
+msgstr "Falha ao adicionar uma nova sessão. Cheio?"
 
 #: src/hal/classicladder/manager_gtk.c:236
 #: src/hal/classicladder/manager_gtk.c:306
 msgid "Not possible when program running..."
-msgstr ""
+msgstr "Não é possível enquanto o programa está em execução..."
 
 #: src/hal/classicladder/manager_gtk.c:247
 #, fuzzy
@@ -4286,23 +4382,23 @@ msgstr "Recarrega Código G [Control-R]"
 
 #: src/hal/classicladder/manager_gtk.c:315
 msgid "Do you really want to delete the section ?"
-msgstr ""
+msgstr "Você realmente deseja eliminar a sessão ?"
 
 #: src/hal/classicladder/manager_gtk.c:319
 msgid "You can not delete the last section..."
-msgstr ""
+msgstr "Você não pode eliminar a última sessão..."
 
 #: src/hal/classicladder/manager_gtk.c:335
 msgid "This section is already executed the first !"
-msgstr ""
+msgstr "Essa sessão já executou a primeira !"
 
 #: src/hal/classicladder/manager_gtk.c:349
 msgid "This section is already executed the latest !"
-msgstr ""
+msgstr "Essa sessão já executou a última !"
 
 #: src/hal/classicladder/manager_gtk.c:421
 msgid "Language"
-msgstr ""
+msgstr "Idioma"
 
 #: src/hal/classicladder/manager_gtk.c:422
 #, fuzzy
@@ -4316,12 +4412,12 @@ msgstr "Nome:"
 
 #: src/hal/classicladder/manager_gtk.c:511
 msgid "Sections Manager"
-msgstr ""
+msgstr "Administrador de sessões"
 
 #: src/hal/classicladder/protocol_modbus_master.c:265
-#, c-format
+#, c-format, fuzzy
 msgid "ERROR CLASSICLADDER-     MODBUS-EXCEPTION RECEIVED:%X (Excep=%X)\n"
-msgstr ""
+msgstr "ERROR CLASSICLADDER-     MODBUS-EXCEPTION RECEIVED:%X (Excep=%X)\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:271
 #, c-format
@@ -4329,6 +4425,8 @@ msgid ""
 "ERROR CLASSICLADDER-    MODBUS -Function code received from slave was not "
 "the same as requested!\n"
 msgstr ""
+"ERROR CLASSICLADDER-    MODBUS -Código da função recebido do escravo não foi "
+"o mesmo que o requisitado!\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:364
 #, c-format
@@ -4336,16 +4434,19 @@ msgid ""
 "INFO CLASSICLADDER-   MODBUS -Echo back from slave #%s is correct "
 "(data=257).\n"
 msgstr ""
+"INFO CLASSICLADDER-   MODBUS -Eco de retorno do escravo #%s está correto "
+"(data=257).\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:413
 #, c-format
 msgid "INFO CLASSICLADDER-   MODBUS function code not recognized"
-msgstr ""
+msgstr "INFO CLASSICLADDER-   Código de função MODBUS não reconhecido"
 
 #: src/hal/classicladder/protocol_modbus_master.c:417
 #, c-format
 msgid "INFO CLASSICLADDER-   MODBUS Length we should receive=%d (+3)\n"
 msgstr ""
+"INFO CLASSICLADDER-   Comprimento do MODBUS que deveríamos receber=%d (+3)\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:551
 #, c-format
@@ -4353,23 +4454,25 @@ msgid ""
 "INFO CLASSICLADDER-   Modbus I/O to send (Hex):\n"
 "    Length=%d bytes -> "
 msgstr ""
+"INFO CLASSICLADDER-   Modbus I/O para enviar (Hex):\n"
+"    Comprimento=%d bytes -> "
 
 #: src/hal/classicladder/protocol_modbus_master.c:555
 #: src/hal/classicladder/protocol_modbus_master.c:626
 #, c-format
 msgid "Slave: %X  "
-msgstr ""
+msgstr "Escravo: %X  "
 
 #: src/hal/classicladder/protocol_modbus_master.c:557
 #, c-format
 msgid "Function: %X  Data: "
-msgstr ""
+msgstr "Função: %X  Dados: "
 
 #: src/hal/classicladder/protocol_modbus_master.c:559
 #: src/hal/classicladder/protocol_modbus_master.c:630
-#, c-format
+#, c-format, fuzzy
 msgid " CRC: %X "
-msgstr ""
+msgstr " CRC: %X "
 
 #: src/hal/classicladder/protocol_modbus_master.c:622
 #, c-format
@@ -4377,37 +4480,40 @@ msgid ""
 "INFO CLASSICLADDER-   Modbus I/O received (Hex):\n"
 "    Length=%d bytes <- "
 msgstr ""
+"INFO CLASSICLADDER-   Modbus I/O recebido(Hex):\n"
+"    Comprimento=%d bytes <- "
 
 #: src/hal/classicladder/protocol_modbus_master.c:628
 #, c-format
 msgid "Function: %X Data: "
-msgstr ""
+msgstr "Função: %X Dados: "
 
 #: src/hal/classicladder/protocol_modbus_master.c:670
 #, c-format
 msgid ""
 "ERROR CLASSICLADDER-   MODBUS-INCORRECT RESPONSE RECEIVED FROM SLAVE!!!\n"
 msgstr ""
+"ERROR CLASSICLADDER-   MODBUS-RESPOSTA INCORRETA RECEBIDA DO ESCRAVO!!!\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:676
 #, c-format
 msgid "ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n"
-msgstr ""
+msgstr "ERROR CLASSICLADDER-   MODBUS-ERRO DE BAIXO NÍVEL NA RESPOSTA!!!\n"
 
 #: src/hal/classicladder/serial_linux.c:140
 #, c-format
 msgid "Serial speed value %d not found for serial\n"
-msgstr ""
+msgstr "Valor de velocidade serial %d não encontrado para serial\n"
 
 #: src/hal/classicladder/serial_linux.c:145
 #, c-format
 msgid "Failed to open serial port %s...\n"
-msgstr ""
+msgstr "Falha ao abrir a porta serial %s...\n"
 
 #: src/hal/classicladder/serial_linux.c:177
 #, c-format
 msgid "Set RTS=%d\n"
-msgstr ""
+msgstr "Estabelecer RTS=%d\n"
 
 #: src/hal/classicladder/serial_linux.c:193
 #, fuzzy, c-format
@@ -4422,12 +4528,12 @@ msgstr "Ar/Névoa"
 #: src/hal/classicladder/serial_linux.c:216
 #, c-format
 msgid "Serial config...\n"
-msgstr ""
+msgstr "Configuração Serial...\n"
 
 #: src/hal/classicladder/serial_linux.c:237
 #, c-format
 msgid "select() for serial reading...\n"
-msgstr ""
+msgstr "select() para leitura do serial...\n"
 
 #: src/hal/classicladder/serial_linux.c:242
 #, fuzzy, c-format
@@ -4437,7 +4543,7 @@ msgstr "Alternada"
 #: src/hal/classicladder/serial_linux.c:245
 #, c-format
 msgid "%d chars found\n"
-msgstr ""
+msgstr "%d caracteres encontrados\n"
 
 #: src/hal/classicladder/serial_linux.c:256
 #, c-format
@@ -4447,7 +4553,7 @@ msgstr ""
 #: src/hal/classicladder/socket_modbus_master.c:111
 #, c-format
 msgid "ERROR CLASSICLADDER-   Failed to create thread I/O Modbus master...\n"
-msgstr ""
+msgstr "ERROR CLASSICLADDER-   Falha ao criar o fio I/O Modbus mestre...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:128
 #, c-format
@@ -4458,171 +4564,179 @@ msgstr ""
 #: src/hal/classicladder/socket_modbus_master.c:131
 #, c-format
 msgid "INFO CLASSICLADDER---I/O Modbus master (%s) init ok !\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER---I/O Modbus mestre (%s) init ok !\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:131
 msgid "Serial"
-msgstr ""
+msgstr "Série"
 
 #: src/hal/classicladder/socket_modbus_master.c:131
 #: src/emc/usr_intf/pncconf/dialogs.glade:36
 #: src/emc/usr_intf/pncconf/dialogs.glade:302
 #: src/emc/usr_intf/pncconf/dialogs.glade:328
+#, fuzzy
 msgid "Ethernet"
-msgstr ""
+msgstr "Ethernet"
 
 #: src/hal/classicladder/socket_modbus_master.c:177
 #, c-format
 msgid "Init socket for I/O module (%d)...\n"
-msgstr ""
+msgstr "Soquete de inicialização para módulo I/O (%d)...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:181
 #, c-format
 msgid "Failed to open I/O socket master...\n"
-msgstr ""
+msgstr "Falha ao abrir soquete mestre I/O...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:207
 #, c-format
 msgid "Connecting I/O module...\n"
-msgstr ""
+msgstr "Conectando ao módulo I/O...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:229
 #, c-format
 msgid "Not able to retrieve IP address in Modbus table, huhh?!!!\n"
-msgstr ""
+msgstr "Não foi capaz de recuperar o endereço de IP na mesa Modbus, huhh?!!!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:234
 #, c-format
 msgid "Failed  to connect to I/O module\n"
-msgstr ""
+msgstr "Falha  ao conectar ao módulo I/O\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:240
 #, c-format
 msgid "Too much IP connections under run...\n"
-msgstr ""
+msgstr "Muitas conexões IP em execução...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:257
 msgid "INFO CLASSICLADDER-   Sending frame to I/O module...\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER-   Enviando frame para o módulo I/O...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:263
 #, c-format
 msgid "ERROR CLASSICLADDER-  FAILED TO SEND ON SOCKET !!!(LgtSend=%d)\n"
-msgstr ""
+msgstr "ERROR CLASSICLADDER-  FALHA NO ENVIO DO SOCKET !!!(LgtSend=%d)\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:286
 #, c-format
 msgid "INFO CLASSICLADDER-   waiting for slave response...\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER-   aguardando a resposta do escravo...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:320
 #, c-format
 msgid "INFO CLASSICLADDER---I/O Modbus master closed!\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER---I/O Modbus principal fechou!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:375
 #, c-format
 msgid "INFO CLASSICLADDER- after transmit delay now...%i milliseconds\n"
 msgstr ""
+"INFO CLASSICLADDER- depois do atraso de transmissão agora...%i "
+"milissegundos\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:385
 #, c-format
 msgid "ERROR CLASSICLADDER-  MODBUS NO RESPONSE (Errs=%d/%d) !?\n"
-msgstr ""
+msgstr "ERROR CLASSICLADDER-  MODBUS SEM RESPOSTA (Errs=%d/%d) !?\n"
 
 #: src/hal/classicladder/socket_server.c:87
-#, c-format
+#, c-format, fuzzy
 msgid "INFO CLASSICLADDER--- INIT SOCKET!!!\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER--- INIT SOCKET!!!\n"
 
 #: src/hal/classicladder/socket_server.c:92
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to open socket server...\n"
-msgstr ""
+msgstr "ERROR CLASSICLADDER--- Falha ao carregar o servidor socket...\n"
 
 #: src/hal/classicladder/socket_server.c:104
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to bind socket server...(error=%s)\n"
 msgstr ""
+"ERROR CLASSICLADDER--- Falha ao vincular o servidor socket...(error=%s)\n"
 
 #: src/hal/classicladder/socket_server.c:113
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to listen socket server...(error=%s)\n"
 msgstr ""
+"ERROR CLASSICLADDER--- Falha na escuta do servidor socket...(error=%s)\n"
 
 #: src/hal/classicladder/socket_server.c:132
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to create thread socket server...\n"
-msgstr ""
+msgstr "ERROR CLASSICLADDER--- Falha ao criar a thread do servidor socket...\n"
 
 #: src/hal/classicladder/socket_server.c:137
 #, c-format
 msgid "INFO CLASSICLADDER--- Server socket init ok (modbus - port %d)!\n"
 msgstr ""
+"INFO CLASSICLADDER--- Inicialização do servidor socket ok (modbus - port %d)!"
+"\n"
 
 #: src/hal/classicladder/socket_server.c:176
 #, c-format
 msgid "INFO CLASSICLADDER--- MODBUS RESPONSE LGT=%d+%d !\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER--- MODBUS RESPOSTA LGT=%d+%d !\n"
 
 #: src/hal/classicladder/socket_server.c:207
 #, c-format
 msgid "INFO MODBUS SERVER--- SOCKET WAITING...\n"
-msgstr ""
+msgstr "INFO MODBUS SERVER--- SOCKET AGUARDANDO...\n"
 
 #: src/hal/classicladder/socket_server.c:213
 #, c-format
 msgid "INFO MODBUS SERVER--- SOCKET CLIENT ACCEPTED...\n"
-msgstr ""
+msgstr "INFO MODBUS SERVER--- SOCKET CLIENT ACEITO...\n"
 
 #: src/hal/classicladder/socket_server.c:220
 #, c-format
 msgid "INFO MODBUS SERVER--- SOCKET RECEIVED=%d !\n"
-msgstr ""
+msgstr "INFO MODBUS SERVER--- SOCKET RECEBIDO=%d !\n"
 
 #: src/hal/classicladder/socket_server.c:223
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to recv socket server...(error=%s)\n"
 msgstr ""
+"ERROR CLASSICLADDER--- Falha no recebimento do servidor socket...(error=%s)\n"
 
 #: src/hal/classicladder/socket_server.c:238
 #, c-format
 msgid "INFO MODBUS SERVER--- CLOSE SOCK CLIENT.\n"
-msgstr ""
+msgstr "INFO MODBUS SERVER--- Cliente socket fechou.\n"
 
 #: src/hal/classicladder/socket_server.c:268
 #, c-format
 msgid "INFO CLASSICLADDER--- Server socket closed!\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER--- Servidor socket fechou!\n"
 
 #: src/hal/classicladder/spy_vars_gtk.c:200
 msgid "Bit Status Window"
-msgstr ""
+msgstr "Janela de estado de Bits"
 
 #: src/hal/classicladder/spy_vars_gtk.c:222
 msgid "Offset for vars displayed below (press return to apply)"
-msgstr ""
+msgstr "Offset para variáveis mostradas abaixo (pressione enter para aplicar)"
 
 #: src/hal/classicladder/spy_vars_gtk.c:522
 msgid "Watch Window"
-msgstr ""
+msgstr "Janela de Observação"
 
 #: src/hal/classicladder/symbols_gtk.c:132
 #, c-format
 msgid "A variable name always start with '%' character !"
-msgstr ""
+msgstr "Uma variável nome sempre inicia com caractere '%'c !"
 
 #: src/hal/classicladder/symbols_gtk.c:191
 msgid "opened SYMBOLS window. Press again to close"
-msgstr ""
+msgstr "Janela de SÍMBOLOS aberta. Pressione novamente para fechar"
 
 #: src/hal/classicladder/symbols_gtk.c:210
 msgid "Symbols names"
-msgstr ""
+msgstr "Nome de Símbolos"
 
 #: src/hal/classicladder/vars_names.c:180
 msgid "Unknown symbol for variable name"
-msgstr ""
+msgstr "Símbolo desconhecido para variável nome"
 
 #: src/hal/classicladder/vars_names.c:200
 #: src/hal/classicladder/vars_names.c:222
@@ -4634,13 +4748,13 @@ msgstr ""
 #: src/hal/classicladder/vars_names.c:415
 #: src/hal/classicladder/vars_names.c:624
 msgid "Unknown variable (number value out of bound)"
-msgstr ""
+msgstr "Variável desconhecida (valor do número fora do limite)"
 
 #: src/hal/classicladder/vars_names.c:231
 #: src/hal/classicladder/vars_names.c:303
 #: src/hal/classicladder/vars_names.c:345
 msgid "Unknown variable (missing '.' character before attribute)"
-msgstr ""
+msgstr "Variável desconhecida (falta o caractere '.' antes do atributo)"
 
 #: src/hal/classicladder/vars_names.c:246
 #: src/hal/classicladder/vars_names.c:257
@@ -4650,15 +4764,15 @@ msgstr ""
 #: src/hal/classicladder/vars_names.c:369
 #: src/hal/classicladder/vars_names.c:431
 msgid "Unknown variable (unknown attribute)"
-msgstr ""
+msgstr "Variável desconhecida (atributo desconhecido)"
 
 #: src/hal/classicladder/vars_names.c:440
 msgid "Unknown variable (on first character following %)"
-msgstr ""
+msgstr "Variável desconhecida (no primeiro caractere seguindo %)"
 
 #: src/hal/classicladder/vars_names.c:454
 msgid "Unknown variable (global error)"
-msgstr ""
+msgstr "Variável desconhecida (erro global)"
 
 #: tcl/bin/emccalib.tcl:95
 #, fuzzy
@@ -4667,7 +4781,7 @@ msgstr "Mostrar _Configuração Hal"
 
 #: tcl/bin/emccalib.tcl:103
 msgid "Save To File"
-msgstr ""
+msgstr "Salvar para Arquivo"
 
 #: tcl/bin/emccalib.tcl:119 tcl/bin/genedit.tcl:77 tcl/bin/halconfig.tcl:151
 #: tcl/bin/halshow.tcl:221 tcl/tklinuxcnc.tcl:748 tcl/ngcgui.tcl:493
@@ -4678,7 +4792,7 @@ msgstr "_Arquivo"
 #: tcl/bin/emccalib.tcl:121 tcl/bin/emccalib.tcl:280 tcl/bin/halconfig.tcl:153
 #: src/emc/usr_intf/touchy/touchy.glade:2400
 msgid "Refresh"
-msgstr ""
+msgstr "Atualizar"
 
 #: tcl/bin/emccalib.tcl:229 tcl/bin/halconfig.tcl:628
 #, fuzzy
@@ -4687,15 +4801,15 @@ msgstr "Nome:"
 
 #: tcl/bin/emccalib.tcl:230 tcl/bin/halconfig.tcl:629
 msgid "HAL's Value"
-msgstr ""
+msgstr "Valor do HAL"
 
 #: tcl/bin/emccalib.tcl:232 tcl/bin/halconfig.tcl:631
 msgid "Next Value"
-msgstr ""
+msgstr "Próximo Valor"
 
 #: tcl/bin/emccalib.tcl:274 tcl/bin/halconfig.tcl:680 tcl/bin/halconfig.tcl:731
 msgid "Test"
-msgstr ""
+msgstr "Teste"
 
 #: tcl/bin/emccalib.tcl:439 tcl/bin/halconfig.tcl:1170
 msgid ""
@@ -4703,45 +4817,48 @@ msgid ""
 "\n"
 "  You need to copy a configuration to your home directory and work there."
 msgstr ""
+"Não é permitido salvar aqui.\n"
+"\n"
+"  Você precisa copiar a configuração para seu diretório home e trabalhar lá."
 
 #: tcl/bin/emccalib.tcl:522 tcl/bin/genedit.tcl:211 tcl/bin/halconfig.tcl:1242
 #: tcl/bin/pickconfig.tcl:907 tcl/bin/pickconfig.tcl:918
 #: tcl/scripts/Set_Coordinates.tcl:191 tcl/scripts/Set_Coordinates.tcl:212
 #, tcl-format
 msgid "can't save %s"
-msgstr ""
+msgstr "não se pod salvar %s"
 
 #: tcl/bin/emcdebug.tcl:166 tcl/bin/emcdebug.tcl:177
 msgid "LinuxCNC Debug"
-msgstr ""
+msgstr "Depurar LinuxCNC"
 
 #: tcl/bin/emcdebug.tcl:185
 msgid "Invalid INI file entries"
-msgstr ""
+msgstr "Entradas inválidas no arquivo INI"
 
 #: tcl/bin/emcdebug.tcl:186
 msgid "Configuration information"
-msgstr ""
+msgstr "Informação de Configuração"
 
 #: tcl/bin/emcdebug.tcl:187
 msgid "Use of defaults"
-msgstr ""
+msgstr "Uso de valores padrões"
 
 #: tcl/bin/emcdebug.tcl:188
 msgid "Version information"
-msgstr ""
+msgstr "Informação da Versão"
 
 #: tcl/bin/emcdebug.tcl:189
 msgid "Command issuing"
-msgstr ""
+msgstr "Problema de comando"
 
 #: tcl/bin/emcdebug.tcl:190
 msgid "IO points"
-msgstr ""
+msgstr "Pontos IO"
 
 #: tcl/bin/emcdebug.tcl:191
 msgid "NML"
-msgstr ""
+msgstr "NML"
 
 #: tcl/bin/emcdebug.tcl:192
 #, fuzzy
@@ -4750,19 +4867,19 @@ msgstr "Tempo de execução:"
 
 #: tcl/bin/emcdebug.tcl:193 src/emc/usr_intf/axis/scripts/debuglevel.py:42
 msgid "Interpreter"
-msgstr ""
+msgstr "Interpretador"
 
 #: tcl/bin/emcdebug.tcl:194
 msgid "RCS"
-msgstr ""
+msgstr "RCS"
 
 #: tcl/bin/emcdebug.tcl:195
 msgid "Trajectory level"
-msgstr ""
+msgstr "Nível de trajetória"
 
 #: tcl/bin/emcdebug.tcl:196
 msgid "Interpreter list"
-msgstr ""
+msgstr "Lista do interpretador"
 
 #: tcl/bin/genedit.tcl:80 tcl/tklinuxcnc.tcl:749 tcl/tklinuxcnc.tcl:1546
 #, fuzzy
@@ -4771,25 +4888,25 @@ msgstr "_Abrir"
 
 #: tcl/bin/genedit.tcl:84
 msgid "Save As..."
-msgstr ""
+msgstr "Salvar como..."
 
 #: tcl/bin/genedit.tcl:87 tcl/bin/halconfig.tcl:165 tcl/bin/halshow.tcl:231
 #: tcl/tklinuxcnc.tcl:763 tcl/ngcgui.tcl:1335 tcl/ngcgui.tcl:3853
 msgid "Exit"
-msgstr ""
+msgstr "Sair"
 
 #: tcl/bin/genedit.tcl:91 src/emc/usr_intf/gscreen/gscreen.glade:4207
 #: lib/python/gladevcp/offsetpage.glade:495
 msgid "Edit"
-msgstr ""
+msgstr "Editar"
 
 #: tcl/bin/genedit.tcl:92
 msgid "Cut"
-msgstr ""
+msgstr "Cortar"
 
 #: tcl/bin/genedit.tcl:94 tcl/bin/halshow.tcl:957 tcl/bin/halshow.tcl:975
 msgid "Copy"
-msgstr ""
+msgstr "Copiar"
 
 #: tcl/bin/genedit.tcl:96
 #, fuzzy
@@ -4798,7 +4915,7 @@ msgstr "_Pausar"
 
 #: tcl/bin/genedit.tcl:99
 msgid "Select All"
-msgstr ""
+msgstr "Selecionar tudo"
 
 #: tcl/bin/genedit.tcl:104 tcl/bin/halconfig.tcl:192 tcl/tklinuxcnc.tcl:819
 #: src/emc/usr_intf/stepconf/main_page.glade:452
@@ -4809,39 +4926,39 @@ msgstr "_Ajuda"
 
 #: tcl/bin/genedit.tcl:105 tcl/tklinuxcnc.tcl:825
 msgid "About..."
-msgstr ""
+msgstr "Sobre..."
 
 #: tcl/bin/genedit.tcl:130
 msgid "Save and Reload"
-msgstr ""
+msgstr "Salvar e Recarregar"
 
 #: tcl/bin/genedit.tcl:133
 msgid "Find..."
-msgstr ""
+msgstr "Procurar..."
 
 #: tcl/bin/genedit.tcl:135
 msgid "Renumber File..."
-msgstr ""
+msgstr "Enumerar arquivo..."
 
 #: tcl/bin/genedit.tcl:140 tcl/tklinuxcnc.tcl:775
 msgid "Settings"
-msgstr ""
+msgstr "Configurações"
 
 #: tcl/bin/genedit.tcl:141
 msgid "No Numbering"
-msgstr ""
+msgstr "Sem numeração"
 
 #: tcl/bin/genedit.tcl:144
 msgid "Line Numbering..."
-msgstr ""
+msgstr "Numeração de Linhas..."
 
 #: tcl/bin/genedit.tcl:150 tcl/tklinuxcnc.tcl:797
 msgid "Scripts"
-msgstr ""
+msgstr "Scripts"
 
 #: tcl/bin/genedit.tcl:177
 msgid "About TkEditor"
-msgstr ""
+msgstr "Sobre TkEditor"
 
 #: tcl/bin/genedit.tcl:179
 msgid ""
@@ -4851,10 +4968,15 @@ msgid ""
 "\n"
 "GPL Version 2"
 msgstr ""
+"TkEditor\n"
+"\n"
+"Editor de Texto Tcl/Tk simples\n"
+"\n"
+"GPL Version 2"
 
 #: tcl/bin/genedit.tcl:267
 msgid "Find"
-msgstr ""
+msgstr "Procurar"
 
 #: tcl/bin/genedit.tcl:270
 #, fuzzy
@@ -4868,39 +4990,39 @@ msgstr "Relativa"
 
 #: tcl/bin/genedit.tcl:282
 msgid "Find All"
-msgstr ""
+msgstr "Procurar tudo"
 
 #: tcl/bin/genedit.tcl:285
 msgid "Replace All"
-msgstr ""
+msgstr "Substituir tudo"
 
 #: tcl/bin/genedit.tcl:288
 msgid "Skip This"
-msgstr ""
+msgstr "Pular isto"
 
 #: tcl/bin/genedit.tcl:291
 msgid "Replace This"
-msgstr ""
+msgstr "Substituir isto"
 
 #: tcl/bin/genedit.tcl:297
 msgid "Clear"
-msgstr ""
+msgstr "Limpar"
 
 #: tcl/bin/genedit.tcl:422
 msgid "Set Line Numbering"
-msgstr ""
+msgstr "Estabelecer numeração de linha"
 
 #: tcl/bin/genedit.tcl:424
 msgid "Increment"
-msgstr ""
+msgstr "Incrementar"
 
 #: tcl/bin/genedit.tcl:426
 msgid "One"
-msgstr ""
+msgstr "Um"
 
 #: tcl/bin/genedit.tcl:429
 msgid "Two"
-msgstr ""
+msgstr "Dois"
 
 #: tcl/bin/genedit.tcl:432
 #, fuzzy
@@ -4909,27 +5031,27 @@ msgstr "_Arquivo"
 
 #: tcl/bin/genedit.tcl:435
 msgid "Ten"
-msgstr ""
+msgstr "Dez"
 
 #: tcl/bin/genedit.tcl:439
 msgid "Space"
-msgstr ""
+msgstr "Espaço"
 
 #: tcl/bin/genedit.tcl:441
 msgid "Single Space"
-msgstr ""
+msgstr "Espaço Simples"
 
 #: tcl/bin/genedit.tcl:444
 msgid "Double Space"
-msgstr ""
+msgstr "Espaço Duplo"
 
 #: tcl/bin/genedit.tcl:447
 msgid "Tab Space"
-msgstr ""
+msgstr "Espaço TAB"
 
 #: tcl/bin/genedit.tcl:453
 msgid "Next Number:"
-msgstr ""
+msgstr "Próximo Número:"
 
 #: tcl/bin/genedit.tcl:474
 #, fuzzy
@@ -4943,19 +5065,19 @@ msgstr "Mostrar _Configuração Hal"
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Would you like to save your configuration before you exit?"
-msgstr ""
+msgstr "Você gostaria de salvar sua configuração antes de sair?"
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Save All"
-msgstr ""
+msgstr "Salvar Tudo"
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Save Tune"
-msgstr ""
+msgstr "Salvar ajuste"
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Save as Netlist"
-msgstr ""
+msgstr "Salvar como Netlist"
 
 #: tcl/bin/halconfig.tcl:103
 #, fuzzy
@@ -4964,27 +5086,27 @@ msgstr "Vista frontal"
 
 #: tcl/bin/halconfig.tcl:132
 msgid "Show"
-msgstr ""
+msgstr "Mostrar"
 
 #: tcl/bin/halconfig.tcl:133 tcl/bin/halshow.tcl:261
 msgid "Watch"
-msgstr ""
+msgstr "Observar"
 
 #: tcl/bin/halconfig.tcl:157
 msgid "Save INI Tuning"
-msgstr ""
+msgstr "Salvar ajustes INI"
 
 #: tcl/bin/halconfig.tcl:159
 msgid "Save HAL Ini"
-msgstr ""
+msgstr "Salvar HAL Ini"
 
 #: tcl/bin/halconfig.tcl:161
 msgid "Save HAL Net"
-msgstr ""
+msgstr "Salvar HAL Net"
 
 #: tcl/bin/halconfig.tcl:163
 msgid "Save and Exit"
-msgstr ""
+msgstr "Salvar e Sair"
 
 #: tcl/bin/halconfig.tcl:168 tcl/tklinuxcnc.tcl:768
 #, fuzzy
@@ -4993,40 +5115,40 @@ msgstr "_Vista"
 
 #: tcl/bin/halconfig.tcl:170
 msgid "Expand Tree"
-msgstr ""
+msgstr "Expandir Árvore"
 
 #: tcl/bin/halconfig.tcl:172
 msgid "Collapse Tree"
-msgstr ""
+msgstr "Contrair Árvore"
 
 #: tcl/bin/halconfig.tcl:175 tcl/bin/halshow.tcl:250
 msgid "Expand Pins"
-msgstr ""
+msgstr "Expandir Pinos"
 
 #: tcl/bin/halconfig.tcl:177 tcl/bin/halshow.tcl:252
 msgid "Expand Parameters"
-msgstr ""
+msgstr "Expandir Parâmetros"
 
 #: tcl/bin/halconfig.tcl:179 tcl/bin/halshow.tcl:254
 msgid "Expand Signals"
-msgstr ""
+msgstr "Expandir Sinais"
 
 #: tcl/bin/halconfig.tcl:182 tcl/bin/halshow.tcl:272
 msgid "Erase Watch"
-msgstr ""
+msgstr "Apagar Observação"
 
 #: tcl/bin/halconfig.tcl:476
 msgid "Enter HAL command :"
-msgstr ""
+msgstr "Digite o comando HAL:"
 
 #: tcl/bin/halconfig.tcl:479 tcl/bin/halconfig.tcl:528 tcl/bin/halshow.tcl:673
 msgid "Execute"
-msgstr ""
+msgstr "Executar"
 
 #: tcl/bin/halconfig.tcl:623
 #, tcl-format
 msgid "Tune %d"
-msgstr ""
+msgstr "Ajuste %d"
 
 #: tcl/bin/halconfig.tcl:883
 #, tcl-format
@@ -5036,30 +5158,34 @@ msgid ""
 " has changed. \n"
 " Really quit?"
 msgstr ""
+"O parâmetro HAL \n"
+"  %s \n"
+" foi alterado. \n"
+" Deseja realmente sair?"
 
 #: tcl/bin/halconfig.tcl:943 tcl/bin/halshow.tcl:778
 msgid "Select a node to show."
-msgstr ""
+msgstr "Selecione o nó para mostrar."
 
 #: tcl/bin/halconfig.tcl:968 tcl/bin/halshow.tcl:831
 msgid "<-- Select a Leaf.  Click on its name."
-msgstr ""
+msgstr "<-- Selecione uma Folha.  Clique em seu nome."
 
 #: tcl/bin/halconfig.tcl:1085 tcl/bin/halconfig.tcl:1095
 #: tcl/bin/halconfig.tcl:1102 tcl/bin/halconfig.tcl:1109
 #: tcl/bin/halconfig.tcl:1116
 #, tcl-format
 msgid "Click a highlighted entry where %s should go."
-msgstr ""
+msgstr "Clique em uma entrada destacada onde %s deverá ir."
 
 #: tcl/bin/halconfig.tcl:1092
 msgid "Nothing to be done for parameters here. Try the tuning page"
-msgstr ""
+msgstr "Nada a ser feito para os parâmetros aqui. Tente ajustar a página"
 
 #: tcl/bin/halconfig.tcl:1124
 #, tcl-format
 msgid "%s is not a leaf, try again"
-msgstr ""
+msgstr "%s não é uma folha, tente novamente"
 
 #: tcl/bin/halconfig.tcl:1281
 msgid ""
@@ -5072,6 +5198,14 @@ msgid ""
 "This script carries no warranty or liability for its use to the extent "
 "allowed by law."
 msgstr ""
+"Direitos Reservados a Raymond E Henry. 2006\n"
+"License: GPL Version 2\n"
+"\n"
+"Halconfig é uma ferramenta de configuração do LinuxCNC.  Ele requer que você "
+"tenha iniciado uma instância do linuxcnc.\n"
+"\n"
+"Esse script não trás garantia ou responsabilidade pelo uso na medida "
+"permitida por lei."
 
 #: tcl/bin/halshow.tcl:108
 #, fuzzy
@@ -5080,31 +5214,31 @@ msgstr "Ha_lScope"
 
 #: tcl/bin/halshow.tcl:177
 msgid " SHOW "
-msgstr ""
+msgstr " MOSTRAR "
 
 #: tcl/bin/halshow.tcl:178
 msgid " WATCH "
-msgstr ""
+msgstr " OBSERVAR "
 
 #: tcl/bin/halshow.tcl:179
 msgid " SETTINGS "
-msgstr ""
+msgstr " CONFIGURAÇÕES "
 
 #: tcl/bin/halshow.tcl:223
 msgid "Load Watch List"
-msgstr ""
+msgstr "Carregar Lista de Observação"
 
 #: tcl/bin/halshow.tcl:225
 msgid "Save Watch List"
-msgstr ""
+msgstr "Salvar Lista de Observação"
 
 #: tcl/bin/halshow.tcl:226
 msgid "Save Watch List (multiline)"
-msgstr ""
+msgstr "Salvar Lista de Observação (multi linhas)"
 
 #: tcl/bin/halshow.tcl:243 tcl/bin/halshow.tcl:364
 msgid "Tree View"
-msgstr ""
+msgstr "Ver Árvore"
 
 #: tcl/bin/halshow.tcl:245
 #, fuzzy
@@ -5158,19 +5292,19 @@ msgstr "_Reload"
 
 #: tcl/bin/halshow.tcl:275
 msgid "Watchlist cleared"
-msgstr ""
+msgstr "Lista de observação limpa"
 
 #: tcl/bin/halshow.tcl:281
 msgid "Add to watch"
-msgstr ""
+msgstr "Adicionar para observação"
 
 #: tcl/bin/halshow.tcl:284
 msgid "added"
-msgstr ""
+msgstr "adicionado"
 
 #: tcl/bin/halshow.tcl:332
 msgid "Full path (regex)"
-msgstr ""
+msgstr "Caminho completo (regex)"
 
 #: tcl/bin/halshow.tcl:336 tcl/bin/halshow.tcl:349
 #, fuzzy
@@ -5184,11 +5318,11 @@ msgstr "Comandada"
 
 #: tcl/bin/halshow.tcl:723
 msgid "Update interval (in ms)"
-msgstr ""
+msgstr "Intervalo de atualização (em ms)"
 
 #: tcl/bin/halshow.tcl:724
 msgid "Column width for value in watch tab"
-msgstr ""
+msgstr "Largura da coluna para valor na tabela de observação"
 
 #: tcl/bin/halshow.tcl:725
 msgid "Override format string (leave empty for default)"
@@ -5196,37 +5330,39 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:727
 msgid "Float"
-msgstr ""
+msgstr "Flutuante"
 
 #: tcl/bin/halshow.tcl:728
 msgid "Integer"
-msgstr ""
+msgstr "Inteiro"
 
 #: tcl/bin/halshow.tcl:731
 msgid ""
 "Always on top\n"
 "(Note: May not working with all desktop environments)"
 msgstr ""
+"Sempre no topo\n"
+"(Veja: pode não funcionar com todos os ambientes de trabalho)"
 
 #: tcl/bin/halshow.tcl:733
 msgid "Remember watchlist"
-msgstr ""
+msgstr "Relembrar lista de observação"
 
 #: tcl/bin/halshow.tcl:740
 msgid "Settings stored in: "
-msgstr ""
+msgstr "Configurações armazenadas em: "
 
 #: tcl/bin/halshow.tcl:843
 msgid "already in list"
-msgstr ""
+msgstr "já está na lista"
 
 #: tcl/bin/halshow.tcl:959
 msgid "Set to .."
-msgstr ""
+msgstr "Estabelecer para .."
 
 #: tcl/bin/halshow.tcl:962
 msgid "Unlink pin"
-msgstr ""
+msgstr "Desvincular pino"
 
 #: tcl/bin/halshow.tcl:964
 #, fuzzy
@@ -5235,7 +5371,7 @@ msgstr "M_ostra o programa"
 
 #: tcl/bin/halshow.tcl:965
 msgid "Remove"
-msgstr ""
+msgstr "Remover"
 
 #: tcl/bin/halshow.tcl:976
 #, fuzzy
@@ -5249,11 +5385,11 @@ msgstr "Jog no segundo eixo"
 
 #: tcl/bin/halshow.tcl:978
 msgid "Add as Param(s)"
-msgstr ""
+msgstr "Adicionar como parâmetros(s)"
 
 #: tcl/bin/halshow.tcl:989
 msgid "Add all sub-items to watch"
-msgstr ""
+msgstr "Adicionar todos os subitens para observação"
 
 #: tcl/bin/halshow.tcl:1025 tcl/bin/halshow.tcl:1033 tcl/bin/halshow.tcl:1101
 #, fuzzy
@@ -5267,7 +5403,7 @@ msgstr "Botão esquerdo"
 
 #: tcl/bin/halshow.tcl:1102
 msgid "Update interval for this session (ms)"
-msgstr ""
+msgstr "Intervalo de atualização para essa sessão (ms)"
 
 #: tcl/bin/halshow.tcl:1104
 #, fuzzy
@@ -5276,11 +5412,11 @@ msgstr "Código G fora dos limites"
 
 #: tcl/bin/halshow.tcl:1172
 msgid "removed from list"
-msgstr ""
+msgstr "removido da lista"
 
 #: tcl/bin/halshow.tcl:1202
 msgid "Load a watch list"
-msgstr ""
+msgstr "Carregar uma lista de observação"
 
 #: tcl/bin/halshow.tcl:1229
 #, fuzzy
@@ -5289,27 +5425,27 @@ msgstr "_Reload"
 
 #: tcl/bin/halshow.tcl:1229
 msgid "saved backup for old watchlist in"
-msgstr ""
+msgstr "backup salvo para uma lista de observação antiga em"
 
 #: tcl/bin/halshow.tcl:1240
 msgid "Save current watch list"
-msgstr ""
+msgstr "Salvar lista de observação atual"
 
 #: tcl/bin/halshow.tcl:1276
 msgid "Commands may be tested here but they will NOT be saved"
-msgstr ""
+msgstr "Comandos podem ser testados aqui mas eles NÃO serão salvos"
 
 #: tcl/bin/halshow.tcl:1305
 msgid "Integer (disabled by \"--iformat\" argument)"
-msgstr ""
+msgstr "Inteiro (desabilitado por argumento \"--iformat\")"
 
 #: tcl/bin/halshow.tcl:1312
 msgid "Float (disabled by \"--fformat\" argument)"
-msgstr ""
+msgstr "Flutuante (desabilitado por argumento \"--fformat\")"
 
 #: tcl/bin/halshow.tcl:1319
 msgid "\"--noprefs\" option set. Settings will not be saved!"
-msgstr ""
+msgstr "opção \"--noprefs\" estabelecida. As configurações não serão salvas!"
 
 #: tcl/bin/pickconfig.tcl:99
 msgid ""
@@ -5317,6 +5453,9 @@ msgid ""
 "install \n"
 "it with sudo apt-get install bwidget."
 msgstr ""
+"Não foi possível encontrar o pacote bwidget 1.7.  Existe um pacote debian "
+"bwidget; instale-o \n"
+"com sudo apt-get install bwidget."
 
 #: tcl/bin/pickconfig.tcl:158
 #, fuzzy
@@ -5325,7 +5464,7 @@ msgstr "Mostrar _Configuração Hal"
 
 #: tcl/bin/pickconfig.tcl:308
 msgid "No details available."
-msgstr ""
+msgstr "Sem detalhes disponíveis."
 
 #: tcl/bin/pickconfig.tcl:385
 msgid ""
@@ -5336,6 +5475,11 @@ msgid ""
 "right.\n"
 "Click 'OK' to run the selected configuration"
 msgstr ""
+"Bem-vindo ao LinuxCNC.\n"
+"\n"
+"Selecione uma configuração de máquina pela lista à esquerda.\n"
+"Os detalhes sobre a lista de configuração selecionada aparecerão à direita.\n"
+"Clique no botão 'OK' para executar a configuração selecionada"
 
 #: tcl/bin/pickconfig.tcl:443
 #, fuzzy
@@ -5350,7 +5494,7 @@ msgstr "Mostrar _Configuração Hal"
 #: tcl/bin/pickconfig.tcl:575
 #, tcl-format
 msgid "ERROR: no configurations found in path '%s'"
-msgstr ""
+msgstr "ERRO: não foram encontradas configurações no caminho '%s'"
 
 #: tcl/bin/pickconfig.tcl:625
 msgid "Copy Configuration?"
@@ -5362,6 +5506,8 @@ msgid ""
 "Would you like to copy the %s configuration to your home directory so you "
 "can customize it?"
 msgstr ""
+"Você gostaria de copiar a configuração %s para seu diretório home e então "
+"customiza-lo?"
 
 #: tcl/bin/pickconfig.tcl:813
 #, fuzzy
@@ -5374,24 +5520,29 @@ msgid ""
 "The configuration file has been copied to %s. Next time, choose this "
 "location when starting LinuxCNC."
 msgstr ""
+"O arquivo de configuração foi copiado para %s. Na próxima vez, escolha uma "
+"local enquanto inicia o LinuxCNC."
 
 #: tcl/bin/pickconfig.tcl:864
 msgid "Shortcut Created"
-msgstr ""
+msgstr "Atalho Criado"
 
 #: tcl/bin/pickconfig.tcl:864
 msgid ""
 "A shortcut to this configuration file has been created on your desktop.  You "
 "can use it to automatically launch this configuration."
 msgstr ""
+"Um atalho para esse arquivo de configuração foi criado em sua área de "
+"trabalho. Você pode usa-lo para executar essa configuração automaticamente."
 
 #: tcl/bin/pickconfig.tcl:870
 msgid "Create Desktop Shortcut"
-msgstr ""
+msgstr "Atalho Criado na Área de Trabalho"
 
 #: tcl/bin/tkbackplot.tcl:110
+#, fuzzy
 msgid "TkLinuxCNC BackPlot"
-msgstr ""
+msgstr "TkLinuxCNC BackPlot"
 
 #: tcl/bin/tkbackplot.tcl:125
 #, fuzzy
@@ -5405,11 +5556,11 @@ msgstr "PARADA DE EMERGÊNCIA"
 
 #: tcl/bin/tkbackplot.tcl:129
 msgid "CANCEL"
-msgstr ""
+msgstr "CANCELAR"
 
 #: tcl/bin/tkbackplot.tcl:250
 msgid "AXIS"
-msgstr ""
+msgstr "EIXO"
 
 #: tcl/bin/tkbackplot.tcl:251
 #, fuzzy
@@ -5418,62 +5569,64 @@ msgstr "OFF"
 
 #: tcl/bin/tkbackplot.tcl:252
 msgid "ANGLE"
-msgstr ""
+msgstr "ÂNGULO"
 
 #: tcl/bin/tkbackplot.tcl:253
 msgid "DIRECTION"
-msgstr ""
+msgstr "DIREÇÃO"
 
 #: tcl/bin/tkbackplot.tcl:270
 msgid "SIZE :"
-msgstr ""
+msgstr "TAMANHO :"
 
 #: tcl/show_errors.tcl:78
 msgid "LinuxCNC Errors"
-msgstr ""
+msgstr "Erros do LinuxCNC"
 
 #: tcl/show_errors.tcl:81
 msgid ""
 "LinuxCNC terminated with an error.  When reporting problems, please create a "
 "report file and include in your message."
 msgstr ""
+"O LinuxCNC foi encerrado com um erro. Quando for reportar os problemas, por "
+"favor crie um arquivo de relatório e inclua sua mensagem."
 
 #: tcl/show_errors.tcl:107
 msgid "Create Report File"
-msgstr ""
+msgstr "Criar um Arquivo de Relatório"
 
 #: tcl/show_errors.tcl:109 tcl/scripts/Set_Coordinates.tcl:107
 msgid "Close"
-msgstr ""
+msgstr "Fechar"
 
 #: tcl/tklinuxcnc.tcl:155 tcl/tklinuxcnc.tcl:182
 msgid "Set Run Mark"
-msgstr ""
+msgstr "Estabelecer Ponto de Execução"
 
 #: tcl/tklinuxcnc.tcl:157
 #, tcl-format
 msgid "Set run mark at line %s?"
-msgstr ""
+msgstr "Estabelecer ponto de execução na linha %s?"
 
 #: tcl/tklinuxcnc.tcl:177 tcl/tklinuxcnc.tcl:205
 msgid "untitled"
-msgstr ""
+msgstr "sem título"
 
 #: tcl/tklinuxcnc.tcl:213
 msgid "Load Parameter File"
-msgstr ""
+msgstr "Carregar Arquivo de Parâmetro"
 
 #: tcl/tklinuxcnc.tcl:262
 msgid "LinuxCNC Diagnostics"
-msgstr ""
+msgstr "Diagnósticos do LinuxCNC"
 
 #: tcl/tklinuxcnc.tcl:264
 msgid "Task"
-msgstr ""
+msgstr "Tarefa"
 
 #: tcl/tklinuxcnc.tcl:266 tcl/tklinuxcnc.tcl:289 tcl/tklinuxcnc.tcl:312
 msgid "Heartbeat:"
-msgstr ""
+msgstr "Frequência:"
 
 #: tcl/tklinuxcnc.tcl:269 tcl/tklinuxcnc.tcl:292 tcl/tklinuxcnc.tcl:315
 #, fuzzy
@@ -5487,11 +5640,11 @@ msgstr "Comandada"
 
 #: tcl/tklinuxcnc.tcl:275 tcl/tklinuxcnc.tcl:298 tcl/tklinuxcnc.tcl:321
 msgid "Status:"
-msgstr ""
+msgstr "Estado:"
 
 #: tcl/tklinuxcnc.tcl:287
 msgid "Io"
-msgstr ""
+msgstr "Io"
 
 #: tcl/tklinuxcnc.tcl:310
 #, fuzzy
@@ -5500,7 +5653,7 @@ msgstr "Posição:"
 
 #: tcl/tklinuxcnc.tcl:351
 msgid "About TkLinuxCNC"
-msgstr ""
+msgstr "Sobre o TkLinuxCNC"
 
 #: tcl/tklinuxcnc.tcl:352
 msgid ""
@@ -5510,10 +5663,15 @@ msgid ""
 "\n"
 "GPL Version 2 (2012)"
 msgstr ""
+"TkLinuxcnc\n"
+"\n"
+"Tcl/Tk GUI para LinuxCNC\n"
+"\n"
+"GPL Versão 2 (2012)"
 
 #: tcl/tklinuxcnc.tcl:400
 msgid "Set Tool Offset"
-msgstr ""
+msgstr "Estabelecer Offset da Ferramenta"
 
 #: tcl/tklinuxcnc.tcl:405 tcl/tklinuxcnc.tcl:934
 #, fuzzy
@@ -5544,11 +5702,11 @@ msgstr "Contínuo"
 
 #: tcl/tklinuxcnc.tcl:751
 msgid "Edit..."
-msgstr ""
+msgstr "Editar..."
 
 #: tcl/tklinuxcnc.tcl:756
 msgid "Tool Table Editor..."
-msgstr ""
+msgstr "Tabela de Edição de Ferramenta..."
 
 #: tcl/tklinuxcnc.tcl:759 src/emc/usr_intf/touchy/touchy.glade:1379
 #, fuzzy
@@ -5557,15 +5715,16 @@ msgstr "Recarrega.lista de ferramentas"
 
 #: tcl/tklinuxcnc.tcl:769
 msgid "Offsets and Variables..."
-msgstr ""
+msgstr "Offsets e Variáveis..."
 
 #: tcl/tklinuxcnc.tcl:770
 msgid "Diagnostics..."
-msgstr ""
+msgstr "Diagnósticos..."
 
 #: tcl/tklinuxcnc.tcl:771
+#, fuzzy
 msgid "Backplot..."
-msgstr ""
+msgstr "Backplot..."
 
 #: tcl/tklinuxcnc.tcl:776
 #, fuzzy
@@ -5574,15 +5733,15 @@ msgstr "_Calibrar"
 
 #: tcl/tklinuxcnc.tcl:777
 msgid "Testing..."
-msgstr ""
+msgstr "Testando..."
 
 #: tcl/tklinuxcnc.tcl:778
 msgid "Debug..."
-msgstr ""
+msgstr "Depurar..."
 
 #: tcl/tklinuxcnc.tcl:779
 msgid "Font..."
-msgstr ""
+msgstr "Fonte..."
 
 #: tcl/tklinuxcnc.tcl:783 src/emc/usr_intf/axis/scripts/image-to-gcode.py:672
 msgid "Units"
@@ -5590,11 +5749,11 @@ msgstr "Unidades"
 
 #: tcl/tklinuxcnc.tcl:784
 msgid "auto"
-msgstr ""
+msgstr "auto"
 
 #: tcl/tklinuxcnc.tcl:785 src/emc/usr_intf/pncconf/tests.py:522
 msgid "inches"
-msgstr ""
+msgstr "polegadas"
 
 #: tcl/tklinuxcnc.tcl:786 src/emc/usr_intf/axis/scripts/axis.py:1759
 #: src/emc/usr_intf/axis/scripts/axis.py:2050
@@ -5617,15 +5776,15 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:1978
 #: src/emc/usr_intf/pncconf/dialogs.glade:3574
 msgid "mm"
-msgstr ""
+msgstr "mm"
 
 #: tcl/tklinuxcnc.tcl:787
 msgid "cm"
-msgstr ""
+msgstr "cm"
 
 #: tcl/tklinuxcnc.tcl:791
 msgid "Utilities"
-msgstr ""
+msgstr "Utilitários"
 
 #: tcl/tklinuxcnc.tcl:792
 #, fuzzy
@@ -5634,15 +5793,15 @@ msgstr "Ha_lScope"
 
 #: tcl/tklinuxcnc.tcl:806
 msgid "Set Coordinates"
-msgstr ""
+msgstr "Estabelecer Coordenadas"
 
 #: tcl/tklinuxcnc.tcl:814
 msgid "HAL Show"
-msgstr ""
+msgstr "Mostrar HAL"
 
 #: tcl/tklinuxcnc.tcl:815
 msgid "HAL Config"
-msgstr ""
+msgstr "Configurar HAL"
 
 #: tcl/tklinuxcnc.tcl:820
 #, fuzzy
@@ -5651,15 +5810,17 @@ msgstr "_Ajuda"
 
 #: tcl/tklinuxcnc.tcl:821
 msgid "Balloon help"
-msgstr ""
+msgstr "Balão de Ajuda"
 
 #: tcl/tklinuxcnc.tcl:844
+#, fuzzy
 msgid "Estop on"
-msgstr ""
+msgstr "Estop on"
 
 #: tcl/tklinuxcnc.tcl:845
+#, fuzzy
 msgid "Estop off"
-msgstr ""
+msgstr "Estop off"
 
 #: tcl/tklinuxcnc.tcl:847
 #, fuzzy
@@ -5679,7 +5840,7 @@ msgstr "Controle manual"
 #: tcl/tklinuxcnc.tcl:857 tcl/tklinuxcnc.tcl:2105
 #: src/emc/usr_intf/touchy/touchy.glade:1264
 msgid "MDI"
-msgstr ""
+msgstr "MDI"
 
 #: tcl/tklinuxcnc.tcl:864
 #, fuzzy
@@ -5703,11 +5864,11 @@ msgstr "Líquido"
 
 #: tcl/tklinuxcnc.tcl:880
 msgid "Lube on"
-msgstr ""
+msgstr "Lubrificação Ativa"
 
 #: tcl/tklinuxcnc.tcl:881
 msgid "Lube off"
-msgstr ""
+msgstr "Lubrificação Desativada"
 
 #: tcl/tklinuxcnc.tcl:898
 #, fuzzy
@@ -5736,15 +5897,15 @@ msgstr "Freio"
 
 #: tcl/tklinuxcnc.tcl:919
 msgid "ABORT"
-msgstr ""
+msgstr "ABORTAR"
 
 #: tcl/tklinuxcnc.tcl:936
 msgid "Offset:"
-msgstr ""
+msgstr "Offset:"
 
 #: tcl/tklinuxcnc.tcl:942
 msgid "Work Offsets:"
-msgstr ""
+msgstr "Offsets de Trabalho:"
 
 #: tcl/tklinuxcnc.tcl:1126
 #, fuzzy
@@ -5773,11 +5934,11 @@ msgstr "Comandada"
 
 #: tcl/tklinuxcnc.tcl:1139
 msgid "joint"
-msgstr ""
+msgstr "articulação"
 
 #: tcl/tklinuxcnc.tcl:1140
 msgid "world"
-msgstr ""
+msgstr "global"
 
 #: tcl/tklinuxcnc.tcl:1167 src/emc/usr_intf/pncconf/private_data.py:469
 #, fuzzy
@@ -5786,7 +5947,7 @@ msgstr "Home"
 
 #: tcl/tklinuxcnc.tcl:1222
 msgid "Set axis value:"
-msgstr ""
+msgstr "Estabelecer valor do eixo:"
 
 #: tcl/tklinuxcnc.tcl:1280
 #, fuzzy
@@ -5815,7 +5976,7 @@ msgstr "Velocidade da máquina"
 
 #: tcl/tklinuxcnc.tcl:1355
 msgid "Set spindle speed override:"
-msgstr ""
+msgstr "Estabelecer ajuste de velocidade do spindle:"
 
 #: tcl/tklinuxcnc.tcl:1410
 #, fuzzy
@@ -5824,7 +5985,7 @@ msgstr "Velocidade de Jog"
 
 #: tcl/tklinuxcnc.tcl:1441
 msgid "Angular Jog Speed (deg)/min:"
-msgstr ""
+msgstr "Velocidade de Articulação Angular (graus)/min:"
 
 #: tcl/tklinuxcnc.tcl:1465 share/axis/tcl/axis.tcl:1491
 msgid "Feed Override:"
@@ -5836,8 +5997,9 @@ msgid "Spindle speed Override:"
 msgstr "Velocidade da máquina"
 
 #: tcl/tklinuxcnc.tcl:1509
+#, fuzzy
 msgid "MDI:"
-msgstr ""
+msgstr "MDI:"
 
 #: tcl/tklinuxcnc.tcl:1531
 #, fuzzy
@@ -5846,13 +6008,13 @@ msgstr "Pausa o programa"
 
 #: tcl/tklinuxcnc.tcl:1536
 msgid "  -  Status: "
-msgstr ""
+msgstr "  -  Estado: "
 
 #: tcl/tklinuxcnc.tcl:1547 src/emc/usr_intf/stepconf/main_page.glade:292
 #: src/emc/usr_intf/pncconf/dialogs.glade:3734
 #: src/emc/usr_intf/gscreen/gscreen.glade:4137
 msgid "Run"
-msgstr ""
+msgstr "Executar"
 
 #: tcl/tklinuxcnc.tcl:1548 src/emc/usr_intf/pncconf/dialogs.glade:3651
 #: src/emc/usr_intf/gscreen/gscreen.glade:4153
@@ -5872,19 +6034,19 @@ msgstr "_Passo"
 
 #: tcl/tklinuxcnc.tcl:1551
 msgid "Verify"
-msgstr ""
+msgstr "Verificar"
 
 #: tcl/tklinuxcnc.tcl:1552
 msgid "Optional Stop"
-msgstr ""
+msgstr "Parada Opcional"
 
 #: tcl/tklinuxcnc.tcl:1945 tcl/ngcgui_ttt.tcl:47
 msgid "Set Font"
-msgstr ""
+msgstr "Estabelecer Fonte"
 
 #: tcl/tklinuxcnc.tcl:1954 tcl/ngcgui_ttt.tcl:284
 msgid "Font"
-msgstr ""
+msgstr "Fonte"
 
 #: tcl/tklinuxcnc.tcl:1961
 #, fuzzy
@@ -5898,7 +6060,7 @@ msgstr "_Passo"
 
 #: tcl/tklinuxcnc.tcl:2016 tcl/tklinuxcnc.tcl:2115
 msgid "MANUAL"
-msgstr ""
+msgstr "MANUAL"
 
 #: tcl/tklinuxcnc.tcl:2086 share/axis/tcl/axis.tcl:1771
 msgid "ESTOP"
@@ -5915,27 +6077,27 @@ msgstr "PARADA DE EMERGÊNCIA"
 
 #: tcl/tklinuxcnc.tcl:2096
 msgid "AUTO"
-msgstr ""
+msgstr "AUTO"
 
 #: tcl/tklinuxcnc.tcl:2128
 msgid "MIST ON"
-msgstr ""
+msgstr "NEBLINA ATIVADA"
 
 #: tcl/tklinuxcnc.tcl:2130
 msgid "MIST OFF"
-msgstr ""
+msgstr "NEBLINA DESATIVADA"
 
 #: tcl/tklinuxcnc.tcl:2132
 msgid "MIST ?"
-msgstr ""
+msgstr "NEBLINA ?"
 
 #: tcl/tklinuxcnc.tcl:2136
 msgid "FLOOD ON"
-msgstr ""
+msgstr "PREENCHIMENTO ATIVADO"
 
 #: tcl/tklinuxcnc.tcl:2138
 msgid "FLOOD OFF"
-msgstr ""
+msgstr "PREENCHIMENTO DESATIVADO"
 
 #: tcl/tklinuxcnc.tcl:2140
 msgid "FLOOD ?"
@@ -5943,59 +6105,59 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:2144
 msgid "LUBE ON"
-msgstr ""
+msgstr "LUBRIFICAÇÃO ATIVADA"
 
 #: tcl/tklinuxcnc.tcl:2146
 msgid "LUBE OFF"
-msgstr ""
+msgstr "LUBRIFICAÇÃO DESATIVADA"
 
 #: tcl/tklinuxcnc.tcl:2148
 msgid "LUBE ?"
-msgstr ""
+msgstr "LUBRIFICAÇÃO ?"
 
 #: tcl/tklinuxcnc.tcl:2152
 msgid "SPINDLE FORWARD"
-msgstr ""
+msgstr "SPINDLE NO SENTIDO HORÁRIO"
 
 #: tcl/tklinuxcnc.tcl:2154
 msgid "SPINDLE REVERSE"
-msgstr ""
+msgstr "SPINDLE NO SENTIDO ANTI-HORÁRIO"
 
 #: tcl/tklinuxcnc.tcl:2156
 msgid "SPINDLE OFF"
-msgstr ""
+msgstr "SPINDLE DESLIGADO"
 
 #: tcl/tklinuxcnc.tcl:2158
 msgid "SPINDLE INCREASE"
-msgstr ""
+msgstr "ACELERAÇÃO DO SPINDLE"
 
 #: tcl/tklinuxcnc.tcl:2160
 msgid "SPINDLE DECREASE"
-msgstr ""
+msgstr "DESACELERAÇÃO DO SPINDLE"
 
 #: tcl/tklinuxcnc.tcl:2162
 msgid "SPINDLE ?"
-msgstr ""
+msgstr "SPINDLE ?"
 
 #: tcl/tklinuxcnc.tcl:2166
 msgid "BRAKE ON"
-msgstr ""
+msgstr "FREIO LIGADO"
 
 #: tcl/tklinuxcnc.tcl:2168
 msgid "BRAKE OFF"
-msgstr ""
+msgstr "FREIO DESLIGADO"
 
 #: tcl/tklinuxcnc.tcl:2170
 msgid "BRAKE ?"
-msgstr ""
+msgstr "FREIO ?"
 
 #: tcl/scripts/Set_Coordinates.tcl:23
 msgid "LinuxCNC Set Coordinate"
-msgstr ""
+msgstr "Estabelecer Coordenada LinuxCNC"
 
 #: tcl/scripts/Set_Coordinates.tcl:26
 msgid "Coordinate System Control Window"
-msgstr ""
+msgstr "Janela de Controle de Sistema de Coordenadas"
 
 #: tcl/scripts/Set_Coordinates.tcl:83
 #: src/emc/usr_intf/axis/scripts/axis.py:3647
@@ -6004,46 +6166,49 @@ msgid "Axis "
 msgstr "Eixo:"
 
 #: tcl/scripts/Set_Coordinates.tcl:84
+#, fuzzy
 msgid "Var # "
-msgstr ""
+msgstr "Var # "
 
 #: tcl/scripts/Set_Coordinates.tcl:85
 msgid "Offset Value "
-msgstr ""
+msgstr "Valor do Offset"
 
 #: tcl/scripts/Set_Coordinates.tcl:86
 msgid "What to Teach"
-msgstr ""
+msgstr "O que ensinar"
 
 #: tcl/scripts/Set_Coordinates.tcl:95
 msgid "Teach"
-msgstr ""
+msgstr "Ensinar"
 
 #: tcl/scripts/Set_Coordinates.tcl:105
 msgid "Set Old"
-msgstr ""
+msgstr "Estabelecer Antigo"
 
 #: tcl/scripts/Set_Coordinates.tcl:106
 msgid "Set Zero"
-msgstr ""
+msgstr "Estabelecer Zero"
 
 #: tcl/scripts/Set_Coordinates.tcl:108
 msgid "Write"
-msgstr ""
+msgstr "Escrever"
 
 #: tcl/ngcgui.tcl:443 tcl/ngcgui.tcl:859
 msgid "Need non-null file name"
-msgstr ""
+msgstr "Necessário nome de arquivo não nulo"
 
 #: tcl/ngcgui.tcl:487
 msgid "Disallowed use of ngcgui generated file as Subfile"
-msgstr ""
+msgstr "Uso não permitido de arquivo gerado ngcgui como subarquivo"
 
 #: tcl/ngcgui.tcl:493
 msgid ""
 "marked (not_a_subfile)\n"
 "Not intended for use as a subfile"
 msgstr ""
+"marcado (not_a_subfile)\n"
+"Não se destina ao uso como subarquivo"
 
 #: tcl/ngcgui.tcl:507 tcl/ngcgui.tcl:526 tcl/ngcgui.tcl:548 tcl/ngcgui.tcl:561
 #: tcl/ngcgui.tcl:581 tcl/ngcgui.tcl:686
@@ -6052,15 +6217,15 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:509
 msgid "can not include subroutines within ngcgui subfile"
-msgstr ""
+msgstr "não é possível incluir subrotinas no subarquivo ngcgui"
 
 #: tcl/ngcgui.tcl:517
 msgid "Multiple subroutines in file not allowed"
-msgstr ""
+msgstr "Não são permitidas múltiplas subrotinas no arquivo"
 
 #: tcl/ngcgui.tcl:528
 msgid "sub label"
-msgstr ""
+msgstr "sub etiqueta"
 
 #: tcl/ngcgui.tcl:528 tcl/ngcgui.tcl:583
 #, fuzzy
@@ -6069,27 +6234,27 @@ msgstr "Número de níveis de subrotina muito grande"
 
 #: tcl/ngcgui.tcl:543 tcl/ngcgui.tcl:544
 msgid "ignoring M2 after endsub"
-msgstr ""
+msgstr "ignorando M2 depois de endsub"
 
 #: tcl/ngcgui.tcl:549
 msgid "file contains lines after subend"
-msgstr ""
+msgstr "o arquivo contem linhas após subend"
 
 #: tcl/ngcgui.tcl:562
 msgid "file contains lines before sub"
-msgstr ""
+msgstr "o arquivo contem linhas antes de sub"
 
 #: tcl/ngcgui.tcl:583
 msgid "endsub label"
-msgstr ""
+msgstr "etiqueta endsub"
 
 #: tcl/ngcgui.tcl:688
 msgid "out of sequence positional parameter"
-msgstr ""
+msgstr "parâmetro de sequencia fora de posição"
 
 #: tcl/ngcgui.tcl:688
 msgid "expected"
-msgstr ""
+msgstr "esperado"
 
 #: tcl/ngcgui.tcl:739
 #, fuzzy
@@ -6098,19 +6263,19 @@ msgstr "Número de níveis de subrotina muito grande"
 
 #: tcl/ngcgui.tcl:742
 msgid "no 'endsub' found in file"
-msgstr ""
+msgstr "nenhum 'endsub' encontrado no arquivo"
 
 #: tcl/ngcgui.tcl:814
 msgid "Cannot find gcmc executable"
-msgstr ""
+msgstr "Não foi possível encontrar o executável gcmc"
 
 #: tcl/ngcgui.tcl:815
 msgid "Please Install in path"
-msgstr ""
+msgstr "Por favor instale no caminho"
 
 #: tcl/ngcgui.tcl:823
 msgid "not embedded, deriving outdir from:"
-msgstr ""
+msgstr "não integrado, derivando outdir de:"
 
 #: tcl/ngcgui.tcl:1051
 #, fuzzy
@@ -6124,19 +6289,19 @@ msgstr "Ctrl-K"
 
 #: tcl/ngcgui.tcl:1200
 msgid "Preamble"
-msgstr ""
+msgstr "Preâmbulo"
 
 #: tcl/ngcgui.tcl:1213
 msgid "Subfile"
-msgstr ""
+msgstr "Subarquivo"
 
 #: tcl/ngcgui.tcl:1225
 msgid "Postamble"
-msgstr ""
+msgstr "Postâmbulo"
 
 #: tcl/ngcgui.tcl:1242
 msgid "Retain values on Subfile read"
-msgstr ""
+msgstr "Reter valores na leitura do subarquivo"
 
 #: tcl/ngcgui.tcl:1250
 #, fuzzy
@@ -6145,7 +6310,7 @@ msgstr "Número de níveis de subrotina muito grande"
 
 #: tcl/ngcgui.tcl:1260 tcl/ngcgui.tcl:2592
 msgid "Autosend"
-msgstr ""
+msgstr "Envio automático"
 
 #: tcl/ngcgui.tcl:1270
 #, fuzzy
@@ -6155,7 +6320,7 @@ msgstr "Arquivos rs274ngc"
 #: tcl/ngcgui.tcl:1280 tcl/ngcgui.tcl:2414 tcl/ngcgui.tcl:2437
 #: tcl/ngcgui.tcl:2467
 msgid "Create Feature"
-msgstr ""
+msgstr "Criar Recurso"
 
 #: tcl/ngcgui.tcl:1286 tcl/ngcgui.tcl:3079
 #, fuzzy
@@ -6164,31 +6329,32 @@ msgstr "_Arquivo"
 
 #: tcl/ngcgui.tcl:1287 tcl/ngcgui.tcl:3076
 msgid "Finalize"
-msgstr ""
+msgstr "Finalizar"
 
 #: tcl/ngcgui.tcl:1304
 msgid "Reread"
-msgstr ""
+msgstr "Reler"
 
 #: tcl/ngcgui.tcl:1313 src/emc/usr_intf/gscreen/gscreen.glade:390
 msgid "Restart"
-msgstr ""
+msgstr "Reiniciar"
 
 #: tcl/ngcgui.tcl:1323
+#, fuzzy
 msgid "SendFileToAxis"
-msgstr ""
+msgstr "SendFileToAxis"
 
 #: tcl/ngcgui.tcl:1366
 msgid "Unrecoverable problem"
-msgstr ""
+msgstr "Problema irrecuperável"
 
 #: tcl/ngcgui.tcl:1444
 msgid "Postamble file"
-msgstr ""
+msgstr "Arquivo de postâmbulo"
 
 #: tcl/ngcgui.tcl:1494
 msgid "Subroutine file"
-msgstr ""
+msgstr "Arquivo de subrotina"
 
 #: tcl/ngcgui.tcl:1558
 #, fuzzy
@@ -6197,7 +6363,7 @@ msgstr " Parâ_metros"
 
 #: tcl/ngcgui.tcl:1707
 msgid "No Subfile specified"
-msgstr ""
+msgstr "Nenhum subarquivo especificado"
 
 #: tcl/ngcgui.tcl:1709
 #, fuzzy
@@ -6206,83 +6372,83 @@ msgstr " Parâ_metros"
 
 #: tcl/ngcgui.tcl:1718
 msgid "Missing value for parm"
-msgstr ""
+msgstr "Falta valor para o parâmetro"
 
 #: tcl/ngcgui.tcl:1739
 msgid "Output file"
-msgstr ""
+msgstr "Arquivo de saída"
 
 #: tcl/ngcgui.tcl:1854
 msgid "Multiple Tabs with Features"
-msgstr ""
+msgstr "Múltiplas Tabelas com Recursos"
 
 #: tcl/ngcgui.tcl:1855
 msgid "Finalize all Tabs?"
-msgstr ""
+msgstr "Fechar todas as abas?"
 
 #: tcl/ngcgui.tcl:1855
 msgid "Order"
-msgstr ""
+msgstr "Ordem"
 
 #: tcl/ngcgui.tcl:1857
 msgid "No, just this page"
-msgstr ""
+msgstr "Não, apenas esta página"
 
 #: tcl/ngcgui.tcl:1871
 msgid "Axis is not responding"
-msgstr ""
+msgstr "Eixo não respondendo"
 
 #: tcl/ngcgui.tcl:1872
 msgid "Error: "
-msgstr ""
+msgstr "Erro: "
 
 #: tcl/ngcgui.tcl:1874
 msgid "Autosend disabled, Ctrl-A toggles autosend"
-msgstr ""
+msgstr "Envio automático desabilitado, Ctrl-A habilita o envio automático"
 
 #: tcl/ngcgui.tcl:1876
 msgid "File saving enabled -- Finalize to save"
-msgstr ""
+msgstr "Salvar arquivo habilitado -- Finalizar para guardar"
 
 #: tcl/ngcgui.tcl:1892
 msgid "Require .ngc suffix for filename"
-msgstr ""
+msgstr "Requer sufixo .ngc para no nome do arquivo"
 
 #: tcl/ngcgui.tcl:1902
 msgid "Disallowed overwrite of"
-msgstr ""
+msgstr "Sobrescrever desabilitado para"
 
 #: tcl/ngcgui.tcl:1930
 msgid "FEATURE"
-msgstr ""
+msgstr "RECURSO"
 
 #: tcl/ngcgui.tcl:1937
 msgid "feature line added"
-msgstr ""
+msgstr "linha de recurso adicionada"
 
 #: tcl/ngcgui.tcl:1941
 msgid "remaining_features line added"
-msgstr ""
+msgstr "linha remaining_features adicionada"
 
 #: tcl/ngcgui.tcl:1953
 msgid "line added"
-msgstr ""
+msgstr "linha adicionada"
 
 #: tcl/ngcgui.tcl:1953
 msgid "activated"
-msgstr ""
+msgstr "Ativado"
 
 #: tcl/ngcgui.tcl:1955
 msgid "restores"
-msgstr ""
+msgstr "restaurar"
 
 #: tcl/ngcgui.tcl:1994
 msgid "NOTREACHED mode"
-msgstr ""
+msgstr "modo NÃO ALCANÇADO"
 
 #: tcl/ngcgui.tcl:2010
 msgid "Positional parameters for"
-msgstr ""
+msgstr "Parâmetros posicionais para"
 
 #: tcl/ngcgui.tcl:2018
 #, fuzzy
@@ -6296,7 +6462,7 @@ msgstr "Número de níveis de subrotina muito grande"
 
 #: tcl/ngcgui.tcl:2415
 msgid "Enter parms for 1st feature"
-msgstr ""
+msgstr "Insira parâmetros para o primeiro recurso"
 
 #: tcl/ngcgui.tcl:2422
 #, fuzzy
@@ -6305,23 +6471,23 @@ msgstr "Todos os arquivos"
 
 #: tcl/ngcgui.tcl:2424
 msgid "Ready to make New Outfile"
-msgstr ""
+msgstr "Pronto para fazer Novo Arquivo de Saída"
 
 #: tcl/ngcgui.tcl:2440 tcl/ngcgui.tcl:2473
 msgid "Enter parms for feature "
-msgstr ""
+msgstr "Insira parâmetros para o recurso "
 
 #: tcl/ngcgui.tcl:2460
 msgid "feature"
-msgstr ""
+msgstr "recurso"
 
 #: tcl/ngcgui.tcl:2465
 msgid "Create Next"
-msgstr ""
+msgstr "Criar Próximo"
 
 #: tcl/ngcgui.tcl:2470
 msgid "Created feature "
-msgstr ""
+msgstr "Recurso Criado "
 
 #: tcl/ngcgui.tcl:2494
 #, fuzzy
@@ -6335,47 +6501,48 @@ msgstr " Parâ_metros"
 
 #: tcl/ngcgui.tcl:2509
 msgid "Parse Error"
-msgstr ""
+msgstr "Erro de Análise"
 
 #: tcl/ngcgui.tcl:2516
 msgid "Null Preamble"
-msgstr ""
+msgstr "Preâmbulo nulo"
 
 #: tcl/ngcgui.tcl:2521
 msgid "Read Preamble"
-msgstr ""
+msgstr "Ler Preâmbulo"
 
 #: tcl/ngcgui.tcl:2525
 msgid "Preamble Error"
-msgstr ""
+msgstr "Erro de Preâmbulo"
 
 #: tcl/ngcgui.tcl:2530
 msgid "Null Postamble"
-msgstr ""
+msgstr "Postâmbulo nulo"
 
 #: tcl/ngcgui.tcl:2535
 msgid "Read Postamble"
-msgstr ""
+msgstr "Ler Postâmbulo"
 
 #: tcl/ngcgui.tcl:2539
 msgid "Postamble Error"
-msgstr ""
+msgstr "Erro de Postâmbulo"
 
 #: tcl/ngcgui.tcl:2544
 msgid "Read Subfile"
-msgstr ""
+msgstr "Ler Subarquivo"
 
 #: tcl/ngcgui.tcl:2549
 msgid "Write Error"
-msgstr ""
+msgstr "Erro de Escrita"
 
 #: tcl/ngcgui.tcl:2553
+#, fuzzy
 msgid "Outfile set"
-msgstr ""
+msgstr "Outfile set"
 
 #: tcl/ngcgui.tcl:2558
 msgid "Finished"
-msgstr ""
+msgstr "Finalizado"
 
 #: tcl/ngcgui.tcl:2563
 #, fuzzy
@@ -6384,7 +6551,7 @@ msgstr "Cancelar"
 
 #: tcl/ngcgui.tcl:2569
 msgid "Sent"
-msgstr ""
+msgstr "Enviado"
 
 #: tcl/ngcgui.tcl:2573
 #, fuzzy
@@ -6393,31 +6560,31 @@ msgstr "Filtro de programa %r falhado"
 
 #: tcl/ngcgui.tcl:2577
 msgid "Ctrl-k for Key bindings"
-msgstr ""
+msgstr "Ctrl-k para teclas de atalho"
 
 #: tcl/ngcgui.tcl:2581
 msgid "Expand sub"
-msgstr ""
+msgstr "Expandir sub"
 
 #: tcl/ngcgui.tcl:2585
 msgid "Retain values"
-msgstr ""
+msgstr "Reter valores"
 
 #: tcl/ngcgui.tcl:2589
 msgid "Verbose"
-msgstr ""
+msgstr "Verboso"
 
 #: tcl/ngcgui.tcl:2595
 msgid "Finalize Canceled"
-msgstr ""
+msgstr "Finalizar Cancelado"
 
 #: tcl/ngcgui.tcl:2732 tcl/ngcgui.tcl:2888 tcl/tooledit.tcl:933
 msgid "Dismiss"
-msgstr ""
+msgstr "Descartar"
 
 #: tcl/ngcgui.tcl:2737
 msgid "ngcgui Error"
-msgstr ""
+msgstr "Erro ngcgui"
 
 #: tcl/ngcgui.tcl:2760
 msgid "Declining support for tk send bug in ngcgui"
@@ -6425,11 +6592,12 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:2761
 msgid "You should upgrade linuxcnc to >= linuxcnc2.5"
-msgstr ""
+msgstr "Você deve atualizar o linuxcnc para >= linuxcnc2.5"
 
 #: tcl/ngcgui.tcl:2805
+#, fuzzy
 msgid "pre2.4_send_file_to_axis:error"
-msgstr ""
+msgstr "pre2.4_send_file_to_axis:error"
 
 #: tcl/ngcgui.tcl:2999 share/axis/tcl/axis.tcl:1772
 #, fuzzy
@@ -6443,19 +6611,19 @@ msgstr "Refrigeração líquida"
 
 #: tcl/ngcgui.tcl:3003 tcl/ngcgui.tcl:3210
 msgid "Clear entries"
-msgstr ""
+msgstr "Limpar entradas"
 
 #: tcl/ngcgui.tcl:3004
 msgid "Set entries to default values"
-msgstr ""
+msgstr "Estabelecer entradas para valores padrões"
 
 #: tcl/ngcgui.tcl:3005 tcl/ngcgui.tcl:3019 tcl/ngcgui.tcl:3021
 msgid "Open editor specified by"
-msgstr ""
+msgstr "Abrir editor especificado por"
 
 #: tcl/ngcgui.tcl:3006
 msgid "on last outfile"
-msgstr ""
+msgstr "no último arquivo de saída"
 
 #: tcl/ngcgui.tcl:3007
 #, fuzzy
@@ -6464,7 +6632,7 @@ msgstr "Número de níveis de subrotina muito grande"
 
 #: tcl/ngcgui.tcl:3008
 msgid "Create feature"
-msgstr ""
+msgstr "Criar recurso"
 
 #: tcl/ngcgui.tcl:3009
 msgid "Finalize (AUTO send is"
@@ -6472,31 +6640,31 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:3010
 msgid "Show key bindings"
-msgstr ""
+msgstr "Mostrar teclas de atalho"
 
 #: tcl/ngcgui.tcl:3011
 msgid "Restart (cancel pending)"
-msgstr ""
+msgstr "Reiniciar (cancelar pendências)"
 
 #: tcl/ngcgui.tcl:3012
 msgid "(re)Read Preamble"
-msgstr ""
+msgstr "(re)Ler Preâmbulo"
 
 #: tcl/ngcgui.tcl:3013
 msgid "(re)Read Postamble"
-msgstr ""
+msgstr "(re)Ler Postâmbulo"
 
 #: tcl/ngcgui.tcl:3014
 msgid "(re)Read Subfile"
-msgstr ""
+msgstr "(re)Ler Subarquivo"
 
 #: tcl/ngcgui.tcl:3015
 msgid "toggle retain values"
-msgstr ""
+msgstr "alterar valores retidos"
 
 #: tcl/ngcgui.tcl:3016
 msgid "toggle output file verbosity"
-msgstr ""
+msgstr "alterar a verbosidade dos arquivos de saída"
 
 #: tcl/ngcgui.tcl:3017
 #, fuzzy
@@ -6505,7 +6673,7 @@ msgstr "Mostra _limites"
 
 #: tcl/ngcgui.tcl:3018
 msgid "Show full status (debug info)"
-msgstr ""
+msgstr "Mostrar estado completo (informação de depuração)"
 
 #: tcl/ngcgui.tcl:3020
 #, fuzzy
@@ -6514,7 +6682,7 @@ msgstr "Recarrega Código G [Control-R]"
 
 #: tcl/ngcgui.tcl:3022
 msgid "on current preamble"
-msgstr ""
+msgstr "no preâmbulo atual"
 
 #: tcl/ngcgui.tcl:3025
 msgid " Escape Return to Preview page"
@@ -6522,11 +6690,11 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:3102
 msgid "Editing requires setting for environmental variable VISUAL"
-msgstr ""
+msgstr "Editar requer configuração da variável do ambiente VISUAL"
 
 #: tcl/ngcgui.tcl:3103
 msgid "Trying gedit"
-msgstr ""
+msgstr "Tentando gedit"
 
 #: tcl/ngcgui.tcl:3116
 #, fuzzy
@@ -6544,7 +6712,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:3164
 msgid "All-page opt items"
-msgstr ""
+msgstr "Elementos opcionais de todas as páginas"
 
 #: tcl/ngcgui.tcl:3170
 msgid "any-items"
@@ -6552,37 +6720,37 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:3203
 msgid "Set defaults"
-msgstr ""
+msgstr "Estabelecer valores padrões"
 
 #: tcl/ngcgui.tcl:3278
 msgid "not writable"
-msgstr ""
+msgstr "não gravável"
 
 #: tcl/ngcgui.tcl:3417 tcl/ngcgui.tcl:3598
 msgid "new"
-msgstr ""
+msgstr "novo"
 
 #: tcl/ngcgui.tcl:3443
 msgid "Open a new Subfile"
-msgstr ""
+msgstr "Abrir um novo Subarquivo"
 
 #: tcl/ngcgui.tcl:3589
 msgid "remove"
-msgstr ""
+msgstr "remover"
 
 #: tcl/ngcgui.tcl:3611 tcl/ngcgui.tcl:3617
 msgid "move"
-msgstr ""
+msgstr "mover"
 
 #: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:4109
 #: src/emc/usr_intf/pncconf/pncconf.py:4215
 #: src/emc/usr_intf/pncconf/pncconf.py:4379
 msgid "Custom"
-msgstr ""
+msgstr "Personalizado"
 
 #: tcl/ngcgui.tcl:3751
 msgid "Problem creating page"
-msgstr ""
+msgstr "Problema ao criar a página"
 
 #: tcl/ngcgui.tcl:3758
 msgid "entrykeybindings not available"
@@ -6590,20 +6758,22 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:3802
 msgid "Found multiple matches for"
-msgstr ""
+msgstr "Encontrado múltiplas ocorrências para"
 
 #: tcl/ngcgui.tcl:3803
 msgid "using path"
-msgstr ""
+msgstr "usando caminho"
 
 #: tcl/ngcgui.tcl:3811 src/emc/usr_intf/axis/scripts/axis.py:2689
 #: src/emc/usr_intf/axis/scripts/axis.py:2715
 msgid "Warning"
-msgstr ""
+msgstr "Atenção"
 
 #: tcl/ngcgui.tcl:3812
 msgid "File absolute path specifier conflicts with searchpath result"
 msgstr ""
+"Especificador de rota absoluta em conflito com o resultado de busca de "
+"caminho"
 
 #: tcl/ngcgui.tcl:3813
 #, fuzzy
@@ -6612,31 +6782,31 @@ msgstr "Sobre o AXIS"
 
 #: tcl/ngcgui.tcl:3814
 msgid "Using Search Result"
-msgstr ""
+msgstr "Usando o Resultado da Busca"
 
 #: tcl/ngcgui.tcl:3819
 msgid "File not in Search Path"
-msgstr ""
+msgstr "Arquivo não está no Caminho Buscado"
 
 #: tcl/ngcgui.tcl:3821
 msgid "Must be in search path"
-msgstr ""
+msgstr "Deve estar no arquivo de busca"
 
 #: tcl/ngcgui.tcl:3823
 msgid "(File found -- not in search path)"
-msgstr ""
+msgstr "(Arquivo encontrado -- não está no caminho de busca)"
 
 #: tcl/ngcgui.tcl:3825
 msgid "Current directory"
-msgstr ""
+msgstr "Diretório Atual"
 
 #: tcl/ngcgui.tcl:3826
 msgid "Search path"
-msgstr ""
+msgstr "Caminho de Busca"
 
 #: tcl/ngcgui.tcl:3836
 msgid "Check setting for"
-msgstr ""
+msgstr "Verificar configuração para"
 
 #: tcl/ngcgui.tcl:3837
 #, fuzzy
@@ -6645,7 +6815,7 @@ msgstr "AXIS (Sem arquivo)"
 
 #: tcl/ngcgui.tcl:3838
 msgid "(Restart required after fixing ini file)"
-msgstr ""
+msgstr "(Reinicialização requerida após correção do arquivo ini)"
 
 #: tcl/ngcgui.tcl:3853
 #, fuzzy
@@ -6664,51 +6834,51 @@ msgstr "AXIS (Sem arquivo)"
 
 #: tcl/ngcgui.tcl:4144
 msgid "not found"
-msgstr ""
+msgstr "não encontrado"
 
 #: tcl/ngcgui_ttt.tcl:68
 msgid "found truetype-tracer v4 -OK"
-msgstr ""
+msgstr "Encontrado truetype-tracer v4 -OK"
 
 #: tcl/ngcgui_ttt.tcl:71
 msgid "Note truetype-tracer v4 is required"
-msgstr ""
+msgstr "truetype-tracer v4 é requerido"
 
 #: tcl/ngcgui_ttt.tcl:72
 msgid "Note: truetype-tracer v4 is required"
-msgstr ""
+msgstr "Nota: truetype-tracer v4 é requerido"
 
 #: tcl/ngcgui_ttt.tcl:82
 msgid "ngcgui_app.tcl must be loaded before"
-msgstr ""
+msgstr "ngcgui_app.tcl deve ser carregado antes"
 
 #: tcl/ngcgui_ttt.tcl:90
 msgid "Create a subroutine file from truetype-tracer (V4 reqd)"
-msgstr ""
+msgstr "Criar um arquivo de sub-rotina com truetype-tracer (V4 reqd)"
 
 #: tcl/ngcgui_ttt.tcl:103 tcl/ngcgui_ttt.tcl:116
 msgid "problem with"
-msgstr ""
+msgstr "problema com"
 
 #: tcl/ngcgui_ttt.tcl:107
 msgid "No entry for"
-msgstr ""
+msgstr "Nenhuma entrada para"
 
 #: tcl/ngcgui_ttt.tcl:110
 msgid "wrong version of truetype-tracer"
-msgstr ""
+msgstr "versão incorreta do truetype-tracer"
 
 #: tcl/ngcgui_ttt.tcl:126
 msgid "not writable, using"
-msgstr ""
+msgstr "não gravável, usando"
 
 #: tcl/ngcgui_ttt.tcl:126
 msgid "and setting expandsub"
-msgstr ""
+msgstr "e configurando expandsub"
 
 #: tcl/ngcgui_ttt.tcl:162 src/emc/usr_intf/pncconf/external.glade:721
 msgid "Text"
-msgstr ""
+msgstr "Texto"
 
 #: tcl/ngcgui_ttt.tcl:172
 #, fuzzy
@@ -6717,15 +6887,16 @@ msgstr "Eixo:"
 
 #: tcl/ngcgui_ttt.tcl:178
 msgid "none"
-msgstr ""
+msgstr "nenhum"
 
 #: tcl/ngcgui_ttt.tcl:193
+#, fuzzy
 msgid "Subdiv"
-msgstr ""
+msgstr "Subdiv"
 
 #: tcl/ngcgui_ttt.tcl:200 src/emc/usr_intf/touchy/touchy.glade:9
 msgid "default"
-msgstr ""
+msgstr "Padrão"
 
 #: tcl/ngcgui_ttt.tcl:240
 #, fuzzy
@@ -6739,19 +6910,19 @@ msgstr "Normal"
 
 #: tcl/ngcgui_ttt.tcl:249
 msgid "date"
-msgstr ""
+msgstr "data"
 
 #: tcl/ngcgui_ttt.tcl:250
 msgid "fontname"
-msgstr ""
+msgstr "nome da fonte"
 
 #: tcl/ngcgui_ttt.tcl:263
 msgid "Switches"
-msgstr ""
+msgstr "Interruptores"
 
 #: tcl/ngcgui_ttt.tcl:271
 msgid "Unicode"
-msgstr ""
+msgstr "Unicode"
 
 #: tcl/ngcgui_ttt.tcl:276
 #, fuzzy
@@ -6760,15 +6931,15 @@ msgstr "Posição:"
 
 #: tcl/ngcgui_ttt.tcl:296
 msgid "Make ngcgui-compatible subfile and new tab page"
-msgstr ""
+msgstr "Crie um sub-arquivo ngcgui compatível e uma nova aba"
 
 #: tcl/ngcgui_ttt.tcl:354
 msgid "Null text"
-msgstr ""
+msgstr "Texto nulo"
 
 #: tcl/ngcgui_ttt.tcl:385
 msgid "Using truetype-tracer default font"
-msgstr ""
+msgstr "Usando fonte padrão truetype-tracer"
 
 #: tcl/ngcgui_ttt.tcl:389
 #, fuzzy
@@ -6782,13 +6953,15 @@ msgstr "Arquivo não aberto"
 
 #: tcl/ngcgui_ttt.tcl:508
 msgid "Creating new tab page"
-msgstr ""
+msgstr "Criando nova aba"
 
 #: tcl/ngcgui_app.tcl:26
 msgid ""
 "requires command inifindall\n"
 "from axis.py (LinuxCNC 2.5) or"
 msgstr ""
+"requer comando inifindall\n"
+"de axis.py (LinuxCNC 2.5) or"
 
 #: tcl/ngcgui_app.tcl:43
 #, fuzzy
@@ -6797,15 +6970,15 @@ msgstr "Arquivo não aberto"
 
 #: tcl/ngcgui_app.tcl:49 tcl/ngcgui_app.tcl:52
 msgid "Unexpected: multiple startups for ngcgui"
-msgstr ""
+msgstr "Inesperado: múltiplas inicializações do ngcgui"
 
 #: tcl/ngcgui_app.tcl:50
 msgid "LinuxCNC"
-msgstr ""
+msgstr "LinuxCNC"
 
 #: tcl/ngcgui_app.tcl:51 tcl/ngcgui_app.tcl:71
 msgid "for LinuxCNC 2.5.xxx, Do not include tkapp.py in the ini file"
-msgstr ""
+msgstr "para LinuxCNC 2.5.xxx, não inclua takapp.py no arquivo ini"
 
 #: tcl/ngcgui_app.tcl:70
 #, fuzzy
@@ -6814,12 +6987,12 @@ msgstr "Mostrar _Configuração Hal"
 
 #: tcl/tooledit.tcl:65
 msgid "Problem reading ~/.tooleditrc"
-msgstr ""
+msgstr "Problema ao ler ~/.tooleditrc"
 
 #: tcl/tooledit.tcl:82
 #, tcl-format
 msgid "Note: Ignoring duplicate column name: %s"
-msgstr ""
+msgstr "Nota: Ignorando nome de coluna duplicado: %s"
 
 #: tcl/tooledit.tcl:93
 #, fuzzy, tcl-format
@@ -6829,11 +7002,11 @@ msgstr "Ferramenta desconhecida %d"
 #: tcl/tooledit.tcl:211 tcl/tooledit.tcl:214 tcl/tooledit.tcl:646
 #: tcl/tooledit.tcl:647 tcl/tooledit.tcl:1086
 msgid "NEW"
-msgstr ""
+msgstr "NOVO"
 
 #: tcl/tooledit.tcl:232
 msgid "Problem"
-msgstr ""
+msgstr "Problema"
 
 #: tcl/tooledit.tcl:233
 #, fuzzy
@@ -6842,7 +7015,7 @@ msgstr "Ultrapassar limites"
 
 #: tcl/tooledit.tcl:234
 msgid "(must be a number)"
-msgstr ""
+msgstr "(deve ser um número)"
 
 #: tcl/tooledit.tcl:242
 #, fuzzy, tcl-format
@@ -6857,7 +7030,7 @@ msgstr "Arquivo não aberto"
 #: tcl/tooledit.tcl:251
 #, tcl-format
 msgid "directory: <%s> not writable"
-msgstr ""
+msgstr "diretório: <%s> não gravável"
 
 #: tcl/tooledit.tcl:287
 #, fuzzy
@@ -6866,27 +7039,28 @@ msgstr "Recarrega Código G [Control-R]"
 
 #: tcl/tooledit.tcl:291
 msgid "Tooledit already running"
-msgstr ""
+msgstr "Tooledit já está executando"
 
 #: tcl/tooledit.tcl:335
 #, tcl-format
 msgid "Skipping linenumber %d for tag %s, value <%s> is not a number"
-msgstr ""
+msgstr "Pulando número de linha %d para etiqueta %s, valor <%s> não é um número"
 
 #: tcl/tooledit.tcl:341
 #, tcl-format
 msgid "Skipping linenumber %d for tag %s, expected integer not <%s>"
 msgstr ""
+"Pulando número de linha %d para etiqueta %s, o valor <%s> não é um inteiro"
 
 #: tcl/tooledit.tcl:357
 #, tcl-format
 msgid "At linenumber %d, Unknown tag <%s>"
-msgstr ""
+msgstr "Na linha número %d, etiqueta Desconhecida <%s>"
 
 #: tcl/tooledit.tcl:442
 #, tcl-format
 msgid "%s: Column sorting not available with tcl_version==%s"
-msgstr ""
+msgstr "%s: A classificação de coluna não está disponível com tcl_version==%s"
 
 #: tcl/tooledit.tcl:451
 #, fuzzy
@@ -6894,8 +7068,9 @@ msgid "tool"
 msgstr "Hehe Sem ferramenta"
 
 #: tcl/tooledit.tcl:452
+#, fuzzy
 msgid "poc"
-msgstr ""
+msgstr "poc"
 
 #: tcl/tooledit.tcl:453
 msgid "diam"
@@ -6903,11 +7078,11 @@ msgstr ""
 
 #: tcl/tooledit.tcl:454
 msgid "front"
-msgstr ""
+msgstr "frente"
 
 #: tcl/tooledit.tcl:455
 msgid "back"
-msgstr ""
+msgstr "atrás"
 
 #: tcl/tooledit.tcl:456
 msgid "orien"
@@ -6934,7 +7109,7 @@ msgstr "_Arquivo"
 
 #: tcl/tooledit.tcl:531
 msgid "ReRead"
-msgstr ""
+msgstr "ReLer"
 
 #: tcl/tooledit.tcl:533
 #, fuzzy
@@ -6944,48 +7119,48 @@ msgstr "Ordem das ferramentas:"
 #: tcl/tooledit.tcl:583
 #, tcl-format
 msgid "Opened %s"
-msgstr ""
+msgstr "Aberto %s"
 
 #: tcl/tooledit.tcl:584
 #, tcl-format
 msgid "Created %s"
-msgstr ""
+msgstr "Criado %s"
 
 #: tcl/tooledit.tcl:585
 msgid "File updated"
-msgstr ""
+msgstr "Arquivo atualizado"
 
 #: tcl/tooledit.tcl:586
 msgid "File modified"
-msgstr ""
+msgstr "Arquivo modificado"
 
 #: tcl/tooledit.tcl:587
 msgid "File check errors"
-msgstr ""
+msgstr "Erros ao verificar arquivo"
 
 #: tcl/tooledit.tcl:588
 msgid "File checked"
-msgstr ""
+msgstr "Arquivo verificado"
 
 #: tcl/tooledit.tcl:589
 msgid "File items deleted"
-msgstr ""
+msgstr "Itens do arquivo eliminados"
 
 #: tcl/tooledit.tcl:590
 msgid "Bogus lines in file ignored"
-msgstr ""
+msgstr "Linhas falsas do arquivo foram ignoradas"
 
 #: tcl/tooledit.tcl:591
 msgid "File errors -- Check Entries"
-msgstr ""
+msgstr "Erros no arquivo - Verifique as Entradas"
 
 #: tcl/tooledit.tcl:592
 msgid "Warning: File changed by another process"
-msgstr ""
+msgstr "Atenção: Arquivo modificado por outro processo"
 
 #: tcl/tooledit.tcl:593
 msgid "Warning: File deleted by another process"
-msgstr ""
+msgstr "Atenção: arquivo eliminado por outro processo"
 
 #: tcl/tooledit.tcl:594
 #, fuzzy
@@ -6995,31 +7170,31 @@ msgstr "Sem ferramenta"
 #: tcl/tooledit.tcl:598
 #, tcl-format
 msgid "Sorted by %s, increasing"
-msgstr ""
+msgstr "Classificado por %s, crescente"
 
 #: tcl/tooledit.tcl:599
 #, tcl-format
 msgid "Sorted by %s, decreasing"
-msgstr ""
+msgstr "Classificado por %s, decrescente"
 
 #: tcl/tooledit.tcl:641
 msgid "Added"
-msgstr ""
+msgstr "Adicionado"
 
 #: tcl/tooledit.tcl:851
 #, tcl-format
 msgid "Tool %s, Column %s, parameter %s is not a number"
-msgstr ""
+msgstr "Ferramenta %s, Coluna %s, parâmetro %s não é um número"
 
 #: tcl/tooledit.tcl:860
 #, tcl-format
 msgid "Tool %s, parameter %s must be nonnegative integer"
-msgstr ""
+msgstr "Ferramenta %s, parâmetro %s deve ser um inteiro positivo"
 
 #: tcl/tooledit.tcl:868
 #, tcl-format
 msgid "Tool %s: <Orientation> must be 0..9 integer"
-msgstr ""
+msgstr "Ferramenta %s: <Orientação> deve ser um inteiro entre 0..9"
 
 #: tcl/tooledit.tcl:875
 #, fuzzy, tcl-format
@@ -7034,15 +7209,15 @@ msgstr ""
 #: tcl/tooledit.tcl:905
 #, tcl-format
 msgid "Tool <%s> specified multiple times"
-msgstr ""
+msgstr "Ferramenta <%s> especificada múltiplas vezes"
 
 #: tcl/tooledit.tcl:950
 msgid "File Modified"
-msgstr ""
+msgstr "Arquivo Modificado"
 
 #: tcl/tooledit.tcl:951
 msgid "Save Modifications to File?"
-msgstr ""
+msgstr "Salvar modificações para o Arquivo?"
 
 #: tcl/tooledit.tcl:977
 #, tcl-format
@@ -7051,10 +7226,13 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
+"Apenas essas colunas atualmente estão sendo usadas:\n"
+"\n"
+" %s"
 
 #: tcl/tooledit.tcl:978
 msgid "Limit display to these columns by specifying"
-msgstr ""
+msgstr "Limite a visualização para essas colunas especificando"
 
 #: tcl/tooledit.tcl:980
 #, fuzzy
@@ -7063,31 +7241,32 @@ msgstr "impossível abrir %s"
 
 #: tcl/tooledit.tcl:982
 msgid "For standalone use, invoke as"
-msgstr ""
+msgstr "Para uso independente, invoque como"
 
 #: tcl/tooledit.tcl:983
+#, fuzzy
 msgid "tool_table_filename"
-msgstr ""
+msgstr "tool_table_filename"
 
 #: tcl/tooledit.tcl:1003
 #, tcl-format
 msgid "Created by %s"
-msgstr ""
+msgstr "Criado por %s"
 
 #: tcl/tooledit.tcl:1004
 msgid "Saved geometry (updated on program termination)"
-msgstr ""
+msgstr "Geometria salva (atualizada ao finalizar o programa)"
 
 #: tcl/tooledit.tcl:1027
 #, tcl-format
 msgid ""
 "%s: Axis inifile specifies multiple inifile items for: [EMCIO]TOOL_TABLE"
-msgstr ""
+msgstr "%s: Eixo infile especifica muitos itens infile para: [EMCIO]TOOL_TABLE"
 
 #: tcl/tooledit.tcl:1028
 #, tcl-format
 msgid "%s: Using: %s"
-msgstr ""
+msgstr "%s: Usando: %s"
 
 #: tcl/tooledit.tcl:1039
 #, fuzzy, tcl-format
@@ -7103,24 +7282,24 @@ msgstr ""
 
 #: tcl/tooledit.tcl:1043
 msgid "Axis is Running"
-msgstr ""
+msgstr "Eixo em Execução"
 
 #: tcl/tooledit.tcl:1058
 msgid "Must be On and Idle to reload tool table"
-msgstr ""
+msgstr "Deve-se estar Ativo ou Inativo para recarregar a tabela de ferramentas"
 
 #: tcl/tooledit.tcl:1147
 msgid "Usage"
-msgstr ""
+msgstr "Uso"
 
 #: tcl/tooledit.tcl:1148 tcl/tooledit.tcl:1149
 msgid "filename"
-msgstr ""
+msgstr "nome do arquivo"
 
 #: tcl/tooledit.tcl:1150
 #, tcl-format
 msgid "Allowed column_ names are: %s"
-msgstr ""
+msgstr "Nome de colunas permitidos são: %s"
 
 #: tcl/tooledit.tcl:1160
 #, fuzzy
@@ -7129,7 +7308,7 @@ msgstr " Parâ_metros"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:154
 msgid "Do you really want to close LinuxCNC?"
-msgstr ""
+msgstr "Você realmente quer fechar LinuxCNC?"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:155
 #, fuzzy
@@ -7179,7 +7358,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:192
 msgid ", and ."
-msgstr ""
+msgstr ", e ."
 
 #: src/emc/usr_intf/axis/scripts/axis.py:192
 #, fuzzy
@@ -7188,7 +7367,7 @@ msgstr "Seleciona incremento de Jog"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:193
 msgid "< and >"
-msgstr ""
+msgstr "< e >"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:193
 #, fuzzy
@@ -7196,8 +7375,9 @@ msgid "Select angular jog speed"
 msgstr "Reduz velocidade de Jog"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:194
+#, fuzzy
 msgid "I, Shift-I"
-msgstr ""
+msgstr "I, Shift-I"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:194 share/axis/tcl/axis.tcl:2269
 msgid "Select jog increment"
@@ -7228,7 +7408,7 @@ msgstr "Home"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:198
 msgid "Shift-Home"
-msgstr ""
+msgstr "Shift-Home"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:198
 msgid "Zero G54 offset for active axis"
@@ -7236,7 +7416,7 @@ msgstr "Zera offset G54 para o eixo ativo"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:199
 msgid "End"
-msgstr ""
+msgstr "Fim"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:199
 msgid "Set G54 offset for active axis"
@@ -7264,7 +7444,7 @@ msgstr "_Mostra o traçado em tempo real"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:205
 msgid "Left, Right"
-msgstr ""
+msgstr "Esquerda, Direita"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:205
 #, fuzzy
@@ -7273,7 +7453,7 @@ msgstr "Jog no primeiro eixo"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:206
 msgid "Up, Down"
-msgstr ""
+msgstr "Cima, Baixo"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:206
 #, fuzzy
@@ -7281,8 +7461,9 @@ msgid "Jog second axis or joint"
 msgstr "Jog no segundo eixo"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:207
+#, fuzzy
 msgid "Pg Up, Pg Dn"
-msgstr ""
+msgstr "Pg Up, Pg Dn"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:207
 #, fuzzy
@@ -7304,7 +7485,7 @@ msgstr "Jog no quarto eixo "
 
 #: src/emc/usr_intf/axis/scripts/axis.py:212
 msgid "Toggle between Drag and Rotate mode"
-msgstr ""
+msgstr "Alterar entre modo Arrastar e Rodar"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:213
 msgid "Left Button"
@@ -7366,7 +7547,7 @@ msgstr "Ctrl-K"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:223
 msgid "Clear MDI history"
-msgstr ""
+msgstr "Limpar histórico MDI"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:224 share/axis/tcl/axis.tcl:163
 #, fuzzy
@@ -7375,19 +7556,20 @@ msgstr "Ctrl-K"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:224
 msgid "Copy selected MDI history elements"
-msgstr ""
+msgstr "Copiar elementos históricos MDI selecionados"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:225
 msgid "to clipboard"
-msgstr ""
+msgstr "para área de transferência"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:226 share/axis/tcl/axis.tcl:167
+#, fuzzy
 msgid "Ctrl-Shift-H"
-msgstr ""
+msgstr "Ctrl-Shift-H"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:226
 msgid "Paste clipboard to MDI history"
-msgstr ""
+msgstr "Copiar área de transferência para histórico MDI"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:227 share/axis/tcl/axis.tcl:950
 #: src/emc/usr_intf/touchy/touchy.glade:518
@@ -7455,7 +7637,7 @@ msgstr "Freio do spindle desativado"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:242
 msgid "Shift-B"
-msgstr ""
+msgstr "Shift-B"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:242
 msgid "Spindle brake on"
@@ -7497,11 +7679,11 @@ msgstr "Salta entre vistas pré-ajustadas"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:250
 msgid "toggle Actual/Commanded"
-msgstr ""
+msgstr "alterar Atual/Comandado"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:251
 msgid "toggle Relative/Machine"
-msgstr ""
+msgstr "alterar Relativo/Máquina"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:252
 #, fuzzy
@@ -7510,15 +7692,15 @@ msgstr "Ctrl-R"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:252
 msgid "Clear notifications"
-msgstr ""
+msgstr "Limpar notificações"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:253
 msgid "Alt-F, M, V"
-msgstr ""
+msgstr "Alt-F, M, V"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:253
 msgid "Open a Menu"
-msgstr ""
+msgstr "Abrir um Menu"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:918
 #, python-format
@@ -7541,7 +7723,7 @@ msgstr "Ferramenta %d, zo %g, xo%, dia %g"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1098
 msgid "G-code preview loading timed out"
-msgstr ""
+msgstr "Tempo de carregamento da pré-visualização do G-code se esgotou"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1125
 #, fuzzy
@@ -7559,6 +7741,8 @@ msgid ""
 "The program %(program)r exited with code %(code)d.  Any error messages it "
 "produced are shown below:"
 msgstr ""
+"O programa %(program)r fechou com o código %(code)d.  Quaisquer mensagens de "
+"erro que isso produziu serão mostradas abaixo:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1297
 #, python-format
@@ -7582,7 +7766,7 @@ msgstr "Contínuo"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1750
 msgid "T    Tool Table"
-msgstr ""
+msgstr "T    Tabela de Ferramentas"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1760
 #: src/emc/usr_intf/axis/scripts/axis.py:2054
@@ -7590,23 +7774,23 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/stepconf.py:1581
 #: src/emc/usr_intf/stepconf/pages.py:967
 msgid "in"
-msgstr ""
+msgstr "in"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1763
 msgid " radius"
-msgstr ""
+msgstr " raio"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1765
 msgid " diameter"
-msgstr ""
+msgstr " diâmetro"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1766
 msgid "°"
-msgstr ""
+msgstr "º"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1776
 msgid "Coordinate System:"
-msgstr ""
+msgstr "Sistema de Coordenada:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1794
 msgid "fixture"
@@ -7614,7 +7798,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1795
 msgid "workpiece"
-msgstr ""
+msgstr "peça de trabalho"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1816
 msgid "Name:"
@@ -7693,12 +7877,12 @@ msgstr "Ignorar e rodar programa"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2032
 msgid "No file loaded"
-msgstr ""
+msgstr "Nenhum arquivo carregado"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2040
 #, python-format
 msgid "generated from %s"
-msgstr ""
+msgstr "gerado de %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2046
 #, python-format
@@ -7706,11 +7890,13 @@ msgid ""
 "%(size)s bytes\n"
 "%(lines)s G-code lines"
 msgstr ""
+"%(size)s bytes\n"
+"%(lines)s linhas de G-code"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2072
 #, python-format
 msgid "%.1f minutes"
-msgstr ""
+msgstr "%.1f minutos"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2074
 #, fuzzy, python-format
@@ -7738,7 +7924,7 @@ msgstr "Arquivos rs274ngc"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2249
 msgid "axis cannot accept remote command while running"
-msgstr ""
+msgstr "eixo não aceita comando remoto enquanto é executado"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2304
 #, fuzzy
@@ -11880,7 +12066,9 @@ msgstr "Positivo"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
