@@ -108,6 +108,7 @@ are available for Bookworm and Buster but not currently for Bullseye.
 | Debian Bullseye - preempt | `deb https://linuxcnc.org bullseye base 2.9-uspace`
 | Debian Bookworm - preempt | `deb https://linuxcnc.org bookworm base 2.9-uspace`
 | Debian Bookworm - RTAI    | `deb https://linuxcnc.org bookworm base 2.9-rt`
+|===
 
 image::images/upgrading-to-2.9.png["Setting apt sources",align="center"]
 
