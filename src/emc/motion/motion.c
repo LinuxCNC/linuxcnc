@@ -57,6 +57,7 @@ static int num_joints = EMCMOT_MAX_JOINTS;	/* default number of joints present *
 RTAPI_MP_INT(num_joints, "number of joints used in kinematics");
 static int num_extrajoints = 0;	/* default number of extra joints present */
 RTAPI_MP_INT(num_extrajoints, "number of extra joints (not used in kinematics)");
+
 static int num_dio = NOT_INITIALIZED;
 RTAPI_MP_INT(num_dio, "number of digital inputs/outputs");
 
@@ -120,6 +121,12 @@ struct emcmot_error_t *emcmotError = 0;	/* unused for RT_FIFO */
 static int emc_shmem_id;	/* the shared memory ID */
 
 static int mot_comp_id;	/* component ID for motion module */
+
+/* Number of digital and analog IO pins for named pins */
+static int num_dout = NOT_INITIALIZED;
+static int num_din = NOT_INITIALIZED;
+static int num_aout = NOT_INITIALIZED;
+static int num_ain = NOT_INITIALIZED;
 
 /***********************************************************************
 *                   LOCAL FUNCTION PROTOTYPES                          *
@@ -305,8 +312,9 @@ int rtapi_app_main(void)
       return -1;
     }
     if (names_dout[0] || names_din[0]) {
-      num_dio = count_names(names_dout);
-      num_dio = (num_dio > count_names(names_din)) ? num_dio : count_names(names_din);
+      num_dout = count_names(names_dout);
+      num_din = count_names(names_din);
+      num_dio = (num_din > num_dout) ? num_din : num_dout;
     } else if (num_dio == NOT_INITIALIZED) {
       num_dio = DEFAULT_DIO;
     }
@@ -324,8 +332,9 @@ int rtapi_app_main(void)
     return -1;
   }
   if (names_aout[0] || names_ain[0]) {
-    num_aio = count_names(names_aout);
-    num_aio = (num_aio > count_names(names_ain)) ? num_aio : count_names(names_ain);
+    num_aout = count_names(names_aout);
+    num_ain = count_names(names_ain);
+    num_aio = (num_ain > num_aout) ? num_ain : num_aout;
   } else if (num_aio == NOT_INITIALIZED) {
     num_aio = DEFAULT_AIO;
   }
@@ -450,6 +459,7 @@ void rtapi_app_exit(void)
 static int init_hal_io(void)
 {
     int n, retval;
+    int in, out;
     joint_hal_t      *joint_data;
     extrajoint_hal_t *ejoint_data;
 
@@ -484,48 +494,33 @@ static int init_hal_io(void)
 
     /* export motion-synched digital output pins */
     /* export motion digital input pins */
-    if (names_din[0]){
-        for (n = 0; n < num_dio; n++) {
-            if (names_din[n] == NULL || (*names_din[n] == 0)) {break;}
+    in = 0, out = 0;
+    for (n = 0; n < num_dio; n++) {
+        if (n < num_din && names_din[n]) {
             CALL_CHECK(hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->synch_di[n]), mot_comp_id, "motion.din-%s", names_din[n]));
+        } else {
+            CALL_CHECK(hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->synch_di[n]), mot_comp_id, "motion.digital-in-%02d", in++));
         }
-    } else {
-        for (n = 0; n < num_dio; n++) {
-            CALL_CHECK(hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->synch_di[n]), mot_comp_id, "motion.digital-in-%02d", n));
-        }
-    }
-
-    if (names_dout[0]){
-        for (n = 0; n < num_dio; n++) {
-            if (names_dout[n] == NULL || (*names_dout[n] == 0)) {break;}
+        if (n < num_dout && names_dout[n]) {
             CALL_CHECK(hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->synch_do[n]), mot_comp_id, "motion.dout-%s", names_dout[n]));
-        }
-    } else {
-        for (n = 0; n < num_dio; n++) {
-            CALL_CHECK(hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->synch_do[n]), mot_comp_id, "motion.digital-out-%02d",n));
+        } else {
+            CALL_CHECK(hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->synch_do[n]), mot_comp_id, "motion.digital-out-%02d",out++));
         }
     }
 
     /* export motion-synched analog output pins */
     /* export motion analog input pins */
-    if (names_ain[0]) {
-        for (n = 0; n < num_aio; n++) {
-            if (names_ain[n] == NULL || (*names_ain[n] == 0)) {break;}
+    in = 0, out = 0;
+    for (n = 0; n < num_aio; n++) {
+        if (n < num_ain && names_ain[n]) {
             CALL_CHECK(hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->analog_input[n]), mot_comp_id, "motion.ain-%s", names_ain[n]));
+        } else {
+            CALL_CHECK(hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->analog_input[n]), mot_comp_id, "motion.analog-in-%02d", in++));
         }
-    } else {
-        for (n = 0; n < num_aio; n++) {
-            CALL_CHECK(hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->analog_input[n]), mot_comp_id, "motion.analog-in-%02d", n));
-        }
-    }
-    if (names_aout[0]) {
-        for (n = 0; n < num_aio; n++) {
-            if (names_aout[n] == NULL || (*names_aout[n] == 0)) {break;}
+        if (n < num_aout && names_aout[n]) {
             CALL_CHECK(hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->analog_output[n]), mot_comp_id, "motion.aout-%s", names_aout[n]));
-        }
-    } else {
-        for (n = 0; n < num_aio; n++) {
-            CALL_CHECK(hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->analog_output[n]), mot_comp_id, "motion.analog-out-%02d", n));
+        } else {
+            CALL_CHECK(hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->analog_output[n]), mot_comp_id, "motion.analog-out-%02d", out++));
         }
     }
 
