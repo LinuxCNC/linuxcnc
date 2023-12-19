@@ -282,7 +282,7 @@ import types
 import qtdragon_handler as hdlr
 
 # This is actually an unbounded function with 'obj' as a parameter.
-# You call this function without the usual preceding 'self'.
+# You call this function without the usual preceding 'self.'.
 # This is because will will not be patching it into the original handler class instance
 # It will only be called from code in this file.
 def test_function(obj):
