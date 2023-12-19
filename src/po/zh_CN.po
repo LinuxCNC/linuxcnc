@@ -5,13 +5,14 @@
 # Jeff Epler <jepler@gmail.com>, 2022.
 # zhuxunyu <wuzhi_01@163.com>, 2023.
 # taotieren <admin@taotieren.com>, 2023.
+# bobyjx yu <502149532@qq.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC EMC2.8.0\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-07-18 06:06+0000\n"
-"Last-Translator: taotieren <admin@taotieren.com>\n"
+"PO-Revision-Date: 2023-12-04 22:05+0000\n"
+"Last-Translator: bobyjx yu <502149532@qq.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -19,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.0-dev\n"
+"X-Generator: Weblate 5.3-dev\n"
 "X-Poedit-Language: Chinese\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -240,7 +241,7 @@ msgstr "无法以0进给率创建NURBS"
 
 #: src/emc/rs274ngc/interp_convert.cc:317
 msgid "Cannot use G5.3 without G5.2 first"
-msgstr "首先不能使用G5.3而不使用G5.2"
+msgstr "不能不先使用G5.2而使用G5.3"
 
 #: src/emc/rs274ngc/interp_convert.cc:320
 #, c-format
@@ -11494,6 +11495,7 @@ msgstr "反向"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
 msgid ""
 "_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
