@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-05-10 23:53+0000\n"
+"PO-Revision-Date: 2023-11-28 12:20+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: none\n"
 "Language: sk\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.18-dev\n"
+"X-Generator: Weblate 5.3-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:251
 msgid "user mode selected"
@@ -271,14 +271,12 @@ msgid "Audio available!"
 msgstr "Audio k dispozícii!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2021
-#, fuzzy
 msgid "Audio enabled!"
-msgstr "Audio k dispozícii!"
+msgstr "Audio povolené!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2024
-#, fuzzy
 msgid "Audio disabled!"
-msgstr "Audio k dispozícii!"
+msgstr "Audio zakázané!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2035
 msgid ""
@@ -1038,7 +1036,7 @@ msgstr "Výška"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:75
 msgid "hide title bar"
-msgstr ""
+msgstr "skryť záhlavie"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:76
 msgid "hide cursor"
@@ -1194,7 +1192,7 @@ msgstr "Zvuková výstraha"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:114
 msgid "Enable sound"
-msgstr ""
+msgstr "Povoliť zvuk"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:115
 msgid "<b>Themes and sound</b>"
