@@ -10,11 +10,11 @@ Build-Depends:
     @KERNEL_HEADERS@,
     @MODUTILS_DEPENDS@,
     @EXTRA_BUILD@,
-    docbook-xsl,
+    docbook-xsl <!nodocs>,
     asciidoc,
-    ghostscript,
-    imagemagick,
-    asciidoc-dblatex,
+    ghostscript <!nodocs>,
+    imagemagick <!nodocs>,
+    asciidoc-dblatex <!nodocs>,
     autoconf,
     automake,
     bwidget (>= 1.7),
@@ -33,7 +33,7 @@ Build-Depends:
     libusb-1.0-0-dev,
     libxmu-dev,
     netcat-traditional | netcat-openbsd | netcat,
-    po4a,
+    po4a <!nodocs>,
     procps,
     psmisc,
     python3,
@@ -43,12 +43,12 @@ Build-Depends:
     tcl@TCLTK_VERSION@-dev,
     tclx,
     tk@TCLTK_VERSION@-dev,
-    xvfb,
+    xvfb <!nocheck>,
     yapps2
 Build-Depends-Indep:
     @DOC_DEPENDS@,
 Build-Conflict: libjpeg8-dev, libtiff4-dev
-Standards-Version: 4.6.1
+Standards-Version: 4.6.2
 Homepage: https://linuxcnc.org/
 Vcs-Browser: https://github.com/LinuxCNC/linuxcnc
 Vcs-Git: https://github.com/LinuxCNC/linuxcnc.git
