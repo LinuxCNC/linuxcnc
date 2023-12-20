@@ -174,7 +174,7 @@ def move_options_to_prefs_file_iniwrite(inifile):
             os.remove(tmpFile)
     except Exception as e:
         return(False, True, e)
-    return(True, False, 'Updated to V1.227.219')
+    return(True, False, 'Updated to V2.9-227.219')
 
 def get_offsets(data, oType):
     x = y = d = 0
