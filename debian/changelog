@@ -1,3 +1,72 @@
+linuxcnc (1:2.9.2) UNRELEASED; urgency=medium
+
+  * Add dither option to PWMGen for improved analog resolution
+  * axis: Fix run-from-line - bug #2771
+  * debian/changelog: fix epoch & white space
+  * deleted craftsman gui, as it is not python 2 nor gtk3 based and not mantained for a long period
+  * deleted gmoccapy plasma, as glade panels are still in gtk2
+  * Docs: Many updates
+  * fix hardcoded description in Spanish language Closes: #1057312
+  * Fixes warnings for possible string truncation with strncpy()
+  * Gladevcp: fix error on missing filter program
+  * gmoccapy: Fixed Inappropriate Logical Expression (#2769)
+  * gmoccapy: fixes error when trying to hide the turtle-jog button in gmoccapy
+  * hal_glib -add get_linuxcnc_version function
+  * Increase size of STACK_ENTRY_LEN
+  * Merge pull request #2567 from petterreinholdtsen/2.9-gcode-g38.2
+  * Merge pull request #2757 from dpslwk/patch-1
+  * Merge pull request #2761 from LinuxCNC/s_code_fix
+  * Merge pull request #2765 from LinuxCNC/pncconf_fix_missing_ssport
+  * Merge pull request #2772 from hansu/fix-debian-1057312
+  * Merge pull request #2775 from smoe/translation_breaking_po4a
+  * Merge pull request #2782 from Sigma1912/patch-2
+  * Merge pull request #2783 from Sigma1912/patch-3
+  * Merge pull request #2790 from havardAasen/fix-string-truncation
+  * Merge pull request #2791 from havardAasen/havardAasen-patch-1
+  * Merge pull request #2795 from havardAasen/build-dependency
+  * motion control: allow the spindle to be on with speed of 0
+  * motion: fix brake/direction setting when S command is sent.
+  * motion.c: Improve handling of misc_error pin names See #2780 #2773
+  * pmx483-test: change package message to python3-serial
+  * pncconf - change spindle stepgen enable from spindle-enable to machine-is-on
+  * pncconf -fix HAL load command for 2 serialports
+  * qtaxis -add version string to log
+  * qtdragon -add a default 'factor' to avoid error message
+  * qtdragon_hd -fix stylesheets for 5 axis, adjust qtdragon.ui
+  * qtdragon/hd -add version messages to about and log
+  * qtdragon/hd -fix spindle override quick setting buttons
+  * qtdragon/hd -update version after fixing probing bug
+  * qtplasmac docs: update python serial version
+  * qtplasmac: fix 5th axis buttons
+  * qtplasmac: fix case switching in run from line
+  * qtplasmac: fix gcode filter comments error
+  * qtplasmac: fix imperial cut parameter ranges
+  * qtplasmac: fix power button styling
+  * qtplasmac: fix removal of temporary materials in run from line
+  * qtplasmac: fix run from line code restoration
+  * qtplasmac: fix string formatting and version check
+  * qtplasmac: fix translation error in pmx485_check
+  * qtplasmac: fix updater typo, document update_log.txt
+  * qtplasmac: prevent extra temporary material addition from conversational
+  * qtplasmac: rework versioning due to master branch diverging
+  * qtvcp -add vismach obj files to search, change path from debug to info
+  * qtvcp -auto_height: improve logging/status output
+  * qtvcp -copy panel: update to check for the qtvcp/screens or panels path
+  * qtvcp -docs: the 'copy_dialog' panel changed to just 'copy'
+  * qtvcp -notify: silence annoying error message
+  * qtvcp -probe routines:fix spindle start on error or abort
+  * qtvcp -touchoff_subprogram: fix typos so it works properly.
+  * Restore functionality of NO_PROBE ini settings
+  * revert changes for strncat()
+  * RTAI: Fix build against RTAI+GNU11
+  * snprintf uses %d on a double (issue 2784)
+  * stdglue.py: Fix error on loading stdglue remaps using an R word. (The previous code errored on attempted comparison between dict and float)
+  * tests: status.state should be checked against command execution status
+  * Update build-dependency for OpenGL
+  * Update combi_dro.py
+
+ -- andypugh <andy@bodgesoc.org>  Wed, 20 Dec 2023 13:19:18 +0000
+
 linuxcnc (1:2.9.1) unstable; urgency=medium
 
   * Add 7I94T, 7I97T, 7I76EU card support
