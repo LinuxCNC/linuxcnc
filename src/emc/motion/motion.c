@@ -61,25 +61,24 @@ RTAPI_MP_INT(num_extrajoints, "number of extra joints (not used in kinematics)")
 static int num_dio = NOT_INITIALIZED;
 RTAPI_MP_INT(num_dio, "number of digital inputs/outputs");
 
-#define MAX_IO 64
-static char *names_din[MAX_IO] = {0,};
-RTAPI_MP_ARRAY_STRING(names_din, MAX_IO, "names of digital inputs");
-static char *names_dout[MAX_IO] = {0,};
-RTAPI_MP_ARRAY_STRING(names_dout, MAX_IO, "names of digital outputs");
+static char *names_din[EMCMOT_MAX_DIO] = {0,};
+RTAPI_MP_ARRAY_STRING(names_din, EMCMOT_MAX_DIO, "names of digital inputs");
+static char *names_dout[EMCMOT_MAX_DIO] = {0,};
+RTAPI_MP_ARRAY_STRING(names_dout, EMCMOT_MAX_DIO, "names of digital outputs");
 
 static int num_aio = NOT_INITIALIZED;
 RTAPI_MP_INT(num_aio, "number of analog inputs/outputs");
 
 
-static char *names_ain[MAX_IO] = {0,};
-RTAPI_MP_ARRAY_STRING(names_ain, MAX_IO, "names of analog inputs");
-static char *names_aout[MAX_IO] = {0,};
-RTAPI_MP_ARRAY_STRING(names_aout, MAX_IO, "names of analog outputs");
+static char *names_ain[EMCMOT_MAX_AIO] = {0,};
+RTAPI_MP_ARRAY_STRING(names_ain, EMCMOT_MAX_AIO, "names of analog inputs");
+static char *names_aout[EMCMOT_MAX_AIO] = {0,};
+RTAPI_MP_ARRAY_STRING(names_aout, EMCMOT_MAX_AIO, "names of analog outputs");
+
 static int num_misc_error = NOT_INITIALIZED;
 RTAPI_MP_INT(num_misc_error, "number of misc error inputs");
-
-static char *names_misc_errors[MAX_IO] = {0,};
-RTAPI_MP_ARRAY_STRING(names_misc_errors, MAX_IO, "names of errors");
+static char *names_misc_errors[EMCMOT_MAX_MISC_ERROR] = {0,};
+RTAPI_MP_ARRAY_STRING(names_misc_errors, EMCMOT_MAX_MISC_ERROR, "names of errors");
 
 static int unlock_joints_mask = 0;/* mask to select joints for unlock pins */
 RTAPI_MP_INT(unlock_joints_mask, "mask to select joints for unlock pins");
@@ -222,10 +221,10 @@ static void emc_message_handler(msg_level_t level, const char *fmt, va_list ap)
     va_end(apc);
 }
 
-int count_names(char *names[])
+int count_names(char *names[], int max_length)
 {
     int count = 0;
-    while (count < MAX_IO && names[count] && *names[count])
+    while (count < max_length && names[count] && *names[count])
         count++;
     return count;
 }
@@ -312,8 +311,8 @@ int rtapi_app_main(void)
       return -1;
     }
     if (names_dout[0] || names_din[0]) {
-      num_dout = count_names(names_dout);
-      num_din = count_names(names_din);
+      num_dout = count_names(names_dout, EMCMOT_MAX_DIO);
+      num_din = count_names(names_din, EMCMOT_MAX_DIO);
       num_dio = (num_din > num_dout) ? num_din : num_dout;
     } else if (num_dio == NOT_INITIALIZED) {
       num_dio = DEFAULT_DIO;
@@ -332,8 +331,8 @@ int rtapi_app_main(void)
     return -1;
   }
   if (names_aout[0] || names_ain[0]) {
-    num_aout = count_names(names_aout);
-    num_ain = count_names(names_ain);
+    num_aout = count_names(names_aout, EMCMOT_MAX_AIO);
+    num_ain = count_names(names_ain, EMCMOT_MAX_AIO);
     num_aio = (num_ain > num_aout) ? num_ain : num_aout;
   } else if (num_aio == NOT_INITIALIZED) {
     num_aio = DEFAULT_AIO;
@@ -351,7 +350,7 @@ int rtapi_app_main(void)
     return -1;
   }
   if (names_misc_errors[0]) {
-    num_misc_error = count_names(names_misc_errors);
+    num_misc_error = count_names(names_misc_errors, EMCMOT_MAX_MISC_ERROR);
   } else if (num_misc_error == NOT_INITIALIZED) {
     num_misc_error = DEFAULT_MISC_ERROR;
   }
