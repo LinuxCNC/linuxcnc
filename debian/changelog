@@ -1,6 +1,9 @@
 linuxcnc (1:2.10.0~pre0) UNRELEASED; urgency=medium
 
   * Master branch open for new features.
+
+ -- Andy Pugh <andy@bodgesoc.org>  Mon, 09 Oct 2023 10:39:03 +0100
+
 linuxcnc (1:2.9.1) unstable; urgency=medium
 
   * Add 7I94T, 7I97T, 7I76EU card support
