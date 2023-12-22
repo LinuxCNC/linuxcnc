@@ -277,12 +277,12 @@ Here we show how to add new functions and override existing ones.
 # reference: https://ruivieira.dev/python-monkey-patching-for-readability.html
 import types
 
-# import the handlerfile to get reference to it's libraries.
+# import the handlerfile to get reference to its libraries.
 # use <screenname>_handler
 import qtdragon_handler as hdlr
 
 # This is actually an unbounded function with 'obj' as a parameter.
-# You call this function without the usual preceding 'self.'
+# You call this function without the usual preceding 'self.'.
 # This is because will will not be patching it into the original handler class instance
 # It will only be called from code in this file.
 def test_function(obj):
@@ -329,8 +329,8 @@ self.on_keycall_F11 = types.MethodType(on_keycall_F11, self)
 def new_pin_changed(data):
     print(data)
 
-# special function that gets called before the HAL component is set ready
-# here we used the function to add a bit input pin with a callback
+# Special function that gets called before the HAL component is set ready.
+# Here we used the function to add a bit input pin with a callback.
 def after_override__(self):
     try:
         pin = hdlr.QHAL.newpin("new_pin", hdlr.QHAL.HAL_BIT, hdlr.QHAL.HAL_IN)
@@ -338,9 +338,8 @@ def after_override__(self):
     except Exception as e:
         print(e)
 
-# Here we are instance patching the original handler file to add a new
-# function that calls our new function (of the same name)
-# defined in this file
+# Here we are instance patching the original handler file to add a new function
+# that calls our new function (of the same name) defined in this file.
 self.after_override__ = types.MethodType(after_override__, self)
 
 ----
@@ -941,7 +940,7 @@ If QtVCP finds these it will call them, if not it will silently ignore them.
   before the optional HAL file is loaded or HAL component is set ready.
   
 *`processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):`*::
-  This function is called to facilitate _keyboard jogging_ etc. +
+  This function is called to facilitate _keyboard jogging_, etc. +
   By using the _`keybinding` library_ this can be used to easily add functions bound to keypresses.
 
 *`keypress_event__(self,receiver, event):`*::
