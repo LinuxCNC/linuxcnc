@@ -10,7 +10,7 @@ The limits for the following items are compile-time settings:
 .br
 .ns
 .TP
-\fBnum_joints\fR: Maximum number of joints is set by EMCMOT_MAX_JOINTS.
+\fBnum_joints\fR: Maximum number of joints is set by \fBEMCMOT_MAX_JOINTS\fR.
 .br
 .ns
 .TP
@@ -56,14 +56,14 @@ like \fBmotion.analog-in-00\fR whereas \fBnames_ain=\fIproxy1,proxy2\fR will cre
 .br
 .ns
 .TP
-\fBnum_misc_error\fR: Maximum number of extra error inputs is set by EMCMOT_MAX_MISC_ERRORS.
+\fBnum_misc_error\fR: Maximum number of extra error inputs is set by \fBEMCMOT_MAX_MISC_ERRORS\fR.
 .br
 .ns
 .TP
-\fBnum_spindles\fR: Maximum number of spindles is set by EMCMOT_MAX_SPINDLES
+\fBnum_spindles\fR: Maximum number of spindles is set by \fBEMCMOT_MAX_SPINDLES\fR.
 
 .P
-Pin names starting with "\fBjoint\fR"  or "\fBaxis\fR" are are read and updated by the motion-controller function.
+Pin names starting with "\fBjoint\fR"  or "\fBaxis\fR" are read and updated by the motion-controller function.
 
 .SH DESCRIPTION
 By default, the base thread does not support floating point.  Software stepping, software encoder counting, and software pwm do not use floating point.  \fBbase_thread_fp\fR can be used to enable floating point in the base thread (for example for brushless DC motor control).
@@ -89,7 +89,7 @@ joints.
 The \fBnum_joints\fR parameter is conventionally set using the INI file
 setting \fB[KINS]JOINTS=\fRvalue.  The \fBnum_extrajoints\fR is set by
 the additional motmod parameter \fB[EMCMOT]motmod num_extrajoints=\fRvalue.
-Hal pin numbering for all joints is zero based [\fB0 ... num_joints-1\fR].
+HAL pin numbering for all joints is zero based [\fB0 ... num_joints-1\fR].
 When specified, 'extra' joints are assigned the last \fBnum_extrajoints\fR
 in the numbering sequence.  For example, specifying [KINS]JOINTS=5 and
 [EMCMOT]motmod num_extrajoints=2 for a 3 joint trivkins configuration
