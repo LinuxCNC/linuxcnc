@@ -15,7 +15,7 @@ from qtvcp import logger
 LOG = logger.getLogger(__name__)
 LOG.error('lOGGING WORKS')
 
-from message import Message
+from message import ZMQMessage
 from custom_widgets import MetaClass, TreeItem, tv_select, ComboDelegate, treeModel, ToolButton
 from qt5_graphics import Lcnc_3dGraphics
 from qtvcp.core import Info, Status
@@ -60,7 +60,7 @@ class NCamWindow(QMainWindow):
         tv.clicked.connect(self.get_selected_feature)
 
         # for reloads in qtvcp screens
-        self.zMessanger = Message()
+        self.zMessanger = ZMQMessage()
  
 ############
 # Gcode Display

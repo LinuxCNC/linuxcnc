@@ -2540,13 +2540,14 @@ class NCam(NCamWindow):
                 self.icon_store.append([get_pixbuf(p.get("icon"), add_dlg_icon_size),
                         p.tag.lower(), _(name), src, path, tooltip])
 
+    # show the features icon selector 
     def action_add(self, *arg) :
-        self.feature_Hpane.hide()
-        self.addVBox.show()
+        #self.feature_Hpane.hide()
+        #self.addVBox.show()
         self.menubar.set_sensitive(False)
         self.main_toolbar.set_sensitive(False)
         self.nc_toolbar.set_sensitive(False)
-        self.add_iconview.grab_focus()
+        #self.add_iconview.grab_focus()
 
 
     def action_saveUser(self, *arg) :
@@ -3417,6 +3418,7 @@ class NCam(NCamWindow):
             self.action(xml)
 
     def add_feature(self, widget, src) :
+        print('add:',src)
         src_file = search_path(search_warning.dialog, src, CFG_DIR)
         if src_file is None:
             return
@@ -3462,7 +3464,7 @@ class NCam(NCamWindow):
                     stat.poll()
                     #if stat.task_mode == linuxcnc.MODE_AUTO:
                     print('ncam filename',fname)
-                    linuxCNC.program_open(fname)
+                    #linuxCNC.program_open(fname)
                     #else:
                     #    self.mess_dlg(_('LinuxCNC could not change to AUTO mode. Generated NC file was not loaded.'))
         except Exception as e:
@@ -3916,10 +3918,14 @@ class NCam(NCamWindow):
             print(selectedIndex.parent().row(), selectedIndex)
             print('Path', model.indexToPath(selectedIndex))
 
-        # expand selected
+            # expand selected
             self.treeView.expand(selectedIndex)
+
+        # call test function on all top parents
+        # is this actually  suppossed to expand all the children of the selected parent?
         model.forEachParent(test)
         return
+
         self.selection = self.treeview.get_selection()
         model, pathlist = self.selection.get_selected_rows()
 

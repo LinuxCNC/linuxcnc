@@ -4,7 +4,7 @@ import zmq
 import json
 
 
-class Message:
+class ZMQMessage:
     def __init__(self):
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PUB)
