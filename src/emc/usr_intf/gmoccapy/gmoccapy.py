@@ -48,6 +48,8 @@ import gettext             # to extract the strings to be translated
 from collections import OrderedDict # needed for proper jog button arrangement
 from time import strftime  # needed for the clock in the GUI
 
+from gladevcp.zmqnetwork import ZMQSendReceive
+
 # Throws up a dialog with debug info when an error is encountered
 def excepthook(exc_type, exc_obj, exc_tb):
     try:
@@ -185,6 +187,9 @@ class gmoccapy(object):
 
         # set INI path for INI info class before widgets are loaded
         INFO = Info(ini=argv[2])
+
+        self.zmqmessage = ZMQSendReceive(self.external_call)
+        self.zmqmessage.init_zmq_subscribe()
 
         self.builder = Gtk.Builder()
         # translation of the glade file will be done with
@@ -4413,8 +4418,23 @@ class gmoccapy(object):
     def on_ntb_tool_code_info_switch_page(self, widget, page, page_num):
         self.prefs.putpref("info_tab_page", page_num, int)
 
+    def external_reload(self, path):
+        print('gmoccapy external reload:',path)
+        if path is None:
+            self.widgets.hal_action_reload.emit("activate")
+        else:
+            # use a little hack to load a specific file
+            self.widgets.hal_action_reload._load_file(path)
+
+    # qualify a ZMQ message and if good, call the function
+    def external_call(self, topic, function, args):
+        print('gmoccapy ext call:',topic, function, args)
+        # allow reloading of files
+        if function == 'external_reload':
+            self.external_reload(args[0])
+
     # This is for handling mouse clicks on the GUI button
-    def on_rbt_forward_released(self, widget, data=None):
+    def on_rbt_forward_clicked(self, widget, data=None):
         if widget.get_active():
             widget.set_image(self.widgets.img_spindle_forward_on)
             self._set_spindle("forward")
@@ -6389,6 +6409,12 @@ class gmoccapy(object):
         hal_glib.GPin(pin).connect("value_changed", self._optional_blocks)
         pin = self.halcomp.newpin("blockdelete", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._blockdelete)
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
 
 
 # Hal Pin Handling End
