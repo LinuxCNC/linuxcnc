@@ -23,6 +23,19 @@ import os
 from shutil import copy as COPY
 
 ###########################################################################################################
+# change runcritical to cutcritical in <machine_name>.prefs file (pre V2.10-001.015 2023/12/23)           #
+###########################################################################################################
+def rename_runcritical(prefs):
+    with open(prefs, 'r+') as file:
+        text = file.read()
+        text = text.replace('runcritical', 'cutcritical')
+        file.seek(0)
+        file.truncate()
+        file.write(text)
+    return(False, False, 'Updated to V2.10-001.015')
+
+
+###########################################################################################################
 # move default material from prefs file to material 0 in materials file (pre V2.9-236.278 2023/07/07)       #
 ###########################################################################################################
 def move_default_material(prefs, materials, unitsPerMm):

@@ -1,4 +1,4 @@
-VERSION = '001.014'
+VERSION = '001.015'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -1901,7 +1901,7 @@ class HandlerClass:
                     log = _translate('HandlerClass', 'Run from line loaded')
                     log1 = _translate('HandlerClass', 'Start line')
                     STATUS.emit('update-machine-log', f'{log} - {log1}: {(self.startLine + 1)}', 'TIME')
-        elif not self.run_critical_check():
+        elif not self.cut_critical_check():
             self.jobRunning = True
             ACTION.RUN(0)
             log = _translate('HandlerClass', 'Cycle started')
@@ -2472,6 +2472,15 @@ class HandlerClass:
             self.updateData.append([restart, error, text])
             if error:
                 return
+        # change runcritical to cutcritical in <machine_name>.prefs file (pre V2.10-001.015 2023/12/23)
+        if os.path.isfile(self.prefsFile):
+            with open(self.prefsFile, 'r') as inFile:
+                text = inFile.read()
+                if 'runcritical' in text:
+                    restart, error, text = UPDATER.rename_runcritical(self.prefsFile)
+                    self.updateData.append([restart, error, text])
+                    if error:
+                        return
 
     def update_iniwrite(self):
         # this is for updates that write to the INI file
@@ -3361,7 +3370,7 @@ class HandlerClass:
                     self.button_normal(button)
 
 
-    def run_critical_check(self):
+    def cut_critical_check(self):
         rcButtonList = []
         # halTogglePins format is: button name, run critical flag, button text
         for halpin in self.halTogglePins:
@@ -3906,7 +3915,7 @@ class HandlerClass:
                 if ';;' in bCode:
                     altLabel = bCode[bCode.index(';;') + 2:].strip()
                     bCode = bCode[:bCode.index(';;')].strip()
-                if len(bCode.split()) == 3 and 'runcritical' in bCode.lower():
+                if len(bCode.split()) == 3 and 'cutcritical' in bCode.lower():
                     critical = True
                 elif len(bCode.split()) == 2:
                     critical = False
@@ -4589,7 +4598,7 @@ class HandlerClass:
         self.vkb_show(True)
         result = sC.exec_()
         self.vkb_hide()
-        if not result:
+        if not result or self.cut_critical_check():
             self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
             return
         self.PREFS.putpref('X length', xLength.value(), float, 'SINGLE CUT')
@@ -4623,7 +4632,7 @@ class HandlerClass:
                 self.button_normal(self.mcButton)
             log = _translate('HandlerClass', 'Manual cut aborted')
             STATUS.emit('update-machine-log', log, 'TIME')
-        elif STATUS.machine_is_on() and STATUS.is_all_homed() and STATUS.is_interp_idle():
+        elif STATUS.machine_is_on() and STATUS.is_all_homed() and STATUS.is_interp_idle() and not self.cut_critical_check():
             self.manualCut = True
             self.set_mc_states(False)
             self.w.abort.setEnabled(True)
