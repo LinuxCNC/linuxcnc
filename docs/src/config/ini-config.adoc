@@ -1295,19 +1295,18 @@ image::images/encoder-scale.png[align="center"]
 
 The _<num>_ specifies the spindle number 0 ... (num_spindles-1) +
 The value of _num_spindles_ is set by `[TRAJ]SPINDLES=` . +
-By default maximum velocity of the spindle in forward and reverse is approximately
-  2147483000 RPM. +
+By default maximum velocity of the spindle in forward and reverse is approximately 2147483000 RPM. +
 By default minimum velocity of the spindle in forward and reverse is 0 RPM. +
 By default the increment is 100 RPM. +
 You change these default by setting the following INI variables:
 
 [NOTE]
-These settings are for the motion controller component. Control screens can limit
- these settings further. 
+These settings are for the motion controller component.
+Control screens can limit these settings further. 
 
 * `MAX_FORWARD_VELOCITY = 20000`
   The maximum spindle speed (in rpm) for the specified spindle. Optional.
-  This will also set MIN_FORWARD_VELOCITY to the negative value unless overridden.
+  This will also set MAX_REVERSE_VELOCITY to the negative value unless overridden.
 * `MIN_FORWARD_VELOCITY = 3000`
   The minimum spindle speed (in rpm) for the specified spindle. Optional.
   Many spindles have a minimum speed below which they should not be run.

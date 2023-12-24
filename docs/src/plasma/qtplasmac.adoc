@@ -605,6 +605,8 @@ After running a new configuration for the first time the following files will be
 |===
 |Filename                    |Function
 |<machine_name>_material.cfg |File for storing the material settings from the MATERIAL section of the <<plasma:parameters-tab,PARAMETERS Tab>>.
+|update_log.txt              |File for storing log of major updates. +
+                              Major updates are those that make any modification to a user's configuration.
 |qtvcp.prefs                 |File containing the QtVCP preferences.
 |qtplasmac.qss               |File storing the stylesheet for the currently loaded session of QtPlasmaC.
 |===

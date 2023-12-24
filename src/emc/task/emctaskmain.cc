@@ -284,8 +284,7 @@ static int argvize(const char *src, char *dst, char *argv[], int len)
     char inquote;
     char looking;
 
-    strncpy(dst, src, len);
-    dst[len - 1] = 0;
+    snprintf(dst, len, "%s", src);
     bufptr = dst;
     inquote = 0;
     argvix = 0;

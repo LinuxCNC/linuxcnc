@@ -609,18 +609,12 @@ static int commandHello(connectionRecType *context)
   if (strcmp(pch, pwd) != 0) return -1;
 
   pch = strtok(NULL, delims);
-  if (pch == NULL) return -1;
+  if (pch == NULL || strlen(pch) >= sizeof(context->hostName)) return -1;
   strncpy(context->hostName, pch, sizeof(context->hostName));
-  if (context->hostName[sizeof(context->hostName)-1] != '\0') {
-    return -1;
-  }
 
   pch = strtok(NULL, delims);
-  if (pch == NULL) return -1;
+  if (pch == NULL|| strlen(pch) >= sizeof(context->version)) return -1;
   strncpy(context->version, pch, sizeof(context->version));
-  if (context->version[sizeof(context->version)-1] != '\0') {
-    return -1;
-  }
 
   context->linked = true;
   printf("Connected to %s\n", context->hostName);
@@ -1169,12 +1163,12 @@ static cmdResponseType setOpen(char *s, connectionRecType *context)
 
   pch = strtok(NULL, "\n\r\0");
   if (pch == NULL) return rtStandardError;
-
-  strncpy(context->progName, pch, sizeof(context->progName));
-  if (context->progName[sizeof(context->progName) - 1] != '\0') {
-    fprintf(stderr, "linuxcncrsh: 'set open' filename too long for context (got %lu bytes, max %lu)", (unsigned long)strlen(pch), (unsigned long)sizeof(context->progName));
+  if (strlen(pch) >= sizeof(context->progName)) {
+    fprintf(stderr, "linuxcncrsh: 'set open' filename too long for context (got %lu bytes, max %lu)",
+            (unsigned long)strlen(pch), (unsigned long)sizeof(context->progName));
     return rtStandardError;
   }
+  strncpy(context->progName, pch, sizeof(context->progName));
 
   if (sendProgramOpen(context->progName) != 0) return rtStandardError;
   return rtNoError;
@@ -1713,7 +1707,7 @@ static cmdResponseType getTool(char *s, connectionRecType *context)
 
 static cmdResponseType getToolOffset(char *s, connectionRecType *context)
 {
-  const char *pToolOffsetStr = "TOOL_OFFSET %d";
+  const char *pToolOffsetStr = "TOOL_OFFSET %f";
   
   snprintf(context->outBuf, sizeof(context->outBuf), pToolOffsetStr, emcStatus->task.toolOffset.tran.z);
   return rtNoError; 
