@@ -16,7 +16,7 @@ LOG = logger.getLogger(__name__)
 LOG.error('lOGGING WORKS')
 
 from message import ZMQMessage
-from custom_widgets import MetaClass, TreeItem, tv_select, ComboDelegate, treeModel, ToolButton
+from custom_widgets import MetaClass, TreeItem, tv_select, ComboDelegate, treeModel, ToolButton, IconView
 from qt5_graphics import Lcnc_3dGraphics
 from qtvcp.core import Info, Status
 
@@ -46,6 +46,7 @@ class NCamWindow(QMainWindow):
         self._model = treeModel()
         self._model.dataChanged.connect(lambda :self.update_do_btns(True))
         self._model.iconBasePath = os.path.join(current_dir, 'graphics')
+
         tv = self.treeView
 
         # for combobox in treeview
@@ -331,18 +332,25 @@ class NCamWindow(QMainWindow):
 # add menu
 ##########################
     def build_add_menu(self):
+        self.iconView = IconView()
+        self.iconViewVerticalLayout.addWidget(self.iconView)
+
         self.iconGroupBox.setTitle('Add Icons')
         hlay = self.iconGridLayout
+        self.add_catalog_items(hlay)
+        hlay.setContentsMargins(5, 5, 5, 5)
+
         self._toolbar = QToolBar()
         self._toolbar.addAction(self.actionLoadCfg)
         self._toolbar.addAction(self.actionImportXML)
-        self.verticalLayout_2.setMenuBar(self._toolbar)
+        self._toolbar.addAction(self.actionBack)
 
-        self.add_catalog_items(self.iconGridLayout)
-        hlay.setContentsMargins(5, 5, 5, 5)
+        self.iconViewVerticalLayout.setMenuBar(self._toolbar)
+        self.iconView.showTopList(self.actionMenuAdd)
 
     def add_catalog_items(self, menu_add):
         self._row = self._col = 0
+
         def add_to_menu(grp_menu, path) :
 
             for ptr in range(len(path)) :

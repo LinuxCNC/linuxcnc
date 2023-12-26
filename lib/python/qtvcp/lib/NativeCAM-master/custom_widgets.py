@@ -1,6 +1,11 @@
+import os
+
 from PyQt5.QtCore import QVariant, pyqtSlot, Qt, QAbstractItemModel, QModelIndex, QSize
-from PyQt5.QtWidgets import QStyledItemDelegate, QComboBox, QWidget, QVBoxLayout, QToolButton,  QLabel
+from PyQt5.QtWidgets import QStyledItemDelegate, QComboBox, QWidget, QVBoxLayout, QToolButton,  QLabel, QListWidget, QListWidgetItem
 from PyQt5.QtGui import QFont, QColor, QIcon
+
+current_dir =  os.path.dirname(__file__)
+iconBasePath = os.path.join(current_dir, 'graphics')
 
 HORIZONTAL_HEADERS = ("Property", "Value")
 
@@ -627,4 +632,88 @@ class ToolButton(QWidget):
         lay.addWidget(label, 0, Qt.AlignCenter)
         lay.setContentsMargins(0, 0, 0, 0)
 
+class IconView(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.title = "PyQt5 QListWidget"
+        self.top = 200
+        self.left = 500
+        self.width = 400
+        self.height = 300
+        self.iconSize = QSize(100,100)
+        self.topMenu = None
+        self.InitWindow()
 
+    def InitWindow(self):
+        #self.setWindowIcon(QIcon("icon.png"))
+        #self.setWindowTitle(self.title)
+        #self.setGeometry(self.left, self.top, self.width, self.height)
+        vbox = QVBoxLayout()
+        self.list = QListWidget()
+        self.list.setViewMode(QListWidget.IconMode)
+        self.list.setResizeMode(QListWidget.Adjust)
+        self.list.setIconSize(QSize(96,96))
+        self.list.clicked.connect(self.listview_clicked)
+        vbox.addWidget(self.list)
+        self.label = QLabel()
+        self.label.setFont(QFont("Sanserif", 15))
+        vbox.addWidget(self.label)
+        self.setLayout(vbox)
+        self.show()
+
+    def buildItem(self,text,icon,tooltip,action=None):
+        item = QListWidgetItem()
+        item.setText(text)
+        #item.setIcon(QIcon( os.path.join(iconBasePath,icon) ))
+        item.setIcon(icon)
+        item.setSizeHint(self.iconSize)
+        item.setToolTip(tooltip)
+        item.setFlags(Qt.ItemIsEnabled)
+        item.setData(Qt.UserRole, action)
+        return item
+
+    def showTopList(self, tlist=None):
+        if not tlist is None:
+            self.topMenu = tlist
+        self.list.clear()
+        if self.topMenu is None: return
+        for num, i in enumerate(self.topMenu.actions()):
+            if i.isSeparator():
+                continue
+            item = self.buildItem(i.iconText(),i.icon(),i.iconText(),i)
+            self.list.insertItem(num, item)
+
+    def buildBackList(self):
+        i = 'upper-level-icon.png'
+        item = self.buildItem(i,i,i)
+        self.list.insertItem(0, item)
+
+    def showSubList(self, action):
+        print('sub',action.menu())
+        self.list.clear()
+        for num, i in enumerate(action.menu().actions()):
+            if i.isSeparator():
+                continue
+            item = self.buildItem(i.iconText(),i.icon(),i.iconText(),i)
+            self.list.insertItem(num, item)
+
+    def listview_clicked(self):
+        item = self.list.currentItem()
+        #print(item,item.data(Qt.UserRole).menu())
+        
+        # action has submenu? - no: trigger the action
+        if item.data(Qt.UserRole).menu() is None:
+            self.label.setText(str(item.text()))
+            item.data(Qt.UserRole).trigger()
+            self.showTopList()
+        # yes: show next sublevel
+        else:
+            self.showSubList(item.data(Qt.UserRole))
+
+if __name__ == "__main__":
+    from PyQt5.QtWidgets import QApplication
+    import sys
+
+    App = QApplication(sys.argv)
+    window = IconView()
+    sys.exit(App.exec())

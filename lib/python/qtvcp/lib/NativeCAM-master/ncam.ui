@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -70,6 +70,56 @@
               </layout>
              </widget>
             </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Page</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QScrollArea" name="scrollArea_2">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="iconViewWidget">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>382</width>
+             <height>461</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="iconViewVerticalLayout">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
            </layout>
           </widget>
          </widget>
@@ -138,8 +188,6 @@
     <property name="title">
      <string>Add</string>
     </property>
-    <addaction name="actionAdd_a_Prototype_Subroutine"/>
-    <addaction name="actionImport_a_Project_File"/>
    </widget>
    <widget class="QMenu" name="actionUtilMenu">
     <property name="title">
@@ -592,6 +640,14 @@
   <action name="actionRevertType">
    <property name="text">
     <string>RevertType</string>
+   </property>
+  </action>
+  <action name="actionBack">
+   <property name="text">
+    <string>Back</string>
+   </property>
+   <property name="toolTip">
+    <string>Back One Menu Level</string>
    </property>
   </action>
  </widget>
