@@ -1,13 +1,11 @@
 import os
 
-from PyQt5.QtWidgets import QMainWindow, QAction,\
-         QToolBar, QMessageBox,QTreeWidget, QTreeWidgetItem
+from PyQt5.QtWidgets import QMainWindow,\
+         QToolBar, QMessageBox,QTreeWidget, QTreeWidgetItem, QStyle, QFileDialog,\
+        QTextEdit
 from PyQt5 import uic
-from PyQt5.QtCore import QObject, QTimer
-from PyQt5.QtCore import Qt,QSize
+from PyQt5.QtCore import QObject, QTimer, QUrl, Qt, QSize
 from PyQt5.QtGui import QColor, QIcon, QFont, QImage
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
 
 import gcode
 # Set up logging
@@ -80,6 +78,9 @@ class NCamWindow(QMainWindow):
         self.loadDisplay(self.emptypath)
 
         self.displayLayout.addWidget(self.graphics)
+        self._displayToolbar = QToolBar()
+        self._displayToolbar.addAction(self.actionBack)
+        self.displayLayout.setMenuBar(self._displayToolbar)
 
     def setGraphicsDisplay(self):
         # class patch to catch gcode errors - in theory
@@ -195,16 +196,8 @@ class NCamWindow(QMainWindow):
         ca(self.actionMoveDown,"MoveDown", QStyle.SP_ArrowDown, _('Move down'), "<control>Down", _('Move down'), self.move, 1)
         ca(self.actionSaveUser,"SaveUser", QStyle.SP_DialogSaveButton, _('Save Values as Defaults'), '', _('Save Values of this Subroutine as Defaults'), self.action_saveUser)
         ca(self.actionDeleteUser,"DeleteUser", QStyle.SP_TitleBarCloseButton, _("Delete Custom Default Values"), None, _("Delete Custom Default Values"), self.action_deleteUser)
-        #ca(self.actionSetDigits,"SetDigits", None, _('Set Digits'), None, None, None)
-        #ca(self.actionDigit1,"Digit1", None, '1', None, None, self.action_digits, '1')
-        #ca(self.actionDigit2,"Digit2", None, '2', None, None, self.action_digits, '2')
-        #ca(self.actionDigit3,"Digit3", None, '3', None, None, self.action_digits, '3')
-        #ca(self.actionDigit4,"Digit4", None, '4', None, None, self.action_digits, '4')
-        #ca(self.actionDigit5,"Digit5", None, "5", None, None, self.action_digits, '5')
-        #ca(self.actionDigit6,"Digit6", None, '6', None, None, self.action_digits, '6')
 
         # actions related to adding subroutines
-        #ca(self.actionAddMenu,"AddMenu", None, _("_Add"), None, None, None)
         ca(self.actionLoadCfg,"LoadCfg", QStyle.SP_DirIcon, _('Add a Prototype Subroutine'), '', _('Add a Subroutine Definition File'), self.action_loadCfg)
         ca(self.actionImportXML,"ImportXML", QStyle.SP_DialogOpenButton, _('Import a Project File'), None, _('Import a Project Into the Current One'), self.action_importXML)
 
@@ -262,12 +255,15 @@ class NCamWindow(QMainWindow):
         ca(self.actionHideField,"HideField", None, _("Hide Selected Field"), None, _("Hide Selected Field"), self.action_hideField)
         ca(self.actionShowF,"ShowFields", None, _("Show All Fields"), None, _("Show All Fields"), self.action_showFields)
         ca(self.actionCurrent,"Current", 'gtk.STOCK_SAVE', _("Save Project as Current Work"), '', _('Save Project as Current Work'), self.action_saveCurrent)
-        ca(self.actionBuild,"Build", 'build.png', _('Generate %(filename)s') % {'filename':GENERATED_FILE}, None,
-                     _('Generate %(filename)s and load it in LinuxCNC') % {'filename':GENERATED_FILE}, self.action_build)
+        ca(self.actionBuild,"Build", 'build.png', _('Generate %(filename)s') % {'filename':self.DATA.GENERATED_FILE}, None,
+                     _('Generate %(filename)s and load it in LinuxCNC') % {'filename':self.DATA.GENERATED_FILE}, self.action_build)
         ca(self.actionRename,"Rename", None, _("Rename Subroutine"), None, _('Rename Subroutine'), self.action_renameF)
         ca(self.actionChngGrp,"ChngGrp", None, _("Group <-- --> Sub-group"), None, _('Group <-- --> Sub-group'), self.action_chng_group)
         ca(self.actionDataType,"DataType", None, _("Change to GCode"), None, _('Change to GCode'), self.action_gcode)
         ca(self.actionRevertType,"RevertType", None, _("Revert to original type"), None, _('Revert to original type'), self.action_revert_type)
+
+        ca(self.actionBack,None, 'upper-level-icon.png', _("Back"), None, None, None)
+        ca(self.actionWindowClose,None, 'window-close.png', _("Back"), None, None, self.hideIconView)
 
     def addToolbarWidgets(self, toolbar, items):
         ''' add actions/buttons to a toolbar
@@ -332,20 +328,10 @@ class NCamWindow(QMainWindow):
 # add menu
 ##########################
     def build_add_menu(self):
-        self.iconView = IconView()
+        self.iconView = IconView(self)
         self.iconViewVerticalLayout.addWidget(self.iconView)
 
-        self.iconGroupBox.setTitle('Add Icons')
-        hlay = self.iconGridLayout
-        self.add_catalog_items(hlay)
-        hlay.setContentsMargins(5, 5, 5, 5)
-
-        self._toolbar = QToolBar()
-        self._toolbar.addAction(self.actionLoadCfg)
-        self._toolbar.addAction(self.actionImportXML)
-        self._toolbar.addAction(self.actionBack)
-
-        self.iconViewVerticalLayout.setMenuBar(self._toolbar)
+        self.add_catalog_items(self.actionMenuAdd)
         self.iconView.showTopList(self.actionMenuAdd)
 
     def add_catalog_items(self, menu_add):
@@ -395,6 +381,10 @@ class NCamWindow(QMainWindow):
                 if _p.tag.lower() in ["menu", "group"] :
                     add_to_menu(menu_add, _p)
 
+    def showIconView(self):
+        self.stackedWidget.setCurrentIndex(1)
+    def hideIconView(self):
+        self.stackedWidget.setCurrentIndex(0)
 ##########################
 #
 ##########################
@@ -741,7 +731,8 @@ else:
                                 #i.hide()
                                 if not k.isVisible():
                                     i.click()
-          except:
+          except Exception as e:
+            print(e)
             pass
 
         dlg = QMessageBox()

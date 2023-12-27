@@ -1260,6 +1260,7 @@ class Feature(object):
                     res += l[i:] + "\n"
                 s = res
             try :
+                print('\n',s,'\n')
                 return subprocess.check_output([s], shell = True,
                                                stderr = subprocess.STDOUT)
             except subprocess.CalledProcessError as e:
@@ -2542,11 +2543,12 @@ class NCam(NCamWindow):
 
     # show the features icon selector 
     def action_add(self, *arg) :
+        self.stackedWidget.setCurrentIndex(1)
         #self.feature_Hpane.hide()
         #self.addVBox.show()
-        self.menubar.set_sensitive(False)
-        self.main_toolbar.set_sensitive(False)
-        self.nc_toolbar.set_sensitive(False)
+        self.menubar.setEnabled(False)
+        self.main_toolbar.setEnabled(False)
+        self.nc_toolbar.setEnabled(False)
         #self.add_iconview.grab_focus()
 
 

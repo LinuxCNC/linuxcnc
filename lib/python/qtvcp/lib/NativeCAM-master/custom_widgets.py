@@ -1,11 +1,9 @@
 import os
 
 from PyQt5.QtCore import QVariant, pyqtSlot, Qt, QAbstractItemModel, QModelIndex, QSize
-from PyQt5.QtWidgets import QStyledItemDelegate, QComboBox, QWidget, QVBoxLayout, QToolButton,  QLabel, QListWidget, QListWidgetItem
+from PyQt5.QtWidgets import (QStyledItemDelegate, QComboBox, QWidget, QVBoxLayout,
+                    QToolBar, QToolButton,  QLabel, QListWidget, QListWidgetItem)
 from PyQt5.QtGui import QFont, QColor, QIcon
-
-current_dir =  os.path.dirname(__file__)
-iconBasePath = os.path.join(current_dir, 'graphics')
 
 HORIZONTAL_HEADERS = ("Property", "Value")
 
@@ -202,9 +200,9 @@ class ComboDelegate(QStyledItemDelegate):
         return source_model.getItemFromIndex(source_index).qt_data(index.column())
 
     def createEditor(self, parent, option, index):
-        if index.data() =='': return
         isComboType = bool(index.model().data(index,Qt.UserRole).get_type() == 'combo')
         if isComboType:
+            if index.data() =='': return
             combo = QComboBox(parent)
             combo.setFont(QFont("Times New Roman", pointSize = 15, weight=QFont.Bold))
 
@@ -366,16 +364,20 @@ class treeModel(QAbstractItemModel):
         elif role == Qt.EditRole:
             print('display',role,index.column())
             if item.meta and index.column() == 1:
+                metaType = item.meta.get_type()
                 #print(item.meta.find_attr('type'))
-                if item.meta.get_type()  in ('float,''int'):
+                if metaType  in ('float,''int'):
                     print('int/float',item.meta.xml)
                     rtn = item.meta.set_value(value)
                     self.dataChanged.emit(index, index)
-                elif item.meta.get_type() == 'tool':
+                elif metaType == 'tool':
                     print('Tool',value)
                     #dval = TOOL_TABLE.get_text(val)
+                elif metaType == 'engrave':
+                    rtn = item.meta.set_value(value)
+                    self.dataChanged.emit(index, index)
                 else:
-                    print('unknown:',item.meta.find_attr('type'))
+                    print('unknown:',metaType)
 
         elif role == Qt.DisplayRole:
             if item.meta and index.column() == 1:
@@ -613,6 +615,9 @@ class treeModel(QAbstractItemModel):
 #################
 # custom widgets
 #################
+
+##### toolbutton with label
+
 class ToolButton(QWidget):
     def __init__(self, text, path_icon, tooltip, src, parent=None):
         super(ToolButton, self).__init__(parent)
@@ -632,23 +637,27 @@ class ToolButton(QWidget):
         lay.addWidget(label, 0, Qt.AlignCenter)
         lay.setContentsMargins(0, 0, 0, 0)
 
+###### Icon View of menu data
+
 class IconView(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.title = "PyQt5 QListWidget"
-        self.top = 200
-        self.left = 500
-        self.width = 400
-        self.height = 300
+    def __init__(self, parent=None):
+        super().__init__(parent=None)
+        self.parent = parent
         self.iconSize = QSize(100,100)
         self.topMenu = None
         self.InitWindow()
 
     def InitWindow(self):
-        #self.setWindowIcon(QIcon("icon.png"))
-        #self.setWindowTitle(self.title)
-        #self.setGeometry(self.left, self.top, self.width, self.height)
         vbox = QVBoxLayout()
+
+        self._toolbar = QToolBar()
+        self._toolbar.addAction(self.parent.actionWindowClose)
+        self._toolbar.addAction(self.parent.actionLoadCfg)
+        self._toolbar.addAction(self.parent.actionImportXML)
+        self._toolbar.addAction(self.parent.actionBack)
+        self.parent.actionBack.triggered.connect(self.back)
+        vbox.setMenuBar(self._toolbar)
+
         self.list = QListWidget()
         self.list.setViewMode(QListWidget.IconMode)
         self.list.setResizeMode(QListWidget.Adjust)
@@ -664,7 +673,6 @@ class IconView(QWidget):
     def buildItem(self,text,icon,tooltip,action=None):
         item = QListWidgetItem()
         item.setText(text)
-        #item.setIcon(QIcon( os.path.join(iconBasePath,icon) ))
         item.setIcon(icon)
         item.setSizeHint(self.iconSize)
         item.setToolTip(tooltip)
@@ -682,20 +690,17 @@ class IconView(QWidget):
                 continue
             item = self.buildItem(i.iconText(),i.icon(),i.iconText(),i)
             self.list.insertItem(num, item)
-
-    def buildBackList(self):
-        i = 'upper-level-icon.png'
-        item = self.buildItem(i,i,i)
-        self.list.insertItem(0, item)
+        self.parent.actionBack.setVisible(False)
 
     def showSubList(self, action):
-        print('sub',action.menu())
+        #print('sub',action.menu())
         self.list.clear()
         for num, i in enumerate(action.menu().actions()):
             if i.isSeparator():
                 continue
             item = self.buildItem(i.iconText(),i.icon(),i.iconText(),i)
             self.list.insertItem(num, item)
+        self.parent.actionBack.setVisible(True)
 
     def listview_clicked(self):
         item = self.list.currentItem()
@@ -706,9 +711,13 @@ class IconView(QWidget):
             self.label.setText(str(item.text()))
             item.data(Qt.UserRole).trigger()
             self.showTopList()
+            self.parent.hideIconView()
         # yes: show next sublevel
         else:
             self.showSubList(item.data(Qt.UserRole))
+
+    def back(self):
+        self.showTopList()
 
 if __name__ == "__main__":
     from PyQt5.QtWidgets import QApplication
