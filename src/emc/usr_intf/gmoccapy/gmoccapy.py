@@ -5144,11 +5144,7 @@ class gmoccapy(object):
         self.widgets.ntb_button.set_current_page(_BB_EDIT)
         self.widgets.ntb_preview.hide()
         self.widgets.grid_DRO.hide()
-        width = self.widgets.window1.get_size().width
-        width -= self.widgets.vbtb_main.get_allocated_width()
-        width -= self.widgets.box_right.get_allocated_width()
-        width -= self.widgets.box_left.get_allocated_width()
-        self.widgets.vbx_jog.set_size_request(width, -1)
+        self.widgets.vbox14.hide()
         if not self.widgets.vbx_jog.get_visible():
             self.widgets.vbx_jog.set_visible(True)
         self.widgets.gcode_view.set_sensitive(True)
@@ -5225,7 +5221,7 @@ class gmoccapy(object):
             LOG.debug("we are in special case")
             self.widgets.ntb_preview.show()
             self.widgets.grid_DRO.show()
-            self.widgets.vbx_jog.set_size_request(360, -1)
+            self.widgets.vbox14.show()
             self.widgets.hbox2.set_position(self.hbox2_position)
             self.widgets.gcode_view.set_sensitive(False)
             self.widgets.btn_save.set_sensitive(True)
