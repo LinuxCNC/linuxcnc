@@ -27,6 +27,8 @@ SUPPORTED_DATA_TYPES = ['sub-header', 'header', 'bool', 'boolean', 'int', 'gc-li
                         'tool', 'gcode', 'text', 'list', 'float', 'string', 'engrave',
                         'combo', 'combo-user', 'items', 'filename', 'prjname']
 
+current_dir =  os.path.dirname(__file__)
+
 ###############
 # Window
 ###############
@@ -35,7 +37,6 @@ class NCamWindow(QMainWindow):
     def __init__(self, parent=None):
         super(NCamWindow, self).__init__(parent)
         try:
-            current_dir =  os.path.dirname(__file__)
             self.filename = os.path.abspath(os.path.join(current_dir, 'ncam.ui'))
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
@@ -72,7 +73,11 @@ class NCamWindow(QMainWindow):
         print(("m2"), file=emptyfile)
         emptyfile.close()
 
-        self.graphics = Lcnc_3dGraphics(inipath=STATUS.stat.ini_filename)
+        inipath = STATUS.stat.ini_filename
+        if inipath == '':
+            inipath = "{}/configs/sim/qtdragon/qtdragon_metric.ini".format(current_dir)
+        print ('path:',inipath)
+        self.graphics = Lcnc_3dGraphics(inipath=inipath)
         self.setGraphicsDisplay()
 
         self.loadDisplay(self.emptypath)
