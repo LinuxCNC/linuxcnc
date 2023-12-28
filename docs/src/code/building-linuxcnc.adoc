@@ -25,10 +25,9 @@ $ ./configure --with-realtime=uspace
 $ make
 ----
 
-That will probably fail!  That doesn't make you a bad person, it just
-means you should read this whole document to find out how to fix your
-problems.  Especially the section on <<Satisfying-Build-Dependencies,
-Satisfying Build Dependencies>>.
+That will probably fail!
+That does not make you a bad person, it just means you should read this whole document to find out how to fix your problems.
+Especially the section on <<Satisfying-Build-Dependencies, Satisfying Build Dependencies>>.
 
 If you are running on a realtime-capable system (such as an install from
 the LinuxCNC Live/Install Image, see the <<sub:realtime,Realtime>> section
@@ -52,9 +51,7 @@ on <<Setting-up-the-environment,Setting up the test environment>>.
 
 The LinuxCNC project targets modern Debian-based distributions, including
 Debian, Ubuntu, and Mint.
-
-We continuously test on the platforms listed at
-http://buildbot.linuxcnc.org.
+We continuously test on the platforms listed at http://buildbot.linuxcnc.org.
 
 LinuxCNC builds on most other Linux distributions, though dependency
 management will be more manual and less automatic. Patches to improve
@@ -186,14 +183,19 @@ $ make ../bin/froboz
 
 === Building Debian Packages
 
-When building Debian packages, the LinuxCNC programs are compiled from
-source and then stored in a Debian package, complete with dependency
-information.  This takes more time, and the programs can't be used until
-the Debian package is installed on a target machine.
+When building Debian packages, the LinuxCNC programs are compiled from source
+and then stored in a Debian package, complete with dependency information.
+This process by default also includes the building of the documentation,
+which takes its time because of all the I/O for many languages, but that
+can be skipped. LinuxCNC is then installed as part of those packages on the
+same machines or on whatever machine of the same architecture that  the .deb
+files are copied to. LinuxCNC cannot be run until the Debian packages
+are installed on a target machine and then the executables are available
+in /usr/bin and /usr/lib just like other regular software of the sytem.
 
 This build mode is primarily useful when packaging the software for
 delivery to end users, and when building the software for a machine
-that doesn't have the build environment installed, or that doesn't have
+that does not have the build environment installed, or that does not have
 internet access.
 
 Building Debian packages requires the `dpkg-buildpackage` tool, from the
@@ -214,17 +216,18 @@ The first step is generating the Debian package scripts and meta-data
 from the git repo by running this:
 
 ----
-$ cd linuxcnc-dev/debian
-$ ./configure uspace
-$ cd ..
+$ cd linuxcnc-dev
+$ ./debian/configure
 ----
 
 [NOTE]
 ====
 The `debian/configure` script is different from the `src/configure` script!
 
-The `debian/configure` script needs different arguments depending on the platform you're building on/for,
+The `debian/configure` accepts arguments depending on the platform you are building on/for,
 see the <<debian-configure-arguments, `debian/configure` arguments>> section.
+It defaults to LinuxCNC running in user space ("uspace"), expecting the preempt_rt kernel
+to minimize latencies.
 ====
 
 Once the Debian package scripts and meta-data are configured, build the package by running `dpkg-buildpackage`:
@@ -289,11 +292,40 @@ If you want just the traditional RTAI "kernel module" realtime, use
 == Satisfying Build Dependencies
 
 On Debian-based platforms we provide packaging meta-data that knows
-what external software packages need to be installed in order to build
-LinuxCNC.  This is called the Build Dependencies of LinuxCNC.  You can
-use this meta-data to easily list the required packages missing from
-your build system.
+what external software packages need to be installed in order to build LinuxCNC.
+These are referred to as the _build dependencies_ of LinuxCNC, i.e. those
+packages that need to be available such that
+* the build succeeds and
+* the build can be built reproducibly.
 
+You can use this meta-data to easily list the required packages missing from your build system.
+First, go to the source tree of LinuxCNC and initiate its default self-configuration,
+if not already performed:
+
+-----
+$ cd linuxcnc-dev
+$ ./debian/configure
+-----
+
+This will prepare the file debian/control that contains lists of Debian packages
+to create with the runtime dependencies for those packages and for our cause also
+the build-dependencies for those to-be-created packages.
+
+The most straightforward way to get all build-dependencies installed is to just
+execute (from the same directory):
+
+----
+sudo apt-get build-dep .
+----
+
+which will install all the dependencies required but available.
+The '.' is part of the command line, i.e. an instruction to retrieve the dependencies
+for the source tree at hand, not for dependencies of another package.
+This completes the installation of build-dependencies.
+
+The remainder of this section describes a semi-manual approach.
+The list of dependencies in debian/control is long and it is tedious
+to compare the current state of packages already installed with it.
 Debian systems provide a program called `dpkg-checkbuilddeps` that
 parses the package meta-data and compares the packages listed as build
 dependencies against the list of installed packages, and tells you
@@ -305,14 +337,6 @@ First, install the `dpkg-checkbuilddeps` program by running:
 $ sudo apt-get install dpkg-dev
 -----
 
-Then ask your LinuxCNC git checkout to generate its Debian package
-meta-data:
-
------
-$ cd linuxcnc-dev/debian
-$ ./configure uspace
-$ cd ..
------
 
 Finally ask `dpkg-checkbuilddeps` to do its job (note that it needs to
 run from the `linuxcnc-dev` directory, *not* from `linuxcnc-dev/debian`):
