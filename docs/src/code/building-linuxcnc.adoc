@@ -25,10 +25,9 @@ $ ./configure --with-realtime=uspace
 $ make
 ----
 
-That will probably fail!  That doesn't make you a bad person, it just
-means you should read this whole document to find out how to fix your
-problems.  Especially the section on <<Satisfying-Build-Dependencies,
-Satisfying Build Dependencies>>.
+That will probably fail!
+That does not make you a bad person, it just means you should read this whole document to find out how to fix your problems.
+Especially the section on <<Satisfying-Build-Dependencies, Satisfying Build Dependencies>>.
 
 If you are running on a realtime-capable system (such as an install from
 the LinuxCNC Live/Install Image, see the <<sub:realtime,Realtime>> section
@@ -52,9 +51,7 @@ on <<Setting-up-the-environment,Setting up the test environment>>.
 
 The LinuxCNC project targets modern Debian-based distributions, including
 Debian, Ubuntu, and Mint.
-
-We continuously test on the platforms listed at
-http://buildbot.linuxcnc.org.
+We continuously test on the platforms listed at http://buildbot.linuxcnc.org.
 
 LinuxCNC builds on most other Linux distributions, though dependency
 management will be more manual and less automatic. Patches to improve
@@ -219,17 +216,18 @@ The first step is generating the Debian package scripts and meta-data
 from the git repo by running this:
 
 ----
-$ cd linuxcnc-dev/debian
-$ ./configure uspace
-$ cd ..
+$ cd linuxcnc-dev
+$ ./debian/configure
 ----
 
 [NOTE]
 ====
 The `debian/configure` script is different from the `src/configure` script!
 
-The `debian/configure` script needs different arguments depending on the platform you're building on/for,
+The `debian/configure` accepts arguments depending on the platform you are building on/for,
 see the <<debian-configure-arguments, `debian/configure` arguments>> section.
+It defaults to LinuxCNC running in user space ("uspace"), expecting the preempt_rt kernel
+to minimize latencies.
 ====
 
 Once the Debian package scripts and meta-data are configured, build the package by running `dpkg-buildpackage`:
@@ -321,6 +319,8 @@ sudo apt-get build-dep .
 ----
 
 which will install all the dependencies required but available.
+The '.' is part of the command line, i.e. an instruction to retrieve the dependencies
+for the source tree at hand, not for dependencies of another package.
 This completes the installation of build-dependencies.
 
 The remainder of this section describes a semi-manual approach.
