@@ -719,6 +719,17 @@
       </row>
     </data>
   </object>
+  <object class="GtkListStore" id="lstst_sourceview_themes">
+    <columns>
+      <!-- column-name text -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0">default</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkListStore" id="lstst_themes">
     <columns>
       <!-- column-name text -->
@@ -4237,7 +4248,7 @@ clicking on the DRO</property>
                                 <property name="can-focus">False</property>
                                 <property name="label-xalign">0.5</property>
                                 <child>
-                                  <!-- n-columns=2 n-rows=7 -->
+                                  <!-- n-columns=2 n-rows=10 -->
                                   <object class="GtkGrid" id="grid_themes_sound">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
@@ -4251,7 +4262,7 @@ clicking on the DRO</property>
                                       <object class="GtkLabel" id="lbl_themes">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
-                                        <property name="label" translatable="yes">Themes</property>
+                                        <property name="label" translatable="yes">Theme</property>
                                       </object>
                                       <packing>
                                         <property name="left-attach">0</property>
@@ -4319,7 +4330,7 @@ clicking on the DRO</property>
                                       </object>
                                       <packing>
                                         <property name="left-attach">1</property>
-                                        <property name="top-attach">6</property>
+                                        <property name="top-attach">9</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -4333,7 +4344,7 @@ clicking on the DRO</property>
                                       </object>
                                       <packing>
                                         <property name="left-attach">0</property>
-                                        <property name="top-attach">6</property>
+                                        <property name="top-attach">9</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -4347,7 +4358,7 @@ clicking on the DRO</property>
                                       </object>
                                       <packing>
                                         <property name="left-attach">0</property>
-                                        <property name="top-attach">5</property>
+                                        <property name="top-attach">8</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -4358,7 +4369,7 @@ clicking on the DRO</property>
                                       </object>
                                       <packing>
                                         <property name="left-attach">1</property>
-                                        <property name="top-attach">5</property>
+                                        <property name="top-attach">8</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -4372,7 +4383,49 @@ clicking on the DRO</property>
                                       </object>
                                       <packing>
                                         <property name="left-attach">0</property>
+                                        <property name="top-attach">7</property>
+                                        <property name="width">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="lbl_sourceview_icon_themes">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="label" translatable="yes">G-code Theme</property>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">0</property>
                                         <property name="top-attach">4</property>
+                                        <property name="width">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkComboBox" id="sourceview_theme_choice">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="model">lstst_sourceview_themes</property>
+                                        <signal name="changed" handler="on_sourceview_theme_choice_changed" swapped="no"/>
+                                        <child>
+                                          <object class="GtkCellRendererText" id="cellrenderertext3"/>
+                                          <attributes>
+                                            <attribute name="text">0</attribute>
+                                          </attributes>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">0</property>
+                                        <property name="top-attach">5</property>
+                                        <property name="width">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkSeparator" id="sep_themes_sound">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">0</property>
+                                        <property name="top-attach">6</property>
                                         <property name="width">2</property>
                                       </packing>
                                     </child>

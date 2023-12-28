@@ -126,6 +126,9 @@ class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
             self.sm.set_search_path(path)
         self.buf.set_style_scheme(self.sm.get_scheme(style))
 
+    def get_style_schemes(self):
+        return self.sm.get_scheme_ids()
+
     def get_filename(self):
         return self.filename
 

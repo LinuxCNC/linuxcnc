@@ -76,7 +76,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.4.6"
+_RELEASE = " 3.4.7"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -114,6 +114,7 @@ LOCALEDIR = os.path.join(BASE, "share", "locale")
 ICON_THEME_DIR = os.path.join(DATADIR, "icons")
 USER_ICON_THEME_DIR = os.path.join(os.path.expanduser("~"), ".icons")
 DEFAULT_ICON_THEME = "classic"
+DEFAULT_GCODE_THEME = "classic"
 
 # path to TCL for external programs eg. halshow
 TCLPATH = os.environ['LINUXCNC_TCL_DIR']
@@ -328,6 +329,7 @@ class gmoccapy(object):
         self._init_tooleditor()
         self._init_themes()
         self._init_icon_themes()
+        self._init_sourceview_themes()
         self._init_audio()
         self._init_gremlin()
         self._init_kinematics_type()
@@ -1980,6 +1982,26 @@ class gmoccapy(object):
 
         # load icon theme
         self._set_icon_theme(model[icon_theme_choice.get_active_iter()][1])
+        
+    def _init_sourceview_themes(self):
+        model = self.widgets.sourceview_theme_choice.get_model()
+        model.clear()
+        
+        valid_themes = self.widgets["gcode_view"].get_style_schemes()
+        for theme in valid_themes:
+            model.append((theme,))
+
+        theme_preference = self.prefs.getpref("gcode_theme", DEFAULT_GCODE_THEME, str)
+        theme_choice = self.widgets.sourceview_theme_choice
+        try:
+            selected_index = valid_themes.index(theme_preference)
+            theme_choice.set_active(selected_index)
+        except ValueError:
+            LOG.warning(f"Preferred G-code theme '{theme_preference}' not found. Switching to first valid G-code theme: '{valid_themes[0]}'.")
+            theme_choice.set_active(0)
+
+        # load theme
+        self._set_sourceview_theme(model[theme_choice.get_active_iter()][0])
 
 
     def _init_audio(self):
@@ -4563,6 +4585,16 @@ class gmoccapy(object):
             name = widget.get_model()[active][1]
             self.prefs.putpref("icon_theme", name)
             self._set_icon_theme(name)
+
+    def _set_sourceview_theme(self, name):
+        self.widgets["gcode_view"].set_style_scheme(name)
+        
+    def on_sourceview_theme_choice_changed(self, widget):
+        active = widget.get_active_iter()
+        if active is not None:
+            name = widget.get_model()[active][0]
+            self.prefs.putpref("gcode_theme", name)
+            self._set_sourceview_theme(name)
 
     def on_rbt_unlock_toggled(self, widget, data=None):
         if widget.get_active():
