@@ -1145,13 +1145,6 @@ This allows the scribe to reach surface of the material before activating the sc
 Setup Speed has no effect on THC speed which is capable of the velocity displayed in the Max. Speed field.
 
 .*CONFIGURATION - THC*
-
-Two methods of THC activation are available and are selected with the *Auto Activation* checkbutton.
-Both methods begin their calculations when the current velocity of the torch matches the cut feed rate specified for the selected material:
-
-. Delay Activation (the default) is selected when *Auto Activation* is unchecked. This method uses a time delay set with the *Delay* parameter.
-. Auto Activation is selected when *Auto Activation* is checked. This method determines that the arc voltage is stable by using the *Sample Counts* and *Sample Threshold* parameters.
-
 [cols="4,2,14",options="header"]
 //[frame=ends,grid=none]
 |===
@@ -1169,6 +1162,12 @@ This is only available when Auto THC is enabled.
 |PID-I |0, 1 |This sets the Integral gain for the THC PID loop. Integral gain is associated with the sum of errors in the system over time and is not always needed.
 |PID-D |0, 1 |This sets the Derivative gain for the THC PID loop. Derivative gain works to dampen the system and reduce over correction oscillations and is not always needed.
 |===
+
+Two methods of THC activation are available and are selected with the *Auto Activation* checkbutton.
+Both methods begin their calculations when the current velocity of the torch matches the cut feed rate specified for the selected material:
+
+. Delay Activation (the default) is selected when *Auto Activation* is unchecked. This method uses a time delay set with the *Delay* parameter.
+. Auto Activation is selected when *Auto Activation* is checked. This method determines that the arc voltage is stable by using the *Sample Counts* and *Sample Threshold* parameters.
 
 [NOTE]
 PID loop tuning is a complicated process and is outside the scope of this User Guide.
