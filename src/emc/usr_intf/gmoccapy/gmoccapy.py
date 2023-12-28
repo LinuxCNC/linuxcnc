@@ -2026,6 +2026,7 @@ class gmoccapy(object):
             self.widgets.audio_alert_chooser.set_filename(self.alert_sound)
             self.widgets.audio_error_chooser.set_filename(self.error_sound)
         else:
+            self.audio_active = False
             LOG.warning(_("No audio available! PYGST library not installed? "
             "Is python-gstX.XX installed?"))
 
