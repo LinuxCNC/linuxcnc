@@ -162,7 +162,7 @@ private:
     bool                        LockFile(void);
     bool                        HasInvalidLineEnding(const char *line);
     void                        ThrowException(ErrorCode);
-    char                        *AfterEqual(const char *string);
+    char                        *AfterEqual(char *string);
     char                        *SkipWhite(const char *string);
 };
 #endif

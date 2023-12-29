@@ -182,7 +182,6 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
     int                         newLinePos;                /* position of newline to strip */
     int                         len;
     char                        tagEnd;
-    char                        *valueString;
     char                        *endValueString;
 
     char  eline [(LINELEN + 2) * (MAX_EXTEND_LINES + 1)];
@@ -338,9 +337,9 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
                 continue;
             }
             nonWhite += len;
-            valueString = AfterEqual(nonWhite);
+            char* valueString = AfterEqual(nonWhite);
             /* Eliminate white space at the end of a line also. */
-            if (NULL == valueString) {
+            if (!valueString) {
                 ThrowException(ERR_TAG_NOT_FOUND);
                 return std::nullopt;
             }
@@ -516,37 +515,21 @@ bool IniFile::HasInvalidLineEnding(const char *line)
    @return NULL or pointer to first non-white char after the delimiter
 
    Called By: find() and section() only. */
-char *
-IniFile::AfterEqual(const char *string)
+char*
+IniFile::AfterEqual(char *string)
 {
-    const char                  *spot = string;
+    while (*string != '\0' && *string != '=')
+        ++string;
 
-    for (;;) {
-        if (*spot == '=') {
-            /* = is there-- return next non-white, or NULL if not there */
-            for (;;) {
-                spot++;
-                if (0 == *spot) {
-                    /* ran out */
-                    return(NULL);
-                } else if (*spot != ' ' && *spot != '\t' && *spot != '\r'
-                           && *spot != '\n') {
-                    /* matched! */
-                    return((char *)spot);
-                } else {
-                    /* keep going for the text */
-                    continue;
-                }
-            }
-        } else if (*spot == 0) {
-            /* end of string */
-            return(NULL);
-        } else {
-            /* haven't seen '=' yet-- keep going */
-            spot++;
-            continue;
-        }
+    if (*string == '=') {
+        do {
+            ++string;
+            if (*string == '\0')
+                return nullptr;
+        } while (*string == ' ' || *string == '\t' || *string == '\r' || *string == '\n');
+        return string;
     }
+    return nullptr;
 }
 
 
