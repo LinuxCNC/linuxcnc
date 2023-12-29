@@ -156,9 +156,11 @@ private:
     const char *                tag;
     const char *                section;
     int                         num;
+    bool                        lineEndingReported{false};
 
     bool                        CheckIfOpen(void);
     bool                        LockFile(void);
+    bool                        HasInvalidLineEnding(const char *line);
     void                        ThrowException(ErrorCode);
     char                        *AfterEqual(const char *string);
     char                        *SkipWhite(const char *string);

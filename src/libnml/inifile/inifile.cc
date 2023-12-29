@@ -26,25 +26,6 @@
 
 #define MAX_EXTEND_LINES 20
 
-/// Return TRUE if the line has a line-ending problem
-static bool check_line_endings(const char *s) {
-    if(!s) return false;
-    for(; *s; s++ ) {
-        if(*s == '\r') {
-            char c = s[1];
-            if(c == '\n' || c == '\0') {
-                static bool warned = 0;
-                if(!warned) 
-                    fprintf(stderr, "inifile: warning: File contains DOS-style line endings.\n");
-                warned = true;
-                continue;
-            }
-            fprintf(stderr, "inifile: error: File contains ambiguous carriage returns\n");
-            return true;
-        }
-    }
-    return false;
-}
 
 IniFile::IniFile(int _errMask, FILE *_fp)
 {
@@ -236,7 +217,7 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
                 return std::nullopt;
             }
 
-            if(check_line_endings(line)) {
+            if (HasInvalidLineEnding(line)) {
                 ThrowException(ERR_CONVERSION);
                 return std::nullopt;
             }
@@ -277,7 +258,7 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
             return std::nullopt;
         }
 
-        if(check_line_endings(line)) {
+        if (HasInvalidLineEnding(line)) {
             ThrowException(ERR_CONVERSION);
             return std::nullopt;
         }
@@ -496,6 +477,36 @@ IniFile::ThrowException(ErrorCode errCode)
     }
 }
 
+/*!
+ * @brief Checks if a line has an invalid line ending.
+ *
+ * This function examines each character in the given line and reports warnings
+ * or errors related to line endings. It detects DOS-style line endings (CRLF)
+ * and ambiguous carriage returns.
+ * @param line To be checked for invalid line endings.
+ * @return True if an invalid line ending is found, false otherwise.
+ */
+bool IniFile::HasInvalidLineEnding(const char *line)
+{
+    if (!line)
+        return false;
+
+    for (; *line; line++) {
+        if (*line == '\r') {
+            char c = line[1];
+            if (c == '\n' || c == '\0') {
+                if (!lineEndingReported) {
+                    fprintf(stderr, "IniFile: warning: File contains DOS-style line endings.\n");
+                    lineEndingReported = true;
+                }
+                continue;
+            }
+            fprintf(stderr, "IniFile: error: File contains ambiguous carriage returns\n");
+            return true;
+        }
+    }
+    return false;
+}
 
 /*! Ignoring any tabs, spaces or other white spaces, finds the first
    character after the '=' delimiter.
