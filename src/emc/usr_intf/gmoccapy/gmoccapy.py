@@ -4588,6 +4588,10 @@ class gmoccapy(object):
 
     def _set_sourceview_theme(self, name):
         self.widgets["gcode_view"].set_style_scheme(name)
+        style  = self.widgets["gcode_view"].get_style_context()
+        color = style.get_background_color(Gtk.StateFlags.SELECTED)
+        color.alpha = 0.5
+        self.widgets["gcode_view"].add_mark_category('motion', color.to_string())
         
     def on_sourceview_theme_choice_changed(self, widget):
         active = widget.get_active_iter()
