@@ -1,4 +1,5 @@
 ver 3.4.7
+ - Added setting to allow smaller width of virtual keyboard (for widescreens)
  - Fixed box_dro_side is displayed in the G-code editor (#2627)
  - Fixed error on error message when sound is not available (reported on Raspberry Pi)
  - Fixed increasing of window size when clicking edit button
