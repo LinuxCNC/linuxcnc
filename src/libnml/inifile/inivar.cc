@@ -113,14 +113,14 @@ int main(int argc, char *argv[])
 	exit(-1);
     }
 
-    const char *iniString = iniFile.Find(variable, section, num);
+    auto iniString = iniFile.Find(variable, section, num);
     if (iniString) {
-	if(tildeExpand) {
+	if (tildeExpand) {
 	    char expanded[PATH_MAX];
-	    iniFile.TildeExpansion(iniString, expanded, sizeof(expanded));
+	    iniFile.TildeExpansion(*iniString, expanded, sizeof(expanded));
 	    printf("%s\n", expanded);
 	} else {
-	    printf("%s\n", iniString);
+	    printf("%s\n", *iniString);
 	}
 	retval = 0;
     } else {

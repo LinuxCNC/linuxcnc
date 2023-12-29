@@ -117,30 +117,30 @@ static int Ini_init(pyIniFile *self, PyObject *a, PyObject *k) {
 }
 
 static PyObject *Ini_find(pyIniFile *self, PyObject *args) {
-    const char *s1, *s2, *out;
+    const char *s1, *s2;
     int num = 1;
     if(!PyArg_ParseTuple(args, "ss|i:find", &s1, &s2, &num)) return NULL;
 
-    out = self->i->Find(s2, s1, num);
-    if(out == NULL) {
+    auto out = self->i->Find(s2, s1, num);
+    if(!out) {
         Py_INCREF(Py_None);
         return Py_None;
     }
-    return PyUnicode_FromString(const_cast<char*>(out));
+    return PyUnicode_FromString(const_cast<char*>(out.value()));
 }
 
 static PyObject *Ini_findall(pyIniFile *self, PyObject *args) {
-    const char *s1, *s2, *out;
+    const char *s1, *s2;
     int num = 1;
     if(!PyArg_ParseTuple(args, "ss:findall", &s1, &s2)) return NULL;
 
     PyObject *result = PyList_New(0);
     while(1) {
-        out = self->i->Find(s2, s1, num);
-        if(out == NULL) {
+        auto out = self->i->Find(s2, s1, num);
+        if(!out) {
             break;
         }
-        PyList_Append(result, PyUnicode_FromString(const_cast<char*>(out)));
+        PyList_Append(result, PyUnicode_FromString(const_cast<char*>(out.value())));
         num++;
     }
     return result;

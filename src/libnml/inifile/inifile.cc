@@ -108,10 +108,10 @@ IniFile::ErrorCode
 IniFile::Find(int *result, StrIntPair *pPair,
      const char *tag, const char *section, int num, int *lineno)
 {
-    const char                  *pStr;
     int                         tmp;
 
-    if((pStr = Find(tag, section, num)) == NULL){
+    auto pStr = Find(tag, section, num);
+    if(!pStr){
         // We really need an ErrorCode return from Find() and should be passing
         // in a buffer. Just pick a suitable ErrorCode for now.
 	if (lineno)
@@ -119,7 +119,7 @@ IniFile::Find(int *result, StrIntPair *pPair,
         return(ERR_TAG_NOT_FOUND);
     }
 
-    if(sscanf(pStr, "%i", &tmp) == 1){
+    if(sscanf(*pStr, "%i", &tmp) == 1){
         *result = tmp;
 	if (lineno)
 	    *lineno = lineNo;
@@ -127,7 +127,7 @@ IniFile::Find(int *result, StrIntPair *pPair,
     }
 
     while(pPair->pStr != NULL){
-        if(strcasecmp(pStr, pPair->pStr) == 0){
+        if(strcasecmp(*pStr, pPair->pStr) == 0){
             *result = pPair->value;
 	    if (lineno)
 		*lineno = lineNo;
@@ -145,10 +145,10 @@ IniFile::ErrorCode
 IniFile::Find(double *result, StrDoublePair *pPair,
      const char *tag, const char *section, int num, int *lineno)
 {
-    const char                  *pStr;
     double                      tmp;
 
-    if((pStr = Find(tag, section, num)) == NULL){
+    auto pStr = Find(tag, section, num);
+    if(!pStr){
         // We really need an ErrorCode return from Find() and should be passing
         // in a buffer. Just pick a suitable ErrorCode for now.
 	if (lineno)
@@ -156,7 +156,7 @@ IniFile::Find(double *result, StrDoublePair *pPair,
         return(ERR_TAG_NOT_FOUND);
     }
 
-    if(sscanf(pStr, "%lf", &tmp) == 1){
+    if(sscanf(*pStr, "%lf", &tmp) == 1){
 	if (lineno)
 	    *lineno = lineNo;
         *result = tmp;
@@ -166,7 +166,7 @@ IniFile::Find(double *result, StrDoublePair *pPair,
     }
 
     while(pPair->pStr != NULL){
-        if(strcasecmp(pStr, pPair->pStr) == 0){
+        if(strcasecmp(*pStr, pPair->pStr) == 0){
             *result = pPair->value;
 	    if (lineno)
 		*lineno = lineNo;
@@ -190,7 +190,7 @@ IniFile::Find(double *result, StrDoublePair *pPair,
 
    @return pointer to the variable after the '=' delimiter, or @c NULL if not
            found */
-const char *
+std::optional<const char*>
 IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
 {
     // WTF, return a pointer to the middle of a local buffer?
@@ -217,7 +217,7 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
 
     /* check valid file */
     if(!CheckIfOpen())
-        return(NULL);
+        return std::nullopt;
 
     /* start from beginning */
     rewind(fp);
@@ -233,12 +233,12 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
             if (NULL == fgets(line, LINELEN + 1, fp)) {
                 /* got to end of file without finding it */
                 ThrowException(ERR_SECTION_NOT_FOUND);
-                return(NULL);
+                return std::nullopt;
             }
 
             if(check_line_endings(line)) {
                 ThrowException(ERR_CONVERSION);
-                return(NULL);
+                return std::nullopt;
             }
 
             /* got a line */
@@ -274,12 +274,12 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
         if (NULL == fgets(line, LINELEN + 1, (FILE *) fp)) {
             /* got to end of file without finding it */
             ThrowException(ERR_TAG_NOT_FOUND);
-            return(NULL);
+            return std::nullopt;
         }
 
         if(check_line_endings(line)) {
             ThrowException(ERR_CONVERSION);
-            return(NULL);
+            return std::nullopt;
         }
 
         /* got a line */
@@ -312,7 +312,7 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
                  "INIFILE lineno=%d:Too many backslash line extends (limit=%d)\n",
                  lineNo, MAX_EXTEND_LINES);
               ThrowException(ERR_OVER_EXTENDED);
-              return(NULL);
+              return std::nullopt;
            }
            continue; // get next line to extend
         } else {
@@ -337,7 +337,7 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
            of our section */
         if (NULL != section && nonWhite[0] == '[') {
             ThrowException(ERR_TAG_NOT_FOUND);
-            return(NULL);
+            return std::nullopt;
         }
 
         len = strlen(tag);
@@ -361,7 +361,7 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
             /* Eliminate white space at the end of a line also. */
             if (NULL == valueString) {
                 ThrowException(ERR_TAG_NOT_FOUND);
-                return(NULL);
+                return std::nullopt;
             }
             endValueString = valueString + strlen(valueString) - 1;
             while (*endValueString == ' ' || *endValueString == '\t'
@@ -371,37 +371,37 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
             }
 	    if (lineno)
 		*lineno = lineNo;
-            return(valueString);
+            return valueString;
         }
         /* else continue */
     }
 
     ThrowException(ERR_TAG_NOT_FOUND);
-    return(NULL);
+    return std::nullopt;
 }
 
-const char *
+std::optional<const char*>
 IniFile::FindString(char *dest, size_t n, const char *_tag, const char *_section, int _num, int *lineno)
 {
-    const char *res = Find(_tag, _section, _num, lineno);
-    if(res == NULL)
-        return res;
-    int r = snprintf(dest, n, "%s", res);
+    auto res = Find(_tag, _section, _num, lineno);
+    if(!res)
+        return std::nullopt;
+    int r = snprintf(dest, n, "%s", *res);
     if(r < 0 || (size_t)r >= n) {
         ThrowException(ERR_CONVERSION);
-        return NULL;
+        return std::nullopt;
     }
     return dest;
 }
 
-const char *
+std::optional<const char*>
 IniFile::FindPath(char *dest, size_t n, const char *_tag, const char *_section, int _num, int *lineno)
 {
-    const char *res = Find(_tag, _section, _num, lineno);
+    auto res = Find(_tag, _section, _num, lineno);
     if(!res)
-        return res;
-    if(TildeExpansion(res, dest, n)) {
-        return 0;
+        return std::nullopt;
+    if(TildeExpansion(*res, dest, n)) {
+        return std::nullopt;
     }
     return dest;
 }
@@ -616,7 +616,7 @@ iniFind(FILE *fp, const char *tag, const char *section)
 {
     IniFile                     f(false, fp);
 
-    return(f.Find(tag, section));
+    return(f.Find(tag, section).value_or(nullptr));
 }
 
 extern "C" const int

@@ -182,7 +182,7 @@ iniFind(FILE *fp, const char *tag, const char *section)
 {
     IniFile                     f(false, fp);
 
-    return(f.Find(tag, section));
+    return(f.Find(tag, section).value_or(nullptr));
 }
 
 void init_xhc(xhc_t *xhc)
@@ -674,7 +674,7 @@ static void hal_setup()
 int read_ini_file(char *filename)
 {
 	FILE *fd = fopen(filename, "r");
-	const char *bt;
+	std::optional<const char*> bt;
 	int nb_buttons = 0;
 	if (!fd) {
 		perror(filename);
@@ -684,8 +684,8 @@ int read_ini_file(char *filename)
 	IniFile f(false, fd);
 
 	while ( (bt = f.Find("BUTTON", section, nb_buttons+1)) && nb_buttons < NB_MAX_BUTTONS) {
-		if (sscanf(bt, "%x:%s", &xhc.buttons[nb_buttons].code, xhc.buttons[nb_buttons].pin_name) !=2 ) {
-			fprintf(stderr, "%s: syntax error\n", bt);
+		if (sscanf(*bt, "%x:%s", &xhc.buttons[nb_buttons].code, xhc.buttons[nb_buttons].pin_name) !=2 ) {
+			fprintf(stderr, "%s: syntax error\n", *bt);
 			return -1;
 		}
 		nb_buttons++;

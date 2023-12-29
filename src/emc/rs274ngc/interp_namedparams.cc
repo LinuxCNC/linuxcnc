@@ -964,7 +964,7 @@ double Interp::inicheck()
 {
     IniFile inifile;
     const char *filename;
-    const char *inistring;
+    std::optional<const char*> inistring;
     double result = -1.0;
 
 	if ((filename = getenv("INI_FILE_NAME")) == NULL) {
@@ -976,8 +976,8 @@ double Interp::inicheck()
 	    return -1.0;
     }
 
-    if (NULL != (inistring = inifile.Find("LINEAR_UNITS", "TRAJ"))) {
-        if (!strcmp(inistring, "inch")) {
+    if ((inistring = inifile.Find("LINEAR_UNITS", "TRAJ"))) {
+        if (!strcmp(*inistring, "inch")) {
              result = 0.0;
         } else {
             result = 1.0;

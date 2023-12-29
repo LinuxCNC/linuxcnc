@@ -26,6 +26,7 @@
 
 #ifdef __cplusplus
 #include <fcntl.h>
+#include <optional>
 class IniFile {
 public:
     typedef enum {
@@ -57,7 +58,7 @@ public:
     bool                        Close(void);
     bool                        IsOpen(void){ return(fp != NULL); }
 
-    const char *                Find(const char *tag, const char *section=NULL,
+    std::optional<const char*>  Find(const char *tag, const char *section=NULL,
                                      int num = 1, int *lineno = NULL);
 
     template<class T>
@@ -101,19 +102,19 @@ public:
     ErrorCode                   Find(std::string *s,
                                      const char *tag,const char *section,
                                      int num=1) {
-        const char *tmp = Find(tag, section, num);
+        auto tmp = Find(tag, section, num);
         if(!tmp)
             return ERR_TAG_NOT_FOUND; // can't distinguish errors, ugh
 
-        *s = tmp;
+        *s = *tmp;
 
         return(ERR_NONE);
     }
 
-    const char *                FindString(char *dest, size_t n,
+    std::optional<const char*>  FindString(char *dest, size_t n,
 				     const char *tag, const char *section=NULL,
 				     int num = 1, int *lineno = NULL);
-    const char *                FindPath(char *dest, size_t n,
+    std::optional<const char*>  FindPath(char *dest, size_t n,
 				     const char *tag, const char *section=NULL,
 				     int num = 1, int *lineno = NULL);
     void                        EnableExceptions(int _errMask){
