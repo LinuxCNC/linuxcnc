@@ -187,7 +187,7 @@ At the moment, build rules are created for languages with more than 2
 percent translated
 link:https://hosted.weblate.org/projects/linuxcnc/linuxcnc-docs/[according
 to Weblate] or which have been updated the last 12 months according to
-the PO-Revision-Date field in docs/po/*.po.  Documentaion packages for
+the PO-Revision-Date field in docs/po/*.po.  Documentation packages for
 Debian are build for languages with more than 50 percent translation.
 This ensure translators and proof readers can see the result of their
 effort on https://linuxcnc.org/docs/devel/html/, while we limit the

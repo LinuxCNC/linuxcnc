@@ -115,7 +115,7 @@ used to boot a computer.  The image is too large to fit on a CD.
 
 === Raspberry Pi Image
 
-The Raspbery Pi image is a completes SD card image and should be
+The Raspberry Pi image is a complete SD card image and should be
 written to an SD card with the [Raspberry Pi Imager App](https://www.raspberrypi.com/software/).
 
 === AMD-64 (x86-64, PC) Image using GUI tools
@@ -150,14 +150,14 @@ diskutil list
 -----
 . Insert the USB and note the name of the new disk that appears, eg
   /dev/disk5
-. unmount the USB. The number found above should be substitued in place
+. unmount the USB. The number found above should be substituted in place
   of the N
 +
 -----
 diskutil unmountDisk /dev/diskN
 -----
 . Transfer the data with dd, as for Linux above. Note that the disk name
-  has an added "r" at the begining
+  has an added "r" at the beginning
 +
 -----
 sudo dd if=/linuxcnc_2.9.2-amd64.hybrid.iso of=/dev/rdiskN bs=1m
@@ -352,7 +352,7 @@ sudo ./linuxcnc-install.sh
   install, or alternatively on a fresh Install of Debian Bookworm 64-bit
   as described above.
 . You can add the LinuxCNC Archive signing key and repository information
-  by downloading and running the installer script as decribed above. If
+  by downloading and running the installer script as described above. If
   an RTAI kernel is detected it will stop before installing any packages. 
 
 . Update the package list from linuxcnc.org

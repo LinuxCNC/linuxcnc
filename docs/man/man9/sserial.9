@@ -49,7 +49,7 @@ If the increment were to be set to zero then no error would ever be raised, and 
 Conversely setting decrement to zero, threshold to 1 and limit to 1 means that absolutely no errors will be tolerated.
 (This structure is copied directly from vehicle ECU practice.)
 
-Any other parameters than the ones above are created by the card istelf from data in the remote firmware.
+Any other parameters than the ones above are created by the card itself from data in the remote firmware.
 They may be set in the HAL file using "setp" in the usual way.
 
 NOTE: Because a Smart-Serial remote can only communicate non-process data to the host card in setup mode,
@@ -76,7 +76,7 @@ Note that the sserial ports do not necessarily correlate in layout or number to 
 (float in) angle
 The rotor angle of the motor in fractions of a full \fBphase\fR revolution.
 An angle of 0.5 indicates that the motor is half a turn / 180 degrees / \[*p] radians from the zero position.
-The zero position is taken to be the position that the motor adopts under no load with a poitive voltage applied to the A (or U) phase
+The zero position is taken to be the position that the motor adopts under no load with a positive voltage applied to the A (or U) phase
 and both B and C (or V and W) connected to \-V or 0 V.
 A 6 pole motor will have 3 zero positions per physical rotation.
 Note that the 8I20 drive automatically adds the phase lead/lag angle, and that this pin should see the raw rotor angle.
