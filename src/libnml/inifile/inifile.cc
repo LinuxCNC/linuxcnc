@@ -89,8 +89,6 @@ IniFile::ErrorCode
 IniFile::Find(int *result, StrIntPair *pPair,
      const char *tag, const char *section, int num, int *lineno)
 {
-    int                         tmp;
-
     auto pStr = Find(tag, section, num);
     if(!pStr){
         // We really need an ErrorCode return from Find() and should be passing
@@ -100,6 +98,7 @@ IniFile::Find(int *result, StrIntPair *pPair,
         return(ERR_TAG_NOT_FOUND);
     }
 
+    int tmp;
     if(sscanf(*pStr, "%i", &tmp) == 1){
         *result = tmp;
 	if (lineno)
@@ -126,8 +125,6 @@ IniFile::ErrorCode
 IniFile::Find(double *result, StrDoublePair *pPair,
      const char *tag, const char *section, int num, int *lineno)
 {
-    double                      tmp;
-
     auto pStr = Find(tag, section, num);
     if(!pStr){
         // We really need an ErrorCode return from Find() and should be passing
@@ -137,6 +134,7 @@ IniFile::Find(double *result, StrDoublePair *pPair,
         return(ERR_TAG_NOT_FOUND);
     }
 
+    double tmp;
     if(sscanf(*pStr, "%lf", &tmp) == 1){
 	if (lineno)
 	    *lineno = lineNo;
@@ -178,10 +176,6 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
     // FIX: this is totally non-reentrant.
     static char                 line[LINELEN + 2] = "";        /* 1 for newline, 1 for NULL */
     char                        bracketSection[LINELEN + 2] = "";
-    int                         newLinePos;                /* position of newline to strip */
-    int                         len;
-    char                        tagEnd;
-    char                        *endValueString;
 
     char  eline [(LINELEN + 2) * (MAX_EXTEND_LINES + 1)];
     char* elineptr;
@@ -224,7 +218,7 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
             lineNo++;
 
             /* strip off newline */
-            newLinePos = strlen(line) - 1;        /* newline is on back from 0 */
+            int newLinePos = static_cast<int>(strlen(line)) - 1; /* newline is on back from 0 */
             if (newLinePos < 0) {
                 newLinePos = 0;
             }
@@ -266,7 +260,7 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
         lineNo++;
 
         /* strip off newline */
-        newLinePos = strlen(line) - 1;        /* newline is on back from 0 */
+        int newLinePos = static_cast<int>(strlen(line)) - 1; /* newline is on back from 0 */
         if (newLinePos < 0) {
             newLinePos = 0;
         }
@@ -321,15 +315,15 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
             return std::nullopt;
         }
 
-        len = strlen(tag);
-        if (strncmp(tag, nonWhite, len) != 0) {
+        const std::size_t tagLength = strlen(tag);
+        if (strncmp(tag, nonWhite, tagLength) != 0) {
             /* not on this line */
             continue;
         }
 
         /* it matches the first part of the string-- if whitespace or = is
            next char then call it a match */
-        tagEnd = nonWhite[len];
+        const char tagEnd = nonWhite[tagLength];
         if (tagEnd == ' ' || tagEnd == '\r' || tagEnd == '\t'
             || tagEnd == '\n' || tagEnd == '=') {
             /* it matches-- return string after =, or NULL */
@@ -337,14 +331,14 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
                 /* Not looking for this one, so skip it... */
                 continue;
             }
-            nonWhite += len;
+            nonWhite += tagLength;
             char* valueString = AfterEqual(nonWhite);
             /* Eliminate white space at the end of a line also. */
             if (!valueString) {
                 ThrowException(ERR_TAG_NOT_FOUND);
                 return std::nullopt;
             }
-            endValueString = valueString + strlen(valueString) - 1;
+            char* endValueString = valueString + strlen(valueString) - 1;
             while (*endValueString == ' ' || *endValueString == '\t'
                    || *endValueString == '\r') {
                 *endValueString = 0;
@@ -442,8 +436,6 @@ IniFile::LockFile(void)
 IniFile::ErrorCode
 IniFile::TildeExpansion(const char *file, char *path, size_t size)
 {
-    char                        *home;
-
     int res = snprintf(path, size, "%s", file);
     if(res < 0 || (size_t)res >= size)
         return ERR_CONVERSION;
@@ -454,7 +446,7 @@ IniFile::TildeExpansion(const char *file, char *path, size_t size)
 	return ERR_NONE;
     }
 
-    home = getenv("HOME");
+    const char *home = getenv("HOME");
     if (!home) {
         ThrowException(ERR_CONVERSION);
 	return ERR_CONVERSION;
