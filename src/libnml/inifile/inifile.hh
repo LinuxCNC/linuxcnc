@@ -127,7 +127,7 @@ private:
     bool                        HasInvalidLineEnding(const char *line);
     void                        ThrowException(ErrorCode);
     char                        *AfterEqual(char *string);
-    char                        *SkipWhite(const char *string);
+    char                        *SkipWhite(char *string);
 };
 
 template<class T>

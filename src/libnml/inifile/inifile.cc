@@ -178,7 +178,6 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
     // FIX: this is totally non-reentrant.
     static char                 line[LINELEN + 2] = "";        /* 1 for newline, 1 for NULL */
     char                        bracketSection[LINELEN + 2] = "";
-    char                        *nonWhite;
     int                         newLinePos;                /* position of newline to strip */
     int                         len;
     char                        tagEnd;
@@ -233,7 +232,8 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
                 line[newLinePos] = 0;        /* make the newline 0 */
             }
 
-            if (NULL == (nonWhite = SkipWhite(line))) {
+            const char* nonWhite = SkipWhite(line);
+            if (!nonWhite) {
                 /* blank line-- skip */
                 continue;
             }
@@ -308,7 +308,8 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
         extend_ct = 0;
 
         /* skip leading whitespace */
-        if (NULL == (nonWhite = SkipWhite(elineptr))) {
+        char* nonWhite = SkipWhite(elineptr);
+        if (!nonWhite) {
             /* blank line-- skip */
             continue;
         }
@@ -552,25 +553,16 @@ IniFile::AfterEqual(char *string)
    @return NULL if not found or a valid pointer.
 
    Called By: find() and section() only. */
-char *
-IniFile::SkipWhite(const char *string)
+char*
+IniFile::SkipWhite(char *string)
 {
-    while(true){
-        if (*string == 0) {
-            return(NULL);
-        }
-
-        if ((*string == ';') || (*string == '#')) {
-            return(NULL);
-        }
-
-        if (*string != ' ' && *string != '\t' && *string != '\r'
-            && *string != '\n') {
-            return((char *)string);
-        }
-
-        string++;
+  while (*string != ';' && *string != '#' && *string != '\0') {
+    if (*string != ' ' && *string != '\t' && *string != '\r' && *string != '\n') {
+      return string;
     }
+    string++;
+  }
+  return nullptr;
 }
 
 
