@@ -360,6 +360,18 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
     return std::nullopt;
 }
 
+IniFile::ErrorCode
+IniFile::Find(std::string *s, const char *_tag, const char *_section, int _num)
+{
+    auto tmp = Find(_tag, _section, _num);
+    if(!tmp)
+        return ERR_TAG_NOT_FOUND; // can't distinguish errors, ugh
+
+     *s = *tmp;
+
+    return(ERR_NONE);
+}
+
 std::optional<const char*>
 IniFile::FindString(char *dest, size_t n, const char *_tag, const char *_section, int _num, int *lineno)
 {
