@@ -464,7 +464,6 @@
   </object>
   <object class="GtkImage" id="img_run_from">
     <property name="visible">True</property>
-    <property name="sensitive">False</property>
     <property name="can-focus">False</property>
   </object>
   <object class="GtkImage" id="img_sel_next">
