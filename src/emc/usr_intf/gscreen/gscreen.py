@@ -493,7 +493,7 @@ def load_handlers(usermod,halcomp,builder,useropts,gscreen):
 
 # ok here is the Gscreen class
 # there are also three other files:
-# mdi.py for mdi commands (which include non-obvious mdi commands done in maual mode)
+# mdi.py for mdi commands (which include non-obvious mdi commands done in manual mode)
 # preference.py for keeping track of stored user preferences
 # emc_interface.py which does most of the commands and status of linuxcnc
 # keep in mind some of the gladeVCP widgets send-commands-to/monitor linuxcnc also
@@ -564,7 +564,7 @@ class Gscreen:
             self.xml = Gtk.Builder()
             self.xml.set_translation_domain(domain) # for locale translations
             self.xml.add_from_file(xmlname)
-            # this is a fix for themeing - it sets the widgets style name to
+            # this is a fix for theming - it sets the widgets style name to
             # the widget id name. You can over ride it later with:
             # self.widgets.<OBJECT NAME>.set_name('<STYLE NAME>')
             for o in self.xml.get_objects():

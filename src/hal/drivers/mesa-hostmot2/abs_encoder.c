@@ -333,7 +333,7 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
             }
             else
             {
-                HM2_ERR_NO_LL("Unknown format specifer %s\n", format);
+                HM2_ERR_NO_LL("Unknown format specifier %s\n", format);
                 return -EINVAL;
             }
             //Start a new name
