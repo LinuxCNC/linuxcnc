@@ -205,10 +205,6 @@ class Pages:
         self.a.fill_pintype_model()
 
         self.intro_prepare()
-        # get the original background color, must realize the widget first to get the true color.
-        # we use this later to high light missing axis info
-        self.w.xencoderscale.realize()
-        self.a.origbg = self.w.xencoderscale.get_style_context().get_property("background-color", Gtk.StateFlags.NORMAL)
 # TODO TODO cannot set size correctly, try in pncconf.py L289
 #        self.w.window1.set_geometry_hints(min_width=750)
         self.w.button_save.set_visible(False)

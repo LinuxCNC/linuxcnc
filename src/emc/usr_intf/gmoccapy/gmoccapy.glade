@@ -35,6 +35,12 @@
     <property name="page-increment">10</property>
     <signal name="value-changed" handler="on_adj_kbd_height_value_changed" swapped="no"/>
   </object>
+  <object class="GtkAdjustment" id="adj_kbd_width">
+    <property name="upper">2000</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+    <signal name="value-changed" handler="on_adj_kbd_width_value_changed" swapped="no"/>
+  </object>
   <object class="GtkAdjustment" id="adj_max_messages">
     <property name="lower">1</property>
     <property name="upper">25</property>
@@ -458,7 +464,6 @@
   </object>
   <object class="GtkImage" id="img_run_from">
     <property name="visible">True</property>
-    <property name="sensitive">False</property>
     <property name="can-focus">False</property>
   </object>
   <object class="GtkImage" id="img_sel_next">
@@ -716,6 +721,17 @@
       <row>
         <col id="0">default</col>
         <col id="1" translatable="yes">default</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="lstst_sourceview_themes">
+    <columns>
+      <!-- column-name text -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0">default</col>
       </row>
     </data>
   </object>
@@ -3049,6 +3065,8 @@
                               <object class="GtkBox" id="key_box">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
+                                <property name="halign">center</property>
+                                <property name="valign">center</property>
                                 <property name="homogeneous">True</property>
                                 <child>
                                   <placeholder/>
@@ -3479,42 +3497,90 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkBox">
+                                      <!-- n-columns=2 n-rows=2 -->
+                                      <object class="GtkGrid">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
-                                        <property name="hexpand">False</property>
                                         <child>
-                                          <object class="GtkLabel" id="lbl_kbd_height">
+                                          <object class="GtkBox" id="box_kbd_height">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
-                                            <property name="hexpand">True</property>
-                                            <property name="xpad">5</property>
-                                            <property name="ypad">5</property>
-                                            <property name="label" translatable="yes">Height</property>
-                                            <property name="xalign">0</property>
+                                            <property name="hexpand">False</property>
+                                            <child>
+                                              <object class="GtkSpinButton">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">True</property>
+                                                <property name="adjustment">adj_kbd_height</property>
+                                                <property name="value">250</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">True</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">1</property>
+                                              </packing>
+                                            </child>
                                           </object>
                                           <packing>
-                                            <property name="expand">False</property>
-                                            <property name="fill">True</property>
-                                            <property name="position">0</property>
+                                            <property name="left-attach">1</property>
+                                            <property name="top-attach">0</property>
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkSpinButton">
+                                          <object class="GtkBox" id="box_kbd_width">
                                             <property name="visible">True</property>
-                                            <property name="can-focus">True</property>
-                                            <property name="adjustment">adj_kbd_height</property>
-                                            <property name="value">250</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="hexpand">False</property>
+                                            <child>
+                                              <object class="GtkSpinButton">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">True</property>
+                                                <property name="text" translatable="yes">250</property>
+                                                <property name="adjustment">adj_kbd_width</property>
+                                                <property name="value">500</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">True</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">1</property>
+                                              </packing>
+                                            </child>
                                           </object>
                                           <packing>
-                                            <property name="expand">True</property>
-                                            <property name="fill">True</property>
-                                            <property name="position">1</property>
+                                            <property name="left-attach">1</property>
+                                            <property name="top-attach">1</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkCheckButton" id="chk_kbd_set_height">
+                                            <property name="label" translatable="yes">Height</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">False</property>
+                                            <property name="draw-indicator">True</property>
+                                            <signal name="toggled" handler="on_chk_kb_set_height_toggled" swapped="no"/>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">0</property>
+                                            <property name="top-attach">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkCheckButton" id="chk_kbd_set_width">
+                                            <property name="label" translatable="yes">Width</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">False</property>
+                                            <property name="draw-indicator">True</property>
+                                            <signal name="toggled" handler="on_chk_kb_set_width_toggled" swapped="no"/>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">0</property>
+                                            <property name="top-attach">1</property>
                                           </packing>
                                         </child>
                                       </object>
                                       <packing>
-                                        <property name="expand">True</property>
+                                        <property name="expand">False</property>
                                         <property name="fill">True</property>
                                         <property name="position">5</property>
                                       </packing>
@@ -4237,7 +4303,7 @@ clicking on the DRO</property>
                                 <property name="can-focus">False</property>
                                 <property name="label-xalign">0.5</property>
                                 <child>
-                                  <!-- n-columns=2 n-rows=7 -->
+                                  <!-- n-columns=2 n-rows=10 -->
                                   <object class="GtkGrid" id="grid_themes_sound">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
@@ -4251,7 +4317,7 @@ clicking on the DRO</property>
                                       <object class="GtkLabel" id="lbl_themes">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
-                                        <property name="label" translatable="yes">Themes</property>
+                                        <property name="label" translatable="yes">Theme</property>
                                       </object>
                                       <packing>
                                         <property name="left-attach">0</property>
@@ -4319,7 +4385,7 @@ clicking on the DRO</property>
                                       </object>
                                       <packing>
                                         <property name="left-attach">1</property>
-                                        <property name="top-attach">6</property>
+                                        <property name="top-attach">9</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -4333,7 +4399,7 @@ clicking on the DRO</property>
                                       </object>
                                       <packing>
                                         <property name="left-attach">0</property>
-                                        <property name="top-attach">6</property>
+                                        <property name="top-attach">9</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -4347,7 +4413,7 @@ clicking on the DRO</property>
                                       </object>
                                       <packing>
                                         <property name="left-attach">0</property>
-                                        <property name="top-attach">5</property>
+                                        <property name="top-attach">8</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -4358,7 +4424,7 @@ clicking on the DRO</property>
                                       </object>
                                       <packing>
                                         <property name="left-attach">1</property>
-                                        <property name="top-attach">5</property>
+                                        <property name="top-attach">8</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -4372,7 +4438,49 @@ clicking on the DRO</property>
                                       </object>
                                       <packing>
                                         <property name="left-attach">0</property>
+                                        <property name="top-attach">7</property>
+                                        <property name="width">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="lbl_sourceview_icon_themes">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="label" translatable="yes">G-code Theme</property>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">0</property>
                                         <property name="top-attach">4</property>
+                                        <property name="width">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkComboBox" id="sourceview_theme_choice">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="model">lstst_sourceview_themes</property>
+                                        <signal name="changed" handler="on_sourceview_theme_choice_changed" swapped="no"/>
+                                        <child>
+                                          <object class="GtkCellRendererText" id="cellrenderertext3"/>
+                                          <attributes>
+                                            <attribute name="text">0</attribute>
+                                          </attributes>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">0</property>
+                                        <property name="top-attach">5</property>
+                                        <property name="width">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkSeparator" id="sep_themes_sound">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">0</property>
+                                        <property name="top-attach">6</property>
                                         <property name="width">2</property>
                                       </packing>
                                     </child>

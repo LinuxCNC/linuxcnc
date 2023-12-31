@@ -1221,8 +1221,7 @@ int do_delsig_cmd(char *mod_name)
 	    sig = SHMPTR(next);
 	    /* we want to unload this signal, remember its name */
 	    if ( n < ( MAX_EXPECTED_SIGS - 1 ) ) {
-	        strncpy(sigs[n], sig->name, HAL_NAME_LEN );
-		sigs[n][HAL_NAME_LEN] = '\0';
+		snprintf(sigs[n], sizeof(sigs[n]), "%s", sig->name);
 		n++;
 	    }
 	    next = sig->next_ptr;
@@ -1315,8 +1314,7 @@ int do_unloadrt_cmd(char *mod_name)
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
 		/* we want to unload this component, remember its name */
 		if ( n < 63 ) {
-		    strncpy(comps[n], comp->name, HAL_NAME_LEN );
-		    comps[n][HAL_NAME_LEN] = '\0';
+		    snprintf(comps[n], sizeof(comps[n]), "%s", comp->name);
 		    n++;
 		}
 	    }

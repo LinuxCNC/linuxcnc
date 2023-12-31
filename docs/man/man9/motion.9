@@ -60,6 +60,17 @@ like \fBmotion.analog-in-00\fR whereas \fBnames_ain=\fIproxy1,proxy2\fR will cre
 .br
 .ns
 .TP
+\fBnames_misc_errors\fR: A comma-separated list of names for extra error inputs.
+This parameter is mutually exclusive with num_misc_error.
+If using num_misc_error the additional error input pins will have names like \fBmotion.misc-error-00\fR whereas \fBnames_misc_errors=overtemp,undertemp\fR will
+create hal pins \fBmotion.err-overtemp\fR and \fBmotion.err-undertemp\fR
+.br
+.ns
+.TP
+\fBnum_spindles\fR: Maximum number of spindles is set by EMCMOT_MAX_SPINDLES
+.br
+.ns
+.TP
 \fBnum_spindles\fR: Maximum number of spindles is set by \fBEMCMOT_MAX_SPINDLES\fR.
 
 .P

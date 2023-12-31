@@ -1237,6 +1237,7 @@ static cmdResponseType setOpen(connectionRecType *context)
     );
     return rtCustomError;
   }
+  strncpy(context->progName, pch, sizeof(context->progName));
 
   if (sendProgramOpen(context->progName) != 0)
     return rtStandardError;

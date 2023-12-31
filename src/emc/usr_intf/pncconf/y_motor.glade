@@ -2242,6 +2242,7 @@
             </child>
             <child>
               <object class="GtkSpinButton" id="yencoderscale">
+                <property name="name">yencoderscale</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="invisible_char">●</property>
@@ -2272,6 +2273,7 @@
             </child>
             <child>
               <object class="GtkSpinButton" id="ystepscale">
+                <property name="name">ystepscale</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="invisible_char">●</property>

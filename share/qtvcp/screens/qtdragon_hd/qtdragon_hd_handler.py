@@ -59,7 +59,7 @@ DEFAULT = 0
 WARNING = 1
 CRITICAL = 2
 
-VERSION ='1.1'
+VERSION ='1.2'
 
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
@@ -1027,7 +1027,7 @@ class HandlerClass:
 
     def chk_use_virtual_changed(self, state):
         codestring = "CALCULATOR" if state else "ENTRY"
-        for i in ("x", "y", "z", "a"):
+        for i in ("x", "y", "z", "4", "5"):
             self.w["axistoolbutton_" + i].set_dialog_code(codestring)
         if self.probe:
             self.probe.dialog_code = codestring

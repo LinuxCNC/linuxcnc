@@ -464,8 +464,6 @@ int tpClear(TP_STRUCT * const tp)
     struct state_tag_t tag = {{0}};
     tp->execTag = tag;
     tp->motionType = 0;
-    tp->termCond = TC_TERM_COND_PARABOLIC;
-    tp->tolerance = 0.0;
     tp->done = 1;
     tp->depth = tp->activeDepth = 0;
     tp->aborting = 0;
@@ -515,6 +513,8 @@ int tpInit(TP_STRUCT * const tp)
     tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
 
     tp->reverse_run = TC_DIR_FORWARD;
+    tp->termCond = TC_TERM_COND_PARABOLIC;
+    tp->tolerance = 0.0;
 
     ZERO_EMC_POSE(tp->currentPos);
 

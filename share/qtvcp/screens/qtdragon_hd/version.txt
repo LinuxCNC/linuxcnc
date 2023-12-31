@@ -3,3 +3,6 @@ Qtdragon_hd
 version 1.0 released in linuxcnc 2.9.1
 
 version 1.1 fix probe routines: spindle starts on error or abort
+
+version 1.2 fix error whrn setting of axis tool buttons of 4th and 5th axis
+    commit 30661cf590faf5f85ba6bee0dcce72b0aae12419
