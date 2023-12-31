@@ -1,5 +1,5 @@
 ###################################################################
-#        moccapy_postgui.hal file from Norbert Schechner          #
+#        gmoccapy_postgui.hal file from Norbert Schechner          #
 ###################################################################
 
 loadrt abs names=abs_spindle_feedback
