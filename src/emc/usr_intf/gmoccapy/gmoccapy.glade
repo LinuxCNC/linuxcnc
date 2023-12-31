@@ -315,7 +315,6 @@
   </object>
   <object class="GtkImage" id="img_run_from">
     <property name="visible">True</property>
-    <property name="sensitive">False</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">images/runfrom.png</property>
   </object>
