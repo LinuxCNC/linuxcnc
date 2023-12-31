@@ -648,7 +648,7 @@ Device_ExportDigitalInPinsParametersFunctions(Device *this, int componentId, int
 
     // Export functions.
     if(!halError){
-	halError = hal_export_funct(Device_DigitalInRead, this, 0, 0, componentId, "motenc.%d.digital-in-read", boardId);
+	halError = hal_export_functf(Device_DigitalInRead, this, 0, 0, componentId, "motenc.%d.digital-in-read", boardId);
     }
 
     if(halError){

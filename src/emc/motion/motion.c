@@ -60,7 +60,6 @@ RTAPI_MP_INT(num_extrajoints, "number of extra joints (not used in kinematics)")
 
 static int num_dio = NOT_INITIALIZED;
 RTAPI_MP_INT(num_dio, "number of digital inputs/outputs");
-
 static char *names_din[EMCMOT_MAX_DIO] = {0,};
 RTAPI_MP_ARRAY_STRING(names_din, EMCMOT_MAX_DIO, "names of digital inputs");
 static char *names_dout[EMCMOT_MAX_DIO] = {0,};
@@ -68,12 +67,11 @@ RTAPI_MP_ARRAY_STRING(names_dout, EMCMOT_MAX_DIO, "names of digital outputs");
 
 static int num_aio = NOT_INITIALIZED;
 RTAPI_MP_INT(num_aio, "number of analog inputs/outputs");
-
 static char *names_ain[EMCMOT_MAX_AIO] = {0,};
 RTAPI_MP_ARRAY_STRING(names_ain, EMCMOT_MAX_AIO, "names of analog inputs");
 static char *names_aout[EMCMOT_MAX_AIO] = {0,};
 RTAPI_MP_ARRAY_STRING(names_aout, EMCMOT_MAX_AIO, "names of analog outputs");
-RTAPI_MP_ARRAY_STRING(names_aout, MAX_IO, "names of analog outputs");
+
 static int num_misc_error = NOT_INITIALIZED;
 RTAPI_MP_INT(num_misc_error, "number of misc error inputs");
 static char *names_misc_errors[EMCMOT_MAX_MISC_ERROR] = {0,};
