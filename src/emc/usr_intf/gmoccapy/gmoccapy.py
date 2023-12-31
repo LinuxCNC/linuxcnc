@@ -6503,6 +6503,14 @@ if __name__ == "__main__":
                     raise SystemExit(res)
 
 
+    postgui_commands = app.get_ini_info.get_postgui_halcmds()
+    LOG.info("Postgui commands: yellow<{}>".format(postgui_commands))
+    if postgui_commands is not None:
+        for f in postgui_commands:
+            f = os.path.expanduser(f)
+            res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd"] + f.split())
+            if res: raise SystemExit(res)
+
     # start the event loop
     Gtk.main()
 
