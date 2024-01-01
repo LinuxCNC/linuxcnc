@@ -455,13 +455,6 @@ IniFile::TildeExpansion(const char *file, char *path, size_t size)
     return ERR_NONE;
 }
 
-int
-TildeExpansion(const char *file, char *path, size_t size)
-{
-    static IniFile f;
-    return !f.TildeExpansion(file, path, size);
-}
-
 void
 IniFile::ThrowException(ErrorCode errCode)
 {
@@ -615,4 +608,11 @@ iniFindDouble(FILE *fp, const char *tag, const char *section, double *result)
 {
     IniFile f(false, fp);
     return(f.Find(result, tag, section));
+}
+
+extern "C" int
+TildeExpansion(const char *file, char *path, size_t size)
+{
+  static IniFile f;
+  return !f.TildeExpansion(file, path, size);
 }
