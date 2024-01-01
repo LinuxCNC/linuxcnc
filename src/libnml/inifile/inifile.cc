@@ -16,11 +16,9 @@
 #include <stdio.h>              /* FILE *, fopen(), fclose(), NULL */
 #include <stdlib.h>
 #include <string.h>             /* strstr() */
-#include <ctype.h>              /* isspace() */
 #include <fcntl.h>
 
 
-#include "config.h"
 #include "emc/linuxcnc.h"
 #include "inifile.hh"
 
