@@ -42,11 +42,11 @@ Image.
 
 For x86 PCs Download the Live/Install CD by clicking here:
 
-https://www.linuxcnc.org/iso/linuxcnc_2.9.1-amd64.hybrid.iso
+https://www.linuxcnc.org/iso/linuxcnc_2.9.2-amd64.hybrid.iso
 
 For the Raspberry Pi a complete SD card image is available here:
 
-https://www.linuxcnc.org/iso/linuxcnc-2.9.1-bookworm-rpi4.img.xz
+https://www.linuxcnc.org/iso/linuxcnc-2.9.2-bookworm-rpi4.img.xz
 
 === Download using zsync
 
@@ -66,7 +66,7 @@ sudo apt-get install zsync
 . Then run this command to download the iso to your computer
 +
 ----
-zsync https://www.linuxcnc.org/iso/linuxcnc_2.9.1-amd64.hybrid.iso
+zsync https://www.linuxcnc.org/iso/linuxcnc_2.9.2-amd64.hybrid.iso
 ----
 
 .zsync in Windows
@@ -83,13 +83,13 @@ https://www.assembla.com/spaces/zsync-windows/documents
 . After downloading, verify the checksum of the image to ensure integrity.
 
 ----
-md5sum linuxcnc-2.9.1-amd64.iso
+md5sum linuxcnc-2.9.2-amd64.iso
 ----
 
 or
 
 ----
-sha256sum linuxcnc-2.9.1-amd64.iso
+sha256sum linuxcnc-2.9.2-amd64.iso
 ----
 . Then compare to these checksums
 
@@ -136,7 +136,7 @@ Download and install [Balena Etcher](https://etcher.balena.io/#download-etcher)
   then use this command:
 +
 -----
-dd if=linuxcnc_2.9.1-amd64.hybrid.iso of=/dev/sde
+dd if=linuxcnc_2.9.2-amd64.hybrid.iso of=/dev/sde
 -----
 
 === Command line - MacOS
@@ -158,7 +158,7 @@ diskutil unmountDisk /dev/diskN
   has an added "r" at the begining
 +
 -----
-sudo dd if=/linuxcnc_2.9.1-amd64.hybrid.iso of=/dev/rdiskN bs=1m
+sudo dd if=/linuxcnc_2.9.2-amd64.hybrid.iso of=/dev/rdiskN bs=1m
 -----
 . Note that this may take a long time to complete and there will be no
   feedback during the process.
@@ -196,8 +196,8 @@ With the USB storage device plugged in or the DVD in the DVD drive,
 shut down the computer then turn the computer back on. This will boot
 the computer from the Live/Install Image and choose the Live boot option.
 
-NOTE: If the system does not boot from the DVD or USB stick it might be
-necesary to change the boot order in the PC BIOS.
+NOTE: If the system does not boot from the DVD or USB stick,
+it may be necessary to change the boot order in the PC BIOS.
 
 Once the computer has booted up you can try out LinuxCNC without installing
 it. You can not create custom configurations or modify most system
@@ -315,11 +315,10 @@ sudo apt-get install linux-image-rt-amd64
 
 ----
 
-. Re-boot, and select the Linux 6.1.0-10-rt-amd64 kernel (the exact
+. Re-boot, and select the Linux 6.1.0-10-rt-amd64 kernel. The exact
 kernel version might be different, look for the "-rt" suffix. This might be
 hidden in the "Advanced options for Debian Bookworm" sub-menu in Grub.
-When you
-  log in, verify that `PREEMPT RT`is reported by the following command.
+When you log in, verify that `PREEMPT RT`is reported by the following command.
 +
 ----
 uname -v
@@ -349,7 +348,7 @@ sudo ./linuxcnc-install.sh
 
 . This kernel and LinuxCNC version can be installed on top of the LiveDVD
   install, or alternatively on a fresh Install of Debian Bookworm 64-bit
-  as described above
+  as described above.
 . You can add the LinuxCNC Archive signing key and repository information
   by downloading and running the installer script as decribed above. If
   an RTAI kernel is detected it will stop before installing any packages. 
@@ -359,7 +358,7 @@ sudo ./linuxcnc-install.sh
 ----
 sudo apt-get update
 ----
-. Install the new realtime kernel, RTAI and the rtai version of linuxcnc
+. Install the new realtime kernel, RTAI and the rtai version of linuxcnc.
 +
 ----
 sudo apt-get install linuxcnc
