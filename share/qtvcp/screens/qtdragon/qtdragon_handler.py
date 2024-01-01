@@ -1387,16 +1387,16 @@ class HandlerClass:
                     TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE,False) }
         else:
             seq = {TAB_MAIN: (requestedIndex,PAGE_GCODE,True,SHOW_DRO,True),
-                    TAB_FILE: (requestedIndex,PAGE_FILE,True,IGNORE,True),
-                    TAB_OFFSETS: (requestedIndex,PAGE_OFFSET,True,IGNORE,True),
-                    TAB_TOOL: (requestedIndex,PAGE_TOOL,True,IGNORE,True),
-                    TAB_STATUS: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO,True),
-                    TAB_PROBE: (requestedIndex,PAGE_GCODE,True,SHOW_DRO,True),
+                    TAB_FILE: (requestedIndex,PAGE_FILE,True,IGNORE,False),
+                    TAB_OFFSETS: (requestedIndex,PAGE_OFFSET,True,IGNORE,False),
+                    TAB_TOOL: (requestedIndex,PAGE_TOOL,True,IGNORE,False),
+                    TAB_STATUS: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO,False),
+                    TAB_PROBE: (requestedIndex,PAGE_GCODE,True,SHOW_DRO,False),
                     TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,True,IGNORE,True),
-                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,True),
-                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,IGNORE,True),
-                    TAB_SETTINGS: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,True),
-                    TAB_UTILITIES: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO,True),
+                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,False),
+                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,IGNORE,False),
+                    TAB_SETTINGS: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,False),
+                    TAB_UTILITIES: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO,False),
                     TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE,True) }
 
         rtn =  seq.get(requestedIndex)
