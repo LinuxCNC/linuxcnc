@@ -169,7 +169,6 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
     // WTF, return a pointer to the middle of a local buffer?
     // FIX: this is totally non-reentrant.
     static char                 line[LINELEN + 2] = "";        /* 1 for newline, 1 for NULL */
-    char                        bracketSection[LINELEN + 2] = "";
 
     char  eline [(LINELEN + 2) * (MAX_EXTEND_LINES + 1)];
     char* elineptr;
@@ -191,8 +190,9 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
 
     /* check for section first-- if it's non-NULL, then position file at
        line after [section] */
-    if(section != NULL){
-        sprintf(bracketSection, "[%s]", section);
+    if (section) {
+        char bracketSection[LINELEN];
+        snprintf(bracketSection, sizeof(bracketSection), "[%s]", section);
 
         /* find [section], and position fp just after it */
         while (!feof(fp)) {
