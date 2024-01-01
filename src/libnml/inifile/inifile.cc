@@ -22,16 +22,12 @@
 #include "emc/linuxcnc.h"
 #include "inifile.hh"
 
-#define MAX_EXTEND_LINES 20
+constexpr int MAX_EXTEND_LINES = 20;
 
 
-IniFile::IniFile(int _errMask, FILE *_fp)
+IniFile::IniFile(int _errMask, FILE *_fp) : fp(_fp), errMask(_errMask)
 {
-    fp = _fp;
-    errMask = _errMask;
-    owned = false;
-
-    if(fp != NULL)
+    if(fp)
         LockFile();
 }
 
@@ -243,7 +239,7 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
 
     while (!feof(fp)) {
         /* check for end of file */
-        if (NULL == fgets(line, LINELEN + 1, (FILE *) fp)) {
+        if (NULL == fgets(line, LINELEN + 1, fp)) {
             /* got to end of file without finding it */
             ThrowException(ERR_TAG_NOT_FOUND);
             return std::nullopt;
@@ -270,7 +266,7 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
            newLinePos = newLinePos-1;
            line[newLinePos] = 0;
            if (!extend_ct) {
-               elineptr = (char*)eline; //first time
+               elineptr = eline; //first time
                strncpy(elineptr,line,newLinePos);
                elinenext = elineptr + newLinePos;
            } else {
@@ -281,7 +277,7 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
            extend_ct++;
            if (extend_ct > MAX_EXTEND_LINES) {
               fprintf(stderr,
-                 "INIFILE lineno=%d:Too many backslash line extends (limit=%d)\n",
+                 "INIFILE lineno=%u:Too many backslash line extends (limit=%d)\n",
                  lineNo, MAX_EXTEND_LINES);
               ThrowException(ERR_OVER_EXTENDED);
               return std::nullopt;
@@ -295,7 +291,7 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
             }
         }
         if (!extend_ct) {
-           elineptr = (char*)line;
+           elineptr = line;
         }
         extend_ct = 0;
 
@@ -392,7 +388,7 @@ IniFile::FindPath(char *dest, size_t n, const char *_tag, const char *_section, 
 }
 
 bool
-IniFile::CheckIfOpen(void)
+IniFile::CheckIfOpen()
 {
     if(IsOpen())
         return(true);
@@ -404,7 +400,7 @@ IniFile::CheckIfOpen(void)
 
 
 bool
-IniFile::LockFile(void)
+IniFile::LockFile()
 {
     lock.l_type = F_RDLCK;
     lock.l_whence = SEEK_SET;
@@ -594,7 +590,7 @@ IniFile::Exception::Print(FILE *fp)
         msg = "UNKNOWN";
     }
 
-    fprintf(fp, "INIFILE: %s, section=%s, tag=%s, num=%d, lineNo=%d\n",
+    fprintf(fp, "INIFILE: %s, section=%s, tag=%s, num=%d, lineNo=%u\n",
             msg, section, tag, num, lineNo);
 }
 

@@ -29,7 +29,7 @@
 #include <optional>
 class IniFile {
 public:
-    typedef enum {
+    enum ErrorCode {
         ERR_NONE                = 0x00,
         ERR_NOT_OPEN            = 0x01,
         ERR_SECTION_NOT_FOUND   = 0x02,
@@ -37,7 +37,7 @@ public:
         ERR_CONVERSION          = 0x08,
         ERR_LIMITS              = 0x10,
         ERR_OVER_EXTENDED       = 0x20,
-    } ErrorCode;
+    };
 
     class Exception {
     public:
@@ -51,22 +51,22 @@ public:
     };
 
 
-                                IniFile(int errMask=0, FILE *fp=NULL);
-                                ~IniFile(void){ Close(); }
+                                explicit IniFile(int errMask = 0, FILE *fp = nullptr);
+                                ~IniFile(){ Close(); }
 
     bool                        Open(const char *file);
-    bool                        Close(void);
-    bool                        IsOpen(void){ return(fp != NULL); }
+    bool                        Close();
+    bool                        IsOpen(){ return(fp != nullptr); }
 
-    std::optional<const char*>  Find(const char *tag, const char *section=NULL,
-                                     int num = 1, int *lineno = NULL);
+    std::optional<const char*>  Find(const char *tag, const char *section = nullptr,
+                                     int num = 1, int *lineno = nullptr);
 
-    template<class T>
+    template<typename T>
     ErrorCode                   Find(T *result, T min, T max,
                                      const char *tag,const char *section,
                                      int num=1);
 
-    template<class T>
+    template<typename T>
     ErrorCode                   Find(T *result,
                                      const char *tag,const char *section,
                                      int num=1);
@@ -76,11 +76,11 @@ public:
                                      int num=1);
 
     std::optional<const char*>  FindString(char *dest, size_t n,
-				     const char *tag, const char *section=NULL,
-				     int num = 1, int *lineno = NULL);
+				     const char *tag, const char *section = nullptr,
+				     int num = 1, int *lineno = nullptr);
     std::optional<const char*>  FindPath(char *dest, size_t n,
-				     const char *tag, const char *section=NULL,
-				     int num = 1, int *lineno = NULL);
+				     const char *tag, const char *section = nullptr,
+				     int num = 1, int *lineno = nullptr);
     void                        EnableExceptions(int _errMask){
                                     errMask = _errMask;
                                 }
@@ -101,36 +101,36 @@ protected:
 
 
     ErrorCode                   Find(double *result, StrDoublePair *,
-                                     const char *tag, const char *section=NULL,
-                                     int num = 1, int *lineno = NULL);
+                                     const char *tag, const char *section = nullptr,
+                                     int num = 1, int *lineno = nullptr);
     ErrorCode                   Find(int *result, StrIntPair *,
-                                     const char *tag, const char *section=NULL,
-                                     int num = 1, int *lineno = NULL);
+                                     const char *tag, const char *section = nullptr,
+                                     int num = 1, int *lineno = nullptr);
 
 
 private:
     FILE                        *fp;
-    struct flock                lock;
-    bool                        owned;
+    struct flock                lock{};
+    bool                        owned{false};
 
-    Exception                   exception;
+    Exception                   exception{};
     int                         errMask;
 
-    unsigned int                lineNo;
-    const char *                tag;
-    const char *                section;
-    int                         num;
+    unsigned int                lineNo{};
+    const char *                tag{};
+    const char *                section{};
+    int                         num{};
     bool                        lineEndingReported{false};
 
-    bool                        CheckIfOpen(void);
-    bool                        LockFile(void);
+    bool                        CheckIfOpen();
+    bool                        LockFile();
     bool                        HasInvalidLineEnding(const char *line);
     void                        ThrowException(ErrorCode);
     char                        *AfterEqual(char *string);
     char                        *SkipWhite(char *string);
 };
 
-template<class T>
+template<typename T>
 IniFile::ErrorCode IniFile::Find(T *result, T min, T max,
                                  const char *_tag,const char *_section,
                                  int _num)
@@ -150,7 +150,7 @@ IniFile::ErrorCode IniFile::Find(T *result, T min, T max,
     return(ERR_NONE);
 }
 
-template<class T>
+template<typename T>
 IniFile::ErrorCode IniFile::Find(T *result, const char *_tag,
                                  const char *_section, int _num)
 {
