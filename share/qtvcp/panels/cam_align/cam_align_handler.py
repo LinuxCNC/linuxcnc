@@ -39,11 +39,14 @@ class HandlerClass:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
-        if self.w.PREFS_:
-            LOG.debug('Using preference file:',self.w.PREFS_.fn)
+        try:
+            if self.w.PREFS_:
+                LOG.debug('Using preference file:',self.w.PREFS_.fn)
+        except:
+            pass
         number = 0
         if self.w.USEROPTIONS_ is not None:
-            LOG.debug('cam_align user options: {}'.format(self.w.USEROPTIONS_))
+            LOG.info('cam_align user options: {}'.format(self.w.USEROPTIONS_))
             for num, i in enumerate(self.w.USEROPTIONS_):
 
                 # override the default width and height of the window
@@ -62,13 +65,26 @@ class HandlerClass:
                     except Exception as e:
                         print('Error with cam_align rotation increment setting:',self.w.USEROPTIONS_[num])
 
+                # X axis scale number to use
+                elif 'xscale=' in self.w.USEROPTIONS_[num]:
+                    try:
+                        self.scaleX = float(self.w.USEROPTIONS_[num].strip('xscale='))
+                    except Exception as e:
+                        print('Error with cam_align X axis scale - not a number - using 1.0')
+
+                # camera Y axis scale number to use
+                elif 'yscale=' in self.w.USEROPTIONS_[num]:
+                    try:
+                        self.scaleY =  float(self.w.USEROPTIONS_[num].strip('yscale='))
+                    except Exception as e:
+                        print('Error with cam_align camera Y axis scale- not a number - using 1.0')
+
                 # camera number to use
                 elif 'camnumber=' in self.w.USEROPTIONS_[num]:
                     try:
                         number = int(self.w.USEROPTIONS_[num].strip('camnumber='))
                     except Exception as e:
                         print('Error with cam_align camera selection - not a number - using 0')
-
 
                 # camera number to use (legacy)
                 elif len(self.w.USEROPTIONS_[num]) == 1 and self.w.USEROPTIONS_[num].isdigit():
