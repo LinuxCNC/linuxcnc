@@ -3065,8 +3065,6 @@
                               <object class="GtkBox" id="key_box">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="halign">center</property>
-                                <property name="valign">center</property>
                                 <property name="homogeneous">True</property>
                                 <child>
                                   <placeholder/>

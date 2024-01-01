@@ -2931,13 +2931,13 @@ class gmoccapy(object):
             self.widgets.window1.move(self.xpos, self.ypos)
             self.widgets.window1.resize(self.width, self.height)
             
-            # keyboard size
-            self.widgets.chk_kbd_set_height.set_active(self.kbd_set_height)
-            self.widgets.chk_kbd_set_width.set_active(self.kbd_set_width)
-            self.widgets.adj_kbd_height.set_value(self.kbd_height)
-            self.widgets.adj_kbd_width.set_value(self.kbd_width)
-            self._update_kbd_height(self.kbd_set_height)
-            self._update_kbd_width(self.kbd_set_width)
+        # keyboard size
+        self.widgets.chk_kbd_set_height.set_active(self.kbd_set_height)
+        self.widgets.chk_kbd_set_width.set_active(self.kbd_set_width)
+        self.widgets.adj_kbd_height.set_value(self.kbd_height)
+        self.widgets.adj_kbd_width.set_value(self.kbd_width)
+        self._update_kbd_height(self.kbd_set_height)
+        self._update_kbd_width(self.kbd_set_width)
 
         # set initial state of widgets
         self.touch_button_dic["set_active"].set_sensitive(False)
