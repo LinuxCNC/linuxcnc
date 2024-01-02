@@ -1,11 +1,15 @@
 component wj200_vfd "Hitachi wj200 modbus driver";
 param rw unsigned mbslaveaddr     "Modbus slave address";
-pin in float commanded_frequency  "Frequency of vfd";
+param rw float frequency_scale = 1 "RPM / frequency, default 1";
+pin in float commanded_frequency  "Frequency of vfd (scaled to RPM)";
+pin out float motor_frequency     "Motor's actual frequency (scaled to RPM)";
+pin out bit motor_reverse         "1 when actually turning in reverse";
 pin in bit reverse                "1 when reverse 0 when forward";
 pin in bit run                    "run the vfd";
 pin in bit enable                 "1 to enable the vfd. 0 will remote trip the vfd, thereby disabling it.";
 pin out bit is_running            "1 when running";
 pin out bit is_at_speed           "1 when running at assigned frequency";
+pin out bit is_stopped            "1 when stopped";
 pin out bit is_ready              "1 when vfd is ready to run";
 pin out bit is_alarm              "1 when vfd alarm is set";
 pin out float motor_current       "Output current in amps";
@@ -54,8 +58,11 @@ typedef struct
         uint8_t at_speed;
         uint8_t alarm;
 	float output_current;
+	uint16_t output_rotation;
 	float sink_temp;
         uint16_t frequency;
+        uint8_t stopped;
+	float actual_frequency;
 } wj200_status;
 
 /*sets the operating frequency of the vfd*/
@@ -96,12 +103,22 @@ bool wj200_getStatus(modbus_t* ctx, wj200_status* status)
 {
         int rc;
         uint8_t bits[16];
+        uint8_t bits2[16];
         uint16_t registers[2];
-	uint16_t currentRegister[1];
+	uint16_t currentRegister[2];
 	uint16_t temperatureRegister[1];
+	uint16_t actualFreq[2];
 
         /*read coils 0x000F thru 0x0019 in one step*/
         rc = modbus_read_bits(ctx, 0x000F-1, 11, bits);
+
+        if(rc < 0)
+        {
+                return false;
+        }
+
+        /*read coil 0x0028 in one step*/
+        rc = modbus_read_bits(ctx, 0x0028-1, 1, bits2);
 
         if(rc < 0)
         {
@@ -117,7 +134,7 @@ bool wj200_getStatus(modbus_t* ctx, wj200_status* status)
         }
 
 	// Read 1003h (output current) to 1019h (heatsink temp)
-        rc = modbus_read_registers(ctx, 0x1003-1, 1, currentRegister);
+        rc = modbus_read_registers(ctx, 0x1003-1, 2, currentRegister);
 
         if(rc < 0)
         {
@@ -131,6 +148,13 @@ bool wj200_getStatus(modbus_t* ctx, wj200_status* status)
                 return false;
         }
 
+	// 0x100B Available when P003 = 1 (encoder-based feedback
+	rc = modbus_read_registers(ctx, 0x1001-1, 2, actualFreq);
+
+        if(rc < 0)
+        {
+                return false;
+        }
 
         status->running = bits[0];
         status->direction = bits[1];
@@ -139,7 +163,10 @@ bool wj200_getStatus(modbus_t* ctx, wj200_status* status)
         status->at_speed = bits[5];
         status->frequency = registers[1];
 	status->output_current = currentRegister[0];
+	status->output_rotation = currentRegister[1];
 	status->sink_temp = temperatureRegister[0];
+        status->stopped = bits2[0];
+	status->actual_frequency = (actualFreq[0] * 65536 + actualFreq[1]) / 100.0;
 
         return true;
 }
@@ -313,9 +340,20 @@ void user_mainloop(void) {
         }
 
 		is_running = status.running;
-		is_at_speed = status.at_speed;
 		is_ready = status.ready;
 		is_alarm = status.alarm;
+		is_stopped = status.stopped;
+		motor_frequency = status.actual_frequency * frequency_scale;
+		motor_reverse = status.output_rotation == 2;
+
+		/* The WJ200 has a "bug" in that is_at_speed is set
+		even if it's running in the wrong direction, which is
+		not what we want.  Check that here.  */
+		if (reverse == motor_reverse)
+		  is_at_speed = (status.frequency == 0
+		  	      ? status.stopped : status.at_speed);
+		else
+		  is_at_speed = 0;
 
 		if(!status.alarm && !enable && !wj200_trip(ctx)) {
 			print_modbus_error(__comp_inst, "failed to trip");
@@ -326,7 +364,7 @@ void user_mainloop(void) {
 			continue;
 		}
 		else {
-			calculated_frequency = (uint16_t)(fabs(commanded_frequency) * 100);
+			calculated_frequency = (uint16_t)(fabs(commanded_frequency / frequency_scale) * 100);
 
 			if(calculated_frequency != status.frequency
 			   && !wj200_setFrequency(ctx, calculated_frequency)) {
