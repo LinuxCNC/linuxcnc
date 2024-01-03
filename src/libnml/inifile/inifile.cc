@@ -175,6 +175,11 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
     char* elinenext = eline;
     int   extend_ct = 0;
 
+    if (!_tag) {
+        fprintf(stderr, "IniFile: error: Tag is not provided\n");
+        return std::nullopt;
+    }
+
     // For exceptions.
     lineNo = 0;
     tag = _tag;
