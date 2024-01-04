@@ -347,6 +347,11 @@ class gmoccapy(object):
         self._show_tooledit_tab(False)
         self._show_iconview_tab(False)
 
+        # those two containers are disabled by default to allow fullscreen 
+        # with smaller display resolutions
+        self.widgets["hbx_upper"].show()
+        self.widgets["ntb_button"].show()
+
         # the velocity settings
         self.widgets.adj_spindle_bar_min.set_value(self.min_spindle_rev)
         self.widgets.adj_spindle_bar_max.set_value(self.max_spindle_rev)
