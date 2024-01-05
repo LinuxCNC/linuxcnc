@@ -52,7 +52,9 @@ gpiochip0 - 54 lines:
 ...
 ----
 
-A list of input and/or output pins should be specified as shown in the sample above. (The \ character is used for line continuation in HAL, and is used to improve readability. The pin names are case-sensitive and there must be no spaces in the strings, either beteen the comma-separated pins lists of the "=" signs.)
+A list of input and/or output pins should be specified as shown in the sample above.
+The \ character is used for line continuation in HAL, and is used to improve readability.
+The pin names are case-sensitive and there must be no spaces in the strings, neither between the comma-separated pins lists of the "=" signs.
 
 Additional modifiers are:
 *invert* (valid for outputs only). Inverts the sense of the physical pin relative to the value in HAL.
