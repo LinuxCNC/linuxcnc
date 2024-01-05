@@ -232,9 +232,64 @@ State_LED #name_of_led{
   }
 ----
 
+==== Handler Patching
+We can have QtVCP load a subclassed version of the standard handler file. in that file we can manipulate the original functions or add new ones. +
+Subclassing just means our handler file first loads the original handler file and adds our new code on top of it - so a patch of changes. +
+This is useful for changing/adding behaviour while still retaining standard handler updates from LinuxCNC repositories. +
+
+You may still need to use the handler copy dialog to copy the original handler file to decide how to patch it.
+See 'custom handler file'
+
+There should be a folder in the config folder; for screens: named '<CONFIG FOLDER>/qtvcp/screens/<SCREEN NAME>/' +
+add the handle patch file there, named like so <ORIGINAL SCREEN NAME>_handler.py +
+ie for Qtdragon the file would be caller 'qtdragon_handler.py' +
+
+Here is a sample to add X axis jog pins to a screen like Qtdragon: +
+ 
+[source,python]
+----
+import sys
+import importlib
+from qtvcp.core import Path, Qhal, Action
+PATH = Path()
+QHAL = Qhal()
+ACTION = Action()
+
+# get reference to original handler file so we can subclass it
+sys.path.insert(0, PATH.SCREENDIR)
+module = "{}.{}_handler".format(PATH.BASEPATH,PATH.BASEPATH)
+mod = importlib.import_module(module, PATH.SCREENDIR)
+sys.path.remove(PATH.SCREENDIR)
+HandlerClass = mod.HandlerClass
+
+# return our subclassed handler object to QtVCP
+def get_handlers(halcomp, widgets, paths):
+    return [UserHandlerClass(halcomp, widgets, paths)]
+
+# sub class HandlerClass which was imported above
+class UserHandlerClass(HandlerClass):
+    # add a terminal message so we know this got loaded
+    print('\nCustom subclassed handler patch loaded.\n')
+
+    def init_pins(self):
+        # call original handler init_pins function
+        super().init_pins()
+
+        # add jog pins X axis
+        pin = QHAL.newpin("jog.axis.jog-x-plus", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin.value_changed.connect(lambda s: self.kb_jog(s, 0, 1, fast = False, linear = True))
+
+        pin = QHAL.newpin("jog.axis.jog-x-minus", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin.value_changed.connect(lambda s: self.kb_jog(s, 0, -1, fast = False, linear = True))
+----
+
 ==== Minor Python Code Changes
+
 Another Python file can be used to *add commands* to the screen, after the handler file is parsed.
 This can be useful for minor changes while still honouring standard handler updates from LinuxCNC repositories.
+
+[NOTE]
+Handler patching is a better way to add changes - instance patching is black magic voodoo - this is here for legacy reasons.
 
 In the _INI file_ under the `[DISPLAY]` heading add *`USER_COMMAND_FILE = _PATH_`* +
 _PATH_ can be any valid path.
