@@ -33,7 +33,6 @@
 // local includes
 #include "./xhc-whb04b6.h"
 
-#include <inifile.hh>
 #include "config.h"
 
 using std::endl;
