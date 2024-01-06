@@ -76,7 +76,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.4.7"
+_RELEASE = " 3.4.7.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -220,7 +220,7 @@ class gmoccapy(object):
 
         self.xpos = 40        # The X Position of the main Window
         self.ypos = 30        # The Y Position of the main Window
-        self.width = 979      # The width of the main Window
+        self.width = 980      # The width of the main Window
         self.height = 750     # The height of the main Window
 
         self.gcodeerror = ""   # we need this to avoid multiple messages of the same error
@@ -2913,20 +2913,20 @@ class gmoccapy(object):
         self.widgets[start_as].set_active(True)
         self.widgets.window1.set_decorated(not self.prefs.getpref("hide_titlebar", False, bool))
         self.widgets.chkbtn_hide_titlebar.set_active(not self.widgets.window1.get_decorated())
+        self.xpos = int(self.prefs.getpref("x_pos", self.xpos, float))
+        self.ypos = int(self.prefs.getpref("y_pos", self.ypos, float))
+        self.width = int(self.prefs.getpref("width", self.width, float))
+        self.height = int(self.prefs.getpref("height", self.height, float))
+        # set the adjustments according to Window position and size
+        self.widgets.adj_x_pos.set_value(self.xpos)
+        self.widgets.adj_y_pos.set_value(self.ypos)
+        self.widgets.adj_width.set_value(self.width)
+        self.widgets.adj_height.set_value(self.height)
         if start_as == "rbtn_fullscreen":
             self.widgets.window1.fullscreen()
         elif start_as == "rbtn_maximized":
             self.widgets.window1.maximize()
         else:
-            self.xpos = int(self.prefs.getpref("x_pos", 40, float))
-            self.ypos = int(self.prefs.getpref("y_pos", 30, float))
-            self.width = int(self.prefs.getpref("width", 979, float))
-            self.height = int(self.prefs.getpref("height", 750, float))
-            # set the adjustments according to Window position and size
-            self.widgets.adj_x_pos.set_value(self.xpos)
-            self.widgets.adj_y_pos.set_value(self.ypos)
-            self.widgets.adj_width.set_value(self.width)
-            self.widgets.adj_height.set_value(self.height)
             # move and resize the window
             self.widgets.window1.move(self.xpos, self.ypos)
             self.widgets.window1.resize(self.width, self.height)
