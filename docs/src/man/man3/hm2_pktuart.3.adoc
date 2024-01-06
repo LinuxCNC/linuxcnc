@@ -93,7 +93,7 @@ A reasonable starting value for txmode is **0x00000A20**
     Bit  18        Odd Parity  WO  (1=odd, 0=even)
     Bits 15..8     InterFrame delay in bit times RW
     Bit  6	       RXMask RO
-    Bit  3	       RXEnable (must be set to receive packets) RW 
+    Bit  3	       RXEnable (must be set to receive packets) RW
     Bit  2	       RXMask Enable (enables input data masking when transmitting) RW
 ----
 For low baud rates **0x3FC0140C** will generally work, but the filter bits should really be set according to the actual baud rate.
@@ -194,7 +194,6 @@ int process(void *arg, long period) {
 
     switch (state) {
         case START:
-        
             // Check for received data
             if (rxstatus & 0x200000) {
                 state = WAIT_FOR_DATA_FRAME;
@@ -202,7 +201,6 @@ int process(void *arg, long period) {
             }
 
             // No incoming data, so service the outputs
-            
             if (time to send data){
                 hm2_pktuart_send(pktUART_name, some_data);
                 state = WAIT_FOR_SEND_COMPLETE;
@@ -223,7 +221,7 @@ int process(void *arg, long period) {
             state = WAIT_FOR_FRAME_SIZES;
             frame_inde = 0;
             break;
-            
+ 
         case WAIT_FOR_FRAME_SIZES:
         case FETCH_MORE_DATA:
             // This step may need to be iterated if there are multiple frames

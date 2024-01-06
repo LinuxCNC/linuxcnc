@@ -5,7 +5,7 @@
 
 = Generic driver for any GPIO supported by gpiod.
 
-This driver has been tested on the Raspberry Pi, and should also work on Bananapi, Beaglebone, Pine64 (et al) and other single board computers, and potentially on other platforms.  
+This driver has been tested on the Raspberry Pi, and should also work on Bananapi, Beaglebone, Pine64 (et al) and other single board computers, and potentially on other platforms.
 
 == Purpose
 
@@ -20,7 +20,7 @@ loadrt hal_gpio inputs=GPIO5,GPIO6,GPIO12,GPIO13,GPIO16,GPIO17,GPIO18,GPIO19 \
 				reset=GPIO21,GPIO22
 ----
 
-This driver relies on the libgpiod-dev library and the https://tracker.debian.org/pkg/libgpiod[gpiod] package, which contains a number of utilities for configuring and querying GPIO. 
+This driver relies on the libgpiod-dev library and the https://tracker.debian.org/pkg/libgpiod[gpiod] package, which contains a number of utilities for configuring and querying GPIO.
 The GPIO pin names in the "loadrt" line of the HAL given above should be the names given by the "gpioinfo" command.
 
 Sample output (truncated):
@@ -52,7 +52,9 @@ gpiochip0 - 54 lines:
 ...
 ----
 
-A list of input and/or output pins should be specified as shown in the sample above. (The \ character is used for line continuation in HAL, and is used to improve readability. The pin names are case-sensitive and there must be no spaces in the strings, either beteen the comma-separated pins lists of the "=" signs.)
+A list of input and/or output pins should be specified as shown in the sample above.
+The \ character is used for line continuation in HAL, and is used to improve readability.
+The pin names are case-sensitive and there must be no spaces in the strings, neither between the comma-separated pins lists of the "=" signs.
 
 Additional modifiers are:
 *invert* (valid for outputs only). Inverts the sense of the physical pin relative to the value in HAL.
@@ -112,8 +114,7 @@ If "access denied" messages are returned on loading the driver, try the followin
 
  sudo groupadd gpio
 
-2) Create a file called 90-gpio-access with the following contents (this
-is copied from the Raspbian install) 
+2) Create a file called 90-gpio-access with the following contents (this is copied from the Raspbian install)
 
 ````
 SUBSYSTEM=="bcm2835-gpiomem", GROUP="gpio", MODE="0660"
