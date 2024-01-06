@@ -3485,7 +3485,7 @@ class gmoccapy(object):
 #                 self.diameter_mode = True
 
     def _update_toolinfo(self, tool):
-        LOG.debug("Tool is now %s".format(tool))
+        LOG.debug("Tool is now {0}".format(tool))
         if "G43" in self.active_gcodes:
             LOG.debug("G43 is active")
         else:
