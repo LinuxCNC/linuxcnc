@@ -796,6 +796,11 @@ class HAL:
                     print(file=file)
 
                 if self.d.frontend == _PD._GMOCCAPY:
+                    print(_("#  ---signals to show tool offset in the GUI---"), file=file)
+                    print(file=file)
+                    print("net tooloffset-x  <=  motion.tooloffset.x", file=file)
+                    print("net tooloffset-z  <=  motion.tooloffset.z", file=file)
+                    print(file=file)
                     gm = os.path.join(base, "gmoccapy_postgui.hal")
                     if not os.path.exists(gm):
                         f1 = open(gm, "w")
@@ -804,6 +809,11 @@ class HAL:
                         print("net tool-change-request    => gmoccapy.toolchange-change", file=f1)
                         print("net tool-change-confirmed  <= gmoccapy.toolchange-changed", file=f1)
                         print("net tool-number            => gmoccapy.toolchange-number", file=f1)
+                        print(file=f1)
+                        print(_("#  ---signals to show tool offset in the GUI---"), file=f1)
+                        print(file=f1)
+                        print("net tooloffset-x  => gmoccapy.tooloffset-x", file=f1)
+                        print("net tooloffset-z  => gmoccapy.tooloffset-z", file=f1)
                         f1.close()
                 elif self.d.frontend == _PD._QTDRAGON:
                     qt = os.path.join(base, "qtvcp_postgui.hal")
