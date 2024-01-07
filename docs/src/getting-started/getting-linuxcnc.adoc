@@ -239,18 +239,14 @@ during the boot up.
 
 == Alternate Install Methods
 
-The easiest, preferred way to install LinuxCNC is to use the Live/Install
-Image as described above.  That method is as simple and reliable as we
-can make it, and is suitable for novice users and experienced users alike.
-However, this will typically replace any existing operating system. If
-you have files on the target PC that you want to keep, then use one of
-the methods in this section.
+The easiest, preferred way to install LinuxCNC is to use the Live/Install Image as described above.
+That method is as simple and reliable as we can make it, and is suitable for novice users and experienced users alike.
+However, this will typically replace any existing operating system.
+If hou have files on the target PC that you want to keep, then use one of the methods described in this section.
 
-In addition, for experienced users who are familiar with Debian system
-administration (finding install images, manipulating apt sources, changing
-kernel flavors, etc), new installs are supported on following platforms:
-("amd64" means "64-bit", and is not specific to AMD processors, it will
-run on any 64-bit x86 system)
+In addition, for experienced users who are familiar with Debian system administration
+(finding install images, manipulating apt sources, changing kernel flavors, etc), new installs are supported on following platforms:
+("amd64" means "64-bit", and is not specific to AMD processors, it will run on any 64-bit x86 system)
 
 [options="header"]
 |===

@@ -19,25 +19,26 @@ but can also be used on normal screens with a mouse or hardware buttons and MPG 
 as it presents HAL Pins for the most common needs.
 Please find more information in the following.
 
+<<<<<<< Updated upstream
 It offers the possibility to display up to 9 axes,
 support a lathe mode for normal and back tool lathe and can be adapted to nearly every need,
 because GMOCCAPY supports embedded tabs and side panels.
+=======
+It offers the possibility to display up to 9 axes, support a lathe mode for normal and back tool lathe and can be adapted to nearly every need, because GMOCCAPY supports embedded tabs and side panels.
+>>>>>>> Stashed changes
 As a good example for that see https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[gmoccapy_plasma].
 
 GMOCCAPY 3 does support up to 9 axes and 9 joints.
 As GMOCCAPY 3 has been changed in code to support the joint / axis changes in LinuxCNC it does not work on 2.7 or 2.6 branch!
 
-It has support for integrated virtual keyboard (onboard or matchbox-keyboard),
-so there is no need for a hardware keyboard or mouse, but it can also be used with that hardware.
+It has support for integrated virtual keyboard (onboard or matchbox-keyboard), so there is no need for a hardware keyboard or mouse, but it can also be used with that hardware.
 GMOCCAPY offers a separate settings page to configure most settings of the GUI without editing files.
 
-GMOCCAPY can be localized very easy, because the corresponding files are separated from the linuxcnc.po files,
-so there is no need to translate unneeded stuff.
+GMOCCAPY can be localized very easy, because the corresponding files are separated from the linuxcnc.po files, so there is no need to translate unneeded stuff.
 The files are placed in */src/po/gmoccapy*.
 You could just copy the gmoccapy.pot file to something like it.po and translate that file with gtranslator or poedit.
 After rebuilding, you'd get the GUI in your preference language.
-To facilitate the sharing of the translation,
-GMOCCAPY is available on the https://hosted.weblate.org/projects/linuxcnc/gmocappy/[Weblate web interface].
+To facilitate the sharing of the translation, GMOCCAPY is available on the https://hosted.weblate.org/projects/linuxcnc/gmocappy/[Weblate web interface].
 GMOCCAPY is currently available in English, German, Spanish, Polish, Serbian and Hungarian.
 Feel free to help me to introduce more languages, be it locally or via the web.
 If you need help, don't hesitate to contact me on *nieson@web.de*.
@@ -130,12 +131,9 @@ PROGRAM_PREFIX = ../../nc_files/
   like themes, DRO units, colors, and keyboard settings, etc., see <<gmoccapy:settings-page,settings page>> for more details.
 +
 [NOTE]
-If no path or file is given, GMOCCAPY will use as default
-<your_machinename>.pref, if no machine name is given in your INI File it will
-use gmoccapy.pref. The file will be stored in your config directory, so the
-settings will not be mixed if you use several configs. If you only want to use
-one file for several machines, you need to include `PREFERENCE_FILE_PATH` in your
-INI.
+If no path or file is given, GMOCCAPY will use as default <your_machinename>.pref, if no machine name is given in your INI File it will use gmoccapy.pref.
+The file will be stored in your config directory, so the settings will not be mixed if you use several configs.
+If you only want to use one file for several machines, you need to include `PREFERENCE_FILE_PATH` in your INI.
 
 - _MAX_FEED_OVERRIDE = 1.5_ - Sets the maximum feed override, in the example given, you will be allowed to override the feed by 150%.
 +
@@ -148,9 +146,14 @@ If no value is given, it will be set to 1.0.
 If no values are given, MIN will be set to 0.1 and MAX to 1.0.
 
 - _LATHE = 1_ - Set the screen layout to control a lathe.
+<<<<<<< Updated upstream
 - _BACK_TOOL_LATHE = 1_ - Is optional and will switch the X axis in a way you need for a back tool lathe.
   Also the keyboard shortcuts will react in a different way.
   It is allowed with GMOCCAPY to configure a lathe also with additional axes, so you may use also a XZCW config for a lathe.
+=======
+- _BACK_TOOL_LATHE = 1_ - Is optional and will switch the X axis in a way you need for a back tool lathe. Also the keyboard shortcuts will react in a different way.
+It is allowed with GMOCCAPY to configure a lathe also with additional axes, so you may use also a XZCW config for a lathe.
+>>>>>>> Stashed changes
 +
 [TIP]
 See also the <<gmoccapy:lathe-section,Lathe Specific Section>>.
@@ -218,8 +221,12 @@ Then you have to provide the corresponding NGC files which have to follow these 
 The code between sub and endsub will be executed by pushing the corresponding macro button.
 
 [NOTE]
+<<<<<<< Updated upstream
 A maximum of 16 macros will be shown in the GUI.
 Due to space reasons you may need to click on an arrow to switch the page and display hidden macro buttons.
+=======
+A maximum of 16 macros will be shown in the GUI. Due to space reasons you may need to click on an arrow to switch the page and display hidden macro buttons.
+>>>>>>> Stashed changes
 The macro buttons will be displayed in the order of the INI entries.
 It is no error placing more than 16 macros in your INI file, they will just not be shown.
 
@@ -267,8 +274,12 @@ O<go_to_position> endsub
 M2
 ----
 
+<<<<<<< Updated upstream
 After pushing the '*execute macro button*',
 you will be asked to enter the values for '*X-pos Y-pos Z-pos*' and the macro will only run if all values have been given.
+=======
+After pushing the '*execute macro button*', you will be asked to enter the values for '*X-pos Y-pos Z-pos*' and the macro will only run if all values have been given.
+>>>>>>> Stashed changes
 
 [NOTE]
 If you would like to use a macro without any movement, see also the notes in <<sub:NOT_ENDING_MACROS,known problems>>.
@@ -282,8 +293,7 @@ image:images/gmoccapy_getting_macro_info_mid.png[align="left",link="images/gmocc
 You can add embedded programs to GMOCCAPY like you can do in AXIS, Touchy and Gscreen.
 All is done by GMOCCAPY automatically if you include a few lines in your INI file in the DISPLAY section.
 
-If you have never used a Glade panel, I recommend to read the excellent documentation
-on https://linuxcnc.org/docs/2.9/html/gui/gladevcp.html[Glade VCP].
+If you have never used a Glade panel, I recommend to read the excellent documentation on https://linuxcnc.org/docs/2.9/html/gui/gladevcp.html[Glade VCP].
 
 .Embedded Tab Example
 
@@ -336,8 +346,13 @@ The file must be placed in the config folder of your machine.
 gladevcp h_buttonlist.glade
 ----
 +
+<<<<<<< Updated upstream
 will just open a new user window called h_buttonlist.glade note the difference.
 This one is stand alone, and can be moved around independent from GMOCCAPY window.
+=======
+will just open a new user window called h_buttonlist.glade note the difference,
+this one is stand alone, and can be moved around independent from GMOCCAPY window.
+>>>>>>> Stashed changes
 +
 ----
 gladevcp -c gladevcp -u hitcounter.py -H manual-example.hal manual-example.ui
@@ -359,8 +374,12 @@ image::images/gmoccapy_embedded_tabs.png[align="left"]
 [NOTE]
 If you make any HAL connections to your custom glade panel, you need to do that in the HAL file specified in the EMBED_TAB_COMMAND line,
 otherwise you may get an error that the HAL pin does not exist -- this is because of race conditions loading the HAL files.
+<<<<<<< Updated upstream
 Connections to GMOCCAPY HAL pins need to be made in the postgui HAL file specified in your INI file,
 because these pins do not exist prior of realizing the GUI.
+=======
+Connections to GMOCCAPY HAL pins need to be made in the postgui HAL file specified in your INI file, because these pins do not exist prior of realizing the GUI.
+>>>>>>> Stashed changes
 
 Here are some examples:
 
@@ -385,8 +404,7 @@ MESSAGE_TYPE    = "status" , "okdialog" , "yesnodialog"
 MESSAGE_PINNAME = is the name of the HAL pin group to be created
 ----
 
-The messages support pango markup language. Detailed information about the
-markup language can be found at
+The messages support pango markup language. Detailed information about the markup language can be found at
 https://developer.gnome.org/pango/stable/PangoMarkupFormat.html[Pango Markup].
 
 The following three dialog types are available:
@@ -577,8 +595,12 @@ For the bottom (horizontal) buttons they are:
 * *gmoccapy.h-button.button-8* _(bit IN)_
 * *gmoccapy.h-button.button-9* _(bit IN)_
 
+<<<<<<< Updated upstream
 As the buttons in the bottom list will change according to the mode and other influences,
 the hardware buttons will activate the displayed functions.
+=======
+As the buttons in the bottom list will change according to the mode and other influences, the hardware buttons will activate the displayed functions.
+>>>>>>> Stashed changes
 So you don't have to take care about switching functions around in HAL, because that is done completely by GMOCCAPY!
 
 For a three axes XYZ machine the HAL pins will react as shown in the following three tables:
@@ -636,8 +658,12 @@ m|gmoccapy.h-button.button-9 | back                                     | back  
 
 So we have 67 reactions with only 10 HAL pins!
 
+<<<<<<< Updated upstream
 These pins are made available to be able to use the screen without an touch panel,
 or protect it from excessive use by placing hardware buttons around the panel.
+=======
+These pins are made available to be able to use the screen without an touch panel, or protect it from excessive use by placing hardware buttons aroundthe panel.
+>>>>>>> Stashed changes
 They are available in a sample configuration like shown in the <<gmoccapy-sim-hardware-button,image below>>.
 
 [[gmoccapy-sim-hardware-button]]
@@ -710,7 +736,11 @@ In a future release it will be integrated in the settings page.
 The float pins do accept values from 0.0 to 1.0, being the percentage value you want to set the slider value.
 
 [WARNING]
+<<<<<<< Updated upstream
 If you use both connection types, do not connect the same slider to both pin as the influences between the two has not been tested!
+=======
+If you use both connection types, do not connect the same slider to both pin, as the influences between the two has not been tested!
+>>>>>>> Stashed changes
 Different sliders may be connected to the one or other HAL connection type.
 
 [IMPORTANT]
@@ -781,8 +811,13 @@ The jog increments given in the INI file like
 INCREMENTS = 5mm 1mm .5mm .1mm .05mm .01mm
 ----
 are selectable through HAL pins, so a selection hardware switch can be used to select the increment to use.
+<<<<<<< Updated upstream
 There will be a maximum of 10 HAL pins for the increments given in the INI file.
 If you give more increments in your INI file, they will be not reachable from the GUI as they will not be displayed.
+=======
+There will be a maximum of 10 HAL pins for the increments given in the INI file. If you give more
+increments in your INI file, they will be not reachable from the GUI as they will not be displayed.
+>>>>>>> Stashed changes
 
 If you have 6 increments in your INI file like in the example above, you will get *7* pins:
 
@@ -949,9 +984,13 @@ To use this feature, you will need to do some additional settings and you may wa
 
 [IMPORTANT]
 Before starting the first test, do not forget to enter the probe height and probe velocities on the settings page!
+<<<<<<< Updated upstream
 See <<gmoccapy:tool-measurement,Settings Page Tool Measurement>>.
+=======
+See <<gmoccapy:tool-measurement,Settings Page Tool Measurement>>
+>>>>>>> Stashed changes
 
-It might be also a good idea to take a look at the tool measurement video:
+It might be also a good idea to take a look at the tool measurement video,
 see <<gmoccapy:tool-measurement-videos,tool measurement related videos>>.
 
 Tool Measurement in GMOCCAPY is done a little bit different to many other GUIs.
@@ -1341,9 +1380,15 @@ Message handling (see <<gmoccapy:message-behavior,Message behavior and appearanc
 
 There are three options to unlock the settings page:
 
+<<<<<<< Updated upstream
 * _Use unlock code_ -  The user must give a code to get in.
 * _Do not use unlock code_ - There will be no security check.
 * _Use HAL pin to unlock_ - Hardware pin must be high to unlock the settings, see <<gmoccapy:hardware-unlock, hardware unlock pin>>.
+=======
+* _Use unlock code_ -  The user must give a code to get in
+* _Do not use unlock code_ - There will be no security check
+* _Use HAL pin to unlock_ - Hardware pin must be high to unlock the settings, see <<gmoccapy:hardware-unlock,hardware unlock pin>>.
+>>>>>>> Stashed changes
 
 Default is _use unlock code_ (default = *123*).
 
@@ -1364,7 +1409,11 @@ MAX = 6000
 +
 [NOTE]
 It is no error giving wrong values.
+<<<<<<< Updated upstream
 If you give a maximum of 2000 and your spindle makes 4000 rpm, only the bar level will be wrong on higher speeds than 2000 rpm.
+=======
+If you give a maximum of 2000 and your spindle makes 4000 RPM, only the bar level will be wrong on higher speeds than 2000 RPM.
+>>>>>>> Stashed changes
 
 
 [[gmoccapy:turtle-jog]]
@@ -1372,9 +1421,14 @@ If you give a maximum of 2000 and your spindle makes 4000 rpm, only the bar leve
 This settings will have influence on the jog velocities.
 
 * _Hide turtle jog button_ - Will hide the button right of the jog velocity slider.
+<<<<<<< Updated upstream
   If you hide this button, please take care that the "rabbit mode" is activated,
   otherwise you will not be able to jog faster than the turtle jog velocity,
   which is calculated using the turtle jog factor.
+=======
+  If you hide this button, please take care that the "rabbit   mode" is activated,
+  otherwise you will not be able to jog faster than the turtle jog velocity, which is calculated using the turtle jog factor.
+>>>>>>> Stashed changes
 * _Turtle jog factor_ - Sets the scale to apply for turtle jog mode (button pressed, showing the turtle).
   If you set a factor of 20, the turtle max. jog velocity will be 1/20 of the max. velocity of the machine.
 
@@ -1394,9 +1448,13 @@ Please check <<gmoccapy:auto-tool-measurement,Auto Tool Measurement>>
 [NOTE]
 If this part is not sensitive, you do not have a valid INI file configuration to use tool measurement.
 
+<<<<<<< Updated upstream
 * _Use auto tool measurement_ - If checked, after each tool change, a tool measurement will be done,
   the result will be stored in the tool table and a G43 will be executed after the change.
 
+=======
+* _Use auto tool measurement_ - If checked, after each tool change, a tool measurement will be done, the result will be stored in the tool table and a G43 will be executed after the change.
+>>>>>>> Stashed changes
 
 Probe Information::
 +
@@ -1415,11 +1473,17 @@ The following information is taken from your INI file and must be given in absol
 Probe velocities::
 +
 --
+<<<<<<< Updated upstream
 * _Search Vel._ - The velocity to search for the tool switch.
   After contact the tool will go up again and then goes towards the probe again with probe vel, so you will get better results.
 * _Probe Vel._ - The velocity for the second movement to the switch.
   It should be slower to get better touch results.
   In simulation mode, this is commented out in macros/change.ngc, otherwise the user would have to click twice on the probe button.
+=======
+* _Search Vel._ - The velocity to search for the tool switch. After contact the tool will go up again and then goes towards the probe again with probe vel., so you will get better results.
+* _Probe Vel._ - The velocity for the second movement to the switch. It should be slower to get better touch results.
+  (In simulation mode, this is commented out in macros/change.ngc, otherwise the user would have to click twice on the probe button.)
+>>>>>>> Stashed changes
 --
 // TODO: check if this option is accidentally gone in 2.9
 // Tool Changer::
@@ -1473,8 +1537,13 @@ You are able to set some options:
 * _Max Messages_ - The maximum number of messages you want to see at once.
   If you set this to 10, the 11^th^ message will delete the first one, so you will only see the last 10.
 * _Font_ - The font and size you want to use to display the messages.
+<<<<<<< Updated upstream
 * _Use frames_ - If you activate the checkbox, each message will be displayed in a frame,
   so it is much easier to distinguish the messages. But you will need a little bit more space.
+=======
+* _Use frames_ - If you activate the checkbox, each message will be displayed in a frame, so it is much easier to distinguish the messages.
+  But you will need a little bit more space.
+>>>>>>> Stashed changes
 * _Launch test message_-button - It will show a message, so you can see the changes of your settings without the need to generate an error.
 
 [[gmoccapy:icon-theme-section]]
@@ -1691,8 +1760,12 @@ o<zeroxy> endsub
 m2
 ---------
 
+<<<<<<< Updated upstream
 GMOCCAPY will not see the end of the macro, because the interpreter needs to change its state to IDLE,
 but the macro does not even set the interpreter to a new state.
+=======
+GMOCCAPY will not see the end of the macro, because the interpreter needs to change its state to IDLE, but the macro does not even set the interpreter to a new state.
+>>>>>>> Stashed changes
 To avoid that just add a G4 P0.1 line to get the needed signal.
 The correct macro would be:
 
