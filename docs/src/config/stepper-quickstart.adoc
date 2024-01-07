@@ -73,7 +73,7 @@ PC parallel port.
 |===
 
 Note any pins not used should be set to Unused in the drop down box.
-These can always be changed later by running Stepconf again.
+These can always be changed later by running StepConf again.
 
 == Mechanical Information
 

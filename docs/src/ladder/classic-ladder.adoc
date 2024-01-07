@@ -44,7 +44,7 @@ There are two components to ClassicLadder.
 
 === Files
 
-Typically ClassicLadder components are placed in the custom.hal file if your working from a Stepconf generated configuration.
+Typically ClassicLadder components are placed in the custom.hal file if your working from a StepConf generated configuration.
 These must not be placed in the custom_postgui.hal file or the Ladder Editor menu will be grayed out.
 
 NOTE: Ladder files (.clp) must not contain any blank spaces in the name.
@@ -885,16 +885,16 @@ If multiple registers are requested in one read/write then the variable number a
 
 == Setting up ClassicLadder
 
-In this section we will cover the steps needed to add ClassicLadder to a Stepconf Wizard generated config.
-On the advanced Configuration Options page of Stepconf Wizard check off "Include ClassicLadder PLC".
+In this section we will cover the steps needed to add ClassicLadder to a StepConf Wizard generated config.
+On the advanced Configuration Options page of StepConf Wizard check off "Include ClassicLadder PLC".
 
 [[cap:stepconf-classicladder]]
-.Stepconf ClassicLadder
+.StepConf ClassicLadder
 image::images/stepconf_ladder.png["Stepconf ClassicLadder",align="center"]
 
 === Add the Modules
 
-If you used the Stepconf Wizard to add ClassicLadder you can skip this step.
+If you used the StepConf Wizard to add ClassicLadder you can skip this step.
 
 To manually add ClassicLadder you must first add the modules.
 This is done by adding a couple of lines to the custom.hal file.
@@ -964,7 +964,7 @@ It should default to the running config directory as the place to save it.
 .Save As Dialog
 image::images/SaveAs.png["Save As Dialog",align="center"]
 
-Again if you used the Stepconf Wizard to add ClassicLadder you can skip this step.
+Again if you used the StepConf Wizard to add ClassicLadder you can skip this step.
 
 To manually add a ladder you need to add add a line to your custom.hal file that will load your ladder file.
 Close your LinuxCNC session and add this line to your custom.hal file.

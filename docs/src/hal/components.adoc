@@ -320,7 +320,7 @@ For example, if you have a base period of 100,000&#8239;ns that is 0.0001 second
 | link:../man/man9/siggen.9.html[siggen] | Signal generator, see <<sec:siggen,Description>>. ||
 | link:../man/man9/sim_encoder.9.html[sim_encoder] | Simulated quadrature encoder, see <<sec:simulated-encoder,Description>>. ||
 | link:../man/man9/sphereprobe.9.html[sphereprobe] | Probe a pretend hemisphere. ||
-| link:../man/man9/steptest.9.html[steptest] | Used by Stepconf to allow testing of acceleration and velocity values for an axis. ||
+| link:../man/man9/steptest.9.html[steptest] | Used by StepConf to allow testing of acceleration and velocity values for an axis. ||
 | link:../man/man9/streamer.9.html[streamer] | Stream file data into HAL in real time. ||
 | link:../man/man9/supply.9.html[supply] | Set output pins with values from parameters (deprecated). ||
 | link:../man/man9/threadtest.9.html[threadtest] | Component for testing thread behavior. ||

@@ -273,7 +273,7 @@ Program Units::
 
 Python::
      General-purpose, very high-level programming language. Used in LinuxCNC
-    for the Axis GUI, the Stepconf configuration tool, and several G-code
+    for the Axis GUI, the StepConf configuration tool, and several G-code
     programming scripts.
 
 Rapid::
@@ -335,7 +335,7 @@ Spindle Speed Override::
     chatter caused by the cutter's teeth. Spindle Speed Override assumes
     that the LinuxCNC software has been configured to control spindle speed.
 
-Stepconf::
+StepConf::
      An LinuxCNC configuration wizard. It is able to handle many
     step-and-direction motion command based machines. It writes a full
     configuration after the user answers a few questions about the computer
