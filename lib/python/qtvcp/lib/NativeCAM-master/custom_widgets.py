@@ -4,7 +4,7 @@ from PyQt5.QtCore import QVariant, pyqtSlot, Qt, QAbstractItemModel, QModelIndex
 from PyQt5.QtWidgets import (QStyledItemDelegate, QComboBox, QWidget, QVBoxLayout,
                     QToolBar, QToolButton,  QLabel, QListWidget, QListWidgetItem)
 from PyQt5.QtGui import QFont, QColor, QIcon
-
+ 
 HORIZONTAL_HEADERS = ("Property", "Value")
 
 class tv_select :  # 'enum' items
@@ -200,8 +200,8 @@ class ComboDelegate(QStyledItemDelegate):
         return source_model.getItemFromIndex(source_index).qt_data(index.column())
 
     def createEditor(self, parent, option, index):
-        isComboType = bool(index.model().data(index,Qt.UserRole).get_type() == 'combo')
-        if isComboType:
+        editorType = index.model().data(index,Qt.UserRole).get_type() 
+        if editorType == 'combo':
             if index.data() =='': return
             combo = QComboBox(parent)
             combo.setFont(QFont("Times New Roman", pointSize = 15, weight=QFont.Bold))
@@ -213,32 +213,52 @@ class ComboDelegate(QStyledItemDelegate):
                 combo.addItem(data[0],data[1])
             combo.currentIndexChanged.connect(self.currentIndexChanged)
             return combo
-
+        elif editorType == 'tool':
+            combo = QComboBox(parent)
+            combo.setFont(QFont("Times New Roman", pointSize = 15, weight=QFont.Bold))
+            items = index.model().DATA.TOOL_TABLE.list.split(':')
+            for i in items:
+                data = i.split('=') # text, user data ('magic number')
+                combo.addItem(data[0],data[1])
+            combo.currentIndexChanged.connect(self.currentIndexChanged)
+            return combo
         else:
             return super().createEditor(parent, option, index)
 
     # set combobox display
     def setEditorData(self, editor, index):
-        isComboType = bool(index.model().data(index,Qt.UserRole).get_type() == 'combo')
+        editorType = index.model().data(index,Qt.UserRole).get_type()
         # set combo box index from treemodel
-        if isComboType:
+        if editorType == 'combo':
             # get model data 'magic number'
             value = index.model().data(index,Qt.UserRole).get_value()
             idx = editor.findData(value) 
             #print('set combo', idx)
             editor.setCurrentIndex(value)
             return
+        elif editorType == 'tool':
+            # get model data 'magic number'
+            value = index.model().data(index,Qt.UserRole).get_value()
+            idx = editor.findData(value) 
+            print('set tool combo', idx)
+            editor.setCurrentIndex(int(value))
+            return
         else:
             return super().setEditorData(editor, index)
 
     def setModelData(self, editor, model, index):
-        isComboType = bool(index.model().data(index,Qt.UserRole).get_type() == 'combo')
+        editorType = index.model().data(index,Qt.UserRole).get_type()
         # set model to combobox selection
-        if isComboType:
+        if editorType == 'combo':
             if index.column() == 1:
                 # extract integer user data ('magic number') from combobox
                 data = editor.itemData(editor.currentIndex(), Qt.UserRole)
                 #print('set model data',data)
+                model.setData(index, data, Qt.DisplayRole)
+        elif editorType == 'tool':
+                # extract integer user data ('magic number') from combobox
+                data = editor.itemData(editor.currentIndex(), Qt.UserRole)
+                print('set tool model data',data)
                 model.setData(index, data, Qt.DisplayRole)
         else:
             return super().setModelData(editor, model, index)
@@ -249,7 +269,7 @@ class ComboDelegate(QStyledItemDelegate):
         self.closeEditor.emit(self.sender())
 
 ###############
-# Tree model to manipulare data
+# Tree model to manipulate data
 ###############
 class treeModel(QAbstractItemModel):
     '''
@@ -260,6 +280,7 @@ class treeModel(QAbstractItemModel):
         self.rootItem = TreeItem(None, MetaClass(None, 'Root Item', False, False), "ROOT")
         self.parents = {None:self.rootItem}
         self.iconBasePath = 'graphics'
+        self.DATA = Data()
 
     def clear(self):
         self.beginResetModel()
@@ -302,8 +323,19 @@ class treeModel(QAbstractItemModel):
                             return text
                     return('Unknown {}'.format(get_data()))
                 elif item.meta.get_type() == 'tool':
-                    table = item.meta.tool_list
-                    print(table.list)
+
+                    val = item.meta.find_attr('value')
+                    text = self.DATA.TOOL_TABLE.get_text(val)
+                    print(self.DATA.TOOL_TABLE.list.split(':'))
+                    print('tool',val,text)
+                    return text
+                elif item.meta.get_type() == 'prjname':
+                    h, dval = os.path.split(self.DATA.CURRENT_PROJECT)
+                    dval, h = os.path.splitext(dval)
+                    print('prjname',dval,h)
+                    return dval
+                else:
+                    print('Unknown {}'.format(item.meta.get_type()))
 
             return item.data(index.column())
 
@@ -348,7 +380,7 @@ class treeModel(QAbstractItemModel):
             return False
         item = index.internalPointer()
 
-        print('model setData:',value)
+        print('model setData:',value,item.meta.get_type())
         print('=>', item.meta,role)
 
         if role == Qt.CheckStateRole:
@@ -362,7 +394,7 @@ class treeModel(QAbstractItemModel):
             return True
 
         elif role == Qt.EditRole:
-            print('display',role,index.column())
+            print('editrole',role,index.column())
             if item.meta and index.column() == 1:
                 metaType = item.meta.get_type()
                 #print(item.meta.find_attr('type'))
@@ -371,19 +403,26 @@ class treeModel(QAbstractItemModel):
                     rtn = item.meta.set_value(value)
                     self.dataChanged.emit(index, index)
                 elif metaType == 'tool':
-                    print('Tool',value)
-                    #dval = TOOL_TABLE.get_text(val)
+                    print('Set Tool',value)
+                    rtn = item.meta.set_value(value)
+                    self.dataChanged.emit(index, index)
                 elif metaType == 'engrave':
                     rtn = item.meta.set_value(value)
                     self.dataChanged.emit(index, index)
                 else:
-                    print('unknown:',metaType)
+                    print('unknown but trying updated:',metaType)
+                    rtn = item.meta.set_value(value)
+                    self.dataChanged.emit(index, index)
 
         elif role == Qt.DisplayRole:
+            print('display role',role,index.column())
             if item.meta and index.column() == 1:
                 if item.meta.get_type() in ('combo', 'combo-user', 'list'):
                     optionList = item.meta.get_options().split(':')
                     #print(optionList,value)
+                    rtn = item.meta.set_value(value)
+                    self.dataChanged.emit(index, index)
+                elif item.meta.get_type() == 'tool':
                     rtn = item.meta.set_value(value)
                     self.dataChanged.emit(index, index)
 
@@ -718,6 +757,59 @@ class IconView(QWidget):
 
     def back(self):
         self.showTopList()
+
+class Data(object):
+    _instance = None
+    current_dir =  os.path.dirname(__file__)
+
+    # directories
+    CFG_DIR = 'cfg'
+    PROJECTS_DIR = 'projects'
+    LIB_DIR = 'lib'
+    NGC_DIR = 'scripts'
+    EXAMPLES_DIR = 'examples'
+    CATALOGS_DIR = 'catalogs'
+    GRAPHICS_DIR =  os.path.abspath(os.path.join(current_dir, 'graphics'))
+    DEFAULTS_DIR = 'defaults'
+    CUSTOM_DIR = 'my-stuff'
+
+    # files
+    DEFAULT_TEMPLATE = 'default_template.xml'
+    USER_DEFAULT_FILE = 'custom_defaults.conf'
+    EXCL_MSG_FILE = 'excluded_msg.conf'
+    CURRENT_WORK = "current_work.xml"
+    PREFERENCES_FILE = "default.conf"
+    CONFIG_FILE = 'ncam.conf'
+    TOOLBAR_FNAME = "toolbar.conf"
+    TOOLBAR_CUSTOM_FNAME = "toolbar-custom.conf"
+    GENERATED_FILE = "ncam.ngc"
+
+    CURRENT_PROJECT = ''
+
+    DEFAULT_EDITOR = 'gedit'
+
+    SUPPORTED_DATA_TYPES = ['sub-header', 'header', 'bool', 'boolean', 'int', 'gc-lines',
+                        'tool', 'gcode', 'text', 'list', 'float', 'string', 'engrave',
+                        'combo', 'combo-user', 'items', 'filename', 'prjname']
+    NUMBER_TYPES = ['float', 'int']
+    NO_ICON_TYPES = ['sub-header', 'header']
+    GROUP_HEADER_TYPES = ['items', 'sub-header', 'header']
+
+    XML_TAG = "lcnc-ncam"
+
+    HOME_PAGE = 'https://github.com/FernV/NativeCAM'
+
+    def __init__(self):
+        # only initialize once for all instances
+        if not self.__class__._instance is None:
+            return
+
+    def __new__(cls):
+        if cls._instance is None:
+            print('Creating the object')
+            cls._instance = super(Data, cls).__new__(cls)
+        return cls._instance
+
 
 if __name__ == "__main__":
     from PyQt5.QtWidgets import QApplication

@@ -2,7 +2,7 @@ import os
 
 from PyQt5.QtWidgets import QMainWindow,\
          QToolBar, QMessageBox,QTreeWidget, QTreeWidgetItem, QStyle, QFileDialog,\
-        QTextEdit
+        QTextEdit, QMenu
 from PyQt5 import uic
 from PyQt5.QtCore import QObject, QTimer, QUrl, Qt, QSize
 from PyQt5.QtGui import QColor, QIcon, QFont, QImage
@@ -77,7 +77,7 @@ class NCamWindow(QMainWindow):
         if inipath == '':
             inipath = "{}/configs/sim/qtdragon/qtdragon_metric.ini".format(current_dir)
         print ('path:',inipath)
-        self.graphics = Lcnc_3dGraphics(inipath=inipath)
+        self.graphics = Lcnc_3dGraphics(inipath=None)
         self.setGraphicsDisplay()
 
         self.loadDisplay(self.emptypath)
@@ -238,6 +238,8 @@ class NCamWindow(QMainWindow):
         ca(self.actionAutoRefresh, "AutoRefresh",None, _("Auto-refresh"),None, _('Auto-refresh LinuxCNC'), None)
         self.actionAutoRefresh.setChecked(False)
         #ca(self.action_group.add_action(self.actionAutoRefresh)
+
+        ca(self.actionDebugPrint,"Debugging", None, _("Debug Print XML"), None, _("Debug Print XML"), self.action_debug_print)
 
         ca(self.actionChUnits,"ChUnits", None, _("Change Units"), None, _(""), self.action_chUnits)
 
@@ -699,6 +701,34 @@ else:
 
         return filename
 
+    def saveDialog(self, **kward):
+        dlg = QFileDialog()
+        dlg.setFileMode(QFileDialog.AnyFile)
+        dlg.setAcceptMode(QFileDialog.AcceptSave)
+        dlg.setWindowTitle(kward.get('extensions', 'Save Project Dialog'))
+        dlg.setNameFilter(kward.get('extfilter',"All Files (*);;Text Files (*.txt)"))
+
+        if not kward.get('extensions') is None:
+            dlg.setNameFilter(kward.get('extensions'))
+        if not kward.get('directory') is None:
+            dlg.setDirectory(kward.get('directory'))
+        if not kward.get('filename') is None:
+            dlg.selectFile(kward.get('filename'))
+        # sidebar links
+        urls = []
+        urls.append(QUrl.fromLocalFile(os.path.expanduser('~')))
+        local = os.path.join(os.path.expanduser('~'),'linuxcnc/nc_files')
+        if os.path.exists(local):
+            urls.append(QUrl.fromLocalFile(local))
+        dlg.setSidebarUrls(urls)
+
+        filename = None
+        if dlg.exec_():
+           filename = dlg.selectedFiles()[0]
+           path = dlg.directory().absolutePath()
+
+        return filename
+
     def action_save_ngc(self, *arg) :
         filechooserdialog = gtk.FileChooserDialog(_("Save as ngc..."), None,
             gtk.FILE_CHOOSER_ACTION_SAVE,
@@ -723,6 +753,7 @@ else:
                 f.close()
         finally :
             filechooserdialog.destroy()
+
 
     def mess_dlg(self, mess, winTitle = '', title="NativeCAM", info='', icon=QMessageBox.Critical):
         def forceDetailsOpen(dlg):
@@ -835,6 +866,9 @@ else:
 #################
 # Debug code
 #################
+
+    def action_debug_print(self):
+        print(self.selected_feature)
 
     def printItemName(self, item):
         try:

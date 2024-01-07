@@ -261,6 +261,7 @@
    <addaction name="actionCurrent"/>
    <addaction name="actionSubHeaders"/>
    <addaction name="actionAutoRefresh"/>
+   <addaction name="actionDebugPrint"/>
   </widget>
   <widget class="QToolBar" name="nc_toolbar">
    <property name="windowTitle">
@@ -635,6 +636,11 @@
   <action name="actionWindowClose">
    <property name="text">
     <string>WindowClose</string>
+   </property>
+  </action>
+  <action name="actionDebugPrint">
+   <property name="text">
+    <string>DebugPrint</string>
    </property>
   </action>
  </widget>

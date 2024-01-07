@@ -35,6 +35,8 @@ import platform
 import tkinter as Tkinter
 import math
 
+from custom_widgets import Data 
+
 SYS_DIR = os.path.dirname(os.path.realpath(__file__))
 
 locale.setlocale(locale.LC_ALL, '')
@@ -342,57 +344,6 @@ def get_short_id():
     return str(UNIQUE_ID)
 
 
-class Data(object):
-    _instance = None
-    current_dir =  os.path.dirname(__file__)
-
-    # directories
-    CFG_DIR = 'cfg'
-    PROJECTS_DIR = 'projects'
-    LIB_DIR = 'lib'
-    NGC_DIR = 'scripts'
-    EXAMPLES_DIR = 'examples'
-    CATALOGS_DIR = 'catalogs'
-    GRAPHICS_DIR =  os.path.abspath(os.path.join(current_dir, 'graphics'))
-    DEFAULTS_DIR = 'defaults'
-    CUSTOM_DIR = 'my-stuff'
-
-    # files
-    DEFAULT_TEMPLATE = 'default_template.xml'
-    USER_DEFAULT_FILE = 'custom_defaults.conf'
-    EXCL_MSG_FILE = 'excluded_msg.conf'
-    CURRENT_WORK = "current_work.xml"
-    PREFERENCES_FILE = "default.conf"
-    CONFIG_FILE = 'ncam.conf'
-    TOOLBAR_FNAME = "toolbar.conf"
-    TOOLBAR_CUSTOM_FNAME = "toolbar-custom.conf"
-    GENERATED_FILE = "ncam.ngc"
-
-    CURRENT_PROJECT = ''
-
-    DEFAULT_EDITOR = 'gedit'
-
-    SUPPORTED_DATA_TYPES = ['sub-header', 'header', 'bool', 'boolean', 'int', 'gc-lines',
-                        'tool', 'gcode', 'text', 'list', 'float', 'string', 'engrave',
-                        'combo', 'combo-user', 'items', 'filename', 'prjname']
-    NUMBER_TYPES = ['float', 'int']
-    NO_ICON_TYPES = ['sub-header', 'header']
-    GROUP_HEADER_TYPES = ['items', 'sub-header', 'header']
-
-    XML_TAG = "lcnc-ncam"
-
-    HOME_PAGE = 'https://github.com/FernV/NativeCAM'
-
-    def __init__(self):
-        # only initialize once for all instances
-        if not self.__class__._instance is None:
-            return
-
-    def __new__(cls):
-        if cls._instance is None:
-            print('Creating the object')
-            cls._instance = super(Data, cls).__new__(cls)
-        return cls._instance
 
 
 class Tools(object):
@@ -1784,7 +1735,7 @@ class NCam(NCamWindow):
 
         self.pref = Preferences()
         TOOL_TABLE = Tools() #TODO
-        self.TOOL_TABLE = TOOL_TABLE
+        self.DATA.TOOL_TABLE = TOOL_TABLE
 
         machine_metric = True
 
@@ -3099,7 +3050,7 @@ class NCam(NCamWindow):
                 if xml.tag == "feature" :
                     f = Feature(xml = xml)
                     tool_tip = f.get_tooltip()
-                    citer = self._model.addNode(itr, [f, tool_tip, True, False, self.TOOL_TABLE])
+                    citer = self._model.addNode(itr, [f, tool_tip, True, False, TOOL_TABLE])
                     print('TOP parent',self.printItemName(itr),'item',self.printItemName(citer))
                     grp_header = ''
 
@@ -3123,47 +3074,47 @@ class NCam(NCamWindow):
                             is_visible = False
 
                         if p_type == "items" :
-                            piter = self._model.addNode(citer, [p, tool_tip, m_visible, is_visible, self.TOOL_TABLE])
+                            piter = self._model.addNode(citer, [p, tool_tip, m_visible, is_visible, TOOL_TABLE])
                             print('ITEMS: parent',self.printItemName(citer),'item',self.printItemName(piter))
                             xmlpath_ = xml.find(".//param[@type='items']")
                             recursive(piter, xmlpath_)
                         elif p_type in ['header', 'sub-header'] :
                             if (header_name == '') :
-                                hiter = self._model.addNode(citer, [p, tool_tip, m_visible, is_visible, self.TOOL_TABLE])
+                                hiter = self._model.addNode(citer, [p, tool_tip, m_visible, is_visible, TOOL_TABLE])
                                 #print('SUB HEADER: parent',self.printItemName(citer),'item',self.printItemName(hiter))
                             elif grp_header == header_name :
-                                hiter = self._model.addNode(hiter, [p, tool_tip, m_visible, is_visible, self.TOOL_TABLE])
+                                hiter = self._model.addNode(hiter, [p, tool_tip, m_visible, is_visible, TOOL_TABLE])
                                 #print('G HEADER: parent',self.printItemName(hiter),'item',self.printItemName(hiter))
                             else :
                                 while True :
                                     f_ = self._model.get_feature(hiter, 0)
                                     #print(f_)
                                     if f_ == f :
-                                        hiter = self._model.addNode(citer, [p, tool_tip, m_visible, is_visible, self.TOOL_TABLE])
+                                        hiter = self._model.addNode(citer, [p, tool_tip, m_visible, is_visible, TOOL_TABLE])
                                         #print('SUB/HEADER: parent',self.printItemName(citer),'item',self.printItemName(hiter))
                                         break
                                     if f_.attr['call'][7:] == header_name :
-                                        hiter = self._model.addNode(hiter, [p, tool_tip, m_visible, is_visible, self.TOOL_TABLE])
+                                        hiter = self._model.addNode(hiter, [p, tool_tip, m_visible, is_visible, TOOL_TABLE])
                                         #print('SUB/HEADER (call): parent',self.printItemName(hiter),'item',self.printItemName(hiter))
                                         break
                                     hiter = hiter.parentItem
                             grp_header = p.attr['call'][7:]
                         else :
                             if (header_name == '') or (grp_header == '') :
-                                temp = self._model.addNode(citer, [p, tool_tip, m_visible, is_visible, self.TOOL_TABLE])
+                                temp = self._model.addNode(citer, [p, tool_tip, m_visible, is_visible, TOOL_TABLE])
                                 #print('NO HEADER: parent',self.printItemName(citer),'item',self.printItemName(temp))
                             elif grp_header == header_name :
-                                temp = self._model.addNode(hiter, [p, tool_tip, m_visible, is_visible, self.TOOL_TABLE])
+                                temp = self._model.addNode(hiter, [p, tool_tip, m_visible, is_visible, TOOL_TABLE])
                                 #print('GRP =  HEADER: parent',self.printItemName(hiter),'item',self.printItemName(temp))
                             else :
                                 while True :
                                     f_ = self._model.get_feature(hiter, 0)
                                     if f_ == f :
-                                        self._model.addNode(citer, [p, tool_tip, m_visible, is_visible, self.TOOL_TABLE])
+                                        self._model.addNode(citer, [p, tool_tip, m_visible, is_visible, TOOL_TABLE])
                                         grp_header = ''
                                         break
                                     if f_.attr['call'][7:] == header_name :
-                                        self._model.addNode(hiter, [p, tool_tip, m_visible, is_visible, self.TOOL_TABLE])
+                                        self._model.addNode(hiter, [p, tool_tip, m_visible, is_visible, TOOL_TABLE])
                                         break
                                     hiter = hiter.parentItem
         #self.treeView.setModel(None)
@@ -3613,7 +3564,7 @@ class NCam(NCamWindow):
             #print('new xml',nxml)
             self.treestore_from_xml(nxml)
             self.expand_and_select((0,))
-            CURRENT_PROJECT = _('Untitle.xml')
+            self.DATA.CURRENT_PROJECT = _('Untitle.xml')
             self.display_proj_name()
             self.file_changed = False
             self.action(nxml)
@@ -3635,7 +3586,7 @@ class NCam(NCamWindow):
             xml = self.update_features(xml)
             self.treestore_from_xml(xml)
             self.expand_and_select((0,))
-        CURRENT_PROJECT = _('Untitle.xml')
+        self.DATA.CURRENT_PROJECT = _('Untitle.xml')
         self.display_proj_name()
         self.file_changed = False
         self.action()
@@ -3757,7 +3708,7 @@ class NCam(NCamWindow):
             h, dval = os.path.split(val)
 
         elif data_type == 'prjname':
-            h, dval = os.path.split(CURRENT_PROJECT)
+            h, dval = os.path.split(self.DATA.CURRENT_PROJECT)
             dval, h = os.path.splitext(dval)
 
         elif data_type == 'tool' :
@@ -4045,40 +3996,29 @@ class NCam(NCamWindow):
 
 
     def action_save_project(self, *arg) :
-        global CURRENT_PROJECT
+        dlg_title = _("save project as")
+        flt_name = _("NativeCAM projects")
+        dir_ = os.path.join(NCAM_DIR, CATALOGS_DIR, self.catalog_dir, PROJECTS_DIR)
 
-        filechooserdialog = gtk.FileChooserDialog(_("Save project as..."), None,
-                gtk.FILE_CHOOSER_ACTION_SAVE, (gtk.STOCK_CANCEL, \
-                gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_OK))
-        try:
-            filt = gtk.FileFilter()
-            filt.set_name(_("NativeCAM projects"))
-            filt.add_mime_type("text/xml")
-            filt.add_pattern("*.xml")
-            filechooserdialog.add_filter(filt)
-            d, fname = os.path.split(CURRENT_PROJECT)
-            filechooserdialog.set_current_folder(os.path.join(NCAM_DIR, CATALOGS_DIR, self.catalog_dir, PROJECTS_DIR))
-            filechooserdialog.set_current_name(fname)
-            filechooserdialog.set_do_overwrite_confirmation(True)
-            filechooserdialog.set_keep_above(True)
-            filechooserdialog.set_transient_for(self.get_toplevel())
+        d, fname = os.path.split(self.DATA.CURRENT_PROJECT)
 
-            if filechooserdialog.run() == gtk.RESPONSE_OK:
-                xml = self.treestore_to_xml()
-                CURRENT_PROJECT = filechooserdialog.get_filename()
-                if CURRENT_PROJECT[-4] != ".xml" not in CURRENT_PROJECT :
-                    CURRENT_PROJECT += ".xml"
-                etree.ElementTree(xml).write(CURRENT_PROJECT, pretty_print = True)
-                self.file_changed = False
-        finally:
-            self.display_proj_name()
-            filechooserdialog.destroy()
+        fltr = "XML Files *.xml;;All Files (*);;Text Files (*.txt)"
+        filename = self.saveDialog(title=dlg_title, directory=dir_, filename=fname, extfilter=fltr)
+
+        if not filename is None:
+            xml = self.treestore_to_xml()
+            self.DATA.CURRENT_PROJECT = filename
+            if self.DATA.CURRENT_PROJECT[-4] != ".xml" not in self.DATA.CURRENT_PROJECT :
+                self.DATA.CURRENT_PROJECT += ".xml"
+            etree.ElementTree(xml).write(self.DATA.CURRENT_PROJECT, pretty_print = True)
+            self.file_changed = False
+        self.display_proj_name()
 
     def display_proj_name(self):
-        return
-        h, t = os.path.split(CURRENT_PROJECT)
+        h, t = os.path.split(self.DATA.CURRENT_PROJECT)
         t, h = os.path.splitext(t)
-        self.mnu_current_project.set_label(_(' "%s"') % t)
+        self.setWindowTitle(_(' "%s"') % t)
+        #self.mnu_current_project.set_label(_(' "%s"') % t)
 
     def action_open_project(self, *arg):
         global CURRENT_PROJECT
@@ -4104,7 +4044,7 @@ class NCam(NCamWindow):
                     self.treestore_from_xml(xml)
                     self.expand_and_select(self.path_to_old_selected)
                     self.clear_undo()
-                    CURRENT_PROJECT = filename
+                    self.DATA.CURRENT_PROJECT = filename
                     self.file_changed = False
                     self.action(xml)
 
