@@ -1,0 +1,9 @@
+menu.xml can be customized and renamed menu-custom.xml
+which will never be overwritten
+
+menu.xml contains menu and toolbar definitions
+
+actions name must be unique 'basics', 'rectangle', 'circle' ...
+the toolbar actions refers to those in menu definition
+
+For more customizing options, watch the videos on YouTube

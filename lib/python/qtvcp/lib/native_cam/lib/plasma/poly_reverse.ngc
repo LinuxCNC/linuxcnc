@@ -1,0 +1,84 @@
+(reverse a polyline milling direction, keeping same points)
+(author : Fernand Veilleux)
+o<poly_reverse> sub
+
+	#<src> = [4981 - #5000 * 11]
+	#<src_count> = #[#<src>]
+	#<sb>  = [#<src> - 9] (beginning of first item)
+	#<se>  = [#<sb> - [#<src_count> - 1] * 8] (beginning of last item)
+	
+	#<dst> = [#<se> - 8]
+	#<dp>  = #<dst> (destination pointer)
+
+	#<closed> = #[#<se> + 2]
+	o13 if [#<closed>]
+		#<sp> = [#<se> + 8] (source pointer)
+	o13 else
+		#<sp> = [#<se> + 16]
+	o13 endif
+
+	o<loop00> while [#<sp> LE #<sb>]
+		#[#<dp>    ] = #[#<sp>]
+		#[#<dp> + 1] = #[#<sp> + 1]
+		o11 if [#[#<sp> - 6] GE 2]
+			#[#<dp> + 2] = [6 / #[#<sp> - 6]]
+		o11 else
+			#[#<dp> + 2] = #[#<sp> - 6]
+		o11 endif
+		#[#<dp> + 3] = #[#<sp> - 5]
+		#[#<dp> + 4] = #[#<sp> - 4]
+		#[#<dp> + 5] = #[#<sp> - 3]
+		#[#<dp> + 6] = #[#<sp> - 2]
+		#[#<dp> + 7] = #[#<sp> - 1]
+		
+		#<dp> = [#<dp> - 8]
+		#<sp> = [#<sp> + 8]
+	o<loop00> endwhile
+
+	#<sp>  = #<se>
+
+	#[#<dp>    ] = #[#<sp>]
+	#[#<dp> + 1] = #[#<sp> + 1]
+	o12 if [#[#<sb> + 2] GE 2]
+		#[#<dp> + 2] = [6 / #[#<sb> + 2]]
+	o12 else
+		#[#<dp> + 2] = #[#<sb> + 2]
+	o12 endif
+	#[#<dp> + 3] = #[#<sb> + 3]
+	#[#<dp> + 4] = #[#<sb> + 4]
+	#[#<dp> + 5] = #[#<sb> + 5]
+	#[#<dp> + 6] = #[#<sb> + 6]
+	#[#<dp> + 7] = #[#<sb> + 7]
+
+	o15 if [#<closed> EQ 0]
+		#<dp> = [#<dp> - 8]
+		#<sp> = [#<sp> + 8]
+
+		#[#<dp>    ] = #[#<sp>]
+		#[#<dp> + 1] = #[#<sp> + 1]
+		#[#<dp> + 2] = 0
+		#[#<dp> + 3] = #[#<sp> - 5]
+		#[#<dp> + 4] = #[#<sp> - 4]
+		#[#<dp> + 5] = #[#<sp> - 3]
+		#[#<dp> + 6] = #[#<sp> - 2]
+		#[#<dp> + 7] = #[#<sp> - 1]
+	o15 endif
+	
+	(copy back to first place)
+	#<sp> = #<dst>
+	#<dp> = #<sb>	
+	o14 repeat [#<src_count>]
+		#[#<dp>    ] = #[#<sp>]
+		#[#<dp> + 1] = #[#<sp> + 1]
+		#[#<dp> + 2] = #[#<sp> + 2]
+		#[#<dp> + 3] = #[#<sp> + 3]
+		#[#<dp> + 4] = #[#<sp> + 4]
+		#[#<dp> + 5] = #[#<sp> + 5]
+		#[#<dp> + 6] = #[#<sp> + 6]
+		#[#<dp> + 7] = #[#<sp> + 7]
+
+		#<dp> = [#<dp> - 8]
+		#<sp> = [#<sp> - 8]
+	o14 endrepeat
+	
+o<poly_reverse> endsub

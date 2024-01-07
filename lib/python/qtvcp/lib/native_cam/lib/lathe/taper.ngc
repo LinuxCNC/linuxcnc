@@ -1,0 +1,86 @@
+(author : Fernand Veilleux)
+o<taper> sub
+(CALL [#begin_x] [#end_x] [#begin_z] [#angle] [#finishing_passes] [path])
+
+	#<begin_z>          = #3
+	#<angle>            = #4
+	#<finishing_passes> = #5
+	#<path>             = #6 (Follow drive line = 0 : Angular = 1)
+	
+	#<begin_x>   = [#1 / 2 * #<_diameter_mode>]
+	#<end_x>     = [#2 / 2 * #<_diameter_mode>]
+	#<roughcut>  = [#<_rough_cut> * #<_diameter_mode>]
+	#<finishcut> = [#<_finish_cut> * #<_diameter_mode>]
+	#<diff_x>    = [[#<begin_x> - #<end_x>] / #<_diameter_mode>]
+
+	#<end_z> = [#<begin_z> - [#<diff_x> * TAN[90 - #<angle>]]]
+	
+	/ G0 X#<end_x> Z#<begin_z>
+	/ G1 X#<begin_x> Z#<end_z>
+	/ o<taper> return
+
+	o10 if [#<finishing_passes> GT 0]
+		#<cut_x_total> = [[#<begin_x> - #<end_x>] - #<finishcut>]
+	o10 else
+		#<cut_x_total> = [#<begin_x> - #<end_x>]
+	o10 endif
+
+	#<rough_passes> = FUP[#<cut_x_total> / #<roughcut>]
+	#<x_step> = [#<cut_x_total> / #<rough_passes>]
+
+	G0 X[#<_wp_dia_od> + #<_X_rapid>]
+	G0 Z[#<begin_z>]
+
+	#<rough_cut_z_total> = [#<cut_x_total> * SIN[90 - #<angle>] / SIN[#<angle>]]
+	#<z_step> = [#<rough_cut_z_total> / #<rough_passes> / #<_diameter_mode>]
+
+	M#<_cooling_mode>
+
+	o123 if [#<_tool_usage> LE 1]
+		F#<_rough_feed>
+		#<pass> = 1
+		#<x> = #<begin_x>
+		G0 Z[#<begin_z>]
+		o122 if [#<path> EQ 0] (0 == Follow drive line)
+			#<e_z> = [#<begin_z> - #<z_step> * [#<rough_passes> - 1]]
+			o13 repeat [#<rough_passes>]
+				G0 X[#<x> + #<_x_clear>] Z[#<begin_z>]
+				G0 X[#<x> - #<x_step>]
+				G1 Z[#<e_z>]
+				G1 X[#<x>] Z[#<e_z> - #<z_step>]
+				G0 X[#<x> + #<_x_clear>]
+				#<x> = [#<x> - #<x_step>]
+				#<e_z> = [#<e_z> + #<z_step>]
+				#<pass> = [#<pass> + 1]
+			o13 endrepeat
+		
+		o122 else (1 == Angular)
+			o12 repeat [#<rough_passes>]
+				G0 X[#<x> + #<_x_clear>] Z[#<begin_z>]
+				#<x> = [#<x> - #<x_step>]
+				G0 X#<x>
+				G0 Z[#<begin_z>]
+				G1 X#<begin_x> Z[#<begin_z> - [#<z_step> * #<pass>]]
+				G0 X[#<begin_x> + #<_x_clear>]
+				#<pass> = [#<pass> + 1]
+			o12 endrepeat
+		o122 endif
+	o123 endif
+
+	o20 if [#<finishing_passes> AND #<_tool_usage> NE 1]
+		F#<_finish_feed>
+		G0 X[#<end_x> + #<_x_clear> + #<finishcut>] Z[#<begin_z>]
+		o21 repeat [#<finishing_passes>]
+			G0 X[#<end_x> + #<_x_clear>] Z[#<begin_z>]
+			G0 X#<end_x>
+			G0 Z#<begin_z>
+			G1 X#<begin_x> Z#<end_z>
+			G0 X[#<begin_x> + #<_x_clear>]
+		o21 endrepeat
+	o20 endif
+	
+	M9 (cooling off)
+	
+	G0 X[#<_wp_dia_od> + #<_X_rapid>]
+	
+o<taper> endsub

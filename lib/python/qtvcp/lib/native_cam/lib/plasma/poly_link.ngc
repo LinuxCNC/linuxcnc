@@ -1,0 +1,623 @@
+(calc link style points)
+(author : Fernand Veilleux)
+o<poly_link> sub
+(CALL destination[1], itm1 ptr[2], itm2 ptr[3], prev_x[4], prev_y[5])
+
+	o40 if [[#4 EQ #[#2]] AND [#5 EQ #[#2 + 1]]]
+		o<poly_link> return
+	o40 endif
+	
+	#<cs>  = #[#3 +  7]
+	#<cr>  = #[#3 +  8]
+	#<cmp> = #[#3 +  9]
+	#42    = #<cr>
+	
+	#<prev_x> = #4
+	#<prev_y> = #5
+
+	o<if001> if [#<cs> GE 2] (inverted and chamfered although not used)
+		#53 = #[#2] (link cx)
+		#44 = #[#2 + 1] (link cy)
+	o<if001> endif
+	
+	#<rot> = 0
+
+;	(print,)
+;	(print,*************************************************)
+
+	o<if_arcdir> if [#[#2 + 2] EQ 1] (print,first is a line...)
+
+		o<if_line1dir> if [#[#3 + 2] EQ 1] (print,...second is line)
+			(compute angle from prev_x,prev_y to current x,y then next cx,cy)
+			o<angle> CALL [#<prev_x>] [#<prev_y>] [#[#2]] [#[#2 + 1]] [#[#3]] [#[#3 + 1]] ;[1]
+			
+			o<poly_link_dir> CALL [41] [#<cs>] [#<_angle_phi>] [0] [180] [2]
+			
+			o<if_011> if [#<cs> EQ 1] (print,rounded link)
+				o<if_011a> if [[#<_angle_phi> MOD 180] EQ 0]
+					#55 = #[#2]
+					#56 = #[#2 + 1]
+					#41 = 0
+				o<if_011a> else
+					(find max possible radius)
+					o<get_min> CALL [45] [2] [#<_angle_len21>] [#<_angle_len23>]
+					o<get_min> CALL [42] [2] [#45 / COS[#<_angle_angle> / 2]] [#<cr>]
+
+					#25 = [#42 / TAN[#<_angle_angle> / 2]]
+					(find end of line 1 at #55 #56)
+					o<rotate_xy> CALL [#[#2] + #25] [#[#2 + 1]] [#[#2]] [#[#2 + 1]] [#<_angle_phi21>] [0] [55] [56]
+	
+					(find end of link at #57 #58)
+					o<rotate_xy> CALL [#[#2] + #25] [#[#2 + 1]] [#[#2]] [#[#2 + 1]] [#<_angle_phi23>] [0] [57] [58]
+
+					(find cx, cy at #53 #44)
+					o<rotate_xy> CALL [#[#2] + [#42 / SIN[#<_angle_angle> / 2]]] [#[#2 + 1]] [#[#2]] [#[#2 + 1]] [#<_angle_bisector>] [0] [53] [44]
+
+				o<if_011a> endif
+				
+			o<if_011> else (print,chamfered or inverted round)
+				(find min length of lines to calc max possible chamfer or inverted)
+				o<get_min> CALL [42] [3] [#<_angle_len21>] [#<_angle_len23>] [#<cr>]
+				
+				(find end of line 1 at #55 #56)
+				o<rotate_xy> CALL [#[#2] + #42] [#[#2 + 1]] [#[#2]] [#[#2 + 1]] [#<_angle_phi21>] [0] [55] [56]
+				
+				(find end of link at #57 #58)
+				o<rotate_xy> CALL [#[#2] + #42] [#[#2 + 1]] [#[#2]] [#[#2 + 1]] [#<_angle_phi23>] [0] [57] [58]
+			o<if_011> endif
+			
+		o<if_line1dir> elseif [#[#3 + 2] GE 2] (print,second is an arc)
+			(compute arc rotation from current x,y to next cx,cy then next x,y)
+			o<get_arc_len> CALL [#[#2]] [#[#2 + 1]] [#[#3 + 3]] [#[#3 + 4]] [#[#3]] [#[#3 + 1]] [0] [#[#3 + 2]] [0]
+			#<arc_rotation> = #<_arc_rotation>
+			#<chord_len>    = #<_arc_max_chord>
+
+			(compute angle from prev_x,prev_y to current x,y then next cx,cy)
+			o<angle> CALL [#<prev_x>] [#<prev_y>] [#[#2]] [#[#2 + 1]] [#[#3 + 3]] [#[#3 + 4]] ;[1]
+
+			o<if_rel121> if [#<cs> EQ 1] (print,...rounded link)
+
+				o24 if [[[#[#3 + 2] EQ 2] AND [#<_angle_phi> EQ 90]] OR [[#[#3 + 2] EQ 3] AND [#<_angle_phi> EQ 270]]]
+					#55 = #[#2]
+					#56 = #[#2 + 1]
+					#41 = 0
+					
+				o24 else
+					(set where to find link arc center)
+					o<if_021> if [[#<_angle_phi> GT 270] AND [#[#3 + 2] EQ 2] AND [#<cr> LE [[#<_angle_len23> - [SIN[#<_angle_angle>] * #<_angle_len23>]] / 2]]]
+;						(print,Tracking : 1)
+						#41 = 2
+						#59 = 90
+						#49 = [#<_angle_len23> - #<cr>]
+
+					o<if_021> elseif [[#<_angle_phi> GE 270] AND [#[#3 + 2] EQ 2]]
+;						(print,Tracking : 1a)
+						#41 = 3
+						#59 = -90
+						#49 = [#<_angle_len23> + #<cr>]
+						o59 if [#<_angle_phi> EQ 270]
+							#<rot> = -2
+						o59 else
+							#<rot> = [[270 - #<_angle_phi>] * 2]
+						o59 endif
+
+					o<if_021> elseif [[#<_angle_phi> LT 90] AND [#[#3 + 2] EQ 2]]
+;						(print,Tracking : 1c)
+						#41 = 2
+						#59 = 90
+						#49 = [#<_angle_len23> - #<cr>]
+						o57 if [#<_angle_phi> EQ 0]
+							#<rot> = -2
+						o57 endif
+
+					o<if_021> elseif [[#<_angle_phi> LT 90] AND [#[#3 + 2] EQ 3] AND [#<cr> LE [[#<_angle_len23> - [SIN[#<_angle_angle>] * #<_angle_len23>]] / 2]]]
+;						(print,Tracking : 2)
+						#41 = 3
+						#59 = -90
+						#49 = [#<_angle_len23> - #<cr>]
+
+					o<if_021> elseif [[#<_angle_phi> LT 90] AND [#[#3 + 2] EQ 3]]
+;						(print,Tracking : 2a)
+						#41 = 2
+						#59 = 90
+						#49 = [#<_angle_len23> + #<cr>]
+						#<rot> = [[90 - #<_angle_phi>] * 2]
+
+					o<if_021> elseif [[#<_angle_phi> GE 270] AND [#[#3 + 2] EQ 3]]
+;						(print,Tracking : 2b)
+						#41 = 3
+						#59 = -90
+						#49 = [#<_angle_len23> - #<cr>]
+					
+					o<if_021> else
+						o<if_02b> if [#[#3 + 2] EQ 2] (arc CW)
+;							(print,Tracking : 11)
+							#41 = 3
+							#59 = -90
+							#49 = 1
+							
+						o<if_02b> else (arc CCW)
+;							(print,Tracking : 12)
+							#41 = 2
+							#59 = 90
+							#49 = 1
+							o58 if [#<_angle_phi> EQ 90]
+								#<rot> = 2
+							o58 endif
+						o<if_02b> endif
+						
+						(find maximum outside link radius possible)
+						(create a perpendicular line same length as arc radius at furthest point on line)
+						o<rotate_xy> CALL [#<prev_x> + #<_angle_len23>] [#<prev_y>] [#<prev_x>] [#<prev_y>] [#<_angle_phi21> - #59] [0] [61] [62]
+
+						(find middle point between end of perpendicular line and arc cx,cy)
+						#<temp_x> = [[#[#3 + 3] + #61] / 2]
+						#<temp_y> = [[#[#3 + 4] + #62] / 2]
+
+						(rotate to create a bisector)
+						o<rotate_xy> CALL [#61] [#62] [#<temp_x>] [#<temp_y>] [90] ;[3]
+
+						(find intersect point with perpendicular line wich is cx,cy for maximum possible link radius)
+						o<isect_lines> CALL [#<temp_x>] [#<temp_y>] [#<_rotated_x>] [#<_rotated_y>] [#61] [#62] [#<prev_x>] [#<prev_y>] [0] ;[4]
+
+						o42 if [#<_isect_count> EQ 1]
+							(measure length for maximum link radius)
+							o<line> CALL [#<_isect_x>] [#<_isect_y>] [#<prev_x>] [#<prev_y>]
+							o<get_min> CALL [42] [2] [#<cr>] [#<_line_len>]
+						o42 endif
+						
+						o43 if [#<arc_rotation> LT 90]
+							(check if it fits arc)
+							(draw perpendicular line to radius at end of arc)
+							o<rotate_xy> CALL [#[#3 + 3]] [#[#3 + 4]] [#[#3]] [#[#3 + 1]] [90] [0] [61] [62]
+							
+							(find intersection of perpendicular with line)
+							o<isect_lines> CALL [#[#3]] [#[#3 + 1]] [#61] [#62] [#[#2]] [#[#2 + 1]] [#<prev_x>] [#<prev_y>] [0] ;[02]
+							
+							(find equal distance on line)
+							o<line> CALL [#<_isect_x>] [#<_isect_y>] [#[#3]] [#[#3 + 1]] ;[3]
+							o<rotate_xy> CALL [#[#3]] [#[#3 + 1]] [#<_isect_x>] [#<_isect_y>] [#<_angle_phi21> - #<_line_phi>] [0] [61] [62]
+							
+							(draw perpendicular to line at that point)
+							o<rotate_xy> CALL [#[#2]] [#[#2 + 1]] [#61] [#62] [90] ;[05]
+							
+							(find intersection of that perpendicular with radius at end of arc)
+							o<isect_lines> CALL [#61] [#62] [#<_rotated_x>] [#<_rotated_y>] [#[#3]] [#[#3 + 1]] [#[#3 + 3]] [#[#3 + 4]] [0] ;[06]
+							
+							(length from line to intersection is length of link radius, decrease if necessary)
+							o<line> CALL [#<_isect_x>] [#<_isect_y>] [#61] [#62] ;[7]
+							o<get_min> CALL [42] [2] [#42] [#<_line_len>]
+						o43 endif
+						
+						#49 = [#<_angle_len23> + #42 * #49]
+
+					o<if_021> endif
+
+					(Create a parallel line)
+					o<rotate_xy> CALL [#<prev_x> + #42] [#<prev_y>] [#<prev_x>] [#<prev_y>] [#<_angle_phi21> + #59] [0] [55] [56]
+					o<rotate_xy> CALL [#[#2] + #42] [#[#2 + 1]] [#[#2]] [#[#2 + 1]] [#<_angle_phi21> + #59] [0] [57] [58]
+;					o<parallel> CALL [#<prev_x>] [#<prev_y>] [#[#2]] [#[#2 + 1]] [#42] [#<_angle_phi21> + #59] [55] [56] [57] [58]
+
+					(find link arc center at the right place)
+					o<rotate_xy> CALL [#[#2]] [#[#2 + 1]] [#[#3 + 3]] [#[#3 + 4]] [#<rot>] [0] [61] [62]
+					o<isect_line_arc> CALL [#55] [#56] [#57] [#58] [#[#3 + 3]] [#[#3 + 4]] [#49] [#61] [#62] [0] [53] [44]
+
+					(find beginning of link arc)
+					o<rotate_xy> CALL [#53 + #42] [#44] [#53] [#44] [#<_angle_phi21> - #59] [0] [55] [56]
+
+					(find end of link arc)
+					#57 = [#[#3 + 3] + [#53 - #[#3 + 3]] * #<_angle_len23> / #49]
+					#58 = [#[#3 + 4] + [#44 - #[#3 + 4]] * #<_angle_len23> / #49]
+				o24 endif
+					
+			o<if_rel121> else (print,...chamfered or inverted round)
+				(find maximum link distance possible)
+				o<get_min> CALL [42] [3] [#<_angle_len21>] [#<chord_len>] [#<cr>]
+
+				(find direction for inverted)
+				o<poly_link_dir> CALL [41] [#<cs>] [#<_angle_phi>] [90.00] [270] [6 / #[#3 + 2]]
+
+				(find beginning of link)
+				o<rotate_xy> CALL [#[#2] + #42] [#[#2 + 1]] [#[#2]] [#[#2 + 1]] [#<_angle_phi21>] [0] [55] [56]
+
+				(find end of link)
+				o<select> CALL [43] [#[#3 + 2] - 2] [-2] [2]
+				o<rotate_xy> CALL [#[#2]] [#[#2 + 1]] [#[#3 + 3]] [#[#3 + 4]] [#43 * ASIN[[#42 / 2] / #<_angle_len23>]] [0] [57] [58]
+			o<if_rel121> endif
+	
+		o<if_line1dir> endif
+	
+	o<if_arcdir> elseif [#[#2 + 2] GE 2] (print,first is an arc...)
+			
+		o<if_arc2dir> if [#[#3 + 2] EQ 1] (print,...second is a line)
+			(compute arc rotation from previous x,y to cx,cy then current x,y)
+			o<get_arc_len> CALL [#<prev_x>] [#<prev_y>] [#[#2 + 3]] [#[#2 + 4]] [#[#2]] [#[#2 + 1]] [0] [#[#2 + 2]] [0]
+			#<arc_rotation> = #<_arc_rotation>
+			#<chord_len>    = #<_arc_max_chord>
+
+			(compute angle from arc cx,cy to current x,y then line end x,y)
+			o<angle> CALL [#[#2 + 3]] [#[#2 + 4]] [#[#2]] [#[#2 + 1]] [#[#3]] [#[#3 + 1]] ;[1]
+			
+			o<if_rel211> if [#<cs> EQ 1] (print,...rounded link)
+			
+				o25 if [[[#[#2 + 2] EQ 2] AND [#<_angle_phi> EQ 90]] OR [[#[#2 + 2] EQ 3] AND [#<_angle_phi> EQ 270]]]
+					#55 = #[#2]
+					#56 = #[#2 + 1]
+					#41 = 0
+				
+				o25 else
+					(set where to find link arc center)
+					o<if_02> if [[#<_angle_phi> GT 270] AND [#[#2 + 2] EQ 2] AND [#42 LE [[#<_angle_len21> - [SIN[#<_angle_angle>] * #<_angle_len21>]] / 2]]]
+;						(print,Tracking : 21a)
+						#41 = 2
+						#59 = -90
+						#49 = -1
+
+					o<if_02> elseif [[#<_angle_phi> LT 90] AND [#[#2 + 2] EQ 2]]
+;						(print,Tracking = 21b)
+						#41 = 2
+						#59 = -90
+						#49 = -1
+
+					o<if_02> elseif [[#<_angle_phi> GT 270] AND [#[#2 + 2] EQ 2]]
+;						(print,Tracking : 21c)
+						#41 = 3
+						#59 = 90
+						#49 = 1
+						#<rot> = [[#<_angle_phi> - 270] * 2]
+
+					o<if_02> elseif [[#<_angle_phi> LT 90] AND [#[#2 + 2] EQ 3] AND [#42 LE [[#<_angle_len21> - [SIN[#<_angle_angle>] * #<_angle_len21>]] / 2]]]
+;						(print,Tracking : 22a)
+						#41 = 3
+						#59 = 90
+						#49 = -1
+
+					o<if_02> elseif [[#<_angle_phi> LT 90] AND [#[#2 + 2] EQ 3]]
+;						(print,Tracking : 22b)
+						#41 = 2
+						#59 = -90
+						#49 = 1
+						#<rot> = [[#<_angle_angle> - 90] * 2]
+
+					o<if_02> elseif [[#<_angle_phi> GT 270] AND [#[#2 + 2] EQ 3]]
+;						(print,Tracking : 22c)
+						#41 = 3
+						#59 = 90
+						#49 = -1
+
+					o<if_02> else
+						o<if_021b> if [#[#2 + 2] EQ 2] (arc CW)
+;							(print,Tracking : 31a)
+							#41 = 3
+							#59 = 90
+							#49 = 1
+							o56 if [#<_angle_phi> EQ 270]
+								#<rot> = 2
+							o56 endif
+
+						o<if_021b> else (arc CCW)
+;							(print,Tracking : 31b)
+							#41 = 2
+							#59 = -90
+							#49 = 1
+							o55 if [#<_angle_phi> EQ 90]
+								#<rot> = -2
+							o55 endif
+						o<if_021b> endif
+
+						(find maximum outside link radius possible)
+						(create a perpendicular line same length as arc radius at furthest point on line)
+						o<rotate_xy> CALL [#[#3] + #<_angle_len21>] [#[#3 + 1]] [#[#3]] [#[#3 + 1]] [#<_angle_phi23> - #59] [0] [61] [62]
+
+						(find middle point between end of perpendicular line and arc cx,cy)
+						#<temp_x> = [[#[#2 + 3] + #61] / 2]
+						#<temp_y> = [[#[#2 + 4] + #62] / 2]
+
+						(rotate to create a bisector)
+						o<rotate_xy> CALL [#61] [#62] [#<temp_x>] [#<temp_y>] [90]
+
+						(find intersect point with perpendicular line wich is cx,cy for maximum possible link radius)
+						o<isect_lines> CALL [#<temp_x>] [#<temp_y>] [#<_rotated_x>] [#<_rotated_y>] [#61] [#62] [#[#3]] [#[#3 + 1]] [0] [0]
+
+						o45 if [#<_isect_count> EQ 1]
+							(measure length for maximum link radius)
+							o<line> CALL [#<_isect_x>] [#<_isect_y>] [#[#3]] [#[#3 + 1]]
+							o<get_min> CALL [42] [2] [#<cr>] [#<_line_len>]
+						o45 endif
+
+						o46 if [#<arc_rotation> LT 90]
+							(check if it fits arc)
+							(draw perpendicular line to radius at end of arc)
+							o<rotate_xy> CALL [#[#2 + 3]] [#[#2 + 4]] [#<prev_x>] [#<prev_y>] [90] [0] [61] [62]
+							
+							(find intersection of perpendicular with line)
+							o<isect_lines> CALL [#<prev_x>] [#<prev_y>] [#61] [#62] [#[#2]] [#[#2 + 1]] [#[#3]] [#[#3 + 1]] [0] ;[2]
+							
+							(find equal distance on line)
+							o<line> CALL [#<_isect_x>] [#<_isect_y>] [#<prev_x>] [#<prev_y>] ;[3]
+							o<rotate_xy> CALL  [#<prev_x>] [#<prev_y>] [#<_isect_x>] [#<_isect_y>] [#<_angle_phi21> - #<_line_phi>] [0] [61] [62]
+							
+							(draw perpendicular to line at that point)
+							o<rotate_xy> CALL [#[#2]] [#[#2 + 1]] [#61] [#62] [90] ;[05]
+							
+							(find intersection of that perpendicular with radius at end of arc)
+							o<isect_lines> CALL [#61] [#62] [#<_rotated_x>] [#<_rotated_y>] [#<prev_x>] [#<prev_y>] [#[#2 + 3]] [#[#2 + 4]] [0] ;[6]
+							
+							(length from line to intersection is length of link radius, decrease if necessary)
+							o<line> CALL [#<_isect_x>] [#<_isect_y>] [#61] [#62] ;[7]
+							o<get_min> CALL [42] [2] [#42] [#<_line_len>]
+						o46 endif
+						
+					o<if_02> endif
+					#49 = [#<_angle_len21> + #49 * #42]
+
+					(Create a parallel line)
+					o<rotate_xy> CALL [#[#2] + #42] [#[#2 + 1]] [#[#2]] [#[#2 + 1]] [#<_angle_phi23> + #59] [0] [55] [56]
+					o<rotate_xy> CALL [#[#3] + #42] [#[#3 + 1]] [#[#3]] [#[#3 + 1]] [#<_angle_phi23> + #59] [0] [57] [58]
+;					o<parallel> CALL [#[#2]] [#[#2 + 1]] [#[#3]] [#[#3 + 1]] [#42] [#<_angle_phi23> + #59] [55] [56] [57] [58]
+
+					(find link arc center at the right place)
+					o<rotate_xy> CALL [#[#2]] [#[#2 + 1]] [#[#2 + 3]] [#[#2 + 4]] [#<rot>] [0] [61] [62]
+					o<isect_line_arc> CALL [#55] [#56] [#57] [#58] [#[#2 + 3]] [#[#2 + 4]] [#49] [#61] [#62] [0] [53] [44]
+
+					(find beginning of link arc)
+					#55 = [#[#2 + 3] + [#53 - #[#2 + 3]] * #<_angle_len21> / #49]
+					#56 = [#[#2 + 4] + [#44 - #[#2 + 4]] * #<_angle_len21> / #49]
+
+					(find end of link arc at #57 #58)
+					o<rotate_xy> CALL [#53 + #42] [#44] [#53] [#44] [#<_angle_phi23> - #59] [0] [57] [58]
+				o25 endif
+				
+			o<if_rel211> else (print,...chamfered or inverted)
+				o<get_min> CALL [42] [3] [#<_angle_len23>] [#<chord_len>] [#<cr>]
+				o<poly_link_dir> CALL [41] [#<cs>] [#<_angle_phi>] [90.00] [270] [6 / #[#2 + 2]]
+
+				(find end of arc at #55 #56)
+				o<select> CALL [43] [#[#2 + 2] - 2] [2] [-2]
+				o<rotate_xy> CALL [#[#2]] [#[#2 + 1]] [#[#2 + 3]] [#[#2 + 4]] [#43 * ASIN[[#42 / 2] / #<_angle_len21>]] [0] [55] [56]
+
+				(find end of link at #57 #58)
+				o<rotate_xy> CALL [#[#2] + #42] [#[#2 + 1]] [#[#2]] [#[#2 + 1]] [#<_angle_phi23>] [0] [57] [58]
+			o<if_rel211> endif
+
+		o<if_arc2dir> else (print,...second is another arc)(print,)
+			(compute both arc rotation and max chord len)
+			o<get_arc_len> CALL [#<prev_x>] [#<prev_y>] [#[#2 + 3]] [#[#2 + 4]] [#[#2]] [#[#2 + 1]] [0] [#[#2 + 2]] [0]
+			#<chord1_len>    = #<_arc_max_chord>
+			o<get_arc_len> CALL [#[#2]] [#[#2 + 1]] [#[#3 + 3]] [#[#3 + 4]] [#[#3]] [#[#3 + 1]] [0] [#[#3 + 2]] [0]
+			#<chord2_len>    = #<_arc_max_chord>
+
+			(compute angle from current cx,cy to current x,y then next cx,cy)
+			o<angle> CALL [#[#2 + 3]] [#[#2 + 4]] [#[#2]] [#[#2 + 1]] [#[#3 + 3]] [#[#3 + 4]] ;[1]
+				
+			o<if_rel221> if [#<cs> EQ 1] (print,...rounded link)
+				o<abc> if [[[#[#2 + 2] EQ #[#3 + 2]] AND [#<_angle_phi> EQ 0]] OR [[#[#2 + 2] NE #[#3 + 2]] AND [#<_angle_phi> EQ 180]]]
+					#55 = #[#2]
+					#56 = #[#2 + 1]
+					#41 = 0
+		
+				o<abc> else
+;					(print,)
+					o31 if [#[#2 + 2] EQ 2] (CW)
+						o<abc1> if [#[#3 + 2] EQ 2] (CW)
+							o<a12> if [#<_angle_phi> GT 180]
+								o11 if [#42 LE [[#<_angle_len21> + #<_angle_len23> - #<_angle_len13>] / 2]]
+;									(print,Tracking : 221)
+									#49 = [#<_angle_len21> - #42]
+									#50 = [#<_angle_len23> - #42]
+									#41 = 2
+								o11 else
+;									(print,Tracking : 223)
+									#49 = [#<_angle_len21> + #42]
+									#50 = [#<_angle_len23> + #42]
+									#41 = 3
+									#<rot> = [[#<_angle_phi13> - #<_angle_phi21>] * 2 + 2]
+								o11 endif
+							o<a12> else
+;								(print,Tracking : 225)
+								#49 = [#<_angle_len21> + #42]
+								#50 = [#<_angle_len23> + #42]
+								#41 = 3
+								#<rot> = 2
+							o<a12> endif
+
+						o<abc1> else (CCW)
+							o13 if [#<_angle_len21> GT #<_angle_len23>]
+								o23 if [[#<_angle_phi> GT 270] OR [#<_angle_phi> EQ 0]]
+									o230 if [#42 LE [[#<_angle_len23> - #<_angle_len21> + #<_angle_len13>] / 2]]
+;										(print,Tracking : 231a)
+										#49 = [#<_angle_len21> + #42]
+										#50 = [#<_angle_len23> - #42]
+										#41 = 3
+									o230 else
+;										(print,Tracking : 231b)
+										#49 = [#<_angle_len21> - #42]
+										#50 = [#<_angle_len23> + #42]
+										#41 = 2
+										#<rot> = [[#<_angle_phi13> - #<_angle_phi21>] * 2]
+									o230 endif
+								o23 elseif [#<_angle_phi> LT 180]
+;									(print,Tracking : 231c)
+									#49 = [#<_angle_len21> - #42]
+									#50 = [#<_angle_len23> + #42]
+									#41 = 2
+								o23 else
+;									(print,Tracking : 231d)
+									#49 = [#<_angle_len21> + #42]
+									#50 = [#<_angle_len23> - #42]
+									#41 = 3
+								o23 endif
+							o13 else
+								o35 if [#<_angle_phi> LT 90]
+									o231 if [#42 LE [[#<_angle_len21> - #<_angle_len23> + #<_angle_len13>] / 2]]
+;										(print,Tracking : 232a)
+										#49 = [#<_angle_len21> - #42]
+										#50 = [#<_angle_len23> + #42]
+										#41 = 2
+										#<rot> = -2
+									o231 else
+;										(print,Tracking : 232b)
+										#49 = [#<_angle_len21> + #42]
+										#50 = [#<_angle_len23> - #42]
+										#41 = 3
+										#<rot> = [[#<_angle_phi13> - #<_angle_phi21>] * 2]
+									o231 endif
+								o35 elseif [#<_angle_phi> LT 180]
+;									(print,Tracking : 232c)
+									#49 = [#<_angle_len21> - #42]
+									#50 = [#<_angle_len23> + #42]
+									#41 = 2
+								o35 else
+;									(print,Tracking : 232d)
+									#49 = [#<_angle_len21> + #42]
+									#50 = [#<_angle_len23> - #42]
+									#41 = 3
+								o35 endif							
+							o13 endif
+						o<abc1> endif
+
+					o31 else (CCW)
+						o<ifdir33> if [#[#3 + 2] EQ 2] (CW)
+							o14 if [#<_angle_len21> GT #<_angle_len23>]
+								o33 if [#<_angle_phi> LT 90]
+									o330 if [#42 LE [[#<_angle_len23> - #<_angle_len21> + #<_angle_len13>] / 2]]
+;										(print,Tracking : 321a)
+										#49 = [#<_angle_len21> + #42]
+										#50 = [#<_angle_len23> - #42]
+										#41 = 2
+									o330 else
+;										(print,Tracking : 321b)
+										#49 = [#<_angle_len21> - #42]
+										#50 = [#<_angle_len23> + #42]
+										#41 = 3
+										o16 if [#<_angle_phi> GT 0]
+											#<rot> = [[#<_angle_phi13> - #<_angle_phi21>] * 2]
+										o16 endif
+									o330 endif
+								o33 elseif [#<_angle_phi> LT 180]
+;									(print,Tracking : 322)
+									#49 = [#<_angle_len21> + #42]
+									#50 = [#<_angle_len23> - #42]
+									#41 = 2
+								o33 else
+;									(print,Tracking : 323)
+									#49 = [#<_angle_len21> - #42]
+									#50 = [#<_angle_len23> + #42]
+									#41 = 3
+								o33 endif
+							o14 else
+								o15 if [[#<_angle_phi> GT 270] OR [#<_angle_phi> EQ 0]]
+;									#<max_inside> = [[#<_angle_len21> - #<_angle_len23> + #<_angle_len13>] / 2]
+;									(print,cr = #42, max_inside = #<max_inside>)
+									o331 if [#42 LE [[#<_angle_len21> - #<_angle_len23> + #<_angle_len13>] / 2]]
+;										(print,Tracking : 421a)
+										#49 = [#<_angle_len21> - #42]
+										#50 = [#<_angle_len23> + #42]
+										#41 = 3
+									o331 else
+;										(print,Tracking : 421b)
+										#49 = [#<_angle_len21> + #42]
+										#50 = [#<_angle_len23> - #42]
+										#41 = 2
+										#<rot> = [[#<_angle_phi13> + #<_angle_phi21>] * 2]
+									o331 endif
+								o15 elseif [#<_angle_phi> LT 180]
+;									(print,Tracking : 422 OK)
+									#49 = [#<_angle_len21> + #42]
+									#50 = [#<_angle_len23> - #42]
+									#41 = 2
+								o15 else
+;									(print,Tracking : 423 OK)
+									#49 = [#<_angle_len21> - #42]
+									#50 = [#<_angle_len23> + #42]
+									#41 = 3
+								o15 endif
+							o14 endif
+							
+						o<ifdir33> else (CCW)
+							o<a133> if [#<_angle_phi> LT 180]
+								o12 if [#42 LE [[#<_angle_len21> + #<_angle_len23> - #<_angle_len13>] / 2]]
+;									(print,Tracking : 3311)
+									#49 = [#<_angle_len21> - #42]
+									#50 = [#<_angle_len23> - #42]
+									#41 = 3
+								o12 else
+;									(print,Tracking : 332)
+									#49 = [#<_angle_len21> + #42]
+									#50 = [#<_angle_len23> + #42]
+									#41 = 2
+									#<rot> = [[#<_angle_phi13> + #<_angle_phi21>] * 2]
+								o12 endif
+							o<a133> else
+;								(print,Tracking : 333)
+								#49 = [#<_angle_len21> + #42]
+								#50 = [#<_angle_len23> + #42]
+								#41 = 2
+								#<rot> = -2
+							o<a133> endif
+						o<ifdir33> endif
+					o31 endif
+			
+					(find reference point for cx,cy)
+					o<rotate_xy> CALL [#[#2]] [#[#2 + 1]] [#[#2 + 3]] [#[#2 + 4]] [#<rot>] [0] [61] [62]
+					
+					(find intersection of arcs)
+					o<isect_arcs> CALL [#[#2 + 3]] [#[#2 + 4]] [#49] [#[#3 + 3]] [#[#3 + 4]] [#50] [#61] [#62] [0] [53] [44]
+					o<if0025> if [#<_isect_count> EQ 0]
+						(print,had no intersect : reversing radiuses length and dir = EXITING)
+						M2 (is it necessary ? or just for debug purpose)
+						#49  = [#<_angle_len21> + [#<_angle_len21> - #49]]
+						#50  = [#<_angle_len23> + [#<_angle_len23> - #50]]
+						#41 = [6 / #41]
+						o<isect_arcs> CALL [#[#2 + 3]] [#[#2 + 4]] [#49] [#[#3 + 3]] [#[#3 + 4]] [#50] [#61] [#62] [0] [53] [44]
+					o<if0025> endif
+
+					(find end of arc 1 )
+					#55 = [#[#2 + 3] + [#53 - #[#2 + 3]] * #<_angle_len21> / #49]
+					#56 = [#[#2 + 4] + [#44 - #[#2 + 4]] * #<_angle_len21> / #49]
+
+					(find end of link)
+					#57 = [#[#3 + 3] + [#53 - #[#3 + 3]] * #<_angle_len23> / #50]
+					#58 = [#[#3 + 4] + [#44 - #[#3 + 4]] * #<_angle_len23> / #50]
+				o<abc> endif
+
+			o<if_rel221> else (print,chamfered or inverted)
+			
+				o<if003> if [#[#2 + 2] EQ #[#3 + 2]]
+					o<poly_link_dir> CALL [41] [#<cs>] [#<_angle_phi>] [180.00] [360] [2]
+				o<if003> else
+					o<poly_link_dir> CALL [41] [#<cs>] [#<_angle_phi>] [180.00] [360] [3]
+				o<if003> endif
+			
+				o<get_min> CALL [42] [3] [#42] [#<chord1_len>] [#<chord2_len>]
+
+				(find end of arc)
+				o<select> CALL [43] [#[#2 + 2] - 2] [2] [-2]
+				o<rotate_xy> CALL [#[#2]] [#[#2 + 1]] [#[#2 + 3]] [#[#2 + 4]] [#43 * ASIN[[#42 / 2] / #<_angle_len21>]] [0] [55] [56]
+
+				(find end of link)
+				o<select> CALL [43] [#[#3 + 2] - 2] [-2] [2]
+				o<rotate_xy> CALL [#[#2]] [#[#2 + 1]] [#[#3 + 3]] [#[#3 + 4]] [#43 * ASIN[[#42 / 2] / #<_angle_len23>]] [0] [57] [58]
+			o<if_rel221> endif
+		
+		o<if_arc2dir> endif
+	o<if_arcdir> endif
+	
+	o34 if [#42 NE #<cr>]
+		(print,link radius set to #42 instead of #<cr>)
+	o34 endif
+
+	(add point if different that previous one)
+	o44 if [[#<prev_x> NE #55] OR [#<prev_y> NE #56]]
+		o<poly_add_data> CALL [#1] [#55] [#56] [#[#2 + 2]] [#[#2 + 3]] [#[#2 + 4]] [0]
+	o44 endif
+	
+	(if not invalidated, add point if different that previous one or cs==3 and dir is reversed)
+	o<if023b> if [#41 AND [[[#57 NE #55] OR [#58 NE #56]] OR [[#<cmp>] AND [#<cs> EQ 3]]]]
+		(reverse dir)
+		o41 if [[#41 GT 1] AND [#<cmp>]]
+			#41 = [6 / #41]
+		o41 endif
+		o<poly_add_data> CALL [#1] [#57] [#58] [#41] [#53] [#44] [0]
+	o<if023b> endif
+o<poly_link> endsub

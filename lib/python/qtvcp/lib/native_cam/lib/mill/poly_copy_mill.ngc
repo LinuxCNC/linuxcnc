@@ -1,0 +1,16 @@
+(copy ready polyline data to mill memory)
+(author : Fernand Veilleux)
+o<poly_copy_mill> sub
+(CALL without params)
+
+	#[#<_mill_data_start>] = 0
+	#<src>                 = [4981 - #5000 * 11]
+	#<src_count>           = #[#<src>]
+	#10                    = [#<src> - 9]
+	
+	o11 repeat [#<src_count>]
+		o<add_mill_data> CALL [#<_mill_data_start>] [#[#10]] [#[#10 + 1]] [#[#10 + 2]] [#[#10 + 3]] [#[#10 + 4]] [#[#10 + 5]] [#[#10 + 6]] [#[#10 + 7]] [#[#10 + 8]]
+		#10 = [#10 - 8]
+	o11 endrepeat
+	
+o<poly_copy_mill> endsub

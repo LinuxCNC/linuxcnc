@@ -1,0 +1,20 @@
+T1 P1 D2.000 ;2mm end mill
+T2 P2 D3.000 ;3mm end mill
+T3 P3 D6.000 ;6mm end mill
+T4 P4 D8.000 ;8mm end mill
+T5 P5 D10.00 ;10mm end mill
+T6 P6 D12.00 ;12mm end mill
+T7 P7 D15.00 ;15mm end mill
+T8 P8 D20.00 ;20mm end mill
+T21 P21 D2.50 ;Drill 1/16 - 1/8
+T22 P22 D3.60 ;Drill 9/64 - 13/64
+T23 P23 D5.00 ;Drill 7/32 - 19/64
+T24 P24 D8.50 ;Drill 5/16 - 13/32
+T25 P25 D11.00 ;Drill 27/64 - 1/2
+T31 P31 D5.80 ;Drill # 1 -  #25
+T32 P32 D3.80 ;Drill #26 - #40
+T33 P33 D2.50 ;Drill #41 - #60
+T41 P41 D7.50 ;Drill A - M
+T42 P42 D8.60 ;Drill N - R
+T43 P43 D10.5 ;Drill S - Z
+T20 P20 D3.000 ;Center drill

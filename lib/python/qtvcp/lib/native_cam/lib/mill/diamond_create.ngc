@@ -1,0 +1,27 @@
+o<diamond_create> sub
+(calc all the points of a diamond center being X0, Y0 either cw or ccw starting at X0, Y-#3)
+(CALL ptr[1], width[2], height[3], dir[4], final width[5], final height[6], pocket[7])
+(Author : Fernand Veilleux)
+
+	#[#1]            =  0
+	#<half_width>    = [#2 / 2]
+	#<half_height>   = [#3 / 2]
+	#<dir>           = [#4 MOD 10]
+	
+;	#<half_width_f>  = [#5 / 2]
+;	#<half_height_f> = [#6 / 2]
+;	#<e2c>           = [#<half_height_f> - #<half_height>]
+
+;	#<pocket>        = #7
+
+	o<if01> if [#<dir> EQ 2]
+		#<half_width>   = -#<half_width>
+	o<if01> endif
+
+	o<add_mill_data> CALL [#1] [0]              [-#<half_height>] [1]
+	o<add_mill_data> CALL [#1] [ #<half_width>] [0]               [1]
+	o<add_mill_data> CALL [#1] [0]              [ #<half_height>] [1]
+	o<add_mill_data> CALL [#1] [-#<half_width>] [0]               [1]
+
+	
+o<diamond_create> endsub

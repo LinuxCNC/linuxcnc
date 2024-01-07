@@ -1,0 +1,28 @@
+o<circle-k_create> sub
+(author : Fernand Veilleux)
+(calc all the points of a circle around X0, Y0 either cw or ccw starting at X#2, Y0)
+(#1 is where to store data)
+(#2 is radius)
+(#3 is key height)
+(#4 is key width)
+(#5 is dir)
+
+	#[#1]     =   0
+	#<radius> =  #2
+	#<height> = [#2 + #3]
+	#<width>  = [#4 / 2]
+	#<dir>    = [#5 MOD 10]
+
+	#<angle>  = ASIN[#<width> / #<radius>]
+	
+	#<x>     = [COS[#<angle>] * #<radius>]
+	o<select> CALL [41] [#<dir> - 2] [SIN[#<angle>] * #<radius>] [-SIN[#<angle>] * #<radius>]
+
+	o<add_mill_data> CALL [#1] [#<x>]       [ #41] [#<dir>]
+	o<add_mill_data> CALL [#1] [#<height>]  [ #41] [1]
+	o<add_mill_data> CALL [#1] [#<height>]  [   0] [1]
+	o<add_mill_data> CALL [#1] [#<height>]  [-#41] [1]
+	o<add_mill_data> CALL [#1] [#<x>]       [-#41] [1]
+	o<add_mill_data> CALL [#1] [-#<radius>] [0]    [#<dir>]
+
+o<circle-k_create> endsub

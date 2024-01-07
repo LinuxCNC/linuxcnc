@@ -1,4 +1,0 @@
-o<select> sub
-(author : Fernand Veilleux)
-	#[#1] = #[#2 + 3]
-o<select> endsub

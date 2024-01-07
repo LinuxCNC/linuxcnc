@@ -1,0 +1,649 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Display</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="displayLayout"/>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QStackedWidget" name="stackedWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="page">
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QTreeView" name="treeView">
+          <property name="sizeAdjustPolicy">
+           <enum>QAbstractScrollArea::AdjustToContents</enum>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>32</width>
+            <height>32</height>
+           </size>
+          </property>
+          <attribute name="headerDefaultSectionSize">
+           <number>200</number>
+          </attribute>
+          <attribute name="headerStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_2">
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QScrollArea" name="scrollArea_2">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="iconViewWidget">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>98</width>
+             <height>28</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="iconViewVerticalLayout">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuProject">
+    <property name="title">
+     <string>Projects</string>
+    </property>
+    <addaction name="actionNew"/>
+    <addaction name="actionOpen"/>
+    <addaction name="actionOpenExample"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSave_Project_as_Current_Work"/>
+    <addaction name="actionSaveTemplate"/>
+    <addaction name="actionSaveNGC"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionHide_Selected_Field"/>
+    <addaction name="actionShow_All_Fields"/>
+    <addaction name="actionSingleView"/>
+    <addaction name="actionDualView"/>
+    <addaction name="actionTop_Bottom_Layout"/>
+    <addaction name="actionSide_by_Side_Layout"/>
+    <addaction name="actionMaster_Value_Column_Hidden"/>
+    <addaction name="actionSub_Groups_in_Master_Tree"/>
+    <addaction name="actionSave_as_Default_Layout"/>
+   </widget>
+   <widget class="QMenu" name="actionMenuAdd">
+    <property name="title">
+     <string>Add</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="actionUtilMenu">
+    <property name="title">
+     <string>Utilities</string>
+    </property>
+    <widget class="QMenu" name="menuEdit_Preferences">
+     <property name="title">
+      <string>Edit Preferences</string>
+     </property>
+    </widget>
+    <widget class="QMenu" name="menuValidation">
+     <property name="title">
+      <string>ValidationMenu</string>
+     </property>
+     <addaction name="actionValAllDlg"/>
+     <addaction name="actionValFeatDlg"/>
+     <addaction name="actionValFeatNone"/>
+     <addaction name="actionValNoDlg"/>
+    </widget>
+    <addaction name="actionChUnits"/>
+    <addaction name="actionAutoRefresh"/>
+    <addaction name="actionLoadTools"/>
+    <addaction name="actionSave_Values_as_Default"/>
+    <addaction name="actionDelete_Custom_Default_Value"/>
+    <addaction name="menuValidation"/>
+    <addaction name="menuEdit_Preferences"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionYouTube"/>
+    <addaction name="actionCNCHome"/>
+    <addaction name="actionForum"/>
+    <addaction name="actionAbout"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+    <addaction name="actionCut"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
+    <addaction name="actionAdd"/>
+    <addaction name="actionDuplicate"/>
+    <addaction name="actionMoveUp"/>
+    <addaction name="actionMoveDown"/>
+    <addaction name="actionRemoveItm"/>
+    <addaction name="actionAppendItm"/>
+   </widget>
+   <addaction name="menuProject"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
+   <addaction name="actionMenuAdd"/>
+   <addaction name="actionUtilMenu"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="nc_toolbar1">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionBuild"/>
+   <addaction name="actionAdd"/>
+   <addaction name="actionDelete"/>
+   <addaction name="actionUndo"/>
+   <addaction name="actionRedo"/>
+   <addaction name="actionMoveUp"/>
+   <addaction name="actionMoveDown"/>
+   <addaction name="actionCurrent"/>
+   <addaction name="actionSubHeaders"/>
+   <addaction name="actionAutoRefresh"/>
+   <addaction name="actionDebugPrint"/>
+  </widget>
+  <widget class="QToolBar" name="nc_toolbar">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <property name="toolTip">
+    <string>Nc_toolbar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>true</bool>
+   </attribute>
+  </widget>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Undo</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="text">
+    <string>Redo</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="actionOpenExample">
+   <property name="text">
+    <string>Open Example</string>
+   </property>
+  </action>
+  <action name="actionCurrent">
+   <property name="text">
+    <string>Current</string>
+   </property>
+  </action>
+  <action name="actionSubHeaders">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>SubHeaders</string>
+   </property>
+  </action>
+  <action name="actionAutoRefresh">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>AutoRefresh</string>
+   </property>
+  </action>
+  <action name="actionNew">
+   <property name="text">
+    <string>New</string>
+   </property>
+  </action>
+  <action name="actionSave_Project_as_Current_Work">
+   <property name="text">
+    <string>Save Project as Current Work</string>
+   </property>
+  </action>
+  <action name="actionSaveTemplate">
+   <property name="text">
+    <string>Save Project as Default Template</string>
+   </property>
+  </action>
+  <action name="actionSaveNGC">
+   <property name="text">
+    <string>Export Gcode as RS274NGC</string>
+   </property>
+  </action>
+  <action name="actionHide_Selected_Field">
+   <property name="text">
+    <string>Hide Selected Field</string>
+   </property>
+  </action>
+  <action name="actionShow_All_Fields">
+   <property name="text">
+    <string>Show All Fields</string>
+   </property>
+  </action>
+  <action name="actionSingleView">
+   <property name="text">
+    <string>Single View</string>
+   </property>
+  </action>
+  <action name="actionDualView">
+   <property name="text">
+    <string>Dual View</string>
+   </property>
+  </action>
+  <action name="actionTop_Bottom_Layout">
+   <property name="text">
+    <string>Top/Bottom Layout</string>
+   </property>
+  </action>
+  <action name="actionSide_by_Side_Layout">
+   <property name="text">
+    <string>Side by Side Layout</string>
+   </property>
+  </action>
+  <action name="actionMaster_Value_Column_Hidden">
+   <property name="text">
+    <string>Master Value Column Hidden</string>
+   </property>
+  </action>
+  <action name="actionSub_Groups_in_Master_Tree">
+   <property name="text">
+    <string>Sub-Groups in Master Tree</string>
+   </property>
+  </action>
+  <action name="actionSave_as_Default_Layout">
+   <property name="text">
+    <string>Save as Default Layout</string>
+   </property>
+  </action>
+  <action name="actionCut">
+   <property name="text">
+    <string>Cut</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="text">
+    <string>Copy</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="text">
+    <string>Paste</string>
+   </property>
+  </action>
+  <action name="actionAdd">
+   <property name="text">
+    <string>Add</string>
+   </property>
+  </action>
+  <action name="actionDuplicate">
+   <property name="text">
+    <string>Duplicate</string>
+   </property>
+  </action>
+  <action name="actionRemoveItm">
+   <property name="text">
+    <string>Remove</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove Item</string>
+   </property>
+  </action>
+  <action name="actionMoveUp">
+   <property name="text">
+    <string>Move Up</string>
+   </property>
+  </action>
+  <action name="actionMoveDown">
+   <property name="text">
+    <string>Move Down</string>
+   </property>
+  </action>
+  <action name="actionAdvanced">
+   <property name="text">
+    <string>Advanced</string>
+   </property>
+  </action>
+  <action name="actionDrilling">
+   <property name="text">
+    <string>Drilling</string>
+   </property>
+  </action>
+  <action name="actionGroups_Offsets_and_Rotaion">
+   <property name="text">
+    <string>Groups, Offsets and Rotaion</string>
+   </property>
+  </action>
+  <action name="actionChange_Tool">
+   <property name="text">
+    <string>Change Tool</string>
+   </property>
+  </action>
+  <action name="actionProbing">
+   <property name="text">
+    <string>Probing</string>
+   </property>
+  </action>
+  <action name="actionMiscellaneous">
+   <property name="text">
+    <string>Miscellaneous</string>
+   </property>
+  </action>
+  <action name="actionAdd_a_Prototype_Subroutine">
+   <property name="text">
+    <string>Add a Prototype Subroutine</string>
+   </property>
+  </action>
+  <action name="actionImport_a_Project_File">
+   <property name="text">
+    <string>Import a Project File</string>
+   </property>
+  </action>
+  <action name="actionSave_Values_as_Default">
+   <property name="text">
+    <string>Save Values as Defaults</string>
+   </property>
+  </action>
+  <action name="actionDelete_Custom_Default_Value">
+   <property name="text">
+    <string>Delete Custom Default Value</string>
+   </property>
+  </action>
+  <action name="actionYouTube">
+   <property name="text">
+    <string>NativeCAM on Youtube</string>
+   </property>
+   <property name="toolTip">
+    <string>NativeCAM on Youtube</string>
+   </property>
+  </action>
+  <action name="actionCNCHome">
+   <property name="text">
+    <string>Linuxcnc website</string>
+   </property>
+  </action>
+  <action name="actionForum">
+   <property name="text">
+    <string>Linuxcnc Forum</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionBuild">
+   <property name="text">
+    <string>Build</string>
+   </property>
+   <property name="toolTip">
+    <string>Generate file and send it to linuxcnc</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="text">
+    <string>Delete</string>
+   </property>
+  </action>
+  <action name="actionAppendItm">
+   <property name="text">
+    <string>AppendItm</string>
+   </property>
+  </action>
+  <action name="actionSaveUser">
+   <property name="text">
+    <string>SaveUser</string>
+   </property>
+  </action>
+  <action name="actionDeleteUser">
+   <property name="text">
+    <string>DeleteUser</string>
+   </property>
+  </action>
+  <action name="actionViewMenu">
+   <property name="text">
+    <string>ViewMenu</string>
+   </property>
+  </action>
+  <action name="actionCollapse">
+   <property name="text">
+    <string>Collapse</string>
+   </property>
+  </action>
+  <action name="actionSaveLayout">
+   <property name="text">
+    <string>SaveLayout</string>
+   </property>
+  </action>
+  <action name="actionLoadCfg">
+   <property name="text">
+    <string>LoadCfg</string>
+   </property>
+  </action>
+  <action name="actionImportXML">
+   <property name="text">
+    <string>ImportXML</string>
+   </property>
+  </action>
+  <action name="actionValAllDlg">
+   <property name="text">
+    <string>ValAllDlg</string>
+   </property>
+  </action>
+  <action name="actionValNoDlg">
+   <property name="text">
+    <string>ValNoDlg</string>
+   </property>
+  </action>
+  <action name="actionValFeatDlg">
+   <property name="text">
+    <string>ValFeatDlg</string>
+   </property>
+  </action>
+  <action name="actionValFeatNone">
+   <property name="text">
+    <string>ValFeatNone</string>
+   </property>
+  </action>
+  <action name="actionLoadTools">
+   <property name="text">
+    <string>LoadTools</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Preferences</string>
+   </property>
+  </action>
+  <action name="actionChUnits">
+   <property name="text">
+    <string>Change Units to Imperial</string>
+   </property>
+   <property name="toolTip">
+    <string>Change Units to Imperial</string>
+   </property>
+  </action>
+  <action name="actionHideField">
+   <property name="text">
+    <string>HideField</string>
+   </property>
+  </action>
+  <action name="actionShowF">
+   <property name="text">
+    <string>ShowF</string>
+   </property>
+  </action>
+  <action name="actionRename">
+   <property name="text">
+    <string>Rename</string>
+   </property>
+  </action>
+  <action name="actionChngGrp">
+   <property name="text">
+    <string>ChngGrp</string>
+   </property>
+  </action>
+  <action name="actionDataType">
+   <property name="text">
+    <string>DataType</string>
+   </property>
+  </action>
+  <action name="actionRevertType">
+   <property name="text">
+    <string>RevertType</string>
+   </property>
+  </action>
+  <action name="actionBack">
+   <property name="text">
+    <string>Back</string>
+   </property>
+   <property name="toolTip">
+    <string>Back One Menu Level</string>
+   </property>
+  </action>
+  <action name="actionWindowClose">
+   <property name="text">
+    <string>WindowClose</string>
+   </property>
+  </action>
+  <action name="actionDebugPrint">
+   <property name="text">
+    <string>DebugPrint</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

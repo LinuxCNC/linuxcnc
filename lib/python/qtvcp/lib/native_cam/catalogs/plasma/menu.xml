@@ -1,0 +1,70 @@
+<ncam_ui>
+	<menu>
+		<menu action='basics' name=_('Basic Shapes')_ icon="basic.png">
+			<menuitem action='rectangle' name=_('Rectangle')_ tool_tip=_('Create a rectangle with optional corner types')_ icon="center-rect.png" src="plasma/rectangle.cfg"/>
+			<separator/>
+			<menuitem action='circle' name=_('Circle')_ tool_tip=_('Create a circle with optional D flat')_ icon="circle.png" src="plasma/circle.cfg"/>
+			<menuitem action='circle2' name=_('Circle From 2 Points')_ tool_tip=_('Define ends of diameter')_ icon="circle-2.png" src="plasma/circle-2.cfg"/>
+			<separator/>
+			<menuitem action='slot1' name=_('Slot/Oval From 1 Point')_ tool_tip=_('Define a point, angle and length')_ icon="slot.png" src="plasma/slot.cfg"/>
+			<menuitem action='slot2' name=_('Slot/Oval From 2 Points')_ tool_tip=_('Define center of ends')_ icon="slot-2.png" src="plasma/slot-2.cfg"/>
+			<menuitem action='radial_slot' name=_('Radial Slot')_ tool_tip=_('Create a radial slot')_ icon="radial-slot.png" src="plasma/slot-arc.cfg"/>
+			<separator/>
+			<menuitem action='ellipse' name=_('Ellipse')_ tool_tip=_('Create an ellipse')_ icon="ellipse.png" src="plasma/ellipse.cfg"/>
+			<menuitem action='polygon' name=_('Polygon')_ tool_tip=_('Polygon of N edges')_ icon="hexagon.png" src="plasma/polygon.cfg"/>
+		</menu>
+		<menu action='advanced' name=_('Advanced')_ icon='advanced.png'>
+			<menu action='polyline' name=_('Polyline')_ icon="polyline.png">
+				<menuitem action='poly_start' name=_('Begin')_ tool_tip=_('Starts a polyline')_ icon="polyline.png" src="plasma/polyline.cfg"/>
+				<separator/>
+				<menuitem action='polyline_to' name=_('Line To')_ tool_tip=_('Relative or absolute position')_ icon="line-to.png" src="plasma/polyline-to.cfg"/>
+				<menuitem action='polyline_pol' name=_('Line Polar')_ tool_tip=_('Define angle and length')_ icon="line-polar.png" src="plasma/polyline-polar.cfg"/>
+				<separator/>
+				<menuitem action='poly_arc_ij' name=_('Arc I,J')_ tool_tip=_('Defined center by offsets or absolute position')_ icon="arc-to-ij.png" src="plasma/polyline-arc-ij.cfg"/>
+				<menuitem action='poly_arc_pol_ctr' name=_('Arc Polar Center')_ tool_tip=_('Define center at angle and distance')_ icon="arc-polar-ctr.png" src="plasma/polyline-arc-polar.cfg"/>
+				<menuitem action='poly_arc_coords' name=_('Arc To Coords')_ tool_tip=_('Define end point, arc height or radius')_ icon="arc-to-coords.png" src="plasma/polyline-arc-to.cfg"/>
+				<menuitem action='poly_arc_to_pol' name=_('Arc To Polar')_ tool_tip=_('Define end point, arc height or radius')_ icon="arc-polar.png" src="plasma/polyline-arc-top.cfg"/>
+				<menuitem action='poly_bisector' name=_('Arc Mirror End')_ tool_tip=_('Define I,J and mirror line')_ icon="arc-bisector.png" src="plasma/polyline-arc-m.cfg"/>
+				<separator/>
+				<menuitem action='poly_repeat' name=_('Repeat Items')_ tool_tip=_('Repeat a group of polyline items')_ icon="poly-repeat-items.png" src="plasma/polyline-repeat.cfg"/>
+				<menuitem action='poly_mir_itms' name=_('Mirror Items')_ tool_tip=_('Duplicate and reverse polyline items')_ icon="polyline-mirror-items.png" src="plasma/polyline-mirror-i.cfg"/>
+				<separator/>
+				<menuitem action='poly_mirror' name=_('Mirror Polyline')_ tool_tip=_('Create a reversed polyline from previous one')_ icon="polyline-mirrored.png" src="plasma/polyline-mirror-p.cfg"/>
+			</menu>
+		</menu>
+		<menu action='groups' name=_('Group, Offset And Rotation')_ icon="group.png">
+			<menuitem action='group_std' name=_('Standard Group')_ tool_tip=_('Group subroutines')_ icon="group.png" src="group.cfg"/>
+			<menuitem action='group_off' name=_('Offset/Rotate')_ tool_tip=_('Group subroutines, offset and rotate')_ icon="group-offset.png" src="group-off.cfg"/>
+			<separator/>
+			<menuitem action='group_radial' name=_('Radial Array')_ tool_tip=_('Define diameter or distance between menus')_ icon="circ-array-diam.png" src="circular-array.cfg"/>
+			<menuitem action='group_arr' name=_('Rectangular Array')_ tool_tip=_('Array of rows and columns')_ icon="rect-array.png" src="rectangular-array.cfg"/>
+		</menu>
+		<menuitem action='cutting_params' name=_('Cutting Params')_ tool_tip=_('Set cutting parameters')_ icon="torch.png" src="plasma/cutting-params2d.cfg"/>
+		<menu action='misc' name=_('Miscellaneous')_ icon='misc.png'>
+			<menuitem action='stock' name=_('Raw Material')_ tool_tip=_('Show a temporary image of rough material')_ icon="square.png" src="plasma/material2d.cfg"/>
+			<menuitem action='gcode' name=_('Custom G Code')_ tool_tip=_('Write custom gcode')_ icon="gcode.png" src="gcode.cfg"/>
+			<menuitem action='gcode_file' name=_('Insert a G Code File')_ tool_tip=_('Include a custom gcode file')_ icon="file-gcode.png" src="i_gcode.cfg"/>
+			<menuitem action='comment' name=_('Comment')_ tool_tip=_('Add comments')_ icon="comment.png" src="comment.cfg"/>
+            <menuitem action='prjdesc' name=_('Project Notes')_ tool_tip=_('View project name and note')_ icon="prj-desc.png" src="proj_desc.cfg"/>
+		</menu>
+	</menu>
+
+    <toolbar>
+        <toolitem action='cutting_params' />
+        <toolitem action='circle' />
+        <toolitem action='rectangle' />
+        <toolitem action='slot1' />
+        <toolitem action='radial_slot' />
+        <separator/>
+        <toolitem action='group_std' />
+        <toolitem action='group_radial' />
+        <toolitem action='group_arr' />
+        <separator/>
+        <toolitem action='poly_start' />
+        <toolitem action='polyline_to' />
+        <toolitem action='poly_arc_ij' />
+        <separator/>
+        <toolitem action='gcode' />
+        <toolitem action='stock' />
+    </toolbar >
+</ncam_ui>

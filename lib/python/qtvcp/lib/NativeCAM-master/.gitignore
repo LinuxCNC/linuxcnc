@@ -1,7 +1,0 @@
-*.pyc
-catalogs/*/current_work.xml
-debian/nativecam/
-debian/tmp/
-debian/nativecam.debhelper.log
-debian/nativecam.substvars
-debian/files

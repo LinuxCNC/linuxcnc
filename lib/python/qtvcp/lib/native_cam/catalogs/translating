@@ -1,0 +1,33 @@
+How to translate NativeCAM in your own language
+
+Required : poedit
+
+Create a new clone of NativeCAM
+
+locale/en/LC_MESSAGES/nativecam.po is a blank file with all the strings that need to be translated
+
+copy this file to
+locale/??/LC_MESSAGES/nativecam.po  (using your 2 letters language code, i.e. 'it', 'es', 'ru' etc)
+(do not simply rename)
+
+Open locale/??/LC_MESSAGES/nativecam.po file with poedit
+
+Select a line and right click on it to see the source.
+If the source is a cfg file, open it to learn if it is a label/name or tool_tip and what is the context
+A label/name should be translated with a short string to fit in the column 'Name' of the treeview
+A tool_tip does not have this limitation but keep the same format, best by copying to the translation before editing
+
+Testing in NativeCAM
+open a terminal in the cloned directory
+enter 'export NATIVECAM_LOCALE="full path to locale subdirectory"' ex: '/home/USER-NAME/NativeCAM/locale'
+enter 'export LANGUAGE=??'
+enter ./ncam.py
+
+There are about 900 strings to translate, do not care about 'lathe' stuff now because they all have to be redone
+Be patient, it will take about 12 hours for the first pass, then 2-4 for testing
+
+When you have started the project, you should let users know on lcnc forum to avoid someone else working on the same task
+
+When you are satisfied, please let me know and submit your nativecam.po either with a pull request or by e-mail.
+
+It will be included as your contribution

@@ -1,0 +1,61 @@
+(author : Fernand Veilleux)
+o<init_turning> sub
+(CALL [#off_x] [#off_z] [#finishing_passes])
+
+	#<offset_x>          = #1
+	#<offset_z>          = #2
+	#<finishing_passes>  = #3
+
+	#<b_x> = [#<_x> * #<_diameter_mode>]
+	#<e_x> = [[#<_x> + #<offset_x>] * #<_diameter_mode>]
+	#<b_z> = #<_z>
+	#<e_z> = [#<b_z> + #<offset_z>]
+	
+	#<roughcut>  = [#<_rough_cut> * #<_diameter_mode>]
+	#<finishcut> = [#<_finish_cut> * #<_diameter_mode>]
+
+	o10 if [#<finishing_passes> GT 0]
+		#<cut_rough_total> = [#<b_x> - #<e_x> - #<finishcut>]
+	o10 else
+		#<cut_rough_total> = [#<b_x> - #<e_x>]
+	o10 endif
+
+	#<rough_passes> = FUP[#<cut_rough_total> / #<roughcut>]
+	#<each_cut> = [#<cut_rough_total> / #<rough_passes>]
+
+	/ G0 X#<e_x> Z#<b_z>
+	/ G1 Z#<e_z>
+	/ o<init_turning> return
+
+	M#<_cooling_mode>
+	
+	o121 if [#<_tool_usage> LE 1]
+		F#<_rough_feed>
+			G0 X[#<b_x> + #<_x_clear>]
+			#<x> = [#<b_x> - #<each_cut>]
+			o12 repeat [#<rough_passes>]
+				G0 Z#<b_z>
+				G0 X#<x>
+				G1 Z#<e_z>
+				G0 X[#<x> + #<_x_clear>]
+				#<x> = [#<x> - #<each_cut>]
+			o12 endrepeat
+	o121 endif
+
+	o20 if [#<finishing_passes> AND [#<_tool_usage> NE 1]]
+		F#<_finish_feed>
+			G0 X[#<e_x> + #<_x_clear>]
+			o21 repeat [#<finishing_passes>]
+				G0 Z#<b_z>
+				G0 X#<e_x>
+				G1 Z#<e_z>
+				G0 X[#<e_x> + #<_x_clear>]
+			o21 endrepeat
+	o20 endif
+	
+	M9 (cooling off)
+
+	G0 Z[#<b_z> + #<_z_rapid>]
+	G0 X[#<e_x>]
+	
+o<init_turning> endsub

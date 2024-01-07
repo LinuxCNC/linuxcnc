@@ -1,0 +1,45 @@
+<ncam_ui>
+	<menu>
+		<menu action='tools'  name=_("Tools")_ icon="lathe-tool.png">
+			<menuitem action='ch_tool'  name=_("Change Cutter")_ tool_tip= _("Change cutter")_ icon="lathe-tool-change.png" src="lathe/tool-change.cfg"/>
+			<menuitem action='iturning'  name=_("Initial Turning")_ tool_tip= _("Initial turning to help find X axis center")_ icon="od.png" src="lathe/init-turning.cfg"/>
+		</menu>
+		<menu action='cutting'  name=_("Cutting")_ icon="threading.png">
+			<menuitem action='facing'  name=_("Facing")_ tool_tip= _("Finish face and optionnaly touch off")_ icon="lathe-facing.png" src="lathe/facing.cfg"/>
+			<menuitem action='turning'  name=_("External Turning")_ tool_tip= _("Does straight turning")_ icon="lathe-surface.png" src="lathe/turning.cfg"/>
+			<menuitem action='parting'  name=_("Parting Off")_ tool_tip= _("Cut your part from initial material")_ icon="parting.png" src="lathe/parting.cfg"/>
+			<menuitem action='threading'  name=_("Threading")_ tool_tip= _("External or internal threads, metric or imperial")_ icon="threading.png" src="lathe/threading.cfg"/>
+			<menuitem action='boring'  name=_("Internal Boring")_ tool_tip= _("Does straight boring")_ icon="lathe-surface-id.png" src="lathe/boring.cfg"/>
+			<menuitem action='taper_oda'  name=_("Taper ODA")_ tool_tip= _("External taper by angle and diameters")_ icon="taper-oda.png" src="lathe/taper_oda.cfg"/>
+			<menuitem action='taper_odl'  name=_("Taper ODL")_ tool_tip= _("External taper by length and diameters")_ icon="taper-odl.png" src="lathe/taper_odl.cfg"/>
+			<menuitem action='taper_ida'  name=_("Taper IDA")_ tool_tip= _("Internal taper by angle and diameters")_ icon="taper-ida.png" src="lathe/taper_ida.cfg"/>
+			<menuitem action='taper_idl'  name=_("Taper IDL")_ tool_tip= _("Internal taper by length and diameters")_ icon="taper-idl.png" src="lathe/taper_idl.cfg"/>
+			<menuitem action='radius_od'  name=_("Radius OD")_ tool_tip= _("Finish with an external radius")_ icon="corner-radius.png" src="lathe/radius_od.cfg"/>
+		</menu>
+		<menu action='misc'  name=_('Miscellaneous')_ icon='misc.png'>
+			<menuitem action='group_std' name=_('Standard Group')_ tool_tip=_('Group subroutines')_ icon="group.png" src="group.cfg"/>
+			<menuitem action='gcode_file'  name=_('Insert a G Code File')_ tool_tip= _('Include a custom gcode file')_ icon="file-gcode.png" src="i_gcode.cfg"/>
+			<menuitem action='gcode'  name=_('Custom G Code')_ tool_tip= _('Write custom gcode')_ icon="gcode.png" src="gcode.cfg"/>
+			<menuitem action='stock' name=_('Material')_ tool_tip=_('Lathe round stock')_ icon="l-stock.png" src="lathe/material.cfg"/>
+            <menuitem action='prjdesc' name=_('Project Notes')_ tool_tip=_('View project name and note')_ icon="prj-desc.png" src="proj_desc.cfg"/>
+		</menu>
+	</menu>
+
+    <toolbar>
+        <toolitem action='ch_tool' />
+        <separator/>
+        <toolitem action='facing' />
+        <toolitem action='turning' />
+        <toolitem action='boring' />
+        <toolitem action='parting' />
+        <toolitem action='taper_oda' />
+        <toolitem action='taper_ida' />
+        <separator/>
+        <toolitem action='group_std' />
+        <separator/>
+        <toolitem action='threading' />
+        <separator/>
+        <toolitem action='gcode' />
+        <toolitem action='gcode_file' />
+    </toolbar >
+</ncam_ui>

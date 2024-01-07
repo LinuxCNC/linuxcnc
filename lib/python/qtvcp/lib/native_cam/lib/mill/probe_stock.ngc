@@ -1,0 +1,173 @@
+(author : Fernand Veilleux)
+o<probe_stock> sub
+(CALL with [xmode] [ymode] [show_entry_lines] [clr] [xz] [yz] [dbx] [dby] [al_x] [al_y] ...)
+	([touch] [info] [wp_inlen] [wp_len] [wp_inwidth] [wp_width] [z opt] [z val] [z depth])
+
+	#<xmode>      =  #1
+	#<ymode>      =  #2
+	#<show_el>    =  #3
+	#<clear>      =  #4
+	#<prm_xz>     =  #5
+	#<prm_yz>     =  #6
+	#<dbx>        =  #7
+	#<dby>        =  #8
+	#<al_x>       =  #9
+	#<al_y>       = #10
+	#<touch>      = #11
+	#<info>       = #12
+	#<wp_inlen>   = #13
+	#<wp_len>     = #14
+	#<wp_inwidth> = #15
+	#<wp_width>   = #16
+	#<probe_z>    = #17
+	#<z_value>    = #18
+	#<z_depth>    = #19
+
+	#<temp_x>     = #<_x>
+	#<temp_y>     = #<_y>
+
+	o15 if [#<probe_z> GT 0]
+		o<probe> call [0] [0] [#<z_depth>]
+	o15 endif
+	#<temp_z> = #<_z>
+	
+	o10 if [#<xmode> EQ 0] (probe x inside)
+		#<start_x> = [#<wp_inlen> / 2 - #<_probe_safe>]
+		#<end_x>   = [#<wp_inlen> / 2 + #<_probe_safe>]
+		#<clear_tip_x> = [#<_probe_tip_dia>]
+		#<ml> = #<wp_inlen>
+	o10 else (probe x outside)
+		#<start_x> = [#<wp_len> / 2 + #<_probe_safe>]
+		#<end_x>   = [#<wp_len> / 2 - #<_probe_safe>]
+		#<clear_tip_x> = -[#<_probe_tip_dia>]
+		#<ml> = #<wp_len>
+	o10 endif
+
+	o11 if [#<ymode> EQ 0] (probe y inside)
+		#<start_y> = [#<wp_inwidth> / 2 - #<_probe_safe>]
+		#<end_y>   = [#<wp_inwidth> / 2 + #<_probe_safe>]
+		#<clear_tip_y> = [#<_probe_tip_dia>]
+		#<mw> = #<wp_inwidth>
+	o11 else (probe y outside)
+		#<start_y> = [#<wp_width> / 2 + #<_probe_safe>]
+		#<end_y>   = [#<wp_width> / 2 - #<_probe_safe>]
+		#<clear_tip_y> = -[#<_probe_tip_dia>]
+		#<mw> = #<wp_width>
+	o11 endif
+
+	/ o12 if [#<show_el>]
+	/   G0 Y[#<temp_y>] Z[#<temp_z> + #<clear>]
+	/   G0 X[#<temp_x> - #<start_x> + #<clear_tip_x> / 2]
+	/   G0 Z[#<temp_z> + #<prm_xz>]
+	/   G1 Z[#<temp_z> + #<clear>] F10
+	/   G1 X[#<temp_x> + #<start_x> - #<clear_tip_x> / 2]
+	/   G1 Z[#<temp_z> + #<prm_xz>]
+	/   G0 Z[#<temp_z> + #<clear>]
+	/   G0 X#<temp_x> Y#<temp_y>
+	/   G0 Y[#<temp_y> - #<start_y> + #<clear_tip_y> / 2]
+	/   G0 Z[#<temp_z> + #<prm_yz>]
+	/   G1 Z[#<temp_z> + #<clear>]
+	/   G1 Y[#<temp_y> + #<start_y> - #<clear_tip_y> / 2]
+	/   G1 Z[#<temp_z> + #<prm_yz>]
+	/   G0 Z[#<temp_z> + #<clear>]
+	/   G0 X#<temp_x> Y#<temp_y>
+	/ o12 endif
+
+	G0 Z[#<temp_z> + #<clear>]
+
+	G0 X[#<temp_x> - #<start_x> + #<clear_tip_x> / 2]
+	G0 Z[#<temp_z> + #<prm_xz>]
+	O<probe> call [#<start_x> - #<end_x>] [0] [0]
+	#<x1> = [#5061 - #<clear_tip_x> / 2]
+	G0 X[#5061 + #<clear_tip_x>]
+	G0 Z[#<temp_z> + #<clear>]
+
+	G0 X[#<temp_x> + #<start_x> - #<clear_tip_x> / 2]
+	G0 Z[#<temp_z> + #<prm_xz>]
+	O<probe> call [#<end_x> - #<start_x>] [0] [0]
+	#<x2> = [#5061 + #<clear_tip_x> / 2]
+	G0 X[#5061 - #<clear_tip_x>]
+	G0 Z[#<temp_z> + #<clear>]
+
+	G0 X[[#<x1> + #<x2>] / 2] Y[#<temp_y> - #<start_y> + #<clear_tip_y> / 2]
+	G0 Z[#<temp_z> + #<prm_yz>]
+	O<probe> call [0]  [#<start_y> - #<end_y>] [0]
+	#<y1> = [#5062 - #<clear_tip_y> / 2]
+	G0 Y[#5062 + #<clear_tip_y>]
+	G0 Z[#<temp_z> + #<clear>]
+
+	G0 Y[#<temp_y> + #<start_y> - #<clear_tip_y> / 2]
+	G0 Z[#<temp_z> + #<prm_yz>]
+	O<probe> call [0] [#<end_y> - #<start_y>] [0]
+	#<y2> = [#5062 + #<clear_tip_y> / 2]
+	G0 Y[#5062 - #<clear_tip_y>]
+	G0 Z[#<temp_z> + #<clear>]
+
+	#<temp_x> = [[#<x1> + #<x2>] / 2]
+	#<temp_y> = [[#<y1> + #<y2>] / 2]
+
+	o13 if [#<dbx>]
+		G0 X[#<temp_x> - #<start_x> + #<clear_tip_x> / 2] Y[#<temp_y>]
+		G0 Z[#<temp_z> + #<prm_xz>]
+		O<probe> call [#<start_x> - #<end_x>] [0] [0]
+		#<x1> = [#5061 - #<clear_tip_x> / 2]
+		G0 X[#5061 + #<clear_tip_x>]
+		G0 Z[#<temp_z> + #<clear>]
+
+		G0 X[#<temp_x> + #<start_x> - #<clear_tip_x> / 2]
+		G0 Z[#<temp_z> + #<prm_xz>]
+		O<probe> call [#<end_x> - #<start_x>] [0] [0]
+		#<x2> = [#5061 + #<clear_tip_x> / 2]
+		G0 X[#5061 - #<clear_tip_x>]
+		G0 Z[#<temp_z> + #<clear>]
+
+		o14 if [#<dby>]
+			G0 X[[#<x1> + #<x2>] / 2] Y[#<temp_y> - #<start_y> + #<clear_tip_y> / 2]
+			G0 Z[#<temp_z> + #<prm_yz>]
+			O<probe> call [0]  [#<start_y> - #<end_y>] [0]
+			#<y1> = [#5062 - #<clear_tip_y> / 2]
+			G0 Y[#5062 + #<clear_tip_y>]
+			G0 Z[#<temp_z> + #<clear>]
+
+			G0 Y[#<temp_y> + #<start_y> - #<clear_tip_y> / 2]
+			G0 Z[#<temp_z> + #<prm_yz>]
+			O<probe> call [0] [#<end_y> - #<start_y>] [0]
+			#<y2> = [#5062 + #<clear_tip_y> / 2]
+			G0 Y[#5062 - #<clear_tip_y>]
+			G0 Z[#<temp_z> + #<clear>]
+		o14 endif
+	o13 endif
+
+	o<select> CALL [31] [#<al_x>] [#<x1>] [[#<x1> + #<x2>] / 2] [#<x2>]
+	#<x> = #31
+	o<select> CALL [32] [#<al_y>] [#<y2>] [[#<y1> + #<y2>] / 2] [#<y1>]
+	#<y> = #32
+	G0 X#<x> Y#<y>
+
+	o<touch> if [#<touch>]
+		G10 L20 P#5220 X0 Y0
+	o<touch> endif
+	
+	o16 if [#<probe_z> EQ 1]
+		G10 L20 P#5220 Z[#<z_value> + #<clear>]
+	o16 endif
+
+	#<x> = [#<x2> - #<x1>]
+	#<y> = [#<y2> - #<y1>]
+	(print,stock measured dimensions : x-axis = #<x>  y-axis = #<y>)
+	
+	o<info> if [#<info>]
+		(print,)
+		(print,WARNING - following info is only valid if stock dimensions entered were real ones)
+		(print,Make sure backlash is at minimum before editing and)
+		(print,set tip diameter in preferences to a little less than it's measured value)
+		(print,to have about the same dimensions when measuring inside or outside)
+		(print,To improve precision ...)
+		#<x> = [#<x> / #<ml>]
+		(print, ...set X Scale to #<x> of it's current value)
+		#<y> = [#<y> / #<mw>]
+		(print, ...set Y Scale to #<y> of it's current value)
+		(print,)
+	o<info> endif
+
+o<probe_stock> endsub

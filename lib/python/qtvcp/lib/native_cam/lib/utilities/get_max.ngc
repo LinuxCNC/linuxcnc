@@ -1,0 +1,12 @@
+o<get_max> sub
+(author : Fernand Veilleux)
+(returns maximum to #[#1])
+	#[#1] = #3
+	#<index> = 4
+	o<max_loop> repeat [#2 - 1]
+		o<max_test> if [#[#<index>] GT #[#1]]
+			#[#1] = #[#<index>]
+		o<max_test> endif
+		#<index> = [#<index> + 1]
+	o<max_loop> endrepeat
+o<get_max> endsub

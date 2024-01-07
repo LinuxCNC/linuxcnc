@@ -1,0 +1,25 @@
+%
+(ngcgui: no add_m2 option)
+(ngcgui: FEATURE 231118:12.50.25)
+(ngcgui: PRE_file: )
+(ngcgui: SUB_file: /home/chris/emc/configs/nc_files/ngcgui_lib/gosper.ngc)
+(ngcgui: PST_file: )
+(ngcgui: feature line added) #<_feature:> = 0
+(ngcgui: remaining_features line added) #<_remaining_features:> = 0
+(ngcgui: Subroutine file: /home/chris/emc/configs/nc_files/ngcgui_lib/gosper.ngc)
+(ngcgui: Positional parameters)
+(1           = rpm          = 2000        )
+(2           = zcut         = 0.01        )
+(3           = feedrate     = 10          )
+(4           = zsafe        = 0.5         )
+(5           = x1           = -0.866      )
+(6           = y1           = -0.5        )
+(7           = x2           = 0.866       )
+(8           = y2           = -0.5        )
+(9           = level        = 3           )
+(10          = scale        = 1           )
+(11          = rotate       = 0           )
+(12          = xoff         = -3          )
+(13          = yoff         = -3          )
+o<gosper> call [2000][0.01][10][0.5][-0.866][-0.5][0.866][-0.5][3][1][0][-3][-3]
+%

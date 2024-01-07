@@ -1,0 +1,210 @@
+(info: finish a surface on certain axis and either uni- or bi- directional)
+o<surf_finish> sub (CALL [left] [right] [front] [rear] [dir] [mode] [start] [depth] [clear] [last cut] [touch_z])
+
+(exit if no tool selected)
+	o2010 if [#<_tool_dynamic_dia> GT 0.0]
+		#<tool_dia> = #<_tool_dynamic_dia>
+	o2010 else
+		#<tool_dia> = #5410
+	o2010 endif
+
+	o<not_tool_def> if [#<tool_dia> EQ 0]
+		(print,Facing: tool diameter not defined)
+		(debug,Facing: tool diameter not defined)
+		(MSG,Facing: tool diameter not defined)
+		(AXIS,notify,Facing: tool diameter not defined)
+		o<surf_finish> return
+	o<not_tool_def> endif
+
+(Begin init params)
+	#<left>  = #1
+	#<right> = #2
+	#<front> = #3
+	#<rear>  = #4
+	#<axis>  = #5
+	#<mode>  = #6
+	#<cut_start> = #7
+	#<cut_depth> = #8
+	#<_cut_loop_final_z> = #<cut_depth>
+	#<tool_clear> = [#<tool_dia> * #9]
+	#<last_cut>   = #10
+	#<touch> = #11
+	
+(End init params)
+
+	#<tool_engagement> = [#<tool_dia> * #<_stepover_normal>]
+	o<set_spindle_rpm> CALL [#<_rpm_normal>]
+
+	o1001 if [#<cut_depth> EQ #<cut_start>]
+		#<cut_step> = 0
+	o1001 else
+		#<cut_step> = [[#<cut_depth> - #<cut_start> - #<last_cut>] / FUP[[#<cut_depth> - #<cut_start>] / #<_depth_step>]]
+	o1001 endif
+	
+	o<axis> if [#<axis> EQ 0] (x axis direction)
+		#<cycle_count> = FUP[[#<rear> - #<front> + [#<tool_engagement> * 0.5]] / #<tool_engagement>]
+		#<y_cut_step> = [[#<front> - #<rear> - [#<tool_engagement> * 0.5]] / #<cycle_count>]
+		#<x_cut_step> = 0
+		#<y> = [#<rear> - [#<tool_dia> * 0.1]]
+		#<yb> = #<y>
+		#<i> = [#<tool_engagement> / 2]
+		#<j> = 0
+		#<px> = -#<i>
+		#<py> = #<i>
+		o<mode_x> if [#<mode> EQ 0] (Bidirectional w/ arc entry)
+			#<xb> = [#<left>  - #<tool_clear> + #<tool_engagement> / 2]
+			#<x>  = [#<right> + #<tool_clear> - #<tool_engagement> / 2]
+			#<entry_x> = [#<xb> + #<px>]
+			#<entry_y> = [#<y>  + #<py>]
+		o<mode_x> elseif [#<mode> EQ 1] (Bidirectional w/ straight line entry)
+			#<xb> = [#<left>  - #<tool_clear> + #<tool_engagement> / 2]
+			#<x>  = [#<right> + #<tool_clear> - #<tool_engagement> / 2]
+			#<entry_x> = [#<left> - #<tool_clear>]
+			#<entry_y> = #<y>
+		o<mode_x> elseif [#<mode> EQ 2] (Unidirectional w/ arc entry)
+			#<xb> = [#<left> - #<tool_clear> + #<tool_engagement> / 2]
+			#<x> = [#<right> + #<tool_clear>]
+		o<mode_x> else (Unidirectional w/ straight line entry)
+			#<xb> = [#<left> - #<tool_clear>]
+			#<x> = [#<right> + #<tool_clear>]
+		o<mode_x> endif
+		
+	o<axis> else (y axis direction)
+		#<cycle_count> = FUP[[#<right> - #<left> + [#<tool_engagement> * 0.5]] / #<tool_engagement>]
+		#<x_cut_step> = [[#<right> - #<left> + [#<tool_engagement> * 0.5]] / #<cycle_count>]
+		#<y_cut_step> = 0
+		#<x> = [#<left> + [#<tool_dia> * 0.1]]
+		#<xb> = #<x>
+		#<i> = 0
+		#<j> = [#<tool_engagement> / 2]
+		#<px> = -#<j>
+		#<py> = -#<j>
+		o<mode_y> if [#<mode> EQ 0] (Bidirectional w/ arc entry)
+			#<yb> = [#<front> - #<tool_clear> + #<tool_engagement> / 2]
+			#<y>  = [#<rear>  + #<tool_clear> - #<tool_engagement> / 2]
+			#<entry_x> = [#<x> + #<px>]
+			#<entry_y> = [#<yb> + #<py>]
+		o<mode_y> elseif [#<mode> EQ 1] (Bidirectional w/ straight line entry)
+			#<yb> = [#<front> - #<tool_clear> + #<tool_engagement> / 2]
+			#<y> = [#<rear> + #<tool_clear> - #<tool_engagement> / 2]
+			#<entry_x> = #<x>
+			#<entry_y> = [#<front> - #<tool_clear>]
+		o<mode_y> elseif [#<mode> EQ 2] (Unidirectional w/ arc entry)
+			#<yb> = [#<front> - #<tool_clear> + #<tool_engagement> / 2]
+			#<y> = [#<rear> + #<tool_clear>]
+		o<mode_y> else (Unidirectional w/ straight line entry)
+			#<yb> = [#<front> - #<tool_clear>]
+			#<y> = [#<rear> + #<tool_clear>]
+		o<mode_y> endif
+	o<axis> endif
+	
+	o<set_feed_rate_and_speed> CALL [#<_stepover_normal>]
+	
+	o00 if [#<mode> LT 2] (Bidirectional)
+		#[#<_mill_data_start>] = 0
+		o01 if [#<mode> EQ 0] 
+			(add arc entry)
+			o<add_mill_data> CALL [#<_mill_data_start>] [#<xb>] [#<yb>] [3] [#<entry_x> + #<i>] [#<entry_y> + #<j>]
+		o01 endif
+		
+		o<add_mill_data> CALL [#<_mill_data_start>] [#<x>] [#<y>] [1]
+		#<cycle> = 1
+		
+		o10 while [#<cycle> LT #<cycle_count>]
+			(add all lines and increase positions)
+			#<x> = [#<x> + #<x_cut_step>]
+			#<y> = [#<y> + #<y_cut_step>]
+			#<xb> = [#<xb> + #<x_cut_step>]
+			#<yb> = [#<yb> + #<y_cut_step>]
+			
+			o<is_odd> if [[#<cycle> MOD 2] EQ 0]
+				o<add_mill_data> CALL [#<_mill_data_start>] [#<xb>] [#<yb>] [3] [#<xb> - #<x_cut_step> / 2] [#<yb> - #<y_cut_step> / 2]
+				o<add_mill_data> CALL [#<_mill_data_start>] [#<x>] [#<y>] [1]
+			o<is_odd> else
+				o<add_mill_data> CALL [#<_mill_data_start>] [#<x>] [#<y>] [2] [#<x> - #<x_cut_step> / 2] [#<y> - #<y_cut_step> / 2]
+				o<add_mill_data> CALL [#<_mill_data_start>] [#<xb>] [#<yb>] [1]
+			o<is_odd> endif
+			#<cycle> = [#<cycle> + 1]
+		o10 endwhile
+
+		o15 if [#<axis> EQ 0]
+			o<is_odd2> if [[#<cycle_count> MOD 2] EQ 1]
+				o<add_mill_data> CALL [#<_mill_data_start>] [#<right> + #<tool_clear>] [#<yb>] [1]
+			o<is_odd2> else
+				o<add_mill_data> CALL [#<_mill_data_start>] [#<left> - #<tool_clear>] [#<y>] [1]
+			o<is_odd2> endif
+		o15 else
+			o<is_odd3> if [[#<cycle_count> MOD 2] EQ 1]
+				o<add_mill_data> CALL [#<_mill_data_start>] [#<x>] [#<rear> + #<tool_clear>] [1]
+			o<is_odd3> else
+				o<add_mill_data> CALL [#<_mill_data_start>] [#<x>] [#<front> - #<tool_clear>] [1]
+			o<is_odd3> endif
+		o15 endif
+		
+		(add entry point)
+		o<add_mill_data> CALL [#<_mill_data_start>] [#<entry_x>] [#<entry_y>] [0]
+
+		o<lead_in> CALL [#<_mill_data_start>] [0] [40] [#<cut_start>] [-1]
+
+		o<wh_00> while [#<_depth_reached> NE 0]
+			o<set_next_cut_level> CALL [#<cut_depth>] [#<cut_step>]
+			o<trace> CALL [#<_mill_data_start>] [#<cut_depth>] [1]
+			o<if_04> if [#<_depth_reached> NE 0]
+				o<lead_in> CALL [#<_mill_data_start>] [0] [40] [#<_cut_current_z>] [#<_depth_reached>]
+			o<if_04> endif
+		o<wh_00> endwhile
+	
+	o00 else (Unidirectional)
+		#<cs> = #<cut_start>
+		o<wh_01> while [#<cs> GT #<cut_depth>]
+			#<cycle> = 0
+			#<x_u> = #<x>
+			#<y_u> = #<y>
+			#<xb_u> = #<xb>
+			#<yb_u> = #<yb>
+			
+			o13 while [#<cycle> LT #<cycle_count>]
+				#[#<_mill_data_start>] = 0
+				o03 if [#<mode> EQ 2]
+					(add arc entry)
+					o<add_mill_data> CALL [#<_mill_data_start>] [#<xb_u>] [#<yb_u>] [3] [#<xb_u> + #<px> + #<i>] [#<yb_u> + #<py> + #<j>]
+				o03 endif
+
+				o<add_mill_data> CALL [#<_mill_data_start>] [#<x_u>] [#<y_u>] [1]
+
+				(add entry point)
+				o04 if [#<mode> EQ 2]
+					(for arc)
+					o<add_mill_data> CALL [#<_mill_data_start>] [#<xb_u> + #<px>] [#<yb_u> + #<py>] [0]
+				o04 else
+					o<add_mill_data> CALL [#<_mill_data_start>] [#<xb_u>] [#<yb_u>] [0]
+				o04 endif
+
+				o<lead_in> CALL [#<_mill_data_start>] [0] [40] [#<cs>] [-1]
+
+				o<set_next_cut_level> CALL [#<cut_depth>] [#<cut_step>]
+				o<trace> CALL [#<_mill_data_start>] [#<cut_depth>] [0]
+
+				#<cycle> = [#<cycle> + 1]
+				#<x_u> = [#<x_u> + #<x_cut_step>]
+				#<y_u> = [#<y_u> + #<y_cut_step>]
+				#<xb_u> = [#<xb_u> + #<x_cut_step>]
+				#<yb_u> = [#<yb_u> + #<y_cut_step>]
+
+			o13 endwhile
+			#<cs> = [#<cs> + #<cut_step>]
+		o<wh_01> endwhile
+		
+	o00 endif
+
+	o02 if [#<touch> EQ 1]
+		G10 L20 P#5220 Z0
+	o02 endif
+	
+	G0 Z#<_rapid_z>
+
+	o240 if [#<_spindle_all_time> EQ 0]
+		M9 M5
+	o240 endif
+	
+o<surf_finish> endsub

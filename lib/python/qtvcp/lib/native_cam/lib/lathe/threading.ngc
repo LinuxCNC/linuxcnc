@@ -1,0 +1,109 @@
+o<threading> sub
+(author : Fernand Veilleux)
+(CALL begin_z, end_z, units, major diameter, minor diameter, pitch, degression, init_depth, peak, taper, finish_passes, taper_angle, helix count)
+
+	#<begin_z>       =  #1
+	#<end_z>         =  #2
+	#<degress>       =  #7
+    #<idepth>        =  #8
+	#<taper>         = #10
+	#<finish_passes> = #11
+	#<taper_angle>   = [90 - #12]
+	#<helix_count>   = #13
+
+	o91 if [[#<_metric> EQ 1] AND [#3 EQ 0]] (metric machine units and inch threads)
+		#<dia>    = [25.4 * #4]
+		#<pitch>  = [25.4 / #6]
+	o91 elseif [[#<_metric> EQ 0] AND [#3 EQ 1]] (imperial machine units and metric threads)
+		#<dia>    = [#4 / 25.4]
+		#<pitch>  = [#6 / 25.4]
+	o91 else (machine and thread units are same)
+		o92 if [[#<_metric> EQ 0] AND [#3 EQ 0]] (imperial machine units and threads)
+			#<pitch>  = [1 / #6]
+		o92 else
+			#<pitch>  = #6
+		o92 endif
+		#<dia>    = #4
+	o91 endif
+
+	o93 if [#5 EQ -1] (automatic minor diameter)
+		#<depth> = [SIN[60] * #<pitch> * 2]
+	o93 elseif [[#<_metric> EQ 1] AND [#3 EQ 0]] (metric machine units and inch threads)
+		#<depth>  = [25.4 * ABS[#4 - #5]]
+	o93 elseif [[#<_metric> EQ 0] AND [#3 EQ 1]] (imperial machine units and metric threads)
+		#<depth>  = [ABS[#4 - #5] / 25.4]
+	o93 else (machine and thread units are same)
+		#<depth>  = ABS[#4 - #5]
+	o93 endif
+
+	o95 if [#<_lathe_radius_mode>]
+		#<dia>    = [#<dia> / 2]
+		#<depth>  = [#<depth> / 2]
+		#<idepth> = [#<idepth> / 2]
+		#<peak>   = [#9 / 2]
+		#<t_len>  = [TAN[#<taper_angle>] * #<depth>]
+	o95 else
+		#<peak>   = #9
+		#<t_len>  = [TAN[#<taper_angle>] * #<depth> / 2]
+	o95 endif
+
+	#<pass>   = 1
+	#<z_step> = [TAN[30] * #<depth> / #<_diameter_mode>]
+	
+    o113 if [#<begin_z> LT #<end_z>]
+		#<z_step> = -#<z_step>
+	o113 endif
+
+	/ #<thread_count> = [ABS[FIX[[#<begin_z> - #<end_z>] / #<pitch>]] + #<helix_count> - 1]
+	/ o104 if [#<peak> GT 0.0]
+		/ #<s_x> = [#<dia> - #<depth>]
+		/ #<l_x> = #<dia>
+	/ o104 else
+		/ #<s_x> = #<dia>
+		/ #<l_x> = [#<dia> - #<depth>]
+	/ o104 endif
+	/ #<z> = [#<begin_z> + #<z_step> * [#<helix_count> - 1] * 2]
+	/ o101 while [#<pass> LE #<thread_count>]
+        / G0 X#<s_x> Z[#<z>]
+		/ #<z> = [#<z> - #<z_step>]
+		/ G1 X#<l_x> Z#<z>
+		/ #<z> = [#<z> - #<z_step>]
+		/ G0 Z[#<z> + #<z_step>]
+		/ G1 X#<s_x> Z#<z>
+        / #<pass> = [#<pass> + 1]
+	/ o101 endwhile
+	/ o<threading> return
+
+	o71 if [#<_x> LT [#<_wp_dia_od> + #<_X_rapid>]]
+		G0 X[#<_wp_dia_od> + #<_X_rapid>]
+	o71 endif
+
+	o81 if [#<peak> GT 0.0]
+		G0 Z[#<begin_z> + #<z_step> * [#<helix_count> - 1] * 2]
+		G0 X[#<dia> + #<peak>]
+	o81 else
+		o83 if [#<begin_z> LT #<end_z>]
+			G0 Z[#<end_z> + #<_z_rapid>]
+			G0 X[#<dia> - #<depth> + #<peak>]
+		o83 else
+			G0 Z[#<begin_z> + #<_z_rapid>]
+			G0 X[#<dia> - #<depth> + #<peak>]
+		o83 endif
+	o81 endif
+
+	o110 while [#<pass> LE #<helix_count>]
+		G0 Z[#<begin_z> + #<z_step> * [#<pass> - 0.5] * 2]
+		G76 P[#<pitch> * #<helix_count>] Z#<end_z> I-#<peak> J#<idepth> R#<degress> K#<depth> Q30 H#<finish_passes> E#<t_len> L#<taper>
+		#<pass> = [#<pass> + 1]
+	o110 endwhile
+
+	o97 if [#<peak> LT 0.0]
+		o98 if [#<begin_z> GT #<end_z>]
+			G0 Z[#<begin_z> + #<_z_rapid>]
+		o98 else
+			G0 Z[#<end_z> + #<_z_rapid>]
+		o98 endif
+	o97 endif
+	G0 X[#<_wp_dia_od> + #<_X_rapid>]
+	
+o<threading> endsub

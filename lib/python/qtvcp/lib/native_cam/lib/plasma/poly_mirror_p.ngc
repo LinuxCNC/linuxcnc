@@ -1,0 +1,29 @@
+(create a mirrored polyline from the previous one)
+(author : Fernand Veilleux)
+o<poly_mirror_p> sub
+(CALL axis[1])
+	
+	#<rec_count> = #[4981 - #5000 * 11]  (record count)
+	#<pointer>   =  [4972 - #5000 * 11] (sequence pointer)
+	#<counter> = 1
+	o<loop01> while [#<counter> LE #<rec_count>]
+		o<if01> if [#1]
+			(reverse y and cy)
+			#[#<pointer> + 1] = -#[#<pointer> + 1]
+			#[#<pointer> + 4] = -#[#<pointer> + 4]
+		o<if01> else
+			(reverse x and cx)
+			#[#<pointer>]     = -#[#<pointer>]
+			#[#<pointer> + 3] = -#[#<pointer> + 3]
+		o<if01> endif
+		
+		(reverse dir)
+		o<if02> if [#[#<pointer> + 2] GT 1]
+			#[#<pointer> + 2] = [6 / #[#<pointer> + 2]]
+		o<if02> endif
+		
+		#<counter> = [#<counter> + 1]
+		#<pointer> = [#<pointer> - 8]
+	o<loop01> endwhile
+
+o<poly_mirror_p> endsub

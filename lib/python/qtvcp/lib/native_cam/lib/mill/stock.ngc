@@ -1,0 +1,232 @@
+(stock CALL [left] [right] [front] [rear] [top] [bottom] [orientation] [corner radius] [wall thickness])
+o<stock> sub
+(init params)
+	#<left>   = #1
+	#<right>  = #2
+	#<front>  = #3
+	#<rear>   = #4
+	#<top>    = #5
+	#<bottom> = #6
+	o<valid_00> if [[[#<right> - #<left>] EQ 0] OR [[#<rear> - #<front>] EQ 0]]
+		(debug,Stock: invalid dimension - EXITING)
+		(print,Stock: invalid dimension - EXITING)
+		(AXIS,notify,Stock: invalid dimension - EXITING)
+		M2
+	o<valid_00> endif
+
+	#<orient> = #7
+	o<valid_01> if [#8 LT 0.0]
+		#<corner_radius> = 0.0
+	o<valid_01> else
+		#<corner_radius> = #8
+	o<valid_01> endif
+	#<wall> = #9
+	
+	#<c_plane> = [#<_plane> / 10] (save current plane)
+
+	o<if01>if [#<_feed> EQ 0]
+		F1
+	o<if01> endif
+
+(draw stock)
+	o<orient_00> if [#<orient> EQ 0] (align on X axis)
+      (calc apexes)
+		#<length> = [#<right> - #<left>]
+		#<width>  = [#<rear> - #<front>]
+		#<depth>  = [#<top> - #<bottom>]
+
+		o<cr_00> if [[#<corner_radius> * 2] GT #<width>]
+			#<corner_radius> = [#<width> / 2]
+		o<cr_00> endif
+
+		o<cr_01> if [[#<corner_radius> * 2] GT #<depth>]
+			#<corner_radius> = [#<depth> / 2]
+		o<cr_01> endif
+		
+		o<wt_00> if [[[#<wall> * 2] GE #<depth>] OR [[#<wall> * 2] GE #<width>]]
+			#<wall> = 0.0
+		o<wt_00> endif
+		
+		#<front_in> = [#<front> + #<corner_radius>]
+		#<rear_in> = [#<rear> - #<corner_radius>]
+		#<top_in> = [#<top> - #<corner_radius>]
+		#<bottom_in> = [#<bottom> + #<corner_radius>]
+
+		G0 X#<left> Y#<front_in> Z#<bottom>
+      (draw ends)
+		o<cr_X_00> if [#<corner_radius> GT 0.0]
+			G19
+			o<cr_X_00_repeat> repeat [2]
+				G2 Y#<front> Z#<bottom_in> K#<corner_radius> F10
+				G1 Z#<top_in>
+				G2 Y#<front_in> Z#<top> J#<corner_radius>
+				G1 Y#<rear_in>
+				G2 Y#<rear> Z#<top_in> K[- #<corner_radius>]
+				G1 Z#<bottom_in>
+				G2 Y#<rear_in> Z#<bottom> J[- #<corner_radius>]
+				G1 Y#<front_in>
+				G1 X#<right>
+			o<cr_X_00_repeat> endrepeat
+			G#<c_plane>  (restore plane)
+		o<cr_X_00> else
+			o<cr_X_01_repeat> repeat [2]
+				G1 Z#<top> F10
+				G1 Y#<rear>
+				G1 Z#<bottom>
+				G1 Y#<front>
+				G1 X#<right>
+			o<cr_X_01_repeat> endrepeat			
+		o<cr_X_00> endif
+      (draw longitudinal lines)	
+		G0 Y#<front> Z#<bottom_in>
+		G1 X#<left>
+		G0 Z#<top_in>
+		G1 X#<right>
+		G0 Y#<front_in> Z#<top>
+		G1 X#<left>
+		G1 Y#<rear_in>
+		G1 X#<right>
+		G0 Y#<rear> Z#<top_in>
+		G1 X#<left>
+		G1 Z#<bottom_in>
+		G1 X#<right>
+		G0 Y#<rear_in> Z#<bottom>
+		G1 X#<left>
+		G1 Y#<front_in>
+      (draw if hollow)
+		o<wt_000> if [#<wall> GT 0.0]
+			o<stock> CALL [#<left>] [#<right>] [#<front> + #<wall>] [#<rear> - #<wall>] [#<top> - #<wall>] [#<bottom> + #<wall>] [#<orient>] [#<corner_radius> - #<wall>] [0]
+		o<wt_000> endif
+		
+	o<orient_00> elseif [#<orient> EQ 1] (align on Y axis)
+		#<width> = [#<right> - #<left>]
+		#<length> = [#<rear> - #<front>]
+		#<depth>  = [#<top> - #<bottom>]
+		o<cr_001> if [[#<corner_radius> * 2] GT #<width>]
+			#<corner_radius> = [#<width> / 2]
+		o<cr_001> endif
+		o<cr_011> if [[#<corner_radius> * 2] GT #<depth>]
+			#<corner_radius> = [#<depth> / 2]
+		o<cr_011> endif
+		
+		o<wt_001> if [[[#<wall> * 2] GE #<depth>] OR [[#<wall> * 2] GE #<width>]]
+			#<wall> = 0.0
+		o<wt_001> endif
+		
+		#<left_in> = [#<left> + #<corner_radius>]
+		#<right_in> = [#<right> - #<corner_radius>]
+		#<top_in> = [#<top> - #<corner_radius>]
+		#<bottom_in> = [#<bottom> + #<corner_radius>]
+
+		G0 X#<left_in> Y#<rear> Z#<bottom>
+		(draw ends)
+		o<cr_X_001> if [#<corner_radius> GT 0.0]
+			G18
+			o<cr_X_001_repeat> repeat [2]
+				G3 X#<left> Z#<bottom_in> K#<corner_radius> F10
+				G1 Z#<top_in>
+				G3 X#<left_in> Z#<top> I#<corner_radius>
+				G1 X#<right_in>
+				G3 X#<right> Z#<top_in> K[- #<corner_radius>]
+				G1 Z#<bottom_in>
+				G3 X#<right_in> Z#<bottom> I[- #<corner_radius>]
+				G1 X#<left_in>
+				G1 Y#<front>
+			o<cr_X_001_repeat> endrepeat
+			G#<c_plane>  (restore plane)
+		o<cr_X_001> else
+			o<cr_X_01_repeat> repeat [2]
+				G1 Z#<top> F10
+				G1 X#<right>
+				G1 Z#<bottom>
+				G1 X#<left>
+				G1 Y#<front>
+			o<cr_X_01_repeat> endrepeat			
+		o<cr_X_001> endif
+		(Draw longitudinal lines)	
+		G0 X#<left> Z#<bottom_in>
+		G1 Y#<rear>
+		G0 Z#<top_in>
+		G1 Y#<front>
+		G0 X#<left_in> Z#<top>
+		G1 Y#<rear>
+		G1 X#<right_in>
+		G1 Y#<front>
+		G0 X#<right> Z#<top_in>
+		G1 Y#<rear>
+		G1 Z#<bottom_in> 
+		G1 Y#<front>
+		G0 X#<right_in> Z#<bottom>
+		G1 Y#<rear>
+		G1 X#<left_in>
+		o<wt_002> if [#<wall> GT 0.0]
+			o<stock> CALL [#<left> + #<wall>] [#<right> - #<wall>] [#<front>] [#<rear>] [#<top> - #<wall>] [#<bottom> + #<wall>] [#<orient>] [#<corner_radius> - #<wall>] [0]
+		o<wt_002> endif
+		
+	o<orient_00> else (#<orient> EQ 2 = align on Z axis)	
+		#<depth> = [#<right> - #<left>]
+		#<width>  = [#<rear> - #<front>]
+		#<length>  = [#<top> - #<bottom>]
+		o<cr_002> if [[#<corner_radius> * 2] GT #<width>]
+			#<corner_radius> = [#<width> / 2]
+		o<cr_002> endif
+		o<cr_012> if [[#<corner_radius> * 2] GT #<depth>]
+			#<corner_radius> = [#<depth> / 2]
+		o<cr_012> endif
+		
+		o<wt_004> if [[[#<wall> * 2] GE #<depth>] OR [[#<wall> * 2] GE #<width>]]
+			#<wall> = 0.0
+		o<wt_004> endif
+		
+		#<front_in> = [#<front> + #<corner_radius>]
+		#<rear_in> = [#<rear> - #<corner_radius>]
+		#<left_in> = [#<left> + #<corner_radius>]
+		#<right_in> = [#<right> - #<corner_radius>]
+
+		G0 X#<left_in> Y#<front> Z#<bottom>
+		(draw ends)
+		o<cr_X_002> if [#<corner_radius> GT 0.0]
+			G17
+			o<cr_X_002_repeat> repeat [2]
+				G2 X#<left> Y#<front_in> J#<corner_radius> F10
+				G1 Y#<rear_in>
+				G2 X#<left_in> Y#<rear> I#<corner_radius>
+				G1 X#<right_in>
+				G2 X#<right> Y#<rear_in> J[- #<corner_radius>]
+				G1 Y#<front_in>
+				G2 X#<right_in> Y#<front> I[- #<corner_radius>]
+				G1 X#<left_in>
+				G1 Z#<top>
+			o<cr_X_002_repeat> endrepeat
+			G#<c_plane>  (restore plane)
+		o<cr_X_002> else
+			o<cr_X_01_repeat> repeat [2]
+				G1 Y#<rear> F10
+				G1 X#<right>
+				G1 Y#<front>
+				G1 X#<left>
+				G1 Z#<top>
+			o<cr_X_01_repeat> endrepeat
+		o<cr_X_002> endif
+		(Draw longitudinal lines)	
+		G0 X#<left> Y#<front_in>
+		G1 Z#<bottom>
+		G1 Y#<rear_in>
+		G1 Z#<top>
+		G0 X#<left_in> Y#<rear>
+		G1 Z#<bottom>
+		G1 X#<right_in>
+		G1 Z#<top>
+		G0 X#<right> Y#<rear_in>
+		G1 Z#<bottom>
+		G1 Y#<front_in>
+		G1 Z#<top>
+		G0 X#<right_in> Y#<front>
+		G1 Z#<bottom>
+		G1 X#<left_in>
+		o<wt_003> if [#<wall> GT 0.0]
+			o<stock> CALL [#<left> + #<wall>] [#<right> - #<wall>] [#<front> + #<wall>] [#<rear> - #<wall>] [#<top>] [#<bottom>] [#<orient>] [#<corner_radius> - #<wall>] [0]
+		o<wt_003> endif
+	o<orient_00> endif
+	
+o<stock> endsub

@@ -1,0 +1,11 @@
+NativeCAM is a powerfull user interface to help you create gcode scripts by selecting the type of shape and setting parameters value
+
+available for metric or imperial equipment
+
+mill and mill-mm
+
+plasma and plasma-mm for control of X, Y and Z axes
+
+lathe and lathe-mm
+
+execute 'ncam -h' for help on configuration

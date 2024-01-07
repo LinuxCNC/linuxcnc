@@ -1,0 +1,21 @@
+o<set_tool_len_comp> sub
+(author : Fernand Veilleux)
+(CALL debug)
+(Can set tool length compensation for any coords system)
+	o<set_tool_len00> if [#5161 * #5161 + #5162 * #5162 + #5163 * #5163]
+		o<set_tool_len_deb00> if [#1]
+			(print,x = #5161, y = #5162, z = #5163)
+		o<set_tool_len_deb00> endif
+		G28
+		o<probe> call [0] [0] [-100] (OK for metric as well as imperial, it should touch)
+		
+		o<set_tool_len_deb01> if [#1]
+			(print,height = #5063, old height = #<_tool_probe_Z>)
+		o<set_tool_len_deb01> endif
+		
+		G90 G43.1 Z[#5063 - #<_tool_probe_Z>]
+		#<_tool_probe_Z> = #5063
+		G28
+		M0
+	o<set_tool_len00> endif
+o<set_tool_len_comp> endsub

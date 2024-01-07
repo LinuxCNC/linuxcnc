@@ -1,0 +1,199 @@
+o<diamond> sub
+(CALL [x] [y] [#<w>] [#<h>] [#rot] [offset_center_x] [offset_center_y] [#opt] [#dir] [#cutstart] ...)
+( ...[#<cutdpt>] [#preview] [#<finalpass>] [#final_step_over] [#exit_arc])
+(Author : Fernand Veilleux)
+
+	o1 if [#<_tool_usage> GT 2]
+		o<diamond> return
+	o1 endif
+	
+(validate params first)
+	o<valid02> if [#12 LT #13]
+		(debug,Diamond: bad cut start or depth - EXITING)
+		(print,)
+		(print,Diamond: bad cut start or depth - EXITING)
+		(AXIS,notify,Diamond: bad cut start or depth - EXITING)
+		o<diamond> return
+	o<valid02> endif
+
+(set local params values)
+	#<x>             =  #1
+	#<y>             =  #2
+	#<width>         =  #3
+	#<height>        =  #4
+	#<rotation>      =  #5
+	#<off_center_x>  =  #6
+	#<off_center_y>  =  #7
+
+	o2010 if [#<_tool_dynamic_dia> GT 0.0]
+		#<tool_dia>  = #<_tool_dynamic_dia>
+	o2010 else
+		#<tool_dia>  = #5410
+	o2010 endif
+
+	o<tool_dia> if [#<tool_dia> EQ 0] (no tool loaded, will cut on the line)
+		#<cut_opt>   =   2
+	o<tool_dia> else
+		#<cut_opt>   =  #8 (Inside normal=0:Pocket=1:On the line=2:Outside=3)
+	o<tool_dia> endif
+
+	#<dir>           =  #9 (Clockwise=2:Counter-Clockwise=3)
+
+	#<cut_start>     = #10
+	#<cut_depth>     = #11
+	#<preview>       = #12
+
+	#<fin_dir>       = #13
+	o<cut_opt_00> if [#<cut_opt> EQ 2] (no finishing pass possible when on the line...)
+		#<fin_dir>   = 0
+	o<cut_opt_00> endif
+
+	o234 if [#<fin_dir> EQ 0] (...and no final cut size)
+		#41 = 0
+	o234 else
+		o<get_max> CALL [41] [2] [#14] [#<_stepover_min>]
+	o234 endif
+	#<fcut> = #41
+
+	#<exit_arc> = #15
+
+(change coords system to offset/rotate)
+	#<old_coord_system> = [#<_coord_system> / 10]
+	o<get_offsets> CALL
+	#<saved_offset_x> = #<_offsets_x>
+	#<saved_offset_y> = #<_offsets_y>
+	#<saved_offset_z> = #<_offsets_z>
+	#<saved_offset_r> = #<_offsets_r>
+
+	(calc new offsets and change coords system)
+	o<rotate_xy> CALL [#<x>  + #<off_center_x>] [#<y>  + #<off_center_y>] [#<x> ] [#<y> ] [#<rotation>]
+	o<rotate_xy> CALL [#<_offsets_x> + #<_rotated_x>] [#<_offsets_y> + #<_rotated_y>] [#<_offsets_x>] [#<_offsets_y>] [#<_offsets_r>]
+	G#<_off_rot_coord_system>
+	G10 L2 P#5220 X[#<_rotated_x>] Y[#<_rotated_y>] Z#<_offsets_z> R[#<_offsets_r> + #<rotation>]
+	
+	o1001 if [#<cut_depth> EQ #<cut_start>]
+		#<cut_step> = 0
+	o1001 else
+		#<cut_step> = [[#<cut_depth> - #<cut_start>] / FUP[[#<cut_depth> - #<cut_start>] / #<_depth_step>]]
+	o1001 endif
+
+	o<set_spindle_rpm> CALL [#<_rpm_normal>]
+	o<set_feed_rate_and_speed> CALL [1.0]
+	
+(roughing cut)
+	o<if_roughing> if [#<_tool_usage> LE 1]
+		
+		(define rough width and height as per option and final_pass)
+		o<calc00> if [#<cut_opt> EQ 3] (outside)
+			#<rg_width>  = [#<width>  + #<fcut> * 2]
+			#<rg_height> = [#<height> + #<fcut> * 2]
+		o<calc00> elseif [#<cut_opt> EQ 2] (on the line)
+			#<rg_width>  = #<width>
+			#<rg_height> = #<height>
+		o<calc00> else (inside or pocket)
+			#<rg_width>  = [#<width>  - #<fcut> * 2]
+			#<rg_height> = [#<height> - #<fcut> * 2]
+		o<calc00> endif
+		
+		o<if011> if [[#<cut_opt> EQ 1] AND [[#<tool_dia> * 1.95] GE #<rg_height>]]
+			#<cut_opt>   = 0  (cut inside normal)
+		o<if011> endif
+
+		o<if_pocket> if [#<cut_opt> EQ 10]
+			(calc additionnal data for pocket)
+			#<p_width>   = [#<rg_width> - #<tool_dia>]
+			#<p_height>  = [#<rg_height> - #<tool_dia>]
+			
+			(diamond pocket DOES NOT use compensation, hence those 2 factors)
+			#<loop_mov>    = [#<tool_dia> * 0.1]
+			#<init_height> = [#<tool_dia> * 0.8]
+			
+			#<exp_cycles>  = FUP[[#<p_height> - #<init_height>] / [#<tool_dia> * #<_stepover_normal>] / 2]
+			#<step_over>   = [[#<p_height> - #<init_height>] / #<exp_cycles>]
+			
+			#<t> = [#<step_over> / #<tool_dia> * 50]
+			(print,diamond pocket stepover = #<t> %)
+
+			(calc data)
+			#<_cut_current_z> = #<cut_start>
+			o<while_pocket> while [#<_cut_current_z> GT #<cut_depth>]
+				#[#<_mill_data_start>] = 0
+				o<add_mill_data> CALL [#<_mill_data_start>] [0] [  #<init_height> / 2] [#<dir>]
+				o<add_mill_data> CALL [#<_mill_data_start>] [0] [- #<init_height> / 2] [#<dir>]
+				o<lead_in> CALL [#<_mill_data_start>] [#<dir>] [2] [#<_cut_current_z>] [-1]
+				o<set_feed_rate_and_speed> CALL [1.0]
+
+				o<set_next_cut_level> CALL [#<cut_depth>] [#<cut_step>]
+				o<wh010p> while [#<_depth_reached> NE 0]
+					o<trace> CALL [#<_mill_data_start>] [#<_cut_loop_final_z>] [0]
+				o<wh010p> endwhile
+				
+				o<diamond_create> CALL [#<_mill_data_start>] [#<p_width> - #<p_height> + #<init_height>] [#<init_height>] [#<dir>] [#<width>] [#<height>] [1]
+				o<trace> CALL [#<_mill_data_start>] [#<_cut_loop_final_z>] [0]
+
+				o<set_feed_rate_and_speed> CALL [#<step_over> / #<tool_dia> / 2]
+				#<exp_cycle> = 1
+				o<expand_loop> while [#<exp_cycle> LE #<exp_cycles>]
+					#<pr_height> = [#<init_height> + #<step_over> * #<exp_cycle>]
+					#<pr_width>  = [#<p_width> - #<p_height> + #<pr_height>]
+					o<diamond_create> CALL [#<_mill_data_start>] [#<pr_width>] [#<pr_height>] [#<dir>] [#<width>] [#<height>] [1]
+
+					o<g123> CALL [0] [#<_cut_current_y> + #<loop_mov>] [#<dir>] [0] [#<loop_mov> / 2]
+					#<enter_y> = #[#<_mill_data_start> + [#[#<_mill_data_start>] - 1] * 8 + 2]
+					o<g123> CALL [0] [#<enter_y>] [#<dir>] [0] [[#<enter_y> - #<_cut_current_y>] / 2]
+					
+					o<select> CALL [38] [FIX[#<exp_cycle> / #<exp_cycles>]] [0] [2]
+					o<trace> CALL [#<_mill_data_start>] [#<_cut_loop_final_z>] [#38] [#<dir>] [1] [#<exit_arc>]
+					#<exp_cycle> = [#<exp_cycle> + 1]
+				o<expand_loop> endwhile
+			o<while_pocket> endwhile
+		
+		o<if_pocket> else
+			o<diamond_create> CALL [#<_mill_data_start>] [#<rg_width>] [#<rg_height>] [#<dir>] [#<width>] [#<height>]
+			o<lead_in> CALL [#<_mill_data_start>] [#<dir>] [#<cut_opt>] [#<cut_start>] [-1]
+			o<set_feed_rate_and_speed> CALL [1.0]
+			
+			o<wh010> while [#<_depth_reached> NE 0]
+				o<set_next_cut_level> CALL [#<cut_depth>] [#<cut_step>]
+				o<trace> CALL [#<_mill_data_start>] [#<cut_depth>] [1] [#<dir>] [#<cut_opt>] [#<exit_arc>]
+			o<wh010> endwhile
+
+		o<if_pocket> endif
+	o<if_roughing> endif
+
+(finishing cut)
+	o<finishing_tool> if [#<fin_dir> AND [[#<_tool_usage> EQ 0] OR [#<_tool_usage> EQ 2]]]
+		o<diamond_create> CALL [#<_mill_data_start>] [#<width>] [#<height>] [#<fin_dir>] [#<width>] [#<height>]
+		
+		o<lead_in> CALL [#<_mill_data_start>] [#<fin_dir>] [#<cut_opt>] [#<cut_start>] [-1] [#<fcut>] [#<cut_depth>]
+		o<set_feed_rate_and_speed> CALL [#<fcut> / #<tool_dia>]
+	
+		o<wh01> while [#<_depth_reached> NE 0]
+			o<set_next_cut_level> CALL [#<cut_depth>] [#<cut_step>]
+			o<trace> CALL [#<_mill_data_start>] [#<cut_depth>] [FIX[#<fin_dir> / 10] + 1] [#<fin_dir> MOD 10] [#<cut_opt>] [1]
+		o<wh01> endwhile
+	o<finishing_tool> endif
+
+(draw reference lines)
+	/o<preview> if [#<_show_final_cuts> AND #<preview>]
+		/o<diamond_create> CALL [#<_mill_data_start>] [#<width>] [#<height>] [#<dir>] [#<width>] [#<height>]
+		/o<pv_b> if [#<_show_bottom_cut>]
+			/o<lead_in> CALL [#<_mill_data_start>] [#<dir>] [2] [#<cut_depth>]
+			/o<trace> CALL [#<_mill_data_start>] [#<cut_depth>]
+		/o<pv_b> endif
+		/o<lead_in> CALL [#<_mill_data_start>] [#<dir>] [2] [#<cut_start>]
+		/o<trace> CALL [#<_mill_data_start>] [#<cut_start>]
+	/o<preview> endif
+
+(exit)
+	G0 Z#<_rapid_z>
+	G40
+
+	o240 if [#<_spindle_all_time> EQ 0]
+		M9 M5
+	o240 endif
+
+(restore coordinate system)
+	G#<old_coord_system>
+	G10 L2 P#5220 X#<saved_offset_x> Y#<saved_offset_y> Z#<saved_offset_z> R#<saved_offset_r>
+o<diamond> endsub
