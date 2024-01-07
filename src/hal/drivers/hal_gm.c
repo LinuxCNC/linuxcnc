@@ -1840,7 +1840,7 @@ RS485(void *arg, long period)
 	  {
 	    if((device-> RS485_mgr.ID[2*i]) != ((temp_u32 >> 8) & 0xff)) 
             {
-              //RS485 module falled off, error
+              //RS485 module fell off, error
               if(failed == 0) //Msg only first time, do not put 100 error msg
               {
                 failed=1;
@@ -1854,7 +1854,7 @@ RS485(void *arg, long period)
 	  {
 	    if((device-> RS485_mgr.ID[2*i+1]) != ((temp_u32 & 0xff000000)>>24))
             {
-              //RS485 module falled off, error
+              //RS485 module fell off, error
               if(failed == 0) //Msg only first time, do not put 100 error msg
               {
                 failed=1; 

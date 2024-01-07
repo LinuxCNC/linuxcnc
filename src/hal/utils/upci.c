@@ -359,7 +359,7 @@ static int incr_io_usage ( void )
 	/* enable access */
 	/* this needs privileges */
 	if (seteuid(0) != 0) {
-	    errmsg(__func__, "need root privilges (or setuid root)");
+	    errmsg(__func__, "need root privileges (or setuid root)");
 	    return -1;
 	}
 	/* do it */
@@ -408,7 +408,7 @@ static int incr_mem_usage ( void )
 	/* open it */
 	/* this needs privileges */
 	if (seteuid(0) != 0) {
-	    errmsg(__func__, "need root privilges (or setuid root)");
+	    errmsg(__func__, "need root privileges (or setuid root)");
 	    return -1;
 	}
 	/* do it */

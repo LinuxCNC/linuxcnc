@@ -5783,7 +5783,7 @@ class gmoccapy(object):
         pin = self.halcomp.newpin("ignore-limits", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._ignore_limits)
 
-        # make pins to set optinal stops and block delete
+        # make pins to set optional stops and block delete
         pin = self.halcomp.newpin("optional-stop", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._optional_blocks)
         pin = self.halcomp.newpin("blockdelete", hal.HAL_BIT, hal.HAL_IN)

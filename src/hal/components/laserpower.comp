@@ -8,7 +8,7 @@ pin in bit enabled "True when laser output enabled";
 pin in bit raster_mode "false for vector mode, true for raster mode";
 pin in float raster_power "Requested power level during raster operations";
 
-pin in float vector_power "Requested power level during vector operatons";
+pin in float vector_power "Requested power level during vector operations";
 pin in float distance_to_go "Distance to go of current move";
 
 pin out float power "Current power level command";

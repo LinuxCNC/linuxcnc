@@ -3039,7 +3039,7 @@ int sockMain()
         if (client_sockfd < 0) exit(0);
         // count connected clients
         sessions++;
-        // enforce limited amount of clients that can connect simultaniously
+        // enforce limited amount of clients that can connect simultaneously
         if ((maxSessions == -1) || (sessions <= maxSessions)) {
             pthread_t *thrd;
             connectionRecType *context;
