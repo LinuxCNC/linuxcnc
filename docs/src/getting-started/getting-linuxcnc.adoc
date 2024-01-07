@@ -212,14 +212,14 @@ configuration. Some of the sample configurations include onscreen
 To see if your computer is suitable for software step pulse generation
 run the Latency Test as shown <<sec:latency-test,here>>.
 
-At the time of writing the Live-Image is only available with the
+At the time of writing the Live Image is only available with the
 preempt-rt kernel and a matching LinuxCNC. On some hardware this might
 not offer good enough latency. There is an experimental version available
 using the RTAI realtime kernel which will often give better latency.
 
 == Installing LinuxCNC
 
-To install LinuxCNC from the LiveCD select 'Install (Graphical)' at bootup.
+To install LinuxCNC from the Live CD select 'Install (Graphical)' at bootup.
 
 == Updates to LinuxCNC (((Updates to LinuxCNC)))
 
@@ -342,7 +342,7 @@ sudo ./linuxcnc-install.sh
 [[cha:Installing-RTAI]]
 === Installing on Debian Bookworm (with experimental RTAI kernel)
 
-. This kernel and LinuxCNC version can be installed on top of the LiveDVD
+. This kernel and LinuxCNC version can be installed on top of the Live DVD
   install, or alternatively on a fresh Install of Debian Bookworm 64-bit
   as described above.
 . You can add the LinuxCNC Archive signing key and repository information
