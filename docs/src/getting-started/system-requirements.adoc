@@ -38,6 +38,13 @@ check the https://www.debian.org/releases/stable/amd64/ch02.en.html[Debian]
 web site for details on the Live CD you're using. Older hardware may
 benefit from selecting an older version of the Live CD when available.
 
+If you plan not to rely on the distribution of readily executable programs ("binaries")
+but aim at contributing to the source tree of LinuxCNC, then there is a good chance
+you want a second computer to perform the compilation. Even though LinuxCNC and
+your developments could likely be executed at the same time with respect to disk space,
+RAM and even CPU speed, a machine that is busy will have worse latencies, so you are
+unlikely to compile your source tree and poduce chips at the same time.
+
 [[sec:kernel_and_version_requirements]]
 == Kernel and Version requirements
 
@@ -90,16 +97,15 @@ and compile LinuxCNC from source to utilise it.
 
 === RTAI with 'linuxcnc-uspace' package
 
-It is also possible to run LinuxCNC with RTAI in user-space mode. As
-with Xenomai you will need to compile from source to do this.
+It is also possible to run LinuxCNC with RTAI in user-space mode.
+As with Xenomai you will need to compile from source to do this.
 
 == Problematic Hardware
 
 === Laptops
 
-Laptops are not generally suited to real time software step
-generation. Again a Latency Test run for an extended time will give you
-the info you need to determine suitability.
+Laptops are not generally suited to real time software step generation.
+Again a Latency Test run for an extended time will give you the info you need to determine suitability.
 
 === Video Cards
 
