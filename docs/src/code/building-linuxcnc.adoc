@@ -396,6 +396,53 @@ the memory lock limit is raised using the following command:
 $ ulimit -l
 -----
 
+== Building on Gentoo
+
+Building on Gentoo is possible, but not supported.  Be sure you are
+running a disktop profile.  This project uses the Tk Widget Set, asciidoc,
+and has some other dependencies.  They should be installed as root:
+
+-----
+~ # euse -E tk imagequant
+~ # emerge -uDNa world
+~ # emerge -a dev-libs/libmodbus dev-lang/tk dev-tcltk/bwidget dev-tcltk/tclx
+~ # emerge -a dev-python/pygobject dev-python/pyopengl dev-python/numpy
+~ # emerge -a app-text/asciidoc app-shells/bash-completion
+-----
+
+You can switch back to being a normal user for most of the rest of the
+install.  As that user, create a virtual environment for pip, then install
+the pip packages:
+
+-----
+~/src $ python -m venv   --system-site-packages ~/src/venv
+~/src $ . ~/src/venv/bin/activate
+(venv) ~/src $ pip install yapps2
+(venv) ~/src $
+-----
+
+Then you can contrinue as normally:
+
+-----
+(venv) ~/src $ git clone https://github.com/LinuxCNC/linuxcnc.git
+(venv) ~/src $ cd linuxcnc
+(venv) ~/src $ cd src
+(venv) ~/src $ ./autogen.sh
+(venv) ~/src $ ./configure --enable-non-distributable=yes
+(venv) ~/src $ make
+-----
+
+There is no need to run "make suid", just make sure your user is in
+the "dialout" group.  To start linuxcnc, you must be in the Python
+Virtual Environment, and set up the linuxcnc environment:
+
+-----
+~ $ . ~/src/venv/bin/activate
+(venv) ~ $ . ~/src/linuxcnc/scripts/rip-environment
+(venv) ~ $ ~/src/linuxcnc $ scripts/linuxcnc
+-----
+
+
 == Options for checking out the git repo
 
 The <<Quick-Start,Quick Start>> instructions at the top of this
