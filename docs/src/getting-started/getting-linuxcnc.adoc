@@ -38,7 +38,7 @@ This section describes some methods for downloading the Live/Install image.
 
 Software for LinuxCNC to download is presented on the project's
 https://linuxcnc.org/downloads/[Downloads page].
-Most users will aim for the disk image Intel/AMD PCs, the URL
+Most users will aim for the disk image for Intel/AMD PCs, the URL
 will resemble https://www.linuxcnc.org/iso/linuxcnc_2.9.2-amd64.hybrid.iso.
 
 For the Raspberry Pi, multiple images are provided to address
