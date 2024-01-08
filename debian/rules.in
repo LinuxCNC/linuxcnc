@@ -96,7 +96,7 @@ override_dh_auto_install-indep:
 
 override_dh_installdocs-indep:
 	# The G-code quick reference html docs are built as `docs/html/${LANG}/gcode.html`.
-	# We install them # into `/usr/share/doc/@MAIN_PACKAGE_NAME@/` in each
+	# We install them into `/usr/share/doc/@MAIN_PACKAGE_NAME@/` in each
 	# linuxcnc-doc-${LANG} package, then rename them there (except
 	# for the English one) to include the language in the filename,
 	# so they don't collide when we install all the doc debs.
