@@ -11,7 +11,7 @@ location depends on how you run LinuxCNC.
 
 === Installed
 
-If your running LinuxCNC from the LiveCD or you installed via a .deb and use the
+If your running LinuxCNC from the Live CD or you installed via a .deb and use the
 configuration picker 'LinuxCNC' from the menu LinuxCNC looks in the following
 directories:
 
