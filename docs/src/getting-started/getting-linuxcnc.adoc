@@ -366,7 +366,7 @@ kernel.
 
 === Installing on Raspbian 12
 
-Don't. The latencies are too bad with the default kernel and the PREEMPT_RT (the RT is important) kernel of Debian does not boot on the Pi (as of 1/2024).
+Don't do that. The latencies are too bad with the default kernel and the PREEMPT_RT (the RT is important) kernel of Debian does not boot on the Pi (as of 1/2024).
 Please refer to the images provided online.
 You can create them yourself following the scripts provided https://github.com/rodw-au/rpi-img-builder-lcnc[online].
 
