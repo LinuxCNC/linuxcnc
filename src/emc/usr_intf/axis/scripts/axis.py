@@ -2001,6 +2001,9 @@ class TclCommands(nf.TclCommands):
     def redraw_soon(event=None):
         o.redraw_soon()
 
+    def redraw_dro(event=None):
+        o.redraw_dro()
+
     def to_internal_linear_unit(a, b=None):
         if b is not None: b = float(b)
         return to_internal_linear_unit(float(a), b)
