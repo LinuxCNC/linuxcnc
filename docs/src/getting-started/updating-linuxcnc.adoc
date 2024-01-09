@@ -42,9 +42,8 @@ To upgrade major versions like 2.8 to 2.9 when you have a network connection at
 the machine you need to disable the old linuxcnc.org apt sources in the file /etc/apt/sources.list
 and add a new linuxcnc.org apt source for 2.9, then upgrade LinuxCNC.
 
-The details will depend on which platform you're running on.  Open a
-<<faq:terminal,terminal>> then type `lsb_release -ic` to find this information
-out:
+The details will depend on which platform you're running on.
+Open a <<faq:terminal,terminal>> then type `lsb_release -ic` to find this information out:
 
 ----
 lsb_release -ic
@@ -52,9 +51,8 @@ Distributor ID: Debian
 Codename:       Buster
 ----
 
-You should be running on Debian Buster, Bullseye or Bookworm or Ubuntu
-20.04 "Focal Fossa" or newer. LinuxCNC 2.9.y will not run on older distributions
-than these. 
+You should be running on Debian Buster, Bullseye or Bookworm or Ubuntu 20.04 "Focal Fossa" or newer.
+LinuxCNC 2.9.y will not run on older distributions than these. 
 
 You will also need to check which realtime kernel is being used:
 
@@ -74,41 +72,35 @@ are available for Bookworm and Buster but not currently for Bullseye.
 [[_setting_apt_sources]]
 === Apt Sources Configuration
 
-* Open the `Software Sources` window. The process for doing this
-  differs slightly on the three supported platforms:
+* Open the `Software Sources` window.
+  The process for doing this differs slightly on the three supported platforms:
 ** Debian:
-*** Click on `Applications Menu`, then `System`, then
-   `Synaptic Package Manager`.
-*** In Synaptic, click on the `Settings` menu, then click `Repositories`
-    to open the `Software Sources` window.
+*** Click on `Applications Menu`, then `System`, then `Synaptic Package Manager`.
+*** In Synaptic, click on the `Settings` menu, then click `Repositories` to open the `Software Sources` window.
 ** Ubuntu Precise:
 *** Click on the `Dash Home` icon in the top left.
-*** In the `Search` field, type "software", then click on the `Ubuntu
-    Software Center` icon.
+*** In the `Search` field, type "software", then click on the `Ubuntu Software Center` icon.
 *** In the Ubuntu Software Center window, click on the `Edit` menu,
-    then click on `Software Sources...` to open the `Software Sources`
-    window.
+    then click on `Software Sources...` to open the `Software Sources` window.
 ** Ubuntu Lucid:
-*** Click the `System` menu, then `Administration`, then
-    `Synaptic Package Manager`.
-*** In Synaptic, click on the `Settings` menu, then click on `Repositories`
-    to open the `Software Sources` window.
+*** Click the `System` menu, then `Administration`, then `Synaptic Package Manager`.
+*** In Synaptic, click on the `Settings` menu, then click on `Repositories` to open the `Software Sources` window.
 * In the `Software Sources` window, select the `Other Software` tab.
-* Delete or un-check all the old linuxcnc.org entries (leave all
-  non-linuxcnc.org lines as they are).
-* Click the `Add` button and add a new apt line. The line will be
-  slightly different on the different platforms:
+* Delete or un-check all the old linuxcnc.org entries (leave all non-linuxcnc.org lines as they are).
+* Click the `Add` button and add a new apt line. The line will be slightly different on the different platforms:
 
-[options="header"]
+.Tabular overview on variants of the Operating System and the corresponding configuration of the repository. The configuration can be performed in the GUI of the package manager or in the file /etc/apt/sources.list.
+[cols="3,5",options="header"]
 |===
-| OS / Realtime Version     | Repository
-| Debian Buster - preempt   | `deb https://linuxcnc.org buster base 2.9-rtpreempt`
-| Debian Buster - RTAI      | `deb https://linuxcnc.org buster base 2.9-rt`
-| Debian Bullseye - preempt | `deb https://linuxcnc.org bullseye base 2.9-uspace`
-| Debian Bookworm - preempt | `deb https://linuxcnc.org bookworm base 2.9-uspace`
-| Debian Bookworm - RTAI    | `deb https://linuxcnc.org bookworm base 2.9-rt`
+| OS / Realtime Version      | Repository
+| Debian Buster - preempt   m| deb https://linuxcnc.org buster base 2.9-rtpreempt
+| Debian Buster - RTAI      m| deb https://linuxcnc.org buster base 2.9-rt
+| Debian Bullseye - preempt m| deb https://linuxcnc.org bullseye base 2.9-uspace
+| Debian Bookworm - preempt m| deb https://linuxcnc.org bookworm base 2.9-uspace
+| Debian Bookworm - RTAI    m| deb https://linuxcnc.org bookworm base 2.9-rt
 |===
 
+.Figure with a screenshot of the repository configuration of the synaptic package manager.
 image::images/upgrading-to-2.9.png["Setting apt sources",align="center"]
 
 * Click `Add Source`, then `Close` in the Software Sources window.
@@ -129,24 +121,19 @@ Debian uses the Synaptic Package Manager.
 * Open Synaptic using the instructions in <<_setting_apt_sources,Setting apt sources>> above.
 * Click the `Reload` button.
 * Use the Search function to search for `linuxcnc`.
-* The package is called "linuxcnc" for RTAI kernels and "linuxcnc-uspace"
-  for preempt-rt.
-* Click the check box to mark the new linuxcnc and linuxcnc-doc-*
-  packages for upgrade. The package manager may select a number of
-  additional packages to be installed, to satisfy dependencies that the
-  new linuxcnc package has.
-* Click the `Apply` button, and let your computer install the new
-  package. The old linuxcnc package will be automatically upgraded to
-  the new one.
+* The package is called "linuxcnc" for RTAI kernels and "linuxcnc-uspace" for preempt-rt.
+* Click the check box to mark the new linuxcnc and linuxcnc-doc-* packages for upgrade.
+  The package manager may select a number of additional packages to be installed,
+  to satisfy dependencies that the new linuxcnc package has.
+* Click the `Apply` button, and let your computer install the new package.
+  The old linuxcnc package will be automatically upgraded to the new one.
 
 === Ubuntu
 
 * Click on the `Dash Home` icon in the top left.
-* In the `Search` field, type "update", then click on the `Update Manager`
-  icon.
+* In the `Search` field, type "update", then click on the `Update Manager` icon.
 * Click the `Check` button to fetch the list of packages available.
-* Click the `Install Updates` button to install the new versions of
-  all packages.
+* Click the `Install Updates` button to install the new versions of all packages.
 
 [[getting-started:update-no-network]]
 == Updating without Network

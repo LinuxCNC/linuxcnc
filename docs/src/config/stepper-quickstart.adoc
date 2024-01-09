@@ -4,8 +4,8 @@
 [[cha:stepper-quickstart]]
 = Stepper Quickstart
 
-This section assumes you have done a standard install from the Live
-CD. After installation it is recommended that you connect the computer
+This section assumes you have done a standard install from the Live CD.
+After installation it is recommended that you connect the computer
 to the Internet and wait for the update manager to pop up and get the
 latest updates for LinuxCNC and Ubuntu before continuing.
 
@@ -73,7 +73,7 @@ PC parallel port.
 |===
 
 Note any pins not used should be set to Unused in the drop down box.
-These can always be changed later by running Stepconf again.
+These can always be changed later by running StepConf again.
 
 == Mechanical Information
 

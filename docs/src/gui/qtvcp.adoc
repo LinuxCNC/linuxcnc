@@ -240,7 +240,7 @@ add the handle patch file there, named like so <ORIGINAL SCREEN NAME>_handler.py
 ie for Qtdragon the file would be caller 'qtdragon_handler.py' +
 
 Here is a sample to add X axis jog pins to a screen like Qtdragon: +
- 
+
 [source,python]
 ----
 import sys
@@ -359,7 +359,7 @@ def on_keycall_F11(self,event,state,shift,cntrl):
 # This function tells KEYBIND to call 'on_keycall_F10' when F10 is pressed.
 hdlr.KEYBIND.add_call('Key_F10','on_keycall_F10')
 
-# Here we are instance patching the original handler file to add a new function 
+# Here we are instance patching the original handler file to add a new function
 # that calls our new function (of the same name) defined in this file.
 self.on_keycall_F10 = types.MethodType(on_keycall_F10, self)
 
@@ -596,7 +596,7 @@ Pick _'Main Window'_ and press the _'Create'_ button. +
 A _`MainWindow` widget_ is displayed.
 
 We are going to make this window a specific non resizeable size:
- 
+
 .Set `MainWindow` Minimum and Maximum Size
 * Grab the corner of the window and resize to an appropriate size, say 1000x600. +
 * Right click on the window and click set _minimum size_.
@@ -846,7 +846,7 @@ class HandlerClass:
     #####################
 
     # keyboard jogging from key binding calls
-    # double the rate if fast is true 
+    # double the rate if fast is true
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
         if not STATUS.is_man_mode() or not STATUS.machine_is_on():
             return
@@ -987,7 +987,7 @@ If QtVCP finds these it will call them, if not it will silently ignore them.
 *`after_override__(self):`*::
   This function is called after the optional override file is loaded but +
   before the optional HAL file is loaded or HAL component is set ready.
-  
+
 *`processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):`*::
   This function is called to facilitate _keyboard jogging_, etc. +
   By using the _`keybinding` library_ this can be used to easily add functions bound to keypresses.
