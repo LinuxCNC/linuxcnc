@@ -769,7 +769,7 @@ def main():
     im = im.convert("L") #grayscale
     w, h = im.size
 
-    nim = numpy.fromstring(tobytes(im), dtype=numpy.uint8).reshape((h, w)).astype(numpy.float32)
+    nim = numpy.frombuffer(tobytes(im), dtype=numpy.uint8).reshape((h, w)).astype(numpy.float32)
     options = ui(im, nim, im_name)
 
     step = options['pixelstep']
