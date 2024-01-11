@@ -1,3 +1,51 @@
+#    This is a component of AXIS, a front-end for emc
+#    Copyright 2007 Anders Wallin <anders.wallin@helsinki.fi>
+#
+#   TJP 12 04 2007
+#   Rugludallur saw that spinbuttons had no initial value until after thumbs inc'd or de'c
+#   TJP saw that if xml prescribed <value>1234</value> the spinbutton locked up after the inc/dec
+#   it seems a new term in the __init__ may fix this
+#   end TJP 12 04 2007
+#
+#   Added initval to checkbutton/scale for initial values,  Dallur 15 April 2007 (jarl stefansson) (jarl stefansson)
+#
+#   Multiple additions and amendments as per notations - ArcEye 2013
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+""" A widget library for pyVCP 
+    
+    The layout and composition of a Python Virtual Control Panel is specified
+    with an XML file. The file must begin with <pyvcp>, and end with </pyvcp>
+
+    In the documentation for each widget, optional tags are shown bracketed:
+    [ <option>Something</option> ]
+    such a tag is not required for pyVCP to work, but may add functionality or
+    modify the behaviour of a widget.
+
+    Example XML file:
+    <pyvcp>
+        <led>
+            <size>40</size>
+            <halpin>"my-led"</halpin>
+        </led>
+    </pyvcp>
+    This will create a VCP with a single LED widget which indicates the value 
+    of HAL pin compname.my-led 
+"""
+
 import sys
 import tkinter as Tkinter
 from tkinter import *
@@ -5,9 +53,10 @@ from hal import *
 import math
 import bwidget
 import time
-import importlib
-import os
+
 # -------------------------------------------
+
+
 class pyvcp_dial(Canvas):
     # Dial widget by tomp
     """ A dial that outputs a HAL_FLOAT 
@@ -1133,545 +1182,143 @@ class pyvcp_timer(Label):
 
 
 # -------------------------------------------
+
 class pyvcp_bar(Canvas):
+
+## reworked by ArcEye 10022014
+## allow value ranges in different colours
+
+    """ (indicator) a bar-indicator for a float
+    <bar>
+        <halpin>"my-bar"</halpin>
+        <min_>0</min_>
+        <max_>150</max_>
+        <bgcolor>"grey"</bgcolor>
+        <range1>(0,100,"green")</range1>
+        <range2>(101,129,"orange")</range2>
+        <range3>(130,150,"red")</range3>
+        <fillcolor>"green"</fillcolor>
+        <canvas_width>200</canvas_width>
+        <canvas_height>50</canvas_height>
+        <bar_height>30</bar_height>
+        <bar_width>150</bar_width>
+        <format>"3.1f"</format>
+    </bar>
+    """
     n=0
-    def __init__(self,master,pycomp,fillcolor="green", bgcolor="grey", min_=0, max_=100.0, origin=None, halpin=None, valpin=None, minpin=None, maxpin=None, range1=None, range2=None, range3=None, nformat='2.2f', canvas_width=None, canvas_height=None, bar_height=None, bar_width=None, orient=None, font=("Sans",-18, "bold"), layout=None, dwgf=None, imgf=None, *kw):
-        self.ranges = False 
-        try: 
-            if(orient != None ) and ( orient != 'Horz') and (orient != 'Vert'):
-                raise ValueError
-        except ValueError:
-            print( "invalid value for xml tag 'orient' >>>",orient)
-            sys.exit(1) 
-        if(orient == None ) or ( orient == 'Horz'):
-            self.orient = 'Horz' 
-            if canvas_width == None:
-                canvas_width = 300
-                self.cw = canvas_width
-            else:
-                self.cw = canvas_width
-            if canvas_height == None:
-                canvas_height = 80
-                self.ch = canvas_height
-            else:
-                self.ch = canvas_height
-            if bar_width == None:
-                bar_width = 290
-                self.bw = bar_width
-            else:
-                self.bw = bar_width
-            if bar_height == None:
-                bar_height = 50 
-                self.bh = bar_height
-            else:
-                self.bh = bar_height
-        else:
-            self.orient = 'Vert' 
-            if canvas_width == None:
-                canvas_width = 80
-                self.cw = canvas_width
-            else:
-                self.cw = canvas_width
-            if canvas_height == None:
-                canvas_height = 300
-                self.ch = canvas_height
-            else:
-                self.ch = canvas_height
-            if bar_width == None:
-                bar_width =40 
-                self.bw = bar_width
-            else:
-                self.bw = bar_width
-            if bar_height == None:
-                bar_height = 290
-                self.bh = bar_height
-            else:
-                self.bh = bar_height
-        try: 
-            if(self.cw<=0)or(self.ch<=0)or(self.bw<=0)or(self.bh<=0):
-                raise ValueError
-        except ValueError:
-            print( "canvas or border dimension <= 0")
-            sys.exit(1) 
-        self.min_ = min_
-        self.max_ = max_
-        if origin == None:
-            self.origin =  self.min_
-        else:
-            self.origin = origin 
-        try: 
-            if ( (self.origin > self.max_) or ( self.origin < self.min_) ):
-                raise ValueError
-        except ValueError:
-            print( "Err: origin value must satisfy   min_ <= origin <= max_")
-            sys.exit(1) 
-        self.span=max_-min_
-        self.pxPadHorz=((self.cw-self.bw)/2)
-        self.pxPadVert=((self.ch-self.bh)/2)
-        self.font     = font
-        self.nformat = "%" + nformat
-        try: 
-            if(layout!='e')and(layout!='c')and(layout!='w')and(layout!='n')and(layout!='s')and(layout!='0')and(layout!=None):
-                raise ValueError
-        except ValueError:
-            print( "layout tag requires one of e c w n s 0 None")
-            sys.exit(1) 
-        if(layout == None ): 
-            if(orient == "Vert"):
-                self.layout = 'c' 
-            else: 
-                self.layout = 's'
-        else:
-            self.layout=layout
-        try: 
-            if orient == 'Vert':
-                if(layout=='n')or(layout=='s'):
-                    raise ValueError
-        except ValueError:
-            print( "orient Vert requires one of e c w 0 None")
-            sys.exit(1) 
-        try: 
-            if orient == 'Horz':
-                if(layout=='e')or(layout=='w'):
-                    raise ValueError
-        except ValueError:
-            print( "orient Horz requires one of n c s 0 None")
-            sys.exit(1) 
-        self.borderX0=0
-        self.borderY0=0
-        self.borderX1=0
-        self.borderY1=0
-        self.thumbX0=0
-        self.thumbY0=0
-        self.thumbX1=0
-        self.thumbY1=0
-        self.thumbX1old=self.thumbX1
-        self.thumbY1old=self.thumbY1
-        self.pxOriginX = 0
-        self.pxOriginY = 0
-        self.dwgf = dwgf
-        self.imgf = imgf
-        try: 
-            if(imgf!= None)and(dwgf!=None):
-                raise ValueError
-        except ValueError:
-            print( "Imgf and Dwgf cannot co-exist")
-            sys.exit(1)
-        try: 
-            if((imgf!= None)or(dwgf!=None)) : 
-                if(layout != '0'): 
-                    raise ValueError
-        except ValueError:
-            print( "Imgf or Dwgf need layout == 0" )
-            sys.exit(1)
-        if(self.imgf != None):
-            imgfExist = os.path.exists(self.imgf)
-            if(imgfExist != True):
-                print("Error: file does not exist ",self.imgf)
-                sys.exit(1)
-        if(self.dwgf != None):
-            tmpstr=self.dwgf+".py"
-            dwgfExist = os.path.exists(tmpstr)
-            if(dwgfExist != True):
-                print("Error: file does not exist ",tmpstr)
-                sys.exit(1)
-        Canvas.__init__(self,master,width=self.cw,height=self.ch,bg="ivory2")
+
+    def __init__(self,master,pycomp,fillcolor="green",bgcolor="grey",
+               halpin=None,min_=0.0,max_=100.0,range1=None,range2=None,
+               range3=None,format='3.1f', canvas_width=200,
+               canvas_height=50, bar_height=30, bar_width=150,**kw):
+
+        self.cw=canvas_width
+        self.ch=canvas_height
+        self.bh=bar_height
+        self.bw=bar_width
+        #self.cw=200    # canvas width
+        #self.ch=50     # canvas height
+        #self.bh=30     # bar height
+        #self.bw=150    # bar width
+        self.pad=((self.cw-self.bw)/2)
+
+        Canvas.__init__(self,master,width=self.cw,height=self.ch)
+
         if halpin == None:
-            halpin = "halpin."+str(pyvcp_bar.n)
-        pyvcp_bar.n += 1 
+            halpin = "bar."+str(pyvcp_bar.n)
+            pyvcp_bar.n += 1
         self.halpin=halpin
+        self.endval=max_
+        self.startval=min_
+        self.format = "%" + format
+
         pycomp.newpin(halpin, HAL_FLOAT, HAL_IN)
-        self.value = self.origin
+        
+        self.value=0.0 # some dummy value to start with  
+             
         pycomp[self.halpin] = self.value
-        self.val_text = "-000.000"
-        p = self.tlen(min_)
-        twMin = p[2]-p[0] 
-        tyH = -(self.font[1]) 
-        p = self.tlen(max_)
-        twMaxW = p[2]-p[0] 
-        twMax=twMaxW/2 
-        twVal = twMaxW 
-        if(self.layout == "0" )and((imgf!=None)!=(dwgf!=None)): 
-            pycomp.newpin(halpin+".minpin", HAL_FLOAT, HAL_OUT)
-            pycomp.newpin(halpin+".maxpin", HAL_FLOAT, HAL_OUT)
-            pycomp.newpin(halpin+".refpin", HAL_FLOAT, HAL_OUT)
-            pycomp[halpin+'.minpin']=self.min_
-            pycomp[halpin+'.maxpin']=self.max_ 
-            pycomp[halpin+'.refpin']=self.origin
-            self.border_coords()
-            border=self.create_rectangle(
-              self.borderX0,
-              self.borderY0,
-              self.borderX1,
-              self.borderY1,
-              fill=bgcolor
-            )
-            self.thumb_coords()
-            if(origin !=None):
-                if(orient == 'Vert'):
-                    orgMarker=self.create_line(
-                      0,
-                      self.thumbY0,
-                      self.cw,
-                      self.thumbY0,
-                      fill=None
-                    )
-                else:
-                    orgMarker=self.create_line(
-                      self.thumbX0,
-                      0,
-                      self.thumbX0,
-                      self.ch,
-                      fill=None
-                    )
-            if( self.dwgf == None ) and ( self.imgf != None ):
-                imagefile = self.imgf
-                try:
-                    photo = PhotoImage(file=imagefile)
-                except IndexError : 
-                    print("Error using ",self.ingf)
-                    sys.exit(1)
-                self.imgID=self.create_image(self.cw/2,(self.ch/2), image=photo)
-                self.image = photo
-            if( self.dwgf != None ) and ( self.imgf == None ):
-                try:
-                    dwgfparts = self.dwgf.rsplit('/',1)
-                    dwgfpath = dwgfparts[0]
-                    dwgfnames=dwgfparts[1].split('.py')
-                    dwgfirstname=dwgfnames[0]
-                    sys.path.insert(0, dwgfpath)
-                    self.thumb=importlib.import_module(dwgfirstname)
-                except ImportError :
-                    print("Error importing ",self.dwgf)
-                    sys.exit(1)
-                if( self.orient == 'Vert'):
-                    self.value = self.max_ 
-                    self.thumb.createMarker(self)
-                else:
-                    self.value = self.min_ 
-                    self.thumb.createMarker(self)
+        
+        # the border
+        border=self.create_rectangle(self.pad,1,self.pad+self.bw,self.bh)
+        self.itemconfig(border,fill=bgcolor)
+        
+        # the bar
+        tmp=self.bar_coords()
+        start=tmp[0]
+        end=tmp[1]
+        self.bar=self.create_rectangle(start,2,end,self.bh-1)
+        # default fill unless overridden
+        self.itemconfig(self.bar,fill=fillcolor)
+
+        # start text
+        start_text=self.create_text(self.pad,self.bh+10,text=str(self.startval) )
+        #end text
+        end_text=self.create_text(self.pad+self.bw,self.bh+10,text=str(self.endval) )
+        # value text
+        self.val_text=self.create_text(self.pad+self.bw/2,
+                                   self.bh/2,text=str(self.value) )
+
+        if range1!=None and range2!=None and range3!=None:
+            self.range1 = range1
+            self.range2 = range2
+            self.range3 = range3
+            self.ranges = True
         else:
-            if(self.layout == "0" )and((imgf==None)and(dwgf==None)): 
-                pycomp.newpin(halpin+".minpin", HAL_FLOAT, HAL_OUT)
-                pycomp.newpin(halpin+".maxpin", HAL_FLOAT, HAL_OUT)
-                pycomp.newpin(halpin+".refpin", HAL_FLOAT, HAL_OUT)
-                pycomp[halpin+'.minpin']=self.min_
-                pycomp[halpin+'.maxpin']=self.max_ 
-                pycomp[halpin+'.refpin']=self.origin
-            if orient == 'Vert':
-                self.border_coords()
-                border=self.create_rectangle(
-                  self.borderX0,
-                  self.borderY0,
-                  self.borderX1,
-                  self.borderY1,
-                  fill=bgcolor
-                )
-                self.thumb_coords()
-                if(origin !=None):
-                    orgMarker=self.create_line(
-                      0,
-                      self.thumbY0,
-                      self.cw,
-                      self.thumbY0,
-                      fill=None
-                    )
-                if(self.dwgf==None)and(self.imgf==None):
-                    self.bar=self.create_rectangle(self.thumbX0, self.thumbY0, self.thumbX1, self.thumbY1,fill=fillcolor)
-                if(layout != "0"): 
-                    tyendtext = self.pxPadVert + (-(self.font[1]/2) )
-                    tyvaltext = (canvas_height/2)
-                    tystarttext = canvas_height - self.pxPadVert - (-(self.font[1] / 2))
-                    if(self.layout == 'e'): 
-                        tmp = canvas_width
-                        txMin = tmp - twMin + 26
-                        txMax = self.cw - twMax -6
-                        txVal = txMax
-                    else:
-                        if(self.layout == 'c'):
-                            tmp = canvas_width /2
-                            txMin = tmp
-                            txVal = tmp
-                            txMax = tmp
-                        else:
-                            if(self.layout == 'w'):
-                                txMin = twMin -18
-                                txMax = twMax + 10
-                                txVal = txMax
-                    start_text=self.create_text(
-                      txMin,
-                      tystarttext,
-                      text=str(self.nformat % min_),
-                      font=self.font
-                    )
-                    end_text=self.create_text(
-                      txMax,
-                      tyendtext, 
-                      text=str(self.nformat % max_),
-                      font=self.font 
-                    )
-                    self.val_text=self.create_text(
-                      txMin,
-                      tyvaltext,
-                      text=str(self.nformat % self.value),
-                      font=self.font
-                    )
-            else: 
-                self.border_coords()
-                border=self.create_rectangle(
-                  self.borderX0,
-                  self.borderY0,
-                  self.borderX1,
-                  self.borderY1,
-                  fill=bgcolor
-                )
-                self.thumb_coords()
-                if(origin != None):
-                    orgMarker=self.create_line(
-                      self.thumbX0,
-                      0,
-                      self.thumbX0,
-                      self.ch,
-                      fill=None
-                    )
-                self.bar=self.create_rectangle(self.thumbX0, self.thumbY0, self.thumbX1, self.thumbY1, fill=fillcolor)
-                if(layout != "0"):
-                    txMax = self.cw - (twMax/2) -self.pxPadHorz -27
-                    txVal = (canvas_width/2)
-                    txMin = self.pxPadHorz + (twMin/2) +10 
-                    if(self.layout == 'n'):
-                        tytext = tyH / 2
-                    else:
-                        if(self.layout == 'c'):
-                            tytext = self.ch/2
-                        else: 
-                            tytext = self.ch - (tyH/2)
-                    start_text=self.create_text(
-                      txMin,
-                      tytext,
-                      text=str(self.nformat % min_),
-                      font=self.font
-                    )
-                    end_text=self.create_text(
-                      txMax,
-                      tytext,
-                      text=str(self.nformat % max_),
-                      font=self.font
-                    )
-                    self.val_text=self.create_text(
-                      txVal,
-                      tytext,
-                      text=str(self.nformat % self.value),
-                      font=self.font
-                    )
-            if((range1!=None)or(range2!=None)or(range3!=None)):
-                if((self.origin!=self.min_)and(self.origin!=self.max_)):
-                    print("ranges require origin be min_, max_, or None")
-                    sys.exit(1)
-            if( (origin == min_ ) or ( origin == max_)):
-                if range1!=None and range2!=None and range3!=None:
-                    self.range1 = range1
-                    self.range2 = range2
-                    self.range3 = range3
-                    self.ranges = True
-    def thumb_coords(self):
-        if self.orient == 'Vert': 
-            self.thumbY0 = self.pxPadVert+((self.max_-self.origin)/(self.span) * self.bh)
-            self.thumbX0 = self.borderX0
-            self.thumbX1 = self.borderX1
-        else:
-            self.thumbY0 = self.borderY0
-            self.thumbY1 = self.borderY1
-            self.thumbX0 = self.pxPadHorz+(-(self.min_-self.origin)/self.span) * self.bw
-    def update(self,pycomp):
-        newvalue=pycomp[self.halpin]
-        if newvalue != self.value: 
-            self.value = newvalue 
-            try: 
-                if( (self.value>self.max_) or(self.value<self.min_) ) :
-                    raise ValueError
-            except ValueError:
-                print( "Err: out of range value for ",self.halpin)
-                sys.exit(1)
-            try: 
-                if( (self.origin>self.max_) or(self.origin<self.min_) ) :
-                    raise ValueError
-            except ValueError:
-                print( "Err: origin is out of range  ",self.halpin)
-                sys.exit(1)
-            if(self.layout != "0"):
-                valtext = str(self.nformat % self.value)
-                self.itemconfig(self.val_text,text=valtext)
-            if self.ranges:
-                self.set_fill(self.range1, self.range2, self.range3)
-            if(self.orient == 'Vert'): 
-                self.thumbY1old = self.thumbY1
-                littlebit = 1/self.bh/2 
-                fRange = self.max_ - self.min_
-                if(self.origin == self.min_):
-                    if((self.value + littlebit)>=self.max_):
-                        self.thumbY1 = 0
-                    else:
-                        if((self.value - littlebit)<=self.min_):
-                            self.thumbY1 = self.bh
-                        else:
-                            self.thumbY1 = int(self.bh -  ( (self.value - self.min_) /(fRange) ) * self.bh)
-                else:
-                    if(self.origin == self.max_):
-                        self.thumbY1 =int( ( ( self.max_ - self.value ) / ( fRange ) ) * self.bh)
-                    else: 
-                        if(self.value + littlebit >= self.max_):
-                            self.thumbY1 = 0
-                        else:
-                            if(self.value - littlebit <= self.min_):
-                                self.thumbY1 = self.bh
-                            else:
-                                fRangeBlo = self.origin - self.min_
-                                fRangeAbv = fRange - fRangeBlo
-                                pxTopToOrigin = int( ( (self.max_ - self.origin) / fRange ) * self.bh)
-                                pxlsAbvOrg = pxTopToOrigin
-                                pxlsBloOrg = self.bh - pxlsAbvOrg
-                                xtraUp = 0 
-                                xtraDn = 0 
-                                if(self.value > self.origin):
-                                    xtraUp = math.ceil( ( (self.value - self.origin )  / fRangeAbv ) * pxlsAbvOrg ) 
-                                if(self.value < self.origin):
-                                    xtraDn =math.floor( ( (self.origin - self.value)  / fRangeBlo ) * pxlsBloOrg)
-                                self.thumbY1 =  xtraDn - xtraUp + pxTopToOrigin
-                self.thumbY1 += self.pxPadVert
-            else: 
-                self.thumbX1old = self.thumbX1
-                littlebit = 1/self.bw/2 
-                fRange = self.max_ - self.min_
-                if(self.origin == self.min_):
-                    if((self.value + littlebit)>=self.max_):
-                        self.thumbX1 = 0
-                    else:
-                        if((self.value - littlebit)<=self.min_):
-                            self.thumbX1 = self.bw
-                        else:
-                            self.thumbX1 = int(self.bw -  ( (self.value - self.min_) /(fRange) ) * self.bw)
-                else:
-                    if(self.origin == self.max_):
-                        self.thumbX1 =int( ( ( self.max_ - self.value ) / ( fRange ) ) * self.bw)
-                    else: 
-                        if(self.value + littlebit >= self.max_):
-                            self.thumbX1 = 0
-                        else:
-                            if(self.value - littlebit <= self.min_):
-                                self.thumbX1 = self.bw
-                            else:
-                                fRangeBlo = self.origin - self.min_
-                                fRangeAbv = fRange - fRangeBlo 
-                                pxTopToOrigin = int( ( (self.max_ - self.origin) / fRange ) * self.bw)
-                                pxlsAbvOrg = pxTopToOrigin
-                                pxlsBloOrg = self.bw - pxlsAbvOrg
-                                if( self.value <  (self.origin + littlebit)) and ( self.value > ( self.origin - littlebit) ):
-                                    self.thumbX1= pxTopToOrigin 
-                                else:
-                                    xtraUp = 0
-                                    xtraDn = 0
-                                    if(self.value > self.origin):
-                                        xtraUp = math.ceil( ( (self.value - self.origin )  / fRangeAbv ) * pxlsAbvOrg )
-                                    if(self.value < self.origin):
-                                        xtraDn =math.floor( ( (self.origin - self.value)  / fRangeBlo ) * pxlsBloOrg)
-                                    self.thumbX1 = pxTopToOrigin - xtraUp + xtraDn
-                self.thumbX1 = self.thumbX1 + self.pxPadHorz
-            if(self.layout=="0")and( (self.dwgf != None)!=(self.imgf!=None) ): 
-                if( self.dwgf != None ) and ( self.imgf == None ):
-                    if(self.orient == 'Vert'):
-                        dY = self.thumbY1 - self.thumbY1old
-                        self.move(self.marker, 0, dY) 
-                    else:
-                        dX = self.thumbX1 - self.thumbX1old
-                        self.move(self.marker, dX, 0)
-                else:
-                    if self.imgf != None :
-                        if(self.orient == "Horz"):
-                            xpos = int(((self.max_-self.value)/(self.max_-self.min_))*(self.bw))
-                            xpos = xpos + self.pxPadHorz
-                            sameoldY = self.ch/2
-                            self.coords(self.imgID, xpos, sameoldY)
-                        else: 
-                            ypos = int(((self.max_-self.value)/(self.max_-self.min_))*(self.bh))
-                            ypos = ypos + self.pxPadVert
-                            sameoldX = self.cw/2
-                            self.coords(self.imgID, sameoldX, ypos)
-                    else:
-                        self.coords(self.bar, self.thumbX0, self.thumbY0, self.thumbX1, self.thumbY1)
-            else:
-                self.coords(self.bar, self.thumbX0, self.thumbY0, self.thumbX1, self.thumbY1)
-    def set_fill(self, range1triplet, range2triplet, range3triplet ): 
-        (start1, end1, color1) = range1triplet
-        (start2, end2, color2) = range2triplet
-        (start3, end3, color3) = range3triplet
-        if(self.dwgf==None)and(self.imgf==None):
-            if (self.value >= start1) and (self.value <= end1):
-                self.itemconfig(self.bar,fill=color1)
+            self.ranges = False
+        
+    def set_fill(self, xxx_todo_changeme1, xxx_todo_changeme2, xxx_todo_changeme3):
+        (start1, end1, color1) = xxx_todo_changeme1
+        (start2, end2, color2) = xxx_todo_changeme2
+        (start3, end3, color3) = xxx_todo_changeme3
+        if self.value:
+            if (self.value > start1) and (self.value <= end1):
+                self.itemconfig(self.bar,fill=color1)        
             else:
                 if (self.value > start2) and (self.value <= end2):
-                    self.itemconfig(self.bar,fill=color2)
+                    self.itemconfig(self.bar,fill=color2)        
                 else:
                     if (self.value > start3) and (self.value <= end3):
-                        self.itemconfig(self.bar,fill=color3)
-        else: 
-            if (self.orient == 'Horz'): 
-                tmp = self.max_ - self.value 
-            else:
-                tmp = self.value 
-            if (tmp >= start1) and (tmp <= end1):
-                self.itemconfig(self.marker,fill=color1)
-            else:
-                if (tmp > start2) and (tmp < end2):
-                    self.itemconfig(self.marker,fill=color2)
-                else:
-                    if (tmp > start3) and (tmp <= end3):
-                        self.itemconfig(self.marker,fill=color3)
-    def tlen(self, num2msr) :
-        txt = self.nformat
-        ft=txt.format(num2msr)
-        self.txt=self.create_text(self.cw / 2, self.ch / 2, text=ft,anchor="center",font=self.font,fill="red")
-        p=[]
-        p=self.bbox(self.txt)
-        self.delete(self.txt)
-        return(p)
-    def border_coords(self):
-        if( self.orient == 'Vert'):
-            self.borderY0 = self.pxPadVert 
-            self.borderY1 = self.borderY0 + self.bh
-            if( self.layout == "e" ): 
-                self.borderX0 = 3
-                self.borderX1 = self.borderX0 + self.bw
-            else:
-                if( self.layout == "c" ): 
-                    self.borderX0 = self.pxPadHorz
-                    self.borderX1 = self.borderX0 + self.bw
-                else:
-                    if( self.layout == "w" ): 
-                        self.borderX0 = self.cw - 3 - self.bw
-                        self.borderX1 = self.borderX0 + self.bw
-                    else: 
-                        if(self.layout == "0" ):
-                            self.borderX0 = self.pxPadHorz
-                            self.borderX1 = self.borderX0 + self.bw
-        else: 
-            self.borderX0 = self.pxPadHorz
-            self.borderX1 = self.borderX0 + self.bw
-            if( self.layout == "c" ): 
-                self.borderY0 = self.pxPadVert
-                self.borderY1 = self.borderY0 + self.bh
-            else:
-                if( self.layout == "n" ): 
-                    self.borderY0 = self.ch - 3
-                    self.borderY1 = self.borderY0 - self.bh
-                else:
-                    if(self.layout == "s"): 
-                        self.borderY0 = 3
-                        self.borderY1 = self.borderY0 + self.bh
-                    else: 
-                        if(self.layout == "0" ):
-                            self.borderY0 = self.pxPadVert
-                            self.borderY1 = self.borderY0 + self.bh
+                        self.itemconfig(self.bar,fill=color3)        
+        
+        
+    def bar_coords(self):
+        """ calculates the coordinates in pixels for the bar """
+        # the bar should start at value = zero 
+        # and extend to value = self.value
+        # it should not extend beyond the initial box reserved for the bar
+        min_pixels=self.pad
+        max_pixels=self.pad+self.bw
+        bar_end = min_pixels + ((float)(max_pixels-min_pixels)/(float)(self.endval-self.startval)) * (self.value-self.startval)
+        if bar_end>max_pixels:
+            bar_end = max_pixels
+        elif bar_end < min_pixels:
+            bar_end = min_pixels
+        bar_start = min_pixels + ((float)(max_pixels-min_pixels)/(float)(self.endval-self.startval)) * (0-self.startval)
+        if bar_start < min_pixels:  # don't know if this is really needed
+            bar_start = min_pixels
+
+        return [bar_start, bar_end]
+    
+                        
+    def update(self,pycomp):
+        # update value
+        newvalue=pycomp[self.halpin]
+        if newvalue != self.value:
+            self.value = newvalue
+            valtext = str(self.format % self.value)
+            self.itemconfig(self.val_text,text=valtext)
+            # set bar colour
+            if self.ranges:
+                self.set_fill(self.range1, self.range2, self.range3)
+            # set bar size
+            tmp=self.bar_coords()
+            start=tmp[0]
+            end=tmp[1]
+            self.coords(self.bar, start, 2, 
+                        end, self.bh-1)
+
+
+
 # -------------------------------------------
 
 
