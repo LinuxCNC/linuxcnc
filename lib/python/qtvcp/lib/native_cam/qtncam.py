@@ -15,9 +15,13 @@ APP_VERSION = "(non deb)"
 import sys
 
 
-from nccam_window import *
+#from nccam_window import *
 
-from lxml import etree
+try:
+    from lxml import etree
+except:
+    LOG.warning('Problem importing zmq - Is python3-lxml installed?')
+
 import configparser as ConfigParser
 import re, os
 import getopt
@@ -1665,10 +1669,10 @@ class Preferences(object):
         self.default += _('\n(sub definitions)\n')
 
 
-class NCam(NCamWindow):
+class NCam():
 
-    def __init__(self, parent=None):
-        super(NCam, self).__init__(parent)
+    def __init__(self):
+        super(NCam, self).__init__()
         self.DATA = Data()
 
         global NCAM_DIR, default_metric, NGC_DIR, SYS_DIR, no_ini, TOOL_TABLE, \
@@ -1846,6 +1850,7 @@ class NCam(NCamWindow):
         self.pref.read(self.catalog_dir)
         GLOBAL_PREF = self.pref
 
+    def init(self):
         # main_window
 
         self.get_widgets()
@@ -2425,11 +2430,10 @@ class NCam(NCamWindow):
             self.action_saveCurrent()
 
     def btn_cancel_add(self, *arg):
-        self.addVBox.hide()
-        self.feature_Hpane.show()
-        self.menubar.set_sensitive(True)
-        self.main_toolbar.set_sensitive(True)
-        self.nc_toolbar.set_sensitive(True)
+        self.hideIconView()
+        self.menubar.setEnabled(True)
+        self.main_toolbar.setEnabled(True)
+        self.nc_toolbar.setEnabled(True)
 
     def create_add_dialog(self):
         self.icon_store = gtk.ListStore(gdk.Pixbuf, str, str, str, int, str)
@@ -2447,6 +2451,7 @@ class NCam(NCamWindow):
                     break
         self.update_catalog()
 
+    # callback from iconview
     def catalog_activate(self, iconview):
         lst = iconview.get_selected_items()
         if lst is not None and (len(lst) > 0) :
@@ -2494,9 +2499,7 @@ class NCam(NCamWindow):
 
     # show the features icon selector 
     def action_add(self, *arg) :
-        self.stackedWidget.setCurrentIndex(1)
-        #self.feature_Hpane.hide()
-        #self.addVBox.show()
+        self.showIconView()
         self.menubar.setEnabled(False)
         self.main_toolbar.setEnabled(False)
         self.nc_toolbar.setEnabled(False)
@@ -4059,219 +4062,4 @@ class NCam(NCamWindow):
         filename = self.openDialog(title=dlg_title, directory=dir_, extfilter=fltr)
         if not filename is None:
             self.add_feature(None, filename)
-
-def verify_ini(fname, ctlog, in_tab) :
-    path2ui = os.path.join(SYS_DIR, 'ncam.ui')
-    req = '# required NativeCAM item :\n'
-
-    with open(fname, 'r') as b :
-        txt = b.read()
-    if (path2ui not in txt) or ('my-stuff' not in txt) :
-        if not os.path.exists(fname + '.bak') :
-            with open(fname + '.bak', 'w') as b :
-                b.write(txt)
-                print(_('Backup file created : %s.bak') % fname)
-
-        if (txt.find('--catalog=mill') > 0) or (txt.find('-cmill') > 0) :
-            ctlog = 'mill'
-        elif (txt.find('--catalog=lathe') > 0) or (txt.find('-clathe') > 0) :
-            ctlog = 'lathe'
-        elif (txt.find('--catalog=plasma') > 0) or (txt.find('-cplasma') > 0) :
-            ctlog = 'plasma'
-
-        txt1 = ''
-        txt2 = txt.split('\n')
-        for line in txt2 :
-            txt1 += line.lstrip(' \t') + '\n'
-
-        parser = ConfigParser.RawConfigParser()
-        try :
-            parser.readfp(io.BytesIO(txt1))
-
-            #dp = parser.get('DISPLAY', 'DISPLAY').lower()
-            #if dp not in ['gmoccapy', 'axis', 'gscreen', 'qtdragon'] :
-            #    self.mess_dlg(_("DISPLAY can only be 'axis', 'gmoccapy' or 'gscreen'"))
-            #    sys.exit(-1)
-
-            try :
-                old_sub_path = ':' + parser.get('RS274NGC', 'SUBROUTINE_PATH')
-            except :
-                old_sub_path = ''
-
-            try :
-                c = parser.get('DISPLAY', 'LATHE')
-                if c.lower() in ['1', 'true'] :
-                    ctlog = 'lathe'
-            except :
-                pass
-
-            txt = re.sub(r"%s" % req, '', txt)
-
-            if dp == 'axis' :
-                if in_tab :
-                    newstr = '%s%s%s%s %s\n' % (req, 'EMBED_TAB_NAME = NativeCAM\n', \
-                            'EMBED_TAB_COMMAND = gladevcp -x {XID} -U --catalog=', \
-                            ctlog, path2ui)
-                    txt = re.sub(r"\[DISPLAY\]", "[DISPLAY]\n" + newstr, txt)
-                else :
-                    newstr = '%sGLADEVCP = -U --catalog=%s %s\n' % (req, ctlog, path2ui)
-                    try :
-                        oldstr = 'GLADEVCP = %s' % parser.get('DISPLAY', 'gladevcp')
-                        txt = re.sub(r"%s" % oldstr, newstr, txt)
-                    except :
-                        txt = re.sub(r"\[DISPLAY\]", "[DISPLAY]\n" + newstr, txt)
-
-            elif (dp == 'gmoccapy') :
-                if in_tab :
-                    newstr = '%s%s%s%s%s %s\n' % (req, 'EMBED_TAB_NAME = NativeCAM\n', \
-                            'EMBED_TAB_LOCATION = ntb_user_tabs\n', \
-                            'EMBED_TAB_COMMAND = gladevcp -x {XID} -U --catalog=', \
-                            ctlog, path2ui)
-                    txt = re.sub(r"\[DISPLAY\]", "[DISPLAY]\n" + newstr, txt)
-                else :
-                    newstr = '%sEMBED_TAB_LOCATION = box_right\n' % req
-                    try :
-                        oldstr = 'EMBED_TAB_LOCATION = %s' % parser.get('DISPLAY', 'embed_tab_location')
-                        txt = re.sub(r"%s" % oldstr, newstr, txt)
-                    except :
-                        txt = re.sub(r"\[DISPLAY\]", "[DISPLAY]\n" + newstr, txt)
-
-                    newstr = '%sEMBED_TAB_NAME = right_side_panel\n' % req
-                    try :
-                        oldstr = 'EMBED_TAB_NAME = %s' % parser.get('DISPLAY', 'embed_tab_name')
-                        txt = re.sub(r"%s" % oldstr, newstr, txt)
-                    except :
-                        txt = re.sub(r"\[DISPLAY\]", "[DISPLAY]\n" + newstr, txt)
-
-                    newstr = '%sEMBED_TAB_COMMAND = gladevcp -x {XID} -U --catalog=%s %s\n' % (req, ctlog, path2ui)
-                    try :
-                        oldstr = 'EMBED_TAB_COMMAND = %s' % parser.get('DISPLAY', 'embed_tab_command')
-                        txt = re.sub(r"%s" % oldstr, newstr, txt)
-                    except :
-                        txt = re.sub(r"\[DISPLAY\]", "[DISPLAY]\n" + newstr, txt)
-
-            else :  # gscreen
-                newstr = '%sEMBED_TAB_COMMAND = gladevcp -x {XID} -U --catalog=%s %s\n' % (req, ctlog, path2ui)
-                try :
-                    oldstr = 'EMBED_TAB_COMMAND = %s' % parser.get('DISPLAY', 'embed_tab_command')
-                    txt = re.sub(r"%s" % oldstr, newstr, txt)
-                except :
-                    txt = re.sub(r"\[DISPLAY\]", "[DISPLAY]\n" + newstr, txt)
-
-                newstr = '%sEMBED_TAB_LOCATION = vcp_box\n' % req
-                try :
-                    oldstr = 'EMBED_TAB_LOCATION = %s' % parser.get('DISPLAY', 'embed_tab_location')
-                    txt = re.sub(r"%s" % oldstr, newstr, txt)
-                except :
-                    txt = re.sub(r"\[DISPLAY\]", "[DISPLAY]\n" + newstr, txt)
-
-                newstr = '%sEMBED_TAB_NAME = NativeCAM\n' % req
-                try :
-                    oldstr = 'EMBED_TAB_NAME = %s' % parser.get('DISPLAY', 'embed_tab_name')
-                    txt = re.sub(r"%s" % oldstr, newstr, txt)
-                except :
-                    txt = re.sub(r"\[DISPLAY\]", "[DISPLAY]\n" + newstr, txt)
-
-            newstr = '%sPROGRAM_PREFIX = ncam/scripts/\n' % req
-            try :
-                oldstr = 'PROGRAM_PREFIX = ' + parser.get('DISPLAY', 'program_prefix')
-                txt = re.sub(r"%s" % oldstr, newstr, txt)
-            except :
-                txt = re.sub(r"\[DISPLAY\]", "[DISPLAY]\n" + newstr, txt)
-
-            newstr = '%sNCAM_DIR = ncam\n' % req
-            try :
-                oldstr = 'NCAM_DIR = ' + parser.get('DISPLAY', 'ncam_dir')
-                txt = re.sub(r"%s" % oldstr, newstr, txt)
-            except :
-                txt = re.sub(r"\[DISPLAY\]", "[DISPLAY]\n" + newstr, txt)
-
-            if not 'ncam/my-stuff:ncam/lib/' in old_sub_path :
-                newstr = '%sSUBROUTINE_PATH = ncam/my-stuff:ncam/lib/%s:ncam/lib/utilities%s\n' % \
-                    (req, ctlog, old_sub_path)
-                try :
-                    oldstr = 'SUBROUTINE_PATH = ' + parser.get('RS274NGC', 'subroutine_path')
-                    txt = re.sub(r"%s" % oldstr, newstr, txt)
-                except :
-                    txt = re.sub(r"\[RS274NGC\]", "[RS274NGC]\n" + newstr, txt)
-
-            open(fname, 'w').write(txt)
-
-            with open(fname, 'w') as b :
-                b.write(txt)
-                print(_('Success in modifying inifile :\n  %s') % fname)
-
-        except Exception as detail :
-            self.err_exit(_('Error modifying ini file\n%(err_details)s') % {'err_details':detail})
-
-def usage():
-    print("""
-Standalone Usage:
-   ncam [Options]
-
-Options :
-    -h | --help                this text
-   (-i | --ini=) inifilename   inifile used
-   (-c | --catalog=) catalog   valid catalogs = mill, plasma, lathe
-    -t | --tab                 axis and gmoccapy only, put NativeCAM in a new tab
-
-To prepare your inifile to use NativeCAM embedded,
-   a) Start in a working directory with your LinuxCNC configuration ini file
-   b) Type this command :
-     ncam (-i | --ini=)inifilename (-c | --catalog=)(valid catalog for this configuration)
-
-   A backup of your inifile will be created before it is modified.
-
-   After success, you can use it embedded  :
-     linuxcnc inifilename
-
-""")
-
-if __name__ == "__main__":
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
-
-
-    # process args
-    args = sys.argv[1:]
-    if "-h" in args or "--help" in args:
-        usage()
-        sys.exit(0)
-
-    try :
-        optlist, args = getopt.getopt(sys.argv[1:], 'c:i:t', ["catalog=", "ini="])
-    except getopt.GetoptError as err:
-        print(err)  # will print something like "option -a not recognized"
-        usage()
-        sys.exit(2)
-
-    optlist = dict(optlist)
-
-    if "-i" in optlist :
-        ini = optlist["-i"]
-    elif "--ini" in optlist :
-        ini = optlist["--ini"]
-    else :
-        ini = None
-
-    if (ini is not None) :
-        if "-c" in optlist :
-            catalog = optlist["-c"]
-        elif "--catalog" in optlist :
-            catalog = optlist["--catalog"]
-        else :
-            catalog = DEFAULT_CATALOG
-        if not catalog in VALID_CATALOGS :
-            usage()
-            sys.exit(3)
-
-        in_tab = ("-t" in optlist) or ("--tab" in optlist)
-        verify_ini(os.path.abspath(ini), catalog, in_tab)
-
-    app = QApplication(sys.argv)
-
-    ncam = NCam()
-    ncam.show()
-    sys.exit( app.exec_() )
 
