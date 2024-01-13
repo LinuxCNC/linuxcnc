@@ -4418,7 +4418,7 @@ class gmoccapy(object):
     def on_ntb_tool_code_info_switch_page(self, widget, page, page_num):
         self.prefs.putpref("info_tab_page", page_num, int)
 
-    def external_reload(self, path):
+    def external_load(self, path):
         print('gmoccapy external reload:',path)
         if path is None:
             self.widgets.hal_action_reload.emit("activate")

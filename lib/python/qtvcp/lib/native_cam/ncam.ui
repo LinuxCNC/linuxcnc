@@ -247,8 +247,9 @@
    <addaction name="actionRedo"/>
    <addaction name="actionMoveUp"/>
    <addaction name="actionMoveDown"/>
+   <addaction name="actionAppendItm"/>
+   <addaction name="actionRemoveItm"/>
    <addaction name="actionCurrent"/>
-   <addaction name="actionSubHeaders"/>
    <addaction name="actionAutoRefresh"/>
    <addaction name="actionDebugPrint"/>
   </widget>

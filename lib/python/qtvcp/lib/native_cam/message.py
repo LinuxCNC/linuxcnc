@@ -16,7 +16,7 @@ class ZMQMessage:
         # prebuilt message 1
         # makes a dict of function to call plus any arguments
         x = {                               # <1>
-            "FUNCTION": "external_reload",
+            "FUNCTION": "external_load",
             "ARGS": [fname]
             }
         # convert to JSON object

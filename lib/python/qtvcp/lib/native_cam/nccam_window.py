@@ -2,9 +2,9 @@ import os
 import sys
 import getopt
 
-from PyQt5.QtWidgets import QMainWindow,\
-         QToolBar, QMessageBox,QTreeWidget, QTreeWidgetItem, QStyle, QFileDialog,\
-        QTextEdit, QMenu
+from PyQt5.QtWidgets import (QMainWindow, QToolBar, QMessageBox,
+        QTreeWidget, QTreeWidgetItem, QStyle, QFileDialog,
+        QTextEdit, QMenu)
 from PyQt5 import uic
 from PyQt5.QtCore import QObject, QTimer, QUrl, Qt, QSize
 from PyQt5.QtGui import QColor, QIcon, QFont, QImage
@@ -36,7 +36,7 @@ current_dir =  os.path.dirname(__file__)
 ###############
 # Window
 ###############
-class NCamWindow(QMainWindow,NCam):
+class NCamWindow(QMainWindow, NCam):
 
     def __init__(self, parent=None):
         super(NCamWindow, self).__init__(parent)
@@ -65,6 +65,8 @@ class NCamWindow(QMainWindow,NCam):
 
         # for reloads in qtvcp screens
         self.zMessanger = ZMQMessage()
+
+        # initialize ncam
         self.init()
 
 ############
@@ -200,8 +202,8 @@ class NCamWindow(QMainWindow,NCam):
         ca(self.actionAdd,"Add", 'action-add.gif', None, "<control>Insert", _('Add a subroutine'), self.action_add)
         ca(self.actionDuplicate,"Duplicate", 'gtk.STOCK_COPY', _('Duplicate'), "<control>D", _('Duplicate selected subroutine'), self.action_duplicate)
         ca(self.actionDelete,"Delete", 'action-delete.gif', None, "<control>Delete", _('Remove selected subroutine'), self.action_delete)
-        ca(self.actionAppendItm,"AppendItm", 'gtk.STOCK_INDENT', _("Add to Items"), "<control>Right", _("Add to Items"), self.action_appendItm)
-        ca(self.actionRemoveItm,"RemoveItm", 'gtk.STOCK_UNINDENT', _("Remove from Items"), "<control>Left", _('Remove from Items'), self.action_removeItem)
+        ca(self.actionAppendItm,"AppendItm", QStyle.SP_MediaSeekBackward, _("Add to Items"), "<control>Right", _("Add to Items"), self.action_appendItm)
+        ca(self.actionRemoveItm,"RemoveItm", QStyle.SP_TrashIcon, _("Remove from Items"), "<control>Left", _('Remove from Items'), self.action_removeItem)
         ca(self.actionMoveUp,"MoveUp", QStyle.SP_ArrowUp, _('Move up'), "<control>Up", _('Move up'), self.move, -1)
         ca(self.actionMoveDown,"MoveDown", QStyle.SP_ArrowDown, _('Move down'), "<control>Down", _('Move down'), self.move, 1)
         ca(self.actionSaveUser,"SaveUser", QStyle.SP_DialogSaveButton, _('Save Values as Defaults'), '', _('Save Values of this Subroutine as Defaults'), self.action_saveUser)
@@ -266,7 +268,7 @@ class NCamWindow(QMainWindow,NCam):
         # actions related to toolbars and popup
         ca(self.actionHideField,"HideField", None, _("Hide Selected Field"), None, _("Hide Selected Field"), self.action_hideField)
         ca(self.actionShowF,"ShowFields", None, _("Show All Fields"), None, _("Show All Fields"), self.action_showFields)
-        ca(self.actionCurrent,"Current", 'gtk.STOCK_SAVE', _("Save Project as Current Work"), '', _('Save Project as Current Work'), self.action_saveCurrent)
+        ca(self.actionCurrent,"Current", QStyle.SP_FileDialogStart, _("Save Project as Current Work"), '', _('Save Project as Current Work'), self.action_saveCurrent)
         ca(self.actionBuild,"Build", 'build.png', _('Generate %(filename)s') % {'filename':self.DATA.GENERATED_FILE}, None,
                      _('Generate %(filename)s and load it in LinuxCNC') % {'filename':self.DATA.GENERATED_FILE}, self.action_build)
         ca(self.actionRename,"Rename", None, _("Rename Subroutine"), None, _('Rename Subroutine'), self.action_renameF)
@@ -364,17 +366,6 @@ class NCamWindow(QMainWindow,NCam):
                         if p.tag.lower() in ['menu', "group"] :
                             sub = self.actionMenuAdd.addMenu(QIcon(iconPath), name)
                             add_to_menu(sub, p)
-
-                            # add toolbutton to groupbox
-                            try:
-                                btn = ToolButton(name, iconPath, _(tooltip), src)
-                                self.iconGridLayout.addWidget(btn, self._row, self._col)
-                                self._col +=1
-                                if self._col > 2:
-                                    self._col = 0
-                                    self._row +=1
-                            except:
-                                pass
                         else:
                             act = grp_menu.addAction(QIcon(iconPath),name)
                             act.triggered.connect( lambda s, src=src: self.add_feature(None,src))
@@ -451,11 +442,12 @@ class NCamWindow(QMainWindow,NCam):
             # convert 'selected type' (str) to selected itr (int)
             if self.selected_type == "items" :
                 self.iter_selected_type = tv_select.items
-                self.items_ts_parent_s = self.treestore.get_string_from_iter(sortedIndex)
+                self.items_ts_parent_s = selectedItem.meta.xml.get_name()
 
-                self.items_path = model.get_path(itr)
-                n_children = model.iter_n_children(itr)
-                self.items_lpath = (self.items_path + (n_children,))
+                self.items_path = int(selectedItem.findPath())
+                n_children = selectedItem.childCount()
+                print('Path:',self.items_path, n_children)
+                self.items_lpath = (self.items_path + n_children)
 
             elif self.selected_type in ["header", 'sub-header'] :
                 self.iter_selected_type = tv_select.header

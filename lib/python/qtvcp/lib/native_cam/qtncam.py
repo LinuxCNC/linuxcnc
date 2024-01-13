@@ -2320,6 +2320,7 @@ class NCam():
         self.main_box.pack_start(self.menubar, False, False, 0)
 
     def action_build(self, *arg) :
+        self.refreshDisplay()
         self.autorefresh_call()
 
     def action_cut(self, *arg):
@@ -2400,6 +2401,7 @@ class NCam():
                 self.update_catalog()
 
             self.set_preferences()
+            self.refreshDisplay()
             self.autorefresh_call()
 
     def action_ValAllDlg(self, *arg):
@@ -2809,6 +2811,7 @@ class NCam():
             self.action(xml)
 
     def expand_and_select(self, path):
+        print('expanded path:',path)
         return
         if path is not None :
             self.treeview.expand_to_path(path)
@@ -3393,6 +3396,12 @@ class NCam():
             return
         self.import_xml(xml)
 
+    def refreshDisplay(self):
+        fname = os.path.join(NGC_DIR, GENERATED_FILE)
+        with open(fname, "w") as f:
+            f.write(self.to_gcode())
+        self.loadDisplay(fname)
+
     def autorefresh_call(self, *arg) :
         print('Refresh gcode output')
         fname = os.path.join(NGC_DIR, GENERATED_FILE)
@@ -3497,6 +3506,7 @@ class NCam():
 
     def update_do_btns(self, refresh):
         self.set_do_buttons_state()
+        self.refreshDisplay()
         if self.actionAutoRefresh.isChecked() and refresh:
             self.timeout = self.add_timer(self.pref.timeout_value, self.autorefresh_call)
 

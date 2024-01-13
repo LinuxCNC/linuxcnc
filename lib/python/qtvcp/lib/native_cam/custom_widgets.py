@@ -709,6 +709,7 @@ class IconView(QWidget):
         self.setLayout(vbox)
         self.show()
 
+#[get_pixbuf(p.get("icon"), add_dlg_icon_size), p.tag.lower(), _(name), src, path, tooltip])
     def buildItem(self,text,icon,tooltip,action=None):
         item = QListWidgetItem()
         item.setText(text)
