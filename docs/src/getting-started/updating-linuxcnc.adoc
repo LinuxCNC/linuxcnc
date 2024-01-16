@@ -101,7 +101,7 @@ are available for Bookworm and Buster but not currently for Bullseye.
 |===
 
 .Figure with a screenshot of the repository configuration of the synaptic package manager.
-image::images/upgrading-to-2.9.png["Setting apt sources",align="center"]
+image::images/upgrading-to-2.9.png["Setting apt sources",align="center",width=600]
 
 * Click `Add Source`, then `Close` in the Software Sources window.
   If it pops up a window informing you that the information about
