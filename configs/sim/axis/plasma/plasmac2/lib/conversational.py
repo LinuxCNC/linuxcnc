@@ -105,10 +105,13 @@ class Conv(tk.Tk):
         self.saveC['command'] = lambda:self.save_pressed()
         self.settingsC['command'] = lambda:self.settings_pressed()
         self.sendC['command'] = lambda:self.send_pressed()
-        for entry in self.entries: entry.bind('<KeyRelease>', self.auto_preview)
-        for entry in self.entries: entry.bind('<Return>', self.auto_preview)
+        for entry in self.entries:
+            #entry.bind('<KeyRelease>', self.auto_preview) # plays havoc with good error detection
+            #entry.bind('<Return>', self.auto_preview, add='+')
+            #entry.bind('<KP_Enter>', self.auto_preview, add='+')
+            entry.bind('<Return>', self.preview, add='+')
+            entry.bind('<KP_Enter>', self.preview, add='+')
         for entry in self.buttons: entry.bind('<space>', self.button_key_pressed)
-#        self.convFrame.bind_all('<Return>', self.auto_preview)
         self.entry_validation()
 
     def start(self, materialFileDict, matIndex, existingFile, g5xIndex, setViewZ):
@@ -201,11 +204,16 @@ class Conv(tk.Tk):
             self.circle_check(circleType, value)
         return True
 
+    def preview(self, event):
+#        # this stops focus moving to the root when return pressed
+#        self.rE(f"after 5 focus {event.widget}")
+        self.module.preview(self)
+
     def auto_preview(self, event):
         # this stops focus moving to the root when return pressed
         self.rE(f"after 5 focus {event.widget}")
-        # we have no interest in these
-        if event.keysym in ['Return', 'Tab']:
+        # we have no interest in this list of keys
+        if event.keysym in ['Tab']:
             return
         # not enough info for an auto_preview yet
         if event.widget.get() in ['.','-','-.']:
@@ -320,8 +328,12 @@ class Conv(tk.Tk):
              COPY(self.fNgc, file)
              self.saveC['state'] = 'disabled'
 #        self.vkb_show(True) if we add a virtual keyboard ??????????????????????
-        for entry in self.entries: entry.bind('<KeyRelease>', self.auto_preview)
-        for entry in self.entries: entry.bind('<Return>', self.auto_preview)
+        for entry in self.entries:
+            #entry.bind('<KeyRelease>', self.auto_preview) # plays havoc with good error detection
+            #entry.bind('<Return>', self.auto_preview, add='+')
+            #entry.bind('<KP_Enter>', self.auto_preview, add='+')
+            entry.bind('<Return>', self.preview, add='+')
+            entry.bind('<KP_Enter>', self.preview, add='+')
 
     def settings_pressed(self):
         self.savedSettings['lead_in'] = self.liValue.get()

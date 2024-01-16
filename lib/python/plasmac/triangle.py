@@ -177,7 +177,7 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
                '3: "a" + "b" + "C"\n\n'\
                '4: "a" + "B" + "c"\n\n'\
                '5: "A" + "b" + "c"\n'
-        error += '{}\n\n'.format(msg0)
+        error += f'{msg0}\n\n'
         return error
     right = math.radians(0)
     up = math.radians(90)
