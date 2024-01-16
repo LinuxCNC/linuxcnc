@@ -1195,7 +1195,7 @@ def backup_clicked():
     plasmacPopUp('info', title, f"{msg0}\n\n{msg1}: {outName}\n\n{msg2}\n")
 
 def torch_enable():
-    hal.set_p('plasmac.torch-enable',str(not hal.get_value('plasmac.torch-enable')))
+    hal.set_p('plasmac.torch-enable', str(not hal.get_value('plasmac.torch-enable')))
     color_torch()
 
 def update_preview(clear=False):
@@ -1261,6 +1261,8 @@ def manual_cut(event):
     global manualCut
     if manual_ok():
         if not hal.get_value('spindle.0.on'):
+            if not critical_button_check():
+                return
             c.spindle(linuxcnc.SPINDLE_FORWARD, 1)
             manualCut['feed'] = vars.jog_speed.get()
             vars.jog_speed.set(int(rE(f"{fruns}.material.cut-feed-rate get")))
@@ -1982,14 +1984,8 @@ def reload_file(refilter=True):
     live_plotter.clear()
 
 def task_run(*event):
-    ''' check for runcritical buttons'''
-    for button in togglePins:
-        if togglePins[button]['runcritical'] and not togglePins[button]['state']:
-            msg0 = _('Cannot run program while critical button is not active')
-            btn = rE(f"{fbuttons}.button{button} cget -text")
-            notifications.add('error', f"{msg0}: {btn}\n")
-            return
-    if run_warn(): return
+    if run_warn() or not critical_button_check():
+        return
     global program_start_line, program_start_line_last
     program_start_line_last = program_start_line;
     ensure_mode(linuxcnc.MODE_AUTO)
@@ -2211,6 +2207,24 @@ def prompt_touchoff(title, text, default, tool_only, system=None):
 ##############################################################################
 # USER BUTTON FUNCTIONS                                                      #
 ##############################################################################
+def critical_button_check():
+    valid = True
+    if hal.get_value('plasmac.torch-enable'):
+        buttons = ''
+        btnText = _('button is')
+        for button in criticalButtons:
+            if togglePins[str(button)]['runcritical'] and not togglePins[str(button)]['state']:
+                if buttons:
+                    buttons += ', '
+                    btnText = _('buttons are')
+                buttons += rE(f"{fbuttons}.button{str(button)} cget -text")
+                valid = False
+        if not valid:
+            msg0 = _('not activated')
+            msg1 = _('Continue the cut?')
+            valid = plasmacPopUp('yesno', _('CRITICAL BUTTON'), f'{buttons} {btnText} {msg0}\n\n{msg1}').reply
+    return valid
+
 def validate_hal_pin(halpin, button, usage):
     valid = pBit = False
     for pin in halPinList:
@@ -2404,7 +2418,7 @@ def user_button_setup():
                 if validate_hal_pin(codes[1], n, 'toggle-halpin'):
                     outCode = {'code':'toggle-halpin', 'pin':codes[1], 'critical':False, 'ontext':ontext}
                     outCode['pin'] = codes[1]
-                    if len(codes) == 3 and codes[2] == 'runcritical':
+                    if len(codes) == 3 and (codes[2] == 'runcritical' or codes[2] == 'cutcritical'):
                         outCode['critical'] = True
                         criticalButtons.append(n)
                     togglePins[str(n)] = {'pin':outCode['pin'], 'state':hal.get_value(outCode['pin']), \
