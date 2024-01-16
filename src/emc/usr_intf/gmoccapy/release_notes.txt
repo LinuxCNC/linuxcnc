@@ -10,7 +10,7 @@ ver 3.4.7
  - Added setting for G-code theme (GtkSourceView)
  - Fixed error when trying to hide the turtle-jog button in gmoccapy
 
-ver 3.4.6
+ver 3.4.6 -- LinuxCNC 2.9.2
  - added first steps to solve delay on sound use
 
 ver 3.4.4
