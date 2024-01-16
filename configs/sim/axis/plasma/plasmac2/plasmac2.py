@@ -17,7 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-VER = '13'
+VER = '14'
 
 ##############################################################################
 # the next line suppresses undefined variable errors in VSCode               #
@@ -2412,8 +2412,10 @@ def user_button_setup():
                     parmError = True
         elif bCode.startswith('toggle-halpin '):
             if len(bCode.split()) > 1:
-                ontext = bCode.split(';;')[1] if ';;' in bCode else ''
-                ontext = ontext if ontext else bName
+                ontext = bName
+                if ';;' in bCode:
+                    ontext = bCode.split(';;')[1] if ';;' in bCode else ''
+                    bCode = bCode[:bCode.index(';;')].strip()
                 codes = bCode.strip().split()
                 if validate_hal_pin(codes[1], n, 'toggle-halpin'):
                     outCode = {'code':'toggle-halpin', 'pin':codes[1], 'critical':False, 'ontext':ontext}
