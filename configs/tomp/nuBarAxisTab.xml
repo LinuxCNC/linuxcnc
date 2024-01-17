@@ -1,23 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!--- 21oct addiung field for bar widget 'dwg' -->
-<!-- the dwg tag should get a value of a local file -->
-<!-- local means in same dir as pyvcp_widgets.py -->
-<!-- /usr/lib/python3/dist-packages/pyvcp_widgets.py -->
-<!-- 1 ) test existance iof tag is harmless -->
-<!-- 25 oct chg myfont from Arial to Fixed   no help sti;; missalligned to 'proc5'-->
-<!-- 30 oct test Arial vd Fixed -->
-<!-- ng for myfont    "'TeX Gyre Chorus'" -->
-<!--  <font>("Roboto Slab", 20, "bold italic")</font>  -->
-<!-- DONT use tuple  for macro-ed myfont, dont use myfont, use font-spelledouttyuple -->
-<!-- DONT use tsz1, use the info in the tyuple[1] ( the fotn soze ) -->
-<!-- !ENTITY myfont '("Roboto Slab", 20, "bold italic")'" -->
-<!-- !ENTITY tsz1 "14" -->
-<!-- 01nov  simpler nfmt  now '{:3.2f}'  has no var name needed to use -->
-<!-- ENTITY myfont "'("Roboto Slab", 20, "bold italic")'" -->
-<!-- 01 nov DAMN FUCJING A the formnat striung macro must be quote tick nditn f tick quote -->
-<!-- 02 nov invalid char {        the macro has   "'{:3.2f}'"   -->
-<!-- try '3.2f'  no braces no colon   worked try 3.4 also worked  use 3.3-->
-<!-- ok various fonts and sizes and styles render foine, but vert xposn still to be fixed -->
+<!-- 13jan2024 moved all grapjics to unifirm path ./resources-->
+<!--   now all tkinter drawings command files                -->
+<!--       and all files suited to th photo func             -->
+<!--       and all suited to pyvcp imafe widget              -->
+<!--   are in one folder insoide the linuxcbc condifg folder -->
+<!--                                                         -->
+<!-- ENITITY entries are macro expansions used like css      -->
 <!DOCTYPE pyvcp [
   <!ENTITY hbarw "250">
   <!ENTITY bgclr "'yellow'">
@@ -190,7 +178,8 @@
                         <!-- 22oct new dyn lib load for s=cstom thumbns -->
                         <!-- 22oct modiy file to use self. instyead of Canvas -->
                         <!-- 22 oct chg to polyfon hioping touse move methiod -->
-                        <dwgf>"/home/tomp/linuxcnc-barwidgets/grfx/diamond01"</dwgf>
+                        <!-- dwgf>"/home/tomp/linuxcnc-barwidgets/grfx/diamond01"</dwgf-->
+                        <dwgf>"resources/diamond01"</dwgf>
                     </bar>
                     <bar>
                         <orient>'Vert'</orient>
@@ -207,7 +196,8 @@
                         <fillcolor>'red'</fillcolor>
                         <font>&myfont;</font>
                         <layout>"0"</layout>
-                        <dwgf>"/home/tomp/linuxcnc-barwidgets/grfx/diamond01"</dwgf>
+                        <!--dwgf>"/home/tomp/linuxcnc-barwidgets/grfx/diamond01"</dwgf-->
+                        <dwgf>"resources/diamond01"</dwgf>
                     </bar>					
                     <bar>
                         <orient>'Vert'</orient>
@@ -224,7 +214,8 @@
                         <fillcolor>'red'</fillcolor>
                         <font>&myfont;</font>
                         <layout>"0"</layout>
-                        <dwgf>"/home/tomp/linuxcnc-barwidgets/grfx/diamond01"</dwgf>
+                        <!--dwgf>"/home/tomp/linuxcnc-barwidgets/grfx/diamond01"</dwgf-->
+                        <dwgf>"resources/diamond01"</dwgf>
                         <range1>(0,3.333,"deep sky blue")</range1>
                         <range2>(3.333,6.666,"green")</range2>
                         <range3>(6.666,10,"red")</range3>    
@@ -336,7 +327,7 @@
             <vbox>
                 <image> 
                     <name>'wifi'</name>
-                    <file>"pix/wifi.png"</file>
+                    <file>"resources/wifi.png"</file>
                 </image>
                 <image_bit>
                     <halpin>"dummy"</halpin>
@@ -359,7 +350,8 @@
                     <fillcolor>'red'</fillcolor>
                     <font>&myfont;</font>
                     <layout>"0"</layout>
-                    <imgf>"pix/wifi16.png"</imgf>
+                    <!--imgf>"pix/wifi16.png"</imgf-->
+                    <imgf>"resources/wifi16.png"</imgf>
                 </bar>
                 <hbox>
                     <number>

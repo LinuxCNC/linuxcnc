@@ -3,6 +3,7 @@
 <!-- an xml can be viewed with   -->
 <!-- halrun -->
 <!-- halcmd    loadusr -Wn windowname pyvcp -c pinnameprefix xmlfiletoview.xml -->
+<!-- touch here X -->
 <pyvcp>
     <vbox>
         <hbox>

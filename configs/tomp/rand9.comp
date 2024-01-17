@@ -1,0 +1,39 @@
+// this works, looks much faster than 1 sec chg 
+// means much faster than what rand9.compo produced
+// the onluy diff between opp04.comp ( this ) and rtand9.comp( the slow)
+// is:
+// this file opp04 named pins mymin, mymax
+// while rand9 named them min,max
+// so it looks like i fell intoa reservbed word trap
+// 
+// to be sure halkrun and test rand9 with halscope 
+// ( same test that i use to see succvess with opp04)
+// testing shows yes rand9 has 1 sec states, opp04 has 1mSec states
+// dman reserved words!
+component rand9;
+option userspace;
+pin in  float   mymin=0;
+pin in  float   mymax=100;
+//pin in  float   mymin;
+//pin in  float   mymax;
+pin out float out;
+license "GPL";
+;;
+#include <unistd.h>
+#include <time.h>
+#include <stdlib.h>
+#include <stdio.h>
+float RandomFloat( float a, float b) {
+  float random = ((float) rand()) / (float) RAND_MAX;
+  float diff = b-a;
+  float r = random * diff;
+  return a + r;
+}
+
+void user_mainloop(void) {
+    while(1) {
+        usleep(1000);// thats 1000uSecs = 1mS but i see chgs every 1.0 secs ( 1000000uSecs) why?
+        //srand(time(NULL));
+        FOR_ALL_INSTS() out = RandomFloat(mymin,mymax);
+    }
+}
