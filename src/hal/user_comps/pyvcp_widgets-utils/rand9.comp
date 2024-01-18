@@ -1,0 +1,50 @@
+// rand9 a randon datat generatort
+//   originally used to drive display widgets during testing
+//
+// multiple instances allowed
+//
+// has 3 hal pinsa
+//     in  float mymin
+//     in  float mymax
+//     out float myout
+//
+// new data is available on myout at near 1mS rate
+//
+// mymin must be less than mymax
+// 
+// valid range value examples
+//       mymin       mymax
+//       0           100
+//       100         200
+//       -50         0
+//       -3.12       -2.54
+//
+// deafault values:  mymin 0  mymax 100
+//
+// mymin and.or mymax can be modified during run time
+//
+
+component rand9;
+option userspace;
+pin in  float   mymin=0;
+pin in  float   mymax=100;
+pin out float out;
+license "GPL";
+;;
+#include <unistd.h>
+#include <time.h>
+#include <stdlib.h>
+#include <stdio.h>
+float RandomFloat( float a, float b) {
+  float random = ((float) rand()) / (float) RAND_MAX;
+  float diff = b-a;
+  float r = random * diff;
+  return a + r;
+}
+
+void user_mainloop(void) {
+    while(1) {
+        usleep(1000);// thats 1000uSecs = 1mS but i see chgs every 1.0 secs ( 1000000uSecs) why?
+        FOR_ALL_INSTS() out = RandomFloat(mymin,mymax);
+    }
+}

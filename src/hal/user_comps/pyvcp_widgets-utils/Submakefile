@@ -1,0 +1,30 @@
+RAND9_SRCS = hal/user_comps/pyvcp_widgets-utils/rand9.c
+RAND9_CFLAGS = -DDEBUG $(LIBMODBUS_CFLAGS)
+RAND9_LIBS = $(LIBMODBUS_LIBS)
+
+$(call TOOBJSDEPS, $(RAND9_SRCS)) : EXTRAFLAGS += $(RAND9_CFLAGS)
+
+USERSRCS += $(RAND9)
+
+../bin/rand9: $(call TOOBJS, $(RAND9)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(RAND9_LIBS) 
+
+hal/user_comps/pyvcp_widgets-utils/rand9.c: hal/user_comps/pyvcp_wodgets-utils/rand9.comp ../bin/halcompile
+	$(ECHO) "Preprocessing rand9.comp"
+	$(Q)../bin/halcompile -U --preprocess $<
+
+../docs/man/man1/rand9.1: hal/user_comps/pyvcp_widgets-utils/rand9.comp ../bin/halcompile
+	$(Q)../bin/halcompile -U -u --document $<
+	$(Q)install --mode=0644 hal/user_comps/pyvcp_wodgets-utils/rand9.1 $@
+
+clean: rand9_clean
+rand9_clean:
+	-rm -f hal/user_comps/pyvcp_wodgets-utils/rand9.c
+	-rm -f hal/user_comps/pyvcp_widgets-utils/rand9.1
+
+TARGETS += ../bin/rand9
+
+GENERATED_MANPAGES += ../docs/man/man1/rand9.1
+endif
+

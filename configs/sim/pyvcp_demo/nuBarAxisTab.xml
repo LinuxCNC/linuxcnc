@@ -1,0 +1,331 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- 13jan2024 moved all grapjics to unifirm path ./resources-->
+<!--   now all tkinter drawings command files                -->
+<!--       and all files suited to the photo func            -->
+<!--       and all suited to pyvcp imafe widget              -->
+<!--   are in one folder insoide the linuxcbc condifg folder -->
+<!--                                                         -->
+<!-- ENITITY entries are macro expansions used like css      -->
+<!DOCTYPE pyvcp [
+  <!ENTITY hbarw "250">
+  <!ENTITY bgclr "'yellow'">
+  <!ENTITY nfmt "'3.3f'">
+  <!ENTITY hbarH "20">
+  <!ENTITY hbarW "280">
+  <!ENTITY hcanvasH "70"> 
+  <!ENTITY hcanvasW "290">
+  <!ENTITY hbar8min "0"> 
+  <!ENTITY hbar8max "100">
+  <!ENTITY hXXr8max "100">
+  <!ENTITY myfont '("MathJax_Fraktur", -20,"bold")'>
+  <!ENTITY myfont2 '("Courier", -24,"normal")'>
+]>
+
+<pyvcp>
+    <vbox>
+        <hbox>
+			<label>
+				<text>"proc 1"</text>
+				<relief>RIDGE</relief >
+				<bd>3</bd>                        
+				<font>&myfont;</font>
+			</label>
+			<label>
+				<text>"proc 2"</text>
+				<relief>RIDGE</relief >
+				<bd>3</bd>                        
+				<font>&myfont2;</font>
+			</label>            
+			<label>
+				<text>"proc 3"</text>
+				<relief>RIDGE</relief >
+				<bd>3</bd>                        
+				<font>&myfont;</font>
+			</label>            
+			<label>  
+				<text>"proc 4"</text>
+				<relief>RIDGE</relief >
+				<bd>3</bd>                        
+				<font>&myfont;</font>
+			</label>
+        </hbox>
+        <hbox>
+			<number>
+				<halpin>"fproc01"</halpin>
+				<font>&myfont;</font>
+				<width>7</width>
+				<format>&nfmt;</format>
+			</number>
+			<number>
+				<halpin>"fproc02"</halpin>
+				<font>&myfont;</font>
+				<width>7</width>
+				<format>&nfmt;</format>
+			</number>
+			<number>
+				<halpin>"fproc03"</halpin>
+				<font>&myfont;</font>
+				<width>7</width>
+				<format>&nfmt;</format>
+			</number>
+			<number>
+				<halpin>"fproc04"</halpin>
+				<font>&myfont;</font>
+				<width>7</width>
+				<format>&nfmt;</format>
+			</number>
+        </hbox>
+        <hbox>
+			<bar>
+				<orient>'Vert'</orient>
+				<layout>"w"</layout>
+				<halpin>"proc01"</halpin>
+				<min_>0</min_>
+				<max_>10</max_>
+				<origin>0</origin>
+				<fillcolor>'red'</fillcolor>
+				<bgcolor>&bgclr;</bgcolor>
+				<range1>(0,3.333,"light blue")</range1>
+				<range2>(3.333,8.666,"salmon")</range2>
+				<range3>(8.666,10,"red")</range3>    
+				<canvas_height>122</canvas_height>
+				<canvas_width>82</canvas_width>
+				<bar_height>120</bar_height>
+				<bar_width>10</bar_width>
+				<nformat>&nfmt;</nformat>
+				<font>&myfont;</font>
+				<!-- fotn seems to be modal -->
+			</bar>
+			<bar>
+				<orient>'Vert'</orient>
+				<halpin>"proc02"</halpin>
+				<min_>-5</min_>
+				<max_>5</max_>
+				<origin>0</origin>
+				<canvas_height>122</canvas_height>
+				<canvas_width>82</canvas_width>
+				<bar_height>120</bar_height>
+				<bar_width>60</bar_width>
+				<nformat>&nfmt;</nformat>
+				<bgcolor>&bgclr;</bgcolor>
+				<fillcolor>'red'</fillcolor>
+				<font>&myfont;</font>
+				<layout>"c"</layout>
+			</bar>
+			<bar>
+				<orient>'Vert'</orient>
+				<halpin>"proc03"</halpin>
+				<min_>0</min_>
+				<max_>100</max_>
+				<origin>100</origin>
+				<canvas_height>122</canvas_height>
+				<canvas_width>82</canvas_width>
+				<bar_height>120</bar_height>
+				<bar_width>10</bar_width>
+				<nformat>&nfmt;</nformat>
+				<bgcolor>&bgclr;</bgcolor>
+				<fillcolor>'red'</fillcolor>
+				<font>&myfont;</font>
+				<layout>"e"</layout>
+			</bar>
+			<bar>
+				<orient>'Vert'</orient>
+				<halpin>"proc04"</halpin>
+				<min_>0</min_>
+				<max_>10</max_>
+				<origin>0</origin>
+				<canvas_height>122</canvas_height>
+				<canvas_width>22</canvas_width>
+				<bar_height>100</bar_height>
+				<bar_width>1</bar_width>
+				<nformat>&nfmt;</nformat>
+				<bgcolor>"pink"</bgcolor>
+				<fillcolor>'red'</fillcolor>
+				<font>&myfont;</font>
+				<layout>"0"</layout>
+				<dwgf>"resources/diamond01"</dwgf>
+			</bar>
+			<bar>
+				<orient>'Vert'</orient>
+				<halpin>"proc09"</halpin>
+				<min_>0</min_>
+				<max_>10</max_>
+				<origin>0</origin>
+				<canvas_height>122</canvas_height>
+				<canvas_width>22</canvas_width>
+				<bar_height>100</bar_height>
+				<bar_width>1</bar_width>
+				<nformat>&nfmt;</nformat>
+				<bgcolor>"pink"</bgcolor>
+				<fillcolor>'red'</fillcolor>
+				<font>&myfont;</font>
+				<layout>"0"</layout>
+				<dwgf>"resources/diamond01"</dwgf>
+			</bar>					
+			<bar>
+				<orient>'Vert'</orient>
+				<halpin>"proc10"</halpin>
+				<min_>0</min_>
+				<max_>10</max_>
+				<origin>0</origin> 
+				<canvas_height>122</canvas_height>
+				<canvas_width>22</canvas_width>
+				<bar_height>100</bar_height>
+				<bar_width>1</bar_width>
+				<nformat>&nfmt;</nformat>
+				<bgcolor>"pink"</bgcolor>
+				<fillcolor>'red'</fillcolor>
+				<font>&myfont;</font>
+				<layout>"0"</layout>
+				<dwgf>"resources/diamond01"</dwgf>
+				<range1>(0,3.333,"deep sky blue")</range1>
+				<range2>(3.333,6.666,"green")</range2>
+				<range3>(6.666,10,"red")</range3>    
+			</bar>					
+        </hbox>
+    
+        <!-- vert abve  horz below -->
+    
+        <hbox>
+            <vbox>
+                <label>
+                    <text>"proc5"</text>
+                    <relief>RIDGE</relief >
+                    <font>&myfont;</font>
+                    <bd>3</bd>     
+                </label>
+            </vbox>
+            <vbox>
+                <bar>
+                    <orient>'Horz'</orient>
+                    <halpin>"proc05"</halpin>
+                    <min_>-.1</min_>
+                    <max_>.1</max_>
+                    <origin>0.001</origin>
+                    <canvas_height>&hcanvasH;</canvas_height>
+                    <canvas_width>&hcanvasW;</canvas_width>
+                    <bar_height>&hbarH;</bar_height>
+                    <bar_width>&hbarW;</bar_width>
+                    <nformat>&nfmt;</nformat>
+                    <bgcolor>&bgclr;</bgcolor>
+                    <fillcolor>'red'</fillcolor>
+                    <font>&myfont;</font>
+                    <layout>"c"</layout>
+                </bar>
+            </vbox>
+        </hbox>
+        <hbox>
+            <vbox>
+                <label>
+                    <text>"proc6"</text>
+                    <relief>RIDGE</relief >
+                    <font>&myfont;</font>
+                    <bd>3</bd>
+                </label>
+                <number>
+                    <halpin>"fproc06"</halpin>
+                    <font>&myfont;</font>
+                </number>
+            </vbox>
+            <vbox>
+                <bar>
+                    <orient>'Horz'</orient>
+                    <halpin>"proc06"</halpin>
+                    <min_>-5.00</min_>
+                    <max_>0.00</max_>
+                    <origin>-5.00</origin>
+                    <canvas_height>&hcanvasH;</canvas_height>
+                    <canvas_width>&hcanvasW;</canvas_width>
+                    <bar_height>&hbarH;</bar_height>
+                    <bar_width>&hbarW;</bar_width>
+                    <nformat>&nfmt;</nformat>
+                    <bgcolor>&bgclr;</bgcolor>
+                    <fillcolor>'red'</fillcolor>
+                    <font>&myfont;</font>
+                    <layout>"n"</layout>
+                </bar>
+            </vbox>
+        </hbox>
+        <hbox>
+            <vbox>
+                <label>
+                    <text>"proc7"</text>
+                    <relief>RIDGE</relief >
+                    <bd>3</bd>     
+                    <font>&myfont;</font>
+                </label>
+                <number>
+                    <halpin>"fproc07"</halpin>
+                    <font>&myfont;</font>
+                </number>
+            </vbox>
+            <vbox>
+                <bar>
+                    <orient>'Horz'</orient>
+                    <halpin>"proc07"</halpin>
+                    <min_>100</min_>
+                    <max_>110</max_>
+                    <origin>110</origin>
+                    <canvas_height>&hcanvasH;</canvas_height>
+                    <canvas_width>&hcanvasW;</canvas_width>
+                    <bar_height>&hbarH;</bar_height>
+                    <bar_width>&hbarW;</bar_width>
+                    <nformat>&nfmt;</nformat>
+                    <bgcolor>&bgclr;</bgcolor>
+                    <fillcolor>'red'</fillcolor>
+                    <font>&myfont;</font>
+                    <layout>"s"</layout>
+                </bar>
+            </vbox>
+        </hbox>
+    
+        <hbox>
+            <vbox>
+                <image> 
+                    <name>'wifi'</name>
+                    <file>"resources/wifi.png"</file>
+                </image>
+                <image_bit>
+                    <halpin>"dummy"</halpin>
+                    <images>'wifi','wifi'</images>
+                </image_bit>
+            </vbox>
+            <vbox>
+                <bar>
+                    <orient>'Horz'</orient>
+                    <halpin>"proc08"</halpin>
+                    <min_>0</min_>
+                    <max_>100</max_>
+                    <origin>0</origin>
+                    <canvas_height>20</canvas_height>
+                    <canvas_width>290</canvas_width>
+                    <bar_height>4</bar_height>
+                    <bar_width>280</bar_width>
+                    <nformat>&nfmt;</nformat>
+                    <bgcolor>&bgclr;</bgcolor>
+                    <fillcolor>'red'</fillcolor>
+                    <font>&myfont;</font>
+                    <layout>"0"</layout>
+                    <imgf>"resources/wifi16.png"</imgf>
+                </bar>
+                <hbox>
+                    <number>
+                        <halpin>"proc08min"</halpin>
+                        <font>&myfont;</font>
+                        <width>8</width>>
+                    </number>
+                    <number>
+                        <halpin>"proc08value"</halpin>
+                        <font>&myfont;</font>
+                        <width>8</width>
+                    </number>
+                    <number>
+                        <halpin>"proc08max"</halpin>
+                        <font>&myfont;</font>
+                        <width>8</width>
+                    </number>
+                </hbox>				
+            </vbox>
+        </hbox>
+    </vbox>
+</pyvcp>
