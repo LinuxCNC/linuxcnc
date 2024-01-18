@@ -1,6 +1,57 @@
-The sim configuration is a set of files
+pyvcp_bottom_panel.ini
+pyvcp_demo1.ini
+pyvcp_embed_tab.ini
+
+These sim configurations are sets of files
 that shows a demo of some of the pyvcp_widgets
 note:
 The bar widget changes color at certain value ranges.
 The value of spinboxs and dials can be changed using HAL signals.
 The multilabel will change text depending on the HAL signal.
+-----------------------------------------------------------------
+nuBarAxisTab.ini :
+
+Demos a new bar class for pyvcp_widgets
+
+Prevuiusly only horizontal bars allowedm now vertical as well
+  see <orient> tag in xml (defaults to 'Horz')
+
+The data displayed is between bunds min_ and max_
+  see <min)> and <max_> tags
+
+Prevuiusly data was displayed FROM min to max
+ like a thermomemter fro freezing towards hot
+Now data is displayed showing the difference to a reference point
+  see <origin> tag
+This allows you to see how much colder it is that thismorning
+  so that might use max 100 min 0 orign 100 
+  and the display would be like a window shade, unlike a thermometer
+Or you could use min -50 maX 50 origin 0 
+  and you would see the devistion +/0 from zero
+This allows you to see the devistion +/- of some standar d see <origin> 
+  tag ( defaults to min_ value)
+
+The <origin> is displayted as a cross bar over the widget
+
+Prevuiusly built in labelss displayed minimum and maximum and current values
+ amd these labels were beneath the gorizontal bar widget
+Now these labels can be above below centered left, right or not diaplayed
+and the data that would be displayed is available on pinms for user.
+  see <layout> tage   values n s e w c 0 ( 0 meaning no labels )
+
+Previously data ranges can color change the bar. this is preserved.
+  if <layout> ==0 then the color range can affect the dwgf thunv color
+
+The font used can be customized using a tuple of (fanily,pixelHeight,attributes)
+ like ("XSerif", -21, "bold"). A negative value forxes pixcel units.
+
+The bar can be a simple line with a graphic 'thumb'
+The thumn can be a Tkinter file of drawing commands (.dwgf)
+or an image suited to Tkinter's photo function.
+All imgf and dwgf files are held in a subdirectory '../resources'
+Also in that directory are extra graphics used by pycvp '<image>'
+
+For this demonstartion, fake dynamic data is fed to the display widgets
+by a new user comp 'rand9'
+
+This demo uses the 'Axis' gui and an embedded tab
