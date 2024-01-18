@@ -1,5 +1,5 @@
 # #########################################
-# 17jan2023 new como rand8 rqrs chg pin names from.mionm .max to .mumin ,mymax
+# 17jan2023 new como rand9 rqrs chg pin names from.mionm .max to .mumin ,mymax
 #
 # 12jan2024 made a new rand9 from scratch, 
 #  never found source in files sabe from dead HF
@@ -9,36 +9,26 @@
 # 22oct add 1 more skimnmy vert bar  proc09
 #  hook it up to cosine
 #
-# 15oct can i add threads in postgui??
-#
-# 19sep comp now named rand9
-#
-# 18sep2023 thumv didnt move with rtcomp
-# so try python comp rand....
-# result: thumb moves with python comp
-
 # NB loadusr for py comp!  NOT loadrt
-# NB loadusr -W necc  here
-# i dont use the 0th for easy human countin1thruy9
-# got err on count=0  found xmpl hal loadusr -W  NO n   loadusr -Wn rand9 count=10  
-# -W much better
+# NB loadusr -W necc  here (not -Wn )
+# i dont use the 0th rand9 instance for easy human counting
 loadusr -W rand9 count=10  
 
-# 15oct2023 i wanta sinus to drive nbew simpler bar wiudget (test with diamond thumb)
+# 15oct2023 i wanta sinus to drive new simpler bar wiudget (test with diamond thumb)
 # is there a 'servo;' thread automagically? YES
 loadrt siggen
-# automatically get 'servc-thread'
+
+# automatically gets 'servc-thread'
 # so do not      loadrt threads name1=fast period1=50000 name2=slow period2=1000000
+
 setp siggen.0.frequency 30 #10 OK SLOW  100 FAST JERKY
-# amoplitude of 5 means -5 to _ 5, then offset of 5 means 0 to 10
+# amoplitude of 5 means -5 to +5,
+#    then offset of 5 means 0 to 10
 setp siggen.0.amplitude 5
 setp siggen.0.offset 5
 addf siggen.0.update servo-thread
 
-#11jan  rand8.1.rmin  not found
-# show pin 
-
-# THESE MUST AFREE WITH XM:L !!
+# THESE SETPs MUST AGFREE WITH XML !!
 # how can i automate making them same??
 setp rand9.1.mymin 0
 setp rand9.1.mymax 10
@@ -53,9 +43,7 @@ setp rand9.4.mymin 0
 setp rand9.4.mymax 10
 
 setp rand9.5.mymin -0.1
-# 12jan2024 was   -0.1   but i forced all ints s32
 setp rand9.5.mymax  0.1
-# 0.1
 
 setp rand9.6.mymin -5
 setp rand9.6.mymax  0
@@ -68,41 +56,20 @@ setp rand9.8.mymax 100
 
 # debug  show pin
 
-# connect rot to bar and number widgets
-# 12jan2024  the prefix newbars  comes from .ini file   EMBED_TAB_NAME = newBars
-# 12jan2024  i thinbkj rand8 should olutpout float  also fdix the 1 bar that was min -.01 max .91 
 net r1 rand9.1.out 	newbars.proc01 newbars.fproc01
 net r2 rand9.2.out 	newbars.proc02 newbars.fproc02
 net r3 rand9.3.out 	newbars.proc03 newbars.fproc03
 
-
-
-# vvv 15oct use siggen sinus to drive new tyoe 1 bar ( has diamond thmb )
-# not yet  out of range  so look w scope
-# not yet  out of range  so look w scope
-# try AAGHAIN MADE AMPLITUDE 5 AND OFFSET 5 SO I THIUNK WILL BE 0 TO 10
-# UAU 15 OCT yay IT WORKS SINUSOIDALLY!
 net s4 siggen.0.sine    newbars.proc04 newbars.fproc04
-#net r4 rand9.4.out 	newbars.proc04 newbars.fproc04
 
-#22oct add another skinmny vert anmd animate with cosine
 net s9 siggen.0.cosine  newbars.proc09 
-#bars.fproc09
 net s4 newbars.proc10 
-#bars.fproc09
 
-
-# 25sep2023 remove number widget for bar 5
 net r5 rand9.5.out 	newbars.proc05 
 
 net r6 rand9.6.out 	newbars.proc06 newbars.fproc06
 net r7 rand9.7.out 	newbars.proc07 newbars.fproc07
 
-# use display widgets for bars.proc08 to show min max and live value
-#  min and max wont chg  (wonnt update ) but the live data will update
-# using widgets to show these 3 data, the bar widget is very simple and can be very skinny
-
-#28OCT REM 3 LINES  LOOK FOR WHY PROC8 CNAVBAS IS TOO WIDE
 net r8 rand9.8.out 	newbars.proc08  newbars.proc08value
 net min8 newbars.proc08.minpin newbars.proc08min
 net max8 newbars.proc08.maxpin newbars.proc08max 

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- 13jan2024 moved all grapjics to unifirm path ./resources-->
 <!--   now all tkinter drawings command files                -->
-<!--       and all files suited to th photo func             -->
+<!--       and all files suited to the photo func            -->
 <!--       and all suited to pyvcp imafe widget              -->
 <!--   are in one folder insoide the linuxcbc condifg folder -->
 <!--                                                         -->
@@ -21,205 +21,167 @@
   <!ENTITY myfont2 '("Courier", -24,"normal")'>
 ]>
 
-<!-- 24sep i wanr hbaf text inside bar so make hbarG 30 and hcanvasH 80 
-    result bar lool thinner than text and text far beow bat  try hbarH 40
-    result bar thicjer and text so far below it gets clipped, seems outside canvas
-    so revert to hbarH30 hcanvasH 60
-    ok as before byt bar is ctrd in canvas  should be at top  i think border wrong
--->
-<!-- if hcanvasH is not larger than hbarH buy the pixel size of font -->
-<!-- then the text below the bar will be obscurred -->
-<!-- maybe if below, then dont offset the bar position so much ,,use less vert space -->
-<!-- whatever the code allows, the user should be able to understand how it works -->
-
-<!-- to get gbar min text under hvar, make sure hcanvasH > hbarH by 2 texthts  -->
-<!-- 23sep nfmt was "'{:.2f{'"   now is  '2.3" -->
-<!-- it seens necc to add boarders to widgets in 1st row -->
-<!-- to get yrm cebntered and -->
-<!-- to get sunsequent talerow objects to be equal sized and centered -->
-<!-- i ws looking at why text in a lebel was not centered when in table cell -->
 <pyvcp>
     <vbox>
         <hbox>
-                    <label>
-                        <text>"proc 1"</text>
-                        <relief>RIDGE</relief >
-                        <bd>3</bd>                        
-                        <font>&myfont;</font>
-                    </label>
-                    <label>
-                        <text>"proc 2"</text>
-                        <relief>RIDGE</relief >
-                        <bd>3</bd>                        
-                        <font>&myfont2;</font>
-                    </label>            
-                    <label>
-                        <text>"proc 3"</text>
-                        <relief>RIDGE</relief >
-                        <bd>3</bd>                        
-                        <font>&myfont;</font>
-                    </label>            
-                    <label>  
-                        <text>"proc 4"</text>
-                        <relief>RIDGE</relief >
-                        <bd>3</bd>                        
-                        <font>&myfont;</font>
-                    </label>
+			<label>
+				<text>"proc 1"</text>
+				<relief>RIDGE</relief >
+				<bd>3</bd>                        
+				<font>&myfont;</font>
+			</label>
+			<label>
+				<text>"proc 2"</text>
+				<relief>RIDGE</relief >
+				<bd>3</bd>                        
+				<font>&myfont2;</font>
+			</label>            
+			<label>
+				<text>"proc 3"</text>
+				<relief>RIDGE</relief >
+				<bd>3</bd>                        
+				<font>&myfont;</font>
+			</label>            
+			<label>  
+				<text>"proc 4"</text>
+				<relief>RIDGE</relief >
+				<bd>3</bd>                        
+				<font>&myfont;</font>
+			</label>
         </hbox>
         <hbox>
-                    <number>
-                        <halpin>"fproc01"</halpin>
-                        <font>&myfont;</font>
-                        <width>7</width>
-                        <format>&nfmt;</format>
-                    </number>
-                    <number>
-                        <halpin>"fproc02"</halpin>
-                        <font>&myfont;</font>
-                        <width>7</width>
-                        <format>&nfmt;</format>
-                    </number>
-                    <number>
-                        <halpin>"fproc03"</halpin>
-                        <font>&myfont;</font>
-                        <width>7</width>
-                        <format>&nfmt;</format>
-                    </number>
-                    <number>
-                        <halpin>"fproc04"</halpin>
-                        <font>&myfont;</font>
-                        <width>7</width>
-                        <format>&nfmt;</format>
-                    </number>
+			<number>
+				<halpin>"fproc01"</halpin>
+				<font>&myfont;</font>
+				<width>7</width>
+				<format>&nfmt;</format>
+			</number>
+			<number>
+				<halpin>"fproc02"</halpin>
+				<font>&myfont;</font>
+				<width>7</width>
+				<format>&nfmt;</format>
+			</number>
+			<number>
+				<halpin>"fproc03"</halpin>
+				<font>&myfont;</font>
+				<width>7</width>
+				<format>&nfmt;</format>
+			</number>
+			<number>
+				<halpin>"fproc04"</halpin>
+				<font>&myfont;</font>
+				<width>7</width>
+				<format>&nfmt;</format>
+			</number>
         </hbox>
         <hbox>
-                    <bar>
-                        <orient>'Vert'</orient>
-                        <layout>"w"</layout>
-
-                        <halpin>"proc01"</halpin>
-                        
-                        <min_>0</min_>
-                        <max_>10</max_>
-                        <origin>0</origin>
-                        
-                        <fillcolor>'red'</fillcolor>
-                        <bgcolor>&bgclr;</bgcolor>
-
-                        <range1>(0,3.333,"light blue")</range1>
-                        <range2>(3.333,8.666,"salmon")</range2>
-                        <range3>(8.666,10,"red")</range3>    
-                        
-                        <canvas_height>122</canvas_height>
-                        <canvas_width>82</canvas_width>
-                        
-                        <bar_height>120</bar_height>
-                        <bar_width>10</bar_width>
-                        
-                        <nformat>&nfmt;</nformat>
-                        <font>&myfont;</font>
-                        <!-- fotn seems to be modal -->
-                    </bar>
-                    <bar>
-                        <orient>'Vert'</orient>
-                        <halpin>"proc02"</halpin>
-                        <min_>-5</min_>
-                        <max_>5</max_>
-                        <origin>0</origin>
-                        <canvas_height>122</canvas_height>
-                        <canvas_width>82</canvas_width>
-                        <bar_height>120</bar_height>
-                        <bar_width>60</bar_width>
-                        <nformat>&nfmt;</nformat>
-                        <bgcolor>&bgclr;</bgcolor>
-                        <fillcolor>'red'</fillcolor>
-                        <font>&myfont;</font>
-                        <layout>"c"</layout>
-                    </bar>
-                    <bar>
-                        <orient>'Vert'</orient>
-                        <halpin>"proc03"</halpin>
-                        <min_>0</min_>
-                        <max_>100</max_>
-                        <origin>100</origin>
-                        <canvas_height>122</canvas_height>
-                        <canvas_width>82</canvas_width>
-                        <bar_height>120</bar_height>
-                        <bar_width>10</bar_width>
-                        <nformat>&nfmt;</nformat>
-                        <bgcolor>&bgclr;</bgcolor>
-                        <fillcolor>'red'</fillcolor>
-                        <font>&myfont;</font>
-                        <layout>"e"</layout>
-                    </bar>
-                    <bar>
-                        <orient>'Vert'</orient>
-                        <halpin>"proc04"</halpin>
-                        <min_>0</min_>
-                        <max_>10</max_>
-                        <origin>0</origin>
-                        <canvas_height>122</canvas_height>
-                        <!-- 22oct try thinner canvas, try to get 1 line tyoe ver bars -->
-                        <!-- canvas_width>82</canvas_width -->
-                        <canvas_width>22</canvas_width>
-                        <bar_height>100</bar_height>
-                        <!-- bar_width>10</bar_width-->
-                        <bar_width>1</bar_width>
-                        <nformat>&nfmt;</nformat>
-                        <bgcolor>"pink"</bgcolor>
-                        <fillcolor>'red'</fillcolor>
-                        <font>&myfont;</font>
-                        <!-- range1>(0,3.333,"blue")</range1-->
-                        <!-- range2>(3.333,6.666,"yellow")</range2-->
-                        <!-- range3>(6.666,10,"red")</range3-->    
-                        <!-- FIXME layout '1' -->
-                        <!--  err local variable 'txMin' ref'd before assignment -->
-                        <layout>"0"</layout>
-                        <!-- 22oct new dyn lib load for s=cstom thumbns -->
-                        <!-- 22oct modiy file to use self. instyead of Canvas -->
-                        <!-- 22 oct chg to polyfon hioping touse move methiod -->
-                        <!-- dwgf>"/home/tomp/linuxcnc-barwidgets/grfx/diamond01"</dwgf-->
-                        <dwgf>"resources/diamond01"</dwgf>
-                    </bar>
-                    <bar>
-                        <orient>'Vert'</orient>
-                        <halpin>"proc09"</halpin>
-                        <min_>0</min_>
-                        <max_>10</max_>
-                        <origin>0</origin>
-                        <canvas_height>122</canvas_height>
-                        <canvas_width>22</canvas_width>
-                        <bar_height>100</bar_height>
-                        <bar_width>1</bar_width>
-                        <nformat>&nfmt;</nformat>
-                        <bgcolor>"pink"</bgcolor>
-                        <fillcolor>'red'</fillcolor>
-                        <font>&myfont;</font>
-                        <layout>"0"</layout>
-                        <!--dwgf>"/home/tomp/linuxcnc-barwidgets/grfx/diamond01"</dwgf-->
-                        <dwgf>"resources/diamond01"</dwgf>
-                    </bar>					
-                    <bar>
-                        <orient>'Vert'</orient>
-                        <halpin>"proc10"</halpin>
-                        <min_>0</min_>
-                        <max_>10</max_>
-                        <origin>0</origin> 
-                        <canvas_height>122</canvas_height>
-                        <canvas_width>22</canvas_width>
-                        <bar_height>100</bar_height>
-                        <bar_width>1</bar_width>
-                        <nformat>&nfmt;</nformat>
-                        <bgcolor>"pink"</bgcolor>
-                        <fillcolor>'red'</fillcolor>
-                        <font>&myfont;</font>
-                        <layout>"0"</layout>
-                        <!--dwgf>"/home/tomp/linuxcnc-barwidgets/grfx/diamond01"</dwgf-->
-                        <dwgf>"resources/diamond01"</dwgf>
-                        <range1>(0,3.333,"deep sky blue")</range1>
-                        <range2>(3.333,6.666,"green")</range2>
-                        <range3>(6.666,10,"red")</range3>    
-                    </bar>					
+			<bar>
+				<orient>'Vert'</orient>
+				<layout>"w"</layout>
+				<halpin>"proc01"</halpin>
+				<min_>0</min_>
+				<max_>10</max_>
+				<origin>0</origin>
+				<fillcolor>'red'</fillcolor>
+				<bgcolor>&bgclr;</bgcolor>
+				<range1>(0,3.333,"light blue")</range1>
+				<range2>(3.333,8.666,"salmon")</range2>
+				<range3>(8.666,10,"red")</range3>    
+				<canvas_height>122</canvas_height>
+				<canvas_width>82</canvas_width>
+				<bar_height>120</bar_height>
+				<bar_width>10</bar_width>
+				<nformat>&nfmt;</nformat>
+				<font>&myfont;</font>
+				<!-- fotn seems to be modal -->
+			</bar>
+			<bar>
+				<orient>'Vert'</orient>
+				<halpin>"proc02"</halpin>
+				<min_>-5</min_>
+				<max_>5</max_>
+				<origin>0</origin>
+				<canvas_height>122</canvas_height>
+				<canvas_width>82</canvas_width>
+				<bar_height>120</bar_height>
+				<bar_width>60</bar_width>
+				<nformat>&nfmt;</nformat>
+				<bgcolor>&bgclr;</bgcolor>
+				<fillcolor>'red'</fillcolor>
+				<font>&myfont;</font>
+				<layout>"c"</layout>
+			</bar>
+			<bar>
+				<orient>'Vert'</orient>
+				<halpin>"proc03"</halpin>
+				<min_>0</min_>
+				<max_>100</max_>
+				<origin>100</origin>
+				<canvas_height>122</canvas_height>
+				<canvas_width>82</canvas_width>
+				<bar_height>120</bar_height>
+				<bar_width>10</bar_width>
+				<nformat>&nfmt;</nformat>
+				<bgcolor>&bgclr;</bgcolor>
+				<fillcolor>'red'</fillcolor>
+				<font>&myfont;</font>
+				<layout>"e"</layout>
+			</bar>
+			<bar>
+				<orient>'Vert'</orient>
+				<halpin>"proc04"</halpin>
+				<min_>0</min_>
+				<max_>10</max_>
+				<origin>0</origin>
+				<canvas_height>122</canvas_height>
+				<canvas_width>22</canvas_width>
+				<bar_height>100</bar_height>
+				<bar_width>1</bar_width>
+				<nformat>&nfmt;</nformat>
+				<bgcolor>"pink"</bgcolor>
+				<fillcolor>'red'</fillcolor>
+				<font>&myfont;</font>
+				<layout>"0"</layout>
+				<dwgf>"resources/diamond01"</dwgf>
+			</bar>
+			<bar>
+				<orient>'Vert'</orient>
+				<halpin>"proc09"</halpin>
+				<min_>0</min_>
+				<max_>10</max_>
+				<origin>0</origin>
+				<canvas_height>122</canvas_height>
+				<canvas_width>22</canvas_width>
+				<bar_height>100</bar_height>
+				<bar_width>1</bar_width>
+				<nformat>&nfmt;</nformat>
+				<bgcolor>"pink"</bgcolor>
+				<fillcolor>'red'</fillcolor>
+				<font>&myfont;</font>
+				<layout>"0"</layout>
+				<dwgf>"resources/diamond01"</dwgf>
+			</bar>					
+			<bar>
+				<orient>'Vert'</orient>
+				<halpin>"proc10"</halpin>
+				<min_>0</min_>
+				<max_>10</max_>
+				<origin>0</origin> 
+				<canvas_height>122</canvas_height>
+				<canvas_width>22</canvas_width>
+				<bar_height>100</bar_height>
+				<bar_width>1</bar_width>
+				<nformat>&nfmt;</nformat>
+				<bgcolor>"pink"</bgcolor>
+				<fillcolor>'red'</fillcolor>
+				<font>&myfont;</font>
+				<layout>"0"</layout>
+				<dwgf>"resources/diamond01"</dwgf>
+				<range1>(0,3.333,"deep sky blue")</range1>
+				<range2>(3.333,6.666,"green")</range2>
+				<range3>(6.666,10,"red")</range3>    
+			</bar>					
         </hbox>
     
         <!-- vert abve  horz below -->
@@ -232,11 +194,6 @@
                     <font>&myfont;</font>
                     <bd>3</bd>     
                 </label>
-                <!-- number>
-                    <halpin>"fproc05"</halpin>
-                    <font>&myfont;</font>
-                    <format>&nfmt;</format>
-                </number -->
             </vbox>
             <vbox>
                 <bar>
@@ -257,7 +214,6 @@
                 </bar>
             </vbox>
         </hbox>
-    
         <hbox>
             <vbox>
                 <label>
@@ -350,7 +306,6 @@
                     <fillcolor>'red'</fillcolor>
                     <font>&myfont;</font>
                     <layout>"0"</layout>
-                    <!--imgf>"pix/wifi16.png"</imgf-->
                     <imgf>"resources/wifi16.png"</imgf>
                 </bar>
                 <hbox>
