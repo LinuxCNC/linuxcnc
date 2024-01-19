@@ -14,10 +14,10 @@
 
 == Overview
 
-The LinuxCNC G-code language is based on the RS274/NGC language. The G
-Code language is based on lines of code. Each line (also called a
-'block') may include commands to do several different things. Lines of
-code may be collected in a file to make a program.
+The LinuxCNC G-code language is based on the RS274/NGC language.
+The G-code language is based on lines of code.
+Each line (also called a 'block') may include commands to do several different things.
+Lines of code may be collected in a file to make a program.
 
 A typical line of code consists of an optional line number at the
 beginning followed by one or more 'words'. A word consists of a letter
@@ -27,9 +27,9 @@ example, 'G1 X3' is a valid line of code with two words. 'G1' is a
 command meaning 'move in a straight line at the programmed feed
 rate to the programmed end point', and 'X3' provides an argument
 value (the value of X should be 3 at the end of the move).
-Most LinuxCNC G-code commands start with either G or M (for
-General and Miscellaneous). The words for these commands are called 'G
-codes' and 'M-codes'.
+Most LinuxCNC G-code commands start with either G or M (for General and Miscellaneous).
+The words for these commands are called 'G-codes' and 'M-codes'.
+Also common are subroutine codes that begin with 'o-' which are called 'o-codes'.
 
 The LinuxCNC language has no indicator for the start of a program. The
 Interpreter, however, deals with files. A single program may be in a
@@ -139,6 +139,25 @@ not have the corresponding axis.
 |Y | Y axis of machine
 |Z | Z axis of machine
 |===
+
+==== Parameters(((Parameters)))
+
+Parameters are identified with a "#" symbol in front of them. See <<sec:overview-parameters,Parameters Section>> below. 
+
+==== Subroutine Codes(((Subroutine Codes)))
+
+Also called 'o-codes' these provide program flow control (such as if-else logic and callable subroutines) and are covered fully at the page on <<cha:o-codes,o-Codes>> and also below in <<sub:subroutine-parameters,Subroutine Codes and Parameters>>.
+
+NOTE: o-codes are sometimes also called o-words. 
+
+==== Comments(((Comments)))
+
+Comments can be embedded in a line using parentheses () or for the remainder of a line using a semi-colon. There are also 'active' comments like MSG, DEBUG, etc. See the <<gcode:comments,section on comments>>.
+
+=== End of Line Marker(((End of Line Marker)))
+
+This is any combination of carriage return or line feed. 
+
 
 [[gcode:numbers]]
 === Numbers(((Numbers)))
