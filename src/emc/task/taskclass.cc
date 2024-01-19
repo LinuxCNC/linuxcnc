@@ -137,14 +137,14 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
 
     if (inifile.Open(ini_filename)) {
         inifile.Find(&random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
-        const char *t;
-        if ((t = inifile.Find("TOOL_TABLE", "EMCIO")) != NULL)
-            tooltable_filename = strdup(t);
+        std::optional<const char*> t;
+        if ((t = inifile.Find("TOOL_TABLE", "EMCIO")))
+            tooltable_filename = strdup(*t);
 
-        if ((t = inifile.Find("DB_PROGRAM", "EMCIO")) != NULL) {
+        if ((t = inifile.Find("DB_PROGRAM", "EMCIO"))) {
             db_mode = tooldb_t::DB_ACTIVE;
             tooldata_set_db(db_mode);
-            strncpy(db_program, t, LINELEN - 1);
+            strncpy(db_program, *t, LINELEN - 1);
         }
 
         if (tooltable_filename != NULL && db_program[0] != '\0') {
@@ -205,12 +205,11 @@ Task::~Task() {};
 static int readToolChange(IniFile *toolInifile)
 {
     int retval = 0;
-    const char *inistring;
+    std::optional<const char*> inistring;
 
-    if (NULL !=
-	(inistring = toolInifile->Find("TOOL_CHANGE_POSITION", "EMCIO"))) {
+    if ((inistring = toolInifile->Find("TOOL_CHANGE_POSITION", "EMCIO"))) {
 	/* found an entry */
-        if (9 == sscanf(inistring, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+        if (9 == sscanf(*inistring, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
                         &tool_change_position.tran.x,
                         &tool_change_position.tran.y,
                         &tool_change_position.tran.z,
@@ -222,7 +221,7 @@ static int readToolChange(IniFile *toolInifile)
                         &tool_change_position.w)) {
             have_tool_change_position=9;
             retval=0;
-        } else if (6 == sscanf(inistring, "%lf %lf %lf %lf %lf %lf",
+        } else if (6 == sscanf(*inistring, "%lf %lf %lf %lf %lf %lf",
                         &tool_change_position.tran.x,
                         &tool_change_position.tran.y,
                         &tool_change_position.tran.z,
@@ -234,7 +233,7 @@ static int readToolChange(IniFile *toolInifile)
 	    tool_change_position.w = 0.0;
             have_tool_change_position = 6;
             retval = 0;
-        } else if (3 == sscanf(inistring, "%lf %lf %lf",
+        } else if (3 == sscanf(*inistring, "%lf %lf %lf",
                                &tool_change_position.tran.x,
                                &tool_change_position.tran.y,
                                &tool_change_position.tran.z)) {

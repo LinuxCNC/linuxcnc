@@ -872,7 +872,7 @@ int Interp::init()
           fprintf(stderr,"Unable to open inifile:%s:\n", iniFileName);
       } else {
           bool opt;
-          const char *inistring;
+          std::optional<const char*> inistring;
 
           inifile.Find(&_setup.tool_change_at_g30, "TOOL_CHANGE_AT_G30", "EMCIO");
           inifile.Find(&_setup.tool_change_quill_up, "TOOL_CHANGE_QUILL_UP", "EMCIO");
@@ -905,14 +905,14 @@ int Interp::init()
           inifile.Find(&opt, "OWORD_WARNONLY", "RS274NGC");
           if (opt) _setup.feature_set |= FEATURE_OWORD_WARNONLY;
 
-          if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_A"))) {
-              _setup.a_indexer_jnum = atol(inistring);
+          if ((inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_A"))) {
+              _setup.a_indexer_jnum = atol(*inistring);
           }
-          if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_B"))) {
-              _setup.b_indexer_jnum = atol(inistring);
+          if ((inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_B"))) {
+              _setup.b_indexer_jnum = atol(*inistring);
           }
-          if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_C"))) {
-              _setup.c_indexer_jnum = atol(inistring);
+          if ((inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_C"))) {
+              _setup.c_indexer_jnum = atol(*inistring);
           }
           inifile.Find(&_setup.orient_offset, "ORIENT_OFFSET", "RS274NGC");
           inifile.Find(&_setup.parameter_g73_peck_clearance, "PARAMETER_G73_PECK_CLEARANCE", "RS274NGC");
@@ -922,18 +922,18 @@ int Interp::init()
 
 	  _setup.debugmask |= EMC_DEBUG_UNCONDITIONAL;
 
-          if(NULL != (inistring = inifile.Find("LOG_LEVEL", "RS274NGC")))
+          if((inistring = inifile.Find("LOG_LEVEL", "RS274NGC")))
           {
-              _setup.loggingLevel = atol(inistring);
+              _setup.loggingLevel = atol(*inistring);
           }
 
 	  // default the log_file to stderr.
-          if(NULL != (inistring = inifile.Find("LOG_FILE", "RS274NGC")))
+          if((inistring = inifile.Find("LOG_FILE", "RS274NGC")))
           {
-	      if ((log_file = fopen(inistring, "a"))  == NULL) {
+	      if ((log_file = fopen(*inistring, "a"))  == NULL) {
 		  log_file = stderr;
 		  logDebug( "(%d): Unable to open log file:%s, using stderr",
-			  getpid(), inistring);
+			  getpid(), *inistring);
 	      }
           } else {
 	      log_file = stderr;
@@ -942,30 +942,30 @@ int Interp::init()
           _setup.use_lazy_close = 1;
 
 	  _setup.wizard_root[0] = 0;
-          if(NULL != (inistring = inifile.Find("WIZARD_ROOT", "WIZARD")))
+          if((inistring = inifile.Find("WIZARD_ROOT", "WIZARD")))
           {
-	    logDebug("[WIZARD]WIZARD_ROOT:%s", inistring);
-            if (realpath(inistring, _setup.wizard_root) == NULL) {
+	    logDebug("[WIZARD]WIZARD_ROOT:%s", *inistring);
+            if (realpath(*inistring, _setup.wizard_root) == NULL) {
         	//realpath didn't find the file
-		logDebug("realpath failed to find wizard_root:%s:", inistring);
+		logDebug("realpath failed to find wizard_root:%s:", *inistring);
             }
           }
           logDebug("_setup.wizard_root:%s:", _setup.wizard_root);
 
 	  _setup.program_prefix[0] = 0;
-          if(NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")))
+          if((inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")))
           {
 	    // found it
             char expandinistring[LINELEN];
-            if (inifile.TildeExpansion(inistring,expandinistring,sizeof(expandinistring))) {
-                   logDebug("TildeExpansion failed for: %s",inistring);
+            if (inifile.TildeExpansion(*inistring,expandinistring,sizeof(expandinistring))) {
+                   logDebug("TildeExpansion failed for: %s",*inistring);
             }
             if (realpath(expandinistring, _setup.program_prefix) == NULL){
         	//realpath didn't find the file
-		logDebug("realpath failed to find program_prefix:%s:", inistring);
+		logDebug("realpath failed to find program_prefix:%s:", *inistring);
             }
             logDebug("program prefix:%s: prefix:%s:",
-		     inistring, _setup.program_prefix);
+		     *inistring, _setup.program_prefix);
           }
           else
           {
@@ -973,7 +973,7 @@ int Interp::init()
           }
           logDebug("_setup.program_prefix:%s:", _setup.program_prefix);
 
-          if(NULL != (inistring = inifile.Find("SUBROUTINE_PATH", "RS274NGC")))
+          if((inistring = inifile.Find("SUBROUTINE_PATH", "RS274NGC")))
           {
             // found it
             int dct;
@@ -984,7 +984,7 @@ int Interp::init()
                  _setup.subroutines[dct] = NULL;
             }
 
-            rtapi_strxcpy(tmpdirs,inistring);
+            rtapi_strxcpy(tmpdirs,*inistring);
             nextdir = strtok(tmpdirs,":");  // first token
             dct = 0;
             while (1) {
@@ -1016,15 +1016,15 @@ int Interp::init()
           }
           // subroutine to execute on aborts - for instance to retract
           // toolchange HAL pins
-          if (NULL != (inistring = inifile.Find("ON_ABORT_COMMAND", "RS274NGC"))) {
-	      _setup.on_abort_command = strstore(inistring);
+          if ((inistring = inifile.Find("ON_ABORT_COMMAND", "RS274NGC"))) {
+	      _setup.on_abort_command = strstore(*inistring);
               logDebug("_setup.on_abort_command=%s", _setup.on_abort_command);
           } else {
 	      _setup.on_abort_command = NULL;
           }
 
 	  // initialize the Python plugin singleton
-          if (NULL != (inistring = inifile.Find("TOPLEVEL", "PYTHON"))) {
+          if ((inistring = inifile.Find("TOPLEVEL", "PYTHON"))) {
 	      int status = python_plugin->configure(iniFileName,"PYTHON");
 	      if (status != PLUGIN_OK) {
 		  Error("Python plugin configure() failed, status = %d", status);
@@ -1036,10 +1036,10 @@ int Interp::init()
 	  _setup.g_remapped.clear();
 	  _setup.m_remapped.clear();
 	  _setup.remaps.clear();
-	  while (NULL != (inistring = inifile.Find("REMAP", "RS274NGC",
+	  while ((inistring = inifile.Find("REMAP", "RS274NGC",
 						   n, &lineno))) {
 
-	      CHP(parse_remap( inistring,  lineno));
+	      CHP(parse_remap( *inistring,  lineno));
 	      n++;
 	  }
 
@@ -2491,7 +2491,7 @@ VARIABLE_FILE = rs274ngc.var
 int Interp::ini_load(const char *filename)
 {
     IniFile inifile;
-    const char *inistring;
+    std::optional<const char*> inistring;
 
     // open it
     if (inifile.Open(filename) == false) {
@@ -2503,12 +2503,12 @@ int Interp::ini_load(const char *filename)
 
 
     char parameter_file_name[LINELEN]={};
-    if (NULL != (inistring = inifile.Find("PARAMETER_FILE", "RS274NGC"))) {
-        if (strlen(inistring) >= sizeof(parameter_file_name)) {
+    if ((inistring = inifile.Find("PARAMETER_FILE", "RS274NGC"))) {
+        if (strlen(*inistring) >= sizeof(parameter_file_name)) {
             logDebug("%s:[RS274NGC]PARAMETER_FILE is too long (max len %zu)",
                      filename, sizeof(parameter_file_name)-1);
         } else {
-            strncpy(parameter_file_name, inistring, sizeof(parameter_file_name));
+            strncpy(parameter_file_name, *inistring, sizeof(parameter_file_name));
             logDebug("found PARAMETER_FILE:%s:", parameter_file_name);
         }
     } else {

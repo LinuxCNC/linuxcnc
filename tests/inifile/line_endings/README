@@ -1,0 +1,5 @@
+The INI parser in LinuxCNC handles UNIX line endings, '\n' and DOS '\r\n', with
+ a warning. The parser aborts when it encounters classic MAC OS line endings '\r'.
+
+The INI files is created in the test script, since several tools automatically
+fixes the line endings.
