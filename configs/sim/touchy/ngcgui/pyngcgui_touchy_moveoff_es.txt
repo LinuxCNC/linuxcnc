@@ -1,0 +1,23 @@
+demo moveoff para touchy
+
+modifica pyngcgui_touchy.ini para usar:
+
+[HAL]
+...
+HALFILE = hookup_move.tcl
+HALUI = halui
+
+APP = moveoff_gui \
+    -size 20 -loc center \
+    -axes xyz \
+    -autoresume -delay 4 \
+    -inc 0.001 -inc 0.01 -inc 0.1 -inc 1.0
+
+
+Las configuraciones de simulación generalmente conectan los pines motor-pos-cmd y motor-pos-fb (cortocircuitados). Esta configuración también es aplicable en bucle abierto (sistemas paso a paso) y hace posible que las simulaciones se ejecuten sin hardware externo. Los servosistemas utilizan rutas separadas para el comando y la retroalimentación y el lazo servo se completa con componentes hal (a menudo utilizando un componente pid).
+
+Esta conexión separada es necesaria para verificar que la secuencia de comandos hookup_moveoff funcione correctamente con configuraciones de servos y sistemas paso a paso.
+
+Para más información de uso:
+  $ man moveoff
+  $ moveoff_gui --help | more

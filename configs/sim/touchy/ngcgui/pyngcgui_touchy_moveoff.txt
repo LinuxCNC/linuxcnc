@@ -1,0 +1,23 @@
+moveoff demo for touchy
+
+modifies pyngcgui_touchy.ini to use:
+
+[HAL]
+...
+HALFILE = hookup_move.tcl
+HALUI   = halui
+
+APP = moveoff_gui \
+    -size 20 -loc center \
+    -axes xyz \
+    -autoresume -delay 4 \
+    -inc 0.001 -inc 0.01 -inc 0.1 -inc 1.0
+
+
+Simulation configurations usually connect the motor-pos-cmd and motor-pos-fb pins together (shortcircuited).  This configuration is also applicable to open-loop (stepper systems) and makes it possible for simulations to run with no external hardware.  Servo systems use separate paths for command and feedback and the servo loop is completed with hal components (often using a pid component).
+
+This separated connection is needed to verify that the hookup_moveoff script works correctly with both servo and stepper system configurations.
+
+For more usage info:
+  $ man moveoff
+  $ moveoff_gui --help | more

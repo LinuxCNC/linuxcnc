@@ -1,0 +1,5 @@
+configuración de pyngcgui touchy para torno
+
+Demostrar aplicaciones gladevcp:
+   pyngcgui      -- aplicación de subrutina
+   gremlin_view  -- gremlin con algunos botones

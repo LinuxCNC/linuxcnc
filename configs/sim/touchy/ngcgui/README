@@ -1,0 +1,9 @@
+pyngcgui configs for touchy
+
+Demonstrate gladevcp apps:
+   pyngcgui     -- subroutine app
+   gremlin_view -- gremlin with some buttons
+
+The pyngcgui configs include a shell script
+(hwsim.sh) to simulate the hardware buttons
+and mpg that can be used with touchy.

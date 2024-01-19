@@ -1,0 +1,3 @@
+net Xvel => touchy-misc.hal_graph_vel_x
+net Yvel => touchy-misc.hal_graph_vel_y
+net Zvel => touchy-misc.hal_graph_vel_z
