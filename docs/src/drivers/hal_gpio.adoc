@@ -110,14 +110,14 @@ A further update to this driver might allow access by index number, but this is 
 If "access denied" messages are returned on loading the driver, try the following recipe:
 (Should not be needed for Raspbian, and will need to be modified to match the actual GPIO chip name on non-Pi platforms)
 
-1) Create a new group `gpio` with the command
-
+. Create a new group `gpio` with the command
++
 ----
 sudo groupadd gpio
 ----
 
-2) Create a file called `90-gpio-access` with the following contents (this is copied from the Raspbian install)
-
+. Create a file called `90-gpio-access` with the following contents (this is copied from the Raspbian install)
++
 ----
 SUBSYSTEM=="bcm2835-gpiomem", GROUP="gpio", MODE="0660"
 SUBSYSTEM=="gpio", GROUP="gpio", MODE="0660"
@@ -133,8 +133,8 @@ SUBSYSTEM=="pwm*", PROGRAM="/bin/sh -c '\
 '"
 ----
 
-3) Add the user who runs LinuxCNC to the `gpio` group with
-
+. Add the user who runs LinuxCNC to the `gpio` group with
++
 ----
 sudo usermod -aG gpio <username>
 ----
