@@ -21,7 +21,7 @@ loadrt hal_gpio inputs=GPIO5,GPIO6,GPIO12,GPIO13,GPIO16,GPIO17,GPIO18,GPIO19 \
 ----
 
 This driver relies on the libgpiod-dev library and the https://tracker.debian.org/pkg/libgpiod[gpiod] package, which contains a number of utilities for configuring and querying GPIO.
-The GPIO pin names in the "loadrt" line of the HAL given above should be the names given by the "gpioinfo" command.
+The GPIO pin names in the "loadrt" line of the HAL given above should be the names given by the `gpioinfo` command.
 
 Sample output (truncated):
 
@@ -74,7 +74,7 @@ They should be used in the same way as the parameters described above, and will 
 
 *pullup*
 
-The version of libgpiod-dev installed can be determined by the command "gpioinfo -v"
+The version of libgpiod-dev installed can be determined by the command `gpioinfo -v`
 
 == Pins
 
@@ -101,7 +101,7 @@ Typically, the 'read' function will be early in the call list, before any encode
 
 == Pin Identification
 
-Use the pin names returned by the "gpioinfo" utility. This uses the device-tree data. If the installed OS does not have a device-tree database then the pins will all be called "unnamed" (or similar) and this driver can not be used.
+Use the pin names returned by the `gpioinfo` utility. This uses the device-tree data. If the installed OS does not have a device-tree database then the pins will all be called "unnamed" (or similar) and this driver can not be used.
 
 A further update to this driver might allow access by index number, but this is not currently supported.
 
@@ -110,11 +110,13 @@ A further update to this driver might allow access by index number, but this is 
 If "access denied" messages are returned on loading the driver, try the following recipe:
 (Should not be needed for Raspbian, and will need to be modified to match the actual GPIO chip name on non-Pi platforms)
 
-1) Create a new group "gpio" with the command
+1) Create a new group `gpio` with the command
 
- sudo groupadd gpio
+----
+sudo groupadd gpio
+----
 
-2) Create a file called 90-gpio-access with the following contents (this is copied from the Raspbian install)
+2) Create a file called `90-gpio-access` with the following contents (this is copied from the Raspbian install)
 
 ----
 SUBSYSTEM=="bcm2835-gpiomem", GROUP="gpio", MODE="0660"
@@ -131,9 +133,11 @@ SUBSYSTEM=="pwm*", PROGRAM="/bin/sh -c '\
 '"
 ----
 
-3) Add the user who runs LinuxCNC to the "gpio" group with
+3) Add the user who runs LinuxCNC to the `gpio` group with
 
-sudo usermod -aG gpio the_username
+----
+sudo usermod -aG gpio <username>
+----
 
 == Author
 
