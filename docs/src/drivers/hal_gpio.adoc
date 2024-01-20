@@ -116,7 +116,7 @@ If "access denied" messages are returned on loading the driver, try the followin
 
 2) Create a file called 90-gpio-access with the following contents (this is copied from the Raspbian install)
 
-```
+----
 SUBSYSTEM=="bcm2835-gpiomem", GROUP="gpio", MODE="0660"
 SUBSYSTEM=="gpio", GROUP="gpio", MODE="0660"
 SUBSYSTEM=="gpio*", PROGRAM="/bin/sh -c '\
@@ -129,7 +129,7 @@ SUBSYSTEM=="pwm*", PROGRAM="/bin/sh -c '\
 	chown -R root:gpio /sys/class/pwm && chmod -R 770 /sys/class/pwm;\
 	chown -R root:gpio /sys/devices/platform/soc/*.pwm/pwm/pwmchip* && chmod -R 770 /sys/devices/platform/soc/*.pwm/pwm/pwmchip*\
 '"
-```
+----
 
 3) Add the user who runs LinuxCNC to the "gpio" group with
 
