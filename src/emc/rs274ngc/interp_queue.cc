@@ -650,7 +650,7 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                 break;
             default:
                 ERS(_("BUG: Unsupported plane [%d] in cutter compensation"),
-			settings->plane);
+			static_cast<int>(settings->plane));
             }
 
             dot = x1 * x2 + y1 * y2;

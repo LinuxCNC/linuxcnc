@@ -470,7 +470,7 @@ enum EmcJointType {
  * Set the units conversion factor.
  * @see EMC_JOINT_SET_INPUT_SCALE
  */
-typedef double                  EmcLinearUnits;
-typedef double                  EmcAngularUnits;
+using EmcLinearUnits = double;
+using EmcAngularUnits = double;
 
 #endif				// #ifndef EMC_HH
