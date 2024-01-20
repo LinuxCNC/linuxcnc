@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC 2.10.
 
 .I VERSION:
 .br
-001
+002
 
 .I SUMMARY:
 .br
@@ -152,6 +152,15 @@ pin in  s32     y_offset                    "offset to apply to axis y for consu
 pin in  float   y_offset_current            "current z axis offset, connect to axis.y.eoffset";
 pin in  float   z_offset_current            "current z axis offset, connect to axis.z.eoffset";
 pin in  float   zero_window = 0.1           "sets window that voltage fluctuations show as zero (-0.1 to 0.1 at default value)";
+// Pierce user control pins
+pin in  unsigned  pierce_type = 0           "allows motion to progress during pierce. 0=No movement, 1=Wiggle, 2=Ramp";
+pin in  float   pierce_motion_delay = 0     "delay starting motion during pierce delay period. This is a % of Pierce Delay. Only used whrn pierce-with-moton is True";
+pin in  float   cut_height_delay = 0        "at the end of transition to end-perice-height how long to pause before transition to cut height";
+pin in  float   pierce_end_height = 0       "The height at end of piercing (in machine units). Can be different to Cut Height. Default 0 means not used. i.e. no change in height";
+pin in  float   gouge_speed = 0             "Ramp starting speed for gouge. In machine units/min.";
+pin in  float   gouge_speed_distance = 0    "Distance gouge will run in machine units. Gouge plus creep distance should not be longer than any lead in";
+pin in  float   creep_speed = 0             "Ramp creep or intermediate speed. Comes after gouge and is before cut speed. In machine units/min.";
+pin in  float   creep_speed_distance = 0    "Distance creep will run in machine units. Gouge plus creep distance should not be longer than any lead in";
 
 /* OUTPUT PINS */
 pin out float   adaptive_feed               "for reverse-run, connect to motion.adaptive-feed";
@@ -315,6 +324,17 @@ variable int    y_velocity;                 /* velocity for y motion for consuma
 variable int    z_max;                      /* max height for testing against pierce height*/
 variable int    z_pierce;                   /* pierce height for testing against max height*/
 variable int    zero_target;                /* zero height target offset */
+// Pierce user control pins
+variable float  pierce_motion_delay_timer;  /* delay starting motion during pierce delay period. Only used whrn pierce-type is 2. Is calced from a % of Pierce Delay*/
+variable float  cut_height_delay_timer;     /* at the end of transition to end-perice-height how long to pause before transition to cut height*/
+variable float  total_pierce_state_delay;   /* Total of pierce delay and cut motion delay */
+variable int    pierce_end_target;          /* Target pierce height at end of pierce motion. Usually less than the starting pierce height */
+variable float  gouge_speed_dist_travelled; /* Sum of distance traveled during gouge stage */
+variable float  gouge_speed_scale;          /* scale of gouge speed in proportion to standard cut feed rate */
+variable float  creep_speed_dist_travelled; /* Sum of distance traveled during creep stage */
+variable float  creep_speed_scale;          /* scale of creep speed in proportion to standard cut feed rate */
+variable float  pierce_old_x;               /* tracking the last x location during pierce */
+variable float  pierce_old_y;               /* tracking the last y location during pierce */
 
 // temp for testing forum post #210558
 // https://forum.linuxcnc.org/plasmac/42690-is-this-qtplasmac-expected-behaviour-cycle-start-and-jog-disabled?start=0#210558
@@ -1307,6 +1327,7 @@ FUNCTION(_) {
                     zero_target = z_offset_counts + probe_offset;
                     cut_target = offset_datum = zero_target + (cut_height / offset_scale);
                     pierce_target = zero_target + (pierce_height / offset_scale);
+                    pierce_end_target = zero_target + (pierce_end_height / offset_scale);
                     puddle_jump_target = zero_target + ((pierce_height * puddle_jump_percent * 0.01) / offset_scale );
                     safe_min = pierce_target + ((1 * units_per_mm) / offset_scale);
                     safe_preferred = zero_target + (safe_height / offset_scale);
@@ -1401,8 +1422,14 @@ FUNCTION(_) {
                             if(probe_testing){
                                 state = PROBE_TEST;
                             }else if(!torch_enable){
-                                pierce_timer = pierce_delay;
+                                pierce_timer = pierce_delay + cut_height_delay;
                                 state = PIERCE_DELAY;
+                                pierce_motion_delay_timer = (pierce_motion_delay/100) * pierce_delay;
+                                cut_height_delay_timer = cut_height_delay;
+                                gouge_speed_dist_travelled = 0;
+                                creep_speed_dist_travelled = 0;
+                                pierce_old_x = axis_x_position;
+                                pierce_old_y = axis_y_position;
                             }else if((tool == CUTTING || tool == SPOTTING) &&
                                      (!offset_probing || (offset_probing &&
                                      (int)(x_offset_current * offset_res) == (int)(op_x_start * offset_scale * offset_res) &&
@@ -1491,14 +1518,104 @@ FUNCTION(_) {
                     arc_starts += 1;
                     state = TORCH_ON;
                 }else if((arc_ok_out || ignore_arc_ok_0 || ignore_arc_ok_1) && tool != SPOTTING){
-                        pierce_timer = pierce_delay;
+                        pierce_timer = pierce_delay + cut_height_delay;
                         state = PIERCE_DELAY;
+                        pierce_motion_delay_timer = (pierce_motion_delay/100) * pierce_delay;
+                        cut_height_delay_timer = cut_height_delay;
+                        gouge_speed_dist_travelled = 0;
+                        creep_speed_dist_travelled = 0;
+                        pierce_old_x = axis_x_position;
+                        pierce_old_y = axis_y_position;
                 }
                 break;
             case PIERCE_DELAY:
+                rtapi_print_msg(RTAPI_MSG_DBG,"PIERCE_DELAY\n");
                 stop_type = NONE;
                 /* wait for arc to pierce stock */
-                feed_hold = TRUE;
+                feed_hold = TRUE;       // base assumption is no motion
+                if(pierce_type != 0){   // Test pierce type. 0=Normal, 1=Wiggle, 2=Ramp
+                    rtapi_print_msg(RTAPI_MSG_DBG,"PIERCE_DELAY - pierce_type >0\n");
+                    feed_hold = FALSE;  // We have motion for non normal pierce (wiggle and ramp)
+                    if(pierce_type == 2){
+                        /* for ramp we map have no motion for a period at the start before commencing a moving pierce and loweing height
+                           Sequence being tested for is
+                           1. pierce motion delay. Move in x/y but not in Z
+                           2. Z movement ramp down to pierce end height
+                           3. delay time  before commencing movement to cut height.
+                              This should just be letting the remainder of TOTAL Pierce Delay run out
+                              i.e. Pierce Delay + Cut Delay
+
+                           In parallel there is a speed profile in the sequence
+                           A. Gouge speed for gouge time period
+                           B. Crawl speed for crawl time periof
+                           C. Cut speed - should returning to normal feed rate.
+                        */
+                        rtapi_print_msg(RTAPI_MSG_DBG,"PIERCE_DELAY - pierce_type == 2\n");
+                        /* Set up some key variables */
+                        gouge_speed_scale = gouge_speed / cut_feed_rate;
+                        creep_speed_scale = creep_speed / cut_feed_rate;
+
+                        /* ---------------------------------
+                                X/Y Speed Profile logic
+                        ------------------------------------*/
+                        if (gouge_speed_dist_travelled < gouge_speed_distance){
+                            /* Seq A - gouge distance*/
+                            rtapi_print_msg(RTAPI_MSG_DBG,"PIERCE_DELAY - Seq A\n");
+                            if(gcode_scale == 1){
+                                requested_feed_rate = cut_feed_rate * gouge_speed_scale;
+                            }else{
+                                requested_feed_rate = (cut_feed_rate * gouge_speed_scale) / gcode_scale;
+                            }
+                            adaptive_feed = gouge_speed_scale;
+                            // accumulate gouge distance traveled in XY plane
+                            gouge_speed_dist_travelled += fabs(sqrt(pow(pierce_old_x - axis_x_position, 2) + pow(pierce_old_y - axis_y_position, 2)));
+                            // record current X/Y for next accumulation calc
+                            pierce_old_x = axis_x_position;
+                            pierce_old_y = axis_y_position;
+                        }else if(creep_speed_dist_travelled < creep_speed_distance){
+                            /* Seq B - creep distance */
+                            rtapi_print_msg(RTAPI_MSG_DBG,"PIERCE_DELAY - Seq B\n");
+                            if(gcode_scale == 1){
+                                requested_feed_rate = cut_feed_rate * creep_speed_scale;
+                            }else{
+                                requested_feed_rate = (cut_feed_rate * creep_speed_scale) / gcode_scale;
+                            }
+                            adaptive_feed = creep_speed_scale;
+                            // accumulate gouge distance traveled in XY plane
+                            creep_speed_dist_travelled += fabs(sqrt(pow(pierce_old_x - axis_x_position, 2) + pow(pierce_old_y - axis_y_position, 2)));
+                            // record current X/Y for next accumulation calc
+                            pierce_old_x = axis_x_position;
+                            pierce_old_y = axis_y_position;
+                        }else{
+                            /* Seq C - set to cut speed */
+                            rtapi_print_msg(RTAPI_MSG_DBG,"PIERCE_DELAY - set requested feed = cut feed\n");
+                            requested_feed_rate = cut_feed_rate;
+                            adaptive_feed = 1;
+                        }
+
+                        /* ---------------------------------
+                                Z Motion Profile logic
+                        ------------------------------------*/
+                        if (pierce_motion_delay_timer > 0){
+                            // Sequence 1
+                            rtapi_print_msg(RTAPI_MSG_DBG,"PIERCE_DELAY - Seq 1\n");
+                            pierce_motion_delay_timer -= fperiod;
+                        }else if(z_offset_counts != pierce_end_target){
+                            // Sequence 2
+                            rtapi_print_msg(RTAPI_MSG_DBG,"PIERCE_DELAY - Seq 2\n");
+                            z_offset_enable = TRUE;
+                            rtapi_print_msg(RTAPI_MSG_DBG,"PIERCE_DELAY - move z_offset_counts\n");
+                            z_offset_counts = offset_move(z_offset_counts,
+                                            (((pierce_height - pierce_end_height)/(pierce_delay - ((pierce_motion_delay/100)*pierce_delay)))*60)*velocity_scale,
+                                            pierce_end_target);
+                        }else{
+                            // Sequence 3
+                            rtapi_print_msg(RTAPI_MSG_DBG,"PIERCE_DELAY - Seq 3\n");
+                            cut_height_delay_timer -= fperiod;
+                        }
+                    }
+                }
+                // normal pierce timer processing
                 if(pierce_timer > 0){
                     pierce_timer -= fperiod;
                 }else if((puddle_jump_delay || puddle_jump_percent != 100) && !cut_recovering){
