@@ -154,8 +154,8 @@ pin in  float   z_offset_current            "current z axis offset, connect to a
 pin in  float   zero_window = 0.1           "sets window that voltage fluctuations show as zero (-0.1 to 0.1 at default value)";
 // Pierce user control pins
 pin in  unsigned  pierce_type = 0           "allows motion to progress during pierce. 0=No movement, 1=Wiggle, 2=Ramp";
-pin in  float   pierce_motion_delay = 0     "delay starting motion during pierce delay period. This is a % of Pierce Delay. Only used whrn pierce-with-moton is True";
-pin in  float   cut_height_delay = 0        "at the end of transition to end-perice-height how long to pause before transition to cut height";
+pin in  float   pierce_motion_delay = 0     "delay starting motion during pierce delay period. This is a % of Pierce Delay. Only used when pierce-with-motion is True";
+pin in  float   cut_height_delay = 0        "at the end of transition to end-pierce-height how long to pause before transition to cut height";
 pin in  float   pierce_end_height = 0       "The height at end of piercing (in machine units). Can be different to Cut Height. Default 0 means not used. i.e. no change in height";
 pin in  float   gouge_speed = 0             "Ramp starting speed for gouge. In machine units/min.";
 pin in  float   gouge_speed_distance = 0    "Distance gouge will run in machine units. Gouge plus creep distance should not be longer than any lead in";
