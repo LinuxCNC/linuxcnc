@@ -15,10 +15,10 @@
 
 == Overview
 
-The LinuxCNC G-code language is based on the RS274/NGC language. The G
-Code language is based on lines of code. Each line (also called a
-'block') may include commands to do several different things. Lines of
-code may be collected in a file to make a program.
+The LinuxCNC G-code language is based on the RS274/NGC language.
+The G-code language is based on lines of code.
+Each line (also called a 'block') may include commands to do several different things.
+Lines of code may be collected in a file to make a program.
 
 A typical line of code consists of an optional line number at the
 beginning followed by one or more 'words'. A word consists of a letter
@@ -146,7 +146,6 @@ The table includes N and O for completeness, even though, as defined above, line
 |Y | Y axis of machine
 |Z | Z axis of machine
 |===
-
 
 ==== Parameters(((Parameters)))
 

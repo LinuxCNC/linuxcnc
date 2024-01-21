@@ -84,14 +84,26 @@ class QTPanel():
                 # if 'loadusr' is present, it's assumed embedding into AXIS
                 # so ignore it.
                 if 'qtvcp' in cmd and not 'loadusr' in cmd:
-                    cmd = cmd.split()[1]
-                    LOG.info('green<QTVCP: Found external qtvcp {} panel to instantiate>'.format(cmd))
+                    temp = cmd.split()
+                    hdlrName = temp[len(cmd.split())-1]
+                    LOG.info('green<QTVCP: Found external qtvcp {} panel to instantiate>'.format(hdlrName))
 
                     pName = name.replace(' ','_')
                     window[pName] = window.makeMainPage(name)
 
+                    # find and pass -o option variables
+                    ucmd = []
+                    for num,i in enumerate(temp):
+                        if i == '-o':
+                         ucmd.append(temp[num+1])
+                    LOG.debug('user commands:{}'.format(ucmd))
+                    if ucmd == []:
+                        window[pName].USEROPTIONS_ = None
+                    else:
+                        window[pName].USEROPTIONS_ = ucmd
+
                     # search for handler path and load if available
-                    hndlr = self.PATH.find_embed_handler_path(cmd)
+                    hndlr = self.PATH.find_embed_handler_path(hdlrName)
                     if hndlr is not True and os.path.exists(hndlr):
                         window[pName].load_extension(hndlr)
 
@@ -100,19 +112,17 @@ class QTPanel():
                             window[pName].handler_instance.class_patch__()
 
                     # search for ui path and load if available
-                    uipath = self.PATH.find_embed_panel_path(cmd)
+                    uipath = self.PATH.find_embed_panel_path(hdlrName)
                     window[pName].instance(uipath)
                     window._VCPWindowList.append(window[pName])
 
-                    # initialize handler if available
-                    if hndlr is not True and os.path.exists(hndlr):
-                        window[pName].handler_instance.initialized__()
-
                     # record HAL component base name because we are going to change it
                     oldname = halcomp.comp.getprefix()
-                    halcomp.comp.setprefix('{}.{}'.format(oldname,cmd))
+                    halName = hdlrName.replace('_','-')
+                    halcomp.comp.setprefix('{}.{}'.format(oldname,halName))
+                    LOG.debug('embedded halpin prefix name: cyan<{}.{}>'.format(oldname,halName))
 
-                    LOG.debug('QTVCP: Parsing external qtvcp {} panel for EMBEDDED HAL widgets.'.format(cmd))
+                    LOG.debug('QTVCP: Parsing external qtvcp {} panel for EMBEDDED HAL widgets.'.format(hdlrName))
                     for widget in window[pName].findChildren(QObject):
                         if isinstance(widget, _HalWidgetBase):
                             idname = widget.objectName()
@@ -123,6 +133,10 @@ class QTPanel():
 
                     # restore HAL component name
                     halcomp.comp.setprefix(oldname)
+
+                    # initialize handler if available
+                    if hndlr is not True and os.path.exists(hndlr):
+                        window[pName].handler_instance.initialized__()
 
         # parse for HAL objects:
         # initiate the hal function on each

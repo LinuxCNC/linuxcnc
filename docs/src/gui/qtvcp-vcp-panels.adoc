@@ -411,7 +411,7 @@ EMBED_TAB_LOCATION=tabWidget_utilities
 
 *'EMBED_TAB_NAME'*:: will typically be the title of the tab.
 *'EMBED_TAB_LOCATION'*:: will be specific to the screen and specifies the tabWidget or stackedWidget to embed into.
-*'EMBED_TAB_COMMAND'*:: is the command used to invoke loading of the panel. For native embedded panels the first word will always be 'qtvcp', the second will be the panel to load. You cannot currently add any switches to the command line. The panel will follow the debugging mode setting of the main screen.
+*'EMBED_TAB_COMMAND'*:: is the command used to invoke loading of the panel. For native embedded panels the first word will always be 'qtvcp', the last will be the panel name to load. You can also pass options to the panel with -o switches in the command line between 'qtvcp' and the panel name. The panel will follow the debugging mode setting of the main screen.
 
 === Location of builtin Panels
 There are panels available that are included with LinuxCNC. To see a list open a terminal and type 'qtvcp' and press return. +
@@ -465,5 +465,53 @@ When using Python command option in Action Button widgets of an embedded panel:
 
 If the panel is not embedded, both refer to the panel window.
 
+=== Handler Patching - Subclassing Builtin Panels
 
+We can have QtVCP load a subclassed version of the standard handler file. in that file we can manipulate the original functions or add new ones. +
+Subclassing just means our handler file first loads the original handler file and adds our new code on top of it - so a patch of changes. +
+This is useful for changing/adding behaviour while still retaining standard handler updates from LinuxCNC repositories. +
+
+You may still need to use the handler copy dialog to copy the original handler file to decide how to patch it.
+
+There should be a folder in the config folder; for panel: named '<CONFIG FOLDER>/qtvcp/panels/<PANEL NAME>/' +
+add the handle patch file there, named like so <ORIGINAL PANEL NAME>_handler.py +
+ie for cam_align the file would be called 'cam_align_handler.py' +
+
+Here is a sample to change the circle color in cam_align: +
+
+[source,python]
+----
+import sys
+import os
+import importlib
+from PyQt5.QtCore import Qt
+from qtvcp.core import Path
+
+PATH = Path()
+
+# get reference to original handler file so we can subclass it
+sys.path.insert(0, PATH.PANELDIR)
+panel = os.path.splitext(os.path.basename(os.path.basename(__file__)))[0]
+base = panel.replace('_handler','')
+module = "{}.{}".format(base,panel)
+mod = importlib.import_module(module, PATH.PANELDIR)
+sys.path.remove(PATH.PANELDIR)
+HandlerClass = mod.HandlerClass
+
+# return our subclassed handler object to Qtvcp
+def get_handlers(halcomp, widgets, paths):
+    return [UserHandlerClass(halcomp, widgets, paths)]
+
+# subclassed from HandlerClass which was imported above
+class UserHandlerClass(HandlerClass):
+    print('Custom subclassed panel handler loaded\n')
+
+    def initialized__(self):
+        # call original handler initialized function
+        super().initialized__()
+
+        # add our customization
+        self.w.camview.circle_color = Qt.green
+
+----
 // vim: set syntax=asciidoc:
