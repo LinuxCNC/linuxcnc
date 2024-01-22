@@ -33,69 +33,123 @@ except:
     print("M159 - Missing P or Q parameter")
     exit()
 
+# Check minor python version is higher than 9. If so use more elegant code model.
+if sys.version_info.minor > 9:
+    try:
+        # Example setting code snippet for sheetcam or similar.
+        # m159 p601 q2
+        # m159 p602 q50
+        # m159 p603 q2.5
+        # m159 p604 q1
+        # m159 p605 q980
+        # m159 p606 q5
+        # m159 p607 q245
+        # m159 p608 q3
+        
+        # Ensure all the params needed are there. Below params and "comment" taken from plasmac comp.
+        # pin in  unsigned  pierce_type = 0           "allows motion to progress during pierce. 0=No movement, 1=Wiggle, 2=Ramp";
+        # pin in  float   pierce_motion_delay = 0     "delay starting motion during pierce delay period. This is a % of Pierce Delay. Only used when pierce-with-motion is True";
+        # pin in  float   cut_height_delay = 0        "at the end of transition to end-pierce-height how long to pause before transition to cut height";
+        # pin in  float   pierce_end_height = 0       "The height at end of piercing (in machine units). Can be different to Cut Height. Default 0 means not used. i.e. no change in height";
+        # pin in  float   gouge_speed = 0             "Ramp starting speed for gouge. In machine units/min.";
+        # pin in  float   gouge_speed_distance = 0    "Distance gouge will run in machine units. Gouge plus creep distance should not be longer than any lead in";
+        # pin in  float   creep_speed = 0             "Ramp creep or intermediate speed. Comes after gouge and is before cut speed. In machine units/min.";
+        # pin in  float   creep_speed_distance = 0    "Distance creep will run in machine units. Gouge plus creep distance should not be longer than any lead in";
 
-try:
-    # D2 E50 J2.5 I1 K980 P5 Q245 R3
-    # Example setting code snippet for sheetcam or similar.
-    # m159 p601 q2
-    # m159 p602 q50
-    # m159 p603 q2.5
-    # m159 p604 q1
-    # m159 p605 q980
-    # m159 p606 q5
-    # m159 p607 q245
-    # m159 p608 q3
-    # Ensure all the params needed are there
-    # pin in  unsigned  pierce_type = 0           "allows motion to progress during pierce. 0=No movement, 1=Wiggle, 2=Ramp";
-    # pin in  float   pierce_motion_delay = 0     "delay starting motion during pierce delay period. This is a % of Pierce Delay. Only used whrn pierce-with-moton is True";
-    # pin in  float   cut_height_delay = 0        "at the end of transition to end-perice-height how long to pause before transition to cut height";
-    # pin in  float   pierce_end_height = 0       "The height at end of piercing (in machine units). Can be different to Cut Height. Default 0 means not used. i.e. no change in height";
-    # pin in  float   gouge_speed = 0             "Ramp starting speed for gouge. In machine units/min.";
-    # pin in  float   gouge_speed_distance = 0;
-    # pin in  float   creep_speed = 0             "Ramp creep or intermediate speed. Comes after gouge and is before cut speed. In machine units/min.";
-    # pin in  float   creep_speed_distance = 0;
+        # Explanation of the function codes passed to P
+        # 601 = Pierce Type  (0=Normal, 1-Wiggle, 2=Ramp)
+        # 602 = Pierce Motion Delay  (Delay in Z motion to Pierce End Height expressed as a % of Pierce Delay)
+        # 603 = Pierce End Height (Target pierce height at end of Pierce Delay. Normally lower than Pierce Height)
+        # 604 = Cut Height Delay (At the end of transition to Pierce End Height wait x secs before transition to Cut Height)
 
-    # 601 = Pierce Type  (0=Normal, 1-Wiggle, 2=Ramp)
-    # 602 = Pierce Motion Delay  (Delay in Z motion to Pierce End Height expressed as a % of Pierce Delay)
-    # 603 = Pierce End Height (Target pierce height at end of Pierce Delay. Normally lower than Pierce Height)
-    # 604 = Cut Height Delay (At the end of transition to Pierce End Height wait x secs before transition to Cut Height)
+        # 605 = Gouge Speed (Speed in machine units/min)
+        # 606 = Gouge Distance (Distance of gouge to travel in machine units)
+        # 607 = Creep Speed (Speed in machine units. Creep takes effect after gouge has finished)
+        # 608 = Creep Distance (Distance of creep to travel in machine units)
+        
+        # 609 = Reset to standard behaviour.  Pierce type = 0
 
-    # 605 = Gouge Speed (Speed in machine units/min)
-    # 606 = Gouge Distance (Distance of gouge to travel in machine units)
-    # 607 = Creep Speed (Speed in machine units. Creep takes effect after gouge has finished)
-    # 608 = Creep Distance (Distance of creep to travel in machine units)
-    
-    # 609 = Reset to standard behaviour.  Pierce type = 0
+        #
+        print("Running M159")
 
-    #
-    print("Running M159")
+        # Act on P code found. Set the relevant plasmac pin to the supplied value in Q
+        match action:
+            case 601:
+                RUN(['halcmd', 'setp', 'plasmac.pierce-type', f'{int(value)}'])
 
-    match action:
-        case 601:
+            case 602:
+                RUN(['halcmd', 'setp', 'plasmac.pierce-motion-delay', f'{value}'])
+
+            case 603:
+                RUN(['halcmd', 'setp', 'plasmac.pierce-end-height', f'{value}'])
+
+            case 604:
+                RUN(['halcmd', 'setp', 'plasmac.cut-height-delay', f'{value}'])
+
+            case 605:
+                RUN(['halcmd', 'setp', 'plasmac.gouge-speed', f'{value}'])
+            
+            case 606:
+                RUN(['halcmd', 'setp', 'plasmac.gouge-speed-distance', f'{value}'])
+            
+            case 607:
+                RUN(['halcmd', 'setp', 'plasmac.creep-speed', f'{value}'])
+            
+            case 608:
+                RUN(['halcmd', 'setp', 'plasmac.creep-speed-distance', f'{value}'])
+            
+            case 609:
+                # reset to default behaviour - 609
+                RUN(['halcmd', 'setp', 'plasmac.pierce-type', '0'])
+                RUN(['halcmd', 'setp', 'plasmac.pierce-motion-delay', '0.0'])
+                RUN(['halcmd', 'setp', 'plasmac.pierce-end-height', '0.0'])
+                RUN(['halcmd', 'setp', 'plasmac.cut-height-delay', '0.0'])
+                RUN(['halcmd', 'setp', 'plasmac.gouge-speed', '0.0'])
+                RUN(['halcmd', 'setp', 'plasmac.gouge-speed-distance', '0.0'])
+                RUN(['halcmd', 'setp', 'plasmac.creep-speed', '0.0'])
+                RUN(['halcmd', 'setp', 'plasmac.creep-speed-distance', '0.0'])
+            
+            case _:
+                # catchall - reset to default behaviour.  Esssentially a 609
+                RUN(['halcmd', 'setp', 'plasmac.pierce-type', '0'])
+                RUN(['halcmd', 'setp', 'plasmac.pierce-motion-delay', '0.0'])
+                RUN(['halcmd', 'setp', 'plasmac.pierce-end-height', '0.0'])
+                RUN(['halcmd', 'setp', 'plasmac.cut-height-delay', '0.0'])
+                RUN(['halcmd', 'setp', 'plasmac.gouge-speed', '0.0'])
+                RUN(['halcmd', 'setp', 'plasmac.gouge-speed-distance', '0.0'])
+                RUN(['halcmd', 'setp', 'plasmac.creep-speed', '0.0'])
+                RUN(['halcmd', 'setp', 'plasmac.creep-speed-distance', '0.0'])
+    except:
+        print("M159 - Some form of error")
+else:
+    # process for python 3.9 or lower.  Eventually this section should
+    # be depreciated and removed.
+    try:
+        if action == 601:
             RUN(['halcmd', 'setp', 'plasmac.pierce-type', f'{int(value)}'])
 
-        case 602:
+        elif action == 602:
             RUN(['halcmd', 'setp', 'plasmac.pierce-motion-delay', f'{value}'])
 
-        case 603:
+        elif action == 603:
             RUN(['halcmd', 'setp', 'plasmac.pierce-end-height', f'{value}'])
 
-        case 604:
+        elif action == 604:
             RUN(['halcmd', 'setp', 'plasmac.cut-height-delay', f'{value}'])
 
-        case 605:
+        elif action == 605:
             RUN(['halcmd', 'setp', 'plasmac.gouge-speed', f'{value}'])
         
-        case 606:
+        elif action == 606:
             RUN(['halcmd', 'setp', 'plasmac.gouge-speed-distance', f'{value}'])
         
-        case 607:
+        elif action == 607:
             RUN(['halcmd', 'setp', 'plasmac.creep-speed', f'{value}'])
         
-        case 608:
+        elif action == 608:
             RUN(['halcmd', 'setp', 'plasmac.creep-speed-distance', f'{value}'])
         
-        case 609:
+        elif action == 609:
             RUN(['halcmd', 'setp', 'plasmac.pierce-type', '0'])
             RUN(['halcmd', 'setp', 'plasmac.pierce-motion-delay', '0.0'])
             RUN(['halcmd', 'setp', 'plasmac.pierce-end-height', '0.0'])
@@ -105,7 +159,7 @@ try:
             RUN(['halcmd', 'setp', 'plasmac.creep-speed', '0.0'])
             RUN(['halcmd', 'setp', 'plasmac.creep-speed-distance', '0.0'])
         
-        case _:
+        else:
             RUN(['halcmd', 'setp', 'plasmac.pierce-type', '0'])
             RUN(['halcmd', 'setp', 'plasmac.pierce-motion-delay', '0.0'])
             RUN(['halcmd', 'setp', 'plasmac.pierce-end-height', '0.0'])
@@ -114,7 +168,8 @@ try:
             RUN(['halcmd', 'setp', 'plasmac.gouge-speed-distance', '0.0'])
             RUN(['halcmd', 'setp', 'plasmac.creep-speed', '0.0'])
             RUN(['halcmd', 'setp', 'plasmac.creep-speed-distance', '0.0'])
-except:
-    print("M159 - Some form of error")
+
+    except:
+        print("M159 - Some form of error")
 
 exit()
