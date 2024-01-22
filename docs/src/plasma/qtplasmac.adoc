@@ -4088,6 +4088,64 @@ sudo apt install python3-serial
 
 A typical <<plasma:rs485_connections,connection diagram>> is shown in the appendix of this document as well as confirmed working interfaces.
 
+=== Moving Piercing
+
+A moving pierce allows the torch to moving during the pierce delay period.  This has the advantage in that it allows for thicker materials to be pierced than can be achieved with a stationary pierce. It also supports longer consumable life by allowing a style of motion that helps prevent molten material being sprayed up into the torch nozzle.
+
+Through the use of M159 a moving pierce can be configured.  This allows the torch to move during the pierce delay value instead of being stationary.  This is particulary useful when piercing thicker materials in a manner that avoids molten metal being sprayed back up into the torch nozzle.
+
+The syntax for the M159 command is as follows: +
+M159 P<action code> Q<value>
+
+[width="100%",cols="1,5,1",options="header"]
+|===
+|Action Code (P)|Effect                                                                      |Value (Q)
+|601            |Pierce Type: 0=Normal, 1-Wiggle, 2=Ramp                                     |0,1,2
+|602            |Pierce Motion Delay: Delay in Z motion to Pierce End Height expressed as a % of Pierce Delay |Integer 0 to 100
+|603            |Pierce End Height: Target pierce height at end of Pierce Delay. Normally lower than Pierce Height. Expressed in machine units |Float
+|604            |Cut Height Delay: At the end of transition to Pierce End Height wait x secs before transition to Cut Height |Float
+|605            |Gouge Speed: Speed in machine units/min |Float
+|606            |Gouge Distance: Distance of gouge to travel in machine units |Float
+|607            |Creep Speed: Speed in machine units. Creep takes effect after gouge has finished |Float
+|608            |Creep Distance: Distance of creep to travel in machine units |Float
+|609            |Reset to standard behaviour.  i.e. Pierce type = 0| Not Required
+|===
+
+
+The available moving pierce models are as follows.
+
+==== Wiggle Pierce
+
+The model supported is the same as that created by Sheetcam's wiggle pierce.  Given a straight leadin to the main cut the wiggle pierce is expected to back and forth for some distance along the leadin.  Strictly speaking this straigh movement is arbitrary. Technically any X/Y motion is availble during the pierce delay and it is up the CAM tooling or the user to program.
+
+The constraint is that this motion is expected to be completed during the pierce delay value.  If not then QTPlasmac will transition to normal cut height on completion of pierce delay and potentially before the wiggle motion is completed.
+
+Therefore the size (i.e. distance of travel) of the wiggle and the feedrate need to be considered in calculating the pierce delay. OR the size of the wiggle constrained based on feedrate and pierce delay.
+
+For example lets us assume the following:
+
+* A feed rate of 1080mm/min (i.e. 18mm/sec)
+* A wiggle movement of 4mm for 3 osciliation
+
+This means that the size of the wiggle is 4 x 3 = 12mm.  At the 18mm/sec feedrate this tells us that the pierce delay needs to be approx 0.7 seconds to support the wiggle distance at pierce height.
+
+==== Ramp Pierce
+
+A ramping pierce combines a range of paramters so as to generate a sloped trough that causes the molten material to be evacuated. The resulting evacutation of material is sometimes likened to a rooster tail as it is very directional.  Careful consideration of the leadin can allow evactuation of material in a safe direction for workers and machine components.
+
+As all the elements combine to drive the shape of the ramping pierce it is key that all these elements are carefully considered when designing the ramp pierce and the parameters that set it. In evitably there will need to be experimentation to build recipes that work for your plasma source and the materials you cut.
+
+Consider:
+
+* The gouge and creep speeds and distances in relation to the sum of Pierce Delay from the material and Cut Height Delay
+* Pierce height from the material and end pierce height in relation to pierce delay from the material and the speeds in effect over the various distances during the pierce delay time
+* Your plasma source's manufacturer cut charts for the material type and thickness
+
+
+image::images/qtplasmac_ramp_pierce_chart.png[width=1032, align="center"]
+
+As with wiggle pierce it is up the CAM tooling or the user to program for a ramping pierce.
+
 == Internationalisation
 
 It is possible to create translation files for QtPlasmaC to display in the language of the current locale.
