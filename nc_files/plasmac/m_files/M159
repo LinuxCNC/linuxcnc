@@ -69,9 +69,6 @@ if sys.version_info.minor > 9:
         
         # 609 = Reset to standard behaviour.  Pierce type = 0
 
-        #
-        print("Running M159")
-
         # Act on P code found. Set the relevant plasmac pin to the supplied value in Q
         match action:
             case 601:

@@ -4096,7 +4096,7 @@ A moving pierce allows the torch to move during the pierce delay period.  This h
 Through the use of M159 a moving pierce can be configured.
 
 The syntax for the M159 command is as follows: +
-[source,{ini}]
+[source,{ngc}]
 ----
 M159 P<action code> Q<value>
 ----
