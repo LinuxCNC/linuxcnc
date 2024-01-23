@@ -34,7 +34,7 @@
  M3 $0 S1 (plasma start)
  M67 E3 Q100
  G1 X0 Y[60 / #<scale>]
- m159 p609
+ m159 p609  (reset to default pierce behaviour)
  M5 $0 (plasma end)
  ;
  ;begin post-amble
