@@ -2289,7 +2289,7 @@ This clears the Z offsets and returns the torch to the starting position.
 
 Cutting thick materials can be problematic in that the large amount of molten metal caused by piercing can shorten the life of consumables and also may cause a puddle high enough that the torch may hit the puddle while moving to cut height.
 
-The are two functions built into QtPlasmaC to help alleviate these issues.
+There are several functions built into QtPlasmaC to help alleviate these issues, Pierce Only and Puddle Jump described in this section as well as Wiggle Pierce and Ramp Pierce described in the <<plasma:moving-pierce,Moving Pierce>> section.
 
 [[plasma:pierce-only]]
 .*Pierce Only*
@@ -4087,6 +4087,119 @@ sudo apt install python3-serial
 ----
 
 A typical <<plasma:rs485_connections,connection diagram>> is shown in the appendix of this document as well as confirmed working interfaces.
+
+[[plasma:moving-pierce]]
+=== Moving Pierce
+
+A moving pierce allows the torch to move during the pierce delay period.  This has an advantage in that it allows for thicker materials to be pierced than can be achieved with a stationary pierce. It also supports longer consumable life by allowing a style of motion that helps prevent molten material being sprayed up into the torch nozzle.
+
+Through the use of M159 a moving pierce can be configured.
+
+The syntax for the M159 command is as follows: +
+[source,{ngc}]
+----
+M159 P<action code> Q<value>
+----
+
+[width="100%",cols="1,5,1",options="header"]
+|===
+|Action Code (P)|Effect                                                                      |Value (Q)
+|601            |Pierce Type: 0=Normal, 1=Wiggle, 2=Ramp                                     |0,1,2
+|602            |Pierce Motion Delay: Delay in Z motion to Pierce End Height expressed as a % of Pierce Delay |Integer 0 to 100
+|603            |Pierce End Height: Target pierce height at end of Pierce Delay. Normally lower than Pierce Height. Expressed in machine units |Float
+|604            |Cut Height Delay: At the end of transition to Pierce End Height wait x secs before transition to Cut Height |Float
+|605            |Gouge Speed: Speed in machine units/min |Float
+|606            |Gouge Distance: Distance of gouge to travel in machine units |Float
+|607            |Creep Speed: Speed in machine units. Creep takes effect after gouge has finished |Float
+|608            |Creep Distance: Distance of creep to travel in machine units |Float
+|609            |Reset to standard behaviour.  i.e. Pierce type = 0| Not Required
+|===
+
+
+The available moving pierce models are as follows.
+
+==== Wiggle Pierce
+
+The model supported is the same as that created by Sheetcam's wiggle pierce.  Given a straight leadin to the main cut the wiggle pierce is expected to move back and forth for some distance along the leadin.  Strictly speaking this straight movement is arbitrary. Technically any X/Y motion is available during the pierce delay and it is up the CAM tooling or the user to program.
+
+The constraint is that this motion is expected to be completed during the pierce delay value.  If not then the torch will transition to normal cut height on completion of pierce delay and potentially before the wiggle motion is completed.
+
+Therefore the size (i.e. distance of travel) of the wiggle and the feedrate need to be considered in calculating the pierce delay. OR the size of the wiggle constrained based on feedrate and pierce delay.
+
+For example lets us assume the following:
+
+* A feed rate of 1080mm/min (i.e. 18mm/sec)
+* A wiggle movement of 4mm for 3 oscillation
+
+This means that the size of the wiggle is 4 x 3 = 12mm.  At the 18mm/sec feedrate this tells us that the pierce delay needs to be approx 0.7 seconds to support the wiggle distance at pierce height.
+
+The only code needed inform plasmac (the underlying plasma controller to QTPlasmac) is: +
+ M159 P601 Q1
+
+To reset back to standard behaviour issue: +
+ M159 P609
+
+
+==== Ramp Pierce
+
+A ramping pierce combines a range of parameters so as to generate a sloped trough that causes the molten material to be evacuated. The resulting evacuation of material is sometimes likened to a rooster tail as it is very directional.  Careful consideration of the leadin can allow evacuation of material in a safe direction for workers and machine components.
+
+As all the elements combine to drive the shape of the ramping pierce it is key that all these elements are carefully considered when designing the ramp pierce and the parameters that set it. Inevitably there will need to be experimentation to build recipes that work for your plasma source and the materials you cut.
+
+Consider:
+
+* The gouge and creep speeds and distances in relation to the sum of Pierce Delay from the material and Cut Height Delay
+* Pierce height from the material and end pierce height in relation to pierce delay from the material and the speeds in effect over the various distances during the pierce delay time
+* Your plasma source's manufacturer cut charts for the material type and thickness
+
+
+image::images/qtplasmac_ramp_pierce_chart.png[width=1032, align="center"]
+
+As with wiggle pierce it is up the CAM tooling or the user to program for a ramping pierce.
+
+Below is a sample of code to setup a ramp pierce: +
+
+[source,{ngc}]
+----
+(o=0,kw=2, ph=4, pd=1, ch=1.5, fr=490, th=1, cv=99, pe=0.3, jh=0, jd=0)
+
+m159 p601 q2
+m159 p602 q50
+m159 p603 q2.5
+m159 p604 q1
+m159 p605 q980
+m159 p606 q5
+m159 p607 q245
+m159 p608 q3
+----
+
+This code shows us the following information in order:
+
+. Material magic comment
+** Pierce Height is 4mm
+** Pierce delays is 1 second
+** Cut height is 1.5mm
+** Feed rate is 490mm/min
+. Mode is set to 2 which is ramp pierce
+. Pierce motion delay is 50% of pierce delay, 0.5 seconds
+. Pierce end height is 2.5mm
+. Cut height delay is 1 second
+. Gouge speed is 980mm/min
+. Gouge distance is 5mm
+. Creep speed is 245mm/min
+. Creep distance is 3mm
+
+With this information we know that the torch will start at 4mm from work material.
+
+It starts traveling at 980mm/min for 5mm.  Which consumes 0.3 seconds. Torch height is still at 4mm at this point.
+
+Torch speed is now set to 245mm/min for a distance of 3mm. In parallel torch height will remain at 4mm for another 0.2 seconds (0.3s + 0.2s = 0.5s. Being the 50% of pierce delay).
+
+Then the the torch will begin descending to 2.5mm for the remaining 0.5 seconds of pierce delay. The creep distance takes roughly 0.7 seconds to complete. This means creep speed continues slightly past the point pierce end height is achieved by about 0.2 seconds.
+
+Then the speed is set to the cutting feed rate of 490mm/min. We have still not transitioned to cut height at this point. There is a 1 second delay from the end of the pierce delay period.  If you do the math you will see we have approximately 0.8 seconds before the final transition to the target cut height.
+
+From the above text the user should be able to see that quite a bit of configuration and subtlety can be achieved through careful use of different combination of parameters.
 
 == Internationalisation
 
