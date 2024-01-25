@@ -5,11 +5,11 @@
 
 = Generic driver for any GPIO supported by gpiod.
 
-This driver has been tested on the Raspberry Pi, and should also work on Bananapi, Beaglebone, Pine64 (et al) and other single board computers, and potentially on other platforms.
+This driver has been tested on the Raspberry Pi, and should also work on Banana Pi, BeagleBone, Pine64 (et al.) and other single board computers, and potentially on other platforms.
 
 == Purpose
 
-This driver allows the use of GPIO pins in a way analagous to the parallel port driver on x86 PCs. It can use the same step generators, encoder counters and similar components.
+This driver allows the use of GPIO pins in a way analogous to the parallel port driver on x86 PCs. It can use the same step generators, encoder counters and similar components.
 
 == Usage
 
@@ -21,7 +21,7 @@ loadrt hal_gpio inputs=GPIO5,GPIO6,GPIO12,GPIO13,GPIO16,GPIO17,GPIO18,GPIO19 \
 ----
 
 This driver relies on the libgpiod-dev library and the https://tracker.debian.org/pkg/libgpiod[gpiod] package, which contains a number of utilities for configuring and querying GPIO.
-The GPIO pin names in the "loadrt" line of the HAL given above should be the names given by the "gpioinfo" command.
+The GPIO pin names in the "loadrt" line of the HAL given above should be the names given by the `gpioinfo` command.
 
 Sample output (truncated):
 
@@ -54,12 +54,12 @@ gpiochip0 - 54 lines:
 
 A list of input and/or output pins should be specified as shown in the sample above.
 The \ character is used for line continuation in HAL, and is used to improve readability.
-The pin names are case-sensitive and there must be no spaces in the strings, neither between the comma-separated pins lists of the "=" signs.
+The pin names are case-sensitive and there must be no spaces in the strings, neither between the comma-separated pins lists nor the "=" signs.
 
-Additional modifiers are:
-*invert* (valid for outputs only). Inverts the sense of the physical pin relative to the value in HAL.
+Additional modifiers are::
+invert::: (valid for outputs only). Inverts the sense of the physical pin relative to the value in HAL.
 
-*reset* (valid for outputs only). If any pins are allocated to the "reset" list then a HAL parameter *hal_gpio.reset_ns* will be created. This will have no effect unless the *hal_gpio.reset* function is added to a realtime thread. This should be placed after the *hal_gpio.write* function and must be in the same thread. The behaviour of this function is equivalent to the same function in the *hal_parport* driver, and it allows a step pulse every thread cycle. If the *hal_gpio.reset_ns* time is set longer than 1/4 of the period of the thread that it is added to, then the value will be reduced to 1/4 the thread period. There is a lower limit to how long the pulse can be. With 8 pins in the output list the pulse width can not reduce lower than 5000&#8239;ns on an RPi4, for example.
+reset::: (valid for outputs only). If any pins are allocated to the "reset" list then a HAL parameter *hal_gpio.reset_ns* will be created. This will have no effect unless the *hal_gpio.reset* function is added to a realtime thread. This should be placed after the *hal_gpio.write* function and must be in the same thread. The behaviour of this function is equivalent to the same function in the *hal_parport* driver, and it allows a step pulse every thread cycle. If the *hal_gpio.reset_ns* time is set longer than 1/4 of the period of the thread that it is added to, then the value will be reduced to 1/4 the thread period. There is a lower limit to how long the pulse can be. With 8 pins in the output list the pulse width can not reduce lower than 5000&#8239;ns on an RPi4, for example.
 
 The following functions are accepted in all versions, but are only effective if a version of libgpiod_dev >= 1.6 is installed.
 They should be used in the same way as the parameters described above, and will alter the electrical parameters of the GPIO pins *if* this is supported by the hardware.
@@ -74,7 +74,7 @@ They should be used in the same way as the parameters described above, and will 
 
 *pullup*
 
-The version of libgpiod-dev installed can be determined by the command "gpioinfo -v"
+The version of libgpiod-dev installed can be determined by the command `gpioinfo -v`
 
 == Pins
 
@@ -96,27 +96,29 @@ The version of libgpiod-dev installed can be determined by the command "gpioinfo
 
 * 'hal_gpio.reset' - Only exported if there are pins defined in the reset list. This should be placed after the "write" function, and should be in the same thread.
 
-Typically the 'read' function will be early in the call list, before any encoder counters and the 'write' function will be later in the call list, after `stepgen.make-pulses`.
+Typically, the 'read' function will be early in the call list, before any encoder counters and the 'write' function will be later in the call list, after `stepgen.make-pulses`.
 
 
 == Pin Identification
 
-Use the pin names returned by the "gpioinfo" utility. This uses the device-tree data. If the installed OS does not have a device-tree database then the pins will all be called "unnamed" (or similar) and this driver can not be used.
+Use the pin names returned by the `gpioinfo` utility. This uses the device-tree data. If the installed OS does not have a device-tree database then the pins will all be called "unnamed" (or similar) and this driver can not be used.
 
 A further update to this driver might allow access by index number, but this is not currently supported.
 
 == Troubleshooting permissions problems.
 
 If "access denied" messages are returned on loading the driver, try the following recipe:
-(Should not be needed for Raspian, and will need to be modified to match the actual GPIO chip name on non-Pi platforms)
+(Should not be needed for Raspbian, and will need to be modified to match the actual GPIO chip name on non-Pi platforms)
 
-1) Create a new group "gpio" with the command
+. Create a new group `gpio` with the command
++
+----
+sudo groupadd gpio
+----
 
- sudo groupadd gpio
-
-2) Create a file called 90-gpio-access with the following contents (this is copied from the Raspbian install)
-
-````
+. Create a file called `90-gpio-access` with the following contents (this is copied from the Raspbian install)
++
+----
 SUBSYSTEM=="bcm2835-gpiomem", GROUP="gpio", MODE="0660"
 SUBSYSTEM=="gpio", GROUP="gpio", MODE="0660"
 SUBSYSTEM=="gpio*", PROGRAM="/bin/sh -c '\
@@ -129,11 +131,13 @@ SUBSYSTEM=="pwm*", PROGRAM="/bin/sh -c '\
 	chown -R root:gpio /sys/class/pwm && chmod -R 770 /sys/class/pwm;\
 	chown -R root:gpio /sys/devices/platform/soc/*.pwm/pwm/pwmchip* && chmod -R 770 /sys/devices/platform/soc/*.pwm/pwm/pwmchip*\
 '"
-````
+----
 
-3) Add the user who runs LinuxCNC to the "gpio" group with
-
-sudo usermod -aG gpio the_username
+. Add the user who runs LinuxCNC to the `gpio` group with
++
+----
+sudo usermod -aG gpio <username>
+----
 
 == Author
 

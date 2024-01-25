@@ -116,7 +116,7 @@ used to boot a computer.  The image is too large to fit on a CD.
 === Raspberry Pi Image
 
 The Raspbery Pi image is a completes SD card image and should be
-written to an SD card with the [Raspberry Pi Imager App](https://www.raspberrypi.com/software/)
+written to an SD card with the [Raspberry Pi Imager App](https://www.raspberrypi.com/software/).
 
 === AMD-64 (x86-64, PC) Image using GUI tools
 

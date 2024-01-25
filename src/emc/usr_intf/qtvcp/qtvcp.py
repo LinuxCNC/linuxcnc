@@ -452,13 +452,23 @@ Pressing cancel will close linuxcnc.""" % target)
         LOG.debug('Status shutdown')
         s.shutdown()
 
+        # call pyqt qsetting saving process
         try:
             self.w.sync_qsettings()
         except:
             pass
+
+        # call handler file shutdown functions
+        try:
+            self.w.shutdown()
+        except:
+            pass
+
+        # call HAL widget 'hal_cleanuo_' functions
         try:
             self.w.panel_.shutdown()
-        except:
+        except Exception as e:
+            print(e)
             pass
 
         LOG.debug('Exiting HAL')

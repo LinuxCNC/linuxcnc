@@ -39,18 +39,41 @@ class HandlerClass:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
+        self.PREF = None
         try:
-            if self.w.PREFS_:
-                LOG.debug('Using preference file:',self.w.PREFS_.fn)
+            if self.w.MAIN.PREFS_:
+                LOG.debug('Using main preference file:{}'.format(self.w.MAIN.PREFS_.fn))
+                self.PREF = self.w.MAIN.PREFS_
         except:
-            pass
+            try:
+                if self.w.PREFS_:
+                    LOG.debug('Using preference file:{}'.format(self.w.PREFS_.fn))
+                    self.PREF = self.w.PREFS_
+            except:
+                pass
+
+        if not self.PREF is None:
+            self.w.camview.diameter = self.PREF.getpref(self.w.camview.HAL_NAME_+'-CDiam', 30, int, 'CAMVIEW')
+            self.w.camview.rotation = self.PREF.getpref(self.w.camview.HAL_NAME_+'-rotation', 0, float, 'CAMVIEW')
+            self.w.camview.scale = self.clamp(self.PREF.getpref(self.w.camview.HAL_NAME_+'-zoom', 1, float, 'CAMVIEW'),1,5)
+
         number = 0
         if self.w.USEROPTIONS_ is not None:
             LOG.info('cam_align user options: {}'.format(self.w.USEROPTIONS_))
             for num, i in enumerate(self.w.USEROPTIONS_):
 
+                # override the default width and height of the image
+                if 'imagesize=' in self.w.USEROPTIONS_[num]:
+                    try:
+                        strg = self.w.USEROPTIONS_[num].strip('imagesize=')
+                        arg = strg.split(',')
+                        self.w.camview.setMaximumWidth(int(arg[0]))
+                        self.w.camview.setMaximumHeight(int(arg[1]))
+                    except Exception as e:
+                        print('Error with cam_align image size setting:',self.w.USEROPTIONS_[num],e)
+
                 # override the default width and height of the window
-                if 'size=' in self.w.USEROPTIONS_[num]:
+                elif 'size=' in self.w.USEROPTIONS_[num]:
                     try:
                         strg = self.w.USEROPTIONS_[num].strip('size=')
                         arg = strg.split(',')
@@ -105,6 +128,15 @@ class HandlerClass:
     #####################
     # general functions #
     #####################
+    def closing_cleanup__ (self):
+        if self.PREF:
+            LOG.debug('Saving {} data to file.'.format(self.w.camview.HAL_NAME_))
+            self.PREF.putpref(self.w.camview.HAL_NAME_+'-CDiam', self.w.camview.diameter, int, 'CAMVIEW')
+            self.PREF.putpref(self.w.camview.HAL_NAME_+'-rotation', self.w.camview.rotation, float, 'CAMVIEW')
+            self.PREF.putpref(self.w.camview.HAL_NAME_+'-zoom', self.w.camview.scale, float, 'CAMVIEW')
+
+    def clamp(self, n, minn, maxn):
+        return max(min(maxn, n), minn)
 
     #####################
     # KEY BINDING CALLS #
