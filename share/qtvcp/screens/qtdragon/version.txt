@@ -3,3 +3,6 @@ Qtdragon
 version 1.0 released in linuxcnc 2.9.1
 
 version 1.1 fix probe routines: spindle starts on error or abort
+
+version 1.2 allow setting of the percentage X or Y size of camview image from the preference file
+    commit a5394d4e2cec98b6f0ee9770542d2e8dfeb71af2
