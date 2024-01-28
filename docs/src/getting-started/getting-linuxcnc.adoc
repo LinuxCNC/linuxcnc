@@ -301,7 +301,7 @@ be able to complete the following steps.
 sudo apt-get update
 sudo apt-get dist-upgrade
 ----
-
++
 NOTE: It is possible to download a version of LinuxCNC directly from Debian
 but this will install an old pre-release version, and is not recommended
 at this time.
@@ -314,9 +314,10 @@ sudo apt-get install linux-image-rt-amd64
 ----
 
 . Re-boot, and select the Linux 6.1.0-10-rt-amd64 kernel. The exact
-kernel version might be different, look for the "-rt" suffix. This might be
-hidden in the "Advanced options for Debian Bookworm" sub-menu in Grub.
-When you log in, verify that `PREEMPT RT`is reported by the following command.
+  kernel version might be different, look for the "-rt" suffix. This
+  might be hidden in the "Advanced options for Debian Bookworm"
+  sub-menu in Grub.  When you log in, verify that `PREEMPT RT`is
+  reported by the following command.
 +
 ----
 uname -v
@@ -333,10 +334,13 @@ uname -v
 . Add the LinuxCNC Archive Signing Key to your apt keyring by downloading
   [the LinuxCNC installer script](https://www.linuxcnc.org/linuxcnc-install.sh)
   You will need to make the script executable to run it:
++
 ----
 chmod +x linuxcnc-install.sh
 ----
++
   Then you can run the installer:
++
 ----
 sudo ./linuxcnc-install.sh
 ----
