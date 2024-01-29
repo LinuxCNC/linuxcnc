@@ -135,16 +135,18 @@ static void hm2_encoder_read_control_register(hostmot2_t *hm2) {
         if (*e->hal.pin.quadrature_error_enable) {
             e->reset_quadrature_error=0;
             if(!e->prev_quadrature_error_enable){ // detect rising edge of pin quadrature_error_enable
-                e->reset_quadrature_error = 1;
+                e->reset_quadrature_error = true;
                 hm2_encoder_force_write(hm2);
             }
-            int state = ((hm2->encoder.read_control_reg[i] & HM2_ENCODER_CONTROL_MASK) & HM2_ENCODER_QUADRATURE_ERROR) && e->prev_quadrature_error_enable;
-            if ((*e->hal.pin.quadrature_error == 0) && state) {
+            bool state = (hm2->encoder.read_control_reg[i] & (HM2_ENCODER_CONTROL_MASK | HM2_ENCODER_QUADRATURE_ERROR)) && e->prev_quadrature_error_enable;
+            if ((*e->hal.pin.quadrature_error == false) && state) {
                 HM2_ERR("Encoder %d: quadrature count error\n", i);
             }
             *e->hal.pin.quadrature_error = (hal_bit_t) state;
         } else{ // quadrature error disabled, set reported error to 0
-            *e->hal.pin.quadrature_error = 0;
+            *e->hal.pin.quadrature_error = false;
+            e->reset_quadrature_error = true;
+            hm2_encoder_force_write(hm2);
         }
         e->prev_quadrature_error_enable = *e->hal.pin.quadrature_error_enable;
 
