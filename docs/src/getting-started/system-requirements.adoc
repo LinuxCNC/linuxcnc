@@ -43,7 +43,7 @@ but aim at contributing to the source tree of LinuxCNC, then there is a good cha
 you want a second computer to perform the compilation. Even though LinuxCNC and
 your developments could likely be executed at the same time with respect to disk space,
 RAM and even CPU speed, a machine that is busy will have worse latencies, so you are
-unlikely to compile your source tree and poduce chips at the same time.
+unlikely to compile your source tree and produce chips at the same time.
 
 [[sec:kernel_and_version_requirements]]
 == Kernel and Version requirements
