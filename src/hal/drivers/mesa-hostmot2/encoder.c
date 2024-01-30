@@ -138,7 +138,7 @@ static void hm2_encoder_read_control_register(hostmot2_t *hm2) {
                 e->reset_quadrature_error = true;
                 hm2_encoder_force_write(hm2);
             }
-            bool state = (hm2->encoder.read_control_reg[i] & (HM2_ENCODER_CONTROL_MASK | HM2_ENCODER_QUADRATURE_ERROR)) && e->prev_quadrature_error_enable;
+            bool state = (hm2->encoder.read_control_reg[i] & (HM2_ENCODER_CONTROL_MASK & HM2_ENCODER_QUADRATURE_ERROR)) && e->prev_quadrature_error_enable;
             if ((*e->hal.pin.quadrature_error == false) && state) {
                 HM2_ERR("Encoder %d: quadrature count error\n", i);
             }
