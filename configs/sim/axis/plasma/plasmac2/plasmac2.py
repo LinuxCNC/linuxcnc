@@ -5647,6 +5647,10 @@ def user_live_update():
         if singleCut['G91']:
             ensure_mode(linuxcnc.MODE_MDI)
             c.mdi('G91')
+        # reset moving pierce
+        for pin in ['creep-speed', 'creep-speed-distance', 'cut-height-delay', 'gouge-speed', \
+                    'gouge-speed-distance', 'pierce-end-height', 'pierce-motion-delay', 'pierce-type']:
+            hal.set_p(f'plasmac.{pin}', '0')
     # override standard tool info
     if current_tool.id != currentTool:
         currentTool = current_tool.id
