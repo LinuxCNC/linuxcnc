@@ -233,12 +233,12 @@ public:
 	center=conj(center); }
     void flip_real() override { ccw=!ccw; start=-conj(start);
 	end=-conj(end); center=-conj(center); }
-    virtual void rotate() override {
+    void rotate() override {
 	start=-start*I;
 	end=-end*I;
 	center=-center*I;
     }
-    virtual bool monotonic() override {
+    bool monotonic() override {
 	if(finish!=0)
 	    return true;
 	double entry=imag(start-center);
@@ -249,7 +249,7 @@ public:
 	else
 	    return entry<=1e-3 && exit<=1e-3 && dz<=-1e-3;
     }
-    virtual void move(std::complex<double> d) override { start+=d; center+=d; end+=d; }
+    void move(std::complex<double> d) override { start+=d; center+=d; end+=d; }
 private:
     bool on_segment(std::complex<double> p);
     friend class straight_segment;
@@ -518,7 +518,7 @@ class swapped_motion:public motion_base {
 public:
     swapped_motion(motion_base *motion):orig(motion) {
     }
-    virtual void straight_move(std::complex<double> end) override {
+    void straight_move(std::complex<double> end) override {
 	switch(swap) {
 	case 0: orig->straight_move(end); break;
 	case 1: orig->straight_move(-conj(end)); break;
@@ -530,7 +530,7 @@ public:
 	case 7: orig->straight_move(-I*end); break;
 	}
     }
-    virtual void straight_rapid(std::complex<double> end) override {
+    void straight_rapid(std::complex<double> end) override {
 	switch(swap) {
 	case 0: orig->straight_rapid(end); break;
 	case 1: orig->straight_rapid(-conj(end)); break;
@@ -542,7 +542,7 @@ public:
 	case 7: orig->straight_rapid(-I*end); break;
 	}
     }
-    virtual void circular_move(bool ccw,std::complex<double> center,
+    void circular_move(bool ccw,std::complex<double> center,
 	std::complex<double> end) override
     {
 	switch(swap) {
@@ -914,7 +914,7 @@ public:
     motion_machine(Interp *i, setup_pointer s, block_pointer b):
 	interp(i), settings(s), block(b) { }
 
-    void straight_move(std::complex<double> end) {
+    void straight_move(std::complex<double> end) override {
 	block->x_flag=1;
 	block->x_number=imag(end);
 	block->z_flag=1;
@@ -924,7 +924,7 @@ public:
 	    throw(r);
     }
 
-    void straight_rapid(std::complex<double> end)  {
+    void straight_rapid(std::complex<double> end) override  {
 	block->x_flag=1;
 	block->x_number=imag(end);
 	block->z_flag=1;
@@ -935,7 +935,7 @@ public:
     }
     void circular_move(bool ccw,std::complex<double> center,
 	std::complex<double> end
-    ) {
+    ) override {
 	block->x_flag=1;
 	block->x_number=imag(end);
 	block->z_flag=1;

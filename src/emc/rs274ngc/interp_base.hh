@@ -67,7 +67,7 @@ public:
     virtual void print_state_tag(StateTag const &tag) = 0;
     virtual void set_loglevel(int level) = 0;
     virtual void set_loop_on_main_m99(bool state) = 0;
-    FILE* get_stdout() { return stdout; };
+    virtual FILE* get_stdout() { return stdout; };
 };
 
 InterpBase *interp_from_shlib(const char *shlib);
