@@ -943,7 +943,6 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
         e->hal.param.scale = 1.0;
     }
 
-    hm2_encoder_read_control_register(hm2);
 
     switch (e->state) {
 
@@ -1120,6 +1119,8 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
     int i;
 
     if (hm2->encoder.num_instances <= 0) return;
+
+    hm2_encoder_read_control_register(hm2);
 
     // process each encoder instance independently
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
