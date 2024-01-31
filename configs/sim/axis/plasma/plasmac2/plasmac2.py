@@ -17,12 +17,52 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-VER = '14'
+VER = '15'
 
 ##############################################################################
 # the next line suppresses undefined variable errors in VSCode               #
 # pyright: reportUndefinedVariable = false
 ##############################################################################
+
+
+##############################################################################
+# UPDATES                                                                    #
+##############################################################################
+def update_check():
+    ''' check for updates - the newest update must be added last here '''
+    # v15 (2024 Jan 30) set user_m_path to include /nc_files/plasmac/m_files
+    if 'nc_files/plasmac/m_files' not in inifile.find('RS274NGC', 'USER_M_PATH'):
+        version = 'v15'
+        try:
+            if os.path.isfile(os.path.join(configPath, 'M190')):
+                os.rename(os.path.join(configPath, 'M190'), os.path.join(configPath, 'M190.bak'))
+            tmpFile = f'{s.ini_filename}~'
+            COPY(s.ini_filename, tmpFile)
+            with open(tmpFile, 'r') as inFile:
+                with open(s.ini_filename, 'w') as outFile:
+                    for line in inFile:
+                        if line.startswith('USER_M_PATH'):
+                            if '/usr' in BASE:
+                                mPath = '../../nc_files/plasmac/m_files'
+                            else:
+                                mPath = os.path.realpath(os.path.join(BASE, 'nc_files/plasmac/m_files'))
+                            if line.strip().endswith(':./'):
+                                mPath = f"./:{mPath}"
+                                line = f"{line.strip()[:-3].replace('./plasmac2', mPath)}\n"
+                            else:
+                                line = line.replace('./plasmac2', mPath)
+                        outFile.write(line)
+            if os.path.isfile(tmpFile):
+                os.remove(tmpFile)
+        except Exception as e:
+            title = 'error'
+            msg0 = f"Update to {version} failed due to:\n\n{e}"
+            notifications.add('error', f"{msg0}\n")
+        else:
+            title = 'info'
+            msg0 = f"Updated successfully to {version}\nA restart is required"
+        notifications.add(title, f"{msg0}\n")
+
 
 ##############################################################################
 # NEW CLASSES                                                                #
@@ -4459,6 +4499,7 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     rE(f"font create fontGui -family {{{pVars.guiFont.get()}}} -size {pVars.fontSize.get()}")
     rE(f"font create fontArc -family {{{pVars.guiFont.get()}}} -size {int(pVars.fontSize.get())*3}")
     rE(f"font create fontCode -family {{{pVars.codeFont.get()}}} -size {pVars.fontSize.get()}")
+    update_check()
 
 
 ##############################################################################
