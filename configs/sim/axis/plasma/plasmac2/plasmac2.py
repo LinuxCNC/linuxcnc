@@ -1604,9 +1604,11 @@ def bounds_check(boundsType, xOffset , yOffset):
 ##############################################################################
 # PERIPHERAL OFFSET FUNCTIONS                                                #
 ##############################################################################
-offsets_text = []
-offsets_text.append(_('1. Jog until the peripheral is centered on the mark'))
-offsets_text.append(_('2. Click the Yes button to get the offsets'))
+def offsets_text():
+    text = []
+    text.append(_('1. Jog until the peripheral is centered on the mark'))
+    text.append(_('2. Click the Yes button to get the offsets'))
+    return text
 
 def set_peripheral_offsets():
     toolFile = os.path.realpath(tooltable)
@@ -1640,7 +1642,7 @@ def offsets_show(toolFile):
     return True
 
 def offsets_laser_clicked():
-    reply = plasmacPopUp('yesno', _('SET LASER OFFSETS'), ' \n'.join(offsets_text)).reply
+    reply = plasmacPopUp('yesno', _('SET LASER OFFSETS'), ' \n'.join(offsets_text())).reply
     if not reply:
         comp['laser-on'] = False
         return
@@ -1679,7 +1681,7 @@ def offsets_scribe_clicked(toolFile):
         msg = _('Could not get current scribe offsets from tooltable')
         plasmacPopUp('info', title, msg)
         return
-    reply = plasmacPopUp('yesno', _('SET SCRIBE OFFSETS'), ' \n'.join(offsets_text)).reply
+    reply = plasmacPopUp('yesno', _('SET SCRIBE OFFSETS'), ' \n'.join(offsets_text())).reply
     if not reply:
         comp['offset-set-scribe'] = False
         return
@@ -1697,7 +1699,7 @@ def offsets_scribe_clicked(toolFile):
     comp['offset-set-scribe'] = False
 
 def offsets_probe_clicked():
-    reply = plasmacPopUp('yesno', _('SET PROBE OFFSETS'), ' \n'.join(offsets_text)).reply
+    reply = plasmacPopUp('yesno', _('SET PROBE OFFSETS'), ' \n'.join(offsets_text())).reply
     if not reply:
         comp['offset-set-probe'] = False
         return
