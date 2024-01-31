@@ -1,4 +1,4 @@
-VERSION = '001.016'
+VERSION = '002.017'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -120,15 +120,6 @@ class HandlerClass:
         self.PATHS = paths
         self.iniFile = INFO.INI
         self.foreColor = '#ffee06'
-        # ensure M190 exists in config directory
-        if not os.path.isfile(os.path.join(self.PATHS.CONFIGPATH, 'M190')):
-            if '/usr' in self.PATHS.BASEDIR:
-                m190Path = os.path.join(self.PATHS.BASEDIR, 'share/doc/linuxcnc/examples/sample-configs/sim/qtplasmac')
-            else:
-                m190Path = os.path.join(self.PATHS.BASEDIR, 'configs/sim/qtplasmac')
-            # M190 already exists for RIP sims
-            if os.path.realpath(m190Path) != os.path.realpath(self.PATHS.CONFIGPATH):
-                COPY(os.path.join(m190Path, 'M190'), os.path.join(self.PATHS.CONFIGPATH, 'M190'))
         self.machineName = self.iniFile.find('EMC', 'MACHINE')
         self.machineTitle = f'{self.machineName} - QtPlasmaC v{LCNCVER}-{VERSION}, powered by QtVCP and LinuxCNC'
         self.prefsFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')
@@ -144,7 +135,7 @@ class HandlerClass:
             self.PREFS = Access(self.prefsFile)
         else:
             self.PREFS = None
-        self.updateIni = []
+        self.updateIni = {}
         self.updateData = []
         self.update_check()
         self.PREFS = Access(self.prefsFile)
@@ -2422,7 +2413,7 @@ class HandlerClass:
             self.updateData.append([restart, error, text])
             if error:
                 return
-            self.updateIni.append(154)
+            self.updateIni[154] = True
         # split out qtplasmac specific prefs into a separate file (pre V1.222.170 2022/03/08)
         if not os.path.isfile(self.prefsFile):
             old = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs')
@@ -2444,22 +2435,28 @@ class HandlerClass:
         # change RS274 startup parameters from a subroutine (pre V1.224.207 2022/06/22)
         startupCode = self.iniFile.find('RS274NGC', 'RS274NGC_STARTUP_CODE')
         if 'metric_startup' in startupCode or 'imperial_startup' in startupCode:
-            self.updateIni.append(207)
+            self.updateIni[207] = True
         # remove the qtplasmac link from the config directory (pre V1.225.208 2022/06/29)
         if os.path.islink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
             # stage 1: set up for unlinking on the next run of qtplasmac
             if 'code.py' in self.iniFile.find('FILTER', 'ngc'):
-                self.updateIni.append(208)
+                self.updateIni[208] = True
             # stage 2: remove the qtplasmac link
             else:
                 os.unlink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
         # move qtplasmac options from INI file to prefs file pre V1.227.219 2022/07/14)
         if not self.PREFS.has_section('BUTTONS'):
-            restart, error, text = UPDATER.move_options_to_prefs_file(self.iniFile, self.PREFS)
-            self.updateData.append([restart, error, text])
-            if error:
-                return
-            self.updateIni.append(219)
+            update = False
+            for n in range(1,21):
+                if self.iniFile.find('QTPLASMAC', f'BUTTON_{n}_NAME'):
+                    update = True
+                    break
+            if update:
+                restart, error, text = UPDATER.move_options_to_prefs_file(self.iniFile, self.PREFS)
+                self.updateData.append([restart, error, text])
+                if error:
+                    return
+                self.updateIni[219] = True
         # move port info from [GUI_OPTIONS] section (if it was moved via V1.227.219 update) to [POWERMAX] section
         if self.PREFS.has_option('GUI_OPTIONS', 'Port'):
             restart, error, text = UPDATER.move_port(self.PREFS)
@@ -2481,6 +2478,22 @@ class HandlerClass:
                     self.updateData.append([restart, error, text])
                     if error:
                         return
+        # set user_m_path to include ../../nc_files/plasmac/m_files (pre V2.10-001.017 2024/01/23)
+        mPathIni = self.iniFile.find('RS274NGC', 'USER_M_PATH')
+        if 'nc_files/plasmac/m_files' not in mPathIni:
+            if '/usr' in self.PATHS.BASEDIR:
+                mPath = '../../nc_files/plasmac/m_files'
+                #simPath = os.path.join(self.PATHS.BASEDIR, 'share/doc/linuxcnc/examples/sample-configs/sim/qtplasmac')
+                # we need elevated privileges to remove a file from here so forget it...
+                # we may revisit this.
+                simPath = None
+            else:
+                mPath = os.path.realpath(os.path.join(self.PATHS.BASEDIR, 'nc_files/plasmac/m_files'))
+                simPath = os.path.join(self.PATHS.BASEDIR, 'configs/sim/qtplasmac')
+            restart, error, text = UPDATER.insert_user_m_path(self.PATHS.CONFIGPATH, simPath)
+            if error:
+                return
+            self.updateIni['001-017'] = mPath
 
     def update_iniwrite(self):
         # this is for updates that write to the INI file
@@ -2507,6 +2520,13 @@ class HandlerClass:
                 return
         if 219 in self.updateIni:
             restart, error, text = UPDATER.move_options_to_prefs_file_iniwrite(INIPATH)
+            if restart:
+                self.restart = True
+            self.updateData.append([self.restart, error, text])
+            if error:
+                return
+        if '001-017' in self.updateIni:
+            restart, error, text = UPDATER.insert_user_m_path_iniwrite(INIPATH, self.updateIni['001-017'])
             if restart:
                 self.restart = True
             self.updateData.append([self.restart, error, text])
