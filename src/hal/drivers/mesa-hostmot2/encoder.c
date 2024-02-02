@@ -151,6 +151,7 @@ static void hm2_encoder_read_control_register(hostmot2_t *hm2) {
         *e->hal.pin.input_a = hm2->encoder.read_control_reg[i] & HM2_ENCODER_INPUT_A;
         *e->hal.pin.input_b = hm2->encoder.read_control_reg[i] & HM2_ENCODER_INPUT_B;
         *e->hal.pin.input_idx = hm2->encoder.read_control_reg[i] & HM2_ENCODER_INPUT_INDEX;
+
     }
 }
 
@@ -1119,7 +1120,6 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
     int i;
 
     if (hm2->encoder.num_instances <= 0) return;
-
     hm2_encoder_read_control_register(hm2);
 
     // process each encoder instance independently
