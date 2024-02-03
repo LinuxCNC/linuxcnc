@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2024-02-02 22:11+0000\n"
-"Last-Translator: kemal askan <kemalaskan90@gmail.com>\n"
+"PO-Revision-Date: 2024-02-03 08:59+0000\n"
+"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: none\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
@@ -423,12 +423,12 @@ msgstr "Classicladder gerçek zamanlı bileşeni algılanmadı"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4172
 msgid "Do you really want to delete the MDI history?\n"
-msgstr "MDI geçmişini gerçekten silmek istiyor musun ?"
+msgstr "MDI geçmişini gerçekten silmek istiyor musun ?\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4173
 #, fuzzy
 msgid "This will not delete the MDI History file, but will\n"
-msgstr "Bu MDI geçmişini silmez ama,ancak"
+msgstr "Bu MDI geçmişini silmez ama,ancak\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4174
 msgid "delete the listbox entries for this session."
@@ -511,7 +511,9 @@ msgstr "btn_block_height'ta dönüştürme hatası!"
 msgid ""
 "Please enter only numerical values\n"
 "Values have not been applied"
-msgstr "Lütfen sadece sayısal değerler giriniz. Değerler uygulanmadı"
+msgstr ""
+"Lütfen sadece sayısal değerler giriniz.\n"
+"Değerler uygulanmadı"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4852
 msgid "Please remove the mounted tool and press OK when done"
@@ -553,7 +555,7 @@ msgstr "Manuel Takım değiştirme"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4870
 msgid "Tool Change has been aborted!\n"
-msgstr "Takım Değiştirme iptal edildi !"
+msgstr "Takım Değiştirme iptal edildi !\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4871
 msgid "The old tool will remain set!"
@@ -597,7 +599,7 @@ msgstr "Spindle milindeki takım sıfırlandı."
 #, fuzzy
 msgid ""
 "Tool touch off is not possible with cutter radius compensation switched on!\n"
-msgstr "Takım dokunucu kesme radüsü kompenzasyonu açıkken yapılamaz !"
+msgstr "Takım dokunucu kesme radüsü kompenzasyonu açıkken yapılamaz !\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4915
 msgid "Please emit an G40 before tool touch off."
@@ -901,7 +903,9 @@ msgstr ""
 msgid ""
 "Replace\n"
 "   All"
-msgstr "Tümünü Değiştir"
+msgstr ""
+"Tümünü\n"
+"   Değiştir"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:44
 msgid "Replace"
