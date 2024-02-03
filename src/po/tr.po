@@ -1,13 +1,13 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# kemal askan <kemalaskan90@gmail.com>, 2023.
+# kemal askan <kemalaskan90@gmail.com>, 2023, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-04-01 02:17+0000\n"
+"PO-Revision-Date: 2024-02-03 03:48+0000\n"
 "Last-Translator: kemal askan <kemalaskan90@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: tr\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.17-dev\n"
+"X-Generator: Weblate 5.4-dev\n"
 
 #: src/emc/task/emctaskmain.cc:869
 #, c-format
@@ -11240,7 +11240,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -13950,9 +13951,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/tests.py:498
-#, fuzzy
 msgid "Servo tuning is not tested in PNCconf yet\n"
-msgstr "Servo ayarı henüz PNCconf test edilmedi"
+msgstr "Servo ayarları test edilemeci PNCconf içi ayarlanmalı\n"
 
 #: src/emc/usr_intf/pncconf/tests.py:507
 msgid "degrees"
@@ -18637,15 +18637,15 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2499
 msgid "0.000"
-msgstr ""
+msgstr "0.000"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2527
 msgid "Starting RPM"
-msgstr ""
+msgstr "Başlangıç Devri"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2552
 msgid "Metric"
-msgstr ""
+msgstr "Metrik"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2564
 msgid ""
@@ -18658,6 +18658,8 @@ msgid ""
 "Diameter\n"
 "Mode"
 msgstr ""
+"Ölçüm\n"
+"Modu"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2590
 #: src/emc/usr_intf/gscreen/gscreen.glade:3202
@@ -18665,18 +18667,24 @@ msgid ""
 "Show\n"
 "Offsets"
 msgstr ""
+"Göster\n"
+"Ofsetleri"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2603
 msgid ""
 "Show\n"
 "DTG"
 msgstr ""
+"Göster\n"
+"DTG"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2616
 msgid ""
 "Gscreen\n"
 "Fullscreen"
 msgstr ""
+"GEkranı\n"
+"TamEkran"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2642
 msgid ""
@@ -18692,7 +18700,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2668
 msgid "Hide Pointer"
-msgstr ""
+msgstr "İşaretçiyi Kaldır"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2680
 msgid ""
@@ -18703,11 +18711,11 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.glade:2750
 #: src/emc/usr_intf/gscreen/gscreen.glade:2905
 msgid "Debug"
-msgstr ""
+msgstr "Hata Ayıklama"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2784
 msgid "Alarm History"
-msgstr ""
+msgstr "Alarm Geçmişi"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2805
 msgid ""
@@ -18717,31 +18725,35 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2819
 msgid "Calibration"
-msgstr ""
+msgstr "Kalibrasyon"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2832
 msgid "Halmeter"
-msgstr ""
+msgstr "Halmetre"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2845
 msgid ""
 "LinuxCNC\n"
 "Status"
 msgstr ""
+"LinuxCNC\n"
+"Durum"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2859
 msgid "Halscope"
-msgstr ""
+msgstr "HalAlanı"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2925
 msgid "Tooleditor"
-msgstr ""
+msgstr "KalemEditörü"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2945
 msgid ""
 "Offset\n"
 "Page"
 msgstr ""
+"Ofset\n"
+"Sayfası"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3036
 msgid ""
@@ -18773,6 +18785,8 @@ msgid ""
 "coordinate\n"
 "System"
 msgstr ""
+"koordinat\n"
+"Sistemi"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3160
 msgid ""
@@ -18785,33 +18799,41 @@ msgid ""
 "Spindle\n"
 "Controls"
 msgstr ""
+"KafaDevir\n"
+"Kontrolü"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3275
 #: src/emc/usr_intf/gscreen/gscreen.glade:4284
 msgid "\n"
-msgstr ""
+msgstr "\n"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3322
 msgid "Open"
-msgstr ""
+msgstr "Açık"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3334
 msgid ""
 "Block\n"
 "Delete"
 msgstr ""
+"Blok\n"
+"Sil"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3348
 msgid ""
 "Optional\n"
 "Stop"
 msgstr ""
+"Opsiyonel\n"
+"Dur"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3362
 msgid ""
 "Full\n"
 "View"
 msgstr ""
+"Tam\n"
+"Gör"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3409
 msgid ""
@@ -18842,6 +18864,8 @@ msgid ""
 "Jog\n"
 "Speed"
 msgstr ""
+"Jog\n"
+"Hızı"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3501
 msgid ""
@@ -18854,12 +18878,16 @@ msgid ""
 "Adjust\n"
 "Rotary"
 msgstr ""
+"Dönüş\n"
+"Ayarı"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3543
 msgid ""
 "Change\n"
 "  View"
 msgstr ""
+"Bakışı\n"
+"  Değiştir"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3600
 msgid ""
@@ -18878,24 +18906,32 @@ msgid ""
 "Rotate\n"
 "Horiontal"
 msgstr ""
+"Dikey\n"
+"Dönüş"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3642
 msgid ""
 "Rotate\n"
 "Vertical"
 msgstr ""
+"Yatay\n"
+"Dönüş"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3666
 msgid ""
 "Search\n"
 "Bwd"
 msgstr ""
+"Ara\n"
+"Bwd"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3680
 msgid ""
 "Search\n"
 "Fwd"
 msgstr ""
+"Ara\n"
+"Fwd"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3694
 msgid "Undo"
