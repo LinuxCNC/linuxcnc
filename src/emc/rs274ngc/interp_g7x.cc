@@ -42,12 +42,10 @@ static constexpr double tolerance=1e-6;
 class segment {
 protected:
     std::complex<double> start, end;
-    double finish;
+    double finish{};
 public:
-    segment(double sz,double sx,double ez,double ex):start(sz,sx),end(ez,ex),
-	finish{0} {}
-    segment(std::complex<double> s, std::complex<double> e):start(s),end(e),
-	finish{0} {}
+    segment(double sz,double sx,double ez,double ex):start(sz,sx),end(ez,ex) {}
+    segment(std::complex<double> s, std::complex<double> e):start(s),end(e) {}
     typedef std::deque<double> intersections_t;
     virtual void intersection_z(double x, intersections_t &is)=0;
     virtual bool climb(std::complex<double>&, motion_base*)=0;
@@ -560,9 +558,9 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 class g7x:public  std::list<std::unique_ptr<segment>> {
-    double delta;
-    std::complex<double> escape;
-    int flip_state;
+    double delta{0.5};
+    std::complex<double> escape{0.3, 0.3};
+    int flip_state{};
     std::deque<std::complex<double>> pocket_starts;
 private:
     void pocket(int cycle, std::complex<double> location, iterator p,
@@ -627,7 +625,7 @@ private:
     }
 
 public:
-    g7x() : delta{0.5}, escape{0.3,0.3}, flip_state{0} {}
+    g7x() = default;
     g7x(g7x const &other) {
 	delta=other.delta;
 	escape=other.escape;
