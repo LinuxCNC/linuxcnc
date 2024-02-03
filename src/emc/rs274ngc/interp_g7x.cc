@@ -58,16 +58,16 @@ public:
     virtual void intersect(segment*)=0;
     virtual void intersect_end(round_segment *p)=0;
     virtual void intersect_end(straight_segment *p)=0;
-    virtual std::unique_ptr<segment> dup(void)=0;
-    virtual double radius(void)=0;
-    virtual bool monotonic(void) { return real(end-start)<=1e-3; }
+    virtual std::unique_ptr<segment> dup()=0;
+    virtual double radius()=0;
+    virtual bool monotonic() { return real(end-start)<=1e-3; }
     virtual void do_finish(segment *prev, segment *next) {}
-    std::complex<double> &sp(void) { return start; }
-    std::complex<double> &ep(void) { return end; }
+    std::complex<double> &sp() { return start; }
+    std::complex<double> &ep() { return end; }
 
-    virtual void flip_imag(void) { start=conj(start); end=conj(end); }
-    virtual void flip_real(void) { start=-conj(start); end=-conj(end); }
-    virtual void rotate(void) {
+    virtual void flip_imag() { start=conj(start); end=conj(end); }
+    virtual void flip_real() { start=-conj(start); end=-conj(end); }
+    virtual void rotate() {
 	start=-start*I;
 	end=-end*I;
     }
@@ -119,10 +119,10 @@ public:
     void intersect(segment *p) override;
     void intersect_end(round_segment *p) override;
     void intersect_end(straight_segment *p) override;
-    std::unique_ptr<segment> dup(void) override {
+    std::unique_ptr<segment> dup() override {
 	return std::make_unique<straight_segment>(*this);
     }
-    double radius(void) override { return abs(start-end); }
+    double radius() override { return abs(start-end); }
 };
 
 void straight_segment::intersection_z(double x, intersections_t &is)
@@ -224,21 +224,21 @@ public:
     void intersect(segment *p) override;
     void intersect_end(round_segment *p) override;
     void intersect_end(straight_segment *p) override;
-    std::complex<double> cp(void) { return center; }
-    std::unique_ptr<segment> dup(void) override {
+    std::complex<double> cp() { return center; }
+    std::unique_ptr<segment> dup() override {
 	return std::make_unique<round_segment>(*this);
     }
-    double radius(void) override { return std::min(abs(start-end),abs(start-center)); }
-    void flip_imag(void) override { ccw=!ccw; start=conj(start); end=conj(end);
+    double radius() override { return std::min(abs(start-end),abs(start-center)); }
+    void flip_imag() override { ccw=!ccw; start=conj(start); end=conj(end);
 	center=conj(center); }
-    void flip_real(void) override { ccw=!ccw; start=-conj(start);
+    void flip_real() override { ccw=!ccw; start=-conj(start);
 	end=-conj(end); center=-conj(center); }
-    virtual void rotate(void) override {
+    virtual void rotate() override {
 	start=-start*I;
 	end=-end*I;
 	center=-center*I;
     }
-    virtual bool monotonic(void) override {
+    virtual bool monotonic() override {
 	if(finish!=0)
 	    return true;
 	double entry=imag(start-center);
@@ -570,14 +570,14 @@ private:
     void add_distance(double distance);
 
     /* Rotate profile by 90 degrees */
-    void rotate(void) {
+    void rotate() {
 	for(auto &p : *this)
 	    p->rotate();
 	flip_state^=4;
     }
 
     /* Change the direction of the profile to have Z and X decreasing */
-    void swap(void) {
+    void swap() {
 	double dir_x=imag(front()->ep()-back()->ep());
 	double dir_z=real(front()->ep()-back()->ep());
 	if(dir_x>0) {
@@ -606,7 +606,7 @@ private:
 	throw(std::string("This can't happen"));
     }
 
-    void monotonic(void) {
+    void monotonic() {
 	if(real(front()->ep()-front()->sp())>0) {
 	    front()->sp().real(real(front()->ep()));
 	}
@@ -616,7 +616,7 @@ private:
 	}
     }
 
-    void do_finish(void) {
+    void do_finish() {
 	for(auto h=++begin(); h!=--end(); ) {
 	    auto p(h); --p;
 	    (*h)->do_finish((*p).get(),(*(++h)).get());
@@ -627,7 +627,7 @@ private:
     }
 
 public:
-    g7x(void) : delta{0.5}, escape{0.3,0.3}, flip_state{0} {}
+    g7x() : delta{0.5}, escape{0.3,0.3}, flip_state{0} {}
     g7x(g7x const &other) {
 	delta=other.delta;
 	escape=other.escape;
@@ -977,7 +977,7 @@ public:
 	interp->_readers[(int)'u']=interp->default_readers[(int)'u'];
 	interp->_readers[(int)'w']=interp->default_readers[(int)'w'];
     }
-    ~switch_settings(void) {
+    ~switch_settings() {
 	settings->distance_mode=saved_distance_mode;
 	settings->ijk_distance_mode=saved_ijk_distance_mode;
 	interp->_readers[(int)'a']=read_a;
@@ -985,8 +985,8 @@ public:
 	interp->_readers[(int)'u']=read_u;
 	interp->_readers[(int)'w']=read_w;
     }
-    DISTANCE_MODE ijk_distance_mode(void) { return saved_ijk_distance_mode; }
-    DISTANCE_MODE distance_mode(void) { return saved_distance_mode; }
+    DISTANCE_MODE ijk_distance_mode() { return saved_ijk_distance_mode; }
+    DISTANCE_MODE distance_mode() { return saved_distance_mode; }
 };
 
 int Interp::convert_g7x(int mode,
