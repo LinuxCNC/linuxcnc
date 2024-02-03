@@ -897,15 +897,14 @@ void g7x::add_distance(double distance) {
 
 #ifndef IGNORE_LINUXCNC
 ////////////////////////////////////////////////////////////////////////////////
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+#include <cstdlib>
+#include <cmath>
+#include <cstring>
 #include <string>
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "rs274ngc_interp.hh"
 #include "interp_internal.hh"
-
 #include "units.h"
 
 class motion_machine:public motion_base {
