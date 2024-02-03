@@ -21,7 +21,7 @@ class motion_base {
 public:
     virtual void straight_move(std::complex<double> end)=0;
     virtual void straight_rapid(std::complex<double> end)=0;
-    virtual void circular_move(int ccw,std::complex<double> center,
+    virtual void circular_move(bool ccw,std::complex<double> center,
 	std::complex<double> end)=0;
 };
 
@@ -29,7 +29,7 @@ class motion_null:public motion_base {
 public:
     void straight_move(std::complex<double> end) override  {}
     void straight_rapid(std::complex<double> end)  override {}
-    void circular_move(int ccw,std::complex<double> center,
+    void circular_move(bool ccw,std::complex<double> center,
 	std::complex<double> end)  override {}
 };
 
@@ -198,12 +198,12 @@ protected:
     int ccw;
     std::complex<double> center;
 public:
-    round_segment(int c, double sx, double sz,
+    round_segment(bool c, double sx, double sz,
 	double cx, double cz, double ex, double ez):
 	segment(sz,sx,ez,ex), ccw(c), center(cz,cx)
     {
     }
-    round_segment(int cc, std::complex<double> s,
+    round_segment(bool cc, std::complex<double> s,
 	std::complex<double> c, std::complex<double> e):
 	segment(s,e), ccw(cc), center(c)
     {
@@ -540,7 +540,7 @@ public:
 	case 7: orig->straight_rapid(-I*end); break;
 	}
     }
-    virtual void circular_move(int ccw,std::complex<double> center,
+    virtual void circular_move(bool ccw,std::complex<double> center,
 	std::complex<double> end) override
     {
 	switch(swap) {
@@ -932,7 +932,7 @@ public:
 	if(r!=INTERP_OK)
 	    throw(r);
     }
-    void circular_move(int ccw,std::complex<double> center,
+    void circular_move(bool ccw,std::complex<double> center,
 	std::complex<double> end
     ) {
 	block->x_flag=1;
