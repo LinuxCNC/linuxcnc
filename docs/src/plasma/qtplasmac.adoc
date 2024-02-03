@@ -3287,6 +3287,7 @@ Buttons can run the following:
 . <<plasma:button-offsets,Display/Hide an offsets viewer>>
 . <<plasma:button-latest,Load the latest modified NGC file found in a directory>>
 . <<plasma:button-umanual,Display/Hide the online HTML user manual>>
+. <<plasma:button-joint,Toggle between joint and teleop modes>>
 
 [[plasma:button-cmds]]
 .External Commands
@@ -3699,6 +3700,16 @@ Note that internet access is required for this functionality.
 [source,{ini}]
 ----
 n Code = user-manual
+----
+
+[[plasma:button-joint]]
+.Toggle Joint Mode
+
+This allows the toggling between joint mode and teleop mode. The machine must be on and homed for this button to be active.
+
+[source,{ini}]
+----
+n Code = toggle_joint
 ----
 
 [[peripheral-offsets]]

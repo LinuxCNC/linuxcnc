@@ -64,7 +64,7 @@ def clear_tool_tips(W):
     main_jog_widgets = [
     'jogincrements','jog_slow','jog_z_minus','jog_z_plus','jog_x_minus',
     'jog_x_plus','jog_a_plus','jog_a_minus','jog_y_plus','jog_y_minus',
-    'jog_b_minus','jog_b_plus']
+    'jog_b_minus','jog_b_plus','jog_c_minus','jog_c_plus']
 
     main_cut_rec_widgets = [
     'cut_rec_cancel','cut_rec_rev','cut_rec_speed','cut_rec_fwd','cut_rec_feed',
@@ -250,6 +250,8 @@ def set_tool_tips(P, W):
     W.jog_a_plus.setToolTip(_translate('ToolTips', 'Jogs the A axis positive'))
     W.jog_b_minus.setToolTip(_translate('ToolTips', 'Jogs the B axis negative'))
     W.jog_b_plus.setToolTip(_translate('ToolTips', 'Jogs the B axis positive'))
+    W.jog_c_minus.setToolTip(_translate('ToolTips', 'Jogs the C axis negative'))
+    W.jog_c_plus.setToolTip(_translate('ToolTips', 'Jogs the C axis positive'))
     W.jog_x_minus.setToolTip(_translate('ToolTips', 'Jogs the X axis negative'))
     W.jog_x_plus.setToolTip(_translate('ToolTips', 'Jogs the X axis positive'))
     W.jog_y_minus.setToolTip(_translate('ToolTips', 'Jogs the Y axis negative'))
@@ -286,6 +288,7 @@ def set_tool_tips(P, W):
     text1 = _translate('ToolTips', 'axis position')
     W.dro_a.setToolTip(f'{text0} A {text1}')
     W.dro_b.setToolTip(f'{text0} B {text1}')
+    W.dro_c.setToolTip(f'{text0} C {text1}')
     W.dro_x.setToolTip(f'{text0} X {text1}')
     W.dro_y.setToolTip(f'{text0} Y {text1}')
     W.dro_z.setToolTip(f'{text0} Z {text1}')
@@ -293,6 +296,7 @@ def set_tool_tips(P, W):
     text1 = _translate('ToolTips', 'axis')
     W.home_a.setToolTip(f'{text0} A {text1}')
     W.home_b.setToolTip(f'{text0} B {text1}')
+    W.home_c.setToolTip(f'{text0} C {text1}')
     W.home_x.setToolTip(f'{text0} X {text1}')
     W.home_y.setToolTip(f'{text0} Y {text1}')
     W.home_z.setToolTip(f'{text0} Z {text1}')
@@ -301,6 +305,7 @@ def set_tool_tips(P, W):
     text1 = _translate('ToolTips', 'axis')
     W.touch_a.setToolTip(f'{text0} A {text1}')
     W.touch_b.setToolTip(f'{text0} B {text1}')
+    W.touch_c.setToolTip(f'{text0} C {text1}')
     W.touch_x.setToolTip(f'{text0} X {text1}')
     W.touch_y.setToolTip(f'{text0} Y {text1}')
     W.touch_z.setToolTip(f'{text0} Z {text1}')

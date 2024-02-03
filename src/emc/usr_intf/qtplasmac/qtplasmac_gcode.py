@@ -264,7 +264,7 @@ class Filter():
         # set the current g-code
         self.lastG = self.set_last_gcode(data, self.lastG)
         # if data starts with axis then preface with last g-code
-        if data[0] in 'XYZAB':
+        if data[0] in 'XYZABC':
             data = f'G{self.lastG} {data}'
         # add leading 0's to G & M codes < 10
         tmp = ''
