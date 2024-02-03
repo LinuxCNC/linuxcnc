@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC 2.10.
 
 .I VERSION:
 .br
-002
+003
 
 .I SUMMARY:
 .br
@@ -139,6 +139,7 @@ pin in  bit     torch_enable                "enable torch";
 pin in  bit     torch_off                   "turn torch off";
 pin in  bit     torch_pulse_start           "torch pulse start";
 pin in  float   torch_pulse_time            "torch pulse time (seconds)";
+pin in  bit     tube_cut                    "set the current job as tube cutting";
 pin in  float   units_per_mm                "for scale calcs, connect to halui.machine.units-per-mm";
 pin in  bit     use_auto_volts              "use calculated voltage for thc baseline";
 pin in  bit     voidlock_enable             "enable voidlock [mode 0 & mode 1]";
@@ -183,6 +184,7 @@ pin out bit     ohmic_sense_out             "ohmic sense output state";
 pin out bit     paused_motion               "paused motion flag, true when paused motion is active";
 pin out float   paused_time                 "paused time during current job";
 pin out s32     pierce_count                "number of pierce attempts (torch starts)";
+pin out bit     probe_out                   "probe for tube cutting, connect to motion.probe-input";
 pin out bit     probe_test_error            "minimum limit reached while probe testing";
 pin out float   probe_time                  "probe time of current job";
 pin out bit     program_pause               "pause the current program, connect to halui.program.pause";
@@ -542,7 +544,7 @@ FUNCTION(_) {
     }else{
         sensor_active = FALSE;
     }
-
+    probe_out = float_switch && tube_cut && state == IDLE;
 
 // I don't recall why z_relative was originally created!!!
 // commit # b29d1af 24 Oct 2019
@@ -602,6 +604,8 @@ FUNCTION(_) {
     }
 
     /* set THC state */
+//FIXME not sure if we really need thc for tube cutting
+//    thc_enabled = (thc_enable && !thc_disable && !mesh_enable && !ignore_arc_ok_0 && !ignore_arc_ok_1 && (arc_lost_timer > arc_lost_delay - 0.000001) && tool != TUBE ? 1:0);
     thc_enabled = (thc_enable && !thc_disable && !mesh_enable && !ignore_arc_ok_0 && !ignore_arc_ok_1 && (arc_lost_timer > arc_lost_delay - 0.000001) ? 1:0);
 
     /* set THC status */
@@ -640,7 +644,7 @@ FUNCTION(_) {
     /* check for an abort */
     /* or for a pause or wait while active */
     if(auto_cut){
-        if(state == IDLE && sensor_active && !program_is_idle){
+        if(state == IDLE && sensor_active && !program_is_idle && !tube_cut){
             torch_on = FALSE;
             if(!program_is_paused && !program_pause){
                 if(breakaway){
@@ -712,7 +716,7 @@ FUNCTION(_) {
                                               "program is paused.\n");
                 probe_inhibit = TRUE;
                 state = MAX_HEIGHT;
-            }else if(state > ARC_OK && float_switch){
+            }else if(state > ARC_OK && float_switch && !tube_cut){
                 torch_on = FALSE;
                 program_pause = TRUE;
                 stop_type = PAUSE;
@@ -957,6 +961,17 @@ FUNCTION(_) {
                     /* if we get a cut recovery start request and we are paused */
                     }else if(cut_recovery && stop_type == PAUSE && (!cut_recovering || laser_recovery_start)){
                         state = CUT_RECOVERY_ON;
+                    /* if we get a tube start request and we are stopped or waiting for a restart */
+                    }else if(tube_cut && tool == CUTTING && (stop_type == NONE || stop_type == WAIT) && homed){
+                        feed_hold = TRUE;
+                        cut_started = TRUE;
+                        stop_type = NONE;
+                        if(torch_enable){
+                            state = TORCH_ON;
+                        }else{
+                            feed_hold = FALSE;
+                            state = CUT_MODE_01;
+                        }
                     /* if we get a torch start request and we are stopped or waiting for a restart */
                     }else if((tool == CUTTING || tool == SPOTTING || probe_test) && (stop_type == NONE || stop_type == WAIT) && homed){
                         feed_hold = TRUE;
@@ -1618,6 +1633,18 @@ FUNCTION(_) {
                 // normal pierce timer processing
                 if(pierce_timer > 0){
                     pierce_timer -= fperiod;
+                }else if(tube_cut){
+//FIXME not sure if we really need thc for tube cutting
+                    zero_target = 0;
+                    cut_target = 0;
+                    pierce_target = 0;
+                    puddle_jump_target = 0;
+                    safe_min = 0;
+                    safe_preferred = 0;
+                    offset_min = z_offset_counts - ((axis_z_position - axis_z_min_limit) / offset_scale);
+                    offset_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
+                    feed_hold = FALSE;
+                    state = CUT_MODE_01;
                 }else if((puddle_jump_delay || puddle_jump_percent != 100) && !cut_recovering){
                     puddle_jump_timer = puddle_jump_delay;
                     state = PUDDLE_JUMP;

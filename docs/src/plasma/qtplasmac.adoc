@@ -752,7 +752,7 @@ OFFSET_AV_RATIO  = 0.5
 ----
 
 [NOTE]
-QtPlasmaC uses the LinuxCNC External Offsets feature for all Z axis motion, and for moving the X and/or Y axis for a consumable change while paused.
+With the exception of <<plasma:tube_cutting,tube cutting>> with an angular A, B, or C axis, QtPlasmaC uses the LinuxCNC External Offsets feature for all Z axis motion, and for moving the X and/or Y axis for a consumable change or a cut recovery while paused.
 For more information on this feature, please read <<cha:external-offsets,External Axis Offsets>> in the LinuxCNC documentation.
 
 == QtPlasmaC GUI Overview
@@ -1358,6 +1358,10 @@ For reliable use of QtPlasmaC the user should *NOT* use any Z axis offsets other
 
 QtPlasmaC will automatically add a line of G-code to move the Z axis to the correct height at the beginning of every G-code program.
 
+[NOTE]
+It is possible to keep Z motion for use with different tools by adding the magic comment <<plasma:keep_z,#<keep-z-motion>=1>>.
+If using an angular A, B, or C axis for <<plasma:tube_cutting,tube cutting>> then Z axis motion is required in the G-code file. +
+
 *Version Information* - QtPlasmaC will display versioning information in the title of the main window.
 The information will be displayed as followed "QtPlasmaC v__N__.__XXX__.__YYY__ - powered by QtVCP on LinuxCNC vZ.Z.Z" where _N_ is the version of QtPlasmaC, _XXX_ is the version of the HAL component (PlasmaC.comp), _YYY_ is the GUI version, and __Z__.__Z__.__Z__ is the version of LinuxCNC.
 
@@ -1461,6 +1465,9 @@ The following variables are mandatory and an error message will appear if any ar
 * PIERCE_DELAY
 * CUT_HEIGHT
 * CUT_SPEED
+
+[NOTE]
+If doing <<plasma:tube_cutting,tube cutting>> using the #<tube_cut>=1 magic comment then the only mandatory variable is PIERCE_DELAY, all other variables are optional.
 
 The following variables are optional. If they are not detected or have no value assigned, they will be assigned a value of 0 and no error message will appear.
 
@@ -2554,6 +2561,18 @@ The *high feed rate* of 99999 is to ensure that the motion is at the machine's h
 
 IMPORTANT: SOME PLASMA CUTTERS WILL NOT BE SUITABLE FOR THIS FEATURE. +
 IT IS RECOMMENDED THAT THE USER CARRY OUT SOME TEST SPOTTING TO ENSURE THAT THE PLASMA CUTTER IS CAPABLE OF UTILIZING THIS FEATURE.
+
+[[plasma:tube_cutting]]
+=== Tube Cutting
+
+Tube cutting with an angular A, B, or C axis is achieved with the following in the G-code file:
+
+- #<tube_cut>=1 magic comment before any motion command.
+- All material probing must be done using the link:../gcode/g-code.html#gcode:g38[G38] straight probe codes.
+- All Z axis motion is required, plasmac does no internal Z axis motion during tube cutting.
+- PIERCE_DELAY is the only required <<plasma:material-handling,material parameter>>
+- Start a cut with M3 $0 S1.
+- End a cut with M5 $0
 
 [[custom_kb_layouts]]
 === Virtual Keyboard Custom Layouts
@@ -3754,6 +3773,7 @@ image::images/qtplasmac_peripheral_offsets_delay.png[width=200,align="left"]
 It may be necessary to click the preview window to enable jogging.
 By following the above procedure the offsets are available for use immediately and no restart of LinuxCNC is required.
 
+[[plasma:keep_z]]
 === Keep Z Motion
 
 By default, QtPlasmaC will remove all Z motion from a loaded G-code file and add an initial Z movement to bring the torch near the top of travel at the beginning of the file.

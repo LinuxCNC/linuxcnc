@@ -65,6 +65,7 @@ class Filter():
         response = RUN(['halcmd', 'getp', 'plasmac.max-offset'], capture_output = True)
         zMaxOffset = float(response.stdout.decode())
         RUN(['halcmd', 'setp', self.convBlockPin, '0'])
+        RUN(['halcmd', 'setp', 'plasmac.tube-cut', '0'])
         self.metric = ['mm', 4]
         self.imperial = ['in', 6]
         self.units, self.fmt = self.imperial if INI.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else self.metric
@@ -87,6 +88,7 @@ class Filter():
         self.lastG = ''
         self.lastX = 0
         self.lastY = 0
+        self.lastGcode = ''
         self.oBurnX = 0
         self.oBurnY = 0
         self.lineNum = 0
@@ -109,6 +111,7 @@ class Filter():
         self.offsetG4x = False
         self.zSetup = False
         self.zBypass = False
+        self.tubeCut = False
         self.pathBlend = False
         self.convBlock = False
         self.filtered = False
@@ -122,6 +125,7 @@ class Filter():
         self.errorNoMat = []
         self.errorBadMat = []
         self.errorTempMat = []
+        self.errorTempParm = []
         self.errorNewMat = []
         self.errorEditMat = []
         self.errorWriteMat = []
@@ -278,6 +282,14 @@ class Filter():
                         tmp += '0'
             data = data[1:]
         data = tmp
+        # set last gcode
+        if data[0] == 'G' and not data[2].isdigit():
+            if data[1] in '0123':
+                self.lastGcode = f'G{data[1]}'
+            else:
+                self.lastGcode = ''
+        if data[0] in 'XYZABC' and self.lastGcode:
+            data = f'{self.lastGcode}{data}'
         # if incremental distance mode fix overburn coordinates
         if data[:3] in ['G00', 'G01'] and self.distMode == 91 and (self.oBurnX or self.oBurnY):
             data = self.fix_overburn_incremental_coordinates(data)
@@ -311,7 +323,7 @@ class Filter():
             if not data:
                 return(None)
         # is this a scribe
-        if data.startswith('M03 $1 S'):
+        if data.startswith('M03 $1 S') and not self.tubeCut:
             self.set_scribing()
         # test for pierce only mode
         elif data.replace(' ','').startswith('#<pierce-only>=1') or self.cutType == 1:
@@ -332,6 +344,9 @@ class Filter():
         elif data.startswith('#<h_velocity>'):
             self.set_hole_velocity(data)
             return data
+        # tube cutting
+        if data.startswith('#<tube-cut>=1'):
+            data = self.set_tube_cut(data)
         # change material
         if data[:4] == 'M190':
             self.do_material_change(data)
@@ -354,7 +369,7 @@ class Filter():
             and not self.zBypass:
             data = self.comment_z_commands(data)
         # check the feed rate
-        if 'F' in data:
+        if 'F' in data and not self.tubeCut:
             data = self.check_f_word(data)
         # if an arc command
         if (data[:3] == 'G02' or data[:3] == 'G03'):
@@ -760,6 +775,14 @@ class Filter():
             self.errorLines.append(self.lineNumOrg)
         return data
 
+    def set_tube_cut(self, data):
+        self.tubeCut = True
+        self.zBypass = True
+        RUN(['halcmd', 'setp', 'plasmac.tube-cut', '1'])
+        self.lineNum += 3
+        data = f'\n;tube cutting is experimental\n{data}\n'
+        return data
+
     def spindle_off(self, data):
         if len(data) == 3 or (len(data) > 3 and not data[3].isdigit()):
             self.firstMove = False
@@ -1031,8 +1054,11 @@ class Filter():
         cm = 1
         ca = 15
         cv = 100
+        if self.tubeCut:
+            ph = ch = fr = 0.0
         try:
-            if 'ph=' in data and 'pd=' in data and 'ch=' in data and 'fr=' in data:
+            if ('ph=' in data and 'pd=' in data and 'ch=' in data and 'fr=' in data) or \
+               ('pd=' in data and self.tubeCut):
                 if '(o=0' in data:
                     tmpMaterial = True
                     nu = self.tmpMatNum
@@ -1103,6 +1129,10 @@ class Filter():
                     self.set_code_error()
                     self.errorEditMat.append(self.lineNum)
                     self.errorLines.append(self.lineNumOrg)
+            else:
+                self.set_code_error()
+                self.errorTempParm.append(self.lineNum)
+                self.errorLines.append(self.lineNumOrg)
         except:
             self.set_code_error()
             self.errorLines.append(self.lineNumOrg)
@@ -1262,6 +1292,9 @@ class Filter():
             if self.errorTempMat:
                 msg  = 'Error attempting to add a temporary material.\n'
                 errorText += self.message_set(self.errorTempMat, msg)
+            if self.errorTempParm:
+                msg  = 'Parameter missing from temporary material.\n'
+                errorText += self.message_set(self.errorTempParm, msg)
             if self.errorNewMat:
                 msg  = 'Cannot add new material, number is in use.\n'
                 errorText += self.message_set(self.errorNewMat, msg)
