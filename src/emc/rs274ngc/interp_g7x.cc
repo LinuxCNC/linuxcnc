@@ -571,8 +571,8 @@ private:
 
     /* Rotate profile by 90 degrees */
     void rotate(void) {
-	for(auto p=begin(); p!=end(); p++)
-	    (*p)->rotate();
+	for(auto &p : *this)
+	    p->rotate();
 	flip_state^=4;
     }
 
@@ -581,13 +581,13 @@ private:
 	double dir_x=imag(front()->ep()-back()->ep());
 	double dir_z=real(front()->ep()-back()->ep());
 	if(dir_x>0) {
-	    for(auto p=begin(); p!=end(); p++)
-		(*p)->flip_imag();
+	    for(auto &p : *this)
+		p->flip_imag();
 	    flip_state^=2;
 	}
 	if(dir_z<0) {
-	    for(auto p=begin(); p!=end(); p++)
-		(*p)->flip_real();
+	    for(auto &p : *this)
+		p->flip_real();
 	    flip_state^=1;
 	}
     }
@@ -610,8 +610,8 @@ private:
 	if(real(front()->ep()-front()->sp())>0) {
 	    front()->sp().real(real(front()->ep()));
 	}
-	for(auto p=begin(); p!=end(); p++) {
-	    if(!(*p)->monotonic())
+	for(auto &p : *this) {
+	    if(!p->monotonic())
 		throw(std::string("Not monotonic"));
 	}
     }
@@ -632,8 +632,8 @@ public:
 	delta=other.delta;
 	escape=other.escape;
 	flip_state=other.flip_state;
-	for(auto p=other.begin(); p!=other.end(); p++)
-	    emplace_back((*p)->dup());
+	for(const auto &p : other)
+	    emplace_back(p->dup());
     }
 
     /*
@@ -700,8 +700,8 @@ public:
 	monotonic();
 	add_distance(d);
 	std::complex<double> displacement(w,u);
-	for(auto p=begin(); p!=end(); p++)
-	    (*p)->move(displacement);
+	for(auto &p : *this)
+	    p->move(displacement);
 	auto swapped_out=motion(out);
 
 	delta=std::max(i,2*tolerance);
@@ -839,8 +839,8 @@ void g7x::add_distance(double distance) {
     double current_distance=0;
     while(current_distance!=distance) {
 	double max_distance=1e9;
-	for(auto p=begin(); p!=end(); p++)
-	    max_distance=std::min(max_distance,(*p)->radius()/2);
+	for(auto &p : *this)
+	    max_distance=std::min(max_distance,p->radius()/2);
 	max_distance=std::min(max_distance,std::abs(distance-current_distance));
 	if(distance<0)
 	    max_distance=-max_distance;
