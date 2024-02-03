@@ -1355,6 +1355,7 @@ Once QtPlasmaC is successfully installed, no Z axis motion is required to be par
 In fact, if any Z axis references are present in the cut program, the standard QtPlasmaC configuration will remove them during the program loading process.
 
 For reliable use of QtPlasmaC the user should *NOT* use any Z axis offsets other than the coordinate system offsets (G54-G59.3).
+For this reason, G92 offsets have been disabled across the GUI.
 
 QtPlasmaC will automatically add a line of G-code to move the Z axis to the correct height at the beginning of every G-code program.
 

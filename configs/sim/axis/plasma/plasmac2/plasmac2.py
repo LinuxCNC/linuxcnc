@@ -17,7 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-VER = '15'
+VER = '16'
 
 ##############################################################################
 # the next line suppresses undefined variable errors in VSCode               #
@@ -2137,9 +2137,27 @@ def get_jog_speed(a):
 
 def send_mdi_command(command):
     ''' reload file if G10 in gcode '''
+    ''' disallow M3, M4, M5, and G92 in MDI '''
     global mdi_history_index, mdi_history_save_filename
     if command != "":
         command= command.lstrip().rstrip()
+        test = command.lower().replace(' ','')
+        if 'g92' in test and not 'g92.1' in test:
+            msg0 = _('G92 offsets are not allowed')
+            notifications.add('error', f"{msg0}\n")
+            return
+        if 'm3' in test:
+            msg0 = _('M3 commands are not allowed in MDI mode')
+            notifications.add('error', f"{msg0}\n")
+            return
+        elif 'm4' in test:
+            msg0 = _('M4 commands are not allowed in MDI mode')
+            notifications.add('error', f"{msg0}\n")
+            return
+        elif 'm5' in test:
+            msg0 = _('M5 commands are not allowed in MDI mode')
+            notifications.add('error', f"{msg0}\n")
+            return
         vars.mdi_command.set("")
         ensure_mode(linuxcnc.MODE_MDI)
         widgets.mdi_history.selection_clear(0, "end")

@@ -133,6 +133,7 @@ class Filter():
         self.errorCompMat = []
         self.errorFirstMove = []
         self.errorLines = []
+        self.errorG92Offset = []
         self.codeWarn = False
         self.warnings  = 'The following warnings may affect the quality of the process.\n'
         self.warnings += 'It is recommended that all warnings are fixed before running this file.\n'
@@ -282,14 +283,8 @@ class Filter():
                         tmp += '0'
             data = data[1:]
         data = tmp
-        # set last gcode
-        if data[0] == 'G' and not data[2].isdigit():
-            if data[1] in '0123':
-                self.lastGcode = f'G{data[1]}'
-            else:
-                self.lastGcode = ''
-        if data[0] in 'XYZABC' and self.lastGcode:
-            data = f'{self.lastGcode}{data}'
+        if 'G92' in data and not 'G92.1' in data:
+            self.set_g92_detected()
         # if incremental distance mode fix overburn coordinates
         if data[:3] in ['G00', 'G01'] and self.distMode == 91 and (self.oBurnX or self.oBurnY):
             data = self.fix_overburn_incremental_coordinates(data)
@@ -595,6 +590,11 @@ class Filter():
     def set_no_first_move(self):
         self.set_code_error()
         self.errorFirstMove.append(self.lineNum)
+        self.errorLines.append(self.lineNumOrg)
+
+    def set_g92_detected(self):
+        self.set_code_error()
+        self.errorG92Offset.append(self.lineNum)
         self.errorLines.append(self.lineNumOrg)
 
     def set_default_blending(self):
@@ -1313,6 +1313,9 @@ class Filter():
             if self.errorFirstMove:
                 msg  = 'M03 command detected before movement.\n'
                 errorText += self.message_set(self.errorFirstMove, msg)
+            if self.errorG92Offset:
+                msg  = 'G92 offsets are not allowed.\n'
+                errorText += self.message_set(self.errorG92Offset, msg)
         if self.codeWarn:
             if self.warnUnitsDep:
                 msg  = '<m_diameter> and #<i_diameter> are deprecated in favour of #<h_diameter>.\n'

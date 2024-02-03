@@ -417,6 +417,7 @@ class HandlerClass:
         else:
             self.mdiLast = None
         self.w.mdihistory.MDILine.spindle_inhibit(True)
+        self.w.mdihistory.MDILine.g92_inhibit(True)
         if self.updateIni:
             self.update_iniwrite()
         updateLog = os.path.join(self.PATHS.CONFIGPATH, 'update_log.txt')
@@ -637,17 +638,21 @@ class HandlerClass:
         self.old_flags = OFFSET_TABLE.flags
         OFFSET_TABLE.flags = self.new_flags
 
-    # we don't allow editing z axis offsets
+    # we don't allow editing z axis or g92 offsets
     def new_flags(self, index):
         if not index.isValid():
             return None
-        if index.column() == 9 and index.row() in(0, 1, 2, 3):
+        if index.column() == 9 and index.row() in (0, 1, 2, 3):
             return Qt.ItemIsEnabled
         elif index.row() == 0:
             return Qt.ItemIsEnabled
         elif index.row() == 1 and not index.column() == 2:
             return Qt.NoItemFlags
+        # prevent z axis offset editing
         elif index.column() == 2:
+            return Qt.ItemIsEnabled
+        # prevent g92 offset editing
+        elif index.row() == 2:
             return Qt.ItemIsEnabled
         else:
             return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
