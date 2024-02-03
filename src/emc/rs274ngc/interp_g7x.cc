@@ -156,7 +156,7 @@ void straight_segment::climb_only(std::complex<double> &location,
 	return; // not climbing
     intersections_t is;
     intersection_z(location.imag(),is);
-    if(!is.size())
+    if(is.empty())
 	return;
 
     location.real(is.front());
@@ -182,7 +182,7 @@ bool straight_segment::dive(std::complex<double> &location,
     }
     intersections_t is;
     intersection_z(x,is);
-    if(!is.size())
+    if(is.empty())
 	throw(std::string("x too large in straight dive"));
     std::complex<double> ep(is.front(),x);
     if(fast)
@@ -315,13 +315,13 @@ bool round_segment::dive(std::complex<double> &location,
     }
     intersections_t is;
     intersection_z(x,is);
-    if(!is.size())
+    if(is.empty())
 	intersection_z(x-tolerance,is);
 
     if(ccw) { // G3
 	if(location.real()-tolerance>center.real())
 	    return 1;
-	if(!is.size() || is.back()>real(center)) {
+	if(is.empty() || is.back()>real(center)) {
 	    output->circular_move(ccw,center,end);
 	    location=end;
 	    return 0;
@@ -334,7 +334,7 @@ bool round_segment::dive(std::complex<double> &location,
     } else {
 	if(location.real()<=center.real())
 	    return 1; // we're already climbing
-	if(!is.size()) {
+	if(is.empty()) {
 	    // Curve not hit, move to the end
 	    output->circular_move(ccw,center,end);
 	    location=end;
@@ -359,7 +359,7 @@ void round_segment::climb_only(std::complex<double> &location,
 ) {
     intersections_t is;
     intersection_z(location.imag(),is);
-    if(!is.size())
+    if(is.empty())
 	return;
     if(!ccw) { // G2
 	if(is.back()>center.real())
@@ -784,7 +784,7 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 	for(auto ip=p; ip!=end(); ip++) {
 	    segment::intersections_t is;
 	    (*ip)->intersection_z(location.imag(),is);
-	    if(!is.size())
+	    if(is.empty())
 		continue;
 
 	    /* We can hit the diving curve, if its a circle */
