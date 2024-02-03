@@ -1,6 +1,5 @@
 #include <list>
 #include <tuple>
-#include <vector>
 #include <fstream>
 #include <iostream>
 #include <deque>
@@ -898,25 +897,16 @@ void g7x::add_distance(double distance) {
 
 #ifndef IGNORE_LINUXCNC
 ////////////////////////////////////////////////////////////////////////////////
-#include <unistd.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include <ctype.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <string>
-#include "rtapi_math.h"
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "rs274ngc_interp.hh"
 #include "interp_internal.hh"
-#include "interp_queue.hh"
-#include "interp_parameter_def.hh"
 
 #include "units.h"
-#include <iostream>
 
 class motion_machine:public motion_base {
     Interp *interp;
