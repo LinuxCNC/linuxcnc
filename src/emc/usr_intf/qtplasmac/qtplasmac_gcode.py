@@ -2,8 +2,8 @@
 '''
 plasmac_gcode.py
 
-Copyright (C) 2019, 2020, 2021, 2022, 2023 Phillip A Carter
-Copyright (C)       2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2019, 2020, 2021, 2022, 2023, 2024 Phillip A Carter
+Copyright (C)       2020, 2021, 2022, 2023, 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -88,7 +88,6 @@ class Filter():
         self.lastG = ''
         self.lastX = 0
         self.lastY = 0
-        self.lastGcode = ''
         self.oBurnX = 0
         self.oBurnY = 0
         self.lineNum = 0
@@ -117,6 +116,7 @@ class Filter():
         self.filtered = False
         self.firstMove = False
         self.subList = []
+        self.pierceList = {'active': False, 'X':[], 'Y':[]}
         self.codeError = False
         self.errors  = 'The following errors will affect the process.\n'
         self.errors += 'Errors must be fixed before reloading this file.\n'
@@ -161,7 +161,22 @@ class Filter():
             if self.rapidLine:
                 self.gcodeList.append(self.rapidLine)
             self.gcodeList.append('M02 (END)')
-        # error and warning notifications
+        # remove last G00 coordinates if no pierce afterwards
+        if self.pierceList['active']:
+            del self.pierceList['X'][-1]
+            del self.pierceList['Y'][-1]
+        # write the pierce extents hal pins
+        if GUI == 'axis':
+            RUN(['halcmd', 'setp', 'axisui.x_min_pierce_extent', str(min(self.pierceList['X']) if self.pierceList['X'] else 0)])
+            RUN(['halcmd', 'setp', 'axisui.y_min_pierce_extent', str(min(self.pierceList['Y']) if self.pierceList['Y'] else 0)])
+            RUN(['halcmd', 'setp', 'axisui.x_max_pierce_extent', str(max(self.pierceList['X']) if self.pierceList['X'] else 0)])
+            RUN(['halcmd', 'setp', 'axisui.y_max_pierce_extent', str(max(self.pierceList['Y']) if self.pierceList['Y'] else 0)])
+        else:
+            RUN(['halcmd', 'setp', 'qtplasmac.x_min_pierce_extent', str(min(self.pierceList['X']) if self.pierceList['X'] else 0)])
+            RUN(['halcmd', 'setp', 'qtplasmac.y_min_pierce_extent', str(min(self.pierceList['Y']) if self.pierceList['Y'] else 0)])
+            RUN(['halcmd', 'setp', 'qtplasmac.x_max_pierce_extent', str(max(self.pierceList['X']) if self.pierceList['X'] else 0)])
+            RUN(['halcmd', 'setp', 'qtplasmac.y_max_pierce_extent', str(max(self.pierceList['Y']) if self.pierceList['Y'] else 0)])
+         # error and warning notifications
         if self.codeError or self.codeWarn: # show errors if any
             self.write_errors()
         else: # create empty error file if no errors
@@ -283,6 +298,17 @@ class Filter():
                         tmp += '0'
             data = data[1:]
         data = tmp
+        # get all G00 coordinates
+        if data[:3] == 'G00' and ('X' in data or 'Y' in data):
+            pierceX = self.get_axis_value(data, 'X') if 'X' in data else self.lastX
+            pierceY = self.get_axis_value(data, 'Y') if 'Y' in data else self.lastY
+            self.pierceList['X'].append(pierceX)
+            self.pierceList['Y'].append(pierceY)
+            self.pierceList['active'] = True
+        # reset G00 active flag
+        if data[:3] == 'M03' and self.pierceList['active']:
+            self.pierceList['active'] = False
+        # disallow g92 offsets in gcode
         if 'G92' in data and not 'G92.1' in data:
             self.set_g92_detected()
         # if incremental distance mode fix overburn coordinates

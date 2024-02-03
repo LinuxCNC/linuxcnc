@@ -1,12 +1,12 @@
-VERSION = '003.019'
+VERSION = '003.020'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
 '''
 qtplasmac_handler.py
 
-Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2020, 2021, 2022, 2023, 2024 Phillip A Carter
+Copyright (C) 2020, 2021, 2022, 2023, 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -260,7 +260,8 @@ class HandlerClass:
         self.probeOn = False
         self.gcodeProps = {}
         self.framing = False
-        self.boundsError = {'loaded': False, 'framing': False, 'align': False}
+        self.fileBoundsError = False
+        self.probeBoundsError = False
         self.obLayout = ''
         self.notifyColor = 'normal'
         self.firstHoming = False
@@ -830,6 +831,10 @@ class HandlerClass:
         self.yOffsetPin = self.h.newpin('y_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.zHeightPin = self.h.newpin('z_height', hal.HAL_FLOAT, hal.HAL_IN)
         self.zOffsetPin = self.h.newpin('z_offset_counts', hal.HAL_S32, hal.HAL_IN)
+        self.xMinPierceExtentPin = self.h.newpin('x_min_pierce_extent', hal.HAL_FLOAT, hal.HAL_IN)
+        self.xMaxPierceExtentPin = self.h.newpin('x_max_pierce_extent', hal.HAL_FLOAT, hal.HAL_IN)
+        self.yMinPierceExtentPin = self.h.newpin('y_min_pierce_extent', hal.HAL_FLOAT, hal.HAL_IN)
+        self.yMaxPierceExtentPin = self.h.newpin('y_max_pierce_extent', hal.HAL_FLOAT, hal.HAL_IN)
 
     def link_hal_pins(self):
         #arc parameters
@@ -1437,7 +1442,7 @@ class HandlerClass:
     def set_run_button_state(self):
         if STATUS.machine_is_on() and STATUS.is_all_homed() and \
            STATUS.is_interp_idle() and not self.offsetsActivePin.get() and \
-           self.plasmacStatePin.get() == 0 and not self.boundsError['loaded'] and not self.fileClear:
+           self.plasmacStatePin.get() == 0 and not self.fileBoundsError and not self.probeBoundsError and not self.fileClear:
             if self.w.gcode_display.lines() > 1:
                 self.w.run.setEnabled(True)
                 if self.frButton:
@@ -1452,7 +1457,7 @@ class HandlerClass:
             self.w.abort.setEnabled(False)
         else:
             self.w.run.setEnabled(False)
-            if self.frButton:
+            if self.frButton and self.fileBoundsError:
                 self.w[self.frButton].setEnabled(False)
 
     def set_jog_button_state(self):
@@ -1580,25 +1585,19 @@ class HandlerClass:
             self.rflActive = False
             self.startLine = 0
             self.preRflFile = ''
-        msgList, units, xMin, yMin, xMax, yMax = self.bounds_check('loaded', 0, 0)
-        if self.boundsError['loaded']:
+        self.fileBoundsError, fileErrMsg = self.bounds_check_file()
+        self.probeBoundsError, probeErrMsg = self.bounds_check_probe(False)
+        errMsg = fileErrMsg + probeErrMsg
+        if self.fileBoundsError or self.probeBoundsError:
             head = _translate('HandlerClass', 'Axis Limit Error')
-            msgs = ''
-            for n in range(0, len(msgList), 3):
-                if msgList[n + 1] == 'MAX':
-                    msg0 = _translate('HandlerClass', 'move would exceed the maximum limit by')
-                else:
-                    msg0 = _translate('HandlerClass', 'move would exceed the minimum limit by')
-                fmt = f'\n{msgList[n]} {msg0} {msgList[n + 2]}{units}' if msgs else f'{msgList[n]} {msg0} {msgList[n + 2]}{units}'
-                msgs += fmt
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msgs}\n')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{errMsg}\n')
             self.set_run_button_state()
             if self.single_cut_request:
                 self.single_cut_request = False
                 if self.oldFile and not 'single_cut' in self.oldFile:
                     self.remove_temp_materials()
                     ACTION.OPEN_PROGRAM(self.oldFile)
-                    self.set_run_button_state()
+                    self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
                 self.w[self.scButton].setEnabled(True)
                 self.w.run.setEnabled(False)
         else:
@@ -2668,57 +2667,88 @@ class HandlerClass:
                 self.file_reload_clicked()
             ACTION.SET_MANUAL_MODE()
 
-    def bounds_check(self, boundsType, xOffset, yOffset):
-        framing = True if 'framing' in boundsType else False
-        self.boundsError[boundsType] = False
-        msgList = []
+    def bounds_check_file(self):
+        msg = _translate('HandlerClass', 'G-code')
         boundsMultiplier = 1
-        if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
-            boundsMultiplier = 0.03937
-        elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
-            boundsMultiplier = 25.4
-        if framing:
-            xStart = STATUS.stat.g5x_offset[0] + xOffset
-            yStart = STATUS.stat.g5x_offset[1] + yOffset
-            xMin = round(float(self.gcodeProps['x_zero_rxy'].split()[0]) * boundsMultiplier + xOffset, 5)
-            xMax = round(float(self.gcodeProps['x_zero_rxy'].split()[2]) * boundsMultiplier + xOffset, 5)
-            yMin = round(float(self.gcodeProps['y_zero_rxy'].split()[0]) * boundsMultiplier + yOffset, 5)
-            yMax = round(float(self.gcodeProps['y_zero_rxy'].split()[2]) * boundsMultiplier + yOffset, 5)
-            coordinates = [[xStart, yStart], [xMin, yMin], [xMin, yMax], [xMax, yMax], [xMax, yMin]]
-            frame_points, xMin, yMin, xMax, yMax = self.rotate_frame(coordinates)
-        else:
-            xMin = round(float(self.gcodeProps['x'].split()[0]) * boundsMultiplier + xOffset, 5)
-            xMax = round(float(self.gcodeProps['x'].split()[2]) * boundsMultiplier + xOffset, 5)
-            yMin = round(float(self.gcodeProps['y'].split()[0]) * boundsMultiplier + yOffset, 5)
-            yMax = round(float(self.gcodeProps['y'].split()[2]) * boundsMultiplier + yOffset, 5)
+        if 'gcode_units' in self.gcodeProps:
+            if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
+                boundsMultiplier = 0.03937
+            elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
+                boundsMultiplier = 25.4
+        xMin = float(self.gcodeProps['x'].split()[0]) * boundsMultiplier
+        xMax = float(self.gcodeProps['x'].split()[2]) * boundsMultiplier
+        yMin = float(self.gcodeProps['y'].split()[0]) * boundsMultiplier
+        yMax = float(self.gcodeProps['y'].split()[2]) * boundsMultiplier
+        errMsg = self.bounds_compare(xMin, xMax, yMin, yMax, msg)
+        return (True, errMsg) if errMsg else (False, '')
+
+    def bounds_check_probe(self, static):
+        msg = _translate('HandlerClass', 'Move to probe offset')
+        xPierceOffset = yPierceOffset = xMinP = xMaxP = yMinP = yMaxP = 0
+        if static:
+            xMinP = xMaxP = STATUS.get_position()[0][0] + self.probeOffsetX
+            yMinP = yMaxP = STATUS.get_position()[0][1] + self.probeOffsetY
+        elif any((self.xMinPierceExtentPin.get(), self.xMaxPierceExtentPin.get(), \
+                  self.yMinPierceExtentPin.get(), self.yMaxPierceExtentPin.get())):
+            if self.cutTypePin.get():
+                xPierceOffset = self.w.x_pierce_offset.value()
+                yPierceOffset = self.w.y_pierce_offset.value()
+            boundsMultiplier = 1
+            if 'gcode_units' in self.gcodeProps:
+                if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
+                    boundsMultiplier = 0.03937
+                elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
+                    boundsMultiplier = 25.4
+            xMinP = self.xMinPierceExtentPin.get() * boundsMultiplier + self.probeOffsetX + STATUS.stat.g5x_offset[0] + xPierceOffset
+            xMaxP = self.xMaxPierceExtentPin.get() * boundsMultiplier + self.probeOffsetX + STATUS.stat.g5x_offset[0] + xPierceOffset
+            yMinP = self.yMinPierceExtentPin.get() * boundsMultiplier + self.probeOffsetY + STATUS.stat.g5x_offset[1] + yPierceOffset
+            yMaxP = self.yMaxPierceExtentPin.get() * boundsMultiplier + self.probeOffsetY + STATUS.stat.g5x_offset[1] + yPierceOffset
+        errMsg = self.bounds_compare(xMinP, xMaxP, yMinP, yMaxP, msg)
+        return (True, errMsg) if errMsg else (False, '')
+
+    def bounds_check_framing(self, xOffset=0, yOffset=0, laser=False):
+        msg = _translate('HandlerClass', 'Framing move')
+        msg1 = ''
+        boundsMultiplier = 1
+        if 'gcode_units' in self.gcodeProps:
+            if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
+                boundsMultiplier = 0.03937
+            elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
+                boundsMultiplier = 25.4
+        if laser:
+            msg1 = _translate('HandlerClass', 'due to laser offset')
+        xStart = STATUS.stat.g5x_offset[0] + xOffset
+        yStart = STATUS.stat.g5x_offset[1] + yOffset
+        xMin = float(self.gcodeProps['x_zero_rxy'].split()[0]) * boundsMultiplier + xOffset
+        xMax = float(self.gcodeProps['x_zero_rxy'].split()[2]) * boundsMultiplier + xOffset
+        yMin = float(self.gcodeProps['y_zero_rxy'].split()[0]) * boundsMultiplier + yOffset
+        yMax = float(self.gcodeProps['y_zero_rxy'].split()[2]) * boundsMultiplier + yOffset
+        coordinates = [[xStart, yStart], [xMin, yMin], [xMin, yMax], [xMax, yMax], [xMax, yMin]]
+        frame_points, xMin, yMin, xMax, yMax = self.rotate_frame(coordinates)
+        errMsg = self.bounds_compare(xMin, xMax, yMin, yMax, msg, msg1)
+        return (errMsg, frame_points)
+
+    def bounds_compare(self, xMin, xMax, yMin, yMax, msg, msg1=''):
+        errMsg = ''
+        epsilon = 1e-4
+        txtxMin = _translate('HandlerClass', 'exceeds the X minimum limit by')
+        txtxMax = _translate('HandlerClass', 'exceeds the X maximum limit by')
+        txtyMin = _translate('HandlerClass', 'exceeds the Y minimum limit by')
+        txtyMax = _translate('HandlerClass', 'exceeds the Y maximum limit by')
+        lessThan = _translate('HandlerClass', 'less than')
         if xMin < self.xMin:
-            amount = float(self.xMin - xMin)
-            msgList.append('X')
-            msgList.append('MIN')
-            msgList.append(f'{amount:0.2f}')
-            self.boundsError[boundsType] = True
+            errMsg += f'{msg} {txtxMin} {lessThan} {epsilon} {self.units} {msg1}\n' if (self.xMin - xMin) < epsilon \
+                else f'{msg} {txtxMin} {self.xMin - xMin:0.4f} {self.units} {msg1}\n'
         if xMax > self.xMax:
-            amount = float(xMax - self.xMax)
-            msgList.append('X')
-            msgList.append('MAX')
-            msgList.append(f'{amount:0.2f}')
-            self.boundsError[boundsType] = True
+            errMsg += f'{msg} {txtxMax} {lessThan} {epsilon} {self.units} {msg1}\n' if (xMax - self.xMax) < epsilon \
+                else f'{msg} {txtxMax} {xMax - self.xMax:0.4f} {self.units} {msg1}\n'
         if yMin < self.yMin:
-            amount = float(self.yMin - yMin)
-            msgList.append('Y')
-            msgList.append('MIN')
-            msgList.append(f'{amount:0.2f}')
-            self.boundsError[boundsType] = True
+            errMsg += f'{msg} {txtyMin} {lessThan} {epsilon} {self.units} {msg1}\n' if (self.yMin - yMin) < epsilon \
+                else f'{msg} {txtyMin} {self.yMin - yMin:0.4f} {self.units} {msg1}\n'
         if yMax > self.yMax:
-            amount = float(yMax - self.yMax)
-            msgList.append('Y')
-            msgList.append('MAX')
-            msgList.append(f'{amount:0.2f}')
-            self.boundsError[boundsType] = True
-        if framing:
-            return msgList, self.units, xMin, yMin, xMax, yMax, frame_points
-        else:
-            return msgList, self.units, xMin, yMin, xMax, yMax
+            errMsg += f'{msg} {txtyMax} {lessThan} {epsilon} {self.units} {msg1}\n' if (yMax - self.yMax) < epsilon \
+                else f'{msg} {txtyMax} {yMax - self.yMax:0.4f} {self.units} {msg1}\n'
+        return errMsg
 
     def rotate_frame(self, coordinates):
         angle = math.radians(STATUS.stat.rotation_xy)
@@ -4440,6 +4470,11 @@ class HandlerClass:
     def probe_test(self, state):
         if state:
             if self.probeTimer.remainingTime() <= 0 and not self.offsetsActivePin.get():
+                probeError, errMsg = self.bounds_check_probe(True)
+                if probeError:
+                    head = _translate('HandlerClass', 'Axis Limit Error')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{errMsg}\n')
+                    return
                 self.probeTime = self.ptTime
                 self.probeTimer.start(1000)
                 self.probeTest = True
@@ -4539,55 +4574,29 @@ class HandlerClass:
             self.w.run.setEnabled(False)
             response = False
             if self.w.laser.isVisible():
-                msgList, units, xMin, yMin, xMax, yMax, frame_points = self.bounds_check('framing', self.laserOffsetX, self.laserOffsetY)
-                if self.boundsError['framing']:
+                framingError, frame_points = self.bounds_check_framing(self.laserOffsetX, self.laserOffsetY, True)
+                if framingError:
                     head = _translate('HandlerClass', 'Axis Limit Error')
-                    btn1 = _translate('HandlerClass', 'YES')
-                    btn2 = _translate('HandlerClass', 'NO')
-                    msgs = ''
-                    msg1 = _translate('HandlerClass', 'due to laser offset')
-                    for n in range(0, len(msgList), 3):
-                        if msgList[n + 1] == 'MAX':
-                            msg0 = _translate('HandlerClass', 'portion of move would exceed the maximum limit by')
-                        else:
-                            msg0 = _translate('HandlerClass', 'portion of move would exceed the minimum limit by')
-                        fmt = f'\n{msgList[n]} {msg0} {msgList[n + 2]}{units} {msg1}' if msgs else f'{msgList[n]} {msg0} {msgList[n + 2]}{units} {msg1}'
-                        msgs += fmt
-                    msgs += _translate('HandlerClass', '\n\nDo you want to try with the torch?\n')
-                    response = self.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'\n{msgs}', f'{btn1}', f'{btn2}')
-                    if not response:
+                    framingError += _translate('HandlerClass', '\n\nDo you want to try with the torch?\n')
+                    response = self.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'\n{framingError}')
+                    if response:
+                        framingError, frame_points = self.bounds_check_framing()
+                        if framingError:
+                            head = _translate('HandlerClass', 'Axis Limit Error')
+                            self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{framingError}')
+                            self.w.run.setEnabled(True)
+                            return
+                    else:
                         self.w.run.setEnabled(True)
                         return
-                    msgList, units, xMin, yMin, xMax, yMax, frame_points = self.bounds_check('framing', 0, 0)
-                    if self.boundsError['framing']:
-                        self.w.run.setEnabled(True)
-                        head = _translate('HandlerClass', 'Axis Limit Error')
-                        msgs = ''
-                        for n in range(0, len(msgList), 3):
-                            if msgList[n + 1] == 'MAX':
-                                msg0 = _translate('HandlerClass', 'portion of move would exceed the maximum limit by')
-                            else:
-                                msg0 = _translate('HandlerClass', 'portion of move would exceed the minimum limit by')
-                            fmt = f'\n{msgList[n]} {msg0} {msgList[n + 2]}{units}' if msgs else f'{msgList[n]} {msg0} {msgList[n + 2]}{units}'
-                            msgs += fmt
-                        self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{msgs}')
-                        return
-                if not response:
+                else:
                     self.laserOnPin.set(1)
             else:
-                msgList, units, xMin, yMin, xMax, yMax, frame_points = self.bounds_check('framing', 0, 0)
-                if self.boundsError['framing']:
-                    self.w.run.setEnabled(True)
+                framingError, frame_points = self.bounds_check_framing()
+                if framingError:
                     head = _translate('HandlerClass', 'Axis Limit Error')
-                    msgs = ''
-                    for n in range(0, len(msgList), 3):
-                        if msgList[n + 1] == 'MAX':
-                            msg0 = _translate('HandlerClass', 'move would exceed the maximum limit by')
-                        else:
-                            msg0 = _translate('HandlerClass', 'move would exceed the minimum limit by')
-                        fmt = f'\n{msgList[n]} {msg0} {msgList[n + 2]}{units}' if msgs else '{msgList[n]} {msg0} {msgList[n + 2]}{units}'
-                        msgs += fmt
-                    self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{msgs}')
+                    self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{framingError}')
+                    self.w.run.setEnabled(True)
                     return
             if not self.frFeed:
                 feed = float(self.w.cut_feed_rate.text())
@@ -4687,6 +4696,11 @@ class HandlerClass:
             log = _translate('HandlerClass', 'Manual cut aborted')
             STATUS.emit('update-machine-log', log, 'TIME')
         elif STATUS.machine_is_on() and STATUS.is_all_homed() and STATUS.is_interp_idle() and not self.cut_critical_check():
+            probeError, errMsg = self.bounds_check_probe(True)
+            if probeError:
+                head = _translate('HandlerClass', 'Axis Limit Error')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{errMsg}\n')
+                return
             self.manualCut = True
             self.set_mc_states(False)
             self.w.abort.setEnabled(True)
