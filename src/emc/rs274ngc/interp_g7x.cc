@@ -970,10 +970,10 @@ public:
 	read_c=interp->_readers[(int)'c'];
 	read_u=interp->_readers[(int)'u'];
 	read_w=interp->_readers[(int)'w'];
-	interp->_readers[(int)'a']=interp->default_readers[(int)'a'];
-	interp->_readers[(int)'c']=interp->default_readers[(int)'c'];
-	interp->_readers[(int)'u']=interp->default_readers[(int)'u'];
-	interp->_readers[(int)'w']=interp->default_readers[(int)'w'];
+	interp->_readers[(int)'a']=Interp::default_readers[(int)'a'];
+	interp->_readers[(int)'c']=Interp::default_readers[(int)'c'];
+	interp->_readers[(int)'u']=Interp::default_readers[(int)'u'];
+	interp->_readers[(int)'w']=Interp::default_readers[(int)'w'];
     }
     ~switch_settings() {
 	settings->distance_mode=saved_distance_mode;
