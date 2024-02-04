@@ -1303,6 +1303,10 @@ def manual_cut(event):
         if not hal.get_value('spindle.0.on'):
             if not critical_button_check():
                 return
+            msg = bounds_check_probe(True)
+            if msg:
+                notifications.add('error', msg)
+                return
             c.spindle(linuxcnc.SPINDLE_FORWARD, 1)
             manualCut['feed'] = vars.jog_speed.get()
             vars.jog_speed.set(int(rE(f"{fruns}.material.cut-feed-rate get")))
@@ -1504,38 +1508,29 @@ def sheet_align(mode, buttonState, offsetX, offsetY):
 ##############################################################################
 # FRAMING FUNCTIONS                                                          #
 ##############################################################################
-def frame_error(torch, msgList, units, xMin, yMin, xMax, yMax):
+def frame_error(torch, msgList):
     title = _('AXIS LIMIT ERROR')
-    msg = []
-    msgs = ''
-    msg1 = '' if torch else _('due to laser offset')
-    for n in range(0, len(msgList)):
-        msg.append(f"{msgList[n][0]} ")
-        if msgList[n][1] == 'MAX':
-            msg[n] += _('move would exceed the maximum limit by')
-        else:
-            msg[n] += _('move would exceed the minimum limit by')
-        msg[n] += f" {msgList[n][2]}{units} {msg1}\n\n"
-        msgs += msg[n]
     if not torch:
-        msgs += _('Do you want to try with the torch?')
-        reply = plasmacPopUp('yesno', title, msgs).reply
+        msgList += '\n'
+        msgList += _('Do you want to try with the torch?')
+        reply = plasmacPopUp('yesno', title, msgList).reply
     else:
-        msgs += _('Framing cannot proceed')
-        reply = plasmacPopUp('error', title, msgs).reply
+        msgList += '\n'
+        msgList += _('Framing cannot proceed')
+        reply = plasmacPopUp('error', title, msgList).reply
     return reply
 
 def frame_job(feed, height):
     global framingState, activeFunction
     if o.canon:
-        msgList, units, xMin, yMin, xMax, yMax, frame_points = bounds_check('framing', laserOffsets['X'], laserOffsets['Y'])
+        msgList, frame_points = bounds_check_framing(laserOffsets['X'], laserOffsets['Y'], True)
         if msgList:
-            reply = frame_error(False, msgList, units, xMin, yMin, xMax, yMax)
+            reply = frame_error(False, msgList)
             if not reply:
                 return
-            msgList, units, xMin, yMin, xMax, yMax, frame_points = bounds_check('framing', 0, 0)
+            msgList, frame_points = bounds_check_framing()
             if msgList:
-                reply = frame_error(True, msgList, units, xMin, yMin, xMax, yMax)
+                reply = frame_error(True, msgList)
                 return
         if s.interp_state == linuxcnc.INTERP_IDLE:
             activeFunction = True
@@ -1587,59 +1582,82 @@ def rotate_frame(coordinates):
     return frame_points, xMin, yMin, xMax, yMax
 
 ##############################################################################
-# BOUNDS CHECK                                                               #
+# BOUNDS CHECKS                                                               #
 ##############################################################################
-def bounds_check(boundsType, xOffset , yOffset):
-    global machineBounds
-    # glcanon reports in dinosaur units (imperial), so we need to:
-    #   test the bounds in machine units
-    #   report the error in currently displayed units
-    framing = True if 'framing' in boundsType else False
-    boundsMultiplier = 25.4 if s.linear_units == 1 else 1
-    if o.canon:
-        gcUnits = 'mm' if 210 in o.canon.state.gcodes else 'in'
-        if framing:
-            xStart = s.g5x_offset[0]
-            yStart = s.g5x_offset[1]
-            xMin = (round(o.canon.min_extents_zero_rxy[0] * boundsMultiplier + xOffset, 5))
-            xMax = (round(o.canon.max_extents_zero_rxy[0] * boundsMultiplier + xOffset, 5))
-            yMin = (round(o.canon.min_extents_zero_rxy[1] * boundsMultiplier + yOffset, 5))
-            yMax = (round(o.canon.max_extents_zero_rxy[1] * boundsMultiplier + yOffset, 5))
-            coordinates = [[xStart, yStart], [xMin, yMin], [xMin, yMax], [xMax, yMax], [xMax, yMin]]
-            frame_points, xMin, yMin, xMax, yMax = rotate_frame(coordinates)
-        else:
-            xMin = (round(o.canon.min_extents[0] * boundsMultiplier + xOffset, 5))
-            xMax = (round(o.canon.max_extents[0] * boundsMultiplier + xOffset, 5))
-            yMin = (round(o.canon.min_extents[1] * boundsMultiplier + yOffset, 5))
-            yMax = (round(o.canon.max_extents[1] * boundsMultiplier + yOffset, 5))
-    else:
-        gcUnits = 'mm' if s.linear_units == 1 else 'in'
-        xMin = xMax = xOffset
-        yMin = yMax = yOffset
-    if s.linear_units == 1 and gcUnits == 'in':
-        reportMultiplier = 0.03937
-    elif s.linear_units != 1 and gcUnits == 'mm':
-        reportMultiplier = 25.4
-    else:
-        reportMultiplier = 1
-    msgList = []
-    if xMin < machineBounds['X-']:
-        amount = (machineBounds['X-'] - xMin) * reportMultiplier
-        msgList.append(['X','MIN',f"{amount:0.2f}"])
-    if xMax > machineBounds['X+']:
-        amount = (xMax - machineBounds['X+']) * reportMultiplier
-        msgList.append(['X','MAX',f"{amount:0.2f}"])
-    if yMin < machineBounds['Y-']:
-        amount = (machineBounds['Y-'] - yMin) * reportMultiplier
-        msgList.append(['Y','MIN',f"{amount:0.2f}"])
-    if yMax > machineBounds['Y+']:
-        amount = (yMax - machineBounds['Y+']) * reportMultiplier
-        msgList.append(['Y','MAX',f"{amount:0.2f}"])
-    if framing:
-        return msgList, gcUnits, xMin, yMin, xMax, yMax, frame_points
-    else:
-        return msgList, gcUnits, xMin, yMin, xMax, yMax
+def bounds_check_file():
+    msg = _('G-code')
+    unitsMultiplier = 25.4 if s.linear_units == 1 else 1
+    xMin = (o.canon.min_extents[0] * unitsMultiplier)
+    xMax = (o.canon.max_extents[0] * unitsMultiplier)
+    yMin = (o.canon.min_extents[1] * unitsMultiplier)
+    yMax = (o.canon.max_extents[1] * unitsMultiplier)
+    errMsg = bounds_compare(xMin, xMax, yMin, yMax, msg)
+    return errMsg
 
+def bounds_check_probe(local):
+    msg = _('Move to probe offset')
+    xPierceOffset = yPierceOffset = xMinP = xMaxP = yMinP = yMaxP = 0
+    if local:
+        xMinP = xMaxP = s.position[0] + probeOffsets['X']
+        yMinP = yMaxP = s.position[1] + probeOffsets['Y']
+    elif any((comp['x_min_pierce_extent'], comp['x_max_pierce_extent'], \
+              comp['y_min_pierce_extent'], comp['y_max_pierce_extent'])):
+        if comp['cut-type']:
+            #TODO PHILL - Do you want this from the GUI or HAL??
+            xPierceOffset = comp['x-pierce-offset']
+            yPierceOffset = comp['y-pierce-offset']
+        if s.linear_units == 1 and 200 in o.canon.state.gcodes:
+            unitsMultiplier = 25.4
+        elif s.linear_units != 1 and 210 in o.canon.state.gcodes:
+            unitsMultiplier = 1 / 25.4
+        else:
+            unitsMultiplier = 1
+        xMinP = comp['x_min_pierce_extent'] * unitsMultiplier + probeOffsets['X'] + s.g5x_offset[0] + xPierceOffset
+        xMaxP = comp['x_max_pierce_extent'] * unitsMultiplier + probeOffsets['X'] + s.g5x_offset[0] + xPierceOffset
+        yMinP = comp['y_min_pierce_extent'] * unitsMultiplier + probeOffsets['Y'] + s.g5x_offset[1] + yPierceOffset
+        yMaxP = comp['y_max_pierce_extent'] * unitsMultiplier + probeOffsets['Y'] + s.g5x_offset[1] + yPierceOffset
+    errMsg = bounds_compare(xMinP, xMaxP, yMinP, yMaxP, msg)
+    return errMsg
+
+def bounds_check_framing(xOffset=0, yOffset=0, laser=False):
+    msg = _('Framing move')
+    msg1 = ''
+    unitsMultiplier = 25.4 if s.linear_units == 1 else 1
+    if laser:
+        msg1 = _('due to laser offset')
+    xStart = s.g5x_offset[0]
+    yStart = s.g5x_offset[1]
+    xMin = (o.canon.min_extents_zero_rxy[0] * unitsMultiplier + xOffset)
+    xMax = (o.canon.max_extents_zero_rxy[0] * unitsMultiplier + xOffset)
+    yMin = (o.canon.min_extents_zero_rxy[1] * unitsMultiplier + yOffset)
+    yMax = (o.canon.max_extents_zero_rxy[1] * unitsMultiplier + yOffset)
+    coordinates = [[xStart, yStart], [xMin, yMin], [xMin, yMax], [xMax, yMax], [xMax, yMin]]
+    frame_points, xMin, yMin, xMax, yMax = rotate_frame(coordinates)
+    errMsg = bounds_compare(xMin, xMax, yMin, yMax, msg, msg1)
+    return (errMsg, frame_points)
+
+def bounds_compare(xMin, xMax, yMin, yMax, msg, msg1=''):
+    global machineBounds
+    errMsg = ''
+    epsilon = 1e-4
+    txtxMin = _('exceeds the X minimum limit by')
+    txtxMax = _('exceeds the X maximum limit by')
+    txtyMin = _('exceeds the Y minimum limit by')
+    txtyMax = _('exceeds the Y maximum limit by')
+    lessThan = _('less than')
+    if xMin < machineBounds['X-']:
+        errMsg += f'{msg} {txtxMin} {lessThan} {epsilon} {unitSuffix} {msg1}\n' if (machineBounds['X-'] - xMin) < epsilon \
+            else f'{msg} {txtxMin} {machineBounds["X-"] - xMin:0.4f} {unitSuffix} {msg1}\n'
+    if xMax > machineBounds['X+']:
+        errMsg += f'{msg} {txtxMax} {lessThan} {epsilon} {unitSuffix} {msg1}\n' if (xMax - machineBounds['X+']) < epsilon \
+            else f'{msg} {txtxMax} {xMax - machineBounds["X+"]:0.4f} {unitSuffix} {msg1}\n'
+    if yMin < machineBounds['Y-']:
+        errMsg += f'{msg} {txtyMin} {lessThan} {epsilon} {unitSuffix} {msg1}\n' if (machineBounds['Y-'] - yMin) < epsilon \
+            else f'{msg} {txtyMin} {machineBounds["Y-"] - yMin:0.4f} {unitSuffix} {msg1}\n'
+    if yMax > machineBounds['Y+']:
+        errMsg += f'{msg} {txtyMax} {lessThan} {epsilon} {unitSuffix} {msg1}\n' if (yMax - machineBounds['Y+']) < epsilon \
+            else f'{msg} {txtyMax} {yMax - machineBounds["Y+"]:0.4f} {unitSuffix} {msg1}\n'
+    return errMsg
 
 ##############################################################################
 # PERIPHERAL OFFSET FUNCTIONS                                                #
@@ -2015,11 +2033,20 @@ def reload_file(refilter=True):
         f = os.path.join(tmpPath, 'shape.ngc')
     else:
         f = loaded_file
-    if refilter or not get_filter(f):
-        open_file_guts(f, False, False)
+    if refilter or not get_filter(loaded_file):
+        # we copy the file to a temporary file so that even if it subsequently
+        # changes on disk, LinuxCNC is parsing the file contents from the time
+        # the user opened the file
+        tempfile = os.path.join(tempdir, os.path.basename(loaded_file))
+        if loaded_file != tempfile:
+            shutil.copyfile(loaded_file, tempfile)
+        open_file_guts(tempfile, False, False)
     else:
-        tempfile = os.path.join(tempdir, os.path.basename(f))
+        tempfile = os.path.join(tempdir, "filtered-" + os.path.basename(loaded_file))
         open_file_guts(tempfile, True, False)
+    msg = pierce_bounds_check()
+    if msg:
+        notifications.add('error', msg)
     commands.set_view_z()
     if line:
         o.set_highlight_line(line)
@@ -2097,6 +2124,10 @@ def open_file_name(f):    # from axis.py
         z = (o.canon.min_extents[2] + o.canon.max_extents[2])/2
         o.set_centerpoint(x, y, z)
     live_plotter.clear()
+    msg = bounds_check_file()
+    msg += bounds_check_probe(False)
+    if msg:
+        notifications.add('error', msg)
 
 def set_view_p(event=None):    # from axis.py
     ''' add view t '''
@@ -2418,7 +2449,7 @@ def user_button_setup():
                 if outCode['X'] is None and outCode['Y'] is None:
                     outCode['code'] = None
                 else:
-                    buff = 10 * hal.get_value('halui.machine.units-per-mm') # keep 10mm away from machine limits
+                    buff = 10 * unitsPerMm # keep 10mm away from machine limits
                     for axis in 'XY':
                         if outCode[axis]:
                             if outCode[f"{axis}"] < machineBounds[f"{axis}-"] + buff:
@@ -2582,6 +2613,10 @@ def user_button_pressed(button, code):
             probeTimer = 0
             probe_test_timer()
         elif not hal.get_value('plasmac.z-offset-counts'):
+            msg = bounds_check_probe(True)
+            if msg:
+                notifications.add('error', msg)
+                return
             activeFunction = True
             probePressed = True
             probeTimer = code['time'] * 1000
@@ -3381,6 +3416,9 @@ def ext_hal_create():
     # pins for pierce only offsets
     for pin in 'xy':
         comp.newpin(f"{pin}-pierce-offset", hal.HAL_FLOAT, hal.HAL_OUT)
+    # pins for pierce coordinate extents
+    for pin in ['x_min', 'y_min', 'x_max', 'y_max']:
+        comp.newpin(f"{pin}_pierce_extent", hal.HAL_FLOAT, hal.HAL_IN)
 
 # called every cycle by user_live_update
 def ext_hal_watch():
@@ -5464,6 +5502,7 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     keyboard_bindings(value)
     statDivisor = 1000 if unitsPerMm == 1 else 1
     statSuffix = 'M' if unitsPerMm == 1 else '"'
+    unitSuffix = 'mm' if unitsPerMm == 1 else 'in'
     # we bring in some ints as floats so we can read QtPlasmaC statistics
     pVars.lengthS.set(getPrefs(PREF, 'STATISTICS', 'Cut length', 0, float))
     pVars.lengthJ.set(f"0.00{statSuffix}")
