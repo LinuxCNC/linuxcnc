@@ -1,4 +1,4 @@
-VERSION = '003.020'
+VERSION = '003.021'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -834,6 +834,7 @@ class HandlerClass:
         self.paramTabDisable = self.h.newpin('param_disable', hal.HAL_BIT, hal.HAL_IN)
         self.settingsTabDisable = self.h.newpin('settings_disable', hal.HAL_BIT, hal.HAL_IN)
         self.plasmacStatePin = self.h.newpin('plasmac_state', hal.HAL_S32, hal.HAL_IN)
+        self.plasmacStopPin = self.h.newpin('plasmac_stop', hal.HAL_S32, hal.HAL_IN)
         self.pmx485CurrentPin = self.h.newpin('pmx485_current', hal.HAL_FLOAT, hal.HAL_IN)
         self.pmx485CurrentMaxPin = self.h.newpin('pmx485_current_max', hal.HAL_FLOAT, hal.HAL_IN)
         self.pmx485CurrentMinPin = self.h.newpin('pmx485_current_min', hal.HAL_FLOAT, hal.HAL_IN)
@@ -954,6 +955,7 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:probe-test-error', 'plasmac.probe-test-error', 'qtplasmac.probe_test_error'])
         CALL(['halcmd', 'net', 'plasmac:sensor_active', 'plasmac.sensor-active', 'qtplasmac.sensor_active'])
         CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.plasmac_state'])
+        CALL(['halcmd', 'net', 'plasmac:stop', 'plasmac.stop-type-out', 'qtplasmac.plasmac_stop'])
         CALL(['halcmd', 'net', 'plasmac:z-height', 'plasmac.z-height', 'qtplasmac.z_height'])
         CALL(['halcmd', 'net', 'plasmac:z-offset-counts', 'qtplasmac.z_offset_counts'])
         CALL(['halcmd', 'net', 'plasmac:offset-set-probe', 'plasmac.offset-set-probe', 'qtplasmac.offset_set_probe'])
@@ -2310,6 +2312,12 @@ class HandlerClass:
             self.set_run_button_state()
             self.set_jog_button_state()
 
+    def plasmac_stop_changed(self, state):
+        if not state and not self.plasmacStatePin.get():
+            for pin in ['pierce-type', 'pierce-motion-delay', 'cut-height-delay', 'pierce-end-height', \
+                        'gouge-speed', 'gouge-speed-distance', 'creep-speed', 'creep-speed-distance']:
+                hal.set_p(f'plasmac.{pin}', '0')
+
     def file_reload_clicked(self):
         proceed = self.editor_close_check()
         if proceed:
@@ -3026,6 +3034,7 @@ class HandlerClass:
         self.w.main_tab_widget.currentChanged.connect(lambda w:self.main_tab_changed(w))
         self.zHeightPin.value_changed.connect(lambda v:self.z_height_changed(v))
         self.plasmacStatePin.value_changed.connect(lambda v:self.plasmac_state_changed(v))
+        self.plasmacStopPin.value_changed.connect(lambda v:self.plasmac_stop_changed(v))
         self.w.feed_label.pressed.connect(self.feed_label_pressed)
         self.w.rapid_label.pressed.connect(self.rapid_label_pressed)
         self.w.jogs_label.pressed.connect(self.jogs_label_pressed)
