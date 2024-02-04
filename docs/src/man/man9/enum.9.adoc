@@ -20,16 +20,14 @@ forwards, 2 = backwards, 3 = jog-forwards etc.
 The pins created and the behaviour of the component are controlled by
 the load-time modparams "enums=" and "names="
 
-The *enums=* parameter should be a comma-separated list of semicolon-
-separated pin labels. The enumerated values will increase in sequence
-starting at zero. To skip a value use a zero-length label, ie two
-consecutive semicolons, as shown in the examples.
+The *enums=* parameter should be a comma-separated list of semicolon-separated pin labels.
+The enumerated values will increase in sequence starting at zero.
+To skip a value use a zero-length label, i.e. two consecutive semicolons, as shown in the examples.
 
 There should be no spaces in the "enums=" list.
 
 "names=" is an optional list of component instance names. If "names=" is
-omitted the functions and pins will be named "enum-decode...." or
-"enum-encode...."
+omitted the functions and pins will be named "enum-decode...." or "enum-encode...."
 
 Taking the example configuration above, if *enum-decode.01.enum2pin1-in*
 is set to *TRUE* then the output pin *enum-decode.01.output* will be set

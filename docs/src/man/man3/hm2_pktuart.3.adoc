@@ -207,7 +207,7 @@ int process(void *arg, long period) {
             break;
 
         case WAIT_FOR_SEND_COMPLETE:
-            if ( ! (txstatus & 0x80)){  // ie the Tx is not busy
+            if ( ! (txstatus & 0x80)){  // i.e. the Tx is not busy
                 state = WAIT_FOR_DATA_FRAME;
             }
             break;
