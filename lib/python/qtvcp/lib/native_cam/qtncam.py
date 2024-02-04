@@ -1865,6 +1865,8 @@ class NCam():
         self.get_toolbar_actions()
         self.create_nc_toolbar()
         self.build_add_menu()
+        #self.create_add_dialog()
+
         self.addDisplayWidget()
 
         self.set_preferences()
@@ -2502,11 +2504,6 @@ class NCam():
     # show the features icon selector 
     def action_add(self, *arg) :
         self.showIconView()
-        self.menubar.setEnabled(False)
-        self.main_toolbar.setEnabled(False)
-        self.nc_toolbar.setEnabled(False)
-        #self.add_iconview.grab_focus()
-
 
     def action_saveUser(self, *arg) :
         fname = os.path.join(NCAM_DIR, CATALOGS_DIR, self.catalog_dir, USER_DEFAULT_FILE)

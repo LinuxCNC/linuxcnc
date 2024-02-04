@@ -13,7 +13,6 @@ import gcode
 # Set up logging
 from qtvcp import logger
 LOG = logger.getLogger(__name__)
-LOG.error('lOGGING WORKS')
 
 from qtncam import NCam
 
@@ -91,7 +90,15 @@ class NCamWindow(QMainWindow, NCam):
 
         self.displayLayout.addWidget(self.graphics)
         self._displayToolbar = QToolBar()
-        self._displayToolbar.addAction(self.actionBack)
+
+        self._displayToolbar.addAction(self.actionShowP)
+        self.actionShowP.setIcon(QIcon(os.path.join(current_dir, 'graphics/tool_axis_p.gif')))
+        self.actionShowP.triggered.connect(lambda s :self.setDisplayView('p'))
+
+        self._displayToolbar.addAction(self.actionShowZ)
+        self.actionShowZ.setIcon(QIcon(os.path.join(current_dir, 'graphics/tool_axis_z.gif')))
+        self.actionShowZ.triggered.connect(lambda s :self.setDisplayView('z'))
+
         self.displayLayout.setMenuBar(self._displayToolbar)
 
     def setGraphicsDisplay(self):
@@ -137,7 +144,7 @@ class NCamWindow(QMainWindow, NCam):
         ##############################
         # cleanup
         ##############################
-        print(('m2'), file=self.workfile)
+        #print(('m2'), file=self.workfile)
 
         self.workfile.close()
         self.loadDisplay(self.workpath)
@@ -386,8 +393,16 @@ class NCamWindow(QMainWindow, NCam):
 
     def showIconView(self):
         self.stackedWidget.setCurrentIndex(1)
+        self.menubar.setEnabled(False)
+        self.main_toolbar.setEnabled(False)
+        self.nc_toolbar.setEnabled(False)
+
     def hideIconView(self):
         self.stackedWidget.setCurrentIndex(0)
+        self.menubar.setEnabled(True)
+        self.main_toolbar.setEnabled(True)
+        self.nc_toolbar.setEnabled(True)
+
 ##########################
 #
 ##########################

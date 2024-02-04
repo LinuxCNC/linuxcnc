@@ -633,6 +633,16 @@
     <string>DebugPrint</string>
    </property>
   </action>
+  <action name="actionShowP">
+   <property name="text">
+    <string>ShowP</string>
+   </property>
+  </action>
+  <action name="actionShowZ">
+   <property name="text">
+    <string>ShowZ</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
