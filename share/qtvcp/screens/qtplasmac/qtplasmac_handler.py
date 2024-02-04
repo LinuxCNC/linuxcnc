@@ -120,6 +120,14 @@ class HandlerClass:
         self.PATHS = paths
         self.iniFile = INFO.INI
         self.foreColor = '#ffee06'
+        # ensure that M190 exists in the USER_M_PATH
+        self.mPath = self.iniFile.find('RS274NGC', 'USER_M_PATH').split(':')
+        for path in self.mPath:
+            if path.startswith('.'):
+                path = os.path.join(self.PATHS.CONFIGPATH, path)
+            if os.path.isfile(os.path.join(path, 'M190')):
+                self.mPath = False
+                break
         self.machineName = self.iniFile.find('EMC', 'MACHINE')
         self.machineTitle = f'{self.machineName} - QtPlasmaC v{LCNCVER}-{VERSION}, powered by QtVCP and LinuxCNC'
         self.prefsFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')
@@ -326,7 +334,23 @@ class HandlerClass:
         if '.'.join(linuxcnc.version.split('.')[:2]) != LCNCVER:
             msg0 = _translate('HandlerClass', 'LinuxCNC version should be')
             msg1 = _translate('HandlerClass', 'The detected version is')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{msg0} {LCNCVER}\n{msg1} {linuxcnc.version.split(".")[:2]}')
+            msg2 = _translate('HandlerClass', 'QtPlasmac is closing')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{msg0} {LCNCVER}\n\n{msg1} {linuxcnc.version.split(".")[:2]}\n\n{msg2}')
+            quit()
+        if self.mPath:
+            msg0 = _translate('HandlerClass', 'cannot be found in the path')
+            msg1 = _translate('HandlerClass', 'Please edit [RS274NGC]USER_M_PATH in the .ini file')
+            msg2 = _translate('HandlerClass', 'QtPlasmac is closing')
+            msg3 = _translate('HandlerClass', 'does exist in')
+            if os.path.isfile(os.path.join(self.PATHS.CONFIGPATH, '../../ncfiles/plasmac/m_files', 'M190')):
+                mPath = '../../linuxcnc/ncfiles/'
+            elif os.path.isfile(os.path.join(self.PATHS.BASEDIR, 'nc_files/plasmac/m_files', 'M190')):
+                mPath = os.path.realpath(os.path.join(self.PATHS.BASEDIR, 'nc_files/plasmac/m_files'))
+            else:
+                mPath = ''
+                msg3 = _translate('HandlerClass', 'does not exist in the default locations')
+            msg4 = f'\n\nM190 {msg3} {mPath}'
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'M190 {msg0} {":".join(self.mPath)}\n\n{msg1}{msg4}\n\n{msg2}')
             quit()
         ucFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.py')
         if os.path.isfile(ucFile):
