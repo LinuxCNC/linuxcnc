@@ -230,16 +230,16 @@ State_LED #name_of_led{
 ==== Handler Patching - Subclassing Builtin Screens
 We can have QtVCP load a subclassed version of the standard handler file. in that file we can manipulate the original functions or add new ones. +
 Subclassing just means our handler file first loads the original handler file and adds our new code on top of it - so a patch of changes. +
-This is useful for changing/adding behaviour while still retaining standard handler updates from LinuxCNC repositories. +
+This is useful for changing/adding behaviour while still retaining standard handler updates from LinuxCNC repositories.
 
 You may still need to use the handler copy dialog to copy the original handler file to decide how to patch it.
 See 'custom handler file'
 
 There should be a folder in the config folder; for screens: named '<CONFIG FOLDER>/qtvcp/screens/<SCREEN NAME>/' +
-add the handle patch file there, named like so <ORIGINAL SCREEN NAME>_handler.py +
-ie for Qtdragon the file would be called 'qtdragon_handler.py' +
+add the handle patch file there, named like so <ORIGINAL SCREEN NAME>_handler.py. +
+i.e. for QtDragon the file would be called 'qtdragon_handler.py'.
 
-Here is a sample to add X axis jog pins to a screen like Qtdragon: +
+Here is a sample to add X axis jog pins to a screen like QtDragon: +
 
 [source,python]
 ----
@@ -318,7 +318,7 @@ self.w.setWindowTitle('My Title Test')
 ----
 
 .An advanced instance patching example
-This could work with the Qtdragon screen's handler file. +
+This could work with the QtDragon screen's handler file. +
 Here we show how to add new functions and override existing ones.
 
 [source,python]
