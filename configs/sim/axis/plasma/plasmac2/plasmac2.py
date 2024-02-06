@@ -17,7 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-VER = '16'
+VER = '17'
 
 ##############################################################################
 # the next line suppresses undefined variable errors in VSCode               #
@@ -1582,7 +1582,7 @@ def rotate_frame(coordinates):
     return frame_points, xMin, yMin, xMax, yMax
 
 ##############################################################################
-# BOUNDS CHECKS                                                               #
+# BOUNDS CHECKS                                                              #
 ##############################################################################
 def bounds_check_file():
     msg = _('G-code')
@@ -2044,7 +2044,8 @@ def reload_file(refilter=True):
     else:
         tempfile = os.path.join(tempdir, "filtered-" + os.path.basename(loaded_file))
         open_file_guts(tempfile, True, False)
-    msg = pierce_bounds_check()
+    msg = bounds_check_file()
+    msg += bounds_check_probe(False)
     if msg:
         notifications.add('error', msg)
     commands.set_view_z()
@@ -2116,6 +2117,8 @@ def task_run_line():
 
 def open_file_name(f):    # from axis.py
     ''' set view to Z '''
+    global loaded_file
+    loaded_file = f
     open_file_guts(f)
     commands.set_view_z()
     if o.canon is not None:
