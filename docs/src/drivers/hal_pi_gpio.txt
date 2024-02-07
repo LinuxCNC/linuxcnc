@@ -7,7 +7,7 @@ It is only really intended to work on the Raspberry Pi. It may, or may not, work
 
 == Purpose
 
-This driver allows the use of the Rapberry Pi GPIO pins in a way analagous to the parallel port driver on x86 PCs. It can use the same step generators, encoder counters and similar components.
+This driver allows the use of the Rapberry Pi GPIO pins in a way analogous to the parallel port driver on x86 PCs. It can use the same step generators, encoder counters and similar components.
 
 == Usage
 
@@ -15,7 +15,7 @@ This driver allows the use of the Rapberry Pi GPIO pins in a way analagous to th
 loadrt hal_pi_gpio dir=0x13407 exclude=0x1F64BF8
 ----
 
-The "dir" mask determines whether the pins are inputs and outputs, the exclude mask prevents the driver from using the pins (and so allows them to be used for their normal RPi purpses such as SPI or UART)
+The "dir" mask determines whether the pins are inputs and outputs, the exclude mask prevents the driver from using the pins (and so allows them to be used for their normal RPi purposes such as SPI or UART)
 
 The mask can be in decimal or hexadecimal (hex may be easier as there will be no carries)
 

@@ -3442,7 +3442,7 @@ There are three <<plasma:ext-hal-pin,External HAL Pins>> that are available to t
 the pin names are `qtplasmac.ext_out_0`, `qtplasmac.ext_out_1`, and `qtplasmac.ext_out_2`.
 HAL connections to these HAL pins need to be specified in a postgui HAL file as the HAL pins are not available until the QtPlasmac GUI has loaded.
 
-For toggle-halpin buttons, it is possible for the user to mark the associated HAL pin as being required to be turned "ON" before starting a cut sequence by adding "cutcritical" after the HAL pin in the button code. If *TORCH ENABLE* is checked and *CYCLE START*, *MANUAL CUT*, or *SINGLE CUT* are intiated while the "cutcritical" button is not "ON" then the user will receive a dialog warning them as such and asking to CONTINUE or CANCEL.
+For toggle-halpin buttons, it is possible for the user to mark the associated HAL pin as being required to be turned "ON" before starting a cut sequence by adding "cutcritical" after the HAL pin in the button code. If *TORCH ENABLE* is checked and *CYCLE START*, *MANUAL CUT*, or *SINGLE CUT* are initiated while the "cutcritical" button is not "ON" then the user will receive a dialog warning them as such and asking to CONTINUE or CANCEL.
 
 [source,{ini}]
 ----

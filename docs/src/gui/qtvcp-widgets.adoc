@@ -593,7 +593,7 @@ These set _attributes_ of the selected action (availability depends on the widge
   The button label text can be set with any text after a comma, the `\n` symbol adds a line break.
 
 *`ini_mdi_key`*::
-  (prefered way) +
+  (preferred way) +
   A reference to the _INI file_ `[MDI_COMMAND_LIST]` section. +
   This string will be added to 'MDI_COMMAND_' to form an entry to look for +
   in the INI file, under the heading `[MDI_COMMAND_LIST]`. +
