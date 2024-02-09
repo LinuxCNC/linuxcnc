@@ -139,6 +139,7 @@ class Filter():
         self.warnings += 'It is recommended that all warnings are fixed before running this file.\n'
         self.warnUnitsDep = []
         self.warnPierceScribe = []
+        self.warnPierceLimit = []
         self.warnMatLoad = []
         self.warnHoleDir = []
         self.warnCompTorch = []
@@ -300,11 +301,12 @@ class Filter():
         data = tmp
         # get all G00 coordinates
         if data[:3] == 'G00' and ('X' in data or 'Y' in data):
-            pierceX = self.get_axis_value(data, 'X') if 'X' in data else self.lastX
-            pierceY = self.get_axis_value(data, 'Y') if 'Y' in data else self.lastY
-            self.pierceList['X'].append(pierceX)
-            self.pierceList['Y'].append(pierceY)
-            self.pierceList['active'] = True
+            if not self.check_math(data, 'X', 'pierce') and not self.check_math(data, 'Y', 'pierce'):
+                pierceX = self.get_axis_value(data, 'X') if 'X' in data else self.lastX
+                pierceY = self.get_axis_value(data, 'Y') if 'Y' in data else self.lastY
+                self.pierceList['X'].append(pierceX)
+                self.pierceList['Y'].append(pierceY)
+                self.pierceList['active'] = True
         # reset G00 active flag
         if data[:3] == 'M03' and self.pierceList['active']:
             self.pierceList['active'] = False
@@ -486,15 +488,21 @@ class Filter():
                         Ypos = self.get_axis_value(data, 'Y')
         return Xpos, Ypos
 
-    def check_math(self, data, axis):
+    def check_math(self, data, axis, code='arc'):
         ''' check if math used or explicit values
         '''
         tmp1 = data.split(axis)[1]
         if tmp1.startswith('[') or tmp1.startswith('#'):
-            self.set_code_error()
-            if self.lineNum not in self.errorMath:
-                self.errorMath.append(self.lineNum)
-                self.errorLines.append(self.lineNumOrg)
+            if code == 'pierce':
+                self.codeWarn = True
+                if self.lineNum not in self.warnPierceLimit:
+                    self.warnPierceLimit.append(self.lineNum)
+                    self.errorLines.append(self.lineNumOrg)
+            else:
+                self.set_code_error()
+                if self.lineNum not in self.errorMath:
+                    self.errorMath.append(self.lineNum)
+                    self.errorLines.append(self.lineNumOrg)
             return True
         return False
 
@@ -1350,6 +1358,9 @@ class Filter():
             if self.warnPierceScribe:
                 msg  = 'Pierce only mode is invalid while scribing.\n'
                 warnText += self.message_set(self.warnPierceScribe, msg)
+            if self.warnPierceLimit:
+                msg  = 'Pierce limit checks require explicit X and Y values for G00 moves.\n'
+                warnText += self.message_set(self.warnPierceLimit, msg)
             if self.warnMatLoad:
                 msg  = 'Materials were not reloaded in a timely manner.\n'
                 msg  = 'Try reloading the G-Code file.\n'

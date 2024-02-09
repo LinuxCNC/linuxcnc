@@ -1,4 +1,4 @@
-VERSION = '003.021'
+VERSION = '003.022'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -549,20 +549,21 @@ class HandlerClass:
     # modify the closing of the gcode editor
     def new_exitCall(self, index):
         proceed = self.editor_close_check()
-        if proceed:
-            self.w.preview_stack.setCurrentIndex(self.PREVIEW)
-            if self.fileOpened == True and self.w.gcode_editor.editor.isModified():
-                self.w.gcode_editor.editor.setModified(False)
-                self.file_reload_clicked()
-            elif self.fileOpened == True and not self.w.gcode_editor.editor.isModified():
-                self.set_run_button_state()
-            elif self.fileOpened == False:
-                self.w.gcode_editor.editor.new_text()
-                self.w.gcode_editor.editor.setModified(False)
-                self.view_t_pressed()
-            self.w.gcode_editor.editMode()
-            self.vkb_hide()
-            ACTION.SET_MANUAL_MODE()
+        if not proceed:
+            return
+        self.w.preview_stack.setCurrentIndex(self.PREVIEW)
+        if self.fileOpened == True and self.w.gcode_editor.editor.isModified():
+            self.w.gcode_editor.editor.setModified(False)
+            self.file_reload_clicked()
+        elif self.fileOpened == True and not self.w.gcode_editor.editor.isModified():
+            self.set_run_button_state()
+        elif self.fileOpened == False:
+            self.w.gcode_editor.editor.new_text()
+            self.w.gcode_editor.editor.setModified(False)
+            self.view_t_pressed()
+        self.w.gcode_editor.editMode()
+        self.vkb_hide()
+        ACTION.SET_MANUAL_MODE()
 
     # we don't use lexer colors
     def new_gcodeLexerCall(self):
@@ -2153,37 +2154,49 @@ class HandlerClass:
 
     def file_clear_clicked(self):
         proceed = self.editor_close_check()
-        if proceed:
-            self.w.preview_stack.setCurrentIndex(self.PREVIEW)
-            self.w.gcode_editor.editor.new_text()
-            self.w.gcode_editor.editor.setModified(False)
-            if self.fileOpened:
-                self.fileClear = True
-                if self.rflActive:
-                    self.clear_rfl()
-                clearFile = f'{self.tmpPath}qtplasmac_program_clear.ngc'
-                with open(clearFile, 'w') as outFile:
-                    outFile.write('m2')
-                if ACTION.prefilter_path:
-                    if 'single_cut' in ACTION.prefilter_path:
-                        self.preClearFile = self.oldFile
-                    else:
-                        if self.lastLoadedProgram != 'None':
-                            self.preClearFile = ACTION.prefilter_path or self.lastLoadedProgram
-                        self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
-                        self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
-                        self.w.conv_material.setCurrentIndex(self.w.materials_box.currentIndex())
-                self.remove_temp_materials()
-                ACTION.OPEN_PROGRAM(clearFile)
-                ACTION.prefilter_path = self.preClearFile
-                if self.w.lbl_tool.text() != 'TORCH' and STATUS.is_on_and_idle() and STATUS.is_all_homed():
-                    ACTION.CALL_MDI_WAIT('T0 M6')
-                    ACTION.CALL_MDI_WAIT('G43 H0')
-                    ACTION.SET_MANUAL_MODE()
-                log = _translate('HandlerClass', 'Program cleared')
-                STATUS.emit('update-machine-log', log, 'TIME')
-            else:
-                self.view_t_pressed()
+        if not proceed:
+            return
+        self.w.preview_stack.setCurrentIndex(self.PREVIEW)
+        self.w.gcode_editor.editor.new_text()
+        self.w.gcode_editor.editor.setModified(False)
+        # clear error message list and error status
+        if self.w.screen_options.desktop_notify:
+            self.w.screen_options.QTVCP_INSTANCE_._NOTICE.alarmpage = []
+            self.w.screen_options.QTVCP_INSTANCE_._NOTICE.external_close()
+        self.error_status(False)
+        # return cut-type button to Normal
+        if self.cutType:
+            self.cutType = 0
+            self.cutTypePin.set(0)
+            self.button_normal(self.ctButton)
+            self.w[self.ctButton].setText(self.cutTypeText)
+        if self.fileOpened:
+            self.fileClear = True
+            if self.rflActive:
+                self.clear_rfl()
+            clearFile = f'{self.tmpPath}qtplasmac_program_clear.ngc'
+            with open(clearFile, 'w') as outFile:
+                outFile.write('m2')
+            if ACTION.prefilter_path:
+                if 'single_cut' in ACTION.prefilter_path:
+                    self.preClearFile = self.oldFile
+                else:
+                    if self.lastLoadedProgram != 'None':
+                        self.preClearFile = ACTION.prefilter_path or self.lastLoadedProgram
+                    self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
+                    self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
+                    self.w.conv_material.setCurrentIndex(self.w.materials_box.currentIndex())
+            self.remove_temp_materials()
+            ACTION.OPEN_PROGRAM(clearFile)
+            ACTION.prefilter_path = self.preClearFile
+            if self.w.lbl_tool.text() != 'TORCH' and STATUS.is_on_and_idle() and STATUS.is_all_homed():
+                ACTION.CALL_MDI_WAIT('T0 M6')
+                ACTION.CALL_MDI_WAIT('G43 H0')
+                ACTION.SET_MANUAL_MODE()
+            log = _translate('HandlerClass', 'Program cleared')
+            STATUS.emit('update-machine-log', log, 'TIME')
+        else:
+            self.view_t_pressed()
 
     def file_open_clicked(self):
         if self.w.preview_stack.currentIndex() != self.OPEN:
@@ -2320,22 +2333,23 @@ class HandlerClass:
 
     def file_reload_clicked(self):
         proceed = self.editor_close_check()
-        if proceed:
-            if self.rflActive:
-                self.clear_rfl()
-                self.set_run_button_state()
-            if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
-                file = ACTION.prefilter_path or self.lastLoadedProgram
-                if os.path.exists(file):
-                    self.overlayProgress.setValue(0)
-                    self.remove_temp_materials()
-                    ACTION.OPEN_PROGRAM(file)
-                    log = _translate('HandlerClass', 'Reloaded')
-                    STATUS.emit('update-machine-log', f'{log}: {file}', 'TIME')
-                else:
-                    head = _translate('HandlerClass', 'File Error')
-                    msg0 = _translate('HandlerClass', 'does not exist')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{file} {msg0}\n')
+        if not proceed:
+            return
+        if self.rflActive:
+            self.clear_rfl()
+            self.set_run_button_state()
+        if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
+            file = ACTION.prefilter_path or self.lastLoadedProgram
+            if os.path.exists(file):
+                self.overlayProgress.setValue(0)
+                self.remove_temp_materials()
+                ACTION.OPEN_PROGRAM(file)
+                log = _translate('HandlerClass', 'Reloaded')
+                STATUS.emit('update-machine-log', f'{log}: {file}', 'TIME')
+            else:
+                head = _translate('HandlerClass', 'File Error')
+                msg0 = _translate('HandlerClass', 'does not exist')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{file} {msg0}\n')
 
     def jog_slow_pressed(self, external=False):
         if self.w.jog_slow.isChecked():
