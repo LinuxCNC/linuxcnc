@@ -652,9 +652,8 @@ public:
 	e	Ending distance
 	p	Number of passes to go from d to e
     */
-    void do_g70(motion_base *out, double x, double z, double d, double e,
-	double p
-    ) {
+    void do_g70(motion_base *out, double x, double z, double d, double e, int p)
+    {
 	front()->sp()=std::complex<double>(z,x);
 
 	if(should_rotate_paths())
@@ -1142,11 +1141,12 @@ int Interp::convert_g7x(int mode,
     if(path.size()<=1)
 	return INTERP_OK;
 
-    double d=0, e=0, i=1, p=1, r=0.5, u=0, w=0;
+    double d=0, e=0, i=1, r=0.5, u=0, w=0;
+    int p = 1;
     if(original_block.d_flag) d=original_block.d_number_float;
     if(original_block.e_flag) e=original_block.e_number;
     if(original_block.i_flag) i=original_block.i_number;
-    if(original_block.p_flag) p=original_block.p_number;
+    if(original_block.p_flag) p=static_cast<int>(original_block.p_number);
     if(original_block.r_flag) r=original_block.r_number;
     if(original_block.u_flag) u=original_block.u_number;
     if(original_block.w_flag) w=original_block.w_number;
