@@ -666,14 +666,14 @@ public:
 
 	for(int pass=p; pass>0; pass--) {
 	    double distance=(pass-1)*(d-e)/p+e;
-	    g7x path(*this);
-	    path.add_distance(distance);
+	    g7x paths(*this);
+	    paths.add_distance(distance);
 
-	    swapped_out->straight_rapid(path.front()->sp());
-	    swapped_out->straight_rapid(path.front()->ep());
-	    for(auto p=++path.begin(); p!=--path.end(); p++)
-		    (*p)->draw(swapped_out.get());
-	    path.back()->draw(swapped_out.get());
+	    swapped_out->straight_rapid(paths.front()->sp());
+	    swapped_out->straight_rapid(paths.front()->ep());
+	    for(auto path=++paths.begin(); path != --paths.end(); path++)
+		    (*path)->draw(swapped_out.get());
+	    paths.back()->draw(swapped_out.get());
 	}
     }
 
