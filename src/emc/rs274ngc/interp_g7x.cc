@@ -624,6 +624,17 @@ private:
 		erase(p--);
     }
 
+    bool should_rotate_paths() {
+	g7x paths(*this);
+	paths.pop_front();
+	paths.swap();
+	for(auto &path : paths) {
+	    if(!path->monotonic())
+		return true;
+	}
+	return false;
+    }
+
 public:
     g7x() = default;
     g7x(g7x const &other) {
@@ -646,18 +657,7 @@ public:
     ) {
 	front()->sp()=std::complex<double>(z,x);
 
-	g7x path(*this);
-	path.pop_front();
-	path.swap();
-	for(auto p=path.begin(); p!=path.end(); p++) {
-	    if(!(*p)->monotonic()) {
-		path.rotate();
-		path.swap();
-		break;
-	    }
-	}
-	path.monotonic();
-	if(path.flip_state&4)
+	if(should_rotate_paths())
 	    rotate();
 	swap();
 	do_finish();
