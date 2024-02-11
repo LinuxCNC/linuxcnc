@@ -648,6 +648,10 @@ class _Lcnc_Action(object):
     def SET_GRAPHICS_GRID_SIZE(self, size):
         STATUS.emit('graphics-view-changed', 'GRID-SIZE', {'SIZE': size})
 
+    def SET_GRAPHICS_SCROLL_MODE(self, mode):
+        STATUS.emit('graphics-view-changed', 'SCROLL-MODE', {'MODE': mode})
+
+
     def ADJUST_GRAPHICS_PAN(self, x, y):
         STATUS.emit('graphics-view-changed', 'pan-view', {'X': x, 'Y': y})
 
