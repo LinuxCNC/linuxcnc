@@ -671,9 +671,9 @@ public:
 
 	    swapped_out->straight_rapid(paths.front()->sp());
 	    swapped_out->straight_rapid(paths.front()->ep());
-	    for(auto path=++paths.begin(); path != --paths.end(); path++)
-		    (*path)->draw(swapped_out.get());
-	    paths.back()->draw(swapped_out.get());
+	    paths.pop_front();
+	    for(const auto &path : paths)
+		path->draw(swapped_out.get());
 	}
     }
 
