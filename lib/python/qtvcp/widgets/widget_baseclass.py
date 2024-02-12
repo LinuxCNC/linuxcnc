@@ -67,6 +67,7 @@ class _HalWidgetBase_(object):
             self.PREFS_ = self.QTVCP_INSTANCE_.PREFS_
         except:
             self.PREFS_ = None
+        LOG.verbose("HAL_init: ObjectName:'{}'\n    SELF:{}\n    HAL NAME:{}\n    PREFS:{}\n    INSTANMCE:{}".format(self.objectName(),self,self.HAL_NAME_,self.PREFS_ ,self.__class__.THIS_INSTANCE_))
         self._hal_init()
 
     def _hal_init(self):
