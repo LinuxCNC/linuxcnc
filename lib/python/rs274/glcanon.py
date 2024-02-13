@@ -77,6 +77,24 @@ limiticon = array.array('B',
          255, 255,  176, 0,  152, 0,  140, 0,  134, 0,  128, 0,    0,   0,
            0,   0,    0, 0])
 
+# Axis Views
+X = 0
+Y = 1
+Z = 2
+A = 3
+B = 4
+C = 5
+U = 6
+V = 7
+W = 8
+R = 9
+
+# View ports coordinates
+VX = 0
+VY = 1
+VZ = 2
+VP = 3
+
 class GLCanon(Translated, ArcsToSegmentsMixin):
     lineno = -1
     def __init__(self, colors, geometry, is_foam=0):
@@ -352,8 +370,8 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
 
     def highlight(self, lineno, geometry):
         glLineWidth(3)
-        c = self.colors['selected']
-        glColor3f(*c)
+
+        glColor3f(*self.colors['selected'])
         glBegin(GL_LINES)
         coords = []
         for line in self.traverse:
@@ -378,13 +396,13 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             coords.append(line[2:5])
         glLineWidth(1)
         if coords:
-            x = reduce(lambda _x, _y: _x+_y, [c[0] for c in coords]) / len(coords)
-            y = reduce(lambda _x, _y: _x+_y, [c[1] for c in coords]) / len(coords)
-            z = reduce(lambda _x, _y: _x+_y, [c[2] for c in coords]) / len(coords)
+            x = reduce(lambda _x, _y: _x+_y, [p[0] for p in coords]) / len(coords)
+            y = reduce(lambda _x, _y: _x+_y, [p[1] for p in coords]) / len(coords)
+            z = reduce(lambda _x, _y: _x+_y, [p[2] for p in coords]) / len(coords)
         else:
-            x = (self.min_extents[0] + self.max_extents[0])/2
-            y = (self.min_extents[1] + self.max_extents[1])/2
-            z = (self.min_extents[2] + self.max_extents[2])/2
+            x = (self.min_extents[X] + self.max_extents[X])/2
+            y = (self.min_extents[Y] + self.max_extents[Y])/2
+            z = (self.min_extents[Z] + self.max_extents[Z])/2
         return x, y, z
 
     def color_with_alpha(self, colorname):
@@ -574,14 +592,14 @@ class GlCanonDraw:
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
 
-    def select(self, x, y):
+    def select(self, x_view, y_view):
         if self.canon is None: return
         pmatrix = glGetDoublev(GL_PROJECTION_MATRIX)
         glMatrixMode(GL_PROJECTION)
         glPushMatrix()
         glLoadIdentity()
         vport = glGetIntegerv(GL_VIEWPORT)
-        gluPickMatrix(x, vport[3]-y, 5, 5, vport)
+        gluPickMatrix(x_view, vport[3]-y_view, 5, 5, vport)
         glMultMatrixd(pmatrix)
         glMatrixMode(GL_MODELVIEW)
 
@@ -601,9 +619,9 @@ class GlCanonDraw:
 
         if buffer:
             min_depth, max_depth, names = (buffer[0].near, buffer[0].far, buffer[0].names)
-            for x in buffer:
-                if min_depth < x.near:
-                    min_depth, max_depth, names = (x.near, x.far, x.names)
+            for point in buffer:
+                if min_depth < point.near:
+                    min_depth, max_depth, names = (point.near, point.far, point.names)
             self.set_highlight_line(names[0])
         else:
             self.set_highlight_line(None)
@@ -651,9 +669,9 @@ class GlCanonDraw:
             else:
                 x, y, z = self.canon.highlight(line, self.get_geometry())
         elif self.canon is not None:
-            x = (self.canon.min_extents[0] + self.canon.max_extents[0])/2
-            y = (self.canon.min_extents[1] + self.canon.max_extents[1])/2
-            z = (self.canon.min_extents[2] + self.canon.max_extents[2])/2
+            x = (self.canon.min_extents[X] + self.canon.max_extents[X])/2
+            y = (self.canon.min_extents[Y] + self.canon.max_extents[Y])/2
+            z = (self.canon.min_extents[Z] + self.canon.max_extents[Z])/2
         else:
             x, y, z = 0.0, 0.0, 0.0
         glEndList()
@@ -730,7 +748,6 @@ class GlCanonDraw:
         if g is None: return
 
         # Dimensions
-        x,y,z,p = 0,1,2,3
         view = self.get_view()
         is_metric = self.get_show_metric()
         dimscale = is_metric and 25.4 or 1.0
@@ -738,20 +755,20 @@ class GlCanonDraw:
 
         machine_limit_min, machine_limit_max = self.soft_limits()
 
-        pullback = max(g.max_extents[x] - g.min_extents[x],
-                       g.max_extents[y] - g.min_extents[y],
-                       g.max_extents[z] - g.min_extents[z],
-                       2 ) * .1
+        pullback = max(g.max_extents[X] - g.min_extents[X],
+                       g.max_extents[Y] - g.min_extents[Y],
+                       g.max_extents[Z] - g.min_extents[Z],
+                       2) * .1
 
         dashwidth = pullback/4
         charsize = dashwidth * 1.5
         halfchar = charsize * .5
 
-        if view == z or view == p:
-            z_pos = g.min_extents[z]
+        if view == VZ or view == VP:
+            z_pos = g.min_extents[VZ]
             zdashwidth = 0
         else:
-            z_pos = g.min_extents[z] - pullback
+            z_pos = g.min_extents[VZ] - pullback
             zdashwidth = dashwidth
 
         #draw dimension lines
@@ -759,44 +776,44 @@ class GlCanonDraw:
         glBegin(GL_LINES)
 
         # x dimension
-        if view != x and g.max_extents[x] > g.min_extents[x]:
-            y_pos = g.min_extents[y] - pullback
+        if view != VX and g.max_extents[X] > g.min_extents[X]:
+            y_pos = g.min_extents[Y] - pullback
             #dimension line
-            glVertex3f(g.min_extents[x], y_pos, z_pos)
-            glVertex3f(g.max_extents[x], y_pos, z_pos)
+            glVertex3f(g.min_extents[X], y_pos, z_pos)
+            glVertex3f(g.max_extents[X], y_pos, z_pos)
             #line perpendicular to dimension line at min extent
-            glVertex3f(g.min_extents[x], y_pos - dashwidth, z_pos - zdashwidth)
-            glVertex3f(g.min_extents[x], y_pos + dashwidth, z_pos + zdashwidth)
+            glVertex3f(g.min_extents[X], y_pos - dashwidth, z_pos - zdashwidth)
+            glVertex3f(g.min_extents[X], y_pos + dashwidth, z_pos + zdashwidth)
             #line perpendicular to dimension line at max extent
-            glVertex3f(g.max_extents[x], y_pos - dashwidth, z_pos - zdashwidth)
-            glVertex3f(g.max_extents[x], y_pos + dashwidth, z_pos + zdashwidth)
+            glVertex3f(g.max_extents[X], y_pos - dashwidth, z_pos - zdashwidth)
+            glVertex3f(g.max_extents[X], y_pos + dashwidth, z_pos + zdashwidth)
 
         # y dimension
-        if view != y and g.max_extents[y] > g.min_extents[y]:
-            x_pos = g.min_extents[x] - pullback
+        if view != VY and g.max_extents[Y] > g.min_extents[Y]:
+            x_pos = g.min_extents[X] - pullback
             #dimension line
-            glVertex3f(x_pos, g.min_extents[y], z_pos)
-            glVertex3f(x_pos, g.max_extents[y], z_pos)
+            glVertex3f(x_pos, g.min_extents[Y], z_pos)
+            glVertex3f(x_pos, g.max_extents[Y], z_pos)
             #line perpendicular to dimension line at min extent
-            glVertex3f(x_pos - dashwidth, g.min_extents[y], z_pos - zdashwidth)
-            glVertex3f(x_pos + dashwidth, g.min_extents[y], z_pos + zdashwidth)
+            glVertex3f(x_pos - dashwidth, g.min_extents[Y], z_pos - zdashwidth)
+            glVertex3f(x_pos + dashwidth, g.min_extents[Y], z_pos + zdashwidth)
             #line perpendicular to dimension line at max extent
-            glVertex3f(x_pos - dashwidth, g.max_extents[y], z_pos - zdashwidth)
-            glVertex3f(x_pos + dashwidth, g.max_extents[y], z_pos + zdashwidth)
+            glVertex3f(x_pos - dashwidth, g.max_extents[Y], z_pos - zdashwidth)
+            glVertex3f(x_pos + dashwidth, g.max_extents[Y], z_pos + zdashwidth)
 
         # z dimension
-        if view != z and g.max_extents[z] > g.min_extents[z]:
-            x_pos = g.min_extents[x] - pullback
-            y_pos = g.min_extents[y] - pullback
+        if view != VZ and g.max_extents[Z] > g.min_extents[Z]:
+            x_pos = g.min_extents[X] - pullback
+            y_pos = g.min_extents[Y] - pullback
             #dimension line
-            glVertex3f(x_pos, y_pos, g.min_extents[z])
-            glVertex3f(x_pos, y_pos, g.max_extents[z])
+            glVertex3f(x_pos, y_pos, g.min_extents[Z])
+            glVertex3f(x_pos, y_pos, g.max_extents[Z])
             #line perpendicular to dimension line at min extent
-            glVertex3f(x_pos - dashwidth, y_pos - zdashwidth, g.min_extents[z])
-            glVertex3f(x_pos + dashwidth, y_pos + zdashwidth, g.min_extents[z])
+            glVertex3f(x_pos - dashwidth, y_pos - zdashwidth, g.min_extents[Z])
+            glVertex3f(x_pos + dashwidth, y_pos + zdashwidth, g.min_extents[Z])
             #line perpendicular to dimension line at max extent
-            glVertex3f(x_pos - dashwidth, y_pos - zdashwidth, g.max_extents[z])
-            glVertex3f(x_pos + dashwidth, y_pos + zdashwidth, g.max_extents[z])
+            glVertex3f(x_pos - dashwidth, y_pos - zdashwidth, g.max_extents[Z])
+            glVertex3f(x_pos + dashwidth, y_pos + zdashwidth, g.max_extents[Z])
 
         glEnd()
 
@@ -808,72 +825,72 @@ class GlCanonDraw:
         else:
             offset = 0, 0, 0
         #Z extent labels
-        if view != z and g.max_extents[z] > g.min_extents[z]:
-            if view == x:
-                x_pos = g.min_extents[x] - pullback
-                y_pos = g.min_extents[y] - 6.0*dashwidth
+        if view != VZ and g.max_extents[Z] > g.min_extents[Z]:
+            if view == VX:
+                x_pos = g.min_extents[X] - pullback
+                y_pos = g.min_extents[Y] - 6.0*dashwidth
             else:
-                x_pos = g.min_extents[x] - 6.0*dashwidth
-                y_pos = g.min_extents[y] - pullback
+                x_pos = g.min_extents[X] - 6.0*dashwidth
+                y_pos = g.min_extents[Y] - pullback
             #Z MIN extent
-            bbox = self.color_limit(g.min_extents_notool[z] < machine_limit_min[z])
+            bbox = self.color_limit(g.min_extents_notool[Z] < machine_limit_min[Z])
             glPushMatrix()
-            f = fmt % ((g.min_extents[z]-offset[z]) * dimscale)
-            glTranslatef(x_pos, y_pos, g.min_extents[z] - halfchar)
+            f = fmt % ((g.min_extents[Z]-offset[Z]) * dimscale)
+            glTranslatef(x_pos, y_pos, g.min_extents[Z] - halfchar)
             glScalef(charsize, charsize, charsize)
             glRotatef(-90, 0, 1, 0)
             glRotatef(-90, 0, 0, 1)
-            if view != x:
+            if view != VX:
                 glRotatef(-90, 0, 1, 0)
             self.hershey.plot_string(f, 0, bbox)
             glPopMatrix()
             #Z MAX extent
-            bbox = self.color_limit(g.max_extents_notool[z] > machine_limit_max[z])
+            bbox = self.color_limit(g.max_extents_notool[Z] > machine_limit_max[Z])
             glPushMatrix()
-            f = fmt % ((g.max_extents[z]-offset[z]) * dimscale)
-            glTranslatef(x_pos, y_pos, g.max_extents[z] - halfchar)
+            f = fmt % ((g.max_extents[Z]-offset[Z]) * dimscale)
+            glTranslatef(x_pos, y_pos, g.max_extents[Z] - halfchar)
             glScalef(charsize, charsize, charsize)
             glRotatef(-90, 0, 1, 0)
             glRotatef(-90, 0, 0, 1)
-            if view != x:
+            if view != VX:
                 glRotatef(-90, 0, 1, 0)
             self.hershey.plot_string(f, 0, bbox)
             glPopMatrix()
             self.color_limit(0)
             glPushMatrix()
             #Z Midpoint
-            f = fmt % ((g.max_extents[z] - g.min_extents[z]) * dimscale)
-            glTranslatef(x_pos, y_pos, (g.max_extents[z] + g.min_extents[z])/2)
+            f = fmt % ((g.max_extents[Z] - g.min_extents[Z]) * dimscale)
+            glTranslatef(x_pos, y_pos, (g.max_extents[Z] + g.min_extents[Z])/2)
             glScalef(charsize, charsize, charsize)
-            if view != x:
+            if view != VX:
                 glRotatef(-90, 0, 0, 1)
             glRotatef(-90, 0, 1, 0)
             self.hershey.plot_string(f, .5, bbox)
             glPopMatrix()
         #Y extent labels
-        if view != y and g.max_extents[y] > g.min_extents[y]:
-            x_pos = g.min_extents[x] - 6.0*dashwidth
+        if view != VY and g.max_extents[Y] > g.min_extents[Y]:
+            x_pos = g.min_extents[X] - 6.0*dashwidth
             #Y MIN extent
-            bbox = self.color_limit(g.min_extents_notool[y] < machine_limit_min[y])
+            bbox = self.color_limit(g.min_extents_notool[Y] < machine_limit_min[Y])
             glPushMatrix()
-            f = fmt % ((g.min_extents[y] - offset[y]) * dimscale)
-            glTranslatef(x_pos, g.min_extents[y] + halfchar, z_pos)
+            f = fmt % ((g.min_extents[Y] - offset[Y]) * dimscale)
+            glTranslatef(x_pos, g.min_extents[Y] + halfchar, z_pos)
             glRotatef(-90, 0, 0, 1)
             glRotatef(-90, 0, 0, 1)
-            if view == x:
+            if view == VX:
                 glRotatef(90, 0, 1, 0)
                 glTranslatef(dashwidth*1.5, 0, 0)
             glScalef(charsize, charsize, charsize)
             self.hershey.plot_string(f, 0, bbox)
             glPopMatrix()
             #Y MAX extent
-            bbox = self.color_limit(g.max_extents_notool[y] > machine_limit_max[y])
+            bbox = self.color_limit(g.max_extents_notool[Y] > machine_limit_max[Y])
             glPushMatrix()
-            f = fmt % ((g.max_extents[y] - offset[y]) * dimscale)
-            glTranslatef(x_pos, g.max_extents[y] + halfchar, z_pos)
+            f = fmt % ((g.max_extents[Y] - offset[Y]) * dimscale)
+            glTranslatef(x_pos, g.max_extents[Y] + halfchar, z_pos)
             glRotatef(-90, 0, 0, 1)
             glRotatef(-90, 0, 0, 1)
-            if view == x:
+            if view == VX:
                 glRotatef(90, 0, 1, 0)
                 glTranslatef(dashwidth*1.5, 0, 0)
             glScalef(charsize, charsize, charsize)
@@ -883,38 +900,38 @@ class GlCanonDraw:
             self.color_limit(0)
             glPushMatrix()
             #Y midpoint
-            f = fmt % ((g.max_extents[y] - g.min_extents[y]) * dimscale)
-            glTranslatef(x_pos, (g.max_extents[y] + g.min_extents[y])/2,
+            f = fmt % ((g.max_extents[Y] - g.min_extents[Y]) * dimscale)
+            glTranslatef(x_pos, (g.max_extents[Y] + g.min_extents[Y])/2,
                         z_pos)
             glRotatef(-90, 0, 0, 1)
-            if view == x:
+            if view == VX:
                 glRotatef(-90, 1, 0, 0)
                 glTranslatef(0, halfchar, 0)
             glScalef(charsize, charsize, charsize)
             self.hershey.plot_string(f, .5)
             glPopMatrix()
         #X extent labels
-        if view != x and g.max_extents[x] > g.min_extents[x]:
-            y_pos = g.min_extents[y] - 6.0*dashwidth
+        if view != VX and g.max_extents[X] > g.min_extents[X]:
+            y_pos = g.min_extents[Y] - 6.0*dashwidth
             #X MIN extent
-            bbox = self.color_limit(g.min_extents_notool[x] < machine_limit_min[x])
+            bbox = self.color_limit(g.min_extents_notool[X] < machine_limit_min[X])
             glPushMatrix()
-            f = fmt % ((g.min_extents[x] - offset[x]) * dimscale)
-            glTranslatef(g.min_extents[x] - halfchar, y_pos, z_pos)
+            f = fmt % ((g.min_extents[X] - offset[X]) * dimscale)
+            glTranslatef(g.min_extents[X] - halfchar, y_pos, z_pos)
             glRotatef(-90, 0, 0, 1)
-            if view == y:
+            if view == VY:
                 glRotatef(90, 0, 1, 0)
                 glTranslatef(dashwidth*1.5, 0, 0)
             glScalef(charsize, charsize, charsize)
             self.hershey.plot_string(f, 0, bbox)
             glPopMatrix()
             #X MAX extent
-            bbox = self.color_limit(g.max_extents_notool[x] > machine_limit_max[x])
+            bbox = self.color_limit(g.max_extents_notool[X] > machine_limit_max[X])
             glPushMatrix()
-            f = fmt % ((g.max_extents[x] - offset[x]) * dimscale)
-            glTranslatef(g.max_extents[x] - halfchar, y_pos, z_pos)
+            f = fmt % ((g.max_extents[X] - offset[X]) * dimscale)
+            glTranslatef(g.max_extents[X] - halfchar, y_pos, z_pos)
             glRotatef(-90, 0, 0, 1)
-            if view == y:
+            if view == VY:
                 glRotatef(90, 0, 1, 0)
                 glTranslatef(dashwidth*1.5, 0, 0)
             glScalef(charsize, charsize, charsize)
@@ -924,10 +941,10 @@ class GlCanonDraw:
             self.color_limit(0)
             glPushMatrix()
             #X midpoint
-            f = fmt % ((g.max_extents[x] - g.min_extents[x]) * dimscale)
-            glTranslatef((g.max_extents[x] + g.min_extents[x])/2, y_pos,
+            f = fmt % ((g.max_extents[X] - g.min_extents[X]) * dimscale)
+            glTranslatef((g.max_extents[X] + g.min_extents[X])/2, y_pos,
                         z_pos)
-            if view == y:
+            if view == VY:
                 glRotatef(-90, 1, 0, 0)
                 glTranslatef(0, halfchar, 0)
             glScalef(charsize, charsize, charsize)
@@ -950,9 +967,9 @@ class GlCanonDraw:
         return [a/b for a, b in zip(pos, lus)]
 
     def soft_limits(self):
-        def fudge(x):
-            if abs(x) > 1e30: return 0
-            return x
+        def fudge(num):
+            if abs(num) > 1e30: return 0
+            return num
 
         ax = self.stat.axis
         return (
@@ -1079,11 +1096,11 @@ class GlCanonDraw:
         glDepthMask(True)
 
     def draw_grid(self):
-        x,y,z,p = 0,1,2,3
+
         view = self.get_view()
-        if view == p: return
+        if view == VP: return
         rotation = math.radians(self.stat.rotation_xy % 90)
-        if rotation != 0 and view != z and self.get_show_relative(): return
+        if rotation != 0 and view != VZ and self.get_show_relative(): return
         permutations = [
                 lambda x_y_z: (x_y_z[2], x_y_z[1], x_y_z[0]),  # YZ X
                 lambda x_y_z1: (x_y_z1[2], x_y_z1[0], x_y_z1[1]),  # ZX Y
@@ -1406,10 +1423,10 @@ class GlCanonDraw:
                 if current_tool is None or current_tool.diameter == 0:
                     if self.canon:
                         g = self.canon
-                        x,y,z = 0,1,2
-                        cone_scale = max(g.max_extents[x] - g.min_extents[x],
-                                       g.max_extents[y] - g.min_extents[y],
-                                       g.max_extents[z] - g.min_extents[z],
+
+                        cone_scale = max(g.max_extents[X] - g.min_extents[X],
+                                       g.max_extents[Y] - g.min_extents[Y],
+                                       g.max_extents[Z] - g.min_extents[Z],
                                        2 ) * self.cone_basesize
                     else:
                         cone_scale = 1
@@ -1585,10 +1602,10 @@ class GlCanonDraw:
 
                 t = -s.rotation_xy
                 t = math.radians(t)
-                x = positions[0]
-                y = positions[1]
-                positions[0] = x * math.cos(t) - y * math.sin(t)
-                positions[1] = x * math.sin(t) + y * math.cos(t)
+                _x = positions[X]
+                _y = positions[Y]
+                positions[X] = _x * math.cos(t) - _y * math.sin(t)
+                positions[Y] = _x * math.sin(t) + _y * math.cos(t)
                 positions = [(i-j) for i, j in zip(positions, s.g92_offset)]
             else:
                 positions = list(positions)
@@ -1743,10 +1760,8 @@ class GlCanonDraw:
 
     def draw_axes(self, n, letters="XYZ"):
         glNewList(n, GL_COMPILE)
-        x,y,z,p = 0,1,2,3
 
         view = self.get_view()
-
 
         glColor3f(*self.colors['axis_x'])
         glBegin(GL_LINES)
@@ -1754,7 +1769,7 @@ class GlCanonDraw:
         glVertex3f(0.0,0.0,0.0)
         glEnd()
 
-        if view != x:
+        if view != VX:
             glPushMatrix()
             if self.is_lathe():
                 glTranslatef(1.3, -0.1, 0)
@@ -1764,7 +1779,7 @@ class GlCanonDraw:
                 glTranslatef(0.1, 0, 0)
             else:
                 glTranslatef(1.2, -0.1, 0)
-                if view == y:
+                if view == VY:
                     glTranslatef(0, 0, -0.1)
                     glRotatef(90, 1, 0, 0)
             glScalef(0.2, 0.2, 0.2)
@@ -1777,10 +1792,10 @@ class GlCanonDraw:
         glVertex3f(0.0,1.0,0.0)
         glEnd()
 
-        if view != y:
+        if view != VY:
             glPushMatrix()
             glTranslatef(0, 1.2, 0)
-            if view == x:
+            if view == VX:
                 glTranslatef(0, 0, -0.1)
                 glRotatef(90, 0, 1, 0)
                 glRotatef(90, 0, 0, 1)
@@ -1794,15 +1809,15 @@ class GlCanonDraw:
         glVertex3f(0.0,0.0,1.0)
         glEnd()
 
-        if view != z:
+        if view != VZ:
             glPushMatrix()
             glTranslatef(0, 0, 1.2)
             if self.is_lathe():
                 glRotatef(-90, 0, 1, 0)
-            if view == x:
+            if view == VX:
                 glRotatef(90, 0, 1, 0)
                 glRotatef(90, 0, 0, 1)
-            elif view == y or view == p:
+            elif view == VY or view == VP:
                 glRotatef(90, 1, 0, 0)
             if self.is_lathe():
                 glTranslatef(0, -.1, 0)
