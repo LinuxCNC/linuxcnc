@@ -372,19 +372,19 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             coords.append(line[2:5])
         glLineWidth(1)
         if coords:
-            x = reduce(lambda x,y:x+y, [c[0] for c in coords]) / len(coords)
-            y = reduce(lambda x,y:x+y, [c[1] for c in coords]) / len(coords)
-            z = reduce(lambda x,y:x+y, [c[2] for c in coords]) / len(coords)
+            x = reduce(lambda _x, _y: _x+_y, [c[0] for c in coords]) / len(coords)
+            y = reduce(lambda _x, _y: _x+_y, [c[1] for c in coords]) / len(coords)
+            z = reduce(lambda _x, _y: _x+_y, [c[2] for c in coords]) / len(coords)
         else:
             x = (self.min_extents[0] + self.max_extents[0])/2
             y = (self.min_extents[1] + self.max_extents[1])/2
             z = (self.min_extents[2] + self.max_extents[2])/2
         return x, y, z
 
-    def color_with_alpha(self, name):
-        glColor4f(*(self.colors[name] + (self.colors.get(name+'_alpha', 1/3.),)))
-    def color(self, name):
-        glColor3f(*self.colors[name])
+    def color_with_alpha(self, colorname):
+        glColor4f(*(self.colors[colorname] + (self.colors.get(colorname+'_alpha', 1/3.),)))
+    def color(self, colorname):
+        glColor3f(*self.colors[colorname])
 
     def draw(self, for_selection=0, no_traverse=True):
         if not no_traverse:
@@ -606,16 +606,16 @@ class GlCanonDraw:
         glPopMatrix()
         glMatrixMode(GL_MODELVIEW)
 
-    def dlist(self, name, n=1, gen=lambda n: None):
+    def dlist(self, listname, n=1, gen=lambda n: None):
         if name not in self._dlists:
             base = glGenLists(n)
-            self._dlists[name] = base, n
+            self._dlists[listname] = base, n
             gen(base)
-        return self._dlists[name][0]
+        return self._dlists[listname][0]
 
-    def stale_dlist(self, name):
+    def stale_dlist(self, listname):
         if name not in self._dlists: return
-        base, count = self._dlists.pop(name)
+        base, count = self._dlists.pop(listname)
         glDeleteLists(base, count)
 
     def __del__(self):
@@ -1637,31 +1637,30 @@ class GlCanonDraw:
     # Note: this is overridden in other guis (then AXIS) for different dro behavior
     def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
             if self.get_show_metric():
-                format = "% 6s:" + self.dro_mm
-                droformat = " " + format + "  DTG %1s:" + self.dro_mm
+                baseformat = "% 6s:" + self.dro_mm
+                droformat = " " + baseformat + "  DTG %1s:" + self.dro_mm
                 offsetformat = "% 5s %1s:" + self.dro_mm + "  G92 %1s:" + self.dro_mm
                 rotformat = "% 5s %1s:" + self.dro_mm
             else:
-                format = "% 6s:" + self.dro_in
-                droformat = " " + format + "  DTG %1s:" + self.dro_in
+                baseformat = "% 6s:" + self.dro_in
+                droformat = " " + baseformat + "  DTG %1s:" + self.dro_in
                 offsetformat = "% 5s %1s:" + self.dro_in + "  G92 %1s:" + self.dro_in
                 rotformat = "% 5s %1s:" + self.dro_in
-            diaformat = " " + format
+            diaformat = " " + baseformat
 
             posstrs = []
             droposstrs = []
-            used_letters = []
             for i in range(linuxcnc.MAX_AXIS):
                 a = "XYZABCUVW"[i]
                 if s.axis_mask & (1<<i):
-                    posstrs.append(format % (a, positions[i]))
+                    posstrs.append(baseformat % (a, positions[i]))
                     droposstrs.append(droformat % (a, positions[i], a, axisdtg[i]))
 
             droposstrs.append("")
 
             for i in range(linuxcnc.MAX_AXIS):
                 index = s.g5x_index
-                if index<7:
+                if index < 7:
                     label = "G5%d" % (index+3)
                 else:
                     label = "G59.%d" % (index-6)
@@ -1678,17 +1677,17 @@ class GlCanonDraw:
                     droposstrs.append(rotformat % ("TLO", a, tlo_offset[i]))
 
             if self.is_lathe():
-                posstrs[0] = format % ("Rad", positions[0])
-                posstrs.insert(1, format % ("Dia", positions[0]*2.0))
+                posstrs[0] = baseformat % ("Rad", positions[0])
+                posstrs.insert(1, baseformat % ("Dia", positions[0]*2.0))
                 droposstrs[0] = droformat % ("Rad", positions[0], "R", axisdtg[0])
                 droposstrs.insert(1, diaformat % ("Dia", positions[0]*2.0))
 
             if self.get_show_machine_speed():
-                posstrs.append(format % ("Vel", spd))
+                posstrs.append(baseformat % ("Vel", spd))
                 droposstrs.append(diaformat % ("Vel", spd))
 
             if self.get_show_distance_to_go():
-                posstrs.append(format % ("DTG", dtg))
+                posstrs.append(baseformat % ("DTG", dtg))
 
             # show extrajoints (if not showing offsets)
             if (self.stat.num_extrajoints >0 and (not self.get_show_offsets())):
