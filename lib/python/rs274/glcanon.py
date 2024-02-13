@@ -81,13 +81,13 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     lineno = -1
     def __init__(self, colors, geometry, is_foam=0):
         # traverse list of tuples - [(line number, (start position), (end position), (tlo x, tlo y, tlo z))]
-        self.traverse = []; self.traverse_append = self.traverse.append
+        self.traverse = []
         # feed list of tuples - [(line number, (start position), (end position), feedrate, (tlo x, tlo y, tlo z))]
-        self.feed = []; self.feed_append = self.feed.append
+        self.feed = []
         # arcfeed list of tuples - [(line number, (start position), (end position), feedrate, (tlo x, tlo y, tlo z))]
-        self.arcfeed = []; self.arcfeed_append = self.arcfeed.append
+        self.arcfeed = []
         # dwell list - [line number, color, pos x, pos y, pos z, plane]
-        self.dwells = []; self.dwells_append = self.dwells.append
+        self.dwells = []
         self.tool_list = []
         # preview list - combines the unrotated points of the lists: self.traverse, self.feed, self.arcfeed
         self.preview_zero_rxy = []
@@ -239,8 +239,8 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         sin = math.sin(angle)
         g5x_x = self.g5x_offset_x
         g5x_y = self.g5x_offset_y
-        for list in self.feed, self.arcfeed:
-            for linenum, start, end, feed, tooloffset in list:
+        for movelist in self.feed, self.arcfeed:
+            for linenum, start, end, feed, tooloffset in movelist:
                 tsx = start[0] - g5x_x
                 tsy = start[1] - g5x_y
                 tex = end[0] - g5x_x
@@ -291,7 +291,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         if self.suppress > 0: return
         l = self.rotate_and_translate(x,y,z,a,b,c,u,v,w)
         if not self.first_move:
-                self.traverse_append((self.lineno, self.lo, l, (self.xo, self.yo, self.zo)))
+                self.traverse.append((self.lineno, self.lo, l, (self.xo, self.yo, self.zo)))
         self.lo = l
 
     def rigid_tap(self, x, y, z):
@@ -300,9 +300,9 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         l = self.rotate_and_translate(x,y,z,0,0,0,0,0,0)[:3]
         l += (self.lo[3], self.lo[4], self.lo[5],
                self.lo[6], self.lo[7], self.lo[8])
-        self.feed_append((self.lineno, self.lo, l, self.feedrate, (self.xo, self.yo, self.zo)))
-#        self.dwells_append((self.lineno, self.colors['dwell'], x + self.offset_x, y + self.offset_y, z + self.offset_z, 0))
-        self.feed_append((self.lineno, l, self.lo, self.feedrate, (self.xo, self.yo, self.zo)))
+        self.feed.append((self.lineno, self.lo, l, self.feedrate, (self.xo, self.yo, self.zo)))
+        # self.dwells.append((self.lineno, self.colors['dwell'], x + self.offset_x, y + self.offset_y, z + self.offset_z, 0))
+        self.feed.append((self.lineno, l, self.lo, self.feedrate, (self.xo, self.yo, self.zo)))
 
     def arc_feed(self, *args):
         if self.suppress > 0: return
@@ -319,7 +319,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         lineno = self.lineno
         feedrate = self.feedrate
         to = (self.xo, self.yo, self.zo)
-        append = self.arcfeed_append
+        append = self.arcfeed.append
         for l in segs:
             append((lineno, lo, l, feedrate, to))
             lo = l
@@ -329,20 +329,26 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         if self.suppress > 0: return
         self.first_move = False
         l = self.rotate_and_translate(x,y,z,a,b,c,u,v,w)
-        self.feed_append((self.lineno, self.lo, l, self.feedrate, (self.xo, self.yo, self.zo)))
+        self.feed.append((self.lineno, self.lo, l, self.feedrate, (self.xo, self.yo, self.zo)))
         self.lo = l
-    straight_probe = straight_feed
+
+    def straight_probe(self, x,y,z, a,b,c, u,v,w):
+        if self.suppress > 0: return
+        self.first_move = False
+        l = self.rotate_and_translate(x,y,z,a,b,c,u,v,w)
+        self.feed.append((self.lineno, self.lo, l, self.feedrate, (self.xo, self.yo, self.zo)))
+        self.lo = l
 
     def user_defined_function(self, i, p, q):
         if self.suppress > 0: return
         color = self.colors['m1xx']
-        self.dwells_append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], int(self.state.plane/10-17)))
+        self.dwells.append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], int(self.state.plane/10-17)))
 
     def dwell(self, arg):
         if self.suppress > 0: return
         self.dwell_time += arg
         color = self.colors['dwell']
-        self.dwells_append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], int(self.state.plane/10-17)))
+        self.dwells.append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], int(self.state.plane/10-17)))
 
     def highlight(self, lineno, geometry):
         glLineWidth(3)
@@ -499,7 +505,7 @@ class GlCanonDraw:
                     try:
                         test = temp % 1.234
                     except:
-                        print ("Error: invalid [DISPLAY] DRO_FORMAT_IN in INI file")
+                        print("Error: invalid [DISPLAY] DRO_FORMAT_IN in INI file")
                     else:
                         self.dro_in = temp
                 if self.inifile.find("DISPLAY", "DRO_FORMAT_MM"):
@@ -507,7 +513,7 @@ class GlCanonDraw:
                     try:
                         test = temp % 1.234
                     except:
-                        print ("Error: invalid [DISPLAY] DRO_FORMAT_MM in INI file")
+                        print("Error: invalid [DISPLAY] DRO_FORMAT_MM in INI file")
                     else:
                         self.dro_mm = temp
                         self.dro_in = temp
