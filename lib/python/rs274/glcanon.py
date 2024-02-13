@@ -269,7 +269,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.xo = xo
         self.yo = yo
         self.zo = zo
-        self.so = ao
+        self.ao = ao
         self.bo = bo
         self.co = co
         self.uo = uo
