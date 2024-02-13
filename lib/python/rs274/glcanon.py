@@ -613,14 +613,14 @@ class GlCanonDraw:
         glMatrixMode(GL_MODELVIEW)
 
     def dlist(self, listname, n=1, gen=lambda n: None):
-        if name not in self._dlists:
+        if listname not in self._dlists:
             base = glGenLists(n)
             self._dlists[listname] = base, n
             gen(base)
         return self._dlists[listname][0]
 
     def stale_dlist(self, listname):
-        if name not in self._dlists: return
+        if listname not in self._dlists: return
         base, count = self._dlists.pop(listname)
         glDeleteLists(base, count)
 
