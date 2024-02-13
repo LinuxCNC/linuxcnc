@@ -583,21 +583,19 @@ class GlCanonDraw:
         glMultMatrixd(pmatrix)
         glMatrixMode(GL_MODELVIEW)
 
-        while 1:
-            glSelectBuffer(self.select_buffer_size)
-            glRenderMode(GL_SELECT)
-            glInitNames()
-            glPushName(0)
+        glSelectBuffer(self.select_buffer_size)
+        glRenderMode(GL_SELECT)
+        glInitNames()
+        glPushName(0)
 
-            if self.get_show_rapids():
-                glCallList(self.dlist('select_rapids', gen=self.make_selection_list))
-            glCallList(self.dlist('select_norapids', gen=self.make_selection_list))
+        if self.get_show_rapids():
+            glCallList(self.dlist('select_rapids', gen=self.make_selection_list))
+        glCallList(self.dlist('select_norapids', gen=self.make_selection_list))
 
-            try:
-                buffer = glRenderMode(GL_RENDER)
-            except:
-                buffer = []
-            break
+        try:
+            buffer = glRenderMode(GL_RENDER)
+        except:
+            buffer = []
 
         if buffer:
             min_depth, max_depth, names = (buffer[0].near, buffer[0].far, buffer[0].names)
