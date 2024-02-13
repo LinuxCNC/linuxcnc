@@ -525,7 +525,9 @@ class GlCanonDraw:
             pass
 
     def set_cone_basesize(self, size):
-        if size >2 or size < .025: size =.5
+        if size > 2 or size < .025:
+            size = 0.5
+            print("Invalid Cone Base size resetting to 0.5")
         self.cone_basesize = size
         self._redraw()
 
@@ -1032,12 +1034,7 @@ class GlCanonDraw:
                 t0, t1 = times[0], times[1] # Take the only two times
             x0, y0 = p0[0] + delta[0]*t0, p0[1] + delta[1]*t0
             x1, y1 = p0[0] + delta[0]*t1, p0[1] + delta[1]*t1
-            xm, ym = (x0+x1)/2, (y0+y1)/2
-            # The computation of k0 and k1 above should mean that
-            # the lines are always in the limits, but I observed
-            # that this wasn't always the case...
-            #if xm < lim_min[0] or xm > lim_max[0]: continue
-            #if ym < lim_min[1] or ym > lim_max[1]: continue
+
             glVertex3f(*inverse_permutation((x0, y0, lim_min[2])))
             glVertex3f(*inverse_permutation((x1, y1, lim_min[2])))
 
