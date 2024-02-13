@@ -1336,7 +1336,7 @@ class GlCanonDraw:
                 glRotatef(s.rotation_xy, 0, 0, 1)
 
 
-                if  self.get_show_offsets() and (g92_offset[0] or g92_offset[1] or g92_offset[2]):
+                if  self.get_show_offsets() and (g92_offset[X] or g92_offset[Y] or g92_offset[Z]):
                     glBegin(GL_LINES)
                     glVertex3f(0,0,0)
                     glVertex3f(*g92_offset)
@@ -1345,11 +1345,11 @@ class GlCanonDraw:
                     glPushMatrix()
                     glScalef(0.2,0.2,0.2)
                     if self.is_lathe():
-                        g92rot=math.atan2(g92_offset[0], -g92_offset[2])
+                        g92rot=math.atan2(g92_offset[X], -g92_offset[Z])
                         glRotatef(90, 1, 0, 0)
                         glRotatef(-90, 0, 0, 1)
                     else:
-                        g92rot=math.atan2(g92_offset[1], g92_offset[0])
+                        g92rot=math.atan2(g92_offset[Y], g92_offset[X])
                     glRotatef(math.degrees(g92rot), 0, 0, 1)
                     glTranslatef(0.5, 0.5, 0)
                     self.hershey.plot_string("G92", 0.1)
