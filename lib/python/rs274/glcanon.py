@@ -1285,7 +1285,10 @@ class GlCanonDraw:
 
             if self.get_show_extents():
                 self.show_extents()
-                self.draw_bounding_box()
+        else:
+            self.show_extents()
+            self.draw_bounding_box()
+
         try:
             self.user_plot()
         except:
@@ -1294,8 +1297,8 @@ class GlCanonDraw:
 
             alist = self.dlist(('axes', self.get_view()), gen=self.draw_axes)
             glPushMatrix()
-            if self.get_show_relative() and (s.g5x_offset[0] or s.g5x_offset[1] or s.g5x_offset[2] or
-                                             s.g92_offset[0] or s.g92_offset[1] or s.g92_offset[2] or
+            if self.get_show_relative() and (s.g5x_offset[X] or s.g5x_offset[Y] or s.g5x_offset[Z] or
+                                             s.g92_offset[X] or s.g92_offset[Y] or s.g92_offset[Z] or
                                              s.rotation_xy):
                 olist = self.dlist('draw_small_origin',
                                         gen=self.draw_small_origin)
@@ -1305,7 +1308,7 @@ class GlCanonDraw:
                 g92_offset = self.to_internal_units(s.g92_offset)[:3]
 
 
-                if self.get_show_offsets() and (g5x_offset[0] or g5x_offset[1] or g5x_offset[2]):
+                if self.get_show_offsets() and (g5x_offset[X] or g5x_offset[Y] or g5x_offset[Z]):
                     glBegin(GL_LINES)
                     glVertex3f(0,0,0)
                     glVertex3f(*g5x_offset)
