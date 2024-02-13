@@ -15,19 +15,16 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from rs274 import Translated, ArcsToSegmentsMixin, OpenGLTk
+from rs274 import Translated, ArcsToSegmentsMixin
 from OpenGL.GL import *
 from OpenGL.GLU import *
-import itertools
 import math
-import glnav
 import hershey
 import linuxcnc
 import array
 import gcode
 import os
 import re
-import sys
 from functools import reduce
 
 def minmax(*args):
@@ -1059,11 +1056,6 @@ class GlCanonDraw:
         lim_min = tuple(a-b for a,b in zip(lim_min, tlo_offset))
         lim_max = tuple(a-b for a,b in zip(lim_max, tlo_offset))
 
-        lim_pts = (
-                (lim_min[0], lim_min[1]),
-                (lim_max[0], lim_min[1]),
-                (lim_min[0], lim_max[1]),
-                (lim_max[0], lim_max[1]))
         if self.get_show_relative():
             cos_rot = math.cos(rotation)
             sin_rot = math.sin(rotation)
@@ -1450,7 +1442,6 @@ class GlCanonDraw:
 
         charwidth, linespace, base = self.get_font_info()
 
-        maxlen = max([len(p) for p in posstrs])
         pixel_width = charwidth * max(len(p) for p in posstrs)
 
         if self.show_overlay:
@@ -1753,7 +1744,7 @@ class GlCanonDraw:
     def draw_axes(self, n, letters="XYZ"):
         glNewList(n, GL_COMPILE)
         x,y,z,p = 0,1,2,3
-        s = self.stat
+
         view = self.get_view()
 
 
@@ -1872,16 +1863,12 @@ class GlCanonDraw:
 
             sinmax = math.sin(max_angle)
             cosmax = math.cos(max_angle)
-            tanmax = math.cos(max_angle)
             sinmin = math.sin(min_angle)
             cosmin = math.cos(min_angle)
-            tanmin = math.cos(min_angle)
 
             circleminangle = - math.pi/2 + min_angle
             circlemaxangle = - 3*math.pi/2 + max_angle
-            d0 = 0
 
-            x1 = (w - d0)
 
             sz = max(w, 3*radius)
 
@@ -1891,7 +1878,6 @@ class GlCanonDraw:
                 0,
                 radius * dy + radius * math.cos(circleminangle) + sz * cosmin)
             for i in range(37):
-                #t = circleminangle + i * (circlemaxangle - circleminangle)/36.
                 t = circleminangle + i * (circlemaxangle - circleminangle)/36.
                 glVertex3f(radius*dx + radius * math.sin(t), 0.0, radius*dy + radius * math.cos(t))
 
