@@ -951,6 +951,65 @@ class GlCanonDraw:
             self.hershey.plot_string(f, .5)
             glPopMatrix()
 
+    def draw_cube(self, min_extents, max_extents, color=(1, 1, 1)):
+        """
+        Draw a cube
+        :param min_extents: Tuple of X,Y,Z Minimum Limits
+        :param max_extents: Tuple of X,Y,Z Maximum Limits
+        :param color: Tuple of RGB color values
+        """
+        glColor3f(color[0], color[1], color[2])
+        glBegin(GL_LINES)
+        # Bottom of part bounding box
+        glVertex3f(min_extents[X], min_extents[Y], min_extents[Z])
+        glVertex3f(max_extents[X], min_extents[Y], min_extents[Z])
+
+        glVertex3f(max_extents[X], min_extents[Y], min_extents[Z])
+        glVertex3f(max_extents[X], max_extents[Y], min_extents[Z])
+
+        glVertex3f(max_extents[X], max_extents[Y], min_extents[Z])
+        glVertex3f(min_extents[X], max_extents[Y], min_extents[Z])
+
+        glVertex3f(min_extents[X], max_extents[Y], min_extents[Z])
+        glVertex3f(min_extents[X], min_extents[Y], min_extents[Z])
+
+        # Top of part bounding box
+        glVertex3f(min_extents[X], min_extents[Y], max_extents[Z])
+        glVertex3f(max_extents[X], min_extents[Y], max_extents[Z])
+
+        glVertex3f(max_extents[X], min_extents[Y], max_extents[Z])
+        glVertex3f(max_extents[X], max_extents[Y], max_extents[Z])
+
+        glVertex3f(max_extents[X], max_extents[Y], max_extents[Z])
+        glVertex3f(min_extents[X], max_extents[Y], max_extents[Z])
+
+        glVertex3f(min_extents[X], max_extents[Y], max_extents[Z])
+        glVertex3f(min_extents[X], min_extents[Y], max_extents[Z])
+
+        # Middle connections
+        glVertex3f(min_extents[X], min_extents[Y], min_extents[Z])
+        glVertex3f(min_extents[X], min_extents[Y], max_extents[Z])
+
+        glVertex3f(max_extents[X], min_extents[Y], min_extents[Z])
+        glVertex3f(max_extents[X], min_extents[Y], max_extents[Z])
+
+        glVertex3f(max_extents[X], max_extents[Y], min_extents[Z])
+        glVertex3f(max_extents[X], max_extents[Y], max_extents[Z])
+
+        glVertex3f(min_extents[X], max_extents[Y], min_extents[Z])
+        glVertex3f(min_extents[X], max_extents[Y], max_extents[Z])
+
+        glEnd()
+
+    def draw_bounding_box(self):
+        """Draw a bounding box around the extents of the program if we skip loading the entire part."""
+        g = self.canon
+
+        if g is None:
+            return
+
+        self.draw_cube(g.min_extents, g.max_extents, color=(0.57, 0.68, 0.71))
+
     def to_internal_linear_unit(self, v, unit=None):
         if unit is None:
             unit = self.stat.linear_units
@@ -1226,6 +1285,7 @@ class GlCanonDraw:
 
             if self.get_show_extents():
                 self.show_extents()
+                self.draw_bounding_box()
         try:
             self.user_plot()
         except:
@@ -1305,50 +1365,10 @@ class GlCanonDraw:
             glPopMatrix()
 
         if self.get_show_limits():
-            glTranslatef(*[-x for x in self.to_internal_units(s.tool_offset)[:3]])
+            glTranslatef(*[-pos for pos in self.to_internal_units(s.tool_offset)[:3]])
             glLineWidth(1)
-            glColor3f(*self.colors['limits'])
-            glBegin(GL_LINES)
+            self.draw_cube(machine_limit_min, machine_limit_max, color=self.colors['limits'])
 
-            glVertex3f(machine_limit_min[0], machine_limit_min[1], machine_limit_max[2])
-            glVertex3f(machine_limit_min[0], machine_limit_min[1], machine_limit_min[2])
-
-            glVertex3f(machine_limit_min[0], machine_limit_min[1], machine_limit_min[2])
-            glVertex3f(machine_limit_min[0], machine_limit_max[1], machine_limit_min[2])
-
-            glVertex3f(machine_limit_min[0], machine_limit_max[1], machine_limit_min[2])
-            glVertex3f(machine_limit_min[0], machine_limit_max[1], machine_limit_max[2])
-
-            glVertex3f(machine_limit_min[0], machine_limit_max[1], machine_limit_max[2])
-            glVertex3f(machine_limit_min[0], machine_limit_min[1], machine_limit_max[2])
-
-
-            glVertex3f(machine_limit_max[0], machine_limit_min[1], machine_limit_max[2])
-            glVertex3f(machine_limit_max[0], machine_limit_min[1], machine_limit_min[2])
-
-            glVertex3f(machine_limit_max[0], machine_limit_min[1], machine_limit_min[2])
-            glVertex3f(machine_limit_max[0], machine_limit_max[1], machine_limit_min[2])
-
-            glVertex3f(machine_limit_max[0], machine_limit_max[1], machine_limit_min[2])
-            glVertex3f(machine_limit_max[0], machine_limit_max[1], machine_limit_max[2])
-
-            glVertex3f(machine_limit_max[0], machine_limit_max[1], machine_limit_max[2])
-            glVertex3f(machine_limit_max[0], machine_limit_min[1], machine_limit_max[2])
-
-
-            glVertex3f(machine_limit_min[0], machine_limit_min[1], machine_limit_min[2])
-            glVertex3f(machine_limit_max[0], machine_limit_min[1], machine_limit_min[2])
-
-            glVertex3f(machine_limit_min[0], machine_limit_max[1], machine_limit_min[2])
-            glVertex3f(machine_limit_max[0], machine_limit_max[1], machine_limit_min[2])
-
-            glVertex3f(machine_limit_min[0], machine_limit_max[1], machine_limit_max[2])
-            glVertex3f(machine_limit_max[0], machine_limit_max[1], machine_limit_max[2])
-
-            glVertex3f(machine_limit_min[0], machine_limit_min[1], machine_limit_max[2])
-            glVertex3f(machine_limit_max[0], machine_limit_min[1], machine_limit_max[2])
-
-            glEnd()
             glTranslatef(*self.to_internal_units(s.tool_offset)[:3])
 
         if self.get_show_live_plot():
