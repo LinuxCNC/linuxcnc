@@ -97,7 +97,7 @@ VP = 3
 
 class GLCanon(Translated, ArcsToSegmentsMixin):
     lineno = -1
-    def __init__(self, colors, geometry, is_foam=0):
+    def __init__(self, colors, geometry, is_foam=0, foam_w=1.5, foam_z=0.0):
         # traverse list of tuples - [(line number, (start position), (end position), (tlo x, tlo y, tlo z))]
         self.traverse = []
         # feed list of tuples - [(line number, (start position), (end position), feedrate, (tlo x, tlo y, tlo z))]
@@ -153,8 +153,8 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.g5x_offset_v = 0.0
         self.g5x_offset_w = 0.0
         self.is_foam = is_foam
-        self.foam_z = 0
-        self.foam_w = 1.5
+        self.foam_z = foam_z
+        self.foam_w = foam_w
         self.notify = 0
         self.notify_message = ""
         self.highlight_line = None
@@ -515,6 +515,9 @@ class GlCanonDraw:
         self.enable_dro = True
         self.cone_basesize = .5
         self.show_small_origin = True
+        self.foam_w_height = 1.5
+        self.foam_z_height = 0
+
         try:
             if os.environ["INI_FILE_NAME"]:
                 self.inifile = linuxcnc.ini(os.environ["INI_FILE_NAME"])
@@ -535,6 +538,8 @@ class GlCanonDraw:
                     else:
                         self.dro_mm = temp
                         self.dro_in = temp
+                self.foam_w_height = float(self.ini_file.find("[DISPLAY]", "FOAM_W") or 1.5)
+                self.foam_z_height = float(self.ini_file.find("[DISPLAY]", "FOAM_Z") or 0)
                 size = (self.inifile.find("DISPLAY", "CONE_BASESIZE") or None)
                 if size is not None:
                     self.set_cone_basesize(float(size))
@@ -578,6 +583,8 @@ class GlCanonDraw:
 
     def set_canon(self, canon):
         self.canon = canon
+        self.canon.foam_z = self.foam_z_height
+        self.canon.foam_w = self.foam_w_height
 
     @with_context
     def basic_lighting(self):
@@ -1038,12 +1045,14 @@ class GlCanonDraw:
                 for i in range(3)]))
 
     def get_foam_z(self):
-        if self.canon: return self.canon.foam_z
-        return 0
+        if self.canon:
+            return self.canon.foam_z
+        return self.foam_z_height
 
     def get_foam_w(self):
-        if self.canon: return self.canon.foam_w
-        return 1.5
+        if self.canon:
+            return self.canon.foam_w
+        return self.foam_w_height
 
     def get_grid(self):
         if self.canon and self.canon.grid: return self.canon.grid
