@@ -91,12 +91,14 @@ def run_from_line_get(file, startLine):
                 elif t1[1] == '6':
                     codes['g6_'] = t1
                     if t1 == 'G64':
-                        tmp = line.split('64')[1]
+                        tmp = line.split('64')[1].strip()
                         if tmp[0] == 'P':
                             p = ''
                             tmp = tmp[1:]
                             while 1:
-                                if tmp[0] in '.0123456789Q':
+                                if not tmp:
+                                    break
+                                elif tmp[0] in '.0123456789Q':
                                     p += tmp[0]
                                     tmp = tmp[1:]
                                 else:
