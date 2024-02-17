@@ -530,7 +530,6 @@ int read_dollar(char *line, int *counter, block_pointer block,
 		     StateTag &state);
  int write_canon_state_tag(block_pointer block, setup_pointer settings);
  int unwrap_rotary(double *, double, double, double, char);
- bool isreadonly(int index);
 
   // O_word stuff
 
@@ -719,6 +718,8 @@ int read_inputs(setup_pointer settings);
  InterpReturn check_g74_g84_spindle(GCodes motion, CANON_DIRECTION dir);
 
 private:
+    [[nodiscard]] static bool is_parameter_readonly(int index);
+
     static const int gees[];
     static const int ems[];
     static const int required_parameters[];

@@ -2190,7 +2190,7 @@ int Interp::read_parameter_setting(
       CHP(read_integer_value(line, counter, &index, parameters));
       CHKS(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
-      CHKS((isreadonly(index)), NCE_PARAMETER_NUMBER_READONLY);
+      CHKS((is_parameter_readonly(index)), NCE_PARAMETER_NUMBER_READONLY);
       CHKS((line[*counter] != '='),
           NCE_EQUAL_SIGN_MISSING_IN_PARAMETER_SETTING);
       *counter = (*counter + 1);
@@ -3454,11 +3454,10 @@ int Interp::read_z(char *line,   //!< string: line of RS274 code being processed
   return INTERP_OK;
 }
 
-bool Interp::isreadonly(int index)
+bool Interp::is_parameter_readonly(int index)
 {
-  int i;
-  for (i=0; i < n_readonly_parameters; i++) {
-    if (readonly_parameters[i] == index) return 1;
+  for (int i = 0; i < n_readonly_parameters; i++) {
+    if (readonly_parameters[i] == index) return true;
   }
-  return 0;
+  return false;
 }
