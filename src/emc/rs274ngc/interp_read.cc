@@ -594,7 +594,7 @@ int Interp::read_g(char *line,   //!< string: line of RS274/NGC code being proce
       block->g_modes[mode] = value;
       return INTERP_OK;
   }
-  mode = _gees[value];
+  mode = gees[value];
   CHKS((mode == -1), NCE_UNKNOWN_G_CODE_USED);
   if ((value == G_80) && (block->g_modes[mode] != -1));
   else {
@@ -1133,7 +1133,7 @@ int Interp::read_m(char *line,   //!< string: line of RS274 code being processed
   }
 
   CHKS((value > 199), NCE_M_CODE_GREATER_THAN_199,value);
-  mode = _ems[value];
+  mode = ems[value];
   CHKS((mode == -1), NCE_UNKNOWN_M_CODE_USED,value);
   CHKS((block->m_modes[mode] != -1),
       NCE_TWO_M_CODES_USED_FROM_SAME_MODAL_GROUP);
@@ -3457,8 +3457,8 @@ int Interp::read_z(char *line,   //!< string: line of RS274 code being processed
 bool Interp::isreadonly(int index)
 {
   int i;
-  for (i=0; i< _n_readonly_parameters; i++) {
-    if (_readonly_parameters[i] == index) return 1;
+  for (i=0; i < n_readonly_parameters; i++) {
+    if (readonly_parameters[i] == index) return 1;
   }
   return 0;
 }
