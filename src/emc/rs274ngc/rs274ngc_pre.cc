@@ -361,7 +361,7 @@ int Interp::_execute(const char *command)
 
   for (n = 0; n < _setup.parameter_occurrence; n++)
   {  // copy parameter settings from parameter buffer into parameter table
-    _setup.parameters[_setup.parameter_numbers[n]]
+    _setup.parameters[_setup.parameter_numbers[n]] 
           = _setup.parameter_values[n];
   }
 
@@ -372,7 +372,7 @@ int Interp::_execute(const char *command)
 
       logDebug("storing param:|%s|", _setup.named_parameters[n]);
       CHP(store_named_param(&_setup, _setup.named_parameters[n],
-                          _setup.named_parameter_values[n]));
+			_setup.named_parameter_values[n]));
   }
   _setup.named_parameter_occurrence = 0;
 
@@ -519,7 +519,7 @@ int Interp::_execute(const char *command)
 		      _setup.sub_context[1].filename);
 	  }
       }
-    if ((status != INTERP_OK) &&
+    if ((status != INTERP_OK) && 
         (status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT))
       ERP(status);
   } else                        /* blank line is OK */
@@ -833,12 +833,20 @@ int Interp::init()
   INIT_CANON();
 
   iniFileName = getenv("INI_FILE_NAME");
-
+  _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
+  
   // the default log file
   _setup.loggingLevel = 0;
   _setup.tool_change_at_g30 = 0;
   _setup.tool_change_quill_up = 0;
   _setup.tool_change_with_spindle_on = 0;
+  if (_setup.length_units == CANON_UNITS_INCHES) {
+      _setup.parameter_g73_peck_clearance = .050;
+      _setup.parameter_g83_peck_clearance = .050;
+   } else{
+      _setup.parameter_g73_peck_clearance = 1;
+      _setup.parameter_g83_peck_clearance = 1;
+    }
   _setup.a_axis_wrapped = 0;
   _setup.b_axis_wrapped = 0;
   _setup.c_axis_wrapped = 0;
@@ -864,7 +872,7 @@ int Interp::init()
           fprintf(stderr,"Unable to open inifile:%s:\n", iniFileName);
       } else {
           bool opt;
-          const char *inistring;
+          std::optional<const char*> inistring;
 
           inifile.Find(&_setup.tool_change_at_g30, "TOOL_CHANGE_AT_G30", "EMCIO");
           inifile.Find(&_setup.tool_change_quill_up, "TOOL_CHANGE_QUILL_UP", "EMCIO");
@@ -897,33 +905,35 @@ int Interp::init()
           inifile.Find(&opt, "OWORD_WARNONLY", "RS274NGC");
           if (opt) _setup.feature_set |= FEATURE_OWORD_WARNONLY;
 
-          if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_A"))) {
-              _setup.a_indexer_jnum = atol(inistring);
+          if ((inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_A"))) {
+              _setup.a_indexer_jnum = atol(*inistring);
           }
-          if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_B"))) {
-              _setup.b_indexer_jnum = atol(inistring);
+          if ((inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_B"))) {
+              _setup.b_indexer_jnum = atol(*inistring);
           }
-          if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_C"))) {
-              _setup.c_indexer_jnum = atol(inistring);
+          if ((inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_C"))) {
+              _setup.c_indexer_jnum = atol(*inistring);
           }
           inifile.Find(&_setup.orient_offset, "ORIENT_OFFSET", "RS274NGC");
+          inifile.Find(&_setup.parameter_g73_peck_clearance, "PARAMETER_G73_PECK_CLEARANCE", "RS274NGC");
+          inifile.Find(&_setup.parameter_g83_peck_clearance, "PARAMETER_G83_PECK_CLEARANCE", "RS274NGC");
 
           inifile.Find(&_setup.debugmask, "DEBUG", "EMC");
 
 	  _setup.debugmask |= EMC_DEBUG_UNCONDITIONAL;
 
-          if(NULL != (inistring = inifile.Find("LOG_LEVEL", "RS274NGC")))
+          if((inistring = inifile.Find("LOG_LEVEL", "RS274NGC")))
           {
-              _setup.loggingLevel = atol(inistring);
+              _setup.loggingLevel = atol(*inistring);
           }
 
 	  // default the log_file to stderr.
-          if(NULL != (inistring = inifile.Find("LOG_FILE", "RS274NGC")))
+          if((inistring = inifile.Find("LOG_FILE", "RS274NGC")))
           {
-	      if ((log_file = fopen(inistring, "a"))  == NULL) {
+	      if ((log_file = fopen(*inistring, "a"))  == NULL) {
 		  log_file = stderr;
 		  logDebug( "(%d): Unable to open log file:%s, using stderr",
-			  getpid(), inistring);
+			  getpid(), *inistring);
 	      }
           } else {
 	      log_file = stderr;
@@ -932,30 +942,30 @@ int Interp::init()
           _setup.use_lazy_close = 1;
 
 	  _setup.wizard_root[0] = 0;
-          if(NULL != (inistring = inifile.Find("WIZARD_ROOT", "WIZARD")))
+          if((inistring = inifile.Find("WIZARD_ROOT", "WIZARD")))
           {
-	    logDebug("[WIZARD]WIZARD_ROOT:%s", inistring);
-            if (realpath(inistring, _setup.wizard_root) == NULL) {
+	    logDebug("[WIZARD]WIZARD_ROOT:%s", *inistring);
+            if (realpath(*inistring, _setup.wizard_root) == NULL) {
         	//realpath didn't find the file
-		logDebug("realpath failed to find wizard_root:%s:", inistring);
+		logDebug("realpath failed to find wizard_root:%s:", *inistring);
             }
           }
           logDebug("_setup.wizard_root:%s:", _setup.wizard_root);
 
 	  _setup.program_prefix[0] = 0;
-          if(NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")))
+          if((inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")))
           {
 	    // found it
             char expandinistring[LINELEN];
-            if (inifile.TildeExpansion(inistring,expandinistring,sizeof(expandinistring))) {
-                   logDebug("TildeExpansion failed for: %s",inistring);
+            if (inifile.TildeExpansion(*inistring,expandinistring,sizeof(expandinistring))) {
+                   logDebug("TildeExpansion failed for: %s",*inistring);
             }
             if (realpath(expandinistring, _setup.program_prefix) == NULL){
         	//realpath didn't find the file
-		logDebug("realpath failed to find program_prefix:%s:", inistring);
+		logDebug("realpath failed to find program_prefix:%s:", *inistring);
             }
             logDebug("program prefix:%s: prefix:%s:",
-		     inistring, _setup.program_prefix);
+		     *inistring, _setup.program_prefix);
           }
           else
           {
@@ -963,7 +973,7 @@ int Interp::init()
           }
           logDebug("_setup.program_prefix:%s:", _setup.program_prefix);
 
-          if(NULL != (inistring = inifile.Find("SUBROUTINE_PATH", "RS274NGC")))
+          if((inistring = inifile.Find("SUBROUTINE_PATH", "RS274NGC")))
           {
             // found it
             int dct;
@@ -974,7 +984,7 @@ int Interp::init()
                  _setup.subroutines[dct] = NULL;
             }
 
-            rtapi_strxcpy(tmpdirs,inistring);
+            rtapi_strxcpy(tmpdirs,*inistring);
             nextdir = strtok(tmpdirs,":");  // first token
             dct = 0;
             while (1) {
@@ -1006,15 +1016,15 @@ int Interp::init()
           }
           // subroutine to execute on aborts - for instance to retract
           // toolchange HAL pins
-          if (NULL != (inistring = inifile.Find("ON_ABORT_COMMAND", "RS274NGC"))) {
-	      _setup.on_abort_command = strstore(inistring);
+          if ((inistring = inifile.Find("ON_ABORT_COMMAND", "RS274NGC"))) {
+	      _setup.on_abort_command = strstore(*inistring);
               logDebug("_setup.on_abort_command=%s", _setup.on_abort_command);
           } else {
 	      _setup.on_abort_command = NULL;
           }
 
 	  // initialize the Python plugin singleton
-          if (NULL != (inistring = inifile.Find("TOPLEVEL", "PYTHON"))) {
+          if ((inistring = inifile.Find("TOPLEVEL", "PYTHON"))) {
 	      int status = python_plugin->configure(iniFileName,"PYTHON");
 	      if (status != PLUGIN_OK) {
 		  Error("Python plugin configure() failed, status = %d", status);
@@ -1026,10 +1036,10 @@ int Interp::init()
 	  _setup.g_remapped.clear();
 	  _setup.m_remapped.clear();
 	  _setup.remaps.clear();
-	  while (NULL != (inistring = inifile.Find("REMAP", "RS274NGC",
+	  while ((inistring = inifile.Find("REMAP", "RS274NGC",
 						   n, &lineno))) {
 
-	      CHP(parse_remap( inistring,  lineno));
+	      CHP(parse_remap( *inistring,  lineno));
 	      n++;
 	  }
 
@@ -1075,7 +1085,6 @@ int Interp::init()
       }
   }
 
-  _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
   USE_LENGTH_UNITS(_setup.length_units);
   GET_EXTERNAL_PARAMETER_FILE_NAME(filename, LINELEN);
   if (filename[0] == 0)
@@ -1163,12 +1172,12 @@ int Interp::init()
 //_setup.current_x set in Interp::synch
 //_setup.current_y set in Interp::synch
 //_setup.current_z set in Interp::synch
-  _setup.cutter_comp_side = false;
+  _setup.cutter_comp_side = CUTTER_COMP::OFF;
   _setup.arc_not_allowed = false;
   _setup.cycle_il_flag = false;
-  _setup.distance_mode = MODE_ABSOLUTE;
-  _setup.ijk_distance_mode = MODE_INCREMENTAL;  // backwards compatibility
-  _setup.feed_mode = UNITS_PER_MINUTE;
+  _setup.distance_mode = DISTANCE_MODE::ABSOLUTE;
+  _setup.ijk_distance_mode = DISTANCE_MODE::INCREMENTAL;  // backwards compatibility
+  _setup.feed_mode = FEED_MODE::UNITS_PER_MINUTE;
 //_setup.feed_override set in Interp::synch
 //_setup.feed_rate set in Interp::synch
   _setup.filename[0] = 0;
@@ -1401,6 +1410,9 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
   CHKS((strlen(filename) > (LINELEN - 1)), NCE_FILE_NAME_TOO_LONG);
   _setup.file_pointer = fopen(filename, "r");
   CHKS((_setup.file_pointer == NULL), NCE_UNABLE_TO_OPEN_FILE, filename);
+
+	Interp::nurbs_reset_global_variables();	// jf 
+
   line = _setup.linetext;
   for (index = -1; index == -1;) {      /* skip blank lines */
     CHKS((fgets(line, LINELEN, _setup.file_pointer) ==
@@ -2045,7 +2057,7 @@ int Interp::synch()
 	  _setup.speed[s] = GET_EXTERNAL_SPEED(s);
 	  _setup.spindle_turning[s] = GET_EXTERNAL_SPINDLE(s);
 	  _setup.speed_override[s] = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(s);
-	  _setup.spindle_mode[s] = CONSTANT_RPM;
+	  _setup.spindle_mode[s] = SPINDLE_MODE::CONSTANT_RPM;
   }
   GET_EXTERNAL_PARAMETER_FILE_NAME(file_name, (LINELEN - 1));
   save_parameters(((file_name[0] ==
@@ -2479,7 +2491,7 @@ VARIABLE_FILE = rs274ngc.var
 int Interp::ini_load(const char *filename)
 {
     IniFile inifile;
-    const char *inistring;
+    std::optional<const char*> inistring;
 
     // open it
     if (inifile.Open(filename) == false) {
@@ -2491,13 +2503,13 @@ int Interp::ini_load(const char *filename)
 
 
     char parameter_file_name[LINELEN]={};
-    if (NULL != (inistring = inifile.Find("PARAMETER_FILE", "RS274NGC"))) {
-        strncpy(parameter_file_name, inistring, LINELEN);
-
-        if (parameter_file_name[LINELEN-1] != '\0') {
-            logDebug("%s:[RS274NGC]PARAMETER_FILE is too long (max len %d)", filename, LINELEN-1);
+    if ((inistring = inifile.Find("PARAMETER_FILE", "RS274NGC"))) {
+        if (strlen(*inistring) >= sizeof(parameter_file_name)) {
+            logDebug("%s:[RS274NGC]PARAMETER_FILE is too long (max len %zu)",
+                     filename, sizeof(parameter_file_name)-1);
         } else {
-          logDebug("found PARAMETER_FILE:%s:", parameter_file_name);
+            strncpy(parameter_file_name, *inistring, sizeof(parameter_file_name));
+            logDebug("found PARAMETER_FILE:%s:", parameter_file_name);
         }
     } else {
       // not found, leave RS274NGC_PARAMETER_FILE alone
@@ -2568,6 +2580,14 @@ int Interp::set_tool_parameters()
     default_tool_parameters();
     return 0;
   }
+// test to examine tool comment field for current tool:
+// #define TOOL_COMMENT_SHOW
+#ifdef  TOOL_COMMENT_SHOW //{
+    fprintf(stderr,"%s %s toolno=%d comment=%s\n",
+           __FILE__,__FUNCTION__,
+           _setup.tool_table[0].toolno,
+           _setup.tool_table[0].comment);
+#endif //}
   _setup.parameters[5400] = _setup.tool_table[0].toolno;
   _setup.parameters[5401] = _setup.tool_table[0].offset.tran.x;
   _setup.parameters[5402] = _setup.tool_table[0].offset.tran.y;

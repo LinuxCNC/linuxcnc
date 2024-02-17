@@ -181,7 +181,7 @@ SUBDIRS := \
     emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
     emc/usr_intf/gremlin emc/usr_intf/gscreen emc/usr_intf/pyui emc/usr_intf/qtvcp \
     emc/usr_intf/gmoccapy emc/usr_intf/qtplasmac emc/usr_intf/mdro\
-    emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/tp emc/canterp \
+    emc/usr_intf emc/nml_intf emc/task emc/kinematics emc/tp emc/canterp \
     emc/motion emc/ini emc/rs274ngc emc/sai emc/pythonplugin \
     emc/motion-logger \
     emc/tooldata \
@@ -253,8 +253,8 @@ INCLUDE += $(LIBTIRPC_CFLAGS)
 INTEGER_OVERFLOW_FLAGS := -fwrapv
 OPT := -Os $(INTEGER_OVERFLOW_FLAGS)
 DEBUG := $(DEBUG) -g -Wall -D_FORTIFY_SOURCE=2
-CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DULAPI -std=gnu11 -Werror=implicit-function-declaration $(CFLAGS) $(CPPFLAGS)
-CXXFLAGS := $(INCLUDE) $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Werror=overloaded-virtual $(CXXFLAGS) $(CPPFLAGS)
+CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI -std=gnu11 -Werror=implicit-function-declaration $(CFLAGS) $(CPPFLAGS) $(EXTRA_DEBUG)
+CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI -Werror=overloaded-virtual $(CXXFLAGS) $(CPPFLAGS) $(EXTRA_DEBUG)
 CXXFLAGS += -std=gnu++17
 # In Debian 11, any inclusion of <boost/python.hpp> leads to several
 # diagnostics from included headers about deprecated features. LinuxCNC does
@@ -420,8 +420,7 @@ SRCHEADERS := \
     libnml/linklist/linklist.hh \
     libnml/nml/cmd_msg.hh \
     libnml/nml/nml.hh \
-    libnml/nml/nml_mod.hh \
-    libnml/nml/nml_oi.hh \
+	libnml/nml/nml_oi.hh \
     libnml/nml/nml_srv.hh \
     libnml/nml/nml_type.hh \
     libnml/nml/nmldiag.hh \
@@ -668,7 +667,7 @@ install-docs:
 install-dirs:
 	$(DIR) $(DESTDIR)$(EMC2_RTLIB_DIR) \
 		$(DESTDIR)$(sysconfdir)/linuxcnc $(DESTDIR)$(bindir) $(DESTDIR)$(libdir) \
-		$(DESTDIR)/lib/linuxcnc $(DESTDIR)$(includedir)/linuxcnc \
+		$(DESTDIR)/$(libdir)/linuxcnc $(DESTDIR)$(includedir)/linuxcnc \
 		$(DESTDIR)$(docsdir) $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
 		$(DESTDIR)$(tcldir)/scripts \
@@ -734,7 +733,7 @@ install-kernel-indep: install-dirs
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	cp --no-dereference $(wildcard ../lib/*.so) $(DESTDIR)$(libdir)
 	-ldconfig $(DESTDIR)$(libdir)
-	$(FILE) ../lib/linuxcnc/canterp.so $(DESTDIR)$(libdir)/linuxcnc
+	$(FILE) ../lib/linuxcnc/canterp.so $(DESTDIR)$(libdir)/linuxcnc/
 	$(FILE) $(HEADERS) $(DESTDIR)$(includedir)/linuxcnc/
 	$(TREE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
 	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)
@@ -1031,6 +1030,7 @@ hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/pktuart.o   \
     hal/drivers/mesa-hostmot2/pwmgen.o	  \
     hal/drivers/mesa-hostmot2/oneshot.o	  \
+    hal/drivers/mesa-hostmot2/periodm.o	  \
     hal/drivers/mesa-hostmot2/raw.o	  \
     hal/drivers/mesa-hostmot2/rcpwmgen.o  \
     hal/drivers/mesa-hostmot2/resolver.o  \

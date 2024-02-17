@@ -2,8 +2,8 @@
 '''
 qtplasmac-materials.py
 
-Copyright (C) 2020, 2021 Phillip A Carter
-Copyright (C) 2020, 2021  Gregory D Carl
+Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
+Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -202,7 +202,7 @@ class MaterialConverter(QMainWindow, object):
                     self.msgLabel.setText('missing input filename')
                     return
                 if not os.path.exists(self.inFileName):
-                    self.msgLabel.setText('{} missing'.format(self.inFileName))
+                    self.msgLabel.setText(f'{self.inFileName} missing')
                     return
             if not self.outFileName:
                 self.msgLabel.setText('missing output filename')
@@ -238,25 +238,20 @@ class MaterialConverter(QMainWindow, object):
             if not getParams:
                 self.msgLabel.setText('')
                 return
-            self.materialNum = '[MATERIAL_NUMBER_{}]'.format(self.fNUM)
-            self.materialName = 'NAME               = {}'.format(self.fNAM)
-            self.materialKerf = "{id:}{val:.{i}f}".format(id='KERF_WIDTH         = ',
-                                 i=self.precision, val=float(self.fKW) / self.divisor)
-            self.materialPierceH = "{id:}{val:.{i}f}".format(id='PIERCE_HEIGHT      = ',
-                                    i=self.precision, val=float(self.fPH) / self.divisor)
-            self.materialPierceD = 'PIERCE_DELAY       = {}'.format(self.fPD)
-            self.materialPuddleH = "{id:}{val:.{i}f}".format(id='PUDDLE_JUMP_HEIGHT = ',
-                                    i=self.precision, val=float(self.fPJH) / self.divisor)
-            self.materialPuddleD = 'PUDDLE_JUMP_DELAY  = {}'.format(self.fPJD)
-            self.materialCutH = "{id:}{val:.{i}f}".format(id='CUT_HEIGHT         = ',
-                                 i=self.precision, val=float(self.fCH) / self.divisor)
-            self.materialCutS = "{id:}{val:.{i}f}".format(id='CUT_SPEED          = ',
-                                 i=0, val=float(self.fCS) / self.divisor)
-            self.materialCutA = 'CUT_AMPS           = {}'.format(self.fCA)
-            self.materialCutV = 'CUT_VOLTS          = {}'.format(self.fCV)
-            self.materialPauseE = 'PAUSE_AT_END       = {}'.format(self.fPE)
-            self.materialGasP = 'GAS_PRESSURE       = {}'.format(self.fGP)
-            self.materialCutM = 'CUT_MODE           = {}'.format(self.fCM)
+            self.materialNum = f'[MATERIAL_NUMBER_{self.fNUM}]'
+            self.materialName = f'NAME               = {self.fNAM}'
+            self.materialKerf = f'KERF_WIDTH         = {float(self.fKW) / self.divisor:.{self.precision}f}'
+            self.materialPierceH = f'PIERCE_HEIGHT      = {float(self.fPH) / self.divisor:.{self.precision}f}'
+            self.materialPierceD = f'PIERCE_DELAY       = {self.fPD}'
+            self.materialPuddleH = f'PUDDLE_JUMP_HEIGHT = {float(self.fPJH) / self.divisor:.{self.precision}f}'
+            self.materialPuddleD = f'PUDDLE_JUMP_DELAY  = {self.fPJD}'
+            self.materialCutH = f'CUT_HEIGHT         = {float(self.fCH) / self.divisor:.{self.precision}f}'
+            self.materialCutS = f'CUT_SPEED          = {float(self.fCS) / self.divisor:.0f}'
+            self.materialCutA = f'CUT_AMPS           = {self.fCA}'
+            self.materialCutV = f'CUT_VOLTS          = {self.fCV}'
+            self.materialPauseE = f'PAUSE_AT_END       = {self.fPE}'
+            self.materialGasP = f'GAS_PRESSURE       = {self.fGP}'
+            self.materialCutM = f'CUT_MODE           = {self.fCM}'
             self.output()
             self.convert.setText('ADD')
         elif self.inSheetcam.isChecked():
@@ -287,44 +282,40 @@ class MaterialConverter(QMainWindow, object):
                         valid = True
                     elif line.startswith('Tool\ number'):
                         a,b = line.split('=')
-                        self.materialNum = '[MATERIAL_NUMBER_{}]'.format(b.strip().replace(']',''))
+                        self.materialNum = f'[MATERIAL_NUMBER_{b.strip().replace("]","")}]'
                     elif line.startswith('Name='):
                         a,b = line.split('=',1)
-                        self.materialName = 'NAME               = {}'.format(b.strip())
+                        self.materialName = f'NAME               = {b.strip()}'
                     elif line.startswith('Kerf\ width'):
                         a,b = line.split('=',1)
-                        self.materialKerf = "{id:}{val:.{i}f}".format(id='KERF_WIDTH         = ',
-                                             i=self.precision, val=float(b.strip()) / self.divisor)
+                        self.materialKerf = f'KERF_WIDTH         = {float(b.strip()) / self.divisor:.{self.precision}f}'
                     elif line.startswith('Pierce\ height'):
                         a,b = line.split('=',1)
-                        self.materialPierceH = "{id:}{val:.{i}f}".format(id='PIERCE_HEIGHT      = ',
-                                                i=self.precision, val=float(b.strip()) / self.divisor)
+                        self.materialPierceH = f'PIERCE_HEIGHT      = {float(b.strip()) / self.divisor:.{self.precision}f}'
                     elif line.startswith('Pierce\ delay'):
                         a,b = line.split('=',1)
-                        self.materialPierceD = 'PIERCE_DELAY       = {}'.format(b.strip())
+                        self.materialPierceD = f'PIERCE_DELAY       = {b.strip()}'
                     elif line.startswith('Cut\ height'):
                         a,b = line.split('=',1)
-                        self.materialCutH = "{id:}{val:.{i}f}".format(id='CUT_HEIGHT         = ',
-                                             i=self.precision, val=float(b.strip()) / self.divisor)
+                        self.materialCutH = f'CUT_HEIGHT         = {float(b.strip()) / self.divisor:.{self.precision}f}'
                     elif line.startswith('Feed\ rate'):
                         a,b = line.split('=',1)
-                        self.materialCutS = "{id:}{val:.{i}f}".format(id='CUT_SPEED          = ',
-                                             i=0, val=float(b.strip()) / self.divisor)
+                        self.materialCutS = f'CUT_SPEED          = {float(b.strip()) / self.divisor:.0f}'
                     elif line.startswith('Cut\ current') or (line.startswith('Preset\ current') and self.materialCutA == 'CUT_AMPS           = 0'):
                         a,b = line.split('=',1)
-                        self.materialCutA = 'CUT_AMPS           = {}'.format(b.strip())
+                        self.materialCutA = f'CUT_AMPS           = {b.strip()}'
                     elif line.startswith('Cut\ voltage') or (line.startswith('Preset\ volts') and self.materialCutV == 'CUT_VOLTS          = 0'):
                         a,b = line.split('=',1)
-                        self.materialCutV = 'CUT_VOLTS          = {}'.format(b.strip())
+                        self.materialCutV = f'CUT_VOLTS          = {b.strip()}'
                     elif line.startswith('Pause\ at\ end\ of\ cut'):
                         a,b = line.split('=',1)
-                        self.materialPauseE = 'PAUSE_AT_END       = {}'.format(b.strip())
+                        self.materialPauseE = f'PAUSE_AT_END       = {b.strip()}'
                     elif line.startswith('Gas\ pressure') or (line.startswith('Preset\ Air\ Pressure') and self.materialGasP == 'GAS_PRESSURE       = 0'):
                         a,b = line.split('=',1)
-                        self.materialGasp = 'GAS_PRESSURE       = {}'.format(b.strip())
+                        self.materialGasp = f'GAS_PRESSURE       = {b.strip()}'
                     elif line.startswith('Cut\ mode') or (line.startswith('Preset\ mode') and self.materialCutM == 'CUT_MODE           = 1'):
                         a,b = line.split('=',1)
-                        self.materialCutM = 'CUT_MODE           = {}'.format(b.strip())
+                        self.materialCutM = f'CUT_MODE           = {b.strip()}'
                     count += 1
                 if valid:
                     self.output()
@@ -346,25 +337,20 @@ class MaterialConverter(QMainWindow, object):
                 if not getParams:
                     self.msgLabel.setText('')
                     return
-                self.materialNum = '[MATERIAL_NUMBER_{}]'.format(self.fNUM)
-                self.materialName = 'NAME               = {}'.format(self.fNAM)
-                self.materialKerf = "{id:}{val:.{i}f}".format(id='KERF_WIDTH         = ',
-                                     i=self.precision, val=float(lKW) / self.divisor)
-                self.materialPierceH = "{id:}{val:.{i}f}".format(id='PIERCE_HEIGHT      = ',
-                                        i=self.precision, val=float(self.fPH) / self.divisor)
-                self.materialPierceD = 'PIERCE_DELAY       = {}'.format(self.fPD)
-                self.materialPuddleH = "{id:}{val:.{i}f}".format(id='PUDDLE_JUMP_HEIGHT = ',
-                                        i=self.precision, val=float(self.fPJH) / self.divisor)
-                self.materialPuddleD = 'PUDDLE_JUMP_DELAY  = {}'.format(self.fPJD)
-                self.materialCutH = "{id:}{val:.{i}f}".format(id='CUT_HEIGHT         = ',
-                                     i=self.precision, val=float(self.fCH) / self.divisor)
-                self.materialCutS = "{id:}{val:.{i}f}".format(id='CUT_SPEED          = ',
-                                     i=0, val=float(lCS) / self.divisor)
-                self.materialCutA = 'CUT_AMPS           = {}'.format(self.fCA)
-                self.materialCutV = 'CUT_VOLTS          = {}'.format(self.fCV)
-                self.materialPauseE = 'PAUSE_AT_END       = {}'.format(self.fPE)
-                self.materialGasP = 'GAS_PRESSURE       = {}'.format(self.fGP)
-                self.materialCutM = 'CUT_MODE           = {}'.format(self.fCM)
+                self.materialNum = f'[MATERIAL_NUMBER_{self.fNUM}]'
+                self.materialName = f'NAME               = {self.fNAM}'
+                self.materialKerf = f'KERF_WIDTH         = {float(lKW) / self.divisor:.{self.precision}f}'
+                self.materialPierceH = f'PIERCE_HEIGHT      = {float(self.fPH) / self.divisor:.{self.precision}f}'
+                self.materialPierceD = f'PIERCE_DELAY       = {self.fPD}'
+                self.materialPuddleH = f'PUDDLE_JUMP_HEIGHT = {float(self.fPJH) / self.divisor:.{self.precision}f}'
+                self.materialPuddleD = f'PUDDLE_JUMP_DELAY  = {self.fPJD}'
+                self.materialCutH = f'CUT_HEIGHT         = {float(self.fCH) / self.divisor:.{self.precision}f}'
+                self.materialCutS = f'CUT_SPEED          = {float(lCS) / self.divisor:.0f}'
+                self.materialCutA = f'CUT_AMPS           = {self.fCA}'
+                self.materialCutV = f'CUT_VOLTS          = {self.fCV}'
+                self.materialPauseE = f'PAUSE_AT_END       = {self.fPE}'
+                self.materialGasP = f'GAS_PRESSURE       = {self.fGP}'
+                self.materialCutM = f'CUT_MODE           = {self.fCM}'
                 self.output()
 #            except:
 #                self.msgLabel.setText('READ ERROR!!!')
@@ -415,7 +401,7 @@ class MaterialConverter(QMainWindow, object):
         dialog.setWindowIcon(QIcon(os.path.join(self.iconBase, self.iconPath)))
         dialog.setModal(True)
         topL = QLabel('Items with a *** are mandatory')
-        infL = QLabel('For Material # {}\n{}'.format(self.fNUM,self.fNAM))
+        infL = QLabel(f'For Material # {self.fNUM}\n{self.fNAM}')
         dNUl = QLabel('Material Number ***')
         dNUl.setAlignment(Qt.AlignBottom|Qt.AlignRight)
         dNU = QLineEdit()

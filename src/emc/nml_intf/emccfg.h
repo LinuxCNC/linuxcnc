@@ -30,9 +30,6 @@ extern const char * DEFAULT_EMC_NMLFILE;
 /* cycle time for emctask, in seconds */
 #define DEFAULT_EMC_TASK_CYCLE_TIME 0.100
 
-/* cycle time for emctio, in seconds */
-#define DEFAULT_EMC_IO_CYCLE_TIME 0.100
-
 /* default interp len */
 #define DEFAULT_EMC_TASK_INTERP_MAX_LEN 1000
 

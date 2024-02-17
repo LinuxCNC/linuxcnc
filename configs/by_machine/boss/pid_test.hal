@@ -315,15 +315,6 @@ net toolChanged boss_plc.0.tool-changed-out => iocontrol.0.tool-changed
 net mistOn iocontrol.0.coolant-mist => motenc.0.out-14
 net floodOn iocontrol.0.coolant-flood => motenc.0.out-15
 
-# Lube.
-#
-# Connect lube motor run to I/O.
-net lubeOn iocontrol.0.lube => motenc.0.out-13
-#net lubeOn spindle.0.on => motenc.0.out-13
-
-# Connect lube level to I/O.
-net lubeLevel motenc.0.in-30-not => iocontrol.0.lube_level
-
 # Operator console.
 #
 # Set debounce time.

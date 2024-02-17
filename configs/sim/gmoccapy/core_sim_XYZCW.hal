@@ -60,6 +60,5 @@ net spindle-fwd spindle.0.forward
 net spindle-rev spindle.0.reverse
 #net spindle-speed spindle.0.speed-out
 
-net lube iocontrol.0.lube
 net flood iocontrol.0.coolant-flood
 net mist iocontrol.0.coolant-mist

@@ -314,6 +314,7 @@ class Data:
         self.qtplasmacpause = 0
         self.qtplasmacstop = 0
         self.qtplasmacpmx = ""
+        self.qtplasmacbase = _BASE
         self.increments_metric_qtplasmac = "10mm 1mm .1mm .01mm .001mm"
         self.increments_imperial_qtplasmac= "1in .1in .01in .001in .0001in"
         self.qtplasmac_bnames = ["OHMIC\TEST","PROBE\TEST","SINGLE\CUT","NORMAL\CUT","TORCH\PULSE","FRAMING", "USER\MANUAL", \

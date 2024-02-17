@@ -16,14 +16,14 @@
 #ifndef EMC_TASK_HH
 #define EMC_TASK_HH
 #include "taskclass.hh"
-extern NMLmsg *emcTaskCommand;
+#include "emc_nml.hh"
+#include <memory>
+
+extern std::unique_ptr<NMLmsg> emcTaskCommand;
 extern int stepping;
 extern int steppingWait;
-extern int emcTaskQueueCommand(NMLmsg *cmd);
-extern int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg);
-extern int emcIoPluginCall(EMC_IO_PLUGIN_CALL *call_msg);
-extern int emcTaskOnce(const char *inifile);
-extern int emcRunHalFiles(const char *filename);
+extern int emcTaskQueueCommand(std::unique_ptr<NMLmsg> &&cmd);
+extern int emcTaskOnce(const char *inifile, EMC_IO_STAT &emcioStatus);
 
 // Returns 0 if all joints are homed, 1 if any joints are un-homed.
 int all_homed(void);
@@ -33,8 +33,8 @@ int emcTaskInit();
 int emcTaskHalt();
 int emcTaskStateRestore();
 int emcTaskAbort();
-int emcTaskSetMode(int mode);
-int emcTaskSetState(int state);
+int emcTaskSetMode(EMC_TASK_MODE mode);
+int emcTaskSetState(EMC_TASK_STATE state);
 int emcTaskPlanInit();
 int emcTaskPlanSetWait();
 int emcTaskPlanIsWait();

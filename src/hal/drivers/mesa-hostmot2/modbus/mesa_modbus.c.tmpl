@@ -161,7 +161,6 @@ int rtapi_app_main(void){
     int c; // channel loop
     int p; // pin loops
     int j; // generic loops
-    char hal_name[HAL_NAME_LEN];
 
     rtapi_set_msg_level(DEBUG);
 
@@ -207,11 +206,8 @@ int rtapi_app_main(void){
         inst->hal->buff =  (rtapi_s64 *) hal_malloc(inst->num_pins * sizeof(rtapi_s64));
         
         rtapi_strlcpy(inst->port, ports[i], HAL_NAME_LEN);
-        retval = rtapi_snprintf(hal_name, HAL_NAME_LEN, COMP_NAME".%02i", i);
-        if (retval >= HAL_NAME_LEN) {
-            goto fail0;
-        }
-        retval = hal_export_funct(hal_name, process, inst, 1, 0, comp_id);
+
+        retval = hal_export_functf(process, inst, 1, 0, comp_id, COMP_NAME".%02i", i);
         if (retval < 0) {
             rtapi_print_msg(RTAPI_MSG_ERR, COMP_NAME" ERROR: function export failed\n");
             goto fail0;

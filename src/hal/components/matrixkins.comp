@@ -1,0 +1,326 @@
+//   This is a component for LinuxCNC HAL
+//   Copyright 2022 Petteri Aimonen <jpa at git.mail.kapsi.fi>
+//
+//   This program is free software; you can redistribute it and/or
+//   modify it under the terms of version 2 of the GNU General
+//   Public License as published by the Free Software Foundation.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+component matrixkins "Calibrated kinematics for 3-axis machines";
+
+description
+"""
+The matrixkins component implements custom kinematics for 3-axis
+Cartesian machines that allows compensating minor alignment inaccuracies
+in software.
+
+\\fBKINEMATICS MODEL:\\fR
+
+By default identity matrix is used, which is equal to trivial kinematics:
+
+.nf
+| X_joint |   | 1 0 0 |   | X_axis |
+| Y_joint | = | 0 1 0 | * | Y_axis |
+| Z_joint |   | 0 0 1 |   | Z_axis |
+.fi
+
+Adjusting the calibration matrix allows compensating out many
+mechanical issues, including:
+
+  1. Scale error of each axis.
+  2. Perpendicularity between each pair of axes.
+  3. Parallelism between spindle rotational axis and Z movement.
+  4. Perpendicularity between spindle rotational axis and X/Y movement.
+
+The matrix coefficients are set by parameters C_xx .. C_zz.
+For 3 axis machine, the equations become:
+
+.nf
+X_joint = C_xx * X_axis + C_xy * Y_axis + C_xz * Z_axis
+Y_joint = C_yx * X_axis + C_yy * Y_axis + C_yz * Z_axis
+Z_joint = C_zx * X_axis + C_zy * Y_axis + C_zz * Z_axis
+.fi
+
+If the machine has more than 3 axes, the rest are passed through
+without adjustment.
+
+\\fBCALIBRATION INSTRUCTIONS:\\fR
+
+For a 3 axis milling machine, the following process can be used to accurately
+measure and compensate the mechanical alignment.
+
+Tools required:
+
+  1. Dial indicator that can be mounted on spindle.
+  2. Straight rod that can be mounted on spindle.
+  3. Calipers.
+
+Process:
+
+\\fB1. Head tramming\\fR
+
+Mechanically tram the spindle to the table surface as well as you can.
+The perpendicularity of spindle vs. table cannot be compensated in software,
+and the spindle axis will act as the reference for all further steps.
+
+You can measure the perpendicularity by mounting the dial indicator on
+the spindle. Search for "mill tramming" online for detailed process.
+
+\\fB2. X and Y axis squaring\\fR
+
+Cut octagon out of some rigid material. It is best to cut a roughing path
+first and a thin finishing pass last, to get the best accuracy. Make the
+octagon as large as your calipers can measure. Before unmounting the
+workpiece, mark the X and Y directions on it.
+
+Measure width along X and Y axes. If your axis scales are set correctly,
+they should be identical. If they are not, you can adjust c[0] and c[4] to
+compensate. Note that endmill diameter will affect the actual dimensions
+of the test octagon, but not the ratio between sides.
+
+Measure width along both diagonals.
+If the X and Y axes are square to each other, the readings should be identical.
+
+To compensate, set
+C_xy = (B^2 - A^2) / (2 * A * B)
+where A is the diagonal in X+/Y+ direction and B is the diagonal in X+/Y- direction.
+
+This adjusts Y axis direction while keeping X axis as it was.
+Alternatively you can set C_yx to adjust X axis instead.
+The choice affects alignment with respect to e.g. table slots.
+
+\\fB3. X axis squaring to spindle\\fR
+
+Mount the dial indicator so that it rotates around the spindle axis, like in tramming measurement.
+Mark a spot on the table where the indicator touches when it is in positive X direction from spindle center.
+Zero the dial indicator.
+
+Rotate dial indicator 180 degrees around the spindle.
+Move X axis in positive direction until the indicator touches the same spot.
+Ideally indicator reads 0 again.
+
+To compensate, set
+C_zx = D / X
+where D is the new dial indicator reading, and X is the length moved along X axis.
+
+\\fB4. Y axis squaring to spindle\\fR
+
+Same as step 3, except move the machine in positive Y direction.
+
+To compensate, set
+C_zy = D / Y
+where D is the new dial indicator reading, and Y is the length moved.
+
+\\fB5. Z axis parallelism to spindle in X direction\\fR
+
+Mount straight rod to the spindle.
+Position dial indicator so that it measures horizontally against the positive X side of the rod, close to the spindle.
+
+Spin the spindle by hand to see if there is any runout.
+Zero the dial indicator at the midway position.
+
+Raise Z axis until dial indicator measures close to the bottom end of the rod.
+Spin the spindle by hand and take note of the midway value.
+
+Set
+C_xz = - X / Z
+where X is the dial indicator difference between bottom and top and Z is the amount you raised the Z axis.
+
+\\fB6. Z axis parallelism to spindle in Y direction\\fR
+
+Same as step 5, except measure on the positive Y side of the rod.
+
+Set
+C_yz = - Y / Z
+where Z is the dial indicator difference and Z is the amount you raised the Z axis.
+
+\\fBCONFIGURATION FILES:\\fR
+
+Specify matrixkins in LinuxCNC INI file as:
+
+.nf
+\\fB[KINS]\\fR
+\\fBKINEMATICS=matrixkins\\fR
+.fi
+
+In your HAL configuration file, set the parameters C_xx .. C_zz:
+
+.nf
+\\fB setp matrixkins.C_xx 1 \\fR  # X axis scale
+\\fB setp matrixkins.C_xy 0 \\fR  # Skew Y axis towards X axis
+\\fB setp matrixkins.C_xz 0 \\fR  # Skew Z axis towards X axis
+\\fB setp matrixkins.C_yx 0 \\fR  # Skew X axis towards Y axis
+\\fB setp matrixkins.C_yy 1 \\fR  # Y axis scale
+\\fB setp matrixkins.C_yz 0 \\fR  # Skew Z axis towards Y axis
+\\fB setp matrixkins.C_zx 0 \\fR  # Skew X axis towards Z axis
+\\fB setp matrixkins.C_zy 0 \\fR  # Skew Y axis towards Z axis
+\\fB setp matrixkins.C_zz 1 \\fR  # Z axis scale
+.fi
+
+The parameters can be modified during runtime using halcmd.
+To avoid sudden movements, it is better to turn off machine power before changes.
+
+If recalibration is performed with already existing calibration being in effect,
+the adjustment values should be added to the old values instead of replacing them.
+
+""";
+see_also "kins(9)";
+pin out bit dummy=1; // halcompile requires at least one pin
+license "GPL";
+;;
+
+static struct haldata {
+    hal_float_t C_xx;
+    hal_float_t C_xy;
+    hal_float_t C_xz;
+    hal_float_t C_yx;
+    hal_float_t C_yy;
+    hal_float_t C_yz;
+    hal_float_t C_zx;
+    hal_float_t C_zy;
+    hal_float_t C_zz;
+} *haldata;
+
+static int matrixkins_setup(void) {
+    int res=0;
+
+    // inherit comp_id from rtapi_main()
+    if (comp_id < 0) goto error;
+
+    res = hal_set_unready(comp_id);
+    if (res) goto error;
+
+    haldata = hal_malloc(sizeof(struct haldata));
+    if (!haldata) goto error;
+
+    res |= hal_param_float_new("matrixkins.C_xx", HAL_RW, &haldata->C_xx, comp_id);
+    res |= hal_param_float_new("matrixkins.C_xy", HAL_RW, &haldata->C_xy, comp_id);
+    res |= hal_param_float_new("matrixkins.C_xz", HAL_RW, &haldata->C_xz, comp_id);
+    res |= hal_param_float_new("matrixkins.C_yx", HAL_RW, &haldata->C_yx, comp_id);
+    res |= hal_param_float_new("matrixkins.C_yy", HAL_RW, &haldata->C_yy, comp_id);
+    res |= hal_param_float_new("matrixkins.C_yz", HAL_RW, &haldata->C_yz, comp_id);
+    res |= hal_param_float_new("matrixkins.C_zx", HAL_RW, &haldata->C_zx, comp_id);
+    res |= hal_param_float_new("matrixkins.C_zy", HAL_RW, &haldata->C_zy, comp_id);
+    res |= hal_param_float_new("matrixkins.C_zz", HAL_RW, &haldata->C_zz, comp_id);
+
+    haldata->C_xx = haldata->C_yy = haldata->C_zz = 1.0;
+    haldata->C_xy = haldata->C_xz = 0.0;
+    haldata->C_yx = haldata->C_yz = 0.0;
+    haldata->C_zx = haldata->C_zy = 0.0;
+
+    if (res) goto error;
+
+    res = hal_ready(comp_id);
+    if (res) goto error;
+
+    rtapi_print("*** %s setup ok\n",__FILE__);
+    return 0;
+error:
+    rtapi_print("\n!!! %s setup failed res=%d\n\n",__FILE__,res);
+    return -1;
+}
+
+#include "kinematics.h"
+#include "emcmotcfg.h"
+
+KINS_NOT_SWITCHABLE
+EXPORT_SYMBOL(kinematicsType);
+EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsForward);
+
+KINEMATICS_TYPE kinematicsType()
+{
+    static bool is_setup=0;
+    if (!is_setup) matrixkins_setup();
+    return KINEMATICS_BOTH;
+}
+
+int kinematicsForward(const double *j,
+                      EmcPose * pos,
+                      const KINEMATICS_FORWARD_FLAGS * fflags,
+                      KINEMATICS_INVERSE_FLAGS * iflags)
+{
+    // For forward kinematics (joint to axis position) we
+    // need the inverse of the 3x3 matrix.
+    //
+    // Refer to e.g.
+    // https://ardoris.wordpress.com/2008/07/18/general-formula-for-the-inverse-of-a-3x3-matrix/
+    // https://en.wikipedia.org/wiki/Invertible_matrix#Inversion_of_3_%C3%97_3_matrices
+
+    double a = haldata->C_xx;
+    double b = haldata->C_xy;
+    double c = haldata->C_xz;
+    double d = haldata->C_yx;
+    double e = haldata->C_yy;
+    double f = haldata->C_yz;
+    double g = haldata->C_zx;
+    double h = haldata->C_zy;
+    double i = haldata->C_zz;
+
+    double det = a * (e * i - f * h)
+               - b * (d * i - f * g)
+               + c * (d * h - e * g);
+    double invdet = 1.0 / det;
+
+    // Apply inverse matrix transform to the 3 cartesian coordinates
+    pos->tran.x = invdet * ( (e * i - f * h) * j[0]
+                            +(c * h - b * i) * j[1]
+                            +(b * f - c * e) * j[2]);
+
+    pos->tran.y = invdet * ( (f * g - d * i) * j[0]
+                            +(a * i - c * g) * j[1]
+                            +(c * d - a * f) * j[2]);
+
+    pos->tran.z = invdet * ( (d * h - e * g) * j[0]
+                            +(b * g - a * h) * j[1]
+                            +(a * e - b * d) * j[2]);
+
+    // Pass rest of axes as identity
+    if (EMCMOT_MAX_JOINTS > 3) pos->a = j[3];
+    if (EMCMOT_MAX_JOINTS > 4) pos->b = j[4];
+    if (EMCMOT_MAX_JOINTS > 5) pos->c = j[5];
+    if (EMCMOT_MAX_JOINTS > 6) pos->u = j[6];
+    if (EMCMOT_MAX_JOINTS > 7) pos->v = j[7];
+    if (EMCMOT_MAX_JOINTS > 8) pos->w = j[8];
+
+    return 0;
+}
+
+int kinematicsInverse(const EmcPose * pos,
+                      double *j,
+                      const KINEMATICS_INVERSE_FLAGS * iflags,
+                      KINEMATICS_FORWARD_FLAGS * fflags)
+{
+    double a = haldata->C_xx;
+    double b = haldata->C_xy;
+    double c = haldata->C_xz;
+    double d = haldata->C_yx;
+    double e = haldata->C_yy;
+    double f = haldata->C_yz;
+    double g = haldata->C_zx;
+    double h = haldata->C_zy;
+    double i = haldata->C_zz;
+
+    // Apply matrix transform to the 3 cartesian coordinates
+    j[0] = pos->tran.x * a + pos->tran.y * b + pos->tran.z * c;
+    j[1] = pos->tran.x * d + pos->tran.y * e + pos->tran.z * f;
+    j[2] = pos->tran.x * g + pos->tran.y * h + pos->tran.z * i;
+
+    // Pass rest of axes as identity
+    if (EMCMOT_MAX_JOINTS > 3) j[3] = pos->a;
+    if (EMCMOT_MAX_JOINTS > 4) j[4] = pos->b;
+    if (EMCMOT_MAX_JOINTS > 5) j[5] = pos->c;
+    if (EMCMOT_MAX_JOINTS > 6) j[6] = pos->u;
+    if (EMCMOT_MAX_JOINTS > 7) j[7] = pos->v;
+    if (EMCMOT_MAX_JOINTS > 8) j[8] = pos->w;
+
+    return 0;
+}

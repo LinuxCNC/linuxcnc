@@ -376,6 +376,9 @@ ACTION.BEEP_START():
 
 ACTION.SET_DISPLAY_MESSAGE(string)
 ACTION.SET_ERROR_MESSAGE(string)
+
+ACTION.TOUCHPLATE_TOUCHOFF(search_vel, probe_vel, max_probe,
+       z_offset, retract_distance, z_safe_travel, rtn_method=None, error_rtn = None)
 ----
 
 == `Tool`

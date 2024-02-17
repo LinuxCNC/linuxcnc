@@ -1,0 +1,32 @@
+to run a config using the new pyvcp bar widgets
+is like othe configs
+
+you will create an .ini, a custon.hal, and xnl
+and
+uf you want graphical thumbs ( the marker that moves aloong the bar)
+ you will need to create a small python tkinter .py file that draws the marker
+ ( and set the tag' dwgf to that file spec )
+ or creates/copy a suitible png file
+ ( and set the tag 'imgf' to that file spec )
+
+i used a full file spec for imgf
+i placed my .dwg file alomgside pyvcp_widgets.py
+  which is in /lib/python3/dist_packages/   for NON RIP
+  and is in ~/linuxcnc-dev/configs/tomp/NuPyvcpBars/  for me ( ymmv)
+
+my test .imi is  pyTktab04.ini
+   the .ini will use AXIS gui and create a pyvcp tab with many aniumated bars
+   the ini expects local file  bars.xml ( same dir as .ini)
+   the .ini's PROGRAM_PREFIX must be adapted to your situation
+   the .ini [FILTER} section was chamghed to   py - python3   izzat necc/good?
+   the .ini [HAL] section has  POSTGUI_HALFILE = custom4.hal
+
+place bars.xml in same dir as .ini
+
+place custom4.hal in same dir as .ini
+
+custom4.gal requires rand9
+  a python hal comp that is a random number generator 
+    used to to drive bar widgets
+    so ramd9 must be with the other hal comps 
+

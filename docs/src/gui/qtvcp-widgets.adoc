@@ -585,18 +585,25 @@ These set _attributes_ of the selected action (availability depends on the widge
 *`command string`*::
   MDI command string that will be invoked if the MDI command action is selected.
 *`ini_mdi_number`*::
+  (Legacy way) +
   A reference to the _INI file_ `[MDI_COMMAND_LIST]` section. +
   Set an integer of select one line under the INI`s `[MDI_COMMAND]` line starting at 0. +
   Then in the INI file, under the heading `[MDI_COMMAND_LIST]` add appropriate lines. +
-  The commands are separated by the `;`. +
-  The `label` is set after the comma, and `\n` symbol adds a line break.
-//FIXME Space after comma or not ?
+  Commands separated by the `;` will be run one after another +
+  The button label text can be set with any text after a comma, the `\n` symbol adds a line break.
 
+*`ini_mdi_key`*::
+  (preferred way) +
+  A reference to the _INI file_ `[MDI_COMMAND_LIST]` section. +
+  This string will be added to 'MDI_COMMAND_' to form an entry to look for +
+  in the INI file, under the heading `[MDI_COMMAND_LIST]`. +
+  Commands separated by the `;` will be run one after another +
+  The button label text can be set with any text after a comma, the `\n` symbol adds a line break.
 [source,{ini}]
 ----
 [MDI_COMMAND_LIST]
-MDI_COMMAND = G0 Z25;X0 Y0;Z0, Goto\nUser\nZero
-MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0, Goto\nMachn\nZero
+MDI_COMMAND_MACRO0 = G0 Z25;X0 Y0;Z0, Goto\nUser\nZero
+MDI_COMMAND_MACRO1 = G53 G0 Z0;G53 G0 X0 Y0, Goto\nMachn\nZero
 ----
 
 //FIXME add link to Indicated_PushButton section
@@ -942,6 +949,17 @@ GCodeGraphics{
 ----
 #gcodegraphics{
     qproperty-overlay_color: blue;
+}
+----
+
+*`overlay_alpha`* _(float)_::
+  Sets the _default overlay alpha value_. This affects the opacity of the overlay when set between 0.0 and 1.0. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
+----
+#gcodegraphics{
+    qproperty-overlay_alpha: 0.15;
 }
 ----
 
@@ -1466,16 +1484,6 @@ self.w.screen_options.setProperty('play_sounds_option',False)
 /* the # sign is used to refer to Qt Designer defined widget name */
 /* matches/applied to only this named widget */
 #screen_options {
-  qproperty-close_overlay_color: rgba(0, 255, 0, 0.75)
-}
-----
-+
-[source,{css}]
-----
-/* red, green, blue 0-255, alpha 0-100% or 0.0 to 1.0 */
-/* use widget class name */
-/* matches/applied to all widgets of this class */
-ScreenOptions {
   qproperty-close_overlay_color: rgba(0, 255, 0, 0.75)
 }
 ----
@@ -2722,10 +2730,10 @@ self.w.joypadename.setProperty('false_color','red')
 ----
 
 === 'WebWidget'
-This widget will create a html/pdf viewing page using the QtWebKit or 
-QtWebEngine libraries. The newer QtWebEngine is preferred if both are on the system. +
-If the QtWebEngine library is used with the QtDesigner editor, a placeholder QWidget will show in Qesigner.
-This will be replaced with thw QtWebEngine widget at run time.
+This widget will create a html/pdf viewing page using the QtWebKit or QtWebEngine libraries.
+The newer QtWebEngine is preferred if both are on the system. +
+If the QtWebEngine library is used with the Qt Designer editor, a placeholder QWidget will show in Qesigner.
+This will be replaced with the QtWebEngine widget at run time.
 
 [[sec:qtvcp:widgets:baseclass-mixin]]
 == BaseClass/Mixin Widgets

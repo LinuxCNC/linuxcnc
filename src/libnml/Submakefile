@@ -11,7 +11,7 @@ LIBNMLSRCS := $(addprefix libnml/, \
 	cms/cms_pm.cc cms/cms_srv.cc cms/cms_up.cc cms/cms_xup.cc \
 	cms/cmsdiag.cc cms/tcp_opts.cc cms/tcp_srv.cc \
 \
-	nml/cmd_msg.cc nml/nml_mod.cc nml/nml_oi.cc nml/nml_srv.cc nml/nml.cc \
+	nml/cmd_msg.cc nml/nml_oi.cc nml/nml_srv.cc nml/nml.cc \
 	nml/nmldiag.cc nml/nmlmsg.cc nml/stat_msg.cc \
 \
 	linklist/linklist.cc)

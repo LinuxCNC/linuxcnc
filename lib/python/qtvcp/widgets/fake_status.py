@@ -74,8 +74,6 @@ class fakeStatus():
         self.kinematics_type = 1
         self.limit = (0, 0, 0, 0, 0, 0, 0, 0, 0)
         self.linear_units = 0.0393700787402
-        self.lube = 0
-        self.lube_level = 0
         self.max_acceleration = 0.0
         self.max_velocity = 0.0
         self.mcodes = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0)

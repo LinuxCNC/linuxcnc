@@ -1,8 +1,8 @@
 '''
 updater.py
 
-Copyright (C) 2020, 2021  Phillip A Carter
-Copyright (C) 2020, 2021  Gregory D Carl
+Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
+Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -21,6 +21,52 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import os
 from shutil import copy as COPY
+
+###########################################################################################################
+# set user_m_path to include ../../nc_files/plasmac/m_files (pre V2.10-001.017 2024/01/23)                #
+###########################################################################################################
+def insert_user_m_path(configPath, simPath):
+    try:
+        if os.path.isfile(os.path.join(configPath, 'M190')):
+            os.rename(os.path.join(configPath, 'M190'), os.path.join(configPath, 'M190.bak'))
+        if simPath and os.path.isfile(os.path.join(simPath, 'M190')):
+            os.remove(os.path.join(simPath, 'M190'))
+        return(False, False, '')
+    except Exception as e:
+        return(False, True, e)
+
+def insert_user_m_path_iniwrite(inifile, data=None):
+    try:
+        tmpFile = f'{inifile}~'
+        COPY(inifile, tmpFile)
+        with open(tmpFile, 'r') as inFile:
+            with open(inifile, 'w') as outFile:
+                for line in inFile:
+                    if line.startswith('USER_M_PATH'):
+                        line = line.split('=')[1].strip().replace('./:', '')
+                        if line.endswith('./'):
+                            line = line[:-2]
+                        line = f'USER_M_PATH             = ./:{data}:{line}\n'
+                    outFile.write(line)
+        if os.path.isfile(tmpFile):
+            os.remove(tmpFile)
+    except Exception as e:
+        return(False, True, e)
+    return(True, False, 'Updated to V2.10-001.017')
+
+
+###########################################################################################################
+# change runcritical to cutcritical in <machine_name>.prefs file (pre V2.10-001.015 2023/12/23)           #
+###########################################################################################################
+def rename_runcritical(prefs):
+    with open(prefs, 'r+') as file:
+        text = file.read()
+        text = text.replace('runcritical', 'cutcritical')
+        file.seek(0)
+        file.truncate()
+        file.write(text)
+    return(False, False, 'Updated to V2.10-001.015')
+
 
 ###########################################################################################################
 # move default material from prefs file to material 0 in materials file (pre V2.9-236.278 2023/07/07)       #
@@ -174,7 +220,7 @@ def move_options_to_prefs_file_iniwrite(inifile):
             os.remove(tmpFile)
     except Exception as e:
         return(False, True, e)
-    return(True, False, 'Updated to V1.227.219')
+    return(True, False, 'Updated to V2.9-227.219')
 
 def get_offsets(data, oType):
     x = y = d = 0

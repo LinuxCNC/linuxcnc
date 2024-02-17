@@ -1,12 +1,12 @@
-VERSION = '236.300'
-LCNCVER = '2.9'
+VERSION = '003.023'
+LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
 '''
 qtplasmac_handler.py
 
-Copyright (C) 2020, 2021, 2022, 2023  Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023  Gregory D Carl
+Copyright (C) 2020, 2021, 2022, 2023, 2024 Phillip A Carter
+Copyright (C) 2020, 2021, 2022, 2023, 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -120,17 +120,16 @@ class HandlerClass:
         self.PATHS = paths
         self.iniFile = INFO.INI
         self.foreColor = '#ffee06'
-        # ensure M190 exists in config directory
-        if not os.path.isfile(os.path.join(self.PATHS.CONFIGPATH, 'M190')):
-            if '/usr' in self.PATHS.BASEDIR:
-                m190Path = os.path.join(self.PATHS.BASEDIR, 'share/doc/linuxcnc/examples/sample-configs/sim/qtplasmac')
-            else:
-                m190Path = os.path.join(self.PATHS.BASEDIR, 'configs/sim/qtplasmac')
-            # M190 already exists for RIP sims
-            if os.path.realpath(m190Path) != os.path.realpath(self.PATHS.CONFIGPATH):
-                COPY(os.path.join(m190Path, 'M190'), os.path.join(self.PATHS.CONFIGPATH, 'M190'))
+        # ensure that M190 exists in the USER_M_PATH
+        self.mPath = self.iniFile.find('RS274NGC', 'USER_M_PATH').split(':')
+        for path in self.mPath:
+            if path.startswith('.'):
+                path = os.path.join(self.PATHS.CONFIGPATH, path)
+            if os.path.isfile(os.path.join(path, 'M190')):
+                self.mPath = False
+                break
         self.machineName = self.iniFile.find('EMC', 'MACHINE')
-        self.machineTitle = '{} - QtPlasmaC v{}-{}, powered by QtVCP and LinuxCNC'.format(self.machineName, LCNCVER, VERSION)
+        self.machineTitle = f'{self.machineName} - QtPlasmaC v{LCNCVER}-{VERSION}, powered by QtVCP and LinuxCNC'
         self.prefsFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')
         self.materialFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '_material.cfg')
         self.unitsPerMm = 1
@@ -144,7 +143,7 @@ class HandlerClass:
             self.PREFS = Access(self.prefsFile)
         else:
             self.PREFS = None
-        self.updateIni = []
+        self.updateIni = {}
         self.updateData = []
         self.update_check()
         self.PREFS = Access(self.prefsFile)
@@ -156,7 +155,7 @@ class HandlerClass:
         if os.path.basename(self.PATHS.XML) == 'qtplasmac_9x16.ui':
             self.landscape = False
         self.upFile = os.path.join(self.PATHS.CONFIGPATH, 'user_periodic.py')
-        self.umUrl = QUrl('http://linuxcnc.org/docs/{}/html/plasma/qtplasmac.html'.format(DOCSVER))
+        self.umUrl = QUrl(f'http://linuxcnc.org/docs/{DOCSVER}/html/plasma/qtplasmac.html')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_F9','on_keycall_F9')
         KEYBIND.add_call('Key_Plus', 'on_keycall_PLUS')
@@ -165,6 +164,7 @@ class HandlerClass:
         KEYBIND.add_call('Key_Any', 'on_keycall_PAUSE')
         KEYBIND.add_call('Key_o', 'on_keycall_OPEN')
         KEYBIND.add_call('Key_l', 'on_keycall_LOAD')
+        KEYBIND.add_call('Key_j', 'on_keycall_JOINT')
         KEYBIND.add_call('Key_1', 'on_keycall_NUMBER', 1)
         KEYBIND.add_call('Key_Exclam', 'on_keycall_NUMBER', 1)
         KEYBIND.add_call('Key_2', 'on_keycall_NUMBER', 2)
@@ -198,7 +198,11 @@ class HandlerClass:
         KEYBIND.add_call('Key_Enter', 'on_keycall_RETURN')
         KEYBIND.add_call('Key_QuoteLeft', 'on_keycall_QUOTELEFT')
         KEYBIND.add_call('Key_AsciiTilde', 'on_keycall_QUOTELEFT')
-        self.axisList = [x.lower() for x in INFO.AVAILABLE_AXES]
+        self.axes = {'valid': [x.lower() for x in INFO.AVAILABLE_AXES]}
+        for axis in 'abc':
+            self.axes[axis] = []
+            for n in ['dro_0', 'dro_label_0', 'home_0', 'touch_0', 'jog_0_plus', 'jog_0_minus']:
+                self.axes[axis].append(n.replace('0', axis))
         self.systemList = ['G53','G54','G55','G56','G57','G58','G59','G59.1','G59.2','G59.3']
         self.slowJogFactor = 10
         self.jogFast = False
@@ -206,11 +210,10 @@ class HandlerClass:
         self.lastLoadedProgram = 'None'
         self.set_interlock_defaults()
         self.pausedValidList= []
-        self.jogButtonList = ['jog_x_plus', 'jog_x_minus', 'jog_y_plus', 'jog_y_minus', 'jog_z_plus', \
-                              'jog_z_minus', 'jog_a_plus', 'jog_a_minus', 'jog_b_plus', 'jog_b_minus']
+        self.jogButtonList = ['jog_x_plus', 'jog_x_minus', 'jog_y_plus', 'jog_y_minus', \
+                              'jog_z_plus', 'jog_z_minus', 'jog_a_plus', 'jog_a_minus', \
+                              'jog_b_plus', 'jog_b_minus', 'jog_c_plus', 'jog_c_minus']
         self.jogSyncList = []
-        self.axisAList = ['dro_a', 'dro_label_a', 'home_a', 'touch_a', 'jog_a_plus', 'jog_a_minus']
-        self.axisBList = ['dro_b', 'dro_label_b', 'home_b', 'touch_b', 'jog_b_plus', 'jog_b_minus']
         self.xMin = float(self.iniFile.find('AXIS_X', 'MIN_LIMIT'))
         self.xMax = float(self.iniFile.find('AXIS_X', 'MAX_LIMIT'))
         self.yMin = float(self.iniFile.find('AXIS_Y', 'MIN_LIMIT'))
@@ -221,13 +224,16 @@ class HandlerClass:
         self.yLen = self.yMax - self.yMin
         self.thcFeedRate = float(self.iniFile.find('AXIS_Z', 'MAX_VELOCITY')) * \
                            float(self.iniFile.find('AXIS_Z', 'OFFSET_AV_RATIO')) * 60
+        self.offsetFeedRate = min(float(self.iniFile.find('AXIS_X', 'MAX_VELOCITY')) * 30, \
+                                  float(self.iniFile.find('AXIS_Y', 'MAX_VELOCITY')) * 30, \
+                                  float(self.iniFile.find('TRAJ', 'MAX_LINEAR_VELOCITYs') or 100000))
         self.maxHeight = self.zMax - self.zMin
         self.maxPidP = self.thcFeedRate / self.unitsPerMm * 0.1
         self.tmpPath = '/tmp/qtplasmac/'
         if not os.path.isdir(self.tmpPath):
             os.mkdir(self.tmpPath)
-        self.tmpMaterialGcode = '{}{}_material.gcode'.format(self.tmpPath, self.machineName)
-        self.gcodeErrorFile = '{}gcode_errors.txt'.format(self.tmpPath)
+        self.tmpMaterialGcode = f'{self.tmpPath}{self.machineName}_material.gcode'
+        self.gcodeErrorFile = f'{self.tmpPath}gcode_errors.txt'
         self.materialUpdate = False
         self.autoChange = False
         self.pmx485Exists = False
@@ -239,11 +245,11 @@ class HandlerClass:
         self.currentX = self.currentY = 0
         self.degreeSymbol = u"\u00b0"
         self.cameraOn = False
-        self.fTmp = '{}temp.ngc'.format(self.tmpPath)
-        self.fNgc = '{}shape.ngc'.format(self.tmpPath)
-        self.fNgcBkp = '{}backup.ngc'.format(self.tmpPath)
-        self.fNgcSent = '{}sent_shape.ngc'.format(self.tmpPath)
-        self.filteredBkp = '{}filtered_bkp.ngc'.format(self.tmpPath)
+        self.fTmp = f'{self.tmpPath}temp.ngc'
+        self.fNgc = f'{self.tmpPath}shape.ngc'
+        self.fNgcBkp = f'{self.tmpPath}backup.ngc'
+        self.fNgcSent = f'{self.tmpPath}sent_shape.ngc'
+        self.filteredBkp = f'{self.tmpPath}filtered_bkp.ngc'
         self.oldConvButton = False
         self.convWidgetsLoaded = False
         self.programPrefix = self.iniFile.find('DISPLAY', 'PROGRAM_PREFIX') or os.environ['LINUXCNC_NCFILES_DIR']
@@ -262,7 +268,8 @@ class HandlerClass:
         self.probeOn = False
         self.gcodeProps = {}
         self.framing = False
-        self.boundsError = {'loaded': False, 'framing': False, 'align': False}
+        self.fileBoundsError = False
+        self.probeBoundsError = False
         self.obLayout = ''
         self.notifyColor = 'normal'
         self.firstHoming = False
@@ -324,10 +331,26 @@ class HandlerClass:
 
 # called by qtvcp.py
     def initialized__(self):
-        if linuxcnc.version.rsplit('.', 1)[0] != LCNCVER:
+        if '.'.join(linuxcnc.version.split('.')[:2]) != LCNCVER:
             msg0 = _translate('HandlerClass', 'LinuxCNC version should be')
             msg1 = _translate('HandlerClass', 'The detected version is')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{} {}\n{} {}'.format(msg0, LCNCVER, msg1, linuxcnc.version.rsplit('.', 1)[0]))
+            msg2 = _translate('HandlerClass', 'QtPlasmac is closing')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{msg0} {LCNCVER}\n\n{msg1} {linuxcnc.version.split(".")[:2]}\n\n{msg2}')
+            quit()
+        if self.mPath:
+            msg0 = _translate('HandlerClass', 'cannot be found in the path')
+            msg1 = _translate('HandlerClass', 'Please edit [RS274NGC]USER_M_PATH in the .ini file')
+            msg2 = _translate('HandlerClass', 'QtPlasmac is closing')
+            msg3 = _translate('HandlerClass', 'does exist in')
+            if os.path.isfile(os.path.join(self.PATHS.CONFIGPATH, '../../ncfiles/plasmac/m_files', 'M190')):
+                mPath = '../../linuxcnc/ncfiles/'
+            elif os.path.isfile(os.path.join(self.PATHS.BASEDIR, 'nc_files/plasmac/m_files', 'M190')):
+                mPath = os.path.realpath(os.path.join(self.PATHS.BASEDIR, 'nc_files/plasmac/m_files'))
+            else:
+                mPath = ''
+                msg3 = _translate('HandlerClass', 'does not exist in the default locations')
+            msg4 = f'\n\nM190 {msg3} {mPath}'
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'M190 {msg0} {":".join(self.mPath)}\n\n{msg1}{msg4}\n\n{msg2}')
             quit()
         ucFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.py')
         if os.path.isfile(ucFile):
@@ -335,7 +358,7 @@ class HandlerClass:
         # ensure we get all startup errors
         STATUS.connect('error', self.error_update)
         STATUS.connect('graphics-gcode-error', lambda o, e:self.error_update(o, linuxcnc.OPERATOR_ERROR, e))
-        STATUS.emit('update-machine-log', '--- {} ---'.format(self.machineTitle), None)
+        STATUS.emit('update-machine-log', f'--- {self.machineTitle} ---', None)
         self.make_hal_pins()
         self.init_preferences()
         self.hide_widgets()
@@ -419,6 +442,7 @@ class HandlerClass:
         else:
             self.mdiLast = None
         self.w.mdihistory.MDILine.spindle_inhibit(True)
+        self.w.mdihistory.MDILine.g92_inhibit(True)
         if self.updateIni:
             self.update_iniwrite()
         updateLog = os.path.join(self.PATHS.CONFIGPATH, 'update_log.txt')
@@ -429,8 +453,8 @@ class HandlerClass:
             with open(updateLog, 'a') as f:
                 for update in self.updateData:
                     if update[2]:
-                        f.write('{} {}\n'.format(time.strftime('%y-%m-%d'), update[2]))
-                        msgText += '{}\n'.format(update[2])
+                        f.write(f'{time.strftime("%y-%m-%d")} {update[2]}\n')
+                        msgText += f'{update[2]}\n'
                         if update[0]: restart = True
                         if update[1]: msgType = linuxcnc.OPERATOR_ERROR
             STATUS.emit('error', msgType, msgText)
@@ -439,7 +463,7 @@ class HandlerClass:
 
         if not os.path.isfile(updateLog):
             with open(updateLog, 'w') as f:
-                f.write('{} Initial    V{}-{}\n'.format(time.strftime('%y-%m-%d'), LCNCVER, VERSION))
+                f.write(f'{time.strftime("%y-%m-%d")} Initial    V{LCNCVER}-{VERSION}\n')
         self.startupTimer.start(250)
 
 # called by qtvcp.py, can override qtvcp settings or qtvcp allowed user options (via INI)
@@ -480,8 +504,8 @@ class HandlerClass:
             ACTION.OPEN_PROGRAM(fname)
             STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
         except Exception as e:
-            LOG.error("Load file error: {}".format(e))
-            STATUS.emit('error', linuxcnc.NML_ERROR, "Load file error: {}".format(e))
+            LOG.error(f'Load file error: {e}')
+            STATUS.emit('error', linuxcnc.NML_ERROR, f'Load file error: {e}')
 
 # patched gcode editor functions
     def gcode_editor_patch(self):
@@ -525,20 +549,21 @@ class HandlerClass:
     # modify the closing of the gcode editor
     def new_exitCall(self, index):
         proceed = self.editor_close_check()
-        if proceed:
-            self.w.preview_stack.setCurrentIndex(self.PREVIEW)
-            if self.fileOpened == True and self.w.gcode_editor.editor.isModified():
-                self.w.gcode_editor.editor.setModified(False)
-                self.file_reload_clicked()
-            elif self.fileOpened == True and not self.w.gcode_editor.editor.isModified():
-                self.set_run_button_state()
-            elif self.fileOpened == False:
-                self.w.gcode_editor.editor.new_text()
-                self.w.gcode_editor.editor.setModified(False)
-                self.view_t_pressed()
-            self.w.gcode_editor.editMode()
-            self.vkb_hide()
-            ACTION.SET_MANUAL_MODE()
+        if not proceed:
+            return
+        self.w.preview_stack.setCurrentIndex(self.PREVIEW)
+        if self.fileOpened == True and self.w.gcode_editor.editor.isModified():
+            self.w.gcode_editor.editor.setModified(False)
+            self.file_reload_clicked()
+        elif self.fileOpened == True and not self.w.gcode_editor.editor.isModified():
+            self.set_run_button_state()
+        elif self.fileOpened == False:
+            self.w.gcode_editor.editor.new_text()
+            self.w.gcode_editor.editor.setModified(False)
+            self.view_t_pressed()
+        self.w.gcode_editor.editMode()
+        self.vkb_hide()
+        ACTION.SET_MANUAL_MODE()
 
     # we don't use lexer colors
     def new_gcodeLexerCall(self):
@@ -565,7 +590,7 @@ class HandlerClass:
                     head = _translate('HandlerClass', 'Save Error')
                     msg0 = _translate('HandlerClass', 'The file name')
                     msg1 = _translate('HandlerClass', 'is not allowed')
-                    self.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '\n{} "{}" {}\n\n'.format(msg0, os.path.basename(path), msg1))
+                    self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{msg0} "{os.path.basename(path)}" {msg1}\n\n')
                     self.w.gcode_editor.getSaveFileName()
                     return
 
@@ -598,7 +623,7 @@ class HandlerClass:
         qp.setPen(self.w.camview.text_color)
         qp.setFont(self.w.camview.font)
         if self.w.camview.pix:
-            qp.drawText(self.w.camview.rect(), QtCore.Qt.AlignTop, '{:0.3f}{}'.format(self.w.camview.rotation, self.degreeSymbol))
+            qp.drawText(self.w.camview.rect(), QtCore.Qt.AlignTop, f'{self.w.camview.rotation:0.3f}{self.degreeSymbol}')
         else:
             qp.drawText(self.w.camview.rect(), QtCore.Qt.AlignCenter, self.w.camview.text)
 
@@ -639,17 +664,21 @@ class HandlerClass:
         self.old_flags = OFFSET_TABLE.flags
         OFFSET_TABLE.flags = self.new_flags
 
-    # we don't allow editing z axis offsets
+    # we don't allow editing z axis or g92 offsets
     def new_flags(self, index):
         if not index.isValid():
             return None
-        if index.column() == 9 and index.row() in(0, 1, 2, 3):
+        if index.column() == 9 and index.row() in (0, 1, 2, 3):
             return Qt.ItemIsEnabled
         elif index.row() == 0:
             return Qt.ItemIsEnabled
         elif index.row() == 1 and not index.column() == 2:
             return Qt.NoItemFlags
+        # prevent z axis offset editing
         elif index.column() == 2:
+            return Qt.ItemIsEnabled
+        # prevent g92 offset editing
+        elif index.row() == 2:
             return Qt.ItemIsEnabled
         else:
             return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
@@ -689,7 +718,7 @@ class HandlerClass:
             elif self.w.led_breakaway_switch.hal_pin.get():
                 text = _translate('HandlerClass', 'Breakaway Switch has aborted active jogging')
         elif self.virtualMachine and 'unexpected realtime delay' in text.lower():
-            text = 'Error suppressed:\n"{}"\nRealtime delays are expected in a virtual environment'.format(text.strip())
+            text = f'Error suppressed:\n"{text.strip()}"\nRealtime delays are expected in a virtual environment'
             self.realTimeDelay = True
         if O.desktop_notify:
             if 'on limit switch error' in text:
@@ -806,6 +835,7 @@ class HandlerClass:
         self.paramTabDisable = self.h.newpin('param_disable', hal.HAL_BIT, hal.HAL_IN)
         self.settingsTabDisable = self.h.newpin('settings_disable', hal.HAL_BIT, hal.HAL_IN)
         self.plasmacStatePin = self.h.newpin('plasmac_state', hal.HAL_S32, hal.HAL_IN)
+        self.plasmacStopPin = self.h.newpin('plasmac_stop', hal.HAL_S32, hal.HAL_IN)
         self.pmx485CurrentPin = self.h.newpin('pmx485_current', hal.HAL_FLOAT, hal.HAL_IN)
         self.pmx485CurrentMaxPin = self.h.newpin('pmx485_current_max', hal.HAL_FLOAT, hal.HAL_IN)
         self.pmx485CurrentMinPin = self.h.newpin('pmx485_current_min', hal.HAL_FLOAT, hal.HAL_IN)
@@ -827,6 +857,10 @@ class HandlerClass:
         self.yOffsetPin = self.h.newpin('y_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.zHeightPin = self.h.newpin('z_height', hal.HAL_FLOAT, hal.HAL_IN)
         self.zOffsetPin = self.h.newpin('z_offset_counts', hal.HAL_S32, hal.HAL_IN)
+        self.xMinPierceExtentPin = self.h.newpin('x_min_pierce_extent', hal.HAL_FLOAT, hal.HAL_IN)
+        self.xMaxPierceExtentPin = self.h.newpin('x_max_pierce_extent', hal.HAL_FLOAT, hal.HAL_IN)
+        self.yMinPierceExtentPin = self.h.newpin('y_min_pierce_extent', hal.HAL_FLOAT, hal.HAL_IN)
+        self.yMaxPierceExtentPin = self.h.newpin('y_max_pierce_extent', hal.HAL_FLOAT, hal.HAL_IN)
 
     def link_hal_pins(self):
         #arc parameters
@@ -857,6 +891,7 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:ohmic-probe-offset', 'qtplasmac.ohmic_probe_offset-f', 'plasmac.ohmic-probe-offset'])
         CALL(['halcmd', 'net', 'plasmac:ohmic-max-attempts', 'qtplasmac.ohmic_max_attempts-s', 'plasmac.ohmic-max-attempts'])
         CALL(['halcmd', 'net', 'plasmac:skip-ihs-distance', 'qtplasmac.skip_ihs_distance-f', 'plasmac.skip-ihs-distance'])
+        CALL(['halcmd', 'net', 'plasmac:offset-feed-rate', 'qtplasmac.offset_feed_rate-f', 'plasmac.offset-feed-rate'])
         #safety parameters
         CALL(['halcmd', 'net', 'plasmac:safe-height', 'qtplasmac.safe_height-f', 'plasmac.safe-height'])
         #scribe parameters
@@ -921,6 +956,7 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:probe-test-error', 'plasmac.probe-test-error', 'qtplasmac.probe_test_error'])
         CALL(['halcmd', 'net', 'plasmac:sensor_active', 'plasmac.sensor-active', 'qtplasmac.sensor_active'])
         CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.plasmac_state'])
+        CALL(['halcmd', 'net', 'plasmac:stop', 'plasmac.stop-type-out', 'qtplasmac.plasmac_stop'])
         CALL(['halcmd', 'net', 'plasmac:z-height', 'plasmac.z-height', 'qtplasmac.z_height'])
         CALL(['halcmd', 'net', 'plasmac:z-offset-counts', 'qtplasmac.z_offset_counts'])
         CALL(['halcmd', 'net', 'plasmac:offset-set-probe', 'plasmac.offset-set-probe', 'qtplasmac.offset_set_probe'])
@@ -946,17 +982,17 @@ class HandlerClass:
         self.w.grid_size.setValue(self.PREFS.getpref('Preview grid size', 0.0, float, 'GUI_OPTIONS'))
         self.w.table_zoom_scale.setValue(self.PREFS.getpref('T view zoom scale', 1.0, float, 'GUI_OPTIONS'))
         self.zPlusOverrideJog = self.PREFS.getpref('Override jog inhibit via Z+', False, bool, 'GUI_OPTIONS')
-        self.w.color_foregrnd.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Foreground', '#ffee06', str, 'COLOR_OPTIONS')))
-        self.w.color_foregalt.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Highlight', '#ffee06', str, 'COLOR_OPTIONS')))
-        self.w.color_led.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('LED', '#ffee06', str, 'COLOR_OPTIONS')))
-        self.w.color_backgrnd.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Background', '#16160e', str, 'COLOR_OPTIONS')))
-        self.w.color_backgalt.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Background Alt', '#36362e', str, 'COLOR_OPTIONS')))
-        self.w.color_frams.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Frames', '#ffee06', str, 'COLOR_OPTIONS')))
-        self.w.color_estop.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Estop', '#ff0000', str, 'COLOR_OPTIONS')))
-        self.w.color_disabled.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Disabled', '#b0b0b0', str, 'COLOR_OPTIONS')))
-        self.w.color_preview.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Preview', '#000000', str, 'COLOR_OPTIONS')))
+        self.w.color_foregrnd.setStyleSheet(f'background-color: {self.PREFS.getpref("Foreground", "#ffee06", str, "COLOR_OPTIONS")}')
+        self.w.color_foregalt.setStyleSheet(f'background-color: {self.PREFS.getpref("Highlight", "#ffee06", str, "COLOR_OPTIONS")}')
+        self.w.color_led.setStyleSheet(f'background-color: {self.PREFS.getpref("LED", "#ffee06", str, "COLOR_OPTIONS")}')
+        self.w.color_backgrnd.setStyleSheet(f'background-color: {self.PREFS.getpref("Background", "#16160e", str, "COLOR_OPTIONS")}')
+        self.w.color_backgalt.setStyleSheet(f'background-color: {self.PREFS.getpref("Background Alt", "#36362e", str, "COLOR_OPTIONS")}')
+        self.w.color_frams.setStyleSheet(f'background-color: {self.PREFS.getpref("Frames", "#ffee06", str, "COLOR_OPTIONS")}')
+        self.w.color_estop.setStyleSheet(f'background-color: {self.PREFS.getpref("Estop", "#ff0000", str, "COLOR_OPTIONS")}')
+        self.w.color_disabled.setStyleSheet(f'background-color: {self.PREFS.getpref("Disabled", "#b0b0b0", str, "COLOR_OPTIONS")}')
+        self.w.color_preview.setStyleSheet(f'background-color: {self.PREFS.getpref("Preview", "#000000", str, "COLOR_OPTIONS")}')
         self.lastLoadedProgram = self.w.PREFS_.getpref('RecentPath_0', 'None', str,'BOOK_KEEPING')
-        TOOLTIPS.tool_tips_changed(self.w)
+        TOOLTIPS.tool_tips_changed(self, self.w)
         self.soft_keyboard()
         self.cone_size_changed(self.w.cone_size.value())
         self.grid_size_changed(self.w.grid_size.value())
@@ -965,7 +1001,7 @@ class HandlerClass:
 
     def hide_widgets(self):
         for b in ['RUN', 'PAUSE', 'ABORT']:
-            if self.PREFS.getpref('Hide {}'.format(b.lower()), False, bool,'GUI_OPTIONS'):
+            if self.PREFS.getpref(f'Hide {b.lower()}', False, bool,'GUI_OPTIONS'):
                 self.w[b.lower()].hide()
                 if self.landscape:
                     self.w.machine_frame.setMaximumHeight(self.w.machine_frame.maximumHeight() - 44)
@@ -1025,14 +1061,14 @@ class HandlerClass:
         self.w.statusbar.addPermanentWidget(self.w.lbl_mcodes)
         self.w.lbl_mcodes.setObjectName('lbl_mcodes')
         text = _translate('HandlerClass', 'MOVE')
-        self.w.cut_rec_move_label.setText('{}\n{}'.format(text, self.w.kerf_width.text()))
+        self.w.cut_rec_move_label.setText(f'{text}\n{self.w.kerf_width.text()}')
         self.w.filemanager.windowLayout.setContentsMargins(4,0,4,0)
         self.w.filemanager.windowLayout.setSpacing(4)
         # hide load button (redundant to select button)
         self.w.filemanager.loadButton.hide()
         # for copy/paste control if required
         self.w.filemanager.copy_control.hide()
-        # add vertical and horizontal scroll bars to the materials QComboBoxs 
+        # add vertical and horizontal scroll bars to the materials QComboBoxs
         self.w.material_selector.view().setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.w.material_selector.view().setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.w.conv_material.view().setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
@@ -1113,15 +1149,15 @@ class HandlerClass:
             fr = 0
             ou = 2
         if '.' in self.w.cut_feed_rate.text() and len(self.w.cut_feed_rate.text().split('.')[0]) > 3:
-            text.append('FR: {:.{}f}'.format(float(self.w.cut_feed_rate.text().split('.')[0]) * scale, fr))
+            text.append(f'FR: {float(self.w.cut_feed_rate.text().split(".")[0]) * scale:.{fr}f}')
         else:
-            text.append('FR: {:.{}f}'.format(float(self.w.cut_feed_rate.text()) * scale, fr))
-        text.append('PH: {:.{}f}'.format(float(self.w.pierce_height.text()) * scale, ou))
-        text.append('PD: {}'.format(self.w.pierce_delay.text()))
-        text.append('CH: {:.{}f}'.format(float(self.w.cut_height.text()) * scale, ou))
-        text.append('KW: {:.{}f}'.format(float(self.w.kerf_width.text()) * scale, ou))
+            text.append(f'FR: {float(self.w.cut_feed_rate.text()) * scale:.{fr}f}')
+        text.append(f'PH: {float(self.w.pierce_height.text()) * scale:.{ou}f}')
+        text.append(f'PD: {self.w.pierce_delay.text()}')
+        text.append(f'CH: {float(self.w.cut_height.text()) * scale:.{ou}f}')
+        text.append(f'KW: {float(self.w.kerf_width.text()) * scale:.{ou}f}')
         if self.pmx485Exists:
-            text.append('CA: {}'.format(self.w.cut_amps.text()))
+            text.append(f'CA: {self.w.cut_amps.text()}')
         return text
 
     def offset_peripherals(self):
@@ -1140,7 +1176,7 @@ class HandlerClass:
         except:
             self.w.laser.hide()
             msg0 = _translate('HandlerClass', 'Invalid entry for laser offset')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n')
         if self.laserOffsetX or self.laserOffsetY:
             self.w.laser.setEnabled(False)
         else:
@@ -1152,7 +1188,7 @@ class HandlerClass:
         except:
             self.w.camera.hide()
             msg0 = _translate('HandlerClass', 'Invalid entry for camera offset')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n')
         if self.camOffsetX or self.camOffsetY:
             self.w.camview.set_camnum(self.camNum)
             self.w.camera.setEnabled(False)
@@ -1164,8 +1200,13 @@ class HandlerClass:
             self.probeOffsetY = self.PREFS.getpref('Y axis', 0.0, float, 'OFFSET_PROBING')
             self.probeDelay = self.PREFS.getpref('Delay', 0.0, float, 'OFFSET_PROBING')
         except:
+            self.w.offset_feed_rate.hide()
+            self.w.offset_feed_rate_lbl.hide()
             msg0 = _translate('HandlerClass', 'Invalid entry for probe offset')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n')
+        if not self.probeOffsetX and not self.probeOffsetY:
+            self.w.offset_feed_rate.hide()
+            self.w.offset_feed_rate_lbl.hide()
 
 # called by the modified closeEvent function in this handler
     def closing_cleanup__(self):
@@ -1207,7 +1248,7 @@ class HandlerClass:
                     os.remove(logFiles[0])
                     logFiles = logFiles[1:]
             text = self.w.machinelog.toPlainText()
-            logName = '{}/{}{}.txt'.format(self.PATHS.CONFIGPATH, logPre, time.strftime('%y-%m-%d_%H-%M-%S'))
+            logName = f'{self.PATHS.CONFIGPATH}/{logPre}{time.strftime("%y-%m-%d_%H-%M-%S")}.txt'
             with open(logName, 'w') as f:
                 f.write(text)
 
@@ -1328,11 +1369,11 @@ class HandlerClass:
 
     def buttons_hide(self, first, last):
         for b in range(first, last + 1):
-            self.w['button_{}'.format(b)].hide()
+            self.w[f'button_{b}'].hide()
 
     def buttons_show(self, first, last):
         for b in range(first, last + 1):
-            self.w['button_{}'.format(b)].show()
+            self.w[f'button_{b}'].show()
 
 
 #########################################################################################################################
@@ -1428,7 +1469,7 @@ class HandlerClass:
     def set_run_button_state(self):
         if STATUS.machine_is_on() and STATUS.is_all_homed() and \
            STATUS.is_interp_idle() and not self.offsetsActivePin.get() and \
-           self.plasmacStatePin.get() == 0 and not self.boundsError['loaded'] and not self.fileClear:
+           self.plasmacStatePin.get() == 0 and not self.fileBoundsError and not self.probeBoundsError and not self.fileClear:
             if self.w.gcode_display.lines() > 1:
                 self.w.run.setEnabled(True)
                 if self.frButton:
@@ -1443,7 +1484,7 @@ class HandlerClass:
             self.w.abort.setEnabled(False)
         else:
             self.w.run.setEnabled(False)
-            if self.frButton:
+            if self.frButton and self.fileBoundsError:
                 self.w[self.frButton].setEnabled(False)
 
     def set_jog_button_state(self):
@@ -1526,7 +1567,7 @@ class HandlerClass:
 
     def jog_rate_changed(self, object, value):
         msg0 = _translate('HandlerClass', 'JOG')
-        self.w.jogs_label.setText('{}\n{:.0f}'.format(msg0, STATUS.get_jograte()))
+        self.w.jogs_label.setText(f'{msg0}\n{STATUS.get_jograte():.0f}')
 
     def progress_changed(self, object, percent):
         if percent < 0:
@@ -1544,7 +1585,7 @@ class HandlerClass:
 
     def user_system_changed(self, obj, data):
         sys = self.systemList[int(data)]
-        self.w.wcs_button.setText('WCS\n{}'.format(sys))
+        self.w.wcs_button.setText(f'WCS\n{sys}')
         if ACTION.prefilter_path:
             self.file_reload_clicked()
 
@@ -1561,7 +1602,7 @@ class HandlerClass:
             self.w.file_open.setText(os.path.basename(filename))
             self.fileOpened = True
             text = _translate('HandlerClass', 'EDIT')
-            self.w.edit_label.setText('{}: {}'.format(text, filename))
+            self.w.edit_label.setText(f'{text}: {filename}')
             if self.w.gcode_stack.currentIndex() != self.GCODE:
                 self.w.gcode_stack.setCurrentIndex(self.GCODE)
             self.w.file_reload.setEnabled(True)
@@ -1571,25 +1612,19 @@ class HandlerClass:
             self.rflActive = False
             self.startLine = 0
             self.preRflFile = ''
-        msgList, units, xMin, yMin, xMax, yMax = self.bounds_check('loaded', 0, 0)
-        if self.boundsError['loaded']:
+        self.fileBoundsError, fileErrMsg = self.bounds_check_file()
+        self.probeBoundsError, probeErrMsg = self.bounds_check_probe(False)
+        errMsg = fileErrMsg + probeErrMsg
+        if self.fileBoundsError or self.probeBoundsError:
             head = _translate('HandlerClass', 'Axis Limit Error')
-            msgs = ''
-            for n in range(0, len(msgList), 3):
-                if msgList[n + 1] == 'MAX':
-                    msg0 = _translate('HandlerClass', 'move would exceed the maximum limit by')
-                else:
-                    msg0 = _translate('HandlerClass', 'move would exceed the minimum limit by')
-                fmt = '\n{} {} {}{}' if msgs else '{} {} {}{}'
-                msgs += fmt.format(msgList[n], msg0, msgList[n + 2], units)
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msgs))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{errMsg}\n')
             self.set_run_button_state()
             if self.single_cut_request:
                 self.single_cut_request = False
                 if self.oldFile and not 'single_cut' in self.oldFile:
                     self.remove_temp_materials()
                     ACTION.OPEN_PROGRAM(self.oldFile)
-                    self.set_run_button_state()
+                    self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
                 self.w[self.scButton].setEnabled(True)
                 self.w.run.setEnabled(False)
         else:
@@ -1602,7 +1637,7 @@ class HandlerClass:
                 text = _translate('HandlerClass', 'OPEN')
                 self.w.file_open.setText(text)
                 text = _translate('HandlerClass', 'EDIT')
-                self.w.edit_label.setText('{}'.format(text))
+                self.w.edit_label.setText(f'{text}')
                 self.w.gcode_editor.editor.new_text()
                 self.w.gcode_editor.editor.setModified(False)
                 self.w.gcode_display.new_text()
@@ -1648,10 +1683,10 @@ class HandlerClass:
 
     def joint_homed(self, obj, joint):
         dro = self.coordinates[int(joint)]
-        self.w['dro_{}'.format(dro)].setProperty('homed', True)
-        self.w['dro_{}'.format(dro)].setStyle(self.w['dro_{}'.format(dro)].style())
-        self.w['dro_label_{}'.format(dro)].setProperty('homed', True)
-        self.w['dro_label_{}'.format(dro)].setStyle(self.w['dro_label_{}'.format(dro)].style())
+        self.w[f'dro_{dro}'].setProperty('homed', True)
+        self.w[f'dro_{dro}'].setStyle(self.w[f'dro_{dro}'].style())
+        self.w[f'dro_label_{dro}'].setProperty('homed', True)
+        self.w[f'dro_label_{dro}'].setStyle(self.w[f'dro_label_{dro}'].style())
         self.w.update
         STATUS.emit('dro-reference-change-request', 1)
         self.w.gcodegraphics.logger.clear()
@@ -1659,10 +1694,10 @@ class HandlerClass:
     def joint_unhomed(self, obj, joints):
         for joint in joints:
             dro = self.coordinates[int(joint)]
-            self.w['dro_{}'.format(dro)].setProperty('homed', False)
-            self.w['dro_{}'.format(dro)].setStyle(self.w['dro_{}'.format(dro)].style())
-            self.w['dro_label_{}'.format(dro)].setProperty('homed', False)
-            self.w['dro_label_{}'.format(dro)].setStyle(self.w['dro_label_{}'.format(dro)].style())
+            self.w[f'dro_{dro}'].setProperty('homed', False)
+            self.w[f'dro_{dro}'].setStyle(self.w[f'dro_{dro}'].style())
+            self.w[f'dro_label_{dro}'].setProperty('homed', False)
+            self.w[f'dro_label_{dro}'].setStyle(self.w[f'dro_label_{dro}'].style())
         if len(joints) < len(self.coordinates):
             self.w.home_all.setEnabled(True)
         self.w.update
@@ -1722,10 +1757,10 @@ class HandlerClass:
         else:
             self.droScale = 1
             self.gcodeScalePin.set(1)
-        self.w.lbl_gcodes.setText('{}'.format(cod))
+        self.w.lbl_gcodes.setText(f'{cod}')
 
     def mcodes_changed(self, obj, cod):
-        self.w.lbl_mcodes.setText('{}'.format(cod))
+        self.w.lbl_mcodes.setText(f'{cod}')
 
     def metric_mode_changed(self, obj, state):
         self.w.gcodegraphics.updateGL()
@@ -1738,14 +1773,14 @@ class HandlerClass:
                         return
                 if line > 1:
                     msg0 = _translate('HandlerClass', 'SELECTED')
-                    self.w.run.setText('{} {}'.format(msg0, line))
-                    self.runText = '{} {}'.format(msg0, line)
+                    self.w.run.setText(f'{msg0} {line}')
+                    self.runText = f'{msg0} {line}'
                     self.rflSelected = True
                     self.startLine = line - 1
                 elif self.rflActive:
                     txt0 = _translate('HandlerClass', 'RUN FROM LINE')
                     txt1 = _translate('HandlerClass', 'CYCLE START')
-                    self.runText = '{}\n{}'.format(txt0, txt1)
+                    self.runText = f'{txt0}\n{txt1}'
                     self.rflSelected = False
                 else:
                     self.startLine = 0
@@ -1851,14 +1886,14 @@ class HandlerClass:
                 if data['compError']:
                     msg0 = _translate('HandlerClass', 'Cannot run from line while')
                     msg1 = _translate('HandlerClass', 'cutter compensation is active')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n{msg1}\n')
                 if data['subError']:
                     msg0 = _translate('HandlerClass', 'Cannot do run from line')
                     msg1 = _translate('HandlerClass', 'inside subroutine')
                     msg2 = ''
                     for sub in data['subError']:
-                        msg2 += ' {}'.format(sub)
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}{}\n'.format(head, msg0, msg1, msg2))
+                        msg2 += f' {sub}'
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n{msg1}{msg2}\n')
                 self.clear_rfl()
                 self.set_run_button_state()
             else:
@@ -1873,13 +1908,13 @@ class HandlerClass:
                     self.set_run_button_state()
                 else:
                     # rfl load clicked
-                    rflFile = '{}rfl.ngc'.format(self.tmpPath)
+                    rflFile = f'{self.tmpPath}rfl.ngc'
                     result = RFL.run_from_line_set(rflFile, data, userInput, self.unitsPerMm)
                     # leadin cannot be used
                     if result['error']:
                         msg0 = _translate('HandlerClass', 'Unable to calculate a leadin for this cut')
                         msg1 = _translate('HandlerClass', 'Program will run from selected line with no leadin applied')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n{msg1}\n')
                     # load rfl file
                     if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
                         self.preRflFile = ACTION.prefilter_path or self.lastLoadedProgram
@@ -1888,11 +1923,11 @@ class HandlerClass:
                     self.set_run_button_state()
                     txt0 = _translate('HandlerClass', 'RUN FROM LINE')
                     txt1 = _translate('HandlerClass', 'CYCLE START')
-                    self.runText = '{}\n{}'.format(txt0, txt1)
+                    self.runText = f'{txt0}\n{txt1}'
                     log = _translate('HandlerClass', 'Run from line loaded')
                     log1 = _translate('HandlerClass', 'Start line')
-                    STATUS.emit('update-machine-log', '{} - {}: {}'.format(log, log1, (self.startLine + 1)), 'TIME')
-        elif not self.run_critical_check():
+                    STATUS.emit('update-machine-log', f'{log} - {log1}: {(self.startLine + 1)}', 'TIME')
+        elif not self.cut_critical_check():
             self.jobRunning = True
             ACTION.RUN(0)
             log = _translate('HandlerClass', 'Cycle started')
@@ -1900,7 +1935,7 @@ class HandlerClass:
                 log1 = _translate('HandlerClass', 'Torch enabled')
             else:
                 log1 = _translate('HandlerClass', 'Torch disabled')
-            STATUS.emit('update-machine-log', '{} - {}'.format(log, log1), 'TIME')
+            STATUS.emit('update-machine-log', f'{log} - {log1}', 'TIME')
 
     def abort_pressed(self):
         if self.manualCut:
@@ -1959,7 +1994,7 @@ class HandlerClass:
         if self.heightOvr > 9:
             self.heightOvr = 9
         self.heightOverridePin.set(self.heightOvr)
-        self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
+        self.w.height_ovr_label.setText(f'{self.heightOvr:.2f}')
 
     def height_ovr_encoder(self,value):
         if (value != self.old_ovr_counts and self.extHeightOvrCountEnablePin.get()):
@@ -1969,7 +2004,7 @@ class HandlerClass:
             if self.heightOvr > 9:
                 self.heightOvr = 9
             self.heightOverridePin.set(self.heightOvr)
-            self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
+            self.w.height_ovr_label.setText(f'{self.heightOvr:.2f}')
         self.old_ovr_counts = value
 
     def height_ovr_scale_change(self,value):
@@ -1992,14 +2027,14 @@ class HandlerClass:
 
     def backup_clicked(self):
         self.save_logfile(6)
-        bkpPath = '{}'.format(os.path.expanduser('~'))
-        bkpName = '{}_V{}-{}_{}.tar.gz'.format(self.machineName, LCNCVER, VERSION, time.strftime('%y-%m-%d_%H-%M-%S'))
+        bkpPath = f'{os.path.expanduser("~")}'
+        bkpName = f'{self.machineName}_V{LCNCVER}-{VERSION}_{time.strftime("%y-%m-%d_%H-%M-%S")}.tar.gz'
         tmpFile = os.path.join(self.PATHS.CONFIGPATH, 'config_info.txt')
         lcncInfo = (Popen('linuxcnc_info -s', stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]).decode('utf-8')
         network = (Popen('lspci | grep -i net', stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]).decode('utf-8')
         with open(tmpFile, 'a') as outFile:
             if network:
-                outFile.write('lspci | grep -i net:\n{}\n'.format(network))
+                outFile.write(f'lspci | grep -i net:\n{network}\n')
             else:
                 outFile.write('Unknown error with "lspci | grep -i net" command\n\n')
             if lcncInfo:
@@ -2012,17 +2047,17 @@ class HandlerClass:
                     outFile.write("Unknown error opening /tmp/linuxcnc_info.txt\n")
             else:
                 outFile.write('Unknown error creating /tmp/linuxcnc_info.txt\n')
-        with tarfile.open('{}/{}'.format(bkpPath, bkpName), mode='w:gz', ) as archive:
-            archive.add('{}'.format(self.PATHS.CONFIGPATH))
+        with tarfile.open(f'{bkpPath}/{bkpName}', mode='w:gz', ) as archive:
+            archive.add(f'{self.PATHS.CONFIGPATH}')
         try:
             os.remove(tmpFile)
         except:
             log = _translate('HandlerClass', 'Unknown error removing')
-            STATUS.emit('update-machine-log', '{} {}'.format(log, tmpFile), 'TIME')
+            STATUS.emit('update-machine-log', f'{log} {tmpFile}', 'TIME')
         head = _translate('HandlerClass', 'Backup Complete')
         msg0 = _translate('HandlerClass', 'A compressed backup of the machine configuration including the machine logs has been saved in your home directory as')
         msg1 = _translate('HandlerClass', 'It is safe to delete this file at any time')
-        self.dialog_show_ok(QMessageBox.Information, head, '\n{}:\n{}\n\n{}\n'.format(msg0, bkpName, msg1))
+        self.dialog_show_ok(QMessageBox.Information, head, f'\n{msg0}:\n{bkpName}\n\n{msg1}\n')
 
     def set_offsets_clicked(self):
         if self.developmentPin.get():
@@ -2049,7 +2084,7 @@ class HandlerClass:
         if STATUS.is_joint_mode():
             self.kb_jog(state, self.coordinates.index(joint), direction, shift)
         else:
-            self.kb_jog(state, ['x','y','z','a','b'].index(joint), direction, shift)
+            self.kb_jog(state, ['x','y','z','a','b','c'].index(joint), direction, shift)
 
     def view_t_pressed(self):
         t = time.time() + 0.01
@@ -2119,37 +2154,49 @@ class HandlerClass:
 
     def file_clear_clicked(self):
         proceed = self.editor_close_check()
-        if proceed:
-            self.w.preview_stack.setCurrentIndex(self.PREVIEW)
-            self.w.gcode_editor.editor.new_text()
-            self.w.gcode_editor.editor.setModified(False)
-            if self.fileOpened:
-                self.fileClear = True
-                if self.rflActive:
-                    self.clear_rfl()
-                clearFile = '{}qtplasmac_program_clear.ngc'.format(self.tmpPath)
-                with open(clearFile, 'w') as outFile:
-                    outFile.write('m2')
-                if ACTION.prefilter_path:
-                    if 'single_cut' in ACTION.prefilter_path:
-                        self.preClearFile = self.oldFile
-                    else:
-                        if self.lastLoadedProgram != 'None':
-                            self.preClearFile = ACTION.prefilter_path or self.lastLoadedProgram
-                        self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
-                        self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
-                        self.w.conv_material.setCurrentIndex(self.w.materials_box.currentIndex())
-                self.remove_temp_materials()
-                ACTION.OPEN_PROGRAM(clearFile)
-                ACTION.prefilter_path = self.preClearFile
-                if self.w.lbl_tool.text() != 'TORCH' and STATUS.is_on_and_idle() and STATUS.is_all_homed():
-                    ACTION.CALL_MDI_WAIT('T0 M6')
-                    ACTION.CALL_MDI_WAIT('G43 H0')
-                    ACTION.SET_MANUAL_MODE()
-                log = _translate('HandlerClass', 'Program cleared')
-                STATUS.emit('update-machine-log', log, 'TIME')
-            else:
-                self.view_t_pressed()
+        if not proceed:
+            return
+        self.w.preview_stack.setCurrentIndex(self.PREVIEW)
+        self.w.gcode_editor.editor.new_text()
+        self.w.gcode_editor.editor.setModified(False)
+        # clear error message list and error status
+        if self.w.screen_options.desktop_notify:
+            self.w.screen_options.QTVCP_INSTANCE_._NOTICE.alarmpage = []
+            self.w.screen_options.QTVCP_INSTANCE_._NOTICE.external_close()
+        self.error_status(False)
+        # return cut-type button to Normal
+        if self.cutType:
+            self.cutType = 0
+            self.cutTypePin.set(0)
+            self.button_normal(self.ctButton)
+            self.w[self.ctButton].setText(self.cutTypeText)
+        if self.fileOpened:
+            self.fileClear = True
+            if self.rflActive:
+                self.clear_rfl()
+            clearFile = f'{self.tmpPath}qtplasmac_program_clear.ngc'
+            with open(clearFile, 'w') as outFile:
+                outFile.write('m2')
+            if ACTION.prefilter_path:
+                if 'single_cut' in ACTION.prefilter_path:
+                    self.preClearFile = self.oldFile
+                else:
+                    if self.lastLoadedProgram != 'None':
+                        self.preClearFile = ACTION.prefilter_path or self.lastLoadedProgram
+                    self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
+                    self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
+                    self.w.conv_material.setCurrentIndex(self.w.materials_box.currentIndex())
+            self.remove_temp_materials()
+            ACTION.OPEN_PROGRAM(clearFile)
+            ACTION.prefilter_path = self.preClearFile
+            if self.w.lbl_tool.text() != 'TORCH' and STATUS.is_on_and_idle() and STATUS.is_all_homed():
+                ACTION.CALL_MDI_WAIT('T0 M6')
+                ACTION.CALL_MDI_WAIT('G43 H0')
+                ACTION.SET_MANUAL_MODE()
+            log = _translate('HandlerClass', 'Program cleared')
+            STATUS.emit('update-machine-log', log, 'TIME')
+        else:
+            self.view_t_pressed()
 
     def file_open_clicked(self):
         if self.w.preview_stack.currentIndex() != self.OPEN:
@@ -2165,7 +2212,7 @@ class HandlerClass:
             if self.fileOpened and not self.w.gcode_editor.editor.isModified():
                 self.w.gcode_editor.editor.load_text(ACTION.prefilter_path)
                 text = _translate('HandlerClass', 'EDIT')
-                self.w.edit_label.setText('{}: {}'.format(text, ACTION.prefilter_path))
+                self.w.edit_label.setText(f'{text}: {ACTION.prefilter_path}')
                 self.w.gcode_editor.editor.setModified(False)
                 try:
                     if os.path.getsize(self.gcodeErrorFile):
@@ -2278,24 +2325,31 @@ class HandlerClass:
             self.set_run_button_state()
             self.set_jog_button_state()
 
+    def plasmac_stop_changed(self, state):
+        if not state and not self.plasmacStatePin.get():
+            for pin in ['pierce-type', 'pierce-motion-delay', 'cut-height-delay', 'pierce-end-height', \
+                        'gouge-speed', 'gouge-speed-distance', 'creep-speed', 'creep-speed-distance']:
+                hal.set_p(f'plasmac.{pin}', '0')
+
     def file_reload_clicked(self):
         proceed = self.editor_close_check()
-        if proceed:
-            if self.rflActive:
-                self.clear_rfl()
-                self.set_run_button_state()
-            if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
-                file = ACTION.prefilter_path or self.lastLoadedProgram
-                if os.path.exists(file):
-                    self.overlayProgress.setValue(0)
-                    self.remove_temp_materials()
-                    ACTION.OPEN_PROGRAM(file)
-                    log = _translate('HandlerClass', 'Reloaded')
-                    STATUS.emit('update-machine-log', '{}: {}'.format(log, file), 'TIME')
-                else:
-                    head = _translate('HandlerClass', 'File Error')
-                    msg0 = _translate('HandlerClass', 'does not exist')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {}\n'.format(head, file, msg0))
+        if not proceed:
+            return
+        if self.rflActive:
+            self.clear_rfl()
+            self.set_run_button_state()
+        if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
+            file = ACTION.prefilter_path or self.lastLoadedProgram
+            if os.path.exists(file):
+                self.overlayProgress.setValue(0)
+                self.remove_temp_materials()
+                ACTION.OPEN_PROGRAM(file)
+                log = _translate('HandlerClass', 'Reloaded')
+                STATUS.emit('update-machine-log', f'{log}: {file}', 'TIME')
+            else:
+                head = _translate('HandlerClass', 'File Error')
+                msg0 = _translate('HandlerClass', 'does not exist')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{file} {msg0}\n')
 
     def jog_slow_pressed(self, external=False):
         if self.w.jog_slow.isChecked():
@@ -2328,8 +2382,8 @@ class HandlerClass:
     def save_user_button_clicked(self):
         self.set_interlock_defaults()
         for n in range(1, 21):
-            self.PREFS.putpref('{} Name'.format(n), self.w['ub_name_{}'.format(n)].text(), str, 'BUTTONS')
-            self.PREFS.putpref('{} Code'.format(n), self.w['ub_code_{}'.format(n)].text(), str, 'BUTTONS')
+            self.PREFS.putpref(f'{n} Name', self.w[f'ub_name_{n}'].text(), str, 'BUTTONS')
+            self.PREFS.putpref(f'{n} Code', self.w[f'ub_code_{n}'].text(), str, 'BUTTONS')
         self.user_button_setup()
         self.set_buttons_state([self.alwaysOnList, self.idleList], True)
         if STATUS.machine_is_on():
@@ -2347,8 +2401,8 @@ class HandlerClass:
 
     def reload_user_button_clicked(self):
         for n in range(1, 21):
-            self.w['ub_name_{}'.format(n)].clear()
-            self.w['ub_code_{}'.format(n)].clear()
+            self.w[f'ub_name_{n}'].clear()
+            self.w[f'ub_code_{n}'].clear()
         self.user_button_setup()
 
     def web_back_pressed(self):
@@ -2364,7 +2418,7 @@ class HandlerClass:
 #########################################################################################################################
 # GENERAL FUNCTIONS #
 #########################################################################################################################
-# called by ScreenOptions, this function overrides ScreenOption's closeEvent
+    # called by ScreenOptions, this function overrides ScreenOption's closeEvent
     def closeEvent(self, event):
         O = self.w.screen_options
         if self.w.chk_exit_warning.isChecked() or not STATUS.is_interp_idle():
@@ -2378,10 +2432,10 @@ class HandlerClass:
             if self.exitMessage:
                 exitLines = self.exitMessage.split('\\')
                 for line in exitLines:
-                    msg0 += '{}\n'.format(line)
+                    msg0 += f'{line}\n'
                 msg0 += '\n'
             msg0 += _translate('HandlerClass', 'Do you want to shutdown QtPlasmaC')
-            if self.dialog_show_yesno(icon, head, '\n{}?\n'.format(msg0)):
+            if self.dialog_show_yesno(icon, head, f'\n{msg0}?\n'):
                 if O.PREFS_ and O.play_sounds and O.shutdown_play_sound:
                     STATUS.emit('play-sound', O.shutdown_exit_sound_type)
                 O.QTVCP_INSTANCE_.settings.sync()
@@ -2413,7 +2467,7 @@ class HandlerClass:
             self.updateData.append([restart, error, text])
             if error:
                 return
-            self.updateIni.append(154)
+            self.updateIni[154] = True
         # split out qtplasmac specific prefs into a separate file (pre V1.222.170 2022/03/08)
         if not os.path.isfile(self.prefsFile):
             old = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs')
@@ -2435,22 +2489,28 @@ class HandlerClass:
         # change RS274 startup parameters from a subroutine (pre V1.224.207 2022/06/22)
         startupCode = self.iniFile.find('RS274NGC', 'RS274NGC_STARTUP_CODE')
         if 'metric_startup' in startupCode or 'imperial_startup' in startupCode:
-            self.updateIni.append(207)
+            self.updateIni[207] = True
         # remove the qtplasmac link from the config directory (pre V1.225.208 2022/06/29)
         if os.path.islink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
             # stage 1: set up for unlinking on the next run of qtplasmac
             if 'code.py' in self.iniFile.find('FILTER', 'ngc'):
-                self.updateIni.append(208)
+                self.updateIni[208] = True
             # stage 2: remove the qtplasmac link
             else:
                 os.unlink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
         # move qtplasmac options from INI file to prefs file pre V1.227.219 2022/07/14)
         if not self.PREFS.has_section('BUTTONS'):
-            restart, error, text = UPDATER.move_options_to_prefs_file(self.iniFile, self.PREFS)
-            self.updateData.append([restart, error, text])
-            if error:
-                return
-            self.updateIni.append(219)
+            update = False
+            for n in range(1,21):
+                if self.iniFile.find('QTPLASMAC', f'BUTTON_{n}_NAME'):
+                    update = True
+                    break
+            if update:
+                restart, error, text = UPDATER.move_options_to_prefs_file(self.iniFile, self.PREFS)
+                self.updateData.append([restart, error, text])
+                if error:
+                    return
+                self.updateIni[219] = True
         # move port info from [GUI_OPTIONS] section (if it was moved via V1.227.219 update) to [POWERMAX] section
         if self.PREFS.has_option('GUI_OPTIONS', 'Port'):
             restart, error, text = UPDATER.move_port(self.PREFS)
@@ -2463,6 +2523,31 @@ class HandlerClass:
             self.updateData.append([restart, error, text])
             if error:
                 return
+        # change runcritical to cutcritical in <machine_name>.prefs file (pre V2.10-001.015 2023/12/23)
+        if os.path.isfile(self.prefsFile):
+            with open(self.prefsFile, 'r') as inFile:
+                text = inFile.read()
+                if 'runcritical' in text:
+                    restart, error, text = UPDATER.rename_runcritical(self.prefsFile)
+                    self.updateData.append([restart, error, text])
+                    if error:
+                        return
+        # set user_m_path to include ../../nc_files/plasmac/m_files (pre V2.10-001.017 2024/01/23)
+        mPathIni = self.iniFile.find('RS274NGC', 'USER_M_PATH')
+        if 'nc_files/plasmac/m_files' not in mPathIni:
+            if '/usr' in self.PATHS.BASEDIR:
+                mPath = '../../nc_files/plasmac/m_files'
+                #simPath = os.path.join(self.PATHS.BASEDIR, 'share/doc/linuxcnc/examples/sample-configs/sim/qtplasmac')
+                # we need elevated privileges to remove a file from here so forget it...
+                # we may revisit this.
+                simPath = None
+            else:
+                mPath = os.path.realpath(os.path.join(self.PATHS.BASEDIR, 'nc_files/plasmac/m_files'))
+                simPath = os.path.join(self.PATHS.BASEDIR, 'configs/sim/qtplasmac')
+            restart, error, text = UPDATER.insert_user_m_path(self.PATHS.CONFIGPATH, simPath)
+            if error:
+                return
+            self.updateIni['001-017'] = mPath
 
     def update_iniwrite(self):
         # this is for updates that write to the INI file
@@ -2494,6 +2579,13 @@ class HandlerClass:
             self.updateData.append([self.restart, error, text])
             if error:
                 return
+        if '001-017' in self.updateIni:
+            restart, error, text = UPDATER.insert_user_m_path_iniwrite(INIPATH, self.updateIni['001-017'])
+            if restart:
+                self.restart = True
+            self.updateData.append([self.restart, error, text])
+            if error:
+                return
 
     def motion_type_changed(self, value):
         if value == 0 and STATUS.is_mdi_mode():
@@ -2505,7 +2597,7 @@ class HandlerClass:
             self.currentX = STATUS.stat.g5x_offset[0]
             self.currentY = STATUS.stat.g5x_offset[1]
         elif wcs == 'set':
-            ACTION.CALL_MDI_WAIT('G10 L2 P0 X{} Y{} R{}'.format(self.currentX, self.currentY, self.currentRotation))
+            ACTION.CALL_MDI_WAIT(f'G10 L2 P0 X{self.currentX} Y{self.currentY} R{self.currentRotation}')
             if self.currentRotation != STATUS.stat.rotation_xy:
                 self.w.gcodegraphics.set_current_view()
             ACTION.SET_MANUAL_MODE()
@@ -2514,14 +2606,15 @@ class HandlerClass:
         self.alwaysOnList = []
         self.machineOnList = []
         self.idleList = ['file_clear', 'file_open', 'file_reload', 'file_edit']
-        self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_b', 'home_all']
-        self.idleHomedList = ['camera', 'laser', 'touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_b', 'touch_xy', \
+        self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_b', 'home_c', 'home_all']
+        self.idleHomedList = ['camera', 'laser', 'touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_b', 'touch_c', 'touch_xy', \
                               'mdi_show', 'height_lower', 'height_raise', 'wcs_button', 'set_offsets']
         self.ccButton, self.otButton, self.ptButton, self.tpButton = '', '', '', ''
         self.ctButton, self.scButton, self.frButton, self.mcButton = '', '', '', ''
-        self.ovButton, self.llButton, self.tlButton, self.umButton = '', '', [], ''
+        self.ovButton, self.llButton, self.tlButton, self.umButton, self.jtButton = '', '', [], '', ''
         self.halTogglePins = {}
         self.halPulsePins = {}
+        self.dualCodeButtons = {}
 
     def get_main_tab_widgets(self):
         # 1 of 2 this is a work around for pyqt5.11 not having setTabVisible(index, bool) that is present in pyqt5.15
@@ -2578,7 +2671,7 @@ class HandlerClass:
             head = _translate('HandlerClass', 'Unsaved Editor Changes')
             msg0 = _translate('HandlerClass', 'Unsaved changes will be lost')
             msg1 = _translate('HandlerClass', 'Do you want to proceed')
-            if not self.dialog_show_yesno(QMessageBox.Question, head, '\n{}\n\n{}?\n'.format(msg0, msg1)):
+            if not self.dialog_show_yesno(QMessageBox.Question, head, f'\n{msg0}\n\n{msg1}?\n'):
                 self.w.preview_stack.setCurrentIndex(self.EDIT)
                 self.w.gcode_editor.editor.setFocus()
                 return False
@@ -2611,66 +2704,97 @@ class HandlerClass:
             text = _translate('HandlerClass', 'ERROR SENT TO MACHINE LOG')
         else:
             text = ''
-        self.w.error_label.setText('{}'.format(text))
+        self.w.error_label.setText(f'{text}')
 
     def touch_off_xy(self, x, y):
         if STATUS.is_on_and_idle() and STATUS.is_all_homed():
-            ACTION.CALL_MDI_WAIT('G10 L20 P0 X{} Y{}'.format(x, y))
+            ACTION.CALL_MDI_WAIT(f'G10 L20 P0 X{x} Y{y}')
             if self.fileOpened == True:
                 self.file_reload_clicked()
             ACTION.SET_MANUAL_MODE()
 
-    def bounds_check(self, boundsType, xOffset, yOffset):
-        framing = True if 'framing' in boundsType else False
-        self.boundsError[boundsType] = False
-        msgList = []
+    def bounds_check_file(self):
+        msg = _translate('HandlerClass', 'G-code')
         boundsMultiplier = 1
-        if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
-            boundsMultiplier = 0.03937
-        elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
-            boundsMultiplier = 25.4
-        if framing:
-            xStart = STATUS.stat.g5x_offset[0] + xOffset
-            yStart = STATUS.stat.g5x_offset[1] + yOffset
-            xMin = round(float(self.gcodeProps['x_zero_rxy'].split()[0]) * boundsMultiplier + xOffset, 5)
-            xMax = round(float(self.gcodeProps['x_zero_rxy'].split()[2]) * boundsMultiplier + xOffset, 5)
-            yMin = round(float(self.gcodeProps['y_zero_rxy'].split()[0]) * boundsMultiplier + yOffset, 5)
-            yMax = round(float(self.gcodeProps['y_zero_rxy'].split()[2]) * boundsMultiplier + yOffset, 5)
-            coordinates = [[xStart, yStart], [xMin, yMin], [xMin, yMax], [xMax, yMax], [xMax, yMin]]
-            frame_points, xMin, yMin, xMax, yMax = self.rotate_frame(coordinates)
-        else:
-            xMin = round(float(self.gcodeProps['x'].split()[0]) * boundsMultiplier + xOffset, 5)
-            xMax = round(float(self.gcodeProps['x'].split()[2]) * boundsMultiplier + xOffset, 5)
-            yMin = round(float(self.gcodeProps['y'].split()[0]) * boundsMultiplier + yOffset, 5)
-            yMax = round(float(self.gcodeProps['y'].split()[2]) * boundsMultiplier + yOffset, 5)
+        if 'gcode_units' in self.gcodeProps:
+            if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
+                boundsMultiplier = 0.03937
+            elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
+                boundsMultiplier = 25.4
+        xMin = float(self.gcodeProps['x'].split()[0]) * boundsMultiplier
+        xMax = float(self.gcodeProps['x'].split()[2]) * boundsMultiplier
+        yMin = float(self.gcodeProps['y'].split()[0]) * boundsMultiplier
+        yMax = float(self.gcodeProps['y'].split()[2]) * boundsMultiplier
+        errMsg = self.bounds_compare(xMin, xMax, yMin, yMax, msg)
+        return (True, errMsg) if errMsg else (False, '')
+
+    def bounds_check_probe(self, static):
+        msg = _translate('HandlerClass', 'Move to probe offset')
+        xPierceOffset = yPierceOffset = xMinP = xMaxP = yMinP = yMaxP = 0
+        if static:
+            xMinP = xMaxP = STATUS.get_position()[0][0] + self.probeOffsetX
+            yMinP = yMaxP = STATUS.get_position()[0][1] + self.probeOffsetY
+        elif any((self.xMinPierceExtentPin.get(), self.xMaxPierceExtentPin.get(), \
+                  self.yMinPierceExtentPin.get(), self.yMaxPierceExtentPin.get())):
+            if self.cutTypePin.get():
+                xPierceOffset = self.w.x_pierce_offset.value()
+                yPierceOffset = self.w.y_pierce_offset.value()
+            boundsMultiplier = 1
+            if 'gcode_units' in self.gcodeProps:
+                if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
+                    boundsMultiplier = 0.03937
+                elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
+                    boundsMultiplier = 25.4
+            xMinP = self.xMinPierceExtentPin.get() * boundsMultiplier + self.probeOffsetX + STATUS.stat.g5x_offset[0] + xPierceOffset
+            xMaxP = self.xMaxPierceExtentPin.get() * boundsMultiplier + self.probeOffsetX + STATUS.stat.g5x_offset[0] + xPierceOffset
+            yMinP = self.yMinPierceExtentPin.get() * boundsMultiplier + self.probeOffsetY + STATUS.stat.g5x_offset[1] + yPierceOffset
+            yMaxP = self.yMaxPierceExtentPin.get() * boundsMultiplier + self.probeOffsetY + STATUS.stat.g5x_offset[1] + yPierceOffset
+        errMsg = self.bounds_compare(xMinP, xMaxP, yMinP, yMaxP, msg)
+        return (True, errMsg) if errMsg else (False, '')
+
+    def bounds_check_framing(self, xOffset=0, yOffset=0, laser=False):
+        msg = _translate('HandlerClass', 'Framing move')
+        msg1 = ''
+        boundsMultiplier = 1
+        if 'gcode_units' in self.gcodeProps:
+            if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
+                boundsMultiplier = 0.03937
+            elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
+                boundsMultiplier = 25.4
+        if laser:
+            msg1 = _translate('HandlerClass', 'due to laser offset')
+        xStart = STATUS.stat.g5x_offset[0] + xOffset
+        yStart = STATUS.stat.g5x_offset[1] + yOffset
+        xMin = float(self.gcodeProps['x_zero_rxy'].split()[0]) * boundsMultiplier + xOffset
+        xMax = float(self.gcodeProps['x_zero_rxy'].split()[2]) * boundsMultiplier + xOffset
+        yMin = float(self.gcodeProps['y_zero_rxy'].split()[0]) * boundsMultiplier + yOffset
+        yMax = float(self.gcodeProps['y_zero_rxy'].split()[2]) * boundsMultiplier + yOffset
+        coordinates = [[xStart, yStart], [xMin, yMin], [xMin, yMax], [xMax, yMax], [xMax, yMin]]
+        frame_points, xMin, yMin, xMax, yMax = self.rotate_frame(coordinates)
+        errMsg = self.bounds_compare(xMin, xMax, yMin, yMax, msg, msg1)
+        return (errMsg, frame_points)
+
+    def bounds_compare(self, xMin, xMax, yMin, yMax, msg, msg1=''):
+        errMsg = ''
+        epsilon = 1e-4
+        txtxMin = _translate('HandlerClass', 'exceeds the X minimum limit by')
+        txtxMax = _translate('HandlerClass', 'exceeds the X maximum limit by')
+        txtyMin = _translate('HandlerClass', 'exceeds the Y minimum limit by')
+        txtyMax = _translate('HandlerClass', 'exceeds the Y maximum limit by')
+        lessThan = _translate('HandlerClass', 'less than')
         if xMin < self.xMin:
-            amount = float(self.xMin - xMin)
-            msgList.append('X')
-            msgList.append('MIN')
-            msgList.append('{:0.2f}'.format(amount))
-            self.boundsError[boundsType] = True
+            errMsg += f'{msg} {txtxMin} {lessThan} {epsilon} {self.units} {msg1}\n' if (self.xMin - xMin) < epsilon \
+                else f'{msg} {txtxMin} {self.xMin - xMin:0.4f} {self.units} {msg1}\n'
         if xMax > self.xMax:
-            amount = float(xMax - self.xMax)
-            msgList.append('X')
-            msgList.append('MAX')
-            msgList.append('{:0.2f}'.format(amount))
-            self.boundsError[boundsType] = True
+            errMsg += f'{msg} {txtxMax} {lessThan} {epsilon} {self.units} {msg1}\n' if (xMax - self.xMax) < epsilon \
+                else f'{msg} {txtxMax} {xMax - self.xMax:0.4f} {self.units} {msg1}\n'
         if yMin < self.yMin:
-            amount = float(self.yMin - yMin)
-            msgList.append('Y')
-            msgList.append('MIN')
-            msgList.append('{:0.2f}'.format(amount))
-            self.boundsError[boundsType] = True
+            errMsg += f'{msg} {txtyMin} {lessThan} {epsilon} {self.units} {msg1}\n' if (self.yMin - yMin) < epsilon \
+                else f'{msg} {txtyMin} {self.yMin - yMin:0.4f} {self.units} {msg1}\n'
         if yMax > self.yMax:
-            amount = float(yMax - self.yMax)
-            msgList.append('Y')
-            msgList.append('MAX')
-            msgList.append('{:0.2f}'.format(amount))
-            self.boundsError[boundsType] = True
-        if framing:
-            return msgList, self.units, xMin, yMin, xMax, yMax, frame_points
-        else:
-            return msgList, self.units, xMin, yMin, xMax, yMax
+            errMsg += f'{msg} {txtyMax} {lessThan} {epsilon} {self.units} {msg1}\n' if (yMax - self.yMax) < epsilon \
+                else f'{msg} {txtyMax} {yMax - self.yMax:0.4f} {self.units} {msg1}\n'
+        return errMsg
 
     def rotate_frame(self, coordinates):
         angle = math.radians(STATUS.stat.rotation_xy)
@@ -2702,6 +2826,7 @@ class HandlerClass:
         self.PREFS.putpref('Float Switch Travel', self.w.float_switch_travel.value(), float, 'PLASMA_PARAMETERS')
         self.PREFS.putpref('Height Per Volt', self.w.height_per_volt.value(), float, 'PLASMA_PARAMETERS')
         self.PREFS.putpref('Void Sense Slope', self.w.voidlock_slope.value(), int, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Offset Feed Rate', self.w.offset_feed_rate.value(), float, 'PLASMA_PARAMETERS')
         self.PREFS.putpref('Ohmic Maximum Attempts', self.w.ohmic_max_attempts.value(), int, 'PLASMA_PARAMETERS')
         self.PREFS.putpref('Ohmic Probe Offset', self.w.ohmic_probe_offset.value(), float, 'PLASMA_PARAMETERS')
         self.PREFS.putpref('Pid P Gain', self.w.pid_p_gain.value(), float, 'PLASMA_PARAMETERS')
@@ -2721,10 +2846,10 @@ class HandlerClass:
         self.PREFS.putpref('THC Sample Counts', self.w.thc_sample_counts.value(), int, 'PLASMA_PARAMETERS')
         self.PREFS.putpref('THC Sample Threshold', self.w.thc_sample_threshold.value(), float, 'PLASMA_PARAMETERS')
         self.PREFS.putpref('THC Threshold', self.w.thc_threshold.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('X Pierce Offset', self.w.x_pierce_offset.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Y Pierce Offset', self.w.y_pierce_offset.value(), float, 'PLASMA_PARAMETERS')
 
     def load_plasma_parameters(self):
-        self.w.setup_feed_rate.setValue(self.PREFS.getpref('Setup Feed Rate', self.thcFeedRate * 0.8, float, 'PLASMA_PARAMETERS'))
-        self.w.probe_feed_rate.setMaximum(self.w.setup_feed_rate.value())
         self.w.arc_fail_delay.setValue(self.PREFS.getpref('Arc Fail Timeout', 3.0, float, 'PLASMA_PARAMETERS'))
         self.w.arc_ok_high.setValue(self.PREFS.getpref('Arc OK High', 250.0, float, 'PLASMA_PARAMETERS'))
         self.w.arc_ok_low.setValue(self.PREFS.getpref('Arc OK Low', 60.0, float, 'PLASMA_PARAMETERS'))
@@ -2734,7 +2859,7 @@ class HandlerClass:
         self.w.cornerlock_threshold.setValue(self.PREFS.getpref('Velocity Anti Dive Threshold', 90.0, float, 'PLASMA_PARAMETERS'))
         self.w.float_switch_travel.setValue(self.PREFS.getpref('Float Switch Travel', round(1.5 * self.unitsPerMm, 2), float, 'PLASMA_PARAMETERS'))
         self.w.height_per_volt.setValue(self.PREFS.getpref('Height Per Volt', round(0.1 * self.unitsPerMm, 3), float, 'PLASMA_PARAMETERS'))
-        self.w.voidlock_slope.setValue(self.PREFS.getpref('Void Sense Slope', 500, int, 'PLASMA_PARAMETERS'))
+        self.w.offset_feed_rate.setValue(self.PREFS.getpref('Offset Feed Rate', self.offsetFeedRate * 0.8, float, 'PLASMA_PARAMETERS'))
         self.w.ohmic_max_attempts.setValue(self.PREFS.getpref('Ohmic Maximum Attempts', 0, int, 'PLASMA_PARAMETERS'))
         self.w.ohmic_probe_offset.setValue(self.PREFS.getpref('Ohmic Probe Offset', 0.0, float, 'PLASMA_PARAMETERS'))
         self.w.pid_p_gain.setValue(self.PREFS.getpref('Pid P Gain', 10.0, float, 'PLASMA_PARAMETERS'))
@@ -2754,6 +2879,9 @@ class HandlerClass:
         self.w.thc_sample_counts.setValue(self.PREFS.getpref('THC Sample Counts', 50, int, 'PLASMA_PARAMETERS'))
         self.w.thc_sample_threshold.setValue(self.PREFS.getpref('THC Sample Threshold', 1.0, float, 'PLASMA_PARAMETERS'))
         self.w.thc_threshold.setValue(self.PREFS.getpref('THC Threshold', 1.0, float, 'PLASMA_PARAMETERS'))
+        self.w.voidlock_slope.setValue(self.PREFS.getpref('Void Sense Slope', 500, int, 'PLASMA_PARAMETERS'))
+        self.w.x_pierce_offset.setValue(self.PREFS.getpref('X Pierce Offset', round(1.6 * self.unitsPerMm, 2), float, 'PLASMA_PARAMETERS'))
+        self.w.y_pierce_offset.setValue(self.PREFS.getpref('Y Pierce Offset', 0.0, float, 'PLASMA_PARAMETERS'))
 
     def set_signal_connections(self):
         self.w.power.pressed.connect(lambda:self.power_button("pressed", True))
@@ -2767,7 +2895,7 @@ class HandlerClass:
         self.w.chk_soft_keyboard.stateChanged.connect(self.soft_keyboard)
         self.w.chk_override_limits.stateChanged.connect(self.chk_override_limits_changed)
         self.w.chk_overlay.stateChanged.connect(self.overlay_update)
-        self.w.chk_tool_tips.stateChanged.connect(lambda:TOOLTIPS.tool_tips_changed(self.w))
+        self.w.chk_tool_tips.stateChanged.connect(lambda:TOOLTIPS.tool_tips_changed(self, self.w))
         self.w.torch_enable.stateChanged.connect(lambda w:self.torch_enable_changed(w))
         self.w.ohmic_probe_enable.stateChanged.connect(lambda w:self.ohmic_probe_enable_changed(w))
         self.w.thc_auto.stateChanged.connect(lambda w:self.thc_auto_changed(w))
@@ -2877,6 +3005,10 @@ class HandlerClass:
         self.w.jog_b_plus.released.connect(lambda:self.gui_button_jog(0, 'b', 1))
         self.w.jog_b_minus.pressed.connect(lambda:self.gui_button_jog(1, 'b', -1))
         self.w.jog_b_minus.released.connect(lambda:self.gui_button_jog(0, 'b', -1))
+        self.w.jog_c_plus.pressed.connect(lambda:self.gui_button_jog(1, 'c', 1))
+        self.w.jog_c_plus.released.connect(lambda:self.gui_button_jog(0, 'c', 1))
+        self.w.jog_c_minus.pressed.connect(lambda:self.gui_button_jog(1, 'c', -1))
+        self.w.jog_c_minus.released.connect(lambda:self.gui_button_jog(0, 'c', -1))
         self.w.cut_rec_fwd.pressed.connect(lambda:self.cutrec_motion(1))
         self.w.cut_rec_fwd.released.connect(lambda:self.cutrec_motion(0))
         self.w.cut_rec_rev.pressed.connect(lambda:self.cutrec_motion(-1))
@@ -2916,6 +3048,7 @@ class HandlerClass:
         self.w.main_tab_widget.currentChanged.connect(lambda w:self.main_tab_changed(w))
         self.zHeightPin.value_changed.connect(lambda v:self.z_height_changed(v))
         self.plasmacStatePin.value_changed.connect(lambda v:self.plasmac_state_changed(v))
+        self.plasmacStopPin.value_changed.connect(lambda v:self.plasmac_stop_changed(v))
         self.w.feed_label.pressed.connect(self.feed_label_pressed)
         self.w.rapid_label.pressed.connect(self.rapid_label_pressed)
         self.w.jogs_label.pressed.connect(self.jogs_label_pressed)
@@ -3015,47 +3148,44 @@ class HandlerClass:
         elif operation == 'send':
             self.CONV.conv_send_pressed(self, self.w)
         else:
-            self.CONV.conv_shape_request(self, self.w, 'conv_{}'.format(operation), True)
+            self.CONV.conv_shape_request(self, self.w, f'conv_{operation}', True)
 
     def set_axes_and_joints(self):
-        kinematics = self.iniFile.find('KINS', 'KINEMATICS').lower().replace('=','').replace('trivkins','').replace(' ','') or None
-        #kinstype = None
-        self.coordinates = 'xyz'
-        if kinematics:
-            if 'kinstype' in kinematics:
-                #kinstype = kinematics.lower().replace(' ','').split('kinstype')[1]
-                if 'coordinates' in kinematics:
-                    kinematics = kinematics.lower().replace(' ','').split('kinstype')[0]
-            if 'coordinates' in kinematics:
-                self.coordinates = kinematics.split('coordinates')[1].lower()
-        else:
+        self.coordinates = 'xyz' # backup in case we cannot find valid coordinates
+        kinematics = self.iniFile.find('KINS', 'KINEMATICS').lower().split() or None
+        if not kinematics:
             head = _translate('HandlerClass', 'INI File Error')
             msg0  = _translate('HandlerClass', 'Error in [KINS]KINEMATICS in the INI file')
             msg1 = _translate('HandlerClass', 'reverting to default coordinates of xyz')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
-        # hide axis a if not being used
-        if 'a' not in self.axisList:
-            for i in self.axisAList:
-                self.w[i].hide()
-        # hide axis b if not being used
-        if 'b' not in self.axisList:
-            for i in self.axisBList:
-                self.w[i].hide()
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n{msg1}\n')
+        else:
+            coords = [s for s in kinematics if 'coordinates' in s]
+            if coords:
+                self.coordinates = coords[0].split('=')[1].strip()
+            else:
+                coords = self.iniFile.find('KINS', 'COORDINATES').lower() or None
+                if coords:
+                    self.coordinates = coords
+        # hide axes a, b, and c if not being used
+        for axis in 'abc':
+            if axis not in self.axes['valid']:
+                for i in self.axes[axis]:
+                    self.w[i].hide()
         # setup home buttons
-        for axis in self.axisList:
-            self.w['home_{}'.format(axis)].set_joint(self.coordinates.index(axis))
-            self.w['home_{}'.format(axis)].set_joint_number(self.coordinates.index(axis))
+        for axis in self.axes['valid']:
+            self.w[f'home_{axis}'].set_joint(self.coordinates.index(axis))
+            self.w[f'home_{axis}'].set_joint_number(self.coordinates.index(axis))
         for joint in range(len(self.coordinates)):
             # check if home all button required
-            if not self.iniFile.find('JOINT_{}'.format(joint), 'HOME_SEQUENCE'):
+            if not self.iniFile.find(f'JOINT_{joint}', 'HOME_SEQUENCE'):
                 self.w.home_all.hide()
             # check if not joggable before homing
-            elif self.iniFile.find('JOINT_{}'.format(joint), 'HOME_SEQUENCE').startswith('-'):
-                if 'jog_{}_plus'.format(self.coordinates[joint]) not in self.jogSyncList:
-                    self.jogSyncList.append('jog_{}_plus'.format(self.coordinates[joint]))
-                    self.jogSyncList.append('jog_{}_minus'.format(self.coordinates[joint]))
-                    self.jogButtonList.remove('jog_{}_plus'.format(self.coordinates[joint]))
-                    self.jogButtonList.remove('jog_{}_minus'.format(self.coordinates[joint]))
+            elif self.iniFile.find(f'JOINT_{joint}', 'HOME_SEQUENCE').startswith('-'):
+                if f'jog_{self.coordinates[joint]}_plus' not in self.jogSyncList:
+                    self.jogSyncList.append(f'jog_{self.coordinates[joint]}_plus')
+                    self.jogSyncList.append(f'jog_{self.coordinates[joint]}_minus')
+                    self.jogButtonList.remove(f'jog_{self.coordinates[joint]}_plus')
+                    self.jogButtonList.remove(f'jog_{self.coordinates[joint]}_minus')
 
     def set_mode(self):
         block1 = ['arc_ok_high', 'arc_ok_high_lbl', 'arc_ok_low', 'arc_ok_low_lbl' ]
@@ -3076,7 +3206,6 @@ class HandlerClass:
                 self.w.pid_p_gain_lbl.setText(_translate('HandlerClass', 'Speed %'))
 
     def set_spinbox_parameters(self):
-        self.w.max_offset_velocity_in.setText('{}'.format(int(self.thcFeedRate)))
         if self.units == 'in':
             self.w.setup_feed_rate.setRange(4.0, int(self.thcFeedRate))
             self.w.setup_feed_rate.setDecimals(1)
@@ -3090,6 +3219,9 @@ class HandlerClass:
             self.w.probe_start_height.setRange(0.1, int(self.maxHeight))
             self.w.probe_start_height.setDecimals(2)
             self.w.probe_start_height.setSingleStep(0.01)
+            self.w.offset_feed_rate.setRange(4.0, int(self.offsetFeedRate))
+            self.w.offset_feed_rate.setDecimals(1)
+            self.w.offset_feed_rate.setSingleStep(0.1)
             self.w.float_switch_travel.setRange(-1.0, 1.0)
             self.w.float_switch_travel.setDecimals(3)
             self.w.float_switch_travel.setSingleStep(0.001)
@@ -3114,16 +3246,23 @@ class HandlerClass:
             self.w.pierce_height.setRange(0.0, 1.0)
             self.w.pierce_height.setDecimals(3)
             self.w.pierce_height.setSingleStep(0.001)
+            self.w.x_pierce_offset.setDecimals(2)
+            self.w.x_pierce_offset.setRange(-0.2, 0.2)
+            self.w.x_pierce_offset.setSingleStep(0.01)
+            self.w.y_pierce_offset.setDecimals(2)
+            self.w.y_pierce_offset.setRange(-0.2, 0.2)
+            self.w.y_pierce_offset.setSingleStep(0.01)
         else:
             self.w.setup_feed_rate.setMaximum(int(self.thcFeedRate))
             self.w.safe_height.setMaximum(int(self.maxHeight))
             self.w.probe_feed_rate.setMaximum(int(self.thcFeedRate))
             self.w.probe_start_height.setMaximum(int(self.maxHeight))
+            self.w.offset_feed_rate.setMaximum(int(self.offsetFeedRate))
 
     def set_probe_offset_pins(self):
-        hal.set_p('plasmac.offset-probe-x', '{}'.format(self.probeOffsetX))
-        hal.set_p('plasmac.offset-probe-y', '{}'.format(self.probeOffsetY))
-        hal.set_p('plasmac.offset-probe-delay', '{}'.format(self.probeDelay))
+        hal.set_p('plasmac.offset-probe-x', f'{self.probeOffsetX}')
+        hal.set_p('plasmac.offset-probe-y', f'{self.probeOffsetY}')
+        hal.set_p('plasmac.offset-probe-delay', f'{self.probeDelay}')
 
     def kb_jog(self, state, joint, direction, shift = False, linear = True):
         if linear:
@@ -3179,8 +3318,8 @@ class HandlerClass:
             self.w.gcode_editor.editor.SendScintilla(QsciScintilla.SCI_SETEXTRADESCENT, 1)
             self.vkb_hide()
             self.w.chk_keyboard_shortcuts.setEnabled(True)
-        for axis in 'xyzab':
-            button = 'touch_{}'.format(axis)
+        for axis in 'xyzabc':
+            button = f'touch_{axis}'
             self.w[button].dialog_code = inputType
 
     def overlay_update(self, state):
@@ -3221,13 +3360,13 @@ class HandlerClass:
     def dialog_input(self, virtkb, title, text, btn1, btn2, delay=None):
         input = QInputDialog(self.w)
         input.setWindowTitle(title)
-        input.setLabelText('{}'.format(text))
+        input.setLabelText(f'{text}')
         if btn1:
             input.setOkButtonText(btn1)
         if btn2:
             input.setCancelButtonText(btn2)
         if delay is not None:
-            input.setTextValue('{:0.2f}'.format(delay))
+            input.setTextValue(f'{delay:0.2f}')
         for button in input.findChildren(QPushButton):
             button.setIcon(QIcon())
         if virtkb in (1,3,5):
@@ -3302,7 +3441,7 @@ class HandlerClass:
 
     def invert_pin_state(self, halpin):
         if 'qtplasmac.ext_out_' in halpin:
-            pin = 'out{}Pin'.format(halpin.split('out_')[1])
+            pin = f'out{halpin.split("out_")[1]}Pin'
             self[pin].set(not hal.get_value(halpin))
         else:
             hal.set_p(halpin, str(not hal.get_value(halpin)))
@@ -3314,9 +3453,14 @@ class HandlerClass:
             if hal.get_value(halpin):
                 if color != self.w.color_foregalt.palette().color(QPalette.Background):
                     self.button_active(self.halTogglePins[halpin][0])
+                text = 3
             else:
                 if color != self.w.color_backgrnd.palette().color(QPalette.Background):
                     self.button_normal(self.halTogglePins[halpin][0])
+                text = 2
+            if self.halTogglePins[halpin][3]:
+                toggleText = self.halTogglePins[halpin][text].replace('\\', '\n')
+                self.w[self.halTogglePins[halpin][0]].setText(f'{toggleText}')
         for halpin in self.halPulsePins:
             color = self.w[self.halPulsePins[halpin][0]].palette().color(QtGui.QPalette.Background)
             if hal.get_value(halpin):
@@ -3333,7 +3477,7 @@ class HandlerClass:
                     self.button_normal(button)
 
 
-    def run_critical_check(self):
+    def cut_critical_check(self):
         rcButtonList = []
         # halTogglePins format is: button name, run critical flag, button text
         for halpin in self.halTogglePins:
@@ -3344,8 +3488,9 @@ class HandlerClass:
             btn1 = _translate('HandlerClass', 'CONTINUE')
             btn2 = _translate('HandlerClass', 'CANCEL')
             msg0 = _translate('HandlerClass', 'Button not toggled')
-            msg1 = '\n{}'.format('\n'.join(rcButtonList))
-            if self.dialog_show_yesno(QMessageBox.Warning, '{}'.format(head), '\n{}:\n{}'.format(msg0, msg1), '{}'.format(btn1), '{}'.format(btn2)):
+            joined = '\n'.join(rcButtonList)
+            msg1 = f'\n{joined}'
+            if self.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'\n{msg0}:\n{msg1}', f'{btn1}', f'{btn2}'):
                 return False
             else:
                 return True
@@ -3377,7 +3522,7 @@ class HandlerClass:
             self.button_active(self.w.file_edit.objectName())
             text0 = _translate('HandlerClass', 'EDIT')
             text1 = _translate('HandlerClass', 'CLOSE')
-            self.w.file_edit.setText('{}\n{}'.format(text0, text1))
+            self.w.file_edit.setText(f'{text0}\n{text1}')
             self.autorepeat_keys(True)
             buttonList = [button for button in self.idleHomedList if button != 'mdi_show']
             self.set_buttons_state([self.idleOnList, buttonList], False)
@@ -3390,8 +3535,10 @@ class HandlerClass:
             self.cameraOn = True
         elif self.w.preview_stack.currentIndex() == self.OFFSETS:
             self.button_active(self.ovButton)
-            buttonList = [button for button in self.idleHomedList if button not in ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_b', 'touch_xy', \
-            'mdi_show', 'wcs_button', 'set_offsets']]
+            buttonList = [button for button in self.idleHomedList if button not in ['touch_x', 'touch_y', 'touch_z', \
+                                                                                    'touch_a', 'touch_b', 'touch_c', \
+                                                                                    'touch_xy', 'mdi_show', 'wcs_button', \
+                                                                                    'set_offsets']]
             self.set_buttons_state([self.idleOnList, buttonList], False)
             self.w.jog_frame.setEnabled(False)
             self.w.run.setEnabled(False)
@@ -3428,7 +3575,7 @@ class HandlerClass:
             self.button_active(self.w.mdi_show.objectName())
             text0 = _translate('HandlerClass', 'MDI')
             text1 = _translate('HandlerClass', 'CLOSE')
-            self.w.mdi_show.setText('{}\n{}'.format(text0, text1))
+            self.w.mdi_show.setText(f'{text0}\n{text1}')
             self.w.mdihistory.reload()
             self.w.mdihistory.MDILine.setFocus()
             self.autorepeat_keys(True)
@@ -3503,8 +3650,8 @@ class HandlerClass:
             self.w.ub_save.setEnabled(state)
             self.w.ub_reload.setEnabled(state)
             for bNum in range(1,21):
-                self.w['ub_name_{}'.format(bNum)].setEnabled(state)
-                self.w['ub_code_{}'.format(bNum)].setEnabled(state)
+                self.w[f'ub_name_{bNum}'].setEnabled(state)
+                self.w[f'ub_code_{bNum}'].setEnabled(state)
             # disable Jog Frame during probe test or torch pulse
             if self.probeTest or self.torchPulse:
                 self.w.jog_frame.setEnabled(state)
@@ -3535,9 +3682,26 @@ class HandlerClass:
             response = (Popen('cat /sys/class/dmi/id/product_name', stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]).decode('utf-8')
             if 'virtual' in response.lower() or 'vmware' in response.lower():
                 self.virtualMachine = True
-                STATUS.emit('update-machine-log', '"{}" Virtual Machine detected'.format(response.strip()), 'TIME')
+                STATUS.emit('update-machine-log', f'"{response.strip()}" Virtual Machine detected', 'TIME')
         except:
             pass
+
+    def toggle_joint_mode(self):
+        if not STATUS.is_all_homed():
+            return
+        if hal.get_value('halui.mode.is-teleop'):
+            teleop = False
+        elif hal.get_value('halui.mode.is-joint'):
+            teleop = True
+        ACTION.cmd.teleop_enable(teleop)
+        for axis in self.axes['valid']:
+            self.w[f'touch_{axis}'].setEnabled(teleop)
+            self.w[f'dro_{axis}'].setEnabled(teleop)
+            self.w[f'dro_label_{axis}'].setProperty('homed', teleop)
+            self.w[f'dro_label_{axis}'].setStyle(self.w[f'dro_label_{axis}'].style())
+        time.sleep(0.1)
+        self.w.gcodegraphics.updateGL()
+        self.w.conv_preview.updateGL()
 
 
 #########################################################################################################################
@@ -3596,34 +3760,34 @@ class HandlerClass:
         text = _translate('HandlerClass', 'FEED')
         if self.w.feed_slider.value() != 100:
             if self.flashState:
-                self.w.feed_label.setText('{}\n{:.0f}%'.format(text, STATUS.stat.feedrate * 100))
+                self.w.feed_label.setText(f'{text}\n{STATUS.stat.feedrate * 100:.0f}%')
             else:
                 self.w.feed_label.setText(' \n ')
         else:
-            self.w.feed_label.setText('{}\n{:.0f}%'.format(text, STATUS.stat.feedrate * 100))
+            self.w.feed_label.setText(f'{text}\n{STATUS.stat.feedrate * 100:.0f}%')
         text = _translate('HandlerClass', 'RAPID')
         if self.w.rapid_slider.value() != 100:
             if self.flashState:
-                self.w.rapid_label.setText('{}\n{:.0f}%'.format(text, STATUS.stat.rapidrate * 100))
+                self.w.rapid_label.setText(f'{text}\n{STATUS.stat.rapidrate * 100:.0f}%')
             else:
                 self.w.rapid_label.setText(' \n ')
         else:
-            self.w.rapid_label.setText('{}\n{:.0f}%'.format(text, STATUS.stat.rapidrate * 100))
+            self.w.rapid_label.setText(f'{text}\n{STATUS.stat.rapidrate * 100:.0f}%')
         text = _translate('HandlerClass', 'JOG')
         if self.manualCut:
             if self.flashState:
                 self.w.run.setText(_translate('HandlerClass', 'MANUAL CUT'))
-                self.w.jogs_label.setText('{}\n{:.0f}'.format(text, STATUS.get_jograte()))
+                self.w.jogs_label.setText(f'{text}\n{STATUS.get_jograte():.0f}')
             else:
                 self.w.run.setText('')
                 self.w.jogs_label.setText(' \n ')
         if self.heightOvr > 0.01 or self.heightOvr < -0.01:
             if self.flashState:
-                self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
+                self.w.height_ovr_label.setText(f'{self.heightOvr:.2f}')
             else:
                 self.w.height_ovr_label.setText('')
         else:
-            self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
+            self.w.height_ovr_label.setText(f'{self.heightOvr:.2f}')
         if self.flash_error and self.error_present:
             if self.flashState:
                 self.w.error_label.setText(_translate('HandlerClass', 'ERROR SENT TO MACHINE LOG'))
@@ -3649,7 +3813,7 @@ class HandlerClass:
                 self.pmx485LabelState = None
         elif not self.pmx485LabelState:
             if self.flashState:
-                self.w.pmx485_label.setText('Fault Code: {}'.format(self.pmx485FaultCode))
+                self.w.pmx485_label.setText(f'Fault Code: {self.pmx485FaultCode}')
                 self.pmx485LabelState = None
             else:
                 self.w.pmx485_label.setText('')
@@ -3659,7 +3823,7 @@ class HandlerClass:
         if self.probeTime > 1:
             self.probeTime -= 1
             self.probeTimer.start(1000)
-            self.w[self.ptButton].setText('{}'.format(self.probeTime))
+            self.w[self.ptButton].setText(f'{self.probeTime}')
         else:
             self.probe_test_stop()
             log = _translate('HandlerClass', 'Probe test completed')
@@ -3669,7 +3833,7 @@ class HandlerClass:
         if self.torchTime:
             self.torchTime -= 0.1
             self.torchTimer.start(100)
-            self.w[self.tpButton].setText('{:.1f}'.format(self.torchTime))
+            self.w[self.tpButton].setText(f'{self.torchTime:.1f}')
         if self.torchTime <= 0:
             self.torchTimer.stop()
             self.torchTime = 0
@@ -3680,7 +3844,7 @@ class HandlerClass:
             else:
                 text0 = _translate('HandlerClass', 'TORCH')
                 text1 = _translate('HandlerClass', 'ON')
-                self.w[self.tpButton].setText('{}\n{}'.format(text0, text1))
+                self.w[self.tpButton].setText(f'{text0}\n{text1}')
         else:
             self.torchTimer.start(100)
 
@@ -3694,18 +3858,18 @@ class HandlerClass:
                     if self.halPulsePins[halpin][1] == self.halPulsePins[halpin][3]:
                         self.invert_pin_state(halpin)
                     self.halPulsePins[halpin][3] -= 0.1
-                    self.w[self.halPulsePins[halpin][0]].setText('{:0.1f}'.format(self.halPulsePins[halpin][3]))
+                    self.w[self.halPulsePins[halpin][0]].setText(f'{self.halPulsePins[halpin][3]:0.1f}')
                 elif self.w[self.halPulsePins[halpin][0]].text() != self.halPulsePins[halpin][2]:
                     self.invert_pin_state(halpin)
                     self.halPulsePins[halpin][3] = 0
-                    self.w[self.halPulsePins[halpin][0]].setText('{}'.format(self.halPulsePins[halpin][2]))
+                    self.w[self.halPulsePins[halpin][0]].setText(f'{self.halPulsePins[halpin][2]}')
         except Exception as err:
             self.halPulsePins[halpin][3] = 0
             bNum = self.halPulsePins[halpin][4]
             head = _translate('HandlerClass', 'HAL Pin Error')
             msg0 = _translate('HandlerClass', 'Invalid code for user button')
             msg1 = _translate('HandlerClass', 'Failed to pulse HAL pin')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n"{}" {}\n'.format(head, msg0, bNum, msg1, halpin, err))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n"{halpin}" {err}\n')
         if not active:
             self.pulseTimer.stop()
 
@@ -3745,34 +3909,34 @@ class HandlerClass:
         self.cutType = 0
         self.single_cut_request = False
         self.oldFile = None
-        singleCodes = ['change-consumables', 'cut-type', 'framing', 'manual-cut', 'offsets-view', \
-                       'ohmic-test', 'probe-test', 'single-cut', 'torch-pulse', 'user-manual', 'latest-file']
+        singleCodes = ['change-consumables', 'cut-type', 'framing', 'manual-cut', 'offsets-view', 'ohmic-test', \
+                       'probe-test', 'single-cut', 'torch-pulse', 'user-manual', 'latest-file', 'toggle-joint']
         head = _translate('HandlerClass', 'User Button Error')
         for bNum in range(1,21):
-            self.w['button_{}'.format(str(bNum))].setEnabled(False)
-            bName = self.PREFS.getpref('{} Name'.format(bNum), '', str, 'BUTTONS') or None
-            bCode = self.PREFS.getpref('{} Code'.format(bNum), '', str, 'BUTTONS') or None
+            self.w[f'button_{str(bNum)}'].setEnabled(False)
+            self.w[f'button_{str(bNum)}'].setCheckable(False)
+            bName = self.PREFS.getpref(f'{bNum} Name', '', str, 'BUTTONS') or None
+            bCode = self.PREFS.getpref(f'{bNum} Code', '', str, 'BUTTONS') or None
             if bName or bCode:
-                self.w['ub_name_{}'.format(bNum)].setText(bName)
-                self.w['ub_code_{}'.format(bNum)].setText(bCode)
+                self.w[f'ub_name_{bNum}'].setText(bName)
+                self.w[f'ub_code_{bNum}'].setText(bCode)
             if (bCode and not bName) or (not bCode and bName):
                 msg0 = _translate('HandlerClass', 'are both required')
                 msg1 = _translate('HandlerClass', 'only one has been specified for')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\nCODE + NAME {}\n{} BUTTON_{}\n'.format(head, msg0, msg1, bNum))
-                self.w['button_{}'.format(str(bNum))].setText('')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\nCODE + NAME {msg0}\n{msg1} BUTTON_{bNum}\n')
+                self.w[f'button_{str(bNum)}'].setText('')
                 self.iniButtonCodes.append('')
                 continue
             if not bCode:
-                self.w['button_{}'.format(str(bNum))].setText('')
+                self.w[f'button_{str(bNum)}'].setText('')
                 self.iniButtonCodes.append('')
                 continue
             code = bCode.lower().strip().split()[0]
             if code in singleCodes and code in iniButtonCodes:
                 msg1 = _translate('HandlerClass', 'Duplicate code entry for')
                 msg2 = _translate('HandlerClass', 'Using first instance only of')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} BUTTON_{} + BUTTON_{}\n{} {}\n'
-                        .format(head, msg1, iniButtonCodes.index(code), bNum, msg2, bCode.split()[0]))
-                self.w['button_{}'.format(str(bNum))].setText('')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg1} BUTTON_{iniButtonCodes.index(code)} + BUTTON_{bNum}\n{msg2} {bCode.split()[0]}\n')
+                self.w[f'button_{str(bNum)}'].setText('')
                 self.iniButtonCodes.append('')
                 continue
             self.iniButtonCodes.append(bCode)
@@ -3782,17 +3946,17 @@ class HandlerClass:
             bLabel = bNames[0]
             if len(bNames) > 1:
                 for name in range(1, len(bNames)):
-                    bLabel += '\n{}'.format(bNames[name])
-            self.w['button_{}'.format(str(bNum))].setText(bLabel)
+                    bLabel += f'\n{bNames[name]}'
+            self.w[f'button_{str(bNum)}'].setText(bLabel)
             if 'change-consumables' in bCode:
                 self.ccParm = bCode.replace('change-consumables','').replace(' ','').lower() or None
                 if self.ccParm != None and ('x' in self.ccParm or 'y' in self.ccParm):
-                    self.ccButton = 'button_{}'.format(str(bNum))
+                    self.ccButton = f'button_{str(bNum)}'
                     self.idleHomedList.append(self.ccButton)
                     self.pausedValidList.append(self.ccButton)
                 else:
                     msg1 = _translate('HandlerClass', 'Check button code for invalid or missing arguments')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n')
                     continue
             elif 'probe-test' in bCode:
                 if len(bCode.split()) < 3:
@@ -3801,16 +3965,16 @@ class HandlerClass:
                             self.ptTime = round(float(bCode.lower().replace('probe-test','').strip()))
                         except:
                             msg1 = _translate('HandlerClass', 'Check button code for invalid seconds argument')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n')
                             continue
                     else:
                         self.ptTime = 10
-                    self.ptButton = 'button_{}'.format(str(bNum))
+                    self.ptButton = f'button_{str(bNum)}'
                     self.idleHomedList.append(self.ptButton)
                     self.probeText = self.w[self.ptButton].text()
                 else:
                     msg1 = _translate('HandlerClass', 'Check button code for extra arguments')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n')
                     continue
             elif 'torch-pulse' in bCode:
                 if len(bCode.split()) < 3:
@@ -3819,21 +3983,21 @@ class HandlerClass:
                             self.tpTime = round(float(bCode.lower().replace('torch-pulse','').strip()), 1)
                         except:
                             msg1 = _translate('HandlerClass', 'Check button code for invalid seconds argument')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n')
                             continue
                         self.tpTime = 3.0 if self.torchTime > 3.0 else self.tpTime
                     else:
                         self.tpTime = 1.0
-                    self.tpButton = 'button_{}'.format(str(bNum))
+                    self.tpButton = f'button_{str(bNum)}'
                     self.idleOnList.append(self.tpButton)
                     self.pausedValidList.append(self.tpButton)
                     self.tpText = self.w[self.tpButton].text()
                 else:
                     msg1 = _translate('HandlerClass', 'Check button code for extra arguments')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n')
                     continue
             elif 'ohmic-test' in bCode:
-                self.otButton = 'button_{}'.format(str(bNum))
+                self.otButton = f'button_{str(bNum)}'
                 self.idleOnList.append(self.otButton)
                 self.pausedValidList.append(self.otButton)
             elif 'framing' in bCode:
@@ -3850,37 +4014,41 @@ class HandlerClass:
                             self.frFeed = float(bCode.replace('f', ''))
                         except:
                             msg1 = _translate('HandlerClass', 'Check button code for invalid feed argument')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n')
                             frButton = False
                             continue
                     else:
                         msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n')
                         continue
                 if frButton:
-                    self.frButton = 'button_{}'.format(str(bNum))
+                    self.frButton = f'button_{str(bNum)}'
                     self.idleHomedList.append(self.frButton)
             elif 'cut-type' in bCode:
-                self.ctButton = 'button_{}'.format(str(bNum))
+                self.ctButton = f'button_{str(bNum)}'
                 self.idleOnList.append(self.ctButton)
             elif 'single-cut' in bCode:
-                self.scButton = 'button_{}'.format(str(bNum))
+                self.scButton = f'button_{str(bNum)}'
                 self.idleHomedList.append(self.scButton)
             elif 'manual-cut' in bCode:
-                self.mcButton = 'button_{}'.format(str(bNum))
+                self.mcButton = f'button_{str(bNum)}'
                 self.idleHomedList.append(self.mcButton)
             elif 'load' in bCode:
-                self.idleOnList.append('button_{}'.format(str(bNum)))
+                self.idleOnList.append(f'button_{str(bNum)}')
             elif 'toggle-halpin' in bCode:
                 head = _translate('HandlerClass', 'HAL Pin Error')
-                if len(bCode.split()) == 3 and 'runcritical' in bCode.lower():
+                altLabel = None
+                if ';;' in bCode:
+                    altLabel = bCode[bCode.index(';;') + 2:].strip()
+                    bCode = bCode[:bCode.index(';;')].strip()
+                if len(bCode.split()) == 3 and 'cutcritical' in bCode.lower():
                     critical = True
                 elif len(bCode.split()) == 2:
                     critical = False
                 else:
                     head = _translate('HandlerClass', 'User Button Error')
                     msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n')
                     continue
                 halpin = bCode.lower().split('toggle-halpin')[1].split(' ')[1].strip()
                 excludedHalPins = ('plasmac.torch-pulse-start', 'plasmac.ohmic-test', \
@@ -3889,22 +4057,22 @@ class HandlerClass:
                     msg1 = _translate('HandlerClass', 'HAL pin')
                     msg2 = _translate('HandlerClass', 'must be toggled')
                     msg3 = _translate('HandlerClass', 'using standard button code')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}\n{}\n'.format(head, msg0, bNum, msg1, halpin, msg1, msg3))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1} "{halpin}" {msg1}\n{msg3}\n')
                     continue
                 else:
                     try:
                         hal.get_value(halpin)
-                        self.machineOnList.append('button_{}'.format(str(bNum)))
+                        self.machineOnList.append(f'button_{str(bNum)}')
                     except:
                         msg1 = _translate('HandlerClass', 'HAL pin')
                         msg2 = _translate('HandlerClass', 'does not exist')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}\n'.format(head, msg0, bNum, msg1, halpin, msg2))
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1} "{halpin}" {msg2}\n')
                         continue
-                # halTogglePins format is: button name, run critical flag, button text
-                self.halTogglePins[halpin] = ['button_{}'.format(str(bNum)), critical, bLabel]
+                # halTogglePins format is: button name, run critical flag, button text, alt button text
+                self.halTogglePins[halpin] = [f'button_{str(bNum)}', critical, bLabel, altLabel]
             elif 'toggle-laser' in bCode:
-                self.tlButton.append('button_{}'.format(str(bNum)))
-                self.idleHomedList.append('button_{}'.format(str(bNum)))
+                self.tlButton.append(f'button_{str(bNum)}')
+                self.idleHomedList.append(f'button_{str(bNum)}')
                 continue
             elif 'pulse-halpin' in bCode:
                 if len(bCode.split()) < 4:
@@ -3918,7 +4086,7 @@ class HandlerClass:
                             head = _translate('HandlerClass', 'User Button Error')
                             msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
                             code = halpin = delay = ''
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n')
                             continue
                     excludedHalPins = ('plasmac.torch-pulse-start', 'plasmac.ohmic-test', \
                                     'plasmac.probe-test', 'plasmac.consumable-change')
@@ -3927,65 +4095,88 @@ class HandlerClass:
                         msg1 = _translate('HandlerClass', 'HAL pin')
                         msg2 = _translate('HandlerClass', 'must be pulsed')
                         msg3 = _translate('HandlerClass', 'using standard button code')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}\n{}\n'.format(head, msg0, bNum, msg1, halpin, msg1, msg3))
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1} "{halpin}" {msg1}\n{msg3}\n')
                         continue
                     else:
                         try:
                             hal.get_value(halpin)
-                            self.machineOnList.append('button_{}'.format(str(bNum)))
+                            self.machineOnList.append(f'button_{str(bNum)}')
                         except:
                             msg1 = _translate('HandlerClass', 'HAL pin')
                             msg2 = _translate('HandlerClass', 'does not exist')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}\n'.format(head, msg0, bNum, msg1, halpin, msg2))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1} "{halpin}" {msg2}\n')
                             continue
                     # halPulsePins format is: button name, pulse time, button text, remaining time, button number
                     try:
-                        self.halPulsePins[halpin] = ['button_{}'.format(str(bNum)), float(delay), bLabel, 0.0, bNum]
+                        self.halPulsePins[halpin] = [f'button_{str(bNum)}', float(delay), bLabel, 0.0, bNum]
                     except:
                         head = _translate('HandlerClass', 'User Button Error')
                         msg1 = _translate('HandlerClass', 'Check button code for invalid seconds argument')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n')
                         continue
                 else:
                     head = _translate('HandlerClass', 'User Button Error')
                     msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n')
                     continue
             elif 'offsets-view' in bCode:
-                self.ovButton = 'button_{}'.format(str(bNum))
+                self.ovButton = f'button_{str(bNum)}'
                 self.idleList.append(self.ovButton)
             elif 'latest-file' in bCode:
-                self.llButton = 'button_{}'.format(str(bNum))
+                self.llButton = f'button_{str(bNum)}'
                 self.idleList.append(self.llButton)
             elif 'user-manual' in bCode:
-                self.umButton = 'button_{}'.format(str(bNum))
+                self.umButton = f'button_{str(bNum)}'
                 self.idleList.append(self.umButton)
                 self.w.webview.load(self.umUrl)
+            elif 'toggle-joint' in bCode:
+                self.jtButton = f'button_{str(bNum)}'
+                self.idleHomedList.append(self.jtButton)
             else:
-                for command in bCode.split('\\'):
+                if 'dual-code' in bCode:
+                    # incoming code is: "dual-code" ;; code1 ;; label1 ;; code2 ;; checked (optional = true)
+                    data = bCode.split(';;')
+                    if len(data) not in [4, 5]:
+                        head = _translate('HandlerClass', 'User Button Error')
+                        msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
+                        code = halpin = delay = ''
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n')
+                        continue
+                    else:
+                        if len(data) == 5 and data[4].strip().lower() == 'true':
+                            self.w[f'button_{str(bNum)}'].setCheckable(True)
+                            checked = True
+                        else:
+                            checked = True
+                        self.dualCodeButtons[bNum] = [data[1], data[2], data[3], bLabel, checked]
+                        # dualCodeButtons format is: code1 ;; label1 ;; code2 ;; label2 ;; checked
+                    commands = f'{data[1]}\\{data[3]}'
+                else:
+                    commands = bCode
+                for command in commands.split('\\'):
                     command = command.strip()
-                    if command and command[0].lower() in 'xyzabgmfsto' and command.replace(' ','')[1] in '0123456789<':
-                        if 'button_{}'.format(str(bNum)) not in self.idleHomedList:
-                            self.idleHomedList.append('button_{}'.format(str(bNum)))
+                    if command and command[0].lower() in 'xyzabcgmfsto' and command.replace(' ','')[1] in '0123456789<':
+                        if f'button_{str(bNum)}' not in self.idleHomedList:
+                            self.idleHomedList.append(f'button_{str(bNum)}')
                     elif command and command[0] == '%':
                         cmd = command.lstrip('%').lstrip(' ').split(' ', 1)[0]
                         if cmd[-3:] == '.py':
                             reply = os.path.exists(os.path.expanduser(cmd))
                         else:
-                            reply = Popen('which {}'.format(cmd), stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]
+                            reply = Popen(f'which {cmd}', stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]
                         if not reply:
                             head = _translate('HandlerClass', 'External Code Error')
                             msg1 = _translate('HandlerClass', 'External command')
                             msg2 = _translate('HandlerClass', 'does not exist')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}\n'.format(head, msg0, bNum, msg1, cmd, msg2))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1} "{cmd}" {msg2}\n')
                         else:
-                            self.alwaysOnList.append('button_{}'.format(str(bNum)))
+                            self.alwaysOnList.append(f'button_{str(bNum)}')
                     else:
                         head = _translate('HandlerClass', 'Code Error')
-                        msg1 = self.w['button_{}'.format(str(bNum))].text().replace('\n',' ')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}: "{}"\n'.format(head, msg0, bNum, msg1, command))
-                        if 'button_{}'.format(str(bNum)) in self.idleHomedList:
-                            self.idleHomedList.remove('button_{}'.format(str(bNum)))
+                        msg1 = self.w[f'button_{str(bNum)}'].text().replace('\n',' ')
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}: "{command}"\n')
+                        if f'button_{str(bNum)}' in self.idleHomedList:
+                            self.idleHomedList.remove(f'button_{str(bNum)}')
                         break
 
     def user_button_down(self, bNum):
@@ -4017,7 +4208,7 @@ class HandlerClass:
             if self.fileOpened == True:
                 self.file_reload_clicked()
         elif 'load' in commands.lower():
-            lFile = '{}/{}'.format(self.programPrefix, commands.split('load', 1)[1].strip())
+            lFile = f'{self.programPrefix}/{commands.split("load", 1)[1].strip()}'
             self.overlayProgress.setValue(0)
             self.remove_temp_materials()
             ACTION.OPEN_PROGRAM(lFile)
@@ -4032,7 +4223,7 @@ class HandlerClass:
                 head = _translate('HandlerClass', 'HAL Pin Error')
                 msg0 = _translate('HandlerClass', 'Invalid code for user button')
                 msg1 = _translate('HandlerClass', 'Failed to toggle HAL pin')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n"{}" {}\n'.format(head, msg0, bNum, msg1, halpin, err))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head,}:\n{msg0} #{bNum}\n{msg1}\n"{halpin}" {err}\n')
         elif 'toggle-laser' in commands.lower():
             self.laserOnPin.set(not self.laserOnPin.get())
             for command in commands.split('\\'):
@@ -4051,20 +4242,20 @@ class HandlerClass:
                     delay = '1.0'
                 except:
                     msg0 = _translate('HandlerClass', 'Unknown error for user button')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}"\n'.format(head, msg0, bNum, msg1, halpin))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1} "{halpin}"\n')
                     return
             # halPulsePins format is: button name, pulse time, button text, remaining time, button number
             try:
                 if self.halPulsePins[halpin][3] > 0.05:
                     self.halPulsePins[halpin][3] = 0.0
                 else:
-                    self.w[self.halPulsePins[halpin][0]].setText('{}'.format(self.halPulsePins[halpin][2]))
+                    self.w[self.halPulsePins[halpin][0]].setText(f'{self.halPulsePins[halpin][2]}')
                     self.halPulsePins[halpin][3] = self.halPulsePins[halpin][1]
                     if not self.pulseTimer.isActive():
                         self.pulseTimer.start(100)
             except:
                 msg0 = _translate('HandlerClass', 'Invalid code for user button')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}"\n'.format(head, msg0, bNum, msg1, halpin))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1} "{halpin}"\n')
         elif 'single-cut' in commands.lower():
             self.single_cut()
         elif 'manual-cut' in commands.lower():
@@ -4080,7 +4271,7 @@ class HandlerClass:
                     dir = commands.split()[1]
                 else:
                     dir = self.w.PREFS_.getpref('last_loaded_directory', '', str, 'BOOK_KEEPING')
-                files = glob.glob('{}/*.ngc'.format(dir))
+                files = glob.glob(f'{dir}/*.ngc')
                 latest = max(files, key = os.path.getctime)
                 self.overlayProgress.setValue(0)
                 self.remove_temp_materials()
@@ -4088,7 +4279,7 @@ class HandlerClass:
             except:
                 head = _translate('HandlerClass', 'File Error')
                 msg0 = _translate('HandlerClass', 'Cannot open latest file from user button')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n'.format(head, msg0, bNum))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n')
         elif 'user-manual' in commands.lower():
             if self.w.preview_stack.currentIndex() != self.USER_MANUAL:
                 self.prevPreviewIndex = self.w.preview_stack.currentIndex()
@@ -4096,8 +4287,20 @@ class HandlerClass:
             else:
                 self.w.preview_stack.setCurrentIndex(self.prevPreviewIndex)
                 self.prevPreviewIndex = self.USER_MANUAL
+        elif 'toggle-joint' in commands.lower():
+            self.toggle_joint_mode()
         else:
             self.reloadRequired = False
+            if 'dual-code' in commands:
+                # dualCodeButtons format is: code1 ;; label1 ;; code2 ;; label2 ;; checked
+                if self.w[f'button_{bNum}'].text() == self.dualCodeButtons[bNum][3]:
+                    commands = self.dualCodeButtons[bNum][0]
+                    self.w[f'button_{bNum}'].setText(self.dualCodeButtons[bNum][1])
+                    self.w[f'button_{bNum}'].setChecked(True)
+                else:
+                    commands = self.dualCodeButtons[bNum][2]
+                    self.w[f'button_{bNum}'].setText(self.dualCodeButtons[bNum][3])
+                    self.w[f'button_{bNum}'].setChecked(False)
             for command in commands.split('\\'):
                 command = command.strip()
                 self.user_button_command(bNum, command)
@@ -4113,7 +4316,7 @@ class HandlerClass:
 
     # for G-code commands and external commands
     def user_button_command(self, bNum, command):
-        if command and command[0].lower() in 'xyzabgmfsto' and command.replace(' ','')[1] in '0123456789<':
+        if command and command[0].lower() in 'xyzabcgmfsto' and command.replace(' ','')[1] in '0123456789<':
             if '{' in command:
                 newCommand = subCommand = ''
                 for char in command:
@@ -4125,10 +4328,10 @@ class HandlerClass:
                         else:
                             head = _translate('HandlerClass', 'Code Error')
                             msg0 = _translate('HandlerClass', 'Value Error in user button')
-                            msg1 = self.w['button_{}'.format(str(bNum))].text().replace('\n',' ')
-                            errorCode = '{}'.format(subCommand.replace(':', '{')) + '}'
+                            msg1 = self.w[f'button_{str(bNum)}'].text().replace('\n',' ')
+                            errorCode = f'{subCommand.replace(":", "{")}' + '}'
                             msg2 = _translate('HandlerClass', 'Requires a valid section and option pair')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{} ({}):\n"{}"\n{}\n'.format(head, msg0, bNum, msg1, errorCode, msg2))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum} ({msg1}):\n"{errorCode}"\n{msg2}\n')
                             return
                         if self.PREFS.has_option(section, option):
                             newCommand += str(self.PREFS.get(section, option))
@@ -4137,10 +4340,10 @@ class HandlerClass:
                         else:
                             head = _translate('HandlerClass', 'Code Error')
                             msg0 = _translate('HandlerClass', 'Invalid code in user button')
-                            msg1 = self.w['button_{}'.format(str(bNum))].text().replace('\n',' ')
-                            errorCode = '{}'.format(subCommand.replace(':', '{')) + '}'
+                            msg1 = self.w[f'button_{str(bNum)}'].text().replace('\n',' ')
+                            errorCode = f'{subCommand.replace(":", "{")}' + '}'
                             msg2 = _translate('HandlerClass', 'Provided section option pair does not exist')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{} ({}):\n"{}"\n{}\n'.format(head, msg0, bNum, msg1, errorCode, msg2))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum} ({msg1}):\n"{errorCode}"\n{msg2}\n')
                             return
                         subCommand = ''
                     elif subCommand.startswith(':'):
@@ -4163,8 +4366,8 @@ class HandlerClass:
         else:
             head = _translate('HandlerClass', 'Code Error')
             msg0 = _translate('HandlerClass', 'Invalid code for user button')
-            msg1 = self.w['button_{}'.format(str(bNum))].text().replace('\n',' ')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}: "{}"\n'.format(head, msg0, bNum, msg1, command))
+            msg1 = self.w[f'button_{str(bNum)}'].text().replace('\n',' ')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}: "{command}"\n')
 
     def user_button_up(self, bNum):
         commands = self.iniButtonCodes[bNum]
@@ -4268,7 +4471,7 @@ class HandlerClass:
         if not self.ccFeed or self.ccFeed < 1:
             msg0 = _translate('HandlerClass', 'Invalid feed rate for consumable change')
             msg1 = _translate('HandlerClass', 'Defaulting to materials cut feed rate')
-            STATUS.emit('update-machine-log', '{}, {}'.format(msg0, msg1), 'TIME')
+            STATUS.emit('update-machine-log', f'{msg0}, {msg1}', 'TIME')
             self.ccFeed = float(self.w.cut_feed_rate.text())
 
     def ext_change_consumables(self, state):
@@ -4302,8 +4505,8 @@ class HandlerClass:
             elif self.ccYpos > round(self.yMax, 6) - (10 * self.unitsPerMm):
                 self.ccYpos = round(self.yMax, 6) - (10 * self.unitsPerMm)
             hal.set_p('plasmac.xy-feed-rate', str(float(self.ccFeed)))
-            hal.set_p('plasmac.x-offset', '{:.0f}'.format((self.ccXpos - STATUS.get_position()[0][0]) / hal.get_value('plasmac.offset-scale')))
-            hal.set_p('plasmac.y-offset', '{:.0f}'.format((self.ccYpos - STATUS.get_position()[0][1]) / hal.get_value('plasmac.offset-scale')))
+            hal.set_p('plasmac.x-offset', f'{(self.ccXpos - STATUS.get_position()[0][0]) / hal.get_value("plasmac.offset-scale"):.0f}')
+            hal.set_p('plasmac.y-offset', f'{(self.ccYpos - STATUS.get_position()[0][1]) / hal.get_value("plasmac.offset-scale"):.0f}')
             hal.set_p('plasmac.consumable-change', '1')
             self.button_active(self.ccButton)
 
@@ -4314,11 +4517,16 @@ class HandlerClass:
     def probe_test(self, state):
         if state:
             if self.probeTimer.remainingTime() <= 0 and not self.offsetsActivePin.get():
+                probeError, errMsg = self.bounds_check_probe(True)
+                if probeError:
+                    head = _translate('HandlerClass', 'Axis Limit Error')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{errMsg}\n')
+                    return
                 self.probeTime = self.ptTime
                 self.probeTimer.start(1000)
                 self.probeTest = True
                 hal.set_p('plasmac.probe-test','1')
-                self.w[self.ptButton].setText('{}'.format(self.probeTime))
+                self.w[self.ptButton].setText(f'{self.probeTime}')
                 self.button_active(self.ptButton)
                 self.w.run.setEnabled(False)
                 self.w.abort.setEnabled(True)
@@ -4358,7 +4566,7 @@ class HandlerClass:
                 self.torchPulse = True
                 hal.set_p('plasmac.torch-pulse-time', str(self.torchTime))
                 hal.set_p('plasmac.torch-pulse-start', '1')
-                self.w[self.tpButton].setText('{}'.format(self.torchTime))
+                self.w[self.tpButton].setText(f'{self.torchTime}')
                 self.button_active(self.tpButton)
                 self.torch_pulse_states(False)
                 log = _translate('HandlerClass', 'Torch pulse started')
@@ -4394,7 +4602,7 @@ class HandlerClass:
             self.ohmic_test(state)
 
     def ohmic_test(self, state):
-        hal.set_p('plasmac.ohmic-test', '{}'.format(str(state)))
+        hal.set_p('plasmac.ohmic-test', f'{str(state)}')
         buttonList = [button for button in self.idleOnList if button != self.otButton]
         if not STATUS.is_auto_paused():
             if STATUS.is_on_and_idle() and STATUS.is_all_homed():
@@ -4413,55 +4621,29 @@ class HandlerClass:
             self.w.run.setEnabled(False)
             response = False
             if self.w.laser.isVisible():
-                msgList, units, xMin, yMin, xMax, yMax, frame_points = self.bounds_check('framing', self.laserOffsetX, self.laserOffsetY)
-                if self.boundsError['framing']:
+                framingError, frame_points = self.bounds_check_framing(self.laserOffsetX, self.laserOffsetY, True)
+                if framingError:
                     head = _translate('HandlerClass', 'Axis Limit Error')
-                    btn1 = _translate('HandlerClass', 'YES')
-                    btn2 = _translate('HandlerClass', 'NO')
-                    msgs = ''
-                    msg1 = _translate('HandlerClass', 'due to laser offset')
-                    for n in range(0, len(msgList), 3):
-                        if msgList[n + 1] == 'MAX':
-                            msg0 = _translate('HandlerClass', 'portion of move would exceed the maximum limit by')
-                        else:
-                            msg0 = _translate('HandlerClass', 'portion of move would exceed the minimum limit by')
-                        fmt = '\n{} {} {}{} {}' if msgs else '{} {} {}{} {}'
-                        msgs += fmt.format(msgList[n], msg0, msgList[n + 2], units, msg1)
-                    msgs += _translate('HandlerClass', '\n\nDo you want to try with the torch?\n')
-                    response = self.dialog_show_yesno(QMessageBox.Warning, '{}'.format(head), '\n{}'.format(msgs), '{}'.format(btn1), '{}'.format(btn2))
-                    if not response:
+                    framingError += _translate('HandlerClass', '\n\nDo you want to try with the torch?\n')
+                    response = self.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'\n{framingError}')
+                    if response:
+                        framingError, frame_points = self.bounds_check_framing()
+                        if framingError:
+                            head = _translate('HandlerClass', 'Axis Limit Error')
+                            self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{framingError}')
+                            self.w.run.setEnabled(True)
+                            return
+                    else:
                         self.w.run.setEnabled(True)
                         return
-                    msgList, units, xMin, yMin, xMax, yMax, frame_points = self.bounds_check('framing', 0, 0)
-                    if self.boundsError['framing']:
-                        self.w.run.setEnabled(True)
-                        head = _translate('HandlerClass', 'Axis Limit Error')
-                        msgs = ''
-                        for n in range(0, len(msgList), 3):
-                            if msgList[n + 1] == 'MAX':
-                                msg0 = _translate('HandlerClass', 'portion of move would exceed the maximum limit by')
-                            else:
-                                msg0 = _translate('HandlerClass', 'portion of move would exceed the minimum limit by')
-                            fmt = '\n{} {} {}{}' if msgs else '{} {} {}{}'
-                            msgs += fmt.format(msgList[n], msg0, msgList[n + 2], units)
-                        self.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '\n{}'.format(msgs))
-                        return
-                if not response:
+                else:
                     self.laserOnPin.set(1)
             else:
-                msgList, units, xMin, yMin, xMax, yMax, frame_points = self.bounds_check('framing', 0, 0)
-                if self.boundsError['framing']:
-                    self.w.run.setEnabled(True)
+                framingError, frame_points = self.bounds_check_framing()
+                if framingError:
                     head = _translate('HandlerClass', 'Axis Limit Error')
-                    msgs = ''
-                    for n in range(0, len(msgList), 3):
-                        if msgList[n + 1] == 'MAX':
-                            msg0 = _translate('HandlerClass', 'move would exceed the maximum limit by')
-                        else:
-                            msg0 = _translate('HandlerClass', 'move would exceed the minimum limit by')
-                        fmt = '\n{} {} {}{}' if msgs else '{} {} {}{}'
-                        msgs += fmt.format(msgList[n], msg0, msgList[n + 2], units)
-                    self.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '\n{}'.format(msgs))
+                    self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{framingError}')
+                    self.w.run.setEnabled(True)
                     return
             if not self.frFeed:
                 feed = float(self.w.cut_feed_rate.text())
@@ -4477,14 +4659,14 @@ class HandlerClass:
                 elif self.units == 'mm' and not STATUS.is_metric_mode():
                     previousMode = 'G20'
                     ACTION.CALL_MDI('G21')
-                ACTION.CALL_MDI_WAIT('G64 P{:0.3f}'.format(0.25 * self.unitsPerMm))
+                ACTION.CALL_MDI_WAIT(f'G64 P{0.25 * self.unitsPerMm:0.3f}')
                 if self.defaultZ:
-                    ACTION.CALL_MDI('G53 G0 Z{:0.4f}'.format(zHeight))
-                ACTION.CALL_MDI('G53 G0 X{:0.2f} Y{:0.2f}'.format(frame_points[1][0], frame_points[1][1]))
-                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f} F{:0.0f}'.format(frame_points[2][0], frame_points[2][1], feed))
-                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f}'.format(frame_points[3][0], frame_points[3][1]))
-                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f}'.format(frame_points[4][0], frame_points[4][1]))
-                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f}'.format(frame_points[1][0], frame_points[1][1]))
+                    ACTION.CALL_MDI(f'G53 G0 Z{zHeight:0.4f}')
+                ACTION.CALL_MDI(f'G53 G0 X{frame_points[1][0]:0.2f} Y{frame_points[1][1]:0.2f}')
+                ACTION.CALL_MDI(f'G53 G1 X{frame_points[2][0]:0.2f} Y{frame_points[2][1]:0.2f} F{feed:0.0f}')
+                ACTION.CALL_MDI(f'G53 G1 X{frame_points[3][0]:0.2f} Y{frame_points[3][1]:0.2f}')
+                ACTION.CALL_MDI(f'G53 G1 X{frame_points[4][0]:0.2f} Y{frame_points[4][1]:0.2f}')
+                ACTION.CALL_MDI(f'G53 G1 X{frame_points[1][0]:0.2f} Y{frame_points[1][1]:0.2f}')
                 ACTION.CALL_MDI('G0 X0 Y0')
                 ACTION.CALL_MDI(previousMode)
 
@@ -4526,7 +4708,7 @@ class HandlerClass:
         self.vkb_show(True)
         result = sC.exec_()
         self.vkb_hide()
-        if not result:
+        if not result or self.cut_critical_check():
             self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
             return
         self.PREFS.putpref('X length', xLength.value(), float, 'SINGLE CUT')
@@ -4535,15 +4717,15 @@ class HandlerClass:
         self.g91 = True if 910 in STATUS.stat.gcodes else False
         xEnd = STATUS.get_position()[0][0] + xLength.value()
         yEnd = STATUS.get_position()[0][1] + yLength.value()
-        newFile = '{}single_cut.ngc'.format(self.tmpPath)
+        newFile = f'{self.tmpPath}single_cut.ngc'
         matNum = int(self.w.materials_box.currentText().split(': ', 1)[0])
         with open(newFile, 'w') as f:
             f.write('G90\n')
-            f.write('M190 P{}\n'.format(matNum))
+            f.write(f'M190 P{matNum}\n')
             f.write('F#<_hal[plasmac.cut-feed-rate]>\n')
-            f.write('G53 G0 X{:0.6f} Y{:0.6f}\n'.format(STATUS.get_position()[0][0], STATUS.get_position()[0][1]))
+            f.write(f'G53 G0 X{STATUS.get_position()[0][0]:0.6f} Y{STATUS.get_position()[0][1]:0.6f}\n')
             f.write('M3 $0 S1\n')
-            f.write('G53 G1 X{:0.6f} Y{:0.6f}\n'.format(xEnd, yEnd))
+            f.write(f'G53 G1 X{xEnd:0.6f} Y{yEnd:0.6f}\n')
             f.write('M5 $0\n')
             f.write('M2\n')
         self.single_cut_request = True
@@ -4560,7 +4742,12 @@ class HandlerClass:
                 self.button_normal(self.mcButton)
             log = _translate('HandlerClass', 'Manual cut aborted')
             STATUS.emit('update-machine-log', log, 'TIME')
-        elif STATUS.machine_is_on() and STATUS.is_all_homed() and STATUS.is_interp_idle():
+        elif STATUS.machine_is_on() and STATUS.is_all_homed() and STATUS.is_interp_idle() and not self.cut_critical_check():
+            probeError, errMsg = self.bounds_check_probe(True)
+            if probeError:
+                head = _translate('HandlerClass', 'Axis Limit Error')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{errMsg}\n')
+                return
             self.manualCut = True
             self.set_mc_states(False)
             self.w.abort.setEnabled(True)
@@ -4575,24 +4762,21 @@ class HandlerClass:
 
     def button_active(self, button):
         self.w[button].setStyleSheet( \
-                    'QPushButton {{ color: {0}; background: {1} }} \
-                     QPushButton:pressed {{ color: {0}; background: {1} }} \
-                     QPushButton:disabled {{ color: {2}}}' \
-                     .format(self.backColor, self.fore1Color, self.disabledColor))
+                    f'QPushButton {{ color: {self.backColor}; background: {self.fore1Color} }} \
+                     QPushButton:pressed {{ color: {self.backColor}; background: {self.fore1Color} }} \
+                     QPushButton:disabled {{ color: {self.disabledColor}}}')
 
     def button_normal(self, button):
         if button == 'file_open':
             self.w[button].setStyleSheet( \
-                        'QPushButton {{ color: {1}; background: {0} }} \
-                         QPushButton:pressed {{ color: {0}; background: {1} }} \
-                         QPushButton:disabled {{ color: {1}; background: {2} }}' \
-                         .format(self.foreColor, self.backColor, self.disabledColor))
+                        f'QPushButton {{ color: {self.backColor}; background: {self.foreColor} }} \
+                         QPushButton:pressed {{ color: {self.foreColor}; background: {self.backColor} }} \
+                         QPushButton:disabled {{ color: {self.backColor}; background: {self.disabledColor} }}')
         else:
             self.w[button].setStyleSheet( \
-                        'QPushButton {{ color: {0}; background: {1} }} \
-                         QPushButton:pressed {{ color: {0}; background: {1} }} \
-                         QPushButton:disabled {{ color: {2} }}' \
-                         .format(self.foreColor, self.backColor, self.disabledColor))
+                        f'QPushButton {{ color: {self.foreColor}; background: {self.backColor} }} \
+                         QPushButton:pressed {{ color: {self.foreColor}; background: {self.backColor} }} \
+                         QPushButton:disabled {{ color: {self.disabledColor} }}')
 
 
 #########################################################################################################################
@@ -4603,7 +4787,7 @@ class HandlerClass:
             head = _translate('HandlerClass', 'Virtual Keyboard Error')
             msg0  = _translate('HandlerClass', '"onboard" virtual keyboard is not installed')
             msg1 = _translate('HandlerClass', 'some keyboard functions are not available')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n{msg1}\n')
             return
         try:
             cmd = 'gsettings get org.onboard.window.landscape width'
@@ -4649,11 +4833,11 @@ class HandlerClass:
 
     def vkb_setup(self, w, h, l):
         if os.path.isfile('/usr/bin/onboard'):
-            Popen('gsettings set org.onboard.window.landscape width {}'.format(int(w)-1), stdout=PIPE, shell=True)
-            Popen('gsettings set org.onboard.window.landscape height {}'.format(int(h)-1), stdout=PIPE, shell=True)
-            Popen('gsettings set org.onboard layout {}'.format(l), stdout=PIPE, shell=True)
-            Popen('gsettings set org.onboard.window.landscape width {}'.format(int(w)), stdout=PIPE, shell=True)
-            Popen('gsettings set org.onboard.window.landscape height {}'.format(int(h)), stdout=PIPE, shell=True)
+            Popen(f'gsettings set org.onboard.window.landscape width {int(w)-1}', stdout=PIPE, shell=True)
+            Popen(f'gsettings set org.onboard.window.landscape height {int(h)-1}', stdout=PIPE, shell=True)
+            Popen(f'gsettings set org.onboard layout {l}', stdout=PIPE, shell=True)
+            Popen(f'gsettings set org.onboard.window.landscape width {int(w)}', stdout=PIPE, shell=True)
+            Popen(f'gsettings set org.onboard.window.landscape height {int(h)}', stdout=PIPE, shell=True)
 
 
 #########################################################################################################################
@@ -4682,7 +4866,7 @@ class HandlerClass:
         btn2 = _translate('HandlerClass', 'CANCEL')
         virtkb = 4
         while(1):
-            valid, matNum = self.dialog_input(virtkb, head, '{}:'.format(msgs), btn1, btn2)
+            valid, matNum = self.dialog_input(virtkb, head, f'{msgs}:', btn1, btn2)
             if not valid:
                 return
             try:
@@ -4690,30 +4874,31 @@ class HandlerClass:
             except:
                 if not matNum:
                     msg0 = _translate('HandlerClass', 'A material number is required')
-                    msgs = '{}.\n\n{}:'.format(msg0, msg1)
+                    msgs = f'{msg0}.\n\n{msg1}'
                 else:
                     msg0 = _translate('HandlerClass', 'is not a valid number')
-                    msgs = '{} {}.\n\n{}:'.format(matNum, msg0, msg1)
+                    msgs = f'{matNum} {msg0}.\n\n{msg1}'
                 continue
             if matNum in self.materialNumList:
                 msg0 = _translate('HandlerClass', 'Material')
                 msg2 = _translate('HandlerClass', 'is in use')
-                msgs = '{} #{} {}.\n\n{}:'.format(msg0, matNum, msg2, msg1)
+                msgs = f'{msg0} #{matNum} {msg2}.\n\n{msg1}'
                 continue
             elif matNum >= 1000000:
                 msg0 = _translate('HandlerClass', 'Material numbers need to be less than 1000000')
-                msgs = '{}.\n\n{}:'.format(msg0, msg1)
+                msgs = f'{msg0}.\n\n{msg1}'
                 continue
             break
-        msg1 = 'Enter New Material Name'
+        msg1 = _translate('HandlerClass', 'Enter New Material Name')
+        msgs = msg1
         virtkb = 3
         while(1):
-            valid, matNam = self.dialog_input(virtkb, head, msg1, btn1, btn2)
+            valid, matNam = self.dialog_input(virtkb, head, f'{msgs}:', btn1, btn2)
             if not valid:
                 return
             if not matNam:
                 msg0 = _translate('HandlerClass', 'Material name is required')
-                msgs = '{}.\n\n{}:'.format(msg0, msg1)
+                msgs = f'{msg0}.\n\n{msg1}'
                 continue
             break
         mat = [matNum, matNam]
@@ -4732,7 +4917,7 @@ class HandlerClass:
         msgs = msg1
         virtkb = 4
         while(1):
-            valid, matNum = self.dialog_input(virtkb, head, '{}:'.format(msgs), btn1, btn2)
+            valid, matNum = self.dialog_input(virtkb, head, f'{msgs}:', btn1, btn2)
             if not valid:
                 return
             try:
@@ -4740,31 +4925,31 @@ class HandlerClass:
             except:
                 if not matNum:
                     msg0 = _translate('HandlerClass', 'A material number is required')
-                    msgs = '{}.\n\n\{}:'.format(msg0, msg1)
+                    msgs = f'{msg0}.\n\n{msg1}'
                 else:
                     msg0 = _translate('HandlerClass', 'is not a valid number')
-                    msgs = '{} {}.\n\n{}:'.format(matNum, msg0, msg1)
+                    msgs = f'{matNum} {msg0}.\n\n{msg1}'
                 continue
             if matNum == self.defaultMaterial:
                 msg0 = _translate('HandlerClass', 'Default material cannot be deleted')
-                msgs = '{}.\n\n{}:'
+                msgs = f'{msg0}.\n\n{msg1}'
                 continue
             elif matNum >= 1000000 and matNum in self.materialList:
                 msg0 = _translate('HandlerClass', 'Temporary material')
                 msg3 = _translate('HandlerClass', 'cannot be deleted')
-                msgs = '{} #{} {}.\n\n{}:'.format(msg0, matNum, msg3, msg1)
+                msgs = f'{msg0} #{matNum} {msg3}.\n\n{msg1}'
                 continue
             elif matNum not in self.materialNumList:
                 msg0 = _translate('HandlerClass', 'Material')
                 msg3 = _translate('HandlerClass', 'does not exist')
-                msgs = '{} #{} {}.\n\n{}:'.format(msg0, matNum, msg3, msg1)
+                msgs = f'{msg0} #{matNum} {msg3}.\n\n{msg1}'
                 continue
             break
         head = _translate('HandlerClass', 'Delete Material')
         msg0 = _translate('HandlerClass', 'Do you really want to delete material')
-        if not self.dialog_show_yesno(QMessageBox.Question, '{}'.format(head), '\n{} #{}?\n'.format(msg0, matNum)):
+        if not self.dialog_show_yesno(QMessageBox.Question, f'{head}', f'\n{msg0} #{matNum}?\n'):
             return
-        self.MATS.remove_section('MATERIAL_NUMBER_{}'.format(matNum))
+        self.MATS.remove_section(f'MATERIAL_NUMBER_{matNum}')
         self.MATS.write(open(self.MATS.fn, 'w'))
         self.materialUpdate = True
         self.load_material_file(True)
@@ -4849,7 +5034,7 @@ class HandlerClass:
             # should we stop or pause the program if a timeout occurs???
             matNum = int(self.w.materials_box.currentText().split(': ', 1)[0])
             msg0 = _translate('HandlerClass', 'Material change timeout occurred for material')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:{} #{}\n'.format(head, msg0, matNum))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:{msg0} #{matNum}\n')
             self.materialChangeNumberPin.set(matNum)
             self.materialChangeTimeoutPin.set(0)
             hal.set_p('motion.digital-in-03','0')
@@ -4860,7 +5045,7 @@ class HandlerClass:
 
     def material_temp_pin_changed(self, halpin):
         if halpin:
-            mat = [halpin, 'Temporary {}'.format(halpin), 0,0,0,0,0,0,0,0,0,0,0,0]
+            mat = [halpin, f'Temporary {halpin}', 0,0,0,0,0,0,0,0,0,0,0,0]
             with open(self.tmpMaterialGcode, 'r') as f_in:
                 for line in f_in:
                     if line.startswith('NAME'):
@@ -4895,14 +5080,14 @@ class HandlerClass:
             exists = False
             for n in range(self.w.materials_box.count()):
                 if self.w.materials_box.itemText(n) .startswith(str(halpin)):
-                    self.w.materials_box.setItemText(n, '{:05d}: {}'.format(halpin, self.materialDict[halpin][0]))
-                    self.w.material_selector.setItemText(n, '{:05d}: {}'.format(halpin, self.materialDict[halpin][0]))
-                    self.w.conv_material.setItemText(n, '{:05d}: {}'.format(halpin, self.materialDict[halpin][0]))
+                    self.w.materials_box.setItemText(n, f'{halpin:05d}: {self.materialDict[halpin][0]}')
+                    self.w.material_selector.setItemText(n, f'{halpin:05d}: {self.materialDict[halpin][0]}')
+                    self.w.conv_material.setItemText(n, f'{halpin:05d}: {self.materialDict[halpin][0]}')
                     exists = True
             if not exists:
-                self.w.materials_box.addItem('{:05d}: {}'.format(halpin, self.materialDict[halpin][0]))
-                self.w.material_selector.addItem('{:05d}: {}'.format(halpin, self.materialDict[halpin][0]))
-                self.w.conv_material.addItem('{:05d}: {}'.format(halpin, self.materialDict[halpin][0]))#
+                self.w.materials_box.addItem(f'{halpin:05d}: {self.materialDict[halpin][0]}')
+                self.w.material_selector.addItem(f'{halpin:05d}: {self.materialDict[halpin][0]}')
+                self.w.conv_material.addItem(f'{halpin:05d}: {self.materialDict[halpin][0]}')
             if halpin == int(self.w.materials_box.currentText().split(': ', 1)[0]):
                 self.change_material(halpin)
 
@@ -4919,9 +5104,9 @@ class HandlerClass:
         self.w.material_selector.clear()
         self.w.conv_material.clear()
         for key in sorted(self.materialDict):
-            self.w.materials_box.addItem('{:05d}: {}'.format(key, self.materialDict[key][0]))
-            self.w.material_selector.addItem('{:05d}: {}'.format(key, self.materialDict[key][0]))
-            self.w.conv_material.addItem('{:05d}: {}'.format(key, self.materialDict[key][0]))
+            self.w.materials_box.addItem(f'{key:05d}: {self.materialDict[key][0]}')
+            self.w.material_selector.addItem(f'{key:05d}: {self.materialDict[key][0]}')
+            self.w.conv_material.addItem(f'{key:05d}: {self.materialDict[key][0]}')
             self.materialList.append(key)
 
     def change_material(self, matNum):
@@ -5004,7 +5189,7 @@ class HandlerClass:
                 msg0 = _translate('HandlerClass', 'Material number')
                 msg1 = _translate('HandlerClass', 'is invalid')
                 msg2 = _translate('HandlerClass', 'Material numbers need to be less than 1000000')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} "{}" {}\n{}\n'.format(head, msg0, matNum, msg1, msg2))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} "{matNum}" {msg1}\n{msg2}\n')
                 continue
             mat = self.read_one_material(section)
             self.materialNumList.append(matNum)
@@ -5028,7 +5213,7 @@ class HandlerClass:
                 head = _translate('HandlerClass', 'Materials Error')
                 msg0 = _translate('HandlerClass', 'Material #')
                 msg1 = _translate('HandlerClass', 'not in material list')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{} {}\n'.format(head, msg0, int(matNum),msg1))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{int(matNum)} {msg1}\n')
             return False
 
     def read_one_material(self, section):
@@ -5049,7 +5234,7 @@ class HandlerClass:
         return(mat)
 
     def write_one_material(self, mat):
-        section = 'MATERIAL_NUMBER_{}'.format(mat[0])
+        section = f'MATERIAL_NUMBER_{mat[0]}'
         self.MATS.putpref('NAME', mat[1], str, section)
         self.MATS.putpref('KERF_WIDTH', mat[2], float, section)
         self.MATS.putpref('PIERCE_HEIGHT', mat[3], float, section)
@@ -5108,7 +5293,7 @@ class HandlerClass:
         if xPos < self.xMin or xPos > self.xMax or yPos < self.yMin or yPos > self.yMax:
             head = _translate('HandlerClass', 'Laser Error')
             msg0 = _translate('HandlerClass', 'Laser is outside the machine boundary')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n')
             return
         if self.laserButtonState == 'laser':
             self.w.laser.setText(_translate('HandlerClass', 'MARK\nEDGE'))
@@ -5132,10 +5317,10 @@ class HandlerClass:
             if xPos < self.xMin or xPos > self.xMax or yPos < self.yMin or yPos > self.yMax:
                 head = _translate('HandlerClass', 'Laser Error')
                 msg0 = _translate('HandlerClass', 'Torch cannot move outside the machine boundary')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n')
                 return
-            hal.set_p('plasmac.laser-x-offset', '{}'.format(str(int(self.laserOffsetX / self.oScale))))
-            hal.set_p('plasmac.laser-y-offset', '{}'.format(str(int(self.laserOffsetY / self.oScale))))
+            hal.set_p('plasmac.laser-x-offset', f'{str(int(self.laserOffsetX / self.oScale))}')
+            hal.set_p('plasmac.laser-y-offset', f'{str(int(self.laserOffsetY / self.oScale))}')
             hal.set_p('plasmac.laser-recovery-start', '1')
             hal.set_p('plasmac.cut-recovery', '1')
             self.laserOnPin.set(1)
@@ -5183,8 +5368,8 @@ class HandlerClass:
             else:
                 zAngle = 0
             self.w.camview.rotation = zAngle
-            ACTION.CALL_MDI_WAIT('G10 L20 P0 X{} Y{}'.format(offsetX, offsetY))
-            ACTION.CALL_MDI_WAIT('G10 L2 P0 R{}'.format(zAngle))
+            ACTION.CALL_MDI_WAIT(f'G10 L20 P0 X{offsetX} Y{offsetY}')
+            ACTION.CALL_MDI_WAIT(f'G10 L2 P0 R{zAngle}')
             ACTION.CALL_MDI('G0 X0 Y0')
             while not STATUS.is_interp_idle():
                 self.w.gcodegraphics.updateGL()
@@ -5201,7 +5386,7 @@ class HandlerClass:
         if xPos < self.xMin or xPos > self.xMax or yPos < self.yMin or yPos > self.yMax:
             head = _translate('HandlerClass', 'Camera Error')
             msg0 = _translate('HandlerClass', 'Camera is outside the machine boundary')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n')
             return
         self.camButtonState = self.sheet_align(self.camButtonState, self.w.cam_mark, self.camOffsetX, self.camOffsetY)
 
@@ -5241,20 +5426,20 @@ class HandlerClass:
 #########################################################################################################################
     def statistics_show(self):
         for stat in ['cut', 'paused', 'probe', 'run', 'torch', 'rapid']:
-            self.display_hms('{}_time'.format(stat), hal.get_value('plasmac.{}-time'.format(stat)))
-        self.w.cut_length.setText('{:0.2f}'.format(hal.get_value('plasmac.cut-length') / self.statsDivisor))
-        self.w.pierce_count.setText('{:d}'.format(hal.get_value('plasmac.pierce-count')))
+            self.display_hms(f'{stat}_time', hal.get_value(f'plasmac.{stat}-time'))
+        self.w.cut_length.setText(f'{hal.get_value("plasmac.cut-length") / self.statsDivisor:0.2f}')
+        self.w.pierce_count.setText(f'{hal.get_value("plasmac.pierce-count"):d}')
         self.statistics_load()
 
     def statistics_save(self, reset=False):
-        self.PREFS.putpref('Cut time', '{:0.2f}'.format(self.statsSaved['cut'] + hal.get_value('plasmac.cut-time')), float,'STATISTICS')
-        self.PREFS.putpref('Paused time', '{:0.2f}'.format(self.statsSaved['paused'] + hal.get_value('plasmac.paused-time')), float,'STATISTICS')
-        self.PREFS.putpref('Probe time', '{:0.2f}'.format(self.statsSaved['probe'] + hal.get_value('plasmac.probe-time')), float,'STATISTICS')
-        self.PREFS.putpref('Program run time', '{:0.2f}'.format(self.statsSaved['run'] + hal.get_value('plasmac.run-time')), float,'STATISTICS')
-        self.PREFS.putpref('Torch on time', '{:0.2f}'.format(self.statsSaved['torch'] + hal.get_value('plasmac.torch-time')), float,'STATISTICS')
-        self.PREFS.putpref('Rapid time', '{:0.2f}'.format(self.statsSaved['rapid'] + hal.get_value('plasmac.rapid-time')), float,'STATISTICS')
-        self.PREFS.putpref('Cut length', '{:0.2f}'.format(self.statsSaved['length'] + hal.get_value('plasmac.cut-length')), float,'STATISTICS')
-        self.PREFS.putpref('Pierce count', '{:d}'.format(self.statsSaved['pierce'] + hal.get_value('plasmac.pierce-count')), int,'STATISTICS')
+        self.PREFS.putpref('Cut time', f'{self.statsSaved["cut"] + hal.get_value("plasmac.cut-time"):0.2f}', float,'STATISTICS')
+        self.PREFS.putpref('Paused time', f'{self.statsSaved["paused"] + hal.get_value("plasmac.paused-time"):0.2f}', float,'STATISTICS')
+        self.PREFS.putpref('Probe time', f'{self.statsSaved["probe"] + hal.get_value("plasmac.probe-time"):0.2f}', float,'STATISTICS')
+        self.PREFS.putpref('Program run time', f'{self.statsSaved["run"] + hal.get_value("plasmac.run-time"):0.2f}', float,'STATISTICS')
+        self.PREFS.putpref('Torch on time', f'{self.statsSaved["torch"] + hal.get_value("plasmac.torch-time"):0.2f}', float,'STATISTICS')
+        self.PREFS.putpref('Rapid time', f'{self.statsSaved["rapid"] + hal.get_value("plasmac.rapid-time"):0.2f}', float,'STATISTICS')
+        self.PREFS.putpref('Cut length', f'{self.statsSaved["length"] + hal.get_value("plasmac.cut-length"):0.2f}', float,'STATISTICS')
+        self.PREFS.putpref('Pierce count', f'{self.statsSaved["pierce"] + hal.get_value("plasmac.pierce-count"):d}', int,'STATISTICS')
         self.statistics_load()
         self.jobRunning = False
 
@@ -5268,18 +5453,18 @@ class HandlerClass:
         self.statsSaved['length'] = self.PREFS.getpref('Cut length', 0.0, float,'STATISTICS')
         self.statsSaved['pierce'] = self.PREFS.getpref('Pierce count', 0, int,'STATISTICS')
         for stat in ['cut', 'paused', 'probe', 'run', 'torch', 'rapid']:
-            self.display_hms('{}_time_t'.format(stat), self.statsSaved['{}'.format(stat)])
-        self.w.cut_length_t.setText('{:0.2f}'.format(self.statsSaved['length'] / self.statsDivisor))
-        self.w.pierce_count_t.setText('{:d}'.format(self.statsSaved['pierce']))
+            self.display_hms(f'{stat}_time_t', self.statsSaved[f'{stat}'])
+        self.w.cut_length_t.setText(f'{self.statsSaved["length"] / self.statsDivisor:0.2f}')
+        self.w.pierce_count_t.setText(f'{self.statsSaved["pierce"]:d}')
 
     def display_hms(self, widget, time):
         m, s = divmod(time, 60)
         h, m = divmod(m, 60)
-        self.w[widget].setText('{:.0f}:{:02.0f}:{:02.0f}'.format(h,m,s))
+        self.w[widget].setText(f'{h:.0f}:{m:02.0f}:{s:02.0f}')
 
     def statistic_reset(self, stat, statT):
         if stat in ['cut_time', 'paused_time', 'probe_time', 'run_time', 'torch_time', 'rapid_time']:
-            self.display_hms('{}'.format(stat), 0)
+            self.display_hms(f'{stat}', 0)
         elif stat == 'cut_length':
             self.w.cut_length.setText('0.00')
         elif stat == 'pierce_count':
@@ -5289,7 +5474,7 @@ class HandlerClass:
 
     def statistics_reset(self):
         for stat in ['cut', 'paused', 'probe', 'run', 'torch', 'rapid']:
-            self.display_hms('{}_time'.format(stat), 0)
+            self.display_hms(f'{stat}_time', 0)
         self.w.cut_length.setText('0.00')
         self.w.pierce_count.setText('0')
         for stat in ['Cut time', 'Paused time', 'Probe time', 'Program run time', 'Torch on time', \
@@ -5306,7 +5491,7 @@ class HandlerClass:
             self.statsDivisor = 1
             unit = _translate('HandlerClass', 'Inches')
         msg0 = _translate('HandlerClass', 'CUT LENGTH')
-        self.w.cut_length_label.setText('{} ({})'.format(msg0, unit))
+        self.w.cut_length_label.setText(f'{msg0} ({unit})')
         self.statsSaved = {'cut':0, 'length':0, 'pierce':0, 'paused':0, 'probe':0, 'rapid':0, 'run':0, 'torch':0}
         self.jobRunning = False
         self.statistics_load()
@@ -5330,19 +5515,19 @@ class HandlerClass:
                     sPort.close()
                 except Exception as err:
                     if not periodic:
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}'.format(head, err, msg1))
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{err}\n{msg1}')
                     return False
             else:
                 if not periodic:
                     msg0 = _translate('HandlerClass', 'cannot be found')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {}\n{}'.format(head, port, msg0, msg1))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{port} {msg0}\n{msg1}')
                 return False
         except:
             if not periodic:
                 head = _translate('HandlerClass', 'Module Error')
                 msg0 = _translate('HandlerClass', 'python3-serial cannot be found')
                 msg1 = _translate('HandlerClass', 'Install python3-serial or linuxcnc-dev')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}'.format(head, msg0, msg1))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n{msg1}')
             return False
         return True
 
@@ -5373,13 +5558,13 @@ class HandlerClass:
         head = _translate('HandlerClass', 'Comms Error')
         msg0 = _translate('HandlerClass', 'PMX485 component is not able to be loaded,')
         msg1 = _translate('HandlerClass', 'Powermax communications are not available')
-        err = '{}:\n{}\n{}\n'.format(head, msg0, msg1)
+        err = f'{head}:\n{msg0}\n{msg1}\n'
         count = 0
         while not hal.component_exists('pmx485'):
             if count >= 3:
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, err)
                 return 1
-            RUN(['halcmd', 'loadusr', '-Wn', 'pmx485', 'pmx485', '{}'.format(port)])
+            RUN(['halcmd', 'loadusr', '-Wn', 'pmx485', 'pmx485', f'{port}'])
             count += 1
         return 0
 
@@ -5397,9 +5582,9 @@ class HandlerClass:
                    hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT, \
                    hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT]
         for pin in self.pins485Comp:
-            hal.new_sig('plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')), pinType[self.pins485Comp.index(pin)])
-            hal.connect(pin,'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
-            hal.connect('qtplasmac.{}'.format(pinsSelf[self.pins485Comp.index(pin)]),'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
+            hal.new_sig(f'plasmac:{pin.replace("pmx485.", "pmx485_")}', pinType[self.pins485Comp.index(pin)])
+            hal.connect(pin,f'plasmac:{pin.replace("pmx485.", "pmx485_")}')
+            hal.connect(f'qtplasmac.{pinsSelf[self.pins485Comp.index(pin)]}',f'plasmac:{pin.replace("pmx485.", "pmx485_")}')
         self.pmx485_mesh_enable_changed(self.w.mesh_enable.isChecked())
         self.w.cut_amps.setToolTip(_translate('HandlerClass', 'Powermax cutting current'))
 
@@ -5417,7 +5602,7 @@ class HandlerClass:
                 head = _translate('HandlerClass', 'Materials Error')
                 msg0 = _translate('HandlerClass', 'Invalid Cut Mode or Cut Amps,')
                 msg1 = _translate('HandlerClass', 'cannot connect to Powermax')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n{msg1}\n')
                 self.w.pmx485_enable.setChecked(False)
                 return
             # good to go
@@ -5498,8 +5683,8 @@ class HandlerClass:
 
     def pmx485_fault_changed(self, fault):
         if self.pmx485Connected:
-            faultRaw = '{:04.0f}'.format(fault)
-            self.pmx485FaultCode = '{}-{}-{}'.format(faultRaw[0], faultRaw[1:3], faultRaw[3])
+            faultRaw = f'{fault:04.0f}'
+            self.pmx485FaultCode = f'{faultRaw[0]}-{faultRaw[1:3]}-{faultRaw[3]}'
             head = _translate('HandlerClass', 'Powermax Error')
             code = _translate('HandlerClass', 'Fault Code')
             text = _translate('HandlerClass', 'Powermax error')
@@ -5514,17 +5699,17 @@ class HandlerClass:
                     faultMsg = self.pmx485FaultName[faultRaw][0]
                 else:
                     faultMsg = self.pmx485FaultName[faultRaw]
-                self.w.pmx485_label.setText('{}: {}'.format(code, self.pmx485FaultCode))
+                self.w.pmx485_label.setText(f'{code}: {self.pmx485FaultCode}')
                 self.pmx485LabelState = None
-                self.w.pmx485_label.setStatusTip('{} ({}) {}'.format(text, self.pmx485FaultCode, faultMsg))
+                self.w.pmx485_label.setStatusTip(f'{text} ({self.pmx485FaultCode}) {faultMsg}')
                 msg0 = _translate('HandlerClass', 'CODE')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}: {}\n{}\n'.format(head, msg0, self.pmx485FaultCode, faultMsg))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}: {self.pmx485FaultCode}\n{faultMsg}\n')
             else:
-                self.w.pmx485_label.setText('{}: {}'.format(code, faultRaw))
+                self.w.pmx485_label.setText(f'{code}: {faultRaw}')
                 self.pmx485LabelState = None
                 msg0 = _translate('HandlerClass', 'Unknown Powermax fault code')
-                self.w.pmx485_label.setStatusTip('{} ({})'.format(msg0, faultRaw))
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}: {}\n'.format(head, msg0, faultRaw))
+                self.w.pmx485_label.setStatusTip(f'{msg0} ({faultRaw})')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}: {faultRaw}\n')
 
     def pmx485_mesh_enable_changed(self, state):
         if state and not self.meshMode:
@@ -5628,14 +5813,14 @@ class HandlerClass:
     def cutrec_speed_changed(self, speed):
         text = _translate('HandlerClass', 'FEED')
         if STATUS.is_metric_mode():
-            self.w.cut_rec_feed.setText('{}\n{:0.0f}'.format(text, self.w.cut_feed_rate.value() * speed * 0.01))
+            self.w.cut_rec_feed.setText(f'{text}\n{self.w.cut_feed_rate.value() * speed * 0.01:0.0f}')
         else:
-            self.w.cut_rec_feed.setText('{}\n{:0.1f}'.format(text, self.w.cut_feed_rate.value() * speed * 0.01))
+            self.w.cut_rec_feed.setText(f'{text}\n{self.w.cut_feed_rate.value() * speed * 0.01:0.1f}')
 
     def cutrec_move_changed(self, distance):
         text = _translate('HandlerClass', 'MOVE')
-        self.w.cut_rec_move_label.setText('{}\n{}'.format(text, distance))
-#        self.w.cut_rec_move_label.setText('MOVE\n{}'.format(distance))
+        self.w.cut_rec_move_label.setText(f'{text}\n{distance}')
+#        self.w.cut_rec_move_label.setText(f'MOVE\n{distance}')
 
     def cutrec_motion(self, direction):
         if self.w.cut_rec_fwd.isEnabled() and self.w.cut_rec_rev.isEnabled():
@@ -5663,8 +5848,8 @@ class HandlerClass:
                 return
             moveX = int(distX / self.oScale)
             moveY = int(distY / self.oScale)
-            hal.set_p('plasmac.x-offset', '{}'.format(str(hal.get_value('plasmac.x-offset') + moveX)))
-            hal.set_p('plasmac.y-offset', '{}'.format(str(hal.get_value('plasmac.y-offset') + moveY)))
+            hal.set_p('plasmac.x-offset', f'{str(hal.get_value("plasmac.x-offset") + moveX)}')
+            hal.set_p('plasmac.y-offset', f'{str(hal.get_value("plasmac.y-offset") + moveY)}')
             hal.set_p('plasmac.cut-recovery', '1')
 
     def cutrec_offset_changed(self, xOffset, yOffset):
@@ -5700,11 +5885,11 @@ class HandlerClass:
 
     def cutrec_motion_enable(self, state):
         for widget in ['fwd', 'rev', 'speed']:
-            self.w['cut_rec_{}'.format(widget)].setEnabled(state)
+            self.w[f'cut_rec_{widget}'].setEnabled(state)
 
     def cutrec_buttons_enable(self, state):
         for widget in ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw', 'cancel', 'feed', 'move_label']:
-            self.w['cut_rec_{}'.format(widget)].setEnabled(state)
+            self.w[f'cut_rec_{widget}'].setEnabled(state)
 
 
 #########################################################################################################################
@@ -5716,7 +5901,7 @@ class HandlerClass:
         options |= QColorDialog.ShowAlphaChannel
         color = QColorDialog.getColor(initColor, options=options)
         if color.isValid():
-            widget.setStyleSheet('background-color: {}'.format(color.name()))
+            widget.setStyleSheet(f'background-color: {color.name()}')
             buttons = ['foregrnd', 'foregalt', 'led', 'backgrnd', 'backgalt', 'frams', 'estop', 'disabled', 'preview']
             labels = ['Foreground', 'Highlight', 'LED', 'Background', 'Background Alt', 'Frames', 'Estop', 'Disabled', 'Preview']
             button = widget.objectName()
@@ -5750,7 +5935,7 @@ class HandlerClass:
         # style some buttons
         buttons = ['jog_x_minus', 'jog_x_plus', 'jog_y_minus', 'jog_y_plus',
                    'jog_z_minus', 'jog_z_plus', 'jog_a_minus', 'jog_a_plus',
-                   'jog_b_minus', 'jog_b_plus',
+                   'jog_b_minus', 'jog_b_plus','jog_c_minus', 'jog_c_plus',
                    'cut_rec_n', 'cut_rec_ne', 'cut_rec_e', 'cut_rec_se',
                    'cut_rec_s', 'cut_rec_sw', 'cut_rec_w', 'cut_rec_nw',
                    'conv_line', 'conv_circle', 'conv_ellipse', 'conv_triangle',
@@ -5764,8 +5949,8 @@ class HandlerClass:
         for button in buttons:
             self.color_item(button, self.foreColor, 'button')
             self.w[button].setStyleSheet(\
-                    'QPushButton {{ background: {0} }} \
-                     QPushButton:pressed {{ background: {0} }}'.format(self.backColor))
+                    f'QPushButton {{ background: {self.backColor} }} \
+                     QPushButton:pressed {{ background: {self.backColor} }}')
         for conv_image in conv_images:
             self.color_item(conv_image, self.foreColor, 'image')
         # some gcode display/editor colors cannot use .qss file
@@ -5859,16 +6044,16 @@ class HandlerClass:
             msg0 = _translate('HandlerClass', 'Invalid number of colors defined')
             msg1 = _translate('HandlerClass', 'in custom stylesheet header')
             msg2 = _translate('HandlerClass', 'Reverting to standard stylesheet')
-            self.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '\n{}\n{}\n\n{}\n'.format(msg0, msg1, msg2))
+            self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{msg0}\n{msg1}\n\n{msg2}\n')
             self.standard_stylesheet()
         except:
             msg0 = _translate('HandlerClass', 'Cannot open custom stylesheet')
             msg1 = _translate('HandlerClass', 'Reverting to standard stylesheet')
-            self.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '\n{}\n\n{}\n'.format(msg0, msg1))
+            self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{msg0}\n\n{msg1}\n')
             self.standard_stylesheet()
 
     def color_item(self, item, color, type):
-        image_path = '{}{}.svg'.format(self.IMAGES, item)
+        image_path = f'{self.IMAGES}{item}.svg'
         self.image = QPixmap(image_path)
         colorChange = QPainter(self.image)
         colorChange.setCompositionMode(QPainter.CompositionMode_SourceIn)
@@ -5887,7 +6072,7 @@ class HandlerClass:
         return self.keyboard_shortcuts() and state and not event.isAutoRepeat()
 
     def jog_is_valid(self, key, event):
-        return self.keyboard_shortcuts() and not event.isAutoRepeat() and self.w.main_tab_widget.currentIndex() == self.MAIN and self.w['jog_{}'.format(key)].isEnabled()
+        return self.keyboard_shortcuts() and not event.isAutoRepeat() and self.w.main_tab_widget.currentIndex() == self.MAIN and self.w[f'jog_{key}'].isEnabled()
 
     def on_keycall_ESTOP(self, event, state, shift, cntrl):
         if self.key_is_valid(event, state) and self.w.estopButton == 2:
@@ -5933,6 +6118,10 @@ class HandlerClass:
         if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN and \
            self.w.file_reload.isEnabled():
             self.file_reload_clicked()
+
+    def on_keycall_JOINT(self, event, state, shift, cntrl):
+        if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN:
+            self.toggle_joint_mode()
 
     def on_keycall_F12(self, event, state, shift, cntrl):
         if self.key_is_valid(event, state):
@@ -6014,6 +6203,21 @@ class HandlerClass:
                 self.kb_jog(state, self.coordinates.index('b'), -1, shift)
             else:
                 self.kb_jog(state, 4, -1, shift)
+
+#FIXME - keys for these jogs not defined yet
+    # def on_keycall_CPOS(self, event, state, shift, cntrl):
+    #     if self.jog_is_valid('c_plus', event):
+    #         if STATUS.is_joint_mode():
+    #             self.kb_jog(state, self.coordinates.index('c'), 1, shift)
+    #         else:
+    #             self.kb_jog(state, 4, 1, shift)
+
+    # def on_keycall_CNEG(self, event, state, shift, cntrl):
+    #     if self.jog_is_valid('c_minus', event):
+    #         if STATUS.is_joint_mode():
+    #             self.kb_jog(state, self.coordinates.index('c'), -1, shift)
+    #         else:
+    #             self.kb_jog(state, 4, -1, shift)
 
     def on_keycall_PLUS(self, event, state, shift, cntrl):
         if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN and self.jogSlow and self.w.jog_slider.isEnabled():

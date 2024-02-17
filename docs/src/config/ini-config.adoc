@@ -212,12 +212,17 @@ Do _not_ use a file extension of '.ini' for included files.
 [[sub:ini:sec:emc]]
 === [EMC] Section(((INI File,Sections,[EMC] Section)))
 
-* `VERSION = 1.1` - The version number for the configuration.
+* `VERSION = 1.1` - The format version of this configuration.
   Any value other than 1.1 will cause the configuration checker to run and try to update the configuration to the new style joint axes type of configuration.
 * `MACHINE = My Controller` - This is the name of the controller, which is printed out at the top of most graphical interfaces.
   You can put whatever you want here as long as you make it a single line long.
 * `DEBUG = 0` - Debug level 0 means no messages will be printed when LinuxCNC is run from a <<faq:terminal,terminal>>.
   Debug flags are usually only useful to developers. See src/emc/nml_intf/debugflags.h for other settings.
+* `RCS_DEBUG = 1` RCS debug messages to show. Print only errors (1) by default if EMC_DEBUG_RCS and EMC_DEBUG_RCS bits in
+  `DEBUG` are unset, otherwise print all (-1). Use this to select RCS debug messages. See src/libnml/rcs/rcs_print.hh for all MODE flags.
+* `RCS_DEBUG_DEST = STDOUT` - how to output RCS_DEBUG messages (NULL, STDOUT, STDERR, FILE, LOGGER, MSGBOX).
+* `RCS_MAX_ERR = -1` - Number after which RCS errors are not reported anymore (-1 = infinite).
+* `NML_FILE = /usr/share/linuxcnc/linuxcnc.nml` - Set this if you want to use a non-default NML configuration file.
 
 [[sub:ini:sec:display]]
 === [DISPLAY] Section(((INI File,Sections,[DISPLAY] Section)))
@@ -283,6 +288,7 @@ Descriptions of the interfaces are in the Interfaces section of the User Manual.
   An under powered CPU may see improvement with a longer setting.
   Usually the default is fine.
 * `PREVIEW_TIMEOUT = 5` - Timeout (in seconds) for loading graphical preview of G-code. Currently AXIS only.
+* `HOMING_PROMPT = TRUE` - Show prompt message with homing request, when the Power On button is pressed in AXIS GUI. Pressing the "Ok" button in prompt message is equivalent to pressing the "Home All" button(or the Ctrl-HOME key).
 
 [NOTE]
 The following [DISPLAY] items are used by GladeVCP and PyVCP,
@@ -541,7 +547,11 @@ The maximum number of `USER_M_PATH` directories is defined at compile time (typ:
   Allow to clear the G92 offset automatically when config start-up.
 * `DISABLE_FANUC_STYLE_SUB = 0` (Default: 0)
   If there is reason to disable Fanuc subroutines set it to 1.
-
+* 'PARAMETER_G73_PECK_CLEARANCE = .020' (default: Metric machine: 1mm, imperial machine: .050 inches)
+  Chip breaking back-off distance in machine units
+* 'PARAMETER_G83_PECK_CLEARANCE = .020' (default: Metric machine: 1mm, imperial machine: .050 inches)
+  Clearance distance from last feed depth when machine rapids back to bottom of hole, in machine units.
+ 
 [NOTE]
 ====
 The above six options were controlled by the `FEATURES` bitmask in versions of LinuxCNC prior to 2.8.
@@ -682,6 +692,7 @@ For more information see the <<cha:hal-twopass,HAL TWOPASS>> chapter.
 
 * `MDI_COMMAND = G53 G0 X0 Y0 Z0` -
   An MDI command can be executed by using `halui.mdi-command-00`. Increment the number for each command listed in the [HALUI] section.
+  It is also possible to start subroutines. `MDI_COMMAND = o<yoursub> CALL [#<yourvariable>]` 
 
 [[sub:ini:sec:applications]]
 === [APPLICATIONS] Section(((INI File,Sections,[APPLICATIONS] Section)))
@@ -884,6 +895,11 @@ LinuxCNC will not know your joint travel limits when using `NO_FORCE_HOMING = 1`
 
 The _<letter>_ specifies one of: X Y Z A B C U V W
 
+* `TYPE = LINEAR` - The type of this axis, either `LINEAR` or `ANGULAR`.
+  Required if this axis is not a default axis type.
+  The default axis types are X,Y,Z,U,V,W = LINEAR and A,B,C = ANGULAR.
+  This setting is effective with the AXIS GUI but note that other
+  GUI's may handle things differently.
 * `MAX_VELOCITY = 1.2` - Maximum velocity for this axis in <<sub:ini:sec:traj,machine units>> per second.
 * `MAX_ACCELERATION = 20.0` - Maximum acceleration for this axis in machine units per second squared.
 * `MIN_LIMIT = -1000` - (((MIN LIMIT))) The minimum limit (soft limit) for axis motion, in machine units.
@@ -1335,10 +1351,6 @@ Control screens can limit these settings further.
 [[sub:ini:sec:emcio]]
 === [EMCIO] Section(((INI File,Sections,[EMCIO] Section)))
 
-* `EMCIO = io` - Name of IO controller program.
-* `CYCLE_TIME = 0.100` - The period, in seconds, at which EMCIO will run.
-  Making it 0.0 or a negative number will tell EMCIO not to sleep at all.
-  There is usually no need to change this number.
 * `TOOL_TABLE = tool.tbl` - The file which contains tool information, described in the User Manual.
 * `DB_PROGRAM = db_program` - Path to an executable program that manages tool data.
   When a DB_PROGRAM is specified, a TOOL_TABLE entry is ignored.

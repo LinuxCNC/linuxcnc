@@ -30,7 +30,6 @@
 #include <errno.h>
 #include <dlfcn.h>
 #include <signal.h>
-#include <iostream>
 #include <vector>
 #include <string>
 #include <map>
@@ -39,7 +38,6 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <errno.h>
 #ifdef HAVE_SYS_IO_H
 #include <sys/io.h>
 #endif

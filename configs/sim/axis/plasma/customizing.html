@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<h2>plasmac2 Customization</h2>
+</head>
+<body>
+<p><b>plasmac2</b> makes extensive use of the
+<a href='http://linuxcnc.org/docs/devel/html/gui/axis.html#_axis_customization_hints'>AXIS customization tips</a>
+from the LinuxCNC docs.</p>
+
+<p>The three files available in plasmac2 for user customizing are:
+<ul>
+    <li><a href='user_commands.py'>user_commands.py</a> for custom python code, called once at startup</li>
+    <li><a href='./user_hal.py'>user_hal.py</a> for creating HAL pins, called once at startup</li>
+    <li><a href='./user_periodic.py'>user_periodic.py</a> for updating, called every cycle</li>
+</ul></p>
+
+<hr style='width:90%'>
+<br>
+
+<p>The AXIS GUI is written in TCL which requires calling the TCL interpreter to customize widgets.</p>
+
+<p>There are two available "shortcuts" to achieve this.
+<ul>
+    <li><code>rC = root_window.tk.call()</code></li>
+    <li><code>rE = root_window.tk.eval()</code></li>
+</ul>
+Both of these require the arguments to be passed as strings, variable names may be passed as python format strings.</p>
+
+<p>In the following examples, <i>foverride</i> is the variable name for the height override frame which has a string name of <i>.pane.top.tabs.fmanual.override</i></p>
+
+<p>Hiding the height override frame can be achieved by either of the above methods:
+<ul>
+    <li><code>rC('grid', 'forget', f'{foverride}')</code></li>
+
+    <li><code>rE(f'grid forget {foverride}')</code></li>
+</ul></p>
+
+<p>To show the override frame again you would need to find where <i>foverride</i> was first shown in <a href='./plasmac2/plasmac2.py'>plasmac2.py</a> and copy the code.
+<br>Either of the following would achieve this:
+<ul>
+    <li><code>rC('grid',foverride,'-column',0,'-row',3,'-padx',2,'-pady',(0,4),'-sticky','ew')</code></li>
+    <li><code>rE(f'grid {foverride} -column 0 -row 3 -padx 2 -pady [list 0 4] -sticky ew')</code></li>
+</ul></p>
+
+<hr style='width:90%'>
+<br>
+
+<p>A list of widget names may be obtained by using an existing function that returns all the children of a widget.
+<br>
+Note that conversational widgets will not be shown until the conversational panel is opened at least once.</p>
+
+<p><code>parent = '.' # '.' is the root widget
+<br>#parent = '.pane.top.tabs.fmanual' # '.pane.top.tabs.fmanual' is the manual tab
+<br>widget_list = get_all_children(parent)
+<br>print(f'\nplasmac2 has {len(widget_list)} widgets:\n{sorted(widget_list)}')</code></p>
+
+<p>There is an example in <a href='./user_periodic.py'>user_periodic.py</a> of creating a file listing all the available widgets, this requires an example HAL pin created in <a href='./user_hal.py'>user_hal.py</a></p>
+
+<hr style='width:90%'>
+<br>
+
+<p>The HAL component name for AXIS is <i>axisui</i> which means any pins created in <a href='./user_hal.py'>user_hal.py</a> will have <i>axisui.</i> as the first part of the pin name.</p>
+</body>
+</html>

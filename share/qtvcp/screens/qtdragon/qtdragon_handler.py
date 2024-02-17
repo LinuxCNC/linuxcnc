@@ -56,7 +56,7 @@ DEFAULT = 0
 WARNING = 1
 CRITICAL = 2
 
-VERSION ='1.1'
+VERSION ='1.2'
 
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
@@ -268,9 +268,14 @@ class HandlerClass:
         flag = True
         for b in range(0,10):
             button = self.w['macrobutton{}'.format(b)]
-            num = button.property('ini_mdi_number')
+            # prefer named INI MDI commands
+            key = button.property('ini_mdi_key')
+            if key == '' or INFO.get_ini_mdi_command(key) is None:
+                # fallback to legacy nth line
+                key = button.property('ini_mdi_number')
             try:
-                code = INFO.MDI_COMMAND_LIST[num]
+                code = INFO.get_ini_mdi_command(key)
+                if code is None: raise Exception
                 flag = False
             except:
                 button.hide()
@@ -370,6 +375,8 @@ class HandlerClass:
         self.w.chk_use_camera.setChecked(self.w.PREFS_.getpref('Use camera', False, bool, 'CUSTOM_FORM_ENTRIES'))
         self.w.chk_alpha_mode.setChecked(self.w.PREFS_.getpref('Use alpha display mode', False, bool, 'CUSTOM_FORM_ENTRIES'))
         self.w.chk_inhibit_selection.setChecked(self.w.PREFS_.getpref('Inhibit display mouse selection', True, bool, 'CUSTOM_FORM_ENTRIES'))
+        self.cam_xscale_changed(self.w.PREFS_.getpref('Camview xscale', 100, int, 'CUSTOM_FORM_ENTRIES'))
+        self.cam_yscale_changed(self.w.PREFS_.getpref('Camview yscale', 100, int, 'CUSTOM_FORM_ENTRIES'))
 
     def closing_cleanup__(self):
         if not self.w.PREFS_: return
@@ -402,6 +409,8 @@ class HandlerClass:
         self.w.PREFS_.putpref('Use camera', self.w.chk_use_camera.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Use alpha display mode', self.w.chk_alpha_mode.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Inhibit display mouse selection', self.w.chk_inhibit_selection.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Camview xscale', self.cam_xscale_percent(), int, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Camview yscale', self.cam_yscale_percent(), int, 'CUSTOM_FORM_ENTRIES')
 
     def init_widgets(self):
         self.adjust_stacked_widgets(TAB_MAIN)
@@ -935,6 +944,17 @@ class HandlerClass:
     def cam_rot_changed(self, value):
         self.w.camview.rotation = float(value) / 10
 
+    # scaling of the camera image for size aspect corrections
+    # set from preference file
+    def cam_xscale_changed(self, value):
+        self.w.camview.scaleX  = float(value/100)
+    def cam_xscale_percent(self):
+        return self.w.camview.scaleX * 100
+    def cam_yscale_changed(self, value):
+        self.w.camview.scaleY  = float(value/100)
+    def cam_yscale_percent(self):
+        return self.w.camview.scaleY * 100
+
     # settings tab
     def chk_override_limits_checked(self, state):
         # only toggle override if it's not in synch with the button
@@ -1145,13 +1165,17 @@ class HandlerClass:
                 search_vel, probe_vel, max_probe, 
                 z_offset, retract, safe_z))
         rtn = ACTION.TOUCHPLATE_TOUCHOFF(search_vel, probe_vel, max_probe, 
-                z_offset, retract, safe_z, self.touchoff_return)
+                z_offset, retract, safe_z, self.touchoff_return,self.touchoff_error)
         if rtn == 0:
             self.add_status("Touchoff routine is already running", CRITICAL)
 
     def touchoff_return(self, data):
         self.add_status("Touchplate touchoff routine returned successfully")
         self.add_status("Touchplate returned: "+data, CRITICAL)
+
+    def touchoff_error(self, data):
+        ACTION.SET_ERROR_MESSAGE(data)
+        self.add_status(data, CRITICAL)
 
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
         ACTION.SET_MANUAL_MODE()
@@ -1387,16 +1411,16 @@ class HandlerClass:
                     TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE,False) }
         else:
             seq = {TAB_MAIN: (requestedIndex,PAGE_GCODE,True,SHOW_DRO,True),
-                    TAB_FILE: (requestedIndex,PAGE_FILE,True,IGNORE,True),
-                    TAB_OFFSETS: (requestedIndex,PAGE_OFFSET,True,IGNORE,True),
-                    TAB_TOOL: (requestedIndex,PAGE_TOOL,True,IGNORE,True),
-                    TAB_STATUS: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO,True),
-                    TAB_PROBE: (requestedIndex,PAGE_GCODE,True,SHOW_DRO,True),
+                    TAB_FILE: (requestedIndex,PAGE_FILE,True,IGNORE,False),
+                    TAB_OFFSETS: (requestedIndex,PAGE_OFFSET,True,IGNORE,False),
+                    TAB_TOOL: (requestedIndex,PAGE_TOOL,True,IGNORE,False),
+                    TAB_STATUS: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO,False),
+                    TAB_PROBE: (requestedIndex,PAGE_GCODE,True,SHOW_DRO,False),
                     TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,True,IGNORE,True),
-                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,True),
-                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,IGNORE,True),
-                    TAB_SETTINGS: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,True),
-                    TAB_UTILITIES: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO,True),
+                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,False),
+                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,IGNORE,False),
+                    TAB_SETTINGS: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,False),
+                    TAB_UTILITIES: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO,False),
                     TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE,True) }
 
         rtn =  seq.get(requestedIndex)

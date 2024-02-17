@@ -3,4 +3,12 @@
 TEST_DIR=$(dirname $1)
 cd $TEST_DIR
 
-diff -u expected-gcode-output gcode-output
+# show deviation from expected output
+diff -uwB expected-gcode-output gcode-output || exit 1
+diff -uwB expected-telnet-output telnet-output || exit 1
+
+# search all output for possible errors
+grep 'error_type' result && exit 1
+grep 'CMS_ERROR' result && exit 1
+grep 'Recent errors repeated' result && exit 1
+exit 0

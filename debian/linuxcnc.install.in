@@ -34,8 +34,6 @@ usr/bin/hy_gt_vfd
 usr/bin/hy_vfd
 usr/bin/image-to-gcode
 usr/bin/inivar
-usr/bin/io
-usr/bin/iov2
 usr/bin/latency-histogram
 usr/bin/latency-plot
 usr/bin/latency-test

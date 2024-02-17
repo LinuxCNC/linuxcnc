@@ -133,13 +133,6 @@
   With no arg, returns the flood setting as "on" or "off". Otherwise,
   sends a flood on or off command.
 
-  emc_lube (none) | on | off
-  With no arg, returns the lubricant pump setting as "on" or "off".
-  Otherwise, sends a lube on or off command.
-
-  emc_lube_level
-  Returns the lubricant level sensor reading as "ok" or "low".
-
   emc_spindle (spindle_number) (none) | forward | reverse | increase | decrease | constant | off
   With no spindle_number defaults to spindle 0. This is a little different
   from the default behaviour elsewhere where specifyin no spindle affects all spindles.
@@ -392,7 +385,7 @@ static int emc_ini(ClientData clientdata,
 		   Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     IniFile inifile;
-    const char *inistring;
+    std::optional<const char *> inistring;
     const char *varstr, *secstr, *defaultstr;
     defaultstr = 0;
 
@@ -412,14 +405,14 @@ static int emc_ini(ClientData clientdata,
 	defaultstr = Tcl_GetStringFromObj(objv[3], 0);
     }
 
-    if (NULL == (inistring = inifile.Find(varstr, secstr))) {
+    if (!(inistring = inifile.Find(varstr, secstr))) {
 	if (defaultstr != 0) {
 	    setresult(interp,(char *) defaultstr);
 	}
 	return TCL_OK;
     }
 
-    setresult(interp,(char *) inistring);
+    setresult(interp, *inistring);
 
     // close it
     inifile.Close();
@@ -677,7 +670,7 @@ static int emc_estop(ClientData clientdata,
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
 	    updateStatus();
 	}
-	if (emcStatus->task.state == EMC_TASK_STATE_ESTOP) {
+	if (emcStatus->task.state == EMC_TASK_STATE::ESTOP) {
 	    setresult(interp,"on");
 	} else {
 	    setresult(interp,"off");
@@ -713,7 +706,7 @@ static int emc_machine(ClientData clientdata,
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
 	    updateStatus();
 	}
-	if (emcStatus->task.state == EMC_TASK_STATE_ON) {
+	if (emcStatus->task.state == EMC_TASK_STATE::ON) {
 	    setresult(interp,"on");
 	} else {
 	    setresult(interp,"off");
@@ -749,13 +742,13 @@ static int emc_mode(ClientData clientdata,
 	    updateStatus();
 	}
 	switch (emcStatus->task.mode) {
-	case EMC_TASK_MODE_MANUAL:
+	case EMC_TASK_MODE::MANUAL:
 	    setresult(interp,"manual");
 	    break;
-	case EMC_TASK_MODE_AUTO:
+	case EMC_TASK_MODE::AUTO:
 	    setresult(interp,"auto");
 	    break;
-	case EMC_TASK_MODE_MDI:
+	case EMC_TASK_MODE::MDI:
 	    setresult(interp,"mdi");
 	    break;
 	default:
@@ -852,63 +845,6 @@ static int emc_flood(ClientData clientdata,
     }
 
     setresult(interp,"emc_flood: need 'on', 'off', or no args"); return TCL_ERROR;
-}
-
-static int emc_lube(ClientData clientdata,
-		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
-{
-    char *objstr;
-
-    CHECKEMC
-    if (objc == 1) {
-	// no arg-- return status
-	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
-	}
-	if (emcStatus->io.lube.on == 0) {
-	    setresult(interp,"off");
-	} else {
-	    setresult(interp,"on");
-	}
-	return TCL_OK;
-    }
-
-    if (objc == 2) {
-	objstr = Tcl_GetStringFromObj(objv[1], 0);
-	if (!strcmp(objstr, "on")) {
-	    sendLubeOn();
-	    return TCL_OK;
-	}
-	if (!strcmp(objstr, "off")) {
-	    sendLubeOff();
-	    return TCL_OK;
-	}
-    }
-
-    setresult(interp,"emc_lube: need 'on', 'off', or no args");
-    return TCL_ERROR;
-}
-
-static int emc_lube_level(ClientData clientdata,
-			  Tcl_Interp * interp, int objc,
-			  Tcl_Obj * CONST objv[])
-{
-    CHECKEMC
-    if (objc == 1) {
-	// no arg-- return status
-	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
-	}
-	if (emcStatus->io.lube.level == 0) {
-	    setresult(interp,"low");
-	} else {
-	    setresult(interp,"ok");
-	}
-	return TCL_OK;
-    }
-
-    setresult(interp,"emc_lube_level: need no args");
-    return TCL_ERROR;
 }
 
 static int emc_spindle(ClientData clientdata,
@@ -2178,13 +2114,13 @@ static int emc_program_status(ClientData clientdata,
     }
 
     switch (emcStatus->task.interpState) {
-    case EMC_TASK_INTERP_READING:
-    case EMC_TASK_INTERP_WAITING:
+    case EMC_TASK_INTERP::READING:
+    case EMC_TASK_INTERP::WAITING:
 	setresult(interp,"running");
 	return TCL_OK;
 	break;
 
-    case EMC_TASK_INTERP_PAUSED:
+    case EMC_TASK_INTERP::PAUSED:
 	setresult(interp,"paused");
 	return TCL_OK;
 	break;
@@ -2748,28 +2684,6 @@ static int emc_angular_unit_conversion(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_task_heartbeat(ClientData clientdata,
-			      Tcl_Interp * interp, int objc,
-			      Tcl_Obj * CONST objv[])
-{
-    Tcl_Obj *hbobj;
-
-    CHECKEMC
-    if (objc != 1) {
-	setresult(interp,"emc_task_heartbeat: need no args");
-	return TCL_ERROR;
-    }
-
-    if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
-    }
-
-    hbobj = Tcl_NewIntObj(emcStatus->task.heartbeat);
-
-    Tcl_SetObjResult(interp, hbobj);
-    return TCL_OK;
-}
-
 static int emc_task_command(ClientData clientdata,
 			    Tcl_Interp * interp, int objc,
 			    Tcl_Obj * CONST objv[])
@@ -2830,31 +2744,9 @@ static int emc_task_command_status(ClientData clientdata,
 	updateStatus();
     }
 
-    commandstatus = Tcl_NewIntObj(emcStatus->task.status);
+    commandstatus = Tcl_NewIntObj((int)emcStatus->task.status);
 
     Tcl_SetObjResult(interp, commandstatus);
-    return TCL_OK;
-}
-
-static int emc_io_heartbeat(ClientData clientdata,
-			    Tcl_Interp * interp, int objc,
-			    Tcl_Obj * CONST objv[])
-{
-    Tcl_Obj *hbobj;
-
-    CHECKEMC
-    if (objc != 1) {
-	setresult(interp,"emc_io_heartbeat: need no args");
-	return TCL_ERROR;
-    }
-
-    if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
-    }
-
-    hbobj = Tcl_NewIntObj(emcStatus->io.heartbeat);
-
-    Tcl_SetObjResult(interp, hbobj);
     return TCL_OK;
 }
 
@@ -2918,31 +2810,9 @@ static int emc_io_command_status(ClientData clientdata,
 	updateStatus();
     }
 
-    commandstatus = Tcl_NewIntObj(emcStatus->io.status);
+    commandstatus = Tcl_NewIntObj((int)emcStatus->io.status);
 
     Tcl_SetObjResult(interp, commandstatus);
-    return TCL_OK;
-}
-
-static int emc_motion_heartbeat(ClientData clientdata,
-				Tcl_Interp * interp, int objc,
-				Tcl_Obj * CONST objv[])
-{
-    Tcl_Obj *hbobj;
-
-    CHECKEMC
-    if (objc != 1) {
-	setresult(interp,"emc_motion_heartbeat: need no args");
-	return TCL_ERROR;
-    }
-
-    if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
-    }
-
-    hbobj = Tcl_NewIntObj(emcStatus->motion.heartbeat);
-
-    Tcl_SetObjResult(interp, hbobj);
     return TCL_OK;
 }
 
@@ -3006,7 +2876,7 @@ static int emc_motion_command_status(ClientData clientdata,
 	updateStatus();
     }
 
-    commandstatus = Tcl_NewIntObj(emcStatus->motion.status);
+    commandstatus = Tcl_NewIntObj((int)emcStatus->motion.status);
 
     Tcl_SetObjResult(interp, commandstatus);
     return TCL_OK;
@@ -3089,8 +2959,6 @@ static int emc_joint_enable(ClientData clientdata,
 	setresult(interp,"emc_joint_enable: need 0, 1 for disable, enable");
 	return TCL_ERROR;
     }
-
-    sendJointEnable(joint, val);
     return TCL_OK;
 }
 
@@ -3146,7 +3014,7 @@ int emc_teleop_enable(ClientData clientdata,
 
     Tcl_SetObjResult(interp,
 		     Tcl_NewIntObj(emcStatus->motion.traj.mode ==
-				   EMC_TRAJ_MODE_TELEOP));
+				   EMC_TRAJ_MODE::TELEOP));
     return TCL_OK;
 }
 
@@ -3614,12 +3482,6 @@ int Linuxcnc_Init(Tcl_Interp * interp)
     Tcl_CreateObjCommand(interp, "emc_flood", emc_flood, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_lube", emc_lube, (ClientData) NULL,
-			 (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "emc_lube_level", emc_lube_level,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-
     Tcl_CreateObjCommand(interp, "emc_spindle", emc_spindle,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
@@ -3771,8 +3633,6 @@ int Linuxcnc_Init(Tcl_Interp * interp)
 			 emc_angular_unit_conversion, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_task_heartbeat", emc_task_heartbeat,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_task_command", emc_task_command,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
@@ -3785,9 +3645,6 @@ int Linuxcnc_Init(Tcl_Interp * interp)
 			 emc_task_command_status, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_io_heartbeat", emc_io_heartbeat,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-
     Tcl_CreateObjCommand(interp, "emc_io_command", emc_io_command,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
@@ -3799,9 +3656,6 @@ int Linuxcnc_Init(Tcl_Interp * interp)
 			 emc_io_command_status, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_motion_heartbeat",
-			 emc_motion_heartbeat, (ClientData) NULL,
-			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_motion_command", emc_motion_command,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);

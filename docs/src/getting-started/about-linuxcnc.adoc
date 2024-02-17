@@ -11,21 +11,21 @@
   such as puma and scara and other computer controlled machines up to 9 axes.
 * LinuxCNC is free software with open source code. Current versions of LinuxCNC
   are entirely licensed under the GNU General Public License and Lesser
-  GNU General Public License (GPL and LGPL)
+  GNU General Public License (GPL and LGPL).
 * LinuxCNC provides:
-** easy discovery and testing without installation with the LiveCD
-** easy installation from the Live CD
+** easy discovery and testing without installation with the LiveCD,
+** easy installation from the Live CD,
 ** easy to use graphical configuration wizards to rapidly create a configuration
-   specific to the machine
-** directly available as regular packages of recent releases of Debian (since Bookworm) and Ubuntu (since Kinetic Kudu)
-** a graphical user interface (actually several interfaces to choose from)
-** a graphical interface creation tool (Glade)
+   specific to the machine,
+** directly available as regular packages of recent releases of Debian (since Bookworm) and Ubuntu (since Kinetic Kudu),
+** a graphical user interface (actually several interfaces to choose from),
+** a graphical interface creation tool (Glade),
 ** an interpreter for 'G-code' (the RS-274 machine tool programming
-   language)
-** a realtime motion planning system with look-ahead
-** operation of low-level machine electronics such as sensors and motor drives
-** an easy to use 'breadboard' layer for quickly creating a unique configuration for your machine
-** a software PLC programmable with ladder diagrams
+   language),
+** a realtime motion planning system with look-ahead,
+** operation of low-level machine electronics such as sensors and motor drives,
+** an easy to use 'breadboard' layer for quickly creating a unique configuration for your machine,
+** a software PLC programmable with ladder diagrams.
 * It does not provide drawing (CAD - Computer Aided Design) or G-code generation
   from the drawing (CAM - Computer Automated Manufacturing) functions.
 * It can simultaneously move up to 9 axes and supports a variety of interfaces.
@@ -56,14 +56,14 @@ IRC stands for Internet Relay Chat.
 It is a live connection to other LinuxCNC users.
 The LinuxCNC IRC channel is #linuxcnc on libera.chat.
 
-The simplest way to get on the IRC is to use the embedded client on
-this https://web.libera.chat/#linuxcnc[page].
+The simplest way to get on the IRC is to use the embedded web client
+client https://web.libera.chat/#linuxcnc[from libera].
 
 Some IRC etiquette::
 * Ask specific questions... Avoid questions like "Can someone help me?".
 * If you're really new to all this, think a bit about your question
   before typing it.  Make sure you give enough information so
-  someone can solve your question.
+  someone can answer your question or solve your problem.
 * Have some patience when waiting for an answer, sometimes it takes a
   while to formulate an answer or everyone might be busy working or
   something.
@@ -77,7 +77,7 @@ Sharing Files::
 The most common way to share files on the IRC is to upload the file
 to one of the following or a similar service and paste the link:
 
-* 'For text': https://pastebin.com/, http://pastie.org/, https://gist.github.com/
+* 'For text': https://pastebin.com/, https://gist.github.com/, https://0bin.net/, https://paste.debian.net/
 * 'For pictures': https://imagebin.org/, https://imgur.com/, https://bayimg.com/
 * 'For files': https://filedropper.com/, https://filefactory.com/, https://1fichier.com/
 
@@ -91,12 +91,12 @@ either get daily digests or individual replies back depending on how
 you set up your account.
 
 You can subscribe to the emc-users mailing list at:
-https://lists.sourceforge.net/lists/listinfo/emc-users
+https://lists.sourceforge.net/lists/listinfo/emc-users.
 
 === Web Forum
 
-A web forum can be found at https://forum.linuxcnc.org or by following
-the link at the top of the linuxcnc.org home page.
+A web forum can be found at https://forum.linuxcnc.org/ or by following
+the link at the top of the https://linuxcnc.org/ home page.
 
 This is quite active but the demographic is more user-biased than the
 mailing list.  If you want to be sure that your message is seen by the
@@ -107,8 +107,7 @@ developers then the mailing list is to be preferred.
 A Wiki site is a user maintained web site that anyone can add to or edit.
 
 The user maintained LinuxCNC Wiki site contains a
-wealth of information and tips at:
-link:https://wiki.linuxcnc.org/[https://wiki.linuxcnc.org]
+wealth of information and tips at https://wiki.linuxcnc.org/.
 
 === Bug Reports
 

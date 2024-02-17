@@ -61,7 +61,7 @@ LOG = logger.getLogger(__name__)
     # GeometryMixin helper class
     #########################################
     # adds geometry class and _HalWidgetBase class into the dialogs.
-    #the geometry class parses the geometry string and places
+    # the geometry class parses the geometry string and places
     # the dialog based on what it finds.
     # it needed to be in a separate file do to circular imports
     # found when using versaProbe
@@ -1558,23 +1558,41 @@ class CalculatorDialog(Calculator, GeometryMixin):
                 self._title = 'Calculator Entry'
             preload = message.get('PRELOAD')
             axis = message.get('AXIS')
+
+            next = message.get('NEXT', False)
+            cycle = message.get('WIDGETCYCLE', False)
+
             if axis in ('X','Y','Z','A','B','C','U','V','W'):
                 self.axisTriggered(axis)
             self._nblock = message.get('NONBLOCKING')
             overlay = message.get('OVERLAY')
             if overlay is None:
                 overlay = True
-            num = self.showdialog(preload=preload, overlay=overlay)
-            message['RETURN'] = num
-            STATUS.emit('general', message)
+            if next:
+                self.updatedialog(preload=preload)
+                message['NEXT'] = False
+            else:
+                num = self.showdialog(preload=preload, overlay=overlay, cycle=cycle)
 
-    def showdialog(self, preload=None, overlay=True):
+    def updatedialog(self, preload=None):
+        self.setWindowTitle(self._title);
+        if self.play_sound:
+            STATUS.emit('play-sound', self.sound_type)
+        if preload is not None:
+            self.display.setText(str(preload))
+
+    def showdialog(self, preload=None, overlay=True, cycle=False):
         self.setWindowTitle(self._title);
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
         self.set_geometry()
         if preload is not None:
             self.display.setText(str(preload))
+
+        # show/hide the widget cycling buttons
+        self.applyNextButton.setVisible(cycle)
+        self.nextButton.setVisible(cycle)
+
         if self._nblock:
             self.show()
         else:
@@ -1592,6 +1610,7 @@ class CalculatorDialog(Calculator, GeometryMixin):
             LOG.debug('Displayed value when accepted: {}'.format(num))
             if self._message is not None:
                 self._message['RETURN'] = num
+                self._message['NEXT'] = False
                 STATUS.emit('general', self._message)
                 self._message = None
         except Exception as e:
@@ -1600,6 +1619,33 @@ class CalculatorDialog(Calculator, GeometryMixin):
     def reject(self):
         self.record_geometry()
         super(CalculatorDialog, self).reject()
+        self._message['RETURN'] = None
+        self._message['NEXT'] = False
+        STATUS.emit('general', self._message)
+        self._message = None
+
+    # used for cycling between different widgets.
+    # the actual cycling is done in the calling code
+    def nextAction(self):
+        try:
+            if self._message is not None:
+                self._message['RETURN'] = None
+                self._message['NEXT'] = True
+                STATUS.emit('general', self._message)
+        except Exception as e:
+                print(e)
+
+    # used to apply and then cycle to the next widget.
+    # the actual cycling is done in the calling code
+    def applyAction(self):
+        try:
+            num =  float(self.display.text())
+            if self._message is not None:
+                self._message['RETURN'] = num
+                self._message['NEXT'] = True
+                STATUS.emit('general', self._message)
+        except Exception as e:
+                print(e)
 
     def getColor(self):
         return self._color

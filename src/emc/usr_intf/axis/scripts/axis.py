@@ -1179,11 +1179,9 @@ def open_file_guts(f, filtered=False, addrecent=True):
     if addrecent:
         add_recent_file(f)
     if not filtered:
-        global loaded_file
-        loaded_file = f
         program_filter = get_filter(f)
         if program_filter:
-            tempfile = os.path.join(tempdir, os.path.basename(f))
+            tempfile = os.path.join(tempdir, "filtered-" + os.path.basename(f))
             exitcode, stderr = filter_program(program_filter, f, tempfile)
             if exitcode:
                 root_window.tk.call("nf_dialog", (".error", "-ext", stderr),
@@ -1904,9 +1902,14 @@ def reload_file(refilter=True):
     o.set_highlight_line(None)
 
     if refilter or not get_filter(loaded_file):
-        open_file_guts(loaded_file, False, False)
-    else:
+        # we copy the file to a temporary file so that even if it subsequently
+        # changes on disk, LinuxCNC is parsing the file contents from the time
+        # the user opened the file
         tempfile = os.path.join(tempdir, os.path.basename(loaded_file))
+        shutil.copyfile(loaded_file, tempfile)
+        open_file_guts(tempfile, False, False)
+    else:
+        tempfile = os.path.join(tempdir, "filtered-" + os.path.basename(loaded_file))
         open_file_guts(tempfile, True, False)
     if line:
         o.set_highlight_line(line)
@@ -2000,6 +2003,9 @@ class TclCommands(nf.TclCommands):
 
     def redraw_soon(event=None):
         o.redraw_soon()
+
+    def redraw_dro(event=None):
+        o.redraw_dro()
 
     def to_internal_linear_unit(a, b=None):
         if b is not None: b = float(b)
@@ -2218,6 +2224,11 @@ class TclCommands(nf.TclCommands):
         s.poll()
         if s.task_state == linuxcnc.STATE_ESTOP_RESET:
             c.state(linuxcnc.STATE_ON)
+            homing_prompt = bool(inifile.find("DISPLAY", "HOMING_PROMPT"))
+            if homing_prompt:
+                run_homing = prompt_areyousure(_("Homing request"),_("After turning On the machine power,\nYou need find axes origins.\n\n            Run homing process?"))
+                if run_homing:
+                    commands.home_all_joints()
         else:
             c.state(linuxcnc.STATE_OFF)
 
@@ -2257,6 +2268,8 @@ class TclCommands(nf.TclCommands):
         return ""
 
     def open_file_name(f):
+        global loaded_file
+        loaded_file = f
         open_file_guts(f)
         if str(widgets.view_x['relief']) == "sunken":
             commands.set_view_x()

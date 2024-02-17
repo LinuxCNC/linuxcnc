@@ -281,7 +281,7 @@ If this input is used then the rotor will need to be homed before the motor can 
 
 \\fBi\\fR Use the index of an incremental encoder as a home reference.
 
-\\fBf\\fR Use a 4-bit Gray-scale patttern to determine rotor alignment.
+\\fBf\\fR Use a 4-bit Gray-scale pattern to determine rotor alignment.
 This scheme is only used on the Fanuc "Red Cap" motors.
 This mode could be used to control one of these motors using a non-Fanuc drive.
 

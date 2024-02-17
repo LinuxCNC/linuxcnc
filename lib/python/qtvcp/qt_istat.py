@@ -1,6 +1,10 @@
 import os
 import linuxcnc
 import collections
+import configparser
+
+PARSER = configparser.RawConfigParser
+PARSER.optionxform = str
 
 # Set up logging
 from . import logger
@@ -37,6 +41,12 @@ class _IStat(object):
         self.LINUXCNC_VERSION = LINUXCNCVERSION
         self.INIPATH = INIPATH
         self.INI = linuxcnc.ini(INIPATH)
+        # use configParser so we can iter thru header
+        self.parser = PARSER(strict=False)
+        try:
+            self.parser.read(filenames=INIPATH)
+        except:
+            pass
         self.MDI_HISTORY_PATH = '~/.axis_mdi_history'
         self.QTVCP_LOG_HISTORY_PATH = '~/qtvcp.log'
         self.MACHINE_LOG_HISTORY_PATH = '~/.machine_log_history'
@@ -486,23 +496,53 @@ class _IStat(object):
         ################
         # users can specify a label for the MDI action button by adding ',Some\nText'
         # to the end of the MDI command
-        # here we separate them to two lists
+        # here we separate them to two lists (legacy) and one dict
         # action_button takes it from there.
-        self.MDI_COMMAND_LIST = []
-        self.MDI_COMMAND_LABEL_LIST = []
-        temp = (self.INI.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
-        if temp is None:
-            self.MDI_COMMAND_LABEL_LIST.append(None)
-            self.MDI_COMMAND_LABEL_LIST.append(None)
-        else:
-            for i in temp:
-                for num,k in enumerate(i.split(',')):
-                    if num == 0:
-                        self.MDI_COMMAND_LIST.append(k)
-                        if len(i.split(',')) <2:
+        self.MDI_COMMAND_DICT={}
+        # suppress error message is there is no section at all
+        if self.parser.has_section('MDI_COMMAND_LIST'):
+            try:
+                for key in self.parser['MDI_COMMAND_LIST']:
+
+                    # legacy way: list of repeat 'MDI_COMMAND=XXXX'
+                    # in this case order matters in the INI
+                    if key == 'MDI_COMMAND':
+                        log.warning("INI file's MDI_COMMAND_LIST is using legacy 'MDI_COMMAND =' entries")
+                        self.MDI_COMMAND_LIST = []
+                        self.MDI_COMMAND_LABEL_LIST = []
+                        temp = (self.INI.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
+                        if temp is None:
                             self.MDI_COMMAND_LABEL_LIST.append(None)
+                            self.MDI_COMMAND_LABEL_LIST.append(None)
+                        else:
+                            for i in temp:
+                                for num,k in enumerate(i.split(',')):
+                                    if num == 0:
+                                        self.MDI_COMMAND_LIST.append(k)
+                                        if len(i.split(',')) <2:
+                                            self.MDI_COMMAND_LABEL_LIST.append(None)
+                                    else:
+                                        self.MDI_COMMAND_LABEL_LIST.append(k)
+
+                    # new way: 'MDI_COMMAND_SSS = XXXX' (SSS being any string)
+                    # order of commands doesn't matter in the INI
                     else:
-                        self.MDI_COMMAND_LABEL_LIST.append(k)
+                        try:
+                            temp = self.INI.find("MDI_COMMAND_LIST",key)
+                            name = (key.replace('MDI_COMMAND_',''))
+                            mdidatadict = {}
+                            for num,k in enumerate(temp.split(',')):
+                                if num == 0:
+                                    mdidatadict['cmd'] = k
+                                    if len(temp.split(',')) <2:
+                                        mdidatadict['label'] = None
+                                else:
+                                    mdidatadict['label'] = k
+                            self.MDI_COMMAND_DICT[name] = mdidatadict
+                        except Exception as e:
+                            log.error('INI MDI command parse error:{}'.format(e))
+            except Exception as e:
+                log.error('INI MDI command parse error:{}'.format(e))
 
         self.TOOL_FILE_PATH = self.get_error_safe_setting("EMCIO", "TOOL_TABLE")
         self.POSTGUI_HALFILE_PATH = (self.INI.findall("HAL", "POSTGUI_HALFILE")) or None
@@ -688,6 +728,42 @@ class _IStat(object):
         if self.check_known_paths(fname,prefix,sub,user_m) is None:
             return False
         return True
+
+    def get_ini_mdi_command(self, key):
+        """ returns A MDI command string from the INI heading [MDI_COMMAND_LIST] or None
+
+        key -- can be a integer or a string
+        using an integer is the legacy way to refer to the nth line.
+        using a string will refer to the specific command regardless what line 
+        it is on."""
+        try:
+            # should fail if not string
+            return self.MDI_COMMAND_DICT[key]['cmd']
+        except:
+            # fallback to legacy variable
+            try:
+                # should fail if not int
+                return self.MDI_COMMAND_LIST[key]
+            except:
+                return None
+
+    def get_ini_mdi_label(self, key):
+        """ returns A MDI label string from the INI heading [MDI_COMMAND_LIST] or None
+
+        key -- can be a integer or a string
+        Using an integer is the legacy way to refer to the nth line in the INI.
+        Using a string will refer to the specific command regardless of what line 
+        it is on."""
+        try:
+            # should fail if not string
+            return self.MDI_COMMAND_DICT[key]['label']
+        except:
+            # fallback to legacy variable
+            try:
+                # should fail if not int
+                return self.MDI_COMMAND_LABEL_LIST[key]
+            except:
+                return None
 
     def __getitem__(self, item):
         return getattr(self, item)

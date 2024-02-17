@@ -105,10 +105,14 @@ class ProbeRoutines():
         else:
             return -1
         axis = name[0].upper()
+        laxis = name[0].lower()
+
+        # save current position so we can return to it
+        rtn = self.CALL_MDI_WAIT('#<{}>=#<_{}>'.format(laxis,laxis), self.timeout)
         # probe toward target
         s = """G91
         G38.2 {}{} F{}""".format(axis, travel, self.data_search_vel)
-        rtn = self.CALL_MDI_WAIT(s, self.timeout) 
+        rtn = self.CALL_MDI_WAIT(s, self.timeout)
         if rtn != 1:
             return 'Probe {} failed: {}'.format(name, rtn)
         # retract
@@ -122,13 +126,13 @@ class ProbeRoutines():
         rtn = self.CALL_MDI_WAIT(s, self.timeout) 
         if rtn != 1:
             return 'Probe {} failed: {}'.format(name, rtn)
-        # retract
-        s = "G1 {}{} F{}".format(axis, -latch, self.data_rapid_vel)
+        # retract to original position
+        s = "G90 G1 {}#<{}> F{}".format(axis, laxis, self.data_rapid_vel)
         rtn = self.CALL_MDI_WAIT(s, self.timeout) 
         if rtn != 1:
             return 'Probe {} failed: {}'.format(name, rtn)
+        # return all good
         return 1
-
 
     def CALL_MDI_LIST(self, codeList):
         for s in codeList:

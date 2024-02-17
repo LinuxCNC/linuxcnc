@@ -1,0 +1,68 @@
+# 18nov2023 
+# a demo of new pyvcp bars wodgets  
+# display is on a tab in ACIS 
+# uses two fake signal sourves to animate teh bar graphs
+#  a ran9   which is a random number generatopr
+#  a siggen which delivers sine/cosine stimulus to other bnars graphs
+#
+loadusr -W rand9 count=9
+
+# 15oct2023 i wanta sinus to drive nbew simpler bar wiudget (test with diamond thumb)
+# is there a 'servo;' thread automagically? YES
+# so do not      loadrt threads name1=fast period1=50000 name2=slow period2=1000000
+loadrt siggen
+
+#siggen must have ampliture and offset syited to bar graphs display ( and vs:vs)
+setp siggen.0.frequency .05 #10 OK SLOW  100 FAST JERKY
+# amoplitude of 5 means -5 to _ 5, then offset of 5 means 0 to 10
+setp siggen.0.amplitude 5
+setp siggen.0.offset 5
+addf siggen.0.update servo-thread
+
+# THESE MUST AFREE WITH XM:L !!
+# how can i automate making them same?? dunno
+setp rand9.1.rmin 0
+setp rand9.1.rmax 10
+
+setp rand9.2.rmin -5
+setp rand9.2.rmax 5
+
+setp rand9.3.rmin 0
+setp rand9.3.rmax 100
+
+setp rand9.4.rmin 0
+setp rand9.4.rmax 10
+
+setp rand9.5.rmin -0.1
+setp rand9.5.rmax  0.1
+
+setp rand9.6.rmin -5
+setp rand9.6.rmax  0
+
+setp rand9.7.rmin 100
+setp rand9.7.rmax 110
+
+setp rand9.8.rmin 0
+setp rand9.8.rmax 100
+
+# connect rout to bar and number widgets
+net r1 rand9.1.rout 	bars.proc01 bars.fproc01
+net r2 rand9.2.rout 	bars.proc02 bars.fproc02
+net r3 rand9.3.rout 	bars.proc03 bars.fproc03
+
+net s4 siggen.0.sine    bars.proc04 bars.fproc04
+
+net s9 siggen.0.cosine  bars.proc09 #bars.fproc09
+net s4 bars.proc10
+
+net r5 rand9.5.rout 	bars.proc05 
+
+net r6 rand9.6.rout 	bars.proc06 bars.fproc06
+net r7 rand9.7.rout 	bars.proc07 bars.fproc07
+
+# bars can have internal numeric displays or none
+#  there are pins to wire the val;ues to external displays in any case
+
+net r8   rand9.8.rout 	    bars.proc08      bars.proc08value
+net min8 bars.proc08.minpin bars.proc08min
+net max8 bars.proc08.maxpin bars.proc08max 

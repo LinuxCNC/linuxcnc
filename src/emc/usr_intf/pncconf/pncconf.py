@@ -273,6 +273,13 @@ class App:
         self.widgets.createshortcut.set_active(short)
         self.widgets.advancedconfig.set_active(show_pages)
 
+        # setup stylesheet for widget coloring
+        # we use this later to highlight missing axis and encoder info
+        self.css_provider = Gtk.CssProvider()
+        context = Gtk.StyleContext()
+        screen = Gdk.Screen.get_default()
+        context.add_provider_for_screen(screen, self.css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
         tempfile = os.path.join(self._p.DISTDIR, "configurable_options/ladder/TEMP.clp")
         if os.path.exists(tempfile):
            os.remove(tempfile)
@@ -336,28 +343,19 @@ class App:
             self.HAL.write_halfile(base)
             # qtplasmac specific
             if self.d.frontend == _PD._QTPLASMAC:
-                # copy M190 file
-                if BASE == "/usr":
-                    m190Path = os.path.join(BASE, 'share/doc/linuxcnc/examples/sample-configs/sim/qtplasmac/M190')
-                else:
-                    m190Path = os.path.join(BASE, 'configs/sim/qtplasmac/M190')
-                shutil.copy(m190Path, os.path.join(base, 'M190'))
                 # different looking tool table for qtplasmac
-
                 dest = os.path.join(base, "tool.tbl")
                 if not os.path.exists(dest):
                     file = open(dest, "w")
                     print("T0 P1 X0 Y0 ;torch", file=file)
                     print("T1 P2 X0 Y0 ;scribe", file=file)
                     file.close()
-
             # _not_ qtplasmac
             else:
                 dest = os.path.join(base, "tool.tbl")
                 print (base,'\ncopy:',dest,os.path.exists(dest))
                 if not os.path.exists(dest):
                     print('copied')
-                    # different looking tool table for qtplasmac
                     file = open(dest, "w")
                     if self.d.axes == 2:# lathe
                         if self.d.units == _PD._METRIC:
@@ -4899,16 +4897,22 @@ Clicking 'existing custom program' will avoid this warning. "),False):
         if self.findsignal(axis+"-encoder-a"): encoder = True
         if self.findsignal(axis+"-resolver"): resolver = True
         if self.findsignal(axis+"-pot-outpot"): pot = True
+        css = ""
         if encoder or resolver:
             if self.widgets[axis+"encoderscale"].get_value() < 1:
-                self.widgets[axis+"encoderscale"].override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA.from_color(Gdk.color_parse('red')))
+                css += f'#{axis}encoderscale'
                 dbg('encoder resolver scale bad %f'%self.widgets[axis+"encoderscale"].get_value())
                 bad = True
         if stepdrive:
             if self.widgets[axis+"stepscale"].get_value() < 1:
-                self.widgets[axis+"stepscale"].override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA.from_color(Gdk.color_parse('red')))
+                if css:
+                    css += ", "
+                css += f'#{axis}stepscale'
                 dbg('step scale bad')
                 bad = True
+        if css:
+            css += '{background-color: red}'
+            self.css_provider.load_from_data(css.encode())
         if not (encoder or resolver) and not stepdrive and not axis == "s":
             dbg('encoder %s resolver %s stepper %s axis %s'%(encoder,resolver,stepdrive,axis))
             bad = True
@@ -4925,8 +4929,8 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             self.widgets[axis + "axistest"].set_sensitive(0)
         else:
             dbg('motor %s_encoder sanity check - good'%axis)
-            self.widgets[axis+"encoderscale"].override_background_color(Gtk.StateFlags.NORMAL, self.origbg)
-            self.widgets[axis+"stepscale"].override_background_color(Gtk.StateFlags.NORMAL, self.origbg)
+            css = f'#{axis}stepscale, #{axis}encoderscale {{background-color: @theme_bg_color;}}'
+            self.css_provider.load_from_data(css.encode())
             self.p.set_buttons_sensitive(1,1)
             self.widgets[axis + "axistune"].set_sensitive(1)
             self.widgets[axis + "axistest"].set_sensitive(1)

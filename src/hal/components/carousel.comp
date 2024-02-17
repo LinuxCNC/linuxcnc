@@ -74,7 +74,7 @@ Once the decel-time has expired the carousel will, if it was moving forwards, re
 to the position marker, off of the arker and then bak on to the FWD edge. If moving in reverse
 it will continue off the marker and then reverse slowly on to the FWD edge.
 This algnment is only possible with a motor-vel controlled bidirectional carousel,
-Other combinations will be acepted but probably won't have the desired behaviour.
+Other combinations will be accepted but probably won't have the desired behaviour.
 Some tuning will be needed of align-dc and decel-time to achieve reliable operation.
 
 In the unusual case that the index and pulse signals do not align it is

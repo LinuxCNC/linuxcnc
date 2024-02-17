@@ -56,6 +56,9 @@ char LoadSymbols(char * FileName);
 char SaveSymbols(char * FileName);
 char LoadGeneralParameters(char * FileName);
 char SaveGeneralParameters(char * FileName);
+////XXX Function not used in LinuxCNC
+//char LoadConfigEventsLog(char * FileName);
+//char SaveConfigEventsLog(char * FileName);
 
 void LoadAllLadderDatas(char * DatasDirectory);
 void SaveAllLadderDatas(char * DatasDirectory);

@@ -5,8 +5,8 @@ qtplasmac-cfg2prefs.py
 This file is used to convert settings in the .cfg files from a PlasmaC
 configuration to the .prefs file for a QtPlasmaC configuration.
 
-Copyright (C) 2020, 2021 Phillip A Carter
-Copyright (C) 2020, 2021  Gregory D Carl
+Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
+Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -117,12 +117,12 @@ class Cfg2Prefs(QMainWindow, object):
         cancel.pressed.connect(self.cancel_pressed)
         fromFileButton.pressed.connect(self.from_pressed)
         toFileButton.pressed.connect(self.to_pressed)
-        if os.path.exists('{}/linuxcnc/configs'.format(os.path.expanduser('~'))):
-            self.DIR = '{}/linuxcnc/configs'.format(os.path.expanduser('~'))
-        elif os.path.exists('{}/linuxcnc'.format(os.path.expanduser('~'))):
-            self.DIR = '{}/linuxcnc'.format(os.path.expanduser('~'))
+        if os.path.exists(f'{os.path.expanduser("~")}/linuxcnc/configs'):
+            self.DIR = f'{os.path.expanduser("~")}/linuxcnc/configs'
+        elif os.path.exists(f'{os.path.expanduser("~")}/linuxcnc'):
+            self.DIR = f'{os.path.expanduser("~")}/linuxcnc'
         else:
-            self.DIR = '{}'.format(os.path.expanduser('~'))
+            self.DIR = f'{os.path.expanduser("~")}'
         self.fromFileName = None
         self.fromFilePath = None
         self.toFileName = None
@@ -132,8 +132,8 @@ class Cfg2Prefs(QMainWindow, object):
     def dialog_ok(self, title, text):
         msgBox = QMessageBox()
         msgBox.setIcon(QMessageBox.Information)
-        msgBox.setWindowTitle('{}'.format(title))
-        msgBox.setText('{}'.format(text))
+        msgBox.setWindowTitle(f'{title}')
+        msgBox.setText(f'{text}')
         msgBox.setStandardButtons(QMessageBox.Ok)
         buttonK = msgBox.button(QMessageBox.Ok)
         buttonK.setIcon(QIcon())
@@ -204,12 +204,8 @@ class Cfg2Prefs(QMainWindow, object):
             self.dialog_ok('Folder Error', msg)
             return
         self.prefParms = []
-        self.date = '{}-{:02d}-{:02d}'.format(time.localtime(time.time())[0], \
-                                          time.localtime(time.time())[1], \
-                                          time.localtime(time.time())[2],)
-        self.time = '{:02d}-{:02d}-{:02d}'.format(time.localtime(time.time())[3], \
-                                              time.localtime(time.time())[4], \
-                                              time.localtime(time.time())[4],)
+        self.date = f'{time.localtime(time.time())[0]}-{time.localtime(time.time())[1]:02d}-{time.localtime(time.time())[2]:02d}'
+        self.time = f'{time.localtime(time.time())[3]:02d}-{time.localtime(time.time())[4]:02d}-{time.localtime(time.time())[4]:02d}'
         with open(self.fromFileName) as inFile:
             while(1):
                 line = inFile.readline()
@@ -271,85 +267,85 @@ class Cfg2Prefs(QMainWindow, object):
             for line in inFile:
                 if line.startswith('setup-feed-rate'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Setup Feed Rate = {}'.format(value))
+                    self.prefParms.append(f'Setup Feed Rate = {value}')
                 elif line.startswith('arc-fail-delay'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Arc Fail Timeout = {}'.format(value))
+                    self.prefParms.append(f'Arc Fail Timeout = {value}')
                 elif line.startswith('arc-ok-high'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Arc OK High = {}'.format(value))
+                    self.prefParms.append(f'Arc OK High = {value}')
                 elif line.startswith('arc-ok-low'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Arc OK Low = {}'.format(value))
+                    self.prefParms.append(f'Arc OK Low = {value}')
                 elif line.startswith('arc-max-starts'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Arc Maximum Starts = {}'.format(value))
+                    self.prefParms.append(f'Arc Maximum Starts = {value}')
                 elif line.startswith('arc-voltage-offset'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Arc Voltage Offset = {}'.format(value))
+                    self.prefParms.append(f'Arc Voltage Offset = {value}')
                 elif line.startswith('arc-voltage-scale'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Arc Voltage Scale = {}'.format(value))
+                    self.prefParms.append(f'Arc Voltage Scale = {value}')
                 elif line.startswith('cornerlock-threshold'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Velocity Anti Dive Threshold = {}'.format(value))
+                    self.prefParms.append(f'Velocity Anti Dive Threshold = {value}')
                 elif line.startswith('float-switch-travel'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Float Switch Travel = {}'.format(value))
+                    self.prefParms.append(f'Float Switch Travel = {value}')
                 elif line.startswith('height-per-volt'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Height Per Volt = {}'.format(value))
+                    self.prefParms.append(f'Height Per Volt = {value}')
                 elif line.startswith('kerfcross-override'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Void Sense Override = {}'.format(value))
+                    self.prefParms.append(f'Void Sense Override = {value}')
                 elif line.startswith('ohmic-max-attempts'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Ohmic Maximum Attempts = {}'.format(value))
+                    self.prefParms.append(f'Ohmic Maximum Attempts = {value}')
                 elif line.startswith('ohmic-probe-offset'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Ohmic Probe Offset = {}'.format(value))
+                    self.prefParms.append(f'Ohmic Probe Offset = {value}')
                 elif line.startswith('pid-p-gain'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Pid P Gain = {}'.format(value))
+                    self.prefParms.append(f'Pid P Gain = {value}')
                 elif line.startswith('pid-d-gain'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Pid D Gain = {}'.format(value))
+                    self.prefParms.append(f'Pid D Gain = {value}')
                 elif line.startswith('pid-i-gain'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Pid I Gain = {}'.format(value))
+                    self.prefParms.append(f'Pid I Gain = {value}')
                 elif line.startswith('probe-feed-rate'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Probe Feed Rate = {}'.format(value))
+                    self.prefParms.append(f'Probe Feed Rate = {value}')
                 elif line.startswith('probe-start-height'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Probe Start Height = {}'.format(value))
+                    self.prefParms.append(f'Probe Start Height = {value}')
                 elif line.startswith('arc-restart-delay'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Arc Restart Delay = {}'.format(value))
+                    self.prefParms.append(f'Arc Restart Delay = {value}')
                 elif line.startswith('safe-height'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Safe Height = {}'.format(value))
+                    self.prefParms.append(f'Safe Height = {value}')
                 elif line.startswith('scribe-arm-delay'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Scribe Arming Delay = {}'.format(value))
+                    self.prefParms.append(f'Scribe Arming Delay = {value}')
                 elif line.startswith('scribe-on-delay'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Scribe On Delay = {}'.format(value))
+                    self.prefParms.append(f'Scribe On Delay = {value}')
                 elif line.startswith('skip-ihs-distance'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Skip IHS Distance = {}'.format(value))
+                    self.prefParms.append(f'Skip IHS Distance = {value}')
                 elif line.startswith('spotting-threshold'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Spotting Threshold = {}'.format(value))
+                    self.prefParms.append(f'Spotting Threshold = {value}')
                 elif line.startswith('spotting-time'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Spotting Time = {}'.format(value))
+                    self.prefParms.append(f'Spotting Time = {value}')
                 elif line.startswith('thc-delay'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('THC Delay = {}'.format(value))
+                    self.prefParms.append(f'THC Delay = {value}')
                 elif line.startswith('thc-threshold'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('THC Threshold = {}'.format(value))
+                    self.prefParms.append(f'THC Threshold = {value}')
             self.prefParms.append('')
 
 # READ THE <MACHINE>_RUN.CFG FILE
@@ -359,69 +355,69 @@ class Cfg2Prefs(QMainWindow, object):
             for line in inFile:
                 if line.startswith('thc-enable'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('THC enable = {}'.format(value))
+                    self.prefParms.append(f'THC enable = {value}')
                 elif line.startswith('cornerlock-enable'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Corner lock enable = {}'.format(value))
+                    self.prefParms.append(f'Corner lock enable = {value}')
                 elif line.startswith('kerfcross-enable'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Kerf cross enable = {}'.format(value))
+                    self.prefParms.append(f'Kerf cross enable = {value}')
                 elif line.startswith('use-auto-volts'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Use auto volts = {}'.format(value))
+                    self.prefParms.append(f'Use auto volts = {value}')
                 elif line.startswith('ohmic-probe-enable'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Ohmic probe enable = {}'.format(value))
+                    self.prefParms.append(f'Ohmic probe enable = {value}')
             self.prefParms.append('')
         self.prefParms.append('[DEFAULT MATERIAL]')
         with open(runFile) as inFile:
             for line in inFile:
                 if line.startswith('kerf-width'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Kerf width = {}'.format(value))
+                    self.prefParms.append(f'Kerf width = {value}')
                 elif line.startswith('pierce-height'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Pierce height = {}'.format(value))
+                    self.prefParms.append(f'Pierce height = {value}')
                 elif line.startswith('pierce-delay'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Pierce delay = {}'.format(value))
+                    self.prefParms.append(f'Pierce delay = {value}')
                 elif line.startswith('puddle-jump-height'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Puddle jump height = {}'.format(value))
+                    self.prefParms.append(f'Puddle jump height = {value}')
                 elif line.startswith('puddle-jump-delay'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Puddle jump delay = {}'.format(value))
+                    self.prefParms.append(f'Puddle jump delay = {value}')
                 elif line.startswith('cut-height'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Cut height = {}'.format(value))
+                    self.prefParms.append(f'Cut height = {value}')
                 elif line.startswith('cut-feed-rate'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Cut feed rate = {}'.format(value))
+                    self.prefParms.append(f'Cut feed rate = {value}')
                 elif line.startswith('cut-amps'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Cut amps = {}'.format(value))
+                    self.prefParms.append(f'Cut amps = {value}')
                 elif line.startswith('cut-volts'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Cut volts = {}'.format(value))
+                    self.prefParms.append(f'Cut volts = {value}')
                 elif line.startswith('pause-at-end'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Pause at end = {}'.format(value))
+                    self.prefParms.append(f'Pause at end = {value}')
                 elif line.startswith('gas-pressure'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Gas pressure = {}'.format(value))
+                    self.prefParms.append(f'Gas pressure = {value}')
                 elif line.startswith('cut-mode'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Cut mode = {}'.format(value))
+                    self.prefParms.append(f'Cut mode = {value}')
             self.prefParms.append('')
         self.prefParms.append('[SINGLE CUT]')
         with open(runFile) as inFile:
             for line in inFile:
                 if line.startswith('x-single-cut'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('X length = {}'.format(value))
+                    self.prefParms.append(f'X length = {value}')
                 elif line.startswith('y-single-cut'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Y length = {}'.format(value))
+                    self.prefParms.append(f'Y length = {value}')
             self.prefParms.append('')
 
 # READ THE <MACHINE>_WIZARDS.CFG FILE
@@ -431,25 +427,25 @@ class Cfg2Prefs(QMainWindow, object):
             for line in inFile:
                 if line.startswith('preamble'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Preamble = {}'.format(value))
+                    self.prefParms.append(f'Preamble = {value}')
                 elif line.startswith('origin'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Origin = {}'.format(value))
+                    self.prefParms.append(f'Origin = {value}')
                 elif line.startswith('lead-in'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Leadin = {}'.format(value))
+                    self.prefParms.append(f'Leadin = {value}')
                 elif line.startswith('lead-out'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Leadout = {}'.format(value))
+                    self.prefParms.append(f'Leadout = {value}')
                 elif line.startswith('hole-diameter'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Hole diameter = {}'.format(value))
+                    self.prefParms.append(f'Hole diameter = {value}')
                 elif line.startswith('hole-speed'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Hole speed = {}'.format(value))
+                    self.prefParms.append(f'Hole speed = {value}')
                 elif line.startswith('grid-size'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Grid Size = {}'.format(value))
+                    self.prefParms.append(f'Grid Size = {value}')
             self.prefParms.append('')
 
 # READ THE PLASMAC_STATS.VAR FILE
@@ -459,32 +455,32 @@ class Cfg2Prefs(QMainWindow, object):
             for line in inFile:
                 if line.strip().startswith('PIERCE_COUNT'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Pierce count = {}'.format(value))
+                    self.prefParms.append(f'Pierce count = {value}')
                 elif line.strip().startswith('CUT_LENGTH'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Cut length = {}'.format(value))
+                    self.prefParms.append(f'Cut length = {value}')
                 elif line.strip().startswith('CUT_TIME'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Cut time = {}'.format(value))
+                    self.prefParms.append(f'Cut time = {value}')
                 elif line.strip().startswith('TORCH_TIME'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Torch on time = {}'.format(value))
+                    self.prefParms.append(f'Torch on time = {value}')
                 elif line.strip().startswith('RUN_TIME'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Program run time = {}'.format(value))
+                    self.prefParms.append(f'Program run time = {value}')
                 elif line.strip().startswith('RAPID_TIME'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Rapid time = {}'.format(value))
+                    self.prefParms.append(f'Rapid time = {value}')
                 elif line.strip().startswith('PROBE_TIME'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Probe time = {}'.format(value))
+                    self.prefParms.append(f'Probe time = {value}')
             self.prefParms.append('')
 
 # READ THE <MACHINE>_MATERIAL.CFG FILE
     def read_mat_file(self, matFile):
         newFile = os.path.join(self.toFilePath, self.toMachine + '_material.cfg')
         if os.path.isfile(newFile):
-            matCopy = '{}_{}_{}'.format(newFile, self.date, self.time)
+            matCopy = f'{newFile}_{self.date}_{self.time}'
             COPY(newFile, matCopy)
         with open(newFile, 'w') as outFile:
             with open(matFile) as inFile:
@@ -501,7 +497,7 @@ class Cfg2Prefs(QMainWindow, object):
                   '[CONVERSATIONAL]', '[STATISTICS]']
         bypass = False
         prefsFile = os.path.join(self.toFilePath, self.toMachine + '.prefs')
-        prefsCopy = '{}_{}_{}'.format(prefsFile, self.date, self.time)
+        prefsCopy = f'{prefsFile}_{self.date}_{self.time}'
         COPY(prefsFile, prefsCopy)
         with open(prefsFile, 'w') as outFile:
             with open(prefsCopy, 'r') as inFile:
@@ -512,9 +508,9 @@ class Cfg2Prefs(QMainWindow, object):
                         bypass = True
                     if not bypass:
                         inPrefs.append(line)
-                        outFile.write('{}'.format(line))
+                        outFile.write(f'{line}')
             for item in self.prefParms:
-                outFile.write('{}\n'.format(item))
+                outFile.write(f'{item}\n')
         msg  = 'Conversion appears successful.\n'
         msg += '\nAny time stamped backup of an original qtplasmac.prefs '
         msg += 'file or an original material.cfg file may be deleted from '

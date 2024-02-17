@@ -1,8 +1,8 @@
 '''
 conversational.py
 
-Copyright (C) 2019, 2020, 2021, 2022  Phillip A Carter
-Copyright (C)       2020, 2021, 2022  Gregory D Carl
+Copyright (C) 2019, 2020, 2021, 2022, 2023 Phillip A Carter
+Copyright (C)       2020, 2021, 2022, 2023 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -63,7 +63,7 @@ def conv_setup(P, W):
         P.unitCode = ['21', '0.25', 32]
     else:
         P.unitCode = ['20', '0.004', 1.26]
-    P.ambles = 'G{} G64P{} G40 G49 G80 G90 G92.1 G94 G97'.format(P.unitCode[0], P.unitCode[1])
+    P.ambles = f'G{P.unitCode[0]} G64P{P.unitCode[1]} G40 G49 G80 G90 G92.1 G94 G97'
     CONVSET.load(P, W)
     # grid size is in inches
     W.conv_preview.grid_size = P.gridSize / P.unitsPerMm / 25.4
@@ -97,7 +97,7 @@ def conv_new_pressed(P, W, button):
         btn2 = _translate('HandlerClass', 'CANCEL')
         msg0 = _translate('HandlerClass', 'You have an unsaved, unsent, or active previewed shape')
         msg1 = _translate('HandlerClass', 'If you continue it will be deleted')
-        if not P.dialog_show_yesno(QMessageBox.Warning, '{}'.format(head), '{}\n\n{}\n'.format(msg0, msg1), '{}'.format(btn1), '{}'.format(btn2)):
+        if not P.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'{msg0}\n\n{msg1}\n', f'{btn1}', f'{btn2}'):
             return
     if P.oldConvButton == 'conv_line':
         if W.lType.currentText() == _translate('Conversational', 'LINE POINT ~ POINT'):
@@ -129,7 +129,7 @@ def conv_save_pressed(P, W):
         for line in inFile:
             if '(new conversational file)' in line:
                 msg0 = _translate('HandlerClass', 'An empty file cannot be saved')
-                P.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '{}\n'.format(msg0))
+                P.dialog_show_ok(QMessageBox.Warning, f'{head}', f'{msg0}\n')
                 return
     P.vkb_show()
     dlg = QFileDialog(W)
@@ -150,11 +150,11 @@ def conv_save_pressed(P, W):
 def conv_settings_pressed(P, W):
     P.color_item(P.oldConvButton, P.foreColor, 'button')
     W[P.oldConvButton].setStyleSheet(\
-            'QPushButton {{ background: {0} }} \
-             QPushButton:pressed {{ background: {0} }}'.format(P.backColor))
+            f'QPushButton {{ background: {P.backColor} }} \
+             QPushButton:pressed {{ background: {P.backColor} }}')
     for w in P.convCommonButtons:
-        P.convButtonState[w] = W['conv_{}'.format(w)].isEnabled()
-        W['conv_{}'.format(w)].setEnabled(False)
+        P.convButtonState[w] = W[f'conv_{w}'].isEnabled()
+        W[f'conv_{w}'].setEnabled(False)
     conv_clear_widgets(P, W, True)
     if P.developmentPin.get():
         reload(CONVSET)
@@ -178,13 +178,13 @@ def conv_block_pressed(P, W):
             for line in inFile:
                 if '(new conversational file)' in line:
                     msg0 = _translate('HandlerClass', 'An empty file cannot be arrayed, rotated, or scaled')
-                    P.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '{}\n'.format(msg0))
+                    P.dialog_show_ok(QMessageBox.Warning, f'{head}', f'{msg0}\n')
                     return
                 # see if we can do something about NURBS blocks down the track
                 # elif 'g5.2' in line.lower() or 'g5.3' in line.lower():
                 #     head = _translate('HandlerClass', 'Scale Error')
                 #     msg0 = _translate('HandlerClass', 'Cannot scale a GCode NURBS block')
-                #     P.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '{}\n\n{}'.format(msg0, line))
+                #     P.dialog_show_ok(QMessageBox.Warning, f'{head}', f'{msg0}\n\n{line}')
                 #     return
                 elif 'M3' in line or 'm3' in line:
                     break
@@ -245,8 +245,8 @@ def conv_shape_request(P, W, shape, material):
             W.centLeft.setText('CENTER')
         else:
             W.centLeft.setText('BTM LEFT')
-        W.liEntry.setText('{}'.format(P.leadIn))
-        W.loEntry.setText('{}'.format(P.leadOut))
+        W.liEntry.setText(f'{P.leadIn}')
+        W.loEntry.setText(f'{P.leadOut}')
     # call the shape
     module.widgets(P, W, P.CONV)
     P.convSettingsChanged = False
@@ -255,16 +255,14 @@ def conv_preview_button(P, W, state):
     P.convPreviewActive = state
     conv_enable_tabs(P, W)
     if state:
-        W.preview.setStyleSheet('QPushButton {{ color: {} }} \
-                                      QPushButton:disabled {{ color: {} }}' \
-                                      .format(P.estopColor, P.disabledColor))
+        W.preview.setStyleSheet(f'QPushButton {{ color: {P.estopColor} }} \
+                                      QPushButton:disabled {{ color: {P.disabledColor} }}')
         W.conv_save.setEnabled(False)
         W.conv_send.setEnabled(False)
         W.undo.setText(_translate('HandlerClass', 'UNDO'))
     else:
-        W.preview.setStyleSheet('QPushButton {{ color: {} }} \
-                                      QPushButton:disabled {{ color: {} }}' \
-                                      .format(P.foreColor, P.disabledColor))
+        W.preview.setStyleSheet(f'QPushButton {{ color: {P.foreColor} }} \
+                                      QPushButton:disabled {{ color: {P.disabledColor} }}')
         if P.validShape:
             W.conv_save.setEnabled(True)
             W.conv_send.setEnabled(True)
@@ -278,7 +276,7 @@ def conv_active_shape(P, W):
     head = _translate('HandlerClass', 'Active Preview')
     msg0 = _translate('HandlerClass', 'You have an active previewed shape')
     msg1 = _translate('HandlerClass', 'If you continue it will be deleted')
-    response = P.dialog_show_yesno(QMessageBox.Warning, '{}'.format(head), '{}\n\n{}\n'.format(msg0, msg1), '{}'.format(btn1), '{}'.format(btn2))
+    response = P.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'{msg0}\n\n{msg1}\n', f'{btn1}', f'{btn2}')
     if response:
         conv_undo_shape(P, W)
         conv_preview_button(P, W, False)
@@ -288,22 +286,22 @@ def conv_button_color(P, W, button):
     if P.oldConvButton:
         P.color_item(P.oldConvButton, P.foreColor, 'button')
         W[P.oldConvButton].setStyleSheet(\
-                'QPushButton {{ background: {0} }} \
-                 QPushButton:pressed {{ background: {0} }}'.format(P.backColor))
+                f'QPushButton {{ background: {P.backColor} }} \
+                 QPushButton:pressed {{ background: {P.backColor} }}')
     P.oldConvButton = button
     P.color_item(button, P.backColor, 'button')
     W[button].setStyleSheet(\
-            'QPushButton {{ background: {0} }} \
-             QPushButton:pressed {{ background: {0} }}'.format(P.foreColor))
+            f'QPushButton {{ background: {P.foreColor} }} \
+             QPushButton:pressed {{ background: {P.foreColor} }}')
 
 # this doesn't seem to be used
 #def conv_enable_buttons(P, W, state):
 #    for button in ['new', 'save', 'settings', 'send']:
-#        W['conv_{}'.format(button)].setEnabled(state)
+#        W[f'conv_{button}')].setEnabled(state)
 
 def conv_restore_buttons(P, W):
     for button in P.convCommonButtons:
-        W['conv_{}'.format(button)].setEnabled(P.convButtonState[button])
+        W[f'conv_{button}'].setEnabled(P.convButtonState[button])
 
 def conv_enable_tabs(P, W):
     if W.conv_save.isEnabled() or P.convPreviewActive:
@@ -316,9 +314,9 @@ def conv_enable_tabs(P, W):
             # enabling tabs causes issues with the gcode widgets margin styles
             # so we refresh the style here as a workaround
             W.gcode_editor.setStyleSheet( \
-                    'EditorBase{{ qproperty-styleColorMarginText: {} }}'.format(P.foreColor))
+                    f'EditorBase{{ qproperty-styleColorMarginText: {P.foreColor} }}')
             W.gcode_display.setStyleSheet( \
-                    'EditorBase{{ qproperty-styleColorMarginText: {} }}'.format(P.foreColor))
+                    f'EditorBase{{ qproperty-styleColorMarginText: {P.foreColor} }}')
 
 def conv_entry_changed(P, W, widget, circleType=False):
     if widget:
@@ -393,7 +391,7 @@ def conv_entry_changed(P, W, widget, circleType=False):
         except:
             head = _translate('HandlerClass', 'Numeric Entry Error')
             msg0 = _translate('HandlerClass', 'An invalid entry has been detected')
-            P.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '{}\n'.format(msg0))
+            P.dialog_show_ok(QMessageBox.Warning, f'{head}', f'{msg0}\n')
             widget.setText('0')
             reply = True
         return reply
@@ -428,12 +426,12 @@ def conv_undo_shape(P, W):
             name = os.path.basename(ACTION.prefilter_path)
             msg0 = _translate('HandlerClass', 'The original file will be loaded')
             msg1 = _translate('HandlerClass', 'If you continue all changes will be deleted')
-            if not P.dialog_show_yesno(QMessageBox.Warning, '{}'.format(head), '{}:\n\n{}\n\n{}\n'.format(msg0, name, msg1), '{}'.format(btn1), '{}'.format(btn2)):
+            if not P.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'{msg0}:\n\n{name}\n\n{msg1}\n', f'{btn1}', f'{btn2}'):
                 return(True)
         else:
             msg0 = _translate('HandlerClass', 'An empty file will be loaded')
             msg1 = _translate('HandlerClass', 'If you continue all changes will be deleted')
-            if not P.dialog_show_yesno(QMessageBox.Warning, '{}'.format(head), '{}\n\n{}\n'.format(msg0, msg1), '{}'.format(btn1), '{}'.format(btn2)):
+            if not P.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'{msg0}\n\n{msg1}\n', f'{btn1}', f'{btn2}'):
                 return(True)
         if ACTION.prefilter_path:
             COPY(ACTION.prefilter_path, P.fNgcBkp)
@@ -521,7 +519,7 @@ def conv_clear_widgets(P, W, settings=False):
             elif name in ['scEntry']:
                 widget.setText('1.0')
             elif name in ['ocEntry']:
-                widget.setText('{}'.format(4 * P.unitsPerMm))
+                widget.setText(f'{4 * P.unitsPerMm}')
         W.entries.removeWidget(widget)
         widget.setParent(None)
 
@@ -561,7 +559,7 @@ def conv_widgets(P, W):
     W.ocLabel = QLabel(_translate('Conversational', 'OC LENGTH'))
     W.ocEntry = QLineEdit(objectName='ocEntry')
     W.ocEntry.setEnabled(False)
-    W.ocEntry.setText('{}'.format(4 * P.unitsPerMm))
+    W.ocEntry.setText(f'{4 * P.unitsPerMm}')
     W.add = QPushButton(_translate('Conversational', 'ADD'))
     W.lDesc = QLabel('')
     W.iLabel = QLabel()
