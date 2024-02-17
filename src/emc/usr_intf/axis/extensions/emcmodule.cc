@@ -121,12 +121,11 @@ static PyObject *Ini_find(pyIniFile *self, PyObject *args) {
     int num = 1;
     if(!PyArg_ParseTuple(args, "ss|i:find", &s1, &s2, &num)) return NULL;
 
-    auto out = self->i->Find(s2, s1, num);
-    if(!out) {
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
-    return PyUnicode_FromString(const_cast<char*>(out.value()));
+    if (auto out = self->i->Find(s2, s1, num))
+        return PyUnicode_FromString(out.value());
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *Ini_findall(pyIniFile *self, PyObject *args) {
@@ -135,12 +134,8 @@ static PyObject *Ini_findall(pyIniFile *self, PyObject *args) {
     if(!PyArg_ParseTuple(args, "ss:findall", &s1, &s2)) return NULL;
 
     PyObject *result = PyList_New(0);
-    while(1) {
-        auto out = self->i->Find(s2, s1, num);
-        if(!out) {
-            break;
-        }
-        PyList_Append(result, PyUnicode_FromString(const_cast<char*>(out.value())));
+    while(auto out = self->i->Find(s2, s1, num)) {
+        PyList_Append(result, PyUnicode_FromString(out.value()));
         num++;
     }
     return result;
