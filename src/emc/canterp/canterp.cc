@@ -741,9 +741,9 @@ int Canterp::sequence_number() {
    return -1;
 }
 int Canterp::init() { return INTERP_OK; }
-void Canterp::active_g_codes(int gees[]) { std::fill(gees, gees + ACTIVE_G_CODES, 0); }
-void Canterp::active_m_codes(int emms[]) { std::fill(emms, emms + ACTIVE_M_CODES, 0); }
-void Canterp::active_settings(double sets[]) { std::fill(sets, sets + ACTIVE_SETTINGS, 0.0); }
+void Canterp::active_g_codes(int gees[ACTIVE_G_CODES]) { std::fill(gees, gees + ACTIVE_G_CODES, 0); }
+void Canterp::active_m_codes(int emms[ACTIVE_M_CODES]) { std::fill(emms, emms + ACTIVE_M_CODES, 0); }
+void Canterp::active_settings(double sets[ACTIVE_SETTINGS]) { std::fill(sets, sets + ACTIVE_SETTINGS, 0.0); }
 //NOT necessary for canterp
 int Canterp::restore_from_tag(StateTag const &tag) {return -1;}
 void Canterp::print_state_tag(StateTag const &tag) {}
