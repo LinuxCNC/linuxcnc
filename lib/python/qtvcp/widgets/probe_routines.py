@@ -85,15 +85,18 @@ class ProbeRoutines():
             self.CALL_MDI_WAIT(s, self.timeout)
             ACTION.RELOAD_DISPLAY()
 
-    def add_history(self, text, s="",xm=0.,xc=0.,xp=0.,lx=0.,ym=0.,yc=0.,yp=0.,ly=0.,z=0.,d=0.,a=0.):
-        tpl = '%.3f' if STATUS.is_metric_mode() else '%.4f'
-        c = text
-        list = ['Xm', 'Xc', 'Xp', 'Lx', 'Ym', 'Yc', 'Yp', 'Ly', 'Z', 'D', 'A']
-        arg = (xm, xc, xp, lx, ym, yc, yp, ly, z, d, a)
-        for i in range(len(list)):
-            if list[i] in s:
-                c += ' ' + list[i] + "[" + tpl%(arg[i]) + ']'
-        self.history_log = c
+    def add_history(self, *args):
+        if len(args) == 13:
+            tpl = '%.3f' if STATUS.is_metric_mode() else '%.4f'
+            c = args[0]
+            list = ['Xm', 'Xc', 'Xp', 'Lx', 'Ym', 'Yc', 'Yp', 'Ly', 'Z', 'D', 'A']
+            for i in range(1,len(list)):
+                if list[i] in args[1]:
+                    c += ' ' + list[i] + "[" + tpl%(args[i+1]) + ']'
+            self.history_log = c
+        else:
+            # should be a single string
+            self.history_log = args[0]
 
     def probe(self, name):
         if name == "xminus" or name == "yminus" :
@@ -240,19 +243,21 @@ class ProbeRoutines():
 
             cmdList = []
             cmdList.append('F{}'.format(self.data_rapid_vel))
-            cmdList.append('G91 ')
+            cmdList.append('G49')
+            cmdList.append('G91')
             # should start spindle in proper direction/speed here..
             cmdList.append('G1 X{}'.format(Xoffset))
             cmdList.append('G38.2 Z-{} F{}'.format(self.data_ts_max,self.data_search_vel))
             cmdList.append('G1 Z{} F{}'.format(self.data_latch_return_dist, self.data_rapid_vel))
             cmdList.append('F{}'.format(self.data_probe_vel))
             cmdList.append('G38.2 Z-{}'.format(self.data_latch_return_dist*1.2))
+            cmdList.append('#<touch_result> = #5063')
+            # adjustment to G53 number
+            cmdList.append('#<zworkoffset> = [#[5203 + #5220 *20] + #5213 * #5210]')
+            cmdList.append('G10 L1 P#5400  Z[#5063 + #<zworkoffset> - {}]'.format( self.data_tool_probe_height))
             cmdList.append('G1 Z{} F{}'.format(self.data_z_clearance, self.data_rapid_vel))
             cmdList.append('G1 X{}'.format(-Xoffset))
             cmdList.append('G90')
-            cmdList.append('#<touch_result> = #5063')
-            cmdList.append('G10 L1 P{}  Z[#<touch_result> -{}]'.format( 
-                    self.data_tool_number,self.data_tool_probe_height+self.data_tool_block_height))
             cmdList.append('G43')
             # call each command - if fail report the error and gcode command
             rtn = self.CALL_MDI_LIST(cmdList)
@@ -260,8 +265,12 @@ class ProbeRoutines():
                 return rtn
             h = STATUS.get_probed_position()[2]
             self.status_z = h
-            self.add_history('Probed Tool height',"Z",0,0,0,0,0,0,0,0,h,0,0)
-
+            p = self.data_tool_probe_height
+            toffset = (h-p)
+            self.add_history('''ToolSetter:
+                                    Calculated Tool Length Z: {:.4f}
+                                    Setter Height: {:.4f}
+                                    Probed Position: {:.4f}'''.format(toffset, p, h ))
             # report success
             return 1
         except Exception as e:
