@@ -10,18 +10,9 @@
 *    
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <ctype.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include "rs274ngc.hh"
+
 #include "rs274ngc_return.hh"
 #include "rs274ngc_interp.hh"
-#include "interp_parameter_def.hh"
 
 using namespace interp_param_global;
 
