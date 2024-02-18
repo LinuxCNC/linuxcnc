@@ -3195,16 +3195,8 @@ static int iniLoad(const char *filename)
     if ((inistring = inifile.Find("RS274NGC_STARTUP_CODE", "RS274NGC"))) {
 	// copy to global
 	rtapi_strxcpy(rs274ngc_startup_code, *inistring);
-    } else {
-	//FIXME-AJ: this is the old (unpreferred) location. just for compatibility purposes
-	//it will be dropped in v2.4
-	if ((inistring = inifile.Find("RS274NGC_STARTUP_CODE", "EMC"))) {
-	    // copy to global
-	    rtapi_strxcpy(rs274ngc_startup_code, *inistring);
-	} else {
-	// not found, use default
-	}
     }
+
     saveDouble = emc_task_cycle_time;
     EMC_TASK_CYCLE_TIME_ORIG = emc_task_cycle_time;
     emcTaskNoDelay = 0;
