@@ -301,12 +301,13 @@ class Filter():
         data = tmp
         # get all G00 coordinates
         if data[:3] == 'G00' and ('X' in data or 'Y' in data):
-            if not self.check_math(data, 'X', 'pierce') and not self.check_math(data, 'Y', 'pierce'):
+            if 'X' in data and not self.check_math(data, 'X', 'pierce'):
                 pierceX = self.get_axis_value(data, 'X') if 'X' in data else self.lastX
-                pierceY = self.get_axis_value(data, 'Y') if 'Y' in data else self.lastY
                 self.pierceList['X'].append(pierceX)
+            if 'Y' in data and not self.check_math(data, 'Y', 'pierce'):
+                pierceY = self.get_axis_value(data, 'Y') if 'Y' in data else self.lastY
                 self.pierceList['Y'].append(pierceY)
-                self.pierceList['active'] = True
+            self.pierceList['active'] = True
         # reset G00 active flag
         if data[:3] == 'M03' and self.pierceList['active']:
             self.pierceList['active'] = False
