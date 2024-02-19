@@ -658,7 +658,7 @@ class FileDialog(QFileDialog, GeometryMixin):
         if preselect:
             self.selectFile(preselect)
         else:
-            self.selectFile('')
+            self.selectFile(' ')
         if directory:
             self.setDirectory(directory)
         self.setWindowTitle('Save')
