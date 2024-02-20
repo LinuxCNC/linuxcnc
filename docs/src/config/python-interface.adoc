@@ -103,8 +103,8 @@ machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS INI value.
 *aout*:: '(returns tuple of floats)' -
   current value of the analog output pins.
 
-*axes*:: '(returns integer)' -
-  number of axes. Derived from [TRAJ]COORDINATES INI value.
+*axes*:: Removed since version 2.9
+  use axis_mask.bit_count() to get the number of axes configured
 
 *axis*:: '(returns tuple of dicts)' -
   reflecting current axis values. See
