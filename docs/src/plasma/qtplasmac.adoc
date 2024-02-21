@@ -4273,9 +4273,9 @@ It will be referred to as `_xx` in this document, so `qtplasmac_xx.ts` in this d
 
 The default locale for QtPlasmaC is `_en` which means that any translation files created as `qtplasmac_en.*` will not be used for translations.
 
-If any of the required utilities (pyuic5, pylupdate5, linguist) are not installed then the user will need to install pyqt5-dev-tools:
+If any of the required utilities (pyuic5, pylupdate5, linguist) are not installed then the user will need to install the required development tools:
 ----
-sudo apt install pyqt5-dev-tools
+sudo apt install qttools5-dev-tools pyqt5-dev-tools
 ----
 
 Change to the languages directory:
@@ -4294,7 +4294,7 @@ If modifying an existing translation that has had no source file changes then th
 
 Create or edit a .ts file:
 ----
-langfile xx
+./langfile xx
 ----
 
 [NOTE]
@@ -4325,6 +4325,10 @@ $ ln -s qtplasmac_en.qm ../../qtplasmac_9x16/languages/
 ----
 
 QtPlasmaC will be translated to the language of the current locale on the next start so long as a .qm file exists in that language.
+
+Users are welcome to submit translation files for inclusion into QtPlasmac.
+The preferred method is to submit a pull request from the users GitHub account as described in the https://www.linuxcnc.org/docs/html/code/contributing-to-linuxcnc.html[contributing to LinuxCNC] documentation.
+The only files required to be committed are qtplasmac_xx.ts and qtplasmac_xx.qm.
 
 == Appendix
 
