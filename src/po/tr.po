@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2024-02-03 03:48+0000\n"
+"PO-Revision-Date: 2024-02-18 20:47+0000\n"
 "Last-Translator: kemal askan <kemalaskan90@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: tr\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.4-dev\n"
+"X-Generator: Weblate 5.4\n"
 
 #: src/emc/task/emctaskmain.cc:869
 #, c-format
@@ -11242,6 +11242,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
 msgid ""
 "_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -19128,7 +19129,7 @@ msgstr "Geçiş Düğmesi"
 #: lib/python/gladevcp/offsetpage.glade:40
 #: lib/python/gladevcp/offsetpage.glade:54
 msgid "Tool"
-msgstr "Tool"
+msgstr "Kalem"
 
 #: lib/python/gladevcp/offsetpage.glade:74
 msgid "Rot"
@@ -19172,7 +19173,7 @@ msgstr "Seçim"
 #: lib/python/gladevcp/tooledit_gtk.glade:408
 #: lib/python/gladevcp/tooledit_gtk.glade:631
 msgid "Tool#"
-msgstr "Tool#"
+msgstr "Kalem#"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:114
 #: lib/python/gladevcp/tooledit_gtk.glade:419
@@ -19234,7 +19235,7 @@ msgstr ""
 
 #: lib/python/gladevcp/tooledit_gtk.glade:819
 msgid "Lathe Tool Offsets"
-msgstr ""
+msgstr "Torna Kalem Ofsetleri"
 
 #: lib/python/gladevcp/calculator.glade:84
 msgid "CLR"
