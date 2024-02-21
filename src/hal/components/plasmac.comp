@@ -721,7 +721,7 @@ FUNCTION(_) {
         if(tool == EMPTY){
             manual_cut = FALSE;
             torch_on = FALSE;
-            stop_type = STOP;
+            stop_type = NONE;
             program_stop = TRUE;
             cut_started = FALSE;
             probe_required = TRUE;
