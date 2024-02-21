@@ -624,6 +624,17 @@ private:
 		erase(p--);
     }
 
+    bool should_rotate_paths() {
+	g7x paths(*this);
+	paths.pop_front();
+	paths.swap();
+	for(auto &path : paths) {
+	    if(!path->monotonic())
+		return true;
+	}
+	return false;
+    }
+
 public:
     g7x() = default;
     g7x(g7x const &other) {
@@ -641,23 +652,11 @@ public:
 	e	Ending distance
 	p	Number of passes to go from d to e
     */
-    void do_g70(motion_base *out, double x, double z, double d, double e,
-	double p
-    ) {
+    void do_g70(motion_base *out, double x, double z, double d, double e, int p)
+    {
 	front()->sp()=std::complex<double>(z,x);
 
-	g7x path(*this);
-	path.pop_front();
-	path.swap();
-	for(auto p=path.begin(); p!=path.end(); p++) {
-	    if(!(*p)->monotonic()) {
-		path.rotate();
-		path.swap();
-		break;
-	    }
-	}
-	path.monotonic();
-	if(path.flip_state&4)
+	if(should_rotate_paths())
 	    rotate();
 	swap();
 	do_finish();
@@ -666,14 +665,14 @@ public:
 
 	for(int pass=p; pass>0; pass--) {
 	    double distance=(pass-1)*(d-e)/p+e;
-	    g7x path(*this);
-	    path.add_distance(distance);
+	    g7x paths(*this);
+	    paths.add_distance(distance);
 
-	    swapped_out->straight_rapid(path.front()->sp());
-	    swapped_out->straight_rapid(path.front()->ep());
-	    for(auto p=++path.begin(); p!=--path.end(); p++)
-		    (*p)->draw(swapped_out.get());
-	    path.back()->draw(swapped_out.get());
+	    swapped_out->straight_rapid(paths.front()->sp());
+	    swapped_out->straight_rapid(paths.front()->ep());
+	    paths.pop_front();
+	    for(const auto &path : paths)
+		path->draw(swapped_out.get());
 	}
     }
 
@@ -1142,11 +1141,12 @@ int Interp::convert_g7x(int mode,
     if(path.size()<=1)
 	return INTERP_OK;
 
-    double d=0, e=0, i=1, p=1, r=0.5, u=0, w=0;
+    double d=0, e=0, i=1, r=0.5, u=0, w=0;
+    int p = 1;
     if(original_block.d_flag) d=original_block.d_number_float;
     if(original_block.e_flag) e=original_block.e_number;
     if(original_block.i_flag) i=original_block.i_number;
-    if(original_block.p_flag) p=original_block.p_number;
+    if(original_block.p_flag) p=static_cast<int>(original_block.p_number);
     if(original_block.r_flag) r=original_block.r_number;
     if(original_block.u_flag) u=original_block.u_number;
     if(original_block.w_flag) w=original_block.w_number;
