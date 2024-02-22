@@ -519,6 +519,17 @@ class GlCanonDraw:
         self.foam_z_height = 0
 
         try:
+            system_memory_bytes = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
+        except Exception as e:
+            system_memory_bytes = 4
+            print("Error: Unable to determine system memory, defaulting to 4 GB")
+        system_memory_gb = system_memory_bytes / (1024 ** 3)
+
+        # Set to -1 to disable the file size limit.
+        # The file size limit is set to 20MB or 1/4 of the system memory, whichever is smaller.
+        self.max_file_size = min(system_memory_gb, 20) * 1024 * 1024
+
+        try:
             if os.environ["INI_FILE_NAME"]:
                 self.inifile = linuxcnc.ini(os.environ["INI_FILE_NAME"])
                 if self.inifile.find("DISPLAY", "DRO_FORMAT_IN"):
@@ -1277,7 +1288,14 @@ class GlCanonDraw:
         glDisable(GL_LIGHTING)
         glMatrixMode(GL_MODELVIEW)
         self.draw_grid()
-        if self.get_show_program():
+
+        show_program = self.get_show_program()
+        if os.path.exists(s.file):
+            if 0 < self.max_file_size < os.stat(s.file).st_size :
+                print("File too large to load, disabling preview.")
+                show_program = False
+
+        if show_program:
             if self.get_program_alpha():
                 glDisable(GL_DEPTH_TEST)
                 glEnable(GL_BLEND)
@@ -1302,7 +1320,7 @@ class GlCanonDraw:
             self.user_plot()
         except:
             pass
-        if self.get_show_live_plot() or self.get_show_program():
+        if self.get_show_live_plot() or show_program:
 
             alist = self.dlist(('axes', self.get_view()), gen=self.draw_axes)
             glPushMatrix()
