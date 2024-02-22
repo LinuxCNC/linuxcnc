@@ -1,12 +1,12 @@
-VERSION = '236.303'
+VERSION = '237.304'
 LCNCVER = '2.9'
 DOCSVER = LCNCVER
 
 '''
 qtplasmac_handler.py
 
-Copyright (C) 2020, 2021, 2022, 2023  Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023  Gregory D Carl
+Copyright (C) 2020-2024  Phillip A Carter
+Copyright (C) 2020-2024  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
