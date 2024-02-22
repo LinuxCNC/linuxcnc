@@ -807,10 +807,9 @@ Some functions/features are only used for particular modes and are not displayed
 //[grid=none,frame=ends]
 |===
 |Name |Description
-|ESTOP |Adding the option ESTOP_TYPE = 0 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will change this button to an indicator of the hardware E-stop's status only. +
-Adding the option ESTOP_TYPE = 1 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will hide this button. +
-Adding the option ESTOP_TYPE = 2 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will enable this button to act as a GUI E-stop. +
-If the ESTOP_TYPE option is omitted from the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, this button will default to being an indicator of the hardware E-stop's status only.
+|ESTOP |Setting Estop type = 0 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will change this button to an indicator of the hardware E-stop's status only. This is the default behavior. +
+Setting the option Estop type = 1 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will hide this button. +
+Setting the option Estop type = 2 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will enable this button to act as a GUI E-stop. +
 |POWER |This button turns the GUI on and allows QtPlasmaC/LinuxCNC to control the hardware. +
 Pressing and holding the *POWER* button for longer than two seconds will bring up a dialog to exit the QtPlasmaC application.
 |CYCLE START |This button starts the cycle for any loaded G-code file.
