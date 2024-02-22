@@ -1,12 +1,12 @@
-VERSION = '003.024'
+VERSION = '004.025'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
 '''
 qtplasmac_handler.py
 
-Copyright (C) 2020, 2021, 2022, 2023, 2024 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023, 2024 Gregory D Carl
+Copyright (C) 2020-2024  Phillip A Carter
+Copyright (C) 2020-2024  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -6128,8 +6128,9 @@ class HandlerClass:
             self.STYLEEDITOR.load_dialog()
 
     def on_keycall_F9(self, event, state, shift, cntrl):
-        if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN \
-           and not self.probeTest and not self.torchPulse and not self.framing and STATUS.is_interp_idle():
+        if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN and \
+           not self.probeTest and not self.torchPulse and not self.framing and \
+           (STATUS.is_interp_idle() or (self.manualCut and STATUS.is_interp_paused())):
             self.manual_cut()
 
     def on_keycall_XPOS(self, event, state, shift, cntrl):
