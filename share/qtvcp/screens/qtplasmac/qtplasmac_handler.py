@@ -1,4 +1,4 @@
-VERSION = '004.025'
+VERSION = '004.026'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -106,6 +106,7 @@ def click_signal(widget):
   # the main handler
 class HandlerClass:
     from qtvcp.lib.qtplasmac import conversational as CONV
+
     # when self.w.button_frame changes size
     def eventFilter(self, object, event):
         if (event.type() == QtCore.QEvent.Resize):
@@ -2318,7 +2319,7 @@ class HandlerClass:
                 STATUS.emit('update-machine-log', log, 'TIME')
 
     def plasmac_state_changed(self, state):
-        if ((state > self.PROBE_UP and not STATUS.is_interp_idle()) or state == self.PROBE_TEST) and hal.get_value('axis.z.eoffset-counts'):
+        if (state > self.PROBE_UP or state == self.PROBE_TEST) and hal.get_value('axis.z.eoffset-counts'):
             # set z dro to offset mode
             self.w.dro_z.setProperty('Qreference_type', 10)
         if state == self.IDLE:
