@@ -2,8 +2,8 @@
 '''
 plasmac_gcode.py
 
-Copyright (C) 2019, 2020, 2021, 2022, 2023, 2024 Phillip A Carter
-Copyright (C)       2020, 2021, 2022, 2023, 2024 Gregory D Carl
+Copyright (C) 2019 - 2024  Phillip A Carter
+Copyright (C) 2020 - 2024  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -256,7 +256,7 @@ class Filter():
                         code = self.parse_code(both[0])
                         cmnt = both[1]
                         if code:
-                            line = f'{code} {tag}{cmnt}'
+                            line = f'{code}{tag}{cmnt}'
                         else:
                             line = f'{tag}{cmnt}'
                 # code only - parse the code
@@ -315,7 +315,7 @@ class Filter():
         if 'G92' in data and not 'G92.1' in data:
             self.set_g92_detected()
         # if incremental distance mode fix overburn coordinates
-        if data[:3] in ['G00', 'G01'] and self.distMode == 91 and (self.oBurnX or self.oBurnY):
+        if data[:3] in ['G00', 'G01'] and self.distMode == 91 and (self.oBurnX or self.oBurnY) and not self.spotting:
             data = self.fix_overburn_incremental_coordinates(data)
         # set path blending
         if 'G64' in data:
@@ -349,6 +349,9 @@ class Filter():
         # is this a scribe
         if data.startswith('M03 $1 S') and not self.tubeCut:
             self.set_scribing()
+        # is this a spot
+        if data.startswith('M03 $2 S') and not self.pierceOnly and not self.tubeCut:
+            self.spotting = True
         # test for pierce only mode
         elif data.replace(' ','').startswith('#<pierce-only>=1') or self.cutType == 1:
             self.set_pierce_mode()
@@ -831,6 +834,9 @@ class Filter():
                 self.lineNum += 1
                 data = f'{data}\nM65 P3 (enable torch)'
                 self.torchEnable = True
+            # if not pierce mode reset spotting flag
+            if not self.pierceOnly:
+                self.spotting = False
         return data
 
     def program_end(self, data):
