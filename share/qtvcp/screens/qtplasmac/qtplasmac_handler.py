@@ -1,4 +1,4 @@
-VERSION = '004.027'
+VERSION = '004.028'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -329,6 +329,11 @@ class HandlerClass:
         # jog stack indexes
         self.JOG = 0
         self.CUT_RECOVERY = 1
+        # tool indexes
+        self.TORCH = 0
+        self.SCRIBE = 1
+        self.UNKNOWN = 2
+        self.tool = self.TORCH
 
 # called by qtvcp.py
     def initialized__(self):
@@ -1742,11 +1747,17 @@ class HandlerClass:
 
     def tool_changed(self, obj, tool):
         if tool == 0:
-            self.w.lbl_tool.setText('TORCH')
+            self.tool = self.TORCH
+            text = _translate('HandlerClass', 'TORCH')
+            self.w.lbl_tool.setText(text)
         elif tool == 1:
-            self.w.lbl_tool.setText('SCRIBE')
+            self.tool = self.SCRIBE
+            text = _translate('HandlerClass', 'SCRIBE')
+            self.w.lbl_tool.setText(text)
         else:
-            self.w.lbl_tool.setText('UNKNOWN')
+            self.tool = self.UNKNOWN
+            text = _translate('HandlerClass', 'UNKNOWN')
+            self.w.lbl_tool.setText(text)
 
     def gcodes_changed(self, obj, cod):
         if self.units == 'in' and STATUS.is_metric_mode():
@@ -2190,7 +2201,7 @@ class HandlerClass:
             self.remove_temp_materials()
             ACTION.OPEN_PROGRAM(clearFile)
             ACTION.prefilter_path = self.preClearFile
-            if self.w.lbl_tool.text() != 'TORCH' and STATUS.is_on_and_idle() and STATUS.is_all_homed():
+            if self.tool != self.TORCH and STATUS.is_on_and_idle() and STATUS.is_all_homed():
                 ACTION.CALL_MDI_WAIT('T0 M6')
                 ACTION.CALL_MDI_WAIT('G43 H0')
                 ACTION.SET_MANUAL_MODE()
