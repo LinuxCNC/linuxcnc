@@ -934,7 +934,7 @@ class Filter():
             x = self.get_axis_value(data, 'X')
             if x is not None:
                 newData += f'X{x - self.oBurnX:0.4f}'
-            y = self.get_axis_value(data, 'y')
+            y = self.get_axis_value(data, 'Y')
             if y is not None:
                 newData += f'Y{y - self.oBurnY:0.4f}'
             return newData
