@@ -1854,7 +1854,7 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
   pars = _setup.parameters;
   k = 0;
   index = 0;
-  required = _required_parameters[index++];
+  required = required_parameters[index++];
   while (feof(infile) == 0) {
     if (fgets(line, 256, infile) == NULL) {
       break;
@@ -1871,13 +1871,13 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
         } else if (k == variable) {
           pars[k] = value;
           if (k == required)
-            required = _required_parameters[index++];
+            required = required_parameters[index++];
           k++;
           break;
         } else                  // if (k < variable)
         {
           if (k == required)
-            required = _required_parameters[index++];
+            required = required_parameters[index++];
           pars[k] = 0;
         }
       }
@@ -1947,7 +1947,7 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
 
   k = 0;
   index = 0;
-  required = _required_parameters[index++];
+  required = required_parameters[index++];
   while (feof(infile) == 0) {
     if (fgets(line, sizeof(line), infile) == NULL) {
       break;
@@ -1966,14 +1966,14 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
           snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
           fputs(line, outfile);
           if (k == required)
-            required = _required_parameters[index++];
+            required = required_parameters[index++];
           k++;
           break;
         } else if (k == required)       // know (k < variable)
         {
           snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
           fputs(line, outfile);
-          required = _required_parameters[index++];
+          required = required_parameters[index++];
         }
       }
     }
@@ -1983,7 +1983,7 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
     if (k == required) {
       snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
       fputs(line, outfile);
-      required = _required_parameters[index++];
+      required = required_parameters[index++];
     }
   }
 

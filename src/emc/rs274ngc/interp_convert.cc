@@ -3956,12 +3956,12 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
         if(settings->selected_pocket > 0) {
             struct block_struct g43;
             init_block(&g43);
-            block->g_modes[_gees[G_43]] = G_43;
+            block->g_modes[gees[G_43]] = G_43;
             CHP(convert_tool_length_offset(G_43, &g43, settings));
         } else {
             struct block_struct g49;
             init_block(&g49);
-            block->g_modes[_gees[G_49]] = G_49;
+            block->g_modes[gees[G_49]] = G_49;
             CHP(convert_tool_length_offset(G_49, &g49, settings));
         }
     }
