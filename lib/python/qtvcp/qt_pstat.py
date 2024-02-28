@@ -423,7 +423,7 @@ class _PStat(object):
     def isUsingDefaultHandler(self):
         return bool(self.HANDLER == self._default_handler_path)
 
-    def getQSSPaths(self):
+    def getQSSPaths(self, addBuiltinStyles = True):
         '''
         Search for qss files in default builtin directories,
         in the configuration expected directory CONFIG DIR/qtvcp/screen/SCREEN NAME, or 
@@ -432,15 +432,18 @@ class _PStat(object):
         builtin paths, the second is local configuration paths
         '''
         local = []
+        default = ''
         if self.IS_SCREEN:
-            default = os.path.join(self.SCREENDIR, self.BASEPATH)
+            if addBuiltinStyles:
+                default = os.path.join(self.SCREENDIR, self.BASEPATH)
             local.append( os.path.join(self.CONFIGPATH))
             local.append( os.path.join(self.CONFIGPATH, 'qtvcp/screens',self.BASEPATH))
             local.append( os.path.join(self.CONFIGPATH, self.BASEPATH))
         else:
             local.append( os.path.join(self.WORKINGDIR, 'qtvcp/panels',self.BASEPATH))
             local.append( os.path.join(self.WORKINGDIR))
-            default = os.path.join(self.PANELDIR, self.BASEPATH)
+            if addBuiltinStyles:
+                default = os.path.join(self.PANELDIR, self.BASEPATH)
 
         temp = []
         for group in ([default],local):

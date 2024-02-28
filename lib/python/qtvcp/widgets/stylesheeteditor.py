@@ -57,7 +57,7 @@ WIDGETS = VCPWindow()
 DATADIR = os.path.abspath( os.path.dirname( __file__ ) )
 
 class StyleSheetEditor(QDialog):
-    def __init__(self, parent=WIDGETS, path=None):
+    def __init__(self, parent=WIDGETS, path=None, addBuiltinStyles = True):
         super(StyleSheetEditor, self).__init__(parent)
         self.setMinimumSize(600, 400)
         # Load the widgets UI file:
@@ -68,7 +68,8 @@ class StyleSheetEditor(QDialog):
             LOG.critical(e)
         self.styleSheetCombo.setFixedWidth(200)
 
-        self.setWindowTitle('Style Sheet Editor Dialog');
+        self.setWindowTitle('Style Sheet Editor Dialog')
+        self.addBuiltinStyles = addBuiltinStyles
         self.parent = parent
         if PATH:
             self.setPath()
@@ -107,38 +108,16 @@ class StyleSheetEditor(QDialog):
         item.setData("Use system default Stylesheet", role = QtCore.Qt.ToolTipRole)
         model.appendRow(item)
 
-        # check for default/builtin styles from qtvcp's default folders
-        if PATH.IS_SCREEN:
-            DIR = PATH.SCREENDIR
-            BNAME = PATH.BASENAME
-        else:
-            DIR = PATH.PANELDIR
-            BNAME = PATH.BASENAME
-        qssname = os.path.join(DIR, BNAME)
+        # call PATH function to get the found default and local qss files
         try:
-            fileNames= [f for f in os.listdir(qssname) if f.endswith('.qss')]
-            for i in(fileNames):
-                item = QtGui.QStandardItem(i)
-                item.setData(os.path.join(qssname, i), role = QtCore.Qt.UserRole + 1)
+            for group in (PATH.getQSSPaths(self.addBuiltinStyles)):
+              for directory, name in(group):
+                item = QtGui.QStandardItem(name)
+                item.setData(os.path.join(directory, name), role = QtCore.Qt.UserRole + 1)
+                item.setData(os.path.join(directory, name), role = QtCore.Qt.ToolTipRole)
                 model.appendRow(item)
         except Exception as e:
             print(e)
-
-        # check for qss in the users's bare config folder
-        localpath = [PATH.CONFIGPATH]
-
-        # add optional location in the users's config folder CONFIGFOLDER/qtvcp/screens/SCREENNAME
-        localpath.append(os.path.join(PATH.CONFIGPATH, 'qtvcp/screens',PATH.BASEPATH))
-
-        for localqss in localpath:
-            try:
-                fileNames= [f for f in os.listdir(localqss) if f.endswith('.qss')]
-                for i in(fileNames):
-                    item = QtGui.QStandardItem(i)
-                    item.setData(os.path.join(localqss, i), role = QtCore.Qt.UserRole + 1)
-                    model.appendRow(item)
-            except Exception as e:
-                print(e)
 
     def selectionChanged(self,i):
         path = self.styleSheetCombo.itemData(i,role = QtCore.Qt.UserRole + 1)
