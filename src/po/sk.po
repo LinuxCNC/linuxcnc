@@ -1,18 +1,18 @@
-# Juraj Adamkovic <stroje.hcnc@gmail.com>, 2022, 2023.
+# Juraj Adamkovic <stroje.hcnc@gmail.com>, 2022, 2023, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: sk\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-02-19 17:43+0000\n"
+"PO-Revision-Date: 2024-02-23 19:37+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.16-dev\n"
+"Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
+"X-Generator: Weblate 5.5-dev\n"
 "X-Poedit-Language: Slovak\n"
 "X-Poedit-Country: SLOVAKIA\n"
 
@@ -124,116 +124,127 @@ msgstr "Hodnota P je mimo rozsahu (0-9) s G10 L%d"
 #: src/emc/rs274ngc/interp_check.cc:95
 #, c-format
 msgid "P value out of range with G10 L%d"
-msgstr ""
+msgstr "Hodnota P je mimo rozsahu s G10 L%d"
 
 #: src/emc/rs274ngc/interp_check.cc:99
 msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
-msgstr ""
+msgstr "Medzi kódmi G5.2 a G5.3 sú povolené iba ďalšie kódy G5.2."
 
 #: src/emc/rs274ngc/interp_check.cc:261
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"
 msgstr ""
+"D slovo používajte iba s G41, G41.1, G42, G42.1, G71, G71.1, G71.2 alebo G96"
 
 #: src/emc/rs274ngc/interp_check.cc:270
 msgid ""
 "$ (spindle selection) word with no M3, M4, M5, M19, M51, G33, G33.1, G76, "
 "G95, G96 or G97 to use it"
 msgstr ""
+"$ (výber vretena) slovo používajte iba s M3, M4, M5, M19, M51, G33, G33.1, "
+"G76, G95, G96 alebo G97"
 
 #: src/emc/rs274ngc/interp_check.cc:277
 msgid "E word with no G70, G76, M66, M67 or M68 to use it"
-msgstr ""
+msgstr "E slovo používajte iba s G70, G76, M66, M67 alebo M68"
 
 #: src/emc/rs274ngc/interp_check.cc:282
 msgid "H word with no G43 or G76 to use it"
-msgstr ""
+msgstr "H slovo používajte iba s G43 alebo G76"
 
 #: src/emc/rs274ngc/interp_check.cc:291
 msgid ""
 "I word with no G2, G3, G5, G5.1, G6, G6.1, G10, G33.1, G76, or G87 to use it"
 msgstr ""
+"I slovo používajte iba s G2, G3, G5, G5.1, G6, G6.1, G10, G33.1, G76, G87"
 
 #: src/emc/rs274ngc/interp_check.cc:298
 msgid "J word with no G2, G3, G5, G5.1, G6, G6.1, G10, G76 or G87 to use it"
-msgstr ""
+msgstr "J slovo používajte iba s G2, G3, G5, G5.1, G6, G6.1, G10, G76 alebo G87"
 
 #: src/emc/rs274ngc/interp_check.cc:303
 msgid "K word with no G2, G3, G6.2, G33, G33.1, G76, or G87 to use it"
-msgstr ""
+msgstr "K slovo používajte iba s G2, G3, G6.2, G33, G33.1, G76, alebo G87"
 
 #: src/emc/rs274ngc/interp_check.cc:315
 msgid ""
 "L word with no G10, cutter compensation, canned cycle, digital/analog input, "
 "M98 or NURBS code"
 msgstr ""
+"L slovo používajte iba s G10, kompenzáciou frézy, pevným cyklusom, digitá"
+"lnym/analógovým vstupom, kódom M98 alebo NURBS"
 
 #: src/emc/rs274ngc/interp_check.cc:332
 msgid ""
 "P word with no G2 G3 G4 G10 G64 G5 G5.2 G6, G6.2, G76 G82 G86 G88 G89 or M50 "
 "M51 M52 M53 M62 M63 M64 M65 M66 M98 or user M code to use it"
 msgstr ""
+"P slovo používajte iba s G2 G3 G4 G10 G64 G5 G5.2 G6, G6.2, G76 G82 G86 G88 "
+"G89 alebo M50 M51 M52 M53 M62 M63 M64 M65 M66 M98, alebo užívatelským M "
+"kódom."
 
 #: src/emc/rs274ngc/interp_check.cc:338
 msgid "P value not an integer with M19 G2 or G3"
-msgstr ""
+msgstr "Hodnota P nie je celé číslo s M19 G2 alebo G3"
 
 #: src/emc/rs274ngc/interp_check.cc:340
 msgid "P value must be 0,1,or 2 with M19"
-msgstr ""
+msgstr "Hodnota P musí byť 0,1 alebo 2 s M19"
 
 #: src/emc/rs274ngc/interp_check.cc:342
 msgid "P value should be 1 or greater with G2 or G3"
-msgstr ""
+msgstr "Hodnota P by mala byť 1 alebo väčšia s G2 alebo G3"
 
 #: src/emc/rs274ngc/interp_check.cc:353
 msgid ""
 "Q word with no G5, G6, G10, G64, G73, G76, G83, M19, M66, M67, M68 or user M "
 "code that uses it"
 msgstr ""
+"Q slovo používajte iba s G5, G6, G10, G64, G73, G76, G83, M19, M66, M67, M68 "
+"alebo užívateľským M kódom, ktorý ho používa"
 
 #: src/emc/rs274ngc/interp_check.cc:366
 msgid "R value must be within 0..360 with M19"
-msgstr ""
+msgstr "Hodnota R musí byť v rozmedzí 0..360 s M19"
 
 #: src/emc/rs274ngc/interp_convert.cc:187
 #: src/emc/rs274ngc/interp_convert.cc:380
 msgid "You must specify both X and Y coordinates for Control Points"
-msgstr ""
+msgstr "Pre kontrolné body musíte zadať súradnice X aj Y"
 
 #: src/emc/rs274ngc/interp_convert.cc:192
 msgid "Can specify P without X and Y only for the first control point"
-msgstr ""
+msgstr "Môže špecifikovať P bez X a Y len pre prvý kontrolný bod"
 
 #: src/emc/rs274ngc/interp_convert.cc:199
 #: src/emc/rs274ngc/interp_convert.cc:387
 msgid "You must specify both Y and Z coordinates for Control Points"
-msgstr ""
+msgstr "Pre kontrolné body musíte zadať súradnice Y aj Z"
 
 #: src/emc/rs274ngc/interp_convert.cc:204
 msgid "Can specify P without Y and Z only for the first control point"
-msgstr ""
+msgstr "Môžete špecifikovať P bez Y a Z len pre prvý kontrolný bod"
 
 #: src/emc/rs274ngc/interp_convert.cc:211
 #: src/emc/rs274ngc/interp_convert.cc:394
 msgid "You must specify both X and Z coordinates for Control Points"
-msgstr ""
+msgstr "Pre kontrolné body musíte zadať súradnice X aj Z"
 
 #: src/emc/rs274ngc/interp_convert.cc:216
 msgid "Can specify P without X and Z only for the first control point"
-msgstr ""
+msgstr "Môžete špecifikovať P bez X a Z len pre prvý kontrolný bod"
 
 #: src/emc/rs274ngc/interp_convert.cc:222
 msgid "Must specify positive weight P for every Control Point"
-msgstr ""
+msgstr "Pre každý kontrolný bod musíte zadať kladnú hodnotu P"
 
 #: src/emc/rs274ngc/interp_convert.cc:225
 msgid "Cannot make a NURBS with 0 feedrate"
-msgstr ""
+msgstr "Nie je možné vytvoriť NURBS s rýchlosťou posuvu 0"
 
 #: src/emc/rs274ngc/interp_convert.cc:317
 msgid "Cannot use G5.3 without G5.2 first"
-msgstr ""
+msgstr "Nie je možné použiť G5.3 bez G5.2"
 
 #: src/emc/rs274ngc/interp_convert.cc:320
 #, c-format
@@ -241,47 +252,48 @@ msgid ""
 "You must specify a number of control points at least equal to the order L = "
 "%d"
 msgstr ""
+"Musíte zadať počet kontrolných bodov, ktorý sa minimálne rovná poradiu L = %d"
 
 #: src/emc/rs274ngc/interp_convert.cc:373
 msgid "one plane must be selected for nurbs: XY, YZ, ZX"
-msgstr ""
+msgstr "pre nurbs musí byť zvolená jedna rovina: XY, YZ, ZX"
 
 #: src/emc/rs274ngc/interp_convert.cc:400
 msgid "Program the nurbs order P in the first block of instruction"
-msgstr ""
+msgstr "Naprogramujte nurbs poradie P v prvom bloku inštrukcie"
 
 #: src/emc/rs274ngc/interp_convert.cc:404
 msgid "nurbs order P number is not an integer"
-msgstr ""
+msgstr "nurbs poradie P číslo nie je celé číslo"
 
 #: src/emc/rs274ngc/interp_convert.cc:410
 msgid ""
 "Program the nurbs Q value (1,2,3) in the first block of nurbs instruction"
-msgstr ""
+msgstr "Naprogramujte hodnotu nurbs Q (1,2,3) v prvom bloku inštrukcie nurbs"
 
 #: src/emc/rs274ngc/interp_convert.cc:415
 msgid "nurbs Q value not in range 1 to 3"
-msgstr ""
+msgstr "nurmbs hodnota Q, nie je v rozsahu 1 až 3"
 
 #: src/emc/rs274ngc/interp_convert.cc:417
 msgid "nurbs Q number is not an integer"
-msgstr ""
+msgstr "nurbs Q číslo nie je celé číslo"
 
 #: src/emc/rs274ngc/interp_convert.cc:423
 msgid "Must specify positive nurbs weight R for every Control Point"
-msgstr ""
+msgstr "Pre každý kontrolný bod musí byť špecifikovaná kladná nurbs hodnota R"
 
 #: src/emc/rs274ngc/interp_convert.cc:428
 msgid "Must specify nurbs K number for every Control Point"
-msgstr ""
+msgstr "Pre každý nurbs kontrolný bod musíte zadať číslo K"
 
 #: src/emc/rs274ngc/interp_convert.cc:432
 msgid "nurbs K number is not an integer"
-msgstr ""
+msgstr "nurbs K číslo nie je celé číslo"
 
 #: src/emc/rs274ngc/interp_convert.cc:437
 msgid "Cannot make a nurbs with 0 feedrate"
-msgstr ""
+msgstr "Nie je možné urobiť nurbs s rýchlosťou posuvu 0"
 
 #: src/emc/rs274ngc/interp_convert.cc:503
 #, c-format
@@ -289,41 +301,44 @@ msgid ""
 "You must specify a number of control points at least equal to the order P = "
 "%d"
 msgstr ""
+"Musíte zadať počet kontrolných bodov, ktorý sa minimálne rovná poradiu P = %d"
 
 #: src/emc/rs274ngc/interp_convert.cc:567
 msgid "Cannot convert spline with cutter radius compensation"
-msgstr ""
+msgstr "Nie je možné previesť spline s kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:579
 msgid "Splines may not have motion in A, B, or C"
-msgstr ""
+msgstr "Splainy nemusia mať pohyb v A, B alebo C"
 
 #: src/emc/rs274ngc/interp_convert.cc:586
 msgid "Must specify both I and J with G5.1 or G6.1"
-msgstr ""
+msgstr "Musíte zadať I aj J pomocou G5.1 alebo G6.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:691
 msgid "Must specify both I and J, or neither"
-msgstr ""
+msgstr "Musíte zadať I a J alebo ani jedno slovo"
 
 #: src/emc/rs274ngc/interp_convert.cc:745
 msgid "Must specify both P and Q with G5"
-msgstr ""
+msgstr "Musíte zadať P aj Q pomocou G5"
 
 #: src/emc/rs274ngc/interp_convert.cc:928
 msgid ""
 "The move just after exiting cutter compensation mode must be straight, not "
 "an arc"
 msgstr ""
+"Pohyb bezprostredne po opustení režimu kompenzácie frézy musí byť rovný, nie "
+"oblúk"
 
 #: src/emc/rs274ngc/interp_convert.cc:936
 msgid "Cannot do an arc in planes G17.1, G18.1, or G19.1"
-msgstr ""
+msgstr "Nie je možné vytvoriť oblúk v rovinách G17.1, G18.1 alebo G19.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:948
 #: src/emc/rs274ngc/interp_convert.cc:5330
 msgid "Cannot feed with zero spindle speed in feed per rev mode"
-msgstr ""
+msgstr "Nie je možné ísť s nulovými otáčkami vretena v režime posuvu na otáčku"
 
 #: src/emc/rs274ngc/interp_convert.cc:959
 #: src/emc/rs274ngc/interp_convert.cc:965
@@ -333,28 +348,33 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:995
 #, c-format
 msgid "%c word missing in absolute center arc"
-msgstr ""
+msgstr "%c slovo chýba v absolútnom stredovom oblúku"
 
 #: src/emc/rs274ngc/interp_convert.cc:1222
 msgid ""
 "Radius of cutter compensation entry arc is not greater than the tool radius"
 msgstr ""
+"Polomer vstupného oblúka kompenzácie frézy nie je väčší ako polomer nástroja"
 
 #: src/emc/rs274ngc/interp_convert.cc:1441
 #: src/emc/rs274ngc/interp_convert.cc:1451 src/emc/rs274ngc/interp_queue.cc:607
 msgid ""
 "Arc move in concave corner cannot be reached by the tool without gouging"
 msgstr ""
+"Pohyb oblúka v konkávnom(vnútornom) rohu nemôže byť dosiahnutý bez "
+"nežiaducého \"zafrézovania\""
 
 #: src/emc/rs274ngc/interp_convert.cc:1477
 msgid "Arc to arc motion is invalid because the arcs have the same center"
-msgstr ""
+msgstr "Pohyb medzi oblúkmi je neplatný, pretože oblúky majú rovnaký stred"
 
 #: src/emc/rs274ngc/interp_convert.cc:1480
 msgid ""
 "Arc to arc motion makes a corner the compensated tool can't fit in without "
 "gouging"
 msgstr ""
+" Pohyb medzi oblúkmi vytvára roh, do ktorého sa kompenzovaný nástroj nemôže "
+"zmestiť bez nežiaducého \"zafrézovania\""
 
 #: src/emc/rs274ngc/interp_convert.cc:1615
 #: src/emc/rs274ngc/interp_convert.cc:1619
@@ -364,136 +384,150 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:4754 src/emc/rs274ngc/interp_find.cc:99
 #, c-format
 msgid "Invalid absolute position %5.2f for wrapped rotary axis %c"
-msgstr ""
+msgstr "Neplatná absolútna poloha %5.2f pre rotačnú os %c"
 
 #: src/emc/rs274ngc/interp_convert.cc:2187
 msgid "Cannot change control mode with cutter radius compensation on"
-msgstr ""
+msgstr "Nie je možné zmeniť režim so zapnutou kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:2305
 msgid "Cannot change coordinate systems with cutter radius compensation on"
 msgstr ""
+"Nie je možné zmeniť súradnicové systémy so zapnutou korekciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:2542
 #, c-format
 msgid "G%d.1 with no D word"
-msgstr ""
+msgstr "G%d.1 s D slovom"
 
 #: src/emc/rs274ngc/interp_convert.cc:2545
 #, c-format
 msgid "G%d.1 with L word, but plane is not G18"
-msgstr ""
+msgstr "G%d.1 so slovom L, ale rovina nie je G18"
 
 #: src/emc/rs274ngc/interp_convert.cc:2556
 #, c-format
 msgid "G%d requires D word to be a whole number"
-msgstr ""
+msgstr "G%d vyžaduje, aby slovo D bolo celé číslo"
 
 #: src/emc/rs274ngc/interp_convert.cc:2563
 #, c-format
 msgid "G%d with lathe tool, but plane is not G18"
-msgstr ""
+msgstr "G%d so sústružníckym nástrojom, ale rovina nie je G18"
 
 #: src/emc/rs274ngc/interp_convert.cc:2981
 msgid "Cannot set reference point with cutter compensation in effect"
-msgstr ""
+msgstr "Nie je možné nastaviť referenčný bod so zapnutou kompenzáciou frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:3564
 #, c-format
 msgid "gen_restore G20/G21 failed: '%s'"
-msgstr ""
+msgstr "gen_restore G20/G21 zlyhal: '%s'"
 
 #: src/emc/rs274ngc/interp_convert.cc:3614
 #, c-format
 msgid ""
 "BUG: cannot restore from a lower call level (%d) to a higher call level (%d)"
 msgstr ""
+"CHYBA: nedá sa obnoviť z nižšej úrovne volania (%d) na vyššiu úroveň volania "
+"(%d)"
 
 #: src/emc/rs274ngc/interp_convert.cc:3615
 #, c-format
 msgid "BUG: restore from level %d !?"
-msgstr ""
+msgstr "BUG: obnoviť z úrovne %d!?"
 
 #: src/emc/rs274ngc/interp_convert.cc:3616
 #, c-format
 msgid "BUG: restore to level %d !?"
-msgstr ""
+msgstr "BUG: obnoviť úroveň %d!?"
 
 #: src/emc/rs274ngc/interp_convert.cc:3635
 #, c-format
 msgid "M7x: restore_settings G20/G21 failed: '%s'"
-msgstr ""
+msgstr "M7x: restore_settings G20/G21 zlyhal: '%s'"
 
 #: src/emc/rs274ngc/interp_convert.cc:3660
 #, c-format
 msgid "M7x: restore_settings failed executing: '%s': %s"
-msgstr ""
+msgstr "M7x: obnovenie_nastavení zlyhalo pri vykonaní: '%s': %s"
 
 #: src/emc/rs274ngc/interp_convert.cc:3729
 #, c-format
 msgid "Failed to restore interp state on abort '%s': %s"
-msgstr ""
+msgstr "Zlyhalo obnovenie stavu prevadzania pri prerušení '%s': %s"
 
 #: src/emc/rs274ngc/interp_convert.cc:3800
 msgid "Cannot set motion output with cutter radius compensation on"
 msgstr ""
+"Nie je možné nastaviť výstup pohybu so zapnutou kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:3801
 msgid "No valid P word with M62"
-msgstr ""
+msgstr "Žiadne platné slovo P s M62"
 
 #: src/emc/rs274ngc/interp_convert.cc:3805
 msgid "Cannot set motion digital output with cutter radius compensation on"
 msgstr ""
+"Nie je možné nastaviť digitálny výstup pohybu so zapnutou kompenzáciou "
+"polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:3806
 msgid "No valid P word with M63"
-msgstr ""
+msgstr "Žiadne platné P slovo s M63"
 
 #: src/emc/rs274ngc/interp_convert.cc:3810
 #: src/emc/rs274ngc/interp_convert.cc:3815
 msgid "Cannot set auxiliary digital output with cutter radius compensation on"
 msgstr ""
+"Nie je možné nastaviť prídavný digitálny výstup so zapnutou kompenzáciou "
+"polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:3811
 msgid "No valid P word with M64"
-msgstr ""
+msgstr "Žiadne platné P slovo s M64"
 
 #: src/emc/rs274ngc/interp_convert.cc:3816
 msgid "No valid P word with M65"
-msgstr ""
+msgstr "Žiadne platné slovo P s M65"
 
 #: src/emc/rs274ngc/interp_convert.cc:3847
 msgid "invalid P-word with M66"
-msgstr ""
+msgstr "neplatné P-slovo s M66"
 
 #: src/emc/rs274ngc/interp_convert.cc:3862
 msgid "Cannot wait for digital input with cutter radius compensation on"
 msgstr ""
+"Nemôžem čakať na digitálny vstup so zapnutou kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:3874
 msgid "Cannot wait for analog input with cutter radius compensation on"
 msgstr ""
+"Nemôžem čakať na analógový vstup so zapnutou kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:3889
 msgid "Cannot set motion analog output with cutter radius compensation on"
 msgstr ""
+"Nie je možné nastaviť analógový výstup pohybu so zapnutou kompenzáciou "
+"polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:3890
 msgid "Invalid analog index with M67"
-msgstr ""
+msgstr "Neplatný analógový index s M67"
 
 #: src/emc/rs274ngc/interp_convert.cc:3896
 msgid "Cannot set auxiliary analog output with cutter radius compensation on"
 msgstr ""
+"Nie je možné nastaviť pomocný analógový výstup so zapnutou kompenzáciou "
+"polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:3897
 msgid "Invalid analog index with M68"
-msgstr ""
+msgstr "Neplatný analógový index s M68"
 
 #: src/emc/rs274ngc/interp_convert.cc:3928
 msgid "Need non-negative Q-word to specify tool number with M61"
-msgstr ""
+msgstr "Na zadanie čísla nástroja pomocou M61 potrebujete nezáporné Q-slovo"
 
 #: src/emc/rs274ngc/interp_convert.cc:3972
 #, c-format
@@ -501,6 +535,8 @@ msgid ""
 "Spindle ($) number out of range in M3 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
+"Číslo vretena ($) je mimo rozsahu v príkaze M3\n"
+"num_spindles =%i. $=%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:3989
 #, c-format
@@ -508,6 +544,8 @@ msgid ""
 "Spindle ($) number out of range in M4 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
+"Číslo vretena ($) je mimo rozsahu v príkaze M4\n"
+"num_spindles =%i. $=%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:4006
 #, c-format
@@ -515,18 +553,22 @@ msgid ""
 "Spindle ($) number out of range in M5 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
+"Číslo vretena ($) je mimo rozsahu v príkaze M5\n"
+"num_spindles =%i. $=%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:4027
 msgid "Spindle ($) number out of range in M19 Command"
-msgstr ""
+msgstr "Číslo vretena ($) je mimo rozsahu v príkaze M19"
 
 #: src/emc/rs274ngc/interp_convert.cc:4034
 msgid "Q word with M19 requires a value > 0"
-msgstr ""
+msgstr "Slovo Q s M19 vyžaduje hodnotu > 0"
 
 #: src/emc/rs274ngc/interp_convert.cc:4063
 msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
 msgstr ""
+"Nie je možné obnoviť kontext z neplatného zásobníkového rámca – chýba M70/"
+"M73?"
 
 #: src/emc/rs274ngc/interp_convert.cc:4104
 #: src/emc/rs274ngc/interp_convert.cc:4125
@@ -534,7 +576,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:4167
 #: src/emc/rs274ngc/interp_convert.cc:4181
 msgid "Cannot enable overrides with cutter radius compensation on"
-msgstr ""
+msgstr "Nie je možné aktivovať prepisy so zapnutou kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:4113
 #: src/emc/rs274ngc/interp_convert.cc:4130
@@ -543,119 +585,125 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:4186
 msgid "Cannot disable overrides with cutter radius compensation on"
 msgstr ""
+"Nie je možné deaktivovať prepisy so zapnutou kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:4140
 msgid "Invalid spindle ($) number in M51 command"
-msgstr ""
+msgstr "Neplatné číslo vretena ($) v príkaze M51"
 
 #: src/emc/rs274ngc/interp_convert.cc:4303
 #: src/emc/rs274ngc/interp_convert.cc:4304
 #: src/emc/rs274ngc/interp_convert.cc:4305
 #, c-format
 msgid "Indexing axis %c can only be moved with G0"
-msgstr ""
+msgstr "Indexovanie osi %c je možné posúvať iba pomocou G0"
 
 #: src/emc/rs274ngc/interp_convert.cc:4312
 #: src/emc/rs274ngc/interp_convert.cc:4314
 #: src/emc/rs274ngc/interp_convert.cc:4316
 #, c-format
 msgid "Indexing axis %c can only be moved alone"
-msgstr ""
+msgstr "Indexovanie osi %c je možné posúvať iba samostatne"
 
 #: src/emc/rs274ngc/interp_convert.cc:4423
 msgid "Cannot probe with feed per rev mode"
-msgstr ""
+msgstr "Nie je možné sondovať s režimom posuvu na otáčky"
 
 #: src/emc/rs274ngc/interp_convert.cc:4471
 msgid "Cannot change retract mode with cutter radius compensation on"
 msgstr ""
+"Nie je možné zmeniť režim stiahnutia so zapnutou kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:4505
 msgid "G10 L1 without offsets has no effect"
-msgstr ""
+msgstr "G10 L1 bez posunov nemá žiadny účinok"
 
 #: src/emc/rs274ngc/interp_convert.cc:4611
 msgid "Q number in G10 is not an integer"
-msgstr ""
+msgstr "Číslo Q v G10 nie je celé číslo"
 
 #: src/emc/rs274ngc/interp_convert.cc:4612
 msgid "Invalid tool orientation"
-msgstr ""
+msgstr "Neplatná orientácia nástroja"
 
 #: src/emc/rs274ngc/interp_convert.cc:4736
 msgid "I J words not allowed with G10 L2"
-msgstr ""
+msgstr "I J slová nie sú povolené s G10 L2"
 
 #: src/emc/rs274ngc/interp_convert.cc:4757
 msgid ""
 "Cannot change the active coordinate system with cutter radius compensation on"
 msgstr ""
+"Nie je možné zmeniť aktívny súradnicový systém so zapnutou korekciou "
+"polomeru nástroja"
 
 #: src/emc/rs274ngc/interp_convert.cc:4765
 msgid "R not allowed in G10 L20"
-msgstr ""
+msgstr "R nie je povolené v G10 L20"
 
 #: src/emc/rs274ngc/interp_convert.cc:5111
 msgid "Bug:  Reached convert_stop() from M99 as subprogram return"
-msgstr ""
+msgstr "Bug: Dosiahnuté convert_stop() z M99 ako návrat podprogramu"
 
 #: src/emc/rs274ngc/interp_convert.cc:5390
 msgid "Invalid spindle ($) number in G33 move"
-msgstr ""
+msgstr "Neplatné číslo vretena ($) v ťahu G33"
 
 #: src/emc/rs274ngc/interp_convert.cc:5395
 msgid "Spindle not turning in G33"
-msgstr ""
+msgstr "Vreteno sa neotáča v G33"
 
 #: src/emc/rs274ngc/interp_convert.cc:5405
 msgid "Invalid spindle ($) number in G33.1 move"
-msgstr ""
+msgstr "Neplatné číslo vretena ($) v pohybe G33.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:5410
 msgid "Spindle not turning in G33.1"
-msgstr ""
+msgstr "Vreteno sa neotáča v G33.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:5425
 msgid "Invalid D-number in G76 cycle"
-msgstr ""
+msgstr "Neplatné D-číslo v cykle G76"
 
 #: src/emc/rs274ngc/interp_convert.cc:5430
 #, c-format
 msgid "Chosen spindle (%i) not turning in G76"
-msgstr ""
+msgstr "Zvolené vreteno (%i) sa neotáča v G76"
 
 #: src/emc/rs274ngc/interp_convert.cc:5468
 msgid "BUG: An axis incorrectly moved along with an indexer"
-msgstr ""
+msgstr "CHYBA: Os sa nesprávne pohybovala spolu s indexátorom"
 
 #: src/emc/rs274ngc/interp_convert.cc:5481
 msgid "BUG: trying to index incorrect axis"
-msgstr ""
+msgstr "CHYBA: Pokus o indexovanie nesprávnej osi"
 
 #: src/emc/rs274ngc/interp_convert.cc:5576
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
 msgstr ""
+"Nie je možné použiť cyklus závitovania G76 so zapnutou kompenzáciou polomeru "
+"frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:5579
 msgid "In G76, I must not be 0"
-msgstr ""
+msgstr "V G76 nesmiem byť 0"
 
 #: src/emc/rs274ngc/interp_convert.cc:5581
 msgid "In G76, J must be greater than 0"
-msgstr ""
+msgstr "V G76 musí byť J väčšie ako 0"
 
 #: src/emc/rs274ngc/interp_convert.cc:5583
 msgid "In G76, K must be greater than J"
-msgstr ""
+msgstr "V G76 musí byť K väčšie ako J"
 
 #: src/emc/rs274ngc/interp_convert.cc:5726
 msgid ""
 "Length of cutter compensation entry move is not greater than the tool radius"
-msgstr ""
+msgstr "Dĺžka vstupu korekcie frézy nie je väčšia ako polomer nástroja"
 
 #: src/emc/rs274ngc/interp_convert.cc:5945
 msgid "Zero degree inside corner is invalid for cutter compensation"
-msgstr ""
+msgstr "Nulový stupeň vnútorného rohu je neplatný pre kompenzáciu frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:5983
 #: src/emc/rs274ngc/interp_convert.cc:5991
@@ -663,22 +711,24 @@ msgid ""
 "Arc to straight motion makes a corner the compensated tool can't fit in "
 "without gouging"
 msgstr ""
+"Pohyb z oblúka na priamy vytvára roh, do ktorého sa kompenzovaný nástroj bez "
+"nežiaducého\"zafrézovania\" nezmestí"
 
 #: src/emc/rs274ngc/interp_convert.cc:6075
 msgid "Cannot change tools with cutter radius compensation on"
-msgstr ""
+msgstr "Nie je možné meniť nástroje so zapnutou korekciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:6199
 msgid "Cannot change tool offset with cutter radius compensation on"
-msgstr ""
+msgstr "Nemožno zmeniť korekciu nástroja so zapnutou korekciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:6250
 msgid "G43.2: Can not have both H and axis words"
-msgstr ""
+msgstr "G43.2: Nemôže mať obe H a aj písmeno osi"
 
 #: src/emc/rs274ngc/interp_convert.cc:6253
 msgid "G43.2: No axes specified and H word missing"
-msgstr ""
+msgstr "G43.2: Nie sú špecifikované žiadne osi a chýba slovo H"
 
 #: src/emc/rs274ngc/interp_queue.cc:605
 #, c-format
@@ -686,27 +736,33 @@ msgid ""
 "BUG: cutter compensation has generated an invalid arc with mismatched radii "
 "r1 %f r2 %f\n"
 msgstr ""
+"CHYBA: kompenzácia frézy vygenerovala neplatný oblúk s nezhodnými polomermi "
+"r1 %f r2 %f\n"
 
 #: src/emc/rs274ngc/interp_queue.cc:627 src/emc/rs274ngc/interp_queue.cc:649
 #: src/emc/rs274ngc/interp_queue.cc:690
 msgid "BUG: Unsupported plane in cutter compensation"
-msgstr ""
+msgstr "CHYBA: Nepodporovaná rovina v kompenzácii frézy"
 
 #: src/emc/rs274ngc/interp_queue.cc:637
 msgid ""
 "Straight traverse in concave corner cannot be reached by the tool without "
 "gouging"
 msgstr ""
+"Priamy posuv v konkávnom(vnútornom) rohu nie je možné dosiahnuť nástrojom "
+"bez nežiaducého \"zafrézovania\""
 
 #: src/emc/rs274ngc/interp_queue.cc:667
 #, c-format
 msgid "BUG: Unsupported plane [%d] in cutter compensation"
-msgstr ""
+msgstr "CHYBA: Nepodporovaná rovina [%d] v kompenzácii frézy"
 
 #: src/emc/rs274ngc/interp_queue.cc:678
 msgid ""
 "Straight feed in concave corner cannot be reached by the tool without gouging"
 msgstr ""
+"Priamy posuv v konkávnom(vnútornom) rohu nemôže nástroj dosiahnúť bez "
+"nežiaducého \"zafrézovania\""
 
 #: src/emc/rs274ngc/interp_cycles.cc:275
 #, c-format
@@ -715,7 +771,7 @@ msgstr "Vreteno sa neotáča %s"
 
 #: src/emc/rs274ngc/interp_cycles.cc:277
 msgid "Spindle turning clockwise in G74"
-msgstr ""
+msgstr "Otáčanie vretena v smere hodinových ručičiek v G74"
 
 #: src/emc/rs274ngc/interp_cycles.cc:280
 msgid "Spindle turning counterclockwise in G84"
@@ -724,23 +780,23 @@ msgstr "Otáčanie vretena proti smeru hodinových ručičiek v G84"
 #: src/emc/rs274ngc/interp_cycles.cc:283
 #, c-format
 msgid "Spindle state unknown for %s"
-msgstr ""
+msgstr "Neznámy stav vretena pre %s"
 
 #: src/emc/rs274ngc/interp_cycles.cc:724
 msgid "Cannot feed with zero feed rate"
-msgstr ""
+msgstr "Nie je možné podávať s nulovou rýchlosťou posuvu"
 
 #: src/emc/rs274ngc/interp_cycles.cc:725
 msgid "Cannot use inverse time feed with canned cycles"
-msgstr ""
+msgstr "Nemožno použiť inverzný časový posun s pevnými cyklami"
 
 #: src/emc/rs274ngc/interp_cycles.cc:726
 msgid "Cannot use canned cycles with cutter compensation on"
-msgstr ""
+msgstr "Nemožno použiť pevné cykly so zapnutou kompenzáciou frézy"
 
 #: src/emc/rs274ngc/interp_cycles.cc:922
 msgid "G17 canned cycle is not possible on a machine without Z axis"
-msgstr ""
+msgstr "Pevný cyklus G17 nie je možný na stroji bez osi Z"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1021
 #: src/emc/rs274ngc/interp_cycles.cc:1212
@@ -751,128 +807,129 @@ msgstr ""
 #: src/emc/rs274ngc/interp_cycles.cc:2105
 #: src/emc/rs274ngc/interp_cycles.cc:2129
 msgid "Invalid spindle ($) number in G74/G84 cycle"
-msgstr ""
+msgstr "Neplatné číslo vretena ($) v cykle G74/G84"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1131
 msgid "G17.1 canned cycle is not possible on a machine without W axis"
-msgstr ""
+msgstr "Pevný cyklus G17.1 nie je možný na stroji bez osi W"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1368
 msgid "G19 canned cycle is not possible on a machine without X axis"
-msgstr ""
+msgstr "Pevný cyklus G19 nie je možný na stroji bez osi X"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1556
 msgid "G19.1 canned cycle is not possible on a machine without U axis"
-msgstr ""
+msgstr "Pevný cyklus G19.1 nie je možný na stroji bez osi U"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1801
 msgid "G18 canned cycle is not possible on a machine without Y axis"
-msgstr ""
+msgstr "Pevný cyklus G18 nie je možný na stroji bez osi Y"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1882
 msgid "Invalid E-number in G74/G84 cycle"
-msgstr ""
+msgstr "Neplatné E-číslo v cykle G74/G84"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1988
 msgid "G18.1 canned cycle is not possible on a machine without V axis"
-msgstr ""
+msgstr "Pevný cyklus G18.1 nie je možný na stroji bez osi V"
 
 #: src/emc/rs274ngc/interp_execute.cc:250
 msgid "Invalid spindle ($) number in Spindle Mode command"
-msgstr ""
+msgstr "Neplatné číslo vretena ($) v príkaze Režim vretena"
 
 #: src/emc/rs274ngc/interp_execute.cc:260
 msgid "Invalid spindle ($) number in Spindle Feed command"
-msgstr ""
+msgstr "Neplatné číslo vretena ($) v príkaze Posuv vretena"
 
 #: src/emc/rs274ngc/interp_execute.cc:284
 msgid "Invalid spindle ($) number in Spindle speed command"
-msgstr ""
+msgstr "Neplatné číslo vretena ($) v príkaze Rýchlosť vretena"
 
 #: src/emc/rs274ngc/interp_find.cc:174
 msgid "Cannot use polar coordinates with G53"
-msgstr ""
+msgstr "S G53 nie je možné použiť polárne súradnice"
 
 #: src/emc/rs274ngc/interp_find.cc:272 src/emc/rs274ngc/interp_find.cc:277
 #: src/emc/rs274ngc/interp_find.cc:284 src/emc/rs274ngc/interp_find.cc:343
 #: src/emc/rs274ngc/interp_find.cc:353
 msgid "Cannot specify X or Y words with polar coordinate"
-msgstr ""
+msgstr "Nie je možné zadať slová X alebo Y s polárnou súradnicou"
 
 #: src/emc/rs274ngc/interp_find.cc:278
 msgid "Must specify angle in polar coordinate if at the origin"
-msgstr ""
+msgstr "Ak je v počiatku, musíte zadať uhol v polárnych súradniciach"
 
 #: src/emc/rs274ngc/interp_find.cc:344
 msgid ""
 "Incremental motion with polar coordinates is indeterminate when at the origin"
-msgstr ""
+msgstr "Prírastkový pohyb s polárnymi súradnicami je v počiatku neurčitý"
 
 #: src/emc/rs274ngc/interp_find.cc:354
 msgid "G91 motion with polar coordinates is indeterminate when at the origin"
-msgstr ""
+msgstr "Pohyb G91 s polárnymi súradnicami je v počiatku neurčitý"
 
 #: src/emc/rs274ngc/interp_find.cc:730 src/emc/rs274ngc/interp_find.cc:746
 #, c-format
 msgid "Requested tool %d not found in the tool table"
-msgstr ""
+msgstr "Požadovaný nástroj %d sa nenašiel v tabuľke nástrojov"
 
 #: src/emc/rs274ngc/interp_internal.cc:159
 msgid "Cannot use polar coordinate on a machine lacking X or Y axes"
-msgstr ""
+msgstr "Nie je možné použiť polárne súradnice na stroji bez osí X alebo Y"
 
 #: src/emc/rs274ngc/interp_internal.cc:160
 msgid "Cannot use polar coordinate except in G17 plane"
-msgstr ""
+msgstr "Nie je možné použiť polárne súradnice okrem roviny G17"
 
 #: src/emc/rs274ngc/interp_internal.cc:161
 msgid "Cannot specify both polar coordinate and X word"
-msgstr ""
+msgstr "Nie je možné zadať polárne súradnice aj slovo X"
 
 #: src/emc/rs274ngc/interp_internal.cc:162
 msgid "Cannot specify both polar coordinate and Y word"
-msgstr ""
+msgstr "Nie je možné zadať polárne súradnice aj slovo Y"
 
 #: src/emc/rs274ngc/interp_internal.cc:183
 #: src/emc/rs274ngc/interp_internal.cc:201
 #: src/emc/rs274ngc/interp_internal.cc:217
 msgid "Polar coordinates can only be used for motion"
-msgstr ""
+msgstr "Polárne súradnice možno použiť len na pohyb"
 
 #: src/emc/rs274ngc/interp_read.cc:1207 src/emc/rs274ngc/interp_read.cc:1211
 #, c-format
 msgid "Bad character '\\%03o' used"
-msgstr ""
+msgstr "Použitý nesprávny znak '\\%03o'"
 
 #: src/emc/rs274ngc/interp_read.cc:1211
 #, c-format
 msgid "Bad character '%c' used"
-msgstr ""
+msgstr "Použitý nesprávny znak '%c'"
 
 #: src/emc/rs274ngc/interp_read.cc:1602
 #, c-format
 msgid "%d: Bug:  Non-m98/m99 M-code passed to read_o(): '%s'"
-msgstr ""
+msgstr "%d: Chyba: Non-m98/m99 M-kód odovzdaný read_o(): '%s'"
 
 #: src/emc/rs274ngc/interp_read.cc:1806
 msgid "Left bracket missing after 'while'"
-msgstr ""
+msgstr "Ľavá zátvorka chýba po výraze „while“"
 
 #: src/emc/rs274ngc/interp_read.cc:1821
 msgid "Left bracket missing after 'repeat'"
-msgstr ""
+msgstr "Po „opakovaní“ chýba ľavá zátvorka"
 
 #: src/emc/rs274ngc/interp_read.cc:1836
 msgid "Left bracket missing after 'if'"
-msgstr ""
+msgstr "Ľavá zátvorka chýba po „if“"
 
 #: src/emc/rs274ngc/interp_read.cc:1851
 msgid "Left bracket missing after 'elseif'"
-msgstr ""
+msgstr "Ľavá zátvorka chýba za výrazom „elseif“"
 
 #: src/emc/rs274ngc/interp_read.cc:2055
 msgid "Cannot read current position with cutter radius compensation on"
 msgstr ""
+"Nedá sa prečítať aktuálna poloha so zapnutou kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_read.cc:2070
 msgid "Expected # reading parameter"
@@ -880,67 +937,67 @@ msgstr "Očakávaný # parameter čítania"
 
 #: src/emc/rs274ngc/interp_read.cc:2072
 msgid "Expected ] reading bracketed parameter"
-msgstr ""
+msgstr "Očakáva sa ] čítanie parametra v zátvorkách"
 
 #: src/emc/rs274ngc/interp_read.cc:2744
 #, c-format
 msgid "bad number format (conversion failed) parsing '%s'"
-msgstr ""
+msgstr "nesprávny formát čísla (konverzia zlyhala) analýza '%s'"
 
 #: src/emc/rs274ngc/interp_read.cc:2745
 #, c-format
 msgid "bad number format (trailing characters) parsing '%s'"
-msgstr ""
+msgstr "nesprávny formát čísla (koncové znaky) pri analýze '%s'"
 
 #: src/emc/rs274ngc/interp_read.cc:2835
 msgid "Calculation resulted in 'not a number'"
-msgstr ""
+msgstr "Výsledkom výpočtu bolo „nie je číslo“"
 
 #: src/emc/rs274ngc/interp_read.cc:2837
 msgid "Calculation resulted in 'infinity'"
-msgstr ""
+msgstr "Výsledkom výpočtu je „nekonečno“"
 
 #: src/emc/rs274ngc/interp_read.cc:3130
 #, c-format
 msgid "EOF in file:%s seeking o-word: o<%s> from line: %d"
-msgstr ""
+msgstr "EOF v súbore:%s hľadá o-slovo: o<%s> z riadku: %d"
 
 #: src/emc/rs274ngc/interp_read.cc:3242
 msgid "Multiple U words on one line"
-msgstr ""
+msgstr "Viac U slov na jednom riadku"
 
 #: src/emc/rs274ngc/interp_read.cc:3258
 msgid "Multiple V words on one line"
-msgstr ""
+msgstr "Viac V slov na jednom riadku"
 
 #: src/emc/rs274ngc/interp_read.cc:3274
 msgid "Multiple W words on one line"
-msgstr ""
+msgstr "Viac W slov na jednom riadku"
 
 #: src/emc/rs274ngc/interp_o_word.cc:104
 #, c-format
 msgid "File:%s line:%d sub: o|%s| found in illegal location"
-msgstr ""
+msgstr "Súbor:%s riadok:%d pod: o|%s| nájdené na nelegálnom mieste"
 
 #: src/emc/rs274ngc/interp_o_word.cc:108
 #, c-format
 msgid "File:%s line:%d redefining sub: o|%s| already defined in file:%s"
-msgstr ""
+msgstr "Súbor:%s riadok:%d predefinovanie pod: o|%s| už definované v súbore:%s"
 
 #: src/emc/rs274ngc/interp_o_word.cc:825
 #, c-format
 msgid "%d: not in a subroutine definition: '%s'"
-msgstr ""
+msgstr "%d: nie je v definícii podprogramu: '%s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:874 src/emc/rs274ngc/interp_o_word.cc:924
 #, c-format
 msgid "%d: duplicate O-word label: '%s' - defined in line %d"
-msgstr ""
+msgstr "%d: duplicitné označenie O-slova: '%s' - definované v riadku %d"
 
 #: src/emc/rs274ngc/interp_o_word.cc:977
 #, c-format
 msgid "%d: duplicate O-word label - already defined in line %d: '%s'"
-msgstr ""
+msgstr "%d: duplicitné označenie O-slova – už definované v riadku %d: '%s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1001
 #: src/emc/rs274ngc/interp_o_word.cc:1059
@@ -950,29 +1007,32 @@ msgstr ""
 #: src/emc/rs274ngc/interp_o_word.cc:1153
 #, c-format
 msgid "%d: undefined O-word label: '%s'"
-msgstr ""
+msgstr "%d: nedefinovaná menovka O-slova: '%s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1004
 #: src/emc/rs274ngc/interp_o_word.cc:1062
 #, c-format
 msgid "%d: no matching 'if' label: '%s' (found '%s' in line %d)"
 msgstr ""
+"%d: žiadne zodpovedajúce označenie „if“: „%s“ (nájdené „%s“ v riadku %d)"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1096
 #, c-format
 msgid "%d: no matching label: '%s' (found '%s' in line %d): '%s'"
 msgstr ""
+"%d: žiadne zodpovedajúce označenie: '%s' (nájdené '%s' v riadku %d): '%s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1114
 #: src/emc/rs274ngc/interp_o_word.cc:1131
 #, c-format
 msgid "%d: no matching while/do label: '%s' (found '%s' in line %d)"
 msgstr ""
+"%d: žiadne zodpovedajúce označenie while/do: '%s' (nájdené '%s' v riadku %d)"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1157
 #, c-format
 msgid "%d: no matching label: '%s' (found '%s' in line %d)"
-msgstr ""
+msgstr "%d: žiadne zodpovedajúce označenie: '%s' (nájdené '%s' v riadku %d)"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:185
 #, c-format
@@ -985,43 +1045,43 @@ msgid "can't open INI file '%s'"
 msgstr "nemôžem otvoriť INI súbor '%s'"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:232
-#, fuzzy, c-format
+#, c-format
 msgid "Named INI parameter #<%s> not found in INI file '%s': error=0x%x"
 msgstr "Pomenovaný parameter #<%s> sa nenašiel v .ini zložke '%s': chyba=0x%x"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:257
 #, c-format
 msgid "fetch_hal_param: hal_init(%s): %d"
-msgstr ""
+msgstr "_fetch_hal_param: hal_init(%s): %d"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:258
 #, c-format
 msgid "fetch_hal_param: hal_ready(): %d"
-msgstr ""
+msgstr "_fetch_hal_param: hal_ready(): %d"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:422
 #, c-format
 msgid "Internal error: Could not assign #<%s>"
-msgstr ""
+msgstr "Interná chyba: Nepodarilo sa priradiť #<%s>"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:430
 #, c-format
 msgid "Cannot assign to read-only parameter #<%s>"
-msgstr ""
+msgstr "Nedá sa priradiť k \"iba na čítanie\" parameter #<%s>"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:791
 #, c-format
 msgid "BUG: lookup_named_param(%s): unhandled index=%fn"
-msgstr ""
+msgstr "CHYBA: lookup_named_param(%s): neošetrený index=%fn"
 
 #: src/emc/rs274ngc/rs274ngc_pre.cc:1452 src/emc/rs274ngc/rs274ngc_pre.cc:1527
 msgid "Queue is not empty after tool change"
-msgstr ""
+msgstr "Po výmene nástroja nie je rad prázdny"
 
 #: src/emc/rs274ngc/rs274ngc_pre.cc:1843
 #, c-format
 msgid "Unable to open parameter file: '%s'"
-msgstr ""
+msgstr "Nie je možné otvoriť súbor parametrov: '%s'"
 
 #: src/emc/rs274ngc/rs274ngc_pre.cc:2514
 msgid "Parameter file name is missing"
@@ -1029,55 +1089,55 @@ msgstr "Názov parametru chýba"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:19
 msgid "A file is already open"
-msgstr ""
+msgstr "Súbor je už otvorený"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:21
 msgid "All axes missing with g52 or g92"
-msgstr ""
+msgstr "Chýbajú všetky osi s g52 alebo g92"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:22
 msgid "All axes missing with motion code"
-msgstr ""
+msgstr "Chýbajú všetky osi s kódom pohybu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:23
 msgid "Arc radius too small to reach end point"
-msgstr ""
+msgstr "Polomer oblúka je príliš malý na dosiahnutie koncového bodu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:24
 msgid "Argument to acos out of range"
-msgstr ""
+msgstr "Argument pre acos je mimo dosahu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:25
 msgid "Argument to asin out of range"
-msgstr ""
+msgstr "Argument to asin mimo dosahu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:26
 msgid "Attempt to divide by zero"
-msgstr ""
+msgstr "Pokúste sa deliť nulou"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:27
 msgid "Attempt to raise negative to non integer power"
-msgstr ""
+msgstr "Pokúste sa zvýšiť zápornú mocninu na iné ako celé číslo"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:28
 msgid "Bad format unsigned integer"
-msgstr ""
+msgstr "Nesprávny formát celého čísla bez znamienka"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:29
 msgid "Bad number format"
-msgstr ""
+msgstr "Zlý formát čísla"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:30
 msgid "Bug bad g code modal group 0"
-msgstr ""
+msgstr "Chybný kód G modálna skupina 0"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:31
 msgid "Bug code not g0 or g1"
-msgstr ""
+msgstr "Kód chyby nie je g0 alebo g1"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:32
 msgid "Bug code not g17 g18 or g19"
-msgstr ""
+msgstr "Kód chyby nie je g17 g18 alebo g19"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:33
 msgid "Bug code not g20 or g21"
@@ -11301,7 +11361,9 @@ msgstr "Opačný"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249

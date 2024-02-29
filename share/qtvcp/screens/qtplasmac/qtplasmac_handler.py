@@ -1,12 +1,12 @@
-VERSION = '003.023'
+VERSION = '004.029'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
 '''
 qtplasmac_handler.py
 
-Copyright (C) 2020, 2021, 2022, 2023, 2024 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023, 2024 Gregory D Carl
+Copyright (C) 2020-2024  Phillip A Carter
+Copyright (C) 2020-2024  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -106,6 +106,7 @@ def click_signal(widget):
   # the main handler
 class HandlerClass:
     from qtvcp.lib.qtplasmac import conversational as CONV
+
     # when self.w.button_frame changes size
     def eventFilter(self, object, event):
         if (event.type() == QtCore.QEvent.Resize):
@@ -328,6 +329,11 @@ class HandlerClass:
         # jog stack indexes
         self.JOG = 0
         self.CUT_RECOVERY = 1
+        # tool indexes
+        self.TORCH = 0
+        self.SCRIBE = 1
+        self.UNKNOWN = 2
+        self.tool = self.TORCH
 
 # called by qtvcp.py
     def initialized__(self):
@@ -766,6 +772,7 @@ class HandlerClass:
         self.w.gcodegraphics.draw_grid_permuted(rotation, permutation,
                 inverse_permutation)
 
+
 #########################################################################################################################
 # SPECIAL FUNCTIONS SECTION #
 #########################################################################################################################
@@ -1148,14 +1155,15 @@ class HandlerClass:
         else:
             fr = 0
             ou = 2
-        if '.' in self.w.cut_feed_rate.text() and len(self.w.cut_feed_rate.text().split('.')[0]) > 3:
-            text.append(f'FR: {float(self.w.cut_feed_rate.text().split(".")[0]) * scale:.{fr}f}')
+        dp = '.' if '.' in self.w.pierce_height.text() else ','
+        if '.' in self.w.cut_feed_rate.text().replace(",", ".") and len(self.w.cut_feed_rate.text().replace(",", ".").split('.')[0]) > 3:
+            text.append(f'FR: {float(self.w.cut_feed_rate.text().replace(",", ".").split(".")[0]) * scale:.{fr}f}'.replace(".",dp))
         else:
-            text.append(f'FR: {float(self.w.cut_feed_rate.text()) * scale:.{fr}f}')
-        text.append(f'PH: {float(self.w.pierce_height.text()) * scale:.{ou}f}')
+            text.append(f'FR: {float(self.w.cut_feed_rate.text().replace(",", ".")) * scale:.{fr}f}'.replace(".",dp))
+        text.append(f'PH: {float(self.w.pierce_height.text().replace(",", ".")) * scale:.{ou}f}'.replace(".",dp))
         text.append(f'PD: {self.w.pierce_delay.text()}')
-        text.append(f'CH: {float(self.w.cut_height.text()) * scale:.{ou}f}')
-        text.append(f'KW: {float(self.w.kerf_width.text()) * scale:.{ou}f}')
+        text.append(f'CH: {float(self.w.cut_height.text().replace(",", ".")) * scale:.{ou}f}'.replace(".",dp))
+        text.append(f'KW: {float(self.w.kerf_width.text().replace(",", ".")) * scale:.{ou}f}'.replace(".",dp))
         if self.pmx485Exists:
             text.append(f'CA: {self.w.cut_amps.text()}')
         return text
@@ -1741,11 +1749,17 @@ class HandlerClass:
 
     def tool_changed(self, obj, tool):
         if tool == 0:
-            self.w.lbl_tool.setText('TORCH')
+            self.tool = self.TORCH
+            text = _translate('HandlerClass', 'TORCH')
+            self.w.lbl_tool.setText(text)
         elif tool == 1:
-            self.w.lbl_tool.setText('SCRIBE')
+            self.tool = self.SCRIBE
+            text = _translate('HandlerClass', 'SCRIBE')
+            self.w.lbl_tool.setText(text)
         else:
-            self.w.lbl_tool.setText('UNKNOWN')
+            self.tool = self.UNKNOWN
+            text = _translate('HandlerClass', 'UNKNOWN')
+            self.w.lbl_tool.setText(text)
 
     def gcodes_changed(self, obj, cod):
         if self.units == 'in' and STATUS.is_metric_mode():
@@ -2033,6 +2047,7 @@ class HandlerClass:
         lcncInfo = (Popen('linuxcnc_info -s', stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]).decode('utf-8')
         network = (Popen('lspci | grep -i net', stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]).decode('utf-8')
         with open(tmpFile, 'a') as outFile:
+            outFile.write(f'locale:\n{os.getenv("LANG")}\n\n')
             if network:
                 outFile.write(f'lspci | grep -i net:\n{network}\n')
             else:
@@ -2189,7 +2204,7 @@ class HandlerClass:
             self.remove_temp_materials()
             ACTION.OPEN_PROGRAM(clearFile)
             ACTION.prefilter_path = self.preClearFile
-            if self.w.lbl_tool.text() != 'TORCH' and STATUS.is_on_and_idle() and STATUS.is_all_homed():
+            if self.tool != self.TORCH and STATUS.is_on_and_idle() and STATUS.is_all_homed():
                 ACTION.CALL_MDI_WAIT('T0 M6')
                 ACTION.CALL_MDI_WAIT('G43 H0')
                 ACTION.SET_MANUAL_MODE()
@@ -2318,7 +2333,7 @@ class HandlerClass:
                 STATUS.emit('update-machine-log', log, 'TIME')
 
     def plasmac_state_changed(self, state):
-        if ((state > self.PROBE_UP and not STATUS.is_interp_idle()) or state == self.PROBE_TEST) and hal.get_value('axis.z.eoffset-counts'):
+        if (state > self.PROBE_UP or state == self.PROBE_TEST) and hal.get_value('axis.z.eoffset-counts'):
             # set z dro to offset mode
             self.w.dro_z.setProperty('Qreference_type', 10)
         if state == self.IDLE:
@@ -4472,7 +4487,7 @@ class HandlerClass:
             msg0 = _translate('HandlerClass', 'Invalid feed rate for consumable change')
             msg1 = _translate('HandlerClass', 'Defaulting to materials cut feed rate')
             STATUS.emit('update-machine-log', f'{msg0}, {msg1}', 'TIME')
-            self.ccFeed = float(self.w.cut_feed_rate.text())
+            self.ccFeed = float(self.w.cut_feed_rate.text().replace(',', '.'))
 
     def ext_change_consumables(self, state):
         if self.ccButton and self.w[self.ccButton].isEnabled():
@@ -4646,7 +4661,7 @@ class HandlerClass:
                     self.w.run.setEnabled(True)
                     return
             if not self.frFeed:
-                feed = float(self.w.cut_feed_rate.text())
+                feed = float(self.w.cut_feed_rate.text().replace(',', '.'))
             else:
                 feed = self.frFeed
             zHeight = self.zMax - (hal.get_value('plasmac.max-offset') * self.unitsPerMm)
@@ -6128,8 +6143,9 @@ class HandlerClass:
             self.STYLEEDITOR.load_dialog()
 
     def on_keycall_F9(self, event, state, shift, cntrl):
-        if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN \
-           and not self.probeTest and not self.torchPulse and not self.framing and STATUS.is_interp_idle():
+        if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN and \
+           not self.probeTest and not self.torchPulse and not self.framing and \
+           (STATUS.is_interp_idle() or (self.manualCut and STATUS.is_interp_paused())):
             self.manual_cut()
 
     def on_keycall_XPOS(self, event, state, shift, cntrl):

@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC 2.10.
 
 .I VERSION:
 .br
-003
+004
 
 .I SUMMARY:
 .br
@@ -748,7 +748,7 @@ FUNCTION(_) {
         if(tool == EMPTY){
             manual_cut = FALSE;
             torch_on = FALSE;
-            stop_type = STOP;
+            stop_type = NONE;
             program_stop = TRUE;
             cut_started = FALSE;
             probe_required = TRUE;
@@ -2392,11 +2392,15 @@ FUNCTION(_) {
                             cut_recovering = FALSE;
                             feed_hold = FALSE;
                             thc_delay_timer = thc_delay;
-                            if(mode < 2){
-                                voidlock_on_count = 0;
-                                state = CUT_MODE_01;
+                            if(cut_recovery){
+                                if(mode < 2){
+                                    voidlock_on_count = 0;
+                                    state = CUT_MODE_01;
+                                }else{
+                                    state = CUT_MODE_2;
+                                }
                             }else{
-                                state = CUT_MODE_2;
+                                state = IDLE;
                             }
                         }else{
                             state = IDLE;

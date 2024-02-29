@@ -629,7 +629,7 @@ class GlCanonDraw:
         if self.get_show_rapids():
             glCallList(self.dlist('select_rapids', gen=self.make_selection_list))
         glCallList(self.dlist('select_norapids', gen=self.make_selection_list))
-
+        
         try:
             buffer = glRenderMode(GL_RENDER)
         except:

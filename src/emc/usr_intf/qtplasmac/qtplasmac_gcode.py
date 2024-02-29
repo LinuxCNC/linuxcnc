@@ -2,8 +2,8 @@
 '''
 plasmac_gcode.py
 
-Copyright (C) 2019, 2020, 2021, 2022, 2023, 2024 Phillip A Carter
-Copyright (C)       2020, 2021, 2022, 2023, 2024 Gregory D Carl
+Copyright (C) 2019 - 2024  Phillip A Carter
+Copyright (C) 2020 - 2024  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -256,7 +256,7 @@ class Filter():
                         code = self.parse_code(both[0])
                         cmnt = both[1]
                         if code:
-                            line = f'{code} {tag}{cmnt}'
+                            line = f'{code}{tag}{cmnt}'
                         else:
                             line = f'{tag}{cmnt}'
                 # code only - parse the code
@@ -301,12 +301,13 @@ class Filter():
         data = tmp
         # get all G00 coordinates
         if data[:3] == 'G00' and ('X' in data or 'Y' in data):
-            if not self.check_math(data, 'X', 'pierce') and not self.check_math(data, 'Y', 'pierce'):
+            if 'X' in data and not self.check_math(data, 'X', 'pierce'):
                 pierceX = self.get_axis_value(data, 'X') if 'X' in data else self.lastX
-                pierceY = self.get_axis_value(data, 'Y') if 'Y' in data else self.lastY
                 self.pierceList['X'].append(pierceX)
+            if 'Y' in data and not self.check_math(data, 'Y', 'pierce'):
+                pierceY = self.get_axis_value(data, 'Y') if 'Y' in data else self.lastY
                 self.pierceList['Y'].append(pierceY)
-                self.pierceList['active'] = True
+            self.pierceList['active'] = True
         # reset G00 active flag
         if data[:3] == 'M03' and self.pierceList['active']:
             self.pierceList['active'] = False
@@ -314,7 +315,7 @@ class Filter():
         if 'G92' in data and not 'G92.1' in data:
             self.set_g92_detected()
         # if incremental distance mode fix overburn coordinates
-        if data[:3] in ['G00', 'G01'] and self.distMode == 91 and (self.oBurnX or self.oBurnY):
+        if data[:3] in ['G00', 'G01'] and self.distMode == 91 and (self.oBurnX or self.oBurnY) and not self.spotting:
             data = self.fix_overburn_incremental_coordinates(data)
         # set path blending
         if 'G64' in data:
@@ -348,6 +349,9 @@ class Filter():
         # is this a scribe
         if data.startswith('M03 $1 S') and not self.tubeCut:
             self.set_scribing()
+        # is this a spot
+        if data.startswith('M03 $2 S') and not self.pierceOnly and not self.tubeCut:
+            self.spotting = True
         # test for pierce only mode
         elif data.replace(' ','').startswith('#<pierce-only>=1') or self.cutType == 1:
             self.set_pierce_mode()
@@ -830,6 +834,9 @@ class Filter():
                 self.lineNum += 1
                 data = f'{data}\nM65 P3 (enable torch)'
                 self.torchEnable = True
+            # if not pierce mode reset spotting flag
+            if not self.pierceOnly:
+                self.spotting = False
         return data
 
     def program_end(self, data):
@@ -1024,7 +1031,7 @@ class Filter():
             x = self.get_axis_value(data, 'X')
             if x is not None:
                 newData += f'X{x - self.oBurnX:0.4f}'
-            y = self.get_axis_value(data, 'y')
+            y = self.get_axis_value(data, 'Y')
             if y is not None:
                 newData += f'Y{y - self.oBurnY:0.4f}'
             return newData

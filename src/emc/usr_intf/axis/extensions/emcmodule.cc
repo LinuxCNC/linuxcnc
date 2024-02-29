@@ -2233,9 +2233,8 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
         }
         if(s->st->c->valid() && s->st->c->peek() == EMC_STAT_TYPE) {
             EMC_STAT *status = static_cast<EMC_STAT*>(s->st->c->get_address());
-            int colornum = 2;
-            colornum = status->motion.traj.motion_type;
-            if(colornum < 0 || colornum > NUMCOLORS) colornum = 0;
+            int colornum = status->motion.traj.motion_type;
+            if(colornum < 0 || colornum >= NUMCOLORS) colornum = 0;
             struct color c = s->colors[colornum];
             struct logger_point *op = &s->p[s->npts-1];
             struct logger_point *oop = &s->p[s->npts-2];
