@@ -1,4 +1,4 @@
-VERSION = '004.028'
+VERSION = '004.029'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -772,6 +772,7 @@ class HandlerClass:
         self.w.gcodegraphics.draw_grid_permuted(rotation, permutation,
                 inverse_permutation)
 
+
 #########################################################################################################################
 # SPECIAL FUNCTIONS SECTION #
 #########################################################################################################################
@@ -1154,14 +1155,15 @@ class HandlerClass:
         else:
             fr = 0
             ou = 2
-        if '.' in self.w.cut_feed_rate.text() and len(self.w.cut_feed_rate.text().split('.')[0]) > 3:
-            text.append(f'FR: {float(self.w.cut_feed_rate.text().split(".")[0]) * scale:.{fr}f}')
+        dp = '.' if '.' in self.w.pierce_height.text() else ','
+        if '.' in self.w.cut_feed_rate.text().replace(",", ".") and len(self.w.cut_feed_rate.text().replace(",", ".").split('.')[0]) > 3:
+            text.append(f'FR: {float(self.w.cut_feed_rate.text().replace(",", ".").split(".")[0]) * scale:.{fr}f}'.replace(".",dp))
         else:
-            text.append(f'FR: {float(self.w.cut_feed_rate.text()) * scale:.{fr}f}')
-        text.append(f'PH: {float(self.w.pierce_height.text()) * scale:.{ou}f}')
+            text.append(f'FR: {float(self.w.cut_feed_rate.text().replace(",", ".")) * scale:.{fr}f}'.replace(".",dp))
+        text.append(f'PH: {float(self.w.pierce_height.text().replace(",", ".")) * scale:.{ou}f}'.replace(".",dp))
         text.append(f'PD: {self.w.pierce_delay.text()}')
-        text.append(f'CH: {float(self.w.cut_height.text()) * scale:.{ou}f}')
-        text.append(f'KW: {float(self.w.kerf_width.text()) * scale:.{ou}f}')
+        text.append(f'CH: {float(self.w.cut_height.text().replace(",", ".")) * scale:.{ou}f}'.replace(".",dp))
+        text.append(f'KW: {float(self.w.kerf_width.text().replace(",", ".")) * scale:.{ou}f}'.replace(".",dp))
         if self.pmx485Exists:
             text.append(f'CA: {self.w.cut_amps.text()}')
         return text
@@ -2045,6 +2047,7 @@ class HandlerClass:
         lcncInfo = (Popen('linuxcnc_info -s', stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]).decode('utf-8')
         network = (Popen('lspci | grep -i net', stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]).decode('utf-8')
         with open(tmpFile, 'a') as outFile:
+            outFile.write(f'locale:\n{os.getenv("LANG")}\n\n')
             if network:
                 outFile.write(f'lspci | grep -i net:\n{network}\n')
             else:
@@ -4484,7 +4487,7 @@ class HandlerClass:
             msg0 = _translate('HandlerClass', 'Invalid feed rate for consumable change')
             msg1 = _translate('HandlerClass', 'Defaulting to materials cut feed rate')
             STATUS.emit('update-machine-log', f'{msg0}, {msg1}', 'TIME')
-            self.ccFeed = float(self.w.cut_feed_rate.text())
+            self.ccFeed = float(self.w.cut_feed_rate.text().replace(',', '.'))
 
     def ext_change_consumables(self, state):
         if self.ccButton and self.w[self.ccButton].isEnabled():
@@ -4658,7 +4661,7 @@ class HandlerClass:
                     self.w.run.setEnabled(True)
                     return
             if not self.frFeed:
-                feed = float(self.w.cut_feed_rate.text())
+                feed = float(self.w.cut_feed_rate.text().replace(',', '.'))
             else:
                 feed = self.frFeed
             zHeight = self.zMax - (hal.get_value('plasmac.max-offset') * self.unitsPerMm)
