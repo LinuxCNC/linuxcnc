@@ -5224,10 +5224,43 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     }
 
 /*10*/
-    if (settings->disable_g92_persistence)
+    if (settings->disable_g92_persistence){
       // Clear G92/G52 offset
       for (index=5210; index<=5219; index++)
           settings->parameters[index] = 0;
+
+      settings->current_x = settings->current_x + settings->axis_offset_x;
+      settings->current_y = settings->current_y + settings->axis_offset_y;
+      settings->current_z = settings->current_z + settings->axis_offset_z;
+      settings->AA_current = (settings->AA_current + settings->AA_axis_offset);
+      settings->BB_current = (settings->BB_current + settings->BB_axis_offset);
+      settings->CC_current = (settings->CC_current + settings->CC_axis_offset);
+      settings->u_current = (settings->u_current + settings->u_axis_offset);
+      settings->v_current = (settings->v_current + settings->v_axis_offset);
+      settings->w_current = (settings->w_current + settings->w_axis_offset);
+
+      SET_G92_OFFSET(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+
+      settings->axis_offset_x = 0.0;
+      settings->axis_offset_y = 0.0;
+      settings->axis_offset_z = 0.0;
+      settings->AA_axis_offset = 0.0;
+      settings->BB_axis_offset = 0.0;
+      settings->CC_axis_offset = 0.0;
+      settings->u_axis_offset = 0.0;
+      settings->v_axis_offset = 0.0;
+      settings->w_axis_offset = 0.0;
+
+      settings->parameters[G92_X] = 0.0;
+      settings->parameters[G92_Y] = 0.0;
+      settings->parameters[G92_Z] = 0.0;
+      settings->parameters[G92_A] = 0.0;
+      settings->parameters[G92_B] = 0.0;
+      settings->parameters[G92_C] = 0.0;
+      settings->parameters[G92_U] = 0.0;
+      settings->parameters[G92_V] = 0.0;
+      settings->parameters[G92_W] = 0.0;
+    }
 
     if (block->m_modes[4] == 30)
       PALLET_SHUTTLE();
