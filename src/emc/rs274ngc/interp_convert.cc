@@ -5224,8 +5224,11 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     }
 
 /*10*/
+    // Clear active G92/G52 offset
+    SET_G92_OFFSET(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    settings->parameters[5210] = 0;
     if (settings->disable_g92_persistence)
-      // Clear G92/G52 offset
+      // Clear persistant G92/G52 offset values
       for (index=5210; index<=5219; index++)
           settings->parameters[index] = 0;
 
