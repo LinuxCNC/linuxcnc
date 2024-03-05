@@ -537,8 +537,8 @@ The maximum number of `USER_M_PATH` directories is defined at compile time (typ:
   Preserve case in O-word names within comments if set, enables reading of mixed-case HAL items in structured comments like `(debug, #<_hal[MixedCaseItem])`.
 * `OWORD_WARNONLY = 0` (Default: 0) +
   Warn rather than error in case of errors in O-word subroutines.
-* `DISABLE_G92_PERSISTENCE = 0` (Default: 0)
-  Allow to clear the G92 offset automatically when config start-up.
+* `DISABLE_G92_PERSISTENCE = 0` (Default: 0) +
+  When set, G52/G92 offset values held in parameters [5211..5219] will be reset to zero on M2/M30 and shutdown.
 * `DISABLE_FANUC_STYLE_SUB = 0` (Default: 0)
   If there is reason to disable Fanuc subroutines set it to 1.
 
