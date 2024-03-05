@@ -308,7 +308,7 @@ example '##2'  means the value of the parameter whose index is the
 * '5161-5169' - "G28" Home for X, Y, Z, A, B, C, U, V & W. Persistent.
 * '5181-5189' - "G30" Home for X, Y, Z, A, B, C, U, V & W. Persistent.
 * '5210' - 1 if "G52" or "G92" offset is currently applied, 0
-  otherwise.  Volatile by default; persistent if
+  otherwise.  Persistent by default; volatile if
   'DISABLE_G92_PERSISTENCE = 1' in the '[RS274NGC]' section of the
   INI file.
 * '5211-5219' - Shared "G52" and "G92" offset for X, Y, Z, A, B, C, U,
