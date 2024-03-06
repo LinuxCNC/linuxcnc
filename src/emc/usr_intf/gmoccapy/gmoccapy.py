@@ -3369,7 +3369,11 @@ class gmoccapy(object):
             if code % 10 == 0:
                 temp.append("{0}".format(code // 10))
             else:
-                temp.append("{0}.{1}".format(code // 10, code % 10))
+                # hide false display of '92.2'/'92.3' coming from modal group 16 which only reflects parameter[5210]
+                if code == 922 or (code == 923 and ('92' in temp or '52' in temp)):
+                    pass
+                else:
+                    temp.append("{0}.{1}".format(code // 10, code % 10))
         for num, code in enumerate(temp):
             if num == 8:
                 active_codes.append("\n")
