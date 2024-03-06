@@ -1,4 +1,4 @@
-VERSION = '004.029'
+VERSION = '004.030'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -2107,26 +2107,14 @@ class HandlerClass:
             QApplication.processEvents()
         self.w.gcodegraphics.set_view('Z')
         mid, size = DRAW.extents_info(self.w.gcodegraphics)
-        if self.gcodeProps:
-            mult = 1
-            if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
-                mult = 0.03937
-            elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
-                mult = 25.4
-            x = (round(float(self.gcodeProps['x'].split()[0]) * mult, 4))
-            y = (round(float(self.gcodeProps['y'].split()[0]) * mult, 4))
-            xl = (round(float(self.gcodeProps['x'].split('=')[1].split()[0]) * mult, 4))
-            yl = (round(float(self.gcodeProps['y'].split('=')[1].split()[0]) * mult, 4))
-        else:
-            x = y = xl = yl = 0
-        if (mid[0] == 0 and mid[1] == 0) or mid[0] > self.xLen or mid[1] > self.yLen or \
-           self.w.view_t.isChecked() or self.w.view_t.isDown() or self.fileClear:
-            mult = 1 if self.units == 'in' else 25.4
-            zoomScale = (self.w.table_zoom_scale.value() * 2)
-            mid = [(self.xLen - (x * 2) - xl) / mult / 2, (self.yLen - (y * 2) - yl) / mult / 2, 0]
-            size = [self.xLen / mult / zoomScale, self.yLen / mult / zoomScale, 0]
-        glTranslatef(-mid[0], -mid[1], -mid[2])
-        self.w.gcodegraphics.set_eyepoint_from_extents(size[0], size[1])
+        mult = 1 if self.units == 'in' else 25.4
+        zoomScale = (self.w.table_zoom_scale.value() * 2)
+        xTableCenter = (self.xMin + self.xLen / 2) / mult - mid[0]
+        yTableCenter = (self.yMin + self.yLen / 2) / mult - mid[1]
+        xSize = self.xLen / mult / zoomScale
+        ySize = self.yLen / mult / zoomScale
+        glTranslatef(-xTableCenter, -yTableCenter, 0)
+        self.w.gcodegraphics.set_eyepoint_from_extents(xSize, ySize)
         self.w.gcodegraphics.perspective = False
         self.w.gcodegraphics.lat = self.w.gcodegraphics.lon = 0
         self.w.gcodegraphics.updateGL()
