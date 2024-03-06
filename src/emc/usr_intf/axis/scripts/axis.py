@@ -928,7 +928,11 @@ class LivePlotter:
             if i % 10 == 0:
                 active_codes.append("G%d" % (i/10))
             else:
-                active_codes.append("G%(ones)d.%(tenths)d" % {'ones': i/10, 'tenths': i%10})
+            	# hide false display of '92.2'/'92.3' coming from modal group 16 which only reflects parameter[5210]
+                if i == 922 or (i == 923 and ('G92' in active_codes or 'G52' in active_codes)):
+                    pass
+                else:
+                    active_codes.append("G%(ones)d.%(tenths)d" % {'ones': i/10, 'tenths': i%10})
 
         for i in self.stat.mcodes[1:]:
             if i == -1: continue
