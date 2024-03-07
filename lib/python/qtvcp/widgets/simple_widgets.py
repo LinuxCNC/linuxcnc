@@ -385,6 +385,9 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self._is_manual_sensitive = False
         self._is_mdi_sensitive = False
         self._is_auto_sensitive = False
+        self._is_spindle_off_sensitive = False
+        self._is_spindle_fwd_sensitive = False
+        self._is_spindle_rev_sensitive = False
 
     # Override setText function so we can toggle displayed text
     def setText(self, text):
@@ -434,6 +437,10 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
             STATUS.connect('interp-run', lambda w: enable_logic_check(False))
             STATUS.connect('interp-paused', lambda w: self.setEnabled(True))
             STATUS.connect('interp-idle', lambda w: self.setEnabled(False))
+        if self._is_spindle_off_sensitive or \
+                self._is_spindle_fwd_sensitive or \
+                self._is_spindle_rev_sensitive:
+            STATUS.connect('spindle-control-changed',  lambda w, num, state, speed, upto: enable_logic_check(True))
         if self._is_manual_sensitive or self._is_mdi_sensitive or self._is_auto_sensitive:
             STATUS.connect('mode-manual', lambda w: enable_logic_check(self._is_manual_sensitive))
             STATUS.connect('mode-mdi', lambda w: enable_logic_check(self._is_mdi_sensitive))
@@ -445,6 +452,7 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
                 self._is_manual_sensitive or self._is_mdi_sensitive or \
                 self._is_auto_sensitive or self._is_auto_pause_sensitive):
             STATUS.connect('state-estop-reset', lambda w: self.setEnabled(True))
+
 
         # check for multiple selected enabled requests
         def enable_logic_check(state):
@@ -466,6 +474,17 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
                     temp = temp and STATUS.is_auto_mode()
                 if self._is_idle_sensitive:
                     temp = temp and STATUS.is_interp_idle()
+                on =  STATUS.is_spindle_on()
+                spd = STATUS.get_spindle_speed()
+                if self._is_spindle_fwd_sensitive and self._is_spindle_rev_sensitive:
+                    temp = temp and on
+                elif self._is_spindle_fwd_sensitive:
+                    temp = temp and spd > 0
+                elif self._is_spindle_rev_sensitive:
+                    temp = temp and spd < 0
+                if self._is_spindle_off_sensitive:
+                    temp = temp and not on
+
                 self.setEnabled(temp)
             else:
                 self.setEnabled(False)
@@ -1243,6 +1262,24 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
     def getisAutoSensitive(self):
         return self._is_auto_sensitive
     isAutoSensitive = QtCore.pyqtProperty(bool, getisAutoSensitive, setisAutoSensitive)
+
+    def setisSpindleOffSensitive(self, data):
+        self._is_spindle_off_sensitive = data
+    def getisSpindleOffSensitive(self):
+        return self._is_spindle_off_sensitive
+    isSpindleOffSensitive = QtCore.pyqtProperty(bool, getisSpindleOffSensitive, setisSpindleOffSensitive)
+
+    def setisSpindleFwdSensitive(self, data):
+        self._is_spindle_fwd_sensitive = data
+    def getisSpindleFwdSensitive(self):
+        return self._is_spindle_fwd_sensitive
+    isSpindleFwdSensitive = QtCore.pyqtProperty(bool, getisSpindleFwdSensitive, setisSpindleFwdSensitive)
+
+    def setisSpindleRevSensitive(self, data):
+        self._is_spindle_rev_sensitive = data
+    def getisSpindleRevSensitive(self):
+        return self._is_spindle_rev_sensitive
+    isSpindleRevSensitive = QtCore.pyqtProperty(bool, getisSpindleRevSensitive, setisSpindleRevSensitive)
 
     # boilder code
     def __getitem__(self, item):

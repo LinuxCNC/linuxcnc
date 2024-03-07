@@ -9,7 +9,7 @@ tap                     = qtplasmac_gcode
 RS274NGC_STARTUP_CODE   = G20 G40 G49 G80 G90 G92.1 G94 G97 M52P1
 PARAMETER_FILE          = imperial_parameters.txt
 SUBROUTINE_PATH         = ./:../../nc_files
-USER_M_PATH             = ./:../../nc_files
+USER_M_PATH             = ./:../../nc_files/plasmac/m_files
 
 [HAL]
 TWOPASS                 = ON

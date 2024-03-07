@@ -8,6 +8,7 @@ case :$AUTOGEN_TARGET: in
     [ -e config.guess ] || cp $automake_libdir/config.guess .
     [ -e config.sub ] || cp $automake_libdir/config.sub .
     [ -e install-sh ] || cp $automake_libdir/install-sh .
+    aclocal --force
     autoconf
     # autoconf only updates the timestamp if the output actually changed.
     # The target's timestamp must be updated or make is confused

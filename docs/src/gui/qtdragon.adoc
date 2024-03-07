@@ -483,6 +483,16 @@ You would connect it to `spindle.0.inhibit`.
 qtdragon.spindle-inhibit
 ----
 
+QtDragon spindle speed display and spindle-at-speed LED require that
+ `spindle.0.speed-in` be connected to spindle speed feedback. +
+Encoder or VFD feedback could be used, as long as the feedback is in revolutions per second (RPS). +
+If no feedback is available you can have the display show the requested speed by connecting pins like so:
+
+[source,{hal}]
+----
+net spindle-speed-feedback spindle.0.speed-out-rps => spindle.0.speed-in 
+----
+
 This bit output pin can be connected to turn on a laser:
 
 [source,{hal}]
@@ -1158,9 +1168,19 @@ QtDragon_hd will also show a smaller graphics display window.
 
 === Camview Tab
 
-If the recognized webcam is connected, this tab will display the video image overlayed with a cross-hair, circle and degree readout.
+If the recognized webcam is connected, this tab will display the video image overlaid with a cross-hair, circle and degree readout.
 This can be adjusted to suit a part feature for such things as touchoff.
-The underlying library uses openCV Python module to connect to the webcam.
+The underlying library uses openCV Python module to connect to the webcam. +
+To adjust the X or Y size aspect ratio, look in the preference file for: +
+
+----
+[CUSTOM_FORM_ENTRIES]
+Camview xscale = 100
+Camview yscale = 100
+----
+
+These are in percent, usually the range will be 100 - 200 in one axis. +
+The preference file can only be edited when QtDragon is not running.
 
 === G-codes Tab
 

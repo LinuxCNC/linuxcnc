@@ -152,9 +152,6 @@ public:
  int find_tool_pocket(setup_pointer settings, int toolno, int *pocket);
  int find_tool_index(setup_pointer settings, int toolno, int *index);
 
-    // private:
-    //protected:  // for boost wrapper access
-
 /* Function prototypes for all  functions */
 
  int arc_data_comp_ijk(int move,
@@ -533,7 +530,6 @@ int read_dollar(char *line, int *counter, block_pointer block,
 		     StateTag &state);
  int write_canon_state_tag(block_pointer block, setup_pointer settings);
  int unwrap_rotary(double *, double, double, double, char);
- bool isreadonly(int index);
 
   // O_word stuff
 
@@ -614,8 +610,8 @@ int read_inputs(setup_pointer settings);
 
     bool has_user_mcode(setup_pointer settings,block_pointer block);
 
-#define M_BUILTIN(m) (_ems[m] != -1)
-#define G_BUILTIN(g) (_gees[g] != -1)
+#define M_BUILTIN(m) (ems[m] != -1)
+#define G_BUILTIN(g) (gees[g] != -1)
 
     // range for user-remapped M-codes
     // and M6,M61
@@ -708,12 +704,6 @@ int read_inputs(setup_pointer settings);
 
  FILE *log_file;
 
-/* Internal arrays */
- static const int _gees[];
- static const int _ems[];
- static const int _required_parameters[];
- static const int _readonly_parameters[];
- static const int _n_readonly_parameters;
  read_function_pointer _readers[256];
  static const read_function_pointer default_readers[256];
 
@@ -726,6 +716,15 @@ int read_inputs(setup_pointer settings);
  };
 
  InterpReturn check_g74_g84_spindle(GCodes motion, CANON_DIRECTION dir);
+
+private:
+    [[nodiscard]] static bool is_parameter_readonly(int index);
+
+    static const int gees[];
+    static const int ems[];
+    static const int required_parameters[];
+    static const int readonly_parameters[];
+    static const int n_readonly_parameters;
 };
 
 #endif

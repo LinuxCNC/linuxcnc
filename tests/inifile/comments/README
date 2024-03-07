@@ -1,0 +1,4 @@
+Test the INI parser with regards to comments, both inline and on it's own line.
+
+After 2.7.x, the INI parser in LinuxCNC does not support inline comments.
+See: https://github.com/LinuxCNC/linuxcnc/issues/991

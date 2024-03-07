@@ -79,10 +79,9 @@ override_dh_auto_install-arch:
 	rm -f $(DESTDIR)/usr/share/doc/@MAIN_PACKAGE_NAME@/examples/sample-configs/*/*position*.txt
 
 override_dh_installdocs-arch:
-	# Sample configs go in `usr/share/doc/linuxcnc` (not
-	# `.../doc/@MAIN_PACKAGE_NAME@`) because that's where the
-	# `linuxcnc` launcher script looks for them, and that's
-	# inconvenient to change.
+	# Sample configs go in `usr/share/doc/linuxcnc` (not `.../doc/@MAIN_PACKAGE_NAME@`)
+	# because that's where the `linuxcnc` launcher script looks for them,
+	# and that's inconvenient to change.
 	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=@MAIN_PACKAGE_NAME@
 	mkdir -p debian/@MAIN_PACKAGE_NAME@/usr/share/doc/linuxcnc
 	mv debian/@MAIN_PACKAGE_NAME@/usr/share/doc/@MAIN_PACKAGE_NAME@/examples debian/@MAIN_PACKAGE_NAME@/usr/share/doc/linuxcnc
@@ -96,9 +95,8 @@ override_dh_auto_install-indep:
 	rm -f $(DESTDIR)/usr/share/doc/linuxcnc/*_nb.pdf
 
 override_dh_installdocs-indep:
-	# The G-code quick reference html docs are built as
-	# `docs/html/${LANG}/gcode.html`.  We install them
-	# into `/usr/share/doc/@MAIN_PACKAGE_NAME@/` in each
+	# The G-code quick reference html docs are built as `docs/html/${LANG}/gcode.html`.
+	# We install them into `/usr/share/doc/@MAIN_PACKAGE_NAME@/` in each
 	# linuxcnc-doc-${LANG} package, then rename them there (except
 	# for the English one) to include the language in the filename,
 	# so they don't collide when we install all the doc debs.

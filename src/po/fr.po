@@ -1,13 +1,14 @@
 # nicolas <nicolas.camil@libertysurf.fr>, 2022, 2023.
 # Jérémie Tarot <silopolis@gmail.com>, 2023.
 # Xavier Soltner <soltner.xavier2@gmail.com>, 2023.
+# Axel BRUA <axel.brua.19@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-10-27 08:59+0000\n"
-"Last-Translator: Xavier Soltner <soltner.xavier2@gmail.com>\n"
+"PO-Revision-Date: 2024-01-28 03:22+0000\n"
+"Last-Translator: Axel BRUA <axel.brua.19@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "fr/>\n"
 "Language: fr\n"
@@ -15,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.2-dev\n"
+"X-Generator: Weblate 5.4-dev\n"
 
 #: src/emc/task/emctaskmain.cc:869
 #, c-format
@@ -4361,7 +4362,7 @@ msgstr "Échec de l'ajout d'une nouvelle section. Plein ?"
 #: src/hal/classicladder/manager_gtk.c:236
 #: src/hal/classicladder/manager_gtk.c:306
 msgid "Not possible when program running..."
-msgstr ""
+msgstr "Impossible lorsqu'un programme est en cours d'exécution..."
 
 #: src/hal/classicladder/manager_gtk.c:247
 #, fuzzy
@@ -5439,15 +5440,18 @@ msgstr "Ces commandes peuvent être testées ici mais ne seront PAS enregistrée
 
 #: tcl/bin/halshow.tcl:1305
 msgid "Integer (disabled by \"--iformat\" argument)"
-msgstr ""
+msgstr "Entier (désactivé par l'argument \"--iformat\")"
 
 #: tcl/bin/halshow.tcl:1312
+#, fuzzy
 msgid "Float (disabled by \"--fformat\" argument)"
-msgstr ""
+msgstr "Float (désactivé par l'argument \"--fformat\")"
 
 #: tcl/bin/halshow.tcl:1319
 msgid "\"--noprefs\" option set. Settings will not be saved!"
 msgstr ""
+"L'option \"--noprefs\" est activée. Les paramètres ne seront pas sauvegardés "
+"!"
 
 #: tcl/bin/pickconfig.tcl:99
 msgid ""
@@ -7185,6 +7189,8 @@ msgid ""
 "differs from the the ini specified file:\n"
 "%s"
 msgstr ""
+"diffère du fichier ini spécifié :\n"
+"%s"
 
 #: tcl/tooledit.tcl:1043
 #, fuzzy
@@ -7612,7 +7618,7 @@ msgstr "Outil %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1098
 msgid "G-code preview loading timed out"
-msgstr ""
+msgstr "Le chargement de l'aperçu du G-code a dépassé le temps imparti"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1125
 msgid "Filtering..."
@@ -10930,6 +10936,7 @@ msgstr ""
 msgid ""
 "# The following variables are available for fine tuning some parameters."
 msgstr ""
+"# Les variables suivantes sont disponibles pour affiner certains paramètres."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:743
 #: src/emc/usr_intf/pncconf/build_HAL.py:1909
@@ -10937,6 +10944,8 @@ msgid ""
 "# To use any of these, uncomment the required setp line and set an "
 "appropriate value.\n"
 msgstr ""
+"# Pour utiliser l'un d'entre eux, décommentez la ligne setp requise et "
+"définissez une valeur appropriée.\n"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:744
 #: src/emc/usr_intf/pncconf/build_HAL.py:1910
@@ -12287,6 +12296,15 @@ msgid ""
 "doesn't require firmware to be loaded at run time.\n"
 "Discovery option requires the advanced options checked on this page."
 msgstr ""
+"Certaines cartes plus anciennes nécessitent un firmware.\n"
+"Vous n'avez pas de firmware hostmot2 téléchargé dans le dossier :\n"
+"%s\n"
+"PNCconf utilisera ses échantillons de données internes de firmware pour que "
+"vous puissiez continuer.\n"
+"Vous pouvez également essayer l'option de découverte si votre carte est "
+"connectée et ne nécessite pas le chargement du firmware au moment de "
+"l'exécution.\n"
+"L'option de découverte nécessite les options avancées cochées sur cette page."
 
 #: src/emc/usr_intf/pncconf/pncconf.py:948
 msgid "LinuxCNC 'PNCconf' configuration files"
@@ -12304,7 +12322,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1342
 msgid "PIN file is empty:\n"
-msgstr ""
+msgstr "Le fichier PIN est vide :\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1343
 msgid "To use PIN file discovery mode, the contents of the"
@@ -12320,7 +12338,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1354
 msgid "Address is required for ethernet card"
-msgstr ""
+msgstr "L'adresse est requise pour une carte Ethernet"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1362
 #, fuzzy, python-format
@@ -12329,16 +12347,17 @@ msgstr "Aucune carte n'a été trouvée\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1364
 msgid "Is the address correct?"
-msgstr ""
+msgstr "L'adresse est-elle correcte ?"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1368
 #, python-format
 msgid "%s is an unsupported device"
-msgstr ""
+msgstr "%s est un appareil non supporté"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1381
+#, fuzzy
 msgid "Unspecified Error with Discovery option"
-msgstr ""
+msgstr "Erreur non spécifiée avec l'option Discovery"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1423
 #, fuzzy, python-format

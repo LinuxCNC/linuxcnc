@@ -15,10 +15,10 @@
 
 == Overview
 
-The LinuxCNC G-code language is based on the RS274/NGC language. The G
-Code language is based on lines of code. Each line (also called a
-'block') may include commands to do several different things. Lines of
-code may be collected in a file to make a program.
+The LinuxCNC G-code language is based on the RS274/NGC language.
+The G-code language is based on lines of code.
+Each line (also called a 'block') may include commands to do several different things.
+Lines of code may be collected in a file to make a program.
 
 A typical line of code consists of an optional line number at the
 beginning followed by one or more 'words'. A word consists of a letter
@@ -29,8 +29,9 @@ command meaning 'move in a straight line at the programmed feed
 rate to the programmed end point', and 'X3' provides an argument
 value (the value of X should be 3 at the end of the move).
 Most LinuxCNC G-code commands start with either G or M (for
-General and Miscellaneous). The words for these commands are called 'G
-codes' and 'M-codes.' Also common are subroutine codes that begin with 'o-' which are called 'o-codes.'
+General and Miscellaneous).
+The words for these commands are called 'G-codes' and 'M-codes'.
+Also common are subroutine codes that begin with 'o-' which are called 'o-codes'.
 
 The LinuxCNC language has no indicator for the start of a program. The
 Interpreter, however, deals with files. A single program may be in a
@@ -146,14 +147,13 @@ The table includes N and O for completeness, even though, as defined above, line
 |Z | Z axis of machine
 |===
 
-
 ==== Parameters(((Parameters)))
 
-Parameters are identified with a "#" symbol in front of them. See <<sec:overview-parameters, Parameters Section>> below. 
+Parameters are identified with a "#" symbol in front of them. See <<sec:overview-parameters,Parameters Section>> below. 
 
 ==== Subroutine Codes(((Subroutine Codes)))
 
-Also called 'o-codes' these provide program flow control (such as if-else logic and callable subroutines) and are covered fully at the page on <<cha:o-codes,o-Codes>> and also below in <<sub:subroutine-parameters,Subroutine Codes and Parameters.>> 
+Also called 'o-codes' these provide program flow control (such as if-else logic and callable subroutines) and are covered fully at the page on <<cha:o-codes,o-Codes>> and also below in <<sub:subroutine-parameters,Subroutine Codes and Parameters>>.
 
 NOTE: o-codes are sometimes also called o-words. 
 
@@ -245,7 +245,7 @@ Persistence:: When LinuxCNC is shut down, volatile parameters lose their
 values. All parameters except numbered parameters in the current
 persistent range footnote:[persistent_range,The range of persistent
 parameters may change as development progresses. This range is
-currently 5161- 5390. It is defined in the '_required_parameters array'
+currently 5161- 5390. It is defined in the 'required_parameters array'
 in file the src/emc/rs274ngc/interp_array.cc .]  are volatile.
 Persistent parameters are saved in the .var file and
 restored to their previous values when LinuxCNC is started again. Volatile

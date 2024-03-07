@@ -6,10 +6,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy_fr\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2021-12-09 03:53+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"PO-Revision-Date: 2024-01-28 03:22+0000\n"
+"Last-Translator: Axel BRUA <axel.brua.19@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "fr/>\n"
 "Language: fr\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.10-dev\n"
+"X-Generator: Weblate 5.4-dev\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:251
@@ -35,25 +35,25 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:259
 msgid "The file path should not contain any spaces"
-msgstr ""
+msgstr "Le chemin d'accès au fichier ne doit pas contenir d'espaces"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:509
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:530
 msgid "Error in "
-msgstr ""
+msgstr "Erreur dans "
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:510
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:531
 msgid "Please check the console output."
-msgstr ""
+msgstr "Veuillez vérifier la sortie de la console."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:670
 msgid "axis"
-msgstr ""
+msgstr "axe"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:671
 msgid "axes"
-msgstr ""
+msgstr "axes"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:676
 #, fuzzy
@@ -68,7 +68,7 @@ msgstr "POM de l'axe X"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:693
 #, python-brace-format
 msgid "Press to home all {0}"
-msgstr ""
+msgstr "Appuyez pour la prise d'origine des {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:706
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:999
@@ -78,7 +78,7 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:722
 #, python-brace-format
 msgid "Press to home {0} {1}"
-msgstr ""
+msgstr "Appuyez pour la prise d'origin de {0} {1}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:739
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1028
@@ -88,7 +88,7 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:754
 #, python-brace-format
 msgid "Press to unhome all {0}"
-msgstr ""
+msgstr "Appuyez pour supprimer l'origine de tous les axes {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:763
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1082

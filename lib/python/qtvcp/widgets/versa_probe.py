@@ -21,7 +21,7 @@ import hal
 import json
 
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
-from PyQt5.QtCore import QProcess, QEvent, Qt
+from PyQt5.QtCore import QProcess, QEvent, Qt, pyqtProperty
 from PyQt5.QtWidgets import QDialogButtonBox, QAbstractSlider
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -52,6 +52,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.proc = None
         self.tool_diameter = None
         self.tool_number = None
+        self._nextIndex = 0
         STATUS.connect('tool-info-changed', lambda w, data: self._tool_info(data))
         if INFO.MACHINE_IS_METRIC:
             self.valid = QtGui.QRegExpValidator(QtCore.QRegExp(r'^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$'))
@@ -65,14 +66,17 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         except AttributeError as e:
             LOG.critical(e)
         self.dialog_code = 'CALCULATOR'
+        self.hilightStyle = "border: 2px solid red;"
+
         #create parameter dictionary
         self.send_dict = {}
         # these parameters are sent to the subprogram
-        self.parm_list = ['adj_x', 'adj_y', 'adj_z', 'adj_angle',
-                          'probe_diam', 'max_travel','max_z_travel', 'latch_return_dist',
-                          'search_vel', 'probe_vel', 'rapid_vel',
-                          'side_edge_length', 'tool_probe_height', 'tool_block_height',
-                          'xy_clearance', 'z_clearance']
+        # the is also the order of the next widget when dialog 'next' button is pressed
+        self.parm_list = ['probe_diam', 'rapid_vel', 'search_vel', 'probe_vel',
+                          'xy_clearance', 'z_clearance', 'side_edge_length',
+                          'max_travel', 'max_z_travel', 'latch_return_dist',
+                          'tool_probe_height', 'tool_block_height',
+                          'adj_x', 'adj_y', 'adj_z', 'adj_angle',]
         self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a','th','bh']
 
         for i in self.parm_list:
@@ -111,7 +115,12 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             if isinstance(obj, QtWidgets.QLineEdit):
                 # only if mouse selected
                 if event.reason () == 0:
+                    self._nextIndex = self.parm_list.index(obj.objectName().replace('input_',''))
                     self.popEntry(obj)
+                    if self.dialog_code == 'CALCULATOR':
+                        obj.clearFocus()
+                        event.accept()
+                        return True
         return super(VersaProbe, self).eventFilter(obj, event)
 
 
@@ -127,6 +136,9 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def _hal_init(self):
         def homed_on_test():
             return (STATUS.machine_is_on() and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
+
+        # get current style of the line input
+        self._oldstyle = self.input_search_vel.styleSheet()
 
         # have to call hal_init on widgets in this widget ourselves
         # qtvcp doesn't see them otherwise
@@ -249,21 +261,36 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         num = message['RETURN']
         code = bool(message.get('ID') == '%s__'% self.objectName())
         name = bool(message.get('NAME') == self.dialog_code)
-        if code and name and num is not None:
-            LOG.debug('message return:{}'.format (message))
+        next = message.get('NEXT', False)
+        if code and name:
             obj = message.get('OBJECT')
-            obj.setText(str(num))
+            if num is not None:
+                LOG.debug('message return:{}'.format (message))
+                obj.setText(str(num))
+            # clear high lighting
+            obj.setStyleSheet(self._oldstyle)
+            # request for next input widget from parm_list
+            if next:
+                self._nextIndex += 1
+                if self._nextIndex == len(self.parm_list):
+                    self._nextIndex = 0
+                newobj = self['input_{}'.format(self.parm_list[self._nextIndex])]
+                # update the dialog
+                self.popEntry(newobj,True)
 
-    def popEntry(self, obj):
-            mess = {'NAME':self.dialog_code,
-                    'ID':'%s__' % self.objectName(),
-                    'OVERLAY':False,
-                    'OBJECT':obj,
-                    'TITLE':'Set Entry for {}'.format(obj.objectName().upper()),
-                    'GEONAME':'_{}'.format(self.dialog_code)
-            }
-            STATUS.emit('dialog-request', mess)
-            LOG.debug('message sent:{}'.format (mess))
+    def popEntry(self, obj, next=False):
+        obj.setStyleSheet(self.hilightStyle)
+        mess = {'NAME':self.dialog_code,
+                'ID':'%s__' % self.objectName(),
+                'OVERLAY':False,
+                'OBJECT':obj,
+                'TITLE':'Set Entry for {}'.format(obj.objectName().upper()),
+                'GEONAME':'_{}'.format(self.dialog_code),
+                'NEXT':next,
+                'WIDGETCYCLE': True
+        }
+        STATUS.emit('dialog-request', mess)
+        LOG.debug('message sent:{}'.format (mess))
 
     def buildToolTip(self,obj, text, icon):
         path = os.path.join(ICONPATH, icon)
@@ -585,6 +612,14 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
         self.set_geometry()
         retval = self.exec_()
         LOG.debug('Value of pressed button: {}'.format(retval))
+
+    def set_dialog_code(self, data):
+        self.dialog_code = data
+    def get_dialog_code(self):
+        return self.dialog_code
+    def reset_dialog_code(self):
+        self.dialog_code = 'CALCULATOR'
+    dialog_code_string = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
 
 ####################################
 # Testing

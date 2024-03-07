@@ -1,12 +1,12 @@
-VERSION = '001.015'
+VERSION = '004.030'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
 '''
 qtplasmac_handler.py
 
-Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2020-2024  Phillip A Carter
+Copyright (C) 2020-2024  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -106,6 +106,7 @@ def click_signal(widget):
   # the main handler
 class HandlerClass:
     from qtvcp.lib.qtplasmac import conversational as CONV
+
     # when self.w.button_frame changes size
     def eventFilter(self, object, event):
         if (event.type() == QtCore.QEvent.Resize):
@@ -120,15 +121,14 @@ class HandlerClass:
         self.PATHS = paths
         self.iniFile = INFO.INI
         self.foreColor = '#ffee06'
-        # ensure M190 exists in config directory
-        if not os.path.isfile(os.path.join(self.PATHS.CONFIGPATH, 'M190')):
-            if '/usr' in self.PATHS.BASEDIR:
-                m190Path = os.path.join(self.PATHS.BASEDIR, 'share/doc/linuxcnc/examples/sample-configs/sim/qtplasmac')
-            else:
-                m190Path = os.path.join(self.PATHS.BASEDIR, 'configs/sim/qtplasmac')
-            # M190 already exists for RIP sims
-            if os.path.realpath(m190Path) != os.path.realpath(self.PATHS.CONFIGPATH):
-                COPY(os.path.join(m190Path, 'M190'), os.path.join(self.PATHS.CONFIGPATH, 'M190'))
+        # ensure that M190 exists in the USER_M_PATH
+        self.mPath = self.iniFile.find('RS274NGC', 'USER_M_PATH').split(':')
+        for path in self.mPath:
+            if path.startswith('.'):
+                path = os.path.join(self.PATHS.CONFIGPATH, path)
+            if os.path.isfile(os.path.join(path, 'M190')):
+                self.mPath = False
+                break
         self.machineName = self.iniFile.find('EMC', 'MACHINE')
         self.machineTitle = f'{self.machineName} - QtPlasmaC v{LCNCVER}-{VERSION}, powered by QtVCP and LinuxCNC'
         self.prefsFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')
@@ -144,7 +144,7 @@ class HandlerClass:
             self.PREFS = Access(self.prefsFile)
         else:
             self.PREFS = None
-        self.updateIni = []
+        self.updateIni = {}
         self.updateData = []
         self.update_check()
         self.PREFS = Access(self.prefsFile)
@@ -165,6 +165,7 @@ class HandlerClass:
         KEYBIND.add_call('Key_Any', 'on_keycall_PAUSE')
         KEYBIND.add_call('Key_o', 'on_keycall_OPEN')
         KEYBIND.add_call('Key_l', 'on_keycall_LOAD')
+        KEYBIND.add_call('Key_j', 'on_keycall_JOINT')
         KEYBIND.add_call('Key_1', 'on_keycall_NUMBER', 1)
         KEYBIND.add_call('Key_Exclam', 'on_keycall_NUMBER', 1)
         KEYBIND.add_call('Key_2', 'on_keycall_NUMBER', 2)
@@ -198,7 +199,11 @@ class HandlerClass:
         KEYBIND.add_call('Key_Enter', 'on_keycall_RETURN')
         KEYBIND.add_call('Key_QuoteLeft', 'on_keycall_QUOTELEFT')
         KEYBIND.add_call('Key_AsciiTilde', 'on_keycall_QUOTELEFT')
-        self.axisList = [x.lower() for x in INFO.AVAILABLE_AXES]
+        self.axes = {'valid': [x.lower() for x in INFO.AVAILABLE_AXES]}
+        for axis in 'abc':
+            self.axes[axis] = []
+            for n in ['dro_0', 'dro_label_0', 'home_0', 'touch_0', 'jog_0_plus', 'jog_0_minus']:
+                self.axes[axis].append(n.replace('0', axis))
         self.systemList = ['G53','G54','G55','G56','G57','G58','G59','G59.1','G59.2','G59.3']
         self.slowJogFactor = 10
         self.jogFast = False
@@ -206,11 +211,10 @@ class HandlerClass:
         self.lastLoadedProgram = 'None'
         self.set_interlock_defaults()
         self.pausedValidList= []
-        self.jogButtonList = ['jog_x_plus', 'jog_x_minus', 'jog_y_plus', 'jog_y_minus', 'jog_z_plus', \
-                              'jog_z_minus', 'jog_a_plus', 'jog_a_minus', 'jog_b_plus', 'jog_b_minus']
+        self.jogButtonList = ['jog_x_plus', 'jog_x_minus', 'jog_y_plus', 'jog_y_minus', \
+                              'jog_z_plus', 'jog_z_minus', 'jog_a_plus', 'jog_a_minus', \
+                              'jog_b_plus', 'jog_b_minus', 'jog_c_plus', 'jog_c_minus']
         self.jogSyncList = []
-        self.axisAList = ['dro_a', 'dro_label_a', 'home_a', 'touch_a', 'jog_a_plus', 'jog_a_minus']
-        self.axisBList = ['dro_b', 'dro_label_b', 'home_b', 'touch_b', 'jog_b_plus', 'jog_b_minus']
         self.xMin = float(self.iniFile.find('AXIS_X', 'MIN_LIMIT'))
         self.xMax = float(self.iniFile.find('AXIS_X', 'MAX_LIMIT'))
         self.yMin = float(self.iniFile.find('AXIS_Y', 'MIN_LIMIT'))
@@ -265,7 +269,8 @@ class HandlerClass:
         self.probeOn = False
         self.gcodeProps = {}
         self.framing = False
-        self.boundsError = {'loaded': False, 'framing': False, 'align': False}
+        self.fileBoundsError = False
+        self.probeBoundsError = False
         self.obLayout = ''
         self.notifyColor = 'normal'
         self.firstHoming = False
@@ -324,13 +329,34 @@ class HandlerClass:
         # jog stack indexes
         self.JOG = 0
         self.CUT_RECOVERY = 1
+        # tool indexes
+        self.TORCH = 0
+        self.SCRIBE = 1
+        self.UNKNOWN = 2
+        self.tool = self.TORCH
 
 # called by qtvcp.py
     def initialized__(self):
         if '.'.join(linuxcnc.version.split('.')[:2]) != LCNCVER:
             msg0 = _translate('HandlerClass', 'LinuxCNC version should be')
             msg1 = _translate('HandlerClass', 'The detected version is')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{msg0} {LCNCVER}\n{msg1} {linuxcnc.version.split(".")[:2]}')
+            msg2 = _translate('HandlerClass', 'QtPlasmac is closing')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{msg0} {LCNCVER}\n\n{msg1} {linuxcnc.version.split(".")[:2]}\n\n{msg2}')
+            quit()
+        if self.mPath:
+            msg0 = _translate('HandlerClass', 'cannot be found in the path')
+            msg1 = _translate('HandlerClass', 'Please edit [RS274NGC]USER_M_PATH in the .ini file')
+            msg2 = _translate('HandlerClass', 'QtPlasmac is closing')
+            msg3 = _translate('HandlerClass', 'does exist in')
+            if os.path.isfile(os.path.join(self.PATHS.CONFIGPATH, '../../ncfiles/plasmac/m_files', 'M190')):
+                mPath = '../../linuxcnc/ncfiles/'
+            elif os.path.isfile(os.path.join(self.PATHS.BASEDIR, 'nc_files/plasmac/m_files', 'M190')):
+                mPath = os.path.realpath(os.path.join(self.PATHS.BASEDIR, 'nc_files/plasmac/m_files'))
+            else:
+                mPath = ''
+                msg3 = _translate('HandlerClass', 'does not exist in the default locations')
+            msg4 = f'\n\nM190 {msg3} {mPath}'
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'M190 {msg0} {":".join(self.mPath)}\n\n{msg1}{msg4}\n\n{msg2}')
             quit()
         ucFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.py')
         if os.path.isfile(ucFile):
@@ -422,6 +448,7 @@ class HandlerClass:
         else:
             self.mdiLast = None
         self.w.mdihistory.MDILine.spindle_inhibit(True)
+        self.w.mdihistory.MDILine.g92_inhibit(True)
         if self.updateIni:
             self.update_iniwrite()
         updateLog = os.path.join(self.PATHS.CONFIGPATH, 'update_log.txt')
@@ -528,20 +555,21 @@ class HandlerClass:
     # modify the closing of the gcode editor
     def new_exitCall(self, index):
         proceed = self.editor_close_check()
-        if proceed:
-            self.w.preview_stack.setCurrentIndex(self.PREVIEW)
-            if self.fileOpened == True and self.w.gcode_editor.editor.isModified():
-                self.w.gcode_editor.editor.setModified(False)
-                self.file_reload_clicked()
-            elif self.fileOpened == True and not self.w.gcode_editor.editor.isModified():
-                self.set_run_button_state()
-            elif self.fileOpened == False:
-                self.w.gcode_editor.editor.new_text()
-                self.w.gcode_editor.editor.setModified(False)
-                self.view_t_pressed()
-            self.w.gcode_editor.editMode()
-            self.vkb_hide()
-            ACTION.SET_MANUAL_MODE()
+        if not proceed:
+            return
+        self.w.preview_stack.setCurrentIndex(self.PREVIEW)
+        if self.fileOpened == True and self.w.gcode_editor.editor.isModified():
+            self.w.gcode_editor.editor.setModified(False)
+            self.file_reload_clicked()
+        elif self.fileOpened == True and not self.w.gcode_editor.editor.isModified():
+            self.set_run_button_state()
+        elif self.fileOpened == False:
+            self.w.gcode_editor.editor.new_text()
+            self.w.gcode_editor.editor.setModified(False)
+            self.view_t_pressed()
+        self.w.gcode_editor.editMode()
+        self.vkb_hide()
+        ACTION.SET_MANUAL_MODE()
 
     # we don't use lexer colors
     def new_gcodeLexerCall(self):
@@ -642,17 +670,21 @@ class HandlerClass:
         self.old_flags = OFFSET_TABLE.flags
         OFFSET_TABLE.flags = self.new_flags
 
-    # we don't allow editing z axis offsets
+    # we don't allow editing z axis or g92 offsets
     def new_flags(self, index):
         if not index.isValid():
             return None
-        if index.column() == 9 and index.row() in(0, 1, 2, 3):
+        if index.column() == 9 and index.row() in (0, 1, 2, 3):
             return Qt.ItemIsEnabled
         elif index.row() == 0:
             return Qt.ItemIsEnabled
         elif index.row() == 1 and not index.column() == 2:
             return Qt.NoItemFlags
+        # prevent z axis offset editing
         elif index.column() == 2:
+            return Qt.ItemIsEnabled
+        # prevent g92 offset editing
+        elif index.row() == 2:
             return Qt.ItemIsEnabled
         else:
             return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
@@ -740,6 +772,7 @@ class HandlerClass:
         self.w.gcodegraphics.draw_grid_permuted(rotation, permutation,
                 inverse_permutation)
 
+
 #########################################################################################################################
 # SPECIAL FUNCTIONS SECTION #
 #########################################################################################################################
@@ -809,6 +842,7 @@ class HandlerClass:
         self.paramTabDisable = self.h.newpin('param_disable', hal.HAL_BIT, hal.HAL_IN)
         self.settingsTabDisable = self.h.newpin('settings_disable', hal.HAL_BIT, hal.HAL_IN)
         self.plasmacStatePin = self.h.newpin('plasmac_state', hal.HAL_S32, hal.HAL_IN)
+        self.plasmacStopPin = self.h.newpin('plasmac_stop', hal.HAL_S32, hal.HAL_IN)
         self.pmx485CurrentPin = self.h.newpin('pmx485_current', hal.HAL_FLOAT, hal.HAL_IN)
         self.pmx485CurrentMaxPin = self.h.newpin('pmx485_current_max', hal.HAL_FLOAT, hal.HAL_IN)
         self.pmx485CurrentMinPin = self.h.newpin('pmx485_current_min', hal.HAL_FLOAT, hal.HAL_IN)
@@ -830,6 +864,10 @@ class HandlerClass:
         self.yOffsetPin = self.h.newpin('y_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.zHeightPin = self.h.newpin('z_height', hal.HAL_FLOAT, hal.HAL_IN)
         self.zOffsetPin = self.h.newpin('z_offset_counts', hal.HAL_S32, hal.HAL_IN)
+        self.xMinPierceExtentPin = self.h.newpin('x_min_pierce_extent', hal.HAL_FLOAT, hal.HAL_IN)
+        self.xMaxPierceExtentPin = self.h.newpin('x_max_pierce_extent', hal.HAL_FLOAT, hal.HAL_IN)
+        self.yMinPierceExtentPin = self.h.newpin('y_min_pierce_extent', hal.HAL_FLOAT, hal.HAL_IN)
+        self.yMaxPierceExtentPin = self.h.newpin('y_max_pierce_extent', hal.HAL_FLOAT, hal.HAL_IN)
 
     def link_hal_pins(self):
         #arc parameters
@@ -925,6 +963,7 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:probe-test-error', 'plasmac.probe-test-error', 'qtplasmac.probe_test_error'])
         CALL(['halcmd', 'net', 'plasmac:sensor_active', 'plasmac.sensor-active', 'qtplasmac.sensor_active'])
         CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.plasmac_state'])
+        CALL(['halcmd', 'net', 'plasmac:stop', 'plasmac.stop-type-out', 'qtplasmac.plasmac_stop'])
         CALL(['halcmd', 'net', 'plasmac:z-height', 'plasmac.z-height', 'qtplasmac.z_height'])
         CALL(['halcmd', 'net', 'plasmac:z-offset-counts', 'qtplasmac.z_offset_counts'])
         CALL(['halcmd', 'net', 'plasmac:offset-set-probe', 'plasmac.offset-set-probe', 'qtplasmac.offset_set_probe'])
@@ -1116,14 +1155,15 @@ class HandlerClass:
         else:
             fr = 0
             ou = 2
-        if '.' in self.w.cut_feed_rate.text() and len(self.w.cut_feed_rate.text().split('.')[0]) > 3:
-            text.append(f'FR: {float(self.w.cut_feed_rate.text().split(".")[0]) * scale:.{fr}f}')
+        dp = '.' if '.' in self.w.pierce_height.text() else ','
+        if '.' in self.w.cut_feed_rate.text().replace(",", ".") and len(self.w.cut_feed_rate.text().replace(",", ".").split('.')[0]) > 3:
+            text.append(f'FR: {float(self.w.cut_feed_rate.text().replace(",", ".").split(".")[0]) * scale:.{fr}f}'.replace(".",dp))
         else:
-            text.append(f'FR: {float(self.w.cut_feed_rate.text()) * scale:.{fr}f}')
-        text.append(f'PH: {float(self.w.pierce_height.text()) * scale:.{ou}f}')
+            text.append(f'FR: {float(self.w.cut_feed_rate.text().replace(",", ".")) * scale:.{fr}f}'.replace(".",dp))
+        text.append(f'PH: {float(self.w.pierce_height.text().replace(",", ".")) * scale:.{ou}f}'.replace(".",dp))
         text.append(f'PD: {self.w.pierce_delay.text()}')
-        text.append(f'CH: {float(self.w.cut_height.text()) * scale:.{ou}f}')
-        text.append(f'KW: {float(self.w.kerf_width.text()) * scale:.{ou}f}')
+        text.append(f'CH: {float(self.w.cut_height.text().replace(",", ".")) * scale:.{ou}f}'.replace(".",dp))
+        text.append(f'KW: {float(self.w.kerf_width.text().replace(",", ".")) * scale:.{ou}f}'.replace(".",dp))
         if self.pmx485Exists:
             text.append(f'CA: {self.w.cut_amps.text()}')
         return text
@@ -1437,7 +1477,7 @@ class HandlerClass:
     def set_run_button_state(self):
         if STATUS.machine_is_on() and STATUS.is_all_homed() and \
            STATUS.is_interp_idle() and not self.offsetsActivePin.get() and \
-           self.plasmacStatePin.get() == 0 and not self.boundsError['loaded'] and not self.fileClear:
+           self.plasmacStatePin.get() == 0 and not self.fileBoundsError and not self.probeBoundsError and not self.fileClear:
             if self.w.gcode_display.lines() > 1:
                 self.w.run.setEnabled(True)
                 if self.frButton:
@@ -1452,7 +1492,7 @@ class HandlerClass:
             self.w.abort.setEnabled(False)
         else:
             self.w.run.setEnabled(False)
-            if self.frButton:
+            if self.frButton and self.fileBoundsError:
                 self.w[self.frButton].setEnabled(False)
 
     def set_jog_button_state(self):
@@ -1580,25 +1620,19 @@ class HandlerClass:
             self.rflActive = False
             self.startLine = 0
             self.preRflFile = ''
-        msgList, units, xMin, yMin, xMax, yMax = self.bounds_check('loaded', 0, 0)
-        if self.boundsError['loaded']:
+        self.fileBoundsError, fileErrMsg = self.bounds_check_file()
+        self.probeBoundsError, probeErrMsg = self.bounds_check_probe(False)
+        errMsg = fileErrMsg + probeErrMsg
+        if self.fileBoundsError or self.probeBoundsError:
             head = _translate('HandlerClass', 'Axis Limit Error')
-            msgs = ''
-            for n in range(0, len(msgList), 3):
-                if msgList[n + 1] == 'MAX':
-                    msg0 = _translate('HandlerClass', 'move would exceed the maximum limit by')
-                else:
-                    msg0 = _translate('HandlerClass', 'move would exceed the minimum limit by')
-                fmt = f'\n{msgList[n]} {msg0} {msgList[n + 2]}{units}' if msgs else f'{msgList[n]} {msg0} {msgList[n + 2]}{units}'
-                msgs += fmt
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msgs}\n')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{errMsg}\n')
             self.set_run_button_state()
             if self.single_cut_request:
                 self.single_cut_request = False
                 if self.oldFile and not 'single_cut' in self.oldFile:
                     self.remove_temp_materials()
                     ACTION.OPEN_PROGRAM(self.oldFile)
-                    self.set_run_button_state()
+                    self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
                 self.w[self.scButton].setEnabled(True)
                 self.w.run.setEnabled(False)
         else:
@@ -1715,11 +1749,17 @@ class HandlerClass:
 
     def tool_changed(self, obj, tool):
         if tool == 0:
-            self.w.lbl_tool.setText('TORCH')
+            self.tool = self.TORCH
+            text = _translate('HandlerClass', 'TORCH')
+            self.w.lbl_tool.setText(text)
         elif tool == 1:
-            self.w.lbl_tool.setText('SCRIBE')
+            self.tool = self.SCRIBE
+            text = _translate('HandlerClass', 'SCRIBE')
+            self.w.lbl_tool.setText(text)
         else:
-            self.w.lbl_tool.setText('UNKNOWN')
+            self.tool = self.UNKNOWN
+            text = _translate('HandlerClass', 'UNKNOWN')
+            self.w.lbl_tool.setText(text)
 
     def gcodes_changed(self, obj, cod):
         if self.units == 'in' and STATUS.is_metric_mode():
@@ -2007,6 +2047,7 @@ class HandlerClass:
         lcncInfo = (Popen('linuxcnc_info -s', stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]).decode('utf-8')
         network = (Popen('lspci | grep -i net', stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]).decode('utf-8')
         with open(tmpFile, 'a') as outFile:
+            outFile.write(f'locale:\n{os.getenv("LANG")}\n\n')
             if network:
                 outFile.write(f'lspci | grep -i net:\n{network}\n')
             else:
@@ -2058,7 +2099,7 @@ class HandlerClass:
         if STATUS.is_joint_mode():
             self.kb_jog(state, self.coordinates.index(joint), direction, shift)
         else:
-            self.kb_jog(state, ['x','y','z','a','b'].index(joint), direction, shift)
+            self.kb_jog(state, ['x','y','z','a','b','c'].index(joint), direction, shift)
 
     def view_t_pressed(self):
         t = time.time() + 0.01
@@ -2066,26 +2107,14 @@ class HandlerClass:
             QApplication.processEvents()
         self.w.gcodegraphics.set_view('Z')
         mid, size = DRAW.extents_info(self.w.gcodegraphics)
-        if self.gcodeProps:
-            mult = 1
-            if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
-                mult = 0.03937
-            elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
-                mult = 25.4
-            x = (round(float(self.gcodeProps['x'].split()[0]) * mult, 4))
-            y = (round(float(self.gcodeProps['y'].split()[0]) * mult, 4))
-            xl = (round(float(self.gcodeProps['x'].split('=')[1].split()[0]) * mult, 4))
-            yl = (round(float(self.gcodeProps['y'].split('=')[1].split()[0]) * mult, 4))
-        else:
-            x = y = xl = yl = 0
-        if (mid[0] == 0 and mid[1] == 0) or mid[0] > self.xLen or mid[1] > self.yLen or \
-           self.w.view_t.isChecked() or self.w.view_t.isDown() or self.fileClear:
-            mult = 1 if self.units == 'in' else 25.4
-            zoomScale = (self.w.table_zoom_scale.value() * 2)
-            mid = [(self.xLen - (x * 2) - xl) / mult / 2, (self.yLen - (y * 2) - yl) / mult / 2, 0]
-            size = [self.xLen / mult / zoomScale, self.yLen / mult / zoomScale, 0]
-        glTranslatef(-mid[0], -mid[1], -mid[2])
-        self.w.gcodegraphics.set_eyepoint_from_extents(size[0], size[1])
+        mult = 1 if self.units == 'in' else 25.4
+        zoomScale = (self.w.table_zoom_scale.value() * 2)
+        xTableCenter = (self.xMin + self.xLen / 2) / mult - mid[0]
+        yTableCenter = (self.yMin + self.yLen / 2) / mult - mid[1]
+        xSize = self.xLen / mult / zoomScale
+        ySize = self.yLen / mult / zoomScale
+        glTranslatef(-xTableCenter, -yTableCenter, 0)
+        self.w.gcodegraphics.set_eyepoint_from_extents(xSize, ySize)
         self.w.gcodegraphics.perspective = False
         self.w.gcodegraphics.lat = self.w.gcodegraphics.lon = 0
         self.w.gcodegraphics.updateGL()
@@ -2128,37 +2157,49 @@ class HandlerClass:
 
     def file_clear_clicked(self):
         proceed = self.editor_close_check()
-        if proceed:
-            self.w.preview_stack.setCurrentIndex(self.PREVIEW)
-            self.w.gcode_editor.editor.new_text()
-            self.w.gcode_editor.editor.setModified(False)
-            if self.fileOpened:
-                self.fileClear = True
-                if self.rflActive:
-                    self.clear_rfl()
-                clearFile = f'{self.tmpPath}qtplasmac_program_clear.ngc'
-                with open(clearFile, 'w') as outFile:
-                    outFile.write('m2')
-                if ACTION.prefilter_path:
-                    if 'single_cut' in ACTION.prefilter_path:
-                        self.preClearFile = self.oldFile
-                    else:
-                        if self.lastLoadedProgram != 'None':
-                            self.preClearFile = ACTION.prefilter_path or self.lastLoadedProgram
-                        self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
-                        self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
-                        self.w.conv_material.setCurrentIndex(self.w.materials_box.currentIndex())
-                self.remove_temp_materials()
-                ACTION.OPEN_PROGRAM(clearFile)
-                ACTION.prefilter_path = self.preClearFile
-                if self.w.lbl_tool.text() != 'TORCH' and STATUS.is_on_and_idle() and STATUS.is_all_homed():
-                    ACTION.CALL_MDI_WAIT('T0 M6')
-                    ACTION.CALL_MDI_WAIT('G43 H0')
-                    ACTION.SET_MANUAL_MODE()
-                log = _translate('HandlerClass', 'Program cleared')
-                STATUS.emit('update-machine-log', log, 'TIME')
-            else:
-                self.view_t_pressed()
+        if not proceed:
+            return
+        self.w.preview_stack.setCurrentIndex(self.PREVIEW)
+        self.w.gcode_editor.editor.new_text()
+        self.w.gcode_editor.editor.setModified(False)
+        # clear error message list and error status
+        if self.w.screen_options.desktop_notify:
+            self.w.screen_options.QTVCP_INSTANCE_._NOTICE.alarmpage = []
+            self.w.screen_options.QTVCP_INSTANCE_._NOTICE.external_close()
+        self.error_status(False)
+        # return cut-type button to Normal
+        if self.cutType:
+            self.cutType = 0
+            self.cutTypePin.set(0)
+            self.button_normal(self.ctButton)
+            self.w[self.ctButton].setText(self.cutTypeText)
+        if self.fileOpened:
+            self.fileClear = True
+            if self.rflActive:
+                self.clear_rfl()
+            clearFile = f'{self.tmpPath}qtplasmac_program_clear.ngc'
+            with open(clearFile, 'w') as outFile:
+                outFile.write('m2')
+            if ACTION.prefilter_path:
+                if 'single_cut' in ACTION.prefilter_path:
+                    self.preClearFile = self.oldFile
+                else:
+                    if self.lastLoadedProgram != 'None':
+                        self.preClearFile = ACTION.prefilter_path or self.lastLoadedProgram
+                    self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
+                    self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
+                    self.w.conv_material.setCurrentIndex(self.w.materials_box.currentIndex())
+            self.remove_temp_materials()
+            ACTION.OPEN_PROGRAM(clearFile)
+            ACTION.prefilter_path = self.preClearFile
+            if self.tool != self.TORCH and STATUS.is_on_and_idle() and STATUS.is_all_homed():
+                ACTION.CALL_MDI_WAIT('T0 M6')
+                ACTION.CALL_MDI_WAIT('G43 H0')
+                ACTION.SET_MANUAL_MODE()
+            log = _translate('HandlerClass', 'Program cleared')
+            STATUS.emit('update-machine-log', log, 'TIME')
+        else:
+            self.view_t_pressed()
 
     def file_open_clicked(self):
         if self.w.preview_stack.currentIndex() != self.OPEN:
@@ -2280,31 +2321,38 @@ class HandlerClass:
                 STATUS.emit('update-machine-log', log, 'TIME')
 
     def plasmac_state_changed(self, state):
-        if ((state > self.PROBE_UP and not STATUS.is_interp_idle()) or state == self.PROBE_TEST) and hal.get_value('axis.z.eoffset-counts'):
+        if (state > self.PROBE_UP or state == self.PROBE_TEST) and hal.get_value('axis.z.eoffset-counts'):
             # set z dro to offset mode
             self.w.dro_z.setProperty('Qreference_type', 10)
         if state == self.IDLE:
             self.set_run_button_state()
             self.set_jog_button_state()
 
+    def plasmac_stop_changed(self, state):
+        if not state and not self.plasmacStatePin.get():
+            for pin in ['pierce-type', 'pierce-motion-delay', 'cut-height-delay', 'pierce-end-height', \
+                        'gouge-speed', 'gouge-speed-distance', 'creep-speed', 'creep-speed-distance']:
+                hal.set_p(f'plasmac.{pin}', '0')
+
     def file_reload_clicked(self):
         proceed = self.editor_close_check()
-        if proceed:
-            if self.rflActive:
-                self.clear_rfl()
-                self.set_run_button_state()
-            if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
-                file = ACTION.prefilter_path or self.lastLoadedProgram
-                if os.path.exists(file):
-                    self.overlayProgress.setValue(0)
-                    self.remove_temp_materials()
-                    ACTION.OPEN_PROGRAM(file)
-                    log = _translate('HandlerClass', 'Reloaded')
-                    STATUS.emit('update-machine-log', f'{log}: {file}', 'TIME')
-                else:
-                    head = _translate('HandlerClass', 'File Error')
-                    msg0 = _translate('HandlerClass', 'does not exist')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{file} {msg0}\n')
+        if not proceed:
+            return
+        if self.rflActive:
+            self.clear_rfl()
+            self.set_run_button_state()
+        if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
+            file = ACTION.prefilter_path or self.lastLoadedProgram
+            if os.path.exists(file):
+                self.overlayProgress.setValue(0)
+                self.remove_temp_materials()
+                ACTION.OPEN_PROGRAM(file)
+                log = _translate('HandlerClass', 'Reloaded')
+                STATUS.emit('update-machine-log', f'{log}: {file}', 'TIME')
+            else:
+                head = _translate('HandlerClass', 'File Error')
+                msg0 = _translate('HandlerClass', 'does not exist')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{file} {msg0}\n')
 
     def jog_slow_pressed(self, external=False):
         if self.w.jog_slow.isChecked():
@@ -2373,7 +2421,7 @@ class HandlerClass:
 #########################################################################################################################
 # GENERAL FUNCTIONS #
 #########################################################################################################################
-# called by ScreenOptions, this function overrides ScreenOption's closeEvent
+    # called by ScreenOptions, this function overrides ScreenOption's closeEvent
     def closeEvent(self, event):
         O = self.w.screen_options
         if self.w.chk_exit_warning.isChecked() or not STATUS.is_interp_idle():
@@ -2422,7 +2470,7 @@ class HandlerClass:
             self.updateData.append([restart, error, text])
             if error:
                 return
-            self.updateIni.append(154)
+            self.updateIni[154] = True
         # split out qtplasmac specific prefs into a separate file (pre V1.222.170 2022/03/08)
         if not os.path.isfile(self.prefsFile):
             old = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs')
@@ -2444,22 +2492,28 @@ class HandlerClass:
         # change RS274 startup parameters from a subroutine (pre V1.224.207 2022/06/22)
         startupCode = self.iniFile.find('RS274NGC', 'RS274NGC_STARTUP_CODE')
         if 'metric_startup' in startupCode or 'imperial_startup' in startupCode:
-            self.updateIni.append(207)
+            self.updateIni[207] = True
         # remove the qtplasmac link from the config directory (pre V1.225.208 2022/06/29)
         if os.path.islink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
             # stage 1: set up for unlinking on the next run of qtplasmac
             if 'code.py' in self.iniFile.find('FILTER', 'ngc'):
-                self.updateIni.append(208)
+                self.updateIni[208] = True
             # stage 2: remove the qtplasmac link
             else:
                 os.unlink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
         # move qtplasmac options from INI file to prefs file pre V1.227.219 2022/07/14)
         if not self.PREFS.has_section('BUTTONS'):
-            restart, error, text = UPDATER.move_options_to_prefs_file(self.iniFile, self.PREFS)
-            self.updateData.append([restart, error, text])
-            if error:
-                return
-            self.updateIni.append(219)
+            update = False
+            for n in range(1,21):
+                if self.iniFile.find('QTPLASMAC', f'BUTTON_{n}_NAME'):
+                    update = True
+                    break
+            if update:
+                restart, error, text = UPDATER.move_options_to_prefs_file(self.iniFile, self.PREFS)
+                self.updateData.append([restart, error, text])
+                if error:
+                    return
+                self.updateIni[219] = True
         # move port info from [GUI_OPTIONS] section (if it was moved via V1.227.219 update) to [POWERMAX] section
         if self.PREFS.has_option('GUI_OPTIONS', 'Port'):
             restart, error, text = UPDATER.move_port(self.PREFS)
@@ -2481,6 +2535,22 @@ class HandlerClass:
                     self.updateData.append([restart, error, text])
                     if error:
                         return
+        # set user_m_path to include ../../nc_files/plasmac/m_files (pre V2.10-001.017 2024/01/23)
+        mPathIni = self.iniFile.find('RS274NGC', 'USER_M_PATH')
+        if 'nc_files/plasmac/m_files' not in mPathIni:
+            if '/usr' in self.PATHS.BASEDIR:
+                mPath = '../../nc_files/plasmac/m_files'
+                #simPath = os.path.join(self.PATHS.BASEDIR, 'share/doc/linuxcnc/examples/sample-configs/sim/qtplasmac')
+                # we need elevated privileges to remove a file from here so forget it...
+                # we may revisit this.
+                simPath = None
+            else:
+                mPath = os.path.realpath(os.path.join(self.PATHS.BASEDIR, 'nc_files/plasmac/m_files'))
+                simPath = os.path.join(self.PATHS.BASEDIR, 'configs/sim/qtplasmac')
+            restart, error, text = UPDATER.insert_user_m_path(self.PATHS.CONFIGPATH, simPath)
+            if error:
+                return
+            self.updateIni['001-017'] = mPath
 
     def update_iniwrite(self):
         # this is for updates that write to the INI file
@@ -2512,6 +2582,13 @@ class HandlerClass:
             self.updateData.append([self.restart, error, text])
             if error:
                 return
+        if '001-017' in self.updateIni:
+            restart, error, text = UPDATER.insert_user_m_path_iniwrite(INIPATH, self.updateIni['001-017'])
+            if restart:
+                self.restart = True
+            self.updateData.append([self.restart, error, text])
+            if error:
+                return
 
     def motion_type_changed(self, value):
         if value == 0 and STATUS.is_mdi_mode():
@@ -2532,12 +2609,12 @@ class HandlerClass:
         self.alwaysOnList = []
         self.machineOnList = []
         self.idleList = ['file_clear', 'file_open', 'file_reload', 'file_edit']
-        self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_b', 'home_all']
-        self.idleHomedList = ['camera', 'laser', 'touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_b', 'touch_xy', \
+        self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_b', 'home_c', 'home_all']
+        self.idleHomedList = ['camera', 'laser', 'touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_b', 'touch_c', 'touch_xy', \
                               'mdi_show', 'height_lower', 'height_raise', 'wcs_button', 'set_offsets']
         self.ccButton, self.otButton, self.ptButton, self.tpButton = '', '', '', ''
         self.ctButton, self.scButton, self.frButton, self.mcButton = '', '', '', ''
-        self.ovButton, self.llButton, self.tlButton, self.umButton = '', '', [], ''
+        self.ovButton, self.llButton, self.tlButton, self.umButton, self.jtButton = '', '', [], '', ''
         self.halTogglePins = {}
         self.halPulsePins = {}
         self.dualCodeButtons = {}
@@ -2639,57 +2716,88 @@ class HandlerClass:
                 self.file_reload_clicked()
             ACTION.SET_MANUAL_MODE()
 
-    def bounds_check(self, boundsType, xOffset, yOffset):
-        framing = True if 'framing' in boundsType else False
-        self.boundsError[boundsType] = False
-        msgList = []
+    def bounds_check_file(self):
+        msg = _translate('HandlerClass', 'G-code')
         boundsMultiplier = 1
-        if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
-            boundsMultiplier = 0.03937
-        elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
-            boundsMultiplier = 25.4
-        if framing:
-            xStart = STATUS.stat.g5x_offset[0] + xOffset
-            yStart = STATUS.stat.g5x_offset[1] + yOffset
-            xMin = round(float(self.gcodeProps['x_zero_rxy'].split()[0]) * boundsMultiplier + xOffset, 5)
-            xMax = round(float(self.gcodeProps['x_zero_rxy'].split()[2]) * boundsMultiplier + xOffset, 5)
-            yMin = round(float(self.gcodeProps['y_zero_rxy'].split()[0]) * boundsMultiplier + yOffset, 5)
-            yMax = round(float(self.gcodeProps['y_zero_rxy'].split()[2]) * boundsMultiplier + yOffset, 5)
-            coordinates = [[xStart, yStart], [xMin, yMin], [xMin, yMax], [xMax, yMax], [xMax, yMin]]
-            frame_points, xMin, yMin, xMax, yMax = self.rotate_frame(coordinates)
-        else:
-            xMin = round(float(self.gcodeProps['x'].split()[0]) * boundsMultiplier + xOffset, 5)
-            xMax = round(float(self.gcodeProps['x'].split()[2]) * boundsMultiplier + xOffset, 5)
-            yMin = round(float(self.gcodeProps['y'].split()[0]) * boundsMultiplier + yOffset, 5)
-            yMax = round(float(self.gcodeProps['y'].split()[2]) * boundsMultiplier + yOffset, 5)
+        if 'gcode_units' in self.gcodeProps:
+            if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
+                boundsMultiplier = 0.03937
+            elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
+                boundsMultiplier = 25.4
+        xMin = float(self.gcodeProps['x'].split()[0]) * boundsMultiplier
+        xMax = float(self.gcodeProps['x'].split()[2]) * boundsMultiplier
+        yMin = float(self.gcodeProps['y'].split()[0]) * boundsMultiplier
+        yMax = float(self.gcodeProps['y'].split()[2]) * boundsMultiplier
+        errMsg = self.bounds_compare(xMin, xMax, yMin, yMax, msg)
+        return (True, errMsg) if errMsg else (False, '')
+
+    def bounds_check_probe(self, static):
+        msg = _translate('HandlerClass', 'Move to probe offset')
+        xPierceOffset = yPierceOffset = xMinP = xMaxP = yMinP = yMaxP = 0
+        if static:
+            xMinP = xMaxP = STATUS.get_position()[0][0] + self.probeOffsetX
+            yMinP = yMaxP = STATUS.get_position()[0][1] + self.probeOffsetY
+        elif any((self.xMinPierceExtentPin.get(), self.xMaxPierceExtentPin.get(), \
+                  self.yMinPierceExtentPin.get(), self.yMaxPierceExtentPin.get())):
+            if self.cutTypePin.get():
+                xPierceOffset = self.w.x_pierce_offset.value()
+                yPierceOffset = self.w.y_pierce_offset.value()
+            boundsMultiplier = 1
+            if 'gcode_units' in self.gcodeProps:
+                if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
+                    boundsMultiplier = 0.03937
+                elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
+                    boundsMultiplier = 25.4
+            xMinP = self.xMinPierceExtentPin.get() * boundsMultiplier + self.probeOffsetX + STATUS.stat.g5x_offset[0] + xPierceOffset
+            xMaxP = self.xMaxPierceExtentPin.get() * boundsMultiplier + self.probeOffsetX + STATUS.stat.g5x_offset[0] + xPierceOffset
+            yMinP = self.yMinPierceExtentPin.get() * boundsMultiplier + self.probeOffsetY + STATUS.stat.g5x_offset[1] + yPierceOffset
+            yMaxP = self.yMaxPierceExtentPin.get() * boundsMultiplier + self.probeOffsetY + STATUS.stat.g5x_offset[1] + yPierceOffset
+        errMsg = self.bounds_compare(xMinP, xMaxP, yMinP, yMaxP, msg)
+        return (True, errMsg) if errMsg else (False, '')
+
+    def bounds_check_framing(self, xOffset=0, yOffset=0, laser=False):
+        msg = _translate('HandlerClass', 'Framing move')
+        msg1 = ''
+        boundsMultiplier = 1
+        if 'gcode_units' in self.gcodeProps:
+            if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
+                boundsMultiplier = 0.03937
+            elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
+                boundsMultiplier = 25.4
+        if laser:
+            msg1 = _translate('HandlerClass', 'due to laser offset')
+        xStart = STATUS.stat.g5x_offset[0] + xOffset
+        yStart = STATUS.stat.g5x_offset[1] + yOffset
+        xMin = float(self.gcodeProps['x_zero_rxy'].split()[0]) * boundsMultiplier + xOffset
+        xMax = float(self.gcodeProps['x_zero_rxy'].split()[2]) * boundsMultiplier + xOffset
+        yMin = float(self.gcodeProps['y_zero_rxy'].split()[0]) * boundsMultiplier + yOffset
+        yMax = float(self.gcodeProps['y_zero_rxy'].split()[2]) * boundsMultiplier + yOffset
+        coordinates = [[xStart, yStart], [xMin, yMin], [xMin, yMax], [xMax, yMax], [xMax, yMin]]
+        frame_points, xMin, yMin, xMax, yMax = self.rotate_frame(coordinates)
+        errMsg = self.bounds_compare(xMin, xMax, yMin, yMax, msg, msg1)
+        return (errMsg, frame_points)
+
+    def bounds_compare(self, xMin, xMax, yMin, yMax, msg, msg1=''):
+        errMsg = ''
+        epsilon = 1e-4
+        txtxMin = _translate('HandlerClass', 'exceeds the X minimum limit by')
+        txtxMax = _translate('HandlerClass', 'exceeds the X maximum limit by')
+        txtyMin = _translate('HandlerClass', 'exceeds the Y minimum limit by')
+        txtyMax = _translate('HandlerClass', 'exceeds the Y maximum limit by')
+        lessThan = _translate('HandlerClass', 'less than')
         if xMin < self.xMin:
-            amount = float(self.xMin - xMin)
-            msgList.append('X')
-            msgList.append('MIN')
-            msgList.append(f'{amount:0.2f}')
-            self.boundsError[boundsType] = True
+            errMsg += f'{msg} {txtxMin} {lessThan} {epsilon} {self.units} {msg1}\n' if (self.xMin - xMin) < epsilon \
+                else f'{msg} {txtxMin} {self.xMin - xMin:0.4f} {self.units} {msg1}\n'
         if xMax > self.xMax:
-            amount = float(xMax - self.xMax)
-            msgList.append('X')
-            msgList.append('MAX')
-            msgList.append(f'{amount:0.2f}')
-            self.boundsError[boundsType] = True
+            errMsg += f'{msg} {txtxMax} {lessThan} {epsilon} {self.units} {msg1}\n' if (xMax - self.xMax) < epsilon \
+                else f'{msg} {txtxMax} {xMax - self.xMax:0.4f} {self.units} {msg1}\n'
         if yMin < self.yMin:
-            amount = float(self.yMin - yMin)
-            msgList.append('Y')
-            msgList.append('MIN')
-            msgList.append(f'{amount:0.2f}')
-            self.boundsError[boundsType] = True
+            errMsg += f'{msg} {txtyMin} {lessThan} {epsilon} {self.units} {msg1}\n' if (self.yMin - yMin) < epsilon \
+                else f'{msg} {txtyMin} {self.yMin - yMin:0.4f} {self.units} {msg1}\n'
         if yMax > self.yMax:
-            amount = float(yMax - self.yMax)
-            msgList.append('Y')
-            msgList.append('MAX')
-            msgList.append(f'{amount:0.2f}')
-            self.boundsError[boundsType] = True
-        if framing:
-            return msgList, self.units, xMin, yMin, xMax, yMax, frame_points
-        else:
-            return msgList, self.units, xMin, yMin, xMax, yMax
+            errMsg += f'{msg} {txtyMax} {lessThan} {epsilon} {self.units} {msg1}\n' if (yMax - self.yMax) < epsilon \
+                else f'{msg} {txtyMax} {yMax - self.yMax:0.4f} {self.units} {msg1}\n'
+        return errMsg
 
     def rotate_frame(self, coordinates):
         angle = math.radians(STATUS.stat.rotation_xy)
@@ -2900,6 +3008,10 @@ class HandlerClass:
         self.w.jog_b_plus.released.connect(lambda:self.gui_button_jog(0, 'b', 1))
         self.w.jog_b_minus.pressed.connect(lambda:self.gui_button_jog(1, 'b', -1))
         self.w.jog_b_minus.released.connect(lambda:self.gui_button_jog(0, 'b', -1))
+        self.w.jog_c_plus.pressed.connect(lambda:self.gui_button_jog(1, 'c', 1))
+        self.w.jog_c_plus.released.connect(lambda:self.gui_button_jog(0, 'c', 1))
+        self.w.jog_c_minus.pressed.connect(lambda:self.gui_button_jog(1, 'c', -1))
+        self.w.jog_c_minus.released.connect(lambda:self.gui_button_jog(0, 'c', -1))
         self.w.cut_rec_fwd.pressed.connect(lambda:self.cutrec_motion(1))
         self.w.cut_rec_fwd.released.connect(lambda:self.cutrec_motion(0))
         self.w.cut_rec_rev.pressed.connect(lambda:self.cutrec_motion(-1))
@@ -2939,6 +3051,7 @@ class HandlerClass:
         self.w.main_tab_widget.currentChanged.connect(lambda w:self.main_tab_changed(w))
         self.zHeightPin.value_changed.connect(lambda v:self.z_height_changed(v))
         self.plasmacStatePin.value_changed.connect(lambda v:self.plasmac_state_changed(v))
+        self.plasmacStopPin.value_changed.connect(lambda v:self.plasmac_stop_changed(v))
         self.w.feed_label.pressed.connect(self.feed_label_pressed)
         self.w.rapid_label.pressed.connect(self.rapid_label_pressed)
         self.w.jogs_label.pressed.connect(self.jogs_label_pressed)
@@ -3041,31 +3154,28 @@ class HandlerClass:
             self.CONV.conv_shape_request(self, self.w, f'conv_{operation}', True)
 
     def set_axes_and_joints(self):
-        kinematics = self.iniFile.find('KINS', 'KINEMATICS').lower().replace('=','').replace('trivkins','').replace(' ','') or None
-        #kinstype = None
-        self.coordinates = 'xyz'
-        if kinematics:
-            if 'kinstype' in kinematics:
-                #kinstype = kinematics.lower().replace(' ','').split('kinstype')[1]
-                if 'coordinates' in kinematics:
-                    kinematics = kinematics.lower().replace(' ','').split('kinstype')[0]
-            if 'coordinates' in kinematics:
-                self.coordinates = kinematics.split('coordinates')[1].lower()
-        else:
+        self.coordinates = 'xyz' # backup in case we cannot find valid coordinates
+        kinematics = self.iniFile.find('KINS', 'KINEMATICS').lower().split() or None
+        if not kinematics:
             head = _translate('HandlerClass', 'INI File Error')
             msg0  = _translate('HandlerClass', 'Error in [KINS]KINEMATICS in the INI file')
             msg1 = _translate('HandlerClass', 'reverting to default coordinates of xyz')
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n{msg1}\n')
-        # hide axis a if not being used
-        if 'a' not in self.axisList:
-            for i in self.axisAList:
-                self.w[i].hide()
-        # hide axis b if not being used
-        if 'b' not in self.axisList:
-            for i in self.axisBList:
-                self.w[i].hide()
+        else:
+            coords = [s for s in kinematics if 'coordinates' in s]
+            if coords:
+                self.coordinates = coords[0].split('=')[1].strip()
+            else:
+                coords = self.iniFile.find('KINS', 'COORDINATES').lower() or None
+                if coords:
+                    self.coordinates = coords
+        # hide axes a, b, and c if not being used
+        for axis in 'abc':
+            if axis not in self.axes['valid']:
+                for i in self.axes[axis]:
+                    self.w[i].hide()
         # setup home buttons
-        for axis in self.axisList:
+        for axis in self.axes['valid']:
             self.w[f'home_{axis}'].set_joint(self.coordinates.index(axis))
             self.w[f'home_{axis}'].set_joint_number(self.coordinates.index(axis))
         for joint in range(len(self.coordinates)):
@@ -3211,7 +3321,7 @@ class HandlerClass:
             self.w.gcode_editor.editor.SendScintilla(QsciScintilla.SCI_SETEXTRADESCENT, 1)
             self.vkb_hide()
             self.w.chk_keyboard_shortcuts.setEnabled(True)
-        for axis in 'xyzab':
+        for axis in 'xyzabc':
             button = f'touch_{axis}'
             self.w[button].dialog_code = inputType
 
@@ -3428,8 +3538,10 @@ class HandlerClass:
             self.cameraOn = True
         elif self.w.preview_stack.currentIndex() == self.OFFSETS:
             self.button_active(self.ovButton)
-            buttonList = [button for button in self.idleHomedList if button not in ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_b', 'touch_xy', \
-            'mdi_show', 'wcs_button', 'set_offsets']]
+            buttonList = [button for button in self.idleHomedList if button not in ['touch_x', 'touch_y', 'touch_z', \
+                                                                                    'touch_a', 'touch_b', 'touch_c', \
+                                                                                    'touch_xy', 'mdi_show', 'wcs_button', \
+                                                                                    'set_offsets']]
             self.set_buttons_state([self.idleOnList, buttonList], False)
             self.w.jog_frame.setEnabled(False)
             self.w.run.setEnabled(False)
@@ -3576,6 +3688,23 @@ class HandlerClass:
                 STATUS.emit('update-machine-log', f'"{response.strip()}" Virtual Machine detected', 'TIME')
         except:
             pass
+
+    def toggle_joint_mode(self):
+        if not STATUS.is_all_homed():
+            return
+        if hal.get_value('halui.mode.is-teleop'):
+            teleop = False
+        elif hal.get_value('halui.mode.is-joint'):
+            teleop = True
+        ACTION.cmd.teleop_enable(teleop)
+        for axis in self.axes['valid']:
+            self.w[f'touch_{axis}'].setEnabled(teleop)
+            self.w[f'dro_{axis}'].setEnabled(teleop)
+            self.w[f'dro_label_{axis}'].setProperty('homed', teleop)
+            self.w[f'dro_label_{axis}'].setStyle(self.w[f'dro_label_{axis}'].style())
+        time.sleep(0.1)
+        self.w.gcodegraphics.updateGL()
+        self.w.conv_preview.updateGL()
 
 
 #########################################################################################################################
@@ -3783,8 +3912,8 @@ class HandlerClass:
         self.cutType = 0
         self.single_cut_request = False
         self.oldFile = None
-        singleCodes = ['change-consumables', 'cut-type', 'framing', 'manual-cut', 'offsets-view', \
-                       'ohmic-test', 'probe-test', 'single-cut', 'torch-pulse', 'user-manual', 'latest-file']
+        singleCodes = ['change-consumables', 'cut-type', 'framing', 'manual-cut', 'offsets-view', 'ohmic-test', \
+                       'probe-test', 'single-cut', 'torch-pulse', 'user-manual', 'latest-file', 'toggle-joint']
         head = _translate('HandlerClass', 'User Button Error')
         for bNum in range(1,21):
             self.w[f'button_{str(bNum)}'].setEnabled(False)
@@ -4003,6 +4132,9 @@ class HandlerClass:
                 self.umButton = f'button_{str(bNum)}'
                 self.idleList.append(self.umButton)
                 self.w.webview.load(self.umUrl)
+            elif 'toggle-joint' in bCode:
+                self.jtButton = f'button_{str(bNum)}'
+                self.idleHomedList.append(self.jtButton)
             else:
                 if 'dual-code' in bCode:
                     # incoming code is: "dual-code" ;; code1 ;; label1 ;; code2 ;; checked (optional = true)
@@ -4026,7 +4158,7 @@ class HandlerClass:
                     commands = bCode
                 for command in commands.split('\\'):
                     command = command.strip()
-                    if command and command[0].lower() in 'xyzabgmfsto' and command.replace(' ','')[1] in '0123456789<':
+                    if command and command[0].lower() in 'xyzabcgmfsto' and command.replace(' ','')[1] in '0123456789<':
                         if f'button_{str(bNum)}' not in self.idleHomedList:
                             self.idleHomedList.append(f'button_{str(bNum)}')
                     elif command and command[0] == '%':
@@ -4158,6 +4290,8 @@ class HandlerClass:
             else:
                 self.w.preview_stack.setCurrentIndex(self.prevPreviewIndex)
                 self.prevPreviewIndex = self.USER_MANUAL
+        elif 'toggle-joint' in commands.lower():
+            self.toggle_joint_mode()
         else:
             self.reloadRequired = False
             if 'dual-code' in commands:
@@ -4185,7 +4319,7 @@ class HandlerClass:
 
     # for G-code commands and external commands
     def user_button_command(self, bNum, command):
-        if command and command[0].lower() in 'xyzabgmfsto' and command.replace(' ','')[1] in '0123456789<':
+        if command and command[0].lower() in 'xyzabcgmfsto' and command.replace(' ','')[1] in '0123456789<':
             if '{' in command:
                 newCommand = subCommand = ''
                 for char in command:
@@ -4341,7 +4475,7 @@ class HandlerClass:
             msg0 = _translate('HandlerClass', 'Invalid feed rate for consumable change')
             msg1 = _translate('HandlerClass', 'Defaulting to materials cut feed rate')
             STATUS.emit('update-machine-log', f'{msg0}, {msg1}', 'TIME')
-            self.ccFeed = float(self.w.cut_feed_rate.text())
+            self.ccFeed = float(self.w.cut_feed_rate.text().replace(',', '.'))
 
     def ext_change_consumables(self, state):
         if self.ccButton and self.w[self.ccButton].isEnabled():
@@ -4386,6 +4520,11 @@ class HandlerClass:
     def probe_test(self, state):
         if state:
             if self.probeTimer.remainingTime() <= 0 and not self.offsetsActivePin.get():
+                probeError, errMsg = self.bounds_check_probe(True)
+                if probeError:
+                    head = _translate('HandlerClass', 'Axis Limit Error')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{errMsg}\n')
+                    return
                 self.probeTime = self.ptTime
                 self.probeTimer.start(1000)
                 self.probeTest = True
@@ -4485,58 +4624,32 @@ class HandlerClass:
             self.w.run.setEnabled(False)
             response = False
             if self.w.laser.isVisible():
-                msgList, units, xMin, yMin, xMax, yMax, frame_points = self.bounds_check('framing', self.laserOffsetX, self.laserOffsetY)
-                if self.boundsError['framing']:
+                framingError, frame_points = self.bounds_check_framing(self.laserOffsetX, self.laserOffsetY, True)
+                if framingError:
                     head = _translate('HandlerClass', 'Axis Limit Error')
-                    btn1 = _translate('HandlerClass', 'YES')
-                    btn2 = _translate('HandlerClass', 'NO')
-                    msgs = ''
-                    msg1 = _translate('HandlerClass', 'due to laser offset')
-                    for n in range(0, len(msgList), 3):
-                        if msgList[n + 1] == 'MAX':
-                            msg0 = _translate('HandlerClass', 'portion of move would exceed the maximum limit by')
-                        else:
-                            msg0 = _translate('HandlerClass', 'portion of move would exceed the minimum limit by')
-                        fmt = f'\n{msgList[n]} {msg0} {msgList[n + 2]}{units} {msg1}' if msgs else f'{msgList[n]} {msg0} {msgList[n + 2]}{units} {msg1}'
-                        msgs += fmt
-                    msgs += _translate('HandlerClass', '\n\nDo you want to try with the torch?\n')
-                    response = self.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'\n{msgs}', f'{btn1}', f'{btn2}')
-                    if not response:
+                    framingError += _translate('HandlerClass', '\n\nDo you want to try with the torch?\n')
+                    response = self.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'\n{framingError}')
+                    if response:
+                        framingError, frame_points = self.bounds_check_framing()
+                        if framingError:
+                            head = _translate('HandlerClass', 'Axis Limit Error')
+                            self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{framingError}')
+                            self.w.run.setEnabled(True)
+                            return
+                    else:
                         self.w.run.setEnabled(True)
                         return
-                    msgList, units, xMin, yMin, xMax, yMax, frame_points = self.bounds_check('framing', 0, 0)
-                    if self.boundsError['framing']:
-                        self.w.run.setEnabled(True)
-                        head = _translate('HandlerClass', 'Axis Limit Error')
-                        msgs = ''
-                        for n in range(0, len(msgList), 3):
-                            if msgList[n + 1] == 'MAX':
-                                msg0 = _translate('HandlerClass', 'portion of move would exceed the maximum limit by')
-                            else:
-                                msg0 = _translate('HandlerClass', 'portion of move would exceed the minimum limit by')
-                            fmt = f'\n{msgList[n]} {msg0} {msgList[n + 2]}{units}' if msgs else f'{msgList[n]} {msg0} {msgList[n + 2]}{units}'
-                            msgs += fmt
-                        self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{msgs}')
-                        return
-                if not response:
+                else:
                     self.laserOnPin.set(1)
             else:
-                msgList, units, xMin, yMin, xMax, yMax, frame_points = self.bounds_check('framing', 0, 0)
-                if self.boundsError['framing']:
-                    self.w.run.setEnabled(True)
+                framingError, frame_points = self.bounds_check_framing()
+                if framingError:
                     head = _translate('HandlerClass', 'Axis Limit Error')
-                    msgs = ''
-                    for n in range(0, len(msgList), 3):
-                        if msgList[n + 1] == 'MAX':
-                            msg0 = _translate('HandlerClass', 'move would exceed the maximum limit by')
-                        else:
-                            msg0 = _translate('HandlerClass', 'move would exceed the minimum limit by')
-                        fmt = f'\n{msgList[n]} {msg0} {msgList[n + 2]}{units}' if msgs else '{msgList[n]} {msg0} {msgList[n + 2]}{units}'
-                        msgs += fmt
-                    self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{msgs}')
+                    self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{framingError}')
+                    self.w.run.setEnabled(True)
                     return
             if not self.frFeed:
-                feed = float(self.w.cut_feed_rate.text())
+                feed = float(self.w.cut_feed_rate.text().replace(',', '.'))
             else:
                 feed = self.frFeed
             zHeight = self.zMax - (hal.get_value('plasmac.max-offset') * self.unitsPerMm)
@@ -4633,6 +4746,11 @@ class HandlerClass:
             log = _translate('HandlerClass', 'Manual cut aborted')
             STATUS.emit('update-machine-log', log, 'TIME')
         elif STATUS.machine_is_on() and STATUS.is_all_homed() and STATUS.is_interp_idle() and not self.cut_critical_check():
+            probeError, errMsg = self.bounds_check_probe(True)
+            if probeError:
+                head = _translate('HandlerClass', 'Axis Limit Error')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{errMsg}\n')
+                return
             self.manualCut = True
             self.set_mc_states(False)
             self.w.abort.setEnabled(True)
@@ -5820,7 +5938,7 @@ class HandlerClass:
         # style some buttons
         buttons = ['jog_x_minus', 'jog_x_plus', 'jog_y_minus', 'jog_y_plus',
                    'jog_z_minus', 'jog_z_plus', 'jog_a_minus', 'jog_a_plus',
-                   'jog_b_minus', 'jog_b_plus',
+                   'jog_b_minus', 'jog_b_plus','jog_c_minus', 'jog_c_plus',
                    'cut_rec_n', 'cut_rec_ne', 'cut_rec_e', 'cut_rec_se',
                    'cut_rec_s', 'cut_rec_sw', 'cut_rec_w', 'cut_rec_nw',
                    'conv_line', 'conv_circle', 'conv_ellipse', 'conv_triangle',
@@ -6004,13 +6122,18 @@ class HandlerClass:
            self.w.file_reload.isEnabled():
             self.file_reload_clicked()
 
+    def on_keycall_JOINT(self, event, state, shift, cntrl):
+        if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN:
+            self.toggle_joint_mode()
+
     def on_keycall_F12(self, event, state, shift, cntrl):
         if self.key_is_valid(event, state):
             self.STYLEEDITOR.load_dialog()
 
     def on_keycall_F9(self, event, state, shift, cntrl):
-        if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN \
-           and not self.probeTest and not self.torchPulse and not self.framing and STATUS.is_interp_idle():
+        if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN and \
+           not self.probeTest and not self.torchPulse and not self.framing and \
+           (STATUS.is_interp_idle() or (self.manualCut and STATUS.is_interp_paused())):
             self.manual_cut()
 
     def on_keycall_XPOS(self, event, state, shift, cntrl):
@@ -6084,6 +6207,21 @@ class HandlerClass:
                 self.kb_jog(state, self.coordinates.index('b'), -1, shift)
             else:
                 self.kb_jog(state, 4, -1, shift)
+
+#FIXME - keys for these jogs not defined yet
+    # def on_keycall_CPOS(self, event, state, shift, cntrl):
+    #     if self.jog_is_valid('c_plus', event):
+    #         if STATUS.is_joint_mode():
+    #             self.kb_jog(state, self.coordinates.index('c'), 1, shift)
+    #         else:
+    #             self.kb_jog(state, 4, 1, shift)
+
+    # def on_keycall_CNEG(self, event, state, shift, cntrl):
+    #     if self.jog_is_valid('c_minus', event):
+    #         if STATUS.is_joint_mode():
+    #             self.kb_jog(state, self.coordinates.index('c'), -1, shift)
+    #         else:
+    #             self.kb_jog(state, 4, -1, shift)
 
     def on_keycall_PLUS(self, event, state, shift, cntrl):
         if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN and self.jogSlow and self.w.jog_slider.isEnabled():

@@ -752,7 +752,7 @@ OFFSET_AV_RATIO  = 0.5
 ----
 
 [NOTE]
-QtPlasmaC uses the LinuxCNC External Offsets feature for all Z axis motion, and for moving the X and/or Y axis for a consumable change while paused.
+With the exception of <<plasma:tube_cutting,tube cutting>> with an angular A, B, or C axis, QtPlasmaC uses the LinuxCNC External Offsets feature for all Z axis motion, and for moving the X and/or Y axis for a consumable change or a cut recovery while paused.
 For more information on this feature, please read <<cha:external-offsets,External Axis Offsets>> in the LinuxCNC documentation.
 
 == QtPlasmaC GUI Overview
@@ -807,10 +807,9 @@ Some functions/features are only used for particular modes and are not displayed
 //[grid=none,frame=ends]
 |===
 |Name |Description
-|ESTOP |Adding the option ESTOP_TYPE = 0 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will change this button to an indicator of the hardware E-stop's status only. +
-Adding the option ESTOP_TYPE = 1 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will hide this button. +
-Adding the option ESTOP_TYPE = 2 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will enable this button to act as a GUI E-stop. +
-If the ESTOP_TYPE option is omitted from the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, this button will default to being an indicator of the hardware E-stop's status only.
+|ESTOP |Setting Estop type = 0 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will change this button to an indicator of the hardware E-stop's status only. This is the default behavior. +
+Setting the option Estop type = 1 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will hide this button. +
+Setting the option Estop type = 2 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will enable this button to act as a GUI E-stop. +
 |POWER |This button turns the GUI on and allows QtPlasmaC/LinuxCNC to control the hardware. +
 Pressing and holding the *POWER* button for longer than two seconds will bring up a dialog to exit the QtPlasmaC application.
 |CYCLE START |This button starts the cycle for any loaded G-code file.
@@ -981,7 +980,9 @@ This value displayed below MOVE represents the Kerf Width of the currently selec
 |CLEAR  |This button will clear the currently opened program. +
 If a file is open, the default material will be selected. +
 If no file is open, the <<sub:qt-preview-views,preview>> will be reset to a top down full table view. +
-The torch (T0) will be selected if it was not the active tool.
+The torch (T0) will be selected if it was not the active tool. +
+Previous error messages, and the error status will be cleared. +
+Cut type will be set to NORMAL CUT.
 |OPEN   |This button will open a FILE OPEN panel over the PREVIEW WINDOW.
 |RELOAD |This button will reload the currently loaded G-code File.
 |===
@@ -1355,8 +1356,13 @@ Once QtPlasmaC is successfully installed, no Z axis motion is required to be par
 In fact, if any Z axis references are present in the cut program, the standard QtPlasmaC configuration will remove them during the program loading process.
 
 For reliable use of QtPlasmaC the user should *NOT* use any Z axis offsets other than the coordinate system offsets (G54-G59.3).
+For this reason, G92 offsets have been disabled across the GUI.
 
 QtPlasmaC will automatically add a line of G-code to move the Z axis to the correct height at the beginning of every G-code program.
+
+[NOTE]
+It is possible to keep Z motion for use with different tools by adding the magic comment <<plasma:keep_z,#<keep-z-motion>=1>>.
+If using an angular A, B, or C axis for <<plasma:tube_cutting,tube cutting>> then Z axis motion is required in the G-code file. +
 
 *Version Information* - QtPlasmaC will display versioning information in the title of the main window.
 The information will be displayed as followed "QtPlasmaC v__N__.__XXX__.__YYY__ - powered by QtVCP on LinuxCNC vZ.Z.Z" where _N_ is the version of QtPlasmaC, _XXX_ is the version of the HAL component (PlasmaC.comp), _YYY_ is the GUI version, and __Z__.__Z__.__Z__ is the version of LinuxCNC.
@@ -1461,6 +1467,9 @@ The following variables are mandatory and an error message will appear if any ar
 * PIERCE_DELAY
 * CUT_HEIGHT
 * CUT_SPEED
+
+[NOTE]
+If doing <<plasma:tube_cutting,tube cutting>> using the #<tube_cut>=1 magic comment then the only mandatory variable is PIERCE_DELAY, all other variables are optional.
 
 The following variables are optional. If they are not detected or have no value assigned, they will be assigned a value of 0 and no error message will appear.
 
@@ -2289,7 +2298,7 @@ This clears the Z offsets and returns the torch to the starting position.
 
 Cutting thick materials can be problematic in that the large amount of molten metal caused by piercing can shorten the life of consumables and also may cause a puddle high enough that the torch may hit the puddle while moving to cut height.
 
-The are two functions built into QtPlasmaC to help alleviate these issues.
+There are several functions built into QtPlasmaC to help alleviate these issues, Pierce Only and Puddle Jump described in this section as well as Wiggle Pierce and Ramp Pierce described in the <<plasma:moving-pierce,Moving Pierce>> section.
 
 [[plasma:pierce-only]]
 .*Pierce Only*
@@ -2554,6 +2563,18 @@ The *high feed rate* of 99999 is to ensure that the motion is at the machine's h
 
 IMPORTANT: SOME PLASMA CUTTERS WILL NOT BE SUITABLE FOR THIS FEATURE. +
 IT IS RECOMMENDED THAT THE USER CARRY OUT SOME TEST SPOTTING TO ENSURE THAT THE PLASMA CUTTER IS CAPABLE OF UTILIZING THIS FEATURE.
+
+[[plasma:tube_cutting]]
+=== Tube Cutting
+
+Tube cutting with an angular A, B, or C axis is achieved with the following in the G-code file:
+
+- #<tube_cut>=1 magic comment before any motion command.
+- All material probing must be done using the link:../gcode/g-code.html#gcode:g38[G38] straight probe codes.
+- All Z axis motion is required, plasmac does no internal Z axis motion during tube cutting.
+- PIERCE_DELAY is the only required <<plasma:material-handling,material parameter>>
+- Start a cut with M3 $0 S1.
+- End a cut with M5 $0
 
 [[custom_kb_layouts]]
 === Virtual Keyboard Custom Layouts
@@ -3287,6 +3308,7 @@ Buttons can run the following:
 . <<plasma:button-offsets,Display/Hide an offsets viewer>>
 . <<plasma:button-latest,Load the latest modified NGC file found in a directory>>
 . <<plasma:button-umanual,Display/Hide the online HTML user manual>>
+. <<plasma:button-joint,Toggle between joint and teleop modes>>
 
 [[plasma:button-cmds]]
 .External Commands
@@ -3421,7 +3443,7 @@ There are three <<plasma:ext-hal-pin,External HAL Pins>> that are available to t
 the pin names are `qtplasmac.ext_out_0`, `qtplasmac.ext_out_1`, and `qtplasmac.ext_out_2`.
 HAL connections to these HAL pins need to be specified in a postgui HAL file as the HAL pins are not available until the QtPlasmac GUI has loaded.
 
-For toggle-halpin buttons, it is possible for the user to mark the associated HAL pin as being required to be turned "ON" before starting a cut sequence by adding "cutcritical" after the HAL pin in the button code. If *TORCH ENABLE* is checked and *CYCLE START*, *MANUAL CUT*, or *SINGLE CUT* are intiated while the "cutcritical" button is not "ON" then the user will receive a dialog warning them as such and asking to CONTINUE or CANCEL.
+For toggle-halpin buttons, it is possible for the user to mark the associated HAL pin as being required to be turned "ON" before starting a cut sequence by adding "cutcritical" after the HAL pin in the button code. If *TORCH ENABLE* is checked and *CYCLE START*, *MANUAL CUT*, or *SINGLE CUT* are initiated while the "cutcritical" button is not "ON" then the user will receive a dialog warning them as such and asking to CONTINUE or CANCEL.
 
 [source,{ini}]
 ----
@@ -3701,6 +3723,16 @@ Note that internet access is required for this functionality.
 n Code = user-manual
 ----
 
+[[plasma:button-joint]]
+.Toggle Joint Mode
+
+This allows the toggling between joint mode and teleop mode. The machine must be on and homed for this button to be active.
+
+[source,{ini}]
+----
+n Code = toggle_joint
+----
+
 [[peripheral-offsets]]
 === Peripheral Offsets (Laser, Camera, Scribe, Offset Probe)
 
@@ -3743,6 +3775,7 @@ image::images/qtplasmac_peripheral_offsets_delay.png[width=200,align="left"]
 It may be necessary to click the preview window to enable jogging.
 By following the above procedure the offsets are available for use immediately and no restart of LinuxCNC is required.
 
+[[plasma:keep_z]]
 === Keep Z Motion
 
 By default, QtPlasmaC will remove all Z motion from a loaded G-code file and add an initial Z movement to bring the torch near the top of travel at the beginning of the file.
@@ -3778,7 +3811,7 @@ The following HAL bit pins are always created. The HAL pin has the identical beh
 |Use a laser to set an origin with or without rotation m|qtplasmac.ext_laser_touchoff |LASER
 |Toggle qtplasmac.laser_on pin m|qtplasmac.ext_laser_toggle |N/A
 |Run/Pause/Resume the loaded G-code program m|qtplasmac.ext_run_pause |CYCLE START, CYCLE PAUSE, CYCLE RESUME in sequence
-|Torch height override plus m|qtplasmac.ext_height_ovr_plus |OVERRIDE + 
+|Torch height override plus m|qtplasmac.ext_height_ovr_plus |OVERRIDE +
 |Torch height override minus m|qtplasmac.ext_height_ovr_minus |OVERRIDE -
 |Torch height override reset m|qtplasmac.ext_height_ovr_reset |OVERRIDE RESET TO 0.00
 |Torch height override scale m|qtplasmac.ext_height_ovr_scale |N/A
@@ -4088,6 +4121,134 @@ sudo apt install python3-serial
 
 A typical <<plasma:rs485_connections,connection diagram>> is shown in the appendix of this document as well as confirmed working interfaces.
 
+[[plasma:moving-pierce]]
+=== Moving Pierce
+
+A moving pierce allows the torch to move during the pierce delay period. This has an advantage in that it allows for thicker materials to be pierced than can be achieved with a stationary pierce. It may also support longer consumable life by allowing a style of motion that helps prevent molten material being sprayed up into the torch nozzle.
+
+Through the use of M159 a moving pierce can be configured.
+
+The syntax for the M159 command is as follows: +
+[source,{ngc}]
+----
+M159 Pn Qn
+----
+
+[width="100%",cols="1,1,5,1",options="header"]
+|===
+|Action Code (P)|Action|Description |Value (Q)
+|601 |Pierce Type |0=Normal, 1=Wiggle, 2=Ramp |0,1,2
+|602 |Pierce Motion Delay |Delay before Z motion starts to Pierce End Height. +
+Expressed as a % of Pierce Delay. |Integer 0 to 100
+|603 |Pierce End Height |Target pierce height at end of Pierce Delay. Normally lower than Pierce Height. +
+Expressed in machine units. |Float
+|604 |Cut Height Delay |Delay at the end of transition to Pierce End Height before transition to Cut Height. +
+Expressed in seconds. |Float
+|605 |Gouge Speed |Velocity of gouge. +
+Expresssed in machine units/min. |Float
+|606 |Gouge Distance |Length of gouge. +
+Expressed in machine units. |Float
+|607 |Creep Speed |Velocity of creep which takes effect after gouge has finished. +
+Expressed in machine units.|Float
+|608 |Creep Distance |Length of creep. +
+Expressed in machine units. |Float
+|609 |Reset |Resets the values for action codes 601-608 back to 0, returning to default behaviour. |Not Required
+|===
+
+
+The available moving pierce models are as follows:
+
+==== Wiggle Pierce
+
+The model supported is the same as that created by Sheetcam's wiggle pierce. Given a straight leadin to the main cut the wiggle pierce is expected to move back and forth for some distance along the leadin. Strictly speaking this straight movement is arbitrary. Technically any X/Y motion is available during the pierce delay and it is up the CAM tooling or the user to program.
+
+The constraint is that this motion is expected to be completed during the pierce delay value. If not then the torch will transition to normal cut height on completion of pierce delay and potentially before the wiggle motion is completed.
+
+Therefore the length of the wiggle and the feedrate need to be considered in calculating the pierce delay, or the size of the wiggle constrained based on feedrate and pierce delay.
+
+For example:
+
+* A feed rate of 1080 mm/m (18 mm/s)
+* A wiggle movement of 4mm for 3 oscillation
+
+This means that the length of the wiggle is 4 x 3 = 12mm. At the 18 mm/s feedrate, the pierce delay needs to be approx 0.7 seconds to support the wiggle distance at pierce height.
+
+The G-code needed invoke this behaviour is: +
+[source,{ngc}]
+----
+M159 P601 Q1
+----
+
+The  G-code needed to reset to standard behaviour is: +
+[source,{ngc}]
+----
+M159 P609
+----
+
+
+==== Ramp Pierce
+
+A ramping pierce combines a range of parameters so as to generate a sloped trough that causes the molten material to be evacuated. The resulting evacuation of material is sometimes likened to a "rooster tail" as it is very directional. Careful consideration of the leadin can allow evacuation of material in a safe direction for workers and machine components.
+
+As the elements combine to drive the shape of the ramping pierce it is key that all of these elements are carefully considered when designing the ramp pierce and the parameters that set it. Inevitably there will need to be experimentation to build recipes that work with the plasma power source being used in conjunction with the material to be cut.
+
+Items to consider:
+
+. The gouge and creep speeds and distances in relation to the sum of Pierce Delay from the material and the Cut Height Delay action.
+. Pierce height from the material and the End Pierce Height action in relation to Pierce Delay from the material and the speeds in effect over the various distances during the Pierce Delay time.
+. The plasma source manufacturer's cut charts for the material type and thickness.
+
+
+image::images/qtplasmac_ramp_pierce_chart.png[width=1032, align="center"]
+
+As with wiggle pierce it is up the CAM tooling or the user to program a ramping pierce.
+
+Below is a sample of code to setup a ramp pierce: +
+
+[source,{ngc}]
+----
+(o=0,kw=2, ph=4, pd=1, ch=1.5, fr=490, th=1, cv=99, pe=0.3, jh=0, jd=0)
+
+M159 P601 Q2
+M159 P602 Q50
+M159 P603 Q2.5
+M159 P604 Q1
+M159 P605 Q980
+M159 P606 Q5
+M159 P607 Q245
+M159 P608 Q3
+----
+
+This code shows us the following information in order:
+
+. Material magic comment.
+** Pierce Height is 4 mm.
+** Pierce Delay is 1 second.
+** Cut Height is 1.5 mm.
+** Cut Feed Rate is 490 mm/m.
+. Mode is set to 2 which is ramp pierce.
+. Pierce Motion Delay is 50% of Pierce Delay (0.5 seconds).
+. Pierce End Height is 2.5 mm
+. Cut Height Delay is 1 second.
+. Gouge Speed is 980 mm/m.
+. Gouge Distance is 5 mm
+. Creep Speed is 245 mm/m.
+. Creep Distance is 3 mm.
+
+With this information the following behavior can be described:
+
+It is important to note that accelerations and decelerations are omitted from the following calculations.
+
+The torch will start at Pierce Height (4 mm from the material) and start traveling at a Gouge Speed of 980 mm/m (16.3 mm/s) for a Gouge Distance of 5 mm which will consume 0.3 seconds (5 mm / 16.3 mm/s = 0.3 s) of the 0.5 s Pierce Motion Delay.
+
+When the Gouge Distance is reached, the torch speed is set to a Creep Speed of 245 mm/m (4 mm/s) for a Creep Distance of 3 mm. The Creep Distance will take roughly 0.7 seconds to complete (3 mm / 4 mm/s = 0.7 s).
+
+The torch height will remain at 4 mm for another 0.2 seconds (0.5 s (Pierce Motion Delay) - 0.3 s (Gouge Distance at Gouge Speed) = 0.2 s) after which the torch will begin descending to a Pierce End Height of 2.5 mm over the remaining 0.5 seconds of the material's Pierce Delay. Since there are 0.5 seconds of the material's Pierce Delay remaining, as well as 0.5 seconds left at Creep Speed, the Creep Distance will be covered at the same time the Pierce End Height is reached.
+
+When the Creep Distance has been reached, the torch speed will be set to the material's Cut Feed Rate of 490 mm/m. Since there is a 1 second Cut Height Delay that started at the end of the material's Pierce Delay the transition to a Cut Height of 1.5 mm will occur after the remaining 1 second Cut Height Delay has expired.
+
+The above text should demonstrate that there is quite a bit of configuration and subtlety can be achieved through experimentation and the careful use of different parameter combinations.
+
 == Internationalisation
 
 It is possible to create translation files for QtPlasmaC to display in the language of the current locale.
@@ -4111,9 +4272,9 @@ It will be referred to as `_xx` in this document, so `qtplasmac_xx.ts` in this d
 
 The default locale for QtPlasmaC is `_en` which means that any translation files created as `qtplasmac_en.*` will not be used for translations.
 
-If any of the required utilities (pyuic5, pylupdate5, linguist) are not installed then the user will need to install pyqt5-dev-tools:
+If any of the required utilities (pyuic5, pylupdate5, linguist) are not installed then the user will need to install the required development tools:
 ----
-sudo apt install pyqt5-dev-tools
+sudo apt install qttools5-dev-tools pyqt5-dev-tools
 ----
 
 Change to the languages directory:
@@ -4132,7 +4293,7 @@ If modifying an existing translation that has had no source file changes then th
 
 Create or edit a .ts file:
 ----
-langfile xx
+./langfile xx
 ----
 
 [NOTE]
@@ -4163,6 +4324,10 @@ $ ln -s qtplasmac_en.qm ../../qtplasmac_9x16/languages/
 ----
 
 QtPlasmaC will be translated to the language of the current locale on the next start so long as a .qm file exists in that language.
+
+Users are welcome to submit translation files for inclusion into QtPlasmac.
+The preferred method is to submit a pull request from the users GitHub account as described in the https://www.linuxcnc.org/docs/html/code/contributing-to-linuxcnc.html[contributing to LinuxCNC] documentation.
+The only files required to be committed are qtplasmac_xx.ts and qtplasmac_xx.qm.
 
 == Appendix
 

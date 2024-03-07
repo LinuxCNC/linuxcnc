@@ -385,7 +385,7 @@ static int emc_ini(ClientData clientdata,
 		   Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     IniFile inifile;
-    const char *inistring;
+    std::optional<const char *> inistring;
     const char *varstr, *secstr, *defaultstr;
     defaultstr = 0;
 
@@ -405,14 +405,14 @@ static int emc_ini(ClientData clientdata,
 	defaultstr = Tcl_GetStringFromObj(objv[3], 0);
     }
 
-    if (NULL == (inistring = inifile.Find(varstr, secstr))) {
+    if (!(inistring = inifile.Find(varstr, secstr))) {
 	if (defaultstr != 0) {
 	    setresult(interp,(char *) defaultstr);
 	}
 	return TCL_OK;
     }
 
-    setresult(interp,(char *) inistring);
+    setresult(interp, *inistring);
 
     // close it
     inifile.Close();

@@ -3065,8 +3065,6 @@
                               <object class="GtkBox" id="key_box">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="halign">center</property>
-                                <property name="valign">center</property>
                                 <property name="homogeneous">True</property>
                                 <child>
                                   <placeholder/>
@@ -6208,7 +6206,6 @@ Mode</property>
                     <property name="use-action-appearance">False</property>
                     <property name="width-request">90</property>
                     <property name="height-request">56</property>
-                    <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
                     <property name="tooltip-text" translatable="yes">Switch motion mode between Joint and World mode

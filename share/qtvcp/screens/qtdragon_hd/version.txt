@@ -6,3 +6,6 @@ version 1.1 fix probe routines: spindle starts on error or abort
 
 version 1.2 fix error whrn setting of axis tool buttons of 4th and 5th axis
     commit 30661cf590faf5f85ba6bee0dcce72b0aae12419
+
+version 1.3 allow setting of the percentage X or Y size of camview image from the preference file
+    commit a5394d4e2cec98b6f0ee9770542d2e8dfeb71af2

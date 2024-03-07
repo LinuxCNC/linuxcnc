@@ -3476,7 +3476,7 @@
                 <item row="3" column="1">
                  <widget class="PushButton" name="pbtn_measure_height">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -5907,23 +5907,23 @@ ZERO</string>
   <slot>input_next()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="length_buttonGroup">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
   <buttongroup name="skew_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="tool_buttonGroup"/>
   <buttongroup name="inside_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="tool_buttonGroup"/>
   <buttongroup name="outside_buttonGroup">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="length_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>

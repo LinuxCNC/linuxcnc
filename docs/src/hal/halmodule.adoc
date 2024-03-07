@@ -86,9 +86,9 @@ For parameters, the arguments are: parameter name suffix, parameter type, and pa
 .HAL Option Names
 [width="100%",cols="<3s,4*<"]
 |===
-|Pin and Parameter Types: |HAL_BIT |HAL_FLOAT |HAL_S32 |HAL_U32
-|Pin Directions:          |HAL_IN  |HAL_OUT   |HAL_IO  |
-|Parameter Directions:    |HAL_RO  |HAL_RW    |        |
+|Pin and Parameter Types: |HAL_BIT |HAL_FLOAT |HAL_S32 |HAL_U32 |HAL_S64 |HAL_U64
+|Pin Directions:          |HAL_IN  |HAL_OUT   |HAL_IO  |        |        |
+|Parameter Directions:    |HAL_RO  |HAL_RW    |        |        |        |
 |===
 
 The full pin or parameter name is formed by joining the prefix and the
@@ -173,6 +173,8 @@ Use these to specify details rather then the value they hold.
 * HAL_FLOAT
 * HAL_S32
 * HAL_U32
+* HAL_S64
+* HAL_U64
 * HAL_IN
 * HAL_OUT
 * HAL_RO

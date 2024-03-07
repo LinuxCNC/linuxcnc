@@ -207,6 +207,9 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             self.set_font(True)
         elif v == 'set-small-dro':
             self.set_font(False)
+        elif v == 'scroll-mode':
+            m = args.get('MODE')
+            self.setScrollMode(int(m))
         else:
             self.set_view(v)
 

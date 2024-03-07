@@ -303,6 +303,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self._fontLarge = 'monospace bold 22'
         self._largeFontState = False
         self.addTimer()
+        self._scroll_mode = 0 # use button list
         self._buttonList = [Qt.LeftButton,
                             Qt.MiddleButton,
                             Qt.RightButton]
@@ -1052,20 +1053,29 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
     def mouseMoveEvent(self, event):
         self._mousemoved = True
-        # move
-        if event.buttons() & self._buttonList[0]:
-            self.translateOrRotate(event.pos().x(), event.pos().y())
-        # rotate
-        elif event.buttons() & self._buttonList[2]:
-            if not self.cancel_rotate:
-                self.set_prime(event.pos().x(), event.pos().y())
-                self.rotateOrTranslate(event.pos().x(), event.pos().y())
-        # zoom
-        elif event.buttons() & self._buttonList[1]:
-            self.continueZoom(event.pos().y())
+        if event.buttons():
+            b = event.buttons()
+            m = self._scroll_mode
+            # pan
+            if ((b & self._buttonList[0]) and m == 0) or m == 1:
+                self.translateOrRotate(event.pos().x(), event.pos().y())
+            # rotate
+            elif ((b & self._buttonList[2]) and m == 0) or m == 2:
+                if not self.cancel_rotate:
+                    self.set_prime(event.pos().x(), event.pos().y())
+                    self.rotateOrTranslate(event.pos().x(), event.pos().y())
+            # zoom
+            elif ((b & self._buttonList[1]) and m == 0) or m == 3:
+                self.continueZoom(event.pos().y())
 
     def user_plot(self):
         pass
+
+    # follow mouse buttons, pan, rotate or zoom on mouse movement
+    def setScrollMode(self, mode):
+        if not mode in(0,1,2,3):
+            mode = 0 # mouse button mode
+        self._scroll_mode = mode
 
     def panView(self,vertical=0,horizontal=0):
         self.translateOrRotate(self.xmouse + vertical, self.ymouse + horizontal)

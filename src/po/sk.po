@@ -1,18 +1,18 @@
-# Juraj Adamkovic <stroje.hcnc@gmail.com>, 2022, 2023.
+# Juraj Adamkovic <stroje.hcnc@gmail.com>, 2022, 2023, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: sk\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-02-19 17:43+0000\n"
+"PO-Revision-Date: 2024-02-29 00:21+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.16-dev\n"
+"Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
+"X-Generator: Weblate 5.5-dev\n"
 "X-Poedit-Language: Slovak\n"
 "X-Poedit-Country: SLOVAKIA\n"
 
@@ -124,116 +124,126 @@ msgstr "Hodnota P je mimo rozsahu (0-9) s G10 L%d"
 #: src/emc/rs274ngc/interp_check.cc:95
 #, c-format
 msgid "P value out of range with G10 L%d"
-msgstr ""
+msgstr "Hodnota P je mimo rozsahu s G10 L%d"
 
 #: src/emc/rs274ngc/interp_check.cc:99
 msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
-msgstr ""
+msgstr "Medzi kódmi G5.2 a G5.3 sú povolené iba ďalšie kódy G5.2."
 
 #: src/emc/rs274ngc/interp_check.cc:261
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"
 msgstr ""
+"D slovo používajte iba s G41, G41.1, G42, G42.1, G71, G71.1, G71.2 alebo G96"
 
 #: src/emc/rs274ngc/interp_check.cc:270
 msgid ""
 "$ (spindle selection) word with no M3, M4, M5, M19, M51, G33, G33.1, G76, "
 "G95, G96 or G97 to use it"
 msgstr ""
+"$ (výber vretena) slovo používajte iba s M3, M4, M5, M19, M51, G33, G33.1, "
+"G76, G95, G96 alebo G97"
 
 #: src/emc/rs274ngc/interp_check.cc:277
 msgid "E word with no G70, G76, M66, M67 or M68 to use it"
-msgstr ""
+msgstr "E slovo používajte iba s G70, G76, M66, M67 alebo M68"
 
 #: src/emc/rs274ngc/interp_check.cc:282
 msgid "H word with no G43 or G76 to use it"
-msgstr ""
+msgstr "H slovo používajte iba s G43 alebo G76"
 
 #: src/emc/rs274ngc/interp_check.cc:291
 msgid ""
 "I word with no G2, G3, G5, G5.1, G6, G6.1, G10, G33.1, G76, or G87 to use it"
 msgstr ""
+"I slovo používajte iba s G2, G3, G5, G5.1, G6, G6.1, G10, G33.1, G76, G87"
 
 #: src/emc/rs274ngc/interp_check.cc:298
 msgid "J word with no G2, G3, G5, G5.1, G6, G6.1, G10, G76 or G87 to use it"
-msgstr ""
+msgstr "J slovo používajte iba s G2, G3, G5, G5.1, G6, G6.1, G10, G76 alebo G87"
 
 #: src/emc/rs274ngc/interp_check.cc:303
 msgid "K word with no G2, G3, G6.2, G33, G33.1, G76, or G87 to use it"
-msgstr ""
+msgstr "K slovo používajte iba s G2, G3, G6.2, G33, G33.1, G76, alebo G87"
 
 #: src/emc/rs274ngc/interp_check.cc:315
 msgid ""
 "L word with no G10, cutter compensation, canned cycle, digital/analog input, "
 "M98 or NURBS code"
 msgstr ""
+"L slovo používajte iba s G10, kompenzáciou frézy, pevným cyklusom, digitá"
+"lnym/analógovým vstupom, kódom M98 alebo NURBS"
 
 #: src/emc/rs274ngc/interp_check.cc:332
 msgid ""
 "P word with no G2 G3 G4 G10 G64 G5 G5.2 G6, G6.2, G76 G82 G86 G88 G89 or M50 "
 "M51 M52 M53 M62 M63 M64 M65 M66 M98 or user M code to use it"
 msgstr ""
+"P slovo používajte iba s G2 G3 G4 G10 G64 G5 G5.2 G6, G6.2, G76 G82 G86 G88 "
+"G89 alebo M50 M51 M52 M53 M62 M63 M64 M65 M66 M98, alebo užívatelským M kódom"
 
 #: src/emc/rs274ngc/interp_check.cc:338
 msgid "P value not an integer with M19 G2 or G3"
-msgstr ""
+msgstr "Hodnota P nie je celé číslo s M19 G2 alebo G3"
 
 #: src/emc/rs274ngc/interp_check.cc:340
 msgid "P value must be 0,1,or 2 with M19"
-msgstr ""
+msgstr "Hodnota P musí byť 0,1 alebo 2 s M19"
 
 #: src/emc/rs274ngc/interp_check.cc:342
 msgid "P value should be 1 or greater with G2 or G3"
-msgstr ""
+msgstr "Hodnota P by mala byť 1 alebo väčšia s G2 alebo G3"
 
 #: src/emc/rs274ngc/interp_check.cc:353
 msgid ""
 "Q word with no G5, G6, G10, G64, G73, G76, G83, M19, M66, M67, M68 or user M "
 "code that uses it"
 msgstr ""
+"Q slovo používajte iba s G5, G6, G10, G64, G73, G76, G83, M19, M66, M67, M68 "
+"alebo užívateľským M kódom, ktorý ho používa"
 
 #: src/emc/rs274ngc/interp_check.cc:366
 msgid "R value must be within 0..360 with M19"
-msgstr ""
+msgstr "Hodnota R musí byť v rozmedzí 0..360 s M19"
 
 #: src/emc/rs274ngc/interp_convert.cc:187
 #: src/emc/rs274ngc/interp_convert.cc:380
 msgid "You must specify both X and Y coordinates for Control Points"
-msgstr ""
+msgstr "Pre kontrolné body musíte zadať súradnice X aj Y"
 
 #: src/emc/rs274ngc/interp_convert.cc:192
 msgid "Can specify P without X and Y only for the first control point"
-msgstr ""
+msgstr "Môže špecifikovať P bez X a Y len pre prvý kontrolný bod"
 
 #: src/emc/rs274ngc/interp_convert.cc:199
 #: src/emc/rs274ngc/interp_convert.cc:387
 msgid "You must specify both Y and Z coordinates for Control Points"
-msgstr ""
+msgstr "Pre kontrolné body musíte zadať súradnice Y aj Z"
 
 #: src/emc/rs274ngc/interp_convert.cc:204
 msgid "Can specify P without Y and Z only for the first control point"
-msgstr ""
+msgstr "Môžete špecifikovať P bez Y a Z len pre prvý kontrolný bod"
 
 #: src/emc/rs274ngc/interp_convert.cc:211
 #: src/emc/rs274ngc/interp_convert.cc:394
 msgid "You must specify both X and Z coordinates for Control Points"
-msgstr ""
+msgstr "Pre kontrolné body musíte zadať súradnice X aj Z"
 
 #: src/emc/rs274ngc/interp_convert.cc:216
 msgid "Can specify P without X and Z only for the first control point"
-msgstr ""
+msgstr "Môžete špecifikovať P bez X a Z len pre prvý kontrolný bod"
 
 #: src/emc/rs274ngc/interp_convert.cc:222
 msgid "Must specify positive weight P for every Control Point"
-msgstr ""
+msgstr "Pre každý kontrolný bod musíte zadať kladnú hodnotu P"
 
 #: src/emc/rs274ngc/interp_convert.cc:225
 msgid "Cannot make a NURBS with 0 feedrate"
-msgstr ""
+msgstr "Nie je možné vytvoriť NURBS s rýchlosťou posuvu 0"
 
 #: src/emc/rs274ngc/interp_convert.cc:317
 msgid "Cannot use G5.3 without G5.2 first"
-msgstr ""
+msgstr "Nie je možné použiť G5.3 bez G5.2"
 
 #: src/emc/rs274ngc/interp_convert.cc:320
 #, c-format
@@ -241,47 +251,48 @@ msgid ""
 "You must specify a number of control points at least equal to the order L = "
 "%d"
 msgstr ""
+"Musíte zadať počet kontrolných bodov, ktorý sa minimálne rovná poradiu L = %d"
 
 #: src/emc/rs274ngc/interp_convert.cc:373
 msgid "one plane must be selected for nurbs: XY, YZ, ZX"
-msgstr ""
+msgstr "pre nurbs musí byť zvolená jedna rovina: XY, YZ, ZX"
 
 #: src/emc/rs274ngc/interp_convert.cc:400
 msgid "Program the nurbs order P in the first block of instruction"
-msgstr ""
+msgstr "Naprogramujte nurbs poradie P v prvom bloku inštrukcie"
 
 #: src/emc/rs274ngc/interp_convert.cc:404
 msgid "nurbs order P number is not an integer"
-msgstr ""
+msgstr "nurbs poradie P číslo nie je celé číslo"
 
 #: src/emc/rs274ngc/interp_convert.cc:410
 msgid ""
 "Program the nurbs Q value (1,2,3) in the first block of nurbs instruction"
-msgstr ""
+msgstr "Naprogramujte hodnotu nurbs Q (1,2,3) v prvom bloku inštrukcie nurbs"
 
 #: src/emc/rs274ngc/interp_convert.cc:415
 msgid "nurbs Q value not in range 1 to 3"
-msgstr ""
+msgstr "nurmbs hodnota Q, nie je v rozsahu 1 až 3"
 
 #: src/emc/rs274ngc/interp_convert.cc:417
 msgid "nurbs Q number is not an integer"
-msgstr ""
+msgstr "nurbs Q číslo nie je celé číslo"
 
 #: src/emc/rs274ngc/interp_convert.cc:423
 msgid "Must specify positive nurbs weight R for every Control Point"
-msgstr ""
+msgstr "Pre každý kontrolný bod musí byť špecifikovaná kladná nurbs hodnota R"
 
 #: src/emc/rs274ngc/interp_convert.cc:428
 msgid "Must specify nurbs K number for every Control Point"
-msgstr ""
+msgstr "Pre každý nurbs kontrolný bod musíte zadať číslo K"
 
 #: src/emc/rs274ngc/interp_convert.cc:432
 msgid "nurbs K number is not an integer"
-msgstr ""
+msgstr "nurbs K číslo nie je celé číslo"
 
 #: src/emc/rs274ngc/interp_convert.cc:437
 msgid "Cannot make a nurbs with 0 feedrate"
-msgstr ""
+msgstr "Nie je možné urobiť nurbs s rýchlosťou posuvu 0"
 
 #: src/emc/rs274ngc/interp_convert.cc:503
 #, c-format
@@ -289,41 +300,44 @@ msgid ""
 "You must specify a number of control points at least equal to the order P = "
 "%d"
 msgstr ""
+"Musíte zadať počet kontrolných bodov, ktorý sa minimálne rovná poradiu P = %d"
 
 #: src/emc/rs274ngc/interp_convert.cc:567
 msgid "Cannot convert spline with cutter radius compensation"
-msgstr ""
+msgstr "Nie je možné previesť spline s kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:579
 msgid "Splines may not have motion in A, B, or C"
-msgstr ""
+msgstr "Splainy nemusia mať pohyb v A, B alebo C"
 
 #: src/emc/rs274ngc/interp_convert.cc:586
 msgid "Must specify both I and J with G5.1 or G6.1"
-msgstr ""
+msgstr "Musíte zadať I aj J pomocou G5.1 alebo G6.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:691
 msgid "Must specify both I and J, or neither"
-msgstr ""
+msgstr "Musíte zadať I a J alebo ani jedno slovo"
 
 #: src/emc/rs274ngc/interp_convert.cc:745
 msgid "Must specify both P and Q with G5"
-msgstr ""
+msgstr "Musíte zadať P aj Q pomocou G5"
 
 #: src/emc/rs274ngc/interp_convert.cc:928
 msgid ""
 "The move just after exiting cutter compensation mode must be straight, not "
 "an arc"
 msgstr ""
+"Pohyb bezprostredne po opustení režimu kompenzácie frézy musí byť rovný, nie "
+"oblúk"
 
 #: src/emc/rs274ngc/interp_convert.cc:936
 msgid "Cannot do an arc in planes G17.1, G18.1, or G19.1"
-msgstr ""
+msgstr "Nie je možné vytvoriť oblúk v rovinách G17.1, G18.1 alebo G19.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:948
 #: src/emc/rs274ngc/interp_convert.cc:5330
 msgid "Cannot feed with zero spindle speed in feed per rev mode"
-msgstr ""
+msgstr "Nie je možné ísť s nulovými otáčkami vretena v režime posuvu na otáčku"
 
 #: src/emc/rs274ngc/interp_convert.cc:959
 #: src/emc/rs274ngc/interp_convert.cc:965
@@ -333,28 +347,33 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:995
 #, c-format
 msgid "%c word missing in absolute center arc"
-msgstr ""
+msgstr "%c slovo chýba v absolútnom stredovom oblúku"
 
 #: src/emc/rs274ngc/interp_convert.cc:1222
 msgid ""
 "Radius of cutter compensation entry arc is not greater than the tool radius"
 msgstr ""
+"Polomer vstupného oblúka kompenzácie frézy nie je väčší ako polomer nástroja"
 
 #: src/emc/rs274ngc/interp_convert.cc:1441
 #: src/emc/rs274ngc/interp_convert.cc:1451 src/emc/rs274ngc/interp_queue.cc:607
 msgid ""
 "Arc move in concave corner cannot be reached by the tool without gouging"
 msgstr ""
+"Pohyb oblúka v konkávnom(vnútornom) rohu nemôže byť dosiahnutý bez "
+"nežiaducého \"zafrézovania\""
 
 #: src/emc/rs274ngc/interp_convert.cc:1477
 msgid "Arc to arc motion is invalid because the arcs have the same center"
-msgstr ""
+msgstr "Pohyb medzi oblúkmi je neplatný, pretože oblúky majú rovnaký stred"
 
 #: src/emc/rs274ngc/interp_convert.cc:1480
 msgid ""
 "Arc to arc motion makes a corner the compensated tool can't fit in without "
 "gouging"
 msgstr ""
+" Pohyb medzi oblúkmi vytvára roh, do ktorého sa kompenzovaný nástroj nemôže "
+"zmestiť bez nežiaducého \"zafrézovania\""
 
 #: src/emc/rs274ngc/interp_convert.cc:1615
 #: src/emc/rs274ngc/interp_convert.cc:1619
@@ -364,136 +383,150 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:4754 src/emc/rs274ngc/interp_find.cc:99
 #, c-format
 msgid "Invalid absolute position %5.2f for wrapped rotary axis %c"
-msgstr ""
+msgstr "Neplatná absolútna poloha %5.2f pre rotačnú os %c"
 
 #: src/emc/rs274ngc/interp_convert.cc:2187
 msgid "Cannot change control mode with cutter radius compensation on"
-msgstr ""
+msgstr "Nie je možné zmeniť režim so zapnutou kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:2305
 msgid "Cannot change coordinate systems with cutter radius compensation on"
 msgstr ""
+"Nie je možné zmeniť súradnicové systémy so zapnutou korekciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:2542
 #, c-format
 msgid "G%d.1 with no D word"
-msgstr ""
+msgstr "G%d.1 s D slovom"
 
 #: src/emc/rs274ngc/interp_convert.cc:2545
 #, c-format
 msgid "G%d.1 with L word, but plane is not G18"
-msgstr ""
+msgstr "G%d.1 so slovom L, ale rovina nie je G18"
 
 #: src/emc/rs274ngc/interp_convert.cc:2556
 #, c-format
 msgid "G%d requires D word to be a whole number"
-msgstr ""
+msgstr "G%d vyžaduje, aby slovo D bolo celé číslo"
 
 #: src/emc/rs274ngc/interp_convert.cc:2563
 #, c-format
 msgid "G%d with lathe tool, but plane is not G18"
-msgstr ""
+msgstr "G%d so sústružníckym nástrojom, ale rovina nie je G18"
 
 #: src/emc/rs274ngc/interp_convert.cc:2981
 msgid "Cannot set reference point with cutter compensation in effect"
-msgstr ""
+msgstr "Nie je možné nastaviť referenčný bod so zapnutou kompenzáciou frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:3564
 #, c-format
 msgid "gen_restore G20/G21 failed: '%s'"
-msgstr ""
+msgstr "gen_restore G20/G21 zlyhal: '%s'"
 
 #: src/emc/rs274ngc/interp_convert.cc:3614
 #, c-format
 msgid ""
 "BUG: cannot restore from a lower call level (%d) to a higher call level (%d)"
 msgstr ""
+"CHYBA: nedá sa obnoviť z nižšej úrovne volania (%d) na vyššiu úroveň volania "
+"(%d)"
 
 #: src/emc/rs274ngc/interp_convert.cc:3615
 #, c-format
 msgid "BUG: restore from level %d !?"
-msgstr ""
+msgstr "BUG: obnoviť z úrovne %d!?"
 
 #: src/emc/rs274ngc/interp_convert.cc:3616
 #, c-format
 msgid "BUG: restore to level %d !?"
-msgstr ""
+msgstr "BUG: obnoviť úroveň %d!?"
 
 #: src/emc/rs274ngc/interp_convert.cc:3635
 #, c-format
 msgid "M7x: restore_settings G20/G21 failed: '%s'"
-msgstr ""
+msgstr "M7x: restore_settings G20/G21 zlyhal: '%s'"
 
 #: src/emc/rs274ngc/interp_convert.cc:3660
 #, c-format
 msgid "M7x: restore_settings failed executing: '%s': %s"
-msgstr ""
+msgstr "M7x: obnovenie_nastavení zlyhalo pri vykonaní: '%s': %s"
 
 #: src/emc/rs274ngc/interp_convert.cc:3729
 #, c-format
 msgid "Failed to restore interp state on abort '%s': %s"
-msgstr ""
+msgstr "Zlyhalo obnovenie stavu prevadzania pri prerušení '%s': %s"
 
 #: src/emc/rs274ngc/interp_convert.cc:3800
 msgid "Cannot set motion output with cutter radius compensation on"
 msgstr ""
+"Nie je možné nastaviť výstup pohybu so zapnutou kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:3801
 msgid "No valid P word with M62"
-msgstr ""
+msgstr "Žiadne platné slovo P s M62"
 
 #: src/emc/rs274ngc/interp_convert.cc:3805
 msgid "Cannot set motion digital output with cutter radius compensation on"
 msgstr ""
+"Nie je možné nastaviť digitálny výstup pohybu so zapnutou kompenzáciou "
+"polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:3806
 msgid "No valid P word with M63"
-msgstr ""
+msgstr "Žiadne platné P slovo s M63"
 
 #: src/emc/rs274ngc/interp_convert.cc:3810
 #: src/emc/rs274ngc/interp_convert.cc:3815
 msgid "Cannot set auxiliary digital output with cutter radius compensation on"
 msgstr ""
+"Nie je možné nastaviť prídavný digitálny výstup so zapnutou kompenzáciou "
+"polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:3811
 msgid "No valid P word with M64"
-msgstr ""
+msgstr "Žiadne platné P slovo s M64"
 
 #: src/emc/rs274ngc/interp_convert.cc:3816
 msgid "No valid P word with M65"
-msgstr ""
+msgstr "Žiadne platné slovo P s M65"
 
 #: src/emc/rs274ngc/interp_convert.cc:3847
 msgid "invalid P-word with M66"
-msgstr ""
+msgstr "neplatné P-slovo s M66"
 
 #: src/emc/rs274ngc/interp_convert.cc:3862
 msgid "Cannot wait for digital input with cutter radius compensation on"
 msgstr ""
+"Nemôžem čakať na digitálny vstup so zapnutou kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:3874
 msgid "Cannot wait for analog input with cutter radius compensation on"
 msgstr ""
+"Nemôžem čakať na analógový vstup so zapnutou kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:3889
 msgid "Cannot set motion analog output with cutter radius compensation on"
 msgstr ""
+"Nie je možné nastaviť analógový výstup pohybu so zapnutou kompenzáciou "
+"polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:3890
 msgid "Invalid analog index with M67"
-msgstr ""
+msgstr "Neplatný analógový index s M67"
 
 #: src/emc/rs274ngc/interp_convert.cc:3896
 msgid "Cannot set auxiliary analog output with cutter radius compensation on"
 msgstr ""
+"Nie je možné nastaviť pomocný analógový výstup so zapnutou kompenzáciou "
+"polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:3897
 msgid "Invalid analog index with M68"
-msgstr ""
+msgstr "Neplatný analógový index s M68"
 
 #: src/emc/rs274ngc/interp_convert.cc:3928
 msgid "Need non-negative Q-word to specify tool number with M61"
-msgstr ""
+msgstr "Na zadanie čísla nástroja pomocou M61 potrebujete nezáporné Q-slovo"
 
 #: src/emc/rs274ngc/interp_convert.cc:3972
 #, c-format
@@ -501,6 +534,8 @@ msgid ""
 "Spindle ($) number out of range in M3 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
+"Číslo vretena ($) je mimo rozsahu v príkaze M3\n"
+"num_spindles =%i. $=%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:3989
 #, c-format
@@ -508,6 +543,8 @@ msgid ""
 "Spindle ($) number out of range in M4 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
+"Číslo vretena ($) je mimo rozsahu v príkaze M4\n"
+"num_spindles =%i. $=%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:4006
 #, c-format
@@ -515,18 +552,22 @@ msgid ""
 "Spindle ($) number out of range in M5 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
+"Číslo vretena ($) je mimo rozsahu v príkaze M5\n"
+"num_spindles =%i. $=%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:4027
 msgid "Spindle ($) number out of range in M19 Command"
-msgstr ""
+msgstr "Číslo vretena ($) je mimo rozsahu v príkaze M19"
 
 #: src/emc/rs274ngc/interp_convert.cc:4034
 msgid "Q word with M19 requires a value > 0"
-msgstr ""
+msgstr "Slovo Q s M19 vyžaduje hodnotu > 0"
 
 #: src/emc/rs274ngc/interp_convert.cc:4063
 msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
 msgstr ""
+"Nie je možné obnoviť kontext z neplatného zásobníkového rámca – chýba M70/"
+"M73?"
 
 #: src/emc/rs274ngc/interp_convert.cc:4104
 #: src/emc/rs274ngc/interp_convert.cc:4125
@@ -534,7 +575,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:4167
 #: src/emc/rs274ngc/interp_convert.cc:4181
 msgid "Cannot enable overrides with cutter radius compensation on"
-msgstr ""
+msgstr "Nie je možné aktivovať prepisy so zapnutou kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:4113
 #: src/emc/rs274ngc/interp_convert.cc:4130
@@ -543,119 +584,125 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:4186
 msgid "Cannot disable overrides with cutter radius compensation on"
 msgstr ""
+"Nie je možné deaktivovať prepisy so zapnutou kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:4140
 msgid "Invalid spindle ($) number in M51 command"
-msgstr ""
+msgstr "Neplatné číslo vretena ($) v príkaze M51"
 
 #: src/emc/rs274ngc/interp_convert.cc:4303
 #: src/emc/rs274ngc/interp_convert.cc:4304
 #: src/emc/rs274ngc/interp_convert.cc:4305
 #, c-format
 msgid "Indexing axis %c can only be moved with G0"
-msgstr ""
+msgstr "Indexovanie osi %c je možné posúvať iba pomocou G0"
 
 #: src/emc/rs274ngc/interp_convert.cc:4312
 #: src/emc/rs274ngc/interp_convert.cc:4314
 #: src/emc/rs274ngc/interp_convert.cc:4316
 #, c-format
 msgid "Indexing axis %c can only be moved alone"
-msgstr ""
+msgstr "Indexovanie osi %c je možné posúvať iba samostatne"
 
 #: src/emc/rs274ngc/interp_convert.cc:4423
 msgid "Cannot probe with feed per rev mode"
-msgstr ""
+msgstr "Nie je možné sondovať s režimom posuvu na otáčky"
 
 #: src/emc/rs274ngc/interp_convert.cc:4471
 msgid "Cannot change retract mode with cutter radius compensation on"
 msgstr ""
+"Nie je možné zmeniť režim stiahnutia so zapnutou kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:4505
 msgid "G10 L1 without offsets has no effect"
-msgstr ""
+msgstr "G10 L1 bez posunov nemá žiadny účinok"
 
 #: src/emc/rs274ngc/interp_convert.cc:4611
 msgid "Q number in G10 is not an integer"
-msgstr ""
+msgstr "Číslo Q v G10 nie je celé číslo"
 
 #: src/emc/rs274ngc/interp_convert.cc:4612
 msgid "Invalid tool orientation"
-msgstr ""
+msgstr "Neplatná orientácia nástroja"
 
 #: src/emc/rs274ngc/interp_convert.cc:4736
 msgid "I J words not allowed with G10 L2"
-msgstr ""
+msgstr "I J slová nie sú povolené s G10 L2"
 
 #: src/emc/rs274ngc/interp_convert.cc:4757
 msgid ""
 "Cannot change the active coordinate system with cutter radius compensation on"
 msgstr ""
+"Nie je možné zmeniť aktívny súradnicový systém so zapnutou korekciou "
+"polomeru nástroja"
 
 #: src/emc/rs274ngc/interp_convert.cc:4765
 msgid "R not allowed in G10 L20"
-msgstr ""
+msgstr "R nie je povolené v G10 L20"
 
 #: src/emc/rs274ngc/interp_convert.cc:5111
 msgid "Bug:  Reached convert_stop() from M99 as subprogram return"
-msgstr ""
+msgstr "Bug: Dosiahnuté convert_stop() z M99 ako návrat podprogramu"
 
 #: src/emc/rs274ngc/interp_convert.cc:5390
 msgid "Invalid spindle ($) number in G33 move"
-msgstr ""
+msgstr "Neplatné číslo vretena ($) v ťahu G33"
 
 #: src/emc/rs274ngc/interp_convert.cc:5395
 msgid "Spindle not turning in G33"
-msgstr ""
+msgstr "Vreteno sa neotáča v G33"
 
 #: src/emc/rs274ngc/interp_convert.cc:5405
 msgid "Invalid spindle ($) number in G33.1 move"
-msgstr ""
+msgstr "Neplatné číslo vretena ($) v pohybe G33.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:5410
 msgid "Spindle not turning in G33.1"
-msgstr ""
+msgstr "Vreteno sa neotáča v G33.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:5425
 msgid "Invalid D-number in G76 cycle"
-msgstr ""
+msgstr "Neplatné D-číslo v cykle G76"
 
 #: src/emc/rs274ngc/interp_convert.cc:5430
 #, c-format
 msgid "Chosen spindle (%i) not turning in G76"
-msgstr ""
+msgstr "Zvolené vreteno (%i) sa neotáča v G76"
 
 #: src/emc/rs274ngc/interp_convert.cc:5468
 msgid "BUG: An axis incorrectly moved along with an indexer"
-msgstr ""
+msgstr "CHYBA: Os sa nesprávne pohybovala spolu s indexátorom"
 
 #: src/emc/rs274ngc/interp_convert.cc:5481
 msgid "BUG: trying to index incorrect axis"
-msgstr ""
+msgstr "CHYBA: Pokus o indexovanie nesprávnej osi"
 
 #: src/emc/rs274ngc/interp_convert.cc:5576
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
 msgstr ""
+"Nie je možné použiť cyklus závitovania G76 so zapnutou kompenzáciou polomeru "
+"frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:5579
 msgid "In G76, I must not be 0"
-msgstr ""
+msgstr "V G76 nesmiem byť 0"
 
 #: src/emc/rs274ngc/interp_convert.cc:5581
 msgid "In G76, J must be greater than 0"
-msgstr ""
+msgstr "V G76 musí byť J väčšie ako 0"
 
 #: src/emc/rs274ngc/interp_convert.cc:5583
 msgid "In G76, K must be greater than J"
-msgstr ""
+msgstr "V G76 musí byť K väčšie ako J"
 
 #: src/emc/rs274ngc/interp_convert.cc:5726
 msgid ""
 "Length of cutter compensation entry move is not greater than the tool radius"
-msgstr ""
+msgstr "Dĺžka vstupu korekcie frézy nie je väčšia ako polomer nástroja"
 
 #: src/emc/rs274ngc/interp_convert.cc:5945
 msgid "Zero degree inside corner is invalid for cutter compensation"
-msgstr ""
+msgstr "Nulový stupeň vnútorného rohu je neplatný pre kompenzáciu frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:5983
 #: src/emc/rs274ngc/interp_convert.cc:5991
@@ -663,22 +710,24 @@ msgid ""
 "Arc to straight motion makes a corner the compensated tool can't fit in "
 "without gouging"
 msgstr ""
+"Pohyb z oblúka na priamy vytvára roh, do ktorého sa kompenzovaný nástroj bez "
+"nežiaducého\"zafrézovania\" nezmestí"
 
 #: src/emc/rs274ngc/interp_convert.cc:6075
 msgid "Cannot change tools with cutter radius compensation on"
-msgstr ""
+msgstr "Nie je možné meniť nástroje so zapnutou korekciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:6199
 msgid "Cannot change tool offset with cutter radius compensation on"
-msgstr ""
+msgstr "Nemožno zmeniť korekciu nástroja so zapnutou korekciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_convert.cc:6250
 msgid "G43.2: Can not have both H and axis words"
-msgstr ""
+msgstr "G43.2: Nemôže mať obe H a aj písmeno osi"
 
 #: src/emc/rs274ngc/interp_convert.cc:6253
 msgid "G43.2: No axes specified and H word missing"
-msgstr ""
+msgstr "G43.2: Nie sú špecifikované žiadne osi a chýba slovo H"
 
 #: src/emc/rs274ngc/interp_queue.cc:605
 #, c-format
@@ -686,27 +735,33 @@ msgid ""
 "BUG: cutter compensation has generated an invalid arc with mismatched radii "
 "r1 %f r2 %f\n"
 msgstr ""
+"CHYBA: kompenzácia frézy vygenerovala neplatný oblúk s nezhodnými polomermi "
+"r1 %f r2 %f\n"
 
 #: src/emc/rs274ngc/interp_queue.cc:627 src/emc/rs274ngc/interp_queue.cc:649
 #: src/emc/rs274ngc/interp_queue.cc:690
 msgid "BUG: Unsupported plane in cutter compensation"
-msgstr ""
+msgstr "CHYBA: Nepodporovaná rovina v kompenzácii frézy"
 
 #: src/emc/rs274ngc/interp_queue.cc:637
 msgid ""
 "Straight traverse in concave corner cannot be reached by the tool without "
 "gouging"
 msgstr ""
+"Priamy posuv v konkávnom(vnútornom) rohu nie je možné dosiahnuť nástrojom "
+"bez nežiaducého \"zafrézovania\""
 
 #: src/emc/rs274ngc/interp_queue.cc:667
 #, c-format
 msgid "BUG: Unsupported plane [%d] in cutter compensation"
-msgstr ""
+msgstr "CHYBA: Nepodporovaná rovina [%d] v kompenzácii frézy"
 
 #: src/emc/rs274ngc/interp_queue.cc:678
 msgid ""
 "Straight feed in concave corner cannot be reached by the tool without gouging"
 msgstr ""
+"Priamy posuv v konkávnom(vnútornom) rohu nemôže nástroj dosiahnúť bez "
+"nežiaducého \"zafrézovania\""
 
 #: src/emc/rs274ngc/interp_cycles.cc:275
 #, c-format
@@ -715,7 +770,7 @@ msgstr "Vreteno sa neotáča %s"
 
 #: src/emc/rs274ngc/interp_cycles.cc:277
 msgid "Spindle turning clockwise in G74"
-msgstr ""
+msgstr "Otáčanie vretena v smere hodinových ručičiek v G74"
 
 #: src/emc/rs274ngc/interp_cycles.cc:280
 msgid "Spindle turning counterclockwise in G84"
@@ -724,23 +779,23 @@ msgstr "Otáčanie vretena proti smeru hodinových ručičiek v G84"
 #: src/emc/rs274ngc/interp_cycles.cc:283
 #, c-format
 msgid "Spindle state unknown for %s"
-msgstr ""
+msgstr "Neznámy stav vretena pre %s"
 
 #: src/emc/rs274ngc/interp_cycles.cc:724
 msgid "Cannot feed with zero feed rate"
-msgstr ""
+msgstr "Nie je možné podávať s nulovou rýchlosťou posuvu"
 
 #: src/emc/rs274ngc/interp_cycles.cc:725
 msgid "Cannot use inverse time feed with canned cycles"
-msgstr ""
+msgstr "Nemožno použiť inverzný časový posun s pevnými cyklami"
 
 #: src/emc/rs274ngc/interp_cycles.cc:726
 msgid "Cannot use canned cycles with cutter compensation on"
-msgstr ""
+msgstr "Nemožno použiť pevné cykly so zapnutou kompenzáciou frézy"
 
 #: src/emc/rs274ngc/interp_cycles.cc:922
 msgid "G17 canned cycle is not possible on a machine without Z axis"
-msgstr ""
+msgstr "Pevný cyklus G17 nie je možný na stroji bez osi Z"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1021
 #: src/emc/rs274ngc/interp_cycles.cc:1212
@@ -751,128 +806,129 @@ msgstr ""
 #: src/emc/rs274ngc/interp_cycles.cc:2105
 #: src/emc/rs274ngc/interp_cycles.cc:2129
 msgid "Invalid spindle ($) number in G74/G84 cycle"
-msgstr ""
+msgstr "Neplatné číslo vretena ($) v cykle G74/G84"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1131
 msgid "G17.1 canned cycle is not possible on a machine without W axis"
-msgstr ""
+msgstr "Pevný cyklus G17.1 nie je možný na stroji bez osi W"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1368
 msgid "G19 canned cycle is not possible on a machine without X axis"
-msgstr ""
+msgstr "Pevný cyklus G19 nie je možný na stroji bez osi X"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1556
 msgid "G19.1 canned cycle is not possible on a machine without U axis"
-msgstr ""
+msgstr "Pevný cyklus G19.1 nie je možný na stroji bez osi U"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1801
 msgid "G18 canned cycle is not possible on a machine without Y axis"
-msgstr ""
+msgstr "Pevný cyklus G18 nie je možný na stroji bez osi Y"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1882
 msgid "Invalid E-number in G74/G84 cycle"
-msgstr ""
+msgstr "Neplatné E-číslo v cykle G74/G84"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1988
 msgid "G18.1 canned cycle is not possible on a machine without V axis"
-msgstr ""
+msgstr "Pevný cyklus G18.1 nie je možný na stroji bez osi V"
 
 #: src/emc/rs274ngc/interp_execute.cc:250
 msgid "Invalid spindle ($) number in Spindle Mode command"
-msgstr ""
+msgstr "Neplatné číslo vretena ($) v príkaze Režim vretena"
 
 #: src/emc/rs274ngc/interp_execute.cc:260
 msgid "Invalid spindle ($) number in Spindle Feed command"
-msgstr ""
+msgstr "Neplatné číslo vretena ($) v príkaze Posuv vretena"
 
 #: src/emc/rs274ngc/interp_execute.cc:284
 msgid "Invalid spindle ($) number in Spindle speed command"
-msgstr ""
+msgstr "Neplatné číslo vretena ($) v príkaze Rýchlosť vretena"
 
 #: src/emc/rs274ngc/interp_find.cc:174
 msgid "Cannot use polar coordinates with G53"
-msgstr ""
+msgstr "S G53 nie je možné použiť polárne súradnice"
 
 #: src/emc/rs274ngc/interp_find.cc:272 src/emc/rs274ngc/interp_find.cc:277
 #: src/emc/rs274ngc/interp_find.cc:284 src/emc/rs274ngc/interp_find.cc:343
 #: src/emc/rs274ngc/interp_find.cc:353
 msgid "Cannot specify X or Y words with polar coordinate"
-msgstr ""
+msgstr "Nie je možné zadať slová X alebo Y s polárnou súradnicou"
 
 #: src/emc/rs274ngc/interp_find.cc:278
 msgid "Must specify angle in polar coordinate if at the origin"
-msgstr ""
+msgstr "Ak je v počiatku, musíte zadať uhol v polárnych súradniciach"
 
 #: src/emc/rs274ngc/interp_find.cc:344
 msgid ""
 "Incremental motion with polar coordinates is indeterminate when at the origin"
-msgstr ""
+msgstr "Prírastkový pohyb s polárnymi súradnicami je v počiatku neurčitý"
 
 #: src/emc/rs274ngc/interp_find.cc:354
 msgid "G91 motion with polar coordinates is indeterminate when at the origin"
-msgstr ""
+msgstr "Pohyb G91 s polárnymi súradnicami je v počiatku neurčitý"
 
 #: src/emc/rs274ngc/interp_find.cc:730 src/emc/rs274ngc/interp_find.cc:746
 #, c-format
 msgid "Requested tool %d not found in the tool table"
-msgstr ""
+msgstr "Požadovaný nástroj %d sa nenašiel v tabuľke nástrojov"
 
 #: src/emc/rs274ngc/interp_internal.cc:159
 msgid "Cannot use polar coordinate on a machine lacking X or Y axes"
-msgstr ""
+msgstr "Nie je možné použiť polárne súradnice na stroji bez osí X alebo Y"
 
 #: src/emc/rs274ngc/interp_internal.cc:160
 msgid "Cannot use polar coordinate except in G17 plane"
-msgstr ""
+msgstr "Nie je možné použiť polárne súradnice okrem roviny G17"
 
 #: src/emc/rs274ngc/interp_internal.cc:161
 msgid "Cannot specify both polar coordinate and X word"
-msgstr ""
+msgstr "Nie je možné zadať polárne súradnice aj slovo X"
 
 #: src/emc/rs274ngc/interp_internal.cc:162
 msgid "Cannot specify both polar coordinate and Y word"
-msgstr ""
+msgstr "Nie je možné zadať polárne súradnice aj slovo Y"
 
 #: src/emc/rs274ngc/interp_internal.cc:183
 #: src/emc/rs274ngc/interp_internal.cc:201
 #: src/emc/rs274ngc/interp_internal.cc:217
 msgid "Polar coordinates can only be used for motion"
-msgstr ""
+msgstr "Polárne súradnice možno použiť len na pohyb"
 
 #: src/emc/rs274ngc/interp_read.cc:1207 src/emc/rs274ngc/interp_read.cc:1211
 #, c-format
 msgid "Bad character '\\%03o' used"
-msgstr ""
+msgstr "Použitý nesprávny znak '\\%03o'"
 
 #: src/emc/rs274ngc/interp_read.cc:1211
 #, c-format
 msgid "Bad character '%c' used"
-msgstr ""
+msgstr "Použitý nesprávny znak '%c'"
 
 #: src/emc/rs274ngc/interp_read.cc:1602
 #, c-format
 msgid "%d: Bug:  Non-m98/m99 M-code passed to read_o(): '%s'"
-msgstr ""
+msgstr "%d: Chyba: Non-m98/m99 M-kód odovzdaný read_o(): '%s'"
 
 #: src/emc/rs274ngc/interp_read.cc:1806
 msgid "Left bracket missing after 'while'"
-msgstr ""
+msgstr "Ľavá zátvorka chýba po výraze „while“"
 
 #: src/emc/rs274ngc/interp_read.cc:1821
 msgid "Left bracket missing after 'repeat'"
-msgstr ""
+msgstr "Po „opakovaní“ chýba ľavá zátvorka"
 
 #: src/emc/rs274ngc/interp_read.cc:1836
 msgid "Left bracket missing after 'if'"
-msgstr ""
+msgstr "Ľavá zátvorka chýba po „if“"
 
 #: src/emc/rs274ngc/interp_read.cc:1851
 msgid "Left bracket missing after 'elseif'"
-msgstr ""
+msgstr "Ľavá zátvorka chýba za výrazom „elseif“"
 
 #: src/emc/rs274ngc/interp_read.cc:2055
 msgid "Cannot read current position with cutter radius compensation on"
 msgstr ""
+"Nedá sa prečítať aktuálna poloha so zapnutou kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/interp_read.cc:2070
 msgid "Expected # reading parameter"
@@ -880,67 +936,67 @@ msgstr "Očakávaný # parameter čítania"
 
 #: src/emc/rs274ngc/interp_read.cc:2072
 msgid "Expected ] reading bracketed parameter"
-msgstr ""
+msgstr "Očakáva sa ] čítanie parametra v zátvorkách"
 
 #: src/emc/rs274ngc/interp_read.cc:2744
 #, c-format
 msgid "bad number format (conversion failed) parsing '%s'"
-msgstr ""
+msgstr "nesprávny formát čísla (konverzia zlyhala) analýza '%s'"
 
 #: src/emc/rs274ngc/interp_read.cc:2745
 #, c-format
 msgid "bad number format (trailing characters) parsing '%s'"
-msgstr ""
+msgstr "nesprávny formát čísla (koncové znaky) pri analýze '%s'"
 
 #: src/emc/rs274ngc/interp_read.cc:2835
 msgid "Calculation resulted in 'not a number'"
-msgstr ""
+msgstr "Výsledkom výpočtu bolo „nie je číslo“"
 
 #: src/emc/rs274ngc/interp_read.cc:2837
 msgid "Calculation resulted in 'infinity'"
-msgstr ""
+msgstr "Výsledkom výpočtu je „nekonečno“"
 
 #: src/emc/rs274ngc/interp_read.cc:3130
 #, c-format
 msgid "EOF in file:%s seeking o-word: o<%s> from line: %d"
-msgstr ""
+msgstr "EOF v súbore:%s hľadá o-slovo: o<%s> z riadku: %d"
 
 #: src/emc/rs274ngc/interp_read.cc:3242
 msgid "Multiple U words on one line"
-msgstr ""
+msgstr "Viac U slov na jednom riadku"
 
 #: src/emc/rs274ngc/interp_read.cc:3258
 msgid "Multiple V words on one line"
-msgstr ""
+msgstr "Viac V slov na jednom riadku"
 
 #: src/emc/rs274ngc/interp_read.cc:3274
 msgid "Multiple W words on one line"
-msgstr ""
+msgstr "Viac W slov na jednom riadku"
 
 #: src/emc/rs274ngc/interp_o_word.cc:104
 #, c-format
 msgid "File:%s line:%d sub: o|%s| found in illegal location"
-msgstr ""
+msgstr "Súbor:%s riadok:%d pod: o|%s| nájdené na nelegálnom mieste"
 
 #: src/emc/rs274ngc/interp_o_word.cc:108
 #, c-format
 msgid "File:%s line:%d redefining sub: o|%s| already defined in file:%s"
-msgstr ""
+msgstr "Súbor:%s riadok:%d predefinovanie pod: o|%s| už definované v súbore:%s"
 
 #: src/emc/rs274ngc/interp_o_word.cc:825
 #, c-format
 msgid "%d: not in a subroutine definition: '%s'"
-msgstr ""
+msgstr "%d: nie je v definícii podprogramu: '%s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:874 src/emc/rs274ngc/interp_o_word.cc:924
 #, c-format
 msgid "%d: duplicate O-word label: '%s' - defined in line %d"
-msgstr ""
+msgstr "%d: duplicitné označenie O-slova: '%s' - definované v riadku %d"
 
 #: src/emc/rs274ngc/interp_o_word.cc:977
 #, c-format
 msgid "%d: duplicate O-word label - already defined in line %d: '%s'"
-msgstr ""
+msgstr "%d: duplicitné označenie O-slova – už definované v riadku %d: '%s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1001
 #: src/emc/rs274ngc/interp_o_word.cc:1059
@@ -950,29 +1006,32 @@ msgstr ""
 #: src/emc/rs274ngc/interp_o_word.cc:1153
 #, c-format
 msgid "%d: undefined O-word label: '%s'"
-msgstr ""
+msgstr "%d: nedefinovaná menovka O-slova: '%s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1004
 #: src/emc/rs274ngc/interp_o_word.cc:1062
 #, c-format
 msgid "%d: no matching 'if' label: '%s' (found '%s' in line %d)"
 msgstr ""
+"%d: žiadne zodpovedajúce označenie „if“: „%s“ (nájdené „%s“ v riadku %d)"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1096
 #, c-format
 msgid "%d: no matching label: '%s' (found '%s' in line %d): '%s'"
 msgstr ""
+"%d: žiadne zodpovedajúce označenie: '%s' (nájdené '%s' v riadku %d): '%s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1114
 #: src/emc/rs274ngc/interp_o_word.cc:1131
 #, c-format
 msgid "%d: no matching while/do label: '%s' (found '%s' in line %d)"
 msgstr ""
+"%d: žiadne zodpovedajúce označenie while/do: '%s' (nájdené '%s' v riadku %d)"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1157
 #, c-format
 msgid "%d: no matching label: '%s' (found '%s' in line %d)"
-msgstr ""
+msgstr "%d: žiadne zodpovedajúce označenie: '%s' (nájdené '%s' v riadku %d)"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:185
 #, c-format
@@ -985,43 +1044,43 @@ msgid "can't open INI file '%s'"
 msgstr "nemôžem otvoriť INI súbor '%s'"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:232
-#, fuzzy, c-format
+#, c-format
 msgid "Named INI parameter #<%s> not found in INI file '%s': error=0x%x"
 msgstr "Pomenovaný parameter #<%s> sa nenašiel v .ini zložke '%s': chyba=0x%x"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:257
 #, c-format
 msgid "fetch_hal_param: hal_init(%s): %d"
-msgstr ""
+msgstr "_fetch_hal_param: hal_init(%s): %d"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:258
 #, c-format
 msgid "fetch_hal_param: hal_ready(): %d"
-msgstr ""
+msgstr "_fetch_hal_param: hal_ready(): %d"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:422
 #, c-format
 msgid "Internal error: Could not assign #<%s>"
-msgstr ""
+msgstr "Interná chyba: Nepodarilo sa priradiť #<%s>"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:430
 #, c-format
 msgid "Cannot assign to read-only parameter #<%s>"
-msgstr ""
+msgstr "Nedá sa priradiť k \"iba na čítanie\" parameter #<%s>"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:791
 #, c-format
 msgid "BUG: lookup_named_param(%s): unhandled index=%fn"
-msgstr ""
+msgstr "CHYBA: lookup_named_param(%s): neošetrený index=%fn"
 
 #: src/emc/rs274ngc/rs274ngc_pre.cc:1452 src/emc/rs274ngc/rs274ngc_pre.cc:1527
 msgid "Queue is not empty after tool change"
-msgstr ""
+msgstr "Po výmene nástroja nie je rad prázdny"
 
 #: src/emc/rs274ngc/rs274ngc_pre.cc:1843
 #, c-format
 msgid "Unable to open parameter file: '%s'"
-msgstr ""
+msgstr "Nie je možné otvoriť súbor parametrov: '%s'"
 
 #: src/emc/rs274ngc/rs274ngc_pre.cc:2514
 msgid "Parameter file name is missing"
@@ -1029,199 +1088,207 @@ msgstr "Názov parametru chýba"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:19
 msgid "A file is already open"
-msgstr ""
+msgstr "Súbor je už otvorený"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:21
 msgid "All axes missing with g52 or g92"
-msgstr ""
+msgstr "Chýbajú všetky osi s g52 alebo g92"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:22
 msgid "All axes missing with motion code"
-msgstr ""
+msgstr "Chýbajú všetky osi s kódom pohybu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:23
 msgid "Arc radius too small to reach end point"
-msgstr ""
+msgstr "Polomer oblúka je príliš malý na dosiahnutie koncového bodu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:24
 msgid "Argument to acos out of range"
-msgstr ""
+msgstr "Argument pre acos je mimo dosahu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:25
 msgid "Argument to asin out of range"
-msgstr ""
+msgstr "Argument to asin mimo dosahu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:26
 msgid "Attempt to divide by zero"
-msgstr ""
+msgstr "Pokúste sa deliť nulou"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:27
 msgid "Attempt to raise negative to non integer power"
-msgstr ""
+msgstr "Pokúste sa zvýšiť zápornú mocninu na iné ako celé číslo"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:28
 msgid "Bad format unsigned integer"
-msgstr ""
+msgstr "Nesprávny formát celého čísla bez znamienka"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:29
 msgid "Bad number format"
-msgstr ""
+msgstr "Zlý formát čísla"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:30
 msgid "Bug bad g code modal group 0"
-msgstr ""
+msgstr "Chybný kód G modálna skupina 0"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:31
 msgid "Bug code not g0 or g1"
-msgstr ""
+msgstr "Kód chyby nie je g0 alebo g1"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:32
 msgid "Bug code not g17 g18 or g19"
-msgstr ""
+msgstr "Kód chyby nie je g17 g18 alebo g19"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:33
+#, fuzzy
 msgid "Bug code not g20 or g21"
-msgstr ""
+msgstr "Kód chyby nie je g20 alebo g21"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:34
 msgid "Bug code not g28 or g30"
-msgstr ""
+msgstr "Bug kód nie g28 alebo g30"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:35
+#, fuzzy
 msgid "Bug code not g2 or g3"
-msgstr ""
+msgstr "Kód chyby nie je g2 alebo g3"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:37
 msgid "Bug code not g4 g10 g28 g30 g52 g53 or g92 series"
-msgstr ""
+msgstr "Kód chyby nie g4 g10 g28 g30 g52 g53 alebo g92 série"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:38
+#, fuzzy
 msgid "Bug code not g61 g61.1 or g64"
-msgstr ""
+msgstr "kód chyby nie je g61 g61.1 alebo g64"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:39
+#, fuzzy
 msgid "Bug code not g90 or g91"
-msgstr ""
+msgstr "Kód chyby nie je g90 alebo g91"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:40
+#, fuzzy
 msgid "Bug code not g98 or g99"
-msgstr ""
+msgstr "Kód chyby nie je g98 alebo g99"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:41
+#, fuzzy
 msgid "Bug code not in g52 or g92 series"
-msgstr ""
+msgstr "Kód chyby nie je v sérii g52 alebo g92"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:42
 msgid "Bug code not in range g54 to g593"
-msgstr ""
+msgstr "Kód chyby nie je v sérii g52 alebo g92"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:43
 msgid "Bug code not m0 m1 m2 m30 m60 m99"
-msgstr ""
+msgstr "Kód chyby nie m0 m1 m2 m30 m60 m99"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:44
+#, fuzzy
 msgid "Bug distance mode not g90 or g91"
-msgstr ""
+msgstr "Režim vzdialenosti chyby nie je g90 alebo g91"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:45
 msgid "Bug function should not have been called"
-msgstr ""
+msgstr "Funkcia chyby sa nemala volať"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:46
 msgid "Bug in tool radius comp"
-msgstr ""
+msgstr "Bug v kompenzácii polomeru nástroja"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:47
 msgid "Bug plane not xy yz or xz"
-msgstr ""
+msgstr "Bug rovina nie xy yz alebo xz"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:48
 msgid "Bug side not right or left"
-msgstr ""
+msgstr "Bug strana nie pravá ani ľavá"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:49
 msgid "Bug unknown motion code"
-msgstr ""
+msgstr "Bug neznámy pohybový kód"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:50
+#, fuzzy
 msgid "Bug unknown operation"
-msgstr ""
+msgstr "Chyba neznáma operácia"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:51
 msgid "Cannot change axis offsets with cutter radius comp"
-msgstr ""
+msgstr "Nie je možné zmeniť korekcie osí s kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:52
 msgid "Cannot create backup file"
-msgstr ""
+msgstr "Nie je možné vytvoriť záložný súbor"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:53
 msgid "Cannot do g1 with zero feed rate"
-msgstr ""
+msgstr "Nie je možné vykonať G1 s nulovou rýchlosťou posuvu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:54
 msgid "Cannot do zero repeats of cycle"
-msgstr ""
+msgstr "Nie je možné vykonať nula opakovaní cyklu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:55
 msgid "Cannot make arc with zero feed rate"
-msgstr ""
+msgstr "Nie je možné vytvoriť oblúk s nulovou rýchlosťou posuvu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:56
 msgid "Cannot open backup file"
-msgstr ""
+msgstr "Nie je možné otvoriť záložný súbor"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:57
 msgid "Cannot open variable file"
-msgstr ""
+msgstr "Nie je možné otvoriť súbor premenných"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:58
 msgid "Cannot probe with cutter radius comp on"
-msgstr ""
+msgstr "Nie je možné spustiť so zapnutou kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:59
 msgid "Cannot probe with zero feed rate"
-msgstr ""
+msgstr "Nie je možné spustiť s nulovou rýchlosťou posuvu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:60
 msgid "Cannot put a b in canned cycle"
-msgstr ""
+msgstr "Nie je možné vložiť a b do pevného cyklu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:61
 msgid "Cannot put a c in canned cycle"
-msgstr ""
+msgstr "Nie je možné vložiť c do pevného cyklu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:62
 msgid "Cannot put an a in canned cycle"
-msgstr ""
+msgstr "Nie je možné vložiť a do pevného cyklu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:63
 msgid "Cannot turn cutter radius comp on when on"
-msgstr ""
+msgstr "Nie je možné zapnúť kompenzáciu polomeru frézy keď je už zapnutá"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:64
 msgid "Cannot use axis values with g80"
-msgstr ""
+msgstr "Nie je možné použiť hodnoty osí s g80"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:65
 msgid "Cannot use axis values without a g code that uses them"
-msgstr ""
+msgstr "Hodnoty osí nemožno použiť bez kódu g, ktorý ich používa"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:66
 msgid "Cannot use g28 or g30 with cutter radius comp"
-msgstr ""
+msgstr "Nie je možné použiť g28 alebo g30 s kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:67
 msgid "Cannot use g53 incremental"
-msgstr ""
+msgstr "Nemožno použiť prírastkové g53"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:68
 msgid "Cannot use g53 with cutter radius comp"
-msgstr ""
+msgstr "Nie je možné použiť g53 s kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:69
 msgid "Cannot use two g codes that both use axis values"
-msgstr ""
+msgstr "Nemožno použiť dva g kódy, ktoré oba používajú hodnoty osi"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:70
 msgid "Command too long"
@@ -1229,212 +1296,212 @@ msgstr "Príkaz je príliš dlhý"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:71
 msgid "Current point same as end point of arc"
-msgstr ""
+msgstr "Aktuálny bod je rovnaký ako koncový bod oblúka"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:72
 msgid "Dwell time missing with g4"
-msgstr ""
+msgstr "Chýbajúci čas zotrvania s g4"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:73
 msgid "Dwell time p word missing with g82"
-msgstr ""
+msgstr "Doba zotrvania p slovo chýba s g82"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:74
 msgid "Dwell time p word missing with g86"
-msgstr ""
+msgstr "Chýba slovo p s g86"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:75
 msgid "Dwell time p word missing with g88"
-msgstr ""
+msgstr "Chýba slovo p s g86"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:76
 msgid "Dwell time p word missing with g89"
-msgstr ""
+msgstr "Chýba slovo p s g86"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:77
 msgid "Equal sign missing in parameter setting"
-msgstr ""
+msgstr "V nastavení parametra chýba znamienko rovnosti"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:78
 msgid "F word missing with inverse time arc move"
-msgstr ""
+msgstr "Chýba slovo F pri inverznom časovom oblúkovom pohybe"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:79
 msgid "F word missing with inverse time g1 move"
-msgstr ""
+msgstr "Chýba F slovo s inverzným časom g1 pohybu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:80
 msgid "File ended with no percent sign"
-msgstr ""
+msgstr "Súbor skončil bez znaku percenta"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:81
 msgid "File ended with no percent sign or program end"
-msgstr ""
+msgstr "Súbor skončil bez znaku percenta alebo konca programu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:82
 msgid "File name too long"
-msgstr ""
+msgstr "Názov súboru je príliš dlhý"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:83
 msgid "G-code out of range"
-msgstr ""
+msgstr "G-kód je mimo rozsahu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:84
 msgid "I word given for arc in yz plane"
-msgstr ""
+msgstr "I slovo je určené pre oblúk v rovine yz"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:85
 msgid "I word missing with g87"
-msgstr ""
+msgstr "I slovo chýba s g87"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:86
 msgid "J word given for arc in xz plane"
-msgstr ""
+msgstr "J slovo je určené pre oblúk v rovine xz"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:87
 msgid "J word missing with g87"
-msgstr ""
+msgstr "Chýba slovo J s g87"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:88
 msgid "K word given for arc in xy plane"
-msgstr ""
+msgstr "K slovo je určené pre oblúk v rovine xy"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:89
 msgid "K word missing with g87"
-msgstr ""
+msgstr "Chýba slovo K s g87"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:90
 msgid "Left bracket missing after slash with atan"
-msgstr ""
+msgstr "Za lomkou s \"atan\" chýba ľavá zátvorka"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:91
 msgid "Left bracket missing after unary operation name"
-msgstr ""
+msgstr "Za jednočlenným názvom operácie chýba ľavá zátvorka"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:92
 #, c-format
 msgid "M-code greater than 199: M%d"
-msgstr ""
+msgstr "M-kód je väčší ako 199: M%d"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:93
 msgid "Mixed radius ijk format for arc"
-msgstr ""
+msgstr "Formát zmiešaného polomeru ijk pre oblúk"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:94
 msgid "Multiple spindle choice ($) words on one line"
-msgstr ""
+msgstr "Viacero slov na výber vretena ($) na jednom riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:95
 msgid "Multiple a words on one line"
-msgstr ""
+msgstr "Viac slov A na jednom riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:96
 msgid "Multiple b words on one line"
-msgstr ""
+msgstr "Viac slov B na jednom riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:97
 msgid "Multiple c words on one line"
-msgstr ""
+msgstr "Viac slov C na jednom riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:98
 msgid "Multiple d words on one line"
-msgstr ""
+msgstr "Viac slov D na jednom riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:99
 msgid "Multiple f words on one line"
-msgstr ""
+msgstr "Viac slov F na jednom riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:100
 msgid "Multiple h words on one line"
-msgstr ""
+msgstr "Viac slov H na jednom riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:101
 msgid "Multiple i words on one line"
-msgstr ""
+msgstr "Viac slov I na jednom riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:102
 msgid "Multiple j words on one line"
-msgstr ""
+msgstr "Viac slov J na jednom riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:103
 msgid "Multiple k words on one line"
-msgstr ""
+msgstr "Viac slov K na jednom riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:104
 msgid "Multiple l words on one line"
-msgstr ""
+msgstr "Viac slov L na jednom riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:105
 msgid "Multiple p words on one line"
-msgstr ""
+msgstr "Viac slov P na jednom riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:106
 msgid "Multiple q words on one line"
-msgstr ""
+msgstr "Viac slov Q na jednom riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:107
 msgid "Multiple r words on one line"
-msgstr ""
+msgstr "Viac slov R na jednom riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:108
 msgid "Multiple s words on one line"
-msgstr ""
+msgstr "Viac slov S na jednom riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:109
 msgid "Multiple t words on one line"
-msgstr ""
+msgstr "Viac slov T na jednom riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:110
 msgid "Multiple x words on one line"
-msgstr ""
+msgstr "Viac slov X na jednom riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:111
 msgid "Multiple y words on one line"
-msgstr ""
+msgstr "Viac slov Y na jednom riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:112
 msgid "Multiple z words on one line"
-msgstr ""
+msgstr "Viac slov Z na jednom riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:113
 msgid "Must use g0 or g1 with g53"
-msgstr ""
+msgstr "Musíte použiť g0 alebo g1 s g53"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:114
 msgid "Negative argument to sqrt"
-msgstr ""
+msgstr "Negatívny argument pre sqrt"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:115
 msgid "Negative d word tool radius index used"
-msgstr ""
+msgstr "Použitý záporný index polomeru nástroja d slova"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:116
 msgid "Negative f word used"
-msgstr ""
+msgstr "Použité záporné f slovo"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:117
 msgid "Negative g code used"
-msgstr ""
+msgstr "Použitý negatívny g kód"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:118
 msgid "Negative h word used"
-msgstr ""
+msgstr "Použité záporné h slovo"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:119
 msgid "Negative l word used"
-msgstr ""
+msgstr "Použité záporné l slovo"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:120
 msgid "Negative m code used"
-msgstr ""
+msgstr "Použitý negatívny m kód"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:121
 msgid "Negative or zero q value used"
-msgstr ""
+msgstr "Použitá záporná alebo nulová hodnota q"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:122
 msgid "Negative p word used"
-msgstr ""
+msgstr "Použité záporné p slovo"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:123
 msgid "Negative spindle speed used"
@@ -1442,23 +1509,23 @@ msgstr "Použitá negatívna hodnota rýchlosti vretena(použi M3 alebo M4)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:124
 msgid "Negative tool id (tool not found)"
-msgstr ""
+msgstr "Negatívne ID nástroja (nástroj sa nenašiel)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:125
 msgid "Nested comment found"
-msgstr ""
+msgstr "Bol nájdený vnorený komentár"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:126
 msgid "No characters found in reading real value"
-msgstr ""
+msgstr "Pri čítaní realnej hodnoty sa nenašli žiadne znaky"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:127
 msgid "Non integer value for integer"
-msgstr ""
+msgstr "Neceločíselná hodnota pre celé číslo"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:128
 msgid "Null missing after newline"
-msgstr ""
+msgstr "Po novom riadku chýba nula"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:129
 msgid "Parameter file out of order"
@@ -1466,7 +1533,7 @@ msgstr "Súbor parametrov je mimo prevádzky"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:130
 msgid "Parameter number out of range"
-msgstr ""
+msgstr "Číslo parametra je mimo rozsahu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:131
 msgid "Parameter is readonly"
@@ -1474,370 +1541,370 @@ msgstr "Parameter je len na čítanie"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:132
 msgid "Q word missing with g83"
-msgstr ""
+msgstr "Chýba slovo Q s g83"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:133
 msgid "Queue is not empty after probing"
-msgstr ""
+msgstr "Po sondovaní nie je rad prázdny"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:134
 msgid "R clearance plane unspecified in cycle"
-msgstr ""
+msgstr "V cykle nešpecifikovaný voľný priestor R"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:135
 msgid "R i j k words all missing for arc"
-msgstr ""
+msgstr "R i j k slová chýbajú pre oblúk"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:136
 msgid "R less than x in cycle in yz plane"
-msgstr ""
+msgstr "V cykle je R menšie ako X v rovine yz"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:137
 msgid "R less than y in cycle in xz plane"
-msgstr ""
+msgstr "V cykle je R menšie ako Y v rovine xz"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:138
 msgid "R less than z in cycle in xy plane"
-msgstr ""
+msgstr "V cykle je R menšie ako Z v rovine xy"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:139
 msgid "R word with no g code that uses it"
-msgstr ""
+msgstr "R slovo bez kódu g, ktorý ho používa"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:140
 msgid "Slash missing after first atan argument"
-msgstr ""
+msgstr "Po prvom argumente \"atan\" chýba lomka"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:141
 msgid "Spindle not turning clockwise in g84"
-msgstr ""
+msgstr "Vreteno sa neotáča v smere hodinových ručičiek v g84"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:142
 msgid "Spindle not turning in g86"
-msgstr ""
+msgstr "Vreteno sa neotáča v g86"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:143
 msgid "Spindle not turning in g87"
-msgstr ""
+msgstr "Vreteno sa neotáča v g87"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:144
 msgid "Spindle not turning in g88"
-msgstr ""
+msgstr "Vreteno sa neotáča v g88"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:145
 msgid "Sscanf failed"
-msgstr ""
+msgstr "Sscanf zlyhal"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:146
 msgid "Start point too close to probe point"
-msgstr ""
+msgstr "Počiatočný bod je príliš blízko bodu sondy"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:147
 msgid "Too many m codes on line"
-msgstr ""
+msgstr "Príliš veľa M kódov na riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:148
 msgid "Pocket max too large"
-msgstr ""
+msgstr "Paked max. je príliš veľké"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:149
 msgid "Tool radius not less than arc radius with comp"
-msgstr ""
+msgstr "Polomer nástroja je väčší ako polomer oblúka s kompenzáciou"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:150
 msgid "Two g codes used from same modal group"
-msgstr ""
+msgstr "Použité dva g kódy z rovnakej modálnej skupiny"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:151
 msgid "Two m codes used from same modal group"
-msgstr ""
+msgstr "Použité dva M kódy z rovnakej modálnej skupiny"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:152
 #, c-format
 msgid "Unable to open file <%s>"
-msgstr ""
+msgstr "Nie je možné otvoriť súbor <%s>"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:153
 msgid "Unclosed comment found"
-msgstr ""
+msgstr "Našiel sa neuzavretý komentár"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:154
 msgid "Unclosed expression"
-msgstr ""
+msgstr "Neuzavretý výraz"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:155
 msgid "Unknown g code used"
-msgstr ""
+msgstr "Použitý neznámy G kód"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:156
 #, c-format
 msgid "Unknown m code used: M%d"
-msgstr ""
+msgstr "Použitý neznámy M kód: M%d"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:157
 msgid "Unknown operation"
-msgstr ""
+msgstr "Neznáma operácia"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:158
 msgid "Unknown operation name starting with a"
-msgstr ""
+msgstr "Neznámy názov operácie začínajúci na a"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:159
 msgid "Unknown operation name starting with m"
-msgstr ""
+msgstr "Neznámy názov operácie začínajúci na m"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:160
 msgid "Unknown operation name starting with o"
-msgstr ""
+msgstr "Neznámy názov operácie začínajúci na o"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:161
 msgid "Unknown operation name starting with x"
-msgstr ""
+msgstr "Neznámy názov operácie začínajúci na x"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:162
 msgid "Unknown word starting with a"
-msgstr ""
+msgstr "Neznáme slovo začínajúce na a"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:163
 msgid "Unknown word starting with c"
-msgstr ""
+msgstr "Neznáme slovo začínajúce na c"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:164
 msgid "Unknown word starting with e"
-msgstr ""
+msgstr "Neznáme slovo začínajúce na e"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:165
 msgid "Unknown word starting with f"
-msgstr ""
+msgstr "Neznáme slovo začínajúce na f"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:166
 msgid "Unknown word starting with l"
-msgstr ""
+msgstr "Neznáme slovo začínajúce na l"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:167
 msgid "Unknown word starting with r"
-msgstr ""
+msgstr "Neznáme slovo začínajúce na r"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:168
 msgid "Unknown word starting with s"
-msgstr ""
+msgstr "Neznáme slovo začínajúce na s"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:169
 msgid "Unknown word starting with t"
-msgstr ""
+msgstr "Neznáme slovo začínajúce na t"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:170
 msgid "Unknown word where unary operation could be"
-msgstr ""
+msgstr "Neznáme slovo, kde by mohla byť unárna operácia"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:171
 msgid "X and y words missing for arc in xy plane"
-msgstr ""
+msgstr "Chýbajú slová X a Y pre oblúk v rovine xy"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:172
 msgid "X and z words missing for arc in xz plane"
-msgstr ""
+msgstr "Chýbajú slová X a Z pre oblúk v rovine xz"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:173
 msgid "X value unspecified in yz plane canned cycle"
-msgstr ""
+msgstr "Nešpecifikovaná hodnota X v pevnom cykle roviny yz"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:174
 msgid "Y and z words missing for arc in yz plane"
-msgstr ""
+msgstr "Slová Y a Z chýbajú pre oblúk v rovine yz"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:175
 msgid "Y value unspecified in xz plane canned cycle"
-msgstr ""
+msgstr "Hodnota Y nešpecifikovaná v pevnom cykle roviny xz"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:176
 msgid "Z value unspecified in xy plane canned cycle"
-msgstr ""
+msgstr "Nešpecifikovaná hodnota Z v pevnom cykle roviny xy"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:177
 msgid "Zero or negative argument to ln"
-msgstr ""
+msgstr "Nulový alebo negatívny argument k ln"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:178
 msgid "Zero radius arc"
-msgstr ""
+msgstr "Oblúk s nulovým polomerom"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:179
 msgid "K word missing with g33/g33.1"
-msgstr ""
+msgstr "Chýba slovo K s g33/g33.1"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:180
 msgid "F word used with a g33/g33.1"
-msgstr ""
+msgstr "Chýba slovo K s g33/g33.1"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:181
 msgid "Unknown operation name starting with e"
-msgstr ""
+msgstr "Neznámy názov operácie začínajúci na e"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:182
 msgid "Unknown operation name starting with n"
-msgstr ""
+msgstr "Neznámy názov operácie začínajúci na n"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:183
 msgid "Unknown operation name starting with g"
-msgstr ""
+msgstr "Neznámy názov operácie začínajúci na g"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:184
 msgid "Unknown operation name starting with l"
-msgstr ""
+msgstr "Neznámy názov operácie začínajúci na l"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:185
 msgid "Too many subroutine parameters"
-msgstr ""
+msgstr "Príliš veľa parametrov podprogramu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:186
 msgid "Too many subroutine levels"
-msgstr ""
+msgstr "Príliš veľa úrovní podprogramu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:187
 msgid "Bug: call stack underrun"
-msgstr ""
+msgstr "Chyba: volanie podbehnutie zásobníka"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:188
 msgid "Unknown control command in o word"
-msgstr ""
+msgstr "Neznámy ovládací príkaz v o slove"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:189
 msgid "Too many oword labels"
-msgstr ""
+msgstr "Príliš veľa označení \"oword\""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:190
 msgid "Unknown oword number"
-msgstr ""
+msgstr "Neznáme \"oword\" číslo"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:191
 msgid "Nested subroutine definition"
-msgstr ""
+msgstr "Definícia vnoreného podprogramu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:192
 msgid "Not in subroutine definition"
-msgstr ""
+msgstr "Nie v definícii podprogramu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:193
 msgid "File not open"
-msgstr ""
+msgstr "Súbor nie je otvorený"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:194
 #, c-format
 msgid "cannot reopen file %s - removed or renamed? (%s)"
-msgstr ""
+msgstr "nedá sa znova otvoriť súbor %s - je odstránený alebo premenovaný? (%s)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:195
 msgid "Need tool prepared -Txx- for toolchange"
-msgstr ""
+msgstr "Potrebujete pripraviť nástroj -Txx- na výmenu nástroja"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:196
 msgid "Cannot change planes with cutter radius compensation on"
-msgstr ""
+msgstr "Nie je možné meniť roviny so zapnutou kompenzáciou polomeru frézy"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:197
 msgid "Cutter radius compensation allowed only in XY, XZ planes"
-msgstr ""
+msgstr "Kompenzácia polomeru frézy je povolená len v rovinách XY, XZ"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:198
 msgid "P word missing with G76"
-msgstr ""
+msgstr "Chýba slovo P s G76"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:199
 msgid "I J or K words missing with G76"
-msgstr ""
+msgstr "V G76 chýbajú slová J,I alebo K"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:200
 msgid "Cannot move rotary axes with G76"
-msgstr ""
+msgstr "Pomocou G76 nie je možné pohybovať osami otáčania"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:201
 msgid "Multiple e words on one line"
-msgstr ""
+msgstr "Viac e slov na jednom riadku"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:202
 msgid "Named parameter not terminated"
-msgstr ""
+msgstr "Pomenovaný parameter nie je ukončený"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:203
 msgid "Out of memory"
-msgstr ""
+msgstr "Nedostatok pamäte"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:204
 msgid "S word missing with G96"
-msgstr ""
+msgstr "Chýba slovo S pri G96"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:205
 msgid "Queue is not empty after external input"
-msgstr ""
+msgstr "Po externom vstupe nie je front prázdny"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:206
 msgid "Can't select analog input with wait type != immediate return"
-msgstr ""
+msgstr "Nie je možné vybrať analógový vstup s typom čakania != okamžitý návrat"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:207
 msgid "Zero timeout with wait type != immediate return"
-msgstr ""
+msgstr "Nulový časový limit s typom čakania != okamžitý návrat"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:208
 msgid "Invalid to select both a digital and an analog input with M66"
-msgstr ""
+msgstr "Neplatné pre výber digitálneho aj analógového vstupu pomocou M66"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:209
 msgid "Need to have either a valid P or a valid E word with M66"
-msgstr ""
+msgstr "Musíte mať buď platné slovo P alebo platné slovo E s M66"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:210
 msgid "Q word missing with g73"
-msgstr ""
+msgstr "Chýba slovo Q s g73"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:211
 msgid "Digital input selected out of bounds"
-msgstr ""
+msgstr "Digitálny vstup je vybratý mimo hraníc"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:212
 msgid "Analog input selected out of bounds"
-msgstr ""
+msgstr "Analógový vstup vybratý mimo rámca"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:213
 msgid "W value unspecified in UV plane canned cycle"
-msgstr ""
+msgstr "Hodnota W nešpecifikovaná v pevnom cykle UV roviny"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:214
 msgid "U value unspecified in VW plane canned cycle"
-msgstr ""
+msgstr "Nešpecifikovaná hodnota U v pevnom cykle roviny VW"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:215
 msgid "V value unspecified in UW plane canned cycle"
-msgstr ""
+msgstr "Hodnota V nešpecifikovaná v pevnom cykle roviny UW"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:216
 msgid "R less than W in cycle in UV plane"
-msgstr ""
+msgstr "R je menšie ako W v cykle v UV rovine"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:217
 msgid "R less than U in cycle in VW plane"
-msgstr ""
+msgstr "R je menšie ako U v cykle v rovine VW"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:218
 msgid "R less than V in cycle in UW plane"
-msgstr ""
+msgstr "R je menšie ako V v cykle v rovine UW"
 
 #: src/hal/utils/meter.c:205
 #, c-format
 msgid "ERROR: '%s' is not a valid probe type\n"
-msgstr ""
+msgstr "CHYBA: '%s' nie je platný typ sondy\n"
 
 #: src/hal/utils/meter.c:213
 #, c-format
 msgid "ERROR: no pin/signal/parameter name\n"
-msgstr ""
+msgstr "CHYBA: žiadny pin/signál/názov parametra\n"
 
 #: src/hal/utils/meter.c:219
 #, c-format
 msgid ""
 "ERROR: -s option requires a probe type and a pin/signal/parameter name\n"
-msgstr ""
+msgstr "CHYBA: Voľba -s vyžaduje typ sondy a názov pinu/signálu/parametra\n"
 
 #: src/hal/utils/meter.c:243 tcl/tklinuxcnc.tcl:793
 msgid "Hal Meter"
@@ -1849,7 +1916,7 @@ msgstr "_Vybrať"
 
 #: src/hal/utils/meter.c:293
 msgid "E_xit"
-msgstr ""
+msgstr "Opustiť"
 
 #: src/hal/utils/meter.c:336 src/hal/utils/meter.c:364
 msgid "Select Item to Probe"
@@ -1857,7 +1924,7 @@ msgstr "Vyberte položku pre sondu"
 
 #: src/hal/utils/meter.c:616
 msgid " _Pins "
-msgstr ""
+msgstr " _Piny "
 
 #: src/hal/utils/meter.c:617
 msgid " _Signals "
@@ -1876,6 +1943,8 @@ msgid ""
 "Usage:\n"
 "  halscope [-h] [-i infile] [-o outfile] [num_samples]\n"
 msgstr ""
+"Použitie:\n"
+"  halscope [-h] [-i infile] [-o outfile] [num_samples]\n"
 
 #: src/hal/utils/scope.c:476
 msgid "Open Configuration File:"
@@ -1921,7 +1990,7 @@ msgstr "_Preč"
 
 #: src/hal/utils/scope.c:570
 msgid "_About Halscope"
-msgstr ""
+msgstr "_O Halscope"
 
 #: src/hal/utils/scope.c:576 share/axis/tcl/axis.tcl:470
 msgid "_File"
@@ -1933,11 +2002,11 @@ msgstr "_Pomoc"
 
 #: src/hal/utils/scope.c:635
 msgid "HAL Oscilloscope"
-msgstr ""
+msgstr "HAL oscilloscope"
 
 #: src/hal/utils/scope.c:663
 msgid "Horizontal"
-msgstr ""
+msgstr "Horizontalne"
 
 #: src/hal/utils/scope.c:673
 msgid "Selected Channel"
@@ -1945,15 +2014,15 @@ msgstr "Vybrať kanál"
 
 #: src/hal/utils/scope.c:679
 msgid "Run Mode"
-msgstr ""
+msgstr "Mód chodu"
 
 #: src/hal/utils/scope.c:682
 msgid "Trigger"
-msgstr ""
+msgstr "Spúšťač"
 
 #: src/hal/utils/scope.c:688
 msgid "Vertical"
-msgstr ""
+msgstr "Vertikalne"
 
 #: src/hal/utils/scope.c:696 src/hal/classicladder/classicladder_gtk.c:1084
 #: share/axis/tcl/axis.tcl:144 share/axis/tcl/axis.tcl:1044
@@ -1965,7 +2034,7 @@ msgstr "Stop"
 
 #: src/hal/utils/scope.c:698 src/hal/utils/scope_trig.c:201
 msgid "Normal"
-msgstr ""
+msgstr "Normane"
 
 #: src/hal/utils/scope.c:700
 msgid "Single"
@@ -1973,25 +2042,27 @@ msgstr "Jedna udalosť"
 
 #: src/hal/utils/scope.c:702
 msgid "Roll"
-msgstr ""
+msgstr "Rolovať"
 
 #: src/hal/utils/scope_horiz.c:139 src/emc/usr_intf/gscreen/gscreen.glade:3587
 msgid "Zoom"
-msgstr ""
+msgstr "Zoom"
 
 #: src/hal/utils/scope_horiz.c:140
 msgid " Pos "
-msgstr ""
+msgstr " Poz "
 
 #: src/hal/utils/scope_horiz.c:175
 msgid ""
 "----- Samples\n"
 "at ---- kHz"
 msgstr ""
+"----- Vzorky\n"
+"pri ---- kHz"
 
 #: src/hal/utils/scope_horiz.c:474
 msgid "Realtime component not loaded"
-msgstr ""
+msgstr "Komponent Realtime nie je načítaný"
 
 #: src/hal/utils/scope_horiz.c:477
 msgid ""
@@ -2006,6 +2077,17 @@ msgid ""
 "or\n"
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
+"HALSCOPE používa komponent v reálnom čase s názvom scope_rt'\n"
+"na vzorkovanie signálov na zobrazenie. Momentálne nie je načítaný\n"
+"a pokus o načítanie automaticky zlyhal. Viac informácií\n"
+"môže byť k dispozícii v termináli, kde bol spustený halscope.\n"
+"\n"
+"Vykonajte jeden z nasledujúcich krokov:\n"
+"\n"
+"Načítajte komponent (pomocou 'halcmd loadrt scope_rt'), potom kliknite na "
+"'OK'\n"
+"alebo\n"
+"Kliknite na 'Quit' pre ukončenie HALSCOPE"
 
 #: src/hal/utils/scope_horiz.c:485 src/hal/utils/scope_horiz.c:762
 #: tcl/bin/emccalib.tcl:276 tcl/bin/emcdebug.tcl:201 tcl/bin/genedit.tcl:180
@@ -2037,7 +2119,7 @@ msgstr "Ukončiť"
 
 #: src/hal/utils/scope_horiz.c:519
 msgid "Realtime function not linked"
-msgstr ""
+msgstr "Funkcia Realtime nie je prepojená"
 
 #: src/hal/utils/scope_horiz.c:520
 msgid ""
@@ -2051,10 +2133,19 @@ msgid ""
 "or\n"
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
+"Funkcia vzorkovania v reálnom čase HALSCOPE\n"
+"musí byť volaná z vlákna HAL do\n"
+"určenej vzorkovacej frekvencie.\n"
+"\n"
+"Vykonajte jeden z nasledujúcich krokov:\n"
+"\n"
+"Vyberte názov vlákna a násobiteľa a potom kliknite na „OK“\n"
+"alebo\n"
+"Kliknite na 'Quit' pre ukončenie HALSCOPE"
 
 #: src/hal/utils/scope_horiz.c:527
 msgid "Select Sample Rate"
-msgstr ""
+msgstr "Vyberať vzorkovaciu frekvenciu"
 
 #: src/hal/utils/scope_horiz.c:528
 msgid ""
@@ -2062,6 +2153,9 @@ msgid ""
 "or\n"
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
+"Vyberte názov vlákna a násobiteľa a potom kliknite na „OK“\n"
+"alebo\n"
+"Kliknite na 'Quit' pre ukončenie HALSCOPE"
 
 #: src/hal/utils/scope_horiz.c:535 src/hal/utils/scope_vert.c:699
 #: src/hal/utils/scope_vert.c:917
@@ -2070,28 +2164,28 @@ msgstr "OK"
 
 #: src/hal/utils/scope_horiz.c:555
 msgid "Thread:"
-msgstr ""
+msgstr "Vlákno:"
 
 #: src/hal/utils/scope_horiz.c:564
 msgid "Sample Period:"
-msgstr ""
+msgstr "Vzorka periódy:"
 
 #: src/hal/utils/scope_horiz.c:573
 msgid "Sample Rate:"
-msgstr ""
+msgstr "Vzorkovacia frekvencia:"
 
 #: src/hal/utils/scope_horiz.c:589 src/emc/usr_intf/touchy/mdi.py:83
 #: src/emc/usr_intf/gscreen/mdi.py:78
 msgid "Thread"
-msgstr ""
+msgstr "Vlákno"
 
 #: src/hal/utils/scope_horiz.c:590
 msgid "Period"
-msgstr ""
+msgstr "Perióda"
 
 #: src/hal/utils/scope_horiz.c:637
 msgid "Multiplier:"
-msgstr ""
+msgstr "Násobiteľ:"
 
 #: src/hal/utils/scope_horiz.c:657
 msgid "Record Length"
@@ -2100,33 +2194,34 @@ msgstr "Dĺžka záznamu"
 #: src/hal/utils/scope_horiz.c:662
 #, c-format
 msgid "%5d samples (1 channel)"
-msgstr ""
+msgstr "%5d vzoriek (1 kanál)"
 
 #: src/hal/utils/scope_horiz.c:664
 #, c-format
 msgid "%5d samples (2 channels)"
-msgstr ""
+msgstr "%5d vzoriek (2 kanály)"
 
 #: src/hal/utils/scope_horiz.c:668
 #, c-format
 msgid "%5d samples (4 channels)"
-msgstr ""
+msgstr "%5d vzoriek (4 kanály)"
 
 #: src/hal/utils/scope_horiz.c:672
 #, c-format
 msgid "%5d samples (8 channels)"
-msgstr ""
+msgstr "%5d vzoriek (8 kanálov)"
 
 #: src/hal/utils/scope_horiz.c:676
 #, c-format
 msgid "%5d samples (16 channels)"
-msgstr ""
+msgstr "%5d vzoriek (16 kanálov)"
 
 #: src/hal/utils/scope_horiz.c:751
 msgid "Realtime thread(s) not running"
-msgstr ""
+msgstr "Vlákna(o) v reálnom čase nebežia"
 
 #: src/hal/utils/scope_horiz.c:754
+#, fuzzy
 msgid ""
 "HALSCOPE uses code in a realtime HAL thread to sample\n"
 "signals for display.  The HAL thread(s) are not running.\n"
@@ -2139,22 +2234,32 @@ msgid ""
 "or\n"
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
+"HALSCOPE používa na vzorkovanie kód vo vlákne HAL v reálnom čase\n"
+"signály ako obraz. Vlákna HAL nie sú spustené.\n"
+"Vlákna zvyčajne spúšťa aplikácia, ktorou ste\n"
+"sa to už pokúšali spustiť, alebo môžete použiť príkaz 'halcmd start'.\n"
+"\n"
+"Vykonajte jeden z nasledujúcich krokov:\n"
+"\n"
+"Spustite vlákna a potom kliknite na tlačidlo „OK“\n"
+"alebo\n"
+"Kliknite na 'Quit' pre ukončenie HALSCOPE"
 
 #: src/hal/utils/scope_horiz.c:793
 msgid "No channels selected"
-msgstr ""
+msgstr "Nie sú vybraté žiadne kanály"
 
 #: src/hal/utils/scope_horiz.c:796
 msgid "You need to choose at least one channel."
-msgstr ""
+msgstr "Musíte vybrať aspoň jeden kanál."
 
 #: src/hal/utils/scope_horiz.c:806
 msgid "Pick log file to write to:"
-msgstr ""
+msgstr "Vyberte súbor denníka, do ktorého chcete zapisovať:"
 
 #: src/hal/utils/scope_horiz.c:976
 msgid "Not enough channels"
-msgstr ""
+msgstr "Nedostatok kanálov"
 
 #: src/hal/utils/scope_horiz.c:979
 msgid ""
@@ -2162,6 +2267,9 @@ msgid ""
 "that are currently enabled.  Pick a shorter\n"
 "record length that supports more channels."
 msgstr ""
+"Táto dĺžka záznamu nedokáže spracovať kanály\n"
+"ktoré sú momentálne povolené. Vyberte si kratšiu\n"
+"dĺžku záznamu, ktorá podporuje viac kanálov."
 
 #: src/hal/utils/scope_horiz.c:1067
 #, c-format
@@ -2169,6 +2277,8 @@ msgid ""
 "%s\n"
 "per div"
 msgstr ""
+"%s\n"
+"na div"
 
 #: src/hal/utils/scope_horiz.c:1082
 #, c-format
@@ -2176,6 +2286,8 @@ msgid ""
 "%s samples\n"
 "at %s"
 msgstr ""
+"%s vzoriek\n"
+"na %s"
 
 #: src/hal/utils/scope_horiz.c:1186 src/emc/usr_intf/stepconf/base.glade:113
 #: src/emc/usr_intf/stepconf/base.glade:141
@@ -2186,15 +2298,15 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:470
 #: src/emc/usr_intf/pncconf/base.glade:385
 msgid "ns"
-msgstr ""
+msgstr "ns"
 
 #: src/hal/utils/scope_horiz.c:1189
 msgid "µs"
-msgstr ""
+msgstr "µs"
 
 #: src/hal/utils/scope_horiz.c:1193
 msgid "ms"
-msgstr ""
+msgstr "ms"
 
 #: src/hal/utils/scope_horiz.c:1197 src/emc/usr_intf/stepconf/axisx.glade:345
 #: src/emc/usr_intf/stepconf/axisy.glade:343
@@ -2203,7 +2315,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisv.glade:345
 #: src/emc/usr_intf/stepconf/axisa.glade:343
 msgid "s"
-msgstr ""
+msgstr "s"
 
 #: src/hal/utils/scope_horiz.c:1214 src/emc/usr_intf/stepconf/spindle.glade:112
 #: src/emc/usr_intf/stepconf/axisx.glade:359
@@ -2219,15 +2331,15 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:443
 #: src/emc/usr_intf/pncconf/mesa1.glade:456
 msgid "Hz"
-msgstr ""
+msgstr "Hz"
 
 #: src/hal/utils/scope_horiz.c:1217
 msgid "kHz"
-msgstr ""
+msgstr "kHz"
 
 #: src/hal/utils/scope_horiz.c:1221
 msgid "MHz"
-msgstr ""
+msgstr "MHz"
 
 #: src/hal/utils/scope_vert.c:413 src/hal/utils/scope_vert.c:1117
 #, c-format
@@ -2240,11 +2352,11 @@ msgstr ""
 
 #: src/hal/utils/scope_vert.c:602
 msgid "Gain"
-msgstr ""
+msgstr "_Gain"
 
 #: src/hal/utils/scope_vert.c:615 src/hal/utils/scope_trig.c:257
 msgid "Pos"
-msgstr ""
+msgstr "Poz"
 
 #: src/hal/utils/scope_vert.c:630 tcl/ngcgui_ttt.tcl:215
 #: src/emc/usr_intf/pncconf/x_motor.glade:1672
@@ -2254,7 +2366,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/s_motor.glade:1821
 #: lib/python/gladevcp/gladevcp-test.glade:250
 msgid "Scale"
-msgstr ""
+msgstr "Mierka"
 
 #: src/hal/utils/scope_vert.c:635
 msgid ""
@@ -2270,6 +2382,8 @@ msgid ""
 "Set the vertical offset\n"
 "for channel %d."
 msgstr ""
+"Nastaviť vertikálny ofset\n"
+"pre kanál %d."
 
 #: src/hal/utils/scope_vert.c:697
 msgid "Set Offset"
@@ -2277,7 +2391,7 @@ msgstr "Nastaviť ofset"
 
 #: src/hal/utils/scope_vert.c:716
 msgid "AC Coupled"
-msgstr ""
+msgstr "AC spriahnuté"
 
 #: src/hal/utils/scope_vert.c:819
 msgid "Too many channels"
@@ -2290,15 +2404,19 @@ msgid ""
 "Either turn off one or more channels, or shorten\n"
 "the record length to allow for more channels"
 msgstr ""
+"Nemôžete pridať ďalší kanál.\n"
+"\n"
+"Buď vypnite jeden alebo viac kanálov, alebo skráťte\n"
+"dĺžku záznamu, aby bolo možné použiť viac kanálov"
 
 #: src/hal/utils/scope_vert.c:912
-#, fuzzy, c-format
+#, c-format
 msgid "Select Channel %d Source"
-msgstr "Vybrať kanál"
+msgstr "Vybrať kanál %d zdroja"
 
 #: src/hal/utils/scope_vert.c:935
 msgid "Pins"
-msgstr ""
+msgstr "Piny"
 
 #: src/hal/utils/scope_vert.c:936
 msgid "Signals"
@@ -2309,27 +2427,31 @@ msgid "Parameters"
 msgstr "Parametre"
 
 #: src/hal/utils/scope_trig.c:115
-#, c-format
+#, c-format, fuzzy
 msgid "Falling"
-msgstr ""
+msgstr "-Falling"
 
 #: src/hal/utils/scope_trig.c:117 src/hal/utils/scope_trig.c:281
-#, c-format
+#, c-format, fuzzy
 msgid "Rising"
-msgstr ""
+msgstr "-Rising"
 
 #: src/hal/utils/scope_trig.c:124 src/hal/utils/scope_trig.c:289
 msgid ""
 "Source\n"
 "None"
 msgstr ""
+"Zdroj\n"
+"žiadne"
 
 #: src/hal/utils/scope_trig.c:129
-#, c-format
+#, c-format, fuzzy
 msgid ""
 "Source\n"
 "Chan %2d"
 msgstr ""
+"Zdroj\n"
+"Chan %2d"
 
 #: src/hal/utils/scope_trig.c:203 tcl/tklinuxcnc.tcl:856
 #: src/emc/usr_intf/touchy/touchy.glade:2443
@@ -2338,142 +2460,145 @@ msgstr "Automatika"
 
 #: src/hal/utils/scope_trig.c:205
 msgid "Force"
-msgstr ""
+msgstr "Sila"
 
 #: src/hal/utils/scope_trig.c:239 src/hal/utils/scope_trig.c:275
 msgid "Level"
-msgstr ""
+msgstr "Úroveň"
 
 #: src/hal/utils/scope_trig.c:310
 msgid "Select a channel to use for triggering."
-msgstr ""
+msgstr "Vyberte kanál, ktorý chcete použiť na spustenie."
 
 #: src/hal/utils/scope_trig.c:313
 msgid "Trigger Source"
-msgstr ""
+msgstr "Zdroj spúšťača"
 
 #: src/hal/utils/scope_trig.c:336
+#, fuzzy
 msgid "Chan"
-msgstr ""
+msgstr "-Chan"
 
 #: src/hal/utils/scope_trig.c:337
 msgid "Source"
-msgstr ""
+msgstr "Zdroj"
 
 #: src/emc/motion/control.c:526
 #, c-format
 msgid "fault %d during orient in progress"
-msgstr ""
+msgstr "chyba %d počas orientácie prebieha"
 
 #: src/emc/motion/control.c:709
 msgid "G38.4 move finished without breaking contact."
-msgstr ""
+msgstr "Pohyb G38.4 sa skončil bez prerušenia kontaktu."
 
 #: src/emc/motion/control.c:712
 msgid "G38.2 move finished without making contact."
-msgstr ""
+msgstr "Pohyb G38.2 sa skončil bez kontaktu."
 
 #: src/emc/motion/control.c:725
 msgid "Probe tripped during non-probe move."
-msgstr ""
+msgstr "Sonda sa spustila počas non-probe pohybu."
 
 #: src/emc/motion/control.c:756
 msgid "Probe tripped during homing motion."
-msgstr ""
+msgstr "Sonda sa spustila počas navádzacieho pohybu."
 
 #: src/emc/motion/control.c:760
 msgid "Probe tripped during a joint jog."
-msgstr ""
+msgstr "Sonda sa spustila počas \"joint jog\"."
 
 #: src/emc/motion/control.c:763
 msgid "Probe tripped during a coordinate jog."
-msgstr ""
+msgstr "Sonda sa spustila počas pohybu súradníc."
 
 #: src/emc/motion/control.c:779
 msgid "motion stopped by enable input"
-msgstr ""
+msgstr "pohyb zastavený pomocou \"povoliť vstup\""
 
 #: src/emc/motion/control.c:786
 #, c-format
 msgid "spindle %d amplifier fault"
-msgstr ""
+msgstr "chyba vretena %d zosilňovača"
 
 #: src/emc/motion/control.c:809
 #, c-format
 msgid "joint %d on limit switch error"
-msgstr ""
+msgstr "joint %d na koncovom spínači"
 
 #: src/emc/motion/control.c:821
 #, c-format
 msgid "joint %d amplifier fault"
-msgstr ""
+msgstr "joint %d chyba zosilňovača"
 
 #: src/emc/motion/control.c:830
 #, c-format
 msgid "joint %d following error"
-msgstr ""
+msgstr "Joint %d prekročil nastavenú odchýlku(FERROR v .ini)"
 
 #: src/emc/motion/control.c:843
 #, c-format
 msgid "Motion Stopped by misc error %d"
-msgstr ""
+msgstr "Pohyb bol zastavený z dôvodu rôznej chyby %d"
 
 #: src/emc/motion/control.c:1346 src/emc/motion/control.c:1406
 #, c-format
 msgid "kinematicsInverse gave non-finite joint location on joint %d"
-msgstr ""
+msgstr "kinematicsInverse poskytla non-finite joint lokalizovanú na joint %d"
 
 #: src/emc/motion/control.c:1363 src/emc/motion/control.c:1425
 msgid "kinematicsInverse failed"
-msgstr ""
+msgstr "kinematicsInverse zlyhala"
 
 #: src/emc/motion/control.c:1502
 #, c-format
 msgid "Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"
-msgstr ""
+msgstr "Prekročený NEGATÍVNY mäkký(softvérový) limit (%.5f) na joint %d\n"
 
 #: src/emc/motion/control.c:1505 src/emc/motion/control.c:1514
 msgid "Joint must be unhomed, jogged into limits, rehomed"
 msgstr ""
+"Joint musí byť rozkalibrovaný, vrátený do povolených limitov a znova "
+"skalibrovaný"
 
 #: src/emc/motion/control.c:1507 src/emc/motion/control.c:1516
 msgid "Hint: switch to joint mode to jog off soft limit"
-msgstr ""
+msgstr "Tip: prepnite do režimu \"joint\", aby ste vypli mäkký(soft.) limit"
 
 #: src/emc/motion/control.c:1511
 #, c-format
 msgid "Exceeded POSITIVE soft limit (%.5f) on joint %d\n"
-msgstr ""
+msgstr "Prekročený POZITÍVNY mäkký(softvérový) limit (%.5f) na joint %d\n"
 
 #: src/emc/motion/command.c:126
 #, c-format
 msgid "Can't jog invalid joint number %d."
-msgstr ""
+msgstr "Nie je možné spustiť neplatné číslo jointu %d."
 
 #: src/emc/motion/command.c:130
 #, c-format
 msgid "Can't jog joint %d further past max hard limit."
-msgstr ""
+msgstr "Nie je možné posunúť joint %d ďalej za maximálny \"tvrdý\" limit."
 
 #: src/emc/motion/command.c:135
 #, c-format
 msgid "Can't jog joint %d further past min hard limit."
-msgstr ""
+msgstr "Nedá sa posunúť joint %d ďalej za min pevný limit."
 
 #: src/emc/motion/command.c:141
 #, c-format
 msgid "Can't jog joint %d further past max soft limit."
-msgstr ""
+msgstr "Nie je možné posúvať joint %d ďalej za maximálny mäkký limit."
 
 #: src/emc/motion/command.c:146
 #, c-format
 msgid "Can't jog joint %d further past min soft limit."
-msgstr ""
+msgstr "Nie je možné posunúť joint %d ďalej za min mäkký limit."
 
 #: src/emc/motion/command.c:216 src/emc/motion/command.c:221
 #, c-format
 msgid "%s move on line %d would exceed %c's %s limit"
-msgstr ""
+msgstr "%s pohyb na riadku %d prekračuje %c %s limit"
 
 #: src/emc/motion/command.c:217
 msgid "negative"
@@ -2486,194 +2611,198 @@ msgstr "pozitív"
 #: src/emc/motion/command.c:239
 #, c-format
 msgid "%s move on line %d fails kinematicsInverse"
-msgstr ""
+msgstr "%s pohyb na riadku %d zlyhá kinematicsInverse"
 
 #: src/emc/motion/command.c:254
 #, c-format
 msgid "%s move on line %d gave non-finite joint location on joint %d"
-msgstr ""
+msgstr "%s pohyb na riadku %d dal neurčitú polohu jointu na jointe %d"
 
 #: src/emc/motion/command.c:261
 #, c-format
 msgid "%s move on line %d would exceed joint %d's positive limit"
-msgstr ""
+msgstr "%s pohyb na riadku %d prekračuje joint %d pozitívny limit"
 
 #: src/emc/motion/command.c:267
 #, c-format
 msgid "%s move on line %d would exceed joint %d's negative limit"
-msgstr ""
+msgstr "%s pohyb na riadku %d prekračuje joint %d negatívny limit"
 
 #: src/emc/motion/command.c:584
 msgid "all joints must be homed before going into coordinated mode"
 msgstr ""
+"všetky jointy musia byť pred prechodom do koordinovaného režimu skalibrované"
 
 #: src/emc/motion/command.c:776 src/emc/motion/command.c:844
 #: src/emc/motion/command.c:923
 msgid "Can't jog joint when not enabled."
-msgstr ""
+msgstr "Nie je mužný pohyb jointu ak nie je povolený."
 
 #: src/emc/motion/command.c:782 src/emc/motion/command.c:850
 #: src/emc/motion/command.c:929
 msgid "Cannot jog while jog-inhibit is active."
-msgstr ""
+msgstr "Nie je možný pohyb, kým je jog-inhibit aktívny."
 
 #: src/emc/motion/command.c:786 src/emc/motion/command.c:933
 msgid "Can't jog any joints while homing."
-msgstr ""
+msgstr "Počas navádzania nie je pohyb možný."
 
 #: src/emc/motion/command.c:854
 msgid "Can't jog any joint while homing."
-msgstr ""
+msgstr "Počas navádzania nie je možné pohybovať so žiadnym jointom."
 
 #: src/emc/motion/command.c:998
 msgid "need to be enabled, in coord mode for linear move"
-msgstr ""
+msgstr "je potrebné povoliť v režime súradníc pre lineárny pohyb"
 
 #: src/emc/motion/command.c:1003
 msgid "invalid params in linear command"
-msgstr ""
+msgstr "neplatné parametre v lineárnom príkaze"
 
 #: src/emc/motion/command.c:1009
 msgid "can't do linear move with limits exceeded"
-msgstr ""
+msgstr "nie je možný lineárny pohyb s prekročenými limitmi"
 
 #: src/emc/motion/command.c:1039
 #, c-format
 msgid "can't add linear move at line %d, error code %d"
-msgstr ""
+msgstr "nie je možné pridať lineárny pohyb na riadku %d, kód chyby %d"
 
 #: src/emc/motion/command.c:1066
 msgid "need to be enabled, in coord mode for circular move"
-msgstr ""
+msgstr "je potrebné \"povoliť\" v režime súradníc kruhový pohyb"
 
 #: src/emc/motion/command.c:1076
 msgid "can't do circular move with limits exceeded"
-msgstr ""
+msgstr "nemôže robiť kruhový pohyb s prekročenými limitmi"
 
 #: src/emc/motion/command.c:1095
 #, c-format
 msgid "can't add circular move at line %d, error code %d"
-msgstr ""
+msgstr "nie je možné pridať kruhový pohyb na riadku %d, kód chyby %d"
 
 #: src/emc/motion/command.c:1210
 msgid "MOTION: can't STEP while already executing"
-msgstr ""
+msgstr "POHYB: nemožno KROKOVAŤ počas samotného úkonu"
 
 #: src/emc/motion/command.c:1312
 msgid "can't enable motion, enable input is false"
-msgstr ""
+msgstr "nie je možné povoliť pohyb, \"enable input\" je \"false\""
 
 #: src/emc/motion/command.c:1356
 msgid "must be in joint mode to home"
-msgstr ""
+msgstr "musí byť v joint móde v režime kalibrácie"
 
 #: src/emc/motion/command.c:1360
 #, c-format
 msgid "Homing denied by motion.homing-inhibit joint=%d\n"
-msgstr ""
+msgstr "Navádzanie odmietnuté pomocou \"motion.homing-inhibit\" na jointe=%d\n"
 
 #: src/emc/motion/command.c:1380
 msgid "must be in joint mode or disabled to unhome"
-msgstr ""
+msgstr "musí byť v móde joint, alebo musí byť deaktivované na kalibráciu"
 
 #: src/emc/motion/command.c:1400
 msgid "need to be enabled, in coord mode for probe move"
-msgstr ""
+msgstr "je potrebné povoliť v režime súradníc pre pohyb sondy"
 
 #: src/emc/motion/command.c:1410
 msgid "can't do probe move with limits exceeded"
-msgstr ""
+msgstr "nemôže vykonať pohyb sondy s prekročenými limitmi"
 
 #: src/emc/motion/command.c:1424
 msgid "Probe is already clear when starting G38.4 or G38.5 move"
-msgstr ""
+msgstr "Sonda je pripravená už pri spustení pohybu G38.4 alebo G38.5"
 
 #: src/emc/motion/command.c:1426
+#, fuzzy
 msgid "Probe is already tripped when starting G38.2 or G38.3 move"
-msgstr ""
+msgstr "Sonda je už tripped pri spustení pohybu G38.2 alebo G38.3"
 
 #: src/emc/motion/command.c:1447
 msgid "can't add probe move"
-msgstr ""
+msgstr "nie je možné pridať pohyb sondy"
 
 #: src/emc/motion/command.c:1469
+#, fuzzy
 msgid "need to be enabled, in coord mode for rigid tap move"
-msgstr ""
+msgstr "je potrebné povoliť v režime súradníc pre pohyb čapu"
 
 #: src/emc/motion/command.c:1479
+#, fuzzy
 msgid "can't do rigid tap move with limits exceeded"
-msgstr ""
+msgstr "nemôže robiť pohyb čapu s prekročenými limitmi"
 
 #: src/emc/motion/command.c:1498
-#, c-format
+#, c-format, fuzzy
 msgid "can't add rigid tap move at line %d, error code %d"
-msgstr ""
+msgstr "nie je možné pridať pohyb čapu na riadku %d, kód chyby %d"
 
 #: src/emc/motion/command.c:1543
 msgid "Attempt to configure non-existent spindle"
-msgstr ""
+msgstr "Pokúste sa nakonfigurovať neexistujúce vreteno"
 
 #: src/emc/motion/command.c:1561
 msgid "Attempt to start non-existent spindle"
-msgstr ""
+msgstr "Pokus o spustenie neexistujúceho vretena"
 
 #: src/emc/motion/command.c:1612
 #, c-format
 msgid "Attempt to stop non-existent spindle <%d>"
-msgstr ""
+msgstr "Pokus o zastavenie neexistujúceho vretena <%d>"
 
 #: src/emc/motion/command.c:1643
 #, c-format
 msgid "Attempt to orient non-existent spindle <%d>"
-msgstr ""
+msgstr "Pokus o orientáciu neexistujúceho vretena <%d>"
 
 #: src/emc/motion/command.c:1689
 #, c-format
 msgid "Attempt to increase non-existent spindle <%d>"
-msgstr ""
+msgstr "Pokus o zrýchlenie neexistujúceho vretena <%d>"
 
 #: src/emc/motion/command.c:1713
 #, c-format
 msgid "Attempt to decrease non-existent spindle <%d>."
-msgstr ""
+msgstr "Pokus o spomalenie neexistujúceho vretena <%d>."
 
 #: src/emc/motion/command.c:1737
 #, c-format
 msgid "Attempt to engage brake of non-existent spindle <%d>"
-msgstr ""
+msgstr "Pokus o zabrzdenie neexistujúceho vretena <%d>"
 
 #: src/emc/motion/command.c:1759
 #, c-format
 msgid "Attempt to release brake of non-existent spindle <%d>"
-msgstr ""
+msgstr "Pokus o uvoľnenie brzdy neexistujúceho vretena <%d>"
 
 #: src/emc/motion/command.c:1781
 #, c-format
 msgid "joint %d: too many compensation entries"
-msgstr ""
+msgstr "joint %d: príliš veľa kompenzácií"
 
 #: src/emc/motion/command.c:1787
 #, c-format
 msgid "joint %d: compensation values must increase"
-msgstr ""
+msgstr "joint %d: hodnoty kompenzácie sa musia zvýšiť"
 
 #: src/emc/motion/command.c:1865
 #, c-format
 msgid "unrecognized command %d"
-msgstr ""
+msgstr "nerozpoznaný príkaz %d"
 
 #: src/emc/motion/motion.c:169
 msgid "all joints must be homed before going into teleop mode"
-msgstr ""
+msgstr "pred prechodom do režimu teleop musia byť všetky jointy skalibrované"
 
 #: src/emc/motion/motion.c:270
 msgid "MOTION: hal_init() failed\n"
-msgstr ""
+msgstr "MOTION: hal_init() zlyhalo\n"
 
 #: src/emc/motion/motion.c:275
 #, c-format
 msgid "MOTION: num_joints is %d, must be between 1 and %d\n"
-msgstr ""
+msgstr "MOTION: num_joints je %d, musí byť medzi 1 a %d\n"
 
 #: src/emc/motion/motion.c:282
 #, c-format
@@ -2682,6 +2811,9 @@ msgid ""
 "MOTION: num_extrajoints is %d, must be between 0 and %d\n"
 "\n"
 msgstr ""
+"\n"
+"MOTION: \"num_extrajoints\" je %d, musí byť medzi 0 a %d\n"
+"\n"
 
 #: src/emc/motion/motion.c:287
 msgid ""
@@ -2689,6 +2821,9 @@ msgid ""
 "MOTION: nonzero num_extrajoints requires KINEMATICS_BOTH\n"
 "\n"
 msgstr ""
+"\n"
+"MOTION: nenulový počet \"num_extrajoints\" vyžaduje KINEMATICS_BOTH\n"
+"\n"
 
 #: src/emc/motion/motion.c:292
 #, c-format
@@ -2699,241 +2834,259 @@ msgid ""
 "           Total joints=%2d\n"
 "\n"
 msgstr ""
+"\n"
+"MOTION: kinematicjoints=%2d\n"
+"            extrajoints=%2d\n"
+"           celkovo joints=%2d\n"
+"\n"
 
 #: src/emc/motion/motion.c:299
 #, c-format
 msgid "MOTION: num_spindles is %d, must be between 0 and %d\n"
-msgstr ""
+msgstr "MOTION: \"num_spindles\" je %d, musí byť medzi 0 a %d\n"
 
 #: src/emc/motion/motion.c:306
 msgid "MOTION: Can't specify both names and number for digital pins\n"
-msgstr ""
+msgstr "MOTION: Nie je možné zadať názvy aj číslo pre digitálne piny\n"
 
 #: src/emc/motion/motion.c:320
 #, c-format
 msgid "MOTION: num_dio is %d, must be between 1 and %d\n"
-msgstr ""
+msgstr "MOTION: \"num_dio\" je %d, musí byť medzi 1 a %d\n"
 
 #: src/emc/motion/motion.c:326
 msgid "MOTION: Can't specify both names and number for analog pins\n"
-msgstr ""
+msgstr "MOTION: Nie je možné zadať názvy aj číslo pre analógové piny\n"
 
 #: src/emc/motion/motion.c:339
 #, c-format
 msgid "MOTION: num_aio is %d, must be between 1 and %d\n"
-msgstr ""
+msgstr "MOTION: \"num_aio\" je %d, musí byť medzi 1 a %d\n"
 
 #: src/emc/motion/motion.c:345
 msgid "MOTION: Can't specify both names and number for misc error\n"
-msgstr ""
+msgstr "MOTION: Nie je možné zadať názvy aj číslo pre rôzne chyby\n"
 
 #: src/emc/motion/motion.c:358
 #, c-format
 msgid "MOTION: num_misc_error is %d, must be between 0 and %d\n"
-msgstr ""
+msgstr "MOTION: \"num_misc_error\" je %d, musí byť medzi 0 a %d\n"
 
 #: src/emc/motion/motion.c:366
 msgid "MOTION: init_hal_io() failed\n"
-msgstr ""
+msgstr "MOTION: \"init_hal_io()\" zlyhalo\n"
 
 #: src/emc/motion/motion.c:374
 msgid "MOTION: init_comm_buffers() failed\n"
-msgstr ""
+msgstr "MOTION: \"init_comm_buffers()\" zlyhala\n"
 
 #: src/emc/motion/motion.c:380
 msgid "MOTION: module_intfc() failed\n"
-msgstr ""
+msgstr "MOTION: \"module_intfc()\" zlyhal\n"
 
 #: src/emc/motion/motion.c:384
 msgid "MOTION: tp_init() failed\n"
-msgstr ""
+msgstr "MOTION: \"tp_init()\" zlyhalo\n"
 
 #: src/emc/motion/motion.c:391
 msgid "MOTION: init_threads() failed\n"
-msgstr ""
+msgstr "MOTION: \"init_threads()\" zlyhala\n"
 
 #: src/emc/motion/motion.c:401
 msgid "MOTION: homing_init() failed\n"
-msgstr ""
+msgstr "MOTION: \"homing_init()\" zlyhalo\n"
 
 #: src/emc/motion/motion.c:426
 #, c-format
 msgid "MOTION: hal_stop_threads() failed, returned %d\n"
-msgstr ""
+msgstr "MOTION: \"hal_stop_threads()\" zlyhalo, vrátilo sa %d\n"
 
 #: src/emc/motion/motion.c:432
 #, c-format
 msgid "MOTION: rtapi_shmem_delete() failed, returned %d\n"
-msgstr ""
+msgstr "MOTION: \"rtapi_shmem_delete()\" zlyhalo, vrátilo %d\n"
 
 #: src/emc/motion/motion.c:438
 #, c-format
 msgid "MOTION: hal_exit() failed, returned %d\n"
-msgstr ""
+msgstr "MOTION: \"hal_exit()\" zlyhal, vrátil sa %d\n"
 
 #: src/emc/motion/motion.c:467
 msgid "MOTION: emcmot_hal_data malloc failed\n"
-msgstr ""
+msgstr "MOTION: \"emcmot_hal_data malloc\" zlyhal\n"
 
 #: src/emc/motion/motion.c:664
 #, c-format
 msgid "MOTION: spindle %d pin export failed"
-msgstr ""
+msgstr "MOTION: vreteno %d pin export zlyhal"
 
 #: src/emc/motion/motion.c:674
 #, c-format
 msgid "MOTION: joint %d pin/param export failed\n"
-msgstr ""
+msgstr "MOTION: joint %d pin/param export zlyhal\n"
 
 #: src/emc/motion/motion.c:687
 #, c-format
 msgid "MOTION: ejoint %d pin/param export failed\n"
-msgstr ""
+msgstr "MOTION: ejoint %d pin/param export zlyhal\n"
 
 #: src/emc/motion/homing.c:188
-#, c-format
+#, c-format, fuzzy
 msgid "j%d hit limit in home state %d"
-msgstr ""
+msgstr "j%d limit zásahov v domovskom stave %d %d"
 
 #: src/emc/motion/homing.c:197
-#, c-format
+#, c-format, fuzzy
 msgid "j%d end of move in home state %d"
-msgstr ""
+msgstr "j%d koniec presunu v domovskom stave %d"
 
 #: src/emc/motion/homing.c:236
 msgid "HOMING: all_joints_home_data_t malloc failed\n"
-msgstr ""
+msgstr "HOMING: \"all_joints_home_data_t malloc\" zlyhal\n"
 
 #: src/emc/motion/homing.c:299
 #, c-format
 msgid "Cannot unhome while homing, joint %d"
-msgstr ""
+msgstr "Počas navádzania nie je možné vrátiť domov, joint %d"
 
 #: src/emc/motion/homing.c:304
 #, c-format
 msgid "Cannot unhome while moving, joint %d"
-msgstr ""
+msgstr "Počas pohybu sa nedá rozkalibrovať, joint %d"
 
 #: src/emc/motion/homing.c:311
 #, c-format
 msgid "Cannot unhome extrajoint <%d> with motion enabled"
-msgstr ""
+msgstr "Nie je možné rozkalibrovať extrajoint <%d> so zapnutým pohybom"
 
 #: src/emc/motion/homing.c:366
 #, c-format
 msgid "homing.c Unexpected joint=%d jseq=%d current_seq=%d\n"
-msgstr ""
+msgstr "homing.c Nečakané joint=%d jseq=%d current_seq=%d\n"
 
 #: src/emc/motion/homing.c:482
 #, c-format
 msgid "unknown state '%d' during homing sequence"
-msgstr ""
+msgstr "neznámy stav '%d' počas navádzacej sekvencie"
 
 #: src/emc/motion/homing.c:576
 #, c-format
 msgid "Cannot unhome invalid joint %d (max %d)\n"
-msgstr ""
+msgstr "Nemožno rozkalibrovať neplatný joint %d (max %d)\n"
 
 #: src/emc/motion/homing.c:583
 #, c-format
 msgid "Cannot unhome extrajoint <%d> with motion enabled\n"
-msgstr ""
+msgstr "Nie je možné rozkalibrovať extrajoint <%d> s povoleným pohybom\n"
 
 #: src/emc/motion/homing.c:590
 #, c-format
 msgid "Cannot unhome while homing, joint %d\n"
-msgstr ""
+msgstr "Nedá sa rozkalibrovať pri navádzaní,, joint %d\n"
 
 #: src/emc/motion/homing.c:595
 #, c-format
 msgid "Cannot unhome while moving, joint %d\n"
-msgstr ""
+msgstr "Nedá sa rozkalibrovať pri pohybe, joint %d\n"
 
 #: src/emc/motion/homing.c:601
 #, c-format
 msgid "Cannot unhome inactive joint %d\n"
-msgstr ""
+msgstr "Nedá sa rozkalibrovať pri neaktívnom joint %d\n"
 
 #: src/emc/motion/homing.c:757
 #, c-format
 msgid "Cannot home while shared home switch is closed j=%d"
-msgstr ""
+msgstr "Nie je možné skalibrovať, keď je snímač kalibrácie zatvorený j=%d"
 
 #: src/emc/motion/homing.c:816
 msgid ""
 "invalid homing config: non-zero LATCH_VEL needs either SEARCH_VEL or "
 "USE_INDEX"
 msgstr ""
+"neplatná konfigurácia kalibrácie: nenulová hodnota LATCH_VEL vyžaduje buď "
+"SEARCH_VEL, alebo USE_INDEX v súbore .ini"
 
 #: src/emc/motion/homing.c:826
 msgid "invalid homing config: non-zero SEARCH_VEL needs LATCH_VEL"
 msgstr ""
+"neplatná konfigurácia kalibrácie: nenulová hodnota SEARCH_VEL vyžaduje "
+"LATCH_VEL v .ini súbore"
 
 #: src/emc/motion/homing.c:974
 #, c-format
 msgid "Home switch inactive before start of backoff move j=%d"
-msgstr ""
+msgstr "Snímač kalibrácie je neaktívny pred začiatkom ťahu späť j=%d"
 
 #: src/emc/motion/homing.c:1022
 #, c-format
 msgid "Home switch active before start of latch move j=%d"
-msgstr ""
+msgstr "Snímač kalibrácie aktívny pred začiatkom pohybu j=%d"
 
 #: src/emc/motion/homing.c:1079
 #, c-format
 msgid "Home switch inactive before start of latch move j=%d"
 msgstr ""
+"Snímač kalibrácie je neaktívny pred začiatkom protipohybu \"HOME_LATCH_VEL\" "
+"j=%d"
 
 #: src/emc/motion/homing.c:1313
 #, c-format
 msgid "hit limit in home state j=%d"
-msgstr ""
+msgstr "limit zásahu v stave kalibrácie j=%d"
 
 #: src/emc/motion/homing.c:1364
 #, c-format
 msgid "unknown state '%d' during homing j=%d"
-msgstr ""
+msgstr "neznámy stav '%d' počas navádzania j=%d"
 
 #: src/hal/classicladder/classicladder.c:190
 #, c-format
 msgid "ERROR CLASSICLADDER-   Error initializing classicladder user module.\n"
 msgstr ""
+"ERROR CLASSICLADDER- Chyba pri inicializácii užívateľského modulu "
+"classicladder.\n"
 
 #: src/hal/classicladder/classicladder.c:221
 msgid "Stopped program - press run button to continue."
-msgstr ""
+msgstr "Zastavený program – pokračujte stlačením tlačidla Spustiť."
 
 #: src/hal/classicladder/classicladder.c:231
+#, fuzzy
 msgid "Started program - press stop to pause."
-msgstr ""
+msgstr "Spustený program – pre pozastavenie stlačte stop."
 
 #: src/hal/classicladder/classicladder.c:286
 msgid ""
 "INFO CLASSICLADDER-   No ladder GUI requested-Realtime runs till HAL "
 "closes.\n"
 msgstr ""
+"INFO CLASSICLADDER – Nevyžaduje sa žiadne GUI pre ladder – v reálnom čase "
+"beží až do zatvorenia HAL.\n"
 
 #: src/hal/classicladder/classicladder.c:306
 msgid "Project loaded and running"
-msgstr ""
+msgstr "Projekt načítaný a spustený"
 
 #: src/hal/classicladder/classicladder.c:306
 #: src/hal/classicladder/classicladder_gtk.c:500
 msgid "Project failed to load..."
-msgstr ""
+msgstr "Projekt sa nepodarilo načítať..."
 
 #: src/hal/classicladder/classicladder.c:317
 msgid "GUI reloaded with existing ladder program"
-msgstr ""
+msgstr "GUI znovu načítané s existujúcim programom \"ladder\""
 
 #: src/hal/classicladder/classicladder.c:325
 msgid ""
 "INFO CLASSICLADDER-   Ladder GUI closed. Realtime runs till HAL closes\n"
 msgstr ""
+"INFO CLASSICLADDER- GUI Ladder zatvorené. Realtime beží až do zatvorenia "
+"HAL\n"
 
 #: src/hal/classicladder/classicladder.c:331
 msgid "ERROR CLASSICLADDER-   Ladder memory allocation error\n"
-msgstr ""
+msgstr "ERROR CLASSICLADDER- Chyba pri prideľovaní pamäte Ladder\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:496
 msgid "Load Error"
@@ -2941,7 +3094,7 @@ msgstr "Chyba načítania"
 
 #: src/hal/classicladder/classicladder_gtk.c:496
 msgid "Failed to load the project file..."
-msgstr ""
+msgstr "Nepodarilo sa načítať súbor projektu..."
 
 #: src/hal/classicladder/classicladder_gtk.c:496
 #: src/hal/classicladder/classicladder_gtk.c:511
@@ -2954,11 +3107,11 @@ msgstr ""
 #: src/hal/classicladder/manager_gtk.c:466
 #: src/emc/usr_intf/axis/scripts/axis.py:1603
 msgid "Ok"
-msgstr ""
+msgstr "OK"
 
 #: src/hal/classicladder/classicladder_gtk.c:500
 msgid "Project loaded (stopped)."
-msgstr ""
+msgstr "Projekt načítaný (zastavený)."
 
 #: src/hal/classicladder/classicladder_gtk.c:511
 #: src/hal/classicladder/classicladder_gtk.c:519
@@ -2968,25 +3121,25 @@ msgstr "Chyba uloženia"
 #: src/hal/classicladder/classicladder_gtk.c:511
 #: src/hal/classicladder/classicladder_gtk.c:519
 msgid "Failed to save the project file..."
-msgstr ""
+msgstr "Nepodarilo sa uložiť súbor projektu..."
 
 #: src/hal/classicladder/classicladder_gtk.c:525
 #, c-format
 msgid "SAVE %s %d\n"
-msgstr ""
+msgstr "ULOŽIŤ %s %d\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:533
 #, c-format
 msgid "LOAD %s %d\n"
-msgstr ""
+msgstr "NAČÍTAŤ %s %d\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:561
 msgid "Old directories projects"
-msgstr ""
+msgstr "Staré adresáre projektov"
 
 #: src/hal/classicladder/classicladder_gtk.c:565
 msgid "ClassicLadder projects"
-msgstr ""
+msgstr "Projekty ClassicLadder"
 
 #: src/hal/classicladder/classicladder_gtk.c:609
 #: src/hal/classicladder/classicladder_gtk.c:1059
@@ -2996,31 +3149,33 @@ msgstr "Nový"
 
 #: src/hal/classicladder/classicladder_gtk.c:609
 msgid "Do you really want to clear all data ?"
-msgstr ""
+msgstr "Naozaj chcete vymazať všetky údaje?"
 
 #: src/hal/classicladder/classicladder_gtk.c:613
 msgid "Please select the project to load"
-msgstr ""
+msgstr "Vyberte projekt, ktorý chcete načítať"
 
 #: src/hal/classicladder/classicladder_gtk.c:619
 msgid "Sure?"
-msgstr ""
+msgstr "Určite?"
 
 #: src/hal/classicladder/classicladder_gtk.c:619
 msgid ""
 "Do you really want to load another project ?\n"
 "If not saved, all modifications on the current project will be lost  \n"
 msgstr ""
+"Naozaj chcete načítať ďalší projekt?\n"
+"Ak neuložíte, všetky úpravy v aktuálnom projekte sa stratia\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:626
 msgid "Please select the project to save"
-msgstr ""
+msgstr "Vyberte projekt, ktorý chcete uložiť"
 
 #: src/hal/classicladder/classicladder_gtk.c:632
 #: src/hal/classicladder/classicladder_gtk.c:904
 #: src/hal/classicladder/classicladder_gtk.c:910
 msgid "Warning!"
-msgstr ""
+msgstr "POZOR!"
 
 #: src/hal/classicladder/classicladder_gtk.c:632
 msgid ""
@@ -3028,18 +3183,21 @@ msgid ""
 "can cause unexpected behavior\n"
 " Do you really want to reset?"
 msgstr ""
+"Resetovanie spusteného programu\n"
+"môže spôsobiť neočakávané správanie\n"
+" Naozaj chcete resetovať?"
 
 #: src/hal/classicladder/classicladder_gtk.c:651
 msgid "Reset logic data - Now running."
-msgstr ""
+msgstr "Resetovať údaje logiky – teraz spustené."
 
 #: src/hal/classicladder/classicladder_gtk.c:651
 msgid "Reset logic data done."
-msgstr ""
+msgstr "Resetovanie logických údajov je hotové."
 
 #: src/hal/classicladder/classicladder_gtk.c:709
 msgid "About ClassicLadder"
-msgstr ""
+msgstr "O ClassicLadder"
 
 #: src/hal/classicladder/classicladder_gtk.c:766
 msgid "Save SVG File"
@@ -3096,6 +3254,8 @@ msgid ""
 "If not saved, all modifications will be lost.\n"
 "Do you really want to quit ?\n"
 msgstr ""
+"Ak neuložíte, všetky úpravy sa stratia.\n"
+"Naozaj chcete skončiť?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:908
 msgid "Confirm!"
@@ -3103,29 +3263,31 @@ msgstr "Potvrdiť!"
 
 #: src/hal/classicladder/classicladder_gtk.c:908
 msgid "Do you really want to quit ?\n"
-msgstr ""
+msgstr "Naozaj chcete skončiť?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:910
 msgid ""
 "MODBUS will stop if you quit.\n"
 " Do you really want to quit ?\n"
 msgstr ""
+"Ak skončíte MODBUS sa zastaví\n"
+" Naozaj chcete skončiť?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:943
 msgid "ClassicLadder Section Display"
-msgstr ""
+msgstr "Displej sekcie ClassicLadder"
 
 #: src/hal/classicladder/classicladder_gtk.c:971
 msgid "Label of the current selected rung"
-msgstr ""
+msgstr "Označenie aktuálne vybranej priečky"
 
 #: src/hal/classicladder/classicladder_gtk.c:980
 msgid "Comment of the current selected ladder rung or sequential page"
-msgstr ""
+msgstr "Komentár aktuálne vybranej priečky rebríčka alebo sekvenčnej stránky"
 
 #: src/hal/classicladder/classicladder_gtk.c:983
 msgid "Display symbols"
-msgstr ""
+msgstr "Zobrazenie symbolov"
 
 #: src/hal/classicladder/classicladder_gtk.c:1042
 msgid "Statusbar"
@@ -3133,7 +3295,7 @@ msgstr "Stav"
 
 #: src/hal/classicladder/classicladder_gtk.c:1064
 msgid "Load"
-msgstr ""
+msgstr "Načítať"
 
 #: src/hal/classicladder/classicladder_gtk.c:1069 tcl/bin/emccalib.tcl:123
 #: tcl/bin/genedit.tcl:82 tcl/bin/halconfig.tcl:155
@@ -3151,7 +3313,7 @@ msgstr "Resetovať"
 
 #: src/hal/classicladder/classicladder_gtk.c:1089
 msgid "Vars"
-msgstr ""
+msgstr "Premenné"
 
 #: src/hal/classicladder/classicladder_gtk.c:1099 tcl/bin/halconfig.tcl:194
 #: src/emc/usr_intf/pncconf/help.glade:511
@@ -3166,7 +3328,7 @@ msgstr "Editor"
 
 #: src/hal/classicladder/classicladder_gtk.c:1110
 msgid "Symbols"
-msgstr ""
+msgstr "Symboly"
 
 #: src/hal/classicladder/classicladder_gtk.c:1115
 #: src/hal/classicladder/config_gtk.c:1070
@@ -3184,85 +3346,85 @@ msgstr "Vytlačiť "
 #: src/hal/classicladder/classicladder_gtk.c:1213
 #, c-format
 msgid "%d µs"
-msgstr ""
+msgstr "%d µs"
 
 #: src/hal/classicladder/classicladder_gtk.c:1270
 msgid "Config hardware error occurred!"
-msgstr ""
+msgstr "Vyskytla sa chyba konfigurácie hardvéru!"
 
 #: src/hal/classicladder/classicladder_gtk.c:1294
 msgid "Failed MODBUS communications"
-msgstr ""
+msgstr "Zlyhala komunikácia MODBUS"
 
 #: src/hal/classicladder/classicladder_gtk.c:1320
 #, c-format
 msgid "Section Display of %s"
-msgstr ""
+msgstr "Zobrazenie sekcie %s"
 
 #: src/hal/classicladder/config_gtk.c:122
 #, c-format
 msgid "Rung Refresh Rate (milliseconds)"
-msgstr ""
+msgstr "Obnovovacia frekvencia (milisekundy)"
 
 #: src/hal/classicladder/config_gtk.c:127
 #, c-format
 msgid "Number of rungs (%d%c used)"
-msgstr ""
+msgstr "Počet priečok (použitých %d%c)"
 
 #: src/hal/classicladder/config_gtk.c:131
 #, c-format
 msgid "Number of Bits"
-msgstr ""
+msgstr "Počet bitov"
 
 #: src/hal/classicladder/config_gtk.c:135
 #, c-format
 msgid "Number of Words"
-msgstr ""
+msgstr "Počet slov"
 
 #: src/hal/classicladder/config_gtk.c:139
-#, c-format
+#, c-format, fuzzy
 msgid "Number of Counters"
-msgstr ""
+msgstr "Počet \"Counters\""
 
 #: src/hal/classicladder/config_gtk.c:143
 #, c-format
 msgid "Number of Timers IEC"
-msgstr ""
+msgstr "Počet časovačov IEC"
 
 #: src/hal/classicladder/config_gtk.c:147
 #, c-format
 msgid "Number of BIT Inputs HAL pins"
-msgstr ""
+msgstr "Počet BIT vstupov HAL pinov"
 
 #: src/hal/classicladder/config_gtk.c:151
 #, c-format
 msgid "Number of BIT Outputs HAL pins"
-msgstr ""
+msgstr "Počet BIT výstupov pinov HAL"
 
 #: src/hal/classicladder/config_gtk.c:155
 #, c-format
 msgid "Number of S32in HAL pins"
-msgstr ""
+msgstr "Počet S32in HAL pinov"
 
 #: src/hal/classicladder/config_gtk.c:159
 #, c-format
 msgid "Number of S32out HAL pins"
-msgstr ""
+msgstr "Počet pinov S32out HAL"
 
 #: src/hal/classicladder/config_gtk.c:164
 #, c-format
 msgid "Number of Arithmetic Expressions"
-msgstr ""
+msgstr "Počet aritmetických výrazov"
 
 #: src/hal/classicladder/config_gtk.c:169
 #, c-format
 msgid "Number of Sections (%d%c used)"
-msgstr ""
+msgstr "Počet sekcií (použitých %d%c)"
 
 #: src/hal/classicladder/config_gtk.c:174
 #, c-format
 msgid "Number of Symbols"
-msgstr ""
+msgstr "Počet symbolov"
 
 #: src/hal/classicladder/config_gtk.c:179
 #, c-format
@@ -3272,22 +3434,22 @@ msgstr "Počet časovačov"
 #: src/hal/classicladder/config_gtk.c:183
 #, c-format
 msgid "Number of Monostables"
-msgstr ""
+msgstr "Počet monostabilných jednotiek"
 
 #: src/hal/classicladder/config_gtk.c:188
 #, c-format
 msgid "Number of Error Bits"
-msgstr ""
+msgstr "Počet chybových bitov"
 
 #: src/hal/classicladder/config_gtk.c:192
 #, c-format
 msgid "Number of floatin HAL pins"
-msgstr ""
+msgstr "Počet \"float\" vstupov HAL pinov"
 
 #: src/hal/classicladder/config_gtk.c:196
 #, c-format
 msgid "Number of floatout HAL pins"
-msgstr ""
+msgstr "Počet \"float\" výstupov HAL pinov"
 
 #: src/hal/classicladder/config_gtk.c:200
 #, c-format
@@ -3296,16 +3458,16 @@ msgstr "Aktuálna cesta/názov súboru:"
 
 #: src/hal/classicladder/config_gtk.c:327
 msgid "1st %I mapped"
-msgstr ""
+msgstr "1. % I mapované"
 
 #: src/hal/classicladder/config_gtk.c:327
 msgid "1st %Q mapped"
-msgstr ""
+msgstr "1. % Q mapované"
 
 #: src/hal/classicladder/config_gtk.c:367
 #: src/hal/classicladder/config_gtk.c:566
 msgid "Inverted"
-msgstr ""
+msgstr "Obrátený"
 
 #: src/hal/classicladder/config_gtk.c:662
 #, c-format
@@ -3313,25 +3475,27 @@ msgid ""
 "Error in I/O modbus conf: overflow for I,Q,B,IQ, or WQ mapping detected..."
 "ASKED=%i,MAX=%i\n"
 msgstr ""
+"Chyba v konfigurácii I/O modbus: bolo zistené pretečenie pre mapovanie I, Q, "
+"B, IQ alebo WQ... ASKED=%i,MAX=%i\n"
 
 #: src/hal/classicladder/config_gtk.c:664
 msgid "Overflow error for I,Q,B,IQ,WQ or W mapping detected..."
-msgstr ""
+msgstr "Chyba pretečenia pre I,Q,B,IQ,WQ alebo W zistené mapovanie ..."
 
 #: src/hal/classicladder/config_gtk.c:745
 #, c-format
 msgid "Serial port (blank = IP mode)"
-msgstr ""
+msgstr "Sériový port (prázdne = režim IP)"
 
 #: src/hal/classicladder/config_gtk.c:749
 #, c-format
 msgid "Serial baud rate"
-msgstr ""
+msgstr "Sériová prenosová rýchlosť (baud rate)"
 
 #: src/hal/classicladder/config_gtk.c:753
 #, c-format
 msgid "Serial data bits"
-msgstr ""
+msgstr "Sériové dátové bity"
 
 #: src/hal/classicladder/config_gtk.c:757
 #, c-format
@@ -3341,27 +3505,27 @@ msgstr "Sériová parita"
 #: src/hal/classicladder/config_gtk.c:761
 #, c-format
 msgid "Serial stop bits"
-msgstr ""
+msgstr "Sériové stop bity"
 
 #: src/hal/classicladder/config_gtk.c:765
 #, c-format
 msgid "After transmit pause - milliseconds"
-msgstr ""
+msgstr "Po pauze vysielania - milisekundy"
 
 #: src/hal/classicladder/config_gtk.c:769
 #, c-format
 msgid "After receive pause - milliseconds"
-msgstr ""
+msgstr "Po pauze príjmu - milisekundy"
 
 #: src/hal/classicladder/config_gtk.c:773
 #, c-format
 msgid "Request Timeout length - milliseconds"
-msgstr ""
+msgstr "Dĺžka časového limitu požiadavky – milisekundy"
 
 #: src/hal/classicladder/config_gtk.c:777
 #, c-format
 msgid "Use RTS to send"
-msgstr ""
+msgstr "Na odoslanie použite RTS"
 
 #: src/hal/classicladder/config_gtk.c:781
 #, c-format
@@ -3374,81 +3538,83 @@ msgid "Debug level"
 msgstr "Úroveň ladenia"
 
 #: src/hal/classicladder/config_gtk.c:786
+#, fuzzy
 msgid "QUIET"
-msgstr ""
+msgstr "QUIET"
 
 #: src/hal/classicladder/config_gtk.c:786
 msgid "LEVEL"
-msgstr ""
+msgstr "LEVEL"
 
 #: src/hal/classicladder/config_gtk.c:786
 msgid "VERBOSE"
-msgstr ""
+msgstr "VERBOSE"
 
 #: src/hal/classicladder/config_gtk.c:789
 #, c-format
 msgid "Read inputs map to"
-msgstr ""
+msgstr "Čítať mapu vstupov do"
 
 #: src/hal/classicladder/config_gtk.c:793
-#, c-format
+#, c-format, fuzzy
 msgid "Read Coils/inputs map to"
-msgstr ""
+msgstr "Čítanie cievky/vstupov mapovať na"
 
 #: src/hal/classicladder/config_gtk.c:797
 #, c-format
 msgid "Write Coils map from"
-msgstr ""
+msgstr "_Write Coils map from"
 
 #: src/hal/classicladder/config_gtk.c:801
 #, c-format
 msgid "Read input registers map to"
-msgstr ""
+msgstr "_Read input registers map to"
 
 #: src/hal/classicladder/config_gtk.c:805
 #, c-format
 msgid "Read register/holding map to"
-msgstr ""
+msgstr "_Read register/holding map to"
 
 #: src/hal/classicladder/config_gtk.c:809
 #, c-format
 msgid "Write hold registers map from"
-msgstr ""
+msgstr "_Write hold registers map from"
 
 #: src/hal/classicladder/config_gtk.c:1075
 msgid "Period/object info"
-msgstr ""
+msgstr "_Period/object info"
 
 #: src/hal/classicladder/config_gtk.c:1084
 msgid "Modbus communication setup"
-msgstr ""
+msgstr "Nastavenie komunikácie Modbus"
 
 #: src/hal/classicladder/config_gtk.c:1086
 msgid "Modbus I/O register setup"
-msgstr ""
+msgstr "Nastavenie I/O registra Modbus"
 
 #: src/hal/classicladder/edit.c:149 src/hal/classicladder/edit_sequential.c:72
+#, fuzzy
 msgid "Variable"
-msgstr ""
+msgstr "Variabilné"
 
 #: src/hal/classicladder/edit.c:152
 msgid "JumpToLabel"
-msgstr ""
+msgstr "Prejsť na štítok"
 
 #: src/hal/classicladder/edit.c:156
 msgid "Sub-Routine"
-msgstr ""
+msgstr "Podprogram"
 
 #: src/hal/classicladder/edit.c:162 src/hal/classicladder/edit.c:188
 msgid "TimerNbr"
-msgstr ""
+msgstr ".TimerNbr"
 
 #: src/hal/classicladder/edit.c:164 src/hal/classicladder/edit.c:173
 #: src/hal/classicladder/edit.c:190
 #: src/hal/classicladder/editproperties_gtk.c:77
 #: src/hal/classicladder/editproperties_gtk.c:136
 msgid "Base"
-msgstr ""
+msgstr ".Base"
 
 #: src/hal/classicladder/edit.c:166 src/hal/classicladder/edit.c:175
 #: src/hal/classicladder/edit.c:183 src/hal/classicladder/edit.c:192
@@ -3458,41 +3624,41 @@ msgstr "Prednastavené"
 
 #: src/hal/classicladder/edit.c:171
 msgid "MonostNbr"
-msgstr ""
+msgstr ".MonostNbr"
 
 #: src/hal/classicladder/edit.c:181
 msgid "CounterNbr"
-msgstr ""
+msgstr ".CounterNbr"
 
 #: src/hal/classicladder/edit.c:194
 #: src/hal/classicladder/editproperties_gtk.c:89
 #: src/hal/classicladder/editproperties_gtk.c:143
 msgid "TimerMode"
-msgstr ""
+msgstr "Režim časovača"
 
 #: src/hal/classicladder/edit.c:199
 msgid "Expression"
-msgstr ""
+msgstr "Výraz"
 
 #: src/hal/classicladder/edit.c:229
 #, c-format
 msgid "Variable: %s    Hal sig: %s"
-msgstr ""
+msgstr "Premenná: %s Hal sig: %s"
 
 #: src/hal/classicladder/edit.c:235
 #, c-format
 msgid "Label: %s"
-msgstr ""
+msgstr "Štítok: %s"
 
 #: src/hal/classicladder/edit.c:238
 #, c-format
 msgid "Sub-Routine: %d"
-msgstr ""
+msgstr ".Sub-Routine: %d"
 
 #: src/hal/classicladder/edit.c:243
 #, c-format
 msgid "%cT%d: Preset=%d Base=%s"
-msgstr ""
+msgstr ".%cT%d: Preset=%d Base=%s"
 
 #: src/hal/classicladder/edit.c:247
 #, c-format
@@ -3516,7 +3682,7 @@ msgstr ""
 
 #: src/hal/classicladder/edit.c:359
 msgid "Incompatible type of variable (must be an integer!)"
-msgstr ""
+msgstr "Nekompatibilný typ premennej (musí byť celé číslo!)"
 
 #: src/hal/classicladder/edit.c:397
 #, c-format
@@ -3529,46 +3695,46 @@ msgstr "Príliš dlhý výraz"
 
 #: src/hal/classicladder/edit.c:479
 msgid "Incompatible type of variable for index (must be an integer!)"
-msgstr ""
+msgstr "Nekompatibilný typ premennej pre index (musí byť celé číslo!)"
 
 #: src/hal/classicladder/edit.c:485
 msgid "Parser error for indexed variable !"
-msgstr ""
+msgstr "Chyba analyzátora pre indexovanú premennú!"
 
 #: src/hal/classicladder/edit.c:491
 msgid "You must select a boolean variable !"
-msgstr ""
+msgstr "Musíte vybrať boolovskú premennú!"
 
 #: src/hal/classicladder/edit.c:500
 msgid "You must select a read/write variable for a coil!"
-msgstr ""
+msgstr "Musíte vybrať premennú na čítanie/zápis pre coil!"
 
 #: src/hal/classicladder/edit.c:516 src/hal/classicladder/edit_sequential.c:99
 #: src/hal/classicladder/spy_vars_gtk.c:481
 #: src/hal/classicladder/symbols_gtk.c:151
 msgid "Unknown variable..."
-msgstr ""
+msgstr "Neznáma premenná..."
 
 #: src/hal/classicladder/edit.c:1155
 #, c-format
 msgid "!!!Abnormal current type=%d in rung...(file %s,line %d)\n"
-msgstr ""
+msgstr "!!!Abnormál type=%d ...(súbor %s,riadok %d)\n"
 
 #: src/hal/classicladder/edit.c:1250
 msgid "No more free function block of this type available..."
-msgstr ""
+msgstr "Už nie je k dispozícii žiadny bezplatný funkčný blok tohto typu..."
 
 #: src/hal/classicladder/edit.c:1262
 msgid "No more free arithmetic expression for this type available..."
-msgstr ""
+msgstr "Už nie je k dispozícii žiadny voľný aritmetický výraz pre tento typ..."
 
 #: src/hal/classicladder/edit.c:1425
 msgid "You clicked outside of the current rung actually selected..."
-msgstr ""
+msgstr "Klikli ste mimo aktuálne vybranej priečky..."
 
 #: src/hal/classicladder/edit_gtk.c:143
 msgid "Current rung in edit mode..."
-msgstr ""
+msgstr "Aktuálna priečka v režime úprav..."
 
 #: src/hal/classicladder/edit_gtk.c:143
 msgid "Edit mode..."
@@ -3581,7 +3747,7 @@ msgstr "Vymazať"
 
 #: src/hal/classicladder/edit_gtk.c:208
 msgid "Do you really want to delete the current rung ?"
-msgstr ""
+msgstr "Naozaj chcete vymazať aktuálnu priečku?"
 
 #: src/hal/classicladder/edit_gtk.c:476
 #: lib/python/gladevcp/tooledit_gtk.glade:315
@@ -3590,7 +3756,7 @@ msgstr "Pridať"
 
 #: src/hal/classicladder/edit_gtk.c:481
 msgid "Insert"
-msgstr ""
+msgstr "Vložiť"
 
 #: src/hal/classicladder/edit_gtk.c:491 tcl/bin/halconfig.tcl:134
 msgid "Modify"
@@ -3625,137 +3791,143 @@ msgstr "Komentár"
 #: src/hal/classicladder/edit_sequential.c:155
 #, c-format
 msgid "step search posiX=%d, posiY=%d ; "
-msgstr ""
+msgstr "krokové vyhľadávanie posiX=%d, posiY=%d ; "
 
 #: src/hal/classicladder/edit_sequential.c:165
 #: src/hal/classicladder/edit_sequential.c:183
 #: src/hal/classicladder/edit_sequential.c:201
 #, c-format
 msgid "found=%d!!!\n"
-msgstr ""
+msgstr "nájdené = %d!!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:173
 #, c-format
 msgid "transi search posiX=%d, posiY=%d ; "
-msgstr ""
+msgstr "vyhľadávanie transi posiX=%d, posiY=%d ; "
 
 #: src/hal/classicladder/edit_sequential.c:191
 #, c-format
 msgid "comment search posiX=%d, posiY=%d ; "
-msgstr ""
+msgstr "vyhľadávanie komentárov posiX=%d, posiY=%d ; "
 
 #: src/hal/classicladder/edit_sequential.c:220
 #, c-format
 msgid "found free step=%d!!!\n"
-msgstr ""
+msgstr "nájdený voľný krok=%d!!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:238
 #, c-format
 msgid "found free transi=%d!!!\n"
-msgstr ""
+msgstr "nájdený voľný transi=%d!!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:257
 #, c-format
 msgid "found free comment=%d!!!\n"
-msgstr ""
+msgstr "nájdený volný komentár=%d!!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:405
 #, c-format
 msgid "Do link : transi=%d (top=%d), step=%d\n"
-msgstr ""
+msgstr "Urobte odkaz: transi=%d (top=%d), step=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:411
 msgid ""
 "There is already a step to deactivate for this transition (clicked on top "
 "part)..."
 msgstr ""
+"Pre tento prechod už existuje krok na deaktiváciu (kliknutie v hornej "
+"časti)..."
 
 #: src/hal/classicladder/edit_sequential.c:418
 msgid ""
 "There is already a step to activate for this transition (clicked on bottom "
 "part)..."
 msgstr ""
+"Pre tento prechod už existuje krok na aktiváciu (kliknutie na spodnú časť)..."
 
 #: src/hal/classicladder/edit_sequential.c:433
 msgid "Not selected first and last transitions to be joined !!??"
-msgstr ""
+msgstr "Nie je vybratý prvý a posledný prechod na spojenie !!??"
 
 #: src/hal/classicladder/edit_sequential.c:450
 msgid "Unknown element type for Ele1"
-msgstr ""
+msgstr "Neznámy typ prvku pre Ele1"
 
 #: src/hal/classicladder/edit_sequential.c:464
 msgid "First and last steps selected are not on the same line !!??"
-msgstr ""
+msgstr "Prvý a posledný vybraný krok nie sú na rovnakom riadku !!??"
 
 #: src/hal/classicladder/edit_sequential.c:481
 msgid "First and last transitions selected are not on the same line !!??"
-msgstr ""
+msgstr "Prvý a posledný vybraný prechod nie sú na rovnakom riadku !!??"
 
 #: src/hal/classicladder/edit_sequential.c:488
 msgid "Unknown element type for Ele2"
-msgstr ""
+msgstr "Neznámy typ prvku pre Ele2"
 
 #: src/hal/classicladder/edit_sequential.c:507
 #, c-format
 msgid ""
 "commonsearch: leftX=%d, rightX=%d, OffTransi=%d, StepsY=%d, TransiY=%d\n"
 msgstr ""
+"spoločné vyhľadávanie: leftX=%d, rightX=%d, OffTransi=%d, StepsY=%d, "
+"TransiY=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:537
 #: src/hal/classicladder/edit_sequential.c:582
 msgid "Error in selection or not possible..."
-msgstr ""
+msgstr "Chyba pri výbere alebo nie je dostupné..."
 
 #: src/hal/classicladder/edit_sequential.c:545
 #, c-format
 msgid "DO ACT/DESACT STEPS x1=%d, x2=%d, y=%d\n"
-msgstr ""
+msgstr ".DO ACT/DESACT STEPS x1=%d, x2=%d, y=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:565
 #, c-format
 msgid "StepActDesact++=%d\n"
-msgstr ""
+msgstr ".StepActDesact++=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:624
 #, c-format
 msgid "having num transi linked=%d for transi=%d\n"
-msgstr ""
+msgstr "s číslom transi spojené=%d pre transi=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:627
 #, c-format
 msgid "->storing num transi linked=%d for transi=%d\n"
-msgstr ""
+msgstr "->ukladanie čísla tranzitu spojené=%d pre transi=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:643
 #, c-format
 msgid "=>step to activ=%d, step to desactiv=%d\n"
-msgstr ""
+msgstr "=>krok k aktivácii=%d, krok k deaktivácii=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:652
 msgid "Not found at least 2 transitions linked..."
-msgstr ""
+msgstr "Nenašli sa aspoň 2 prepojené prechody..."
 
 #: src/hal/classicladder/edit_sequential.c:776
 msgid "Sequential memory full for steps"
-msgstr ""
+msgstr "Sekvenčná pamäť plná krokov"
 
 #: src/hal/classicladder/edit_sequential.c:781
 #: src/hal/classicladder/edit_sequential.c:821
 msgid "There is already an element!"
-msgstr ""
+msgstr "Tu už je prvok!"
 
 #: src/hal/classicladder/edit_sequential.c:788
+#, fuzzy
 msgid "A step can't be placed on even lines"
-msgstr ""
+msgstr "Krok nemožno umiestniť na even čiary"
 
 #: src/hal/classicladder/edit_sequential.c:816
 msgid "Sequential memory full for transition"
-msgstr ""
+msgstr "Sekvenčná pamäť plná na prechod"
 
 #: src/hal/classicladder/edit_sequential.c:828
 msgid "A transition can't be placed on odd lines"
-msgstr ""
+msgstr "Prechod nemožno umiestniť na nepárne riadky"
 
 #: src/hal/classicladder/edit_sequential.c:837
 #, c-format
@@ -4858,7 +5030,7 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:223
 msgid "Load Watch List"
-msgstr ""
+msgstr "Načítať zoznam sledovania"
 
 #: tcl/bin/halshow.tcl:225
 msgid "Save Watch List"
@@ -4914,19 +5086,19 @@ msgstr "Znova načítať "
 
 #: tcl/bin/halshow.tcl:275
 msgid "Watchlist cleared"
-msgstr ""
+msgstr "Zoznam sledovania bol vymazaný"
 
 #: tcl/bin/halshow.tcl:281
 msgid "Add to watch"
-msgstr ""
+msgstr "Pridať do sledovania"
 
 #: tcl/bin/halshow.tcl:284
 msgid "added"
-msgstr ""
+msgstr "pridané"
 
 #: tcl/bin/halshow.tcl:332
 msgid "Full path (regex)"
-msgstr ""
+msgstr "Úplná cesta (regulárny výraz)"
 
 #: tcl/bin/halshow.tcl:336 tcl/bin/halshow.tcl:349
 msgid "Filter tree"
@@ -4938,19 +5110,20 @@ msgstr "Príkaz HAL :"
 
 #: tcl/bin/halshow.tcl:723
 msgid "Update interval (in ms)"
-msgstr ""
+msgstr "Interval aktualizácie (v ms)"
 
 #: tcl/bin/halshow.tcl:724
 msgid "Column width for value in watch tab"
-msgstr ""
+msgstr "Šírka stĺpca pre hodnotu na karte sledovania"
 
 #: tcl/bin/halshow.tcl:725
 msgid "Override format string (leave empty for default)"
-msgstr ""
+msgstr "Prepísať reťazec formátu (pre predvolené nastavenie ponechajte prázdne)"
 
 #: tcl/bin/halshow.tcl:727
+#, fuzzy
 msgid "Float"
-msgstr ""
+msgstr "_Float"
 
 #: tcl/bin/halshow.tcl:728
 msgid "Integer"
@@ -5012,35 +5185,35 @@ msgstr "Nastaviť"
 
 #: tcl/bin/halshow.tcl:1053
 msgid "User input"
-msgstr ""
+msgstr "Vstup používateľa"
 
 #: tcl/bin/halshow.tcl:1102
 msgid "Update interval for this session (ms)"
-msgstr ""
+msgstr "Interval aktualizácie pre túto reláciu (ms)"
 
 #: tcl/bin/halshow.tcl:1104
 msgid "Value out of range"
-msgstr ""
+msgstr "Hodnota je mimo rozsahu"
 
 #: tcl/bin/halshow.tcl:1172
 msgid "removed from list"
-msgstr ""
+msgstr "odstránené zo zoznamu"
 
 #: tcl/bin/halshow.tcl:1202
 msgid "Load a watch list"
-msgstr ""
+msgstr "Načítať zoznam sledovania"
 
 #: tcl/bin/halshow.tcl:1229
 msgid "loaded"
-msgstr ""
+msgstr "načítaný"
 
 #: tcl/bin/halshow.tcl:1229
 msgid "saved backup for old watchlist in"
-msgstr ""
+msgstr "uložená záloha pre starý zoznam sledovania v"
 
 #: tcl/bin/halshow.tcl:1240
 msgid "Save current watch list"
-msgstr ""
+msgstr "Uložiť aktuálny zoznam sledovania"
 
 #: tcl/bin/halshow.tcl:1276
 msgid "Commands may be tested here but they will NOT be saved"
@@ -5048,7 +5221,7 @@ msgstr "Tu môžete vyskúšať príkazy, ale NEBUDÚ uložené"
 
 #: tcl/bin/halshow.tcl:1305
 msgid "Integer (disabled by \"--iformat\" argument)"
-msgstr ""
+msgstr "Celé číslo (zakázané argumentom \"--iformat\")"
 
 #: tcl/bin/halshow.tcl:1312
 msgid "Float (disabled by \"--fformat\" argument)"
@@ -5301,7 +5474,7 @@ msgstr "Upraviť..."
 
 #: tcl/tklinuxcnc.tcl:756
 msgid "Tool Table Editor..."
-msgstr ""
+msgstr "Editor tabuľky nástrojov..."
 
 #: tcl/tklinuxcnc.tcl:759 src/emc/usr_intf/touchy/touchy.glade:1379
 msgid "Reload Tool Table"
@@ -11301,7 +11474,9 @@ msgstr "Opačný"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -13284,51 +13459,51 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:454
 msgid "X Minimum Limit"
-msgstr ""
+msgstr "X min. limit"
 
 #: src/emc/usr_intf/pncconf/private_data.py:454
 msgid "Y Minimum Limit"
-msgstr ""
+msgstr "Y min. limit"
 
 #: src/emc/usr_intf/pncconf/private_data.py:454
 msgid "Z Minimum Limit"
-msgstr ""
+msgstr "Z min. limit"
 
 #: src/emc/usr_intf/pncconf/private_data.py:454
 msgid "A Minimum Limit"
-msgstr ""
+msgstr "A min. limit"
 
 #: src/emc/usr_intf/pncconf/private_data.py:455
 msgid "X Maximum Limit"
-msgstr ""
+msgstr "X max. limit"
 
 #: src/emc/usr_intf/pncconf/private_data.py:455
 msgid "Y Maximum Limit"
-msgstr ""
+msgstr "Y max. limit"
 
 #: src/emc/usr_intf/pncconf/private_data.py:455
 msgid "Z Maximum Limit"
-msgstr ""
+msgstr "Z max. limit"
 
 #: src/emc/usr_intf/pncconf/private_data.py:455
 msgid "A Maximum Limit"
-msgstr ""
+msgstr "A max. limit"
 
 #: src/emc/usr_intf/pncconf/private_data.py:456
 msgid "X Both Limit"
-msgstr ""
+msgstr "X Oba Limity"
 
 #: src/emc/usr_intf/pncconf/private_data.py:456
 msgid "Y Both Limit"
-msgstr ""
+msgstr "Y Oba Limity"
 
 #: src/emc/usr_intf/pncconf/private_data.py:456
 msgid "Z Both Limit"
-msgstr ""
+msgstr "Z Oba Limity"
 
 #: src/emc/usr_intf/pncconf/private_data.py:456
 msgid "A Both Limit"
-msgstr ""
+msgstr "A Oba Limity"
 
 #: src/emc/usr_intf/pncconf/private_data.py:457
 msgid "All Limits"
@@ -13336,47 +13511,47 @@ msgstr "Všetky limity"
 
 #: src/emc/usr_intf/pncconf/private_data.py:458
 msgid "X2 Minimum Limit"
-msgstr ""
+msgstr "X2 min. limit"
 
 #: src/emc/usr_intf/pncconf/private_data.py:458
 msgid "Y2 Minimum Limit"
-msgstr ""
+msgstr "Y2 min. limit"
 
 #: src/emc/usr_intf/pncconf/private_data.py:458
 msgid "Z2 Minimum Limit"
-msgstr ""
+msgstr "Z2 min. limit"
 
 #: src/emc/usr_intf/pncconf/private_data.py:458
 msgid "A2 Minimum Limit"
-msgstr ""
+msgstr "A2 min. limit"
 
 #: src/emc/usr_intf/pncconf/private_data.py:459
 msgid "X2 Maximum Limit"
-msgstr ""
+msgstr "X2 max. limit"
 
 #: src/emc/usr_intf/pncconf/private_data.py:459
 msgid "Y2 Maximum Limit"
-msgstr ""
+msgstr "Y2 max. limit"
 
 #: src/emc/usr_intf/pncconf/private_data.py:459
 msgid "Z2 Maximum Limit"
-msgstr ""
+msgstr "Z2 max. limit"
 
 #: src/emc/usr_intf/pncconf/private_data.py:459
 msgid "A2 Maximum Limit"
-msgstr ""
+msgstr "A2 max. limit"
 
 #: src/emc/usr_intf/pncconf/private_data.py:460
 msgid "X2 Both Limit"
-msgstr ""
+msgstr "X2 Oba Limity"
 
 #: src/emc/usr_intf/pncconf/private_data.py:460
 msgid "Y2 Both Limit"
-msgstr ""
+msgstr "Y2 Oba Limity"
 
 #: src/emc/usr_intf/pncconf/private_data.py:460
 msgid "Z2 Both Limit"
-msgstr ""
+msgstr "Z2 Oba Limity"
 
 #: src/emc/usr_intf/pncconf/private_data.py:460
 msgid "A2 Both Limit"
@@ -13402,7 +13577,7 @@ msgstr "Tandemová os"
 
 #: src/emc/usr_intf/pncconf/private_data.py:465
 msgid "Arc OK"
-msgstr ""
+msgstr "Oblúk OK"
 
 #: src/emc/usr_intf/pncconf/private_data.py:465
 msgid "Ohmic Contact"
@@ -13410,7 +13585,7 @@ msgstr "Ohmický kontakt"
 
 #: src/emc/usr_intf/pncconf/private_data.py:465
 msgid "Float Switch"
-msgstr "Plávajúci spínač"
+msgstr "\"Float\" spínač"
 
 #: src/emc/usr_intf/pncconf/private_data.py:466
 msgid "Breakaway"
@@ -13418,11 +13593,11 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:466
 msgid "Move Up"
-msgstr ""
+msgstr "Pohyb nahor"
 
 #: src/emc/usr_intf/pncconf/private_data.py:468
 msgid "Unused Input"
-msgstr ""
+msgstr "Nepoužitý vstup"
 
 #: src/emc/usr_intf/pncconf/private_data.py:468
 msgid "Limits"
@@ -13430,7 +13605,7 @@ msgstr "Limity"
 
 #: src/emc/usr_intf/pncconf/private_data.py:469
 msgid "Limits/Home Shared"
-msgstr ""
+msgstr "Limity/kalib. zdieľané"
 
 #: src/emc/usr_intf/pncconf/private_data.py:470
 #: src/emc/usr_intf/pncconf/private_data.py:534
@@ -13461,31 +13636,31 @@ msgstr "Osi rýchlo"
 #: src/emc/usr_intf/pncconf/private_data.py:472
 #: src/emc/usr_intf/pncconf/private_data.py:534
 msgid "X BLDC Control"
-msgstr ""
+msgstr "X BLDC ovládanie"
 
 #: src/emc/usr_intf/pncconf/private_data.py:473
 #: src/emc/usr_intf/pncconf/private_data.py:535
 msgid "Y BLDC Control"
-msgstr ""
+msgstr "Y BLDC ovládanie"
 
 #: src/emc/usr_intf/pncconf/private_data.py:473
 #: src/emc/usr_intf/pncconf/private_data.py:535
 msgid "Z BLDC Control"
-msgstr ""
+msgstr "Z BLDC ovládanie"
 
 #: src/emc/usr_intf/pncconf/private_data.py:474
 #: src/emc/usr_intf/pncconf/private_data.py:536
 msgid "A BLDC Control"
-msgstr ""
+msgstr "A BLDC ovládanie"
 
 #: src/emc/usr_intf/pncconf/private_data.py:474
 msgid "S BLDC Control"
-msgstr ""
+msgstr "S BLDC ovládanie"
 
 #: src/emc/usr_intf/pncconf/private_data.py:475
 #: src/emc/usr_intf/pncconf/private_data.py:537
 msgid "Plasma"
-msgstr ""
+msgstr "Plazma"
 
 #: src/emc/usr_intf/pncconf/private_data.py:475
 #: src/emc/usr_intf/pncconf/private_data.py:484
@@ -13502,19 +13677,19 @@ msgstr "Vlastné signály"
 
 #: src/emc/usr_intf/pncconf/private_data.py:477
 msgid "X2 Tandem PWM"
-msgstr ""
+msgstr "X2 tandem PWM"
 
 #: src/emc/usr_intf/pncconf/private_data.py:477
 msgid "Y2 Tandem PWM"
-msgstr ""
+msgstr "Y2 tandem PWM"
 
 #: src/emc/usr_intf/pncconf/private_data.py:478
 msgid "Z2 Tandem PWM"
-msgstr ""
+msgstr "Z2 tandem PWM"
 
 #: src/emc/usr_intf/pncconf/private_data.py:478
 msgid "A2 Tandem PWM"
-msgstr ""
+msgstr "A2 tandem PWM"
 
 #: src/emc/usr_intf/pncconf/private_data.py:479
 msgid "X Axis PWM"
@@ -13534,7 +13709,7 @@ msgstr "PWM osi A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:482
 msgid "Unused PWM Gen"
-msgstr ""
+msgstr "Nepoužitý PWM Generátor"
 
 #: src/emc/usr_intf/pncconf/private_data.py:482
 msgid "Axis PWM"
@@ -13570,11 +13745,12 @@ msgstr "StepGen tandemovej osi Z2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:492
 msgid "Unused StepGen"
-msgstr ""
+msgstr "Nepoužitý StepGen"
 
 #: src/emc/usr_intf/pncconf/private_data.py:494
+#, fuzzy
 msgid "Charge Pump StepGen"
-msgstr ""
+msgstr "Nabíjacia pumpa StepGen"
 
 #: src/emc/usr_intf/pncconf/private_data.py:494
 msgid "Spindle StepGen"
@@ -13582,19 +13758,19 @@ msgstr "StepGen vretena"
 
 #: src/emc/usr_intf/pncconf/private_data.py:497
 msgid "X Encoder"
-msgstr ""
+msgstr "X enkóder"
 
 #: src/emc/usr_intf/pncconf/private_data.py:497
 msgid "Y Encoder"
-msgstr ""
+msgstr "Y enkóder"
 
 #: src/emc/usr_intf/pncconf/private_data.py:498
 msgid "Z Encoder"
-msgstr ""
+msgstr "Z enkóder"
 
 #: src/emc/usr_intf/pncconf/private_data.py:498
 msgid "A Encoder"
-msgstr ""
+msgstr "A enkóder"
 
 #: src/emc/usr_intf/pncconf/private_data.py:500
 msgid "X2 Tandem Encoder"
@@ -13614,23 +13790,23 @@ msgstr "Enkóder tandemovej osi A2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:502
 msgid "X Hand Wheel"
-msgstr ""
+msgstr "X ručné kolečko"
 
 #: src/emc/usr_intf/pncconf/private_data.py:502
 msgid "Y Hand Wheel"
-msgstr ""
+msgstr "Y ručné kolečko"
 
 #: src/emc/usr_intf/pncconf/private_data.py:503
 msgid "Z Hand Wheel"
-msgstr ""
+msgstr "Z ručné kolečko"
 
 #: src/emc/usr_intf/pncconf/private_data.py:503
 msgid "A Hand Wheel"
-msgstr ""
+msgstr "A ručné kolečko"
 
 #: src/emc/usr_intf/pncconf/private_data.py:504
 msgid "Multi Hand Wheel"
-msgstr ""
+msgstr "Viacúčelové ruč. kolečko"
 
 #: src/emc/usr_intf/pncconf/private_data.py:505
 msgid "Feed Override"
@@ -13647,27 +13823,29 @@ msgstr "Celková rýchlost"
 
 #: src/emc/usr_intf/pncconf/private_data.py:506
 msgid "Arc Voltage"
-msgstr ""
+msgstr "Oblúkové napätie"
 
 #: src/emc/usr_intf/pncconf/private_data.py:508
 msgid "Unused Encoder"
-msgstr ""
+msgstr "Nepoužitý enkóder"
 
 #: src/emc/usr_intf/pncconf/private_data.py:508
 msgid "Axis Encoder"
-msgstr ""
+msgstr "Enkóder osi"
 
 #: src/emc/usr_intf/pncconf/private_data.py:509
 msgid "Spindle Encoder"
 msgstr "Enkóder vretena"
 
 #: src/emc/usr_intf/pncconf/private_data.py:509
+#, fuzzy
 msgid "MPG Jog Controls"
-msgstr ""
+msgstr "Ovládacie prvky MPG Jog"
 
 #: src/emc/usr_intf/pncconf/private_data.py:509
+#, fuzzy
 msgid "Override MPG control"
-msgstr ""
+msgstr "ovládanie MPG"
 
 #: src/emc/usr_intf/pncconf/private_data.py:510
 msgid "Plasma Encoder"
@@ -13688,23 +13866,24 @@ msgstr "Stroj zapnutý"
 
 #: src/emc/usr_intf/pncconf/private_data.py:516
 msgid "X Amplifier Enable"
-msgstr ""
+msgstr "X zosilňovač povoliť"
 
 #: src/emc/usr_intf/pncconf/private_data.py:517
 msgid "Y Amplifier Enable"
-msgstr ""
+msgstr "Y zosilňovač povoliť"
 
 #: src/emc/usr_intf/pncconf/private_data.py:517
 msgid "Z Amplifier Enable"
-msgstr ""
+msgstr "Z zosilňovač povoliť"
 
 #: src/emc/usr_intf/pncconf/private_data.py:517
 msgid "A Amplifier Enable"
-msgstr ""
+msgstr "A zosilňovač povoliť"
 
 #: src/emc/usr_intf/pncconf/private_data.py:518
+#, fuzzy
 msgid "Force Pin True"
-msgstr ""
+msgstr "Vplyv pinu pravdivý"
 
 #: src/emc/usr_intf/pncconf/private_data.py:530
 msgid "Ohmic Enable"
@@ -13715,21 +13894,20 @@ msgid "Scribe Arm"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:530
-#, fuzzy
 msgid "Scribe On"
-msgstr "Scribe On"
+msgstr "Scribe ON"
 
 #: src/emc/usr_intf/pncconf/private_data.py:530
 msgid "Torch On"
-msgstr ""
+msgstr "Oheň ON"
 
 #: src/emc/usr_intf/pncconf/private_data.py:530
 msgid "Laser On"
-msgstr ""
+msgstr "Laser ON"
 
 #: src/emc/usr_intf/pncconf/private_data.py:532
 msgid "Unused Output"
-msgstr ""
+msgstr "Nepoužitý výstup"
 
 #: src/emc/usr_intf/pncconf/private_data.py:533
 msgid "Coolant"
@@ -13749,7 +13927,7 @@ msgstr "Nepoužitá 8I20"
 
 #: src/emc/usr_intf/pncconf/private_data.py:542
 msgid "Unused Resolver"
-msgstr ""
+msgstr "Nepoužitý Resolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:542
 msgid "X Resolver"
@@ -13773,7 +13951,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:546
 msgid "Unused Analog Output"
-msgstr ""
+msgstr "Nepoužitý analógový výstup"
 
 #: src/emc/usr_intf/pncconf/private_data.py:546
 msgid "Spindle Output"
@@ -13805,7 +13983,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:555
 msgid "8i20 Amplifier Card"
-msgstr ""
+msgstr "8i20 servoovládač"
 
 #: src/emc/usr_intf/pncconf/private_data.py:556
 msgid "7i64 I/O Card"
@@ -16196,7 +16374,7 @@ msgstr "Zahŕňa vreteno"
 
 #: src/emc/usr_intf/pncconf/base.glade:244
 msgid "Machine units:"
-msgstr "Jednotky stroje:"
+msgstr "Jednotky stroja:"
 
 #: src/emc/usr_intf/pncconf/base.glade:303
 msgid "<b>Machine Basics</b>"
@@ -16505,7 +16683,7 @@ msgstr "Indikátor otáčok vretena"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:862
 msgid "Spindle At Speed LED"
-msgstr "Vreteno beží"
+msgstr "Vreteno beží LED"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:877
 msgid "Zero X Button"
@@ -17899,6 +18077,21 @@ msgid ""
 "-Run a more thorough latency test as described on the linuxcnc.org wiki: \n"
 "https://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting"
 msgstr ""
+"Všetky potrebné informácie sú zhromaždené.\n"
+"Kliknutím na „Hotovo“ zapíšete konfiguračné súbory na disk.\n"
+"\n"
+"Ak sa pri spustení LinuxCNC vyskytne zablokovanie:\n"
+"-Znížte maximálnu rýchlosť, čo bude mať za následok zvýšenie BASE_PERIOD.\n"
+"\n"
+"Ak pri spustení LinuxCNC zaznamenáte stratené kroky:\n"
+"-Najprv skontrolujte, či ste zadali správne časovanie pre ovládače motorov.\n"
+"-Potom spustite dôkladnejší test latencie podľa popisu na wiki linuxcnc.org."
+"\n"
+"https://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting\n"
+"\n"
+"Ak sa vám zobrazí správa „Neočakávané oneskorenie v reálnom čase“:\n"
+"-Spustite dôkladnejší test latencie podľa popisu na wiki linuxcnc.org:\n"
+"https://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:122
 #, fuzzy
@@ -17916,22 +18109,23 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:126
 msgid "There was a problem initializing the notification module"
-msgstr ""
+msgstr "Pri inicializácii modulu upozornení sa vyskytol problém"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:133
-#, fuzzy
 msgid "Audio alerts are available!"
-msgstr "Nie sú dostupné žiadne detaily."
+msgstr "Nie sú dostupné žiadne detaily!"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:136
 msgid ""
 "No audio alerts are available - Is gir1.2-gstreamer-1.0 package installed?"
 msgstr ""
+"Nie sú k dispozícii žiadne zvukové upozornenia - Je nainštalovaný balík gir1."
+"2-gstreamer-1.0?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:286
 #: src/emc/usr_intf/gscreen/gscreen.py:290
 msgid "No widget '{}'"
-msgstr ""
+msgstr "Žiadna miniaplikácia '{}'"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:328
 msgid "Manual Mode"
@@ -17947,7 +18141,7 @@ msgstr "Automatický režim"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:444
 msgid "Adding import dir {}"
-msgstr ""
+msgstr "Pridáva sa importný adresár {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:448
 msgid "Module '{}' skipped - import error: {}"
@@ -18262,7 +18456,7 @@ msgstr "Stroj zapnutý"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2646
 msgid "Machine Estopped!"
-msgstr "Pozícia stroja!"
+msgstr "Stroj zastavený!"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2652
 #: lib/python/gladevcp/calculator.glade:33
@@ -18691,7 +18885,7 @@ msgid ""
 "Replace\n"
 "All"
 msgstr ""
-"Vymeniť\n"
+"Nahradiť\n"
 "všetky"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2256
@@ -18810,7 +19004,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.glade:2750
 #: src/emc/usr_intf/gscreen/gscreen.glade:2905
 msgid "Debug"
-msgstr "Odstraňovanie chýb"
+msgstr "Ladenie"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2784
 msgid "Alarm History"
@@ -18829,9 +19023,8 @@ msgid "Calibration"
 msgstr "Kalibrácia"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2832
-#, fuzzy
 msgid "Halmeter"
-msgstr "Halmeter"
+msgstr "_Halmeter"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2845
 msgid ""
@@ -18965,8 +19158,8 @@ msgid ""
 "Spindle\n"
 "Override"
 msgstr ""
-"Otáčky\n"
-"nastaviť"
+"Vreteno\n"
+"otáčky"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3462
 msgid ""
@@ -18974,7 +19167,7 @@ msgid ""
 "Override"
 msgstr ""
 "Rýchloposuv\n"
-"nastaviť"
+"v programe"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3487
 msgid ""
@@ -18982,7 +19175,7 @@ msgid ""
 "Speed"
 msgstr ""
 "Rýchlosť\n"
-"pohybov"
+"man. pohybov"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3501
 msgid ""
@@ -19148,7 +19341,7 @@ msgstr ""
 
 #: lib/python/gladevcp/iconview.py:129
 msgid "Move to your home directory"
-msgstr ""
+msgstr "Presunúť do svojho domovského adresára"
 
 #: lib/python/gladevcp/iconview.py:138
 msgid "Move to parent directory"
@@ -19180,23 +19373,23 @@ msgstr "Príkaz"
 
 #: lib/python/gladevcp/hal_mdihistory.py:276
 msgid "ERROR loading halshow"
-msgstr ""
+msgstr "CHYBA pri načítavaní halshow"
 
 #: lib/python/gladevcp/offsetpage_widget.py:357
 msgid "offsetpage widget error: unrecognized float input"
-msgstr ""
+msgstr "chyba miniaplikácie stránky ofsetov: nerozpoznaný \"float\" vstup"
 
 #: lib/python/gladevcp/offsetpage_widget.py:394
 msgid "offsetpage widget error: MDI call error"
-msgstr ""
+msgstr "chyba miniaplikácie stránky ofsetov: chyba volania MDI"
 
 #: lib/python/gladevcp/offsetpage_widget.py:413
 msgid "MDI error in offsetpage widget -zero G92"
-msgstr ""
+msgstr "Chyba MDI v miniaplikácii stránky ofsetov -nula G92"
 
 #: lib/python/gladevcp/offsetpage_widget.py:430
 msgid "MDI error in offsetpage widget-zero rotational offset"
-msgstr ""
+msgstr "Chyba MDI v miniaplikácii stránky ofsetov – nulový rotačný posun"
 
 #: lib/python/gladevcp/offsetpage_widget.py:515
 msgid "offsetpage_widget error: cannot select coordinate system"
@@ -19204,7 +19397,7 @@ msgstr "chyba offsetpage_widget: nie je možné vybrať súradnicový systém"
 
 #: lib/python/gladevcp/tooledit_widget.py:228
 msgid "tooledit_widget error: cannot select tool number"
-msgstr ""
+msgstr "chyba tooledit_widget: nemožno vybrať číslo nástroja"
 
 #: lib/python/gladevcp/tooledit_widget.py:258
 msgid "Toolfile does not exist"
@@ -19212,12 +19405,12 @@ msgstr "Súbor nástrojov neexistuje"
 
 #: lib/python/gladevcp/tooledit_widget.py:297
 msgid "Tooledit widget int error"
-msgstr ""
+msgstr "Interna chyba widgetu úpravy nástrojov"
 
 #: lib/python/gladevcp/tooledit_widget.py:307
 #: lib/python/gladevcp/tooledit_widget.py:312
 msgid "Tooledit widget float error"
-msgstr ""
+msgstr "Chyba \"float\" miniaplikácie Tooledit"
 
 #: lib/python/gladevcp/tooledit_widget.py:359
 msgid "Reloading tooltable into linuxcnc failed"
@@ -19225,7 +19418,7 @@ msgstr "Opätovné načítanie tabuľky nástrojov do linuxcnc zlyhalo"
 
 #: lib/python/gladevcp/tooledit_widget.py:528
 msgid "Tool file was modified since it was last read"
-msgstr ""
+msgstr "Súbor nástroja bol od posledného čítania upravený"
 
 #: lib/python/gladevcp/gladevcp-test.glade:111
 #: lib/python/gladevcp/gladevcp-test.glade:125
@@ -19238,11 +19431,11 @@ msgstr ""
 
 #: lib/python/gladevcp/gladevcp-test.glade:204
 msgid "button"
-msgstr ""
+msgstr "tlačídlo"
 
 #: lib/python/gladevcp/gladevcp-test.glade:217
 msgid "togglebutton"
-msgstr ""
+msgstr "prepínacie tlačidlo"
 
 #: lib/python/gladevcp/offsetpage.glade:40
 #: lib/python/gladevcp/offsetpage.glade:54
@@ -19251,11 +19444,11 @@ msgstr "Nástroj"
 
 #: lib/python/gladevcp/offsetpage.glade:74
 msgid "Rot"
-msgstr ""
+msgstr "Tlenie"
 
 #: lib/python/gladevcp/offsetpage.glade:88
 msgid "Rotation of Z"
-msgstr ""
+msgstr "Rotácia okolo Z"
 
 #: lib/python/gladevcp/offsetpage.glade:290
 msgid "Offset"
@@ -19278,6 +19471,8 @@ msgid ""
 "Zero\n"
 "Rotational"
 msgstr ""
+"Nula\n"
+"Rotačná"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:85
 #: lib/python/gladevcp/tooledit_gtk.glade:397
@@ -19295,7 +19490,7 @@ msgstr "Nástroj"
 #: lib/python/gladevcp/tooledit_gtk.glade:419
 #: lib/python/gladevcp/tooledit_gtk.glade:642
 msgid "Pocket"
-msgstr ""
+msgstr "Paket"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:227
 #: lib/python/gladevcp/tooledit_gtk.glade:529
@@ -19313,7 +19508,7 @@ msgstr "Predok"
 #: lib/python/gladevcp/tooledit_gtk.glade:566
 #: lib/python/gladevcp/tooledit_gtk.glade:789
 msgid "Orientation"
-msgstr ""
+msgstr "Orientácia"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:275
 #: lib/python/gladevcp/tooledit_gtk.glade:577
@@ -19323,7 +19518,7 @@ msgstr "Popis"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:330
 msgid "Reload"
-msgstr ""
+msgstr "Znovu načítať"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:374
 msgid "All Offsets"

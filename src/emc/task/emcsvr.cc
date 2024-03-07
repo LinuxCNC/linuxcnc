@@ -34,7 +34,7 @@
 static int iniLoad(const char *filename)
 {
     IniFile inifile;
-    const char *inistring;
+    std::optional<const char*> inistring;
     char version[LINELEN], machine[LINELEN];
 
     // open it
@@ -44,28 +44,28 @@ static int iniLoad(const char *filename)
 
     // EMC debugging flags
     emc_debug = 0;  // disabled by default
-    if (NULL != (inistring = inifile.Find("DEBUG", "EMC"))) {
+    if ((inistring = inifile.Find("DEBUG", "EMC"))) {
         // parse to global
-        if (sscanf(inistring, "%x", &emc_debug) < 1) {
+        if (sscanf(*inistring, "%x", &emc_debug) < 1) {
             perror("failed to parse [EMC] DEBUG");
         }
     }
 
     // set output for RCS messages
     set_rcs_print_destination(RCS_PRINT_TO_STDOUT);   // use stdout by default
-    if (NULL != (inistring = inifile.Find("RCS_DEBUG_DEST", "EMC"))) {
+    if ((inistring = inifile.Find("RCS_DEBUG_DEST", "EMC"))) {
         static RCS_PRINT_DESTINATION_TYPE type;
-        if (!strcmp(inistring, "STDOUT")) {
+        if (!strcmp(*inistring, "STDOUT")) {
             type = RCS_PRINT_TO_STDOUT;
-        } else if (!strcmp(inistring, "STDERR")) {
+        } else if (!strcmp(*inistring, "STDERR")) {
             type = RCS_PRINT_TO_STDERR;
-        } else if (!strcmp(inistring, "FILE")) {
+        } else if (!strcmp(*inistring, "FILE")) {
             type = RCS_PRINT_TO_FILE;
-        } else if (!strcmp(inistring, "LOGGER")) {
+        } else if (!strcmp(*inistring, "LOGGER")) {
             type = RCS_PRINT_TO_LOGGER;
-        } else if (!strcmp(inistring, "MSGBOX")) {
+        } else if (!strcmp(*inistring, "MSGBOX")) {
             type = RCS_PRINT_TO_MESSAGE_BOX;
-        } else if (!strcmp(inistring, "NULL")) {
+        } else if (!strcmp(*inistring, "NULL")) {
             type = RCS_PRINT_TO_NULL;
         } else {
              type = RCS_PRINT_TO_STDOUT;
@@ -82,9 +82,9 @@ static int iniLoad(const char *filename)
     }
 
     // set flags if RCS_DEBUG in ini file
-    if (NULL != (inistring = inifile.Find("RCS_DEBUG", "EMC"))) {
+    if ((inistring = inifile.Find("RCS_DEBUG", "EMC"))) {
         static long int flags;
-        if (sscanf(inistring, "%lx", &flags) < 1) {
+        if (sscanf(*inistring, "%lx", &flags) < 1) {
             perror("failed to parse [EMC] RCS_DEBUG");
         }
         // clear all flags
@@ -94,22 +94,17 @@ static int iniLoad(const char *filename)
     }
     // output infinite RCS errors by default
     max_rcs_errors_to_print = -1;
-    if (NULL != (inistring = inifile.Find("RCS_MAX_ERR", "EMC"))) {
-        if (sscanf(inistring, "%d", &max_rcs_errors_to_print) < 1) {
+    if ((inistring = inifile.Find("RCS_MAX_ERR", "EMC"))) {
+        if (sscanf(*inistring, "%d", &max_rcs_errors_to_print) < 1) {
             perror("failed to parse [EMC] RCS_MAX_ERR");
         }
     }
 
-    strncpy(version, "unknown", LINELEN-1);
-    if (NULL != (inistring = inifile.Find("VERSION", "EMC"))) {
-	    strncpy(version, inistring, LINELEN-1);
-    }
+    inistring = inifile.Find("VERSION", "EMC");
+    strncpy(version, inistring.value_or("unknown"), LINELEN-1);
 
-    if (NULL != (inistring = inifile.Find("MACHINE", "EMC"))) {
-	    strncpy(machine, inistring, LINELEN-1);
-    } else {
-	    strncpy(machine, "unknown", LINELEN-1);
-    }
+    inistring = inifile.Find("MACHINE", "EMC");
+    strncpy(machine, inistring.value_or("unknown"), LINELEN-1);
 
     extern char *program_invocation_short_name;
     rcs_print(
@@ -117,9 +112,9 @@ static int iniLoad(const char *filename)
         program_invocation_short_name, getpid(), machine, version
     );
 
-    if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
+    if ((inistring = inifile.Find("NML_FILE", "EMC"))) {
 	// copy to global
-	rtapi_strxcpy(emc_nmlfile, inistring);
+	rtapi_strxcpy(emc_nmlfile, *inistring);
     } else {
 	// not found, use default
     }

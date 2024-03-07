@@ -445,6 +445,7 @@ class Data:
         self.qtplasmacpause = 0
         self.qtplasmacstop = 0
         self.qtplasmacpmx = ""
+        self.qtplasmacbase = BASE
         self.qtplasmac_bnames = ["OHMIC\TEST","PROBE\TEST","SINGLE\CUT","NORMAL\CUT","TORCH\PULSE","FRAMING", "USER\MANUAL", \
                                  "","","","","","","","","","","","",""]
         self.qtplasmac_bcodes = ["ohmic-test","probe-test 10","single-cut","cut-type","torch-pulse 0.5","framing", "user-manual", \
@@ -866,12 +867,6 @@ class StepconfApp:
         self.HAL.write_halfile(base)
         # qtplasmac specific
         if self.d.select_qtplasmac:
-            # copy M190 file
-            if BASE == "/usr":
-                m190Path = os.path.join(BASE, 'share/doc/linuxcnc/examples/sample-configs/sim/qtplasmac/M190')
-            else:
-                m190Path = os.path.join(BASE, 'configs/sim/qtplasmac/M190')
-            shutil.copy(m190Path, os.path.join(base, 'M190'))
             # different tool table for qtplasmac
             filename = os.path.join(base, "tool.tbl")
             file = open(filename, "w")

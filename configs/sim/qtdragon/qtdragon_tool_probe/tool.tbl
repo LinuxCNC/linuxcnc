@@ -1,4 +1,5 @@
-T1   P1   D+10.000000 Z-51.233083 ;1/8 end mill 
-T2   P2   D+0.062500 Z+0.100000 ;1/16 end mill 
-T3   P3   D+0.201000 Z+1.273000 ;#7 tap drill 
+T1   P1   D+10.000000 Z-51.233083 ;1/8 End Mill 
+T2   P2   D+0.062500 Z+0.100000 ;1/16 End Mill 
+T3   P3   D+0.201000 Z+1.273000 ;#7 Tap Drill 
 T4   P4   D+4.000000 Z+3.000000 ;4" Face Mill 
+T99 P99   D2.00000 ;2mm Probe 

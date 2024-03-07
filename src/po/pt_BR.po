@@ -8,20 +8,22 @@
 #
 # Bruno Lualdi <blibr68@gmail.com>, 2022.
 # Edval Vitor da Silva Filho <edval.vitor@gmail.com>, 2023.
+# Luiz Diefenbach <luizhavoc@gmail.com>, 2024.
+# Petter Reinholdtsen <pere-weblate@hungry.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Emc2-axis cvs-head to 2.1\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-12-19 03:10+0000\n"
-"Last-Translator: Edval Vitor da Silva Filho <edval.vitor@gmail.com>\n"
+"PO-Revision-Date: 2024-02-13 06:38+0000\n"
+"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Portuguese/Brazil <none>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.3\n"
+"X-Generator: Weblate 5.4-dev\n"
 
 #: src/emc/task/emctaskmain.cc:869
 #, c-format
@@ -71,9 +73,8 @@ msgstr ""
 "não está em IDLE"
 
 #: src/emc/task/emctaskmain.cc:2162
-#, fuzzy
 msgid "failed to close file"
-msgstr "Impossível abrir arquivo"
+msgstr "Falha em fechar o arquivo"
 
 #: src/emc/task/emctaskmain.cc:2176 tcl/bin/genedit.tcl:197
 #: tcl/tklinuxcnc.tcl:452
@@ -120,14 +121,12 @@ msgid "G4 not allowed with G2 or G3 because they both use P"
 msgstr "G4 não permitido com G2 ou G3 porque ambos usam P"
 
 #: src/emc/rs274ngc/interp_check.cc:92
-#, fuzzy
 msgid "Line with G10 does not have L0, L1, L10, L11, L2, or L20"
-msgstr "Linha com G10 não tem L2"
+msgstr "Linha com G10 não tem L0, L1, L10, L11, L2, ou L20"
 
 #: src/emc/rs274ngc/interp_check.cc:93
-#, fuzzy
 msgid "P value not an integer with G10"
-msgstr "Parâmetro P não é um inteiro com G10 L2"
+msgstr "Parâmetro P não é um número inteiro com G10"
 
 #: src/emc/rs274ngc/interp_check.cc:94
 #, c-format
@@ -151,66 +150,61 @@ msgstr ""
 "Parâmetro D sem G41, G41.1, G42, G42.2, G71, G71.1, G71.2 ou G96 para usá-lo"
 
 #: src/emc/rs274ngc/interp_check.cc:270
-#, fuzzy
 msgid ""
 "$ (spindle selection) word with no M3, M4, M5, M19, M51, G33, G33.1, G76, "
 "G95, G96 or G97 to use it"
-msgstr "Parâmetro D sem G41, G41.1, G42, G42.2 ou G96 para usá-lo"
+msgstr ""
+"$ (spindle selecionada) palavra sem M3, M4, M5, M19, M51, G33, G33.1, G76, "
+"G95, G96 ou G97 para usar"
 
 #: src/emc/rs274ngc/interp_check.cc:277
-#, fuzzy
 msgid "E word with no G70, G76, M66, M67 or M68 to use it"
-msgstr "Parâmetro E sem G76, M66, M67 ou M68 para usá-lo"
+msgstr "Parâmetro E sem G70, G76, M66, M67 or M68 para usá-lo"
 
 #: src/emc/rs274ngc/interp_check.cc:282
 msgid "H word with no G43 or G76 to use it"
 msgstr "Parâmetro H sem G43 ou G76 para usá-lo"
 
 #: src/emc/rs274ngc/interp_check.cc:291
-#, fuzzy
 msgid ""
 "I word with no G2, G3, G5, G5.1, G6, G6.1, G10, G33.1, G76, or G87 to use it"
-msgstr "Parâmetro J sem G2, G3, G5, G5.1, G10, G76 ou G87 para usá-lo"
+msgstr ""
+"Parâmetro I sem G2, G3, G5, G5.1, G6, G6.1, G10, G33.1, G76 ou G87 para "
+"usá-lo"
 
 #: src/emc/rs274ngc/interp_check.cc:298
-#, fuzzy
 msgid "J word with no G2, G3, G5, G5.1, G6, G6.1, G10, G76 or G87 to use it"
-msgstr "Parâmetro J sem G2, G3, G5, G5.1, G10, G76 ou G87 para usá-lo"
+msgstr "Parâmetro J sem G2, G3, G5, G5.1, G6, G6.1, G10, G76 ou G87 para usá-lo"
 
 #: src/emc/rs274ngc/interp_check.cc:303
-#, fuzzy
 msgid "K word with no G2, G3, G6.2, G33, G33.1, G76, or G87 to use it"
 msgstr ""
-"Parâmetro K sem comando G2, G3, G33, G33.1, G76, G87 ou G43.1 para usá-la"
+"Parâmetro K sem comando G2, G3, G6.2, G33, G33.1, G76, ou G87 para usá-la"
 
 #: src/emc/rs274ngc/interp_check.cc:315
-#, fuzzy
 msgid ""
 "L word with no G10, cutter compensation, canned cycle, digital/analog input, "
 "M98 or NURBS code"
 msgstr ""
 "Parâmetro L sem comando G10, compensação de corte, ciclo pré-formado, "
-"entrada digital/analógica ou código NURBS"
+"entrada digital/analógica, M98 ou código NURBS"
 
 #: src/emc/rs274ngc/interp_check.cc:332
-#, fuzzy
 msgid ""
 "P word with no G2 G3 G4 G10 G64 G5 G5.2 G6, G6.2, G76 G82 G86 G88 G89 or M50 "
 "M51 M52 M53 M62 M63 M64 M65 M66 M98 or user M code to use it"
 msgstr ""
-"Parâmetro P sem comando G4, G10, G64, G5, G5.2, G76, G82, G86, G88, G89 ou "
-"M50, M51, M52, M53, M62, M63, M64, M65, M66 ou código M de usuário para usá-"
-"lo."
+"Parâmetro P sem comando G2 G3 G4 G10 G64 G5 G5.2 G6, G6.2, G76 G82 G86 G88 "
+"G89 or M50 M51 M52 M53 M62 M63 M64 M65 M66 M98 ou código M de usuário para "
+"usá-lo."
 
 #: src/emc/rs274ngc/interp_check.cc:338
-#, fuzzy
 msgid "P value not an integer with M19 G2 or G3"
-msgstr "Parâmetro P não é um inteiro com G10 L2"
+msgstr "Parâmetro P não é um número inteiro com M19 G2 ou G3"
 
 #: src/emc/rs274ngc/interp_check.cc:340
-#, fuzzy
 msgid "P value must be 0,1,or 2 with M19"
-msgstr "Parâmetro P fora dos limites com G10 L2"
+msgstr "Parâmetro P deve ser 0,1,ou 2 com M19"
 
 #: src/emc/rs274ngc/interp_check.cc:342
 #, fuzzy
@@ -20193,28 +20187,26 @@ msgid "Tooledit widget float error"
 msgstr ""
 
 #: lib/python/gladevcp/tooledit_widget.py:359
-#, fuzzy
 msgid "Reloading tooltable into linuxcnc failed"
-msgstr "Recarrega.lista de ferramentas"
+msgstr "Recarregar a lista de ferramentas falhou"
 
 #: lib/python/gladevcp/tooledit_widget.py:528
 msgid "Tool file was modified since it was last read"
 msgstr ""
+"O arquivo de ferramenta foi modificado desde a última vez em que foi lido"
 
 #: lib/python/gladevcp/gladevcp-test.glade:111
 #: lib/python/gladevcp/gladevcp-test.glade:125
 msgid "radiobutton"
-msgstr ""
+msgstr "botão de rádio"
 
 #: lib/python/gladevcp/gladevcp-test.glade:161
-#, fuzzy
 msgid "checkbutton"
-msgstr "Botão scroll do mouse"
+msgstr "botão de controle"
 
 #: lib/python/gladevcp/gladevcp-test.glade:204
-#, fuzzy
 msgid "button"
-msgstr "Jog no eixo selecionado"
+msgstr "botão"
 
 #: lib/python/gladevcp/gladevcp-test.glade:217
 #, fuzzy
@@ -20223,55 +20215,52 @@ msgstr "Refrigeração líquida"
 
 #: lib/python/gladevcp/offsetpage.glade:40
 #: lib/python/gladevcp/offsetpage.glade:54
-#, fuzzy
 msgid "Tool"
-msgstr "Ordem das ferramentas:"
+msgstr "Ferramenta"
 
 #: lib/python/gladevcp/offsetpage.glade:74
 msgid "Rot"
-msgstr ""
+msgstr "Rot"
 
 #: lib/python/gladevcp/offsetpage.glade:88
-#, fuzzy
 msgid "Rotation of Z"
-msgstr "Posição:"
+msgstr "Rotação de Z"
 
 #: lib/python/gladevcp/offsetpage.glade:290
-#, fuzzy
 msgid "Offset"
-msgstr "Alterar Offset"
+msgstr "Offset"
 
 #: lib/python/gladevcp/offsetpage.glade:421
-#, fuzzy
 msgid "Offset Name"
-msgstr "Profundidade das imagens"
+msgstr "Nome do Offset"
 
 #: lib/python/gladevcp/offsetpage.glade:454
 msgid ""
 "Zero\n"
 "G92"
 msgstr ""
+"Zero\n"
+"G92"
 
 #: lib/python/gladevcp/offsetpage.glade:475
-#, fuzzy
 msgid ""
 "Zero\n"
 "Rotational"
-msgstr "Horizontal"
+msgstr ""
+"Zero\n"
+"Rotacional"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:85
 #: lib/python/gladevcp/tooledit_gtk.glade:397
 #: lib/python/gladevcp/tooledit_gtk.glade:620
-#, fuzzy
 msgid "Select"
-msgstr "S_elecionar"
+msgstr "Selecionar"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:98
 #: lib/python/gladevcp/tooledit_gtk.glade:408
 #: lib/python/gladevcp/tooledit_gtk.glade:631
-#, fuzzy
 msgid "Tool#"
-msgstr "Ordem das ferramentas:"
+msgstr "Ferramenta#"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:114
 #: lib/python/gladevcp/tooledit_gtk.glade:419
@@ -20282,35 +20271,30 @@ msgstr ""
 #: lib/python/gladevcp/tooledit_gtk.glade:227
 #: lib/python/gladevcp/tooledit_gtk.glade:529
 #: lib/python/gladevcp/tooledit_gtk.glade:752
-#, fuzzy
 msgid "Diameter"
-msgstr "Parâmetros"
+msgstr "Diâmetro"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:242
 #: lib/python/gladevcp/tooledit_gtk.glade:544
 #: lib/python/gladevcp/tooledit_gtk.glade:767
-#, fuzzy
 msgid "Front"
-msgstr "_Vista frontal"
+msgstr "Frente"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:264
 #: lib/python/gladevcp/tooledit_gtk.glade:566
 #: lib/python/gladevcp/tooledit_gtk.glade:789
-#, fuzzy
 msgid "Orientation"
-msgstr "Alternada"
+msgstr "Orientação"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:275
 #: lib/python/gladevcp/tooledit_gtk.glade:577
 #: lib/python/gladevcp/tooledit_gtk.glade:800
-#, fuzzy
 msgid "Comments"
-msgstr "Comandada"
+msgstr "Comentários"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:330
-#, fuzzy
 msgid "Reload"
-msgstr "_Reload"
+msgstr "Recarregar"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:374
 #, fuzzy

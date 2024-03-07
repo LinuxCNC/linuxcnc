@@ -57,7 +57,7 @@ WIDGETS = VCPWindow()
 DATADIR = os.path.abspath( os.path.dirname( __file__ ) )
 
 class StyleSheetEditor(QDialog):
-    def __init__(self, parent=WIDGETS, path=None):
+    def __init__(self, parent=WIDGETS, path=None, addBuiltinStyles = True):
         super(StyleSheetEditor, self).__init__(parent)
         self.setMinimumSize(600, 400)
         # Load the widgets UI file:
@@ -68,7 +68,8 @@ class StyleSheetEditor(QDialog):
             LOG.critical(e)
         self.styleSheetCombo.setFixedWidth(200)
 
-        self.setWindowTitle('Style Sheet Editor Dialog');
+        self.setWindowTitle('Style Sheet Editor Dialog')
+        self.addBuiltinStyles = addBuiltinStyles
         self.parent = parent
         if PATH:
             self.setPath()
@@ -94,10 +95,14 @@ class StyleSheetEditor(QDialog):
     # in the users's config directory
     def setPath(self):
         model = self.styleSheetCombo.model()
+
+        # ad an 'As Loaded' entry to follow the preference file's entry
         self.loadedItem = QtGui.QStandardItem('As Loaded')
         self.loadedItem.setData( 'As Loaded', role = QtCore.Qt.UserRole + 1)
         self.loadedItem.setData("Use the preference loaded Stylesheet", role = QtCore.Qt.ToolTipRole)
         model.appendRow(self.loadedItem)
+
+        # add 'None' to cancel all sylesheet changes
         item = QtGui.QStandardItem('None')
         item.setData( 'None', role = QtCore.Qt.UserRole + 1)
         item.setData("Use system default Stylesheet", role = QtCore.Qt.ToolTipRole)
@@ -105,7 +110,7 @@ class StyleSheetEditor(QDialog):
 
         # call PATH function to get the found default and local qss files
         try:
-            for group in (PATH.getQSSPaths()):
+            for group in (PATH.getQSSPaths(self.addBuiltinStyles)):
               for directory, name in(group):
                 item = QtGui.QStandardItem(name)
                 item.setData(os.path.join(directory, name), role = QtCore.Qt.UserRole + 1)
