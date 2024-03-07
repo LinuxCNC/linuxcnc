@@ -825,6 +825,13 @@ class HandlerClass:
         else:
             return
 
+        if STATUS.is_metric_mode():
+            x = INFO.convert_machine_to_metric(x)
+            y = INFO.convert_machine_to_metric(y)
+        else:
+            x = INFO.convert_machine_to_imperial(x)
+            y = INFO.convert_machine_to_imperial(y)
+
         ACTION.CALL_MDI("G90")
         ACTION.CALL_MDI_WAIT("G53 G0 Z0")
         command = "G53 G0 X{:3.4f} Y{:3.4f}".format(x, y)
@@ -833,9 +840,14 @@ class HandlerClass:
     def btn_ref_laser_clicked(self):
         x = float(self.w.lineEdit_laser_x.text())
         y = float(self.w.lineEdit_laser_y.text())
-        if not STATUS.is_metric_mode():
-            x = x / 25.4
-            y = y / 25.4
+
+        if STATUS.is_metric_mode():
+            x = INFO.convert_machine_to_metric(x)
+            y = INFO.convert_machine_to_metric(y)
+        else:
+            x = INFO.convert_machine_to_imperial(x)
+            y = INFO.convert_machine_to_imperial(y)
+
         self.add_status("Laser offsets set")
         command = "G10 L20 P0 X{:3.4f} Y{:3.4f}".format(x, y)
         ACTION.CALL_MDI(command)
@@ -843,9 +855,14 @@ class HandlerClass:
     def btn_ref_camera_clicked(self):
         x = float(self.w.lineEdit_camera_x.text())
         y = float(self.w.lineEdit_camera_y.text())
-        if not STATUS.is_metric_mode():
-            x = x / 25.4
-            y = y / 25.4
+
+        if STATUS.is_metric_mode():
+            x = INFO.convert_machine_to_metric(x)
+            y = INFO.convert_machine_to_metric(y)
+        else:
+            x = INFO.convert_machine_to_imperial(x)
+            y = INFO.convert_machine_to_imperial(y)
+
         self.add_status("Camera offsets set")
         command = "G10 L20 P0 X{:3.4f} Y{:3.4f}".format(x, y)
         ACTION.CALL_MDI(command)
