@@ -56,7 +56,7 @@ DEFAULT = 0
 WARNING = 1
 CRITICAL = 2
 
-VERSION ='1.2'
+VERSION ='1.3'
 
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
