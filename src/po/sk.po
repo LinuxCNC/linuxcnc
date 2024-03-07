@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: sk\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2024-02-29 00:21+0000\n"
+"PO-Revision-Date: 2024-03-07 12:27+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
@@ -3663,22 +3663,22 @@ msgstr ".%cT%d: Preset=%d Base=%s"
 #: src/hal/classicladder/edit.c:247
 #, c-format
 msgid "%cM%d: Preset=%d Base=%s"
-msgstr ""
+msgstr "%cM%d: Preset =%d Base =%s"
 
 #: src/hal/classicladder/edit.c:252
 #, c-format
 msgid "%cC%d: Preset=%d"
-msgstr ""
+msgstr "%cC%d: Preset =%d"
 
 #: src/hal/classicladder/edit.c:256
 #, c-format
 msgid "%cTM%d: Preset=%d Base=%s Mode=%s"
-msgstr ""
+msgstr "%cTM%d: Preset =%d Base=%s Mode=%s"
 
 #: src/hal/classicladder/edit.c:260
 #, c-format
 msgid "HAL sig: %s"
-msgstr ""
+msgstr "HAL sig: %s"
 
 #: src/hal/classicladder/edit.c:359
 msgid "Incompatible type of variable (must be an integer!)"
@@ -3687,7 +3687,7 @@ msgstr "Nekompatibilný typ premennej (musí byť celé číslo!)"
 #: src/hal/classicladder/edit.c:397
 #, c-format
 msgid "New expr=%s\n"
-msgstr ""
+msgstr "New expr =%s\n"
 
 #: src/hal/classicladder/edit.c:399
 msgid "Expression too long"
@@ -3933,6 +3933,7 @@ msgstr "Prechod nemožno umiestniť na nepárne riadky"
 #, c-format
 msgid "nbr clicks=1!!! (posi=%s), wait next point to link...\n"
 msgstr ""
+"počet kliknutí = 1!!! (posi=%s), počkajte na ďalší bod na prepojenie...\n"
 
 #: src/hal/classicladder/edit_sequential.c:837
 #: src/hal/classicladder/edit_sequential.c:850
@@ -3942,71 +3943,72 @@ msgstr "nahor"
 #: src/hal/classicladder/edit_sequential.c:837
 #: src/hal/classicladder/edit_sequential.c:850
 msgid "bottom"
-msgstr ""
+msgstr "bottom-"
 
 #: src/hal/classicladder/edit_sequential.c:842
 msgid "Now select the transition."
-msgstr ""
+msgstr "Teraz vyberte prechod."
 
 #: src/hal/classicladder/edit_sequential.c:844
 msgid "Now select the step that will be deactivated by this transition."
-msgstr ""
+msgstr "Teraz vyberte krok, ktorý bude týmto prechodom deaktivovaný."
 
 #: src/hal/classicladder/edit_sequential.c:844
 msgid "Now select the step that will be activated by this transition."
-msgstr ""
+msgstr "Teraz vyberte krok, ktorý bude aktivovaný týmto prechodom."
 
 #: src/hal/classicladder/edit_sequential.c:846
 msgid "You haven't selected a step or a transition to link!!!"
-msgstr ""
+msgstr "Nevybrali ste krok alebo prechod na prepojenie!!!"
 
 #: src/hal/classicladder/edit_sequential.c:850
 #, c-format
 msgid "nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n"
-msgstr ""
+msgstr "nbr clicks=2!!! (posi =%s), TypeBak =%d, TypeNow =%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:856
+#, fuzzy
 msgid "You haven't selected a transition and then the step to link!!!"
-msgstr ""
+msgstr "Nevybrali ste prechod a potom krok na prepojenie!!!"
 
 #: src/hal/classicladder/edit_sequential.c:891
 msgid "Sequential memory full for comments"
-msgstr ""
+msgstr "Sekvenčná pamäť plná pre komentáre"
 
 #: src/hal/classicladder/edit_sequential.c:896
 msgid "There is already an element on 4 horizontal blocks required!"
-msgstr ""
+msgstr "Vyžaduje sa už prvok na 4 vodorovných blokoch!"
 
 #: src/hal/classicladder/edit_sequential.c:901
 msgid "Not enough room on the right here..."
-msgstr ""
+msgstr "Tu vpravo nie je dosť miesta..."
 
 #: src/hal/classicladder/edit_sequential.c:923
 #, c-format
 msgid "DO_MANY_STEPS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
-msgstr ""
+msgstr "DO_MANY_STEPS:nbr clicks =2!!!, TypeBak =%d, TypeNow =%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:929
 #, c-format
 msgid "DO_MANY_TRANSITIONS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
-msgstr ""
+msgstr "DO_MANY_TRANSITIONS:nbr clicks =2!!!, TypeBak =%d, TypeNow =%d\n"
 
 #: src/hal/classicladder/editproperties_gtk.c:237
 msgid "Properties"
-msgstr ""
+msgstr "Vlastnosti"
 
 #: src/hal/classicladder/editproperties_gtk.c:289 tcl/bin/halshow.tcl:734
 #: lib/python/gladevcp/tooledit_gtk.glade:345
 msgid "Apply"
-msgstr ""
+msgstr "Použiť"
 
 #: src/hal/classicladder/emc_mods.c:60
 msgid "Error blank symbol name"
-msgstr ""
+msgstr "Chyba v názve prázdneho symbolu"
 
 #: src/hal/classicladder/emc_mods.c:64
 msgid "Error unknown symbol name"
-msgstr ""
+msgstr "Chyba názvu neznámeho symbolu"
 
 #: src/hal/classicladder/emc_mods.c:75 src/hal/classicladder/emc_mods.c:81
 #: src/hal/classicladder/emc_mods.c:89 src/hal/classicladder/emc_mods.c:97
@@ -4014,15 +4016,15 @@ msgstr ""
 #: src/hal/classicladder/emc_mods.c:117 src/hal/classicladder/emc_mods.c:121
 #: src/hal/classicladder/emc_mods.c:125
 msgid "out of bounds variable number"
-msgstr ""
+msgstr "premenné číslo mimo hraníc "
 
 #: src/hal/classicladder/emc_mods.c:118 src/hal/classicladder/emc_mods.c:122
 msgid "None -Internal Memory"
-msgstr ""
+msgstr "Žiadna - Vnútorná pamäť"
 
 #: src/hal/classicladder/emc_mods.c:126
 msgid "None -Internal Error Status"
-msgstr ""
+msgstr "Žiadna - Stav vnútornej chyby"
 
 #: src/hal/classicladder/emc_mods.c:131
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:618
@@ -4038,28 +4040,28 @@ msgstr "Chyba"
 
 #: src/hal/classicladder/emc_mods.c:154
 msgid "no signal connected"
-msgstr ""
+msgstr "nie je pripojený žiadny signál"
 
 #: src/hal/classicladder/emc_mods.c:158
 msgid "Conv. HAL signal ERROR"
-msgstr ""
+msgstr "Konv. CHYBA signálu HAL"
 
 #: src/hal/classicladder/emc_mods.c:180
 msgid "No expression"
-msgstr ""
+msgstr "Žiadny výraz"
 
 #: src/hal/classicladder/emc_mods.c:196
 #, c-format
 msgid " %s (for %s)  Exprsn~ %s"
-msgstr ""
+msgstr " %s (for %s)  Exprsn ~ %s"
 
 #: src/hal/classicladder/emc_mods.c:201
 msgid "first var. expression error"
-msgstr ""
+msgstr "prvá prem var. výrazová chyba"
 
 #: src/hal/classicladder/emc_mods.c:265
 msgid "Old Timer"
-msgstr ""
+msgstr "starý časovač"
 
 #: src/hal/classicladder/emc_mods.c:270
 msgid "New Timer"
@@ -4067,11 +4069,12 @@ msgstr "Nový časovač"
 
 #: src/hal/classicladder/emc_mods.c:275
 msgid "One-shot"
-msgstr ""
+msgstr "One -shot"
 
 #: src/hal/classicladder/emc_mods.c:280
+#, fuzzy
 msgid "Counter"
-msgstr ""
+msgstr "_Counter"
 
 #: src/hal/classicladder/emc_mods.c:285
 msgid "Error Flag Bit"
@@ -4080,11 +4083,12 @@ msgstr "Chyba príznaku bitu"
 #: src/hal/classicladder/emc_mods.c:288
 msgid "Cannot auto assign symbol names-wrong variable name"
 msgstr ""
+"Nie je možné automaticky priradiť názvy symbolov – nesprávny názov premennej"
 
 #: src/hal/classicladder/files.c:213
 #, c-format
 msgid "Rung version not supported...\n"
-msgstr ""
+msgstr "Verzia riadku nie je podporovaná...\n"
 
 #: src/hal/classicladder/files.c:293 src/hal/classicladder/files.c:332
 #, c-format
@@ -4094,11 +4098,13 @@ msgstr "Načítavam súbor : %s"
 #: src/hal/classicladder/files.c:310 src/hal/classicladder/files.c:336
 #: src/hal/classicladder/files.c:365
 msgid " - ok.\n"
-msgstr ""
+msgstr " - ok.\n"
 
 #: src/hal/classicladder/files.c:313 src/hal/classicladder/files.c:339
 msgid " - not found.\n"
 msgstr ""
+" - nenájdené.\n"
+"\n"
 
 #: src/hal/classicladder/files.c:363
 #, c-format
@@ -4107,43 +4113,43 @@ msgstr "Ukladám súbor: %s"
 
 #: src/hal/classicladder/files.c:367
 msgid " - failed.\n"
-msgstr ""
+msgstr "- nepodarilo sa.\n"
 
 #: src/hal/classicladder/files.c:375
 #, c-format
 msgid "Used=%d\n"
-msgstr ""
+msgstr "Použité = %d\n"
 
 #: src/hal/classicladder/files.c:429
 #, c-format
 msgid "!!!Error in ConvBaseInMilliSecsToInt()\n"
-msgstr ""
+msgstr "!!!Chyba v ConvBaseInMilliSecsToInt()\n"
 
 #: src/hal/classicladder/files.c:507 src/hal/classicladder/files.c:577
 #: src/hal/classicladder/files.c:701
 #, c-format
 msgid "!!! Error loading parameter base in %s\n"
-msgstr ""
+msgstr "!!! Chyba pri načítavaní základne parametrov v %s\n"
 
 #: src/hal/classicladder/files.c:510
 #, c-format
 msgid "Timer => Base = %d , Preset = %d\n"
-msgstr ""
+msgstr "Časovač => Základ = %d , Prednastavenie = %d\n"
 
 #: src/hal/classicladder/files.c:542
 #, c-format
 msgid " - result=%d\n"
-msgstr ""
+msgstr "- výsledok = %d\n"
 
 #: src/hal/classicladder/files.c:580
 #, c-format
 msgid "Monostable => Base = %d , Preset = %d\n"
-msgstr ""
+msgstr "Monostable => Base = %d , Preset = %d\n"
 
 #: src/hal/classicladder/files.c:828
 #, c-format
 msgid "Sections file version not supported...\n"
-msgstr ""
+msgstr "Verzia súboru sekcií nie je podporovaná...\n"
 
 #: src/hal/classicladder/files.c:852
 #, c-format
@@ -4151,31 +4157,34 @@ msgid ""
 "Section %d => Name=%s, Language=%d, SRnbr=%d, FirstRung=%d, LastRung=%d, "
 "SequentialPage=%d\n"
 msgstr ""
+"Section %d => Name =%s, Language =%d, SRnbr =%d, FirstRung =%d, LastRung "
+"=%d, SequentialPage =%d\n"
+"\n"
 
 #: src/hal/classicladder/files.c:1084
 #, c-format
 msgid "Symbols file version not supported...\n"
-msgstr ""
+msgstr "Verzia súboru so symbolmi nie je podporovaná...\n"
 
 #: src/hal/classicladder/files.c:1097
 #, c-format
 msgid "Symbol: %s - %s - %s\n"
-msgstr ""
+msgstr "Symbol: %s - %s - %s\n"
 
 #: src/hal/classicladder/files_project.c:86
 #, c-format
 msgid "ERROR with path directory given for project !!!\n"
-msgstr ""
+msgstr "CHYBA s adresárom cesty zadaným pre projekt !!!\n"
 
 #: src/hal/classicladder/files_project.c:185
 #, c-format
 msgid "Save project '%s' from tmp dir=%s\n"
-msgstr ""
+msgstr "Uložiť projekt '%s' from tmp dir=%s\n"
 
 #: src/hal/classicladder/files_sequential.c:97
 #, c-format
 msgid "Sequential version not supported...\n"
-msgstr ""
+msgstr "Sekvenčná verzia nie je podporovaná...\n"
 
 #: src/hal/classicladder/manager_gtk.c:94
 #: src/hal/classicladder/manager_gtk.c:454 tcl/bin/halconfig.tcl:196
@@ -4185,30 +4194,30 @@ msgstr "Hlavné"
 #: src/hal/classicladder/manager_gtk.c:108
 #: src/hal/classicladder/manager_gtk.c:444
 msgid "Sequential"
-msgstr ""
+msgstr "Sekvenčné"
 
 #: src/hal/classicladder/manager_gtk.c:108
 #: src/hal/classicladder/manager_gtk.c:442
 #: src/emc/usr_intf/gscreen/gscreen.glade:2872
 msgid "Ladder"
-msgstr ""
+msgstr "_Ladder"
 
 #: src/hal/classicladder/manager_gtk.c:183
 msgid "This section name already exists or is incorrect !!!"
-msgstr ""
+msgstr "Tento názov sekcie už existuje alebo je nesprávny!!!"
 
 #: src/hal/classicladder/manager_gtk.c:212
 msgid "This sub-routine number for calls is already defined !!!"
-msgstr ""
+msgstr "Toto číslo volania podprogramu je už definované !!!"
 
 #: src/hal/classicladder/manager_gtk.c:220
 msgid "Failed to add a new section. Full?"
-msgstr ""
+msgstr "Nepodarilo sa pridať novú sekciu. Plné?"
 
 #: src/hal/classicladder/manager_gtk.c:236
 #: src/hal/classicladder/manager_gtk.c:306
 msgid "Not possible when program running..."
-msgstr ""
+msgstr "Nie je možné pri spustenom programe..."
 
 #: src/hal/classicladder/manager_gtk.c:247
 msgid "Add a new section..."
@@ -4216,27 +4225,27 @@ msgstr "Pridať novú sekciu..."
 
 #: src/hal/classicladder/manager_gtk.c:278
 msgid "Modify current section"
-msgstr ""
+msgstr "Upraviť aktuálnu sekciu"
 
 #: src/hal/classicladder/manager_gtk.c:315
 msgid "Do you really want to delete the section ?"
-msgstr ""
+msgstr "Naozaj chcete odstrániť sekciu?"
 
 #: src/hal/classicladder/manager_gtk.c:319
 msgid "You can not delete the last section..."
-msgstr ""
+msgstr "Nemôžete odstrániť poslednú sekciu..."
 
 #: src/hal/classicladder/manager_gtk.c:335
 msgid "This section is already executed the first !"
-msgstr ""
+msgstr "Táto sekcia je už vykonaná ako prvá!"
 
 #: src/hal/classicladder/manager_gtk.c:349
 msgid "This section is already executed the latest !"
-msgstr ""
+msgstr "Táto sekcia je už vykonaná ako posledná!"
 
 #: src/hal/classicladder/manager_gtk.c:421
 msgid "Language"
-msgstr ""
+msgstr "Jazyk"
 
 #: src/hal/classicladder/manager_gtk.c:422
 msgid "Main/Sub-Routine"
@@ -4248,12 +4257,12 @@ msgstr "Názov"
 
 #: src/hal/classicladder/manager_gtk.c:511
 msgid "Sections Manager"
-msgstr ""
+msgstr "Správca sekcií"
 
 #: src/hal/classicladder/protocol_modbus_master.c:265
 #, c-format
 msgid "ERROR CLASSICLADDER-     MODBUS-EXCEPTION RECEIVED:%X (Excep=%X)\n"
-msgstr ""
+msgstr "CHYBA CLASSICLADDER- MODBUS-EXCEPTION RECEIVED:%X (Excep=%X)\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:271
 #, c-format
@@ -4261,6 +4270,8 @@ msgid ""
 "ERROR CLASSICLADDER-    MODBUS -Function code received from slave was not "
 "the same as requested!\n"
 msgstr ""
+"CHYBA CLASSICLADDER- MODBUS -Kód funkcie prijatý od podriadeného zariadenia "
+"nebol rovnaký ako požadovaný!\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:364
 #, c-format
@@ -4268,16 +4279,18 @@ msgid ""
 "INFO CLASSICLADDER-   MODBUS -Echo back from slave #%s is correct "
 "(data=257).\n"
 msgstr ""
+"INFO CLASSICLADDER- MODBUS -Echo back from slave #%s je správne (údaje=257)."
+"\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:413
 #, c-format
 msgid "INFO CLASSICLADDER-   MODBUS function code not recognized"
-msgstr ""
+msgstr "INFO CLASSICLADDER- Funkčný kód MODBUS nebol rozpoznaný"
 
 #: src/hal/classicladder/protocol_modbus_master.c:417
 #, c-format
 msgid "INFO CLASSICLADDER-   MODBUS Length we should receive=%d (+3)\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER- MODBUS Dĺžka, ktorú by sme mali dostať = %d (+3)\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:551
 #, c-format
@@ -4285,23 +4298,25 @@ msgid ""
 "INFO CLASSICLADDER-   Modbus I/O to send (Hex):\n"
 "    Length=%d bytes -> "
 msgstr ""
+"INFO CLASSICLADDER -   Modbus I/O to send (Hex):\n"
+"    Length=%d bytes -> "
 
 #: src/hal/classicladder/protocol_modbus_master.c:555
 #: src/hal/classicladder/protocol_modbus_master.c:626
 #, c-format
 msgid "Slave: %X  "
-msgstr ""
+msgstr "Slave: %X  "
 
 #: src/hal/classicladder/protocol_modbus_master.c:557
 #, c-format
 msgid "Function: %X  Data: "
-msgstr ""
+msgstr "Function: %X  Data: "
 
 #: src/hal/classicladder/protocol_modbus_master.c:559
 #: src/hal/classicladder/protocol_modbus_master.c:630
 #, c-format
 msgid " CRC: %X "
-msgstr ""
+msgstr " CRC: %X "
 
 #: src/hal/classicladder/protocol_modbus_master.c:622
 #, c-format
@@ -4309,37 +4324,39 @@ msgid ""
 "INFO CLASSICLADDER-   Modbus I/O received (Hex):\n"
 "    Length=%d bytes <- "
 msgstr ""
+"INFO CLASSICLADDER-   Modbus I/O received (Hex):\n"
+"    Length =%d bytes <- "
 
 #: src/hal/classicladder/protocol_modbus_master.c:628
 #, c-format
 msgid "Function: %X Data: "
-msgstr ""
+msgstr "Function: %X Data: "
 
 #: src/hal/classicladder/protocol_modbus_master.c:670
 #, c-format
 msgid ""
 "ERROR CLASSICLADDER-   MODBUS-INCORRECT RESPONSE RECEIVED FROM SLAVE!!!\n"
-msgstr ""
+msgstr "CHYBA CLASSICLADDER- MODBUS-NESPRÁVNA ODPOVEĎ OD \"SLAVE\"!!!\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:676
 #, c-format
 msgid "ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n"
-msgstr ""
+msgstr "CHYBA CLASSICLADDER- MODBUS-CHYBA NÍZKEJ ÚROVNE V ODPOVEDI!!!\n"
 
 #: src/hal/classicladder/serial_linux.c:140
 #, c-format
 msgid "Serial speed value %d not found for serial\n"
-msgstr ""
+msgstr "Hodnota sériovej rýchlosti %d sa nenašla pre sériovú linku\n"
 
 #: src/hal/classicladder/serial_linux.c:145
 #, c-format
 msgid "Failed to open serial port %s...\n"
-msgstr ""
+msgstr "Nepodarilo sa otvoriť sériový port %s...\n"
 
 #: src/hal/classicladder/serial_linux.c:177
 #, c-format
 msgid "Set RTS=%d\n"
-msgstr ""
+msgstr "Nastaviť RTS=%d\n"
 
 #: src/hal/classicladder/serial_linux.c:193
 #, c-format
@@ -4359,7 +4376,7 @@ msgstr "Sériová konfigurácia...\n"
 #: src/hal/classicladder/serial_linux.c:237
 #, c-format
 msgid "select() for serial reading...\n"
-msgstr ""
+msgstr "vyberať () pre sériové čítanie...\n"
 
 #: src/hal/classicladder/serial_linux.c:242
 #, c-format
@@ -4369,192 +4386,201 @@ msgstr "Sériové čítanie...\n"
 #: src/hal/classicladder/serial_linux.c:245
 #, c-format
 msgid "%d chars found\n"
-msgstr ""
+msgstr "Počet nájdených znakov: %d\n"
 
 #: src/hal/classicladder/serial_linux.c:256
-#, c-format
+#, c-format, fuzzy
 msgid "Serial flush all!\n"
-msgstr ""
+msgstr "_Serial flush all!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:111
 #, c-format
 msgid "ERROR CLASSICLADDER-   Failed to create thread I/O Modbus master...\n"
 msgstr ""
+"ERROR CLASSICLADDER- Nepodarilo sa vytvoriť vlákno I/O Modbus master...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:128
 #, c-format
 msgid ""
 "INFO CLASSICLADDER---I/O Modbus master Data bits %i Stop bits %i Parity %i\n"
 msgstr ""
+"INFO CLASSICLADDER---I/O Modbus master Dátové bity %i Stop bity %i Parita %"
+"i\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:131
 #, c-format
 msgid "INFO CLASSICLADDER---I/O Modbus master (%s) init ok !\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER---I/O Modbus master (%s) init ok!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:131
 msgid "Serial"
-msgstr ""
+msgstr "_Serial"
 
 #: src/hal/classicladder/socket_modbus_master.c:131
 #: src/emc/usr_intf/pncconf/dialogs.glade:36
 #: src/emc/usr_intf/pncconf/dialogs.glade:302
 #: src/emc/usr_intf/pncconf/dialogs.glade:328
 msgid "Ethernet"
-msgstr ""
+msgstr "Ethernet"
 
 #: src/hal/classicladder/socket_modbus_master.c:177
 #, c-format
 msgid "Init socket for I/O module (%d)...\n"
-msgstr ""
+msgstr "Iniciačný soket pre I/O modul (%d)...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:181
 #, c-format
 msgid "Failed to open I/O socket master...\n"
-msgstr ""
+msgstr "Nepodarilo sa otvoriť I/O soket master...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:207
 #, c-format
 msgid "Connecting I/O module...\n"
-msgstr ""
+msgstr "Pripája sa I/O modul...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:229
 #, c-format
 msgid "Not able to retrieve IP address in Modbus table, huhh?!!!\n"
-msgstr ""
+msgstr "Nie je možné získať IP adresu v tabuľke Modbus!!!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:234
 #, c-format
 msgid "Failed  to connect to I/O module\n"
-msgstr ""
+msgstr "Nepodarilo sa pripojiť k I/O modulu\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:240
 #, c-format
 msgid "Too much IP connections under run...\n"
-msgstr ""
+msgstr "Príliš veľa pripojení IP...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:257
 msgid "INFO CLASSICLADDER-   Sending frame to I/O module...\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER- Odosielanie rámca do I/O modulu...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:263
 #, c-format
 msgid "ERROR CLASSICLADDER-  FAILED TO SEND ON SOCKET !!!(LgtSend=%d)\n"
-msgstr ""
+msgstr "CHYBA CLASSICLADDER- ZLYHALO ODOSLANIE NA SOCKET !!!(LgtSend=%d)\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:286
 #, c-format
 msgid "INFO CLASSICLADDER-   waiting for slave response...\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER- čaká na odpoveď slave...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:320
 #, c-format
 msgid "INFO CLASSICLADDER---I/O Modbus master closed!\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER---I/O Modbus master zatvorený!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:375
 #, c-format
 msgid "INFO CLASSICLADDER- after transmit delay now...%i milliseconds\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER- po oneskorení prenosu teraz...%i milisekúnd\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:385
 #, c-format
 msgid "ERROR CLASSICLADDER-  MODBUS NO RESPONSE (Errs=%d/%d) !?\n"
-msgstr ""
+msgstr "CHYBA CLASSICLADDER- MODBUS ŽIADNA ODPOVEĎ (Errs=%d/%d) !?\n"
 
 #: src/hal/classicladder/socket_server.c:87
 #, c-format
 msgid "INFO CLASSICLADDER--- INIT SOCKET!!!\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER--- INIT SOKET!!!\n"
 
 #: src/hal/classicladder/socket_server.c:92
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to open socket server...\n"
-msgstr ""
+msgstr "CHYBA CLASSICLADDER--- Nepodarilo sa otvoriť soketový server...\n"
 
 #: src/hal/classicladder/socket_server.c:104
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to bind socket server...(error=%s)\n"
 msgstr ""
+"CHYBA CLASSICLADDER--- Nepodarilo sa naviazať server soketu...(chyba=%s)\n"
 
 #: src/hal/classicladder/socket_server.c:113
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to listen socket server...(error=%s)\n"
 msgstr ""
+"CHYBA CLASSICLADDER--- Nepodarilo sa \"načúvať\" serveru soketu...(chyba=%s)"
+"\n"
 
 #: src/hal/classicladder/socket_server.c:132
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to create thread socket server...\n"
 msgstr ""
+"CHYBA CLASSICLADDER--- Nepodarilo sa vytvoriť vlákno serveu soketu ...\n"
 
 #: src/hal/classicladder/socket_server.c:137
 #, c-format
 msgid "INFO CLASSICLADDER--- Server socket init ok (modbus - port %d)!\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER--- Server soket je v poriadku (modbus - port %d)!\n"
 
 #: src/hal/classicladder/socket_server.c:176
 #, c-format
 msgid "INFO CLASSICLADDER--- MODBUS RESPONSE LGT=%d+%d !\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER--- ODPOVEĎ MODBUS LGT=%d+%d !\n"
 
 #: src/hal/classicladder/socket_server.c:207
 #, c-format
 msgid "INFO MODBUS SERVER--- SOCKET WAITING...\n"
-msgstr ""
+msgstr "INFO MODBUS SERVER--- SOKET ČAKÁ...\n"
 
 #: src/hal/classicladder/socket_server.c:213
 #, c-format
 msgid "INFO MODBUS SERVER--- SOCKET CLIENT ACCEPTED...\n"
-msgstr ""
+msgstr "INFO MODBUS SERVER--- SOKET KLIENT PRIJATÉ...\n"
 
 #: src/hal/classicladder/socket_server.c:220
 #, c-format
 msgid "INFO MODBUS SERVER--- SOCKET RECEIVED=%d !\n"
-msgstr ""
+msgstr "INFO MODBUS SERVER--- SOKET PRIJETE=%d !\n"
 
 #: src/hal/classicladder/socket_server.c:223
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to recv socket server...(error=%s)\n"
 msgstr ""
+"ERROR CLASSICLADDER--- Nepodarilo sa prijať server soketu...(chyba=%s)\n"
 
 #: src/hal/classicladder/socket_server.c:238
 #, c-format
 msgid "INFO MODBUS SERVER--- CLOSE SOCK CLIENT.\n"
-msgstr ""
+msgstr "INFO MODBUS SERVER--- ZATVORTE SOK KLIENTA.\n"
 
 #: src/hal/classicladder/socket_server.c:268
 #, c-format
 msgid "INFO CLASSICLADDER--- Server socket closed!\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER--- Server soket zatvorený!\n"
 
 #: src/hal/classicladder/spy_vars_gtk.c:200
 msgid "Bit Status Window"
-msgstr ""
+msgstr "Okno stavu bitov"
 
 #: src/hal/classicladder/spy_vars_gtk.c:222
 msgid "Offset for vars displayed below (press return to apply)"
 msgstr ""
+"Posun pre premenné zobrazené nižšie (aplikujte stlačením klávesu Return)"
 
 #: src/hal/classicladder/spy_vars_gtk.c:522
 msgid "Watch Window"
-msgstr ""
+msgstr "Okno sledovania"
 
 #: src/hal/classicladder/symbols_gtk.c:132
-#, c-format
+#, c-format, fuzzy
 msgid "A variable name always start with '%' character !"
-msgstr ""
+msgstr "Názov premennej vždy začína znakom '%' !"
 
 #: src/hal/classicladder/symbols_gtk.c:191
 msgid "opened SYMBOLS window. Press again to close"
-msgstr ""
+msgstr "otvorené okno SYMBOLY. Opätovným stlačením zatvoríte"
 
 #: src/hal/classicladder/symbols_gtk.c:210
 msgid "Symbols names"
-msgstr ""
+msgstr "Názvy symbolov"
 
 #: src/hal/classicladder/vars_names.c:180
 msgid "Unknown symbol for variable name"
-msgstr ""
+msgstr "Neznámy symbol pre názov premennej"
 
 #: src/hal/classicladder/vars_names.c:200
 #: src/hal/classicladder/vars_names.c:222
@@ -4566,13 +4592,13 @@ msgstr ""
 #: src/hal/classicladder/vars_names.c:415
 #: src/hal/classicladder/vars_names.c:624
 msgid "Unknown variable (number value out of bound)"
-msgstr ""
+msgstr "Neznáma premenná (hodnota čísla je mimo hraníc)"
 
 #: src/hal/classicladder/vars_names.c:231
 #: src/hal/classicladder/vars_names.c:303
 #: src/hal/classicladder/vars_names.c:345
 msgid "Unknown variable (missing '.' character before attribute)"
-msgstr ""
+msgstr "Neznáma premenná (pred atribútom chýba znak \" .\")"
 
 #: src/hal/classicladder/vars_names.c:246
 #: src/hal/classicladder/vars_names.c:257
@@ -4582,15 +4608,15 @@ msgstr ""
 #: src/hal/classicladder/vars_names.c:369
 #: src/hal/classicladder/vars_names.c:431
 msgid "Unknown variable (unknown attribute)"
-msgstr ""
+msgstr "Neznáma premenná (neznámy atribút)"
 
 #: src/hal/classicladder/vars_names.c:440
 msgid "Unknown variable (on first character following %)"
-msgstr ""
+msgstr "Neznáma premenná (na prvom znaku po %)"
 
 #: src/hal/classicladder/vars_names.c:454
 msgid "Unknown variable (global error)"
-msgstr ""
+msgstr "Neznáma premenná (globálna chyba)"
 
 #: tcl/bin/emccalib.tcl:95
 msgid "LinuxCNC Calibration"
@@ -5026,7 +5052,7 @@ msgstr "POZOROVAŤ"
 
 #: tcl/bin/halshow.tcl:179
 msgid " SETTINGS "
-msgstr ""
+msgstr "NASTAVENIE"
 
 #: tcl/bin/halshow.tcl:223
 msgid "Load Watch List"
@@ -5038,7 +5064,7 @@ msgstr "Uložiť zoznam sledovania"
 
 #: tcl/bin/halshow.tcl:226
 msgid "Save Watch List (multiline)"
-msgstr ""
+msgstr "Uložiť zoznam sledovania (viacriadkový)"
 
 #: tcl/bin/halshow.tcl:243 tcl/bin/halshow.tcl:364
 msgid "Tree View"
@@ -5054,7 +5080,7 @@ msgstr "Zbaliť všetko"
 
 #: tcl/bin/halshow.tcl:257
 msgid "Reload tree view"
-msgstr ""
+msgstr "Znova načítať rozvetvené zobrazenie"
 
 #: tcl/bin/halshow.tcl:263
 msgid "Add pin"
@@ -5134,18 +5160,20 @@ msgid ""
 "Always on top\n"
 "(Note: May not working with all desktop environments)"
 msgstr ""
+"Vždy na vrchu\n"
+"(Poznámka: Nemusí fungovať so všetkými prostrediami pracovnej plochy)"
 
 #: tcl/bin/halshow.tcl:733
 msgid "Remember watchlist"
-msgstr ""
+msgstr "Zapamätať si zoznam sledovania"
 
 #: tcl/bin/halshow.tcl:740
 msgid "Settings stored in: "
-msgstr ""
+msgstr "Nastavenia uložené v: "
 
 #: tcl/bin/halshow.tcl:843
 msgid "already in list"
-msgstr ""
+msgstr "už v zozname"
 
 #: tcl/bin/halshow.tcl:959
 msgid "Set to .."
@@ -5153,7 +5181,7 @@ msgstr "Nastavený na .."
 
 #: tcl/bin/halshow.tcl:962
 msgid "Unlink pin"
-msgstr ""
+msgstr "Odpojiť pin"
 
 #: tcl/bin/halshow.tcl:964
 msgid "Show in Tree"
@@ -5161,7 +5189,7 @@ msgstr "Zobraziť v strome"
 
 #: tcl/bin/halshow.tcl:965
 msgid "Remove"
-msgstr ""
+msgstr "Odstrániť"
 
 #: tcl/bin/halshow.tcl:976
 msgid "Add as Pin(s)"
@@ -5173,11 +5201,11 @@ msgstr "Pridať ako signál(s)"
 
 #: tcl/bin/halshow.tcl:978
 msgid "Add as Param(s)"
-msgstr ""
+msgstr "Pridať ako parameter(e)"
 
 #: tcl/bin/halshow.tcl:989
 msgid "Add all sub-items to watch"
-msgstr ""
+msgstr "Pridajte všetky sub-items na sledovanie"
 
 #: tcl/bin/halshow.tcl:1025 tcl/bin/halshow.tcl:1033 tcl/bin/halshow.tcl:1101
 msgid "Set"
@@ -5225,11 +5253,11 @@ msgstr "Celé číslo (zakázané argumentom \"--iformat\")"
 
 #: tcl/bin/halshow.tcl:1312
 msgid "Float (disabled by \"--fformat\" argument)"
-msgstr ""
+msgstr "Float (zakázané argumentom \"--fformat\")"
 
 #: tcl/bin/halshow.tcl:1319
 msgid "\"--noprefs\" option set. Settings will not be saved!"
-msgstr ""
+msgstr "nastavená možnosť \"--noprefs\". Nastavenia sa neuložia!"
 
 #: tcl/bin/pickconfig.tcl:99
 msgid ""
@@ -5722,7 +5750,7 @@ msgstr "Lineárna rýchlosť jogu"
 
 #: tcl/tklinuxcnc.tcl:1441
 msgid "Angular Jog Speed (deg)/min:"
-msgstr ""
+msgstr "Uhlová rýchlosť posuvu (stupne)/min:"
 
 #: tcl/tklinuxcnc.tcl:1465 share/axis/tcl/axis.tcl:1491
 msgid "Feed Override:"
@@ -5922,82 +5950,85 @@ msgstr "Písať"
 
 #: tcl/ngcgui.tcl:443 tcl/ngcgui.tcl:859
 msgid "Need non-null file name"
-msgstr ""
+msgstr "Potrebujete \"non-nul\" názov súboru"
 
 #: tcl/ngcgui.tcl:487
 msgid "Disallowed use of ngcgui generated file as Subfile"
-msgstr ""
+msgstr "Zakázané použitie súboru vygenerovaného ngcgui ako podsúboru"
 
 #: tcl/ngcgui.tcl:493
 msgid ""
 "marked (not_a_subfile)\n"
 "Not intended for use as a subfile"
 msgstr ""
+"označené (not_a_subfile)\n"
+"Nie je určené na použitie ako čiastkový súbor"
 
 #: tcl/ngcgui.tcl:507 tcl/ngcgui.tcl:526 tcl/ngcgui.tcl:548 tcl/ngcgui.tcl:561
 #: tcl/ngcgui.tcl:581 tcl/ngcgui.tcl:686
 msgid "bogus"
-msgstr ""
+msgstr "falošný"
 
 #: tcl/ngcgui.tcl:509
 msgid "can not include subroutines within ngcgui subfile"
-msgstr ""
+msgstr "nemôže zahrnúť podprogramy do podsúboru ngcgui"
 
 #: tcl/ngcgui.tcl:517
 msgid "Multiple subroutines in file not allowed"
-msgstr ""
+msgstr "Viaceré podprogramy v súbore nie sú povolené"
 
 #: tcl/ngcgui.tcl:528
+#, fuzzy
 msgid "sub label"
-msgstr ""
+msgstr ".sub label"
 
 #: tcl/ngcgui.tcl:528 tcl/ngcgui.tcl:583
 msgid "does not match subroutine file name"
-msgstr ""
+msgstr "nezodpovedá názvu súboru podprogramu"
 
 #: tcl/ngcgui.tcl:543 tcl/ngcgui.tcl:544
 msgid "ignoring M2 after endsub"
-msgstr ""
+msgstr "ignorovanie M2 po endsub"
 
 #: tcl/ngcgui.tcl:549
 msgid "file contains lines after subend"
-msgstr ""
+msgstr "súbor obsahuje riadky za \"subend\""
 
 #: tcl/ngcgui.tcl:562
 msgid "file contains lines before sub"
-msgstr ""
+msgstr "súbor obsahuje riadky pred \"sub\""
 
 #: tcl/ngcgui.tcl:583
 msgid "endsub label"
-msgstr ""
+msgstr "endsub štítok"
 
 #: tcl/ngcgui.tcl:688
 msgid "out of sequence positional parameter"
-msgstr ""
+msgstr "pozičný parameter mimo sekvencie"
 
 #: tcl/ngcgui.tcl:688
 msgid "expected"
-msgstr ""
+msgstr "očakávané"
 
 #: tcl/ngcgui.tcl:739
 msgid "no 'sub' found in file"
-msgstr ""
+msgstr "v súbore sa nenašiel žiadny „sub“"
 
 #: tcl/ngcgui.tcl:742
 msgid "no 'endsub' found in file"
-msgstr ""
+msgstr "v súbore sa nenašiel žiadny 'endsub'"
 
 #: tcl/ngcgui.tcl:814
 msgid "Cannot find gcmc executable"
-msgstr ""
+msgstr "Nedá sa nájsť spustiteľný súbor gcmc"
 
 #: tcl/ngcgui.tcl:815
 msgid "Please Install in path"
-msgstr ""
+msgstr "Nainštalujte do cesty"
 
 #: tcl/ngcgui.tcl:823
 msgid "not embedded, deriving outdir from:"
-msgstr ""
+msgstr "nie je vložené, odvodené outdir z:"
 
 #: tcl/ngcgui.tcl:1051
 msgid "Choose Files"
@@ -6009,19 +6040,19 @@ msgstr "Ovládacie prvky"
 
 #: tcl/ngcgui.tcl:1200
 msgid "Preamble"
-msgstr ""
+msgstr "Preambula"
 
 #: tcl/ngcgui.tcl:1213
 msgid "Subfile"
-msgstr ""
+msgstr "Podsúbor"
 
 #: tcl/ngcgui.tcl:1225
 msgid "Postamble"
-msgstr ""
+msgstr ".Postamble"
 
 #: tcl/ngcgui.tcl:1242
 msgid "Retain values on Subfile read"
-msgstr ""
+msgstr "Zachovať hodnoty pri čítaní podsúboru"
 
 #: tcl/ngcgui.tcl:1250
 msgid "Expand subroutine"
@@ -6033,12 +6064,12 @@ msgstr "Automatické odoslanie"
 
 #: tcl/ngcgui.tcl:1270
 msgid "Verbose ngcfile"
-msgstr ""
+msgstr "Podrobný súbor ngc"
 
 #: tcl/ngcgui.tcl:1280 tcl/ngcgui.tcl:2414 tcl/ngcgui.tcl:2437
 #: tcl/ngcgui.tcl:2467
 msgid "Create Feature"
-msgstr ""
+msgstr "Vytvoriť funkciu"
 
 #: tcl/ngcgui.tcl:1286 tcl/ngcgui.tcl:3079
 msgid "MakeFile"
@@ -6046,11 +6077,11 @@ msgstr "Vytvoriť súbor"
 
 #: tcl/ngcgui.tcl:1287 tcl/ngcgui.tcl:3076
 msgid "Finalize"
-msgstr ""
+msgstr "Dokončiť"
 
 #: tcl/ngcgui.tcl:1304
 msgid "Reread"
-msgstr ""
+msgstr "Znovu načítať"
 
 #: tcl/ngcgui.tcl:1313 src/emc/usr_intf/gscreen/gscreen.glade:390
 msgid "Restart"
@@ -6058,19 +6089,19 @@ msgstr "Reštartovať"
 
 #: tcl/ngcgui.tcl:1323
 msgid "SendFileToAxis"
-msgstr ""
+msgstr "Odoslať súbor do Axis"
 
 #: tcl/ngcgui.tcl:1366
 msgid "Unrecoverable problem"
-msgstr ""
+msgstr "Neopraviteľný problém"
 
 #: tcl/ngcgui.tcl:1444
 msgid "Postamble file"
-msgstr ""
+msgstr "Postamble súbor"
 
 #: tcl/ngcgui.tcl:1494
 msgid "Subroutine file"
-msgstr ""
+msgstr "Súbor podprogramu"
 
 #: tcl/ngcgui.tcl:1558
 msgid "Positional Parameters"
@@ -6078,7 +6109,7 @@ msgstr "Polohové parametre"
 
 #: tcl/ngcgui.tcl:1707
 msgid "No Subfile specified"
-msgstr ""
+msgstr "Nie je zadaný žiadny podsúbor"
 
 #: tcl/ngcgui.tcl:1709
 msgid "No parameters yet"
@@ -6086,31 +6117,32 @@ msgstr "Zatiaľ bez parametrov"
 
 #: tcl/ngcgui.tcl:1718
 msgid "Missing value for parm"
-msgstr ""
+msgstr "Chýba hodnota pre param"
 
 #: tcl/ngcgui.tcl:1739
 msgid "Output file"
-msgstr ""
+msgstr "Výstupný súbor"
 
 #: tcl/ngcgui.tcl:1854
 msgid "Multiple Tabs with Features"
-msgstr ""
+msgstr "Viaceré karty s funkciami"
 
 #: tcl/ngcgui.tcl:1855
 msgid "Finalize all Tabs?"
-msgstr ""
+msgstr "Dokončiť všetky karty?"
 
 #: tcl/ngcgui.tcl:1855
+#, fuzzy
 msgid "Order"
-msgstr ""
+msgstr "objednať"
 
 #: tcl/ngcgui.tcl:1857
 msgid "No, just this page"
-msgstr ""
+msgstr "Nie, len táto stránka"
 
 #: tcl/ngcgui.tcl:1871
 msgid "Axis is not responding"
-msgstr ""
+msgstr "Os nereaguje"
 
 #: tcl/ngcgui.tcl:1872
 msgid "Error: "
@@ -6119,38 +6151,40 @@ msgstr "Chyba: "
 #: tcl/ngcgui.tcl:1874
 msgid "Autosend disabled, Ctrl-A toggles autosend"
 msgstr ""
+"Automatické odosielanie je vypnuté, Ctrl-A prepína automatické odosielanie"
 
 #: tcl/ngcgui.tcl:1876
 msgid "File saving enabled -- Finalize to save"
-msgstr ""
+msgstr "Ukladanie súboru je povolené -- dokončite na uloženie"
 
 #: tcl/ngcgui.tcl:1892
 msgid "Require .ngc suffix for filename"
-msgstr ""
+msgstr "Vyžaduje príponu .ngc pre názov súboru"
 
 #: tcl/ngcgui.tcl:1902
 msgid "Disallowed overwrite of"
-msgstr ""
+msgstr "Nepovolené prepísanie z"
 
 #: tcl/ngcgui.tcl:1930
+#, fuzzy
 msgid "FEATURE"
-msgstr ""
+msgstr "VLASTNOSŤ"
 
 #: tcl/ngcgui.tcl:1937
 msgid "feature line added"
-msgstr ""
+msgstr "pridaný rad funkcií"
 
 #: tcl/ngcgui.tcl:1941
 msgid "remaining_features line added"
-msgstr ""
+msgstr "pridaný riadok zostávajúcich_funkcií"
 
 #: tcl/ngcgui.tcl:1953
 msgid "line added"
-msgstr ""
+msgstr "riadok pridaný"
 
 #: tcl/ngcgui.tcl:1953
 msgid "activated"
-msgstr ""
+msgstr "aktivovaný"
 
 #: tcl/ngcgui.tcl:1955
 msgid "restores"
@@ -6158,11 +6192,11 @@ msgstr "obnovuje"
 
 #: tcl/ngcgui.tcl:1994
 msgid "NOTREACHED mode"
-msgstr ""
+msgstr "Režim NOTREACHED"
 
 #: tcl/ngcgui.tcl:2010
 msgid "Positional parameters for"
-msgstr ""
+msgstr "Parametre polohy pre"
 
 #: tcl/ngcgui.tcl:2018
 msgid "expanded file"
@@ -6170,11 +6204,11 @@ msgstr "rozšírený súbor"
 
 #: tcl/ngcgui.tcl:2032
 msgid "call subroutine file"
-msgstr ""
+msgstr "súbor podprogramu volania"
 
 #: tcl/ngcgui.tcl:2415
 msgid "Enter parms for 1st feature"
-msgstr ""
+msgstr "Zadajte parametre pre 1. funkciu"
 
 #: tcl/ngcgui.tcl:2422
 msgid "New Outfile"
@@ -6182,23 +6216,25 @@ msgstr "Nový výstup"
 
 #: tcl/ngcgui.tcl:2424
 msgid "Ready to make New Outfile"
-msgstr ""
+msgstr "Pripravený na vytvorenie nového Outfile"
 
 #: tcl/ngcgui.tcl:2440 tcl/ngcgui.tcl:2473
 msgid "Enter parms for feature "
-msgstr ""
+msgstr "Zadajte parametre funkcie"
 
 #: tcl/ngcgui.tcl:2460
+#, fuzzy
 msgid "feature"
-msgstr ""
+msgstr "feature"
 
 #: tcl/ngcgui.tcl:2465
+#, fuzzy
 msgid "Create Next"
-msgstr ""
+msgstr "Vytvoriť Ďalší"
 
 #: tcl/ngcgui.tcl:2470
 msgid "Created feature "
-msgstr ""
+msgstr "Vytvorená funkcia"
 
 #: tcl/ngcgui.tcl:2494
 msgid "option"
@@ -6214,31 +6250,32 @@ msgstr "Chyba analýzy"
 
 #: tcl/ngcgui.tcl:2516
 msgid "Null Preamble"
-msgstr ""
+msgstr "Nulová preambula"
 
 #: tcl/ngcgui.tcl:2521
 msgid "Read Preamble"
-msgstr ""
+msgstr "Prečítať preambulu"
 
 #: tcl/ngcgui.tcl:2525
 msgid "Preamble Error"
-msgstr ""
+msgstr "Chyba preambuly"
 
 #: tcl/ngcgui.tcl:2530
+#, fuzzy
 msgid "Null Postamble"
-msgstr ""
+msgstr ".Null Postamble"
 
 #: tcl/ngcgui.tcl:2535
 msgid "Read Postamble"
-msgstr ""
+msgstr "Prečítať Postamble"
 
 #: tcl/ngcgui.tcl:2539
 msgid "Postamble Error"
-msgstr ""
+msgstr "Postamble chyba"
 
 #: tcl/ngcgui.tcl:2544
 msgid "Read Subfile"
-msgstr ""
+msgstr "Načítať podsúbor"
 
 #: tcl/ngcgui.tcl:2549
 msgid "Write Error"
@@ -6246,11 +6283,11 @@ msgstr "Chyba zápisu"
 
 #: tcl/ngcgui.tcl:2553
 msgid "Outfile set"
-msgstr ""
+msgstr "Outfile nastavenie"
 
 #: tcl/ngcgui.tcl:2558
 msgid "Finished"
-msgstr ""
+msgstr "Dokončené"
 
 #: tcl/ngcgui.tcl:2563
 msgid "Canceled"
@@ -6258,15 +6295,15 @@ msgstr "Zrušené"
 
 #: tcl/ngcgui.tcl:2569
 msgid "Sent"
-msgstr ""
+msgstr "Odoslané"
 
 #: tcl/ngcgui.tcl:2573
 msgid "SendFileToAxis failed"
-msgstr ""
+msgstr "SendFileToAxis zlyhalo"
 
 #: tcl/ngcgui.tcl:2577
 msgid "Ctrl-k for Key bindings"
-msgstr ""
+msgstr "Ctrl-k pre klávesovú skratku"
 
 #: tcl/ngcgui.tcl:2581
 msgid "Expand sub"
@@ -6278,31 +6315,31 @@ msgstr "Zachovať hodnoty"
 
 #: tcl/ngcgui.tcl:2589
 msgid "Verbose"
-msgstr ""
+msgstr "Úplné"
 
 #: tcl/ngcgui.tcl:2595
 msgid "Finalize Canceled"
-msgstr ""
+msgstr "Finalizovať Zrušené"
 
 #: tcl/ngcgui.tcl:2732 tcl/ngcgui.tcl:2888 tcl/tooledit.tcl:933
 msgid "Dismiss"
-msgstr ""
+msgstr "Odmietnuť"
 
 #: tcl/ngcgui.tcl:2737
 msgid "ngcgui Error"
-msgstr ""
+msgstr "Chyba ngcgui"
 
 #: tcl/ngcgui.tcl:2760
 msgid "Declining support for tk send bug in ngcgui"
-msgstr ""
+msgstr "Klesajúca podpora pre tk send bug v ngcgui"
 
 #: tcl/ngcgui.tcl:2761
 msgid "You should upgrade linuxcnc to >= linuxcnc2.5"
-msgstr ""
+msgstr "Mali by ste aktualizovať linuxcnc na >= linuxcnc2.5"
 
 #: tcl/ngcgui.tcl:2805
 msgid "pre2.4_send_file_to_axis:error"
-msgstr ""
+msgstr "pre2.4_send_file_to_axis: error"
 
 #: tcl/ngcgui.tcl:2999 share/axis/tcl/axis.tcl:1772
 msgid "OFF"
@@ -6310,7 +6347,7 @@ msgstr "OFF"
 
 #: tcl/ngcgui.tcl:3002
 msgid "Toggle autosend"
-msgstr ""
+msgstr "Prepnúť automatické odosielanie"
 
 #: tcl/ngcgui.tcl:3003 tcl/ngcgui.tcl:3210
 msgid "Clear entries"
@@ -6318,55 +6355,58 @@ msgstr "Vymazať záznamy"
 
 #: tcl/ngcgui.tcl:3004
 msgid "Set entries to default values"
-msgstr ""
+msgstr "Nastavte položky na predvolené hodnoty"
 
 #: tcl/ngcgui.tcl:3005 tcl/ngcgui.tcl:3019 tcl/ngcgui.tcl:3021
 msgid "Open editor specified by"
-msgstr ""
+msgstr "Otvoriť editor určený používateľom"
 
 #: tcl/ngcgui.tcl:3006
+#, fuzzy
 msgid "on last outfile"
-msgstr ""
+msgstr "na poslednom outfile"
 
 #: tcl/ngcgui.tcl:3007
 msgid "toggle expand subroutines"
-msgstr ""
+msgstr "prepínať podprogramy"
 
 #: tcl/ngcgui.tcl:3008
 msgid "Create feature"
-msgstr ""
+msgstr "Vytvoriť funkciu"
 
 #: tcl/ngcgui.tcl:3009
 msgid "Finalize (AUTO send is"
-msgstr ""
+msgstr "Dokončiť (AUTO odoslanie je"
 
 #: tcl/ngcgui.tcl:3010
 msgid "Show key bindings"
-msgstr ""
+msgstr "Zobraziť klávesové skratky"
 
 #: tcl/ngcgui.tcl:3011
 msgid "Restart (cancel pending)"
-msgstr ""
+msgstr "Reštartovať (čaká sa na zrušenie)"
 
 #: tcl/ngcgui.tcl:3012
 msgid "(re)Read Preamble"
-msgstr ""
+msgstr "(znovu) Prečítať preambulu"
 
 #: tcl/ngcgui.tcl:3013
 msgid "(re)Read Postamble"
-msgstr ""
+msgstr "(znovu) Prečítať Postamble"
 
 #: tcl/ngcgui.tcl:3014
+#, fuzzy
 msgid "(re)Read Subfile"
-msgstr ""
+msgstr "(znovu) Prečítať subfile"
 
 #: tcl/ngcgui.tcl:3015
+#, fuzzy
 msgid "toggle retain values"
-msgstr ""
+msgstr "zachovať hodnoty"
 
 #: tcl/ngcgui.tcl:3016
 msgid "toggle output file verbosity"
-msgstr ""
+msgstr ".toggle output file verbosity"
 
 #: tcl/ngcgui.tcl:3017
 msgid "Show status"
@@ -6374,31 +6414,31 @@ msgstr "Zobraziť stav"
 
 #: tcl/ngcgui.tcl:3018
 msgid "Show full status (debug info)"
-msgstr ""
+msgstr "Zobraziť úplný stav (informácie debug)"
 
 #: tcl/ngcgui.tcl:3020
 msgid "on current subfile"
-msgstr ""
+msgstr "na aktuálnom podsúbore"
 
 #: tcl/ngcgui.tcl:3022
 msgid "on current preamble"
-msgstr ""
+msgstr "v aktuálnej preambule"
 
 #: tcl/ngcgui.tcl:3025
 msgid " Escape Return to Preview page"
-msgstr ""
+msgstr " Escape Návrat na stránku náhľadu"
 
 #: tcl/ngcgui.tcl:3102
 msgid "Editing requires setting for environmental variable VISUAL"
-msgstr ""
+msgstr "Úprava vyžaduje nastavenie premennej prostredia VISUAL"
 
 #: tcl/ngcgui.tcl:3103
 msgid "Trying gedit"
-msgstr ""
+msgstr "Skúšam editor"
 
 #: tcl/ngcgui.tcl:3116
 msgid "No file available for editing yet"
-msgstr ""
+msgstr "Zatiaľ nie je k dispozícii žiadny súbor na úpravu"
 
 #: tcl/ngcgui.tcl:3125 tcl/ngcgui.tcl:3134
 msgid "No file available for editing"
@@ -6410,11 +6450,11 @@ msgstr "Stav"
 
 #: tcl/ngcgui.tcl:3164
 msgid "All-page opt items"
-msgstr ""
+msgstr "Celostránkové voliteľné položky"
 
 #: tcl/ngcgui.tcl:3170
 msgid "any-items"
-msgstr ""
+msgstr "ľubovoľné položky"
 
 #: tcl/ngcgui.tcl:3203
 msgid "Set defaults"
@@ -6422,7 +6462,7 @@ msgstr "Nastaviť predvolené hodnoty"
 
 #: tcl/ngcgui.tcl:3278
 msgid "not writable"
-msgstr ""
+msgstr "nie je zapisovateľný"
 
 #: tcl/ngcgui.tcl:3417 tcl/ngcgui.tcl:3598
 msgid "new"
@@ -6430,15 +6470,15 @@ msgstr "Nový"
 
 #: tcl/ngcgui.tcl:3443
 msgid "Open a new Subfile"
-msgstr ""
+msgstr "Otvorte nový podsúbor"
 
 #: tcl/ngcgui.tcl:3589
 msgid "remove"
-msgstr ""
+msgstr "odstrániť"
 
 #: tcl/ngcgui.tcl:3611 tcl/ngcgui.tcl:3617
 msgid "move"
-msgstr ""
+msgstr "pohyb"
 
 #: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:4109
 #: src/emc/usr_intf/pncconf/pncconf.py:4215
@@ -6448,48 +6488,50 @@ msgstr "Vlastné"
 
 #: tcl/ngcgui.tcl:3751
 msgid "Problem creating page"
-msgstr ""
+msgstr "Problém pri vytváraní stránky"
 
 #: tcl/ngcgui.tcl:3758
 msgid "entrykeybindings not available"
-msgstr ""
+msgstr "vstupné väzby nie sú k dispozícii"
 
 #: tcl/ngcgui.tcl:3802
 msgid "Found multiple matches for"
-msgstr ""
+msgstr "Našlo sa viacero zhôd pre"
 
 #: tcl/ngcgui.tcl:3803
 msgid "using path"
-msgstr ""
+msgstr "pomocou cesty"
 
 #: tcl/ngcgui.tcl:3811 src/emc/usr_intf/axis/scripts/axis.py:2689
 #: src/emc/usr_intf/axis/scripts/axis.py:2715
 msgid "Warning"
-msgstr ""
+msgstr "POZOR"
 
 #: tcl/ngcgui.tcl:3812
 msgid "File absolute path specifier conflicts with searchpath result"
 msgstr ""
+"Špecifikátor absolútnej cesty súboru je v konflikte s výsledkom vyhľadávania"
 
 #: tcl/ngcgui.tcl:3813
 msgid "Absolute Specifier"
-msgstr ""
+msgstr "Absolútny špecifikátor"
 
 #: tcl/ngcgui.tcl:3814
 msgid "Using Search Result"
-msgstr ""
+msgstr "Pomocou výsledkov vyhľadávania"
 
 #: tcl/ngcgui.tcl:3819
 msgid "File not in Search Path"
-msgstr ""
+msgstr "Súbor nie je v ceste vyhľadávania"
 
 #: tcl/ngcgui.tcl:3821
 msgid "Must be in search path"
-msgstr ""
+msgstr "Musí byť vo vyhľadávacej ceste"
 
 #: tcl/ngcgui.tcl:3823
+#, fuzzy
 msgid "(File found -- not in search path)"
-msgstr ""
+msgstr "(Súbor sa našiel – nie je v ceste vyhľadávania)"
 
 #: tcl/ngcgui.tcl:3825
 msgid "Current directory"
@@ -6497,19 +6539,19 @@ msgstr "Aktuálny adresár"
 
 #: tcl/ngcgui.tcl:3826
 msgid "Search path"
-msgstr ""
+msgstr "Vyhľadávacia cesta"
 
 #: tcl/ngcgui.tcl:3836
 msgid "Check setting for"
-msgstr ""
+msgstr "Skontrolujte nastavenie pre"
 
 #: tcl/ngcgui.tcl:3837
 msgid "in ini file"
-msgstr ""
+msgstr "v .ini súbore"
 
 #: tcl/ngcgui.tcl:3838
 msgid "(Restart required after fixing ini file)"
-msgstr ""
+msgstr "(Po oprave súboru .ini sa vyžaduje reštart)"
 
 #: tcl/ngcgui.tcl:3853
 msgid "Try to Continue"
@@ -6525,27 +6567,27 @@ msgstr "ini súbor"
 
 #: tcl/ngcgui.tcl:4144
 msgid "not found"
-msgstr ""
+msgstr "nenájdené"
 
 #: tcl/ngcgui_ttt.tcl:68
 msgid "found truetype-tracer v4 -OK"
-msgstr ""
+msgstr "nájdený truetype-tracer v4 -OK"
 
 #: tcl/ngcgui_ttt.tcl:71
 msgid "Note truetype-tracer v4 is required"
-msgstr ""
+msgstr "Poznámka: Vyžaduje sa truetype-tracer v4"
 
 #: tcl/ngcgui_ttt.tcl:72
 msgid "Note: truetype-tracer v4 is required"
-msgstr ""
+msgstr "Poznámka: Vyžaduje sa truetype-tracer v4"
 
 #: tcl/ngcgui_ttt.tcl:82
 msgid "ngcgui_app.tcl must be loaded before"
-msgstr ""
+msgstr "Najskôr sa musí načítať ngcgui_app.tcl"
 
 #: tcl/ngcgui_ttt.tcl:90
 msgid "Create a subroutine file from truetype-tracer (V4 reqd)"
-msgstr ""
+msgstr "Vytvoriť súbor podprogramu z truetype-traceru (V4 reqd)"
 
 #: tcl/ngcgui_ttt.tcl:103 tcl/ngcgui_ttt.tcl:116
 msgid "problem with"
@@ -6553,35 +6595,35 @@ msgstr "problém s"
 
 #: tcl/ngcgui_ttt.tcl:107
 msgid "No entry for"
-msgstr ""
+msgstr "Žiadny vstup pre"
 
 #: tcl/ngcgui_ttt.tcl:110
 msgid "wrong version of truetype-tracer"
-msgstr ""
+msgstr "nesprávna verzia truetype-traceru"
 
 #: tcl/ngcgui_ttt.tcl:126
 msgid "not writable, using"
-msgstr ""
+msgstr "nemožno zapisovať, použiť"
 
 #: tcl/ngcgui_ttt.tcl:126
 msgid "and setting expandsub"
-msgstr ""
+msgstr "a nastavenie expandsub"
 
 #: tcl/ngcgui_ttt.tcl:162 src/emc/usr_intf/pncconf/external.glade:721
 msgid "Text"
-msgstr ""
+msgstr "Text"
 
 #: tcl/ngcgui_ttt.tcl:172
 msgid "Linescale"
-msgstr ""
+msgstr "Mierka čiary"
 
 #: tcl/ngcgui_ttt.tcl:178
 msgid "none"
-msgstr ""
+msgstr "žiadny"
 
 #: tcl/ngcgui_ttt.tcl:193
 msgid "Subdiv"
-msgstr ""
+msgstr ".Subdiv"
 
 #: tcl/ngcgui_ttt.tcl:200 src/emc/usr_intf/touchy/touchy.glade:9
 msgid "default"
@@ -6589,19 +6631,19 @@ msgstr "predvolené"
 
 #: tcl/ngcgui_ttt.tcl:240
 msgid "Mode"
-msgstr ""
+msgstr "Mód"
 
 #: tcl/ngcgui_ttt.tcl:248
 msgid "normal"
-msgstr ""
+msgstr "normálne"
 
 #: tcl/ngcgui_ttt.tcl:249
 msgid "date"
-msgstr ""
+msgstr "dátum"
 
 #: tcl/ngcgui_ttt.tcl:250
 msgid "fontname"
-msgstr ""
+msgstr "názov písma"
 
 #: tcl/ngcgui_ttt.tcl:263
 msgid "Switches"
@@ -6609,49 +6651,51 @@ msgstr "Prepínače"
 
 #: tcl/ngcgui_ttt.tcl:271
 msgid "Unicode"
-msgstr ""
+msgstr "Unicode"
 
 #: tcl/ngcgui_ttt.tcl:276
 msgid "Allow Rotation"
-msgstr ""
+msgstr "Povoliť rotáciu"
 
 #: tcl/ngcgui_ttt.tcl:296
 msgid "Make ngcgui-compatible subfile and new tab page"
-msgstr ""
+msgstr "Vytvorte podsúbor a stránku novej karty kompatibilnú s ngcgui"
 
 #: tcl/ngcgui_ttt.tcl:354
 msgid "Null text"
-msgstr ""
+msgstr "Nulový text"
 
 #: tcl/ngcgui_ttt.tcl:385
 msgid "Using truetype-tracer default font"
-msgstr ""
+msgstr "Použiť predvolené písmo truetype-tracer"
 
 #: tcl/ngcgui_ttt.tcl:389
 msgid "no such file"
-msgstr ""
+msgstr "žiadny súbor"
 
 #: tcl/ngcgui_ttt.tcl:394
 msgid "file not readable"
-msgstr ""
+msgstr "súbor nie je čitateľný"
 
 #: tcl/ngcgui_ttt.tcl:508
 msgid "Creating new tab page"
-msgstr ""
+msgstr "Vytvára sa stránka novej karty"
 
 #: tcl/ngcgui_app.tcl:26
 msgid ""
 "requires command inifindall\n"
 "from axis.py (LinuxCNC 2.5) or"
 msgstr ""
+"vyžaduje príkaz inifinall\n"
+"z axis.py (LinuxCNC 2.5) alebo"
 
 #: tcl/ngcgui_app.tcl:43
 msgid "not readable"
-msgstr ""
+msgstr "nečitateľné"
 
 #: tcl/ngcgui_app.tcl:49 tcl/ngcgui_app.tcl:52
 msgid "Unexpected: multiple startups for ngcgui"
-msgstr ""
+msgstr "Neočakávané: viacero spustení pre ngcgui"
 
 #: tcl/ngcgui_app.tcl:50
 msgid "LinuxCNC"
@@ -6659,7 +6703,7 @@ msgstr "LinuxCNC"
 
 #: tcl/ngcgui_app.tcl:51 tcl/ngcgui_app.tcl:71
 msgid "for LinuxCNC 2.5.xxx, Do not include tkapp.py in the ini file"
-msgstr ""
+msgstr "pre LinuxCNC 2.5.xxx, nezahŕňajte tkapp.py do súboru ini"
 
 #: tcl/ngcgui_app.tcl:70
 msgid "LinuxCNC version"
@@ -6667,22 +6711,22 @@ msgstr "LinuxCNC verzia"
 
 #: tcl/tooledit.tcl:65
 msgid "Problem reading ~/.tooleditrc"
-msgstr ""
+msgstr "Problém pri čítaní ~/.tooleditrc"
 
 #: tcl/tooledit.tcl:82
 #, tcl-format
 msgid "Note: Ignoring duplicate column name: %s"
-msgstr ""
+msgstr "Poznámka: Ignorovanie duplicitného názvu stĺpca: %s"
 
 #: tcl/tooledit.tcl:93
 #, tcl-format
 msgid "Unknown column: %s"
-msgstr ""
+msgstr "Neznámy stĺpec: %s"
 
 #: tcl/tooledit.tcl:211 tcl/tooledit.tcl:214 tcl/tooledit.tcl:646
 #: tcl/tooledit.tcl:647 tcl/tooledit.tcl:1086
 msgid "NEW"
-msgstr ""
+msgstr "NOVÝ"
 
 #: tcl/tooledit.tcl:232
 msgid "Problem"
@@ -6694,22 +6738,22 @@ msgstr "Zlý vstup"
 
 #: tcl/tooledit.tcl:234
 msgid "(must be a number)"
-msgstr ""
+msgstr "(musí byť číslo)"
 
 #: tcl/tooledit.tcl:242
 #, tcl-format
 msgid "filename: <%s> not readable"
-msgstr ""
+msgstr "názov súboru: <%s> nie je čitateľný"
 
 #: tcl/tooledit.tcl:246
 #, tcl-format
 msgid "filename: <%s> not writable"
-msgstr ""
+msgstr "názov súboru: <%s> nie je možné zapisovať"
 
 #: tcl/tooledit.tcl:251
 #, tcl-format
 msgid "directory: <%s> not writable"
-msgstr ""
+msgstr "adresár: <%s> nie je zapisovateľný"
 
 #: tcl/tooledit.tcl:287
 msgid "Current file:"
@@ -6717,35 +6761,35 @@ msgstr "Aktuálny súbor:"
 
 #: tcl/tooledit.tcl:291
 msgid "Tooledit already running"
-msgstr ""
+msgstr "Úprava nástroja už prebieha"
 
 #: tcl/tooledit.tcl:335
 #, tcl-format
 msgid "Skipping linenumber %d for tag %s, value <%s> is not a number"
-msgstr ""
+msgstr "Preskakuje sa číslo riadku %d pre značku %s, hodnota <%s> nie je číslo"
 
 #: tcl/tooledit.tcl:341
 #, tcl-format
 msgid "Skipping linenumber %d for tag %s, expected integer not <%s>"
-msgstr ""
+msgstr "Preskakuje sa číslo riadku %d pre značku %s, hodnota <%s> nie je číslo"
 
 #: tcl/tooledit.tcl:357
 #, tcl-format
 msgid "At linenumber %d, Unknown tag <%s>"
-msgstr ""
+msgstr "Na riadku %d je neznáma značka <%s>"
 
 #: tcl/tooledit.tcl:442
 #, tcl-format
 msgid "%s: Column sorting not available with tcl_version==%s"
-msgstr ""
+msgstr "%s: Triedenie podľa stĺpcov nie je dostupné s tcl_version==%s"
 
 #: tcl/tooledit.tcl:451
 msgid "tool"
-msgstr ""
+msgstr "nástroj"
 
 #: tcl/tooledit.tcl:452
 msgid "poc"
-msgstr ""
+msgstr "paket"
 
 #: tcl/tooledit.tcl:453
 msgid "diam"
@@ -6753,15 +6797,15 @@ msgstr "priem"
 
 #: tcl/tooledit.tcl:454
 msgid "front"
-msgstr ""
+msgstr "predný"
 
 #: tcl/tooledit.tcl:455
 msgid "back"
-msgstr ""
+msgstr "zadný"
 
 #: tcl/tooledit.tcl:456
 msgid "orien"
-msgstr ""
+msgstr "orientácia"
 
 #: tcl/tooledit.tcl:457
 msgid "comment"
@@ -6781,7 +6825,7 @@ msgstr "Uložiť súbor"
 
 #: tcl/tooledit.tcl:531
 msgid "ReRead"
-msgstr ""
+msgstr "Znovu načítať"
 
 #: tcl/tooledit.tcl:533
 msgid "AddTool"
@@ -6790,48 +6834,48 @@ msgstr "Pridať nástroj"
 #: tcl/tooledit.tcl:583
 #, tcl-format
 msgid "Opened %s"
-msgstr ""
+msgstr "Otvorené %s"
 
 #: tcl/tooledit.tcl:584
 #, tcl-format
 msgid "Created %s"
-msgstr ""
+msgstr "Vytvorené %s"
 
 #: tcl/tooledit.tcl:585
 msgid "File updated"
-msgstr ""
+msgstr "Súbor bol aktualizovaný"
 
 #: tcl/tooledit.tcl:586
 msgid "File modified"
-msgstr ""
+msgstr "Súbor upravený"
 
 #: tcl/tooledit.tcl:587
 msgid "File check errors"
-msgstr ""
+msgstr "Chyby kontroly súboru"
 
 #: tcl/tooledit.tcl:588
 msgid "File checked"
-msgstr ""
+msgstr "Súbor skontrolovaný"
 
 #: tcl/tooledit.tcl:589
 msgid "File items deleted"
-msgstr ""
+msgstr "Položky súboru boli odstránené"
 
 #: tcl/tooledit.tcl:590
 msgid "Bogus lines in file ignored"
-msgstr ""
+msgstr "Ignorované falošné riadky v súbore"
 
 #: tcl/tooledit.tcl:591
 msgid "File errors -- Check Entries"
-msgstr ""
+msgstr "Chyby súboru -- Kontrola záznamov"
 
 #: tcl/tooledit.tcl:592
 msgid "Warning: File changed by another process"
-msgstr ""
+msgstr "Upozornenie: Súbor bol zmenený iným procesom"
 
 #: tcl/tooledit.tcl:593
 msgid "Warning: File deleted by another process"
-msgstr ""
+msgstr "Upozornenie: Súbor bol odstránený iným procesom"
 
 #: tcl/tooledit.tcl:594
 msgid "Added Tool"
@@ -6840,46 +6884,46 @@ msgstr "Pridaný nástroj"
 #: tcl/tooledit.tcl:598
 #, tcl-format
 msgid "Sorted by %s, increasing"
-msgstr ""
+msgstr "Zoradené podľa %s, vzostupne"
 
 #: tcl/tooledit.tcl:599
 #, tcl-format
 msgid "Sorted by %s, decreasing"
-msgstr ""
+msgstr "Zoradené podľa %s, zostupne"
 
 #: tcl/tooledit.tcl:641
 msgid "Added"
-msgstr ""
+msgstr "Pridané"
 
 #: tcl/tooledit.tcl:851
 #, tcl-format
 msgid "Tool %s, Column %s, parameter %s is not a number"
-msgstr ""
+msgstr "Nástroj %s, stĺpec %s, parameter %s nie je číslo"
 
 #: tcl/tooledit.tcl:860
 #, tcl-format
 msgid "Tool %s, parameter %s must be nonnegative integer"
-msgstr ""
+msgstr "Nástroj %s, parameter %s musí byť nezáporné celé číslo"
 
 #: tcl/tooledit.tcl:868
 #, tcl-format
 msgid "Tool %s: <Orientation> must be 0..9 integer"
-msgstr ""
+msgstr "Nástroj %s: <Orientácia> musí byť 0..9 celé číslo"
 
 #: tcl/tooledit.tcl:875
 #, tcl-format
 msgid "Tool %s: <%s> must be between -360 and 360"
-msgstr ""
+msgstr "Nástroj %s: <%s> musí byť medzi -360 a 360"
 
 #: tcl/tooledit.tcl:890
 #, tcl-format
 msgid "Pocket <%s> specified multiple times"
-msgstr ""
+msgstr "Paket <%s> bol zadaný viackrát"
 
 #: tcl/tooledit.tcl:905
 #, tcl-format
 msgid "Tool <%s> specified multiple times"
-msgstr ""
+msgstr "Nástroj <%s> bol zadaný viackrát"
 
 #: tcl/tooledit.tcl:950
 msgid "File Modified"
@@ -6887,7 +6931,7 @@ msgstr "Zmenené"
 
 #: tcl/tooledit.tcl:951
 msgid "Save Modifications to File?"
-msgstr ""
+msgstr "Uložiť úpravy do súboru?"
 
 #: tcl/tooledit.tcl:977
 #, tcl-format
@@ -6896,10 +6940,13 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
+"Iba tieto stĺpce sú aktuálne použitelné:\n"
+"\n"
+" %s"
 
 #: tcl/tooledit.tcl:978
 msgid "Limit display to these columns by specifying"
-msgstr ""
+msgstr "Obmedzte zobrazenie na tieto stĺpce"
 
 #: tcl/tooledit.tcl:980
 msgid "Format for ini file is"
@@ -6907,36 +6954,38 @@ msgstr "Formát súboru ini je"
 
 #: tcl/tooledit.tcl:982
 msgid "For standalone use, invoke as"
-msgstr ""
+msgstr "Pre samostatné použitie vyvolajte ako"
 
 #: tcl/tooledit.tcl:983
 msgid "tool_table_filename"
-msgstr ""
+msgstr "Formát súboru ini je"
 
 #: tcl/tooledit.tcl:1003
 #, tcl-format
 msgid "Created by %s"
-msgstr ""
+msgstr "Vytvoril %s"
 
 #: tcl/tooledit.tcl:1004
 msgid "Saved geometry (updated on program termination)"
-msgstr ""
+msgstr "Uložená geometria (aktualizovaná po ukončení programu)"
 
 #: tcl/tooledit.tcl:1027
 #, tcl-format
 msgid ""
 "%s: Axis inifile specifies multiple inifile items for: [EMCIO]TOOL_TABLE"
 msgstr ""
+"%s: Počiatočný súbor osi určuje viacero položiek úvodného súboru pre: "
+"[EMCIO]TOOL_TABLE"
 
 #: tcl/tooledit.tcl:1028
 #, tcl-format
 msgid "%s: Using: %s"
-msgstr ""
+msgstr "%s: Použitie: %s"
 
 #: tcl/tooledit.tcl:1039
 #, tcl-format
 msgid "%s"
-msgstr ""
+msgstr "%s"
 
 #: tcl/tooledit.tcl:1040
 #, tcl-format
@@ -6944,27 +6993,29 @@ msgid ""
 "differs from the the ini specified file:\n"
 "%s"
 msgstr ""
+"sa líši od súboru špecifikovaného ini:\n"
+"%s"
 
 #: tcl/tooledit.tcl:1043
 msgid "Axis is Running"
-msgstr ""
+msgstr "Program už beží"
 
 #: tcl/tooledit.tcl:1058
 msgid "Must be On and Idle to reload tool table"
-msgstr ""
+msgstr "Ak chcete znova načítať tabuľku nástrojov, musí byť zapnutá a nečinná"
 
 #: tcl/tooledit.tcl:1147
 msgid "Usage"
-msgstr ""
+msgstr "Použitie"
 
 #: tcl/tooledit.tcl:1148 tcl/tooledit.tcl:1149
 msgid "filename"
-msgstr ""
+msgstr "názov súboru"
 
 #: tcl/tooledit.tcl:1150
 #, tcl-format
 msgid "Allowed column_ names are: %s"
-msgstr ""
+msgstr "Povolené názvy stĺpcov sú: %s"
 
 #: tcl/tooledit.tcl:1160
 msgid "Missing filename"
@@ -6972,7 +7023,7 @@ msgstr "Chýba názov súboru"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:154
 msgid "Do you really want to close LinuxCNC?"
-msgstr ""
+msgstr "Naozaj chcete zatvoriť program?"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:155
 msgid "Confirm Close"
@@ -6980,7 +7031,7 @@ msgstr "Potvrdiť zatvorením"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:181
 msgid "Emergency stop"
-msgstr ""
+msgstr "Núdzové zastavenie"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:182
 msgid "Turn machine on"
@@ -6988,27 +7039,27 @@ msgstr "Zapnúť stroj"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:184
 msgid "Activate first axis"
-msgstr ""
+msgstr "Aktivovať prvú os"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:185
 msgid "Activate second axis"
-msgstr ""
+msgstr "Aktivovať druhú os"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:186
 msgid "Activate third axis"
-msgstr ""
+msgstr "Aktivovať tretiu os"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:187
 msgid "Activate fourth axis"
-msgstr ""
+msgstr "Aktivovať štvrtú os"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:188
 msgid "Activate first through ninth joint"
-msgstr ""
+msgstr "Aktivovať od prveho po deviaty joint"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:189
 msgid "if joints radiobuttons visible"
-msgstr ""
+msgstr "ak sú viditeľné rádiobutony jointov"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:190
 msgid "Set Feed Override from 0% to 100%"
@@ -7016,11 +7067,11 @@ msgstr "Nastaviť rýchlosť obrábania z 0 % na 100 %"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:191
 msgid "if axes radiobuttons visible"
-msgstr ""
+msgstr "ak sú viditeľné rádiobutony osí"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:192
 msgid ", and ."
-msgstr ""
+msgstr ", a ."
 
 #: src/emc/usr_intf/axis/scripts/axis.py:192
 msgid "Select jog speed"
@@ -7028,7 +7079,7 @@ msgstr "Nastaviť rýchlosť pohybov"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:193
 msgid "< and >"
-msgstr ""
+msgstr "\"<\" a \">\""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:193
 msgid "Select angular jog speed"
@@ -7036,7 +7087,7 @@ msgstr "Nastaviť rýchlosť uhlových pohybov"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:194
 msgid "I, Shift-I"
-msgstr ""
+msgstr "I, Shift-I"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:194 share/axis/tcl/axis.tcl:2269
 msgid "Select jog increment"
@@ -7052,11 +7103,11 @@ msgstr "Home"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:196
 msgid "Send active joint home"
-msgstr ""
+msgstr "Aktívny joint skalibrovať"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:197
 msgid "Ctrl-Home"
-msgstr ""
+msgstr "Ctrl-Home"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:197
 msgid "Home all joints"
@@ -7064,19 +7115,19 @@ msgstr "Skalibrovať všetky kĺby"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:198
 msgid "Shift-Home"
-msgstr ""
+msgstr "Shift-Home"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:198
 msgid "Zero G54 offset for active axis"
-msgstr ""
+msgstr "Nulový posun G54 pre aktívnu os"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:199
 msgid "End"
-msgstr ""
+msgstr "End"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:199
 msgid "Set G54 offset for active axis"
-msgstr ""
+msgstr "Nastaviť ofset G54 pre aktívnu os"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:200
 msgid "Ctrl-End"
@@ -7084,23 +7135,23 @@ msgstr "Ctrl-End"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:200
 msgid "Set tool offset for loaded tool"
-msgstr ""
+msgstr "Nastaviť ofset nástroja pre vložený nástroj"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:201
 msgid "Jog active axis or joint"
-msgstr ""
+msgstr "Jog aktívnej osi alebo jointu"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:202
 msgid "Select Max velocity"
-msgstr ""
+msgstr "Zvoliť Max. rýchlosť"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:205
 msgid "Left, Right"
-msgstr ""
+msgstr "šipka vpravo a v ľavo"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:205
 msgid "Jog first axis or joint"
-msgstr ""
+msgstr "Pohyb prvej osi alebo jointu"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:206
 msgid "Up, Down"
@@ -7108,73 +7159,73 @@ msgstr "Up, Down"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:206
 msgid "Jog second axis or joint"
-msgstr ""
+msgstr "Pohyb druhejj osi alebo jointu"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:207
 msgid "Pg Up, Pg Dn"
-msgstr ""
+msgstr "Pg Up, Pg Dn"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:207
 msgid "Jog third axis or joint"
-msgstr ""
+msgstr "Pohyb tretej osi alebo jointu"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:208
 msgid "Shift+above jogs"
-msgstr ""
+msgstr "Shift+šípka"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:208
 msgid "Jog at traverse speed"
-msgstr ""
+msgstr "Rýchloposuv osi"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:209
 msgid "Jog fourth axis or joint"
-msgstr ""
+msgstr "Pohyb štvrtej osi alebo jointu"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:212
 msgid "Toggle between Drag and Rotate mode"
-msgstr ""
+msgstr "Prepínanie medzi režimom ťahania a otáčania"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:213
 msgid "Left Button"
-msgstr ""
+msgstr "Ľavé tlačidlo myši"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:213
 msgid "Pan, rotate or select line"
-msgstr ""
+msgstr "Posúvať, otočiť alebo vybrať riadok"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:214
 msgid "Shift+Left Button"
-msgstr ""
+msgstr "Shift+Ľavé tlačidlo myši"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:214
 msgid "Rotate or pan"
-msgstr ""
+msgstr "Rotácia alebo posúvať"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:215
 msgid "Right Button"
-msgstr ""
+msgstr "Pravé tlačidlo myši"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:215
 #: src/emc/usr_intf/axis/scripts/axis.py:217
 #: src/emc/usr_intf/axis/scripts/axis.py:218
 msgid "Zoom view"
-msgstr ""
+msgstr "Priblížiť"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:216
 msgid "Wheel Button"
-msgstr ""
+msgstr "Tlačidlo kolieska myši"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:216
 msgid "Rotate view"
-msgstr ""
+msgstr "Otáčať pohľad"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:217
 msgid "Rotate Wheel"
-msgstr ""
+msgstr "Otačanie kolieskom myši"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:218
 msgid "Ctrl+Left Button"
-msgstr ""
+msgstr "Ctrl+ľavé tlačidlo myši"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:221
 msgid "Manual control"
@@ -7182,7 +7233,7 @@ msgstr "Manuálne ovládanie"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:222
 msgid "Code entry (MDI)"
-msgstr ""
+msgstr "Zadanie kódu (MDI)"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:223 share/axis/tcl/axis.tcl:159
 msgid "Ctrl-M"
@@ -7190,7 +7241,7 @@ msgstr "Ctrl-M"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:223
 msgid "Clear MDI history"
-msgstr ""
+msgstr "Vymazať históriu MDI"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:224 share/axis/tcl/axis.tcl:163
 msgid "Ctrl-H"
@@ -7198,19 +7249,19 @@ msgstr "Ctrl-H"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:224
 msgid "Copy selected MDI history elements"
-msgstr ""
+msgstr "Skopírovať vybrané prvky histórie MDI"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:225
 msgid "to clipboard"
-msgstr ""
+msgstr "do schránky"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:226 share/axis/tcl/axis.tcl:167
 msgid "Ctrl-Shift-H"
-msgstr ""
+msgstr "Ctrl-Shift-H"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:226
 msgid "Paste clipboard to MDI history"
-msgstr ""
+msgstr "Vložiť schránku do histórie MDI"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:227 share/axis/tcl/axis.tcl:950
 #: src/emc/usr_intf/touchy/touchy.glade:518
@@ -7227,7 +7278,7 @@ msgstr "Ctrl-R"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:230
 msgid "Reload program"
-msgstr ""
+msgstr "Znovu načítať program"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:231 share/axis/tcl/axis.tcl:74
 msgid "Ctrl-S"
@@ -7255,19 +7306,19 @@ msgstr "Pokračovať"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:236
 msgid "Stop running program, or"
-msgstr ""
+msgstr "Zastaviť spustený program, alebo"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:237
 msgid "stop loading program preview"
-msgstr ""
+msgstr "zastaviť načítavanie ukážky programu"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:239
 msgid "Toggle mist"
-msgstr ""
+msgstr "Spustiť hmlu"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:240
 msgid "Toggle flood"
-msgstr ""
+msgstr "Spustiť kvapalinu"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:241
 msgid "Spindle brake off"
@@ -7275,7 +7326,7 @@ msgstr "Brzda vretena neaktívna"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:242
 msgid "Shift-B"
-msgstr ""
+msgstr "Shift-B"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:242
 msgid "Spindle brake on"
@@ -7287,15 +7338,15 @@ msgstr "Chod vretena v smere hod. ručičiek"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:244
 msgid "Turn spindle counterclockwise"
-msgstr ""
+msgstr "Spustiť vreteno proti smeru hodinových ručičiek"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:245
 msgid "Turn spindle more slowly"
-msgstr ""
+msgstr "Spomaľovať otáčky vretena"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:246
 msgid "Turn spindle more quickly"
-msgstr ""
+msgstr "Zrýchlovať otáčky vretena"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:247 share/axis/tcl/axis.tcl:379
 msgid "Ctrl-K"
@@ -7303,23 +7354,23 @@ msgstr "Ctrl-K"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:247
 msgid "Clear live plot"
-msgstr ""
+msgstr "Vyčistiť prešlé dráhy"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:248
 msgid "Cycle among preset views"
-msgstr ""
+msgstr "Cyklovať medzi prednastavenými zobrazeniami"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:249
 msgid "Cycle among preview, DRO, and user tabs"
-msgstr ""
+msgstr "Prechádzať medzi kartami zobrazení, DRO a používateľskými kartami"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:250
 msgid "toggle Actual/Commanded"
-msgstr ""
+msgstr "prepnúť aktuálne/príkazové"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:251
 msgid "toggle Relative/Machine"
-msgstr ""
+msgstr "prepnúť relatívne/strojové"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:252
 msgid "Ctrl-Space"
@@ -7331,34 +7382,34 @@ msgstr "Vymazať upozornenia"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:253
 msgid "Alt-F, M, V"
-msgstr ""
+msgstr "Alt-F, M, V"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:253
 msgid "Open a Menu"
-msgstr ""
+msgstr "Otvoriť ponuku"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:918
 #, python-format
 msgid "Unknown tool %d"
-msgstr ""
+msgstr "Neznámy nástroj %d"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:920 share/axis/tcl/axis.tcl:1872
 msgid "No tool"
-msgstr ""
+msgstr "Žiadny nástroj"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:922
 #, python-format
 msgid "Tool %(tool)d, offset %(zo)g, diameter %(dia)g"
-msgstr ""
+msgstr "Nástroj %(tool)d, ofset %(zo)g, priemer %(dia)g"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:924
 #, python-format
 msgid "Tool %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
-msgstr ""
+msgstr "Nástroj %(tool)d, zo %(zo)g, xo %(xo)g, priem %(dia)g"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1098
 msgid "G-code preview loading timed out"
-msgstr ""
+msgstr "Časový limit načítania ukážky G kódu vypršal"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1125
 msgid "Filtering..."
@@ -7366,7 +7417,7 @@ msgstr "Filtruje sa..."
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1190
 msgid "Filter failed"
-msgstr ""
+msgstr "Filter zlyhal"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1191
 #, python-format
@@ -7374,11 +7425,13 @@ msgid ""
 "The program %(program)r exited with code %(code)d.  Any error messages it "
 "produced are shown below:"
 msgstr ""
+"Program %(program)r skončil s kódom %(code)d.   Akékoľvek chybové hlásenia, "
+"ktoré vytvoril, sú uvedené nižšie:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1297
 #, python-format
 msgid "G-Code error in %s"
-msgstr ""
+msgstr "Chyba G-kódu v %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1298
 #, python-format
@@ -7386,6 +7439,8 @@ msgid ""
 "Near line %(seq)d of %(f)s:\n"
 "%(error_str)s"
 msgstr ""
+"Blízko riadku %(seq)d z %(f)s:\n"
+"%(error_str)s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1487
 #: src/emc/usr_intf/axis/scripts/axis.py:3250 share/axis/tcl/axis.tcl:922
@@ -7407,7 +7462,7 @@ msgstr "v"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1763
 msgid " radius"
-msgstr ""
+msgstr " polomer"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1765
 msgid " diameter"
@@ -7415,7 +7470,7 @@ msgstr "Priemer"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1766
 msgid "°"
-msgstr ""
+msgstr "°"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1776
 msgid "Coordinate System:"
@@ -7423,11 +7478,11 @@ msgstr "Koordinačný systém:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1794
 msgid "fixture"
-msgstr ""
+msgstr "príslušenstvo"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1795
 msgid "workpiece"
-msgstr ""
+msgstr "obrobok"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1816
 msgid "Name:"
@@ -7443,15 +7498,15 @@ msgstr "Sled nástroja:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1817
 msgid "Rapid distance:"
-msgstr ""
+msgstr "Vzdialenosť rýchloposuvov:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1818
 msgid "Feed distance:"
-msgstr ""
+msgstr "Vzdialenosť obrábania:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1818
 msgid "Total distance:"
-msgstr ""
+msgstr "Celková vzdialenosť:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1819
 msgid "Run time:"
@@ -7464,54 +7519,54 @@ msgstr "Zoznam výmeny nástrojov:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1820
 msgid "X bounds:"
-msgstr ""
+msgstr "X bounds :"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1820
 msgid "Y bounds:"
-msgstr ""
+msgstr "Y bounds :"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1821
 msgid "Z bounds:"
-msgstr ""
+msgstr "Z bounds :"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1821
 msgid "A bounds:"
-msgstr ""
+msgstr "A bounds :"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1822
 msgid "B bounds:"
-msgstr ""
+msgstr "B bounds :"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1822
 msgid "C bounds:"
-msgstr ""
+msgstr "C bounds :"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1879
 #, python-format
 msgid "Program exceeds machine minimum on axis %s"
-msgstr ""
+msgstr "Program prekračuje min. limit stroja na osi %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1882
 #, python-format
 msgid "Program exceeds machine maximum on axis %s"
-msgstr ""
+msgstr "Program prekračuje max. limit stroja na osi %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1887
 msgid "Program exceeds machine limits"
-msgstr ""
+msgstr "Program prekračuje limity stroja"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1890
 msgid "Run Anyway"
-msgstr ""
+msgstr "Napriek tomu spustiť"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2032
 msgid "No file loaded"
-msgstr ""
+msgstr "Nie je načítaný žiadny súbor"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2040
 #, python-format
 msgid "generated from %s"
-msgstr ""
+msgstr "generované z %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2046
 #, python-format
@@ -7519,25 +7574,27 @@ msgid ""
 "%(size)s bytes\n"
 "%(lines)s G-code lines"
 msgstr ""
+"%(size)s bajtov\n"
+"%(lines)s riadkov kódu G"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2072
 #, python-format
 msgid "%.1f minutes"
-msgstr ""
+msgstr "%.1f minút"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2074
 #, python-format
 msgid "%d seconds"
-msgstr ""
+msgstr "%d sekúnd"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2082
 #, python-format
 msgid "%(a)f to %(b)f = %(diff)f %(units)s"
-msgstr ""
+msgstr "%(a)f až %(b)f = %(diff)f %(units)s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2084
 msgid "G-Code Properties"
-msgstr ""
+msgstr "Vlastnosti G-kódu"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2232
 msgid "All machinable files"
@@ -7546,15 +7603,15 @@ msgstr "Všetky strojové súbory"
 #: src/emc/usr_intf/axis/scripts/axis.py:2233
 #: src/emc/usr_intf/axis/scripts/axis.py:2951
 msgid "rs274ngc files"
-msgstr ""
+msgstr "súbory rs274ngc"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2249
 msgid "axis cannot accept remote command while running"
-msgstr ""
+msgstr "Program nemôže akceptovať diaľkový príkaz počas behu"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2304
 msgid "File not Writable:"
-msgstr ""
+msgstr "Súbor nie je zapisovateľný:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2305
 msgid ""
@@ -7566,10 +7623,17 @@ msgid ""
 "Save it to your own directory\n"
 "then open that saved, writable file"
 msgstr ""
+"Tento súbor nie je zapisovateľný\n"
+"Môžete upravovať iba na čítanie\n"
+"\n"
+"alebo\n"
+"\n"
+"Uložte si ho do vlastného adresára\n"
+"a potom otvorte uložený, zapisovateľný súbor"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2312
 msgid "Edit-readonly"
-msgstr ""
+msgstr "Úpravy len na čítanie"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2630
 msgid "Custom Grid"
@@ -7577,16 +7641,16 @@ msgstr "Zvoliť mriežku"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2630
 msgid "Enter grid size"
-msgstr ""
+msgstr "Zadať veľkosť mriežky"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2689
 msgid "Joint is already homed, are you sure you want to re-home?"
-msgstr ""
+msgstr "Stroj už je skalibrovaný, chcete stroj skalibrovať znova?"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2703
 #, python-format
 msgid "home_joint <%s> Use joint mode for homing"
-msgstr ""
+msgstr "home_joint <%s> Použiť spoločný režim pre navigáciu"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2706
 #, python-format
@@ -7594,29 +7658,32 @@ msgid ""
 "\n"
 "Individual axis homing disallowed for duplicated letter:<%s> "
 msgstr ""
+"\n"
+"Navádzanie na jednotlivé osi je zakázané pre duplicitné písmeno:<%s> "
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2715
 msgid "This joint is already homed, are you sure you want to re-home?"
-msgstr ""
+msgstr "Tento joint je skalibrovaný, chcete joint skalibrovať znova?"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2753
+#, fuzzy
 msgid "Touch Off (system)"
-msgstr ""
+msgstr "Ofsety (systém)"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2754
 #: src/emc/usr_intf/axis/scripts/axis.py:2795
 #, python-format
 msgid "Enter %s coordinate relative to %%s:"
-msgstr ""
+msgstr "Zadajte súradnicu %s relatívne k %%s:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2794
 #, python-format
 msgid "Tool %s TouchOff"
-msgstr ""
+msgstr "Nástroj %s ofset"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2963
 msgid "Error saving file"
-msgstr ""
+msgstr "Chyba pri ukladaní súboru"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3419
 #, python-format
@@ -7626,6 +7693,10 @@ msgid ""
 "%s\n"
 "See the 'INI Configuration' documents\n"
 msgstr ""
+"\n"
+"Chýba požadovaný špecifikátor:\n"
+"%s\n"
+"Pozrite si dokumenty 'INI Configuration'\n"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3432
 #, python-format
@@ -7635,6 +7706,10 @@ msgid ""
 "%s\n"
 "See the 'INI Configuration' documents\n"
 msgstr ""
+"\n"
+"Chýba požadovaný špecifikátor (má lineárny joint alebo os):\n"
+"%s\n"
+"Pozrite si dokumenty 'INI Configuration'\n"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3445
 #, python-format
@@ -7644,10 +7719,14 @@ msgid ""
 "%s\n"
 "See the 'INI Configuration' documents\n"
 msgstr ""
+"\n"
+"Upozornenie: Chýba požadovaný špecifikátor (má uhlový joint alebo os):\n"
+"%s\n"
+"Pozrite si dokumenty „INI Configuration“.\n"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3564
 msgid "Axes"
-msgstr ""
+msgstr "Osi"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3566
 msgid "Joints"
@@ -7662,7 +7741,7 @@ msgstr "Skalibrovať všetko"
 #: src/emc/usr_intf/axis/scripts/axis.py:3570
 #, python-format
 msgid "Home all %s [Ctrl-Home]"
-msgstr ""
+msgstr "Skalibrovať všetko %s [Ctrl-Home]"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3573
 #, python-format
@@ -7678,11 +7757,13 @@ msgstr "Rozkalibrovať všetky %s"
 #, python-format
 msgid "Warning: Forward kinematics must handle duplicate coordinate letters:%s"
 msgstr ""
+"Upozornenie: Dopredná kinematika musí spracovať duplicitné súradnicové "
+"písmená: %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3619
 #, python-format
 msgid "Note: number of [TRAJ]COORDINATES=%(t)s exceeds [KINS]JOINTS=%(l)d"
-msgstr ""
+msgstr "Poznámka: počet [TRAJ]COORDINATES=%(t)s presahuje [KINS]JOINTS=%(l)d"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3651
 msgid ""
@@ -7690,11 +7771,14 @@ msgid ""
 "Note:\n"
 "Individual axis homing is not currently supported for"
 msgstr ""
+"\n"
+"Poznámka:\n"
+"Navádzanie na jednotlivé osi nie je momentálne podporované"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3652
 #, python-format
 msgid "KINEMATICS_IDENTITY with duplicate axis letter <%s>\n"
-msgstr ""
+msgstr "KINEMATICS_IDENTITY s duplicitným písmenom osi <%s>\n"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3664
 msgid "Joint"
@@ -7707,32 +7791,32 @@ msgstr "Skalibrovať kĺb"
 #: src/emc/usr_intf/axis/scripts/axis.py:3674
 #, python-format
 msgid "Home %(name)s _%(id)s"
-msgstr ""
+msgstr "Kalibrácia %(name)s _%(id)s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3676
 #, python-format
 msgid "Unhome %(name)s _%(id)s"
-msgstr ""
+msgstr "Rozkalibrovať %(name)s _%(id)s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3870
 msgid "Run from here"
-msgstr ""
+msgstr "Spustiť z tohoto riadku(Nezabudni spustiť vreteno a funkcie)"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3931
 msgid "toggle PYVCP panel visibility"
-msgstr ""
+msgstr "prepína viditeľnosť panela PYVCP"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3933 share/axis/tcl/axis.tcl:387
 msgid "Show PyVCP pan_el"
-msgstr ""
+msgstr "Zobraziť PyVCP pan_el"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:4219
 msgid "Error in ~/.axisrc"
-msgstr ""
+msgstr "Chyba v ~/.axisrc"
 
 #: src/emc/usr_intf/axis/scripts/linuxcnctop.py:127
 msgid "LinuxCNC Status"
-msgstr ""
+msgstr "Stav LinuxCNC"
 
 #: src/emc/usr_intf/axis/scripts/linuxcnctop.py:143
 msgid "Copy All"
@@ -7741,11 +7825,13 @@ msgstr "Kopírovať všetko"
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:38
 #, python-format
 msgid "Insert tool %d and click continue when ready"
-msgstr ""
+msgstr "Vložte nástroj %d a keď budete pripravený, kliknite na \"Pokračovať\""
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:40
 msgid "Remove the tool and click continue when ready"
 msgstr ""
+"Odstráňte nástroj a kliknite na tlačidlo \"Pokračovať\", keď budete "
+"pripravení"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:46
 #: src/emc/usr_intf/touchy/mdi.py:52 src/emc/usr_intf/gscreen/mdi.py:49
@@ -7758,18 +7844,21 @@ msgstr "Pokračovať"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:67
 msgid "AXIS Manual Toolchanger"
-msgstr ""
+msgstr "Manuálny menič nástrojov"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:71
 msgid ""
 "This window is part of the AXIS manual toolchanger.  It is safe to close or "
 "iconify this window, or it will close automatically after a few seconds."
 msgstr ""
+"Toto okno je súčasťou ručného meniča nástrojov. Toto okno je bezpečné "
+"zavrieť alebo označiť ikonou, inak sa zavrie automaticky po niekoľkých "
+"sekundách."
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:514
 #, python-format
 msgid "%s: Image to G-code"
-msgstr ""
+msgstr "%s: Obrázok do G-kódu"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:515
 msgid "Image to G-code"
@@ -7782,14 +7871,17 @@ msgid ""
 "Minimum pixel value: %(min)d\n"
 "Maximum pixel value: %(max)d"
 msgstr ""
+"Veľkosť obrázka: %(w)d x %(h)d pixelov\n"
+"Minimálna hodnota pixelov: %(min)d\n"
+"Maximálna hodnota pixelov: %(max)d"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:615
 msgid "G20 (in)"
-msgstr ""
+msgstr "G20 (palce)"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:615
 msgid "G21 (mm)"
-msgstr ""
+msgstr "G21 (mm)"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:618
 msgid "White"
@@ -7801,11 +7893,11 @@ msgstr "Čierna"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:624
 msgid "Rows"
-msgstr ""
+msgstr "Riadky"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:624
 msgid "Columns"
-msgstr ""
+msgstr "Stĺpce"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:624
 msgid "Rows then Columns"
@@ -19558,7 +19650,7 @@ msgstr "DEL"
 
 #: lib/python/gladevcp/calculator.glade:294
 msgid "mm → in"
-msgstr ""
+msgstr "mm → in"
 
 #: lib/python/gladevcp/calculator.glade:307
 msgid "in → mm"
