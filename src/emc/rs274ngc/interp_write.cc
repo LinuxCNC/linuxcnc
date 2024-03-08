@@ -123,7 +123,7 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
     (settings->spindle_mode[0] == CONSTANT_RPM) ? G_97 : G_96;
   gez[14] = (settings->ijk_distance_mode == MODE_ABSOLUTE) ? G_90_1 : G_91_1;
   gez[15] = (settings->lathe_diameter_mode) ? G_7 : G_8;
-  gez[16] = (settings->parameters[5210])? G_92_3: G_92_2;
+  gez[16] = ((block == NULL) ? -1 : block->g_modes[16]);
   return INTERP_OK;
 }
 
