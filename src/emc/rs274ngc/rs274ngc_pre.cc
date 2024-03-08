@@ -1087,6 +1087,7 @@ int Interp::init()
       _setup.origin_index = 1;
       pars[5220] = 1.0;
   }
+  pars[5210] = 0.0;
 
   k = (5200 + (_setup.origin_index * 20));
   _setup.origin_offset_x = USER_TO_PROGRAM_LEN(pars[k + 1]);
