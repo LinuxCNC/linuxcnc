@@ -25,7 +25,7 @@
 #include <modal_state.hh>
 
 /* Size of certain arrays */
-#define ACTIVE_G_CODES 17
+#define ACTIVE_G_CODES 16
 #define ACTIVE_M_CODES 10
 #define ACTIVE_SETTINGS 5
 

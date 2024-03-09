@@ -2409,10 +2409,7 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
     if ((block->g_modes[GM_MODAL_0] != -1) && ONCE(STEP_MODAL_0)) {
       status = convert_modal_0(block->g_modes[GM_MODAL_0], block, settings);
       CHP(status);
-    }
-    if ((block->g_modes[GM_G92_IS_APPLIED] != -1) && ONCE(STEP_G92_IS_APPLIED)) {
-      status = convert_g92_is_applied(block->g_modes[GM_G92_IS_APPLIED], block, settings);
-    }
+  }
     if ((block->motion_to_be != -1)  && ONCE(STEP_MOTION)){
       status = convert_motion(block->motion_to_be, block, settings);
       CHP(status);
@@ -2880,7 +2877,6 @@ int Interp::gen_settings(
 	    case 13: // - spindle mode
 	    case 14: // - ijk distance mode
 	    case 15: // - lathe diameter mode
-            case 16: // - whether g92 is applied
 
 		if (val != -1) { // FIXME not sure if this is correct!
 		    // if this was set in sub, and unset in caller, it will
@@ -3679,7 +3675,8 @@ Returned Value: int
       convert_setup
    If any of the following errors occur, this returns the error code shown.
    Otherwise, it returns INTERP_OK.
-   1. code is not G_4, G_10, G_28, G_30, G_52, G_53, G_92:
+   1. code is not G_4, G_10, G_28, G_30, G_52, G_53, G_92, G_92_1, G_92_2,
+          or G_92_3:
       NCE_BUG_CODE_NOT_G4_G10_G28_G30_G52_G53_OR_G92_SERIES
 
 Side effects: See below
@@ -3712,7 +3709,9 @@ int Interp::convert_modal_0(int code,    //!< G-code, must be from group 0
     CHP(convert_home(code, block, settings));
   } else if ((code == G_28_1) || (code == G_30_1)) {
     CHP(convert_savehome(code, block, settings));
-  } else if ((code == G_52) || (code == G_92)) {
+  } else if ((code == G_52) ||
+	     (code == G_92) || (code == G_92_1) ||
+             (code == G_92_2) || (code == G_92_3)) {
     CHP(convert_axis_offsets(code, block, settings));
   } else if (code == G_5_3) {
     CHP(convert_nurbs(code, block, settings));
@@ -3721,14 +3720,6 @@ int Interp::convert_modal_0(int code,    //!< G-code, must be from group 0
     ERS(NCE_BUG_CODE_NOT_G4_G10_G28_G30_G52_G53_OR_G92_SERIES);
   return INTERP_OK;
 }
-
-int Interp::convert_g92_is_applied(int code, block_pointer block,
-                                   setup_pointer settings)
-{
-    CHP(convert_axis_offsets(code, block, settings));
-    return INTERP_OK;
-}
-
 
 /****************************************************************************/
 

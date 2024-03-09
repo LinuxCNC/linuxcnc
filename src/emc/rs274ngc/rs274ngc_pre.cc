@@ -2186,7 +2186,6 @@ int Interp::active_modes(int *g_codes,
     g_codes[13] = tag.flags[GM_FLAG_CSS_MODE] ? G_97 : G_96;
     g_codes[14] = tag.flags[GM_FLAG_IJK_ABS] ? G_90_1 : G_91_1;
     g_codes[15] = tag.flags[GM_FLAG_DIAMETER_MODE] ? G_7 : G_8;
-    g_codes[16] = tag.flags[GM_FLAG_G92_IS_APPLIED] ? G_92_3: G_92_2;
     //TODO remove redundant line number?
     m_codes[0] = tag.fields[GM_FIELD_LINE_NUMBER];
     m_codes[1] = tag.fields[GM_FIELD_M_MODES_4];

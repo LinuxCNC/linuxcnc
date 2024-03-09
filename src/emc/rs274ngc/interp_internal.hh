@@ -356,7 +356,6 @@ enum phases  {
     STEP_IJK_DISTANCE_MODE,
     STEP_RETRACT_MODE,
     STEP_MODAL_0,
-    STEP_G92_IS_APPLIED,
     STEP_MOTION,
     STEP_MGROUP4,
     MAX_STEPS
@@ -443,7 +442,6 @@ struct block_struct
   double f_number;
 
   int g_modes[GM_MAX_MODAL_GROUPS];
-
   bool h_flag;
   int h_number;
   bool i_flag;

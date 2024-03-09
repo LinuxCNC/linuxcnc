@@ -239,7 +239,7 @@ assert(math.fabs(s.g92_offset[1] - 2.000) < 0.0000001)
 assert(math.fabs(s.g92_offset[2] - 4.000) < 0.0000001)
 assert(s.g92_offset[3:] == (0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
 
-assert(s.gcodes == (0, 800, -1, 170, 400, 200, 900, 940, 540, 490, 990, 640, -1, 970, 911, 80, 923))
+assert(s.gcodes == (0, 800, -1, 170, 400, 200, 900, 940, 540, 490, 990, 640, -1, 970, 911, 80))
 
 assert(not (1 in s.homed))
 assert(s.motion_id == 0)

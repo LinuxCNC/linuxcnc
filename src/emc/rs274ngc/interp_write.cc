@@ -123,7 +123,6 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
     (settings->spindle_mode[0] == CONSTANT_RPM) ? G_97 : G_96;
   gez[14] = (settings->ijk_distance_mode == MODE_ABSOLUTE) ? G_90_1 : G_91_1;
   gez[15] = (settings->lathe_diameter_mode) ? G_7 : G_8;
-  gez[16] = (settings->parameters[5210])? G_92_3: G_92_2;
   return INTERP_OK;
 }
 
@@ -269,8 +268,6 @@ int Interp::write_state_tag(block_pointer block,
         ((settings->origin_index < 7) ?
 	 (530 + (10 * settings->origin_index)) :
 	 (584 + settings->origin_index));
-
-    state.flags[GM_FLAG_G92_IS_APPLIED] = settings->parameters[5210];
 
     state.flags[GM_FLAG_TOOL_OFFSETS_ON] =
 	(settings->tool_offset.tran.x ||

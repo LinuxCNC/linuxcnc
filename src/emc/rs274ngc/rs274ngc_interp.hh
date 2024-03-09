@@ -326,7 +326,6 @@ public:
     int convert_m(block_pointer block, setup_pointer settings);
  int convert_modal_0(int code, block_pointer block,
                            setup_pointer settings);
- int convert_g92_is_applied(int code, block_pointer block, setup_pointer settings);
  int convert_motion(int motion, block_pointer block,
                           setup_pointer settings);
  int convert_probe(block_pointer block, int g_code, setup_pointer settings);
