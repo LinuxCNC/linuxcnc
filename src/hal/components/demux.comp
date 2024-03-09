@@ -17,6 +17,7 @@ pin out bit out-## [32:personality] "The set of output bits";
 option default_personality 32;
 param rw bit bargraph = 0;
 
+see_also "\\fBselect8\\fR(9)";
 license "GPL 2+";
 author "Andy Pugh";
 
