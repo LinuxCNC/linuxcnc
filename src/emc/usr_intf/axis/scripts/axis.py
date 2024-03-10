@@ -120,6 +120,7 @@ inifile = linuxcnc.ini(sys.argv[2])
 ap = AxisPreferences()
 
 os.system("xhost -SI:localuser:gdm -SI:localuser:root > /dev/null 2>&1")
+os.system("xset r off")
 root_window = Tkinter.Tk(className="Axis")
 dpi_value = root_window.winfo_fpixels('1i')
 root_window.tk.call('tk', 'scaling', '-displayof', '.', dpi_value / 72.0)
@@ -153,6 +154,7 @@ except TclError:
 def General_Halt():
     text = _("Do you really want to close LinuxCNC?")
     if not root_window.tk.call("nf_dialog", ".error", _("Confirm Close"), text, "warning", 1, _("Yes"), _("No")):
+        os.system("xset r on")
         root_window.destroy()
 
 root_window.protocol("WM_DELETE_WINDOW", General_Halt)
