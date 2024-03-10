@@ -78,7 +78,13 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
   gez = settings->active_g_codes;
   gez[0] = settings->sequence_number;
   gez[1] = settings->motion_mode;
-  gez[2] = ((block == NULL) ? -1 : block->g_modes[0]);
+  if (block == NULL){
+	  gez[2] = -1;
+  } else if (settings->parameters[5210] == 1 && block->g_modes[0] == -1){
+	  gez[2] = G_92_3;
+  } else {
+	  gez[2] = block->g_modes[0];
+  }
   switch(settings->plane) {
   case CANON_PLANE_XY:
       gez[3] = G_17;
