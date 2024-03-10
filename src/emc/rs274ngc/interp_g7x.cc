@@ -772,6 +772,12 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 	    }
 	    return;
 	}
+
+        // We have added our move commands for the last path, we end the
+        // recursive function before calculating and adding intersections.
+	if (p==std::prev(end()))
+	    return;
+
 	if(std::abs(imag(location)-x)>tolerance) {
 	    /* Our x coordinate is beyond the current segment, move onto
 	       the next
