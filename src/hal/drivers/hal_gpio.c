@@ -95,12 +95,13 @@ typedef struct{
  *
  * hal_gpio flags
  * INVERT 		= BIT(5)
- * RESET		= BIT(6) - not currently supported
+ * RESET		= BIT(6)
  */
 
 typedef struct {
     int num_lines;
     int *vals;
+    int *old_vals;
     int *flags;
     hal_gpio_hal_t *hal;
     struct gpiod_chip *chip;
@@ -183,6 +184,7 @@ int build_chips_collection(char *name, hal_gpio_bulk_t **ptr, int *count){
 	    (*ptr)[c].chip = NULL;
 	    (*ptr)[c].flags = NULL;
 	    (*ptr)[c].vals = NULL;
+	    (*ptr)[c].old_vals = NULL;
 	    (*ptr)[c].num_lines = 0;
 	    (*ptr)[c].chip = gpiod_line_get_chip(temp_line);
 	    (*ptr)[c].bulk = rtapi_kmalloc(sizeof(*(*ptr)[c].bulk), RTAPI_GFP_KERNEL);
@@ -198,6 +200,7 @@ int build_chips_collection(char *name, hal_gpio_bulk_t **ptr, int *count){
     gpiod_line_set_flags(temp_line, (*ptr)[c].flags[(*ptr)[c].num_lines - 1]);
 #endif
     (*ptr)[c].vals = rtapi_krealloc((*ptr)[c].vals, (*ptr)[c].num_lines * sizeof(int), RTAPI_GFP_KERNEL);
+    (*ptr)[c].old_vals = rtapi_krealloc((*ptr)[c].old_vals, (*ptr)[c].num_lines * sizeof(int), RTAPI_GFP_KERNEL);
     gpiod_line_bulk_add((*ptr)[c].bulk, temp_line);
 
     return 0;
@@ -329,7 +332,12 @@ static void hal_gpio_write(void *arg, long period)
     int i, c;
     for (c = 0; c < gpio->num_out_chips; c++){
 	for (i = 0; i < gpio->out_chips[c].num_lines; i++){
-	    if (gpio->out_chips[c].flags[i] & 0x20){
+	    if (gpio->out_chips[c].flags[i] & 0x40){
+		if (gpio->out_chips[c].old_vals[i] != *(gpio->out_chips[c].hal[i].value)){
+		    gpio->out_chips[c].old_vals[i] = *(gpio->out_chips[c].hal[i].value);
+		    gpio->out_chips[c].vals[i] = (gpio->out_chips[c].flags[i]>>5^1)&1;
+		}
+	    } else if (gpio->out_chips[c].flags[i] & 0x20){
 		gpio->out_chips[c].vals[i] = ! *(gpio->out_chips[c].hal[i].value);
 	    } else {
 		gpio->out_chips[c].vals[i] = *(gpio->out_chips[c].hal[i].value);
@@ -346,17 +354,15 @@ static void hal_gpio_reset(void *arg, long period)
     hal_gpio_t *gpio = arg;
     int i, c;
     long long deadline;
+    if (*gpio->reset_ns > period/4) *gpio->reset_ns = period/4;
+    deadline = last_reset + ns2tsc(*gpio->reset_ns);
+    while(rtapi_get_clocks() < deadline) {} // busy-wait!
     for (c = 0; c < gpio->num_out_chips; c++){
 	for (i = 0; i < gpio->out_chips[c].num_lines; i++){
-	    if ((gpio->out_chips[c].flags[i] & 0x60) == 0x60){ // inverted and reset
-		gpio->out_chips[c].vals[i] = 1;
-	    } else if ((gpio->out_chips[c].flags[i] & 0x60) == 0x40){ // only reset
-		gpio->out_chips[c].vals[i] = 0;
+	    if (gpio->out_chips[c].flags[i] & 0x40){
+		gpio->out_chips[c].vals[i] = gpio->out_chips[c].flags[i]>>5&1;
 	    }
 	}
-	if (*gpio->reset_ns > period/4) *gpio->reset_ns = period/4;
-	deadline = last_reset + ns2tsc(*gpio->reset_ns);
-        while(rtapi_get_clocks() < deadline) {} // busy-wait!
 	gpiod_line_set_value_bulk(gpio->out_chips[c].bulk, gpio->out_chips[c].vals);
     }
 }
@@ -367,11 +373,13 @@ void rtapi_app_exit(void) {
 	gpiod_chip_close(gpio->in_chips[c].chip);
 	rtapi_kfree(gpio->in_chips[c].bulk);
 	rtapi_kfree(gpio->in_chips[c].vals);
+	rtapi_kfree(gpio->in_chips[c].old_vals);
 	rtapi_kfree(gpio->in_chips[c].flags);}
     for (c = 0; c < gpio->num_out_chips; c++){
 	gpiod_chip_close(gpio->out_chips[c].chip);
 	rtapi_kfree(gpio->out_chips[c].bulk);
 	rtapi_kfree(gpio->out_chips[c].vals);
+	rtapi_kfree(gpio->out_chips[c].old_vals);
 	rtapi_kfree(gpio->out_chips[c].flags);}
     rtapi_kfree(gpio->in_chips);
     rtapi_kfree(gpio->out_chips);
