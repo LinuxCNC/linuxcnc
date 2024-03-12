@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: sk\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2024-03-12 12:19+0000\n"
+"PO-Revision-Date: 2024-03-12 16:14+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
@@ -4963,7 +4963,7 @@ msgstr "Rozšíriť signály"
 
 #: tcl/bin/halconfig.tcl:182 tcl/bin/halshow.tcl:272
 msgid "Erase Watch"
-msgstr "Vymazať pohľad"
+msgstr "Vymazať sledovanie"
 
 #: tcl/bin/halconfig.tcl:476
 msgid "Enter HAL command :"
@@ -8690,7 +8690,7 @@ msgstr "Aktuálna"
 #: share/axis/tcl/axis.tcl:1836 src/emc/usr_intf/touchy/touchy.glade:3293
 #: src/emc/usr_intf/pncconf/screen.glade:75
 msgid "Commanded"
-msgstr "príkazové"
+msgstr "Príkazová"
 
 #: share/axis/tcl/axis.tcl:1910 share/axis/tcl/axis.tcl:2110
 msgid "Joint:"
@@ -11913,8 +11913,9 @@ msgid "**** PNCCONF INFO:    Found extra firmware in file"
 msgstr "**** PNCCONF INFO: V súbore sa našiel ďalší firmvér"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:401
+#, fuzzy
 msgid "Discovery metadata update"
-msgstr ""
+msgstr "Discovery metadata_update"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:445
 #, python-format
@@ -11987,8 +11988,9 @@ msgid "cards PIN file needs to be pasted into the Input tab"
 msgstr "Súbory PIN kariet je potrebné vložiť do vstupov karty"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1345
+#, fuzzy
 msgid "of the Help window before clicking Board Discovery"
-msgstr ""
+msgstr "pred oknom Pomocníka kliknúť na položku Board Discovery"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1354
 msgid "Address is required for ethernet card"
@@ -12010,7 +12012,7 @@ msgstr "%s je nepodporované zariadenie"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1381
 msgid "Unspecified Error with Discovery option"
-msgstr ""
+msgstr "Nešpecifikovaná chyba s možnosťou Discovery"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1423
 #, python-format
@@ -12021,6 +12023,11 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
+"Discovery má chybu,\n"
+"\n"
+" Je nainštalovaný mesaflash?\n"
+"\n"
+"  %s"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1437
 msgid "Discovery is  unavailable\n"
@@ -12028,15 +12035,15 @@ msgstr "Zistenie  nie je k dispozícii\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1652
 msgid "The pasted PIN file may be an invalid format"
-msgstr ""
+msgstr "Skopírovaný súbor PIN môže mať neplatný formát"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1654
 msgid "The data returned from discovery is invalid"
-msgstr ""
+msgstr "Vrátené údaje sú neplatné"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1728
 msgid "USB device Info Search"
-msgstr ""
+msgstr "Vyhľadávanie informácií o zariadení USB"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1742
 msgid "USB device  page is unavailable\n"
@@ -12045,15 +12052,15 @@ msgstr "Stránka zariadenia USB je nedostupná\n"
 #: src/emc/usr_intf/pncconf/pncconf.py:1815
 #: src/emc/usr_intf/pncconf/tests.py:90
 msgid "Pin names are unavailable\n"
-msgstr ""
+msgstr "Názvy pinov nie sú k dispozícii\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1838
 msgid "Device names are unavailable\n"
-msgstr ""
+msgstr "Názvy zariadení nie sú k dispozícii\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1841
 msgid "No Pncconf made device rules were found\n"
-msgstr ""
+msgstr "Nenašli sa žiadne pravidlá zariadenia vytvorené Pncconf\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1889
 msgid ""
@@ -12063,6 +12070,11 @@ msgid ""
 "change related options later -such as spindle feedback- the HAL connection "
 "will not update"
 msgstr ""
+"OK nahradiť existujúci glade panel?\n"
+"Bude premenovaný a pridaný do priečinka 'zálohy'.\n"
+" Kliknutím na „existujúci vlastný program“ sa vyhnete tomuto varovaniu, ale "
+"ak neskôr zmeníte súvisiace možnosti – napríklad spätnú väzbu vretena – "
+"pripojenie HAL sa neaktualizuje"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1896
 msgid ""
@@ -12070,6 +12082,10 @@ msgid ""
 "Existing pyvcp-panel.xml will be renamed and added to 'backups' folder\n"
 "Clicking 'existing custom program' will avoid this warning. "
 msgstr ""
+"Chcete nahradiť existujúci vlastný panel pyvcp?\n"
+"Existujúci súbor pyvcp-panel.xml bude premenovaný a pridaný do priečinka "
+"„backups“\n"
+"Kliknutím na „existujúci vlastný program“ sa vyhnete tomuto varovaniu. "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3734
 #: src/emc/usr_intf/pncconf/private_data.py:555
@@ -12078,27 +12094,27 @@ msgstr "Nepoužitý kanál"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4009
 msgid "You can not have both steppers and pwm signals for spindle control\n"
-msgstr ""
+msgstr "Na ovládanie vretena nemôžete mať súčasne steppery aj signály PWM\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4013
 #, python-format
 msgid "You forgot to designate a stepper or pwm signal for axis %s\n"
-msgstr ""
+msgstr "Zabudli ste určiť krokový alebo pwm signál pre os %s\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4016
 #, python-format
 msgid "You forgot to designate an encoder /resolver signal for axis %s servo\n"
-msgstr ""
+msgstr "Zabudli ste určiť signál encodera/resolvera pre os %s servo\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4019
 #, python-format
 msgid "You forgot to designate a pwm signal or stepper signal for axis %s\n"
-msgstr ""
+msgstr "Zabudli ste určiť signál pwm alebo krokový signál pre os %s\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4022
 #, python-format
 msgid "You can not have both steppers and pwm signals for axis %s\n"
-msgstr ""
+msgstr "Pre os %s nemôžete mať súčastne kroky a signály PWM\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4025
 #, python-format
@@ -12106,95 +12122,114 @@ msgid ""
 "If using a tandem axis stepper, you must select a master stepgen for axis "
 "%s\n"
 msgstr ""
+"Ak používate krokový krok tandemovej osi, musíte vybrať hlavný krokový "
+"stepgen pre os %s\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4033
 msgid "Touchy require an external cycle start signal\n"
-msgstr ""
+msgstr "Touchy vyžadujú externý signál spustenia cyklu\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4036
 msgid "Touchy require an external abort signal\n"
-msgstr ""
+msgstr "Touchy vyžadujú externý signál prerušenia\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4039
 msgid "Touchy require an external single-step signal\n"
-msgstr ""
+msgstr "Touchy vyžadujú externý single-step signál\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4042
 msgid ""
 "Touchy require an external multi handwheel MPG encoder signal on the mesa "
 "page\n"
 msgstr ""
+"Touchy vyžadujú signál externého multiručného MPG enkódera na stránke mesa\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4045
 msgid ""
 "Touchy require 'external mpg jogging' to be selected on the external control "
 "page\n"
 msgstr ""
+"Touchy vyžaduje, aby ste na stránke externého ovládania vybrali možnosť „"
+"external mpg jogging“.\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4048
 msgid ""
 "Touchy require the external mpg to be in 'shared mpg' mode on the external "
 "controls page\n"
 msgstr ""
+"Touchy vyžaduje, aby bol externý súbor mpg na stránke externých ovládacích "
+"prvkov v režime „zdieľaný súbor mpg“.\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4051
 msgid ""
 "Touchy require selectable increments to be unchecked on the external "
 "controls page\n"
 msgstr ""
+"Touchy vyžaduje zrušenie začiarknutia voliteľných inkrementov na stránke "
+"externých ovládacích prvkov\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4064
 msgid ""
 "The 7i29 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
 msgstr ""
+"Dcérska doska 7i29 vyžaduje generátory typu PWM a základnú frekvenciu PWM 20 "
+"khz\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4067
 msgid ""
 "The 7i30 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
 msgstr ""
+"Dcérska doska 7i30 vyžaduje generátory typu PWM a základnú frekvenciu PWM 20 "
+"khz\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4070
 msgid ""
 "The 7i33 daughter board requires PDM type generators and a PDM base "
 "frequency of 6 Mhz\n"
 msgstr ""
+"Dcérska doska 7i33 vyžaduje generátory typu PDM a základnú frekvenciu PDM 6 "
+"Mhz\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4073
 msgid ""
 "The 7i40 daughter board requires PWM type generators and a PWM base "
 "frequency of 50 khz\n"
 msgstr ""
+"Dcérska doska 7i40 vyžaduje generátory typu PWM a základnú frekvenciu PWM 50 "
+"khz\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4076
 msgid ""
 "The 7i48 daughter board requires UDM type generators and a PWM base "
 "frequency of 24 khz\n"
 msgstr ""
+"Dcérska doska 7i48 vyžaduje generátory typu UDM a základnú frekvenciu PWM 24 "
+"khz\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4224
 msgid "Gearbox Reduction Ratio"
-msgstr ""
+msgstr "Redukčný pomer prevodovky"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4227
 msgid "Reduction Ratio"
-msgstr ""
+msgstr "Redukčný pomer"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4230
 msgid "Leadscrew Pitch"
-msgstr ""
+msgstr "Stúpanie skrutky"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4233
 #: src/emc/usr_intf/pncconf/dialogs.glade:1991
 #: src/emc/usr_intf/pncconf/dialogs.glade:2360
 msgid "Leadscrew TPI"
-msgstr ""
+msgstr "Rozteč stúpania skrutky v palcoch"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4237
 #: src/emc/usr_intf/pncconf/pncconf.py:4238
 msgid "("
-msgstr ""
+msgstr "("
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4239
 #: src/emc/usr_intf/pncconf/pncconf.py:4249
@@ -12205,7 +12240,7 @@ msgstr "/min"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4240
 msgid " / sec²"
-msgstr ""
+msgstr " /sec²"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4243
 msgid " / Step"
@@ -12217,11 +12252,11 @@ msgstr "Kroky /"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4246
 msgid " / encoder pulse"
-msgstr ""
+msgstr " / enkóder pulzy"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4247
 msgid "Encoder pulses / "
-msgstr ""
+msgstr "Enkóder pulzy / "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4255
 msgid "Resolver Scale:"
@@ -12233,7 +12268,7 @@ msgstr "Výpočet mierky vretena"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4705
 msgid "Axis Scale Calculation"
-msgstr ""
+msgstr "Výpočet mierky osi"
 
 #: src/emc/usr_intf/pncconf/pages.py:246 src/emc/usr_intf/pncconf/pages.py:297
 #, python-format
@@ -12243,11 +12278,11 @@ msgstr "Ukážte a kliknite na konfiguráciu - %s.pncconf "
 #: src/emc/usr_intf/pncconf/pages.py:329
 msgid ""
 "You need to designate a parport and/or mesa I/O device before continuing."
-msgstr ""
+msgstr "Pred pokračovaním musíte určiť parport a/alebo mesa I/O zariadenie."
 
 #: src/emc/usr_intf/pncconf/pages.py:392
 msgid "PCI search page is unavailable\n"
-msgstr ""
+msgstr "Stránka PCI vyhľadávania nie je k dispozícii\n"
 
 #: src/emc/usr_intf/pncconf/pages.py:441
 msgid "in / min"
@@ -12261,7 +12296,7 @@ msgstr "in / min"
 #: src/emc/usr_intf/pncconf/screen.glade:3785
 #: src/emc/usr_intf/pncconf/screen.glade:3798
 msgid "mm / min"
-msgstr ""
+msgstr "mm / min"
 
 #: src/emc/usr_intf/pncconf/pages.py:1025
 msgid ""
@@ -12269,12 +12304,17 @@ msgid ""
 " Choose the board type, firmware, component amounts and press 'Accept "
 "component changes' button'"
 msgstr ""
+"Musíte nakonfigurovať stránku mesa0.\n"
+" Vyberte typ dosky, firmvér, množstvo komponentov a stlačte tlačidlo „Prijať "
+"zmeny komponentov“"
 
 #: src/emc/usr_intf/pncconf/pages.py:1028
 msgid ""
 "The chosen Mesa0 board is different from the current displayed.\n"
 "please press 'Accept component changes' button'"
 msgstr ""
+"Zvolená doska Mesa0 sa líši od aktuálne zobrazenej dosky.\n"
+"prosím stlačte tlačidlo „Prijať zmeny komponentov“"
 
 #: src/emc/usr_intf/pncconf/pages.py:1077
 msgid ""
@@ -12282,20 +12322,25 @@ msgid ""
 " Choose the board type, firmware, component amounts and press 'Accept "
 "component changes' button'"
 msgstr ""
+"Musíte nakonfigurovať stránku mesa1.\n"
+" Vyberte typ dosky, firmvér, množstvo komponentov a stlačte tlačidlo „Prijať "
+"zmeny komponentov“"
 
 #: src/emc/usr_intf/pncconf/pages.py:1080
 msgid ""
 "The chosen Mesa1 board is different from the current displayed.\n"
 "please press 'Accept component changes' button'"
 msgstr ""
+"Zvolená doska Mesa1 sa líši od aktuálne zobrazenej dosky.\n"
+"prosím stlačte tlačidlo „Prijať zmeny komponentov“"
 
 #: src/emc/usr_intf/pncconf/pages.py:1511
 msgid "You need to designate an E-stop input pin for this ladder program."
-msgstr ""
+msgstr "Pre tento ladder program musíte určiť vstupný kolík E-stop."
 
 #: src/emc/usr_intf/pncconf/pages.py:1522
 msgid "You need to designate a probe input pin for this ladder program."
-msgstr ""
+msgstr "Pre tento ladder program musíte určiť vstupný pin sondy."
 
 #: src/emc/usr_intf/pncconf/pages.py:1532
 msgid ""
@@ -12304,6 +12349,10 @@ msgid ""
 "Any existing file named -custom_backup.clp- will be lost.Selecting 'existing "
 "ladder program' will avoid this warning"
 msgstr ""
+"OK nahradiť existujúci vlastný ladder program?\n"
+"Existujúci súbor Custom.clp bude premenovaný na custom_backup.clp.\n"
+"Akýkoľvek existujúci súbor s názvom -custom_backup.clp- sa stratí. Výberom "
+"možnosti „existujúci ladder program“ sa vyhnete tomuto varovaniu"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:17
 #: src/emc/usr_intf/pncconf/build_HAL.py:53
@@ -12311,102 +12360,111 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/build_HAL.py:1063
 #, python-format
 msgid "# Generated by PNCconf at %s"
-msgstr ""
+msgstr "# Generované pomocou PNCconf na %s"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:18
 #: src/emc/usr_intf/pncconf/build_HAL.py:54
 #, python-format
 msgid "# Using LinuxCNC version:  %s"
-msgstr ""
+msgstr "# použitá verzia LinuxCNC: %s"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:20
 #: src/emc/usr_intf/pncconf/build_HAL.py:56
 msgid "# overwritten when you run PNCconf again"
-msgstr ""
+msgstr "# prepíše sa pri opätovnom spustení PNCconf"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:184
 msgid "# **** This is for info only ****"
-msgstr ""
+msgstr "# **** Toto je len pre informáciu ****"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:194
 msgid ""
 "# These are to ease setting custom component's parameters in a custom HAL "
 "file"
 msgstr ""
+"# Slúži na uľahčenie nastavenia parametrov vlastného komponentu vo vlastnom "
+"súbore HAL"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:419
 msgid ""
 "# The values below should be 25% larger than MAX_VELOCITY and "
 "MAX_ACCELERATION"
 msgstr ""
+"# Hodnoty definované nižšie by mali byť o 25 % vyššie ako MAX_VELOCITY a "
+"MAX_ACCELERATION"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:420
 msgid ""
 "# If using BACKLASH compensation STEPGEN_MAXACCEL should be 100% larger."
 msgstr ""
+"# Ak používate BACKLASH kompenzáciu, STEPGEN_MAXACCEL by mal byť o 100 % "
+"väčší."
 
 #: src/emc/usr_intf/pncconf/build_INI.py:472
 msgid "# these are in nanoseconds"
-msgstr ""
+msgstr "# toto je v nanosekundách"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:551
 msgid "# MAX_VEL & MAX_ACC need to be twice the corresponding joint value"
 msgstr ""
+"# MAX_VEL & MAX_ACC musí byť dvojnásobkom hodnoty zodpovedajúcemu \"Jointu\""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:351
 msgid "# ---Chargepump StepGen: 0.25 velocity = 10Khz square wave output---"
 msgstr ""
+"# --- Chargepump StepGen: 0,25 rýchlosť = 10 kHz výstup s kvandrant. vlnami "
+"---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:439
 msgid "# connect miscellaneous signals"
-msgstr ""
+msgstr "# pripojte rôzne signály"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:442
 msgid "#  ---HALUI signals---"
-msgstr ""
+msgstr "# ---HALUI signály ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:475
 msgid "#  ---charge pump signals---"
-msgstr ""
+msgstr "# ---signály charge pump---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:479
 msgid "#  ---coolant signals---"
-msgstr ""
+msgstr "# ---signály chladiacej kvapaliny alebo funkcií---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:484
 msgid "#  ---probe signal---"
-msgstr ""
+msgstr "# ---signál sondy---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:489
 msgid "# ---jog button signals---"
-msgstr ""
+msgstr "# ---signály tlačidla pohybov(jog)---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:494
 msgid "# ---USB device jog button signals---"
-msgstr ""
+msgstr "# --- Signály tlačidla pohybovacieho USB zariadenia (jog) ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:496
 msgid "# connect selectable mpg jog speeds "
-msgstr ""
+msgstr "# pripojiť prepínateľné mpg rýchlosti pohybov (jogu)"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:526
 msgid "# ---jogwheel signals to mesa encoder - shared MPG---"
-msgstr ""
+msgstr "# ---signály \"otočného kolieska\" do mesa enkódera - zdieľané MPG---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:535
 #: src/emc/usr_intf/pncconf/build_HAL.py:561
 msgid "#  ---mpg signals---"
-msgstr ""
+msgstr "# ---mpg signály ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:540
 #, python-format
 msgid "#       for axis %s MPG"
-msgstr ""
+msgstr "# pre os %s MPG"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:553
 #, python-format
 msgid "# ---jogwheel signals to mesa encoder - %s axis MPG---"
-msgstr ""
+msgstr "# ---signály \"otočného kolieska\" do mesa enkódera - %s os MPG---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:572
 msgid "# connect selectable mpg jog increments "
@@ -12415,30 +12473,32 @@ msgstr "# pripojiť voliteľné inkrementy mpg jogov"
 #: src/emc/usr_intf/pncconf/build_HAL.py:596
 msgid "# ---feed override signals to mesa encoder - mpg---"
 msgstr ""
+"# --- signály potenciometra rýchlosti frézovania do mesa enkódera - mpg---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:606
 msgid "# connect feed override increments - MPG"
-msgstr ""
+msgstr "# inkrementy potenciometra frézovania– MPG"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:621
 msgid "# connect feed override increments - switches"
-msgstr ""
+msgstr "# inkrementy potenciometra frézovania – prepínače"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:646
 msgid "# ---max velocity override signals to mesa encoder - mpg---"
 msgstr ""
+"# ---signály potenciometra maximálnej rýchlosti do mesa enkódera - mpg ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:660
 msgid "# connect max velocity override increments - MPG"
-msgstr ""
+msgstr "# prírastky potenciometra maximálnej rýchlosti - MPG"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:675
 msgid "# connect max velocity override increments - switches"
-msgstr ""
+msgstr "# prírastky potenciometra max. rýchlosti - prepínače"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:700
 msgid "# ---spindle override signals to mesa encoder - mpg---"
-msgstr ""
+msgstr "# ---signály potenciometra vretena do mesa kódovača - mpg---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:709
 msgid "# connect spindle override increments - MPG"
@@ -12450,93 +12510,100 @@ msgstr "# pripojenie inkrementov vretena"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:743
 msgid "#  ---motion control signals---"
-msgstr ""
+msgstr "# ---\"motion\"signály---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:748
 msgid "#  ---digital in / out signals---"
-msgstr ""
+msgstr "# ---digitálne vstup/výstup signály ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:761
 msgid "#  ---estop signals---"
-msgstr ""
+msgstr "#   --- Estop signály ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:782
 msgid "#  ---manual tool change signals---"
-msgstr ""
+msgstr "# ---signály manuálnej výmeny nástroja ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:790
 msgid "#  ---Use external manual tool change dialog---"
-msgstr ""
+msgstr "# ---Použiť externé dialógové okno manuálnej zmeny nástroja ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:802
 msgid "#  ---manual tool change signals to gmoccapy's dialog---"
-msgstr ""
+msgstr "# ---manuálna zmena nástrojov na dialógové okno gmoccapy---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:812
 msgid "#  ---manual tool change signals to qtdragon's dialog---"
-msgstr ""
+msgstr "# --- dialógové okno manuálnej výmeny nástrojov qtdragon---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:819
 msgid "#  ---ignore tool prepare requests---"
-msgstr ""
+msgstr "# ---ignorovať \"tool prepare\" požiadavky---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:824
 msgid "#  ---toolchange signals for custom tool changer---"
-msgstr ""
+msgstr "# ---signály vlastnej ATC výmeny nástrojov ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:835
 msgid ""
 "\n"
 "# ---QTPLASMAC TOOLCHANGE PASSTHROUGH---"
 msgstr ""
+"\n"
+"# ---PRIEBEH VÝMENY NÁSTROJA QTPLASMAC---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:841
 msgid ""
 "# Load Classicladder with modbus master included (GUI must run for Modbus)"
 msgstr ""
+"# Načítať Classicladder so zahrnutým modbus masterom (pre Modbus GUI musí "
+"bežať )"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:852
 msgid "#  --- Classicladder signals for Z axis Auto touch off program---"
 msgstr ""
+"# --- Signály Classicladder pre program automatického vypnutia osi Z ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:871
 msgid "# These files are loaded post gladeVCP, in the order they appear"
 msgstr ""
+"# Tieto súbory sa načítajú pomocou gladeVCP v poradí, v akom sa zobrazujú"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:885
 #: src/emc/usr_intf/pncconf/build_HAL.py:937
 msgid "# _DO NOT_ include your HAL commands here."
-msgstr ""
+msgstr "# _NEZAHRŇUJTE_ sem svoje príkazy HAL."
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:886
 msgid "# Put custom HAL commands in custom_gvcp.hal"
-msgstr ""
+msgstr "# Vložte vlastné príkazy HAL do custom_gvcp.hal"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:889
 msgid "# **** Setup of spindle speed display using gladevcp ****"
-msgstr ""
+msgstr "# **** Nastaviť zobrazenia rýchlosti vretena pomocou gladevcp ****"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:898
 msgid "# **** Setup GLADE MDI buttons ****"
-msgstr ""
+msgstr "# **** Nastaviť tlačidlá GLADE MDI ****"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:911
 msgid ""
 "# **** Z axis touch-off button - requires the touch-off classicladder "
 "program ****"
 msgstr ""
+"# **** Dotykové tlačidlo osi Z – vyžaduje dotykový classicladder program ****"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:938
 msgid "# Put custom HAL commands in custom_postgui.hal"
-msgstr ""
+msgstr "# Vložte vlastné príkazy HAL do custom_postgui.hal"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:939
 msgid "# The commands in this file are run after the GUI loads"
-msgstr ""
+msgstr "# Príkazy v tomto súbore sa spúšťajú po načítaní GUI"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:949
 msgid "# **** Setup of spindle speed display using pyvcp -END ****"
-msgstr ""
+msgstr "# **** Nastavenie zobrazenia rýchlosti vretena pomocou pyvcp -END ****"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:965
 #: src/emc/usr_intf/pncconf/build_HAL.py:1892
@@ -12605,39 +12672,39 @@ msgstr "nakonfiguruje LinuxCNC ako:\n"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1084
 msgid "type CNC\n"
-msgstr ""
+msgstr "typ CNC\n"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1085
 msgid "will be used as the frontend display"
-msgstr ""
+msgstr "bude sa používať ako \"front\" displej"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1094
 msgid " connector"
-msgstr ""
+msgstr " konektor"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1106
 msgid "invrt"
-msgstr ""
+msgstr "invert"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1115
 #, python-format
 msgid "%(name)s Parport"
-msgstr ""
+msgstr "%(name)s  Parport"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1120
 #: src/emc/usr_intf/pncconf/build_HAL.py:1128
 msgid "-> inverted"
-msgstr ""
+msgstr "-> invertované"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1122
 #, python-format
 msgid "pin# %(pinnum)d is connected to input signal:'%(data)s' %(mesag)s"
-msgstr ""
+msgstr "pin# %(pinnum)d je pripojený k vstupnému signálu:'%(data)s' %(mesag)s"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1130
 #, python-format
 msgid "pin# %(pinnum)d is connected to output signal:'%(data)s' %(mesag)s"
-msgstr ""
+msgstr "pin# %(pinnum)d je pripojený k výstupnému signálu:'%(data)s' %(mesag)s"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1245
 msgid "#  SPINDLE"
@@ -12645,11 +12712,11 @@ msgstr "#  VRETENO "
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1255
 msgid "# -- BLDC setup --"
-msgstr ""
+msgstr "# -- Nastavenie BLDC --"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1323
 msgid "# ---TPPWM Generator signals/setup---"
-msgstr ""
+msgstr "# --- Signály/nastavenie generátora TPPWM ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1325
 msgid "# six output 3pwg"
